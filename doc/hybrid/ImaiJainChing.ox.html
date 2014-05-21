@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link rel="stylesheet" type="text/css" href="oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>ImaiJainChing.ox - Hybrid Methods</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">ImaiJainChing.ox</span></h1>
+
+Implement the <em>BayesianDP</em>
+
+<a name="global"></a>
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global enumerations</span></h2>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="ImaiJainChing.ox.html#DesignParameters">DesignParameters</a></td>
+<td class="modifiers"></td>
+<td class="description">Names for integer parameters of the MH simulation.</td>
+</tr>
+</table>
+
+<a name="ImaiJainChing"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ImaiJainChing</span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="ImaiJainChing.ox.html#ImaiJainChing___Csigma">Csigma</a></td>
+<td class="modifiers"></td>
+<td class="description">Cholesky decomposition of
+		candidate variance matrix.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="ImaiJainChing.ox.html#ImaiJainChing___Design">Design</a></td>
+<td class="modifiers"></td>
+<td class="description">vector of MH design parameters.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="ImaiJainChing.ox.html#ImaiJainChing___DPmeth">DPmeth</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="ImaiJainChing.ox.html#ImaiJainChing___h">h</a></td>
+<td class="modifiers"></td>
+<td class="description">bandwidth  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="ImaiJainChing.ox.html#ImaiJainChing___Vhist">Vhist</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="ImaiJainChing.ox.html#ImaiJainChing___Xhist">Xhist</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="ImaiJainChing.ox.html#ImaiJainChing___BayesianDP">BayesianDP</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="ImaiJainChing.ox.html#ImaiJainChing___Candidate">Candidate</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default candidate new parameter vector.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="ImaiJainChing.ox.html#ImaiJainChing___ImaiJainChing">ImaiJainChing</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="ImaiJainChing.ox.html#ImaiJainChing___K">K</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default Kernel in past parameters &Psi;.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="ImaiJainChing.ox.html#ImaiJainChing___Load">Load</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="ImaiJainChing.ox.html#ImaiJainChing___Report">Report</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global </span></h2>
+
+<table class="enum_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><a name="DesignParameters"></a>DesignParameters</td>
+<td class="description">Names for integer parameters of the MH simulation.
+</td>
+<td class="elements">Keep, Close, Iterations, Burnin, BellmanIterations, DesignParameters</td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ImaiJainChing</span></h2>
+
+<a name="ImaiJainChing___BayesianDP"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">BayesianDP</span></h3>
+
+<span class="declaration">ImaiJainChing :: BayesianDP ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ImaiJainChing___Candidate"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Candidate</span></h3>
+
+<span class="declaration">virtual ImaiJainChing :: Candidate ( )</span>
+<dl><dd>
+Default candidate new parameter vector.
+<P/>
+This is in terms of the free parameters.  Structural parameters are scaled and constrained transformations.
+This is different than IJC.
+<P/>
+<dd><pre>
+F += C*z
+z &sim; N(0,I<sub>F.N</sub>)
+</pre>
+C is the Cholesky decomposition of the candidate distribution variance matrix
+</dd>
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="ImaiJainChing.ox.html#ImaiJainChing___Csigma">Csigma</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="ImaiJainChing___Csigma"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Csigma</span></h3>
+
+<span class="declaration">decl Csigma [public]</span>
+<dl><dd>
+Cholesky decomposition of
+		candidate variance matrix.
+		Default is 0.01*I.
+
+</dd></dl>
+
+<hr>
+<a name="ImaiJainChing___Design"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Design</span></h3>
+
+<span class="declaration">decl Design [public]</span>
+<dl><dd>
+vector of MH design parameters.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="ImaiJainChing.ox.html#DesignParameters">DesignParameters</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="ImaiJainChing___DPmeth"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DPmeth</span></h3>
+
+<span class="declaration">const decl DPmeth [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ImaiJainChing___h"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">h</span></h3>
+
+<span class="declaration">decl h [public]</span>
+<dl><dd>
+bandwidth
+
+</dd></dl>
+
+<hr>
+<a name="ImaiJainChing___ImaiJainChing"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ImaiJainChing</span></h3>
+
+<span class="declaration">ImaiJainChing :: ImaiJainChing ( L , data , DPmeth , ... )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ImaiJainChing___K"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">K</span></h3>
+
+<span class="declaration">virtual ImaiJainChing :: K ( t )</span>
+<dl><dd>
+Default Kernel in past parameters &Psi;.
+Multidimensional Gaussian kernel across history of parameters, giving positive weight only to the
+ImainJainChing::Design[NClose] closest.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">t</td>
+<td class="description" valign="baseline">iteration
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">array {K*,near}
+<DD><pre>
+K<sub>h</sub>(&Psi;-&Psi;') = &prod;<sub>s=0,&dots;&Psi;.N</sub>(2&pi;)<sup>-1/2</sup>exp[-0.5(&psi;<sub>s</sub>-&psi;'<sub>s</sub>)<sup>2</sup>]
+near = indices of closest parameters (largest K<sub>h</sub>)
+K* = K<sub>h</sub>[near]/&sum;K<sub>h</sub>[near]
+</pre></dd>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">See Page 1888.
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="ImaiJainChing.ox.html#ImaiJainChing___h">h</a>, ImainJainChing::Design</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="ImaiJainChing___Load"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Load</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ImaiJainChing___Report"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Report</span></h3>
+
+<span class="declaration">ImaiJainChing :: Report ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ImaiJainChing___Vhist"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Vhist</span></h3>
+
+<span class="declaration">decl Vhist [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ImaiJainChing___Xhist"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Xhist</span></h3>
+
+<span class="declaration">decl Xhist [public]</span>
+<dl><dd>
+
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

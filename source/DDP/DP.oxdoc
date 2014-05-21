@@ -1,0 +1,29 @@
+/**	Shared elements of models, groups and outcomes.
+<a href="#auto">Skip down to documentation of items defined in DP.ox</a><p>
+<p>
+@sortkey AAC
+
+
+`DP` is the base class for DDP models.   All variables (also known as members) of the class are <em>static</em>, which means there is only one storage location for all objects of the class. That is, these values are shared by every object derived from `DP`. Different derived classes from `DP` organize the various aspects of dynamic programming, including of course a given program but also solution methods, data produced by the DP.
+
+<DT>A `Group` is a holder for values associated with a value of the group vector &gamma;.</DT>
+
+<DT>Models are derived from `Bellman` and defined in <a href="Bellman.ox.html">Bellman.ox.html</a>.</DT>
+<DD>Each object created from the user's model represents a point &theta; in the endogenous state space `Theta`.</DD>
+
+<DT>Operators that span the state space are derived from `Task`.  Among these are solution methods for the value function and choice probabilities.  These are derived from the `Method` task and discussed in <a href="Methods.ox.html">Methods</a>.</DT>
+<DD>Solutions that rely on <a href="..../FiveO/default.html">FiveO</a> are available in the separate <a href="../Hybrids/default.html">Hybrids</a> module.</DD>
+
+<DT>Data derived from a DP are defined in <a href="Outcomes.ox.html">Outcomes</a>.</DT>
+
+<h2>Groups</h2>
+
+A `Group` is derived from `DP` and stores key aspects of the solution to the model that will be used for prediction and estimation.  A group is defined a value of &gamma;, the fixed group vector component of the overall state vector.  Elements of &gamma; are derived the `TimeInvariant` class of state variables.  These variables are either fixed or random effects.  The value of continuously varying `Parameter`s can be tied to the value of the discrete time invariants.  However, <span class="n">DDP</span> does not directly involving itself with parameters, except for the discount factor `DP::delta`.
+
+The set of all distinct groups is the group space, denoted &Gamma;.
+
+The group space is kept separate from the state space <b>&Theta;</b> in order to economize on storage.  Only results that need to be held for later used are stored in &Gamma; and the state space is reused for each solution of the problem.
+
+<hr><a name="auto"><h1>Documentation of  Items Defined in DP.ox</h1></a>
+
+**/

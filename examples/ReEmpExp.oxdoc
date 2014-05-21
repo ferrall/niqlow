@@ -1,0 +1,64 @@
+/** A job search model of Re-Employment Bonus Experiments.
+<OL class="body">
+<li>Overview</li>
+<DT>Randomized new UI claimants into treatment and control</DT>
+<DD>Some were eligible for 38 weeks UI, others only 26 weeks (federal benefits expired)</DD>
+<DT>Treatment:  </DT>
+<DD>$500  bonus for reemployment within 11  weeks</DD>
+<DD>Job must be held for 16 weeks</DD>
+<DT>Basic result (Woodbury and Spiegelman 1987)
+<dd>Treatment reduced duration of  insured unemployment by over 1 week on average </dd>
+
+<li>Design of the Illinois Re-Employment Bonus Experiment</li>
+<img src="treat.png">
+
+<li>Phased Treatment</li>
+<DT>Maximum Phase Lengths</DT>
+<DD>R<sub>max</sub> = &lt; 11 16 1 &gt; </DD>
+<DT>Phase Transitions</DT>
+<DD>f=1:  <pre>f&prime;=2 if a=1;       f&prime;=4 if r=11;     f&prime;=1 otherwise</pre>
+   f=2: <pre>f&prime;=4 if m &ne; Working   f&prime;=3 if r=16   f&prime;=2 otherwise</pre></dd>
+<DT>Eligibility for Randomization</DT>
+<DD><pre>m=JustLaidoff   d&gt;0</pre></DD>
+
+<!--<DT>Randomization </DT>
+<DD>Occurs before search, so it provides exogenous variation on behavior while unemployed.</DD>
+<DD>Is conditioned on initiating a UI claim, endogenous to the treatment (if it became anticipated as policy).</DD>-->
+
+<li>UI, Layoffs and Search</li>
+
+<DT>Actions: <var>&alpha; = (a s)</var></DT>
+<DD>a: Accept job offers or keep working</DD>
+<DD>s: Search or not if unemployed</DD>
+
+<DT>Endogenous Block: Job Offer with UI, <var>j<sup>i</sup> = (w<sup>p</sup> m w d)</var></DD>
+<dd>w: wage offer (0 if none) or current wage if not searching</dd>
+<DD>m: labor market status<pre>
+m   Means
+0   Unemployed
+1   JustQuit
+2   JustLaidoff
+3   Working</pre></DD>
+<DD>w<sup>p</sup>: previous wage (if d&gt;0 and Unemployed)</DD>
+<DD>d: duration <pre>
+m=Working, weeks accumulated to qualify for UI
+otherwise:     weeks of UI benefits remaining</pre></dd>
+
+<li>Utility</li>
+
+<DT>Utility equals income minus effort cost:</DT>
+<DD><pre>U = -s&kappa; + (1-a)&lambda; + aw + UI(m,d,w<sup>p</sup>) + Bonus(f) </pre></DD>
+
+<li>Implementation in DDP</li>
+
+<dd> <pre><a href="./ReEmpExp.h">Header File: </a>
+<object width="75%" height="150" type="text/plain" data="./ReEmpExp.h" border="1" ></object></pre>
+
+<pre><a href="./ReEmpExp.ox">Ox File:</a>
+<object width="75%" height="150" type="text/plain" data="./ReEmpExp.ox" border="1" ></object></pre>
+
+<pre>Output <a href="output/ReEmpExp.txt">niqlow/examples/output/ReEmpExp.txt</a>
+<object width="75%" height="150" type="text/plain" data="output/ReEmpExp.txt" border="1" ></object></pre></DD>
+
+</OL>
+**/

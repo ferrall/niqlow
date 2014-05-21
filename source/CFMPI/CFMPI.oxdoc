@@ -1,0 +1,70 @@
+/**   An Object-Oriented Interface to the <abbr title="Message Passing Interface">MPI</abbr> Library.
+
+<a href="#auto">Skip down to documentation of items defined in CFMPI.ox</a><p>
+
+@sortkey AAC
+
+<DT>CFMPI includes a library of external routines that interface with the MPI library.  See <a href="MPIinterface.ox.html">MPIinterface</a> for a description.</DT>
+
+On top of the MPI interface, CFMPI includes the base `MPI` class for an object-oriented approach to message passing.  Derived `MPI` are point-to-point (`P2P`) and peer (`Peer`) classes.   These classes help implement standard message passing paradigms.
+
+<DT>Also see <a href="InstallAndUse.html">How to Install and Use</a> CFMPI in your code.</DT>
+
+<h2>CFMPI P2P</h2>
+A program that uses P2P for Client-Server interactions, has a simple overall structure, as seen in the template file
+<dd><pre>Source: <a href="../../templates/CFMPI/ClientServerTemplate1.ox">niqlow/templates/CFMPI/ClientServerTemplate1.ox</a>.
+<object width="75%" height="200" type="text/plain" data="../../templates/CFMPI/ClientServerTemplate1.ox" border="1" ><p style="font-size:24pt"></object></pre></dd>
+<DT>Include</DT>
+<DD>Your program should include <code>useMPI.ox</code>, which is located in the <code>niqlow/include</code>.  
+<pre>&#35;include "useMPI.ox"</pre>
+In turn it will use preprocessor macros to determine if real MPI message passing is available (linked in) or if fake (simulated) message passing on a single instance of the program should occur.  See also  <a href="InstallAndUse">How to ...</a>.</DD>
+<DT>You then create your own derived `Client` and `Server` classes that will handle the tasks you want to perform.</DT>
+<DD>Earlier versions of CFMPI relied heavily on <em>static</em> members and methods, but this no longer true.</DD>
+<DD>In the current version you can have more than one client or server class in order to parallelize two different parts of you code.</DD>
+<DT>Your P2P object</DT>
+<DD>Your main code creates a new P2P object which takes two arguments: a new object of your derived Client and a new object of your derived Server class.  </DD>
+<DD>The P2P constructor calls `MPI_Init`() to initialize the MPI environment.  Then if it is executing on the client (<code>ID=0</code>) node it will delete the server object it was sent an keep the client object.</DD>
+<DD>If P2P is executing on a server node it will delete the client and object and keep the server object.</DD>
+<DD>Under two conditions P2P will keep both the client and server object (on the same node).  First, if there is only one node (<code>Nodes=1</code>) then  that node it is both client <em>and</em> server.  Second, there are more
+than one nodes but the first argument to `P2P::P2P`() is <code>FALSE</code> then the user is asking the client node to be use itself as a server in addition to the other nodes.  In that case the client node will maintain both the client and server objects.</DD>
+<DT>Begin a Client-Server Cycle</DT>
+<DD>When the code calls the `P2P::Execute`() the node goes into client or server mode as dictated by their role.  Execute is very simple:
+<pre>P2P::Execute() {
+    if (IamClient) client->Execute(); else  server->Loop(Server::iml);
+    }</pre>
+</DD>
+<DT>Client Execute</DT>
+<DD>Your client class must provide a <code>Execute()</code> method.  This does everything the client must do to get the job done.  It can use other methods to call on the servers to help, especially `Client::ToDoList`().</DD>
+<DT>Server Execute</DT>
+<DD>Your server class must provide a <code>Execute()</code> method.  This carries out whatever task servers must carry out for the client.  They are called from the built-in `Server::Loop`() routine, which waits for messages and stops once the <code>STOP_TAG</code> is received from the client.</DD>
+<DT>`Client::ToDoList`()</DT>
+<DD>The client tasks are put in a separate function, which can use `Client::ToDoList`() to send out messages to the servers.  Often, a large number of tasks can be done, each with a different message, such as the vector of parameters to operate on.  </DD>
+<DD>`Client::ToDoList` takes a matrix (or array) of messages organized as columns.  It then sends them out to all the servers.  If there are more messages than servers it gets them all busy and then waits until one is finished. Then it sends the next message to the reporting server and waits again until all the messages are sent.  It then waits until all the servers report back.  </DD>
+<DD>The results are stored and returned to the user's program as a matrix, one column for each input message.  The third argument is the maximum length of the return messages.</DD>
+
+<h2>`P2P` Example</h2>
+<DD>For example, given a multidimensional function <code>f(const theta)</code>, where <code>theta</code> is a <code>N&times;1</code> vector and <code>f()</code> returns a <code>M&times;1</code> output, the Jacobian can be computed in parallel with the following code:
+<pre>MyClient::Execute() {
+  N = rows(theta);
+  ToDoList( (theta+epsmatrix) ~ (theta-epsmatrix) ,&amp;Jmat,M,1);
+  Jmat = (Jmat[][:N-1] - Jmat[][N:])/Jeps;
+  }
+
+MyServer::Execute() {
+  N = rows(Buffer);
+  Buffer = f(Buffer);
+  return N;
+  }</pre></DD>
+<DD>The client code creates a <code>N&times;(2N)</code> matrix of parameter vectors centered on <code>theta</code>.  Each column is either a step forward or backward in one of the parameters.  (This code is a bit crude, because a proportional step size should be used with an additive step only if the element of <code>theta</code> is very close to 0.)  </DD>
+<DD>Then `Client::ToDoList`() is sent the matrix of messages.  The server code will get the parameter vector that it should evaluate <code>f()</code> at in `P2P::Buffer`.  </DD>
+<DD>The server executive sends the buffer to <code>f()</code> which returns the output to be put back in the buffer for return to the client.  `Server::Execute`() must always return the maximum size of the next expected message so that `Server::Loop`() can initialize storage for it.</DD>
+<DD>If this code is run without <code>MPI</code> defined on the command line, then `Client::ToDoList`() reduces to a loop that calls <code>Execute()</code> on the same node in serial, sending one column at a time.  There is a small amount of overhead in terms of intermediate function calls, and in serial only one column would have to be stored rather than <code>2N</code> columns.  In most cases this overhead is not very large, especially when <code>f()</code> is not trivial.  And the same code can be used whether MPI is available or not.</DD>
+
+<h2>CFMPI Peer (or Group) Communication</h2>
+<DT>MPI Group communication elements are available in the `Peer` class.</DT>
+<DD>Documentation to be completed &hellip;</DD>
+
+@author &copy; 2011-2014 Christopher Ferrall, <a href="./license.txt">License</a></dd>
+<hr><a name="auto"><h1>Documentation of  Items Defined in CFMPI.ox</h1></a>
+
+**/

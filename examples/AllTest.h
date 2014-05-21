@@ -1,0 +1,83 @@
+/** Run Various tests programs for DDP.
+**/
+#import "niqlow"
+
+TestRun();
+
+struct Test1 : Bellman {
+	static Reachable();
+	static Run(UseList);
+	Utility();
+	}
+
+struct Test2 : Bellman {
+	static Reachable();
+	static Run(UseList);
+	Utility();
+	}
+
+struct Test3 : Bellman {
+	static decl a, d, s0, s1;
+	static Reachable();
+	static Run(UseList);
+	decl
+		/**TRUE if in KW subsample.**/  							InSubSample;
+	Utility();
+	}
+
+struct Test3a : ExPostSmoothing	{
+	decl InSubSample;
+	/** Labels for choices/sectors. @name Sectors **/
+		enum{white,blue,home,Msectors}
+	/** State Space Dimensions. @name Dimens **/
+		enum{Noffers=5,MaxExp=10}
+	static const decl
+		/** &alpha; in paper**/				alph = {<8.00;0.07;0.055;0.0;0.0;0.0>,
+													<7.90;0.07;0.06;0.0;0.055;0.0>},
+		/** lower triange &Sigma; **/		sig = <1.0;0.5;0.0;1.0;0.0;1.0>;
+	static decl
+		/** index accepted offer/srch**/  	accept,
+		/** offer block **/		  		  	offers,
+		/** occupation experience array**/	xper;
+	static 	Run();
+	static 	Reachable();
+			Utility();
+	}
+
+	
+struct Test5 : NnotIID {
+	static Reachable();
+	static Run();
+	Utility();
+	}
+
+struct Test4 : NIID {
+	static Reachable();
+	static Run();
+	Utility();
+	}
+
+struct Test6 : Bellman {
+	static decl acc, job;
+	static Reachable();
+	static Run();
+	Utility();
+	}
+
+struct Test7 : Rust  {
+	enum{RC,XT,NDGP}
+    static const  decl  NX  =   12,
+						dgp = { 4.2, <0.3919;0.5953;1-0.3919-0.5953> };
+    static decl  x,data,rc,th1;
+    static  Run();
+    static  Reachable();
+            Utility();
+        }
+
+struct Test8 : Bellman {
+	static 	decl r, g, d;
+	static 	Reachable();
+	static	Run();
+			Utility();
+	}
+	

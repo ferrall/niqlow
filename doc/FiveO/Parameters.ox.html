@@ -1,0 +1,1309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>Parameters.ox - FiveO</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">Parameters.ox</span></h1>
+
+Continually varying scalars and vectors to be optimized.
+<a href="#auto">Skip down to documentation of items defined in Parameters.ox</a><p>
+<P/>
+ <OL class="body">
+<LI>Overview</LI>
+<DT>A <a href="Shared.ox.html#Parameter">Parameter</a> represents a <em>continuously</em> varying quantity</DT>
+<DD>This is opposed to quantities of the <a href="Shared.ox.html#Discrete">Discrete</a> class designed for finite ranges, usually integer values.</DD>
+<P/>
+<DD><span class="n">FiveO</span> optimizes the objective over a list of parameters.  Parameters are created and initialized as new objects derived from the <a href="Shared.ox.html#Parameter">Parameter</a> class then added to the optimization list using <a href="Objective.ox.html#Objective___Parameters">Parameters</a>().</DD>
+<P/>
+<Dt>Parameters not added to the objective are not optimized.</DT>
+ <DD>So the model can contain items stored as parameters but not visible to <a href="Algorithms.ox.html#Algorithm">Algorithm</a>s. </DD>
+<P/>
+<DT>Parameters can be added to the objective even if they are not free to vary during optimization.</DT>
+ <DD>One way is to make the parameter an object of the <a href="Parameters.ox.html#Determined">Determined</a> class.  Its value can be equal to a constant or kept equal to another parameter or a function of other parameters.</DD>
+<DD>Another way to temporarily fix a parameter (for iterations of an algorithm) is to toggle its <code><a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a></code> property. </DD>
+<P/>
+<DT>Parameters that are not determined and are added to the objective will be controlled by the optimization algorithm.</DT>
+<P/>
+<LI>Scaling and Constraining</LI>
+<DT>By default, parameters are <em>scaled</em> during optimization. </DT>
+<DD>Scaling of parameters is performed so that algorithms typically work with values near 1.0 even when the actual values is very large or small in absolute value.  This can often help algorithms work efficiently.</DD>
+<DD>Scaling can be turned off (for all parameters), using <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>().</DD>
+<DT>The feasible values of a parameter can be determined by <em>constraining</em> the parameter.</DT>
+<DD>Parameter constraints are set by which derived <a href="Shared.ox.html#Parameter">Parameter</a> class it is used to create it.</DD>
+<DD>Constraints are imposed through monotonic transformations of the parameters.  For example, if <var>x&gt;0</var>, then FiveO will set <var>x.v = exp(s*f)</var>, where <code>f</code> is the value under control of the algorithm and <code>s</code> is a fixed scaling factor set so that <var>exp(s) = x<sub>0</sub></var>, or <var>s = ln(x<sub>0</sub>)</var>.  That is, the value of <code>s</code> ensures that at the start of the algorithm the free parameter is 1 and the structural parameter starts at the initial value.</DD>
+<DD>Parameter constraint is always within an <em>open interval</em>. The interval can be dynamic, in that lower and/or upper bounds can depend on the <em>current</em> value of some other parameter or a function of other parameters.
+<blockquote>Caution: dynamic constraints are imposed in the order parameters are added to the model.  So if the range of feasible values for parameter <var>x</var> depends on some other parameter <var>y</var>, then <var>y</var> <b>must</b> be added
+to the parameter list before <var>x</var>.</blockquote></DD>
+<DD>When the starting values are near their optimal values scaling and constraining is not necessary and it distorts the Hessian of the parameter vector.  So <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>() turns off both scaling and constraints for parameters that are not determined. The algorithm then works with the parameter <var>x</var> directly and inferences based on the Hessian is direct.</DD>
+<P/>
+<li>Parameter Blocks</li>
+<DT>Parameters can be grouped together into a <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>.</DT>
+ <DD>This might be done because their values are related to each other or simply for convenience.</DD>
+ <DD>For example, in  multiple equation econometric model each equation could have a block of the <a href="Parameters.ox.html#Coefficients">Coefficients</a> class for its coefficients.</DD>
+ <DD>Sets of parameters that lie on the unit Simplex or should be ordered (increasing or decreasing) ared handled by built in blocks.</DD>
+<DT>The user's program adds the parameter block to the model using <a href="Objective.ox.html#Objective___Parameters">Parameters</a>().  Individual parameters in the block are added by that function and should not be added to the model separately.</DT>
+<P/>
+<li>Encoding Starting and Ending Values</li>
+<DT>Staring values of parameters can be set several different ways.</DT>
+<DD>Starting values for sequential algorithms are set using the <code>Encode()</code> method for the objective class. Different kinds of objective have different <code>Encode()</code> but they do similar things.  </DD>
+<DD> When parameter objects are created using the <code>new </code> operator, their current value (<code>.v</code>) is always set to the hard-coded value sent to the <em>constructor</em>.  As parameters are added to the objective the <em>current</em> parameter vector &psi; is built up from the hard-coded starting values. </DD>
+<DD>These hard-coded values can be thought of the default or reset values of the parameters.  The program can start at the default values by to start there by an initial call <code>Encode(0)</code>.  </DD>
+<DD>When an integer is sent to <code>Encode</code> then the <em>starting</em> values of all the parameters will be set to their <em>current</em> values. Since the hard-coded value is used to intialize <code>.v</code>, an initial call <code>Encode(0)</code> uses them as the starting values.</DD>
+<DD>If an optimization algorithm has already run and modified the current values of the free parameters, then another call of the form <code>Encode(0)</code> will set that point as the new starting values.  Scaling of parameters will be reset as well.</DD>
+<DD>consider this code segment: <pre>
+ alg1 -&gt; Iterate(0);
+ ToggleParameterConstraint();
+ Encode(0);
+ alg2 -&gt; Iterate(0);</pre>
+ Optimization algorithm <code>alg1</code> iterates.  It started at some parameter vector <var>&psi;<sub>0</sub></var> which was determined higher up in the code.  When it completes it leaves the values of parameters at the best values so far, <var>&psi; = &psi;<sub>1</sub></var>.  The user then wants to turn off all scaling and constraining.  The <code>Encode(0)</code> statement then is equivalent to &psi;<sub>0</sub> = &psi;<sub>1</sub>.  The second algorithm starts at that point and would end at some <var>&psi; =  &psi;<sub>2</sub></var>.  The user could then compute the Hessian of the parameter vector <var>&psi;</var> knowing that it will be computed at the new best, &psi;<sub>2</sub> and the values will be based on the structural parameters themselves without any transformation.</DD>
+ <DD>Alternatively, the program can pass new starting values as the argument, <code>Encode(xstart)</code>.  Now both the internally stored starting and current vectors would be set to <code>xstart</code>.  In addition, scaling and initial free vectors are set so that an algorithm can go to work. </DD>
+ <DD>Starting values can also be read into the program from a file using <code>Load()</code></DD>.
+<P/>
+ <DT>Free parameters are converted to structural parameters with the <a href="Objective.ox.html#Objective___Decode">Decode</a>() method.</DT>
+ <DD>The user will only call <code>Decode</code> themselves if they are writing their own optimization algorithm or performing a related operation. This is because all algorithms and other operations using the user's objective will call <code>Decode()</code> internally before making a call to <code>vfunc()</code>.  </DD>
+ <DD>An important duty of <code>Decode()</code> is to ensure that each parameter object's <code>v</code> member is set equal to the current value in the (internal) &psi; vector. That is, the user's program will rarely if ever have to refer to a parameter vector.  They simply refer to current or starting values of individual parameters and parameter blocks.</DD>
+<P/>
+<LI>Creating a new Parameter Class</LI>
+<DT>The user can define their own type of parameter or block.  This could be derived from an existing class as a special case that requires fewer inputs from the user. </DT>
+<DD>The class must include <code>Encode()</code> and <code>Decode()</code> if these act differently than the versions for the parent class..</DD>
+<P/>
+</OL>
+<hr><a name="auto"><h1>Documentation of  Items Defined in Parameters.ox</h1></a>
+
+<a name="Bounded"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Bounded : <a href="Parameters.ox.html#Limited">Limited</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A parameter bounded by an interval <var>LB &lt; v &lt; UB</var> .
+<DD>Transformation:<pre>
+v = LB + UB exp{sf}/(1+exp{sf})
+s = log( (v<sub>0</sub>-LB)/(UB-v<sub>0</sub> )
+f = 1</pre>
+Warning issued if |v<sub>0</sub>)-(UB+UB)/2| &lt; <a href="Shared.ox.html#Parameter___NearFlat">NearFlat</a></dd>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#Bounded___LB">LB</a></td>
+<td class="modifiers"></td>
+<td class="description"><a href="Shared.ox.html#AV">AV</a> compatible, the lower bound  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#Bounded___UB">UB</a></td>
+<td class="modifiers"></td>
+<td class="description"><a href="Shared.ox.html#AV">AV</a> compatible, the upper bound  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#Bounded___Bounded">Bounded</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a parameter bounded above and below.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a>, <a href="Shared.ox.html#Parameter___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="BoundedAbove"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BoundedAbove : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Bounded from above <var>-&infin; &lt; v &lt; UB</var> .
+<DD>Transformation:<pre>
+v = UB+exp{sf}
+s = log(UB-v<sub>0</sub>)
+f = 1</pre>
+Warning issued if |v<sub>0</sub>)-UB + 1| &lt; <a href="Shared.ox.html#Parameter___NearFlat">NearFlat</a></dd>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#BoundedAbove___UB">UB</a></td>
+<td class="modifiers"></td>
+<td class="description"><a href="Shared.ox.html#AV">AV</a> compatible, the upper bound  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#BoundedAbove___BoundedAbove">BoundedAbove</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a new parameter bounded above.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a>, <a href="Shared.ox.html#Parameter___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="BoundedBelow"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BoundedBelow : <a href="Parameters.ox.html#Limited">Limited</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Bounded from below:  <var>LB &lt; v &lt; &infin;</var>.
+<DD>Transformation:<pre>
+v = LB+exp{sf}
+s = log(v<sub>0</sub>-LB)
+f = 1</pre>
+Warning issued if |v<sub>0</sub>)-LB-1| &lt; <a href="Shared.ox.html#Parameter___NearFlat">NearFlat</a></dd>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#BoundedBelow___LB">LB</a></td>
+<td class="modifiers"></td>
+<td class="description"><a href="Shared.ox.html#AV">AV</a> compatible, the lower bound  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#BoundedBelow___BoundedBelow">BoundedBelow</a></td>
+<td class="modifiers"></td>
+<td class="description">A parameter bounded below.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a>, <a href="Shared.ox.html#Parameter___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="Coefficients"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Coefficients : <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Vector of free parameters.
+<dd><pre>
+x<sup>j</sup> = <a href="Parameters.ox.html#Free">Free</a>()
+</pre></dd>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#Coefficients___Coefficients">Coefficients</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a block of free parameters.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___AddToBlock">AddToBlock</a>, <a href="Parameters.ox.html#ParameterBlock___BlockCode">BlockCode</a>, <a href="Parameters.ox.html#ParameterBlock___Encode">Encode</a>, <a href="Parameters.ox.html#ParameterBlock___ParameterBlock">ParameterBlock</a>, <a href="Parameters.ox.html#ParameterBlock___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Decode">Decode</a>, <a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___curpar">curpar</a>, <a href="Parameters.ox.html#ParameterBlock___N">N</a>, <a href="Parameters.ox.html#ParameterBlock___Psi">Psi</a>, <a href="Parameters.ox.html#ParameterBlock___PsiL">PsiL</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="Correlation"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Correlation : <a href="Parameters.ox.html#Bounded">Bounded</a> : <a href="Parameters.ox.html#Limited">Limited</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Bounded as: <var>-1 &lt; v &lt; 1</var> .
+<P/>
+<code>Bounded(L,-1.0,1.0)</code>)
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#Correlation___Correlation">Correlation</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a new parameter bounded above by 1 and below by -1.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Parameters.ox.html#Bounded">Bounded</a>:</dt><dd><a href="Parameters.ox.html#Bounded___Bounded">Bounded</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a>, <a href="Shared.ox.html#Parameter___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Parameters.ox.html#Bounded">Bounded</a>:</dt><dd><a href="Parameters.ox.html#Bounded___LB">LB</a>, <a href="Parameters.ox.html#Bounded___UB">UB</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="Decreasing"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Decreasing : <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Vector of parameters that are sequentially decreasing.
+<dd><pre>
+x<sup>0</sup> = <a href="Parameters.ox.html#BoundedAbove">BoundedAbove</a>(UB) or <a href="Parameters.ox.html#Free">Free</a>()
+x<sup>j</sup> = <a href="Parameters.ox.html#BoundedAbove">BoundedAbove</a>(x<sup>j-1</sup>)
+</pre></dd>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#Decreasing___UB">UB</a></td>
+<td class="modifiers"></td>
+<td class="description"><a href="Shared.ox.html#AV">AV</a> compatible, upper bound for first value.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#Decreasing___Decreasing">Decreasing</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a decreasing vector of  parameters.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___AddToBlock">AddToBlock</a>, <a href="Parameters.ox.html#ParameterBlock___BlockCode">BlockCode</a>, <a href="Parameters.ox.html#ParameterBlock___Encode">Encode</a>, <a href="Parameters.ox.html#ParameterBlock___ParameterBlock">ParameterBlock</a>, <a href="Parameters.ox.html#ParameterBlock___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Decode">Decode</a>, <a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___curpar">curpar</a>, <a href="Parameters.ox.html#ParameterBlock___N">N</a>, <a href="Parameters.ox.html#ParameterBlock___Psi">Psi</a>, <a href="Parameters.ox.html#ParameterBlock___PsiL">PsiL</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="DecreasingReturns"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DecreasingReturns : <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Vector of <code>J</code> probabilities that sum to strictly less than 1.
+<dd><pre>
+x<sup>0</sup> = <a href="Parameters.ox.html#Probability">Probability</a>
+...
+x<sup>j</sup> = <a href="Parameters.ox.html#Bounded">Bounded</a>(0.0,1-&sum;<sub>k=0&dots;j-1</sub> x<sup>k</sup>)
+</pre></dd>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#DecreasingReturns___DecreasingReturns">DecreasingReturns</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a vector of decreasing returns to scale Cobb-Douglas coefficients.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___AddToBlock">AddToBlock</a>, <a href="Parameters.ox.html#ParameterBlock___Encode">Encode</a>, <a href="Parameters.ox.html#ParameterBlock___ParameterBlock">ParameterBlock</a>, <a href="Parameters.ox.html#ParameterBlock___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Decode">Decode</a>, <a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___curpar">curpar</a>, <a href="Parameters.ox.html#ParameterBlock___N">N</a>, <a href="Parameters.ox.html#ParameterBlock___Psi">Psi</a>, <a href="Parameters.ox.html#ParameterBlock___PsiL">PsiL</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="Determined"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Determined : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Value determined <em>exactly</em> by some other value, not chosen by optimization.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#Determined___Determined">Determined</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a fixed, pre-determined parameter.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#Determined___ToggleDoNotVary">ToggleDoNotVary</a></td>
+<td class="modifiers"></td>
+<td class="description">DoNotVary does not toggle for Determined parameter.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="FixedBlock"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedBlock : <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Vector of values determined <em>exactly</em> by some other value, not
+	chosen by optimization.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#FixedBlock___Decode">Decode</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#FixedBlock___Encode">Encode</a></td>
+<td class="modifiers"></td>
+<td class="description">Default encoding: no scaling, no constraining.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#FixedBlock___FixedBlock">FixedBlock</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___AddToBlock">AddToBlock</a>, <a href="Parameters.ox.html#ParameterBlock___BlockCode">BlockCode</a>, <a href="Parameters.ox.html#ParameterBlock___ParameterBlock">ParameterBlock</a>, <a href="Parameters.ox.html#ParameterBlock___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___curpar">curpar</a>, <a href="Parameters.ox.html#ParameterBlock___N">N</a>, <a href="Parameters.ox.html#ParameterBlock___Psi">Psi</a>, <a href="Parameters.ox.html#ParameterBlock___PsiL">PsiL</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="Free"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Free : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Can take on any real number: <var>-&infin; &lt; v &lt; +&infin;</var> .
+<P/>
+<DD>Transformation:
+<pre>
+      v = sf
+      if |v<sub>0</sub>| &gt; <code>NearFlat</code>
+           s = v<sub>0</sub>
+           f = 1
+      otherwise<br>
+           s = 1
+           f = v<sub>0</sub></pre></dd>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#Free___Free">Free</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a free, unrestricted parameter.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a>, <a href="Shared.ox.html#Parameter___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="Increasing"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Increasing : <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Vector of parameters that are sequentially increasing.
+<dd><pre>
+x<sup>0</sup> = <a href="Parameters.ox.html#BoundedBelow">BoundedBelow</a>(LB) or <a href="Parameters.ox.html#Free">Free</a>()
+x<sup>j</sup> = <a href="Parameters.ox.html#BoundedBelow">BoundedBelow</a>(x<sup>j-1</sup>)
+</pre></dd>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#Increasing___LB">LB</a></td>
+<td class="modifiers"></td>
+<td class="description"><a href="Shared.ox.html#AV">AV</a> compatible, lower bound for first value.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#Increasing___Increasing">Increasing</a></td>
+<td class="modifiers"></td>
+<td class="description">Create an increasing vector of  parameters.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___AddToBlock">AddToBlock</a>, <a href="Parameters.ox.html#ParameterBlock___BlockCode">BlockCode</a>, <a href="Parameters.ox.html#ParameterBlock___Encode">Encode</a>, <a href="Parameters.ox.html#ParameterBlock___ParameterBlock">ParameterBlock</a>, <a href="Parameters.ox.html#ParameterBlock___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Decode">Decode</a>, <a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___curpar">curpar</a>, <a href="Parameters.ox.html#ParameterBlock___N">N</a>, <a href="Parameters.ox.html#ParameterBlock___Psi">Psi</a>, <a href="Parameters.ox.html#ParameterBlock___PsiL">PsiL</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="Limited"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Limited : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Not free and not determined.
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Decode">Decode</a>, <a href="Shared.ox.html#Parameter___Encode">Encode</a>, <a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a>, <a href="Shared.ox.html#Parameter___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="Negative"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Negative : <a href="Parameters.ox.html#BoundedAbove">BoundedAbove</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Bounded from above by 0.
+<code>BoundedAbove(L,0.0)</code>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#Negative___Negative">Negative</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a parameter bounded above by 0.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Parameters.ox.html#BoundedAbove">BoundedAbove</a>:</dt><dd><a href="Parameters.ox.html#BoundedAbove___BoundedAbove">BoundedAbove</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a>, <a href="Shared.ox.html#Parameter___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Parameters.ox.html#BoundedAbove">BoundedAbove</a>:</dt><dd><a href="Parameters.ox.html#BoundedAbove___UB">UB</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="ParameterBlock"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ParameterBlock : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Two or more parameters whose ranges interact or are related for some other reason.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#ParameterBlock___curpar">curpar</a></td>
+<td class="modifiers"></td>
+<td class="description">current param in V.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#ParameterBlock___N">N</a></td>
+<td class="modifiers"></td>
+<td class="description">length of block.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#ParameterBlock___Psi">Psi</a></td>
+<td class="modifiers"></td>
+<td class="description">array of parameters (temporary).</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#ParameterBlock___PsiL">PsiL</a></td>
+<td class="modifiers"></td>
+<td class="description">array of labels.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#ParameterBlock___AddToBlock">AddToBlock</a></td>
+<td class="modifiers"></td>
+<td class="description">Append parameter to the block.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#ParameterBlock___BlockCode">BlockCode</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default update for an unstructured block of parameters.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#ParameterBlock___Encode">Encode</a></td>
+<td class="modifiers"></td>
+<td class="description">Default encoding: no scaling, no constraining.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#ParameterBlock___ParameterBlock">ParameterBlock</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a new block of related Parameters.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#ParameterBlock___ToggleDoNotVary">ToggleDoNotVary</a></td>
+<td class="modifiers"></td>
+<td class="description">Toggle the value of <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Decode">Decode</a>, <a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="Positive"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Positive : <a href="Parameters.ox.html#BoundedBelow">BoundedBelow</a> : <a href="Parameters.ox.html#Limited">Limited</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Bounded from below by 0.
+<P/>
+<code>BoundedBelow(L,0,v0)</code>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#Positive___Positive">Positive</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a parameter bounded below by 0.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Parameters.ox.html#BoundedBelow">BoundedBelow</a>:</dt><dd><a href="Parameters.ox.html#BoundedBelow___BoundedBelow">BoundedBelow</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a>, <a href="Shared.ox.html#Parameter___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Parameters.ox.html#BoundedBelow">BoundedBelow</a>:</dt><dd><a href="Parameters.ox.html#BoundedBelow___LB">LB</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="Probability"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Probability : <a href="Parameters.ox.html#Bounded">Bounded</a> : <a href="Parameters.ox.html#Limited">Limited</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Bounded as: <var>0 &lt; v &lt; 1</var> .
+<P/>
+<code>Bounded(L,0.0,1.0)</code>)
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#Probability___Probability">Probability</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a new parameter bounded above by 1 and below by 0.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Parameters.ox.html#Bounded">Bounded</a>:</dt><dd><a href="Parameters.ox.html#Bounded___Bounded">Bounded</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a>, <a href="Shared.ox.html#Parameter___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Parameters.ox.html#Bounded">Bounded</a>:</dt><dd><a href="Parameters.ox.html#Bounded___LB">LB</a>, <a href="Parameters.ox.html#Bounded___UB">UB</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="Simplex"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Simplex : <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Vector of <code>J</code> probabilities that sum to 1.
+<dd><pre>
+x<sup>0</sup> = <a href="Parameters.ox.html#Probability">Probability</a>
+x<sup>j</sup> = <a href="Parameters.ox.html#Bounded">Bounded</a>(0.0,1-&sum;<sub>k=0&dots;j-1</sub> x<sup>k</sup>)
+...
+x<sup>J</sup> = <a href="Parameters.ox.html#Determined">Determined</a>(1-&sum;x<sup>j</sup>)
+</pre></dd>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#Simplex___stoler">stoler</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#Simplex___Simplex">Simplex</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a simplex of parameters.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___AddToBlock">AddToBlock</a>, <a href="Parameters.ox.html#ParameterBlock___Encode">Encode</a>, <a href="Parameters.ox.html#ParameterBlock___ParameterBlock">ParameterBlock</a>, <a href="Parameters.ox.html#ParameterBlock___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Decode">Decode</a>, <a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___curpar">curpar</a>, <a href="Parameters.ox.html#ParameterBlock___N">N</a>, <a href="Parameters.ox.html#ParameterBlock___Psi">Psi</a>, <a href="Parameters.ox.html#ParameterBlock___PsiL">PsiL</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="StDeviations"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StDeviations : <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Positive Vector.
+<dd><pre>
+x<sup>j</sup> = <a href="Parameters.ox.html#Positive">Positive</a>()
+</pre></dd>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#StDeviations___StDeviations">StDeviations</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a block of positive parameters, for example a vector of standard deviations.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___AddToBlock">AddToBlock</a>, <a href="Parameters.ox.html#ParameterBlock___BlockCode">BlockCode</a>, <a href="Parameters.ox.html#ParameterBlock___Encode">Encode</a>, <a href="Parameters.ox.html#ParameterBlock___ParameterBlock">ParameterBlock</a>, <a href="Parameters.ox.html#ParameterBlock___ToggleDoNotVary">ToggleDoNotVary</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___Decode">Decode</a>, <a href="Shared.ox.html#Parameter___Parameter">Parameter</a>, <a href="Shared.ox.html#Parameter___Reset">Reset</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>:</dt><dd><a href="Parameters.ox.html#ParameterBlock___curpar">curpar</a>, <a href="Parameters.ox.html#ParameterBlock___N">N</a>, <a href="Parameters.ox.html#ParameterBlock___Psi">Psi</a>, <a href="Parameters.ox.html#ParameterBlock___PsiL">PsiL</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Bounded</span></h2>
+
+<a name="Bounded___Bounded"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Bounded</span></h3>
+
+<span class="declaration">Bounded :: Bounded ( L , LB , UB , v0 )</span>
+<dl><dd>
+Create a parameter bounded above and below.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">parameter label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">LB</td>
+<td class="description" valign="baseline">double or Parameter, the lower bound
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">UB</td>
+<td class="description" valign="baseline">double or Parameter, the upper bound
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">v0</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a> compatible default value, v<sub>0</sub></td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Bounded___LB"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">LB</span></h3>
+
+<span class="declaration">decl LB [public]</span>
+<dl><dd>
+<a href="Shared.ox.html#AV">AV</a> compatible, the lower bound
+
+</dd></dl>
+
+<hr>
+<a name="Bounded___UB"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">UB</span></h3>
+
+<span class="declaration">decl UB [public]</span>
+<dl><dd>
+<a href="Shared.ox.html#AV">AV</a> compatible, the upper bound
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BoundedAbove</span></h2>
+
+<a name="BoundedAbove___BoundedAbove"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">BoundedAbove</span></h3>
+
+<span class="declaration">BoundedAbove :: BoundedAbove ( L , UB , v0 )</span>
+<dl><dd>
+Create a new parameter bounded above.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">parameter label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">LB</td>
+<td class="description" valign="baseline">double or Parameter, the upper bound
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">v0</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a> compatible default value, v<sub>0</sub>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">If UB is a parameter then the bounding is dynamic.  The parameter will always
+be strictly less than UB as UB's value changes.<br> UB should be added to the parameter list
+first.
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="BoundedAbove___UB"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">UB</span></h3>
+
+<span class="declaration">decl UB [public]</span>
+<dl><dd>
+<a href="Shared.ox.html#AV">AV</a> compatible, the upper bound
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BoundedBelow</span></h2>
+
+<a name="BoundedBelow___BoundedBelow"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">BoundedBelow</span></h3>
+
+<span class="declaration">BoundedBelow :: BoundedBelow ( L , LB , v0 )</span>
+<dl><dd>
+A parameter bounded below.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">parameter label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">LB</td>
+<td class="description" valign="baseline">double or Parameter, the lower bound
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">v0</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a> compatible default value, v<sub>0</sub>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">If LB is a parameter then the bounding is dynamic.  The parameter will always
+be strictly greater than LB as LB value changes.<br> LB should be added to the parameter list
+first.
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="BoundedBelow___LB"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">LB</span></h3>
+
+<span class="declaration">decl LB [public]</span>
+<dl><dd>
+<a href="Shared.ox.html#AV">AV</a> compatible, the lower bound
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Coefficients</span></h2>
+
+<a name="Coefficients___Coefficients"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Coefficients</span></h3>
+
+<span class="declaration">Coefficients :: Coefficients ( L , ivals , labels )</span>
+<dl><dd>
+Create a block of free parameters.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label for the block (e.g. the equation)
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">labels</td>
+<td class="description" valign="baseline">0: use numbers for labels<br>array of strings, labels for coefficients (e.g. variable names)
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ivals</td>
+<td class="description" valign="baseline">0: set to length of labels and initialize values to 0<br> &gt; 0: number of coefficients, initialize to 0
+   <br>vector: initial values</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Correlation</span></h2>
+
+<a name="Correlation___Correlation"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Correlation</span></h3>
+
+<span class="declaration">Correlation :: Correlation ( L , v0 )</span>
+<dl><dd>
+Create a new parameter bounded above by 1 and below by -1.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">parameter label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">v0</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a> compatible default value, v<sub>0</sub>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Parameters.ox.html#Bounded">Bounded</a></dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Decreasing</span></h2>
+
+<a name="Decreasing___Decreasing"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Decreasing</span></h3>
+
+<span class="declaration">Decreasing :: Decreasing ( L , UB , ivals )</span>
+<dl><dd>
+Create a decreasing vector of  parameters.
+LB &lt; x<sub>1</sub> &gt; x<sub>2</sub> &gt; &hellip; &gt; x<sub>N</sub>
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">UB</td>
+<td class="description" valign="baseline">upper bound for first variable, a double, <a href="Shared.ox.html#CV">CV</a> comptible.<br>send .Inf to make the first parameter free
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ivals</td>
+<td class="description" valign="baseline">integer, dimension of sequence<br>OR<br>N&times;1 vector of initial values
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">if ivals is an integer N then the sequence is initialized as UB-1, UB-2, &hellip; UB-N
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Decreasing___UB"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">UB</span></h3>
+
+<span class="declaration">decl UB [public]</span>
+<dl><dd>
+<a href="Shared.ox.html#AV">AV</a> compatible, upper bound for first value.  Can be +.Inf.
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DecreasingReturns</span></h2>
+
+<a name="DecreasingReturns___DecreasingReturns"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">DecreasingReturns</span></h3>
+
+<span class="declaration">DecreasingReturns :: DecreasingReturns ( L , ivals )</span>
+<dl><dd>
+Create a vector of decreasing returns to scale Cobb-Douglas coefficients.
+0&lt; x<sub>i</sub> &lt; 1<br>
+&sum<sup>N</sub><sub>i=1</sub> x<sub>i</sub> &lt; 1.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ivals</td>
+<td class="description" valign="baseline">integer: dimension of simplex<br>OR<br>N&times;1 vector, initial values</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Determined</span></h2>
+
+<a name="Determined___Determined"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Determined</span></h3>
+
+<span class="declaration">Determined :: Determined ( L , v0 )</span>
+<dl><dd>
+Create a fixed, pre-determined parameter.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">string
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">v0</td>
+<td class="description" valign="baseline">double, initial value, current value determined by something else<br><a href="Shared.ox.html#CV">CV</a> compatible default value, v<sub>0</sub></td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Determined___ToggleDoNotVary"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ToggleDoNotVary</span></h3>
+
+<span class="declaration">Determined :: ToggleDoNotVary ( )</span>
+<dl><dd>
+DoNotVary does not toggle for Determined parameter.
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedBlock</span></h2>
+
+<a name="FixedBlock___Decode"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Decode</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="FixedBlock___Encode"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Encode</span></h3>
+
+<span class="declaration">FixedBlock :: Encode ( )</span>
+<dl><dd>
+Default encoding: no scaling, no constraining.
+
+</dd></dl>
+
+<hr>
+<a name="FixedBlock___FixedBlock"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FixedBlock</span></h3>
+
+<span class="declaration">FixedBlock :: FixedBlock ( L , v0 )</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Free</span></h2>
+
+<a name="Free___Free"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Free</span></h3>
+
+<span class="declaration">Free :: Free ( L , v0 )</span>
+<dl><dd>
+Create a free, unrestricted parameter.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">parameter label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">v0</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a> compatible default value, v<sub>0</sub></td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Increasing</span></h2>
+
+<a name="Increasing___Increasing"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Increasing</span></h3>
+
+<span class="declaration">Increasing :: Increasing ( L , LB , ivals )</span>
+<dl><dd>
+Create an increasing vector of  parameters.
+LB &lt; x<sub>1</sub> &lt; x<sub>2</sub> &lt; &hellip; &lt; x<sub>N</sub>
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">LB</td>
+<td class="description" valign="baseline">lower bound for first variable, a double, <a href="Shared.ox.html#Parameter">Parameter</a> or static function<br>send -.Inf to make the first parameter free
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ivals</td>
+<td class="description" valign="baseline">integer, dimension of sequence<br>OR<br>N&times;1 vector of initial values
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">if ivals is an integer N then the sequence is initialized as LB+1, LB+2, &hellip; LB+N.
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Increasing___LB"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">LB</span></h3>
+
+<span class="declaration">decl LB [public]</span>
+<dl><dd>
+<a href="Shared.ox.html#AV">AV</a> compatible, lower bound for first value.  Can be -.Inf.
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Negative</span></h2>
+
+<a name="Negative___Negative"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Negative</span></h3>
+
+<span class="declaration">Negative :: Negative ( L , v0 )</span>
+<dl><dd>
+Create a parameter bounded above by 0.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">parameter label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">v0</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a> compatible default value, v<sub>0</sub>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">Equivalent to BoundedAbove(L,0.0,v0)
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Parameters.ox.html#BoundedBelow">BoundedBelow</a></dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ParameterBlock</span></h2>
+
+<a name="ParameterBlock___AddToBlock"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AddToBlock</span></h3>
+
+<span class="declaration">ParameterBlock :: AddToBlock ( psi , ... )</span>
+<dl><dd>
+Append parameter to the block.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">psi</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#Parameter">Parameter</a> to add.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">...</td>
+<td class="description" valign="baseline">more parameters</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="ParameterBlock___BlockCode"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">BlockCode</span></h3>
+
+<span class="declaration">virtual ParameterBlock :: BlockCode ( )</span>
+<dl><dd>
+Default update for an unstructured block of parameters.
+The default is to simply increment <code>curpar</code> (and reset 0 when it reaches N).
+
+</dd></dl>
+
+<hr>
+<a name="ParameterBlock___curpar"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">curpar</span></h3>
+
+<span class="declaration">decl curpar [public]</span>
+<dl><dd>
+current param in V.
+
+</dd></dl>
+
+<hr>
+<a name="ParameterBlock___Encode"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Encode</span></h3>
+
+<span class="declaration">ParameterBlock :: Encode ( )</span>
+<dl><dd>
+Default encoding: no scaling, no constraining.
+
+</dd></dl>
+
+<hr>
+<a name="ParameterBlock___N"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">N</span></h3>
+
+<span class="declaration">decl N [public]</span>
+<dl><dd>
+length of block.
+
+</dd></dl>
+
+<hr>
+<a name="ParameterBlock___ParameterBlock"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ParameterBlock</span></h3>
+
+<span class="declaration">ParameterBlock :: ParameterBlock ( L , ... )</span>
+<dl><dd>
+Create a new block of related Parameters.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">string Label for block
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">@...</td>
+<td class="description" valign="baseline">a list of parameters to add to the block<br>
+     if only one argument is supplied it should be an array of parameters.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="ParameterBlock___Psi"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Psi</span></h3>
+
+<span class="declaration">decl Psi [public]</span>
+<dl><dd>
+array of parameters (temporary).
+
+</dd></dl>
+
+<hr>
+<a name="ParameterBlock___PsiL"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">PsiL</span></h3>
+
+<span class="declaration">decl PsiL [public]</span>
+<dl><dd>
+array of labels.
+
+</dd></dl>
+
+<hr>
+<a name="ParameterBlock___ToggleDoNotVary"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ToggleDoNotVary</span></h3>
+
+<span class="declaration">ParameterBlock :: ToggleDoNotVary ( )</span>
+<dl><dd>
+Toggle the value of <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>.
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Positive</span></h2>
+
+<a name="Positive___Positive"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Positive</span></h3>
+
+<span class="declaration">Positive :: Positive ( L , v0 )</span>
+<dl><dd>
+Create a parameter bounded below by 0.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">parameter label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">v0</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a> compatible default value, v<sub>0</sub>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">Equivalent to BoundedBelow(L,0.0,ival)
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Parameters.ox.html#BoundedBelow">BoundedBelow</a></dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Probability</span></h2>
+
+<a name="Probability___Probability"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Probability</span></h3>
+
+<span class="declaration">Probability :: Probability ( L , v0 )</span>
+<dl><dd>
+Create a new parameter bounded above by 1 and below by 0.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">parameter label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">v0</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a> compatible default value, v<sub>0</sub>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Parameters.ox.html#Bounded">Bounded</a></dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Simplex</span></h2>
+
+<a name="Simplex___Simplex"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Simplex</span></h3>
+
+<span class="declaration">Simplex :: Simplex ( L , ivals )</span>
+<dl><dd>
+Create a simplex of parameters.
+0&lt; x<sub>i</sub> &lt; 1<br>
+&sum<sup>N</sub><sub>i=1</sub> x<sub>i</sub> = 1.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ivals</td>
+<td class="description" valign="baseline">integer: dimension of simplex<br>OR<br>N&times;1 vector, initial values
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">if ivals is an integer N, then the simplex is initialized as 1/N
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Simplex___stoler"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">stoler</span></h3>
+
+<span class="declaration">static const decl stoler [public]</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StDeviations</span></h2>
+
+<a name="StDeviations___StDeviations"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">StDeviations</span></h3>
+
+<span class="declaration">StDeviations :: StDeviations ( L , ivals , labels )</span>
+<dl><dd>
+Create a block of positive parameters, for example a vector of standard deviations.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label for the block
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">labels</td>
+<td class="description" valign="baseline">0: use numbers for labels<br>array of strings, labels for values (e.g. variable names)
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ivals</td>
+<td class="description" valign="baseline">0: set to length of labels and initialize values to 0<br> &gt; 0: number of postivie parameters, initialize to 1.0
+   <br>vector: initial values</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

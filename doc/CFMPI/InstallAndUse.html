@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>InstallAndUse - CFMPI</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">InstallAndUse</span></h1>
+
+Install and Use <span class="n">CFMPI</span>.
+<P/>
+ <h2>One-time Initialization on a Cluster with MPI</h2>
+<DL>
+<DT>Install Ox and niqlow.</DT>
+<DT>Find MPI</DT>
+<DD>Locate the MPI <code>lib</code> and <code>include</code> directories on the cluster.  You need to find the files <code>mpi.h</code> and <code>libmpi.o</code> (or <code>.a</code>, <code>.la</code>).  Note their locations.  You also need to choose a C compiler (such as <code>gcc</code>).</DD>
+<blockquote>If your cluster uses <code>OpenMPI</code> then you should be able to use CFMPI without changing the Ox and C code it uses.  Further, <span class="n">CFMPI</span> gets some special integer codes used in MPI dynamically so that implementations of MPI other than OpenMPI should not require and code changes.  However, there is no guarantee that CFMPI is fully compatible with MPI on your cluster.  If any errors occur please contact the author.  The amount of tweaks to the code to work with MPI variants is probably very small.</blockquote></dd></DT>
+<DT>Make the CFMPI Shared Object file</DT>
+<DD>Edit the file <code>niqlow/source/CFMPI/Makefile</code> with the information for your C compiler and MPI library.  Then make the shared CFMPI library file<pre>
+&#36; make -C &#36;niqlowHOME/source/CFMPI </pre>
+If successful this installs <code>CFMPI.so</code> in <code>niqlow/include</code>.</DD></DT>
+<DT>Include MPI and niqlow in the <code>LD_LIBRARY_PATH</code> when running Ox.</DT>
+<DD>If the script <code>oxl</code> has been edited properly when <span class="n">niqlow</span> was installed it will add the niqlow include directory to <code>LD_LIBRARY_PATH</code>.  If not, you must add it to the path before running Ox with CFMPI.</DD>
+<DD>The directory that contains <code>libmpi.a</code> (or <code>.o</code> or <code>.la</code>) must also be on <code>LD_LIBRARY_PATH</code> when Ox runs.
+<dd>This could be done by modifying the <code>oxl</code> script so that it happens anytime Ox runs.
+</DL>
+<P/>
+<h2>Use CFMPI with or without MPI</h2>
+<DL><DT>To include CFMPI in your program, do one of two things at the top of your file:</DT>
+<DD><pre>
+&#35;include "CFMPI.ox"
+&#35;ifdef CFMPIfakeDEFINED
+&#35;include "fakeCFMPI.ox"
+&#35;endif
+</pre></DD>
+<DD>Those four lines allow you to use MPI for parallel communication if the MPI library is linked in, but if not it will use fake versions of the CFMPI routines in serial. </DD>
+<DD>Note that you should not use <code>import</code> with CFMPI. When <code>MPI</code> is undefined a set of non-parallel dummy functions replace the parallel routines that call the MPI library.  In this way, the same code works whether MPI is present or not.  This substitution must occur at run time, so CFMPI should not be compiled to an <code>.oxo</code> file.  If the <code>.ox</code> file is included the conditional definition of dummy routines or real interface routines will happen on your machine.</DD>
+<DT>To link the MPI interface routines</DT>
+<DD>If MPI is available and is to be used, the Ox macro <code>MPI</code> must be defined when your program is run.</DD>
+<DD>There are 2 ways to do this.  The preferred method is to define it on the command line:
+<pre>$ oxl  -DMPI  MyOxProgram</pre>
+By doing this the user code does not need to change to switch between MPI or not. </DD>
+<DD>Alternatively,  define <code>MPI</code> before including or importing the code:
+<pre>
+&#35;define MPI
+&#35;ifdef CFMPIfakeDEFINED
+&#35;include "fakeCFMPI.ox"
+&#35;endif
+</pre></DD>
+<DD>The problem with the second method is that it will generate a linking error if the program is run and MPI is not available. By defining <code>MPI</code> on the command line the same user code will work in either parallel or serial.</DL>
+<h2>Run <code>oxl</code> within the MPI environment.</h2>
+<DL>
+<DT>MPI must be run under the MPI runtime environment.</DT>
+  <DD>It is not sufficient to link in the library, because the environment must assign nodes (processors) to your program and give each a MPI rank (an integer ID).</DD>
+<DD>How to run a program in the MPI environment is specific to your cluster.  Usually the cluster will have a script that submits a job to a queue that will also allocate nodes to your job.  </DD>
+</DL>
+
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>
