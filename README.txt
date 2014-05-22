@@ -7,4 +7,3 @@ Please read niqlow-license.txt.
 
 Register as a niqlow user at http://jdi.econ.queensu.ca/content/get-niqlow-solution-software
 
-Use that form to receive the source .ox files for niqlow
