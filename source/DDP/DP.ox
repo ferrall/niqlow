@@ -435,7 +435,6 @@ DP::CreateSpaces() {
 		for (i=0,av="#States   ";i<J;++i) av ~= sprint("%9u",AsetCount[i]);
 		println(av,"\n    Key: X = row vector is feasible. - = infeasible");
         if (totalnever) println("    Actions vectors not shown because they are never feasible: ",totalnever);
-		print("\n-------------------- End of Model Summary ------------------------\n");
 		}
 	ETT = new EndogTrans();
  }
