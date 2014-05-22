@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>MPI_FAQ - CFMPI</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">MPI_FAQ</span></h1>
+
+A Q&amp;A introduction to MPI. 
+<P/>
+<h2>About MPI</h2>
+<DL>
+<DT>What is MPI?</DT>
+<DD>MPI stands for <defn>Message Passing Interface</defn>.  It is a standard for coordinating actions between processors independently running multiple instances of the <em>same</em> program.</DD>
+<DD>The programs running across processors are called <em>nodes</em>.</DD>
+<DT>How is this coordination achieved?</DT>
+<DD>The different copies of the program are coordinated by sending <em>messages</em> between them as the code executes.</DD>
+<DD>Messages are required because as different instances of the same program executes on different nodes the programmer wants them to execute different calculations (otherwise there would be no benefit to running in parallel).  The instances are never synchronized so messages allow them to carry out different tasks and to be in different places in the same code in order to perform a single objective.</DD>
+<DT>What is a message, and how is it transmitted?</DT>
+  <DD>A message is some data (such as a vector of numbers) and an integer code for what kind of message it is.  This code is called the message <em>tag</em>.  MPI supports very sophisticated messaging, but the basic features are often all that is required.</DD>
+<DD>The computer system(s) that are running the program must maintain the <em>MPI environment</em>.</DD>
+<DD>The programmer includes calls to procedures (functions) that access the MPI environment.</DD>
+<DT>What is the MPI library?</DT>
+<DD>The MPI library is the set of procedures (functions) to be called from program in C, FORTRAN or other languages to use the MPI environment.</DD>
+<DD>The programmer only needs to understand and call routines in the MPI library within their program to send and receive messages while the program runs on multiple nodes.  The MPI environment handles all the details of information passing for the programmer.</DD>
+<DT>Are messages like email?</DT>
+<DD>Messages sent between nodes are similar to email messages.  The environment ensures that messages are delivered to the inbox of the node.</DD>
+<DD>Unlike email, the program must process messages one at a time in the order they arrive.</DD>
+<DT>How are messages sent and received between instances of the program?</DT>
+<DD>The programmer must insert calls to the MPI library of routines in their program to pass messages.</DD>
+<DT>Is MPI the only way to run a program in parallel?</DT>
+<DD>Another common way to execute in parallel is for different instances of program to have <em>shared memory</em>.</DD>
+<DD>Within a shared memory environment messages do not need to be sent between nodes to coordinate action, although this can be done as well.</DD>
+<DD>Ox Professional allows the user to exploit multi-threading on the processor running Ox.  Further, Ox version 7x includes features to make multi-threading easier to use.  </DD>
+<DD>MPI is designed to coordinate actions when memory is not shared. Ox Console (the free version) does not support multi-threading, but it can run in parallel through MPI as long as the cluster has MPI installed.</DD>
+<DT>How does my program know about the MPI environment.?</DT>
+<DD>If the program is started within the MPI environment then it can and must call <code>MPI_Init()</code> to get information about the environment.</DD>
+<DD>The MPI environment tells the user's program two pieces of information that are required to coordinate actions.</DD>
+<DD>The number of different processes that are running the program and communicating through MPI.  These processors are called <em>nodes</em>, and the number of nodes is denoted <code>Nodes</code>. If <code>Nodes=1</code> then the program is running in serial even though the MPI environment is accessed.</DD>
+<DD>Each node is also told by MPI its <em>rank</em>, or in CFMPI the node's <code>ID</code>. The rank or IDs take on the integer values 0,&hellip;,<code>Nodes-1</code>.  Usually the user has no control over which physical CPU is assigned to each <code>ID</code>.  The MPI environment assigns the IDs arbitrarily.</DD>
+<P/>
+</DL>
+<P/>
+<h2>CFMPI</h2>
+<DL>
+<DT>What is CFMPI?</DT>
+<DD>CFMPI implements an Ox- and <span class="n">niqlow</span>-friendly interface to the basic MPI routines.</DD>
+<DD>The user of CFMPI could learn how to program with MPI and use only Ox routines to send and receive messages.</DD>
+<DD>A user could use <code>CFMPI.ox</code> and <code>CFMPI.c</code> as a template for writing interfaces to other MPI routines or an alternative approach.</DD>
+<DD>Many of the Ox functions in CFMPI have the same form and purpose as routines in the MPI library, but they often have fewer arguments and less flexibility, because the author of CFMPI has found only certain aspects of MPI are needed for this kind of program.</DD>
+<DT>Is CFMPI object oriented?</DT>
+<DD>Yes, CFMPI is object oriented, which makes it easier to exploit parallelization in different ways within the same program.  </DD>
+<DD>The OOP aspects of CFMPI also make it possible for the programmer to use more specialized routines in CFMPI.  These routines replace several lines of basic MPI code with a single call to a CFMPI routine.</DD>
+<DT><span class="n">CFMPI</span> uses classes and static members/methods and some C code to interface with MPI. </DT>
+ <DD>This allows the calls to MPI in Ox to be simpler than direct calls. It also adds some features to simplify client-server execution.</DD>
+</DL>
+<P/>
+<h2>Parallel Paradigms</h2>
+<DL>
+<DT>There are two main ways to use MPI in parallel execution.</DT>
+<DD>Client-Server Paradigm</DD>
+<DD>Peer-to-Peer Paradigm</DD>
+<DT>Client Server</DT>
+<DD>A Client-Server approach is based on one node (the client) coordinating the actions of the other nodes (the servers).  The single program running on the nodes splits into two separate segments of code.  The client executes code and calls the server to carry out tasks that can be done simultaneously.  The servers execute codes that waits for the client to send a task.</DD>
+<DD>The client is typically the node with <code>ID=0</code>.  Servers have <ocde>ID&gt;0</ocde>.  </DD>
+<DD>When operating in client-server mode a program will typically have a branching statement of the form:
+<pre> if (ID==0) Client_Tasks(); else Server_Tasks(); </pre>
+As messages are passed the servers are executing commands in a different part of the program than the client when messages are sent and received.</DD>
+<DD>Client-Server model relies on <em>node-to-node</em> communication: the client sends a message to a client which later sends a reply back.  The servers typically do not communicate with each other.</DD>
+<DT>Peer-to-Peer</DT>
+<DD>In Peer-to-Peer mode all the instances of the program are at the same line of code when messages get sent and received.</DD>
+<DD>Peer execution relies on group communication that is coordinated by the MPI environment.</DD>
+<DD>One node (again usually <code>ID=0</code>) will often play a special role before or after messages are sent.  That is, they may process the results shared by all the peers and the <em>broadcast</em> the result to every node.</DD>
+<DT>A single program can use both Client-Server and Peer communication.</DT>
+<DT>In more advanced MPI programming the set of nodes can be organized into smaller groups.</DT>
+<DD>  For example, fifteen nodes may be split into three worlds, each with five nodes.  CFMPI does not support this type of parallelism.</DD>
+<DT>Blocking versus non-blocking</DT>
+<DD>MPI library routines can be either blocking or non-blocking.</DD>
+<DD>A blocking routine means that the program's execution on that node does not proceed until the message passing function completes.  A non-blocking routine will let the program continue to the next line even though the communication has not yet completed.</DD>
+<DD>Peer-to-Peer communication is inherently blocking, but node-to-node communication can either.</DD>
+<DD>Most naturally, the <em>send message</em> routine in node-to-node communication is not blocking, but the <em>receive message</em> routine is blocking.  That is, programs usually rely on the information received from other nodes to carry out the work.  On the other hand, once message is sent to another node it is natural to carry even though the receiving node has not yet processed the message.  </DD>
+<DT>Sources</DT>
+<DD>In node-to-node messages are sent to a particular node.</DD>
+<DD>A node waiting (blocking) to receive a message can specify either to wait for a message from a particular node (say the client) or from any node (say the client waiting for any server to respond).</DD>
+<DD>In pure client-server mode the servers only get messages from the client so it does not matter if the source is "any node" or just "the client."   However, it is usually more efficient for the client receive messages from any node. How long it takes servers to carry out a task depends on many things and cannot be predicted.  So it is better if the client receives whichever messages comes in next rather than waiting for a response from one particular node.</DD>
+</DL>
+
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

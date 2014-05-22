@@ -1,0 +1,37 @@
+/**	Index different DP models (elements of <code>&gamma;</code>).
+<a href="#auto">Skip down to documentation of items defined in TimeInvariant.ox</a><p>
+
+@sortkey ABE
+
+Time invariants are variables that take on different values across agents but are fixed for a given agent.
+
+<OL class="body">
+<LI>Fixed States</LI>
+The basic DP model concerns a single agent in a single environment.  However, many applications involve related DP problems that differ in parameter values, which in turn alter the primitives U(), &Rho;(), &delta;.
+
+The state vector &gamma; holds variables that are fixed for an agent but differ across agents.  As with other state vectors, anything that can go in &gamma; could be placed in &theta;.  However, since the state does not vary it is inefficient to included invariant states in <b><b>&Theta;</b></b>.  Instead, <span class="n">DDP</span> resuses <b>&Theta;</b> for each value of &gamma; and stores only a minimum amount of information for previously solved models.
+
+Only state variables derived from the `TimeInvariant` class can be added to &gamma;.    Invariants do not have a transition.
+
+<span class="n">DDP</span> distinguishes between two kinds of invariants.  Each is either a `FixedEffect` or a `RandomEffect`.  This distinction plays the same role as in panel models.  Fixed effects typically correspond to constant observed variables, such as gender.  So if the model is to be solved separately for men and women, with different primitives, then a binary FixedEffect would be added to &gamma;.  On the other hand, a `RandomEffect` is designed to account for unobserved variation in the underlying problem.  An example would be a model that allows agents to have different (unobserved and permanent) skill levels.  A single skill variable taking on discrete values could be added to &gamma;  In estimation DDP will sum over the distribution of skills.
+
+If a TimeInvariant class has a <code>Transit()</code> function defined it is never called because the DP problem presumes the value will never change.  A fixed effect also has no distribution, but a random effect does,  `RandomEffect::Distribution`().   The distribution is used to integrate out the random effect after solving for behavior conditional on each value.  The distribution can depend on the value of the fixed effects. For example, the distribution of skills can depend on gender.    This is called once for each value of the fixed effects and this updates the `Discrete::pdf`(), a vector of probabilities or weights place on the values of the random effect.
+
+Correlated random effects are created by adding a `RandomEffectBlock` to &gamma;
+
+Each combination of random and fixed effects implies a value of &gamma;, and for each &gamma; a `Group` node is created.  The set of all group nodes is the group space, denoted &Gamma;.
+
+</OL>
+
+<DT>As with allowing state variables to be declared exogenous, moving time invariant variables from &theta; to &gamma; saves time and especially storage while solving the model. </DT>
+<DD>An invariant does not need to be tracked during iteration over <b>&Theta;</b>.  So group variable `Transit`() methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>. </DD>
+<DD>Storage is re-used while solving for different values of &gamma;. <span class="n">DDP</span> reuses the state space <b>&Theta;</b> for each value of &gamma;.</DD>
+<DD>Choice probabilities <code>&Rho;*(&alpha | &epsilon;, &eta;, &theta;, &gamma; )</code> are stored separably for each random value of &gamma;.  EV(&theta;) integrates out the random effects, conditional on the value of the fixed effects in &gamma;.</DD>
+<DD>Both utility and a transitions can depend on the value of fixed effects.  However, only utility can depend on random effects. </DD>
+
+<DT>Finite Mixture Heterogeneity</DT>
+<DD><span span="n">FiveO</span> includes options for finite-mixture objectives.  This can be used seamlessly to estimate parameters of a DDP that vary across groups.</DD>
+
+<hr><a name="auto"><h1>Documentation of  Items Defined in TimeInvariat.ox</h1></a>
+
+**/

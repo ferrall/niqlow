@@ -1,0 +1,111 @@
+/** Realizations of the DDP, simulate DDP data, read external data sets, interface with <span class="n">Five-O</span>.
+
+<a href="#auto">Skip down to documentation of items defined in Outcomes.ox</a><p>
+
+@sortkey BAA
+
+
+<OL class="body">
+<a name="PS"><LI>Outcomes</LI></a>
+
+The group space <b>&Gamma;</b> and state space <b>&Theta;</b> represent potential states of the problem.  `Outcome`s of the program are realizations along the path of the program.
+
+<DT>Outcomes are used for simulating the model and for storing external data interpreted as realizations of the DDP.</DT>
+    <DD>As discussed elsewhere, the user codes <code>MyModel</code> as a class derived from one of the pre-defined `Bellman` classes. In contrast, `Outcome` is designed to be generic so that it can be used for whatever model or data the program uses. A user does not define their own derived class to store outcomes.</DD>
+  <DD>Only one model can be active in <span class="n">DDP</span> because <code>static</code> data members are used, but <em>multiple data sets can be stored at once.</em>  This can be useful when comparing two solution methods applied to one model or two estimation methods applied to two different data sets.</DD>
+<DT>Outcomes are related to points in the state space <b>&Theta;</b>, but they are treated distinctly in <span class="n">niqlow</span>.  </DT>
+<DD>The state space is represented so as to minimize storage and calculations while solving a model.  On the other hand, outcomes are designed to track everything relevant to results of the DDP, and memory would be exhausted if outcomes were defined and stored for each possible state.</DD>
+<DD>It would be inefficient to store all potential outcomes when only one can be realized at each point in a single DP process.</DD>
+
+<DT>A single point in the state space can have multiple states that could come before it or come after it hypothetically.  In contrast, outcomes have well-defined predecessors and successors.</DT>
+  <DD>These are tracked as part of the outcome, so that <span class="n">niqlow</span> represents a sequence of outcomes as a doubly-<a href="http://en.wikipedia.org/wiki/Linked_list">linked list</a> of objects of class `Outcome`.</DD>
+
+<li>The Full Outcome</li>
+
+<span class="n">DDP</span> is designed to handle programs for which not everything observed by the agent is observed by the econometrician.  In addition, <span class="n">DDP</span> is designed to handle observables that are functions of the underlying outcomes but are not necessarily of any (direct) interest of the agent.  To provide these  capabilities, first consider the case of the fully observed realization of the DP.
+
+<DT>Let the Y* denote the vector of <em>all</em> actions and all <em>realized states</em> in the model.  Generically, </DT>
+<dd><pre>
+Y* &equiv; (&alpha; &zeta; &epsilon; &eta; &theta; &gamma; &chi; Y*<sup>p</sup> Y*<sup>n</sup>)
+    &alpha; = (a<sub>0</sub> &hellip; )
+    &zeta; = (z<sub>0</sub> &hellip; )
+    &epsilon; = (e<sub>0</sub> &hellip; )
+    &eta; = (h<sub>0</sub> &hellip; )
+    &theta; = (q<sub>0</sub> &hellip; )
+    &gamma; = (g<sub>0</sub> &hellip; )
+    &chi; = (x<sub>0</sub> &hellip; )
+</pre>
+For simplicity the length of each of the vectors is not specified and the right-most elements of each of the vectors is not included. Instead, each vector is shown as the leftmost variable with subscript 0 followed by &hellip;.
+</dd>
+<DD>Y* is referred to as the <em>full outcome</em> because it includes all information that is knowable and relevant about a single period in a realized DDP.</DD>
+<DT>Y* adds a new vector denoted &chi; with generic elements x.  </DT>
+<DD>Elements of &chi; are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so &chi; adds no additional information to the full outcome.  That is, &chi; is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
+<DD>Auxiliary variables are derived from the `AuxiliaryVariable` class, and they are added to the outcome using `DP::AuxiliaryOutcomes`(). The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual `AuxiliaryVariable::Realize`().  </DD>
+<DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
+<DT>Y* also includes Y<sup>p</sup> Y<sup>n</sup>, which are <q>pointers</q> to the preceding and next outcomes in the path. </DT>
+<DD>These values can be undefined for various reasons. Obviously the value of Y<sup>n</sup> is not realized until the end of the current period.  And the initial period obviously has no preceding outcome. However, in the middle of a panel of observation both pointers would be defined.</DD>
+
+<DT>The full outcome may not be observed in data.  The observed outcome, <var>Y</var>, will have the same structure as <var>Y*</var> but one or more elements of the member vectors will include missing (.NaN) values.  </DT>
+<DD>Observability is discussed below when the derived  <a href="">Data</a> class is introduced.  Its purpose is to account for gaps between theoretical outcomes and observed results from a DP.</DD>
+
+<li>Auxiliary Variables</li>
+
+<li>Paths </li>
+
+The base `Outcome` class captures a single period, and it points to the previous outcome and the next outcome along a realized path (if the predecessor and successor exist).  A `Path` is derive from `Outcome`, so the first outcome on the path is stored directly by the path (since it is an outcome itself).  But `Path` also has a `Path::last` data member which points to the last outcome on the path.  Because both the previous and next outcomes are defined a `Path` can be processed both forwards and backwards.  That is, a path is a doubly-linked list.
+
+<!--
+Image Y*  Y* Y* ...
+-->
+
+Finally, `DataSet` is a class derived from `Panel` that includes methods to read in outcomes from data accounting for partial or complete unobservability of actions and states.
+
+This organization can be seen by clicking on <em>hierarchy</em> in the upper right corner of any page of DDP documentation.
+
+A `Path` is a derived class from `Outcome`.  The difference is that a path tracks a sequence of outcomes generated by realizations of a single DP problem.  The outcomes in a path are a <em>linked list</em>.  Since a path is itself an outcome the first outcome is the path itself.  `Outcome` tracks both the <em>next</em> and <em>previous</em> outcome in the realized path.  Further, the path stores the last outcome in the path, which makes it possible to work either forwards or backwards in the sequence.<p>
+
+<li>Panels</li>
+
+In turn, a <b>fixed panel</b> (`FPanel`) is a list of `Path`s that share the same fixed effects. FPanel tracks the following path so a panel can be processed sequentially as a linked list.  (Because paths in a panel are not ordered the previous path is not stored.)
+
+In turn a `Panel` is a list of fixed panels.
+
+<a name="SS"><LI>Simulation</LI></a>
+
+The vector &zeta; is filled in before calling <code>Auxiliary()</code>.  Since choices are simulated directly from choice probabilities, the simulated values of &zeta; are conditional on the simulated choice.  This is achieved by calling `Bellman::ZetaRealization`() or its replacement.  For example, the version for ex post extreme value models would simulate a &zeta; vector that follows the IID extreme value distribution but consistent with the simulated action at that state.  The user can replace <code>ZetaRealization()</code> with their own.  The <code>Auxiliary()</code> method can access the realization in `DP::zeta`, a static value  which is only defined during simulation.  On the other hand, the user's <code>Auxiliary</code> method could include additional randomness directly.
+
+<DT>Initial Conditions</DT>
+<DD>Fixed states, &gamma;</DD>
+<dd>Endogenous states, &theta;</dd>
+<dd>Sampling from the stationary distribution</dd>
+
+<DT>Observed nad Partially Observed Outcomes</DT>
+<DD>Recall that <em>Y*</em> is the full realized outcome of the DP model is a single period.  It includes all states, actions and auxiliary variables.  In practice the full outcome is not directly observed.  The limited information can be variables whose realized values are simply missing, or they only affect an auxiliary variable which combines other elements of the outcome.  </DD>
+<DD>Express the <em>observable outcome</em> as<pre>
+Y = &equiv; (x<sub>0</sub> &hellip; x<sub>&chi;.N</sub>  - - &hellip; a<sub>o0</sub> - &hellip; - a<sub>o1</sub> - &hellip; - z<sub>o0</sub> - &hellip; - e<sub>o0</sub> - &hellip; - h<sub>o0</sub> - &hellip; - q<sub>o0</sub> &hellip; - g<sub>o0</sub> - &hellip; )
+</pre>
+Here <q>-</q> indicates censoring of elements of Y*, and a<sub>o0</sub> is the first observed action variable.  So if o0 = 3 it means a<sub>3</sub> is the first element of <code>&alpha;</code> that is in the observed outcome.  Between a<sub>o0</sub> and a<sub>o1</sub> are any action variables not observed and indicated by <q>- &hellip; -</q>.  The same is true of the state vectors.  </DD>
+<DD>By definition all elements of the auxiliary vector are observable.  This is not necessarily a template that all observations must follow.  It is possible that some elements of Y* are observed in some cases but not others.  </DD>
+<DD>The auxiliary variables provide great flexibility.  Suppose the value of an action variable a<sub>d</sub> is unobserved, but it is known the realized value is with some sub-range of the potential values.  Then x<sub>0</sub> and x<sub>1</sub> could be the min and max values of a<sub>d</sub>, respectively.  A derived likelihood function would add up the conditional probabilities of actions between those two values.
+<DD>
+
+<a name="Data"><LI>Data Sets</LI></a>
+
+The `DataSet` class is derived from `Panel`.  It adds to the notion of a (heterogeneous) panel methods to read in external data and to account for observability and unobservability of aspects of the DP.
+
+<h3>Observability</h3>
+
+<h3>Getting Data</h3>
+
+<DT>Methods for storing and processing data are included.  Data are read in from outside formats such as Stata using Ox's built-in capabilities in the <code>Database</code> class.  If the same labels are used for state and action variables as in the data set, the methods can seamlessly relate the data to the corresponding element of the model.</DT>
+
+<DD>A key issue with estimating DDPs is unobservability of actions and states.  <code>Outcome</code> handles this  two ways.  First it treats missing (<code>.NaN</code>) in the data as unobserved.  It  will then integrate (sum over) values of missing states and actions when computing, say, the likelihood of the data.  Second, auxiliary data (sometimes called payoff relevant variables) can be included in the data and then coded so that they indicate which variables and values should be integrated over.</DD>
+
+<a name="Emet"><LI>Econometrics</LI></a>
+
+
+</OL>
+
+<hr><a name="auto"><h1>Documentation of  Items Defined in Outcomes.ox</h1></a>
+
+**/

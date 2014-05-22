@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>ActionVariable.ox - Derived Dynamic Programs</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">ActionVariable.ox</span></h1>
+
+Elements of the action vector <code>&alpha;</code>.
+<a href="#auto">Skip down to documentation of items defined in ActionVariable.ox</a><p>
+<P/>
+An action variable is an element <var>a</var> of the action vector &alpha;.
+<P/>
+It is defined by a <a href="Shared.ox.html#Quantity___L">L</a>abel and the number of distinct values it takes on, <a href="Shared.ox.html#Discrete___N">N</a>.  DDP tracks values of <em>a</em> as 0 &hellip; N&oline;.
+
+<dl><dt class="example">Example:</dt><dd class="example">Define a binary choice variable and add it to &alpha;.<pre>
+static decl a = new ActionVariable("choice",2);
+Actions(a);
+</pre>
+It is possible to combine the creation and adding of the action variable as in <code>Actions(a=new ActionVariable("choice",2))</code>.  Multiple actions can be added with a single call to actions, and <a href="DP.ox.html#DP___Actions">Actions</a>() can be called several times, but it must be called before the state and group space is created using <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>().
+<P/>
+Actions should be declared <code>static</code> variables within <code>MyModel</code>because only once instance (object) exists for the variable.
+<P/>
+</dd>
+<P/>
+<h2>Actual and Current Values of an Action Variable</h2>
+<P/>
+<DT>Current Value</DT>
+        <DD><span class="n">DDP</span> requires <code>MyModel</code> to handle/process the full matrix of feasible actions in utility and transitions.
+        <DD>For this reason, <code>MyModel</code> will rarely if ever access the current value of an action, <code>a.v</code>.  </DD>
+        <DD>The vector of values of an action variable that corresponds to feasible &alpha;s is returned by <code><a href="Bellman.ox.html#Bellman___aa">aa</a>(a).</code></DD>
+<DT>Actual Value</DT>
+<DD>Optionally, the user can create a class derived from <a href="ActionVariable.ox.html#ActionVariable">ActionVariable</a> and supply a <a href="Shared.ox.html#Discrete___Update">Update</a> function with it.</DD>
+<DD>This allows the user to associate a meaningful value for the numbers 0 to N&oline;, stored as <code>a.<a href="Shared.ox.html#Discrete___actual">actual</a></code>.</DD>
+<DD><span class="n">DDP</span> updates an action each time the problem is resolved, so actual values can depend on <a href="Shared.ox.html#Parameter">Parameter</a> values.</DD>
+<DD><a href="Bellman.ox.html#Bellman___aa">aa</a>(a) will indeed return the actual values of <code>a</code> that correspond to each feasible action vector &alpha;.</DD>
+<DD>The default virtual <a href="Shared.ox.html#Discrete___Update">Update</a>() simply sets actual to the vector &lt; 0 : N-1 &gt;.</DD>
+<P/>
+<DT>Example
+<DD class="example">Let <var>a</var> denote a discrete choice of hours to work each week.  The maximum number of hours depends on a parameter which can differ across individuals but is constant across the state space.  Utility will be total earnings.<pre>
+struct Hours : ActionVariable {
+        decl H;
+        Hours(const N,const H);
+        Update();
+        }
+Hours::Hours(const N,const H) {
+        this.H = H;
+        ActionVariable("h",N);
+        }
+Hours::Update() {
+        actual = AV(H)* (vals / N);
+        }
+<P/>
+&hellip;
+<P/>
+MaxH() { return HasChild ? 30 : 50; }
+Actions(h = new Hours(5,MaxH));
+<P/>
+&hellip;
+<em>assuming wage is the hourly wage ... could be a parameter or a state variable</em>
+&hellip;
+<P/>
+MyModel::Utility() {
+        return CV(wage)*aa(h);
+        }</pre>
+The code segment allows the maximum hour to be 30 if the person has a (young) child, otherwise 50 hours.  And then lets each type choose 5 different levels of hours between 0 and their max hours.
+</DD>
+<P/>
+<h2>Possible and Feasible Actions</h2>
+<DT>Possible Actions.</DT>
+<DD><var>A</var> is defined as the set of possible actions, built up by adding action variables to &alpha;:<pre>
+<b>Possible Actions</b> is the matrix of all possible action values:
+    A &equiv; &times;<sub>j=0 &hellip; &alpha;.N&oline; </sub> { 0, 1, &hellip;, a<sub>j</sub>.N&oline; }</pre>
+    An action vector &alpha; is a <em>row</em> of the matrix A.    </DD>
+<DT>The position property</DT>
+<DD class="example">An action variable is a column of <var>A</var>.  Its position is the property <code>a.pos</code>. </DD>
+<DT>Feasible Actions</DT>
+<DD><em>Feasibility</em> is a property <code>MyModel</code> imposes on &alpha;. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of &alpha;.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We write feasibility as a property of the state:
+<pre>The <b>feasible actions</b> at &theta; is a matrix property:
+     &forall; &theta; &in; <b><b>&Theta;</b></b>, &theta;.A &sube; A.</pre></DD>
+<DT><a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>(): by default all possible actions are feasible</DT>
+<DD>If <code>MyModel</code> does not say otherwise, &theta;.A &equiv; A for all endogenous states.</DD>
+<DD>This behaviour is produced by including a built in method, <code>Bellman::FeasibleActions()</code>, which is a virtual method, meaning that <code>MyModel</code> can replace it with its own version.
+<DT>Overriding the default: <code>MyModel::FeasibleActions()</code></DT>
+<DD>If the user supplies a replacement for <code>FeasibleActions()</code> it must take a single argument <code>A</code>, which is the possible matrix <var>A</var>, each row is an action vector &alpha; and each column is an action variable a that was added to the model.
+<DD class="example"><code>MyModel::</code>must return a column vector which indicates that &alpha; is feasible or not.
+<pre>FeasibleActions() = a A.N vector containing
+      I{A.i&in;&theta;.A}, i = 0 &hellip; A.N&oline;.</pre></DD>
+<DD>This requirement explains that the default method returns a vector of 1s equal in size to the rows of <var>A</var>.
+<DT>The A List</DT>
+<DD><a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a> constructs the possible matrix A, actually stored as the first element of a list (<code>OxArray</code>):  <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state &theta;.  Every time a different value is returned a new matrix is added to the A list.  The index into the list is then stored as  <code>Aind</code> &harr;  &theta;.j.</DD>
+<DD>The user's feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available directly as <code>A[Aind][][a.pos]</code> or with <code>aa(a)</code>.</DD>
+<DD>In short, &theta;.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = &theta;.j = 0</code> for all states.</DD>
+<DT>The A list contains the <em>actual</em> values not the <em>current</em> values.</DT>
+<DD>If the user provides an <a href="Shared.ox.html#Discrete___Update">Update</a>() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values.</DD>
+<DD>Since the default is that actual values equal current values (<code>a.actual[a.v] = a.v</code>), then <code>A[Aind]</code> is always possible to use.</DD>
+<DD>The uncoded list of matrices is available as <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>.</DD>
+<DT>Example </DT><DD class="example">
+Suppose the only constraint on actions is that an action <var>a=0</var> is not feasible when a state variable <var>q=2</var>.  (For example, going to high school is not feasible if the person already has a high school degree.<pre>
+FeasibleActions(const A) {    return CV(x)==2 ? aa(a).!=0 : ones(rows(A),1) ;    }
+</pre>
+Code this way it does not matter whether more variables are added to the model and it does not matter what order the code adds the actions to &alpha;.  <code>FeasibleActions</code> is robust to those details.
+</DD>
+<P/>
+<hr><a name="auto"><h1>Documentation of  Items Defined in ActionVariable.ox</h1></a>
+</dd>
+</dl>
+<a name="ActionVariable"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ActionVariable : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+An element of the action vector &alpha;.
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

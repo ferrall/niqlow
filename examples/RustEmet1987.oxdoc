@@ -1,0 +1,203 @@
+/** Replicate Rust 1987 using <span class="n"><a href="../doc/DynamicPrograms/default.html">DDP</a></span>.
+
+
+<code>RustEmet1987.ox</code> replicates <em>Table IX, Column 2, Rows 1 and 2 </em> in <a href="http://www.jstor.org/stable/1911259?origin=JSTOR-pdf">Rust (Econometrica 1987)</a>, the celebrated bus engine replacement model.
+
+The program produces engine replacement probabilities that match those shown in <em>Figure 3 on page 1025</em> of the paper.
+
+The code segments are not exactly the same as in the Ox file, which includes additional code beyond the basics
+shown here.
+
+The paper models the decision to replace a bus engine as a function of mileage and unobserved IID shocks.  Replacement is a one-time cost that resets the odometer to <var>x=0</var>.  The cost of monthly  maintenance increases linearly with <var>x</var>.
+
+See also <a href="RustEmet1987mle.ox.html">RustEmet1987mle</a> to see how to carry out estimation using data as in the original paper.
+
+<h2>The Model</h2>
+<DL>
+<DT>An example of the `Rust` class</DT>
+<DD><em>Ex ante</em> extreme value shocks with &rho; = 1.0.
+<DD>Clock: <code>Ergodic</code>
+<DD>Action: <var>&alpha; = (d)</var>, d.N = 2,  the costly decision to replace the engine.
+
+<DT>Endogenous State<DD> <var>&theta; =   (x)</var>,  x.N = 90.
+<DD><var>x</var> is the mileage reading on the bus at its monthly maintenance, grouped into 5000 mile categories.
+<dd class="example">Transition: mileage next month is 0, 1 or 2 mileage bins more.<code><pre>
+    x' = (1-d)x    w/ prob. &theta;<sub>31</sub>
+         (1-d)x +1 w/ prob. &theta;<sub>32</sub>
+         (1-d)x +2 w/ prob. 1-&theta;<sub>31</sub>-&theta;<sub>32</sub></pre></code></dd>
+<DD>If x = 88 or 89 then the increment probabilities changed accordingly.
+<DT>Semi-Endogenous: none
+<DT>Endogenous: none
+<DT>Utility:
+<DD>The cost of regular maintenance or engine replacement.
+<dd class="example"><pre>U = -[ dRC + (1-d)&theta;<sub>1</sub><code>m</code>x ] + <code>n</code> + z<sub>d</sub>    (5.1) p. 1015
+</pre></dd>
+<DD>z<sub>d</sub> is the standard IID extreme value shock.  In the paper it is denoted &epsilon;
+<DT>Parameters:<DD class="example">
+    <table><tr><th>Parameter</th><th>Row 1</th><th>Row 2</th></tr>
+        <tr><td>&delta;</td><td>0.9999;</td><td>0</td></tr>
+        <tr><td>RC</td><td>10.07</td><td>7.6538</td></tr>
+        <tr><td>&theta;<sub>1</sub></td><td>2.293</td><td>71.5133</td></tr>
+        <tr><td>&theta;<sub>3</sub></td><td>&lt; 0.3919,0.5953&gt;</td><td>&lt; 0.3919,.5953&gt;</td></tr></table></dd>
+<DD>The article suggests <var>x</var> enters the code in terms of thousands of miles (0 to 445,000), but I
+was not able to replicate results based on that. I was able to replicate replacement probabilities only when <var>x</var>
+takes on values between 0 and 89.
+<DD><code>RC</code> is the bus engine replacement cost. &theta;<sub>1</sub> is the operating cost given
+    mileage <var>x</var>. The parameter <code>m=0.001</code> is a scaling factor, which appears to rescale odometer
+    readings. However, results were replicated when x is the bin number (0 to 89) not the odometer category.
+<DD>The paper refers to a normalization when displaying <code>V()</code> (see Figure 2, p. 1025). The normalization is not
+    explained, but my calculations seem to explain why it is necessary. The closed form extreme-value value function
+    iteration involves taking exponents of negative values (operating costs). When &delta;=0.9999 and <code>n=0</code>
+    above the result is numerical overflow in <code>exp()</code> With <code>n&gt;0</code> set properly the arguments are
+    kept closer to 0. In the replication the normalization <code>n</code> is set to the maintenance cost for
+    <var>x=89/2</var>, the median mileage category. </dd>
+</DL>
+
+<h2>Implementation in DDP</h2>
+
+<DD><pre>
+#import "DDP"
+struct Zurcher : Rust	{
+	enum{disc,RC,theta1,theta3,Nparams};
+	static const  decl	NX		=   90,  mfact 	= 	0.001,	
+				pars 	= {{ 0.9999,10.07 ,2.293 , <0.3919,0.5953,1-0.3919-0.5953> }, //Row 1
+					       {    0.0,7.6538,71.5133,<0.3919,.5953,1-0.3919-0.5953>  } // Row 2
+						   };
+	static  decl row, 	x, normalization, th1, rc;
+;
+	static 	Run();
+	static 	Reachable();
+			Utility();
+	}
+Zurcher::Run()	{
+	decl id,data,newd,ps,EMax;
+	Initialize(Reachable,0);
+	EndogenousStates(x = new Renewal("x",NX,d,pars[0][theta3]) ); //same transition for both rows
+	CreateSpaces();
+	EMax = new ValueIteration(0);
+	EMax.vtoler = 1E-1;   								//loose tolerance because beta near 0 and 1
+	chprob = data =<>;
+	for (row=0;row<sizeof(pars);++row) {
+		SetDelta(pars[row][disc]);
+		normalization = pars[row][theta1]*mfact*NX/2.0;	 //median cost, keep U() centered on 0.0
+		th1 = pars[row][theta1];
+		rc = pars[row][RC];
+		EMax -> Solve(0,0);
+		Vprint(TRUE);
+		ps = new FPanel(row);
+		ps -> Simulate(10,400,0,TRUE);  //draw from ergodic distn.
+		newd = ps->Print(0);		
+		data |= selectifr(newd,newd[][columns(newd)-1]);
+		delete ps;
+		}
+	println("Simulated data ","%c",{"row","i"}|SimLabels,"%cf",{"%6.0f"},data);
+	delete EMax;
+	}
+Zurcher::Reachable()	{ return new Zurcher(); }
+Zurcher::Utility()  {
+	decl rep = aa(d);
+	return   -(rep*rc + (1-rep)*th1*mfact*x.v) +normalization;	
+	}</pre></dd>
+
+<DD><code>Zurcher</code> defines constants and declares a <code>static</code> member <var>x</var> (the action variable <var>d</var> is defined in the base Rust class.  The two required methods are the <code>static Reachable()</code> and non-static <code>Utility()</code>.  The file <code>RustEmet1987.ox</code> is <em>not</em> a standalone program. It should be <code>import</code>ed is file includes <code>main()</code>, such as <code>examples/main.ox</code>. Two elements of the implementation are short and simple:<pre>
+Zurcher::Reachable()	{ return new Zurcher(); }
+Zurcher::Utility()  {
+	decl rep = aa(d);
+	return   -(rep*rc + (1-rep)*th1*mfact*x.v)+normalization;
+    }</pre></dd>
+
+<DD>The first method is called by DDP while it generates the state space <b>&Theta;</b> Each time it is called <code>Reachable()</code>
+returns a new instance of the Zurcher class, which will be another endogenous point &theta;.  If the state space had states that were infeasible to reach then <code>Reachable</code> would look at the current values of the state variables (in this case <var>x</var>) and return an integer if the point is not feasible.  This feature allows the code to avoid unnecessary visits and reduce memory requirements in very large models.  Note that <code>Reachable()</code> can be called anything and it does not need to be a method.  It could be a standalone function.  If it is a method of Zurcher then it must be declared <code>static</code>.
+
+<DD>The second routine must be named <code>Utility</code> and cannot be <code>static</code>.  The form of the expression
+returned as the value should look related to the mathematical expression <var>U()</var> above.  First, note that the
+parameters are accessed as elements of the array <code>pars</code>.  Next, the current value of <var>x</var> is accessed
+as <code>x.v</code>, which is equivalent to <code>CV(x)</code>.
+
+<DD><code>Utility</code> must return a column vector of values corresponding to the feasible action vector <code>A[Aind]</code>.  In this case the action variable is simply <var>i</var>.  In this model engine replacement is always feasible.  In mathematical notation, we would write the choice set as &alpha; &in; A(&theta;).  The code could simply refer to <code>A[Aind]</code>, the matrix of feasible actions at the current state.  But rather than accessing <code>A[Aind]</code> directly the column of values for the <code>i</code> is accessed using <code>aa(i)</code>.  This makes the code closer to the notation and more general since it will work even if other actions are added to the model.  <code>A</code> is a static array of the distinct feasible sets.  <code>Aind</code> is the index into the array specific to the current state &theta;.  Since Zurcher's problem has a single feasible set, <code>A</code> has only one matrix and <code>Aind</code> = 0 at all states.
+<pre><code>
+A[0] =  &lceil; 0 &rceil;    So U = &lceil; -0.001x + n&rceil;
+        &lfloor; 1 &rfloor;           &lfloor;  -RC + n   &rfloor;         </code></pre>
+Whenever called, <code>Utility</code> returns a 2x1 matrix, the utility of not replacing and replacing.
+
+<dd class="example">Most of the programming is in the other method declared in the Zurcher class.
+<pre><code>Zurcher::Run()	{
+	decl id,data,newd,ps,EMax;
+	Initialize(Reachable,0);
+	EndogenousStates(x = new Renewal("x",NX,d,pars[0][theta3]) ); //same transition for both rows
+	CreateSpaces();
+	EMax = new ValueIteration(0);
+	EMax.vtoler = 1E-1;   								//loose tolerance because beta near 0 and 1
+	chprob = data =<>;
+	for (row=0;row<sizeof(pars);++row) {
+		SetDelta(pars[row][disc]);
+		normalization = pars[row][theta1]*mfact*NX/2.0;	 //median cost, keep U() centered on 0.0
+		th1 = pars[row][theta1];
+		rc = pars[row][RC];
+		EMax -> Solve(0,0);
+		Vprint(TRUE);
+		ps = new FPanel(row);
+		ps -> Simulate(10,400,0,TRUE);  //draw from ergodic distn.
+		newd = ps->Print(0);		
+		data |= selectifr(newd,newd[][columns(newd)-1]);
+		delete ps;
+		}
+	println("Simulated data ","%c",{"row","i"}|SimLabels,"%cf",{"%6.0f"},data);
+	delete EMax;
+    }</code></pre></dd>
+
+Like <code>Run()</code>, a user's program must do these tasks in order:
+<OL>
+<LI>Call <code>Initialize</code> for the parent DDP class.  Since <code>Zurcher</code> is <code>Rust</code>, the program calls <code>Rust::Initialize()</code>.  This will set the clock and add a binary action variable to the model, <code>d</code>.
+<LI>Create the endogenous state and add them to the model.
+<LI>Call <code>CreateSpaces();</code>.
+<LI>Set the discount factor &delta;.  (This can be done at any time before using the model.)
+<LI>Create a new instance of a solution method, such as brute force value function iteration.  Call <code>Solve()</code> for the solution method to compute  V(&theta;) and &Rho;*(&alpha;|&theta;).
+<LI>Use the results.
+</OL>
+
+<DD>The state variable <var>x</var> is of type <var>Renewal</var>, which captures exactly the process in Rust 1987.  To properly capture the transition it must be coordinated with the choice variable <var>i</var>.  To do this <var>d</var> is passed to
+<code>Renewal()</code> as an argument, along with how many categories <code>x</code> takes on and the vector of increment
+probabilities.  The length of the vector determines how different states are possible next period.</DD>
+
+<DD>The code inside the <code>for()</code> loop solves the model twice, for Row 1 and Row 2 parameters. The code can be fairly simple because the transition probabilities for <var>x</var> are the same in the two cases. If they differed across rows they would have to be sent to DDP differently. For each set of parameters the value function is solved through Bellman iteration by <code>Emax->Solve()</code>.  It prints out the results and captures the probability of engine replacement as a row vector. Then the choice probabilities are graphed to be compared with Figure 3 in the paper.</DD>
+
+
+<h2>Code and Replication Output</h2>
+
+<DD class="example"><pre><a href="RusthEmet1987.h">Header File</a>
+<object width="75%" height="200" type="text/plain" data="./RustEmet1987.h" border="1" ></object></pre></dd>
+
+<dd class="example"><pre><a href="RusthEmet1987.ox">Ox File</a>
+<object width="75%" height="200" type="text/plain" data="./RustEmet1987.ox" border="1" ></object></pre></dd>
+
+<DD class="example"><pre>       Output produced: <a href="output/RustEmet1987.txt">niqlow/examples/output/RustEmet1987.txt</a>
+<object width="75%" height="200" type="text/plain" data="output/RustEmet1987.txt" border="1" ></object></pre></DD>
+
+The values of EV do not match those shown in Figure 2 of the paper.  This is due to Rust using a different normalization than the value used here.  However, the choice probabilities appear to match very well those shown if Figure 3, as the image below suggests.
+
+<hr><h2>Comparison to Figure 3</h2>
+<img src="./Zurcher-Figure3-Replication.png" width="45%"><img src="./Figure3Rust1987.png" width="45%">
+
+The paper labels the x axis as thousands of miles since engine replacement.  This means that <var>x</var> should take on values 0, 5, ..., 445.  It also suggests that the factor on costs scales 300,000 to 300. However, using this scaling I was not able to replicate the choice probabilities.  Only when <var>x</var> takes on values 0, ..., 89 and the scaling factor still equals 0.001 was I able to reproduce the choice probabilities.
+
+<hr><h2>Simulation of the process</h2>
+
+Another use of the model is to simulate data by creating a <code>FPanel()</code> object and simulating a sample of data from the process. The <code>F</code> stands for <q>Fixed</q> and indicates that each series in the panel will have the same fixed group values (there is only one value of &gamma; anyway).  The call to <code>Simulate()</code> for the fixed panel object will create a data set of 10 buses observed over 400 months each.  The intial mileage for each bus will be drawn from the ergodic distribution.  <p>
+The output file shows a simulated panel of buses, including the months and mileage at every replacement.  The simulate routine returns a panel of observations.  But in the case of this model it is sufficient to show only months when an engine is replaced, the age of the bus when it occurs and the mileage reading. So the replication program deletes simulated months when no replacement occurred.  It also appends the row number for the model.
+
+<dd class="example">For example, the first simulated bus data looks like this
+<pre>Simulated data
+   row   bus monthst.ind Const     x     t    t'     i
+     0     0   116    72     0    72     0     0     1
+     0     0   175    36     0    36     0     0     1
+     0     0   269    52     0    52     0     0     1
+     0     0   350    51     0    51     0     0     1
+</pre></DD>
+
+Bus 0 had four replacements, which occurred in months 116, 175, 269 and 350 of its lifetime.  The mileage on the odometer at replacement was in the interval [5000x,5000(x+1)].
+
+<DD>The column labeled Const is a placeholder for exogenous state variables.  If the model has no such variables then DDP inserts a constant there.  This makes it possible to construct indices into the state space without requiring a check of zero dimensions.  Since the model is stationary there is no separate time variable.  If this were a finite horizon or non-stationary environment then t would contain the age of the process.  DDP allows for random aging so t would not necessarily be equivalent to the months column. The t' variable (t&Prime; in the notes) is used during iteration on the value function.  During simulation it is not used and would always have the value 0.
+</DD>
+
+**/

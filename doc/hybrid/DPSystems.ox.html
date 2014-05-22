@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link rel="stylesheet" type="text/css" href="oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>DPSystems.ox - Hybrid Methods</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">DPSystems.ox</span></h1>
+
+Methods using non-linear systems solving in <a href="..\Optimization\default.html">FiveO</a>.
+
+<a name="global"></a>
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global enumerations</span></h2>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DPSystems.ox.html#SystemAlgorithms">SystemAlgorithms</a></td>
+<td class="modifiers"></td>
+<td class="description">Tags for Nonlinear System Solver Algorithms.</td>
+</tr>
+</table>
+
+<a name="DPSystem"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DPSystem</span></h2>
+
+Represent V or R* as a non-linear system.
+
+<a name="EVSystem"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">EVSystem : <a href="DPSystems.ox.html#DPSystem">DPSystem</a></span></h2>
+
+Holds V as a system of equations.
+ @internal
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPSystems.ox.html#EVSystem___EV">EV</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPSystems.ox.html#EVSystem___systask">systask</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#EVSystem___EVSystem">EVSystem</a></td>
+<td class="modifiers"></td>
+<td class="description">Initialize EV() as a system of non-linear equations.</td>
+</tr>
+</table>
+
+<a name="ReservationValues"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ReservationValues</span></h2>
+
+Solve for cutoffs as a non-linear system of equations.
+<P/>
+Vsolve() computes <span="o">z</span><sub>0</sub> &hellip; <span="o">z</span><sub>&alpha;.N&oline;</sub> which are cutoff or reservation values for the values of z.  The optimal value of a, denoted a*, is
+<DD class="example"><pre>
+ a* = a  iff <span="o">z</span><sub>a-1</sub> &lt; &omega; &le; <span="o">z</span><sub>a</sub>.
+<span="o">z</span><sub>-1</sub> &equiv; -&infin;
+<span="o">z</span><sub>a.N</sub> &equiv; +&infin;
+ </pre></DD>
+<P/>
+The user writes routines that return ...
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPSystems.ox.html#ReservationValues___RValSys">RValSys</a></td>
+<td class="modifiers"></td>
+<td class="description">Objectives for each &Alpha;  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#ReservationValues___ReservationValues">ReservationValues</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#ReservationValues___Run">Run</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#ReservationValues___Solve">Solve</a></td>
+<td class="modifiers"></td>
+<td class="description">Solve for cut off values in the continuous shock &zeta;.</td>
+</tr>
+</table>
+
+<a name="Rsystem"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Rsystem : <a href="DPSystems.ox.html#DPSystem">DPSystem</a></span></h2>
+
+System of equations for reservation value solutions.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPSystems.ox.html#Rsystem___c">c</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPSystems.ox.html#Rsystem___curth">curth</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPSystems.ox.html#Rsystem___dV">dV</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPSystems.ox.html#Rsystem___meth">meth</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPSystems.ox.html#Rsystem___Ncuts">Ncuts</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPSystems.ox.html#Rsystem___ru">ru</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPSystems.ox.html#Rsystem___zstar">zstar</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#Rsystem___Rsystem">Rsystem</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a system of nonlinear equations to solve for reservation values.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#Rsystem___RVSolve">RVSolve</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<a name="RVEdU"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RVEdU</span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#RVEdU___Run">Run</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#RVEdU___RVEdU">RVEdU</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<a name="SolveAsSystem"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SolveAsSystem</span></h2>
+
+Solve EV as as a non-linear system in a stationary EVExAnte environment.
+In an ergodic system <em>EV(&theta;) = EV'(&theta;)</em> where <em>EV(&theta;)</em> is
+the result of applying Bellman's equation to <em>V'(&theta;)</em>.  This can be written
+as a system of non-linear equations to find the root:<pre><var>
+EV(&theta;) - EV'(&theta;) = 0.<var></pre>
+Rather than iterating on Bellman's equation from some initial <em>EV'(&theta;)</em>, this approach uses
+Newton-Raphson root solving to find the solution.  This can be much faster, but less certain of success, than Bellman iteration,
+especially when &delta; is near 1.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPSystems.ox.html#SolveAsSystem___system">system</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPSystems.ox.html#SolveAsSystem___VI">VI</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#SolveAsSystem___Run">Run</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#SolveAsSystem___Solve">Solve</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#SolveAsSystem___SolveAsSystem">SolveAsSystem</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global </span></h2>
+
+<table class="enum_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><a name="SystemAlgorithms"></a>SystemAlgorithms</td>
+<td class="description">Tags for Nonlinear System Solver Algorithms.
+</td>
+<td class="elements">USEBROYDEN, USENEWTONRAPHSON, SystemAlgorithms</td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">EVSystem</span></h2>
+
+<a name="EVSystem___EV"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">EV</span></h3>
+
+<span class="declaration">const decl EV [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="EVSystem___EVSystem"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">EVSystem</span></h3>
+
+<span class="declaration">EVSystem :: EVSystem ( spacesize , systask )</span>
+<dl><dd>
+Initialize EV() as a system of non-linear equations.
+
+</dd></dl>
+
+<hr>
+<a name="EVSystem___systask"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">systask</span></h3>
+
+<span class="declaration">const decl systask [public]</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ReservationValues</span></h2>
+
+<a name="ReservationValues___ReservationValues"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ReservationValues</span></h3>
+
+<span class="declaration">ReservationValues :: ReservationValues ( LBvalue , METHOD )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ReservationValues___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">ReservationValues :: Run ( th )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ReservationValues___RValSys"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">RValSys</span></h3>
+
+<span class="declaration">decl RValSys [public]</span>
+<dl><dd>
+Objectives for each &Alpha;
+
+</dd></dl>
+
+<hr>
+<a name="ReservationValues___Solve"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Solve</span></h3>
+
+<span class="declaration">ReservationValues :: Solve ( Fgroups , ... )</span>
+<dl><dd>
+Solve for cut off values in the continuous shock &zeta;.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Fgroups</td>
+<td class="description" valign="baseline">DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Rsystem</span></h2>
+
+<a name="Rsystem___c"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">c</span></h3>
+
+<span class="declaration">decl c [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rsystem___curth"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">curth</span></h3>
+
+<span class="declaration">decl curth [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rsystem___dV"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">dV</span></h3>
+
+<span class="declaration">decl dV [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rsystem___meth"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">meth</span></h3>
+
+<span class="declaration">const decl meth [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rsystem___Ncuts"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Ncuts</span></h3>
+
+<span class="declaration">const decl Ncuts [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rsystem___Rsystem"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Rsystem</span></h3>
+
+<span class="declaration">Rsystem :: Rsystem ( LB , Ncuts , METHOD )</span>
+<dl><dd>
+Create a system of nonlinear equations to solve for reservation values.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">LB</td>
+<td class="description" valign="baseline">AV compatible lower bound on the value of the first reservation value
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Ncuts</td>
+<td class="description" valign="baseline">number of reservation values</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Rsystem___ru"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ru</span></h3>
+
+<span class="declaration">decl ru [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rsystem___RVSolve"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RVSolve</span></h3>
+
+<span class="declaration">Rsystem :: RVSolve ( curth , dV )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rsystem___zstar"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">zstar</span></h3>
+
+<span class="declaration">const decl zstar [public]</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RVEdU</span></h2>
+
+<a name="RVEdU___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">RVEdU :: Run ( th )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="RVEdU___RVEdU"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RVEdU</span></h3>
+
+<span class="declaration">RVEdU :: RVEdU ( )</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SolveAsSystem</span></h2>
+
+<a name="SolveAsSystem___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">SolveAsSystem :: Run ( th )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="SolveAsSystem___Solve"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Solve</span></h3>
+
+<span class="declaration">SolveAsSystem :: Solve ( SystemSolutionMethod , mxiter )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="SolveAsSystem___SolveAsSystem"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SolveAsSystem</span></h3>
+
+<span class="declaration">SolveAsSystem :: SolveAsSystem ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="SolveAsSystem___system"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">system</span></h3>
+
+<span class="declaration">decl system [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="SolveAsSystem___VI"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">VI</span></h3>
+
+<span class="declaration">decl VI [public]</span>
+<dl><dd>
+
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

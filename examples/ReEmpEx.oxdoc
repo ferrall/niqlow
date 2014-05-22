@@ -1,0 +1,40 @@
+/** .
+
+@sortkey ABA
+
+<h2>The Model</h2> The estimated model can be summarized as follows:
+<DL>
+<DT>Solution/smoothing: Extreme Value ex ante, &rho; = 1.0.
+<DT>Clock: Stationary (T = &infin;)
+<DT>Action Vector: <var>&alpha; = (a x), i &in; {0,1}</var>
+<DT>Endogenous State Variables <var>&theta; =   (x),  </var>
+<DD>
+<DD>
+<DD>
+<DT>Utility:
+<dd class="example"><pre><code>U = -[i RC+(1-i)&theta;<sub>1</sub><code>m</code>x] + <code>n</code> + &zeta;.i    (5.1) p. 1015 </code></pre></dd>
+<DD>
+<DT>Parameters:
+<DT><b>Notes:</b>
+<li>The article seems to suggest that <var>x</var> enters the code in terms of thousands of miles (0 to 445,000), but I
+was not able to replicate results based on that. I was able to replicate replacement probabilities only when <var>x</var>
+takes on values between 0 and 89.
+<li>The parameter <code>RC</code> is the bus engine replacement cost. &theta;<sub>1</sub> is the operating cost given
+    mileage <var>x</var>. The parameter <code>m=0.001</code> is a scaling factor, which appears to rescale odometer
+    readings. However, results were replicated when x is the bin number (0 to 89) not the odometer category.
+<li>The paper refers to a normalization when displaying <var>V()</var> (see Figure 2, p. 1025). The normalization is not
+    explained, but my calculations seem to explain why it is necessary. The closed form extreme-value value function
+    iteration involves taking exponents of negative values (operating costs). When &delta;=0.9999 and <code>n=0</code>
+    above the result is numerical overflow in <code>exp()</code> With <code>n&gt;0</code> set properly the arguments are
+    kept closer to 0. In the replication the normalization <code>n</code> is set to the maintenance cost for
+    <var>x=89/2</var>, the median mileage category. </dd>
+</DL>
+
+<div class="page-break"></div>
+<h2>Implementation in DDP</h2>
+
+<div class="page-break"></div>
+
+<div class="page-break"></div>
+
+**/

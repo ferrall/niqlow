@@ -1,0 +1,44 @@
+/** Bellman's Equation and Expected Value Function Iteration.
+<a href="#auto">Skip down to documentation of items defined in Bellman.ox</a><p>
+
+@sortkey AAD
+
+<DT>Bellman is derived from the `DP` class.  Classes based on Bellman capture different specifications of the model, especially in terms of the <em>iid continuous state vector</em>, denoted &zeta;.</DT>
+
+<DD>A user would base <code>MyModel</code> on one of these classes (or a class ultimately derived from them).</DD>
+
+<DD>The continuous state &zeta; determines the form of Bellman's for choice-specific values, which integrates out the IID state vectors, &zeta;, &epsilon; and &eta;.
+
+<DT>Solution methods are coded separately from `Bellman`.  They are derived from the `Method` class and described in <a href="Methods.html">Methods</a>.  Some methods may only operate if the user's model is derived from a compatible class of `Bellman` or has other required characteristics.
+
+<DT>Classes of type `Bellman` code the form of Bellman's equation for the specification:
+<DD><pre>
+V(&theta;&prime;) &equiv;  &sum;<sub>&eta;</sub>  &sum;<sub>&epsilon;</sub>  &int;<sub>&zeta;</sub> [ V(&zeta;,&epsilon;,&eta;,&theta;&prime;) ] f(&zeta;)d&zeta; &Rho;<sub>&epsilon;</sub>(&epsilon;)&Rho;<sub>&eta;</sub>(&eta;)
+
+EV(&theta;&prime;) = E<sub><code>&alpha;</code>,&eta;,&theta;</sub>V(&theta;&prime;)  = &sum;<sub>&theta;&prime;</sub> V(&theta;&prime;) &Rho;(&theta;&prime;;<code>&alpha;</code>,&eta;,&theta;)
+
+v(&alpha;,&zeta;,&epsilon;,&eta;,&theta;) &equiv; U(&alpha;,&epsilon;,&eta;,&theta;,&gamma;) + &zeta;.&alpha; + &delta; EV(&theta;&prime;)
+
+V(&zeta;,&epsilon;,&eta;,&theta;) = max<sub>&alpha;&in;&Alpha;(&theta;)</sub>  v(&alpha;,&zeta;,&epsilon;&eta;,&theta;)
+</pre></DD>
+<DD>The integration over &zeta; is carried out by the virtual `Bellman::thetaEMax`() or its replacement. .
+<DD>The default method,  `Bellman::thetaEMax`(), assumes that &zeta; takes on one value, 0, with density f(0)=1.  (Another way to think of it:  &zeta; is an empty vector.)   Thus, the default does no integration.  </DD>
+<DD>Choice probabilities are stored conditional on &eta; and &theta;.  This requires summing over &epsilon; and integrating over &zeta; Another virtual method, `Bellman::Smooth`(), carries out the smoothing of choice probabilities, but only on a final iteration (after convergence in an infinite horizon environment).</DD>
+<DD>In the default  choice probabilities are not smooth in model parameters.  That is, conditional choice probabilities are either 0 or 1 based on. The derived class `ExPostSmoothing` allows for ex-post smoothing of choice probabilities without the presence of &zeta;</DD>
+</DT>
+
+<DT>Required and Optional User-Contributed Elements of <code>MyModel</code> and <code>MyCode</code></DT>
+<DD><code>MyModel</code> must supply a replacement for `Bellman::Utility`(), which simply returns 0.  </DD>
+<DD><code>MyModel</code> can provide a replacement for the virtual `Bellman::FeasibleActions`() method to make the feasible choice set to vary with the endogenous state &theta;.</DD>
+<DD><code>MyModel</code> must include a static method/function that returns a new instance of <code>MyModel</code> for any reachable state and 0 otherwise.  <code>MyCode</code> must pass this method to <code>DPparent::CreateSpaces()</code>.
+<DD><code>MyModel</code> can assign`DP::PreUpdate` to a static method/function that will be called by `DP::UpdateVariables`, which is called by `FixedSolve::Run`().  This allows the user to update values of parameters before DDP recomputes transition probabilities and utility of actions.</DD>
+<DD><code>MyModel</code> can supply replacements for `Bellman::thetaEMax`(), `Bellman::ActVal`(), `Bellman::Smooth`().  Many of the derived classes of Bellman already specialize these operations.
+<DD><code>MyModel</code> can add `AuxiliaryVariable`s and a `ZetaRealization` for simulating outcomes and accounting for partial observability of the state.</DD>
+<DD><code>MyCode</code> must sandwich the commands that add actions and states to the model between calls to <code>DPparent::Initialize(&hellip;)</code> and <code>DPparent::CreateSpaces(&hellip;)</code>.  <code>MyModel</code> can supply their own versions of these two methods, by then they must call the parent versions.  If <code>MyModel</code> does not have its own versions, then the prefix <code>DPparent::</code> is not needed.</DD>
+
+<DT>Hybrid Solution Methods
+<DD>Some methods for solving DDP rely not on Bellman iteration but on non-linear optimization and root-finding.  These methods combine <span class="n">DDP</span> and <span class="n">FiveO</span>.  They are categorized as <a href="..\Hybrid\default.html">Hybrid Methods</a> and discussed separately.</DD>
+
+<hr><a name="auto"><h1>Documentation of  Items Defined in Bellman.ox</h1></a>
+
+**/

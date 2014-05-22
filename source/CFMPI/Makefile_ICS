@@ -1,0 +1,30 @@
+OXHOME=/home/hpc1014/bin/OxMetrics7/ox
+OXDEV=$(OXHOME)/include
+INC := ../../include
+MPI := /opt/ics/impi/4.0.3.008
+
+CC = icc
+C64PATH=-L$(MPI)/lib64 -I$(MPI)/include64 -I$(INC) -I$(OXDEV)
+CFLAGS = -Wall -O2  -m64 -D__cdecl= -c $(C64PATH) -lmpi
+SHFLAGS = -m64 -shared
+
+vpath %.ox $(INC)
+vpath %.c .
+vpath %.h $(INC)
+vpath %.c.h $(INC)
+vpath %.so $(INC)
+
+CFMPI.so : CFMPI.o
+
+%.o : %.c %.c.h
+	$(CC) $(CFLAGS) -fPIC $<
+
+%.so :
+	$(CC) $(SHFLAGS) -o $@ $^
+	mv $@ $(INC)
+
+.PHONY : document
+document:
+	copy $(INC)\CFMPI.ox .
+	"C:\Program Files (x86)\oxdoc\bin\oxdoc.bat" -include $(INC) -uplevel CFMPI.ox InstallAndUse
+	erase CFMPI.ox 

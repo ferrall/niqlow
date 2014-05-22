@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>Install - About niqlow</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">Install</span></h1>
+
+Acquire, Install and Use <span class="n">niqlow</span>.
+<ol class="contents">Steps
+<LI>Get and install Ox (if necessary)</LI>
+<LI>Get and install <span class="n">niqlow</span> </LI>
+<LI>Include <span class="n">niqlow</span> on the <code>Ox path</code>.  If using <code>OxEdit</code>, have it take input.</LI>
+<LI>Test the installation</LI>
+<LI>Include <span class="n">niqlow</span> in your program</LI>
+</ol>
+<h1>Details of the steps</h1>
+<OL class="body">
+<LI>Get and install <code>Ox</code> and <code>OxEdit</code>.</LI>
+    <DT>These instructions presume you are using Ox <em>Console</em>.</DT>
+    <DD>If you have Ox <em>Professional</em> please follow its installation instructions.
+    <DT>Register as an Ox user to get an e-mail link: <a
+    href="http://www.doornik.com/download_oxcons.html">http://www.doornik.com/download_oxcons.html</a></DT>
+    <DD>When the e-mail arrives, follow it and proceed with the instructions.</DD>
+    <DD>It is recommended to install <code>OxEdit</code> as well as Ox Console. </DD>
+    <DD>You can also run Ox from a "command line" or use another programming editor such as <code>WinEdt</code> or <code>Emacs</code>.</DD>
+<LI>Get  <span class="n">niqlow</span>.</LI>
+    <DT>Register as a user of <span class="n">niqlow</span>
+    by going <a href="http://jdi.econ.queensu.ca/content/get-niqlow-solution-software">here</a>.</DT>
+    <DD>You will get a link to download <code>niqlowXXX.zip</code>, where <code>XXX</code> is the date or version number of the file. </DD>
+	<DD>Extract all files in the Zip archive to a folder of your choice. This will create a new folder on your computer called <span
+class="n">niqlow</span>	below the folder where you extracted the archive.</DD>
+    <DD> Let  <code>PATH/niqlow</code> be the full path to <span class="n">niqlow</span>.</DD>
+<LI>Include <span class="n">niqlow</span> in your Ox path.</LI>
+    <DT>For  <span class="n">niqlow</span> to work properly, its <code>include</code> folder must be in the <q>include</q> path when you run an Ox program.
+    <DT>On Windows machines:
+    <dd class="example">If your program called <code>myprogram.ox</code> relies on <span class="n">niqlow</span> you can run it like this: <pre><code>oxl.exe -i"PATH/niqlow/include" myprogram.ox.</code></pre>Again, <code>PATH</code> is where you extracted the <code>niplow</code> folder on your computer.  </DD>
+    <DD>One way to do this when using <code>OxEdit</code> is to use  <code>Tools->Add/Remove Modules</code> to add <code>-i"PATH/niqlow/include"</code> as an <em>Argument</em> to the Ox run tool. </DD>
+    <DD>If running programs in <code>OxEdit</code>, check on the <code>Takes Input</code> option on the same menu.  Otherwise if you run the main examples program nothing will happen because <code>OxEdit</code> will not send your keyboard input to the program.</DD>
+    <DD>See <a href="include.jpg" target="_blank">screen shot</a> of including a path in <code>OxEdit</code> and turning on interactive input.</DD>
+    <DT>For Mac Users of Oxedit Only</DT><DD>Do not put <code><q></code> around the path as show above, and do not have any spaces in the     folder names in <code>PATH</code>. 	This is an issue with Oxedit running on Macs (current version as of writing this), <em>not</em> an     issue with Ox itself.</DD></LI>
+    <DT>On Unix machines.
+    <DD>Ox Console on Unix is invoked with the script <code>/OxMetrics6/ox/bin/oxl</code> (or <code>bin64/oxl</code> with the 64-bit version.
+    <DD>You can modify that script by putting <code>PATH/niqlow/include</code> on the <code>OX6PATH</code>
+    <pre>&hellip;
+    OX6PATH=<q>$OX6PATH:PATH/niqlow/include</q>
+    &#36;OXHOME/bin64/oxl.bin -i&#36;OX6PATH &#36;*</pre></DD>
+    <DT>Using CFMPI</DT>
+    <DD>If you are using CFMPI modify the <code>LD_LIBRARY_PATH</code> so that the system can find the shared object files at execution time. You can add a line to the <code>oxl</code> script:<pre>
+    LD_LIBRARY_PATH=&#36;LD_LIBRARY_PATH:&#36;OXHOME/bin64:PATH/include</pre></DD>
+<P/>
+<LI>Test <span class="n">niqlow</span> by running <code>RosenbrockMain.ox</code></LI>
+        <DT>Inside <code>OxEdit</code></DD>
+        <DD>Open the file <code>niqlow/examples/RosenbrockMain.ox</code></DD>
+        <DD>Run the program.  Either type <em>Ctrl R</em> or click the first "running man" on the OxEdit menu.</DD>
+        <DT>From a command line prompt
+        <DD><pre>PATH/niqlow/examples&gt;  oxl RosenbrockMain </pre></DD>
+        <DT>Check the output
+        <DD>Either way you run it the output you get should look like the output here:
+        <pre> niqlow/examples/output/Rosenbrock.txt
+          <object width="75%" height="200" type="text/plain" data="../examples/output/Rosenbrock.txt" border="1" ></object></pre></DD>
+<LI>Use <span class="n">niqlow</span> in your Ox program.</LI>
+<DT>Do this by adding this to the top of your <code>.ox</code> <em>or</em> <code>.h</code> file:
+<DD class="example"><pre><code>#import "niqlow"</pre></code></DD>
+</OL>
+
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

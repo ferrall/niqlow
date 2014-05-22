@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\doc\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\doc\print.css">
+<style>.expression { font-style: italic; font-family: times; font-size: 12px; }</style>
+<title>WolpinJPE1984b.ox - niqlow examples</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">WolpinJPE1984b.ox</span></h1>
+
+Replicate Tables 8 and 9 of Wolpin (1982), Yale Economic Growth Center Working Paper No. 424.
+<P/>
+This paper was published in the JPE 1984.  The published version makes references to these tables but they are not include.
+<P/>
+The  parameter estimates differ between the working paper and the article.  The working paper version are used for the replication,
+but the published estimates are given as well.
+<P/>
+<h2>The Model</h2>
+<dd class="example"><pre>
+t = 0, 1, ..., 19, ..., 29.
+&alpha; = (n), n &in; {0,1}
+A(&alpha;) = {0,1} if t&lt; 20
+		{0}   if t&ge; 20
+<P/>
+&theta; = (M)
+&epsilon; = (psi;)
+Prob(M' = M+1) = pn
+M' = M + 1    if t&lt;T
+     M        otherwise.
+&psi; &sim; N(0,1)
+<P/>
+ X = Y - ( b(n-d) + (c<sub>1</sub><em>I</em><sub>t=1</sub> + c<sub>2</sub><em>I</em><sub>t=2</sub>	+
+ c<sub>30</sub>+c<sub>31</sub>t+c<sub>32</sub>t<sup>2</sup>))n
+<P/>
+ U = (&alpha;<sub>1</sub>+&psi;)M +&alpha;<sub>2</sub>M<sup>2</sup>   + &beta;<sub>1</sub>X+&beta;<sub>2</sub>X<sup>2</sup>	+
+ &gamma;<sub>1</sub>MX+&gamma;<sub>2</sub>MS
+<P/>
+For the Table 8 replication:
+</pre></dd>
+<P/>
+<h2>Replication</h2>
+<P/>
+<h3>ln Y = a<sub>00</sub>+a<sub>01</sub>t</h3>
+<table>
+<tr><th>a<sub>O</sub></th><th>a<sub>1</sub></th><th>Y</th><th>N<sub>1-5</sub></th><th>N<sub>6-10</sub></th><th>N<sub>11-15</sub></th><th>
+N<sub>16-20</sub></th><th>N</th></tr>
+<tr><td>9.35</td><td>O</td><td>11,500</td><td>2.124</td><td>2.369</td><td>1.687</td><td>.867</td><td>7.047</td></tr>
+<tr><td>8.52</td><td>O</td><td>5,000</td><td>2.117</td><td>2.362</td><td>1.682</td><td>.863</td><td>7.024</td></tr>
+<tr><td>9.21</td><td>O</td><td>10,000</td><td>2.121</td><td>2.367</td><td>1.685</td><td>.866</td><td>7.039</td></tr>
+<tr><td>10.13</td><td>O</td><td>25,000</td><td>2.134</td><td>2.380</td><td>1.699</td><td>.873</td><td>7.086</td></tr>
+<tr><td>10.82</td><td>O</td><td>50,000</td><td>2.154</td><td>2.402</td><td>1.717</td><td>.885</td><td>7.158</td></tr>
+<tr><td>8.52</td><td>.088</td><td>11,500</td><td>2.126</td><td>2.376</td><td>1.769</td><td>.875</td><td>7.146</td></tr>
+</table>
+<P/>
+<h3> ln (p/1-p) = a<sub>10</sub>+a<sub>11</sub>t</h3>
+<table>
+<tr><th>a<sub>O</sub></th><th>a<sub>1</sub></th><th>p</th><th>N<sub>1-5</sub></th><th>N<sub>6-10</sub></th><th>N<sub>11-15</sub></th><th>
+N<sub>16-20</sub></th><th>N</th></tr>
+<tr><td>2.78</td><td>O</td><td>.94</td><td>2.124</td><td>2.369</td><td>1.687</td><td>.867</td><td>7.047</td></tr>
+<tr><td>2.09</td><td>O</td><td>.89</td><td>2.078</td><td>2.326</td><td>1.614</td><td>.783</td><td>6.801</td></tr>
+<tr><td>1.67</td><td>O</td><td>.84</td><td>2.032</td><td>2.282</td><td>1.540</td><td>.701</td><td>6.555</td></tr>
+<tr><td>1.33</td><td>O</td><td>.79</td><td>1.979</td><td>2.230</td><td>1.453</td><td>.612</td><td>6.274</td></tr>
+<tr><td>1.05</td><td>O</td><td>.74</td><td>1.927</td><td>2.175</td><td>1.367</td><td>.532</td><td>6.001</td></tr>
+<tr><td>1.05</td><td>1.81</td><td>.94</td><td>2.003</td><td>2.356</td><td>1.722</td><td>.937</td><td>7.018</td></tr>
+</table>
+
+<a name="Fertility2"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Fertility2</span></h2>
+
+Wolpin 1984 fertility model
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___alph">alph</a></td>
+<td class="modifiers">static const</td>
+<td class="description">Parameters from the	1982 working paper version.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___b">b</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___bet">bet</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___c1">c1</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___c2">c2</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___c3">c3</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___delt">delt</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___gam">gam</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___M">M</a></td>
+<td class="modifiers">static</td>
+<td class="description">stock of children  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___n">n</a></td>
+<td class="modifiers">static</td>
+<td class="description">decision variable  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___p">p</a></td>
+<td class="modifiers">static</td>
+<td class="description">vector of survival prob.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___Sbar">Sbar</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___va">va</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___vb">vb</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___Y">Y</a></td>
+<td class="modifiers">static</td>
+<td class="description">vector of huband income  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___EUtility">EUtility</a></td>
+<td class="modifiers"></td>
+<td class="description">Utility.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___FeasibleActions">FeasibleActions</a></td>
+<td class="modifiers"></td>
+<td class="description">Return indicators for &theta.A.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___Mortality">Mortality</a></td>
+<td class="modifiers">static</td>
+<td class="description">Returns current time-specific transition probabilities.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___Reachable">Reachable</a></td>
+<td class="modifiers">static</td>
+<td class="description">State Space Creation.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___Replicate">Replicate</a></td>
+<td class="modifiers">static</td>
+<td class="description">Run the  replication.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___RUtility">RUtility</a></td>
+<td class="modifiers"></td>
+<td class="description">Utility.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="WolpinJPE1984b.ox.html#Fertility2___Anonymous enum 1">Anonymous enum 1</a></td>
+<td class="modifiers"></td>
+<td class="description">State space dimensions.</td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Fertility2</span></h2>
+
+<table class="enum_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><a name="Fertility2___Anonymous enum 1"></a>Anonymous enum 1</td>
+<td class="description">State space dimensions.  @names dimens
+</td>
+<td class="elements">T, tau, Mmax</td>
+</tr>
+</table>
+
+<a name="Fertility2___alph"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">alph</span></h3>
+
+<span class="declaration">static const decl alph [public]</span>
+<dl><dd>
+Parameters from the	1982 working paper version.
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___b"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">b</span></h3>
+
+<span class="declaration">static const decl b [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___bet"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bet</span></h3>
+
+<span class="declaration">static const decl bet [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___c1"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">c1</span></h3>
+
+<span class="declaration">static const decl c1 [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___c2"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">c2</span></h3>
+
+<span class="declaration">static const decl c2 [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___c3"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">c3</span></h3>
+
+<span class="declaration">static const decl c3 [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___delt"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">delt</span></h3>
+
+<span class="declaration">static const decl delt [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___EUtility"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">EUtility</span></h3>
+
+<span class="declaration">Fertility2 :: EUtility ( )</span>
+<dl><dd>
+Utility.
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___FeasibleActions"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FeasibleActions</span></h3>
+
+<span class="declaration">Fertility2 :: FeasibleActions ( Alpha )</span>
+<dl><dd>
+Return indicators for &theta.A.
+Fertility is not a feasible choice for t&gt;T-1
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___gam"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">gam</span></h3>
+
+<span class="declaration">static const decl gam [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___M"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">M</span></h3>
+
+<span class="declaration">static decl M [public]</span>
+<dl><dd>
+stock of children
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___Mortality"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Mortality</span></h3>
+
+<span class="declaration">static Fertility2 :: Mortality ( FeasA )</span>
+<dl><dd>
+Returns current time-specific transition probabilities.
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___n"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">n</span></h3>
+
+<span class="declaration">static decl n [public]</span>
+<dl><dd>
+decision variable
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___p"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">p</span></h3>
+
+<span class="declaration">static decl p [public]</span>
+<dl><dd>
+vector of survival prob.
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___Reachable"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Reachable</span></h3>
+
+<span class="declaration">static Fertility2 :: Reachable ( )</span>
+<dl><dd>
+State Space Creation.
+States with M &gt; t are not reachable (return 0).
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">a new <a href="WolpinJPE1984.ox.html#Fertility">Fertility</a> instance or 0.
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Fertility2___Replicate"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Replicate</span></h3>
+
+<span class="declaration">static Fertility2 :: Replicate ( )</span>
+<dl><dd>
+Run the  replication.
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___RUtility"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RUtility</span></h3>
+
+<span class="declaration">Fertility2 :: RUtility ( )</span>
+<dl><dd>
+Utility.
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___Sbar"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Sbar</span></h3>
+
+<span class="declaration">static const decl Sbar [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___va"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">va</span></h3>
+
+<span class="declaration">static const decl va [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___vb"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">vb</span></h3>
+
+<span class="declaration">static const decl vb [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Fertility2___Y"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Y</span></h3>
+
+<span class="declaration">static decl Y [public]</span>
+<dl><dd>
+vector of huband income
+
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+
+</div>

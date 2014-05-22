@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>ReleaseNotes - About niqlow</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">ReleaseNotes</span></h1>
+
+Corrections and Additions.
+<h2>March 2014 release</h2>
+<DL>
+<DT>Code now requires Ox 7.</DT>
+<DT>Overall</DT>
+<DD>New <code>update_sharc</code> script in <code>downloads</code> which <code>wget</code>s the current snapshot version, <code>unzip</code>s it and compiles the shared object file for CFMPI.  User will have to modify the script for their local MPI and C installations.</DD>
+<DT>DDP</DT>
+<DT>FiveO</DT>
+<DD>ParallelObjective now integrates CFMPI into optimization algorithms.</DD>
+<DT>CFMPI</DT>
+<DD>Now fully object-oriented and no longer uses <em>static</em> functions for MPI calls.</DD>
+<DD>Header now simplified. Now just <code>include "UseMPI.ox"</code></DD>
+<DT>Examples</DT>
+</DL>
+<P/>
+<h2>Late Changes and Issues with July 2013 release</h2>
+<DL>
+<DT>Printing, saving tasks are now included as methods in the new <code>DPDebug</code> class</DT>
+<DT>All methods that add states to the model now handle state blocks and lists of variables.  <code>AddBlock</code> methods have been removed.</DT>
+<DT>Fixed and Random effects are now handled properly. Blocks of group variables, but density with RandomEffectBlocks not correct yet.</DT>
+<DT>Added Discretized class to map continuous variable to discrete points. </DT>
+</DL>
+<P/>
+<p><hr></hr>
+<P/>
+<h2>DDP</h2>
+<DL>
+<DL>
+<DT> Before June, 2013 version</DT>
+<DD>Introduced HotzMiller method</DD>
+<DD>Modified Initialize and CreateSpaces</DD>
+<DD>Rewrote OneDimensionalChoice class and cut off solution method</DD>
+<DD>Derived DataSet from Panel from Fpanel from Path from Outcome</DD>
+<DD>Clarified roles of ActVal(), Emax() and Bellman() methods.
+<DD>Derived Solution methods from Task</DD>
+<DD>Introduced EndogUtil, ExogUtil, FSolve and RSolve tasks.</DD>
+<DD>Made stloop and stlist methods of Task.  Introduced virtual Run() method to eliminate switch statement inside task loops.</DD>
+<DD>Made Task derived from DP so static variables visible directly</DD>
+<P/>
+<DT>	After June, 2012 version
+<DD> Renamed components, moved DPSystems to Hybrids director
+<DD> Introduced derived Task classes and virtual InnerV() to allow for flexibility and less variation in Vsolve.
+<DT>	Hybrids
+<DD>	Introduced ImaiJainChing
+<DT>	Overall
+<DD>          Collapsed StateBlock file into StateVariable
+<DD>          Introduced &Upsilon; and data elements
+<DD>         Split DP into Base, Group and DP and Data
+<DD>         Fixed problems with KWApproximation
+<DD>         Modified solution algorithms to handle groups.
+<DD>         Introduced &gamma; vector and &Gamma; list.  Removed RandomEffect state variable
+<DD>        Moved Episode block from Gilleskie to core.  Allows for episodes that last more than T periods.
+<DD>        Added Reset option to Counter variables.
+<DD>        Added second argument to CreateSpaces and expanded use of stlist to go through the state space in models - useful in models with many unreachable states. (Convergence iteration still not supported).
+<DD>        Rewrote code so derived DP models vary by solution method.  Clock type is handled by SetClock, added curt static variable
+<DD>        Cleaned up files: StateVariables, Actions, StateBlocks (no more Autonomous, etc)
+<DD>        Added RandomEffect and RetainMatch state variables
+<DD>        Moved Zvariable from WolpinJPE1984 to Autonomous - fixed bug?
+<DD>        Added Mortality clock type (not tested yet)
+<DD>        Fixed bug in Terminal Values.
+<DD>        Drop offset argument to Transit()
+<DD>        Eliminated unnecessary automatic variables to save space
+<DD>        Improved and fixed MVNormal state block
+<DD>        Expanded Vprint() and added Aprint()
+<DD>        Added routine to predict full distribution of states and choices.
+<DD>        Added SemiExogenous subvector.  Modified all code to keep from storing transitions for fully Exogenous states
+<DD>        Dropped 'Add' from names of Add...States() and AddActions() routines
+<DD>        Added support for UserDefined virtual Bellman routine.
+<DD>		Created Clock type to include age and treatment and Tprime type for iteration
+<DD>		Rewrote iteration to handle random aging and treatment
+<DD>		Added EV variable and improved V print output
+<DT>	Ergodic
+<DD>        Now ergodic is a clock option not a model type
+<DD>        Added compute stationary distribution option
+<DD>		Fixed solve as system
+<P/>
+<DT>	Solving
+<DD>        Updated Hermite Quadrature
+<DD>        Fixed ReservationValues: uses Utility() to return value of Terminal States and initialize ustar.
+<DD>        Added stlist and rewrote KW Approximation
+<DD>        Added solve for reservation values
+<DD>        Created a first real Keane-Wolpin approximation option
+<DD>        Added GHK-Normal errors solution method (not complete yet)
+<DD>		Added separate trip counter
+<DD>		Added option of fixed number of Bellman trips
+<DT>	Simulation
+<DD>        Created and renamed SimSeries and SimPanel.  Added DropSimTermStates
+<DD>         Added SimLabels
+<DD>        Changed so it returns a matrix not an array
+<DD>		Now checks if FeasS contains states for simulation.
+<DD>		Implemented simulation of panel
+</DL>
+<P/>
+<h2>FiveO</h2>
+<DL>
+<DT>	Before June, 2013 version
+<DD>Introduced Simulated Annealing algorithm</DD>
+<DD>Introduced PanelBB object to handle data-based objectives</DD>
+	<DT>	After June, 2012 version
+<DD> Introduced Constrained Optimization based on SQP.
+<DD> Made Systems a class
+<DD> Made Parameters() more flexible - can send an array of parameters and blocks
+<DD> Introduced StDeviations for vector of positive parameters
+<DT>    Overall
+<DD>    Collapsed files storing variables and algorithms to make documentation clearer
+<DD>    Made ParameterBlock a derived type of Parameter
+<DD>    Made Algorithms derived types, including GradientBased and NonGradient containers.
+<DT>	System Solver
+<DD>		Added way to pass maxiter
+<DD>		fixed output dimensions & renamed variable
+</DT>
+<DT>	Parameters
+<DD>		Added ToggleParameterConstraint
+<DD>		Added Encode and Decode for base Parameter class
+			will act as not constrained/scaled
+</DL>
+<P/>
+<h2>Shared</h2>
+<DL>
+<DT>Before June 2013 version</DT>
+<DD>Introduce Quadrature classes and GHK simulation class</DD>
+<DD>
+<P/>
+<DT> Functions
+<DD>Renamed AV() to CV() (current value)
+<DD>Extended AV() and EV() to optionally take a second argument which is passed to functions.  This will allow transition probability functions to receive the feasible matrix.
+<DT> Enumerations
+<DD> Moved more enums to other files
+<DD> Moved some enums to other files.
+</DL>
+<P/>
+<h2>CFMPI</h2>
+<DL></DL>
+<h2>Examples</h2>
+<DL>
+<DT> Started IJCEmet2009
+<DT>    Moved example outputs to output folder
+<DT>    Created GetStartedData.ox
+<DT>    Added new <code>examples/main.ox</code> routine that runs all examples interactively
+<DT>    StataMNP and MNP
+<DD>        Integrated into examples and wrote MNP
+<DT>	RustEmet1987
+<DD>        Completed report and simulation
+<DD>		Added normalization
+<DT>	WolpinEmet1984
+<DD>        Added "b" version based on reservation values
+<DD>        Found bug in AgeBrackets (not fixed yet), changed to Aging and close to replicating results!
+<DD>        Not able to replicate number of children yet
+<DD>        Obtained working paper version and entered parameters and Tables 7 and 8 for replication
+<DT>    WolpinEmet1987
+<DD>        Converted to Reservation values approach: no replication yet
+<DD>    KeaneWolpinREStat 1994
+<DD>        Built replication model, obtained correlations in the ballpark of those in the paper
+<DT>    GilleskieEmet1998
+<DD>        Completed first attempt at replication.
+<DT>    Kennet JAE 1994
+<DD>        Found some mistakes, closer to replication but expected hours still too large
+<DD>        Created Engine StateBlock and PrattWhitney DDP model
+<DD>        Failed to replicate expected hours. Contacted Kennet.  No additional info provided
+<DT>    Berkovec and Stern 1991
+<DD>        Made changes to move random effects to &gamma;
+<DD>        Created Mortality clock type
+<DD>        Contacted Stern to ask about mortality rates. Response: can't find them
+<DD>        Found some rates to use instead.
+<DT>    ReEmpExp Bonus
+<DD>        Created insured layoff-with-offer class
+<DD>        Started working on experiment and search model
+</DL>
+</DL>
+<h2>Documentation</h2>
+<DL>
+<DT> Oxdoc CSS
+<DD>cleaned up .css files, added to  @presentation styles
+<DD>Improved ordering of files in DDP
+<DT> Presentation mode!
+<DD> Working with Opera in presentation media for presentations
+<DD> Notes, manual and GetStarted improved.
+<DT> Started adding page breaks to comments for better printer output
+<DT> Worked with Yori to finish emum support. Added enum documentation
+<DT> Added to DDP intro
+<DT> <del>Introduced use of &sect; to mark automatic (non-static) members and methods</del>
+<DT> Introduced <code>#include</code> of .oxdoc files to separate overall documentation from code.
+<DT> Tweaked OxDoc and requested fixes from Yori
+</DL>
+
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>
