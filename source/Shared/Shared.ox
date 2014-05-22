@@ -6,7 +6,7 @@ Version::Check() {
  if (oxversion()<MinOxVersion) oxrunerror("This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
  oxprintlevel(1);
  println("\n niqlow version ",sprint("%4.2f",version/100),
- " Copyright (C) 2011-2013 Christopher Ferrall.\n",
+ " Copyright (C) 2011-2014 Christopher Ferrall.\n",
  " Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n");
  checked = TRUE;
  }

@@ -299,10 +299,6 @@ KeaneWolpin::KeaneWolpin(SampleProportion,myKWEMax) {
 	decl a;
 	for (a=0;a<NA;++a) xlabels1[a] = "(V-vv)_"+sprint(a);
 	for (a=0;a<NA;++a) xlabels2[a] = "sqrt(V-vv)_"+sprint(a);
-	xlabels = {"maxE","const"};
-	decl a;
-	for (a=0;a<AA;++a) xlabels |= "(V-vv)_"+sprint(a);
-	for (a=0;a<AA;++a) xlabels |= "sqrt(V-vv)_"+sprint(a);
 	}
 	
 /**The default specification of the KW regression.

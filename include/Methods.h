@@ -107,7 +107,10 @@ struct KeaneWolpin : ValueIteration {
 					SampleProportion;
 	decl										
 												Approximated,
-												xlabels,
+												curlabels,
+                                                xlabels0,
+                                                xlabels1,
+                                                xlabels2,
 		/** X **/								Xmat,
 		/** Y **/								Y,
 		/**TT array of OLS coefficients	**/ 	Bhat;

@@ -188,7 +188,7 @@ class Version : Zauxilliary {
 //	enum {MinOxVersion=621}
 	enum {MinOxVersion=700}
 	/** Current niqlow version. @name niqlowversion **/
-	enum {version=99}
+	enum {version=100}
 	static decl checked;
 	static Check();
 	}
