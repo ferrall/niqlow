@@ -1,4 +1,3 @@
-#include "BerkovecSternEmet1991.oxdoc"
 #include "BerkovecSternEmet1991.h"
 /* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
 

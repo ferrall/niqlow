@@ -1,4 +1,3 @@
-#include "WstarTest.oxdoc"
 #include "WstarTest.h"
 
 WStar::WStar() {zstar = <0.0>;}

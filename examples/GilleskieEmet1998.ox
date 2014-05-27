@@ -1,4 +1,3 @@
-#include "GilleskieEmet1998.oxdoc"
 #include "GilleskieEmet1998.h"
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 

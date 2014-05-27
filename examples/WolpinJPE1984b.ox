@@ -1,4 +1,3 @@
-#include "WolpinJPE1984.oxdoc"
 #include "WolpinJPE1984b.h"
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 

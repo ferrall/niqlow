@@ -1,4 +1,3 @@
-#include "KeaneWolpinREStat1994.oxdoc"
 #include "KeaneWolpinREStat1994.h"
 
 DynamicRoy::Replicate()	{
