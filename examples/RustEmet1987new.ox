@@ -1,4 +1,3 @@
-#include "RustEmet1987.oxdoc"
 #include "RustEmet1987new.h"
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 

@@ -1,4 +1,3 @@
-#include "RustEmet1987mle.oxdoc"
 #include "RustEmet1987mle.h"
 
 /** Replicate the Group 4 bus estimation.

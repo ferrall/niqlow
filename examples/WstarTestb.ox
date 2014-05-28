@@ -1,4 +1,3 @@
-#include "WstarTest.oxdoc"
 #include "WstarTestb.h"
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 

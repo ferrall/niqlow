@@ -1,7 +1,6 @@
 /** Replicate Imai, Jain and Ching Econometrica 2009 (incomplete).
 
 **/
-//#include "IJCEmet2009.oxdoc"
 #include "IJCEmet2009.h"
 
 Kapital::Kapital(L,const N,const entrant,const exit,const KP){
