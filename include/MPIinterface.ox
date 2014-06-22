@@ -28,6 +28,8 @@ staying in the buffer.
 /** . @internal **/
 setfakeP2P(fP2P) { fakeP2P = fP2P; }
 
+static decl fakebuffer, faketag;
+
 //  Dummy routines in case external MPI wrappers are not available
 
 /**	Initialize the MPI environment: interface for <code>MPI_Init()</code>.
@@ -43,6 +45,9 @@ MPI_Init (aId,aNodes,aANY_TAG,aANY_SOURCE) {
   MPI::fake = TRUE;
   }
 
+MPI_Exit() {
+	}
+	
 /**	Send a message: interface for <code>MPI_Send()</code>.
     @param Buffer  vector message to send
     @param iCount integer, 0 send the whole buffer<br>otherwise only send the first <code>iCount</code> elements
@@ -50,15 +55,21 @@ MPI_Init (aId,aNodes,aANY_TAG,aANY_SOURCE) {
     @param iTag integer, tag to accompany message.
 **/
 MPI_Send(Buffer,iCount, iDest, iTag) {
-   fakeP2P.Tag = fakeP2P.server.Tag = fakeP2P.client.Tag = iTag;
-   fakeP2P.Source =MPI::ID;
-   fakeP2P.client.Buffer = fakeP2P.server.Buffer = Buffer;
-   if (isclass(fakeP2P.server)) {
-        fakeP2P.server->Execute();
-        fakeP2P.client.Buffer = fakeP2P.server.Buffer;
-        }
-   else
-        fakeP2P.client.Buffer = fakeP2P.server.Buffer = Buffer;
+   if (isclass(fakeP2P)) {
+   		fakeP2P.Tag = fakeP2P.server.Tag = fakeP2P.client.Tag = iTag;
+   		fakeP2P.Source =MPI::ID;
+   		fakeP2P.client.Buffer = fakeP2P.server.Buffer = Buffer;
+   		if (isclass(fakeP2P.server)) {
+        	fakeP2P.server->Execute();
+        	fakeP2P.client.Buffer = fakeP2P.server.Buffer;
+        	}
+   		else
+        	fakeP2P.client.Buffer = fakeP2P.server.Buffer = Buffer;
+		}
+	else {
+		fakebuffer = Buffer;
+		faketag = iTag;
+		}
     }
 
 /**	Receive a message: interface for <code>MPI_Recv()</code>.
@@ -70,7 +81,15 @@ MPI_Send(Buffer,iCount, iDest, iTag) {
     @param oError address error code returned
 **/
 MPI_Recv(aBuffer,iSource, iTag,oSource,oTag,oError) {
-	oSource[0] = fakeP2P.Source; oTag[0] = fakeP2P.Tag; oError[0] = 0;
+	if (isclass(fakeP2P)) {
+		oSource[0] = fakeP2P.Source;
+		oTag[0] = fakeP2P.Tag;
+		}
+	else {
+		aBuffer[0] = fakebuffer;
+		oTag[0] = faketag;
+		}
+	oError[0] = 0;
     }	
 
 /**	Make all nodes wait until this point is reached: interface to <code>MPI_Barrier()</code>. 	 **/

@@ -40,7 +40,7 @@ struct P2P : MPI {
 			/** `Server` object. **/				server,
 			/** Node that sent the last message**/	Source,
 			/** Tag of last message**/				Tag;													
-	P2P(DONOTUSECLIENT,client,server);
+	P2P(DONOTUSECLIENT=0,client=0,server=0);
     virtual Execute();
 	}
 
