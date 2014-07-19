@@ -13,7 +13,7 @@ enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,NStateTypes}
 enum {acts,exog,semiexog,endog,clock,rgroup,fgroup,DSubVectors,LeftSV=exog}
 		/** Groups of continugous `SubVectors`. @name SubSpaces **/
 enum {onlyacts,onlyexog,onlysemiexog,bothexog,onlyendog,tracking,onlyclock,allstates,iterating,onlyrand,onlyfixed,bothgroup,DSubSpaces}
-		/** . @name Vspace @internal **/
+		/** . @name Vspace  **/
 enum {NOW,LATER,DVspace}
 		/** . elements of array returned by `StateVariable::Transit` @name StateTrans **/
 enum {Qi,Qrho,StateTrans}
@@ -32,36 +32,35 @@ struct DP {
 	static const decl
 	/**  formatting string. @internal 	  **/ 		sfmt = "%4.0f";
 	static decl
-		/** CreateSpaces has been called. @internal **/ 		ThetaCreated,
+		/** CreateSpaces has been called or not.  **/ 		    ThetaCreated,
 		/** . @internal **/										Warned,
 		/** . **/												UseStateList,
 		/** uninitialized state. @internal  **/  				NN,
 		/** number of groups, &Gamma;.D      **/				NG,
 		/** **/													NF,
 		/** number of random groups **/							NR,
+        /** category of clock.**/                               ClockType,
 		/** counter variable.	@see DP::SetClock **/			counter,
 		/**	counter.t.N, the decision horizon.    **/  			TT,
 		/** create space to store &Rho;* **/  					IsErgodic,
 		/** &Gamma; already includes fixed effects **/			HasFixedEffect,
 		/**  . @internal **/									ReachableIndices,
-    	/**  Count of reachable states.  @internal **/  		ReachableStates,
+    	/**  Count of reachable states.  @internal **/  		NReachableStates,
 		/**  store &Alpha.D x &Theta.D matrix
 			of choice probabilities  **/  						StorePA,
 		/**   matrix of offsets. @internal    **/  				OO,
 		/**   array of subvectors.  @internal **/  				S,
 		/**   array of subspaces . @internal  **/  				SS,
-		/** List of State Variables.  Put in
-		the same order as the state vector. @internal
-		@see DP::AddStates,StateVariable **/ 					States,
+		/** List of State Variables (in order).**/ 				States,
 		/** . **/												NS,
 		/** &Alpha;.N=rows(ActionMatrix), N unconstrained actions.**/ NA,
 		/** columns(ActionMatrix), action variables **/			Nav,
 		/** Number of different action sets.    **/      		J,
-		/** action sizes. @internal         **/  				AA,
-		/** matrix of all action vectors, A. @internal **/		ActionMatrix,
-		/** list of feasible action matrices. @internal **/ 	Asets,
-		/** List of Feassible Action indicators. @internal**/  	ActionSets,
-		/** Number of states for each A set. @internal **/      AsetCount,
+		/** action sizes.         **/  				            AA,
+		/** matrix of all action vectors, A.  **/		        ActionMatrix,
+		/** list of feasible action matrices.  **/ 	            Asets,
+		/** List of Feassible Action indicators. **/  	        ActionSets,
+		/** (vector) Number of states for each A set.  **/      AsetCount,
 		/** List of <em>actual</em> feasible action matrices
 		automatically updated.  **/	                            A,
 		/** List of `StateBlock`s. @internal**/					Blocks,
@@ -73,8 +72,8 @@ struct DP {
 		/** .  @internal    **/                   				Sfmts,
 		/** . @internal **/										Vlabels,
 		/** Output level. @see NoiseLevels **/ 					Volume,
-																find,
-																rind,
+		/** index of current fixed group. **/					find,
+        /** index of current random group. **/					rind,
 		/** index of current &gamma; group. **/					gind,																
 		/** distriubution over groups 		**/ 				gdist,
 		/**density of group.
@@ -82,22 +81,22 @@ struct DP {
 			over random effects **/ 							curREdensity,		
 		/** vector of current indices into spaces. @internal**/	ind,
 
-		/** The discount factor &delta;.  @see DP::SetDelta**/ 	delta,
+		/** The discount factor &delta;.  @see DP::SetDelta **/ delta,
 		/**  Current value of t. @see DP::Gett **/				curt,
 		/**  . @internal **/      								tfirst,
-		/**  Count of reachable states.  @internal      **/   	TerminalStates,
+		/**  Count of reachable states.  **/   	                NTerminalStates,
 		/** Transition currently stored in FeasS.  @internal**/	IsTracking,
 		/** Array of Exogenous next state indices
-			and transitions. @internal    **/ 					NxtExog,
+			and transitions. **/ 					            NxtExog,
 		/** . @internal  				**/    					F,
 		/** . @internal						**/    				P,
 		/** . @internal            **/ 			 				now,
 		/** . @internal           **/ 			 				later,
 		/** set &Rho;*(<code>&alpha;</code>|&hellip;)
             in Bellman		**/		                            setPstar,
-		/** function that returns new state or 0. @internal**/	userReachable,
-		/** function that returns TRUE if &gamma exists.
-			@internal**/										GroupExists,
+		/** function that returns new state or 0.
+            Sent as argument to `DP::Initialize`().**/	        userReachable,
+		/** TRUE if &gamma exists. @internal**/					GroupExists,
 		/** static function called by `DP::UpdateVariables`().
 			The default is `DP::DoNothing`().  The user can
 			assign a static function to this variable to
@@ -110,15 +109,14 @@ struct DP {
 			if the value fucnction for each fixed group should
 			be printed it can be done in PostRESolve.
 			@see DP::PreUpdate **/								PostRESolve,
-		/** Choice specific values. @internal   			vv,**/	
 		/** max of vv. @internal       **/						V,
 		/** handles looping over endogenous transitions **/		ETT,
-		/** index into &Alpha; of curren realized &alpha;. **/	ialpha,
+		/** index into &Alpha; of current realized &alpha;. **/	ialpha,
 		/** current realized action vector, <code>&alpha;</code>,
 			only set during simulation of realized paths. **/ 	alpha,
 		/** `ZetaRealization`, realized continuous shocks, &zeta;,
 			set during simulation of realized paths. Distribution must be conditional on choice stored in
-			`DP::alpha`. **/ 	zeta,
+			`DP::alpha`. **/ 	                                zeta,
 		/** current realized auxiliary vector, &chi;,
 			only set during simulation of realized paths. **/ 	chi,
 	/** list of `AuxiliaryVariable`s that depend on the current outcome.

@@ -9,12 +9,16 @@ enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatc
 	/** Levels of output to produce while executing. @name NoiseLevels **/	
 enum {SILENT,QUIET,LOUD,NOISY,NoiseLevels}
 		/** Send one of these tags as first argument to `DP::SetClock` to use that clock. @name ClockTypes **/
-enum {InfiniteHorizon,Ergodic,NormalAging,StaticProgram,RandomAging,RandomMortality,UncertainLongevity,RegimeChange,SocialExperiment,NClockTypes}
+enum {InfiniteHorizon,Ergodic,NormalAging,StaticProgram,RandomAging,RandomMortality,UncertainLongevity,RegimeChange,SocialExperiment,UserDefined,NClockTypes}
+static const decl ClockTypeLabels
+    = {"Infinite Horizon","Ergodic","Normal Finite Horizon Aging","Static Program (finite horizon and T=1)","Random Aging (finite horizon but aging happens with probability<1 at some t","Random Mortaility (finite horizon with probability of early transition to last t, death)",
+    "Uncertain Longevity (finite horizon until last period which ends randomly)","Regime Change","Social Experiment","User Defined Clock"};
+
 		/** Output tags for reservation value utility functions. @name EUvalues **/	
 enum {EUstar,Fstar,EUvalues}
 		/** Code for solutions to Optimization and Non-Linear System solving.	@name ConvergenceResults **/	
 enum {NONE,MAXITERATIONS,FAIL,WEAK,SECONDRESET,STRONG,ConvergenceResults}
-		/** . @name NextTreatmentStates **/	
+		/** Possible next treatment phases. @name NextTreatmentStates **/	
 enum {stayinf,gotonextf,exittreatment,NextTreatmentStates}
 
 		/** Tags for Types of Constraints. @name ConstraintTypes **/	

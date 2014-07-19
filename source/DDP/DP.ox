@@ -1,7 +1,11 @@
 #include "DP.h"
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 
-/** . @internal **/
+/** Reset a group.
+Reset Ptrans [&Rho;(&theta;&prime;;&theta;)]; synch &gamma;
+@param gam , &gamma; group to reset.
+@return density of the the group.
+**/
 DP::ResetGroup(gam) {
 	if (IsErgodic) gam.Ptrans[][] = 0.0;
 	gam->Sync();
@@ -58,7 +62,7 @@ Second element is a matrix of transition probabilities (rows for actions <code>&
 **/
 DP::GetTrans(i,h) { return {Theta[i].Nxt[Qi][h],Theta[i].Nxt[Qrho][h]}; }
 
-/** Store overall &Rho;* matrix.
+/** Ask to store overall &Rho;*() choice probability matrix.
 @comment Can only be called before calling `DP::CreateSpaces`
 **/
 DP::StorePalpha() {
@@ -87,7 +91,6 @@ return (isclass(sv,"Coevolving")
 }
 
 /** Add state variables to a subvector of the overall state vector.
-@internal
 @param SubV	the subvector to add to.
 @param ... variables to add
 @comments These variables are autonomous - their transitions are not correlated with each other or other state variables
@@ -199,7 +202,7 @@ DP::AuxiliaryOutcomes(auxv,...) {
 		}
 	}
 	
-/** . @internal **/
+/** Base class for tasks involving random and fixed groups. **/
 GroupTask::GroupTask() {
 	Task();
 	span = bothgroup;	left = SS[span].left;	right = SS[span].right;
@@ -280,11 +283,10 @@ UseStateList=TRUE may be much faster if the untrimmed state space is very large 
 DP::Initialize(userReachable,UseStateList,GroupExists) {
  decl subv;
  Version::Check();
- if (ThetaCreated) oxrunerror("Must call DP::Delete betwen calls to CreateSpaces and Initialize");
+ if (ThetaCreated) oxrunerror("Must call DP::Delete between calls to CreateSpaces and Initialize");
 	this.userReachable = userReachable;
 	this.UseStateList=UseStateList;
 	this.GroupExists = isfunction(GroupExists) ? GroupExists : 0;
-	Volume = QUIET;
  	now = NOW;
  	later = LATER;
  	SubVectors = new array[DSubVectors];
@@ -300,6 +302,8 @@ DP::Initialize(userReachable,UseStateList,GroupExists) {
 	alpha = ialpha = chi = zeta = IsTracking = delta = Impossible;
 	ReachableIndices = 0;
 	PreUpdate = DoNothing;
+    if (Volume==LOUD) println("DP::Intialize is complete. Action and State spaces are empty.");
+    else Volume = QUIET;
  }
 
 
@@ -312,7 +316,7 @@ DP::CreateSpaces() {
    decl subv,i,pos,m,bb,sL,j,av, sbins = zeros(1,NStateTypes),w0,w1,w2,w3, tt,lo,hi;
 	if (!S[acts].D) {
 		oxwarning("No actions added to the model. A no-choice action inserted for you.");
-		Actions(new ActionVariable("a",1));
+		Actions(new ActionVariable());
 		}
 	S[acts].M=0;
 	S[acts].X=S[acts].D-1;
@@ -373,11 +377,11 @@ DP::CreateSpaces() {
 		tfirst = constant(-1,TT,1);
 		}
 	if (UseStateList || (IsErgodic = counter.IsErgodic) ) ReachableIndices = <>;
-	ReachableStates = TerminalStates = 0;
+	NReachableStates = NTerminalStates = 0;
 	Theta = new array[SS[tracking].size];
 	cputime0=timer();
 	tt = new CTask();	delete tt;
-	if ( IsErgodic && TerminalStates ) oxwarning("NOTE: time is ergodic but terminal states exist???");
+	if ( IsErgodic && NTerminalStates ) oxwarning("NOTE: time is ergodic but terminal states exist???");
 	J= sizeof(ActionSets);
 	tt = new CGTask();	delete tt;
 	ReachableIndices = reversec(ReachableIndices);
@@ -412,7 +416,7 @@ DP::CreateSpaces() {
 				"    Ch.Prob.track","    TotalReachable","         Terminal",
 				"     Random Groups","     Fixed Groups","    TotalUntrimmed"},
 							"%cf",{"%10.0f"},
-			SS[onlyexog].size|SS[onlysemiexog].size|SS[onlyendog].size|SubVectors[clock][0].N|SS[iterating].size|SS[tracking].size|ReachableStates|TerminalStates|NR|NF|SS[allstates].size);
+			SS[onlyexog].size|SS[onlysemiexog].size|SS[onlyendog].size|SubVectors[clock][0].N|SS[iterating].size|SS[tracking].size|NReachableStates|NTerminalStates|NR|NF|SS[allstates].size);
 		print("\nACTION VARIABLES (",NA," distinct actions)");
 		println("%r",{"    i.N"},"%cf","%7.0f","%c",Alabels,AA');
 		println("\nACTION SETS");
@@ -471,7 +475,7 @@ CTask::CTask() {
 CTask::Run(g) {
 	decl th,curind=ind[tracking];
 	if (isclass(th = Theta[curind] = userReachable(),"DP")) {
-		++ReachableStates;
+		++NReachableStates;
 		th->Bellman(state);
 		if (!isint(ReachableIndices)) {
 			if (UseStateList && tfirst[curt]<0) tfirst[curt] = sizer(ReachableIndices);
@@ -593,7 +597,10 @@ Task::Traverse(arg0, ... ) {
 DP::InitialsetPstar(task) {	}
 	
 /** Compute the distribution of Exogenous state variables.
-@internal
+
+This is or should be called each time a value function iteration method begins.
+Result is stored in the static `DP::NxtExog` array.
+
 **/
 DP::ExogenousTransition() {
     decl N,root,k,curst,si = SS[bothexog].D-1,
@@ -625,11 +632,10 @@ DP::ExogenousTransition() {
 **/
 DP::SetDelta(delta) 	{ 	return CV(this.delta = delta);	 }	
 
-/** Ensure that `StateVariable::v` is synched with the state vector.
+/** Ensure that all `StateVariable::v` objects are synched with the internally stored state vector.
 @param dmin leftmost state variable
 @param dmax rightmost state variable
 @return the value of the dmax (rightmost)
-@internal
 **/
 Task::SyncStates(dmin,dmax)	{
 	decl d,sv,Sd;
@@ -647,7 +653,6 @@ Task::SyncStates(dmin,dmax)	{
 
 /** Ensure that `ActionVariable::v` is synched with the chose <code>&alpha;</code> vector.
 @param a action vector.
-@internal
 **/
 DP::SyncAct(a)	{
 	decl d;
@@ -679,16 +684,22 @@ myclock = new DerivedClock();	SetClock(myclock);</pre></dd>
 DP::SetClock(ClockOrType,...)	{
 	if (isclass(counter)) oxrunerror("Clock/counter state block already initialized");
 	decl va = va_arglist() ;
-	if (isclass(ClockOrType,"Clock")) counter = ClockOrType;
+	if (isclass(ClockOrType,"Clock")) {
+        counter = ClockOrType;
+        ClockType = UserDefined;
+        }
 	else {
-		switch(ClockOrType) {
+        ClockType = ClockOrType;
+		switch(ClockType) {
 			case Ergodic:				counter = new Stationary(TRUE); break;
 			case InfiniteHorizon: 		counter = new Stationary(FALSE); break;
 			case NormalAging:  			counter = new Aging(va[0]); break;
+			case StaticProgram:			counter = new StaticP(); break;
 			case RandomAging:			counter = new AgeBrackets(va[0]);  break;
 			case RandomMortality:		counter = new Mortality(va[0],va[1]);  break;
+            case UncertainLongevity:    counter = new Longevity(va[0],va[1]); break;
+            case RegimeChange:          oxrunerror("Sorry! Regime Change clock not supported yet"); break;
 			case SocialExperiment:		counter = new PhasedTreatment(va[0],TRUE);  break;
-			case StaticProgram:			counter = new Aging(1); break;
 //			default : ;
 			}
 		}
@@ -787,8 +798,8 @@ Group::Group(pos,state) {
 		Ptrans = new matrix[d][d];
 		Pinfinity = new matrix[d];
 		if (isint(PT)) {
-			PT = new matrix[ReachableStates][ReachableStates];
-			statbvector = 1|zeros(ReachableStates-1,1);
+			PT = new matrix[NReachableStates][NReachableStates];
+			statbvector = 1|zeros(NReachableStates-1,1);
 			}
 		}
 	else { Ptrans = Pinfinity = 0; }

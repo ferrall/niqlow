@@ -18,40 +18,86 @@
 Time-Keeping <a href="StateVariable.ox.html#StateBlock">StateBlock</a> in <code>&theta;</code>.
 <a href="#auto">Skip down to documentation of items defined in Clock.ox</a><p>
 <P/>
-<DT><code>&theta;</code> <em>always</em> contains a single clock block derived from <a href="Clock.ox.html#Clock">Clock</a>.</DT>
-<DD>The simplest way to set the clock is to call <a href="DP.ox.html#DP___SetClock">SetClock</a>().  The first argument is either one of the <a href="Shared.ox.html#ClockTypes">ClockTypes</a> tags for built-in clocks, or it is an object of a class derived from <a href="Clock.ox.html#Clock">Clock</a>.  If a tag is sent, other arguments may be required by that clock type.</DD>
-<DD>If <code>MyModel</code> does not set the clock explicityly, then a stationary infinite horizon clock is set by <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>().</DD>
+<OL class="body">
+<LI>Setting the Clock </LI>
 <P/>
-<DT>All clocks have the same first two variables in the block</DT>
-<DD>The first is <var>t</var>, a state variable that evolves monotonically:
-<pre>t&prime; &ge; t</pre></DD>
-<DD>The second, <var>t&Prime;</var>, tracks feasible values of <var>t</var> next period during model solution.  <span class="n">DDP</span> uses t&Prime; to avoid storing the full V(&theta;) while iterating. The user typically does nothing with t&Prime;.  For example, with a <code>RandomMortality</code> clock, the next time may be either <code>t+1</code> or <code>T-1</code> if death occurs.  The value function for the those two times must be available while computing the value at time <code>t</code>.  However, no other time periods must be stored, so separate coding of the <code>t</code> process and <code>t&Prime;</code> process conserves memory in complex environments..</DD>
+<DT><code>&theta;</code> <em>always</em> contains a single clock block derived from <a href="Clock.ox.html#Clock">Clock</a>.</DT>
+<DT>The simplest way to set the clock is to call <a href="DP.ox.html#DP___SetClock">SetClock</a>().  </DT>
+<DD>The first argument is either one of the <a href="Shared.ox.html#ClockTypes">ClockTypes</a> tags for built-in clocks, or it is an object of a class derived from <a href="Clock.ox.html#Clock">Clock</a>. </DD>
+<DD> If a tag is sent, other arguments may be required by that clock type.</DD>
+<DD>The call to <code>SetClock</code> must take place between the calls to <code>Initialize()</code> and <code>CreateSpaces()</code></DD>
+<DT>The default clock is stationary.</DT>
+<DD>If <code>MyModel</code> does not set the clock explicitly, then a stationary infinite horizon clock is set by <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>().</DD>
+<P/>
+<DT>All clock blocks have the same first two variables in the block</DT>
+<P/>
+<DT>The first variable in the clock is <var>t</var>, a state variable that is weakly monotonic:
+<pre>t&prime; &ge; t</pre></DT>
+<DD>With anticipation (foresight), V(&theta;) can/should be solved backwards in <var>t</var> if time is important in the model beyond just today and tomorrow in an infinite horizon.  </DD>
+<P/>
+<DT>The second variable in the clock block, <var>t&Prime;</var>, tracks feasible values of <var>t</var> next period during model solution.</DT>
+  <DD><span class="n">DDP</span> uses t&Prime; to avoid storing the full V(&theta;) while iterating. The user typically does nothing with t&Prime;.</DD>
+ <DD>For example, with a <code>RandomMortality</code> clock described below, the next time may be either <code>t+1</code> or <code>T-1</code> if death occurs.  The value function for the those two times must be available while computing the value at time <code>t</code>.  However, no other time periods must be stored, so separate coding of the <code>t</code> process and <code>t&Prime;</code> process conserves memory in complex environments..</DD>
+<DD>Because it plays no direct role in the mathematics (as opposed to the computations), t&Prime; is never listed as a member of &theta;, but it will be seen in output with the value 0.</DD>
 <DD>In more complex environments the clock may include other state variables whose values coevolve with t and t&Prime;.</DD>
 <P/>
-<DT>Current time and the decision horizon</DT>
-<DD>The current value of <var>t</var> is available to <code>MyModel</code> as <a href="DP.ox.html#DP___curt">curt</a>.  </DD>
-<DD>The decision horizon, or <code>t.N</code>,  also denoted <code>T</code>, is the number of values that the time variable <code>t</code> takes on. The horizon of the model is
+<LI>Current time and the decision horizon</LI>
+<DT>The clock block is available as <a href="DP.ox.html#DP___counter">counter</a>, but usually <code>MyModel</code> does not need to refer to it directly.</DT>
+<DT>The current value of <var>t</var> is available to <code>MyModel</code> as <a href="DP.ox.html#DP___curt">curt</a>.  That is,</DT>
+<DD><pre>curt &equiv; counter.t.v</pre></DD>
+<DD>The name <code>curt</code> is used to avoid potential confusion.  <code>MyModel</code> can use the identifier <code>t</code> for its own use.</DD>
+<P/>
+<DT>The decision horizon, or <code>counter.t.N</code>,  also denoted <code>T</code>, is the number of values that the time variable <code>t</code> takes on. </DT>
+<DD>The horizon of the model is
 <pre>        T &equiv; t.N
         T = 1 for an infinite horizon model (T = &infin;).</pre>
-T is stored in <a href="DP.ox.html#DP___TT">TT</a>. </DD>
+<DD>Because it is crucial to the solution method, this is a property of <code>MyModel</code> stored as <a href="DP.ox.html#DP___TT">TT</a><pre>
+When T is finite
+        TT  &equiv;  T  =  counter.t.N, 
+When T = &infin;
+        TT  &equiv;  1                  </pre>
+<DD>Double-T is used to avoid possible confusions and to let the user's code define <code>T</code>.</DD>
+<DD><span class="n">DDP</span> distinguishes between a static program (finite horizon and T = </DD>TT = 1></span>) and a stationary environment
+(T=&infin; and <code>TT=1</code>) by checking the <em>class</em> of <code>counter</code>.</DD>
 <P/>
-<DT>Kinds of Clocks</DT>
-<DD>The basic clocks have the tags <code>FiniteHorizon</code> and <code>InfiniteHorizon</code>.</DD>
-<DD><code>InfiniteHorizon</code>: <var>t&Prime; = t&prime; = t = 0 = T&oline;</var>.
-In the infinite horizon case Bellman 's equation must be iterated on from initial conditions until it converges.</DD>
-<DD><a href="Clock.ox.html#Aging">Aging</a>:  <var>t&prime; = t+1</var>, up to <var>T&oline;</var>
-With ordinary aging Bellman's equation is solved backwards starting at t=T&oline; down to 0. </DD>
-<DD><code>StaticProgram</code>: with T&oline;=0. <DD><span class="n">DDP</span> knows that an infinite horizon model is different than a static program, because in the static case it does not iterate on V() until convergence.</DD>
-<DD><a href="Clock.ox.html#Mortality">Mortality</a>: two possible values of t next period <pre>t&prime; = T&oline;  with prob. &pi;(&alpha;,&theta;)
-     t+1 otherwise.</pre>
-With premature mortality Bellman's equation is solved backwards but the final period is also tracked at each t as a potential state next period. The mortality probability &pi;() can constant or depend on the current state and current actions.</DD>
-<DD><a href="Clock.ox.html#PhasedTreatment">PhasedTreatment</a>: the agent is unexpectedly pulled from a stationary environment and placed in a temporary experimental situation.</DD>
-<D>RegimeChange: like PhasedTreatment except the unexpected environment lasts forever.</DD>
+<DT>Setting the Clock</DT>
+<P/>
+<li>Kinds of Clocks</li>
+<DT><code>InfiniteHorizon</code>: <var>t&Prime; = t = 0 = T&oline;</var>.</DT>
+<DD>In the infinite horizon case Bellman 's equation must be iterated on from initial conditions until it converges.</DD>
+<DD>The algorithms know when today (t=0) is being accessed, and when tomorrow (t&prime;) is being accessed. The code for <code>MyModel</code> only has to deal with today and the transitions of state variables.</DD>
+<DT><code>Ergodic</code></DT>
+<DD>The user can set the clock to be ergodic, which means that there are no absorbing or terminal states in the state space &Theta;  </DD>
+<DD>When the clock is <code>Ergodic</code> <span class="n">DDP</span> will compute the ergodic or stationary distribution across states, &Rho;<sub>&infin;</sub> (&theta;).  If the user's state transitions are not themselves stationary then this calculation may fail.</DD>
+<DT><code>NormalAging</code>:  <var>t&prime; = t+1</var>, up to <var>T&oline;</var>; <var>t&Prime;=0</var>.</DT>
+<DD>With ordinary aging Bellman's equation is solved backwards starting at t=T&oline; down to 0. The auxiliary variable t&Prime; is not needed to account for deviations from normal time so it is simply 0 always.</DD>
+<DD>A special case is a non-dynamic environment, <code>StaticProgram</code>, with T&line;=0. <DD><span class="n">DDP</span> knows that an infinite horizon model is different than a static program, because in the static case it does not iterate on V() until convergence. Since <code>StaticProgram</code> is a tag associated with the class <a href="Clock.ox.html#StaticP">StaticP</a>, which is derived from the class <a href="Clock.ox.html#Aging">Aging</a>, <span class="n">DDP</span> cannot confuse this with a <a href="Clock.ox.html#Stationary">Stationary</a> environment.</DD>
+<DT><code>RandomMortality</code>: the agent either ages normally or dies before the start of the next period</DT>
+<DD>Random mortality means that, for there are two possible values of t and t&Prime; next period <pre>
+        (t&prime;,t&Prime;) = (T&oline;,1)  w/ prob. &pi;(&alpha;,&theta;)
+        (t&prime;,t&Prime;) = (t+1,0)         w/ prob. 1-&pi;(&alpha;,&theta;).</pre></DD>
+<DD>With premature mortality Bellman's equation is solved backwards but the final period is also tracked at each t as a potential state next period.  The use of the auxiliary state variable t&Prime; now becomes important computationally.  While iterating <span class="n">DDP</span> does not store the value function for all t, only the final and next.  So when indexing these values it does not use t&prime; but t&Prime;.  It ensures that as <code>t</code> is decremented the just-solved for values are placed where <code>t&Prime; = 0</code> will reach it.
+<DD>This means that <code>t&Prime;=0</code> is typically associated with "ordinary" time evolution while other values are perturbations such as premature death of the agent.</DD>
+<DD>The mortality probability &pi;() can constant or depend on the current state and current actions.</DD>
+<P/>
+<DT><code>UncertainLongevity</code>:</DT>
+<DD>Many papers in the literature assume normal aging or random mortality with some long but finite maximum lifetime (say, age 100).  Often the last part of the lifecycle is included with little decision making only to get reasonable continuation values for early ages.  For &delta; not too close to 1 the cap on ages does not affect choices much earlier.</DD>
+<DD>Another, perhaps more elegant, approach is to treat the lifetime itself as uncertain.  <code>t=T&oline;</code> is still the case of death which is still random and occurs with probability &pi;() as above.  But now <code>t=T&oline;-1</code> is now a stationary problem and <code>t=T&oline;</code> is a terminal state.  Otherwise, once <code>t=&Toline;-1</code> today and tomorrow are the same.  <span class="n">DDP</span> iterates on the value function at <code>t=T&oline;</code> as if it were a (non-ergodic) stationary problem, continuing until convergence.  Then it will proceed backwards as with mortality.</DD>
+<DD>The advantage of this approach is that there is a single choice probability for this final phase (conditional on other state variables) rather than computing and storing slightly different choice probabilities as <code>t</code> approaches <code>T&oline;</code>.  </DD>
+<DD>The <a href="Clock.ox.html#Longevity">Longevity</a> clock combines a special case of a more general notion of <code>RandomAging</code> which uses  <a href="Clock.ox.html#AgeBrackets">AgeBrackets</a> for the state clock with random mortality.  But it is not a special case of either one so it is derived as a third class from <a href="Clock.ox.html#NonStationary">NonStationary</a>.
+<P/>
+<DT><code>SocialExperiment</code>:  Phased treatment and random assignment</DT>
+<DD>In this environment the agent believes they are in a stationary problem and acts accordingly.  However, they are unexpectedly placed in a temporary experimental situation in which their utility and possibly state transitions have changed.  They again act accordingly but they know that eventually they will return to the original environment, which acts as the terminal values for the experiment.  There are three possible values of t&Prime; during treatment.</DD>
+<P/>
+<DT><code>RegimeChange</code></DT>
+<DD>Like a <code>SocialExperiment</code> except the unexpected environment lasts forever.</DD>
+<P/>
+</OL>
 <P/>
 <hr><a name="auto"><h1>Documentation of  Items Defined in Clock.ox</h1></a>
 
 <a name="AgeBrackets"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AgeBrackets : <a href="Clock.ox.html#NonStationary">NonStationary</a> : <a href="Clock.ox.html#Clock">Clock</a> : <a href="StateVariable.ox.html#StateBlock">StateBlock</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AgeBrackets : <a href="Clock.ox.html#NonDeterministicAging">NonDeterministicAging</a> : <a href="Clock.ox.html#NonStationary">NonStationary</a> : <a href="Clock.ox.html#Clock">Clock</a> : <a href="StateVariable.ox.html#StateBlock">StateBlock</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 Time increments randomly, with probability equal to inverse of bracket length.
 
@@ -76,7 +122,7 @@ Model decisions each year for last five years before retirement, every five year
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Clock.ox.html#AgeBrackets___AgeBrackets">AgeBrackets</a></td>
 <td class="modifiers"></td>
-<td class="description">Create a aging clock with brackets.</td>
+<td class="description">Create an aging clock with brackets.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Clock.ox.html#AgeBrackets___Last">Last</a></td>
@@ -109,7 +155,7 @@ Timing in an ordinary finite horizon environment.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Clock.ox.html#Aging___Aging">Aging</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Normal Finite Horizon Aging.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Clock.ox.html#Aging___Last">Last</a></td>
@@ -185,27 +231,71 @@ to SetClock.
 </dl>
 
 <a name="Longevity"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Longevity : <a href="Clock.ox.html#NonStationary">NonStationary</a> : <a href="Clock.ox.html#Clock">Clock</a> : <a href="StateVariable.ox.html#StateBlock">StateBlock</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Longevity : <a href="Clock.ox.html#Mortality">Mortality</a> : <a href="Clock.ox.html#NonDeterministicAging">NonDeterministicAging</a> : <a href="Clock.ox.html#NonStationary">NonStationary</a> : <a href="Clock.ox.html#Clock">Clock</a> : <a href="StateVariable.ox.html#StateBlock">StateBlock</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 Random mortality and uncertain lifetime.
-This combines a special case of <a href="Clock.ox.html#AgeBrackets">AgeBrackets</a> and a variation on  <a href="Clock.ox.html#Mortality">Mortality</a> where value of death is 0 but
-the probability of death is not zero at T.
+Like <a href="Clock.ox.html#Mortality">Mortality</a> but T-1 is a stationary environment.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Clock.ox.html#Longevity___Longevity">Longevity</a></td>
+<td class="modifiers"></td>
+<td class="description">Random death and uncertain maximum lifetime.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Clock.ox.html#Mortality">Mortality</a>:</dt><dd><a href="Clock.ox.html#Mortality___Mortality">Mortality</a></dd>
+<dt>Inherited methods from <a href="Clock.ox.html#NonStationary">NonStationary</a>:</dt><dd><a href="Clock.ox.html#NonStationary___Last">Last</a></dd>
+<dt>Inherited methods from <a href="Clock.ox.html#Clock">Clock</a>:</dt><dd><a href="Clock.ox.html#Clock___Clock">Clock</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="StateVariable.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Clock.ox.html#Mortality">Mortality</a>:</dt><dd><a href="Clock.ox.html#Mortality___DeathV">DeathV</a>, <a href="Clock.ox.html#Mortality___MortProb">MortProb</a>, <a href="Clock.ox.html#Mortality___mp">mp</a>, <a href="Clock.ox.html#Mortality___Tstar">Tstar</a></dd>
+<dt>Inherited fields from <a href="Clock.ox.html#Clock">Clock</a>:</dt><dd><a href="Clock.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Clock.ox.html#Clock___t">t</a>, <a href="Clock.ox.html#Clock___tprime">tprime</a></dd>
+<dt>Inherited fields from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___Allv">Allv</a></dd>
+<dt>Inherited fields from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___subv">subv</a>, <a href="StateVariable.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="Mortality"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Mortality : <a href="Clock.ox.html#NonDeterministicAging">NonDeterministicAging</a> : <a href="Clock.ox.html#NonStationary">NonStationary</a> : <a href="Clock.ox.html#Clock">Clock</a> : <a href="StateVariable.ox.html#StateBlock">StateBlock</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Deterministic aging with random early death.
+<pre><em>
+t' = t with prob. 1-&pi;()
+     t+1 with prob. &pi;()
+</em></pre>
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Clock.ox.html#Longevity___DeathV">DeathV</a></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Clock.ox.html#Mortality___DeathV">DeathV</a></td>
 <td class="modifiers"></td>
 <td class="description">EV at t=T-1, value of death  </td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Clock.ox.html#Longevity___MortProb">MortProb</a></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Clock.ox.html#Mortality___MortProb">MortProb</a></td>
 <td class="modifiers">const</td>
-<td class="description">static mortality prob.</td>
+<td class="description"><a href="Shared.ox.html#CV">CV</a>-compatible mortality probability  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Clock.ox.html#Mortality___mp">mp</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Clock.ox.html#Mortality___Tstar">Tstar</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Clock.ox.html#Longevity___Longevity">Longevity</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Clock.ox.html#Mortality___Mortality">Mortality</a></td>
 <td class="modifiers"></td>
-<td class="description">Random death and uncertain maximum lifetime.</td>
+<td class="description">Set clock to be deterministic aging with early random death.</td>
 </tr>
 </table>
 
@@ -225,33 +315,15 @@ the probability of death is not zero at T.
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
 </dl>
 
-<a name="Mortality"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Mortality : <a href="Clock.ox.html#NonStationary">NonStationary</a> : <a href="Clock.ox.html#Clock">Clock</a> : <a href="StateVariable.ox.html#StateBlock">StateBlock</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<a name="NonDeterministicAging"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NonDeterministicAging : <a href="Clock.ox.html#NonStationary">NonStationary</a> : <a href="Clock.ox.html#Clock">Clock</a> : <a href="StateVariable.ox.html#StateBlock">StateBlock</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
-Deterministic aging with random early death.
-
-<table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Clock.ox.html#Mortality___DeathV">DeathV</a></td>
-<td class="modifiers"></td>
-<td class="description">EV at t=T-1, value of death  </td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Clock.ox.html#Mortality___MortProb">MortProb</a></td>
-<td class="modifiers">const</td>
-<td class="description">static mortality prob.</td>
-</tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Clock.ox.html#Mortality___Mortality">Mortality</a></td>
-<td class="modifiers"></td>
-<td class="description">Set clock to be deterministic aging with early random death.</td>
-</tr>
-</table>
+Container for all non-stationary and non-deterministic aging clocks.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Clock.ox.html#NonStationary">NonStationary</a>:</dt><dd><a href="Clock.ox.html#NonStationary___Last">Last</a></dd>
 <dt>Inherited methods from <a href="Clock.ox.html#Clock">Clock</a>:</dt><dd><a href="Clock.ox.html#Clock___Clock">Clock</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="StateVariable.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="StateVariable.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="StateVariable.ox.html#StateBlock___Transit">Transit</a></dd>
 <dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
@@ -367,7 +439,7 @@ A static one-shot program.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Clock.ox.html#StaticP___StaticP">StaticP</a></td>
 <td class="modifiers"></td>
-<td class="description">A static problem: T=1 and aging.</td>
+<td class="description">A static problem: Aging and T=1.</td>
 </tr>
 </table>
 
@@ -404,7 +476,7 @@ Timing in a stationary environment.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Clock.ox.html#Stationary___Stationary">Stationary</a></td>
 <td class="modifiers"></td>
-<td class="description">Create a stationary clock block.</td>
+<td class="description">A stationary clock block.</td>
 </tr>
 </table>
 
@@ -448,24 +520,15 @@ Base class for members of a <a href="Clock.ox.html#Clock">Clock</a> block.
 
 <span class="declaration">AgeBrackets :: AgeBrackets ( Brackets )</span>
 <dl><dd>
-Create a aging clock with brackets.
+Create an aging clock with brackets.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
-<td class="declaration" valign="baseline">L</td>
-<td class="description" valign="baseline">label
-</td>
-</tr>
-<tr>
 <td class="declaration" valign="baseline">Brackets</td>
-<td class="description" valign="baseline">vector of period lengths
-</td>
+<td class="description" valign="baseline">vector of period lengths</td>
 </tr>
 </table>
-</dd>
-<dt class="comments">Comments:</dt><dd class="comments">Usually the user does not call this directly.  Instead they
-use one of the derived DP models which will create the appropriate age variable.
 </dd>
 </dl>
 </dd></dl>
@@ -506,6 +569,7 @@ Transition matrix based on Brackets
 
 <span class="declaration">Aging :: Aging ( T )</span>
 <dl><dd>
+Normal Finite Horizon Aging.
 
 </dd></dl>
 
@@ -586,16 +650,6 @@ Store Ergodic Distribution.
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Longevity</span></h2>
 
-<a name="Longevity___DeathV"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DeathV</span></h3>
-
-<span class="declaration">decl DeathV [public]</span>
-<dl><dd>
-EV at t=T-1, value of death
-
-</dd></dl>
-
-<hr>
 <a name="Longevity___Longevity"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Longevity</span></h3>
 
@@ -607,7 +661,7 @@ Random death and uncertain maximum lifetime.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">T</td>
-<td class="description" valign="baseline">number of age phases
+<td class="description" valign="baseline">number of age phases.  T-1 &eq; death; T-2 &eq; stationary last period.
 </td>
 </tr>
 <tr>
@@ -621,16 +675,6 @@ Random death and uncertain maximum lifetime.
 EV at <code>t=T-2</code> is treated as an infinite horizon problem and iterated on.<br>
 </dd>
 </dl>
-</dd></dl>
-
-<hr>
-<a name="Longevity___MortProb"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">MortProb</span></h3>
-
-<span class="declaration">const decl MortProb [public]</span>
-<dl><dd>
-static mortality prob. function
-
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Mortality</span></h2>
 
@@ -655,12 +699,12 @@ Set clock to be deterministic aging with early random death.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">T</td>
-<td class="description" valign="baseline">length of horizon
+<td class="description" valign="baseline">length of horizon. T-1 &eq; death;
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">MortProb</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible probability of early death
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible probability of early death
 </td>
 </tr>
 </table>
@@ -676,7 +720,25 @@ Set clock to be deterministic aging with early random death.
 
 <span class="declaration">const decl MortProb [public]</span>
 <dl><dd>
-static mortality prob. function
+<a href="Shared.ox.html#CV">CV</a>-compatible mortality probability
+
+</dd></dl>
+
+<hr>
+<a name="Mortality___mp"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mp</span></h3>
+
+<span class="declaration">decl mp [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Mortality___Tstar"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Tstar</span></h3>
+
+<span class="declaration">const decl Tstar [public]</span>
+<dl><dd>
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NonStationary</span></h2>
@@ -796,7 +858,7 @@ Vector of positive integers that are the
 
 <span class="declaration">StaticP :: StaticP ( )</span>
 <dl><dd>
-A static problem: T=1 and aging.
+A static problem: Aging and T=1.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Stationary</span></h2>
@@ -819,7 +881,7 @@ A static problem: T=1 and aging.
 
 <span class="declaration">Stationary :: Stationary ( IsErgodic )</span>
 <dl><dd>
-Create a stationary clock block.
+A stationary clock block.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">

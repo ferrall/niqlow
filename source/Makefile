@@ -55,7 +55,6 @@ install:
 	$(ERASE) $(INC)\*.oxo
 	${MAKE} -C DDP
 	${MAKE} -C FiveO
-	$(ERASE) $(INC)\ParallelObjective.oxo
 	$(COPY) FiveO\ParallelObjective.ox $(INC)
 	${MAKE} -C Hybrids
 	${MAKE} -C .

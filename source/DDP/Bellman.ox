@@ -1,7 +1,19 @@
 #include "Bellman.h"
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 
-/** . @internal **/
+/** Constructs the transitions for &theta;, the endogenous state vector.
+
+This computes <em>&Rho;(&theta;&prime;,&alpha;,&eta;,&theta;)</em>
+
+This task is run once before iterating on the value function.
+
+@comments
+The endogenous transition must be computed and stored at each point in the endogenous state space &Theta;.
+If a state variable can be placed in &epsilon; or &eta; instead of &theta; it reduces computation and storage signficantly.
+</dd>
+
+@see SemiTrans
+**/
 EndogTrans::EndogTrans() {
 	Task();
    	left = S[endog].M; 	right = S[clock].M;
@@ -17,7 +29,14 @@ EndogTrans::Run(th) {
 	STT -> loop();
 	}
 
-/** . @internal **/
+/** Constructs the transitions for &eta;, the semi-exogenous state vector.
+
+This computes <em>&Rho;(&eta;&prime;)</em>
+
+This task is run once before iterating on the value function.
+
+@see EndogTrans
+**/
 SemiTrans::SemiTrans() {
 	Task();
 	left = S[semiexog].M;	right = S[semiexog].X;
@@ -49,7 +68,7 @@ Bellman::Bellman(state) {
   if (!ThetaCreated) oxrunerror("Cannot create states before state space created - call DP::CreateSpaces()");
   decl s=S[endog].M;
   do { IsTerminal = any(state[s].==States[s].TermValues); } while (!IsTerminal && s++<S[endog].X);
-  TerminalStates += IsTerminal;
+  NTerminalStates += IsTerminal;
 //  println(++Ndone);
   decl curJ= sizeof(ActionSets),
   		fa = IsTerminal ? 1|zeros(rows(ActionMatrix)-1,1) : FeasibleActions(ActionMatrix),
@@ -158,7 +177,6 @@ Bellman::ExpandP(r) {
 Accounts for semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
 @param space `Task` structure
 @comments computes `DP::FeasS` FxM matrix of indices of next period states<br>`DP::Prob` conforming matrix of probabilities
-@internal
 @see DP::Vsolve	, DP::ExogenousTransition
 **/
 Bellman::EtaTransition(future) {
@@ -325,7 +343,7 @@ ExtremeValue::CreateSpaces() {	Bellman::CreateSpaces(); }
 Rust::Initialize(userReachable,GroupExists) {
 	ExtremeValue::Initialize(1.0,userReachable,FALSE,GroupExists);
 	SetClock(Ergodic);
-	Actions(d = new ActionVariable("d",2));
+	Actions(d = new BinaryChoice());
 	}
 
 Rust::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
@@ -550,8 +568,8 @@ NnotIID::UpdateChol() {
 OneDimensionalChoice::Initialize(d,userReachable,UseStateList,GroupExists) {
 	Bellman::Initialize(userReachable,UseStateList,GroupExists);
 	if (isclass(d,"ActionVariable")) Actions(this.d = d);
-	else if (isint(d)) Actions(this.d = new ActionVariable("d",d));
-	else oxrunerror("first argument 1d choice must provide an action or number of values");
+	else if (isint(d) && d>0) Actions(this.d = new ActionVariable("d",d));
+	else oxrunerror("first argument 1d choice must provide an action or positive number of values");
 	}
 
 OneDimensionalChoice::CreateSpaces() {
