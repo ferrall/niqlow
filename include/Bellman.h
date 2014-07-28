@@ -41,7 +41,7 @@ struct  Bellman : DP {
 					~Bellman();
 					aa(av);
 					Simulate(Y);
-					EtaTransition(index);
+					ThetaTransition(index);
 					UpdatePtrans();
 					ExpandP(r);
 					MedianActVal(EV);

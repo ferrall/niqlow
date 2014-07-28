@@ -1,7 +1,19 @@
 #include "Bellman.h"
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 
-/** . @internal **/
+/** Constructs the transitions for &theta;, the endogenous state vector.
+
+This computes <em>&Rho;(&theta;&prime;,&alpha;,&eta;,&theta;)</em>
+
+This task is run once before iterating on the value function.
+
+@comments
+The endogenous transition must be computed and stored at each point in the endogenous state space &Theta;.
+If a state variable can be placed in &epsilon; or &eta; instead of &theta; it reduces computation and storage signficantly.
+</dd>
+
+@see SemiTrans
+**/
 EndogTrans::EndogTrans() {
 	Task();
    	left = S[endog].M; 	right = S[clock].M;
@@ -17,14 +29,21 @@ EndogTrans::Run(th) {
 	STT -> loop();
 	}
 
-/** . @internal **/
+/** Constructs the transitions for &eta;, the semi-exogenous state vector.
+
+This computes <em>&Rho;(&eta;&prime;)</em>
+
+This task is run once before iterating on the value function.
+
+@see EndogTrans
+**/
 SemiTrans::SemiTrans() {
 	Task();
 	left = S[semiexog].M;	right = S[semiexog].X;
 	}
 	
 /** . @internal **/
-SemiTrans::Run(th) { th->EtaTransition(SS[subspace].O); }
+SemiTrans::Run(th) { th->ThetaTransition(SS[subspace].O); }
 
 /** . @internal **/
 DumpExogTrans::DumpExogTrans() {
@@ -49,7 +68,7 @@ Bellman::Bellman(state) {
   if (!ThetaCreated) oxrunerror("Cannot create states before state space created - call DP::CreateSpaces()");
   decl s=S[endog].M;
   do { IsTerminal = any(state[s].==States[s].TermValues); } while (!IsTerminal && s++<S[endog].X);
-  TerminalStates += IsTerminal;
+  NTerminalStates += IsTerminal;
 //  println(++Ndone);
   decl curJ= sizeof(ActionSets),
   		fa = IsTerminal ? 1|zeros(rows(ActionMatrix)-1,1) : FeasibleActions(ActionMatrix),
@@ -107,7 +126,7 @@ Bellman::ActVal(VV) {
 
 Bellman::MedianActVal(EV) {
 	// collapse matrix to vector
-    pandv[rind] = U[][MESind] + CV(delta)*sumr(Nxt[Qrho][MSemiEind]*diag(EV[Nxt[Qi][MSemiEind]]));
+    pandv[rind] = U[][MESind] + (Last() ? 0.0 : CV(delta)*sumr(Nxt[Qrho][MSemiEind]*diag(EV[Nxt[Qi][MSemiEind]])));
 	V[MESind] = maxc( pandv[rind] );
 	}
 	
@@ -153,17 +172,16 @@ Bellman::ExpandP(r) {
 	for (i=0;i<NA;++i) if (!ActionSets[Aind][i]) p = insertr(p,i,1);
 	return p;
 	}
-	
-/** Compute the semi-exogenous transition, &Rho;(&eta;'), within a loop over &theta;.
-Accounts for semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
-@param space `Task` structure
-@comments computes `DP::FeasS` FxM matrix of indices of next period states<br>`DP::Prob` conforming matrix of probabilities
-@internal
-@see DP::Vsolve	, DP::ExogenousTransition
+
+/** Computes the full endogneous transition, &Rho;(&theta;'; &alpha;,&eta; ), within a loop over &eta;.
+Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
+@param future offset vector to use for computing states (tracking or solving)
+@comments computes `DP::Nxt` array of feasible indices of next period states and conforming matrix of probabilities.
+@see DP::ExogenousTransition
 **/
-Bellman::EtaTransition(future) {
+Bellman::ThetaTransition(future) {
 	 decl ios = ind[onlysemiexog];
-	 if (IsTerminal) { Nxt[Qi][ios] = Nxt[Qrho][ios] = <>; return; }
+	 if (IsTerminal || Last() ) { Nxt[Qi][ios] = Nxt[Qrho][ios] = <>; return; }
 	 decl now,later,  //added Dec.2012.  w/o local decl would this corrupt static values?
 	 		si,N,prob,feas,k,root,swap, mtches,curO;
 	 now = NOW, later=LATER;
@@ -221,21 +239,22 @@ Bellman::Predict(ps,tod) {
 	tod.ch += ps*Pa;
 	tod.unch += Pa/columns(tod.sind);
 	hi = -1;
-	for (eta=0;eta<neta;++eta) {
-		lo = hi+1;
-		hi += width;
-		Pa = (pandv[rind][][lo:hi]*NxtExog[Qrho][lo:hi])';
-		tom.sind ~= exclusion(Nxt[Qi][eta],tom.sind);
-		if (nnew = columns(tom.sind)-columns(tom.p)) tom.p ~= zeros(1,nnew);
-		intersection(tom.sind,Nxt[Qi][eta],&mynxt);
-		tom.p[mynxt[0][]] += ps*Pa*Nxt[Qrho][eta];
-		}
+    if (sizeof(Nxt[Qi][0]))
+        for (eta=0;eta<neta;++eta) {
+		  lo = hi+1;
+		  hi += width;
+		  Pa = (pandv[rind][][lo:hi]*NxtExog[Qrho][lo:hi])';
+		  tom.sind ~= exclusion(Nxt[Qi][eta],tom.sind);
+		  if (nnew = columns(tom.sind)-columns(tom.p)) tom.p ~= zeros(1,nnew);
+		  intersection(tom.sind,Nxt[Qi][eta],&mynxt);
+		  tom.p[mynxt[0][]] += ps*Pa*Nxt[Qrho][eta];
+		  }
+
 	}
 
 /**Simulate the choice and next states from the current exogenous and endogenous state.
 @internal
 @param Y `Outcome`
-@param UseChoiceProb TRUE: simulates using computed choice probabilities<br>FALSE : randomly chose a feasible action.
 @return UnInitialized if end of process<br>otherwise, index for next realized endogenous state
 **/
 Bellman::Simulate(Y) {
@@ -297,7 +316,15 @@ Bellman::Delete() {
 	delete ETT;
 	StorePA = IsErgodic = HasFixedEffect = ThetaCreated = Gamma = Theta = ReachableIndices = 0;	
 	}
+
+/**
+@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
+FALSE if the state is not reachable.
+@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
+					FALSE, traverse &Theta; through iteration on all state variables
+@param GroupExists
 	
+**/
 Bellman::Initialize(userReachable,UseStateList,GroupExists) {
 	DP::Initialize(userReachable,UseStateList,GroupExists);
 	}
@@ -308,8 +335,14 @@ Bellman::CreateSpaces() {	DP::CreateSpaces(); 	}
 
 @param rho 	`AV` compatible, the smoothing parameter &rho;.<br>
 			CV(rho) &lt; 0, sets &rho; = <code>DBL_MAX_E_EXP</code> (i.e. no smoothing).
-
+@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
+FALSE if the state is not reachable.
+@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
+					FALSE, traverse &Theta; through iteration on all state variables
+@param GroupExists
+	
 With &rho; = 0 choice probabilities are completely smoothed. Each feasible choices becomes equally likely.
+
 
 **/
 ExtremeValue::Initialize(rho,userReachable,UseStateList,GroupExists) {								
@@ -321,11 +354,16 @@ ExtremeValue::Initialize(rho,userReachable,UseStateList,GroupExists) {
 ExtremeValue::SetRho(rho) {	this.rho = CV(rho)<0 ? double(DBL_MAX_E_EXP) : rho;	}
 
 ExtremeValue::CreateSpaces() {	Bellman::CreateSpaces(); }
-	
+
+/**	
+@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
+FALSE if the state is not reachable.
+@param GroupExists
+**/	
 Rust::Initialize(userReachable,GroupExists) {
 	ExtremeValue::Initialize(1.0,userReachable,FALSE,GroupExists);
 	SetClock(Ergodic);
-	Actions(d = new ActionVariable("d",2));
+	Actions(d = new BinaryChoice());
 	}
 
 Rust::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
@@ -341,6 +379,14 @@ McFadden::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 /** Myopic agent, so vv=U and no need to loop over &theta;&prime;.**/
 McFadden::ActVal(VV) { pandv[rind][][] = U; }
 
+/** .
+@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
+FALSE if the state is not reachable.
+@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
+					FALSE, traverse &Theta; through iteration on all state variables
+@param GroupExists
+	
+**/
 ExPostSmoothing::Initialize(userReachable,UseStateList,GroupExists){
 	Bellman::Initialize(userReachable,UseStateList,GroupExists);
 	}
@@ -550,8 +596,8 @@ NnotIID::UpdateChol() {
 OneDimensionalChoice::Initialize(d,userReachable,UseStateList,GroupExists) {
 	Bellman::Initialize(userReachable,UseStateList,GroupExists);
 	if (isclass(d,"ActionVariable")) Actions(this.d = d);
-	else if (isint(d)) Actions(this.d = new ActionVariable("d",d));
-	else oxrunerror("first argument 1d choice must provide an action or number of values");
+	else if (isint(d) && d>0) Actions(this.d = new ActionVariable("d",d));
+	else oxrunerror("first argument 1d choice must provide an action or positive number of values");
 	}
 
 OneDimensionalChoice::CreateSpaces() {

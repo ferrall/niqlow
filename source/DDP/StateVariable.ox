@@ -1,4 +1,3 @@
-#include "StateVariable.oxdoc"
 #include "StateVariable.h"
 /* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
 
@@ -489,7 +488,7 @@ NormalComponent::NormalComponent(L, N)	{
 /**Create a block for a multivariate normal distribution (IID over time).
 @param L label for block
 @param N integer, length of the vector (number of state variables in block)
-@param M integer, number of values each variable takes on (So NM is the total number of points added to the state space)
+@param M integer, number of values each variable takes on (So M<sup>N</sup> is the total number of points added to the state space)
 @param mu either a Nx1 constant vector or a <code>Parameter Block</code>  containing means
 @param Sigma either a N(N+1)/2 x 1 vector containing the lower diagonal of the Choleski matrix or a parameter block for it
 **/
@@ -585,3 +584,29 @@ Tauchen::Update() {
 	Grid[][] = pts[][1:]-pts[][:N-1];
 	actual += AV(mu);
 	}
+
+/**Create a new asset state variable.
+@param L label
+@param N number of values
+@param r `AV`-compatible object, interest rate on current holding.
+@param NetSavings `AV`-compatible static function of the form <code>NetSavings(FeasA)</code>
+@see Discretized
+**/
+Asset::Asset(L,N,r,NetSavings){
+	StateVariable(L,N);
+    this.r = r;
+    this.NetSavings = NetSavings;
+	}
+
+/**
+**/
+Asset::Transit(FeasA) {
+    atom = setbounds( AV(r)*actual[v]+AV(NetSavings,FeasA) , actual[0], actual[N-1] );
+     top = mincindex( (atom.>actual)' )';
+     bot = setbounds(top-1,0,.Inf);
+     mid = (actual[bot]+actual[top])'/2,
+     tprob = (mid .!= 0.0) .? (atom-actual[bot]')./mid .:  1.0 , //
+    bprob = 1-top;
+    all = union(bot,top);
+    return { all, tprob.*(all.==top) + bprob.*(all.==bot) };
+    }

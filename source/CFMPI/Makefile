@@ -26,6 +26,6 @@ document:
 	copy $(INC)\CFMPI.ox .
 	copy $(INC)\MPIinterface.ox .
 	copy $(INC)\useMPI.ox .
-	"C:\Program Files (x86)\oxdoc\bin\oxdoc.bat" -include $(INC) -uplevel CFMPI.ox MPIinterface.ox InstallAndUse MPI_FAQ
+	"C:\Program Files (x86)\oxdoc\bin\oxdoc.bat" -include $(INC) -uplevel CFMPI.ox GetStartedDIY MPIinterface.ox InstallAndUse MPI_FAQ
 	erase CFMPI.ox MPIinterface.ox useMPI.ox
 	${MAKE} -C $(DOC) tweak

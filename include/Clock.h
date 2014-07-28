@@ -2,7 +2,7 @@
 
 /** Base class for members of a `Clock` block.**/
 struct TimeVariable : Coevolving {	
-	TimeVariable(L,N);
+	TimeVariable(L="t",N=1);
 	}
 
 /** Base class for timing in DP models.
@@ -41,7 +41,6 @@ struct NonStationary : Clock {
 struct Aging : NonStationary	{
 	Aging(T);
 	Transit(FeasA);
-	virtual Last();
 	}
 
 /**A static one-shot program.
@@ -49,6 +48,10 @@ struct Aging : NonStationary	{
 struct StaticP : Aging {
 	StaticP();
 	}
+
+/**Container for all non-stationary and non-deterministic aging clocks.**/
+struct NonDeterministicAging : NonStationary{
+    }
 	
 /** Time increments randomly, with probability equal to inverse of bracket length.
 @example Represent a lifecycle as a sequence of 10 periods that last on average 5 years:
@@ -57,7 +60,7 @@ Model decisions each year for last five years before retirement, every five year
 <pre>AgeBrackets(<[3]10,[3]5,[5]1>);</pre>
 </dd>
 **/
-struct AgeBrackets : NonStationary	{
+struct AgeBrackets : NonDeterministicAging	{
 	/**Vector of period lengths for each age **/	const	decl Brackets;
 	/**Transition matrix based on Brackets   **/ 			decl TransMatrix;
 	AgeBrackets(Brackets);
@@ -66,23 +69,29 @@ struct AgeBrackets : NonStationary	{
 	}
 
 /** Deterministic aging with random early death.
+<pre><em>
+t' = t with prob. 1-&pi;()
+     t+1 with prob. &pi;()
+</em></pre>
 **/
-struct Mortality : NonStationary {
-	/**static mortality prob. function **/	const	decl 	MortProb;
-	/** EV at t=T-1, value of death **/				decl 	DeathV;		
+struct Mortality : NonDeterministicAging {
+    const	decl 	
+   	/**`CV`-compatible mortality probability**/	    MortProb,
+                                                    Tstar;
+    decl 	
+	/** EV at t=T-1, value of death **/				DeathV,
+                                                    mp;		
 	Mortality(T,MortProb);
-	Transit(FeasA);
+	virtual Transit(FeasA);
 	}
 
 /** Random mortality and uncertain lifetime.
-This combines a special case of `AgeBrackets` and a variation on  `Mortality` where value of death is 0 but
-the probability of death is not zero at T.
+Like `Mortality` but T-1 is a stationary environment.
 **/
-struct Longevity : NonStationary {
-	/**static mortality prob. function **/	const	decl 	MortProb;
-	/** EV at t=T-1, value of death **/				decl 	DeathV;		
+struct Longevity : Mortality {
 	Longevity(T,MortProb);
 	Transit(FeasA);
+    virtual Last();
 	}
 	
 /** A sequence of treatment phases with fixed maximum durations.

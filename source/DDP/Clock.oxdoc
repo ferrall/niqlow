@@ -2,35 +2,84 @@
 <a href="#auto">Skip down to documentation of items defined in Clock.ox</a><p>
 @sortkey ABD
 
-<DT><code>&theta;</code> <em>always</em> contains a single clock block derived from `Clock`.</DT>
-<DD>The simplest way to set the clock is to call `DP::SetClock`().  The first argument is either one of the `ClockTypes` tags for built-in clocks, or it is an object of a class derived from `Clock`.  If a tag is sent, other arguments may be required by that clock type.</DD>
-<DD>If <code>MyModel</code> does not set the clock explicityly, then a stationary infinite horizon clock is set by `DP::CreateSpaces`().</DD>
 
-<DT>All clocks have the same first two variables in the block</DT>
-<DD>The first is <var>t</var>, a state variable that evolves monotonically:
-<pre>t&prime; &ge; t</pre></DD>
-<DD>The second, <var>t&Prime;</var>, tracks feasible values of <var>t</var> next period during model solution.  <span class="n">DDP</span> uses t&Prime; to avoid storing the full V(&theta;) while iterating. The user typically does nothing with t&Prime;.  For example, with a <code>RandomMortality</code> clock, the next time may be either <code>t+1</code> or <code>T-1</code> if death occurs.  The value function for the those two times must be available while computing the value at time <code>t</code>.  However, no other time periods must be stored, so separate coding of the <code>t</code> process and <code>t&Prime;</code> process conserves memory in complex environments..</DD>
+<OL class="body">
+<LI>Setting the Clock </LI>
+
+<DT><code>&theta;</code> <em>always</em> contains a single clock block derived from `Clock`.</DT>
+<DT>The simplest way to set the clock is to call `DP::SetClock`().  </DT>
+<DD>The first argument is either one of the `ClockTypes` tags for built-in clocks, or it is an object of a class derived from `Clock`. </DD>
+<DD> If a tag is sent, other arguments may be required by that clock type.</DD>
+<DD>The call to <code>SetClock</code> must take place between the calls to <code>Initialize()</code> and <code>CreateSpaces()</code></DD>
+<DT>The default clock is stationary.</DT>
+<DD>If <code>MyModel</code> does not set the clock explicitly, then a stationary infinite horizon clock is set by `DP::CreateSpaces`().</DD>
+
+<DT>All clock blocks have the same first two variables in the block</DT>
+
+<DT>The first variable in the clock is <var>t</var>, a state variable that is weakly monotonic:
+<pre>t&prime; &ge; t</pre></DT>
+<DD>With anticipation (foresight), V(&theta;) can/should be solved backwards in <var>t</var> if time is important in the model beyond just today and tomorrow in an infinite horizon.  </DD>
+
+<DT>The second variable in the clock block, <var>t&Prime;</var>, tracks feasible values of <var>t</var> next period during model solution.</DT>
+  <DD><span class="n">DDP</span> uses t&Prime; to avoid storing the full V(&theta;) while iterating. The user typically does nothing with t&Prime;.</DD>
+ <DD>For example, with a <code>RandomMortality</code> clock described below, the next time may be either <code>t+1</code> or <code>T-1</code> if death occurs.  The value function for the those two times must be available while computing the value at time <code>t</code>.  However, no other time periods must be stored, so separate coding of the <code>t</code> process and <code>t&Prime;</code> process conserves memory in complex environments..</DD>
+<DD>Because it plays no direct role in the mathematics (as opposed to the computations), t&Prime; is never listed as a member of &theta;, but it will be seen in output with the value 0.</DD>
 <DD>In more complex environments the clock may include other state variables whose values coevolve with t and t&Prime;.</DD>
 
-<DT>Current time and the decision horizon</DT>
-<DD>The current value of <var>t</var> is available to <code>MyModel</code> as `DP::curt`.  </DD>
-<DD>The decision horizon, or <code>t.N</code>,  also denoted <code>T</code>, is the number of values that the time variable <code>t</code> takes on. The horizon of the model is
+<LI>Current time and the decision horizon</LI>
+<DT>The clock block is available as `DP::counter`, but usually <code>MyModel</code> does not need to refer to it directly.</DT>
+<DT>The current value of <var>t</var> is available to <code>MyModel</code> as `DP::curt`.  That is,</DT>
+<DD><pre>curt &equiv; counter.t.v</pre></DD>
+<DD>The name <code>curt</code> is used to avoid potential confusion.  <code>MyModel</code> can use the identifier <code>t</code> for its own use.</DD>
+
+<DT>The decision horizon, or <code>counter.t.N</code>,  also denoted <code>T</code>, is the number of values that the time variable <code>t</code> takes on. </DT>
+<DD>The horizon of the model is
 <pre>        T &equiv; t.N
         T = 1 for an infinite horizon model (T = &infin;).</pre>
-T is stored in `DP::TT`. </DD>
+<DD>Because it is crucial to the solution method, this is a property of <code>MyModel</code> stored as `DP::TT`<pre>
+When T is finite
+        TT  &equiv;  T  =  counter.t.N, 
+When T = &infin;
+        TT  &equiv;  1                  </pre>
+<DD>Double-T is used to avoid possible confusions and to let the user's code define <code>T</code>.</DD>
+<DD><span class="n">DDP</span> distinguishes between a static program (finite horizon and T = </DD>TT = 1></span>) and a stationary environment
+(T=&infin; and <code>TT=1</code>) by checking the <em>class</em> of <code>counter</code>.</DD>
 
-<DT>Kinds of Clocks</DT>
-<DD>The basic clocks have the tags <code>FiniteHorizon</code> and <code>InfiniteHorizon</code>.</DD>
-<DD><code>InfiniteHorizon</code>: <var>t&Prime; = t&prime; = t = 0 = T&oline;</var>.
-In the infinite horizon case Bellman 's equation must be iterated on from initial conditions until it converges.</DD>
-<DD>`Aging`:  <var>t&prime; = t+1</var>, up to <var>T&oline;</var>
-With ordinary aging Bellman's equation is solved backwards starting at t=T&oline; down to 0. </DD>
-<DD><code>StaticProgram</code>: with T&oline;=0. <DD><span class="n">DDP</span> knows that an infinite horizon model is different than a static program, because in the static case it does not iterate on V() until convergence.</DD>
-<DD>`Mortality`: two possible values of t next period <pre>t&prime; = T&oline;  with prob. &pi;(&alpha;,&theta;)
-     t+1 otherwise.</pre>
-With premature mortality Bellman's equation is solved backwards but the final period is also tracked at each t as a potential state next period. The mortality probability &pi;() can constant or depend on the current state and current actions.</DD>
-<DD>`PhasedTreatment`: the agent is unexpectedly pulled from a stationary environment and placed in a temporary experimental situation.</DD>
-<D>RegimeChange: like PhasedTreatment except the unexpected environment lasts forever.</DD>
+
+<DT>Setting the Clock</DT>
+
+<li>Kinds of Clocks</li>
+<DT><code>InfiniteHorizon</code>: <var>t&Prime; = t = 0 = T&oline;</var>.</DT>
+<DD>In the infinite horizon case Bellman 's equation must be iterated on from initial conditions until it converges.</DD>
+<DD>The algorithms know when today (t=0) is being accessed, and when tomorrow (t&prime;) is being accessed. The code for <code>MyModel</code> only has to deal with today and the transitions of state variables.</DD>
+<DT><code>Ergodic</code></DT>
+<DD>The user can set the clock to be ergodic, which means that there are no absorbing or terminal states in the state space &Theta;  </DD>
+<DD>When the clock is <code>Ergodic</code> <span class="n">DDP</span> will compute the ergodic or stationary distribution across states, &Rho;<sub>&infin;</sub> (&theta;).  If the user's state transitions are not themselves stationary then this calculation may fail.</DD>
+<DT><code>NormalAging</code>:  <var>t&prime; = t+1</var>, up to <var>T&oline;</var>; <var>t&Prime;=0</var>.</DT>
+<DD>With ordinary aging Bellman's equation is solved backwards starting at t=T&oline; down to 0. The auxiliary variable t&Prime; is not needed to account for deviations from normal time so it is simply 0 always.</DD>
+<DD>A special case is a non-dynamic environment, <code>StaticProgram</code>, with T&line;=0. <DD><span class="n">DDP</span> knows that an infinite horizon model is different than a static program, because in the static case it does not iterate on V() until convergence. Since <code>StaticProgram</code> is a tag associated with the class `StaticP`, which is derived from the class `Aging`, <span class="n">DDP</span> cannot confuse this with a `Stationary` environment.</DD>
+<DT><code>RandomMortality</code>: the agent either ages normally or dies before the start of the next period</DT>
+<DD>Random mortality means that, for there are two possible values of t and t&Prime; next period <pre>
+        (t&prime;,t&Prime;) = (T&oline;,1)  w/ prob. &pi;(&alpha;,&theta;)
+        (t&prime;,t&Prime;) = (t+1,0)         w/ prob. 1-&pi;(&alpha;,&theta;).</pre></DD>
+<DD>With premature mortality Bellman's equation is solved backwards but the final period is also tracked at each t as a potential state next period.  The use of the auxiliary state variable t&Prime; now becomes important computationally.  While iterating <span class="n">DDP</span> does not store the value function for all t, only the final and next.  So when indexing these values it does not use t&prime; but t&Prime;.  It ensures that as <code>t</code> is decremented the just-solved for values are placed where <code>t&Prime; = 0</code> will reach it.
+<DD>This means that <code>t&Prime;=0</code> is typically associated with "ordinary" time evolution while other values are perturbations such as premature death of the agent.</DD>
+<DD>The mortality probability &pi;() can constant or depend on the current state and current actions.</DD>
+
+<DT><code>UncertainLongevity</code>:</DT>
+<DD>Many papers in the literature assume normal aging or random mortality with some long but finite maximum lifetime (say, age 100).  Often the last part of the lifecycle is included with little decision making only to get reasonable continuation values for early ages.  For &delta; not too close to 1 the cap on ages does not affect choices much earlier.</DD>
+<DD>Another, perhaps more elegant, approach is to treat the lifetime itself as uncertain.  <code>t=T&oline;</code> is still the case of death which is still random and occurs with probability &pi;() as above.  But now <code>t=T&oline;-1</code> is now a stationary problem and <code>t=T&oline;</code> is a terminal state.  Otherwise, once <code>t=&Toline;-1</code> today and tomorrow are the same.  <span class="n">DDP</span> iterates on the value function at <code>t=T&oline;</code> as if it were a (non-ergodic) stationary problem, continuing until convergence.  Then it will proceed backwards as with mortality.</DD>
+<DD>The advantage of this approach is that there is a single choice probability for this final phase (conditional on other state variables) rather than computing and storing slightly different choice probabilities as <code>t</code> approaches <code>T&oline;</code>.  </DD>
+<DD>The `Longevity` clock combines a special case of a more general notion of <code>RandomAging</code> which uses  `AgeBrackets` for the state clock with random mortality.  But it is not a special case of either one so it is derived as a third class from `NonStationary`.
+
+<DT><code>SocialExperiment</code>:  Phased treatment and random assignment</DT>
+<DD>In this environment the agent believes they are in a stationary problem and acts accordingly.  However, they are unexpectedly placed in a temporary experimental situation in which their utility and possibly state transitions have changed.  They again act accordingly but they know that eventually they will return to the original environment, which acts as the terminal values for the experiment.  There are three possible values of t&Prime; during treatment.</DD>
+
+<DT><code>RegimeChange</code></DT>
+<DD>Like a <code>SocialExperiment</code> except the unexpected environment lasts forever.</DD>
+
+
+</OL>
 
 <hr><a name="auto"><h1>Documentation of  Items Defined in Clock.ox</h1></a>
 **/

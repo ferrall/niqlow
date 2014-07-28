@@ -11,7 +11,7 @@ Outcome::Outcome(prior) {
 	onext = UnInitialized;
 	act = constant(.NaN,1,SS[onlyacts].D);
 	z = constant(.NaN,1,zeta.length);
-	aux = constant(.NaN,1,sizeof(Chi));
+	aux = constant(.NaN,1,Naux);
 	Ainds = <>;
 	if (isclass(prior)) {
 		prev = prior;
@@ -67,7 +67,7 @@ transitions.  Then `Bellman::Simulate` called to simulate
 **/
 Outcome::Simulate() {
 	decl i;
-	for (i=0;i<columns(fixeddim);++i) ind[fixeddim[i]] = OO[fixeddim[i]][]*state;
+    for (i=0;i<columns(fixeddim);++i) ind[fixeddim[i]] = OO[fixeddim[i]][]*state;
 	ind[bothexog] = DrawOneExogenous(&state);
 	ind[onlyexog] = OO[onlyexog][]*state;
 	ind[onlysemiexog] = OO[onlysemiexog][]*state;
@@ -112,6 +112,7 @@ Path::~Path() {
 	}	
 
 /** Produce a matrix representation of the path.
+Path id (`Path::i`) is appended as the first column.
 Each row is an `Outcome`.
 @return TxM matrix
 **/
@@ -198,26 +199,37 @@ FPanel::~FPanel() {
 /** Simulate a homogenous panel (fpanel) of paths.
 @param N &gt; 0, number of paths to simulate
 @param Tmax maximum path length<br>0 no maximum length.
-@param ErgOrStateMat integer draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
+@param ErgOrStateMat 0: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
+@param DropTerminal TRUE: eliminate termainl states from the data set
 @comments &gamma; region of state is masked out.
 **/
 FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
-	decl erg=isint(ErgOrStateMat), curg, Nstart=columns(ErgOrStateMat);
+	decl ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS, curg, Nstart=columns(ErgOrStateMat);
 	if (N <= 0) oxrunerror("First argument, panel size, must be positive");
-	if (erg) {
-		if (!isclass(SD)) oxrunerror("model not ergodic, can't draw from P*()");
-		SD->SetFE(f);
-		SD->loop();
-		}
+    if (ii) {
+	   if (erg) {
+		  if (!isclass(SD)) oxrunerror("model not ergodic, can't draw from P*()");
+		  SD->SetFE(f);
+		  SD->loop();
+		  }
+        else {
+           iS = 0; while (!isclass(Settheta(iS))) ++iS;
+           iS = ReverseState(iS,OO[tracking][]);
+           }
+        }
 	if (isclass(upddens)) upddens->SetFE(f);
-	if (IsErgodic && !T) oxwarning("Simulating ergodic paths without fixed T?");
+    if (IsErgodic && !T) oxwarning("Simulating ergodic paths without fixed T?");
 	cputime0 = timer();
 	if (isclass(method)) method->Solve(f,0);
 	cur = this;
 	do {		
 		curg = DrawGroup(f);
 		cur.state = curg.state;
-		cur.state += (erg) ? curg->DrawfromStationary() : ErgOrStateMat[][imod(this.N,Nstart)];
+		cur.state += (erg) ? curg->DrawfromStationary()
+                           : ( (ii)
+                                ? iS
+                                : ErgOrStateMat[][imod(this.N,Nstart)]
+                              );
 		cur->Path::Simulate(T,TRUE,DropTerminal);
 		NT += cur.T;
 		if (++this.N<N) cur.pnext = new Path(this.N,UnInitialized);
@@ -231,7 +243,7 @@ FPanel::Append(pathid) {
 	}
 	
 /** Return the fixed panel as a flat matrix.
-@param id tag for fpanel
+index of panel
 @return long <em>matrix</em> of panels
 **/
 FPanel::Flat()	{
@@ -255,7 +267,7 @@ Panel::SetMethod(method) {
 @param FullyObserved FALSE (default) use general likelihood<br>TRUE complete observability likelihood
 **/
 Panel::Panel(r,method,FullyObserved) {
-	decl i;
+	decl i, q;
     this.method = method;
 	this.r = r;
 	FPanel(0,method,FullyObserved);	
@@ -267,11 +279,11 @@ Panel::Panel(r,method,FullyObserved) {
 	if (isint(Lflat)) {
 		Lflat = {FPanelID}|{PathID}|PrefixLabels|Slabels|{"|ai|"}|Alabels;
 		for (i=0;i<zeta.length;++i) Lflat |= "z"+sprint(i);
-		for (i=0;i<sizeof(Chi);++i) Lflat |= Chi[i].L;
+		foreach (q in Chi) Lflat |= q.L;
 		Fmtflat = {"%4.0f","%4.0f"}|{"%4.0f","%2.0f","%3.0f","%3.0f"}|Sfmts|"%4.0f";
 		for (i=0;i<Nav;++i) Fmtflat |= "%4.0f";
 		for (i=0;i<zeta.length;++i) Fmtflat |= "%7.3f";
-		for (i=0;i<sizeof(Chi);++i) Fmtflat |= "%7.3f";
+        foreach (q in Chi) Fmtflat |= "%7.3f"; //		for (i=0;i<Naux;++i) Fmtflat |= "%7.3f";
 		}
 	}
 
@@ -291,8 +303,8 @@ Each value of fixed &gamma; is simulated N times, drawing
 the random effects in &gamma; from their density.
 @param N <em>integer</em> number of paths to simulate in each `FPanel`.
 @param T <em>Integer</em>, max length of each path
-@param ErgOrStateMat
-@param DropTerminal
+@param ErgOrStateMat 0: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
+@param DropTerminal TRUE: eliminate termainl states from the data set
 **/
 Panel::Simulate(N,T,ErgOrStateMat,DropTerminal) {
 	cur = this;
@@ -312,12 +324,14 @@ Panel::Flat()	{
 	}
 
 /** Produce a matrix of the panel.
+If  `Panel::flat`is an uninitialized then `Panel::Flat`() is called first.
+Flat version of the data set is stored in `Panel::flat`.
 @param fn 0: do not print or save, just return<br>print to screen<br>string: save to a file
 @return long <em>matrix</em> of panels
 **/
 Panel::Print(fn)	{
 	if (isint(flat)) Flat();
-	if (isint(fn)) print("%c",Lflat,"%cf",Fmtflat,flat);
+	if (isint(fn)) { if (fn>0) print("%c",Lflat,"%cf",Fmtflat,flat); }
 	else if (!savemat(fn,flat,Lflat)) oxrunerror("FPanel print to "+fn+" failed");
 	}
 	
@@ -526,7 +540,7 @@ DataSet::Mask() {
 		if (list[s+1].obsv!=TRUE) { if (!list[s+1].force0) mask[inact] |= s; list[s+1].obsv=FALSE;}
 	for(s=0;s<NS;++s)
 		if (list[s+1+Nav].obsv!=TRUE) {if (!list[s+1+Nav].force0) mask[instate] |= s; list[s+1+Nav].obsv=FALSE;}
-	for(s=0;s<sizeof(Auxiliary);++s)
+	for(s=0;s<Naux;++s)
 		if (list[s+1+Nav+NS].obsv!=TRUE) {mask[inaux] |= s; list[s+1+Nav+NS].obsv=FALSE;}
 	if (Volume>SILENT) Summary(0);
 	cur = this;
@@ -542,7 +556,7 @@ DataSet::IDColumn(lORind) {
 	list[0]->Observed(lORind);
 	}
 
-/** Mark an action or state element as observed in data.
+/** Mark action  and state variables as observed in data.
 @param aORs `Discrete` object, either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
 			one of the state vectors<br>
 			`StateBlock`: each variable in the block will be added to the observed list.
@@ -562,8 +576,9 @@ DataSet::Observed(as1,lc1,...) {
 		aORs = va[k];	LorC = va[++k];
 		if (IsBlock(aORs)) {
 			decl bv;
-			for (bv=0;sizeof(aORs.Theta);++bv) Observed(States[aORs.Theta[bv]],UseLabel);
-			return;
+            //for (bv=0;sizeof(aORs.Theta);++bv) Observed(States[aORs.Theta[bv]],UseLabel);
+	        foreach (bv in aORs.Theta) Observed(States[bv],UseLabel);
+		    continue;
 			}
 		offset = isclass(aORs,"ActionVariable") ? 1
 				: isclass(aORs,"StateVariable") ? 1+Nav
@@ -575,13 +590,12 @@ DataSet::Observed(as1,lc1,...) {
 	if (Volume>SILENT) println("Observed Finished.");
 	}
 
-/** UnMark an action or state element as observed.
-@param aORs `Discrete` object, either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
+/** UnMark action and states variables as observed.
+@param as1 `Discrete` object, either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
 			one of the state vectors<br>
-			`StateBlock`: each variable in the block will be added to the observed list.
-@param ... <br>
-DiscreteVar2<br>
-etc.
+			`StateBlock`: each variable in the block will be marked unobserved.
+@param ... as2, etc.
+
 @comments Does nothing unless variable was already sent to `DataSet::Observed`();
 **/
 DataSet::UnObserved(as1,...) {
@@ -590,8 +604,9 @@ DataSet::UnObserved(as1,...) {
 		aORs = va[k];
 		if (IsBlock(aORs)) {
 			decl bv;
-			for (bv=0;sizeof(aORs.Theta);++bv) UnObserved(States[aORs.Theta[bv]]);
-			return;
+//			for (bv=0;sizeof(aORs.Theta);++bv) UnObserved(States[aORs.Theta[bv]]);
+			foreach (bv in aORs.Theta) UnObserved(States[bv]);
+			continue;
 			}
 		offset = isclass(aORs,"ActionVariable") ? 1
 				: isclass(aORs,"StateVariable") ? 1+Nav
@@ -724,11 +739,14 @@ PanelPrediction::PanelPrediction(iDist){
 /** Compute the predicted distribution of actions and states.
 **/
 Prediction::Predict() {
-	decl s,th;
-	for (s=0;s<columns(sind);++s)
-		if (isclass(th=Settheta(sind[s]))) {
-			th->Predict(p[s],this);
-			}
+	decl s,th,q, 	lo = SS[tracking].left,	hi = SS[tracking].right;
+    state = zeros(NN);
+    foreach (q in sind[s]) if (isclass(th=Settheta(q))) {
+            state[lo:hi] = ReverseState(q,OO[tracking][])[lo:hi];
+            ind[tracking] = OO[tracking][]*state;
+            SyncStates(lo,hi);
+            th->Predict(p[s],this);
+            }
 	}
 	
 /** Compute a panel of predicted distributions.
@@ -750,29 +768,64 @@ Stored in `Prediction::hist`
 **/
 Prediction::Histogram() {
 	hist = zeros(hN,1);
-	decl k;
-		if (av)	for (k=0;k<rows(ch);++k)
-			hist[ActionMatrix[k][hd]] += ud ? ch[k] : unch[k];
-		else for (k=0;k<columns(sind);++k)
-			hist[ReverseState(sind[k],SS[tracking].O)[hd]] += p[k];
+	decl q,k;
+	if (av)	for (k=0;k<rows(ch);++k)
+		hist[ActionMatrix[k][hd]] += ud ? ch[k] : unch[k];
+	else if (sv) foreach (q in  sind[][k])
+		hist[ReverseState(q,SS[tracking].O)[hd]] += p[k];
+    else {
+        decl th, newqs,newp,j,uni,htmp,ptmp;
+        ptmp = htmp=<>;
+        foreach (q in sind[][k]) {
+            th = Settheta(q);
+            newqs = th->OutputValue();
+            newp = p[k]*(th.pandv[0]);
+            if (isdouble(newqs) || rows(newqs)==1) newp = sumc(newp);
+            htmp |= newqs;
+            ptmp |= newp;
+            }
+        hvals = unique(htmp);
+        hist = zeros(hvals)';
+        foreach (q in hvals[k]) hist[k] = sumc(selectifr(ptmp,htmp.==q));
+        }
 	}
-	
+
 /** Histogram of a single variable over the panel.
 @param var object to track.
 @param printit, `CV` compatible print to screen.
 @param UseDist TRUE, use endogenous choice probabilities &Rho;*
 **/
 PanelPrediction::Histogram(var,printit,UseDist) {
+  decl avg;
   av = isclass(var,"ActionVariable");
-  if (!av && !isclass(var,"StateVariable")) oxrunerror("var must be an ActionVariable or StateVariable");
-  hN = var.N;
-  hd = var.pos;
+  sv =isclass(var,"StateVariable");
+  if (!av && !sv && !isint(var)) oxrunerror("var must be an ActionVariable or StateVariable or intger (calls OutputValue)");
+  if (printit) print("\n----------------------------\n Histogram of ");
+  if (av || sv) {
+    hN = var.N;
+    hd = var.pos;
+    if (printit) println(var.L);
+    }
+  else {
+    hN = 0;
+    if (printit) println("virtual OutputValue function");
+    }
   ud = UseDist;
-  if (printit) println("Histogram of ",var.L);
   cur=this;
   while (isclass(cur,"Prediction")) {
 	 cur->Prediction::Histogram();
-	 if (CV(printit,cur)) println("t= ",cur.t,"%c",{"v","pct"},"%cf",{"%2.0f","%7.4f"},var.vals'~cur.hist);
+	 if (CV(printit,cur)) {
+            println("t=",cur.t);
+            if (sv||av) {
+                println("%c",{"v","pct"},"%cf",{"%2.0f","%9.6f"},var.vals'~cur.hist);
+                avg = var.vals*cur.hist;
+                }
+            else {
+                println("%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},cur.hvals'~cur.hist);
+                avg = cur.hvals*cur.hist;
+                }
+            println("  Average: ",double(avg),"\n\n");
+            }
 	 cur = cur.pnext;
   	 }
 	}
@@ -798,15 +851,20 @@ DataSet::EconometricObjective() {
 	}
 
 /** Produce a Stata-like summary statistics table.
-@param data
+@param data <em>matrix</em>, data to summarize<br><em>integer</em>, summarize `Panel::flat`
 
 **/
 DataSet::Summary(data) {
 	decl rept = zeros(3,0),s;		
-	for (s=0;s<sizeof(list);++s) rept ~= list[s].obsv | list[s].force0 | list[s].incol;
+//	for (s=0;s<sizeof(list);++s) rept ~= list[s].obsv | list[s].force0 | list[s].incol;
+	foreach (s in list) rept ~= s.obsv | s.force0 | s.incol;
 	println("\nOutcome Summary: ",label);
 	println("%c",{"ID"}|Alabels|Slabels|Auxlabels,"%r",{"observed"}|{"force0"}|{"column"},"%cf","%6.0f",rept);
-	if (ismatrix(data)) println("Source data summary",MyMoments(data));
+    if (ismatrix(data)) println("Source data summary", MyMoments(data));
+    else {
+        Print(0);
+        println("Data set summary ",MyMoments(flat,{"f"}|"i"|"t"|"track"|"term"|"Ai"|Slabels|"Arow"|Alabels|Auxlabels));
+        }
 	}
 	
 /** Load
@@ -827,7 +885,7 @@ DataSet::LoadOxDB() {
 	FN = N = 0;
 	curd[inact] = constant(.NaN,1,Nav);
 	curd[instate] = constant(.NaN,NS,1);
-	curd[inaux] = constant(.NaN,1,sizeof(Auxiliary));	
+	curd[inaux] = constant(.NaN,1,Naux);	
 	for (row=0;row<rows(data);++row) {
 		curd[inid] = data[row][list[0].incol];
 		for(s=0;s<Nav;++s)
@@ -843,7 +901,7 @@ DataSet::LoadOxDB() {
 							? 0
 							: .NaN;
 			}
-		for(s=0;s<sizeof(Auxiliary);++s)
+		for(s=0;s<Naux;++s)
 			curd[inaux][s] = (list[1+Nav+NS+s].obsv)
 						? data[row][list[1+Nav+NS+s].incol]
 						: .NaN;
@@ -892,20 +950,20 @@ DataSet::DataSet(id,method,FullyObserved) {
     if (FullyObserved) oxwarning("likelihood only accounting for choice probabilities.");
 	Volume = QUIET;
 	masked = FALSE;
-	decl i;
+	decl q, aa=SubVectors[acts];
 	list = {};
 	list |= new DataColumn(idcol,0);
-	for (i=0;i<Nav;++i) list |= new DataColumn(acol,SubVectors[acts][i]);
-	for (i=0;i<NS;++i) list |= new DataColumn(scol,States[i]);
-	for (i=0;i<sizeof(Auxiliary);++i) list = new DataColumn(auxcol,Auxiliary[i]);
+	foreach (q in aa) list |= new DataColumn(acol,q);
+	foreach (q in States) list |= new DataColumn(scol,q);
+	foreach (q in Chi) list |= new DataColumn(auxcol,q);
 	}																		
 
 /** Delete a data set.
 **/
 DataSet::~DataSet() {
 	~Panel();
-	decl i;
-	for (i=0;i<sizeof(list);++i) delete list[i];
+	decl q;
+	foreach (q in list) delete q;
 	delete list;
 	}
 

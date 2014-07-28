@@ -2,7 +2,7 @@ Version := OxMetrics7
 PC := TRUE
 ifeq ($(PC),TRUE)
 	OX := "C:\Program Files (x86)\$(Version)\Ox\bin\oxl.exe"
-	OXFLAGS := -DOX7
+	OXFLAGS := 
 	COPY := copy
 	OXDOC := C:\Program Files (x86)\oxdoc\bin\oxdoc.bat
 	ERASE := erase
@@ -11,7 +11,7 @@ ifeq ($(PC),TRUE)
 	DOC := ../../doc/FiveO
 else
 	OX := /home/ferrallc/bin/$(Version)/ox/bin64/oxl
-	OXFLAGS := -DMPI  -DOX7
+	OXFLAGS := -DMPI  
 	COPY := cp
 	ERASE := rm
 	INC := ../../include
@@ -23,7 +23,7 @@ vpath %.oxo $(INC)
 vpath %.ox.html ../../doc/FiveO
 
 partypes = Shared.oxo Parameters.oxo
-algtypes = Shared.oxo Algorithms.oxo ParallelObjective.oxo
+algtypes = Shared.oxo Algorithms.oxo 
 FiveO.oxo : Objective.oxo
 Objective.oxo :  $(partypes) $(algtypes)
 
@@ -40,7 +40,7 @@ clean:
 
 .PHONY : document
 document:
-	$(OXDOC) -include $(INC) -uplevel GetStarted Parameters.ox Objective.ox ParallelObjective.ox Algorithms.ox ..\Shared\Shared.ox FiveO.ox
+	$(OXDOC) -include $(INC) -uplevel GetStarted Parameters.ox Objective.ox $(INC)\ParallelObjective.ox Algorithms.ox ..\Shared\Shared.ox FiveO.ox
 	${MAKE} -C $(DOC) tweak
 
 .PHONY : install

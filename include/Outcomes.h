@@ -133,7 +133,7 @@ struct Panel : FPanel {
 	LogLikelihood();
 	Flat();
 	Print(fn);
-	Auxiliary(av,...);
+//	Auxiliary(av,...);
 	virtual Simulate(N,T,ErgOrStateMat,DropTerminal);
 	virtual Collapse(cond,stat);
 	}
@@ -157,7 +157,7 @@ struct DataColumn : Zauxilliary {
 /** Predicted distribution across states.
 **/	
 struct 	Prediction : Task {
-	static	decl av, hN, hd, ud;
+	static	decl av, sv, hN, hd, ud;
 	const  	decl t;
 	decl
 		/** state index **/		sind,
@@ -165,6 +165,7 @@ struct 	Prediction : Task {
 		/** **/					ch,
 		/** **/					unch,
 		/** next prediction**/	pnext,
+                                hvals, 
 								hist;
 	Prediction(prev);
 	Predict();

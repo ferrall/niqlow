@@ -144,13 +144,15 @@ ValueIteration::ValueIteration(myEndogUtil) {
    	state = NN-1;
    	ftask = new FixedSolve();
 	ndogU = isint(myEndogUtil) ? new EndogUtil() : myEndogUtil;
-	clockclass = isclass(counter,"AgeBrackets")|isclass(counter,"Mortality")|isclass(counter,"Longevity")|isclass(counter,"Aging")|isclass(counter,"PhasedTreatment");
+	clockclass = isclass(counter,"AgeBrackets")|(isclass(counter,"Mortality")&&!isclass(counter,"Longevity"))|isclass(counter,"Longevity")|isclass(counter,"Aging")|isclass(counter,"PhasedTreatment");
 	VV = new array[DVspace];
     decl i;
     for (i=0;i<DVspace;++i) VV[i] = zeros(1,SS[iterating].size);
    	if (isint(delta)) oxwarning("Setting discount factor to default value of "+sprint(SetDelta(0.90)));
 	PostRESolve = DoNothing;
     DoNotIterate = FALSE;
+    if (Volume==LOUD) {
+        }
 	}
 
 /** Update code for fixed number of trips. **/
@@ -290,7 +292,7 @@ KeaneWolpin::KeaneWolpin(SampleProportion,myKWEMax) {
 	Traverse(DoAll);	//create subsample
 	if (Volume>QUIET) {
 		println("Keane-Wolpin Subsample Drawn.\nNumber of States Approximated:",Approximated);
-		println("Rough memory ratio to full solution: ","%12.8f",Approximated/(ReachableStates*SS[bothexog].size));
+		println("Rough memory ratio to full solution: ","%12.8f",Approximated/(NReachableStates*SS[bothexog].size));
 		}
 	xlabels0 = {"maxE","const"};
     xlabels1 = new array[NA];
@@ -365,7 +367,7 @@ HotzMiller::Run(th) {
     oxrunerror("trace it");
     }
 
-/**
+/** Collect observed choice frequencies from a dataset.
 @param data `Panel` of outcome data with `Outcome::ind` computed
 @param bandwidth, kernel bandwidth.
 **/

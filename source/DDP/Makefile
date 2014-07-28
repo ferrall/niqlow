@@ -26,12 +26,14 @@ vpath %.ox.html ../../doc/DDP
 
 varsrc := Shared. ActionVariable. StateVariable. Clock. TimeInvariant.
 varobj = $(varsrc:.=.oxo)
-dppsrc := DP. Bellman. Outcomes. Methods. DPDebug.
+dppsrc := DP. Bellman. Outcomes. Methods. 
 dppobj = $(dppsrc:.=.oxo)
 dpsrc := DPAuxiliary. Variables.
 dpobj = $(dpsrc:.=.oxo)
 
-xtradoc = DDP.ox GetStarted GetStartedData $(varsrc:.=.ox) $(dppsrc:.=.ox) $(dpsrc:.=.ox) 
+#dppsrc := DP. Bellman. Outcomes. Methods. DPDebug.
+
+xtradoc = GetStarted DDP.ox GetStartedData $(varsrc:.=.ox) $(dppsrc:.=.ox) $(dpsrc:.=.ox)
 xtrahtml = $(xtradoc:.ox=.ox.html)
 
 DDP.oxo : $(dppobj)
@@ -57,7 +59,8 @@ clean:
 	$(ERASE) $(INC)\Bellman.oxo
 	$(ERASE) $(INC)\Methods.oxo
 	$(ERASE) $(INC)\Outcomes.oxo
-	$(ERASE) $(INC)\DPDebug.oxo
+
+#$(ERASE) $(INC)\DPDebug.oxo
 		
 .PHONY : document
 document:

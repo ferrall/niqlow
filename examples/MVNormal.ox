@@ -19,6 +19,6 @@ MVTest::Reachable() {	return new MVTest(); }
 
 MVTest::Utility() {
  	decl R = exp(selectrc(offers.Grid,accept.vals,offers.v));
-	println("V",offers.v,R);
-	return R[A[Aind]];
+	println("offer indices",offers.v,R);
+	return R[A[Aind]]';
 	}

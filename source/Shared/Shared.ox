@@ -187,6 +187,18 @@ Parameter::Decode(f)	{
 
 /** Toggle the value of `Parameter::DoNotVary`.**/
 Parameter::ToggleDoNotVary() { DoNotVary = !DoNotVary; }
+
+/** Toggle DoNotVary for one or more parameters.
+@param a `Parameter` or array of parameters
+@param ... more parameters or array of parameters.
+**/
+ToggleParams(a,...) {
+    decl v, va = va_arglist()|a;
+	foreach (v in va) {
+        if (isarray(v)) ToggleParams(v);
+        else v->ToggleDoNotVary();
+        }
+    }
 	
 /** Reset the starting value of a parameter.
 @param newv value to reset at
@@ -226,17 +238,18 @@ vararray("A B Joe ")   &rarr;  "A B Joe "
 vararray(s) {
  decl t,vlist="";
  if (isstring(s)) return s;
- for(t=0;t<sizeof(s);++t) { vlist |= s[t]+" "; }
+ foreach (t in s) vlist |= t+" ";
  return  vlist;
  }
 
 
 prefix(pfx, s) {
 if (isstring(s)) return pfx+s;
-decl o = new array[sizeof(s)], i;
-for (i=0;i<sizeof(o);++i) o[i] = pfx+s[i];
+decl o = {}, t;
+foreach (t in s) o |= pfx+t;
 return o;													
 }
+
 /** Print Column Moments.
     @param M <em>matrix</em>: matrix to compute (column) moments for
     @comments See Ox <tt>moments()</tt>
@@ -568,7 +581,7 @@ SepPoint::SepPoint(Kvar,bb) {
 	this.Kvar = Kvar;
 	V = new array[Kvar.N];
 	decl k;
-	for (k=0;k<Kvar.N;++k) V[k] = <>;
+	foreach (k in V) k = <>;
 	}
 
 CPoint::Copy(h) {

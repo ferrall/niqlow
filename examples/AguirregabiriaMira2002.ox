@@ -19,7 +19,6 @@ AMZurcher::Run()  {
 //	data -> BruteForce();
 	HM = new HotzMiller(data,2.0);  //AguirregabiriaMira
     data->SetMethod(0);  //get rid of nested fixed point
-    println("past reset");
 //	HM.Volume = LOUD;
 	HM -> Solve();
 	}

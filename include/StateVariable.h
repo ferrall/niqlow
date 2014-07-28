@@ -6,7 +6,7 @@
 @see DP::ExogenousStates, DP::EndogenousStates, DP::SemiExogenousStates, StateBlock
 **/
 struct StateVariable : Discrete	{
-	StateVariable(L, N);
+	StateVariable(L="s", N=1);
 	decl
 	/** A vector of values that end decision making
 		Equal to &lt; &gt; if state is not terminating.      **/     TermValues,
@@ -514,4 +514,31 @@ struct Tauchen : Random {
 	Tauchen(L,N,M,mu, sig,rho);
 	virtual Transit(FeasA);
 	virtual Update();
+	}
+
+/** Discretized interest-bearing asset.
+    The <code>actual</code> vector should either be set by the user after creation of the state
+    variable (if the actual asset levels are fixed), or the user should define a derived class and
+    provide an <code>Update()</code> method that will keep <code>actual</code> current based on
+    dynamic changes in parameters.
+    <dd>Let A be the <em>actual</em> current value, <code>actual[v]</code>.
+    <pre>A* = min(  max( rA + S , actual[0] ), actual[N-1] )</pre>
+    Define A<sub>b</sub> &le; A* &ge; A<sub>t</sub> as the <em>actual</em> values that
+    bracket A* (they are equal to each other if A* equals one of the discrete actual values).
+    Define m = (A<sub>b</sub>+A<sub>t</sub>)/2.
+    Let <code>b</code> and <code>t</code> be the indices of the bracketing values.
+    <pre>
+    Prob(a&prime; = b) = (A-A<sub>b</sub>)/m
+    Prob(a&prime; = t ) = 1 - Prob(a&prime;=b).
+    </pre></DD>
+**/
+struct Asset : Random {
+	const decl
+    /** `AV`-compatible static function, state- and action-dependent change in
+        asset holding.**/ NetSavings,
+    /** `AV`-compatible object, interest rate on current holding.**/ r;
+    /** @internal **/
+        decl atom, top, bot, mid, all, tprob, bprob;
+	Asset(L,N,r,NetSavings);
+	virtual Transit(FeasA);
 	}
