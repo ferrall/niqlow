@@ -174,7 +174,7 @@ LaggedAction::Transit(FeasA)	{
 
 /** Create a variable that tracks a one-time permanent choice.
 @param L label
-@param Target `StateVariable` to track.
+@param Target `ActionVariable` to track.
 @example <pre>retired = new PermanentChoice("Ret",retire);</pre></dd>
 **/
 PermanentChoice::PermanentChoice(L,Target) {
