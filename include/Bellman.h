@@ -14,10 +14,11 @@ on static members in order to reduce memory requirements.  These are defined in 
 struct  Bellman : DP {
 	decl
 		/**TRUE if a Terminal state (no action chosen).  **/ 		IsTerminal,
+	    /** Full solution at this state.                 **/        InSubSample,
 		/**&theta;.j index into `DP::A`.**/  						Aind,
 		/**U(&alpha;&epsilon;,&eta;,&theta;,&gamma;). @internal **/	U,
 		/** array of &Rho;*(&hellip;,&gamma;). @internal**/   		pandv,
-		/** indicates if pandv holds &Rho; or v()  **/				pset,
+//		/** indicates if pandv holds &Rho; or v()  **/				pset,
 		/** StateTrans x &eta;-Array of feasible endogenous	state
 			indices and transitions
 			&Rho;(&gamma;&prime;;&alpha;,&eta;,&gamma;).**/			Nxt,

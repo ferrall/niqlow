@@ -18,6 +18,9 @@ enum {NOW,LATER,DVspace}
 		/** . elements of array returned by `StateVariable::Transit` @name StateTrans **/
 enum {Qi,Qrho,StateTrans}
 
+        /** When updating of parameters and transitions needs to occur. @see DP::SetUpdateTime @name UpdateTimes **/
+enum {OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
+
 		/** Ways to smooth choice probabilities without adding an explicit continuous error &zeta;. @name SmoothingMethods**/	
 enum { NoSmoothing, LogitKernel, GaussKernal, ExPostSmoothingMethods}
 
@@ -39,11 +42,14 @@ struct DP {
 		/** number of groups, &Gamma;.D      **/				NG,
 		/** **/													NF,
 		/** number of random groups **/							NR,
-        /** category of clock.**/                               ClockType,
+        /** category of clock. @see ClockTypes, DP::SetClock**/ ClockType,
 		/** counter variable.	@see DP::SetClock **/			counter,
 		/**	counter.t.N, the decision horizon.    **/  			TT,
 		/** create space to store &Rho;* **/  					IsErgodic,
+        /** UpdateVariables() has been called. **/              HasBeenUpdated,
 		/** &Gamma; already includes fixed effects **/			HasFixedEffect,
+        /** Indicators for when transit update occurs.
+            @see DP::SetUpdateTime **/                          UpdateTime,
 		/**  . @internal **/									ReachableIndices,
     	/**  Count of reachable states.  @internal **/  		NReachableStates,
 		/**  store &Alpha.D x &Theta.D matrix
@@ -100,13 +106,15 @@ struct DP {
 		/** static function called by `DP::UpdateVariables`().
 			The default is `DP::DoNothing`().  The user can
 			assign a static function to this variable to
-			carry out tasks before each solution.
-			@see DP::PostRESolve **/							PreUpdate,
+			carry out tasks before each solution.<p>
+            Note: The point at which PreUpdate() is called is
+            determined by `DP::UpdateTime`
+			@see DP::PostRESolve, DP::SetUpdateTime **/			PreUpdate,
 		/** static function called by FESolve.
 			The default is `DP::DoNothing`().
 			The user can set this variable to a static
 			function before solving.  For example,
-			if the value fucnction for each fixed group should
+			if the value function for each fixed group should
 			be printed it can be done in PostRESolve.
 			@see DP::PreUpdate **/								PostRESolve,
 		/** max of vv. @internal       **/						V,
@@ -124,6 +132,11 @@ struct DP {
 		after <code>&alpha;</code>, &zeta; and full state vectors have been set. **/
 																Chi,
 		/** number of auxiliary variables, sizeof of `DP::Chi` **/	Naux,
+		/** FALSE means no subsampling.  Otherwise, pattern of
+            subsampling of the state space.
+            @see DP::SubSampleStates **/			             SampleProportion,
+         /** Number of states approximated (not subsampled).**/  Approximated,
+		/** .@internal **/			                             DoSubSample,
 		/** . @internal **/										MedianExogState,
 		/** . @internal **/										MESind,
 		/** . @internal **/										MSemiEind,																
@@ -136,7 +149,7 @@ struct DP {
 		static	Swap();
 		static 	ExogenousTransition();
 
-		static	UpdateVariables();
+		static	UpdateVariables(state=0);
 		static  DoNothing();
 		static  CreateSpaces();
 		static	InitialsetPstar(task);
@@ -166,6 +179,8 @@ struct DP {
 		static	DrawOneExogenous(aState);
 		static  SyncAct(a);
 		static	SaveV(ToScreen,...);
+        static  SubSampleStates(SampleProportion=1.0);
+        static  SetUpdateTime(time=AfterFixed);
 		}
 
 
@@ -268,10 +283,10 @@ struct Group : DP {
 struct DPDebug : Task {
 	static const decl
 		div = "------------------------------------------------------------------------------";
-	static decl prtfmt, SimLabels, Vlabels;
+	static decl prtfmt0, prtfmt, SimLabels, Vlabels, MaxChoiceIndex, Vlabel0;
 	static Initialize();		
 //#ifdef OX7
-	static outV(ToScreen=TRUE,aOutMat=0);
+	static outV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE);
 //#else
 //	static outV(ToScreen,aOutMat);
 //#endif
@@ -281,7 +296,7 @@ struct DPDebug : Task {
 struct SaveV	: DPDebug	{
 	const decl ToScreen, aM;
 	decl  re, stub, nottop, r, s;
-	SaveV(ToScreen,aM);
+	SaveV(ToScreen=TRUE,aM=0,MaxChoiceIndex=FALSE);
 	virtual Run(th);
 	}
 

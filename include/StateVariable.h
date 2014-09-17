@@ -90,7 +90,7 @@ struct Fixed : Random {
 &Rho;(s'=s)   =  &Pi;<sub>1</sub> + I{s=0}&Pi;<sub>0</sub> + I{s=N<sup>-</sup>} &Pi;<sub>2</sub>
 &Rho;(s'=s+1) =  I{s&lt;N<sup>-</sup>}&Pi;<sub>2</sub>
 </pre>
-s.&Pi; can be a vector, a `Simplex` parameter block or a static function that returns a 3&times;1 vector.
+s.&Pi; can be a vector, a <code>Simplex parameter block</code> or a static function that returns a 3&times;1 vector.
 </dd>
 @example  In Wolpin (1984), the stock of children (M), fertility choice (i) and
 neonatal infant mortality are modeled as:

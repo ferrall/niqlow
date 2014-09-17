@@ -102,11 +102,8 @@ these components are virtual and can be replaced by specifications or interpolat
 
 **/
 struct KeaneWolpin : ValueIteration {
-	const decl 		cpos,
-					DoSubSample,
-					SampleProportion;
+	const decl 		cpos;
 	decl										
-												Approximated,
 												curlabels,
                                                 xlabels0,
                                                 xlabels1,
@@ -115,7 +112,7 @@ struct KeaneWolpin : ValueIteration {
 		/** Y **/								Y,
 		/**TT array of OLS coefficients	**/ 	Bhat;
 
-					KeaneWolpin(SampleProportion=1.0,myKWEMax=0);
+					KeaneWolpin(myKWEMax=0);
 					Specification(kwstep,V=0,Vdelta=0);
 	virtual			Gsolve();
 	virtual 		Run(th);

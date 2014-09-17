@@ -156,7 +156,7 @@ If <span class="n">DDP</span> did not provide <code>MyModel</code> flexibility i
     <DD>In this way <code>a-&gt;Update()</code> is only called once for each variable on each model solution to reset <code>.actual</code>.  If <code>.actual</code> were not a vector <code>x-&gt;Update()</code> would have to be called every time <code>x.v</code> changed.</DD>
 
 <DT><code>`Bellman::aa`()</code></DT>
-<DD>As <a href="#aa">explained below</a> the <code>.v</code> property is not well-defined for action variables.  Instead, <code>`aa`(act)</code> should be used.</DD>
+<DD>As <a href="#aa">explained below</a> the <code>.v</code> property is not well-defined for action variables.  Instead, <code>`Bellman::aa`(act)</code> should be used.</DD>
 </OL>
 </details>
 <a name="EDP"><LI>Elements of DP in <span class="n">DDP</span></LI></a>
@@ -196,15 +196,15 @@ v(&alpha;,&theta;)</td></tr>
 
 <li>Encoding Abstract Elements</li>
 
-This section shows how each of the elements of the general DP framework is represented in <span class="n">DDP</span>.  The user's code (known here as <code>MyCode</code>) will build the model up dynamically as the code executes. Then when all the elements of the model has been defined the code will call <code>DP::CreateSpaces()</code>, which will construct the action set and state space.  After this, <code>MyCode</code> can solve and use the model using techniques described elsewhere. 
+This section shows how each of the elements of the general DP framework is represented in <span class="n">DDP</span>.  The user's code (known here as <code>MyCode</code>) will build the model up dynamically as the code executes. Then when all the elements of the model has been defined the code will call <code>DP::CreateSpaces()</code>, which will construct the action set and state space.  After this, <code>MyCode</code> can solve and use the model using techniques described elsewhere.
 
 <details><summary><b>Framework</b><br> The shell for the model.</summary>
 <pre>MyModel : DPparent {
-     // declare static members to hold action and state variables objects 
+     // declare static members to hold action and state variables objects
 
      // declare required and optional methods
     static Reachable();
-    static Initialize();  
+    static Initialize();
     }
 &hellip;
 MyModel::Reachable() { return new MyModel(); }
@@ -345,7 +345,7 @@ MyModel::Initialize() {
     }
 &hellip;
 MyModel::Reachable() { return new MyModel(); }
-MyModel Utility(); {                   //NEW 
+MyModel Utility(); {                   //NEW
     return aa(d) .== m.v;              //NEW   See <a href="#aa">aa</a>
     }                                  //NEW
 &hellip;
@@ -377,16 +377,16 @@ MyModel::Initialize() {
     &hellip;
     static decl d;
     static decl m;
-    Utility();                         
+    Utility();
     &hellip;
     static Reachable();
     static Initialize();
     }
 &hellip;
 MyModel::Reachable() { return new MyModel(); }
-MyModel Utility(); {                  
-    return aa(d) .== m.v;             
-    }                                 
+MyModel Utility(); {
+    return aa(d) .== m.v;
+    }
 &hellip;
 MyModel::Initialize() {
     DPparent::Initialize(Reachable,&hellip;);
@@ -459,7 +459,7 @@ The generic state space &theta; &in; &Theta; generalizes to (&zeta;,&epsilon;,&e
 <DD>States are added to &gamma; using `DP::GroupVariables`().</DD>
 <DD>A grouping variable is equivalent to a <em>random effect</em> in a panel model.  It does not vary within the life of an agent following the DP, but from our point of view it is random for an agent.</DD>
 <DD>Because grouping variables do not vary within a solution it is wasteful to create space for each of their values and the other states in &theta;.  Instead, <span class="n">DDP</span> resolves the model for each value of &gamma;, storing only the differing choice probabilities.</DD>
-<DD><b><em>Warning:</em> elements of &gamma; can only enter U(), they cannot affect the transition &Rho;().</b>  Random effects that influence the transition of other state variables must be included in &theta; to work properly.
+<DD><b><em>Warning:</em> random effect elements of &gamma; can only enter U(); they cannot affect the transition &Rho;().</b>  Random effects that influence the transition of other state variables must be included in &theta; to work properly.
 <DD>Because &gamma; is fixed during a solution, it is often <em>not</em> listed as an argument of U() and endogenous outcomes such as V(&theta;).  However, <code>MyModel</code> can treat elements of &gamma; like other states (except for not referring to it within transitions).</DD>
 
 The most specialized random elements are those that are IID, do not influence the transition of other state variables <em>and</em> enter utility as an additively separable shock.
@@ -535,7 +535,7 @@ work      vol    |  aa(work)
 <DT>Terminal Values</DT>
 <DD>In <span class="n">DDP</span> considers termination a property of value(s) of an endogenous state variable which the whole state &theta; inherits.
 <pre>q.T is a subset of the possible values of q that terminate decision making.</pre>
-By default: q.T = &empty; for built-in state variables.</DD>  
+By default: q.T = &empty; for built-in state variables.</DD>
 <DD><code>MyModel</code> makes values terminal by applying <code>q-&gt;`StateVariable::MakeTerminal`()</code> to it. </dd>
 <DD>Only endogenous state variables, those in &theta;, can have terminal values since other state vectors are either IID or invariant.</DD>
 
@@ -565,7 +565,7 @@ The current value of a state is always equal to some row in &Omega;: &theta;.v &
 <DD class="example">The state space is the set of reachable states.  It emerges from the property &theta;.R of each logically possible state:
 <pre>   <b>&Theta;</b>  &equiv;  {  &theta; &in; &Omega; : &theta;.R = 1  }</pre></DD>
 
-<DT>`DP::CreateSpaces`() and <code>`DP::Reachable`()</code></DT>
+<DT>`DP::CreateSpaces`() and <code>`DP::userReachable`</code></DT>
 <DD><code>MyModel</code> must call <code>`DP::CreateSpaces`()</code>, which sets up the list of feasible action matrices and creates the state space <b>&Theta;</b>.  It must traverse (loop over) the whole space &Omega; once.  For each  &theta; &in; &Omega; it calls the function passed to it as the first argument and stores what it returns in an array <code>Theta</code>.   <dd>Unlike <code>FeasibleActions</code>, which must have that name, this function can have any name.  Here it is called <code>Reachable()</code>.</dd>
 <dd class="example">Ox provides no mechanism for a 'default' version of <code>Reachable()</code>, so <code>MyModel</code> must include this function.  It should be a <code>static</code> member of the user's derived model class (so that it has direct access to the data members holding state variables).  <code>MyModel::Reachable()</code> indicates &theta; is reachable by returning a <code>new MyModel()</code>.  Otherwise it should return 0.  So
 <pre>Reachable() returns

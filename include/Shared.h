@@ -43,7 +43,7 @@ static const decl
 	DiscreteNormal(N,mu, sigma);
 	varlist(s) ;
 	vararray(s);
-	MyMoments(M,...);
+	MyMoments(M,rlabels=0);
 	prefix(pfx, s);
 	GaussianKernel(X,h);
     ToggleParams(a,...);

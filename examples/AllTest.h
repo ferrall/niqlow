@@ -20,22 +20,20 @@ struct Test3 : Bellman {
 	static decl a, d, s0, s1;
 	static Reachable();
 	static Run(UseList);
-	decl
-		/**TRUE if in KW subsample.**/  							InSubSample;
 	Utility();
 	}
 
 struct Test3a : ExPostSmoothing	{
-	decl InSubSample;
 	/** Labels for choices/sectors. @name Sectors **/
 		enum{white,blue,home,Msectors}
 	/** State Space Dimensions. @name Dimens **/
 		enum{Noffers=5,MaxExp=10}
 	static const decl
-		/** &alpha; in paper**/				alph = {<8.00;0.07;0.055;0.0;0.0;0.0>,
-													<7.90;0.07;0.06;0.0;0.055;0.0>},
+		/** &alpha; in paper**/				alph = {<1.00;0.07;0.055;0.0;0.0;0.0>,
+													<0.90;0.07;0.06;0.0;0.055;0.0>},
 		/** lower triange &Sigma; **/		sig = <1.0;0.5;0.0;1.0;0.0;1.0>;
 	static decl
+        /** endowment random effect **/     lnk,
 		/** index accepted offer/srch**/  	accept,
 		/** offer block **/		  		  	offers,
 		/** occupation experience array**/	xper;

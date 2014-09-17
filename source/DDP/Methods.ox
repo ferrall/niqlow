@@ -2,6 +2,13 @@
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 
 /** Create an endogenous utility object.
+This task method has the job of looping over the endogenous state space when <var>U(&alpha;...)</var>
+and <var>P(&theta;&prime;;&alpha;,&eta;,&theta;)</var> need to be updated.
+It calls `ExogUtil` task stored in `EndogeUtil::ex` to loop over &eta; and &epsilon;
+@comment
+This task uses <code>iterating</code> indexing because it is called at the start of Bellman iteration.
+So utility is not stored for later use.  To retrieve it during simulation requires an `Auxiliary` variable.
+
 **/
 EndogUtil::EndogUtil() {
 	EnTask();
@@ -9,19 +16,24 @@ EndogUtil::EndogUtil() {
 	ex = new ExogUtil();
 	}
 
-/** Loop over exogenous states computing U().
+/** Loop over exogenous states computing U() at a give &theta;.
 @param th, point &theta; in the endogenous parameter space.
 **/
 EndogUtil::Run(th) {
 	if (!isclass(th,"Bellman")) return;
 	decl ir = ind[onlyrand];
 	th.pandv[ir][][] = .NaN;
-	th.pset[ind[onlyrand]]=FALSE;
+	//th.pset[ind[onlyrand]]=FALSE;
 	th.U[][] = .NaN;
 	ex.state = state;
 	ex->loop();
 	}
 
+/** Create an endogenous utility object.
+This task method has the job of looping over the endogenous state space when <var>U(&alpha;...)</var>
+and <var>P(&theta;&prime;;&alpha;,&eta;,&theta;)</var> need to be updated.
+It calls `ExogUtil` task stored in `EndogeUtil::ex` to loop over &eta; and &epsilon;
+**/
 ExogUtil::ExogUtil() {
 	ExTask();	
     subspace = iterating;
@@ -37,27 +49,22 @@ FixedSolve::FixedSolve() {
 	}
 
 /** Process a point in the fixed effect space.
+@param fxstate state vector with fixed effects already set
 <OL>
-<LI>Call `DP::UpdateVariables`() to ensure parameter value changes take effect</LI>
-<LI>Compute exogenous variable transitions</LI>
+<LI>If <code>UpdateTime</code> &eq; <code>AfterFixed</code>, then update transitions and variables.</LI>
 <LI>Apply the solution method for each value of the random effect vector.</LI>
 <LI>Carry out post-solution tasks by calling `DP::PostRESolve`();
 </OL>
-@param fxstate state vector with fixed effects set
+@see DP::SetUpdateTime , DP::UpdateVariables
 **/
 FixedSolve::Run(fxstate){
-	rtask->SetFE(ETT.state = state = fxstate);
-	UpdateVariables();
-   	cputime0 = timer();
-	ExogenousTransition();
-	ETT.subspace = iterating;
-	ETT->Traverse(DoAll);
-	IsTracking = FALSE;
-	if (Volume>QUIET) println("Transition time: ",timer()-cputime0);
+	rtask->SetFE(state = fxstate);
+    if (UpdateTime[AfterFixed]) UpdateVariables(fxstate);
     if (qtask.DoNotIterate) return;
 	cputime0 = timer();
 	rtask.qtask = qtask;
 	rtask -> loop();
+	if (Volume>QUIET) DPDebug::outV(TRUE);
 	PostRESolve();
 	}
 
@@ -65,10 +72,14 @@ RandomSolve::RandomSolve() {	RETask();	}
 
 /** Apply the solution method for the current fixed values.
 @param gam, `Group` object to solve for.
+
+If <code>UpdateTime</code> &eq; <code>AfterRandom</code>, then update transitions and variables.
+
 Solution is not run if the density of the point in the group space equals 0.0.
 **/
 RandomSolve::Run(gam)  {
 	if (ResetGroup(gam)>0.0) {
+        if (UpdateTime[AfterRandom]) UpdateVariables(state);
 		qtask.state = state;
 		DP::rind = gam.rind;
 		qtask->Gsolve();
@@ -111,12 +122,33 @@ ValueIteration::Gsolve() {
 	decl i;
 	Traverse(DoAll);
 	if (!(ind[onlyrand])  && isclass(counter,"Stationary")&& later!=LATER) VV[LATER][] = VV[later][];    //initial value next time
-	if (Volume>QUIET) DPDebug::outV(TRUE);
 	}
 	
 /**Solve Bellman's Equation..
 @param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
 @param MaxTrips 0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
+
+This method carries out Bellman's iteration on the user-defined problem.  It uses the `DP::ClockType` of
+the problem to determine whether it needs to find a fixed point or can simply work backwards in
+time.<p>
+
+It uses a `FixedSolve`task stored in `ValueIteration::ftask` to loop over fixed effect values.
+
+If `DP::UpdateTime` is <code>OnlyOnce</code> (see `UpdateTimes`), then transitions and variables are updated here.</LI>
+
+
+<pre>
+    `ValueIteration::Solve`
+       `FixedSolve`                      loop over fixed effects
+            `RandomSolve`                loop over random effects given fixed values
+                `ValueIteration::Gsolve`                 solve for the point &gamma; &in; &Gamma; in group space [virtual]
+                    `EndogUtil`            initialize over endogenous states &theta;
+                    1. `ValueIteration::Run`                  loop over bellman iterations
+                    2. `ValueIteration::Update`         check convergence/work backwards (repeat 1.)
+            `ValueIteration::PostRESolve'                          user-defined post random solve tasks
+</pre>
+
+
 @comments Result stored in `ValueIteration::VV` matrix for only two or three ages (iterations) stored at any one time.  So this
 cannot be used after the solution is complete.  `Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
 Results are integrated over random effects, but results across fixed effects are overwritten.<br>
@@ -127,13 +159,17 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
     else if (MaxTrips) this.MaxTrips = MaxTrips;
    	now = NOW;	later = LATER;
 	ftask.qtask = this;			//refers back to current object.
+    if (UpdateTime[OnlyOnce]) UpdateVariables(0);
 	if (Fgroups==AllFixed)
 		ftask -> loop();
 	else
 		ftask->Run(ReverseState(Fgroups,OO[onlyfixed][]));
 	}
 
-/** Initialize Bellman Equation. **/
+/** Creates a new "brute force" Bellman iteration method.
+@param myEndogUtil  `EndogUtil` to use for iterating over endogenous states<br>0 (default), built in task will be used.
+
+**/
 ValueIteration::ValueIteration(myEndogUtil) {
 	if (!ThetaCreated) oxrunerror("Must create spaces before creating a solution method");
 	Task();
@@ -164,6 +200,7 @@ ValueIteration::NTrips() {
 
 /**	Check convergence in Bellman iteration, either infinite or finite horizon.
 Default task loop update routine for value iteration.
+This is called after one complete iteration of `Gsolve`.
 @return TRUE if converged or `Task::trips` equals `Task::MaxTrips`
 **/
 ValueIteration::Update() {
@@ -198,6 +235,8 @@ ValueIteration::Update() {
     return done || (trips>=MaxTrips);  // done = ???.  This way done signals convegence.
 	}
 
+/** Endogenous Utility task used the KeaneWolpin Approximation.
+**/
 KWEMax::KWEMax() {
 	EndogUtil();
 	right = S[endog].X;	 // clock is iterated in  KeaneWolpin::Gsolve
@@ -205,19 +244,18 @@ KWEMax::KWEMax() {
 	hi = ex.right;
 	}
 
-/** Carry out Keane-Wolpin approximation at &theta; .
+/** Carry out Keane-Wolpin approximation at an endogenous state &theta; .
 @param th &theta;
 There are three conditions upon entering this routine at &theta;
 <OL>
-<LI>&theta; is in the subsample of complete solutions and this is the first pass.
-<DD>In this case nothing needs to done further and the function returns</LI>
-<LI>&theta; is not in the subsample of complete solutions and this is not the first pass
+<LI>&theta; is in the subsample of complete solutions and this is the first pass.</LI>
+<DD>In this case nothing needs to done further and the function returns</DD>
+<LI>&theta; is not in the subsample of complete solutions and this is not the first pass</LI>
 <DD>In this case the value of the state is interpolated by computing V at the median exogenous state then predicting the expected
-value across all exogenous states.</LI>
-<LI>&theta; is in the subsample and this is the first pass
-<DD> Bellman is applied to all exogenous states at this endogenous state &theta;
-<DD> The result is added to the KW sample
-</LI>
+value across all exogenous states.</DD>
+<LI>&theta; is in the subsample and this is the first pass<LI>
+<DD> Bellman is applied to all exogenous states at this endogenous state &theta;</DD>
+<DD> The result is added to the KW sample</DD>
 </OL>
 **/
 KWEMax::Run(th) {
@@ -235,23 +273,30 @@ KWEMax::Run(th) {
     else if (!inss) {
 		ex.state[lo : hi] = state[lo : hi] = 	MedianExogState;
 		SyncStates(lo,hi);
-		ind[bothexog] = MESind;
-		ind[onlysemiexog] = MSemiEind;
+		ind[bothexog] = 0;    //     MESind;
+		ind[onlysemiexog] = 0; //= MSemiEind;
 		ex -> Run(th);
 		OutSample(th);
+		ind[bothexog] = MESind;
+		ind[onlysemiexog] = MSemiEind;
 		}
 	if (setPstar)  th->Smooth(meth.VV[now][ind[iterating]]);
 	}
 
-KeaneWolpin::Run(th) {
-  	if (!isclass(th,"Bellman")) return;
-	th.InSubSample =    th.IsTerminal
-  	 				 || !DoSubSample[curt]
-					 ||	ranu(1,1) < SampleProportion[curt];
-    if (Volume==LOUD) println(curt," ",SampleProportion[curt]," ",th.IsTerminal," ",!DoSubSample[curt]," ",th.InSubSample);
-	Approximated += !(th.InSubSample);
-	}
+KeaneWolpin::Run(th) {	}
 
+/** Carry out Keane-Wolpin approximation at &theta; .
+This replaces the built-in version used by `ValueIteration`.
+<UL>
+<LI>Iterate backwards in the clock <code>t</code></LI>
+<UL>
+<LI>Iterate on the subsample endogenous states (using `KWEMax`), with `KWEMax::firstpass` &eq; TRUE</LI>
+<LI>Compute the approximtion from the subsample by calling `KeaneWolpin::Specification`()</LI>
+<LI>Iterate on the states not subsampled to predict using the approximation, `KWEMax::firstpass` &eq; FALSE</LI>
+</UL>
+</UL>
+
+**/
 KeaneWolpin::Gsolve() {
 	decl myt;
 	ndogU.state = state;		
@@ -271,24 +316,52 @@ KeaneWolpin::Gsolve() {
 			}
 		Swap();
 		}
-	if (Volume>QUIET) DPDebug::outV(TRUE);
 	}
 
 /** Initialize Keane-Wolpin Approximation method.
-@param SampleProportion 0 &lt; double &le; 1.0, fixed subsample size across <var>t</var><br>
-TT&times 1 vector, time-varying sampling proportions.
-@comment User's derived Bellman class must include an automatic member <code>InSubSample</code>.
+KW Approximation computes complete "brute force" <code>max v(&alpha;)</code> operator on a
+randomly chosen subsample of points in the endogenous state space to predict (extrapolate) choice
+probabilities at the non-sampled states without <code>max v(&alpha;)</code> computations.
+
+<DT>Semi-endogenous states, &eta;, are not supported in this method.</DT>
+<DD>All state variables must be either fully endogenous are placed in the endoenous vector &gamma;.</DD>
+<DT>Different feasible sets A(&theta;) are allowed, but ...</DT>
+<DD>The feasible set must be the same size at each state at a give clock setting <var>t</var>.
+<DD>A warning message about this is issued if more than one feasible set exists</DD>
+
+The key elements of the approximation are
+<OL>
+<LI>The points to subsample at each clock setting.</LI>
+<UL>
+<LI>A different proportion can be used at each t, and the approximation can be turned off
+completely at other values of the clock.  This subsampling is done by calling
+<code>`DP::SubSampleStates`(profile)</code>, where profile can be a vector of sampling proportions
+or a constant.</LI>
+<LI>At the subsampled points in &theta; all the exogenous states are iterated over to compute the full value function.<LI>
+<LI>This value of the value is stored as the explained value for the approximation.</LI>
+<LI>The explanatory values are also stored, in the default, the choice-specific values at the
+MEDIAN point in the exogenous vector &epsilon; and the max of them.</LI>
+</UL>
+<LI>The MEDIAN exogenous state to use for prediction (see above)</LI>
+<UL><LI>If an odd number of discrete points are used for each exogenous random variable, and if
+you specific a symmetric distribution of actual values then the MEDIAN point will be the 0
+vector of &epsilon; and it will also equal the mean &epsilon;.</LI></UL>
+<LI>The Specification of the approximation</LI>
+<UL><LI>KW's preferred specification is the default, but it can be replaced by the user
+(no help yet available on this).
+<LI>The default is to run a linear regression in the <var>V-v(&alpha;)</var> vector and the
+square root of the vector</LI></UL>
+
+</OL>
 **/
-KeaneWolpin::KeaneWolpin(SampleProportion,myKWEMax) {
+KeaneWolpin::KeaneWolpin(myKWEMax) {
+    if (isint(SampleProportion)) oxwarning("Must call SubSampleStates() before CreateSpaces() if you uses KeaneWolpin");
 	ValueIteration(isint(myKWEMax) ? new KWEMax() : myKWEMax);
     if (J>1)
         oxwarning("Using KW approximization on a model with infeasible actions at some states.  All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible");
 	ndogU.meth = this;
 	cpos = counter.t.pos;
-	this.SampleProportion = isdouble(SampleProportion) ? constant(SampleProportion,TT,1) : SampleProportion;
-	DoSubSample = this.SampleProportion .< 1.0;
 	Bhat = new array[TT];
-	Approximated = 0;
 	Traverse(DoAll);	//create subsample
 	if (Volume>QUIET) {
 		println("Keane-Wolpin Subsample Drawn.\nNumber of States Approximated:",Approximated);
@@ -340,7 +413,7 @@ KWEMax::InSample(th){
 	
 KWEMax::OutSample(th) {
 	th->MedianActVal(meth.VV[later]);
-	meth->Specification(PredictEV,V[MESind],(V[MESind]-th.pandv[rind])');
+	meth->Specification(PredictEV,V[0],(V[0]-th.pandv[rind])');
 	}
 	
 /** Add up choice frequencies conditional on &gamma; and &theta;
@@ -466,15 +539,8 @@ HotzMiller::Gsolve() {
 	}
 	
 HotzMiller::Solve(Fgroups) {
-	UpdateVariables();
-   	cputime0 = timer();
-	ExogenousTransition();
-	ETT.subspace = iterating;
-	ETT->Traverse(DoAll);
-	IsTracking = FALSE;
-	if (Volume>QUIET) println("Transition time: ",timer()-cputime0);
-	cputime0 = timer();
 	ftask.qtask = this;			//refers back to current object.
+    if (UpdateTime[OnlyOnce]) UpdateVariables(0);
 	if (Fgroups==AllFixed)
 		ftask -> loop();
 	else

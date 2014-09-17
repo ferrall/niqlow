@@ -2,9 +2,11 @@
 
 DynamicRoy::Replicate()	{
 	decl i, BF, KW,OutMat, AMat, BMat;	
-	Initialize(Reachable,TRUE,0);
+	Initialize(Reachable,FALSE,0);
 	SetClock(NormalAging,A1);
+    SubSampleStates(constant(0.95,1,3)~constant(0.95,1,A1-3));
 	Actions(accept = new ActionVariable("Accept",Msectors));
+    GroupVariables(lnk = new NormalRandomEffect("lnk",3,0.0,1.0));
 	EndogenousStates(attended   = new ActionTracker("attended",accept,school));
 	ExogenousStates(offers = new MVNormal("eps",Msectors,Noffers,zeros(Msectors,1),sig));
 //	println(unvech(sig));
@@ -17,7 +19,7 @@ DynamicRoy::Replicate()	{
 //	BF = new ValueIteration();
 //	BF -> Solve();
 //	DPDebug::outV(FALSE,&AMat);
-	KW = new KeaneWolpin(ones(1,10)~constant(0.1,1,A1-10),0);
+	KW = new KeaneWolpin();
 	KW -> Solve();
 //	DPDebug::outV(FALSE,&BMat);
 //    println("difference ","%c",{"EV","Choice Probs"},(BMat-AMat)[][columns(BMat)-Msectors-1:]);
@@ -38,8 +40,9 @@ DynamicRoy::Reachable() {
 /** Utility vector equals the vector of feasible returns.**/	
 DynamicRoy::Utility() {
  	decl  xs = xper[school].v, xw = xper[white].v, xb = xper[blue].v,
-	 xbw = (1~xs~xw~-sqr(xw)~xb~-sqr(xb))*alph[white],
-	 xbb = (1~xs~xb~-sqr(xb)~xw~-sqr(xw))*alph[blue],
+     k = AV(lnk),
+	 xbw = (k~xs~xw~-sqr(xw)~xb~-sqr(xb))*alph[white],
+	 xbb = (k~xs~xb~-sqr(xb)~xw~-sqr(xw))*alph[blue],
 	R = xbw	
 	  |	xbb
 	  | bet[0]-bet[1]*(xs+School0>=HSGrad)-bet[2]*(!attended.v)

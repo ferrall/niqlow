@@ -252,12 +252,13 @@ return o;
 
 /** Print Column Moments.
     @param M <em>matrix</em>: matrix to compute (column) moments for
+    @param rlabels (optional), array of labels for variables
     @comments See Ox <tt>moments()</tt>
 **/
-MyMoments(M,...)	{
-	decl v = va_arglist(), moms = (moments(M,2)|minc(M)|maxc(M))';
-	if (sizeof(v))
-		print("%r",v[0],"%c",mymomlabels,moms);
+MyMoments(M,rlabels)	{
+	decl moms = (moments(M,2)|minc(M)|maxc(M))';
+	if (isarray(rlabels))
+		print("%r",rlabels,"%c",mymomlabels,moms);
 	else
 		print("%c",mymomlabels,moms);
 	}
