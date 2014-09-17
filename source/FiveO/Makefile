@@ -1,21 +1,6 @@
-Version := OxMetrics7
-PC := TRUE
-ifeq ($(PC),TRUE)
-	OX := "C:\Program Files (x86)\$(Version)\Ox\bin\oxl.exe"
-	OXFLAGS := -DOX7
-	COPY := copy
-	OXDOC := C:\Program Files (x86)\oxdoc\bin\oxdoc.bat
-	ERASE := erase
-	INC := ..\..\include
-	SED := "C:\Program Files (x86)\GNU\bin\sed.exe"
-	DOC := ../../doc/FiveO
-else
-	OX := /home/ferrallc/bin/$(Version)/ox/bin64/oxl
-	OXFLAGS := -DMPI  -DOX7
-	COPY := cp
-	ERASE := rm
-	INC := ../../include
-endif
+include ../Makefile.inc
+
+INC := ../../include
 
 vpath %.ox .:../Shared
 vpath %.h $(INC)

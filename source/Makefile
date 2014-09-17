@@ -1,22 +1,6 @@
-Version := OxMetrics7
-PC := TRUE
-ifeq ($(PC),TRUE)
-	OX := "C:\Program Files (x86)\$(Version)\Ox\bin\oxl.exe"
-	OXFLAGS := -DOX7
-	COPY := copy
-	OXDOC := "C:\Program Files (x86)\oxdoc\bin\oxdoc.bat"
-	ERASE := erase
-	INC := ..\include
-	XMP := ..\examples
-	DOC := ../doc
-else
-	OX := /home/ferrallc/bin/$(Version)/ox/bin64/oxl
-	OXFLAGS := -DMPI  -DOX7
-	COPY := cp
-	ERASE := rm
-	INC := ../include
-endif
+include Makefile.inc
 
+INC := ../include
 
 vpath %.ox .:Shared:DDP:FiveO:Hybrids:$(INC)
 vpath %.h $(INC)
@@ -26,6 +10,7 @@ vpath %.ox.html ../doc
 oxobjects = Shared.oxo DDP.oxo FiveO.oxo CFMPI.ox Hybrids.oxo
 
 niqlow.oxo  : $(oxobjects)
+	-for d in $(DIRS); do ($(CD) $$d; $(MAKE) $(MKFLAGS); $(ECHO) "\n\n\n Build attempt for directory: $$d complete\n\n\n"); done
 
 %.oxo : %.ox %.h
 	$(OX) $(OXFLAGS) -i$(INC) -c $<
