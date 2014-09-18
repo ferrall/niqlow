@@ -114,8 +114,8 @@ Since <code>DataSet</code> is derived from the <a href="Outcomes.ox.html#Panel">
 <DD>By default nothing is observed, so the user must explicitly add variables to the observed list.  State variables that are <a href="StateVariable.ox.html#Fixed">Fixed</a>, are placeholders that take on only one value, so they are implicitly observed.  These are marked as <code>force0</code> so that if reading in from external data the values will be filled in and they do not have to be explicitly observed.</DD>
 <DD><code>DataSet::Observed()</code> takes one or more <em>pairs</em> of arguments.  The first in the pair is the state, action or auxiliary variable that is observed.  The second is either the label for that variable's column in external data or the index of that column.  The code <code>UseLabel</code> means that the same label is used in the data as stored internally for the variable.  (When using simulated data this second argument is not used, but if the data were save to disk and read back in to a different DataSet object it would be best to use <code>UseLabel</code> because it is used for the column labels.,</dd>
 <DT>Since the code is working with simulated data, the data set already has the full outcome <code>Y*</code> in memory.  </DT>
-<DD>When reading in external data, the observability of variables is specified <em>ex ante</em> and then the observable data is read in using <code>DataSet::Read(const filename)</code>.  But here, observability is specified <em>ex post</em>.</DD>
-<DD>With simulated data, the user must apply <a href="Outcomes.ox.html#DataSet___Mask">Mask</a>() before sending the data to an econometric method.  When reading in external data the mask is applied internally by DataSet::Read().</DD>
+<DD>When reading in external data, the observability of variables is specified <em>ex ante</em> and then the observable data is read in using <code><a href="Outcomes.ox.html#DataSet___Read">Read</a>(const filename)</code>.  But here, observability is specified <em>ex post</em>.</DD>
+<DD>With simulated data, the user must apply <a href="Outcomes.ox.html#DataSet___Mask">Mask</a>() before sending the data to an econometric method.  When reading in external data the mask is applied internally by <a href="Outcomes.ox.html#DataSet___Read">Read</a>().</DD>
 <DT>Masking accounts for unobservability using a fairly complex process (which will be documented more completely in later releases.</DT>
  <DD>Essentially missing observations spawn loops over all possible values when processing the outcome.  And the model's probabilistic elements must be used to weight the paths.  </DD>
  <DD>Further, procedures such as likelihood computation is carried out using backwards recursion not the usual forward recursion.  </DD>
@@ -123,7 +123,7 @@ Since <code>DataSet</code> is derived from the <a href="Outcomes.ox.html#Panel">
 <P/>
 <h2>Econometric Objective</h2>
 <P/>
-<DT>DataSet has a virtual method, DataSet::EconometricObjective().  The default is to compute and return <a href="Outcomes.ox.html#Panel___LogLikelihood">LogLikelihood</a>()</DT>
+<DT>DataSet has a virtual method, <a href="Outcomes.ox.html#DataSet___EconometricObjective">EconometricObjective</a>().  The default is to compute and return <a href="Outcomes.ox.html#Panel___LogLikelihood">LogLikelihood</a>()</DT>
  <DD>The user can derive their own DataSet class and replace it with an alternative procedure (and other built in objectives, such as GMM, will be provided in later releases).</DD>
 <DD> Since it is log-likelihood it is easier to check the <code>exp()</code> in this small example .  As with all Objectives within <span class="n">FiveO</span>, it turns a vector of values that Algorithms will sum up or use directly to compute Jacobians as needed.</DD>
 <DT>Once data is masked or read in from an external source the value of any variable that was not marked as observed for force0 is now lost even if it were observed originally.  </DT>

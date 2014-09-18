@@ -602,11 +602,13 @@ Asset::Asset(L,N,r,NetSavings){
 **/
 Asset::Transit(FeasA) {
     atom = setbounds( AV(r)*actual[v]+AV(NetSavings,FeasA) , actual[0], actual[N-1] );
-     top = mincindex( (atom.>actual)' )';
+     top = mincindex( (atom-DIFF_EPS.>actual)' )';
      bot = setbounds(top-1,0,.Inf);
-     mid = (actual[bot]+actual[top])'/2,
+//     mid = (actual[bot]+actual[top])'/2,
+     mid = (actual[top]-actual[bot])',
      tprob = (mid .!= 0.0) .? (atom-actual[bot]')./mid .:  1.0 , //
-    bprob = 1-top;
+    bprob = 1-tprob;
     all = union(bot,top);
+    if ( any(tprob.>1.0) ) println("%c",{"AA","Bound","aB","mid","At"},AV(r)*actual[v]+AV(NetSavings,FeasA)~atom~actual[bot]'~mid~actual[top]'," tp ",tprob'," bp ",bprob'," all ",all);
     return { all, tprob.*(all.==top) + bprob.*(all.==bot) };
     }

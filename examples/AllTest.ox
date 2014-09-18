@@ -59,12 +59,13 @@ Test3::Utility() { decl u = A[Aind]*(CV(d)-5+CV(s0))+(1-A[Aind])*CV(s1); return 
 Test3::Run(UseList) {
 	Initialize(Test3::Reachable,UseList,0);
 	SetClock(NormalAging,5);
+    SubSampleStates(0.8);
 	Volume = LOUD;
 	Actions(new ActionVariable("a",2));
 	ExogenousStates(d = new SimpleJump("d",11));
 	EndogenousStates(s0 = new SimpleJump("s0",5),s1 = new SimpleJump("s1",5));
 	CreateSpaces();
-	decl KW = new KeaneWolpin(0.8,0);
+	decl KW = new KeaneWolpin();
 	KW->Solve(0,0);
 	DPDebug::outV(TRUE);
 	delete KW;
@@ -75,33 +76,36 @@ Test3a::Run()	{
 	decl i, Approx,Brute,AMat,BMat;	
 	Initialize(Reachable,TRUE,0);
 	SetClock(NormalAging,1);
+    SubSampleStates(0.9);
 	Actions(accept = new ActionVariable("Accept",Msectors));
+    GroupVariables(lnk = new NormalRandomEffect("lnk",3,0.0,0.1));
 	ExogenousStates(offers = new MVNormal("eps",Msectors,Noffers,zeros(Msectors,1),sig));
 	xper = new array[Msectors-1];
 	for (i=0;i<Msectors-1;++i)
 		EndogenousStates(xper[i] = new SimpleJump("X"+sprint(i),MaxExp));
 	SetDelta(0.95);
-	CreateSpaces(LogitKernel,0.001);
+	CreateSpaces(LogitKernel,0.1);
 	Volume = LOUD;
-	Brute = new ValueIteration();
-	Brute-> Solve();
-	DPDebug::outV(FALSE,&BMat);
-	Approx = new KeaneWolpin(0.99);
+//	Brute = new ValueIteration();
+//	Brute-> Solve();
+//	DPDebug::outV(FALSE,&BMat);
+	Approx = new KeaneWolpin();
 	Approx -> Solve();
 	DPDebug::outV(FALSE,&AMat);
-    println("difference ","%c",{"EV","Choice Probs"},(BMat-AMat)[][columns(BMat)-4:]);
+ //   println("difference ","%c",{"EV","Choice Probs"},(BMat-AMat)[][columns(BMat)-4:]);
     Delete();
 }
 
-Test3a::Reachable() {return new Test3a(); 	}
+Test3a::Reachable() { return new Test3a(); 	}
 
 /** Utility vector equals the vector of feasible returns.**/	
 Test3a::Utility() {
  	decl  xw = xper[white].v/2, xb = xper[blue].v/2,
-	 xbw = (1~10~xw~-sqr(xw)~xb~-sqr(xb))*alph[white],
-	 xbb = (1~10~xb~-sqr(xb)~xw~-sqr(xw))*alph[blue],
+      k = AV(lnk),
+	 xbw = (k~10~xw~-sqr(xw)~xb~-sqr(xb))*alph[white],
+	 xbb = (k~10~xb~-sqr(xb)~xw~-sqr(xw))*alph[blue],
 	 eps = selectrc(offers.Grid,accept.vals,offers.v)',
-	 R = exp( (xbw | xbb | 9.0) + eps );
+	 R = exp( (xbw | xbb | 1.0) + eps );
 	return R;
 	}
 	

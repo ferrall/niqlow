@@ -132,7 +132,7 @@ struct Panel : FPanel {
 	~Panel();
 	LogLikelihood();
 	Flat();
-	Print(fn);
+	Print(fn=0);
 //	Auxiliary(av,...);
 	virtual Simulate(N,T,ErgOrStateMat,DropTerminal);
 	virtual Collapse(cond,stat);
@@ -165,7 +165,7 @@ struct 	Prediction : Task {
 		/** **/					ch,
 		/** **/					unch,
 		/** next prediction**/	pnext,
-                                hvals, 
+                                hvals,
 								hist;
 	Prediction(prev);
 	Predict();
@@ -200,6 +200,6 @@ struct DataSet : Panel {
 	UnObserved(aORs,...);
 	Read(fn);
 	IDColumn(lORind);
-	Summary(data);
+	Summary(data,rlabels=0);
 	virtual EconometricObjective();
 	}

@@ -53,7 +53,7 @@ t ~ State_Ind ~ IsTerminal ~ Aind ~ &epsilon; ~ eta; ~ &theta; ~ &gamma; ~ &alph
 **/
 Outcome::Flat()	{
 	decl th = Settheta(ind[tracking]);
-	return t~ind[tracking]~th.IsTerminal~th.Aind~state'~ind[onlyacts]~act~z~aux;
+    return t~ind[tracking]~th.IsTerminal~th.Aind~state'~ind[onlyacts][0]~act~z~aux;  //ind[onlyacts] shows only A[0] index.
 	}
 
 /** Simulate the IID stochastic elements of a realization.
@@ -66,14 +66,13 @@ transitions.  Then `Bellman::Simulate` called to simulate
 @see DP::DrawOneExogenous, Bellman::Simulate
 **/
 Outcome::Simulate() {
-	decl i;
+	decl i,f,th;
     for (i=0;i<columns(fixeddim);++i) ind[fixeddim[i]] = OO[fixeddim[i]][]*state;
 	ind[bothexog] = DrawOneExogenous(&state);
 	ind[onlyexog] = OO[onlyexog][]*state;
 	ind[onlysemiexog] = OO[onlysemiexog][]*state;
 	SyncStates(0,NS-1);
-	decl th = Settheta(ind[tracking]);
-	if (!isclass(th)) oxrunerror("simulated state "+sprint(ind[tracking])+" not reachable");
+	if (!isclass(th = Settheta(ind[tracking]))) oxrunerror("simulated state "+sprint(ind[tracking])+" not reachable");
 	onext = th->Simulate(this);
 	ind[onlyacts] = ialpha;
 	act = alpha;
@@ -378,7 +377,7 @@ Outcome::FullLikelihood() {
 	if (viinds[tom]==UnInitialized) return lk;
     decl icol, TF, TP;
 	[TF,TP] = GetTrans(viinds[now],0);
-    intersection(matrix(viinds[tom]),TF,&icol);
+    if (!rows(intersection(matrix(viinds[tom]),TF,&icol))) return .NaN;
 	lk *= TP[arow][icol[1][0]];
     return lk;
 	}
@@ -445,7 +444,10 @@ Path::FullLikelihood() {
     L=1.0;
 	do {
 		tom = !now;
-		L *= cur->Outcome::FullLikelihood();
+		if ( isnan(L *= cur->Outcome::FullLikelihood()) ) {
+            println(" path id ",i);
+            oxrunerror("nothing feasible");
+            }
 		now = !now;
 		} while(isclass(cur = cur.prev));
 	}
@@ -493,6 +495,10 @@ FPanel::LogLikelihood() {
 	cputime0 =timer();
 	//	dogroups = groupcols==DoAll ? range(0,NG-1) : groupcols
 	if (isclass(method)) method->Solve(f,0);
+    if (!HasBeenUpdated) {
+        oxwarning("Transitions have not been calculated at least once. Likelihood may fail. You may need to SetUpdateTime()");
+        HasBeenUpdated=TRUE;
+        }
 	if (isclass(upddens)) {
 		upddens->SetFE(state);
 		summand->SetFE(state);
@@ -668,37 +674,19 @@ Outcome::AccountForUnobservables() {
 //    println("acts",ind[onlyacts]," groups ",ind[bothgroup]," tracking ",ind[tracking],"---------");
 	}
 
-///** Create of MLE DDP data set.
-//@param label string, description for panel
-//@param method `Method` for solving the DP problem
-//@param varcol integer, column to start reading in data<br>
-//UnInitialized (-1), do not set observed columns
-//**/
-//FullMLE::FullMLE(label,method,varcol) {
-//	DataSet(label,method);
-//	decl k;
-//	if (varcol!=UnInitialized) {
-//		for (k=0;k<sizeof(SubVectors[acts]);++k) Observed(SubVectors[acts][k],varcol++);	
-//		for (k=0;k<NS;++k) Observed(States[k],varcol++);
-//		}
-//	}
-
-///** .
-//FullyObserved::Observed(aORs,LorC){
-//	oxwarning("observed template created automatically for fully observed data");
-//	}
-//
-//FullyObserved::ObservedList(obs1,...) {
-////	oxwarning("observed template created automatically for fully observed data");
-//	}
-//	
-//**/
-//
-//FullyObserved::Read(fn,iVar) {
-//	Data::Read(fn,iVar);
-//	}
-
-
+/** Compute the predicted distribution of actions and states.
+**/
+Prediction::Predict() {
+	decl s,th,q, 	lo = SS[tracking].left,	hi = SS[tracking].right;
+    state = zeros(NN);
+    foreach (q in sind[s]) if (isclass(th=Settheta(q))) {
+            state[lo:hi] = ReverseState(q,OO[tracking][])[lo:hi];
+            ind[tracking] = OO[tracking][]*state;
+            SyncStates(lo,hi);
+            th->Predict(p[s],this);
+            }
+	}
+	
 /** Create a new prediction.
 @param t <em>integer</em>, time period.
 **/
@@ -708,6 +696,21 @@ Prediction::Prediction(t){
 	unch = ch = zeros(NA,1);
 	pnext = UnInitialized;
 	}
+
+
+/** Compute a panel of predicted distributions.
+@param T <em>integer</em> length of the panel.
+**/
+PanelPrediction::Predict(T){
+  if (isclass(pnext)) oxrunerror("panel prediction already computed");
+  cur=this;
+  this.T = T;
+  do {
+	 cur.pnext = new Prediction(cur.t+1);
+	 cur->Prediction::Predict();
+	 cur = cur.pnext;
+  	 } while(cur.t<T);
+  }
 
 /** Store a panel of predicted distributions.
 **/
@@ -733,35 +736,11 @@ PanelPrediction::PanelPrediction(iDist){
 		sind |= iDist.sind;
 		p |= iDist.p;
 		}
-	else oxrunerror("iDist must be integer, vector or Prediction object");
+	else {
+        oxrunerror("iDist must be integer, vector or Prediction object");
+        }
 	}
 
-/** Compute the predicted distribution of actions and states.
-**/
-Prediction::Predict() {
-	decl s,th,q, 	lo = SS[tracking].left,	hi = SS[tracking].right;
-    state = zeros(NN);
-    foreach (q in sind[s]) if (isclass(th=Settheta(q))) {
-            state[lo:hi] = ReverseState(q,OO[tracking][])[lo:hi];
-            ind[tracking] = OO[tracking][]*state;
-            SyncStates(lo,hi);
-            th->Predict(p[s],this);
-            }
-	}
-	
-/** Compute a panel of predicted distributions.
-@param T <em>integer</em> length of the panel.
-**/
-PanelPrediction::Predict(T){
-  if (isclass(pnext)) oxrunerror("panel prediction already computed");
-  cur=this;
-  this.T = T;
-  do {
-	 cur.pnext = new Prediction(cur.t+1);
-	 cur->Prediction::Predict();
-	 cur = cur.pnext;
-  	 } while(cur.t<T);
-  }
 
 /** Compute the histogram of a single action variable at the prediction.
 Stored in `Prediction::hist`
@@ -769,10 +748,12 @@ Stored in `Prediction::hist`
 Prediction::Histogram() {
 	hist = zeros(hN,1);
 	decl q,k;
-	if (av)	for (k=0;k<rows(ch);++k)
+	if (av)	for (k=0;k<rows(ch);++k) {
 		hist[ActionMatrix[k][hd]] += ud ? ch[k] : unch[k];
-	else if (sv) foreach (q in  sind[][k])
-		hist[ReverseState(q,SS[tracking].O)[hd]] += p[k];
+        }
+	else if (sv) {
+        foreach (q in  sind[][k]) hist[ReverseState(q,SS[tracking].O)[hd]] += p[k];
+        }
     else {
         decl th, newqs,newp,j,uni,htmp,ptmp;
         ptmp = htmp=<>;
@@ -786,7 +767,7 @@ Prediction::Histogram() {
             }
         hvals = unique(htmp);
         hist = zeros(hvals)';
-        foreach (q in hvals[k]) hist[k] = sumc(selectifr(ptmp,htmp.==q));
+        foreach (q in hvals[k]) { hist[k] = sumc(selectifr(ptmp,htmp.==q)); }
         }
 	}
 
@@ -852,15 +833,15 @@ DataSet::EconometricObjective() {
 
 /** Produce a Stata-like summary statistics table.
 @param data <em>matrix</em>, data to summarize<br><em>integer</em>, summarize `Panel::flat`
+@param rlables [default=0], array of labels
 
 **/
-DataSet::Summary(data) {
+DataSet::Summary(data,rlabels) {
 	decl rept = zeros(3,0),s;		
-//	for (s=0;s<sizeof(list);++s) rept ~= list[s].obsv | list[s].force0 | list[s].incol;
 	foreach (s in list) rept ~= s.obsv | s.force0 | s.incol;
 	println("\nOutcome Summary: ",label);
 	println("%c",{"ID"}|Alabels|Slabels|Auxlabels,"%r",{"observed"}|{"force0"}|{"column"},"%cf","%6.0f",rept);
-    if (ismatrix(data)) println("Source data summary", MyMoments(data));
+    if (ismatrix(data)) println("Source data summary", MyMoments(data,rlabels));
     else {
         Print(0);
         println("Data set summary ",MyMoments(flat,{"f"}|"i"|"t"|"track"|"term"|"Ai"|Slabels|"Arow"|Alabels|Auxlabels));
@@ -870,16 +851,19 @@ DataSet::Summary(data) {
 /** Load
 **/
 DataSet::LoadOxDB() {
-	decl s,curid,data,curd = new array[ExternalData],row,obscols,inf,fpcur;
+	decl s,curid,data,curd = new array[ExternalData],row,obscols,inf,fpcur,obslabels;
 	dlabels=source->GetAllNames();
 	obscols=<>;
+    obslabels = {};
 	for(s=0;s<sizeof(list);++s)
-		if (list[s].obsv==TRUE)
+		if (list[s].obsv==TRUE) {
+            obslabels |= dlabels[sizeof(obscols)];
 			obscols |= list[s].ReturnColumn(dlabels,sizeof(obscols));
+            }
 		else
 			list[s].obsv=FALSE;
 	data = source->GetVarByIndex(obscols);
-	if (Volume>SILENT) Summary(data);
+	if (Volume>SILENT) Summary(data,obslabels);
 	curid = UnInitialized;
 	cur = this;
 	FN = N = 0;
@@ -888,12 +872,13 @@ DataSet::LoadOxDB() {
 	curd[inaux] = constant(.NaN,1,Naux);	
 	for (row=0;row<rows(data);++row) {
 		curd[inid] = data[row][list[0].incol];
-		for(s=0;s<Nav;++s)
-			curd[inact][s] = (list[1+s].obsv)
+		for(s=0;s<Nav;++s) {
+			curd[inact][0][s] = (list[1+s].obsv)
 						? data[row][list[1+s].incol]
 						: (list[1+s].force0)
 							? 0
 							: .NaN;
+            }
 		for(s=0;s<NS;++s) {
 			curd[instate][s] = (list[1+Nav+s].obsv)
 						? data[row][list[1+Nav+s].incol]
@@ -902,7 +887,7 @@ DataSet::LoadOxDB() {
 							: .NaN;
 			}
 		for(s=0;s<Naux;++s)
-			curd[inaux][s] = (list[1+Nav+NS+s].obsv)
+			curd[inaux][1][s] = (list[1+Nav+NS+s].obsv)
 						? data[row][list[1+Nav+NS+s].incol]
 						: .NaN;
 		if (curd[inid]!=curid) {	// new path on possibly new FPanel
@@ -917,7 +902,10 @@ DataSet::LoadOxDB() {
 		fpcur -> Path::Append(curd);   // append outcome to current Path of current FPanel
 		++FNT;
 		}
-	if (Volume>SILENT) println(". Total Outcomes Loaded: ",FNT);
+	if (Volume>SILENT) {
+            println(". Total Outcomes Loaded: ",FNT);
+            if (Volume>LOUD) Summary(0);
+            }
 	}
 	
 /** Load outcomes into the data set from a (long format) file.
@@ -945,9 +933,7 @@ DataSet::Read(fn) {
 DataSet::DataSet(id,method,FullyObserved) {
 	if (!ThetaCreated) oxrunerror("Cannot create DataSet before calling CreateSpaces()");
 	label = id;
-	Panel(0,method);
-    this.FullyObserved=FullyObserved;
-    if (FullyObserved) oxwarning("likelihood only accounting for choice probabilities.");
+	Panel(0,method,this.FullyObserved=FullyObserved);
 	Volume = QUIET;
 	masked = FALSE;
 	decl q, aa=SubVectors[acts];

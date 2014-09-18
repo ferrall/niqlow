@@ -5,60 +5,27 @@
 
 This computes <em>&Rho;(&theta;&prime;,&alpha;,&eta;,&theta;)</em>
 
-This task is run once before iterating on the value function.
+When this task is run is determined by `DP::UpdateTime`
 
 @comments
-The endogenous transition must be computed and stored at each point in the endogenous state space &Theta;.
-If a state variable can be placed in &epsilon; or &eta; instead of &theta; it reduces computation and storage signficantly.
-</dd>
+The endogenous transition must be computed and stored at each point in the endogenous state space &Theta;. And at
+a point &theta; it is must be computed for each semi-exogenous state &eta;.
 
-@see SemiTrans
+If a state variable can be placed in &epsilon; instead of &eta; or &theta; it reduces computation and storage signficantly.
+
+@see DP::SetUpdateTime, SemiTrans
 **/
 EndogTrans::EndogTrans() {
 	Task();
-   	left = S[endog].M; 	right = S[clock].M;
-	STT = new SemiTrans();
+   	left = S[semiexog].M; 	right = S[clock].M;
 	}
 
 /** . @internal **/
 EndogTrans::Run(th) {
 	if (!isclass(th,"Bellman")) return;
 	th.EV[] = 0.0;
-	STT.subspace = subspace;
-	STT.state = state;
-	STT -> loop();
+    th->ThetaTransition(SS[subspace].O);
 	}
-
-/** Constructs the transitions for &eta;, the semi-exogenous state vector.
-
-This computes <em>&Rho;(&eta;&prime;)</em>
-
-This task is run once before iterating on the value function.
-
-@see EndogTrans
-**/
-SemiTrans::SemiTrans() {
-	Task();
-	left = S[semiexog].M;	right = S[semiexog].X;
-	}
-	
-/** . @internal **/
-SemiTrans::Run(th) { th->ThetaTransition(SS[subspace].O); }
-
-/** . @internal **/
-DumpExogTrans::DumpExogTrans() {
-	Task();
-	left = S[exog].M;	right = S[semiexog].X;
-	s = <>;
-	loop();
-	print("%c",{" "}|Vlabels[]|"f()","%cf",Sfmts[0]|Sfmts[3+S[exog].M:3+S[semiexog].X]|"%15.6f",s);
-	delete s;
-	}
-	
-/** . @internal **/
-DumpExogTrans::Run(th) { decl i =ind[bothexog];  s|=i~state[left:right]'~NxtExog[Qrho][i];}
-
-//static decl Ndone;
 
 /**Set the automatic (non-static) members of a state node.
 @param state  state vector
@@ -69,7 +36,6 @@ Bellman::Bellman(state) {
   decl s=S[endog].M;
   do { IsTerminal = any(state[s].==States[s].TermValues); } while (!IsTerminal && s++<S[endog].X);
   NTerminalStates += IsTerminal;
-//  println(++Ndone);
   decl curJ= sizeof(ActionSets),
   		fa = IsTerminal ? 1|zeros(rows(ActionMatrix)-1,1) : FeasibleActions(ActionMatrix),
 		nfeas = int(sumc(fa));
@@ -80,11 +46,26 @@ Bellman::Bellman(state) {
 	Asets |= selectifr(ActionMatrix,fa);
 	AsetCount |= 1;
 	}
-  Nxt = new array[StateTrans][SS[onlysemiexog].size];
-  U = new matrix[nfeas][SS[bothexog].size];
   pandv = new array[NR];
+  if (!isint(SampleProportion)) {
+	InSubSample =     IsTerminal
+  	 			  || !DoSubSample[curt]
+				  ||  ranu(1,1) < SampleProportion[curt];
+	Approximated += !(InSubSample);
+    }
+  else InSubSample = TRUE;
+
+  if (InSubSample) {
+    Nxt = new array[StateTrans][SS[onlysemiexog].size];
+    U = new matrix[nfeas][SS[bothexog].size];
+    }
+  else {
+    Nxt = new array[StateTrans][1];
+    U = new matrix[nfeas][1];
+    }
   for(s=0;s<NR;++s) pandv[s]= constant(.NaN,U);
-  pset = EV = zeros(NR,1);
+  //  pset =   don't need pset anymore???
+  EV = zeros(NR,1);
   }
 
 /** Default &theta;.A: all actions are feasible at all states, except for terminal states.
@@ -106,6 +87,7 @@ Smooth is called for each point in the state space during value function iterati
 (deterministic aging or fixed point tolerance has been reached.)
 
 @comment This is virtual, so the user's model can provide a replacement to do tasks at each &theta; during iteration.
+
 @see Bellman::pandv
 **/
 Bellman::Smooth(VV) {
@@ -124,10 +106,10 @@ Bellman::ActVal(VV) {
 		pandv[rind][][eta*width:(eta+1)*width-1] += dl*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]]));
 	}
 
+/** Computes v() and V for out-of-sample states. **/
 Bellman::MedianActVal(EV) {
-	// collapse matrix to vector
-    pandv[rind] = U[][MESind] + (Last() ? 0.0 : CV(delta)*sumr(Nxt[Qrho][MSemiEind]*diag(EV[Nxt[Qi][MSemiEind]])));
-	V[MESind] = maxc( pandv[rind] );
+    pandv[rind][] = U[][] + (Last() ? 0.0 : CV(delta)*sumr(Nxt[Qrho][0]*diag(EV[Nxt[Qi][0]])));
+	V[] = maxc( pandv[rind] );
 	}
 	
 /**Default <var>Emax</var> operator at &theta;.
@@ -176,14 +158,13 @@ Bellman::ExpandP(r) {
 /** Computes the full endogneous transition, &Rho;(&theta;'; &alpha;,&eta; ), within a loop over &eta;.
 Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
 @param future offset vector to use for computing states (tracking or solving)
-@comments computes `DP::Nxt` array of feasible indices of next period states and conforming matrix of probabilities.
+@comments computes `DP::ExogNxt` array of feasible indices of next period states and conforming matrix of probabilities.
 @see DP::ExogenousTransition
 **/
 Bellman::ThetaTransition(future) {
-	 decl ios = ind[onlysemiexog];
+	 decl ios = InSubSample ? ind[onlysemiexog] : 0;
 	 if (IsTerminal || Last() ) { Nxt[Qi][ios] = Nxt[Qrho][ios] = <>; return; }
-	 decl now,later,  //added Dec.2012.  w/o local decl would this corrupt static values?
-	 		si,N,prob,feas,k,root,swap, mtches,curO;
+	 decl now,later, si,N,prob,feas,k,root,swap, mtches,curO;
 	 now = NOW, later=LATER;
  	 F[now] = <0>;	
 	 P[now] = ones(rows(Asets[Aind]),1);
@@ -196,6 +177,10 @@ Bellman::ThetaTransition(future) {
 			{ N = 1; root = States[si]; }
 		if (any(curO = future[si-N+1:si]))	{  // states are relevant to s'
 			[feas,prob] = root -> Transit(Asets[Aind]);
+            if (Volume>LOUD && any(fabs( sumr(prob) -1.0) )>DIFF_EPS2) { // short-circuit && avoids sumr() unless NOISY
+                println(si," ",root.L,feas|prob,"%m",sumr(prob));
+                oxrunerror("Transition probabilities are not valid");
+                }
 			feas = curO*feas;
 			k=columns(feas)-1;
 			do	if (any(prob[][k])) {
@@ -209,6 +194,7 @@ Bellman::ThetaTransition(future) {
 		} while (si>=S[endog].M);
 	Nxt[Qi][ios] = F[now];
 	Nxt[Qrho][ios] = P[now];
+    if  (Volume>LOUD) println(ind[iterating]," ",ios,F[now]|P[now]);
  }
 
 /** Default U() &equiv; <b>0</b>.
@@ -293,6 +279,7 @@ Bellman::aa(av) {
 /** .	  @internal **/
 Bellman::~Bellman() {	delete U, pandv, Nxt; 	}
 
+
 /** Delete the current DP model and reset.
 Since static variables are used, only one DP model can be stored at one time.
 
@@ -308,13 +295,13 @@ Bellman::Delete() {
 	delete SubVectors, States;
 	delete NxtExog, Blocks, Alabels, Slabels, Auxlabels;
 	for(i=0;i<sizeof(SS);++i) delete SS[i];
-	delete SS, S, F, P, delta, counter, ActionMatrix, Asets, A;
+	delete SS, S, F, P, delta, counter, ActionMatrix, Asets, A, UpdateTime;
 	SS = delta = counter = Impossible;	
 	for(i=0;i<sizeof(Theta);++i) delete Theta[i];
 	for(i=0;i<sizeof(Gamma);++i) delete Gamma[i];
 	delete Gamma, Theta, ReachableIndices, tfirst;
 	delete ETT;
-	StorePA = IsErgodic = HasFixedEffect = ThetaCreated = Gamma = Theta = ReachableIndices = 0;	
+	Volume = SampleProportion = DoSubSample = StorePA = IsErgodic = HasFixedEffect = ThetaCreated = Gamma = Theta = ReachableIndices = 0;	
 	}
 
 /**
