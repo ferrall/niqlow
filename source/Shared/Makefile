@@ -17,12 +17,12 @@ Shared.oxo  :
 .PHONY : clean
 clean:
 	$(info $(CURDIR))
-	$(ERASE) *.oxo
-	$(ERASE) $(INC)\Shared.oxo
+		$(ERASE) *.oxo
+		$(ERASE) $(INC)/Shared.oxo
 
 .PHONY : document
 document:
-	$(ERASE) ..\..\doc\Shared\*.ox.html
+	$(ERASE) ../../doc/Shared/*.ox.html
 	$(OXDOC) -include $(INC) *.ox
 
 .PHONY : install
