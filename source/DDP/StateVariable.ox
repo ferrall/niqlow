@@ -14,13 +14,32 @@ StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>; }
 /**Designate one or more values terminal.
 @comments The feasible action set for terminal states is automatically set to the first row of the gobal <var>A</var> matrix.
 @param TermValues integer or vector in the range 0...N-1
-@see Bellman::FeasibleActions
+@example
+  #import DDP
+  s = new StateVariable("s",5);
+  s->MakeTerminal(<3;4>);
+  v = new StateVariable("v",1);
+  v->MakeTerminal(1);
+</dd>
+Now any state &theta; for which <code>CV(s)=3</code> or <code>CV(s)=4</code> or <code>CV(s)=1</code>
+will be marked as terminal: `Bellman::IsTerminal` = TRUE.
+@see Bellman::FeasibleActions, StateVariable::TermValues
 **/
 StateVariable::MakeTerminal(TermValues)	{
 	this.TermValues ~= vec(matrix(TermValues))';
 	}
 
-/** Transit
+/** Default Transit (transition for a state variable).
+@param FeasA  matrix of feasible action vectors at the current state, &Alpha;(&theta;).
+
+This is a virtual method, so derived classes replace this default version with the one that goes along
+with the kind of state variable.
+
+@return  a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
+matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
+The built-in transit returns <code> &gt;0&lt; , ones(rows(FeasA),1) }</code>.  That is the with
+probability one the value of the state variable next period is 0.
+
 **/
 StateVariable::Transit(FeasA) { return { <0> , ones(rows(FeasA),1) }; }
 
@@ -337,7 +356,7 @@ Duration::Transit(FeasA) {
 @param L string, state variable name
 @param N integer, number of values
 @param reset `ActionVariable`
-@param Pi, vector or `Simplex` parameter block
+@param Pi, vector or <a href="Parameters.ox.html#Simplex">Simplex</a> parameter block
 **/
 Renewal::Renewal(L,N,reset,Pi)	{
 	StateVariable(L,N);

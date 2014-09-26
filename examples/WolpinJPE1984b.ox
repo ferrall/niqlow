@@ -4,7 +4,7 @@
 /**Run the  replication.
 **/
 Fertility2::Replicate()	{
-	Initialize(-.Inf,Reachable,FALSE,0);
+	Initialize(-.Inf,Reachable);
 	SetClock(NormalAging,T+tau);
 	decl t,PD,expbirths, tab, row, prow,Yrow;
 	SetDelta(delt);

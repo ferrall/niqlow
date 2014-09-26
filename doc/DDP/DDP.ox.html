@@ -659,15 +659,16 @@ In short, a key reason the notation differs here is because it is used to descri
 Before programming, state <code>MyModel</code> in the notation used above (which combines standard mathematical statement of DP and some peculiarities of <span class="n">DDP</span>.)
 <DL>
 <DT>Determine the timing in your model (stationary, finite horizon, etc.).</DT>
-<DT>List the action variables in <code>&alpha; = (a<sub>0</sub>,a<sub>1</sub>,&hellip;)</code></DT>
+<DT>List the <a href="ActionVariable.ox.html">action variables</a> in <code>&alpha; = (a<sub>0</sub>,a<sub>1</sub>,&hellip;)</code></DT>
 <DD>Many papers vectorize the action variables into one long choice.  But DDP makes it easy to separate different dimensions of choice so that each variable is meangingful</DD>
-<DT>List and classify state variables and state blocks.</DT>
+<DT>List and classify <a href="StateVariable.ox.html">state variables</a> and state blocks.</DT>
 <DD>For each state variable/block, either find a predefined class that it matches (up to the value of parameters to the creator routine for the class) or derive a new transition for it.</DD>
-<DD>If two or more variables are conditionally correlated (coevolving), place them in  a state block and derive a transition.</DD>
+<DD>If two or more variables are conditionally correlated (coevolving), place them in a state block and derive a transition.</DD>
 <DD>Specify the dependency of the transition on the current values of other state variables and actions.  </DD>
 <DT>Based on these dependencies assign each state variable to  &epsilon;, &eta; and &theta;</DT>
-<DT>Terminal values: if values of endogenous variables end decision-making</DT>
+<DT>Terminal values: if values of endogenous states end decision-making</DT>
 <DD>Express as a value or set of values of variables in &theta; that terminate decisions</DD>
+<DD>Use the method <a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>() to mark values as terminating.</DD>
 <DD>This implicitly defines <span class="o"><b>&Theta;</b></span></DD>
 <DT>Reachability if not every endogenous state can be reached</DT>
 <DD>Express &theta;.R as a logical/boolean value depending on the values of variables in &theta;

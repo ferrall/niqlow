@@ -1046,7 +1046,7 @@ episode and duration.  Duration is not tracked for k=0.  New episodes occur with
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="StateVariable.ox.html#Episode___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Transit  </td>
+<td class="description">Default Transit (transition for a state variable).</td>
 </tr>
 </table>
 
@@ -1908,7 +1908,7 @@ A Block of <a href="StateVariable.ox.html#Coevolving">Coevolving</a> state varia
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="StateVariable.ox.html#StateBlock___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Transit  </td>
+<td class="description">Default Transit (transition for a state variable).</td>
 </tr>
 </table>
 
@@ -2028,7 +2028,7 @@ Base Class for elements of state vectors, &epsilon;, &eta;, &theta;, &gamma; .
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="StateVariable.ox.html#StateVariable___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Transit  </td>
+<td class="description">Default Transit (transition for a state variable).</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></td>
@@ -2856,8 +2856,27 @@ Stores end probability at t=T-1 for non-Finite episodes
 
 <span class="declaration">virtual Episode :: Transit ( FeasA )</span>
 <dl><dd>
-Transit
+Default Transit (transition for a state variable).
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">FeasA</td>
+<td class="description" valign="baseline"> matrix of feasible action vectors at the current state, &Alpha;(&theta;).
+<P/>
+This is a virtual method, so derived classes replace this default version with the one that goes along
+with the kind of state variable.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
+matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
+The built-in transit returns <code> &gt;0&lt; , ones(rows(FeasA),1) }</code>.  That is the with
+probability one the value of the state variable next period is 0.
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Fixed</span></h2>
 
@@ -3568,7 +3587,7 @@ Create a renewal state with random incrementing.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Pi,</td>
-<td class="description" valign="baseline">vector or Simplex parameter block</td>
+<td class="description" valign="baseline">vector or <a href="Parameters.ox.html#Simplex">Simplex</a> parameter block</td>
 </tr>
 </table>
 </dd>
@@ -3832,8 +3851,27 @@ Create a list of <a href="StateVariable.ox.html#Coevolving">Coevolving</a> state
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
 <dl><dd>
-Transit
+Default Transit (transition for a state variable).
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">FeasA</td>
+<td class="description" valign="baseline"> matrix of feasible action vectors at the current state, &Alpha;(&theta;).
+<P/>
+This is a virtual method, so derived classes replace this default version with the one that goes along
+with the kind of state variable.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
+matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
+The built-in transit returns <code> &gt;0&lt; , ones(rows(FeasA),1) }</code>.  That is the with
+probability one the value of the state variable next period is 0.
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateCounter</span></h2>
 
@@ -3939,9 +3977,17 @@ Designate one or more values terminal.
 </tr>
 </table>
 </dd>
+<dt class="example">Example:</dt><dd class="example">s = new StateVariable("s",5);
+  s->MakeTerminal(<3;4>);
+  v = new StateVariable("v",1);
+  v->MakeTerminal(1);
+</dd>
+Now any state &theta; for which <code>CV(s)=3</code> or <code>CV(s)=4</code> or <code>CV(s)=1</code>
+will be marked as terminal: <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a> = TRUE.
+</dd>
 <dt class="comments">Comments:</dt><dd class="comments">The feasible action set for terminal states is automatically set to the first row of the gobal <var>A</var> matrix.
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="StateVariable.ox.html#StateVariable___TermValues">TermValues</a></dd>
 </dl>
 </dd></dl>
 
@@ -4001,8 +4047,27 @@ A vector of values that end decision making
 
 <span class="declaration">virtual StateVariable :: Transit ( FeasA )</span>
 <dl><dd>
-Transit
+Default Transit (transition for a state variable).
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">FeasA</td>
+<td class="description" valign="baseline"> matrix of feasible action vectors at the current state, &Alpha;(&theta;).
+<P/>
+This is a virtual method, so derived classes replace this default version with the one that goes along
+with the kind of state variable.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
+matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
+The built-in transit returns <code> &gt;0&lt; , ones(rows(FeasA),1) }</code>.  That is the with
+probability one the value of the state variable next period is 0.
+</dd>
+</dl>
 </dd></dl>
 
 <hr>

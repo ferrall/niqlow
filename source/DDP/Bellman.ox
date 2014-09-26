@@ -13,7 +13,7 @@ a point &theta; it is must be computed for each semi-exogenous state &eta;.
 
 If a state variable can be placed in &epsilon; instead of &eta; or &theta; it reduces computation and storage signficantly.
 
-@see DP::SetUpdateTime, SemiTrans
+@see DP::SetUpdateTime
 **/
 EndogTrans::EndogTrans() {
 	Task();
@@ -158,7 +158,7 @@ Bellman::ExpandP(r) {
 /** Computes the full endogneous transition, &Rho;(&theta;'; &alpha;,&eta; ), within a loop over &eta;.
 Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
 @param future offset vector to use for computing states (tracking or solving)
-@comments computes `DP::ExogNxt` array of feasible indices of next period states and conforming matrix of probabilities.
+@comments computes `DP::NxtExog` array of feasible indices of next period states and conforming matrix of probabilities.
 @see DP::ExogenousTransition
 **/
 Bellman::ThetaTransition(future) {
@@ -169,6 +169,7 @@ Bellman::ThetaTransition(future) {
  	 F[now] = <0>;	
 	 P[now] = ones(rows(Asets[Aind]),1);
 	 si = S[clock].X;				// clock needs to be nxtcnt
+     if  (Volume>LOUD) println("Endogenous transitions at ",ind[iterating]);
 	 do	{
 		F[later] = P[later] = <>;  swap = FALSE;
 		if (isclass(States[si],"Coevolving"))
@@ -177,9 +178,12 @@ Bellman::ThetaTransition(future) {
 			{ N = 1; root = States[si]; }
 		if (any(curO = future[si-N+1:si]))	{  // states are relevant to s'
 			[feas,prob] = root -> Transit(Asets[Aind]);
-            if (Volume>LOUD && any(fabs( sumr(prob) -1.0) )>DIFF_EPS2) { // short-circuit && avoids sumr() unless NOISY
-                println(si," ",root.L,feas|prob,"%m",sumr(prob));
-                oxrunerror("Transition probabilities are not valid");
+            if (Volume>LOUD) {
+                println("     State: ",root.L,root.L,"%r",{"   ind","   prob"},feas|prob);
+                if (any(fabs( sumr(prob) -1.0) )>DIFF_EPS2) { // short-circuit && avoids sumr() unless NOISY
+                    println(si," ","%m",sumr(prob));
+                    oxrunerror("Transition probabilities are not valid");
+                    }
                 }
 			feas = curO*feas;
 			k=columns(feas)-1;
@@ -194,7 +198,7 @@ Bellman::ThetaTransition(future) {
 		} while (si>=S[endog].M);
 	Nxt[Qi][ios] = F[now];
 	Nxt[Qrho][ios] = P[now];
-    if  (Volume>LOUD) println(ind[iterating]," ",ios,F[now]|P[now]);
+    if (Volume>LOUD) println("Overall transition ","%r",{"ind","prob"},F[now]|P[now]);
  }
 
 /** Default U() &equiv; <b>0</b>.
@@ -308,7 +312,7 @@ Bellman::Delete() {
 @param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
 FALSE if the state is not reachable.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
-					FALSE, traverse &Theta; through iteration on all state variables
+					FALSE [default], traverse &Theta; through iteration on all state variables
 @param GroupExists
 	
 **/

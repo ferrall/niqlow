@@ -126,7 +126,7 @@ However it is referenced, <code>a</code> and <code>b</code> refer to the same pl
 <div class="page-break"> </div>
 <DT>Define the code to set up and solve the model</DT><DD><pre>
 10:  Search::Run()	{
-11:  		Initialize(Reachable,FALSE,0);
+11:  		Initialize(Reachable);
 12:  		SetClock(InfiniteHorizon);
 13:  		SetDelta(0.99);
 14:  		Actions(a = new ActionVariable("a",2));
@@ -146,7 +146,7 @@ However it is referenced, <code>a</code> and <code>b</code> refer to the same pl
 <DD>11. The user's code must also call the <code>Initialize()</code> method before setting up or solving the model.
 <details class="aside"><summary>More on <code>Initialize</code></summary>
 <a href="DP.ox.html#DP___Initialize">Initialize</a>() works only on <em>static</em> elements of the model, and these must be set before any instances of the model are created with <code>new</code>.  So it is not possible to put these tasks in the <q>constructor</q> for DP. The user may declare a <code>Initialize()</code> method if they expect the class (<code>Search</code>)  to be used as a base for other derived classes. Then <code>Search::Initialize()</code> would call <code>DP::Initialize()</code> and the prefix will be required to resolve the name.</details>
-The first argument sent to <code>Initialize</code> is the name of the method that indicates if a state is reachable or not.  Note that <code>Reachable()</code> has been declared above but not yet defined.</DD>
+The first (and only required) argument sent to <code>Initialize</code> is the name of the method that indicates if a state is reachable or not.  Note that <code>Reachable()</code> has been declared above but not yet defined.</DD>
 <DD>Code to set up the model must appear after <code>Initialize()</code> and before the <code>CreateSpaces()</code> method is called.
 <DD>12: Every DDP model has a clock. There are several predefined clock types, and the user can create their own if necessary.  <code>InfiniteHorizon</code> is an enumeration like <code>Noff</code> in the file above which <code><a href="DP.ox.html#DP___SetClock">SetClock</a>()</code> uses to create the right kind of clock. </DD>
 <DD>13: Every DDP model has a discount factor &delta;.  <code><a href="DP.ox.html#DP___SetDelta">SetDelta</a>()</code> sets its value, which is constant here but could be set to a variable <a href="Shared.ox.html#Parameter">Parameter</a>..</DD>

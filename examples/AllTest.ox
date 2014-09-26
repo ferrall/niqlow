@@ -26,12 +26,14 @@ TestRun() {
 	Test7::Run();		
 	println("\n\n***************** Test8 *****************\n");
 	Test8::Run();		
+	println("\n\n***************** Test9 *****************\n");
+	Test9::Run();		
 	}
 
 Test1::Reachable() { return new Test1(); }
 Test1::Utility() { return 1.0; }
 Test1::Run(UseList) {
-	Bellman::Initialize(Test1::Reachable,UseList,0);
+	Bellman::Initialize(Test1::Reachable,UseList);
 	SetClock(NormalAging,10);
 	CreateSpaces();
 	decl EMax = new ValueIteration(0);
@@ -44,23 +46,22 @@ Test1::Run(UseList) {
 Test2::Reachable() { return new Test2(); }
 Test2::Utility() { return curt < TT-1 ? 1.0 : 0.0; }
 Test2::Run(UseList) {
-	Initialize(Test2::Reachable,UseList,0);
-	SetClock(RandomMortality,10,0.9);
+	Initialize(Test2::Reachable,UseList);
+	SetClock(UncertainLongevity,4,0.0);
 	CreateSpaces();
 	decl EMax = new ValueIteration(0);
 	EMax -> Solve(0,0);
 	delete EMax;
-	DPDebug::outV(TRUE);
 	Delete();
 	}
 
 Test3::Reachable() { return new Test3(); }
 Test3::Utility() { decl u = A[Aind]*(CV(d)-5+CV(s0))+(1-A[Aind])*CV(s1); return u;}
 Test3::Run(UseList) {
-	Initialize(Test3::Reachable,UseList,0);
+	Initialize(Test3::Reachable,UseList);
 	SetClock(NormalAging,5);
     SubSampleStates(0.8);
-	Volume = LOUD;
+	Volume = NOISY;
 	Actions(new ActionVariable("a",2));
 	ExogenousStates(d = new SimpleJump("d",11));
 	EndogenousStates(s0 = new SimpleJump("s0",5),s1 = new SimpleJump("s1",5));
@@ -74,7 +75,7 @@ Test3::Run(UseList) {
 
 Test3a::Run()	{
 	decl i, Approx,Brute,AMat,BMat;	
-	Initialize(Reachable,TRUE,0);
+	Initialize(Reachable,TRUE);
 	SetClock(NormalAging,1);
     SubSampleStates(0.9);
 	Actions(accept = new ActionVariable("Accept",Msectors));
@@ -112,7 +113,7 @@ Test3a::Utility() {
 Test4::Reachable() { return new Test4(); }
 Test4::Utility() { return 0|-0.5; }
 Test4::Run() {
-	Initialize(Test4::Reachable,FALSE,0);
+	Initialize(Test4::Reachable);
 	SetIntegration(16,0);
 	SetClock(NormalAging,10);
 	Actions(new ActionVariable("a",2));
@@ -127,7 +128,7 @@ Test4::Run() {
 Test5::Reachable() { return new Test5(); }
 Test5::Utility() { return 0|0; }
 Test5::Run() {
-	Initialize(Test5::Reachable,FALSE,0);
+	Initialize(Test5::Reachable);
 	SetClock(NormalAging,1);
 	Actions(new ActionVariable("a",2));
 	SetIntegration(100,-1,<1.0;0.99;1.0>);
@@ -142,7 +143,7 @@ Test5::Run() {
 Test6::Reachable() { return new Test6(); }
 Test6::Utility() { return (job.status.v==3) * job.offer.v * aa(acc) ; }
 Test6::Run() {
-	Initialize(Test6::Reachable,FALSE,0);
+	Initialize(Test6::Reachable);
 	SetClock(Ergodic);
 	Actions(acc = new ActionVariable("a",2));
 	EndogenousStates(job = new OfferWithLayoff("",5,acc,0.4,0.2));
@@ -156,7 +157,7 @@ Test6::Run() {
 	}
 
 Test7::Run()  {
-	Initialize(Test7::Reachable,FALSE);
+	Initialize(Test7::Reachable);
 	rc = new Positive("RC",dgp[RC]);
 	th1 = new Simplex("q",dgp[XT]);
 //	th1->Encode();
@@ -197,7 +198,7 @@ Test8::Utility() {
 	return dg*a + (1-dg)*(1-a) + 3*CV(r);
 	}
 Test8::Run() {
-	Initialize(Reachable,FALSE,FALSE);
+	Initialize(Reachable);
 	SetClock(StaticProgram);
 	Actions(d = new ActionVariable("d",2));
 	GroupVariables(r = new RandomEffect("r",2),
@@ -210,3 +211,23 @@ Test8::Run() {
 	DPDebug::outV(TRUE);
     Delete();
 	}
+
+Test9::Run()	{
+	Initialize(Reachable);
+    Volume = NOISY;
+	SetClock(UncertainLongevity,4,0.0);
+	SetDelta(0.99);
+	Actions(a = new ActionVariable("a",2));
+	EndogenousStates(d = new LaggedAction("d",a));
+	d->MakeTerminal(1);	
+	ExogenousStates(p = new SimpleJump("p",Noff));
+	CreateSpaces();
+	meth = new ValueIteration(0);
+	meth.Volume = NOISY;
+	meth -> Solve(0,0);
+    decl pd = new PanelPrediction();
+    pd -> Predict(8,TRUE);
+	Delete();
+	}
+Test9::Reachable()	{	return new Test9(); 	}
+Test9::Utility()  { 	return -(1-CV(d))*(lam + CV(p)*aa(a)) + (3-curt); 	}	

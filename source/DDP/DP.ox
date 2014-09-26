@@ -421,7 +421,7 @@ DP::CreateSpaces() {
 		w1 = sprint("%",7*S[semiexog].D,"s");
 		w2 = sprint("%",7*S[endog].D,"s");
 		w3 = sprint("%",7*S[clock].D,"s");
-        println("Clock Class: ",ClockType," Description: ",ClockTypeLabels[ClockType]);
+        println("Clock: ",ClockType,". ",ClockTypeLabels[ClockType]);
 		println("STATE VARIABLES\n","%18s","|eps",w0,"|eta",w1,"|theta",w2,"-clock",w3,"|gamma",
 		"%r",{"       s.N"},"%cf","%7.0f","%c",Slabels,NN');
 		for (m=0;m<sizeof(States);++m)
@@ -671,7 +671,7 @@ DumpExogTrans::DumpExogTrans() {
 	left = S[exog].M;	right = S[semiexog].X;
 	s = <>;
 	loop();
-	print("%c",{" "}|Vlabels[]|"f()","%cf",array(Sfmts[0])|Sfmts[3+S[exog].M:3+S[semiexog].X]|"%15.6f",s);
+	print("Exogenous and Semi-Exogenous State Variable Transitions ","%c",{" "}|Slabels[S[exog].M:S[semiexog].X]|"f()","%cf",array(Sfmts[0])|Sfmts[3+S[exog].M:3+S[semiexog].X]|"%15.6f",s);
 	delete s;
 	}
 	
@@ -684,7 +684,7 @@ DumpExogTrans::Run(th) { decl i =ind[bothexog];  s|=i~state[left:right]'~NxtExog
 **/
 DP::SetDelta(delta) 	{ 	return CV(this.delta = delta);	 }	
 
-/** Ensure that all `StateVariable::v` objects are synched with the internally stored state vector.
+/** Ensure that all `StateVariable` objects <code>v</code> are synched with the internally stored state vector.
 @param dmin leftmost state variable
 @param dmax rightmost state variable
 @return the value of the dmax (rightmost)
@@ -715,23 +715,35 @@ DP::SyncAct(a)	{
 @param ClockOrType `Clock` derived state block<br>
 	   integer, `ClockTypes`
 @param ... arguments to pass to constructor of clock type
-@example <pre>
+
+@example
+<pre>
+Initialize(Reachable);
 SetClock(InfiniteHorizon);
-SetClock(Ergodic);
-SetClock(StaticProgram);
+...
+CreateSpaces();
+</pre>
+Finite Horizon
+<pre>
+decl T=65;	
+Initialize(Reachable);
+SetClock(NormalAging,T);
+...
+CreateSpaces();
+</pre>
+Early Mortaliy
+<pre>
+MyModel::Pi(FeasA);	
 
-decl T=65;	SetClock(NormalAging,T);
+SetClock(RandomMortality,T,MyModel::Pi);
+Initialize(Reachable);
+...
+CreateSpaces();
 
-const decl Brackets = constant(5,1,10); 	SetClock(RandomAging,Brackets);
+</pre></dd>
 
-MyModel::Pi(FeasA);	SetClock(RandomMortality,T,MyModel::Pi);	
-SetClock(UncertainLongevity,T,MyModel::Pi);
-
-const decl phases = &lt;1,10,10&gt;;	SetClock(SocialExperiment,phases);
-
-myclock = new DerivedClock();	SetClock(myclock);</pre></dd>
-@comments <code>MyModel</code> can create a derived `Clock` and pass it<br>
-		  or have SetClock create built-in clock.<br>
+@comments <code>MyModel</code> can also create a derived `Clock` and pass it to SetClock.
+		
 **/
 DP::SetClock(ClockOrType,...)	{
 	if (isclass(counter)) oxrunerror("Clock/counter state block already initialized");
@@ -784,7 +796,6 @@ DP::UpdateVariables(state)	{
 	decl i,nr,j,a,nfeas;
     HasBeenUpdated = TRUE;
 	PreUpdate();
-    if (!isint(state)) ETT.state = state;
 	i=0;
 	do {
 		if (IsBlockMember(States[i])) {
@@ -812,6 +823,7 @@ DP::UpdateVariables(state)	{
 	for (i=1;i<J;++i) A[i][][] = selectifr(A[0],ActionSets[i]);
    	cputime0 = timer();
 	ExogenousTransition();
+    if (!isint(state)) ETT.state = state;
 	ETT.subspace = iterating;
 	ETT->Traverse(DoAll);          //Endogenous transitions
 	IsTracking = FALSE;

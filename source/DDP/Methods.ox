@@ -7,7 +7,7 @@ and <var>P(&theta;&prime;;&alpha;,&eta;,&theta;)</var> need to be updated.
 It calls `ExogUtil` task stored in `EndogeUtil::ex` to loop over &eta; and &epsilon;
 @comment
 This task uses <code>iterating</code> indexing because it is called at the start of Bellman iteration.
-So utility is not stored for later use.  To retrieve it during simulation requires an `Auxiliary` variable.
+So utility is not stored for later use.  To retrieve it during simulation requires an `Auxiliary::Variable`.
 
 **/
 EndogUtil::EndogUtil() {
@@ -32,7 +32,7 @@ EndogUtil::Run(th) {
 /** Create an endogenous utility object.
 This task method has the job of looping over the endogenous state space when <var>U(&alpha;...)</var>
 and <var>P(&theta;&prime;;&alpha;,&eta;,&theta;)</var> need to be updated.
-It calls `ExogUtil` task stored in `EndogeUtil::ex` to loop over &eta; and &epsilon;
+It calls `ExogUtil` task stored in `EndogUtil::ex` to loop over &eta; and &epsilon;
 **/
 ExogUtil::ExogUtil() {
 	ExTask();	
@@ -64,7 +64,7 @@ FixedSolve::Run(fxstate){
 	cputime0 = timer();
 	rtask.qtask = qtask;
 	rtask -> loop();
-	if (Volume>QUIET) DPDebug::outV(TRUE);
+	if (qtask.Volume>QUIET) DPDebug::outV(TRUE);
 	PostRESolve();
 	}
 
@@ -115,10 +115,7 @@ ValueIteration::Run(th) {
 ValueIteration::Gsolve() {
 	ndogU.state = state;
 	ndogU->Traverse(DoAll);
-	setPstar = 		clockclass[1]
-				|| 	clockclass[3]
-			   	||  (clockclass[0] && (counter.Brackets[TT-1]==1) )
-			   	||  (MaxTrips==1);   // if first trip is last;
+	setPstar = counter->setPstar() ||  (MaxTrips==1);   // if first trip is last;
 	decl i;
 	Traverse(DoAll);
 	if (!(ind[onlyrand])  && isclass(counter,"Stationary")&& later!=LATER) VV[LATER][] = VV[later][];    //initial value next time
@@ -137,17 +134,6 @@ It uses a `FixedSolve`task stored in `ValueIteration::ftask` to loop over fixed 
 If `DP::UpdateTime` is <code>OnlyOnce</code> (see `UpdateTimes`), then transitions and variables are updated here.</LI>
 
 
-<pre>
-    `ValueIteration::Solve`
-       `FixedSolve`                      loop over fixed effects
-            `RandomSolve`                loop over random effects given fixed values
-                `ValueIteration::Gsolve`                 solve for the point &gamma; &in; &Gamma; in group space [virtual]
-                    `EndogUtil`            initialize over endogenous states &theta;
-                    1. `ValueIteration::Run`                  loop over bellman iterations
-                    2. `ValueIteration::Update`         check convergence/work backwards (repeat 1.)
-            `ValueIteration::PostRESolve'                          user-defined post random solve tasks
-</pre>
-
 
 @comments Result stored in `ValueIteration::VV` matrix for only two or three ages (iterations) stored at any one time.  So this
 cannot be used after the solution is complete.  `Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
@@ -159,6 +145,7 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
     else if (MaxTrips) this.MaxTrips = MaxTrips;
    	now = NOW;	later = LATER;
 	ftask.qtask = this;			//refers back to current object.
+    Clock::Solving(MxEndogInd,&VV,&setPstar);
     if (UpdateTime[OnlyOnce]) UpdateVariables(0);
 	if (Fgroups==AllFixed)
 		ftask -> loop();
@@ -166,7 +153,7 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
 		ftask->Run(ReverseState(Fgroups,OO[onlyfixed][]));
 	}
 
-/** Creates a new "brute force" Bellman iteration method.
+/** Creates a new &quot;brute force&quot; Bellman iteration method.
 @param myEndogUtil  `EndogUtil` to use for iterating over endogenous states<br>0 (default), built in task will be used.
 
 **/
@@ -180,14 +167,13 @@ ValueIteration::ValueIteration(myEndogUtil) {
    	state = NN-1;
    	ftask = new FixedSolve();
 	ndogU = isint(myEndogUtil) ? new EndogUtil() : myEndogUtil;
-	clockclass = isclass(counter,"AgeBrackets")|(isclass(counter,"Mortality")&&!isclass(counter,"Longevity"))|isclass(counter,"Longevity")|isclass(counter,"Aging")|isclass(counter,"PhasedTreatment");
 	VV = new array[DVspace];
     decl i;
     for (i=0;i<DVspace;++i) VV[i] = zeros(1,SS[iterating].size);
    	if (isint(delta)) oxwarning("Setting discount factor to default value of "+sprint(SetDelta(0.90)));
 	PostRESolve = DoNothing;
     DoNotIterate = FALSE;
-    if (Volume>LOUD) {   }
+    Volume = QUIET;
 	}
 
 /** Update code for fixed number of trips. **/
@@ -199,39 +185,30 @@ ValueIteration::NTrips() {
 
 /**	Check convergence in Bellman iteration, either infinite or finite horizon.
 Default task loop update routine for value iteration.
-This is called after one complete iteration of `Gsolve`.
+This is called after one complete iteration of `ValueIteration::Gsolve`.
 @return TRUE if converged or `Task::trips` equals `Task::MaxTrips`
 **/
 ValueIteration::Update() {
 	++trips;
 	decl dff= norm(VV[NOW][:MxEndogInd]-VV[LATER][:MxEndogInd],2);
-	if (dff==.NaN) {println(VV);	oxrunerror("error while checking convergence");		}
-	if (setPstar && counter.tprime.N>1) {		// not ordinary aging
-		if (any(clockclass[:2])) {		
-			VV[now][MxEndogInd+1:] = VV[now][:MxEndogInd];	//copy today's value to tomorrow place
-			if (any(clockclass[1:2])) {
-				if (curt==TT-1) counter.DeathV = VV[now][:MxEndogInd];
-				else VV[now][:MxEndogInd] = counter.DeathV;
-				}
-			}
-		else if (clockclass[4]&&(!counter.time[curt]))	// current phase just starting, put in go-to-next-phase place
-			VV[now][MxEndogInd+1:2*MxEndogInd] = VV[now][:MxEndogInd];
-		}
+	if (dff==.NaN || Volume>LOUD) {
+        println("\n t =",curt,"%r",{"today","tomorrow"},VV[now][]|VV[later][]);	
+        if (dff==.NaN) oxrunerror("error while checking convergence");		
+        }
+    counter->Vupdate(now);
     Swap();
 	state[right] -= setPstar;
 	done = SyncStates(right,right) <0 ; //converged & counter was at 0
 	if (!done) {
-		setPstar = 	   (dff <vtoler)
-					|| (clockclass[0]&&(counter.Brackets[curt]==1))
-					|| any(clockclass[<1,3>])
-					|| clockclass[2]&&(curt<TT-2)
-					|| MaxTrips==trips+1;  //last trip coming up
+        setPstar =  (dff <vtoler)
+					|| MaxTrips==trips+1  //last trip coming up
+                    || counter->setPstar();
 		VV[now][:MxEndogInd] = 0.0;
 		}
-	if (Volume>LOUD) println("Trip:",trips,". Done:",done,". Visits:",iter,". diff=",dff,". setP*:",setPstar);
- 	state[right] += done;		//put counter back to 0	if necessary
+	if (Volume>=LOUD) println("Trip:",trips,". Done:",done,". Visits:",iter,". diff=",dff,". setP*:",setPstar);
+ 	state[right] += done;		//put counter back to 0 	if necessary
 	SyncStates(right,right);
-    return done || (trips>=MaxTrips);  // done = ???.  This way done signals convegence.
+    return done || (trips>=MaxTrips);
 	}
 
 /** Endogenous Utility task used the KeaneWolpin Approximation.
@@ -531,7 +508,8 @@ HMEndogU::Run(th) {
 HotzMiller::Gsolve() {
     //	Traverse(DoAll);
 	decl cg = CurGroup(), tmpP = -AV(delta)*cg.Ptrans;
-	println( HMEndogU::VV = (invert( setdiagonal(tmpP, 1+diagonal(tmpP)) ) * Q[find] )' );  // (I-d*Ptrans)^{-1}
+    HMEndogU::VV = (invert( setdiagonal(tmpP, 1+diagonal(tmpP)) ) * Q[find] )';   // (I-d*Ptrans)^{-1}
+	if (Volume>LOUD) println("HM inverse mapping: ",HMEndogU::VV );
 	ndogU.state = state;
 	ndogU->Traverse(DoAll);
 	setPstar = 	FALSE;
@@ -539,6 +517,7 @@ HotzMiller::Gsolve() {
 	
 HotzMiller::Solve(Fgroups) {
 	ftask.qtask = this;			//refers back to current object.
+    Clock::Solving(MxEndogInd,&VV,&setPstar);
     if (UpdateTime[OnlyOnce]) UpdateVariables(0);
 	if (Fgroups==AllFixed)
 		ftask -> loop();

@@ -3,7 +3,7 @@
 
 MVTest::Replicate()	{
 	decl i;
-	Initialize(Reachable,0,0);
+	Initialize(Reachable);
 	SetClock(StaticProgram);
 	Actions(accept = new ActionVariable("Accept",Mdimens));
 	decl sigu = diag(range(1,Mdimens));

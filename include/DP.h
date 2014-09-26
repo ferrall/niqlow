@@ -24,6 +24,7 @@ enum {OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
 		/** Ways to smooth choice probabilities without adding an explicit continuous error &zeta;. @name SmoothingMethods**/	
 enum { NoSmoothing, LogitKernel, GaussKernal, ExPostSmoothingMethods}
 
+
 /** . @name DataColumnTypes **/ enum{idcol,acol,scol,auxcol,NColumnTypes}
 
 /** Static elements shared by the user model, groups and data.
@@ -153,7 +154,7 @@ struct DP {
 		static  DoNothing();
 		static  CreateSpaces();
 		static	InitialsetPstar(task);
-		static 	Initialize(userReachable,UseStateList,GroupExists);
+		static 	Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
 
 		static  IsBlock(sv);
 		static  IsBlockMember(sv);		

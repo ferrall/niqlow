@@ -79,3 +79,11 @@ struct Test8 : Bellman {
 			Utility();
 	}
 	
+struct Test9 : Bellman	{
+	enum{Noff=10}
+	static const decl lam = 2.3;
+	static decl p, d, a, meth;
+	static Reachable();
+	static Run();
+	Utility();
+	}

@@ -39,7 +39,7 @@ RealizedUtility::Realize(const q,const y) {
 	}
 </pre>
 <DD>The constructor for an auxiliary variable simply has to call the base constructor and send a label.  (It could do other things of course.)</DD></DT>
-<DT>Auxiliary variables need to provide a <code>Realize()</code> function</DT> 
+<DT>Auxiliary variables need to provide a <code>Realize()</code> function</DT>
 <DD><code>Realize</code> will be called only when simulating data (or in econometric estimation that involves matching predicted outcomes). </DD>
 <DD>Its first argument is the realized point in the state space (&theta;).  The second is the current realized outcome (&upsilon;).  This allows the auxiliary variable to access everything else.</DD>
 <DD>Since `AuxiliaryVariable` is derived from `Quantity` it has a current member, <code>v</code>.  The job of <code>Realize()</code> is to set <code>v</code> for other aspects of the code to use.  In this case, the auxiliary outcome calls <code>Utility()</code> and extracts the element of the vector returned that corresponds to the realized action.  </DD>
@@ -90,8 +90,8 @@ SearchData::SearchData() {
 Since <code>DataSet</code> is derived from the `Panel` class the command <code>simdata-&gt;Simulate(&hellip;)</code> is equivalent to <code>simdata-&gt;Panel::Simulate(&hellip;)</code>. This also means that the user could have made <code>simdata</code> a Panel object instead, if simulation was all that was required, but the data manipulation coming next require a <code>DataSet</code> object.</details>
 <DT><code>Print(1)</code> constructs a matrix representation of the data set and prints it to the output screen or log file.</DT>
   <DD>A data set is really a multi-leveled linked list of panels, paths, and outcomes.  This makes it possible to write general purpose routines for analyzing the data under various assumptions, such as the likelihood of the panel when some states are unobserved.  </DD>
-<DD>The object <code>simdata</code> can be printed out to see all this structure, but a great deal of output is produced which is not particularly helpful.  </DD> 
-<DD>`DataSet::Print` process the outcomes into a standard matrix representation.</DD>
+<DD>The object <code>simdata</code> can be printed out to see all this structure, but a great deal of output is produced which is not particularly helpful.  </DD>
+<DD>`Panel::Print` process the outcomes into a standard matrix representation.</DD>
   <DD>If <code>Print()</code> had been sent a file name with a valid extension then the simulated matrix would have been saved to a file (e.g. such as <q>sim.data</q> or <q>search.xls</q>).  </DD>
   <DD><code>Print()</code> calls <code>Flat()</code> to flatten this data structure into a <q>long</q> matrix, one row for each outcome and one column for each element of the full outcome Y* (except for the pointers to other outcomes).  Columns for path id and simulated time are added.  <code>Flat()</code>is itself a recursive task that builds up the matrix by processing fixed panels, paths and outcomes recursively.</dd>
 

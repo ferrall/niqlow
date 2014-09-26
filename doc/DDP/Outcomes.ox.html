@@ -15,12 +15,103 @@
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
 <h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">Outcomes.ox</span></h1>
 
-Realizations of the DDP, simulate DDP data, read external data sets, interface with <span class="n">Five-O</span>.
+Realizations of the DDP.
 <P/>
 <a href="#auto">Skip down to documentation of items defined in Outcomes.ox</a><p>
 <P/>
+<OL class="contents">Contents
+<LI>Outcomes</LI>
+<LI><a href="#SS">Simulation</a></LI>
+<LI><a href="#PD">Prediction</a></LI>
+</OL>
+<P/>
 <OL class="body">
 <a name="PS"><LI>Outcomes</LI></a>
+<P/>
+The <a href="Outcomes.ox.html#Outcome">Outcome</a> class and its derivatives are used to simulate DDP data, read external data sets, and interface with <span class="n">Five-O</span>.
+<P/>
+<table class="tree">
+<tr><td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="7" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="Outcomes.ox.html#Outcome">Outcome</a></td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">A single realization of a discrete DP.</td>
+</tr>
+<tr>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="6" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="Outcomes.ox.html#Path">Path</a></td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">A derived Outcome that points to a sequence of outcomes along a single realized DP path. As an outcome, the path is the first 
+    outcome along the path.</td>
+</tr>
+<tr>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="5" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="Outcomes.ox.html#FPanel">FPanel</a></td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">A Path that can point to more paths that all share the same fixed effect values.  As a Path itself, the FPanel
+is the first path in the panel.</td></tr>
+<tr>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="4" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="Outcomes.ox.html#Panel">Panel</a></td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">A heterogenous panel, is a FPanel which can also point to more FPanels. The Panel is the first
+fixed panel in the list.</td>
+</tr>
+<tr>
+<td class="line"><div class="vline">&nbsp;</div></td><td class="line">&nbsp;</td><td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td><td class="line">&nbsp;</td><td class="line">&nbsp;</td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="3" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="Outcomes.ox.html#DataSet">DataSet</a></td></tr>
+   <tr class="bottom"><td class="line">&nbsp;</td></tr>
+</tbody></table>
+</td>
+<td class="text">A panel with data-handling tools. Unlike the other derived classes, a data set does not point to other panels.</td>
+</tr>
+</table>
+<P/>
+<DT>Examples</DT>
+<dd>Create a data set from external data<pre>
+	data = new DataSet("DPdata",method,TRUE);
+	data->Observed(x,"x",d,"d");
+	data->IDColumn("id");
+	data->Read("data.dta");	
+</pre></dd>
+<dd>Create a simulated data set from a solved DP model and save to a Stata data set<pre>
+    sim = new Panel("DPdata");
+    sim -> Simulate(10,400,0,TRUE);  
+	sim -> Print("sim.dta");		
+</pre></dd>
 <P/>
 The group space <b>&Gamma;</b> and state space <b>&Theta;</b> represent potential states of the problem.  <a href="Outcomes.ox.html#Outcome">Outcome</a>s of the program are realizations along the path of the program.
 <P/>
@@ -93,22 +184,30 @@ In turn a <a href="Outcomes.ox.html#Panel">Panel</a> is a list of fixed panels.
 <P/>
 <a name="SS"><LI>Simulation</LI></a>
 <P/>
-The vector &zeta; is filled in before calling <code>Auxiliary()</code>.  Since choices are simulated directly from choice probabilities, the simulated values of &zeta; are conditional on the simulated choice.  This is achieved by calling <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a>() or its replacement.  For example, the version for ex post extreme value models would simulate a &zeta; vector that follows the IID extreme value distribution but consistent with the simulated action at that state.  The user can replace <code>ZetaRealization()</code> with their own.  The <code>Auxiliary()</code> method can access the realization in <a href="DP.ox.html#DP___zeta">zeta</a>, a static value  which is only defined during simulation.  On the other hand, the user's <code>Auxiliary</code> method could include additional randomness directly.
+Simulation is a method of each level of Outcome up to and including a Panel.  A simulation uses the specified initial conditions, the endogenous conditional choice probabilities, and the transitions of all states to produce simulated realizations of the DP.  The simulate panel could then be loaded as data set
+to conduct a Monte Carlo estimation procedure.
+<P/>
+During simulation, the vector &zeta; is filled in before calling <code>Auxiliary()</code>.  Since choices are simulated directly from choice probabilities, the simulated values of &zeta; are conditional on the simulated choice.  This is achieved by calling <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a>() or its replacement.  For example, the version for ex post extreme value models would simulate a &zeta; vector that follows the IID extreme value distribution but consistent with the simulated action at that state.  The user can replace <code>ZetaRealization()</code> with their own.  The <code>Auxiliary()</code> method can access the realization in <a href="DP.ox.html#DP___zeta">zeta</a>, a static value  which is only defined during simulation.  On the other hand, the user's <code>Auxiliary</code> method could include additional randomness directly.
 <P/>
 <DT>Initial Conditions</DT>
 <DD>Fixed states, &gamma;</DD>
 <dd>Endogenous states, &theta;</dd>
 <dd>Sampling from the stationary distribution</dd>
 <P/>
-<DT>Observed nad Partially Observed Outcomes</DT>
-<DD>Recall that <em>Y*</em> is the full realized outcome of the DP model is a single period.  It includes all states, actions and auxiliary variables.  In practice the full outcome is not directly observed.  The limited information can be variables whose realized values are simply missing, or they only affect an auxiliary variable which combines other elements of the outcome.  </DD>
+<LI>Observed nad Partially Observed Outcomes</LI>
+<DT>Recall that <em>Y*</em> is the full realized outcome of the DP model is a single period.  It includes all states, actions and auxiliary variables.  In practice the full outcome is not directly observed.  The limited information can be variables whose realized values are simply missing, or they only affect an auxiliary variable which combines other elements of the outcome.  </DT>
 <DD>Express the <em>observable outcome</em> as<pre>
 Y = &equiv; (x<sub>0</sub> &hellip; x<sub>&chi;.N</sub>  - - &hellip; a<sub>o0</sub> - &hellip; - a<sub>o1</sub> - &hellip; - z<sub>o0</sub> - &hellip; - e<sub>o0</sub> - &hellip; - h<sub>o0</sub> - &hellip; - q<sub>o0</sub> &hellip; - g<sub>o0</sub> - &hellip; )
-</pre>
-Here <q>-</q> indicates censoring of elements of Y*, and a<sub>o0</sub> is the first observed action variable.  So if o0 = 3 it means a<sub>3</sub> is the first element of <code>&alpha;</code> that is in the observed outcome.  Between a<sub>o0</sub> and a<sub>o1</sub> are any action variables not observed and indicated by <q>- &hellip; -</q>.  The same is true of the state vectors.  </DD>
-<DD>By definition all elements of the auxiliary vector are observable.  This is not necessarily a template that all observations must follow.  It is possible that some elements of Y* are observed in some cases but not others.  </DD>
-<DD>The auxiliary variables provide great flexibility.  Suppose the value of an action variable a<sub>d</sub> is unobserved, but it is known the realized value is with some sub-range of the potential values.  Then x<sub>0</sub> and x<sub>1</sub> could be the min and max values of a<sub>d</sub>, respectively.  A derived likelihood function would add up the conditional probabilities of actions between those two values.
-<DD>
+</pre></DD>
+<DT>Here <q>-</q> indicates censoring of elements of Y*, and a<sub>o0</sub> is the first observed action variable.</DT>
+  <DD>So if o0 = 3 it means a<sub>3</sub> is the first element of <code>&alpha;</code> that is in the observed outcome.  Between a<sub>o0</sub> and a<sub>o1</sub> are any action variables not observed and indicated by <q>- &hellip; -</q>.  The same is true of the state vectors.  </DD>
+<DT>By definition all elements of the auxiliary vector are observable.  This is not necessarily a template that all observations must follow.  It is possible that some elements of Y* are observed in some cases but not others.  </DT>
+<DD>The auxiliary variables provide great flexibility.  Suppose the value of an action variable a<sub>d</sub> is unobserved, but it is known the realized value is with some sub-range of the potential values.  Then x<sub>0</sub> and x<sub>1</sub> could be the min and max values of a<sub>d</sub>, respectively.  A derived likelihood function would add up the conditional probabilities of actions between those two values.<DD>
+<P/>
+<LI><a href="#PD">Prediction</a></LI>
+<P/>
+Prediction is different way to use the solved model than simulation.  A simulation realizes shocks and choices to produce data. A prediction is the distribution of states and choice probabilities at a point in the the DP program.  A <a href="Outcomes.ox.html#PanelPrediction">PanelPrediction</a> is the sequence of predicted distributions 
+over a sequence of periods after t periods.
 <P/>
 <a name="Data"><LI>Data Sets</LI></a>
 <P/>
@@ -152,6 +251,7 @@ The <a href="Outcomes.ox.html#DataSet">DataSet</a> class is derived from <a href
 <a name="DataColumn"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DataColumn : <a href="Shared.ox.html#Zauxilliary">Zauxilliary</a></span></h2>
 
+Holds information about a column in the data.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -215,7 +315,14 @@ The <a href="Outcomes.ox.html#DataSet">DataSet</a> class is derived from <a href
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DataSet : <a href="Outcomes.ox.html#Panel">Panel</a> : <a href="Outcomes.ox.html#FPanel">FPanel</a> : <a href="Outcomes.ox.html#Path">Path</a> : <a href="Outcomes.ox.html#Outcome">Outcome</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
 
 A panel with data-handling tools.
+A data set is designed to hold data for estimation purposes.
 
+<dl><dt class="example">Example:</dt><dd class="example">d = new DataSet("d");
+</dd>
+<P/>
+See <a href="../FiveO/Objective.ox.html#PanelBB">PanelBB</a>.
+</dd>
+</dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___dlabels">dlabels</a></td>
@@ -230,7 +337,7 @@ A panel with data-handling tools.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___label">label</a></td>
 <td class="modifiers">const</td>
-<td class="description"></td>
+<td class="description">Label for the data set.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___list">list</a></td>
@@ -250,7 +357,7 @@ A panel with data-handling tools.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___Volume">Volume</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">How much output to produce.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___DataSet">DataSet</a></td>
@@ -268,36 +375,31 @@ A panel with data-handling tools.
 <td class="description">set the column label or index of the observation ID.</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___LoadOxDB">LoadOxDB</a></td>
-<td class="modifiers"></td>
-<td class="description">Load  </td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___Mask">Mask</a></td>
 <td class="modifiers"></td>
 <td class="description">Mask unobservables.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___Observed">Observed</a></td>
 <td class="modifiers"></td>
 <td class="description">Mark action  and state variables as observed in data.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___Read">Read</a></td>
 <td class="modifiers"></td>
 <td class="description">Load outcomes into the data set from a (long format) file.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___Summary">Summary</a></td>
 <td class="modifiers"></td>
 <td class="description">Produce a Stata-like summary statistics table.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___UnObserved">UnObserved</a></td>
 <td class="modifiers"></td>
 <td class="description">UnMark action and states variables as observed.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___~DataSet">~DataSet</a></td>
 <td class="modifiers"></td>
 <td class="description">Delete a data set.</td>
@@ -346,12 +448,13 @@ A singly-linked list of <a href="Outcomes.ox.html#Path">Path</a>s.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#FPanel___FullyObserved">FullyObserved</a></td>
 <td class="modifiers">const</td>
-<td class="description"></td>
+<td class="description">TRUE if all endogenous states and
+        action are in the data  </td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#FPanel___method">method</a></td>
 <td class="modifiers"></td>
-<td class="description">method to call.</td>
+<td class="description">method to call for nested solution.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#FPanel___N">N</a></td>
@@ -361,8 +464,8 @@ A singly-linked list of <a href="Outcomes.ox.html#Path">Path</a>s.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#FPanel___NT">NT</a></td>
 <td class="modifiers"></td>
-<td class="description">Total Number of Outcome
-s in the panel.</td>
+<td class="description">Total Number of Outcomes
+         in the panel.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#FPanel___SD">SD</a></td>
@@ -468,7 +571,7 @@ A single realization of a discrete DP.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Outcome___onext">onext</a></td>
 <td class="modifiers"></td>
-<td class="description">next outcome on the path  </td>
+<td class="description">pointer to next outcome on the path  </td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a></td>
@@ -593,7 +696,7 @@ A single realization of a discrete DP.
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Panel : <a href="Outcomes.ox.html#FPanel">FPanel</a> : <a href="Outcomes.ox.html#Path">Path</a> : <a href="Outcomes.ox.html#Outcome">Outcome</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
 
 A heterogenous panel.
-A panel has a list of <a href="Outcomes.ox.html#FPanel">FPanel</a>s, one
+A Panel is a list of <a href="Outcomes.ox.html#FPanel">FPanel</a>s which share a value of the fixed effect variables.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -707,17 +810,18 @@ A panel has a list of <a href="Outcomes.ox.html#FPanel">FPanel</a>s, one
 <a name="PanelPrediction"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">PanelPrediction : <a href="Outcomes.ox.html#Prediction">Prediction</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
 
+A panel of predicted outcomes.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#PanelPrediction___cur">cur</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">the current prediction  </td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#PanelPrediction___T">T</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">length of the panel.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#PanelPrediction___Histogram">Histogram</a></td>
@@ -727,7 +831,7 @@ A panel has a list of <a href="Outcomes.ox.html#FPanel">FPanel</a>s, one
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#PanelPrediction___PanelPrediction">PanelPrediction</a></td>
 <td class="modifiers"></td>
-<td class="description">Store a panel of predicted distributions.</td>
+<td class="description">Set up a panel of predicted distributions.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#PanelPrediction___Predict">Predict</a></td>
@@ -892,7 +996,7 @@ Predicted distribution across states.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___hvals">hvals</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">histogram  </td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___p">p</a></td>
@@ -902,7 +1006,8 @@ Predicted distribution across states.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___pnext">pnext</a></td>
 <td class="modifiers"></td>
-<td class="description">next prediction  </td>
+<td class="description">next prediction
+            in the panel  </td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___sind">sind</a></td>
@@ -1144,7 +1249,7 @@ Store a <a href="Outcomes.ox.html#Panel">Panel</a> as a data set.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">method,</td>
-<td class="description" valign="baseline">solution method to be used as data set is processed.
+<td class="description" valign="baseline">solution method to be used as data set is processed.<br>0 [default], no solution
 </td>
 </tr>
 <tr>
@@ -1214,6 +1319,7 @@ set the column label or index of the observation ID.
 
 <span class="declaration">const decl label [public]</span>
 <dl><dd>
+Label for the data set.
 
 </dd></dl>
 
@@ -1223,16 +1329,6 @@ set the column label or index of the observation ID.
 
 <span class="declaration">decl list [public]</span>
 <dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="DataSet___LoadOxDB"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">LoadOxDB</span></h3>
-
-<span class="declaration">DataSet :: LoadOxDB ( )</span>
-<dl><dd>
-Load
 
 </dd></dl>
 
@@ -1306,9 +1402,16 @@ Load outcomes into the data set from a (long format) file.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">fn</td>
-<td class="description" valign="baseline">string, file name with extension that can be read by <code>OX::Database::Load</code></td>
+<td class="description" valign="baseline">string, file name with extension that can be read by <code>OX::Database::Load</code>
+<P/>
+</td>
 </tr>
 </table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+  d = new DataSet();
+  d -&gt; Read("data.dta");
+</pre></dd>
 </dd>
 </dl>
 </dd></dl>
@@ -1382,7 +1485,10 @@ UnMark action and states variables as observed.
 
 <span class="declaration">decl Volume [public]</span>
 <dl><dd>
+How much output to produce.
 
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#NoiseLevels">NoiseLevels</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1499,6 +1605,8 @@ fixed panel likelihood vector.
 
 <span class="declaration">const decl FullyObserved [public]</span>
 <dl><dd>
+TRUE if all endogenous states and
+        action are in the data
 
 </dd></dl>
 
@@ -1537,7 +1645,7 @@ The vector of path log-likelihoods is stored in <a href="Outcomes.ox.html#FPanel
 
 <span class="declaration">decl method [public]</span>
 <dl><dd>
-method to call.
+method to call for nested solution.
 
 </dd></dl>
 
@@ -1557,8 +1665,8 @@ Number of paths in the panel.
 
 <span class="declaration">decl NT [public]</span>
 <dl><dd>
-Total Number of Outcome
-s in the panel.
+Total Number of Outcomes
+         in the panel.
 
 </dd></dl>
 
@@ -1593,12 +1701,12 @@ Simulate a homogenous panel (fpanel) of paths.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">ErgOrStateMat</td>
-<td class="description" valign="baseline">0: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
+<td class="description" valign="baseline">0 [default]: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">DropTerminal</td>
-<td class="description" valign="baseline">TRUE: eliminate termainl states from the data set
+<td class="description" valign="baseline">TRUE: eliminate termainl states from the data set<br>FALSE: [default] include terminal states.
 </td>
 </tr>
 </table>
@@ -1746,7 +1854,7 @@ L(&theta;) = &sum;<sub>eta; &in; ?</sub> &sum; <sub>&alpha; &in; </sub> &Rho*() 
 
 <span class="declaration">decl onext [public]</span>
 <dl><dd>
-next outcome on the path
+pointer to next outcome on the path
 
 </dd></dl>
 
@@ -2150,6 +2258,7 @@ Destroy all <a href="Outcomes.ox.html#FPanel">FPanel</a>s in the Panel.
 
 <span class="declaration">decl cur [public]</span>
 <dl><dd>
+the current prediction
 
 </dd></dl>
 
@@ -2170,14 +2279,24 @@ Histogram of a single variable over the panel.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">printit,</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a> compatible print to screen.
+<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a> compatible print to screen [default = FALSE]
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">UseDist</td>
-<td class="description" valign="baseline">TRUE, use endogenous choice probabilities &Rho;*</td>
+<td class="description" valign="baseline">TRUE [default]: use endogenous choice probabilities &Rho;*<br>FALSE : use uniform choices.
+<P/>
+<a href="Outcomes.ox.html#PanelPrediction___Predict">Predict</a>() must be called first.
+<P/>
+</td>
 </tr>
 </table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+   pd = new PanelPrediction();
+   pd -&gt; Predict(10);
+   pd -&gt; Histogram(capital);
+</pre></dd>
 </dd>
 </dl>
 </dd></dl>
@@ -2188,15 +2307,29 @@ Histogram of a single variable over the panel.
 
 <span class="declaration">PanelPrediction :: PanelPrediction ( iDist )</span>
 <dl><dd>
-Store a panel of predicted distributions.
+Set up a panel of predicted distributions.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">iDist</td>
+<td class="description" valign="baseline"> initial distribution.<br> integer: start at iDist and increment until a reachable state index is found.
+        So <code>PanelPrediction(0)</code> [default] will start the prediction at the lowest-indexed reachable state in &Theta;.<br>
+        matrix: a list of states to start the prediction from<br>
+        object of Prediction class: use <a href="Outcomes.ox.html#Prediction___sind">sind</a> as the initial state for this prediction.
+<P/>
+The prediction is not made until <a href="Outcomes.ox.html#PanelPrediction___Predict">Predict</a>() is called.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="PanelPrediction___Predict"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Predict</span></h3>
 
-<span class="declaration">PanelPrediction :: Predict ( T )</span>
+<span class="declaration">PanelPrediction :: Predict ( T , printit )</span>
 <dl><dd>
 Compute a panel of predicted distributions.
 
@@ -2204,9 +2337,20 @@ Compute a panel of predicted distributions.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">T</td>
-<td class="description" valign="baseline"><em>integer</em> length of the panel.</td>
+<td class="description" valign="baseline"><em>integer</em> length of the panel (default=1)
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">printit</td>
+<td class="description" valign="baseline">TRUE: print out<br>FALSE (default) silent.
+</td>
 </tr>
 </table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+  p = new PanelPrediction(0);
+  p-&gt;Predict(10);
+</pre></dd>
 </dd>
 </dl>
 </dd></dl>
@@ -2217,6 +2361,7 @@ Compute a panel of predicted distributions.
 
 <span class="declaration">decl T [public]</span>
 <dl><dd>
+length of the panel.
 
 </dd></dl>
 
@@ -2389,7 +2534,7 @@ span the state space with <a href="DP.ox.html#EndogTrans">EndogTrans</a>.
 </table>
 </dd>
 <dt class="example">Example:</dt><dd class="example"><pre>
-</pre>
+</pre></dd>
 </dd>
 </dl>
 </dd></dl>
@@ -2494,6 +2639,7 @@ Stored in <a href="Outcomes.ox.html#Prediction___hist">hist</a>
 
 <span class="declaration">decl hvals [public]</span>
 <dl><dd>
+histogram
 
 </dd></dl>
 
@@ -2513,6 +2659,7 @@ Stored in <a href="Outcomes.ox.html#Prediction___hist">hist</a>
 <span class="declaration">decl pnext [public]</span>
 <dl><dd>
 next prediction
+            in the panel
 
 </dd></dl>
 
@@ -2523,6 +2670,9 @@ next prediction
 <span class="declaration">Prediction :: Predict ( )</span>
 <dl><dd>
 Compute the predicted distribution of actions and states.
+<P/>
+Usually the user would predict for a <a href="Outcomes.ox.html#PanelPrediction">PanelPrediction</a> which would
+call this routine.
 
 </dd></dl>
 
@@ -2533,6 +2683,8 @@ Compute the predicted distribution of actions and states.
 <span class="declaration">Prediction :: Prediction ( t )</span>
 <dl><dd>
 Create a new prediction.
+<P/>
+Typically a user would create a <a href="Outcomes.ox.html#PanelPrediction">PanelPrediction</a> which in turn creates predictions.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">

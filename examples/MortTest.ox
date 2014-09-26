@@ -4,7 +4,7 @@
 MortSearch::Reachable()	{ return Age()>0 || s.v==0 ? new MortSearch() : 0; }
 
 MortSearch::Run()	{
-	Initialize(Reachable,0,0);
+	Initialize(Reachable);
 	SetClock(RandomMortality,20,0.01)
 	eta = -0.5;
 	Actions(a = new ActionVariable("Accept",2));

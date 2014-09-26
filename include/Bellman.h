@@ -13,7 +13,9 @@ on static members in order to reduce memory requirements.  These are defined in 
 **/
 struct  Bellman : DP {
 	decl
-		/**TRUE if a Terminal state (no action chosen).  **/ 		IsTerminal,
+		/**TRUE if a Terminal state (no action chosen).
+            Set in `DP::CreateSpaces`()
+            @see StateVariable::MakeTerminal **/ 		            IsTerminal,
 	    /** Full solution at this state.                 **/        InSubSample,
 		/**&theta;.j index into `DP::A`.**/  						Aind,
 		/**U(&alpha;&epsilon;,&eta;,&theta;,&gamma;). @internal **/	U,
@@ -25,7 +27,7 @@ struct  Bellman : DP {
 		/**EV(&theta;) across random &gamma;, **/					EV;
 
 			static 	Delete();
-			static 	Initialize(userReachable,UseStateList,GroupExists);
+			static 	Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
 			static  CreateSpaces();
 			virtual FeasibleActions(Alpha);
 			virtual Utility();
@@ -61,7 +63,7 @@ v*(&alpha;) = exp[&rho;(v(&alpha;&epsilon,&eta;&theta;)-V(&epsilon,&eta;&theta;)
 **/
 struct ExPostSmoothing : Bellman {
 	static decl Method, rho, sigma;
-	static Initialize(userReachable,UseStateList,GroupExists);
+	static Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
 	static CreateSpaces(Method,...);
 	virtual Smooth(EV);
 			Logistic(EV);
@@ -93,7 +95,7 @@ struct ExtremeValue : Bellman {
 		/** Choice prob smoothing &rho;.**/ rho,
 		/** Hotz-Miller estimation task.**/ HMQ;
 	static SetRho(rho);
-	static Initialize(rho,userReachable,UseStateList,GroupExists);
+	static Initialize(rho,userReachable,UseStateList=FALSE,GroupExists=FALSE);
 	static  CreateSpaces();
 	virtual thetaEMax() ;
 	virtual Smooth(EV);
@@ -106,7 +108,7 @@ struct ExtremeValue : Bellman {
 struct Rust : ExtremeValue {
 	static decl
 	/**The decision variable. **/ d;
-	static Initialize(userReachable,GroupExists);
+	static Initialize(userReachable=FALSE,GroupExists=FALSE);
 	static CreateSpaces();
 	}
 
@@ -116,7 +118,7 @@ struct Rust : ExtremeValue {
 struct McFadden : ExtremeValue {
 	static decl
 	/**The decision variable. **/ d;
-	static Initialize(Nchoices,userReachable,UseStateList,GroupExists);
+	static Initialize(Nchoices,userReachable,UseStateList=FALSE,GroupExists=FALSE);
 	static CreateSpaces();
 	ActVal(VV);
 	}
@@ -129,7 +131,7 @@ struct Normal : Bellman {
 					ev,
 					Chol,
 	/** **/			AChol;
-	static Initialize(userReachable,UseStateList,GroupExists);
+	static Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
 	static CreateSpaces();
 	thetaEMax() ;
 	virtual Smooth(EV);
@@ -143,7 +145,7 @@ struct NnotIID : Normal {
 		/**  replications for GHK **/				R,
 		/**  RNG seed argument **/					iseed,
 		/**  . @internal;		**/					ghk;
-	static Initialize(userReachable,UseStateList,GroupExists);
+	static Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
 	static SetIntegration(R,iseed,AChol);
 	static CreateSpaces();
 	static UpdateChol();
@@ -158,7 +160,7 @@ struct NIID : Normal {
 							MM,
 							GQNODES,
 							GQLevel;
-	static Initialize(userReachable,UseStateList,GroupExists);
+	static Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
 	static SetIntegration(GQLevel,AChol);
 	static CreateSpaces() ;
 	static UpdateChol();
@@ -198,7 +200,7 @@ struct OneDimensionalChoice : Bellman {
 	static 	decl 					pstar, d;
 			decl
 			/**reservation values  **/		zstar;
-	static 	Initialize(d,userReachable,UseStateList,GroupExists);
+	static 	Initialize(d,userReachable,UseStateList=FALSE,GroupExists=FALSE);
 	static  CreateSpaces();
 	virtual RUtility();
 	virtual EUtility();

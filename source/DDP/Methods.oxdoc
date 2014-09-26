@@ -1,8 +1,87 @@
-/** Solving for behaviour.
+/** Solving for behaviour in a dynamic program.
 
-<em>Sorry - documentation of methods not available yet.</em>   
 @sortkey ACA
 
-<DT>Value Function Iteration</DT>
+<OL class="body">
+<LI>Value Function Iteration</LI>
+<table class="tree">
+<tr><td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="7" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label">`ValueIteration::Solve`</td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">Use a method to solve Bellman's equation for all DPs by call `FixedSolve`.</td>
+</tr>
+<tr>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="6" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label">`FixedSolve`</td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">loop over fixed effects in &gamma;, solve each problem by calling `RandomSolve`, reusing the solution storage space.</td>
+</tr>
+<tr>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="5" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label">`RandomSolve`</td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">Loop over random effects in &gamma;, solve each problem by calling `Gsolve`, reusing value iteration space but storing all choice probabilities. 
+After all random effects groups computed, call `DP::PostRESolve`, user-defined post random-effect solve tasks.  
+</td></tr>
+<tr>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="4" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label">`Gsolve`</td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">Given the fully specified fixed vector &gamma;, which defines an element of the group space, solve the DP problem.</td>
+</tr>
+<tr>
+<td class="line"><div class="vline">&nbsp;</div></td><td class="line">&nbsp;</td><td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td><td class="line">&nbsp;</td><td class="line">&nbsp;</td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="3" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label">Inner loop of Gsolve</td></tr>
+   <tr class="bottom"><td class="line">&nbsp;</td></tr>
+</tbody></table>
+</td>
+<td class="text">
+<pre>
+    `EndogUtil`            initialize over endogenous states &theta;
+    1. `ValueIteration::Run`            loop over bellman iterations
+    2. `ValueIteration::Update`         check convergence/work backwards (repeat 1.)</pre>
+</td></tr></table>
+
+<LI>Hotz-Miller Based Solution Methods </LI>
+
+<LI>Hybrid Solution Methods</LI>
+
+<DD>Some methods for solving DDP rely not on Bellman iteration but on non-linear optimization and root-finding.  These methods combine <span class="n">DDP</span> and <span class="n">FiveO</span>.  They are categorized as <a href="..\Hybrid\default.html">Hybrid Methods</a> and discussed separately.</DD>
+
+</OL>
 
 **/

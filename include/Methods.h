@@ -1,5 +1,6 @@
 #import "DP"
 
+
 /** Loop over fixed values in &gamma;, solve model for each.
 **/
 struct FixedSolve : FETask  { const decl rtask; FixedSolve(); Run(g);	}
@@ -12,6 +13,7 @@ struct RandomSolve : RETask { RandomSolve(); Run(g);}
 /** A container for solution methods.
 **/
 struct Method : Task {
+
 	}
 
 /** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/
@@ -34,14 +36,12 @@ struct ValueIteration : Method {
 		/** Default convergence tolerance on Bellman Iteration.**/ DefTolerance = 1E-5;
 	const decl
 		/** `FixedSolve` object.**/				ftask,
-		/** **/									ndogU,
-		/** update behaviour.**/ 				clockclass;
-    static decl
-    /** Output from the solution method. **/    Volume;
+		/** **/									ndogU;
 	decl
         /** FALSE(default): iterate on value<br>
             TRUE: only compute transitions.**/      DoNotIterate,
 		/** Scratch space for value iteration. **/  VV,
+    /** Output from the solution method. **/        Volume,
 													vtoler;
 	ValueIteration(myEndogUtil=0);
 	NTrips();

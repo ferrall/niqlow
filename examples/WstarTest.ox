@@ -5,7 +5,7 @@ WStar::Reachable()	{ return new WStar(); }
 
 WStar::Run()	{
 	eta = 0.02;
-	Initialize(2,WStar::Reachable,FALSE,0);
+	Initialize(2,WStar::Reachable);
 	SetClock(InfiniteHorizon);
 	EndogenousStates(done = new LaggedAction("Done",d));
 	done->MakeTerminal(1);
