@@ -10,7 +10,7 @@ struct Search : Bellman	{
 	Utility();
 	}
 Search::Run()	{
-	Initialize(Reachable,FALSE,0);
+	Initialize(Reachable);
 	SetClock(InfiniteHorizon);
 	SetDelta(0.99);
 	Actions(a = new ActionVariable("a",2));
@@ -18,9 +18,10 @@ Search::Run()	{
 	d->MakeTerminal(1);	
 	ExogenousStates(p = new SimpleJump("p",Noff));
 	CreateSpaces();
-	meth = new ValueIteration(0);
+	meth = new ValueIteration();
 	meth.Volume = LOUD;
-	meth -> Solve(0,0);
+	meth -> Solve();
+	Delete();
 	}
 Search::Reachable()	{
 	return new Search();

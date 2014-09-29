@@ -11,11 +11,11 @@ Version::Check() {
  checked = TRUE;
  }
 
-/** Return Value: access X.v, X, X() or X(arg).
-@param X a double, integer, static function of the form X() or X(arg), or object with a member named v.
+/** Return the Current Value of a Quantity: access X.v, X, X() or X(arg).
+@param X a double, integer, static function of the form X() or X(arg), or any object with a member named v.
 @param ... a single argument can be passed along with X().  Further arguments are ignored
 @comments This allows elements of the code to be represented several different ways.<br>
-Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside State Variable transitions.<br>
+Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside `StateVariable::Transit`.<br>
 No argument is passed by `DP::UpdateVariables`() and `DP::ExogenousTransition`
 @returns X.v, X, X(), X(arg)
 **/

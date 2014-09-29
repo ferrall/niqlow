@@ -7,7 +7,7 @@
 	/** Pseudonyms for -1. @name Names_for_-1 **/
 enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,UseSubSample=-1,ResetValue=-1}
 	/** Levels of output to produce while executing. @name NoiseLevels **/	
-enum {SILENT,QUIET,LOUD,NOISY,NoiseLevels}
+enum {SILENT=-1,QUIET,LOUD,NOISY,NoiseLevels}
 		/** Send one of these tags as first argument to `DP::SetClock` to use that clock. @name ClockTypes **/
 enum {InfiniteHorizon,Ergodic,NormalAging,StaticProgram,RandomAging,RandomMortality,UncertainLongevity,RegimeChange,SocialExperiment,UserDefined,NClockTypes}
         /** parallel array of labels for the built-in clock types. **/

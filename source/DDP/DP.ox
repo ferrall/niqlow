@@ -284,11 +284,11 @@ UseStateList=TRUE may be much faster if the untrimmed state space is very large 
 
 **/
 DP::Initialize(userReachable,UseStateList,GroupExists) {
- decl subv;
- Version::Check();
- if (ThetaCreated) oxrunerror("Must call DP::Delete between calls to CreateSpaces and Initialize");
-	this.userReachable = userReachable;
-	this.UseStateList=UseStateList;
+    decl subv;
+    Version::Check();
+    if (ThetaCreated) oxrunerror("Must call DP::Delete between calls to CreateSpaces and Initialize");
+    this.userReachable = userReachable;
+    this.UseStateList=UseStateList;
 	this.GroupExists = isfunction(GroupExists) ? GroupExists : 0;
  	now = NOW;
  	later = LATER;
@@ -305,11 +305,12 @@ DP::Initialize(userReachable,UseStateList,GroupExists) {
 	alpha = ialpha = chi = zeta = IsTracking = delta = Impossible;
 	Naux = ReachableIndices = 0;
 	PreUpdate = DoNothing;
-    UpdateTime = constant(FALSE,UpdateTimes,1);
-    SetUpdateTime();  //safest update time, but could be redundant.
-    println("Update Time ",UpdateTime);
-    if (Volume==LOUD) println("DP::Intialize is complete. Action and State spaces are empty.");
-    else Volume = QUIET;
+    SetUpdateTime();
+    if (strfind(arglist(),"NOISY")!=NoMatch) {
+            Volume = NOISY;
+            println(Volume,arglist());
+            }
+    if (Volume>LOUD) println("DP::Intialize is complete. Action and State spaces are empty.");
  }
 
 /** Tell DDP when parameters and transitions have to be updated.
@@ -317,6 +318,7 @@ DP::Initialize(userReachable,UseStateList,GroupExists) {
 
 **/
 DP::SetUpdateTime(time) {
+    if (isint(UpdateTime)) UpdateTime = constant(FALSE,UpdateTimes,1);
     if (!isint(time) ) oxrunerror("Update time must be an integer");
     if (Volume>SILENT)
         switch_single (time) {
@@ -345,8 +347,9 @@ DP::SubSampleStates(SampleProportion) {
 **/
 DP::CreateSpaces() {
    if (ThetaCreated) oxrunerror("State Space Already Defined. Call CreateSpaces() only once");
-   decl subv,i,pos,m,bb,sL,j,av, sbins = zeros(1,NStateTypes),w0,w1,w2,w3, tt,lo,hi;
-	if (!S[acts].D) {
+   decl subv,i,pos,m,bb,sL,j,av, sbins = zeros(1,NStateTypes),w0,w1,w2,w3, tt,lo,hi,inargs = arglist();
+   if (strfind(inargs,"NOISY")!=NoMatch) Volume=NOISY;
+    if (!S[acts].D) {
 		oxwarning("No actions added to the model. A no-choice action inserted for you.");
 		Actions(new ActionVariable());
 		}
@@ -418,7 +421,7 @@ DP::CreateSpaces() {
 		w1 = sprint("%",7*S[semiexog].D,"s");
 		w2 = sprint("%",7*S[endog].D,"s");
 		w3 = sprint("%",7*S[clock].D,"s");
-        println("Clock Class: ",ClockType," Description: ",ClockTypeLabels[ClockType]);
+        println("Clock: ",ClockType,". ",ClockTypeLabels[ClockType]);
 		println("STATE VARIABLES\n","%18s","|eps",w0,"|eta",w1,"|theta",w2,"-clock",w3,"|gamma",
 		"%r",{"       s.N"},"%cf","%7.0f","%c",Slabels,NN');
 		for (m=0;m<sizeof(States);++m)
@@ -659,14 +662,29 @@ DP::ExogenousTransition() {
 		} while (si>=0);
 	NxtExog[Qi] = F[bef][];
 	NxtExog[Qrho] = P[bef][]';
+    if (Volume>LOUD) { decl d = new DumpExogTrans(); delete d; }
  }
+
+/** Display the exogenous transition as a matrix. **/
+DumpExogTrans::DumpExogTrans() {
+	Task();
+	left = S[exog].M;	right = S[semiexog].X;
+	s = <>;
+	loop();
+	print("Exogenous and Semi-Exogenous State Variable Transitions ","%c",{" "}|Slabels[S[exog].M:S[semiexog].X]|"f()","%cf",array(Sfmts[0])|Sfmts[3+S[exog].M:3+S[semiexog].X]|"%15.6f",s);
+	delete s;
+	}
+	
+/** . @internal **/
+DumpExogTrans::Run(th) { decl i =ind[bothexog];  s|=i~state[left:right]'~NxtExog[Qrho][i];}
+
 
 /** Set the discount factor, &delta;.
  @param delta, `CV` compatible object (`Parameter` or double or function)
 **/
 DP::SetDelta(delta) 	{ 	return CV(this.delta = delta);	 }	
 
-/** Ensure that all `StateVariable::v` objects are synched with the internally stored state vector.
+/** Ensure that all `StateVariable` objects <code>v</code> are synched with the internally stored state vector.
 @param dmin leftmost state variable
 @param dmax rightmost state variable
 @return the value of the dmax (rightmost)
@@ -697,23 +715,35 @@ DP::SyncAct(a)	{
 @param ClockOrType `Clock` derived state block<br>
 	   integer, `ClockTypes`
 @param ... arguments to pass to constructor of clock type
-@example <pre>
+
+@example
+<pre>
+Initialize(Reachable);
 SetClock(InfiniteHorizon);
-SetClock(Ergodic);
-SetClock(StaticProgram);
+...
+CreateSpaces();
+</pre>
+Finite Horizon
+<pre>
+decl T=65;	
+Initialize(Reachable);
+SetClock(NormalAging,T);
+...
+CreateSpaces();
+</pre>
+Early Mortaliy
+<pre>
+MyModel::Pi(FeasA);	
 
-decl T=65;	SetClock(NormalAging,T);
+SetClock(RandomMortality,T,MyModel::Pi);
+Initialize(Reachable);
+...
+CreateSpaces();
 
-const decl Brackets = constant(5,1,10); 	SetClock(RandomAging,Brackets);
+</pre></dd>
 
-MyModel::Pi(FeasA);	SetClock(RandomMortality,T,MyModel::Pi);	
-SetClock(UncertainLongevity,T,MyModel::Pi);
-
-const decl phases = &lt;1,10,10&gt;;	SetClock(SocialExperiment,phases);
-
-myclock = new DerivedClock();	SetClock(myclock);</pre></dd>
-@comments <code>MyModel</code> can create a derived `Clock` and pass it<br>
-		  or have SetClock create built-in clock.<br>
+@comments <code>MyModel</code> can also create a derived `Clock` and pass it to SetClock.
+		
 **/
 DP::SetClock(ClockOrType,...)	{
 	if (isclass(counter)) oxrunerror("Clock/counter state block already initialized");
@@ -766,7 +796,6 @@ DP::UpdateVariables(state)	{
 	decl i,nr,j,a,nfeas;
     HasBeenUpdated = TRUE;
 	PreUpdate();
-    if (!isint(state)) ETT.state = state;
 	i=0;
 	do {
 		if (IsBlockMember(States[i])) {
@@ -794,6 +823,7 @@ DP::UpdateVariables(state)	{
 	for (i=1;i<J;++i) A[i][][] = selectifr(A[0],ActionSets[i]);
    	cputime0 = timer();
 	ExogenousTransition();
+    if (!isint(state)) ETT.state = state;
 	ETT.subspace = iterating;
 	ETT->Traverse(DoAll);          //Endogenous transitions
 	IsTracking = FALSE;
@@ -963,7 +993,6 @@ UpdateDensity::UpdateDensity() {
 **/
 UpdateDensity::Run(g) {	g->Density();	}
 
-
 /**Print the value function EV(&theta;) and choice probability <code>&Rho;*(&alpha;,&epsilon;,&eta;;&theta;)</code> or index of max &Rho;*.
 @param ToScreen  TRUE means output is displayed.
 @param aM	address to return matrix<br>0, do not save
@@ -1001,7 +1030,7 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex) {
     subspace=tracking;
 	this.ToScreen = ToScreen;
     this.MaxChoiceIndex = MaxChoiceIndex;
-	Vlabels = Vlabel0 | (MaxChoiceIndex ? "index" | "maxP*" | "sum(P)" : "Choice Probabilities:");
+	Vlabels = Vlabel0 | (MaxChoiceIndex ? {"index" | "maxP*" | "sum(P)"} : "Choice Probabilities:");
     prtfmt  = prtfmt0 | (MaxChoiceIndex ? "%5.0f" | "%9.6f" : "%9.6f");
 	if (isint(aM))
 		this.aM = 0;

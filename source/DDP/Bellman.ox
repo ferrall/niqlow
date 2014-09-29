@@ -8,58 +8,24 @@ This computes <em>&Rho;(&theta;&prime;,&alpha;,&eta;,&theta;)</em>
 When this task is run is determined by `DP::UpdateTime`
 
 @comments
-The endogenous transition must be computed and stored at each point in the endogenous state space &Theta;.
-If a state variable can be placed in &epsilon; or &eta; instead of &theta; it reduces computation and storage signficantly.
+The endogenous transition must be computed and stored at each point in the endogenous state space &Theta;. And at
+a point &theta; it is must be computed for each semi-exogenous state &eta;.
 
-@see DP::SetUpdateTime, SemiTrans
+If a state variable can be placed in &epsilon; instead of &eta; or &theta; it reduces computation and storage signficantly.
+
+@see DP::SetUpdateTime
 **/
 EndogTrans::EndogTrans() {
 	Task();
-   	left = S[endog].M; 	right = S[clock].M;
-	STT = new SemiTrans();
+   	left = S[semiexog].M; 	right = S[clock].M;
 	}
 
 /** . @internal **/
 EndogTrans::Run(th) {
 	if (!isclass(th,"Bellman")) return;
 	th.EV[] = 0.0;
-	STT.subspace = subspace;
-	STT.state = state;
-	STT -> loop();
-	}
-
-/** Constructs the transitions for &eta;, the semi-exogenous state vector.
-
-This computes <em>&Rho;(&eta;&prime;)</em>
-
-This task is run once before iterating on the value function.
-
-@see EndogTrans
-**/
-SemiTrans::SemiTrans() {
-	Task();
-	left = S[semiexog].M;	right = S[semiexog].X;
-	}
-	
-/** . @internal **/
-SemiTrans::Run(th) {
     th->ThetaTransition(SS[subspace].O);
-    }
-
-/** Display the exogenous transition as a matrix. **/
-DumpExogTrans::DumpExogTrans() {
-	Task();
-	left = S[exog].M;	right = S[semiexog].X;
-	s = <>;
-	loop();
-	print("%c",{" "}|Vlabels[]|"f()","%cf",Sfmts[0]|Sfmts[3+S[exog].M:3+S[semiexog].X]|"%15.6f",s);
-	delete s;
 	}
-	
-/** . @internal **/
-DumpExogTrans::Run(th) { decl i =ind[bothexog];  s|=i~state[left:right]'~NxtExog[Qrho][i];}
-
-//static decl Ndone;
 
 /**Set the automatic (non-static) members of a state node.
 @param state  state vector
@@ -192,18 +158,18 @@ Bellman::ExpandP(r) {
 /** Computes the full endogneous transition, &Rho;(&theta;'; &alpha;,&eta; ), within a loop over &eta;.
 Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
 @param future offset vector to use for computing states (tracking or solving)
-@comments computes `DP::ExogNxt` array of feasible indices of next period states and conforming matrix of probabilities.
+@comments computes `DP::NxtExog` array of feasible indices of next period states and conforming matrix of probabilities.
 @see DP::ExogenousTransition
 **/
 Bellman::ThetaTransition(future) {
 	 decl ios = InSubSample ? ind[onlysemiexog] : 0;
 	 if (IsTerminal || Last() ) { Nxt[Qi][ios] = Nxt[Qrho][ios] = <>; return; }
-	 decl now,later,  //added Dec.2012.  w/o local decl would this corrupt static values?
-	 		si,N,prob,feas,k,root,swap, mtches,curO;
+	 decl now,later, si,N,prob,feas,k,root,swap, mtches,curO;
 	 now = NOW, later=LATER;
  	 F[now] = <0>;	
 	 P[now] = ones(rows(Asets[Aind]),1);
 	 si = S[clock].X;				// clock needs to be nxtcnt
+     if  (Volume>LOUD) println("Endogenous transitions at ",ind[iterating]);
 	 do	{
 		F[later] = P[later] = <>;  swap = FALSE;
 		if (isclass(States[si],"Coevolving"))
@@ -212,6 +178,13 @@ Bellman::ThetaTransition(future) {
 			{ N = 1; root = States[si]; }
 		if (any(curO = future[si-N+1:si]))	{  // states are relevant to s'
 			[feas,prob] = root -> Transit(Asets[Aind]);
+            if (Volume>LOUD) {
+                println("     State: ",root.L,root.L,"%r",{"   ind","   prob"},feas|prob);
+                if (any(fabs( sumr(prob) -1.0) )>DIFF_EPS2) { // short-circuit && avoids sumr() unless NOISY
+                    println(si," ","%m",sumr(prob));
+                    oxrunerror("Transition probabilities are not valid");
+                    }
+                }
 			feas = curO*feas;
 			k=columns(feas)-1;
 			do	if (any(prob[][k])) {
@@ -225,6 +198,7 @@ Bellman::ThetaTransition(future) {
 		} while (si>=S[endog].M);
 	Nxt[Qi][ios] = F[now];
 	Nxt[Qrho][ios] = P[now];
+    if (Volume>LOUD) println("Overall transition ","%r",{"ind","prob"},F[now]|P[now]);
  }
 
 /** Default U() &equiv; <b>0</b>.
@@ -331,14 +305,14 @@ Bellman::Delete() {
 	for(i=0;i<sizeof(Gamma);++i) delete Gamma[i];
 	delete Gamma, Theta, ReachableIndices, tfirst;
 	delete ETT;
-	SampleProportion = DoSubSample = StorePA = IsErgodic = HasFixedEffect = ThetaCreated = Gamma = Theta = ReachableIndices = 0;	
+	Volume = SampleProportion = DoSubSample = StorePA = IsErgodic = HasFixedEffect = ThetaCreated = Gamma = Theta = ReachableIndices = 0;	
 	}
 
 /**
 @param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
 FALSE if the state is not reachable.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
-					FALSE, traverse &Theta; through iteration on all state variables
+					FALSE [default], traverse &Theta; through iteration on all state variables
 @param GroupExists
 	
 **/

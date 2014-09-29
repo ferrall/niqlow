@@ -130,7 +130,7 @@ span the state space with `EndogTrans`.
 @param usecp TRUE: simulate using &Rho;*(&alpha;) computed by a `Method`<br>FALSE : randomly chose a feasible action.
 
 @example <pre>
-</pre>
+</pre></dd>
 
 **/
 Path::Simulate(T,usecp,DropTerminal){
@@ -198,8 +198,8 @@ FPanel::~FPanel() {
 /** Simulate a homogenous panel (fpanel) of paths.
 @param N &gt; 0, number of paths to simulate
 @param Tmax maximum path length<br>0 no maximum length.
-@param ErgOrStateMat 0: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
-@param DropTerminal TRUE: eliminate termainl states from the data set
+@param ErgOrStateMat 0 [default]: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
+@param DropTerminal TRUE: eliminate termainl states from the data set<br>FALSE: [default] include terminal states.
 @comments &gamma; region of state is masked out.
 **/
 FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
@@ -675,6 +675,10 @@ Outcome::AccountForUnobservables() {
 	}
 
 /** Compute the predicted distribution of actions and states.
+
+Usually the user would predict for a `PanelPrediction` which would
+call this routine.
+
 **/
 Prediction::Predict() {
 	decl s,th,q, 	lo = SS[tracking].left,	hi = SS[tracking].right;
@@ -688,6 +692,8 @@ Prediction::Predict() {
 	}
 	
 /** Create a new prediction.
+
+Typically a user would create a `PanelPrediction` which in turn creates predictions.
 @param t <em>integer</em>, time period.
 **/
 Prediction::Prediction(t){
@@ -699,20 +705,34 @@ Prediction::Prediction(t){
 
 
 /** Compute a panel of predicted distributions.
-@param T <em>integer</em> length of the panel.
+@param T <em>integer</em> length of the panel (default=1)
+@param printit TRUE: print out<br>FALSE (default) silent.
+@example
+<pre>
+  p = new PanelPrediction(0);
+  p-&gt;Predict(10);
+</pre></dd>
 **/
-PanelPrediction::Predict(T){
+PanelPrediction::Predict(T,printit){
   if (isclass(pnext)) oxrunerror("panel prediction already computed");
   cur=this;
   this.T = T;
   do {
 	 cur.pnext = new Prediction(cur.t+1);
 	 cur->Prediction::Predict();
+     if (printit) println(cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
 	 cur = cur.pnext;
   	 } while(cur.t<T);
   }
 
-/** Store a panel of predicted distributions.
+/** Set up a panel of predicted distributions.
+@param iDist  initial distribution.<br> integer: start at iDist and increment until a reachable state index is found.
+        So <code>PanelPrediction(0)</code> [default] will start the prediction at the lowest-indexed reachable state in &Theta;.<br>
+        matrix: a list of states to start the prediction from<br>
+        object of Prediction class: use `Prediction::sind` as the initial state for this prediction.
+
+The prediction is not made until `PanelPrediction::Predict`() is called.
+
 **/
 PanelPrediction::PanelPrediction(iDist){
 	if (!IsTracking) {
@@ -773,8 +793,17 @@ Prediction::Histogram() {
 
 /** Histogram of a single variable over the panel.
 @param var object to track.
-@param printit, `CV` compatible print to screen.
-@param UseDist TRUE, use endogenous choice probabilities &Rho;*
+@param printit, `CV` compatible print to screen [default = FALSE]
+@param UseDist TRUE [default]: use endogenous choice probabilities &Rho;*<br>FALSE : use uniform choices.
+
+`PanelPrediction::Predict`() must be called first.
+
+@example
+<pre>
+   pd = new PanelPrediction();
+   pd -&gt; Predict(10);
+   pd -&gt; Histogram(capital);
+</pre></dd>
 **/
 PanelPrediction::Histogram(var,printit,UseDist) {
   decl avg;
@@ -810,7 +839,7 @@ PanelPrediction::Histogram(var,printit,UseDist) {
 	 cur = cur.pnext;
   	 }
 	}
-	
+
 PanelPrediction::~PanelPrediction() {
 	decl tmp;
 	cur = pnext;
@@ -848,7 +877,8 @@ DataSet::Summary(data,rlabels) {
         }
 	}
 	
-/** Load
+/** Load data from the Ox DataBase in <code>source</code>.
+@internal
 **/
 DataSet::LoadOxDB() {
 	decl s,curid,data,curd = new array[ExternalData],row,obscols,inf,fpcur,obslabels;
@@ -910,6 +940,13 @@ DataSet::LoadOxDB() {
 	
 /** Load outcomes into the data set from a (long format) file.
 @param fn string, file name with extension that can be read by <code>OX::Database::Load</code>
+
+@example
+<pre>
+  d = new DataSet();
+  d -&gt; Read("data.dta");
+</pre></dd>
+
 **/
 DataSet::Read(fn) {
 	if (FNT) oxrunerror("Cannot read data twice into the same data set. Merge files if necessary");
@@ -927,7 +964,7 @@ DataSet::Read(fn) {
 
 /** Store a `Panel` as a data set.
 @param id <em>string</em>, tag for the data set
-@param method, solution method to be used as data set is processed.
+@param method, solution method to be used as data set is processed.<br>0 [default], no solution
 @param FullyObserved (default) FALSE, account for unobservability<br>TRUE use simple partial loglikelihood
 **/
 DataSet::DataSet(id,method,FullyObserved) {

@@ -5,7 +5,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2014 Christopher Ferrall */
 	
 AMZurcher::Run()  {
-    Initialize(Reachable,0);
+    Initialize(Reachable);
     EndogenousStates(x = new Renewal("x",NX,d,dgppars[theta3]) );
     CreateSpaces();
 	SetDelta(dgppars[disc]);	

@@ -37,9 +37,9 @@ struct Objective	{
 	/** vector of F indices into X. @internal   **/				FinX;
 
             ResetMax();
-			Objective(L);
-			Save(fname);
-			Load(fname);
+			Objective(L="");
+			Save(fname=0);
+			Load(fname=0);
 			SetAggregation(AggType);
 
 	static 	dFiniteDiff0(x);
@@ -58,8 +58,8 @@ struct Objective	{
 	virtual vfunc();
 	virtual fobj(F);
 	virtual vobj(F);
-	virtual	Encode(X);
-	virtual	Decode(F);
+	virtual	Encode(X=0);
+	virtual	Decode(F=0);
 	virtual funclist(Xmat,Fvec);
 	}
 
@@ -67,7 +67,7 @@ struct Objective	{
 /** Container for Unconstrained Objectives.**/
 struct UnConstrained : Objective {
 	virtual Gradient();
-			UnConstrained(L);
+			UnConstrained(L="");
 	}
 
 /** Represents a blacbox objective.
@@ -135,7 +135,7 @@ struct Separable : UnConstrained	{
 //#else
 //	virtual	Encode(X,CallBase);
 //#endif
-	virtual	Decode(F);
+	virtual	Decode(F=0);
 	virtual Jacobian();
 	virtual	Gradient();
 	virtual funclist(Xmat,aFvec);
@@ -175,8 +175,8 @@ struct Mixture : Separable {
 			fobj(f);
 	virtual	Deconstruct(eval) ;
 	virtual vobj(F);
-	virtual	Decode(F);
-	virtual	Encode(X);
+	virtual	Decode(F=0);
+	virtual	Encode(X=0);
 	virtual Jacobian();	
 	virtual	Gradient();
 	virtual funclist(Fmat,aFvec);

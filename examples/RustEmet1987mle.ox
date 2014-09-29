@@ -34,7 +34,7 @@ ZurcherHat::FirstStage(row)	{
 	this.row = row;
 	normalization = pars[row][theta1]*mfact*NX/2.0;	
 	hat = new array[Nparams];
-	Initialize(Reachable,0);
+	Initialize(Reachable);
   	hat[disc] = new Determined("delta",pars[row][disc]);
   	hat[RC] = new Positive("RC",pars[row][RC]);
   	hat[theta1] = new Positive("th1",pars[row][theta1]);
