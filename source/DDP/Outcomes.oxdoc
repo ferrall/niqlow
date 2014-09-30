@@ -4,7 +4,6 @@
 
 @sortkey BAA
 
-
 <OL class="body">
 <a name="PS"><LI>Outcomes</LI></a>
 
@@ -38,10 +37,7 @@ Y* &equiv; (&alpha; &zeta; &epsilon; &eta; &theta; &gamma; &chi; Y*<sup>p</sup> 
 For simplicity the length of each of the vectors is not specified and the right-most elements of each of the vectors is not included. Instead, each vector is shown as the leftmost variable with subscript 0 followed by &hellip;.
 </dd>
 <DD>Y* is referred to as the <em>full outcome</em> because it includes all information that is knowable and relevant about a single period in a realized DDP.</DD>
-<DT>Y* adds a new vector denoted &chi; with generic elements x.  </DT>
-<DD>Elements of &chi; are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so &chi; adds no additional information to the full outcome.  That is, &chi; is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
-<DD>Auxiliary variables are derived from the `AuxiliaryVariable` class, and they are added to the outcome using `DP::AuxiliaryOutcomes`(). The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual `AuxiliaryVariable::Realize`().  </DD>
-<DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
+<DT>Y* adds a new vector denoted &chi; with generic elements x.  See below.</DT>
 <DT>Y* also includes Y<sup>p</sup> Y<sup>n</sup>, which are <q>pointers</q> to the preceding and next outcomes in the path. </DT>
 <DD>These values can be undefined for various reasons. Obviously the value of Y<sup>n</sup> is not realized until the end of the current period.  And the initial period obviously has no preceding outcome. However, in the middle of a panel of observation both pointers would be defined.</DD>
 
@@ -49,6 +45,17 @@ For simplicity the length of each of the vectors is not specified and the right-
 <DD>Observability is discussed below when the derived  <a href="">Data</a> class is introduced.  Its purpose is to account for gaps between theoretical outcomes and observed results from a DP.</DD>
 
 <li>Auxiliary Variables</li>
+
+Auxillary variables are typically functions of the state and action vectors that would be observed in the data.
+
+<DT>Elements of &chi; are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  </DT>
+<DD>Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so &chi; adds no additional information to the full outcome. </DD>
+ <DD>That is, &chi; is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
+<DT>Auxiliary variables are created by the user and derived from the `AuxiliaryVariable` class.</DT>
+ <DT>Auxiliary variables are added to the outcome (appended to &chi;) using `DP::AuxiliaryOutcomes`().</DT>
+ <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual `AuxiliaryVariable::Realize`().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
+<DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
+
 
 <li>Paths </li>
 

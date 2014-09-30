@@ -41,14 +41,14 @@ A Guide to Object Oriented Objective Optimization in Ox.
 <DD>Either way, the objects are functions of parameters contained in a vector <code>&psi;</code> of length <code>N</code>.</DD>
 <DD>A function <code>&fnof;: &real;<sup>N</sup> &rarr; &real;</code> to <em>maximize</em>.  The objective is by default a sum of &fnof;.M&oline; component functions:
 <pre>&fnof;(&psi;) = &sum;<sub>i=0,&hellip;,&fnof;.M&oline;</sub> &fnof;<sub>i</sub> (&psi;), </pre>
-where M&oline; is shorthand for M-1.  This means the user can code, say, the sample log-likelihood vector or moment conditions vector.  <span class="n">FiveO</span> adds up the vector and in turn can compute the <em>gradient matrix</em> without a special call.</DD>
+where M&oline; is shorthand for M-1.  This means the user can code, say, the sample log-likelihood vector or moment conditions vector.  <span class="n">FiveO</span> adds up the vector and in turn can compute the so-called <em>gradient matrix</em> while implementing the <a href="Algorithms.ox.html#BHHH">BHHH</a> algorithm.</DD>
 <DD><em>Or</em></DD>
 <DD>A <q>square</q> non-linear system, <code>&fnof;: &real;<sup>N</sup> &rarr; &real;<sup>M</sup></code>, to find a <em>solution/root</em> for.
 <pre>&fnof;(&psi;) = <span class="b">[</span> &fnof;<sub>i</sub>(&psi;) <span class="b">]</span> <sub>i=0,&hellip;,&fnof;.M&oline;</sub> . </pre>
 Note that the system does not look square because the only requirement is N &ge; M.   However, this is because <code>&psi;</code> may, from the user's point of view, contain parameters that are not varying while finding the solution.  It must be the case that the variable components of <code>&psi;</code> must number <code>&fnof;.M.</code></DD>
 <P/>
-<DT>You will give the problem/system to be solved a name that means something to you.  In these notes we will call your problem <code>MyObjective</code>.</DT>
-<DD>In <span class="n">FiveO</span>, <code>MyObjective</code> is an Ox <code>class</code> derived either directly from <a href="Objective.ox.html#Objective">Objective</a> or one of the built-in derived objectives.</DD>
+<DT>The user can give the problem/system to be solved a name that means something, but in these notes we will call your problem <code>MyObjective</code>.</DT>
+<DD>In <span class="n">FiveO</span>, <code>MyObjective</code> is an Ox <code>class</code> derived from one of the built-in classes derived from the base <a href="Objective.ox.html#Objective">Objective</a>.</DD>
 <DD>The objective <code>&fnof;()</code> is the column sum of <code>MyObjective::vfunc()</code>, a user-provided function (method).  The system would be the column itself, not the sum.</DD>
 <P/>
 <DT>Unlike non-OOP approaches, the parameter vector <code>&psi;</code> is not represented (simply) as a vector of real numbers.</DT>
@@ -60,8 +60,8 @@ Note that the system does not look square because the only requirement is N &ge;
 <DD>An algorithm is itself a class derived from the <a href="Algorithms.ox.html#Algorithm">Algorithm</a> class. The algorithm operating on <code>MyModel</code> is denoted <code>Alg</code> (to avoid repeatedly writing <q>the algorithm applied to the objective/system ...</q>).</DD>
 <P/>
 <DT>Multiple objectives and nested objectives can be handled by creating new objects (instances of <code>MyObject</code> or completely different problems).</DT>
-<DD>This is is a major distinction between <span class="n">FiveO</span> and <span class="n">DDP</span>, which is designed to hold one DP model at a time.</DD>
-<DD><span class="n">FiveO</span> is designed to optimize over a handful, dozens, or a few hundred parameters, and problems of this scale do not tax the memory capacity of computers. Thus, almost all members of <a href="Objective.ox.html#Objective">Objective</a> are <em>automatic</em>, specific to the <code>new</code> object.</DD>
+<DD>This is is a major distinction between <span class="n">FiveO</span> and <span class="n">DDP</span>, which is designed to hold just one DP model at a time.</DD>
+<DD><span class="n">FiveO</span> is designed to optimize over a handful, dozens, or a few hundred parameters, and problems of this scale do not tax the memory capacity of computers. Thus, almost all members of <a href="Objective.ox.html#Objective">Objective</a> are <em>automatic</em>, specific to the <code>new</code> object. (On the other hand, DDP is designed to represent very large state spaces so as many members of that class are declared <em>static</em> as possible.</DD>
 </DL>
 <P/>
 <a name="N"><LI>Notation</LI></a>
@@ -70,25 +70,25 @@ Note that the system does not look square because the only requirement is N &ge;
 <DD>Parameters are not just numbers.  They are objects of a class derived from <a href="Shared.ox.html#Parameter">Parameter</a>.</DD>
 <P/>
 <DT>Parameters, as objects, have several properties associated with them.</DT>
-<DD>The initial value of x, before <code>Alg</code> begins, is denoted x.0.  Thus the first element of <code>&psi;</code> is initially set to x<sub>0</sub>.0.</DD>
+<DD>The initial value of x, before <code>Alg</code> begins, is denoted <code>x.0</code>.  Thus the first element of <code>&psi;</code> is initially set to <code>x<sub>0</sub>.0</code>.</DD>
 <DD>The current value of x at some point in the algorithms operation is <code>x.v</code>.</DD>
-<DD>The range of feasible values for x, for a parameter that an algorithm can vary, is an <em>open</em> interval denoted x.I, x.I &sube; &real;.  For example, if x is a <a href="Parameters.ox.html#Free">Free</a> parameter it can take on values in the range <code>x.I = (-&infin;,+&infin;)</code>.   A <a href="Parameters.ox.html#Positive">Positive</a> parameter has the interval <code>(0,&infin;)</code>.  </DD>
-<DD>A key feature of <span class="n">FiveO</span> is that the bounds of x.I can be <em>dynamic</em>: they can depend on the current values of other elements of <code>&psi;</code>, but only elements that come before x in <code>&psi;</code>.  That is, for i &gt; 0, the interval can be written explicitly as x<sub>i</sub>.I(x<sub>0</sub>.v, &hellip;, x<sub>i&oline;</sub>.v).  Using x<sub>0</sub>.v emphasizes that the interval can depend on the current values of preceding values, and then x<sub>i</sub>.v &in; x<sub>i</sub>.I.</DD>
-<DD>For standard algorithms to work, the intervals I() must always be <em>smooth</em> functions of their arguments.</DD>
+<DD>The <em>open</em> range of feasible values for x, for a parameter that an algorithm can vary, is an <em>open</em> interval denoted <code>x.I</code>, where <code>x.I</code> &sube; &real;.  For example, if x is a <a href="Parameters.ox.html#Free">Free</a> parameter it can take on values in the range <code>x.I = (-&infin;,+&infin;)</code>.   A <a href="Parameters.ox.html#Positive">Positive</a> parameter has interval <code>(0,&infin;)</code>.  </DD>
+<DD>A key feature of <span class="n">FiveO</span> is that the bounds of <code>x.I</code> can be <em>dynamic</em>: they can depend on the current values of other elements of <code>&psi;</code>.  This dependence must be forward: the range of a parameter can only depend on elements that come before it in <code>&psi;</code>.  That is, for <code>i &gt; 0</code>, the interval can be written explicitly as x<sub>i</sub>.I(x<sub>0</sub>.v, &hellip;, x<sub>i&oline;</sub>.v).  Using x<sub>0</sub>.v emphasizes that the interval can depend on the current values of preceding values, and then x<sub>i</sub>.v &in; x<sub>i</sub>.I.</DD>
+<DD>For standard algorithms to work, the intervals must always be <em>smooth</em> functions of their arguments.</DD>
 <P/>
 <DT>A parameter of class <a href="Parameters.ox.html#Determined">Determined</a> will not be under the control of the algorithm.</DT>
-<DD>That is, a determined parameter is a point, or closed interval <code>x.I = [d,d].</code>.  </DD>
+<DD>That is, a determined parameter is a point, or closed interval of the form <code>x.I = [d,d].</code>.  </DD>
  <DD>The value <code>d</code> is determined by something else, usually a fixed constant or a function of other parameters in <code>&psi;</code>. For example, a determined parameter could be set equal to the average of two other parameters, <code>z = (x+y)/2</code>.  <span class="n">FiveO</span> would ensure that restriction on z holds.  The algorithm knows only about x and y.</DD>
 <DT>Two or more parameters can form a <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>, denoted as upper case Roman (X, Y, etc.).</DT>
 <DD>This allows <code>MyModel</code> to refer to a single variable which is a vector not  a scalar. </DD>
 <DD>Parameter blocks are, in effect, sub-vectors of the overall parameter vector.</DD>
 <P/>
-<DT>The parameter vector is denoted <code>&psi;</code>, generically takes the form </DT>
+<DT>The parameter vector, denoted <code>&psi;</code>, generically takes the form </DT>
 <DD><pre>&psi; = (x<sub>0</sub> x<sub>1</sub> ··· x<sub>N&oline;</sub>)</pre>
 where N&oline; is shorthand for N-1.</DD>
 <DD>&psi; is built up by adding parameters and parameter blocks to it.  The number of dimensions, N, is also written &psi;.N.  </DD>
 <P/>
-<DT>The <em>parameter space</em>, <code>&Psi;</code> is the Cartesian product of the intervals for the elements of <code>&psi;</code></DT>
+<DT>The <em>parameter space</em>, <code>&Psi;</code>, is the Cartesian product of the intervals for the elements of <code>&psi;</code></DT>
 <DD><pre>&Psi; &equiv; &times; <sub>n=0</sub><sup>N&oline;</sup> &psi;<sub>n</sub>.I</pre></DD>
 <P/>
 <DT><code>MyObject</code> may tell <code>Alg</code> not to vary some parameters in &psi; directly.</DT>

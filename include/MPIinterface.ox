@@ -4,11 +4,11 @@
 
 Your code can use these standalone global functions to interface with the MPI library.
 
-To ask for the MPI library to be linked in, define <code>MPI</code> on the command line:
+<DD>To ask for the MPI library to be linked in, define <code>MPI</code> on the command line:
 <pre>
 oxl -DMPI mymain.ox
 </pre>
-If the shared CFMPI library cannot be found  link error will be produced.
+If the shared CFMPI library cannot be found  link error will be produced.</DD>
 
 If you do not define <code>MPI</code> and your program includes CFMPI then a set of "fake" versions of the
 routines will be included.  Your program will execute serially and calls to these functions end up in messages

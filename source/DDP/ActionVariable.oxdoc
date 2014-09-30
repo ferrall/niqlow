@@ -1,28 +1,65 @@
 /**Elements of the action vector <code>&alpha;</code>.
+
+@sortkey BBB
+
 <a href="#auto">Skip down to documentation of items defined in ActionVariable.ox</a><p>
+<OL class="contents">Contents
+<LI><a href="#Basics">Basics</a></LI>
+<LI><a href="#AC">Actual and Current Values</a></LI>
+<LI><a href="#PF">Possible and Feasible Actions</a></LI>
+</OL>
 
-@sortkey ABB
+<OL class="body">
+<a name="Basics"><LI>Basics</LI></a>
 
-An action variable is an element <var>a</var> of the action vector &alpha;.
+<DT>Action vector <code>&alpha;</code> :</DT>
+    <DD>The vector of discrete actions.  A generic element of <code>&alpha;</code> is denoted <var>a</var>.  An action variable takes on <code>a.N</code> different values.</DD>
+    <DD>The action vector includes <code>&alpha;.N</code> variables, denoted a<sub>0</sub> through a<sub>(&alpha;.N)&oline;</sub>.</DD>
+    <DD>Action variables are represented as an `ActionVariable` and are added to <code>MyModel</code> and to <code>&alpha;</code> using `DP::Actions`(). </DD>
+    <DD>Calls to <code>Actions()</code> and other model-building routines is part of <code>MyCode</code>.</DD>
 
-It is defined by a `Quantity::L`abel and the number of distinct values it takes on, `Discrete::N`.  DDP tracks values of <em>a</em> as 0 &hellip; N&oline;.
+<DT>Possible Actions: <code>&Alpha;</code></DT>
+<DD>In the basic definition of a DDP model, <code>&Alpha;</code> is defined as the set of possible actions. In <span class="n">DDP</span> the set of actions is built up by adding action variables to <code>&alpha;</code>.  So <code>&Alpha;</code> emerges from the properties of the variables added to <code>&alpha;</code>.</DD>
+<DD class="example">Possible Actions is the matrix of all possible action vectors: <details class="aside"><summary>Terminology:</summary>The word <em>possible</em> is used instead of <em>feasible</em>, because this notion of <code>&Alpha;</code> is constructed mechanically from properties of the actions.  It has nothing to do with the interpretation of the actions.  Feasible actions are defined below. An <em>action</em> refers to a particular value of the action vector <code>&alpha;</code>, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column.</details>
+<pre>
+    &Alpha; &equiv; &times;<sub>j=0 &hellip; (&alpha;.N)&oline; </sub> { 0, 1, &hellip;, (a<sub>j</sub>.N)&oline; }</pre>
+    DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</DD>
+<DT>Alternative Notation</DT>
+<DD>Discrete choice is described in two ways other than the one above used in <span class="n">DDP</span>.</DD>
+<DD>For example, suppose there are two action variables and 6 total action vectors:
+ <pre>&alpha; = (a<sub>0</sub>,a<sub>1</sub>)
+ a<sub>0</sub>.N=3
+ a<sub>1</sub>.N=2
+ &alpha;.D=6</pre></DD>
+ <DD>Some papers would treat this as a <em>single action</em> with six values.</DD>
+<DD>And/or papers may define a vector of 6 indicator variables to denote which choice was made: <var>d<sub>i</sub>=I{a=i}</var>.</DD>
+<DD>The three different approaches to coding discrete choices are illustrate in this table:<pre>
+         DDP Approach       | Single Action |    Indicator Vectors
+         a0         a1      |       a       |    d0  d1  d2  d3  d4  d5
+      ----------------------+---------------+----------------------------
+         0          0       |       0       |    1   0   0   0   0   0
+         1          0       |       1       |    0   1   0   0   0   0
+         2          0       |       2       |    0   0   1   0   0   0
+         0          1       |       3       |    0   0   0   1   0   0
+         1          1       |       4       |    0   0   0   0   1   0
+         2          1       |       5       |    0   0   0   0   0   1</pre></DD>
+<DD>One reason to use an action vector like <code>&alpha;</code> is that each variable can be interpreted as a dimension of choice.  There is no obvious interpretation of <q>a=3</q> in the table, and the interpretation would change with the dimensions of the action variables. This approach would force <code>MyModel</code> to decode into an action vector to make their code look like a mathematical model. Another reason: the action vector approach makes it natural to impose feasibility conditions on the choice set, as discussed below.</dd>
+<DD>The use of indicator vectors makes it possible to write any utility as a sum: <var>U = &sum;<sub>k</sub> d<sub>k</sub>u<sub>k</sub></var>. But as with the single action approach the interpretation is not obvious and <var>U()</var> will in no way resemble usual mathematical notation for an objective.</DD>
 
-@example Define a binary choice variable and add it to &alpha;.<pre>
-static decl a = new ActionVariable("choice",2);
-Actions(a);
-</pre>
-It is possible to combine the creation and adding of the action variable as in <code>Actions(a=new ActionVariable("choice",2))</code>.  Multiple actions can be added with a single call to actions, and `DP::Actions`() can be called several times, but it must be called before the state and group space is created using `DP::CreateSpaces`().
+<DT>Explanation:</DT>
+<DD>Action variables objects must be <code>static</code> data members of <code>MyModel</code>. </DD>
+<DD>Action variables objects must be created between the calls to <code>Initialize()</code> and <code>CreateSpaces()</code>.</DD>
+<DD>It is possible to combine the creation and adding of the action variable as in <code>Actions(a=new ActionVariable("choice",2))</code>.  Multiple actions can be added with a single call to actions, and `DP::Actions`() can be called several times.</DD>
 
-Actions should be declared <code>static</code> variables within <code>MyModel</code>because only once instance (object) exists for the variable.
+<LI>Actual and Current Values of an Action Variable</LI>
 
-</dd>
-
-<h2>Actual and Current Values of an Action Variable</h2>
+Usually an action variable can be an object of the base `ActionVariable` class.  The user only needs to define a derived class.
 
 <DT>Current Value</DT>
         <DD><span class="n">DDP</span> requires <code>MyModel</code> to handle/process the full matrix of feasible actions in utility and transitions.
         <DD>For this reason, <code>MyModel</code> will rarely if ever access the current value of an action, <code>a.v</code>.  </DD>
         <DD>The vector of values of an action variable that corresponds to feasible &alpha;s is returned by <code>`Bellman::aa`(a).</code></DD>
+<DT>
 <DT>Actual Value</DT>
 <DD>Optionally, the user can create a class derived from `ActionVariable` and supply a `Discrete::Update` function with it.</DD>
 <DD>This allows the user to associate a meaningful value for the numbers 0 to N&oline;, stored as <code>a.`Discrete::actual`</code>.</DD>
@@ -30,8 +67,10 @@ Actions should be declared <code>static</code> variables within <code>MyModel</c
 <DD>`Bellman::aa`(a) will indeed return the actual values of <code>a</code> that correspond to each feasible action vector &alpha;.</DD>
 <DD>The default virtual `Discrete::Update`() simply sets actual to the vector &lt; 0 : N-1 &gt;.</DD>
 
-<DT>Example
-<DD class="example">Let <var>a</var> denote a discrete choice of hours to work each week.  The maximum number of hours depends on a parameter which can differ across individuals but is constant across the state space.  Utility will be total earnings.<pre>
+<DT>Example of Custom <code>Update()</code></DT>
+<DD>Unless you want to provide actual values for an action you do not need to create a derived class.
+<DD class="example">Let <var>a</var> denote a discrete choice of hours to work each week.  The maximum number of hours, <var>H</var>, depends on a parameter which can differ across individuals but is constant across the state space. 
+<details><summary>Actual Hours action variable</summary><pre>
 struct Hours : ActionVariable {
         decl H;
         Hours(const N,const H);
@@ -44,23 +83,22 @@ Hours::Hours(const N,const H) {
 Hours::Update() {
         actual = AV(H)* (vals / N);
         }
-
 &hellip;
-
-MaxH() { return HasChild ? 30 : 50; }
-Actions(h = new Hours(5,MaxH));
-
+MyModel::MaxH() { return CV(hasch) ? 30 : 50; }
 &hellip;
-<em>assuming wage is the hourly wage ... could be a parameter or a state variable</em>
-&hellip;
-
+MyModel::Initialize() {
+   hellip;
+   GroupVariables(hasch = new FixedEffect("",2));
+   Actions(h = new Hours(5,MyModel::MaxH));
+   hellip;
+   } 
 MyModel::Utility() {
         return CV(wage)*aa(h);
-        }</pre>
-The code segment allows the maximum hour to be 30 if the person has a (young) child, otherwise 50 hours.  And then lets each type choose 5 different levels of hours between 0 and their max hours.
+        }</pre></details>
+The code segment allows the maximum hour to be 30 if the person has a (young) child, otherwise 50 hours.  And then lets each type choose 5 different levels of hours between 0 and their max hours.  Utility will be total earnings.
 </DD>
 
-<h2>Possible and Feasible Actions</h2>
+<LI>Possible and Feasible Actions</LI>
 <DT>Possible Actions.</DT>
 <DD><var>A</var> is defined as the set of possible actions, built up by adding action variables to &alpha;:<pre>
 <b>Possible Actions</b> is the matrix of all possible action values:
@@ -95,6 +133,7 @@ FeasibleActions(const A) {    return CV(x)==2 ? aa(a).!=0 : ones(rows(A),1) ;   
 </pre>
 Code this way it does not matter whether more variables are added to the model and it does not matter what order the code adds the actions to &alpha;.  <code>FeasibleActions</code> is robust to those details.
 </DD>
+</OL>
 
 <hr><a name="auto"><h1>Documentation of  Items Defined in ActionVariable.ox</h1></a>
 

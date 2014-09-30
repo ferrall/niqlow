@@ -1,4 +1,3 @@
-#include "Parameters.oxdoc"
 #include "Parameters.h"
 /* This file is part of niqlow. Copyright (C) 2012 Christopher Ferrall */
 
@@ -212,14 +211,15 @@ The default is to simply increment <code>curpar</code> (and reset 0 when it reac
 ParameterBlock::BlockCode()	{	if (++curpar==N) curpar = 0; 	}
 
 ParameterBlock::Encode() {
-	decl f,n;
-	for(n=0,f=<>;n<N;++n) f|=Psi[n]->Encode();
+	decl f,p;
+    f = <>;
+    foreach (p in Psi) f|=p->Encode();
 	return f;
 	}
 
 ParameterBlock::ToggleDoNotVary() {
-	decl n;
-	for (n=0;n<N;++n) Psi[n]->ToggleDoNotVary();
+	decl p;
+	foreach (p in Psi) p->ToggleDoNotVary();
 	}
 
 FixedBlock::FixedBlock(L,v0) {

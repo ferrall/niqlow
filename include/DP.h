@@ -13,13 +13,17 @@ enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,NStateTypes}
 enum {acts,exog,semiexog,endog,clock,rgroup,fgroup,DSubVectors,LeftSV=exog}
 		/** Groups of continugous `SubVectors`. @name SubSpaces **/
 enum {onlyacts,onlyexog,onlysemiexog,bothexog,onlyendog,tracking,onlyclock,allstates,iterating,onlyrand,onlyfixed,bothgroup,DSubSpaces}
-		/** . @name Vspace @internal **/
+		/** . @name Vspace  **/
 enum {NOW,LATER,DVspace}
 		/** . elements of array returned by `StateVariable::Transit` @name StateTrans **/
 enum {Qi,Qrho,StateTrans}
 
+        /** When updating of parameters and transitions needs to occur. @see DP::SetUpdateTime @name UpdateTimes **/
+enum {OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
+
 		/** Ways to smooth choice probabilities without adding an explicit continuous error &zeta;. @name SmoothingMethods**/	
 enum { NoSmoothing, LogitKernel, GaussKernal, ExPostSmoothingMethods}
+
 
 /** . @name DataColumnTypes **/ enum{idcol,acol,scol,auxcol,NColumnTypes}
 
@@ -32,36 +36,38 @@ struct DP {
 	static const decl
 	/**  formatting string. @internal 	  **/ 		sfmt = "%4.0f";
 	static decl
-		/** CreateSpaces has been called. @internal **/ 		ThetaCreated,
+		/** CreateSpaces has been called or not.  **/ 		    ThetaCreated,
 		/** . @internal **/										Warned,
 		/** . **/												UseStateList,
 		/** uninitialized state. @internal  **/  				NN,
 		/** number of groups, &Gamma;.D      **/				NG,
 		/** **/													NF,
 		/** number of random groups **/							NR,
+        /** category of clock. @see ClockTypes, DP::SetClock**/ ClockType,
 		/** counter variable.	@see DP::SetClock **/			counter,
 		/**	counter.t.N, the decision horizon.    **/  			TT,
 		/** create space to store &Rho;* **/  					IsErgodic,
+        /** UpdateVariables() has been called. **/              HasBeenUpdated,
 		/** &Gamma; already includes fixed effects **/			HasFixedEffect,
+        /** Indicators for when transit update occurs.
+            @see DP::SetUpdateTime **/                          UpdateTime,
 		/**  . @internal **/									ReachableIndices,
-    	/**  Count of reachable states.  @internal **/  		ReachableStates,
+    	/**  Count of reachable states.  @internal **/  		NReachableStates,
 		/**  store &Alpha.D x &Theta.D matrix
 			of choice probabilities  **/  						StorePA,
 		/**   matrix of offsets. @internal    **/  				OO,
 		/**   array of subvectors.  @internal **/  				S,
 		/**   array of subspaces . @internal  **/  				SS,
-		/** List of State Variables.  Put in
-		the same order as the state vector. @internal
-		@see DP::AddStates,StateVariable **/ 					States,
+		/** List of State Variables (in order).**/ 				States,
 		/** . **/												NS,
 		/** &Alpha;.N=rows(ActionMatrix), N unconstrained actions.**/ NA,
 		/** columns(ActionMatrix), action variables **/			Nav,
 		/** Number of different action sets.    **/      		J,
-		/** action sizes. @internal         **/  				AA,
-		/** matrix of all action vectors, A. @internal **/		ActionMatrix,
-		/** list of feasible action matrices. @internal **/ 	Asets,
-		/** List of Feassible Action indicators. @internal**/  	ActionSets,
-		/** Number of states for each A set. @internal **/      AsetCount,
+		/** action sizes.         **/  				            AA,
+		/** matrix of all action vectors, A.  **/		        ActionMatrix,
+		/** list of feasible action matrices.  **/ 	            Asets,
+		/** List of Feassible Action indicators. **/  	        ActionSets,
+		/** (vector) Number of states for each A set.  **/      AsetCount,
 		/** List of <em>actual</em> feasible action matrices
 		automatically updated.  **/	                            A,
 		/** List of `StateBlock`s. @internal**/					Blocks,
@@ -73,8 +79,8 @@ struct DP {
 		/** .  @internal    **/                   				Sfmts,
 		/** . @internal **/										Vlabels,
 		/** Output level. @see NoiseLevels **/ 					Volume,
-																find,
-																rind,
+		/** index of current fixed group. **/					find,
+        /** index of current random group. **/					rind,
 		/** index of current &gamma; group. **/					gind,																
 		/** distriubution over groups 		**/ 				gdist,
 		/**density of group.
@@ -82,49 +88,56 @@ struct DP {
 			over random effects **/ 							curREdensity,		
 		/** vector of current indices into spaces. @internal**/	ind,
 
-		/** The discount factor &delta;.  @see DP::SetDelta**/ 	delta,
+		/** The discount factor &delta;.  @see DP::SetDelta **/ delta,
 		/**  Current value of t. @see DP::Gett **/				curt,
 		/**  . @internal **/      								tfirst,
-		/**  Count of reachable states.  @internal      **/   	TerminalStates,
+		/**  Count of reachable states.  **/   	                NTerminalStates,
 		/** Transition currently stored in FeasS.  @internal**/	IsTracking,
 		/** Array of Exogenous next state indices
-			and transitions. @internal    **/ 					NxtExog,
+			and transitions. **/ 					            NxtExog,
 		/** . @internal  				**/    					F,
 		/** . @internal						**/    				P,
 		/** . @internal            **/ 			 				now,
 		/** . @internal           **/ 			 				later,
 		/** set &Rho;*(<code>&alpha;</code>|&hellip;)
             in Bellman		**/		                            setPstar,
-		/** function that returns new state or 0. @internal**/	userReachable,
-		/** function that returns TRUE if &gamma exists.
-			@internal**/										GroupExists,
+		/** function that returns new state or 0.
+            Sent as argument to `DP::Initialize`().**/	        userReachable,
+		/** TRUE if &gamma exists. @internal**/					GroupExists,
 		/** static function called by `DP::UpdateVariables`().
 			The default is `DP::DoNothing`().  The user can
 			assign a static function to this variable to
-			carry out tasks before each solution.
-			@see DP::PostRESolve **/							PreUpdate,
+			carry out tasks before each solution.<p>
+            Note: The point at which PreUpdate() is called is
+            determined by `DP::UpdateTime`
+			@see DP::PostRESolve, DP::SetUpdateTime **/			PreUpdate,
 		/** static function called by FESolve.
 			The default is `DP::DoNothing`().
 			The user can set this variable to a static
 			function before solving.  For example,
-			if the value fucnction for each fixed group should
+			if the value function for each fixed group should
 			be printed it can be done in PostRESolve.
 			@see DP::PreUpdate **/								PostRESolve,
-		/** Choice specific values. @internal   			vv,**/	
 		/** max of vv. @internal       **/						V,
 		/** handles looping over endogenous transitions **/		ETT,
-		/** index into &Alpha; of curren realized &alpha;. **/	ialpha,
+		/** index into &Alpha; of current realized &alpha;. **/	ialpha,
 		/** current realized action vector, <code>&alpha;</code>,
 			only set during simulation of realized paths. **/ 	alpha,
 		/** `ZetaRealization`, realized continuous shocks, &zeta;,
 			set during simulation of realized paths. Distribution must be conditional on choice stored in
-			`DP::alpha`. **/ 	zeta,
+			`DP::alpha`. **/ 	                                zeta,
 		/** current realized auxiliary vector, &chi;,
 			only set during simulation of realized paths. **/ 	chi,
 	/** list of `AuxiliaryVariable`s that depend on the current outcome.
 		`AuxiliaryVariable::Realize`() is called by `Bellman::Simulate`()
 		after <code>&alpha;</code>, &zeta; and full state vectors have been set. **/
 																Chi,
+		/** number of auxiliary variables, sizeof of `DP::Chi` **/	Naux,
+		/** FALSE means no subsampling.  Otherwise, pattern of
+            subsampling of the state space.
+            @see DP::SubSampleStates **/			             SampleProportion,
+         /** Number of states approximated (not subsampled).**/  Approximated,
+		/** .@internal **/			                             DoSubSample,
 		/** . @internal **/										MedianExogState,
 		/** . @internal **/										MESind,
 		/** . @internal **/										MSemiEind,																
@@ -137,11 +150,11 @@ struct DP {
 		static	Swap();
 		static 	ExogenousTransition();
 
-		static	UpdateVariables();
+		static	UpdateVariables(state=0);
 		static  DoNothing();
 		static  CreateSpaces();
 		static	InitialsetPstar(task);
-		static 	Initialize(userReachable,UseStateList,GroupExists);
+		static 	Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
 
 		static  IsBlock(sv);
 		static  IsBlockMember(sv);		
@@ -167,6 +180,8 @@ struct DP {
 		static	DrawOneExogenous(aState);
 		static  SyncAct(a);
 		static	SaveV(ToScreen,...);
+        static  SubSampleStates(SampleProportion=1.0);
+        static  SetUpdateTime(time=AfterFixed);
 		}
 
 
@@ -190,6 +205,7 @@ struct Task : DP {
 	virtual Run(th);
 	virtual loop();
 	virtual list(arg0, ...);
+    virtual OutputValue();
 	Reset();
 	Traverse(arg0, ... );
 	SyncStates(dmin,dmax);
@@ -199,8 +215,7 @@ struct Task : DP {
 @internal
 **/
 struct CTask 		: 	Task {	CTask(); 		Run(th);	}
-struct EndogTrans 	: 	Task {	decl STT; EndogTrans();	Run(th);	}
-struct SemiTrans 	: 	Task {	SemiTrans();	Run(th);	}
+struct EndogTrans 	: 	Task {	EndogTrans();	Run(th);	}
 struct EnTask       :   Task { EnTask(); }
 struct ExTask       :   Task { ExTask(); }
 	
@@ -268,10 +283,10 @@ struct Group : DP {
 struct DPDebug : Task {
 	static const decl
 		div = "------------------------------------------------------------------------------";
-	static decl prtfmt, SimLabels, Vlabels;
+	static decl prtfmt0, prtfmt, SimLabels, Vlabels, MaxChoiceIndex, Vlabel0;
 	static Initialize();		
 //#ifdef OX7
-	static outV(ToScreen=TRUE,aOutMat=0);
+	static outV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE);
 //#else
 //	static outV(ToScreen,aOutMat);
 //#endif
@@ -281,8 +296,14 @@ struct DPDebug : Task {
 struct SaveV	: DPDebug	{
 	const decl ToScreen, aM;
 	decl  re, stub, nottop, r, s;
-	SaveV(ToScreen,aM);
+	SaveV(ToScreen=TRUE,aM=0,MaxChoiceIndex=FALSE);
 	virtual Run(th);
 	}
 
 	
+/** . @internal **/
+struct DumpExogTrans : Task {
+	decl s;
+	DumpExogTrans();
+	Run(th);
+	}

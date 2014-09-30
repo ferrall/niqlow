@@ -5,7 +5,7 @@
 **/	
 Zurcher::Run()	{
 	decl chprob,id,data,newd,ps,EMax,vmat;
-	Initialize(Reachable,0);
+	Initialize(Reachable);
 	EndogenousStates(x = new Renewal("x",NX,d,pars[0][theta3]) ); //same transition for both rows
 	CreateSpaces();
 	EMax = new ValueIteration(0);

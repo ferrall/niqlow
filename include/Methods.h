@@ -1,5 +1,6 @@
 #import "DP"
 
+
 /** Loop over fixed values in &gamma;, solve model for each.
 **/
 struct FixedSolve : FETask  { const decl rtask; FixedSolve(); Run(g);	}
@@ -12,6 +13,7 @@ struct RandomSolve : RETask { RandomSolve(); Run(g);}
 /** A container for solution methods.
 **/
 struct Method : Task {
+
 	}
 
 /** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/
@@ -34,12 +36,12 @@ struct ValueIteration : Method {
 		/** Default convergence tolerance on Bellman Iteration.**/ DefTolerance = 1E-5;
 	const decl
 		/** `FixedSolve` object.**/				ftask,
-		/** **/									ndogU,
-		/** update behaviour.**/ 				clockclass;
+		/** **/									ndogU;
 	decl
         /** FALSE(default): iterate on value<br>
             TRUE: only compute transitions.**/      DoNotIterate,
 		/** Scratch space for value iteration. **/  VV,
+    /** Output from the solution method. **/        Volume,
 													vtoler;
 	ValueIteration(myEndogUtil=0);
 	NTrips();
@@ -102,11 +104,8 @@ these components are virtual and can be replaced by specifications or interpolat
 
 **/
 struct KeaneWolpin : ValueIteration {
-	const decl 		cpos,
-					DoSubSample,
-					SampleProportion;
+	const decl 		cpos;
 	decl										
-												Approximated,
 												curlabels,
                                                 xlabels0,
                                                 xlabels1,
@@ -115,7 +114,7 @@ struct KeaneWolpin : ValueIteration {
 		/** Y **/								Y,
 		/**TT array of OLS coefficients	**/ 	Bhat;
 
-					KeaneWolpin(SampleProportion=1.0,myKWEMax=0);
+					KeaneWolpin(myKWEMax=0);
 					Specification(kwstep,V=0,Vdelta=0);
 	virtual			Gsolve();
 	virtual 		Run(th);

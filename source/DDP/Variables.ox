@@ -1,3 +1,2 @@
-#include "Variables.oxdoc"
 #include "Variables.h"
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */

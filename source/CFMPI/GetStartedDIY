@@ -1,0 +1,47 @@
+/**A simple example of calling MPI yourself to run code in parallel.
+
+This document explains the example program <code>MPItest.ox</code> and shows how to run it on a particular cluster.  The details of running programs will different across clusters.  This is the <q>DIY</q> version because it uses the low-level routines that interface between Ox and the MPI library.  The objects in CFMPI make it possible to avoid some of this programming or to avoid it entirely.
+
+The program:
+<details><summary></summary></details>
+
+This program is an example of a very simply client/server setup.
+
+<DT>Include CFMPI</DT>
+
+<DT>Find out about the MPI environment</DT>
+
+<DT>Start the client task if I am the client</DT>
+<DD>Send messages to all clients</DD>
+<DD>Wait for all return messages to arrive</DD>
+<DD>Use the results</DD>
+
+<DT>Start the server task if I am a server</DT>
+<DD>Wait for a message from the client</DD>
+<DD>Process the message</DD>
+<DD>Send the results back to the client</DD>
+
+<DT>Finalize the MPI environment</DT>
+
+CFMPI uses Ox's <code>??</code> routine to add a call to <code>MPI_Finalize()</code> as Ox exits.
+
+Run the program in fake MPI mode.
+
+
+Follow <a href="./InstallAndUse.html">Install and Use</a> to compile <code>CFMPI.c</code> to a <em>shared object</em> file and ensure both that and the MPI library are on the <code>LD_LIBRARY_PATH</code>.
+
+Run the program using MPI,
+oxl -DMPI MPItest
+
+For this to work the program (<code>oxl</code>) must be run within the MPI environment.  How that is done depends on the cluster, but usually there is a command or script which will execute your job with MPI.
+
+This script that works on <code>SHARCnet</code> is included in <code>niqlow/examples</code> and is very simple:
+
+this says "submit the job to the MPI execution queue, ask for ?? processors, put the output in the file <code>???</code>.
+
+After all those arguments comes the actual command line that you will run your parallel program.
+
+Output
+The output is below.
+
+**/

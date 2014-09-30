@@ -3,7 +3,7 @@
 
 MVTest::Replicate()	{
 	decl i;
-	Initialize(Reachable,0,0);
+	Initialize(Reachable);
 	SetClock(StaticProgram);
 	Actions(accept = new ActionVariable("Accept",Mdimens));
 	decl sigu = diag(range(1,Mdimens));
@@ -19,6 +19,6 @@ MVTest::Reachable() {	return new MVTest(); }
 
 MVTest::Utility() {
  	decl R = exp(selectrc(offers.Grid,accept.vals,offers.v));
-	println("V",offers.v,R);
-	return R[A[Aind]];
+	println("offer indices",offers.v,R);
+	return R[A[Aind]]';
 	}

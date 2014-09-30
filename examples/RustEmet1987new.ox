@@ -4,7 +4,7 @@
 /** Setup and solve the model.
 **/	
 Zurcher::Run()	{
-	Initialize(Reachable,0);
+	Initialize(Reachable);
 	PreUpdate = SetParameters;
 	PostRESolve = GrabCP;
 	EndogenousStates(x = new Renewal("x",NX,d,pars[0][theta3]) ); //same transition for both rows

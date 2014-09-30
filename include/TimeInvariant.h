@@ -16,7 +16,7 @@ Solution methods loop over fixed effect values, re-using storage space.
 
 **/
 struct FixedEffect : TimeInvariant {
-	FixedEffect(L, N);
+	FixedEffect(L="FE", N=1);
 	}
 	
 /** A random state variable that is invariant for an individual DP problem.
@@ -27,7 +27,7 @@ Solution methods loop over random effect values and will account for distributio
 
 **/
 struct RandomEffect : TimeInvariant	{
-		 RandomEffect(L,N);
+		 RandomEffect(L="RE",N=1);
 	virtual Distribution();
 	}
 
@@ -36,7 +36,7 @@ struct RandomEffect : TimeInvariant	{
 struct SubEffect : FixedEffect {
 	/** EffectBlock that I belong to  **/		decl block;
 	/** Index into block array/vector **/    	decl bpos;
-	SubEffect(L, N);
+	SubEffect(L="SubFE", N=1);
 }
 	
 /** A Block of `FixedEffect` group variables.
@@ -45,7 +45,7 @@ struct SubEffect : FixedEffect {
 struct FixedEffectBlock : FixedEffect {
 	/** temporary list of effects**/ 				decl Theta;
 													decl Allv;
-	FixedEffectBlock(L);
+	FixedEffectBlock(L="FEBlock");
 	AddToBlock(s,...);
 	}
 	
@@ -54,7 +54,7 @@ struct FixedEffectBlock : FixedEffect {
 struct CorrelatedEffect : RandomEffect {
 	/** EffectBlock that I belong to  **/		decl block;
 	/** Index into block array/vector **/    	decl bpos;
-	CorrelatedEffect(L, N);
+	CorrelatedEffect(L="CorrRE", N=1);
 }
 
 /** A Block of `CorrelatedEffect` group variables.
@@ -63,7 +63,7 @@ struct CorrelatedEffect : RandomEffect {
 struct RandomEffectBlock : RandomEffect {
 	/** temporary list of effects**/ 				decl Theta;
 													decl Allv;
-	RandomEffectBlock(L);
+	RandomEffectBlock(L="REBlock");
 	AddToBlock(s,...);
 	virtual Distribution();
 	}

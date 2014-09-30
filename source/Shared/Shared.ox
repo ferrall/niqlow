@@ -11,11 +11,11 @@ Version::Check() {
  checked = TRUE;
  }
 
-/** Return Value: access X.v, X, X() or X(arg).
-@param X a double, integer, static function of the form X() or X(arg), or object with a member named v.
+/** Return the Current Value of a Quantity: access X.v, X, X() or X(arg).
+@param X a double, integer, static function of the form X() or X(arg), or any object with a member named v.
 @param ... a single argument can be passed along with X().  Further arguments are ignored
 @comments This allows elements of the code to be represented several different ways.<br>
-Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside State Variable transitions.<br>
+Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside `StateVariable::Transit`.<br>
 No argument is passed by `DP::UpdateVariables`() and `DP::ExogenousTransition`
 @returns X.v, X, X(), X(arg)
 **/
@@ -187,6 +187,18 @@ Parameter::Decode(f)	{
 
 /** Toggle the value of `Parameter::DoNotVary`.**/
 Parameter::ToggleDoNotVary() { DoNotVary = !DoNotVary; }
+
+/** Toggle DoNotVary for one or more parameters.
+@param a `Parameter` or array of parameters
+@param ... more parameters or array of parameters.
+**/
+ToggleParams(a,...) {
+    decl v, va = va_arglist()|a;
+	foreach (v in va) {
+        if (isarray(v)) ToggleParams(v);
+        else v->ToggleDoNotVary();
+        }
+    }
 	
 /** Reset the starting value of a parameter.
 @param newv value to reset at
@@ -226,25 +238,27 @@ vararray("A B Joe ")   &rarr;  "A B Joe "
 vararray(s) {
  decl t,vlist="";
  if (isstring(s)) return s;
- for(t=0;t<sizeof(s);++t) { vlist |= s[t]+" "; }
+ foreach (t in s) vlist |= t+" ";
  return  vlist;
  }
 
 
 prefix(pfx, s) {
 if (isstring(s)) return pfx+s;
-decl o = new array[sizeof(s)], i;
-for (i=0;i<sizeof(o);++i) o[i] = pfx+s[i];
+decl o = {}, t;
+foreach (t in s) o |= pfx+t;
 return o;													
 }
+
 /** Print Column Moments.
     @param M <em>matrix</em>: matrix to compute (column) moments for
+    @param rlabels (optional), array of labels for variables
     @comments See Ox <tt>moments()</tt>
 **/
-MyMoments(M,...)	{
-	decl v = va_arglist(), moms = (moments(M,2)|minc(M)|maxc(M))';
-	if (sizeof(v))
-		print("%r",v[0],"%c",mymomlabels,moms);
+MyMoments(M,rlabels)	{
+	decl moms = (moments(M,2)|minc(M)|maxc(M))';
+	if (isarray(rlabels))
+		print("%r",rlabels,"%c",mymomlabels,moms);
 	else
 		print("%c",mymomlabels,moms);
 	}
@@ -568,7 +582,7 @@ SepPoint::SepPoint(Kvar,bb) {
 	this.Kvar = Kvar;
 	V = new array[Kvar.N];
 	decl k;
-	for (k=0;k<Kvar.N;++k) V[k] = <>;
+	foreach (k in V) k = <>;
 	}
 
 CPoint::Copy(h) {

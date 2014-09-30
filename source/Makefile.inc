@@ -1,5 +1,5 @@
 Version := OxMetrics7
-OS := Linux
+OS := Darwin
 
 # list of subdirectories to make
 DIRS := CFMPI DDP FiveO Hybrids Shared

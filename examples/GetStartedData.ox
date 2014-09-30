@@ -1,24 +1,31 @@
-// #include "GetStarted.ox"  not needed when included with main.ox
-/* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
+//#include "GetStarted.ox"  not needed if run from main.ox
+/* This file is part of niqlow. Copyright (C) 2011-2014 Christopher Ferrall */
 
-struct SearchData : Search {
-	enum{N=10,MaxOb=20}
+struct DerivedSearch : Search {
 	static decl u, simdata;
 	static Run();
 	}
-	
-SearchData::Run()	{
+
+struct SearchData : DataSet {
+	enum{N=15,MaxOb=20}
+    SearchData();
+    }
+
+DerivedSearch::Run()	{
 	Search::Run();
 	AuxiliaryOutcomes(u = new RealizedUtility());
-	simdata = new DataSet("Search Data",meth);
-	simdata -> Simulate(N,MaxOb,zeros(NN),TRUE); //TRUE censors terminal states
-	simdata -> Print(0);
-	simdata -> Observed(a,UseLabel,p,UseLabel,d,UseLabel);
-	simdata -> Mask();
-	println(exp(simdata -> EconometricObjective()));
-	println("Now treat offered price as unobserved");
-	simdata -> UnObserved(p);
-	simdata -> Mask();
-	println(exp(simdata -> EconometricObjective()));
+    simdata = new SearchData();
+	}
+
+SearchData::SearchData() {
+	DataSet("Search Data");   //don't re-solve
+	Simulate(N,MaxOb,zeros(NN),TRUE); //TRUE censors terminal states
+	Print(1);
+	Observed(Search::a,UseLabel,Search::p,UseLabel,Search::d,UseLabel,DerivedSearch::u,UseLabel);
+	Mask();
+	println("Vector of likelihoods when offered price is observed:",exp(EconometricObjective()));
+	UnObserved(Search::p);
+	Mask();
+	println("Vector of likelihoods when offered prices is unobserved:",exp(EconometricObjective()));
 	}
 	

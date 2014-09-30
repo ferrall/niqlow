@@ -17,7 +17,7 @@ main() {
 			};
 	tests = {
 			{"GetStarted", 				Search::Run}  ,
-			{"GetStartedData", 			SearchData::Run},
+			{"GetStartedData", 			DerivedSearch::Run},
 			{"AllTest", 				TestRun}  ,
 			{"AllTestFiveO", 			OptTestRun},
 			{"Replications",			reps},

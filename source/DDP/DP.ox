@@ -1,7 +1,11 @@
 #include "DP.h"
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 
-/** . @internal **/
+/** Reset a group.
+Reset Ptrans [&Rho;(&theta;&prime;;&theta;)]; synch &gamma;
+@param gam , &gamma; group to reset.
+@return density of the the group.
+**/
 DP::ResetGroup(gam) {
 	if (IsErgodic) gam.Ptrans[][] = 0.0;
 	gam->Sync();
@@ -58,7 +62,7 @@ Second element is a matrix of transition probabilities (rows for actions <code>&
 **/
 DP::GetTrans(i,h) { return {Theta[i].Nxt[Qi][h],Theta[i].Nxt[Qrho][h]}; }
 
-/** Store overall &Rho;* matrix.
+/** Ask to store overall &Rho;*() choice probability matrix.
 @comment Can only be called before calling `DP::CreateSpaces`
 **/
 DP::StorePalpha() {
@@ -87,7 +91,6 @@ return (isclass(sv,"Coevolving")
 }
 
 /** Add state variables to a subvector of the overall state vector.
-@internal
 @param SubV	the subvector to add to.
 @param ... variables to add
 @comments These variables are autonomous - their transitions are not correlated with each other or other state variables
@@ -186,7 +189,7 @@ DP::Actions(Act1,...) 	{
 	}
 
 /** Add `AuxiliaryVariable`s to `DP::Chi`.
-@param v1 ... `AuxiliaryVariable`s
+@param v1 ... `AuxiliaryVariable`s or array of auxiliary variables
 **/
 DP::AuxiliaryOutcomes(auxv,...) {
 	if (!isarray(SubVectors)) oxrunerror("Error: can't add auxiliary before calling Initialize()",0);
@@ -197,9 +200,10 @@ DP::AuxiliaryOutcomes(auxv,...) {
 		if (!pos) Auxlabels = {va[i].L}; else Auxlabels |= va[i].L;
 		va[i].pos = pos++;
 		}
+    Naux = sizeof(Chi);
 	}
 	
-/** . @internal **/
+/** Base class for tasks involving random and fixed groups. **/
 GroupTask::GroupTask() {
 	Task();
 	span = bothgroup;	left = SS[span].left;	right = SS[span].right;
@@ -269,6 +273,8 @@ DPMixture::Run(gam) 	{	if (isclass(gam)) qtask->GLike();	}
 FALSE if the state is not reachable.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE, traverse &Theta; through iteration on all state variables
+@param GroupExists
+
 @comments
 Each DDP has its own version of Initialize, which will call this as well as do further set up.
 
@@ -278,13 +284,12 @@ UseStateList=TRUE may be much faster if the untrimmed state space is very large 
 
 **/
 DP::Initialize(userReachable,UseStateList,GroupExists) {
- decl subv;
- Version::Check();
- if (ThetaCreated) oxrunerror("Must call DP::Delete betwen calls to CreateSpaces and Initialize");
-	this.userReachable = userReachable;
-	this.UseStateList=UseStateList;
+    decl subv;
+    Version::Check();
+    if (ThetaCreated) oxrunerror("Must call DP::Delete between calls to CreateSpaces and Initialize");
+    this.userReachable = userReachable;
+    this.UseStateList=UseStateList;
 	this.GroupExists = isfunction(GroupExists) ? GroupExists : 0;
-	Volume = QUIET;
  	now = NOW;
  	later = LATER;
  	SubVectors = new array[DSubVectors];
@@ -298,10 +303,43 @@ DP::Initialize(userReachable,UseStateList,GroupExists) {
 	F = new array[DVspace];
 	P = new array[DVspace];
 	alpha = ialpha = chi = zeta = IsTracking = delta = Impossible;
-	ReachableIndices = 0;
+	Naux = ReachableIndices = 0;
 	PreUpdate = DoNothing;
+    SetUpdateTime();
+    if (strfind(arglist(),"NOISY")!=NoMatch) {
+            Volume = NOISY;
+            println(Volume,arglist());
+            }
+    if (Volume>LOUD) println("DP::Intialize is complete. Action and State spaces are empty.");
  }
 
+/** Tell DDP when parameters and transitions have to be updated.
+@param time `UpdateTimes` [default=AfterFixed]
+
+**/
+DP::SetUpdateTime(time) {
+    if (isint(UpdateTime)) UpdateTime = constant(FALSE,UpdateTimes,1);
+    if (!isint(time) ) oxrunerror("Update time must be an integer");
+    if (Volume>SILENT)
+        switch_single (time) {
+            case OnlyOnce : oxwarning("Setting update time to OnlyOnce. Transitions and actual values do not depend on fixed or random effect values.  If they do, results are not reliable.");
+            case AfterFixed : oxwarning("Setting update time to AfterFixed. Transitions and actual values can depend on fixed effect values but not random effects.  If they do, results are not reliable.");
+            case AfterRandom : oxwarning("Setting update time to AfterRandom. Transitions and actual values can depend on fixed and random effects, which is safe but may be redundant and therefore slower than necessary.");
+            default   : oxrunerror("Update time must be between 0 and UpdateTimes-1");
+            }
+    UpdateTime[] = FALSE;
+    UpdateTime[time] = TRUE;
+    }
+
+/** Request that the State Space be subsampled for extrapolation methods such as `KeaneWolpin`.
+@param SampleProportion 0 &lt; double &le; 1.0, fixed subsample size across <var>t</var><br>
+TT&times 1 vector, time-varying sampling proportions.
+**/
+DP::SubSampleStates(SampleProportion) {
+	this.SampleProportion = isdouble(SampleProportion) ? constant(SampleProportion,TT,1) : SampleProportion;
+	DoSubSample = this.SampleProportion .< 1.0;
+	Approximated = 0;
+    }
 
 /** Initialize the state space &Theta; and the list of feasible action sets A(&theta;).
 @param GroupExists static function, returns TRUE if &gamma; should be processed<br>integer, all groups exists				
@@ -309,10 +347,11 @@ DP::Initialize(userReachable,UseStateList,GroupExists) {
 **/
 DP::CreateSpaces() {
    if (ThetaCreated) oxrunerror("State Space Already Defined. Call CreateSpaces() only once");
-   decl subv,i,pos,m,bb,sL,j,av, sbins = zeros(1,NStateTypes),w0,w1,w2,w3, tt,lo,hi;
-	if (!S[acts].D) {
+   decl subv,i,pos,m,bb,sL,j,av, sbins = zeros(1,NStateTypes),w0,w1,w2,w3, tt,lo,hi,inargs = arglist();
+   if (strfind(inargs,"NOISY")!=NoMatch) Volume=NOISY;
+    if (!S[acts].D) {
 		oxwarning("No actions added to the model. A no-choice action inserted for you.");
-		Actions(new ActionVariable("a",1));
+		Actions(new ActionVariable());
 		}
 	S[acts].M=0;
 	S[acts].X=S[acts].D-1;
@@ -373,11 +412,34 @@ DP::CreateSpaces() {
 		tfirst = constant(-1,TT,1);
 		}
 	if (UseStateList || (IsErgodic = counter.IsErgodic) ) ReachableIndices = <>;
-	ReachableStates = TerminalStates = 0;
+	NReachableStates = NTerminalStates = 0;
 	Theta = new array[SS[tracking].size];
 	cputime0=timer();
+	if (Volume>SILENT)	{		
+		println("-------------------- DP Model Summary ------------------------\n");
+		w0 = sprint("%",7*S[exog].D,"s");
+		w1 = sprint("%",7*S[semiexog].D,"s");
+		w2 = sprint("%",7*S[endog].D,"s");
+		w3 = sprint("%",7*S[clock].D,"s");
+        println("Clock: ",ClockType,". ",ClockTypeLabels[ClockType]);
+		println("STATE VARIABLES\n","%18s","|eps",w0,"|eta",w1,"|theta",w2,"-clock",w3,"|gamma",
+		"%r",{"       s.N"},"%cf","%7.0f","%c",Slabels,NN');
+		for (m=0;m<sizeof(States);++m)
+			if (!isclass(States[m],"Fixed") && !isclass(States[m],"TimeVariable"))
+			++sbins[  isclass(States[m],"NonRandom") ? NONRANDOMSV
+					 :isclass(States[m],"Random") ? RANDOMSV
+					 :COEVOLVINGSV ];
+		println("\nTransition Categories (not counting fixed)","%r",{"     #Vars"},"%c",{"NonRandom","Random","Coevolving"},"%cf",{"%13.0f","%13.0f","%13.0f"},sbins);
+		println("\nSize of Spaces","%c",{"N"},"%r",
+				{"        Exogenous","    SemiExogenous","       Endogenous","            Times","    EV()Iterating",
+				"    Ch.Prob.track","     Random Groups","     Fixed Groups","    TotalUntrimmed"},
+							"%cf",{"%10.0f"},
+			SS[onlyexog].size|SS[onlysemiexog].size|SS[onlyendog].size|SubVectors[clock][0].N|SS[iterating].size|SS[tracking].size|NR|NF|SS[allstates].size);
+		print("\nACTION VARIABLES (",NA," distinct actions)");
+		println("%r",{"    i.N"},"%cf","%7.0f","%c",Alabels,AA');
+		}
 	tt = new CTask();	delete tt;
-	if ( IsErgodic && TerminalStates ) oxwarning("NOTE: time is ergodic but terminal states exist???");
+	if ( IsErgodic && NTerminalStates ) oxwarning("NOTE: time is ergodic but terminal states exist???");
 	J= sizeof(ActionSets);
 	tt = new CGTask();	delete tt;
 	ReachableIndices = reversec(ReachableIndices);
@@ -394,27 +456,7 @@ DP::CreateSpaces() {
   	V = new matrix[1][SS[bothexog].size];
 
 	if (Volume>SILENT)	{		
-		println("-------------------- DP Model Summary ------------------------");
-		w0 = sprint("%",7*S[exog].D,"s");
-		w1 = sprint("%",7*S[semiexog].D,"s");
-		w2 = sprint("%",7*S[endog].D,"s");
-		w3 = sprint("%",7*S[clock].D,"s");
-		println("STATE VARIABLES\n","%18s","|eps",w0,"|eta",w1,"|theta",w2,"-clock",w3,"|gamma",
-		"%r",{"       s.N"},"%cf","%7.0f","%c",Slabels,NN');
-		for (m=0;m<sizeof(States);++m)
-			if (!isclass(States[m],"Fixed") && !isclass(States[m],"TimeVariable"))
-			++sbins[  isclass(States[m],"NonRandom") ? NONRANDOMSV
-					 :isclass(States[m],"Random") ? RANDOMSV
-					 :COEVOLVINGSV ];
-		println("\nTransition Categories (not counting fixed)","%r",{"     #Vars"},"%c",{"NonRandom","Random","Coevolving"},"%cf",{"%13.0f","%13.0f","%13.0f"},sbins);
-		println("\nSize of Spaces","%c",{"N"},"%r",
-				{"        Exogenous","    SemiExogenous","       Endogenous","            Times","    EV()Iterating",
-				"    Ch.Prob.track","    TotalReachable","         Terminal",
-				"     Random Groups","     Fixed Groups","    TotalUntrimmed"},
-							"%cf",{"%10.0f"},
-			SS[onlyexog].size|SS[onlysemiexog].size|SS[onlyendog].size|SubVectors[clock][0].N|SS[iterating].size|SS[tracking].size|ReachableStates|TerminalStates|NR|NF|SS[allstates].size);
-		print("\nACTION VARIABLES (",NA," distinct actions)");
-		println("%r",{"    i.N"},"%cf","%7.0f","%c",Alabels,AA');
+		println("\n Trimming ","%c",{"N"},"%r",{"    TotalReachable","         Terminal"},"%cf",{"%10.0f"},NReachableStates|NTerminalStates);
 		println("\nACTION SETS");
 		av = sprint("%-14s","    alpha");
 		for (i=0;i<J;++i) av ~= sprint("  A[","%1u",i,"]   ");
@@ -471,7 +513,7 @@ CTask::CTask() {
 CTask::Run(g) {
 	decl th,curind=ind[tracking];
 	if (isclass(th = Theta[curind] = userReachable(),"DP")) {
-		++ReachableStates;
+		++NReachableStates;
 		th->Bellman(state);
 		if (!isint(ReachableIndices)) {
 			if (UseStateList && tfirst[curt]<0) tfirst[curt] = sizer(ReachableIndices);
@@ -534,12 +576,11 @@ Task::Update() {
 Task::list(arg0,...) {
 	decl va = va_arglist(),
 		 mxind = sizer(ReachableIndices)-1,
-		 NSV = sizeof(States)-1,
 		 lft = left ? state[:left-1] : <>,
-		 rht = right<NSV ? state[right+1:] : <> ,
+		 rht = right<NS-1 ? state[right+1:] : <> ,
 		 rold, ups, lows, s, curTh, news, indices;
 	trips = iter = 0;
-	SyncStates(0,NSV);
+	SyncStates(0,NS-1);
 	if (isint(arg0)) {
 		indices = ReachableIndices;
 		if (arg0==DoAll)  {	//every reachable state
@@ -593,7 +634,10 @@ Task::Traverse(arg0, ... ) {
 DP::InitialsetPstar(task) {	}
 	
 /** Compute the distribution of Exogenous state variables.
-@internal
+
+This is or should be called each time a value function iteration method begins.
+Result is stored in the static `DP::NxtExog` array.
+
 **/
 DP::ExogenousTransition() {
     decl N,root,k,curst,si = SS[bothexog].D-1,
@@ -618,18 +662,32 @@ DP::ExogenousTransition() {
 		} while (si>=0);
 	NxtExog[Qi] = F[bef][];
 	NxtExog[Qrho] = P[bef][]';
+    if (Volume>LOUD) { decl d = new DumpExogTrans(); delete d; }
  }
+
+/** Display the exogenous transition as a matrix. **/
+DumpExogTrans::DumpExogTrans() {
+	Task();
+	left = S[exog].M;	right = S[semiexog].X;
+	s = <>;
+	loop();
+	print("Exogenous and Semi-Exogenous State Variable Transitions ","%c",{" "}|Slabels[S[exog].M:S[semiexog].X]|"f()","%cf",array(Sfmts[0])|Sfmts[3+S[exog].M:3+S[semiexog].X]|"%15.6f",s);
+	delete s;
+	}
+	
+/** . @internal **/
+DumpExogTrans::Run(th) { decl i =ind[bothexog];  s|=i~state[left:right]'~NxtExog[Qrho][i];}
+
 
 /** Set the discount factor, &delta;.
  @param delta, `CV` compatible object (`Parameter` or double or function)
 **/
 DP::SetDelta(delta) 	{ 	return CV(this.delta = delta);	 }	
 
-/** Ensure that `StateVariable::v` is synched with the state vector.
+/** Ensure that all `StateVariable` objects <code>v</code> are synched with the internally stored state vector.
 @param dmin leftmost state variable
 @param dmax rightmost state variable
 @return the value of the dmax (rightmost)
-@internal
 **/
 Task::SyncStates(dmin,dmax)	{
 	decl d,sv,Sd;
@@ -645,9 +703,8 @@ Task::SyncStates(dmin,dmax)	{
 	return sv;
 	}
 
-/** Ensure that `ActionVariable::v` is synched with the chose <code>&alpha;</code> vector.
+/** Ensure that `ActionVariable` current values (<code>v</code>) is synched with the chose <code>&alpha;</code> vector.
 @param a action vector.
-@internal
 **/
 DP::SyncAct(a)	{
 	decl d;
@@ -658,37 +715,55 @@ DP::SyncAct(a)	{
 @param ClockOrType `Clock` derived state block<br>
 	   integer, `ClockTypes`
 @param ... arguments to pass to constructor of clock type
-@example <pre>
+
+@example
+<pre>
+Initialize(Reachable);
 SetClock(InfiniteHorizon);
-SetClock(Ergodic);
-SetClock(StaticProgram);
+...
+CreateSpaces();
+</pre>
+Finite Horizon
+<pre>
+decl T=65;	
+Initialize(Reachable);
+SetClock(NormalAging,T);
+...
+CreateSpaces();
+</pre>
+Early Mortaliy
+<pre>
+MyModel::Pi(FeasA);	
 
-decl T=65;	SetClock(NormalAging,T);
+SetClock(RandomMortality,T,MyModel::Pi);
+Initialize(Reachable);
+...
+CreateSpaces();
 
-const decl Brackets = constant(5,1,10); 	SetClock(RandomAging,Brackets);
+</pre></dd>
 
-MyModel::Pi(FeasA);	SetClock(RandomMortality,T,MyModel::Pi);	
-SetClock(UncertainLongevity,T,MyModel::Pi);
-
-const decl phases = &lt;1,10,10&gt;;	SetClock(SocialExperiment,phases);
-
-myclock = new DerivedClock();	SetClock(myclock);</pre></dd>
-@comments <code>MyModel</code> can create a derived `Clock` and pass it<br>
-		  or have SetClock create built-in clock.<br>
+@comments <code>MyModel</code> can also create a derived `Clock` and pass it to SetClock.
+		
 **/
 DP::SetClock(ClockOrType,...)	{
 	if (isclass(counter)) oxrunerror("Clock/counter state block already initialized");
 	decl va = va_arglist() ;
-	if (isclass(ClockOrType,"Clock")) counter = ClockOrType;
+	if (isclass(ClockOrType,"Clock")) {
+        counter = ClockOrType;
+        ClockType = UserDefined;
+        }
 	else {
-		switch(ClockOrType) {
+        ClockType = ClockOrType;
+		switch(ClockType) {
 			case Ergodic:				counter = new Stationary(TRUE); break;
 			case InfiniteHorizon: 		counter = new Stationary(FALSE); break;
 			case NormalAging:  			counter = new Aging(va[0]); break;
+			case StaticProgram:			counter = new StaticP(); break;
 			case RandomAging:			counter = new AgeBrackets(va[0]);  break;
 			case RandomMortality:		counter = new Mortality(va[0],va[1]);  break;
+            case UncertainLongevity:    counter = new Longevity(va[0],va[1]); break;
+            case RegimeChange:          oxrunerror("Sorry! Regime Change clock not supported yet"); break;
 			case SocialExperiment:		counter = new PhasedTreatment(va[0],TRUE);  break;
-			case StaticProgram:			counter = new Aging(1); break;
 //			default : ;
 			}
 		}
@@ -698,7 +773,6 @@ DP::SetClock(ClockOrType,...)	{
 
 /** End of the Process.
 @return TRUE if the current period is the absolute end of the process.<br> FALSE otherwise.
-@see `Clock::Last`
 **/
 DP::Last() { return counter->Last(); }
 
@@ -708,11 +782,19 @@ DP::Last() { return counter->Last(); }
 **/
 DP::DoNothing() { }
 
-/** Call Update routines for all actions, states and blocks.
-Distribution() is also called for random effect variables.
+/** Update dynamically changing components of the program at the time chosen by the user.
+<OL>
+<LI>Update the actual value of action and state variables that (might) depend on parameter values that have changed since a
+previous solve.</LI>
+<LI>Compute the exogenous transitions, &Rho;(&eps;&prime;) and &Rho;(&eta;&prime;).</LI>
+<LI>Compute the endogenous transitions at each point in the state space endogenous state space &Theta;</LI>
+</OL>
+
+@see DP::SetUpdateTime , UpdateTimes
 **/
-DP::UpdateVariables()	{
+DP::UpdateVariables(state)	{
 	decl i,nr,j,a,nfeas;
+    HasBeenUpdated = TRUE;
 	PreUpdate();
 	i=0;
 	do {
@@ -739,6 +821,13 @@ DP::UpdateVariables()	{
 			}		
 		}
 	for (i=1;i<J;++i) A[i][][] = selectifr(A[0],ActionSets[i]);
+   	cputime0 = timer();
+	ExogenousTransition();
+    if (!isint(state)) ETT.state = state;
+	ETT.subspace = iterating;
+	ETT->Traverse(DoAll);          //Endogenous transitions
+	IsTracking = FALSE;
+	if (Volume>QUIET) println("Transition time: ",timer()-cputime0);
 	}
 
 /** .
@@ -787,8 +876,8 @@ Group::Group(pos,state) {
 		Ptrans = new matrix[d][d];
 		Pinfinity = new matrix[d];
 		if (isint(PT)) {
-			PT = new matrix[ReachableStates][ReachableStates];
-			statbvector = 1|zeros(ReachableStates-1,1);
+			PT = new matrix[NReachableStates][NReachableStates];
+			statbvector = 1|zeros(NReachableStates-1,1);
 			}
 		}
 	else { Ptrans = Pinfinity = 0; }
@@ -904,10 +993,10 @@ UpdateDensity::UpdateDensity() {
 **/
 UpdateDensity::Run(g) {	g->Density();	}
 
-
-/**Print the value function EV(&theta;) and choice probability <code>&Rho;*(&alpha;,&epsilon;,&eta;;&theta;)</code>.
+/**Print the value function EV(&theta;) and choice probability <code>&Rho;*(&alpha;,&epsilon;,&eta;;&theta;)</code> or index of max &Rho;*.
 @param ToScreen  TRUE means output is displayed.
 @param aM	address to return matrix<br>0, do not save
+@param MaxChoiceIndex FALSE &eq; print choice probability vector (default)<br>TRUE &eq; only print index of choice with max probability.  Useful when the full action matrix is very large.
 
 The columns of the matrix are:
 <DD><pre>
@@ -915,8 +1004,8 @@ StateIndex IsTerminal Aindex EndogenousStates t t' REStates FEStates EV &Rho;(&a
 </pre></DD>
 
 **/
-DPDebug::outV(ToScreen,aM) {
-	decl rp = new SaveV(ToScreen,aM);
+DPDebug::outV(ToScreen,aM,MaxChoiceIndex) {
+	decl rp = new SaveV(ToScreen,aM,MaxChoiceIndex);
 	if (ToScreen) println("\n",div);
 	rp -> Traverse(DoAll);
 	if (ToScreen) println(div,"\n");	
@@ -924,16 +1013,25 @@ DPDebug::outV(ToScreen,aM) {
 	}
 
 DPDebug::Initialize() {
-	prtfmt = Sfmts[:2]|Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%15.6f"|"%9.6f";
-	Vlabels = {"Index","T","A"}|Slabels[S[endog].M:S[clock].M]|" rind "|"        EV      | Choice Probabilities:";
+    sprintbuffer(16 * 4096);
+	prtfmt0 = Sfmts[:2]|Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%15.6f";
+	Vlabel0 = {"Index","T","A"}|Slabels[S[endog].M:S[clock].M]|" rind "|"        EV      |";
 	}
 
-SaveV::SaveV(ToScreen,aM) {
+/** Save the value function as a matrix and/or print.
+@param ToScreen  TRUE, print to output (default)
+@param aM  0&eq; do not save to a matrix (default) <br>address to save too
+@param MaxChoiceIndex FALSE &eq; print choice probability vector (default)<br>TRUE &eq; only print index of choice with max probability.  Useful when the full action matrix is very large.
+**/
+SaveV::SaveV(ToScreen,aM,MaxChoiceIndex) {
 	Task();
 	left = S[endog].M;
 	right = S[clock].M; //don't do tprime
     subspace=tracking;
 	this.ToScreen = ToScreen;
+    this.MaxChoiceIndex = MaxChoiceIndex;
+	Vlabels = Vlabel0 | (MaxChoiceIndex ? {"index" | "maxP*" | "sum(P)"} : "Choice Probabilities:");
+    prtfmt  = prtfmt0 | (MaxChoiceIndex ? "%5.0f" | "%9.6f" : "%9.6f");
 	if (isint(aM))
 		this.aM = 0;
 	else {
@@ -945,9 +1043,11 @@ SaveV::SaveV(ToScreen,aM) {
 	
 SaveV::Run(th) {
 	if (!isclass(th,"Bellman")) return;
+    decl mxi, p;
 	stub=th.ind[tracking]~th.IsTerminal~th.Aind~state[S[endog].M:S[clock].M]';
 	for(re=0;re<sizeof(th.EV);++re) {
-		r = stub~re~th.EV[re]~(th->ExpandP(re))';
+        p = th->ExpandP(re);
+		r = stub~re~th.EV[re]~(MaxChoiceIndex ? double(mxi = maxcindex(p))~p[mxi]~sumc(p) : p' );
 		if (isclass(th,"OneDimensionalChoice") )  r ~= CV(th.zstar)';
 		if (!isint(aM)) aM[0] |= r;
 		if (ToScreen) {

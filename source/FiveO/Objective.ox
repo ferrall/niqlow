@@ -35,6 +35,10 @@ Objective::ResetMax() {
     cur.v = maxpt.v = -.Inf;
     }
 
+/** Load or save state of the problem to a file.
+@param f file object
+@param saving  TRUE: save status to the file<br>FALSE: load from the file and close it, call `Objective::Encode`
+**/
 Objective::CheckPoint(f,saving) {
 	if (saving) {
 		decl fl = vararray(PsiL);
@@ -50,14 +54,14 @@ Objective::CheckPoint(f,saving) {
 			oxwarning("X in "+fname+"."+EXT+" not the same length as Psi. Load is doing nothing. ");
 			return FALSE;
 			}
-		if (!sizer(inFX)) inFX = <-1>;
-		for (k=0,m=0;k<sizeof(Psi);m+=inFX[m]==k,++k) Psi[k].DoNotVary = (inFX[m]!=k);			
-		Encode(inX);
+		if (!sizer(inPsiT)) inPsiT = <-1>;
+		for (k=0,m=0;k<sizeof(Psi);m+=inPsiT[m]==k,++k) Psi[k].DoNotVary = (inPsiT[m]!=k);			
+		Encode(inX);  //typo found Sept. 2014
 		}
 	}
 
 /** Store current state (checkpoint to disk).
-@param fname string, name of file<br>0 to use `Objective::fname`
+@param fname string, name of file<br>0 [default] use `Objective::fname`
 @see Objective::Load, Objective::EXT
 **/
 Objective::Save(fname)	{
@@ -73,8 +77,8 @@ Objective::Save(fname)	{
 	}
 	
 /** Load state of the problem.
-@param fname string, name of file<br>0, the default name, the label with spaces removed<br>-1, do nothing and return FALSE.
-@comments FinX is read in to set <code>DONOTVARY<code> for each parameter. The value of F is ignored by Load.  `Objective::Encode`(0) called by Load.
+@param fname string, name of file<br>0 [default], use the default name, the label with spaces removed<br>-1, do nothing and return FALSE.
+@comment FinX is read in to set <code>DONOTVARY<code> for each parameter. The value of F is ignored by Load.  `Objective::Encode`() called by Load.
 @returns TRUE if parameter values were loaded from file<br> FALSE otherwise.
 @see Objective::Save, Objective::L
 **/
@@ -101,7 +105,8 @@ Objective::	SetAggregation(AggType) {
 	}	
 	
 /** Store current state of a Constrained Objective (checkpoint to disk).
-@param fname string, name of file<br>0 to use `Objective::fname`
+@param f
+@param saving
 @comments the value of `Objective::cur`.F is written to the file but ignored by Load().
 **/
 Constrained::CheckPoint(f,saving)	{
@@ -123,7 +128,7 @@ Constrained::CheckPoint(f,saving)	{
 		inPsiL = varlist(inPsiL);
 		if (!sizer(inFX)) inFX = <-1>;
 		for (k=0,m=0;k<sizeof(Psi);m+=inFX[m]==k,++k) Psi[k].DONOTVARY= (inFX[m]!=k);			
-		Encode(inX);
+		Encode(inX);  //typo found Sept. 2014
 		}
 	}
 	
@@ -213,9 +218,9 @@ Objective::ToggleParameterConstraint()	{
 
 
 /** Decode a vector of free variables.
-Decode() converts an optimized parameter vector into the structural parameter vector.  It also ensures that each Parameter's and
-each Parameter Block's .v member is updated.
-@param F, nfree x 1 vector of optimized parameters.<br>0, use this.F for decode
+Converts an optimized parameter vector into the structural parameter vector.  Ensure that each parameter and
+each parameter block current value is updated.
+@param F, nfree x 1 vector of optimized parameters.<br>0 [default], use this.F for decode
 @return X, the structural parameter vector.
 **/
 Objective::Decode(F)	{
@@ -235,13 +240,13 @@ Objective::Decode(F)	{
 	}
 
 /** Encode vector of structural parameters.
-@param X 0 get new starting values from the parameters<br>vector, new starting values.
-@See Objective::nfree, Objective::nstruct, Objective::FinX
+@param inX 0 [default] get new starting values from the parameters<br>a vector, new starting values.
 @comments if X is a vector then a value of .NaN means that parameter should be held fixed at the current value during this
 		   cycle of optimization.  If X=0 then the starting values are retrieved as follows: If this is the first
 		   call of Encode() the initial values passed to the parameters when they were created. If this.X already has elements
 		   then this is not the first call to Encode() and starting values will be retrieved from the current values of
 		   parameters.		
+@See Objective::nfree, Objective::nstruct, Objective::FinX
 **/
 Objective::Encode(inX)  {
 	decl k,f;
