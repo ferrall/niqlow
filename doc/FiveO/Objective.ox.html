@@ -117,7 +117,7 @@ A single argument (va = array[1]), then it must be a D&times;K matrix
 	lambda[d] = new Simplex("L"+sprint("%2u",d),va[0][d][]),  for d = 0, &hellip; D&oline;
 D arguments (va = array[D]), then each must be a <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> of size K and
 	lambda[d] = va[d]    for d = 0, &hellip; D&oline;</pre></DD>
-<DD>The final option allows the user to allow weights that do not sum to 1 for each value of <code>d</code>, because the parameter block need not be a <a href="Parameters.ox.html#Simplex">Simplex</a>.</DD>
+<DD>The final option allows the user to use weights that do not sum to 1 for each value of <code>d</code>, because the parameter block need not be a <a href="Parameters.ox.html#Simplex">Simplex</a> parameter block.</DD>
 <DT>It is inefficient to compute &fnof;<sub>k d</sub> if its weight is zero. </DT>
 <DD>The user can send a matrix of 0s and 1s to <a href="Objective.ox.html#Mixture___IncludedDK">IncludedDK</a>(), which indicates which type-environment pairs should be ignored.</DD>
 <DD>The default matrix consists of 0s, meaning that no combinations are ignored.</DD>
@@ -501,7 +501,7 @@ Base class for objective optimization and system solving.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___CheckPoint">CheckPoint</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Load or save state of the problem to a file.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___Decode">Decode</a></td>
@@ -845,8 +845,11 @@ Store current state of a Constrained Objective (checkpoint to disk).
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
-<td class="declaration" valign="baseline">fname</td>
-<td class="description" valign="baseline">string, name of file<br>0 to use <a href="Objective.ox.html#Objective___fname">fname</a>
+<td class="declaration" valign="baseline">f
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">saving
 </td>
 </tr>
 </table>
@@ -1314,7 +1317,22 @@ If <code>cur.v &gt; maxpt.v</code> call <a href="Objective.ox.html#Objective___S
 
 <span class="declaration">virtual Objective :: CheckPoint ( f , saving )</span>
 <dl><dd>
+Load or save state of the problem to a file.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">f</td>
+<td class="description" valign="baseline">file object
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">saving</td>
+<td class="description" valign="baseline"> TRUE: save status to the file<br>FALSE: load from the file and close it, call <a href="Objective.ox.html#Objective___Encode">Encode</a></td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1334,14 +1352,14 @@ current point.
 <span class="declaration">virtual Objective :: Decode ( F )</span>
 <dl><dd>
 Decode a vector of free variables.
-Decode() converts an optimized parameter vector into the structural parameter vector.  It also ensures that each Parameter's and
-each Parameter Block's .v member is updated.
+Converts an optimized parameter vector into the structural parameter vector.  Ensure that each parameter and
+each parameter block current value is updated.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">F,</td>
-<td class="description" valign="baseline">nfree x 1 vector of optimized parameters.<br>0, use this.F for decode
+<td class="description" valign="baseline">nfree x 1 vector of optimized parameters.<br>0 [default], use this.F for decode
 </td>
 </tr>
 </table>
@@ -1371,13 +1389,8 @@ Encode vector of structural parameters.
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
-<td class="declaration" valign="baseline">X</td>
-<td class="description" valign="baseline">0 get new starting values from the parameters<br>vector, new starting values.
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">@See</td>
-<td class="description" valign="baseline">Objective::nfree, Objective::nstruct, Objective::FinX
+<td class="declaration" valign="baseline">inX</td>
+<td class="description" valign="baseline">0 [default] get new starting values from the parameters<br>a vector, new starting values.
 </td>
 </tr>
 </table>
@@ -1387,6 +1400,7 @@ Encode vector of structural parameters.
 		   call of Encode() the initial values passed to the parameters when they were created. If this.X already has elements
 		   then this is not the first call to Encode() and starting values will be retrieved from the current values of
 		   parameters.
+@See Objective::nfree, Objective::nstruct, Objective::FinX
 </dd>
 </dl>
 </dd></dl>
@@ -1533,14 +1547,14 @@ Load state of the problem.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">fname</td>
-<td class="description" valign="baseline">string, name of file<br>0, the default name, the label with spaces removed<br>-1, do nothing and return FALSE.
+<td class="description" valign="baseline">string, name of file<br>0 [default], use the default name, the label with spaces removed<br>-1, do nothing and return FALSE.
 </td>
 </tr>
 </table>
 </dd>
 <dt class="returns">Returns:</dt><dd class="returns">TRUE if parameter values were loaded from file<br> FALSE otherwise.
 </dd>
-<dt class="comments">Comments:</dt><dd class="comments">FinX is read in to set <code>DONOTVARY<code> for each parameter. The value of F is ignored by Load.  <a href="Objective.ox.html#Objective___Encode">Encode</a>(0) called by Load.
+<dt class="comments">Comments:</dt><dd class="comments">FinX is read in to set <code>DONOTVARY<code> for each parameter. The value of F is ignored by Load.  <a href="Objective.ox.html#Objective___Encode">Encode</a>() called by Load.
 </dd>
 <dt class="seealso">See also:</dt><dd class="seealso"><a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___L">L</a></dd>
 </dl>
@@ -1677,7 +1691,7 @@ Store current state (checkpoint to disk).
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">fname</td>
-<td class="description" valign="baseline">string, name of file<br>0 to use <a href="Objective.ox.html#Objective___fname">fname</a>
+<td class="description" valign="baseline">string, name of file<br>0 [default] use <a href="Objective.ox.html#Objective___fname">fname</a>
 </td>
 </tr>
 </table>

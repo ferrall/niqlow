@@ -5,7 +5,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2014 Christopher Ferrall */
 	
 AMZurcher::Run()  {
-    Initialize(Reachable,0);
+    Initialize(Reachable);
     EndogenousStates(x = new Renewal("x",NX,d,dgppars[theta3]) );
     CreateSpaces();
 	SetDelta(dgppars[disc]);	
@@ -19,7 +19,6 @@ AMZurcher::Run()  {
 //	data -> BruteForce();
 	HM = new HotzMiller(data,2.0);  //AguirregabiriaMira
     data->SetMethod(0);  //get rid of nested fixed point
-    println("past reset");
 //	HM.Volume = LOUD;
 	HM -> Solve();
 	}

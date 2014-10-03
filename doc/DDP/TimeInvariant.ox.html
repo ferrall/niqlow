@@ -39,7 +39,7 @@ Each combination of random and fixed effects implies a value of &gamma;, and for
 </OL>
 <P/>
 <DT>As with allowing state variables to be declared exogenous, moving time invariant variables from &theta; to &gamma; saves time and especially storage while solving the model. </DT>
-<DD>An invariant does not need to be tracked during iteration over <b>&Theta;</b>.  So group variable Transit() methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>. </DD>
+<DD>An invariant does not need to be tracked during iteration over <b>&Theta;</b>.  So group variable <code>Transit()</code> methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>. </DD>
 <DD>Storage is re-used while solving for different values of &gamma;. <span class="n">DDP</span> reuses the state space <b>&Theta;</b> for each value of &gamma;.</DD>
 <DD>Choice probabilities <code>&Rho;*(&alpha | &epsilon;, &eta;, &theta;, &gamma; )</code> are stored separably for each random value of &gamma;.  EV(&theta;) integrates out the random effects, conditional on the value of the fixed effects in &gamma;.</DD>
 <DD>Both utility and a transitions can depend on the value of fixed effects.  However, only utility can depend on random effects. </DD>
@@ -75,7 +75,7 @@ An element of a RandomEffectBlock.
 <dl class="inherited">
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#RandomEffect___RandomEffect">RandomEffect</a></dd>
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -104,7 +104,7 @@ Solution methods loop over fixed effect values, re-using storage space.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -145,7 +145,7 @@ A Block of <a href="TimeInvariant.ox.html#FixedEffect">FixedEffect</a> group var
 <dl class="inherited">
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#FixedEffect">FixedEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#FixedEffect___FixedEffect">FixedEffect</a></dd>
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -183,7 +183,7 @@ A permanent discretize N(0,&sigma;<sup>2</sup>) random effect.
 <dl class="inherited">
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#RandomEffect___RandomEffect">RandomEffect</a></dd>
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -212,7 +212,7 @@ Solution methods loop over random effect values and will account for distributio
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -253,7 +253,7 @@ A Block of <a href="TimeInvariant.ox.html#CorrelatedEffect">CorrelatedEffect</a>
 <dl class="inherited">
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#RandomEffect___RandomEffect">RandomEffect</a></dd>
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -289,7 +289,7 @@ An element of the FixedEffectBlock.
 <dl class="inherited">
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#FixedEffect">FixedEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#FixedEffect___FixedEffect">FixedEffect</a></dd>
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -321,7 +321,7 @@ Use Tauchen's method to discretize a normal variable.
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#NormalRandomEffect">NormalRandomEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#NormalRandomEffect___NormalRandomEffect">NormalRandomEffect</a></dd>
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#RandomEffect___RandomEffect">RandomEffect</a></dd>
 <dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -346,7 +346,7 @@ An element of the group vector &gamma;.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 

@@ -24,7 +24,7 @@ Components shared by components of <span class="n"><a href="../default.html">niq
 <tr><td colspan="3" class="header" valign="top">Variables</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#ClockTypeLabels">ClockTypeLabels</a></td>
 <td class="modifiers">static const</td>
-<td class="description"></td>
+<td class="description">parallel array of labels for the built-in clock types.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#DIFF_EPS">DIFF_EPS</a></td>
@@ -59,7 +59,7 @@ Components shared by components of <span class="n"><a href="../default.html">niq
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#CV">CV</a></td>
 <td class="modifiers"></td>
-<td class="description">Return Value: access X.v, X, X() or X(arg).</td>
+<td class="description">Return the Current Value of a Quantity: access X.v, X, X() or X(arg).</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#DeltaV">DeltaV</a></td>
@@ -98,51 +98,56 @@ the normal distribution.</td>
 <td class="description">Recreate State vector from an index and offset vector.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#ToggleParams">ToggleParams</a></td>
+<td class="modifiers"></td>
+<td class="description">Toggle DoNotVary for one or more parameters.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#vararray">vararray</a></td>
 <td class="modifiers"></td>
 <td class="description">Convert an array of strings into a space-separated string.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#varlist">varlist</a></td>
 <td class="modifiers"></td>
 <td class="description">Parse a string for variable names; return array of strings.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#AggregatorTypes">AggregatorTypes</a></td>
 <td class="modifiers"></td>
 <td class="description">Tags for Types of vector-valued objective Aggregation.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#ClockTypes">ClockTypes</a></td>
 <td class="modifiers"></td>
-<td class="description">Send one of these tags as first argument to DP::SetClock to use that clock.</td>
+<td class="description">Send one of these tags as first argument to DP::SetClock() to use that clock.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#ConstraintTypes">ConstraintTypes</a></td>
 <td class="modifiers"></td>
 <td class="description">Tags for Types of Constraints.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#ConvergenceResults">ConvergenceResults</a></td>
 <td class="modifiers"></td>
 <td class="description">Code for solutions to Optimization and Non-Linear System solving.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#EUvalues">EUvalues</a></td>
 <td class="modifiers"></td>
 <td class="description">Output tags for reservation value utility functions.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#Names_for_-1">Names_for_-1</a></td>
 <td class="modifiers"></td>
 <td class="description">Pseudonyms for -1.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#NextTreatmentStates">NextTreatmentStates</a></td>
 <td class="modifiers"></td>
 <td class="description">Possible next treatment phases.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#NoiseLevels">NoiseLevels</a></td>
 <td class="modifiers"></td>
 <td class="description">Levels of output to produce while executing.</td>
@@ -896,7 +901,19 @@ A container for auxilliary structures, which helps organize the hierarchy of cla
 </tr>
 <tr class="odd">
 <td class="declaration"><a name="ClockTypes"></a>ClockTypes</td>
-<td class="description">Send one of these tags as first argument to DP::SetClock to use that clock.
+<td class="description">Send one of these tags as first argument to DP::SetClock() to use that clock.
+        <table>
+        <tr><th>Tag</th><th>Clock Type</th></tr>
+        <tr><td>InfiniteHorizon</td><td>Stationary(FALSE)</td></tr>
+        <tr><td>Ergodic</td><td>Stationary(TRUE)</td></tr>
+        <tr><td>NormalAging</td><td>Aging(&hellip;)</td></tr>
+        <tr><td>StaticProgram</td><td>StaticP(&hellip;)</td></tr>
+        <tr><td>RandomAging</td><td>AgeBrackets(&hellip;)</td></tr>
+        <tr><td>RandomMortality</td><td>Mortality(&hellip;)</td></tr>
+        <tr><td>UncertainLongevity</td><td>Longevity(&hellip;)</td></tr>
+        <tr><td>RegimeChange</td><td>Not Coded Yet</td></tr>
+        <tr><td>SocialExperiment</td><td>PhasedTreatment(&hellip;)</td></tr>
+        </table>
 </td>
 <td class="elements">InfiniteHorizon, Ergodic, NormalAging, StaticProgram, RandomAging, RandomMortality, UncertainLongevity, RegimeChange, SocialExperiment, UserDefined, NClockTypes</td>
 </tr>
@@ -970,6 +987,7 @@ This also works for StateBlock which will return the items from the Grid of poin
 
 <span class="declaration">static const decl ClockTypeLabels</span>
 <dl><dd>
+parallel array of labels for the built-in clock types.
 
 </dd></dl>
 
@@ -979,13 +997,13 @@ This also works for StateBlock which will return the items from the Grid of poin
 
 <span class="declaration">CV ( X , ... )</span>
 <dl><dd>
-Return Value: access X.v, X, X() or X(arg).
+Return the Current Value of a Quantity: access X.v, X, X() or X(arg).
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">X</td>
-<td class="description" valign="baseline">a double, integer, static function of the form X() or X(arg), or object with a member named v.
+<td class="description" valign="baseline">a double, integer, static function of the form X() or X(arg), or any object with a member named v.
 </td>
 </tr>
 <tr>
@@ -998,7 +1016,7 @@ Return Value: access X.v, X, X() or X(arg).
 <dt class="returns">Returns:</dt><dd class="returns">X.v, X, X(), X(arg)
 </dd>
 <dt class="comments">Comments:</dt><dd class="comments">This allows elements of the code to be represented several different ways.<br>
-Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside State Variable transitions.<br>
+Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside StateVariable::Transit.<br>
 No argument is passed by DP::UpdateVariables() and DP::ExogenousTransition
 </dd>
 </dl>
@@ -1144,7 +1162,7 @@ Compute the Gausian kernel matrix for a data matrix.
 <a name="MyMoments"></a>
 <h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MyMoments</span></h3>
 
-<span class="declaration">MyMoments ( M , ... )</span>
+<span class="declaration">MyMoments ( M , rlabels )</span>
 <dl><dd>
 Print Column Moments.
 
@@ -1153,6 +1171,11 @@ Print Column Moments.
 <tr>
 <td class="declaration" valign="baseline">M</td>
 <td class="description" valign="baseline"><em>matrix</em>: matrix to compute (column) moments for
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">rlabels</td>
+<td class="description" valign="baseline">(optional), array of labels for variables
     </td>
 </tr>
 </table>
@@ -1214,6 +1237,30 @@ Recreate State vector from an index and offset vector.
 <dl><dd>
 square-root of machine &epsilon;
 
+</dd></dl>
+
+<hr>
+<a name="ToggleParams"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">ToggleParams</span></h3>
+
+<span class="declaration">ToggleParams ( a , ... )</span>
+<dl><dd>
+Toggle DoNotVary for one or more parameters.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">a</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#Parameter">Parameter</a> or array of parameters
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">...</td>
+<td class="description" valign="baseline">more parameters or array of parameters.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>

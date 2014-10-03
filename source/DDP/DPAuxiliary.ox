@@ -54,7 +54,11 @@ SubSpace::ActDimensions()	{
 	}
 
 /** Create a new element of &chi;, the space of auxiliary outcomes.
+
 @param L label
+
+@see DP::AuxiliaryOutcomes
+
 **/
 AuxiliaryVariable::AuxiliaryVariable(L) {
 	this.L = L;
@@ -62,7 +66,11 @@ AuxiliaryVariable::AuxiliaryVariable(L) {
 	v = .NaN;
 	}
 
-AuxiliaryVariable::Realize(q,y) {	}
+/** Default realized auxililary variable, sets <code>v=0.0</code>.
+@param q, the current endogenous state, &theta;
+@param y, the current realized outcome, &upsilon;.
+**/	
+AuxiliaryVariable::Realize(q,y) {	v = 0.0; }
 
 /** Create a new &zeta;, the vector-valued realized shock vector.
 @param length integer, length of the (row) vector.

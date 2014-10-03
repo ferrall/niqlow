@@ -18,16 +18,37 @@
 Bellman's Equation and Expected Value Function Iteration.
 <a href="#auto">Skip down to documentation of items defined in Bellman.ox</a><p>
 <P/>
+<h2>Overview</h2>
+<P/>
 <DT>Bellman is derived from the <a href="DP.ox.html#DP">DP</a> class.  Classes based on Bellman capture different specifications of the model, especially in terms of the <em>iid continuous state vector</em>, denoted &zeta;.</DT>
 <P/>
-<DD>A user would base <code>MyModel</code> on one of these classes (or a class ultimately derived from them).</DD>
+<DT>A user bases (derives) <code>MyModel</code> on one of these classes (or a class ultimately derived from them).</DT>
+<DD>Example<pre>
 <P/>
-<DD>The continuous state &zeta; determines the form of Bellman's for choice-specific values, which integrates out the IID state vectors, &zeta;, &epsilon; and &eta;.
+struct MyModel : ExPostSmoothing {
+    < define data members> 
 <P/>
-<DT>Solution methods are coded separately from <a href="Bellman.ox.html#Bellman">Bellman</a>.  They are derived from the <a href="Methods.ox.html#Method">Method</a> class and described in <a href="Methods.html">Methods</a>.  Some methods may only operate if the user's model is derived from a compatible class of <a href="Bellman.ox.html#Bellman">Bellman</a> or has other required characteristics.
+            Utility(A);
+    static Reachable();
+<P/>
+    // Optional methods to replace built-in verions
+    FeasibleActions(A);
+    static PreUpdate();    
+<P/>
+    // Optional methods to accommodate new solution methods (advanced)
+    thetaEMax();
+    ActVal();
+    Smooth();
+    }
+</pre></DD>
+<P/>
+<DD>The continuous state &zeta; determines the form of Bellman's for choice-specific values, which integrates out the IID state vectors, &zeta;, &epsilon; and &eta;.</DD>
+<P/>
+<DT>Bellman equation solution <a href="Methods.ox.html">methods</a> are coded separately from <a href="Bellman.ox.html#Bellman">Bellman</a>.  They are derived from the <a href="Methods.ox.html#Method">Method</a> class and described in <a href="Methods.html">Methods</a>.</DT>
+  <DD>Some methods may only operate if the user's model is derived from a compatible class of <a href="Bellman.ox.html#Bellman">Bellman</a> or has other required characteristics.</DD>
 <P/>
 <DT>Classes of type <a href="Bellman.ox.html#Bellman">Bellman</a> code the form of Bellman's equation for the specification:
-<DD><pre>
+<DD><pre class="math">
 V(&theta;&prime;) &equiv;  &sum;<sub>&eta;</sub>  &sum;<sub>&epsilon;</sub>  &int;<sub>&zeta;</sub> [ V(&zeta;,&epsilon;,&eta;,&theta;&prime;) ] f(&zeta;)d&zeta; &Rho;<sub>&epsilon;</sub>(&epsilon;)&Rho;<sub>&eta;</sub>(&eta;)
 <P/>
 EV(&theta;&prime;) = E<sub><code>&alpha;</code>,&eta;,&theta;</sub>V(&theta;&prime;)  = &sum;<sub>&theta;&prime;</sub> V(&theta;&prime;) &Rho;(&theta;&prime;;<code>&alpha;</code>,&eta;,&theta;)
@@ -42,17 +63,49 @@ V(&zeta;,&epsilon;,&eta;,&theta;) = max<sub>&alpha;&in;&Alpha;(&theta;)</sub>  v
 <DD>In the default  choice probabilities are not smooth in model parameters.  That is, conditional choice probabilities are either 0 or 1 based on. The derived class <a href="Bellman.ox.html#ExPostSmoothing">ExPostSmoothing</a> allows for ex-post smoothing of choice probabilities without the presence of &zeta;</DD>
 </DT>
 <P/>
-<DT>Required and Optional User-Contributed Elements of <code>MyModel</code> and <code>MyCode</code></DT>
-<DD><code>MyModel</code> must supply a replacement for <a href="Bellman.ox.html#Bellman___Utility">Utility</a>(), which simply returns 0.  </DD>
-<DD><code>MyModel</code> can provide a replacement for the virtual <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>() method to make the feasible choice set to vary with the endogenous state &theta;.</DD>
-<DD><code>MyModel</code> must include a static method/function that returns a new instance of <code>MyModel</code> for any reachable state and 0 otherwise.  <code>MyCode</code> must pass this method to <code>DPparent::CreateSpaces()</code>.
-<DD><code>MyModel</code> can assign<a href="DP.ox.html#DP___PreUpdate">PreUpdate</a> to a static method/function that will be called by <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a>, which is called by <a href="Methods.ox.html#FixedSolve___Run">Run</a>().  This allows the user to update values of parameters before DDP recomputes transition probabilities and utility of actions.</DD>
-<DD><code>MyModel</code> can supply replacements for <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>(), <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>(), <a href="Bellman.ox.html#Bellman___Smooth">Smooth</a>().  Many of the derived classes of Bellman already specialize these operations.
-<DD><code>MyModel</code> can add <a href="DPAuxiliary.ox.html#AuxiliaryVariable">AuxiliaryVariable</a>s and a <a href="DPAuxiliary.ox.html#ZetaRealization">ZetaRealization</a> for simulating outcomes and accounting for partial observability of the state.</DD>
-<DD><code>MyCode</code> must sandwich the commands that add actions and states to the model between calls to <code>DPparent::Initialize(&hellip;)</code> and <code>DPparent::CreateSpaces(&hellip;)</code>.  <code>MyModel</code> can supply their own versions of these two methods, by then they must call the parent versions.  If <code>MyModel</code> does not have its own versions, then the prefix <code>DPparent::</code> is not needed.</DD>
+<h2>Required and Optional User-Contributed Elements of <code>MyModel</code> and <code>MyCode</code></h2>
+<OL>
+<LI>Utility()</LI>
+<DT><code>MyModel</code> must supply a replacement for <a href="Bellman.ox.html#Bellman___Utility">Utility</a>(), which simply returns 0.  </DT>
+<DT>Since utility depends on the current state, the method must be automatic (not static).</DT>
+<DD><pre>
 <P/>
-<DT>Hybrid Solution Methods
-<DD>Some methods for solving DDP rely not on Bellman iteration but on non-linear optimization and root-finding.  These methods combine <span class="n">DDP</span> and <span class="n">FiveO</span>.  They are categorized as <a href="..\Hybrid\default.html">Hybrid Methods</a> and discussed separately.</DD>
+struct MyModel : ExPostSmoothing {
+    { define data members and methods }
+    Utility(A);
+    }
+MyModel::Utility(A) {
+    return  {a vector of utility values, given the feasible actions <code>A</code> }
+    }
+</pre></DD>
+<LI>Reachable state creator</LI>
+<DT><code>MyModel</code> must include a static method/function that returns a new object of <code>MyModel</code> for any reachable state and 0 otherwise. </DT>
+<DT> <code>MyCode</code> must pass this method to <code>DPparent::Inititalize()</code>.</DT>
+<DD>Example 1.  All states are reachable
+<pre>
+MyModel::Reachable() { return new MyModel(); }
+</pre>
+Example 2.  States where state variables x and y greater than 5 are not reachable
+<pre>
+MyModel::Reachable() { 
+    return CV(x)+CV(y)&gt; 5 ? 0 : new MyModel(); 
+    }</pre></DD>
+<LI>Restricted Feasible Action spaces / matrices </LI>
+<DT><code>MyModel</code> <em>can</em> provide a replacement for the virtual <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>() method to make the feasible choice set to vary with the endogenous state &theta;.</DT>
+<DD>Example.  Only action vectors with <code>d</code> less than or equal to the value of state variable <code>x</code> are feasible.
+<pre>MyModel::FeasibleActions(A) { return A[d.pos][] &lt;= CV(x); }</pre>
+</DD>
+<LI>Pre Update Method</LI>
+<DT><code>MyModel</code> can assign<a href="DP.ox.html#DP___PreUpdate">PreUpdate</a> to a static method/function that will be called by <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a>(), which is called before the
+DP solution method begins to iterate. See <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>().  This allows the user to update values of parameters before DDP recomputes transition probabilities and utility of actions.</DT>
+<P/>
+<LI>Value-related routines</LI>
+<DT><code>MyModel</code> can supply replacements for <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>(), <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>(), <a href="Bellman.ox.html#Bellman___Smooth">Smooth</a>().  Many of the derived classes of Bellman already specialize these operations.</DT>
+<P/>
+<LI>Auxiliary Variables and ZetaRealization</LI>
+<DT><code>MyModel</code> can add <a href="DPAuxiliary.ox.html#AuxiliaryVariable">AuxiliaryVariable</a>s and a <a href="DPAuxiliary.ox.html#ZetaRealization">ZetaRealization</a> for simulating outcomes and accounting for partial observability of the state.</DT>
+<DD><code>MyCode</code> must sandwich the commands that add actions and states to the model between calls to <code>DPparent::Initialize(&hellip;)</code> and <code>DPparent::CreateSpaces(&hellip;)</code>.  <code>MyModel</code> can supply their own versions of these two methods, by then they must call the parent versions.  If <code>MyModel</code> does not have its own versions, then the prefix <code>DPparent::</code> is not needed.</DD>
+</OL>
 <P/>
 <hr><a name="auto"><h1>Documentation of  Items Defined in Bellman.ox</h1></a>
 
@@ -80,21 +133,21 @@ on static members in order to reduce memory requirements.  These are defined in 
 <td class="description">EV(&theta;) across random &gamma;,  </td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___InSubSample">InSubSample</a></td>
+<td class="modifiers"></td>
+<td class="description">Full solution at this state.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a></td>
 <td class="modifiers"></td>
 <td class="description">TRUE if a Terminal state (no action chosen).</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___Nxt">Nxt</a></td>
 <td class="modifiers"></td>
 <td class="description">StateTrans x &eta;-Array of feasible endogenous	state
 			indices and transitions
 			&Rho;(&gamma;&prime;;&alpha;,&eta;,&gamma;).</td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___pset">pset</a></td>
-<td class="modifiers"></td>
-<td class="description">indicates if pandv holds &Rho; or v()  </td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___aa">aa</a></td>
@@ -117,49 +170,49 @@ on static members in order to reduce memory requirements.  These are defined in 
 <td class="description">Delete the current DP model and reset.</td>
 </tr>
 <tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___EtaTransition">EtaTransition</a></td>
-<td class="modifiers"></td>
-<td class="description">Compute the semi-exogenous transition, &Rho;(&eta;'), within a loop over &theta;.</td>
-</tr>
-<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a></td>
 <td class="modifiers"></td>
 <td class="description">Return choice probabilities conditioned on &theta; with zeros inserted for infeasible actions.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Default &theta;.A: all actions are feasible at all states, except for terminal states.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___Initialize">Initialize</a></td>
 <td class="modifiers">static</td>
-<td class="description">Initialize static members.</td>
+<td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___Interface">Interface</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Computes v() and V for out-of-sample states.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___Smooth">Smooth</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Default Choice Probabilities: no smoothing.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Default <var>Emax</var> operator at &theta;.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___ThetaTransition">ThetaTransition</a></td>
+<td class="modifiers"></td>
+<td class="description">Computes the full endogneous transition, &Rho;(&theta;'; &alpha;,&eta; ), within a loop over &eta;.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a></td>
@@ -179,34 +232,11 @@ on static members in order to reduce memory requirements.  These are defined in 
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
-</dl>
-
-<a name="DumpExogTrans"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DumpExogTrans : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
-
-.  @internal
-
-<table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#DumpExogTrans___s">s</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-</table>
-
-<dl class="inherited">
-<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
-</dl>
-
-<dl class="inherited">
-<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
 <a name="EndogTrans"></a>
@@ -259,7 +289,7 @@ v*(&alpha;) = exp[&rho;(v(&alpha;&epsilon,&eta;&theta;)-V(&epsilon,&eta;&theta;)
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#ExPostSmoothing___Initialize">Initialize</a></td>
 <td class="modifiers">static</td>
-<td class="description">Initialize static members.</td>
+<td class="description">.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#ExPostSmoothing___Normal">Normal</a></td>
@@ -274,13 +304,13 @@ v*(&alpha;) = exp[&rho;(v(&alpha;&epsilon,&eta;&theta;)-V(&epsilon,&eta;&theta;)
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___EtaTransition">EtaTransition</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>, <a href="Bellman.ox.html#Bellman___ThetaTransition">ThetaTransition</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a>, <a href="Bellman.ox.html#Bellman___pset">pset</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___InSubSample">InSubSample</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
 <a name="ExtremeValue"></a>
@@ -349,13 +379,13 @@ EV = &sum;<sub>&epsilon;,&eta;</sub> [ V(&epsilon;,&eta;)*f(&epsilon;)f(&eta;)/&
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___EtaTransition">EtaTransition</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___ThetaTransition">ThetaTransition</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a>, <a href="Bellman.ox.html#Bellman___pset">pset</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___InSubSample">InSubSample</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
 <a name="McFadden"></a>
@@ -388,14 +418,14 @@ Myopic choice problem (&delta;=0.0) with standard Extreme Value &zeta;.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Bellman.ox.html#ExtremeValue">ExtremeValue</a>:</dt><dd><a href="Bellman.ox.html#ExtremeValue___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#ExtremeValue___SetRho">SetRho</a>, <a href="Bellman.ox.html#ExtremeValue___Smooth">Smooth</a>, <a href="Bellman.ox.html#ExtremeValue___thetaEMax">thetaEMax</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___EtaTransition">EtaTransition</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___ThetaTransition">ThetaTransition</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Bellman.ox.html#ExtremeValue">ExtremeValue</a>:</dt><dd><a href="Bellman.ox.html#ExtremeValue___HMQ">HMQ</a>, <a href="Bellman.ox.html#ExtremeValue___rho">rho</a></dd>
-<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a>, <a href="Bellman.ox.html#Bellman___pset">pset</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___InSubSample">InSubSample</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
 <a name="NIID"></a>
@@ -448,14 +478,14 @@ Numerically integrate using Gauss-Hermite Quadrature.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Bellman.ox.html#Normal">Normal</a>:</dt><dd><a href="Bellman.ox.html#Normal___Smooth">Smooth</a>, <a href="Bellman.ox.html#Normal___thetaEMax">thetaEMax</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___EtaTransition">EtaTransition</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___ThetaTransition">ThetaTransition</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Bellman.ox.html#Normal">Normal</a>:</dt><dd><a href="Bellman.ox.html#Normal___AChol">AChol</a>, <a href="Bellman.ox.html#Normal___Chol">Chol</a>, <a href="Bellman.ox.html#Normal___ev">ev</a></dd>
-<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a>, <a href="Bellman.ox.html#Bellman___pset">pset</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___InSubSample">InSubSample</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
 <a name="NnotIID"></a>
@@ -508,14 +538,14 @@ Correlated errors and smooth  simulation of choice probabilities.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Bellman.ox.html#Normal">Normal</a>:</dt><dd><a href="Bellman.ox.html#Normal___Smooth">Smooth</a>, <a href="Bellman.ox.html#Normal___thetaEMax">thetaEMax</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___EtaTransition">EtaTransition</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___ThetaTransition">ThetaTransition</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Bellman.ox.html#Normal">Normal</a>:</dt><dd><a href="Bellman.ox.html#Normal___AChol">AChol</a>, <a href="Bellman.ox.html#Normal___Chol">Chol</a>, <a href="Bellman.ox.html#Normal___ev">ev</a></dd>
-<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a>, <a href="Bellman.ox.html#Bellman___pset">pset</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___InSubSample">InSubSample</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
 <a name="Normal"></a>
@@ -552,7 +582,7 @@ DP Models that include additive normal choice-specific &zeta;.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Normal___Initialize">Initialize</a></td>
 <td class="modifiers">static</td>
-<td class="description">Initialize static members.</td>
+<td class="description"></td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Normal___Smooth">Smooth</a></td>
@@ -567,13 +597,13 @@ DP Models that include additive normal choice-specific &zeta;.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___EtaTransition">EtaTransition</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___ThetaTransition">ThetaTransition</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a>, <a href="Bellman.ox.html#Bellman___pset">pset</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___InSubSample">InSubSample</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
 <a name="OneDimensionalChoice"></a>
@@ -660,13 +690,13 @@ The user writes routines that return ...
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___EtaTransition">EtaTransition</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___ThetaTransition">ThetaTransition</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a>, <a href="Bellman.ox.html#Bellman___pset">pset</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___InSubSample">InSubSample</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
 <a name="Rust"></a>
@@ -688,33 +718,21 @@ Ergodic state transition with standard Extreme Value &zeta; and binary choice.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Rust___Initialize">Initialize</a></td>
 <td class="modifiers">static</td>
-<td class="description">Required static initialization routine.</td>
+<td class="description"></td>
 </tr>
 </table>
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Bellman.ox.html#ExtremeValue">ExtremeValue</a>:</dt><dd><a href="Bellman.ox.html#ExtremeValue___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#ExtremeValue___SetRho">SetRho</a>, <a href="Bellman.ox.html#ExtremeValue___Smooth">Smooth</a>, <a href="Bellman.ox.html#ExtremeValue___thetaEMax">thetaEMax</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___EtaTransition">EtaTransition</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___ThetaTransition">ThetaTransition</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Bellman.ox.html#ExtremeValue">ExtremeValue</a>:</dt><dd><a href="Bellman.ox.html#ExtremeValue___HMQ">HMQ</a>, <a href="Bellman.ox.html#ExtremeValue___rho">rho</a></dd>
-<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a>, <a href="Bellman.ox.html#Bellman___pset">pset</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___InSubSample">InSubSample</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
-
-<a name="SemiTrans"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SemiTrans</span></h2>
-
-
-<table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#SemiTrans___SemiTrans">SemiTrans</a></td>
-<td class="modifiers"></td>
-<td class="description">Constructs the transitions for &eta;, the semi-exogenous state vector.</td>
-</tr>
-</table>
 
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Bellman</span></h2>
 
@@ -799,30 +817,6 @@ The key output from the model can be saved or used prior to deleting it.
 </dd></dl>
 
 <hr>
-<a name="Bellman___EtaTransition"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">EtaTransition</span></h3>
-
-<span class="declaration">Bellman :: EtaTransition ( future )</span>
-<dl><dd>
-Compute the semi-exogenous transition, &Rho;(&eta;'), within a loop over &theta;.
-Accounts for semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">space</td>
-<td class="description" valign="baseline"><a href="DP.ox.html#Task">Task</a> structure
-</td>
-</tr>
-</table>
-</dd>
-<dt class="comments">Comments:</dt><dd class="comments">computes DP::FeasS FxM matrix of indices of next period states<br>DP::Prob conforming matrix of probabilities
-</dd>
-<dt class="seealso">See also:</dt><dd class="seealso">DP::Vsolve, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a></dd>
-</dl>
-</dd></dl>
-
-<hr>
 <a name="Bellman___EV"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">EV</span></h3>
 
@@ -888,7 +882,6 @@ This is <em>not</em> called at unreachable or terminal states.
 
 <span class="declaration">static Bellman :: Initialize ( userReachable , UseStateList , GroupExists )</span>
 <dl><dd>
-Initialize static members.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -901,18 +894,25 @@ FALSE if the state is not reachable.
 <tr>
 <td class="declaration" valign="baseline">UseStateList</td>
 <td class="description" valign="baseline">TRUE, traverse the state space &Theta; from a list of reachable indices<br>
-					FALSE, traverse &Theta; through iteration on all state variables
+					FALSE [default], traverse &Theta; through iteration on all state variables
 </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">GroupExists</td>
 </tr>
 </table>
 </dd>
-<dt class="comments">Comments:</dt><dd class="comments">Each DDP has its own version of Initialize, which will call this as well as do further set up.
-<P/>
-<code>MyModel</code> MUST call <code>DPparent::Initialize</code> before adding any variables to the model.
-<P/>
-UseStateList=TRUE may be much faster if the untrimmed state space is very large compared to the trimmed (reachable) state space.
-</dd>
 </dl>
+</dd></dl>
+
+<hr>
+<a name="Bellman___InSubSample"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">InSubSample</span></h3>
+
+<span class="declaration">decl InSubSample [public]</span>
+<dl><dd>
+Full solution at this state.
+
 </dd></dl>
 
 <hr>
@@ -930,7 +930,10 @@ UseStateList=TRUE may be much faster if the untrimmed state space is very large 
 <span class="declaration">decl IsTerminal [public]</span>
 <dl><dd>
 TRUE if a Terminal state (no action chosen).
+            Set in <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>()
 
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -947,6 +950,7 @@ TRUE if a Terminal state (no action chosen).
 
 <span class="declaration">Bellman :: MedianActVal ( EV )</span>
 <dl><dd>
+Computes v() and V for out-of-sample states.
 
 </dd></dl>
 
@@ -959,16 +963,6 @@ TRUE if a Terminal state (no action chosen).
 StateTrans x &eta;-Array of feasible endogenous	state
 			indices and transitions
 			&Rho;(&gamma;&prime;;&alpha;,&eta;,&gamma;).
-
-</dd></dl>
-
-<hr>
-<a name="Bellman___pset"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">pset</span></h3>
-
-<span class="declaration">decl pset [public]</span>
-<dl><dd>
-indicates if pandv holds &Rho; or v()
 
 </dd></dl>
 
@@ -1024,6 +1018,30 @@ If <a href="DP.ox.html#DP___setPstar">setPstar</a> then &Rho;*(&alpha;) is compu
 </dd></dl>
 
 <hr>
+<a name="Bellman___ThetaTransition"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ThetaTransition</span></h3>
+
+<span class="declaration">Bellman :: ThetaTransition ( future )</span>
+<dl><dd>
+Computes the full endogneous transition, &Rho;(&theta;'; &alpha;,&eta; ), within a loop over &eta;.
+Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">future</td>
+<td class="description" valign="baseline">offset vector to use for computing states (tracking or solving)
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">computes <a href="DP.ox.html#DP___NxtExog">NxtExog</a> array of feasible indices of next period states and conforming matrix of probabilities.
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
 <a name="Bellman___UpdatePtrans"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">UpdatePtrans</span></h3>
 
@@ -1054,15 +1072,6 @@ Return realized &zeta; vector conditional on optimal choice.
 Default is to return .NaN as a matrix.
 
 </dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DumpExogTrans</span></h2>
-
-<a name="DumpExogTrans___s"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">s</span></h3>
-
-<span class="declaration">decl s [public]</span>
-<dl><dd>
-
-</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">EndogTrans</span></h2>
 
 <a name="EndogTrans___EndogTrans"></a>
@@ -1074,13 +1083,14 @@ Constructs the transitions for &theta;, the endogenous state vector.
 <P/>
 This computes <em>&Rho;(&theta;&prime;,&alpha;,&eta;,&theta;)</em>
 <P/>
-This task is run once before iterating on the value function.
+When this task is run is determined by <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>
 
-<dl><dt class="comments">Comments:</dt><dd class="comments">The endogenous transition must be computed and stored at each point in the endogenous state space &Theta;.
-If a state variable can be placed in &epsilon; or &eta; instead of &theta; it reduces computation and storage signficantly.
+<dl><dt class="comments">Comments:</dt><dd class="comments">The endogenous transition must be computed and stored at each point in the endogenous state space &Theta;. And at
+a point &theta; it is must be computed for each semi-exogenous state &eta;.
+<P/>
+If a state variable can be placed in &epsilon; instead of &eta; or &theta; it reduces computation and storage signficantly.
 </dd>
-</dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#SemiTrans">SemiTrans</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
 </dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ExPostSmoothing</span></h2>
@@ -1112,7 +1122,7 @@ Initialize the state space &Theta; and the list of feasible action sets A(&theta
 
 <span class="declaration">static ExPostSmoothing :: Initialize ( userReachable , UseStateList , GroupExists )</span>
 <dl><dd>
-Initialize static members.
+.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -1128,13 +1138,10 @@ FALSE if the state is not reachable.
 					FALSE, traverse &Theta; through iteration on all state variables
 </td>
 </tr>
+<tr>
+<td class="declaration" valign="baseline">GroupExists</td>
+</tr>
 </table>
-</dd>
-<dt class="comments">Comments:</dt><dd class="comments">Each DDP has its own version of Initialize, which will call this as well as do further set up.
-<P/>
-<code>MyModel</code> MUST call <code>DPparent::Initialize</code> before adding any variables to the model.
-<P/>
-UseStateList=TRUE may be much faster if the untrimmed state space is very large compared to the trimmed (reachable) state space.
 </dd>
 </dl>
 </dd></dl>
@@ -1248,7 +1255,24 @@ Required static initialization routine.
 <td class="declaration" valign="baseline">rho</td>
 <td class="description" valign="baseline">	<a href="Shared.ox.html#AV">AV</a> compatible, the smoothing parameter &rho;.<br>
 			CV(rho) &lt; 0, sets &rho; = <code>DBL_MAX_E_EXP</code> (i.e. no smoothing).
-<P/>
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">userReachable</td>
+<td class="description" valign="baseline">static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
+FALSE if the state is not reachable.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">UseStateList</td>
+<td class="description" valign="baseline">TRUE, traverse the state space &Theta; from a list of reachable indices<br>
+					FALSE, traverse &Theta; through iteration on all state variables
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">GroupExists
+</td>
+<td class="description" valign="baseline">
 With &rho; = 0 choice probabilities are completely smoothed. Each feasible choices becomes equally likely.</td>
 </tr>
 </table>
@@ -1360,7 +1384,24 @@ Required static initialization routine.
 <td class="declaration" valign="baseline">rho</td>
 <td class="description" valign="baseline">	<a href="Shared.ox.html#AV">AV</a> compatible, the smoothing parameter &rho;.<br>
 			CV(rho) &lt; 0, sets &rho; = <code>DBL_MAX_E_EXP</code> (i.e. no smoothing).
-<P/>
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">userReachable</td>
+<td class="description" valign="baseline">static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
+FALSE if the state is not reachable.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">UseStateList</td>
+<td class="description" valign="baseline">TRUE, traverse the state space &Theta; from a list of reachable indices<br>
+					FALSE, traverse &Theta; through iteration on all state variables
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">GroupExists
+</td>
+<td class="description" valign="baseline">
 With &rho; = 0 choice probabilities are completely smoothed. Each feasible choices becomes equally likely.</td>
 </tr>
 </table>
@@ -1645,7 +1686,6 @@ Initialize the state space &Theta; and the list of feasible action sets A(&theta
 
 <span class="declaration">static Normal :: Initialize ( userReachable , UseStateList , GroupExists )</span>
 <dl><dd>
-Initialize static members.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -1658,16 +1698,13 @@ FALSE if the state is not reachable.
 <tr>
 <td class="declaration" valign="baseline">UseStateList</td>
 <td class="description" valign="baseline">TRUE, traverse the state space &Theta; from a list of reachable indices<br>
-					FALSE, traverse &Theta; through iteration on all state variables
+					FALSE [default], traverse &Theta; through iteration on all state variables
 </td>
 </tr>
+<tr>
+<td class="declaration" valign="baseline">GroupExists</td>
+</tr>
 </table>
-</dd>
-<dt class="comments">Comments:</dt><dd class="comments">Each DDP has its own version of Initialize, which will call this as well as do further set up.
-<P/>
-<code>MyModel</code> MUST call <code>DPparent::Initialize</code> before adding any variables to the model.
-<P/>
-UseStateList=TRUE may be much faster if the untrimmed state space is very large compared to the trimmed (reachable) state space.
 </dd>
 </dl>
 </dd></dl>
@@ -1890,35 +1927,20 @@ The decision variable.
 
 <span class="declaration">static Rust :: Initialize ( userReachable , GroupExists )</span>
 <dl><dd>
-Required static initialization routine.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
-<td class="declaration" valign="baseline">rho</td>
-<td class="description" valign="baseline">	<a href="Shared.ox.html#AV">AV</a> compatible, the smoothing parameter &rho;.<br>
-			CV(rho) &lt; 0, sets &rho; = <code>DBL_MAX_E_EXP</code> (i.e. no smoothing).
-<P/>
-With &rho; = 0 choice probabilities are completely smoothed. Each feasible choices becomes equally likely.</td>
+<td class="declaration" valign="baseline">userReachable</td>
+<td class="description" valign="baseline">static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
+FALSE if the state is not reachable.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">GroupExists</td>
 </tr>
 </table>
 </dd>
-</dl>
-</dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SemiTrans</span></h2>
-
-<a name="SemiTrans___SemiTrans"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SemiTrans</span></h3>
-
-<span class="declaration">SemiTrans :: SemiTrans ( )</span>
-<dl><dd>
-Constructs the transitions for &eta;, the semi-exogenous state vector.
-<P/>
-This computes <em>&Rho;(&eta;&prime;)</em>
-<P/>
-This task is run once before iterating on the value function.
-
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#EndogTrans">EndogTrans</a></dd>
 </dl>
 </dd></dl>
 <div class="footer">

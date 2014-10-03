@@ -1,7 +1,9 @@
+include ..\Makefile.inc
 
 CC = mpicc
 INC := ..\..\include
 DOC := ..\..\doc\CFMPI
+DOCX := ../../doc/CFMPI
 OXDEV := /home/ferrallc/bin/OxMetrics7/ox/include
 C64PATH=-L$(MPI)/lib -I$(MPI)/include -I$(INC) -I$(OXDEV)
 CFLAGS = -fPIC -Wall -O2  -m64 -D__cdecl= $(C64PATH) -lmpi -c
@@ -23,9 +25,9 @@ CFMPI.so : CFMPI.o
 
 .PHONY : document
 document:
-	copy $(INC)\CFMPI.ox .
-	copy $(INC)\MPIinterface.ox .
-	copy $(INC)\useMPI.ox .
-	"C:\Program Files (x86)\oxdoc\bin\oxdoc.bat" -include $(INC) -uplevel CFMPI.ox GetStartedDIY MPIinterface.ox InstallAndUse MPI_FAQ
-	erase CFMPI.ox MPIinterface.ox useMPI.ox
-	${MAKE} -C $(DOC) tweak
+	$(COPY)  $(INC)\CFMPI.ox .
+	$(COPY)  $(INC)\MPIinterface.ox .
+	$(COPY)  $(INC)\useMPI.ox .
+	$(OXDOC) -include $(INC) -uplevel CFMPI.ox MPIinterface.ox InstallAndUse MPI_FAQ
+	$(ERASE) CFMPI.ox MPIinterface.ox useMPI.ox
+	${MAKE} -C $(DOCX) tweak

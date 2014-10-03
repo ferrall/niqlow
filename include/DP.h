@@ -8,18 +8,24 @@ static decl
 /** &Theta; array (list) of all endogenous state nodes.**/  		Theta;
 
 		/** Categories of state variables.	@name StateTypes**/	
-enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,NStateTypes}
+enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTED,NStateTypes}
 		/** Vectors of state variables. @name SubVectors **/
 enum {acts,exog,semiexog,endog,clock,rgroup,fgroup,DSubVectors,LeftSV=exog}
 		/** Groups of continugous `SubVectors`. @name SubSpaces **/
 enum {onlyacts,onlyexog,onlysemiexog,bothexog,onlyendog,tracking,onlyclock,allstates,iterating,onlyrand,onlyfixed,bothgroup,DSubSpaces}
 		/** . @name Vspace  **/
 enum {NOW,LATER,DVspace}
-		/** . elements of array returned by `StateVariable::Transit` @name StateTrans **/
-enum {Qi,Qrho,StateTrans}
 
-		/** Ways to smooth choice probabilities without adding an explicit continuous error &zeta;. @name SmoothingMethods**/	
-enum { NoSmoothing, LogitKernel, GaussKernal, ExPostSmoothingMethods}
+        /** When updating of parameters and transitions needs to occur. @see DP::SetUpdateTime @name UpdateTimes **/
+enum {OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
+
+		/** Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.
+         <DT>NoSmoothing</DT><DD>Indicator for optimal choice: &Rho;* = I{&alpha;&in;argmax v(&alpha;)}</DD>
+         <DT>LogitKernel</DT><DD>&Rho;* = exp{&rho;(v(&alpha;)-V)}/&Sigma;<sub>a</sub>exp{&rho;(v(a)-V)}</DD>
+         <DT>GaussKernel</DT><DD></DD>
+         @name SmoothingMethods**/	
+enum { NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods}
+
 
 /** . @name DataColumnTypes **/ enum{idcol,acol,scol,auxcol,NColumnTypes}
 
@@ -39,11 +45,14 @@ struct DP {
 		/** number of groups, &Gamma;.D      **/				NG,
 		/** **/													NF,
 		/** number of random groups **/							NR,
-        /** category of clock.**/                               ClockType,
+        /** category of clock. @see ClockTypes, DP::SetClock**/ ClockType,
 		/** counter variable.	@see DP::SetClock **/			counter,
 		/**	counter.t.N, the decision horizon.    **/  			TT,
 		/** create space to store &Rho;* **/  					IsErgodic,
+        /** UpdateVariables() has been called. **/              HasBeenUpdated,
 		/** &Gamma; already includes fixed effects **/			HasFixedEffect,
+        /** Indicators for when transit update occurs.
+            @see DP::SetUpdateTime **/                          UpdateTime,
 		/**  . @internal **/									ReachableIndices,
     	/**  Count of reachable states.  @internal **/  		NReachableStates,
 		/**  store &Alpha.D x &Theta.D matrix
@@ -100,13 +109,15 @@ struct DP {
 		/** static function called by `DP::UpdateVariables`().
 			The default is `DP::DoNothing`().  The user can
 			assign a static function to this variable to
-			carry out tasks before each solution.
-			@see DP::PostRESolve **/							PreUpdate,
+			carry out tasks before each solution.<p>
+            Note: The point at which PreUpdate() is called is
+            determined by `DP::UpdateTime`
+			@see DP::PostRESolve, DP::SetUpdateTime **/			PreUpdate,
 		/** static function called by FESolve.
 			The default is `DP::DoNothing`().
 			The user can set this variable to a static
 			function before solving.  For example,
-			if the value fucnction for each fixed group should
+			if the value function for each fixed group should
 			be printed it can be done in PostRESolve.
 			@see DP::PreUpdate **/								PostRESolve,
 		/** max of vv. @internal       **/						V,
@@ -123,6 +134,12 @@ struct DP {
 		`AuxiliaryVariable::Realize`() is called by `Bellman::Simulate`()
 		after <code>&alpha;</code>, &zeta; and full state vectors have been set. **/
 																Chi,
+		/** number of auxiliary variables, sizeof of `DP::Chi` **/	Naux,
+		/** FALSE means no subsampling.  Otherwise, pattern of
+            subsampling of the state space.
+            @see DP::SubSampleStates **/			             SampleProportion,
+         /** Number of states approximated (not subsampled).**/  Approximated,
+		/** .@internal **/			                             DoSubSample,
 		/** . @internal **/										MedianExogState,
 		/** . @internal **/										MESind,
 		/** . @internal **/										MSemiEind,																
@@ -135,11 +152,11 @@ struct DP {
 		static	Swap();
 		static 	ExogenousTransition();
 
-		static	UpdateVariables();
+		static	UpdateVariables(state=0);
 		static  DoNothing();
 		static  CreateSpaces();
 		static	InitialsetPstar(task);
-		static 	Initialize(userReachable,UseStateList,GroupExists);
+		static 	Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
 
 		static  IsBlock(sv);
 		static  IsBlockMember(sv);		
@@ -165,6 +182,8 @@ struct DP {
 		static	DrawOneExogenous(aState);
 		static  SyncAct(a);
 		static	SaveV(ToScreen,...);
+        static  SubSampleStates(SampleProportion=1.0);
+        static  SetUpdateTime(time=AfterFixed);
 		}
 
 
@@ -188,6 +207,7 @@ struct Task : DP {
 	virtual Run(th);
 	virtual loop();
 	virtual list(arg0, ...);
+    virtual OutputValue();
 	Reset();
 	Traverse(arg0, ... );
 	SyncStates(dmin,dmax);
@@ -197,8 +217,7 @@ struct Task : DP {
 @internal
 **/
 struct CTask 		: 	Task {	CTask(); 		Run(th);	}
-struct EndogTrans 	: 	Task {	decl STT; EndogTrans();	Run(th);	}
-struct SemiTrans 	: 	Task {	SemiTrans();	Run(th);	}
+struct EndogTrans 	: 	Task {	EndogTrans();	Run(th);	}
 struct EnTask       :   Task { EnTask(); }
 struct ExTask       :   Task { ExTask(); }
 	
@@ -266,10 +285,10 @@ struct Group : DP {
 struct DPDebug : Task {
 	static const decl
 		div = "------------------------------------------------------------------------------";
-	static decl prtfmt, SimLabels, Vlabels;
+	static decl prtfmt0, prtfmt, SimLabels, Vlabels, MaxChoiceIndex, Vlabel0;
 	static Initialize();		
 //#ifdef OX7
-	static outV(ToScreen=TRUE,aOutMat=0);
+	static outV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE);
 //#else
 //	static outV(ToScreen,aOutMat);
 //#endif
@@ -279,8 +298,14 @@ struct DPDebug : Task {
 struct SaveV	: DPDebug	{
 	const decl ToScreen, aM;
 	decl  re, stub, nottop, r, s;
-	SaveV(ToScreen,aM);
+	SaveV(ToScreen=TRUE,aM=0,MaxChoiceIndex=FALSE);
 	virtual Run(th);
 	}
 
 	
+/** . @internal **/
+struct DumpExogTrans : Task {
+	decl s;
+	DumpExogTrans();
+	Run(th);
+	}

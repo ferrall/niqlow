@@ -18,6 +18,15 @@ Clock::Clock(Nt,Ntprime) {
 	IsErgodic = FALSE;
 	}
 
+Clock::Solving(inME,inaVV,inaSPstar) {
+    ME = inME;
+    aVV = inaVV;
+    aSPstar = inaSPstar;
+    }
+
+Clock::Vupdate(now) { }
+Clock::setPstar() { return FALSE; }
+
 //Clock::SubPeriods(Nsub) {
 //	if (ThetaCreated) oxrunerror("Can't split time after calling CreateSpaces()");
 //	if (isclass(tsub)) oxrunerror("Time periods already split");
@@ -54,10 +63,16 @@ Aging::Aging(T) {
 
 Aging::Transit(FeasA) {	return { min(t.N-1,t.v+1)|0 , ones(rows(FeasA),1) } ;	}
 
+Aging::setPstar() { return TRUE; }
+
 /** A static problem: Aging and T=1.
 **/
 StaticP::StaticP() { Aging(1); }
 
+NonDeterministicAging::Vupdate(now) {
+    if (aSPstar[0]) aVV[0][now][ME+1:] = aVV[0][now][:ME];	//copy today's value to tomorrow place
+    }
+	
 /**Create an aging clock with brackets.
 @param Brackets vector of period lengths
 **/
@@ -84,7 +99,9 @@ AgeBrackets::Transit(FeasA)	 {
 /** Return flag for very last period possible.
 **/
 AgeBrackets::Last() { return (t.v && t.N-1) && Brackets[t.N-1]==1;}
-	
+
+AgeBrackets::setPstar() { return Brackets[t.v]==1; }
+
 /**	Set clock to be deterministic aging with early random death.
 @param T length of horizon. T-1 &eq; death;
 @param MortProb `AV`()-compatible probability of early death
@@ -103,12 +120,21 @@ Mortality::Transit(FeasA) {
     if (t.v==Tstar)
 		return { Tstar | 1,	ones(nr,1) };
     else {
-	    if (mp = CV(MortProb)> 0.0) 			// early death possible
+        mp = AV(MortProb);
+	    if ( mp > 0.0) 			// early death possible
             return { (t.v+1 ~ Tstar) | (1~0) , reshape((1-mp)~mp,nr,2) };
 	   else //just age
 	        return { t.v+1 | 1 , ones(nr,1) };
        }
 	}
+
+Mortality::Vupdate(now) {
+    NonDeterministicAging::Vupdate(now);
+	if (t.v==t.N-1) DeathV = aVV[0][now][:ME];
+	else aVV[0][now][:ME] = DeathV[];
+    }
+
+Mortality::setPstar() { return TRUE; }
 
 /**	Random death and uncertain maximum lifetime.
 @param T number of age phases.  T-1 &eq; death; T-2 &eq; stationary last period.
@@ -118,6 +144,7 @@ EV at <code>t=T-2</code> is treated as an infinite horizon problem and iterated 
 **/
 Longevity::Longevity(T,MortProb) {
 	Mortality(T,MortProb);
+    twilight = Tstar-1;
 	}
 
 /** . @internal **/
@@ -126,14 +153,36 @@ Longevity::Transit(FeasA) {
     if (t.v==Tstar)
 		return { Tstar | 1,	ones(nr,1) };
     else {
-        mp = CV(MortProb);
-        decl tnext = t.v==Tstar-1 ? t.v : t.v+1;
-        if (mp>0.0)
-            return { (tnext ~ Tstar) | (1~0) , reshape((1-mp)~mp,nr,2)};
-        else
-            return { tnext | 1 , ones(nr,1) };
+        mp = AV(MortProb);
+        if (t.v==twilight)
+            return (mp>0.0) ?  { (twilight ~ Tstar) | (0~1) , reshape((1-mp)~mp,nr,2)}
+                            :  { twilight | 0               , ones(nr,1) };
+        else {
+            decl tnext = t.v+1;
+            return (mp>0.0) ? { (tnext ~ Tstar) | (1~0) , reshape((1-mp)~mp,nr,2)}
+                            : { tnext | 1               , ones(nr,1)             };
+            }
         }
 	}
+
+/** With Longevity the last period (death) is definitively the last.**/
+Longevity::Last() { return NonStationary::Last(); }
+
+Longevity::Vupdate(now) {
+    NonDeterministicAging::Vupdate(now);
+	if (t.v==Tstar) {
+        aVV[0][now][ME+1:] = DeathV = aVV[0][now][:ME];    // Associate death value with t' = 1
+        return;
+        }
+    if (aSPstar[0]) {
+        aVV[0][now][ME+1:] = aVV[0][now][:ME];             // Copy today for tomorrow (t'=1)
+        aVV[0][now][:ME] = DeathV;                     // Associate death value with t' = 0
+        }
+    }
+
+Longevity::setPstar() {
+    return t.v != twilight;
+    }
 		
 /** A sequence of finite-termed phases of treatment.
 @param Rmaxes vector of maximum times in each phase.
@@ -171,5 +220,12 @@ PhasedTreatment::Transit(FeasA) 	{
 				: exittreatment;
 	return { matrix(nxtpr) , ones(rows(FeasA),1) };
 	}
+
+PhasedTreatment::Vupdate(now) {
+    if (aSPstar[0]) //copy today's value to tomorrow place
+        aVV[0][now][ME+1:] = aVV[0][now][:ME];	
+	if (!ftime[t.v])	// current phase just starting, put in go-to-next-phase place
+		aVV[0][now][ME+1:2*ME] = aVV[0][now][:ME];
+    }
 
 	

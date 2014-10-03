@@ -7,9 +7,24 @@
 	/** Pseudonyms for -1. @name Names_for_-1 **/
 enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,UseSubSample=-1,ResetValue=-1}
 	/** Levels of output to produce while executing. @name NoiseLevels **/	
-enum {SILENT,QUIET,LOUD,NOISY,NoiseLevels}
-		/** Send one of these tags as first argument to `DP::SetClock` to use that clock. @name ClockTypes **/
+enum {SILENT=-1,QUIET,LOUD,NOISY,NoiseLevels}
+		/** Send one of these tags as first argument to `DP::SetClock`() to use that clock.
+        <table>
+        <tr><th>Tag</th><th>Clock Type</th></tr>
+        <tr><td>InfiniteHorizon</td><td>`Stationary`(FALSE)</td></tr>
+        <tr><td>Ergodic</td><td>`Stationary`(TRUE)</td></tr>
+        <tr><td>NormalAging</td><td>`Aging`(&hellip;)</td></tr>
+        <tr><td>StaticProgram</td><td>`StaticP`(&hellip;)</td></tr>
+        <tr><td>RandomAging</td><td>`AgeBrackets`(&hellip;)</td></tr>
+        <tr><td>RandomMortality</td><td>`Mortality`(&hellip;)</td></tr>
+        <tr><td>UncertainLongevity</td><td>`Longevity`(&hellip;)</td></tr>
+        <tr><td>RegimeChange</td><td>Not Coded Yet</td></tr>
+        <tr><td>SocialExperiment</td><td>`PhasedTreatment`(&hellip;)</td></tr>
+        </table>
+        @name ClockTypes **/
 enum {InfiniteHorizon,Ergodic,NormalAging,StaticProgram,RandomAging,RandomMortality,UncertainLongevity,RegimeChange,SocialExperiment,UserDefined,NClockTypes}
+
+        /** parallel array of labels for the built-in clock types. **/
 static const decl ClockTypeLabels
     = {"Infinite Horizon","Ergodic","Normal Finite Horizon Aging","Static Program (finite horizon and T=1)","Random Aging (finite horizon but aging happens with probability<1 at some t","Random Mortaility (finite horizon with probability of early transition to last t, death)",
     "Uncertain Longevity (finite horizon until last period which ends randomly)","Regime Change","Social Experiment","User Defined Clock"};
@@ -42,10 +57,11 @@ static const decl
 	DiscreteNormal(N,mu, sigma);
 	varlist(s) ;
 	vararray(s);
-	MyMoments(M,...);
+	MyMoments(M,rlabels=0);
 	prefix(pfx, s);
 	GaussianKernel(X,h);
-	
+    ToggleParams(a,...);
+
 /** A container for auxilliary structures, which helps organize the hierarchy of classes. **/
 struct Zauxilliary { }
 

@@ -5,7 +5,7 @@ WStar::Reachable()	{ return new WStar(); }
 
 WStar::Run()	{
 	eta = 0.02;
-	Initialize(-.Inf,WStar::Reachable,FALSE,0);
+	Initialize(-.Inf,WStar::Reachable);
 	SetClock(NormalAging,10);
 	Actions(a = new ActionVariable("Accept",2));
 	EndogenousStates(d = new LaggedAction("Done",a));

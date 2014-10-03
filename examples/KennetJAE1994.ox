@@ -64,7 +64,7 @@ PrattWhitney::Run()	{
 	data = <>;
 	EMax = new ValueIteration(0);
 	EMax.vtoler = 1E-2;   								//loose tolerance because beta near 0 and 1
-	EMax.Volume = NOISY;	
+	EMax.Volume = LOUD;	
 	for (col=1;col<3;++col) { //sizeof(pars)
 		println(pars[col]);
 		SetDelta(pars[col][disc]);
