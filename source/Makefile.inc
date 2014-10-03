@@ -11,6 +11,7 @@ ifeq ($(OS), Windows)
 	CD := dir
 	COPY := copy
 	OXDOC := "C:\Program Files (x86)\oxdoc\bin\oxdoc.bat"
+	SED := "C:\Program Files (x86)\GnuWin32\bin\sed.exe"
 	ERASE := erase
 	XMP := ..\examples
 else ifeq ($(OS), Darwin)
@@ -20,6 +21,7 @@ else ifeq ($(OS), Darwin)
 	CD := cd
 	COPY := cp
 	ERASE := rm
+	SED := sed
 else ifeq ($(OS), Linux)
 	OX := /home/ferrallc/bin/$(Version)/ox/bin64/oxl
 	OXFLAGS := -DMPI -DOX7
@@ -27,4 +29,5 @@ else ifeq ($(OS), Linux)
 	CD := cd
 	COPY := cp
 	ERASE := rm
+	SED := sed
 endif
