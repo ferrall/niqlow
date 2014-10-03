@@ -1,6 +1,7 @@
 include ../Makefile.inc
 
 INC := ../../include
+DOC := ../../doc/Shared
 
 vpath %.ox .
 vpath %.h $(INC)

@@ -1,6 +1,7 @@
 include ../Makefile.inc
 
-INC := ../../include
+INC := ..\..\include
+DOC := ..\..\doc\Hybrids
 
 vpath %.ox .:../Shared
 vpath %.h $(INC)

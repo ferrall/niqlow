@@ -1,6 +1,7 @@
 include ../Makefile.inc
 
-INC := ../../include
+INC := ..\..\include
+DOC := ../../doc/FiveO
 
 vpath %.ox .:../Shared
 vpath %.h $(INC)
@@ -25,9 +26,9 @@ clean:
 
 .PHONY : document
 document:
-	$(OXDOC) -include $(INC) -uplevel GetStarted Parameters.ox Objective.ox ParallelObjective.ox Algorithms.ox ..\Shared\Shared.ox FiveO.ox
+	$(OXDOC) -include $(INC) -uplevel GetStarted Parameters.ox Objective.ox ParallelObjective.ox Algorithms.ox ../Shared/Shared.ox FiveO.ox
 	${MAKE} -C $(DOC) tweak
 
 .PHONY : install
 install:
-	$(COPY) *.oxo $(INC) 
+	$(COPY) *.oxo $(INC)

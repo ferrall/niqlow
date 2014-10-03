@@ -8,21 +8,23 @@ static decl
 /** &Theta; array (list) of all endogenous state nodes.**/  		Theta;
 
 		/** Categories of state variables.	@name StateTypes**/	
-enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,NStateTypes}
+enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTED,NStateTypes}
 		/** Vectors of state variables. @name SubVectors **/
 enum {acts,exog,semiexog,endog,clock,rgroup,fgroup,DSubVectors,LeftSV=exog}
 		/** Groups of continugous `SubVectors`. @name SubSpaces **/
 enum {onlyacts,onlyexog,onlysemiexog,bothexog,onlyendog,tracking,onlyclock,allstates,iterating,onlyrand,onlyfixed,bothgroup,DSubSpaces}
 		/** . @name Vspace  **/
 enum {NOW,LATER,DVspace}
-		/** . elements of array returned by `StateVariable::Transit` @name StateTrans **/
-enum {Qi,Qrho,StateTrans}
 
         /** When updating of parameters and transitions needs to occur. @see DP::SetUpdateTime @name UpdateTimes **/
 enum {OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
 
-		/** Ways to smooth choice probabilities without adding an explicit continuous error &zeta;. @name SmoothingMethods**/	
-enum { NoSmoothing, LogitKernel, GaussKernal, ExPostSmoothingMethods}
+		/** Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.
+         <DT>NoSmoothing</DT><DD>Indicator for optimal choice: &Rho;* = I{&alpha;&in;argmax v(&alpha;)}</DD>
+         <DT>LogitKernel</DT><DD>&Rho;* = exp{&rho;(v(&alpha;)-V)}/&Sigma;<sub>a</sub>exp{&rho;(v(a)-V)}</DD>
+         <DT>GaussKernel</DT><DD></DD>
+         @name SmoothingMethods**/	
+enum { NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods}
 
 
 /** . @name DataColumnTypes **/ enum{idcol,acol,scol,auxcol,NColumnTypes}

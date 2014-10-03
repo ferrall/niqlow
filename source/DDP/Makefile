@@ -1,6 +1,8 @@
 include ../Makefile.inc
 
-INC := ../../include
+INC := ..\..\include
+DOC := ../../doc/DDP
+
 
 vpath %.ox .:../Shared
 vpath %.h $(INC)
@@ -14,7 +16,7 @@ dppobj = $(dppsrc:.=.oxo)
 dpsrc := DPAuxiliary. Variables.
 dpobj = $(dpsrc:.=.oxo)
 
-xtradoc = DDP.ox GetStarted GetStartedData $(varsrc:.=.ox) $(dppsrc:.=.ox) $(dpsrc:.=.ox) 
+xtradoc = DDP.ox GetStarted GetStartedData $(varsrc:.=.ox) $(dppsrc:.=.ox) $(dpsrc:.=.ox)
 xtrahtml = $(xtradoc:.ox=.ox.html)
 
 DDP.oxo : $(dppobj)

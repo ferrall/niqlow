@@ -23,9 +23,9 @@ Time-Keeping <a href="StateVariable.ox.html#StateBlock">StateBlock</a> in <code>
 <P/>
 Time is a key concept in dynamic programming.  At least the difference between now (today) and later (tomorrow) underlies Bellman's equation.  In a stationary environment that is all that matters while solving the model.  In a non-stationary world the clock takes on more values.  The primary assumption is that time progresses: <var>t&prime; &ge; t</var>.  This allows the value function to be solved backwards in time, saving storage or computation if, mistakenly the environment is assumed to be stationary.  (That is, with stationarity a fixed point in all states must be solved at once, but with non-stationarity only a subset of the state space needs to be consider at each stage as we work backwards.)
 <P/>
-So the two simple extremes are stationarity (today and tomorrow) and normal aging: <var>t&prime = t+1</var> until <var>t=T&oline;</var>. However, timing can be more complicated that those two cases.  One is an agent facing a finite horizon problem and the possibility of early death.  
+So the two simple extremes are stationarity (today and tomorrow) and normal aging: <var>t&prime; = t+1</var> until <var>t=T&oline;</var>. However, timing can be more complicated that those two cases.  One is an agent facing a finite horizon problem and the possibility of early death.
 <P/>
-The Clock Block is a single <a href="StateVariable.ox.html#StateBlock">StateBlock</a> that is always in the endogenous vector &theta;, and is always the &quot;rightmost&quot; element of it, in the sense that all task that span the endogenous state space will loop over time in the outermost loop.  
+The Clock Block is a single <a href="StateVariable.ox.html#StateBlock">StateBlock</a> that is always in the endogenous vector &theta;, and is always the &quot;rightmost&quot; element of it, in the sense that all task that span the endogenous state space will loop over time in the outermost loop.
 <P/>
 <LI>Setting the Clock </LI>
 <P/>
@@ -67,7 +67,7 @@ With anticipation (foresight), V(&theta;) can/should be solved backwards in <var
 <P/>
 <DT>The decision horizon, or <code>counter.t.N</code>,  also denoted <code>T</code>, is the number of values that the time variable <code>t</code> takes on. </DT>
 <DD>The horizon of the model is
-<pre>        
+<pre>
         T &equiv; t.N
         T = 1 for an infinite horizon model (T = &infin;).</pre></DD>
 <DT>Because it is crucial to the solution method, this is a property of <code>MyModel</code> stored as <a href="DP.ox.html#DP___TT">TT</a>
@@ -184,7 +184,7 @@ Model decisions each year for the last five years before retirement, every five 
 <dt>Inherited methods from <a href="Clock.ox.html#NonDeterministicAging">NonDeterministicAging</a>:</dt><dd><a href="Clock.ox.html#NonDeterministicAging___sePstar">sePstar</a>, <a href="Clock.ox.html#NonDeterministicAging___Vupdate">Vupdate</a></dd>
 <dt>Inherited methods from <a href="Clock.ox.html#Clock">Clock</a>:</dt><dd><a href="Clock.ox.html#Clock___Clock">Clock</a>, <a href="Clock.ox.html#Clock___Solving">Solving</a></dd>
 <dt>Inherited methods from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="StateVariable.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -225,7 +225,7 @@ Timing in an ordinary finite horizon environment.
 <dt>Inherited methods from <a href="Clock.ox.html#NonStationary">NonStationary</a>:</dt><dd><a href="Clock.ox.html#NonStationary___Last">Last</a></dd>
 <dt>Inherited methods from <a href="Clock.ox.html#Clock">Clock</a>:</dt><dd><a href="Clock.ox.html#Clock___Clock">Clock</a>, <a href="Clock.ox.html#Clock___Solving">Solving</a>, <a href="Clock.ox.html#Clock___Vupdate">Vupdate</a></dd>
 <dt>Inherited methods from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="StateVariable.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -302,7 +302,7 @@ to SetClock.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="StateVariable.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="StateVariable.ox.html#StateBlock___Transit">Transit</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -352,7 +352,7 @@ Like <a href="Clock.ox.html#Mortality">Mortality</a> but T*-1 = TT-2 is a statio
 <dt>Inherited methods from <a href="Clock.ox.html#NonDeterministicAging">NonDeterministicAging</a>:</dt><dd><a href="Clock.ox.html#NonDeterministicAging___sePstar">sePstar</a></dd>
 <dt>Inherited methods from <a href="Clock.ox.html#Clock">Clock</a>:</dt><dd><a href="Clock.ox.html#Clock___Clock">Clock</a>, <a href="Clock.ox.html#Clock___Solving">Solving</a></dd>
 <dt>Inherited methods from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="StateVariable.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -439,7 +439,7 @@ Mortality(9,MyModel::Mprob);
 <dt>Inherited methods from <a href="Clock.ox.html#NonStationary">NonStationary</a>:</dt><dd><a href="Clock.ox.html#NonStationary___Last">Last</a></dd>
 <dt>Inherited methods from <a href="Clock.ox.html#Clock">Clock</a>:</dt><dd><a href="Clock.ox.html#Clock___Clock">Clock</a>, <a href="Clock.ox.html#Clock___Solving">Solving</a></dd>
 <dt>Inherited methods from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="StateVariable.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -475,7 +475,7 @@ Container for non-stationary and non-deterministic aging clocks.
 <dt>Inherited methods from <a href="Clock.ox.html#NonStationary">NonStationary</a>:</dt><dd><a href="Clock.ox.html#NonStationary___Last">Last</a></dd>
 <dt>Inherited methods from <a href="Clock.ox.html#Clock">Clock</a>:</dt><dd><a href="Clock.ox.html#Clock___Clock">Clock</a>, <a href="Clock.ox.html#Clock___setPstar">setPstar</a>, <a href="Clock.ox.html#Clock___Solving">Solving</a></dd>
 <dt>Inherited methods from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="StateVariable.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="StateVariable.ox.html#StateBlock___Transit">Transit</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -505,7 +505,7 @@ A container for non-stationary clocks.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Clock.ox.html#Clock">Clock</a>:</dt><dd><a href="Clock.ox.html#Clock___Clock">Clock</a>, <a href="Clock.ox.html#Clock___setPstar">setPstar</a>, <a href="Clock.ox.html#Clock___Solving">Solving</a>, <a href="Clock.ox.html#Clock___Vupdate">Vupdate</a></dd>
 <dt>Inherited methods from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="StateVariable.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="StateVariable.ox.html#StateBlock___Transit">Transit</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -577,7 +577,7 @@ A sequence of treatment phases with fixed maximum durations.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Clock.ox.html#Clock">Clock</a>:</dt><dd><a href="Clock.ox.html#Clock___Clock">Clock</a>, <a href="Clock.ox.html#Clock___setPstar">setPstar</a>, <a href="Clock.ox.html#Clock___Solving">Solving</a></dd>
 <dt>Inherited methods from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="StateVariable.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -609,7 +609,7 @@ A static one-shot program (T=1).
 <dt>Inherited methods from <a href="Clock.ox.html#NonStationary">NonStationary</a>:</dt><dd><a href="Clock.ox.html#NonStationary___Last">Last</a></dd>
 <dt>Inherited methods from <a href="Clock.ox.html#Clock">Clock</a>:</dt><dd><a href="Clock.ox.html#Clock___Clock">Clock</a>, <a href="Clock.ox.html#Clock___Solving">Solving</a>, <a href="Clock.ox.html#Clock___Vupdate">Vupdate</a></dd>
 <dt>Inherited methods from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="StateVariable.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -644,7 +644,7 @@ Timing in a stationary environment.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Clock.ox.html#Clock">Clock</a>:</dt><dd><a href="Clock.ox.html#Clock___Clock">Clock</a>, <a href="Clock.ox.html#Clock___setPstar">setPstar</a>, <a href="Clock.ox.html#Clock___Solving">Solving</a>, <a href="Clock.ox.html#Clock___Vupdate">Vupdate</a></dd>
 <dt>Inherited methods from <a href="StateVariable.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="StateVariable.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="StateVariable.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -663,7 +663,7 @@ Base class for members of a <a href="Clock.ox.html#Clock">Clock</a> block.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="StateVariable.ox.html#Coevolving">Coevolving</a>:</dt><dd><a href="StateVariable.ox.html#Coevolving___Coevolving">Coevolving</a></dd>
-<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___Transit">Transit</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___Transit">Transit</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="StateVariable.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 

@@ -6,7 +6,7 @@
 Fertility::Replicate()	{
 	Initialize(Reachable);
 	SetClock(NormalAging,T+tau);
-	decl t,PD,expbirths, EMax, tab, row, prow,Yrow;
+	decl t,PD,expbirths, EMax, tab, row, prow,Yrow, cur;
 	SetDelta(delt);
 	Actions(n = new ActionVariable("birth",2));
 	ExogenousStates(psi = new Zvariable("psi",Ndraws));
@@ -27,18 +27,20 @@ Fertility::Replicate()	{
 			PD = new PanelPrediction(0);
 			PD -> Predict(20);
 			PD -> Histogram(n,TRUE,TRUE);			
-			delete PD;
-//			PD = PredictedDistn(0,20);
-//			expbirths = 0.0;
-//			for (t=0;t<20;++t) expbirths += PD[t]->ActionHistogram(n,TRUE,FALSE)[1];
-//			println("Expected Total Births",t," ",expbirths);
+			expbirths = 0.0;
+            cur = PD;
+			for (t=0;t<20;++t) {
+                expbirths += cur.hist[1];
+                cur = cur.pnext;
+			    println("Expected Total Births",t," ",expbirths);
+                }
 			}
 	}
 
 /** Returns current time-specific transition probabilities. **/
 Fertility::Mortality(FeasA)	{
-	decl d= n.pos,Mv = M.v, pt= p[curt],
-	b =	zeros(rows(FeasA),Mv>0) ~ (1-pt*FeasA[][d]) ~ ( (Mv<M.N-1) ? pt*FeasA[][d] : <> );
+	decl d= FeasA[][n.pos], pt= d*p[curt],
+	b =	0 ~ (1-pt) ~ pt ;
 	return b;
 	}
 

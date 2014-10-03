@@ -1,6 +1,9 @@
 /* This file is part of niqlow. Copyright (C) 2012 Christopher Ferrall */
 #import "Shared"
 
+		/** . elements of array returned by `StateVariable::Transit` @name StateTrans **/
+enum {Qi,Qrho,StateTrans}
+
 /**Base Class for elements of state vectors, &epsilon;, &eta;, &theta;, &gamma; .
 
 @see DP::ExogenousStates, DP::EndogenousStates, DP::SemiExogenousStates, StateBlock
@@ -14,6 +17,7 @@ struct StateVariable : Discrete	{
 	MakeTerminal(TermValues);
 	virtual Transit(FeasA);
 	virtual UnChanged(FeasA);
+    virtual UnReachable(clock=0);
 	}
 	
 /**Scalar `StateVariable` with statistically independent transition.
@@ -36,6 +40,57 @@ class NonRandom : Autonomous { }
 organize different kinds of state variables into a taxonomy.
 **/
 class Random : Autonomous	{ }
+
+/** State variables that augment another state variable (the base).
+**/
+class Augmented : Autonomous {
+    const decl /**base state variable.**/ b;
+    Augmented(b);
+    }
+
+/** Container for augmented state variables in which a value or an action trigger a transition
+not present in the base state. **/
+class Triggered : Augmented {
+    const decl /**triggering action or value.**/    t,
+                /** triggering values.**/           tv,
+                /** reset value of state.**/        rval;
+    decl ft, idx, idy, rv, tr, nf;
+    Triggered(b,t,tv=0,rval=0);
+    virtual Transit(FeasA);
+    }
+
+/**  A value of an action variable triggers this state to transit to a value.
+**/
+class ActionTriggered : Triggered {
+    ActionTriggered(b,t,tv=1,rval=0);
+    virtual Transit(FeasA);
+    }
+
+/** A value of a `AV` compatible object triggers this state to transit to a value.
+**/
+class ValueTriggered : Triggered {
+    ValueTriggered(b,t,tv=1,rval=0);
+    virtual Transit(FeasA);
+    }
+
+/** When the trigger is anything but 0 the variable is reset to 0.
+**/
+class Reset : ActionTriggered {
+    Reset(b,t);
+    }
+
+/** When a `PermanentChoice` occurs then this state permanently becomes equal to its reset value.
+This class provides a replacement for `StateVariable::Unreachable`() that trims the state.
+This is ActionTriggered because it checks if `PermanentChoice::Target` is 1 and transits.
+@comments
+This state variable is designed to collapse the state space down when an event is triggered.
+**/
+class Forget : ActionTriggered {
+    const decl pstate;
+    Forget(b,pstate,rval=0);
+    virtual Transit(FeasA);
+    virtual UnReachable(clock=0);
+    }
 
 /** A Basic Offer Variable.
 Acceptance of an offer is the action variable passed as Accept
@@ -102,16 +157,18 @@ Fertility : FiniteHorizon	{
 Fertility::Initalize()	 {
 	q = new Coefficients("q",);
 	AddVariable(i = new Action("i",2));
-	AddEndogenousState( M = new RandomUpDown("M",20,) );
+	AddEndogenousState( M = new RandomUpDown("M",20,Fertility::Mortality) );
 	}	
-Fertility::Mortality()	{
+Fertility::Mortality(A)	{
 	decl p = probn(x*q);  // x has to be updated using current age and other x values.
 	decl ivals = A[Aind][][i.pos];
 	return 0 ~ (1-p*ivals) ~ p*ivals;
 	}</pre>
 **/
 struct RandomUpDown : Random	{
-	decl fPi;
+    enum { down, hold, up, NRUP}
+	const decl fPi;
+    decl fp;
 	RandomUpDown(L,N,fPi);
 	virtual Transit(FeasA);
 	}
@@ -127,6 +184,18 @@ struct SimpleJump : Random 		{
 	SimpleJump(L,N);
 	Transit(FeasA);
 	}
+
+/** A binary variable to code an absorbing state.
+This transition from 0 to 1 happens with probability fPi, and
+the transition 1 to 1 happens with probability 1.
+@see PermanentChoice
+**/
+struct Absorbing : Random {
+    const decl fPi;
+    decl p;
+    Absorbing(L="",fPi=0.5);
+    Transit(FeasA);
+    }
 
 /** A jump variable whose acutal values are quantiles of the standard normal distribution.
 **/
@@ -194,8 +263,10 @@ struct Counter : NonRandom  {
 	/**Variable to track 				**/  Target,
 	/**Values to track  				**/	 ToTrack,
 	/**`AV` compatiable reset to 0 flag **/	 Reset;
-	Counter(L,N,Target,  ToTrack,Reset);
+    decl Prune, Warned;
+	Counter(L,N,Target,  ToTrack,Reset,Prune);
 	virtual Transit(FeasA);
+    virtual UnReachable(clock=0);
 	}
 
 /**	 Counts periods value(s) of target state <em>s.x</em> have occurred.
@@ -211,9 +282,9 @@ decl wks  = new ActionState("wksunemp",work,10,<0>); //track up to 10 years
 AddEndogenousStates(wks);</pre>
 **/
 struct StateCounter : Counter  {
-	StateCounter(L,N,Target,  ToTrack,Reset);
+	StateCounter(L,N,Target,ToTrack=<1>,Reset=FALSE,Prune=TRUE);
 	virtual Transit(FeasA);
-	}
+}
 
 /**	 Track number of periods value(s) of target action variable have occurred.
 <DT>Transition:
@@ -228,7 +299,8 @@ AddEndogenousStates(exper);
 </pre></code>
 **/
 struct ActionCounter : Counter  {
-	ActionCounter(L,N,Target,  ToTrack, Reset);
+    decl inc;
+	ActionCounter(L,N,Target,ToTrack=<1>,Reset=FALSE,Prune=FALSE);
 	virtual Transit(FeasA);
 	}
 
@@ -259,6 +331,7 @@ AddEndogenousStates(tothrs);
 </pre>
 **/
 struct ActionAccumulator : Accumulator  {
+    decl x,y;
 	ActionAccumulator(L,N,Target);
 	virtual Transit(FeasA);
     }
@@ -291,10 +364,10 @@ s' = I{s.x=s.Lx}(s+ I{s &lt; s.N<sup>-</sup>}).
 <code><pre>
 </pre></code>
 **/
-struct Duration : NonRandom {
+struct Duration : Counter {
 	const decl Current, Lag, isact;
 	decl nf, g;
-	Duration(L,Current,Lag, N);
+	Duration(L,Current,Lag,N,Prune=TRUE);
 	virtual Transit(FeasA);
 	}
 
@@ -388,6 +461,7 @@ struct StateTracker : Tracker	{
 @see StateTracker
 **/
 struct ActionTracker : Tracker	{
+    decl d;
 	ActionTracker(L,Target,ToTrack);
 	virtual Transit(FeasA);
 	}

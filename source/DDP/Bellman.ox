@@ -386,7 +386,7 @@ ExPostSmoothing::CreateSpaces(Method,...) {
 	this.Method = Method;
 	switch_single(Method) {
 		case LogitKernel : rho = va_arglist()[0];
-		case GaussKernal : sigma = va_arglist()[0];
+		case GaussKernel : sigma = va_arglist()[0];
 		}
 	Bellman::CreateSpaces();
 	}
@@ -408,7 +408,7 @@ ExPostSmoothing::Smooth(EV) {
 	switch_single(Method) {
 		case NoSmoothing : Bellman::Smooth(EV);
 		case LogitKernel : Logistic(EV);
-		case GaussKernal : Normal(EV);
+		case GaussKernel : Normal(EV);
 		}
 	}
 

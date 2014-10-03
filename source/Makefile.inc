@@ -1,5 +1,5 @@
 Version := OxMetrics7
-OS := Linux
+OS := Windows
 
 # list of subdirectories to make
 DIRS := CFMPI DDP FiveO Hybrids Shared
@@ -12,8 +12,7 @@ ifeq ($(OS), Windows)
 	COPY := copy
 	OXDOC := "C:\Program Files (x86)\oxdoc\bin\oxdoc.bat"
 	ERASE := erase
-	XMP := ../examples
-	DOC := ../doc
+	XMP := ..\examples
 else ifeq ($(OS), Darwin)
 	OX := oxl
 	OXFLAGS := -DOX7
