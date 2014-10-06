@@ -18,13 +18,14 @@ If a state variable can be placed in &epsilon; instead of &eta; or &theta; it re
 EndogTrans::EndogTrans() {
 	Task();
    	left = S[semiexog].M; 	right = S[clock].M;
+    subspace = current = UnInitialized;
 	}
 
 /** . @internal **/
 EndogTrans::Run(th) {
 	if (!isclass(th,"Bellman")) return;
 	th.EV[] = 0.0;
-    th->ThetaTransition(SS[subspace].O);
+    th->ThetaTransition(SS[subspace].O,SS[current].O);
 	}
 
 /**Set the automatic (non-static) members of a state node.
@@ -101,7 +102,7 @@ Bellman::Smooth(VV) {
 Bellman::ActVal(VV) {
 	pandv[rind][][] = U;  // error if KW run before brute force
 	if (IsTerminal) return;
-	decl eta, hi=sizec(Nxt[Qrho]), width= SS[onlyexog].size, dl = CV(delta);
+	decl eta, hi=sizerc(Nxt[Qrho]), width= SS[onlyexog].size, dl = CV(delta);
 	for (eta=0;eta<hi;++eta)
 		pandv[rind][][eta*width:(eta+1)*width-1] += dl*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]]));
 	}
@@ -137,7 +138,7 @@ Bellman::UpdatePtrans() {
 	decl eta,
 		 h = aggregatec(pandv[rind] * NxtExog[Qrho],SS[onlyexog].size)',
 		 ii = ind[onlyendog], curg = CurGroup(), it = ind[tracking];
-	for (eta=0;eta<sizeof(Nxt[Qi]);++eta) {
+	for (eta=0;eta<sizerc(Nxt[Qi]);++eta) {
 		curg.Ptrans[ Nxt[Qi][eta] ][ii] += (h[eta][]*Nxt[Qrho][eta])';
 		}
 	if (StorePA) curg.Palpha[][it] = ExpandP(rind);
@@ -158,12 +159,19 @@ Bellman::ExpandP(r) {
 /** Computes the full endogneous transition, &Rho;(&theta;'; &alpha;,&eta; ), within a loop over &eta;.
 Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
 @param future offset vector to use for computing states (tracking or solving)
-@comments computes `DP::NxtExog` array of feasible indices of next period states and conforming matrix of probabilities.
+@param currentind  current offset vector.  If the same as future transitions are not recomputed. Indices are changed only.
+@comments computes `DP::Nxt` array of feasible indices of next period states and conforming matrix of probabilities.<br>If currentind is not -1, then simply recomputed indices.
 @see DP::ExogenousTransition
 **/
-Bellman::ThetaTransition(future) {
+Bellman::ThetaTransition(future,current) {
 	 decl ios = InSubSample ? ind[onlysemiexog] : 0;
 	 if (IsTerminal || Last() ) { Nxt[Qi][ios] = Nxt[Qrho][ios] = <>; return; }
+     if (current!=future) {
+        decl s;
+        for(s=0;s<columns(Nxt[Qi][ios]);++s)
+            Nxt[Qi][ios][s] = future*ReverseState(Nxt[Qi][ios][s],current);
+        return;
+        }
 	 decl now,later, si,N,prob,feas,k,root,swap, mtches,curO;
 	 now = NOW, later=LATER;
  	 F[now] = <0>;	
@@ -179,7 +187,7 @@ Bellman::ThetaTransition(future) {
 		if (any(curO = future[si-N+1:si]))	{  // states are relevant to s'
 			[feas,prob] = root -> Transit(Asets[Aind]);
             if (Volume>LOUD) {
-                println("     State: ",root.L,root.L,"%r",{"   ind","   prob"},feas|prob);
+                println("     State: ",root.L,"%r",{"   ind","   prob"},feas|prob);
                 if (any(fabs( sumr(prob) -1.0) )>DIFF_EPS2) { // short-circuit && avoids sumr() unless NOISY
                     println(si," ","%m",sumr(prob));
                     oxrunerror("Transition probabilities are not valid");
@@ -198,7 +206,16 @@ Bellman::ThetaTransition(future) {
 		} while (si>=S[endog].M);
 	Nxt[Qi][ios] = F[now];
 	Nxt[Qrho][ios] = P[now];
-    if (Volume>LOUD) println("Overall transition ","%r",{"ind","prob"},F[now]|P[now]);
+    if (Volume>LOUD) {
+        println("Overall transition ","%r",{"ind","prob"},F[now]|P[now]);
+        decl s,q;
+        for(s=0;s<columns(F[now][]);++s) {
+            if ( any(P[now][][s].>0.0) && !isclass( Settheta(OO[tracking][]*(q=ReverseState(F[now][s],OO[iterating][]))) ) )  {
+                oxwarning("transiting to unreachable state: ");
+                println("%8.0f","%c",Slabels[S[endog].M:S[endog].X],q[S[endog].M:S[endog].X]');
+                }
+            }
+        }
  }
 
 /** Default U() &equiv; <b>0</b>.
@@ -223,21 +240,21 @@ Bellman::Predict(ps,tod) {
 	rind = ind[onlyrand];
 	decl lo,hi,nnew, mynxt,eta,
 		tom = tod.pnext,
-		neta = SS[onlysemiexog].size,
 		width = SS[onlyexog].size,
 		Pa = ExpandP(rind);		
 	tod.ch += ps*Pa;
 	tod.unch += Pa/columns(tod.sind);
 	hi = -1;
-    if (sizeof(Nxt[Qi][0]))
-        for (eta=0;eta<neta;++eta) {
+    decl d = 0.0;
+    for (eta=0;eta<SS[onlysemiexog].size;++eta) if (sizerc(Nxt[Qi][eta])) {
 		  lo = hi+1;
 		  hi += width;
 		  Pa = (pandv[rind][][lo:hi]*NxtExog[Qrho][lo:hi])';
 		  tom.sind ~= exclusion(Nxt[Qi][eta],tom.sind);
 		  if (nnew = columns(tom.sind)-columns(tom.p)) tom.p ~= zeros(1,nnew);
 		  intersection(tom.sind,Nxt[Qi][eta],&mynxt);
-		  tom.p[mynxt[0][]] += ps*Pa*Nxt[Qrho][eta];
+		  tom.p[mynxt[0][]] += ps*Pa*Nxt[Qrho][eta][][mynxt[1][]];  //found bug Oct.2014.  was not resorting using mynxt[1] ...
+          d += sumr(Pa*Nxt[Qrho][eta]);
 		  }
 
 	}

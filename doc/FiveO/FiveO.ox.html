@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>FiveO.ox - FiveO</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">FiveO.ox</span></h1>
+
+A Guide to Object Oriented Objective Optimization in Ox.
+<P/>
+<span class="n">FiveO</span> is an alternative to Ox's standard  <a href="http://www.doornik.com/ox/oxpackages.html"> <code>maximize</code> </a>  package and the <a href="http://www.doornik.com/ox/oxclass.html#Modelbase"><code>Modelbase</code></a> class.
+<P/>
+<OL class="contents">CONTENTS
+<LI><a href="#O">Overview</a></LI>
+<LI><a href="#N">Notation</a></LI>
+<LI><a href="#D">Formal Definition</a></LI>
+<LI><a href="#S">Set up, initialize, solve</a></LI>
+<LI><a href="#C">Checkpointing</a></LI>
+<LI><a href="#OX">Comparison with Standard Ox Components</a></LI>
+<OL class="section">
+ <LI><a href="#A">If you use <code>maximize</code> already</a>
+<LI><a href="#B">If you use <code>Modelbase</code> already</a>
+</OL>
+</OL>
+<P/>
+<OL class="body">
+<P/>
+<LI><a name="O">Overview</a></LI>
+<DL>
+<DT><a href="Objective.ox.html#Objective">Objective</a> is a class designed to represent one of two closely related mathematical objects: a real-valued function to be maximized <em>or</em> a system of non-linear equations to be solved.</DT>
+<P/>
+<DD>Either way, the objects are functions of parameters contained in a vector <code>&psi;</code> of length <code>N</code>.</DD>
+<DD>A function <code>&fnof;: &real;<sup>N</sup> &rarr; &real;</code> to <em>maximize</em>.  The objective is by default a sum of &fnof;.M&oline; component functions:
+<pre>&fnof;(&psi;) = &sum;<sub>i=0,&hellip;,&fnof;.M&oline;</sub> &fnof;<sub>i</sub> (&psi;), </pre>
+where M&oline; is shorthand for M-1.  This means the user can code, say, the sample log-likelihood vector or moment conditions vector.  <span class="n">FiveO</span> adds up the vector and in turn can compute the so-called <em>gradient matrix</em> while implementing the <a href="Algorithms.ox.html#BHHH">BHHH</a> algorithm.</DD>
+<DD><em>Or</em></DD>
+<DD>A <q>square</q> non-linear system, <code>&fnof;: &real;<sup>N</sup> &rarr; &real;<sup>M</sup></code>, to find a <em>solution/root</em> for.
+<pre>&fnof;(&psi;) = <span class="b">[</span> &fnof;<sub>i</sub>(&psi;) <span class="b">]</span> <sub>i=0,&hellip;,&fnof;.M&oline;</sub> . </pre>
+Note that the system does not look square because the only requirement is N &ge; M.   However, this is because <code>&psi;</code> may, from the user's point of view, contain parameters that are not varying while finding the solution.  It must be the case that the variable components of <code>&psi;</code> must number <code>&fnof;.M.</code></DD>
+<P/>
+<DT>The user can give the problem/system to be solved a name that means something, but in these notes we will call your problem <code>MyObjective</code>.</DT>
+<DD>In <span class="n">FiveO</span>, <code>MyObjective</code> is an Ox <code>class</code> derived from one of the built-in classes derived from the base <a href="Objective.ox.html#Objective">Objective</a>.</DD>
+<DD>The objective <code>&fnof;()</code> is the column sum of <code>MyObjective::vfunc()</code>, a user-provided function (method).  The system would be the column itself, not the sum.</DD>
+<P/>
+<DT>Unlike non-OOP approaches, the parameter vector <code>&psi;</code> is not represented (simply) as a vector of real numbers.</DT>
+<DD>Instead, individual parameters are members of <code>MyObjective</code> and are assigned as objects derived from the <a href="Shared.ox.html#Parameter">Parameter</a> class.</DD>
+<DD>So <code>&psi;</code> is internally stored as a list (an <code>OxArray</code>) of parameters, but in <code>MyObjective</code> each parameter is simply a variable, like <var>x</var> or <var>y</var>.</DD>
+<DD>Parameters can be constrained and related to each other. A <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> will hold a vector of parameters to be treated together, like the coefficient vector &beta; in a regression.</DD>
+<P/>
+<DT>Optimization/root-finding is carried out by invoking one of several standard algorithm by calling a method of <a href="Objective.ox.html#Objective">Objective</a>.</DT>
+<DD>An algorithm is itself a class derived from the <a href="Algorithms.ox.html#Algorithm">Algorithm</a> class. The algorithm operating on <code>MyModel</code> is denoted <code>Alg</code> (to avoid repeatedly writing <q>the algorithm applied to the objective/system ...</q>).</DD>
+<P/>
+<DT>Multiple objectives and nested objectives can be handled by creating new objects (instances of <code>MyObject</code> or completely different problems).</DT>
+<DD>This is is a major distinction between <span class="n">FiveO</span> and <span class="n">DDP</span>, which is designed to hold just one DP model at a time.</DD>
+<DD><span class="n">FiveO</span> is designed to optimize over a handful, dozens, or a few hundred parameters, and problems of this scale do not tax the memory capacity of computers. Thus, almost all members of <a href="Objective.ox.html#Objective">Objective</a> are <em>automatic</em>, specific to the <code>new</code> object. (On the other hand, DDP is designed to represent very large state spaces so as many members of that class are declared <em>static</em> as possible.</DD>
+</DL>
+<P/>
+<a name="N"><LI>Notation</LI></a>
+<DT>Individual parameters are lower case Roman (x, y, etc.) or lower case Roman with subscripts (x<sub>0</sub>, x<sub>1</sub>, etc.).</DT>
+<DD>For this guide,  generic parameter will be denoted x and when ordering matters x<sub>i</sub>.</DD>
+<DD>Parameters are not just numbers.  They are objects of a class derived from <a href="Shared.ox.html#Parameter">Parameter</a>.</DD>
+<P/>
+<DT>Parameters, as objects, have several properties associated with them.</DT>
+<DD>The initial value of x, before <code>Alg</code> begins, is denoted <code>x.0</code>.  Thus the first element of <code>&psi;</code> is initially set to <code>x<sub>0</sub>.0</code>.</DD>
+<DD>The current value of x at some point in the algorithms operation is <code>x.v</code>.</DD>
+<DD>The <em>open</em> range of feasible values for x, for a parameter that an algorithm can vary, is an <em>open</em> interval denoted <code>x.I</code>, where <code>x.I</code> &sube; &real;.  For example, if x is a <a href="Parameters.ox.html#Free">Free</a> parameter it can take on values in the range <code>x.I = (-&infin;,+&infin;)</code>.   A <a href="Parameters.ox.html#Positive">Positive</a> parameter has interval <code>(0,&infin;)</code>.  </DD>
+<DD>A key feature of <span class="n">FiveO</span> is that the bounds of <code>x.I</code> can be <em>dynamic</em>: they can depend on the current values of other elements of <code>&psi;</code>.  This dependence must be forward: the range of a parameter can only depend on elements that come before it in <code>&psi;</code>.  That is, for <code>i &gt; 0</code>, the interval can be written explicitly as x<sub>i</sub>.I(x<sub>0</sub>.v, &hellip;, x<sub>i&oline;</sub>.v).  Using x<sub>0</sub>.v emphasizes that the interval can depend on the current values of preceding values, and then x<sub>i</sub>.v &in; x<sub>i</sub>.I.</DD>
+<DD>For standard algorithms to work, the intervals must always be <em>smooth</em> functions of their arguments.</DD>
+<P/>
+<DT>A parameter of class <a href="Parameters.ox.html#Determined">Determined</a> will not be under the control of the algorithm.</DT>
+<DD>That is, a determined parameter is a point, or closed interval of the form <code>x.I = [d,d].</code>.  </DD>
+ <DD>The value <code>d</code> is determined by something else, usually a fixed constant or a function of other parameters in <code>&psi;</code>. For example, a determined parameter could be set equal to the average of two other parameters, <code>z = (x+y)/2</code>.  <span class="n">FiveO</span> would ensure that restriction on z holds.  The algorithm knows only about x and y.</DD>
+<DT>Two or more parameters can form a <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>, denoted as upper case Roman (X, Y, etc.).</DT>
+<DD>This allows <code>MyModel</code> to refer to a single variable which is a vector not  a scalar. </DD>
+<DD>Parameter blocks are, in effect, sub-vectors of the overall parameter vector.</DD>
+<P/>
+<DT>The parameter vector, denoted <code>&psi;</code>, generically takes the form </DT>
+<DD><pre>&psi; = (x<sub>0</sub> x<sub>1</sub> ··· x<sub>N&oline;</sub>)</pre>
+where N&oline; is shorthand for N-1.</DD>
+<DD>&psi; is built up by adding parameters and parameter blocks to it.  The number of dimensions, N, is also written &psi;.N.  </DD>
+<P/>
+<DT>The <em>parameter space</em>, <code>&Psi;</code>, is the Cartesian product of the intervals for the elements of <code>&psi;</code></DT>
+<DD><pre>&Psi; &equiv; &times; <sub>n=0</sub><sup>N&oline;</sup> &psi;<sub>n</sub>.I</pre></DD>
+<P/>
+<DT><code>MyObject</code> may tell <code>Alg</code> not to vary some parameters in &psi; directly.</DT>
+<DD> A <a href="Parameters.ox.html#Determined">Determined</a> parameter does not have an interval, it has a point value, x.I &in; &real;.</DD>
+<DD>As with feasible intervals, x.I can be a function of the current value of preceding parameters.</DD>
+<P/>
+<DT>The feasible parameter space can only be defined implicitly.</DT>
+<DD><pre>&Psi; &equiv; <span class="b">{</span> &psi; = (x<sub>0</sub> ··· x<sub>N&oline;</sub>) :  x<sub>0</sub>&in;x<sub>0</sub>.I,  x<sub>1</sub>&in; x<sub>1</sub>.I(x<sub>0</sub>), &hellip;,x<sub>N&oline;</sub> &in; x<sub>N&oline;</sub>.I(x<sub>0</sub>,&hellip;,x<sub>N-2</sub>) <span class="b">}</span></pre></DD>
+<DD>By using predefined parameter classes and parameter blocks this complex and very flexible parameter space emerges naturally from the parameters added to <code>MyModel</code>.
+<P/>
+<DT><code>Alg</code>, as a sequential algorithm, can be thought of as a function S: &real;<sup>N</sup> &rarr; &real;<sup>N</sup>.</DT>
+<DD>S maps the starting vector &psi;.0, to a final value, &psi;<sup>S</sup> &approx; &psi;*.</DD>
+<P/>
+<a name="D"><LI>Formal Definition</LI></a>
+<P/>
+<DT>The overall optimization problem for is defined as trying to find</DT>
+<dd><pre>&fnof; : &Re;<sup>N</sup> &rarr; &Re;
+<P/>
+&psi;*  =  argmax   &fnof;(&psi;)
+       &psi; &in; &Psi;
+<P/>
+S(&psi;.O) &rarr; &psi;<sup>S</sup> &approx; &psi;*.</pre></dd>
+<P/>
+<DT>The overall problem for system solving is defined as trying to find:</DT>
+<dd><pre>&fnof; : &Re;<sup>N</sup> &rarr; &Re;<sup>M</sup>,  N &ge; M
+<P/>
+&psi;* &in; &Psi;  &amp;  &fnof;(&psi;*) =  <span class="o">O</span>.
+<P/>
+S(&psi;.O) &rarr; &psi;<sup>S</sup> &approx; &psi;*.</pre>
+and <span class="o">O</span>  is a vector of zeros of length M.</dd>
+<P/>
+<a name="S"><LI>Set up, initialize, solve</LI></a>
+<P/>
+The user code for <code>MyObject</code> should include these elements
+<DT>Set Up: code that is not executed (part of the <q>compilation</q> stage)</DT>
+<DD>Declare <code>MyObject</code> as derived from the <a href="Objective.ox.html#Objective">Objective</a> class</DD>
+<DD>Include data members for parameters and blocks that appear in &psi;.</DD>
+<DD>Declare and define <code>vfunc</code></DD> as a method (member function) to represent &fnof;.</DT>
+<DT>Initialize: code that runs before optimization begins</DT>
+<DD>Assign <code>new</code> objects derived from <a href="Shared.ox.html#Parameter">Parameter</a> to the data members for &psi; elements</DD>
+<DD>Add parameters to the objective by sending them to <a href="Objective.ox.html#Objective___Parameters">Parameters</a>().</DD>
+<DD>Set &psi;.0: <UL class="ul">
+        <LI>to values read in from a file using <code>.optobj</code> file with <a href="Objective.ox.html#Objective___Load">Load</a>()
+        <LI>to a vector of length <code>N</code> sent to <a href="Objective.ox.html#Objective___Encode">Encode</a>().
+        <LI>to the hard-coded initial values of each parameter by sending 0 to <a href="Objective.ox.html#Objective___Encode">Encode</a>(0)<UL></DD>
+<DT>Solve: call one of the optimization or solution methods of <a href="Objective.ox.html#Objective">Objective</a> to solve for &psi;* sequentially.</DT>
+<!--<DD><pre>
+struct MyObject : ObjectiveClass {
+        const decl &hellip;
+        decl x, y, &hellip;
+        vfunc();
+        Run();
+}
+MyObject::vfunc() {
+        return &fnof;(&psi;);
+}
+MyObject::Run() {
+        Parameters( x = new Parameter(&hellip;));
+        &hellip;
+        BFGS(&hellip;);
+        }
+main() {
+        decl v = new MyObject();
+        v->Run();
+        }</pre></DD>
+-->
+<P/>
+<a name="C"><LI>Checkpointing, Restarting, and Strategies</LI></a>
+<P/>
+<DT><span class="n">FiveO</span> is designed to save (checkpoint) the current <em>best</em> parameter vector as it is found.</DT>
+<DD>By default the information is stored in a file named <code>L.optobj</code>, where L is the string label assigned to the objective (<a href="Objective.ox.html#Objective___L">L</a>).  This means execution can be stopped without losing the progress made so far.</DD>
+<P/>
+<DT><code>MyObject</code> can save the current vector (whether best or not) using <a href="Objective.ox.html#Objective___Save">Save</a>().
+<DD>The format of the file is not simply a vector of numbers.  It is a summary of the problem and the current state of the solution process.</DD>
+<P/>
+<DT>The <code>.optobj</code> file is designed to be loaded back into <span class="n">FiveO</span> using <a href="Objective.ox.html#Objective___Load">Load</a>().</DT>
+ <DD><code>Load()</code> will check some aspects of the file for consistency, read in starting values, &psi;.O and ignore the other information.</DD>
+ <DD>The parameter vector in the file can be edited to reset the values.</DD>
+ <DD><code>MyObject</code> will always <q>hard code</q> starting values for parameters when they are created.  The code can be written so that these hard values are only used if the person wants to complete restart.  Otherwise, the starting vector, &psi;.O, will be loaded from a file:
+ <pre> if (!Load(fn)) Encode(0); </pre>
+ If <code>fn=-1</code> then <code>Load()</code> will return FALSE and do nothing.  Then <code><a href="Objective.ox.html#Objective___Encode">Encode</a>(0)</code> will use the hard-coded values for &psi;.0.  On the other hand, if <code>fn = "hello"</code>, Load() will try to load values from <code>hello.oxobj</code>, returning TRUE if successful.   Finally, if <code>fn=0</code> it will do the same but using the default file name, <code><a href="Objective.ox.html#Objective___L">L</a>.optobj</code>.
+ </DD>
+<P/>
+<a name="A"><LI>If you use <code>maximize</code> already.</LI></a>
+<table cellspacing="0" cellpadding="10" border="1" width="1000">
+<caption><h3>Differences between <code>maximize</code> and <span class="n">FiveO</span> At a Glance.</h3></caption>
+    <tr><th>Item</th><th>In <code>Ox::maximize</code></th><th>In <span class="n">FiveO</span></th></tr>
+<P/>
+    <tr valign="top"><td>The objective<br><var>&fnof;() : &real;<sup>N</sup>&rarr;&real;</td>
+    <td><pre>MyObj(const x,const v,const G,const H){ ··· } </pre>
+    <DD>Coded as a standalone function with a particular declaration</td>
+    <td><pre>class MyObj : BlackBox {
+        ···
+        vfunc();
+        }
+    MyObj::vfunc() {···}</pre>
+    <DD>Coded as a <code>method</code> with a particular name of a class derived from <a href="Objective.ox.html#Objective">Objective</a>.</td></tr>
+    <tr valign="top"><td>
+    The parameter vector
+    <pre>&psi;  &equiv; &#9001;x<sub>0</sub> q<sub>1</sub> &hellip; q<sub>N&oline;</sub>&#9002;</pre>
+    A single parameter x
+    <p>Initial value x<sup>0</sup>.
+    <p>Current value: x</td>
+    <td>&nbsp;<pre>
+    psi = new matrix(N,1);  </pre>
+    A position in <code>psi</code>
+    <p>Starting values sent to a function.</DD>
+    <p> Extracted by the user:  <code>decl x = psi[i];</code>.
+</td>
+    <td><pre>
+    x = new Parameter("x",0.0);
+    Parameters(x);
+    &hellip;
+    CV(x);</pre>
+    <DD>An instance of a class derived from <a href="Shared.ox.html#Parameter">Parameter</a> added to the model
+    <DD>Initial value set at creation or manually.
+    <DD><a href="Shared.ox.html#CV">CV</a>(x) or <code>x.v</code></DD></td></tr>
+    <tr valign="top"><td>Related Parameters<br>(e.g. Coefficients &beta;)</td>
+    <td><pre>
+beta = x[2:8];
+yhat = x*beta;</pre>
+    <DD>extracted from the parameter vector by the user</td>
+    <td><pre>beta = new Coefficients("beta",7,0);
+&hellip;
+yhat = x*CV(beta);</pre>
+    <DD>Accessed as a separate vector without extraction.. Value <code>beta.v</code> or <code>CV(q)</code></td></tr>
+<P/>
+    <tr valign="top"><td>Open interval constraints <br> For example, <var> 0&lt; q &lt; 1</var></td><td>
+    <pre><code>prob = exp(x[0])/(1+exp(x[0]);</code></pre>
+    <DD>User transforms parameters to keep them feasible</td>
+    <td>
+    <pre>prob = new Probability("p",0.3);</pre>
+    <DD>Predefined classes such as <a href="Parameters.ox.html#Positive">Positive</a> and <a href="Parameters.ox.html#Probability">Probability</a>.
+    <DD>User can create their own derived parameter classes.</DD></tr>
+<P/>
+    <tr valign="top"><td>Restrictions Across Parameters</td><td>
+    <pre>p = x[0:4] | 1-sumc(x[0:4]);</pre>
+    <DD>Up to the user to impose and track</td>
+    <td><pre> p = new Simplex("p",6);</pre>
+    <DD>Dynamic interval bounds and pre-defined blocks.</td></tr>
+<P/>
+    <tr valign="top"><td>Algorithms</td><td><pre>MaxBFGS(f,&hellip;)</pre><DD>Standalone functions.</td>
+    <td><pre>obj -> Quasi(BFGS,0,0);</pre><DD>Method applied to the object.</td></tr>
+<P/>
+    <tr valign="top"><td>Objectives that are not a <a href="Objective.ox.html#BlackBox">BlackBox</a><br><var>f = &sum; f<sub>i</sub>(&psi;<sub>i</sub>)</var></td><td>Up to the user to program</td><td>Efficient and simple handling of <a href="Objective.ox.html#Separable">Separable</a> and <a href="Objective.ox.html#Mixture">Mixture</a> objectives.</td></tr>
+<P/>
+    <tr valign="top"><td>Long execution times</td><td>Current best vector not saved automatically.</td><td>Automatic <a href="Objective.ox.html#Objective___Save">Save</a> of current best, which can be <a href="Objective.ox.html#Objective___Load">Load</a>ed to restart.<DD>Integrated with CFMPI for parallel execution.</td></tr>
+</table>
+<P/>
+<a name="B"><LI>If you use <code>Modelbase</code> already.</LI></a>
+<P/>
+The routines in <code>maximize</code> are low level ones that leave a great deal of work for the user.  However, Ox provides a class that provides a higher level function, <code>Modelbase</code>.  It  would often be a better and more convenient way to develop an econometric application than a direct use of <code>maximize</code> .  And its approach can better than <span class="n">FiveO</span> for coding econometric models to account for variable selection, parameter definitions that are primarily coefficients on variables.
+<P/>
+<p><span class="n">FiveO</span> is not concerned with variables, observations and coefficients.  Rather, it is concerned with parameterizing a model that involves optimization in a much more general sense than something related to linear econometric models.  The fact that the objective may be related to data as well is not primary to <span class="n">FiveO</span>.
+<P/>
+<p>In <code>Modelbase</code> aspects of parameters are stored separately, at least from the user's perspective.  Parameters can be fixed or free, but other kinds of constraints and relationships between parameters are left to the user. A key difference with <span class="n">FiveO</span> is that parameters are represented as objects derived from built-in parameter types.  Parameters are created using a class that captures the constraints on the parameter and its relation to other parameters.  For example, with one line of code a user can add a vector of parameters that are guaranteed to be <a href="Parameters.ox.html#Increasing">Increasing</a> during optimization: <var>x<sub>1</sub> &gt;x<sub>2</sub> &gt; ··· &gt x<sub>M</sub>.
+</OL>
+
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2013 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a>, <a href="./license.txt">License</a>
+</DD></dd>
+</dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

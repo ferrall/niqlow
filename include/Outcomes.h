@@ -159,7 +159,7 @@ struct DataColumn : Zauxilliary {
 /** Predicted distribution across states.
 **/	
 struct 	Prediction : Task {
-	static	decl av, sv, hN, hd, ud;
+	static	decl av, sv, hN, hd, ud, lo, hi, Volume;
 	const  	decl t;
 	decl
 		/** state index **/		sind,
@@ -184,7 +184,7 @@ struct 	PanelPrediction : Prediction {
 	PanelPrediction(iDist=0);
 	~PanelPrediction();
 	Predict(T=1,printit=FALSE);
-	Histogram(var,printit=FALSE,UseDist=TRUE);
+	Histogram(var,printit=TRUE,UseDist=TRUE);
 	}
 
 /** A panel with data-handling tools.

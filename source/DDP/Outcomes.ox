@@ -135,10 +135,10 @@ span the state space with `EndogTrans`.
 **/
 Path::Simulate(T,usecp,DropTerminal){
 	decl done;
-	if (!IsTracking) {
+	if (ETT.subspace!=tracking) {
 		ETT.subspace = tracking;
 		ETT->loop();
-		IsTracking = TRUE;
+		ETT.current = tracking;
 		}
 	Outcome::usecp = usecp;
 	cur = this;
@@ -654,7 +654,6 @@ Outcome::AccountForUnobservables() {
 			}					
 	ind[onlyacts] = new array[J];
 	s = 0;
-//	println("**",ind[tracking]'," ",state');
   	do {
 		if ( (myA = GetAind(ind[tracking][s]))!=NoMatch) {
 			ai =  A[myA]*SS[onlyacts].O;	 // indices of feasible acts
@@ -681,14 +680,20 @@ call this routine.
 
 **/
 Prediction::Predict() {
-	decl s,th,q, 	lo = SS[tracking].left,	hi = SS[tracking].right;
+	decl s,th,q,pp,unrch;
     state = zeros(NN);
-    foreach (q in sind[s]) if (isclass(th=Settheta(q))) {
+    if (Volume>LOUD) {pp = 0.0; unrch = <>; }
+    foreach (q in sind[s]) {
+        if (isclass(th=Settheta(q))) {
             state[lo:hi] = ReverseState(q,OO[tracking][])[lo:hi];
             ind[tracking] = OO[tracking][]*state;
             SyncStates(lo,hi);
             th->Predict(p[s],this);
             }
+        else if (Volume>LOUD) { pp += p[s]; unrch |= ReverseState(q,OO[tracking][])[lo:hi]' ; }
+        }
+    if (Volume>LOUD && pp>0.0)
+        println("At t= ",t," Lost prob.= ",pp," Unreachable states in transition ","%cf","%9.0f","%c",Slabels[lo:hi],unrch);
 	}
 	
 /** Create a new prediction.
@@ -717,6 +722,8 @@ PanelPrediction::Predict(T,printit){
   if (isclass(pnext)) oxrunerror("panel prediction already computed");
   cur=this;
   this.T = T;
+  lo = SS[tracking].left;
+  hi = SS[tracking].right;
   do {
 	 cur.pnext = new Prediction(cur.t+1);
 	 cur->Prediction::Predict();
@@ -735,10 +742,10 @@ The prediction is not made until `PanelPrediction::Predict`() is called.
 
 **/
 PanelPrediction::PanelPrediction(iDist){
-	if (!IsTracking) {
+	if (ETT.subspace!=tracking) {
 		ETT.subspace = tracking;
-		ETT->Traverse(DoAll);
-		IsTracking = TRUE;
+		ETT->loop();
+		ETT.current = tracking;
 		}
 	Prediction(0);
 	if (isint(iDist)) {
@@ -849,7 +856,6 @@ PanelPrediction::~PanelPrediction() {
 		cur = tmp;
 		}
 	}	
-
 /** The default econometric objective: log-likelihood.
 @return `Panel::M`, <em>lnL = (lnL<sub>1</sub> lnL<sub>2</sub> &hellip;)</em>
 @see Panel::LogLikelihood

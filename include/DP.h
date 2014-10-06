@@ -8,7 +8,7 @@ static decl
 /** &Theta; array (list) of all endogenous state nodes.**/  		Theta;
 
 		/** Categories of state variables.	@name StateTypes**/	
-enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTED,NStateTypes}
+enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTEDV,NStateTypes}
 		/** Vectors of state variables. @name SubVectors **/
 enum {acts,exog,semiexog,endog,clock,rgroup,fgroup,DSubVectors,LeftSV=exog}
 		/** Groups of continugous `SubVectors`. @name SubSpaces **/
@@ -94,7 +94,6 @@ struct DP {
 		/**  Current value of t. @see DP::Gett **/				curt,
 		/**  . @internal **/      								tfirst,
 		/**  Count of reachable states.  **/   	                NTerminalStates,
-		/** Transition currently stored in FeasS.  @internal**/	IsTracking,
 		/** Array of Exogenous next state indices
 			and transitions. **/ 					            NxtExog,
 		/** . @internal  				**/    					F,
@@ -217,7 +216,7 @@ struct Task : DP {
 @internal
 **/
 struct CTask 		: 	Task {	CTask(); 		Run(th);	}
-struct EndogTrans 	: 	Task {	EndogTrans();	Run(th);	}
+struct EndogTrans 	: 	Task {	decl current; EndogTrans();	Run(th);	}
 struct EnTask       :   Task { EnTask(); }
 struct ExTask       :   Task { ExTask(); }
 	

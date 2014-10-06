@@ -1,0 +1,1890 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>Methods.ox - Derived Dynamic Programs</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">Methods.ox</span></h1>
+
+Solving for behaviour in a dynamic program.
+<P/>
+<OL class="body">
+<LI>Value Function Iteration</LI>
+<table class="tree">
+<tr><td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="7" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="Methods.ox.html#ValueIteration___Solve">Solve</a></td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">Use a method to solve Bellman's equation for all DPs by call <a href="Methods.ox.html#FixedSolve">FixedSolve</a>.</td>
+</tr>
+<tr>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="6" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="Methods.ox.html#FixedSolve">FixedSolve</a></td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">loop over fixed effects in &gamma;, solve each problem by calling <a href="Methods.ox.html#RandomSolve">RandomSolve</a>, reusing the solution storage space.</td>
+</tr>
+<tr>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="5" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="Methods.ox.html#RandomSolve">RandomSolve</a></td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">Loop over random effects in &gamma;, solve each problem by calling Gsolve, reusing value iteration space but storing all choice probabilities. 
+After all random effects groups computed, call <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, user-defined post random-effect solve tasks.  
+</td></tr>
+<tr>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="4" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label">Gsolve</td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">Given the fully specified fixed vector &gamma;, which defines an element of the group space, solve the DP problem.</td>
+</tr>
+<tr>
+<td class="line"><div class="vline">&nbsp;</div></td><td class="line">&nbsp;</td><td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td><td class="line">&nbsp;</td><td class="line">&nbsp;</td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="3" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label">Inner loop of Gsolve</td></tr>
+   <tr class="bottom"><td class="line">&nbsp;</td></tr>
+</tbody></table>
+</td>
+<td class="text">
+<pre>
+    <a href="Methods.ox.html#EndogUtil">EndogUtil</a>            initialize over endogenous states &theta;
+    1. <a href="Methods.ox.html#ValueIteration___Run">Run</a>            loop over bellman iterations
+    2. <a href="Methods.ox.html#ValueIteration___Update">Update</a>         check convergence/work backwards (repeat 1.)</pre>
+</td></tr></table>
+<P/>
+<LI>Hotz-Miller Based Solution Methods </LI>
+<P/>
+<LI>Hybrid Solution Methods</LI>
+<P/>
+<DD>Some methods for solving DDP rely not on Bellman iteration but on non-linear optimization and root-finding.  These methods combine <span class="n">DDP</span> and <span class="n">FiveO</span>.  They are categorized as <a href="..\Hybrid\default.html">Hybrid Methods</a> and discussed separately.</DD>
+<P/>
+</OL>
+
+<a name="global"></a>
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global enumerations</span></h2>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Methods.ox.html#Anonymous enum 1">Anonymous enum 1</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<a name="AguirregabiriaMira"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AguirregabiriaMira : <a href="Methods.ox.html#HotzMiller">HotzMiller</a> : <a href="Methods.ox.html#ValueIteration">ValueIteration</a> : <a href="Methods.ox.html#Method">Method</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#AguirregabiriaMira___mle">mle</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#AguirregabiriaMira___AguirregabiriaMira">AguirregabiriaMira</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#AguirregabiriaMira___Run">Run</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Apply Bellman's equation at a point &theta;
+<OL>
+<LI>Compute the value of actions, <var>v(&alpha;,&theta;)</var> by calling <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>()</LI>
+<LI>Call <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>() and storing the value </LI>
+<LI>If <a href="DP.ox.html#DP___setPstar">setPstar</a> then smooth choice probabilities.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#AguirregabiriaMira___Solve">Solve</a></td>
+<td class="modifiers"></td>
+<td class="description">Solve Bellman's Equation..</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Methods.ox.html#HotzMiller">HotzMiller</a>:</dt><dd><a href="Methods.ox.html#HotzMiller___Gsolve">Gsolve</a>, <a href="Methods.ox.html#HotzMiller___HotzMiller">HotzMiller</a></dd>
+<dt>Inherited methods from <a href="Methods.ox.html#ValueIteration">ValueIteration</a>:</dt><dd><a href="Methods.ox.html#ValueIteration___NTrips">NTrips</a>, <a href="Methods.ox.html#ValueIteration___Update">Update</a>, <a href="Methods.ox.html#ValueIteration___ValueIteration">ValueIteration</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Methods.ox.html#HotzMiller">HotzMiller</a>:</dt><dd><a href="Methods.ox.html#HotzMiller___Kernel">Kernel</a>, <a href="Methods.ox.html#HotzMiller___myccp">myccp</a>, <a href="Methods.ox.html#HotzMiller___Q">Q</a></dd>
+<dt>Inherited fields from <a href="Methods.ox.html#ValueIteration">ValueIteration</a>:</dt><dd><a href="Methods.ox.html#ValueIteration___DefTolerance">DefTolerance</a>, <a href="Methods.ox.html#ValueIteration___DoNotIterate">DoNotIterate</a>, <a href="Methods.ox.html#ValueIteration___ftask">ftask</a>, <a href="Methods.ox.html#ValueIteration___ndogU">ndogU</a>, <a href="Methods.ox.html#ValueIteration___Volume">Volume</a>, <a href="Methods.ox.html#ValueIteration___vtoler">vtoler</a>, <a href="Methods.ox.html#ValueIteration___VV">VV</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="CCP"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CCP : <a href="DP.ox.html#FETask">FETask</a> : <a href="DP.ox.html#GroupTask">GroupTask</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+Compute Estimate of Conditional Choice Probability from Data.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#CCP___bandwidth">bandwidth</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#CCP___cnt">cnt</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#CCP___data">data</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#CCP___entask">entask</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#CCP___Kernel">Kernel</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#CCP___Kstates">Kstates</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#CCP___NotFirstTime">NotFirstTime</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#CCP___ObsPstar">ObsPstar</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#CCP___Q">Q</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#CCP___CCP">CCP</a></td>
+<td class="modifiers"></td>
+<td class="description">Collect observed choice frequencies from a dataset.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#CCP___InitializePP">InitializePP</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#CCP___Run">Run</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="DP.ox.html#GroupTask">GroupTask</a>:</dt><dd><a href="DP.ox.html#GroupTask___GroupTask">GroupTask</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="DP.ox.html#GroupTask">GroupTask</a>:</dt><dd><a href="DP.ox.html#GroupTask___qtask">qtask</a>, <a href="DP.ox.html#GroupTask___span">span</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="CCPspace"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CCPspace : <a href="DP.ox.html#EnTask">EnTask</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#CCPspace___qtask">qtask</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#CCPspace___CCPspace">CCPspace</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#CCPspace___Increment">Increment</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#CCPspace___Run">Run</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="DP.ox.html#EnTask">EnTask</a>:</dt><dd><a href="DP.ox.html#EnTask___EnTask">EnTask</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="EndogUtil"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">EndogUtil : <a href="DP.ox.html#EnTask">EnTask</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+Loop over &theta; and apply <a href="Methods.ox.html#ExogUtil">ExogUtil</a>.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#EndogUtil___ex">ex</a></td>
+<td class="modifiers">const</td>
+<td class="description"><a href="Methods.ox.html#ExogUtil">ExogUtil</a> object.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#EndogUtil___EndogUtil">EndogUtil</a></td>
+<td class="modifiers"></td>
+<td class="description">Create an endogenous utility object.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#EndogUtil___Run">Run</a></td>
+<td class="modifiers"></td>
+<td class="description">Loop over exogenous states computing U() at a give &theta;.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="DP.ox.html#EnTask">EnTask</a>:</dt><dd><a href="DP.ox.html#EnTask___EnTask">EnTask</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="ExogUtil"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ExogUtil : <a href="DP.ox.html#ExTask">ExTask</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+Loop over &eta; and &epsilon; and call <a href="Bellman.ox.html#Bellman___Utility">Utility</a>().
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#ExogUtil___ExogUtil">ExogUtil</a></td>
+<td class="modifiers"></td>
+<td class="description">Create an endogenous utility object.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#ExogUtil___Run">Run</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="DP.ox.html#ExTask">ExTask</a>:</dt><dd><a href="DP.ox.html#ExTask___ExTask">ExTask</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="FixedSolve"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedSolve : <a href="DP.ox.html#FETask">FETask</a> : <a href="DP.ox.html#GroupTask">GroupTask</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+Loop over fixed values in &gamma;, solve model for each.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#FixedSolve___rtask">rtask</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#FixedSolve___FixedSolve">FixedSolve</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#FixedSolve___Run">Run</a></td>
+<td class="modifiers"></td>
+<td class="description">Process a point in the fixed effect space.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="DP.ox.html#GroupTask">GroupTask</a>:</dt><dd><a href="DP.ox.html#GroupTask___GroupTask">GroupTask</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="DP.ox.html#GroupTask">GroupTask</a>:</dt><dd><a href="DP.ox.html#GroupTask___qtask">qtask</a>, <a href="DP.ox.html#GroupTask___span">span</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="HMEndogU"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">HMEndogU : <a href="Methods.ox.html#EndogUtil">EndogUtil</a> : <a href="DP.ox.html#EnTask">EnTask</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#HMEndogU___meth">meth</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#HMEndogU___VV">VV</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#HMEndogU___HMEndogU">HMEndogU</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#HMEndogU___Run">Run</a></td>
+<td class="modifiers"></td>
+<td class="description">Loop over exogenous states computing U() at a give &theta;.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Methods.ox.html#EndogUtil">EndogUtil</a>:</dt><dd><a href="Methods.ox.html#EndogUtil___EndogUtil">EndogUtil</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#EnTask">EnTask</a>:</dt><dd><a href="DP.ox.html#EnTask___EnTask">EnTask</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Methods.ox.html#EndogUtil">EndogUtil</a>:</dt><dd><a href="Methods.ox.html#EndogUtil___ex">ex</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="HotzMiller"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">HotzMiller : <a href="Methods.ox.html#ValueIteration">ValueIteration</a> : <a href="Methods.ox.html#Method">Method</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+Solve a DP model using the Hotz-Miller inverse mapping from conditional choice probabilities.
+<P/>
+Hotz-Miller cannot be applied to models with any exogenous state variables (those contained in the &epsilon; or &eta; vector).
+<P/>
+Hotz-Miller cannot be applied to models with random effect invariants.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#HotzMiller___Kernel">Kernel</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#HotzMiller___myccp">myccp</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#HotzMiller___Q">Q</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#HotzMiller___Gsolve">Gsolve</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Interate over the state space apply the solution method.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#HotzMiller___HotzMiller">HotzMiller</a></td>
+<td class="modifiers"></td>
+<td class="description">Add up choice frequencies conditional on &gamma; and &theta;  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#HotzMiller___Run">Run</a></td>
+<td class="modifiers"></td>
+<td class="description">Apply Bellman's equation at a point &theta;
+<OL>
+<LI>Compute the value of actions, <var>v(&alpha;,&theta;)</var> by calling <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>()</LI>
+<LI>Call <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>() and storing the value </LI>
+<LI>If <a href="DP.ox.html#DP___setPstar">setPstar</a> then smooth choice probabilities.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#HotzMiller___Solve">Solve</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Solve Bellman's Equation..</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Methods.ox.html#ValueIteration">ValueIteration</a>:</dt><dd><a href="Methods.ox.html#ValueIteration___NTrips">NTrips</a>, <a href="Methods.ox.html#ValueIteration___Update">Update</a>, <a href="Methods.ox.html#ValueIteration___ValueIteration">ValueIteration</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Methods.ox.html#ValueIteration">ValueIteration</a>:</dt><dd><a href="Methods.ox.html#ValueIteration___DefTolerance">DefTolerance</a>, <a href="Methods.ox.html#ValueIteration___DoNotIterate">DoNotIterate</a>, <a href="Methods.ox.html#ValueIteration___ftask">ftask</a>, <a href="Methods.ox.html#ValueIteration___ndogU">ndogU</a>, <a href="Methods.ox.html#ValueIteration___Volume">Volume</a>, <a href="Methods.ox.html#ValueIteration___vtoler">vtoler</a>, <a href="Methods.ox.html#ValueIteration___VV">VV</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="KeaneWolpin"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">KeaneWolpin : <a href="Methods.ox.html#ValueIteration">ValueIteration</a> : <a href="Methods.ox.html#Method">Method</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+Approximate EV from a subsample of &Theta; using Keane-Wolpin (1994).
+<P/>
+KWApproximation does not allow any states in &eta;, so it is dropped from the notation below.
+<P/>
+<DD><pre>
+Emax(&theta;) &equiv;  &sum; <sub>&epsilon;</sub> &Rho;<sub>&epsilon;</sub> V(&epsilon;,&theta;)</pre>
+which is the expected value of the maximum
+<pre>V(&epsilon;,&theta;) = max <sub>&alpha;&in;&theta;.A</sub>  v(&alpha;;&epsilon;,&theta;)
+</pre>
+When &epsilon; and &theta; both include many states, visiting every value of &epsilon; for every value of &theta; can be
+expensive.
+<P/>
+KWApproximation computes Emax for a randomly selected subset of states at a given t,<pre>
+&Theta;<sub>KW</sub> &sub; &Theta;.
+</pre>
+Actually, KW operates period-by-period, so technically it involves &Theta;(t), the subset of &Theta; with states at time t.
+<P/>
+It interpolates Emax with a function (such as a linear regression) of the values of v(&alpha;;<span class="o">&epsilon;</span>,&theta;) at a single exogenous vector, <span class="o">&epsilon;</span>,
+including the non-linear transformation:
+<pre>
+maxE(&theta;) &equiv; max <sub>&alpha;&in;&theta.A</sub>  v(&alpha;;<span class="o">&epsilon;</span>,&theta;)
+</pre>	
+if <span class="o">&epsilon;</span> = E(&epsilon;) then this is indeed <q>the max at the expected exogenous shock</q>.
+<P/>
+Then, for points &theta; &notin; &Theta;<sub>KW</sub>(t) it extrapolates the value based on only
+maxE(&theta;) and v(&alpha;;<span class="o">&epsilon;</span>,&theta;).
+<P/>
+The amount of computations saved is can be approximated easily.  Let &epsilon;.D, &Theta;.D and &Theta;<sub>KW</sub>.D
+denote the cardinality of the sets (following the notations used elsewhere).  Then the proportion of total max() operations <em>avoided</em> is
+<pre>(&epsilon;.D-1)(&Theta;.D-&Theta;<sub>KW</sub>.D) / &Theta;.D</pre>
+<P/>
+KW (1994) report that the extrapolation is sufficiently accurate in their model that the simulation bias in parmeter estimates based on it is quite small.
+<P/>
+The built-in components of KWApproximation use the KW (1994) "linear and square root" regression specification.  However,
+these components are virtual and can be replaced by specifications or interpolating functions of the user's choice.
+</dd>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#KeaneWolpin___Bhat">Bhat</a></td>
+<td class="modifiers"></td>
+<td class="description">TT array of OLS coefficients  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#KeaneWolpin___cpos">cpos</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#KeaneWolpin___curlabels">curlabels</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#KeaneWolpin___xlabels0">xlabels0</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#KeaneWolpin___xlabels1">xlabels1</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#KeaneWolpin___xlabels2">xlabels2</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#KeaneWolpin___Xmat">Xmat</a></td>
+<td class="modifiers"></td>
+<td class="description">X  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#KeaneWolpin___Y">Y</a></td>
+<td class="modifiers"></td>
+<td class="description">Y  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#KeaneWolpin___Gsolve">Gsolve</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Carry out Keane-Wolpin approximation at &theta; .</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#KeaneWolpin___KeaneWolpin">KeaneWolpin</a></td>
+<td class="modifiers"></td>
+<td class="description">Initialize Keane-Wolpin Approximation method.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#KeaneWolpin___Run">Run</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Apply Bellman's equation at a point &theta;
+<OL>
+<LI>Compute the value of actions, <var>v(&alpha;,&theta;)</var> by calling <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>()</LI>
+<LI>Call <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>() and storing the value </LI>
+<LI>If <a href="DP.ox.html#DP___setPstar">setPstar</a> then smooth choice probabilities.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#KeaneWolpin___Specification">Specification</a></td>
+<td class="modifiers"></td>
+<td class="description">The default specification of the KW regression.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Methods.ox.html#ValueIteration">ValueIteration</a>:</dt><dd><a href="Methods.ox.html#ValueIteration___NTrips">NTrips</a>, <a href="Methods.ox.html#ValueIteration___Solve">Solve</a>, <a href="Methods.ox.html#ValueIteration___Update">Update</a>, <a href="Methods.ox.html#ValueIteration___ValueIteration">ValueIteration</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Methods.ox.html#ValueIteration">ValueIteration</a>:</dt><dd><a href="Methods.ox.html#ValueIteration___DefTolerance">DefTolerance</a>, <a href="Methods.ox.html#ValueIteration___DoNotIterate">DoNotIterate</a>, <a href="Methods.ox.html#ValueIteration___ftask">ftask</a>, <a href="Methods.ox.html#ValueIteration___ndogU">ndogU</a>, <a href="Methods.ox.html#ValueIteration___Volume">Volume</a>, <a href="Methods.ox.html#ValueIteration___vtoler">vtoler</a>, <a href="Methods.ox.html#ValueIteration___VV">VV</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="KWEMax"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">KWEMax : <a href="Methods.ox.html#EndogUtil">EndogUtil</a> : <a href="DP.ox.html#EnTask">EnTask</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#KWEMax___firstpass">firstpass</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#KWEMax___hi">hi</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#KWEMax___lo">lo</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#KWEMax___meth">meth</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#KWEMax___onlypass">onlypass</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#KWEMax___InSample">InSample</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#KWEMax___KWEMax">KWEMax</a></td>
+<td class="modifiers"></td>
+<td class="description">Endogenous Utility task used the KeaneWolpin Approximation.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#KWEMax___OutSample">OutSample</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#KWEMax___Run">Run</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Carry out Keane-Wolpin approximation at an endogenous state &theta; .</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Methods.ox.html#EndogUtil">EndogUtil</a>:</dt><dd><a href="Methods.ox.html#EndogUtil___EndogUtil">EndogUtil</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#EnTask">EnTask</a>:</dt><dd><a href="DP.ox.html#EnTask___EnTask">EnTask</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Methods.ox.html#EndogUtil">EndogUtil</a>:</dt><dd><a href="Methods.ox.html#EndogUtil___ex">ex</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="Method"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Method : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+A container for solution methods.
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___Run">Run</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="RandomSolve"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomSolve : <a href="DP.ox.html#RETask">RETask</a> : <a href="DP.ox.html#GroupTask">GroupTask</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+Loop over random effect values &gamma;, call  Gsolve() method for the calling method.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#RandomSolve___RandomSolve">RandomSolve</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#RandomSolve___Run">Run</a></td>
+<td class="modifiers"></td>
+<td class="description">Apply the solution method for the current fixed values.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="DP.ox.html#GroupTask">GroupTask</a>:</dt><dd><a href="DP.ox.html#GroupTask___GroupTask">GroupTask</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="DP.ox.html#GroupTask">GroupTask</a>:</dt><dd><a href="DP.ox.html#GroupTask___qtask">qtask</a>, <a href="DP.ox.html#GroupTask___span">span</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="RVEdU"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RVEdU : <a href="Methods.ox.html#EndogUtil">EndogUtil</a> : <a href="DP.ox.html#EnTask">EnTask</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#RVEdU___Run">Run</a></td>
+<td class="modifiers"></td>
+<td class="description">Loop over exogenous states computing U() at a give &theta;.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#RVEdU___RVEdU">RVEdU</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Methods.ox.html#EndogUtil">EndogUtil</a>:</dt><dd><a href="Methods.ox.html#EndogUtil___EndogUtil">EndogUtil</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#EnTask">EnTask</a>:</dt><dd><a href="DP.ox.html#EnTask___EnTask">EnTask</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Methods.ox.html#EndogUtil">EndogUtil</a>:</dt><dd><a href="Methods.ox.html#EndogUtil___ex">ex</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="ValueIteration"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ValueIteration : <a href="Methods.ox.html#Method">Method</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+Iterate on Bellman's Equation, to solve EV(&theta;) for all fixed and random effects.
+
+<dl><dt class="comments">Comments:</dt><dd class="comments">Result is stored in <a href="Methods.ox.html#ValueIteration___VV">VV</a> matrix.  <var>EV</var> for only two or three ages (iterations) stored at any one time.  So this
+cannot be used after the solution is complete.  <a href="Bellman.ox.html#Bellman___EV">EV</a> stores the result for each <em>reachable</em> endogenous state.<br>
+Results are integrated over random effects, but results across fixed effects are overwritten.
+</dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___DefTolerance">DefTolerance</a></td>
+<td class="modifiers">static const</td>
+<td class="description">Default convergence tolerance on Bellman Iteration.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___DoNotIterate">DoNotIterate</a></td>
+<td class="modifiers"></td>
+<td class="description">FALSE(default): iterate on value<br>
+            TRUE: only compute transitions.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___ftask">ftask</a></td>
+<td class="modifiers">const</td>
+<td class="description"><a href="Methods.ox.html#FixedSolve">FixedSolve</a> object.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___ndogU">ndogU</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___Volume">Volume</a></td>
+<td class="modifiers"></td>
+<td class="description">Output from the solution method.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___vtoler">vtoler</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___VV">VV</a></td>
+<td class="modifiers"></td>
+<td class="description">Scratch space for value iteration.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___Gsolve">Gsolve</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Interate over the state space apply the solution method.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___NTrips">NTrips</a></td>
+<td class="modifiers"></td>
+<td class="description">Update code for fixed number of trips.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___Run">Run</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Apply Bellman's equation at a point &theta;
+<OL>
+<LI>Compute the value of actions, <var>v(&alpha;,&theta;)</var> by calling <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>()</LI>
+<LI>Call <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>() and storing the value </LI>
+<LI>If <a href="DP.ox.html#DP___setPstar">setPstar</a> then smooth choice probabilities.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___Solve">Solve</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Solve Bellman's Equation..</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___Update">Update</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Check convergence in Bellman iteration, either infinite or finite horizon.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___ValueIteration">ValueIteration</a></td>
+<td class="modifiers"></td>
+<td class="description">Creates a new &quot;brute force&quot; Bellman iteration method.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global </span></h2>
+
+<table class="enum_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><a name="Anonymous enum 1"></a>Anonymous enum 1</td>
+<td class="description"></td>
+<td class="elements">AddToSample, ComputeBhat, PredictEV, NKWstages</td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AguirregabiriaMira</span></h2>
+
+<a name="AguirregabiriaMira___AguirregabiriaMira"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AguirregabiriaMira</span></h3>
+
+<span class="declaration">AguirregabiriaMira :: AguirregabiriaMira ( data , bandwidth )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="AguirregabiriaMira___mle"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mle</span></h3>
+
+<span class="declaration">decl mle [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="AguirregabiriaMira___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">virtual AguirregabiriaMira :: Run ( th )</span>
+<dl><dd>
+Apply Bellman's equation at a point &theta;
+<OL>
+<LI>Compute the value of actions, <var>v(&alpha;,&theta;)</var> by calling <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>()</LI>
+<LI>Call <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>() and storing the value </LI>
+<LI>If <a href="DP.ox.html#DP___setPstar">setPstar</a> then smooth choice probabilities.  And if <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a> then update the state-to-state transition matrix, &Rho;(&theta;&prime;;&theta;)</LI>
+</OL>
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">th,</td>
+<td class="description" valign="baseline">&theta;</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="AguirregabiriaMira___Solve"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Solve</span></h3>
+
+<span class="declaration">AguirregabiriaMira :: Solve ( Fgroups , inmle )</span>
+<dl><dd>
+Solve Bellman's Equation..
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Fgroups</td>
+<td class="description" valign="baseline">DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">MaxTrips</td>
+<td class="description" valign="baseline">0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
+<P/>
+This method carries out Bellman's iteration on the user-defined problem.  It uses the <a href="DP.ox.html#DP___ClockType">ClockType</a> of
+the problem to determine whether it needs to find a fixed point or can simply work backwards in
+time.<p>
+<P/>
+It uses a <a href="Methods.ox.html#FixedSolve">FixedSolve</a>task stored in <a href="Methods.ox.html#ValueIteration___ftask">ftask</a> to loop over fixed effect values.
+<P/>
+If <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a> is <code>OnlyOnce</code> (see <a href="DP.ox.html#UpdateTimes">UpdateTimes</a>), then transitions and variables are updated here.</LI>
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">Result stored in <a href="Methods.ox.html#ValueIteration___VV">VV</a> matrix for only two or three ages (iterations) stored at any one time.  So this
+cannot be used after the solution is complete.  <a href="Bellman.ox.html#Bellman___EV">EV</a> stores the result for each <em>reachable</em> endogenous state.<br>
+Results are integrated over random effects, but results across fixed effects are overwritten.<br>
+Choice probabilities are stored in <a href="Bellman.ox.html#Bellman___pandv">pandv</a> by random group index
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CCP</span></h2>
+
+<a name="CCP___bandwidth"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bandwidth</span></h3>
+
+<span class="declaration">const decl bandwidth [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="CCP___CCP"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CCP</span></h3>
+
+<span class="declaration">CCP :: CCP ( data , bandwidth )</span>
+<dl><dd>
+Collect observed choice frequencies from a dataset.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">data</td>
+<td class="description" valign="baseline"><a href="Outcomes.ox.html#Panel">Panel</a> of outcome data with <a href="Outcomes.ox.html#Outcome___ind">ind</a> computed
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">bandwidth,</td>
+<td class="description" valign="baseline">kernel bandwidth.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="CCP___cnt"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cnt</span></h3>
+
+<span class="declaration">static decl cnt [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="CCP___data"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">data</span></h3>
+
+<span class="declaration">const decl data [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="CCP___entask"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">entask</span></h3>
+
+<span class="declaration">const decl entask [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="CCP___InitializePP"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">InitializePP</span></h3>
+
+<span class="declaration">CCP :: InitializePP ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="CCP___Kernel"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Kernel</span></h3>
+
+<span class="declaration">static decl Kernel [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="CCP___Kstates"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Kstates</span></h3>
+
+<span class="declaration">static decl Kstates [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="CCP___NotFirstTime"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NotFirstTime</span></h3>
+
+<span class="declaration">static decl NotFirstTime [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="CCP___ObsPstar"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ObsPstar</span></h3>
+
+<span class="declaration">static decl ObsPstar [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="CCP___Q"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Q</span></h3>
+
+<span class="declaration">const decl Q [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="CCP___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">CCP :: Run ( fxstate )</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CCPspace</span></h2>
+
+<a name="CCPspace___CCPspace"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CCPspace</span></h3>
+
+<span class="declaration">CCPspace :: CCPspace ( qtask )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="CCPspace___Increment"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Increment</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="CCPspace___qtask"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">qtask</span></h3>
+
+<span class="declaration">const decl qtask [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="CCPspace___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">CCPspace :: Run ( th )</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">EndogUtil</span></h2>
+
+<a name="EndogUtil___EndogUtil"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">EndogUtil</span></h3>
+
+<span class="declaration">EndogUtil :: EndogUtil ( )</span>
+<dl><dd>
+Create an endogenous utility object.
+This task method has the job of looping over the endogenous state space when <var>U(&alpha;...)</var>
+and <var>P(&theta;&prime;;&alpha;,&eta;,&theta;)</var> need to be updated.
+It calls <a href="Methods.ox.html#ExogUtil">ExogUtil</a> task stored in EndogeUtil::ex to loop over &eta; and &epsilon;
+
+<dl><dt class="comments">Comments:</dt><dd class="comments">This task uses <code>iterating</code> indexing because it is called at the start of Bellman iteration.
+So utility is not stored for later use.  To retrieve it during simulation requires an Auxiliary::Variable.
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="EndogUtil___ex"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ex</span></h3>
+
+<span class="declaration">const decl ex [public]</span>
+<dl><dd>
+<a href="Methods.ox.html#ExogUtil">ExogUtil</a> object.
+
+</dd></dl>
+
+<hr>
+<a name="EndogUtil___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">EndogUtil :: Run ( th )</span>
+<dl><dd>
+Loop over exogenous states computing U() at a give &theta;.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">th,</td>
+<td class="description" valign="baseline">point &theta; in the endogenous parameter space.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ExogUtil</span></h2>
+
+<a name="ExogUtil___ExogUtil"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ExogUtil</span></h3>
+
+<span class="declaration">ExogUtil :: ExogUtil ( )</span>
+<dl><dd>
+Create an endogenous utility object.
+This task method has the job of looping over the endogenous state space when <var>U(&alpha;...)</var>
+and <var>P(&theta;&prime;;&alpha;,&eta;,&theta;)</var> need to be updated.
+It calls <a href="Methods.ox.html#ExogUtil">ExogUtil</a> task stored in <a href="Methods.ox.html#EndogUtil___ex">ex</a> to loop over &eta; and &epsilon;
+
+</dd></dl>
+
+<hr>
+<a name="ExogUtil___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">ExogUtil :: Run ( th )</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedSolve</span></h2>
+
+<a name="FixedSolve___FixedSolve"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FixedSolve</span></h3>
+
+<span class="declaration">FixedSolve :: FixedSolve ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="FixedSolve___rtask"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">rtask</span></h3>
+
+<span class="declaration">const decl rtask [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="FixedSolve___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">FixedSolve :: Run ( fxstate )</span>
+<dl><dd>
+Process a point in the fixed effect space.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">fxstate</td>
+<td class="description" valign="baseline">state vector with fixed effects already set
+<OL>
+<LI>If <code>UpdateTime</code> &eq; <code>AfterFixed</code>, then update transitions and variables.</LI>
+<LI>Apply the solution method for each value of the random effect vector.</LI>
+<LI>Carry out post-solution tasks by calling <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>();
+</OL>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">HMEndogU</span></h2>
+
+<a name="HMEndogU___HMEndogU"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">HMEndogU</span></h3>
+
+<span class="declaration">HMEndogU :: HMEndogU ( meth )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="HMEndogU___meth"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">meth</span></h3>
+
+<span class="declaration">const decl meth [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="HMEndogU___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">HMEndogU :: Run ( th )</span>
+<dl><dd>
+Loop over exogenous states computing U() at a give &theta;.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">th,</td>
+<td class="description" valign="baseline">point &theta; in the endogenous parameter space.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="HMEndogU___VV"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">VV</span></h3>
+
+<span class="declaration">static decl VV [public]</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">HotzMiller</span></h2>
+
+<a name="HotzMiller___Gsolve"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gsolve</span></h3>
+
+<span class="declaration">virtual HotzMiller :: Gsolve ( )</span>
+<dl><dd>
+Interate over the state space apply the solution method.
+<OL>
+<LI>Compute endogenous utility</LI>
+<LI>Iterate over states applying Bellman's equation.</LI>
+</OL>
+
+</dd></dl>
+
+<hr>
+<a name="HotzMiller___HotzMiller"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">HotzMiller</span></h3>
+
+<span class="declaration">HotzMiller :: HotzMiller ( indata , bandwidth )</span>
+<dl><dd>
+Add up choice frequencies conditional on &gamma; and &theta;
+
+</dd></dl>
+
+<hr>
+<a name="HotzMiller___Kernel"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Kernel</span></h3>
+
+<span class="declaration">static decl Kernel [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="HotzMiller___myccp"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">myccp</span></h3>
+
+<span class="declaration">const decl myccp [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="HotzMiller___Q"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Q</span></h3>
+
+<span class="declaration">decl Q [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="HotzMiller___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">HotzMiller :: Run ( th )</span>
+<dl><dd>
+Apply Bellman's equation at a point &theta;
+<OL>
+<LI>Compute the value of actions, <var>v(&alpha;,&theta;)</var> by calling <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>()</LI>
+<LI>Call <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>() and storing the value </LI>
+<LI>If <a href="DP.ox.html#DP___setPstar">setPstar</a> then smooth choice probabilities.  And if <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a> then update the state-to-state transition matrix, &Rho;(&theta;&prime;;&theta;)</LI>
+</OL>
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">th,</td>
+<td class="description" valign="baseline">&theta;</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="HotzMiller___Solve"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Solve</span></h3>
+
+<span class="declaration">virtual HotzMiller :: Solve ( Fgroups )</span>
+<dl><dd>
+Solve Bellman's Equation..
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Fgroups</td>
+<td class="description" valign="baseline">DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">MaxTrips</td>
+<td class="description" valign="baseline">0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
+<P/>
+This method carries out Bellman's iteration on the user-defined problem.  It uses the <a href="DP.ox.html#DP___ClockType">ClockType</a> of
+the problem to determine whether it needs to find a fixed point or can simply work backwards in
+time.<p>
+<P/>
+It uses a <a href="Methods.ox.html#FixedSolve">FixedSolve</a>task stored in <a href="Methods.ox.html#ValueIteration___ftask">ftask</a> to loop over fixed effect values.
+<P/>
+If <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a> is <code>OnlyOnce</code> (see <a href="DP.ox.html#UpdateTimes">UpdateTimes</a>), then transitions and variables are updated here.</LI>
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">Result stored in <a href="Methods.ox.html#ValueIteration___VV">VV</a> matrix for only two or three ages (iterations) stored at any one time.  So this
+cannot be used after the solution is complete.  <a href="Bellman.ox.html#Bellman___EV">EV</a> stores the result for each <em>reachable</em> endogenous state.<br>
+Results are integrated over random effects, but results across fixed effects are overwritten.<br>
+Choice probabilities are stored in <a href="Bellman.ox.html#Bellman___pandv">pandv</a> by random group index
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">KeaneWolpin</span></h2>
+
+<a name="KeaneWolpin___Bhat"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Bhat</span></h3>
+
+<span class="declaration">decl Bhat [public]</span>
+<dl><dd>
+TT array of OLS coefficients
+
+</dd></dl>
+
+<hr>
+<a name="KeaneWolpin___cpos"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cpos</span></h3>
+
+<span class="declaration">const decl cpos [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KeaneWolpin___curlabels"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">curlabels</span></h3>
+
+<span class="declaration">decl curlabels [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KeaneWolpin___Gsolve"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gsolve</span></h3>
+
+<span class="declaration">virtual KeaneWolpin :: Gsolve ( )</span>
+<dl><dd>
+Carry out Keane-Wolpin approximation at &theta; .
+This replaces the built-in version used by <a href="Methods.ox.html#ValueIteration">ValueIteration</a>.
+<UL>
+<LI>Iterate backwards in the clock <code>t</code></LI>
+<UL>
+<LI>Iterate on the subsample endogenous states (using <a href="Methods.ox.html#KWEMax">KWEMax</a>), with <a href="Methods.ox.html#KWEMax___firstpass">firstpass</a> &eq; TRUE</LI>
+<LI>Compute the approximtion from the subsample by calling <a href="Methods.ox.html#KeaneWolpin___Specification">Specification</a>()</LI>
+<LI>Iterate on the states not subsampled to predict using the approximation, <a href="Methods.ox.html#KWEMax___firstpass">firstpass</a> &eq; FALSE</LI>
+</UL>
+</UL>
+
+</dd></dl>
+
+<hr>
+<a name="KeaneWolpin___KeaneWolpin"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">KeaneWolpin</span></h3>
+
+<span class="declaration">KeaneWolpin :: KeaneWolpin ( myKWEMax )</span>
+<dl><dd>
+Initialize Keane-Wolpin Approximation method.
+KW Approximation computes complete "brute force" <code>max v(&alpha;)</code> operator on a
+randomly chosen subsample of points in the endogenous state space to predict (extrapolate) choice
+probabilities at the non-sampled states without <code>max v(&alpha;)</code> computations.
+<P/>
+<DT>Semi-endogenous states, &eta;, are not supported in this method.</DT>
+<DD>All state variables must be either fully endogenous are placed in the endoenous vector &gamma;.</DD>
+<DT>Different feasible sets A(&theta;) are allowed, but ...</DT>
+<DD>The feasible set must be the same size at each state at a give clock setting <var>t</var>.
+<DD>A warning message about this is issued if more than one feasible set exists</DD>
+<P/>
+The key elements of the approximation are
+<OL>
+<LI>The points to subsample at each clock setting.</LI>
+<UL>
+<LI>A different proportion can be used at each t, and the approximation can be turned off
+completely at other values of the clock.  This subsampling is done by calling
+<code><a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>(profile)</code>, where profile can be a vector of sampling proportions
+or a constant.</LI>
+<LI>At the subsampled points in &theta; all the exogenous states are iterated over to compute the full value function.<LI>
+<LI>This value of the value is stored as the explained value for the approximation.</LI>
+<LI>The explanatory values are also stored, in the default, the choice-specific values at the
+MEDIAN point in the exogenous vector &epsilon; and the max of them.</LI>
+</UL>
+<LI>The MEDIAN exogenous state to use for prediction (see above)</LI>
+<UL><LI>If an odd number of discrete points are used for each exogenous random variable, and if
+you specific a symmetric distribution of actual values then the MEDIAN point will be the 0
+vector of &epsilon; and it will also equal the mean &epsilon;.</LI></UL>
+<LI>The Specification of the approximation</LI>
+<UL><LI>KW's preferred specification is the default, but it can be replaced by the user
+(no help yet available on this).
+<LI>The default is to run a linear regression in the <var>V-v(&alpha;)</var> vector and the
+square root of the vector</LI></UL>
+<P/>
+</OL>
+
+</dd></dl>
+
+<hr>
+<a name="KeaneWolpin___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">virtual KeaneWolpin :: Run ( th )</span>
+<dl><dd>
+Apply Bellman's equation at a point &theta;
+<OL>
+<LI>Compute the value of actions, <var>v(&alpha;,&theta;)</var> by calling <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>()</LI>
+<LI>Call <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>() and storing the value </LI>
+<LI>If <a href="DP.ox.html#DP___setPstar">setPstar</a> then smooth choice probabilities.  And if <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a> then update the state-to-state transition matrix, &Rho;(&theta;&prime;;&theta;)</LI>
+</OL>
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">th,</td>
+<td class="description" valign="baseline">&theta;</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="KeaneWolpin___Specification"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Specification</span></h3>
+
+<span class="declaration">KeaneWolpin :: Specification ( kwstep , V , Vdelta )</span>
+<dl><dd>
+The default specification of the KW regression.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">kwstep</td>
+<td class="description" valign="baseline">which step of KW approximation to perform
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Vdelta</td>
+<td class="description" valign="baseline">(V-vv)'</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="KeaneWolpin___xlabels0"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">xlabels0</span></h3>
+
+<span class="declaration">decl xlabels0 [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KeaneWolpin___xlabels1"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">xlabels1</span></h3>
+
+<span class="declaration">decl xlabels1 [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KeaneWolpin___xlabels2"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">xlabels2</span></h3>
+
+<span class="declaration">decl xlabels2 [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KeaneWolpin___Xmat"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Xmat</span></h3>
+
+<span class="declaration">decl Xmat [public]</span>
+<dl><dd>
+X
+
+</dd></dl>
+
+<hr>
+<a name="KeaneWolpin___Y"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Y</span></h3>
+
+<span class="declaration">decl Y [public]</span>
+<dl><dd>
+Y
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">KWEMax</span></h2>
+
+<a name="KWEMax___firstpass"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">firstpass</span></h3>
+
+<span class="declaration">decl firstpass [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KWEMax___hi"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hi</span></h3>
+
+<span class="declaration">const decl hi [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KWEMax___InSample"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">InSample</span></h3>
+
+<span class="declaration">virtual KWEMax :: InSample ( th )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KWEMax___KWEMax"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">KWEMax</span></h3>
+
+<span class="declaration">KWEMax :: KWEMax ( )</span>
+<dl><dd>
+Endogenous Utility task used the KeaneWolpin Approximation.
+
+</dd></dl>
+
+<hr>
+<a name="KWEMax___lo"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">lo</span></h3>
+
+<span class="declaration">const decl lo [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KWEMax___meth"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">meth</span></h3>
+
+<span class="declaration">decl meth [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KWEMax___onlypass"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">onlypass</span></h3>
+
+<span class="declaration">decl onlypass [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KWEMax___OutSample"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">OutSample</span></h3>
+
+<span class="declaration">virtual KWEMax :: OutSample ( th )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KWEMax___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">virtual KWEMax :: Run ( th )</span>
+<dl><dd>
+Carry out Keane-Wolpin approximation at an endogenous state &theta; .
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">th</td>
+<td class="description" valign="baseline">&theta;
+There are three conditions upon entering this routine at &theta;
+<OL>
+<LI>&theta; is in the subsample of complete solutions and this is the first pass.</LI>
+<DD>In this case nothing needs to done further and the function returns</DD>
+<LI>&theta; is not in the subsample of complete solutions and this is not the first pass</LI>
+<DD>In this case the value of the state is interpolated by computing V at the median exogenous state then predicting the expected
+value across all exogenous states.</DD>
+<LI>&theta; is in the subsample and this is the first pass<LI>
+<DD> Bellman is applied to all exogenous states at this endogenous state &theta;</DD>
+<DD> The result is added to the KW sample</DD>
+</OL></td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomSolve</span></h2>
+
+<a name="RandomSolve___RandomSolve"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RandomSolve</span></h3>
+
+<span class="declaration">RandomSolve :: RandomSolve ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="RandomSolve___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">RandomSolve :: Run ( gam )</span>
+<dl><dd>
+Apply the solution method for the current fixed values.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">gam,</td>
+<td class="description" valign="baseline"><a href="DP.ox.html#Group">Group</a> object to solve for.
+<P/>
+If <code>UpdateTime</code> &eq; <code>AfterRandom</code>, then update transitions and variables.
+<P/>
+Solution is not run if the density of the point in the group space equals 0.0.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RVEdU</span></h2>
+
+<a name="RVEdU___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<dl><dd>
+Loop over exogenous states computing U() at a give &theta;.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">th,</td>
+<td class="description" valign="baseline">point &theta; in the endogenous parameter space.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="RVEdU___RVEdU"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RVEdU</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ValueIteration</span></h2>
+
+<a name="ValueIteration___DefTolerance"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DefTolerance</span></h3>
+
+<span class="declaration">static const decl DefTolerance [public]</span>
+<dl><dd>
+Default convergence tolerance on Bellman Iteration.
+
+</dd></dl>
+
+<hr>
+<a name="ValueIteration___DoNotIterate"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DoNotIterate</span></h3>
+
+<span class="declaration">decl DoNotIterate [public]</span>
+<dl><dd>
+FALSE(default): iterate on value<br>
+            TRUE: only compute transitions.
+
+</dd></dl>
+
+<hr>
+<a name="ValueIteration___ftask"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ftask</span></h3>
+
+<span class="declaration">const decl ftask [public]</span>
+<dl><dd>
+<a href="Methods.ox.html#FixedSolve">FixedSolve</a> object.
+
+</dd></dl>
+
+<hr>
+<a name="ValueIteration___Gsolve"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gsolve</span></h3>
+
+<span class="declaration">virtual ValueIteration :: Gsolve ( )</span>
+<dl><dd>
+Interate over the state space apply the solution method.
+<OL>
+<LI>Compute endogenous utility</LI>
+<LI>Iterate over states applying Bellman's equation.</LI>
+</OL>
+
+</dd></dl>
+
+<hr>
+<a name="ValueIteration___ndogU"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ndogU</span></h3>
+
+<span class="declaration">const decl ndogU [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ValueIteration___NTrips"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">NTrips</span></h3>
+
+<span class="declaration">ValueIteration :: NTrips ( )</span>
+<dl><dd>
+Update code for fixed number of trips.
+
+</dd></dl>
+
+<hr>
+<a name="ValueIteration___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">virtual ValueIteration :: Run ( th )</span>
+<dl><dd>
+Apply Bellman's equation at a point &theta;
+<OL>
+<LI>Compute the value of actions, <var>v(&alpha;,&theta;)</var> by calling <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>()</LI>
+<LI>Call <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>() and storing the value </LI>
+<LI>If <a href="DP.ox.html#DP___setPstar">setPstar</a> then smooth choice probabilities.  And if <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a> then update the state-to-state transition matrix, &Rho;(&theta;&prime;;&theta;)</LI>
+</OL>
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">th,</td>
+<td class="description" valign="baseline">&theta;</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="ValueIteration___Solve"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Solve</span></h3>
+
+<span class="declaration">virtual ValueIteration :: Solve ( Fgroups , MaxTrips )</span>
+<dl><dd>
+Solve Bellman's Equation..
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Fgroups</td>
+<td class="description" valign="baseline">DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">MaxTrips</td>
+<td class="description" valign="baseline">0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
+<P/>
+This method carries out Bellman's iteration on the user-defined problem.  It uses the <a href="DP.ox.html#DP___ClockType">ClockType</a> of
+the problem to determine whether it needs to find a fixed point or can simply work backwards in
+time.<p>
+<P/>
+It uses a <a href="Methods.ox.html#FixedSolve">FixedSolve</a>task stored in <a href="Methods.ox.html#ValueIteration___ftask">ftask</a> to loop over fixed effect values.
+<P/>
+If <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a> is <code>OnlyOnce</code> (see <a href="DP.ox.html#UpdateTimes">UpdateTimes</a>), then transitions and variables are updated here.</LI>
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">Result stored in <a href="Methods.ox.html#ValueIteration___VV">VV</a> matrix for only two or three ages (iterations) stored at any one time.  So this
+cannot be used after the solution is complete.  <a href="Bellman.ox.html#Bellman___EV">EV</a> stores the result for each <em>reachable</em> endogenous state.<br>
+Results are integrated over random effects, but results across fixed effects are overwritten.<br>
+Choice probabilities are stored in <a href="Bellman.ox.html#Bellman___pandv">pandv</a> by random group index
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="ValueIteration___Update"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
+
+<span class="declaration">virtual ValueIteration :: Update ( )</span>
+<dl><dd>
+Check convergence in Bellman iteration, either infinite or finite horizon.
+Default task loop update routine for value iteration.
+This is called after one complete iteration of <a href="Methods.ox.html#ValueIteration___Gsolve">Gsolve</a>.
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if converged or <a href="DP.ox.html#Task___trips">trips</a> equals <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="ValueIteration___ValueIteration"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ValueIteration</span></h3>
+
+<span class="declaration">ValueIteration :: ValueIteration ( myEndogUtil )</span>
+<dl><dd>
+Creates a new &quot;brute force&quot; Bellman iteration method.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">myEndogUtil</td>
+<td class="description" valign="baseline"> <a href="Methods.ox.html#EndogUtil">EndogUtil</a> to use for iterating over endogenous states<br>0 (default), built in task will be used.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="ValueIteration___Volume"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Volume</span></h3>
+
+<span class="declaration">decl Volume [public]</span>
+<dl><dd>
+Output from the solution method.
+
+</dd></dl>
+
+<hr>
+<a name="ValueIteration___vtoler"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">vtoler</span></h3>
+
+<span class="declaration">decl vtoler [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ValueIteration___VV"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">VV</span></h3>
+
+<span class="declaration">decl VV [public]</span>
+<dl><dd>
+Scratch space for value iteration.
+
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

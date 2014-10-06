@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>GetStartedData - Derived Dynamic Programs</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">GetStartedData</span></h1>
+
+An example of data and DDP .
+<P/>
+<h1>A small example based on simulated data </h1>
+<DT>See Also</DT>
+<DD>See <a href="Outcomes.ox.html">Outcomes</a> for other details .  </DD>
+<DD>See <a href="../../examples/RustEmet1987mle.ox.html">Rust Emet 1987 mle</a> for an example of using external data.</DD>
+<div class="page-break">
+<DT>This example is based on the <code>Search</code> model described in <a href="GetStarted.html">GetStarted</a>.  </DT>
+<DT>Using a <a href="http://www.doornik.com/ox/oxsyntax.html#ox_syntax_RefDerClass">derived class</a> the simple search model in GetStarted is extended without touching the existing code or copying it to a new file and modifying.</DT>
+<DT>The original code is included (or if it had been split into <code>.h</code> and <code>.ox</code> files, <code>imported</code>) and a new class is derived from the <code>Search</code> class.
+<DD><pre>
+struct DerivedSearch : Search {
+	static decl u, simdata;
+	static Run();
+	}
+</pre></DD>
+<DT>The <code>DerivedSearch</code> class adds two members for data operations.</DT>
+<DD>We plan to simulate behaviour of optimal search behaviour, and we want to collect realized utility from the choices.  <a href="Outcomes.ox.html#Outcome">Outcome</a>s have space to store all realized actions and states, but utility or other functions of the outcome are not tracked automatically.  The new code will track realized utility with an object stored in <code>u</code>.</DD>
+<DD>Simulated data are generated and stored as a <a href="Outcomes.ox.html#DataSet">DataSet</a> object, and <code>simdata</code> will be that object.</DD>
+<DD>The static <code>Run()</code> procedure will do the work.</DD>
+<DD>All members o the base <code>Search</code> class are inherited and do not need to be declared or defined.</DD>
+<P/>
+<h2>Auxiliary Variables</h2>
+<P/>
+<DT>Realized utility is recorded as an <a href="DPAuxiliary.ox.html#AuxiliaryVariable">AuxiliaryVariable</a>.  </DT>
+<DD>Typically a user would have to derive a new class to track the outcome of interest, but realized utility is a built-in class so this code appears <code>DPAuxiliary.h</code> and <code>DPAuxiliary.ox</code>. <DD>
+<pre>struct RealizedUtility : AuxiliaryVariable {
+	RealizedUtility();
+	Realize(const q,const y);
+	}
+<P/>
+RealizedUtility::RealizedUtility() { 	AuxiliaryVariable("U"); 	}
+<P/>
+RealizedUtility::Realize(const q,const y) {
+	v = q->Utility()[y.ind[onlyacts]];
+	}
+</pre>
+<DD>The constructor for an auxiliary variable simply has to call the base constructor and send a label.  (It could do other things of course.)</DD></DT>
+<DT>Auxiliary variables need to provide a <code>Realize()</code> function</DT>
+<DD><code>Realize</code> will be called only when simulating data (or in econometric estimation that involves matching predicted outcomes). </DD>
+<DD>Its first argument is the realized point in the state space (&theta;).  The second is the current realized outcome (&upsilon;).  This allows the auxiliary variable to access everything else.</DD>
+<DD>Since <a href="DPAuxiliary.ox.html#AuxiliaryVariable">AuxiliaryVariable</a> is derived from <a href="Shared.ox.html#Quantity">Quantity</a> it has a current member, <code>v</code>.  The job of <code>Realize()</code> is to set <code>v</code> for other aspects of the code to use.  In this case, the auxiliary outcome calls <code>Utility()</code> and extracts the element of the vector returned that corresponds to the realized action.  </DD>
+<DD>By using a virtual method <code>Realize</code>, the base <span class="n">DDP</span> code can update your auxiliary variables for you without knowing ahead of time what those variables are. </DD>
+<DD>Also note that an auiliary variable can be sent to <a href="Shared.ox.html#CV">CV</a>() after the call to <code>Realize()</code>.  For example, here <code>CV(u)</code> will return the realized value of utility of the current outcome.   So it is straightforward to build auxiliary variables into econometric objectives, equilibrium conditions, etc.</DD>
+<P/>
+<h2>Modified Run</h2>
+<DT><code>DerivedSearch</code> will rely on the base <code>Run()</code> routine discussed in <a href="GetStarted.html">GetStarted</a>.  All it has to do is create the auxiliary variable and then create a specialized data set object:
+<dd><pre>
+DerivedSearch::Run()	{
+	Search::Run();
+	AuxiliaryOutcomes(u = new RealizedUtility());
+    simdata = new SearchData();
+	}</pre></dd>
+<P/>
+<h2>DataSet Objects</h2>
+<DT>A data set can be simulated or read into <span class="n">DDP</span> using the base <a href="Outcomes.ox.html#DataSet">DataSet</a> class, but it can be convenient to create a derived class to do the work.</DT>
+<DD><pre>
+struct SearchData : DataSet {
+	enum{N=15,MaxOb=20}
+    SearchData();
+    }</pre></DD>
+<DT>We have stored the size of the simulation we want to run: the enumerated values <code>N</code> and <code>MaxOb</code> will be used in <code>SearchData()</code>.  Fifteen searchers will be simulated for up to 20 price draws.</DT>
+<P/>
+<DT>The creator function will do the work.</DT>
+<DD><pre>
+SearchData::SearchData() {
+	DataSet("Search Data");
+	Simulate(N,MaxOb,zeros(NN),TRUE); //TRUE censors terminal states
+	Print(1);
+	Observed(Search::a,UseLabel,Search::p,UseLabel,Search::d,UseLabel,DerivedSearch::u,UseLabel);
+	Mask();
+	println("Vector of likelihoods when offered price is observed:",exp(EconometricObjective()));
+	UnObserved(Search::p);
+	Mask();
+	println("Vector of likelihoods when offered prices is unobserved:",exp(EconometricObjective()));
+	}</pre></DD>
+<DT>SearchData first calls its parent creator method.</DT>
+ <DD>The first argument is a name to associate with the data set and the solution method to use during simulation or estimation.  Two other arguments can be sent, but in this case they are not needed. </DD>
+ <DD>In particular, the second argument can be a solution method object so that the dynamic program is solved before the simulation occurs.  (In this case, <code>DataSet("Search Data",meth)</code> where member <code>meth</code> was set by the parent <code>Search</code>.</DD>  However, since <code>Search::Run()</code> is run first and it has already solved the DP model it would be redundant to solve it again.</DD>
+<P/>
+<DT><code>Simulate()</code> generates the simulated sample by applying the conditional choice probabilities and transitions to initial states. </DT>
+<DD>The simulated panel will consist of <code>N</code> paths of the search model, each of maximum length <code>MaxOb</code>.  </DD>
+<DD>Since the model has a terminal state, then any path may end before the maximum length.  If there were not terminal conditions then the second argument determines how long each path really is.  </DD>
+<DD>The third argument is a matrix of initial state vectors to use in the simulation.  In this case a single state vector is sent.  Since the model is stationary (<code>t=0</code>), and the non-absorbing state happens to be <code>d=0</code>, then sending a vector of zeros is appropriate for initial conditions.  But in other situations this may not be the desired or well-defined initial state.  </DD>
+<DD>The fourth argument being TRUE indicates that when a terminal condition (<code>d=1</code>) is reached that outcome should not be included in the simulated path. The effect is to trim outcomes that are not needed.  Once the agent has accepted a price the process is done.  So the next state with <code>d=1</code> is redundant for estimation purposes.</DD>
+<details  class="aside"><summary>Note:  <code>DataSet</code> class does not have a <code>Simulate()</code> method of its own.</summary>
+Since <code>DataSet</code> is derived from the <a href="Outcomes.ox.html#Panel">Panel</a> class the command <code>simdata-&gt;Simulate(&hellip;)</code> is equivalent to <code>simdata-&gt;Panel::Simulate(&hellip;)</code>. This also means that the user could have made <code>simdata</code> a Panel object instead, if simulation was all that was required, but the data manipulation coming next require a <code>DataSet</code> object.</details>
+<DT><code>Print(1)</code> constructs a matrix representation of the data set and prints it to the output screen or log file.</DT>
+  <DD>A data set is really a multi-leveled linked list of panels, paths, and outcomes.  This makes it possible to write general purpose routines for analyzing the data under various assumptions, such as the likelihood of the panel when some states are unobserved.  </DD>
+<DD>The object <code>simdata</code> can be printed out to see all this structure, but a great deal of output is produced which is not particularly helpful.  </DD>
+<DD><a href="Outcomes.ox.html#Panel___Print">Print</a> process the outcomes into a standard matrix representation.</DD>
+  <DD>If <code>Print()</code> had been sent a file name with a valid extension then the simulated matrix would have been saved to a file (e.g. such as <q>sim.data</q> or <q>search.xls</q>).  </DD>
+  <DD><code>Print()</code> calls <code>Flat()</code> to flatten this data structure into a <q>long</q> matrix, one row for each outcome and one column for each element of the full outcome Y* (except for the pointers to other outcomes).  Columns for path id and simulated time are added.  <code>Flat()</code>is itself a recursive task that builds up the matrix by processing fixed panels, paths and outcomes recursively.</dd>
+<P/>
+<h2>Observability and Masking</h2>
+<DT><a href="Outcomes.ox.html#DataSet___Observed">Observed</a>() allows the user to control which parts of the outcome is seen in data (and available to econometric methods) and which are missing and require integration over.</DT>
+<DD>By default nothing is observed, so the user must explicitly add variables to the observed list.  State variables that are <a href="StateVariable.ox.html#Fixed">Fixed</a>, are placeholders that take on only one value, so they are implicitly observed.  These are marked as <code>force0</code> so that if reading in from external data the values will be filled in and they do not have to be explicitly observed.</DD>
+<DD><code>DataSet::Observed()</code> takes one or more <em>pairs</em> of arguments.  The first in the pair is the state, action or auxiliary variable that is observed.  The second is either the label for that variable's column in external data or the index of that column.  The code <code>UseLabel</code> means that the same label is used in the data as stored internally for the variable.  (When using simulated data this second argument is not used, but if the data were save to disk and read back in to a different DataSet object it would be best to use <code>UseLabel</code> because it is used for the column labels.,</dd>
+<DT>Since the code is working with simulated data, the data set already has the full outcome <code>Y*</code> in memory.  </DT>
+<DD>When reading in external data, the observability of variables is specified <em>ex ante</em> and then the observable data is read in using <code><a href="Outcomes.ox.html#DataSet___Read">Read</a>(const filename)</code>.  But here, observability is specified <em>ex post</em>.</DD>
+<DD>With simulated data, the user must apply <a href="Outcomes.ox.html#DataSet___Mask">Mask</a>() before sending the data to an econometric method.  When reading in external data the mask is applied internally by <a href="Outcomes.ox.html#DataSet___Read">Read</a>().</DD>
+<DT>Masking accounts for unobservability using a fairly complex process (which will be documented more completely in later releases.</DT>
+ <DD>Essentially missing observations spawn loops over all possible values when processing the outcome.  And the model's probabilistic elements must be used to weight the paths.  </DD>
+ <DD>Further, procedures such as likelihood computation is carried out using backwards recursion not the usual forward recursion.  </DD>
+<DD>Unless the DataSet <code>Volume</code> is set to <code>SILENT</code> the masking method will print out a table summarizing the observability of the total outcome.</DD>
+<P/>
+<h2>Econometric Objective</h2>
+<P/>
+<DT>DataSet has a virtual method, <a href="Outcomes.ox.html#DataSet___EconometricObjective">EconometricObjective</a>().  The default is to compute and return <a href="Outcomes.ox.html#Panel___LogLikelihood">LogLikelihood</a>()</DT>
+ <DD>The user can derive their own DataSet class and replace it with an alternative procedure (and other built in objectives, such as GMM, will be provided in later releases).</DD>
+<DD> Since it is log-likelihood it is easier to check the <code>exp()</code> in this small example .  As with all Objectives within <span class="n">FiveO</span>, it turns a vector of values that Algorithms will sum up or use directly to compute Jacobians as needed.</DD>
+<DT>Once data is masked or read in from an external source the value of any variable that was not marked as observed for force0 is now lost even if it were observed originally.  </DT>
+<DD>So it is not possible to undo <em>un</em>observability within a program and a single data set.  A second data set can be created without different observability and read in from the same source. (And simulated data could be saved using <code><a href="Outcomes.ox.html#Panel___Print">Print</a>(filename)</code> and read into a new data set.)</DD>
+<DD>However, it is possible to undo observability, as the next line illustrates.  In the first evaluation of the likelihood the offered price, <em>p</em> was treated as observed.  Now, that mark is undone by sending the variable <code>p</code> to <a href="Outcomes.ox.html#DataSet___UnObserved">UnObserved</a>() and re-masking the data.  The next likelihood will integrate out the offered price.</DD>
+<DT>A note on observing the terminal state <code>d</code>.  </DT>
+<DD>Since the terminal condition <code>d=1</code> was censored from the simulated data all the observations have active searchers.  However, <code>Mask()</code> does not know this so unless <code>d</code> is marked as unobserved.</DD>
+<DD>This creates a problem for rejected offer observations (<code>a=0</code>), because that is feasible when <code>d=1</code>.  Thus, the built in log-likelihood will integrate over <code>d=0</code> and <code>d=1</code> when offers are rejected unless <code>d</code> is marked as observed.  The user should remove <code>d,UseLabel</code> from the observed list and see the implications of this change.</DD>
+<DD>A later version of <span class="n">niqlow</span> may address by allowing terminal states to have empty feasible action sets.</DD>
+<h2>Output</h2>
+<P/>
+<details><summary><DT>Output produced by running GetStartedData.ox is here:</DT></summary>
+<dd><pre>Source: <a href="../../examples/output/GetStartedData.txt">niqlow/examples/GetStartedData.txt</a>
+<object width="75%" height="200" type="text/plain" data="../../examples/output/GetStartedData.txt" border="1" ></object></pre></dd></details>
+<DT>First, note that the same output is produced as GetStarted.ox, because <code>Search::Run()</code> is called.</DT>
+<DT>Next, the simulation is conducted.  Because a <a href="Methods.ox.html#Method">Method</a> object was passed to the DataSet the value function was solved again, with the same results.</DT>
+<DT>As requested, the simulated data is printed as a flat matrix.</DT>
+ <DD>The column labeled <code>path</code> is an identifier for the realization, and since 10 were requested the ID goes from 0 to 9.</DD>
+ <DD>Since the probability of accepting an offer is 0.7, most simulated paths will end after one period (<code>t=0</code>).   Paths 2 and 7 include rejection of high prices in the first period followed by acceptances in the next period.  Also, note that terminating states <code>d=1</code> are excluded as requested.</DD>
+ <DD>The final column of the matrix is the realized utility, which is the auxiliary variable.  </DD>
+ <DT>The observability of variables is summarized next, in three rows for each aspect of Y*.</DT>
+<DD>The program marked <code>a, p, d</code> as observed.</DD>
+ <DD>Five aspects of the outcome are fixed (only take on the value 0), so <code>force0</code> is equal to 1 for them. </DD>
+ <DD>Since the data are simulated rather than external, each column index is -1. </DD>
+ <DT>When <code>EconometricObjective</code> is called the method is used and the model is again solved (in this case unnecessarily because nothing has changed).</DT>
+ <DD>The output of the call is a 10x1 vector of log-likelihoods for each IID outcome: that is, each path.  The exponent is taken before printing it out in order to get back to a probability (in levels).</DD>
+ <DD>The fact that each likelihood is exactly 1.0 may be unexpected.  But recall, in this simple model there is no continuous shock &zeta; and no <em>ex post</em> smoothing of choice probabilities. So the choice probability &Rho;* is 1.0 for the optimal choice and 0 otherwise.  Since the data are simulated the optimal choice is always chosen, and <em>since p is treated as observed</em> the likelihood conditions on its value.</DD>
+ <DD>If external data were read in that included an inconsistent choice (such as rejecting a price of 2), then the likelihood of that observation would be 0.0.  (As a modern mathematical language, Ox represents <code>log(0)</code> as <em>-&infty;</em>, and <code>exp(-&infty;)</code> as 0.</DD>
+ <DT>Next, the observability of <code>p</code> is undone and the objective is computed again.</DT>
+ <DD>The model is resolved, again with the same results and in this case unnecessarily.</DD>
+ <DD>The new observability is summarized.  As noted above, it is not possible to reverse unobservability within a data set, since the observed values are destroyed.  But there is no issue with removing <code>p</code> from the observed list and re-masking the data.</DD>
+ <DD>Now, with prices as treated as unobserved, the model is probabilistic.  The model's chance that <code>a=0</code> is the probability that realized <code>p&ge;7</code>, or 3/10.  The chance of acceptance is 0.7, and for the 8 paths for which the first offer was accepted this is indeed the computed likelihood.  This demonstrates that <span class="n">niqlow</span> is able to account for unobservability of states (or actions) based on the model set up and the specified information about outcomes, which are treated independently of the model output and the full outcome Y*.</DD>
+ <DD>For the two observations where the first price is rejected the likelihood is <em>0.21 = 0.7 &times; 0.3</em>.  This demonstrates that a panel of realizations from a single DP is handled properly.</DD>
+
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

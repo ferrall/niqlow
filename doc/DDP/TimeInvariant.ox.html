@@ -1,0 +1,723 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>TimeInvariant.ox - Derived Dynamic Programs</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">TimeInvariant.ox</span></h1>
+
+Index different DP models (elements of <code>&gamma;</code>).
+<a href="#auto">Skip down to documentation of items defined in TimeInvariant.ox</a><p>
+<P/>
+Time invariants are variables that take on different values across agents but are fixed for a given agent.
+<P/>
+<OL class="body">
+<LI>Fixed States</LI>
+The basic DP model concerns a single agent in a single environment.  However, many applications involve related DP problems that differ in parameter values, which in turn alter the primitives U(), &Rho;(), &delta;.
+<P/>
+The state vector &gamma; holds variables that are fixed for an agent but differ across agents.  As with other state vectors, anything that can go in &gamma; could be placed in &theta;.  However, since the state does not vary it is inefficient to included invariant states in <b><b>&Theta;</b></b>.  Instead, <span class="n">DDP</span> resuses <b>&Theta;</b> for each value of &gamma; and stores only a minimum amount of information for previously solved models.
+<P/>
+Only state variables derived from the <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a> class can be added to &gamma;.    Invariants do not have a transition.
+<P/>
+<span class="n">DDP</span> distinguishes between two kinds of invariants.  Each is either a <a href="TimeInvariant.ox.html#FixedEffect">FixedEffect</a> or a <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a>.  This distinction plays the same role as in panel models.  Fixed effects typically correspond to constant observed variables, such as gender.  So if the model is to be solved separately for men and women, with different primitives, then a binary FixedEffect would be added to &gamma;.  On the other hand, a <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a> is designed to account for unobserved variation in the underlying problem.  An example would be a model that allows agents to have different (unobserved and permanent) skill levels.  A single skill variable taking on discrete values could be added to &gamma;  In estimation DDP will sum over the distribution of skills.
+<P/>
+If a TimeInvariant class has a <code>Transit()</code> function defined it is never called because the DP problem presumes the value will never change.  A fixed effect also has no distribution, but a random effect does,  <a href="TimeInvariant.ox.html#RandomEffect___Distribution">Distribution</a>().   The distribution is used to integrate out the random effect after solving for behavior conditional on each value.  The distribution can depend on the value of the fixed effects. For example, the distribution of skills can depend on gender.    This is called once for each value of the fixed effects and this updates the <a href="Shared.ox.html#Discrete___pdf">pdf</a>(), a vector of probabilities or weights place on the values of the random effect.
+<P/>
+Correlated random effects are created by adding a <a href="TimeInvariant.ox.html#RandomEffectBlock">RandomEffectBlock</a> to &gamma;
+<P/>
+Each combination of random and fixed effects implies a value of &gamma;, and for each &gamma; a <a href="DP.ox.html#Group">Group</a> node is created.  The set of all group nodes is the group space, denoted &Gamma;.
+<P/>
+</OL>
+<P/>
+<DT>As with allowing state variables to be declared exogenous, moving time invariant variables from &theta; to &gamma; saves time and especially storage while solving the model. </DT>
+<DD>An invariant does not need to be tracked during iteration over <b>&Theta;</b>.  So group variable <code>Transit()</code> methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>. </DD>
+<DD>Storage is re-used while solving for different values of &gamma;. <span class="n">DDP</span> reuses the state space <b>&Theta;</b> for each value of &gamma;.</DD>
+<DD>Choice probabilities <code>&Rho;*(&alpha | &epsilon;, &eta;, &theta;, &gamma; )</code> are stored separably for each random value of &gamma;.  EV(&theta;) integrates out the random effects, conditional on the value of the fixed effects in &gamma;.</DD>
+<DD>Both utility and a transitions can depend on the value of fixed effects.  However, only utility can depend on random effects. </DD>
+<P/>
+<DT>Finite Mixture Heterogeneity</DT>
+<DD><span span="n">FiveO</span> includes options for finite-mixture objectives.  This can be used seamlessly to estimate parameters of a DDP that vary across groups.</DD>
+<P/>
+<hr><a name="auto"><h1>Documentation of  Items Defined in TimeInvariat.ox</h1></a>
+
+<a name="CorrelatedEffect"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CorrelatedEffect : <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a> : <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+An element of a RandomEffectBlock.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="TimeInvariant.ox.html#CorrelatedEffect___block">block</a></td>
+<td class="modifiers"></td>
+<td class="description">EffectBlock that I belong to  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="TimeInvariant.ox.html#CorrelatedEffect___bpos">bpos</a></td>
+<td class="modifiers"></td>
+<td class="description">Index into block array/vector  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="TimeInvariant.ox.html#CorrelatedEffect___CorrelatedEffect">CorrelatedEffect</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a new CorrelatedEffect.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#RandomEffect___RandomEffect">RandomEffect</a></dd>
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___subv">subv</a>, <a href="StateVariable.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="FixedEffect"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedEffect : <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A state variable that is non-random and invariant for an individual DP problem.
+<P/>
+Solution methods loop over fixed effect values, re-using storage space.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#FETask">FETask</a></dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="TimeInvariant.ox.html#FixedEffect___FixedEffect">FixedEffect</a></td>
+<td class="modifiers"></td>
+<td class="description">A state variable that is non-random an invariant for and individual DP problem.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___subv">subv</a>, <a href="StateVariable.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="FixedEffectBlock"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedEffectBlock : <a href="TimeInvariant.ox.html#FixedEffect">FixedEffect</a> : <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A Block of <a href="TimeInvariant.ox.html#FixedEffect">FixedEffect</a> group variables.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="TimeInvariant.ox.html#FixedEffectBlock___Allv">Allv</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="TimeInvariant.ox.html#FixedEffectBlock___Theta">Theta</a></td>
+<td class="modifiers"></td>
+<td class="description">temporary list of effects  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="TimeInvariant.ox.html#FixedEffectBlock___AddToBlock">AddToBlock</a></td>
+<td class="modifiers"></td>
+<td class="description">Add a variable to the effect block.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="TimeInvariant.ox.html#FixedEffectBlock___FixedEffectBlock">FixedEffectBlock</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a list of <a href="TimeInvariant.ox.html#FixedEffect">FixedEffect</a> state variables.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#FixedEffect">FixedEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#FixedEffect___FixedEffect">FixedEffect</a></dd>
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___subv">subv</a>, <a href="StateVariable.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="NormalRandomEffect"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NormalRandomEffect : <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a> : <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A permanent discretize N(0,&sigma;<sup>2</sup>) random effect.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#DiscreteNormal">DiscreteNormal</a></dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="TimeInvariant.ox.html#NormalRandomEffect___mu">mu</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="TimeInvariant.ox.html#NormalRandomEffect___sigma">sigma</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="TimeInvariant.ox.html#NormalRandomEffect___NormalRandomEffect">NormalRandomEffect</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a permanent discretized normal random effect.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#RandomEffect___RandomEffect">RandomEffect</a></dd>
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___subv">subv</a>, <a href="StateVariable.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="RandomEffect"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffect : <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A random state variable that is invariant for an individual DP problem.
+<P/>
+Solution methods loop over random effect values and will account for distributionn.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#RETask">RETask</a></dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="TimeInvariant.ox.html#RandomEffect___RandomEffect">RandomEffect</a></td>
+<td class="modifiers"></td>
+<td class="description">A state variable that is random but invariant for an individual DP problem.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___subv">subv</a>, <a href="StateVariable.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="RandomEffectBlock"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffectBlock : <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a> : <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A Block of <a href="TimeInvariant.ox.html#CorrelatedEffect">CorrelatedEffect</a> group variables.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="TimeInvariant.ox.html#RandomEffectBlock___Allv">Allv</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="TimeInvariant.ox.html#RandomEffectBlock___Theta">Theta</a></td>
+<td class="modifiers"></td>
+<td class="description">temporary list of effects  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="TimeInvariant.ox.html#RandomEffectBlock___AddToBlock">AddToBlock</a></td>
+<td class="modifiers"></td>
+<td class="description">Add a variable to the effect block.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="TimeInvariant.ox.html#RandomEffectBlock___RandomEffectBlock">RandomEffectBlock</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a list of <a href="TimeInvariant.ox.html#CorrelatedEffect">CorrelatedEffect</a> state variables.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#RandomEffect___RandomEffect">RandomEffect</a></dd>
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___subv">subv</a>, <a href="StateVariable.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="SubEffect"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SubEffect : <a href="TimeInvariant.ox.html#FixedEffect">FixedEffect</a> : <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+An element of the FixedEffectBlock.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="TimeInvariant.ox.html#SubEffect___block">block</a></td>
+<td class="modifiers"></td>
+<td class="description">EffectBlock that I belong to  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="TimeInvariant.ox.html#SubEffect___bpos">bpos</a></td>
+<td class="modifiers"></td>
+<td class="description">Index into block array/vector  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="TimeInvariant.ox.html#SubEffect___SubEffect">SubEffect</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a new Sub.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#FixedEffect">FixedEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#FixedEffect___FixedEffect">FixedEffect</a></dd>
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___subv">subv</a>, <a href="StateVariable.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="TauchenRandomEffect"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TauchenRandomEffect : <a href="TimeInvariant.ox.html#NormalRandomEffect">NormalRandomEffect</a> : <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a> : <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a> : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Use Tauchen's method to discretize a normal variable.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="TimeInvariant.ox.html#TauchenRandomEffect___M">M</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="TimeInvariant.ox.html#TauchenRandomEffect___TauchenRandomEffect">TauchenRandomEffect</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a permanent discretized normal random effect.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#NormalRandomEffect">NormalRandomEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#NormalRandomEffect___NormalRandomEffect">NormalRandomEffect</a></dd>
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#RandomEffect___RandomEffect">RandomEffect</a></dd>
+<dt>Inherited methods from <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="TimeInvariant.ox.html#NormalRandomEffect">NormalRandomEffect</a>:</dt><dd><a href="TimeInvariant.ox.html#NormalRandomEffect___mu">mu</a>, <a href="TimeInvariant.ox.html#NormalRandomEffect___sigma">sigma</a></dd>
+<dt>Inherited fields from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___subv">subv</a>, <a href="StateVariable.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="TimeInvariant"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TimeInvariant : <a href="StateVariable.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+An element of the group vector &gamma;.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="TimeInvariant.ox.html#TimeInvariant___Update">Update</a></td>
+<td class="modifiers"></td>
+<td class="description">Do Nothing and prohibit derived Updates.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="StateVariable.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="StateVariable.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="StateVariable.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="StateVariable.ox.html#StateVariable___subv">subv</a>, <a href="StateVariable.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CorrelatedEffect</span></h2>
+
+<a name="CorrelatedEffect___block"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">block</span></h3>
+
+<span class="declaration">decl block [public]</span>
+<dl><dd>
+EffectBlock that I belong to
+
+</dd></dl>
+
+<hr>
+<a name="CorrelatedEffect___bpos"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bpos</span></h3>
+
+<span class="declaration">decl bpos [public]</span>
+<dl><dd>
+Index into block array/vector
+
+</dd></dl>
+
+<hr>
+<a name="CorrelatedEffect___CorrelatedEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CorrelatedEffect</span></h3>
+
+<span class="declaration">CorrelatedEffect :: CorrelatedEffect ( L , N )</span>
+<dl><dd>
+Create a new CorrelatedEffect.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of values it takes on.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="TimeInvariant.ox.html#RandomEffectBlock">RandomEffectBlock</a></dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedEffect</span></h2>
+
+<a name="FixedEffect___FixedEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FixedEffect</span></h3>
+
+<span class="declaration">FixedEffect :: FixedEffect ( L , N )</span>
+<dl><dd>
+A state variable that is non-random an invariant for and individual DP problem.
+
+<dl><dt class="example">Example:</dt><dd class="example">enum{male,female,Sex}
+	decl sex = new FixedEffect("sex",Sex);
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___GroupVariables">GroupVariables</a></dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedEffectBlock</span></h2>
+
+<a name="FixedEffectBlock___AddToBlock"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AddToBlock</span></h3>
+
+<span class="declaration">FixedEffectBlock :: AddToBlock ( news , ... )</span>
+<dl><dd>
+Add a variable to the effect block.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">news,...</td>
+<td class="description" valign="baseline">list of <a href="StateVariable.ox.html#Coevolving">Coevolving</a> state variables to add to the block.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="FixedEffectBlock___Allv"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Allv</span></h3>
+
+<span class="declaration">decl Allv [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="FixedEffectBlock___FixedEffectBlock"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FixedEffectBlock</span></h3>
+
+<span class="declaration">FixedEffectBlock :: FixedEffectBlock ( L )</span>
+<dl><dd>
+Create a list of <a href="TimeInvariant.ox.html#FixedEffect">FixedEffect</a> state variables.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label for block</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="FixedEffectBlock___Theta"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Theta</span></h3>
+
+<span class="declaration">decl Theta [public]</span>
+<dl><dd>
+temporary list of effects
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NormalRandomEffect</span></h2>
+
+<a name="NormalRandomEffect___mu"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mu</span></h3>
+
+<span class="declaration">const decl mu [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="NormalRandomEffect___NormalRandomEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">NormalRandomEffect</span></h3>
+
+<span class="declaration">NormalRandomEffect :: NormalRandomEffect ( L , N , mu , sigma )</span>
+<dl><dd>
+Create a permanent discretized normal random effect.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of points
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">mu</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible mean of the effect, &mu;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">sigma</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible standard deviation, &sigma;
+<P/>
+The probabilities of each discrete value is 1/N.  The distribution is captured by adjusting the
+actual values to be at the quantiles of the distribution.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="NormalRandomEffect___sigma"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sigma</span></h3>
+
+<span class="declaration">const decl sigma [public]</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffect</span></h2>
+
+<a name="RandomEffect___RandomEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RandomEffect</span></h3>
+
+<span class="declaration">RandomEffect :: RandomEffect ( L , N )</span>
+<dl><dd>
+A state variable that is random but invariant for an individual DP problem.
+<P/>
+<DD>The default distribution is uniform:
+<pre>
+Prob(g=k) = 1/N, for k=0,...,N&oline;
+</pre></DD>
+
+<dl><dt class="example">Example:</dt><dd class="example">decl skill = new RandomEffect("s",3);
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___GroupVariables">GroupVariables</a></dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffectBlock</span></h2>
+
+<a name="RandomEffectBlock___AddToBlock"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AddToBlock</span></h3>
+
+<span class="declaration">RandomEffectBlock :: AddToBlock ( news , ... )</span>
+<dl><dd>
+Add a variable to the effect block.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">news,...</td>
+<td class="description" valign="baseline">list of <a href="StateVariable.ox.html#Coevolving">Coevolving</a> state variables to add to the block.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="RandomEffectBlock___Allv"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Allv</span></h3>
+
+<span class="declaration">decl Allv [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="RandomEffectBlock___RandomEffectBlock"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RandomEffectBlock</span></h3>
+
+<span class="declaration">RandomEffectBlock :: RandomEffectBlock ( L )</span>
+<dl><dd>
+Create a list of <a href="TimeInvariant.ox.html#CorrelatedEffect">CorrelatedEffect</a> state variables.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label for block</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="RandomEffectBlock___Theta"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Theta</span></h3>
+
+<span class="declaration">decl Theta [public]</span>
+<dl><dd>
+temporary list of effects
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SubEffect</span></h2>
+
+<a name="SubEffect___block"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">block</span></h3>
+
+<span class="declaration">decl block [public]</span>
+<dl><dd>
+EffectBlock that I belong to
+
+</dd></dl>
+
+<hr>
+<a name="SubEffect___bpos"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bpos</span></h3>
+
+<span class="declaration">decl bpos [public]</span>
+<dl><dd>
+Index into block array/vector
+
+</dd></dl>
+
+<hr>
+<a name="SubEffect___SubEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SubEffect</span></h3>
+
+<span class="declaration">SubEffect :: SubEffect ( L , N )</span>
+<dl><dd>
+Create a new Sub.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of values it takes on.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="TimeInvariant.ox.html#FixedEffectBlock">FixedEffectBlock</a></dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TauchenRandomEffect</span></h2>
+
+<a name="TauchenRandomEffect___M"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">M</span></h3>
+
+<span class="declaration">const decl M [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="TauchenRandomEffect___TauchenRandomEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">TauchenRandomEffect</span></h3>
+
+<span class="declaration">TauchenRandomEffect :: TauchenRandomEffect ( L , N , mu , sigma , M )</span>
+<dl><dd>
+Create a permanent discretized normal random effect.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of points
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">mu</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible mean of the effect, &mu;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">sigma</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible standard deviation, &sigma;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">M</td>
+<td class="description" valign="baseline">number of standard deviations to set the largest value as
+<P/>
+actual values are equally spaced between -M&sigma; and M&sigma;.
+<P/>
+The probabilities of not uniform but are constant and depend only on
+N and M.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TimeInvariant</span></h2>
+
+<a name="TimeInvariant___Update"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
+
+<span class="declaration">TimeInvariant :: Update ( )</span>
+<dl><dd>
+Do Nothing and prohibit derived Updates.
+actual should be set in Distribution.
+
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

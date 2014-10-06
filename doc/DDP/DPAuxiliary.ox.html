@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>DPAuxiliary.ox - Derived Dynamic Programs</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">DPAuxiliary.ox</span></h1>
+
+Classes used by <a href="DP.ox.html#DP">DP</a>.
+
+<a name="AuxiliaryVariable"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AuxiliaryVariable : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Base Class for variables related to outcomes.
+Auxillary variables are typically functions of the state and action vectors that would be observed in the data.
+<P/>
+For example, in a search model, suppose the worker's ability <var>x</var> and the match quality <var>m</var> are
+both unobserved, but the wage, <var> w = xm</var>, is observed.  Then an auxiliary variable can be created for wage, added to
+the outcome and read in along with other data.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPAuxiliary.ox.html#AuxiliaryVariable___AuxiliaryVariable">AuxiliaryVariable</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a new element of &chi;, the space of auxiliary outcomes.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPAuxiliary.ox.html#AuxiliaryVariable___Realize">Realize</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default realized auxililary variable, sets <code>v=0.0</code>.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="RealizedUtility"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RealizedUtility : <a href="DPAuxiliary.ox.html#AuxiliaryVariable">AuxiliaryVariable</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Built-in variable that records realized utility, <var>U(&alpha;,&epsilon;,&eta;,&theta;,&gamma:)</var>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPAuxiliary.ox.html#RealizedUtility___Realize">Realize</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default realized auxililary variable, sets <code>v=0.0</code>.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPAuxiliary.ox.html#RealizedUtility___RealizedUtility">RealizedUtility</a></td>
+<td class="modifiers"></td>
+<td class="description">Realized utility, U().</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="DPAuxiliary.ox.html#AuxiliaryVariable">AuxiliaryVariable</a>:</dt><dd><a href="DPAuxiliary.ox.html#AuxiliaryVariable___AuxiliaryVariable">AuxiliaryVariable</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="Space"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Space : <a href="Shared.ox.html#Zauxilliary">Zauxilliary</a></span></h2>
+
+Stores information on a set of state variables, such as &theta;
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPAuxiliary.ox.html#Space___C">C</a></td>
+<td class="modifiers"></td>
+<td class="description">cumulative product of N.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPAuxiliary.ox.html#Space___D">D</a></td>
+<td class="modifiers"></td>
+<td class="description">dimension of the space.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPAuxiliary.ox.html#Space___M">M</a></td>
+<td class="modifiers"></td>
+<td class="description">Min indices of  var group in state vector.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPAuxiliary.ox.html#Space___N">N</a></td>
+<td class="modifiers"></td>
+<td class="description"># of values state variables take on.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPAuxiliary.ox.html#Space___size">size</a></td>
+<td class="modifiers"></td>
+<td class="description">product of VN over VM[] to VX[].</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPAuxiliary.ox.html#Space___X">X</a></td>
+<td class="modifiers"></td>
+<td class="description">maX indices of var group in state vector.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPAuxiliary.ox.html#Space___Space">Space</a></td>
+<td class="modifiers"></td>
+<td class="description">Tracks information about a subvector of the state vector.</td>
+</tr>
+</table>
+
+<a name="SubSpace"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SubSpace : <a href="Shared.ox.html#Zauxilliary">Zauxilliary</a></span></h2>
+
+Stores information on a set of spaces, such as reality or treatment
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPAuxiliary.ox.html#SubSpace___ClockIndex">ClockIndex</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPAuxiliary.ox.html#SubSpace___D">D</a></td>
+<td class="modifiers"></td>
+<td class="description"># of dimensions  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPAuxiliary.ox.html#SubSpace___O">O</a></td>
+<td class="modifiers"></td>
+<td class="description">vector of offsets  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPAuxiliary.ox.html#SubSpace___S">S</a></td>
+<td class="modifiers">static</td>
+<td class="description">shared spaces  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPAuxiliary.ox.html#SubSpace___size">size</a></td>
+<td class="modifiers"></td>
+<td class="description"># of elements  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPAuxiliary.ox.html#SubSpace___Tlength">Tlength</a></td>
+<td class="modifiers">static</td>
+<td class="description">shared length of vector  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPAuxiliary.ox.html#SubSpace___ActDimensions">ActDimensions</a></td>
+<td class="modifiers"></td>
+<td class="description">Calculate dimensions of action space, &Alpha;.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPAuxiliary.ox.html#SubSpace___Dimensions">Dimensions</a></td>
+<td class="modifiers"></td>
+<td class="description">Calculate dimensions of a  subspace.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPAuxiliary.ox.html#SubSpace___SubSpace">SubSpace</a></td>
+<td class="modifiers"></td>
+<td class="description">Tracks information about a set of one or more <a href="DPAuxiliary.ox.html#Space">Space</a>s.</td>
+</tr>
+</table>
+
+<a name="ZetaRealization"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ZetaRealization : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DPAuxiliary.ox.html#ZetaRealization___length">length</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPAuxiliary.ox.html#ZetaRealization___Realize">Realize</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default: &zeta; is undefined, replace with a virtual function that returns a
+value drawn from the conditional distribution of &zeta;
+</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPAuxiliary.ox.html#ZetaRealization___ZetaRealization">ZetaRealization</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a new &zeta;, the vector-valued realized shock vector.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AuxiliaryVariable</span></h2>
+
+<a name="AuxiliaryVariable___AuxiliaryVariable"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AuxiliaryVariable</span></h3>
+
+<span class="declaration">AuxiliaryVariable :: AuxiliaryVariable ( L )</span>
+<dl><dd>
+Create a new element of &chi;, the space of auxiliary outcomes.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="AuxiliaryVariable___Realize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
+
+<span class="declaration">virtual AuxiliaryVariable :: Realize ( q , y )</span>
+<dl><dd>
+Default realized auxililary variable, sets <code>v=0.0</code>.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">q,</td>
+<td class="description" valign="baseline">the current endogenous state, &theta;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">y,</td>
+<td class="description" valign="baseline">the current realized outcome, &upsilon;.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RealizedUtility</span></h2>
+
+<a name="RealizedUtility___Realize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
+
+<span class="declaration">virtual RealizedUtility :: Realize ( q , y )</span>
+<dl><dd>
+Default realized auxililary variable, sets <code>v=0.0</code>.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">q,</td>
+<td class="description" valign="baseline">the current endogenous state, &theta;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">y,</td>
+<td class="description" valign="baseline">the current realized outcome, &upsilon;.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="RealizedUtility___RealizedUtility"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RealizedUtility</span></h3>
+
+<span class="declaration">RealizedUtility :: RealizedUtility ( )</span>
+<dl><dd>
+Realized utility, U().
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Space</span></h2>
+
+<a name="Space___C"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">C</span></h3>
+
+<span class="declaration">decl C [public]</span>
+<dl><dd>
+cumulative product of N.
+
+</dd></dl>
+
+<hr>
+<a name="Space___D"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">D</span></h3>
+
+<span class="declaration">decl D [public]</span>
+<dl><dd>
+dimension of the space.
+
+</dd></dl>
+
+<hr>
+<a name="Space___M"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">M</span></h3>
+
+<span class="declaration">decl M [public]</span>
+<dl><dd>
+Min indices of  var group in state vector.
+
+</dd></dl>
+
+<hr>
+<a name="Space___N"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">N</span></h3>
+
+<span class="declaration">decl N [public]</span>
+<dl><dd>
+# of values state variables take on.
+
+</dd></dl>
+
+<hr>
+<a name="Space___size"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">size</span></h3>
+
+<span class="declaration">decl size [public]</span>
+<dl><dd>
+product of VN over VM[] to VX[].
+
+</dd></dl>
+
+<hr>
+<a name="Space___Space"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Space</span></h3>
+
+<span class="declaration">Space :: Space ( )</span>
+<dl><dd>
+Tracks information about a subvector of the state vector.
+
+</dd></dl>
+
+<hr>
+<a name="Space___X"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">X</span></h3>
+
+<span class="declaration">decl X [public]</span>
+<dl><dd>
+maX indices of var group in state vector.
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SubSpace</span></h2>
+
+<a name="SubSpace___ActDimensions"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ActDimensions</span></h3>
+
+<span class="declaration">SubSpace :: ActDimensions ( )</span>
+<dl><dd>
+Calculate dimensions of action space, &Alpha;.
+
+<dl><dt class="comments">Comments:</dt><dd class="comments">O is a column vector because it is for post-multiplying A.
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="SubSpace___ClockIndex"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ClockIndex</span></h3>
+
+<span class="declaration">static decl ClockIndex [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="SubSpace___D"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">D</span></h3>
+
+<span class="declaration">decl D [public]</span>
+<dl><dd>
+# of dimensions
+
+</dd></dl>
+
+<hr>
+<a name="SubSpace___Dimensions"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Dimensions</span></h3>
+
+<span class="declaration">SubSpace :: Dimensions ( subs , IsIterating )</span>
+<dl><dd>
+Calculate dimensions of a  subspace.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">subs</td>
+<td class="description" valign="baseline">index of subvectors of S to include in the subspace
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">IsIterating</td>
+<td class="description" valign="baseline">include the rightmost variable in the index or set offset to 0</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="SubSpace___O"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">O</span></h3>
+
+<span class="declaration">decl O [public]</span>
+<dl><dd>
+vector of offsets
+
+</dd></dl>
+
+<hr>
+<a name="SubSpace___S"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">S</span></h3>
+
+<span class="declaration">static decl S [public]</span>
+<dl><dd>
+shared spaces
+
+</dd></dl>
+
+<hr>
+<a name="SubSpace___size"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">size</span></h3>
+
+<span class="declaration">decl size [public]</span>
+<dl><dd>
+# of elements
+
+</dd></dl>
+
+<hr>
+<a name="SubSpace___SubSpace"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SubSpace</span></h3>
+
+<span class="declaration">SubSpace :: SubSpace ( )</span>
+<dl><dd>
+Tracks information about a set of one or more <a href="DPAuxiliary.ox.html#Space">Space</a>s.
+
+</dd></dl>
+
+<hr>
+<a name="SubSpace___Tlength"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Tlength</span></h3>
+
+<span class="declaration">static decl Tlength [public]</span>
+<dl><dd>
+shared length of vector
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ZetaRealization</span></h2>
+
+<a name="ZetaRealization___length"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">length</span></h3>
+
+<span class="declaration">const decl length [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ZetaRealization___Realize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
+
+<span class="declaration">virtual ZetaRealization :: Realize ( q , y )</span>
+<dl><dd>
+Default: &zeta; is undefined, replace with a virtual function that returns a
+value drawn from the conditional distribution of &zeta;
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">q,</td>
+<td class="description" valign="baseline">the current endogenous state, &theta;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">y,</td>
+<td class="description" valign="baseline">the current realized outcome, &upsilon;.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="ZetaRealization___ZetaRealization"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ZetaRealization</span></h3>
+
+<span class="declaration">ZetaRealization :: ZetaRealization ( length )</span>
+<dl><dd>
+Create a new &zeta;, the vector-valued realized shock vector.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">length</td>
+<td class="description" valign="baseline">integer, length of the (row) vector.
+The default &zeta; is a 0 length vector.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

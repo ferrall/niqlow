@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>MPIinterface.ox - CFMPI</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">MPIinterface.ox</span></h1>
+
+Low-level routines that call MPI Library routines of the same name.
+<P/>
+Your code can use these standalone global functions to interface with the MPI library.
+<P/>
+<DD>To ask for the MPI library to be linked in, define <code>MPI</code> on the command line:
+<pre>
+oxl -DMPI mymain.ox
+</pre>
+If the shared CFMPI library cannot be found  link error will be produced.</DD>
+<P/>
+If you do not define <code>MPI</code> and your program includes CFMPI then a set of "fake" versions of the
+routines will be included.  Your program will execute serially and calls to these functions end up in messages
+staying in the buffer.
+<P/>
+<UL>Notes About the Interface
+<LI>In most cases the interface routine takes fewer arguments than its MPI counterpart.</LI>
+<LI>All messages are Ox vectors (<code>MPI_Double</code>).</LI>
+<LI>Error codes are returned but not used.</LI>
+</UL>
+
+<a name="global"></a>
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global variables, functions</span></h2>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Variables</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="MPIinterface.ox.html#fakebuffer">fakebuffer</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="MPIinterface.ox.html#faketag">faketag</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Functions</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="MPIinterface.ox.html#MPI_Allgather">MPI_Allgather</a></td>
+<td class="modifiers"></td>
+<td class="description">Gather in place all messages at all nodes: interface for <code>MPI_Allgather()</code>.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="MPIinterface.ox.html#MPI_Allgatherv">MPI_Allgatherv</a></td>
+<td class="modifiers"></td>
+<td class="description">Gather variable length messages .</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="MPIinterface.ox.html#MPI_Allsum">MPI_Allsum</a></td>
+<td class="modifiers"></td>
+<td class="description">Vector sum messages at all nodes in place.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="MPIinterface.ox.html#MPI_Barrier">MPI_Barrier</a></td>
+<td class="modifiers"></td>
+<td class="description">Make all nodes wait until this point is reached: interface to <code>MPI_Barrier()</code>.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="MPIinterface.ox.html#MPI_Bcast">MPI_Bcast</a></td>
+<td class="modifiers"></td>
+<td class="description">Broadcast a message to all nodes: interface to <code>MPI_Bcast()</code>.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="MPIinterface.ox.html#MPI_Exit">MPI_Exit</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="MPIinterface.ox.html#MPI_Gather">MPI_Gather</a></td>
+<td class="modifiers"></td>
+<td class="description">Gather all buffers at the client.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="MPIinterface.ox.html#MPI_Gatherv">MPI_Gatherv</a></td>
+<td class="modifiers"></td>
+<td class="description">Gather variable length messages.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="MPIinterface.ox.html#MPI_Init">MPI_Init</a></td>
+<td class="modifiers"></td>
+<td class="description">Initialize the MPI environment: interface for <code>MPI_Init()</code>.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="MPIinterface.ox.html#MPI_Recv">MPI_Recv</a></td>
+<td class="modifiers"></td>
+<td class="description">Receive a message: interface for <code>MPI_Recv()</code>.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="MPIinterface.ox.html#MPI_Send">MPI_Send</a></td>
+<td class="modifiers"></td>
+<td class="description">Send a message: interface for <code>MPI_Send()</code>.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="MPIinterface.ox.html#MPI_Setdisplace">MPI_Setdisplace</a></td>
+<td class="modifiers"></td>
+<td class="description">Set the displacement amount for variable length gather.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="MPIinterface.ox.html#MPI_Sum">MPI_Sum</a></td>
+<td class="modifiers"></td>
+<td class="description">Vector sum messages at client.</td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global </span></h2>
+
+<a name="fakebuffer"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">fakebuffer</span></h3>
+
+<span class="declaration">static decl fakebuffer</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="faketag"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">faketag</span></h3>
+
+<span class="declaration">static decl faketag</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="MPI_Allgather"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MPI_Allgather</span></h3>
+
+<span class="declaration">MPI_Allgather ( aBuffer , iCount )</span>
+<dl><dd>
+Gather in place all messages at all nodes: interface for <code>MPI_Allgather()</code>.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">iCount</td>
+<td class="description" valign="baseline">integer, 0 send whole buffer<br>otherwise send first iCount elements</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="MPI_Allgatherv"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MPI_Allgatherv</span></h3>
+
+<span class="declaration">MPI_Allgatherv ( aBuffer )</span>
+<dl><dd>
+Gather variable length messages .
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Buffer</td>
+<td class="description" valign="baseline">address</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="MPI_Allsum"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MPI_Allsum</span></h3>
+
+<span class="declaration">MPI_Allsum ( aBuffer , iCount )</span>
+<dl><dd>
+Vector sum messages at all nodes in place.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Buffer</td>
+<td class="description" valign="baseline">address
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iCount</td>
+<td class="description" valign="baseline">integer, 0 send whole buffer<br>otherwise send first iCount elements</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="MPI_Barrier"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MPI_Barrier</span></h3>
+
+<span class="declaration">MPI_Barrier ( )</span>
+<dl><dd>
+Make all nodes wait until this point is reached: interface to <code>MPI_Barrier()</code>.
+
+</dd></dl>
+
+<hr>
+<a name="MPI_Bcast"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MPI_Bcast</span></h3>
+
+<span class="declaration">MPI_Bcast ( aBuffer , iCount )</span>
+<dl><dd>
+Broadcast a message to all nodes: interface to <code>MPI_Bcast()</code>.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Buffer</td>
+<td class="description" valign="baseline">address, message to broadcast to all nodes
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iCount</td>
+<td class="description" valign="baseline">integer, 0 send whole buffer<br>otherwise send first iCount elements</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="MPI_Exit"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MPI_Exit</span></h3>
+
+<span class="declaration">MPI_Exit ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="MPI_Gather"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MPI_Gather</span></h3>
+
+<span class="declaration">MPI_Gather ( aBuffer , iCount )</span>
+<dl><dd>
+Gather all buffers at the client. 	
+Buffer at Client Node must be large enough to handle concatenation of all vectors.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Buffer</td>
+<td class="description" valign="baseline">address
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iCount</td>
+<td class="description" valign="baseline">integer, 0 send whole buffer<br>otherwise send first iCount elements</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="MPI_Gatherv"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MPI_Gatherv</span></h3>
+
+<span class="declaration">MPI_Gatherv ( aBuffer )</span>
+<dl><dd>
+Gather variable length messages.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Buffer</td>
+<td class="description" valign="baseline">address,</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="MPI_Init"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MPI_Init</span></h3>
+
+<span class="declaration">MPI_Init ( aId , aNodes , aANY_TAG , aANY_SOURCE )</span>
+<dl><dd>
+Initialize the MPI environment: interface for <code>MPI_Init()</code>.
+   The external C routine calls MPI_Initialize() and stores key data in static C variables.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">aId</td>
+<td class="description" valign="baseline">address, the MPI Rank or ID of this node returned
+   </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">aNodes</td>
+<td class="description" valign="baseline">address, the number of nodes returned
+   </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">aANY_TAG</td>
+<td class="description" valign="baseline">address, the integer tag for <code>ANY_TAG</code> in this MPI implementation returned
+   </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">aANY_SOURCE</td>
+<td class="description" valign="baseline">addresss, the integer tag for <code>ANY_SOURCE</code> in this MPI implementation returned.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="MPI_Recv"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MPI_Recv</span></h3>
+
+<span class="declaration">MPI_Recv ( aBuffer , iSource , iTag , oSource , oTag , oError )</span>
+<dl><dd>
+Receive a message: interface for <code>MPI_Recv()</code>.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">aBuffer</td>
+<td class="description" valign="baseline">address, vector message to send
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iSource</td>
+<td class="description" valign="baseline">integer, ID of node to receive from (can be <code>ANY_SOURCE</code>)
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iTag</td>
+<td class="description" valign="baseline">iteger, tag of message to receive (can be <code>ANY_TAG</code>)
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">oSource</td>
+<td class="description" valign="baseline">address actual source ID returned
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">oTag</td>
+<td class="description" valign="baseline">address actual tag returned
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">oError</td>
+<td class="description" valign="baseline">address error code returned</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="MPI_Send"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MPI_Send</span></h3>
+
+<span class="declaration">MPI_Send ( Buffer , iCount , iDest , iTag )</span>
+<dl><dd>
+Send a message: interface for <code>MPI_Send()</code>.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Buffer</td>
+<td class="description" valign="baseline"> vector message to send
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iCount</td>
+<td class="description" valign="baseline">integer, 0 send the whole buffer<br>otherwise only send the first <code>iCount</code> elements
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iDest</td>
+<td class="description" valign="baseline">integer, ID of node to send message to
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iTag</td>
+<td class="description" valign="baseline">integer, tag to accompany message.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="MPI_Setdisplace"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MPI_Setdisplace</span></h3>
+
+<span class="declaration">MPI_Setdisplace ( iCount )</span>
+<dl><dd>
+Set the displacement amount for variable length gather.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">iCount</td>
+<td class="description" valign="baseline">integer</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="MPI_Sum"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MPI_Sum</span></h3>
+
+<span class="declaration">MPI_Sum ( aBuffer , iCount )</span>
+<dl><dd>
+Vector sum messages at client.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Buffer</td>
+<td class="description" valign="baseline">address
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iCount</td>
+<td class="description" valign="baseline">integer, 0 send whole buffer<br>otherwise send first iCount elements</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

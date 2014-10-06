@@ -122,15 +122,22 @@ ValueTriggered::Transit(FeasA) {
     return tr;
     }
 
+/** Create an augmented state variable that 'forgets' its value when a permanent condition occurs.
+@param b base `StateVariable` to augment
+@param pstate `PermanentChoice` state variable that triggers the forgetting
+@param rval integer between 0 and b.N-1, the value once forgotten.
+@comments
+`Forget::UnReachable`() prunes the state space accordingly
+**/
 Forget::Forget(b,pstate,rval) {
     if (!isclass(pstate,"PermanentChoice")) oxrunerror("pstate in Forget must be a Permanent Choice");
     this.pstate = pstate;
-    ActionTriggered(b,pstate.Target,1,rval);
+    ActionTriggered(b,pstate.Target,TRUE,rval);
     }
 
 Forget::Transit(FeasA) {
-    if (CV(pstate)) return UnChanged(FeasA);
-    return ActionTriggered::Transit(FeasA);
+    if (!CV(pstate)) return ActionTriggered::Transit(FeasA);
+    return {matrix(rval),ones(rows(FeasA),1)};
     }
 
 Forget::UnReachable(clock) {
@@ -138,15 +145,21 @@ Forget::UnReachable(clock) {
     if (CV(pstate)) return v==rval;
     }
 
+/**Create a standard normal N(0,1) discretize jump variable. **/
 Zvariable::Zvariable(L,Ndraws) { SimpleJump(L,Ndraws); }
 
 Zvariable::Update() {	actual = DiscreteNormal (N, 0.0, 1.0);	}
 
+/**Create a variable that jumps with probability
+@param L label
+@param N number of values
+@param Pi `AV`(FeasA) compatible jump probability.
+**/
 Jump::Jump(L,N,Pi)	{	this.Pi = Pi; StateVariable(L,N); }
 
-/** An binary endogenous absorbing state.
+/** Create a binary endogenous absorbing state.
 @param L label
-@param fPi a `AV`(FeasA) compatible object that returns either:<br>
+@param fPi `AV`(FeasA) compatible object that returns either:<br>
 a probability p of transiting to state 1<br>
 a vector equal in length to FeasA.<br>
 The default value is 0.5: the absorbing state happens with probability 0.5.
@@ -166,7 +179,7 @@ Absorbing::Transit(FeasA) {
 
 /**  **/
 Jump::Transit(FeasA) {
-    decl jprob = AV(Pi);
+    decl jprob = AV(Pi,FeasA);
     return {vals,jprob*constant(1/N,1,N) + (1-jprob)*(v.==vals)};	
     }
 
@@ -312,8 +325,9 @@ PermanentChoice::PermanentChoice(L,Target) {
 /** .
 **/
 PermanentChoice::Transit(FeasA) {
-	if (!v) return LaggedAction::Transit(FeasA);
-	return UnChanged(FeasA);
+	if (v) return UnChanged(FeasA);
+    return LaggedAction::Transit(FeasA);
+	;
 	}	
 	
 /** .

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>GetStarted - Derived Dynamic Programs</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">GetStarted</span></h1>
+
+Start to use <span class="n">DDP</span> by following a simple example.
+<P/>
+Design and Solve a simple DDP model of <em>searching for a low purchase price</em>.
+<P/>
+This document is designed to illustrate how the basic aspects of discrete dynamic programming are handled by <span class="n">DDP</span>.
+<details><summary>This document uses the HTML <code>details</code> tag ...</summary> So it is best viewed in Safari, Chrome or Opera. In those browsers this material is minimized until you click on the wedge.<p>
+<code>details</code> is not supported by Firefox or Explorer as of this writing.
+</details>
+<P/>
+<OL class="contents">CONTENTS
+<LI><a href="#A">Define the model</a></LI>
+<LI><a href="#AB">Translate the model into <span="n">DDP</span> terms</a></LI>
+<LI><a href="#B">Code the model and solution method</a></LI>
+<LI><a href="#C">Run the code and look at the output</a></LI>
+</OL>
+<P/>
+<OL class="body">
+<a name="A"><LI>Define The Model</LI></a>
+<p>A person must purchase an item. They search, <em>potentially forever</em>, for an acceptably low price.
+<p>Each period a price <var>p</var> is drawn from a discrete set <var>{0,1,2,...,N&oline;}</var>. <details class="aside"><summary><em>What does N&oline; mean?</em></summary>N&oline; &equiv; N-1.  So, 5&oline; = 4.  Since counting starts at 0 the larges value is always the number of values minus 1. But putting <q>N-1</q> everywhere is not elegant.<br> For more on notation see <a href="DDP.ox.html#NC">Notation and Conventions</a>. <p></details>
+<p>Over time, the price offers are IID and, for simplicity, each value is equally likely:
+<DD><pre><var>Prob(p&prime; = z) = &Rho;<sub>p</sub>(z) = 1&frasl;N</var> for <var>z &in; {0,...,N&oline;}</var>.</pre></DD>
+Here p&prime; is the price next period and &Rho;<sub>p</sub>() is its <em>transition</em>.
+<p>While searching the person chooses <var>a</var>, where <var>a=1</var> means buy at the offered price and <var>a=0</var> means reject and keep searching.
+<div class="page-break"> </div>
+<p>The state variable <var>d</var> indicates whether a decision as been made or not. <var>d=0</var> means still searching, and <var>d=1</var> means a price has been accepted.  The transition for <var>d</var> today to <var>d</var> next period can written:
+	<dd><pre><var>d' = a</var>  &hArr; &Rho;<sub>d</sub>(d';a,d) = I{d'=a}.</pre>
+    And <var>d=1</var> is a terminal absorbing state.</dd>
+<p><var>Utility</var> equals realized costs: search costs,  &lambda;&gt; 0, and the price paid if purchased:
+	<dd><pre><var>U(a,p,d) = -(1-d)[ &lambda; + ap ]</var>. </pre></dd>
+<p>Future returns are discounted by <var>&delta;&lt;1.</var>
+<P/>
+<a name="AB"><LI>Translate the model into <span class="n">DDP</span> notation</LI></a>
+The notation used here uses <span class="n">DDP</span>'s notation for describing a model.  Presuming you are starting with this example this notation is shown here to demonstrate how all aspects of DP problems are part of <span class="n">DDP</span>.
+<UL class="ul">
+<LI>The model's <b>clock</b> is stationary, which is a predefined clock type, <code>InfiniteHorzion</code>. </LI>
+<LI>The <b>action</b> vector &alpha; contains a single binary <a href="ActionVariable.ox.html#ActionVariable">ActionVariable</a>: <code>&alpha; = (a)</code></LI>
+<LI>The offer price is <var>p</var> is an instance (object) of the <a href="StateVariable.ox.html#SimpleJump">SimpleJump</a> class.
+<details class="aside"><summary>State Variable Classes</summary>To keep track of all aspects of a state variable, including how it evolves, state variables are objects of a particular class.  A class describes both data and methods (functions) that operate on the data.  Further, Ox allows for derived classes and virtual methods, which make it possible to build up a library of different kinds of state variables in <span class="n">DDP</span>.  Many kinds of state variables that appear in the literature are already coded and available to be included in your model.</details>.</LI>
+<LI>The decision-made-already state variable, <var>d</var> is an object of the  <code><a href="StateVariable.ox.html#LaggedAction">LaggedAction</a></code> class.   <code>d=1</code> is in the terminal set, <span class="o"><b>&Theta;</b></span><br></LI>
+<LI>Because price offers are IID it can be put into the <b>exogenous</b> state vector &epsilon; contains one variable, <code>&epsilon; = (p)</code>, a </LI>
+<LI>Since the transition for <var>d</var> depends the current action it is placed in the <b>endogenous</b> state vector &theta;, which always contains a time variable as well:  <code>&theta; = (d t)</code>.<details class="aside"><summary>Why multiple state vectors</summary>To conserve memory and computation, <span class="n">DDP</span> allows the user to put state variables in different vectors that are treated differently.  There are actually two other special state vectors not required in this example, &eta; and &gamma;.</details>
+    Since the model is stationary, the current time is always <code>t=0</code>.</LI>
+<LI><b>Utility</b> depends on current state variables, actions and parameters:
+<DD><pre>U(&alpha;,&epsilon;,&theta;) = U( (a), (p), (d) ) = -(1-d)*[ lam + a*p ]</pre></DD></LI>
+<p></p><p></p>Because Ox does not recognize Greek letters, <code>lam</code>&equiv; &lambda;.  Further, multiplication uses <code>*</code>.
+However, since p, a, and d are <em>objects</em>, the Ox code to implement <var>U()</var> will require more than just referring to the variable in the expression. </p>
+<P/>
+</UL>
+<P/>
+<a name="B"><LI>Code the model in <span class="n">DDP</span></LI></a>
+<P/>
+<DT>The full DDP source code is in <a href="../../examples/GetStarted.ox">niqlow/examples/GetStarted.ox</a>.
+<DT>Declare a class derived from <a href="Bellman.ox.html#Bellman">Bellman</a> to represent the problem.<DD><pre>
+ 1:   #import "DDP"
+ 2:   class Search : Bellman {
+ 3:   		enum{Noff=10}
+ 4:   		static 	const		decl 	lam = 2.3;
+ 5:   		static 	  		decl 	p, d, a, meth;
+ 6:   		static 	Reachable();
+ 7:   		static 	Run();
+ 8:   		 	Utility();
+ 9:		}</pre></DD>
+Usually the code above would appear in a separate header (<code>.h</code>) file, but in the source code it simply appears at the top of the <code>.ox</code> file.
+<div class="page-break"> </div>
+<DL>Line-by-line Description
+<DT>1. Import
+<DD>The Ox code relies on the <span class="n">DDP</span> package, so import the compiled code and header information for it. </DD>
+<DT>2-9. Class Declaration</DT><br>
+A user's DP model is represented by a <code>class</code> (or <code>struct</code>). The class name is <code>Search</code>. It is <em>derived</em> from an underlying class, <code><a href="Bellman.ox.html#Bellman">Bellman</a></code>.   The code inside <code>{}</code> declares variables (data members) and functions (method members) that are needed to code the model.   Each <q>instance</q> of a <code>Search</code> created while the program executes will represent one point in the state space. Aspects of the model that are shared across points in the state space are stored as <em>static</em> members of the class. Non-static elements are called <em>automatic</em> in Ox, but something is automatic by default unless the tag <code>static</code> appears when it is declared.
+<details><summary>More on static nd automatic variables</summary>
+Here is a class with two static variables and one automatic.</a>  Three new instances of it are created.  There are then three versions of <code>A.c</code> but still only two locations <code>A.a</code> and <code>A.b</code>.
+<dd><pre>
+class A {
+        static decl  a, b;
+        decl  c;
+}
+d = new A();
+e = new A();
+f = new A();</pre>
+<code><table border="1" width="25%" cellpadding="3"><tr><th colspan="3">A<br> A::a, A::b</td></tr><tr><th>d</th><th>e</th><th>f</th></tr><tr><td>d.c</td><td>e.c</td><td>f.c</td></tr></table></code>
+Note that <pre>
+A::a  &equiv;  d.a  &equiv;  e.a  &equiv;  f.a.
+A::b  &equiv;  d.b  &equiv;  e.b  &equiv;  f.b.
+d.c !&equiv; e.c !&equiv; f.c
+</pre>
+However it is referenced, <code>a</code> and <code>b</code> refer to the same place.  On the other hand, each instance of A has a distinct <code>c</code>.  So there are 5 distinct storage locations, two shared and three specific to the instance of A.</dd>
+</details>
+<P/>
+<DD>3: The number of offers <var>N</var> is an <em>enumeration</em>, a way of storing integer constants that Ox shares with C. </DD>
+<DD>4: The parameter &lambda; is stored as a static constant (its value is fixed at declaration).  More powerfully it could be represented as an objefct of the <a href="Shared.ox.html#Parameter">Parameter</a> class discussed later.
+<DD>5: Four data members are declared static but variable (their value can change after the object is created).  The first three store the state variables <var>p</var> and <var>d</var> and the action variable <var>a</var>.  The final one, <code>meth</code>, will hold the solution method used to solve Bellman's equation.</DD>
+<div class="page-break"> </div>
+<DD>6: A function associated with an object is called a <code>method</code>.  <span class="n">DDP</span> requires two methods.  One tells <span class="n">DDP</span> that a particular point in the state space is reachable from a feasible path (or not).  In <code>Search</code> it is called <code>Reachable()</code>.  It must be a <code>static</code> method.</DD>
+<DD>7:  The method <code>Run()</code> is not required, but it will be designed to set up and solve the model.</DD>
+<DD>8:  The second required  <code>method</code> cannot be <code>static</code>, and must have the name and declaration <code>Utility()</code>.  It returns the one-period payoff.</DD>
+</DL>
+<div class="page-break"> </div>
+<DL>
+<DT>Define the required functions for the model</DT><DD><pre>
+23:	Search::Reachable()	{
+24:		return new Search();
+25:		}
+26:	Search::Utility()  {
+27:		return -(1-CV(d))*(lam + CV(p)*aa(a));
+28:		}</pre></DD>
+<DD>If it is unnecessary to trim infeasible states from <b>&Theta;</b> (to conserve memory) then <code>Reachable()</code> is very simple.  When called it returns a new point in the endogenous state space, &theta;.</DD>
+<DD>Utility returns a column of values for feasible actions.  It gets the current value of state variables by sending their objects to the <code><a href="Shared.ox.html#CV">CV</a>()</code> function.</DD>
+<div class="page-break"> </div>
+<DT>Define the code to set up and solve the model</DT><DD><pre>
+10:  Search::Run()	{
+11:  		Initialize(Reachable);
+12:  		SetClock(InfiniteHorizon);
+13:  		SetDelta(0.99);
+14:  		Actions(a = new ActionVariable("a",2));
+15:  		EndogenousStates(d = new LaggedAction("d",a));
+16:  		d->MakeTerminal(1);	
+17:  		ExogenousStates(p = new SimpleJump("p",Noff));
+18:  		CreateSpaces();
+19:		meth = new ValueIteration(0);
+20:		meth.Volume = LOUD;
+21:		meth -> Solve(0,0);
+22:   }</pre></dd>
+</DL>
+<div class="page-break"> </div>
+<P/>
+<DL>Line-by-line Description
+<DT>Set Up the Problem</DT>
+<DD>11. The user's code must also call the <code>Initialize()</code> method before setting up or solving the model.
+<details class="aside"><summary>More on <code>Initialize</code></summary>
+<a href="DP.ox.html#DP___Initialize">Initialize</a>() works only on <em>static</em> elements of the model, and these must be set before any instances of the model are created with <code>new</code>.  So it is not possible to put these tasks in the <q>constructor</q> for DP. The user may declare a <code>Initialize()</code> method if they expect the class (<code>Search</code>)  to be used as a base for other derived classes. Then <code>Search::Initialize()</code> would call <code>DP::Initialize()</code> and the prefix will be required to resolve the name.</details>
+The first (and only required) argument sent to <code>Initialize</code> is the name of the method that indicates if a state is reachable or not.  Note that <code>Reachable()</code> has been declared above but not yet defined.</DD>
+<DD>Code to set up the model must appear after <code>Initialize()</code> and before the <code>CreateSpaces()</code> method is called.
+<DD>12: Every DDP model has a clock. There are several predefined clock types, and the user can create their own if necessary.  <code>InfiniteHorizon</code> is an enumeration like <code>Noff</code> in the file above which <code><a href="DP.ox.html#DP___SetClock">SetClock</a>()</code> uses to create the right kind of clock. </DD>
+<DD>13: Every DDP model has a discount factor &delta;.  <code><a href="DP.ox.html#DP___SetDelta">SetDelta</a>()</code> sets its value, which is constant here but could be set to a variable <a href="Shared.ox.html#Parameter">Parameter</a>..</DD>
+<div class="page-break"> </div>
+<P/>
+<DD>14:  The action <var>a</var> is an instance of the <a href="ActionVariable.ox.html#ActionVariable">ActionVariable</a> class.  It is not an ordinary <code>integer</code> as it might be coded in FORTRAN or C.  By making it an instance of a class  <span class="n">DDP</span> can keep track of all the requirements of having a binary choice in the model without making the user do additional programming.  When it is created, the user gives the action a label and says how many different values are feasible for the variable, in this case <code>a.N=2</code>. This happens <em>inside</em> the call to <a href="DP.ox.html#DP___Actions">Actions</a>(). DDP must know about the action variables in your model.  It cannot peer into the derived <code>Search</code> class and see that a variable <code>a</code> is there and stores an action variable object.  On the other side, action variables cannot insert themselves into your model.  The routine <code><a href="DP.ox.html#DP___Actions">Actions</a>()</code> adds the argument(s) sent to it to the model, putting them in the action vector &alpha;.
+<details class="aside"><summary>Assignments in expressions</summary>
+The fancy bit is that in Ox, like C and other languages, an assignment expression returns a value.  So <code>v=6</code> stores 6 in <code>v</code> <em>and</em> returns 6 as a result.  <code>print(v=6)</code> will print 6.  A subtle point that is further explained in other parts of the documentation is that Ox will return a <em>reference</em> to <code>a</code>. So what <a href="DP.ox.html#DP___Actions">Actions</a>() stores is a <em>pointer</em> to <code>a</code> not a clone or copy of it.</details>
+</DD>
+<div class="page-break"> </div>
+<P/>
+<DD>15-16: Like the action, the state variables <var>d</var> and <var>p</var> are not just a place to store an integer nor a spot in a vector. State variables are objects of a class derived from the <code><a href="StateVariable.ox.html#StateVariable">StateVariable</a></code> class. States require more information than actions to be handled properly.   In the model <var>d</var> tracks the choice made in the previous period.  This kind of state variable appears in many models so a class for that kind of variable is predefined in <span class="n">DDP</span>: the <code><a href="StateVariable.ox.html#LaggedAction">LaggedAction</a></code> class.  The action that <code>d</code> should track is sent as an argument when a <code>new</code> object of the class is created.
+<details class="aside"><summary>Derived Classes</summary>Actually, this class is a great-great-granddaughter of <a href="StateVariable.ox.html#StateVariable">StateVariable</a>, because it is derived from the <a href="StateVariable.ox.html#LaggedAction">LaggedAction</a> class which is derived from <a href="StateVariable.ox.html#Lagged">Lagged</a> which is derived from <a href="StateVariable.ox.html#Deterministic">Deterministic</a> which is derived from <code>StateVariable</code>.  Indeed, <code>d</code> and <code>a</code> are fourth cousins, because states and actions are both derived from an underlying <a href="Shared.ox.html#Discrete">Discrete</a> class.</details>
+The method <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>() adds the arguments sent to it to to the &theta; vector. Recall that <code>d=1</code> is a terminal state.  <span class="n">DDP</span> must know this so that the value of reaching that state is taken from its utility not iterated on using Bellman's equation.  <code>MakeTerminal()</code> is a  <code>StateVariable</code> method that can take either an integer or a vector of integer values as its argument.  <code>d->MakeTerminal(1)</code> would not work if <var>d</var> had not be assigned a state variable in the previous line.</DD>
+<P/>
+<DD>17: The state variable <var>p</var> takes on one of <var>p.N</var> different values with equal probability. In <span class="n">DDP</span> this is a <code><a href="StateVariable.ox.html#SimpleJump">SimpleJump</a></code> state variable.  Since its transition  does not depend on the current state or actions, <span class="n">DDP</span> can be told this an <em>exogenous</em> state variable, reducing memory and computations.   </DD>
+<P/>
+<div class="page-break"> </div>
+<P/>
+<DT>Create the DP environment</DT>
+<DD>18: Once all elements have been created and added to the model, the user's code calls <code>CreateSpaces()</code>.  <code>CreateSpaces()</code> uses all the information available about elements added to the model to create the state space, the feasible Action sets and many other aspects of the problem.  To conserve memory requirements and computational time <span class="n">DDP</span> does not create separate points for the exogenous elements of the state space (here <var>p</var>). It treats these separately and <q>attaches</q> values related to the exogenous states to the points in the endogenous state space, <b>&Theta;</b></DD>
+<P/>
+<DT>Solve the Model (and more)</DT>
+<DD>19:  The model is separate from methods to solve it or use it in some way, including simulation and parameter estimation.  Solution methods are derived from the <a href="Methods.ox.html#Method">Method</a> class, which itself is derived from the <a href="DP.ox.html#Task">Task</a> class.  Tasks are coded to go through the state space and do something at each point.  Tasks share the <code>static</code> aspects of the user's model, but they do not have the <code>automatic</code> variables that are specific to each point.  </dd>
+<DD>The most straightforward method for solving a DP model is iteration on Bellman's equation, either until convergence with an infinite horizon or backwards from the final decision period in a finite horizon.  This solution method is coded as  <a href="Methods.ox.html#ValueIteration">ValueIteration</a>.  The user creates an object of this type.  That object can be stored in any kind of variable, but here it is stored in a static member of the <code>Search</code> class, <code>meth</code>.  Other solution methods could be created as well if more than one method will be used to solve the model (for example, to compare them or one to simulate data and another to use while estimating the model).</DD>
+<DD>Creating a <a href="Methods.ox.html#ValueIteration">ValueIteration</a> object does not automatically invoke the method.  To do this, its <a href="Methods.ox.html#ValueIteration___Solve">Solve</a>() method is called.  This will carry out the iteration, and since tasks know about static aspects of the model, such as the type of clock, <code>Solve()</code> will handle the details.  The two arguments <code>(0,0)</code> relate to controlling the solution method, and are discussed elsewhere.</dd>
+<DD>Representing solution methods with different classes that are dynamic (do not rely heavily on static data) means that different solution methods can be applied to the same model and compared to each other.</DD>
+</DL>
+<P/>
+</DL>
+<div class="page-break"> </div>
+<P/>
+<UL class="ul"><h3>Summary</h3>
+<LI>A user DP model is derived from <code>Bellman</code> or another class derived from <code>Bellman</code>. The user code must always call <code>Initialize()</code> for the parent class.
+<LI>Actions and state variables are instances of predefined classes or user-defined classes.  They are added the model using DP methods (functions).
+<LI>Once all elements of the model have been added the user must call <code>CreateSpaces()</code> to set up the state space and other aspects of the model. The user's code must define a function that returns a <code>new</code> instance of their class which is passed to <code>CreateSpaces()</code>, which will call that function for each point in the state space <b>&Theta;</b>.
+<LI>The user must provide a <code>Utility</code> method and a function.  This replace the <em>virtual</em> method in Bellman of the same name.
+<LI>The model is solved by creating an solution object and calling the appropriate method (usually <code>Solve</code>).
+</UL>
+<P/>
+<a name="C"><LI>Run the code and see the output</LI></a>
+<P/>
+The code in <code>GetStarted.ox</code> does not run on its own.  Like C, Ox needs to find a single routine called <code>main()</code> which is where execution starts.  Often <code>main()</code> is defined in a file on its own.  To run the code from there the <code>#include</code> directive can be used to bring other code into the program.
+<P/>
+<details><summary><a href="../../examples/GetStartedMain.ox">niqlow/examples/GetStartedMain.ox</a>.</summary>
+<pre><object width="75%" height="200" type="text/plain" data="../../examples/GetStartedMain.ox" border="1" ><p style="font-size:24pt"></object></pre></details>
+<code>main()</code> does only one thing.  It calls <code>Run()</code> which does all the work. Since <code>Run()</code> is static it can be called without referring to an instance of the class previously created with the <code>new</code> operator. There does not have to be an instance of the class for a static  variable to exist.  In general a user will only call static elements of their model.  The DDP code will create instances of the class to represent states and process them internally.
+<P/>
+From a command prompt in the examples directory (and assuming  <code>niqlow/include</code> is on the include path)
+<pre>oxl GetStartedMain </pre></dd>
+<div class="page-break"> </div>
+<P/>
+<details><summary>Source: <a href="../../examples/output/GetStarted.txt">niqlow/examples/GetStarted.txt</a></summary>
+<object width="75%" height="200" type="text/plain" data="../../examples/output/GetStarted.txt" border="1" ></object></pre></details>
+By default DDP prints out information (you can control the amount by setting <code>DP::Volume</code>).  When the spaces are created a summary of the state variables, state spaces, action vectors, and feasible action sets is produced.  The <code>Vprint()</code> routine prints out information for each point in the endogenous state space <b>&Theta;</b>:  The value of state variables in &theta; EV(&theta;) and choice probabilities averaging over the exogenous states.  Since EV = -6.26 the searcher will accept any offer with a price below 6.26.  There are 7 such offers, 0 through 6, and each is equally likely.  So the probability that <var>a=1</var> is 7/10 or 0.7.  The rejection probability is 0.3.
+
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

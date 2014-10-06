@@ -302,7 +302,7 @@ DP::Initialize(userReachable,UseStateList,GroupExists) {
  	for (subv=0;subv<DSubSpaces;++subv)   	{ SS[subv]= new SubSpace();  }
 	F = new array[DVspace];
 	P = new array[DVspace];
-	alpha = ialpha = chi = zeta = IsTracking = delta = Impossible;
+	alpha = ialpha = chi = zeta = delta = Impossible;
 	Naux = ReachableIndices = 0;
 	PreUpdate = DoNothing;
     SetUpdateTime();
@@ -428,8 +428,8 @@ DP::CreateSpaces() {
 			if (!isclass(States[m],"Fixed") && !isclass(States[m],"TimeVariable"))
 			++sbins[  isclass(States[m],"NonRandom") ? NONRANDOMSV
 					 :isclass(States[m],"Random") ? RANDOMSV
-					 :COEVOLVINGSV ];
-		println("\nTransition Categories (not counting fixed)","%r",{"     #Vars"},"%c",{"NonRandom","Random","Coevolving"},"%cf",{"%13.0f","%13.0f","%13.0f"},sbins);
+					 :isclass(States[m],"Augmented") ? AUGMENTEDV : COEVOLVINGSV ];
+		println("\nTransition Categories (not counting fixed or time)","%r",{"     #Vars"},"%c",{"NonRandom","Random","Coevolving","Augmented"},"%cf",{"%13.0f","%13.0f","%13.0f"},sbins);
 		println("\nSize of Spaces","%c",{"N"},"%r",
 				{"        Exogenous","    SemiExogenous","       Endogenous","            Times","    EV()Iterating",
 				"    Ch.Prob.track","     Random Groups","     Fixed Groups","    TotalUntrimmed"},
@@ -824,9 +824,8 @@ DP::UpdateVariables(state)	{
    	cputime0 = timer();
 	ExogenousTransition();
     if (!isint(state)) ETT.state = state;
-	ETT.subspace = iterating;
+	ETT.current = ETT.subspace = iterating;
 	ETT->Traverse(DoAll);          //Endogenous transitions
-	IsTracking = FALSE;
 	if (Volume>QUIET) println("Transition time: ",timer()-cputime0);
 	}
 

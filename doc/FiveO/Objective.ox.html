@@ -1,0 +1,2173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>Objective.ox - FiveO</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">Objective.ox</span></h1>
+
+Derive <code>MyObjective</code> from an Objective class.
+<a href="#auto">Skip down to documentation of items defined in Objective.ox</a><p>
+<P/>
+A user defines a non-linear objective as a class derived from <a href="Objective.ox.html#Objective">Objective</a>.  Currently the main types are:
+<UL>
+<LI><a href="Objective.ox.html#UnConstrained">UnConstrained</a>: an objective to maximize without imposing equality and inequality constraints on paramers.  In turn,
+unconstrained objectives should be derived from one of three sub-classes:</LI>
+<UL>
+<LI><a href="#BB">BlackBox</a>: the objective is a <a href="Objective.ox.html#BlackBox">BlackBox</a> objective.</LI>
+<LI><a href="#SO">Separable</a>: the objective is the <a href="Objective.ox.html#Separable">Separable</a> sum of K blackbox objectives.  Some parameters can be common across the objectives. </LI>
+<LI><a href="#MX">Mixture</a> the objective is a estimated weighted average of separable mixture of K problems over G different environments.  A separable objective is a special case where the G=1 and weights are fixed.</LI>
+</UL>
+<LI><a href="Objective.ox.html#Constrained">Constrained</a>: an objective to maximize subject to equality and inequality constraints using sequential quadratic programming (<a href="Algorithms.ox.html#SQP">SQP</a>).</LI>
+<LI><a href="Objective.ox.html#System">System</a>:  A square system of non-linear equations for which roots are to be found.  See <a href="NonLinearSystem.html">Non-Linear System</a> for details.</LI>
+</UL>
+<P/>
+<DT>The objective &fnof;(&psi;)  is provided by the user as <code>MyObjective::vfunc()</code>.</DT>
+<DD>The v indicates that it can return the vector of values that, if summed up, is the value of the objective at the current parameter values.</DD>
+<P/>
+<DT>Parameters to choose to optimize the objective are represented by an object derived from the <a href="Shared.ox.html#Parameter">Parameter</a> class.  </DT>
+<DD>Different parameters classes are defined to constrain individual parameters to open regions.</DD>
+ <DD>Related parameters are handled in a <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>.  See <a href="Parameters.ox.html">Parameters</a> for details.</DD>
+<P/>
+<DT>Parameters are added to the objective using <a href="Objective.ox.html#Objective___Parameters">Parameters</a>(). </DT>
+<P/>
+<DT>The work of optimization of the objective (or solution to the system) is done using a method of the <a href="Algorithms.ox.html#Algorithm">Algorithm</a> class.</DT>
+<DD>When an algorithm object is created the objective is sent as a argument and is assigned as a <code>constant</code> member.  So during execution an algorithm object is associated with a single objective, but multiple algorithms can be applied to the same objective.  This allows for a comparison of algorithms and/or applying a sequence of algorithms in order to carry out the optimization.</DD>
+<P/>
+<a name="BB"><h2>BlackBox: <var>f:&real;<sup>N</sup>&rarr;&real;</var>.</h2></a>
+<P/>
+<a name="SO"><h2>Separable: the sum of <var>K</var> <a href="Objective.ox.html#BlackBox">BlackBox</a> objectives.</h2></a>
+<P/>
+<DT>A separable objective is a function <em>and</em> a parameter <em>matrix</em> of the form</DT>
+<dd><pre>
+<P/>
+&psi = (&psi;<sub>0</sub> ~ &psi;<sub>1</sub> ~ &hellip; ~ &psi;<sub>K&oline;</sub>)
+<P/>
+&fnof;(&psi;)  = &sum;<sub>k=0</sub><sup>K&oline;</sup>  [&sum; f<sub>k</sub>(&psi;<sub>k</sub>)]
+<P/>
+</pre></pre>
+<P/>
+<DT>Each sub-vector <code>&psi;<sub>k</sub></code> is of the same length, <code>(&psi;.k).N = M.</code></DT>
+<DD>The overall parameter <code>&psi;</code> is then a <code>M &times; K</code> matrix, the horizontal concatenation of the the sub-vectors.</DD>
+<dd>Obviously, for K=1 a separable objective is equivalent to a <a href="Objective.ox.html#BlackBox">BlackBox</a>.</DD>
+<P/>
+<DT>The user only needs to code the sub-objective as a function of the sub-parameter vector and a <a href="Shared.ox.html#Discrete">Discrete</a> quantity, <code>K</code>.</DT>
+<DD>That is, the user codes <code>vfunc()</code> to equal <code>f<sub>k</sub>(&psi;<sub>k</sub>)</code>.  </DD>
+<DD>The current value of the index <code>k</code> is stored as <a href="Objective.ox.html#Separable___Kvar">Kvar</a>.v. </DD>
+<DT>To create a separable objective, call <code>new Separable(L,Kvar)</code>, where <code>Kvar</code> can be either
+<DD><pre>
+Kvar = positive integer
+ or
+Kvar = objective of class <a href="Shared.ox.html#Discrete">Discrete</a></pre>
+If a positive integer is sent then <span class="n">FiveO</span> sets <code>this.Kvar = new Discrete("K",Kvar);</code>.  Otherwise,
+the user sent discrete variable is used directly.</DD>
+<DT>Algorithms do not know the difference between separable objectives and blackboxes.  </DT>
+<DD>Instead, <span class="n">FiveO</span> keeps track internally of the matrix structure of the parameter vector.  </DD>
+<DT>Ordinarily a single parameter of a separable objective spawns <code>K</code> parameter <em>values</em>.</DT>
+<DD><a href="Objective.ox.html#Objective___Parameters">Parameters</a>(x) creates a single parameter (or block), but the value of that parameter will be allowed to vary across <code>k</code>.  </DD>
+<DD>Each value of a parameter is under the control of algorithms.  Any dependency between parameters within a sub-vector will be respected <code>k</code> by <code>k</code>.</DT>
+<DT>A parameter can be added to the objective with <a href="Objective.ox.html#Separable___CommonParameters">CommonParameters</a>().</DT>
+<DD> Now the parameter has only one value which will be the same across <code>k</code>.</DD>
+<DT>Total Parameters</DT>
+<DD>If no common parameters (and no <a href="Parameters.ox.html#Determined">Determined</a> parameters) are added to a separable objective then the length of the (overall) parameter vector seen by an algorithm is <code>N = KM</code>.</DD>
+<DD><a href="Objective.ox.html#Separable___C">C</a><code>&le;M</code> denotes the number of common parameters that were added to the objective.  In general, the overall parameter vector has length <code>N = C+K&times;(M-C)</code>.</DD>
+<DD>Parameters are always written out to files with duplicates, so it will appear that <var>N&times;K</var> parameters exist, but common parameters will always be equal across <code>k</code>. </DD>
+ <DD>This means that parameters can be changed from common to specific and vice versa without modifying files created by <a href="Objective.ox.html#Objective___Save">Save</a>().</DD>
+<P/>
+<a name="MX"><h2>Mixture: <a href="Objective.ox.html#Separable">Separable</a> objective with linearly weighted sub-objectives.</h2></a>
+<P/>
+A <em>Mixture</em> is the objective from a finite mixture model of unobserved heterogeneity, in which the separate functions involve two stages and weighting parameters.
+<P/>
+A <a href="Objective.ox.html#Mixture">Mixture</a> generalizes a separable objective in two ways, so it is a class derived from <a href="Objective.ox.html#Separable">Separable</a>.
+<DT>First, a mixture includes a second discrete dimension, <a href="Objective.ox.html#Mixture___Dvar">Dvar</a>. </DT>
+<DD>The current value, <code>Dvar.d</code>, takes on values <code>0 &hellip; D&oline;</code> and indexes different environments that the parameters</DD>
+ <DD>Now the sub objective depends on <code>k</code> and <code>d</code>.  However, parameter vectors continue to only depend on <code>k</code>. </DD>
+ <DD> Thus, in a mixture model sub-objectives take the form <code>&fnof;<sub>k d</sub>(&psi;<sub>k</sub>)</code>.</DD>
+<DD>Thus, there are <code>KD</code> different combinations of
+<DT>Second, a mixture has a separate D&times;K matrix of <em>weighting parameters</em>, denoted <code>&lambda;</code>.  </DT>
+<DT>The mixture objective :<DD><pre>
+&fnof; = &sum;<sub>d=0</sub><sup>D&oline;</sup>  &sum;<sub>k=0</sub><sup>K&oline;</sup>  &lambda;[d][k] &fnof;<sub>k d</sub>(&psi;<sub>k</sub>)
+<P/>
+Typically (but not necessarily), the weights are each a unit Simplex for each d:
+  0 &le; &lambda;[d][k] &le; 1
+  &sum;<sub>k=0</sub><sup>K&oline;</sup> &lambda;[d][k] = 1. </pre></DD>
+<DD>A separable objective is the special case of a mixture with <code>D=K</code> and <code>&lambda; = I<sub>K</sub></code>.  That is, each type is specific to an environment.</DD>
+<DT>To create a mixture objective, call <code>new Mixture(L,Dvar,Kvar,...) </code>, where <code>Kvar</code> is the same as for separable objectives and <code>Dvar</code> can be the same:
+<DD><pre>
+Dvar = positive integer
+ or
+Dvar = objective of class <a href="Shared.ox.html#Discrete">Discrete</a></pre>
+If a positive integer is sent then <span class="n">FiveO</span> sets <code>this.Dvar = new Discrete("D",Dvar);</code>.  Otherwise,
+the user sent discrete variable is used directly.</DD>
+<DD>The variable argument are optional initializing values for &lambda;
+<pre>
+Let va = va_arglist();
+No optional argument (va = {}) means
+	lambda[d] = new Simplex("L"+sprint("%2u",d),K),  for d = 0, &hellip; D&oline;
+A single argument (va = array[1]), then it must be a D&times;K matrix
+	lambda[d] = new Simplex("L"+sprint("%2u",d),va[0][d][]),  for d = 0, &hellip; D&oline;
+D arguments (va = array[D]), then each must be a <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> of size K and
+	lambda[d] = va[d]    for d = 0, &hellip; D&oline;</pre></DD>
+<DD>The final option allows the user to use weights that do not sum to 1 for each value of <code>d</code>, because the parameter block need not be a <a href="Parameters.ox.html#Simplex">Simplex</a> parameter block.</DD>
+<DT>It is inefficient to compute &fnof;<sub>k d</sub> if its weight is zero. </DT>
+<DD>The user can send a matrix of 0s and 1s to <a href="Objective.ox.html#Mixture___IncludedDK">IncludedDK</a>(), which indicates which type-environment pairs should be ignored.</DD>
+<DD>The default matrix consists of 0s, meaning that no combinations are ignored.</DD>
+<DT>Algorithms do not know any difference between a mixture, separable or blackbox objective. </DT>
+ <DD>Algorithms will work with a concatenation  of &lambda; and &psi;.</DD>
+ <DD>Common parameters operate the same way in a mixture as in a separable objective.</DD>
+ <DT>Total Parameters</DT>
+<DD>If no common parameters (and no <a href="Parameters.ox.html#Determined">Determined</a> parameters) are added to a separable objective, and the weights are D K-Simplexes, then the length of the (overall) parameter vector seen by an algorithm is <code>N = D(K-1) + KM</code>.</DD>
+<DD>In general, the overall parameter vector has length <code>N = DK + C+DK&times;(M-C)</code>.</DD>
+<P/>
+<hr><a name="auto"><h1>Documentation of  Items Defined in Objective.ox</h1></a>
+
+<a name="global"></a>
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global enumerations</span></h2>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Objective.ox.html#MixedWeightOptions">MixedWeightOptions</a></td>
+<td class="modifiers"></td>
+<td class="description">Tags weighting options.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Objective.ox.html#QuasiAlgorithms">QuasiAlgorithms</a></td>
+<td class="modifiers"></td>
+<td class="description">Tags for Gradient-based optimization algorithms.</td>
+</tr>
+</table>
+
+<a name="BlackBox"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BlackBox : <a href="Objective.ox.html#UnConstrained">UnConstrained</a> : <a href="Objective.ox.html#Objective">Objective</a></span></h2>
+
+Represents a blacbox objective.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#BlackBox___BlackBox">BlackBox</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a blackbox objective.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Objective.ox.html#UnConstrained">UnConstrained</a>:</dt><dd><a href="Objective.ox.html#UnConstrained___Gradient">Gradient</a>, <a href="Objective.ox.html#UnConstrained___UnConstrained">UnConstrained</a></dd>
+<dt>Inherited methods from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___Block">Block</a>, <a href="Objective.ox.html#Objective___CheckMax">CheckMax</a>, <a href="Objective.ox.html#Objective___CheckPoint">CheckPoint</a>, <a href="Objective.ox.html#Objective___Decode">Decode</a>, <a href="Objective.ox.html#Objective___Encode">Encode</a>, <a href="Objective.ox.html#Objective___fobj">fobj</a>, <a href="Objective.ox.html#Objective___funclist">funclist</a>, <a href="Objective.ox.html#Objective___Hessian">Hessian</a>, <a href="Objective.ox.html#Objective___Jacobian">Jacobian</a>, <a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___Parameters">Parameters</a>, <a href="Objective.ox.html#Objective___ResetMax">ResetMax</a>, <a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a>, <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>, <a href="Objective.ox.html#Objective___vfunc">vfunc</a>, <a href="Objective.ox.html#Objective___vobj">vobj</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___cur">cur</a>, <a href="Objective.ox.html#Objective___dStepLinearGap">dStepLinearGap</a>, <a href="Objective.ox.html#Objective___EXT">EXT</a>, <a href="Objective.ox.html#Objective___Flabels">Flabels</a>, <a href="Objective.ox.html#Objective___fname">fname</a>, <a href="Objective.ox.html#Objective___hold">hold</a>, <a href="Objective.ox.html#Objective___L">L</a>, <a href="Objective.ox.html#Objective___maxpt">maxpt</a>, <a href="Objective.ox.html#Objective___nfree">nfree</a>, <a href="Objective.ox.html#Objective___nstruct">nstruct</a>, <a href="Objective.ox.html#Objective___NvfuncTerms">NvfuncTerms</a>, <a href="Objective.ox.html#Objective___once">once</a>, <a href="Objective.ox.html#Objective___p2p">p2p</a>, <a href="Objective.ox.html#Objective___PsiL">PsiL</a>, <a href="Objective.ox.html#Objective___PsiType">PsiType</a>, <a href="Objective.ox.html#Objective___Start">Start</a>, <a href="Objective.ox.html#Objective___Volume">Volume</a>, <a href="Objective.ox.html#Objective___Warned">Warned</a></dd>
+</dl>
+
+<a name="Constrained"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Constrained : <a href="Objective.ox.html#Objective">Objective</a></span></h2>
+
+Container for Constrained Objectives.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Constrained___CheckPoint">CheckPoint</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Store current state of a Constrained Objective (checkpoint to disk).</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Constrained___Constrained">Constrained</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Constrained___equality">equality</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default Equality Constraints.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Constrained___funclist">funclist</a></td>
+<td class="modifiers"></td>
+<td class="description">Compute the objective and constraints at multiple points.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Constrained___Gradient">Gradient</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Compute the &nabla;f(), objective's gradient at the current vector.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Constrained___inequality">inequality</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default InEquality Constraints.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Constrained___Jacobian">Jacobian</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Compute the Jg(), vector version of the Lagrangian's Jacobian at the current vector.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Constrained___Lagrangian">Lagrangian</a></td>
+<td class="modifiers"></td>
+<td class="description">Decode the input, return the whole vector, inequality and equality constraints, if any.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Constrained___Merit">Merit</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___Block">Block</a>, <a href="Objective.ox.html#Objective___CheckMax">CheckMax</a>, <a href="Objective.ox.html#Objective___Decode">Decode</a>, <a href="Objective.ox.html#Objective___Encode">Encode</a>, <a href="Objective.ox.html#Objective___fobj">fobj</a>, <a href="Objective.ox.html#Objective___Hessian">Hessian</a>, <a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___Parameters">Parameters</a>, <a href="Objective.ox.html#Objective___ResetMax">ResetMax</a>, <a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a>, <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>, <a href="Objective.ox.html#Objective___vfunc">vfunc</a>, <a href="Objective.ox.html#Objective___vobj">vobj</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___cur">cur</a>, <a href="Objective.ox.html#Objective___dStepLinearGap">dStepLinearGap</a>, <a href="Objective.ox.html#Objective___EXT">EXT</a>, <a href="Objective.ox.html#Objective___Flabels">Flabels</a>, <a href="Objective.ox.html#Objective___fname">fname</a>, <a href="Objective.ox.html#Objective___hold">hold</a>, <a href="Objective.ox.html#Objective___L">L</a>, <a href="Objective.ox.html#Objective___maxpt">maxpt</a>, <a href="Objective.ox.html#Objective___nfree">nfree</a>, <a href="Objective.ox.html#Objective___nstruct">nstruct</a>, <a href="Objective.ox.html#Objective___NvfuncTerms">NvfuncTerms</a>, <a href="Objective.ox.html#Objective___once">once</a>, <a href="Objective.ox.html#Objective___p2p">p2p</a>, <a href="Objective.ox.html#Objective___PsiL">PsiL</a>, <a href="Objective.ox.html#Objective___PsiType">PsiType</a>, <a href="Objective.ox.html#Objective___Start">Start</a>, <a href="Objective.ox.html#Objective___Volume">Volume</a>, <a href="Objective.ox.html#Objective___Warned">Warned</a></dd>
+</dl>
+
+<a name="CPoint"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CPoint</span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#CPoint___Vec">Vec</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<a name="MixPoint"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MixPoint</span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#MixPoint___aggregate">aggregate</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<a name="Mixture"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Mixture : <a href="Objective.ox.html#Separable">Separable</a> : <a href="Objective.ox.html#UnConstrained">UnConstrained</a> : <a href="Objective.ox.html#Objective">Objective</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Mixture___cur">cur</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Mixture___D">D</a></td>
+<td class="modifiers">const</td>
+<td class="description"># observed types, environment  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Mixture___DK">DK</a></td>
+<td class="modifiers">const</td>
+<td class="description">D x K  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Mixture___dkfree">dkfree</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Mixture___DKL">DKL</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Mixture___Dvar">Dvar</a></td>
+<td class="modifiers">const</td>
+<td class="description"><a href="Shared.ox.html#Discrete">Discrete</a> environment-type var  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Mixture___FinL">FinL</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Mixture___Flabels">Flabels</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Mixture___Included">Included</a></td>
+<td class="modifiers"></td>
+<td class="description">matrix of indicators of valid d,k combos  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Mixture___lfree">lfree</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Mixture___WStart">WStart</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Mixture___Decode">Decode</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Decode and return the parameter array.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Mixture___Encode">Encode</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Mixture___fobj">fobj</a></td>
+<td class="modifiers"></td>
+<td class="description">Decode the input, compute the objective, check the maximum.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Mixture___funclist">funclist</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Mixture___Gradient">Gradient</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Compute the &nabla;f(), objective's gradient at the current vector.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Mixture___IncludedDK">IncludedDK</a></td>
+<td class="modifiers"></td>
+<td class="description">Indicate with (d,k) combinations should be computed.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Mixture___Jacobian">Jacobian</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Compute the Jg(), vector version of the objective's Jacobian at the current vector.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Mixture___Mixture">Mixture</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a mixture objective.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Mixture___vfunc">vfunc</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Mixture___vobj">vobj</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Decode the input, return the whole vector.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Mixture___WDecode">WDecode</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Mixture___WEncode">WEncode</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Mixture___Wfunclist">Wfunclist</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Objective.ox.html#Separable">Separable</a>:</dt><dd><a href="Objective.ox.html#Separable___CommonParameters">CommonParameters</a>, <a href="Objective.ox.html#Separable___Separable">Separable</a></dd>
+<dt>Inherited methods from <a href="Objective.ox.html#UnConstrained">UnConstrained</a>:</dt><dd><a href="Objective.ox.html#UnConstrained___UnConstrained">UnConstrained</a></dd>
+<dt>Inherited methods from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___Block">Block</a>, <a href="Objective.ox.html#Objective___CheckMax">CheckMax</a>, <a href="Objective.ox.html#Objective___CheckPoint">CheckPoint</a>, <a href="Objective.ox.html#Objective___Hessian">Hessian</a>, <a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___Parameters">Parameters</a>, <a href="Objective.ox.html#Objective___ResetMax">ResetMax</a>, <a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a>, <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Objective.ox.html#Separable">Separable</a>:</dt><dd><a href="Objective.ox.html#Separable___C">C</a>, <a href="Objective.ox.html#Separable___CDNV">CDNV</a>, <a href="Objective.ox.html#Separable___ComInd">ComInd</a>, <a href="Objective.ox.html#Separable___K">K</a>, <a href="Objective.ox.html#Separable___kfree">kfree</a>, <a href="Objective.ox.html#Separable___KL">KL</a>, <a href="Objective.ox.html#Separable___kNvf">kNvf</a>, <a href="Objective.ox.html#Separable___Kvar">Kvar</a>, <a href="Objective.ox.html#Separable___nfree">nfree</a>, <a href="Objective.ox.html#Separable___NvfuncTerms">NvfuncTerms</a></dd>
+<dt>Inherited fields from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___dStepLinearGap">dStepLinearGap</a>, <a href="Objective.ox.html#Objective___EXT">EXT</a>, <a href="Objective.ox.html#Objective___fname">fname</a>, <a href="Objective.ox.html#Objective___hold">hold</a>, <a href="Objective.ox.html#Objective___L">L</a>, <a href="Objective.ox.html#Objective___maxpt">maxpt</a>, <a href="Objective.ox.html#Objective___nstruct">nstruct</a>, <a href="Objective.ox.html#Objective___once">once</a>, <a href="Objective.ox.html#Objective___p2p">p2p</a>, <a href="Objective.ox.html#Objective___PsiL">PsiL</a>, <a href="Objective.ox.html#Objective___PsiType">PsiType</a>, <a href="Objective.ox.html#Objective___Volume">Volume</a>, <a href="Objective.ox.html#Objective___Warned">Warned</a></dd>
+</dl>
+
+<a name="Objective"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Objective</span></h2>
+
+Base class for objective optimization and system solving.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___cur">cur</a></td>
+<td class="modifiers">const</td>
+<td class="description">current point.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___dStepLinearGap">dStepLinearGap</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___EXT">EXT</a></td>
+<td class="modifiers">static const</td>
+<td class="description">Extension for <a href="Objective.ox.html#Objective___Load">Load</a> and
+		<a href="Objective.ox.html#Objective___Save">Save</a> files, =<q>optobj</q>.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___Flabels">Flabels</a></td>
+<td class="modifiers"></td>
+<td class="description">array free parameter labels  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___fname">fname</a></td>
+<td class="modifiers">const</td>
+<td class="description">Name for <a href="Objective.ox.html#Objective___Load">Load</a> &amp; files  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___hold">hold</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___L">L</a></td>
+<td class="modifiers">const</td>
+<td class="description">label.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___maxpt">maxpt</a></td>
+<td class="modifiers">const</td>
+<td class="description">Best so far   </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___nfree">nfree</a></td>
+<td class="modifiers"></td>
+<td class="description">length of F in current cycle.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___nstruct">nstruct</a></td>
+<td class="modifiers"></td>
+<td class="description">length of X.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___NvfuncTerms">NvfuncTerms</a></td>
+<td class="modifiers"></td>
+<td class="description">Longest vector returned by vfunc(), default=1.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___once">once</a></td>
+<td class="modifiers"></td>
+<td class="description">TRUE if encoded once  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___p2p">p2p</a></td>
+<td class="modifiers"></td>
+<td class="description">the P2P object for using MPI  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___PsiL">PsiL</a></td>
+<td class="modifiers"></td>
+<td class="description">all parameter labels  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___PsiType">PsiType</a></td>
+<td class="modifiers"></td>
+<td class="description">parameter class names  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___Start">Start</a></td>
+<td class="modifiers"></td>
+<td class="description">Initial vector after Encode()  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___Volume">Volume</a></td>
+<td class="modifiers"></td>
+<td class="description">Output Level.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Objective___Warned">Warned</a></td>
+<td class="modifiers">static</td>
+<td class="description">.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___Block">Block</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___CheckMax">CheckMax</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">If <code>cur.v &gt; maxpt.v</code> call <a href="Objective.ox.html#Objective___Save">Save</a> and update <code>maxpt</code>.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___CheckPoint">CheckPoint</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Load or save state of the problem to a file.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___Decode">Decode</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Decode a vector of free variables.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___Encode">Encode</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Encode vector of structural parameters.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___fobj">fobj</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Decode the input, compute the objective, check the maximum.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___funclist">funclist</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Compute the objective at multiple points.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___Gradient">Gradient</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___Hessian">Hessian</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Compute the Hf(), Hessian of objective at the current vector.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___Jacobian">Jacobian</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Compute the Jg(), vector version of the objective's Jacobian at the current vector.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___Load">Load</a></td>
+<td class="modifiers"></td>
+<td class="description">Load state of the problem.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___Parameters">Parameters</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Add <a href="Shared.ox.html#Parameter">Parameter</a>s to the parameter list to be optimized over.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___ResetMax">ResetMax</a></td>
+<td class="modifiers"></td>
+<td class="description">Reset the value of the current and maximum objective.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___Save">Save</a></td>
+<td class="modifiers"></td>
+<td class="description">Store current state (checkpoint to disk).</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a></td>
+<td class="modifiers">static</td>
+<td class="description">Toggle the value of <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___vfunc">vfunc</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Built in objective, f(&psi;).</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___vobj">vobj</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Decode the input, return the whole vector.</td>
+</tr>
+</table>
+
+<a name="PanelBB"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">PanelBB : <a href="Objective.ox.html#BlackBox">BlackBox</a> : <a href="Objective.ox.html#UnConstrained">UnConstrained</a> : <a href="Objective.ox.html#Objective">Objective</a></span></h2>
+
+Access the econometric objective related to a DDP Panel.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#PanelBB___data">data</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#PanelBB___PanelBB">PanelBB</a></td>
+<td class="modifiers"></td>
+<td class="description">A blackbox economic model with panel data and (possibly) nested solution method.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#PanelBB___vfunc">vfunc</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Objective.ox.html#BlackBox">BlackBox</a>:</dt><dd><a href="Objective.ox.html#BlackBox___BlackBox">BlackBox</a></dd>
+<dt>Inherited methods from <a href="Objective.ox.html#UnConstrained">UnConstrained</a>:</dt><dd><a href="Objective.ox.html#UnConstrained___Gradient">Gradient</a>, <a href="Objective.ox.html#UnConstrained___UnConstrained">UnConstrained</a></dd>
+<dt>Inherited methods from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___Block">Block</a>, <a href="Objective.ox.html#Objective___CheckMax">CheckMax</a>, <a href="Objective.ox.html#Objective___CheckPoint">CheckPoint</a>, <a href="Objective.ox.html#Objective___Decode">Decode</a>, <a href="Objective.ox.html#Objective___Encode">Encode</a>, <a href="Objective.ox.html#Objective___fobj">fobj</a>, <a href="Objective.ox.html#Objective___funclist">funclist</a>, <a href="Objective.ox.html#Objective___Hessian">Hessian</a>, <a href="Objective.ox.html#Objective___Jacobian">Jacobian</a>, <a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___Parameters">Parameters</a>, <a href="Objective.ox.html#Objective___ResetMax">ResetMax</a>, <a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a>, <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>, <a href="Objective.ox.html#Objective___vobj">vobj</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___cur">cur</a>, <a href="Objective.ox.html#Objective___dStepLinearGap">dStepLinearGap</a>, <a href="Objective.ox.html#Objective___EXT">EXT</a>, <a href="Objective.ox.html#Objective___Flabels">Flabels</a>, <a href="Objective.ox.html#Objective___fname">fname</a>, <a href="Objective.ox.html#Objective___hold">hold</a>, <a href="Objective.ox.html#Objective___L">L</a>, <a href="Objective.ox.html#Objective___maxpt">maxpt</a>, <a href="Objective.ox.html#Objective___nfree">nfree</a>, <a href="Objective.ox.html#Objective___nstruct">nstruct</a>, <a href="Objective.ox.html#Objective___NvfuncTerms">NvfuncTerms</a>, <a href="Objective.ox.html#Objective___once">once</a>, <a href="Objective.ox.html#Objective___p2p">p2p</a>, <a href="Objective.ox.html#Objective___PsiL">PsiL</a>, <a href="Objective.ox.html#Objective___PsiType">PsiType</a>, <a href="Objective.ox.html#Objective___Start">Start</a>, <a href="Objective.ox.html#Objective___Volume">Volume</a>, <a href="Objective.ox.html#Objective___Warned">Warned</a></dd>
+</dl>
+
+<a name="Separable"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Separable : <a href="Objective.ox.html#UnConstrained">UnConstrained</a> : <a href="Objective.ox.html#Objective">Objective</a></span></h2>
+
+Represent sum of <var>K</var> <a href="Objective.ox.html#BlackBox">BlackBox</a> objectives.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Separable___C">C</a></td>
+<td class="modifiers"></td>
+<td class="description">Number of common parameters  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Separable___CDNV">CDNV</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Separable___ComInd">ComInd</a></td>
+<td class="modifiers"></td>
+<td class="description">Vector of indices into Psi of common pars  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Separable___cur">cur</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Separable___Flabels">Flabels</a></td>
+<td class="modifiers"></td>
+<td class="description">.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Separable___Included">Included</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Separable___K">K</a></td>
+<td class="modifiers">const</td>
+<td class="description"># unobserved types, sub-problems  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Separable___kfree">kfree</a></td>
+<td class="modifiers"></td>
+<td class="description">K Vector of free specific parameters  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Separable___KL">KL</a></td>
+<td class="modifiers">const</td>
+<td class="description">labels for types / sub problems  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Separable___kNvf">kNvf</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Separable___Kvar">Kvar</a></td>
+<td class="modifiers">const</td>
+<td class="description"><a href="Shared.ox.html#Discrete">Discrete</a> sub-problem var  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Separable___nfree">nfree</a></td>
+<td class="modifiers"></td>
+<td class="description">Total free parameters  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Separable___NvfuncTerms">NvfuncTerms</a></td>
+<td class="modifiers"></td>
+<td class="description">Longest vector returned by vfunc(), default=1.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Separable___CommonParameters">CommonParameters</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Add parameters to the objective that will have a single value across types/sub-problems.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Separable___Decode">Decode</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Decode and return the structural parameter matrix.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Separable___Encode">Encode</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Encode matrix of structural parameters.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Separable___fobj">fobj</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Decode the input, compute the objective, check the maximum.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Separable___funclist">funclist</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Separable___Gradient">Gradient</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Compute the &nabla;f(), objective's gradient at the current vector.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Separable___Jacobian">Jacobian</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Compute the Jg(), vector version of the objective's Jacobian at the current vector.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Separable___Separable">Separable</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a separable objective.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Separable___vfunc">vfunc</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Separable___vobj">vobj</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Decode the input, return the whole vector.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Objective.ox.html#UnConstrained">UnConstrained</a>:</dt><dd><a href="Objective.ox.html#UnConstrained___UnConstrained">UnConstrained</a></dd>
+<dt>Inherited methods from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___Block">Block</a>, <a href="Objective.ox.html#Objective___CheckMax">CheckMax</a>, <a href="Objective.ox.html#Objective___CheckPoint">CheckPoint</a>, <a href="Objective.ox.html#Objective___Hessian">Hessian</a>, <a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___Parameters">Parameters</a>, <a href="Objective.ox.html#Objective___ResetMax">ResetMax</a>, <a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a>, <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___dStepLinearGap">dStepLinearGap</a>, <a href="Objective.ox.html#Objective___EXT">EXT</a>, <a href="Objective.ox.html#Objective___fname">fname</a>, <a href="Objective.ox.html#Objective___hold">hold</a>, <a href="Objective.ox.html#Objective___L">L</a>, <a href="Objective.ox.html#Objective___maxpt">maxpt</a>, <a href="Objective.ox.html#Objective___nstruct">nstruct</a>, <a href="Objective.ox.html#Objective___once">once</a>, <a href="Objective.ox.html#Objective___p2p">p2p</a>, <a href="Objective.ox.html#Objective___PsiL">PsiL</a>, <a href="Objective.ox.html#Objective___PsiType">PsiType</a>, <a href="Objective.ox.html#Objective___Volume">Volume</a>, <a href="Objective.ox.html#Objective___Warned">Warned</a></dd>
+</dl>
+
+<a name="System"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">System : <a href="Objective.ox.html#Objective">Objective</a></span></h2>
+
+A non-linear system of equations to solve.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#System___equations">equations</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default system of equations: <a href="Objective.ox.html#Objective___vfunc">vfunc</a>().</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#System___System">System</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___Block">Block</a>, <a href="Objective.ox.html#Objective___CheckMax">CheckMax</a>, <a href="Objective.ox.html#Objective___CheckPoint">CheckPoint</a>, <a href="Objective.ox.html#Objective___Decode">Decode</a>, <a href="Objective.ox.html#Objective___Encode">Encode</a>, <a href="Objective.ox.html#Objective___fobj">fobj</a>, <a href="Objective.ox.html#Objective___funclist">funclist</a>, <a href="Objective.ox.html#Objective___Gradient">Gradient</a>, <a href="Objective.ox.html#Objective___Hessian">Hessian</a>, <a href="Objective.ox.html#Objective___Jacobian">Jacobian</a>, <a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___Parameters">Parameters</a>, <a href="Objective.ox.html#Objective___ResetMax">ResetMax</a>, <a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a>, <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>, <a href="Objective.ox.html#Objective___vfunc">vfunc</a>, <a href="Objective.ox.html#Objective___vobj">vobj</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___cur">cur</a>, <a href="Objective.ox.html#Objective___dStepLinearGap">dStepLinearGap</a>, <a href="Objective.ox.html#Objective___EXT">EXT</a>, <a href="Objective.ox.html#Objective___Flabels">Flabels</a>, <a href="Objective.ox.html#Objective___fname">fname</a>, <a href="Objective.ox.html#Objective___hold">hold</a>, <a href="Objective.ox.html#Objective___L">L</a>, <a href="Objective.ox.html#Objective___maxpt">maxpt</a>, <a href="Objective.ox.html#Objective___nfree">nfree</a>, <a href="Objective.ox.html#Objective___nstruct">nstruct</a>, <a href="Objective.ox.html#Objective___NvfuncTerms">NvfuncTerms</a>, <a href="Objective.ox.html#Objective___once">once</a>, <a href="Objective.ox.html#Objective___p2p">p2p</a>, <a href="Objective.ox.html#Objective___PsiL">PsiL</a>, <a href="Objective.ox.html#Objective___PsiType">PsiType</a>, <a href="Objective.ox.html#Objective___Start">Start</a>, <a href="Objective.ox.html#Objective___Volume">Volume</a>, <a href="Objective.ox.html#Objective___Warned">Warned</a></dd>
+</dl>
+
+<a name="UnConstrained"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">UnConstrained : <a href="Objective.ox.html#Objective">Objective</a></span></h2>
+
+Container for Unconstrained Objectives.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#UnConstrained___Gradient">Gradient</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Compute the &nabla;f(), objective's gradient at the current vector.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#UnConstrained___UnConstrained">UnConstrained</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___Block">Block</a>, <a href="Objective.ox.html#Objective___CheckMax">CheckMax</a>, <a href="Objective.ox.html#Objective___CheckPoint">CheckPoint</a>, <a href="Objective.ox.html#Objective___Decode">Decode</a>, <a href="Objective.ox.html#Objective___Encode">Encode</a>, <a href="Objective.ox.html#Objective___fobj">fobj</a>, <a href="Objective.ox.html#Objective___funclist">funclist</a>, <a href="Objective.ox.html#Objective___Hessian">Hessian</a>, <a href="Objective.ox.html#Objective___Jacobian">Jacobian</a>, <a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___Parameters">Parameters</a>, <a href="Objective.ox.html#Objective___ResetMax">ResetMax</a>, <a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a>, <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>, <a href="Objective.ox.html#Objective___vfunc">vfunc</a>, <a href="Objective.ox.html#Objective___vobj">vobj</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___cur">cur</a>, <a href="Objective.ox.html#Objective___dStepLinearGap">dStepLinearGap</a>, <a href="Objective.ox.html#Objective___EXT">EXT</a>, <a href="Objective.ox.html#Objective___Flabels">Flabels</a>, <a href="Objective.ox.html#Objective___fname">fname</a>, <a href="Objective.ox.html#Objective___hold">hold</a>, <a href="Objective.ox.html#Objective___L">L</a>, <a href="Objective.ox.html#Objective___maxpt">maxpt</a>, <a href="Objective.ox.html#Objective___nfree">nfree</a>, <a href="Objective.ox.html#Objective___nstruct">nstruct</a>, <a href="Objective.ox.html#Objective___NvfuncTerms">NvfuncTerms</a>, <a href="Objective.ox.html#Objective___once">once</a>, <a href="Objective.ox.html#Objective___p2p">p2p</a>, <a href="Objective.ox.html#Objective___PsiL">PsiL</a>, <a href="Objective.ox.html#Objective___PsiType">PsiType</a>, <a href="Objective.ox.html#Objective___Start">Start</a>, <a href="Objective.ox.html#Objective___Volume">Volume</a>, <a href="Objective.ox.html#Objective___Warned">Warned</a></dd>
+</dl>
+
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global </span></h2>
+
+<table class="enum_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><a name="MixedWeightOptions"></a>MixedWeightOptions</td>
+<td class="description">Tags weighting options.
+</td>
+<td class="elements">EqualInitialWeights, SimplexWeights, FixedWeights, MixedWeightOptions</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><a name="QuasiAlgorithms"></a>QuasiAlgorithms</td>
+<td class="description">Tags for Gradient-based optimization algorithms.
+</td>
+<td class="elements">USEBHHH, USEBFGS, USEDFP, USESTEEP, USENEWTON, QuasiAlgorithms</td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BlackBox</span></h2>
+
+<a name="BlackBox___BlackBox"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">BlackBox</span></h3>
+
+<span class="declaration">BlackBox :: BlackBox ( L )</span>
+<dl><dd>
+Create a blackbox objective.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">string, a label for the problem.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Constrained</span></h2>
+
+<a name="Constrained___CheckPoint"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CheckPoint</span></h3>
+
+<span class="declaration">virtual Constrained :: CheckPoint ( f , saving )</span>
+<dl><dd>
+Store current state of a Constrained Objective (checkpoint to disk).
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">f
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">saving
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">the value of <a href="Objective.ox.html#Objective___cur">cur</a>.F is written to the file but ignored by Load().
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Constrained___Constrained"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Constrained</span></h3>
+
+<span class="declaration">Constrained :: Constrained ( L , ELorN , IELorN )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Constrained___equality"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">equality</span></h3>
+
+<span class="declaration">virtual Constrained :: equality ( )</span>
+<dl><dd>
+Default Equality Constraints.
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">empty vector
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Constrained___funclist"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">funclist</span></h3>
+
+<span class="declaration">Constrained :: funclist ( Fmat , jake )</span>
+<dl><dd>
+Compute the objective and constraints at multiple points.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Fmat,</td>
+<td class="description" valign="baseline">N<sub>f</sub>&times;J matrix of column vectors to evaluate at
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">J, the number of function evaluations
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Constrained___Gradient"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gradient</span></h3>
+
+<span class="declaration">virtual Constrained :: Gradient ( )</span>
+<dl><dd>
+Compute the &nabla;f(), objective's gradient at the current vector.
+
+</dd></dl>
+
+<hr>
+<a name="Constrained___inequality"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">inequality</span></h3>
+
+<span class="declaration">virtual Constrained :: inequality ( )</span>
+<dl><dd>
+Default InEquality Constraints.
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">empty vector
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Constrained___Jacobian"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Jacobian</span></h3>
+
+<span class="declaration">virtual Constrained :: Jacobian ( )</span>
+<dl><dd>
+Compute the Jg(), vector version of the Lagrangian's Jacobian at the current vector.
+
+</dd></dl>
+
+<hr>
+<a name="Constrained___Lagrangian"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Lagrangian</span></h3>
+
+<span class="declaration">Constrained :: Lagrangian ( F )</span>
+<dl><dd>
+Decode the input, return the whole vector, inequality and equality constraints, if any.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">F</td>
+<td class="description" valign="baseline">vector of free parameters.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">Array, {&fnof;,g,h};
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Constrained___Merit"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Merit</span></h3>
+
+<span class="declaration">virtual Constrained :: Merit ( F )</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CPoint</span></h2>
+
+<a name="CPoint___Vec"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vec</span></h3>
+
+<span class="declaration">CPoint :: Vec ( )</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MixPoint</span></h2>
+
+<a name="MixPoint___aggregate"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">aggregate</span></h3>
+
+<span class="declaration">MixPoint :: aggregate ( outV , v )</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Mixture</span></h2>
+
+<a name="Mixture___cur"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cur</span></h3>
+
+<span class="declaration">const decl cur [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___D"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">D</span></h3>
+
+<span class="declaration">const decl D [public]</span>
+<dl><dd>
+# observed types, environment
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___Decode"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Decode</span></h3>
+
+<span class="declaration">virtual Mixture :: Decode ( F )</span>
+<dl><dd>
+Decode and return the parameter array.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">F</td>
+<td class="description" valign="baseline">vector of free parameters.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Mixture___DK"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DK</span></h3>
+
+<span class="declaration">const decl DK [public]</span>
+<dl><dd>
+D x K
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___dkfree"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">dkfree</span></h3>
+
+<span class="declaration">decl dkfree [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___DKL"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DKL</span></h3>
+
+<span class="declaration">const decl DKL [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___Dvar"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Dvar</span></h3>
+
+<span class="declaration">const decl Dvar [public]</span>
+<dl><dd>
+<a href="Shared.ox.html#Discrete">Discrete</a> environment-type var
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___Encode"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Encode</span></h3>
+
+<span class="declaration">virtual Mixture :: Encode ( inX )</span>
+<dl><dd>
+.
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___FinL"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">FinL</span></h3>
+
+<span class="declaration">decl FinL [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___Flabels"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Flabels</span></h3>
+
+<span class="declaration">decl Flabels [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___fobj"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">fobj</span></h3>
+
+<span class="declaration">Mixture :: fobj ( F )</span>
+<dl><dd>
+Decode the input, compute the objective, check the maximum.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">F</td>
+<td class="description" valign="baseline">vector of free parameters.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">cur.v, <var>f(&psi;)</var>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Mixture___funclist"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">funclist</span></h3>
+
+<span class="declaration">virtual Mixture :: funclist ( Fmat , aFvec )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___Gradient"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gradient</span></h3>
+
+<dl><dd>
+Compute the &nabla;f(), objective's gradient at the current vector.
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___Included"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Included</span></h3>
+
+<span class="declaration">decl Included [public]</span>
+<dl><dd>
+matrix of indicators of valid d,k combos
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___IncludedDK"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">IncludedDK</span></h3>
+
+<span class="declaration">Mixture :: IncludedDK ( mDK )</span>
+<dl><dd>
+Indicate with (d,k) combinations should be computed.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">mDK</td>
+<td class="description" valign="baseline">D&times;K matrix of 0s/1s
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">default is ones(D,K)
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Mixture___Jacobian"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Jacobian</span></h3>
+
+<span class="declaration">virtual Mixture :: Jacobian ( )</span>
+<dl><dd>
+Compute the Jg(), vector version of the objective's Jacobian at the current vector.
+
+<dl><dt class="returns">Returns:</dt><dd class="returns"><var>Jg(&psi;)</var>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Mixture___lfree"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">lfree</span></h3>
+
+<span class="declaration">decl lfree [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___Mixture"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Mixture</span></h3>
+
+<span class="declaration">Mixture :: Mixture ( L , Dvar , Kvar , MixType , ... )</span>
+<dl><dd>
+Create a mixture objective.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">string, a label for the problem.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Dvar,</td>
+<td class="description" valign="baseline">integer&gt;0, the number of environments<br><a href="Shared.ox.html#Discrete">Discrete</a> variable that codes the environment
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Kvar,</td>
+<td class="description" valign="baseline">integer&gt;0, the number of types <br><a href="Shared.ox.html#Discrete">Discrete</a> variable that codes the types
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">MixType,</td>
+<td class="description" valign="baseline"><a href="Objective.ox.html#MixedWeightOptions">MixedWeightOptions</a>
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">...</td>
+<td class="description" valign="baseline">D&times;K matrix or D-array of values <br>
+No optional argument means <br>
+	Lambda[d] = new Simplex("L"+sprint("%2u",d),K),  for d = 0, &hellip; D&oline;<br>
+A single argument, then it must be a D&times;K matrix<br>
+	Lambda[d] = new Simplex("L"+sprint("%2u",d),va[0][d][]),  for d = 0, &hellip; D&oline;<br>
+D arguments, then each must be a <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> of size K and<br>
+	Lambda[d] = va[d]    for d = 0, &hellip; D&oline;<br></td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Mixture___vfunc"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">vfunc</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___vobj"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">vobj</span></h3>
+
+<span class="declaration">virtual Mixture :: vobj ( F )</span>
+<dl><dd>
+Decode the input, return the whole vector.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">F</td>
+<td class="description" valign="baseline">vector of free parameters.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Mixture___WDecode"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">WDecode</span></h3>
+
+<span class="declaration">Mixture :: WDecode ( WF )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___WEncode"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">WEncode</span></h3>
+
+<span class="declaration">Mixture :: WEncode ( inW )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___Wfunclist"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Wfunclist</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Mixture___WStart"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">WStart</span></h3>
+
+<span class="declaration">decl WStart [public]</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Objective</span></h2>
+
+<a name="Objective___Block"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Block</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Objective___CheckMax"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CheckMax</span></h3>
+
+<span class="declaration">virtual Objective :: CheckMax ( )</span>
+<dl><dd>
+If <code>cur.v &gt; maxpt.v</code> call <a href="Objective.ox.html#Objective___Save">Save</a> and update <code>maxpt</code>.
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if maxval was updated<br>FALSE otherwise.
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Objective___CheckPoint"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CheckPoint</span></h3>
+
+<span class="declaration">virtual Objective :: CheckPoint ( f , saving )</span>
+<dl><dd>
+Load or save state of the problem to a file.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">f</td>
+<td class="description" valign="baseline">file object
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">saving</td>
+<td class="description" valign="baseline"> TRUE: save status to the file<br>FALSE: load from the file and close it, call <a href="Objective.ox.html#Objective___Encode">Encode</a></td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Objective___cur"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cur</span></h3>
+
+<span class="declaration">const decl cur [public]</span>
+<dl><dd>
+current point.
+
+</dd></dl>
+
+<hr>
+<a name="Objective___Decode"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Decode</span></h3>
+
+<span class="declaration">virtual Objective :: Decode ( F )</span>
+<dl><dd>
+Decode a vector of free variables.
+Converts an optimized parameter vector into the structural parameter vector.  Ensure that each parameter and
+each parameter block current value is updated.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">F,</td>
+<td class="description" valign="baseline">nfree x 1 vector of optimized parameters.<br>0 [default], use this.F for decode
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">X, the structural parameter vector.
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Objective___dStepLinearGap"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">dStepLinearGap</span></h3>
+
+<span class="declaration">static const decl dStepLinearGap [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Objective___Encode"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Encode</span></h3>
+
+<span class="declaration">virtual Objective :: Encode ( inX )</span>
+<dl><dd>
+Encode vector of structural parameters.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">inX</td>
+<td class="description" valign="baseline">0 [default] get new starting values from the parameters<br>a vector, new starting values.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">if X is a vector then a value of .NaN means that parameter should be held fixed at the current value during this
+		   cycle of optimization.  If X=0 then the starting values are retrieved as follows: If this is the first
+		   call of Encode() the initial values passed to the parameters when they were created. If this.X already has elements
+		   then this is not the first call to Encode() and starting values will be retrieved from the current values of
+		   parameters.
+@See Objective::nfree, Objective::nstruct, Objective::FinX
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Objective___EXT"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">EXT</span></h3>
+
+<span class="declaration">static const decl EXT [public]</span>
+<dl><dd>
+Extension for <a href="Objective.ox.html#Objective___Load">Load</a> and
+		<a href="Objective.ox.html#Objective___Save">Save</a> files, =<q>optobj</q>.
+
+</dd></dl>
+
+<hr>
+<a name="Objective___Flabels"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Flabels</span></h3>
+
+<span class="declaration">decl Flabels [public]</span>
+<dl><dd>
+array free parameter labels
+
+</dd></dl>
+
+<hr>
+<a name="Objective___fname"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">fname</span></h3>
+
+<span class="declaration">const decl fname [public]</span>
+<dl><dd>
+Name for <a href="Objective.ox.html#Objective___Load">Load</a> &amp; files
+
+</dd></dl>
+
+<hr>
+<a name="Objective___fobj"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">fobj</span></h3>
+
+<span class="declaration">virtual Objective :: fobj ( F )</span>
+<dl><dd>
+Decode the input, compute the objective, check the maximum.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">F</td>
+<td class="description" valign="baseline">vector of free parameters.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Objective___funclist"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">funclist</span></h3>
+
+<span class="declaration">virtual Objective :: funclist ( Fmat , aFvec )</span>
+<dl><dd>
+Compute the objective at multiple points.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Fmat,</td>
+<td class="description" valign="baseline">N<sub>f</sub>&times;J matrix of column vectors to evaluate at
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">aFvec,</td>
+<td class="description" valign="baseline">address of a ?&times;J matrix to return <var>f()</var> in.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">J, the number of function evaluations
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Objective___Gradient"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gradient</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Objective___Hessian"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Hessian</span></h3>
+
+<span class="declaration">virtual Objective :: Hessian ( )</span>
+<dl><dd>
+Compute the Hf(), Hessian of objective at the current vector.
+
+<dl><dt class="returns">Returns:</dt><dd class="returns"><var>Hg(&psi;)</var> in cur.H
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Objective___hold"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hold</span></h3>
+
+<span class="declaration">const decl hold [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Objective___Jacobian"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Jacobian</span></h3>
+
+<span class="declaration">virtual Objective :: Jacobian ( )</span>
+<dl><dd>
+Compute the Jg(), vector version of the objective's Jacobian at the current vector.
+
+<dl><dt class="returns">Returns:</dt><dd class="returns"><var>Jg(&psi;)</var> in cur.J
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Objective___L"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">L</span></h3>
+
+<span class="declaration">const decl L [public]</span>
+<dl><dd>
+label.
+
+</dd></dl>
+
+<hr>
+<a name="Objective___Load"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Load</span></h3>
+
+<span class="declaration">Objective :: Load ( fname )</span>
+<dl><dd>
+Load state of the problem.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">fname</td>
+<td class="description" valign="baseline">string, name of file<br>0 [default], use the default name, the label with spaces removed<br>-1, do nothing and return FALSE.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">TRUE if parameter values were loaded from file<br> FALSE otherwise.
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">FinX is read in to set <code>DONOTVARY<code> for each parameter. The value of F is ignored by Load.  <a href="Objective.ox.html#Objective___Encode">Encode</a>() called by Load.
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___L">L</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Objective___maxpt"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">maxpt</span></h3>
+
+<span class="declaration">const decl maxpt [public]</span>
+<dl><dd>
+Best so far
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso">Object::CheckMax</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Objective___nfree"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nfree</span></h3>
+
+<span class="declaration">decl nfree [public]</span>
+<dl><dd>
+length of F in current cycle.
+
+</dd></dl>
+
+<hr>
+<a name="Objective___nstruct"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nstruct</span></h3>
+
+<span class="declaration">decl nstruct [public]</span>
+<dl><dd>
+length of X.
+
+</dd></dl>
+
+<hr>
+<a name="Objective___NvfuncTerms"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NvfuncTerms</span></h3>
+
+<span class="declaration">decl NvfuncTerms [public]</span>
+<dl><dd>
+Longest vector returned by vfunc(), default=1.
+
+</dd></dl>
+
+<hr>
+<a name="Objective___once"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">once</span></h3>
+
+<span class="declaration">decl once [public]</span>
+<dl><dd>
+TRUE if encoded once
+
+</dd></dl>
+
+<hr>
+<a name="Objective___p2p"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">p2p</span></h3>
+
+<span class="declaration">decl p2p [public]</span>
+<dl><dd>
+the P2P object for using MPI
+
+</dd></dl>
+
+<hr>
+<a name="Objective___Parameters"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Parameters</span></h3>
+
+<span class="declaration">virtual Objective :: Parameters ( psi1 , ... )</span>
+<dl><dd>
+Add <a href="Shared.ox.html#Parameter">Parameter</a>s to the parameter list to be optimized over.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">psi1</td>
+<td class="description" valign="baseline">the first or next (and possibly only) parameter to add to the objective<br>
+array: any argument can send an array which contains only parameters and blocks	
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">...</td>
+<td class="description" valign="baseline">additional parameters and blocks to add
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#Parameter">Parameter</a>, <a href="Objective.ox.html#Objective___Psi">Psi</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Objective___PsiL"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">PsiL</span></h3>
+
+<span class="declaration">decl PsiL [public]</span>
+<dl><dd>
+all parameter labels
+
+</dd></dl>
+
+<hr>
+<a name="Objective___PsiType"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">PsiType</span></h3>
+
+<span class="declaration">decl PsiType [public]</span>
+<dl><dd>
+parameter class names
+
+</dd></dl>
+
+<hr>
+<a name="Objective___ResetMax"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ResetMax</span></h3>
+
+<span class="declaration">Objective :: ResetMax ( )</span>
+<dl><dd>
+Reset the value of the current and maximum objective.
+
+</dd></dl>
+
+<hr>
+<a name="Objective___Save"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Save</span></h3>
+
+<span class="declaration">Objective :: Save ( fname )</span>
+<dl><dd>
+Store current state (checkpoint to disk).
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">fname</td>
+<td class="description" valign="baseline">string, name of file<br>0 [default] use <a href="Objective.ox.html#Objective___fname">fname</a>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___EXT">EXT</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Objective___SetAggregation"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetAggregation</span></h3>
+
+<span class="declaration">Objective :: SetAggregation ( AggType )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Objective___Start"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Start</span></h3>
+
+<span class="declaration">decl Start [public]</span>
+<dl><dd>
+Initial vector after Encode()
+
+</dd></dl>
+
+<hr>
+<a name="Objective___ToggleParameterConstraint"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ToggleParameterConstraint</span></h3>
+
+<span class="declaration">static Objective :: ToggleParameterConstraint ( )</span>
+<dl><dd>
+Toggle the value of <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>.
+If DoNotConstrain then all parameters except <a href="Parameters.ox.html#Determined">Determined</a> parameters are free and unscaled.
+This can improve convergence near the top of the objective.  It also means that the Hessian values are in terms
+of the economic parameters not the free-to-vary optimization parameters.
+
+</dd></dl>
+
+<hr>
+<a name="Objective___vfunc"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">vfunc</span></h3>
+
+<span class="declaration">virtual Objective :: vfunc ( )</span>
+<dl><dd>
+Built in objective, f(&psi;).
+Prints a warning once and then returns 0.
+
+</dd></dl>
+
+<hr>
+<a name="Objective___vobj"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">vobj</span></h3>
+
+<span class="declaration">virtual Objective :: vobj ( F )</span>
+<dl><dd>
+Decode the input, return the whole vector.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">F</td>
+<td class="description" valign="baseline">vector of free parameters.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Objective___Volume"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Volume</span></h3>
+
+<span class="declaration">decl Volume [public]</span>
+<dl><dd>
+Output Level.
+
+</dd></dl>
+
+<hr>
+<a name="Objective___Warned"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Warned</span></h3>
+
+<span class="declaration">static decl Warned [public]</span>
+<dl><dd>
+. internal
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">PanelBB</span></h2>
+
+<a name="PanelBB___data"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">data</span></h3>
+
+<span class="declaration">const decl data [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="PanelBB___PanelBB"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PanelBB</span></h3>
+
+<span class="declaration">PanelBB :: PanelBB ( L , data , ... )</span>
+<dl><dd>
+A blackbox economic model with panel data and (possibly) nested solution method.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">string, label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">data</td>
+<td class="description" valign="baseline">a <code>Panel</code> object
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments"><a href="Objective.ox.html#Objective___NvfuncTerms">NvfuncTerms</a> is set to <code>data.FN</code>, the total number of paths in the panel
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="PanelBB___vfunc"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">vfunc</span></h3>
+
+<span class="declaration">virtual PanelBB :: vfunc ( )</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Separable</span></h2>
+
+<a name="Separable___C"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">C</span></h3>
+
+<span class="declaration">decl C [public]</span>
+<dl><dd>
+Number of common parameters
+
+</dd></dl>
+
+<hr>
+<a name="Separable___CDNV"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">CDNV</span></h3>
+
+<span class="declaration">decl CDNV [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Separable___ComInd"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ComInd</span></h3>
+
+<span class="declaration">decl ComInd [public]</span>
+<dl><dd>
+Vector of indices into Psi of common pars
+
+</dd></dl>
+
+<hr>
+<a name="Separable___CommonParameters"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CommonParameters</span></h3>
+
+<span class="declaration">virtual Separable :: CommonParameters ( psi1 , ... )</span>
+<dl><dd>
+Add parameters to the objective that will have a single value across types/sub-problems.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">psi1</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#Parameter">Parameter</a> one (and possibly only) parameter to add to the objective
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">On any call to <code>vfunc()</code> common parameters with have the same value for each <var>k</var>.
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Separable___cur"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cur</span></h3>
+
+<span class="declaration">const decl cur [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Separable___Decode"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Decode</span></h3>
+
+<span class="declaration">virtual Separable :: Decode ( F )</span>
+<dl><dd>
+Decode and return the structural parameter matrix.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">F</td>
+<td class="description" valign="baseline">vector of free parameters.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns"><a href="Shared.ox.html#Point___X">X</a>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Separable___Encode"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Encode</span></h3>
+
+<span class="declaration">virtual Separable :: Encode ( X , CallBase )</span>
+<dl><dd>
+Encode matrix of structural parameters.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">X</td>
+<td class="description" valign="baseline">0 get starting values from current X<br>vector N&times;1, common starting values across types<br>matrix N&times;K, starting values for all types. Only first column value used for common types
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">CallBase</td>
+<td class="description" valign="baseline">TRUE, simply call <a href="Objective.ox.html#Objective___Encode">Encode</a>(), used in parallel processing.<br>FALSE (default), proceed with separable encoding</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Separable___Flabels"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Flabels</span></h3>
+
+<span class="declaration">decl Flabels [public]</span>
+<dl><dd>
+.
+
+</dd></dl>
+
+<hr>
+<a name="Separable___fobj"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">fobj</span></h3>
+
+<span class="declaration">virtual Separable :: fobj ( F )</span>
+<dl><dd>
+Decode the input, compute the objective, check the maximum.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">F</td>
+<td class="description" valign="baseline">vector of free parameters.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns"><var>f(&psi;)</var>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Separable___funclist"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">funclist</span></h3>
+
+<span class="declaration">virtual Separable :: funclist ( Fmat , aFvec )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Separable___Gradient"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gradient</span></h3>
+
+<span class="declaration">virtual Separable :: Gradient ( )</span>
+<dl><dd>
+Compute the &nabla;f(), objective's gradient at the current vector.
+
+</dd></dl>
+
+<hr>
+<a name="Separable___Included"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Included</span></h3>
+
+<span class="declaration">decl Included [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Separable___Jacobian"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Jacobian</span></h3>
+
+<span class="declaration">virtual Separable :: Jacobian ( )</span>
+<dl><dd>
+Compute the Jg(), vector version of the objective's Jacobian at the current vector.
+Returns <var>Jg(&psi;)</var> in <code>cur.J</code>.
+
+</dd></dl>
+
+<hr>
+<a name="Separable___K"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">K</span></h3>
+
+<span class="declaration">const decl K [public]</span>
+<dl><dd>
+# unobserved types, sub-problems
+
+</dd></dl>
+
+<hr>
+<a name="Separable___kfree"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">kfree</span></h3>
+
+<span class="declaration">decl kfree [public]</span>
+<dl><dd>
+K Vector of free specific parameters
+
+</dd></dl>
+
+<hr>
+<a name="Separable___KL"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">KL</span></h3>
+
+<span class="declaration">const decl KL [public]</span>
+<dl><dd>
+labels for types / sub problems
+
+</dd></dl>
+
+<hr>
+<a name="Separable___kNvf"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">kNvf</span></h3>
+
+<span class="declaration">decl kNvf [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Separable___Kvar"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Kvar</span></h3>
+
+<span class="declaration">const decl Kvar [public]</span>
+<dl><dd>
+<a href="Shared.ox.html#Discrete">Discrete</a> sub-problem var
+
+</dd></dl>
+
+<hr>
+<a name="Separable___nfree"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nfree</span></h3>
+
+<span class="declaration">decl nfree [public]</span>
+<dl><dd>
+Total free parameters
+
+</dd></dl>
+
+<hr>
+<a name="Separable___NvfuncTerms"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NvfuncTerms</span></h3>
+
+<span class="declaration">decl NvfuncTerms [public]</span>
+<dl><dd>
+Longest vector returned by vfunc(), default=1.
+
+</dd></dl>
+
+<hr>
+<a name="Separable___Separable"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Separable</span></h3>
+
+<span class="declaration">Separable :: Separable ( L , Kvar )</span>
+<dl><dd>
+Create a separable objective.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">string, a label for the problem.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Kvar,</td>
+<td class="description" valign="baseline">integer&gt;0, the number of sub objectives<br><a href="Shared.ox.html#Discrete">Discrete</a> variable that codes the problem<br>vector or <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a>, weights on values of k</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Separable___vfunc"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">vfunc</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Separable___vobj"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">vobj</span></h3>
+
+<span class="declaration">virtual Separable :: vobj ( F )</span>
+<dl><dd>
+Decode the input, return the whole vector.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">F</td>
+<td class="description" valign="baseline">vector of free parameters.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">svfunc()
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">System</span></h2>
+
+<a name="System___equations"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">equations</span></h3>
+
+<span class="declaration">virtual System :: equations ( )</span>
+<dl><dd>
+Default system of equations: <a href="Objective.ox.html#Objective___vfunc">vfunc</a>().
+
+</dd></dl>
+
+<hr>
+<a name="System___System"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">System</span></h3>
+
+<span class="declaration">System :: System ( L , LorN )</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">UnConstrained</span></h2>
+
+<a name="UnConstrained___Gradient"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gradient</span></h3>
+
+<span class="declaration">virtual UnConstrained :: Gradient ( )</span>
+<dl><dd>
+Compute the &nabla;f(), objective's gradient at the current vector.
+
+<dl><dt class="returns">Returns:</dt><dd class="returns"><var>&nabla; f(&psi;)</var>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="UnConstrained___UnConstrained"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">UnConstrained</span></h3>
+
+<span class="declaration">UnConstrained :: UnConstrained ( L )</span>
+<dl><dd>
+
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

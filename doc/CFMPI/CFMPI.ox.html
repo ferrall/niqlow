@@ -1,0 +1,1162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>CFMPI.ox - CFMPI</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">CFMPI.ox</span></h1>
+
+An Object-Oriented Interface to the <abbr title="Message Passing Interface">MPI</abbr> Library.
+<P/>
+<a href="#auto">Skip down to documentation of items defined in CFMPI.ox</a><p>
+<P/>
+<DT>CFMPI includes a library of external routines that interface with the MPI library.  See <a href="MPIinterface.ox.html">MPIinterface</a> for a description.</DT>
+<P/>
+On top of the MPI interface, CFMPI includes the base <a href="CFMPI.ox.html#MPI">MPI</a> class for an object-oriented approach to message passing.  Derived <a href="CFMPI.ox.html#MPI">MPI</a> are point-to-point (<a href="CFMPI.ox.html#P2P">P2P</a>) and peer (<a href="CFMPI.ox.html#Peer">Peer</a>) classes.   These classes help implement standard message passing paradigms.
+<P/>
+<DT>Also see <a href="InstallAndUse.html">How to Install and Use</a> CFMPI in your code.</DT>
+<P/>
+<h2>CFMPI P2P</h2>
+A program that uses P2P for Client-Server interactions, has a simple overall structure, as seen in the template file
+<dd><pre>Source: <a href="../../templates/CFMPI/ClientServerTemplate1.ox">niqlow/templates/CFMPI/ClientServerTemplate1.ox</a>.
+<object width="75%" height="200" type="text/plain" data="../../templates/CFMPI/ClientServerTemplate1.ox" border="1" ><p style="font-size:24pt"></object></pre></dd>
+<DT>Include</DT>
+<DD>Your program should include <code>useMPI.ox</code>, which is located in the <code>niqlow/include</code>.  
+<pre>&#35;include "useMPI.ox"</pre>
+In turn it will use preprocessor macros to determine if real MPI message passing is available (linked in) or if fake (simulated) message passing on a single instance of the program should occur.  See also  <a href="InstallAndUse">How to ...</a>.</DD>
+<DT>You then create your own derived <a href="CFMPI.ox.html#Client">Client</a> and <a href="CFMPI.ox.html#Server">Server</a> classes that will handle the tasks you want to perform.</DT>
+<DD>Earlier versions of CFMPI relied heavily on <em>static</em> members and methods, but this no longer true.</DD>
+<DD>In the current version you can have more than one client or server class in order to parallelize two different parts of you code.</DD>
+<DT>Your P2P object</DT>
+<DD>Your main code creates a new P2P object which takes two arguments: a new object of your derived Client and a new object of your derived Server class.  </DD>
+<DD>The P2P constructor calls <a href="MPIinterface.ox.html#MPI_Init">MPI_Init</a>() to initialize the MPI environment.  Then if it is executing on the client (<code>ID=0</code>) node it will delete the server object it was sent an keep the client object.</DD>
+<DD>If P2P is executing on a server node it will delete the client and object and keep the server object.</DD>
+<DD>Under two conditions P2P will keep both the client and server object (on the same node).  First, if there is only one node (<code>Nodes=1</code>) then  that node it is both client <em>and</em> server.  Second, there are more
+than one nodes but the first argument to <a href="CFMPI.ox.html#P2P___P2P">P2P</a>() is <code>FALSE</code> then the user is asking the client node to be use itself as a server in addition to the other nodes.  In that case the client node will maintain both the client and server objects.</DD>
+<DT>Begin a Client-Server Cycle</DT>
+<DD>When the code calls the <a href="CFMPI.ox.html#P2P___Execute">Execute</a>() the node goes into client or server mode as dictated by their role.  Execute is very simple:
+<pre>P2P::Execute() {
+    if (IamClient) client->Execute(); else  server->Loop(Server::iml);
+    }</pre>
+</DD>
+<DT>Client Execute</DT>
+<DD>Your client class must provide a <code>Execute()</code> method.  This does everything the client must do to get the job done.  It can use other methods to call on the servers to help, especially <a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a>().</DD>
+<DT>Server Execute</DT>
+<DD>Your server class must provide a <code>Execute()</code> method.  This carries out whatever task servers must carry out for the client.  They are called from the built-in <a href="CFMPI.ox.html#Server___Loop">Loop</a>() routine, which waits for messages and stops once the <code>STOP_TAG</code> is received from the client.</DD>
+<DT><a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a>()</DT>
+<DD>The client tasks are put in a separate function, which can use <a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a>() to send out messages to the servers.  Often, a large number of tasks can be done, each with a different message, such as the vector of parameters to operate on.  </DD>
+<DD><a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a> takes a matrix (or array) of messages organized as columns.  It then sends them out to all the servers.  If there are more messages than servers it gets them all busy and then waits until one is finished. Then it sends the next message to the reporting server and waits again until all the messages are sent.  It then waits until all the servers report back.  </DD>
+<DD>The results are stored and returned to the user's program as a matrix, one column for each input message.  The third argument is the maximum length of the return messages.</DD>
+<P/>
+<h2><a href="CFMPI.ox.html#P2P">P2P</a> Example</h2>
+<DD>For example, given a multidimensional function <code>f(const theta)</code>, where <code>theta</code> is a <code>N&times;1</code> vector and <code>f()</code> returns a <code>M&times;1</code> output, the Jacobian can be computed in parallel with the following code:
+<pre>MyClient::Execute() {
+  N = rows(theta);
+  ToDoList( (theta+epsmatrix) ~ (theta-epsmatrix) ,&amp;Jmat,M,1);
+  Jmat = (Jmat[][:N-1] - Jmat[][N:])/Jeps;
+  }
+<P/>
+MyServer::Execute() {
+  N = rows(Buffer);
+  Buffer = f(Buffer);
+  return N;
+  }</pre></DD>
+<DD>The client code creates a <code>N&times;(2N)</code> matrix of parameter vectors centered on <code>theta</code>.  Each column is either a step forward or backward in one of the parameters.  (This code is a bit crude, because a proportional step size should be used with an additive step only if the element of <code>theta</code> is very close to 0.)  </DD>
+<DD>Then <a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a>() is sent the matrix of messages.  The server code will get the parameter vector that it should evaluate <code>f()</code> at in <a href="CFMPI.ox.html#P2P___Buffer">Buffer</a>.  </DD>
+<DD>The server executive sends the buffer to <code>f()</code> which returns the output to be put back in the buffer for return to the client.  <a href="CFMPI.ox.html#Server___Execute">Execute</a>() must always return the maximum size of the next expected message so that <a href="CFMPI.ox.html#Server___Loop">Loop</a>() can initialize storage for it.</DD>
+<DD>If this code is run without <code>MPI</code> defined on the command line, then <a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a>() reduces to a loop that calls <code>Execute()</code> on the same node in serial, sending one column at a time.  There is a small amount of overhead in terms of intermediate function calls, and in serial only one column would have to be stored rather than <code>2N</code> columns.  In most cases this overhead is not very large, especially when <code>f()</code> is not trivial.  And the same code can be used whether MPI is available or not.</DD>
+<P/>
+<h2>CFMPI Peer (or Group) Communication</h2>
+<DT>MPI Group communication elements are available in the <a href="CFMPI.ox.html#Peer">Peer</a> class.</DT>
+<DD>Documentation to be completed &hellip;</DD>
+
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2014 Christopher Ferrall, <a href="./license.txt">License</a></dd>
+<hr><a name="auto"><h1>Documentation of  Items Defined in CFMPI.ox</h1></a></dd>
+</dl>
+<a name="global"></a>
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global variables</span></h2>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Variables</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#fakeP2P">fakeP2P</a></td>
+<td class="modifiers">static</td>
+<td class="description">An Object-Oriented Interface to the <abbr title="Message Passing Interface">MPI</abbr> Library.</td>
+</tr>
+</table>
+
+<a name="Client"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Client : <a href="CFMPI.ox.html#P2P">P2P</a> : <a href="CFMPI.ox.html#MPI">MPI</a></span></h2>
+
+Act as the Client in Client/Server P2P communication.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#Client___me_as_server">me_as_server</a></td>
+<td class="modifiers"></td>
+<td class="description">If client node should work, then this holds the <a href="CFMPI.ox.html#Server">Server</a> object.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Client___Announce">Announce</a></td>
+<td class="modifiers"></td>
+<td class="description">Announce a message to everyone (and perhaps get answers).</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Client___Execute">Execute</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">The default simply announces today's date to all nodes.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Client___Recv">Recv</a></td>
+<td class="modifiers"></td>
+<td class="description">Receive buffer from a source node.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Client___Send">Send</a></td>
+<td class="modifiers"></td>
+<td class="description">Point-to-Point: Sends buffer to a destination node.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Client___Stop">Stop</a></td>
+<td class="modifiers"></td>
+<td class="description">Send STOP_TAG to all servers, do not wait for answers.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a></td>
+<td class="modifiers"></td>
+<td class="description">Distribute parallel tasks to all servers and return the results.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="CFMPI.ox.html#P2P">P2P</a>:</dt><dd><a href="CFMPI.ox.html#P2P___P2P">P2P</a></dd>
+<dt>Inherited methods from <a href="CFMPI.ox.html#MPI">MPI</a>:</dt><dd><a href="CFMPI.ox.html#MPI___Barrier">Barrier</a>, <a href="CFMPI.ox.html#MPI___Initialize">Initialize</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="CFMPI.ox.html#P2P">P2P</a>:</dt><dd><a href="CFMPI.ox.html#P2P___ANY_SOURCE">ANY_SOURCE</a>, <a href="CFMPI.ox.html#P2P___ANY_TAG">ANY_TAG</a>, <a href="CFMPI.ox.html#P2P___Buffer">Buffer</a>, <a href="CFMPI.ox.html#P2P___client">client</a>, <a href="CFMPI.ox.html#P2P___server">server</a>, <a href="CFMPI.ox.html#P2P___Source">Source</a>, <a href="CFMPI.ox.html#P2P___STOP_TAG">STOP_TAG</a>, <a href="CFMPI.ox.html#P2P___Tag">Tag</a></dd>
+<dt>Inherited fields from <a href="CFMPI.ox.html#MPI">MPI</a>:</dt><dd><a href="CFMPI.ox.html#MPI___called">called</a>, <a href="CFMPI.ox.html#MPI___CLIENT">CLIENT</a>, <a href="CFMPI.ox.html#MPI___Error">Error</a>, <a href="CFMPI.ox.html#MPI___fake">fake</a>, <a href="CFMPI.ox.html#MPI___IamClient">IamClient</a>, <a href="CFMPI.ox.html#MPI___ID">ID</a>, <a href="CFMPI.ox.html#MPI___Nodes">Nodes</a>, <a href="CFMPI.ox.html#MPI___Volume">Volume</a></dd>
+</dl>
+
+<a name="MPI"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MPI</span></h2>
+
+Base MPI class.
+All members of the base class are <code>static</code>.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#MPI___called">called</a></td>
+<td class="modifiers">static</td>
+<td class="description">Initialize already called.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#MPI___CLIENT">CLIENT</a></td>
+<td class="modifiers">static const</td>
+<td class="description">ID of Client Node (=0)  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#MPI___Error">Error</a></td>
+<td class="modifiers">static</td>
+<td class="description">Error code from last Recv  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#MPI___fake">fake</a></td>
+<td class="modifiers">static</td>
+<td class="description">faking message passing.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#MPI___IamClient">IamClient</a></td>
+<td class="modifiers">static</td>
+<td class="description">ID==CLIENT; node is client  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#MPI___ID">ID</a></td>
+<td class="modifiers">static</td>
+<td class="description">My id (MPI rank).</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#MPI___Nodes">Nodes</a></td>
+<td class="modifiers">static</td>
+<td class="description">Count of nodes availible.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#MPI___Volume">Volume</a></td>
+<td class="modifiers">static</td>
+<td class="description">print out info about messages.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#MPI___Barrier">Barrier</a></td>
+<td class="modifiers">static</td>
+<td class="description">Set a MPI Barrier to Coordinate Nodes.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#MPI___Initialize">Initialize</a></td>
+<td class="modifiers">static</td>
+<td class="description">Initialize the MPI environment.</td>
+</tr>
+</table>
+
+<a name="P2P"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">P2P : <a href="CFMPI.ox.html#MPI">MPI</a></span></h2>
+
+Point-to-point communication.
+Point-to-point is communication from one node to another node.
+Usually these messages are between the client node and a server node.
+Messages are vectors, and are tagged with an integer code so that the
+receiver of the message knows how to interpret the message.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#P2P___ANY_SOURCE">ANY_SOURCE</a></td>
+<td class="modifiers">static</td>
+<td class="description">Receive from any node  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#P2P___ANY_TAG">ANY_TAG</a></td>
+<td class="modifiers">static</td>
+<td class="description">Receive any tag  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#P2P___Buffer">Buffer</a></td>
+<td class="modifiers"></td>
+<td class="description">Place for MPI message (in/out)  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#P2P___client">client</a></td>
+<td class="modifiers"></td>
+<td class="description"><a href="CFMPI.ox.html#Client">Client</a> object.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#P2P___server">server</a></td>
+<td class="modifiers"></td>
+<td class="description"><a href="CFMPI.ox.html#Server">Server</a> object.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#P2P___Source">Source</a></td>
+<td class="modifiers"></td>
+<td class="description">Node that sent the last message  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#P2P___STOP_TAG">STOP_TAG</a></td>
+<td class="modifiers">static const</td>
+<td class="description">Tag that ends <a href="CFMPI.ox.html#Server___Loop">Loop</a>  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#P2P___Tag">Tag</a></td>
+<td class="modifiers"></td>
+<td class="description">Tag of last message  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#P2P___Execute">Execute</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Begin Client-Server execution.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#P2P___P2P">P2P</a></td>
+<td class="modifiers"></td>
+<td class="description">Initialize Point-to-Point Communication.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="CFMPI.ox.html#MPI">MPI</a>:</dt><dd><a href="CFMPI.ox.html#MPI___Barrier">Barrier</a>, <a href="CFMPI.ox.html#MPI___Initialize">Initialize</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="CFMPI.ox.html#MPI">MPI</a>:</dt><dd><a href="CFMPI.ox.html#MPI___called">called</a>, <a href="CFMPI.ox.html#MPI___CLIENT">CLIENT</a>, <a href="CFMPI.ox.html#MPI___Error">Error</a>, <a href="CFMPI.ox.html#MPI___fake">fake</a>, <a href="CFMPI.ox.html#MPI___IamClient">IamClient</a>, <a href="CFMPI.ox.html#MPI___ID">ID</a>, <a href="CFMPI.ox.html#MPI___Nodes">Nodes</a>, <a href="CFMPI.ox.html#MPI___Volume">Volume</a></dd>
+</dl>
+
+<a name="Peer"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Peer : <a href="CFMPI.ox.html#MPI">MPI</a></span></h2>
+
+A peer in Group (peer-to-peer) communication.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#Peer___Buffer">Buffer</a></td>
+<td class="modifiers"></td>
+<td class="description">Place for MPI message (in/out)  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#Peer___Offset">Offset</a></td>
+<td class="modifiers"></td>
+<td class="description">vector of offsets in buffer in
+	     		<a href="CFMPI.ox.html#Peer___Gatherv">Gatherv</a> Offset[Node]
+		 		is the total buffer size  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#Peer___SegSize">SegSize</a></td>
+<td class="modifiers"></td>
+<td class="description">My segment size in Gathers  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Peer___Allgather">Allgather</a></td>
+<td class="modifiers"></td>
+<td class="description">Gather and share vectors to/from all nodes.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Peer___Allgatherv">Allgatherv</a></td>
+<td class="modifiers"></td>
+<td class="description">Gather variable sized segments on all nodes.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Peer___Allsum">Allsum</a></td>
+<td class="modifiers"></td>
+<td class="description">Compute and share the sum of vectors to/from all nodes.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Peer___Bcast">Bcast</a></td>
+<td class="modifiers"></td>
+<td class="description">Broadcast buffer of size iCount from CLIENT (ROOT) to all nodes.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Peer___Gather">Gather</a></td>
+<td class="modifiers"></td>
+<td class="description">Gather vectors from all nodes at <code>Client</code>.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Peer___Gatherv">Gatherv</a></td>
+<td class="modifiers"></td>
+<td class="description">Gather vectors from all nodes at Client with <b>V</b>ariable segment sizes.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Peer___Peer">Peer</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Peer___Setdisplace">Setdisplace</a></td>
+<td class="modifiers"></td>
+<td class="description">Set the displacement for each node in gathers.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Peer___Sum">Sum</a></td>
+<td class="modifiers"></td>
+<td class="description">Compute the sum of vectors from all nodes at Client.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="CFMPI.ox.html#MPI">MPI</a>:</dt><dd><a href="CFMPI.ox.html#MPI___Barrier">Barrier</a>, <a href="CFMPI.ox.html#MPI___Initialize">Initialize</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="CFMPI.ox.html#MPI">MPI</a>:</dt><dd><a href="CFMPI.ox.html#MPI___called">called</a>, <a href="CFMPI.ox.html#MPI___CLIENT">CLIENT</a>, <a href="CFMPI.ox.html#MPI___Error">Error</a>, <a href="CFMPI.ox.html#MPI___fake">fake</a>, <a href="CFMPI.ox.html#MPI___IamClient">IamClient</a>, <a href="CFMPI.ox.html#MPI___ID">ID</a>, <a href="CFMPI.ox.html#MPI___Nodes">Nodes</a>, <a href="CFMPI.ox.html#MPI___Volume">Volume</a></dd>
+</dl>
+
+<a name="Server"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Server : <a href="CFMPI.ox.html#P2P">P2P</a> : <a href="CFMPI.ox.html#MPI">MPI</a></span></h2>
+
+Act as a server in Client/Server P2P communication.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="CFMPI.ox.html#Server___iml">iml</a></td>
+<td class="modifiers">static</td>
+<td class="description">initial messge length, first call to Loop.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Server___Execute">Execute</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">The default server code.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Server___Loop">Loop</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">A Server loop that calls a virtual Execute() method.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Server___Recv">Recv</a></td>
+<td class="modifiers"></td>
+<td class="description">Receive buffer from CLIENT.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="CFMPI.ox.html#Server___Send">Send</a></td>
+<td class="modifiers"></td>
+<td class="description">Server sends buffer to the CLIENT.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="CFMPI.ox.html#P2P">P2P</a>:</dt><dd><a href="CFMPI.ox.html#P2P___P2P">P2P</a></dd>
+<dt>Inherited methods from <a href="CFMPI.ox.html#MPI">MPI</a>:</dt><dd><a href="CFMPI.ox.html#MPI___Barrier">Barrier</a>, <a href="CFMPI.ox.html#MPI___Initialize">Initialize</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="CFMPI.ox.html#P2P">P2P</a>:</dt><dd><a href="CFMPI.ox.html#P2P___ANY_SOURCE">ANY_SOURCE</a>, <a href="CFMPI.ox.html#P2P___ANY_TAG">ANY_TAG</a>, <a href="CFMPI.ox.html#P2P___Buffer">Buffer</a>, <a href="CFMPI.ox.html#P2P___client">client</a>, <a href="CFMPI.ox.html#P2P___server">server</a>, <a href="CFMPI.ox.html#P2P___Source">Source</a>, <a href="CFMPI.ox.html#P2P___STOP_TAG">STOP_TAG</a>, <a href="CFMPI.ox.html#P2P___Tag">Tag</a></dd>
+<dt>Inherited fields from <a href="CFMPI.ox.html#MPI">MPI</a>:</dt><dd><a href="CFMPI.ox.html#MPI___called">called</a>, <a href="CFMPI.ox.html#MPI___CLIENT">CLIENT</a>, <a href="CFMPI.ox.html#MPI___Error">Error</a>, <a href="CFMPI.ox.html#MPI___fake">fake</a>, <a href="CFMPI.ox.html#MPI___IamClient">IamClient</a>, <a href="CFMPI.ox.html#MPI___ID">ID</a>, <a href="CFMPI.ox.html#MPI___Nodes">Nodes</a>, <a href="CFMPI.ox.html#MPI___Volume">Volume</a></dd>
+</dl>
+
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global </span></h2>
+
+<a name="fakeP2P"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">fakeP2P</span></h3>
+
+<span class="declaration">static decl fakeP2P</span>
+<dl><dd>
+An Object-Oriented Interface to the <abbr title="Message Passing Interface">MPI</abbr> Library.
+<P/>
+<a href="#auto">Skip down to documentation of items defined in CFMPI.ox</a><p>
+<P/>
+<DT>CFMPI includes a library of external routines that interface with the MPI library.  See <a href="MPIinterface.ox.html">MPIinterface</a> for a description.</DT>
+<P/>
+On top of the MPI interface, CFMPI includes the base <a href="CFMPI.ox.html#MPI">MPI</a> class for an object-oriented approach to message passing.  Derived <a href="CFMPI.ox.html#MPI">MPI</a> are point-to-point (<a href="CFMPI.ox.html#P2P">P2P</a>) and peer (<a href="CFMPI.ox.html#Peer">Peer</a>) classes.   These classes help implement standard message passing paradigms.
+<P/>
+<DT>Also see <a href="InstallAndUse.html">How to Install and Use</a> CFMPI in your code.</DT>
+<P/>
+<h2>CFMPI P2P</h2>
+A program that uses P2P for Client-Server interactions, has a simple overall structure, as seen in the template file
+<dd><pre>Source: <a href="../../templates/CFMPI/ClientServerTemplate1.ox">niqlow/templates/CFMPI/ClientServerTemplate1.ox</a>.
+<object width="75%" height="200" type="text/plain" data="../../templates/CFMPI/ClientServerTemplate1.ox" border="1" ><p style="font-size:24pt"></object></pre></dd>
+<DT>Include</DT>
+<DD>Your program should include <code>useMPI.ox</code>, which is located in the <code>niqlow/include</code>.  
+<pre>&#35;include "useMPI.ox"</pre>
+In turn it will use preprocessor macros to determine if real MPI message passing is available (linked in) or if fake (simulated) message passing on a single instance of the program should occur.  See also  <a href="InstallAndUse">How to ...</a>.</DD>
+<DT>You then create your own derived <a href="CFMPI.ox.html#Client">Client</a> and <a href="CFMPI.ox.html#Server">Server</a> classes that will handle the tasks you want to perform.</DT>
+<DD>Earlier versions of CFMPI relied heavily on <em>static</em> members and methods, but this no longer true.</DD>
+<DD>In the current version you can have more than one client or server class in order to parallelize two different parts of you code.</DD>
+<DT>Your P2P object</DT>
+<DD>Your main code creates a new P2P object which takes two arguments: a new object of your derived Client and a new object of your derived Server class.  </DD>
+<DD>The P2P constructor calls <a href="MPIinterface.ox.html#MPI_Init">MPI_Init</a>() to initialize the MPI environment.  Then if it is executing on the client (<code>ID=0</code>) node it will delete the server object it was sent an keep the client object.</DD>
+<DD>If P2P is executing on a server node it will delete the client and object and keep the server object.</DD>
+<DD>Under two conditions P2P will keep both the client and server object (on the same node).  First, if there is only one node (<code>Nodes=1</code>) then  that node it is both client <em>and</em> server.  Second, there are more
+than one nodes but the first argument to <a href="CFMPI.ox.html#P2P___P2P">P2P</a>() is <code>FALSE</code> then the user is asking the client node to be use itself as a server in addition to the other nodes.  In that case the client node will maintain both the client and server objects.</DD>
+<DT>Begin a Client-Server Cycle</DT>
+<DD>When the code calls the <a href="CFMPI.ox.html#P2P___Execute">Execute</a>() the node goes into client or server mode as dictated by their role.  Execute is very simple:
+<pre>P2P::Execute() {
+    if (IamClient) client->Execute(); else  server->Loop(Server::iml);
+    }</pre>
+</DD>
+<DT>Client Execute</DT>
+<DD>Your client class must provide a <code>Execute()</code> method.  This does everything the client must do to get the job done.  It can use other methods to call on the servers to help, especially <a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a>().</DD>
+<DT>Server Execute</DT>
+<DD>Your server class must provide a <code>Execute()</code> method.  This carries out whatever task servers must carry out for the client.  They are called from the built-in <a href="CFMPI.ox.html#Server___Loop">Loop</a>() routine, which waits for messages and stops once the <code>STOP_TAG</code> is received from the client.</DD>
+<DT><a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a>()</DT>
+<DD>The client tasks are put in a separate function, which can use <a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a>() to send out messages to the servers.  Often, a large number of tasks can be done, each with a different message, such as the vector of parameters to operate on.  </DD>
+<DD><a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a> takes a matrix (or array) of messages organized as columns.  It then sends them out to all the servers.  If there are more messages than servers it gets them all busy and then waits until one is finished. Then it sends the next message to the reporting server and waits again until all the messages are sent.  It then waits until all the servers report back.  </DD>
+<DD>The results are stored and returned to the user's program as a matrix, one column for each input message.  The third argument is the maximum length of the return messages.</DD>
+<P/>
+<h2><a href="CFMPI.ox.html#P2P">P2P</a> Example</h2>
+<DD>For example, given a multidimensional function <code>f(const theta)</code>, where <code>theta</code> is a <code>N&times;1</code> vector and <code>f()</code> returns a <code>M&times;1</code> output, the Jacobian can be computed in parallel with the following code:
+<pre>MyClient::Execute() {
+  N = rows(theta);
+  ToDoList( (theta+epsmatrix) ~ (theta-epsmatrix) ,&amp;Jmat,M,1);
+  Jmat = (Jmat[][:N-1] - Jmat[][N:])/Jeps;
+  }
+<P/>
+MyServer::Execute() {
+  N = rows(Buffer);
+  Buffer = f(Buffer);
+  return N;
+  }</pre></DD>
+<DD>The client code creates a <code>N&times;(2N)</code> matrix of parameter vectors centered on <code>theta</code>.  Each column is either a step forward or backward in one of the parameters.  (This code is a bit crude, because a proportional step size should be used with an additive step only if the element of <code>theta</code> is very close to 0.)  </DD>
+<DD>Then <a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a>() is sent the matrix of messages.  The server code will get the parameter vector that it should evaluate <code>f()</code> at in <a href="CFMPI.ox.html#P2P___Buffer">Buffer</a>.  </DD>
+<DD>The server executive sends the buffer to <code>f()</code> which returns the output to be put back in the buffer for return to the client.  <a href="CFMPI.ox.html#Server___Execute">Execute</a>() must always return the maximum size of the next expected message so that <a href="CFMPI.ox.html#Server___Loop">Loop</a>() can initialize storage for it.</DD>
+<DD>If this code is run without <code>MPI</code> defined on the command line, then <a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a>() reduces to a loop that calls <code>Execute()</code> on the same node in serial, sending one column at a time.  There is a small amount of overhead in terms of intermediate function calls, and in serial only one column would have to be stored rather than <code>2N</code> columns.  In most cases this overhead is not very large, especially when <code>f()</code> is not trivial.  And the same code can be used whether MPI is available or not.</DD>
+<P/>
+<h2>CFMPI Peer (or Group) Communication</h2>
+<DT>MPI Group communication elements are available in the <a href="CFMPI.ox.html#Peer">Peer</a> class.</DT>
+<DD>Documentation to be completed &hellip;</DD>
+<P/>
+ @author &copy; 2011-2014 Christopher Ferrall, <a href="./license.txt">License</a></dd>
+<hr><a name="auto"><h1>Documentation of  Items Defined in CFMPI.ox</h1></a>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Client</span></h2>
+
+<a name="Client___Announce"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Announce</span></h3>
+
+<span class="declaration">Client :: Announce ( Msg , BASETAG , aResults , mxlength )</span>
+<dl><dd>
+Announce a message to everyone (and perhaps get answers).
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Msg</td>
+<td class="description" valign="baseline">arithmetic type.  Buffer is set to vec(Msg).
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">BASETAG</td>
+<td class="description" valign="baseline">integer (default=1), the base tag of the MPI messages.<br>If aResults is an address actual tags sent equal BASETAG+n, n=0...(Nodes-1).
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">aResults</td>
+<td class="description" valign="baseline">integer (default), no results reported<br>an address, returned as a mxlength x nsends matrix<br>The answer of all the nodes.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">mxlength</td>
+<td class="description" valign="baseline">integer (default=1), size to set <a href="CFMPI.ox.html#P2P___Buffer">Buffer</a> before <a href="CFMPI.ox.html#Client___Recv">Recv</a> or <a href="CFMPI.ox.html#Server___Recv">Recv</a>
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">@the</td>
+<td class="description" valign="baseline">BASETAG can be 0 (the STOP_TAG), but only when aResults is an integer. Otherwise, it must be positive.<br>
+	If DONOTUSECLIENT was sent as TRUE to <a href="CFMPI.ox.html#P2P___P2P">P2P</a>()  and MPI::Nodes&gt; 0 then the CLIENT does not call itself.
+	Otherwise the CLIENT will announce to itself (after everyone else).</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Client___Execute"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Execute</span></h3>
+
+<span class="declaration">virtual Client :: Execute ( )</span>
+<dl><dd>
+The default simply announces today's date to all nodes.
+
+</dd></dl>
+
+<hr>
+<a name="Client___me_as_server"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">me_as_server</span></h3>
+
+<span class="declaration">decl me_as_server [public]</span>
+<dl><dd>
+If client node should work, then this holds the <a href="CFMPI.ox.html#Server">Server</a> object.
+
+</dd></dl>
+
+<hr>
+<a name="Client___Recv"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Recv</span></h3>
+
+<span class="declaration">Client :: Recv ( iSource , iTag )</span>
+<dl><dd>
+Receive buffer from a source node.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">iSource</td>
+<td class="description" valign="baseline">id of target/destination node<br><a href="CFMPI.ox.html#P2P___ANY_SOURCE">ANY_SOURCE</a>, receive message from any node.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iTag</td>
+<td class="description" valign="baseline">tag to receive<br><a href="CFMPI.ox.html#P2P___ANY_TAG">ANY_TAG</a>, receive any tag
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+p2p-&gt;Recv(P2P::ANY_SOURCE,P2P::ANY_TAG);
+println("Message Received from ",P2P::Source," with Tag ",P2P::Tag," is ",p2p.Buffer);
+</pre></DD>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">Actual Source, Tag and Error are stored on exit in <a href="CFMPI.ox.html#P2P___Source">Source</a> <a href="CFMPI.ox.html#P2P___Tag">Tag</a> and <a href="CFMPI.ox.html#MPI___Error">Error</a>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Client___Send"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Send</span></h3>
+
+<span class="declaration">Client :: Send ( iCount , iDest , iTag )</span>
+<dl><dd>
+Point-to-Point: Sends buffer to a destination node.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">iCount</td>
+<td class="description" valign="baseline">integer 0, send the whole Buffer<br> &gt; 0, number of elments of <a href="CFMPI.ox.html#P2P___Buffer">Buffer</a> to send.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iDest</td>
+<td class="description" valign="baseline">integer id of target/destination node.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iTag</td>
+<td class="description" valign="baseline">integer non-negative. User-controlled MPI Tag to accompany message.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+p2p.Buffer = results;
+p2p-&gt;Send(0,2,3);  //send all results to node 2 with tag 3
+</pre></DD>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Client___Stop"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Stop</span></h3>
+
+<span class="declaration">Client :: Stop ( )</span>
+<dl><dd>
+Send STOP_TAG to all servers, do not wait for answers.
+
+</dd></dl>
+
+<hr>
+<a name="Client___ToDoList"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ToDoList</span></h3>
+
+<span class="declaration">Client :: ToDoList ( Inputs , aResults , mxlength , BASETAG )</span>
+<dl><dd>
+Distribute parallel tasks to all servers and return the results.
+<P/>
+Exits if run by a Server node.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Inputs</td>
+<td class="description" valign="baseline">either an array of length nsends or a M x nsends matrix<br>The inputs to send on each task.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">aResults</td>
+<td class="description" valign="baseline">an address, returned as a mxlength x nsends matrix<br>The output of all the tasks.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">mxlength</td>
+<td class="description" valign="baseline">integer, size to set <a href="CFMPI.ox.html#P2P___Buffer">Buffer</a> before <a href="CFMPI.ox.html#Client___Recv">Recv</a> or <a href="CFMPI.ox.html#Server___Recv">Recv</a>
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">BASETAG</td>
+<td class="description" valign="baseline">POSITIVE integer, the base tag of the MPI messages.  Actual tags sent equal BASETAG+n, n=0...(nsends-1).
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">since <a href="CFMPI.ox.html#P2P___STOP_TAG">STOP_TAG</a> is 0 and Tags must be non-negative the BASETAG must be positive.<br>
+	If DONOTUSECLIENT was sent as TRUE to <a href="CFMPI.ox.html#P2P___P2P">P2P</a>()  and MPI::Nodes&gt; 0 then the CLIENT does not call itself.
+	Otherwise the CLIENT will call itself exactly once after getting all Servers busy.
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MPI</span></h2>
+
+<a name="MPI___Barrier"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Barrier</span></h3>
+
+<span class="declaration">static MPI :: Barrier ( )</span>
+<dl><dd>
+Set a MPI Barrier to Coordinate Nodes.
+A MPI Barrier is a rendezvous point.  Each node waits until all nodes reach a barrier.  Once
+all reach the barrier execution continues.
+
+</dd></dl>
+
+<hr>
+<a name="MPI___called"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">called</span></h3>
+
+<span class="declaration">static decl called [public]</span>
+<dl><dd>
+Initialize already called.
+
+</dd></dl>
+
+<hr>
+<a name="MPI___CLIENT"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">CLIENT</span></h3>
+
+<span class="declaration">static const decl CLIENT [public]</span>
+<dl><dd>
+ID of Client Node (=0)
+
+</dd></dl>
+
+<hr>
+<a name="MPI___Error"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Error</span></h3>
+
+<span class="declaration">static decl Error [public]</span>
+<dl><dd>
+Error code from last Recv
+
+</dd></dl>
+
+<hr>
+<a name="MPI___fake"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">fake</span></h3>
+
+<span class="declaration">static decl fake [public]</span>
+<dl><dd>
+faking message passing.
+
+</dd></dl>
+
+<hr>
+<a name="MPI___IamClient"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">IamClient</span></h3>
+
+<span class="declaration">static decl IamClient [public]</span>
+<dl><dd>
+ID==CLIENT; node is client
+
+</dd></dl>
+
+<hr>
+<a name="MPI___ID"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ID</span></h3>
+
+<span class="declaration">static decl ID [public]</span>
+<dl><dd>
+My id (MPI rank).
+
+</dd></dl>
+
+<hr>
+<a name="MPI___Initialize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Initialize</span></h3>
+
+<span class="declaration">static MPI :: Initialize ( )</span>
+<dl><dd>
+Initialize the MPI environment.
+Retrieves the number of nodes and myID initializes the MPI environment.
+
+<dl><dt class="comments">Comments:</dt><dd class="comments">MPI_Init() is called only the first time Initialize() is called.
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="MPI___Nodes"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Nodes</span></h3>
+
+<span class="declaration">static decl Nodes [public]</span>
+<dl><dd>
+Count of nodes availible.
+
+</dd></dl>
+
+<hr>
+<a name="MPI___Volume"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Volume</span></h3>
+
+<span class="declaration">static decl Volume [public]</span>
+<dl><dd>
+print out info about messages.
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">P2P</span></h2>
+
+<a name="P2P___ANY_SOURCE"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ANY_SOURCE</span></h3>
+
+<span class="declaration">static decl ANY_SOURCE [public]</span>
+<dl><dd>
+Receive from any node
+
+</dd></dl>
+
+<hr>
+<a name="P2P___ANY_TAG"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ANY_TAG</span></h3>
+
+<span class="declaration">static decl ANY_TAG [public]</span>
+<dl><dd>
+Receive any tag
+
+</dd></dl>
+
+<hr>
+<a name="P2P___Buffer"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Buffer</span></h3>
+
+<span class="declaration">decl Buffer [public]</span>
+<dl><dd>
+Place for MPI message (in/out)
+
+</dd></dl>
+
+<hr>
+<a name="P2P___client"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">client</span></h3>
+
+<span class="declaration">decl client [public]</span>
+<dl><dd>
+<a href="CFMPI.ox.html#Client">Client</a> object.
+
+</dd></dl>
+
+<hr>
+<a name="P2P___Execute"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Execute</span></h3>
+
+<span class="declaration">virtual P2P :: Execute ( )</span>
+<dl><dd>
+Begin Client-Server execution.
+If <em>IamClient</em> call the (virtual) <a href="CFMPI.ox.html#Client___Execute">Execute</a>().  Otherwise, enter the (virtual) <a href="CFMPI.ox.html#Server___Loop">Loop</a>
+
+</dd></dl>
+
+<hr>
+<a name="P2P___P2P"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">P2P</span></h3>
+
+<span class="declaration">P2P :: P2P ( DONOTUSECLIENT , client , server )</span>
+<dl><dd>
+Initialize Point-to-Point Communication.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">DONOTUSECLIENT</td>
+<td class="description" valign="baseline">TRUE the client (node 0) will not be used as a server in <a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a>() <br>FALSE  it will used ONCE after all other nodes are busy
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">client</td>
+<td class="description" valign="baseline">
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">server</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="P2P___server"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">server</span></h3>
+
+<span class="declaration">decl server [public]</span>
+<dl><dd>
+<a href="CFMPI.ox.html#Server">Server</a> object.
+
+</dd></dl>
+
+<hr>
+<a name="P2P___Source"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Source</span></h3>
+
+<span class="declaration">decl Source [public]</span>
+<dl><dd>
+Node that sent the last message
+
+</dd></dl>
+
+<hr>
+<a name="P2P___STOP_TAG"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">STOP_TAG</span></h3>
+
+<span class="declaration">static const decl STOP_TAG [public]</span>
+<dl><dd>
+Tag that ends <a href="CFMPI.ox.html#Server___Loop">Loop</a>
+
+</dd></dl>
+
+<hr>
+<a name="P2P___Tag"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Tag</span></h3>
+
+<span class="declaration">decl Tag [public]</span>
+<dl><dd>
+Tag of last message
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Peer</span></h2>
+
+<a name="Peer___Allgather"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Allgather</span></h3>
+
+<span class="declaration">Peer :: Allgather ( iCount )</span>
+<dl><dd>
+Gather and share vectors to/from all nodes.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">iCount</td>
+<td class="description" valign="baseline">0, Gather the whole Buffer<br> &gt; 0, number of elments of <a href="CFMPI.ox.html#Peer___Buffer">Buffer</a> to share.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Peer___Allgatherv"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Allgatherv</span></h3>
+
+<span class="declaration">Peer :: Allgatherv ( )</span>
+<dl><dd>
+Gather variable sized segments on all nodes.
+This requires that <a href="CFMPI.ox.html#Peer___Setdisplace">Setdisplace</a> called first. Gather is "in place" so Buffer on each node must be large enough for all segments and contain
+the current nodes contribution in the proper location before the call.
+
+</dd></dl>
+
+<hr>
+<a name="Peer___Allsum"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Allsum</span></h3>
+
+<span class="declaration">Peer :: Allsum ( iCount )</span>
+<dl><dd>
+Compute and share the sum of vectors to/from all nodes.
+
+</dd></dl>
+
+<hr>
+<a name="Peer___Bcast"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Bcast</span></h3>
+
+<span class="declaration">Peer :: Bcast ( iCount )</span>
+<dl><dd>
+Broadcast buffer of size iCount from CLIENT (ROOT) to all nodes.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">iCount</td>
+<td class="description" valign="baseline">0, Broadcast the whole Buffer<br> &gt; 0, number of elments of <a href="CFMPI.ox.html#Peer___Buffer">Buffer</a> to send.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Peer___Buffer"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Buffer</span></h3>
+
+<span class="declaration">decl Buffer [public]</span>
+<dl><dd>
+Place for MPI message (in/out)
+
+</dd></dl>
+
+<hr>
+<a name="Peer___Gather"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gather</span></h3>
+
+<span class="declaration">Peer :: Gather ( iCount )</span>
+<dl><dd>
+Gather vectors from all nodes at <code>Client</code>.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">iCount</td>
+<td class="description" valign="baseline">0, Gather the whole Buffer<br> &gt; 0, number of elments of <a href="CFMPI.ox.html#Peer___Buffer">Buffer</a> to share.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Peer___Gatherv"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gatherv</span></h3>
+
+<span class="declaration">Peer :: Gatherv ( )</span>
+<dl><dd>
+Gather vectors from all nodes at Client with <b>V</b>ariable segment sizes.
+This requires that <a href="CFMPI.ox.html#Peer___Setdisplace">Setdisplace</a> is called first.  The Gather is "in place" on CLIENT, so Buffer on CLIENT must be
+large enough for all segments and contain the CLIENTs contribution at the start.
+
+</dd></dl>
+
+<hr>
+<a name="Peer___Offset"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Offset</span></h3>
+
+<span class="declaration">decl Offset [public]</span>
+<dl><dd>
+vector of offsets in buffer in
+	     		<a href="CFMPI.ox.html#Peer___Gatherv">Gatherv</a> Offset[Node]
+		 		is the total buffer size
+
+</dd></dl>
+
+<hr>
+<a name="Peer___Peer"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Peer</span></h3>
+
+<span class="declaration">Peer :: Peer ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Peer___SegSize"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">SegSize</span></h3>
+
+<span class="declaration">decl SegSize [public]</span>
+<dl><dd>
+My segment size in Gathers
+
+</dd></dl>
+
+<hr>
+<a name="Peer___Setdisplace"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Setdisplace</span></h3>
+
+<span class="declaration">Peer :: Setdisplace ( SegSize )</span>
+<dl><dd>
+Set the displacement for each node in gathers.
+Calls <a href="CFMPI.ox.html#MPI___Initialize">Initialize</a>() first, which will set the MPI environment if not done already.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">SegSize</td>
+<td class="description" valign="baseline">the size of my segment.  Must be equal across all nodes for non-variable gathers.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">The vector of displacements in the Buffer stored in <a href="CFMPI.ox.html#Peer___Offset">Offset</a> along with the
+total size of the Buffer (an extra last element of Offset).
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Peer___Sum"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Sum</span></h3>
+
+<span class="declaration">Peer :: Sum ( iCount )</span>
+<dl><dd>
+Compute the sum of vectors from all nodes at Client.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">iCount</td>
+<td class="description" valign="baseline"> The size of the vector to sum</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Server</span></h2>
+
+<a name="Server___Execute"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Execute</span></h3>
+
+<span class="declaration">virtual Server :: Execute ( )</span>
+<dl><dd>
+The default server code.  Simply reports who I am, tag and message received. Adds ID to Buffer.
+
+</dd></dl>
+
+<hr>
+<a name="Server___iml"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">iml</span></h3>
+
+<span class="declaration">static decl iml [public]</span>
+<dl><dd>
+initial messge length, first call to Loop.
+
+</dd></dl>
+
+<hr>
+<a name="Server___Loop"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Loop</span></h3>
+
+<span class="declaration">virtual Server :: Loop ( nxtmsgsize )</span>
+<dl><dd>
+A Server loop that calls a virtual Execute() method.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">nxtmsgsize</td>
+<td class="description" valign="baseline">integer.  The size of Buffer expected on the first message Received.  It is updated
+by <code>Execute()</code> on each call.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">the number of trips through the loop.
+<DD>Program goes into server mode (unless I am the CLIENT).
+If the current ID equals CLIENT then simply return.</dd>
+<DT>Enters a do loop that </dt>
+	<dd>Receives a message from Client</DD>
+	<DD>Calls Execute().</DD>
+    <DD>If Tag does NOT equal <a href="CFMPI.ox.html#P2P___STOP_TAG">STOP_TAG</a>  then send <a href="CFMPI.ox.html#P2P___Buffer">Buffer</a> back to Client.</DD>
+	<DD>If Tag is STOP_TAG then exit the loop and return.</DD>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Server___Recv"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Recv</span></h3>
+
+<span class="declaration">Server :: Recv ( iTag )</span>
+<dl><dd>
+Receive buffer from CLIENT.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">iTag</td>
+<td class="description" valign="baseline">tag to receive<br><a href="CFMPI.ox.html#P2P___ANY_TAG">ANY_TAG</a>, receive any tag
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+p2p-&gt;Recv(ANY_TAG);
+</pre>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">Source and Tag are stored on exit in <a href="CFMPI.ox.html#P2P___Source">Source</a> and <a href="CFMPI.ox.html#P2P___Tag">Tag</a>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Server___Send"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Send</span></h3>
+
+<span class="declaration">Server :: Send ( iCount , iTag )</span>
+<dl><dd>
+Server sends buffer to the CLIENT.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">iCount</td>
+<td class="description" valign="baseline">0, send the whole Buffer<br> &gt; 0, number of elments of <a href="CFMPI.ox.html#P2P___Buffer">Buffer</a> to send.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iTag</td>
+<td class="description" valign="baseline">integer (Non-Negative). User-controlled MPI Tag to accompany message.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+p2p.Buffer = results;
+p2p-&gt;Send(0,3);  //send all results to node 0 with tag 3
+</pre>
+</dd>
+</dl>
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>
