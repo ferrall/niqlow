@@ -5,7 +5,7 @@
 <OL class="contents">
 <LI><a href="#OV">Overview</a></LI>
 <LI><a href="#SVT">State Variable Transitions</a></LI>
-<LI><a href="#SP">Special State Variables</a></LI>
+<LI><a href="#SP">Augmented and Specialized State Variables</a></LI>
 <LI><a href="#ASV">Creating a new or derived Autonomous State Variable</a></LI>
 <LI><a href="#example">Example of a new state variable</a></LI>
 <LI><a href="#further">Further Considerations</a></LI>
@@ -24,7 +24,7 @@ A state variable <var>s</var> is a `Discrete` quantity.  It is defined by at lea
 
 <DT>State variables are classified by how their transitions relate to actions and the current value and transitions of other state variables.   Either they are </DT>
 <DD><q>Autonomous</q> </DD>
-<DD>or they are  
+<DD>or they are
 <DD><q>Coevolving</q>, in which case they must be a member of a `StateBlock`.</DD>
 
 
@@ -104,9 +104,43 @@ That is, the transition probabilities are exogenous to the current actions, stat
 <DD><span class="n">DDP</span> comes with the predefined state variables listed above that can represent many processes in estimated models.  But the set is by no means exhaustive and a serious user of <span class="n">DDP</span> will inevitably need include slight variations or wholly new kinds of variables.
 <DD>Although defining a new kind of state variable is not trivial, it can take a less time and be less prone to error than coding from scratch and then modifying all the code to add or modify variables.</DD>
 
-<a name="SP"><LI>Special State Variables</LI></a>
+<a name="SP"><LI>Augmented and Special State Variables</LI></a>
 
-Some derived classes of state variables play special roles in <span class="n">DDP</span>.  The two major ones are `TimeVariable`s, which serve as the <a href="Clock.html">DDP clock</a>, and `TimeInvariant`s, which track variables that are fixed during a DDP and stored in the &gamma; vector.  <span class="n">DDP</span> will re-solve the model for each value of &gamma;
+Some derived classes of state variables play special roles in <span class="n">DDP</span>.  Two major ones are 
+<DT>`TimeVariable`s</DT>
+ <DD>which serve as the <a href="Clock.html">DDP clock</a> </DD>
+ <DT>and</DT>
+<DT>`TimeInvariant`s</DT> 
+<DD>which track variables that are fixed during a DDP and stored in the &gamma; vector.  <span class="n">DDP</span> will re-solve the model for each value of &gamma;.</DD>
+
+Your model may include state variables that are already defined in <span class="n">DDP</span> but require some changes to accommodate the environment.  The next section discusses how to create a new derived class for your state variable, but it may be possible to avoid that using the `Augmented` state variable feature.
+
+Example:  Suppose your model has a state variable <code>q</code> which is of the `RandomUpDown`() class.  That is, each period <code>q</code> may go up or down by one unit or remain unchanged depending choices and other state variables.  However, when another state variable <code>h</code> goes from 0 to 1 you want the value of <code>q</code> to become constant and not subject to the RandomUpDown transition.
+That is, you want to `Freeze` the current value of <code>q</code> when <code>h</code> is 1.
+
+<details><summary><b>Example</b> <br>Augment a base state variable with the Freeze feature:</summary>
+<DD><pre>MyModel : DPparent {
+    &hellip;
+    static decl a, h, q;
+    &hellip;
+    static Initialize();
+    Qtrans();
+    }
+&hellip;
+MyModel::Initialize() {
+    DPparent::Initialize();
+    &hellip;
+    Actions(a = new ActionVariable("a",2) ) ;
+    EndogenousStates(
+        h = new PermanentChoice("h",a);
+        q = new Freeze(new RandomUpDown("q",10,Qtrans),h);
+    &hellip;
+    CreateSpaces();
+    }</pre>
+Notice that a <code>new</code> state variable is passed to the `Freeze`() constructor.  In essence this underlying random variable is hidden from the model, which only sees the variables passed to `DP::EndogenousStates`.     What the model sees is the augmented variable <code>q</code> which acts like a `RandomUpDown` variable unless <code>h=1</code>.  As always, the other state variables or actions that <code>q</code> depends on have to be passed to its creator (or constructor).  
+</DD></details>
+
+In fact, `Freeze` is a special case of a more general type of `Augmented` state variable, namely a `ValueTriggered`() state variable.  
 
 <a name="ASV"><LI>Creating a new or derived Autonomous State Variable</LI></a>
 
@@ -449,7 +483,7 @@ The major difference between a StateVariable and a StateBlock:  a state variable
     <DD>If there are M variables in the block, each taking on <code>a<sub>m</sub>.N</code> values, then the actual matrix will be <code>N &times (&prod;<sub>m</sub>&nbsp; a<sub>m</sub>.N)</code>.</DD>
 
     <LI>Add the block to the DP model:</LI>
-    
+
     <dd class="example"><pre>
         decl stats;
         stats = new Vitals();

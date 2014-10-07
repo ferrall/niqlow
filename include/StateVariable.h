@@ -18,6 +18,7 @@ struct StateVariable : Discrete	{
 	virtual Transit(FeasA);
 	virtual UnChanged(FeasA);
     virtual UnReachable(clock=0);
+    virtual Check();
 	}
 	
 /**Scalar `StateVariable` with statistically independent transition.
@@ -41,12 +42,25 @@ organize different kinds of state variables into a taxonomy.
 **/
 class Random : Autonomous	{ }
 
-/** State variables that augment another state variable (the base).
+/** State variables that augment another state variable (the base) or otherwise specialize it.
+
 **/
-class Augmented : Autonomous {
+class Augmented : StateVariable {
     const decl /**base state variable.**/ b;
-    Augmented(b);
+    Augmented(Lorb,N=0);
     }
+
+/**Transition depends on transition of one or more other state variables.
+@comment Coevolving variables do not have their own Transit() function.  Instead they
+		 sit in a `StateBlock` that has a Transit().
+@see StateBlock, Autonomous, StateBlock::AddToBlock
+**/
+struct Coevolving : Augmented {
+	/** StateBlock that I belong to  **/		decl block;
+	/** Index into block array/vector **/    	decl bpos;
+	Coevolving(Lorb, N=0);
+    Transit(FeasA);
+	}
 
 /** Container for augmented state variables in which a value or an action trigger a transition
 not present in the base state. **/
@@ -69,7 +83,7 @@ class ActionTriggered : Triggered {
 /** A value of a `AV` compatible object triggers this state to transit to a value.
 **/
 class ValueTriggered : Triggered {
-    ValueTriggered(b,t,tv=1,rval=0);
+    ValueTriggered(b,t,tv=TRUE,rval=0);
     virtual Transit(FeasA);
     }
 
@@ -90,6 +104,13 @@ class Forget : ActionTriggered {
     Forget(b,pstate,rval=0);
     virtual Transit(FeasA);
     virtual UnReachable(clock=0);
+    }
+
+/** When the trigger value returns TRUE this state freezes at its current value.
+**/
+class Freeze : ValueTriggered {
+    Freeze(b,t);
+    virtual Transit(FeasA);
     }
 
 /** A Basic Offer Variable.
@@ -466,17 +487,6 @@ struct ActionTracker : Tracker	{
 	virtual Transit(FeasA);
 	}
 
-/**Transition depends on transition of one or more other state variables.
-@comment Coevolving variables do not have their own Transit() function.  Instead they
-		 sit in a `StateBlock` that has a Transit.
-@see StateBlock, Autonomous, StateBlock::AddToBlock
-**/
-struct Coevolving : StateVariable {
-	/** StateBlock that I belong to  **/		decl block;
-	/** Index into block array/vector **/    	decl bpos;
-	Coevolving(L, N);
-	}
-
 /** A Block of `Coevolving` state variables.
 
 **/
@@ -487,6 +497,7 @@ struct StateBlock : StateVariable {
 	StateBlock(L);
 	AddToBlock(s,...);
 	virtual Transit(FeasA);
+    virtual Check();
 	}
 
 /**A combination of an `Offer` state variable and a status variable, <var>(w,m)</var> .

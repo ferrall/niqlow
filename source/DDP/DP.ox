@@ -800,12 +800,14 @@ DP::UpdateVariables(state)	{
 	do {
 		if (IsBlockMember(States[i])) {
 			States[i].block->Update();
+            States[i].block->Check();
 			if (isclass(States[i],"CorrelatedEffect"))
 				States[i].block->Distribution();			
 			i+=States[i].block.N;
 			}
 		else {
 			States[i]->Update();
+            States[i]->Check();
 			if (isclass(States[i],"RandomEffect"))
 				States[i]->Distribution();
 			++i;

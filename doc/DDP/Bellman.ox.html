@@ -1021,7 +1021,7 @@ If <a href="DP.ox.html#DP___setPstar">setPstar</a> then &Rho;*(&alpha;) is compu
 <a name="Bellman___ThetaTransition"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ThetaTransition</span></h3>
 
-<span class="declaration">Bellman :: ThetaTransition ( future )</span>
+<span class="declaration">Bellman :: ThetaTransition ( future , current )</span>
 <dl><dd>
 Computes the full endogneous transition, &Rho;(&theta;'; &alpha;,&eta; ), within a loop over &eta;.
 Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
@@ -1033,9 +1033,14 @@ Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exog
 <td class="description" valign="baseline">offset vector to use for computing states (tracking or solving)
 </td>
 </tr>
+<tr>
+<td class="declaration" valign="baseline">currentind</td>
+<td class="description" valign="baseline"> current offset vector.  If the same as future transitions are not recomputed. Indices are changed only.
+</td>
+</tr>
 </table>
 </dd>
-<dt class="comments">Comments:</dt><dd class="comments">computes <a href="DP.ox.html#DP___NxtExog">NxtExog</a> array of feasible indices of next period states and conforming matrix of probabilities.
+<dt class="comments">Comments:</dt><dd class="comments">computes DP::Nxt array of feasible indices of next period states and conforming matrix of probabilities.<br>If currentind is not -1, then simply recomputed indices.
 </dd>
 <dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a></dd>
 </dl>

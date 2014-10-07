@@ -11,6 +11,16 @@ base class.
 **/
 StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>; }
 
+/** Check dimensions of <code>actual</code>.
+Called by DP::UpdateVariables() after `StateVariable::Update`() called.
+**/
+StateVariable::Check() {
+    if (columns(actual)!=1 || rows(actual)!=N) {
+        println("State Variable ",L," N=",N," Dimensions of actual:",rows(actual)," x ",columns(actual));
+        oxwarning("actual +should Nx1 vector");
+        }
+    }
+
 /**Designate one or more values terminal.
 @comments The feasible action set for terminal states is automatically set to the first row of the gobal <var>A</var> matrix.
 @param TermValues integer or vector in the range 0...N-1
@@ -68,10 +78,15 @@ SimpleJump::SimpleJump(L,N)	  	{	StateVariable(L,N); 	}
 SimpleJump::Transit(FeasA)	{return {vals,constant(1/N,1,N)};	}
 
 
-Augmented::Augmented(b) {
-    if (!isclass(b,"StateVariable")) oxrunerror("Augmented object must be StateVariable");
-    this.b = b;
-    StateVariable(b.L,b.N);
+Augmented::Augmented(Lorb,N) {
+    if (isclass(Lorb,"StateVariable")) {
+        this.b = Lorb;
+        StateVariable(Lorb.L,Lorb.N);
+        }
+    else {
+        this.b = new Fixed(Lorb);
+        StateVariable(Lorb,N);
+        }
     }
 
 Triggered::Triggered(b,t,tv,rval) {
@@ -120,6 +135,15 @@ ValueTriggered::Transit(FeasA) {
     Triggered::Transit(FeasA);
     if ( AV(t)==tv ) return { matrix(rval), ones(rows(FeasA),1) };
     return tr;
+    }
+
+Freeze::Freeze(b,t) {
+    ValueTriggered(b,t,TRUE);
+    }
+
+Freeze::Transit(FeasA) {
+    if (AV(t)) return UnChanged(FeasA);
+    Triggered::Transit(FeasA);
     }
 
 /** Create an augmented state variable that 'forgets' its value when a permanent condition occurs.
@@ -567,15 +591,22 @@ ActionTracker::Transit(FeasA)	{
 	}
 	
 /** Create a new Coevolving random variable.
-@param L label
+@param Lorb label or base StateVariable
 @param N number of values it takes on.
 @see StateBlock
 **/
-Coevolving::Coevolving(L,N)	{
+Coevolving::Coevolving(Lorb,N)	{
+	Augmented(Lorb,N);
 	bpos = UnInitialized;
 	block = UnInitialized;
-	StateVariable(L,N);
 	}
+
+/** .
+@internal
+**/
+Coevolving::Transit(FeasA) {
+    oxrunerror("Transit() of a coevolving variable should never be called");
+    }
 
 /**Create a list of `Coevolving` state variables.
 @param L label for block
@@ -614,6 +645,8 @@ StateBlock::AddToBlock(news,...)	{
 	actual = v;  //default actual values, replaced after each add block.
 	}
 	
+StateBlock::Check() {   }
+
 /** An offer with layoff (match dissolution) risk.
 @param L string, label
 @param N integer, number of distinct offers.  0 is no offer
@@ -770,14 +803,13 @@ Asset::Asset(L,N,r,NetSavings){
 /**
 **/
 Asset::Transit(FeasA) {
-    atom = setbounds( AV(r)*actual[v]+AV(NetSavings,FeasA) , actual[0], actual[N-1] );
-     top = mincindex( (atom-DIFF_EPS.>actual)' )';
+     atom = setbounds( AV(r)*actual[v]+AV(NetSavings,FeasA) , actual[0], actual[N-1] )';
+     top = mincindex( (atom-DIFF_EPS.>actual) )';
      bot = setbounds(top-1,0,.Inf);
-//     mid = (actual[bot]+actual[top])'/2,
-     mid = (actual[top]-actual[bot])',
-     tprob = (mid .!= 0.0) .? (atom-actual[bot]')./mid .:  1.0 , //
+     mid = (actual[top]-actual[bot]);
+     tprob = (mid .!= 0.0) .? (atom'-actual[bot])./mid .:  1.0 ;
     bprob = 1-tprob;
     all = union(bot,top);
-    if ( any(tprob.>1.0) ) println("%c",{"AA","Bound","aB","mid","At"},AV(r)*actual[v]+AV(NetSavings,FeasA)~atom~actual[bot]'~mid~actual[top]'," tp ",tprob'," bp ",bprob'," all ",all);
+//   if ( any(tprob.>1.0) ) println("%c",{"AA","Bound","aB","mid","At"},AV(r)*actual[v]+AV(NetSavings,FeasA)~atom~actual[bot]'~mid~actual[top]'," tp ",tprob'," bp ",bprob'," all ",all);
     return { all, tprob.*(all.==top) + bprob.*(all.==bot) };
     }
