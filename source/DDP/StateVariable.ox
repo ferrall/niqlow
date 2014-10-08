@@ -144,6 +144,7 @@ Freeze::Freeze(b,t) {
 Freeze::Transit(FeasA) {
     if (AV(t)) return UnChanged(FeasA);
     Triggered::Transit(FeasA);
+    return tr;
     }
 
 /** Create an augmented state variable that 'forgets' its value when a permanent condition occurs.
