@@ -2,6 +2,9 @@
 #import "DDP"
 #import "FiveO"
 
+/** Tags for Nonlinear System Solver Algorithms. @name SystemAlgorithms **/	
+enum{USEBROYDEN,USENEWTONRAPHSON,SystemAlgorithms}
+
 /** Solve EV as as a non-linear system in a stationary EVExAnte environment.
 In an ergodic system <em>EV(&theta;) = EV'(&theta;)</em> where <em>EV(&theta;)</em> is
 the result of applying Bellman's equation to <em>V'(&theta;)</em>.  This can be written
@@ -12,15 +15,17 @@ Newton-Raphson root solving to find the solution.  This can be much faster, but 
 especially when &delta; is near 1.
 **/	
 struct SolveAsSystem : Method {
-	decl system, VI;
+	decl system,
+    /** Output from the solution method. **/        Volume,
+		/** Scratch space for value iteration. **/  VV,
+         VI
+         ;
 //	static DeltaV();
 	SolveAsSystem();
 	Run(th);
-	Solve(SystemMethod,MaxTrips);	
+	Solve(SystemMethod=USEBROYDEN,MaxTrips=0);	
 	}
 
-/** Tags for Nonlinear System Solver Algorithms. @name SystemAlgorithms **/	
-enum{USEBROYDEN,USENEWTONRAPHSON,SystemAlgorithms}
 
 /** Represent V or R* as a non-linear system.
 **/
@@ -60,8 +65,8 @@ The user writes routines that return ...
 struct ReservationValues : ValueIteration {
 	decl
 	/** Objectives for each &Alpha;	**/					RValSys;
-	ReservationValues(LBvalue,METHOD);
+	ReservationValues(LBvalue=-.Inf,METHOD=UseDefault);
 	Run(th);
-	Solve(Fgroups,...);
+	Solve(Fgroups=AllFixed);
 	}
 	

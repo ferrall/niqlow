@@ -1,15 +1,15 @@
 Output of Reservation_Wage_Test
 ---------------------------
 -------------------- DP Model Summary ------------------------
-Clock: 0. Infinite Horizon
+Clock: 2. Normal Finite Horizon Aging
 STATE VARIABLES
               |eps   |eta |theta -clock        |gamma
               s11    s21   Done      t     t'      r      f
-       s.N      1      1      2      1      1      1      1
+       s.N      1      1      2     10      1      1      1
 
 
-Transition Categories (not counting fixed)
-                 NonRandom       Random   Coevolving             
+Transition Categories (not counting fixed or time)
+                 NonRandom       Random   Coevolving    Augmented
      #Vars               1            0            2            0
 
 Size of Spaces
@@ -17,12 +17,12 @@ Size of Spaces
         Exogenous          1
     SemiExogenous          1
        Endogenous          2
-            Times          1
+            Times         10
     EV()Iterating          2
-    Ch.Prob.track          2
+    Ch.Prob.track         20
      Random Groups         1
      Fixed Groups          1
-    TotalUntrimmed         2
+    TotalUntrimmed        20
 
 ACTION VARIABLES (2 distinct actions)
              d
@@ -31,79 +31,436 @@ ACTION VARIABLES (2 distinct actions)
 
  Trimming 
                            N
-    TotalReachable         2
-         Terminal          1
+    TotalReachable        20
+         Terminal         10
 
 ACTION SETS
     alpha       A[0]     A[1]   
     (0)           X        X    
     (1)           X        -    
-#States           1        1
+#States          10       10
     Key: X = row vector is feasible. - = infeasible
-Trip:1. Done:0. Visits:2. diff=0.408942. setP*:0
-Trip:2. Done:0. Visits:4. diff=0.227004. setP*:0
-Trip:3. Done:0. Visits:6. diff=0.150283. setP*:0
-Trip:4. Done:0. Visits:8. diff=0.108004. setP*:0
-Trip:5. Done:0. Visits:10. diff=0.081399. setP*:0
-Trip:6. Done:0. Visits:12. diff=0.0632623. setP*:0
-Trip:7. Done:0. Visits:14. diff=0.0502255. setP*:0
-Trip:8. Done:0. Visits:16. diff=0.0404955. setP*:0
-Trip:9. Done:0. Visits:18. diff=0.0330307. setP*:0
-Trip:10. Done:0. Visits:20. diff=0.0271834. setP*:0
-Trip:11. Done:0. Visits:22. diff=0.0225279. setP*:0
-Trip:12. Done:0. Visits:24. diff=0.0187738. setP*:0
-Trip:13. Done:0. Visits:26. diff=0.0157162. setP*:0
-Trip:14. Done:0. Visits:28. diff=0.0132046. setP*:0
-Trip:15. Done:0. Visits:30. diff=0.0111273. setP*:0
-Trip:16. Done:0. Visits:32. diff=0.00940038. setP*:0
-Trip:17. Done:0. Visits:34. diff=0.0079575. setP*:0
-Trip:18. Done:0. Visits:36. diff=0.00674813. setP*:0
-Trip:19. Done:0. Visits:38. diff=0.00573044. setP*:0
-Trip:20. Done:0. Visits:40. diff=0.00487194. setP*:0
-Trip:21. Done:0. Visits:42. diff=0.00414684. setP*:0
-Trip:22. Done:0. Visits:44. diff=0.00353252. setP*:0
-Trip:23. Done:0. Visits:46. diff=0.00301141. setP*:0
-Trip:24. Done:0. Visits:48. diff=0.00256862. setP*:0
-Trip:25. Done:0. Visits:50. diff=0.00219223. setP*:0
-Trip:26. Done:0. Visits:52. diff=0.00187179. setP*:0
-Trip:27. Done:0. Visits:54. diff=0.00159855. setP*:0
-Trip:28. Done:0. Visits:56. diff=0.00136566. setP*:0
-Trip:29. Done:0. Visits:58. diff=0.00116752. setP*:0
-Trip:30. Done:0. Visits:60. diff=0.000998053. setP*:0
-Trip:31. Done:0. Visits:62. diff=0.000853229. setP*:0
-Trip:32. Done:0. Visits:64. diff=0.000729749. setP*:0
-Trip:33. Done:0. Visits:66. diff=0.000623813. setP*:0
-Trip:34. Done:0. Visits:68. diff=0.000533568. setP*:0
-Trip:35. Done:0. Visits:70. diff=0.000456828. setP*:0
-Trip:36. Done:0. Visits:72. diff=0.000390933. setP*:0
-Trip:37. Done:0. Visits:74. diff=0.000334521. setP*:0
-Trip:38. Done:0. Visits:76. diff=0.000286172. setP*:0
-Trip:39. Done:0. Visits:78. diff=0.000244876. setP*:0
-Trip:40. Done:0. Visits:80. diff=0.000209544. setP*:0
-Trip:41. Done:0. Visits:82. diff=0.000179242. setP*:0
-Trip:42. Done:0. Visits:84. diff=0.000153437. setP*:0
-Trip:43. Done:0. Visits:86. diff=0.000131194. setP*:0
-Trip:44. Done:0. Visits:88. diff=0.000112386. setP*:0
-Trip:45. Done:0. Visits:90. diff=9.5811e-005. setP*:0
-Trip:46. Done:0. Visits:92. diff=8.24012e-005. setP*:0
-Trip:47. Done:0. Visits:94. diff=7.02513e-005. setP*:0
-Trip:48. Done:0. Visits:96. diff=6.0171e-005. setP*:0
-Trip:49. Done:0. Visits:98. diff=5.20011e-005. setP*:0
-Trip:50. Done:0. Visits:100. diff=4.43361e-005. setP*:0
-Trip:51. Done:0. Visits:102. diff=3.78009e-005. setP*:0
-Trip:52. Done:0. Visits:104. diff=3.2229e-005. setP*:0
-Trip:53. Done:0. Visits:106. diff=2.74784e-005. setP*:0
-Trip:54. Done:0. Visits:108. diff=2.40475e-005. setP*:0
-Trip:55. Done:0. Visits:110. diff=2.05036e-005. setP*:0
-Trip:56. Done:0. Visits:112. diff=1.74819e-005. setP*:0
-Trip:57. Done:0. Visits:114. diff=1.49056e-005. setP*:0
-Trip:58. Done:0. Visits:116. diff=1.27089e-005. setP*:0
-Trip:59. Done:0. Visits:118. diff=1.0836e-005. setP*:0
-Trip:60. Done:0. Visits:120. diff=9.23904e-006. setP*:1
-Trip:61. Done:1. Visits:122. diff=7.87746e-006. setP*:1
+
+
+Report of Non-linear System Starting on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.000000000000
+Actual Parameters
+                  Value 
+R*        0.000000000000
+Broyden 1.  deltaX: 0.25 deltaG:0.5
+Broyden 2.  deltaX: 1 deltaG:1.5
+Broyden 3.  deltaX: 1 deltaG:0
+
+Broyden Converged:5:STRONG
+                            R*
+    Params Vector      0.25000
+System                 0.00000
+
+
+Report of Non-linear System Ending on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.250000000000
+Actual Parameters
+                  Value 
+R*        0.250000000000
+
+ t =9
+today              0.53634      0.00000
+tomorrow           0.00000      0.00000
+Trip:1. Done:0. Visits:2. diff=0.536345. setP*:1
+
+
+Report of Non-linear System Starting on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.000000000000
+Actual Parameters
+                  Value 
+R*        0.000000000000
+Broyden 1.  deltaX: 0.464538 deltaG:0.929076
+Broyden 2.  deltaX: 13.0996 deltaG:14.0286
+Broyden 3.  deltaX: 1.00508 deltaG:13.0235
+Broyden 4.  deltaX: 13.9415 deltaG:0.917948
+Broyden 5.  deltaX: 0.495624 deltaG:0.422324
+Broyden 6.  deltaX: 0.295377 deltaG:0.126947
+Broyden 7.  deltaX: 0.0974394 deltaG:0.0295079
+Broyden 8.  deltaX: 0.0231739 deltaG:0.00633403
+Broyden 9.  deltaX: 0.00499927 deltaG:0.00133476
+Broyden 10.  deltaX: 0.0010546 deltaG:0.000280163
+Broyden 11.  deltaX: 0.0010546 deltaG:5.87562e-005
+
+Broyden Converged:5:STRONG
+                            R*
+    Params Vector      0.46460
+System            -5.8756e-005
+
+
+Report of Non-linear System Ending on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.464596635475
+Actual Parameters
+                  Value 
+R*        0.464596635475
+
+ t =8
+today              0.67350      0.00000
+tomorrow           0.53634      0.00000
+Trip:2. Done:0. Visits:4. diff=0.137154. setP*:1
+
+
+Report of Non-linear System Starting on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.000000000000
+Actual Parameters
+                  Value 
+R*        0.000000000000
+Broyden 1.  deltaX: 0.519399 deltaG:1.0388
+Broyden 2.  deltaX: 26.774 deltaG:25.7352
+Broyden 3.  deltaX: 0.998495 deltaG:24.7367
+Broyden 4.  deltaX: 23.8474 deltaG:0.88935
+Broyden 5.  deltaX: 6.01142 deltaG:5.12207
+Broyden 6.  deltaX: 0.971927 deltaG:4.15014
+Broyden 7.  deltaX: 3.70591 deltaG:0.44423
+Broyden 8.  deltaX: 0.657495 deltaG:0.213265
+Broyden 9.  deltaX: 0.239919 deltaG:0.0266537
+Broyden 10.  deltaX: 0.0291119 deltaG:0.00245824
+Broyden 11.  deltaX: 0.00267777 deltaG:0.000219531
+Broyden 12.  deltaX: 0.00267777 deltaG:1.95479e-005
+
+Broyden Converged:5:STRONG
+                            R*
+    Params Vector      0.51942
+System            -1.9548e-005
+
+
+Report of Non-linear System Ending on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.519418945567
+Actual Parameters
+                  Value 
+R*        0.519418945567
+
+ t =7
+today              0.71128      0.00000
+tomorrow           0.67350      0.00000
+Trip:3. Done:0. Visits:6. diff=0.0377781. setP*:1
+
+
+Report of Non-linear System Starting on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.000000000000
+Actual Parameters
+                  Value 
+R*        0.000000000000
+Broyden 1.  deltaX: 0.534511 deltaG:1.06902
+Broyden 2.  deltaX: 15.4883 deltaG:14.4193
+Broyden 3.  deltaX: 0.995236 deltaG:13.424
+Broyden 4.  deltaX: 12.6135 deltaG:0.810511
+Broyden 5.  deltaX: 3.19418 deltaG:2.38367
+Broyden 6.  deltaX: 0.90379 deltaG:1.47988
+Broyden 7.  deltaX: 1.27847 deltaG:0.201406
+Broyden 8.  deltaX: 0.210647 deltaG:0.00924104
+Broyden 9.  deltaX: 0.00957252 deltaG:0.000331485
+Broyden 10.  deltaX: 0.00957252 deltaG:1.17728e-005
+
+Broyden Converged:5:STRONG
+                            R*
+    Params Vector      0.53452
+System            -1.1773e-005
+
+
+Report of Non-linear System Ending on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.534522390571
+Actual Parameters
+                  Value 
+R*        0.534522390571
+
+ t =6
+today              0.72187      0.00000
+tomorrow           0.71128      0.00000
+Trip:4. Done:0. Visits:8. diff=0.0105912. setP*:1
+
+
+Report of Non-linear System Starting on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.000000000000
+Actual Parameters
+                  Value 
+R*        0.000000000000
+Broyden 1.  deltaX: 0.538747 deltaG:1.07749
+Broyden 2.  deltaX: 13.9042 deltaG:12.8267
+Broyden 3.  deltaX: 0.993995 deltaG:11.8327
+Broyden 4.  deltaX: 11.0432 deltaG:0.789468
+Broyden 5.  deltaX: 2.79933 deltaG:2.00986
+Broyden 6.  deltaX: 0.876948 deltaG:1.13291
+Broyden 7.  deltaX: 0.977516 deltaG:0.155394
+Broyden 8.  deltaX: 0.154841 deltaG:0.000553452
+Broyden 9.  deltaX: 0.154841 deltaG:1.66687e-006
+
+Broyden Converged:5:STRONG
+                            R*
+    Params Vector      0.53875
+System             1.6669e-006
+
+
+Report of Non-linear System Ending on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.538745446994
+Actual Parameters
+                  Value 
+R*        0.538745446994
+
+ t =5
+today              0.72485      0.00000
+tomorrow           0.72187      0.00000
+Trip:5. Done:0. Visits:10. diff=0.0029835. setP*:1
+
+
+Report of Non-linear System Starting on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.000000000000
+Actual Parameters
+                  Value 
+R*        0.000000000000
+Broyden 1.  deltaX: 0.539941 deltaG:1.07988
+Broyden 2.  deltaX: 13.5186 deltaG:12.4387
+Broyden 3.  deltaX: 0.993619 deltaG:11.4451
+Broyden 4.  deltaX: 10.6615 deltaG:0.783621
+Broyden 5.  deltaX: 2.70326 deltaG:1.91964
+Broyden 6.  deltaX: 0.868804 deltaG:1.05084
+Broyden 7.  deltaX: 0.906924 deltaG:0.143914
+Broyden 8.  deltaX: 0.14182 deltaG:0.00209464
+Broyden 9.  deltaX: 0.14182 deltaG:2.62174e-005
+
+Broyden Converged:5:STRONG
+                            R*
+    Params Vector      0.53991
+System             2.6217e-005
+
+
+Report of Non-linear System Ending on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.539914296832
+Actual Parameters
+                  Value 
+R*        0.539914296832
+
+ t =4
+today              0.72569      0.00000
+tomorrow           0.72485      0.00000
+Trip:6. Done:0. Visits:12. diff=0.000841556. setP*:1
+
+
+Report of Non-linear System Starting on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.000000000000
+Actual Parameters
+                  Value 
+R*        0.000000000000
+Broyden 1.  deltaX: 0.540277 deltaG:1.08055
+Broyden 2.  deltaX: 13.414 deltaG:12.3334
+Broyden 3.  deltaX: 0.993511 deltaG:11.3399
+Broyden 4.  deltaX: 10.5579 deltaG:0.781977
+Broyden 5.  deltaX: 2.6772 deltaG:1.89522
+Broyden 6.  deltaX: 0.866462 deltaG:1.02876
+Broyden 7.  deltaX: 0.887971 deltaG:0.140788
+Broyden 8.  deltaX: 0.138331 deltaG:0.00245707
+Broyden 9.  deltaX: 0.138331 deltaG:3.7039e-005
+
+Broyden Converged:5:STRONG
+                            R*
+    Params Vector      0.54024
+System             3.7039e-005
+
+
+Report of Non-linear System Ending on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.540240097785
+Actual Parameters
+                  Value 
+R*        0.540240097785
+
+ t =3
+today              0.72593      0.00000
+tomorrow           0.72569      0.00000
+Trip:7. Done:0. Visits:14. diff=0.000237467. setP*:1
+
+
+Report of Non-linear System Starting on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.000000000000
+Actual Parameters
+                  Value 
+R*        0.000000000000
+Broyden 1.  deltaX: 0.540372 deltaG:1.08074
+Broyden 2.  deltaX: 13.3848 deltaG:12.304
+Broyden 3.  deltaX: 0.99348 deltaG:11.3106
+Broyden 4.  deltaX: 10.529 deltaG:0.781514
+Broyden 5.  deltaX: 2.66992 deltaG:1.88841
+Broyden 6.  deltaX: 0.865798 deltaG:1.02261
+Broyden 7.  deltaX: 0.882696 deltaG:0.139915
+Broyden 8.  deltaX: 0.137361 deltaG:0.00255404
+Broyden 9.  deltaX: 0.137361 deltaG:4.0319e-005
+
+Broyden Converged:5:STRONG
+                            R*
+    Params Vector      0.54033
+System             4.0319e-005
+
+
+Report of Non-linear System Ending on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.540331804306
+Actual Parameters
+                  Value 
+R*        0.540331804306
+
+ t =2
+today              0.72600      0.00000
+tomorrow           0.72593      0.00000
+Trip:8. Done:0. Visits:16. diff=6.70143e-005. setP*:1
+
+
+Report of Non-linear System Starting on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.000000000000
+Actual Parameters
+                  Value 
+R*        0.000000000000
+Broyden 1.  deltaX: 0.540399 deltaG:1.0808
+Broyden 2.  deltaX: 13.3766 deltaG:12.2958
+Broyden 3.  deltaX: 0.993472 deltaG:11.3023
+Broyden 4.  deltaX: 10.5209 deltaG:0.781384
+Broyden 5.  deltaX: 2.66788 deltaG:1.88649
+Broyden 6.  deltaX: 0.86561 deltaG:1.02088
+Broyden 7.  deltaX: 0.881213 deltaG:0.139669
+Broyden 8.  deltaX: 0.137088 deltaG:0.00258099
+Broyden 9.  deltaX: 0.137088 deltaG:4.1261e-005
+
+Broyden Converged:5:STRONG
+                            R*
+    Params Vector      0.54036
+System             4.1261e-005
+
+
+Report of Non-linear System Ending on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.540357668004
+Actual Parameters
+                  Value 
+R*        0.540357668004
+
+ t =1
+today              0.72602      0.00000
+tomorrow           0.72600      0.00000
+Trip:9. Done:0. Visits:18. diff=1.89123e-005. setP*:1
+
+
+Report of Non-linear System Starting on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.000000000000
+Actual Parameters
+                  Value 
+R*        0.000000000000
+Broyden 1.  deltaX: 0.540406 deltaG:1.08081
+Broyden 2.  deltaX: 13.3742 deltaG:12.2934
+Broyden 3.  deltaX: 0.993469 deltaG:11.3
+Broyden 4.  deltaX: 10.5186 deltaG:0.781347
+Broyden 5.  deltaX: 2.6673 deltaG:1.88595
+Broyden 6.  deltaX: 0.865557 deltaG:1.0204
+Broyden 7.  deltaX: 0.880795 deltaG:0.1396
+Broyden 8.  deltaX: 0.137011 deltaG:0.00258856
+Broyden 9.  deltaX: 0.137011 deltaG:4.15282e-005
+
+Broyden Converged:5:STRONG
+                            R*
+    Params Vector      0.54036
+System             4.1528e-005
+
+
+Report of Non-linear System Ending on R
+
+   Obj=                    .NaN
+Free Parameters
+         index          free      
+R*         0    0.540364965824
+Actual Parameters
+                  Value 
+R*        0.540364965824
+
+ t =0
+today              0.72602      0.00000
+tomorrow           0.72602      0.00000
+Trip:10. Done:1. Visits:20. diff=5.33736e-006. setP*:1
 
 ------------------------------------------------------------------------------
-Index   T   ADone   t rind         EV      |Choice Probabilities:                  
-   1   1   1   1   0     0       0.000000 1.000000 0.000000     .NaN
-   0   0   0   0   0     0       1.334201 0.897503 0.102497 1.267451
+Index   T   ADone   t rind         EV      |Choice Probabilities:      z*          
+  18   0   0   0   9     0       0.536345 0.598706 0.401294 0.250000
+  16   0   0   0   8     0       0.673498 0.678890 0.321110 0.464597
+  14   0   0   0   7     0       0.711277 0.698266 0.301734 0.519419
+  12   0   0   0   6     0       0.721868 0.703510 0.296490 0.534522
+  10   0   0   0   5     0       0.724851 0.704969 0.295031 0.538745
+   8   0   0   0   4     0       0.725693 0.705372 0.294628 0.539914
+   6   0   0   0   3     0       0.725930 0.705484 0.294516 0.540240
+   4   0   0   0   2     0       0.725997 0.705516 0.294484 0.540332
+   2   0   0   0   1     0       0.726016 0.705525 0.294475 0.540358
+   0   0   0   0   0     0       0.726022 0.705527 0.294473 0.540365
 ------------------------------------------------------------------------------

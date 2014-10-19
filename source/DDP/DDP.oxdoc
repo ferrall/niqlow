@@ -457,10 +457,11 @@ The generic state space &theta; &in; &Theta; generalizes to (&zeta;,&epsilon;,&e
 <LI>&gamma;: Grouping (random and fixed effect) state vector</LI>
 <DD>A generic element of &gamma; is denoted <var>g</var></DD>
 <DD>States are added to &gamma; using `DP::GroupVariables`().</DD>
-<DD>A grouping variable is equivalent to a <em>random effect</em> in a panel model.  It does not vary within the life of an agent following the DP, but from our point of view it is random for an agent.</DD>
-<DD>Because grouping variables do not vary within a solution it is wasteful to create space for each of their values and the other states in &theta;.  Instead, <span class="n">DDP</span> resolves the model for each value of &gamma;, storing only the differing choice probabilities.</DD>
-<DD><b><em>Warning:</em> random effect elements of &gamma; can only enter U(); they cannot affect the transition &Rho;().</b>  Random effects that influence the transition of other state variables must be included in &theta; to work properly.
-<DD>Because &gamma; is fixed during a solution, it is often <em>not</em> listed as an argument of U() and endogenous outcomes such as V(&theta;).  However, <code>MyModel</code> can treat elements of &gamma; like other states (except for not referring to it within transitions).</DD>
+<DD>A grouping variable is equivalent to either a <em>random effect</em> or a <em>fixed effect</em> in a panel model.  Either way, it does not vary within the life of an agent following the DP, but from our point of view it is random for an agent.</DD>
+<DD>Because grouping variables do not vary within a solution it is wasteful to create space for each of their values and the other states in &theta;.  Instead, <span class="n">DDP</span> resolves the model for each value of &gamma;.  It stores differing choice probabilities across random effects for a
+given fixed effect value, so that integration across random effects can be carried out.</DD>
+<DD><b><em>Warning:</em> if random effect elements of &gamma; affect the transition &Rho;(). you have to change the UpdateTime in the model</b>  
+<DD>Because &gamma; is fixed during a solution, it is often <em>not</em> listed as an argument of U() and endogenous outcomes such as V(&theta;).  However, <code>MyModel</code> can treat elements of &gamma; like other states.</DD>
 
 The most specialized random elements are those that are IID, do not influence the transition of other state variables <em>and</em> enter utility as an additively separable shock.
 <LI>&zeta;: Continuous utility shock vector</LI>

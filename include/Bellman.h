@@ -200,9 +200,9 @@ struct OneDimensionalChoice : Bellman {
 	static 	decl 					pstar, d;
 			decl
 			/**reservation values  **/		zstar;
-	static 	Initialize(d,userReachable,UseStateList=FALSE,GroupExists=FALSE);
+	static 	Initialize(userReachable,d=Two,UseStateList=FALSE,GroupExists=FALSE);
 	static  CreateSpaces();
-	virtual RUtility();
+	virtual Udiff();
 	virtual EUtility();
 	virtual thetaEMax() ;
 	virtual Smooth(pstar);

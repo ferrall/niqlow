@@ -62,11 +62,11 @@ RustEstimates::DoAll() {
 	mle = new NelderMead(nfxp);
 	mle.Volume = LOUD;
 <P/>
-    Outcome::OnlyTransitions = EMax.DoNotIterate = TRUE;  
+    Outcome::OnlyTransitions = EMax.DoNotIterate = TRUE;
 	mle -> Iterate(0);
 <P/>
     ZurcherHat::SecondStage();
-    Outcome::OnlyTransitions = EMax.DoNotIterate = FALSE; 
+    Outcome::OnlyTransitions = EMax.DoNotIterate = FALSE;
     nfxp->ResetMax();
 	mle -> Iterate(0);
 	}
@@ -82,11 +82,11 @@ RustEstimates::DoAll() {
 only use the transition probabilities not the conditional choice probabilities as well.  It also tells the solution method to only compute the transition probabilities when called and not to compute utilities and iterate on value functions.</DD>
 <DD>
 <P/>
-<h2>DDP Data are read in as a DataSet object.</h2>
+<h2>DDP Data are read in as a <code>DataSet</code> object.</h2>
 <P/>
 <DT><code>BusData</code> is a derived from the built in <code>DataSet</code> class.
 <DD><pre>BusData::BusData(method) {
-	DataSet("Zurcher",method,TRUE);  
+	DataSet("Zurcher",method,TRUE);
 	Observed(Zurcher::x,"x",Zurcher::d,"d");
 	IDColumn("id");
 	Read("RustEmet1987.dta");	
@@ -97,7 +97,7 @@ only use the transition probabilities not the conditional choice probabilities a
 <DD>The data column that holds the observation ID is declared.  The ID is associated with an individual path, one agent's realized values. When the ID column changes the input routine will automatically create a new path inside the panel.</DD>
 <DD>Finally the data are read in from an external value and the data set is created.</DD>
 <P/>
-<h2>Make DP parameters objects of the Parameter class</h2>
+<h2>Make DP parameters objects of the <code>Parameter</code> class</h2>
 The DP model is set up and parameterized as follows:
 <dd><pre>ZurcherHat::FirstStage(row)	{
 	this.row = row;
@@ -198,7 +198,7 @@ The Zurcher model with estimated Parameters.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="RustEmet1987mle.ox.html#ZurcherHat___Reachable">Reachable</a></td>
 <td class="modifiers">static</td>
-<td class="description">User-defined static function that indicates a state is reachable along a feasible path.</td>
+<td class="description">Return a new instance of Zurcher (a state &theta;).</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="RustEmet1987mle.ox.html#ZurcherHat___SecondStage">SecondStage</a></td>
@@ -213,15 +213,15 @@ The Zurcher model with estimated Parameters.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="RustEmet1987.ox.html#Zurcher">Zurcher</a>:</dt><dd><a href="RustEmet1987.ox.html#Zurcher___Run">Run</a></dd>
+<dt>Inherited methods from <a href="RustEmet1987.ox.html#Zurcher">Zurcher</a>:</dt><dd><a href="RustEmet1987.ox.html#Zurcher___Output">Output</a>, <a href="RustEmet1987.ox.html#Zurcher___Run">Run</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="RustEmet1987.ox.html#Zurcher">Zurcher</a>:</dt><dd><a href="RustEmet1987.ox.html#Zurcher___mfact">mfact</a>, <a href="RustEmet1987.ox.html#Zurcher___normalization">normalization</a>, <a href="RustEmet1987.ox.html#Zurcher___NX">NX</a>, <a href="RustEmet1987.ox.html#Zurcher___pars">pars</a>, <a href="RustEmet1987.ox.html#Zurcher___rc">rc</a>, <a href="RustEmet1987.ox.html#Zurcher___row">row</a>, <a href="RustEmet1987.ox.html#Zurcher___th1">th1</a>, <a href="RustEmet1987.ox.html#Zurcher___x">x</a></dd>
+<dt>Inherited fields from <a href="RustEmet1987.ox.html#Zurcher">Zurcher</a>:</dt><dd><a href="RustEmet1987.ox.html#Zurcher___chprob">chprob</a>, <a href="RustEmet1987.ox.html#Zurcher___data">data</a>, <a href="RustEmet1987.ox.html#Zurcher___mfact">mfact</a>, <a href="RustEmet1987.ox.html#Zurcher___normalization">normalization</a>, <a href="RustEmet1987.ox.html#Zurcher___pars">pars</a>, <a href="RustEmet1987.ox.html#Zurcher___rc">rc</a>, <a href="RustEmet1987.ox.html#Zurcher___th1">th1</a>, <a href="RustEmet1987.ox.html#Zurcher___x">x</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited enumerations from <a href="RustEmet1987.ox.html#Zurcher">Zurcher</a>:</dt><dd><a href="RustEmet1987.ox.html#Zurcher___params">params</a></dd>
+<dt>Inherited enumerations from <a href="RustEmet1987.ox.html#Zurcher">Zurcher</a>:</dt><dd><a href="RustEmet1987.ox.html#Zurcher___Anonymous enum 1">Anonymous enum 1</a>, <a href="RustEmet1987.ox.html#Zurcher___Zparams">Zparams</a></dd>
 </dl>
 
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BusData</span></h2>
@@ -319,13 +319,8 @@ Setup the DP model and first stage estimation.
 
 <span class="declaration">static ZurcherHat :: Reachable ( )</span>
 <dl><dd>
-User-defined static function that indicates a state is reachable along a feasible path.
+Return a new instance of Zurcher (a state &theta;).
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">a new instance of Zurcher
-</dd>
-<dt class="comments">Comments:</dt><dd class="comments">In an ergodic model all states are reachable.
-</dd>
-</dl>
 </dd></dl>
 
 <hr>

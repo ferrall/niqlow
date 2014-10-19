@@ -6,6 +6,10 @@
 
 	/** Pseudonyms for -1. @name Names_for_-1 **/
 enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,UseSubSample=-1,ResetValue=-1}
+
+	/** Pseudonyms for 0,2,1. @name Names_for_012 **/
+enum {Zero,One,Two}
+
 	/** Levels of output to produce while executing. @name NoiseLevels **/	
 enum {SILENT=-1,QUIET,LOUD,NOISY,NoiseLevels}
 		/** Send one of these tags as first argument to `DP::SetClock`() to use that clock.

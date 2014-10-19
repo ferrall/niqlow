@@ -146,6 +146,7 @@ struct DataColumn : Zauxilliary {
 		 		force0;
 	decl
 		 obsv,
+         instrument,
 		 ind,
 		 incol,
 		 label;
@@ -219,3 +220,10 @@ struct DataSet : Panel {
 	Summary(data,rlabels=0);
 	virtual EconometricObjective();
 	}
+
+struct EmpiricalMoments : DataSet {
+    const decl StdInst;
+    EmpiricalMoments(label="",method=0,StdInst=TRUE);
+    Instruments(LorC,...);
+	virtual EconometricObjective();
+    }

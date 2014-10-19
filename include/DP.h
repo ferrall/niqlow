@@ -295,6 +295,8 @@ struct DPDebug : Task {
 
 
 struct SaveV	: DPDebug	{
+    static decl
+    /** TRUE=trim rows with terminal states from output. **/ TrimTerminals;
 	const decl ToScreen, aM;
 	decl  re, stub, nottop, r, s;
 	SaveV(ToScreen=TRUE,aM=0,MaxChoiceIndex=FALSE);

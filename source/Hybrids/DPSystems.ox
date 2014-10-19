@@ -32,6 +32,8 @@ SolveAsSystem::Run(th) {	th->thetaEmax(); }
 	
 SolveAsSystem::Solve(SystemSolutionMethod,mxiter)	{
 	Parameter::DoNotConstrain = FALSE;
+    Clock::Solving(MxEndogInd,&VV,&setPstar);
+    if (UpdateTime[OnlyOnce]) UpdateVariables(0);
 	decl g;
 	for(g=0;g<NF;++g) {
 		VI -> Solve(g,5);
@@ -103,9 +105,13 @@ RVEdU::Run(th) {
 /**Solve for cut off values in the continuous shock &zeta;.
 @param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
 **/
-ReservationValues::Solve(Fgroups,...) 	{
+ReservationValues::Solve(Fgroups) 	{
    	now = NOW;	later = LATER;
 	ftask.qtask = this;			//refers back to current object.
+    if (UpdateTime[OnlyOnce]) UpdateVariables(0);
+    Clock::Solving(MxEndogInd,&VV,&setPstar);
+    decl rv;
+    foreach (rv in RValSys) if (isclass(rv)) rv.meth.Volume = Volume;
 	if (Fgroups==AllFixed)
 		ftask -> loop();
 	else

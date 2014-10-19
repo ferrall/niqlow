@@ -46,11 +46,11 @@ RustEstimates::DoAll() {
 	mle = new NelderMead(nfxp);
 	mle.Volume = LOUD;
 
-    Outcome::OnlyTransitions = EMax.DoNotIterate = TRUE;  
+    Outcome::OnlyTransitions = EMax.DoNotIterate = TRUE;
 	mle -> Iterate(0);
 
     ZurcherHat::SecondStage();
-    Outcome::OnlyTransitions = EMax.DoNotIterate = FALSE; 
+    Outcome::OnlyTransitions = EMax.DoNotIterate = FALSE;
     nfxp->ResetMax();
 	mle -> Iterate(0);
 	}
@@ -66,11 +66,11 @@ RustEstimates::DoAll() {
 only use the transition probabilities not the conditional choice probabilities as well.  It also tells the solution method to only compute the transition probabilities when called and not to compute utilities and iterate on value functions.</DD>
 <DD>
 
-<h2>DDP Data are read in as a `DataSet` object.</h2>
+<h2>DDP Data are read in as a <code>DataSet</code> object.</h2>
 
 <DT><code>BusData</code> is a derived from the built in <code>DataSet</code> class.
 <DD><pre>BusData::BusData(method) {
-	DataSet("Zurcher",method,TRUE);  
+	DataSet("Zurcher",method,TRUE);
 	Observed(Zurcher::x,"x",Zurcher::d,"d");
 	IDColumn("id");
 	Read("RustEmet1987.dta");	
@@ -81,7 +81,7 @@ only use the transition probabilities not the conditional choice probabilities a
 <DD>The data column that holds the observation ID is declared.  The ID is associated with an individual path, one agent's realized values. When the ID column changes the input routine will automatically create a new path inside the panel.</DD>
 <DD>Finally the data are read in from an external value and the data set is created.</DD>
 
-<h2>Make DP parameters objects of the `Parameter` class</h2>
+<h2>Make DP parameters objects of the <code>Parameter</code> class</h2>
 The DP model is set up and parameterized as follows:
 <dd><pre>ZurcherHat::FirstStage(row)	{
 	this.row = row;

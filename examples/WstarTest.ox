@@ -5,21 +5,21 @@ WStar::Reachable()	{ return new WStar(); }
 
 WStar::Run()	{
 	eta = 0.02;
-	Initialize(2,WStar::Reachable);
+	Initialize(WStar::Reachable);
 	SetClock(InfiniteHorizon);
 	EndogenousStates(done = new LaggedAction("Done",d));
 	done->MakeTerminal(1);
 	SetDelta(0.95);
 	CreateSpaces();
-	decl RV = new ReservationValues(-.Inf,UseDefault);
+	decl RV = new ReservationValues();
 	RV.Volume = LOUD;
-	RV -> Solve(0);
+	RV -> Solve();
 	}
 
 /** Return difference in vector of utilities at the cutoff(s) z. **/	
 WStar::Udiff(z) {	return -z;	}
 
-/** Return E[U|z&lt;z*] and E[U|z&ge;u*] and respective probabilities.
+/** Return E[U|z&lt;z*] and E[U|z&ge;z*] and respective probabilities.
 Use Mill's ratio to compute truncated mean of normal.
 @return Array of two vectors
 **/	

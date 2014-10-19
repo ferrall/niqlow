@@ -276,7 +276,7 @@ Panel::Panel(r,method,FullyObserved) {
 	cur = this;
 	for (i=1;i<NF;++i) cur = cur.fnext = fparray[i] = new FPanel(i,method,FullyObserved);
 	if (isint(Lflat)) {
-		Lflat = {FPanelID}|{PathID}|PrefixLabels|Slabels|{"|ai|"}|Alabels;
+		Lflat = {PanelID}|{FPanelID}|{PathID}|PrefixLabels|Slabels|{"|ai|"}|Alabels;
 		for (i=0;i<zeta.length;++i) Lflat |= "z"+sprint(i);
 		foreach (q in Chi) Lflat |= q.L;
 		Fmtflat = {"%4.0f","%4.0f"}|{"%4.0f","%2.0f","%3.0f","%3.0f"}|Sfmts|"%4.0f";
@@ -319,7 +319,7 @@ Panel::Simulate(N,T,ErgOrStateMat,DropTerminal) {
 Panel::Flat()	{
 	cur = this;
 	flat = <>;
-	do flat |= cur->FPanel::Flat(); while (isclass(cur = cur.fnext));
+	do flat |= r~cur->FPanel::Flat(); while (isclass(cur = cur.fnext));
 	}
 
 /** Produce a matrix of the panel.
@@ -455,7 +455,7 @@ Path::FullLikelihood() {
 DataColumn::DataColumn(type,obj) {
 	this.type = type;
 	this.obj = obj;
-	incol = obsv = ind = label = UnInitialized;
+	instrument = incol = obsv = ind = label = UnInitialized;
 	force0 = (ismember(obj,"N") && obj.N==1) ;
 	}
 
@@ -477,7 +477,7 @@ DataColumn::Observed(LorC) {
 
 DataColumn::UnObserved() {
 	obsv = FALSE;
-	incol = ind = label = UnInitialized;
+	instrument = incol = ind = label = UnInitialized;
 	}
 
 DataColumn::ReturnColumn(dlabels,incol)	{
@@ -996,4 +996,12 @@ DataSet::~DataSet() {
 	delete list;
 	}
 
-	
+EmpiricalMoments::EmpiricalMoments(label,method,StdInst) {
+    decl q;
+    DataSet(label,method,FALSE);
+    this.StdInst = StdInst;
+//    if (StdInst) {
+//	   foreach (q in S[fgroup]) list[].instrument = list[].obsv = TRUE;
+//       ifflist[]
+//       }
+    }

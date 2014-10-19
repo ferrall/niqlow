@@ -1043,7 +1043,7 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex) {
 	}
 	
 SaveV::Run(th) {
-	if (!isclass(th,"Bellman")) return;
+	if (!isclass(th,"Bellman")  || (SaveV::TrimTerminals && th.IsTerminal) ) return;
     decl mxi, p;
 	stub=th.ind[tracking]~th.IsTerminal~th.Aind~state[S[endog].M:S[clock].M]';
 	for(re=0;re<sizeof(th.EV);++re) {
@@ -1054,7 +1054,7 @@ SaveV::Run(th) {
 		if (ToScreen) {
 			s = (nottop)
 				? sprint("%cf",prtfmt,r)
-				: sprint("%c",Vlabels,"%cf",prtfmt,r);
+				: sprint("%c",isclass(th,"OneDimensionalChoice") ? Vlabels | " z* " : Vlabels,"%cf",prtfmt,r);
 			print(s[1:]);
 			nottop = TRUE;
 			}

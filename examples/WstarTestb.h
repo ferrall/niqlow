@@ -2,11 +2,14 @@
 
 /** A simple search over normally distributed offers. **/
 struct WStar : OneDimensionalChoice	{
-	static decl eta, d, a;
+    static const decl eta = 0.25;
+	static decl done, RV;
 	static Reachable();
 	static Run();
-	FeasibleActions(A);
-	RUtility();
+    static graphit();
+    WStar();
+	Utility();
 	EUtility();
+    Udiff(z);
 	}
 	

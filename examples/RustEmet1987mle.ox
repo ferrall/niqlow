@@ -31,7 +31,6 @@ RustEstimates::DoAll() {
 @param row 0 or 1, row of Rust table to replicate (&delta;=0.0 or &delta;=0.999)
 **/	
 ZurcherHat::FirstStage(row)	{
-	this.row = row;
 	normalization = pars[row][theta1]*mfact*NX/2.0;	
 	hat = new array[Nparams];
 	Initialize(Reachable);

@@ -598,14 +598,19 @@ NnotIID::UpdateChol() {
 	}
 
 /** .
+@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
+FALSE if the state is not reachable.
 @param d `ActionVariable` not already added to the model<br>
-		integer, number of options (action variable created)
+		integer, number of options (action variable created) [default = 2]
+@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
+					FALSE [default], traverse &Theta; through iteration on all state variables
+@param GroupExists
 **/
-OneDimensionalChoice::Initialize(d,userReachable,UseStateList,GroupExists) {
+OneDimensionalChoice::Initialize(userReachable,d,UseStateList,GroupExists) {
 	Bellman::Initialize(userReachable,UseStateList,GroupExists);
 	if (isclass(d,"ActionVariable")) Actions(this.d = d);
 	else if (isint(d) && d>0) Actions(this.d = new ActionVariable("d",d));
-	else oxrunerror("first argument 1d choice must provide an action or positive number of values");
+	else oxrunerror("second argument 1d choice must provide an action or positive number of values");
 	}
 
 OneDimensionalChoice::CreateSpaces() {
