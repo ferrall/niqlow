@@ -20,7 +20,6 @@ struct  Bellman : DP {
 		/**&theta;.j index into `DP::A`.**/  						Aind,
 		/**U(&alpha;&epsilon;,&eta;,&theta;,&gamma;). @internal **/	U,
 		/** array of &Rho;*(&hellip;,&gamma;). @internal**/   		pandv,
-//		/** indicates if pandv holds &Rho; or v()  **/				pset,
 		/** StateTrans x &eta;-Array of feasible endogenous	state
 			indices and transitions
 			&Rho;(&gamma;&prime;;&alpha;,&eta;,&gamma;).**/			Nxt,
@@ -48,6 +47,7 @@ struct  Bellman : DP {
 					UpdatePtrans();
 					ExpandP(r);
 					MedianActVal(EV);
+                    InSS();
 	}																																				
 
 /** Choice probabilities are smoothed ex post.

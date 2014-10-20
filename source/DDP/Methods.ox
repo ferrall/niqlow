@@ -151,6 +151,7 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
 		ftask -> loop();
 	else
 		ftask->Run(ReverseState(Fgroups,OO[onlyfixed][]));
+    HasBeenUpdated = FALSE;
 	}
 
 /** Creates a new &quot;brute force&quot; Bellman iteration method.
@@ -236,7 +237,7 @@ value across all exogenous states.</DD>
 **/
 KWEMax::Run(th) {
 	if (!isclass(th,"Bellman")) return;
-	decl inss = th.InSubSample;
+    decl inss = th->InSS();
     if (firstpass) {
         if (!inss) return;
 		EndogUtil::Run(th);
@@ -284,6 +285,7 @@ KeaneWolpin::Gsolve() {
         curlabels = 0;
 		ndogU.onlypass = !DoSubSample[myt];
 		ndogU.firstpass = TRUE;
+        if (Volume>LOUD) println("t:",myt," ",ndogU.onlypass," ",ndogU.firstpass);
 		ndogU->Traverse(myt);
 		if (!ndogU.onlypass) {
 			Specification(ComputeBhat);
@@ -333,16 +335,10 @@ square root of the vector</LI></UL>
 KeaneWolpin::KeaneWolpin(myKWEMax) {
     if (isint(SampleProportion)) oxwarning("Must call SubSampleStates() before CreateSpaces() if you uses KeaneWolpin");
 	ValueIteration(isint(myKWEMax) ? new KWEMax() : myKWEMax);
-    if (J>1)
-        oxwarning("Using KW approximization on a model with infeasible actions at some states.  All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible");
+    if (J>1) oxwarning("Using KW approximization on a model with infeasible actions at some states.  All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible");
 	ndogU.meth = this;
 	cpos = counter.t.pos;
 	Bhat = new array[TT];
-	Traverse(DoAll);	//create subsample
-	if (Volume>QUIET) {
-		println("Keane-Wolpin Subsample Drawn.\nNumber of States Approximated:",Approximated);
-		println("Rough memory ratio to full solution: ","%12.8f",Approximated/(NReachableStates*SS[bothexog].size));
-		}
 	xlabels0 = {"maxE","const"};
     xlabels1 = new array[NA];
     xlabels2 = new array[NA];

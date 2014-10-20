@@ -286,11 +286,9 @@ struct DPDebug : Task {
 		div = "------------------------------------------------------------------------------";
 	static decl prtfmt0, prtfmt, SimLabels, Vlabels, MaxChoiceIndex, Vlabel0;
 	static Initialize();		
-//#ifdef OX7
 	static outV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE);
-//#else
-//	static outV(ToScreen,aOutMat);
-//#endif
+    static outAutoVars();
+    DPDebug();
 	}
 
 
@@ -303,6 +301,10 @@ struct SaveV	: DPDebug	{
 	virtual Run(th);
 	}
 
+struct OutAuto : DPDebug {
+    OutAuto();
+    Run(th);
+    }
 	
 /** . @internal **/
 struct DumpExogTrans : Task {

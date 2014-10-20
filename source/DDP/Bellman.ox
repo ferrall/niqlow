@@ -33,7 +33,7 @@ EndogTrans::Run(th) {
 @internal
 **/		
 Bellman::Bellman(state) {
-  if (!ThetaCreated) oxrunerror("Cannot create states before state space created - call DP::CreateSpaces()");
+   //  if (!ThetaCreated) oxrunerror("Cannot create states before state space created - call DP::CreateSpaces()");
   decl s=S[endog].M;
   do { IsTerminal = any(state[s].==States[s].TermValues); } while (!IsTerminal && s++<S[endog].X);
   NTerminalStates += IsTerminal;
@@ -55,7 +55,6 @@ Bellman::Bellman(state) {
 	Approximated += !(InSubSample);
     }
   else InSubSample = TRUE;
-
   if (InSubSample) {
     Nxt = new array[StateTrans][SS[onlysemiexog].size];
     U = new matrix[nfeas][SS[bothexog].size];
@@ -65,7 +64,6 @@ Bellman::Bellman(state) {
     U = new matrix[nfeas][1];
     }
   for(s=0;s<NR;++s) pandv[s]= constant(.NaN,U);
-  //  pset =   don't need pset anymore???
   EV = zeros(NR,1);
   }
 
@@ -226,13 +224,15 @@ Bellman::Utility()  {
 	return zeros(rows(A[Aind]),1);
 	}
 
+Bellman::InSS() { return InSubSample; }
 /** .
 @internal
 **/
 Bellman::AutoVarPrint1(task) {
-	print("\n---------------\n","%r",{"Index","IsTerm","Aind"}|Slabels[S[endog].M:S[clock].X],"%cf","%6.0f","%c",{"Integers"},
-		ind[tracking]|IsTerminal|Aind|task.state[S[endog].M:S[clock].X],
-	"EV = ","%14.5f",EV[ind[onlyrand]],"\n Pstar",pandv[ind[onlyrand]],"FeasS","%v",Nxt[Qi],"Prob","\n","%v",Nxt[Qrho]);
+	print("\n---------------\n","%c",{"Index","IsTerm","InSamp","Aind"}|Slabels[S[endog].M:S[clock].X],"%7.0f","%r",{"Values"},
+		ind[tracking]~IsTerminal~InSubSample~Aind~ ( isclass(task) ? (task.state[S[endog].M:S[clock].X])' : 0 ),
+	"%r",{"EV"},EV',"pandv=","%v",pandv,"%r",{"FeasS","Prob"},Nxt[Qi][]|Nxt[Qrho][]);
+    println("*** ",InSubSample," ",this.InSubSample);
 	}
 	
 /** . @internal **/

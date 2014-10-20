@@ -2,7 +2,7 @@
 
 DynamicRoy::Replicate()	{
 	decl i, BF, KW,OutMat, AMat, BMat;	
-	Initialize(Reachable,FALSE,0);
+	Initialize(Reachable,TRUE,0);
 	SetClock(NormalAging,A1);
     SubSampleStates(constant(0.95,1,3)~constant(0.95,1,A1-3));
 	Actions(accept = new ActionVariable("Accept",Msectors));
@@ -20,6 +20,7 @@ DynamicRoy::Replicate()	{
 //	BF -> Solve();
 //	DPDebug::outV(FALSE,&AMat);
 	KW = new KeaneWolpin();
+	KW.Volume = NOISY;
 	KW -> Solve();
 //	DPDebug::outV(FALSE,&BMat);
 //    println("difference ","%c",{"EV","Choice Probs"},(BMat-AMat)[][columns(BMat)-Msectors-1:]);

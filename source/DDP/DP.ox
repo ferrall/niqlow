@@ -456,7 +456,8 @@ DP::CreateSpaces() {
   	V = new matrix[1][SS[bothexog].size];
 
 	if (Volume>SILENT)	{		
-		println("\n Trimming ","%c",{"N"},"%r",{"    TotalReachable","         Terminal"},"%cf",{"%10.0f"},NReachableStates|NTerminalStates);
+		println("\nTRIMMING AND SUBSAMPLING","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated","          tfirsts"},
+                "%cf",{"%10.0f"},NReachableStates|NTerminalStates|Approximated | (UseStateList? tfirst : 0)  );
 		println("\nACTION SETS");
 		av = sprint("%-14s","    alpha");
 		for (i=0;i<J;++i) av ~= sprint("  A[","%1u",i,"]   ");
@@ -1013,11 +1014,24 @@ DPDebug::outV(ToScreen,aM,MaxChoiceIndex) {
 	delete rp;
 	}
 
+DPDebug::outAutoVars() {
+	decl rp = new OutAuto();
+	rp -> Traverse(DoAll);
+	delete rp;
+	}
+
 DPDebug::Initialize() {
     sprintbuffer(16 * 4096);
 	prtfmt0 = Sfmts[:2]|Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%15.6f";
 	Vlabel0 = {"Index","T","A"}|Slabels[S[endog].M:S[clock].M]|" rind "|"        EV      |";
 	}
+
+DPDebug::DPDebug() {
+	Task();
+	left = S[endog].M;
+	right = S[clock].M; //don't do tprime
+    subspace=tracking;
+    }
 
 /** Save the value function as a matrix and/or print.
 @param ToScreen  TRUE, print to output (default)
@@ -1025,10 +1039,7 @@ DPDebug::Initialize() {
 @param MaxChoiceIndex FALSE &eq; print choice probability vector (default)<br>TRUE &eq; only print index of choice with max probability.  Useful when the full action matrix is very large.
 **/
 SaveV::SaveV(ToScreen,aM,MaxChoiceIndex) {
-	Task();
-	left = S[endog].M;
-	right = S[clock].M; //don't do tprime
-    subspace=tracking;
+    DPDebug::DPDebug();
 	this.ToScreen = ToScreen;
     this.MaxChoiceIndex = MaxChoiceIndex;
 	Vlabels = Vlabel0 | (MaxChoiceIndex ? {"index" | "maxP*" | "sum(P)"} : "Choice Probabilities:");
@@ -1061,4 +1072,11 @@ SaveV::Run(th) {
 		}
 	}
 
-	
+OutAuto::OutAuto(){
+    DPDebug::DPDebug();
+    }
+
+OutAuto::Run(th) {
+	if (!isclass(th,"Bellman")) return;
+    th->AutoVarPrint1(this);
+    }	
