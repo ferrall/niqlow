@@ -3,7 +3,7 @@
 
 /** Value determined <em>exactly</em> by some other value, not chosen by optimization. **/
 struct Determined : Parameter	{
-	Determined(L,v0);
+	Determined(L="",v0=0);
 	Encode();
 	Decode(f);
 	ToggleDoNotVary();
@@ -113,7 +113,7 @@ struct ParameterBlock : Parameter {
 	/** length of block.        	**/   	 		N,
 	/** array of labels.          **/            	PsiL,
 	/** current param in V.  **/   					curpar;
-	ParameterBlock(L,...);
+	ParameterBlock(L="PB",...);
 	AddToBlock(psi,...);
 	ToggleDoNotVary();
 	virtual BlockCode();
@@ -127,6 +127,12 @@ struct FixedBlock : ParameterBlock	{
 	Encode();
 	Decode(f);
 	}
+
+///** Create a block of parameters that duplicates the type sent as the first argument.**/
+//struct Duplicate : ParameterBlock {
+//    Duplicate(base,ivals)
+//	BlockCode();
+//    }
 	
 /** Vector of <code>J</code> probabilities that sum to 1.
 <dd><pre>

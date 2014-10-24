@@ -215,7 +215,7 @@ struct DataSet : Panel {
 	LoadOxDB();
 	Observed(aORs, LorC,...);
 	UnObserved(aORs,...);
-	Read(fn);
+	Read(fn,SearchLabels=FALSE);
 	IDColumn(lORind);
 	Summary(data,rlabels=0);
 	virtual EconometricObjective();

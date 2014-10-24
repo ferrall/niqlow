@@ -173,7 +173,7 @@ Forget::UnReachable(clock) {
 /**Create a standard normal N(0,1) discretize jump variable. **/
 Zvariable::Zvariable(L,Ndraws) { SimpleJump(L,Ndraws); }
 
-Zvariable::Update() {	actual = DiscreteNormal (N, 0.0, 1.0);	}
+Zvariable::Update() {	actual = DiscreteNormal (N, 0.0, 1.0)';	}
 
 /**Create a variable that jumps with probability
 @param L label
@@ -245,7 +245,7 @@ actual = 0 ~ exp{ &sigma;&Phi;<sup>-1</sub>(v/N)+ &mu;}
 @see AV
 **/
 LogNormalOffer::Update() {
-	actual = 0 ~ exp(DiscreteNormal(N-1,CV(mu),CV(sigma)));
+	actual = 0 | exp(DiscreteNormal(N-1,CV(mu),CV(sigma)))';
 	}
 
 /** Create a state variable that increments or decrements with state-dependent probabilities.

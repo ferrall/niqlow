@@ -27,10 +27,10 @@ Free::Free(L,v0)	{	Parameter(L,v0); }
 **/ 	
 Free::Encode()	{
 	if (!isint(block)) block->BlockCode();
+    v = start;
 	if (DoNotConstrain)
-		{v = start; scale =  1.0; f = v;}
+		{scale =  1.0; f = v;}
 	else {
-		v = start;
 		scale = fabs(start)<NearFlat ? 1.0 : start;
 		f = start / scale;
 		}
@@ -109,10 +109,11 @@ BoundedAbove::Encode()	{
 	decl UB = CV(this.UB);
 	if (start>= UB) oxrunerror("Bounded from below parameter "+L+" must start strictly below "+sprint(CV(UB)));
 	if (fabs(start-UB+1.0)< NearFlat) println("Warning: bounded parameter ",L," starting close to UB-1,","%12.9f",start);
+    v = start;
 	if (DoNotConstrain)
-		{v = start; scale =  1.0; f = v;}
+		{scale =  1.0; f = v;}
 	else
-		{v = start; scale =  log(UB-start); f = 1.0;}
+		{scale =  log(UB-start); f = 1.0;}
 	return DoNotVary ? .NaN : f;
 	}
 	
@@ -126,8 +127,8 @@ BoundedAbove::Decode(f)	{
 
 /** Create a parameter bounded above and below.
 @param L parameter label
-@param LB double or Parameter, the lower bound
-@param UB double or Parameter, the upper bound
+@param LB double or `Parameter`, the lower bound
+@param UB double or `Parameter`, the upper bound
 @param v0 `CV` compatible default value, v<sub>0</sub>
 **/
 Bounded::Bounded(L,LB,UB,v0)	{
@@ -142,10 +143,11 @@ Bounded::Encode()	{
 	decl LB = CV(this.LB),  UB = CV(this.UB);
 	if (start<= LB || start>=UB) oxrunerror("Bounded  parameter "+L+" must start strictly between "+sprint(CV(LB))+" and "+sprint(CV(UB)));
 	if (fabs(start-(LB+UB)/2)< NearFlat) println("Warning: bounded parameter ",L," starting close to midpoint of range,","%12.9f",start);
+    v = start;
 	if (DoNotConstrain)
-		{v = start; scale =  1.0; f = v;}
+		{scale =  1.0; f = v;}
 	else
-		{v = start; scale =  log((start-LB)/(UB-start)); f = 1.0;}
+		{scale =  log((start-LB)/(UB-start)); f = 1.0;}
 	return DoNotVary ? .NaN : f ;
 	}
 
@@ -223,19 +225,24 @@ ParameterBlock::ToggleDoNotVary() {
 	}
 
 FixedBlock::FixedBlock(L,v0) {
-	decl i;
+	decl i,v;
 	ParameterBlock(L);
+	foreach(v in v0[i]) AddToBlock(new Determined(L+sprint(i),v));
 	for(i=0;i<sizeof(v0);++i) AddToBlock(new Determined(L+sprint(i),v0[i]));
 	}
 	
 FixedBlock::Encode() { return constant(.NaN,N,1); }
 	
+//Duplicate::Duplicate(base,invals) {    }
+
 /**Create a simplex of parameters.
-0&lt; x<sub>i</sub> &lt; 1<br>
+<DD><pre>
+0&lt; x<sub>i</sub> &lt; 1
 &sum<sup>N</sub><sub>i=1</sub> x<sub>i</sub> = 1.
+</pre></DD>
 @param L label
 @param ivals integer: dimension of simplex<br>OR<br>N&times;1 vector, initial values
-@comment if ivals is an integer N, then the simplex is initialized as 1/N
+@comments if ivals is an integer N, then the simplex is initialized as 1/N
 **/
 Simplex::Simplex(L,ivals)	{
 	decl k,myN;
@@ -265,8 +272,10 @@ Simplex::BlockCode()	{
 	}
 
 /**Create a vector of decreasing returns to scale Cobb-Douglas coefficients.
+<dd><pre>
 0&lt; x<sub>i</sub> &lt; 1<br>
 &sum<sup>N</sub><sub>i=1</sub> x<sub>i</sub> &lt; 1.
+</pre></dd>
 @param L label
 @param ivals integer: dimension of simplex<br>OR<br>N&times;1 vector, initial values
 **/
@@ -291,7 +300,9 @@ DecreasingReturns::BlockCode()	{
 	}
 	
 /**Create an increasing vector of  parameters.
+<dd><pre>
 LB &lt; x<sub>1</sub> &lt; x<sub>2</sub> &lt; &hellip; &lt; x<sub>N</sub>
+</pre></dd>
 @param L label
 @param LB lower bound for first variable, a double, `Parameter` or static function<br>send -.Inf to make the first parameter free
 @param ivals integer, dimension of sequence<br>OR<br>N&times;1 vector of initial values
@@ -306,7 +317,6 @@ Increasing::Increasing(L,LB,ivals)	{
 		{ myN = ivals;  ivals = (ffree ? 0 : CV(LB)) +1.1*range(1,myN);}
 	else
 		{ivals = vec(ivals); myN = rows(ivals);}
-//	println(CV(LB),ivals);
 	if (any(ivals|.Inf.<=CV(LB)|ivals)) oxrunerror("Increasing Sequence "+L+" initial values not valid");
 	prevpsi = LB;
 	Psi = {};

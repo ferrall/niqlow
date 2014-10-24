@@ -173,7 +173,8 @@ DP::Actions(Act1,...) 	{
 	for(i=0;i<sizeof(va);++i)	{
 		va[i].pos = pos;
 		AA |= va[i].N;
-		sL = va[i].L[:min(4,sizec(va[i].L)-1)];
+//		sL = va[i].L[:min(4,sizec(va[i].L)-1)];
+		sL = va[i].L;
 		if (!pos) {
 			ActionMatrix = va[i].vals';
 			Alabels = {sL};
@@ -370,7 +371,8 @@ DP::CreateSpaces() {
 		for(m=0;m<sizeof(SubVectors[subv]);++m,++pos) {
 			SubVectors[subv][m].pos = pos;
 			States |= SubVectors[subv][m];
-			sL = SubVectors[subv][m].L[:min(4,sizec(SubVectors[subv][m].L)-1)];
+//			sL = SubVectors[subv][m].L[:min(4,sizec(SubVectors[subv][m].L)-1)];
+			sL = SubVectors[subv][m].L;
 			if (ismember(bb=SubVectors[subv][m],"block"))  			
 				bb.block.Theta[bb.bpos] = pos;
 			Slabels |= sL;

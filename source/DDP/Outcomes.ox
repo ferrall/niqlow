@@ -562,6 +562,7 @@ DataSet::IDColumn(lORind) {
 	list[0]->Observed(lORind);
 	}
 
+	
 /** Mark action  and state variables as observed in data.
 @param aORs `Discrete` object, either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
 			one of the state vectors<br>
@@ -923,7 +924,7 @@ DataSet::LoadOxDB() {
 							: .NaN;
 			}
 		for(s=0;s<Naux;++s)
-			curd[inaux][1][s] = (list[1+Nav+NS+s].obsv)
+			curd[inaux][0][s] = (list[1+Nav+NS+s].obsv)
 						? data[row][list[1+Nav+NS+s].incol]
 						: .NaN;
 		if (curd[inid]!=curid) {	// new path on possibly new FPanel
@@ -946,6 +947,7 @@ DataSet::LoadOxDB() {
 	
 /** Load outcomes into the data set from a (long format) file.
 @param fn string, file name with extension that can be read by <code>OX::Database::Load</code>
+@param SearchLabels TRUE: search data set labels and use any matches as observed.
 
 @example
 <pre>
@@ -954,15 +956,25 @@ DataSet::LoadOxDB() {
 </pre></dd>
 
 **/
-DataSet::Read(fn) {
+DataSet::Read(fn,SearchLabels) {
 	if (FNT) oxrunerror("Cannot read data twice into the same data set. Merge files if necessary");
-	decl i,s0=1+Nav-1;
-	for (i=S[fgroup].M;i<=S[fgroup].X;++i)
-		if (!list[s0+i].obsv && !list[s0+i].force0) oxrunerror("Fixed Effect Variable "+sprint(list[s0+i].obj.L)+" must be observed or have N=1");
 	cputime0=timer();
 	source = new Database();
 	if (!source->Load(fn)) oxrunerror("Failed to load data from "+fn);
 	if (!list[0].obsv) oxrunerror("Must call DataSet::IDColumn to set column of ID variable before reading");
+	if (SearchLabels) {
+		decl lnames,mtch, i,j;
+		lnames = source->GetAllNames();
+		mtch = strfind(lnames,Slabels);
+		foreach(i in mtch[j]) if (i!=NoMatch) Observed(States[j],i);
+		mtch = strfind(lnames,Alabels);
+		foreach(i in mtch[j]) if (i!=NoMatch) Observed(SubVectors[acts][j],i);
+		mtch = strfind(lnames,Auxlabels);
+		foreach(i in mtch[j]) if (i!=NoMatch) Observed(Chi[j],i);
+		}
+	decl i,s0=1+Nav-1;
+	for (i=S[fgroup].M;i<=S[fgroup].X;++i)
+		if (!list[s0+i].obsv && !list[s0+i].force0) oxrunerror("Fixed Effect Variable "+sprint(list[s0+i].obj.L)+" must be observed or have N=1");
 	LoadOxDB();
 	masked = TRUE;
 	delete source;
