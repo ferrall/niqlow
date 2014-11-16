@@ -57,7 +57,8 @@ ZurcherHat::SecondStage() {
 **/
 BusData::BusData(method) {
 	DataSet("Zurcher",method,TRUE);
-	Observed(Zurcher::x,"x",Zurcher::d,"d");
+	MatchToColumn(Zurcher::x,"x");
+    MatchToColumn(Zurcher::d,"d");
 	IDColumn("id");
 	Read("RustEmet1987.dta");	
 	}

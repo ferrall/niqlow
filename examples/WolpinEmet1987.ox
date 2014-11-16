@@ -2,7 +2,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 
 SchToWork::Replicate() {
-	Initialize(new ActionVariable("accept",2),SchToWork::Reachable); // 10.0;
+	Initialize(SchToWork::Reachable,new ActionVariable("accept",2)); // 10.0;
 	SetClock(NormalAging,T+k+tau);
 	SetDelta(pars[delt]);
 	EndogenousStates(done = new LaggedAction("done",d));
@@ -11,7 +11,7 @@ SchToWork::Replicate() {
 	CreateSpaces();
 	decl RV = new ReservationValues(-.Inf,-1) ;
 	RV.Volume = LOUD;
-	RV -> Solve(0,0);
+	RV -> Solve();
 	}
 
 SchToWork::Reachable() {
@@ -29,7 +29,7 @@ SchToWork::FeasibleActions(Alpha) {
 			: Alpha[].==0;    //no offer
 	}
 	
-SchToWork::Poff() { decl d=max(0,curt-k-1); 	return d ? probn(pars[m0]+pars[m1]*d) : pars[P0] ; }
+SchToWork::Poff(...) { decl d=max(0,curt-k-1); 	return d ? probn(pars[m0]+pars[m1]*d) : pars[P0] ; }
 
 SchToWork::Udiff(z) {
 	if (CV(done)) return 0.0;

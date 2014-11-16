@@ -9,11 +9,11 @@ vpath %.h $(INC)
 vpath %.oxo $(INC)
 vpath %.ox.html ../../doc/DDP
 
-varsrc := Shared. ActionVariable. StateVariable. Clock. TimeInvariant.
+varsrc := Shared. ActionVariable. StateVariable. Clock. TimeInvariant. AuxiliaryValues.
 varobj = $(varsrc:.=.oxo)
-dppsrc := DP. Bellman. Outcomes. Methods. DPDebug.
+dppsrc := DP. Bellman. Outcomes. Methods. DPDebug. Prediction.
 dppobj = $(dppsrc:.=.oxo)
-dpsrc := DPAuxiliary. Variables.
+dpsrc := Variables.
 dpobj = $(dpsrc:.=.oxo)
 
 xtradoc = DDP.ox GetStarted GetStartedData $(varsrc:.=.ox) $(dppsrc:.=.ox) $(dpsrc:.=.ox)
@@ -33,7 +33,7 @@ clean:
 	$(info $(CURDIR))
 	$(ERASE) $(INC)/DDP.oxo
 	$(ERASE) $(INC)/DP.oxo
-	$(ERASE) $(INC)/DPAuxiliary.oxo
+	$(ERASE) $(INC)/AuxiliaryValues.oxo
 	$(ERASE) $(INC)/StateVariable.oxo
 	$(ERASE) $(INC)/Variables.oxo
 	$(ERASE) $(INC)/Clock.oxo
@@ -42,6 +42,7 @@ clean:
 	$(ERASE) $(INC)/Bellman.oxo
 	$(ERASE) $(INC)/Methods.oxo
 	$(ERASE) $(INC)/Outcomes.oxo
+	$(ERASE) $(INC)/Prediction.oxo
 	$(ERASE) $(INC)/DPDebug.oxo
 		
 .PHONY : document

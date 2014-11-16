@@ -2,19 +2,24 @@
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 
 OptTestRun() {
-	println("\n\n***************** A. Blackbox Test *****************\n");
-	BBTest();
-	println("\n\n***************** B. Simplex Test *****************\n");
-	SimpTest();
-	println("\n\n***************** C. System Test *****************\n");
-	SysTest();
-	println("\n\n***************** D. Separable Test *****************\n");
-	SepTest();
-	println("\n\n***************** E. Inequality Test *****************\n");
-	InEqTest();
-	println("\n\n***************** F. Mixture Test *****************\n");
-	MixTest();
+decl s = "***************** ";
+	println("\n\n",s,"A. Explore Test ",s,"\n");    new Nothing(20);
+	println("\n\n",s,"A. Blackbox Test ",s,"\n");	BBTest();
+	println("\n\n",s,"B. Simplex Test ",s,"\n");   SimpTest();
+	println("\n\n",s,"C. System Test ",s,"\n");    SysTest();
+	println("\n\n",s,"D. Separable Test ",s,"\n"); SepTest();
+	println("\n\n",s,"E. Inequality Test ",s,"\n"); InEqTest();
+	println("\n\n",s,"F. Mixture Test ",s,"\n"); MixTest();
 	}
+
+Nothing::Nothing(Ncalls) {
+    alphas = new Simplex("alph",3);
+    Explore(this,Ncalls,alphas);
+    }
+
+Nothing::Solve() {
+    println(".");
+    }
 
 Rosenbrock ::Rosenbrock (fn)	{
 	BlackBox("Test of Blackbox");
@@ -99,14 +104,16 @@ InEqTest() {
 	println("\n\n  SQP Optimization With an Inequality Constraint");
 	decl v = new OnCircle(),
 		 alg = new SQP(v);
-	alg.Volume = LOUD;
+    v.Volume=NOISY;
+	alg.Volume = NOISY;
+    alg->Tune(10);
 	alg->Iterate(0);
 	delete v,alg;
 	}
 
 OnCircle::OnCircle() {
 //	Constrained("Stay on the Circle",{"2-x*x-y*y"},0);
-	Constrained("Circle",1,0);
+	Constrained("Circle",1,0); //1,0
 	x = new Positive("x",0.75);
 	y = new Positive("y",0.75);
 	Parameters(x,y);  //,z
@@ -119,7 +126,8 @@ OnCircle::vfunc() {
 //	decl a = sqr(AV(x)), b= sqr(AV(y)), c = sqr(AV(z));
 //	decl ff = a+2*b+c+a*b+a*c;
 //	return ff;
-    return -0.3*log(AV(x))-0.7*log(AV(y));
+//    return ( 0.3*log(AV(x))+0.7*log(AV(y)) );
+    return AV(x)^0.50 * AV(y)^0.50;
 	}	
 
 //OnCircle::equality() {
@@ -130,6 +138,7 @@ OnCircle::vfunc() {
 
 
 OnCircle::equality() {
+//	return matrix( 2*0.75-(AV(x)+AV(y)) );
 	return matrix( 2*sqr(0.75)-(sqr(AV(x))+sqr(AV(y))) );
 	}
 
@@ -153,7 +162,7 @@ SimpTest() {
 	}
 	
 MX::MX() {
-	decl myD = rows(pi),myK=columns(pi)+1,d;
+	decl myD = rows(pi),myK=columns(pi),d;  //columns(pi)+1 ???
 	data = new array[myD];
 	Mixture("Normal Mixture",myD,2,SimplexWeights,reshape(<0.4;0.6>,2,2));
 	NvfuncTerms = N;
@@ -171,8 +180,8 @@ MX::vfunc() {
 MixTest() {
 	decl O = new MX(), d = new NelderMead(O);
 	O->Encode(0);
-	O.Volume = LOUD;
+	d.Volume = O.Volume = NOISY;
   	O->vobj(0);
-	println(O.cur.v);
+	println("*** ",O.cur.v);
 	d->Iterate(0);
 	}

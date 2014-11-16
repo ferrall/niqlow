@@ -21,7 +21,7 @@ Search::Run()	{
 	meth = new ValueIteration();
 	meth.Volume = LOUD;
 	meth -> Solve();
-	Delete();
+//	Delete();
 	}
 Search::Reachable()	{
 	return new Search();

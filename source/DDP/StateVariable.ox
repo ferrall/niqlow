@@ -47,7 +47,7 @@ with the kind of state variable.
 
 @return  a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
 matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
-The built-in transit returns <code> &gt;0&lt; , ones(rows(FeasA),1) }</code>.  That is the with
+The built-in transit returns <code> &lt;0&gt; , ones(rows(FeasA),1) }</code>.  That is the with
 probability one the value of the state variable next period is 0.
 
 **/
@@ -150,7 +150,7 @@ Freeze::Transit(FeasA) {
 /** Create an augmented state variable that 'forgets' its value when a permanent condition occurs.
 @param b base `StateVariable` to augment
 @param pstate `PermanentChoice` state variable that triggers the forgetting
-@param rval integer between 0 and b.N-1, the value once forgotten.
+@param rval integer between <code>0</code> and <code>b.N-1</code>, the value once forgotten.
 @comments
 `Forget::UnReachable`() prunes the state space accordingly
 **/
@@ -285,7 +285,7 @@ Deterministic::Transit(FeasA)
 @comments
 The variable will only take on the value 0.  This can be used to hold
 a place for a variable to be added later.
-@example <pre>?? = new ??("",);</pre>
+@example <pre>f = new Fixed("gender");</pre>
 **/
 Fixed::Fixed(L) 	{	StateVariable(L,1);	}
 
@@ -352,7 +352,6 @@ PermanentChoice::PermanentChoice(L,Target) {
 PermanentChoice::Transit(FeasA) {
 	if (v) return UnChanged(FeasA);
     return LaggedAction::Transit(FeasA);
-	;
 	}	
 	
 /** .

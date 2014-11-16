@@ -10,6 +10,12 @@ SepTest();
 SimpTest();
 MixTest();
 
+struct Nothing {
+    static decl alphas;
+    Nothing(Ncalls);
+    Solve();
+    }
+
 struct Rosenbrock : BlackBox {
 	decl x,y;
 	Rosenbrock(fn);

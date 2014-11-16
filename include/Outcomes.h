@@ -5,7 +5,6 @@ static const decl PathID = "path", FPanelID="Fxed", PanelID = "Panel";
 
 /** A single realization of a discrete DP. **/
 struct Outcome : Task {
-	enum {inid,inact,instate,inaux,ExternalData}
 	/** . @internal **/
 	static	const decl
 			fixeddim = <onlyendog,tracking,onlyclock,onlyrand,onlyfixed,bothgroup>,
@@ -55,7 +54,7 @@ struct Path : Outcome {
 			decl
 		/** . @internal **/								cur,
 		/** Next Path in a `Panel`. @internal **/		pnext,		
-		/** lenth of the path. **/						T,
+/** lenth of the path. **/						T,
 		/** likelihood of the path.**/					L,
 		/**	Last `Outcome` in the path. @internal **/	last;
 			Path(id,state0);
@@ -63,7 +62,7 @@ struct Path : Outcome {
 	virtual	Simulate(T,UseChoiceProb=TRUE,DropTerminal=FALSE);
 	        Likelihood();
 			FullLikelihood();
-			PathLike();
+			PathObjective();
 			ReadObs(data);
 			Mask();
 	virtual	Flat();
@@ -71,12 +70,13 @@ struct Path : Outcome {
 			Append(observed);
 	}
 
-struct RandomEffectsLikelihood : RETask {
+struct RandomEffectsIntegration : RETask {
 	decl path, L;
-	RandomEffectsLikelihood();
+	RandomEffectsIntegration();
 	Integrate(path);
 	Run(g);
 	}
+
 	
 /** A list of `Path`s sharing the same fixed effect.
 A singly-linked list of `Path`s.
@@ -103,7 +103,7 @@ struct FPanel : Path {
 	virtual Simulate(N, T,ErgOrStateMat=0,DropTerminal=FALSE);
 	        LogLikelihood();
             FullLogLikelihood();
-
+            GMMdistance();
 	virtual Collapse(cond,stat);
 			Append(i);
 	}
@@ -121,8 +121,6 @@ struct Panel : FPanel {
 											fparray,
 	/** total paths. **/                    FN,
 	/** total outcomes in the panel. **/ 	FNT,
-	/** solution method should be called as panel
-		is processed. **/  					Nested,
 	/** . @internal **/						cur,
 	/** panel likelihood vector. **/	 	M,
 	/** matrix representation of panel.
@@ -140,13 +138,12 @@ struct Panel : FPanel {
 
 /** Holds information about a column in the data.
 **/
-struct DataColumn : Zauxilliary {
+struct DataColumn : Zauxiliary {
 	const decl type,
 		 		obj,	
 		 		force0;
 	decl
 		 obsv,
-         instrument,
 		 ind,
 		 incol,
 		 label;
@@ -156,37 +153,6 @@ struct DataColumn : Zauxilliary {
 	ReturnColumn(dlabels,incol);
 	}
 	
-
-/** Predicted distribution across states.
-**/	
-struct 	Prediction : Task {
-	static	decl av, sv, hN, hd, ud, lo, hi, Volume;
-	const  	decl t;
-	decl
-		/** state index **/		sind,
-		/** **/					p,
-		/** **/					ch,
-		/** **/					unch,
-		/** next prediction
-            in the panel **/	pnext,
-       /** histogram     **/    hvals,
-								hist;
-	Prediction(prev);
-	Predict();
-	Histogram();
-	}
-
-/** A panel of predicted outcomes.
-**/
-struct 	PanelPrediction : Prediction {
-	decl
-    /** the current prediction **/  cur,
-    /** length of the panel. **/    T;
-	PanelPrediction(iDist=0);
-	~PanelPrediction();
-	Predict(T=1,printit=FALSE);
-	Histogram(var,printit=TRUE,UseDist=TRUE);
-	}
 
 /** A panel with data-handling tools.
 A data set is designed to hold data for estimation purposes.
@@ -199,7 +165,7 @@ See <a href="../FiveO/Objective.ox.html#PanelBB">PanelBB</a>.
 
 **/
 struct DataSet : Panel {
-	const decl 										
+	const decl 										low,
     /** Label for the data set. **/                 label;
 	decl											
     /**How much output to produce.
@@ -213,17 +179,12 @@ struct DataSet : Panel {
 	~DataSet();
 	Mask();
 	LoadOxDB();
-	Observed(aORs, LorC,...);
+	MatchToColumn(aORs, LorC);
+//    Observed(as1,lc1,...);
+    ObservedWithLabel(as1,...);
 	UnObserved(aORs,...);
 	Read(fn,SearchLabels=FALSE);
 	IDColumn(lORind);
 	Summary(data,rlabels=0);
 	virtual EconometricObjective();
 	}
-
-struct EmpiricalMoments : DataSet {
-    const decl StdInst;
-    EmpiricalMoments(label="",method=0,StdInst=TRUE);
-    Instruments(LorC,...);
-	virtual EconometricObjective();
-    }

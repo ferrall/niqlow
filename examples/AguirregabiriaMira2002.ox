@@ -27,7 +27,7 @@ ZPanel::ZPanel(params,const ivals) {
 	DataSet(0,EM,TRUE);
 	Simulate(MCSampleSize,PanelLength,0,0);
     IDColumn("ID");
-    Observed(AMZurcher::x,UseLabel,AMZurcher::d,UseLabel);
+    ObservedWithLabel(AMZurcher::x,AMZurcher::d);
 	lnlk = new PanelBB("ZurcherMLE",this,params);
 	lnlk.Volume = LOUD;
 	lnlk.Encode(ivals);

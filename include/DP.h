@@ -1,11 +1,10 @@
-/* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
 #import "Variables"
-#import "DPAuxiliary"
+/* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
 
 static decl
-/** &Gamma; array (list) of groups of fixed and random effects. **/ Gamma,
-/** 2-d array pointing to &Gamma;. **/								Fgamma,
-/** &Theta; array (list) of all endogenous state nodes.**/  		Theta;
+        /** &Gamma; array (list) of groups of fixed and random effects. **/ Gamma,
+        /** 2-d array pointing to &Gamma;. **/								Fgamma,
+        /** &Theta; array (list) of all endogenous state nodes.**/  		Theta;
 
 		/** Categories of state variables.	@name StateTypes**/	
 enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTEDV,NStateTypes}
@@ -16,7 +15,10 @@ enum {onlyacts,onlyexog,onlysemiexog,bothexog,onlyendog,tracking,onlyclock,allst
 		/** . @name Vspace  **/
 enum {NOW,LATER,DVspace}
 
-        /** When updating of parameters and transitions needs to occur. @see DP::SetUpdateTime @name UpdateTimes **/
+        /** Kinds of variables in data sets. @name DataColumnTypes **/
+enum{idvar,avar,svar,auxvar,NColumnTypes}
+
+        /** Point in solving when updating of parameters and transitions needs to occur. @see DP::SetUpdateTime @name UpdateTimes **/
 enum {OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
 
 		/** Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.
@@ -26,8 +28,77 @@ enum {OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
          @name SmoothingMethods**/	
 enum { NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods}
 
+/**Stores information on a set of state variables, such as &theta; **/
+struct Space : Zauxiliary	{
+	decl
+    /** dimension of the space.   **/                   D,
+    /** # of values state variables take on.  **/       N,
+    /** cumulative product of N. **/                    C,
+    /** maX indices of var group in state vector. **/   X,
+    /** Min indices of  var group in state vector.**/   M,
+    /** product of VN over VM[] to VX[].   **/ 			size;
+	Space(); 	
+    }
 
-/** . @name DataColumnTypes **/ enum{idcol,acol,scol,auxcol,NColumnTypes}
+/**Stores information on a set of spaces, such as reality or treatment **/
+struct SubSpace : Zauxiliary  {
+	static	decl
+												ClockIndex,
+	/** shared length of vector   **/			Tlength,
+	/** shared spaces   **/						S;
+	decl	
+	/** # of dimensions**/    				D,
+	/** # of elements **/     				size,
+	/** vector of offsets**/  				O,		
+	/** . @internal **/						left,
+	/** . @internal **/						right;	
+	SubSpace(); 	
+	Dimensions(subs,UseLast);
+	ActDimensions();
+	} 	
+
+/** Indicators related to the DP problem.
+All elements are static and now object is created.
+A user's code can reference these variables but should never change them.
+**/
+struct Flags : Zauxiliary {
+	static decl
+		/** CreateSpaces() has been called or not.  **/ 		ThetaCreated,
+		/** . @internal **/										Warned,
+		/** . **/												UseStateList,
+		/** create space to store &Rho;* **/  					IsErgodic,
+        /** UpdateVariables() has been called. **/              HasBeenUpdated,
+		/** &Gamma; already includes fixed effects **/			HasFixedEffect,
+        /** Indicators for when transit update occurs.
+            @see DP::SetUpdateTime **/                          UpdateTime,
+		/** TRUE if &gamma exists. @internal**/					GroupExists,
+		/** .@internal **/			                             DoSubSample,
+		/**  store &Alpha.D x &Theta.D matrix
+			of choice probabilities  **/  						StorePA,
+		/** set &Rho;*(<code>&alpha;</code>|&hellip;)
+            in Bellman		**/		                            setPstar;
+    static Reset();
+    }
+
+/** Numbers and sizes of vectors related to the dynamic program.
+All elements are static and now object is created.
+A user's code can reference these variables but should never change them.
+**/
+struct N : Zauxiliary {
+    static decl
+		/** number of groups, &Gamma;.D      **/				      G,
+		/** **/													      F,
+		/** number of random groups **/							      R,
+		/** number of all state variables. **/						  S,
+		/** &Alpha;.N=rows(ActionMatrix), N unconstrained actions.**/ A,
+		/** columns(ActionMatrix), action variables **/			      Av,
+		/** Number of different action sets.    **/      		      J,
+		/** number of auxiliary variables, sizeof of `DP::Chi` **/	  aux,
+		/**  Count of reachable states.  **/   	                      TerminalStates,
+    	/**  Count of reachable states.  @internal **/  		      ReachableStates,
+         /** Number of states approximated (not subsampled).**/       Approximated;
+    static Reset();
+    }
 
 /** Static elements shared by the user model, groups and data.
 
@@ -35,36 +106,17 @@ The  base class for the DDP framework.
 
 **/
 struct DP {
-	static const decl
-	/**  formatting string. @internal 	  **/ 		sfmt = "%4.0f";
+	static const decl      /**  formatting string. @internal 	  **/ 		sfmt = "%4.0f";
 	static decl
-		/** CreateSpaces has been called or not.  **/ 		    ThetaCreated,
-		/** . @internal **/										Warned,
-		/** . **/												UseStateList,
-		/** uninitialized state. @internal  **/  				NN,
-		/** number of groups, &Gamma;.D      **/				NG,
-		/** **/													NF,
-		/** number of random groups **/							NR,
+		/** uninitialized state. @internal  **/  				AllN,
         /** category of clock. @see ClockTypes, DP::SetClock**/ ClockType,
 		/** counter variable.	@see DP::SetClock **/			counter,
 		/**	counter.t.N, the decision horizon.    **/  			TT,
-		/** create space to store &Rho;* **/  					IsErgodic,
-        /** UpdateVariables() has been called. **/              HasBeenUpdated,
-		/** &Gamma; already includes fixed effects **/			HasFixedEffect,
-        /** Indicators for when transit update occurs.
-            @see DP::SetUpdateTime **/                          UpdateTime,
 		/**  . @internal **/									ReachableIndices,
-    	/**  Count of reachable states.  @internal **/  		NReachableStates,
-		/**  store &Alpha.D x &Theta.D matrix
-			of choice probabilities  **/  						StorePA,
 		/**   matrix of offsets. @internal    **/  				OO,
 		/**   array of subvectors.  @internal **/  				S,
 		/**   array of subspaces . @internal  **/  				SS,
 		/** List of State Variables (in order).**/ 				States,
-		/** . **/												NS,
-		/** &Alpha;.N=rows(ActionMatrix), N unconstrained actions.**/ NA,
-		/** columns(ActionMatrix), action variables **/			Nav,
-		/** Number of different action sets.    **/      		J,
 		/** action sizes.         **/  				            AA,
 		/** matrix of all action vectors, A.  **/		        ActionMatrix,
 		/** list of feasible action matrices.  **/ 	            Asets,
@@ -74,12 +126,10 @@ struct DP {
 		automatically updated.  **/	                            A,
 		/** List of `StateBlock`s. @internal**/					Blocks,
 		/** List of SubVectors. @internal **/ 					SubVectors,
-    	/** array of state variable labels.   **/       		Slabels,
-    	/** array of action variable labels.  **/       		Alabels,
-		/** auxiliary labels .**/								Auxlabels,
+        /** arrays of labels of variable objects.**/            Vlabels,
+        /** abbreviated labels of variable objects.**/          Vprtlabels,
 		/** . @internal **/										cputime0,
 		/** .  @internal    **/                   				Sfmts,
-		/** . @internal **/										Vlabels,
 		/** Output level. @see NoiseLevels **/ 					Volume,
 		/** index of current fixed group. **/					find,
         /** index of current random group. **/					rind,
@@ -93,18 +143,14 @@ struct DP {
 		/** The discount factor &delta;.  @see DP::SetDelta **/ delta,
 		/**  Current value of t. @see DP::Gett **/				curt,
 		/**  . @internal **/      								tfirst,
-		/**  Count of reachable states.  **/   	                NTerminalStates,
 		/** Array of Exogenous next state indices
 			and transitions. **/ 					            NxtExog,
 		/** . @internal  				**/    					F,
 		/** . @internal						**/    				P,
 		/** . @internal            **/ 			 				now,
 		/** . @internal           **/ 			 				later,
-		/** set &Rho;*(<code>&alpha;</code>|&hellip;)
-            in Bellman		**/		                            setPstar,
 		/** function that returns new state or 0.
             Sent as argument to `DP::Initialize`().**/	        userReachable,
-		/** TRUE if &gamma exists. @internal**/					GroupExists,
 		/** static function called by `DP::UpdateVariables`().
 			The default is `DP::DoNothing`().  The user can
 			assign a static function to this variable to
@@ -129,16 +175,13 @@ struct DP {
 			`DP::alpha`. **/ 	                                zeta,
 		/** current realized auxiliary vector, &chi;,
 			only set during simulation of realized paths. **/ 	chi,
-	/** list of `AuxiliaryVariable`s that depend on the current outcome.
-		`AuxiliaryVariable::Realize`() is called by `Bellman::Simulate`()
+	/** list of `AuxiliaryValues`s that depend on the current outcome.
+		`AuxiliaryValues::Realize`() is called by `Bellman::Simulate`()
 		after <code>&alpha;</code>, &zeta; and full state vectors have been set. **/
 																Chi,
-		/** number of auxiliary variables, sizeof of `DP::Chi` **/	Naux,
 		/** FALSE means no subsampling.  Otherwise, pattern of
             subsampling of the state space.
             @see DP::SubSampleStates **/			             SampleProportion,
-         /** Number of states approximated (not subsampled).**/  Approximated,
-		/** .@internal **/			                             DoSubSample,
 		/** . @internal **/										MedianExogState,
 		/** . @internal **/										MESind,
 		/** . @internal **/										MSemiEind,																
@@ -194,7 +237,7 @@ struct Task : DP {
 	/**leftmost variable in state to loop over 				**/		left,
 	/**rightmost variable in state to loop over 			**/		right;
 	decl
-	/**NN&times;1 vector, current &epsilon;&theta;			**/		state,
+	/**N&times;1 vector, current &epsilon;&theta;			**/		state,
 	/**subspace to use for indexing during the task **/				subspace,
 																	iter,
 																	d,
@@ -284,7 +327,7 @@ struct Group : DP {
 struct DPDebug : Task {
 	static const decl
 		div = "------------------------------------------------------------------------------";
-	static decl prtfmt0, prtfmt, SimLabels, Vlabels, MaxChoiceIndex, Vlabel0;
+	static decl prtfmt0, prtfmt, SimLabels, SVlabels, MaxChoiceIndex, Vlabel0;
 	static Initialize();		
 	static outV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE);
     static outAutoVars();

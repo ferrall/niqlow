@@ -25,15 +25,10 @@ Fertility::Replicate()	{
 			println("------------- ",tab," ",row);
 			DPDebug::outV(TRUE,0);
 			PD = new PanelPrediction(0);
+            PD -> Tracking(n,M);
 			PD -> Predict(20);
-			PD -> Histogram(n,TRUE,TRUE);			
-			expbirths = 0.0;
-            cur = PD;
-			for (t=0;t<20;++t) {
-                expbirths += cur.hist[1];
-                cur = cur.pnext;
-			    println("Expected Total Births",t," ",expbirths);
-                }
+            PD -> Histogram(Two);
+			println("%c",PD.tlabels,PD.flat[0]);
 			}
 	}
 

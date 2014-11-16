@@ -2,7 +2,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2014 Christopher Ferrall */
 
 struct DerivedSearch : Search {
-	static decl u, simdata;
+	static decl u, simdata, dd;
 	static Run();
 	}
 
@@ -13,15 +13,19 @@ struct SearchData : DataSet {
 
 DerivedSearch::Run()	{
 	Search::Run();
-	AuxiliaryOutcomes(u = new RealizedUtility());
+	AuxiliaryOutcomes(u = new RealizedUtility()); //,dd = new StateIndicators(p)
     simdata = new SearchData();
+    decl pd = new PathPrediction();
+    pd->Tracking(NotInData,dd);
+    pd->Predict(5);
+    pd->Histogram();
 	}
 
 SearchData::SearchData() {
 	DataSet("Search Data");   //don't re-solve
-	Simulate(N,MaxOb,zeros(NN),TRUE); //TRUE censors terminal states
+	Simulate(N,MaxOb,zeros(AllN),TRUE); //TRUE censors terminal states
 	Print(1);
-	Observed(Search::a,UseLabel,Search::p,UseLabel,Search::d,UseLabel,DerivedSearch::u,UseLabel);
+	ObservedWithLabel(Search::a,Search::p,Search::d,DerivedSearch::u);
 	Mask();
 	println("Vector of likelihoods when offered price is observed:",exp(EconometricObjective()));
 	UnObserved(Search::p);

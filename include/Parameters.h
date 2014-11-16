@@ -192,11 +192,7 @@ x<sup>j</sup> = `Free`()
 
 **/
 struct Coefficients : ParameterBlock	{
-//#ifdef OX7
 	Coefficients(L,ivals,labels=0);
-//#else
-//	Coefficients(L,ivals,labels);
-//#endif
 	}
 
 /** Positive Vector.
@@ -206,9 +202,5 @@ x<sup>j</sup> = `Positive`()
 
 **/
 struct StDeviations : ParameterBlock	{
-//#ifdef OX7
 	StDeviations(L,ivals,labels=0);
-//#else
-//	StDeviations(L,ivals,labels);
-//#endif
 	}

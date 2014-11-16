@@ -19,11 +19,10 @@ struct Algorithm {
 	 /**  top level convergence tolerance **/        	    tolerance,
      /** . @internal **/                                    N,
 															holdF,
-     /** number of restarts (simplex resets). **/			mxstarts,
      /** max. number of evaluations before restarting,
 		default 10<sup>M</sup> . @internal **/				nfuncmax,
      /** Convergence code.  See `ConvergenceResults` **/	convergence;
-	virtual Tune(mxstarts,toler,nfuncmax);
+	virtual Tune(maxiter=0,toler=0,nfuncmax=0);
 	virtual Iterate();
 	Algorithm(O);
     }
@@ -31,7 +30,7 @@ struct Algorithm {
 /** Holds one line try.
 @internal
 **/
-struct LinePoint : Zauxilliary {
+struct LinePoint : Zauxiliary {
 	decl
 	/** step length. **/ step,
 	/** obj value. **/	 v;
@@ -61,11 +60,13 @@ struct LineMax	: NonGradient {
 		
 		LineMax(O);
 		~LineMax();
-		Iterate(Delta,maxiter);
+		Iterate(Delta,maxiter=0);
 		virtual Try(pt,step);
 		Bracket();
 		Golden();
 		}
+
+
 /** Constrained line maximization.
 **/
 struct CLineMax : LineMax {
@@ -92,6 +93,7 @@ struct NelderMead  : NonGradient {
     /** default initial step size. **/	istep = 0.1;
 	/** . @internal **/
 		   		 	decl
+     /** number simplex resets. **/		mxstarts,
     /** . @internal **/					psum,
     /** . @internal **/					plexshrunk,
 	/** current area of plex. **/		plexsize,
@@ -104,6 +106,7 @@ struct NelderMead  : NonGradient {
     /** . @internal **/					atry,
 	/** current step size to create simplex **/		step;
 					
+	    Tune(mxstarts=0,toler=0,nfuncmax=0,maxiter=0);
 		NelderMead(O);
 		SimplexSize();
 		Iterate(iplex=0);
@@ -120,15 +123,22 @@ struct NelderMead  : NonGradient {
 struct SimulatedAnnealing : NonGradient {
 		decl
 		/** cholesky matrix for
-			random parameter change **/		chol,
-		/** current heat **/ 				heat,
+			random parameter change, default I **/  chol,
+		/** current heat default intial =1.0**/ 	heat,
+        /** rate to cool down. default = 0.85 **/   cooling,
+        /** rate to shrink variance.default=0.5**/  shrinkage,
 											holdpt,
 											accept;
-		Tune(maxiter,heat);
+		Tune(maxiter=0,heat=0,cooling=0,shrinkage=0);
 		SimulatedAnnealing(O);
 		Metropolis();
 		Iterate(chol=0);
 	}
+
+struct RandomSearch : SimulatedAnnealing {
+    RandomSearch(O);
+    }
+
 
 /** Gradient based algorithms.
 

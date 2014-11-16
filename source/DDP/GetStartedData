@@ -4,8 +4,9 @@
 
 <h1>A small example based on simulated data </h1>
 <DT>See Also</DT>
-<DD>See <a href="Outcomes.ox.html">Outcomes</a> for other details .  </DD>
-<DD>See <a href="../../examples/RustEmet1987mle.ox.html">Rust Emet 1987 mle</a> for an example of using external data.</DD>
+<DD><a href="Outcomes.ox.html">Outcomes</a> for other details.  </DD>
+<DD><a href="../../examples/RustEmet1987mle.ox.html">Rust Emet 1987 mle</a> for an example of using external data.</DD>
+<DD><a href="Prediction.ox.html">Prediction</a> for computing distributions across states, choice probabilities and moments.  </DD>
 <div class="page-break">
 <DT>This example is based on the <code>Search</code> model described in <a href="GetStarted.html">GetStarted</a>.  </DT>
 <DT>Using a <a href="http://www.doornik.com/ox/oxsyntax.html#ox_syntax_RefDerClass">derived class</a> the simple search model in GetStarted is extended without touching the existing code or copying it to a new file and modifying.</DT>
@@ -68,7 +69,7 @@ struct SearchData : DataSet {
 <DD><pre>
 SearchData::SearchData() {
 	DataSet("Search Data");
-	Simulate(N,MaxOb,zeros(NN),TRUE); //TRUE censors terminal states
+	Simulate(N,MaxOb,0,TRUE); //TRUE censors terminal states
 	Print(1);
 	Observed(Search::a,UseLabel,Search::p,UseLabel,Search::d,UseLabel,DerivedSearch::u,UseLabel);
 	Mask();

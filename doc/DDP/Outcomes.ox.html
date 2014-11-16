@@ -15,14 +15,13 @@
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
 <h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">Outcomes.ox</span></h1>
 
-Realizations of the DDP.
+Realizations of the DDP, including simulation and likelihood.
 <P/>
 <a href="#auto">Skip down to documentation of items defined in Outcomes.ox</a><p>
 <P/>
 <OL class="contents">Contents
 <LI>Outcomes</LI>
 <LI><a href="#SS">Simulation</a></LI>
-<LI><a href="#PD">Prediction</a></LI>
 </OL>
 <P/>
 <OL class="body">
@@ -53,7 +52,7 @@ The <a href="Outcomes.ox.html#Outcome">Outcome</a> class and its derivatives are
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A derived Outcome that points to a sequence of outcomes along a single realized DP path. As an outcome, the path is the first 
+<td class="text">A derived Outcome that points to a sequence of outcomes along a single realized DP path. As an outcome, the path is the first
     outcome along the path.</td>
 </tr>
 <tr>
@@ -109,7 +108,7 @@ fixed panel in the list.</td>
 </pre></dd>
 <dd>Create a simulated data set from a solved DP model and save to a Stata data set<pre>
     sim = new Panel("DPdata");
-    sim -> Simulate(10,400,0,TRUE);  
+    sim -> Simulate(10,400,0,TRUE);
 	sim -> Print("sim.dta");		
 </pre></dd>
 <P/>
@@ -157,9 +156,9 @@ Auxillary variables are typically functions of the state and action vectors that
 <DT>Elements of &chi; are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  </DT>
 <DD>Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so &chi; adds no additional information to the full outcome. </DD>
  <DD>That is, &chi; is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
-<DT>Auxiliary variables are created by the user and derived from the <a href="DPAuxiliary.ox.html#AuxiliaryVariable">AuxiliaryVariable</a> class.</DT>
+<DT>Auxiliary variables are created by the user and derived from the <a href="DPAuxiliary.ox.html#AuxiliaryValues">AuxiliaryValues</a> class.</DT>
  <DT>Auxiliary variables are added to the outcome (appended to &chi;) using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>().</DT>
- <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual <a href="DPAuxiliary.ox.html#AuxiliaryVariable___Realize">Realize</a>().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
+ <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual <a href="DPAuxiliary.ox.html#AuxiliaryValues___Realize">Realize</a>().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
 <DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
 <P/>
 <li>Paths </li>
@@ -203,11 +202,6 @@ Y = &equiv; (x<sub>0</sub> &hellip; x<sub>&chi;.N</sub>  - - &hellip; a<sub>o0</
   <DD>So if o0 = 3 it means a<sub>3</sub> is the first element of <code>&alpha;</code> that is in the observed outcome.  Between a<sub>o0</sub> and a<sub>o1</sub> are any action variables not observed and indicated by <q>- &hellip; -</q>.  The same is true of the state vectors.  </DD>
 <DT>By definition all elements of the auxiliary vector are observable.  This is not necessarily a template that all observations must follow.  It is possible that some elements of Y* are observed in some cases but not others.  </DT>
 <DD>The auxiliary variables provide great flexibility.  Suppose the value of an action variable a<sub>d</sub> is unobserved, but it is known the realized value is with some sub-range of the potential values.  Then x<sub>0</sub> and x<sub>1</sub> could be the min and max values of a<sub>d</sub>, respectively.  A derived likelihood function would add up the conditional probabilities of actions between those two values.<DD>
-<P/>
-<LI><a href="#PD">Prediction</a></LI>
-<P/>
-Prediction is different way to use the solved model than simulation.  A simulation realizes shocks and choices to produce data. A prediction is the distribution of states and choice probabilities at a point in the the DP program.  A <a href="Outcomes.ox.html#PanelPrediction">PanelPrediction</a> is the sequence of predicted distributions 
-over a sequence of periods after t periods.
 <P/>
 <a name="Data"><LI>Data Sets</LI></a>
 <P/>
@@ -270,46 +264,41 @@ Holds information about a column in the data.
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#DataColumn___instrument">instrument</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#DataColumn___label">label</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#DataColumn___obj">obj</a></td>
 <td class="modifiers">const</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#DataColumn___obsv">obsv</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#DataColumn___type">type</a></td>
 <td class="modifiers">const</td>
 <td class="description"></td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataColumn___DataColumn">DataColumn</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataColumn___Observed">Observed</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataColumn___ReturnColumn">ReturnColumn</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataColumn___UnObserved">UnObserved</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
@@ -385,26 +374,31 @@ See <a href="../FiveO/Objective.ox.html#PanelBB">PanelBB</a>.
 <td class="description">Mask unobservables.</td>
 </tr>
 <tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___Observed">Observed</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___MatchToColumn">MatchToColumn</a></td>
 <td class="modifiers"></td>
-<td class="description">Mark action  and state variables as observed in data.</td>
+<td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___Read">Read</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___ObservedWithLabel">ObservedWithLabel</a></td>
 <td class="modifiers"></td>
-<td class="description">Load outcomes into the data set from a (long format) file.</td>
+<td class="description">Mark actions and state variables as observed in data, matched with their internal label.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___Read">Read</a></td>
+<td class="modifiers"></td>
+<td class="description">Load outcomes into the data set from a (long format) file or an Ox database.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___Summary">Summary</a></td>
 <td class="modifiers"></td>
 <td class="description">Produce a Stata-like summary statistics table.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___UnObserved">UnObserved</a></td>
 <td class="modifiers"></td>
 <td class="description">UnMark action and states variables as observed.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#DataSet___~DataSet">~DataSet</a></td>
 <td class="modifiers"></td>
 <td class="description">Delete a data set.</td>
@@ -413,75 +407,20 @@ See <a href="../FiveO/Objective.ox.html#PanelBB">PanelBB</a>.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Outcomes.ox.html#Panel">Panel</a>:</dt><dd><a href="Outcomes.ox.html#Panel___Collapse">Collapse</a>, <a href="Outcomes.ox.html#Panel___Flat">Flat</a>, <a href="Outcomes.ox.html#Panel___LogLikelihood">LogLikelihood</a>, <a href="Outcomes.ox.html#Panel___Panel">Panel</a>, <a href="Outcomes.ox.html#Panel___Print">Print</a>, <a href="Outcomes.ox.html#Panel___SetMethod">SetMethod</a>, <a href="Outcomes.ox.html#Panel___Simulate">Simulate</a>, <a href="Outcomes.ox.html#Panel___~Panel">~Panel</a></dd>
-<dt>Inherited methods from <a href="Outcomes.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Outcomes.ox.html#FPanel___Append">Append</a>, <a href="Outcomes.ox.html#FPanel___FPanel">FPanel</a>, <a href="Outcomes.ox.html#FPanel___FullLogLikelihood">FullLogLikelihood</a>, <a href="Outcomes.ox.html#FPanel___GetCur">GetCur</a>, <a href="Outcomes.ox.html#FPanel___~FPanel">~FPanel</a></dd>
-<dt>Inherited methods from <a href="Outcomes.ox.html#Path">Path</a>:</dt><dd><a href="Outcomes.ox.html#Path___FullLikelihood">FullLikelihood</a>, <a href="Outcomes.ox.html#Path___Likelihood">Likelihood</a>, <a href="Outcomes.ox.html#Path___Path">Path</a>, <a href="Outcomes.ox.html#Path___PathLike">PathLike</a>, <a href="Outcomes.ox.html#Path___ReadObs">ReadObs</a>, <a href="Outcomes.ox.html#Path___~Path">~Path</a></dd>
+<dt>Inherited methods from <a href="Outcomes.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Outcomes.ox.html#FPanel___Append">Append</a>, <a href="Outcomes.ox.html#FPanel___FPanel">FPanel</a>, <a href="Outcomes.ox.html#FPanel___FullLogLikelihood">FullLogLikelihood</a>, <a href="Outcomes.ox.html#FPanel___GetCur">GetCur</a>, <a href="Outcomes.ox.html#FPanel___GMMdistance">GMMdistance</a>, <a href="Outcomes.ox.html#FPanel___~FPanel">~FPanel</a></dd>
+<dt>Inherited methods from <a href="Outcomes.ox.html#Path">Path</a>:</dt><dd><a href="Outcomes.ox.html#Path___FullLikelihood">FullLikelihood</a>, <a href="Outcomes.ox.html#Path___Likelihood">Likelihood</a>, <a href="Outcomes.ox.html#Path___Path">Path</a>, <a href="Outcomes.ox.html#Path___PathObjective">PathObjective</a>, <a href="Outcomes.ox.html#Path___ReadObs">ReadObs</a>, <a href="Outcomes.ox.html#Path___~Path">~Path</a></dd>
 <dt>Inherited methods from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___AccountForUnobservables">AccountForUnobservables</a>, <a href="Outcomes.ox.html#Outcome___FromData">FromData</a>, <a href="Outcomes.ox.html#Outcome___FromSim">FromSim</a>, <a href="Outcomes.ox.html#Outcome___Outcome">Outcome</a>, <a href="Outcomes.ox.html#Outcome___~Outcome">~Outcome</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___Run">Run</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Outcomes.ox.html#Panel">Panel</a>:</dt><dd><a href="Outcomes.ox.html#Panel___flat">flat</a>, <a href="Outcomes.ox.html#Panel___Fmtflat">Fmtflat</a>, <a href="Outcomes.ox.html#Panel___FN">FN</a>, <a href="Outcomes.ox.html#Panel___FNT">FNT</a>, <a href="Outcomes.ox.html#Panel___fparray">fparray</a>, <a href="Outcomes.ox.html#Panel___Lflat">Lflat</a>, <a href="Outcomes.ox.html#Panel___M">M</a>, <a href="Outcomes.ox.html#Panel___Nested">Nested</a>, <a href="Outcomes.ox.html#Panel___r">r</a></dd>
+<dt>Inherited fields from <a href="Outcomes.ox.html#Panel">Panel</a>:</dt><dd><a href="Outcomes.ox.html#Panel___flat">flat</a>, <a href="Outcomes.ox.html#Panel___Fmtflat">Fmtflat</a>, <a href="Outcomes.ox.html#Panel___FN">FN</a>, <a href="Outcomes.ox.html#Panel___FNT">FNT</a>, <a href="Outcomes.ox.html#Panel___fparray">fparray</a>, <a href="Outcomes.ox.html#Panel___Lflat">Lflat</a>, <a href="Outcomes.ox.html#Panel___M">M</a>, <a href="Outcomes.ox.html#Panel___r">r</a></dd>
 <dt>Inherited fields from <a href="Outcomes.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Outcomes.ox.html#FPanel___f">f</a>, <a href="Outcomes.ox.html#FPanel___FPL">FPL</a>, <a href="Outcomes.ox.html#FPanel___FullyObserved">FullyObserved</a>, <a href="Outcomes.ox.html#FPanel___method">method</a>, <a href="Outcomes.ox.html#FPanel___N">N</a>, <a href="Outcomes.ox.html#FPanel___NT">NT</a>, <a href="Outcomes.ox.html#FPanel___SD">SD</a></dd>
 <dt>Inherited fields from <a href="Outcomes.ox.html#Path">Path</a>:</dt><dd><a href="Outcomes.ox.html#Path___i">i</a>, <a href="Outcomes.ox.html#Path___L">L</a>, <a href="Outcomes.ox.html#Path___summand">summand</a>, <a href="Outcomes.ox.html#Path___T">T</a>, <a href="Outcomes.ox.html#Path___upddens">upddens</a></dd>
 <dt>Inherited fields from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___act">act</a>, <a href="Outcomes.ox.html#Outcome___aux">aux</a>, <a href="Outcomes.ox.html#Outcome___mask">mask</a>, <a href="Outcomes.ox.html#Outcome___now">now</a>, <a href="Outcomes.ox.html#Outcome___onext">onext</a>, <a href="Outcomes.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a>, <a href="Outcomes.ox.html#Outcome___PrefixLabels">PrefixLabels</a>, <a href="Outcomes.ox.html#Outcome___prev">prev</a>, <a href="Outcomes.ox.html#Outcome___SimLabels">SimLabels</a>, <a href="Outcomes.ox.html#Outcome___t">t</a>, <a href="Outcomes.ox.html#Outcome___tom">tom</a>, <a href="Outcomes.ox.html#Outcome___usecp">usecp</a>, <a href="Outcomes.ox.html#Outcome___viinds">viinds</a>, <a href="Outcomes.ox.html#Outcome___vilikes">vilikes</a>, <a href="Outcomes.ox.html#Outcome___z">z</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
-</dl>
-
-<dl class="inherited">
-<dt>Inherited enumerations from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___Anonymous enum 1">Anonymous enum 1</a></dd>
-</dl>
-
-<a name="EmpiricalMoments"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">EmpiricalMoments : <a href="Outcomes.ox.html#DataSet">DataSet</a> : <a href="Outcomes.ox.html#Panel">Panel</a> : <a href="Outcomes.ox.html#FPanel">FPanel</a> : <a href="Outcomes.ox.html#Path">Path</a> : <a href="Outcomes.ox.html#Outcome">Outcome</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
-
-
-<table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#EmpiricalMoments___StdInst">StdInst</a></td>
-<td class="modifiers">const</td>
-<td class="description"></td>
-</tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#EmpiricalMoments___EconometricObjective">EconometricObjective</a></td>
-<td class="modifiers">virtual</td>
-<td class="description">The default econometric objective: log-likelihood.</td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#EmpiricalMoments___EmpiricalMoments">EmpiricalMoments</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#EmpiricalMoments___Instruments">Instruments</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-</table>
-
-<dl class="inherited">
-<dt>Inherited methods from <a href="Outcomes.ox.html#DataSet">DataSet</a>:</dt><dd><a href="Outcomes.ox.html#DataSet___DataSet">DataSet</a>, <a href="Outcomes.ox.html#DataSet___IDColumn">IDColumn</a>, <a href="Outcomes.ox.html#DataSet___Mask">Mask</a>, <a href="Outcomes.ox.html#DataSet___Observed">Observed</a>, <a href="Outcomes.ox.html#DataSet___Read">Read</a>, <a href="Outcomes.ox.html#DataSet___Summary">Summary</a>, <a href="Outcomes.ox.html#DataSet___UnObserved">UnObserved</a>, <a href="Outcomes.ox.html#DataSet___~DataSet">~DataSet</a></dd>
-<dt>Inherited methods from <a href="Outcomes.ox.html#Panel">Panel</a>:</dt><dd><a href="Outcomes.ox.html#Panel___Collapse">Collapse</a>, <a href="Outcomes.ox.html#Panel___Flat">Flat</a>, <a href="Outcomes.ox.html#Panel___LogLikelihood">LogLikelihood</a>, <a href="Outcomes.ox.html#Panel___Panel">Panel</a>, <a href="Outcomes.ox.html#Panel___Print">Print</a>, <a href="Outcomes.ox.html#Panel___SetMethod">SetMethod</a>, <a href="Outcomes.ox.html#Panel___Simulate">Simulate</a>, <a href="Outcomes.ox.html#Panel___~Panel">~Panel</a></dd>
-<dt>Inherited methods from <a href="Outcomes.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Outcomes.ox.html#FPanel___Append">Append</a>, <a href="Outcomes.ox.html#FPanel___FPanel">FPanel</a>, <a href="Outcomes.ox.html#FPanel___FullLogLikelihood">FullLogLikelihood</a>, <a href="Outcomes.ox.html#FPanel___GetCur">GetCur</a>, <a href="Outcomes.ox.html#FPanel___~FPanel">~FPanel</a></dd>
-<dt>Inherited methods from <a href="Outcomes.ox.html#Path">Path</a>:</dt><dd><a href="Outcomes.ox.html#Path___FullLikelihood">FullLikelihood</a>, <a href="Outcomes.ox.html#Path___Likelihood">Likelihood</a>, <a href="Outcomes.ox.html#Path___Path">Path</a>, <a href="Outcomes.ox.html#Path___PathLike">PathLike</a>, <a href="Outcomes.ox.html#Path___ReadObs">ReadObs</a>, <a href="Outcomes.ox.html#Path___~Path">~Path</a></dd>
-<dt>Inherited methods from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___AccountForUnobservables">AccountForUnobservables</a>, <a href="Outcomes.ox.html#Outcome___FromData">FromData</a>, <a href="Outcomes.ox.html#Outcome___FromSim">FromSim</a>, <a href="Outcomes.ox.html#Outcome___Outcome">Outcome</a>, <a href="Outcomes.ox.html#Outcome___~Outcome">~Outcome</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___Run">Run</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
-</dl>
-
-<dl class="inherited">
-<dt>Inherited fields from <a href="Outcomes.ox.html#DataSet">DataSet</a>:</dt><dd><a href="Outcomes.ox.html#DataSet___dlabels">dlabels</a>, <a href="Outcomes.ox.html#DataSet___ids">ids</a>, <a href="Outcomes.ox.html#DataSet___label">label</a>, <a href="Outcomes.ox.html#DataSet___list">list</a>, <a href="Outcomes.ox.html#DataSet___masked">masked</a>, <a href="Outcomes.ox.html#DataSet___source">source</a>, <a href="Outcomes.ox.html#DataSet___Volume">Volume</a></dd>
-<dt>Inherited fields from <a href="Outcomes.ox.html#Panel">Panel</a>:</dt><dd><a href="Outcomes.ox.html#Panel___flat">flat</a>, <a href="Outcomes.ox.html#Panel___Fmtflat">Fmtflat</a>, <a href="Outcomes.ox.html#Panel___FN">FN</a>, <a href="Outcomes.ox.html#Panel___FNT">FNT</a>, <a href="Outcomes.ox.html#Panel___fparray">fparray</a>, <a href="Outcomes.ox.html#Panel___Lflat">Lflat</a>, <a href="Outcomes.ox.html#Panel___M">M</a>, <a href="Outcomes.ox.html#Panel___Nested">Nested</a>, <a href="Outcomes.ox.html#Panel___r">r</a></dd>
-<dt>Inherited fields from <a href="Outcomes.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Outcomes.ox.html#FPanel___f">f</a>, <a href="Outcomes.ox.html#FPanel___FPL">FPL</a>, <a href="Outcomes.ox.html#FPanel___FullyObserved">FullyObserved</a>, <a href="Outcomes.ox.html#FPanel___method">method</a>, <a href="Outcomes.ox.html#FPanel___N">N</a>, <a href="Outcomes.ox.html#FPanel___NT">NT</a>, <a href="Outcomes.ox.html#FPanel___SD">SD</a></dd>
-<dt>Inherited fields from <a href="Outcomes.ox.html#Path">Path</a>:</dt><dd><a href="Outcomes.ox.html#Path___i">i</a>, <a href="Outcomes.ox.html#Path___L">L</a>, <a href="Outcomes.ox.html#Path___summand">summand</a>, <a href="Outcomes.ox.html#Path___T">T</a>, <a href="Outcomes.ox.html#Path___upddens">upddens</a></dd>
-<dt>Inherited fields from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___act">act</a>, <a href="Outcomes.ox.html#Outcome___aux">aux</a>, <a href="Outcomes.ox.html#Outcome___mask">mask</a>, <a href="Outcomes.ox.html#Outcome___now">now</a>, <a href="Outcomes.ox.html#Outcome___onext">onext</a>, <a href="Outcomes.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a>, <a href="Outcomes.ox.html#Outcome___PrefixLabels">PrefixLabels</a>, <a href="Outcomes.ox.html#Outcome___prev">prev</a>, <a href="Outcomes.ox.html#Outcome___SimLabels">SimLabels</a>, <a href="Outcomes.ox.html#Outcome___t">t</a>, <a href="Outcomes.ox.html#Outcome___tom">tom</a>, <a href="Outcomes.ox.html#Outcome___usecp">usecp</a>, <a href="Outcomes.ox.html#Outcome___viinds">viinds</a>, <a href="Outcomes.ox.html#Outcome___vilikes">vilikes</a>, <a href="Outcomes.ox.html#Outcome___z">z</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
-</dl>
-
-<dl class="inherited">
-<dt>Inherited enumerations from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___Anonymous enum 1">Anonymous enum 1</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Vlabels">Vlabels</a>, <a href="DP.ox.html#DP___Vprtlabels">Vprtlabels</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
 <a name="FPanel"></a>
@@ -559,21 +498,26 @@ A singly-linked list of <a href="Outcomes.ox.html#Path">Path</a>s.
 <td class="description"></td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#FPanel___GMMdistance">GMMdistance</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#FPanel___LogLikelihood">LogLikelihood</a></td>
 <td class="modifiers"></td>
 <td class="description">Compute the vector log-likelihood for paths in the panel.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#FPanel___Mask">Mask</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#FPanel___Simulate">Simulate</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Simulate a homogenous panel (fpanel) of paths.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#FPanel___~FPanel">~FPanel</a></td>
 <td class="modifiers"></td>
 <td class="description">Destroy all paths in a fixed panel.</td>
@@ -581,7 +525,7 @@ A singly-linked list of <a href="Outcomes.ox.html#Path">Path</a>s.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Outcomes.ox.html#Path">Path</a>:</dt><dd><a href="Outcomes.ox.html#Path___FullLikelihood">FullLikelihood</a>, <a href="Outcomes.ox.html#Path___Likelihood">Likelihood</a>, <a href="Outcomes.ox.html#Path___Path">Path</a>, <a href="Outcomes.ox.html#Path___PathLike">PathLike</a>, <a href="Outcomes.ox.html#Path___ReadObs">ReadObs</a>, <a href="Outcomes.ox.html#Path___~Path">~Path</a></dd>
+<dt>Inherited methods from <a href="Outcomes.ox.html#Path">Path</a>:</dt><dd><a href="Outcomes.ox.html#Path___FullLikelihood">FullLikelihood</a>, <a href="Outcomes.ox.html#Path___Likelihood">Likelihood</a>, <a href="Outcomes.ox.html#Path___Path">Path</a>, <a href="Outcomes.ox.html#Path___PathObjective">PathObjective</a>, <a href="Outcomes.ox.html#Path___ReadObs">ReadObs</a>, <a href="Outcomes.ox.html#Path___~Path">~Path</a></dd>
 <dt>Inherited methods from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___AccountForUnobservables">AccountForUnobservables</a>, <a href="Outcomes.ox.html#Outcome___FromData">FromData</a>, <a href="Outcomes.ox.html#Outcome___FromSim">FromSim</a>, <a href="Outcomes.ox.html#Outcome___Outcome">Outcome</a>, <a href="Outcomes.ox.html#Outcome___~Outcome">~Outcome</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___Run">Run</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
@@ -591,11 +535,7 @@ A singly-linked list of <a href="Outcomes.ox.html#Path">Path</a>s.
 <dt>Inherited fields from <a href="Outcomes.ox.html#Path">Path</a>:</dt><dd><a href="Outcomes.ox.html#Path___i">i</a>, <a href="Outcomes.ox.html#Path___L">L</a>, <a href="Outcomes.ox.html#Path___summand">summand</a>, <a href="Outcomes.ox.html#Path___T">T</a>, <a href="Outcomes.ox.html#Path___upddens">upddens</a></dd>
 <dt>Inherited fields from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___act">act</a>, <a href="Outcomes.ox.html#Outcome___aux">aux</a>, <a href="Outcomes.ox.html#Outcome___mask">mask</a>, <a href="Outcomes.ox.html#Outcome___now">now</a>, <a href="Outcomes.ox.html#Outcome___onext">onext</a>, <a href="Outcomes.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a>, <a href="Outcomes.ox.html#Outcome___PrefixLabels">PrefixLabels</a>, <a href="Outcomes.ox.html#Outcome___prev">prev</a>, <a href="Outcomes.ox.html#Outcome___SimLabels">SimLabels</a>, <a href="Outcomes.ox.html#Outcome___t">t</a>, <a href="Outcomes.ox.html#Outcome___tom">tom</a>, <a href="Outcomes.ox.html#Outcome___usecp">usecp</a>, <a href="Outcomes.ox.html#Outcome___viinds">viinds</a>, <a href="Outcomes.ox.html#Outcome___vilikes">vilikes</a>, <a href="Outcomes.ox.html#Outcome___z">z</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
-</dl>
-
-<dl class="inherited">
-<dt>Inherited enumerations from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___Anonymous enum 1">Anonymous enum 1</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Vlabels">Vlabels</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___Vprtlabels">Vprtlabels</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
 <a name="Outcome"></a>
@@ -731,11 +671,6 @@ A single realization of a discrete DP.
 <td class="modifiers"></td>
 <td class="description">clean up.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
-<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Outcomes.ox.html#Outcome___Anonymous enum 1">Anonymous enum 1</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
 </table>
 
 <dl class="inherited">
@@ -745,7 +680,7 @@ A single realization of a discrete DP.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Vlabels">Vlabels</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___Vprtlabels">Vprtlabels</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
 <a name="Panel"></a>
@@ -791,52 +726,46 @@ A Panel is a list of <a href="Outcomes.ox.html#FPanel">FPanel</a>s which share a
 <td class="description">panel likelihood vector.</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Panel___Nested">Nested</a></td>
-<td class="modifiers"></td>
-<td class="description">solution method should be called as panel
-		is processed.</td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Panel___r">r</a></td>
 <td class="modifiers">const</td>
 <td class="description">tag for the panel.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#Panel___Collapse">Collapse</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#Panel___Flat">Flat</a></td>
 <td class="modifiers"></td>
 <td class="description">Store the panel as long flat matrix.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#Panel___LogLikelihood">LogLikelihood</a></td>
 <td class="modifiers"></td>
 <td class="description">Compute the vector of log-likelihoods.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#Panel___Panel">Panel</a></td>
 <td class="modifiers"></td>
 <td class="description">Store a list of heterogenous fixed panels.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#Panel___Print">Print</a></td>
 <td class="modifiers"></td>
 <td class="description">Produce a matrix of the panel.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#Panel___SetMethod">SetMethod</a></td>
 <td class="modifiers"></td>
 <td class="description">Set the nested DP solution method to use when evaluating the panel's econometric objective.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#Panel___Simulate">Simulate</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Simulate a (heterogeneous) panel.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#Panel___~Panel">~Panel</a></td>
 <td class="modifiers"></td>
 <td class="description">Destroy all <a href="Outcomes.ox.html#FPanel">FPanel</a>s in the Panel.</td>
@@ -844,8 +773,8 @@ A Panel is a list of <a href="Outcomes.ox.html#FPanel">FPanel</a>s which share a
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Outcomes.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Outcomes.ox.html#FPanel___Append">Append</a>, <a href="Outcomes.ox.html#FPanel___FPanel">FPanel</a>, <a href="Outcomes.ox.html#FPanel___FullLogLikelihood">FullLogLikelihood</a>, <a href="Outcomes.ox.html#FPanel___GetCur">GetCur</a>, <a href="Outcomes.ox.html#FPanel___Mask">Mask</a>, <a href="Outcomes.ox.html#FPanel___~FPanel">~FPanel</a></dd>
-<dt>Inherited methods from <a href="Outcomes.ox.html#Path">Path</a>:</dt><dd><a href="Outcomes.ox.html#Path___FullLikelihood">FullLikelihood</a>, <a href="Outcomes.ox.html#Path___Likelihood">Likelihood</a>, <a href="Outcomes.ox.html#Path___Path">Path</a>, <a href="Outcomes.ox.html#Path___PathLike">PathLike</a>, <a href="Outcomes.ox.html#Path___ReadObs">ReadObs</a>, <a href="Outcomes.ox.html#Path___~Path">~Path</a></dd>
+<dt>Inherited methods from <a href="Outcomes.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Outcomes.ox.html#FPanel___Append">Append</a>, <a href="Outcomes.ox.html#FPanel___FPanel">FPanel</a>, <a href="Outcomes.ox.html#FPanel___FullLogLikelihood">FullLogLikelihood</a>, <a href="Outcomes.ox.html#FPanel___GetCur">GetCur</a>, <a href="Outcomes.ox.html#FPanel___GMMdistance">GMMdistance</a>, <a href="Outcomes.ox.html#FPanel___Mask">Mask</a>, <a href="Outcomes.ox.html#FPanel___~FPanel">~FPanel</a></dd>
+<dt>Inherited methods from <a href="Outcomes.ox.html#Path">Path</a>:</dt><dd><a href="Outcomes.ox.html#Path___FullLikelihood">FullLikelihood</a>, <a href="Outcomes.ox.html#Path___Likelihood">Likelihood</a>, <a href="Outcomes.ox.html#Path___Path">Path</a>, <a href="Outcomes.ox.html#Path___PathObjective">PathObjective</a>, <a href="Outcomes.ox.html#Path___ReadObs">ReadObs</a>, <a href="Outcomes.ox.html#Path___~Path">~Path</a></dd>
 <dt>Inherited methods from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___AccountForUnobservables">AccountForUnobservables</a>, <a href="Outcomes.ox.html#Outcome___FromData">FromData</a>, <a href="Outcomes.ox.html#Outcome___FromSim">FromSim</a>, <a href="Outcomes.ox.html#Outcome___Outcome">Outcome</a>, <a href="Outcomes.ox.html#Outcome___~Outcome">~Outcome</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___Run">Run</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
@@ -856,61 +785,7 @@ A Panel is a list of <a href="Outcomes.ox.html#FPanel">FPanel</a>s which share a
 <dt>Inherited fields from <a href="Outcomes.ox.html#Path">Path</a>:</dt><dd><a href="Outcomes.ox.html#Path___i">i</a>, <a href="Outcomes.ox.html#Path___L">L</a>, <a href="Outcomes.ox.html#Path___summand">summand</a>, <a href="Outcomes.ox.html#Path___T">T</a>, <a href="Outcomes.ox.html#Path___upddens">upddens</a></dd>
 <dt>Inherited fields from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___act">act</a>, <a href="Outcomes.ox.html#Outcome___aux">aux</a>, <a href="Outcomes.ox.html#Outcome___mask">mask</a>, <a href="Outcomes.ox.html#Outcome___now">now</a>, <a href="Outcomes.ox.html#Outcome___onext">onext</a>, <a href="Outcomes.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a>, <a href="Outcomes.ox.html#Outcome___PrefixLabels">PrefixLabels</a>, <a href="Outcomes.ox.html#Outcome___prev">prev</a>, <a href="Outcomes.ox.html#Outcome___SimLabels">SimLabels</a>, <a href="Outcomes.ox.html#Outcome___t">t</a>, <a href="Outcomes.ox.html#Outcome___tom">tom</a>, <a href="Outcomes.ox.html#Outcome___usecp">usecp</a>, <a href="Outcomes.ox.html#Outcome___viinds">viinds</a>, <a href="Outcomes.ox.html#Outcome___vilikes">vilikes</a>, <a href="Outcomes.ox.html#Outcome___z">z</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
-</dl>
-
-<dl class="inherited">
-<dt>Inherited enumerations from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___Anonymous enum 1">Anonymous enum 1</a></dd>
-</dl>
-
-<a name="PanelPrediction"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">PanelPrediction : <a href="Outcomes.ox.html#Prediction">Prediction</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
-
-A panel of predicted outcomes.
-
-<table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#PanelPrediction___cur">cur</a></td>
-<td class="modifiers"></td>
-<td class="description">the current prediction  </td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#PanelPrediction___T">T</a></td>
-<td class="modifiers"></td>
-<td class="description">length of the panel.</td>
-</tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#PanelPrediction___Histogram">Histogram</a></td>
-<td class="modifiers"></td>
-<td class="description">Histogram of a single variable over the panel.</td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#PanelPrediction___PanelPrediction">PanelPrediction</a></td>
-<td class="modifiers"></td>
-<td class="description">Set up a panel of predicted distributions.</td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#PanelPrediction___Predict">Predict</a></td>
-<td class="modifiers"></td>
-<td class="description">Compute a panel of predicted distributions.</td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#PanelPrediction___~PanelPrediction">~PanelPrediction</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-</table>
-
-<dl class="inherited">
-<dt>Inherited methods from <a href="Outcomes.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Outcomes.ox.html#Prediction___Prediction">Prediction</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___Run">Run</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
-</dl>
-
-<dl class="inherited">
-<dt>Inherited fields from <a href="Outcomes.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Outcomes.ox.html#Prediction___av">av</a>, <a href="Outcomes.ox.html#Prediction___ch">ch</a>, <a href="Outcomes.ox.html#Prediction___hd">hd</a>, <a href="Outcomes.ox.html#Prediction___hi">hi</a>, <a href="Outcomes.ox.html#Prediction___hist">hist</a>, <a href="Outcomes.ox.html#Prediction___hN">hN</a>, <a href="Outcomes.ox.html#Prediction___hvals">hvals</a>, <a href="Outcomes.ox.html#Prediction___lo">lo</a>, <a href="Outcomes.ox.html#Prediction___p">p</a>, <a href="Outcomes.ox.html#Prediction___pnext">pnext</a>, <a href="Outcomes.ox.html#Prediction___sind">sind</a>, <a href="Outcomes.ox.html#Prediction___sv">sv</a>, <a href="Outcomes.ox.html#Prediction___t">t</a>, <a href="Outcomes.ox.html#Prediction___ud">ud</a>, <a href="Outcomes.ox.html#Prediction___unch">unch</a>, <a href="Outcomes.ox.html#Prediction___Volume">Volume</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Vlabels">Vlabels</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___Vprtlabels">Vprtlabels</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
 <a name="Path"></a>
@@ -981,7 +856,7 @@ The path is a doubly-linked list of <a href="Outcomes.ox.html#Outcome">Outcome</
 <td class="description">Create a new series of <a href="Outcomes.ox.html#Outcome">Outcome</a>s along a realized path.</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#Path___PathLike">PathLike</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#Path___PathObjective">PathObjective</a></td>
 <td class="modifiers"></td>
 <td class="description">Integrate over the path.</td>
 </tr>
@@ -1011,154 +886,36 @@ The path is a doubly-linked list of <a href="Outcomes.ox.html#Outcome">Outcome</
 <dl class="inherited">
 <dt>Inherited fields from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___act">act</a>, <a href="Outcomes.ox.html#Outcome___aux">aux</a>, <a href="Outcomes.ox.html#Outcome___mask">mask</a>, <a href="Outcomes.ox.html#Outcome___now">now</a>, <a href="Outcomes.ox.html#Outcome___onext">onext</a>, <a href="Outcomes.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a>, <a href="Outcomes.ox.html#Outcome___PrefixLabels">PrefixLabels</a>, <a href="Outcomes.ox.html#Outcome___prev">prev</a>, <a href="Outcomes.ox.html#Outcome___SimLabels">SimLabels</a>, <a href="Outcomes.ox.html#Outcome___t">t</a>, <a href="Outcomes.ox.html#Outcome___tom">tom</a>, <a href="Outcomes.ox.html#Outcome___usecp">usecp</a>, <a href="Outcomes.ox.html#Outcome___viinds">viinds</a>, <a href="Outcomes.ox.html#Outcome___vilikes">vilikes</a>, <a href="Outcomes.ox.html#Outcome___z">z</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Vlabels">Vlabels</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___Vprtlabels">Vprtlabels</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
-<dl class="inherited">
-<dt>Inherited enumerations from <a href="Outcomes.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Outcomes.ox.html#Outcome___Anonymous enum 1">Anonymous enum 1</a></dd>
-</dl>
-
-<a name="Prediction"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Prediction : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
-
-Predicted distribution across states.
-
-<table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___av">av</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___ch">ch</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___hd">hd</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___hi">hi</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___hist">hist</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___hN">hN</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___hvals">hvals</a></td>
-<td class="modifiers"></td>
-<td class="description">histogram  </td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___lo">lo</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___p">p</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___pnext">pnext</a></td>
-<td class="modifiers"></td>
-<td class="description">next prediction
-            in the panel  </td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___sind">sind</a></td>
-<td class="modifiers"></td>
-<td class="description">state index  </td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___sv">sv</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___t">t</a></td>
-<td class="modifiers">const</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___ud">ud</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___unch">unch</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___Volume">Volume</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___Histogram">Histogram</a></td>
-<td class="modifiers"></td>
-<td class="description">Compute the histogram of a single action variable at the prediction.</td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___Predict">Predict</a></td>
-<td class="modifiers"></td>
-<td class="description">Compute the predicted distribution of actions and states.</td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#Prediction___Prediction">Prediction</a></td>
-<td class="modifiers"></td>
-<td class="description">Create a new prediction.</td>
-</tr>
-</table>
-
-<dl class="inherited">
-<dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___Run">Run</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
-<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
-</dl>
-
-<dl class="inherited">
-<dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
-</dl>
-
-<a name="RandomEffectsLikelihood"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffectsLikelihood : <a href="DP.ox.html#RETask">RETask</a> : <a href="DP.ox.html#GroupTask">GroupTask</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+<a name="RandomEffectsIntegration"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffectsIntegration : <a href="DP.ox.html#RETask">RETask</a> : <a href="DP.ox.html#GroupTask">GroupTask</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
 
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#RandomEffectsLikelihood___L">L</a></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#RandomEffectsIntegration___L">L</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#RandomEffectsLikelihood___path">path</a></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Outcomes.ox.html#RandomEffectsIntegration___path">path</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#RandomEffectsLikelihood___Integrate">Integrate</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#RandomEffectsIntegration___Integrate">Integrate</a></td>
 <td class="modifiers"></td>
 <td class="description">.</td>
 </tr>
 <tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#RandomEffectsLikelihood___RandomEffectsLikelihood">RandomEffectsLikelihood</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#RandomEffectsIntegration___RandomEffectsIntegration">RandomEffectsIntegration</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#RandomEffectsLikelihood___Run">Run</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Outcomes.ox.html#RandomEffectsIntegration___Run">Run</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
@@ -1173,7 +930,7 @@ Predicted distribution across states.
 <dl class="inherited">
 <dt>Inherited fields from <a href="DP.ox.html#GroupTask">GroupTask</a>:</dt><dd><a href="DP.ox.html#GroupTask___qtask">qtask</a>, <a href="DP.ox.html#GroupTask___span">span</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
-<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___Alabels">Alabels</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Auxlabels">Auxlabels</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___Slabels">Slabels</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___AA">AA</a>, <a href="DP.ox.html#DP___ActionMatrix">ActionMatrix</a>, <a href="DP.ox.html#DP___ActionSets">ActionSets</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Approximated">Approximated</a>, <a href="DP.ox.html#DP___AsetCount">AsetCount</a>, <a href="DP.ox.html#DP___Asets">Asets</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___curt">curt</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___find">find</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___gind">gind</a>, <a href="DP.ox.html#DP___HasBeenUpdated">HasBeenUpdated</a>, <a href="DP.ox.html#DP___HasFixedEffect">HasFixedEffect</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___IsErgodic">IsErgodic</a>, <a href="DP.ox.html#DP___J">J</a>, <a href="DP.ox.html#DP___NA">NA</a>, <a href="DP.ox.html#DP___Naux">Naux</a>, <a href="DP.ox.html#DP___Nav">Nav</a>, <a href="DP.ox.html#DP___NF">NF</a>, <a href="DP.ox.html#DP___NG">NG</a>, <a href="DP.ox.html#DP___NR">NR</a>, <a href="DP.ox.html#DP___NS">NS</a>, <a href="DP.ox.html#DP___NTerminalStates">NTerminalStates</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___PostRESolve">PostRESolve</a>, <a href="DP.ox.html#DP___PreUpdate">PreUpdate</a>, <a href="DP.ox.html#DP___rind">rind</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___setPstar">setPstar</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___StorePA">StorePA</a>, <a href="DP.ox.html#DP___ThetaCreated">ThetaCreated</a>, <a href="DP.ox.html#DP___TT">TT</a>, <a href="DP.ox.html#DP___UpdateTime">UpdateTime</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___UseStateList">UseStateList</a>, <a href="DP.ox.html#DP___Vlabels">Vlabels</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___Vprtlabels">Vprtlabels</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
 
 <h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global </span></h2>
@@ -1236,15 +993,6 @@ Predicted distribution across states.
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ind</span></h3>
 
 <span class="declaration">decl ind [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="DataColumn___instrument"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">instrument</span></h3>
-
-<span class="declaration">decl instrument [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1432,40 +1180,55 @@ Mask unobservables.
 </dd></dl>
 
 <hr>
-<a name="DataSet___Observed"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Observed</span></h3>
+<a name="DataSet___MatchToColumn"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">MatchToColumn</span></h3>
 
-<span class="declaration">DataSet :: Observed ( as1 , lc1 , ... )</span>
+<span class="declaration">DataSet :: MatchToColumn ( aORs , LorC )</span>
 <dl><dd>
-Mark action  and state variables as observed in data.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">aORs</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#Discrete">Discrete</a> object, either an <a href="ActionVariable.ox.html#ActionVariable">ActionVariable</a>, element of &alpha;, or a <a href="StateVariable.ox.html#StateVariable">StateVariable</a>, element of
-			one of the state vectors<br>
-			<a href="StateVariable.ox.html#StateBlock">StateBlock</a>: each variable in the block will be added to the observed list.
+<td class="description" valign="baseline"> Either an <a href="ActionVariable.ox.html#ActionVariable">ActionVariable</a>, element of &alpha;, or a <a href="StateVariable.ox.html#StateVariable">StateVariable</a>, element of
+			one of the state vectors, or a <a href="DPAuxiliary.ox.html#AuxiliaryValues">AuxiliaryValues</a>, element of &chi;<br>
+            <em>OR<em><br>
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">LorC</td>
 <td class="description" valign="baseline"> UseLabel, variable's label to denote column of data with observations <br>
              integer &ge; 0, column of data matrix that contains observations<br>
-			 string, label of column with observations.
+			 string, label of column with observations.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="DataSet___ObservedWithLabel"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ObservedWithLabel</span></h3>
+
+<span class="declaration">DataSet :: ObservedWithLabel ( as1 , ... )</span>
+<dl><dd>
+Mark actions and state variables as observed in data, matched with their internal label.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">aORs</td>
+<td class="description" valign="baseline"> Either an <a href="ActionVariable.ox.html#ActionVariable">ActionVariable</a>, element of &alpha;, or a <a href="StateVariable.ox.html#StateVariable">StateVariable</a>, element of
+			one of the state vectors, or a <a href="DPAuxiliary.ox.html#AuxiliaryValues">AuxiliaryValues</a>, element of &chi;<br>
+            <em>OR<em><br>
+            array of the form {v1,v2,&hellip;}.  In this case all other arguments are ignored.<br>
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">...</td>
-<td class="description" valign="baseline"><br>
-DiscreteVar2<br>
-labelORcolumn2<br>
-etc.
-</td>
+<td class="description" valign="baseline">continues with object2, LoC2, object3, LorC3, etc.<br></td>
 </tr>
 </table>
-</dd>
-<dt class="comments">Comments:</dt><dd class="comments">LorC is ignored if aORs is a block, UseLabel is sent for each.
 </dd>
 </dl>
 </dd></dl>
@@ -1474,15 +1237,20 @@ etc.
 <a name="DataSet___Read"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Read</span></h3>
 
-<span class="declaration">DataSet :: Read ( fn )</span>
+<span class="declaration">DataSet :: Read ( FNorDB , SearchLabels )</span>
 <dl><dd>
-Load outcomes into the data set from a (long format) file.
+Load outcomes into the data set from a (long format) file or an Ox database.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
-<td class="declaration" valign="baseline">fn</td>
-<td class="description" valign="baseline">string, file name with extension that can be read by <code>OX::Database::Load</code>
+<td class="declaration" valign="baseline">FNorDB</td>
+<td class="description" valign="baseline">string, file name with extension that can be read by <code>OX::Database::Load</code><br>Database object
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">SearchLabels</td>
+<td class="description" valign="baseline">TRUE: search data set labels and use any matches as observed.
 <P/>
 </td>
 </tr>
@@ -1554,7 +1322,7 @@ UnMark action and states variables as observed.
 </tr>
 </table>
 </dd>
-<dt class="comments">Comments:</dt><dd class="comments">Does nothing unless variable was already sent to <a href="Outcomes.ox.html#DataSet___Observed">Observed</a>();
+<dt class="comments">Comments:</dt><dd class="comments">Does nothing unless variable was already sent to DataSet::Observed();
 </dd>
 </dl>
 </dd></dl>
@@ -1578,45 +1346,6 @@ How much output to produce.
 <span class="declaration">DataSet :: ~ DataSet ( )</span>
 <dl><dd>
 Delete a data set.
-
-</dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">EmpiricalMoments</span></h2>
-
-<a name="EmpiricalMoments___EconometricObjective"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">EconometricObjective</span></h3>
-
-<dl><dd>
-The default econometric objective: log-likelihood.
-
-<dl><dt class="returns">Returns:</dt><dd class="returns"><a href="Outcomes.ox.html#Panel___M">M</a>, <em>lnL = (lnL<sub>1</sub> lnL<sub>2</sub> &hellip;)</em>
-</dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Outcomes.ox.html#Panel___LogLikelihood">LogLikelihood</a></dd>
-</dl>
-</dd></dl>
-
-<hr>
-<a name="EmpiricalMoments___EmpiricalMoments"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">EmpiricalMoments</span></h3>
-
-<span class="declaration">EmpiricalMoments :: EmpiricalMoments ( label , method , StdInst )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="EmpiricalMoments___Instruments"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Instruments</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="EmpiricalMoments___StdInst"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">StdInst</span></h3>
-
-<span class="declaration">const decl StdInst [public]</span>
-<dl><dd>
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FPanel</span></h2>
@@ -1739,6 +1468,14 @@ TRUE if all endogenous states and
 </dd></dl>
 
 <hr>
+<a name="FPanel___GMMdistance"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">GMMdistance</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="FPanel___LogLikelihood"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">LogLikelihood</span></h3>
 
@@ -1845,14 +1582,6 @@ Destroy all paths in a fixed panel.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Outcome</span></h2>
-
-<table class="enum_table">
-<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
-<td class="declaration"><a name="Outcome___Anonymous enum 1"></a>Anonymous enum 1</td>
-<td class="description"></td>
-<td class="elements">inid, inact, instate, inaux, ExternalData</td>
-</tr>
-</table>
 
 <a name="Outcome___AccountForUnobservables"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AccountForUnobservables</span></h3>
@@ -2215,8 +1944,8 @@ column labels in flat.
 Compute the vector of log-likelihoods.
 The vector of path log-likelihoods is stored in <a href="Outcomes.ox.html#Panel___M">M</a>,
 it is constructed by appending each <a href="Outcomes.ox.html#FPanel___FPL">FPL</a>.
-If <a href="Outcomes.ox.html#Panel___Nested">Nested</a> is TRUE, then <code><a href="Outcomes.ox.html#FPanel___method">method</a>-&gt;Solve()</code>
-is called before each <a href="Outcomes.ox.html#FPanel">FPanel</a>.
+If <a href="Outcomes.ox.html#FPanel___method">method</a> is an object, then <code><a href="Outcomes.ox.html#FPanel___method">method</a>-&gt;Solve()</code>
+is called.
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Outcomes.ox.html#DataSet___EconometricObjective">EconometricObjective</a></dd>
 </dl>
@@ -2229,17 +1958,6 @@ is called before each <a href="Outcomes.ox.html#FPanel">FPanel</a>.
 <span class="declaration">decl M [public]</span>
 <dl><dd>
 panel likelihood vector.
-
-</dd></dl>
-
-<hr>
-<a name="Panel___Nested"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Nested</span></h3>
-
-<span class="declaration">decl Nested [public]</span>
-<dl><dd>
-solution method should be called as panel
-		is processed.
 
 </dd></dl>
 
@@ -2370,128 +2088,6 @@ the random effects in &gamma; from their density.
 Destroy all <a href="Outcomes.ox.html#FPanel">FPanel</a>s in the Panel.
 
 </dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">PanelPrediction</span></h2>
-
-<a name="PanelPrediction___cur"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cur</span></h3>
-
-<span class="declaration">decl cur [public]</span>
-<dl><dd>
-the current prediction
-
-</dd></dl>
-
-<hr>
-<a name="PanelPrediction___Histogram"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Histogram</span></h3>
-
-<span class="declaration">PanelPrediction :: Histogram ( var , printit , UseDist )</span>
-<dl><dd>
-Histogram of a single variable over the panel.
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">var</td>
-<td class="description" valign="baseline">object to track.
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">printit,</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a> compatible print to screen [default = FALSE]
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">UseDist</td>
-<td class="description" valign="baseline">TRUE [default]: use endogenous choice probabilities &Rho;*<br>FALSE : use uniform choices.
-<P/>
-<a href="Outcomes.ox.html#PanelPrediction___Predict">Predict</a>() must be called first.
-<P/>
-</td>
-</tr>
-</table>
-</dd>
-<dt class="example">Example:</dt><dd class="example"><pre>
-   pd = new PanelPrediction();
-   pd -&gt; Predict(10);
-   pd -&gt; Histogram(capital);
-</pre></dd>
-</dd>
-</dl>
-</dd></dl>
-
-<hr>
-<a name="PanelPrediction___PanelPrediction"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PanelPrediction</span></h3>
-
-<span class="declaration">PanelPrediction :: PanelPrediction ( iDist )</span>
-<dl><dd>
-Set up a panel of predicted distributions.
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">iDist</td>
-<td class="description" valign="baseline"> initial distribution.<br> integer: start at iDist and increment until a reachable state index is found.
-        So <code>PanelPrediction(0)</code> [default] will start the prediction at the lowest-indexed reachable state in &Theta;.<br>
-        matrix: a list of states to start the prediction from<br>
-        object of Prediction class: use <a href="Outcomes.ox.html#Prediction___sind">sind</a> as the initial state for this prediction.
-<P/>
-The prediction is not made until <a href="Outcomes.ox.html#PanelPrediction___Predict">Predict</a>() is called.</td>
-</tr>
-</table>
-</dd>
-</dl>
-</dd></dl>
-
-<hr>
-<a name="PanelPrediction___Predict"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Predict</span></h3>
-
-<span class="declaration">PanelPrediction :: Predict ( T , printit )</span>
-<dl><dd>
-Compute a panel of predicted distributions.
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">T</td>
-<td class="description" valign="baseline"><em>integer</em> length of the panel (default=1)
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">printit</td>
-<td class="description" valign="baseline">TRUE: print out<br>FALSE (default) silent.
-</td>
-</tr>
-</table>
-</dd>
-<dt class="example">Example:</dt><dd class="example"><pre>
-  p = new PanelPrediction(0);
-  p-&gt;Predict(10);
-</pre></dd>
-</dd>
-</dl>
-</dd></dl>
-
-<hr>
-<a name="PanelPrediction___T"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">T</span></h3>
-
-<span class="declaration">decl T [public]</span>
-<dl><dd>
-length of the panel.
-
-</dd></dl>
-
-<hr>
-<a name="PanelPrediction___~PanelPrediction"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">~PanelPrediction</span></h3>
-
-<span class="declaration">PanelPrediction :: ~ PanelPrediction ( )</span>
-<dl><dd>
-
-</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Path</span></h2>
 
 <a name="Path___Append"></a>
@@ -2609,10 +2205,10 @@ Create a new series of <a href="Outcomes.ox.html#Outcome">Outcome</a>s along a r
 </dd></dl>
 
 <hr>
-<a name="Path___PathLike"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PathLike</span></h3>
+<a name="Path___PathObjective"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PathObjective</span></h3>
 
-<span class="declaration">Path :: PathLike ( )</span>
+<span class="declaration">Path :: PathObjective ( )</span>
 <dl><dd>
 Integrate over the path.
 
@@ -2695,215 +2291,22 @@ lenth of the path.
 Destroy all outcomes along a path.
 
 </dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Prediction</span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffectsIntegration</span></h2>
 
-<a name="Prediction___av"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">av</span></h3>
-
-<span class="declaration">static decl av [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___ch"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ch</span></h3>
-
-<span class="declaration">decl ch [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___hd"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hd</span></h3>
-
-<span class="declaration">static decl hd [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___hi"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hi</span></h3>
-
-<span class="declaration">static decl hi [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___hist"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hist</span></h3>
-
-<span class="declaration">decl hist [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___Histogram"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Histogram</span></h3>
-
-<span class="declaration">Prediction :: Histogram ( )</span>
-<dl><dd>
-Compute the histogram of a single action variable at the prediction.
-Stored in <a href="Outcomes.ox.html#Prediction___hist">hist</a>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___hN"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hN</span></h3>
-
-<span class="declaration">static decl hN [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___hvals"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hvals</span></h3>
-
-<span class="declaration">decl hvals [public]</span>
-<dl><dd>
-histogram
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___lo"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">lo</span></h3>
-
-<span class="declaration">static decl lo [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___p"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">p</span></h3>
-
-<span class="declaration">decl p [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___pnext"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">pnext</span></h3>
-
-<span class="declaration">decl pnext [public]</span>
-<dl><dd>
-next prediction
-            in the panel
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___Predict"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Predict</span></h3>
-
-<span class="declaration">Prediction :: Predict ( )</span>
-<dl><dd>
-Compute the predicted distribution of actions and states.
-<P/>
-Usually the user would predict for a <a href="Outcomes.ox.html#PanelPrediction">PanelPrediction</a> which would
-call this routine.
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___Prediction"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Prediction</span></h3>
-
-<span class="declaration">Prediction :: Prediction ( t )</span>
-<dl><dd>
-Create a new prediction.
-<P/>
-Typically a user would create a <a href="Outcomes.ox.html#PanelPrediction">PanelPrediction</a> which in turn creates predictions.
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">t</td>
-<td class="description" valign="baseline"><em>integer</em>, time period.</td>
-</tr>
-</table>
-</dd>
-</dl>
-</dd></dl>
-
-<hr>
-<a name="Prediction___sind"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sind</span></h3>
-
-<span class="declaration">decl sind [public]</span>
-<dl><dd>
-state index
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___sv"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sv</span></h3>
-
-<span class="declaration">static decl sv [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___t"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">t</span></h3>
-
-<span class="declaration">const decl t [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___ud"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ud</span></h3>
-
-<span class="declaration">static decl ud [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___unch"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">unch</span></h3>
-
-<span class="declaration">decl unch [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___Volume"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Volume</span></h3>
-
-<span class="declaration">static decl Volume [public]</span>
-<dl><dd>
-
-</dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffectsLikelihood</span></h2>
-
-<a name="RandomEffectsLikelihood___Integrate"></a>
+<a name="RandomEffectsIntegration___Integrate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Integrate</span></h3>
 
-<span class="declaration">RandomEffectsLikelihood :: Integrate ( path )</span>
+<span class="declaration">RandomEffectsIntegration :: Integrate ( path )</span>
 <dl><dd>
 .
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">L, path likelihood, integrating over random &gamma;
+<dl><dt class="returns">Returns:</dt><dd class="returns">L, path objective, integrating over random &gamma;
 </dd>
 </dl>
 </dd></dl>
 
 <hr>
-<a name="RandomEffectsLikelihood___L"></a>
+<a name="RandomEffectsIntegration___L"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">L</span></h3>
 
 <span class="declaration">decl L [public]</span>
@@ -2912,7 +2315,7 @@ state index
 </dd></dl>
 
 <hr>
-<a name="RandomEffectsLikelihood___path"></a>
+<a name="RandomEffectsIntegration___path"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">path</span></h3>
 
 <span class="declaration">decl path [public]</span>
@@ -2921,19 +2324,19 @@ state index
 </dd></dl>
 
 <hr>
-<a name="RandomEffectsLikelihood___RandomEffectsLikelihood"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RandomEffectsLikelihood</span></h3>
+<a name="RandomEffectsIntegration___RandomEffectsIntegration"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RandomEffectsIntegration</span></h3>
 
-<span class="declaration">RandomEffectsLikelihood :: RandomEffectsLikelihood ( )</span>
+<span class="declaration">RandomEffectsIntegration :: RandomEffectsIntegration ( )</span>
 <dl><dd>
 
 </dd></dl>
 
 <hr>
-<a name="RandomEffectsLikelihood___Run"></a>
+<a name="RandomEffectsIntegration___Run"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
 
-<span class="declaration">RandomEffectsLikelihood :: Run ( g )</span>
+<span class="declaration">RandomEffectsIntegration :: Run ( g )</span>
 <dl><dd>
 
 </dd></dl>

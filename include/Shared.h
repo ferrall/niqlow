@@ -6,8 +6,9 @@
 
 	/** Pseudonyms for -1. @name Names_for_-1 **/
 enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,UseSubSample=-1,ResetValue=-1}
+enum { NotInData=-2 }
 
-	/** Pseudonyms for 0,2,1. @name Names_for_012 **/
+	/** Pseudonyms for 0,1,2. @name Names_for_012 **/
 enum {Zero,One,Two}
 
 	/** Levels of output to produce while executing. @name NoiseLevels **/	
@@ -66,12 +67,12 @@ static const decl
 	GaussianKernel(X,h);
     ToggleParams(a,...);
 
-/** A container for auxilliary structures, which helps organize the hierarchy of classes. **/
-struct Zauxilliary { }
+/** A container for auxiliary structures, which helps organize the hierarchy of classes. **/
+struct Zauxiliary { }
 
 /** A continuous discretization of a (potentially) continuous quantity.
 **/
-struct Discretized : Zauxilliary {
+struct Discretized : Zauxiliary {
 	const decl nodes;
 	/** . @internal **/ decl N, lt, av, m, z, ff, nxtp, nxtf, i, indx, np;
 	decl
@@ -138,7 +139,7 @@ struct Parameter : Quantity {
 	}
 
 /** Container for different integration techniques. **/
-struct Integration : Zauxilliary { }
+struct Integration : Zauxiliary { }
 
 struct GaussianQuadrature : Integration {}
 
@@ -207,7 +208,7 @@ struct GHK   : Integration {
 	}
 
 /** Checks minimum Ox version and prints copyright info. **/
-class Version : Zauxilliary {
+class Version : Zauxiliary {
 	/** Minimum Ox Version required. @name Oxversion **/
 //	enum {MinOxVersion=621}
 	enum {MinOxVersion=700}
@@ -219,7 +220,7 @@ class Version : Zauxilliary {
 
 /** Code a system of constraints.
 **/
-struct Equations : Zauxilliary {
+struct Equations : Zauxiliary {
 	static 	const decl rlabels = {"lamba","values"};
 	const 	decl
 		/** array of equation labels **/ 				L,
@@ -252,7 +253,7 @@ struct InEquality : Equations {
 An objective or system of equations contains the current point in <code>cur</code>.
 Algorithms use a point to store temporary values.
 **/
-struct Point : Zauxilliary {
+struct Point : Zauxiliary {
 	decl
 									AggType,
 	/** Free vector. **/				F,

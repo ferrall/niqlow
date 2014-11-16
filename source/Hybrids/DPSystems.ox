@@ -22,7 +22,7 @@ EVSystem::vfunc()	{
 	}
 
 SolveAsSystem::SolveAsSystem() {
-	if (!IsErgodic) oxrunerror("SolveAsSystem only works with ergodic clock");
+	if (!Flags::IsErgodic) oxrunerror("SolveAsSystem only works with ergodic clock");
 	Task();
 	VI = new ValueIteration(0);
 	system = new EVSystem(SS[iterating].size,VI);
@@ -32,15 +32,15 @@ SolveAsSystem::Run(th) {	th->thetaEmax(); }
 	
 SolveAsSystem::Solve(SystemSolutionMethod,mxiter)	{
 	Parameter::DoNotConstrain = FALSE;
-    Clock::Solving(MxEndogInd,&VV,&setPstar);
-    if (UpdateTime[OnlyOnce]) UpdateVariables(0);
+    Clock::Solving(MxEndogInd,&VV,&Flags::setPstar);
+    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
 	decl g;
-	for(g=0;g<NF;++g) {
+	for(g=0;g<N::F;++g) {
 		VI -> Solve(g,5);
-		setPstar = FALSE;
+		Flags::setPstar = FALSE;
 		system->Encode(VI.VV[later][]');	
 		system->Solve(SystemSolutionMethod,mxiter);
-		setPstar = TRUE;
+		Flags::setPstar = TRUE;
 		Traverse();		
 		}
 	}
@@ -82,11 +82,13 @@ Rsystem::RVSolve(curth,dV) {
 
 ReservationValues::ReservationValues(LBvalue,METHOD) {
 	ValueIteration(new RVEdU());
+    Volume = SILENT;
 	decl i;
-	for (i=0,RValSys=new array[J];i<J;++i)
-		RValSys[i] = (rows(Asets[i])>1)
-						? new Rsystem(LBvalue,rows(Asets[i])-1,METHOD)
-						:  0;
+    RValSys={};
+    for (i=0;i<N::J;++i)
+        RValSys |= (rows(Asets[i])>1)
+			 ? new Rsystem(LBvalue,rows(Asets[i])-1,METHOD)
+			 :  0;
 	}
 
 RVEdU::RVEdU() {
@@ -108,8 +110,8 @@ RVEdU::Run(th) {
 ReservationValues::Solve(Fgroups) 	{
    	now = NOW;	later = LATER;
 	ftask.qtask = this;			//refers back to current object.
-    if (UpdateTime[OnlyOnce]) UpdateVariables(0);
-    Clock::Solving(MxEndogInd,&VV,&setPstar);
+    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
+    Clock::Solving(MxEndogInd,&VV,&Flags::setPstar);
     decl rv;
     foreach (rv in RValSys) if (isclass(rv)) rv.meth.Volume = Volume;
 	if (Fgroups==AllFixed)
@@ -130,6 +132,6 @@ ReservationValues::Run(th) {
 		VV[now][ind[iterating]] = V = maxc(th.pandv[rind]);
 		th.pstar = <1.0>;
 		th.zstar = .NaN;
-		if (setPstar) th->Smooth(V);
+		if (Flags::setPstar) th->Smooth(V);
 		}
 	}

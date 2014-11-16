@@ -4,7 +4,7 @@
 /** Setup and solve the model for both columns.**/	
 Retirement::Run()	{
 	decl j, simdata, Emax;
-	Initialize(1.0,Reachable,TRUE,0);
+	Initialize(1.0,Reachable);
 	SetClock(RandomMortality,TMAX,Retirement::mprob);
 	Actions(i = new ActionVariable("i",Nactions));
 	SemiExogenousStates(eS = new Zvariable("etaS",nRepsS) );
@@ -21,7 +21,7 @@ Retirement::Run()	{
 		GroupVariables(ejob[j]);
 		}		
 	CreateSpaces();
-	Emax = new ValueIteration(0);
+	Emax = new ValueIteration();
 	Emax.Volume = NOISY;
 	for (col = 1;col<2;++col) { //sizerc(disc)
 		SetDelta(disc[col]);

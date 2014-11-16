@@ -15,8 +15,8 @@ ImaiJainChing::Report() {
 ImaiJainChing::ImaiJainChing(L,data, DPmeth, ...) {
 	if (!isclass(data,"Panel")) oxrunerror("data must be a panel");
 	PanelBB(L,data,va_arglist());
-	if (!DP::ThetaCreated) oxrunerror("CreateSpaces() must be called for the model first");
-	if (!DP::IsErgodic) oxrunerror("DP clock must be ergodic");
+	if (!Flags::ThetaCreated) oxrunerror("CreateSpaces() must be called for the model first");
+	if (!Flags::IsErgodic) oxrunerror("DP clock must be ergodic");
 	if (!isclass(DPmeth,"Method")) oxrunerror("DPmeth must be a Method object");
 	this.DPmeth = DPmeth;
 	Design = new matrix[DesignParameters];

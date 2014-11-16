@@ -69,22 +69,6 @@ struct UnConstrained : Objective {
 	virtual Gradient();
 			UnConstrained(L="");
 	}
-
-/** Represents a blacbox objective.
-
-**/
-struct BlackBox : UnConstrained	{
-	BlackBox(L);
-	}
-
-/** Access the econometric objective related to a DDP Panel.
-**/
-struct PanelBB : BlackBox {
-	const decl data;
-	PanelBB(L,data, ...);
-	virtual vfunc();
-	}
-
 	
 /** Container for Constrained Objectives.**/	
 struct Constrained : Objective {
@@ -99,47 +83,6 @@ struct Constrained : Objective {
 	virtual Merit(F);
 	}
 	
-/** Represent sum of <var>K</var> `BlackBox` objectives. **/
-struct Separable : UnConstrained	{
-	const 	decl
-														cur,
-	/** # unobserved types, sub-problems **/  			K,
-	/** `Discrete` sub-problem var **/					Kvar,
-	/** labels for types / sub problems**/				KL;
-	
-	decl
-	/** Number of common parameters **/ 				C,
-	/** Total free parameters **/   					nfree,
-	/** Vector of indices into Psi of common pars **/	ComInd,
-	/** K Vector of free specific parameters **/		kfree,
-														Included,
-	/** Longest vector returned by vfunc(), default=1.**/ NvfuncTerms,
-														kNvf,
-														CDNV,
-	/** . @internal **/									Start,
-	/** . @internal **/									FinX,
-	/** . **/											Flabels;
-	
-			Separable(L,Kvar);
-			kEncode(notmulti);
-	virtual	Deconstruct(eval) ;
-			ResetCommon(hold);
-	virtual Print(orig);
-//	virtual	CheckPoint(f,saving);
-	virtual	CommonParameters(psi, ... );	
-	virtual vfunc();						   			
-	virtual fobj(F);
-	virtual vobj(F);
-//#ifdef OX7
-	virtual	Encode(X,CallBase=FALSE);
-//#else
-//	virtual	Encode(X,CallBase);
-//#endif
-	virtual	Decode(F=0);
-	virtual Jacobian();
-	virtual	Gradient();
-	virtual funclist(Xmat,aFvec);
-	}
 
 /** A non-linear system of equations to solve.
 **/
@@ -149,37 +92,3 @@ struct System : Objective {
 			System(L,LorN);
 	virtual equations();
 	}
-
-struct Mixture : Separable {
-	const 	decl
-														cur,
-	/** # observed types, environment **/  				D,
-	/** D x K **/										DK,
-	/** `Discrete` environment-type var **/				Dvar,
-														DKL;
-	decl
-	/** array of weight objects. @internal**/			Lambda,
-	/**									   **/			WStart,
-	/** matrix of indicators of valid d,k combos **/	Included,
-														FinL,
-														Flabels,
-														lfree,
-	/** **/												dkfree;
-	
-			Mixture(L,Dvar,Kvar,MixType,...);
-			WDecode(WF);
-			WEncode(inW);
-			IncludedDK(mDK);
-			Print(orig);
-	virtual	vfunc();
-			fobj(f);
-	virtual	Deconstruct(eval) ;
-	virtual vobj(F);
-	virtual	Decode(F=0);
-	virtual	Encode(X=0);
-	virtual Jacobian();	
-	virtual	Gradient();
-	virtual funclist(Fmat,aFvec);
-	virtual Wfunclist(Lmat,aFvec);
-	}
-	

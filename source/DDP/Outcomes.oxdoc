@@ -1,4 +1,4 @@
-/** Realizations of the DDP.
+/** Realizations of the DDP, including simulation and likelihood.
 
 @sortkey BAA
 
@@ -7,7 +7,6 @@
 <OL class="contents">Contents
 <LI>Outcomes</LI>
 <LI><a href="#SS">Simulation</a></LI>
-<LI><a href="#PD">Prediction</a></LI>
 </OL>
 
 <OL class="body">
@@ -38,7 +37,7 @@ The `Outcome` class and its derivatives are used to simulate DDP data, read exte
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A derived Outcome that points to a sequence of outcomes along a single realized DP path. As an outcome, the path is the first 
+<td class="text">A derived Outcome that points to a sequence of outcomes along a single realized DP path. As an outcome, the path is the first
     outcome along the path.</td>
 </tr>
 <tr>
@@ -94,7 +93,7 @@ fixed panel in the list.</td>
 </pre></dd>
 <dd>Create a simulated data set from a solved DP model and save to a Stata data set<pre>
     sim = new Panel("DPdata");
-    sim -> Simulate(10,400,0,TRUE);  
+    sim -> Simulate(10,400,0,TRUE);
 	sim -> Print("sim.dta");		
 </pre></dd>
 
@@ -141,14 +140,14 @@ For simplicity the length of each of the vectors is not specified and the right-
 
 <li>Auxiliary Variables</li>
 
-Auxillary variables are typically functions of the state and action vectors that would be observed in the data.
+Auxiliary variables are typically functions of the state and action vectors that would be observed in the data.
 
 <DT>Elements of &chi; are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  </DT>
 <DD>Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so &chi; adds no additional information to the full outcome. </DD>
  <DD>That is, &chi; is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
-<DT>Auxiliary variables are created by the user and derived from the `AuxiliaryVariable` class.</DT>
+<DT>Auxiliary variables are created by the user and derived from the `AuxiliaryValues` class.</DT>
  <DT>Auxiliary variables are added to the outcome (appended to &chi;) using `DP::AuxiliaryOutcomes`().</DT>
- <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual `AuxiliaryVariable::Realize`().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
+ <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual `AuxiliaryValues::Realize`().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
 <DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
 
 <li>Paths </li>
@@ -193,10 +192,6 @@ Y = &equiv; (x<sub>0</sub> &hellip; x<sub>&chi;.N</sub>  - - &hellip; a<sub>o0</
 <DT>By definition all elements of the auxiliary vector are observable.  This is not necessarily a template that all observations must follow.  It is possible that some elements of Y* are observed in some cases but not others.  </DT>
 <DD>The auxiliary variables provide great flexibility.  Suppose the value of an action variable a<sub>d</sub> is unobserved, but it is known the realized value is with some sub-range of the potential values.  Then x<sub>0</sub> and x<sub>1</sub> could be the min and max values of a<sub>d</sub>, respectively.  A derived likelihood function would add up the conditional probabilities of actions between those two values.<DD>
 
-<LI><a href="#PD">Prediction</a></LI>
-
-Prediction is different way to use the solved model than simulation.  A simulation realizes shocks and choices to produce data. A prediction is the distribution of states and choice probabilities at a point in the the DP program.  A `PanelPrediction` is the sequence of predicted distributions 
-over a sequence of periods after t periods.
 
 <a name="Data"><LI>Data Sets</LI></a>
 

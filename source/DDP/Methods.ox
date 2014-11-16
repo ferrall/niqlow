@@ -59,7 +59,7 @@ FixedSolve::FixedSolve() {
 **/
 FixedSolve::Run(fxstate){
 	rtask->SetFE(state = fxstate);
-    if (UpdateTime[AfterFixed]) UpdateVariables(fxstate);
+    if (Flags::UpdateTime[AfterFixed]) UpdateVariables(fxstate);
     if (qtask.DoNotIterate) return;
 	cputime0 = timer();
 	rtask.qtask = qtask;
@@ -79,7 +79,7 @@ Solution is not run if the density of the point in the group space equals 0.0.
 **/
 RandomSolve::Run(gam)  {
 	if (ResetGroup(gam)>0.0) {
-        if (UpdateTime[AfterRandom]) UpdateVariables(state);
+        if (Flags::UpdateTime[AfterRandom]) UpdateVariables(state);
 		qtask.state = state;
 		DP::rind = gam.rind;
 		qtask->Gsolve();
@@ -90,7 +90,7 @@ RandomSolve::Run(gam)  {
 <OL>
 <LI>Compute the value of actions, <var>v(&alpha;,&theta;)</var> by calling `Bellman::ActVal`()</LI>
 <LI>Call `Bellman::thetaEMax`() and storing the value </LI>
-<LI>If `DP::setPstar` then smooth choice probabilities.  And if `DP::IsErgodic` then update the state-to-state transition matrix, &Rho;(&theta;&prime;;&theta;)</LI>
+<LI>If `Flags::setPstar` then smooth choice probabilities.  And if `Flags:IsErgodic` then update the state-to-state transition matrix, &Rho;(&theta;&prime;;&theta;)</LI>
 </OL>
 @param th, &theta;
 
@@ -100,9 +100,9 @@ ValueIteration::Run(th) {
 	decl ev;
 	th->ActVal(VV[!now]);
 	VV[now][ind[iterating]] = ev = th->thetaEMax();
-	if (setPstar)  {
+	if (Flags::setPstar)  {
 		th->Smooth(ev);
-		if (IsErgodic) th->UpdatePtrans();
+		if (Flags::IsErgodic) th->UpdatePtrans();
 		}
 	}
 
@@ -115,7 +115,7 @@ ValueIteration::Run(th) {
 ValueIteration::Gsolve() {
 	ndogU.state = state;
 	ndogU->Traverse(DoAll);
-	setPstar = counter->setPstar() ||  (MaxTrips==1);   // if first trip is last;
+	Flags::setPstar = counter->setPstar() ||  (MaxTrips==1);   // if first trip is last;
 	decl i;
 	Traverse(DoAll);
 	if (!(ind[onlyrand])  && isclass(counter,"Stationary")&& later!=LATER) VV[LATER][] = VV[later][];    //initial value next time
@@ -145,13 +145,13 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
     else if (MaxTrips) this.MaxTrips = MaxTrips;
    	now = NOW;	later = LATER;
 	ftask.qtask = this;			//refers back to current object.
-    Clock::Solving(MxEndogInd,&VV,&setPstar);
-    if (UpdateTime[OnlyOnce]) UpdateVariables(0);
+    Clock::Solving(MxEndogInd,&VV,&Flags::setPstar);
+    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
 	if (Fgroups==AllFixed)
 		ftask -> loop();
 	else
 		ftask->Run(ReverseState(Fgroups,OO[onlyfixed][]));
-    HasBeenUpdated = FALSE;
+    Flags::HasBeenUpdated = FALSE;
 	}
 
 /** Creates a new &quot;brute force&quot; Bellman iteration method.
@@ -159,13 +159,13 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
 
 **/
 ValueIteration::ValueIteration(myEndogUtil) {
-	if (!ThetaCreated) oxrunerror("Must create spaces before creating a solution method");
+	if (!Flags::ThetaCreated) oxrunerror("Must create spaces before creating a solution method");
 	Task();
  	vtoler = DefTolerance;
    	left = S[endog].M;
    	right = S[clock].M;
    	subspace=iterating;
-   	state = NN-1;
+   	state = AllN-1;
    	ftask = new FixedSolve();
 	ndogU = isint(myEndogUtil) ? new EndogUtil() : myEndogUtil;
 	VV = new array[DVspace];
@@ -198,15 +198,15 @@ ValueIteration::Update() {
         }
     counter->Vupdate(now);
     Swap();
-	state[right] -= setPstar;
+	state[right] -= Flags::setPstar;
 	done = SyncStates(right,right) <0 ; //converged & counter was at 0
 	if (!done) {
-        setPstar =  (dff <vtoler)
+        Flags::setPstar =  (dff <vtoler)
 					|| MaxTrips==trips+1  //last trip coming up
                     || counter->setPstar();
 		VV[now][:MxEndogInd] = 0.0;
 		}
-	if (Volume>=LOUD) println("Trip:",trips,". Done:",done,". Visits:",iter,". diff=",dff,". setP*:",setPstar);
+	if (Volume>=LOUD) println("Trip:",trips,". Done:",done,". Visits:",iter,". diff=",dff,". setP*:",Flags::setPstar);
  	state[right] += done;		//put counter back to 0 	if necessary
 	SyncStates(right,right);
     return done || (trips>=MaxTrips);
@@ -257,7 +257,7 @@ KWEMax::Run(th) {
 		ind[bothexog] = MESind;
 		ind[onlysemiexog] = MSemiEind;
 		}
-	if (setPstar)  th->Smooth(meth.VV[now][ind[iterating]]);
+	if (Flags::setPstar)  th->Smooth(meth.VV[now][ind[iterating]]);
 	}
 
 KeaneWolpin::Run(th) {	}
@@ -277,13 +277,13 @@ This replaces the built-in version used by `ValueIteration`.
 KeaneWolpin::Gsolve() {
 	decl myt;
 	ndogU.state = state;		
-	setPstar = TRUE;	
+	Flags::setPstar = TRUE;	
 	for (myt=TT-1;myt>=0;--myt) {
 		state[cpos] = ndogU.state[cpos] = myt;
 		SyncStates(cpos,cpos);
 		Y = Xmat = <>;	
         curlabels = 0;
-		ndogU.onlypass = !DoSubSample[myt];
+		ndogU.onlypass = !Flags::DoSubSample[myt];
 		ndogU.firstpass = TRUE;
         if (Volume>LOUD) println("t:",myt," ",ndogU.onlypass," ",ndogU.firstpass);
 		ndogU->Traverse(myt);
@@ -335,16 +335,16 @@ square root of the vector</LI></UL>
 KeaneWolpin::KeaneWolpin(myKWEMax) {
     if (isint(SampleProportion)) oxwarning("Must call SubSampleStates() before CreateSpaces() if you uses KeaneWolpin");
 	ValueIteration(isint(myKWEMax) ? new KWEMax() : myKWEMax);
-    if (J>1) oxwarning("Using KW approximization on a model with infeasible actions at some states.  All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible");
+    if (N::J>1) oxwarning("Using KW approximization on a model with infeasible actions at some states.  All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible");
 	ndogU.meth = this;
 	cpos = counter.t.pos;
 	Bhat = new array[TT];
 	xlabels0 = {"maxE","const"};
-    xlabels1 = new array[NA];
-    xlabels2 = new array[NA];
-	decl a;
-	for (a=0;a<NA;++a) xlabels1[a] = "(V-vv)_"+sprint(a);
-	for (a=0;a<NA;++a) xlabels2[a] = "sqrt(V-vv)_"+sprint(a);
+    xlabels1 = new array[N::A];
+    xlabels2 = new array[N::A];
+	decl l,a;
+    foreach(l in xlabels1[a])  l = "(V-vv)_"+sprint(a);
+	foreach ( l in xlabels2[a]) l = "sqrt(V-vv)_"+sprint(a);
 	}
 	
 /**The default specification of the KW regression.
@@ -393,7 +393,7 @@ KWEMax::OutSample(th) {
 HotzMiller::HotzMiller(indata,bandwidth) {
 	if (SS[bothexog].size>1) oxrunerror("exogenous and semi-exogenous not allowed with Hotz-Miller");
 	if (SS[onlyrand].size>1) oxrunerror("Only FixedEffects allowed in Hotz-Miller.  No random effects");
-    if (!IsErgodic) oxrunerror("clock must be ergodic in Hotz Miller");
+    if (!Flags::IsErgodic) oxrunerror("clock must be ergodic in Hotz Miller");
     ValueIteration(new HMEndogU(this));
     if (isclass(indata,"Panel")) {
         myccp = new CCP(indata,bandwidth);
@@ -403,7 +403,7 @@ HotzMiller::HotzMiller(indata,bandwidth) {
         Q = indata;
         }
     else {
-        Q = new array[NF];
+        Q = new array[N::F];
         }
 	}
 
@@ -421,9 +421,9 @@ CCP::CCP(data,bandwidth) {
     NotFirstTime = FALSE;
     this.data = data;
     this.bandwidth = bandwidth;
-    Q = new array[NF];
-	cnt = new array[NF];
-    ObsPstar = new array[NF];
+    Q = new array[N::F];
+	cnt = new array[N::F];
+    ObsPstar = new array[N::F];
     loop();
 	Kstates = new matrix[SS[tracking].D][SS[tracking].size];
     entask = new CCPspace(this);
@@ -508,13 +508,13 @@ HotzMiller::Gsolve() {
 	if (Volume>LOUD) println("HM inverse mapping: ",HMEndogU::VV );
 	ndogU.state = state;
 	ndogU->Traverse(DoAll);
-	setPstar = 	FALSE;
+	Flags::setPstar = 	FALSE;
 	}
 	
 HotzMiller::Solve(Fgroups) {
 	ftask.qtask = this;			//refers back to current object.
-    Clock::Solving(MxEndogInd,&VV,&setPstar);
-    if (UpdateTime[OnlyOnce]) UpdateVariables(0);
+    Clock::Solving(MxEndogInd,&VV,&Flags::setPstar);
+    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
 	if (Fgroups==AllFixed)
 		ftask -> loop();
 	else

@@ -36,7 +36,7 @@ Bellman::Bellman(state) {
    //  if (!ThetaCreated) oxrunerror("Cannot create states before state space created - call DP::CreateSpaces()");
   decl s=S[endog].M;
   do { IsTerminal = any(state[s].==States[s].TermValues); } while (!IsTerminal && s++<S[endog].X);
-  NTerminalStates += IsTerminal;
+  N::TerminalStates += IsTerminal;
   decl curJ= sizeof(ActionSets),
   		fa = IsTerminal ? 1|zeros(rows(ActionMatrix)-1,1) : FeasibleActions(ActionMatrix),
 		nfeas = int(sumc(fa));
@@ -47,12 +47,12 @@ Bellman::Bellman(state) {
 	Asets |= selectifr(ActionMatrix,fa);
 	AsetCount |= 1;
 	}
-  pandv = new array[NR];
+  pandv = new array[N::R];
   if (!isint(SampleProportion)) {
 	InSubSample =     IsTerminal
-  	 			  || !DoSubSample[curt]
+  	 			  || !Flags::DoSubSample[curt]
 				  ||  ranu(1,1) < SampleProportion[curt];
-	Approximated += !(InSubSample);
+	N::Approximated += !(InSubSample);
     }
   else InSubSample = TRUE;
   if (InSubSample) {
@@ -63,8 +63,8 @@ Bellman::Bellman(state) {
     Nxt = new array[StateTrans][1];
     U = new matrix[nfeas][1];
     }
-  for(s=0;s<NR;++s) pandv[s]= constant(.NaN,U);
-  EV = zeros(NR,1);
+  for(s=0;s<N::R;++s) pandv[s]= constant(.NaN,U);
+  EV = zeros(N::R,1);
   }
 
 /** Default &theta;.A: all actions are feasible at all states, except for terminal states.
@@ -139,7 +139,7 @@ Bellman::UpdatePtrans() {
 	for (eta=0;eta<sizerc(Nxt[Qi]);++eta) {
 		curg.Ptrans[ Nxt[Qi][eta] ][ii] += (h[eta][]*Nxt[Qrho][eta])';
 		}
-	if (StorePA) curg.Palpha[][it] = ExpandP(rind);
+	if (Flags::StorePA) curg.Palpha[][it] = ExpandP(rind);
 	}
 	
 /**Return choice probabilities conditioned on &theta; with zeros inserted for infeasible actions.
@@ -150,7 +150,7 @@ Bellman::UpdatePtrans() {
 Bellman::ExpandP(r) {
 	decl p,i;
 	p =	(columns(pandv[r])==rows(NxtExog[Qrho])) ? pandv[r]*NxtExog[Qrho] : pandv[r];
-	for (i=0;i<NA;++i) if (!ActionSets[Aind][i]) p = insertr(p,i,1);
+	for (i=0;i<N::A;++i) if (!ActionSets[Aind][i]) p = insertr(p,i,1);
 	return p;
 	}
 
@@ -184,7 +184,7 @@ Bellman::ThetaTransition(future,current) {
 			{ N = 1; root = States[si]; }
 		if (any(curO = future[si-N+1:si]))	{  // states are relevant to s'
 			[feas,prob] = root -> Transit(Asets[Aind]);
-            if (Volume>LOUD) {
+            if (Volume>LOUD && root.N>1) {
                 println("     State: ",root.L,"%r",{"   ind","   prob"},feas|prob);
                 if (any(fabs( sumr(prob) -1.0) )>DIFF_EPS2) { // short-circuit && avoids sumr() unless NOISY
                     println(si," ","%m",sumr(prob));
@@ -210,7 +210,7 @@ Bellman::ThetaTransition(future,current) {
         for(s=0;s<columns(F[now][]);++s) {
             if ( any(P[now][][s].>0.0) && !isclass( Settheta(OO[tracking][]*(q=ReverseState(F[now][s],OO[iterating][]))) ) )  {
                 oxwarning("transiting to unreachable state: ");
-                println("%8.0f","%c",Slabels[S[endog].M:S[endog].X],q[S[endog].M:S[endog].X]');
+                println("%8.0f","%c",Vprtlabels[svar][S[endog].M:S[endog].X],q[S[endog].M:S[endog].X]');
                 }
             }
         }
@@ -220,7 +220,7 @@ Bellman::ThetaTransition(future,current) {
 This is a virtual method.  <code>MyModel</code> provides a replacement.
 **/
 Bellman::Utility()  {
-	if (!Warned) {Warned=TRUE; oxwarning("NOTE: Using default Utility() equal to 0.  Your derived DDP should provide a replacement for DP::Utility(). ");}
+	if (!Flags::Warned) {Flags::Warned=TRUE; oxwarning("NOTE: Using default Utility() equal to 0.  Your derived DDP should provide a replacement for DP::Utility(). ");}
 	return zeros(rows(A[Aind]),1);
 	}
 
@@ -229,7 +229,7 @@ Bellman::InSS() { return InSubSample; }
 @internal
 **/
 Bellman::AutoVarPrint1(task) {
-	print("\n---------------\n","%c",{"Index","IsTerm","InSamp","Aind"}|Slabels[S[endog].M:S[clock].X],"%7.0f","%r",{"Values"},
+	print("\n---------------\n","%c",{"Index","IsTerm","InSamp","Aind"}|Vprtlabels[svar][S[endog].M:S[clock].X],"%7.0f","%r",{"Values"},
 		ind[tracking]~IsTerminal~InSubSample~Aind~ ( isclass(task) ? (task.state[S[endog].M:S[clock].X])' : 0 ),
 	"%r",{"EV"},EV',"pandv=","%v",pandv,"%r",{"FeasS","Prob"},Nxt[Qi][]|Nxt[Qrho][]);
     println("*** ",InSubSample," ",this.InSubSample);
@@ -243,7 +243,7 @@ Bellman::Predict(ps,tod) {
 		width = SS[onlyexog].size,
 		Pa = ExpandP(rind);		
 	tod.ch += ps*Pa;
-	tod.unch += Pa/columns(tod.sind);
+//	tod.unch += Pa/columns(tod.sind);
 	hi = -1;
     decl d = 0.0;
     for (eta=0;eta<SS[onlysemiexog].size;++eta) if (sizerc(Nxt[Qi][eta])) {
@@ -314,15 +314,17 @@ Bellman::Delete() {
 	decl i;
 	for(i=0;i<sizeof(SubVectors);++i) if (isclass(SubVectors[i])) delete SubVectors[i];
 	delete SubVectors, States;
-	delete NxtExog, Blocks, Alabels, Slabels, Auxlabels;
+	delete NxtExog, Blocks, Vprtlabels, Vlabels;
 	for(i=0;i<sizeof(SS);++i) delete SS[i];
-	delete SS, S, F, P, delta, counter, ActionMatrix, Asets, A, UpdateTime;
+	delete SS, S, F, P, delta, counter, ActionMatrix, Asets, A;
 	SS = delta = counter = Impossible;	
 	for(i=0;i<sizeof(Theta);++i) delete Theta[i];
 	for(i=0;i<sizeof(Gamma);++i) delete Gamma[i];
 	delete Gamma, Theta, ReachableIndices, tfirst;
 	delete ETT;
-	Volume = SampleProportion = DoSubSample = StorePA = IsErgodic = HasFixedEffect = ThetaCreated = Gamma = Theta = ReachableIndices = 0;	
+    Flags::Reset();
+    N::Reset();
+	Volume = SampleProportion = Gamma = Theta = ReachableIndices = 0;	
 	}
 
 /**
@@ -450,7 +452,7 @@ Normal::Initialize(userReachable,UseStateList,GroupExists) {
 
 Normal::CreateSpaces() {
 	Bellman::CreateSpaces();	
-	Chol = new array[J];
+	Chol = new array[N::J];
 	}
 
 NIID::ActVal(VV) {
@@ -463,14 +465,14 @@ NIID::ActVal(VV) {
 			for (j=0;j<J;++j) { //,ev = 0.0
 				choicep = prodr(probn(GQNODES[Aind][j] + vv*MM[Aind][j] ))/M_SQRT2PI;
 //				ev +=   NxtExog[Qrho][eta]*(GQH::wght * (choicep.*(Chol[Aind][j]*GQH::nodes+ pandv[rind][j][lo:hi]))) ;
-				if (setPstar) pandv[rind][j][lo:hi] = GQH::wght * choicep;
+				if (Flags::setPstar) pandv[rind][j][lo:hi] = GQH::wght * choicep;
 				}
 			}		
-		if (setPstar) pandv[rind] += (1-sumc(pandv[rind]))/J;  // fix choice prob. for numerical error
+		if (Flags::setPstar) pandv[rind] += (1-sumc(pandv[rind]))/J;  // fix choice prob. for numerical error
 		}
 	else	{
 //		ev = meanc(U)*NxtExog[Qrho];
-		if (setPstar) pandv[rind][][] = 1/J;
+		if (Flags::setPstar) pandv[rind][][] = 1/J;
 		}
 	}
 	
@@ -492,12 +494,12 @@ NIID::SetIntegration(GQLevel,AChol) {
 	
 NIID::CreateSpaces() {
 	Normal::CreateSpaces();
-	GQNODES = new array[J];
-	MM = new array[J];
+	GQNODES = new array[N::J];
+	MM = new array[N::J];
 	decl mm = rows(A[0]),i;
 	if (isint(AChol)) AChol = ones(mm,1);
 	else if (rows(AV(AChol))!=mm) oxrunerror("Length of Choleski vector must equal rows of full action matrix");
-	for (i=0;i<J;++i) {
+	for (i=0;i<N::J;++i) {
 		MM[i] = new array[rows(A[i])];
 		GQNODES[i] = new array[rows(A[i])];
 		}
@@ -510,7 +512,7 @@ NIID::CreateSpaces() {
 **/
 NIID::UpdateChol() {
 	decl nfeas,i,nr,j,a, AC = AV(AChol);
-	for (i=0;i<J;++i) {
+	for (i=0;i<N::J;++i) {
 		nfeas = rows(A[i]);
 		if (nfeas>1) {
 			Chol[i] = selectifr(AC,ActionSets[i])';
@@ -552,7 +554,7 @@ NnotIID::SetIntegration(R,iseed, AChol) {
 	
 NnotIID::CreateSpaces() {
 	Normal::CreateSpaces();
-	ghk=new array[J];
+	ghk=new array[N::J];
 	decl mm= rows(A[0]);
 	if (R<=0) {
 		oxwarning("Number of Replications not set or invalid, setting to 1");
@@ -564,7 +566,7 @@ NnotIID::CreateSpaces() {
 	 	if (rows(AV(AChol))!=mm) oxrunerror("Length of Choleski vector must equal lower triangle for full action vector, ");
 		}
 	decl i;
-	for (i=0;i<J;++i)  ghk[i] = new GHK(R,rows(A[i]),0);
+	for (i=0;i<N::J;++i)  ghk[i] = new GHK(R,rows(A[i]),0);
 	}	
 	
 /**Iterate on Bellman's equation at &theta; with ex ante correlated normal additive errors.
@@ -577,12 +579,12 @@ NnotIID::ActVal(VV) {
 			pandv[rind][][eta] = U[][eta] + CV(delta)*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]]));
 			[V[],choicep] = ghk[Aind]->SimDP(pandv[rind][][eta],Chol[Aind]);
 //			ev  +=   NxtExog[Qrho][eta]*(V'*choicep);
-			if (setPstar) pandv[rind][][eta] = choicep;
+			if (Flags::setPstar) pandv[rind][][eta] = choicep;
 			}
 		}
 	else {
 //		ev = meanc(U)*NxtExog[Qrho];
-		if (setPstar) pandv[rind][][] = 1/J;
+		if (Flags::setPstar) pandv[rind][][] = 1/J;
 		}
 //	return ev;
 	}
@@ -593,7 +595,7 @@ NnotIID::UpdateChol() {
 	decl i;
 	ranseed(iseed);
 	decl AC = unvech(AV(AChol));
-	for (i=0;i<J;++i)
+	for (i=0;i<N::J;++i)
 		Chol[i] = selectifc(selectifr(AC,ActionSets[i]),ActionSets[i]');
 	}
 
@@ -615,7 +617,7 @@ OneDimensionalChoice::Initialize(userReachable,d,UseStateList,GroupExists) {
 
 OneDimensionalChoice::CreateSpaces() {
 	Bellman::CreateSpaces();
-	if (Nav!=1) oxrunerror("1-d model must have exactly one action variable");
+	if (N::Av!=1) oxrunerror("1-d model must have exactly one action variable");
 	if (SS[bothexog].size>1) oxrunerror("1-d model does not allow exogenous variables");	
 	}
 
@@ -630,7 +632,7 @@ OneDimensionalChoice::thetaEMax(){
 	decl eua;
 	[eua,pstar] = EUtility();
 	V[] = pstar*(eua+pandv[rind]);
-	if (setPstar) this->Smooth(V);
+	if (Flags::setPstar) this->Smooth(V);
 	return V;
 	}
 

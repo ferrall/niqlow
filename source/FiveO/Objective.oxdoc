@@ -8,9 +8,9 @@ A user defines a non-linear objective as a class derived from `Objective`.  Curr
 <LI>`UnConstrained`: an objective to maximize without imposing equality and inequality constraints on paramers.  In turn,
 unconstrained objectives should be derived from one of three sub-classes:</LI>
 <UL>
-<LI><a href="#BB">BlackBox</a>: the objective is a `BlackBox` objective.</LI>
-<LI><a href="#SO">Separable</a>: the objective is the `Separable` sum of K blackbox objectives.  Some parameters can be common across the objectives. </LI>
-<LI><a href="#MX">Mixture</a> the objective is a estimated weighted average of separable mixture of K problems over G different environments.  A separable objective is a special case where the G=1 and weights are fixed.</LI>
+<LI>A <a href="BlackBox.ox.html">BlackBox</a>: the objective is a `BlackBox` objective.</LI>
+<LI><a href="Separable.ox.html">Separable</a>: the objective is the `Separable` sum of K blackbox objectives.  Some parameters can be common across the objectives. </LI>
+<LI><a href="Separable.ox.html">Mixture</a> the objective is a `Mixture`: a separable mixture of K problems over G different environments.  A separable objective is a special case where the G=1 and weights are fixed.</LI>
 </UL>
 <LI>`Constrained`: an objective to maximize subject to equality and inequality constraints using sequential quadratic programming (`SQP`).</LI>
 <LI>`System`:  A square system of non-linear equations for which roots are to be found.  See <a href="NonLinearSystem.html">Non-Linear System</a> for details.</LI>
@@ -28,90 +28,7 @@ unconstrained objectives should be derived from one of three sub-classes:</LI>
 <DT>The work of optimization of the objective (or solution to the system) is done using a method of the `Algorithm` class.</DT>
 <DD>When an algorithm object is created the objective is sent as a argument and is assigned as a <code>constant</code> member.  So during execution an algorithm object is associated with a single objective, but multiple algorithms can be applied to the same objective.  This allows for a comparison of algorithms and/or applying a sequence of algorithms in order to carry out the optimization.</DD>
 
-<a name="BB"><h2>BlackBox: <var>f:&real;<sup>N</sup>&rarr;&real;</var>.</h2></a>
 
-<a name="SO"><h2>Separable: the sum of <var>K</var> `BlackBox` objectives.</h2></a>
-
-<DT>A separable objective is a function <em>and</em> a parameter <em>matrix</em> of the form</DT>
-<dd><pre>
-
-&psi = (&psi;<sub>0</sub> ~ &psi;<sub>1</sub> ~ &hellip; ~ &psi;<sub>K&oline;</sub>)
-
-&fnof;(&psi;)  = &sum;<sub>k=0</sub><sup>K&oline;</sup>  [&sum; f<sub>k</sub>(&psi;<sub>k</sub>)]
-
-</pre></pre>
-
-<DT>Each sub-vector <code>&psi;<sub>k</sub></code> is of the same length, <code>(&psi;.k).N = M.</code></DT>
-<DD>The overall parameter <code>&psi;</code> is then a <code>M &times; K</code> matrix, the horizontal concatenation of the the sub-vectors.</DD>
-<dd>Obviously, for K=1 a separable objective is equivalent to a `BlackBox`.</DD>
-
-<DT>The user only needs to code the sub-objective as a function of the sub-parameter vector and a `Discrete` quantity, <code>K</code>.</DT>
-<DD>That is, the user codes <code>vfunc()</code> to equal <code>f<sub>k</sub>(&psi;<sub>k</sub>)</code>.  </DD>
-<DD>The current value of the index <code>k</code> is stored as `Separable::Kvar`.v. </DD>
-<DT>To create a separable objective, call <code>new Separable(L,Kvar)</code>, where <code>Kvar</code> can be either
-<DD><pre>
-Kvar = positive integer
- or
-Kvar = objective of class `Discrete`</pre>
-If a positive integer is sent then <span class="n">FiveO</span> sets <code>this.Kvar = new Discrete("K",Kvar);</code>.  Otherwise,
-the user sent discrete variable is used directly.</DD>
-<DT>Algorithms do not know the difference between separable objectives and blackboxes.  </DT>
-<DD>Instead, <span class="n">FiveO</span> keeps track internally of the matrix structure of the parameter vector.  </DD>
-<DT>Ordinarily a single parameter of a separable objective spawns <code>K</code> parameter <em>values</em>.</DT>
-<DD>`Objective::Parameters`(x) creates a single parameter (or block), but the value of that parameter will be allowed to vary across <code>k</code>.  </DD>
-<DD>Each value of a parameter is under the control of algorithms.  Any dependency between parameters within a sub-vector will be respected <code>k</code> by <code>k</code>.</DT>
-<DT>A parameter can be added to the objective with `Separable::CommonParameters`().</DT>
-<DD> Now the parameter has only one value which will be the same across <code>k</code>.</DD>
-<DT>Total Parameters</DT>
-<DD>If no common parameters (and no `Determined` parameters) are added to a separable objective then the length of the (overall) parameter vector seen by an algorithm is <code>N = KM</code>.</DD>
-<DD>`Separable::C`<code>&le;M</code> denotes the number of common parameters that were added to the objective.  In general, the overall parameter vector has length <code>N = C+K&times;(M-C)</code>.</DD>
-<DD>Parameters are always written out to files with duplicates, so it will appear that <var>N&times;K</var> parameters exist, but common parameters will always be equal across <code>k</code>. </DD>
- <DD>This means that parameters can be changed from common to specific and vice versa without modifying files created by `Objective::Save`().</DD>
-
-<a name="MX"><h2>Mixture: `Separable` objective with linearly weighted sub-objectives.</h2></a>
-
-A <em>Mixture</em> is the objective from a finite mixture model of unobserved heterogeneity, in which the separate functions involve two stages and weighting parameters.
-
-A `Mixture` generalizes a separable objective in two ways, so it is a class derived from `Separable`.
-<DT>First, a mixture includes a second discrete dimension, `Mixture::Dvar`. </DT>
-<DD>The current value, <code>Dvar.d</code>, takes on values <code>0 &hellip; D&oline;</code> and indexes different environments that the parameters</DD>
- <DD>Now the sub objective depends on <code>k</code> and <code>d</code>.  However, parameter vectors continue to only depend on <code>k</code>. </DD>
- <DD> Thus, in a mixture model sub-objectives take the form <code>&fnof;<sub>k d</sub>(&psi;<sub>k</sub>)</code>.</DD>
-<DD>Thus, there are <code>KD</code> different combinations of
-<DT>Second, a mixture has a separate D&times;K matrix of <em>weighting parameters</em>, denoted <code>&lambda;</code>.  </DT>
-<DT>The mixture objective :<DD><pre>
-&fnof; = &sum;<sub>d=0</sub><sup>D&oline;</sup>  &sum;<sub>k=0</sub><sup>K&oline;</sup>  &lambda;[d][k] &fnof;<sub>k d</sub>(&psi;<sub>k</sub>)
-
-Typically (but not necessarily), the weights are each a unit Simplex for each d:
-  0 &le; &lambda;[d][k] &le; 1
-  &sum;<sub>k=0</sub><sup>K&oline;</sup> &lambda;[d][k] = 1. </pre></DD>
-<DD>A separable objective is the special case of a mixture with <code>D=K</code> and <code>&lambda; = I<sub>K</sub></code>.  That is, each type is specific to an environment.</DD>
-<DT>To create a mixture objective, call <code>new Mixture(L,Dvar,Kvar,...) </code>, where <code>Kvar</code> is the same as for separable objectives and <code>Dvar</code> can be the same:
-<DD><pre>
-Dvar = positive integer
- or
-Dvar = objective of class `Discrete`</pre>
-If a positive integer is sent then <span class="n">FiveO</span> sets <code>this.Dvar = new Discrete("D",Dvar);</code>.  Otherwise,
-the user sent discrete variable is used directly.</DD>
-<DD>The variable argument are optional initializing values for &lambda;
-<pre>
-Let va = va_arglist();
-No optional argument (va = {}) means
-	lambda[d] = new Simplex("L"+sprint("%2u",d),K),  for d = 0, &hellip; D&oline;
-A single argument (va = array[1]), then it must be a D&times;K matrix
-	lambda[d] = new Simplex("L"+sprint("%2u",d),va[0][d][]),  for d = 0, &hellip; D&oline;
-D arguments (va = array[D]), then each must be a `ParameterBlock` of size K and
-	lambda[d] = va[d]    for d = 0, &hellip; D&oline;</pre></DD>
-<DD>The final option allows the user to use weights that do not sum to 1 for each value of <code>d</code>, because the parameter block need not be a <a href="Parameters.ox.html#Simplex">Simplex</a> parameter block.</DD>
-<DT>It is inefficient to compute &fnof;<sub>k d</sub> if its weight is zero. </DT>
-<DD>The user can send a matrix of 0s and 1s to `Mixture::IncludedDK`(), which indicates which type-environment pairs should be ignored.</DD>
-<DD>The default matrix consists of 0s, meaning that no combinations are ignored.</DD>
-<DT>Algorithms do not know any difference between a mixture, separable or blackbox objective. </DT>
- <DD>Algorithms will work with a concatenation  of &lambda; and &psi;.</DD>
- <DD>Common parameters operate the same way in a mixture as in a separable objective.</DD>
- <DT>Total Parameters</DT>
-<DD>If no common parameters (and no `Determined` parameters) are added to a separable objective, and the weights are D K-Simplexes, then the length of the (overall) parameter vector seen by an algorithm is <code>N = D(K-1) + KM</code>.</DD>
-<DD>In general, the overall parameter vector has length <code>N = DK + C+DK&times;(M-C)</code>.</DD>
 
 <hr><a name="auto"><h1>Documentation of  Items Defined in Objective.ox</h1></a>
 

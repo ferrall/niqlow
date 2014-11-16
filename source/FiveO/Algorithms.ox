@@ -5,7 +5,7 @@
 @param O `Objective` to work on.
 **/
 Algorithm::Algorithm(O) {
-	nfuncmax = mxstarts = maxiter = INT_MAX;
+	nfuncmax = maxiter = INT_MAX;
 	N = 0;
     this.O = O;
 	OC = O.cur;
@@ -14,15 +14,36 @@ Algorithm::Algorithm(O) {
     }
 
 /** Tune Parameters of the Algorithm.
-@param mxstarts integer number of simplex restarts<br>0 use current/default value
+@param maxiter integer max. number of iterations <br>0 use current/default value
 @param toler double, simplex tolerance for convergence<br>0 use current/default value
 @param nfuncmax integer, number of function evaluations before resetting the simplex<br>0 use current/default value
 **/
-Algorithm::Tune(mxstarts,toler,nfuncmax) {
-	if (mxstarts) this.mxstarts = mxstarts;	
+Algorithm::Tune(maxiter,toler,nfuncmax) {
+	if (maxiter) this.maxiter = maxiter;	
 	if (isdouble(toler)) this.tolerance = toler;
 	if (nfuncmax) this.nfuncmax = nfuncmax;
 	}
+
+/** Tune NelderMead Parameters .
+@param mxstarts integer number of simplex restarts<br>0 use current/default value
+@param toler double, simplex tolerance for convergence<br>0 use current/default value
+@param nfuncmax integer, number of function evaluations before resetting the simplex<br>0 use current/default value
+@param maxiter integer max. number of iterations <br>0 use current/default value
+**/
+NelderMead::Tune(mxstarts,toler,nfuncmax,maxiter) {
+	if (mxstarts) this.mxstarts = mxstarts;	
+	if (isdouble(toler)) this.tolerance = toler;
+	if (nfuncmax) this.nfuncmax = nfuncmax;
+	if (maxiter) this.maxiter = maxiter;	
+	}
+
+
+RandomSearch::RandomSearch(O) {
+    SimulatedAnnealing(O);
+    heat = 10000.0;
+    shrinkage = 1.0;
+    cooling = 1.0;
+    }
 	
 /** Initialize Simulated Annealing.
 @param O `Objective` to work on.
@@ -32,6 +53,8 @@ SimulatedAnnealing::SimulatedAnnealing(O)  {
 	holdpt = new LinePoint();
 	chol = 0;
 	heat = 1.0;
+    shrinkage = 0.5;
+    cooling = 0.85;
 	}
 
 /** accept or reject.
@@ -42,8 +65,8 @@ SimulatedAnnealing::Metropolis()	{
 	if (Volume==LOUD) println(iter~OC.v~(vec(OC.F)'));
 	if ( (diff> 0.0) || ranu(1,1) < exp(diff/heat))	{
 		if (accept++==N) {
-			heat *= 0.85;  //cool off annealing
-			chol *= 0.5; //shrink
+			heat *= cooling;  //cool off annealing
+			chol *= shrinkage; //shrink
 			if (Volume>QUIET) println("Cool Down ",iter,". f=",OC.v," heat=",heat);
 			accept = 0;
 			}
@@ -57,10 +80,14 @@ SimulatedAnnealing::Metropolis()	{
 /** Tune annealing parameters.
 @param maxiter &gt; 0, number of iterations<br>0 do not change
 @param heat &gt; 0, temperature parameter <br>0 do not change
+@param cooling &in; (0,1], rate to cool, <br>0 do not change
+@param shrinkage &in; (0,1], rate to shrink, <br>0 do not change
 **/
-SimulatedAnnealing::Tune(maxiter,heat)	{
+SimulatedAnnealing::Tune(maxiter,heat,cooling,shrinkage)	{
 	if (heat>0) this.heat = heat;
 	if (maxiter) this.maxiter = maxiter;
+    if (cooling>0) this.cooling = cooling;
+    if (shrinkage>0) this.shrinkage = shrinkage;
 	}
 
 /** Carry out annealing.
@@ -77,7 +104,7 @@ SimulatedAnnealing::Iterate(chol)	{
 	   OC.H = OC.SE = OC.G = .NaN;
 	   accept = iter =0;	
 	   do  {
-		  O->fobj(OC.F + chol*rann(N,1));
+		  O->fobj(OC.F + this.chol*rann(N,1));
 		  Metropolis();
 		} while (iter++<maxiter);
 	   O->Decode(0);
@@ -88,6 +115,7 @@ SimulatedAnnealing::Iterate(chol)	{
             }
        }
     else {
+       println("chol ",chol);
         O.p2p.server->Loop(N);
         }
 
@@ -167,9 +195,7 @@ CLineMax::Try(pt,step)	{
 		println("Lagrange undefined at line max point ",pt,OC.X);
 		oxrunerror(" ");
 		}
-	println("++ ",step," ",pt.v);
 	improved = improved || O->CheckMax();
-//	println("CLM try",improved,pt);
 	}
 	
 /** Bracket a local maximum along the line.
@@ -230,6 +256,7 @@ LineMax::Golden()	{
 NelderMead::NelderMead(O)	{
     Algorithm(O);
 	step = istep;
+	mxstarts =INT_MAX;
 	}
 	
 /** Iterate on the Amoeba algorithm.
@@ -238,7 +265,7 @@ NelderMead::NelderMead(O)	{
 **/
 NelderMead::Iterate(iplex)	{
 	O->Encode(0);
-	N = rows(OC.F);
+    N = rows(OC.F);
     if (!isclass(O.p2p) || O.p2p.IamClient) {
 	   nodeV = constant(-.Inf,N+1,1);
 	   OC.SE = OC.G = .NaN;
@@ -542,6 +569,7 @@ NonLinearSystem::Gupdate()	{
 NonLinearSystem::Iterate(J)	{
 	O->Encode(0);
 	N = rows(holdF = OC.F);
+    deltaX=.NaN;
     if (!isclass(O.p2p) || O.p2p.IamClient) {
 	   Hresetcnt = iter =0;
 	   OC.H = OC.SE = OC.G = .NaN;	
@@ -635,15 +663,14 @@ SQP::Iterate(H)  {
 	   do  {
 		  holdF = OC.F;
 		  this->Gupdate();
-		  println("XX ",OC.H," ",OC.L',"J",OC.eq.J," ",OC.ineq.J,"vv",OC.ineq.v,OC.eq.v);
 		  [Qconv,deltx,mults] = SolveQP(OC.H,OC.L',OC.ineq.J,OC.ineq.v,OC.eq.J,OC.eq.v,<>,<>);  // -ineq or +ineq?
-		  println("XXX ",Qconv,deltx,"m",mults,"---");
 		  if (ne) OC.eq.lam =  mults[:ne-1];
 		  if (ni) OC.ineq.lam =  mults[ne:];
-		  println("deltx ",OC.F',deltx');
+//		  println("deltx ",OC.F',deltx');
 		  LM->Iterate(deltx,1);
-		  println(deltx',holdF',OC.F');
+//		  println(deltx',holdF',OC.F');
 		  convergence = (++iter>maxiter) ? MAXITERATIONS : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE));		
+          println(iter," ",convergence);
 		  if (Volume>QUIET) {
 		    println("\n",classname(this)," ",iter,". QP code:",Qconv,". L=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
 			OC.eq->print();
@@ -675,9 +702,7 @@ SQP::Iterate(H)  {
 SQP::Gupdate() {
 	O->Gradient();
 	oldG = OC.L;
-	println("## ",OC.ineq.lam," ",OC.ineq.J,OC.eq.lam,OC.eq.J);
 	OC.L  = OC.G-(ni ? OC.ineq.lam'*OC.ineq.J : 0.0)-(ne ? OC.eq.lam'*OC.eq.J : 0.0);
-	println("YY ",OC.ineq.lam'," ",OC.ineq.J);
 	deltaG = norm(OC.L,2);
 	}
 	

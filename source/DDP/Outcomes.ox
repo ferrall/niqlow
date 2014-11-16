@@ -11,20 +11,20 @@ Outcome::Outcome(prior) {
 	onext = UnInitialized;
 	act = constant(.NaN,1,SS[onlyacts].D);
 	z = constant(.NaN,1,zeta.length);
-	aux = constant(.NaN,1,Naux);
+	aux = constant(.NaN,1,N::aux);
 	Ainds = <>;
 	if (isclass(prior)) {
 		prev = prior;
 		t = prev.t+1;
 		nxtstate = prior.onext;
-		state = prior.onext; //constant(.NaN,NN); //
+		state = prior.onext; //constant(.NaN,AllN); //
 		prior.onext = this;
 		}
 	else {
 		prev = t = 0;
 		nxtstate = prior;
 		}	
-	state = isint(nxtstate) ? constant(.NaN,NN) : nxtstate;
+	state = isint(nxtstate) ? constant(.NaN,AllN) : nxtstate;
 	ind = new array[DSubSpaces];
 	ind[] = DoAll;
 	if (!isnan(state[S[endog].M:])) {
@@ -71,7 +71,7 @@ Outcome::Simulate() {
 	ind[bothexog] = DrawOneExogenous(&state);
 	ind[onlyexog] = OO[onlyexog][]*state;
 	ind[onlysemiexog] = OO[onlysemiexog][]*state;
-	SyncStates(0,NS-1);
+	SyncStates(0,N::S-1);
 	if (!isclass(th = Settheta(ind[tracking]))) oxrunerror("simulated state "+sprint(ind[tracking])+" not reachable");
 	onext = th->Simulate(this);
 	ind[onlyacts] = ialpha;
@@ -93,8 +93,8 @@ Path::Path(i,state0) {
 			Outcome( DrawGroup(state0).state );
 	else Outcome(state0);
 	last = pnext = UnInitialized;
-	if (NR>1 && isint(summand)) {
-		summand = new RandomEffectsLikelihood();
+	if (N::R>1 && isint(summand)) {
+		summand = new RandomEffectsIntegration();
 		upddens = new UpdateDensity();
 		}
 	}
@@ -174,7 +174,7 @@ FPanel::FPanel(f,method,FullyObserved) {
 	this.method = method;
     this.FullyObserved = FullyObserved;
 	Path(0,UnInitialized);
-	if (isint(SD)&&IsErgodic) SD = new SDTask();
+	if (isint(SD)&&Flags::IsErgodic) SD = new SDTask();
 	fnext = UnInitialized;
 	NT = N = 0;
 	L = <>;
@@ -217,7 +217,7 @@ FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
            }
         }
 	if (isclass(upddens)) upddens->SetFE(f);
-    if (IsErgodic && !T) oxwarning("Simulating ergodic paths without fixed T?");
+    if (Flags::IsErgodic && !T) oxwarning("Simulating ergodic paths without fixed T?");
 	cputime0 = timer();
 	if (isclass(method)) method->Solve(f,0);
 	cur = this;
@@ -270,17 +270,17 @@ Panel::Panel(r,method,FullyObserved) {
     this.method = method;
 	this.r = r;
 	FPanel(0,method,FullyObserved);	
-	fparray = new array[NF];
+	fparray = new array[N::F];
 	fparray[0] = 0;
 	flat = FNT = 0;
 	cur = this;
-	for (i=1;i<NF;++i) cur = cur.fnext = fparray[i] = new FPanel(i,method,FullyObserved);
+	for (i=1;i<N::F;++i) cur = cur.fnext = fparray[i] = new FPanel(i,method,FullyObserved);
 	if (isint(Lflat)) {
-		Lflat = {PanelID}|{FPanelID}|{PathID}|PrefixLabels|Slabels|{"|ai|"}|Alabels;
+		Lflat = {PanelID}|{FPanelID}|{PathID}|PrefixLabels|Vprtlabels[svar]|{"|ai|"}|Vprtlabels[avar];
 		for (i=0;i<zeta.length;++i) Lflat |= "z"+sprint(i);
 		foreach (q in Chi) Lflat |= q.L;
 		Fmtflat = {"%4.0f","%4.0f"}|{"%4.0f","%2.0f","%3.0f","%3.0f"}|Sfmts|"%4.0f";
-		for (i=0;i<Nav;++i) Fmtflat |= "%4.0f";
+		for (i=0;i<N::Av;++i) Fmtflat |= "%4.0f";
 		for (i=0;i<zeta.length;++i) Fmtflat |= "%7.3f";
         foreach (q in Chi) Fmtflat |= "%7.3f"; //		for (i=0;i<Naux;++i) Fmtflat |= "%7.3f";
 		}
@@ -385,7 +385,7 @@ Outcome::FullLikelihood() {
 /** Integrate over the path.
 
 **/
-Path::PathLike() {
+Path::PathObjective() {
 	decl cur, glk;
 	now = TRUE;
 	viinds[!now] = vilikes[!now] = <>;
@@ -398,26 +398,22 @@ Path::PathLike() {
 	L = double(sumr(vilikes[!now]));
 	}
 
-
-
-RandomEffectsLikelihood::RandomEffectsLikelihood() {
-	RETask();
-	}
+RandomEffectsIntegration::RandomEffectsIntegration() {	RETask(); 	}
 
 /** .	
-@return L, path likelihood, integrating over random &gamma;
+@return L, path objective, integrating over random &gamma;
 **/
-RandomEffectsLikelihood::Integrate(path) {
+RandomEffectsIntegration::Integrate(path) {
 	this.path = path;
 	L = 0.0;
 	loop();
 	return L;
 	}
 	
-RandomEffectsLikelihood::Run(g) {
+RandomEffectsIntegration::Run(g) {
 	SetGroup(g);
-	path->PathLike();
-	L += g.curREdensity*path.L;	
+	path->PathObjective();
+	L += curREdensity*path.L;	
 	}
 	
 /** Compute likelihood of a realized path.
@@ -430,7 +426,7 @@ Path::Likelihood() {
 	if (isclass(summand))
 		L = summand->Integrate(this);
 	else
-		PathLike();
+		PathObjective();
 	}
 
 /** Integrate over a fully observed path.
@@ -455,7 +451,7 @@ Path::FullLikelihood() {
 DataColumn::DataColumn(type,obj) {
 	this.type = type;
 	this.obj = obj;
-	instrument = incol = obsv = ind = label = UnInitialized;
+	incol = obsv = ind = label = UnInitialized;
 	force0 = (ismember(obj,"N") && obj.N==1) ;
 	}
 
@@ -477,7 +473,7 @@ DataColumn::Observed(LorC) {
 
 DataColumn::UnObserved() {
 	obsv = FALSE;
-	instrument = incol = ind = label = UnInitialized;
+	incol = ind = label = UnInitialized;
 	}
 
 DataColumn::ReturnColumn(dlabels,incol)	{
@@ -493,11 +489,9 @@ FPanel::LogLikelihood() {
 	decl i,cur;
 	FPL = zeros(N,1);  //NT
 	cputime0 =timer();
-	//	dogroups = groupcols==DoAll ? range(0,NG-1) : groupcols
 	if (isclass(method)) method->Solve(f,0);
-    if (!HasBeenUpdated) {
-        oxwarning("Transitions have not been calculated at least once. Likelihood may fail. You may need to SetUpdateTime()");
-        HasBeenUpdated=TRUE;
+    else {
+        if (Flags::UpdateTime[AfterFixed]) UpdateVariables(0);
         }
 	if (isclass(upddens)) {
 		upddens->SetFE(state);
@@ -514,13 +508,14 @@ FPanel::LogLikelihood() {
 /**Compute the vector of log-likelihoods.
 The vector of path log-likelihoods is stored in `Panel::M`,
 it is constructed by appending each `FPanel::FPL`.
-If `Panel::Nested` is TRUE, then <code>`FPanel::method`-&gt;Solve()</code>
-is called before each `FPanel`.
+If `FPanel::method` is an object, then <code>`FPanel::method`-&gt;Solve()</code>
+is called.
 @see DataSet::EconometricObjective
 **/
 Panel::LogLikelihood() {
 	cur = this;
 	M = <>;	
+	if (!isclass(method) && Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
 	do {
 		cur->FPanel::LogLikelihood();
 		M |= cur.FPL;
@@ -539,15 +534,18 @@ FPanel::Mask() {
 **/
 DataSet::Mask() {
 	decl s;
-	if (isint(mask)) mask = new array[ExternalData];
-	mask[inact] = mask[instate] = mask[inaux] = <>;	
+	if (isint(mask)) mask = new array[NColumnTypes];
+    for(s=0;s<NColumnTypes;++s) mask[s] = <>;
 	if (list[0].obsv!=TRUE) list[0].obsv=FALSE;
-	for(s=0;s<Nav;++s)
-		if (list[s+1].obsv!=TRUE) { if (!list[s+1].force0) mask[inact] |= s; list[s+1].obsv=FALSE;}
-	for(s=0;s<NS;++s)
-		if (list[s+1+Nav].obsv!=TRUE) {if (!list[s+1+Nav].force0) mask[instate] |= s; list[s+1+Nav].obsv=FALSE;}
-	for(s=0;s<Naux;++s)
-		if (list[s+1+Nav+NS].obsv!=TRUE) {mask[inaux] |= s; list[s+1+Nav+NS].obsv=FALSE;}
+    low[avar] = 1;
+    low[svar] = low[avar]+N::Av;
+    low[auxvar] = low[svar]+N::S;
+	for(s=0;s<N::Av;++s)
+		if (list[s+low[avar]].obsv!=TRUE) { if (!list[s+low[avar]].force0) mask[avar] |= s; list[s+low[avar]].obsv=FALSE;}
+	for(s=0;s<N::S;++s)
+		if (list[s+low[svar]].obsv!=TRUE) {if (!list[s+low[svar]].force0) mask[svar] |= s; list[s+low[svar]].obsv=FALSE;}
+	for(s=0;s<N::aux;++s)
+		if (list[s+low[auxvar]].obsv!=TRUE) {mask[auxvar] |= s; list[s+low[auxvar]].obsv=FALSE;}
 	if (Volume>SILENT) Summary(0);
 	cur = this;
 	do { cur -> FPanel::Mask(); } while (isclass(cur = cur.fnext));
@@ -562,39 +560,60 @@ DataSet::IDColumn(lORind) {
 	list[0]->Observed(lORind);
 	}
 
-	
-/** Mark action  and state variables as observed in data.
-@param aORs `Discrete` object, either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
-			one of the state vectors<br>
-			`StateBlock`: each variable in the block will be added to the observed list.
+/**
+@param aORs  Either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
+			one of the state vectors, or a `AuxiliaryValues`, element of &chi;<br>
+            <em>OR<em><br>
 @param LorC	 UseLabel, variable's label to denote column of data with observations <br>
              integer &ge; 0, column of data matrix that contains observations<br>
 			 string, label of column with observations.
-@param ... <br>
-DiscreteVar2<br>
-labelORcolumn2<br>
-etc.
-@comments LorC is ignored if aORs is a block, UseLabel is sent for each.
+
 **/
-DataSet::Observed(as1,lc1,...) {
-	decl offset,aORs,LorC,va = {as1,lc1}|va_arglist(),k;
+DataSet::MatchToColumn(aORs,LorC) {
+	if (IsBlock(aORs)) oxrunerror("Can't use columns or external labels to match blocks. Must use ObservedWithLabel(...)");
+	decl offset,k;
 	if (Volume>SILENT) print("\nAdded to the observed list: ");
-	for (k=0;k<sizeof(va);++k) {
-		aORs = va[k];	LorC = va[++k];
+	offset = isclass(aORs,"ActionVariable") ? 1
+				: isclass(aORs,"StateVariable") ? 1+N::Av
+				: 1+N::Av+N::S;
+	if (list[offset+aORs.pos].obsv==FALSE && masked) oxrunerror("cannot recover observations on UnObserved variable after reading/masking");
+	list[offset+aORs.pos]->Observed(LorC);				
+	if (Volume>SILENT) print(aORs.L," Matched to column ",LorC);
+    }
+
+
+//DataSet::Observed(as1,lc1,...) {
+//	decl va = va_arglist(), np = sizeof(va)/2,i;
+//    MatchToColumn(as1,lc1);
+//    for (i=0;i<np;++i) MatchToColumn(va[2*i],va[2*i+1]);
+//    }
+
+	
+/** Mark actions and state variables as observed in data, matched with their internal label.
+@param aORs  Either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
+			one of the state vectors, or a `AuxiliaryValues`, element of &chi;<br>
+            <em>OR<em><br>
+            array of the form {v1,v2,&hellip;}.  In this case all other arguments are ignored.<br>
+@param ... continues with object2, LoC2, object3, LorC3, etc.<br>
+**/
+DataSet::ObservedWithLabel(as1,...) {
+	decl offset,aORs,LorC,va = isarray(as1) ? as1 : {as1},k,bv;
+    va |= va_arglist();
+	if (Volume>SILENT) print("\nAdded to the observed list: ");
+    foreach (aORs in va) {
 		if (IsBlock(aORs)) {
-			decl bv;
-            //for (bv=0;sizeof(aORs.Theta);++bv) Observed(States[aORs.Theta[bv]],UseLabel);
-	        foreach (bv in aORs.Theta) Observed(States[bv],UseLabel);
+	        foreach (bv in aORs.Theta) ObservedWithLabel(States[bv]);
 		    continue;
 			}
 		offset = isclass(aORs,"ActionVariable") ? 1
-				: isclass(aORs,"StateVariable") ? 1+Nav
-				: 1+Nav+NS;
+				: isclass(aORs,"StateVariable") ? 1+N::Av
+				: isclass(aORs,"AuxiliaryValues") ? 1+N::Av+N::S
+                : 0;
 		if (list[offset+aORs.pos].obsv==FALSE && masked) oxrunerror("cannot recover observations on UnObserved variable after reading/masking");
-		list[offset+aORs.pos]->Observed(LorC);				
+		list[offset+aORs.pos]->Observed(UseLabel);				
 		if (Volume>SILENT) print(aORs.L," ");
 		}
-	if (Volume>SILENT) println("Observed Finished.");
+	if (Volume>SILENT) println(".");
 	}
 
 /** UnMark action and states variables as observed.
@@ -616,8 +635,8 @@ DataSet::UnObserved(as1,...) {
 			continue;
 			}
 		offset = isclass(aORs,"ActionVariable") ? 1
-				: isclass(aORs,"StateVariable") ? 1+Nav
-				: 1+Nav+NS;
+				: isclass(aORs,"StateVariable") ? 1+N::Av
+				: 1+N::Av+N::S;
 		if (list[offset+aORs.pos].obsv==TRUE) list[offset+aORs.pos]->UnObserved();
 		}
 	}
@@ -625,17 +644,17 @@ DataSet::UnObserved(as1,...) {
 /**
 **/
 Outcome::FromData(extd) {
-	act[] = extd[inact][];
-	state[] = extd[instate][];
-	aux[] = extd[inaux][];
+	act[] = extd[avar][];
+	state[] = extd[svar][];
+	aux[] = extd[auxvar][];
 //	println("##",extd);
 	AccountForUnobservables();
 	}
 
 Outcome::Mask() {
-	act[mask[inact]] = .NaN;
-	state[mask[instate]] = .NaN;
-	aux[mask[inaux]] = .NaN;
+	act[mask[avar]] = .NaN;
+	state[mask[svar]] = .NaN;
+	aux[mask[auxvar]] = .NaN;
 	AccountForUnobservables();
 	}
 	
@@ -653,7 +672,7 @@ Outcome::AccountForUnobservables() {
 						ind[ss] += OO[ss][s]*state[s];
 					}
 			}					
-	ind[onlyacts] = new array[J];
+	ind[onlyacts] = new array[N::J];
 	s = 0;
   	do {
 		if ( (myA = GetAind(ind[tracking][s]))!=NoMatch) {
@@ -674,189 +693,6 @@ Outcome::AccountForUnobservables() {
 //    println("acts",ind[onlyacts]," groups ",ind[bothgroup]," tracking ",ind[tracking],"---------");
 	}
 
-/** Compute the predicted distribution of actions and states.
-
-Usually the user would predict for a `PanelPrediction` which would
-call this routine.
-
-**/
-Prediction::Predict() {
-	decl s,th,q,pp,unrch;
-    state = zeros(NN);
-    if (Volume>LOUD) {pp = 0.0; unrch = <>; }
-    foreach (q in sind[s]) {
-        if (isclass(th=Settheta(q))) {
-            state[lo:hi] = ReverseState(q,OO[tracking][])[lo:hi];
-            ind[tracking] = OO[tracking][]*state;
-            SyncStates(lo,hi);
-            th->Predict(p[s],this);
-            }
-        else if (Volume>LOUD) { pp += p[s]; unrch |= ReverseState(q,OO[tracking][])[lo:hi]' ; }
-        }
-    if (Volume>LOUD && pp>0.0)
-        println("At t= ",t," Lost prob.= ",pp," Unreachable states in transition ","%cf","%9.0f","%c",Slabels[lo:hi],unrch);
-	}
-	
-/** Create a new prediction.
-
-Typically a user would create a `PanelPrediction` which in turn creates predictions.
-@param t <em>integer</em>, time period.
-**/
-Prediction::Prediction(t){
-	this.t = t;
-	p = sind = <>;
-	unch = ch = zeros(NA,1);
-	pnext = UnInitialized;
-	}
-
-
-/** Compute a panel of predicted distributions.
-@param T <em>integer</em> length of the panel (default=1)
-@param printit TRUE: print out<br>FALSE (default) silent.
-@example
-<pre>
-  p = new PanelPrediction(0);
-  p-&gt;Predict(10);
-</pre></dd>
-**/
-PanelPrediction::Predict(T,printit){
-  if (isclass(pnext)) oxrunerror("panel prediction already computed");
-  cur=this;
-  this.T = T;
-  lo = SS[tracking].left;
-  hi = SS[tracking].right;
-  do {
-	 cur.pnext = new Prediction(cur.t+1);
-	 cur->Prediction::Predict();
-     if (printit) println(cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
-	 cur = cur.pnext;
-  	 } while(cur.t<T);
-  }
-
-/** Set up a panel of predicted distributions.
-@param iDist  initial distribution.<br> integer: start at iDist and increment until a reachable state index is found.
-        So <code>PanelPrediction(0)</code> [default] will start the prediction at the lowest-indexed reachable state in &Theta;.<br>
-        matrix: a list of states to start the prediction from<br>
-        object of Prediction class: use `Prediction::sind` as the initial state for this prediction.
-
-The prediction is not made until `PanelPrediction::Predict`() is called.
-
-**/
-PanelPrediction::PanelPrediction(iDist){
-	if (ETT.subspace!=tracking) {
-		ETT.subspace = tracking;
-		ETT->loop();
-		ETT.current = tracking;
-		}
-	Prediction(0);
-	if (isint(iDist)) {
-		decl s=iDist;
-		while (!isclass(Settheta(s))) ++s;
-		sind |= s;
-		p |= 1.0;
-		}
-	else if (ismatrix(iDist)) {
-		sind |= SS[tracking].O*iDist;
-		if (!isclass(Settheta(sind[0]))) oxrunerror("Initial state is not reachable");
-		p |= 1.0;
-		}
-	else if (isclass(iDist,"Prediction")) {
-		sind |= iDist.sind;
-		p |= iDist.p;
-		}
-	else {
-        oxrunerror("iDist must be integer, vector or Prediction object");
-        }
-	}
-
-
-/** Compute the histogram of a single action variable at the prediction.
-Stored in `Prediction::hist`
-**/
-Prediction::Histogram() {
-	hist = zeros(hN,1);
-	decl q,k;
-	if (av)	for (k=0;k<rows(ch);++k) {
-		hist[ActionMatrix[k][hd]] += ud ? ch[k] : unch[k];
-        }
-	else if (sv) {
-        foreach (q in  sind[][k]) hist[ReverseState(q,SS[tracking].O)[hd]] += p[k];
-        }
-    else {
-        decl th, newqs,newp,j,uni,htmp,ptmp;
-        ptmp = htmp=<>;
-        foreach (q in sind[][k]) {
-            th = Settheta(q);
-            newqs = th->OutputValue();
-            newp = p[k]*(th.pandv[0]);
-            if (isdouble(newqs) || rows(newqs)==1) newp = sumc(newp);
-            htmp |= newqs;
-            ptmp |= newp;
-            }
-        hvals = unique(htmp);
-        hist = zeros(hvals)';
-        foreach (q in hvals[k]) { hist[k] = sumc(selectifr(ptmp,htmp.==q)); }
-        }
-	}
-
-/** Histogram of a single variable over the panel.
-@param var object to track.
-@param printit, `CV` compatible print to screen [default = FALSE]
-@param UseDist TRUE [default]: use endogenous choice probabilities &Rho;*<br>FALSE : use uniform choices.
-
-`PanelPrediction::Predict`() must be called first.
-
-@example
-<pre>
-   pd = new PanelPrediction();
-   pd -&gt; Predict(10);
-   pd -&gt; Histogram(capital);
-</pre></dd>
-**/
-PanelPrediction::Histogram(var,printit,UseDist) {
-  decl avg;
-  av = isclass(var,"ActionVariable");
-  sv =isclass(var,"StateVariable");
-  if (!av && !sv && !isint(var)) oxrunerror("var must be an ActionVariable or StateVariable or intger (calls OutputValue)");
-  if (printit) print("\n----------------------------\n Histogram of ");
-  if (av || sv) {
-    hN = var.N;
-    hd = var.pos;
-    if (printit) println(var.L);
-    }
-  else {
-    hN = 0;
-    if (printit) println("virtual OutputValue function");
-    }
-  ud = UseDist;
-  cur=this;
-  while (isclass(cur,"Prediction")) {
-	 cur->Prediction::Histogram();
-	 if (CV(printit,cur)) {
-            println("t=",cur.t);
-            if (sv||av) {
-                println("%c",{"v","pct"},"%cf",{"%2.0f","%9.6f"},var.vals'~cur.hist);
-                avg = var.vals*cur.hist;
-                }
-            else {
-                println("%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},cur.hvals'~cur.hist);
-                avg = cur.hvals*cur.hist;
-                }
-            println("  Average: ",double(avg),"\n\n");
-            }
-	 cur = cur.pnext;
-  	 }
-	}
-
-PanelPrediction::~PanelPrediction() {
-	decl tmp;
-	cur = pnext;
-	while (isclass(cur)) {
-		tmp = cur.pnext;
-		delete cur;
-		cur = tmp;
-		}
-	}	
 /** The default econometric objective: log-likelihood.
 @return `Panel::M`, <em>lnL = (lnL<sub>1</sub> lnL<sub>2</sub> &hellip;)</em>
 @see Panel::LogLikelihood
@@ -876,11 +712,11 @@ DataSet::Summary(data,rlabels) {
 	decl rept = zeros(3,0),s;		
 	foreach (s in list) rept ~= s.obsv | s.force0 | s.incol;
 	println("\nOutcome Summary: ",label);
-	println("%c",{"ID"}|Alabels|Slabels|Auxlabels,"%r",{"observed"}|{"force0"}|{"column"},"%cf","%6.0f",rept);
+	println("%c",Vprtlabels[idvar]|Vprtlabels[avar]|Vprtlabels[svar]|Vprtlabels[auxvar],"%r",{"observed"}|{"force0"}|{"column"},"%cf","%6.0f",rept);
     if (ismatrix(data)) println("Source data summary", MyMoments(data,rlabels));
     else {
         Print(0);
-        println("Data set summary ",MyMoments(flat,{"f"}|"i"|"t"|"track"|"term"|"Ai"|Slabels|"Arow"|Alabels|Auxlabels));
+        println("Data set summary ",MyMoments(flat,{"f"}|"i"|"t"|"track"|"term"|"Ai"|Vprtlabels[svar]|"Arow"|Vprtlabels[avar]|Vprtlabels[auxvar]));
         }
 	}
 	
@@ -888,51 +724,57 @@ DataSet::Summary(data,rlabels) {
 @internal
 **/
 DataSet::LoadOxDB() {
-	decl s,curid,data,curd = new array[ExternalData],row,obscols,inf,fpcur,obslabels;
+	decl s,curid,data,curd = new array[NColumnTypes],row,obscols,inf,fpcur,obslabels,nc;
 	dlabels=source->GetAllNames();
 	obscols=<>;
     obslabels = {};
 	for(s=0;s<sizeof(list);++s)
 		if (list[s].obsv==TRUE) {
-            obslabels |= dlabels[sizeof(obscols)];
-			obscols |= list[s].ReturnColumn(dlabels,sizeof(obscols));
+			obscols |= nc = list[s].ReturnColumn(dlabels,sizeof(obscols));
+            obslabels |= dlabels[nc];
             }
 		else
 			list[s].obsv=FALSE;
 	data = source->GetVarByIndex(obscols);
+    for (s=S[fgroup].M;s<=S[fgroup].X;++s)
+            if (list[N::Av+s].obsv)
+                data = deleteifr(data,data[][list[N::Av+s].incol].>=SubVectors[fgroup][s].N);
 	if (Volume>SILENT) Summary(data,obslabels);
 	curid = UnInitialized;
 	cur = this;
 	FN = N = 0;
-	curd[inact] = constant(.NaN,1,Nav);
-	curd[instate] = constant(.NaN,NS,1);
-	curd[inaux] = constant(.NaN,1,Naux);	
+	curd[avar] = constant(.NaN,1,N::Av);
+	curd[svar] = constant(.NaN,N::S,1);
+	curd[auxvar] = constant(.NaN,1,N::aux);	
+    low[avar] = 1;
+    low[svar] = low[avar]+N::Av;
+    low[auxvar] = low[svar]+N::S;
 	for (row=0;row<rows(data);++row) {
-		curd[inid] = data[row][list[0].incol];
-		for(s=0;s<Nav;++s) {
-			curd[inact][0][s] = (list[1+s].obsv)
-						? data[row][list[1+s].incol]
-						: (list[1+s].force0)
+		curd[idvar] = data[row][list[0].incol];
+		for(s=0;s<N::Av;++s) {
+			curd[avar][0][s] = (list[low[avar]+s].obsv)
+						? data[row][list[low[avar]+s].incol]
+						: (list[low[avar]+s].force0)
 							? 0
 							: .NaN;
             }
-		for(s=0;s<NS;++s) {
-			curd[instate][s] = (list[1+Nav+s].obsv)
-						? data[row][list[1+Nav+s].incol]
-						: (list[1+Nav+s].force0)
+		for(s=0;s<N::S;++s) {
+			curd[svar][s] = (list[low[svar]+s].obsv)
+						? data[row][list[low[svar]+s].incol]
+						: (list[low[svar]+s].force0)
 							? 0
 							: .NaN;
 			}
-		for(s=0;s<Naux;++s)
-			curd[inaux][0][s] = (list[1+Nav+NS+s].obsv)
-						? data[row][list[1+Nav+NS+s].incol]
+		for(s=0;s<N::aux;++s)
+			curd[auxvar][0][s] = (list[low[auxvar]+s].obsv)
+						? data[row][list[low[auxvar]+s].incol]
 						: .NaN;
-		if (curd[inid]!=curid) {	// new path on possibly new FPanel
-			if (inf = OO[onlyfixed][]*curd[instate]) //fixed index not 0
+		if (curd[idvar]!=curid) {	// new path on possibly new FPanel
+			if (inf = OO[onlyfixed][]*curd[svar]) //fixed index not 0
 				cur = fparray[inf];
 			else	//fparray does not point to self
 				cur = this;
-			cur->FPanel::Append(curid = curd[inid]);
+			cur->FPanel::Append(curid = curd[idvar]);
 			++FN;
 			}
 		fpcur = cur->GetCur();
@@ -945,8 +787,8 @@ DataSet::LoadOxDB() {
             }
 	}
 	
-/** Load outcomes into the data set from a (long format) file.
-@param fn string, file name with extension that can be read by <code>OX::Database::Load</code>
+/** Load outcomes into the data set from a (long format) file or an Ox database.
+@param FNorDB string, file name with extension that can be read by <code>OX::Database::Load</code><br>Database object
 @param SearchLabels TRUE: search data set labels and use any matches as observed.
 
 @example
@@ -956,23 +798,26 @@ DataSet::LoadOxDB() {
 </pre></dd>
 
 **/
-DataSet::Read(fn,SearchLabels) {
+DataSet::Read(FNorDB,SearchLabels) {
 	if (FNT) oxrunerror("Cannot read data twice into the same data set. Merge files if necessary");
+    if (isstring(FNorDB)) {
+	   source = new Database();
+	   if (!source->Load(FNorDB)) oxrunerror("Failed to load data from "+FNorDB);
+        }
+    else source = FNorDB;
 	cputime0=timer();
-	source = new Database();
-	if (!source->Load(fn)) oxrunerror("Failed to load data from "+fn);
 	if (!list[0].obsv) oxrunerror("Must call DataSet::IDColumn to set column of ID variable before reading");
 	if (SearchLabels) {
 		decl lnames,mtch, i,j;
 		lnames = source->GetAllNames();
-		mtch = strfind(lnames,Slabels);
-		foreach(i in mtch[j]) if (i!=NoMatch) Observed(States[j],i);
-		mtch = strfind(lnames,Alabels);
-		foreach(i in mtch[j]) if (i!=NoMatch) Observed(SubVectors[acts][j],i);
-		mtch = strfind(lnames,Auxlabels);
-		foreach(i in mtch[j]) if (i!=NoMatch) Observed(Chi[j],i);
+		mtch = strfind(lnames,Vlabels[svar]);
+		foreach(i in mtch[j]) if (i!=NoMatch) MatchToColumn(States[j],i);
+		mtch = strfind(lnames,Vlabels[avar]);
+		foreach(i in mtch[j]) if (i!=NoMatch) MatchToColumn(SubVectors[acts][j],i);
+		mtch = strfind(lnames,Vlabels[auxvar]);
+		foreach(i in mtch[j]) if (i!=NoMatch) MatchToColumn(Chi[j],i);
 		}
-	decl i,s0=1+Nav-1;
+	decl i,s0=1+N::Av-1;
 	for (i=S[fgroup].M;i<=S[fgroup].X;++i)
 		if (!list[s0+i].obsv && !list[s0+i].force0) oxrunerror("Fixed Effect Variable "+sprint(list[s0+i].obj.L)+" must be observed or have N=1");
 	LoadOxDB();
@@ -986,17 +831,18 @@ DataSet::Read(fn,SearchLabels) {
 @param FullyObserved (default) FALSE, account for unobservability<br>TRUE use simple partial loglikelihood
 **/
 DataSet::DataSet(id,method,FullyObserved) {
-	if (!ThetaCreated) oxrunerror("Cannot create DataSet before calling CreateSpaces()");
+	if (!Flags::ThetaCreated) oxrunerror("Cannot create DataSet before calling CreateSpaces()");
 	label = id;
 	Panel(0,method,this.FullyObserved=FullyObserved);
 	Volume = QUIET;
 	masked = FALSE;
 	decl q, aa=SubVectors[acts];
 	list = {};
-	list |= new DataColumn(idcol,0);
-	foreach (q in aa) list |= new DataColumn(acol,q);
-	foreach (q in States) list |= new DataColumn(scol,q);
-	foreach (q in Chi) list |= new DataColumn(auxcol,q);
+	list |= new DataColumn(idvar,0);
+    low = zeros(NColumnTypes,1);
+	foreach (q in aa) list |= new DataColumn(avar,q);
+	foreach (q in States) list |= new DataColumn(svar,q);
+	foreach (q in Chi) list |= new DataColumn(auxvar,q);
 	}																		
 
 /** Delete a data set.
@@ -1007,13 +853,3 @@ DataSet::~DataSet() {
 	foreach (q in list) delete q;
 	delete list;
 	}
-
-EmpiricalMoments::EmpiricalMoments(label,method,StdInst) {
-    decl q;
-    DataSet(label,method,FALSE);
-    this.StdInst = StdInst;
-//    if (StdInst) {
-//	   foreach (q in S[fgroup]) list[].instrument = list[].obsv = TRUE;
-//       ifflist[]
-//       }
-    }
