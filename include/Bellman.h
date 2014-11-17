@@ -64,7 +64,7 @@ v*(&alpha;) = exp[&rho;(v(&alpha;&epsilon,&eta;&theta;)-V(&epsilon,&eta;&theta;)
 struct ExPostSmoothing : Bellman {
 	static decl Method, rho, sigma;
 	static Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
-	static CreateSpaces(Method,...);
+	static CreateSpaces(Method=NoSmoothing,...);
 	virtual Smooth(EV);
 			Logistic(EV);
 			Normal(EV);
@@ -108,7 +108,7 @@ struct ExtremeValue : Bellman {
 struct Rust : ExtremeValue {
 	static decl
 	/**The decision variable. **/ d;
-	static Initialize(userReachable=FALSE,GroupExists=FALSE);
+	static Initialize(userReachable,GroupExists=FALSE);
 	static CreateSpaces();
 	}
 

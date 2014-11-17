@@ -63,6 +63,7 @@ A user's code can reference these variables but should never change them.
 **/
 struct Flags : Zauxiliary {
 	static decl
+        /** Do not create &Theta;, but do everything else. **/  onlyDryRun,
 		/** CreateSpaces() has been called or not.  **/ 		ThetaCreated,
 		/** . @internal **/										Warned,
 		/** . **/												UseStateList,
@@ -196,6 +197,7 @@ struct DP {
 
 		static	UpdateVariables(state=0);
 		static  DoNothing();
+        static  onlyDryRun();
 		static  CreateSpaces();
 		static	InitialsetPstar(task);
 		static 	Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
@@ -258,7 +260,8 @@ struct Task : DP {
 /** .
 @internal
 **/
-struct CTask 		: 	Task {	CTask(); 		Run(th);	}
+struct CTask 		: 	Task  {	decl curind, th; CTask(); 	virtual Run(th);	}
+struct DryRun 	    : 	CTask {	decl PrevT,PrevA,PrevR,report; DryRun(); 		Run(th);	}
 struct EndogTrans 	: 	Task {	decl current; EndogTrans();	Run(th);	}
 struct EnTask       :   Task { EnTask(); }
 struct ExTask       :   Task { ExTask(); }

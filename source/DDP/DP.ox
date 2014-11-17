@@ -420,6 +420,12 @@ DP::SubSampleStates(SampleProportion) {
 	N::Approximated = 0;
     }
 
+DP::onlyDryRun() {
+    if (Flags::ThetaCreated) oxwarning("State Space Already Defined.");
+    println(" Only a dry run of creating the state space Theta will be performed.  Program will exit at the end of CreateSpaces()");
+    Flags::onlyDryRun=TRUE;
+    }
+
 /** Initialize the state space &Theta; and the list of feasible action sets A(&theta;).
 @param GroupExists static function, returns TRUE if &gamma; should be processed<br>integer, all groups exists				
 @comments No actions or variables can be added after CreateSpaces() has been called. <br>
@@ -464,7 +470,6 @@ DP::CreateSpaces() {
 			}
 		AllN |= S[subv].N;
 		}
-    Flags::ThetaCreated = TRUE;
 	NxtExog = new array[StateTrans];
 	SubSpace::Tlength = rows(AllN);
 	SubSpace::S = S;
@@ -491,16 +496,13 @@ DP::CreateSpaces() {
 	ind = new matrix[rows(OO)][1];
 	Asets = array(ActionMatrix);
 	AsetCount = <0>;
-	A = array(ActionMatrix);  //why was this ones(ActionMatrix)??
+	A = array(ActionMatrix);
 	ActionSets = array(ones(N::A,1));
 	if (Flags::UseStateList) {
 		if (isclass(counter,"Stationary")) oxrunerror("canNOT use state list in stationary environment");
 		tfirst = constant(-1,TT,1);
 		}
 	if (Flags::UseStateList || (Flags::IsErgodic = counter.IsErgodic) ) ReachableIndices = <>;
-	N::ReachableStates = N::TerminalStates = 0;
-	Theta = new array[SS[tracking].size];
-	cputime0=timer();
 	if (Volume>SILENT)	{		
 		println("-------------------- DP Model Summary ------------------------\n");
 		w0 = sprint("%",7*S[exog].D,"s");
@@ -524,7 +526,22 @@ DP::CreateSpaces() {
 		print("\nACTION VARIABLES (",N::A," distinct actions)");
 		println("%r",{"    i.N"},"%cf","%7.0f","%c",Vprtlabels[avar],AA');
 		}
-	tt = new CTask();	delete tt;
+	N::ReachableStates = N::TerminalStates = 0;
+    Flags::ThetaCreated = TRUE;
+	cputime0=timer();
+	Theta = new array[SS[tracking].size];
+    if (Flags::onlyDryRun) {
+        tt= new DryRun();
+	    tt->loop();
+        println("%c",{"t","Reachable","Approximated","In-Sample-Ratio","Cumulative Full"},
+                "%cf",{"%6.0f","%15.0f","%15.0f","%15.5f","%15.0f"},tt.report);
+        println("niqlow may run out of memory  if cumulative full states is too large.");
+        }
+    else {
+	   tt = new CTask();
+	   tt->loop();
+       }
+	delete tt;
 	if ( Flags::IsErgodic && N::TerminalStates ) oxwarning("NOTE: time is ergodic but terminal states exist???");
 	N::J= sizeof(ActionSets);
 	tt = new CGTask();	delete tt;
@@ -542,7 +559,7 @@ DP::CreateSpaces() {
   	V = new matrix[1][SS[bothexog].size];
 
 	if (Volume>SILENT)	{		
-		println("\nTRIMMING AND SUBSAMPLING","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated","          tfirsts"},
+		println("\nTRIMMING AND SUBSAMPLING","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated","    tfirsts (T-1...0)"},
                 "%cf",{"%10.0f"},N::ReachableStates|N::TerminalStates|N::Approximated | (Flags::UseStateList? tfirst : 0)  );
 		println("\nACTION SETS");
 		av = sprint("%-14s","    alpha");
@@ -565,6 +582,7 @@ DP::CreateSpaces() {
         if (totalnever) println("    Actions vectors not shown because they are never feasible: ",totalnever);
 		}
 	ETT = new EndogTrans();
+    if (Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
  }
 
 /** .
@@ -591,22 +609,43 @@ CTask::CTask() {
 	left = S[endog].M;
 	right = S[clock].M;	//t is left variable, tprime is right, don't do tprime.
 	subspace = tracking;
-	loop();
 	}
+
+DryRun::DryRun() {
+    CTask();
+    PrevT = -1;
+    report = <>;
+    }
 
 /** .
 @internal
 **/
 CTask::Run(g) {
-	decl th,curind=ind[tracking];
-	if (isclass(th = Theta[curind] = userReachable(),"DP")) {
+    curind=ind[tracking];
+	if (isclass(th = userReachable(),"DP")) {
 		++N::ReachableStates;
 		th->Bellman(state);
 		if (!isint(ReachableIndices)) {
 			if (Flags::UseStateList && tfirst[curt]<0) tfirst[curt] = sizer(ReachableIndices);
 			ReachableIndices |= curind;
 			}
+        if (!Flags::onlyDryRun) Theta[curind] = th;
 		}
+	}
+
+/** .
+@internal
+**/
+DryRun::Run(g) {
+    if (curt!=PrevT) {
+        if (PrevT!=-1)
+            report |= PrevT~(N::ReachableStates-PrevR)~(N::Approximated-PrevA)~(1-(N::Approximated-PrevA)/(N::ReachableStates-PrevR))~(N::ReachableStates-N::Approximated);
+        PrevA = N::Approximated;
+        PrevR = N::ReachableStates;
+        PrevT=curt;
+        }
+    CTask::Run(g);
+    delete th;
 	}
 
 /** Loop through the state space and carry out tasks leftgrp to rightgrp.

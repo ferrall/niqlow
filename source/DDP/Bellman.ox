@@ -265,9 +265,10 @@ Bellman::Predict(ps,tod) {
 @return UnInitialized if end of process<br>otherwise, index for next realized endogenous state
 **/
 Bellman::Simulate(Y) {
-	decl curr = ind[onlyrand], curJ = rows(pandv[curr]), done = IsTerminal||Last();
+	decl curr = ind[onlyrand], curJ = rows(pandv[curr]), done = IsTerminal||Last() ;
 	ialpha = done  	? 0
-			  		: DrawOne(Y.usecp ? pandv[curr][][Y.ind[bothexog]] : constant(1/curJ,curJ,1) );
+			  		: DrawOne( Y.usecp ? pandv[curr][][InSubSample*(Y.ind[bothexog])]  //if approximated, only one column in pandv
+                                       : constant(1/curJ,curJ,1) );
 	SyncAct(alpha = A[Aind][ialpha][]);
 	zeta -> Realize(this,Y);
 	decl i;

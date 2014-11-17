@@ -165,9 +165,9 @@ Path::Append(observed) {
 	}
 	
 /** Store a panel of realized paths with common fixed group.
-@param f integer tag for the panel (such as replication index)
-@param method `Method` to call to solve<br>0 do nothing, something else handles solution
-@param FullyObserved TRUE use full observation likelihood<br>FALSE use likelihood that accounts for unobserves states and actions
+@param f integer tag for the panel (such as replication index) [default=0]
+@param method `Method` to call to solve<br>0 [default] do nothing, something else handles solution
+@param FullyObserved TRUE [default] use full observation likelihood<br>FALSE use likelihood that accounts for unobserves states and actions
 **/
 FPanel::FPanel(f,method,FullyObserved) {
 	this.f = f;

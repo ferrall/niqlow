@@ -95,7 +95,7 @@ struct FPanel : Path {
 	/** Total Number of Outcomes
          in the panel.**/                           NT,
 	/** fixed panel likelihood vector.	**/			FPL;
-			FPanel(f,method,FullyObserved);
+			FPanel(f=0,method=0,FullyObserved=TRUE);
 			~FPanel();
             GetCur();
 			Mask();

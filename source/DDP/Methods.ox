@@ -51,7 +51,7 @@ FixedSolve::FixedSolve() {
 /** Process a point in the fixed effect space.
 @param fxstate state vector with fixed effects already set
 <OL>
-<LI>If <code>UpdateTime</code> &eq; <code>AfterFixed</code>, then update transitions and variables.</LI>
+<LI>If <code>UpdateTime</code> = <code>AfterFixed</code>, then update transitions and variables.</LI>
 <LI>Apply the solution method for each value of the random effect vector.</LI>
 <LI>Carry out post-solution tasks by calling `DP::PostRESolve`();
 </OL>
@@ -73,7 +73,7 @@ RandomSolve::RandomSolve() {	RETask();	}
 /** Apply the solution method for the current fixed values.
 @param gam, `Group` object to solve for.
 
-If <code>UpdateTime</code> &eq; <code>AfterRandom</code>, then update transitions and variables.
+If <code>UpdateTime</code> = <code>AfterRandom</code>, then update transitions and variables.
 
 Solution is not run if the density of the point in the group space equals 0.0.
 **/
