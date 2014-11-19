@@ -12,7 +12,8 @@ Version::Check() {
  }
 
 /** Return the Current Value of a Quantity: access X.v, X, X() or X(arg).
-@param X a double, integer, static function of the form X() or X(arg), or any object with a member named v.
+@param X a double, integer, static function of the form X() or X(arg), or any object with a member named v.<br>
+an array of `CV` compatible elements will return the horizontal concatenation value of the results as matrix.
 @param ... a single argument can be passed along with X().  Further arguments are ignored
 @comments This allows elements of the code to be represented several different ways.<br>
 Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside `StateVariable::Transit`.<br>
@@ -21,8 +22,13 @@ No argument is passed by `DP::UpdateVariables`() and `DP::ExogenousTransition`
 **/
 CV(X,...) {
 	if (ismember(X,"v")) return X.v;
-	if (!isfunction(X)) return X;
+	if (!(isfunction(X)||isarray(X)) ) return X;
 	decl arg = va_arglist();
+    if (isarray(X)) {
+        decl x,v=<>;
+        foreach(x in X) v ~= CV(x,arg[0]);
+        return v;
+        }
 	if (!sizeof(arg)) return X();
 	return X(arg[0]);
 	}

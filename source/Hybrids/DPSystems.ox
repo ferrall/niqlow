@@ -32,7 +32,7 @@ SolveAsSystem::Run(th) {	th->thetaEmax(); }
 	
 SolveAsSystem::Solve(SystemSolutionMethod,mxiter)	{
 	Parameter::DoNotConstrain = FALSE;
-    Clock::Solving(MxEndogInd,&VV,&Flags::setPstar);
+    Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
     if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
 	decl g;
 	for(g=0;g<N::F;++g) {
@@ -100,7 +100,7 @@ RVEdU::RVEdU() {
 	
 RVEdU::Run(th) {
 	if (!isclass(th,"Bellman")) return;
-	th.pandv[rind][][] = .NaN;
+	th.pandv[I::r][][] = .NaN;
 	th.U[] = 0;
 	}
 
@@ -111,7 +111,7 @@ ReservationValues::Solve(Fgroups) 	{
    	now = NOW;	later = LATER;
 	ftask.qtask = this;			//refers back to current object.
     if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
-    Clock::Solving(MxEndogInd,&VV,&Flags::setPstar);
+    Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
     decl rv;
     foreach (rv in RValSys) if (isclass(rv)) rv.meth.Volume = Volume;
 	if (Fgroups==AllFixed)
@@ -125,11 +125,11 @@ ReservationValues::Run(th) {
 	decl sysind = th.Aind;
 	th->ActVal(VV[later]);
 	if (isclass(RValSys[sysind])) {
-		RValSys[sysind] ->	RVSolve(th,DeltaV(th.pandv[rind]));
-		VV[now][ind[iterating]] = th->thetaEMax();
+		RValSys[sysind] ->	RVSolve(th,DeltaV(th.pandv[I::r]));
+		VV[now][I::all[iterating]] = th->thetaEMax();
 		}
 	else {
-		VV[now][ind[iterating]] = V = maxc(th.pandv[rind]);
+		VV[now][I::all[iterating]] = V = maxc(th.pandv[I::r]);
 		th.pstar = <1.0>;
 		th.zstar = .NaN;
 		if (Flags::setPstar) th->Smooth(V);

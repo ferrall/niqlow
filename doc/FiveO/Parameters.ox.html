@@ -80,6 +80,17 @@ to the parameter list before <var>x</var>.</blockquote></DD>
 </OL>
 <hr><a name="auto"><h1>Documentation of  Items Defined in Parameters.ox</h1></a>
 
+<a name="global"></a>
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global functions</span></h2>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Functions</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Parameters.ox.html#TransitionMatrix">TransitionMatrix</a></td>
+<td class="modifiers"></td>
+<td class="description">Return an array of <a href="Parameters.ox.html#Simplex">Simplex</a> blocks that act as a transition matrix.</td>
+</tr>
+</table>
+
 <a name="Bounded"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Bounded : <a href="Parameters.ox.html#Limited">Limited</a> : <a href="Shared.ox.html#Parameter">Parameter</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
@@ -274,7 +285,7 @@ Vector of <code>J</code> probabilities that sum to strictly less than 1.
 <dd><pre>
 x<sup>0</sup> = <a href="Parameters.ox.html#Probability">Probability</a>
 ...
-x<sup>j</sup> = <a href="Parameters.ox.html#Bounded">Bounded</a>(0.0,1-&sum;<sub>k=0&dots;j-1</sub> x<sup>k</sup>)
+x<sup>j</sup> = <a href="Parameters.ox.html#Bounded">Bounded</a>(0.0,1-&sum;<sub>k=0&hellip;j-1</sub> x<sup>k</sup>)
 </pre></dd>
 
 <table class="method_table">
@@ -582,11 +593,13 @@ Bounded as: <var>0 &lt; v &lt; 1</var> .
 Vector of <code>J</code> probabilities that sum to 1.
 <dd><pre>
 x<sup>0</sup> = <a href="Parameters.ox.html#Probability">Probability</a>
-x<sup>j</sup> = <a href="Parameters.ox.html#Bounded">Bounded</a>(0.0,1-&sum;<sub>k=0&dots;j-1</sub> x<sup>k</sup>)
+x<sup>j</sup> = <a href="Parameters.ox.html#Bounded">Bounded</a>(0.0,1-&sum;<sub>k=0&hellip;j-1</sub> x<sup>k</sup>)
 ...
 x<sup>J</sup> = <a href="Parameters.ox.html#Determined">Determined</a>(1-&sum;x<sup>j</sup>)
 </pre></dd>
 
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Parameters.ox.html#TransitionMatrix">TransitionMatrix</a></dd>
+</dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#Simplex___stoler">stoler</a></td>
@@ -638,6 +651,25 @@ x<sup>j</sup> = <a href="Parameters.ox.html#Positive">Positive</a>()
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
 </dl>
 
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global </span></h2>
+
+<a name="TransitionMatrix"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">TransitionMatrix</span></h3>
+
+<span class="declaration">TransitionMatrix ( L , imat )</span>
+<dl><dd>
+Return an array of <a href="Parameters.ox.html#Simplex">Simplex</a> blocks that act as a transition matrix.
+<b>Note:</b> Each column should be a proper transition (not each row).
+
+<dl><dt class="example">Example:</dt><dd class="example"><pre>
+   // A 3x3 transition matrix, current state is the column, next state is the row.
+   decl m = TransitionMatrix("p",<0.9~0.09~0.05;0.02~0.8~0.3;0.08~0.01~0.11>);
+   Parameters(m);
+   println("The current Markov transition matrix is ", CV(m));
+</pre></dd>
+</dd>
+</dl>
+</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Bounded</span></h2>
 
 <a name="Bounded___Bounded"></a>
@@ -889,7 +921,7 @@ LB &lt; x<sub>1</sub> &gt; x<sub>2</sub> &gt; &hellip; &gt; x<sub>N</sub>
 Create a vector of decreasing returns to scale Cobb-Douglas coefficients.
 <dd><pre>
 0&lt; x<sub>i</sub> &lt; 1<br>
-&sum<sup>N</sub><sub>i=1</sub> x<sub>i</sub> &lt; 1.
+&sum;<sub>i=1&hellip;N</sub>&ensp; x<sub>i</sub> &lt; 1.
 </pre></dd>
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
@@ -1249,7 +1281,7 @@ Create a new parameter bounded above by 1 and below by 0.
 Create a simplex of parameters.
 <DD><pre>
 0&lt; x<sub>i</sub> &lt; 1
-&sum<sup>N</sub><sub>i=1</sub> x<sub>i</sub> = 1.
+&sum;<sub>i=1&hellip;N</sub>&ensp; x<sub>i</sub> = 1.
 </pre></DD>
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>

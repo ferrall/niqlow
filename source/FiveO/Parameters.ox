@@ -23,7 +23,6 @@ Determined::ToggleDoNotVary() { }
 Free::Free(L,v0)	{	Parameter(L,v0); }
 
 
-
 /** .
 @internal
 **/ 	
@@ -240,7 +239,7 @@ FixedBlock::Encode() { return constant(.NaN,N,1); }
 /**Create a simplex of parameters.
 <DD><pre>
 0&lt; x<sub>i</sub> &lt; 1
-&sum<sup>N</sub><sub>i=1</sub> x<sub>i</sub> = 1.
+&sum;<sub>i=1&hellip;N</sub>&ensp; x<sub>i</sub> = 1.
 </pre></DD>
 @param L label
 @param ivals integer: dimension of simplex<br>OR<br>N&times;1 vector, initial values
@@ -264,6 +263,27 @@ Simplex::Simplex(L,ivals)	{
 	AddToBlock(cumprob);
 	}
 
+/** Return an array of `Simplex` blocks that act as a transition matrix.
+<b>Note:</b> Each column should be a proper transition (not each row).
+
+@example
+<pre>
+   // A 3x3 transition matrix, current state is the column, next state is the row.
+   decl m = TransitionMatrix("p",<0.9~0.09~0.05;0.02~0.8~0.3;0.08~0.01~0.11>);
+   Parameters(m);
+   println("The current Markov transition matrix is ", CV(m));
+</pre></dd>
+
+**/
+TransitionMatrix(L,imat) {
+    decl N=rows(imat);
+    if (N!=columns(imat)) oxrunerror("Initial transition matrix must be square");
+    decl M = new array[N];
+    decl i;
+    for (i=0;i<M;++i) M[i] = new Simplex(L+sprint(i),imat[][i]);
+    return M;
+    }
+
 /**	 .
 @internal
 **/
@@ -276,7 +296,7 @@ Simplex::BlockCode()	{
 /**Create a vector of decreasing returns to scale Cobb-Douglas coefficients.
 <dd><pre>
 0&lt; x<sub>i</sub> &lt; 1<br>
-&sum<sup>N</sub><sub>i=1</sub> x<sub>i</sub> &lt; 1.
+&sum;<sub>i=1&hellip;N</sub>&ensp; x<sub>i</sub> &lt; 1.
 </pre></dd>
 @param L label
 @param ivals integer: dimension of simplex<br>OR<br>N&times;1 vector, initial values

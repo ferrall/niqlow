@@ -64,23 +64,23 @@ DP::ResetGroup(gam) {
 	return gam->Density();	
 	}
 
-DP::CurGroup() { return Gamma[gind]; }
+DP::CurGroup() { return Gamma[I::g]; }
 
 DP::SetGroup(GorState) {
-	gind = ismatrix(GorState)
+	I::g = ismatrix(GorState)
 			?  int(OO[bothgroup][]*GorState)
 			:  GorState;
-	if (isclass(Gamma[gind])) {
-		Gamma[gind]->Sync();
-		Gamma[gind]->Density();
-		find = Gamma[gind].find;
-		rind = Gamma[gind].rind;
+	if (isclass(Gamma[I::g])) {
+		Gamma[I::g]->Sync();
+		Gamma[I::g]->Density();
+		I::f = Gamma[I::g].find;
+		I::r = Gamma[I::g].rind;
 		}
-	return Gamma[gind];
+	return Gamma[I::g];
 	}
 	
 /** Draw &gamma; from &Gamma; according to the density.
-Sets <code>gind</code> and syncs state variables in &gamma;
+Sets <code>I::g</code> and syncs state variables in &gamma;
 @return &Gamma;[gind], for external access to &Gamma;
 @see DrawOne **/
 DP::DrawGroup(find) {	return SetGroup(find + DrawOne(gdist[find][]) );	}
@@ -101,9 +101,9 @@ DP::GetAind(i) {return isclass(Theta[i]) ? Theta[i].Aind : NoMatch; }
 
 /** Return choice probability for a &theta; and current &gamma;.
 @param i index of &theta; in the state space &Theta;
-@return &Rho;*(&alpha;|&epsilon;,&eta;,&theta;,&gamma;)  (Theta[i].pandv[rind])
+@return &Rho;*(&alpha;|&epsilon;,&eta;,&theta;,&gamma;)  (Theta[i].pandv[I:r])
 **/
-DP::GetPstar(i) {return Theta[i].pandv[Gamma[gind].rind];}
+DP::GetPstar(i) {return Theta[i].pandv[Gamma[I::g].rind];}
 
 /** Return transition at a given &eta;,&theta; combination.
 @param i index of &theta; in the state space &Theta;
@@ -224,7 +224,7 @@ DP::Actions(Act1,...) 	{
 	AddStates(acts,va);
 	for(i=0;i<sizeof(va);++i)	{
 		va[i].pos = pos;
-		AA |= va[i].N;
+		N::AA |= va[i].N;
 //		sL = va[i].L[];
 		sL = va[i].L;
 		if (!pos) {
@@ -291,9 +291,9 @@ GroupTask::loop(){
 		do {
 			States[left].v = state[left];
 			SyncStates(left,left);
-			ind[] = OO*state;
-			gind = int(ind[bothgroup]);
-			this->Run(isclass(this,"FETask") ? state : Gamma[gind]);
+			I::all[] = OO*state;
+			I::g = int(I::all[bothgroup]);
+			this->Run(isclass(this,"FETask") ? state : Gamma[I::g]);
 			} while (--state[left]>=0);
 		state[left] = 0;
 		SyncStates(left,left);
@@ -321,8 +321,8 @@ CGTask::CGTask() {
 
 /** . @internal **/
 CGTask::Run(gam) {
-	Gamma[gind] =  (isint(Flags::GroupExists)||Flags::GroupExists())
-						? new Group(gind,state)
+	Gamma[I::g] =  (isint(Flags::GroupExists)||Flags::GroupExists())
+						? new Group(I::g,state)
 						: 0;
 	}
 	
@@ -370,7 +370,7 @@ DP::Initialize(userReachable,UseStateList,GroupExists) {
     foreach(vl in Vlabels) vl = {};
     foreach(vl in Vprtlabels) vl = {};
 	format(500);
-	ActionMatrix = AA = <>;
+	ActionMatrix = N::AA = <>;
 	SS = new array[DSubSpaces];
  	S = new array[DSubVectors];
  	for (subv=0;subv<DSubVectors;++subv)  	{ SubVectors[subv]={}; S[subv] = new Space(); }
@@ -493,14 +493,14 @@ DP::CreateSpaces() {
 	N::Av = sizec(ActionMatrix);
 	N::S = sizeof(AllN);
 	for(i=LeftSV,OO=zeros(1,N::S);i<DSubSpaces;++i) OO |= SS[i].O;
-	ind = new matrix[rows(OO)][1];
+	I::all = new matrix[rows(OO)][1];
 	Asets = array(ActionMatrix);
 	AsetCount = <0>;
 	A = array(ActionMatrix);
 	ActionSets = array(ones(N::A,1));
 	if (Flags::UseStateList) {
 		if (isclass(counter,"Stationary")) oxrunerror("canNOT use state list in stationary environment");
-		tfirst = constant(-1,TT,1);
+		I::tfirst = constant(-1,TT,1);
 		}
 	if (Flags::UseStateList || (Flags::IsErgodic = counter.IsErgodic) ) ReachableIndices = <>;
 	if (Volume>SILENT)	{		
@@ -524,7 +524,7 @@ DP::CreateSpaces() {
 							"%cf",{"%10.0f"},
 			SS[onlyexog].size|SS[onlysemiexog].size|SS[onlyendog].size|SubVectors[clock][0].N|SS[iterating].size|SS[tracking].size|N::R|N::F|SS[allstates].size);
 		print("\nACTION VARIABLES (",N::A," distinct actions)");
-		println("%r",{"    i.N"},"%cf","%7.0f","%c",Vprtlabels[avar],AA');
+		println("%r",{"    i.N"},"%cf","%7.0f","%c",Vprtlabels[avar],N::AA');
 		}
 	N::ReachableStates = N::TerminalStates = 0;
     Flags::ThetaCreated = TRUE;
@@ -546,21 +546,21 @@ DP::CreateSpaces() {
 	N::J= sizeof(ActionSets);
 	tt = new CGTask();	delete tt;
 	ReachableIndices = reversec(ReachableIndices);
-	if (Flags::UseStateList) tfirst = sizer(ReachableIndices)-1-tfirst;
-   	MxEndogInd = SS[onlyendog].size-1;
+	if (Flags::UseStateList) I::tfirst = sizer(ReachableIndices)-1-I::tfirst;
+   	I::MxEndogInd = SS[onlyendog].size-1;
 	if (isint(zeta)) zeta = new ZetaRealization(0);
 	DPDebug::Initialize();
 	lo = SS[bothexog].left;
 	hi = SS[bothexog].right;
 	
-	MedianExogState= (AllN[lo:hi]-1)/2;
-	MESind = OO[bothexog][lo:hi]*MedianExogState;
-	MSemiEind = OO[onlysemiexog][lo:hi]*MedianExogState;
+	I::MedianExogState= (AllN[lo:hi]-1)/2;
+	I::MESind = OO[bothexog][lo:hi]*I::MedianExogState;
+	I::MSemiEind = OO[onlysemiexog][lo:hi]*I::MedianExogState;
   	V = new matrix[1][SS[bothexog].size];
 
 	if (Volume>SILENT)	{		
 		println("\nTRIMMING AND SUBSAMPLING","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated","    tfirsts (T-1...0)"},
-                "%cf",{"%10.0f"},N::ReachableStates|N::TerminalStates|N::Approximated | (Flags::UseStateList? tfirst : 0)  );
+                "%cf",{"%10.0f"},N::ReachableStates|N::TerminalStates|N::Approximated | (Flags::UseStateList? I::tfirst : 0)  );
 		println("\nACTION SETS");
 		av = sprint("%-14s","    alpha");
 		for (i=0;i<N::J;++i) av ~= sprint("  A[","%1u",i,"]   ");
@@ -621,12 +621,12 @@ DryRun::DryRun() {
 @internal
 **/
 CTask::Run(g) {
-    curind=ind[tracking];
+    curind=I::all[tracking];
 	if (isclass(th = userReachable(),"DP")) {
 		++N::ReachableStates;
 		th->Bellman(state);
 		if (!isint(ReachableIndices)) {
-			if (Flags::UseStateList && tfirst[curt]<0) tfirst[curt] = sizer(ReachableIndices);
+			if (Flags::UseStateList && I::tfirst[curt]<0) I::tfirst[curt] = sizer(ReachableIndices);
 			ReachableIndices |= curind;
 			}
         if (!Flags::onlyDryRun) Theta[curind] = th;
@@ -664,8 +664,8 @@ Task::loop(){
 		SyncStates(left,d-1);
 		do {
 			SyncStates(left,left);
-			ind[] =    OO*state;
-			this->Run(Theta[ind[tracking]]);
+			I::all[] =    OO*state;
+			this->Run(Theta[I::all[tracking]]);
 			++iter;
 			} while (--state[left]>=0);
 		state[left] = 0;
@@ -713,9 +713,9 @@ Task::list(arg0,...) {
 			s=ups=mxind; lows = 0;
 			}
 		else {
-			s = ups=tfirst[arg0];
-			lows = sizeof(va) ? tfirst[va[0]]+1 :
-							   arg0>0 ? tfirst[arg0-1]+1 : 0;
+			s = ups=I::tfirst[arg0];
+			lows = sizeof(va) ? I::tfirst[va[0]]+1 :
+							   arg0>0 ? I::tfirst[arg0-1]+1 : 0;
 			}
 		}
 	else {		
@@ -735,8 +735,8 @@ Task::list(arg0,...) {
 	   if (s<ups && news[right]<rold) Update();
 	   state = news;
 	   SyncStates(left,right);
-	   ind[] = OO*state;
-	   this->Run(Theta[ind[tracking]]);
+	   I::all[] = OO*state;
+	   this->Run(Theta[I::all[tracking]]);
 	   ++iter;
 	   } while (--s>=lows);
 	if (!done) Update();
@@ -802,7 +802,7 @@ DumpExogTrans::DumpExogTrans() {
 	}
 	
 /** . @internal **/
-DumpExogTrans::Run(th) { decl i =ind[bothexog];  s|=i~state[left:right]'~NxtExog[Qrho][i];}
+DumpExogTrans::Run(th) { decl i =I::all[bothexog];  s|=i~state[left:right]'~NxtExog[Qrho][i];}
 
 
 /** Set the discount factor, &delta;.
@@ -996,8 +996,8 @@ DP::Swap() {now = later; later = !later;}
 Group::Group(pos,state) {
 	this.state = state;
 	this.pos = pos;
-	rind = ind[onlyrand];
-	find = ind[onlyfixed];
+	rind = I::all[onlyrand];
+	find = I::all[onlyfixed];
 	if (Flags::IsErgodic) {
 		decl d = SS[onlyendog].size;
 		Ptrans = new matrix[d][d];
@@ -1008,7 +1008,7 @@ Group::Group(pos,state) {
 			}
 		}
 	else { Ptrans = Pinfinity = 0; }
-	Palpha = (Flags::StorePA) ? new matrix[rows(AA)][SS[tracking].size] : 0;
+	Palpha = (Flags::StorePA) ? new matrix[rows(N::AA)][SS[tracking].size] : 0;
     mobj = UnInitialized;
 	}
 
@@ -1181,7 +1181,7 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex) {
 SaveV::Run(th) {
 	if (!isclass(th,"Bellman")  || (SaveV::TrimTerminals && th.IsTerminal) ) return;
     decl mxi, p;
-	stub=th.ind[tracking]~th.IsTerminal~th.Aind~state[S[endog].M:S[clock].M]';
+	stub=I::all[tracking]~th.IsTerminal~th.Aind~state[S[endog].M:S[clock].M]';
 	for(re=0;re<sizeof(th.EV);++re) {
         p = th->ExpandP(re);
 		r = stub~re~th.EV[re]~(MaxChoiceIndex ? double(mxi = maxcindex(p))~p[mxi]~sumc(p) : p' );

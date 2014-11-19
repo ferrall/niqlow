@@ -90,25 +90,25 @@ Smooth is called for each point in the state space during value function iterati
 @see Bellman::pandv
 **/
 Bellman::Smooth(VV) {
-	EV[rind] = VV;
-	V[] = maxc(pandv[rind]);
-	pandv[rind][][] =  fabs(pandv[rind]-V).<DIFF_EPS;
-	pandv[rind][][] ./= sumc(pandv[rind]);
+	EV[I::r] = VV;
+	V[] = maxc(pandv[I::r]);
+	pandv[I::r][][] =  fabs(pandv[I::r]-V).<DIFF_EPS;
+	pandv[I::r][][] ./= sumc(pandv[I::r]);
 	}
 
 /** Compute v(&alpha;&theta;) for all values of &epsilon; and &eta;. **/
 Bellman::ActVal(VV) {
-	pandv[rind][][] = U;  // error if KW run before brute force
+	pandv[I::r][][] = U;  // error if KW run before brute force
 	if (IsTerminal) return;
 	decl eta, hi=sizerc(Nxt[Qrho]), width= SS[onlyexog].size, dl = CV(delta);
 	for (eta=0;eta<hi;++eta)
-		pandv[rind][][eta*width:(eta+1)*width-1] += dl*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]]));
+		pandv[I::r][][eta*width:(eta+1)*width-1] += dl*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]]));
 	}
 
 /** Computes v() and V for out-of-sample states. **/
 Bellman::MedianActVal(EV) {
-    pandv[rind][] = U[][] + (Last() ? 0.0 : CV(delta)*sumr(Nxt[Qrho][0]*diag(EV[Nxt[Qi][0]])));
-	V[] = maxc( pandv[rind] );
+    pandv[I::r][] = U[][] + (Last() ? 0.0 : CV(delta)*sumr(Nxt[Qrho][0]*diag(EV[Nxt[Qi][0]])));
+	V[] = maxc( pandv[I::r] );
 	}
 	
 /**Default <var>Emax</var> operator at &theta;.
@@ -127,19 +127,19 @@ If `DP::setPstar` then &Rho;*(&alpha;) is computed using virtual `Bellman::Smoot
 
 **/
 Bellman::thetaEMax() {
-	return sumc( (V[] = maxc(pandv[rind]) )*NxtExog[Qrho] );  //sumc() handles cases of scalar V - point is outsample in KW.
+	return sumc( (V[] = maxc(pandv[I::r]) )*NxtExog[Qrho] );  //sumc() handles cases of scalar V - point is outsample in KW.
     }
 
 /** Compute endogenous state-to-state transition &Rho;(&theta;'|&theta;) for the current state <em>in `Stationary` environments</em>.
 **/
 Bellman::UpdatePtrans() {
 	decl eta,
-		 h = aggregatec(pandv[rind] * NxtExog[Qrho],SS[onlyexog].size)',
-		 ii = ind[onlyendog], curg = CurGroup(), it = ind[tracking];
+		 h = aggregatec(pandv[I::r] * NxtExog[Qrho],SS[onlyexog].size)',
+		 ii = I::all[onlyendog], curg = CurGroup(), it = I::all[tracking];
 	for (eta=0;eta<sizerc(Nxt[Qi]);++eta) {
 		curg.Ptrans[ Nxt[Qi][eta] ][ii] += (h[eta][]*Nxt[Qrho][eta])';
 		}
-	if (Flags::StorePA) curg.Palpha[][it] = ExpandP(rind);
+	if (Flags::StorePA) curg.Palpha[][it] = ExpandP(I::r);
 	}
 	
 /**Return choice probabilities conditioned on &theta; with zeros inserted for infeasible actions.
@@ -162,7 +162,7 @@ Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exog
 @see DP::ExogenousTransition
 **/
 Bellman::ThetaTransition(future,current) {
-	 decl ios = InSubSample ? ind[onlysemiexog] : 0;
+	 decl ios = InSubSample ? I::all[onlysemiexog] : 0;
 	 if (IsTerminal || Last() ) { Nxt[Qi][ios] = Nxt[Qrho][ios] = <>; return; }
      if (current!=future) {
         decl s;
@@ -175,7 +175,7 @@ Bellman::ThetaTransition(future,current) {
  	 F[now] = <0>;	
 	 P[now] = ones(rows(Asets[Aind]),1);
 	 si = S[clock].X;				// clock needs to be nxtcnt
-     if  (Volume>LOUD) println("Endogenous transitions at ",ind[iterating]);
+     if  (Volume>LOUD) println("Endogenous transitions at ",I::all[iterating]);
 	 do	{
 		F[later] = P[later] = <>;  swap = FALSE;
 		if (isclass(States[si],"Coevolving"))
@@ -230,18 +230,17 @@ Bellman::InSS() { return InSubSample; }
 **/
 Bellman::AutoVarPrint1(task) {
 	print("\n---------------\n","%c",{"Index","IsTerm","InSamp","Aind"}|Vprtlabels[svar][S[endog].M:S[clock].X],"%7.0f","%r",{"Values"},
-		ind[tracking]~IsTerminal~InSubSample~Aind~ ( isclass(task) ? (task.state[S[endog].M:S[clock].X])' : 0 ),
+		I::all[tracking]~IsTerminal~InSubSample~Aind~ ( isclass(task) ? (task.state[S[endog].M:S[clock].X])' : 0 ),
 	"%r",{"EV"},EV',"pandv=","%v",pandv,"%r",{"FeasS","Prob"},Nxt[Qi][]|Nxt[Qrho][]);
     println("*** ",InSubSample," ",this.InSubSample);
 	}
 	
 /** . @internal **/
 Bellman::Predict(ps,tod) {
-	rind = ind[onlyrand];
 	decl lo,hi,nnew, mynxt,eta,
 		tom = tod.pnext,
 		width = SS[onlyexog].size,
-		Pa = ExpandP(rind);		
+		Pa = ExpandP(I::r);		
 	tod.ch += ps*Pa;
 //	tod.unch += Pa/columns(tod.sind);
 	hi = -1;
@@ -249,7 +248,7 @@ Bellman::Predict(ps,tod) {
     for (eta=0;eta<SS[onlysemiexog].size;++eta) if (sizerc(Nxt[Qi][eta])) {
 		  lo = hi+1;
 		  hi += width;
-		  Pa = (pandv[rind][][lo:hi]*NxtExog[Qrho][lo:hi])';
+		  Pa = (pandv[I::r][][lo:hi]*NxtExog[Qrho][lo:hi])';
 		  tom.sind ~= exclusion(Nxt[Qi][eta],tom.sind);
 		  if (nnew = columns(tom.sind)-columns(tom.p)) tom.p ~= zeros(1,nnew);
 		  intersection(tom.sind,Nxt[Qi][eta],&mynxt);
@@ -265,7 +264,7 @@ Bellman::Predict(ps,tod) {
 @return UnInitialized if end of process<br>otherwise, index for next realized endogenous state
 **/
 Bellman::Simulate(Y) {
-	decl curr = ind[onlyrand], curJ = rows(pandv[curr]), done = IsTerminal||Last() ;
+	decl curr = I::r, curJ = rows(pandv[curr]), done = IsTerminal||Last() ;
 	ialpha = done  	? 0
 			  		: DrawOne( Y.usecp ? pandv[curr][][InSubSample*(Y.ind[bothexog])]  //if approximated, only one column in pandv
                                        : constant(1/curJ,curJ,1) );
@@ -321,7 +320,7 @@ Bellman::Delete() {
 	SS = delta = counter = Impossible;	
 	for(i=0;i<sizeof(Theta);++i) delete Theta[i];
 	for(i=0;i<sizeof(Gamma);++i) delete Gamma[i];
-	delete Gamma, Theta, ReachableIndices, tfirst;
+	delete Gamma, Theta, ReachableIndices, I::tfirst;
 	delete ETT;
     Flags::Reset();
     N::Reset();
@@ -388,7 +387,7 @@ McFadden::Initialize(Nchoices,userReachable,UseStateList,GroupExists) {
 McFadden::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 
 /** Myopic agent, so vv=U and no need to loop over &theta;&prime;.**/
-McFadden::ActVal(VV) { pandv[rind][][] = U; }
+McFadden::ActVal(VV) { pandv[I::r][][] = U; }
 
 /** .
 @param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
@@ -415,9 +414,9 @@ ExPostSmoothing::CreateSpaces(Method,...) {
 @internal
 **/
 ExPostSmoothing::Logistic(VV) {
-	EV[rind] = VV;
-	pandv[rind][][] = exp(CV(rho)*(pandv[rind]-(V[]=maxc(pandv[rind])) )) ;
-	pandv[rind][][] ./=  sumc(pandv[rind]);
+	EV[I::r] = VV;
+	pandv[I::r][][] = exp(CV(rho)*(pandv[I::r]-(V[]=maxc(pandv[I::r])) )) ;
+	pandv[I::r][][] ./=  sumc(pandv[I::r]);
 	}
 
 ExPostSmoothing::Normal(EV) {
@@ -435,15 +434,15 @@ ExPostSmoothing::Smooth(EV) {
 /** Extreme Value Ex Ante Choice Probability Smoothing.
 **/
 ExtremeValue::Smooth(VV) {
-	EV[rind] = VV;
-	pandv[rind][][] = pandv[rind]./V;
+	EV[I::r] = VV;
+	pandv[I::r][][] = pandv[I::r]./V;
 	}
 	
 /**Iterate on Bellman's equation at &theta; using Rust-styled additive extreme value errors.
 **/
 ExtremeValue::thetaEMax(){
 	decl rh = CV(rho);
-	V[] = sumc(pandv[rind][][] = exp(rh*pandv[rind]));
+	V[] = sumc(pandv[I::r][][] = exp(rh*pandv[I::r]));
 	return log(V)*(NxtExog[Qrho]/rh);  //M_EULER+
     }
 
@@ -457,27 +456,27 @@ Normal::CreateSpaces() {
 	}
 
 NIID::ActVal(VV) {
-	decl J=rows(U),iterid=ind[iterating],lo,hi,vv;
+	decl J=rows(U),iterid=I::all[iterating],lo,hi,vv;
 	if (!IsTerminal && J>1)	{
 		decl eta,j,choicep,scaling,neta = sizec(Nxt[Qrho]), width = SS[onlyexog].size;
 		for (eta=0;eta<neta;++eta) {
 			lo = eta*width; hi = (eta+1)*width-1;
-			vv = ( pandv[rind][][lo:hi] = U[][lo:hi] + CV(delta)*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]])) )';
+			vv = ( pandv[I::r][][lo:hi] = U[][lo:hi] + CV(delta)*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]])) )';
 			for (j=0;j<J;++j) { //,ev = 0.0
 				choicep = prodr(probn(GQNODES[Aind][j] + vv*MM[Aind][j] ))/M_SQRT2PI;
 //				ev +=   NxtExog[Qrho][eta]*(GQH::wght * (choicep.*(Chol[Aind][j]*GQH::nodes+ pandv[rind][j][lo:hi]))) ;
-				if (Flags::setPstar) pandv[rind][j][lo:hi] = GQH::wght * choicep;
+				if (Flags::setPstar) pandv[I::r][j][lo:hi] = GQH::wght * choicep;
 				}
 			}		
-		if (Flags::setPstar) pandv[rind] += (1-sumc(pandv[rind]))/J;  // fix choice prob. for numerical error
+		if (Flags::setPstar) pandv[I::r] += (1-sumc(pandv[I::r]))/J;  // fix choice prob. for numerical error
 		}
 	else	{
 //		ev = meanc(U)*NxtExog[Qrho];
-		if (Flags::setPstar) pandv[rind][][] = 1/J;
+		if (Flags::setPstar) pandv[I::r][][] = 1/J;
 		}
 	}
 	
-Normal::Smooth(VV) {	EV[rind] = VV; 	}
+Normal::Smooth(VV) {	EV[I::r] = VV; 	}
 
 /** Initialize a normal Gauss-Hermite integration over independent choice-specific errors.
 @param GQLevel integer, depth of Gauss-Hermite integration
@@ -573,19 +572,19 @@ NnotIID::CreateSpaces() {
 /**Iterate on Bellman's equation at &theta; with ex ante correlated normal additive errors.
 **/
 NnotIID::ActVal(VV) {
-	decl J=rows(U),iterid=ind[iterating];
+	decl J=rows(U),iterid=I::all[iterating];
 	if (!IsTerminal && J>1)	{
 		decl eta, neta = sizec(Nxt[Qrho]), choicep;
 		for (eta=0;eta<neta;++eta) {	//,ev = 0.0
-			pandv[rind][][eta] = U[][eta] + CV(delta)*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]]));
-			[V[],choicep] = ghk[Aind]->SimDP(pandv[rind][][eta],Chol[Aind]);
+			pandv[I::r][][eta] = U[][eta] + CV(delta)*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]]));
+			[V[],choicep] = ghk[Aind]->SimDP(pandv[I::r][][eta],Chol[Aind]);
 //			ev  +=   NxtExog[Qrho][eta]*(V'*choicep);
-			if (Flags::setPstar) pandv[rind][][eta] = choicep;
+			if (Flags::setPstar) pandv[I::r][][eta] = choicep;
 			}
 		}
 	else {
 //		ev = meanc(U)*NxtExog[Qrho];
-		if (Flags::setPstar) pandv[rind][][] = 1/J;
+		if (Flags::setPstar) pandv[I::r][][] = 1/J;
 		}
 //	return ev;
 	}
@@ -623,8 +622,8 @@ OneDimensionalChoice::CreateSpaces() {
 	}
 
 OneDimensionalChoice::Smooth(VV) {
-	EV[rind] = VV;
-	pandv[rind][] =  pstar[];
+	EV[I::r] = VV;
+	pandv[I::r][] =  pstar[];
 	}
 
 /**  .
@@ -632,13 +631,13 @@ OneDimensionalChoice::Smooth(VV) {
 OneDimensionalChoice::thetaEMax(){
 	decl eua;
 	[eua,pstar] = EUtility();
-	V[] = pstar*(eua+pandv[rind]);
+	V[] = pstar*(eua+pandv[I::r]);
 	if (Flags::setPstar) this->Smooth(V);
 	return V;
 	}
 
 OneDimensionalChoice::ActVal(VV) {
-	pandv[rind][][] = U;
+	pandv[I::r][][] = U;
 	if (IsTerminal) return;
-	pandv[rind][][] += CV(delta)*Nxt[Qrho][0]*VV[Nxt[Qi][0]]';
+	pandv[I::r][][] += CV(delta)*Nxt[Qrho][0]*VV[Nxt[Qi][0]]';
 	}	

@@ -134,6 +134,18 @@ struct LogNormalOffer : Offer {
 	LogNormalOffer(L,N,Pi,Accept,mu,sigma);
 	virtual Update();
 	}
+
+/**A Markov process.
+<DT>Transition:
+<dd class="math"><pre>&Rho;(s'=z|s) = &Pi;[z][s]</pre></dd>
+@example
+@see SimpleJump, Offer
+**/
+struct Markov : Random {
+	const decl	Pi;
+		Markov(L,Pi);
+		virtual Transit(FeasA);
+     }
 	
 /**Jumps to new value with probability &pi;.
 <DT>Transition:
@@ -141,7 +153,7 @@ struct LogNormalOffer : Offer {
 @example
 @see SimpleJump, Offer
 **/
-struct Jump : Random 	{
+struct Jump : Markov 	{
 	/**parameter for jump probability &pi; **/	 	const decl	Pi;
 		Jump(L,N,Pi);
 		virtual Transit(FeasA);

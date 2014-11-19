@@ -67,7 +67,7 @@ augmented state variables; `ActionAccumulator` and `Duration` in normal aging mo
 **/
 StateVariable::UnReachable(clock) { return FALSE; }
 
-/** Create an equally like discrete Exogenous variable.
+/** Create an equally likely discrete Exogenous variable.
 @param L string, label
 @param N integer, number of values the variable takes on.
 @example <pre>?? = new ??("",);</pre>
@@ -175,6 +175,21 @@ Zvariable::Zvariable(L,Ndraws) { SimpleJump(L,Ndraws); }
 
 Zvariable::Update() {	actual = DiscreteNormal (N, 0.0, 1.0)';	}
 
+/**Create a discrete Markov process.
+@param L label
+@param Pi N&times;1 array of `AV`(FeasA) compatible transition probabilities.
+@example
+<pre>
+  decl m = TransitionMatrix("p",<0.9~0.09~0.05;0.02~0.8~0.3;0.08~0.01~0.11>);
+  x = new Markov("x",m);
+</pre></dd>
+
+**/
+Markov::Markov(L,Pi) {	
+    this.Pi = Pi;
+    StateVariable(L,sizeof(Pi));
+    }
+
 /**Create a variable that jumps with probability
 @param L label
 @param N number of values
@@ -200,6 +215,12 @@ Absorbing::Transit(FeasA) {
     if (v) return UnChanged(FeasA);
     p = fPi(FeasA);
     return { <0,1>, reshape((1-p)~p, rows(FeasA), N ) };
+    }
+
+/**  **/
+Markov::Transit(FeasA) {
+    decl jprob = AV(Pi[v]);
+    return {vals,reshape(jprob,rows(FeasA),N)};	
     }
 
 /**  **/

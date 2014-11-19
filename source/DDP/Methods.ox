@@ -21,9 +21,7 @@ EndogUtil::EndogUtil() {
 **/
 EndogUtil::Run(th) {
 	if (!isclass(th,"Bellman")) return;
-	decl ir = ind[onlyrand];
-	th.pandv[ir][][] = .NaN;
-	//th.pset[ind[onlyrand]]=FALSE;
+	th.pandv[I::r][][] = .NaN;
 	th.U[][] = .NaN;
 	ex.state = state;
 	ex->loop();
@@ -40,7 +38,7 @@ ExogUtil::ExogUtil() {
 	}
 	
 ExogUtil::Run(th) {
-	th.U[][ind[bothexog]]=th->Utility();
+	th.U[][I::all[bothexog]]=th->Utility();
 	}	
 
 FixedSolve::FixedSolve() {
@@ -81,7 +79,7 @@ RandomSolve::Run(gam)  {
 	if (ResetGroup(gam)>0.0) {
         if (Flags::UpdateTime[AfterRandom]) UpdateVariables(state);
 		qtask.state = state;
-		DP::rind = gam.rind;
+		I::r = gam.rind;
 		qtask->Gsolve();
 		}
 	}
@@ -99,7 +97,7 @@ ValueIteration::Run(th) {
 	if (!isclass(th,"Bellman")) return;
 	decl ev;
 	th->ActVal(VV[!now]);
-	VV[now][ind[iterating]] = ev = th->thetaEMax();
+	VV[now][I::all[iterating]] = ev = th->thetaEMax();
 	if (Flags::setPstar)  {
 		th->Smooth(ev);
 		if (Flags::IsErgodic) th->UpdatePtrans();
@@ -118,7 +116,7 @@ ValueIteration::Gsolve() {
 	Flags::setPstar = counter->setPstar() ||  (MaxTrips==1);   // if first trip is last;
 	decl i;
 	Traverse(DoAll);
-	if (!(ind[onlyrand])  && isclass(counter,"Stationary")&& later!=LATER) VV[LATER][] = VV[later][];    //initial value next time
+	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& later!=LATER) VV[LATER][] = VV[later][];    //initial value next time
 	}
 	
 /**Solve Bellman's Equation..
@@ -145,7 +143,7 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
     else if (MaxTrips) this.MaxTrips = MaxTrips;
    	now = NOW;	later = LATER;
 	ftask.qtask = this;			//refers back to current object.
-    Clock::Solving(MxEndogInd,&VV,&Flags::setPstar);
+    Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
     if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
 	if (Fgroups==AllFixed)
 		ftask -> loop();
@@ -191,7 +189,7 @@ This is called after one complete iteration of `ValueIteration::Gsolve`.
 **/
 ValueIteration::Update() {
 	++trips;
-	decl dff= norm(VV[NOW][:MxEndogInd]-VV[LATER][:MxEndogInd],2);
+	decl dff= norm(VV[NOW][:I::MxEndogInd]-VV[LATER][:I::MxEndogInd],2);
 	if (dff==.NaN || Volume>LOUD) {
         println("\n t =",curt,"%r",{"today","tomorrow"},VV[now][]|VV[later][]);	
         if (dff==.NaN) oxrunerror("error while checking convergence");		
@@ -204,7 +202,7 @@ ValueIteration::Update() {
         Flags::setPstar =  (dff <vtoler)
 					|| MaxTrips==trips+1  //last trip coming up
                     || counter->setPstar();
-		VV[now][:MxEndogInd] = 0.0;
+		VV[now][:I::MxEndogInd] = 0.0;
 		}
 	if (Volume>=LOUD) println("Trip:",trips,". Done:",done,". Visits:",iter,". diff=",dff,". setP*:",Flags::setPstar);
  	state[right] += done;		//put counter back to 0 	if necessary
@@ -242,22 +240,22 @@ KWEMax::Run(th) {
         if (!inss) return;
 		EndogUtil::Run(th);
 		th->ActVal(meth.VV[!now]);
-		meth.VV[now][ind[iterating]] = th->thetaEMax();
+		meth.VV[now][I::all[iterating]] = th->thetaEMax();
 		if (!onlypass) {
-			meth->Specification(AddToSample,V[MESind],(V[MESind]-th.pandv[rind][][MESind])');
+			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-th.pandv[I::r][][I::MESind])');
             }   //		InSample(th);	
 		}
     else if (!inss) {
-		ex.state[lo : hi] = state[lo : hi] = 	MedianExogState;
+		ex.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
 		SyncStates(lo,hi);
-		ind[bothexog] = 0;    //     MESind;
-		ind[onlysemiexog] = 0; //= MSemiEind;
+		I::all[bothexog] = 0;    //     MESind;
+		I::all[onlysemiexog] = 0; //= MSemiEind;
 		ex -> Run(th);
 		OutSample(th);
-		ind[bothexog] = MESind;
-		ind[onlysemiexog] = MSemiEind;
+		I::all[bothexog] = I::MESind;
+		I::all[onlysemiexog] = I::MSemiEind;
 		}
-	if (Flags::setPstar)  th->Smooth(meth.VV[now][ind[iterating]]);
+	if (Flags::setPstar)  th->Smooth(meth.VV[now][I::all[iterating]]);
 	}
 
 KeaneWolpin::Run(th) {	}
@@ -360,7 +358,7 @@ KeaneWolpin::Specification(kwstep,V,Vdelta) {
 	if (!isint(Vdelta)) xrow = V~1~Vdelta~sqrt(Vdelta);
 	switch_single(kwstep) {
 		case	AddToSample :
-				Y |= VV[now][ind[iterating]];
+				Y |= VV[now][I::all[iterating]];
 				Xmat |= xrow;	
 		case	ComputeBhat	:
                 if (rows(Xmat)<=columns(Xmat)) oxrunerror("Fewer sample states than estimated coefficients.  Increase proportion");
@@ -374,18 +372,18 @@ KeaneWolpin::Specification(kwstep,V,Vdelta) {
 					}
 				 Y -= Xmat[][0];
 		case	PredictEV	:
-				VV[now][ind[iterating]] =  xrow*Bhat[curt];
+				VV[now][I::all[iterating]] =  xrow*Bhat[curt];
 		}
 	}
 	
 KWEMax::InSample(th){
-	meth->Specification(AddToSample,V[MESind],(V[MESind]-th.pandv[rind][][MESind])');
+	meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-th.pandv[I::r][][I::MESind])');
 	}
 
 	
 KWEMax::OutSample(th) {
 	th->MedianActVal(meth.VV[later]);
-	meth->Specification(PredictEV,V[0],(V[0]-th.pandv[rind])');
+	meth->Specification(PredictEV,V[0],(V[0]-th.pandv[I::r])');
 	}
 	
 /** Add up choice frequencies conditional on &gamma; and &theta;
@@ -435,14 +433,14 @@ CCP::CCP(data,bandwidth) {
 
 CCP::Run(fxstate) {
     if (!NotFirstTime) {
-	   cnt[gind] = zeros(1,SS[tracking].size);
-	   ObsPstar[gind] = zeros(SS[onlyacts].size,columns(cnt[gind]));	
-	   Q[gind]  = zeros(cnt[gind])';
+	   cnt[I::g] = zeros(1,SS[tracking].size);
+	   ObsPstar[I::g] = zeros(SS[onlyacts].size,columns(cnt[I::g]));	
+	   Q[I::g]  = zeros(cnt[I::g])';
        }
     else {
         entask->Traverse(DoAll);
-        delete cnt[gind];
-        delete ObsPstar[gind];
+        delete cnt[I::g];
+        delete ObsPstar[I::g];
         }
     }
 
@@ -470,21 +468,21 @@ CCPspace::CCPspace(qtask) {
 
 CCPspace::Run(th) {
 	if (!isclass(th,"Bellman")) return;
-    decl ii = ind[tracking];
+    decl ii = I::all[tracking];
     if (! qtask.NotFirstTime ) {
 	   decl j,k;
 	   for (k=S[endog].M,j=0;k<=S[clock].M;++k,++j) qtask.Kstates[j][ii] = AV(States[k]);
         }
     else {
        decl dnom,nom,p;
-	   dnom = qtask.cnt[find].*qtask.Kernel[ii][],
-	   nom =  qtask.ObsPstar[find].*qtask.Kernel[ii][],
+	   dnom = qtask.cnt[I::f].*qtask.Kernel[ii][],
+	   nom =  qtask.ObsPstar[I::f].*qtask.Kernel[ii][],
 	   p = sumr(nom/dnom);
 	   p[0] = 1-sumc(p[1:]);
        th.pandv[0][] = p;
        th.U[]=th->Utility();
-	   qtask.Q[find][ii] = p'*(th.U+M_EULER-log(p));
-       println(ii," ",qtask.Q[find][ii]);
+	   qtask.Q[I::f][ii] = p'*(th.U+M_EULER-log(p));
+       println(ii," ",qtask.Q[I::f][ii]);
        }
     }
 
@@ -504,7 +502,7 @@ HMEndogU::Run(th) {
 HotzMiller::Gsolve() {
     //	Traverse(DoAll);
 	decl cg = CurGroup(), tmpP = -AV(delta)*cg.Ptrans;
-    HMEndogU::VV = (invert( setdiagonal(tmpP, 1+diagonal(tmpP)) ) * Q[find] )';   // (I-d*Ptrans)^{-1}
+    HMEndogU::VV = (invert( setdiagonal(tmpP, 1+diagonal(tmpP)) ) * Q[I::f] )';   // (I-d*Ptrans)^{-1}
 	if (Volume>LOUD) println("HM inverse mapping: ",HMEndogU::VV );
 	ndogU.state = state;
 	ndogU->Traverse(DoAll);
@@ -513,7 +511,7 @@ HotzMiller::Gsolve() {
 	
 HotzMiller::Solve(Fgroups) {
 	ftask.qtask = this;			//refers back to current object.
-    Clock::Solving(MxEndogInd,&VV,&Flags::setPstar);
+    Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
     if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
 	if (Fgroups==AllFixed)
 		ftask -> loop();
@@ -533,7 +531,7 @@ AguirregabiriaMira::Run(th) {
 	th.U[]=th->Utility();
     th->ActVal(VV);
 	th->Smooth(th->thetaEMax());
-	Q[ind[tracking]] = th.pandv[0]'*(th.U+M_EULER-log(th.pandv[0]));
+	Q[I::all[tracking]] = th.pandv[0]'*(th.U+M_EULER-log(th.pandv[0]));
 	th->UpdatePtrans();
     }
 

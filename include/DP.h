@@ -92,6 +92,7 @@ struct N : Zauxiliary {
 		/** number of random groups **/							      R,
 		/** number of all state variables. **/						  S,
 		/** &Alpha;.N=rows(ActionMatrix), N unconstrained actions.**/ A,
+		/** rows of feasiable action sizes.         **/  			  AA,
 		/** columns(ActionMatrix), action variables **/			      Av,
 		/** Number of different action sets.    **/      		      J,
 		/** number of auxiliary variables, sizeof of `DP::Chi` **/	  aux,
@@ -99,6 +100,21 @@ struct N : Zauxiliary {
     	/**  Count of reachable states.  @internal **/  		      ReachableStates,
          /** Number of states approximated (not subsampled).**/       Approximated;
     static Reset();
+    }
+
+/**  Dynamically updated indices into state spaces.
+**/
+struct I : Zauxiliary {
+    static decl
+	/** vector of current indices into spaces. @internal**/	all,
+	/** index of current fixed group. **/					f,
+    /** index of current random group. **/					r,
+	/** index of current &gamma; group. **/					g,																
+	/**  . @internal **/      								tfirst,
+	/** . @internal **/										MedianExogState,
+	/** . @internal **/										MESind,
+	/** . @internal **/										MSemiEind,																
+	/** . @internal **/										MxEndogInd;
     }
 
 /** Static elements shared by the user model, groups and data.
@@ -118,12 +134,11 @@ struct DP {
 		/**   array of subvectors.  @internal **/  				S,
 		/**   array of subspaces . @internal  **/  				SS,
 		/** List of State Variables (in order).**/ 				States,
-		/** action sizes.         **/  				            AA,
 		/** matrix of all action vectors, A.  **/		        ActionMatrix,
 		/** list of feasible action matrices.  **/ 	            Asets,
 		/** List of Feassible Action indicators. **/  	        ActionSets,
 		/** (vector) Number of states for each A set.  **/      AsetCount,
-		/** List of <em>actual</em> feasible action matrices
+		/** List of <em>actual</em> feasible action matrices,
 		automatically updated.  **/	                            A,
 		/** List of `StateBlock`s. @internal**/					Blocks,
 		/** List of SubVectors. @internal **/ 					SubVectors,
@@ -132,18 +147,13 @@ struct DP {
 		/** . @internal **/										cputime0,
 		/** .  @internal    **/                   				Sfmts,
 		/** Output level. @see NoiseLevels **/ 					Volume,
-		/** index of current fixed group. **/					find,
-        /** index of current random group. **/					rind,
-		/** index of current &gamma; group. **/					gind,																
 		/** distriubution over groups 		**/ 				gdist,
 		/**density of group.
 			sums to with for fixed effect
 			over random effects **/ 							curREdensity,		
-		/** vector of current indices into spaces. @internal**/	ind,
 
 		/** The discount factor &delta;.  @see DP::SetDelta **/ delta,
 		/**  Current value of t. @see DP::Gett **/				curt,
-		/**  . @internal **/      								tfirst,
 		/** Array of Exogenous next state indices
 			and transitions. **/ 					            NxtExog,
 		/** . @internal  				**/    					F,
@@ -182,11 +192,7 @@ struct DP {
 																Chi,
 		/** FALSE means no subsampling.  Otherwise, pattern of
             subsampling of the state space.
-            @see DP::SubSampleStates **/			             SampleProportion,
-		/** . @internal **/										MedianExogState,
-		/** . @internal **/										MESind,
-		/** . @internal **/										MSemiEind,																
-		/** . @internal **/										MxEndogInd;
+            @see DP::SubSampleStates **/			             SampleProportion;
 
 		static	SetDelta(delta);
 		static	SetClock(ClockType,...);

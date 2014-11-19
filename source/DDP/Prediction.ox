@@ -14,7 +14,7 @@ Prediction::Predict() {
     foreach (q in sind[s]) {
         if (isclass(th=Settheta(q))) {
             state[lo:hi] = ReverseState(q,OO[tracking][])[lo:hi];
-            ind[tracking] = OO[tracking][]*state;
+            I::all[tracking] = OO[tracking][]*state;
             SyncStates(lo,hi);
             th->Predict(p[s],this);
             }

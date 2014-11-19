@@ -22,7 +22,7 @@ struct Determined : Parameter	{
            f = v<sub>0</sub></pre></dd>
 **/
 struct Free : Parameter {
-	Free(L,ival);
+	Free(L="",ival=0.0);
 	Encode();
 	Decode(f);
 	}
@@ -137,10 +137,11 @@ struct FixedBlock : ParameterBlock	{
 /** Vector of <code>J</code> probabilities that sum to 1.
 <dd><pre>
 x<sup>0</sup> = `Probability`
-x<sup>j</sup> = `Bounded`(0.0,1-&sum;<sub>k=0&dots;j-1</sub> x<sup>k</sup>)
+x<sup>j</sup> = `Bounded`(0.0,1-&sum;<sub>k=0&hellip;j-1</sub> x<sup>k</sup>)
 ...
 x<sup>J</sup> = `Determined`(1-&sum;x<sup>j</sup>)
 </pre></dd>
+@see TransitionMatrix
 **/
 struct Simplex : ParameterBlock		{
 	static const decl stoler = 1E-7;
@@ -149,11 +150,13 @@ struct Simplex : ParameterBlock		{
 	virtual BlockCode();
 	}
 
+TransitionMatrix(L,imat);
+
 /** Vector of <code>J</code> probabilities that sum to strictly less than 1.
 <dd><pre>
 x<sup>0</sup> = `Probability`
 ...
-x<sup>j</sup> = `Bounded`(0.0,1-&sum;<sub>k=0&dots;j-1</sub> x<sup>k</sup>)
+x<sup>j</sup> = `Bounded`(0.0,1-&sum;<sub>k=0&hellip;j-1</sub> x<sup>k</sup>)
 </pre></dd>
 **/
 struct DecreasingReturns : ParameterBlock		{
@@ -192,7 +195,7 @@ x<sup>j</sup> = `Free`()
 
 **/
 struct Coefficients : ParameterBlock	{
-	Coefficients(L,ivals,labels=0);
+	Coefficients(L="",ivals=<0.0>,labels=0);
 	}
 
 /** Positive Vector.
@@ -202,5 +205,5 @@ x<sup>j</sup> = `Positive`()
 
 **/
 struct StDeviations : ParameterBlock	{
-	StDeviations(L,ivals,labels=0);
+	StDeviations(L="",ivals=<1.0>,labels=0);
 	}

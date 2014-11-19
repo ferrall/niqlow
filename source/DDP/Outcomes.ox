@@ -8,7 +8,7 @@
 **/
 Outcome::Outcome(prior) {
 	decl nxtstate;
-	onext = UnInitialized;
+	snext = onext = UnInitialized;
 	act = constant(.NaN,1,SS[onlyacts].D);
 	z = constant(.NaN,1,zeta.length);
 	aux = constant(.NaN,1,N::aux);
@@ -16,8 +16,8 @@ Outcome::Outcome(prior) {
 	if (isclass(prior)) {
 		prev = prior;
 		t = prev.t+1;
-		nxtstate = prior.onext;
-		state = prior.onext; //constant(.NaN,AllN); //
+		nxtstate = prior.snext;
+//		state = prior.onext; //constant(.NaN,AllN); //
 		prior.onext = this;
 		}
 	else {
@@ -73,12 +73,12 @@ Outcome::Simulate() {
 	ind[onlysemiexog] = OO[onlysemiexog][]*state;
 	SyncStates(0,N::S-1);
 	if (!isclass(th = Settheta(ind[tracking]))) oxrunerror("simulated state "+sprint(ind[tracking])+" not reachable");
-	onext = th->Simulate(this);
+	snext = th->Simulate(this);
 	ind[onlyacts] = ialpha;
 	act = alpha;
 	z = CV(zeta);
 	aux = chi;
-	return onext==UnInitialized;
+	return snext==UnInitialized;
 	}
 
 /** Create a new series of `Outcome`s along a realized path.
@@ -144,7 +144,7 @@ Path::Simulate(T,usecp,DropTerminal){
 	cur = this;
 	this.T=1;  //at least one outcome on a path
 	while ( !(done = cur->Outcome::Simulate()) && this.T<T ) //not terminal and not yet max length
-		{ ++this.T; cur = new Outcome(cur); }
+		{ ++this.T; cur = cur.onext==UnInitialized ? new Outcome(cur) : cur.onext; }
 	if (DropTerminal && done) {
 		last = cur.prev;
 		delete cur;
@@ -231,8 +231,9 @@ FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
                               );
 		cur->Path::Simulate(T,TRUE,DropTerminal);
 		NT += cur.T;
-		if (++this.N<N) cur.pnext = new Path(this.N,UnInitialized);
-		} while (isclass(cur = cur.pnext));
+		if (++this.N<N && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
+        cur = cur.pnext;
+		} while (this.N<N);
 	if (Volume>SILENT) println(" FPanel Simulation time: ",timer()-cputime0);
 	}
 
