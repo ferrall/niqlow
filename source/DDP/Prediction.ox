@@ -446,7 +446,7 @@ PanelPrediction::GMMdistance() {
 
 
 EmpiricalMoments::Read(FNorDB) {
-    decl curf,inf,inmom,fcols,fmom,row,v,data,dlabels,source;
+    decl curf,inf,inmom,fcols,row,v,data,dlabels,source;
     if (isstring(FNorDB)) {
         source = new Database();
 	    if (!source->Load(FNorDB)) oxrunerror("Failed to load data from "+FNorDB);
@@ -470,7 +470,7 @@ EmpiricalMoments::Read(FNorDB) {
     cur = this;
     do { cur -> SetColumns(dlabels); } while (isclass(cur = cur.fnext));
     row = 0;
-    inf = (isint(fcols)) ? 0 : OO[onlyfixed][S[fgroup].M:S[fgroup].X]*(fmom = data[row][fcols]);
+    inf = (isint(fcols)) ? 0 : OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
     do {
         curf = inf;
         cur = (inf) ?  fparray[inf] : this;
@@ -478,7 +478,7 @@ EmpiricalMoments::Read(FNorDB) {
         do {
             inmom |= data[row][cur.cols];
             if (++row>=rows(data)) break;
-            inf = (isint(fcols)) ? 0 : OO[onlyfixed][S[fgroup].M:S[fgroup].X]*(fmom = data[row][fcols]);
+            inf = (isint(fcols)) ? 0 : OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
             } while (inf==curf);
         cur->Empirical(inmom);
         if (Volume>SILENT) println("Moments",MyMoments(inmom));
