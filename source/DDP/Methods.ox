@@ -51,9 +51,9 @@ FixedSolve::FixedSolve() {
 <OL>
 <LI>If <code>UpdateTime</code> = <code>AfterFixed</code>, then update transitions and variables.</LI>
 <LI>Apply the solution method for each value of the random effect vector.</LI>
-<LI>Carry out post-solution tasks by calling `DP::PostRESolve`();
+<LI>Carry out post-solution tasks by calling at hook = <code>PostRESolve</code>;
 </OL>
-@see DP::SetUpdateTime , DP::UpdateVariables
+@see DP::SetUpdateTime , DP::UpdateVariables , HookTimes
 **/
 FixedSolve::Run(fxstate){
 	rtask->SetFE(state = fxstate);
@@ -63,7 +63,7 @@ FixedSolve::Run(fxstate){
 	rtask.qtask = qtask;
 	rtask -> loop();
 	if (qtask.Volume>QUIET) DPDebug::outV(TRUE);
-	PostRESolve();
+    Hooks::Do(PostRESolve);
 	}
 
 RandomSolve::RandomSolve() {	RETask();	}
@@ -81,6 +81,7 @@ RandomSolve::Run(gam)  {
 		qtask.state = state;
 		I::r = gam.rind;
 		qtask->Gsolve();
+        Hooks::Do(PostGSolve);
 		}
 	}
 
@@ -149,6 +150,7 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
 		ftask -> loop();
 	else
 		ftask->Run(ReverseState(Fgroups,OO[onlyfixed][]));
+    Hooks::Do(PostFESolve);
     Flags::HasBeenUpdated = FALSE;
 	}
 
@@ -170,7 +172,6 @@ ValueIteration::ValueIteration(myEndogUtil) {
     decl i;
     for (i=0;i<DVspace;++i) VV[i] = zeros(1,SS[iterating].size);
    	if (isint(delta)) oxwarning("Setting discount factor to default value of "+sprint(SetDelta(0.90)));
-	PostRESolve = DoNothing;
     DoNotIterate = FALSE;
     Volume = QUIET;
 	}
@@ -386,7 +387,10 @@ KWEMax::OutSample(th) {
 	meth->Specification(PredictEV,V[0],(V[0]-th.pandv[I::r])');
 	}
 	
-/** Add up choice frequencies conditional on &gamma; and &theta;
+/** Create a Hotz-Miller solution method.
+@param (optional) indata  `Panel` object<br>F&times;1 array of Q mappings <br>0 [default], no data sent
+@param (optional) bandwidth sent to `CCP` along with data<br>
+
 **/
 HotzMiller::HotzMiller(indata,bandwidth) {
 	if (SS[bothexog].size>1) oxrunerror("exogenous and semi-exogenous not allowed with Hotz-Miller");
@@ -444,6 +448,8 @@ CCP::Run(fxstate) {
         }
     }
 
+/**
+**/
 CCP::InitializePP() {
 	decl curp= data,curo, a, g, q;
 	do {
@@ -482,7 +488,7 @@ CCPspace::Run(th) {
        th.pandv[0][] = p;
        th.U[]=th->Utility();
 	   qtask.Q[I::f][ii] = p'*(th.U+M_EULER-log(p));
-       println(ii," ",qtask.Q[I::f][ii]);
+//       println(ii," ",qtask.Q[I::f][ii]);
        }
     }
 
@@ -518,7 +524,7 @@ HotzMiller::Solve(Fgroups) {
 	else
 		ftask->Run(ReverseState(Fgroups,OO[onlyfixed][]));
 	if (Volume>QUIET) println("Q inverse time: ",timer()-cputime0);
-	PostRESolve();
+    Hooks::Do(PostFESolve);
 	}
 
 AguirregabiriaMira::AguirregabiriaMira(data,bandwidth) {

@@ -50,9 +50,10 @@ NoObjective::NoObjective(model) {
     }
 
 NoObjective::vfunc() {
-    model->Solve();
     Print("explore");
-    return <0.0>;
+    v = model->Solve();
+    println("\n Value = ",v,"\n-------------------------");
+    return matrix(v);
     }
 
 /** Take a random walk in the parameter space of a model.

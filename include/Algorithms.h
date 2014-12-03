@@ -122,6 +122,11 @@ struct NelderMead  : NonGradient {
 **/
 struct SimulatedAnnealing : NonGradient {
 		decl
+                                                    M,
+                                                    inp,
+                                                    tries,
+                                                    Vtries,
+                                                    vtries,
 		/** cholesky matrix for
 			random parameter change, default I **/  chol,
 		/** current heat default intial =1.0**/ 	heat,

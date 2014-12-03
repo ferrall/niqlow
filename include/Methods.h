@@ -13,7 +13,6 @@ struct RandomSolve : RETask { RandomSolve(); Run(g);}
 /** A container for solution methods.
 **/
 struct Method : Task {
-
 	}
 
 /** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/
@@ -136,12 +135,16 @@ struct HMEndogU : EndogUtil {
 **/
 struct CCP : FETask {
     const decl
-            entask, Q, data, bandwidth;
-	static decl   NotFirstTime,
-           Kernel,
-           cnt,
-		   ObsPstar,
-           Kstates;
+            /** task that loops over &Theta. **/    entask,
+            /** F&times;1 array of CCPs.**/         Q,
+            /**`Panel` containing data. **/         data,
+            bandwidth;
+	static decl
+            NotFirstTime,
+            Kernel,
+            cnt,
+		    ObsPstar,
+            Kstates;
 	CCP(data,bandwidth);
     InitializePP();
 	Run(fxstate);

@@ -484,7 +484,7 @@ Normal::Smooth(VV) {	EV[I::r] = VV; 	}
 **/
 NIID::Initialize(userReachable,UseStateList,GroupExists) {
 	Normal::Initialize(userReachable,UseStateList,GroupExists);
-	PreUpdate = NIID::UpdateChol;
+	Hooks::Add(PreUpdate,NIID::UpdateChol);
 	}
 
 NIID::SetIntegration(GQLevel,AChol) {
@@ -542,7 +542,7 @@ Normal::thetaEMax() {	return ev;	}
 **/
 NnotIID::Initialize(userReachable,UseStateList,GroupExists) {
 	Normal::Initialize(userReachable,UseStateList,GroupExists);
-	PreUpdate = NnotIID::UpdateChol;
+	Hooks::Add(PreUpdate,NnotIID::UpdateChol);
 	}
 
 NnotIID::SetIntegration(R,iseed, AChol) {

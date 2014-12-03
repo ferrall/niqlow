@@ -187,5 +187,5 @@ struct DataSet : Panel {
 	Read(fn,SearchLabels=FALSE);
 	IDColumn(lORind);
 	Summary(data,rlabels=0);
-	virtual EconometricObjective();
+    virtual EconometricObjective();
 	}

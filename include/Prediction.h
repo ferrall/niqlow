@@ -48,7 +48,7 @@ struct 	PathPrediction : Prediction {
     /** the next PathPrediction   **/               fnext;
 	PathPrediction(f=0,method=0,iDist=0);
 	~PathPrediction();
-	Predict(T=1,printit=FALSE);
+	Predict(T=0,printit=FALSE);
     Empirical(inmoments);
     Tracking(LorC,mom1,...);
     SetColumns(dlabels);
@@ -82,4 +82,5 @@ struct EmpiricalMoments : PanelPrediction {
     TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);
     Read(fn);
  	virtual EconometricObjective();
+    virtual Solve();
     }

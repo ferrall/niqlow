@@ -61,20 +61,24 @@ SimulatedAnnealing::SimulatedAnnealing(O)  {
 @internal
 **/
 SimulatedAnnealing::Metropolis()	{
-	decl diff = (OC.v-holdpt.v);
-	if (Volume==LOUD) println(iter~OC.v~(vec(OC.F)'));
-	if ( (diff> 0.0) || ranu(1,1) < exp(diff/heat))	{
-		if (accept++==N) {
-			heat *= cooling;  //cool off annealing
-			chol *= shrinkage; //shrink
-			if (Volume>QUIET) println("Cool Down ",iter,". f=",OC.v," heat=",heat);
-			accept = 0;
-			}
-		}
-	else {
-		OC.F = holdpt.step;
-		OC.v = holdpt.v;
-		}
+	decl jm=-1, j, diff;
+    for(j=0;j<M;++j) {
+        diff = vtries[j]-holdpt.v;
+	    if (Volume==LOUD) println(iter~vtries[j]~(vec(tries[][j])'));
+	    if ( (diff> 0.0) || ranu(1,1) < exp(diff/heat))	{
+             holdpt.v = vtries[jm = j];
+             holdpt.step = tries[][jm];
+             ++accept;
+			 }
+        }
+    if (accept>=N) {
+		heat *= cooling;  //cool off annealing
+	    chol *= shrinkage; //shrink
+		if (Volume>QUIET) println("Cool Down ",iter,". f=",vtries[j]," heat=",heat);
+		accept = 0;
+        }
+	OC.v = holdpt.v;
+    OC.F = holdpt.step;
 	}
 
 /** Tune annealing parameters.
@@ -97,6 +101,10 @@ SimulatedAnnealing::Iterate(chol)	{
 	O->Encode(0);
 	N = rows(OC.F);
     if (!isclass(O.p2p) || O.p2p.IamClient) {  //MPI not running or I am the Client Node
+       inp = isclass(O.p2p);
+       M = inp ? O.p2P.Nodes : 1;
+       tries=zeros(N,M);
+       Vtries=zeros(O.NvfuncTerms,M);
 	   this.chol = isint(chol) ? unit(N) : chol;
 	   if (OC.v==.NaN) O->fobj(0);
 	   holdpt.step = OC.F; holdpt.v = OC.v;
@@ -104,21 +112,21 @@ SimulatedAnnealing::Iterate(chol)	{
 	   OC.H = OC.SE = OC.G = .NaN;
 	   accept = iter =0;	
 	   do  {
-		  O->fobj(OC.F + this.chol*rann(N,1));
+          tries[][] = holdpt.step + this.chol*rann(N,M);
+	      O->funclist(tries,&Vtries);
+          OC->aggregate(Vtries,&vtries);
 		  Metropolis();
 		} while (iter++<maxiter);
 	   O->Decode(0);
 	   if (Volume>SILENT) O->Print(" Annealing Done ");
-       if (isclass(O.p2p)) {
+       if (inp) {
             O.p2p.client->Stop();
             O.p2p.client->Announce(O.cur.X);
             }
        }
     else {
-       println("chol ",chol);
         O.p2p.server->Loop(N);
         }
-
 	}
 
 /** .
@@ -355,7 +363,8 @@ NelderMead::SimplexSize() {
 NelderMead::Amoeba() 	{
      decl fdiff, vF = zeros(O.NvfuncTerms,N+1);
 	 n_func += O->funclist(nodeX,&vF);
-	 nodeV = sumc(vF)';	   // aggregate!!!
+     OC->aggregate(vF,&nodeV);
+//	 nodeV = sumc(vF)';	   // aggregate!!!
 	 do	{
 	 	Sort();
 		if (plexsize<tolerance) return TRUE;

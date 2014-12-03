@@ -28,6 +28,20 @@ enum {OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
          @name SmoothingMethods**/	
 enum { NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods}
 
+
+
+/** Points in the solution process that users can insert <em>static</em> functions or methods.
+
+<DT>PreUpdate</DT><DD>Called by `DP::UpdateVariables`().  The point it is called depends on `DP::UpdateTime`</DD>
+<DT>PostGSolve </DT> <DD>Called by `RandomSolve::Run` after a call to `ValueIteration::Gsolve`() </DD>
+<DT>PostRESolve </DT> <DD>Called by `FixedSolve::Run` after all random effects have been solved. </DD>
+<DT>PostFESolve</DT><DD>Called by `ValueIteration::Solve`() after all fixed effect groups have been solved.</DD>
+@see Hooks, DP::UpdateTime
+@name HookTimes
+**/
+enum {PreUpdate,PostGSolve,PostRESolve,PostFESolve,NHooks}
+
+
 /**Stores information on a set of state variables, such as &theta; **/
 struct Space : Zauxiliary	{
 	decl
@@ -117,6 +131,17 @@ struct I : Zauxiliary {
 	/** . @internal **/										MxEndogInd;
     }
 
+/** Contains an array that holds user-defined static functions/methods to call at different points in the solution process.
+
+@see HookTimes, SetUpdateTime **/
+struct Hooks : Zauxiliary {
+    static decl hooks, h;
+    static  Reset();
+    static  Add(hook,proc);
+    static  Do(hook);
+	static  DoNothing();
+    }
+
 /** Static elements shared by the user model, groups and data.
 
 The  base class for the DDP framework.
@@ -162,20 +187,6 @@ struct DP {
 		/** . @internal           **/ 			 				later,
 		/** function that returns new state or 0.
             Sent as argument to `DP::Initialize`().**/	        userReachable,
-		/** static function called by `DP::UpdateVariables`().
-			The default is `DP::DoNothing`().  The user can
-			assign a static function to this variable to
-			carry out tasks before each solution.<p>
-            Note: The point at which PreUpdate() is called is
-            determined by `DP::UpdateTime`
-			@see DP::PostRESolve, DP::SetUpdateTime **/			PreUpdate,
-		/** static function called by FESolve.
-			The default is `DP::DoNothing`().
-			The user can set this variable to a static
-			function before solving.  For example,
-			if the value function for each fixed group should
-			be printed it can be done in PostRESolve.
-			@see DP::PreUpdate **/								PostRESolve,
 		/** max of vv. @internal       **/						V,
 		/** handles looping over endogenous transitions **/		ETT,
 		/** index into &Alpha; of current realized &alpha;. **/	ialpha,
@@ -202,7 +213,6 @@ struct DP {
 		static 	ExogenousTransition();
 
 		static	UpdateVariables(state=0);
-		static  DoNothing();
         static  onlyDryRun();
 		static  CreateSpaces();
 		static	InitialsetPstar(task);

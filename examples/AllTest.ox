@@ -37,7 +37,7 @@ Test1::Run(UseList) {
 	SetClock(NormalAging,10);
 	CreateSpaces();
 	decl EMax = new ValueIteration(0);
-	EMax -> Solve(0,0);
+	EMax -> Solve();
 	DPDebug::outV(TRUE);
 	delete EMax;
 	Delete();
@@ -50,7 +50,7 @@ Test2::Run(UseList) {
 	SetClock(UncertainLongevity,4,0.0);
 	CreateSpaces();
 	decl EMax = new ValueIteration(0);
-	EMax -> Solve(0,0);
+	EMax -> Solve();
 	delete EMax;
 	Delete();
 	}
@@ -67,7 +67,7 @@ Test3::Run(UseList) {
 	EndogenousStates(s0 = new SimpleJump("s0",5),s1 = new SimpleJump("s1",5));
 	CreateSpaces();
 	decl KW = new KeaneWolpin();
-	KW->Solve(0,0);
+	KW->Solve();
 	DPDebug::outV(TRUE);
 	delete KW;
 	Delete();
@@ -119,7 +119,7 @@ Test4::Run() {
 	Actions(new ActionVariable("a",2));
 	CreateSpaces();
 	decl EMax = new ValueIteration(0);
-	EMax -> Solve(0,0);
+	EMax -> Solve();
 	delete EMax;
 	DPDebug::outV(TRUE);
 	Delete();
@@ -134,7 +134,7 @@ Test5::Run() {
 	SetIntegration(100,-1,<1.0;0.99;1.0>);
 	CreateSpaces();
 	decl EMax = new ValueIteration(0);
-	EMax -> Solve(0,0);
+	EMax -> Solve();
 	delete EMax;
 	DPDebug::outV(TRUE);
 	Delete();
@@ -166,7 +166,7 @@ Test7::Run()  {
   	CreateSpaces();
 	SetDelta(0.99);	
 	decl EMax = new ValueIteration(0);
-	EMax -> Solve(0,0);
+	EMax -> Solve();
 	Volume=SILENT;
 	data = new DataSet(0,EMax);
 	data -> Simulate(300,3,0,0);
@@ -205,7 +205,7 @@ Test8::Run() {
 				   g = new FixedEffect("g",2));
 	CreateSpaces();
 	decl m = new ValueIteration(0);
-	m -> Solve(0,0);
+	m -> Solve();
 	DPDebug::outV(TRUE);
 	m -> Solve(1,0);
 	DPDebug::outV(TRUE);
@@ -224,7 +224,7 @@ Test9::Run()	{
 	CreateSpaces();
 	meth = new ValueIteration(0);
 	meth.Volume = NOISY;
-	meth -> Solve(0,0);
+	meth -> Solve();
     decl pd = new PanelPrediction();
     pd -> Predict(8,TRUE);
 	Delete();

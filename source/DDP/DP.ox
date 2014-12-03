@@ -338,6 +338,35 @@ DPMixture::Run(gam) 	{	if (isclass(gam)) qtask->GLike();	}
 Flags::Reset() { delete UpdateTime; UpdateTime = StorePA = DoSubSample = IsErgodic = HasFixedEffect = ThetaCreated = FALSE; }
 N::Reset() {G=F=R=S=A=Av=J=aux=TerminalStates=ReachableStates=Approximated = 0;}
 
+/** .
+@internal
+**/
+Hooks::DoNothing() { }
+
+/** Empty the hooks (delete first if already created). **/
+Hooks::Reset() {
+    if (isarray(hooks)) delete hooks;
+    hooks = new array[NHooks];
+    decl h;
+    for(h=0;h<NHooks;++h) hooks[h] = {};
+    }
+
+/**  Add a static function or method to a hook.
+@param time integer tag, time point in solution method to call the routine.
+@param proc <em>static</em> function or method to call.
+@see HookTimes, SetUpdateTime
+**/
+Hooks::Add(time,proc) {
+    if ( time<0 || time>=NHooks ) oxrunerror("Invalid hook time.  See Hooks and HookTimes");
+    if ( !isfunction(proc) ) oxrunerror("proc must be static function or method");
+    hooks[time] |= proc;
+    }
+
+/**  Call all the methods on the hook.
+@internal
+**/
+Hooks::Do(ht) { h=hooks[ht]; foreach(decl p in h) p(); }
+
 /** Initialize static members.
 @param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
 FALSE if the state is not reachable.
@@ -357,6 +386,7 @@ DP::Initialize(userReachable,UseStateList,GroupExists) {
     decl subv;
     Version::Check();
     if (Flags::ThetaCreated) oxrunerror("Must call DP::Delete between calls to CreateSpaces and Initialize");
+    Hooks::Reset();
     this.userReachable = userReachable;
     Flags::UseStateList=UseStateList;
 	Flags::GroupExists = isfunction(GroupExists) ? GroupExists : 0;
@@ -379,7 +409,6 @@ DP::Initialize(userReachable,UseStateList,GroupExists) {
 	P = new array[DVspace];
 	alpha = ialpha = chi = zeta = delta = Impossible;
 	ReachableIndices = 0;
-	PreUpdate = DoNothing;
     SetUpdateTime();
     if (strfind(arglist(),"NOISY")!=NoMatch) {
             Volume = NOISY;
@@ -903,10 +932,6 @@ DP::SetClock(ClockOrType,...)	{
 DP::Last() { return counter->Last(); }
 
 
-/** .
-@internal
-**/
-DP::DoNothing() { }
 
 /** Update dynamically changing components of the program at the time chosen by the user.
 <OL>
@@ -921,7 +946,7 @@ previous solve.</LI>
 DP::UpdateVariables(state)	{
 	decl i,nr,j,a,nfeas;
     Flags::HasBeenUpdated = TRUE;
-	PreUpdate();
+    Hooks::Do(PreUpdate);
 	i=0;
 	do {
 		if (IsBlockMember(States[i])) {

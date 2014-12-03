@@ -141,7 +141,7 @@ ObjToTrack::Distribution(htmp,ptmp) {
         foreach(h in htmp[][j]) {
             hh = hvals[j] = unique(h);
             hist[j] = zeros(hh)';
-            println("XX ",ptmp,h,hh);
+//            println("XX ",ptmp,h,hh);
             foreach (q in hh[k]) hist[j][k] = sumc(selectifr(ptmp,h.==q));
             mns ~= hh*hist[j];
             }
@@ -187,7 +187,7 @@ Prediction::Histogram(tv,printit) {
 	}
 
 Prediction::Delta(mask) {
-    return ismatrix(empmom) ? (selectifr(predmom,mask)-empmom) : zeros(predmom);
+    return ismatrix(empmom) ? (selectifc(predmom,mask)-empmom) : selectifc(zeros(predmom),mask);
     }
 
 ObjToTrack::ObjToTrack(LorC,obj) {
@@ -197,7 +197,6 @@ ObjToTrack::ObjToTrack(LorC,obj) {
           : isclass(obj,"StateVariable") ? svar
           : isclass(obj,"AuxiliaryValues")? auxvar
           : idvar;  // used for OutputValues
-  println(LorC," ",type);
   switch (type) {
         case auxvar :  L = obj.L;
                     hN = 0;
@@ -248,6 +247,8 @@ PathPrediction::Tracking(LorC,mom1,...) {
         }
     }
 
+/**
+**/
 PathPrediction::SetColumns(dlabels) {
     decl v,lc,vl;
     cols = <>;
@@ -268,16 +269,21 @@ PathPrediction::SetColumns(dlabels) {
             }
         else vl = lc;
         cols ~= strfind(dlabels,vl);
+        mask ~= 1;
         }
     }
 
 /** Compute histogram(s) of an (array) of objects along the path.
-@param prtlevel `CV` compatible print level<br>
+@param prntlevel `CV` compatible print level<br>
         Zero (default): silent<br>One : formatted print each object and time<br>Two: create a flat matrix of moments stored in
 `PathPrediction::flat`.
 @param UseDist TRUE [default]: use endogenous choice probabilities &Rho;*<br>FALSE : use uniform choices.
 
 `PathPrediction::Predict`() must be called first.
+
+vlso, if prntlevel==Two leave in `PathPrediction::gmm` the total distance between predicted and empirical moments
+
+Currently the objective is the square root of the squared differences.
 
 @example
 <pre>
@@ -286,12 +292,16 @@ PathPrediction::SetColumns(dlabels) {
    pd -&gt; Predict(10);
    pd -&gt; Histogram(TRUE);  //print distribution
 </pre></dd>
+
+@return flat matrix of predicted moments
+
 **/
 PathPrediction::Histogram(prntlevel,UseDist) {
   decl flat = <>, delt =<>, v;
   ud = UseDist;
   cur=this;
   do {
+     cur.predmom=<>;
      foreach(v in tlist ) cur->Prediction::Histogram(v,CV(prntlevel,cur)==One);
      if (CV(prntlevel,cur)==Two) {
         flat |= cur.t~cur.predmom;
@@ -313,9 +323,13 @@ PanelPrediction::Histogram(printlevel,UseDist) {
             M += cur.gmm;
             }
         } while(isclass(cur=cur.fnext));
-//    println("**",flat);
     }
 
+/** Set an object to be tracked in predictions.
+@paramg LorC label or column index in the data.
+@param mom  object or array of objects to be tracked
+@param ... further objects
+**/
 PanelPrediction::Tracking(LorC,mom,...) {
     decl v,args =  isarray(mom) ? mom : {mom};
     args |= va_arglist();
@@ -348,6 +362,10 @@ PanelPrediction::~PanelPrediction() {
 		}
 	}	
 
+/** Create a panel of predictions.
+@param r integer tag for the panel
+@param method `Method` to be called before predictions.
+**/
 PanelPrediction::PanelPrediction(r,method) {
 	decl i, q;
     this.method = method;
@@ -372,9 +390,11 @@ PanelPrediction::Predict(t,printit) {
         } while(isclass(cur=cur.fnext));
     }
 
+/** Predict and then compute predicted moments of tracked moments.
+**/
 PathPrediction::PathObjective() {
     Predict();
-    Histogram();
+    Histogram(Two);
     }
 
 PathPrediction::GMMobjective() {
@@ -387,24 +407,50 @@ PathPrediction::GMMobjective() {
 		gmm = summand->Integrate(this);
 	else
 		PathObjective();
+
     }
 
+/** Track a single object that is matched to column in the data
+@param Fgroup  integer or vector of integers of fixed groups that the moment should be tracked for.<br> AllFixed, moment appears in all groups
+@param LorC  label or column index in the data
+@param mom object to track
+**/
 EmpiricalMoments::TrackingMatchToColumn(Fgroup,LorC,mom) {
     if (Fgroup==AllFixed) PanelPrediction::Tracking(LorC,mom);
     else
         if (Fgroup==0) PathPrediction::Tracking(LorC,mom);
-        else fparray[Fgroup]->PathPrediction::Tracking(LorC,mom);
+        else {
+            decl f;
+            if (isint(Fgroup))
+                fparray[Fgroup]->PathPrediction::Tracking(LorC,mom);
+            else foreach (f in Fgroup) fparray[f] ->PathPrediction::Tracking(LorC,mom);
+            }
     }
 
+/** Track one or more objects that are matched to columns using the object's label.
+@param Fgroup  integer or vector of integers of fixed groups that the moment should be tracked for.<br> AllFixed, moment appears in all groups
+@param InDataOrNot
+@param mom1 object or array of objects to track
+@param ... more objects
+**/
 EmpiricalMoments::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
     decl v,args =  isarray(mom1) ? mom1 : {mom1};
     args |= va_arglist();
     if (Fgroup==AllFixed) PanelPrediction::Tracking(InDataOrNot,args);
     else
         if (Fgroup==0) PathPrediction::Tracking(InDataOrNot,args);
-        else fparray[Fgroup]->PathPrediction::Tracking(InDataOrNot,args);
+        else {
+            decl f;
+            if (isint(Fgroup))fparray[Fgroup]->PathPrediction::Tracking(InDataOrNot,args);
+            else foreach (f in Fgroup) fparray[f]->PathPrediction::Tracking(InDataOrNot,args);
+            }
     }
 
+/** Create a panel prediction that is matched with external data.
+@param label
+@param method
+@param UorCorL
+**/
 EmpiricalMoments::EmpiricalMoments(label,method,UorCorL) {
     decl q,j;
     this.label = label;
@@ -422,16 +468,21 @@ EmpiricalMoments::EmpiricalMoments(label,method,UorCorL) {
      }
 
 /** The default econometric objective: log-likelihood.
-@return `Panel::M`, <em>lnL = (lnL<sub>1</sub> lnL<sub>2</sub> &hellip;)</em>
-@see Panel::LogLikelihood
+@return `PanelPrediction::M`
+@see Panel::GMMdistance
 **/
 EmpiricalMoments::EconometricObjective() {
 	this->PanelPrediction::GMMdistance();
-	return M;
+//	return M;
 	}
 
+EmpiricalMoments::Solve() {
+    this->EconometricObjective();
+    println("%c",tlabels,"%8.4f",flat[0]);
+    return M;
+    }
 
-/**
+/** Compute the distance between predicted and empirical moments.
 **/
 PanelPrediction::GMMdistance() {
 	decl cur = this;
@@ -444,7 +495,9 @@ PanelPrediction::GMMdistance() {
     M = sqrt(M);
 	}
 
-
+/** Read in external moments of tracked objects.
+@param FNorDB  string, name of file that contains the data.<br>A Ox database object.
+**/
 EmpiricalMoments::Read(FNorDB) {
     decl curf,inf,inmom,fcols,row,v,data,dlabels,source;
     if (isstring(FNorDB)) {
@@ -481,7 +534,7 @@ EmpiricalMoments::Read(FNorDB) {
             inf = (isint(fcols)) ? 0 : OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
             } while (inf==curf);
         cur->Empirical(inmom);
-        if (Volume>SILENT) println("Moments",MyMoments(inmom));
+        if (Volume>SILENT) { println("Moments of Moments Read in"); MyMoments(inmom);}
         } while(row<rows(data));
 	delete source;
 	}

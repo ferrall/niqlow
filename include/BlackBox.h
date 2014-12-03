@@ -19,7 +19,7 @@ struct PanelBB : BlackBox {
 	}
 
 struct NoObjective : BlackBox {
-    decl model;
+    decl model,v;
     NoObjective(model);
     vfunc();
     }
