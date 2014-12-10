@@ -43,7 +43,7 @@ PanelBB::vfunc() {
 @param model Object with a method named <code>Solve()</code>
 **/
 NoObjective::NoObjective(model) {
-    BlackBox("");
+    BlackBox("NoObject");
     NvfuncTerms = 1;
     if (ismember(model,"Solve")!=1) oxrunerror("object sent to NoObjective must have a method named Solve");
     this.model = model;

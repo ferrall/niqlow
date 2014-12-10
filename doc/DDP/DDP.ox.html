@@ -378,11 +378,11 @@ MyModel::Initialize() {
 </details>
 <P/>
 <li>Foresight</li>
-<blockquote><b><code>MyModel</code> should set the discount factor using DP::SetDelta().</b></blockquote>
+<blockquote><b><code>MyModel</code> should set the discount factor using <a href="DP.ox.html#DP___SetDelta">SetDelta</a>().</b></blockquote>
 <P/>
 <DT>&delta;  &isin; [0,1): </DT><DD>the discount factor.  The default value is <code>DP::delta=0.95</code>.</DD>
 <DD>MyModel::&delta; is either a fixed real value or a <a href="Shared.ox.html#Parameter">Parameter</a>, which allows it to depend on outside variables and/or to be estimated within a nested solution algorithm.</DD>
-<DD>DP::SetDelta() can be used to set the value, passing either a real number or a <a href="Shared.ox.html#Parameter">Parameter</a>.</DD>
+<DD><a href="DP.ox.html#DP___SetDelta">SetDelta</a>() can be used to set the value, passing either a real number or a <a href="Shared.ox.html#Parameter">Parameter</a>.</DD>
 <DD>Unlike other elements of the model, the discount factor can be set or changed after <code>CreateSpaces()</code> has been called.</DD>
 <P/>
 <details><summary><b>Example</b><br>Set &delta;, the discount factor, to 0.99.</summary>
@@ -575,8 +575,8 @@ The current value of a state is always equal to some row in &Omega;: &theta;.v &
 <DD class="example">The state space is the set of reachable states.  It emerges from the property &theta;.R of each logically possible state:
 <pre>   <b>&Theta;</b>  &equiv;  {  &theta; &in; &Omega; : &theta;.R = 1  }</pre></DD>
 <P/>
-<DT>DP::CreateSpaces() and <code><a href="DP.ox.html#DP___userReachable">userReachable</a></code></DT>
-<DD><code>MyModel</code> must call <code>DP::CreateSpaces()</code>, which sets up the list of feasible action matrices and creates the state space <b>&Theta;</b>.  It must traverse (loop over) the whole space &Omega; once.  For each  &theta; &in; &Omega; it calls the function passed to it as the first argument and stores what it returns in an array <code>Theta</code>.   <dd>Unlike <code>FeasibleActions</code>, which must have that name, this function can have any name.  Here it is called <code>Reachable()</code>.</dd>
+<DT><a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() and <code><a href="DP.ox.html#DP___userReachable">userReachable</a></code></DT>
+<DD><code>MyModel</code> must call <code><a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>()</code>, which sets up the list of feasible action matrices and creates the state space <b>&Theta;</b>.  It must traverse (loop over) the whole space &Omega; once.  For each  &theta; &in; &Omega; it calls the function passed to it as the first argument and stores what it returns in an array <code>Theta</code>.   <dd>Unlike <code>FeasibleActions</code>, which must have that name, this function can have any name.  Here it is called <code>Reachable()</code>.</dd>
 <dd class="example">Ox provides no mechanism for a 'default' version of <code>Reachable()</code>, so <code>MyModel</code> must include this function.  It should be a <code>static</code> member of the user's derived model class (so that it has direct access to the data members holding state variables).  <code>MyModel::Reachable()</code> indicates &theta; is reachable by returning a <code>new MyModel()</code>.  Otherwise it should return 0.  So
 <pre>Reachable() returns
        new MyModel() if &theta;.R = 1
@@ -586,7 +586,7 @@ The current value of a state is always equal to some row in &Omega;: &theta;.v &
 <DD><code>CreateSpaces()</code> traverses &Omega; once in order to create <b>&Theta;</b>.  Thereafter the user has an option for how to  traverse <b>&Theta;</b>.</DD>
 <DD>If &Omega; is much larger than <b>&Theta;</b> then it makes sense to store <b>&Theta;</b> as a list of feasible states (actually a matrix of state vectors, &theta;.v).  <span class="n">DDP</span> will only create a space (a list) of states equal to the size of <b>&Theta;</b>.  It then loops over the list of state vectors which map directly into <b>&Theta;</b>.</DD>
 <DD>Otherwise,  <span class="n">DDP</span> can traverse <b>&Theta;</b> by looping over the possible values of each endogenous state variable, but ignoring at states that are not reachable.</DD>
-<DD>This option for how to traverse <b>&Theta;</b> is the second argument to DP::CreateSpaces().</DD>
+<DD>This option for how to traverse <b>&Theta;</b> is the second argument to <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>().</DD>
 <P/>
 <DT><code>MyModel</code> returns a new <code>MyModel</code>???</DT>
 <DD>Recall that <code>MyModel</code> is a <em>class/struct</em> derived from some DDP, denoted <code>DDPparent</code>.  A DDP is designed to represent both the overall model <em>and</em> an endogenous state &theta;.  </DD>
@@ -709,7 +709,7 @@ Before programming, state <code>MyModel</code> in the notation used above (which
 <LI>Steps the program should execute in building the model</LI>
 <OL class="steps">
 <LI>Call <code>DDPparent::Initailize()</code> for the base of <code>MyModel</code></LI>
-<LI>Set the model clock with DP::SetClock().</LI>
+<LI>Set the model clock with <a href="DP.ox.html#DP___SetClock">SetClock</a>().</LI>
 <DD>Some DDPs require a <code>new</code> clock variable be created first and sent to <code>Initialize()</code>.  For these methods you do not call <code>SetClock</code>; it will be called by <code>Initalize()</code>.</DD>
 <LI>Create <code>new</code> instances for the action variables and the state variables in the model.</LI>
 <LI>Add the action and state variables to the model using DP methods such as <a href="DP.ox.html#DP___Actions">Actions</a>()</LI>

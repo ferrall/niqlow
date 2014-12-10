@@ -37,7 +37,6 @@ NelderMead::Tune(mxstarts,toler,nfuncmax,maxiter) {
 	if (maxiter) this.maxiter = maxiter;	
 	}
 
-
 RandomSearch::RandomSearch(O) {
     SimulatedAnnealing(O);
     heat = 10000.0;
@@ -47,7 +46,8 @@ RandomSearch::RandomSearch(O) {
 	
 /** Initialize Simulated Annealing.
 @param O `Objective` to work on.
-@internal **/
+@internal
+**/
 SimulatedAnnealing::SimulatedAnnealing(O)  {
 	Algorithm(O);
 	holdpt = new LinePoint();
@@ -55,30 +55,6 @@ SimulatedAnnealing::SimulatedAnnealing(O)  {
 	heat = 1.0;
     shrinkage = 0.5;
     cooling = 0.85;
-	}
-
-/** accept or reject.
-@internal
-**/
-SimulatedAnnealing::Metropolis()	{
-	decl jm=-1, j, diff;
-    for(j=0;j<M;++j) {
-        diff = vtries[j]-holdpt.v;
-	    if (Volume==LOUD) println(iter~vtries[j]~(vec(tries[][j])'));
-	    if ( (diff> 0.0) || ranu(1,1) < exp(diff/heat))	{
-             holdpt.v = vtries[jm = j];
-             holdpt.step = tries[][jm];
-             ++accept;
-			 }
-        }
-    if (accept>=N) {
-		heat *= cooling;  //cool off annealing
-	    chol *= shrinkage; //shrink
-		if (Volume>QUIET) println("Cool Down ",iter,". f=",vtries[j]," heat=",heat);
-		accept = 0;
-        }
-	OC.v = holdpt.v;
-    OC.F = holdpt.step;
 	}
 
 /** Tune annealing parameters.
@@ -94,6 +70,32 @@ SimulatedAnnealing::Tune(maxiter,heat,cooling,shrinkage)	{
     if (shrinkage>0) this.shrinkage = shrinkage;
 	}
 
+
+/** accept or reject.
+@internal
+**/
+SimulatedAnnealing::Metropolis()	{
+	decl jm=-1, j, diff;
+    for(j=0;j<M;++j) {
+        diff = vtries[j]-holdpt.v;
+	    if (Volume==LOUD) println(iter~vtries[j]~(vec(tries[][j])'));
+	    if ( (diff> 0.0) || ranu(1,1) < exp(diff/heat))	{
+             jm = j;
+             holdpt.v = vtries[j];
+             holdpt.step = tries[][jm];
+             ++accept;
+			 }
+        }
+    if (accept>=N) {
+		heat *= cooling;  //cool off annealing
+	    chol *= shrinkage; //shrink
+		if (Volume>QUIET) println("Cool Down ",iter,". f=",vtries[j]," heat=",heat);
+		accept = 0;
+        }
+	OC.v = holdpt.v;
+    OC.F = holdpt.step;
+	}
+
 /** Carry out annealing.
 @param chol matrix, Choleski matrix for random draws<br>0 use the identity matrix.
 **/
@@ -103,7 +105,6 @@ SimulatedAnnealing::Iterate(chol)	{
     if (!isclass(O.p2p) || O.p2p.IamClient) {  //MPI not running or I am the Client Node
        inp = isclass(O.p2p);
        M = inp ? O.p2P.Nodes : 1;
-       tries=zeros(N,M);
        Vtries=zeros(O.NvfuncTerms,M);
 	   this.chol = isint(chol) ? unit(N) : chol;
 	   if (OC.v==.NaN) O->fobj(0);
@@ -112,7 +113,7 @@ SimulatedAnnealing::Iterate(chol)	{
 	   OC.H = OC.SE = OC.G = .NaN;
 	   accept = iter =0;	
 	   do  {
-          tries[][] = holdpt.step + this.chol*rann(N,M);
+          tries = holdpt.step + this.chol*rann(N,M);
 	      O->funclist(tries,&Vtries);
           OC->aggregate(Vtries,&vtries);
 		  Metropolis();
