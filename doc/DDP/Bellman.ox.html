@@ -15,30 +15,31 @@
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
 <h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">Bellman.ox</span></h1>
 
-Bellman's Equation and Expected Value Function Iteration.
+Specify Utility, Reachable States and other aspects of the state space &theta;.
 <a href="#auto">Skip down to documentation of items defined in Bellman.ox</a><p>
 <P/>
-<h2>Overview</h2>
+<OL class="body">
+<P/>
+<li>Overview</li>
 <P/>
 <DT>Bellman is derived from the <a href="DP.ox.html#DP">DP</a> class.  Classes based on Bellman capture different specifications of the model, especially in terms of the <em>iid continuous state vector</em>, denoted &zeta;.</DT>
 <P/>
 <DT>A user bases (derives) <code>MyModel</code> on one of these classes (or a class ultimately derived from them).</DT>
-<DD>Example<pre>
+<DD>Example
+<pre>
+&#35;import DDP
 <P/>
 struct MyModel : ExPostSmoothing {
-    < define data members> 
-<P/>
+    // declare data members 
             Utility(A);
-    static Reachable();
-<P/>
-    // Optional methods to replace built-in verions
-    FeasibleActions(A);
-    static PreUpdate();    
-<P/>
-    // Optional methods to accommodate new solution methods (advanced)
-    thetaEMax();
-    ActVal();
-    Smooth();
+    static Reachable();    
+    <details><summary>// Optional methods to replace built-in versions</summary>
+           FeasibleActions(A);
+    static PreUpdate();</details>
+    <details><summary>// Optional methods to accommodate new solution methods (advanced)</summary>
+           thetaEMax();
+           ActVal();
+           Smooth();</details>
     }
 </pre></DD>
 <P/>
@@ -63,32 +64,31 @@ V(&zeta;,&epsilon;,&eta;,&theta;) = max<sub>&alpha;&in;&Alpha;(&theta;)</sub>  v
 <DD>In the default  choice probabilities are not smooth in model parameters.  That is, conditional choice probabilities are either 0 or 1 based on. The derived class <a href="Bellman.ox.html#ExPostSmoothing">ExPostSmoothing</a> allows for ex-post smoothing of choice probabilities without the presence of &zeta;</DD>
 </DT>
 <P/>
-<h2>Required and Optional User-Contributed Elements of <code>MyModel</code> and <code>MyCode</code></h2>
-<OL>
+<li>User-Contributed Elements of <code>MyModel</code> and <code>MyCode</code></li>
+<P/>
+<OL class="chapter">
 <LI>Utility()</LI>
 <DT><code>MyModel</code> must supply a replacement for <a href="Bellman.ox.html#Bellman___Utility">Utility</a>(), which simply returns 0.  </DT>
 <DT>Since utility depends on the current state, the method must be automatic (not static).</DT>
 <DD><pre>
+&#35;import DDP
 <P/>
 struct MyModel : ExPostSmoothing {
-    { define data members and methods }
+    // define data members and methods 
     Utility(A);
     }
 MyModel::Utility(A) {
-    return  {a vector of utility values, given the feasible actions <code>A</code> }
+    return  {a vector of utility values given the feasible actions <code>A</code> }
     }
 </pre></DD>
 <LI>Reachable state creator</LI>
 <DT><code>MyModel</code> must include a static method/function that returns a new object of <code>MyModel</code> for any reachable state and 0 otherwise. </DT>
 <DT> <code>MyCode</code> must pass this method to <code>DPparent::Inititalize()</code>.</DT>
 <DD>Example 1.  All states are reachable
-<pre>
-MyModel::Reachable() { return new MyModel(); }
-</pre>
+<pre>MyModel::Reachable() { return new MyModel(); }</pre>
 Example 2.  States where state variables x and y greater than 5 are not reachable
-<pre>
-MyModel::Reachable() { 
-    return CV(x)+CV(y)&gt; 5 ? 0 : new MyModel(); 
+<pre>MyModel::Reachable() {
+    return CV(x)+CV(y)&gt; 5 ? 0 : new MyModel();
     }</pre></DD>
 <LI>Restricted Feasible Action spaces / matrices </LI>
 <DT><code>MyModel</code> <em>can</em> provide a replacement for the virtual <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>() method to make the feasible choice set to vary with the endogenous state &theta;.</DT>
@@ -103,10 +103,11 @@ DP solution method begins to iterate. See <a href="DP.ox.html#DP___SetUpdateTime
 <DT><code>MyModel</code> can supply replacements for <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>(), <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>(), <a href="Bellman.ox.html#Bellman___Smooth">Smooth</a>().  Many of the derived classes of Bellman already specialize these operations.</DT>
 <P/>
 <LI>Auxiliary Variables and ZetaRealization</LI>
-<DT><code>MyModel</code> can add AuxiliaryVariables and a <a href="AuxiliaryValues.ox.html#ZetaRealization">ZetaRealization</a> for simulating outcomes and accounting for partial observability of the state.</DT>
+<DT><code>MyModel</code> can add AuxiliaryVariables and a <a href="Variables.ox.html#ZetaRealization">ZetaRealization</a> for simulating outcomes and accounting for partial observability of the state.</DT>
 <DD><code>MyCode</code> must sandwich the commands that add actions and states to the model between calls to <code>DPparent::Initialize(&hellip;)</code> and <code>DPparent::CreateSpaces(&hellip;)</code>.  <code>MyModel</code> can supply their own versions of these two methods, by then they must call the parent versions.  If <code>MyModel</code> does not have its own versions, then the prefix <code>DPparent::</code> is not needed.</DD>
 </OL>
 <P/>
+</OL>
 <hr><a name="auto"><h1>Documentation of  Items Defined in Bellman.ox</h1></a>
 
 <a name="Bellman"></a>
@@ -222,7 +223,7 @@ on static members in order to reduce memory requirements.  These are defined in 
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a></td>
 <td class="modifiers"></td>
-<td class="description">Compute endogenous state-to-state transition &Rho;(&theta;'|&theta;) for the current state <em>in <a href="Clock.ox.html#Stationary">Stationary</a> environments</em>.</td>
+<td class="description">Compute endogenous state-to-state transition &Rho;(&theta;'|&theta;) for the current state <em>in <a href="Variables.ox.html#Stationary">Stationary</a> environments</em>.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Bellman___Utility">Utility</a></td>
@@ -752,7 +753,7 @@ The column vector of (actual) feasible values of an action at &theta;.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">av</td>
-<td class="description" valign="baseline"><a href="ActionVariable.ox.html#ActionVariable">ActionVariable</a> that has been added to the model
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> that has been added to the model
 </td>
 </tr>
 </table>
@@ -946,7 +947,7 @@ Full solution at this state.
 TRUE if a Terminal state (no action chosen).
             Set in <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>()
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a></dd>
 </dl>
 </dd></dl>
 
@@ -1066,7 +1067,7 @@ Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exog
 
 <span class="declaration">Bellman :: UpdatePtrans ( )</span>
 <dl><dd>
-Compute endogenous state-to-state transition &Rho;(&theta;'|&theta;) for the current state <em>in <a href="Clock.ox.html#Stationary">Stationary</a> environments</em>.
+Compute endogenous state-to-state transition &Rho;(&theta;'|&theta;) for the current state <em>in <a href="Variables.ox.html#Stationary">Stationary</a> environments</em>.
 
 </dd></dl>
 
@@ -1842,7 +1843,7 @@ FALSE if the state is not reachable.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">d</td>
-<td class="description" valign="baseline"><a href="ActionVariable.ox.html#ActionVariable">ActionVariable</a> not already added to the model<br>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> not already added to the model<br>
 		integer, number of options (action variable created) [default = 2]
 </td>
 </tr>

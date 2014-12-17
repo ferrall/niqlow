@@ -4,10 +4,10 @@
 /** Create an endogenous utility object.
 This task method has the job of looping over the endogenous state space when <var>U(&alpha;...)</var>
 and <var>P(&theta;&prime;;&alpha;,&eta;,&theta;)</var> need to be updated.
-It calls `ExogUtil` task stored in `EndogeUtil::ex` to loop over &eta; and &epsilon;
+It calls `ExogUtil` task stored in `EndogUtil::ex` to loop over &eta; and &epsilon;
 @comment
 This task uses <code>iterating</code> indexing because it is called at the start of Bellman iteration.
-So utility is not stored for later use.  To retrieve it during simulation requires an `Auxiliary::Variable`.
+So utility is not stored for later use.  To retrieve it during simulation requires `AuxiliaryValues`.
 
 **/
 EndogUtil::EndogUtil() {
@@ -37,9 +37,7 @@ ExogUtil::ExogUtil() {
     subspace = iterating;
 	}
 	
-ExogUtil::Run(th) {
-	th.U[][I::all[bothexog]]=th->Utility();
-	}	
+ExogUtil::Run(th) {	th.U[][I::all[bothexog]]=th->Utility();	}	
 
 FixedSolve::FixedSolve() {
 	FETask();
@@ -119,8 +117,22 @@ ValueIteration::Gsolve() {
 	Traverse(DoAll);
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& later!=LATER) VV[LATER][] = VV[later][];    //initial value next time
 	}
+
+/** The function (method) that actually applies the DP Method to all problems (over fixed and random effect groups).
+This is the default value that does nothing.  It should be replaced by code for the solution method.
+**/
+Method::Solve() {
+    oxwarning("Called the default Solve() function for Method.  Does not do anything");
+    }
+
+/** The function (method) that applies the method to a particular problem.
+This is the default value that does nothing.  It should be replaced by code for the solution method.
+**/
+Method::Gsolve() {
+    oxwarning("Called the default Solve() function for Method.  Does not do anything");
+    }
 	
-/**Solve Bellman's Equation..
+/**Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
 @param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
 @param MaxTrips 0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
 
@@ -131,7 +143,6 @@ time.<p>
 It uses a `FixedSolve`task stored in `ValueIteration::ftask` to loop over fixed effect values.
 
 If `DP::UpdateTime` is <code>OnlyOnce</code> (see `UpdateTimes`), then transitions and variables are updated here.</LI>
-
 
 
 @comments Result stored in `ValueIteration::VV` matrix for only two or three ages (iterations) stored at any one time.  So this

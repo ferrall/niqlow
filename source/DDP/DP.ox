@@ -18,7 +18,15 @@ Hooks::Reset() {
 /**  Add a static function or method to a hook.
 @param time integer tag, time point in solution method to call the routine.
 @param proc <em>static</em> function or method to call.
-@see HookTimes, SetUpdateTime
+@example
+Say hello after every Bellman iteration is complete
+<pre>
+ sayhello() { print("hello"); }
+ Hooks::Add(PostGSolve,sayhello);
+</pre>
+</dd>
+
+@see HookTimes, Flags::SetUpdateTime
 **/
 Hooks::Add(time,proc) {
     if ( time<0 || time>=NHooks ) oxrunerror("Invalid hook time.  See Hooks and HookTimes");
@@ -424,16 +432,26 @@ DP::Initialize(userReachable,UseStateList,GroupExists) {
 /** Tell DDP when parameters and transitions have to be updated.
 @param time `UpdateTimes` [default=AfterFixed]
 
+@example
+<pre>
+&hellip;
+CreateSpaces();
+SetUpdateTime(OnlyOnce);
+</pre>
+</DD>
+
 **/
 DP::SetUpdateTime(time) {
     if (isint(Flags::UpdateTime)) Flags::UpdateTime = constant(FALSE,UpdateTimes,1);
     if (!isint(time) ) oxrunerror("Update time must be an integer");
     if (Volume>SILENT)
         switch_single (time) {
-            case OnlyOnce : oxwarning("Setting update time to OnlyOnce. Transitions and actual values do not depend on fixed or random effect values.  If they do, results are not reliable.");
-            case AfterFixed : oxwarning("Setting update time to AfterFixed. Transitions and actual values can depend on fixed effect values but not random effects.  If they do, results are not reliable.");
-            case AfterRandom : oxwarning("Setting update time to AfterRandom. Transitions and actual values can depend on fixed and random effects, which is safe but may be redundant and therefore slower than necessary.");
-            default   : oxrunerror("Update time must be between 0 and UpdateTimes-1");
+            case InCreateSpaces : if (Flags::ThetaCreated) oxrunerror("Cannot specify UpdateTime as InCreateSpaces after it has been called");
+                                  oxwarning("Transitions and actual values are fixed. They are computed in CreateSpaces() and never again.");
+            case OnlyOnce       : oxwarning("Setting update time to OnlyOnce. Transitions and actual values do not depend on fixed or random effect values.  If they do, results are not reliable.");
+            case AfterFixed     : oxwarning("Setting update time to AfterFixed. Transitions and actual values can depend on fixed effect values but not random effects.  If they do, results are not reliable.");
+            case AfterRandom    : oxwarning("Setting update time to AfterRandom. Transitions and actual values can depend on fixed and random effects, which is safe but may be redundant and therefore slower than necessary.");
+            default             : oxrunerror("Update time must be between 0 and UpdateTimes-1");
             }
     Flags::UpdateTime[] = FALSE;
     Flags::UpdateTime[time] = TRUE;
@@ -616,6 +634,7 @@ DP::CreateSpaces() {
 		}
 	ETT = new EndogTrans();
     if (Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
+    if (Flags::UpdateTime==InCreateSpaces) UpdateVariables(0);
  }
 
 /** .
@@ -938,6 +957,8 @@ DP::Last() { return counter->Last(); }
 
 
 /** Update dynamically changing components of the program at the time chosen by the user.
+@param state ETT.state [default=0]
+
 <OL>
 <LI>Update the actual value of action and state variables that (might) depend on parameter values that have changed since a
 previous solve.</LI>

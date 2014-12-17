@@ -1,13 +1,16 @@
-/** An example of data and DDP .
+/** An example of data and DDP.
 
 @sortkey BAB
 
-<h1>A small example based on simulated data </h1>
-<DT>See Also</DT>
-<DD><a href="Outcomes.ox.html">Outcomes</a> for other details.  </DD>
-<DD><a href="../../examples/RustEmet1987mle.ox.html">Rust Emet 1987 mle</a> for an example of using external data.</DD>
-<DD><a href="Prediction.ox.html">Prediction</a> for computing distributions across states, choice probabilities and moments.  </DD>
+DDP knows about data and is designed to integrate data with solutions of the DP model in different ways.  Below an example is shown that discusses some of these elements.
+
+<DT>Data Handling</DT>
+<DD><a href="Outcomes.ox.html">Outcomes</a> track realizations of a dynamic program including features to account for micro data and maximum likelihood estimation. Unobserved values are accounted for by averaging over their value.</DD>
+<DD><a href="Prediction.ox.html">Prediction</a> is like Outcomes except it tracks expected outcomes.  It accounts for integrating over probabilities of states and actions.  It includes features to account for averaged data and GMM estimation.</DD>
+<DD><a href="AuxiliaryValues.ox.html">Auxiliary Values</a> is a mechanism to track things other than states and action.  Auxiliary values are defined by the user and added to the model.  These are then added to Outcomes and Predictions.</DD>
+<DD><a href="../../examples/RustEmet1987mle.ox.html">Rust Emet 1987 mle</a> is an example of using external data.</DD>
 <div class="page-break">
+<h1>A small example based on simulated data from the simple search model in GetStarted</h1>
 <DT>This example is based on the <code>Search</code> model described in <a href="GetStarted.html">GetStarted</a>.  </DT>
 <DT>Using a <a href="http://www.doornik.com/ox/oxsyntax.html#ox_syntax_RefDerClass">derived class</a> the simple search model in GetStarted is extended without touching the existing code or copying it to a new file and modifying.</DT>
 <DT>The original code is included (or if it had been split into <code>.h</code> and <code>.ox</code> files, <code>imported</code>) and a new class is derived from the <code>Search</code> class.
@@ -26,14 +29,15 @@ struct DerivedSearch : Search {
 
 <h2>Auxiliary Variables</h2>
 
-<DT>Realized utility is recorded as an `AuxiliaryVariable`.  </DT>
-<DD>Typically a user would have to derive a new class to track the outcome of interest, but realized utility is a built-in class so this code appears <code>DPAuxiliary.h</code> and <code>DPAuxiliary.ox</code>. <DD>
-<pre>struct RealizedUtility : AuxiliaryVariable {
+<DT>Realized utility is recorded as an `AuxiliaryValues`.  </DT>
+<DD>Typically a user would have to derive a new class to track the outcome of interest, but realized utility is a built-in class.  Here is the code that generates
+<DD><pre>
+struct RealizedUtility : AuxiliaryValues {
 	RealizedUtility();
-	Realize(const q,const y);
+	virtual Realize(q,y);
 	}
 
-RealizedUtility::RealizedUtility() { 	AuxiliaryVariable("U"); 	}
+RealizedUtility::RealizedUtility() { 	AuxiliaryValues("U"); 	}
 
 RealizedUtility::Realize(const q,const y) {
 	v = q->Utility()[y.ind[onlyacts]];
@@ -43,9 +47,9 @@ RealizedUtility::Realize(const q,const y) {
 <DT>Auxiliary variables need to provide a <code>Realize()</code> function</DT>
 <DD><code>Realize</code> will be called only when simulating data (or in econometric estimation that involves matching predicted outcomes). </DD>
 <DD>Its first argument is the realized point in the state space (&theta;).  The second is the current realized outcome (&upsilon;).  This allows the auxiliary variable to access everything else.</DD>
-<DD>Since `AuxiliaryVariable` is derived from `Quantity` it has a current member, <code>v</code>.  The job of <code>Realize()</code> is to set <code>v</code> for other aspects of the code to use.  In this case, the auxiliary outcome calls <code>Utility()</code> and extracts the element of the vector returned that corresponds to the realized action.  </DD>
+<DD>Since `AuxiliaryValues` is derived from `Quantity` it has a current member, <code>v</code>.  The job of <code>Realize()</code> is to set <code>v</code> for other aspects of the code to use.  In this case, the auxiliary outcome calls <code>Utility()</code> and extracts the element of the vector returned that corresponds to the realized action.  </DD>
 <DD>By using a virtual method <code>Realize</code>, the base <span class="n">DDP</span> code can update your auxiliary variables for you without knowing ahead of time what those variables are. </DD>
-<DD>Also note that an auiliary variable can be sent to `CV`() after the call to <code>Realize()</code>.  For example, here <code>CV(u)</code> will return the realized value of utility of the current outcome.   So it is straightforward to build auxiliary variables into econometric objectives, equilibrium conditions, etc.</DD>
+<DD>Also note that an auxiliary value can be sent to `CV`() after the call to <code>Realize()</code>.  For example, here <code>CV(u)</code> will return the realized value of utility of the current outcome.   So it is straightforward to build auxiliary variables into econometric objectives, equilibrium conditions, etc.</DD>
 
 <h2>Modified Run</h2>
 <DT><code>DerivedSearch</code> will rely on the base <code>Run()</code> routine discussed in <a href="GetStarted.html">GetStarted</a>.  All it has to do is create the auxiliary variable and then create a specialized data set object:
@@ -78,7 +82,7 @@ SearchData::SearchData() {
 	Mask();
 	println("Vector of likelihoods when offered prices is unobserved:",exp(EconometricObjective()));
 	}</pre></DD>
-<DT>SearchData first calls its parent creator method.</DT>
+<DT><code>SearchData</code> first calls its parent creator method.</DT>
  <DD>The first argument is a name to associate with the data set and the solution method to use during simulation or estimation.  Two other arguments can be sent, but in this case they are not needed. </DD>
  <DD>In particular, the second argument can be a solution method object so that the dynamic program is solved before the simulation occurs.  (In this case, <code>DataSet("Search Data",meth)</code> where member <code>meth</code> was set by the parent <code>Search</code>.</DD>  However, since <code>Search::Run()</code> is run first and it has already solved the DP model it would be redundant to solve it again.</DD>
 

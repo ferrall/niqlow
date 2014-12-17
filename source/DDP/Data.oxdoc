@@ -1,21 +1,42 @@
-/** Realizations of the DDP, including simulation and likelihood.
+/** Handling data, simulation, likelihood, predictions, moments.
 
 @sortkey BAA
 
-<a href="#auto">Skip down to documentation of items defined in Outcomes.ox</a><p>
+<a href="#auto">Skip down to documentation of items defined in Data.ox</a><p>
+
+The `Data` class and its derivatives are used to simulate DDP data, compute predictions, read external data sets, and interface with <span class="n">Five-O</span>.
+
+`Data` objects relate to realizations along the path of the program.  Unlike other spaces (the group space <b>&Gamma;</b> and state space <b>&Theta;</b>), multiple instances of different types of data can be stored simultaneously.  That is, there is no single <q>data space</q>.
 
 <OL class="contents">Contents
-<LI>Outcomes</LI>
-<LI><a href="#SS">Simulation</a></LI>
+<LI><a href="#Outcomes">Outcomes</a>
+<DD><a href="#SS">Simulation</a></DD>
+<DD><a href="#Emet">Likelihood</a></DD></LI>
+<LI><a href="#PD">Prediction</a>
+<DD><a href="#Track">Tracking Objects to Predict</a></DD>
+<DD><a href="#mom">Moments</a></DD>
+<DD><a href="#GMM">GMM</a></DD></LI>
 </OL>
 
 <OL class="body">
-<a name="PS"><LI>Outcomes</LI></a>
+<a name="Outcomes"><LI>Outcomes</LI></a>
 
-The `Outcome` class and its derivatives are used to simulate DDP data, read external data sets, and interface with <span class="n">Five-O</span>.
+<OL class="chapter">
+<LI>Overview</LI>
+
+<DT>Outcomes are used for simulating the model and for storing external data interpreted as realizations of the DDP.</DT>
+    <DD>As discussed elsewhere, the user codes <code>MyModel</code> as a class derived from one of the pre-defined `Bellman` classes. In contrast, `Outcome` is designed to be generic so that it can be used for whatever model or data the program uses. A user does not define their own derived class to store outcomes.</DD>
+  <DD>Only one model can be active in <span class="n">DDP</span> because <code>static</code> data members are used, but <em>multiple data sets can be stored at once.</em>  This can be useful when comparing two solution methods applied to one model or two estimation methods applied to two different data sets.</DD>
+<DT>Outcomes are related to points in the state space <b>&Theta;</b>, but they are treated distinctly in <span class="n">niqlow</span>.  </DT>
+<DD>The state space is represented so as to minimize storage and calculations while solving a model.  On the other hand, outcomes are designed to track everything relevant to results of the DDP, and memory would be exhausted if outcomes were defined and stored for each possible state.</DD>
+<DD>It would be inefficient to store all potential outcomes when only one can be realized at each point in a single DP process.</DD>
+
+<DT>A single point in the state space can have multiple states that could come before it or come after it hypothetically.  In contrast, outcomes have well-defined predecessors and successors.</DT>
+  <DD>These are tracked as part of the outcome, so that <span class="n">niqlow</span> represents a sequence of outcomes as a doubly-<a href="http://en.wikipedia.org/wiki/Linked_list">linked list</a> of objects of class `Outcome`.</DD>
+
 
 <table class="tree">
-<tr><td class="line"><div class="vline">&nbsp;</div></td>
+<tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
 <td style="height:1px; width:auto;" colspan="7" class="fffix">
@@ -27,7 +48,6 @@ The `Outcome` class and its derivatives are used to simulate DDP data, read exte
 <td class="text">A single realization of a discrete DP.</td>
 </tr>
 <tr>
-<td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
@@ -41,7 +61,6 @@ The `Outcome` class and its derivatives are used to simulate DDP data, read exte
     outcome along the path.</td>
 </tr>
 <tr>
-<td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
@@ -55,7 +74,6 @@ The `Outcome` class and its derivatives are used to simulate DDP data, read exte
 <td class="text">A Path that can point to more paths that all share the same fixed effect values.  As a Path itself, the FPanel
 is the first path in the panel.</td></tr>
 <tr>
-<td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
@@ -71,7 +89,7 @@ is the first path in the panel.</td></tr>
 fixed panel in the list.</td>
 </tr>
 <tr>
-<td class="line"><div class="vline">&nbsp;</div></td><td class="line">&nbsp;</td><td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td><td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td><td class="line">&nbsp;</td><td class="line">&nbsp;</td>
 <td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
 <td style="height:1px; width:auto;" colspan="3" class="fffix">
@@ -84,34 +102,20 @@ fixed panel in the list.</td>
 </tr>
 </table>
 
-<DT>Examples</DT>
-<dd>Create a data set from external data<pre>
+<LI>Examples</LI>
+<DT>Create a data set from external data</DT>
+<dd><pre>
 	data = new DataSet("DPdata",method,TRUE);
 	data->Observed(x,"x",d,"d");
 	data->IDColumn("id");
 	data->Read("data.dta");	
 </pre></dd>
-<dd>Create a simulated data set from a solved DP model and save to a Stata data set<pre>
+<DT>Create a simulated data set from a solved DP model and save to a Stata data set</DT>
+<DD><pre>
     sim = new Panel("DPdata");
     sim -> Simulate(10,400,0,TRUE);
 	sim -> Print("sim.dta");		
 </pre></dd>
-
-
-
-The group space <b>&Gamma;</b> and state space <b>&Theta;</b> represent potential states of the problem.  `Outcome`s of the program are realizations along the path of the program.
-
-
-
-<DT>Outcomes are used for simulating the model and for storing external data interpreted as realizations of the DDP.</DT>
-    <DD>As discussed elsewhere, the user codes <code>MyModel</code> as a class derived from one of the pre-defined `Bellman` classes. In contrast, `Outcome` is designed to be generic so that it can be used for whatever model or data the program uses. A user does not define their own derived class to store outcomes.</DD>
-  <DD>Only one model can be active in <span class="n">DDP</span> because <code>static</code> data members are used, but <em>multiple data sets can be stored at once.</em>  This can be useful when comparing two solution methods applied to one model or two estimation methods applied to two different data sets.</DD>
-<DT>Outcomes are related to points in the state space <b>&Theta;</b>, but they are treated distinctly in <span class="n">niqlow</span>.  </DT>
-<DD>The state space is represented so as to minimize storage and calculations while solving a model.  On the other hand, outcomes are designed to track everything relevant to results of the DDP, and memory would be exhausted if outcomes were defined and stored for each possible state.</DD>
-<DD>It would be inefficient to store all potential outcomes when only one can be realized at each point in a single DP process.</DD>
-
-<DT>A single point in the state space can have multiple states that could come before it or come after it hypothetically.  In contrast, outcomes have well-defined predecessors and successors.</DT>
-  <DD>These are tracked as part of the outcome, so that <span class="n">niqlow</span> represents a sequence of outcomes as a doubly-<a href="http://en.wikipedia.org/wiki/Linked_list">linked list</a> of objects of class `Outcome`.</DD>
 
 <li>The Full Outcome</li>
 
@@ -138,17 +142,6 @@ For simplicity the length of each of the vectors is not specified and the right-
 <DT>The full outcome may not be observed in data.  The observed outcome, <var>Y</var>, will have the same structure as <var>Y*</var> but one or more elements of the member vectors will include missing (.NaN) values.  </DT>
 <DD>Observability is discussed below when the derived  <a href="">Data</a> class is introduced.  Its purpose is to account for gaps between theoretical outcomes and observed results from a DP.</DD>
 
-<li>Auxiliary Variables</li>
-
-Auxiliary variables are typically functions of the state and action vectors that would be observed in the data.
-
-<DT>Elements of &chi; are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  </DT>
-<DD>Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so &chi; adds no additional information to the full outcome. </DD>
- <DD>That is, &chi; is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
-<DT>Auxiliary variables are created by the user and derived from the `AuxiliaryValues` class.</DT>
- <DT>Auxiliary variables are added to the outcome (appended to &chi;) using `DP::AuxiliaryOutcomes`().</DT>
- <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual `AuxiliaryValues::Realize`().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
-<DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
 
 <li>Paths </li>
 
@@ -205,11 +198,82 @@ The `DataSet` class is derived from `Panel`.  It adds to the notion of a (hetero
 
 <DD>A key issue with estimating DDPs is unobservability of actions and states.  <code>Outcome</code> handles this  two ways.  First it treats missing (<code>.NaN</code>) in the data as unobserved.  It  will then integrate (sum over) values of missing states and actions when computing, say, the likelihood of the data.  Second, auxiliary data (sometimes called payoff relevant variables) can be included in the data and then coded so that they indicate which variables and values should be integrated over.</DD>
 
-<a name="Emet"><LI>Econometrics</LI></a>
-
+<a name="Emet"><LI>Likelihood</LI></a>
 
 </OL>
 
-<hr><a name="auto"><h1>Documentation of  Items Defined in Outcomes.ox</h1></a>
+<a name="PD"><LI>Prediction</LI></a>
+
+<OL class="chapter">
+<LI>Overview</LI>
+
+The <a href="#Outcomes">Outcome</a> class is designed to work with realized results from a DP model.  That is, at one point in time there is a single realization.  For this reason, simulation, individual-level data and likelihood functions are related to Outcomes.
+
+On the other hand, the `Prediction` class is designed to handle the distribution of outcomes at a given time.  It is designed to handle integrating out uncertainty.  For this reason, prediction and generalized method of moments (GMM) are related to Predictions.
+
+The base class `Prediction` tracks a list of possible state indices and their associated probabilities of occurring.  It also tracks choice probabilities.
+
+Starting from some initial conditions a `PathPrediction` is a list of predictions, each providing the distribution across states and choices at that point in time.  A `PanelPrediction` is a set of `PathPredictions` across fixed effect groups.  Data can be read in to match up with predictions using the `EmpiricalMoments` class derived from `PanelPrediction`.
+
+<table class="tree">
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="7" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="Prediction.ox.html#Prediction">Prediction</a></td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">The expected outcome from a single realization.</td>
+  </tr>
+<tr>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="6" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="Prediction.ox.html#PathPredction">PathPrediction</a></td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">A derived Prediction that points to a sequence of predictions along a single realized DP path. As an prediction, the path itself is the first prediction along the path.  Since random effects are assumed to be unobserved, the path prediction integrates over any random effect groups that are in the model.  There is only one prediction for a given fixed effect group, so there is nothing like the `FPanel` class derived from Outcomes. Each PathPrediction is in effect a FixedPathPrediction</td>
+</tr>
+<tr>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="5" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="Prediction.ox.html#PanelPrediction">PanelPrediction</a></td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">A list heterogenous path predictions.  It is a PathPrediction which can also point to more PathPredictions. As a PathPrediction itself, the PanelPrediction is the first path in the panel.</td></tr>
+<tr>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="4" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="Prediction.ox.html#EmpiricalMoments">EmpiricalMoments</a></td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">A panel prediction with data-handling tools. Unlike the other derived classes, empirical moments do not point to other panel predictions.</td>
+</tr>
+</table>
+
+<a name="moms"><LI>Moments</LI></a>
+
+Histogram
+</OL>
+
+</OL>
+
+
+<hr><a name="auto"><h1>Documentation of  Items Defined in Data.ox</h1></a>
 
 **/

@@ -1,5 +1,5 @@
 #import "DP"
-
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 /** Loop over fixed values in &gamma;, solve model for each.
 **/
@@ -13,6 +13,8 @@ struct RandomSolve : RETask { RandomSolve(); Run(g);}
 /** A container for solution methods.
 **/
 struct Method : Task {
+    virtual Solve();
+    virtual Gsolve();
 	}
 
 /** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/

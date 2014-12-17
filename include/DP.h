@@ -1,5 +1,5 @@
 #import "Variables"
-/* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 static decl
         /** &Gamma; array (list) of groups of fixed and random effects. **/ Gamma,
@@ -18,8 +18,22 @@ enum {NOW,LATER,DVspace}
         /** Kinds of variables in data sets. @name DataColumnTypes **/
 enum{idvar,avar,svar,auxvar,NColumnTypes}
 
-        /** Point in solving when updating of parameters and transitions needs to occur. @see DP::SetUpdateTime @name UpdateTimes **/
-enum {OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
+/** Point in solving when updating of parameters and transitions needs to occur.
+<table class="enum_table">
+<tr><td valign="top">InCreateSpaces</td><td>Transitions and utility do not depend on any parameters that change so they can be initialized
+in `DP::CreateSpaces`() and never recalculated.</td></tr>
+<tr><td valign="top">OnlyOnce</td><td>Update transitions and utility just once on each call to `Method::Solve`(). This ensures that if transitions depend
+on parameters that are controlled by the outside (say by an optimization algorithm) the probabilities used in solving the model will
+reflect any changes in the parameters since the last time the solution method was applied. </td></tr>
+<tr><td  valign="top">AfterFixed</td><td>Update transitions after the value of the fixed groups is set.  This will allow transitions to depend on the value of
+fixed effect variables.</td></tr>
+<tr><td  valign="top">AfterRandom</td><td>Update transitions after the value of the random groups is set.  This will allow transitions to depend on the value of
+both fixed and random effect variables.</td></tr>
+</table>
+There is a potentially large computational cost of updating the transitions more often than is necessary.
+
+        @see DP::SetUpdateTime @name UpdateTimes **/
+enum {InCreateSpaces,OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
 
 		/** Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.
          <DT>NoSmoothing</DT><DD>Indicator for optimal choice: &Rho;* = I{&alpha;&in;argmax v(&alpha;)}</DD>
@@ -29,14 +43,15 @@ enum {OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
 enum { NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods}
 
 
-
 /** Points in the solution process that users can insert <em>static</em> functions or methods.
 
-<DT>PreUpdate</DT><DD>Called by `DP::UpdateVariables`().  The point it is called depends on `DP::UpdateTime`</DD>
-<DT>PostGSolve </DT> <DD>Called by `RandomSolve::Run` after a call to `ValueIteration::Gsolve`() </DD>
-<DT>PostRESolve </DT> <DD>Called by `FixedSolve::Run` after all random effects have been solved. </DD>
-<DT>PostFESolve</DT><DD>Called by `ValueIteration::Solve`() after all fixed effect groups have been solved.</DD>
-@see Hooks, DP::UpdateTime
+<table class="enum_table" valign="top">
+<tr><td valign="top"><code>PreUpdate</code></td><tD>Called by `DP::UpdateVariables`().  The point it is called depends on `Flags::UpdateTime`</tD></tr>
+<tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::`RandomSolve::Run`()</code> after a call to `Method::Gsolve`() </tD></tr>
+<tr><td valign="top"><code>PostRESolve</code> </td><tD>Called by <code>FixedSolve::`FixedSolve::Run`()</code> after all random effects have been solved. </tD></tr>
+<tr><td valign="top"><code>PostFESolve</code></td><tD>Called by `Method::Solve`() after all fixed effect groups have been solved.</tD></tr>
+</table>
+@see Hooks, Flags::UpdateTime
 @name HookTimes
 **/
 enum {PreUpdate,PostGSolve,PostRESolve,PostFESolve,NHooks}
@@ -133,7 +148,11 @@ struct I : Zauxiliary {
 
 /** Contains an array that holds user-defined static functions/methods to call at different points in the solution process.
 
-@see HookTimes, SetUpdateTime **/
+Hooks are places in the DP solution process where the user can add code to be carried out.  This is done using the `Hooks::Add`()
+procedure.  Hooks are added to a list of procedures to be called so more than one procedure can be carried out.
+
+@see HookTimes, SetUpdateTime
+**/
 struct Hooks : Zauxiliary {
     static decl hooks, h;
     static  Reset();

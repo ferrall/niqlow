@@ -1,11 +1,31 @@
-/** Solving for behaviour in a dynamic program.
+/** Different ways to solve the dynamic program.
 
 @sortkey ACA
 
 <OL class="body">
-<LI>Value Function Iteration</LI>
+
+<li>Overview</li>
+
+Objects derived from the `Method` class of tasks are algorithms that solve the DP problem the user has defined.  A user's program can create more than one method object and apply each to the problem.  
+
+Every DP solution Method has a <code>Solve()</code> function that applies the method to the DP problem.
+
+The method can be sent as an argument to <a href="Data.ox.html">Data</a> or other objects so that the solution can be nested within some other process.
+
+<DT>Example: after setting up the DP problem apply value function iteration to the problem:</DT>
+<DD><pre>
+&hellip;
+CreateSpaces();
+mymeth = new ValueIteration();
+mymeth -&gt; Solve();
+&hellip;
+</pre></DD>
+
+Solution methods work at the highest level of the DP environment.  So to carry out the work they must call methods to handle fixed and random effects.
+
+<h3>The basic structure of a call to <code>Solve()</code></h3>
 <table class="tree">
-<tr><td class="line"><div class="vline">&nbsp;</div></td>
+<tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
 <td style="height:1px; width:auto;" colspan="7" class="fffix">
@@ -14,10 +34,9 @@
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">Use a method to solve Bellman's equation for all DPs by call `FixedSolve`.</td>
+<td class="text">Use a method to solve Bellman's equation for all DPs by calling the `FixedSolve`() task.</td>
 </tr>
 <tr>
-<td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
@@ -27,10 +46,9 @@
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">loop over fixed effects in &gamma;, solve each problem by calling `RandomSolve`, reusing the solution storage space.</td>
+<td class="text">Loop over fixed effect variables in &gamma;, solve each problem by calling the `RandomSolve`() task.<br>Reuse the solution storage space for each fixed effect to conserve on memory.</td>
 </tr>
 <tr>
-<td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
@@ -41,11 +59,10 @@
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">Loop over random effects in &gamma;, solve each problem by calling `Gsolve`, reusing value iteration space but storing all choice probabilities. 
-After all random effects groups computed, call `DP::PostRESolve`, user-defined post random-effect solve tasks.  
+<td class="text">Loop over random effect variables in &gamma;, solve each problem by calling  `Method::Gsolve`().<br> Reuse value iteration space but storing choice probabilities for all random effect groups.<br>
+After all random effects groups computed.
 </td></tr>
 <tr>
-<td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
@@ -60,7 +77,7 @@ After all random effects groups computed, call `DP::PostRESolve`, user-defined p
 <td class="text">Given the fully specified fixed vector &gamma;, which defines an element of the group space, solve the DP problem.</td>
 </tr>
 <tr>
-<td class="line"><div class="vline">&nbsp;</div></td><td class="line">&nbsp;</td><td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td><td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td><td class="line">&nbsp;</td><td class="line">&nbsp;</td>
 <td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
 <td style="height:1px; width:auto;" colspan="3" class="fffix">
@@ -75,6 +92,10 @@ After all random effects groups computed, call `DP::PostRESolve`, user-defined p
     1. `ValueIteration::Run`            loop over bellman iterations
     2. `ValueIteration::Update`         check convergence/work backwards (repeat 1.)</pre>
 </td></tr></table>
+
+The user can insert static functions at different points in this process using the `Hooks` feature.
+
+<LI>Value Function Iteration</LI>
 
 <LI>Hotz-Miller Based Solution Methods </LI>
 

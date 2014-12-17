@@ -10,7 +10,7 @@ vpath %.ox.html ../../doc/FiveO
 
 algsrc := Parameters. Algorithms. ParallelObjective.
 algobj = $(algsrc:.=.oxo)
-objsrc := Objective. BlackBox. Separable. 
+objsrc := Objective. BlackBox. Separable.
 objobj = $(objsrc:.=.oxo)
 
 FiveO.oxo : $(objobj)
@@ -18,7 +18,7 @@ Objective.oxo :  Shared.oxo $(algobj)
 BlackBox.oxo : Objective.oxo
 Separable.oxo : Objective.oxo
 
-xtradoc = GetStarted $(algsrc:.=.ox) $(objsrc:.=.ox) ../Shared/Shared.ox FiveO.ox
+xtradoc = FiveO.ox GetStarted $(objsrc:.=.ox) $(algsrc:.=.ox) ../Shared/Shared.ox 
 
 %.oxo : %.ox %.h
 	$(OX) $(OXFLAGS) -i$(INC) -c $<

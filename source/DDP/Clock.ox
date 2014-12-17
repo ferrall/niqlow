@@ -1,6 +1,5 @@
-#include "Clock.oxdoc"
 #include "Clock.h"
-/* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 /** . @internal **/
 TimeVariable::TimeVariable(L,N) { Coevolving(L,N); }

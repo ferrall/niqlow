@@ -15,12 +15,32 @@
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
 <h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">Methods.ox</span></h1>
 
-Solving for behaviour in a dynamic program.
+Different ways to solve the dynamic program.
 <P/>
 <OL class="body">
-<LI>Value Function Iteration</LI>
+<P/>
+<li>Overview</li>
+<P/>
+Objects derived from the <a href="Methods.ox.html#Method">Method</a> class of tasks are algorithms that solve the DP problem the user has defined.  A user's program can create more than one method object and apply each to the problem.  
+<P/>
+Every DP solution Method has a <code>Solve()</code> function that applies the method to the DP problem.
+<P/>
+The method can be sent as an argument to <a href="Data.ox.html">Data</a> or other objects so that the solution can be nested within some other process.
+<P/>
+<DT>Example: after setting up the DP problem apply value function iteration to the problem:</DT>
+<DD><pre>
+&hellip;
+CreateSpaces();
+mymeth = new ValueIteration();
+mymeth -&gt; Solve();
+&hellip;
+</pre></DD>
+<P/>
+Solution methods work at the highest level of the DP environment.  So to carry out the work they must call methods to handle fixed and random effects.
+<P/>
+<h3>The basic structure of a call to <code>Solve()</code></h3>
 <table class="tree">
-<tr><td class="line"><div class="vline">&nbsp;</div></td>
+<tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
 <td style="height:1px; width:auto;" colspan="7" class="fffix">
@@ -29,10 +49,9 @@ Solving for behaviour in a dynamic program.
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">Use a method to solve Bellman's equation for all DPs by call <a href="Methods.ox.html#FixedSolve">FixedSolve</a>.</td>
+<td class="text">Use a method to solve Bellman's equation for all DPs by calling the <a href="Methods.ox.html#FixedSolve">FixedSolve</a>() task.</td>
 </tr>
 <tr>
-<td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
@@ -42,10 +61,9 @@ Solving for behaviour in a dynamic program.
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">loop over fixed effects in &gamma;, solve each problem by calling <a href="Methods.ox.html#RandomSolve">RandomSolve</a>, reusing the solution storage space.</td>
+<td class="text">Loop over fixed effect variables in &gamma;, solve each problem by calling the <a href="Methods.ox.html#RandomSolve">RandomSolve</a>() task.<br>Reuse the solution storage space for each fixed effect to conserve on memory.</td>
 </tr>
 <tr>
-<td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
@@ -56,11 +74,10 @@ Solving for behaviour in a dynamic program.
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">Loop over random effects in &gamma;, solve each problem by calling Gsolve, reusing value iteration space but storing all choice probabilities. 
-After all random effects groups computed, call DP::PostRESolve, user-defined post random-effect solve tasks.  
+<td class="text">Loop over random effect variables in &gamma;, solve each problem by calling  <a href="Methods.ox.html#Method___Gsolve">Gsolve</a>().<br> Reuse value iteration space but storing choice probabilities for all random effect groups.<br>
+After all random effects groups computed.
 </td></tr>
 <tr>
-<td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
@@ -75,7 +92,7 @@ After all random effects groups computed, call DP::PostRESolve, user-defined pos
 <td class="text">Given the fully specified fixed vector &gamma;, which defines an element of the group space, solve the DP problem.</td>
 </tr>
 <tr>
-<td class="line"><div class="vline">&nbsp;</div></td><td class="line">&nbsp;</td><td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td><td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td><td class="line">&nbsp;</td><td class="line">&nbsp;</td>
 <td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
 <td style="height:1px; width:auto;" colspan="3" class="fffix">
@@ -90,6 +107,10 @@ After all random effects groups computed, call DP::PostRESolve, user-defined pos
     1. <a href="Methods.ox.html#ValueIteration___Run">Run</a>            loop over bellman iterations
     2. <a href="Methods.ox.html#ValueIteration___Update">Update</a>         check convergence/work backwards (repeat 1.)</pre>
 </td></tr></table>
+<P/>
+The user can insert static functions at different points in this process using the <a href="DP.ox.html#Hooks">Hooks</a> feature.
+<P/>
+<LI>Value Function Iteration</LI>
 <P/>
 <LI>Hotz-Miller Based Solution Methods </LI>
 <P/>
@@ -137,7 +158,7 @@ After all random effects groups computed, call DP::PostRESolve, user-defined pos
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#AguirregabiriaMira___Solve">Solve</a></td>
 <td class="modifiers"></td>
-<td class="description">Solve Bellman's Equation..</td>
+<td class="description">Solve Bellman's Equation using <em>brute force</em> iteration over the state space.</td>
 </tr>
 </table>
 
@@ -174,7 +195,7 @@ Compute Estimate of Conditional Choice Probability from Data.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#CCP___data">data</a></td>
 <td class="modifiers">const</td>
-<td class="description"><a href="Outcomes.ox.html#Panel">Panel</a> containing data.</td>
+<td class="description"><a href="Data.ox.html#Panel">Panel</a> containing data.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#CCP___entask">entask</a></td>
@@ -458,7 +479,7 @@ Hotz-Miller cannot be applied to models with random effect invariants.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#HotzMiller___Solve">Solve</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Solve Bellman's Equation..</td>
+<td class="description">Solve Bellman's Equation using <em>brute force</em> iteration over the state space.</td>
 </tr>
 </table>
 
@@ -663,6 +684,19 @@ these components are virtual and can be replaced by specifications or interpolat
 
 A container for solution methods.
 
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#Method___Gsolve">Gsolve</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">The function (method) that applies the method to a particular problem.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#Method___Solve">Solve</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">The function (method) that actually applies the DP Method to all problems (over fixed and random effect groups).</td>
+</tr>
+</table>
+
 <dl class="inherited">
 <dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___OutputValue">OutputValue</a>, <a href="DP.ox.html#Task___Run">Run</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___Update">Update</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___IsBlock">IsBlock</a>, <a href="DP.ox.html#DP___IsBlockMember">IsBlockMember</a>, <a href="DP.ox.html#DP___Last">Last</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="DP.ox.html#DP___ResetGroup">ResetGroup</a>, <a href="DP.ox.html#DP___SaveV">SaveV</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
@@ -802,7 +836,7 @@ Results are integrated over random effects, but results across fixed effects are
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___Solve">Solve</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Solve Bellman's Equation..</td>
+<td class="description">Solve Bellman's Equation using <em>brute force</em> iteration over the state space.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___Update">Update</a></td>
@@ -885,7 +919,7 @@ Apply Bellman's equation at a point &theta;
 
 <span class="declaration">AguirregabiriaMira :: Solve ( Fgroups , inmle )</span>
 <dl><dd>
-Solve Bellman's Equation..
+Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -939,7 +973,7 @@ Collect observed choice frequencies from a dataset.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">data</td>
-<td class="description" valign="baseline"><a href="Outcomes.ox.html#Panel">Panel</a> of outcome data with <a href="Outcomes.ox.html#Outcome___ind">ind</a> computed
+<td class="description" valign="baseline"><a href="Data.ox.html#Panel">Panel</a> of outcome data with <a href="Data.ox.html#Outcome___ind">ind</a> computed
 </td>
 </tr>
 <tr>
@@ -966,7 +1000,7 @@ Collect observed choice frequencies from a dataset.
 
 <span class="declaration">const decl data [public]</span>
 <dl><dd>
-<a href="Outcomes.ox.html#Panel">Panel</a> containing data.
+<a href="Data.ox.html#Panel">Panel</a> containing data.
 
 </dd></dl>
 
@@ -1088,10 +1122,10 @@ F&times;1 array of CCPs.
 Create an endogenous utility object.
 This task method has the job of looping over the endogenous state space when <var>U(&alpha;...)</var>
 and <var>P(&theta;&prime;;&alpha;,&eta;,&theta;)</var> need to be updated.
-It calls <a href="Methods.ox.html#ExogUtil">ExogUtil</a> task stored in EndogeUtil::ex to loop over &eta; and &epsilon;
+It calls <a href="Methods.ox.html#ExogUtil">ExogUtil</a> task stored in <a href="Methods.ox.html#EndogUtil___ex">ex</a> to loop over &eta; and &epsilon;
 
 <dl><dt class="comments">Comments:</dt><dd class="comments">This task uses <code>iterating</code> indexing because it is called at the start of Bellman iteration.
-So utility is not stored for later use.  To retrieve it during simulation requires an Auxiliary::Variable.
+So utility is not stored for later use.  To retrieve it during simulation requires <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>.
 </dd>
 </dl>
 </dd></dl>
@@ -1263,7 +1297,7 @@ Create a Hotz-Miller solution method.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">(optional)</td>
-<td class="description" valign="baseline">indata  <a href="Outcomes.ox.html#Panel">Panel</a> object<br>F&times;1 array of Q mappings <br>0 [default], no data sent
+<td class="description" valign="baseline">indata  <a href="Data.ox.html#Panel">Panel</a> object<br>F&times;1 array of Q mappings <br>0 [default], no data sent
 </td>
 </tr>
 <tr>
@@ -1332,7 +1366,7 @@ Apply Bellman's equation at a point &theta;
 
 <span class="declaration">virtual HotzMiller :: Solve ( Fgroups )</span>
 <dl><dd>
-Solve Bellman's Equation..
+Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -1653,6 +1687,28 @@ value across all exogenous states.</DD>
 </dd>
 </dl>
 </dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Method</span></h2>
+
+<a name="Method___Gsolve"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gsolve</span></h3>
+
+<span class="declaration">virtual Method :: Gsolve ( )</span>
+<dl><dd>
+The function (method) that applies the method to a particular problem.
+This is the default value that does nothing.  It should be replaced by code for the solution method.
+
+</dd></dl>
+
+<hr>
+<a name="Method___Solve"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Solve</span></h3>
+
+<span class="declaration">virtual Method :: Solve ( )</span>
+<dl><dd>
+The function (method) that actually applies the DP Method to all problems (over fixed and random effect groups).
+This is the default value that does nothing.  It should be replaced by code for the solution method.
+
+</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomSolve</span></h2>
 
 <a name="RandomSolve___RandomSolve"></a>
@@ -1806,7 +1862,7 @@ Apply Bellman's equation at a point &theta;
 
 <span class="declaration">virtual ValueIteration :: Solve ( Fgroups , MaxTrips )</span>
 <dl><dd>
-Solve Bellman's Equation..
+Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">

@@ -19,18 +19,29 @@ Shared elements of models, groups and outcomes.
 <P/>
 <a href="#auto">Skip down to documentation of items defined in DP.ox</a><p>
 <P/>
+<OL class="contents">
+<LI><a href="#DP">DP static elements</a></LI>
+<LI><a href="#Groups">Groups</a></LI>
+<LI><a href="#ZAux">Flags, Indices, Counts and Hooks</a></LI>
+<LI><a href="#Debug">Debug Output and Options</a></LI>
+</OL>
+<P/>
+<OL class="body">
+<a name="DP"><LI>DP static elements</LI>
+<P/>
 <DT><a href="DP.ox.html#DP">DP</a> is the base class for <em>all</em> aspects of DDP models.</DT>
 <DD>All variables (also known as members) of the base class are <em>static</em>, which means there is only one storage location for all objects of the class. That is, these values are shared by every object derived from <a href="DP.ox.html#DP">DP</a>.</DD>
 <DD>Non-static or automatic members are only defined in the derived classes. </DD>
 <DT>Different derived classes from <a href="DP.ox.html#DP">DP</a> organize the various aspects of dynamic programming.  These include:</DT>
 <P/>
- <DT>The problem itself, which is based on the derived <a href="Bellman.ox.html#Bellman">Bellman</a> class and defined in <a href="Bellman.ox.html">Bellman.ox.html</a>.</DT>
+ <h3>Items not in DP but in derived classes</h3>
+    <DT>The problem itself, which is based on the derived <a href="Bellman.ox.html#Bellman">Bellman</a> class and defined in <a href="Bellman.ox.html">Bellman.ox.html</a>.</DT>
    <DD>Non-static elements of the model which must vary across points in the state space  are defined in <a href="Bellman.ox.html#Bellman">Bellman</a>. </DD>
-   <DD>The endogenous state space &Theta; is stored as array <a href="DP.ox.html#Theta">Theta</a> of objects of the user's problem class.  This array is a "static global 
+   <DD>The endogenous state space &Theta; is stored as array <a href="DP.ox.html#Theta">Theta</a> of objects of the user's problem class.  This array is a "static global
    variable" in <code>DP.ox</code>, so access to it is somewhat limited. The code is designed so that the user need not and should not access
    <code>Theta</code> directly.</DD>
- <DT>Groups of problems, which are stored in the derived <a href="DP.ox.html#Group">Group</a> class, discussed <a href="#groups">below</a>.</DT>
- <DD>Groups keep track of different DP problems defined by <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a> states defined in <a href="TimeInvariant.ox.html">TimeInvariant.ox.html</a>, fixed and random effects. </DD>
+ <DT>Groups of problems, which are stored in the derived <a href="DP.ox.html#Group">Group</a> class, discussed <a href="#Groups">below</a>.</DT>
+ <DD>Groups keep track of different DP problems defined by <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> states defined in <a href="Variables.ox.html#Fixed">Variables.ox.html</a>, fixed and random effects. </DD>
  <DD>Each value of the invariants implies  a point &gamma; in the group space &Gamma;.  The group space is stored as an array <a href="DP.ox.html#Gamma">Gamma</a> of Group objects, a
  global static variable in DP.ox.  Direct access to <a href="DP.ox.html#Gamma">Gamma</a> is limited.</DD>
  <DT>Tasks: </DT>
@@ -40,8 +51,8 @@ Shared elements of models, groups and outcomes.
  <DL><DT><a href="Methods.ox.html#Method">Method</a></DT> <DD>includes solution algorithms for solving the problem. including of course a given program but also solution methods, data produced by the DP.</DD>
  <DD>Methods are defined in  <a href="Methods.ox.html">Methods</a>.</DD>
  <DD>Solution methods that rely on <a href="..../FiveO/default.html">FiveO</a> are defined in the separate <a href="../Hybrids/default.html">Hybrids</a> module.</DD>
- <DT><a href="Outcomes.ox.html#Outcome">Outcome</a></DT><DD>includes all aspects of storing realizations of a DP, such as simulations, predictions and external data for estimation.</DD>
- <DD>Outcome and its derived classes are defined in <a href="Outcomes.ox.html">Outcomes</a></DD>
+ <DT><a href="Data.ox.html#Data">Data</a></DT><DD>includes all aspects of storing realizations of a DP, such as simulations, predictions and external data for estimation.</DD>
+ <DD>Data and its derived classes are defined in <a href="Data.ox.html">Data</a></DD>
  <DT>State Space Creation</DT>
  <DD>Different tasks are defined to set up &Theta; and &Gamma;</DD>
  <DT>Nested Tasks</DT>
@@ -50,13 +61,13 @@ Shared elements of models, groups and outcomes.
   </DL>
   </DL>
 <P/>
-<h2><a name="groups">Groups</a></h2>
+<a name="Groups"><LI>Groups</LI></a>
 <P/>
 <DT>A <a href="DP.ox.html#Group">Group</a> is derived from <a href="DP.ox.html#DP">DP</a> and stores key aspects of the solution to the model that will be used for prediction and estimation.  A group is defined a value of &gamma;</DT>
 <P/>
-<DT>Elements of the group vector &gamma; must be derived from the <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a> class of state variables.  </DT>
-<DD>These variables are either <em>fixed</em> or <em>random</em> effects, derived respectively from <a href="TimeInvariant.ox.html#FixedEffect">FixedEffect</a> and <a href="TimeInvariant.ox.html#RandomEffect">RandomEffect</a>.</DD>
-<DD><a href="TimeInvariant.ox.html#FixedEffectBlock">FixedEffectBlock</a>s can be used to represent <a href="TimeInvariant.ox.html#SubEffect">SubEffect</a>s and <a href="TimeInvariant.ox.html#RandomEffectBlock">RandomEffectBlock</a>s can be used to represent <a href="TimeInvariant.ox.html#CorrelatedEffect">CorrelatedEffect</a>s.</DD>
+<DT>Elements of the group vector &gamma; must be derived from the <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> class of state variables.  </DT>
+<DD>These variables are either <em>fixed</em> or <em>random</em> effects, derived respectively from <a href="Variables.ox.html#FixedEffect">FixedEffect</a> and <a href="Variables.ox.html#RandomEffect">RandomEffect</a>.</DD>
+<DD><a href="Variables.ox.html#FixedEffectBlock">FixedEffectBlock</a>s can be used to represent <a href="Variables.ox.html#SubEffect">SubEffect</a>s and <a href="Variables.ox.html#RandomEffectBlock">RandomEffectBlock</a>s can be used to represent <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a>s.</DD>
 <P/>
 <DT>The user creates multiple groups by adding time-invariant variables to the model using <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>().</DT>
 <DD>Create different DP programs for men and women<pre>
@@ -71,6 +82,26 @@ Shared elements of models, groups and outcomes.
 The set of all distinct groups is the group space, denoted &Gamma;.
 <P/>
 The group space is kept separate from the state space <b>&Theta;</b> in order to economize on storage.  Only results that need to be held for later used are stored in &Gamma; and the state space is reused for each solution of the problem.
+<P/>
+<a name="ZAux"><LI>Flags, Indices, Counts, Spaces and Hooks</LI></a>
+<P/>
+<DT>Flags : <a href="DP.ox.html#Flags">Flags</a></DT>
+<DD>Flags are 0/1 indicators of different states.  They are stored as static members of the <a href="DP.ox.html#Flags">Flags</a> structure</DD>
+<DD>The user can access the flag values but should not change them directly.</DD>
+<DD>To set flags that the user can set, see the DP methods cross-listed under <a href="DP.ox.html#Flags">Flags</a></DD>
+<DD>Ox and <span class="n">niqlow</span> both use <code>TRUE</code> and <code>FALSE</code> as aliases for the integer values 0 and 1.</DD>
+<DT>Indices : <a href="DP.ox.html#I">I</a></DT>
+<DD>Indices are integer values that track current indices into the various state spaces stored in <a href="DP.ox.html#I">I</a>.</DD>
+<DT>Counts: <a href="DP.ox.html#N">N</a></DT>
+<DD>Counts are dimensions of the problem stored as static elements of the <a href="DP.ox.html#N">N</a></DD>
+<DT>Spaces and Subspaces</DT>
+<DT>Hooks: <a href="DP.ox.html#Hooks">Hooks</a></DT>
+<P/>
+<a name="Debug"><LI>Debug Output and Options</LI></a>
+<P/>
+The <a href="DP.ox.html#DPDebug">DPDebug</a> class is the base for output routines and other tasks that are related to debugging and reporting.
+<P/>
+</OL>
 <P/>
 <hr><a name="auto"><h1>Documentation of  Items Defined in DP.ox</h1></a>
 
@@ -224,7 +255,7 @@ The  base class for the DDP framework.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#DP___Chi">Chi</a></td>
 <td class="modifiers">static</td>
-<td class="description">list of <a href="AuxiliaryValues.ox.html#AuxiliaryValues">AuxiliaryValues</a>s that depend on the current outcome.</td>
+<td class="description">list of <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>s that depend on the current outcome.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#DP___chi">chi</a></td>
@@ -316,7 +347,7 @@ The  base class for the DDP framework.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#DP___zeta">zeta</a></td>
 <td class="modifiers">static</td>
-<td class="description"><a href="AuxiliaryValues.ox.html#ZetaRealization">ZetaRealization</a>, realized continuous shocks, &zeta;,
+<td class="description"><a href="Variables.ox.html#ZetaRealization">ZetaRealization</a>, realized continuous shocks, &zeta;,
 			set during simulation of realized paths.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -332,7 +363,7 @@ The  base class for the DDP framework.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a></td>
 <td class="modifiers">static</td>
-<td class="description">Add <a href="AuxiliaryValues.ox.html#AuxiliaryValues">AuxiliaryValues</a>s to <a href="DP.ox.html#DP___Chi">Chi</a>.</td>
+<td class="description">Add <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>s to <a href="DP.ox.html#DP___Chi">Chi</a>.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a></td>
@@ -357,12 +388,12 @@ The  base class for the DDP framework.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a></td>
 <td class="modifiers">static</td>
-<td class="description">Add <a href="StateVariable.ox.html#StateVariable">StateVariable</a>s to the endogenous vector &theta;.</td>
+<td class="description">Add <a href="Variables.ox.html#StateVariable">StateVariable</a>s to the endogenous vector &theta;.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a></td>
 <td class="modifiers">static</td>
-<td class="description">Add <a href="StateVariable.ox.html#StateVariable">StateVariable</a>s to the exogenous vector &epsilon;.</td>
+<td class="description">Add <a href="Variables.ox.html#StateVariable">StateVariable</a>s to the exogenous vector &epsilon;.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a></td>
@@ -392,7 +423,7 @@ The  base class for the DDP framework.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___GroupVariables">GroupVariables</a></td>
 <td class="modifiers">static</td>
-<td class="description">Add <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>s to the group vector &gamma;.</td>
+<td class="description">Add <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>s to the group vector &gamma;.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___Initialize">Initialize</a></td>
@@ -437,7 +468,7 @@ The  base class for the DDP framework.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a></td>
 <td class="modifiers">static</td>
-<td class="description">Add <a href="StateVariable.ox.html#StateVariable">StateVariable</a>s to the semiexogenous vector &eta;.</td>
+<td class="description">Add <a href="Variables.ox.html#StateVariable">StateVariable</a>s to the semiexogenous vector &eta;.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___SetClock">SetClock</a></td>
@@ -477,7 +508,7 @@ The  base class for the DDP framework.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___SyncAct">SyncAct</a></td>
 <td class="modifiers">static</td>
-<td class="description">Ensure that <a href="ActionVariable.ox.html#ActionVariable">ActionVariable</a> current values (<code>v</code>) is synched with the chose <code>&alpha;</code> vector.</td>
+<td class="description">Ensure that <a href="Variables.ox.html#ActionVariable">ActionVariable</a> current values (<code>v</code>) is synched with the chose <code>&alpha;</code> vector.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a></td>
@@ -809,7 +840,7 @@ A user's code can reference these variables but should never change them.
 <a name="Group"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Group : <a href="DP.ox.html#DP">DP</a></span></h2>
 
-Related DP models differing only by <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a> effects.
+Related DP models differing only by <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> effects.
 <P/>
 DDP will allocate a new group for each value of the &gamma; vector.  These are located in a static array
 named <a href="DP.ox.html#Gamma">Gamma</a> that is only accessible directly inside the file DP.ox.
@@ -949,6 +980,9 @@ The argument used to keep track of what to do when looping over the group space 
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Hooks : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
 
 Contains an array that holds user-defined static functions/methods to call at different points in the solution process.
+<P/>
+Hooks are places in the DP solution process where the user can add code to be carried out.  This is done using the <a href="DP.ox.html#Hooks___Add">Add</a>()
+procedure.  Hooks are added to a list of procedures to be called so more than one procedure can be carried out.
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#HookTimes">HookTimes</a>, SetUpdateTime</dd>
 </dl>
@@ -1366,7 +1400,7 @@ All members are automatic (non-static)
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#Task___SyncStates">SyncStates</a></td>
 <td class="modifiers"></td>
-<td class="description">Ensure that all <a href="StateVariable.ox.html#StateVariable">StateVariable</a> objects <code>v</code> are synched with the internally stored state vector.</td>
+<td class="description">Ensure that all <a href="Variables.ox.html#StateVariable">StateVariable</a> objects <code>v</code> are synched with the internally stored state vector.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#Task___Update">Update</a></td>
@@ -1412,12 +1446,14 @@ All members are automatic (non-static)
 <td class="declaration"><a name="HookTimes"></a>HookTimes</td>
 <td class="description">Points in the solution process that users can insert <em>static</em> functions or methods.
 <P/>
-<DT>PreUpdate</DT><DD>Called by <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a>().  The point it is called depends on DP::UpdateTime</DD>
-<DT>PostGSolve </DT> <DD>Called by <a href="Methods.ox.html#RandomSolve___Run">Run</a> after a call to <a href="Methods.ox.html#ValueIteration___Gsolve">Gsolve</a>() </DD>
-<DT>PostRESolve </DT> <DD>Called by <a href="Methods.ox.html#FixedSolve___Run">Run</a> after all random effects have been solved. </DD>
-<DT>PostFESolve</DT><DD>Called by <a href="Methods.ox.html#ValueIteration___Solve">Solve</a>() after all fixed effect groups have been solved.</DD>
+<table class="enum_table" valign="top">
+<tr><td valign="top"><code>PreUpdate</code></td><tD>Called by <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a>().  The point it is called depends on <a href="DP.ox.html#Flags___UpdateTime">UpdateTime</a></tD></tr>
+<tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::<a href="Methods.ox.html#RandomSolve___Run">Run</a>()</code> after a call to <a href="Methods.ox.html#Method___Gsolve">Gsolve</a>() </tD></tr>
+<tr><td valign="top"><code>PostRESolve</code> </td><tD>Called by <code>FixedSolve::<a href="Methods.ox.html#FixedSolve___Run">Run</a>()</code> after all random effects have been solved. </tD></tr>
+<tr><td valign="top"><code>PostFESolve</code></td><tD>Called by <a href="Methods.ox.html#Method___Solve">Solve</a>() after all fixed effect groups have been solved.</tD></tr>
+</table>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#Hooks">Hooks</a>, DP::UpdateTime</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#Hooks">Hooks</a>, <a href="DP.ox.html#Flags___UpdateTime">UpdateTime</a></dd>
 </dl></td>
 <td class="elements">PreUpdate, PostGSolve, PostRESolve, PostFESolve, NHooks</td>
 </tr>
@@ -1451,10 +1487,22 @@ All members are automatic (non-static)
 <tr class="even">
 <td class="declaration"><a name="UpdateTimes"></a>UpdateTimes</td>
 <td class="description">Point in solving when updating of parameters and transitions needs to occur.
+<table class="enum_table">
+<tr><td valign="top">InCreateSpaces</td><td>Transitions and utility do not depend on any parameters that change so they can be initialized
+in <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() and never recalculated.</td></tr>
+<tr><td valign="top">OnlyOnce</td><td>Update transitions and utility just once on each call to <a href="Methods.ox.html#Method___Solve">Solve</a>(). This ensures that if transitions depend
+on parameters that are controlled by the outside (say by an optimization algorithm) the probabilities used in solving the model will
+reflect any changes in the parameters since the last time the solution method was applied. </td></tr>
+<tr><td  valign="top">AfterFixed</td><td>Update transitions after the value of the fixed groups is set.  This will allow transitions to depend on the value of
+fixed effect variables.</td></tr>
+<tr><td  valign="top">AfterRandom</td><td>Update transitions after the value of the random groups is set.  This will allow transitions to depend on the value of
+both fixed and random effect variables.</td></tr>
+</table>
+There is a potentially large computational cost of updating the transitions more often than is necessary.
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
 </dl></td>
-<td class="elements">OnlyOnce, AfterFixed, AfterRandom, UpdateTimes</td>
+<td class="elements">InCreateSpaces, OnlyOnce, AfterFixed, AfterRandom, UpdateTimes</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><a name="Vspace"></a>Vspace</td>
@@ -1544,7 +1592,7 @@ Add variables to the action vector <code>&alpha;</code>.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">Act1</td>
-<td class="description" valign="baseline">... <a href="ActionVariable.ox.html#ActionVariable">ActionVariable</a>s to add
+<td class="description" valign="baseline">... <a href="Variables.ox.html#ActionVariable">ActionVariable</a>s to add
 </td>
 </tr>
 </table>
@@ -1588,7 +1636,7 @@ Add state variables to a subvector of the overall state vector.
 </dd>
 <dt class="comments">Comments:</dt><dd class="comments">These variables are autonomous - their transitions are not correlated with each other or other state variables
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="StateVariable.ox.html#StateVariable">StateVariable</a>, Actions</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#StateVariable">StateVariable</a>, Actions</dd>
 </dl>
 </dd></dl>
 
@@ -1629,13 +1677,13 @@ list of feasible action matrices.
 
 <span class="declaration">static DP :: AuxiliaryOutcomes ( auxv , ... )</span>
 <dl><dd>
-Add <a href="AuxiliaryValues.ox.html#AuxiliaryValues">AuxiliaryValues</a>s to <a href="DP.ox.html#DP___Chi">Chi</a>.
+Add <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>s to <a href="DP.ox.html#DP___Chi">Chi</a>.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">v1</td>
-<td class="description" valign="baseline">... <a href="AuxiliaryValues.ox.html#AuxiliaryValues">AuxiliaryValues</a>s or array of auxiliary variables</td>
+<td class="description" valign="baseline">... <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>s or array of auxiliary variables</td>
 </tr>
 </table>
 </dd>
@@ -1648,8 +1696,8 @@ Add <a href="AuxiliaryValues.ox.html#AuxiliaryValues">AuxiliaryValues</a>s to <a
 
 <span class="declaration">static decl Chi [public]</span>
 <dl><dd>
-list of <a href="AuxiliaryValues.ox.html#AuxiliaryValues">AuxiliaryValues</a>s that depend on the current outcome.
-		<a href="AuxiliaryValues.ox.html#AuxiliaryValues___Realize">Realize</a>() is called by <a href="Bellman.ox.html#Bellman___Simulate">Simulate</a>()
+list of <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>s that depend on the current outcome.
+		<a href="Variables.ox.html#AuxiliaryValues___Realize">Realize</a>() is called by <a href="Bellman.ox.html#Bellman___Simulate">Simulate</a>()
 		after <code>&alpha;</code>, &zeta; and full state vectors have been set.
 
 </dd></dl>
@@ -1786,13 +1834,13 @@ Sets <code>I::g</code> and syncs state variables in &gamma;
 
 <span class="declaration">static DP :: EndogenousStates ( v1 , ... )</span>
 <dl><dd>
-Add <a href="StateVariable.ox.html#StateVariable">StateVariable</a>s to the endogenous vector &theta;.
+Add <a href="Variables.ox.html#StateVariable">StateVariable</a>s to the endogenous vector &theta;.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">v1,...</td>
-<td class="description" valign="baseline"><a href="StateVariable.ox.html#StateVariable">StateVariable</a>s</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a>s</td>
 </tr>
 </table>
 </dd>
@@ -1815,13 +1863,13 @@ handles looping over endogenous transitions
 
 <span class="declaration">static DP :: ExogenousStates ( v1 , ... )</span>
 <dl><dd>
-Add <a href="StateVariable.ox.html#StateVariable">StateVariable</a>s to the exogenous vector &epsilon;.
+Add <a href="Variables.ox.html#StateVariable">StateVariable</a>s to the exogenous vector &epsilon;.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">v1...</td>
-<td class="description" valign="baseline">Exogenous <a href="StateVariable.ox.html#StateVariable">StateVariable</a>s</td>
+<td class="description" valign="baseline">Exogenous <a href="Variables.ox.html#StateVariable">StateVariable</a>s</td>
 </tr>
 </table>
 </dd>
@@ -1944,13 +1992,13 @@ Second element is a matrix of transition probabilities (rows for actions <code>&
 
 <span class="declaration">static DP :: GroupVariables ( v1 , ... )</span>
 <dl><dd>
-Add <a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>s to the group vector &gamma;.
+Add <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>s to the group vector &gamma;.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">v1,...</td>
-<td class="description" valign="baseline"><a href="TimeInvariant.ox.html#TimeInvariant">TimeInvariant</a>s</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>s</td>
 </tr>
 </table>
 </dd>
@@ -2017,12 +2065,12 @@ Check if variable is a block of state variables.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">sv</td>
-<td class="description" valign="baseline"><a href="StateVariable.ox.html#StateVariable">StateVariable</a>
+<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a>
 </td>
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns">TRUE if sv is <a href="StateVariable.ox.html#StateBlock">StateBlock</a> or <a href="TimeInvariant.ox.html#RandomEffectBlock">RandomEffectBlock</a> or <a href="TimeInvariant.ox.html#FixedEffectBlock">FixedEffectBlock</a><br>FALSE otherwise
+<dt class="returns">Returns:</dt><dd class="returns">TRUE if sv is <a href="Variables.ox.html#StateBlock">StateBlock</a> or <a href="Variables.ox.html#RandomEffectBlock">RandomEffectBlock</a> or <a href="Variables.ox.html#FixedEffectBlock">FixedEffectBlock</a><br>FALSE otherwise
 </dd>
 </dl>
 </dd></dl>
@@ -2039,12 +2087,12 @@ Check if variable is a member of a block.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">sv</td>
-<td class="description" valign="baseline"><a href="StateVariable.ox.html#StateVariable">StateVariable</a>
+<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a>
 </td>
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns">TRUE if sv is <a href="StateVariable.ox.html#Coevolving">Coevolving</a> or <a href="TimeInvariant.ox.html#CorrelatedEffect">CorrelatedEffect</a> or <a href="TimeInvariant.ox.html#SubEffect">SubEffect</a><br>FALSE otherwise
+<dt class="returns">Returns:</dt><dd class="returns">TRUE if sv is <a href="Variables.ox.html#Coevolving">Coevolving</a> or <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a> or <a href="Variables.ox.html#SubEffect">SubEffect</a><br>FALSE otherwise
 </dd>
 </dl>
 </dd></dl>
@@ -2140,13 +2188,13 @@ FALSE means no subsampling.  Otherwise, pattern of
 
 <span class="declaration">static DP :: SemiExogenousStates ( v1 , ... )</span>
 <dl><dd>
-Add <a href="StateVariable.ox.html#StateVariable">StateVariable</a>s to the semiexogenous vector &eta;.
+Add <a href="Variables.ox.html#StateVariable">StateVariable</a>s to the semiexogenous vector &eta;.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">v1</td>
-<td class="description" valign="baseline">... Semi-exogenous <a href="StateVariable.ox.html#StateVariable">StateVariable</a>s</td>
+<td class="description" valign="baseline">... Semi-exogenous <a href="Variables.ox.html#StateVariable">StateVariable</a>s</td>
 </tr>
 </table>
 </dd>
@@ -2165,7 +2213,7 @@ Set the model clock.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">ClockOrType</td>
-<td class="description" valign="baseline"><a href="Clock.ox.html#Clock">Clock</a> derived state block<br>
+<td class="description" valign="baseline"><a href="Variables.ox.html#Clock">Clock</a> derived state block<br>
 	   integer, <a href="Shared.ox.html#ClockTypes">ClockTypes</a>
 </td>
 </tr>
@@ -2202,7 +2250,7 @@ CreateSpaces();
 <P/>
 </pre></dd>
 </dd>
-<dt class="comments">Comments:</dt><dd class="comments"><code>MyModel</code> can also create a derived <a href="Clock.ox.html#Clock">Clock</a> and pass it to SetClock.
+<dt class="comments">Comments:</dt><dd class="comments"><code>MyModel</code> can also create a derived <a href="Variables.ox.html#Clock">Clock</a> and pass it to SetClock.
 </dd>
 </dl>
 </dd></dl>
@@ -2256,9 +2304,18 @@ Tell DDP when parameters and transitions have to be updated.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">time</td>
-<td class="description" valign="baseline"><a href="DP.ox.html#UpdateTimes">UpdateTimes</a> [default=AfterFixed]</td>
+<td class="description" valign="baseline"><a href="DP.ox.html#UpdateTimes">UpdateTimes</a> [default=AfterFixed]
+<P/>
+</td>
 </tr>
 </table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+&hellip;
+CreateSpaces();
+SetUpdateTime(OnlyOnce);
+</pre>
+</DD>
 </dd>
 </dl>
 </dd></dl>
@@ -2312,7 +2369,7 @@ TT&times 1 vector, time-varying sampling proportions.</td>
 
 <span class="declaration">static DP :: SyncAct ( a )</span>
 <dl><dd>
-Ensure that <a href="ActionVariable.ox.html#ActionVariable">ActionVariable</a> current values (<code>v</code>) is synched with the chose <code>&alpha;</code> vector.
+Ensure that <a href="Variables.ox.html#ActionVariable">ActionVariable</a> current values (<code>v</code>) is synched with the chose <code>&alpha;</code> vector.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -2350,14 +2407,25 @@ counter.t.N, the decision horizon.
 <span class="declaration">static DP :: UpdateVariables ( state )</span>
 <dl><dd>
 Update dynamically changing components of the program at the time chosen by the user.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">state</td>
+<td class="description" valign="baseline">ETT.state [default=0]
+<P/>
 <OL>
 <LI>Update the actual value of action and state variables that (might) depend on parameter values that have changed since a
 previous solve.</LI>
 <LI>Compute the exogenous transitions, &Rho;(&eps;&prime;) and &Rho;(&eta;&prime;).</LI>
 <LI>Compute the endogenous transitions at each point in the state space endogenous state space &Theta;</LI>
 </OL>
-
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#UpdateTimes">UpdateTimes</a></dd>
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#UpdateTimes">UpdateTimes</a></dd>
 </dl>
 </dd></dl>
 
@@ -2410,7 +2478,7 @@ abbreviated labels of variable objects.
 
 <span class="declaration">static decl zeta [public]</span>
 <dl><dd>
-<a href="AuxiliaryValues.ox.html#ZetaRealization">ZetaRealization</a>, realized continuous shocks, &zeta;,
+<a href="Variables.ox.html#ZetaRealization">ZetaRealization</a>, realized continuous shocks, &zeta;,
 			set during simulation of realized paths. Distribution must be conditional on choice stored in
 			<a href="DP.ox.html#DP___alpha">alpha</a>.
 
@@ -2966,7 +3034,14 @@ Add a static function or method to a hook.
 </tr>
 </table>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#HookTimes">HookTimes</a>, SetUpdateTime</dd>
+<dt class="example">Example:</dt><dd class="example">Say hello after every Bellman iteration is complete
+<pre>
+ sayhello() { print("hello"); }
+ Hooks::Add(PostGSolve,sayhello);
+</pre>
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#HookTimes">HookTimes</a>, Flags::SetUpdateTime</dd>
 </dl>
 </dd></dl>
 
@@ -3577,7 +3652,7 @@ subspace to use for indexing during the task
 
 <span class="declaration">Task :: SyncStates ( dmin , dmax )</span>
 <dl><dd>
-Ensure that all <a href="StateVariable.ox.html#StateVariable">StateVariable</a> objects <code>v</code> are synched with the internally stored state vector.
+Ensure that all <a href="Variables.ox.html#StateVariable">StateVariable</a> objects <code>v</code> are synched with the internally stored state vector.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">

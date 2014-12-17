@@ -1,5 +1,5 @@
-/* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
 #import "DP"
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 /** &theta;-specific values.
 

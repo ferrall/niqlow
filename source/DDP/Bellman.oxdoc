@@ -1,30 +1,30 @@
-/** Bellman's Equation and Expected Value Function Iteration.
+/** Specify Utility, Reachable States and other aspects of the state space &theta;.
 <a href="#auto">Skip down to documentation of items defined in Bellman.ox</a><p>
 
 @sortkey AAD
 
-<h2>Overview</h2>
+<OL class="body">
+
+<li>Overview</li>
 
 <DT>Bellman is derived from the `DP` class.  Classes based on Bellman capture different specifications of the model, especially in terms of the <em>iid continuous state vector</em>, denoted &zeta;.</DT>
 
 <DT>A user bases (derives) <code>MyModel</code> on one of these classes (or a class ultimately derived from them).</DT>
-<DD>Example<pre>
-#import DDP
+<DD>Example
+<pre>
+&#35;import DDP
 
 struct MyModel : ExPostSmoothing {
-    < define data members> 
-    
+    // declare data members 
             Utility(A);
-    static Reachable();
-    
-    // Optional methods to replace built-in verions
-    FeasibleActions(A);
-    static PreUpdate();    
-    
-    // Optional methods to accommodate new solution methods (advanced)
-    thetaEMax();
-    ActVal();
-    Smooth();
+    static Reachable();    
+    <details><summary>// Optional methods to replace built-in versions</summary>
+           FeasibleActions(A);
+    static PreUpdate();</details>
+    <details><summary>// Optional methods to accommodate new solution methods (advanced)</summary>
+           thetaEMax();
+           ActVal();
+           Smooth();</details>
     }
 </pre></DD>
 
@@ -49,33 +49,31 @@ V(&zeta;,&epsilon;,&eta;,&theta;) = max<sub>&alpha;&in;&Alpha;(&theta;)</sub>  v
 <DD>In the default  choice probabilities are not smooth in model parameters.  That is, conditional choice probabilities are either 0 or 1 based on. The derived class `ExPostSmoothing` allows for ex-post smoothing of choice probabilities without the presence of &zeta;</DD>
 </DT>
 
-<h2>Required and Optional User-Contributed Elements of <code>MyModel</code> and <code>MyCode</code></h2>
-<OL>
+<li>User-Contributed Elements of <code>MyModel</code> and <code>MyCode</code></li>
+
+<OL class="chapter">
 <LI>Utility()</LI>
 <DT><code>MyModel</code> must supply a replacement for `Bellman::Utility`(), which simply returns 0.  </DT>
 <DT>Since utility depends on the current state, the method must be automatic (not static).</DT>
 <DD><pre>
-#import DDP
+&#35;import DDP
 
 struct MyModel : ExPostSmoothing {
-    { define data members and methods }
+    // define data members and methods 
     Utility(A);
     }
 MyModel::Utility(A) {
-    return  {a vector of utility values, given the feasible actions <code>A</code> }
+    return  {a vector of utility values given the feasible actions <code>A</code> }
     }
 </pre></DD>
 <LI>Reachable state creator</LI>
 <DT><code>MyModel</code> must include a static method/function that returns a new object of <code>MyModel</code> for any reachable state and 0 otherwise. </DT>
 <DT> <code>MyCode</code> must pass this method to <code>DPparent::Inititalize()</code>.</DT>
 <DD>Example 1.  All states are reachable
-<pre>
-MyModel::Reachable() { return new MyModel(); }
-</pre>
+<pre>MyModel::Reachable() { return new MyModel(); }</pre>
 Example 2.  States where state variables x and y greater than 5 are not reachable
-<pre>
-MyModel::Reachable() { 
-    return CV(x)+CV(y)&gt; 5 ? 0 : new MyModel(); 
+<pre>MyModel::Reachable() {
+    return CV(x)+CV(y)&gt; 5 ? 0 : new MyModel();
     }</pre></DD>
 <LI>Restricted Feasible Action spaces / matrices </LI>
 <DT><code>MyModel</code> <em>can</em> provide a replacement for the virtual `Bellman::FeasibleActions`() method to make the feasible choice set to vary with the endogenous state &theta;.</DT>
@@ -94,6 +92,7 @@ DP solution method begins to iterate. See `DP::SetUpdateTime`().  This allows th
 <DD><code>MyCode</code> must sandwich the commands that add actions and states to the model between calls to <code>DPparent::Initialize(&hellip;)</code> and <code>DPparent::CreateSpaces(&hellip;)</code>.  <code>MyModel</code> can supply their own versions of these two methods, by then they must call the parent versions.  If <code>MyModel</code> does not have its own versions, then the prefix <code>DPparent::</code> is not needed.</DD>
 </OL>
 
+</OL>
 <hr><a name="auto"><h1>Documentation of  Items Defined in Bellman.ox</h1></a>
 
 **/

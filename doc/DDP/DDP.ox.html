@@ -241,7 +241,7 @@ MyModel::Initialize() {
 <li>Action Variables</li>
 <blockquote><b><code>MyCode</code> builds the action <code>&alpha;</code> by adding action variables to it using <a href="DP.ox.html#DP___Actions">Actions</a>().</b></blockquote>
 <P/>
-An <a href="ActionVariable.ox.html#ActionVariable">ActionVariable</a> is defined by its <a href="Shared.ox.html#Quantity___L">L</a>abel and the number of distinct values it takes on, <a href="Shared.ox.html#Discrete___N">N</a>.  DDP tracks values of <em>a</em> as 0 &hellip; N&oline;.
+An <a href="Variables.ox.html#ActionVariable">ActionVariable</a> is defined by its <a href="Shared.ox.html#Quantity___L">L</a>abel and the number of distinct values it takes on, <a href="Shared.ox.html#Discrete___N">N</a>.  DDP tracks values of <em>a</em> as 0 &hellip; N&oline;.
 <P/>
 <details><summary><b>Example</b><br> Define a binary choice variable <var>d</var> and add it to &alpha;.</summary>
 <pre>MyModel : DPparent {
@@ -272,13 +272,13 @@ MyModel::Initialize() {
 As with <code>&alpha;</code>, the state of the DP model is built up by adding state variables to it.  In the basic notation above, &theta; is simply a point in a set, but in DDP it will be a vector of individual state variables. Unlike action variables, state variables evolve and how they evolve affects what needs to be stored and computed for them.   The transition <code>&Rho;(&theta;&prime;|&alpha;,&theta;)</code> emerges from the individual transitions of the state variable added to the state.
 <P/>
 In <span class="n">DDP</span>, state variables are classified as either <em>autonomous</em> or <em>coevolving</em> depending on how they enter the state transition &Rho;().
-<DT><a href="StateVariable.ox.html#Autonomous">Autonomous</a> Variables</DT>
+<DT><a href="Variables.ox.html#Autonomous">Autonomous</a> Variables</DT>
 <DD>If <code>s</code> is autonomous, then its transition is independent of all other transitions <em>and</em> the transitions of all other variables is independent of  <code>s</code>.  This means the <code>s</code> transition enters the overall &Rho;() independently.  The transition for <code>s</code> can still depend on the current action and current state.</DD>
 <DD>The transition is specified by making the state variable an instance (object) of one of the built-in autonomous state variables adding it to <code>MyModel</code>.</DD>
 <P/>
-<DT><a href="StateVariable.ox.html#Coevolving">Coevolving</a> Variables and <a href="StateVariable.ox.html#StateBlock">StateBlock</a>s</DT>
-<DD>If the transition of a variable depends on the transition of one or more other states then it is coevolving and must be placed in a <a href="StateVariable.ox.html#StateBlock">StateBlock</a>.</DD>
-<DD>If a variable is coevolving then its  <a href="StateVariable.ox.html#StateBlock">StateBlock</a> is responsible for determining the transitions.  A block is itself independent (autonomous) of all other autonomous state variables and blocks.</DD>
+<DT><a href="Variables.ox.html#Coevolving">Coevolving</a> Variables and <a href="Variables.ox.html#StateBlock">StateBlock</a>s</DT>
+<DD>If the transition of a variable depends on the transition of one or more other states then it is coevolving and must be placed in a <a href="Variables.ox.html#StateBlock">StateBlock</a>.</DD>
+<DD>If a variable is coevolving then its  <a href="Variables.ox.html#StateBlock">StateBlock</a> is responsible for determining the transitions.  A block is itself independent (autonomous) of all other autonomous state variables and blocks.</DD>
 <P/>
 <DT>See <a href=".\StateVariable.ox.html">State Variable and Block Documentation</a>.</DT>
 <P/>
@@ -313,7 +313,7 @@ The state space &Theta; is built up by <span class="n">DDP</span> from the state
 <P/>
 The abstract DDP model defined above has an implicit concept of <q>today</q>, the current state &theta;, and of <q>tomorrow</q>, the next state &theta;&prime;.  But since, at its solution, Bellman's equation holds at each point in <b>&Theta;</b> there is no need to further specify timing within the model.  However, if a monotonic time variable is an element of the state vector, then Bellman's equation can be solve sequentially backwards in time, reducing temporary storage and computational requirements.
 <P/>
-Because timing is key to the efficient solution algorithm  <span class="n">DDP</span> always has the concept of a model clock.  But the literatures includes many models that have generalized notions of time that still exhibit monotonicity.  To account for these notions the clock is always a <a href="StateVariable.ox.html#StateBlock">StateBlock</a> with at least two state variables in it.
+Because timing is key to the efficient solution algorithm  <span class="n">DDP</span> always has the concept of a model clock.  But the literatures includes many models that have generalized notions of time that still exhibit monotonicity.  To account for these notions the clock is always a <a href="Variables.ox.html#StateBlock">StateBlock</a> with at least two state variables in it.
 <P/>
 <details><summary><b>Example</b><br>Set the clock to a finite horizon of 40 periods.</summary>
 <pre>MyModel : DPparent {
@@ -437,8 +437,8 @@ The generic state space &theta; &in; &Theta; generalizes to (&zeta;,&epsilon;,&e
 <DD>A generic state variable that is not associated with a particular vector is denoted <code>s</code>.</DD>
 <P/>
 <details class="aside"><summary>Placeholder state variables</summary>
-<DD>Any of the state vectors may be empty in <code>MyModel</code> except &theta; which always has a <a href="Clock.ox.html#Clock">Clock</a>.</DD>
-<DD>If a vector is empty in <code>MyModel</code> then <span class="n">DDP</span> places a special <a href="StateVariable.ox.html#Fixed">Fixed</a> state variable that takes on only the value 0.  This has no effect on the size of the state space but it greatly simplifies the internal coding of algorithms.</DD>
+<DD>Any of the state vectors may be empty in <code>MyModel</code> except &theta; which always has a <a href="Variables.ox.html#Clock">Clock</a>.</DD>
+<DD>If a vector is empty in <code>MyModel</code> then <span class="n">DDP</span> places a special <a href="Variables.ox.html#Fixed">Fixed</a> state variable that takes on only the value 0.  This has no effect on the size of the state space but it greatly simplifies the internal coding of algorithms.</DD>
 <DD>These placeholders simplify the internal coding of the problem greatly and do nothing to expand the state space.  They do appear in output so they take up some space on the screen.</DD>
 </details>
 <P/>
@@ -450,7 +450,7 @@ The generic state space &theta; &in; &Theta; generalizes to (&zeta;,&epsilon;,&e
 <DD>States are added to &theta; using <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>().</DD>
 <DT>Like any DDP model &theta; is a semi-Markov process in which the transition to &theta;' depends potentially on all current state variables and the action <code>&alpha;</code>.  </DT>
 <DD>The other state vectors separate out variables which evolve in a simpler or more restrictive way.</DD>
-<DD>&theta; always contains a single <a href="StateVariable.ox.html#StateBlock">StateBlock</a> derived from <a href="Clock.ox.html#Clock">Clock</a>.  See <a href="#clock">Clock Block</a> below.</DD>
+<DD>&theta; always contains a single <a href="Variables.ox.html#StateBlock">StateBlock</a> derived from <a href="Variables.ox.html#Clock">Clock</a>.  See <a href="#clock">Clock Block</a> below.</DD>
 <P/>
 <LI>&eta;: Semi-Exogenous state vector</LI>
 <DT>A place for restricted endogenous variables. Their transition probabilities must be independent of all other variables.</DT>
@@ -547,7 +547,7 @@ work      vol    |  aa(work)
 <DD>In <span class="n">DDP</span> considers termination a property of value(s) of an endogenous state variable which the whole state &theta; inherits.
 <pre>q.T is a subset of the possible values of q that terminate decision making.</pre>
 By default: q.T = &empty; for built-in state variables.</DD>
-<DD><code>MyModel</code> makes values terminal by applying <code>q-&gt;<a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>()</code> to it. </dd>
+<DD><code>MyModel</code> makes values terminal by applying <code>q-&gt;<a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>()</code> to it. </dd>
 <DD>Only endogenous state variables, those in &theta;, can have terminal values since other state vectors are either IID or invariant.</DD>
 <P/>
 <DT>Terminal States: <span class="o"><b>&Theta;</b></span></DT>
@@ -561,7 +561,7 @@ By default: q.T = &empty; for built-in state variables.</DD>
 <DD><code>MyModel::Utility()</code> returns this value.  <span class="n">DDP</span> sets it as V(&theta;) directly.</DD>
 <P/>
 <li>Trimming The State Space <b>&Theta;</b> </li>
-<blockquote><b><code>MyModel</code> can trim the state space by sending a <code>MyModel::Reachable()</code> routine to <code>CreateSpaces()</code> that only returns a new instance <code>MyModel</code> for states that can be reached. It can make values of a state variable terminal by calling <a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>().</b></blockquote>
+<blockquote><b><code>MyModel</code> can trim the state space by sending a <code>MyModel::Reachable()</code> routine to <code>CreateSpaces()</code> that only returns a new instance <code>MyModel</code> for states that can be reached. It can make values of a state variable terminal by calling <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>().</b></blockquote>
 <P/>
 <DT>Possible States: &Omega;</DT>
 <DD class="example">Following the notion of possible versus feasible actions above, the Cartesian product of all possible values of the endogenous state variables is defined as the <em>possible state space</em>:<pre>&Omega; &equiv; &times; <sub>k=0&hellip;(&theta;.N)&oline;</sub> { 0 &hellip; (q<sub>k</sub>.N)&oline; }.</pre>
@@ -669,7 +669,7 @@ Before programming, state <code>MyModel</code> in the notation used above (which
 <DT>Based on these dependencies assign each state variable to  &epsilon;, &eta; and &theta;</DT>
 <DT>Terminal values: if values of endogenous states end decision-making</DT>
 <DD>Express as a value or set of values of variables in &theta; that terminate decisions</DD>
-<DD>Use the method <a href="StateVariable.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>() to mark values as terminating.</DD>
+<DD>Use the method <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>() to mark values as terminating.</DD>
 <DD>This implicitly defines <span class="o"><b>&Theta;</b></span></DD>
 <DT>Reachability if not every endogenous state can be reached</DT>
 <DD>Express &theta;.R as a logical/boolean value depending on the values of variables in &theta;
