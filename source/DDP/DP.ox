@@ -460,6 +460,16 @@ DP::SetUpdateTime(time) {
 /** Request that the State Space be subsampled for extrapolation methods such as `KeaneWolpin`.
 @param SampleProportion 0 &lt; double &le; 1.0, fixed subsample size across <var>t</var><br>
 TT&times 1 vector, time-varying sampling proportions.
+
+If this routine is called before <code>CreateSpaces()</code> the subsampling actually occurs during
+CreateSpaces().
+
+If this routine is not called before calling <code>CreateSpaces()</code> no subsampling occurs.
+
+
+If this routine is called after CreateSpaces() then the new sampling scheme occurs immediately.
+Storage for U and &Rho;() is re-allocated accordingly.
+
 **/
 DP::SubSampleStates(SampleProportion) {
 	if (!sizerc(SubVectors[clock]))	{
@@ -469,11 +479,24 @@ DP::SubSampleStates(SampleProportion) {
 	this.SampleProportion = isdouble(SampleProportion) ? constant(SampleProportion,TT,1) : SampleProportion;
 	Flags::DoSubSample = this.SampleProportion .< 1.0;
 	N::Approximated = 0;
+    if (Flags::ThetaCreated) {
+        if (Volume>SILENT) println("New random subsampling of the state space");
+        decl tt= new ReSS();
+        tt->loop();
+        if (Volume>SILENT) println("%c",{"Approximated"},N::Approximated);
+        delete tt;
+        }
+    }
+
+ReSS::ReSS() {    CTask();     }
+ReSS::Run(th) {
+    if (!isclass(th)) return;
+    th->Allocate(th.InSubSample);
     }
 
 DP::onlyDryRun() {
     if (Flags::ThetaCreated) oxwarning("State Space Already Defined.");
-    println(" Only a dry run of creating the state space Theta will be performed.  Program will exit at the end of CreateSpaces()");
+    oxwarning(" Only a dry run of creating the state space Theta will be performed.  Program ends at the end of CreateSpaces()");
     Flags::onlyDryRun=TRUE;
     }
 

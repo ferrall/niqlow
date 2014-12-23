@@ -102,7 +102,7 @@ struct Flags : Zauxiliary {
         /** Indicators for when transit update occurs.
             @see DP::SetUpdateTime **/                          UpdateTime,
 		/** TRUE if &gamma exists. @internal**/					GroupExists,
-		/** .@internal **/			                             DoSubSample,
+		/** .@internal **/			                            DoSubSample,
 		/**  store &Alpha.D x &Theta.D matrix
 			of choice probabilities  **/  						StorePA,
 		/** set &Rho;*(<code>&alpha;</code>|&hellip;)
@@ -121,7 +121,7 @@ struct N : Zauxiliary {
 		/** number of random groups **/							      R,
 		/** number of all state variables. **/						  S,
 		/** &Alpha;.N=rows(ActionMatrix), N unconstrained actions.**/ A,
-		/** rows of feasiable action sizes.         **/  			  AA,
+		/** rows of feasible action sizes.         **/  			  AA,
 		/** columns(ActionMatrix), action variables **/			      Av,
 		/** Number of different action sets.    **/      		      J,
 		/** number of auxiliary variables, sizeof of `DP::Chi` **/	  aux,
@@ -295,8 +295,9 @@ struct Task : DP {
 /** .
 @internal
 **/
-struct CTask 		: 	Task  {	decl curind, th; CTask(); 	virtual Run(th);	}
-struct DryRun 	    : 	CTask {	decl PrevT,PrevA,PrevR,report; DryRun(); 		Run(th);	}
+struct CTask 		: 	Task  {	decl curind, th; CTask(); 	virtual Run(g);	}
+struct DryRun 	    : 	CTask {	decl PrevT,PrevA,PrevR,report; DryRun(); 		Run(g);	}
+struct ReSS 	    : 	CTask {	ReSS(); 		Run(th);	}
 struct EndogTrans 	: 	Task {	decl current; EndogTrans();	Run(th);	}
 struct EnTask       :   Task { EnTask(); }
 struct ExTask       :   Task { ExTask(); }

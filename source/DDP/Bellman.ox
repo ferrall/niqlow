@@ -48,6 +48,15 @@ Bellman::Bellman(state) {
 	AsetCount |= 1;
 	}
   pandv = new array[N::R];
+  Allocate();
+  for(s=0;s<N::R;++s) pandv[s]= constant(.NaN,U);
+  EV = zeros(N::R,1);
+  }
+
+/** Create space for U() and &Rho;() accounting for random subsampling.
+@see DP::SubSampling
+**/
+Bellman::Allocate(OldSS) {
   if (!isint(SampleProportion)) {
 	InSubSample =     IsTerminal
   	 			  || !Flags::DoSubSample[curt]
@@ -55,16 +64,18 @@ Bellman::Bellman(state) {
 	N::Approximated += !(InSubSample);
     }
   else InSubSample = TRUE;
-  if (InSubSample) {
-    Nxt = new array[StateTrans][SS[onlysemiexog].size];
-    U = new matrix[nfeas][SS[bothexog].size];
+  if (OldSS!=InSubSample) {     //re-allocation required
+    if (OldSS!=UnInitialized) delete Nxt, U;
+    decl nfeas = rows(A[Aind]);
+    if (InSubSample) {
+        Nxt = new array[StateTrans][SS[onlysemiexog].size];
+        U = new matrix[nfeas][SS[bothexog].size];
+        }
+    else {
+        Nxt = new array[StateTrans][1];
+        U = new matrix[nfeas][1];
+        }
     }
-  else {
-    Nxt = new array[StateTrans][1];
-    U = new matrix[nfeas][1];
-    }
-  for(s=0;s<N::R;++s) pandv[s]= constant(.NaN,U);
-  EV = zeros(N::R,1);
   }
 
 /** Default &theta;.A: all actions are feasible at all states, except for terminal states.

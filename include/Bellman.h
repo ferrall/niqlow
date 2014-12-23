@@ -40,6 +40,7 @@ struct  Bellman : DP {
 			virtual Predict(ps,tod);
 
 					Bellman(state);
+                    Allocate(OldSS=UnInitialized);
 					~Bellman();
 					aa(av);
 					Simulate(Y);

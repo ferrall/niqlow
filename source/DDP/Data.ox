@@ -1386,7 +1386,7 @@ EmpiricalMoments::Read(FNorDB) {
     do {
         curf = inf;
         cur = (curf) ?  fparray[curf] : this;
-        if (fdone(curf)) oxrunerror("reading in moments for a fixed group more than once.  moments data file not sorted properly");
+        if (fdone[curf]) oxrunerror("reading in moments for a fixed group more than once.  moments data file not sorted properly");
         fdone[curf] = TRUE;
         inmom = <>;
         do {
