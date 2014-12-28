@@ -117,7 +117,7 @@ A user's code can reference these variables but should never change them.
 struct N : Zauxiliary {
     static decl
 		/** number of groups, &Gamma;.D      **/				      G,
-		/** **/													      F,
+		/** number of fixed effect groups.   **/					  F,
 		/** number of random groups **/							      R,
 		/** number of all state variables. **/						  S,
 		/** &Alpha;.N=rows(ActionMatrix), N unconstrained actions.**/ A,

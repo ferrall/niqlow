@@ -59,8 +59,13 @@ FixedSolve::Run(fxstate){
     if (qtask.DoNotIterate) return;
 	cputime0 = timer();
 	rtask.qtask = qtask;
+	I::f = int(I::all[onlyfixed]);
+    if (qtask.Volume>SILENT && N::G>1) print("F ",I::f);
 	rtask -> loop();
-	if (qtask.Volume>QUIET) DPDebug::outV(TRUE);
+    if (qtask.Volume>SILENT) {
+       if (N::G>1) println(" done ");
+	   if (qtask.Volume>QUIET) DPDebug::outV(TRUE);
+       }
     Hooks::Do(PostRESolve);
 	}
 
@@ -79,6 +84,7 @@ RandomSolve::Run(gam)  {
 		qtask.state = state;
 		I::r = gam.rind;
 		qtask->Gsolve();
+        if (qtask.Volume>SILENT && N::G>1) print(".");
         Hooks::Do(PostGSolve);
 		}
 	}

@@ -1152,6 +1152,7 @@ FETask::FETask() {
 RETask::SetFE(f) {
 	state = isint(f) ? ReverseState(f,OO[onlyfixed][])
 					 : f;
+
 	}
 	
 /** .
