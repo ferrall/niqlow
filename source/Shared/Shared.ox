@@ -620,3 +620,16 @@ MixPoint::Copy(h) {
 //	Point::Copy(h);
 //	eq.v = h.eq.v;
 //	}
+
+/**
+**/
+GetVM() {
+    decl f,mem;
+    systemcall("cat /proc/self/status | grep VmSize > vm.zzz");
+    if (isfile((f = fopen("vm.zzz","r")))) {
+        fscan(f,"VmSize: %d",&mem);
+        fclose(f);
+        return mem;
+        }
+    return "VM not ready on this platform";
+    }

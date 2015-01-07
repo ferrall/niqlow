@@ -507,6 +507,7 @@ DP::onlyDryRun() {
 DP::CreateSpaces() {
    if (Flags::ThetaCreated) oxrunerror("State Space Already Defined. Call CreateSpaces() only once");
    decl subv,i,pos,m,bb,sL,j,av, sbins = zeros(1,NStateTypes),w0,w1,w2,w3, tt,lo,hi,inargs = arglist();
+   println("VM: ",GetVM());
    if (strfind(inargs,"NOISY")!=NoMatch) Volume=NOISY;
     if (!S[acts].D) {
 		oxwarning("No actions added to the model. A no-choice action inserted.");
@@ -658,6 +659,7 @@ DP::CreateSpaces() {
 	ETT = new EndogTrans();
     if (Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
     if (Flags::UpdateTime==InCreateSpaces) UpdateVariables(0);
+    println("VM: ",GetVM());
  }
 
 /** .
