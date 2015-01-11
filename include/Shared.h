@@ -66,7 +66,7 @@ static const decl
 	prefix(pfx, s);
 	GaussianKernel(X,h);
     ToggleParams(a,...);
-    GetVM();
+//    GetVM();
 
 /** A container for auxiliary structures, which helps organize the hierarchy of classes. **/
 struct Zauxiliary { }
@@ -214,7 +214,7 @@ class Version : Zauxiliary {
 //	enum {MinOxVersion=621}
 	enum {MinOxVersion=700}
 	/** Current niqlow version. @name niqlowversion **/
-	enum {version=100}
+	enum {version=200}
 	static decl checked;
 	static Check();
 	}

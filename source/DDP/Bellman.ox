@@ -59,8 +59,8 @@ Bellman::Bellman(state) {
 Bellman::Allocate(OldSS) {
   if (!isint(SampleProportion)) {
 	InSubSample =     IsTerminal
-  	 			  || !Flags::DoSubSample[curt]
-				  ||  ranu(1,1) < SampleProportion[curt];
+  	 			  || !Flags::DoSubSample[I::t]
+				  ||  ranu(1,1) < SampleProportion[I::t];
 	N::Approximated += !(InSubSample);
     }
   else InSubSample = TRUE;
@@ -219,7 +219,7 @@ Bellman::ThetaTransition(future,current) {
         println("Overall transition ","%r",{"ind","prob"},F[now]|P[now]);
         decl s,q;
         for(s=0;s<columns(F[now][]);++s) {
-            if ( any(P[now][][s].>0.0) && !isclass( Settheta(OO[tracking][]*(q=ReverseState(F[now][s],OO[iterating][]))) ) )  {
+            if ( any(P[now][][s].>0.0) && !isclass( Settheta(I::OO[tracking][]*(q=ReverseState(F[now][s],I::OO[iterating][]))) ) )  {
                 oxwarning("transiting to unreachable state: ");
                 println("%8.0f","%c",Vprtlabels[svar][S[endog].M:S[endog].X],q[S[endog].M:S[endog].X]');
                 }
@@ -287,9 +287,9 @@ Bellman::Simulate(Y) {
 		chi ~= CV(Chi[i]);
 		}
 	if (done) return UnInitialized;
-	i = (OO[bothgroup][]'.!=0) .* Y.state;
+	i = (I::OO[bothgroup][]'.!=0) .* Y.state;
 	i += ReverseState(Nxt[Qi][Y.ind[onlysemiexog]][DrawOne(Nxt[Qrho][Y.ind[onlysemiexog]][ialpha][])],
-							OO[tracking][]);
+							I::OO[tracking][]);
 	return i;
 	}
 

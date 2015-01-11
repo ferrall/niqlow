@@ -23,25 +23,25 @@ SchToWork::Reachable() {
 SchToWork::FeasibleActions(Alpha) {
 	zstar = <1.0>;
 	return hasoffer.v
-			? (curt<T+k
+			? (I::t<T+k
 				? ones(Alpha)  //has a choice
 			    : Alpha[].==1) //must accept
 			: Alpha[].==0;    //no offer
 	}
 	
-SchToWork::Poff(...) { decl d=max(0,curt-k-1); 	return d ? probn(pars[m0]+pars[m1]*d) : pars[P0] ; }
+SchToWork::Poff(...) { decl d=max(0,I::t-k-1); 	return d ? probn(pars[m0]+pars[m1]*d) : pars[P0] ; }
 
 SchToWork::Udiff(z) {
 	if (CV(done)) return 0.0;
 	if (!CV(hasoffer)) return -pars[c];
-	if (curt<T+k) return DeltaV(-pars[c] - z*aa(d));
+	if (I::t<T+k) return DeltaV(-pars[c] - z*aa(d));
 	return 0.0;
 	}
 
 SchToWork::EUtility() {
 	if (CV(done)) return {0.0,1.0};
 	if (CV(hasoffer)) {		
-		if (curt<T+k) {
+		if (I::t<T+k) {
 			decl eta = log(max(zstar,DBL_EPSILON))-log(pars[wtilde]),
 				 pstar = 1-probn(eta/pars[sigu] - pars[sigu]);
 			return {-pars[c]|pars[wtilde]*exp(sqr(pars[sigu])/2)*pstar,(1-pstar)~pstar};

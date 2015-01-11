@@ -34,7 +34,7 @@ Retirement::Run()	{
 
 /** Age-dependent mortality probability. **/
 Retirement::mprob() {
-	decl age = curt+T0;
+	decl age = I::t+T0;
 	return 		age==T0			? 0.0
 			: 	age<65			? drates[A55_64]/HThous
 			: 	age<Tstar		? drates[A65_74]/HThous
@@ -46,7 +46,7 @@ Retirement::Sig1() { return sig1[col]; }
 Retirement::Sig2() { return sig2[col]; }
 	
 Retirement::FeasibleActions(A) {
-	decl age = curt+T0;
+	decl age = I::t+T0;
 	if (age >= Tstar) return (A.==Retire);	  		//only retirement
 	if (PrevJob.v==Retire) return (A.<Stay);		//can't choose to keep current job
 	return ones(rows(A),1);
@@ -54,7 +54,7 @@ Retirement::FeasibleActions(A) {
 	
 /** Duration must be feasible, do not track current eta if retired.**/
 Retirement::Reachable()	{
-	decl age = curt+T0, s= AV(dur), pj=AV(PrevJob),retd = pj==Retire;
+	decl age = I::t+T0, s= AV(dur), pj=AV(PrevJob),retd = pj==Retire;
 	if (age==T2star) return new Retirement(); //have to be ready for early transition from any state
 	if (age>Tstar) {
 		if (retd&&!s&&!AV(M)) return new Retirement();
@@ -66,20 +66,20 @@ Retirement::Reachable()	{
 		if ((s==S0)&&(pj==Stay)) return new Retirement();
 		return 0;
 		}
-	if (curt<S0 && s<S0+curt && s>curt) return 0;  //left initial job, can't make back duration.
-	if ((age>T0)&&(s<=curt+S0)) return new Retirement();
+	if (I::t<S0 && s<S0+I::t && s>I::t) return 0;  //left initial job, can't make back duration.
+	if ((age>T0)&&(s<=I::t+S0)) return new Retirement();
 	return 0;
 	}
 
 /** The one period return. **/
 Retirement::Utility()  {
 	decl  j, s = AV(dur), AA = aa(i), ej,
-			Xn =1~10~1~curt*(1~curt)~1~0~0,
+			Xn =1~10~1~I::t*(1~I::t)~1~0~0,
 			Xb = (Xn*acteqpars)',
 			retd = AV(PrevJob)==Retire,
 			curjob = AV(PrevJob)==Part ? Part : Full;
 
-	if (curt==TMAX-1) return zeros(rows(AA),1);
+	if (I::t==TMAX-1) return zeros(rows(AA),1);
 	if (rows(AA)>1) {
 		for (j=0,ej=<>;j<Nsectors;++j) ej |= AV(ejob[j])+(sig3[col]*AV(eS)-Changing[col])*(j==Full||j==Part);
 		if (!retd) {

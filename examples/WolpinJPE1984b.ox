@@ -31,7 +31,7 @@ Fertility2::Replicate()	{
 
 /** Returns current time-specific transition probabilities. **/
 Fertility2::Mortality(FeasA)	{
-	decl d= n.pos,Mv = M.v, pt= p[curt],
+	decl d= n.pos,Mv = M.v, pt= p[I::t],
 	b =	zeros(rows(FeasA),Mv>0) ~ (1-pt*FeasA[][d]) ~ ( (Mv<M.N-1) ? pt*FeasA[][d] : <> );
 	return b;
 	}
@@ -40,16 +40,16 @@ Fertility2::Mortality(FeasA)	{
 States with M &gt; t are not reachable (return 0).
 @return a new `Fertility` instance or 0.
 **/
-Fertility2::Reachable() { return (M.v<=curt) ? new Fertility2() : FALSE; }
+Fertility2::Reachable() { return (M.v<=I::t) ? new Fertility2() : FALSE; }
 
 /** Return indicators for &theta.A.
 Fertility is not a feasible choice for t&gt;T-1
 **/
-Fertility2::FeasibleActions(Alpha) { return 1|(curt<T) ; }
+Fertility2::FeasibleActions(Alpha) { return 1|(I::t<T) ; }
 
 /** Utility. **/
 Fertility2::RUtility() {
-	decl t=curt+1, Mv = M.v;
+	decl t=I::t+1, Mv = M.v;
 	decl     X = Y[t-1]-(b+c1*(t==1)+c2*(t==2)+(1~t~sqr(t))*c3)*aa(n);
 	println("** ",Mv," ",X);
 	decl u = CV(zstar)*Mv + (Mv~sqr(Mv))*alph + (X~sqr(X))*bet + Mv*(X~Sbar)*gam;
@@ -58,7 +58,7 @@ Fertility2::RUtility() {
 
 /** Utility. **/
 Fertility2::EUtility() {
-	decl t=curt+1, Mv = M.v,
+	decl t=I::t+1, Mv = M.v,
 	     X = Y[t-1]-(b+c1*(t==1)+c2*(t==2)+(1~t~sqr(t))*c3)*aa(n),
 		 pstar = 1-probn(CV(zstar)),
 		 Ez = densn(CV(zstar)) * ( -1/(1-pstar) | 1/pstar  ),

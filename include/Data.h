@@ -245,9 +245,8 @@ struct 	PathPrediction : Prediction {
     Empirical(inmoments);
     Tracking(LorC,mom1,...);
     SetColumns(dlabels);
-	Histogram(printit=TRUE,UseDist=TRUE);
-    GMMobjective();
-    PathObjective();
+	Histogram(printit=TRUE);
+//    GMMobjective();
 	}
 
 struct PanelPrediction : PathPrediction {
@@ -260,7 +259,7 @@ struct PanelPrediction : PathPrediction {
 	/** array of GMM vector. **/	 	     M;
     PanelPrediction(r=0,method=0);
     ~PanelPrediction();
-	Histogram(printit=TRUE,UseDist=TRUE);
+	Histogram(printit=TRUE);
     Predict(T=0,printit=FALSE);
     GMMdistance();
     Tracking(LorC,mom,...);
@@ -268,7 +267,8 @@ struct PanelPrediction : PathPrediction {
 
 struct EmpiricalMoments : PanelPrediction {
     const decl label;
-    decl flist, UorCorL, FMethod;
+    decl     /**How much output to produce.@see `NoiseLevels` **/                      Volume,
+            flist, UorCorL, FMethod;
     EmpiricalMoments(label="",method=0,UorCorL=UseLabel);
     Observed(as1,lc1=0,...);
     TrackingMatchToColumn(Fgroup,LorC,mom);

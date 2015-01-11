@@ -18,7 +18,7 @@
 <LI><a href="#ActionVariables">Action Variables</a></LI>
 <LI><a href="#StateVariables">State Variables</a></LI>
 <LI><a href="#Clock">The Clock:  keeping time in DDP</a></LI>
-<li><a href="#Fixed">Time Invariants: solving different DP problems</a> 
+<li><a href="#Fixed">Time Invariants: solving different DP problems</a>
 <li><a href="#Auxiliary">Auxiliary Values: tracking function of actions and state variables</a>
 </OL>
 
@@ -724,9 +724,9 @@ With anticipation (foresight), V(&theta;) can/should be solved backwards in <var
 <LI>Current time and the decision horizon</LI>
 
 <DT>The clock block is available as `DP::counter`, but usually <code>MyModel</code> does not need to refer to it directly.</DT>
-<DT>The current value of <var>t</var>, is available to <code>MyModel</code> as `DP::curt`.  That is,</DT>
-<DD><pre>curt &equiv; counter.t.v</pre></DD>
-<DD>The name <code>curt</code> is used to avoid potential confusion.  And <code>MyModel</code> can use the identifier <code>t</code> for its own use.</DD>
+<DT>The current value of <var>t</var>, is available to <code>MyModel</code> as `I::t`.  That is,</DT>
+<DD><pre>I::t &equiv; counter.t.v</pre></DD>
+<DD>Since <code>t</code> is in the index class I <code>MyModel</code> can use the identifier <code>t</code> for its own use.</DD>
 
 <DT>The decision horizon, or <code>counter.t.N</code>,  also denoted <code>T</code>, is the number of values that the time variable <code>t</code> takes on. </DT>
 <DD>The horizon of the model is
@@ -819,7 +819,7 @@ Correlated random effects are created by adding a `RandomEffectBlock` to &gamma;
 
 Each combination of random and fixed effects implies a value of &gamma;, and for each &gamma; a `Group` node is created.  The set of all group nodes is the <em>group space</em>, denoted &Gamma;.
 
-As with allowing state variables to be declared exogenous, moving time invariant variables from &theta; to &gamma; saves time and especially storage while solving the model. An invariant does not need to be tracked during iteration over <b>&Theta;</b>.  So group variable <code>Transit()</code> methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>. 
+As with allowing state variables to be declared exogenous, moving time invariant variables from &theta; to &gamma; saves time and especially storage while solving the model. An invariant does not need to be tracked during iteration over <b>&Theta;</b>.  So group variable <code>Transit()</code> methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>.
 
 Storage is re-used while solving for different values of &gamma;. <span class="n">DDP</span> reuses the state space <b>&Theta;</b> for each value of &gamma;. Choice probabilities <code>&Rho;*(&alpha | &epsilon;, &eta;, &theta;, &gamma; )</code> are stored separably for each random value of &gamma;.  EV(&theta;) integrates out the random effects, conditional on the value of the fixed effects in &gamma;. Both utility and a transitions can depend on the value of fixed effects.  However, only utility can depend on random effects.
 

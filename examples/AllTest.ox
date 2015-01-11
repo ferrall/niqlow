@@ -44,7 +44,7 @@ Test1::Run(UseList) {
 	}
 
 Test2::Reachable() { return new Test2(); }
-Test2::Utility() { return curt < TT-1 ? 1.0 : 0.0; }
+Test2::Utility() { return I::t < TT-1 ? 1.0 : 0.0; }
 Test2::Run(UseList) {
 	Initialize(Test2::Reachable,UseList);
 	SetClock(UncertainLongevity,4,0.0);
@@ -230,4 +230,4 @@ Test9::Run()	{
 	Delete();
 	}
 Test9::Reachable()	{	return new Test9(); 	}
-Test9::Utility()  { 	return -(1-CV(d))*(lam + CV(p)*aa(a)) + (3-curt); 	}	
+Test9::Utility()  { 	return -(1-CV(d))*(lam + CV(p)*aa(a)) + (3-I::t); 	}	

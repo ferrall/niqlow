@@ -93,6 +93,28 @@ SubSpace::ActDimensions()	{
 	right = rows(O)-1;
 	}
 
+I::Set(state,group) {
+	all[] = OO*state;
+    if (group) {
+	   g = int(all[bothgroup]);
+	   f = int(all[onlyfixed]);
+	   r = int(all[onlyrand]);
+       }
+    }
+
+I::Initialize() {
+    decl i;
+	if (Flags::UseStateList) tfirst = constant(-1,DP::TT,1);
+    OO=zeros(1,N::S);
+	for(i=LeftSV;i<DSubSpaces;++i) OO |= DP::SS[i].O;
+	all = new matrix[rows(OO)][1];
+   	MxEndogInd = DP::SS[onlyendog].size-1;
+	decl lo = DP::SS[bothexog].left, hi = DP::SS[bothexog].right;	
+	MedianExogState= (N::All[lo:hi]-1)/2;
+	MESind = OO[bothexog][lo:hi]*MedianExogState;
+	MSemiEind = OO[onlysemiexog][lo:hi]*MedianExogState;
+    }
+
 /** Reset a group.
 Reset Ptrans [&Rho;(&theta;&prime;;&theta;)]; synch &gamma;
 @param gam , &gamma; group to reset.
@@ -108,7 +130,7 @@ DP::CurGroup() { return Gamma[I::g]; }
 
 DP::SetGroup(GorState) {
 	I::g = ismatrix(GorState)
-			?  int(OO[bothgroup][]*GorState)
+			?  int(I::OO[bothgroup][]*GorState)
 			:  GorState;
 	if (isclass(Gamma[I::g])) {
 		Gamma[I::g]->Sync();
@@ -127,7 +149,7 @@ DP::DrawGroup(find) {	return SetGroup(find + DrawOne(gdist[find][]) );	}
 
 DP::DrawOneExogenous(aState) {
 	decl i = DrawOne(NxtExog[Qrho]);		
-	aState[0] += ReverseState(NxtExog[Qi][i],OO[bothexog][]);
+	aState[0] += ReverseState(NxtExog[Qi][i],I::OO[bothexog][]);
 	return i;
 	}
 	
@@ -314,25 +336,22 @@ DP::AuxiliaryOutcomes(auxv,...) {
 GroupTask::GroupTask() {
 	Task();
 	span = bothgroup;	left = SS[span].left;	right = SS[span].right;
+//    Reset();
 	}
 	
 
 /** .@internal **/
 GroupTask::loop(){
-	if (isint(state))
-		state = AllN-1;				// if unitialized, set states out of range
-	else
-		Reset();
+	Reset();
 	SyncStates(left,right);
 	d=left+1;				   							// start at leftmost state variable to loop over
 	do	{
-		state[left:d-1] = AllN[left:d-1]-1;		// (re-)initialize variables to left of d
+		state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
 		SyncStates(left,d-1);
 		do {
 			States[left].v = state[left];
 			SyncStates(left,left);
-			I::all[] = OO*state;
-			I::g = int(I::all[bothgroup]);
+            I::Set(state,TRUE);
 			this->Run(isclass(this,"FETask") ? state : Gamma[I::g]);
 			} while (--state[left]>=0);
 		state[left] = 0;
@@ -350,7 +369,7 @@ GroupTask::loop(){
 **/
 CGTask::CGTask() {
 	GroupTask();
-	state[left:right] = AllN[left:right]-1;
+//	state[left:right] = N::All[left:right]-1;  should be done in GroupTask() now.
 	Gamma = new array[N::G];
 	Fgamma = new array[N::F][N::R];
 	gdist = zeros(N::F,N::R);
@@ -507,7 +526,6 @@ DP::onlyDryRun() {
 DP::CreateSpaces() {
    if (Flags::ThetaCreated) oxrunerror("State Space Already Defined. Call CreateSpaces() only once");
    decl subv,i,pos,m,bb,sL,j,av, sbins = zeros(1,NStateTypes),w0,w1,w2,w3, tt,lo,hi,inargs = arglist();
-   println("VM: ",GetVM());
    if (strfind(inargs,"NOISY")!=NoMatch) Volume=NOISY;
     if (!S[acts].D) {
 		oxwarning("No actions added to the model. A no-choice action inserted.");
@@ -515,7 +533,7 @@ DP::CreateSpaces() {
 		}
 	S[acts].M=0;
 	S[acts].X=S[acts].D-1;
-	for (subv=LeftSV,pos=0,AllN=<>,S[LeftSV].M=0; subv<DSubVectors;++subv)	{
+	for (subv=LeftSV,pos=0,N::All=<>,S[LeftSV].M=0; subv<DSubVectors;++subv)	{
 		if (subv>LeftSV) S[subv].M = S[subv-1].X+1;
 		if (!sizerc(SubVectors[subv]))	{
 			if (subv==clock) {
@@ -543,10 +561,10 @@ DP::CreateSpaces() {
              }
 			Sfmts |= sfmt;
 			}
-		AllN |= S[subv].N;
+		N::All |= S[subv].N;
 		}
 	NxtExog = new array[StateTrans];
-	SubSpace::Tlength = rows(AllN);
+	N::S = SubSpace::Tlength = rows(N::All);
 	SubSpace::S = S;
 	SubSpace::ClockIndex = clock;
 	SS[onlyacts]	->ActDimensions();
@@ -566,16 +584,12 @@ DP::CreateSpaces() {
 	N::F = SS[onlyfixed].size;
 	N::A = rows(ActionMatrix);
 	N::Av = sizec(ActionMatrix);
-	N::S = sizeof(AllN);
-	for(i=LeftSV,OO=zeros(1,N::S);i<DSubSpaces;++i) OO |= SS[i].O;
-	I::all = new matrix[rows(OO)][1];
 	Asets = array(ActionMatrix);
 	AsetCount = <0>;
 	A = array(ActionMatrix);
 	ActionSets = array(ones(N::A,1));
 	if (Flags::UseStateList) {
 		if (isclass(counter,"Stationary")) oxrunerror("canNOT use state list in stationary environment");
-		I::tfirst = constant(-1,TT,1);
 		}
 	if (Flags::UseStateList || (Flags::IsErgodic = counter.IsErgodic) ) ReachableIndices = <>;
 	if (Volume>SILENT)	{		
@@ -586,7 +600,7 @@ DP::CreateSpaces() {
 		w3 = sprint("%",7*S[clock].D,"s");
         println("Clock: ",ClockType,". ",ClockTypeLabels[ClockType]);
 		println("STATE VARIABLES\n","%18s","|eps",w0,"|eta",w1,"|theta",w2,"-clock",w3,"|gamma",
-		"%r",{"       s.N"},"%cf","%7.0f","%c",Vprtlabels[svar],AllN');
+		"%r",{"       s.N"},"%cf","%7.0f","%c",Vprtlabels[svar],N::All');
 		for (m=0;m<sizeof(States);++m)
 			if (!isclass(States[m],"Fixed") && !isclass(States[m],"TimeVariable"))
 			++sbins[  isclass(States[m],"NonRandom") ? NONRANDOMSV
@@ -605,6 +619,7 @@ DP::CreateSpaces() {
     Flags::ThetaCreated = TRUE;
 	cputime0=timer();
 	Theta = new array[SS[tracking].size];
+    I::Initialize();
     if (Flags::onlyDryRun) {
         tt= new DryRun();
 	    tt->loop();
@@ -622,17 +637,9 @@ DP::CreateSpaces() {
 	tt = new CGTask();	delete tt;
 	ReachableIndices = reversec(ReachableIndices);
 	if (Flags::UseStateList) I::tfirst = sizer(ReachableIndices)-1-I::tfirst;
-   	I::MxEndogInd = SS[onlyendog].size-1;
 	if (isint(zeta)) zeta = new ZetaRealization(0);
 	DPDebug::Initialize();
-	lo = SS[bothexog].left;
-	hi = SS[bothexog].right;
-	
-	I::MedianExogState= (AllN[lo:hi]-1)/2;
-	I::MESind = OO[bothexog][lo:hi]*I::MedianExogState;
-	I::MSemiEind = OO[onlysemiexog][lo:hi]*I::MedianExogState;
   	V = new matrix[1][SS[bothexog].size];
-
 	if (Volume>SILENT)	{		
 		println("\nTRIMMING AND SUBSAMPLING","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated","    tfirsts (T-1...0)"},
                 "%cf",{"%10.0f"},N::ReachableStates|N::TerminalStates|N::Approximated | (Flags::UseStateList? I::tfirst : 0)  );
@@ -659,14 +666,13 @@ DP::CreateSpaces() {
 	ETT = new EndogTrans();
     if (Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
     if (Flags::UpdateTime==InCreateSpaces) UpdateVariables(0);
-    println("VM: ",GetVM());
  }
 
 /** .
 @internal
 **/
 Task::Task()	{
-	state 	= zeros(AllN);
+	state 	= N::All-1;
 	subspace = UnInitialized;
 	MaxTrips = INT_MAX;
 	}
@@ -675,7 +681,7 @@ Task::Task()	{
 @internal
 **/
 Task::Reset() {
-	state[left:right] = AllN[left:right]-1;
+	state[left:right] = N::All[left:right]-1;
 	}
 	
 /** .
@@ -703,7 +709,7 @@ CTask::Run(g) {
 		++N::ReachableStates;
 		th->Bellman(state);
 		if (!isint(ReachableIndices)) {
-			if (Flags::UseStateList && I::tfirst[curt]<0) I::tfirst[curt] = sizer(ReachableIndices);
+			if (Flags::UseStateList && I::tfirst[I::t]<0) I::tfirst[I::t] = sizer(ReachableIndices);
 			ReachableIndices |= curind;
 			}
         if (!Flags::onlyDryRun) Theta[curind] = th;
@@ -714,12 +720,12 @@ CTask::Run(g) {
 @internal
 **/
 DryRun::Run(g) {
-    if (curt!=PrevT) {
+    if (I::t!=PrevT) {
         if (PrevT!=-1)
             report |= PrevT~(N::ReachableStates-PrevR)~(N::Approximated-PrevA)~(1-(N::Approximated-PrevA)/(N::ReachableStates-PrevR))~(N::ReachableStates-N::Approximated);
         PrevA = N::Approximated;
         PrevR = N::ReachableStates;
-        PrevT=curt;
+        PrevT=I::t;
         }
     CTask::Run(g);
     delete th;
@@ -730,18 +736,18 @@ DryRun::Run(g) {
 **/
 Task::loop(){
 	trips = iter = 0;
-	if (isint(state))
-		state = AllN-1;				// if unitialized, set states in  range	
-	else
+//	if (isint(state))
+//		state = N::All-1;				// if unitialized, set states in  range	
+//	else
 		Reset();					// (re-)initialize variables in range
-	SyncStates(0,sizerc(AllN)-1);
+	SyncStates(0,N::S-1);
 	d=left+1;				   		// start at leftmost state variable to loop over	
 	do	{
-		state[left:d-1] = AllN[left:d-1]-1;		// (re-)initialize variables to left of d
+		state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
 		SyncStates(left,d-1);
 		do {
 			SyncStates(left,left);
-			I::all[] =    OO*state;
+            I::Set(state);
 			this->Run(Theta[I::all[tracking]]);
 			++iter;
 			} while (--state[left]>=0);
@@ -808,11 +814,11 @@ Task::list(arg0,...) {
 	done = FALSE;
 	do {
 	   rold = state[right];
-	   news = lft | ReverseState(indices[s],OO[tracking][])[left:right] | rht;
+	   news = lft | ReverseState(indices[s],I::OO[tracking][])[left:right] | rht;
 	   if (s<ups && news[right]<rold) Update();
 	   state = news;
 	   SyncStates(left,right);
-	   I::all[] = OO*state;
+       I::Set(state);
 	   this->Run(Theta[I::all[tracking]]);
 	   ++iter;
 	   } while (--s>=lows);
@@ -902,7 +908,7 @@ Task::SyncStates(dmin,dmax)	{
 			if (sv>-1) Sd.block.actual[Sd.bpos] = Sd.actual[sv];	
 			}
 		}
-	curt = Gett();
+	I::t = Gett();
 	return sv;
 	}
 
@@ -1044,7 +1050,7 @@ SDTask::Run(gam)   { gam->StationaryDistribution();}
 
 /** Return t, current age of the DP process.
 @return counter.v.t
-@see DP::SetClock, DP::curt
+@see DP::SetClock, I::t
 **/
 DP::Gett(){return counter.t.v;}
 
@@ -1138,7 +1144,7 @@ Group::StationaryDistribution() {
 /** Draw &theta; from &Rho;<sub>&infin;</sub>.
 @see DrawOne
 **/
-Group::DrawfromStationary() {	return ReverseState(DrawOne(Pinfinity),OO[tracking][]); }
+Group::DrawfromStationary() {	return ReverseState(DrawOne(Pinfinity),I::OO[tracking][]); }
 
 /** .
 @internal
@@ -1152,7 +1158,7 @@ FETask::FETask() {
 @internal
 **/
 RETask::SetFE(f) {
-	state = isint(f) ? ReverseState(f,OO[onlyfixed][])
+	state = isint(f) ? ReverseState(f,I::OO[onlyfixed][])
 					 : f;
 
 	}

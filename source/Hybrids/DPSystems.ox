@@ -117,7 +117,7 @@ ReservationValues::Solve(Fgroups) 	{
 	if (Fgroups==AllFixed)
 		ftask -> loop();
 	else
-		ftask->Run(ReverseState(Fgroups,OO[onlyfixed][]));
+		ftask->Run(ReverseState(Fgroups,I::OO[onlyfixed][]));
 	}
 
 ReservationValues::Run(th) {

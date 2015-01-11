@@ -9,16 +9,16 @@ call this routine.
 **/
 Prediction::Predict() {
 	decl s,th,q,pp,unrch;
-    state = zeros(AllN);
+    state = zeros(N::All);
     if (Volume>LOUD) {pp = 0.0; unrch = <>; }
     foreach (q in sind[s]) {
         if (isclass(th=Settheta(q))) {
-            state[lo:hi] = ReverseState(q,OO[tracking][])[lo:hi];
-            I::all[tracking] = OO[tracking][]*state;
+            state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
             SyncStates(lo,hi);
+            I::all[tracking] = I::OO[tracking][]*state;
             th->Predict(p[s],this);
             }
-        else if (Volume>LOUD) { pp += p[s]; unrch |= ReverseState(q,OO[tracking][])[lo:hi]' ; }
+        else if (Volume>LOUD) { pp += p[s]; unrch |= ReverseState(q,I::OO[tracking][])[lo:hi]' ; }
         }
     if (Volume>LOUD && pp>0.0)
         println("At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Vprtlabels[svar][lo:hi],unrch);
@@ -476,8 +476,10 @@ EmpiricalMoments::EconometricObjective() {
 //	return M;
 	}
 
-EmpiricalMoments::Solve() {
-    this->EconometricObjective();
+EmpiricalMoments::GMM() {
+    println("In E O");
+	this->PanelPrediction::GMMdistance();
+//    this->EconometricObjective();
     println("%c",tlabels,"%8.4f",flat[0]);
     return M;
     }
@@ -488,11 +490,13 @@ PanelPrediction::GMMdistance() {
 	decl cur = this;
 	M = 0.0;	
 	do {
+        println("here ",cur.f);
         if (isclass(method)) method->Solve(cur.f);
 		cur->PathPrediction::GMMobjective();
 		M += cur.gmm;
 		} while (isclass(cur=cur.fnext));
     M = sqrt(M);
+    println("past here");
 	}
 
 /** Read in external moments of tracked objects.
@@ -523,7 +527,7 @@ EmpiricalMoments::Read(FNorDB) {
     cur = this;
     do { cur -> SetColumns(dlabels); } while (isclass(cur = cur.fnext));
     row = 0;
-    inf = (isint(fcols)) ? 0 : OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
+    inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
     do {
         curf = inf;
         cur = (inf) ?  fparray[inf] : this;
@@ -531,7 +535,7 @@ EmpiricalMoments::Read(FNorDB) {
         do {
             inmom |= data[row][cur.cols];
             if (++row>=rows(data)) break;
-            inf = (isint(fcols)) ? 0 : OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
+            inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
             } while (inf==curf);
         cur->Empirical(inmom);
         if (Volume>SILENT) { println("Moments of Moments Read in"); MyMoments(inmom);}

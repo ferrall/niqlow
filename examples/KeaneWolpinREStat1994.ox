@@ -4,7 +4,7 @@ DynamicRoy::Replicate()	{
 	decl i, BF, KW,OutMat, AMat, BMat;	
 	Initialize(Reachable,TRUE,0);
 	SetClock(NormalAging,A1);
-    SubSampleStates(constant(0.95,1,3)~constant(0.95,1,A1-3));
+    SubSampleStates(constant(1.0,1,3)~constant(0.95,1,A1-3));
 	Actions(accept = new ActionVariable("Accept",Msectors));
     GroupVariables(lnk = new NormalRandomEffect("lnk",3,0.0,1.0));
 	EndogenousStates(attended   = new ActionTracker("attended",accept,school));
@@ -28,14 +28,14 @@ DynamicRoy::Replicate()	{
 
 /** Rule out schooling if too old **/
 DynamicRoy::FeasibleActions(Alpha) {
-	return (curt+Age0>MaxAgeAtt) ? Alpha.!=school : ones(Alpha);
+	return (I::t+Age0>MaxAgeAtt) ? Alpha.!=school : ones(Alpha);
 	}
 	
 /** Total experience cannot exceed age;  Total schooling limited.**/	
 DynamicRoy::Reachable() {
 	decl i,totexp;
 	for (i=0,totexp=0;i<Msectors-1;++i) totexp += xper[i].v;
-	return curt<min(A1,totexp) || xper[school].v>MaxXtraSchool ? 0 : new DynamicRoy();
+	return I::t<min(A1,totexp) || xper[school].v>MaxXtraSchool ? 0 : new DynamicRoy();
  	}
 
 /** Utility vector equals the vector of feasible returns.**/	

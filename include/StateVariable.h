@@ -275,7 +275,7 @@ struct LaggedAction : Lagged	{
 /**s&prime; = value of an action first period it is not 0.
 <DT>Initial condition to include in Reachable:</DT>
 <dd>Only include states for which s is 0 (choice not made yet)
-<pre>if (curt==0 && CV(s)!=0 ) return 0;</pre></dd>
+<pre>if (I::t==0 && CV(s)!=0 ) return 0;</pre></dd>
 <DT>Feasible action restriction </DT>
 <DD>Positive value of target only feasible if choice has not been made.
 <pre>A[][s.a.pos].==0 || CV(s)==0</pre></dd>

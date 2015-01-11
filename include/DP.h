@@ -116,6 +116,7 @@ A user's code can reference these variables but should never change them.
 **/
 struct N : Zauxiliary {
     static decl
+		/** uninitialized state.   **/  			  	              All,
 		/** number of groups, &Gamma;.D      **/				      G,
 		/** number of fixed effect groups.   **/					  F,
 		/** number of random groups **/							      R,
@@ -135,15 +136,19 @@ struct N : Zauxiliary {
 **/
 struct I : Zauxiliary {
     static decl
-	/** vector of current indices into spaces. @internal**/	all,
+	/**   matrix of offsets.     **/  				        OO,
+	/** vector of current indices into spaces. **/	        all,
 	/** index of current fixed group. **/					f,
     /** index of current random group. **/					r,
 	/** index of current &gamma; group. **/					g,																
+	/**  Current value of t. @see DP::Gett **/				t,
 	/**  . @internal **/      								tfirst,
 	/** . @internal **/										MedianExogState,
 	/** . @internal **/										MESind,
 	/** . @internal **/										MSemiEind,																
 	/** . @internal **/										MxEndogInd;
+    static Set(state,group=FALSE);
+    static Initialize();
     }
 
 /** Contains an array that holds user-defined static functions/methods to call at different points in the solution process.
@@ -169,12 +174,10 @@ The  base class for the DDP framework.
 struct DP {
 	static const decl      /**  formatting string. @internal 	  **/ 		sfmt = "%4.0f";
 	static decl
-		/** uninitialized state. @internal  **/  				AllN,
         /** category of clock. @see ClockTypes, DP::SetClock**/ ClockType,
 		/** counter variable.	@see DP::SetClock **/			counter,
 		/**	counter.t.N, the decision horizon.    **/  			TT,
 		/**  . @internal **/									ReachableIndices,
-		/**   matrix of offsets. @internal    **/  				OO,
 		/**   array of subvectors.  @internal **/  				S,
 		/**   array of subspaces . @internal  **/  				SS,
 		/** List of State Variables (in order).**/ 				States,
@@ -197,7 +200,6 @@ struct DP {
 			over random effects **/ 							curREdensity,		
 
 		/** The discount factor &delta;.  @see DP::SetDelta **/ delta,
-		/**  Current value of t. @see DP::Gett **/				curt,
 		/** Array of Exogenous next state indices
 			and transitions. **/ 					            NxtExog,
 		/** . @internal  				**/    					F,
@@ -284,7 +286,7 @@ struct Task : DP {
 	Task();
 	virtual Update();
 	virtual Run(th);
-	virtual loop();
+	loop();
 	virtual list(arg0, ...);
     virtual OutputValue();
 	Reset();
@@ -309,7 +311,7 @@ struct GroupTask : Task {
 			decl	qtask;
 	GroupTask();
 	virtual Run(gam);
-	virtual loop();
+	loop();
 	}
 
 /** . @internal **/

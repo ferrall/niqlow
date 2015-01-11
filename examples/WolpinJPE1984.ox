@@ -34,7 +34,7 @@ Fertility::Replicate()	{
 
 /** Returns current time-specific transition probabilities. **/
 Fertility::Mortality(FeasA)	{
-	decl d= FeasA[][n.pos], pt= d*p[curt],
+	decl d= FeasA[][n.pos], pt= d*p[I::t],
 	b =	0 ~ (1-pt) ~ pt ;
 	return b;
 	}
@@ -43,16 +43,16 @@ Fertility::Mortality(FeasA)	{
 States with M &gt; t are not reachable (return 0).
 @return a new `Fertility` instance or 0.
 **/
-Fertility::Reachable() { return (M.v<=curt) ? new Fertility() : FALSE; }
+Fertility::Reachable() { return (M.v<=I::t) ? new Fertility() : FALSE; }
 
 /** Return A(&theta;).
 Fertility is not a feasible choice for t&gt;T-1
 **/
-Fertility::FeasibleActions(Alpha) { return 1|(curt<T) ; }
+Fertility::FeasibleActions(Alpha) { return 1|(I::t<T) ; }
 
 /** Utility. **/
 Fertility::Utility() {
-	decl t=curt+1, Mv = M.v,
+	decl t=I::t+1, Mv = M.v,
 	     X = Y[t-1]-(b+c1*(t==1)+c2*(t==2)+(1~t~sqr(t))*c3)*aa(n),
 		 u = AV(psi)*Mv + (Mv~sqr(Mv))*alph + (X~sqr(X))*bet + Mv*(X~Sbar)*gam;
 	return u;

@@ -17,19 +17,19 @@ Outcome::Outcome(prior) {
 		prev = prior;
 		t = prev.t+1;
 		nxtstate = prior.snext;
-//		state = prior.onext; //constant(.NaN,AllN); //
+//		state = prior.onext; //constant(.NaN,N::All); //
 		prior.onext = this;
 		}
 	else {
 		prev = t = 0;
 		nxtstate = prior;
 		}	
-	state = isint(nxtstate) ? constant(.NaN,AllN) : nxtstate;
+	state = isint(nxtstate) ? constant(.NaN,N::All) : nxtstate;
 	ind = new array[DSubSpaces];
 	ind[] = DoAll;
 	if (!isnan(state[S[endog].M:])) {
 		decl s;
-		for(s=0;s<columns(fixeddim);++s) ind[fixeddim[s]] = OO[fixeddim[s]][]*state;
+		for(s=0;s<columns(fixeddim);++s) ind[fixeddim[s]] = I::OO[fixeddim[s]][]*state;
 		}
 	}
 
@@ -67,10 +67,10 @@ transitions.  Then `Bellman::Simulate` called to simulate
 **/
 Outcome::Simulate() {
 	decl i,f,th;
-    for (i=0;i<columns(fixeddim);++i) ind[fixeddim[i]] = OO[fixeddim[i]][]*state;
+    for (i=0;i<columns(fixeddim);++i) ind[fixeddim[i]] = I::OO[fixeddim[i]][]*state;
 	ind[bothexog] = DrawOneExogenous(&state);
-	ind[onlyexog] = OO[onlyexog][]*state;
-	ind[onlysemiexog] = OO[onlysemiexog][]*state;
+	ind[onlyexog] = I::OO[onlyexog][]*state;
+	ind[onlysemiexog] = I::OO[onlysemiexog][]*state;
 	SyncStates(0,N::S-1);
 	if (!isclass(th = Settheta(ind[tracking]))) oxrunerror("simulated state "+sprint(ind[tracking])+" not reachable");
 	snext = th->Simulate(this);
@@ -213,7 +213,7 @@ FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
 		  }
         else {
            iS = 0; while (!isclass(Settheta(iS))) ++iS;
-           iS = ReverseState(iS,OO[tracking][]);
+           iS = ReverseState(iS,I::OO[tracking][]);
            }
         }
 	if (isclass(upddens)) upddens->SetFE(f);
@@ -666,11 +666,11 @@ Outcome::AccountForUnobservables() {
 	for (ss=1;ss<DSubSpaces;++ss)
 		if ( (ind[ss]==DoAll)|| any(isdotnan(state[SS[ss].left:SS[ss].right]))) {
 			ind[ss] = <0>;
-			for(s=SS[ss].left;s<=SS[ss].right;++s) if ( OO[ss][s] )	{
+			for(s=SS[ss].left;s<=SS[ss].right;++s) if ( I::OO[ss][s] )	{
 					if (isnan(state[s]))
-						ind[ss] = vec(ind[ss]+reshape(OO[ss][s]*States[s].actual,rows(ind[ss]),States[s].N));
+						ind[ss] = vec(ind[ss]+reshape(I::OO[ss][s]*States[s].actual,rows(ind[ss]),States[s].N));
 					else
-						ind[ss] += OO[ss][s]*state[s];
+						ind[ss] += I::OO[ss][s]*state[s];
 					}
 			}					
 	ind[onlyacts] = new array[N::J];
@@ -771,7 +771,7 @@ DataSet::LoadOxDB() {
 						? data[row][list[low[auxvar]+s].incol]
 						: .NaN;
 		if (curd[idvar]!=curid) {	// new path on possibly new FPanel
-			if (inf = OO[onlyfixed][]*curd[svar]) //fixed index not 0
+			if (inf = I::OO[onlyfixed][]*curd[svar]) //fixed index not 0
 				cur = fparray[inf];
 			else	//fparray does not point to self
 				cur = this;
@@ -863,16 +863,16 @@ call this routine.
 **/
 Prediction::Predict() {
 	decl s,th,q,pp,unrch;
-    state = zeros(AllN);
+    state = zeros(N::All);
     if (Volume>LOUD) {pp = 0.0; unrch = <>; }
     foreach (q in sind[s]) {
         if (isclass(th=Settheta(q))) {
-            state[lo:hi] = ReverseState(q,OO[tracking][])[lo:hi];
-            I::all[tracking] = OO[tracking][]*state;
+            state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
+            I::all[tracking] = I::OO[tracking][]*state;
             SyncStates(lo,hi);
             th->Predict(p[s],this);
             }
-        else if (Volume>LOUD) { pp += p[s]; unrch |= ReverseState(q,OO[tracking][])[lo:hi]' ; }
+        else if (Volume>LOUD) { pp += p[s]; unrch |= ReverseState(q,I::OO[tracking][])[lo:hi]' ; }
         }
     if (Volume>LOUD && pp>0.0)
         println("At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Vprtlabels[svar][lo:hi],unrch);
@@ -1150,33 +1150,52 @@ Currently the objective is the square root of the squared differences.
 @return flat matrix of predicted moments
 
 **/
-PathPrediction::Histogram(prntlevel,UseDist) {
+PathPrediction::Histogram(prntlevel) {
+	if (isclass(upddens)) {
+		upddens->SetFE(state);
+		upddens->loop();
+		}
+	if (isclass(summand)) oxrunerror("random effects GMM not implemented yet");
+//		gmm = summand->Integrate(this);
+//	else {
+//       Predict();
+//        Histogram(Two);
+//		}
+//    return flat;
   decl flat = <>, delt =<>, v;
-  ud = UseDist;
+  if (isclass(method)) {
+    method->Solve(f);
+    Predict();
+    }
   cur=this;
   do {
      cur.predmom=<>;
-     foreach(v in tlist ) cur->Prediction::Histogram(v,CV(prntlevel,cur)==One);
-     if (CV(prntlevel,cur)==Two) {
+     foreach(v in tlist ) cur->Prediction::Histogram(v,FALSE);  //CV(prntlevel,cur)==One
+//     if (CV(prntlevel,cur)==Two) {
         flat |= cur.t~cur.predmom;
         delt |= cur->Delta(mask);
-        }
+//        }
   	 }  while (isclass(cur = cur.pnext,"Prediction"));
-  gmm = norm(delt,'F');
-  return f~flat;
+  if (rows(flat)) {
+    gmm = norm(delt,'F');
+    println("%c",tlabels,"%8.4f",f~flat);
+    return f~flat;
+    }
+  else {
+    gmm = .NaN;
+    return <>;
+    }
   }
 
-PanelPrediction::Histogram(printlevel,UseDist) {
+PanelPrediction::Histogram(printlevel) {
     decl tf, td,cur=this;
     flat = {};
     M = 0.0;
     do {
-        tf = cur->PathPrediction::Histogram(printlevel,UseDist);
-        if (rows(tf)) {
-            flat |= tf;
-            M += cur.gmm;
-            }
+        flat |= cur->PathPrediction::Histogram(printlevel);
+        M += cur.gmm;
         } while(isclass(cur=cur.fnext));
+    M = sqrt(M);
     }
 
 /** Set an object to be tracked in predictions.
@@ -1244,25 +1263,20 @@ PanelPrediction::Predict(t,printit) {
         } while(isclass(cur=cur.fnext));
     }
 
-/** Predict and then compute predicted moments of tracked moments.
-**/
-PathPrediction::PathObjective() {
-    Predict();
-    Histogram(Two);
-    }
-
-PathPrediction::GMMobjective() {
-    decl i,cur;
-	if (isclass(upddens)) {
-		upddens->SetFE(state);
-		upddens->loop();
-		}
-	if (isclass(summand))
-		gmm = summand->Integrate(this);
-	else
-		PathObjective();
-
-    }
+//PathPrediction::GMMobjective() {
+//    decl i,cur;
+//	if (isclass(upddens)) {
+//		upddens->SetFE(state);
+//		upddens->loop();
+//		}
+//	if (isclass(summand))
+//		gmm = summand->Integrate(this);
+//	else {
+//        Predict();
+//        Histogram(Two);
+//		}
+//    return flat;
+//    }
 
 /** Track a single object that is matched to column in the data
 @param Fgroup  integer or vector of integers of fixed groups that the moment should be tracked for.<br> AllFixed, moment appears in all groups
@@ -1326,28 +1340,14 @@ EmpiricalMoments::EmpiricalMoments(label,method,UorCorL) {
 @see Panel::GMMdistance
 **/
 EmpiricalMoments::EconometricObjective() {
-	this->PanelPrediction::GMMdistance();
-//	return M;
+    //	return M;
 	}
 
 EmpiricalMoments::Solve() {
-    this->EconometricObjective();
-    println("%c",tlabels,"%8.4f",flat[0]);
+	this->PanelPrediction::Histogram();
     return M;
     }
 
-/** Compute the distance between predicted and empirical moments.
-**/
-PanelPrediction::GMMdistance() {
-	decl cur = this;
-	M = 0.0;	
-	do {
-        if (isclass(method)) method->Solve(cur.f);
-		cur->PathPrediction::GMMobjective();
-		M += cur.gmm;
-		} while (isclass(cur=cur.fnext));
-    M = sqrt(M);
-	}
 
 /** Read in external moments of tracked objects.
 @param FNorDB  string, name of file that contains the data.<br>A Ox database object.
@@ -1382,7 +1382,7 @@ EmpiricalMoments::Read(FNorDB) {
     cur = this;
     do { cur -> SetColumns(dlabels); } while (isclass(cur = cur.fnext));
     row = 0;
-    inf = (isint(fcols)) ? 0 : OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
+    inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
     do {
         curf = inf;
         cur = (curf) ?  fparray[curf] : this;
@@ -1391,7 +1391,7 @@ EmpiricalMoments::Read(FNorDB) {
         inmom = <>;
         do {
             if (row<rows(data)) {  //read one more
-                inf = (isint(fcols)) ? 0 : OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
+                inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
                 if (inf==curf ) {  //same fixed group
                     inmom |= data[row++][cur.cols];   //add moments, increment row
                     continue;                        // don't install moments

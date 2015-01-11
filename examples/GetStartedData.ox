@@ -23,7 +23,7 @@ DerivedSearch::Run()	{
 
 SearchData::SearchData() {
 	DataSet("Search Data");   //don't re-solve
-	Simulate(N,MaxOb,zeros(AllN),TRUE); //TRUE censors terminal states
+	Simulate(N,MaxOb,zeros(N::All),TRUE); //TRUE censors terminal states
 	Print(1);
 	ObservedWithLabel(Search::a,Search::p,Search::d,DerivedSearch::u);
 	Mask();

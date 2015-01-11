@@ -59,7 +59,6 @@ FixedSolve::Run(fxstate){
     if (qtask.DoNotIterate) return;
 	cputime0 = timer();
 	rtask.qtask = qtask;
-	I::f = int(I::all[onlyfixed]);
     if (qtask.Volume>SILENT && N::G>1) print("F ",I::f);
 	rtask -> loop();
     if (qtask.Volume>SILENT) {
@@ -127,7 +126,7 @@ ValueIteration::Gsolve() {
 /** The function (method) that actually applies the DP Method to all problems (over fixed and random effect groups).
 This is the default value that does nothing.  It should be replaced by code for the solution method.
 **/
-Method::Solve() {
+Method::Solve(Fgroups,MaxTrips) {
     oxwarning("Called the default Solve() function for Method.  Does not do anything");
     }
 
@@ -164,9 +163,13 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
     Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
     if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
 	if (Fgroups==AllFixed)
-		ftask -> loop();
-	else
-		ftask->Run(ReverseState(Fgroups,OO[onlyfixed][]));
+		ftask -> GroupTask::loop();
+	else {
+        state =ReverseState(Fgroups,I::OO[onlyfixed][]);
+		SyncStates(ftask.left,ftask.right);
+        I::Set(state,TRUE);
+		ftask->Run(state);
+        }
     Hooks::Do(PostFESolve);
     Flags::HasBeenUpdated = FALSE;
 	}
@@ -182,7 +185,7 @@ ValueIteration::ValueIteration(myEndogUtil) {
    	left = S[endog].M;
    	right = S[clock].M;
    	subspace=iterating;
-   	state = AllN-1;
+   	state = N::All-1;
    	ftask = new FixedSolve();
 	ndogU = isint(myEndogUtil) ? new EndogUtil() : myEndogUtil;
 	VV = new array[DVspace];
@@ -209,7 +212,7 @@ ValueIteration::Update() {
 	++trips;
 	decl dff= norm(VV[NOW][:I::MxEndogInd]-VV[LATER][:I::MxEndogInd],2);
 	if (dff==.NaN || Volume>LOUD) {
-        println("\n t =",curt,"%r",{"today","tomorrow"},VV[now][]|VV[later][]);	
+        println("\n t =",I::t,"%r",{"today","tomorrow"},VV[now][]|VV[later][]);	
         if (dff==.NaN) oxrunerror("error while checking convergence");		
         }
     counter->Vupdate(now);
@@ -381,16 +384,16 @@ KeaneWolpin::Specification(kwstep,V,Vdelta) {
 		case	ComputeBhat	:
                 if (rows(Xmat)<=columns(Xmat)) oxrunerror("Fewer sample states than estimated coefficients.  Increase proportion");
 				olsc(Y-Xmat[][0],dropc(Xmat,<0>),&xrow); //subtract maxE, drop from X
-				Bhat[curt] = 1|xrow;  //tack 1.0 on as coefficient for maxE
+				Bhat[I::t] = 1|xrow;  //tack 1.0 on as coefficient for maxE
 				if (Volume>QUIET) {
-					println("\n Keane-Wolpin Approximation t= ",curt," N = ",sizer(Y));
-					xrow = Xmat*Bhat[curt];
+					println("\n Keane-Wolpin Approximation t= ",I::t," N = ",sizer(Y));
+					xrow = Xmat*Bhat[I::t];
 					MyMoments(Y~(xrow)~Xmat,{"EMax","EMaxHat"}|curlabels);
-					println("%r","Bhat=","%c",curlabels,Bhat[curt]',"Correlation(Y,Yhat)=",correlation(Y~xrow)[0][1]);
+					println("%r","Bhat=","%c",curlabels,Bhat[I::t]',"Correlation(Y,Yhat)=",correlation(Y~xrow)[0][1]);
 					}
 				 Y -= Xmat[][0];
 		case	PredictEV	:
-				VV[now][I::all[iterating]] =  xrow*Bhat[curt];
+				VV[now][I::all[iterating]] =  xrow*Bhat[I::t];
 		}
 	}
 	
@@ -537,9 +540,9 @@ HotzMiller::Solve(Fgroups) {
     Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
     if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
 	if (Fgroups==AllFixed)
-		ftask -> loop();
+		ftask -> GroupTask::loop();
 	else
-		ftask->Run(ReverseState(Fgroups,OO[onlyfixed][]));
+		ftask->Run(ReverseState(Fgroups,I::OO[onlyfixed][]));
 	if (Volume>QUIET) println("Q inverse time: ",timer()-cputime0);
     Hooks::Do(PostFESolve);
 	}
@@ -567,6 +570,6 @@ AguirregabiriaMira::Solve(Fgroups,inmle) {
 	   if (Fgroups==AllFixed)
 		  ftask -> loop();
 	   else
-		  ftask->Run(ReverseState(Fgroups,OO[onlyfixed][]));
+		  ftask->Run(ReverseState(Fgroups,I::OO[onlyfixed][]));
         } while (mle.convergence<STRONG);
     }
