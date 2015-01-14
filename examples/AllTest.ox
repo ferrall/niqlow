@@ -2,30 +2,30 @@
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 
 TestRun() {
-	println("\n\n***************** Test1 *****************\n");
-	Test1::Run(FALSE);	
-	println("\n\n***************** Test1 *****************\n");
-	Test1::Run(TRUE);	
-	println("\n\n***************** Test2 *****************\n");
-	Test2::Run(FALSE);	
-	println("\n\n***************** Test2 *****************\n");
-	Test2::Run(TRUE);	
-	println("\n\n***************** Test3 *****************\n");
-	Test3::Run(FALSE);	
-	println("\n\n***************** Test3 *****************\n");
-	Test3::Run(TRUE);	
-	println("\n\n***************** Test3a *****************\n");
-	Test3a::Run();	
-	println("\n\n***************** Test4 *****************\n");
-	Test4::Run();		
-	println("\n\n***************** Test5 *****************\n");
-	Test5::Run();		
-	println("\n\n***************** Test6 *****************\n");
-	Test6::Run();		
-	println("\n\n***************** Test7 *****************\n");
-	Test7::Run();		
-	println("\n\n***************** Test8 *****************\n");
-	Test8::Run();		
+//	println("\n\n***************** Test1 *****************\n");
+//	Test1::Run(FALSE);	
+//	println("\n\n***************** Test1 *****************\n");
+//	Test1::Run(TRUE);	
+//	println("\n\n***************** Test2 *****************\n");
+//	Test2::Run(FALSE);	
+//	println("\n\n***************** Test2 *****************\n");
+//	Test2::Run(TRUE);	
+//	println("\n\n***************** Test3 *****************\n");
+//	Test3::Run(FALSE);	
+//	println("\n\n***************** Test3 *****************\n");
+//	Test3::Run(TRUE);	
+//	println("\n\n***************** Test3a *****************\n");
+//	Test3a::Run();	
+//	println("\n\n***************** Test4 *****************\n");
+//	Test4::Run();		
+//	println("\n\n***************** Test5 *****************\n");
+//	Test5::Run();		
+//	println("\n\n***************** Test6 *****************\n");
+//	Test6::Run();		
+//	println("\n\n***************** Test7 *****************\n");
+//	Test7::Run();		
+//	println("\n\n***************** Test8 *****************\n");
+//	Test8::Run();		
 	println("\n\n***************** Test9 *****************\n");
 	Test9::Run();		
 	}
@@ -214,20 +214,26 @@ Test8::Run() {
 
 Test9::Run()	{
 	Initialize(Reachable);
-    Volume = NOISY;
 	SetClock(UncertainLongevity,4,0.0);
-	SetDelta(0.99);
+	SetDelta(0.1);
 	Actions(a = new ActionVariable("a",2));
 	EndogenousStates(d = new LaggedAction("d",a));
 	d->MakeTerminal(1);	
 	ExogenousStates(p = new SimpleJump("p",Noff));
+    GroupVariables(fem = new FixedEffect("fem",2));
 	CreateSpaces();
 	meth = new ValueIteration(0);
 	meth.Volume = NOISY;
-	meth -> Solve();
-    decl pd = new PanelPrediction();
-    pd -> Predict(8,TRUE);
+//	meth -> Solve();
+    decl pd = new EmpiricalMoments("hi",meth,UseLabel);
+    pd->TrackingWithLabel(AllFixed,a,p);
+//    meth -> Solve();
+//    pd -> Predict(8,FALSE);
+    pd.T = 8;
+    pd -> Histogram(Two);
+    println("%c",pd.tlabels,pd.flat[0],pd.flat[1]);
+//    savemat(pd.flat,"Test9moms.dta",pd.tlabels);
 	Delete();
 	}
 Test9::Reachable()	{	return new Test9(); 	}
-Test9::Utility()  { 	return -(1-CV(d))*(lam + CV(p)*aa(a)) + (3-I::t); 	}	
+Test9::Utility()  { 	return -(1-CV(d))*(lam[CV(fem)] + CV(p)*aa(a)) + (3-I::t); 	}	

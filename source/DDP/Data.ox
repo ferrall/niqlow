@@ -219,7 +219,7 @@ FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
 	if (isclass(upddens)) upddens->SetFE(f);
     if (Flags::IsErgodic && !T) oxwarning("Simulating ergodic paths without fixed T?");
 	cputime0 = timer();
-	if (isclass(method)) method->Solve(f,0);
+	if (isclass(method)) method->Solve(f);
 	cur = this;
 	do {		
 		curg = DrawGroup(f);
@@ -490,7 +490,7 @@ FPanel::LogLikelihood() {
 	decl i,cur;
 	FPL = zeros(N,1);  //NT
 	cputime0 =timer();
-	if (isclass(method)) method->Solve(f,0);
+	if (isclass(method)) method->Solve(f);
     else {
         if (Flags::UpdateTime[AfterFixed]) UpdateVariables(0);
         }
@@ -1199,7 +1199,7 @@ PanelPrediction::Histogram(printlevel) {
     }
 
 /** Set an object to be tracked in predictions.
-@paramg LorC label or column index in the data.
+@param LorC  UseLabel: use object label to match to column.<br>NotInData [default] unmatched to data.<br>integer: column in data set<br>string: column label
 @param mom  object or array of objects to be tracked
 @param ... further objects
 **/
@@ -1315,13 +1315,14 @@ EmpiricalMoments::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
     }
 
 /** Create a panel prediction that is matched with external data.
-@param label
-@param method
-@param UorCorL
+@param label name for the data
+@param method solution method to call before predict
+@param UorCorL matrix of indices, array of label, UseLabel
 **/
 EmpiricalMoments::EmpiricalMoments(label,method,UorCorL) {
     decl q,j;
     this.label = label;
+	Volume = QUIET;
     PanelPrediction(label,method);
     if (ismatrix(UorCorL)||isarray(UorCorL)) {
         if (sizerc(UorCorL)!=S[fgroup].D) oxrunerror("column index vector wrong size");

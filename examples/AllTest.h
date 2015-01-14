@@ -81,8 +81,8 @@ struct Test8 : Bellman {
 	
 struct Test9 : Bellman	{
 	enum{Noff=10}
-	static const decl lam = 2.3;
-	static decl p, d, a, meth;
+	static const decl lam = <2.3;2.6>;
+	static decl p, d, a, meth, fem;
 	static Reachable();
 	static Run();
 	Utility();

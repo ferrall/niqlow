@@ -3,7 +3,9 @@
 
 static const decl PathID = "path", FPanelID="Fxed", PanelID = "Panel";
 
-struct Data : Task {    }
+struct Data : Task {
+
+  }
 
 /** A single realization of a discrete DP. **/
 struct Outcome : Data {

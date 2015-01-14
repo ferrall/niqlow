@@ -37,7 +37,9 @@ ExogUtil::ExogUtil() {
     subspace = iterating;
 	}
 	
-ExogUtil::Run(th) {	th.U[][I::all[bothexog]]=th->Utility();	}	
+ExogUtil::Run(th) {	
+    th.U[][I::all[bothexog]]=th->Utility();	
+    }	
 
 FixedSolve::FixedSolve() {
 	FETask();

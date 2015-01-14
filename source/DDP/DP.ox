@@ -104,7 +104,7 @@ I::Set(state,group) {
 
 I::Initialize() {
     decl i;
-	if (Flags::UseStateList) tfirst = constant(-1,DP::TT,1);
+/*	if (Flags::UseStateList) */  tfirst = constant(-1,DP::TT,1);
     OO=zeros(1,N::S);
 	for(i=LeftSV;i<DSubSpaces;++i) OO |= DP::SS[i].O;
 	all = new matrix[rows(OO)][1];
@@ -480,27 +480,42 @@ DP::SetUpdateTime(time) {
 @param SampleProportion 0 &lt; double &le; 1.0, fixed subsample size across <var>t</var><br>
 TT&times 1 vector, time-varying sampling proportions.
 
-If this routine is called before <code>CreateSpaces()</code> the subsampling actually occurs during
-CreateSpaces().
+@param MinSZ minimum number of states to sample each period [default=0]
+@param MaxSZ maximum number of states to sample each period [default=0, no maximum]
 
-If this routine is not called before calling <code>CreateSpaces()</code> no subsampling occurs.
+<DT>Notes</DT>
+<DD>If <code>MinSZ</code> or <code>MaxSZ</code> are not 0 then two spans of the state space
+are required to &Theta;.</DD>
 
+<DD>If called before <code>CreateSpaces()</code> the subsampling actually occurs during
+CreateSpaces().</DD>
 
-If this routine is called after CreateSpaces() then the new sampling scheme occurs immediately.
+<DD>If called after <code>CreateSpaces()</code> then the new sampling scheme occurs immediately.
 Storage for U and &Rho;() is re-allocated accordingly.
 
 **/
-DP::SubSampleStates(SampleProportion) {
+DP::SubSampleStates(SampleProportion,MinSZ,MaxSZ) {
 	if (!sizerc(SubVectors[clock]))	{
 		oxwarning("Clock must be set before calling SubsampleStates.  Setting clock type to InfiniteHorizon.");
 		SetClock(InfiniteHorizon);
 		}
 	this.SampleProportion = isdouble(SampleProportion) ? constant(SampleProportion,TT,1) : SampleProportion;
 	Flags::DoSubSample = this.SampleProportion .< 1.0;
+    N::MinSZ = MinSZ;
+    N::MaxSZ = MaxSZ;
 	N::Approximated = 0;
+    DrawRandomSubSample();
+        for (t) {
+            nt = tfirst[]-tfirst[];
+            c = min(MaxSZ,max(MinSZ,this.SampleProportion*ct));
+            insamp = ransubsample(c,nt);
+            grab indices from tfirst that are in insamp;
+            }
+
+
     if (Flags::ThetaCreated) {
         if (Volume>SILENT) println("New random subsampling of the state space");
-        decl tt= new ReSS();
+        decl tt= new ReSS(??);
         tt->loop();
         if (Volume>SILENT) println("%c",{"Approximated"},N::Approximated);
         delete tt;
@@ -591,7 +606,8 @@ DP::CreateSpaces() {
 	if (Flags::UseStateList) {
 		if (isclass(counter,"Stationary")) oxrunerror("canNOT use state list in stationary environment");
 		}
-	if (Flags::UseStateList || (Flags::IsErgodic = counter.IsErgodic) ) ReachableIndices = <>;
+	/* if (Flags::UseStateList || (Flags::IsErgodic = counter.IsErgodic) ) */
+        ReachableIndices = <>;
 	if (Volume>SILENT)	{		
 		println("-------------------- DP Model Summary ------------------------\n");
 		w0 = sprint("%",7*S[exog].D,"s");
@@ -636,13 +652,14 @@ DP::CreateSpaces() {
 	N::J= sizeof(ActionSets);
 	tt = new CGTask();	delete tt;
 	ReachableIndices = reversec(ReachableIndices);
-	if (Flags::UseStateList) I::tfirst = sizer(ReachableIndices)-1-I::tfirst;
+/*	if (Flags::UseStateList) */
+        I::tfirst = sizer(ReachableIndices)-1-I::tfirst;
 	if (isint(zeta)) zeta = new ZetaRealization(0);
 	DPDebug::Initialize();
   	V = new matrix[1][SS[bothexog].size];
 	if (Volume>SILENT)	{		
 		println("\nTRIMMING AND SUBSAMPLING","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated","    tfirsts (T-1...0)"},
-                "%cf",{"%10.0f"},N::ReachableStates|N::TerminalStates|N::Approximated | (Flags::UseStateList? I::tfirst : 0)  );
+                "%cf",{"%10.0f"},N::ReachableStates|N::TerminalStates|N::Approximated | (I::tfirst)  );
 		println("\nACTION SETS");
 		av = sprint("%-14s","    alpha");
 		for (i=0;i<N::J;++i) av ~= sprint("  A[","%1u",i,"]   ");
@@ -708,8 +725,9 @@ CTask::Run(g) {
 	if (isclass(th = userReachable(),"DP")) {
 		++N::ReachableStates;
 		th->Bellman(state);
-		if (!isint(ReachableIndices)) {
-			if (Flags::UseStateList && I::tfirst[I::t]<0) I::tfirst[I::t] = sizer(ReachableIndices);
+/*		if (!isint(ReachableIndices)) { */
+			if ( /* Flags::UseStateList && */
+                I::tfirst[I::t]<0) I::tfirst[I::t] = sizer(ReachableIndices);
 			ReachableIndices |= curind;
 			}
         if (!Flags::onlyDryRun) Theta[curind] = th;

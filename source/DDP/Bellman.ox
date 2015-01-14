@@ -168,8 +168,8 @@ Bellman::ExpandP(r) {
 /** Computes the full endogneous transition, &Rho;(&theta;'; &alpha;,&eta; ), within a loop over &eta;.
 Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
 @param future offset vector to use for computing states (tracking or solving)
-@param currentind  current offset vector.  If the same as future transitions are not recomputed. Indices are changed only.
-@comments computes `DP::Nxt` array of feasible indices of next period states and conforming matrix of probabilities.<br>If currentind is not -1, then simply recomputed indices.
+@param current  current offset vector.  If the same as future transitions are not recomputed. Indices are changed only.
+@comments computes `DP::Nxt` array of feasible indices of next period states and conforming matrix of probabilities.<br>If current is not -1, then simply recomputed indices.
 @see DP::ExogenousTransition
 **/
 Bellman::ThetaTransition(future,current) {
