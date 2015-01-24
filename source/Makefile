@@ -27,7 +27,7 @@ clean:
 .PHONY : document
 document:
 	$(ERASE) ..\doc\default.html
-	$(OXDOC) -uplevel -include $(INC) "niqlow is" "About niqlow"
+	$(OXDOC) -uplevel -include $(INC) niqlow.ox "About niqlow"
 	${MAKE} -C $(DOC) tweak
 	${MAKE} -C About document
 	${MAKE} -C DDP document

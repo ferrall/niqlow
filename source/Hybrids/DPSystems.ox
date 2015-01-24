@@ -80,6 +80,11 @@ Rsystem::RVSolve(curth,dV) {
 	curth.zstar = CV(zstar);
 	}
 
+/** Solve for reservation values.
+@param LB `AV` compatible lower bound on the value of the first reservation value.<br>Optional: Default =-.Inf.
+@param METHOD Integer `SystemAlgorithms` code for non-linear system algorithm to use.<br>Optional: UseDefault (Broyden).
+
+**/
 ReservationValues::ReservationValues(LBvalue,METHOD) {
 	ValueIteration(new RVEdU());
     Volume = SILENT;

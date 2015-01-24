@@ -11,7 +11,7 @@ So utility is not stored for later use.  To retrieve it during simulation requir
 
 **/
 EndogUtil::EndogUtil() {
-	EnTask();
+	ThetaTask();
 	subspace = iterating;
 	ex = new ExogUtil();
 	}
@@ -118,10 +118,10 @@ ValueIteration::Run(th) {
 **/
 ValueIteration::Gsolve() {
 	ndogU.state = state;
-	ndogU->Traverse(DoAll);
+	ndogU->Traverse();
 	Flags::setPstar = counter->setPstar() ||  (MaxTrips==1);   // if first trip is last;
 	decl i;
-	Traverse(DoAll);
+	Traverse();
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& later!=LATER) VV[LATER][] = VV[later][];    //initial value next time
 	}
 
@@ -299,14 +299,13 @@ KeaneWolpin::Gsolve() {
 	decl myt;
 	ndogU.state = state;		
 	Flags::setPstar = TRUE;	
-	for (myt=TT-1;myt>=0;--myt) {
+	for (myt=N::T-1;myt>=0;--myt) {
 		state[cpos] = ndogU.state[cpos] = myt;
 		SyncStates(cpos,cpos);
 		Y = Xmat = <>;	
         curlabels = 0;
 		ndogU.onlypass = !Flags::DoSubSample[myt];
 		ndogU.firstpass = TRUE;
-        if (Volume>LOUD) println("t:",myt," ",ndogU.onlypass," ",ndogU.firstpass);
 		ndogU->Traverse(myt);
 		if (!ndogU.onlypass) {
 			Specification(ComputeBhat);
@@ -318,48 +317,14 @@ KeaneWolpin::Gsolve() {
 	}
 
 /** Initialize Keane-Wolpin Approximation method.
-KW Approximation computes complete "brute force" <code>max v(&alpha;)</code> operator on a
-randomly chosen subsample of points in the endogenous state space to predict (extrapolate) choice
-probabilities at the non-sampled states without <code>max v(&alpha;)</code> computations.
-
-<DT>Semi-endogenous states, &eta;, are not supported in this method.</DT>
-<DD>All state variables must be either fully endogenous are placed in the endoenous vector &gamma;.</DD>
-<DT>Different feasible sets A(&theta;) are allowed, but ...</DT>
-<DD>The feasible set must be the same size at each state at a give clock setting <var>t</var>.
-<DD>A warning message about this is issued if more than one feasible set exists</DD>
-
-The key elements of the approximation are
-<OL>
-<LI>The points to subsample at each clock setting.</LI>
-<UL>
-<LI>A different proportion can be used at each t, and the approximation can be turned off
-completely at other values of the clock.  This subsampling is done by calling
-<code>`DP::SubSampleStates`(profile)</code>, where profile can be a vector of sampling proportions
-or a constant.</LI>
-<LI>At the subsampled points in &theta; all the exogenous states are iterated over to compute the full value function.<LI>
-<LI>This value of the value is stored as the explained value for the approximation.</LI>
-<LI>The explanatory values are also stored, in the default, the choice-specific values at the
-MEDIAN point in the exogenous vector &epsilon; and the max of them.</LI>
-</UL>
-<LI>The MEDIAN exogenous state to use for prediction (see above)</LI>
-<UL><LI>If an odd number of discrete points are used for each exogenous random variable, and if
-you specific a symmetric distribution of actual values then the MEDIAN point will be the 0
-vector of &epsilon; and it will also equal the mean &epsilon;.</LI></UL>
-<LI>The Specification of the approximation</LI>
-<UL><LI>KW's preferred specification is the default, but it can be replaced by the user
-(no help yet available on this).
-<LI>The default is to run a linear regression in the <var>V-v(&alpha;)</var> vector and the
-square root of the vector</LI></UL>
-
-</OL>
 **/
 KeaneWolpin::KeaneWolpin(myKWEMax) {
-    if (isint(SampleProportion)) oxwarning("Must call SubSampleStates() before CreateSpaces() if you uses KeaneWolpin");
+    if (isint(SampleProportion)) oxwarning("Must call SubSampleStates() if you uses KeaneWolpin");
 	ValueIteration(isint(myKWEMax) ? new KWEMax() : myKWEMax);
     if (N::J>1) oxwarning("Using KW approximization on a model with infeasible actions at some states.  All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible");
 	ndogU.meth = this;
 	cpos = counter.t.pos;
-	Bhat = new array[TT];
+	Bhat = new array[N::T];
 	xlabels0 = {"maxE","const"};
     xlabels1 = new array[N::A];
     xlabels2 = new array[N::A];
@@ -464,7 +429,7 @@ CCP::Run(fxstate) {
 	   Q[I::g]  = zeros(cnt[I::g])';
        }
     else {
-        entask->Traverse(DoAll);
+        entask->Traverse();
         delete cnt[I::g];
         delete ObsPstar[I::g];
         }
@@ -489,7 +454,7 @@ CCP::InitializePP() {
     }
 
 CCPspace::CCPspace(qtask) {
-    EnTask();
+    ThetaTask();
     subspace=tracking;
     this.qtask = qtask;
     }
@@ -528,12 +493,11 @@ HMEndogU::Run(th) {
 	}
 
 HotzMiller::Gsolve() {
-    //	Traverse(DoAll);
 	decl cg = CurGroup(), tmpP = -AV(delta)*cg.Ptrans;
     HMEndogU::VV = (invert( setdiagonal(tmpP, 1+diagonal(tmpP)) ) * Q[I::f] )';   // (I-d*Ptrans)^{-1}
 	if (Volume>LOUD) println("HM inverse mapping: ",HMEndogU::VV );
 	ndogU.state = state;
-	ndogU->Traverse(DoAll);
+	ndogU->Traverse();
 	Flags::setPstar = 	FALSE;
 	}
 	

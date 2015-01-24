@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<link rel="stylesheet" type="text/css" href="oxdoc.css">
-<link rel="stylesheet" type="text/css" media="print" href="print.css">
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <title>DPSystems.ox - Hybrid Methods</title>
 </head>
@@ -14,7 +15,56 @@
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
 <h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">DPSystems.ox</span></h1>
 
-Methods using non-linear systems solving in <a href="..\Optimization\default.html">FiveO</a>.
+DP with non-linear systems.
+<P/>
+<OL class="body">
+<P/>
+<LI>Reservation values </LI>
+<P/>
+<a href="DPSystems.ox.html#ReservationValues">ReservationValues</a> is a method for solving for cut-off values in a one-dimensional continuous state variable.  The distribution of the variable and the way it enters utility is unrestricted, but the action vector &alpha; must contain only one action and the value of actions must satisfy the reservation property.
+<h3>Example: Search over normal offers, solve for reservation value.</h3>
+<P/>
+<OL class="chapter">
+<LI> The model is a continuous version of the model in <a href="">GetStarted</a>.</LI>
+    <OL class="steps">
+    <li class="fragment">Finite time horizon (<code>T=10</code>) to search over job offers</li>
+    <li class="fragment">Offers are continuous: &emsp; <em>z &sim; &Phi;(z)</em>.</li>
+    <li class="fragment">Wages not prices: &emsp; <code>U = (1-a)&eta; + az </code></li>
+    <li class="fragment">Optimal choice: a reservation wage <code>z*</code> at each <code>t</code>.<br> That is: <q>policy</q> iteration not <q>value function</q> iteration.</li>
+    </OL>
+<LI>Optimal Behaviour: accept offers above a reservation value z*.</LI>
+<LI>z* solves a non-linear system:</LI><DD><pre>v(1,z*)-v(0,z*)=0</pre></DD>
+    <img src="./ContinuousOffers2.png">
+<P/>
+<LI>Required Information to solve z*</LI>
+    <h4>4 functions of <code>z*</code></h4>
+    <OL class="steps">
+    <LI>Utility differences at any candidate z*:  <code>U(0,z*)-U(1,z*)</code>.  User provides a method called <code>Udiff(z)</code>.</LI>
+    <LI>Expected utility for <code>a=0</code> given z*: <code>E[U(0,z)|z&lt;z*]</code>.  </LI>
+    <LI>Expected utility for <code>a=1</code> given z*: <code>E[U(1,z)|z&gt;z*]</code>.</LI>
+    <LI>Probability of acceptable offers: <code>Prob(z&lt;z*)</code></LI>
+    </OL>
+    The user provides a method <code>EUtility()</code> which returns an array.  The first element is a vector of expected utility differences.  The second
+    is a vector of probabilities.
+<LI>Inputs for solving z*</LI>
+    <img src="./ContinuousOffers.png">
+<LI>Code</LI>
+<DT>Header File</DT>
+<dd><pre>Source: <a href="WstarTest.h">../../examples/WstarTest.h</a>
+<object width="100%" height="100" type="text/plain" data="../../examples/WstarTest.h" border="1" ></object></pre></dd>
+<DT>Ox File</DT>
+<DD><pre>Source: <a href="WstarTest.ox">../../examples/WstarTest.ox</a>
+<object width="100%" height="200" type="text/plain" data="../../examples/WstarTest.ox" border="1" ></object></pre></dd>
+<P/>
+<LI>Output</LI>
+<P/>
+</OL>
+<P/>
+<LI>Solve V in an ergodic environment as a system of equations</LI>
+<P/>
+<a href="DPSystems.ox.html#SolveAsSystem">SolveAsSystem</a>
+<P/>
+</OL>
 
 <a name="global"></a>
 <h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global enumerations</span></h2>
@@ -79,7 +129,7 @@ The user writes routines that return ...
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#ReservationValues___ReservationValues">ReservationValues</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Solve for reservation values.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#ReservationValues___Run">Run</a></td>
@@ -259,7 +309,22 @@ Initialize EV() as a system of non-linear equations.
 
 <span class="declaration">ReservationValues :: ReservationValues ( LBvalue , METHOD )</span>
 <dl><dd>
+Solve for reservation values.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">LB</td>
+<td class="description" valign="baseline">AV compatible lower bound on the value of the first reservation value.<br>Optional: Default =-.Inf.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">METHOD</td>
+<td class="description" valign="baseline">Integer <a href="DPSystems.ox.html#SystemAlgorithms">SystemAlgorithms</a> code for non-linear system algorithm to use.<br>Optional: UseDefault (Broyden).</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>

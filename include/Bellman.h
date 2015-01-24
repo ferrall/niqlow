@@ -39,7 +39,7 @@ struct  Bellman : DP {
 			virtual	Interface();
 			virtual Predict(ps,tod);
 
-					Bellman(state);
+					Bellman(state,picked);
                     Allocate(OldSS=UnInitialized);
 					~Bellman();
 					aa(av);
@@ -178,7 +178,7 @@ Solving for cut-offs using non-linear systems is a <a href="../Hybrids/default.h
 Fully specified, utility is
 <pre>
 &alpha; = (a)
-&zeta;=(z)
+&zeta; = (z)
 &epsilon; = ()
 &eta; = ()
 

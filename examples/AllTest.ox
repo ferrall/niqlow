@@ -10,22 +10,22 @@ TestRun() {
 //	Test2::Run(FALSE);	
 //	println("\n\n***************** Test2 *****************\n");
 //	Test2::Run(TRUE);	
-//	println("\n\n***************** Test3 *****************\n");
-//	Test3::Run(FALSE);	
-//	println("\n\n***************** Test3 *****************\n");
-//	Test3::Run(TRUE);	
-//	println("\n\n***************** Test3a *****************\n");
-//	Test3a::Run();	
-//	println("\n\n***************** Test4 *****************\n");
-//	Test4::Run();		
-//	println("\n\n***************** Test5 *****************\n");
-//	Test5::Run();		
-//	println("\n\n***************** Test6 *****************\n");
-//	Test6::Run();		
-//	println("\n\n***************** Test7 *****************\n");
-//	Test7::Run();		
-//	println("\n\n***************** Test8 *****************\n");
-//	Test8::Run();		
+	println("\n\n***************** Test3 *****************\n");
+	Test3::Run(FALSE);	
+	println("\n\n***************** Test3 *****************\n");
+	Test3::Run(TRUE);	
+	println("\n\n***************** Test3a *****************\n");
+	Test3a::Run();	
+	println("\n\n***************** Test4 *****************\n");
+	Test4::Run();		
+	println("\n\n***************** Test5 *****************\n");
+	Test5::Run();		
+	println("\n\n***************** Test6 *****************\n");
+	Test6::Run();		
+	println("\n\n***************** Test7 *****************\n");
+	Test7::Run();		
+	println("\n\n***************** Test8 *****************\n");
+	Test8::Run();		
 	println("\n\n***************** Test9 *****************\n");
 	Test9::Run();		
 	}
@@ -44,7 +44,7 @@ Test1::Run(UseList) {
 	}
 
 Test2::Reachable() { return new Test2(); }
-Test2::Utility() { return I::t < TT-1 ? 1.0 : 0.0; }
+Test2::Utility() { return I::t < N::T-1 ? 1.0 : 0.0; }
 Test2::Run(UseList) {
 	Initialize(Test2::Reachable,UseList);
 	SetClock(UncertainLongevity,4,0.0);
@@ -60,24 +60,23 @@ Test3::Utility() { decl u = A[Aind]*(CV(d)-5+CV(s0))+(1-A[Aind])*CV(s1); return 
 Test3::Run(UseList) {
 	Initialize(Test3::Reachable,UseList);
 	SetClock(NormalAging,5);
-    SubSampleStates(0.8);
-	Volume = NOISY;
 	Actions(new ActionVariable("a",2));
 	ExogenousStates(d = new SimpleJump("d",11));
 	EndogenousStates(s0 = new SimpleJump("s0",5),s1 = new SimpleJump("s1",5));
 	CreateSpaces();
+    SubSampleStates(0.5,15,20);
 	decl KW = new KeaneWolpin();
+    KW.Volume = LOUD;
 	KW->Solve();
-	DPDebug::outV(TRUE);
+//	DPDebug::outV(TRUE);
 	delete KW;
 	Delete();
 	}
 
 Test3a::Run()	{
 	decl i, Approx,Brute,AMat,BMat;	
-	Initialize(Reachable,TRUE);
+	Initialize(Reachable,FALSE);
 	SetClock(NormalAging,1);
-    SubSampleStates(0.9);
 	Actions(accept = new ActionVariable("Accept",Msectors));
     GroupVariables(lnk = new NormalRandomEffect("lnk",3,0.0,0.1));
 	ExogenousStates(offers = new MVNormal("eps",Msectors,Noffers,zeros(Msectors,1),sig));
@@ -87,13 +86,14 @@ Test3a::Run()	{
 	SetDelta(0.95);
 	CreateSpaces(LogitKernel,0.1);
 	Volume = LOUD;
-//	Brute = new ValueIteration();
-//	Brute-> Solve();
-//	DPDebug::outV(FALSE,&BMat);
+	Brute = new ValueIteration();
+	Brute-> Solve();
+	DPDebug::outV(FALSE,&BMat);
+    SubSampleStates(0.9,20);
 	Approx = new KeaneWolpin();
 	Approx -> Solve();
 	DPDebug::outV(FALSE,&AMat);
- //   println("difference ","%c",{"EV","Choice Probs"},(BMat-AMat)[][columns(BMat)-4:]);
+    println("difference ","%c",{"EV","Choice Probs"},(BMat-AMat)[][columns(BMat)-4:]);
     Delete();
 }
 

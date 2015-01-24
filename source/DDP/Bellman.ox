@@ -30,9 +30,10 @@ EndogTrans::Run(th) {
 
 /**Set the automatic (non-static) members of a state node.
 @param state  state vector
+@param picked TRUE: in sub sample of states for full solution.  FALSE: will be approximated
 @internal
 **/		
-Bellman::Bellman(state) {
+Bellman::Bellman(state,picked) {
    //  if (!ThetaCreated) oxrunerror("Cannot create states before state space created - call DP::CreateSpaces()");
   decl s=S[endog].M;
   do { IsTerminal = any(state[s].==States[s].TermValues); } while (!IsTerminal && s++<S[endog].X);
@@ -47,34 +48,30 @@ Bellman::Bellman(state) {
 	Asets |= selectifr(ActionMatrix,fa);
 	AsetCount |= 1;
 	}
+  InSubSample = UnInitialized;
   pandv = new array[N::R];
-  Allocate();
-  for(s=0;s<N::R;++s) pandv[s]= constant(.NaN,U);
+  Allocate(picked);
   EV = zeros(N::R,1);
   }
 
 /** Create space for U() and &Rho;() accounting for random subsampling.
-@see DP::SubSampling
+@see DP::SubSampleStates
 **/
-Bellman::Allocate(OldSS) {
-  if (!isint(SampleProportion)) {
-	InSubSample =     IsTerminal
-  	 			  || !Flags::DoSubSample[I::t]
-				  ||  ranu(1,1) < SampleProportion[I::t];
-	N::Approximated += !(InSubSample);
-    }
-  else InSubSample = TRUE;
+Bellman::Allocate(picked) {
+  decl OldSS = InSubSample;
+  InSubSample =     IsTerminal  ||  picked;  //ranu(1,1) < SampleProportion[I::t];
+  N::Approximated += !(InSubSample);
   if (OldSS!=InSubSample) {     //re-allocation required
     if (OldSS!=UnInitialized) delete Nxt, U;
-    decl nfeas = rows(A[Aind]);
     if (InSubSample) {
         Nxt = new array[StateTrans][SS[onlysemiexog].size];
-        U = new matrix[nfeas][SS[bothexog].size];
+        U = new matrix[rows(A[Aind])][SS[bothexog].size];
         }
     else {
         Nxt = new array[StateTrans][1];
-        U = new matrix[nfeas][1];
+        U = new matrix[rows(A[Aind])][1];
         }
+    decl s; for(s=0;s<N::R;++s) pandv[s]= constant(.NaN,U);
     }
   }
 
@@ -331,11 +328,11 @@ Bellman::Delete() {
 	SS = delta = counter = Impossible;	
 	for(i=0;i<sizeof(Theta);++i) delete Theta[i];
 	for(i=0;i<sizeof(Gamma);++i) delete Gamma[i];
-	delete Gamma, Theta, ReachableIndices, I::tfirst;
+	delete Gamma, Theta;
 	delete ETT;
     Flags::Reset();
     N::Reset();
-	Volume = SampleProportion = Gamma = Theta = ReachableIndices = 0;	
+	Volume = SampleProportion = Gamma = Theta = 0;	
 	}
 
 /**

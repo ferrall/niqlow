@@ -73,7 +73,6 @@ struct Space : Zauxiliary	{
 struct SubSpace : Zauxiliary  {
 	static	decl
 												ClockIndex,
-	/** shared length of vector   **/			Tlength,
 	/** shared spaces   **/						S;
 	decl	
 	/** # of dimensions**/    				D,
@@ -121,15 +120,25 @@ struct N : Zauxiliary {
 		/** number of fixed effect groups.   **/					  F,
 		/** number of random groups **/							      R,
 		/** number of all state variables. **/						  S,
+		/**	counter.t.N, the decision horizon.    **/  			      T,
 		/** &Alpha;.N=rows(ActionMatrix), N unconstrained actions.**/ A,
 		/** rows of feasible action sizes.         **/  			  AA,
 		/** columns(ActionMatrix), action variables **/			      Av,
 		/** Number of different action sets.    **/      		      J,
 		/** number of auxiliary variables, sizeof of `DP::Chi` **/	  aux,
+	   /**  . @internal **/      								      tfirst,
+                                                                      MinSZ,
+                                                                      MaxSZ,
+		/**  . @internal **/									      ReachableIndices,
 		/**  Count of reachable states.  **/   	                      TerminalStates,
     	/**  Count of reachable states.  @internal **/  		      ReachableStates,
          /** Number of states approximated (not subsampled).**/       Approximated;
     static Reset();
+    static Initialize();
+    static print();
+    static Reached(trackind);
+    static Sizes();
+    static Subsample(prop);
     }
 
 /**  Dynamically updated indices into state spaces.
@@ -142,7 +151,6 @@ struct I : Zauxiliary {
     /** index of current random group. **/					r,
 	/** index of current &gamma; group. **/					g,																
 	/**  Current value of t. @see DP::Gett **/				t,
-	/**  . @internal **/      								tfirst,
 	/** . @internal **/										MedianExogState,
 	/** . @internal **/										MESind,
 	/** . @internal **/										MSemiEind,																
@@ -176,8 +184,6 @@ struct DP {
 	static decl
         /** category of clock. @see ClockTypes, DP::SetClock**/ ClockType,
 		/** counter variable.	@see DP::SetClock **/			counter,
-		/**	counter.t.N, the decision horizon.    **/  			TT,
-		/**  . @internal **/									ReachableIndices,
 		/**   array of subvectors.  @internal **/  				S,
 		/**   array of subspaces . @internal  **/  				SS,
 		/** List of State Variables (in order).**/ 				States,
@@ -263,7 +269,7 @@ struct DP {
 		static	DrawOneExogenous(aState);
 		static  SyncAct(a);
 		static	SaveV(ToScreen,...);
-        static  SubSampleStates(SampleProportion=1.0);
+        static  SubSampleStates(SampleProportion=1.0,MinSZ=0,MaxSZ=INT_MAX);
         static  SetUpdateTime(time=AfterFixed);
 		}
 
@@ -287,21 +293,38 @@ struct Task : DP {
 	virtual Update();
 	virtual Run(th);
 	loop();
-	virtual list(arg0, ...);
+	virtual list(span=DoAll,lows=UseDefault,ups=UseDefault);
     virtual OutputValue();
 	Reset();
-	Traverse(arg0, ... );
+	Traverse(span=DoAll,lows=UseDefault,ups=UseDefault);
 	SyncStates(dmin,dmax);
 	} 	
 
-/** .
-@internal
+/** Base Class for tasks that loop over the endogenous state space &Theta;.
+
 **/
-struct CTask 		: 	Task  {	decl curind, th; CTask(); 	virtual Run(g);	}
-struct DryRun 	    : 	CTask {	decl PrevT,PrevA,PrevR,report; DryRun(); 		Run(g);	}
-struct ReSS 	    : 	CTask {	ReSS(); 		Run(th);	}
-struct EndogTrans 	: 	Task {	decl current; EndogTrans();	Run(th);	}
-struct EnTask       :   Task { EnTask(); }
+struct ThetaTask        :   Task {	decl curind; ThetaTask();	Run(th);	}
+struct FindReachables   : 	ThetaTask {	
+        decl th;
+        FindReachables();
+        virtual Run(g);	
+        }
+struct CreateTheta 	    : 	ThetaTask {	
+        decl insamp, th;
+        CreateTheta(); 	
+        Sampling();
+        virtual    Run(g);	
+        picked();
+        }
+struct DryRun 	        : 	FindReachables {	
+        decl PrevT,PrevA,PrevR,report;
+        DryRun();
+        Run(g);	
+        }
+struct ReSubSample 	    : 	CreateTheta    {	ReSubSample(); 		Run(th);	}
+
+struct EndogTrans 	    : 	ThetaTask {	decl current; EndogTrans();	Run(th);	}
+
 struct ExTask       :   Task { ExTask(); }
 	
 /** The argument used to keep track of what to do when looping over the group space &Gamma;.

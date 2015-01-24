@@ -1,4 +1,2 @@
-#include "niqlow.oxdoc"
 #include "niqlow.h"
-/* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
-
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */

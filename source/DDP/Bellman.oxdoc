@@ -15,9 +15,9 @@
 &#35;import DDP
 
 struct MyModel : ExPostSmoothing {
-    // declare data members 
+    // declare data members
             Utility(A);
-    static Reachable();    
+    static Reachable();
     <details><summary>// Optional methods to replace built-in versions</summary>
            FeasibleActions(A);
     static PreUpdate();</details>
@@ -59,7 +59,7 @@ V(&zeta;,&epsilon;,&eta;,&theta;) = max<sub>&alpha;&in;&Alpha;(&theta;)</sub>  v
 &#35;import DDP
 
 struct MyModel : ExPostSmoothing {
-    // define data members and methods 
+    // define data members and methods
     Utility(A);
     }
 MyModel::Utility(A) {
@@ -80,9 +80,10 @@ Example 2.  States where state variables x and y greater than 5 are not reachabl
 <DD>Example.  Only action vectors with <code>d</code> less than or equal to the value of state variable <code>x</code> are feasible.
 <pre>MyModel::FeasibleActions(A) { return A[d.pos][] &lt;= CV(x); }</pre>
 </DD>
-<LI>Pre Update Method</LI>
-<DT><code>MyModel</code> can assign`DP::PreUpdate` to a static method/function that will be called by `DP::UpdateVariables`(), which is called before the
-DP solution method begins to iterate. See `DP::SetUpdateTime`().  This allows the user to update values of parameters before DDP recomputes transition probabilities and utility of actions.</DT>
+<LI>Hooks and Update Time</LI>
+<DT><code>MyModel</code> can use `DP::AddHook` to have a static method/function called at different points in solution methods.</DT>
+<DT><code>MyModel</code> can also use `DP::SetUpdateTime`() to set when solution methods should update transition probabilities and utility of actions.  This allows transitions and utility to depend
+on fixed and random effect variables, but if they do not wasted computations can be avoided by updating higher up in the process.</DT>
 
 <LI>Value-related routines</LI>
 <DT><code>MyModel</code> can supply replacements for `Bellman::thetaEMax`(), `Bellman::ActVal`(), `Bellman::Smooth`().  Many of the derived classes of Bellman already specialize these operations.</DT>

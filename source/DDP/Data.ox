@@ -582,13 +582,6 @@ DataSet::MatchToColumn(aORs,LorC) {
 	if (Volume>SILENT) print(aORs.L," Matched to column ",LorC);
     }
 
-
-//DataSet::Observed(as1,lc1,...) {
-//	decl va = va_arglist(), np = sizeof(va)/2,i;
-//    MatchToColumn(as1,lc1);
-//    for (i=0;i<np;++i) MatchToColumn(va[2*i],va[2*i+1]);
-//    }
-
 	
 /** Mark actions and state variables as observed in data, matched with their internal label.
 @param aORs  Either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
@@ -623,7 +616,7 @@ DataSet::ObservedWithLabel(as1,...) {
 			`StateBlock`: each variable in the block will be marked unobserved.
 @param ... as2, etc.
 
-@comments Does nothing unless variable was already sent to `DataSet::Observed`();
+@comments Does nothing unless variable was already sent to `DataSet::ObservedWithLabel`();
 **/
 DataSet::UnObserved(as1,...) {
 	decl offset,aORs,va = {as1}|va_arglist(),k;

@@ -6,24 +6,28 @@
 
 <li>Overview</li>
 
-Objects derived from the `Method` class of tasks are algorithms that solve the DP problem the user has defined.  A user's program can create more than one method object and apply each to the problem.  
+Objects derived from the `Method` class are algorithms that solve the user's DP problem.  A user's program can create more than one method object and apply each to the problem.
 
-Every DP solution Method has a <code>Solve()</code> function that applies the method to the DP problem.
+Every Method has a <code>Solve()</code> function that applies the method to the DP problem.
 
 The method can be sent as an argument to <a href="Data.ox.html">Data</a> or other objects so that the solution can be nested within some other process.
 
 <DT>Example: after setting up the DP problem apply value function iteration to the problem:</DT>
 <DD><pre>
-&hellip;
+&vellip;
 CreateSpaces();
-mymeth = new ValueIteration();
-mymeth -&gt; Solve();
-&hellip;
+decl vmax = new ValueIteration();
+vmax.Volume = LOUD;               //V(&theta;) printed when computed
+vmax -&gt; Solve();
+&vellip;
 </pre></DD>
-
-Solution methods work at the highest level of the DP environment.  So to carry out the work they must call methods to handle fixed and random effects.
-
-<h3>The basic structure of a call to <code>Solve()</code></h3>
+<DT>Methods are General</DT>
+<DD>Unless the method relies on a specific clock (e.g. <code>ERGODIC</code>) the method will properly iterate on whatever clock the model uses.  For stationary models (or for stationary
+phases of a model) the fixed point will be found.  For finite horizon models/phases, backward induction will be used.</DD>
+<DT>Two or more solution objects can be created and applied to the model for comparison purposes.</DT>
+<DT>Solution methods work at the highest level of the DP environment.</DT>
+<DD>To carry out the work they call methods to handle fixed and random effects.</DD>
+<DD>The basic structure of a what happens with a call to <code>Solve()</code>
 <table class="tree">
 <tr>
 <td class="line">&nbsp;</td>
@@ -59,9 +63,7 @@ Solution methods work at the highest level of the DP environment.  So to carry o
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">Loop over random effect variables in &gamma;, solve each problem by calling  `Method::Gsolve`().<br> Reuse value iteration space but storing choice probabilities for all random effect groups.<br>
-After all random effects groups computed.
-</td></tr>
+<td class="text">For the current fixed group, loop over random effect variables in &gamma;. Solve each problem by calling `Method::Gsolve`().<br> Reuse value iteration space but store choice probabilities for all random effect groups.</td></tr>
 <tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -86,23 +88,66 @@ After all random effects groups computed.
    <tr class="bottom"><td class="line">&nbsp;</td></tr>
 </tbody></table>
 </td>
-<td class="text">
-<pre>
-    `EndogUtil`            initialize over endogenous states &theta;
-    1. `ValueIteration::Run`            loop over bellman iterations
-    2. `ValueIteration::Update`         check convergence/work backwards (repeat 1.)</pre>
-</td></tr></table>
+<td class="text"><pre>
+    0. `EndogUtil`         initialize over endogenous states &theta;
+    1. `ValueIteration::Run`            loop over bellman iterations (or other task)
+    2. `ValueIteration::Update`         check convergence/work backwards (return to 1 until finished.)</pre>
+</td></tr></table></DD>
+<DT>Hooks</DT>
+<DD>The user can insert static functions at different points in this process using the `Hooks::Add`().</DD>
+<DD>`HookTimes` are the integer codes for when the function should be called.</DD>
+<DD>For example, to say hello after the inner loop above is done i.e. <code>Gsolve()</code> ends, do this:<pre>
+ sayhello() { print("hello"); }
+ &vellip;
+ Hooks::Add(PostGSolve,sayhello);
+</pre></DD>
 
-The user can insert static functions at different points in this process using the `Hooks` feature.
+<li>Value Function Iteration Methods</LI>
 
-<LI>Value Function Iteration</LI>
+Value function iteration applies Bellman's <code>V(&theta;) = max U() + &delta;EV(&theta;&prime;)</code> to solve for the value function and optimal choice probabilities. 
 
-<LI>Hotz-Miller Based Solution Methods </LI>
-
-<LI>Hybrid Solution Methods</LI>
-
-<DD>Some methods for solving DDP rely not on Bellman iteration but on non-linear optimization and root-finding.  These methods combine <span class="n">DDP</span> and <span class="n">FiveO</span>.  They are categorized as <a href="..\Hybrid\default.html">Hybrid Methods</a> and discussed separately.</DD>
-
+<OL class="chapter">
+<LI>Brute Force Iteration</LI>
+<DT>`ValueIteration` performs <q>brute force</q> Bellman Equation iteration.</DT>
+<DD>Example<pre>
+CreateSpaces();
+&vellip;
+decl vmax = new ValueIteration();
+vmax -&gt; Solve();
+</pre></DD>
+<LI>Keane-Wolpin Approximation</LI>
+<DT>`KeaneWolpin` is derived from `ValueIteration` and approximates the solution to the value function at a subsample of the state space.</DT>
+<DD>Example<pre>
+CreateSpaces();
+&vellip;
+SubSampleStates(0.4);
+decl kw = new KeaneWolpin();
+kw -&gt; Solve();
+</pre></DD>
 </OL>
 
+<LI>Conditional Choice Probability Methods</LI>
+
+CCP methods use estimates of conditional choice probabilities and inverts a function of them to compute (differences in) the value function without Bellman Iteration.  They rely on the `CCP` task which smooths data on observed choices to produce an estimate of &Rho;*(&alpha;;&theta;) that does require a solution to V(&theta;).
+
+<OL class="chapter">
+<LI>Hotz-Miller</LI>
+<DT>`HotzMiller` is the basic CCP method that inverts a function of the estimated CCPs to compute (differences in) the value function without Bellman Iteration.  </DT>
+<DD>Example<pre>
+CreateSpaces();
+&vellip;
+HM = new HotzMiller(data); 
+</pre></DD>
+
+
+<LI>Aguirregabiria and Mira</LI>
+<DT>`AguirregabiriaMira` is derived from `HotzMiller`.  It iterates on the Hotz-Miller inverstion to gain efficiency in estimates</DT>
+</OL>
+
+<LI>Hybrid Solution Methods</LI>
+<DT>Some methods for solving DDP rely not on non-linear optimization and root-finding.  These methods combine <span class="n">DDP</span> and <span class="n">FiveO</span>.  </DT>
+<DT>They are categorized as <a href="..\Hybrids\default.html">Hybrid Methods</a> and discussed separately.</DT>
+
+</OL>
+</OL>
 **/

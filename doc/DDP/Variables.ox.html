@@ -33,7 +33,7 @@ Discrete quantities that appear in a DDP model.
 <LI><a href="#ActionVariables">Action Variables</a></LI>
 <LI><a href="#StateVariables">State Variables</a></LI>
 <LI><a href="#Clock">The Clock:  keeping time in DDP</a></LI>
-<li><a href="#Fixed">Time Invariants: solving different DP problems</a> 
+<li><a href="#Fixed">Time Invariants: solving different DP problems</a>
 <li><a href="#Auxiliary">Auxiliary Values: tracking function of actions and state variables</a>
 </OL>
 <P/>
@@ -113,9 +113,9 @@ Hours::Hours(const N,const H) {
 Hours::Update() {
         actual = AV(H)* (vals / N);
         }
-&hellip;
+&vellip;
 MyModel::MaxH() { return CV(hasch) ? 30 : 50; }
-&hellip;
+&vellip;
 MyModel::Initialize() {
    hellip;
    GroupVariables(hasch = new FixedEffect("",2));
@@ -209,18 +209,18 @@ The <em>innovations</em> of autonomous variables and state blocks are conditiona
 <P/>
 <details><summary><b>Example</b> <br>Include an Semi-Exogenous IID jump process and an Endogenous tracker of its previous value to a DDP model:</summary>
 <DD><pre>MyModel : DPparent {
-    &hellip;
+    &vellip;
     static decl e, q;
-    &hellip;
+    &vellip;
     static Initialize();
     }
-&hellip;
+&vellip;
 MyModel::Initialize() {
     DPparent::Initialize();
-    &hellip;
+    &vellip;
     ExogenousStates(e = new SimpleJump("iid",5));
     EndogenousStates(q = new LaggedState("lag",e));
-    &hellip;
+    &vellip;
     CreateSpaces();
     }</pre></DD></details>
 <P/>
@@ -286,21 +286,21 @@ That is, you want to <a href="Variables.ox.html#Freeze">Freeze</a> the current v
 <P/>
 <details><summary><b>Example</b> <br>Augment a base state variable with the Freeze feature:</summary>
 <DD><pre>MyModel : DPparent {
-    &hellip;
+    &vellip;
     static decl a, h, q;
     &hellip;
     static Initialize();
     Qtrans();
     }
-&hellip;
+&vellip;
 MyModel::Initialize() {
     DPparent::Initialize();
-    &hellip;
+    &vellip;
     Actions(a = new ActionVariable("a",2) ) ;
     EndogenousStates(
         h = new PermanentChoice("h",a);
         q = new Freeze(new RandomUpDown("q",10,Qtrans),h);
-    &hellip;
+    &vellip;
     CreateSpaces();
     }</pre>
 Notice that a <code>new</code> state variable is passed to the <a href="Variables.ox.html#Freeze">Freeze</a>() constructor.  In essence this underlying random variable is hidden from the model, which only sees the variables passed to <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>.     What the model sees is the augmented variable <code>q</code> which acts like a <a href="Variables.ox.html#RandomUpDown">RandomUpDown</a> variable unless <code>h=1</code>.  As always, the other state variables or actions that <code>q</code> depends on have to be passed to its creator (or constructor).
@@ -420,7 +420,7 @@ Once the program is running some of the members of <code>mystate</code> might ha
         .v = 0
         .vals = <0,1,2,3>
         .pos = 1
-        &hellip;
+        &vellip;
         }</pre></dd>
 That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current state it happens to have value <code>v=0</code>. It also happens to be the second state variable in the state vector (<code>pos=1</code>). </dd>
 <P/>
@@ -645,7 +645,7 @@ The major difference between a StateVariable and a StateBlock:  a state variable
 <P/>
     <DT>The user has the option to provide a <code>Update()</code> function for the block.  </DT>
     <DD>This should update a matrix of actual values that correspond to the <code>.v</code> values of each variable.  </DD>
-    <DD>If there are M variables in the block, each taking on <code>a<sub>m</sub>.N</code> values, then the actual matrix will be <code>N &times (&prod;<sub>m</sub>&nbsp; a<sub>m</sub>.N)</code>.</DD>
+    <DD>If there are M variables in the block, each taking on <code>a<sub>m</sub>.N</code> values, then the actual matrix will be <code>N &times;(&prod;<sub>m</sub>&nbsp; a<sub>m</sub>.N)</code>.</DD>
 <P/>
     <LI>Add the block to the DP model:</LI>
 <P/>
@@ -736,24 +736,23 @@ With anticipation (foresight), V(&theta;) can/should be solved backwards in <var
 <LI>Current time and the decision horizon</LI>
 <P/>
 <DT>The clock block is available as <a href="DP.ox.html#DP___counter">counter</a>, but usually <code>MyModel</code> does not need to refer to it directly.</DT>
-<DT>The current value of <var>t</var>, is available to <code>MyModel</code> as <a href="DP.ox.html#DP___curt">curt</a>.  That is,</DT>
-<DD><pre>curt &equiv; counter.t.v</pre></DD>
-<DD>The name <code>curt</code> is used to avoid potential confusion.  And <code>MyModel</code> can use the identifier <code>t</code> for its own use.</DD>
+<DT>The current value of <var>t</var>, is available to <code>MyModel</code> as <a href="DP.ox.html#I___t">t</a>.  That is,</DT>
+<DD><pre>I::t &equiv; counter.t.v</pre></DD>
+<DD>Since <code>t</code> is in the index class I <code>MyModel</code> can use the identifier <code>t</code> for its own use.</DD>
 <P/>
 <DT>The decision horizon, or <code>counter.t.N</code>,  also denoted <code>T</code>, is the number of values that the time variable <code>t</code> takes on. </DT>
 <DD>The horizon of the model is
 <pre>
         T &equiv; t.N
         T = 1 for an infinite horizon model (T = &infin;).</pre></DD>
-<DT>Because it is crucial to the solution method, this is a property of <code>MyModel</code> stored as <a href="DP.ox.html#DP___TT">TT</a>
+<DT>Because it is crucial to the solution method, this is a property of <code>MyModel</code> stored as <a href="DP.ox.html#N___T">T</a>
 <DD><pre>
 When T is finite,
-        TT  &equiv;  T  =  counter.t.N,
+        N::T  &equiv;  T  =  counter.t.N,
 When T = &infin;,
-        TT  &equiv;  1                  </pre></DD>
-<DD>Double-T is used to avoid possible confusions and to let the user's code define <code>T</code>.</DD>
-<DT><span class="n">DDP</span> distinguishes between a static program (finite horizon and T = </DD>TT = 1></span>) and a stationary environment
-(T=&infin; and <code>TT=1</code>) by checking the <em>class</em> of <code>counter</code>.</DT>
+        N::T  &equiv;  1                  </pre></DD>
+<DT><span class="n">DDP</span> distinguishes between a static program (finite horizon and T = </DD>N::T = 1></span>) and a stationary environment
+(T=&infin; and <code>N::T=1</code>) by checking the <em>class</em> of <code>counter</code>.</DT>
 <P/>
 <li>Kinds of Clocks</li>
 <P/>
@@ -830,7 +829,7 @@ Correlated random effects are created by adding a <a href="Variables.ox.html#Ran
 <P/>
 Each combination of random and fixed effects implies a value of &gamma;, and for each &gamma; a <a href="DP.ox.html#Group">Group</a> node is created.  The set of all group nodes is the <em>group space</em>, denoted &Gamma;.
 <P/>
-As with allowing state variables to be declared exogenous, moving time invariant variables from &theta; to &gamma; saves time and especially storage while solving the model. An invariant does not need to be tracked during iteration over <b>&Theta;</b>.  So group variable <code>Transit()</code> methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>. 
+As with allowing state variables to be declared exogenous, moving time invariant variables from &theta; to &gamma; saves time and especially storage while solving the model. An invariant does not need to be tracked during iteration over <b>&Theta;</b>.  So group variable <code>Transit()</code> methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>.
 <P/>
 Storage is re-used while solving for different values of &gamma;. <span class="n">DDP</span> reuses the state space <b>&Theta;</b> for each value of &gamma;. Choice probabilities <code>&Rho;*(&alpha | &epsilon;, &eta;, &theta;, &gamma; )</code> are stored separably for each random value of &gamma;.  EV(&theta;) integrates out the random effects, conditional on the value of the fixed effects in &gamma;. Both utility and a transitions can depend on the value of fixed effects.  However, only utility can depend on random effects.
 <P/>
@@ -909,7 +908,7 @@ the transition 1 to 1 happens with probability 1.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Absorbing___Absorbing">Absorbing</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a binary endogenous absorbing state.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Absorbing___Transit">Transit</a></td>
@@ -946,11 +945,6 @@ s' = min( s+ s.a, s.N<sup>-</sup>).
 <td class="description">Variable to track  </td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Accumulator___Accumulator">Accumulator</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Accumulator___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
@@ -998,12 +992,12 @@ AddEndogenousStates(tothrs);
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionAccumulator___ActionAccumulator">ActionAccumulator</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a variable that counts how many times an action has taken on certain values.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionAccumulator___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 </table>
 
@@ -1044,12 +1038,12 @@ AddEndogenousStates(exper);
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionCounter___ActionCounter">ActionCounter</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a variable that counts how many times an action has taken on certain values.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionCounter___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 </table>
 
@@ -1109,12 +1103,12 @@ Indicates an action variable took on a value last period.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionTracker___ActionTracker">ActionTracker</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a binary variable that indicates if the previous value of action variable was in a set.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionTracker___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 </table>
 
@@ -1186,7 +1180,7 @@ MyModel::Initialize() {
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionVariable___ActionVariable">ActionVariable</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a new action variable.</td>
 </tr>
 </table>
 
@@ -1235,21 +1229,16 @@ Model decisions each year for the last five years before retirement, every five 
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AgeBrackets___AgeBrackets">AgeBrackets</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create an aging clock with brackets.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AgeBrackets___Last">Last</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Return flag for very last period possible.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AgeBrackets___setPstar">setPstar</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AgeBrackets___Transit">Transit</a></td>
-<td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 </table>
@@ -1281,7 +1270,7 @@ Timing in an ordinary finite horizon environment.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Aging___Aging">Aging</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Normal Finite Horizon Aging.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Aging___setPstar">setPstar</a></td>
@@ -1375,7 +1364,7 @@ Discretized interest-bearing asset.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Asset___Asset">Asset</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a new asset state variable.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Asset___Transit">Transit</a></td>
@@ -1459,12 +1448,12 @@ the outcome and read in along with other data.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AuxiliaryValues___AuxiliaryValues">AuxiliaryValues</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a new element of &chi;, the space of auxiliary outcomes.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AuxiliaryValues___Realize">Realize</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Default realized auxililary variable, sets <code>v=0.0</code>.</td>
 </tr>
 </table>
 
@@ -1497,7 +1486,7 @@ MyModel::Initialize() {
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#BinaryChoice___BinaryChoice">BinaryChoice</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a binary action variable.</td>
 </tr>
 </table>
 
@@ -1555,7 +1544,7 @@ to SetClock.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Clock___Clock">Clock</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create the clock block.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Clock___setPstar">setPstar</a></td>
@@ -1611,12 +1600,7 @@ Transition depends on transition of one or more other state variables.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Coevolving___Coevolving">Coevolving</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Coevolving___Transit">Transit</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a new Coevolving random variable.</td>
 </tr>
 </table>
 
@@ -1651,7 +1635,7 @@ An element of a RandomEffectBlock.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#CorrelatedEffect___CorrelatedEffect">CorrelatedEffect</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a new CorrelatedEffect.</td>
 </tr>
 </table>
 
@@ -1700,16 +1684,11 @@ Count periods value(s) of target action or state variable have occurred.
 <td class="description"></td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Counter___Counter">Counter</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Counter___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Counter___UnReachable">UnReachable</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
@@ -1742,7 +1721,7 @@ AddEndogenousStates(qtr);</pre>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Cycle___Cycle">Cycle</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a deterministic cycle variable.</td>
 </tr>
 </table>
 
@@ -1774,12 +1753,12 @@ Transitions are stored in a matrix sent upon creation.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Deterministic___Deterministic">Deterministic</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Deterministic___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 </table>
 
@@ -1838,12 +1817,12 @@ s' = I{s.x=s.Lx}(s+ I{s &lt; s.N<sup>-</sup>}).
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Duration___Duration">Duration</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a variable that counts the consecutive periods a state or action has had the same value.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Duration___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 </table>
 
@@ -1907,7 +1886,7 @@ episode and duration.  Duration is not tracked for k=0.  New episodes occur with
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Episode___Episode">Episode</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">K mutually exclusive episodes.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Episode___Transit">Transit</a></td>
@@ -1942,12 +1921,12 @@ length of the state vector.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Fixed___Fixed">Fixed</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a constant entry in the state vector.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Fixed___Transit">Transit</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 </table>
 
@@ -1975,7 +1954,7 @@ Solution methods loop over fixed effect values, re-using storage space.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#FixedEffect___FixedEffect">FixedEffect</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">A state variable that is non-random an invariant for and individual DP problem.</td>
 </tr>
 </table>
 
@@ -2010,12 +1989,12 @@ A Block of <a href="Variables.ox.html#FixedEffect">FixedEffect</a> group variabl
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#FixedEffectBlock___AddToBlock">AddToBlock</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Add a variable to the effect block.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#FixedEffectBlock___FixedEffectBlock">FixedEffectBlock</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a list of <a href="Variables.ox.html#FixedEffect">FixedEffect</a> state variables.</td>
 </tr>
 </table>
 
@@ -2046,7 +2025,7 @@ This is ActionTriggered because it checks if PermanentChoice::Target is 1 and tr
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Forget___Forget">Forget</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create an augmented state variable that 'forgets' its value when a permanent condition occurs.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Forget___Transit">Transit</a></td>
@@ -2145,7 +2124,8 @@ Jumps to new value with probability &pi;.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Jump___Jump">Jump</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a variable that jumps with probability
+</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Jump___Transit">Transit</a></td>
@@ -2180,16 +2160,11 @@ s&prime; = current value of action or state variable.
 <td class="description">Variable to track  </td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Lagged___Lagged">Lagged</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Lagged___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Lagged___Update">Update</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
@@ -2222,12 +2197,12 @@ s&prime; = value of an action variable.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#LaggedAction___LaggedAction">LaggedAction</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a variable that tracks the previous value of action variable.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#LaggedAction___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 </table>
 
@@ -2260,12 +2235,12 @@ s' = s.x
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#LaggedState___LaggedState">LaggedState</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a variable that tracks the previous value of another state variable.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#LaggedState___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 </table>
 
@@ -2300,12 +2275,12 @@ s' = s.x
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#LogNormalOffer___LogNormalOffer">LogNormalOffer</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a discretized lognorm offer.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#LogNormalOffer___Update">Update</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Updates the actual values.</td>
 </tr>
 </table>
 
@@ -2337,12 +2312,12 @@ Like <a href="Variables.ox.html#Mortality">Mortality</a> but T*-1 = TT-2 is a st
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Longevity___Last">Last</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">With Longevity the last period (death) is definitively the last.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Longevity___Longevity">Longevity</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Random death and uncertain maximum lifetime.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Longevity___setPstar">setPstar</a></td>
@@ -2392,7 +2367,7 @@ A Markov process.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Markov___Markov">Markov</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a discrete Markov process.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Markov___Transit">Transit</a></td>
@@ -2467,7 +2442,7 @@ Mortality(9,MyModel::Mprob);
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Mortality___Mortality">Mortality</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Set clock to be deterministic aging with early random death.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Mortality___setPstar">setPstar</a></td>
@@ -2475,11 +2450,6 @@ Mortality(9,MyModel::Mprob);
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Mortality___Transit">Transit</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Mortality___Vupdate">Vupdate</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
@@ -2541,17 +2511,17 @@ x &sim; N( &mu;, C'C ).$$
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#MVNormal___MVNormal">MVNormal</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a block for a multivariate normal distribution (IID over time).</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#MVNormal___Transit">Transit</a></td>
 <td class="modifiers"></td>
-<td class="description">Default Transit (transition for a state variable).</td>
+<td class="description">.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#MVNormal___Update">Update</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Updates the Grid of values.</td>
 </tr>
 </table>
 
@@ -2636,7 +2606,7 @@ A container for non-stationary clocks.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#NonStationary___Last">Last</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Flag for last period.</td>
 </tr>
 </table>
 
@@ -2663,7 +2633,7 @@ A container for non-stationary clocks.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#NormalComponent___NormalComponent">NormalComponent</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">A single element of a <a href="Variables.ox.html#MVNormal">MVNormal</a> block.</td>
 </tr>
 </table>
 
@@ -2702,7 +2672,7 @@ A permanent discretize N(0,&sigma;<sup>2</sup>) random effect.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#NormalRandomEffect___NormalRandomEffect">NormalRandomEffect</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a permanent discretized normal random effect.</td>
 </tr>
 </table>
 
@@ -2743,12 +2713,12 @@ Acceptance is a value of 1 in the AcceptAction.pos column of FeasAct
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Offer___Offer">Offer</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create an offer state variable.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Offer___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Offer___Update">Update</a></td>
@@ -2837,7 +2807,7 @@ If m=Quit or LaidOff,
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#OfferWithLayoff___OfferWithLayoff">OfferWithLayoff</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">An offer with layoff (match dissolution) risk.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#OfferWithLayoff___Searching">Searching</a></td>
@@ -2847,7 +2817,7 @@ If m=Quit or LaidOff,
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#OfferWithLayoff___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Default Transit (transition for a state variable).</td>
+<td class="description">.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Variables.ox.html#OfferWithLayoff___Status">Status</a></td>
@@ -2875,7 +2845,7 @@ If m=Quit or LaidOff,
 s&prime; = value of an action first period it is not 0.
 <DT>Initial condition to include in Reachable:</DT>
 <dd>Only include states for which s is 0 (choice not made yet)
-<pre>if (curt==0 && CV(s)!=0 ) return 0;</pre></dd>
+<pre>if (I::t==0 && CV(s)!=0 ) return 0;</pre></dd>
 <DT>Feasible action restriction </DT>
 <DD>Positive value of target only feasible if choice has not been made.
 <pre>A[][s.a.pos].==0 || CV(s)==0</pre></dd>
@@ -2888,7 +2858,7 @@ s&prime; = value of an action first period it is not 0.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#PermanentChoice___PermanentChoice">PermanentChoice</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a variable that tracks a one-time permanent choice.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#PermanentChoice___Transit">Transit</a></td>
@@ -2959,14 +2929,9 @@ A sequence of treatment phases with fixed maximum durations.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#PhasedTreatment___PhasedTreatment">PhasedTreatment</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">A sequence of finite-termed phases of treatment.</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#PhasedTreatment___Transit">Transit</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#PhasedTreatment___Vupdate">Vupdate</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
@@ -3019,14 +2984,9 @@ Solution methods loop over random effect values and will account for distributio
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RandomEffect___Distribution">Distribution</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RandomEffect___RandomEffect">RandomEffect</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">A state variable that is random but invariant for an individual DP problem.</td>
 </tr>
 </table>
 
@@ -3061,12 +3021,12 @@ A Block of <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a> gro
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RandomEffectBlock___AddToBlock">AddToBlock</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Add a variable to the effect block.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RandomEffectBlock___RandomEffectBlock">RandomEffectBlock</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a list of <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a> state variables.</td>
 </tr>
 </table>
 
@@ -3130,12 +3090,12 @@ Fertility::Mortality(A)	{
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RandomUpDown___RandomUpDown">RandomUpDown</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a state variable that increments or decrements with state-dependent probabilities.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RandomUpDown___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Variables.ox.html#RandomUpDown___Anonymous enum 1">Anonymous enum 1</a></td>
@@ -3169,7 +3129,7 @@ Built-in variable that records realized utility, <var>U(&alpha;,&epsilon;,&eta;,
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RealizedUtility___RealizedUtility">RealizedUtility</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Realized utility, U().</td>
 </tr>
 </table>
 
@@ -3228,12 +3188,12 @@ Zurcher::Initialize()	{
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Renewal___Renewal">Renewal</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a renewal state with random incrementing.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Renewal___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 </table>
 
@@ -3327,7 +3287,7 @@ s' = .
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RetainMatch___RetainMatch">RetainMatch</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RetainMatch___Transit">Transit</a></td>
@@ -3362,12 +3322,12 @@ Equally likely values each period (IID).
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#SimpleJump___SimpleJump">SimpleJump</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create an equally likely discrete Exogenous variable.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#SimpleJump___Transit">Transit</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Transition .</td>
 </tr>
 </table>
 
@@ -3402,12 +3362,12 @@ AddEndogenousStates(totoff);
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateAccumulator___StateAccumulator">StateAccumulator</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a variable that tracks the cumulative value of another state.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateAccumulator___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 </table>
 
@@ -3437,7 +3397,7 @@ A Block of <a href="Variables.ox.html#Coevolving">Coevolving</a> state variables
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Add state variable(s) to a block.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateBlock___Check">Check</a></td>
@@ -3447,7 +3407,7 @@ A Block of <a href="Variables.ox.html#Coevolving">Coevolving</a> state variables
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a list of <a href="Variables.ox.html#Coevolving">Coevolving</a> state variables.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateBlock___Transit">Transit</a></td>
@@ -3487,12 +3447,12 @@ AddEndogenousStates(wks);</pre>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateCounter___StateCounter">StateCounter</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a variable that counts how many times another state has taken on certain values.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateCounter___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 </table>
 
@@ -3547,12 +3507,12 @@ Indicates another state variable took on a value (<em>x</em>) last period.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateTracker___StateTracker">StateTracker</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a binary variable that indicates if the previous value of state variable was in a set.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateTracker___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 </table>
 
@@ -3590,32 +3550,32 @@ Base Class for elements of state vectors, &epsilon;, &eta;, &theta;, &gamma; .
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateVariable___Check">Check</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Check dimensions of <code>actual</code>.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Designate one or more values terminal.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">The base for state variables.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateVariable___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Default Transit (transition for a state variable).</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Returns the transition for a state variable that is unchanged next period.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateVariable___UnReachable">UnReachable</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Default Indicator for intrinsic unreachable values of a state variable.</td>
 </tr>
 </table>
 
@@ -3639,7 +3599,7 @@ A static one-shot program (T=1).
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StaticP___StaticP">StaticP</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">A static problem: Aging and T=1.</td>
 </tr>
 </table>
 
@@ -3671,17 +3631,12 @@ Timing in a stationary environment.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Stationary___Last">Last</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Stationary___Stationary">Stationary</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Stationary___Transit">Transit</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">A stationary clock block.</td>
 </tr>
 </table>
 
@@ -3719,7 +3674,7 @@ An element of the FixedEffectBlock.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#SubEffect___SubEffect">SubEffect</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a new Sub.</td>
 </tr>
 </table>
 
@@ -3836,7 +3791,7 @@ Use Tauchen's method to discretize a normal variable.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#TauchenRandomEffect___TauchenRandomEffect">TauchenRandomEffect</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a permanent discretized normal random effect.</td>
 </tr>
 </table>
 
@@ -3862,14 +3817,9 @@ An element of the group vector &gamma;.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#TimeInvariant___Transit">Transit</a></td>
-<td class="modifiers"></td>
-<td class="description">Default Transit (transition for a state variable).</td>
-</tr>
-<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#TimeInvariant___Update">Update</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Do Nothing and prohibit derived Updates.</td>
 </tr>
 </table>
 
@@ -3888,14 +3838,6 @@ An element of the group vector &gamma;.
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TimeVariable : <a href="Variables.ox.html#Coevolving">Coevolving</a> : <a href="Variables.ox.html#Augmented">Augmented</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 Base class for members of a <a href="Variables.ox.html#Clock">Clock</a> block.
-
-<table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#TimeVariable___TimeVariable">TimeVariable</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-</table>
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#Coevolving">Coevolving</a>:</dt><dd><a href="Variables.ox.html#Coevolving___Coevolving">Coevolving</a></dd>
@@ -3928,11 +3870,6 @@ Indicates a state or action took on particular values last period.
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Tracker___ToTrack">ToTrack</a></td>
 <td class="modifiers">const</td>
 <td class="description">Values to track  </td>
-</tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Tracker___Tracker">Tracker</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
 </tr>
 </table>
 
@@ -4022,12 +3959,14 @@ A value of a <a href="Shared.ox.html#AV">AV</a> compatible object triggers this 
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ZetaRealization___Realize">Realize</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Default: &zeta; is undefined, replace with a virtual function that returns a
+value drawn from the conditional distribution of &zeta;
+</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ZetaRealization___ZetaRealization">ZetaRealization</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a new &zeta;, the vector-valued realized shock vector.</td>
 </tr>
 </table>
 
@@ -4049,7 +3988,7 @@ A jump variable whose acutal values are quantiles of the standard normal distrib
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Zvariable___Zvariable">Zvariable</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a standard normal N(0,1) discretize jump variable.</td>
 </tr>
 </table>
 
@@ -4115,8 +4054,30 @@ A jump variable whose acutal values are quantiles of the standard normal distrib
 <a name="Absorbing___Absorbing"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Absorbing</span></h3>
 
+<span class="declaration">Absorbing :: Absorbing ( L , fPi )</span>
 <dl><dd>
+Create a binary endogenous absorbing state.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">fPi</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>(FeasA) compatible object that returns either:<br>
+a probability p of transiting to state 1<br>
+a vector equal in length to FeasA.<br>
+The default value is 0.5: the absorbing state happens with probability 0.5.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">fPi is only called if the current value is 0.
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4141,19 +4102,12 @@ A jump variable whose acutal values are quantiles of the standard normal distrib
 <a name="Absorbing___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">Absorbing :: Transit ( FeasA )</span>
 <dl><dd>
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Accumulator</span></h2>
 
-<a name="Accumulator___Accumulator"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Accumulator</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="Accumulator___Target"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Target</span></h3>
 
@@ -4175,15 +4129,38 @@ Variable to track
 <a name="ActionAccumulator___ActionAccumulator"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ActionAccumulator</span></h3>
 
+<span class="declaration">ActionAccumulator :: ActionAccumulator ( L , N , Action )</span>
 <dl><dd>
+Create a variable that counts how many times an action has taken on certain values.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">integer, maximum number of times to count
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">State</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> to track.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="ActionAccumulator___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual ActionAccumulator :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 
@@ -4209,8 +4186,51 @@ Variable to track
 <a name="ActionCounter___ActionCounter"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ActionCounter</span></h3>
 
+<span class="declaration">ActionCounter :: ActionCounter ( L , N , Act , ToTrack , Reset , Prune )</span>
 <dl><dd>
+Create a variable that counts how many times an action has taken on certain values.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Act</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> to track.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">integer, maximum number of times to count
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ToTrack</td>
+<td class="description" valign="baseline">vector, values of  Act to count, default=<1>
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Reset</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a> compatible binary value that resets the count if TRUE (default=0).
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Prune</td>
+<td class="description" valign="baseline">TRUE (default), prune unreachable states if finite horizon detected.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example">Track work==1 up to 10 years, no reset. Assume count starts at 0 at t=0 in finite horizon models.
+<pre>
+decl exper = new ActionCounter("Yrs Experience",work,10);
+EndogenousStates(exper);
+</pre>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4226,7 +4246,9 @@ Variable to track
 <a name="ActionCounter___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual ActionCounter :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ActionIndicators</span></h2>
@@ -4250,8 +4272,24 @@ Variable to track
 <a name="ActionTracker___ActionTracker"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ActionTracker</span></h3>
 
+<span class="declaration">ActionTracker :: ActionTracker ( L , Target , ToTrack )</span>
 <dl><dd>
+Create a binary variable that indicates if the previous value of action variable was in a set.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Target</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> to track
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ToTrack</td>
+<td class="description" valign="baseline">integer or vector of values to track</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4267,7 +4305,9 @@ Variable to track
 <a name="ActionTracker___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual ActionTracker :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ActionTriggered</span></h2>
@@ -4275,6 +4315,7 @@ Variable to track
 <a name="ActionTriggered___ActionTriggered"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ActionTriggered</span></h3>
 
+<span class="declaration">ActionTriggered :: ActionTriggered ( b , t , tv , rval )</span>
 <dl><dd>
 
 </dd></dl>
@@ -4283,6 +4324,7 @@ Variable to track
 <a name="ActionTriggered___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual ActionTriggered :: Transit ( FeasA )</span>
 <dl><dd>
 
 </dd></dl>
@@ -4291,16 +4333,44 @@ Variable to track
 <a name="ActionVariable___ActionVariable"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ActionVariable</span></h3>
 
+<span class="declaration">ActionVariable :: ActionVariable ( L , N )</span>
 <dl><dd>
+Create a new action variable.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline"><em>string</em> a label or name for the variable.<br><em>default</em>&eq;&quot;a&quot;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline"><em>positive integer</em> the number of values the variable takes on.<br><em>default</em>N&eq;1 is a constant, which can be included as
+a placeholder for extensions of a model.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AgeBrackets</span></h2>
 
 <a name="AgeBrackets___AgeBrackets"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AgeBrackets</span></h3>
 
+<span class="declaration">AgeBrackets :: AgeBrackets ( Brackets )</span>
 <dl><dd>
+Create an aging clock with brackets.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Brackets</td>
+<td class="description" valign="baseline">vector of period lengths</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4317,7 +4387,9 @@ Vector of period lengths for each age
 <a name="AgeBrackets___Last"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Last</span></h3>
 
+<span class="declaration">virtual AgeBrackets :: Last ( )</span>
 <dl><dd>
+Return flag for very last period possible.
 
 </dd></dl>
 
@@ -4325,14 +4397,7 @@ Vector of period lengths for each age
 <a name="AgeBrackets___setPstar"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">setPstar</span></h3>
 
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="AgeBrackets___Transit"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
-
+<span class="declaration">virtual AgeBrackets :: setPstar ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -4351,7 +4416,9 @@ Transition matrix based on Brackets
 <a name="Aging___Aging"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Aging</span></h3>
 
+<span class="declaration">Aging :: Aging ( T )</span>
 <dl><dd>
+Normal Finite Horizon Aging.
 
 </dd></dl>
 
@@ -4359,6 +4426,7 @@ Transition matrix based on Brackets
 <a name="Aging___setPstar"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">setPstar</span></h3>
 
+<span class="declaration">virtual Aging :: setPstar ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -4367,6 +4435,7 @@ Transition matrix based on Brackets
 <a name="Aging___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">Aging :: Transit ( FeasA )</span>
 <dl><dd>
 
 </dd></dl>
@@ -4384,8 +4453,36 @@ Transition matrix based on Brackets
 <a name="Asset___Asset"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Asset</span></h3>
 
+<span class="declaration">Asset :: Asset ( L , N , r , NetSavings )</span>
 <dl><dd>
+Create a new asset state variable.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of values
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">r</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>-compatible object, interest rate on current holding.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">NetSavings</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>-compatible static function of the form <code>NetSavings(FeasA)</code>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#Discretized">Discretized</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4458,6 +4555,7 @@ Transition matrix based on Brackets
 <a name="Asset___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual Asset :: Transit ( FeasA )</span>
 <dl><dd>
 
 </dd></dl>
@@ -4466,6 +4564,7 @@ Transition matrix based on Brackets
 <a name="Augmented___Augmented"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Augmented</span></h3>
 
+<span class="declaration">Augmented :: Augmented ( Lorb , N )</span>
 <dl><dd>
 
 </dd></dl>
@@ -4474,8 +4573,22 @@ Transition matrix based on Brackets
 <a name="AuxiliaryValues___AuxiliaryValues"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AuxiliaryValues</span></h3>
 
+<span class="declaration">AuxiliaryValues :: AuxiliaryValues ( L , N )</span>
 <dl><dd>
+Create a new element of &chi;, the space of auxiliary outcomes.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4491,15 +4604,33 @@ Transition matrix based on Brackets
 <a name="AuxiliaryValues___Realize"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
 
+<span class="declaration">virtual AuxiliaryValues :: Realize ( q , y )</span>
 <dl><dd>
+Default realized auxililary variable, sets <code>v=0.0</code>.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">q,</td>
+<td class="description" valign="baseline">the current endogenous state, &theta;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">y,</td>
+<td class="description" valign="baseline">the current realized outcome, &upsilon;.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BinaryChoice</span></h2>
 
 <a name="BinaryChoice___BinaryChoice"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">BinaryChoice</span></h3>
 
+<span class="declaration">BinaryChoice :: BinaryChoice ( )</span>
 <dl><dd>
+Create a binary action variable.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Clock</span></h2>
@@ -4527,8 +4658,24 @@ Pointer to methods VV function for iteration.
 <a name="Clock___Clock"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Clock</span></h3>
 
+<span class="declaration">Clock :: Clock ( Nt , Ntprime )</span>
 <dl><dd>
+Create the clock block.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Nt</td>
+<td class="description" valign="baseline">integer, the number of different values <code>t</code> takes on
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Ntprime</td>
+<td class="description" valign="baseline">integer, the number of values <code>t'</code> takes on.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4555,6 +4702,7 @@ Mx index for today into V. set in <a href="Variables.ox.html#Clock___Solving">So
 <a name="Clock___setPstar"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">setPstar</span></h3>
 
+<span class="declaration">virtual Clock :: setPstar ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -4563,6 +4711,7 @@ Mx index for today into V. set in <a href="Variables.ox.html#Clock___Solving">So
 <a name="Clock___Solving"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Solving</span></h3>
 
+<span class="declaration">static Clock :: Solving ( inME , inaVV , inaSPstar )</span>
 <dl><dd>
 
 </dd></dl>
@@ -4592,6 +4741,7 @@ Mx index for today into V. set in <a href="Variables.ox.html#Clock___Solving">So
 <a name="Clock___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
+<span class="declaration">virtual Clock :: Vupdate ( now )</span>
 <dl><dd>
 
 </dd></dl>
@@ -4620,16 +4770,26 @@ Index into block array/vector
 <a name="Coevolving___Coevolving"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Coevolving</span></h3>
 
+<span class="declaration">Coevolving :: Coevolving ( Lorb , N )</span>
 <dl><dd>
+Create a new Coevolving random variable.
 
-</dd></dl>
-
-<hr>
-<a name="Coevolving___Transit"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
-
-<dl><dd>
-
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Lorb</td>
+<td class="description" valign="baseline">label or base StateVariable
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of values it takes on.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#StateBlock">StateBlock</a></dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CorrelatedEffect</span></h2>
 
@@ -4656,19 +4816,29 @@ Index into block array/vector
 <a name="CorrelatedEffect___CorrelatedEffect"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CorrelatedEffect</span></h3>
 
+<span class="declaration">CorrelatedEffect :: CorrelatedEffect ( L , N )</span>
 <dl><dd>
+Create a new CorrelatedEffect.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of values it takes on.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#RandomEffectBlock">RandomEffectBlock</a></dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Counter</span></h2>
 
-<a name="Counter___Counter"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Counter</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="Counter___Prune"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Prune</span></h3>
 
@@ -4719,6 +4889,7 @@ Values to track
 <a name="Counter___UnReachable"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">UnReachable</span></h3>
 
+<span class="declaration">virtual Counter :: UnReachable ( clock )</span>
 <dl><dd>
 
 </dd></dl>
@@ -4736,15 +4907,39 @@ Values to track
 <a name="Cycle___Cycle"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Cycle</span></h3>
 
+<span class="declaration">Cycle :: Cycle ( L , N )</span>
 <dl><dd>
+Create a deterministic cycle variable.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">integer, number of periods in the cycle
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+decl qtr = new Cycle("Quarter",4);
+EndogenousStates(qtr);
+</pre>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Deterministic</span></h2>
 
 <a name="Deterministic___Deterministic"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Deterministic</span></h3>
 
+<span class="declaration">Deterministic :: Deterministic ( L , N , nextValue )</span>
 <dl><dd>
+.
 
 </dd></dl>
 
@@ -4762,7 +4957,9 @@ matrix with transition.
 <a name="Deterministic___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual Deterministic :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Duration</span></h2>
@@ -4779,8 +4976,53 @@ matrix with transition.
 <a name="Duration___Duration"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Duration</span></h3>
 
+<span class="declaration">Duration :: Duration ( L , Current , Lag , N , Prune )</span>
 <dl><dd>
+Create a variable that counts the consecutive periods a state or action has had the same value.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Current</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> or <a href="Variables.ox.html#StateVariable">StateVariable</a> that holds the current value
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Lag</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a> holding previous value<br><em>or</em> vector of values to count runs for
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">integer, maximum number of periods to count
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Prune</td>
+<td class="description" valign="baseline">TRUE [default]: prune states if finite horizon detected.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+streak = new Duration("Streak",Won,<1>,10); //track winning streaks up to 9 periods (9 means "9 or more");
+</pre>
+Suppose Result equals 0 for loss, 1 for a tie and 3 for a win.  Then the right-censored unbeaten streak is
+<pre>
+noloss = new Duration("Unbeaten",Result,<1,2>,10); //track unbeaten streaks up to 10 periods long
+</pre>
+<pre>
+Choice = new ActionVariable("c",3);
+prechoice = new LaggedAction("lagc",Choice);
+contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of making same choice up to 5 periods
+</dd>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4823,7 +5065,9 @@ matrix with transition.
 <a name="Duration___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual Duration :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Episode</span></h2>
@@ -4841,8 +5085,45 @@ episode end  probabilities
 <a name="Episode___Episode"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Episode</span></h3>
 
+<span class="declaration">Episode :: Episode ( L , K , T , Onset , End , Finite )</span>
 <dl><dd>
+K mutually exclusive episodes.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">string, label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">K</td>
+<td class="description" valign="baseline">integer, number of different episodes. k=0 is a special no-episode state. Spells with <var>k&gt;0</var> end with a transition <var>k'=0</var>
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">T</td>
+<td class="description" valign="baseline">integer, maximum duration of episodes, or maximum duration to track if not Finite
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Onset</td>
+<td class="description" valign="baseline"> <a href="Shared.ox.html#AV">AV</a> compatible K vector of onset probabilities (first element is k=0 spell continuation probability)
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">End</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a> compatible probability of current spell ending.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Finite</td>
+<td class="description" valign="baseline">	TRUE, T is the actual limit of spells.  At t=T-1 transition is k'=0, t'=0.<br>
+				FALSE, T is limit of duration tracking.  Spell ends with prob. calculated at first case of t=T-1.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4901,6 +5182,7 @@ Stores end probability at t=T-1 for non-Finite episodes
 <a name="Episode___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual Episode :: Transit ( FeasA )</span>
 <dl><dd>
 Default Transit (transition for a state variable).
 
@@ -4929,15 +5211,34 @@ probability one the value of the state variable next period is 0.
 <a name="Fixed___Fixed"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Fixed</span></h3>
 
+<span class="declaration">Fixed :: Fixed ( L )</span>
 <dl><dd>
+Create a constant entry in the state vector.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>f = new Fixed("gender");</pre>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">The variable will only take on the value 0.  This can be used to hold
+a place for a variable to be added later.
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="Fixed___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">Fixed :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedEffect</span></h2>
@@ -4945,16 +5246,35 @@ probability one the value of the state variable next period is 0.
 <a name="FixedEffect___FixedEffect"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FixedEffect</span></h3>
 
+<span class="declaration">FixedEffect :: FixedEffect ( L , N )</span>
 <dl><dd>
+A state variable that is non-random an invariant for and individual DP problem.
 
+<dl><dt class="example">Example:</dt><dd class="example">enum{male,female,Sex}
+	decl sex = new FixedEffect("sex",Sex);
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___GroupVariables">GroupVariables</a></dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedEffectBlock</span></h2>
 
 <a name="FixedEffectBlock___AddToBlock"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AddToBlock</span></h3>
 
+<span class="declaration">FixedEffectBlock :: AddToBlock ( news , ... )</span>
 <dl><dd>
+Add a variable to the effect block.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">news,...</td>
+<td class="description" valign="baseline">list of <a href="Variables.ox.html#Coevolving">Coevolving</a> state variables to add to the block.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4970,8 +5290,19 @@ probability one the value of the state variable next period is 0.
 <a name="FixedEffectBlock___FixedEffectBlock"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FixedEffectBlock</span></h3>
 
+<span class="declaration">FixedEffectBlock :: FixedEffectBlock ( L )</span>
 <dl><dd>
+Create a list of <a href="Variables.ox.html#FixedEffect">FixedEffect</a> state variables.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label for block</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4988,14 +5319,39 @@ temporary list of effects
 <a name="Forget___Forget"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Forget</span></h3>
 
+<span class="declaration">Forget :: Forget ( b , pstate , rval )</span>
 <dl><dd>
+Create an augmented state variable that 'forgets' its value when a permanent condition occurs.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">b</td>
+<td class="description" valign="baseline">base <a href="Variables.ox.html#StateVariable">StateVariable</a> to augment
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">pstate</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#PermanentChoice">PermanentChoice</a> state variable that triggers the forgetting
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">rval</td>
+<td class="description" valign="baseline">integer between <code>0</code> and <code>b.N-1</code>, the value once forgotten.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments"><a href="Variables.ox.html#Forget___UnReachable">UnReachable</a>() prunes the state space accordingly
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="Forget___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual Forget :: Transit ( FeasA )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5004,6 +5360,7 @@ temporary list of effects
 <a name="Forget___UnReachable"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">UnReachable</span></h3>
 
+<span class="declaration">virtual Forget :: UnReachable ( clock )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5012,6 +5369,7 @@ temporary list of effects
 <a name="Freeze___Freeze"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Freeze</span></h3>
 
+<span class="declaration">Freeze :: Freeze ( b , t )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5020,6 +5378,7 @@ temporary list of effects
 <a name="Freeze___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual Freeze :: Transit ( FeasA )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5037,8 +5396,29 @@ temporary list of effects
 <a name="Jump___Jump"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Jump</span></h3>
 
+<span class="declaration">Jump :: Jump ( L , N , Pi )</span>
 <dl><dd>
+Create a variable that jumps with probability
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of values
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Pi</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>(FeasA) compatible jump probability.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5055,19 +5435,12 @@ parameter for jump probability &pi;
 <a name="Jump___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual Jump :: Transit ( FeasA )</span>
 <dl><dd>
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Lagged</span></h2>
 
-<a name="Lagged___Lagged"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Lagged</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="Lagged___Target"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Target</span></h3>
 
@@ -5089,6 +5462,7 @@ Variable to track
 <a name="Lagged___Update"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
 
+<span class="declaration">virtual Lagged :: Update ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5097,15 +5471,36 @@ Variable to track
 <a name="LaggedAction___LaggedAction"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">LaggedAction</span></h3>
 
+<span class="declaration">LaggedAction :: LaggedAction ( L , Target )</span>
 <dl><dd>
+Create a variable that tracks the previous value of action variable.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Target</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> to track.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>wrked = new LaggedAction("Worked Last Year",work);</pre>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="LaggedAction___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual LaggedAction :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">LaggedState</span></h2>
@@ -5113,15 +5508,36 @@ Variable to track
 <a name="LaggedState___LaggedState"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">LaggedState</span></h3>
 
+<span class="declaration">LaggedState :: LaggedState ( L , Target )</span>
 <dl><dd>
+Create a variable that tracks the previous value of another state variable.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Target</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a> to track.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>prevoccup = new LaggedState("Prev",occup);</pre>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="LaggedState___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual LaggedState :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">LogNormalOffer</span></h2>
@@ -5129,8 +5545,44 @@ Variable to track
 <a name="LogNormalOffer___LogNormalOffer"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">LogNormalOffer</span></h3>
 
+<span class="declaration">LogNormalOffer :: LogNormalOffer ( L , N , Pi , Accept , mu , sigma )</span>
 <dl><dd>
+Create a discretized lognorm offer.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of distinct offers. 0 means no offer
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Pi</td>
+<td class="description" valign="baseline">double, <a href="Shared.ox.html#Parameter">Parameter</a> or static function, prob. of an offer
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Accept</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a>, acceptance of the offer.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">mu</td>
+<td class="description" valign="baseline">double, <a href="Shared.ox.html#Parameter">Parameter</a> or static function, mean of log offer
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">sigma</td>
+<td class="description" valign="baseline">double, <a href="Shared.ox.html#Parameter">Parameter</a> or static function, st. dev. of log offer</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5155,15 +5607,24 @@ Variable to track
 <a name="LogNormalOffer___Update"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
 
+<span class="declaration">virtual LogNormalOffer :: Update ( )</span>
 <dl><dd>
+Updates the actual values.
+actual = 0 ~ exp{ &sigma;&Phi;<sup>-1</sub>(v/N)+ &mu;}
 
+<dl><dt class="comments">Comments:</dt><dd class="comments">v takes on values <code>1,2,...,N<sup>-</sup></code>.
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#AV">AV</a></dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Longevity</span></h2>
 
 <a name="Longevity___Last"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Last</span></h3>
 
+<span class="declaration">virtual Longevity :: Last ( )</span>
 <dl><dd>
+With Longevity the last period (death) is definitively the last.
 
 </dd></dl>
 
@@ -5171,14 +5632,35 @@ Variable to track
 <a name="Longevity___Longevity"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Longevity</span></h3>
 
+<span class="declaration">Longevity :: Longevity ( T , MortProb )</span>
 <dl><dd>
+Random death and uncertain maximum lifetime.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">T</td>
+<td class="description" valign="baseline">number of age phases.  T-1 &eq; death; T-2 &eq; stationary last period.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">MortProb</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible probability of death
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">EV at <code>t=T-1</code> is computed as usual as a terminal state.<br>
+EV at <code>t=T-2</code> is treated as an infinite horizon problem and iterated on.<br>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="Longevity___setPstar"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">setPstar</span></h3>
 
+<span class="declaration">virtual Longevity :: setPstar ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5196,6 +5678,7 @@ Variable to track
 <a name="Longevity___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
+<span class="declaration">virtual Longevity :: Vupdate ( now )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5204,8 +5687,30 @@ Variable to track
 <a name="Markov___Markov"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Markov</span></h3>
 
+<span class="declaration">Markov :: Markov ( L , Pi )</span>
 <dl><dd>
+Create a discrete Markov process.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Pi</td>
+<td class="description" valign="baseline">N&times;1 array of <a href="Shared.ox.html#AV">AV</a>(FeasA) compatible transition probabilities.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+  decl m = TransitionMatrix("p",<0.9~0.09~0.05;0.02~0.8~0.3;0.08~0.01~0.11>);
+  x = new Markov("x",m);
+</pre></dd>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5221,6 +5726,7 @@ Variable to track
 <a name="Markov___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual Markov :: Transit ( FeasA )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5239,8 +5745,27 @@ EV at t=T-1, value of death
 <a name="Mortality___Mortality"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Mortality</span></h3>
 
+<span class="declaration">Mortality :: Mortality ( T , MortProb )</span>
 <dl><dd>
+Set clock to be deterministic aging with early random death.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">T</td>
+<td class="description" valign="baseline">length of horizon. T-1 &eq; death;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">MortProb</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible probability of early death
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">EV at <code>t=T-1</code> is stored and used for the value of an early death.
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5266,14 +5791,7 @@ EV at t=T-1, value of death
 <a name="Mortality___setPstar"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">setPstar</span></h3>
 
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Mortality___Transit"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
-
+<span class="declaration">virtual Mortality :: setPstar ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5291,6 +5809,7 @@ EV at t=T-1, value of death
 <a name="Mortality___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
+<span class="declaration">virtual Mortality :: Vupdate ( now )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5339,8 +5858,39 @@ mean
 <a name="MVNormal___MVNormal"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">MVNormal</span></h3>
 
+<span class="declaration">MVNormal :: MVNormal ( L , N , M , mu , CholLT )</span>
 <dl><dd>
+Create a block for a multivariate normal distribution (IID over time).
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label for block
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">integer, length of the vector (number of state variables in block)
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">M</td>
+<td class="description" valign="baseline">integer, number of values each variable takes on (So M<sup>N</sup> is the total number of points added to the state space)
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">mu</td>
+<td class="description" valign="baseline">either a Nx1 constant vector or a <code>Parameter Block</code>  containing means
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Sigma</td>
+<td class="description" valign="baseline">either a N(N+1)/2 x 1 vector containing the lower diagonal of the Choleski matrix or a parameter block for it</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5356,36 +5906,23 @@ mean
 <a name="MVNormal___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">MVNormal :: Transit ( FeasA )</span>
 <dl><dd>
-Default Transit (transition for a state variable).
+.
 
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">FeasA</td>
-<td class="description" valign="baseline"> matrix of feasible action vectors at the current state, &Alpha;(&theta;).
-<P/>
-This is a virtual method, so derived classes replace this default version with the one that goes along
-with the kind of state variable.
-<P/>
-</td>
-</tr>
-</table>
-</dd>
-<dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
-matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
-The built-in transit returns <code> &lt;0&gt; , ones(rows(FeasA),1) }</code>.  That is the with
-probability one the value of the state variable next period is 0.
-</dd>
-</dl>
 </dd></dl>
 
 <hr>
 <a name="MVNormal___Update"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
 
+<span class="declaration">virtual MVNormal :: Update ( )</span>
 <dl><dd>
+Updates the Grid of values.
 
+<dl><dt class="comments">Comments:</dt><dd class="comments">Like all Update routines, this is called automatically at the start of a solution.
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NonDeterministicAging</span></h2>
 
@@ -5400,6 +5937,7 @@ probability one the value of the state variable next period is 0.
 <a name="NonDeterministicAging___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
+<span class="declaration">virtual NonDeterministicAging :: Vupdate ( now )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5408,16 +5946,35 @@ probability one the value of the state variable next period is 0.
 <a name="NonStationary___Last"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Last</span></h3>
 
+<span class="declaration">virtual NonStationary :: Last ( )</span>
 <dl><dd>
+Flag for last period.
 
+<dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if current time is the last possible.
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NormalComponent</span></h2>
 
 <a name="NormalComponent___NormalComponent"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">NormalComponent</span></h3>
 
+<span class="declaration">NormalComponent :: NormalComponent ( L , N )</span>
 <dl><dd>
+A single element of a <a href="Variables.ox.html#MVNormal">MVNormal</a> block.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NormalRandomEffect</span></h2>
 
@@ -5433,8 +5990,37 @@ probability one the value of the state variable next period is 0.
 <a name="NormalRandomEffect___NormalRandomEffect"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">NormalRandomEffect</span></h3>
 
+<span class="declaration">NormalRandomEffect :: NormalRandomEffect ( L , N , mu , sigma )</span>
 <dl><dd>
+Create a permanent discretized normal random effect.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of points
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">mu</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible mean of the effect, &mu;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">sigma</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible standard deviation, &sigma;
+<P/>
+The probabilities of each discrete value is 1/N.  The distribution is captured by adjusting the
+actual values to be at the quantiles of the distribution.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5460,8 +6046,37 @@ probability one the value of the state variable next period is 0.
 <a name="Offer___Offer"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Offer</span></h3>
 
+<span class="declaration">Offer :: Offer ( L , N , Pi , Accept )</span>
 <dl><dd>
+Create an offer state variable.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">integer, number of values (0 ... N<sup>-</sup>)
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Pi</td>
+<td class="description" valign="baseline">either a double or a <a href="Shared.ox.html#Parameter">Parameter</a>, the offer probability.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Accept</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> that indicates the offer is accepted.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">0 is treated as a the no offer probability.
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5478,7 +6093,9 @@ probability one the value of the state variable next period is 0.
 <a name="Offer___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual Offer :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 
@@ -5513,6 +6130,7 @@ Action to accept offer
 <a name="OfferWithLayoff___Employed"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Employed</span></h3>
 
+<span class="declaration">OfferWithLayoff :: Employed ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5541,8 +6159,39 @@ Variable containing offer index
 <a name="OfferWithLayoff___OfferWithLayoff"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">OfferWithLayoff</span></h3>
 
+<span class="declaration">OfferWithLayoff :: OfferWithLayoff ( L , N , accept , Pi , Lambda )</span>
 <dl><dd>
+An offer with layoff (match dissolution) risk.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">string, label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">integer, number of distinct offers.  0 is no offer
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">accept</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a>, indicator for accepting offer or not quitting if already employed
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Pi</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a> compatible  offer probability
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Lambda</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a> compatible layoff probability</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5559,6 +6208,7 @@ Job Offer Probability
 <a name="OfferWithLayoff___Searching"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Searching</span></h3>
 
+<span class="declaration">OfferWithLayoff :: Searching ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5578,42 +6228,44 @@ searching, just laid off,
 <a name="OfferWithLayoff___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual OfferWithLayoff :: Transit ( FeasA )</span>
 <dl><dd>
-Default Transit (transition for a state variable).
+.
 
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">FeasA</td>
-<td class="description" valign="baseline"> matrix of feasible action vectors at the current state, &Alpha;(&theta;).
-<P/>
-This is a virtual method, so derived classes replace this default version with the one that goes along
-with the kind of state variable.
-<P/>
-</td>
-</tr>
-</table>
-</dd>
-<dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
-matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
-The built-in transit returns <code> &lt;0&gt; , ones(rows(FeasA),1) }</code>.  That is the with
-probability one the value of the state variable next period is 0.
-</dd>
-</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">PermanentChoice</span></h2>
 
 <a name="PermanentChoice___PermanentChoice"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PermanentChoice</span></h3>
 
+<span class="declaration">PermanentChoice :: PermanentChoice ( L , Target )</span>
 <dl><dd>
+Create a variable that tracks a one-time permanent choice.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Target</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> to track.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>retired = new PermanentChoice("Ret",retire);</pre></dd>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="PermanentChoice___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">PermanentChoice :: Transit ( FeasA )</span>
 <dl><dd>
 .
 
@@ -5673,8 +6325,24 @@ vector of phases
 <a name="PhasedTreatment___PhasedTreatment"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PhasedTreatment</span></h3>
 
+<span class="declaration">PhasedTreatment :: PhasedTreatment ( Rmaxes , IsErgodic )</span>
 <dl><dd>
+A sequence of finite-termed phases of treatment.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Rmaxes</td>
+<td class="description" valign="baseline">vector of maximum times in each phase.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">IsErgodic</td>
+<td class="description" valign="baseline"> TRUE, store &Rho;* and use it for sampling</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5701,43 +6369,51 @@ Vector of positive integers that are the
 </dd></dl>
 
 <hr>
-<a name="PhasedTreatment___Transit"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="PhasedTreatment___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
+<span class="declaration">virtual PhasedTreatment :: Vupdate ( now )</span>
 <dl><dd>
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffect</span></h2>
 
-<a name="RandomEffect___Distribution"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Distribution</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="RandomEffect___RandomEffect"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RandomEffect</span></h3>
 
+<span class="declaration">RandomEffect :: RandomEffect ( L , N )</span>
 <dl><dd>
+A state variable that is random but invariant for an individual DP problem.
+<P/>
+<DD>The default distribution is uniform:
+<pre>
+Prob(g=k) = 1/N, for k=0,...,N&oline;
+</pre></DD>
 
+<dl><dt class="example">Example:</dt><dd class="example">decl skill = new RandomEffect("s",3);
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___GroupVariables">GroupVariables</a></dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffectBlock</span></h2>
 
 <a name="RandomEffectBlock___AddToBlock"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AddToBlock</span></h3>
 
+<span class="declaration">RandomEffectBlock :: AddToBlock ( news , ... )</span>
 <dl><dd>
+Add a variable to the effect block.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">news,...</td>
+<td class="description" valign="baseline">list of <a href="Variables.ox.html#Coevolving">Coevolving</a> state variables to add to the block.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5753,8 +6429,19 @@ Vector of positive integers that are the
 <a name="RandomEffectBlock___RandomEffectBlock"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RandomEffectBlock</span></h3>
 
+<span class="declaration">RandomEffectBlock :: RandomEffectBlock ( L )</span>
 <dl><dd>
+Create a list of <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a> state variables.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label for block</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5797,15 +6484,38 @@ temporary list of effects
 <a name="RandomUpDown___RandomUpDown"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RandomUpDown</span></h3>
 
+<span class="declaration">RandomUpDown :: RandomUpDown ( L , N , fPi )</span>
 <dl><dd>
+Create a state variable that increments or decrements with state-dependent probabilities.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">integer, number of values, N &ge; 3
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">fPi(A)</td>
+<td class="description" valign="baseline">a <a href="Shared.ox.html#AV">AV</a>(fPi,A) compatible object that returns a #A x 3 vector of probabilities.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="RandomUpDown___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual RandomUpDown :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RealizedUtility</span></h2>
@@ -5813,6 +6523,7 @@ temporary list of effects
 <a name="RealizedUtility___Realize"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
 
+<span class="declaration">virtual RealizedUtility :: Realize ( q , y )</span>
 <dl><dd>
 Default realized auxililary variable, sets <code>v=0.0</code>.
 
@@ -5836,7 +6547,9 @@ Default realized auxililary variable, sets <code>v=0.0</code>.
 <a name="RealizedUtility___RealizedUtility"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RealizedUtility</span></h3>
 
+<span class="declaration">RealizedUtility :: RealizedUtility ( )</span>
 <dl><dd>
+Realized utility, U().
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Renewal</span></h2>
@@ -5864,8 +6577,34 @@ block or vector of increment probabilities
 <a name="Renewal___Renewal"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Renewal</span></h3>
 
+<span class="declaration">Renewal :: Renewal ( L , N , reset , Pi )</span>
 <dl><dd>
+Create a renewal state with random incrementing.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">string, state variable name
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">integer, number of values
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">reset</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a>
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Pi,</td>
+<td class="description" valign="baseline">vector or <a href="Parameters.ox.html#Simplex">Simplex</a> parameter block</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5882,7 +6621,9 @@ state or action that resets the process to 0
 <a name="Renewal___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual Renewal :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Reset</span></h2>
@@ -5890,6 +6631,7 @@ state or action that resets the process to 0
 <a name="Reset___Reset"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Reset</span></h3>
 
+<span class="declaration">Reset :: Reset ( b , t )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5961,14 +6703,43 @@ state or action that resets the process to 0
 <a name="RetainMatch___RetainMatch"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RetainMatch</span></h3>
 
+<span class="declaration">RetainMatch :: RetainMatch ( matchvalue , acc , replace , keep )</span>
 <dl><dd>
+.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">matchvalue
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">acc,</td>
+<td class="description" valign="baseline">either <a href="Variables.ox.html#ActionVariable">ActionVariable</a> or an array of ActionVariables
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">replace,</td>
+<td class="description" valign="baseline">integer or vector of values that replace current value with matchvalue
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">keep,</td>
+<td class="description" valign="baseline">integer or vector of values that retain current value
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">other values of acc result in 0
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="RetainMatch___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual RetainMatch :: Transit ( FeasA )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5977,15 +6748,36 @@ state or action that resets the process to 0
 <a name="SimpleJump___SimpleJump"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SimpleJump</span></h3>
 
+<span class="declaration">SimpleJump :: SimpleJump ( L , N )</span>
 <dl><dd>
+Create an equally likely discrete Exogenous variable.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">string, label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">integer, number of values the variable takes on.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>?? = new ??("",);</pre>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="SimpleJump___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">SimpleJump :: Transit ( FeasA )</span>
 <dl><dd>
+Transition .
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateAccumulator</span></h2>
@@ -5993,15 +6785,38 @@ state or action that resets the process to 0
 <a name="StateAccumulator___StateAccumulator"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">StateAccumulator</span></h3>
 
+<span class="declaration">StateAccumulator :: StateAccumulator ( L , N , State )</span>
 <dl><dd>
+Create a variable that tracks the cumulative value of another state.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">integer, maximum value.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">State</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a> to track.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="StateAccumulator___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual StateAccumulator :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateBlock</span></h2>
@@ -6009,8 +6824,19 @@ state or action that resets the process to 0
 <a name="StateBlock___AddToBlock"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AddToBlock</span></h3>
 
+<span class="declaration">StateBlock :: AddToBlock ( news , ... )</span>
 <dl><dd>
+Add state variable(s) to a block.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">news,...</td>
+<td class="description" valign="baseline">list of <a href="Variables.ox.html#Coevolving">Coevolving</a> state variables to add to the block.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -6027,6 +6853,7 @@ matrix of all actual values
 <a name="StateBlock___Check"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Check</span></h3>
 
+<span class="declaration">virtual StateBlock :: Check ( )</span>
 <dl><dd>
 Check dimensions of <code>actual</code>.
 Called by DP::UpdateVariables() after StateVariable::Update() called.
@@ -6037,8 +6864,19 @@ Called by DP::UpdateVariables() after StateVariable::Update() called.
 <a name="StateBlock___StateBlock"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">StateBlock</span></h3>
 
+<span class="declaration">StateBlock :: StateBlock ( L )</span>
 <dl><dd>
+Create a list of <a href="Variables.ox.html#Coevolving">Coevolving</a> state variables.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label for block</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -6073,15 +6911,56 @@ probability one the value of the state variable next period is 0.
 <a name="StateCounter___StateCounter"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">StateCounter</span></h3>
 
+<span class="declaration">StateCounter :: StateCounter ( L , N , State , ToTrack , Reset , Prune )</span>
 <dl><dd>
+Create a variable that counts how many times another state has taken on certain values.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">integer, maximum number of times to count
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">State</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a> or <a href="Shared.ox.html#AV">AV</a>() compatible object to track.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ToTrack</td>
+<td class="description" valign="baseline">integer or vector, values of State to count. (default = <1>).
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Reset</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>(FeasA) compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Prune</td>
+<td class="description" valign="baseline">TRUE [default]: prune states if finite horizon detected.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>noffers = new StateCounter("Total Offers",offer,5,<1:offer.N-1>,0);</pre>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="StateCounter___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual StateCounter :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateIndicators</span></h2>
@@ -6089,6 +6968,7 @@ probability one the value of the state variable next period is 0.
 <a name="StateIndicators___Realize"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
 
+<span class="declaration">StateIndicators :: Realize ( q , y )</span>
 <dl><dd>
 
 </dd></dl>
@@ -6097,6 +6977,7 @@ probability one the value of the state variable next period is 0.
 <a name="StateIndicators___StateIndicators"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">StateIndicators</span></h3>
 
+<span class="declaration">StateIndicators :: StateIndicators ( target )</span>
 <dl><dd>
 
 </dd></dl>
@@ -6105,15 +6986,33 @@ probability one the value of the state variable next period is 0.
 <a name="StateTracker___StateTracker"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">StateTracker</span></h3>
 
+<span class="declaration">StateTracker :: StateTracker ( L , Target , ToTrack )</span>
 <dl><dd>
+Create a binary variable that indicates if the previous value of state variable was in a set.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Target</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a> to track.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ToTrack</td>
+<td class="description" valign="baseline">integer or vector of values to track</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="StateTracker___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual StateTracker :: Transit ( FeasA )</span>
 <dl><dd>
+.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateVariable</span></h2>
@@ -6121,7 +7020,10 @@ probability one the value of the state variable next period is 0.
 <a name="StateVariable___Check"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Check</span></h3>
 
+<span class="declaration">virtual StateVariable :: Check ( )</span>
 <dl><dd>
+Check dimensions of <code>actual</code>.
+Called by DP::UpdateVariables() after StateVariable::Update() called.
 
 </dd></dl>
 
@@ -6129,16 +7031,60 @@ probability one the value of the state variable next period is 0.
 <a name="StateVariable___MakeTerminal"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">MakeTerminal</span></h3>
 
+<span class="declaration">StateVariable :: MakeTerminal ( TermValues )</span>
 <dl><dd>
+Designate one or more values terminal.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">TermValues</td>
+<td class="description" valign="baseline">integer or vector in the range 0...N-1
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example">s = new StateVariable("s",5);
+  s->MakeTerminal(<3;4>);
+  v = new StateVariable("v",1);
+  v->MakeTerminal(1);
+</dd>
+Now any state &theta; for which <code>CV(s)=3</code> or <code>CV(s)=4</code> or <code>CV(s)=1</code>
+will be marked as terminal: <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a> = TRUE.
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">The feasible action set for terminal states is automatically set to the first row of the gobal <var>A</var> matrix.
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="StateVariable___StateVariable"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">StateVariable</span></h3>
 
+<span class="declaration">StateVariable :: StateVariable ( L , N )</span>
 <dl><dd>
+The base for state variables.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline"><em>positive integer</em> the number of values the variable takes on.<br>N=1 is a constant, which can be included as
+a placeholder for extensions of a model.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline"><em>string</em> a label or name for the variable.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">The default transition is  s&prime; = 0, so it is very unlikely <code>MyModel</code> would ever include a variable of the
+base class.
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -6166,15 +7112,38 @@ A vector of values that end decision making
 <a name="StateVariable___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual StateVariable :: Transit ( FeasA )</span>
 <dl><dd>
+Default Transit (transition for a state variable).
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">FeasA</td>
+<td class="description" valign="baseline"> matrix of feasible action vectors at the current state, &Alpha;(&theta;).
+<P/>
+This is a virtual method, so derived classes replace this default version with the one that goes along
+with the kind of state variable.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
+matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
+The built-in transit returns <code> &lt;0&gt; , ones(rows(FeasA),1) }</code>.  That is the with
+probability one the value of the state variable next period is 0.
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="StateVariable___UnChanged"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">UnChanged</span></h3>
 
+<span class="declaration">virtual StateVariable :: UnChanged ( FeasA )</span>
 <dl><dd>
+Returns the transition for a state variable that is unchanged next period.
 
 </dd></dl>
 
@@ -6182,15 +7151,25 @@ A vector of values that end decision making
 <a name="StateVariable___UnReachable"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">UnReachable</span></h3>
 
+<span class="declaration">virtual StateVariable :: UnReachable ( clock )</span>
 <dl><dd>
+Default Indicator for intrinsic unreachable values of a state variable.
 
+<dl><dt class="returns">Returns:</dt><dd class="returns">FALSE
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">Most derived classes will not provide a replacement.  Examples that do (or could) are <a href="Variables.ox.html#Forget">Forget</a>
+augmented state variables; <a href="Variables.ox.html#ActionAccumulator">ActionAccumulator</a> and <a href="Variables.ox.html#Duration">Duration</a> in normal aging models.
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StaticP</span></h2>
 
 <a name="StaticP___StaticP"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">StaticP</span></h3>
 
+<span class="declaration">StaticP :: StaticP ( )</span>
 <dl><dd>
+A static problem: Aging and T=1.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Stationary</span></h2>
@@ -6198,24 +7177,32 @@ A vector of values that end decision making
 <a name="Stationary___Last"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Last</span></h3>
 
+<span class="declaration">virtual Stationary :: Last ( )</span>
 <dl><dd>
+.
 
+<dl><dt class="returns">Returns:</dt><dd class="returns">FALSE
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="Stationary___Stationary"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Stationary</span></h3>
 
+<span class="declaration">Stationary :: Stationary ( IsErgodic )</span>
 <dl><dd>
+A stationary clock block.
 
-</dd></dl>
-
-<hr>
-<a name="Stationary___Transit"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
-
-<dl><dd>
-
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">IsErgodic</td>
+<td class="description" valign="baseline"> TRUE, store &Rho;*</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SubEffect</span></h2>
 
@@ -6242,8 +7229,26 @@ Index into block array/vector
 <a name="SubEffect___SubEffect"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SubEffect</span></h3>
 
+<span class="declaration">SubEffect :: SubEffect ( L , N )</span>
 <dl><dd>
+Create a new Sub.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of values it takes on.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#FixedEffectBlock">FixedEffectBlock</a></dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Tauchen</span></h2>
 
@@ -6340,6 +7345,7 @@ Index into block array/vector
 <a name="Tauchen___Tauchen"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Tauchen</span></h3>
 
+<span class="declaration">Tauchen :: Tauchen ( L , N , M , mu , sig , rho )</span>
 <dl><dd>
 
 </dd></dl>
@@ -6348,6 +7354,7 @@ Index into block array/vector
 <a name="Tauchen___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual Tauchen :: Transit ( FeasA )</span>
 <dl><dd>
 
 </dd></dl>
@@ -6356,6 +7363,7 @@ Index into block array/vector
 <a name="Tauchen___Update"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
 
+<span class="declaration">virtual Tauchen :: Update ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -6373,51 +7381,54 @@ Index into block array/vector
 <a name="TauchenRandomEffect___TauchenRandomEffect"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">TauchenRandomEffect</span></h3>
 
+<span class="declaration">TauchenRandomEffect :: TauchenRandomEffect ( L , N , mu , sigma , M )</span>
 <dl><dd>
-
-</dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TimeInvariant</span></h2>
-
-<a name="TimeInvariant___Transit"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
-
-<dl><dd>
-Default Transit (transition for a state variable).
+Create a permanent discretized normal random effect.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
-<td class="declaration" valign="baseline">FeasA</td>
-<td class="description" valign="baseline"> matrix of feasible action vectors at the current state, &Alpha;(&theta;).
-<P/>
-This is a virtual method, so derived classes replace this default version with the one that goes along
-with the kind of state variable.
-<P/>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
 </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of points
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">mu</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible mean of the effect, &mu;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">sigma</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible standard deviation, &sigma;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">M</td>
+<td class="description" valign="baseline">number of standard deviations to set the largest value as
+<P/>
+actual values are equally spaced between -M&sigma; and M&sigma;.
+<P/>
+The probabilities of not uniform but are constant and depend only on
+N and M.</td>
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
-matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
-The built-in transit returns <code> &lt;0&gt; , ones(rows(FeasA),1) }</code>.  That is the with
-probability one the value of the state variable next period is 0.
-</dd>
 </dl>
 </dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TimeInvariant</span></h2>
 
-<hr>
 <a name="TimeInvariant___Update"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
 
+<span class="declaration">TimeInvariant :: Update ( )</span>
 <dl><dd>
-
-</dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TimeVariable</span></h2>
-
-<a name="TimeVariable___TimeVariable"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">TimeVariable</span></h3>
-
-<dl><dd>
+Do Nothing and prohibit derived Updates.
+actual should be set in Distribution.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Tracker</span></h2>
@@ -6440,19 +7451,12 @@ Variable to track
 Values to track
 
 </dd></dl>
-
-<hr>
-<a name="Tracker___Tracker"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Tracker</span></h3>
-
-<dl><dd>
-
-</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Triggered</span></h2>
 
 <a name="Triggered___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual Triggered :: Transit ( FeasA )</span>
 <dl><dd>
 
 </dd></dl>
@@ -6461,6 +7465,7 @@ Values to track
 <a name="Triggered___Triggered"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Triggered</span></h3>
 
+<span class="declaration">Triggered :: Triggered ( b , t , tv , rval )</span>
 <dl><dd>
 
 </dd></dl>
@@ -6469,6 +7474,7 @@ Values to track
 <a name="ValueTriggered___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual ValueTriggered :: Transit ( FeasA )</span>
 <dl><dd>
 
 </dd></dl>
@@ -6477,6 +7483,7 @@ Values to track
 <a name="ValueTriggered___ValueTriggered"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ValueTriggered</span></h3>
 
+<span class="declaration">ValueTriggered :: ValueTriggered ( b , t , tv , rval )</span>
 <dl><dd>
 
 </dd></dl>
@@ -6494,22 +7501,52 @@ Values to track
 <a name="ZetaRealization___Realize"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
 
+<span class="declaration">virtual ZetaRealization :: Realize ( q , y )</span>
 <dl><dd>
+Default: &zeta; is undefined, replace with a virtual function that returns a
+value drawn from the conditional distribution of &zeta;
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">q,</td>
+<td class="description" valign="baseline">the current endogenous state, &theta;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">y,</td>
+<td class="description" valign="baseline">the current realized outcome, &upsilon;.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="ZetaRealization___ZetaRealization"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ZetaRealization</span></h3>
 
+<span class="declaration">ZetaRealization :: ZetaRealization ( length )</span>
 <dl><dd>
+Create a new &zeta;, the vector-valued realized shock vector.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">length</td>
+<td class="description" valign="baseline">integer, length of the (row) vector.
+The default &zeta; is a 0 length vector.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Zvariable</span></h2>
 
 <a name="Zvariable___Update"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
 
+<span class="declaration">virtual Zvariable :: Update ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -6518,7 +7555,9 @@ Values to track
 <a name="Zvariable___Zvariable"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Zvariable</span></h3>
 
+<span class="declaration">Zvariable :: Zvariable ( L , Ndraws )</span>
 <dl><dd>
+Create a standard normal N(0,1) discretize jump variable.
 
 </dd></dl>
 <div class="footer">

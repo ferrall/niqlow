@@ -26,7 +26,7 @@ Say hello after every Bellman iteration is complete
 </pre>
 </dd>
 
-@see HookTimes, Flags::SetUpdateTime
+@see HookTimes, DP::SetUpdateTime
 **/
 Hooks::Add(time,proc) {
     if ( time<0 || time>=NHooks ) oxrunerror("Invalid hook time.  See Hooks and HookTimes");
@@ -78,7 +78,7 @@ SubSpace::Dimensions(subs,IsIterating)	{
 		else
 			O ~= zeros(1,S[k].D);
 	right = columns(O)-1;
-	O = shape(O,1,Tlength);
+	O = shape(O,1,N::S);
 	}
 
 /** Calculate dimensions of action space, &Alpha;.
@@ -104,7 +104,6 @@ I::Set(state,group) {
 
 I::Initialize() {
     decl i;
-/*	if (Flags::UseStateList) */  tfirst = constant(-1,DP::TT,1);
     OO=zeros(1,N::S);
 	for(i=LeftSV;i<DSubSpaces;++i) OO |= DP::SS[i].O;
 	all = new matrix[rows(OO)][1];
@@ -208,7 +207,7 @@ return (isclass(sv,"Coevolving")
 @param SubV	the subvector to add to.
 @param ... variables to add
 @comments These variables are autonomous - their transitions are not correlated with each other or other state variables
-@see StateVariable, Actions
+@see StateVariable, DP::Actions
 **/
 DP::AddStates(SubV,va) 	{
 	decl pos, i, j;
@@ -395,8 +394,54 @@ DPMixture::DPMixture() 	{	RETask();	}
 DPMixture::Run(gam) 	{	if (isclass(gam)) qtask->GLike();	}
 
 Flags::Reset() { delete UpdateTime; UpdateTime = StorePA = DoSubSample = IsErgodic = HasFixedEffect = ThetaCreated = FALSE; }
-N::Reset() {G=F=R=S=A=Av=J=aux=TerminalStates=ReachableStates=Approximated = 0;}
+N::Reset() {
+    delete ReachableIndices, tfirst;
+    ReachableIndices =tfirst=T=G=F=R=S=A=Av=J=aux=TerminalStates=ReachableStates=Approximated = 0;
+    }
+N::Initialize() {
+    G = DP::SS[bothgroup].size;
+	R = DP::SS[onlyrand].size;
+	F = DP::SS[onlyfixed].size;
+	A = rows(DP::ActionMatrix);
+	Av = sizec(DP::ActionMatrix);
+    /*	if (Flags::UseStateList) */
+    tfirst = constant(UnInitialized,T,1);
+	ReachableStates = TerminalStates = 0;
+    ReachableIndices = <>;
+    if (MaxSZ==Zero) MaxSZ = INT_MAX;
+    }
 
+N::Subsample(prop) {
+    if  ( isint(prop)||( (prop==1.0)&&(N::MaxSZ==INT_MAX) ) ) return DoAll ;
+    decl t,c,nt=diff0(tfirst)[1:], samp = new array[T],d;
+    for (t=0;t<T;++t) {
+        c = min(MaxSZ,max(MinSZ,prop[t]*nt[t]));
+        samp[t] = (c<=nt[t]-1)
+            ? ReachableIndices[tfirst[t]+ransubsample(c,nt[t])]
+            : DoAll;
+        println(t," ",c," ",MaxSZ," ",nt[t]," ",sizer(samp[t]));
+        }
+    return samp;
+    }
+
+N::Sizes() {
+	ReachableIndices = reversec(ReachableIndices);
+    tfirst = 0 | (sizer(ReachableIndices)-tfirst);
+    }
+
+N::print(){
+	println("\nTRIMMING AND SUBSAMPLING","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated","    tfirsts (t=0..T)"},
+    "%cf",{"%10.0f"},ReachableStates|TerminalStates|Approximated | (tfirst)  );
+    }
+
+/** Add trackind to the list of reachable indices.
+@see FindReachables
+**/
+N::Reached(trackind) {
+    ++ReachableStates;
+    if (tfirst[I::t]<0) tfirst[I::t] = sizer(ReachableIndices);
+	ReachableIndices |= trackind;
+    }
 
 /** Initialize static members.
 @param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
@@ -439,7 +484,6 @@ DP::Initialize(userReachable,UseStateList,GroupExists) {
 	F = new array[DVspace];
 	P = new array[DVspace];
 	alpha = ialpha = chi = zeta = delta = Impossible;
-	ReachableIndices = 0;
     SetUpdateTime();
     if (strfind(arglist(),"NOISY")!=NoMatch) {
             Volume = NOISY;
@@ -453,7 +497,7 @@ DP::Initialize(userReachable,UseStateList,GroupExists) {
 
 @example
 <pre>
-&hellip;
+&vellip;
 CreateSpaces();
 SetUpdateTime(OnlyOnce);
 </pre>
@@ -478,20 +522,31 @@ DP::SetUpdateTime(time) {
 
 /** Request that the State Space be subsampled for extrapolation methods such as `KeaneWolpin`.
 @param SampleProportion 0 &lt; double &le; 1.0, fixed subsample size across <var>t</var><br>
-TT&times 1 vector, time-varying sampling proportions.
+N::T&times;1 vector, time-varying sampling proportions.<br>
+[default] 1.0: do not subsample at all, visit each state.
 
 @param MinSZ minimum number of states to sample each period [default=0]
-@param MaxSZ maximum number of states to sample each period [default=0, no maximum]
+@param MaxSZ maximum number of states to sample each period [default=INT_MAX, no maximum]
+
+@example
+Suppose that <code>N::T=4</code>
+<pre>SubSampleStates(<1.0;0.9;0.75;0.5>);</pre>
+This will sample half the states in the last period, 3/4 of the states in period 2, 90% in period 1
+and all the states in period 0.
+<pre>SubSampleStates(1.0,0,100);</pre>
+This will ensure that more than 100 states are subsampled each period.  If there are fewer reachable states
+than 100 at <code>t</code> then all states are sampled and the solution is exact.
+<pre>SubSampleStates(0.8,30,200);</pre>
+This will sample 80% of states at all periods, but it will guarantee that no fewer than 30 and no more than 200
+are sampled in any one period.
+</dd>
 
 <DT>Notes</DT>
-<DD>If <code>MinSZ</code> or <code>MaxSZ</code> are not 0 then two spans of the state space
-are required to &Theta;.</DD>
-
 <DD>If called before <code>CreateSpaces()</code> the subsampling actually occurs during
-CreateSpaces().</DD>
+`DP::CreateSpaces`().</DD>
 
 <DD>If called after <code>CreateSpaces()</code> then the new sampling scheme occurs immediately.
-Storage for U and &Rho;() is re-allocated accordingly.
+Storage for U and &Rho;() is re-allocated accordingly.</DD>
 
 **/
 DP::SubSampleStates(SampleProportion,MinSZ,MaxSZ) {
@@ -499,33 +554,16 @@ DP::SubSampleStates(SampleProportion,MinSZ,MaxSZ) {
 		oxwarning("Clock must be set before calling SubsampleStates.  Setting clock type to InfiniteHorizon.");
 		SetClock(InfiniteHorizon);
 		}
-	this.SampleProportion = isdouble(SampleProportion) ? constant(SampleProportion,TT,1) : SampleProportion;
-	Flags::DoSubSample = this.SampleProportion .< 1.0;
+	this.SampleProportion = isdouble(SampleProportion) ? constant(SampleProportion,N::T,1) : SampleProportion;
     N::MinSZ = MinSZ;
     N::MaxSZ = MaxSZ;
 	N::Approximated = 0;
-    DrawRandomSubSample();
-        for (t) {
-            nt = tfirst[]-tfirst[];
-            c = min(MaxSZ,max(MinSZ,this.SampleProportion*ct));
-            insamp = ransubsample(c,nt);
-            grab indices from tfirst that are in insamp;
-            }
-
-
     if (Flags::ThetaCreated) {
         if (Volume>SILENT) println("New random subsampling of the state space");
-        decl tt= new ReSS(??);
-        tt->loop();
-        if (Volume>SILENT) println("%c",{"Approximated"},N::Approximated);
+        decl tt= new ReSubSample();
+        if (Volume>SILENT) println("Approximated: ",N::Approximated);
         delete tt;
         }
-    }
-
-ReSS::ReSS() {    CTask();     }
-ReSS::Run(th) {
-    if (!isclass(th)) return;
-    th->Allocate(th.InSubSample);
     }
 
 DP::onlyDryRun() {
@@ -579,7 +617,7 @@ DP::CreateSpaces() {
 		N::All |= S[subv].N;
 		}
 	NxtExog = new array[StateTrans];
-	N::S = SubSpace::Tlength = rows(N::All);
+    N::S = rows(N::All);
 	SubSpace::S = S;
 	SubSpace::ClockIndex = clock;
 	SS[onlyacts]	->ActDimensions();
@@ -594,11 +632,7 @@ DP::CreateSpaces() {
 	SS[onlyfixed]	->Dimensions(<fgroup>,FALSE);
 	SS[bothgroup]	->Dimensions(<rgroup;fgroup>,FALSE);
 	SS[allstates]	->Dimensions(<exog;semiexog;endog;clock;rgroup;fgroup>,FALSE);
-	N::G = SS[bothgroup].size;
-	N::R = SS[onlyrand].size;
-	N::F = SS[onlyfixed].size;
-	N::A = rows(ActionMatrix);
-	N::Av = sizec(ActionMatrix);
+    N::Initialize();
 	Asets = array(ActionMatrix);
 	AsetCount = <0>;
 	A = array(ActionMatrix);
@@ -606,8 +640,8 @@ DP::CreateSpaces() {
 	if (Flags::UseStateList) {
 		if (isclass(counter,"Stationary")) oxrunerror("canNOT use state list in stationary environment");
 		}
-	/* if (Flags::UseStateList || (Flags::IsErgodic = counter.IsErgodic) ) */
-        ReachableIndices = <>;
+    Flags::IsErgodic = counter.IsErgodic;
+	/* if (Flags::UseStateList || (Flags::IsErgodic) ) */
 	if (Volume>SILENT)	{		
 		println("-------------------- DP Model Summary ------------------------\n");
 		w0 = sprint("%",7*S[exog].D,"s");
@@ -631,35 +665,32 @@ DP::CreateSpaces() {
 		print("\nACTION VARIABLES (",N::A," distinct actions)");
 		println("%r",{"    i.N"},"%cf","%7.0f","%c",Vprtlabels[avar],N::AA');
 		}
-	N::ReachableStates = N::TerminalStates = 0;
     Flags::ThetaCreated = TRUE;
 	cputime0=timer();
 	Theta = new array[SS[tracking].size];
     I::Initialize();
     if (Flags::onlyDryRun) {
         tt= new DryRun();
-	    tt->loop();
-        println("%c",{"t","Reachable","Approximated","In-Sample-Ratio","Cumulative Full"},
-                "%cf",{"%6.0f","%15.0f","%15.0f","%15.5f","%15.0f"},tt.report);
-        println("niqlow may run out of memory  if cumulative full states is too large.");
+        N::Sizes();
         }
     else {
-	   tt = new CTask();
+	   tt = new FindReachables();
 	   tt->loop();
+       delete tt;
+       N::Sizes();
+       tt = new CreateTheta();
+       tt->loop();
+       delete tt.insamp;
        }
 	delete tt;
+    N::J = sizeof(ActionSets);
 	if ( Flags::IsErgodic && N::TerminalStates ) oxwarning("NOTE: time is ergodic but terminal states exist???");
-	N::J= sizeof(ActionSets);
 	tt = new CGTask();	delete tt;
-	ReachableIndices = reversec(ReachableIndices);
-/*	if (Flags::UseStateList) */
-        I::tfirst = sizer(ReachableIndices)-1-I::tfirst;
 	if (isint(zeta)) zeta = new ZetaRealization(0);
 	DPDebug::Initialize();
   	V = new matrix[1][SS[bothexog].size];
 	if (Volume>SILENT)	{		
-		println("\nTRIMMING AND SUBSAMPLING","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated","    tfirsts (T-1...0)"},
-                "%cf",{"%10.0f"},N::ReachableStates|N::TerminalStates|N::Approximated | (I::tfirst)  );
+        N::print();
 		println("\nACTION SETS");
 		av = sprint("%-14s","    alpha");
 		for (i=0;i<N::J;++i) av ~= sprint("  A[","%1u",i,"]   ");
@@ -680,8 +711,8 @@ DP::CreateSpaces() {
 		println(av,"\n    Key: X = row vector is feasible. - = infeasible");
         if (totalnever) println("    Actions vectors not shown because they are never feasible: ",totalnever);
 		}
-	ETT = new EndogTrans();
     if (Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
+	ETT = new EndogTrans();
     if (Flags::UpdateTime==InCreateSpaces) UpdateVariables(0);
  }
 
@@ -700,37 +731,64 @@ Task::Task()	{
 Task::Reset() {
 	state[left:right] = N::All[left:right]-1;
 	}
-	
-/** .
-@internal
-**/
-CTask::CTask() {
+
+ThetaTask::ThetaTask() {
 	Task();
 	left = S[endog].M;
-	right = S[clock].M;	//t is left variable, tprime is right, don't do tprime.
+	right = S[clock].M;
 	subspace = tracking;
-	}
-
-DryRun::DryRun() {
-    CTask();
-    PrevT = -1;
-    report = <>;
     }
+
+CreateTheta::Sampling() {
+    insamp = N::Subsample(SampleProportion);
+    Flags::DoSubSample = constant(FALSE,N::T,1);
+    if (isarray(insamp)) {
+        decl a, t;
+        foreach(a in insamp[t]) Flags::DoSubSample[t] = !isint(a);
+        }
+    }	
 
 /** .
 @internal
 **/
-CTask::Run(g) {
+CreateTheta::CreateTheta() {
+	ThetaTask();
+    Sampling();
+	}
+
+FindReachables::FindReachables() { 	ThetaTask(); }
+
+DryRun::DryRun() {
+    FindReachables();
+    PrevT = UnInitialized;
+    report = <>;
+	loop();
+    println("%c",{"t","Reachable","Approximated","In-Sample-Ratio","Cumulative Full"},
+                "%cf",{"%6.0f","%15.0f","%15.0f","%15.5f","%15.0f"},report);
+    println("niqlow may run out of memory  if cumulative full states is too large.");
+    N::Sizes();
+    }
+
+CreateTheta::picked() {
+    return isarray(insamp) ? ( isint(insamp[I::t]) ? TRUE : any(insamp[I::t].==curind) ) : TRUE;
+    }
+
+FindReachables::Run(g) {
     curind=I::all[tracking];
-	if (isclass(th = userReachable(),"DP")) {
-		++N::ReachableStates;
-		th->Bellman(state);
-/*		if (!isint(ReachableIndices)) { */
-			if ( /* Flags::UseStateList && */
-                I::tfirst[I::t]<0) I::tfirst[I::t] = sizer(ReachableIndices);
-			ReachableIndices |= curind;
-			}
-        if (!Flags::onlyDryRun) Theta[curind] = th;
+	if (isclass(th = userReachable(),"Bellman")) {
+        N::Reached(curind);
+        delete th;
+        }
+	}
+
+/** .
+@internal
+**/
+CreateTheta::Run(g) {
+	if (isclass(th = userReachable(),"Bellman")) {
+        curind=I::all[tracking];
+		th->Bellman(state,picked());
+        Theta[curind] = th;
 		}
 	}
 
@@ -745,19 +803,29 @@ DryRun::Run(g) {
         PrevR = N::ReachableStates;
         PrevT=I::t;
         }
-    CTask::Run(g);
-    delete th;
+    FindReachables::Run(g);
 	}
+
+ReSubSample::ReSubSample() {
+    CreateTheta();
+    Traverse();
+    delete insamp;
+    }
+
+ReSubSample::Run(th) {
+    if (isclass(th)) {
+        curind=I::all[tracking];
+        th->Allocate(picked());
+        }
+    }
+
 
 /** Loop through the state space and carry out tasks leftgrp to rightgrp.
 @internal
 **/
 Task::loop(){
 	trips = iter = 0;
-//	if (isint(state))
-//		state = N::All-1;				// if unitialized, set states in  range	
-//	else
-		Reset();					// (re-)initialize variables in range
+	Reset();					// (re-)initialize variables in range
 	SyncStates(0,N::S-1);
 	d=left+1;				   		// start at leftmost state variable to loop over	
 	do	{
@@ -800,34 +868,26 @@ Task::Update() {
 		lohi matrix of first and last index to process
 
 **/
-Task::list(arg0,...) {
-	decl va = va_arglist(),
-		 mxind = sizer(ReachableIndices)-1,
-		 lft = left ? state[:left-1] : <>,
+Task::list(span,inlows,inups) {
+	decl lft = left ? state[:left-1] : <>,
 		 rht = right<N::S-1 ? state[right+1:] : <> ,
-		 rold, ups, lows, s, curTh, news, indices;
+		 rold, ups, lows, s, news, indices;
 	trips = iter = 0;
 	SyncStates(0,N::S-1);
-	if (isint(arg0)) {
-		indices = ReachableIndices;
-		if (arg0==DoAll)  {	//every reachable state
-			s=ups=mxind; lows = 0;
+	if (isint(span)) {
+		indices = N::ReachableIndices;
+		if (span==DoAll)  {	//every reachable state
+			s=ups=N::ReachableStates-1; lows = 0;
 			}
 		else {
-			s = ups=I::tfirst[arg0];
-			lows = sizeof(va) ? I::tfirst[va[0]]+1 :
-							   arg0>0 ? I::tfirst[arg0-1]+1 : 0;
+			s = ups=N::tfirst[span+1]-1;
+			lows = N::tfirst[inlows==UseDefault ? span : inlows];
 			}
 		}
 	else {		
-		indices = arg0;
-		if (sizeof(va)) {
-			s = ups =va[0][0];
-			lows = va[0][1];
-			}
-		else {
-			s = ups = sizer(indices); lows = 0;
-			}
+		indices = span;
+		s = ups = inups==UseDefault ? sizer(indices)-1 : inups;
+        lows = inlows==UseDefault ? 0 : inlows;
 		}
 	done = FALSE;
 	do {
@@ -846,11 +906,9 @@ Task::list(arg0,...) {
 /** .
 @internal
 **/
-Task::Traverse(arg0, ... ) {
-	if (Flags::UseStateList) {
-		decl va = va_arglist();
-		if (!sizeof(va)) list(arg0); else list(arg0,va[0]);
-		}
+Task::Traverse(span,lows,ups) {
+	if (Flags::UseStateList)
+        list(span,lows,ups);
 	else
 		loop();
 	}
@@ -995,7 +1053,7 @@ DP::SetClock(ClockOrType,...)	{
 			}
 		}
 	AddStates(clock,counter);
-	TT = counter.t.N;
+	N::T = counter.t.N;
 	}
 
 /** End of the Process.
@@ -1052,7 +1110,7 @@ DP::UpdateVariables(state)	{
 	ExogenousTransition();
     if (!isint(state)) ETT.state = state;
 	ETT.current = ETT.subspace = iterating;
-	ETT->Traverse(DoAll);          //Endogenous transitions
+	ETT->Traverse();          //Endogenous transitions
 	if (Volume>QUIET) println("Transition time: ",timer()-cputime0);
 	}
 
@@ -1072,11 +1130,6 @@ SDTask::Run(gam)   { gam->StationaryDistribution();}
 **/
 DP::Gett(){return counter.t.v;}
 
-EnTask::EnTask() {
-	Task();
-	left = S[endog].M;
-	right = S[clock].M;
-    }
 
 ExTask::ExTask() {
 	Task();	
@@ -1143,7 +1196,7 @@ Group::Sync()	{
 /** Compute the stationary distribution, &Rho;<sub>&infin;</sub>(&theta;).
 **/
 Group::StationaryDistribution() {
-	PT[][] = Ptrans[ReachableIndices][ReachableIndices];
+	PT[][] = Ptrans[N::ReachableIndices][N::ReachableIndices];
 	PT = setdiagonal(PT,diagonal(PT-1.0));
 	PT[0][]=1.0;
 	switch (declu(PT,&l,&u,&p)) {
@@ -1153,7 +1206,7 @@ Group::StationaryDistribution() {
 		case 2:	println("*** Group ",pos);
 				oxwarning("stationary distribution may be unreliable");
 		case 1: Pinfinity[] = 0.0;
-				Pinfinity[ReachableIndices] = solvelu(l,u,p,statbvector);
+				Pinfinity[N::ReachableIndices] = solvelu(l,u,p,statbvector);
 				break;
 //		default: ;
 		}
@@ -1234,21 +1287,21 @@ StateIndex IsTerminal Aindex EndogenousStates t t' REStates FEStates EV &Rho;(&a
 DPDebug::outV(ToScreen,aM,MaxChoiceIndex) {
 	decl rp = new SaveV(ToScreen,aM,MaxChoiceIndex);
 	if (ToScreen) println("\n",div);
-	rp -> Traverse(DoAll);
+	rp -> Traverse();
 	if (ToScreen) println(div,"\n");	
 	delete rp;
 	}
 
 DPDebug::outAutoVars() {
 	decl rp = new OutAuto();
-	rp -> Traverse(DoAll);
+	rp -> Traverse();
 	delete rp;
 	}
 
 DPDebug::Initialize() {
     sprintbuffer(16 * 4096);
-	prtfmt0 = Sfmts[:2]|Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%15.6f";
-	Vlabel0 = {"Index","T","A"}|Vprtlabels[svar][S[endog].M:S[clock].M]|" rind "|"        EV      |";
+	prtfmt0 = Sfmts[:3]|Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%15.6f";
+	Vlabel0 = {"Indx","I","T","A"}|Vprtlabels[svar][S[endog].M:S[clock].M]|" rind "|"        EV      |";
 	}
 
 DPDebug::DPDebug() {
@@ -1281,7 +1334,7 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex) {
 SaveV::Run(th) {
 	if (!isclass(th,"Bellman")  || (SaveV::TrimTerminals && th.IsTerminal) ) return;
     decl mxi, p;
-	stub=I::all[tracking]~th.IsTerminal~th.Aind~state[S[endog].M:S[clock].M]';
+	stub=I::all[tracking]~th.InSubSample~th.IsTerminal~th.Aind~state[S[endog].M:S[clock].M]';
 	for(re=0;re<sizeof(th.EV);++re) {
         p = th->ExpandP(re);
 		r = stub~re~th.EV[re]~(MaxChoiceIndex ? double(mxi = maxcindex(p))~p[mxi]~sumc(p) : p' );

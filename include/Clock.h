@@ -31,7 +31,7 @@ struct Clock : StateBlock {
 @see DP::SetClock
 **/
 struct Stationary : Clock	{
-	Stationary(IsErgodic=0);
+	Stationary(IsErgodic=FALSE);
 	Transit(FeasA);
 	virtual Last();
 	}

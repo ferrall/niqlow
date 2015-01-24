@@ -8,3 +8,5 @@ endif
 
 tweak:
 	$(SED) -i -f oxdoc.sed *.html
+	erase sed*.
+

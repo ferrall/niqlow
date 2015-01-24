@@ -98,9 +98,9 @@ Hours::Hours(const N,const H) {
 Hours::Update() {
         actual = AV(H)* (vals / N);
         }
-&hellip;
+&vellip;
 MyModel::MaxH() { return CV(hasch) ? 30 : 50; }
-&hellip;
+&vellip;
 MyModel::Initialize() {
    hellip;
    GroupVariables(hasch = new FixedEffect("",2));
@@ -195,18 +195,18 @@ The <em>innovations</em> of autonomous variables and state blocks are conditiona
 
 <details><summary><b>Example</b> <br>Include an Semi-Exogenous IID jump process and an Endogenous tracker of its previous value to a DDP model:</summary>
 <DD><pre>MyModel : DPparent {
-    &hellip;
+    &vellip;
     static decl e, q;
-    &hellip;
+    &vellip;
     static Initialize();
     }
-&hellip;
+&vellip;
 MyModel::Initialize() {
     DPparent::Initialize();
-    &hellip;
+    &vellip;
     ExogenousStates(e = new SimpleJump("iid",5));
     EndogenousStates(q = new LaggedState("lag",e));
-    &hellip;
+    &vellip;
     CreateSpaces();
     }</pre></DD></details>
 
@@ -272,21 +272,21 @@ That is, you want to `Freeze` the current value of <code>q</code> when <code>h</
 
 <details><summary><b>Example</b> <br>Augment a base state variable with the Freeze feature:</summary>
 <DD><pre>MyModel : DPparent {
-    &hellip;
+    &vellip;
     static decl a, h, q;
     &hellip;
     static Initialize();
     Qtrans();
     }
-&hellip;
+&vellip;
 MyModel::Initialize() {
     DPparent::Initialize();
-    &hellip;
+    &vellip;
     Actions(a = new ActionVariable("a",2) ) ;
     EndogenousStates(
         h = new PermanentChoice("h",a);
         q = new Freeze(new RandomUpDown("q",10,Qtrans),h);
-    &hellip;
+    &vellip;
     CreateSpaces();
     }</pre>
 Notice that a <code>new</code> state variable is passed to the `Freeze`() constructor.  In essence this underlying random variable is hidden from the model, which only sees the variables passed to `DP::EndogenousStates`.     What the model sees is the augmented variable <code>q</code> which acts like a `RandomUpDown` variable unless <code>h=1</code>.  As always, the other state variables or actions that <code>q</code> depends on have to be passed to its creator (or constructor).
@@ -406,7 +406,7 @@ Once the program is running some of the members of <code>mystate</code> might ha
         .v = 0
         .vals = <0,1,2,3>
         .pos = 1
-        &hellip;
+        &vellip;
         }</pre></dd>
 That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current state it happens to have value <code>v=0</code>. It also happens to be the second state variable in the state vector (<code>pos=1</code>). </dd>
 
@@ -632,7 +632,7 @@ The major difference between a StateVariable and a StateBlock:  a state variable
 
     <DT>The user has the option to provide a <code>Update()</code> function for the block.  </DT>
     <DD>This should update a matrix of actual values that correspond to the <code>.v</code> values of each variable.  </DD>
-    <DD>If there are M variables in the block, each taking on <code>a<sub>m</sub>.N</code> values, then the actual matrix will be <code>N &times (&prod;<sub>m</sub>&nbsp; a<sub>m</sub>.N)</code>.</DD>
+    <DD>If there are M variables in the block, each taking on <code>a<sub>m</sub>.N</code> values, then the actual matrix will be <code>N &times;(&prod;<sub>m</sub>&nbsp; a<sub>m</sub>.N)</code>.</DD>
 
     <LI>Add the block to the DP model:</LI>
 
@@ -733,15 +733,14 @@ With anticipation (foresight), V(&theta;) can/should be solved backwards in <var
 <pre>
         T &equiv; t.N
         T = 1 for an infinite horizon model (T = &infin;).</pre></DD>
-<DT>Because it is crucial to the solution method, this is a property of <code>MyModel</code> stored as `DP::TT`
+<DT>Because it is crucial to the solution method, this is a property of <code>MyModel</code> stored as `N::T`
 <DD><pre>
 When T is finite,
-        TT  &equiv;  T  =  counter.t.N,
+        N::T  &equiv;  T  =  counter.t.N,
 When T = &infin;,
-        TT  &equiv;  1                  </pre></DD>
-<DD>Double-T is used to avoid possible confusions and to let the user's code define <code>T</code>.</DD>
-<DT><span class="n">DDP</span> distinguishes between a static program (finite horizon and T = </DD>TT = 1></span>) and a stationary environment
-(T=&infin; and <code>TT=1</code>) by checking the <em>class</em> of <code>counter</code>.</DT>
+        N::T  &equiv;  1                  </pre></DD>
+<DT><span class="n">DDP</span> distinguishes between a static program (finite horizon and T = </DD>N::T = 1></span>) and a stationary environment
+(T=&infin; and <code>N::T=1</code>) by checking the <em>class</em> of <code>counter</code>.</DT>
 
 <li>Kinds of Clocks</li>
 

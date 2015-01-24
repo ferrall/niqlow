@@ -4,25 +4,22 @@ DynamicRoy::Replicate()	{
 	decl i, BF, KW,OutMat, AMat, BMat;	
 	Initialize(Reachable,TRUE,0);
 	SetClock(NormalAging,A1);
-    SubSampleStates(constant(1.0,1,3)~constant(0.95,1,A1-3));
+    SubSampleStates(constant(1.0,1,3)~constant(0.2,1,A1-3),30,100 );
 	Actions(accept = new ActionVariable("Accept",Msectors));
     GroupVariables(lnk = new NormalRandomEffect("lnk",3,0.0,1.0));
 	EndogenousStates(attended   = new ActionTracker("attended",accept,school));
 	ExogenousStates(offers = new MVNormal("eps",Msectors,Noffers,zeros(Msectors,1),sig));
-//	println(unvech(sig));
 	xper = new array[Msectors-1];
 	for (i=0;i<Msectors-1;++i)
 		EndogenousStates(xper[i] = new ActionCounter("X"+sprint(i),MaxExp,accept,i,0));
 	SetDelta(0.95);
 	CreateSpaces(LogitKernel,1/4000.0);
-	Volume = LOUD;
 //	BF = new ValueIteration();
 //	BF -> Solve();
 //	DPDebug::outV(FALSE,&AMat);
 	KW = new KeaneWolpin();
-	KW.Volume = NOISY;
 	KW -> Solve();
-//	DPDebug::outV(FALSE,&BMat);
+	DPDebug::outV(TRUE);  // (FALSE,&BMat);
 //    println("difference ","%c",{"EV","Choice Probs"},(BMat-AMat)[][columns(BMat)-Msectors-1:]);
 }
 

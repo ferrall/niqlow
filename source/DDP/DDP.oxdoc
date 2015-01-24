@@ -108,7 +108,7 @@ a<sub>0</sub> &times; a<sub>1</sub>
 <DT>DDP Models are derived from the `Bellman` class, which in turn is derived from the base `DP` class.</DT>
 <DD> If the user wants to call his/her model <var>MyModel</var>, they would have something like this
 <pre>MyModel : DPparent {
-    &hellip;
+    &vellip;
     }</pre>
 The Bellman class that <code>MyModel</code> is based on is called <code>DPparent</code> in these notes.
 <DD>In the notes <code>MyModel::</code> is prefixed to items that the user provides or customizes.  <code>DPparent</code> is prefixed to items related to the parent.  Other predefined or default items either have no prefix or are prefixed by <code>DP::</code>.</dd>
@@ -201,20 +201,19 @@ This section shows how each of the elements of the general DP framework is repre
 <details><summary><b>Framework</b><br> The shell for the model.</summary>
 <pre>MyModel : DPparent {
      // declare static members to hold action and state variables objects
-
      // declare required and optional methods
     static Reachable();
     static Initialize();
     }
-&hellip;
+&vellip;
 MyModel::Reachable() { return new MyModel(); }
-&hellip;
+&vellip;
 MyModel::Initialize() {
     DPparent::Initialize(Reachable,&hellip;);
        // define actions and states (create objects)
        // add them to the model
     CreateSpaces();
-    &hellip;
+    &vellip;
     }
 </pre></details></dd>
 <DT>Notes</DT>
@@ -231,21 +230,21 @@ An `ActionVariable` is defined by its `Quantity::L`abel and the number of distin
 
 <details><summary><b>Example</b><br> Define a binary choice variable <var>d</var> and add it to &alpha;.</summary>
 <pre>MyModel : DPparent {
-    &hellip;
+    &vellip;
     static decl d;                         // NEW
-    &hellip;
+    &vellip;
     static Reachable();
     static Initialize();
     }
-&hellip;
+&vellip;
 MyModel::Reachable() { return new MyModel(); }
-&hellip;
+&vellip;
 MyModel::Initialize() {
     DPparent::Initialize(Reachable,&hellip;);
-    &hellip;
+    &vellip;
     d = new ActionVariable("choice",2);   // NEW
     Actions(a);                           // NEW
-    &hellip;
+    &vellip;
     CreateSpaces();
     }
 </pre></dd></details>
@@ -270,24 +269,24 @@ In <span class="n">DDP</span>, state variables are classified as either <em>auto
 
 <details><summary><b>Example</b><br> Define a state variable <var>m</var> that takes on the value of action variable <var>d</var> chosen last period.</summary>
 <pre>MyModel : DPparent {
-    &hellip;
+    &vellip;
     static decl d;
     static decl m;                                //NEW
-    &hellip;
+    &vellip;
     static Reachable();
     static Initialize();
     }
-&hellip;
+&vellip;
 MyModel::Reachable() { return new MyModel(); }
-&hellip;
+&vellip;
 MyModel::Initialize() {
     DPparent::Initialize(Reachable,&hellip;);
-    &hellip;
+    &vellip;
     d = new ActionVariable("choice",2);
     Actions(a);
     m = new LaggedAction("prevd",d);             //NEW
     EndogenousStates(m);                         //NEW
-    &hellip;
+    &vellip;
     CreateSpaces();
     }
 </pre></dd></details>
@@ -303,25 +302,25 @@ Because timing is key to the efficient solution algorithm  <span class="n">DDP</
 
 <details><summary><b>Example</b><br>Set the clock to a finite horizon of 40 periods.</summary>
 <pre>MyModel : DPparent {
-    &hellip;
+    &vellip;
     static decl d;
     static decl m;
-    &hellip;
+    &vellip;
     static Reachable();
     static Initialize();
     }
-&hellip;
+&vellip;
 MyModel::Reachable() { return new MyModel(); }
-&hellip;
+&vellip;
 MyModel::Initialize() {
     DPparent::Initialize(Reachable,&hellip;);
     SetClock(NormalAging,40);                //NEW
-    &hellip;
+    &vellip;
     d = new ActionVariable("choice",2);
     Actions(a);
     m = new LaggedAction("prevd",d);
     EndogenousStates(m);
-    &hellip;
+    &vellip;
     CreateSpaces();
     }
 </pre></dd></details>
@@ -335,29 +334,29 @@ MyModel::Initialize() {
 
 <details><summary><b>Example</b><br>Define the Utility to equal an indicator for whether the current action equals last period's action.</summary>
 <pre>MyModel : DPparent {
-    &hellip;
+    &vellip;
     static decl d;
     static decl m;
     Utility();                          //NEW
-    &hellip;
+    &vellip;
     static Reachable();
     static Initialize();
     }
-&hellip;
+&vellip;
 MyModel::Reachable() { return new MyModel(); }
 MyModel Utility(); {                   //NEW
     return aa(d) .== m.v;              //NEW   See <a href="#aa">aa</a>
     }                                  //NEW
-&hellip;
+&vellip;
 MyModel::Initialize() {
     DPparent::Initialize(Reachable,&hellip;);
     SetClock(NormalAging,40);
-    &hellip;
+    &vellip;
     d = new ActionVariable("choice",2);
     Actions(a);
     m = new LaggedAction("prevd",d);
     EndogenousStates(m);
-    &hellip;
+    &vellip;
     CreateSpaces();
     }
 </pre></dd>
@@ -374,54 +373,48 @@ MyModel::Initialize() {
 
 <details><summary><b>Example</b><br>Set &delta;, the discount factor, to 0.99.</summary>
 <pre>MyModel : DPparent {
-    &hellip;
+    &vellip;
     static decl d;
     static decl m;
     Utility();
-    &hellip;
+    &vellip;
     static Reachable();
     static Initialize();
     }
-&hellip;
+&vellip;
 MyModel::Reachable() { return new MyModel(); }
 MyModel Utility(); {
     return aa(d) .== m.v;
     }
-&hellip;
+&vellip;
 MyModel::Initialize() {
     DPparent::Initialize(Reachable,&hellip;);
     SetClock(NormalAging,40);
-    &hellip;
+    &vellip;
     d = new ActionVariable("choice",2);
     Actions(a);
     m = new LaggedAction("prevd",d);
     EndogenousStates(m);
-    &hellip;
+    &vellip;
     CreateSpaces();
     SetDelta(0.99);                            // NEW
-    &hellip;
+    &vellip;
     }
-</pre></dd>
-</details>
-
-
+</pre></dd></details>
 
 </OL></OL>
 
 <LI name="ES">Extensions and Specializations</LI>
 
 <OL class="chapter">
-<li>The Five State Vector<b>S</b></li>
+<li>Five State Vector<em>S</em></li>
 <blockquote><b>Sort state variables by their role in the transition &Rho;().</b></blockquote>
 
-<DD>><pre>
-The generic state space &theta; &in; &Theta; generalizes to (&zeta;,&epsilon;,&eta;,&theta;,&gamma;) &in; (&Zeta;,&Epsilon;,&Eta;,&Theta;,&Gamma;)
-</pre></DD>
+<h3>The generic state space &theta; &in; &Theta; generalizes to (&zeta;,&epsilon;,&eta;,&theta;,&gamma;) &in; (&Zeta;,&Epsilon;,&Eta;,&Theta;,&Gamma;)</h3>
 
 <DT>Following the literature &hellip;</DT>
 <DD>Special or restricted state variables are placed in different state vectors.</DD>
 <DD>The single vector &theta; is replaced by multiple vectors holding specially behaved state variables : &eta;, &epsilon;, &theta;,  or &gamma;.  The most general kinds of state variables are placed in a vector still denoted &theta;.</DD>
-
 
 <DD>Segregation state variables into different vectors can reduce memory and computing since only the information required for restricted state variables are stored.. These distinctions matter for how `DP` solves <code>MyModel</code>, but from the point of view of <code>MyModel</code> a state variable is just a state variable regardless of which category it is placed.</DD>
 <DD>A generic state variable that is not associated with a particular vector is denoted <code>s</code>.</DD>
@@ -460,7 +453,7 @@ The generic state space &theta; &in; &Theta; generalizes to (&zeta;,&epsilon;,&e
 <DD>A grouping variable is equivalent to either a <em>random effect</em> or a <em>fixed effect</em> in a panel model.  Either way, it does not vary within the life of an agent following the DP, but from our point of view it is random for an agent.</DD>
 <DD>Because grouping variables do not vary within a solution it is wasteful to create space for each of their values and the other states in &theta;.  Instead, <span class="n">DDP</span> resolves the model for each value of &gamma;.  It stores differing choice probabilities across random effects for a
 given fixed effect value, so that integration across random effects can be carried out.</DD>
-<DD><b><em>Warning:</em> if random effect elements of &gamma; affect the transition &Rho;(). you have to change the UpdateTime in the model</b>  
+<DD><b><em>Warning:</em> if random effect elements of &gamma; affect the transition &Rho;(). you have to change the UpdateTime in the model</b>
 <DD>Because &gamma; is fixed during a solution, it is often <em>not</em> listed as an argument of U() and endogenous outcomes such as V(&theta;).  However, <code>MyModel</code> can treat elements of &gamma; like other states.</DD>
 
 The most specialized random elements are those that are IID, do not influence the transition of other state variables <em>and</em> enter utility as an additively separable shock.
@@ -478,9 +471,7 @@ The most specialized random elements are those that are IID, do not influence th
 <li>Feasible Actions</li>
 <blockquote><b><code>MyModel</code> can account for limits on choice conditional on the endogenous state.</b></blockquote>
 
-<DD>><pre>
-The generic action space &alpha; &in; &Alpha; generalizes to &alpha; &in; &Alpha;(&theta;).
-</pre></DD>
+<h3>The generic action space &alpha; &in; &Alpha; generalizes to &alpha; &in; &Alpha;(&theta;).</h3>
 
 The matrix of possible actions, <code>&Alpha;</code>, was defined above as the Cartesian product of the ranges of all action variables.  However, in many cases <code>MyModel</code> may rule out certain actions as not logically possible at a particular state. Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant to the overall goal of the model.
 
