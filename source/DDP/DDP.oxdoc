@@ -167,7 +167,7 @@ First, simplest and most general notation is introduced to describe a DDP.  Howe
 <blockquote><b>The general notion of a dynamic program used here has five primitives and four interrelated aspects of the solution.</b></blockquote>
 <DT>Primitives: basic elements of a complete DP model.</DT>
 <OL class="steps">
-<LI><code>&alpha; &in; A</code>: A (finite) set of possible actions</LI>
+<LI><code>&alpha; &in; A</code>: The (finite) set of possible actions</LI>
 <LI><code>&theta; &in;</code> <b>&Theta;</b>: The (discrete) state space</LI>
 <LI><code>&Rho;(&theta;&prime;|&alpha;,&theta;)</code>: Conditional transition to the next state, including any notion of a time dimension.</LI>
 <LI><code>U(&alpha;,&theta;)</code>: Utility/return/payoff</LI>
@@ -183,8 +183,14 @@ First, simplest and most general notation is introduced to describe a DDP.  Howe
 </OL>
 
 <DT>Bellman's Equation: Solution of a DDP</DT>
-<DD><pre>
-<table cellpadding="3" align="center">
+<DD class="disp">
+$$\eqalign{
+v(\alpha,\theta)\quad &\equiv \quad U(\alpha,\theta) + \delta EV(\theta^\prime|\alpha,\theta),\quad \forall \alpha\in A, \theta \in \Theta\cr
+EV(\theta\prime|\alpha,\theta)\quad  &= \quad \sum_{\alpha\in\Theta} P(\theta^\prime;\alpha,\theta) V(\theta^\prime)\cr
+V(\theta)\quad  &\equiv\quad  \max_{\alpha\in A}\quad v(\alpha,\theta)\cr
+P^\star(\alpha,\theta)\quad  &\equiv\quad   Prob\left[\ \alpha \in \arg\max_{\alpha\in A}\quad v(\alpha,\theta )\ \right]\cr
+}$$
+<!--<pre><table cellpadding="3" align="center">
 <tr><td nowrap>v(&alpha;,&theta;)</td><td>&equiv;</td><td>U(&alpha;;&theta;) + &delta; EV(&theta;&prime;|&alpha;,&theta;)</td><td>, &forall;
 &alpha;&in;A, &forall; &theta;&in;<b>&Theta;</b></tr>
 <tr><td nowrap>EV(&theta;&prime;|&alpha;,&theta;)</td><td>=</td><td>&Sigma;<sub>&theta;&in;<b>&Theta;</b></sub> &nbsp;&nbsp;P(&theta;&prime;;&alpha;,&theta;)
@@ -192,7 +198,10 @@ V(&theta;&prime;)</td></tr> <tr>
 <td nowrap>V(&theta;)</td><td>&equiv;</td><td>max&nbsp; <sub>&alpha; &in; A</sub> &nbsp;&nbsp;
 v(&alpha;,&theta;)</td></tr>
 <tr><td nowrap>&Rho;*(&alpha;,&theta;)</td><td>=</td><td>Prob[ &alpha; &in; argmax<sub>d&in;A</sub> v(d,&theta;) ]</td></td></td></tr>
-</table></pre></DD>
+</table>
+</pre>-->
+
+</DD>
 
 <li>Encoding Abstract Elements</li>
 
@@ -410,7 +419,7 @@ MyModel::Initialize() {
 <li>Five State Vector<em>S</em></li>
 <blockquote><b>Sort state variables by their role in the transition &Rho;().</b></blockquote>
 
-<h3>The generic state space &theta; &in; &Theta; generalizes to (&zeta;,&epsilon;,&eta;,&theta;,&gamma;) &in; (&Zeta;,&Epsilon;,&Eta;,&Theta;,&Gamma;)</h3>
+<h3>The generic state space $\theta\in \Theta$ generalizes to $(\zeta,\epsilon,\eta,\theta,\gamma) \in (Z,E,H,\Theta,\Gamma)$</h3>
 
 <DT>Following the literature &hellip;</DT>
 <DD>Special or restricted state variables are placed in different state vectors.</DD>
@@ -546,7 +555,9 @@ By default: q.T = &empty; for built-in state variables.</DD>
 <blockquote><b><code>MyModel</code> can trim the state space by sending a <code>MyModel::Reachable()</code> routine to <code>CreateSpaces()</code> that only returns a new instance <code>MyModel</code> for states that can be reached. It can make values of a state variable terminal by calling `StateVariable::MakeTerminal`().</b></blockquote>
 
 <DT>Possible States: &Omega;</DT>
-<DD class="example">Following the notion of possible versus feasible actions above, the Cartesian product of all possible values of the endogenous state variables is defined as the <em>possible state space</em>:<pre>&Omega; &equiv; &times; <sub>k=0&hellip;(&theta;.N)&oline;</sub> { 0 &hellip; (q<sub>k</sub>.N)&oline; }.</pre>
+<DD>Following the notion of possible versus feasible actions above, the Cartesian product of all possible values of the endogenous state variables is defined as the <em>possible state space</em>:</DD>
+<dd class="disp">$$\Omega \quad\equiv\quad \prod_{k=0\dots\theta.N^-1} \{ 0 \dots q_{_{k.N^-}} \}$$ </dd>
+<!--<pre>&Omega; &equiv; &times; <sub>k=0&hellip;(&theta;.N)&oline;</sub> { 0 &hellip; (q<sub>k</sub>.N)&oline; }.</pre>-->
 The current value of a state is always equal to some row in &Omega;: &theta;.v &in; &Omega;.</dd>
 
 <DT>Reachable States</DT>
@@ -584,9 +595,22 @@ The current value of a state is always equal to some row in &Omega;: &theta;.v &
 <DD>Group variables are like random effects.  They are fixed and non-random from an agent's point of view, but from our point of view they are randomly distributed for an individual agent.</DD>
 <DD>Group variables are not involved in the creation of <b>&Theta;</b>, which is reused for the solution of the model for each &gamma;.</DD>
 <DT>&Gamma;</DT>
-<DD class="example">The Cartesian product of all possible values of the group variables is defined as the <em>group space</em>:<pre>
-       &Gamma; &equiv; &times;{ 0 &hellip; (g<sub>k</sub>.N)&oline; }, for k= 0 &hellip; (&gamma;.N)&oline;.</pre></dd>
-<DD>Each group has a probability <pre>&Rho;<sub>g</sub>(&gamma;) = &prod; <sub>k=0&hellip;(&gamma;.N)&oline;</sub>  p(g<sub>k</sub>.v)</pre></DD>
+<DD class="example">The Cartesian product of all possible values of the group variables is defined as the <em>group space</em>:</DD>
+<dd class="disp">$$\Gamma\quad\equiv\quad \prod_{k=0\dots\gamma.N^-}\ \bigl\{\,0\dots\, \gamma.N^-\,\bigr\}$$</dd>
+<details class="aside"><summary>Example</summary>
+<dd>There are two group variables, <code>&gamma; = (g,d)</code>, where g is gender, so g.N&oline;=1 and d is degree status so
+d.N&oline; =2, (no high school degree, high school, some college).  Then <code>&Gamma; = {0,1}&times;{0,1,2} = </code>
+<pre>0 0
+1 0
+0 1
+1 1
+0 2
+1 2</pre></dd></details>
+<!--<pre>&Gamma; &equiv; &times;{ 0 &hellip; (g<sub>k</sub>.N)&oline; }, for k= 0 &hellip; (&gamma;.N)&oline;.</pre></dd>-->
+<DD>Each group has a probability </DD>
+<dd class="disp">$$P_g(\gamma)\quad=\quad \prod_{k=0\dots \gamma.N^-}\ p(g_k.v)$$</dd>
+<dd>This assumes group variables are iid.  You can use fixed and random effect blocks to include correlated groups.</dd>
+<!--<pre>&Rho;<sub>g</sub>(&gamma;) = &prod; <sub>k=0&hellip;(&gamma;.N)&oline;</sub>  p(g<sub>k</sub>.v)</pre></DD>-->
 <DD>There is no mechanism to mark some groups as unreachable.</DD>
 <DT>Choice Probabilities: &Rho;*</DT>
 <DD><span class="n">DDP</span> solves the DP model for each group vector &gamma; &in; &Gamma;

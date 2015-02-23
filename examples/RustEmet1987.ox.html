@@ -19,7 +19,19 @@ Replicate Rust 1987 output using <span class="n"><a href="../doc/DynamicPrograms
 <P/>
 <code>RustEmet1987.ox</code> replicates <em>Table IX, Column 2, Rows 1 and 2 </em> in <a href="http://www.jstor.org/stable/1911259?origin=JSTOR-pdf">Rust (Econometrica 1987)</a>, the celebrated bus engine replacement model.
 <P/>
-<h2>Overview</h2>
+<a href="#auto">Skip down to documentation of items defined in DP.ox</a><p>
+<P/>
+<OL class="contents">
+<LI>Overview</LI>
+<li>Model</li>
+<li>Implementation</li>
+<li>Remarks</li>
+<li>Replication Output</li>
+<li>Simulation</li>
+</OL>
+<P/>
+<OL class="body">
+<a name="O"><LI>Overview</LI></a>
 <P/>
 The program produces engine replacement probabilities that match those shown in <em>Figure 3 on page 1025</em> of the paper.
 <P/>
@@ -30,7 +42,8 @@ The paper models the decision to replace a bus engine as a function of mileage a
 <P/>
 See <a href="RustEmet1987mle.ox.html">RustEmet1987mle</a> to see how to carry out estimation using data as in the original paper.
 <P/>
-<h2>The Model</h2>
+<a name="M"><LI>The Model</li></a>
+<P/>
 <DL>
 <DT>An example of <code>Rust</code> class DDP:</DT>
 <DD>&zeta; specification:  <em>ex ante</em> extreme value shocks with &rho; = 1.0.</DD>
@@ -73,21 +86,26 @@ takes on values between 0 and 89.
     <var>x=89/2</var>, the median mileage category.</details>
 </DL>
 <P/>
-<h2>Implementation in DDP</h2>
+<a name="I"><li>Implementation in DDP</li></a>
 <P/>
+<DT>Declarations in the Header File</DT>
 <details><summary><a href="RustEmet1987.h">Header File</a></summary>
 <DD><pre><object width="75%" height="200" type="text/plain" data="./RustEmet1987.h" border="1" ></object></pre></dd></details>
 <P/>
+<DT>Executable Code in the Ox File</DT>
 <details><summary><a href="RustEmet1987.ox">Ox File</a></summary>
 <dd><pre><object width="75%" height="200" type="text/plain" data="./RustEmet1987.ox" border="1" ></object></pre></dd></details>
 <P/>
-<h3>Remarks</h3>
-<DT><code>Zurcher</code> is derived from the <code>Rust</code> class, which is an infinite horizon clock and a single binary action (<code>d</code>).  It 
-defines constants and declares a <code>static</code> member <code>x></code>.  It declars the two required methods: <code>static Reachable()</code> and non-static <code>Utility()</code>.  These two elements of the implementation are short and simple.</DT>
+<a name="R"><LI>Remarks</LI></a>
 <P/>
-<DT><code>Reachable</code> called by <code>DP::CreateSpaces</code>() while it generates the state space <b>&Theta;</b> Each time it is called <code>Reachable()</code>
-returns a new instance of the <code>Zurcher</code> class, another endogenous state &theta;.  
-<details class="aside"><summary>Unreachable States</summary>If the state space had states that were infeasible to reach then <code>Reachable</code> would look at the current values of the state variables (in this case <var>x</var>) and return an integer if the point is not feasible.  This feature allows the code to avoid unnecessary visits and reduce memory requirements in very large models.  Note that <code>Reachable()</code> can be called anything and it does not need to be a method, but if is a method of Zurcher then it must be declared <code>static</code>.</details>
+<DT><code>Zurcher</code> is derived from the <code>Rust</code> class</DT>
+<DD>The <code>Rust</code> class embeds an infinite horizon clock and a single binary action (<code>d</code>).  It
+defines constants and declares a <code>static</code> member <code>x></code>.  </DD>
+<DD><code>Zurcher</code> then declares the two required methods: <code>static Reachable()</code> and non-static <code>Utility()</code>. These two elements of the implementation are short and simple.</DD>
+<P/>
+<DT><code>Reachable()</code> is called by <code>DP::CreateSpaces</code>() as it generates the state space <code>&Theta;</code>.</DT>
+<DD>Each time it is called <code>Reachable()</code> returns a new instance of the <code>Zurcher</code> class, another endogenous state &theta;.</DD>
+<details class="aside"><summary>Unreachable States</summary>If the state space had states that were infeasible to reach then <code>Reachable</code> would look at the current values of the state variables (in this case <var>x</var>) and return an integer if the point is not feasible.  This feature allows the code to avoid unnecessary visits and reduce memory requirements in very large models.  Note that <code>Reachable()</code> can be called anything and it does not need to be a method, but if is a method of <code>Zurcher</code> then it must be declared <code>static</code>.</details>
 <P/>
 <DT><code>Utility</code> must have that name and cannot be <code>static</code>.</DT>
 <DD>The form of the expression returned as the value should look related to the mathematical expression <var>U()</var> above.  The parameters are static members of the class (they are the shared by each state &theta;).  The current value of <code>x</code> is accessed as <code>CV(x)</code>.  The value of <code>x</code> is set to be the correct value at &theta; before <code>Utility()</code> is called.</DD>
@@ -100,43 +118,48 @@ A[0] =  &lceil; 0 &rceil;    So U = &lceil; -0.001x + n&rceil;
 Whenever called, <code>Utility</code> returns a 2x1 matrix, the utility of not replacing and replacing.</details>
 <P/>
 <DT>The tasks required to set up and solve the model are in <code>Zurcher::Run</code>(). Like <code>Run()</code>, a user's program must do these tasks in order:</DT>
-<OL>
+<OL class="steps">
 <LI>Call <code>Initialize()</code> for the parent DDP class and send the <code>Reachable()</code> function, along with required arguments or optional values to change the default values.  Since <code>Zurcher</code> is of type <code>Rust</code>, the program is calling <code>Rust::Initialize()</code>, which will set the clock and add the binary action variable to the model, <code>d</code>.</LI>
 <LI>Create state variables (using the <code>new</code> operator) and add them to the model.</LI>
 <LI>Call <code>CreateSpaces();</code>.</LI>
 </OL>
-<DT>The state variable <var>x</var> is of type <Code>Renewal</code>, which captures the process in Rust 1987 but is more general than in the empirical specification.  To properly capture the transition it must be coordinated with the choice variable <code>d</code>.  To do this <code>d</code> is passed to
+<DT>The state variable <var>x</var> is of type <Code>Renewal</code>, which captures the process in Rust 1987 but is more general than in the empirical specification.  </DT>
+<DD>To properly capture the transition it must be coordinated with the choice variable <code>d</code>.  To do this <code>d</code> is passed to
 <code>new Renewal()</code> as an argument, along with how many categories <code>x</code> takes on and the vector of increment
-probabilities.  The length of the vector determines how different states are feasible next period. In the empirical work, 3 of 90 odometer readings are feasible next period.</DD>
+probabilities.  </DD>
+<DD>The length of the vector determines how different states are feasible next period. In the empirical work, 3 of 90 odometer readings are feasible next period.</DD>
 <P/>
-<DT>Once <code>CreateSpaces()</code>  has been called new actions and new state variables cannot be added to the model because the state spaces have be set up already.  And some other optional tasks must be done between <code>Initialize</code> and <code>CreateSpaces</code>.  </DT>
+<DT>Once <code>CreateSpaces()</code>  has been called new actions and new state variables cannot be added to the model because the state spaces have be set up already.  </DT>
+<dd>And some other optional tasks must be done between <code>Initialize</code> and <code>CreateSpaces</code>.  </DD>
 <DT>To solve the model the following steps are carried out</DT>
-<OL>
+<OL class="steps">
 <LI>Set the discount factor &delta;.  (This can be done at any time after <code>Initialize()</code> before solving the model with that &delta;.)</LI>
 <LI>Create a new instance of a solution <Code>Method</code>, such as value function iteration.</LI>
 <LI>Call <code>Solve()</code> for the solution method to compute  V(&theta;) and &Rho;*(&alpha;|&theta;).</LI>
 <LI>Use the results, then if necessary change some settings or parameters and solve again.</LI>
 </OL>
-<DT>The code inside the <code>for()</code> loop solves the model twice, for Row 1 and Row 2 parameters. For each set of parameters the value function is solved through Bellman iteration by <code>Emax->Solve()</code>.  It calls the <code>Output()</code> routine to capture results to be printed and compared with Figure 3 in the paper.</DD>
+<DT>The code inside the <code>for()</code> loop solves the model twice, for Row 1 and Row 2 parameters. </DT>
+<DD>For each set of parameters the value function is solved through Bellman iteration by <code>Emax->Solve()</code>.  It calls the <code>Output()</code> routine to capture results to be printed and compared with Figure 3 in the paper.</DD>
 <P/>
-<h2>Replication Output</h2>
+<a name="O"><li>Output</li></a>
 <P/>
 <DD class="example"><pre>       Output produced: <a href="output/RustEmet1987.txt">niqlow/examples/output/RustEmet1987.txt</a>
 <object width="75%" height="200" type="text/plain" data="output/RustEmet1987.txt" border="1" ></object></pre></DD>
 <P/>
 The values of EV do not match those shown in Figure 2 of the paper.  This is due to Rust using a different normalization than the value used here.  However, the choice probabilities appear to match very well those shown if Figure 3, as the image below suggests.
 <P/>
-<h2>Comparison to Figure 3</h2>
+<DT>Comparison to Figure 3</DT>
 <img src="./Zurcher-Figure3-Replication.png" width="45%"><img src="./Figure3Rust1987.png" width="45%">
 <P/>
 The paper labels the x axis as thousands of miles since engine replacement.  This means that <var>x</var> should take on values 0, 5, ..., 445.  It also suggests that the factor on costs scales 300,000 to 300. However, using this scaling I was not able to replicate the choice probabilities.  Only when <var>x</var> takes on values 0, ..., 89 and the scaling factor still equals 0.001 was I able to reproduce the choice probabilities.
 <P/>
-<h2>Simulation of the process</h2>
+<a name="S"><LI>Simulation</LI></a>
 <P/>
 <DT>Another use of the model is to simulate data by creating a <Code>Panel</code> object and simulating a sample of data from the process. </DT>
-<DT>The call to <code>Panel::Simulate</code> creates a data set of 10 buses observed over 400 months each.  The initial mileage for each bus will be drawn from the ergodic distribution.  </DT>
-<DT>The output file shows a simulated panel of buses, including the months and mileage at every replacement.  The simulate routine returns a panel of observations.  But in the case of this model it is sufficient to show only months when an engine is replaced, the age of the bus when it occurs and the mileage reading. So the replication program deletes simulated months when no replacement occurred.  It also appends the row number for the model.</DT>
-<dd class="example">For example, the first simulated bus data looks like this
+<DD>The call to <code>Panel::Simulate</code> creates a data set of 10 buses observed over 400 months each.  The initial mileage for each bus will be drawn from the ergodic distribution.  </DD>
+<DD>The output file shows a simulated panel of buses, including the months and mileage at every replacement.  The simulate routine returns a panel of observations.  </DD>
+<DD>But in the case of this model it is sufficient to show only months when an engine is replaced, the age of the bus when it occurs and the mileage reading. So the replication program deletes simulated months when no replacement occurred.  It also appends the row number for the model.</DD>
+<dd>For example, the first simulated bus data looks like this
 <pre>Simulated data
 Simulated data
   Fxed  path     t     n     T   Aj|   s11   s21     x     t    t'     r     f  |ai|     a
@@ -145,11 +168,17 @@ Simulated data
      0     0   248    53     0     0     0     0    53     0     0     0     0     1     1
      0     0   344    69     0     0     0     0    69     0     0     0     0     1     1
 </pre></DD>
+<DD>Bus 0 had four replacements, which occurred in months 116, 175, 269 and 350 of its lifetime.  The mileage on the odometer at replacement was in the interval <code>[5000x,5000(x+1)]</code>.</DD>
 <P/>
-Bus 0 had four replacements, which occurred in months 116, 175, 269 and 350 of its lifetime.  The mileage on the odometer at replacement was in the interval <code>[5000x,5000(x+1)]</code>.
+<DT>The column labeled <code>Const</code> is a placeholder for exogenous state variables. </DT>
+ <DD>If the model has no such variables then DDP inserts a constant there.  This makes it possible to construct indices into the state space without requiring a check of zero dimensions.  </DD>
+ <DD>Since the model is stationary there is no separate time variable.  If this were a finite horizon or non-stationary environment then t would contain the age of the process.  </DD>
+ <DD>DDP allows for random aging so t would not necessarily be equivalent to the months column. </DD>
+ <DD>The t' variable (t&Prime; in the notes) is used during iteration on the value function.  During simulation it is not used and would always have the value 0.</DD>
 <P/>
-<DT>The column labeled <code>Const</code> is a placeholder for exogenous state variables.  If the model has no such variables then DDP inserts a constant there.  This makes it possible to construct indices into the state space without requiring a check of zero dimensions.  Since the model is stationary there is no separate time variable.  If this were a finite horizon or non-stationary environment then t would contain the age of the process.  DDP allows for random aging so t would not necessarily be equivalent to the months column. The t' variable (t&Prime; in the notes) is used during iteration on the value function.  During simulation it is not used and would always have the value 0.
-</DD>
+</OL>
+<P/>
+<hr><a name="auto"><h1>Documentation of  Items Defined RustEmet1987.ox</h1></a>
 
 <a name="Zurcher"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Zurcher</span></h2>

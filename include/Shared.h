@@ -64,9 +64,9 @@ static const decl
 	vararray(s);
 	MyMoments(M,rlabels=0);
 	prefix(pfx, s);
-	GaussianKernel(X,h);
+	GaussianKernel(X,h=UseDefault);
+    Epanechnikov(X,h);
     ToggleParams(a,...);
-//    GetVM();
 
 /** A container for auxiliary structures, which helps organize the hierarchy of classes. **/
 struct Zauxiliary { }

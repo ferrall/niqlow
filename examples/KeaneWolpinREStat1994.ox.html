@@ -19,13 +19,14 @@ Replicate ?? of Keane and Wolpin (REStat 1994).
 <P/>
 <h2>The Model</h2>
 <DT>Solution Method <DD>Keane-Wolpin Approximation
-<DT>Clock: Finite horizon, normal aging.
-<dd><pre>
+<DT>Clock: </DT>
+<DD>Finite horizon, normal aging.<pre>
 T= 40.
 age = 16+t</pre>
-</dd></DT>
-<DT>Action &alpha; = (a)
-<DD>which task/sector to perform
+</dd>
+<DT>Action:</DT>
+    <DD> &alpha; = (a)</DD>
+    <DD>where a is which task/sector to perform/join
 <pre>
 Label   Code  M<sub>s</sub>
 ---------------------
@@ -33,44 +34,47 @@ white    0       20
 blue     1       20
 school   2       10
 home     3        -</pre></DD>
-<DT>Feasible Actions
-<DD>Schooling not feasible after age 35(?)
-<DT>Exogenous states <DD>&epsilon; = (e<sub>0</sub> &hellip; e<sub>3</sub>)  &epsilon; &sim; discretized N(0,&Sigma;)</DD></DT>
+<DT>Feasible Actions, A(&theta;).</DT>
+<DD>Schooling not feasible after age 35 (<code>t=20</code>)</DD>
+<DT>Exogenous states</DT> <DD>&epsilon; = (e<sub>0</sub> &hellip; e<sub>3</sub>)  &epsilon; &sim; discretized N(0,&Sigma;)</DD>
 <DT>Semi-Exogenous &eta; = ()</DT>
-<DT>Endogenous states: <DD>&theta; = (x<sub>0</sub> x<sub>1</sub> x<sub>2</sub> p t)
+<DT>Endogenous states:</DT> 
+<DD>&theta; = (x<sub>0</sub> x<sub>1</sub> x<sub>2</sub> p t)
 <pre>
 accumulate sector experience:              x'<sub>s</sub> = x<sub>s</sub>+I<sub>{a=s}</sub>, s &ne;3
-enrolled previous period:                       p' =  I<sub>{a=2}</sub>        </pre></DD></DT>
-<DT>Occupation-Specific Human Capital Accumulation
+enrolled previous period:                       p' =  I<sub>{a=2}</sub>        </pre></DD>
+<DT>Occupation-Specific Human Capital Accumulation</DT>
 <DD><pre>
 h<sub>0</sub>(&theta;) = (1 x<sub>0</sub> x<sub>1</sub> x<sub>2</sub>) &alpha;<sub>0</sub>
 h<sub>1</sub>(&theta;) = (1 x<sub>0</sub> x<sub>1</sub> x<sub>2</sub>) &alpha;<sub>1</sub>
-</pre></DD></DT>
-<DT> Utility
+</pre></DD>
+<DT> Utility</DT>
 <DD><pre>
     U = R(&theta;)[a]
 </pre>
 where R() are the occupation-specific returns<pre>
-R<sub>0</sub> = exp{h<sub>0</sub>(&theta;)+e<sub>0</sub>}
-R<sub>1</sub> = exp{h<sub>1</sub>(&theta;)+e<sub>1</sub>}
-R<sub>2</sub> = &beta;<sub>0</sub> - &beta;<sub>1</sub>I<sub>{x<sub>2</sub>&ge;12}</sub> - &beta;<sub>2</sub>p + e<sub>2</sub>
-R<sub>3</sub> = &gamma; + e<sub>3</sub>
+    R<sub>0</sub> = exp{h<sub>0</sub>(&theta;)+e<sub>0</sub>}
+    R<sub>1</sub> = exp{h<sub>1</sub>(&theta;)+e<sub>1</sub>}
+    R<sub>2</sub> = &beta;<sub>0</sub> - &beta;<sub>1</sub>I<sub>{x<sub>2</sub>&ge;12}</sub> - &beta;<sub>2</sub>p + e<sub>2</sub>
+    R<sub>3</sub> = &gamma; + e<sub>3</sub>
 </pre></DD>
 </DT>
+<P/>
 <h2>Approximation</h2>
 <P/>
 <DT>&epsilon; is a four dimensional iid vector.
 <DD><pre>
 EV<sub>&alpha;&theta;>[&theta;'] = &sum;<sub>&theta;'</sub>[ &sum;<sub>e'<sub>0</sub></sub> &sum;<sub>e'<sub>2</sub></sub> &sum;<sub>e'<sub>2</sub></sub> &sum;<sub>e'<sub>3</sub></sub> V(&epsilon;',&theta;') P(&theta;';&alpha;,&theta;) / &epsilon;.D]
     = Emax[&theta;'] </pre></DD>
-K&amp;W denote this Emax, as in the expected value of the maximum over actions at the state next period. Since the transition for &theta; is deterministic, the outer sum is over a single state next period and P() = 1.  However, the inner summation involves &epsilon;.D values, each of which involves the maximization over 4 options of <code>v(&alpha;,&epsilon;',&theta;')</code>.  If, say, each component takes on 5 values, then &epsilon;.D = 5<sup>4</sup> = 625 points to sum up per point in the endogenous space &theta;.
-<DT>K&amp;W define<DD>
-<pre>maxE[&theta;'] = V(&ecirc;,&theta;') </pre>
+K&amp;W denote this <em>Emax</em>, as in the expected value of the maximum over actions at the state next period. Since the transition for &theta; is deterministic, the outer sum is over a single state next period and P() = 1.  However, the inner summation involves &epsilon;.D values, each of which involves the maximization over 4 options of <code>v(&alpha;,&epsilon;',&theta;')</code>.  If, say, each component takes on 5 values, then &epsilon;.D = 5<sup>4</sup> = 625 points to sum up per point in the endogenous space &theta;.
+<DT>K&amp;W define</DT>
+<DD><pre>maxE[&theta;'] = V(&ecirc;,&theta;') </pre>
 where &ecirc; is a 1&times;4 vector of 0s, the expected value of &epsilon;'.  Thus, this is the max over actions at the expected iid shock next period.
-</DD></DT>
-<DD>They approximate EV by evaluating directly at a subset of points in &theta;, which includes evaluating <code>max v(&alpha;,&epsilon;',&theta;')</code>.  They track the maximum V(&epsilon;',&theta;') and the value at &ecirc;, maxE[&theta;'] and the vector of choice values <code>v(&alpha;,&ecirc;,&theta;')</code>.
 </DD>
-<DD>They run a regression of V on a non-linear expression involving v() and maxE, resulting in coefficients.  In particular:
+<DD>Approximate EV by evaluating directly at a subset of points in &theta;, which includes evaluating <code>max v(&alpha;,&epsilon;',&theta;')</code>.</DD>
+<DD>Track the maximum V(&epsilon;',&theta;') and the value at &ecirc;, maxE[&theta;'] and the vector of choice values <code>v(&alpha;,&ecirc;,&theta;')</code>.
+</DD>
+<DD>At each <code>t</code> run a regression of V on a non-linear expression involving v() and maxE, resulting in coefficients.  In particular:
 <pre>
 Emax(&epsilon;',&theta;') - maxE(&theta;')  &approx; d<sub>0</sub>+ (maxE-v(A,&theta;') )d<sub>1</sub> + sqrt(maxE-v(A,&theta;'))d<sub>2</sub>.</span>
 </pre>
@@ -81,19 +85,17 @@ d<sub>0</sub> is an intercept, and d<sub>1</sub> and d<sub>2</sub> are 4&times 1
 Note that &Ecirc;max is defined to be at least maxE, and when the algorithm has computed Emax it is used for &Ecirc;max.
 </DD>
 <P/>
-</DT>
-<P/>
 <h2>Replication</h2>
 <P/>
-<dd class="example"> <pre><a href="./KeaneWolpinREStat1994.h">Header File: </a>
-<object width="75%" height="200" type="text/plain" data="./KeaneWolpinREStat1994.h" border="1" ></object></pre></dd>
+<dd class="example"><details><summary><a href="./KeaneWolpinREStat1994.h">Header File:</a></summary>
+<pre>
+<object width="75%" height="200" type="text/plain" data="./KeaneWolpinREStat1994.h" border="1" ></object></pre></details></dd>
 <P/>
-<dd class="example"> <pre><a href="./KeaneWolpinREStat1994.ox">Ox File:</a>
-<object width="75%" height="200" type="text/plain" data="./KeaneWolpinREStat1994.ox" border="1" ></object></pre></dd>
+<dd class="example"><details><summary><a href="./KeaneWolpinREStat1994.ox">Ox File:</a></summary><pre>
+<object width="75%" height="200" type="text/plain" data="./KeaneWolpinREStat1994.ox" border="1" ></object></pre></details></dd>
 <P/>
-<DD class="example">
-<pre>Output <a href="output/KeaneWolpinREStat1994.txt">niqlow/examples/output/KeaneWolpinREStat1994.txt</a>
-<object width="75%" height="200" type="text/plain" data="output/KeaneWolpinREStat1994.txt" border="1" ></object></pre></DD>
+<DD class="example"><details><summary>Output <a href="output/KeaneWolpinREStat1994.txt">niqlow/examples/output/KeaneWolpinREStat1994.txt</a></summary>
+<pre><object width="75%" height="200" type="text/plain" data="output/KeaneWolpinREStat1994.txt" border="1" ></object></pre></details></DD>
 
 <a name="DynamicRoy"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DynamicRoy</span></h2>

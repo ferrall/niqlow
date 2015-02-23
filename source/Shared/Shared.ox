@@ -455,14 +455,29 @@ GHK::SimDP(V,Sigma){
 
 /** Compute the Gausian kernel matrix for a data matrix.
 @param X RxNd matrix of points
+@param h bandwidth.  -1 [default] use Silverman<br>&gt; 0.0 value.
+@return NdxNd matrix
+**/
+GaussianKernel(X,inh) {
+	decl k, xk, Nd = columns(X), KK = new matrix[Nd][Nd],h;
+    h = (inh<0.0) ? (1.364 * sqrt(varc(X))) / (M_PI*Nd)^0.2  : constant(inh,Nd);
+	foreach (xk in X[][k]) KK[k][] =  prodc(densn((X-xk)/h[k]));
+	return KK ; // ./ sumr(KK);
+	}
+
+/** Compute the Epanechnikov kernel matrix for a data matrix.
+@param X RxNd matrix of points
 @param h bandwidth
 @return NdxNd matrix
 **/
-GaussianKernel(X,h) {
-	decl k, xk, Nd = columns(X), KK = new matrix[Nd][Nd];
-	foreach (xk in X[][k]) KK[k][] =  prodc(densn((X-xk)/h));
-	return KK ; // ./ sumr(KK);
-	}
+Epanechnikov(X,h) {
+	decl k, xk, Nd = columns(X), KK = new matrix[Nd][Nd],u;
+	foreach (xk in X[][k]) {
+        u=fabs((X-xk)/h);
+        KK[k][] =  u.<=1 .? 0.75*(1-sqr(u)).: 0.0;
+        }
+	return KK ;
+    }
 
 /** Create a system of equations.
 @param LorN array of strings (labels)<br>string, a list of labels processed by `varlist`<br>positive integer, number of equations

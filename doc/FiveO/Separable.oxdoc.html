@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\..\..\..\..\..\..\..\..\..\..\..\..\..\..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\..\..\..\..\..\..\..\..\..\..\..\..\..\..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>Separable.oxdoc - FiveO</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">Separable.oxdoc</span></h1>
+
+A separable objective is the sum of <var>K</var> BlackBox objectives.
+<P/>
+<DT>A separable objective is a function <em>and</em> a parameter <em>matrix</em> of the form</DT>
+<!--<dd><pre>
+&psi; = (&psi;<sub>0</sub>  &psi;<sub>1</sub>  &hellip;  &psi;<sub>K&oline;</sub>)
+<P/>
+&fnof;(&psi;)  = &sum;<sub>k=0,&hellip;K&oline;</sub>&emsp;  [&sum; f<sub>k</sub>(&psi;<sub>k</sub>)]
+</pre></pre>-->
+<dd class="disp"><span class="equation">$$\eqalign{
+\psi \quad &=\quad \left(\psi_0 \psi_1 \dots \psi_{K^-} \right)\cr
+f(\psi) \quad &=\quad \sum_{k=0}^{K^-1} \ \sum_{} f_k\left(\psi_k)\right) \cr
+}$$</span></dd>
+<P/>
+<DT>Each sub-vector <code>&psi;<sub>k</sub></code> is of the same length, <code>(&psi;.k).N = M.</code></DT>
+<DD>The overall parameter <code>&psi;</code> is then a <code>M &times; K</code> matrix, the horizontal concatenation of the the sub-vectors.</DD>
+<dd>Obviously, for K=1 a separable objective is equivalent to a BlackBox.</DD>
+<P/>
+<DT>The user only needs to code the sub-objective as a function of the sub-parameter vector and a Discrete quantity, <code>K</code>.</DT>
+<DD>That is, the user codes <code>vfunc()</code> to equal <code>f<sub>k</sub>(&psi;<sub>k</sub>)</code>.  </DD>
+<DD>The current value of the index <code>k</code> is stored as Separable::Kvar.v. </DD>
+<DT>To create a separable objective, call <code>new Separable(L,Kvar)</code>, where <code>Kvar</code> can be either
+<DD><pre>
+Kvar = positive integer
+ or
+Kvar = objective of class Discrete</pre>
+If a positive integer is sent then <span class="n">FiveO</span> sets <code>this.Kvar = new Discrete("K",Kvar);</code>.  Otherwise,
+the user sent discrete variable is used directly.</DD>
+<DT>Algorithms do not know the difference between separable objectives and blackboxes.  </DT>
+<DD>Instead, <span class="n">FiveO</span> keeps track internally of the matrix structure of the parameter vector.  </DD>
+<DT>Ordinarily a single parameter of a separable objective spawns <code>K</code> parameter <em>values</em>.</DT>
+<DD>Objective::Parameters(x) creates a single parameter (or block), but the value of that parameter will be allowed to vary across <code>k</code>.  </DD>
+<DD>Each value of a parameter is under the control of algorithms.  Any dependency between parameters within a sub-vector will be respected <code>k</code> by <code>k</code>.</DT>
+<DT>A parameter can be added to the objective with Separable::CommonParameters().</DT>
+<DD> Now the parameter has only one value which will be the same across <code>k</code>.</DD>
+<DT>Total Parameters</DT>
+<DD>If no common parameters (and no Determined parameters) are added to a separable objective then the length of the (overall) parameter vector seen by an algorithm is <code>N = KM</code>.</DD>
+<DD>Separable::C<code>&le;M</code> denotes the number of common parameters that were added to the objective.  In general, the overall parameter vector has length <code>N = C+K&times;(M-C)</code>.</DD>
+<DD>Parameters are always written out to files with duplicates, so it will appear that <var>N&times;K</var> parameters exist, but common parameters will always be equal across <code>k</code>. </DD>
+ <DD>This means that parameters can be changed from common to specific and vice versa without modifying files created by Objective::Save().</DD>
+<P/>
+<DT>The overall parameter vector concatenates the sub-vectors:</DT>
+<DD><pre>&psi; &equiv; &#9001; &psi;<sub>0</sub> &psi;<sub>2</sub> &hellip; &psi;<sub>K&oline;</sub> &#9002 </pre></DD>
+<P/>
+<DT>Coding a Separable Objective.</DT>
+<DD>The user codes the component function, <var>f<sub>k</sub>(&psi;<sub>k</sub>).</var> as the <code>vfunc()</code> method.  <code>vfunc</code> knows which sub-problem is active through the index Separable::k. From the coding point of view <code>vfunc</code>, there is one objective which might be written <var>f<sub>k</sub>(&psi;<sub>k</sub>) &equiv; g(&psi;,k)</var> rather than K different computer-coded functions.
+<DD><span class="n">Five-O</span> sets <code>k</code> and places the correct parameter values in &psi; before calling <code>vfunc()</code>.</DD>
+<P/>
+<DT>Separate and Common Parameters</DT>
+<DD>Separable::Parameters() creates a type-specific parameter that varies across <code>k</code>.  So <code>Parameters(x)</code> creates <var>K</var> different parameters to be optimized over, one for each sub objective f<sub>k</sub>(&psi;<sub>k</sub>).
+<pre>Separable::Parameters(x)  &rarr;  &psi; = &#9001; (x<sub>0</sub> &hellip;) (x<sub>1</sub> &hellip;) &hellip; (x<sub>K&oline;</sub> &hellip;) &#9002 </pre></DD>
+<DD>In many applications, some parameters are common across sub-objectives.  A common parameter is added using Separable::CommonParameters().  So <code>CommonParameters(y)</code> creates only one parameter to optimize and its value will be the same for each k as <code>vfunc()</code> is called.
+<pre>Separable::CommonParameters(x)  &rarr;  &psi; = &#9001; (x &hellip;) (x &hellip;) &hellip; (x &hellip;) &#9002 </pre></DD>
+<P/>
+<DD>Separable::CommonBlock adds a block of parameters common across types.</DD>
+<P/>
+<DT>Total Parameters
+<DD>If no common parameters are added to the objective then the length of the (overall) parameter vector is <code>N = KM</code>.
+<DD>Separable::C denotes the number of common parameters.  The overall parameter vector has length <code>N = C+K&times;(N-C)</code>.
+<DD>Parameters are always written out with duplicates, so it will appear that <var>N&times;K</var> parameters exist.  This means that parameters can be changed from common to specific and vice versa without modifying files created by Objective::Save().</DD>
+<P/>
+<h2>Mixture: Separable objective with linearly weighted sub-objectives.</h2>
+<P/>
+A <em>Mixture</em> is the objective from a finite mixture model of unobserved heterogeneity, in which the separate functions involve two stages and weighting parameters.
+<P/>
+A Mixture generalizes a separable objective in two ways, so it is a class derived from Separable.
+<DT>First, a mixture includes a second discrete dimension, Mixture::Dvar. </DT>
+<DD>The current value, <code>Dvar.d</code>, takes on values <code>0 &hellip; D&oline;</code> and indexes different environments that the parameters</DD>
+ <DD>Now the sub objective depends on <code>k</code> and <code>d</code>.  However, parameter vectors continue to only depend on <code>k</code>. </DD>
+ <DD> Thus, in a mixture model sub-objectives take the form <code>&fnof;<sub>k d</sub>(&psi;<sub>k</sub>)</code>.</DD>
+<DD>Thus, there are <code>KD</code> different combinations of
+<DT>Second, a mixture has a separate D&times;K matrix of <em>weighting parameters</em>, denoted <code>&lambda;</code>.  </DT>
+<DT>The mixture objective :<DD><pre>
+&fnof; = &sum;<sub>d=0</sub><sup>D&oline;</sup>  &sum;<sub>k=0</sub><sup>K&oline;</sup>  &lambda;[d][k] &fnof;<sub>k d</sub>(&psi;<sub>k</sub>)
+<P/>
+Typically (but not necessarily), the weights are each a unit Simplex for each d:
+  0 &le; &lambda;[d][k] &le; 1
+  &sum;<sub>k=0</sub><sup>K&oline;</sup> &lambda;[d][k] = 1. </pre></DD>
+<DD>A separable objective is the special case of a mixture with <code>D=K</code> and <code>&lambda; = I<sub>K</sub></code>.  That is, each type is specific to an environment.</DD>
+<DT>To create a mixture objective, call <code>new Mixture(L,Dvar,Kvar,...) </code>, where <code>Kvar</code> is the same as for separable objectives and <code>Dvar</code> can be the same:
+<DD><pre>
+Dvar = positive integer
+ or
+Dvar = objective of class Discrete</pre>
+If a positive integer is sent then <span class="n">FiveO</span> sets <code>this.Dvar = new Discrete("D",Dvar);</code>.  Otherwise,
+the user sent discrete variable is used directly.</DD>
+<DD>The variable argument are optional initializing values for &lambda;
+<pre>
+Let va = va_arglist();
+No optional argument (va = {}) means
+	lambda[d] = new Simplex("L"+sprint("%2u",d),K),  for d = 0, &hellip; D&oline;
+A single argument (va = array[1]), then it must be a D&times;K matrix
+	lambda[d] = new Simplex("L"+sprint("%2u",d),va[0][d][]),  for d = 0, &hellip; D&oline;
+D arguments (va = array[D]), then each must be a ParameterBlock of size K and
+	lambda[d] = va[d]    for d = 0, &hellip; D&oline;</pre></DD>
+<DD>The final option allows the user to use weights that do not sum to 1 for each value of <code>d</code>, because the parameter block need not be a <a href="Parameters.ox.html#Simplex">Simplex</a> parameter block.</DD>
+<DT>It is inefficient to compute &fnof;<sub>k d</sub> if its weight is zero. </DT>
+<DD>The user can send a matrix of 0s and 1s to Mixture::IncludedDK(), which indicates which type-environment pairs should be ignored.</DD>
+<DD>The default matrix consists of 0s, meaning that no combinations are ignored.</DD>
+<DT>Algorithms do not know any difference between a mixture, separable or blackbox objective. </DT>
+ <DD>Algorithms will work with a concatenation  of &lambda; and &psi;.</DD>
+ <DD>Common parameters operate the same way in a mixture as in a separable objective.</DD>
+ <DT>Total Parameters</DT>
+<DD>If no common parameters (and no Determined parameters) are added to a separable objective, and the weights are D K-Simplexes, then the length of the (overall) parameter vector seen by an algorithm is <code>N = D(K-1) + KM</code>.</DD>
+<DD>In general, the overall parameter vector has length <code>N = DK + C+DK&times;(M-C)</code>.</DD>
+
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

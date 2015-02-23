@@ -1,4 +1,4 @@
-/** The simple search model in the Get Started with DDP document.
+/**See <a href="..\doc\DDP\GetStarted.html">GetStarted</a> for discussion.
 **/
 #import "DDP"
 struct Search : Bellman	{
@@ -21,7 +21,6 @@ Search::Run()	{
 	meth = new ValueIteration();
 	meth.Volume = LOUD;
 	meth -> Solve();
-//	Delete();
 	}
 Search::Reachable()	{
 	return new Search();

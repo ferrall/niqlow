@@ -7,23 +7,30 @@ but the published estimates are given as well.
 
 <h2>The Model</h2>
 <dd class="example"><pre>
-t = 0, 1, ..., 19, ..., 29.
-&alpha; = (n), n &in; {0,1}
-A(&alpha;) = {0,1} if t&lt; 20
+Clock: Finite Horizon 
+        t = 0, 1, &hellip;, 19,\helllip; 29.
+Endogenous State
+    &theta; = (M)
+        M = number of children, a RandomUpDown() variable
+Actions:
+     &alpha; = (n), n &in; {0,1}
+
+    A(&theta;) = {0,1} if t&lt; 20
 		{0}   if t&ge; 20
-			
-&theta; = (M)
-&epsilon; = (psi;)
-Prob(M' = M+1) = pn
-M' = M + 1    if t&lt;T
-     M        otherwise.
-&psi; &sim; N(0,1)
+Exogenous State			
+    &epsilon; = (psi;)
+    &psi; &sim; N(0,1)
 
- X = Y - ( b(n-d) + (c<sub>1</sub><em>I</em><sub>t=1</sub> + c<sub>2</sub><em>I</em><sub>t=2</sub>	+
- c<sub>30</sub>+c<sub>31</sub>t+c<sub>32</sub>t<sup>2</sup>))n
+Transitions
+    Prob(M' = M+1) = pn
+    M' = M + 1    if t&lt;T
+        M        otherwise.
 
- U = (&alpha;<sub>1</sub>+&psi;)M +&alpha;<sub>2</sub>M<sup>2</sup>   + &beta;<sub>1</sub>X+&beta;<sub>2</sub>X<sup>2</sup>	+
- &gamma;<sub>1</sub>MX+&gamma;<sub>2</sub>MS
+Income
+   X = Y - ( b(n-d) + (c<sub>1</sub><em>I</em><sub>t=1</sub> + c<sub>2</sub><em>I</em><sub>t=2</sub>	+ c<sub>30</sub>+c<sub>31</sub>t+c<sub>32</sub>t<sup>2</sup>))n
+
+Utility
+ U = (&alpha;<sub>1</sub>+&psi;)M +&alpha;<sub>2</sub>M<sup>2</sup>   + &beta;<sub>1</sub>X+&beta;<sub>2</sub>X<sup>2</sup>	+ &gamma;<sub>1</sub>MX+&gamma;<sub>2</sub>MS
 
 For the Table 8 replication:
 </pre></dd>

@@ -1,3 +1,4 @@
+/** See <a href="..\doc\DDP\GetStarted.html#GS1">GetStarted Part 2</a> for discussion. **/
 //#include "GetStarted.ox"  not needed if run from main.ox
 /* This file is part of niqlow. Copyright (C) 2011-2014 Christopher Ferrall */
 

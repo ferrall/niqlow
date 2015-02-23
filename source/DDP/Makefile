@@ -11,12 +11,12 @@ vpath %.ox.html ../../doc/DDP
 
 varsrc := Shared. ActionVariable. StateVariable. Clock. TimeInvariant. AuxiliaryValues.
 varobj = $(varsrc:.=.oxo)
-dppsrc := DP. Bellman. Methods. Data. 
+dppsrc := DP. Bellman. Methods. Data.
 dppobj = $(dppsrc:.=.oxo)
 dpsrc := Variables.
 dpobj = $(dpsrc:.=.oxo)
 
-xtradoc = DDP.ox GetStarted $(dppsrc:.=.ox) $(dpsrc:.=.ox) Shared 
+xtradoc = DDP.ox GetStarted $(dppsrc:.=.ox) $(dpsrc:.=.ox) Shared
 xtrahtml = $(xtradoc:.ox=.ox.html)
 
 DDP.oxo : $(dppobj)

@@ -243,7 +243,7 @@ struct HotzMiller : ValueIteration {
 **/
 struct AguirregabiriaMira : HotzMiller  {
     decl                mle;
-    AguirregabiriaMira(data=0,bandwidth=0);
+    AguirregabiriaMira(data=0,bandwidth=UseDefault);
 //    Gsolve();
     Solve(Fgroups=AllFixed,inmle=0);
     virtual Run(th);

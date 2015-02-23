@@ -2,12 +2,27 @@
 
 @sortkey BAA
 
+<OL class="content">
+<LI>Solve a DP model with continuous shocks and optimal reservation values </LI>
+<LI>Solve a DP model in an ergodic environment as a system of equations (not Bellman iteration)</LI>
+</OL>
+
 <OL class="body">
+
 
 <LI>Reservation values </LI>
 
-`ReservationValues` is a method for solving for cut-off values in a one-dimensional continuous state variable.  The distribution of the variable and the way it enters utility is unrestricted, but the action vector &alpha; must contain only one action and the value of actions must satisfy the reservation property.
-<h3>Example: Search over normal offers, solve for reservation value.</h3>
+`ReservationValues` is a method for solving for cut-off values in a one-dimensional continuous state variable.
+
+The distribution of the variable and the way it enters utility is unrestricted, but there are three restrictions:
+<OL class="chapter">
+<LI>The continuous vector &zeta; must contain only one variable: <code>&zeta; = (z)</code>.  </LI>
+<LI>The action vector &alpha; must contain only one action: <code>&alpha; = (a)</code>.  This does not mean a binary choice: <code>a</code> can take on any number of values.  To enforce this, <code>MyModel</code> must be derived from the <code>OneDimensionalChoice</code> class.</LI>
+<LI>The value of actions must satisfy the reservation property:</LI>
+<DD><img src="zstar.png"></img></DD>
+</OL>
+
+<a name="rvexample"><h3>Example: Search over normal offers, solve for reservation value.</h3></a>
 
 <OL class="chapter">
 <LI> The model is a continuous version of the model in <a href="">GetStarted</a>.</LI>
@@ -33,15 +48,16 @@
     is a vector of probabilities.
 <LI>Inputs for solving z*</LI>
     <img src="./ContinuousOffers.png">
-<LI>Code</LI>
+<LI>Code and Output</LI>
 <DT>Header File</DT>
-<dd><pre>Source: <a href="WstarTest.h">../../examples/WstarTest.h</a>
+<dd><pre>Source: <a href="../../examples/WstarTest.h">../../examples/WstarTest.h</a>
 <object width="100%" height="100" type="text/plain" data="../../examples/WstarTest.h" border="1" ></object></pre></dd>
 <DT>Ox File</DT>
-<DD><pre>Source: <a href="WstarTest.ox">../../examples/WstarTest.ox</a>
+<DD><pre>Source: <a href="../../examples/WstarTest.ox">../../examples/WstarTest.ox</a>
 <object width="100%" height="200" type="text/plain" data="../../examples/WstarTest.ox" border="1" ></object></pre></dd>
-
-<LI>Output</LI>
+<DT>Output</DT>
+<DD><pre>Source: <a href="../../examples/output/Reservation_Wage_Test.txt">../../examples/output/Reservation_Wage_Test.txt</a>
+<object width="100%" height="200" type="text/plain" data="../../examples/output/Reservation_Wage_Test.txt" border="1" ></object></pre></dd>
 
 </OL>
 
