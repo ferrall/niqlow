@@ -227,6 +227,8 @@ DP::AddStates(SubV,va) 	{
 			continue;
 			}
 		if (va[i].N<1) oxrunerror("Cannot add variable with non-positive N");
+        println("xx ",va[i].L);
+        if (va[i].subv!=UnInitialized) oxrunerror("Discrete Variable has already been added a vector.");
 		switch_single(SubV) {
 			case clock : if(!isclass(va[i],"TimeVariable")) oxrunerror("Clock subvector must contain TimeVariables");
 			case rgroup: if (va[i].N>1) {
@@ -242,8 +244,8 @@ DP::AddStates(SubV,va) 	{
 		SubVectors[SubV] |= va[i];
 		S[SubV].N |= va[i].N;
 		S[SubV].size *= va[i].N;
+        va[i].subv = SubV;
 		if (pos) S[SubV].C ~= (S[SubV].C[pos-1])*S[SubV].N[pos]; else S[SubV].C = S[SubV].N[pos];
-		if (SubV!=acts) va[i].subv = SubV;
 		}
 	}
 
@@ -339,7 +341,7 @@ GroupTask::GroupTask() {
 	}
 	
 
-/** .@internal **/
+/** . @internal **/
 GroupTask::loop(){
 	Reset();
 	SyncStates(left,right);
@@ -377,7 +379,9 @@ CGTask::CGTask() {
 	for (f=0,g=0;f<N::F;++f) {for (r=0;r<N::R;++r) Fgamma[f][r] = Gamma[g++];}
 	}
 
-/** . @internal **/
+/** .
+@internal
+**/
 CGTask::Run(gam) {
 	Gamma[I::g] =  (isint(Flags::GroupExists)||Flags::GroupExists())
 						? new Group(I::g,state)
@@ -1147,6 +1151,7 @@ DP::Swap() {now = later; later = !later;}
 **/
 Group::Group(pos,state) {
 	this.state = state;
+    this.state[0:SS[bothgroup].left-1] = 0;
 	this.pos = pos;
 	rind = I::all[onlyrand];
 	find = I::all[onlyfixed];

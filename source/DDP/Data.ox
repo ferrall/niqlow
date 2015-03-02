@@ -144,8 +144,8 @@ Path::Simulate(T,usecp,DropTerminal){
 	cur = this;
 	this.T=1;  //at least one outcome on a path
 	while ( !(done = cur->Outcome::Simulate()) && this.T<T ) //not terminal and not yet max length
-		{ ++this.T; cur = cur.onext==UnInitialized ? new Outcome(cur) : cur.onext; }
-	if (DropTerminal && done) {
+		{++this.T; cur = cur.onext==UnInitialized ? new Outcome(cur) : cur.onext;}
+	if (DropTerminal && done && this.T>1) {  //don't delete if first state is terminal!! Added March 2015.
 		last = cur.prev;
 		delete cur;
 		last.onext = UnInitialized;

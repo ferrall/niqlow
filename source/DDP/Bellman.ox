@@ -36,7 +36,7 @@ EndogTrans::Run(th) {
 Bellman::Bellman(state,picked) {
    //  if (!ThetaCreated) oxrunerror("Cannot create states before state space created - call DP::CreateSpaces()");
   decl s=S[endog].M;
-  do { IsTerminal = any(state[s].==States[s].TermValues); } while (!IsTerminal && s++<S[endog].X);
+  do { IsTerminal = any(state[s].==States[s].TermValues);    } while (!IsTerminal && s++<S[endog].X);
   N::TerminalStates += IsTerminal;
   decl curJ= sizeof(ActionSets),
   		fa = IsTerminal ? 1|zeros(rows(ActionMatrix)-1,1) : FeasibleActions(ActionMatrix),
@@ -149,6 +149,8 @@ Bellman::UpdatePtrans() {
 		}
 	if (Flags::StorePA) curg.Palpha[][it] = ExpandP(I::r);
 	}
+
+Bellman::OutputValue() { return 0.0;     }
 	
 /**Return choice probabilities conditioned on &theta; with zeros inserted for infeasible actions.
 @param r random effects index to insert for
@@ -621,6 +623,7 @@ OneDimensionalChoice::Initialize(userReachable,d,UseStateList,GroupExists) {
 	if (isclass(d,"ActionVariable")) Actions(this.d = d);
 	else if (isint(d) && d>0) Actions(this.d = new ActionVariable("d",d));
 	else oxrunerror("second argument 1d choice must provide an action or positive number of values");
+    println("Action variable objected stored in d.  Label = '",this.d.L,"'.  Number of values: ",this.d.N);
 	}
 
 OneDimensionalChoice::CreateSpaces() {

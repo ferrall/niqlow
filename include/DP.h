@@ -294,7 +294,6 @@ struct Task : DP {
 	virtual Run(th);
 	loop();
 	virtual list(span=DoAll,lows=UseDefault,ups=UseDefault);
-    virtual OutputValue();
 	Reset();
 	Traverse(span=DoAll,lows=UseDefault,ups=UseDefault);
 	SyncStates(dmin,dmax);

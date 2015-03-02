@@ -263,18 +263,6 @@ Simplex::Simplex(L,ivals)	{
 	AddToBlock(cumprob);
 	}
 
-/** Return an array of `Simplex` blocks that act as a transition matrix.
-<b>Note:</b> Each column should be a proper transition (not each row).
-
-@example
-<pre>
-   // A 3x3 transition matrix, current state is the column, next state is the row.
-   decl m = TransitionMatrix("p",<0.9~0.09~0.05;0.02~0.8~0.3;0.08~0.01~0.11>);
-   Parameters(m);
-   println("The current Markov transition matrix is ", CV(m));
-</pre></dd>
-
-**/
 TransitionMatrix(L,imat) {
     decl N=rows(imat);
     if (N!=columns(imat)) oxrunerror("Initial transition matrix must be square");

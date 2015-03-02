@@ -176,18 +176,43 @@ Zvariable::Zvariable(L,Ndraws) { SimpleJump(L,Ndraws); }
 Zvariable::Update() {	actual = DiscreteNormal (N, 0.0, 1.0)';	}
 
 /**Create a discrete Markov process.
+The dimensions of the transition probabilities determines the number of values taken on.
 @param L label
 @param Pi N&times;1 array of `AV`(FeasA) compatible transition probabilities.
 @example
 <pre>
-  decl m = TransitionMatrix("p",<0.9~0.09~0.05;0.02~0.8~0.3;0.08~0.01~0.11>);
-  x = new Markov("x",m);
+  decl tmat =< 0.90 ~ 0.09 ~0.05;
+               0.02 ~ 0.80 ~0.3;
+               0.08 ~ 0.01 ~0.11>
+  x = new Markov("x",tmat);
 </pre></dd>
-
+@see TransitionMatrix
 **/
 Markov::Markov(L,Pi) {	
+    if (ismatrix(Pi) && (columns(Pi)!=rows(Pi) || any(!isdotfeq(sumc(Pi),1.0)) ) )
+        oxrunerror("Markov can only accept a square matrix transition whose columns sum to 1.0");
     this.Pi = Pi;
     StateVariable(L,sizeof(Pi));
+    }
+
+/**Create a new IID Jump process.
+@param L label
+@param Pi column vector or a Simplex-like parameter block.
+**/
+IIDJump::IIDJump(L,Pi) {
+    if (ismatrix(Pi) && ( columns(Pi) > 1 || !isfeq(sumc(Pi),1.0) ) )
+        oxrunerror("IIDJump can only accept column vector transition");
+    this.Pi = Pi;
+    StateVariable(L,sizeof(Pi));
+    }
+
+/** Create binary state variable for which Prob(s=1) = Pi.
+@param L label
+@param Pi probability of 1 [default = 0.5]
+**/
+IIDBinary::IIDBinary(L,Pi) {
+    this.Pi = Pi;
+    StateVariable(L,2);
     }
 
 /**Create a variable that jumps with probability
@@ -219,13 +244,24 @@ Absorbing::Transit(FeasA) {
 
 /**  **/
 Markov::Transit(FeasA) {
-    decl jprob = AV(Pi[v]);
+    jprob = AV(Pi[v]);
     return {vals,reshape(jprob,rows(FeasA),N)};	
     }
 
 /**  **/
+IIDJump::Transit(FeasA) {
+    jprob = AV(Pi);
+    return {vals,reshape(jprob,rows(FeasA),N)};	
+    }
+
+IIDBinary::Transit(FeasA) {
+    jprob = AV(Pi);
+    return {vals,reshape((1-jprob)|jprob,rows(FeasA),N)};	
+    }
+
+/**  **/
 Jump::Transit(FeasA) {
-    decl jprob = AV(Pi,FeasA);
+    jprob = AV(Pi);
     return {vals,jprob*constant(1/N,1,N) + (1-jprob)*(v.==vals)};	
     }
 

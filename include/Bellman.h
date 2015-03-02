@@ -38,6 +38,7 @@ struct  Bellman : DP {
 			virtual	AutoVarPrint1(task);
 			virtual	Interface();
 			virtual Predict(ps,tod);
+            virtual OutputValue();
 
 					Bellman(state,picked);
                     Allocate(OldSS=UnInitialized);

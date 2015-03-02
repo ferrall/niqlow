@@ -38,5 +38,5 @@ WStar::graphit() {
 	SetDraw(SET_PRINTPAGE,PAGE_LETTER,PAGE_PORTRAIT);
 	DrawTitle(0,"Reservation Wages and Accept probabilities");
 	Draw(0,reverser(vmat[][sizec(vmat)-2:]'));
-	SaveDrawWindow("WstarTesb.pdf");
+	SaveDrawWindow("WstarTestb.pdf");
     }

@@ -150,6 +150,23 @@ struct Simplex : ParameterBlock		{
 	virtual BlockCode();
 	}
 
+/** Create an array of `Simplex` blocks that act as a transition matrix.
+<b>Note:</b> Each <em>column</em> should be a proper transition (not each row).
+
+@example
+Create a 3x3 transition matrix, where the current state is the column and the next state is the row.
+Initialize the transition but make the transition an array of `Simplex` blocs that can be controlled by an optimization routine.
+<pre>
+  decl tmat =< 0.90 ~ 0.09 ~0.05;
+               0.02 ~ 0.80 ~0.3;
+               0.08 ~ 0.01 ~0.11>
+
+   decl m = TransitionMatrix("p",<0.9~0.09~0.05;0.02~0.8~0.3;0.08~0.01~0.11>);
+   Parameters(m);
+   println("The current Markov transition matrix is ", CV(m));
+</pre></dd>
+@see Markov
+**/
 TransitionMatrix(L,imat);
 
 /** Vector of <code>J</code> probabilities that sum to strictly less than 1.

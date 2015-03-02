@@ -99,6 +99,7 @@ struct Discrete	: Quantity{
 	const 	decl	
 			/** range(0,N-1)			   **/  	vals;
 	decl	
+            /** subvector objected belongs to. **/   subv,
 			/** Number of different values **/   	N,
 			/** corresponding model vals.  **/  	actual,
 			/** vector of prob. of vals. **/		pdf;

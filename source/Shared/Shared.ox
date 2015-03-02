@@ -157,7 +157,7 @@ Discrete::Discrete(L,N)  {
 	this.N = N; this.L = L;
 	vals = range(0,N-1);
 	actual= vals';
-	pos = UnInitialized;
+	subv = pos = UnInitialized;
 	pdf = ones(vals);
 	}
 

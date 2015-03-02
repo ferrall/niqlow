@@ -2085,6 +2085,93 @@ When the trigger value returns TRUE this state freezes at its current value.
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
 </dl>
 
+<a name="IIDBinary"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">IIDBinary : <a href="Variables.ox.html#IIDJump">IIDJump</a> : <a href="Variables.ox.html#Markov">Markov</a> : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A binary IID process.  It accepts a scalar as the transition.
+<P/>
+<DT>Transition:</DT>
+<dd class="math"><span class="equation">$$
+\displaylines{
+P(s'=1|s) = \pi\cr
+P(s'=0|s) = 1-\pi\cr
+} $$</span></dd>
+
+<dl><dt class="example">Example:</dt><dd class="example">A job offer is available with a dynamically changing probability with initial value of 0.6:
+<pre>
+decl poff = new Probability("op",0.6);
+decl hasoffer = new IIDJump("off",poff);
+</pre>
+</dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#IIDBinary___IIDBinary">IIDBinary</a></td>
+<td class="modifiers"></td>
+<td class="description">Create binary state variable for which Prob(s=1) = Pi.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#IIDBinary___Transit">Transit</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#IIDJump">IIDJump</a>:</dt><dd><a href="Variables.ox.html#IIDJump___IIDJump">IIDJump</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___Markov">Markov</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="Variables.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a>, <a href="Variables.ox.html#Markov___Pi">Pi</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___subv">subv</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="IIDJump"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">IIDJump : <a href="Variables.ox.html#Markov">Markov</a> : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A discrete IID process.
+<P/>
+<DT>Transition:</DT>
+<dd class="math"><span class="equation">$$P(s'=z|s) = \Pi_{z}$$</span></dd>
+
+<dl><dt class="example">Example:</dt><dd class="example"><pre>
+decl health = new IIDJump("h",<0.1;0.8;0.1>);
+</pre>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">Eligible to be an Exogenous variable, a member of &epsilon;
+</dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#IIDJump___IIDJump">IIDJump</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a new IID Jump process.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#IIDJump___Transit">Transit</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___Markov">Markov</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="Variables.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a>, <a href="Variables.ox.html#Markov___Pi">Pi</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___subv">subv</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
 <a name="Indicators"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Indicators : <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
@@ -2109,9 +2196,9 @@ When the trigger value returns TRUE this state freezes at its current value.
 <a name="Jump"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Jump : <a href="Variables.ox.html#Markov">Markov</a> : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
-Jumps to new value with probability &pi;.
+An IID variable that Jumps to a new value with probability &pi;.
 <DT>Transition:
-<dd class="math"><pre>&Rho;(s'=z|s) = &pi;/N + (1-&pi;)I{z=s}.</pre></dd>
+<dd class="math">$$P(s'=z|s) = \pi / N  + (1-\pi)I\{z=s\}.</pre></dd>
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#SimpleJump">SimpleJump</a>, <a href="Variables.ox.html#Offer">Offer</a></dd>
 </dl>
@@ -2141,6 +2228,7 @@ Jumps to new value with probability &pi;.
 </dl>
 
 <dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___subv">subv</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
@@ -2353,23 +2441,43 @@ Like <a href="Variables.ox.html#Mortality">Mortality</a> but T*-1 = TT-2 is a st
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Markov : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 A Markov process.
-<DT>Transition:
-<dd class="math"><pre>&Rho;(s'=z|s) = &Pi;[z][s]</pre></dd>
+<P/>
+<DT>Transition:</DT>
+<P/>
+The transition must be square.  The number of values it takes
+is determined by the dimension of the column or vector.
+<P/>
+If it is a matrix, then the rows are next period states and the columns are currents.
+<dd class="math"><span class="equation">$$P(s'=z|s) = \Pi_{zs}$$</span></dd>
+To be handled properly the state variable must be placed in the endogenous state vector &theta;
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#SimpleJump">SimpleJump</a>, <a href="Variables.ox.html#Offer">Offer</a></dd>
+<dl><dt class="example">Example:</dt><dd class="example">A 3x3 transition matrix.
+<pre>
+  decl tmat =< 0.90 ~ 0.09 ~0.05;
+               0.02 ~ 0.80 ~0.3;
+               0.08 ~ 0.01 ~0.11>
+  x = new Markov("x",tmat);
+</pre></dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#Offer">Offer</a>, TransitionMatrix</dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Markov___jprob">jprob</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Markov___Pi">Pi</a></td>
 <td class="modifiers">const</td>
 <td class="description"></td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Markov___Markov">Markov</a></td>
 <td class="modifiers"></td>
 <td class="description">Create a discrete Markov process.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Markov___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
@@ -3308,16 +3416,13 @@ s' = .
 </dl>
 
 <a name="SimpleJump"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SimpleJump : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SimpleJump : <a href="Variables.ox.html#IIDJump">IIDJump</a> : <a href="Variables.ox.html#Markov">Markov</a> : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 Equally likely values each period (IID).
-<DT>Transition:
-<dd class="math"><pre>
-&Rho;(s' = z) = 1/s.N</pre></dd>
+<P/>
+<DT>Transition:</DT>
+<dd class="math"><span class="equation">$$P(s' = z) = {1\over N} $$</span></dd>
 
-<dl><dt class="comments">Comments:</dt><dd class="comments">Eligible to be an Exogenous variable, a member of &epsilon;
-</dd>
-</dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#SimpleJump___SimpleJump">SimpleJump</a></td>
@@ -3332,11 +3437,14 @@ Equally likely values each period (IID).
 </table>
 
 <dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#IIDJump">IIDJump</a>:</dt><dd><a href="Variables.ox.html#IIDJump___IIDJump">IIDJump</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___Markov">Markov</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="Variables.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
 <dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a>, <a href="Variables.ox.html#Markov___Pi">Pi</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___subv">subv</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
@@ -3975,7 +4083,7 @@ value drawn from the conditional distribution of &zeta;
 </dl>
 
 <a name="Zvariable"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Zvariable : <a href="Variables.ox.html#SimpleJump">SimpleJump</a> : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Zvariable : <a href="Variables.ox.html#SimpleJump">SimpleJump</a> : <a href="Variables.ox.html#IIDJump">IIDJump</a> : <a href="Variables.ox.html#Markov">Markov</a> : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 A jump variable whose acutal values are quantiles of the standard normal distribution.
 
@@ -3994,11 +4102,14 @@ A jump variable whose acutal values are quantiles of the standard normal distrib
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#SimpleJump">SimpleJump</a>:</dt><dd><a href="Variables.ox.html#SimpleJump___SimpleJump">SimpleJump</a>, <a href="Variables.ox.html#SimpleJump___Transit">Transit</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#IIDJump">IIDJump</a>:</dt><dd><a href="Variables.ox.html#IIDJump___IIDJump">IIDJump</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___Markov">Markov</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a>, <a href="Variables.ox.html#StateVariable___UnReachable">UnReachable</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
 <dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a>, <a href="Variables.ox.html#Markov___Pi">Pi</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___subv">subv</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
@@ -5382,6 +5493,72 @@ Create an augmented state variable that 'forgets' its value when a permanent con
 <dl><dd>
 
 </dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">IIDBinary</span></h2>
+
+<a name="IIDBinary___IIDBinary"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">IIDBinary</span></h3>
+
+<span class="declaration">IIDBinary :: IIDBinary ( L , Pi )</span>
+<dl><dd>
+Create binary state variable for which Prob(s=1) = Pi.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Pi</td>
+<td class="description" valign="baseline">probability of 1 [default = 0.5]</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="IIDBinary___Transit"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
+
+<span class="declaration">virtual IIDBinary :: Transit ( FeasA )</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">IIDJump</span></h2>
+
+<a name="IIDJump___IIDJump"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">IIDJump</span></h3>
+
+<span class="declaration">IIDJump :: IIDJump ( L , Pi )</span>
+<dl><dd>
+Create a new IID Jump process.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Pi</td>
+<td class="description" valign="baseline">column vector or a Simplex-like parameter block.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="IIDJump___Transit"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
+
+<span class="declaration">virtual IIDJump :: Transit ( FeasA )</span>
+<dl><dd>
+
+</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Indicators</span></h2>
 
 <a name="Indicators___target"></a>
@@ -5684,12 +5861,22 @@ EV at <code>t=T-2</code> is treated as an infinite horizon problem and iterated 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Markov</span></h2>
 
+<a name="Markov___jprob"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">jprob</span></h3>
+
+<span class="declaration">decl jprob [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="Markov___Markov"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Markov</span></h3>
 
 <span class="declaration">Markov :: Markov ( L , Pi )</span>
 <dl><dd>
 Create a discrete Markov process.
+The dimensions of the transition probabilities determines the number of values taken on.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -5706,10 +5893,13 @@ Create a discrete Markov process.
 </table>
 </dd>
 <dt class="example">Example:</dt><dd class="example"><pre>
-  decl m = TransitionMatrix("p",<0.9~0.09~0.05;0.02~0.8~0.3;0.08~0.01~0.11>);
-  x = new Markov("x",m);
+  decl tmat =< 0.90 ~ 0.09 ~0.05;
+               0.02 ~ 0.80 ~0.3;
+               0.08 ~ 0.01 ~0.11>
+  x = new Markov("x",tmat);
 </pre></dd>
 </dd>
+<dt class="seealso">See also:</dt><dd class="seealso">TransitionMatrix</dd>
 </dl>
 </dd></dl>
 

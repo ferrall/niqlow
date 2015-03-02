@@ -12,8 +12,7 @@ struct StateVariable : Discrete	{
 	StateVariable(L="s", N=1);
 	decl
 	/** A vector of values that end decision making
-		Equal to &lt; &gt; if state is not terminating.      **/     TermValues,
-	/** Subvector of the state it belongs to **/ 				  	 subv;
+		Equal to &lt; &gt; if state is not terminating.      **/     TermValues;
 	MakeTerminal(TermValues);
 	virtual Transit(FeasA);
 	virtual UnChanged(FeasA);
@@ -136,20 +135,89 @@ struct LogNormalOffer : Offer {
 	}
 
 /**A Markov process.
-<DT>Transition:
-<dd class="math"><pre>&Rho;(s'=z|s) = &Pi;[z][s]</pre></dd>
+
+<DT>Transition:</DT>
+
+The transition must be square.  The number of values it takes
+is determined by the dimension of the column or vector.
+
+If it is a matrix, then the rows are next period states and the columns are currents.
+<dd class="math">$$P(s'=z|s) = \Pi_{zs}$$</dd>
+To be handled properly the state variable must be placed in the endogenous state vector &theta;
+
 @example
-@see SimpleJump, Offer
+A 3x3 transition matrix.
+<pre>
+  decl tmat =< 0.90 ~ 0.09 ~0.05;
+               0.02 ~ 0.80 ~0.3;
+               0.08 ~ 0.01 ~0.11>
+  x = new Markov("x",tmat);
+</pre></dd>
+
+@see Offer, TransitionMatrix
 **/
 struct Markov : Random {
 	const decl	Pi;
+    decl jprob;
 		Markov(L,Pi);
 		virtual Transit(FeasA);
      }
-	
-/**Jumps to new value with probability &pi;.
+
+/**A discrete IID process.
+
+<DT>Transition:</DT>
+<dd class="math">$$P(s'=z|s) = \Pi_{z}$$</dd>
+
+@example
+<pre>
+decl health = new IIDJump("h",<0.1;0.8;0.1>);
+</pre>
+
+@comments Eligible to be an Exogenous variable, a member of &epsilon;
+
+**/
+struct IIDJump : Markov {
+    IIDJump(L,Pi);
+    virtual Transit(FeasA);
+    }	
+
+/** A binary IID process.  It accepts a scalar as the transition.
+
+<DT>Transition:</DT>
+<dd class="math">$$
+\displaylines{
+P(s'=1|s) = \pi\cr
+P(s'=0|s) = 1-\pi\cr
+} $$</dd>
+
+
+@example
+A job offer is available with a dynamically changing probability with initial value of 0.6:
+<pre>
+decl poff = new Probability("op",0.6);
+decl hasoffer = new IIDJump("off",poff);
+</pre>
+
+**/
+struct IIDBinary : IIDJump {
+    IIDBinary(L,Pi=0.5);
+    virtual Transit(FeasA);
+    }
+
+/** Equally likely values each period (IID).
+
+<DT>Transition:</DT>
+<dd class="math">$$P(s' = z) = {1\over N} $$</dd>
+
+**/
+struct SimpleJump : IIDJump {
+	SimpleJump(L,N);
+	Transit(FeasA);
+	}
+
+/**An IID variable that Jumps to a new value with probability &pi;.
 <DT>Transition:
-<dd class="math"><pre>&Rho;(s'=z|s) = &pi;/N + (1-&pi;)I{z=s}.</pre></dd>
+<dd class="math">$$P(s'=z|s) = \pi / N  + (1-\pi)I\{z=s\}.</pre></dd>
 @example
 @see SimpleJump, Offer
 **/
@@ -206,17 +274,6 @@ struct RandomUpDown : Random	{
 	virtual Transit(FeasA);
 	}
 	
-/** Equally likely values each period (IID).
-<DT>Transition:
-<dd class="math"><pre>
-&Rho;(s' = z) = 1/s.N</pre></dd>
-
-@comments Eligible to be an Exogenous variable, a member of &epsilon;
-**/
-struct SimpleJump : Random 		{
-	SimpleJump(L,N);
-	Transit(FeasA);
-	}
 
 /** A binary variable to code an absorbing state.
 This transition from 0 to 1 happens with probability fPi, and
