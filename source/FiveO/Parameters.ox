@@ -391,9 +391,9 @@ Coefficients::Coefficients(L,ivals,labels) {
 
 /** Create a block of positive parameters, for example a vector of standard deviations.
 @param L label for the block
-@param labels 0: use numbers for labels<br>array of strings, labels for values (e.g. variable names)
-@param ivals 0: set to length of labels and initialize values to 0<br> &gt; 0: number of postivie parameters, initialize to 1.0
+@param ivals 0: set to length of labels and initialize all values at 1<br> &gt; 0: number of positive parameters, initialize to 1.0
    <br>vector: initial values
+@param labels 0: use numbers for labels<br>array of strings, labels for values (e.g. variable names)
 **/	
 StDeviations::StDeviations(L,ivals,labels) {
 	decl k, myN, haslabels = isarray(labels);
@@ -410,4 +410,27 @@ StDeviations::StDeviations(L,ivals,labels) {
 		myN = rows(ivals);
 		}
 	for(k=0;k<myN;++k) {AddToBlock(new Positive(haslabels ? labels[k] : L+sprint(k) ,ivals[k]));}
+	}		
+
+/** Create a block of parameters all constrained to be probabilities.
+@param L label for the block
+@param ivals 0: set to length of labels and initialize values to 0<br> &gt; 0: number of postivie parameters, initialize to 1.0
+   <br>vector: initial values
+@param labels 0: use numbers for labels<br>array of strings, labels for values (e.g. variable names)
+**/	
+Probabilities::Probabilities(L,ivals,labels) {
+	decl k, myN, haslabels = isarray(labels);
+	ParameterBlock(L);
+	if (isint(ivals)) {
+		  if (ivals>0) myN = ivals;
+		  else
+			{ if (!haslabels) oxrunerror("Invalid inputs to StDeviations()",0); myN = sizeof(labels); }
+		  ivals = ones(myN,1);
+		}
+	else {
+		ivals = vec(ivals);
+		if (any(ivals.<=0.0)||any(ivals.>=1.0)) oxrunerror("Initial probability value invalid");
+		myN = rows(ivals);
+		}
+	for(k=0;k<myN;++k) {AddToBlock(new Probability(haslabels ? labels[k] : L+sprint(k) ,ivals[k]));}
 	}		

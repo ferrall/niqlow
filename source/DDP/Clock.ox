@@ -25,15 +25,7 @@ Clock::Solving(inME,inaVV,inaSPstar) {
 
 Clock::Vupdate(now) { }
 Clock::setPstar() { return FALSE; }
-
-//Clock::SubPeriods(Nsub) {
-//	if (ThetaCreated) oxrunerror("Can't split time after calling CreateSpaces()");
-//	if (isclass(tsub)) oxrunerror("Time periods already split");
-//	if (imod(Nsub,t.MainT)) oxrunerror("Total time periods not a multiple of Nsub");
-//	this.Nsub = Nsub;
-//	AddToBlock(tsub = new TimeVariable("ts",Nsub));
-//	}
-//	
+	
 
 /** A stationary clock block.
 @param IsErgodic  TRUE, store &Rho;*

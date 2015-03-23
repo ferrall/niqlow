@@ -81,16 +81,18 @@ Example 2.  States where state variables x and y greater than 5 are not reachabl
 <pre>MyModel::FeasibleActions(A) { return A[d.pos][] &lt;= CV(x); }</pre>
 </DD>
 <LI>Hooks and Update Time</LI>
-<DT><code>MyModel</code> can use `DP::AddHook` to have a static method/function called at different points in solution methods.</DT>
-<DT><code>MyModel</code> can also use `DP::SetUpdateTime`() to set when solution methods should update transition probabilities and utility of actions.  This allows transitions and utility to depend
-on fixed and random effect variables, but if they do not wasted computations can be avoided by updating higher up in the process.</DT>
+<DT><code>MyModel</code> can use `Hook::Add`() to have a static method/function called at different points in solution methods.</DT>
+<DT><code>MyModel</code> can also use `DP::SetUpdateTime`() to set when solution methods should update transition probabilities and utility of actions.  </DT>
+<DD>This allows transitions and utility to depend on fixed and random effect variables, but if they do not wasted computations can be avoided by updating higher up in the process.</DD>
 
 <LI>Value-related routines</LI>
 <DT><code>MyModel</code> can supply replacements for `Bellman::thetaEMax`(), `Bellman::ActVal`(), `Bellman::Smooth`().  Many of the derived classes of Bellman already specialize these operations.</DT>
 
 <LI>Auxiliary Variables and ZetaRealization</LI>
-<DT><code>MyModel</code> can add `AuxiliaryVariable`s and a `ZetaRealization` for simulating outcomes and accounting for partial observability of the state.</DT>
-<DD><code>MyCode</code> must sandwich the commands that add actions and states to the model between calls to <code>DPparent::Initialize(&hellip;)</code> and <code>DPparent::CreateSpaces(&hellip;)</code>.  <code>MyModel</code> can supply their own versions of these two methods, by then they must call the parent versions.  If <code>MyModel</code> does not have its own versions, then the prefix <code>DPparent::</code> is not needed.</DD>
+<DT><code>MyModel</code> can add `AuxiliaryValues`s and a `ZetaRealization` for simulating outcomes and accounting for partial observability of the state.</DT>
+<DD><code>MyCode</code> must sandwich the commands that add actions and states to the model between calls to <code>DPparent::Initialize(&hellip;)</code> and <code>DPparent::CreateSpaces(&hellip;)</code>.  </DD>
+<DD><code>MyModel</code> can supply its own version of these two methods, but then they <em>must</em> call the parent versions.  If <code>MyModel</code> does not have its own versions, then the prefix <code>DPparent::</code> is not needed because 
+a reference to <code>Initialize()</code> will refer to the parent's version.</DD>
 </OL>
 
 </OL>

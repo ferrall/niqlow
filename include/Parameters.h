@@ -224,3 +224,13 @@ x<sup>j</sup> = `Positive`()
 struct StDeviations : ParameterBlock	{
 	StDeviations(L="",ivals=<1.0>,labels=0);
 	}
+
+/** Vector of Probabilities.
+<dd><pre>
+x<sup>j</sup> = `Probability`()
+</pre></dd>
+
+**/
+struct Probabilities : ParameterBlock	{
+	Probabilities(L="",ivals=<0.5>,labels=0);
+	}

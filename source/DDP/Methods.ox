@@ -58,12 +58,12 @@ FixedSolve::FixedSolve() {
 FixedSolve::Run(fxstate){
 	rtask->SetFE(state = fxstate);
     if (Flags::UpdateTime[AfterFixed]) UpdateVariables(fxstate);
-    if (qtask.DoNotIterate) return;
+    if (GroupTask::qtask.DoNotIterate) return;
 	cputime0 = timer();
-	rtask.qtask = qtask;
-    if (qtask.Volume>SILENT && N::G>1) print("F ",I::f);
-	rtask -> loop();
-    if (qtask.Volume>SILENT) {
+//	rtask.qtask = qtask;
+    if (GroupTask::qtask.Volume>SILENT && N::G>1) print("F ",I::f);
+	rtask -> GroupTask::loop();
+    if (GroupTask::qtask.Volume>SILENT) {
        if (N::G>1) println(" done ");
 	   if (qtask.Volume>QUIET) DPDebug::outV(TRUE);
        }
@@ -81,11 +81,13 @@ Solution is not run if the density of the point in the group space equals 0.0.
 **/
 RandomSolve::Run(gam)  {
 	if (ResetGroup(gam)>0.0) {
-        if (Flags::UpdateTime[AfterRandom]) UpdateVariables(state);
-		qtask.state = state;
+    println("GGGG ",isclass(gam));
+//        if (Flags::UpdateTime[AfterRandom]) UpdateVariables(state);
+        println("HHHH ",isclass(gam));
+		GroupTask::qtask.state = state;
 		I::r = gam.rind;
-		qtask->Gsolve();
-        if (qtask.Volume>SILENT && N::G>1) print(".");
+		GroupTask::qtask->Gsolve();
+        if (GroupTask::qtask.Volume>SILENT && N::G>1) print(".");
         Hooks::Do(PostGSolve);
 		}
 	}
@@ -123,21 +125,18 @@ ValueIteration::Gsolve() {
 	decl i;
 	Traverse();
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& later!=LATER) VV[LATER][] = VV[later][];    //initial value next time
+    println("dddd ",state');
 	}
 
 /** The function (method) that actually applies the DP Method to all problems (over fixed and random effect groups).
 This is the default value that does nothing.  It should be replaced by code for the solution method.
 **/
-Method::Solve(Fgroups,MaxTrips) {
-    oxwarning("Called the default Solve() function for Method.  Does not do anything");
-    }
+Method::Solve(Fgroups,MaxTrips) {    oxwarning("Called the default Solve() function for Method.  Does not do anything");    }
 
 /** The function (method) that applies the method to a particular problem.
 This is the default value that does nothing.  It should be replaced by code for the solution method.
 **/
-Method::Gsolve() {
-    oxwarning("Called the default Solve() function for Method.  Does not do anything");
-    }
+Method::Gsolve() {    oxwarning("Called the default Solve() function for Method.  Does not do anything");    }
 	
 /**Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
 @param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
@@ -161,7 +160,8 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
     if (MaxTrips==ResetValue) this.MaxTrips=0;
     else if (MaxTrips) this.MaxTrips = MaxTrips;
    	now = NOW;	later = LATER;
-	ftask.qtask = this;			//refers back to current object.
+    GroupTask::qtask = this;
+//	ftask.qtask = this;			//refers back to current object.
     Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
     if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
 	if (Fgroups==AllFixed)
@@ -182,10 +182,10 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
 **/
 ValueIteration::ValueIteration(myEndogUtil) {
 	if (!Flags::ThetaCreated) oxrunerror("Must create spaces before creating a solution method");
-	Task();
+	ThetaTask();
  	vtoler = DefTolerance;
-   	left = S[endog].M;
-   	right = S[clock].M;
+//   	left = S[endog].M;
+//   	right = S[clock].M;
    	subspace=iterating;
    	state = N::All-1;
    	ftask = new FixedSolve();
@@ -502,7 +502,8 @@ HotzMiller::Gsolve() {
 	}
 	
 HotzMiller::Solve(Fgroups) {
-	ftask.qtask = this;			//refers back to current object.
+    GroupTask::qtask = this;
+//	ftask.qtask = this;			//refers back to current object.
     Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
     if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
 	if (Fgroups==AllFixed)
@@ -529,12 +530,13 @@ AguirregabiriaMira::Run(th) {
 
 AguirregabiriaMira::Solve(Fgroups,inmle) {
     HotzMiller::Solve(Fgroups);
-	ftask.qtask = this;			//refers back to current object.
+    GroupTask::qtask = this;
+//	ftask.qtask = this;			//refers back to current object.
     if (isclass(inmle)) mle = inmle;
     do {
        mle->Iterate(0);
 	   if (Fgroups==AllFixed)
-		  ftask -> loop();
+		  ftask -> GroupTask::loop();
 	   else
 		  ftask->Run(ReverseState(Fgroups,I::OO[onlyfixed][]));
         } while (mle.convergence<STRONG);

@@ -2,14 +2,14 @@
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 
 TestRun() {
-//	println("\n\n***************** Test1 *****************\n");
-//	Test1::Run(FALSE);	
-//	println("\n\n***************** Test1 *****************\n");
-//	Test1::Run(TRUE);	
-//	println("\n\n***************** Test2 *****************\n");
-//	Test2::Run(FALSE);	
-//	println("\n\n***************** Test2 *****************\n");
-//	Test2::Run(TRUE);	
+	println("\n\n***************** Test1 *****************\n");
+	Test1::Run(FALSE);	
+	println("\n\n***************** Test1 *****************\n");
+	Test1::Run(TRUE);	
+	println("\n\n***************** Test2 *****************\n");
+	Test2::Run(FALSE);	
+	println("\n\n***************** Test2 *****************\n");
+	Test2::Run(TRUE);	
 	println("\n\n***************** Test3 *****************\n");
 	Test3::Run(FALSE);	
 	println("\n\n***************** Test3 *****************\n");
@@ -105,7 +105,7 @@ Test3a::Utility() {
       k = AV(lnk),
 	 xbw = (k~10~xw~-sqr(xw)~xb~-sqr(xb))*alph[white],
 	 xbb = (k~10~xb~-sqr(xb)~xw~-sqr(xw))*alph[blue],
-	 eps = selectrc(offers.Grid,accept.vals,offers.v)',
+	 eps = AV(offers),
 	 R = exp( (xbw | xbb | 1.0) + eps );
 	return R;
 	}

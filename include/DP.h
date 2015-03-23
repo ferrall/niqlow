@@ -100,7 +100,10 @@ struct Flags : Zauxiliary {
 		/** &Gamma; already includes fixed effects **/			HasFixedEffect,
         /** Indicators for when transit update occurs.
             @see DP::SetUpdateTime **/                          UpdateTime,
-		/** TRUE if &gamma exists. @internal**/					GroupExists,
+		/** Integer means all groups exist
+            Otherwise a function called by CGTask(),
+            an internal task that sets up the group space
+            &Gamma;. **/					                    GroupExists,
 		/** .@internal **/			                            DoSubSample,
 		/**  store &Alpha.D x &Theta.D matrix
 			of choice probabilities  **/  						StorePA,
@@ -330,7 +333,7 @@ struct ExTask       :   Task { ExTask(); }
 **/
 struct GroupTask : Task {
 	const 	decl 	span;
-			decl	qtask;
+	static  decl	qtask;
 	GroupTask();
 	virtual Run(gam);
 	loop();

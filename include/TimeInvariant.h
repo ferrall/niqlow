@@ -21,13 +21,53 @@ struct FixedEffect : TimeInvariant {
 	
 /** A random state variable that is invariant for an individual DP problem.
 
-Solution methods loop over random effect values and will account for distributionn.
+A random effect plays a similar to its counterpart in an econometric model. Solution methods loop over random effect values and will account for the distribution
+in computing predictions, simulations and econometric objectives.
 
-@see RETask
+@examples
+N equally likely values:
+<pre>
+RandomEffect("g",N);
+</pre>
+A binary variable with constant and unequal weights:
+<pre>RandomEffect("g",2,<0.8;0.2>);</pre>
+A two-point random effect for which the distribution is a function of the value of a fixed effect
+(level of education) and a parameter vector &beta;:
+<pre>
+decl beta;
+&vellip;
+hd() {
+    decl v = exp((1~AV(educ))*CV(beta)), s = sumc(v);
+    return v/s;
+    }
+&vellip;
+GroupVariables(
+   h=RandomEffect("h",2,hd),
+   educ = FixedEffect("ed",4);
+   }
+</pre>
+A random effect with a distribution that equals a Simplex parameter block:
+<pre>
+enum{Npts = 5};
+hd = new Simplex("h",Npts);
+RandomEffect("h",Npts,hd);
+</pre></DD>
+
+<DT><code>fDist</code> is stored in a non-constant member, so it can be changed after the <code>CreateSpaces()</code>
+has been called.</DT>
+
+<DT>Most Flexible Option</DT>
+The user can define a derived class and supply a replacement to the virtual `RandomEffect::Distribution`().
+
+
+@see RETask, FixedEffect, RandomEffectBlcok
 
 **/
 struct RandomEffect : TimeInvariant	{
-		 RandomEffect(L="RE",N=1);
+    decl
+    /** holds the object that computes and returns
+       the distribution across values. **/ fDist;
+		 RandomEffect(L="RE",N=1,fDist=UnInitialized);
 	virtual Distribution();
 	}
 

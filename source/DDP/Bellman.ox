@@ -223,6 +223,7 @@ Bellman::ThetaTransition(future,current) {
                 println("%8.0f","%c",Vprtlabels[svar][S[endog].M:S[endog].X],q[S[endog].M:S[endog].X]');
                 }
             }
+    println(Nxt);
         }
  }
 
@@ -342,7 +343,7 @@ Bellman::Delete() {
 FALSE if the state is not reachable.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE [default], traverse &Theta; through iteration on all state variables
-@param GroupExists
+@param GroupExists integer [default], the full group space will be created.<br>a <em>static</em> function that returns TRUE if the group exists.
 	
 **/
 Bellman::Initialize(userReachable,UseStateList,GroupExists) {
@@ -359,7 +360,7 @@ Bellman::CreateSpaces() {	DP::CreateSpaces(); 	}
 FALSE if the state is not reachable.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE, traverse &Theta; through iteration on all state variables
-@param GroupExists
+@param GroupExists integer [default], the full group space will be created.<br>a <em>static</em> function that returns TRUE if the group exists.
 	
 With &rho; = 0 choice probabilities are completely smoothed. Each feasible choices becomes equally likely.
 
@@ -375,10 +376,15 @@ ExtremeValue::SetRho(rho) {	this.rho = CV(rho)<0 ? double(DBL_MAX_E_EXP) : rho;	
 
 ExtremeValue::CreateSpaces() {	Bellman::CreateSpaces(); }
 
-/**	
+/** Initialize a Rust model (Ergodic, binary choice, extreme value additive error with &rho;=1.0). 	
 @param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
 FALSE if the state is not reachable.
-@param GroupExists
+@param GroupExists integer [default], the full group space will be created.<br>a <em>static</em> function that returns TRUE if the group exists.
+
+@comments
+The action variable is created by this function and stored in `Rust::d`
+The value of the smoothing parameter &rho; can be changed.
+UseStateList is forced to be FALSE because the environment is Ergodic.
 **/	
 Rust::Initialize(userReachable,GroupExists) {
 	ExtremeValue::Initialize(1.0,userReachable,FALSE,GroupExists);
@@ -388,6 +394,15 @@ Rust::Initialize(userReachable,GroupExists) {
 
 Rust::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 
+/** Initialize a McFadden model (one-shot, one-dimensional choice, extreme value additive error with &rho;=1.0). 	
+@param Nchoices <em>integer</em>, number of options.
+@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
+FALSE if the state is not reachable.
+@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
+					FALSE, traverse &Theta; through iteration on all state variables
+@param GroupExists <em>integer</em> [default], the full group space will be created.<br>a <em>static</em> function that returns TRUE if the group exists.
+
+**/
 McFadden::Initialize(Nchoices,userReachable,UseStateList,GroupExists) {
 	ExtremeValue::Initialize(1.0,userReachable,UseStateList,GroupExists);
 	Actions(d = new ActionVariable("d",Nchoices));
@@ -399,23 +414,27 @@ McFadden::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 /** Myopic agent, so vv=U and no need to loop over &theta;&prime;.**/
 McFadden::ActVal(VV) { pandv[I::r][][] = U; }
 
-/** .
+/** Initialize an ex post smoothing model.
 @param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
 FALSE if the state is not reachable.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE, traverse &Theta; through iteration on all state variables
-@param GroupExists
+@param GroupExists <em>integer</em> [default], the full group space will be created.<br>a <em>static</em> function that returns TRUE if the group exists.
 	
 **/
 ExPostSmoothing::Initialize(userReachable,UseStateList,GroupExists){
 	Bellman::Initialize(userReachable,UseStateList,GroupExists);
 	}
 
-ExPostSmoothing::CreateSpaces(Method,...) {
+/**  Set up the ex-post smoothing state space.
+@param Method the `ExPostSmoothingMethods`, default = <code>NoSmoothing</code>
+@param  smparam the smoothing parameter (e.g. &rho; or &sigma;)<br>Default value is 1.0.
+**/
+ExPostSmoothing::CreateSpaces(Method,smparam) {
 	this.Method = Method;
 	switch_single(Method) {
-		case LogitKernel : rho = va_arglist()[0];
-		case GaussKernel : sigma = va_arglist()[0];
+		case LogitKernel : rho = smparam;
+		case GaussKernel : sigma = smparam;
 		}
 	Bellman::CreateSpaces();
 	}
@@ -456,6 +475,15 @@ ExtremeValue::thetaEMax(){
 	return log(V)*(NxtExog[Qrho]/rh);  //M_EULER+
     }
 
+/**  Initialize the normal-smoothed model.
+@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
+FALSE if the state is not reachable.
+@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
+					FALSE, traverse &Theta; through iteration on all state variables
+@param GroupExists <em>integer</em> [default], the full group space will be created.<br>a <em>static</em> function that returns TRUE if the group exists.
+	
+
+**/
 Normal::Initialize(userReachable,UseStateList,GroupExists) {
 	Bellman::Initialize(userReachable,UseStateList,GroupExists);
 	}
@@ -609,14 +637,14 @@ NnotIID::UpdateChol() {
 		Chol[i] = selectifc(selectifr(AC,ActionSets[i]),ActionSets[i]');
 	}
 
-/** .
+/** Create the one dimensional choice model.
 @param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
 FALSE if the state is not reachable.
 @param d `ActionVariable` not already added to the model<br>
 		integer, number of options (action variable created) [default = 2]
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE [default], traverse &Theta; through iteration on all state variables
-@param GroupExists
+@param GroupExists <em>integer</em> [default], the full group space will be created.<br>a <em>static</em> function that returns TRUE if the group exists.
 **/
 OneDimensionalChoice::Initialize(userReachable,d,UseStateList,GroupExists) {
 	Bellman::Initialize(userReachable,UseStateList,GroupExists);
@@ -652,3 +680,24 @@ OneDimensionalChoice::ActVal(VV) {
 	if (IsTerminal) return;
 	pandv[I::r][][] += CV(delta)*Nxt[Qrho][0]*VV[Nxt[Qi][0]]';
 	}	
+
+KeepZ::ActVal(VV) {
+	pandv[I::r][][] = U;
+	if (IsTerminal) return;
+    if (Last()) return Udiff(CV(zstar));
+    kprob =keptz->DynamicTransit(zstar);
+    println("**",I::all[tracking]," ",VV,kprob,Nxt);
+	pandv[I::r][][] += CV(delta)*(     Nxt[Qrho][0][0][]
+                                    | Nxt[Qrho][0][1].*reshape(kprob,1,columns(Nxt[Qrho][0]))
+                                 )*VV[Nxt[Qi][0]]';
+    return Udiff(CV(zstar)) + DeltaV(pandv[I::r]);	
+    }
+
+KeepZ::Initialize(userReachable,UseStateList,GroupExists) {
+	OneDimensionalChoice::Initialize(userReachable,new ActionVariable("d",2),UseStateList,GroupExists);
+	}
+
+KeepZ::CreateSpaces(keptz) {
+    this.keptz = keptz;
+	OneDimensionalChoice::CreateSpaces();
+	}

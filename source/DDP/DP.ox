@@ -115,9 +115,10 @@ I::Initialize() {
     }
 
 /** Reset a group.
-Reset Ptrans [&Rho;(&theta;&prime;;&theta;)]; synch &gamma;
+This resets `Group::Ptrans`[&Rho;(&theta;&prime;;&theta;)] and it synch &gamma;
 @param gam , &gamma; group to reset.
 @return density of the the group.
+@see DP::SetGroup, DP::CurGroup
 **/
 DP::ResetGroup(gam) {
 	if (Flags::IsErgodic) gam.Ptrans[][] = 0.0;
@@ -125,8 +126,18 @@ DP::ResetGroup(gam) {
 	return gam->Density();	
 	}
 
+/** Return the element `I::g` element of `Gamma`.
+@see DP::SetGroup
+**/
 DP::CurGroup() { return Gamma[I::g]; }
 
+/** Set and return the current group node in &Gamma;
+@param GorState matrix, the state vector for the group<br>integer, index of the group
+@return pointer to element of &Gamma; for the group. If this is not a class, then the group has been excluded from the model.
+@comments
+This also sets `I::f` and `I::g`
+@see DP::Settheta, DP::CurGroup
+**/
 DP::SetGroup(GorState) {
 	I::g = ismatrix(GorState)
 			?  int(I::OO[bothgroup][]*GorState)
@@ -227,7 +238,6 @@ DP::AddStates(SubV,va) 	{
 			continue;
 			}
 		if (va[i].N<1) oxrunerror("Cannot add variable with non-positive N");
-        println("xx ",va[i].L);
         if (va[i].subv!=UnInitialized) oxrunerror("Discrete Variable has already been added a vector.");
 		switch_single(SubV) {
 			case clock : if(!isclass(va[i],"TimeVariable")) oxrunerror("Clock subvector must contain TimeVariables");
@@ -353,6 +363,7 @@ GroupTask::loop(){
 			States[left].v = state[left];
 			SyncStates(left,left);
             I::Set(state,TRUE);
+            println("bbbb ",I::g," ",isclass(this,"FETask"),isclass(this,"RETask")," ",isclass(Gamma[I::g]));
 			this->Run(isclass(this,"FETask") ? state : Gamma[I::g]);
 			} while (--state[left]>=0);
 		state[left] = 0;
@@ -395,7 +406,7 @@ DPMixture::DPMixture() 	{	RETask();	}
 /** .
 @internal
 **/
-DPMixture::Run(gam) 	{	if (isclass(gam)) qtask->GLike();	}
+DPMixture::Run(gam) 	{	if (isclass(gam))     GroupTask::qtask->GLike();	}
 
 Flags::Reset() { delete UpdateTime; UpdateTime = StorePA = DoSubSample = IsErgodic = HasFixedEffect = ThetaCreated = FALSE; }
 N::Reset() {
@@ -452,7 +463,7 @@ N::Reached(trackind) {
 FALSE if the state is not reachable.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE, traverse &Theta; through iteration on all state variables
-@param GroupExists
+@param GroupExists integer [default], the full group space will be created.<br>a <em>static</em> function that returns TRUE if the group exists.
 
 @comments
 Each DDP has its own version of Initialize, which will call this as well as do further set up.
@@ -577,7 +588,6 @@ DP::onlyDryRun() {
     }
 
 /** Initialize the state space &Theta; and the list of feasible action sets A(&theta;).
-@param GroupExists static function, returns TRUE if &gamma; should be processed<br>integer, all groups exists				
 @comments No actions or variables can be added after CreateSpaces() has been called. <br>
 **/
 DP::CreateSpaces() {
@@ -914,7 +924,7 @@ Task::Traverse(span,lows,ups) {
 	if (Flags::UseStateList)
         list(span,lows,ups);
 	else
-		loop();
+ 		loop();
 	}
 
 /** .
@@ -1071,8 +1081,9 @@ DP::Last() { return counter->Last(); }
 @param state ETT.state [default=0]
 
 <OL>
-<LI>Update the actual value of action and state variables that (might) depend on parameter values that have changed since a
-previous solve.</LI>
+<LI>Do anything that was added to the <code>PreUpdate</code> hook (see `Hooks`).
+<LI> Update the <code>Distribution()</code> of random effects.</LI>
+<LI>Call the <code>Update()</code> method all actions and states to ensure actual values are current.</LI>
 <LI>Compute the exogenous transitions, &Rho;(&eps;&prime;) and &Rho;(&eta;&prime;).</LI>
 <LI>Compute the endogenous transitions at each point in the state space endogenous state space &Theta;</LI>
 </OL>

@@ -1,4 +1,4 @@
-/**	Shared elements of models, groups and outcomes.
+/**	Shared elements of models: <em>groups</em>, <em>dimensions</em>, <em>hooks</em>, etc.
 
 @sortkey AAC
 
@@ -48,25 +48,42 @@
 
 <a name="Groups"><LI>Groups</LI></a>
 
-<DT>A `Group` is derived from `DP` and stores key aspects of the solution to the model that will be used for prediction and estimation.  A group is defined a value of &gamma;</DT>
+<DT>By default <code>MyModel</code> defines a single decision making process.  A single solution to the dynamic program is then required to solve the model.</DT>
+<dd>Another way to say this is that there is no heterogeneity in the environment across agents.</dd>
+<dd>If a homogeneous model is applied to data, then different agents would have different outcomes solely because of different realizations along the solution path.  </dd>
+<dd>Differences in initial states is included in the homogeneous case as long as each agent has the same probability distribution across initial states.</dd>
+<DT>Most applications of dynamic programming involve more than one problem.</DT>
+<dd>handles this by allowing for <code>MyModel</code> to include more than one problem to be solved by using Groups.</dd>
+<dd><span class="n">DDP</span> tries to smart about storage and computation when accounting for different solutions.  It does <em>not</em> simply duplicate everything about a single model for each group.</dd>
+<DT>A `Group` is a class derived from `DP` which stores key aspects of the solution to the model that will be used for prediction and estimation.</DT>
+<dd>A <em>group</em> is defined as a unique value of &gamma;. </Dd>
 
-<DT>Elements of the group vector &gamma; must be derived from the `TimeInvariant` class of state variables.  </DT>
-<DD>These variables are either <em>fixed</em> or <em>random</em> effects, derived respectively from `FixedEffect` and `RandomEffect`.</DD>
+<DT>Elements of the group vector <code>&gamma;</code> must be derived from the `TimeInvariant` class of state variables.  </DT>
+<DD>Time Invariant states are classified as either <em>fixed</em> or <em>random</em> effects, derived respectively from `FixedEffect` and `RandomEffect`.</DD>
 <DD>`FixedEffectBlock`s can be used to represent `SubEffect`s and `RandomEffectBlock`s can be used to represent `CorrelatedEffect`s.</DD>
 
-<DT>The user creates multiple groups by adding time-invariant variables to the model using `DP::GroupVariables`().</DT>
-<DD>Create different DP programs for men and women<pre>
+<DT>The user creates multiple groups by adding time-invariants to the model using `DP::GroupVariables`().</DT>
+<DT>Example</DT>
+<DD>Create different DP programs for men and women, and allow people to differ in ability.<pre>
     enum{male,female,Ngender}
+    enum{lo,hi,Nability}
     Initialize(...);
     ...
-    GroupVariables(g = new FixedEffect("sex",Ngender);
+    GroupVariables(
+       a = new RandomEffect("a",Nability),
+       g = new FixedEffect("sex",Ngender),
+       );
     ...
     CreateSpaces(...);
 </pre></DD>
+<DD></DD>
 
-The set of all distinct groups is the group space, denoted &Gamma;.
+<DT>The set of all distinct groups is the <em>group space</em>, and is denoted &Gamma;.</DT>
 
-The group space is kept separate from the state space <b>&Theta;</b> in order to economize on storage.  Only results that need to be held for later used are stored in &Gamma; and the state space is reused for each solution of the problem.
+<dd>The group space is kept separate from the state space &Theta; in order to economize on storage.  </dd>
+<dd>Only results that need to be held for later used are stored in &Gamma; and the state space is reused for each solution of the problem.</dd>
+
+<DT></DT>
 
 <a name="ZAux"><LI>Flags, Indices, Counts, Spaces and Hooks</LI></a>
 

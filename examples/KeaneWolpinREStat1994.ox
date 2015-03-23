@@ -13,6 +13,17 @@ DynamicRoy::Replicate()	{
 	for (i=0;i<Msectors-1;++i)
 		EndogenousStates(xper[i] = new ActionCounter("X"+sprint(i),MaxExp,accept,i,0));
 	SetDelta(0.95);
+    R = [=]() {
+ 	   decl  xs = xper[school].v, xw = xper[white].v, xb = xper[blue].v,
+            k = AV(lnk),
+	        xbw = (k~xs~xw~-sqr(xw)~xb~-sqr(xb))*alph[white],
+	        xbb = (k~xs~xb~-sqr(xb)~xw~-sqr(xw))*alph[blue];
+        return
+	        xbw	
+	       |xbb
+	       | bet[0]-bet[1]*(xs+School0>=HSGrad)-bet[2]*(!attended.v)
+	       | gamm;
+            };
 	CreateSpaces(LogitKernel,1/4000.0);
 //	BF = new ValueIteration();
 //	BF -> Solve();
@@ -37,16 +48,8 @@ DynamicRoy::Reachable() {
 
 /** Utility vector equals the vector of feasible returns.**/	
 DynamicRoy::Utility() {
- 	decl  xs = xper[school].v, xw = xper[white].v, xb = xper[blue].v,
-     k = AV(lnk),
-	 xbw = (k~xs~xw~-sqr(xw)~xb~-sqr(xb))*alph[white],
-	 xbb = (k~xs~xb~-sqr(xb)~xw~-sqr(xw))*alph[blue],
-	R = xbw	
-	  |	xbb
-	  | bet[0]-bet[1]*(xs+School0>=HSGrad)-bet[2]*(!attended.v)
-	  | gamm,
-	  eps = selectrc(offers.Grid,accept.vals,offers.v)';
-	R[:blue] = exp(R[:blue]+eps[:blue]);
-	R[school:] += eps[school:];
-	return R[A[Aind]];
+    decl rr = R(), ee = AV(offers);
+	rr[:blue] = exp(rr[:blue]+ee[:blue]);
+	rr[school:] += ee[school:];
+	return rr[A[Aind]];
 	}

@@ -66,7 +66,7 @@ v*(&alpha;) = exp[&rho;(v(&alpha;&epsilon,&eta;&theta;)-V(&epsilon,&eta;&theta;)
 struct ExPostSmoothing : Bellman {
 	static decl Method, rho, sigma;
 	static Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
-	static CreateSpaces(Method=NoSmoothing,...);
+	static CreateSpaces(Method=NoSmoothing,smparam=1.0);
 	virtual Smooth(EV);
 			Logistic(EV);
 			Normal(EV);
@@ -171,42 +171,70 @@ struct NIID : Normal {
 
 /** One-dimensional action models with user defined distribution of &zeta;.
 
-Allows for solving the model by finding cutoffs (reservation values) in the continuous error.
-This solution works when there is a single action variable <em>and</em> there are no exogenous or exogenous states.
-Solving for cut-offs using non-linear systems is a <a href="../Hybrids/default.html">Hybrid</a> method.
+<DT>Allows for solving the model by finding cutoffs (reservation values) in a continuous error using the Hybrid <a href="../Hybrids/DPSystems.ox.html#ReservationValues">ReservationValues</a> method.</DT>
 
-<DD>
-Fully specified, utility is
-<pre>
-&alpha; = (a)
+<DT>The reservation value solution works when</DT>
+<UL>
+<LI>There is a single action variable <em>and</em></LI>
+<LI>There are no exogenous (&epsilon;) or semi-exogenous (&eta;) states added to the model.  State variables that would be eligible
+for inclusion in those vectors need to be placed in &theta;.</LI>
+<LI>The model must exhibit a reservation property in z (i.e. a single-crossing property and if <code>d.N&gt;2</code> monotonicity in the crossing points.</LI>
+<LI>Formally,</LI>
+<DD><pre>
+&alpha; = (d)
 &zeta; = (z)
 &epsilon; = ()
 &eta; = ()
 
-U(a;;&zeta;,&theta;) = U()+E[z|a,&theta;]
-</pre></dd>
-The model must exhibit a reservation property in z.
+U(d;&zeta;,&theta;) = U(d;z,&theta;)
+</pre>
+</dd>
 
-Vsolve() computes <span="o">z</span><sub>0</sub> &hellip; <span="o">z</span><sub>&alpha;.N&oline;</sub> which are cutoff or reservation values for the values of z.  The optimal value of a, denoted a*, is
+</UL>
+<!--&exists; unique z*<sub>0</sub> &lt; z*<sub>1</sub> &hellip; &lt; z*<sub>a.N&oline;</sub> such that
+
+U(a;z,&theta;-->
+
+<DT>The restrictions above do not apply if other solution methods are applied to a <code>OneDimensionalChoice</code>.</DT>
+
+<DT>The user provides methods that return:<DT>
+<UL>
+<LI><code>Udiff(z)</code>: the differences in utility at a given value of z. <code>Udiff(z)</code> should return a <code>d.N-1</code> vector equal to the
+differences in utility between <code>d=j</code> and <code>d=j-1</code>.</LI>
+<LI><code>EUtility()</code>: an array of size <code>d.N</code> that returns the expected utlity of <code>d=j</code> for values of z in the interval (z*<sub>j-1</sub>,z*<sub>j</sub>)
+and the corresponding probabilities &Rho;[z &in (z*<sub>j-1</sub>,z*<sub>j</sub>) ].  <code>EUtility()</code> gets
+<code>z*star</code> from the data member `OneDimensionalChoice::zstar`.</LI>
+</UL>
+
+<!--<a href="../Hybrids/DPSystems.ox.html#ReservationValues">ReservationValues</a>
+solve() computes <span="o">z</span><sub>0</sub> &hellip; <span="o">z</span><sub>&alpha;.N&oline;</sub> which are cutoff or reservation values for the values of z.  The optimal value of a, denoted a*, is
 <DD class="example"><pre>
  a* = a  iff <span="o">z</span><sub>a-1</sub> &lt; &omega; &le; <span="o">z</span><sub>a</sub>.
 <span="o">z</span><sub>-1</sub> &equiv; -&infin;
 <span="o">z</span><sub>a.N</sub> &equiv; +&infin;
  </pre></DD>
 
-The user writes routines that return ...
+The user writes routines that return ...-->
 
 **/
-
 struct OneDimensionalChoice : Bellman {
-	static 	decl 					pstar, d;
+	static 	decl 					                    pstar,
+            /** single action variable. **/             d;
 			decl
-			/**reservation values  **/		zstar;
+			/**vector of reservation values  **/		zstar;
 	static 	Initialize(userReachable,d=Two,UseStateList=FALSE,GroupExists=FALSE);
 	static  CreateSpaces();
-	virtual Udiff();
+	virtual Udiff(z);
 	virtual EUtility();
 	virtual thetaEMax() ;
 	virtual Smooth(pstar);
-	ActVal(VV);
+	virtual ActVal(VV);
+	}
+
+struct KeepZ : OneDimensionalChoice {
+	static 	decl keptz,kprob;
+	static 	Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
+	static  CreateSpaces(keptz);
+//	virtual thetaEMax();
+	virtual ActVal(VV);
 	}

@@ -45,14 +45,31 @@ struct EVSystem : DPSystem	{
 struct Rsystem : DPSystem {
 	const decl zstar, Ncuts, meth;
 	decl ru, curth, dV, c;
-	RVSolve(curth,dV);
+	RVSolve(curth,dV,MaxTrips=0);
 	Rsystem(LB,Nchoice,METHOD);
 	vfunc();
 	}
 
-/** Solve for cutoffs as a non-linear system of equations.
+/** Solve for cutoffs as a non-linear system of equations in a one-dimensional choice problem.
 
-Vsolve() computes <span="o">z</span><sub>0</sub> &hellip; <span="o">z</span><sub>&alpha;.N&oline;</sub> which are cutoff or reservation values for the values of z.  The optimal value of a, denoted a*, is
+This algorithm requires <code>MyModel</code> to be derived from <a href="../DDP/Bellman.ox.html#OneDimensionalChoice">OneDimensionalChoice</a>.
+
+<DT>The single Action Variable is denoted <code>d</code>:</DT><DD>
+<pre>  &alpha; = (d) </pre></DD>
+<DT>The single continuous state variable is denoted <code>z</code>:</DT><DD>
+<pre> &zeta; = (z)</pre></dd>
+
+<DT>`ReservationValues::Solve`() computes<DD>
+<pre>
+z*<sub>0</sub> &lt; z*<sub>1</sub> &lt; &hellip; &lt; z*<sub>d.N&oline;-1</sub>
+</pre>
+which are cutoff or reservation values for the values of z, the one-dimensional continuous state variable.
+<DT>The optimal value of the choice d, denoted d*, is then</dt>
+<DD><pre>
+d* = j &emsp; &hArr; &emsp; z &in; (z*<sub>j-1</sub>,z*<sub>j</sub>)
+</pre>
+Note that z*<sub>-1</sub> &equiv; -&infin; and z*<sub>d.N</sub> &equiv; +&infin;<DD>
+
 <DD class="example"><pre>
  a* = a  iff <span="o">z</span><sub>a-1</sub> &lt; &omega; &le; <span="o">z</span><sub>a</sub>.
 <span="o">z</span><sub>-1</sub> &equiv; -&infin;
@@ -64,9 +81,10 @@ The user writes routines that return ...
 **/
 struct ReservationValues : ValueIteration {
 	decl
+                                                        MaxTrips,
 	/** Objectives for each &Alpha;	**/					RValSys;
 	ReservationValues(LBvalue=-.Inf,METHOD=UseDefault);
 	Run(th);
-	Solve(Fgroups=AllFixed);
+	Solve(Fgroups=AllFixed,MaxTrips=0);
 	}
 	

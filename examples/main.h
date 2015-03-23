@@ -18,6 +18,7 @@
 #import "MVNormal"
 //#import "WstarTest"
 #import "WstarTestb"
+#import "DynamicWstar"
 #import "AllTestOpt"
 #import "AguirregabiriaMira2002"
 //#import "MortTest"

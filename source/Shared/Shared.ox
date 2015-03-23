@@ -38,11 +38,12 @@ CV(X,...) {
 @comments This allows user utility to access the current actual value of a state.  By storing the vector of actual values
 `Discrete::Update` function does not have to be called each time the state variable changes value.
 This also works for `StateBlock` which will return the items from the Grid of points.
-@returns CV(X) or X.actual[v]
+@returns X->AV() or CV(X)
 @see CV
 **/
 AV(X,...) {
-	if (ismember(X,"actual")) return X.actual[X.v];
+    if (ismember(X,"actual")) return X->myAV();
+//	if (ismember(X,"actual")) return X.actual[X.v];
 	decl arg=va_arglist();
 	return (!sizeof(arg)) ?  CV(X) : CV(X,arg[0]) ;
 	}
@@ -159,6 +160,7 @@ Discrete::Discrete(L,N)  {
 	actual= vals';
 	subv = pos = UnInitialized;
 	pdf = ones(vals);
+    v = 0;
 	}
 
 /** The default Discrete Variable update does nothing.

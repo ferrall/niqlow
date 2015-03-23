@@ -1,4 +1,4 @@
-/* This file is part of niqlow. Copyright (C) 2013 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2015 Christopher Ferrall */
 #ifdef OX_PARALLEL
 #ifndef Vh
     #define Vh

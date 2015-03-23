@@ -11,6 +11,12 @@ base class.
 **/
 StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>; }
 
+
+/** Return actual[v].
+@see CV, AV, StateVariable::Update
+**/
+StateVariable::myAV() { return actual[v]; }
+
 /** Check dimensions of <code>actual</code>.
 Called by DP::UpdateVariables() after `StateVariable::Update`() called.
 **/
@@ -89,10 +95,13 @@ Augmented::Augmented(Lorb,N) {
         }
     }
 
+/** The base for triggered augmentations.
+
+**/
 Triggered::Triggered(b,t,tv,rval) {
     Augmented(b);
     this.t = t;
-    if (!(isint(tv)||ismatrix(tv))) oxrunerror("Trigger values must be integer or vector");
+    if (!(isint(tv)||ismatrix(tv))) oxrunerror("Trigger values must be integer or matrix");
     this.tv = unique(tv);
     if (!isint(rval) || rval<0 || rval>=N) oxrunerror("Reset value must be integer between 0 and N-1");
     this.rval = rval;
@@ -123,20 +132,62 @@ ActionTriggered::Transit(FeasA) {
 	return tr;
     }
 
+/** Augment a base transition to reset to 0 if the trigger is 1.
+**/
 Reset::Reset(b,t) {
     ActionTriggered(b,t);
     }
 
+/** Augment a base transition so the value of some other object trigger a specail value.
+@param b the base `StateVariable` whose transition is augmented (the base should not be added to the model separately.
+@param t the `AV`-compatible value which triggers the change.  Usually this would be another state variable that is present in the model.
+@param tv the integer (actual) or vector of integer values of tv that triggers the transition [default=1].
+@param rval the integer (current) value of the variable when the trigger occurs [default=0]
+
+**/
 ValueTriggered::ValueTriggered(b,t,tv,rval) {
     Triggered(b,t,tv,rval);
     }
 
 ValueTriggered::Transit(FeasA) {
     Triggered::Transit(FeasA);
-    if ( AV(t)==tv ) return { matrix(rval), ones(rows(FeasA),1) };
+    if ( any(AV(t).==tv ) ) return { matrix(rval), ones(rows(FeasA),1) };
     return tr;
     }
 
+/**  Augment a base transition so that a special value occurs with some probability.
+<DT>Transition</DT>
+<DD><pre>
+Prob( q&prime;= z | q,b ) =  &tau;I{z=r} + (1-&tau;)Prob(b&prime;=z)
+</pre></DD>
+
+**/
+RandomTrigger::RandomTrigger(b,Tprob,rval) {
+    Triggered(b,Tprob,1,matrix(rval));
+    }
+
+RandomTrigger::Transit(FeasA) {
+    Triggered::Transit(FeasA);
+    if ( (ft = AV(t))==0.0 ) // no chance of trigger
+            return tr;
+
+    if ( ft ==1.0 )  // trigger happens for sure
+        return {rval,ones(rows(FeasA),1)} ;
+
+    if ( (nf = find(tr[Qi],rval))>-1 ) {  //reset value already possible
+        tr[Qrho] *= 1-ft;                 // scale all probabilities
+        tr[Qrho][][nf[0]] *= ft/(1-ft);   // fix up column with reset value
+        return tr;
+        }
+
+    // concatentate reset value to feasible, adjust probabilities
+    return { tr[Qi]~rval, ft*tr[Qrho]~(1-ft) };
+
+    }
+
+/** Augment a variable so it freezes at its current value as long as a trigger is TRUE.
+
+**/
 Freeze::Freeze(b,t) {
     ValueTriggered(b,t,TRUE);
     }
@@ -146,6 +197,7 @@ Freeze::Transit(FeasA) {
     Triggered::Transit(FeasA);
     return tr;
     }
+
 
 /** Create an augmented state variable that 'forgets' its value when a permanent condition occurs.
 @param b base `StateVariable` to augment
@@ -165,6 +217,8 @@ Forget::Transit(FeasA) {
     return {matrix(rval),ones(rows(FeasA),1)};
     }
 
+/**
+**/
 Forget::UnReachable(clock) {
     b.v = v;
     if (CV(pstate)) return v==rval;
@@ -673,7 +727,7 @@ StateBlock::StateBlock(L)	{
 	N= 0;
 	Theta={};
 	pos = UnInitialized;
-	Allv = actual = v = <>;	
+	Actual = Allv = actual = v = <>;	
 	}
 
 /**	 Add state variable(s) to a block.
@@ -699,10 +753,15 @@ StateBlock::AddToBlock(news,...)	{
 			Allv |= newrow;
 			}
 		}
-	actual = v;  //default actual values, replaced after each add block.
+	actual = v;   //default actual values, replaced after each add block.
+    Actual = Allv;
+    rnge = range(0,N-1);
 	}
 	
 StateBlock::Check() {   }
+
+/** Sets and returns the vector of <em>actual</em> values of the block as a vector. **/
+StateBlock::myAV() {  return actual = selectrc(Actual,rnge,v)';    }
 
 /** An offer with layoff (match dissolution) risk.
 @param L string, label
@@ -744,6 +803,23 @@ NormalComponent::NormalComponent(L, N)	{
 	Coevolving(L,N);
 	}
 	
+MVIID::MVIID(L,N,M,base) {
+	StateBlock(L);
+    this.M = M;
+    MtoN = M^N;
+    if (isclass(base)) {
+        this.N = N;
+        }
+    }
+
+/** .
+**/
+MVIID::Transit(FeasA)	{
+	 return {Allv,ones(1,MtoN)/MtoN};
+	}
+
+MVIID::Update() { }	
+
 /**Create a block for a multivariate normal distribution (IID over time).
 @param L label for block
 @param N integer, length of the vector (number of state variables in block)
@@ -755,25 +831,17 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 	decl i;
 	if (sizerc(CV(mu))!=N) oxrunerror("mu should contain N items");
 	if (sizerc(CV(CholLT))!=N*(N+1)/2) oxrunerror("CholLT should contain N(N+1)/2 items",0);
-	StateBlock(L);
-	this.M = M;
+	MVIID(L,N,M);
 	this.mu = mu;
 	this.CholLT = CholLT;
-    Ngridpoints = M^N;
 	for (i=0;i<N;++i) AddToBlock(new NormalComponent(L+sprint(i),M));
 	}
 
-/** Updates the Grid of values.
-@comments Like all Update routines, this is called automatically at the start of a solution.
+/** Updates the grid of Actual values.
+@comments Like all Update routines, this is called at `UpdateTime`.
 **/
 MVNormal::Update()	{
-	Grid = shape(CV(mu),N,1) + unvech(CV(CholLT))*reshape(quann(range(1,M)/(M+1)),N,M);	
-	}
-
-/** .
-**/
-MVNormal::Transit(FeasA)	{
-	 return {Allv,ones(1,Ngridpoints)/Ngridpoints};
+	Actual = shape(CV(mu),N,1) + unvech(AV(CholLT))*reshape(quann(range(1,M)/(M+1)),N,M);	
 	}
 
 /** K mutually exclusive episodes.
@@ -817,7 +885,7 @@ Episode::Transit(FeasA) 	{
 	
 	const decl mu, rho, sig, M;
 
-Tauchen::Tauchen(L,N,M,mu, sig,rho) {
+Tauchen::Tauchen(L,N,M,mu,sig,rho) {
 	StateVariable(L,N);
 	this.M=M;
 	this.mu = mu;
@@ -869,4 +937,37 @@ Asset::Transit(FeasA) {
     all = union(bot,top);
 //   if ( any(tprob.>1.0) ) println("%c",{"AA","Bound","aB","mid","At"},AV(r)*actual[v]+AV(NetSavings,FeasA)~atom~actual[bot]'~mid~actual[top]'," tp ",tprob'," bp ",bprob'," all ",all);
     return { all, tprob.*(all.==top) + bprob.*(all.==bot) };
+    }
+
+ZVariable::ZVariable(L,N,held) {
+    StateVariable(L,N);
+    this.held = held;
+    }
+
+ZVariable::Transit(FeasA) {
+    if (CV(held)) return UnChanged(FeasA);
+    return {vals, reshape(matrix(1/N),rows(FeasA),N)};
+    }
+
+ZVariable::CDF(zstar) {
+    return probn(zstar);
+      }
+
+ZVariable::Update() {
+    actual = quann( (vals+1) / (N+1) )';
+    }
+
+/** Conditional distribution of Z given zstar.
+**/
+ZVariable::DynamicTransit(zstar) {
+    cdf = CDF(zstar);
+    M = actual[N-1]+actual[N-2];
+    df = M - zstar;
+    midpt = (M+zstar)/2;
+    zspot = sortcindex(zstar|actual)[0];
+    Fdif = (2*vals[zspot:]+1)/(2*N)-cdf;
+    A = (3/11)/df;
+    b = -4*A/sqr(df);
+    kern = A + b*sqr(actual[zspot:]'-midpt);
+    return zeros(1,zspot)~(Fdif.*kern /sumr(kern));
     }

@@ -11,6 +11,7 @@ WStar::Run()	{
 	done->MakeTerminal(1);
 	SetDelta(0.95);
 	CreateSpaces();
+	Volume=LOUD;
 	decl RV = new ReservationValues();
 	RV.Volume = LOUD;
 	RV -> Solve();

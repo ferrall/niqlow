@@ -72,11 +72,11 @@ Rsystem::Rsystem(LB,Ncuts,METHOD) {
 **/
 Rsystem::vfunc() {	return curth->Udiff(CV(zstar)) + dV;	}
 
-Rsystem::RVSolve(curth,dV) {
+Rsystem::RVSolve(curth,dV,MaxTrips) {
 	this.curth = curth;
 	this.dV = dV;
 	Encode(CV(curth.zstar));
-	meth->Iterate(0);
+	meth->Iterate(MaxTrips);
 	curth.zstar = CV(zstar);
 	}
 
@@ -107,22 +107,26 @@ RVEdU::Run(th) {
 	if (!isclass(th,"Bellman")) return;
 	th.pandv[I::r][][] = .NaN;
 	th.U[] = 0;
+
 	}
 
 /**Solve for cut off values in the continuous shock &zeta;.
-@param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
+@param Fgroups DoAll [default], loop over fixed groups<br>non-negative integer, solve only that fixed group index
 **/
-ReservationValues::Solve(Fgroups) 	{
+ReservationValues::Solve(Fgroups,MaxTrips) 	{
    	now = NOW;	later = LATER;
-	ftask.qtask = this;			//refers back to current object.
+    this.MaxTrips = MaxTrips;
+    GroupTask::qtask = this;
+//	ftask.qtask = this;			//refers back to current object.
     if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
     Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
     decl rv;
     foreach (rv in RValSys) if (isclass(rv)) rv.meth.Volume = Volume;
 	if (Fgroups==AllFixed)
-		ftask -> loop();
+		ftask -> GroupTask::loop();
 	else
 		ftask->Run(ReverseState(Fgroups,I::OO[onlyfixed][]));
+    println("%");
 	}
 
 ReservationValues::Run(th) {
@@ -130,7 +134,7 @@ ReservationValues::Run(th) {
 	decl sysind = th.Aind;
 	th->ActVal(VV[later]);
 	if (isclass(RValSys[sysind])) {
-		RValSys[sysind] ->	RVSolve(th,DeltaV(th.pandv[I::r]));
+		RValSys[sysind] ->	RVSolve(th,DeltaV(th.pandv[I::r]),MaxTrips);
 		VV[now][I::all[iterating]] = th->thetaEMax();
 		}
 	else {

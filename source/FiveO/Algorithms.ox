@@ -596,7 +596,7 @@ NonLinearSystem::Iterate(J)	{
 			OC.F += Direction();
 			convergence = (++iter>maxiter) ? MAXITERATIONS : (Hresetcnt>1 ? SECONDRESET : this->JJupdate());
 			if (Volume>QUIET) println(classname(this)+" ",iter,".  deltaX: ",deltaX," deltaG:",deltaG);
-			} while (convergence==NONE);
+			} while (convergence==NONE && !isnan(deltaX) );
 		  }
 	    if (Volume>SILENT)
 		  println("\n"+classname(this)+" Converged:","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Params Vector","System"},OC.F'|OC.V');

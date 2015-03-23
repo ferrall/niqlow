@@ -1,5 +1,5 @@
 #include "WstarTestb.h"
-/* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 WStar::Reachable()	{ return new WStar(); }
 WStar::WStar()      { zstar = <0.0>;}
@@ -10,9 +10,11 @@ WStar::Run()	{
 	Initialize(Reachable);
 	SetClock(NormalAging,10);
 	EndogenousStates(done = new LaggedAction("Done",d));
+	GroupVariables(new RandomEffect("g",2),new FixedEffect("f",2));
 	done->MakeTerminal(1);
 	SetDelta(0.4);
 	CreateSpaces();
+    Volume = NOISY;
 	RV = new ReservationValues();
     SaveV::TrimTerminals=TRUE;
     RV.Volume=NOISY;

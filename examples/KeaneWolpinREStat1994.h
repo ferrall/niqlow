@@ -18,7 +18,8 @@ struct DynamicRoy : ExPostSmoothing	{
 		/** index accepted offer/srch**/  	accept,
 		/** enrolled last period    **/   	attended,
 		/** offer block **/		  		  	offers,
-		/** occupation experience array**/	xper;
+		/** occupation experience array**/	xper,
+        /** R vector (anonymous function).**/ R;
 	static 	Replicate();
 	static 	Reachable();
 			Utility();

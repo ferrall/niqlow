@@ -14,20 +14,53 @@ FixedEffect::FixedEffect(L, N) {
 	pdf = ones(1,N);
 	}
 
-/** A state variable that is random but invariant for an individual DP problem.
+/** Create a state variable that is random but invariant for an individual DP problem.
+@param L label
+@param N number of points of support.
+@param fDist integer [default], uniform distribution<br>otherwise, a `AV`() compatible object that
+returns the N-vector of probabilities.
 
-<DD>The default distribution is uniform:
+<DT>The default (and always initial) distribution is uniform:</DT>
+<DD>
+<pre>
+RandomEffect("g",N);
+</pre>
+means:
 <pre>
 Prob(g=k) = 1/N, for k=0,...,N&oline;
 </pre></DD>
+<DT>Dynamic Densities</DT>
+<DD>The third argument can be used to set the vector:
+<pre>RandomEffect("g",2,<0.8;0.2>);</pre>
+a static function:
+<pre>
+decl X, beta;
+&vellip;
+hd() {
+    decl v = exp(X*beta), s = sumc(v);
+    return v/s;
+    }
+&vellip;
+RandomEffect("h",rows(X),hd);
+</pre>
+or a parameter block:
+<pre>
+enum{Npts = 5};
+hd = new Simplex("h",Npts);
+RandomEffect("h",Npts,hd);
+</pre></DD>
 
-@example
-	decl skill = new RandomEffect("s",3);
-</dd>
+<DT><code>fDist</code> is stored in a non-constant member, so it can be changed after the <code>CreateSpaces()</code>
+has been called.</DT>
+
+<DT>Most Flexible Option</DT>
+The user can define a derived class and supply a replacement to the virtual `RandomEffect::Distribution`().
+
 @see DP::GroupVariables
 **/
-RandomEffect::RandomEffect(L,N) {
+RandomEffect::RandomEffect(L,N,fDist) {
 	StateVariable(L,N);
+    this.fDist = fDist;
 	pdf = constant(1/N,1,N);
 	}
 
@@ -89,11 +122,18 @@ FixedEffectBlock::AddToBlock(news,...)	{
 		}
 	}
 
-/** Default: discrete uniform distribution 0 &hellip; N&oline;.
-@internal
-@comments pdf is set at creation
+/** Update `Discrete::pdf`, the distribution over the random effect.
+This is the built-in default method.  It computes and stores the distribution over the random
+effect in `Discrete::pdf` using `RandomEffect::fDist`;
+
+The user can supply a replacement in a derived class.
+
 **/
-RandomEffect::Distribution() {	}
+RandomEffect::Distribution() {
+    pdf = isint(fDist)
+            ? constant(1/N,1,N)
+            : AV(fDist);
+    }
 
 /** Create a new CorrelatedEffect.
 @param L label

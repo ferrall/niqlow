@@ -15,7 +15,7 @@
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
 <h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">DP.ox</span></h1>
 
-Shared elements of models, groups and outcomes.
+Shared elements of models: <em>groups</em>, <em>dimensions</em>, <em>hooks</em>, etc.
 <P/>
 <a href="#auto">Skip down to documentation of items defined in DP.ox</a><p>
 <P/>
@@ -63,25 +63,42 @@ Shared elements of models, groups and outcomes.
 <P/>
 <a name="Groups"><LI>Groups</LI></a>
 <P/>
-<DT>A <a href="DP.ox.html#Group">Group</a> is derived from <a href="DP.ox.html#DP">DP</a> and stores key aspects of the solution to the model that will be used for prediction and estimation.  A group is defined a value of &gamma;</DT>
+<DT>By default <code>MyModel</code> defines a single decision making process.  A single solution to the dynamic program is then required to solve the model.</DT>
+<dd>Another way to say this is that there is no heterogeneity in the environment across agents.</dd>
+<dd>If a homogeneous model is applied to data, then different agents would have different outcomes solely because of different realizations along the solution path.  </dd>
+<dd>Differences in initial states is included in the homogeneous case as long as each agent has the same probability distribution across initial states.</dd>
+<DT>Most applications of dynamic programming involve more than one problem.</DT>
+<dd>handles this by allowing for <code>MyModel</code> to include more than one problem to be solved by using Groups.</dd>
+<dd><span class="n">DDP</span> tries to smart about storage and computation when accounting for different solutions.  It does <em>not</em> simply duplicate everything about a single model for each group.</dd>
+<DT>A <a href="DP.ox.html#Group">Group</a> is a class derived from <a href="DP.ox.html#DP">DP</a> which stores key aspects of the solution to the model that will be used for prediction and estimation.</DT>
+<dd>A <em>group</em> is defined as a unique value of &gamma;. </Dd>
 <P/>
-<DT>Elements of the group vector &gamma; must be derived from the <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> class of state variables.  </DT>
-<DD>These variables are either <em>fixed</em> or <em>random</em> effects, derived respectively from <a href="Variables.ox.html#FixedEffect">FixedEffect</a> and <a href="Variables.ox.html#RandomEffect">RandomEffect</a>.</DD>
+<DT>Elements of the group vector <code>&gamma;</code> must be derived from the <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> class of state variables.  </DT>
+<DD>Time Invariant states are classified as either <em>fixed</em> or <em>random</em> effects, derived respectively from <a href="Variables.ox.html#FixedEffect">FixedEffect</a> and <a href="Variables.ox.html#RandomEffect">RandomEffect</a>.</DD>
 <DD><a href="Variables.ox.html#FixedEffectBlock">FixedEffectBlock</a>s can be used to represent <a href="Variables.ox.html#SubEffect">SubEffect</a>s and <a href="Variables.ox.html#RandomEffectBlock">RandomEffectBlock</a>s can be used to represent <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a>s.</DD>
 <P/>
-<DT>The user creates multiple groups by adding time-invariant variables to the model using <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>().</DT>
-<DD>Create different DP programs for men and women<pre>
+<DT>The user creates multiple groups by adding time-invariants to the model using <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>().</DT>
+<DT>Example</DT>
+<DD>Create different DP programs for men and women, and allow people to differ in ability.<pre>
     enum{male,female,Ngender}
+    enum{lo,hi,Nability}
     Initialize(...);
     ...
-    GroupVariables(g = new FixedEffect("sex",Ngender);
+    GroupVariables(
+       a = new RandomEffect("a",Nability),
+       g = new FixedEffect("sex",Ngender),
+       );
     ...
     CreateSpaces(...);
 </pre></DD>
+<DD></DD>
 <P/>
-The set of all distinct groups is the group space, denoted &Gamma;.
+<DT>The set of all distinct groups is the <em>group space</em>, and is denoted &Gamma;.</DT>
 <P/>
-The group space is kept separate from the state space <b>&Theta;</b> in order to economize on storage.  Only results that need to be held for later used are stored in &Gamma; and the state space is reused for each solution of the problem.
+<dd>The group space is kept separate from the state space &Theta; in order to economize on storage.  </dd>
+<dd>Only results that need to be held for later used are stored in &Gamma; and the state space is reused for each solution of the problem.</dd>
+<P/>
+<DT></DT>
 <P/>
 <a name="ZAux"><LI>Flags, Indices, Counts, Spaces and Hooks</LI></a>
 <P/>
@@ -373,7 +390,7 @@ The  base class for the DDP framework.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___CurGroup">CurGroup</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Return the element <a href="DP.ox.html#I___g">g</a> element of <a href="DP.ox.html#Gamma">Gamma</a>.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___DrawGroup">DrawGroup</a></td>
@@ -483,7 +500,8 @@ The  base class for the DDP framework.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___SetGroup">SetGroup</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Set and return the current group node in &Gamma;
+</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___Settheta">Settheta</a></td>
@@ -801,53 +819,61 @@ A user's code can reference these variables but should never change them.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#Flags___GroupExists">GroupExists</a></td>
+<td class="modifiers">static</td>
+<td class="description">Integer means all groups exist
+            Otherwise a function called by CGTask(),
+            an internal task that sets up the group space
+            &Gamma;.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#Flags___HasBeenUpdated">HasBeenUpdated</a></td>
 <td class="modifiers">static</td>
 <td class="description">UpdateVariables() has been called.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#Flags___HasFixedEffect">HasFixedEffect</a></td>
 <td class="modifiers">static</td>
 <td class="description">&Gamma; already includes fixed effects  </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#Flags___IsErgodic">IsErgodic</a></td>
 <td class="modifiers">static</td>
 <td class="description">create space to store &Rho;*  </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#Flags___onlyDryRun">onlyDryRun</a></td>
 <td class="modifiers">static</td>
 <td class="description">Do not create &Theta;, but do everything else.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#Flags___setPstar">setPstar</a></td>
 <td class="modifiers">static</td>
 <td class="description">set &Rho;*(<code>&alpha;</code>|&hellip;)
             in Bellman  </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#Flags___StorePA">StorePA</a></td>
 <td class="modifiers">static</td>
 <td class="description">store &Alpha.D x &Theta.D matrix
 			of choice probabilities  </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#Flags___ThetaCreated">ThetaCreated</a></td>
 <td class="modifiers">static</td>
 <td class="description">CreateSpaces() has been called or not.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#Flags___UpdateTime">UpdateTime</a></td>
 <td class="modifiers">static</td>
 <td class="description">Indicators for when transit update occurs.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#Flags___UseStateList">UseStateList</a></td>
 <td class="modifiers">static</td>
 <td class="description">.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#Flags___Reset">Reset</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
@@ -1899,16 +1925,7 @@ counter variable.
 <dl><dd>
 Initialize the state space &Theta; and the list of feasible action sets A(&theta;).
 
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">GroupExists</td>
-<td class="description" valign="baseline">static function, returns TRUE if &gamma; should be processed<br>integer, all groups exists				
-</td>
-</tr>
-</table>
-</dd>
-<dt class="comments">Comments:</dt><dd class="comments">No actions or variables can be added after CreateSpaces() has been called. <br>
+<dl><dt class="comments">Comments:</dt><dd class="comments">No actions or variables can be added after CreateSpaces() has been called. <br>
 </dd>
 </dl>
 </dd></dl>
@@ -1919,7 +1936,10 @@ Initialize the state space &Theta; and the list of feasible action sets A(&theta
 
 <span class="declaration">static DP :: CurGroup ( )</span>
 <dl><dd>
+Return the element <a href="DP.ox.html#I___g">g</a> element of <a href="DP.ox.html#Gamma">Gamma</a>.
 
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetGroup">SetGroup</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2180,7 +2200,8 @@ FALSE if the state is not reachable.
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">GroupExists
+<td class="declaration" valign="baseline">GroupExists</td>
+<td class="description" valign="baseline">integer [default], the full group space will be created.<br>a <em>static</em> function that returns TRUE if the group exists.
 <P/>
 </td>
 </tr>
@@ -2287,7 +2308,7 @@ Array of Exogenous next state indices
 <span class="declaration">static DP :: ResetGroup ( gam )</span>
 <dl><dd>
 Reset a group.
-Reset Ptrans [&Rho;(&theta;&prime;;&theta;)]; synch &gamma;
+This resets <a href="DP.ox.html#Group___Ptrans">Ptrans</a>[&Rho;(&theta;&prime;;&theta;)] and it synch &gamma;
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -2300,6 +2321,7 @@ Reset Ptrans [&Rho;(&theta;&prime;;&theta;)]; synch &gamma;
 </dd>
 <dt class="returns">Returns:</dt><dd class="returns">density of the the group.
 </dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a></dd>
 </dl>
 </dd></dl>
 
@@ -2422,7 +2444,23 @@ Set the discount factor, &delta;.
 
 <span class="declaration">static DP :: SetGroup ( GorState )</span>
 <dl><dd>
+Set and return the current group node in &Gamma;
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">GorState</td>
+<td class="description" valign="baseline">matrix, the state vector for the group<br>integer, index of the group
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">pointer to element of &Gamma; for the group. If this is not a class, then the group has been excluded from the model.
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">This also sets <a href="DP.ox.html#I___f">f</a> and <a href="DP.ox.html#I___g">g</a>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2580,8 +2618,9 @@ Update dynamically changing components of the program at the time chosen by the 
 <td class="description" valign="baseline">ETT.state [default=0]
 <P/>
 <OL>
-<LI>Update the actual value of action and state variables that (might) depend on parameter values that have changed since a
-previous solve.</LI>
+<LI>Do anything that was added to the <code>PreUpdate</code> hook (see <a href="DP.ox.html#Hooks">Hooks</a>).
+<LI> Update the <code>Distribution()</code> of random effects.</LI>
+<LI>Call the <code>Update()</code> method all actions and states to ensure actual values are current.</LI>
 <LI>Compute the exogenous transitions, &Rho;(&eps;&prime;) and &Rho;(&eta;&prime;).</LI>
 <LI>Compute the endogenous transitions at each point in the state space endogenous state space &Theta;</LI>
 </OL>
@@ -2899,6 +2938,19 @@ Display the exogenous transition as a matrix.
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Flags</span></h2>
 
+<a name="Flags___GroupExists"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">GroupExists</span></h3>
+
+<span class="declaration">static decl GroupExists [public]</span>
+<dl><dd>
+Integer means all groups exist
+            Otherwise a function called by CGTask(),
+            an internal task that sets up the group space
+            &Gamma;.
+
+</dd></dl>
+
+<hr>
 <a name="Flags___HasBeenUpdated"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">HasBeenUpdated</span></h3>
 

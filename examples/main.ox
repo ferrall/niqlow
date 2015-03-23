@@ -25,6 +25,7 @@ main() {
 			{"StataMNP",  				StataMNP},
 			{"MVNormalTest",			MVTest::Replicate},
 			{"Reservation_Wage_Test",   WStar::Run},
+            {"Dynamic Wage Test",       DynWStar::Run},
 			{"Client_Server_Test",      ClientServer::Run},		
 			{"Peer_Test",               MyPeer::Run}		
 //					{"ReEmploymentBonus",		UISearch::Run}

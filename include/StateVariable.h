@@ -18,6 +18,7 @@ struct StateVariable : Discrete	{
 	virtual UnChanged(FeasA);
     virtual UnReachable(clock=0);
     virtual Check();
+    virtual myAV();
 	}
 	
 /**Scalar `StateVariable` with statistically independent transition.
@@ -57,12 +58,13 @@ class Augmented : StateVariable {
 struct Coevolving : Augmented {
 	/** StateBlock that I belong to  **/		decl block;
 	/** Index into block array/vector **/    	decl bpos;
-	Coevolving(Lorb, N=0);
+	Coevolving(Lorb, N=1);
     Transit(FeasA);
 	}
 
 /** Container for augmented state variables in which a value or an action trigger a transition
-not present in the base state. **/
+not present in the base state.
+**/
 class Triggered : Augmented {
     const decl /**triggering action or value.**/    t,
                 /** triggering values.**/           tv,
@@ -72,24 +74,85 @@ class Triggered : Augmented {
     virtual Transit(FeasA);
     }
 
-/**  A value of an action variable triggers this state to transit to a value.
+/**  A state variable that augments a base transition so that the value of an action variable triggers this state to transit to a value.
+<DT>Let</DT>
+<dd><code>q</code> denote this state variable.
+<DD><code>b</code> be the base state variable to be agumented  (not added to model itself)</DD>
+<DD>
+<code>a</code> be the action variable that is the trigger</DD>
+<DD><code>t</code> be the value of <code>a</code> that pulls the trigger.</DD>
+<DD><code>r</code> be the value to go to when triggered.</DD>
+<DD><pre>
+q&prime; = I{a&ne;t} b&prime; + (1-I{a==t}}r
+</pre></DD>
+@example
+<pre>
+</pre></dd>
 **/
 class ActionTriggered : Triggered {
     ActionTriggered(b,t,tv=1,rval=0);
     virtual Transit(FeasA);
     }
 
-/** A value of a `AV` compatible object triggers this state to transit to a value.
+/** A state variable that augments a base transition so that the value of a `AV` compatible object triggers this state to transit to a special value.
+<DT>Transition.  Let</DT>
+<dd><code>q</code> denote this state variable.
+<DD><code>b</code> be the base state variable to be agumented (not added to model itself)</DD>
+<DD>
+<code>s</code> be the trigger object</DD>
+<DD><code>t</code> be the value of <code>s</code> that pulls the trigger.</DD>
+<DD><code>r</code> be the value to go to when triggered.</DD>
+<DD><pre>
+q&prime; = I{a&ne;t} b&prime; + (1-I{s==t}}r
+</pre></DD>
+@example
+<pre>
+</pre></dd>
+
 **/
 class ValueTriggered : Triggered {
     ValueTriggered(b,t,tv=TRUE,rval=0);
     virtual Transit(FeasA);
     }
 
-/** When the trigger is anything but 0 the variable is reset to 0.
+/** When the trigger is 1 the variable is base transition resets to 0.
+A special case of ActionTriggered in which 1 is the trigger and the special reset value is 0.
+If the trigger takes on more than two values only the value of 1 is the trigger.
+
 **/
 class Reset : ActionTriggered {
     Reset(b,t);
+    }
+
+/** A state variable that augments a base transition so that with some probability it
+takes on a special value next period.
+
+The difference with `ValueTriggered` is that this transition is random as of the current state
+but `ValueTriggered` the transition is deterministic.
+
+<DT>Transition. Let</DT>
+<dd><code>q</code> denote this state variable.
+<DD><code>b</code> be the base state variable to be agumented </DD>
+<DD><code>&tau;</code> be the actual value of the trigger probability.</DD>
+<DD><code>r</code> be the value to go to when triggered.</DD>
+<DD><pre>
+Prob( q&prime;= z | q,b ) =  &tau;I{z=r} + (1-&tau;)Prob(b&prime;=z)
+</pre></DD>
+
+@example
+A person is employed at the start of this period if they chose to work last period and they were not randomly laid off between
+periods, with a dynamically determed lay off probability.
+<pre>
+a = ActionVariable("work",2);
+lprob = new Probability("layoff prob",0.1);
+m = RandomTrigger( new LaggedAction("emp",a),lprob,0);
+</pre>
+</dd>
+
+**/
+class RandomTrigger : Triggered {
+    RandomTrigger(b,Tprob,rval=0);
+    virtual Transit(FeasA);
     }
 
 /** When a `PermanentChoice` occurs then this state permanently becomes equal to its reset value.
@@ -562,11 +625,15 @@ struct ActionTracker : Tracker	{
 struct StateBlock : StateVariable {
 	decl
 	/** temporary list of states. @internal**/ 		Theta,
-	/** matrix of all actual values **/				Allv;
+	/** matrix of all <em>current</em> values **/	Allv,
+    /** matrix of all <em>actual</em> values.**/    Actual,
+    /** vector <0:N-1>, used in AV().**/            rnge;
 	StateBlock(L);
 	AddToBlock(s,...);
+    Clones(N,base);
 	virtual Transit(FeasA);
     virtual Check();
+    virtual myAV();
 	}
 
 /**A combination of an `Offer` state variable and a status variable, <var>(w,m)</var> .
@@ -621,20 +688,31 @@ struct NormalComponent : Coevolving	{
 	NormalComponent(L, N);
 	}
 	
+/**  Container for a block of discrete multivariate IID variables (can be contemporaneously correlated).
+**/
+struct MVIID : StateBlock {
+    const decl
+	/**Number of points per variable   **/      M,
+    /**total number points in the block. **/    MtoN;
+	MVIID(L,N,M,base=0);
+	virtual Transit(FeasA);
+	virtual Update();
+    }
+
 /** A discrete multivariate normal IID block of contemporaneously correlated variables.
 
 <dd><var><pre>
 x &sim; N( &mu;, C'C ).$$
 </pre></var>
 **/
-struct MVNormal : StateBlock {
-	/**Number of points per variable   **/      const decl M;
-	/** mean **/ 								const decl mu;
-	/** vech for lower triangle of Choleski **/ const decl CholLT;
-												const decl Ngridpoints;
-	/** Grid of current values **/					  decl Grid;
-	MVNormal(L,N,M, mu, CholLT);
-	Transit(FeasA);
+struct MVNormal : MVIID {
+    const decl
+	/** vector of means &mu; **/ 					mu,
+	/** `AV`-compatible vector-valued object which returns
+        <code>vech()</code> for lower triangle of C, the Choleski decomposition
+        of the variance matrix &Omega;, &Omega; = CC'.
+        **/                                         CholLT;
+	MVNormal(L,N,M, mu,CholLT);
 	virtual Update();
 	}
 
@@ -696,3 +774,13 @@ struct Asset : Random {
 	Asset(L,N,r,NetSavings);
 	virtual Transit(FeasA);
 	}
+
+struct ZVariable : Random {
+    const decl held;
+    static decl M, kern, cdf, df, midpt, A,b, Fdif, zspot;
+    ZVariable(L,N,held);
+    virtual Update();
+    virtual Transit(FeasA);
+    virtual DynamicTransit(zstar);
+    virtual CDF(zstar);
+    }

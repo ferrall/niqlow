@@ -12,7 +12,7 @@ struct RandomSolve : RETask { RandomSolve(); Run(g);}
 
 /** A container for solution methods.
 **/
-struct Method : Task {
+struct Method : ThetaTask {
     virtual Solve(Fgroups=AllFixed,MaxTrips=0);
     virtual Gsolve();
 	}

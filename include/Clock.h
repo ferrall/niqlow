@@ -15,7 +15,6 @@ struct Clock : StateBlock {
 		/** <var>t'</var>, next period `TimeVariable` used during
 			V iteration to track possible clock values next period. **/		tprime,
 		/** Store Ergodic Distribution. **/ 								IsErgodic;
-		/* decl ts, Nsub, MainT */
     static decl
     /** Mx index for today into V. set in `Clock::Solving` **/              ME,
     /** Pointer to methods VV function for iteration.   **/                 aVV,
