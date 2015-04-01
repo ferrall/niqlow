@@ -2,35 +2,38 @@ Output of Reservation_Wage_Test
 ---------------------------
 Action variable objected stored in d.  Label = 'd'.  Number of values: 2
 -------------------- DP Model Summary ------------------------
-Clock: 2. Normal Finite Horizon Aging
-STATE VARIABLES
+1. CLOCK
+    2. Normal Finite Horizon Aging
+2. STATE VARIABLES
               |eps   |eta |theta -clock        |gamma
               s11    s21   Done      t     t'      g      f
        s.N      1      1      2     10      1      2      2
 
 
-Transition Categories (not counting fixed or time)
-                 NonRandom       Random   Coevolving    Augmented
-     #Vars               1            0            2            0
+     Transition Categories (not counting placeholders and variables with N=1)
+                 NonRandom       Random   Coevolving    Augmented       Timing    Invariant
+     #Vars               1            0            0            1            0            2
 
-Size of Spaces
-                           N
-        Exogenous          1
-    SemiExogenous          1
-       Endogenous          2
-            Times         10
-    EV()Iterating          2
-    Ch.Prob.track         20
-     Random Groups         2
-     Fixed Groups          2
-    TotalUntrimmed        80
+3. SIZE OF SPACES
 
-ACTION VARIABLES (2 distinct actions)
+                       Number of Points
+    Exogenous(Epsilon)                1
+    SemiExogenous(Eta)                1
+     Endogenous(Theta)                2
+                 Times               10
+         EV()Iterating                2
+      ChoiceProb.track               20
+  Random Groups(Gamma)                2
+   Fixed Groups(Gamma)                2
+       Total Untrimmed               80
+
+4. ACTION VARIABLES
+   Number of Distinct action vectors: 2
              d
-    i.N      2
+    a.N      2
 
 
-TRIMMING AND SUBSAMPLING
+5. TRIMMING AND SUBSAMPLING OF THE ENDOGENOUS STATE SPACE (Theta)
                              N
     TotalReachable          20
          Terminal           10
@@ -47,12 +50,16 @@ TRIMMING AND SUBSAMPLING
                             18
                             20
 
-ACTION SETS
+6. FEASIBLE ACTION SETS
+ 
     alpha       A[0]     A[1]   
+    -------------------------------
     (0)           X        X    
     (1)           X        -    
-#States          10       10
+   #States       10       10
+    -------------------------------
     Key: X = row vector is feasible. - = infeasible
+
 Exogenous and Semi-Exogenous State Variable Transitions 
      s11 s21            f()
    0   0   0       1.000000
@@ -70,12 +77,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              8.0000
@@ -90,12 +91,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              7.0000
@@ -110,12 +105,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              6.0000
@@ -130,12 +119,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              5.0000
@@ -150,12 +133,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              4.0000
@@ -170,12 +147,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              3.0000
@@ -190,12 +161,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              2.0000
@@ -210,12 +175,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              1.0000
@@ -230,14 +189,7 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
-Transition time: 5.8
-F 1
+f=1
 
 Report of Non-linear System Starting on R
 
@@ -248,19 +200,21 @@ R*         0    0.000000000000
 Actual Parameters
                   Value 
 R*        0.000000000000
-Broyden 1.  deltaX: 0.25 deltaG:0.5
-Broyden 2.  deltaX: 1 deltaG:1.5
-Broyden 3.  deltaX: 1 deltaG:0
+Broyden 1.  deltaX: .NaN deltaG:5.55112e-017
+
+                            R*
+    Params Vector      0.25000
+           System  5.5511e-017
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector      0.25000
-System                 0.00000
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0    0.250000000000
@@ -271,406 +225,369 @@ R*        0.250000000000
  t =9
 today              0.53634      0.00000
 tomorrow           0.00000      0.00000
-Trip:1. Done:0. Visits:2. diff=0.536345. setP*:1
+   Trip:1. Done:No. Visits:2. V diff=0.536345. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0    0.000000000000
 Actual Parameters
                   Value 
 R*        0.000000000000
-Broyden 1.  deltaX: 0.464538 deltaG:0.929076
-Broyden 2.  deltaX: 13.0996 deltaG:14.0286
-Broyden 3.  deltaX: 1.00508 deltaG:13.0235
-Broyden 4.  deltaX: 13.9415 deltaG:0.917948
-Broyden 5.  deltaX: 0.495624 deltaG:0.422324
-Broyden 6.  deltaX: 0.295377 deltaG:0.126947
-Broyden 7.  deltaX: 0.0974394 deltaG:0.0295079
-Broyden 8.  deltaX: 0.0231739 deltaG:0.00633403
-Broyden 9.  deltaX: 0.00499927 deltaG:0.00133476
-Broyden 10.  deltaX: 0.0010546 deltaG:0.000280163
-Broyden 11.  deltaX: 0.0010546 deltaG:5.87562e-005
+Broyden 1.  deltaX: .NaN deltaG:8.32667e-017
+
+                            R*
+    Params Vector      0.46454
+           System -8.3267e-017
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector      0.46460
-System            -5.8756e-005
+    Params Vector      0.46454
+           System -8.3267e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -6.93334779979e-033
 Free Parameters
          index          free      
-R*         0    0.464596635475
+R*         0    0.464537879289
 Actual Parameters
                   Value 
-R*        0.464596635475
+R*        0.464537879289
 
  t =8
 today              0.67350      0.00000
 tomorrow           0.53634      0.00000
-Trip:2. Done:0. Visits:4. diff=0.137154. setP*:1
+   Trip:2. Done:No. Visits:4. V diff=0.137154. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -6.93334779979e-033
 Free Parameters
          index          free      
 R*         0    0.000000000000
 Actual Parameters
                   Value 
 R*        0.000000000000
-Broyden 1.  deltaX: 0.519399 deltaG:1.0388
-Broyden 2.  deltaX: 26.774 deltaG:25.7352
-Broyden 3.  deltaX: 0.998495 deltaG:24.7367
-Broyden 4.  deltaX: 23.8474 deltaG:0.88935
-Broyden 5.  deltaX: 6.01142 deltaG:5.12207
-Broyden 6.  deltaX: 0.971927 deltaG:4.15014
-Broyden 7.  deltaX: 3.70591 deltaG:0.44423
-Broyden 8.  deltaX: 0.657495 deltaG:0.213265
-Broyden 9.  deltaX: 0.239919 deltaG:0.0266537
-Broyden 10.  deltaX: 0.0291119 deltaG:0.00245824
-Broyden 11.  deltaX: 0.00267777 deltaG:0.000219531
-Broyden 12.  deltaX: 0.00267777 deltaG:1.95479e-005
+Broyden 1.  deltaX: .NaN deltaG:1.11022e-016
+
+                            R*
+    Params Vector      0.51940
+           System  1.1102e-016
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector      0.51942
-System            -1.9548e-005
+    Params Vector      0.51940
+           System  1.1102e-016
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
-R*         0    0.519418945567
+R*         0    0.519399397954
 Actual Parameters
                   Value 
-R*        0.519418945567
+R*        0.519399397954
 
  t =7
 today              0.71128      0.00000
 tomorrow           0.67350      0.00000
-Trip:3. Done:0. Visits:6. diff=0.0377781. setP*:1
+   Trip:3. Done:No. Visits:6. V diff=0.037778. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0    0.000000000000
 Actual Parameters
                   Value 
 R*        0.000000000000
-Broyden 1.  deltaX: 0.534511 deltaG:1.06902
-Broyden 2.  deltaX: 15.4883 deltaG:14.4193
-Broyden 3.  deltaX: 0.995236 deltaG:13.424
-Broyden 4.  deltaX: 12.6135 deltaG:0.810511
-Broyden 5.  deltaX: 3.19418 deltaG:2.38367
-Broyden 6.  deltaX: 0.90379 deltaG:1.47988
-Broyden 7.  deltaX: 1.27847 deltaG:0.201406
-Broyden 8.  deltaX: 0.210647 deltaG:0.00924104
-Broyden 9.  deltaX: 0.00957252 deltaG:0.000331485
-Broyden 10.  deltaX: 0.00957252 deltaG:1.17728e-005
+Broyden 1.  deltaX: .NaN deltaG:5.55112e-017
+
+                            R*
+    Params Vector      0.53451
+           System -5.5511e-017
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector      0.53452
-System            -1.1773e-005
+    Params Vector      0.53451
+           System -5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0    0.534522390571
+R*         0    0.534510617863
 Actual Parameters
                   Value 
-R*        0.534522390571
+R*        0.534510617863
 
  t =6
 today              0.72187      0.00000
 tomorrow           0.71128      0.00000
-Trip:4. Done:0. Visits:8. diff=0.0105912. setP*:1
+   Trip:4. Done:No. Visits:8. V diff=0.0105912. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0    0.000000000000
 Actual Parameters
                   Value 
 R*        0.000000000000
-Broyden 1.  deltaX: 0.538747 deltaG:1.07749
-Broyden 2.  deltaX: 13.9042 deltaG:12.8267
-Broyden 3.  deltaX: 0.993995 deltaG:11.8327
-Broyden 4.  deltaX: 11.0432 deltaG:0.789468
-Broyden 5.  deltaX: 2.79933 deltaG:2.00986
-Broyden 6.  deltaX: 0.876948 deltaG:1.13291
-Broyden 7.  deltaX: 0.977516 deltaG:0.155394
-Broyden 8.  deltaX: 0.154841 deltaG:0.000553452
-Broyden 9.  deltaX: 0.154841 deltaG:1.66687e-006
+Broyden 1.  deltaX: .NaN deltaG:1.11022e-016
+
+                            R*
+    Params Vector      0.53875
+           System -1.1102e-016
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector      0.53875
-System             1.6669e-006
+           System -1.1102e-016
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
-R*         0    0.538745446994
+R*         0    0.538747113903
 Actual Parameters
                   Value 
-R*        0.538745446994
+R*        0.538747113903
 
  t =5
 today              0.72485      0.00000
 tomorrow           0.72187      0.00000
-Trip:5. Done:0. Visits:10. diff=0.0029835. setP*:1
+   Trip:5. Done:No. Visits:10. V diff=0.0029835. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0    0.000000000000
 Actual Parameters
                   Value 
 R*        0.000000000000
-Broyden 1.  deltaX: 0.539941 deltaG:1.07988
-Broyden 2.  deltaX: 13.5186 deltaG:12.4387
-Broyden 3.  deltaX: 0.993619 deltaG:11.4451
-Broyden 4.  deltaX: 10.6615 deltaG:0.783621
-Broyden 5.  deltaX: 2.70326 deltaG:1.91964
-Broyden 6.  deltaX: 0.868804 deltaG:1.05084
-Broyden 7.  deltaX: 0.906924 deltaG:0.143914
-Broyden 8.  deltaX: 0.14182 deltaG:0.00209464
-Broyden 9.  deltaX: 0.14182 deltaG:2.62174e-005
+Broyden 1.  deltaX: .NaN deltaG:5.55112e-017
+
+                            R*
+    Params Vector      0.53994
+           System  5.5511e-017
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector      0.53991
-System             2.6217e-005
+    Params Vector      0.53994
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0    0.539914296832
+R*         0    0.539940514267
 Actual Parameters
                   Value 
-R*        0.539914296832
+R*        0.539940514267
 
  t =4
 today              0.72569      0.00000
 tomorrow           0.72485      0.00000
-Trip:6. Done:0. Visits:12. diff=0.000841556. setP*:1
+   Trip:6. Done:No. Visits:12. V diff=0.000841556. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0    0.000000000000
 Actual Parameters
                   Value 
 R*        0.000000000000
-Broyden 1.  deltaX: 0.540277 deltaG:1.08055
-Broyden 2.  deltaX: 13.414 deltaG:12.3334
-Broyden 3.  deltaX: 0.993511 deltaG:11.3399
-Broyden 4.  deltaX: 10.5579 deltaG:0.781977
-Broyden 5.  deltaX: 2.6772 deltaG:1.89522
-Broyden 6.  deltaX: 0.866462 deltaG:1.02876
-Broyden 7.  deltaX: 0.887971 deltaG:0.140788
-Broyden 8.  deltaX: 0.138331 deltaG:0.00245707
-Broyden 9.  deltaX: 0.138331 deltaG:3.7039e-005
+Broyden 1.  deltaX: .NaN deltaG:0
+
+                            R*
+    Params Vector      0.54028
+           System      0.00000
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector      0.54024
-System             3.7039e-005
+    Params Vector      0.54028
+           System      0.00000
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=         -0.000000000000
 Free Parameters
          index          free      
-R*         0    0.540240097785
+R*         0    0.540277136787
 Actual Parameters
                   Value 
-R*        0.540240097785
+R*        0.540277136787
 
  t =3
 today              0.72593      0.00000
 tomorrow           0.72569      0.00000
-Trip:7. Done:0. Visits:14. diff=0.000237467. setP*:1
+   Trip:7. Done:No. Visits:14. V diff=0.000237467. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=         -0.000000000000
 Free Parameters
          index          free      
 R*         0    0.000000000000
 Actual Parameters
                   Value 
 R*        0.000000000000
-Broyden 1.  deltaX: 0.540372 deltaG:1.08074
-Broyden 2.  deltaX: 13.3848 deltaG:12.304
-Broyden 3.  deltaX: 0.99348 deltaG:11.3106
-Broyden 4.  deltaX: 10.529 deltaG:0.781514
-Broyden 5.  deltaX: 2.66992 deltaG:1.88841
-Broyden 6.  deltaX: 0.865798 deltaG:1.02261
-Broyden 7.  deltaX: 0.882696 deltaG:0.139915
-Broyden 8.  deltaX: 0.137361 deltaG:0.00255404
-Broyden 9.  deltaX: 0.137361 deltaG:4.0319e-005
+Broyden 1.  deltaX: .NaN deltaG:5.55112e-017
+
+                            R*
+    Params Vector      0.54037
+           System  5.5511e-017
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector      0.54033
-System             4.0319e-005
+    Params Vector      0.54037
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0    0.540331804306
+R*         0    0.540372123450
 Actual Parameters
                   Value 
-R*        0.540331804306
+R*        0.540372123450
 
  t =2
 today              0.72600      0.00000
 tomorrow           0.72593      0.00000
-Trip:8. Done:0. Visits:16. diff=6.70143e-005. setP*:1
+   Trip:8. Done:No. Visits:16. V diff=6.70144e-005. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0    0.000000000000
 Actual Parameters
                   Value 
 R*        0.000000000000
-Broyden 1.  deltaX: 0.540399 deltaG:1.0808
-Broyden 2.  deltaX: 13.3766 deltaG:12.2958
-Broyden 3.  deltaX: 0.993472 deltaG:11.3023
-Broyden 4.  deltaX: 10.5209 deltaG:0.781384
-Broyden 5.  deltaX: 2.66788 deltaG:1.88649
-Broyden 6.  deltaX: 0.86561 deltaG:1.02088
-Broyden 7.  deltaX: 0.881213 deltaG:0.139669
-Broyden 8.  deltaX: 0.137088 deltaG:0.00258099
-Broyden 9.  deltaX: 0.137088 deltaG:4.1261e-005
+Broyden 1.  deltaX: .NaN deltaG:1.11022e-016
+
+                            R*
+    Params Vector      0.54040
+           System -1.1102e-016
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector      0.54036
-System             4.1261e-005
+    Params Vector      0.54040
+           System -1.1102e-016
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
-R*         0    0.540357668004
+R*         0    0.540398929196
 Actual Parameters
                   Value 
-R*        0.540357668004
+R*        0.540398929196
 
  t =1
 today              0.72602      0.00000
 tomorrow           0.72600      0.00000
-Trip:9. Done:0. Visits:18. diff=1.89123e-005. setP*:1
+   Trip:9. Done:No. Visits:18. V diff=1.89124e-005. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0    0.000000000000
 Actual Parameters
                   Value 
 R*        0.000000000000
-Broyden 1.  deltaX: 0.540406 deltaG:1.08081
-Broyden 2.  deltaX: 13.3742 deltaG:12.2934
-Broyden 3.  deltaX: 0.993469 deltaG:11.3
-Broyden 4.  deltaX: 10.5186 deltaG:0.781347
-Broyden 5.  deltaX: 2.6673 deltaG:1.88595
-Broyden 6.  deltaX: 0.865557 deltaG:1.0204
-Broyden 7.  deltaX: 0.880795 deltaG:0.1396
-Broyden 8.  deltaX: 0.137011 deltaG:0.00258856
-Broyden 9.  deltaX: 0.137011 deltaG:4.15282e-005
+Broyden 1.  deltaX: .NaN deltaG:5.55112e-017
+
+                            R*
+    Params Vector      0.54041
+           System  5.5511e-017
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector      0.54036
-System             4.1528e-005
+    Params Vector      0.54041
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0    0.540364965824
+R*         0    0.540406494146
 Actual Parameters
                   Value 
-R*        0.540364965824
+R*        0.540406494146
 
  t =0
 today              0.72602      0.00000
 tomorrow           0.72602      0.00000
-Trip:10. Done:1. Visits:20. diff=5.33736e-006. setP*:1
+   Trip:10. Done:Yes. Visits:20. V diff=5.33738e-006. setP*:Yes
 .
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.000000000000
 Actual Parameters
                   Value 
-R*        0.250000000000
+R*        0.000000000000
+Broyden 1.  deltaX: .NaN deltaG:5.55112e-017
+
+                            R*
+    Params Vector      0.25000
+           System  5.5511e-017
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector       1.0000
-System                 0.00000
+    Params Vector      0.25000
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.250000000000
 Actual Parameters
                   Value 
 R*        0.250000000000
@@ -678,321 +595,367 @@ R*        0.250000000000
  t =9
 today              0.53634      0.00000
 tomorrow           0.72602      0.00000
-Trip:1. Done:0. Visits:2. diff=0.189677. setP*:1
+   Trip:1. Done:No. Visits:2. V diff=0.189677. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.000000000000
 Actual Parameters
                   Value 
-R*        0.464596635475
+R*        0.000000000000
+Broyden 1.  deltaX: .NaN deltaG:8.32667e-017
+
+                            R*
+    Params Vector      0.46454
+           System -8.3267e-017
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector       1.0000
-System            -5.8756e-005
+    Params Vector      0.46454
+           System -8.3267e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -6.93334779979e-033
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.464537879289
 Actual Parameters
                   Value 
-R*        0.464596635475
+R*        0.464537879289
 
  t =8
 today              0.67350      0.00000
 tomorrow           0.53634      0.00000
-Trip:2. Done:0. Visits:4. diff=0.137154. setP*:1
+   Trip:2. Done:No. Visits:4. V diff=0.137154. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -6.93334779979e-033
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.000000000000
 Actual Parameters
                   Value 
-R*        0.519418945567
+R*        0.000000000000
+Broyden 1.  deltaX: .NaN deltaG:1.11022e-016
+
+                            R*
+    Params Vector      0.51940
+           System  1.1102e-016
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector       1.0000
-System            -1.9548e-005
+    Params Vector      0.51940
+           System  1.1102e-016
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.519399397954
 Actual Parameters
                   Value 
-R*        0.519418945567
+R*        0.519399397954
 
  t =7
 today              0.71128      0.00000
 tomorrow           0.67350      0.00000
-Trip:3. Done:0. Visits:6. diff=0.0377781. setP*:1
+   Trip:3. Done:No. Visits:6. V diff=0.037778. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.000000000000
 Actual Parameters
                   Value 
-R*        0.534522390571
+R*        0.000000000000
+Broyden 1.  deltaX: .NaN deltaG:5.55112e-017
+
+                            R*
+    Params Vector      0.53451
+           System -5.5511e-017
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector       1.0000
-System            -1.1773e-005
+    Params Vector      0.53451
+           System -5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.534510617863
 Actual Parameters
                   Value 
-R*        0.534522390571
+R*        0.534510617863
 
  t =6
 today              0.72187      0.00000
 tomorrow           0.71128      0.00000
-Trip:4. Done:0. Visits:8. diff=0.0105912. setP*:1
+   Trip:4. Done:No. Visits:8. V diff=0.0105912. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.000000000000
 Actual Parameters
                   Value 
-R*        0.538745446994
+R*        0.000000000000
+Broyden 1.  deltaX: .NaN deltaG:1.11022e-016
+
+                            R*
+    Params Vector      0.53875
+           System -1.1102e-016
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector       1.0000
-System             1.6669e-006
+    Params Vector      0.53875
+           System -1.1102e-016
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.538747113903
 Actual Parameters
                   Value 
-R*        0.538745446994
+R*        0.538747113903
 
  t =5
 today              0.72485      0.00000
 tomorrow           0.72187      0.00000
-Trip:5. Done:0. Visits:10. diff=0.0029835. setP*:1
+   Trip:5. Done:No. Visits:10. V diff=0.0029835. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.000000000000
 Actual Parameters
                   Value 
-R*        0.539914296832
+R*        0.000000000000
+Broyden 1.  deltaX: .NaN deltaG:5.55112e-017
+
+                            R*
+    Params Vector      0.53994
+           System  5.5511e-017
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector       1.0000
-System             2.6217e-005
+    Params Vector      0.53994
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.539940514267
 Actual Parameters
                   Value 
-R*        0.539914296832
+R*        0.539940514267
 
  t =4
 today              0.72569      0.00000
 tomorrow           0.72485      0.00000
-Trip:6. Done:0. Visits:12. diff=0.000841556. setP*:1
+   Trip:6. Done:No. Visits:12. V diff=0.000841556. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.000000000000
 Actual Parameters
                   Value 
-R*        0.540240097785
+R*        0.000000000000
+Broyden 1.  deltaX: .NaN deltaG:0
+
+                            R*
+    Params Vector      0.54028
+           System      0.00000
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector       1.0000
-System             3.7039e-005
+    Params Vector      0.54028
+           System      0.00000
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=         -0.000000000000
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.540277136787
 Actual Parameters
                   Value 
-R*        0.540240097785
+R*        0.540277136787
 
  t =3
 today              0.72593      0.00000
 tomorrow           0.72569      0.00000
-Trip:7. Done:0. Visits:14. diff=0.000237467. setP*:1
+   Trip:7. Done:No. Visits:14. V diff=0.000237467. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=         -0.000000000000
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.000000000000
 Actual Parameters
                   Value 
-R*        0.540331804306
+R*        0.000000000000
+Broyden 1.  deltaX: .NaN deltaG:5.55112e-017
+
+                            R*
+    Params Vector      0.54037
+           System  5.5511e-017
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector       1.0000
-System             4.0319e-005
+    Params Vector      0.54037
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.540372123450
 Actual Parameters
                   Value 
-R*        0.540331804306
+R*        0.540372123450
 
  t =2
 today              0.72600      0.00000
 tomorrow           0.72593      0.00000
-Trip:8. Done:0. Visits:16. diff=6.70143e-005. setP*:1
+   Trip:8. Done:No. Visits:16. V diff=6.70144e-005. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.000000000000
 Actual Parameters
                   Value 
-R*        0.540357668004
+R*        0.000000000000
+Broyden 1.  deltaX: .NaN deltaG:1.11022e-016
+
+                            R*
+    Params Vector      0.54040
+           System -1.1102e-016
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector       1.0000
-System             4.1261e-005
+    Params Vector      0.54040
+           System -1.1102e-016
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.540398929196
 Actual Parameters
                   Value 
-R*        0.540357668004
+R*        0.540398929196
 
  t =1
 today              0.72602      0.00000
 tomorrow           0.72600      0.00000
-Trip:9. Done:0. Visits:18. diff=1.89123e-005. setP*:1
+   Trip:9. Done:No. Visits:18. V diff=1.89124e-005. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.000000000000
 Actual Parameters
                   Value 
-R*        0.540364965824
+R*        0.000000000000
+Broyden 1.  deltaX: .NaN deltaG:5.55112e-017
+
+                            R*
+    Params Vector      0.54041
+           System  5.5511e-017
 
 Broyden Converged:5:STRONG
                             R*
-    Params Vector       1.0000
-System             4.1528e-005
+    Params Vector      0.54041
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
-R*         0     1.00000000000
+R*         0    0.540406494146
 Actual Parameters
                   Value 
-R*        0.540364965824
+R*        0.540406494146
 
  t =0
 today              0.72602      0.00000
 tomorrow           0.72602      0.00000
-Trip:10. Done:1. Visits:20. diff=5.33736e-006. setP*:1
-.FFF 1 1
- done 
+   Trip:10. Done:Yes. Visits:20. V diff=5.33738e-006. setP*:Yes
+. done 
 
-------------------------------------------------------------------------------
-Indx   I   T   ADone   t rind         EV      |Choice Probabilities:      z*          
-  18   1   0   0   0   9     0       0.536345 0.598706 0.401294 0.250000
-  18   1   0   0   0   9     1       0.536345 0.598706 0.401294 0.250000
-  16   1   0   0   0   8     0       0.673498 0.678890 0.321110 0.464597
-  16   1   0   0   0   8     1       0.673498 0.678890 0.321110 0.464597
-  14   1   0   0   0   7     0       0.711277 0.698266 0.301734 0.519419
-  14   1   0   0   0   7     1       0.711277 0.698266 0.301734 0.519419
-  12   1   0   0   0   6     0       0.721868 0.703510 0.296490 0.534522
-  12   1   0   0   0   6     1       0.721868 0.703510 0.296490 0.534522
-  10   1   0   0   0   5     0       0.724851 0.704969 0.295031 0.538745
-  10   1   0   0   0   5     1       0.724851 0.704969 0.295031 0.538745
-   8   1   0   0   0   4     0       0.725693 0.705372 0.294628 0.539914
-   8   1   0   0   0   4     1       0.725693 0.705372 0.294628 0.539914
-   6   1   0   0   0   3     0       0.725930 0.705484 0.294516 0.540240
-   6   1   0   0   0   3     1       0.725930 0.705484 0.294516 0.540240
-   4   1   0   0   0   2     0       0.725997 0.705516 0.294484 0.540332
-   4   1   0   0   0   2     1       0.725997 0.705516 0.294484 0.540332
-   2   1   0   0   0   1     0       0.726016 0.705525 0.294475 0.540358
-   2   1   0   0   0   1     1       0.726016 0.705525 0.294475 0.540358
-   0   1   0   0   0   0     0       0.726022 0.705527 0.294473 0.540365
-   0   1   0   0   0   0     1       0.726022 0.705527 0.294473 0.540365
-------------------------------------------------------------------------------
+     Value of States and Choice Probabilities
+    Fixed Group Index(f): 1
+     ------------------------------------------------------------------------------
+    Indx   I   T   ADone   t     r       EV      |Choice Probabilities:      z*                
+      18   1   0   0   0   9     0       0.536345 0.598706 0.401294       0.250000
+      18   1   0   0   0   9     1       0.536345 0.598706 0.401294       0.250000
+      16   1   0   0   0   8     0       0.673498 0.678869 0.321131       0.464538
+      16   1   0   0   0   8     1       0.673498 0.678869 0.321131       0.464538
+      14   1   0   0   0   7     0       0.711277 0.698259 0.301741       0.519399
+      14   1   0   0   0   7     1       0.711277 0.698259 0.301741       0.519399
+      12   1   0   0   0   6     0       0.721868 0.703506 0.296494       0.534511
+      12   1   0   0   0   6     1       0.721868 0.703506 0.296494       0.534511
+      10   1   0   0   0   5     0       0.724851 0.704969 0.295031       0.538747
+      10   1   0   0   0   5     1       0.724851 0.704969 0.295031       0.538747
+       8   1   0   0   0   4     0       0.725693 0.705381 0.294619       0.539941
+       8   1   0   0   0   4     1       0.725693 0.705381 0.294619       0.539941
+       6   1   0   0   0   3     0       0.725930 0.705497 0.294503       0.540277
+       6   1   0   0   0   3     1       0.725930 0.705497 0.294503       0.540277
+       4   1   0   0   0   2     0       0.725997 0.705530 0.294470       0.540372
+       4   1   0   0   0   2     1       0.725997 0.705530 0.294470       0.540372
+       2   1   0   0   0   1     0       0.726016 0.705539 0.294461       0.540399
+       2   1   0   0   0   1     1       0.726016 0.705539 0.294461       0.540399
+       0   1   0   0   0   0     0       0.726022 0.705542 0.294458       0.540406
+       0   1   0   0   0   0     1       0.726022 0.705542 0.294458       0.540406
+     ------------------------------------------------------------------------------
 Exogenous and Semi-Exogenous State Variable Transitions 
      s11 s21            f()
    0   0   0       1.000000
@@ -1010,12 +973,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              8.0000
@@ -1030,12 +987,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              7.0000
@@ -1050,12 +1001,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              6.0000
@@ -1070,12 +1015,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              5.0000
@@ -1090,12 +1029,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              4.0000
@@ -1110,12 +1043,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              3.0000
@@ -1130,12 +1057,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              2.0000
@@ -1150,12 +1071,6 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
 Endogenous transitions at 0
      State: clock
    ind              1.0000
@@ -1170,18 +1085,11 @@ Overall transition
 ind          1.0000      0.00000
 prob        0.00000       1.0000
              1.0000      0.00000
-
-[0][0] = 
-       1.0000      0.00000
-[1][0] = 
-      0.00000       1.0000
-       1.0000      0.00000
-Transition time: 19.7
-F 0
+f=0
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
@@ -1192,12 +1100,12 @@ R*        0.250000000000
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System                 0.00000
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
@@ -1208,300 +1116,300 @@ R*        0.250000000000
  t =9
 today              0.53634      0.00000
 tomorrow           0.72602      0.00000
-Trip:1. Done:0. Visits:2. diff=0.189677. setP*:1
+   Trip:1. Done:No. Visits:2. V diff=0.189677. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.464596635475
+R*        0.464537879289
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System            -5.8756e-005
+           System -8.3267e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -6.93334779979e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.464596635475
+R*        0.464537879289
 
  t =8
 today              0.67350      0.00000
 tomorrow           0.53634      0.00000
-Trip:2. Done:0. Visits:4. diff=0.137154. setP*:1
+   Trip:2. Done:No. Visits:4. V diff=0.137154. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -6.93334779979e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.519418945567
+R*        0.519399397954
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System            -1.9548e-005
+           System  1.1102e-016
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.519418945567
+R*        0.519399397954
 
  t =7
 today              0.71128      0.00000
 tomorrow           0.67350      0.00000
-Trip:3. Done:0. Visits:6. diff=0.0377781. setP*:1
+   Trip:3. Done:No. Visits:6. V diff=0.037778. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.534522390571
+R*        0.534510617863
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System            -1.1773e-005
+           System -5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.534522390571
+R*        0.534510617863
 
  t =6
 today              0.72187      0.00000
 tomorrow           0.71128      0.00000
-Trip:4. Done:0. Visits:8. diff=0.0105912. setP*:1
+   Trip:4. Done:No. Visits:8. V diff=0.0105912. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.538745446994
+R*        0.538747113903
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System             1.6669e-006
+           System -1.1102e-016
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.538745446994
+R*        0.538747113903
 
  t =5
 today              0.72485      0.00000
 tomorrow           0.72187      0.00000
-Trip:5. Done:0. Visits:10. diff=0.0029835. setP*:1
+   Trip:5. Done:No. Visits:10. V diff=0.0029835. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.539914296832
+R*        0.539940514267
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System             2.6217e-005
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.539914296832
+R*        0.539940514267
 
  t =4
 today              0.72569      0.00000
 tomorrow           0.72485      0.00000
-Trip:6. Done:0. Visits:12. diff=0.000841556. setP*:1
+   Trip:6. Done:No. Visits:12. V diff=0.000841556. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540240097785
+R*        0.540277136787
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System             3.7039e-005
+           System      0.00000
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=         -0.000000000000
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540240097785
+R*        0.540277136787
 
  t =3
 today              0.72593      0.00000
 tomorrow           0.72569      0.00000
-Trip:7. Done:0. Visits:14. diff=0.000237467. setP*:1
+   Trip:7. Done:No. Visits:14. V diff=0.000237467. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=         -0.000000000000
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540331804306
+R*        0.540372123450
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System             4.0319e-005
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540331804306
+R*        0.540372123450
 
  t =2
 today              0.72600      0.00000
 tomorrow           0.72593      0.00000
-Trip:8. Done:0. Visits:16. diff=6.70143e-005. setP*:1
+   Trip:8. Done:No. Visits:16. V diff=6.70144e-005. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540357668004
+R*        0.540398929196
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System             4.1261e-005
+           System -1.1102e-016
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540357668004
+R*        0.540398929196
 
  t =1
 today              0.72602      0.00000
 tomorrow           0.72600      0.00000
-Trip:9. Done:0. Visits:18. diff=1.89123e-005. setP*:1
+   Trip:9. Done:No. Visits:18. V diff=1.89124e-005. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540364965824
+R*        0.540406494146
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System             4.1528e-005
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540364965824
+R*        0.540406494146
 
  t =0
 today              0.72602      0.00000
 tomorrow           0.72602      0.00000
-Trip:10. Done:1. Visits:20. diff=5.33736e-006. setP*:1
+   Trip:10. Done:Yes. Visits:20. V diff=5.33738e-006. setP*:Yes
 .
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
@@ -1512,12 +1420,12 @@ R*        0.250000000000
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System                 0.00000
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
@@ -1528,319 +1436,319 @@ R*        0.250000000000
  t =9
 today              0.53634      0.00000
 tomorrow           0.72602      0.00000
-Trip:1. Done:0. Visits:2. diff=0.189677. setP*:1
+   Trip:1. Done:No. Visits:2. V diff=0.189677. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.464596635475
+R*        0.464537879289
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System            -5.8756e-005
+           System -8.3267e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -6.93334779979e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.464596635475
+R*        0.464537879289
 
  t =8
 today              0.67350      0.00000
 tomorrow           0.53634      0.00000
-Trip:2. Done:0. Visits:4. diff=0.137154. setP*:1
+   Trip:2. Done:No. Visits:4. V diff=0.137154. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -6.93334779979e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.519418945567
+R*        0.519399397954
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System            -1.9548e-005
+           System  1.1102e-016
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.519418945567
+R*        0.519399397954
 
  t =7
 today              0.71128      0.00000
 tomorrow           0.67350      0.00000
-Trip:3. Done:0. Visits:6. diff=0.0377781. setP*:1
+   Trip:3. Done:No. Visits:6. V diff=0.037778. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.534522390571
+R*        0.534510617863
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System            -1.1773e-005
+           System -5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.534522390571
+R*        0.534510617863
 
  t =6
 today              0.72187      0.00000
 tomorrow           0.71128      0.00000
-Trip:4. Done:0. Visits:8. diff=0.0105912. setP*:1
+   Trip:4. Done:No. Visits:8. V diff=0.0105912. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.538745446994
+R*        0.538747113903
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System             1.6669e-006
+           System -1.1102e-016
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.538745446994
+R*        0.538747113903
 
  t =5
 today              0.72485      0.00000
 tomorrow           0.72187      0.00000
-Trip:5. Done:0. Visits:10. diff=0.0029835. setP*:1
+   Trip:5. Done:No. Visits:10. V diff=0.0029835. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.539914296832
+R*        0.539940514267
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System             2.6217e-005
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.539914296832
+R*        0.539940514267
 
  t =4
 today              0.72569      0.00000
 tomorrow           0.72485      0.00000
-Trip:6. Done:0. Visits:12. diff=0.000841556. setP*:1
+   Trip:6. Done:No. Visits:12. V diff=0.000841556. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540240097785
+R*        0.540277136787
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System             3.7039e-005
+           System      0.00000
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=         -0.000000000000
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540240097785
+R*        0.540277136787
 
  t =3
 today              0.72593      0.00000
 tomorrow           0.72569      0.00000
-Trip:7. Done:0. Visits:14. diff=0.000237467. setP*:1
+   Trip:7. Done:No. Visits:14. V diff=0.000237467. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=         -0.000000000000
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540331804306
+R*        0.540372123450
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System             4.0319e-005
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540331804306
+R*        0.540372123450
 
  t =2
 today              0.72600      0.00000
 tomorrow           0.72593      0.00000
-Trip:8. Done:0. Visits:16. diff=6.70143e-005. setP*:1
+   Trip:8. Done:No. Visits:16. V diff=6.70144e-005. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540357668004
+R*        0.540398929196
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System             4.1261e-005
+           System -1.1102e-016
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540357668004
+R*        0.540398929196
 
  t =1
 today              0.72602      0.00000
 tomorrow           0.72600      0.00000
-Trip:9. Done:0. Visits:18. diff=1.89123e-005. setP*:1
+   Trip:9. Done:No. Visits:18. V diff=1.89124e-005. setP*:Yes
 
 
 Report of Non-linear System Starting on R
 
-   Obj=                    .NaN
+   Obj=      -1.23259516441e-032
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540364965824
+R*        0.540406494146
 
 Broyden Converged:5:STRONG
                             R*
     Params Vector       1.0000
-System             4.1528e-005
+           System  5.5511e-017
 
 
 Report of Non-linear System Ending on R
 
-   Obj=                    .NaN
+   Obj=      -3.08148791102e-033
 Free Parameters
          index          free      
 R*         0     1.00000000000
 Actual Parameters
                   Value 
-R*        0.540364965824
+R*        0.540406494146
 
  t =0
 today              0.72602      0.00000
 tomorrow           0.72602      0.00000
-Trip:10. Done:1. Visits:20. diff=5.33736e-006. setP*:1
-.FFF 0 1
- done 
+   Trip:10. Done:Yes. Visits:20. V diff=5.33738e-006. setP*:Yes
+. done 
 
-------------------------------------------------------------------------------
-Indx   I   T   ADone   t rind         EV      |Choice Probabilities:      z*          
-  18   1   0   0   0   9     0       0.536345 0.598706 0.401294 0.250000
-  18   1   0   0   0   9     1       0.536345 0.598706 0.401294 0.250000
-  16   1   0   0   0   8     0       0.673498 0.678890 0.321110 0.464597
-  16   1   0   0   0   8     1       0.673498 0.678890 0.321110 0.464597
-  14   1   0   0   0   7     0       0.711277 0.698266 0.301734 0.519419
-  14   1   0   0   0   7     1       0.711277 0.698266 0.301734 0.519419
-  12   1   0   0   0   6     0       0.721868 0.703510 0.296490 0.534522
-  12   1   0   0   0   6     1       0.721868 0.703510 0.296490 0.534522
-  10   1   0   0   0   5     0       0.724851 0.704969 0.295031 0.538745
-  10   1   0   0   0   5     1       0.724851 0.704969 0.295031 0.538745
-   8   1   0   0   0   4     0       0.725693 0.705372 0.294628 0.539914
-   8   1   0   0   0   4     1       0.725693 0.705372 0.294628 0.539914
-   6   1   0   0   0   3     0       0.725930 0.705484 0.294516 0.540240
-   6   1   0   0   0   3     1       0.725930 0.705484 0.294516 0.540240
-   4   1   0   0   0   2     0       0.725997 0.705516 0.294484 0.540332
-   4   1   0   0   0   2     1       0.725997 0.705516 0.294484 0.540332
-   2   1   0   0   0   1     0       0.726016 0.705525 0.294475 0.540358
-   2   1   0   0   0   1     1       0.726016 0.705525 0.294475 0.540358
-   0   1   0   0   0   0     0       0.726022 0.705527 0.294473 0.540365
-   0   1   0   0   0   0     1       0.726022 0.705527 0.294473 0.540365
-------------------------------------------------------------------------------
-%
+     Value of States and Choice Probabilities
+    Fixed Group Index(f): 0
+     ------------------------------------------------------------------------------
+    Indx   I   T   ADone   t     r       EV      |Choice Probabilities:      z*                
+      18   1   0   0   0   9     0       0.536345 0.598706 0.401294       0.250000
+      18   1   0   0   0   9     1       0.536345 0.598706 0.401294       0.250000
+      16   1   0   0   0   8     0       0.673498 0.678869 0.321131       0.464538
+      16   1   0   0   0   8     1       0.673498 0.678869 0.321131       0.464538
+      14   1   0   0   0   7     0       0.711277 0.698259 0.301741       0.519399
+      14   1   0   0   0   7     1       0.711277 0.698259 0.301741       0.519399
+      12   1   0   0   0   6     0       0.721868 0.703506 0.296494       0.534511
+      12   1   0   0   0   6     1       0.721868 0.703506 0.296494       0.534511
+      10   1   0   0   0   5     0       0.724851 0.704969 0.295031       0.538747
+      10   1   0   0   0   5     1       0.724851 0.704969 0.295031       0.538747
+       8   1   0   0   0   4     0       0.725693 0.705381 0.294619       0.539941
+       8   1   0   0   0   4     1       0.725693 0.705381 0.294619       0.539941
+       6   1   0   0   0   3     0       0.725930 0.705497 0.294503       0.540277
+       6   1   0   0   0   3     1       0.725930 0.705497 0.294503       0.540277
+       4   1   0   0   0   2     0       0.725997 0.705530 0.294470       0.540372
+       4   1   0   0   0   2     1       0.725997 0.705530 0.294470       0.540372
+       2   1   0   0   0   1     0       0.726016 0.705539 0.294461       0.540399
+       2   1   0   0   0   1     1       0.726016 0.705539 0.294461       0.540399
+       0   1   0   0   0   0     0       0.726022 0.705542 0.294458       0.540406
+       0   1   0   0   0   0     1       0.726022 0.705542 0.294458       0.540406
+     ------------------------------------------------------------------------------

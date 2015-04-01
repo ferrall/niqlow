@@ -19,7 +19,7 @@ Hooks::Reset() {
 @param time integer tag, time point in solution method to call the routine.
 @param proc <em>static</em> function or method to call.
 @example
-Say hello after every Bellman iteration is complete
+Say hello after every Bellman iteration is complete:
 <pre>
  sayhello() { print("hello"); }
  Hooks::Add(PostGSolve,sayhello);
@@ -93,6 +93,10 @@ SubSpace::ActDimensions()	{
 	right = rows(O)-1;
 	}
 
+/** Sets all the state indices, called by `Task::loop` and anything else that directly sets the state.
+@param state current state vector
+@param group TRUE if the group indices should be set as well.
+**/
 I::Set(state,group) {
 	all[] = OO*state;
     if (group) {
@@ -102,6 +106,7 @@ I::Set(state,group) {
        }
     }
 
+/** Called by CreateSpaces. **/
 I::Initialize() {
     decl i;
     OO=zeros(1,N::S);
@@ -120,10 +125,10 @@ This resets `Group::Ptrans`[&Rho;(&theta;&prime;;&theta;)] and it synch &gamma;
 @return density of the the group.
 @see DP::SetGroup, DP::CurGroup
 **/
-DP::ResetGroup(gam) {
-	if (Flags::IsErgodic) gam.Ptrans[][] = 0.0;
-	gam->Sync();
-	return gam->Density();	
+Group::Reset() {
+	if (Flags::IsErgodic) Ptrans[][] = 0.0;
+	Sync();
+	return Density();	
 	}
 
 /** Return the element `I::g` element of `Gamma`.
@@ -131,7 +136,7 @@ DP::ResetGroup(gam) {
 **/
 DP::CurGroup() { return Gamma[I::g]; }
 
-/** Set and return the current group node in &Gamma;
+/** Set and return the current group node in &Gamma;.
 @param GorState matrix, the state vector for the group<br>integer, index of the group
 @return pointer to element of &Gamma; for the group. If this is not a class, then the group has been excluded from the model.
 @comments
@@ -162,7 +167,11 @@ DP::DrawOneExogenous(aState) {
 	aState[0] += ReverseState(NxtExog[Qi][i],I::OO[bothexog][]);
 	return i;
 	}
-	
+
+/** return &theta;
+@param endogind  tracking index of the state &theta;.
+@return Theta[endogind]
+**/	
 DP::Settheta(endogind) { return Theta[endogind]; }
 
 /** Return index into the feasible A list for a &theta;.
@@ -194,31 +203,11 @@ DP::StorePalpha() {
 	Flags::StorePA = TRUE;
 	}
 
-/** Check if variable is a block of state variables.
-@param sv `StateVariable`
-@return TRUE if sv is `StateBlock` or `RandomEffectBlock` or `FixedEffectBlock`<br>FALSE otherwise
-**/	
-DP::IsBlock(sv) {	
-return (isclass(sv,"StateBlock")
-		||isclass(sv,"RandomEffectBlock")
-		||isclass(sv,"FixedEffectBlock"));
-}
-
-/** Check if variable is a member of a block.
-@param sv `StateVariable`
-@return TRUE if sv is `Coevolving` or `CorrelatedEffect` or `SubEffect`<br>FALSE otherwise
-**/	
-DP::IsBlockMember(sv) {	
-return (isclass(sv,"Coevolving")
-		||isclass(sv,"CorrelatedEffect")
-		||isclass(sv,"SubEffect"));
-}
-
-/** Add state variables to a subvector of the overall state vector.
+/** Add state variables or blocks to a subvector of the overall state vector.
 @param SubV	the subvector to add to.
-@param ... variables to add
-@comments These variables are autonomous - their transitions are not correlated with each other or other state variables
-@see StateVariable, DP::Actions
+@param va state variable or block or array of state variables and blocks
+@comment User should typically not call this directly
+@see StateVariable, DP::Actions, DP::EndogenousStates DP::ExogenousStates, DP::SemiExogenousStates, DP::GroupVariables
 **/
 DP::AddStates(SubV,va) 	{
 	decl pos, i, j;
@@ -226,9 +215,9 @@ DP::AddStates(SubV,va) 	{
 	if (!isarray(SubVectors)) oxrunerror("Error: can't add states before calling Initialize()",0);
 	if (isclass(va,"Discrete")) va = {va};
 	for(i=0;i<sizeof(va);++i)	{
-		if (IsBlock(va[i])) {
+		if (StateVariable::IsBlock(va[i])) {
 			for (j=0;j<va[i].N;++j) {
-				if (IsBlock(va[i].Theta[j])) oxrunerror("nested state blocks not allowed");
+				if (StateVariable::IsBlock(va[i].Theta[j])) oxrunerror("nested state blocks not allowed");
 				AddStates(SubV,va[i].Theta[j]);
 				va[i].Theta[j].block = va[i];
 				va[i].Theta[j] = 0;		    //avoids ping-pong reference
@@ -274,15 +263,14 @@ DP::ExogenousStates(v1,...) 	{ AddStates(exog,v1|va_arglist()); }
 **/
 DP::SemiExogenousStates(v1,...) 	{ AddStates(semiexog,v1|va_arglist()); } 	
 
-
 /** Add `TimeInvariant`s to the group vector &gamma;.
 @param v1,... `TimeInvariant`s
 **/
 DP::GroupVariables(v1,...)	{
 	decl va = {v1}|va_arglist(),j;
 	for(j=0;j<sizeof(va);++j) {
-		if (isclass(va[j],"FixedEffect")) AddStates(fgroup,va[j]);
-		else if (isclass(va[j],"RandomEffect")) AddStates(rgroup,va[j]);
+		if (isclass(va[j],"FixedEffect")||isclass(va[j],"FixedEffectBlock")) AddStates(fgroup,va[j]);
+		else if (isclass(va[j],"RandomEffect")||isclass(va[j],"RandomEffectBlock")) AddStates(rgroup,va[j]);
 		else oxrunerror("argument is not a TimeInvariant variable");
 		}
 	}
@@ -298,7 +286,6 @@ DP::Actions(Act1,...) 	{
 	for(i=0;i<sizeof(va);++i)	{
 		va[i].pos = pos;
 		N::AA |= va[i].N;
-//		sL = va[i].L[];
 		sL = va[i].L;
 		if (!pos) {
 			ActionMatrix = va[i].vals';
@@ -343,15 +330,17 @@ DP::AuxiliaryOutcomes(auxv,...) {
     N::aux = sizeof(Chi);
 	}
 	
-/** Base class for tasks involving random and fixed groups. **/
+/** Base class for tasks involving random and fixed groups.
+@internal
+**/
 GroupTask::GroupTask() {
 	Task();
 	span = bothgroup;	left = SS[span].left;	right = SS[span].right;
-//    Reset();
 	}
 	
 
-/** . @internal **/
+/** Loop over group-variable tasks.
+@internal **/
 GroupTask::loop(){
 	Reset();
 	SyncStates(left,right);
@@ -363,8 +352,7 @@ GroupTask::loop(){
 			States[left].v = state[left];
 			SyncStates(left,left);
             I::Set(state,TRUE);
-            println("bbbb ",I::g," ",isclass(this,"FETask"),isclass(this,"RETask")," ",isclass(Gamma[I::g]));
-			this->Run(isclass(this,"FETask") ? state : Gamma[I::g]);
+			this->Run();
 			} while (--state[left]>=0);
 		state[left] = 0;
 		SyncStates(left,left);
@@ -381,7 +369,6 @@ GroupTask::loop(){
 **/
 CGTask::CGTask() {
 	GroupTask();
-//	state[left:right] = N::All[left:right]-1;  should be done in GroupTask() now.
 	Gamma = new array[N::G];
 	Fgamma = new array[N::F][N::R];
 	gdist = zeros(N::F,N::R);
@@ -393,26 +380,36 @@ CGTask::CGTask() {
 /** .
 @internal
 **/
-CGTask::Run(gam) {
+CGTask::Run() {
 	Gamma[I::g] =  (isint(Flags::GroupExists)||Flags::GroupExists())
 						? new Group(I::g,state)
 						: 0;
 	}
-	
-	
+		
 /** . @internal **/
 DPMixture::DPMixture() 	{	RETask();	}
 
 /** .
 @internal
 **/
-DPMixture::Run(gam) 	{	if (isclass(gam))     GroupTask::qtask->GLike();	}
+DPMixture::Run() 	{	if (isclass(CurGroup()))     GroupTask::qtask->GLike();	}
 
+/** Reset all Flags.
+@internal
+**/
 Flags::Reset() { delete UpdateTime; UpdateTime = StorePA = DoSubSample = IsErgodic = HasFixedEffect = ThetaCreated = FALSE; }
+
+/** Reset all Sizes.
+@internal
+**/
 N::Reset() {
     delete ReachableIndices, tfirst;
     ReachableIndices =tfirst=T=G=F=R=S=A=Av=J=aux=TerminalStates=ReachableStates=Approximated = 0;
     }
+
+/** .
+@internal
+**/
 N::Initialize() {
     G = DP::SS[bothgroup].size;
 	R = DP::SS[onlyrand].size;
@@ -439,13 +436,19 @@ N::Subsample(prop) {
     return samp;
     }
 
+/** .
+@internal
+**/
 N::Sizes() {
 	ReachableIndices = reversec(ReachableIndices);
     tfirst = 0 | (sizer(ReachableIndices)-tfirst);
     }
 
+/** .
+@internal
+**/
 N::print(){
-	println("\nTRIMMING AND SUBSAMPLING","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated","    tfirsts (t=0..T)"},
+	println("\n5. TRIMMING AND SUBSAMPLING OF THE ENDOGENOUS STATE SPACE (Theta)","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated","    tfirsts (t=0..T)"},
     "%cf",{"%10.0f"},ReachableStates|TerminalStates|Approximated | (tfirst)  );
     }
 
@@ -491,7 +494,7 @@ DP::Initialize(userReachable,UseStateList,GroupExists) {
     foreach(vl in Vlabels) vl = {};
     foreach(vl in Vprtlabels) vl = {};
 	format(500);
-	ActionMatrix = N::AA = <>;
+	ActionMatrix = N::AA = N::Options = <>;
 	SS = new array[DSubSpaces];
  	S = new array[DSubVectors];
  	for (subv=0;subv<DSubVectors;++subv)  	{ SubVectors[subv]={}; S[subv] = new Space(); }
@@ -651,6 +654,7 @@ DP::CreateSpaces() {
 	AsetCount = <0>;
 	A = array(ActionMatrix);
 	ActionSets = array(ones(N::A,1));
+    N::Options |= rows(ActionMatrix);
 	if (Flags::UseStateList) {
 		if (isclass(counter,"Stationary")) oxrunerror("canNOT use state list in stationary environment");
 		}
@@ -662,22 +666,34 @@ DP::CreateSpaces() {
 		w1 = sprint("%",7*S[semiexog].D,"s");
 		w2 = sprint("%",7*S[endog].D,"s");
 		w3 = sprint("%",7*S[clock].D,"s");
-        println("Clock: ",ClockType,". ",ClockTypeLabels[ClockType]);
-		println("STATE VARIABLES\n","%18s","|eps",w0,"|eta",w1,"|theta",w2,"-clock",w3,"|gamma",
+
+        println("1. CLOCK\n    ",ClockType,". ",ClockTypeLabels[ClockType]);
+		println("2. STATE VARIABLES\n","%18s","|eps",w0,"|eta",w1,"|theta",w2,"-clock",w3,"|gamma",
 		"%r",{"       s.N"},"%cf","%7.0f","%c",Vprtlabels[svar],N::All');
 		for (m=0;m<sizeof(States);++m)
-			if (!isclass(States[m],"Fixed") && !isclass(States[m],"TimeVariable"))
+			if (!isclass(States[m],"Fixed")&&States[m].N>1)
 			++sbins[  isclass(States[m],"NonRandom") ? NONRANDOMSV
 					 :isclass(States[m],"Random") ? RANDOMSV
-					 :isclass(States[m],"Augmented") ? AUGMENTEDV : COEVOLVINGSV ];
-		println("\nTransition Categories (not counting fixed or time)","%r",{"     #Vars"},"%c",{"NonRandom","Random","Coevolving","Augmented"},"%cf",{"%13.0f","%13.0f","%13.0f"},sbins);
-		println("\nSize of Spaces","%c",{"N"},"%r",
-				{"        Exogenous","    SemiExogenous","       Endogenous","            Times","    EV()Iterating",
-				"    Ch.Prob.track","     Random Groups","     Fixed Groups","    TotalUntrimmed"},
-							"%cf",{"%10.0f"},
+					 :isclass(States[m],"Augmented") ? AUGMENTEDV
+                     :isclass(States[m],"TimeVariable")? TIMINGV
+                     :isclass(States[m],"TimeInvariant") ? TIMEINVARIANTV
+                     : COEVOLVINGSV ];
+		println("\n     Transition Categories (not counting placeholders and variables with N=1)","%r",{"     #Vars"},"%c",{"NonRandom","Random","Coevolving","Augmented","Timing","Invariant"},"%cf",{"%13.0f","%13.0f","%13.0f","%13.0f","%13.0f"},sbins);
+
+		println("\n3. SIZE OF SPACES\n","%c",{"Number of Points"},"%r",
+				{"    Exogenous(Epsilon)",
+                 "    SemiExogenous(Eta)",
+                 "     Endogenous(Theta)",
+                 "                 Times",
+                 "         EV()Iterating",
+				 "      ChoiceProb.track",
+                 "  Random Groups(Gamma)",
+                 "   Fixed Groups(Gamma)",
+                 "       Total Untrimmed"},
+							"%cf",{"%17.0f"},
 			SS[onlyexog].size|SS[onlysemiexog].size|SS[onlyendog].size|SubVectors[clock][0].N|SS[iterating].size|SS[tracking].size|N::R|N::F|SS[allstates].size);
-		print("\nACTION VARIABLES (",N::A," distinct actions)");
-		println("%r",{"    i.N"},"%cf","%7.0f","%c",Vprtlabels[avar],N::AA');
+		print("\n4. ACTION VARIABLES\n   Number of Distinct action vectors: ",N::A);
+		println("%r",{"    a.N"},"%cf","%7.0f","%c",Vprtlabels[avar],N::AA');
 		}
     Flags::ThetaCreated = TRUE;
 	cputime0=timer();
@@ -705,10 +721,11 @@ DP::CreateSpaces() {
   	V = new matrix[1][SS[bothexog].size];
 	if (Volume>SILENT)	{		
         N::print();
-		println("\nACTION SETS");
+		println("\n6. FEASIBLE ACTION SETS\n ");
 		av = sprint("%-14s","    alpha");
 		for (i=0;i<N::J;++i) av ~= sprint("  A[","%1u",i,"]   ");
 		println(av);
+        print("    -------------"); for (i=0;i<N::J;++i) print("---------"); println("");
         decl everfeasible, totalnever = 0;
 		for (j=0;j<N::A;++j) {
 			for (i=0,av="    (";i<N::Av;++i) av ~= sprint("%1u",ActionMatrix[j][i]);
@@ -721,13 +738,16 @@ DP::CreateSpaces() {
                     }
 			if (everfeasible) println(av);  else ++totalnever;
 			}
-		for (i=0,av="#States   ";i<N::J;++i) av ~= sprint("%9u",AsetCount[i]);
-		println(av,"\n    Key: X = row vector is feasible. - = infeasible");
+		for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",AsetCount[i]);
+		println(av);
+        print("    -------------"); for (i=0;i<N::J;++i) print("---------");
+        println("\n    Key: X = row vector is feasible. - = infeasible");
         if (totalnever) println("    Actions vectors not shown because they are never feasible: ",totalnever);
+        println("\n");
 		}
     if (Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
 	ETT = new EndogTrans();
-    if (Flags::UpdateTime==InCreateSpaces) UpdateVariables(0);
+    if (Flags::UpdateTime[InCreateSpaces]) UpdateVariables();
  }
 
 /** .
@@ -746,6 +766,9 @@ Task::Reset() {
 	state[left:right] = N::All[left:right]-1;
 	}
 
+/** .
+@internal
+**/
 ThetaTask::ThetaTask() {
 	Task();
 	left = S[endog].M;
@@ -753,6 +776,9 @@ ThetaTask::ThetaTask() {
 	subspace = tracking;
     }
 
+/** .
+@internal
+**/
 CreateTheta::Sampling() {
     insamp = N::Subsample(SampleProportion);
     Flags::DoSubSample = constant(FALSE,N::T,1);
@@ -1078,7 +1104,6 @@ DP::Last() { return counter->Last(); }
 
 
 /** Update dynamically changing components of the program at the time chosen by the user.
-@param state ETT.state [default=0]
 
 <OL>
 <LI>Do anything that was added to the <code>PreUpdate</code> hook (see `Hooks`).
@@ -1090,13 +1115,13 @@ DP::Last() { return counter->Last(); }
 
 @see DP::SetUpdateTime , UpdateTimes
 **/
-DP::UpdateVariables(state)	{
+DP::UpdateVariables()	{
 	decl i,nr,j,a,nfeas;
     Flags::HasBeenUpdated = TRUE;
     Hooks::Do(PreUpdate);
 	i=0;
 	do {
-		if (IsBlockMember(States[i])) {
+		if (StateVariable::IsBlockMember(States[i])) {
 			States[i].block->Update();
             States[i].block->Check();
 			if (isclass(States[i],"CorrelatedEffect"))
@@ -1121,12 +1146,10 @@ DP::UpdateVariables(state)	{
 			}		
 		}
 	for (i=1;i<N::J;++i) A[i][][] = selectifr(A[0],ActionSets[i]);
-   	cputime0 = timer();
 	ExogenousTransition();
-    if (!isint(state)) ETT.state = state;
+    //    if (!isint(state)) ETT.state = state;
 	ETT.current = ETT.subspace = iterating;
 	ETT->Traverse();          //Endogenous transitions
-	if (Volume>QUIET) println("Transition time: ",timer()-cputime0);
 	}
 
 /** .
@@ -1137,7 +1160,7 @@ SDTask::SDTask()  { RETask(); }
 /** .
 @internal
 **/
-SDTask::Run(gam)   { gam->StationaryDistribution();}	
+SDTask::Run()   { CurGroup()->StationaryDistribution();}	
 
 /** Return t, current age of the DP process.
 @return counter.v.t
@@ -1200,10 +1223,9 @@ Group::Sync()	{
 	for (d=SS[bothgroup].left;d<=SS[bothgroup].right;++d) {
 		Sd = States[d];
 		sv = Sd.v = state[d];
-		if (IsBlockMember(States[d])) {
+		if (StateVariable::IsBlockMember(States[d])) {
 			Sd.block.v[Sd.bpos] = sv;
-			if (sv>-1) Sd.block.actual[Sd.bpos] =
-				Sd.actual[sv];	
+			if (sv>-1) Sd.block.actual[Sd.bpos] = Sd.actual[sv];	
 			}
 		}
 	return sv;
@@ -1287,7 +1309,7 @@ UpdateDensity::UpdateDensity() {
 /** .
 @internal
 **/
-UpdateDensity::Run(g) {	g->Density();	}
+UpdateDensity::Run() {	CurGroup()->Density();	}
 
 /**Print the value function EV(&theta;) and choice probability <code>&Rho;*(&alpha;,&epsilon;,&eta;;&theta;)</code> or index of max &Rho;*.
 @param ToScreen  TRUE means output is displayed.
@@ -1302,7 +1324,11 @@ StateIndex IsTerminal Aindex EndogenousStates t t' REStates FEStates EV &Rho;(&a
 **/
 DPDebug::outV(ToScreen,aM,MaxChoiceIndex) {
 	decl rp = new SaveV(ToScreen,aM,MaxChoiceIndex);
-	if (ToScreen) println("\n",div);
+	if (ToScreen) {
+        print("\n     Value of States and Choice Probabilities");
+        if (N::F>1) print("\n     Fixed Group Index(f): ",I::f);
+        println("\n",div);
+        }
 	rp -> Traverse();
 	if (ToScreen) println(div,"\n");	
 	delete rp;
@@ -1316,8 +1342,8 @@ DPDebug::outAutoVars() {
 
 DPDebug::Initialize() {
     sprintbuffer(16 * 4096);
-	prtfmt0 = Sfmts[:3]|Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%15.6f";
-	Vlabel0 = {"Indx","I","T","A"}|Vprtlabels[svar][S[endog].M:S[clock].M]|" rind "|"        EV      |";
+	prtfmt0 = array("%8.0f")|Sfmts[1:3]|Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%15.6f";
+	Vlabel0 = {"    Indx","I","T","A"}|Vprtlabels[svar][S[endog].M:S[clock].M]|"     r"|"       EV      |";
 	}
 
 DPDebug::DPDebug() {
@@ -1337,7 +1363,13 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex) {
 	this.ToScreen = ToScreen;
     this.MaxChoiceIndex = MaxChoiceIndex;
 	SVlabels = Vlabel0 | (MaxChoiceIndex ? {"index" | "maxP*" | "sum(P)"} : "Choice Probabilities:");
-    prtfmt  = prtfmt0 | (MaxChoiceIndex ? "%5.0f" | "%9.6f" : "%9.6f");
+    prtfmt  = prtfmt0;
+    if (MaxChoiceIndex)
+        prtfmt  |= "%5.0f" | "%9.6f" | "%15.6f";
+    else{
+        for(decl i=0;i<N::A;++i) prtfmt |= "%9.6f";
+        prtfmt |= "%15.6f";
+        }
 	if (isint(aM))
 		this.aM = 0;
 	else {
@@ -1348,18 +1380,18 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex) {
 	}
 	
 SaveV::Run(th) {
-	if (!isclass(th,"Bellman")  || (SaveV::TrimTerminals && th.IsTerminal) ) return;
+	if (!isclass(th,"Bellman")  || (SaveV::TrimTerminals && th.IsTerminal) || (SaveV::TrimZeroChoice && N::Options[th.Aind]<=1) ) return;
     decl mxi, p;
 	stub=I::all[tracking]~th.InSubSample~th.IsTerminal~th.Aind~state[S[endog].M:S[clock].M]';
 	for(re=0;re<sizeof(th.EV);++re) {
         p = th->ExpandP(re);
 		r = stub~re~th.EV[re]~(MaxChoiceIndex ? double(mxi = maxcindex(p))~p[mxi]~sumc(p) : p' );
-		if (isclass(th,"OneDimensionalChoice") )  r ~= CV(th.zstar)';
+		if (isclass(th,"OneDimensionalChoice") )  r ~= CV(th.zstar[re])';
 		if (!isint(aM)) aM[0] |= r;
 		if (ToScreen) {
 			s = (nottop)
 				? sprint("%cf",prtfmt,r)
-				: sprint("%c",isclass(th,"OneDimensionalChoice") ? SVlabels | " z* " : SVlabels,"%cf",prtfmt,r);
+				: sprint("%c",isclass(th,"OneDimensionalChoice") ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);
 			print(s[1:]);
 			nottop = TRUE;
 			}

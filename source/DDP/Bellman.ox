@@ -24,7 +24,7 @@ EndogTrans::EndogTrans() {
 /** . @internal **/
 EndogTrans::Run(th) {
 	if (!isclass(th,"Bellman")) return;
-	th.EV[] = 0.0;
+	if (Flags::UpdateTime[AfterRandom]) th.EV[I::r] = 0.0; else th.EV[] = 0.0;
     th->ThetaTransition(SS[subspace].O,SS[current].O);
 	}
 
@@ -45,6 +45,7 @@ Bellman::Bellman(state,picked) {
   if (Aind==curJ) {
   	ActionSets |= fa;
 	A |= array(new matrix[nfeas][columns(ActionMatrix)]);
+    N::Options |= nfeas;
 	Asets |= selectifr(ActionMatrix,fa);
 	AsetCount |= 1;
 	}
@@ -196,9 +197,9 @@ Bellman::ThetaTransition(future,current) {
 			[feas,prob] = root -> Transit(Asets[Aind]);
             if (Volume>LOUD && root.N>1) {
                 println("     State: ",root.L,"%r",{"   ind","   prob"},feas|prob);
-                if (any(fabs( sumr(prob) -1.0) )>DIFF_EPS2) { // short-circuit && avoids sumr() unless NOISY
+                if (any(fabs( sumr(prob) -1.0) .>DIFF_EPS )) { // short-circuit && avoids sumr() unless NOISY
                     println(si," ","%m",sumr(prob));
-                    oxrunerror("Transition probabilities are not valid");
+                    oxrunerror("Transition probabilities are not valid (sum not close enough to 1.0)");
                     }
                 }
 			feas = curO*feas;
@@ -223,7 +224,6 @@ Bellman::ThetaTransition(future,current) {
                 println("%8.0f","%c",Vprtlabels[svar][S[endog].M:S[endog].X],q[S[endog].M:S[endog].X]');
                 }
             }
-    println(Nxt);
         }
  }
 
@@ -662,7 +662,7 @@ OneDimensionalChoice::CreateSpaces() {
 
 OneDimensionalChoice::Smooth(VV) {
 	EV[I::r] = VV;
-	pandv[I::r][] =  pstar[];
+	pandv[I::r][] =  pstar;
 	}
 
 /**  .
@@ -684,13 +684,13 @@ OneDimensionalChoice::ActVal(VV) {
 KeepZ::ActVal(VV) {
 	pandv[I::r][][] = U;
 	if (IsTerminal) return;
-    if (Last()) return Udiff(CV(zstar));
-    kprob =keptz->DynamicTransit(zstar);
+    if (Last()) return Udiff(CV(zstar[I::r]));
+    kprob =keptz->DynamicTransit(zstar[I::r]);
     println("**",I::all[tracking]," ",VV,kprob,Nxt);
 	pandv[I::r][][] += CV(delta)*(     Nxt[Qrho][0][0][]
                                     | Nxt[Qrho][0][1].*reshape(kprob,1,columns(Nxt[Qrho][0]))
                                  )*VV[Nxt[Qi][0]]';
-    return Udiff(CV(zstar)) + DeltaV(pandv[I::r]);	
+    return Udiff(CV(zstar[I::r])) + DeltaV(pandv[I::r]);	
     }
 
 KeepZ::Initialize(userReachable,UseStateList,GroupExists) {

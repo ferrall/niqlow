@@ -27,6 +27,6 @@ Use Mill's ratio to compute truncated mean of normal.
 @return Array of two vectors
 **/	
 DynWStar::EUtility()    {
-	decl pstar = 1-probn(zstar);
-	return {  ( eta | densn(zstar)/pstar) , (1-pstar)~pstar};
+	pstar = 1-probn(zstar[I::r]);
+	return {  ( eta | densn(zstar[I::r])/pstar) , (1-pstar)~pstar};
 	}	

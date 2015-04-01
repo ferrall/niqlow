@@ -218,10 +218,11 @@ The user writes routines that return ...-->
 
 **/
 struct OneDimensionalChoice : Bellman {
-	static 	decl 					                    pstar,
-            /** single action variable. **/             d;
+	static 	decl
+            /** space for current Prob(z) in z* intervals. **/	pstar,
+            /** single action variable. **/                     d;
 			decl
-			/**vector of reservation values  **/		zstar;
+			/**N::R x 1 array of reservation value vectors  **/		zstar;
 	static 	Initialize(userReachable,d=Two,UseStateList=FALSE,GroupExists=FALSE);
 	static  CreateSpaces();
 	virtual Udiff(z);

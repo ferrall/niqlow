@@ -25,7 +25,7 @@ Use Mill's ratio to compute truncated mean of normal.
 @return Array of two vectors
 **/	
 WStar::EUtility()    {
-	decl pstar = 1-probn(CV(zstar)),
+	 pstar = 1-probn(CV(zstar)),
 	 rv = { CV(eta)| densn(CV(zstar))/pstar , (1-pstar)~pstar};
 	 return rv;
 	}

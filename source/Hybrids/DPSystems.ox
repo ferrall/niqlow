@@ -28,12 +28,12 @@ SolveAsSystem::SolveAsSystem() {
 	system = new EVSystem(SS[iterating].size,VI);
 	}
 
-SolveAsSystem::Run(th) {	th->thetaEmax(); }
+SolveAsSystem::Run(th) {	th->thetaEMax(); }
 	
 SolveAsSystem::Solve(SystemSolutionMethod,mxiter)	{
 	Parameter::DoNotConstrain = FALSE;
     Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
-    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
+    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables();
 	decl g;
 	for(g=0;g<N::F;++g) {
 		VI -> Solve(g,5);
@@ -50,7 +50,7 @@ SolveAsSystem::Solve(SystemSolutionMethod,mxiter)	{
 @param Ncuts number of reservation values
 **/
 Rsystem::Rsystem(LB,Ncuts,METHOD) {
-	decl lbv = CV(LB);
+	lbv = CV(LB);
 	System("R",Ncuts);
 	if (Ncuts>1)
 		Block(zstar = new Increasing("R*",LB,Ncuts));
@@ -65,19 +65,20 @@ Rsystem::Rsystem(LB,Ncuts,METHOD) {
 		case USENEWTONRAPHSON:
 			meth = new NewtonRaphson(this);
 		}
+    meth.USELM = (Ncuts==1);
 	}
 	
 /** Objective for reservation value system.
 @internal
 **/
-Rsystem::vfunc() {	return curth->Udiff(CV(zstar)) + dV;	}
+Rsystem::vfunc() {	decl v = curth->Udiff(CV(zstar)) + dV; return v;	}
 
-Rsystem::RVSolve(curth,dV,MaxTrips) {
+Rsystem::RVSolve(curth,dV) {
 	this.curth = curth;
 	this.dV = dV;
-	Encode(CV(curth.zstar));
-	meth->Iterate(MaxTrips);
-	curth.zstar = CV(zstar);
+	Encode(setbounds(curth.zstar[I::r][],lbv+1.1,.Inf));
+	meth->Iterate();
+	curth.zstar[I::r][] = CV(zstar);
 	}
 
 /** Solve for reservation values.
@@ -88,12 +89,14 @@ Rsystem::RVSolve(curth,dV,MaxTrips) {
 ReservationValues::ReservationValues(LBvalue,METHOD) {
 	ValueIteration(new RVEdU());
     Volume = SILENT;
-	decl i;
+	decl i,sysize;
     RValSys={};
-    for (i=0;i<N::J;++i)
-        RValSys |= (rows(Asets[i])>1)
-			 ? new Rsystem(LBvalue,rows(Asets[i])-1,METHOD)
+    for (i=0;i<N::J;++i) {
+        sysize = rows(Asets[i])-1;
+        RValSys |= sysize
+			 ? new Rsystem(LBvalue,sysize,METHOD)
 			 :  0;
+        }
 	}
 
 RVEdU::RVEdU() {
@@ -107,7 +110,6 @@ RVEdU::Run(th) {
 	if (!isclass(th,"Bellman")) return;
 	th.pandv[I::r][][] = .NaN;
 	th.U[] = 0;
-
 	}
 
 /**Solve for cut off values in the continuous shock &zeta;.
@@ -117,16 +119,18 @@ ReservationValues::Solve(Fgroups,MaxTrips) 	{
    	now = NOW;	later = LATER;
     this.MaxTrips = MaxTrips;
     GroupTask::qtask = this;
-//	ftask.qtask = this;			//refers back to current object.
-    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
+    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables();
     Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
     decl rv;
-    foreach (rv in RValSys) if (isclass(rv)) rv.meth.Volume = Volume;
+    foreach (rv in RValSys) if (isclass(rv)) { rv.meth.Volume = Volume; rv.meth->Tune(MaxTrips); }
 	if (Fgroups==AllFixed)
 		ftask -> GroupTask::loop();
-	else
-		ftask->Run(ReverseState(Fgroups,I::OO[onlyfixed][]));
-    println("%");
+	else {
+	    ftask.state = state = ReverseState(Fgroups,I::OO[onlyfixed][]);
+		SyncStates(ftask.left,ftask.right);
+        I::Set(state,TRUE);
+		ftask->Run();
+        }
 	}
 
 ReservationValues::Run(th) {
@@ -134,13 +138,13 @@ ReservationValues::Run(th) {
 	decl sysind = th.Aind;
 	th->ActVal(VV[later]);
 	if (isclass(RValSys[sysind])) {
-		RValSys[sysind] ->	RVSolve(th,DeltaV(th.pandv[I::r]),MaxTrips);
+		RValSys[sysind] ->	RVSolve(th,DeltaV(th.pandv[I::r]));
 		VV[now][I::all[iterating]] = th->thetaEMax();
 		}
 	else {
 		VV[now][I::all[iterating]] = V = maxc(th.pandv[I::r]);
 		th.pstar = <1.0>;
-		th.zstar = .NaN;
+		th.zstar[I::r][] = .NaN;
 		if (Flags::setPstar) th->Smooth(V);
 		}
 	}

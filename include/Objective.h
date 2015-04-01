@@ -83,12 +83,13 @@ struct Constrained : Objective {
 	virtual Merit(F);
 	}
 	
-
 /** A non-linear system of equations to solve.
 **/
 struct System : Objective {
 	decl
-	/** . @internal **/		 eqn;
+	/** . @internal **/		 eqn,
+                             normexp;
 			System(L,LorN);
 	virtual equations();
+	virtual fobj(F);
 	}

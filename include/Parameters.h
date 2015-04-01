@@ -85,6 +85,7 @@ Warning issued if |v<sub>0</sub>)-(UB+UB)/2| &lt; `Parameter::NearFlat`</dd>
 **/
 struct Bounded : Limited	{
     decl
+    l,
 	/** `AV` compatible, the lower bound**/ LB,
 	/** `AV` compatible, the upper bound**/ UB;
 	Bounded(L,LB, UB, v0);

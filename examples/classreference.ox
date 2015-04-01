@@ -1,4 +1,3 @@
-//#include "classreference.oxdoc"
 #include "oxstd.h"
 
 struct myclass { decl v; }

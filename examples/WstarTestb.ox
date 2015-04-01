@@ -2,9 +2,9 @@
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 WStar::Reachable()	{ return new WStar(); }
-WStar::WStar()      { zstar = <0.0>;}
+WStar::WStar()      { zstar = zeros(N::R,1);}
 WStar::Udiff(z)     { return eta-z;	}
-WStar::Utility()    { return eta*(1-aa(d)) + zstar*aa(d);	}
+WStar::Utility()    { return eta*(1-aa(d)) + zstar[I::r]*aa(d);	}
 
 WStar::Run()	{
 	Initialize(Reachable);
@@ -14,10 +14,9 @@ WStar::Run()	{
 	done->MakeTerminal(1);
 	SetDelta(0.4);
 	CreateSpaces();
-    Volume = NOISY;
 	RV = new ReservationValues();
     SaveV::TrimTerminals=TRUE;
-    RV.Volume=NOISY;
+    RV.Volume=QUIET;
 	RV->Solve();
     graphit();
     delete RV;
@@ -28,8 +27,8 @@ Use Mill's ratio to compute truncated mean of normal.
 @return Array of two vectors
 **/	
 WStar::EUtility()    {
-	decl pstar = 1-probn(zstar);
-	return {  ( eta | densn(zstar)/pstar) , (1-pstar)~pstar};
+	decl pstar = 1-probn(zstar[I::r]);
+	return {  ( eta | densn(zstar[I::r])/pstar) , (1-pstar)~pstar};
 	}	
 
 WStar::graphit() {

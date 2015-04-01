@@ -491,10 +491,9 @@ FPanel::LogLikelihood() {
 	FPL = zeros(N,1);  //NT
 	cputime0 =timer();
 	if (isclass(method)) method->Solve(f);
-    else {
-        if (Flags::UpdateTime[AfterFixed]) UpdateVariables(0);
-        }
-	if (isclass(upddens)) {
+    else
+        if (Flags::UpdateTime[AfterFixed]) UpdateVariables();
+    if (isclass(upddens)) {
 		upddens->SetFE(state);
 		summand->SetFE(state);
 		upddens->loop();
@@ -516,7 +515,7 @@ is called.
 Panel::LogLikelihood() {
 	cur = this;
 	M = <>;	
-	if (!isclass(method) && Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
+	if (!isclass(method) && Flags::UpdateTime[OnlyOnce]) UpdateVariables();
 	do {
 		cur->FPanel::LogLikelihood();
 		M |= cur.FPL;
@@ -571,7 +570,7 @@ DataSet::IDColumn(lORind) {
 
 **/
 DataSet::MatchToColumn(aORs,LorC) {
-	if (IsBlock(aORs)) oxrunerror("Can't use columns or external labels to match blocks. Must use ObservedWithLabel(...)");
+	if (StateVariable::IsBlock(aORs)) oxrunerror("Can't use columns or external labels to match blocks. Must use ObservedWithLabel(...)");
 	decl offset,k;
 	if (Volume>SILENT) print("\nAdded to the observed list: ");
 	offset = isclass(aORs,"ActionVariable") ? 1
@@ -595,7 +594,7 @@ DataSet::ObservedWithLabel(as1,...) {
     va |= va_arglist();
 	if (Volume>SILENT) print("\nAdded to the observed list: ");
     foreach (aORs in va) {
-		if (IsBlock(aORs)) {
+		if (StateVariable::IsBlock(aORs)) {
 	        foreach (bv in aORs.Theta) ObservedWithLabel(States[bv]);
 		    continue;
 			}
@@ -622,7 +621,7 @@ DataSet::UnObserved(as1,...) {
 	decl offset,aORs,va = {as1}|va_arglist(),k;
 	for (k=0;k<sizeof(va);++k) {
 		aORs = va[k];
-		if (IsBlock(aORs)) {
+		if (StateVariable::IsBlock(aORs)) {
 			decl bv;
 //			for (bv=0;sizeof(aORs.Theta);++bv) UnObserved(States[aORs.Theta[bv]]);
 			foreach (bv in aORs.Theta) UnObserved(States[bv]);

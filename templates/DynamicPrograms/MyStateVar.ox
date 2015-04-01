@@ -1,32 +1,33 @@
-/* This file is part of niqlow. Copyright (C) 2012 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2015 Christopher Ferrall */
 #import "DDP"
 
 struct MyStateVar : NonRandom  {
      decl occup, work,nozero;
-     MyStateVar(const L,const occup,const work);
-     Transit(const FeasA);
+     MyStateVar(L,occup,work);
+     Transit(FeasA);
      Update();
      }
 
-MyStateVar::MyStateVar(const L,const occup,const work) {
+MyStateVar::MyStateVar(L,occup,work) {
      if (!isclass(occup,"StateVariable")) 	oxrunerror("occupation argument must be a state variable");
      if (!isclass(work,"ActionVariable")) 	oxrunerror("work argument must be an action variable");
      this.occup  = occup;
      this.work = work;
-     occup->Update();                          	//make sure actual is set
-     nozero = !any(occup.actual.==0);
+     occup->Update();                          	//make sure occup.actual is set
+     nozero = !any(occup.actual.==0);           // occup has no zero coded occupations
      StateVariable(L,occup.N+nozero);           // 0 and the N occupations
      actual = nozero
                  ? 0 ~ occup.actual
                  : occup.actual;
      }
 
-MyStateVar::Transit(const FeasA) {
-     if  (nozero && !occup.v)
-          return { 0 , ones(rows(FeasA),1) };
-     else
-          return { 0~occup.v , (1-FeasA[][work.pos]) ~ FeasA[][work.pos] };
+MyStateVar::Transit(FeasA) {
+     if  (nozero) {
+        decl w =FeasA[][work.pos];
+        return { 0~occup.v , (1-w) ~ w };
+        }
+     return { occup.v , ones(rows(FeasA),1) };
      }
 
-// Do nothing, but keep default Update from resetting actual
+// Do nothing in order to keep default StateVariable::Update from resetting actual
 MyStateVar::Update()     {     }

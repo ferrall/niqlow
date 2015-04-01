@@ -170,6 +170,7 @@ UnConstrained::UnConstrained(L) {
 
 Constrained::Constrained(L,ELorN,IELorN) {
 	Objective(L);
+    delete cur;
 	cur = new CPoint(ELorN,IELorN);
 	hold = new CPoint(ELorN,IELorN);
 	maxpt = new CPoint(ELorN,IELorN);
@@ -178,9 +179,11 @@ Constrained::Constrained(L,ELorN,IELorN) {
 	
 System::System(L,LorN) {
 	Objective(L);
-	hold = new Point();
-//	maxpt = new Point();
+//    delete cur;
+    cur = new SysPoint();
+	hold = new SysPoint();
 	maxpt = clone(hold);
+	maxpt.v = -.Inf;
 	eqn = new Equality(LorN);
 	NvfuncTerms = eqn.N;
 	}
@@ -324,7 +327,7 @@ Objective::fobj(F)	{
 	cur->aggregate();
 	if (Volume>LOUD)
 		println("Actual Parameters","%c",{           "     Value "},"%r",PsiL,"%cf",{"%#18.12g"},cur.X,"fobj = ",cur.v);
-	this->CheckMax();
+//	this->CheckMax();
 	}
 
 /** Decode the input, return the whole vector.
@@ -333,6 +336,16 @@ Objective::fobj(F)	{
 Objective::vobj(F)	{
 	Decode(F);
 	cur.V[] = vfunc();
+	}
+
+
+/** Decode the input, compute the objective, check the maximum.
+@param F vector of free parameters.
+**/
+System::fobj(F)	{
+	vobj(F);
+	cur->aggregate();
+//	this->CheckMax();
 	}
 
 /** Decode the input, return the whole vector, inequality and equality constraints, if any.

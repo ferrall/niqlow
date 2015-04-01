@@ -1,17 +1,19 @@
+/* This file is part of niqlow. Copyright (C) 2015 Christopher Ferrall */
 #import "DDP"
 
 struct MyStateVar : NonRandom  {
      decl occup, work;
-     MyStateVar(const L,const occup,const work);
-     Transit(const FeasA);
+     MyStateVar(L,occup,work);
+     Transit(FeasA);
      }
 
-MyStateVar::MyStateVar(const L,const occup,const work) {
+MyStateVar::MyStateVar(L,occup,work) {
      StateVariable(L,occup.N);
      this.occup  = occup;
      this.work = work;
      }
 
-MyStateVar::Transit(const FeasA) {
-     return {  0~occup.v  ,  (1-FeasA[][work.pos]) ~ FeasA[][work.pos]  };
+MyStateVar::Transit(FeasA) {
+     decl w =FeasA[][work.pos];
+     return {  0~occup.v  ,  (1-w) ~ w  };
      }

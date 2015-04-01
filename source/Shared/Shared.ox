@@ -48,6 +48,22 @@ AV(X,...) {
 	return (!sizeof(arg)) ?  CV(X) : CV(X,arg[0]) ;
 	}
 
+/** The standard logistic cumulative distribution.
+@param x  double or vector.
+@return exp(x)/(1+exp(x))
+**/
+FLogit(x){ decl v=exp(x); return v ./ (1+v); }
+
+/** Return the completed simplex of a vector or double.
+@param v  double or column vector.
+@return v | (1-sumc(v))
+**/
+SumToOne(v) {
+    decl s = sumc(matrix(v));
+    return v|(1-s);
+    }
+
+
 /**Recreate State vector from an index and offset vector.
 @param Ind
 @param O offset
@@ -116,7 +132,7 @@ Discretized::Approx(x,trans) {
 			m = mincindex(lt[][i].>0);
 			z = (av[m]-x[i])/(av[m]-av[m-1]);
 			nxtf =  (m-1)~m;
-			nxtp = (z ~ (1-z) );
+			nxtp = SumToOne(z)';
 			}
 		pts[i] = nxtf|nxtp;
 		if (trans) {
@@ -452,7 +468,7 @@ GHK::SimDP(V,Sigma){
 		EV |= meanr(-L);		// conditional mean given j is optimal
 		if (j<J-1) simprob |= meanr(prob);
 	 	} 	
-	return {EV,simprob|(1-sumc(simprob))};
+	return {EV,SumToOne(simprob)};
 	}
 
 /** Compute the Gausian kernel matrix for a data matrix.
@@ -528,6 +544,11 @@ Point::Point() {
 	AggType = LINEAR;
 	}
 	
+SysPoint::SysPoint() {
+    Point();
+    AggType = MINUSSUMOFSQUARES;
+    }
+
 /** aggregate blackbox objectives into a scalar value.
 @param inV=0, if no argument, V data member holds individual values<br>matrix of separable values to be aggregated within columns
 @param outv=0, if no argument, objective stored in this.v<br>address to return objective
@@ -538,7 +559,8 @@ Point::aggregate(inV,outv) {
 	switch_single(AggType) {
 		case LINEAR : locv = sumc(isint(inV)?V:inV);
 		case LOGLINEAR : locv = sumc(log(isint(inV)?V:inV));
-		case MULTIPLICATIVE : v = prodc(isint(inV)?V:inV);
+		case MULTIPLICATIVE : locv = prodc(isint(inV)?V:inV);
+		case MINUSSUMOFSQUARES : locv = -sumsqrc(isint(inV)?V:inV);
 		}
     if (isint(outv)) v = double(locv);
     else outv[0] = locv;
@@ -581,6 +603,7 @@ SepPoint::aggregate(inV,outv) {
 		  case LINEAR : v = double(sumc(MV));
 		  case LOGLINEAR : v = double(sumc(log(MV)));
 		  case MULTIPLICATIVE : v = double(prodc(MV));
+		  case MINUSSUMOFSQUARES: v = -sumsqrc(MV);
 		  }		
        }
     else {
@@ -595,6 +618,7 @@ SepPoint::aggregate(inV,outv) {
 		  case LINEAR : outv[0] = sumc(outv[0]);
 		  case LOGLINEAR : outv[0] = sumc(log(outv[0]));
 		  case MULTIPLICATIVE : outv[0] = prodc(outv[0]);
+		  case MINUSSUMOFSQUARES: outv[0] = -sumsqrc(outv[0]);
 		  }		
         }
 	}

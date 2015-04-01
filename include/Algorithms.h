@@ -36,6 +36,10 @@ struct LinePoint : Zauxiliary {
 	/** obj value. **/	 v;
 	}
 
+struct SysLinePoint : LinePoint {
+    decl V;
+    }
+
 /** Container for algorithms that do not rely on gradients. **/
 struct NonGradient : Algorithm { }
 
@@ -74,6 +78,11 @@ struct CLineMax : LineMax {
 	CLineMax(O);
 	Try(pt,step);
 	}
+
+struct SysMax : LineMax {
+    SysMax(O);
+    Try(pt,step);
+    }
 		
 /** The Nelder and Mead Amoeba (Simplex) algorithm.
 
@@ -160,6 +169,8 @@ struct GradientBased : Algorithm {
 		  			decl
 	   /** . @internal **/										oldG,
 		  			     										gradtoler,
+        /** max iterations on line search. @see GradientBased::Tune **/
+                                                                LMitmax,
        /** |&nabla;<sub>m</sub>-&nabla;<sub>m-1</sub>|.**/ 		deltaG,
        /** |x<sub>m</sub>-x<sub>m-1</sub>.**/					deltaX,
        /**                      **/								dx,
@@ -168,6 +179,7 @@ struct GradientBased : Algorithm {
 
 		virtual   Iterate(H=0);
 		virtual   Direction();
+	    virtual   Tune(maxiter=0,toler=0,nfuncmax=0,LMitmax=0);
 		          HHupdate(FORCE);
 		virtual   Gupdate();		
 		virtual   Hupdate();
@@ -209,7 +221,9 @@ struct BHHH : Newton {
 
 /** Solve system of equations. **/
 struct NonLinearSystem	: GradientBased {
-		decl 	resat, dg;
+		decl 	resat,
+                dg,
+                USELM;
 				Gupdate();
         		JJupdate();
 				Iterate(H=0);

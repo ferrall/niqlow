@@ -23,9 +23,30 @@ Called by DP::UpdateVariables() after `StateVariable::Update`() called.
 StateVariable::Check() {
     if (columns(actual)!=1 || rows(actual)!=N) {
         println("State Variable ",L," N=",N," Dimensions of actual:",rows(actual)," x ",columns(actual));
-        oxwarning("actual +should Nx1 vector");
+        oxwarning("actual vector should be a Nx1 vector");
         }
     }
+
+/** Check if variable is a block of state variables.
+@param sv `StateVariable`
+@return TRUE if sv is `StateBlock` or `RandomEffectBlock` or `FixedEffectBlock`<br>FALSE otherwise
+**/	
+StateVariable::IsBlock(sv) {	
+return    isclass(sv,"StateBlock")
+		||isclass(sv,"RandomEffectBlock")
+		||isclass(sv,"FixedEffectBlock") ;
+}
+
+/** Check if variable is a member of a block.
+@param sv `StateVariable`
+@return TRUE if sv is `Coevolving` or `CorrelatedEffect` or `SubEffect`<br>FALSE otherwise
+**/	
+StateVariable::IsBlockMember(sv) {	
+return    isclass(sv,"Coevolving")
+		||isclass(sv,"CorrelatedEffect")
+		||isclass(sv,"SubEffect");
+}
+
 
 /**Designate one or more values terminal.
 @comments The feasible action set for terminal states is automatically set to the first row of the gobal <var>A</var> matrix.
@@ -737,11 +758,10 @@ StateBlock::AddToBlock(news,...)	{
 	decl i,k,nd,newrow, s, oldallv;
 	news = {news}|va_arglist();
 	for (i=0;i<sizeof(news);++i) {
-		if (!isclass(s = news[i],"Coevolving")) oxrunerror("State Variable added to block not coevolving");
+		if (!IsBlockMember(s = news[i])) oxrunerror("State Variable added to block not a block member object");
 		s.bpos = N++;
 		Theta |= s;
 		v ~= .NaN;
-		actual ~= .NaN;
 		if (N==1) { Allv = s.vals; }
 		else {
 			nd = columns(Allv); newrow = <>;
@@ -753,7 +773,7 @@ StateBlock::AddToBlock(news,...)	{
 			Allv |= newrow;
 			}
 		}
-	actual = v;   //default actual values, replaced after each add block.
+	actual = v';   //default actual values, replaced after each add block.
     Actual = Allv;
     rnge = range(0,N-1);
 	}

@@ -3,13 +3,14 @@
 
 OptTestRun() {
 decl s = "***************** ";
-	println("\n\n",s,"A. Explore Test ",s,"\n");    new Nothing(20);
-	println("\n\n",s,"A. Blackbox Test ",s,"\n");	BBTest();
-	println("\n\n",s,"B. Simplex Test ",s,"\n");   SimpTest();
-	println("\n\n",s,"C. System Test ",s,"\n");    SysTest();
-	println("\n\n",s,"D. Separable Test ",s,"\n"); SepTest();
-	println("\n\n",s,"E. Inequality Test ",s,"\n"); InEqTest();
-	println("\n\n",s,"F. Mixture Test ",s,"\n"); MixTest();
+//	println("\n\n",s,"A. Explore Test ",s,"\n");    new Nothing(20);
+//	println("\n\n",s,"A. Blackbox Test ",s,"\n");	BBTest();
+//	println("\n\n",s,"B. Simplex Test ",s,"\n");   SimpTest();
+//	println("\n\n",s,"C1. System Test ",s,"\n");    SysTest();
+	println("\n\n",s,"C2. System Test With Line Max",s,"\n");  LMSysTest();
+//	println("\n\n",s,"D. Separable Test ",s,"\n"); SepTest();
+//	println("\n\n",s,"E. Inequality Test ",s,"\n"); InEqTest();
+//	println("\n\n",s,"F. Mixture Test ",s,"\n"); MixTest();
 	}
 
 Nothing::Nothing(Ncalls) {
@@ -61,7 +62,20 @@ SysTest() {
 	nr ->Iterate(0);
 	delete v,nr,br;
 	}
-	
+
+LMSysTest() {
+	println("\n\n  System of Equation with Line Minimization ");
+	decl v = new SystemTest (1),
+		 br = new Broyden(v);
+	format(250);
+	v->ToggleParameterConstraint();
+    br.USELM = TRUE;
+	br.LM.Volume = QUIET;
+    br.Volume = NOISY;
+    br->Tune(5);
+	br ->Iterate();
+	delete v,br;
+	}	
 	
 SystemTest::SystemTest (N) {
 	System("Broyden system test",N);

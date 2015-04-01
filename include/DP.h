@@ -7,7 +7,7 @@ static decl
         /** &Theta; array (list) of all endogenous state nodes.**/  		Theta;
 
 		/** Categories of state variables.	@name StateTypes**/	
-enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTEDV,NStateTypes}
+enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTEDV,TIMINGV,TIMEINVARIANTV,NStateTypes}
 		/** Vectors of state variables. @name SubVectors **/
 enum {acts,exog,semiexog,endog,clock,rgroup,fgroup,DSubVectors,LeftSV=exog}
 		/** Groups of continugous `SubVectors`. @name SubSpaces **/
@@ -126,6 +126,7 @@ struct N : Zauxiliary {
 		/**	counter.t.N, the decision horizon.    **/  			      T,
 		/** &Alpha;.N=rows(ActionMatrix), N unconstrained actions.**/ A,
 		/** rows of feasible action sizes.         **/  			  AA,
+        /** vector of sizes of feasible action sets.**/               Options,
 		/** columns(ActionMatrix), action variables **/			      Av,
 		/** Number of different action sets.    **/      		      J,
 		/** number of auxiliary variables, sizeof of `DP::Chi` **/	  aux,
@@ -242,14 +243,12 @@ struct DP {
 		static	Swap();
 		static 	ExogenousTransition();
 
-		static	UpdateVariables(state=0);
+		static	UpdateVariables();
         static  onlyDryRun();
 		static  CreateSpaces();
 		static	InitialsetPstar(task);
 		static 	Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
 
-		static  IsBlock(sv);
-		static  IsBlockMember(sv);		
 		static 	AddStates(SubV,va);
 		static 	GroupVariables(v1,...);
 		static	Actions(Act1 ,...);
@@ -258,7 +257,6 @@ struct DP {
 		static	ExogenousStates(v1,...); 	
 		static	AuxiliaryOutcomes(v1,...);
 		static 	CurGroup();
-		static 	ResetGroup(g);
 		static 	SetGroup(state);
 		static 	Settheta(ind);
 		static 	DrawGroup(find);
@@ -295,7 +293,7 @@ struct Task : DP {
 	Task();
 	virtual Update();
 	virtual Run(th);
-	loop();
+	virtual loop();
 	virtual list(span=DoAll,lows=UseDefault,ups=UseDefault);
 	Reset();
 	Traverse(span=DoAll,lows=UseDefault,ups=UseDefault);
@@ -335,23 +333,23 @@ struct GroupTask : Task {
 	const 	decl 	span;
 	static  decl	qtask;
 	GroupTask();
-	virtual Run(gam);
+	virtual Run();
 	loop();
 	}
 
 /** . @internal **/
-struct CGTask 		: GroupTask {	CGTask();				Run(g);	}
+struct CGTask 		: GroupTask {	CGTask();				Run();	}
 
 /** . @internal **/
 struct RETask 		: GroupTask { 	RETask();  SetFE(f);	}
 
 /** . @internal **/
 struct FETask 		: GroupTask {	FETask();	}
-struct UpdateDensity: RETask 	{	UpdateDensity(); 		Run(g);	}
-struct DPMixture 	: RETask 	{	DPMixture(); Run(g);	}
+struct UpdateDensity: RETask 	{	UpdateDensity(); 		Run();	}
+struct DPMixture 	: RETask 	{	DPMixture(); Run();	}
 
 /** . @internal **/
-struct SDTask		: RETask	{ 	SDTask(); Run(g); }
+struct SDTask		: RETask	{ 	SDTask(); Run(); }
 
 /** Related DP models differing only by `TimeInvariant` effects.
 
@@ -379,6 +377,7 @@ struct Group : DP {
 			&Rho;<sub>&infin;</sub> **/	 			Pinfinity,
         /** method specific object. **/             mobj;
 
+		Reset();
 		Sync();
 		Group(pos,task);
 		~Group();
@@ -392,7 +391,7 @@ struct Group : DP {
 **/
 struct DPDebug : Task {
 	static const decl
-		div = "------------------------------------------------------------------------------";
+		div = "     ------------------------------------------------------------------------------";
 	static decl prtfmt0, prtfmt, SimLabels, SVlabels, MaxChoiceIndex, Vlabel0;
 	static Initialize();		
 	static outV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE);
@@ -403,7 +402,8 @@ struct DPDebug : Task {
 
 struct SaveV	: DPDebug	{
     static decl
-    /** TRUE=trim rows with terminal states from output. **/ TrimTerminals;
+    /** TRUE=trim rows with terminal states from output. **/ TrimTerminals,
+    /** TRUE=trim rows no choices from output. **/           TrimZeroChoice;
 	const decl ToScreen, aM;
 	decl  re, stub, nottop, r, s;
 	SaveV(ToScreen=TRUE,aM=0,MaxChoiceIndex=FALSE);

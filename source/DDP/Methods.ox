@@ -47,7 +47,6 @@ FixedSolve::FixedSolve() {
 	}
 
 /** Process a point in the fixed effect space.
-@param fxstate state vector with fixed effects already set
 <OL>
 <LI>If <code>UpdateTime</code> = <code>AfterFixed</code>, then update transitions and variables.</LI>
 <LI>Apply the solution method for each value of the random effect vector.</LI>
@@ -55,13 +54,15 @@ FixedSolve::FixedSolve() {
 </OL>
 @see DP::SetUpdateTime , DP::UpdateVariables , HookTimes
 **/
-FixedSolve::Run(fxstate){
-	rtask->SetFE(state = fxstate);
-    if (Flags::UpdateTime[AfterFixed]) UpdateVariables(fxstate);
+FixedSolve::Run(){
+	rtask->SetFE(state);
+    if (Flags::UpdateTime[AfterFixed]) {
+        ETT.state = state;
+        UpdateVariables();
+        }
     if (GroupTask::qtask.DoNotIterate) return;
 	cputime0 = timer();
-//	rtask.qtask = qtask;
-    if (GroupTask::qtask.Volume>SILENT && N::G>1) print("F ",I::f);
+    if (GroupTask::qtask.Volume>SILENT && N::F>1) print("f=",I::f);
 	rtask -> GroupTask::loop();
     if (GroupTask::qtask.Volume>SILENT) {
        if (N::G>1) println(" done ");
@@ -73,20 +74,19 @@ FixedSolve::Run(fxstate){
 RandomSolve::RandomSolve() {	RETask();	}
 
 /** Apply the solution method for the current fixed values.
-@param gam, `Group` object to solve for.
 
 If <code>UpdateTime</code> = <code>AfterRandom</code>, then update transitions and variables.
 
 Solution is not run if the density of the point in the group space equals 0.0.
 **/
-RandomSolve::Run(gam)  {
-	if (ResetGroup(gam)>0.0) {
-    println("GGGG ",isclass(gam));
-//        if (Flags::UpdateTime[AfterRandom]) UpdateVariables(state);
-        println("HHHH ",isclass(gam));
-		GroupTask::qtask.state = state;
-		I::r = gam.rind;
-		GroupTask::qtask->Gsolve();
+RandomSolve::Run()  {
+    decl gam = DP::CurGroup();
+	if (isclass(gam)&& gam->Reset()>0.0) {
+        if (Flags::UpdateTime[AfterRandom]) {
+            ETT.state = state;
+            UpdateVariables();
+            }
+		GroupTask::qtask->Gsolve(this.state);
         if (GroupTask::qtask.Volume>SILENT && N::G>1) print(".");
         Hooks::Do(PostGSolve);
 		}
@@ -118,14 +118,13 @@ ValueIteration::Run(th) {
 <LI>Iterate over states applying Bellman's equation.</LI>
 </OL>
 **/
-ValueIteration::Gsolve() {
-	ndogU.state = state;
+ValueIteration::Gsolve(instate) {
+	this.state = ndogU.state = instate;
 	ndogU->Traverse();
 	Flags::setPstar = counter->setPstar() ||  (MaxTrips==1);   // if first trip is last;
 	decl i;
 	Traverse();
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& later!=LATER) VV[LATER][] = VV[later][];    //initial value next time
-    println("dddd ",state');
 	}
 
 /** The function (method) that actually applies the DP Method to all problems (over fixed and random effect groups).
@@ -136,7 +135,7 @@ Method::Solve(Fgroups,MaxTrips) {    oxwarning("Called the default Solve() funct
 /** The function (method) that applies the method to a particular problem.
 This is the default value that does nothing.  It should be replaced by code for the solution method.
 **/
-Method::Gsolve() {    oxwarning("Called the default Solve() function for Method.  Does not do anything");    }
+Method::Gsolve(instate) {    oxwarning("Called the default Solve() function for Method.  Does not do anything");    }
 	
 /**Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
 @param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
@@ -157,23 +156,25 @@ Results are integrated over random effects, but results across fixed effects are
 Choice probabilities are stored in `Bellman::pandv` by random group index
 **/
 ValueIteration::Solve(Fgroups,MaxTrips) 	{
+    decl glo, ghi, g;
     if (MaxTrips==ResetValue) this.MaxTrips=0;
     else if (MaxTrips) this.MaxTrips = MaxTrips;
    	now = NOW;	later = LATER;
     GroupTask::qtask = this;
-//	ftask.qtask = this;			//refers back to current object.
     Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
-    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
+    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables();
+    if (Volume>QUIET) println("\n>>>>>>Value Iteration Starting");
 	if (Fgroups==AllFixed)
 		ftask -> GroupTask::loop();
-	else {
-        state =ReverseState(Fgroups,I::OO[onlyfixed][]);
+    else {
+	    ftask.state = state = ReverseState(Fgroups,I::OO[onlyfixed][]);
 		SyncStates(ftask.left,ftask.right);
         I::Set(state,TRUE);
-		ftask->Run(state);
+		ftask->Run();
         }
     Hooks::Do(PostFESolve);
     Flags::HasBeenUpdated = FALSE;
+    if (Volume>QUIET) println("\n>>>>>>Value Iteration Finished\n");
 	}
 
 /** Creates a new &quot;brute force&quot; Bellman iteration method.
@@ -188,7 +189,7 @@ ValueIteration::ValueIteration(myEndogUtil) {
 //   	right = S[clock].M;
    	subspace=iterating;
    	state = N::All-1;
-   	ftask = new FixedSolve();
+    ftask = new FixedSolve();
 	ndogU = isint(myEndogUtil) ? new EndogUtil() : myEndogUtil;
 	VV = new array[DVspace];
     decl i;
@@ -207,7 +208,7 @@ ValueIteration::NTrips() {
 
 /**	Check convergence in Bellman iteration, either infinite or finite horizon.
 Default task loop update routine for value iteration.
-This is called after one complete iteration of `ValueIteration::Gsolve`.
+This is called after one complete iteration of `ValueIteration::Gsolve`().
 @return TRUE if converged or `Task::trips` equals `Task::MaxTrips`
 **/
 ValueIteration::Update() {
@@ -227,7 +228,7 @@ ValueIteration::Update() {
                     || counter->setPstar();
 		VV[now][:I::MxEndogInd] = 0.0;
 		}
-	if (Volume>=LOUD) println("Trip:",trips,". Done:",done,". Visits:",iter,". diff=",dff,". setP*:",Flags::setPstar);
+	if (Volume>=LOUD) println("   Trip:",trips,". Done:",done?"Yes":"No",". Visits:",iter,". V diff=",dff,". setP*:",Flags::setPstar ? "Yes" : "No");
  	state[right] += done;		//put counter back to 0 	if necessary
 	SyncStates(right,right);
     return done || (trips>=MaxTrips);
@@ -295,9 +296,9 @@ This replaces the built-in version used by `ValueIteration`.
 </UL>
 
 **/
-KeaneWolpin::Gsolve() {
+KeaneWolpin::Gsolve(instate) {
 	decl myt;
-	ndogU.state = state;		
+	this.state = ndogU.state = instate;		
 	Flags::setPstar = TRUE;	
 	for (myt=N::T-1;myt>=0;--myt) {
 		state[cpos] = ndogU.state[cpos] = myt;
@@ -422,7 +423,7 @@ CCP::CCP(data,bandwidth) {
     NotFirstTime = TRUE;
     }
 
-CCP::Run(fxstate) {
+CCP::Run() {
     if (!NotFirstTime) {
 	   cnt[I::g] = zeros(1,SS[tracking].size);
 	   ObsPstar[I::g] = zeros(SS[onlyacts].size,columns(cnt[I::g]));	
@@ -492,24 +493,25 @@ HMEndogU::Run(th) {
 	th->UpdatePtrans();
 	}
 
-HotzMiller::Gsolve() {
+HotzMiller::Gsolve(instate) {
 	decl cg = CurGroup(), tmpP = -AV(delta)*cg.Ptrans;
     HMEndogU::VV = (invert( setdiagonal(tmpP, 1+diagonal(tmpP)) ) * Q[I::f] )';   // (I-d*Ptrans)^{-1}
 	if (Volume>LOUD) println("HM inverse mapping: ",HMEndogU::VV );
-	ndogU.state = state;
+	this.state = ndogU.state = instate;
 	ndogU->Traverse();
 	Flags::setPstar = 	FALSE;
 	}
 	
 HotzMiller::Solve(Fgroups) {
     GroupTask::qtask = this;
-//	ftask.qtask = this;			//refers back to current object.
     Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
-    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables(0);
+    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables();
 	if (Fgroups==AllFixed)
 		ftask -> GroupTask::loop();
-	else
-		ftask->Run(ReverseState(Fgroups,I::OO[onlyfixed][]));
+	else {
+        ftask.state =ReverseState(Fgroups,I::OO[onlyfixed][]);
+		ftask->Run();
+        }
 	if (Volume>QUIET) println("Q inverse time: ",timer()-cputime0);
     Hooks::Do(PostFESolve);
 	}
@@ -531,13 +533,14 @@ AguirregabiriaMira::Run(th) {
 AguirregabiriaMira::Solve(Fgroups,inmle) {
     HotzMiller::Solve(Fgroups);
     GroupTask::qtask = this;
-//	ftask.qtask = this;			//refers back to current object.
     if (isclass(inmle)) mle = inmle;
     do {
        mle->Iterate(0);
 	   if (Fgroups==AllFixed)
 		  ftask -> GroupTask::loop();
-	   else
-		  ftask->Run(ReverseState(Fgroups,I::OO[onlyfixed][]));
+	   else {
+          ftask.state =ReverseState(Fgroups,I::OO[onlyfixed][]);
+		  ftask->Run();
+          }
         } while (mle.convergence<STRONG);
     }

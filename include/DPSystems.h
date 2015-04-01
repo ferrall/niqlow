@@ -44,8 +44,8 @@ struct EVSystem : DPSystem	{
 **/
 struct Rsystem : DPSystem {
 	const decl zstar, Ncuts, meth;
-	decl ru, curth, dV, c;
-	RVSolve(curth,dV,MaxTrips=0);
+	decl ru, curth, dV, c,lbv;
+	RVSolve(curth,dV);
 	Rsystem(LB,Nchoice,METHOD);
 	vfunc();
 	}

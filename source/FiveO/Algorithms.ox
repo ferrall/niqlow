@@ -37,6 +37,11 @@ NelderMead::Tune(mxstarts,toler,nfuncmax,maxiter) {
 	if (maxiter) this.maxiter = maxiter;	
 	}
 
+GradientBased::Tune(maxiter,toler,nfuncmax,LMitmax) {
+    Algorithm::Tune(maxiter,toler,nfuncmax);
+    if (LMitmax) this.LMitmax = LMitmax;
+    }
+
 RandomSearch::RandomSearch(O) {
     SimulatedAnnealing(O);
     heat = 10000.0;
@@ -143,6 +148,16 @@ LineMax::LineMax(O)	{
 	p6 = new LinePoint();
 	}
 
+SysMax::SysMax(O) {
+	Algorithm(O);
+	p1 = new SysLinePoint();
+	p2 = new SysLinePoint();
+	p3 = new SysLinePoint();
+	p4 = new SysLinePoint();
+	p5 = new SysLinePoint();
+	p6 = new SysLinePoint();
+    }
+
 /** .
 @internal
 **/
@@ -161,7 +176,7 @@ LineMax::Iterate(Delta,maxiter)	{
 	holdF = OC.F;
 	improved = FALSE;
 	p1.step = 0.0; p1.v = OC.v;
-	Try(p2,min(maxstp/maxdelt,1.0));
+	this->Try(p2,min(maxstp/maxdelt,1.0));
 	if (p2.v>p1.v) {q = p2;a=p1;} else {q=p1;a=p2;}
 	b = p3;
     if (Volume>SILENT) println("Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);
@@ -170,6 +185,7 @@ LineMax::Iterate(Delta,maxiter)	{
 	Golden();
 	O->Decode(holdF+q.step*Delta);
     if (Volume>QUIET) println("Line: past golden",q);
+    OC.V = q.V;
  	OC.v = q.v;
 	}
 	
@@ -183,8 +199,13 @@ LineMax::Try(pt,step)	{
 		println("*** Objective undefined at line max point ",pt,holdF+step*Delta,OC.X);
 		oxrunerror(" ");
 		}
-	improved = improved || O->CheckMax();
+	improved = O->CheckMax() || improved;
 	}
+
+SysMax::Try(pt,step) {
+    LineMax::Try(pt,step);
+    pt.V = OC.V;
+    }
 
 /** Create a Constrained Line Maximization object.
 @param O `Objective`
@@ -204,7 +225,7 @@ CLineMax::Try(pt,step)	{
 		println("Lagrange undefined at line max point ",pt,OC.X);
 		oxrunerror(" ");
 		}
-	improved = improved || O->CheckMax();
+	improved = O->CheckMax() || improved ;
 	}
 	
 /** Bracket a local maximum along the line.
@@ -212,7 +233,7 @@ CLineMax::Try(pt,step)	{
 **/
 LineMax::Bracket()	{
     decl u = p4, r, s, ulim, us, notdone;
-	Try(b,(1+gold)*q.step-gold*a.step);
+	this->Try(b,(1+gold)*q.step-gold*a.step);
 	notdone = b.v>q.v;
 	while (notdone)	{
 		r = (q.step-a.step)*(q.v-b.v);
@@ -220,20 +241,20 @@ LineMax::Bracket()	{
         us = q.step -((q.step-b.step)*s-(q.step-a.step)*r)/(2.0*(s>r ? 1 : -1)*max(fabs(s-r),tiny));
         ulim = q.step+glimit*(b.step-q.step);
         if ((q.step-us)*(us-b.step) > 0.0)	{
-            Try(u,us);
+            this->Try(u,us);
             notdone =  (b.v>u.v)&& (u.v>=q.v);
             if (!notdone)
 				{if (u.v>b.v) {a = q;q = u;} else b = u; }
             else
-               Try(u,b.step+gold*(b.step-q.step));
+               this->Try(u,b.step+gold*(b.step-q.step));
 			}
 		else if ((b.step-us)*(us-ulim) > 0.0) {
-			Try(u,us);
+			this->Try(u,us);
             if (u.v>b.v)
 		   		{q= b; b= u; Try(u,(1+gold)*b.step-gold*q.step); }
-            else if ((u.step-ulim)*(ulim-b.step) >= 0.0) Try(u,ulim);
+            else if ((u.step-ulim)*(ulim-b.step) >= 0.0) this->Try(u,ulim);
             }
-		else Try(u,(1+gold)*b.step-gold*q.step);
+		else this->Try(u,(1+gold)*b.step-gold*q.step);
         if (notdone)
 			{a = q;	q = b;	b = u;  notdone= b.v>q.v;  }
 		}
@@ -245,14 +266,14 @@ LineMax::Bracket()	{
 LineMax::Golden()	{
 	decl x0 = a,  x3 = b,  x1 = p5,  x2 = p6, iter=0, s, tmp;
     if (fabs(b.step-q.step) > fabs(q.step-a.step))
-	  		{x1=q; Try(x2,q.step + cgold*(b.step-q.step));}
+	  		{x1=q; this->Try(x2,q.step + cgold*(b.step-q.step));}
     else
-         	{x2=q; Try(x1,q.step - cgold*(q.step-a.step));}
+         	{x2=q; this->Try(x1,q.step - cgold*(q.step-a.step));}
 	do {
          if (x2.v>x1.v )
-		  	{ s=x0; tmp = x2.step; x0=x1; x1=x2; x2=s; Try(x2,rgold*tmp+cgold*x3.step); }
+		  	{ s=x0; tmp = x2.step; x0=x1; x1=x2; x2=s; this->Try(x2,rgold*tmp+cgold*x3.step); }
          else
-            { s=x3; tmp = x1.step; x3=x2; x2=x1; x1=s; Try(x1,rgold*tmp+cgold*x0.step); }
+            { s=x3; tmp = x1.step; x3=x2; x2=x1; x1=s; this->Try(x1,rgold*tmp+cgold*x0.step); }
 		 iter += improved;  // don't start counting until f() improves
          if (Volume>QUIET) println("Line: ",iter,". improve: ",improved,". step diff = ",x3.step," - ",x0.step);
 		} while (fabs(x3.step-x0.step) > tolerance*fabs(x1.step+x2.step) && (iter<maxiter) );
@@ -390,8 +411,11 @@ GradientBased::GradientBased(O) {
     Algorithm(O);
 	LM = isclass(O,"UnConstrained")
 			? new LineMax(O)
-			: new CLineMax(O);
+			: isclass(O,"Constrained")
+                ? new CLineMax(O)
+                : new SysMax(O);
 	gradtoler = igradtoler;
+    LMitmax = 10;
 	}
 
 /** .  **/ BFGS::BFGS(O) {	GradientBased(O);	}
@@ -453,7 +477,7 @@ GradientBased::Iterate(H)	{
 	   if (this->Gupdate()) {convergence=STRONG;}
 	   else do  {
 		  holdF = OC.F;
-		  LM->Iterate(Direction(),25);
+		  LM->Iterate(Direction(),LMitmax);
 		  convergence = (++iter>maxiter) ? MAXITERATIONS
                                          : IamNewt ? this->HHupdate(FALSE)
                                                    : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE)) ;
@@ -532,12 +556,14 @@ BFGS::Hupdate() {
 NewtonRaphson::NewtonRaphson(O) {
 	if (!isclass(O,"System")) oxrunerror("Objective must be a System");
 	GradientBased(O);
+    USELM = FALSE;
 	}
 
 /** . @internal **/
 Broyden::Broyden(O) {
 	if (!isclass(O,"System")) oxrunerror("Objective must be a System");
 	GradientBased(O);
+    USELM = FALSE;
 	}
 
 /** Compute the direction.
@@ -567,7 +593,10 @@ NonLinearSystem::Direction() 	{
 **/
 NonLinearSystem::Gupdate()	{
 	oldG = OC.V;
-	O->vobj(0);
+	if (USELM)
+         O->fobj(0);
+    else
+	     O->vobj(0);
 	dg = (OC.V - oldG);
 	deltaG = norm(OC.V,2);
 	return deltaG<gradtoler;
@@ -577,6 +606,7 @@ NonLinearSystem::Gupdate()	{
 @param J matrix, initial Jacobian for Broyden.<br>integer, set to identity
 **/
 NonLinearSystem::Iterate(J)	{
+decl d;
 	O->Encode(0);
 	N = rows(holdF = OC.F);
     deltaX=.NaN;
@@ -593,13 +623,20 @@ NonLinearSystem::Iterate(J)	{
 		  		O->Jacobian();
 	 	  do {
 		  	holdF = OC.F;
-			OC.F += Direction();
+            d = Direction();
+		    if (USELM)
+                LM->Iterate(d,LMitmax);
+            else
+                O->Decode(holdF+d);
 			convergence = (++iter>maxiter) ? MAXITERATIONS : (Hresetcnt>1 ? SECONDRESET : this->JJupdate());
-			if (Volume>QUIET) println(classname(this)+" ",iter,".  deltaX: ",deltaX," deltaG:",deltaG);
+			if (Volume>QUIET) {
+                println(classname(this)+" ",iter,".  deltaX: ",deltaX," deltaG:",deltaG);
+			    if (Volume>LOUD) println("%c",O.Flabels,"%r",{"    Params Vector","           System"},OC.F'|OC.V');
+                }
 			} while (convergence==NONE && !isnan(deltaX) );
 		  }
 	    if (Volume>SILENT)
-		  println("\n"+classname(this)+" Converged:","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Params Vector","System"},OC.F'|OC.V');
+		  println("\n"+classname(this)+" Converged:","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Params Vector","           System"},OC.F'|OC.V');
 	    O->Decode(0);		
 	    if (Volume>SILENT) O->Print("Non-linear System Ending");
         if (isclass(O.p2p)) {
@@ -620,7 +657,7 @@ NonLinearSystem::JJupdate() {
 	return NONE;
 	}
 	
-/** . @internal **/ NewtonRaphson::Jupdate(dx) {O->Jacobian();}
+/** . @internal **/ NewtonRaphson::Jupdate(dx) {O->Jacobian(); }
 /** . @internal **/ Broyden::Jupdate(dx)       {OC.J += ((dg-OC.J*dx)/deltaX)*(dx');}
 
 

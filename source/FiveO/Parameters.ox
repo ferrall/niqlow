@@ -158,7 +158,7 @@ Bounded::Decode(f)	{
 	if (!isint(block)) block->BlockCode();
 	if (DoNotVary) return v;
 	if (DoNotConstrain) v = f;
-	else { decl x = exp(scale*f),l=CV(LB); v = l + (CV(UB)-l)*x/(1+x); }
+	else { l=CV(LB); v = l + (CV(UB)-l)*FLogit(scale*f); }
 	return v;
 	}
 

@@ -45,7 +45,7 @@ enum {stayinf,gotonextf,exittreatment,NextTreatmentStates}
 enum{EQUALITY,INEQUALITY,ConstraintTypes}
 
 		/** Tags for Types of vector-valued objective Aggregation. @name AggregatorTypes **/	
-enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,Aggregators}
+enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,Aggregators}
 
 static const decl
 		mymomlabels = {"sample size","mean","st.dev.","min","max"},
@@ -67,6 +67,8 @@ static const decl
 	GaussianKernel(X,h=UseDefault);
     Epanechnikov(X,h);
     ToggleParams(a,...);
+    FLogit(x);
+    SumToOne(v);
 
 /** A container for auxiliary structures, which helps organize the hierarchy of classes. **/
 struct Zauxiliary { }
@@ -271,6 +273,10 @@ struct Point : Zauxiliary {
 	virtual aggregate(V=0,v=0);
 	GCopy(h);
 	}
+
+struct SysPoint : Point {
+    SysPoint();
+    }
 
 /** Store a point for a separable objective. **/
 struct SepPoint : Point {

@@ -14,6 +14,8 @@ struct StateVariable : Discrete	{
 	/** A vector of values that end decision making
 		Equal to &lt; &gt; if state is not terminating.      **/     TermValues;
 	MakeTerminal(TermValues);
+	static  IsBlock(sv);
+	static  IsBlockMember(sv);		
 	virtual Transit(FeasA);
 	virtual UnChanged(FeasA);
     virtual UnReachable(clock=0);

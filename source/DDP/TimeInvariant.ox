@@ -89,38 +89,24 @@ SubEffect::SubEffect(L,N)	{
 @param L label for block
 **/
 FixedEffectBlock::FixedEffectBlock(L)	{
-	this.L = L;
-	N= 0;
-	Theta={};
-	pos = UnInitialized;
-	Allv = actual = v = <>;	
+    StateBlock(L);
 	}
 
-/**	 Add a variable to the effect block.
-@param news,... list of `Coevolving` state variables to add to the block.
+/** Create a vector of fixed effects (FixedEffectBlock).
+@param L string prefix <br>or array of strings, individual labels
+@param vN vector of integer values, number of values each effect takes on.
+@example
+Create 3 fixed effects that take on 2, 3 and 5 values, respectively:
+<pre> x = new Regressors("X",<2,3,5>); </pre>
+Give each effect a label:
+<pre> x = new Regressors({"Gender","Education","Occupation"},<2,3,5>); </pre>
+</dd>
 **/
-FixedEffectBlock::AddToBlock(news,...)	{
-	decl i,k,nd,newrow, s, oldallv;
-	news = {news}|va_arglist();
-	for (i=0;i<sizeof(news);++i) {
-		if (isclass(s = news[i],"FixedBlock")) oxrunerror("Cannot nest a block within a block.");
-		if (!isclass(s = news[i],"SubEffect")) oxrunerror("Group Variable added to block not a SubEffect");
-		s.bpos = N++;
-		Theta |= s;
-		v ~= .NaN;
-		actual ~= .NaN;
-		if (N==1) { Allv = s.vals; }
-		else {
-			nd = columns(Allv); newrow = <>;
-			oldallv = Allv;
-			for(k=0;k<s.N;++k) {
-				if (k) Allv ~= oldallv;
-				newrow ~= constant(k,1,nd);
-				}
-			Allv |= newrow;
-			}
-		}
-	}
+Regressors::Regressors(L,vN) {
+    FixedEffectBlock(isstring(L) ? L : "X");
+    decl NN = vN,N,j;
+    foreach(N in NN[j]) AddToBlock(new SubEffect(isstring(L) ? L+sprint("%02.0f",j) : L[j],N));
+    }
 
 /** Update `Discrete::pdf`, the distribution over the random effect.
 This is the built-in default method.  It computes and stores the distribution over the random
@@ -150,36 +136,7 @@ CorrelatedEffect::CorrelatedEffect(L,N)	{
 @param L label for block
 **/
 RandomEffectBlock::RandomEffectBlock(L)	{
-	this.L = L;
-	N= 0;
-	Theta={};
-	pos = UnInitialized;
-	Allv = actual = v = <>;	
-	}
-
-/**	 Add a variable to the effect block.
-@param news,... list of `Coevolving` state variables to add to the block.
-**/
-RandomEffectBlock::AddToBlock(news,...)	{
-	decl i,k,nd,newrow, s, oldallv;
-	news = {news}|va_arglist();
-	for (i=0;i<sizeof(news);++i) {
-		if (!isclass(s = news[i],"CorrelatedEffect")) oxrunerror("Group Variable added to block not correlated");
-		s.bpos = N++;
-		Theta |= s;
-		v ~= .NaN;
-		actual ~= .NaN;
-		if (N==1) { Allv = s.vals; }
-		else {
-			nd = columns(Allv); newrow = <>;
-			oldallv = Allv;
-			for(k=0;k<s.N;++k) {
-				if (k) Allv ~= oldallv;
-				newrow ~= constant(k,1,nd);
-				}
-			Allv |= newrow;
-			}
-		}
+    StateBlock(L);
 	}
 
 RandomEffectBlock::Distribution() {

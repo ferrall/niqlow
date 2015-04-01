@@ -3,18 +3,18 @@
 
 /** Loop over fixed values in &gamma;, solve model for each.
 **/
-struct FixedSolve : FETask  { const decl rtask; FixedSolve(); Run(g);	}
+struct FixedSolve : FETask  { const decl rtask; FixedSolve(); Run();	}
 
 /**	Loop over random effect values &gamma;, call  Gsolve() method for the calling method.
 **/
-struct RandomSolve : RETask { RandomSolve(); Run(g);}
+struct RandomSolve : RETask { RandomSolve(); Run();}
 
 
 /** A container for solution methods.
 **/
 struct Method : ThetaTask {
     virtual Solve(Fgroups=AllFixed,MaxTrips=0);
-    virtual Gsolve();
+    virtual Gsolve(instate);
 	}
 
 /** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/
@@ -51,7 +51,7 @@ struct ValueIteration : Method {
 	NTrips();
 	virtual Update();
 	virtual Run(th);
-	virtual Gsolve();
+	virtual Gsolve(instate);
 	virtual Solve(Fgroups=AllFixed,MaxTrips=0);
 	}
 
@@ -175,7 +175,7 @@ struct KeaneWolpin : ValueIteration {
 
 					KeaneWolpin(myKWEMax=0);
 					Specification(kwstep,V=0,Vdelta=0);
-	virtual			Gsolve();
+	virtual			Gsolve(instate);
 	virtual 		Run(th);
 	}
 
@@ -207,7 +207,7 @@ struct CCP : FETask {
             Kstates;
 	CCP(data,bandwidth);
     InitializePP();
-	Run(fxstate);
+	Run();
 	}
 
 struct CCPspace : ThetaTask {
@@ -234,7 +234,7 @@ struct HotzMiller : ValueIteration {
 	decl		        Q ;
 	HotzMiller(indata=0,bandwidth=0);
 	virtual Solve(Fgroups=AllFixed);
-    virtual Gsolve();
+    virtual Gsolve(instate);
 	Run(th);
 	}
 
@@ -244,7 +244,6 @@ struct HotzMiller : ValueIteration {
 struct AguirregabiriaMira : HotzMiller  {
     decl                mle;
     AguirregabiriaMira(data=0,bandwidth=UseDefault);
-//    Gsolve();
     Solve(Fgroups=AllFixed,inmle=0);
     virtual Run(th);
     }

@@ -50,7 +50,7 @@ NoObjective::NoObjective(model) {
     }
 
 NoObjective::vfunc() {
-    if (model.Volume>SILENT) Print("explore");
+    if (!ismember(model,"Volume") || model.Volume>SILENT) Print("explore");
     v = model->Solve();
     println("\n Value = ",v,"\n-------------------------");
     return matrix(v);

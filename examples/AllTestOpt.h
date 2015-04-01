@@ -6,6 +6,7 @@ OptTestRun();
 BBTest();
 InEqTest();
 SysTest();
+LMSysTest();
 SepTest();
 SimpTest();
 MixTest();

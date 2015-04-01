@@ -48,7 +48,7 @@
  &alpha;.D=6</pre></DD>
  <DD>Some papers would treat this as a <em>single action</em> with six values.</DD>
 <DD>And/or papers may define a vector of 6 indicator variables to denote which choice was made: <var>d<sub>i</sub>=I{a=i}</var>.</DD>
-<DD>The three different approaches to coding discrete choices are illustrate in this table:<pre>
+<details><summary>The three different approaches to coding discrete choices are illustrate in this table:</summary><dd><pre>
          DDP Approach       | Single Action |    Indicator Vectors
          a0         a1      |       a       |    d0  d1  d2  d3  d4  d5
       ----------------------+---------------+----------------------------
@@ -57,7 +57,7 @@
          2          0       |       2       |    0   0   1   0   0   0
          0          1       |       3       |    0   0   0   1   0   0
          1          1       |       4       |    0   0   0   0   1   0
-         2          1       |       5       |    0   0   0   0   0   1</pre></DD>
+         2          1       |       5       |    0   0   0   0   0   1</pre></DD></details>
 <DD>One reason to use an action vector like <code>&alpha;</code> is that each variable can be interpreted as a dimension of choice.  There is no obvious interpretation of <q>a=3</q> in the table, and the interpretation would change with the dimensions of the action variables. This approach would force <code>MyModel</code> to decode into an action vector to make their code look like a mathematical model. Another reason: the action vector approach makes it natural to impose feasibility conditions on the choice set, as discussed below.</dd>
 <DD>The use of indicator vectors makes it possible to write any utility as a sum: <var>U = &sum;<sub>k</sub> d<sub>k</sub>u<sub>k</sub></var>. But as with the single action approach the interpretation is not obvious and <var>U()</var> will in no way resemble usual mathematical notation for an objective.</DD>
 
@@ -182,15 +182,15 @@ A state variable <var>s</var> is a `Discrete` quantity.  It is defined by at lea
 
 The <em>innovations</em> of autonomous variables and state blocks are conditionally independent.  Within a state block the innovations of member state variables can be correlated in an arbitrary way. The model places discrete state variables/blocks into one of four vectors.
 <table class="overview" width="100%" > <tr><td></td><td colspan="4">DP State Vector</td></tr>
-<tr><td></td><td>Exogenous<br>(&epsilon;) </th><td>Semi-Exogenous<br>(&eta;) </td><td>Endogenous<br>(&theta;)</th><td>Group (`RandomEffect`)<br>(&gamma;)</tr>
+<tr><td></td><td>Exogenous<br>(&epsilon;) </th><td>Semi-Exogenous<br>(&eta;) </td><td>Endogenous<br>(&theta;)</th><td>Group (`RandomEffect` or `FixedEffect`)<br>(&gamma;)</tr>
 <tr><td>Generic Element</td><td>e</td><td>h</td><td>q</td><td>g</td></tr>
 <tr><td>Form of &Rho;<sub>s</sub></td><td colspan="2">&Rho;<sub>s</sub>(s&prime;)</td><td>&Rho;<sub>s</sub>(s&prime;|&alpha;,&epsilon;,&eta;,&theta;)</td><td>g&prime;=g</td></tr>
 <tr><td>Explanation</td><td colspan="2">Transition IID of everything.</td><td>Transition can depend on value of states and &alpha;.  </td><td>fixed</td></tr>
-<tr><td>Special form of &Rho;<sub>q</sub>, q&in;&theta;, q&ne;s</td><td>cannot enter &Rho;<sub>q</sub></td><td colspan="2">can enter </td><td>cannot enter</td></tr>
+<tr><td>Special form of<br> &Rho;<sub>q</sub>, q&in;&theta;, q&ne;s</td><td>cannot enter &Rho;<sub>q</sub></td><td colspan="2">can enter </td><td>can enter but<br>see `DP::SetUpdateTime`</td></tr>
 <tr><td>Explanation</td><td>q independent of &epsilon;, given &alpha;</td>
-<td colspan="2">&eta; and &theta; can affect q</td><td>fixed effects <em>only</em> enter U() not &Rho;</tr>
+<td colspan="2">&eta; and &theta; can affect q</td><td>default is random effects can <em>only</em> enter U() not &Rho;()</tr>
 <tr><td>Computing Implication</td><td colspan="2">Compute and store &Rho;<sub>&epsilon;</sub> and &Rho;<sub>&eta;</sub> once on each solution.</td>
-<td>Compute and store &Rho;<sub>&theta;</sub> at each &theta;, store as a <em>matrix</em> for each &alpha; and each &eta; </td><td>Reuse space for each &gamma;.  Store only <code>&Rho;*(&alpha;|&hellip;&gamma;)</code></td><tr>
+<td>Compute and store &Rho;<sub>&theta;</sub> at each &theta;, store as a <em>matrix</em> for each &alpha; and each &eta; </td><td>Reuse space for each fixed effect. Store only <code>&Rho;*(&alpha;|&hellip;&gamma;) for separate random effects.</code></td><tr>
 </table>
 
 <details><summary><b>Example</b> <br>Include an Semi-Exogenous IID jump process and an Endogenous tracker of its previous value to a DDP model:</summary>
@@ -311,9 +311,10 @@ Below is an <a href="#example">example</a> of how to define a new state variable
 <DL>
 <DT>Pick a name for your new kind of StateVariable.</DT>  <DD> It cannot have spaces or symbols except <em>_</em>. These instructions will refer to <code>&laquo;VarName&raquo;</code> for whatever name you chose.</DD>
 
-<DT>Copy <code>niqlow/templates/DynamicPrograms/StateVariable.ox</code> to a file called <code>&laquo;VarName&raquo;.ox</code>. </DT><DD>The contents are<pre>Source: niqlow/templates/DynamicPrograms/StateVariable.ox
+<DT>Copy <code>niqlow/templates/DynamicPrograms/StateVariable.ox</code> to a file called <code>&laquo;VarName&raquo;.ox</code>. </DT>
+<DD><details><summary>Contents of <code>Source: niqlow/templates/DynamicPrograms/StateVariable.ox</code></summary><pre>
 <object width="100%" height="300" type="text/plain" data="../../templates/DynamicPrograms/StateVariable.ox" border="1" ></object>
-</pre></code></dd>
+</pre></details></dd>
 
 <a name="incorimp">&nbsp;</a>
 <DT>Decide how you want to include your code.</DT>
@@ -352,31 +353,36 @@ Below is an <a href="#example">example</a> of how to define a new state variable
     </DL>
 
 <LI>Code the <code>Transit()</code> method</LI>
-<UL>
-    <LI>Besides a constructor, your state variable must also come with a transition.  If it is derived from another state variable and your version will follow the same transition then you do not need to write a new one.  That is because <code>Transit()</code> is, in most cases, declared as a <em>virtual</em> method.  So if your state variable has no transition of its own, the one from the parent variable will be called in its place. This is why it must be called <code>Transit()</code>, because it replaces another version of a <code>Transit()</code> that would be called if necessary.</LI>
+<DL>
+    <DT>Besides a constructor, your state variable must also come with a transition.</DT>  
+    <DD>If it is derived from another state variable and your version will follow the same transition then you do not need to write a new one.  That is because <code>Transit()</code> is, in most cases, declared as a <em>virtual</em> method.  So if your state variable has no transition of its own, the one from the parent variable will be called in its place. This is why it must be called <code>Transit()</code>, because it replaces another version of a <code>Transit()</code> that would be called if necessary.</DD>
 
-    <LI><code>Transit</code> must also take an argument, a matrix called <code>FeasA</code>.  This contains the feasible actions <code>&alpha;</code> at the <em>current</em> state. Each row of <code>FeasA</code> is an action vector <code>&alpha;</code>; each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</LI>
-    <LI>Example: Possible Argument Passed to Transit():The model has two binary choice variables, <var>i</var> and <var>j</var>.  Then the argument passed to <code>Transit()</code>  might look like this:<dd><pre>  FeasA
+    <DD><code>Transit</code> must also take an argument, a matrix called <code>FeasA</code>.  This contains the feasible actions <code>&alpha;</code> at the <em>current</em> state. Each row of <code>FeasA</code> is an action vector <code>&alpha;</code>; each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
+        
+    <DT>Example: Possible Argument Passed to <code>Transit()</code></DT> 
+    <DD>The model has two binary choice variables, <var>i</var> and <var>j</var>.  Then the argument passed to <code>Transit()</code>  might look like this:</DD>
+<dd><pre>  FeasA
   i    j
   0    0
   1    0
   0    1
-  1    1</pre> </dd></LI>
-    <LI>Your code has to return two items, sent back in an Ox <em>array</em>.  The first is a <em>row vector</em> of feasible values: the  values this state could take on next period.  For convenience call this vector <code>F</code>.  That is, suppose one value, say 3, may be feasible only if a certain action is taken.  Then 3 must be in <code>F</code>, even if 3 is not feasible if another action were taken.  The elements of <code>F</code> do not need to be sorted.</LI>
-    <LI>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the rows of <code>FeasA</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state variable takes on the jth value in <code>F</code> given the agent chooses the ith action in the feasible set.</LI>
+  1    1</pre> </dd>
+    <DT>Your code has to return two items, sent back in an Ox <em>array</em>. </DT> 
+    <DD>The first is a <em>row vector</em> of feasible values: the  values this state could take on next period.  For convenience call this vector <code>F</code>.  That is, suppose one value, say 3, may be feasible only if a certain action is taken.  Then 3 must be in <code>F</code>, even if 3 is not feasible if another action were taken.  The elements of <code>F</code> do not need to be sorted.</DD>
+    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the rows of <code>FeasA</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state variable takes on the jth value in <code>F</code> given the agent chooses the ith action in the feasible set.</DD>
 
-    <LI>The array returned as the value of <code>Transit()</code> might be sent using code that looks like this:  <code>return {F,P};</code>, presuming you have declared local variables <code>F</code> and <code>P</code> and filled them with the correct information in the correct format.</LI>
+    <DD>The array returned as the value of <code>Transit()</code> might be sent using code that looks like this:  <code>return {F,P};</code>, presuming you have declared local variables <code>F</code> and <code>P</code> and filled them with the correct information in the correct format.</DD>
 
-    <LI>Notice that the only <em>explicit</em> information sent to <code>Transit()</code> is the feasible matrix.  Yet it must send back the transition at a specific state in the state space.  How does your code know what state is the current state?  Further, how does your code know the current value of parameters which might affect the probabilities?  The answer is that the value or, if the quantity is changing like the current state, the <em>location</em> of the value must be stored in a member of the state.  The only way to get this information is through the constructor function discussed above.</LI>
+    <DD>Notice that the only <em>explicit</em> information sent to <code>Transit()</code> is the feasible matrix.  Yet it must send back the transition at a specific state in the state space.  How does your code know what state is the current state?  Further, how does your code know the current value of parameters which might affect the probabilities?  The answer is that the value or, if the quantity is changing like the current state, the <em>location</em> of the value must be stored in a member of the state.  The only way to get this information is through the constructor function discussed above.</DD>
 
-    <LI>The example will</LI>
+    <DT>The example will</DT>
 
-    <LI>The reason why is <code>FeasA</code> passed explicitly but the rest of the state is not is discussed more below.</LI>
-    </UL>
+<!--    <LI>The reason why is <code>FeasA</code> passed explicitly but the rest of the state is not is discussed more below.</LI>-->
+    </DL>
 
 <LI><h3>Debug your code and make sure it does what you want it to do.</h3>
-    <UL>
-    </UL>
+    <DL>
+    </DL>
 </OL>
 
 <a name="example"><LI>Example: Previous Occupation State Variable</LI></a>
@@ -384,21 +390,24 @@ Below is an <a href="#example">example</a> of how to define a new state variable
 To make the example look better, suppose you have decided to set &laquo;VarName&raquo; to be <q>MyStateVar</q>.  This will be used wherever the name of the new derived class belongs.
 
 <dd class="example">In math notation we will refer to the new state variable as <var>y</var>.  But in code  <var>y</var> might not be descriptive enough.  Instead, you might add <var>y</var> to the DP model with code that looks like this:
-<pre>decl mystate;
+<pre>decl mystate;  // in the <code>class</code> definition of MyStateVar
+&vellip;
 mystate = new MyStateVar("y",4,&hellip;);
 EndogenousStates(mystate);</pre>
 The <q>&hellip;</q> is not literal.  It is there because in this example the constructor <code>MyStateVar()</code> will require other arguments.  The state variable is stored in an Ox variable called <code>mystate</code>, but we will refer to it as <var>y</var>, which is the label given to it.</dd>
 
-What is <var>y</var> supposed to be?  It is an indicator for the <em>previous</em> value of another state <var>x</var>, but only if a binary choice variable <var>i</var> is 1 last period.  For example, if <code>x</code> is an occupation code and the choice variable <code>i</code> indicates a choice to work, then <code>y</code> equals the occupation the person worked at last period if they did work.  Otherwise <code>y</code> should take on the value 0.  Simply put, he value of <var>y</var> next period is <var>y' = ix</var>.
-<dd class="example">The <var>y</var> process as feasible states:
+<DT>What is <var>y</var> supposed to be? </DT> 
+<DD>It is an indicator for the <em>previous</em> value of another state <var>x</var>, but only if a binary choice variable <var>i</var> is 1 last period.  For example, if <code>x</code> is an occupation code and the choice variable <code>i</code> indicates a choice to work, then <code>y</code> equals the occupation the person worked at last period if they did work.  </DD>
+<DD>Otherwise <code>y</code> should take on the value 0.  Simply put, the value of <var>y</var> next period is <var>y' = ix</var>. </DD>
+<DD>First, the <var>y</var> process as the feasible state next period:
 <pre>y' = ix</pre>
-As a transition probability:<pre>
+Now, as a transition probability:<pre>
   Prob(y' = z) = 1 if z = ix
                 0 if z &ne; ix.</pre></dd>
 
-Because the transition probabilities for <var>y</var> are 0 and 1, <code>MyStateVar</code> should be classified as a `NonRandom` state variable.  This is a special case of an <em>autonomous</em> process because the probabilities do not depend on the next values of the other states, such as <code>x'</code>.  If that were the case, the user has to create a `StateBlock` which handles the transitions for multiple `Coevolving` variables. (DDP has no way of knowing for sure that the probabilities are always 0 and 1, at all states and for all possible parameter values, so that is why you manually categorize it as nonrandom because you know that the 0 and 1 are hardcoded into the <q>DNA</q> of the state variable.)  Because the transition depends on the action chosen <var>y</var> is nonrandom but it is not deterministic.  A deterministic random variable would be something like a seasonal cycle.<br>
+<DD>Because the transition probabilities for <var>y</var> are 0 and 1, <code>MyStateVar</code> should be classified as a `NonRandom` state variable.  This is a special case of an <em>autonomous</em> process because the probabilities do not depend on the next values of the other states, such as <code>x'</code>.  If that were the case, the user has to create a `StateBlock` which handles the transitions for multiple `Coevolving` variables. (DDP has no way of knowing for sure that the probabilities are always 0 and 1, at all states and for all possible parameter values, so that is why you manually categorize it as nonrandom because you know that the 0 and 1 are hardcoded into the <q>DNA</q> of the state variable.)  Because the transition depends on the action chosen <var>y</var> is nonrandom but it is not deterministic.  A deterministic random variable would be something like a seasonal cycle.<br>
 
-Once the program is running some of the members of <code>mystate</code> might have these values:
+<DT>Once the program is running some of the members of <code>mystate</code> might have these values:</DT>
 <dd class="example"><pre>
     mystate  {
         .L = "y"
@@ -410,11 +419,14 @@ Once the program is running some of the members of <code>mystate</code> might ha
         }</pre></dd>
 That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current state it happens to have value <code>v=0</code>. It also happens to be the second state variable in the state vector (<code>pos=1</code>). </dd>
 
-Next, suppose  &laquo;VarName&raquo; has been added to a <em>finite horizon</em> model with three state variables <var>x</var>, <var>y</var> and <var>z</var>.  At some point in the process suppose the current value of the discrete state vector is:<dd class="example"><pre>
+<DT>Next, suppose  &laquo;VarName&raquo; has been added to a <em>finite horizon</em> model with three state variables <var>x</var>, <var>y</var> and <var>z</var>.  </DT>
+<DD>At some point in the process suppose the current value of the discrete state vector is:
+<pre>
     State Vector
    x    y   z   t
    2    0   3   8</pre></dd>
-The variable <code>t</code> is the age variable in the finite horizon.  Now we can represent the transition of <code>y'</code> at this particular state as follows:<DD><pre>
+<DD>The variable <code>t</code> is the age variable in the finite horizon.  Now we can represent the transition of <code>y'</code> at this particular state as follows:
+<pre>
     FeasA              Prob(y')   trim 0 cols &rarr;     Prob(y')
      i    j     y'=  0   1   2   3             y'=0   2
     -----------------------------------------------------
@@ -422,25 +434,36 @@ The variable <code>t</code> is the age variable in the finite horizon.  Now we c
     1    0          0   0   1   0                0   1
     0    1          1   0   0   0                1   0
     1    1          0   0   1   0                0   1 </pre></DD>
-<code>y</code> takes on four different values, but given that <code>x=2</code>, only two of those values are feasible next period, 0 or 2.   The overall transition routine in <span class="n">DDP</span> is smart enough to drop the columns of all zeros, but some computation can be reduced by trimming those columns inside <code>Transit()</code>.  Thus, we can focus on the trimmed 2-column representation of the transition probability.
+<DD><code>y</code> takes on four different values, but given that <code>x=2</code>, only two of those values are feasible next period, 0 or 2.   The overall transition routine in <span class="n">DDP</span> is smart enough to drop the columns of all zeros, but some computation can be reduced by trimming those columns inside <code>Transit()</code>.  Thus, we can focus on the trimmed 2-column representation of the transition probability.</DD>
 
-<code>Transit()</code> returns the vector <var>y'</var> and the matrix <var>Prob(y')</var>.  It does this by returning an array of two elements.  See <a href="http://www.doornik.com/ox/oxsyntax.html#ox_syntax_RefReturn">Ox doc entry for return</a>.
+<DT><code>Transit()</code> returns the vector <var>y'</var> and the matrix <var>Prob(y')</var>.  </DT>
+<DD>It does this by returning an array of two elements.  See <a href="http://www.doornik.com/ox/oxsyntax.html#ox_syntax_RefReturn">Ox doc entry for return</a>.</DD>
 
-Note that the first column of Prob(y') is simple the value <code>1-i</code>.  And the second column is simply <code>i</code>.
+<DD>Note that the first column of Prob(y') is simple the value <code>1-i</code>.  And the second column is simply <code>i</code>.</DD>
 
-<dd>Use the <var>constructor</var> to support <code>Transit</code>. How will <code>Transit()</code> know that <code>x=2</code> currently?   And how will it know that <code>i</code> is in the first column of <code>FeasA</code> not the second?  This is where the object-oriented approach to building a dynamic programming model comes in handy compared to using vectors of values to represent the state vector.  <code>Transit()</code>  will know about <code>x</code> and <code>i</code> because it will be <em>constructed</em> to know them as the following code illustrates:</dd>
+<DT>Use the <var>constructor</var> to support <code>Transit</code>. </DT>
+<DD>How will <code>Transit()</code> know that <code>x=2</code> currently?   And how will it know that <code>i</code> is in the first column of <code>FeasA</code> not the second?  This is where the object-oriented approach to building a dynamic programming model comes in handy compared to using vectors of values to represent the state vector.  </DD>
+<DD><code>Transit()</code>  will know about <code>x</code> and <code>i</code> because it will be <em>constructed</em> to know them as the following code illustrates:</dd>
 <details><summary><b>Version 1.</b> Source: niqlow/templates/DynamicPrograms/MyStateVar1.ox</summary>
 <DD><pre><object width="95%" height="350" type="text/plain" data="../../templates/DynamicPrograms/MyStateVar1.ox" border="1" ></object></pre></DD></details>
 
-The constructor for <code>MyStateVar</code> requires the user to send the instance of some state variable class that corresponds to <code>x</code>.  It will be stored in a member <code>occup</code> to <q>point</q> to the right variable.  Because an argument and a member is both called <code>occup</code> we refer to the member with that name using the <code>this.</code> operator. The constructor also asks for an instance of an action variable which corresponds to <var>i</var> and stored in <code>work</code>.  Once the members are stored in members they are available for use by any method of the class, including <code>Transit()</code>.</dd>
+<DT>The constructor for <code>MyStateVar</code> requires the user to send the instance of some state variable class that corresponds to <code>x</code>. </DT>
+ <DD>It will be stored in a member <code>occup</code> to <q>point</q> to the right variable.  Because an argument and a member is both called <code>occup</code> we refer to the member with that name using the <code>this.</code> operator. </DD>
+ <DD>The constructor also asks for an instance of an action variable which corresponds to <var>i</var> and stored in <code>work</code>.  Once the members are stored in members they are available for use by any method of the class, including <code>Transit()</code>.</dd>
 
-State variables in a discrete DP must have a pre-specified number of values, and so it is with <code>mystate</code>. How many values can it take on?  The answer is: as many as the variable <code>occup</code> can take on.  This property is always stored in the <code>N</code> member, so the constructor can get <code>mystate</code>'s value from <code>occup</code>:  <code>MyStateVar</code> inherits the number of different occupations directly from the argument <code>occup</code>.  So the new base constructor passes that value through to the base constructor called by the constructor of a class derived from StateVariable.   Since <code>NonRandom</code> is really a container so it does not have its own constructor.  So <code>StateVariable()</code> is called directly.
+<DT>State variables in a discrete DP must have a pre-specified number of values, and so it is with <code>mystate</code>.</DT>
+ <DD>How many values can it take on?  The answer is: as many as the variable <code>occup</code> can take on.  This property is always stored in the <code>N</code> member, so the constructor can get <code>mystate</code>'s value from <code>occup</code>:  <code>MyStateVar</code> inherits the number of different occupations directly from the argument <code>occup</code>.  </DD>
+ <DD>So the new base constructor passes that value through to the base constructor called by the constructor of a class derived from StateVariable.   Since <code>NonRandom</code> is really a container it does not have its own constructor.  So <code>StateVariable()</code> is called directly.</DD>
 
-So if <code>mystate-&gt;Transit()</code> is called it will <q>know</q> about <var>x</var> and <var>i</var>, but how will it know about the current value they have?  <span class="n">DDP</span> stores the current value of states added to the model in its <code>v</code> member, which was shown above.  Thus the current value of <var>x</var> equals <code>occup.v</code>.
+<DT>So if <code>mystate-&gt;Transit()</code> is called it will <q>know</q> about <var>x</var> and <var>i</var>, but how will it know about the current value they have? </DT>
+ <DD><span class="n">DDP</span> stores the current value of states added to the model in its <code>v</code> member, which was shown above.  Thus the current value of <var>x</var> equals <code>occup.v</code>.</DD>
 
-In the code for Transit the expression <code>0~occup.v</code> generates, for the state above, the row vector <code>&lt;0 2&gt;</code>.  These are the only feasible values next period, or possible values of <code>y'</code>.   So the current value of <var>x</var> is not accessed from a vector of numbers, which might be the way DP code in FORTRAN might do.  Instead it is accessed from a <em>public</em> member of a variable stored within the <code>MyStateVar</code> class.  It does not matter to <code>MyStateVar</code> whether <code>occup</code> has the label <q>x</q>.  It does not matter that <code>occup</code> happens to be first in the state vector.  It <em>does</em> matter, of course, that <code>occup</code> is indeed a state variable, and it has to know this before anything is done in the model.
+<DD>In the code for Transit the expression <code>0~occup.v</code> generates, for the state above, the row vector <code>&lt;0 2&gt;</code>.  These are the only feasible values next period, or possible values of <code>y'</code>.   So the current value of <var>x</var> is not accessed from a vector of numbers, which might be the way DP code in FORTRAN might do.  </DD> <DD>Instead it is accessed from a <em>public</em> member of a variable stored within the <code>MyStateVar</code> class.  It does not matter to <code>MyStateVar</code> whether <code>occup</code> has the label <q>x</q>.  It does not matter that <code>occup</code> happens to be first in the state vector.  It <em>does</em> matter, of course, that <code>occup</code> is indeed a state variable, and it has to know this before anything is done in the model.</DD>
 
-The second expression in the <code>return</code> statement is simply Ox code to copy in <code>1-i</code> and <code>i</code>.  However, these are column vectors and they get their value from values from <code>FeasA</code>.  Which column of <code>FeasA</code>?  The answer is whichever column the <var>work</var> choice variable is stored in.  Again, the constructor requires the argument <code>work</code> which gets copied to the member with the same name.  And <span class="n">DDP</span> puts the position of the action in the action matrix in <code>pos</code>.  So whatever column it is any instance of <code>MyStateVar</code> will know which one it is.
+<DD>The second expression in the <code>return</code> statement is simply Ox code to copy in <code>1-i</code> and <code>i</code>.  However, these are column vectors and they get their value from values from <code>FeasA</code>.  </DD>
+<DT>Which column of <code>FeasA</code> will <code>i</code> be in?</DT>
+  <DD>The answer is whichever column the <var>work</var> choice variable is stored in.  </DD>
+  <DD>Again, the constructor requires the argument <code>work</code> which gets copied to the member with the same name.  And <span class="n">DDP</span> puts the position of the action in the action matrix in <code>pos</code>.  So whatever column it is any instance of <code>MyStateVar</code> will know which one it is.</DD>
 
 <h3>How is Transit() used?</h3>
 
@@ -478,24 +501,27 @@ When you write the code for your state variable you force the user (possibly you
     <DD>In particular, for the interpretation given so far the <var>x</var> variable takes on the value 0.  This might be code for not being associated with any occupation, which is fine.  But suppose you want this variable to handle the case that a person always has an occupation.  Then <var>y=0</var> is ambiguous. It could mean the person did not work last period or they did work but in the occupation coded as 0.  The problem is that state variables always take on the values 0 to <code>N-1</code>, at least when using the <code>v</code> member.</DD>
 
     <DT>You can resolve this by referring to the <code>actual</code> member of <code>occup</code>, not <code>v</code>.</DT>
-      <DD>Then, if real occupations are not coded as 0 to <code>N-1</code> but 1 to <code>N</code> (or any other set of values, then the ambiguity in coding <var>ix</var> can be resolved.  </DD>
-      <DD>Note that <code>actual</code> is by default the same as <code>v</code>, but the user can specify the optional `Discrete::Update` method to code <code>actual</code>.</DD>
+      <DD>Then, if real occupations are not coded as 0 to <code>N-1</code> but 1 to <code>N</code> (or any other set of values), the ambiguity in coding <var>ix</var> can be resolved.  
+      A value of 0 for this state variable indicates the person did not work last period and starts out with no occupation.
+      </DD>
+      <DD>If there is an occupation actually coded as 0, then this state variable will infer that not working does not reset occupation.  That is, occupation is determined by something else (such as the kinds of jobs the person chooses to look for).</DD>
+      <DD>Note that <em>by default> </em><code>actual</code> is the same as <code>v</code>, but if the state or action variable has its own `Discrete::Update`() method it can
+       set the <code>actual</code> codes associated with the internal values <code>0&hellip;N&oline;</code>.</DD>
  <details><summary>Version 2. Source: niqlow/templates/DynamicPrograms/MyStateVar.ox</summary><pre>
         <object width="95%" height="350" type="text/plain" data="../../templates/DynamicPrograms/MyStateVar.ox" border="1" ></object>
         </pre></details></dd>
 
 <li>Duplicates versus Pointers</li>
     <DT>Ox does some <em>very</em> subtle things with memory.  To understand it requires some understanding of the C programming language, including unions of structures.  </DT>
-    <DT>Quoting two parts of the Ox documentation:</DT>
+    <DT>Quoting two parts (<a href="www.doornik.com/ox/oxsyntax.html#ox_syntax_scope">scope</a> and <a href="http://www.doornik.com/ox/oxsyntax.html#ox_syntax_RefClasses">classes</a>) of the Ox documentation</a>:</DT>
     <blockquote>Note that <b>Ox assignment of arithmetic types and string type</b> implies <em>copying</em> over the contents from the right-hand side to the left-hand side.  Ox accesses an object through a<em> reference </em>to the object which is created using the new operator. An object is removed from memory using the delete operator (<em>if there is no matching delete, the object will exist until the program terminates</em>). </blockquote>
 
     <DT>These details are important as these lines of Ox code illustrate</DT>
-    <details><summary><b>Source: niqlow/examples/classreference.ox</b></summary>
+    <details><summary><code>Source: niqlow/examples/classreference.ox</code></summary>
         <DD><pre><object width="95%" type="text/plain" height="250" data="../../examples/classreference.ox" border="1" ></object>
-        </pre>
-        <em>Produces</em>
-        Source: niqlow/examples/output/classreference.txt<pre>
-        <object width="95%" height="200" type="text/plain" data="../../examples/output/classreference.output.txt" border="1" ></object>
+        </pre></DD></details>
+    <details><summary><em>Produces</em> output <code>Source: niqlow/examples/output/classreference.txt</code></summary><pre>
+        <object width="95%" height="200" type="text/plain" data="../../examples/classreference.output.txt" border="1" ></object>
         </pre></dd></details>
     <DD>In the first three lines <code>b=a</code> and then changing <code>b</code> does <em>not</em> change the value of <code>a</code>.  However, changing the member <code>v</code> <em>does</em> change the corresponding value of <code>a</code>.</DD>
     <DD>In the first three assignments, Ox <em>clones</em> the right hand side of the assignment.  But when assigning a variable that is currently an instance of a class a clone is <em>not</em> made.  Instead, a <em>reference </em>  or <em>pointer</em> to the class is made. So accessing the member of the reference is equivalent to accessing the member of the assigned class.</DD>
@@ -526,7 +552,8 @@ for some f&prime;, g&prime;, &alpha; &in; &theta;.A, &eta; and &theta;,
 The term coevolving is used rather than correlated, because it is ambiguous. Some users may interpret correlated as an unconditional property of the variables. Typically <q>|</q> is not used in these notes, but here it is used to emphasize that f and g may be correlated if we do not observe or condition on current action and state values.</DD>
 
 
-<details><summary><DT>Example of state block: height and weight of a child as they grow older within a model of the parent's actions.</DT></summary>
+<DT>Example of state block</DT>
+<DD><details><summary>Height and weight of a child as they grow older within a model of the parent's actions.</summary>
 <DD>The child's age is a simple counter that is not only autonomous of all other states but it is also deterministic.  That is, its innovation (age&prime;-age = 1) depends on nothing else in the model.</DD>
 <DD>If the model tracks the child's weight (w) then it would obviously not be deterministic.  Its transition may depend on age and actions such as meals cooked, activities paid for, etc.  However, it might be reasonable to treat weight accumulation, w&prime;-w, as distributed independently of other state variables' innovations.</DD>
 <DD>However, suppose the model includes not just weight but height (h) as well.  It might be reasonable to treat h as evolving in some way separate from decisions or other factors other than age and current height (if growth of the children in the sample are not nutritionally constrained).  But obviously weight gain is correlated with height gain.</DD>
@@ -559,14 +586,14 @@ These instructions follow the ones provided for creating a <a href="#ASV">StateV
 <DD>It cannot have spaces or symbols except <em>_</em>. These instructions will refer to <code>&laquo;BlockName&raquo;</code> for whatever name you chose.</DD>
 
 <DT>Copy <code>niqlow/templates/DynamicPrograms/StateBlock.ox</code> to a file called <code>&laquo;BlockName&raquo;.ox</code>.</DT>
-<dd class="example">The contents are <pre>Source: niqlow/templates/DynamicPrograms/StateBlock.ox
-<object width="100%" height="300" type="text/plain" data="../../templates/DynamicPrograms/StateBlock.ox" border="1" ></object></pre></dd>
+<dd class="example"><details><summary>Contents of <code>Source: niqlow/templates/DynamicPrograms/StateBlock.ox</code></summary>
+<pre><object width="100%" height="300" type="text/plain" data="../../templates/DynamicPrograms/StateBlock.ox" border="1" ></object></pre></details></dd>
 
 <DT>Decide how you want to include your code: see <a href="StateVariable.ox.html#incorimp">include or import</a>.</DT>
 
 <LI>Choose a <em>base class</em> to derive your block from.</LI>
 
-    There are fewer predefined blocks than autonomous variables.  So it is likely that StateBlock will be the base for your class.
+    There are fewer predefined blocks than autonomous variables.  So it is likely that <code>StateBlock</code> will be the base for your class.
 
 <LI>Declare needed elements (members and methods). </LI>
     <DT>Besides other information needed to compute the transition (see the StateVariable instructions), the state variables to be tracked in the block should be declared as data.</DT>
@@ -635,17 +662,14 @@ The major difference between a StateVariable and a StateBlock:  a state variable
     <DD>If there are M variables in the block, each taking on <code>a<sub>m</sub>.N</code> values, then the actual matrix will be <code>N &times;(&prod;<sub>m</sub>&nbsp; a<sub>m</sub>.N)</code>.</DD>
 
     <LI>Add the block to the DP model:</LI>
-
     <dd class="example"><pre>
         decl stats;
-        stats = new Vitals();
-            wght = new Coevolving("w",10);
-            hght = new Coevolving("h",6);
-            SemiExogenousBlock(wght,hght);
-            }</pre></dd>
-      In this case, the vital states are exogenous to other state variables, but if their values influence the transitions of other state variables then the block is only semi-exogenous.
+        &vellip;
+        
+        SemiExogenousStates(stats = new Vitals());
+        </pre></dd>
+      In this case, the vital state process is exogenous to other state variables, but if it influences the transitions of other state variables then the block is only <em>semi-exogenous</em>.
    </OL>
-
 
 <a name="ASB"><LI>Accessing  State Block Values </LI></a>
 
