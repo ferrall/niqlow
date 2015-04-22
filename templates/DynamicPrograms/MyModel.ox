@@ -38,7 +38,7 @@ struct «MyModel» : «BaseClass»	{
 
     //  Reservation Value Methods require these methods as well
     /*	
-    Udiff(z);                                               // REQUIRED if using ReservationValues()
+    Uz(z);                                                  // REQUIRED if using ReservationValues()
 	EUtility();                                             // REQUIRED if using ReservationValues()
     */
 

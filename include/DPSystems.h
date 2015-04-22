@@ -20,7 +20,6 @@ struct SolveAsSystem : Method {
 		/** Scratch space for value iteration. **/  VV,
          VI
          ;
-//	static DeltaV();
 	SolveAsSystem();
 	Run(th);
 	Solve(SystemMethod=USEBROYDEN,MaxTrips=0);	
@@ -47,8 +46,13 @@ struct Rsystem : DPSystem {
 	decl ru, curth, dV, c,lbv;
 	RVSolve(curth,dV);
 	Rsystem(LB,Nchoice,METHOD);
-	vfunc();
+	virtual vfunc();
 	}
+
+struct DynamicRsystem : Rsystem {
+	DynamicRsystem(LB,Nchoice,METHOD);
+    virtual vfunc();
+    }
 
 /** Solve for cutoffs as a non-linear system of equations in a one-dimensional choice problem.
 

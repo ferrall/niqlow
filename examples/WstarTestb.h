@@ -11,6 +11,6 @@ struct WStar : OneDimensionalChoice	{
     WStar();
 	Utility();
 	EUtility();
-    Udiff(z);
+    Uz(z);
 	}
 	

@@ -81,13 +81,14 @@ ReverseState(Ind,O)	{
 **/
 DrawOne(P) { return int(maxcindex(ranmultinomial(1,P)')); }
 
-/** Use diff0() to return difference in a vector.
-@param V Nx1 column vector, N &gt; 1.
-@returns (N-1)x1 column vector, V[i]-V[i-1]
-@comments dimensions are not checked.
+/** Row-Difference of a matrix.
+@param V Nx1 x N matrix vector, N &gt; 1.
+@return (N-1)xM matrix, &delta; = V[i][]-V[i-1][]
+@comments Dimensions and type are not checked!
 **/
-DeltaV(V) { return dropr(diff0(V,-1),rows(V)-1); }
-
+DeltaV(V) { return V[1:][]-V[:rows(V)-1][];
+            //return dropr(diff0(V,-1),rows(V)-1);
+          }
 /** Map a continuous outcome onto a set of discrete nodes.
 **/
 Discretized::Discretized(nodes) {
@@ -223,6 +224,9 @@ ToggleParams(a,...) {
         else v->ToggleDoNotVary();
         }
     }
+
+/** Print a number of spaces.**/
+Indent(depth) { decl i; for(i=0;i<depth;++i) print(" "); }
 	
 /** Reset the starting value of a parameter.
 @param newv value to reset at

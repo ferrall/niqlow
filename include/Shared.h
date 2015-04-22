@@ -69,6 +69,7 @@ static const decl
     ToggleParams(a,...);
     FLogit(x);
     SumToOne(v);
+    Indent(depth);
 
 /** A container for auxiliary structures, which helps organize the hierarchy of classes. **/
 struct Zauxiliary { }

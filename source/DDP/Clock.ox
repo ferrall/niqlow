@@ -10,13 +10,19 @@ TimeVariable::TimeVariable(L,N) { Coevolving(L,N); }
 **/
 Clock::Clock(Nt,Ntprime) {
 	StateBlock("clock");
-	AddToBlock(t = new TimeVariable("t",Nt));
-	AddToBlock(tprime = new TimeVariable("t'",Ntprime));
-//	Nsub = tsub = 1;
-//	MainT = Nt;
+	AddToBlock(t = new TimeVariable("t",Nt),tprime = new TimeVariable("t'",Ntprime));
 	IsErgodic = FALSE;
 	}
 
+/** Flag for last period.
+This is the default method, used by simple NonStationary environments.  The Ergodic clock replaces
+this one and other clocks may as well.
+@returns TRUE if current time is the last possible.
+**/
+Clock::Last() { return t.v==t.N-1; }
+
+/**  Copy solution methods values to be used for updating and solving.
+**/
 Clock::Solving(inME,inaVV,inaSPstar) {
     ME = inME;
     aVV = inaVV;
@@ -26,7 +32,6 @@ Clock::Solving(inME,inaVV,inaSPstar) {
 Clock::Vupdate(now) { }
 Clock::setPstar() { return FALSE; }
 	
-
 /** A stationary clock block.
 @param IsErgodic  TRUE, store &Rho;*
 **/
@@ -36,14 +41,10 @@ Stationary::Stationary(IsErgodic) {	Clock(1,1);	this.IsErgodic = IsErgodic;}
 @internal **/
 Stationary::Transit(FeasA) {	return { 0|0 , ones(rows(FeasA),1) } ;	}
 
-/** .
+/** No period is the last period in a stationary environment.
 @return FALSE **/
 Stationary::Last() { return FALSE; }
 
-/** Flag for last period.
-@returns TRUE if current time is the last possible.
-**/
-NonStationary::Last() { return t.v==t.N-1; }
 
 /** Normal Finite Horizon Aging.
 **/
@@ -94,7 +95,7 @@ AgeBrackets::Last() { return (t.v && t.N-1) && Brackets[t.N-1]==1;}
 AgeBrackets::setPstar() { return Brackets[t.v]==1; }
 
 /**	Set clock to be deterministic aging with early random death.
-@param T length of horizon. T-1 &eq; death;
+@param T length of horizon. T-1 = death;
 @param MortProb `AV`()-compatible probability of early death
 @comments EV at <code>t=T-1</code> is stored and used for the value of an early death.
 **/
@@ -128,7 +129,7 @@ Mortality::Vupdate(now) {
 Mortality::setPstar() { return TRUE; }
 
 /**	Random death and uncertain maximum lifetime.
-@param T number of age phases.  T-1 &eq; death; T-2 &eq; stationary last period.
+@param T number of age phases.  T-1 = death; T-2 = stationary last period.
 @param MortProb `AV`() compatible probability of death
 @comments EV at <code>t=T-1</code> is computed as usual as a terminal state.<br>
 EV at <code>t=T-2</code> is treated as an infinite horizon problem and iterated on.<br>
@@ -157,7 +158,7 @@ Longevity::Transit(FeasA) {
 	}
 
 /** With Longevity the last period (death) is definitively the last.**/
-Longevity::Last() { return NonStationary::Last(); }
+Longevity::Last() { return Clock::Last(); }
 
 Longevity::Vupdate(now) {
     NonDeterministicAging::Vupdate(now);

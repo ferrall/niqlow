@@ -1,12 +1,11 @@
 /** Handling data, simulation, likelihood, predictions, moments.
+<a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Data.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 
 @sortkey BAA
 
-<a href="#auto">Skip down to documentation of items defined in Data.ox</a><p>
-
 The `Data` class and its derivatives are used to simulate DDP data, compute predictions, read external data sets, and interface with <span class="n">Five-O</span>.
 
-`Data` objects relate to realizations along the path of the program.  Unlike other spaces (the group space <b>&Gamma;</b> and state space <b>&Theta;</b>), multiple instances of different types of data can be stored simultaneously.  That is, there is no single <q>data space</q>.
+`Data` objects relate to realizations along the path of the program.  Unlike other spaces (e.g. the group space <b>&Gamma;</b> and the state space <b>&Theta;</b>), multiple instances of different types of data can be stored simultaneously.  That is, there is no single <q>data space</q>.
 
 <OL class="contents">Contents
 <LI><a href="#Outcomes">Outcomes</a>
@@ -25,6 +24,7 @@ The `Data` class and its derivatives are used to simulate DDP data, compute pred
 <LI>Overview</LI>
 
 <DT>Outcomes are used for simulating the model and for storing external data interpreted as realizations of the DDP.</DT>
+   <DD> Here we will denote an outcome generically as <code>Y</code>. <code>Y</code> contains the realized state vectors, action vectors, auxiliary values, etc.  It is described in more detail below.</DD>
     <DD>As discussed elsewhere, the user codes <code>MyModel</code> as a class derived from one of the pre-defined `Bellman` classes. In contrast, `Outcome` is designed to be generic so that it can be used for whatever model or data the program uses. A user does not define their own derived class to store outcomes.</DD>
   <DD>Only one model can be active in <span class="n">DDP</span> because <code>static</code> data members are used, but <em>multiple data sets can be stored at once.</em>  This can be useful when comparing two solution methods applied to one model or two estimation methods applied to two different data sets.</DD>
 <DT>Outcomes are related to points in the state space <b>&Theta;</b>, but they are treated distinctly in <span class="n">niqlow</span>.  </DT>
@@ -34,7 +34,7 @@ The `Data` class and its derivatives are used to simulate DDP data, compute pred
 <DT>A single point in the state space can have multiple states that could come before it or come after it hypothetically.  In contrast, outcomes have well-defined predecessors and successors.</DT>
   <DD>These are tracked as part of the outcome, so that <span class="n">niqlow</span> represents a sequence of outcomes as a doubly-<a href="http://en.wikipedia.org/wiki/Linked_list">linked list</a> of objects of class `Outcome`.</DD>
 
-
+<DT>An Outcome <code>Y</code> is a basic unit of data. Based on outcomes data structures are defined to keep track of ordered and unordered groups of outcomes.
 <table class="tree">
 <tr>
 <td class="line">&nbsp;</td>
@@ -45,7 +45,7 @@ The `Data` class and its derivatives are used to simulate DDP data, compute pred
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A single realization of a discrete DP.</td>
+<td class="text">A single realization of a discrete DP, denoted <code>Y</code>.</td>
 </tr>
 <tr>
 <td class="line">&nbsp;</td>
@@ -57,8 +57,13 @@ The `Data` class and its derivatives are used to simulate DDP data, compute pred
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A derived Outcome that points to a sequence of outcomes along a single realized DP path. As an outcome, the path is the first
-    outcome along the path.</td>
+<td class="text">A derived Outcome that points to a sequence of outcomes along a single realized DP path. As an outcome itself, the path is also the first
+    outcome along itself:
+    <DD class="disp">
+    PATH::Y<sub>0</sub> &#8646; Y<sub>1</sub> &#8646; &nbsp; &hellip;&nbsp;  Y<sub>T</sub>&nbsp; &#8677;</DD>
+    The outcomes on a path are ordered and they "point" to both their predecessor and successor.  (In computer speak, a Path is a doubly-linked list.)  This
+    is because some processing of paths go forward (such as simulating outcomes) and some backwards (computing likelihood when accounting for unobserved states).
+    </td>
 </tr>
 <tr>
 <td class="line">&nbsp;</td>
@@ -72,7 +77,11 @@ The `Data` class and its derivatives are used to simulate DDP data, compute pred
 </tbody></table>
 </td>
 <td class="text">A Path that can point to more paths that all share the same fixed effect values.  As a Path itself, the FPanel
-is the first path in the panel.</td></tr>
+is the first path in the panel.
+    <DD class="disp">
+    FPANEL::PATH<sub>0</sub> &#8614; PATH<sub>1</sub> &#8614; &nbsp; &hellip;&nbsp;  PATH<sub>N</sub>&nbsp; &#8677;</DD>
+    The different paths in a FPANEL point to their successor only because it is typically not necessary to process them in both directions.
+</td></tr>
 <tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -86,7 +95,12 @@ is the first path in the panel.</td></tr>
 </tbody></table>
 </td>
 <td class="text">A heterogenous panel, is a FPanel which can also point to more FPanels. The Panel is the first
-fixed panel in the list.</td>
+fixed panel in the list.
+    <DD class="disp">
+    PANEL::FPANEL<sub>0</sub> &#8614; FPANEL<sub>1</sub> &#8614; &nbsp; &hellip;&nbsp;  FPANEL<sub>M</sub>&nbsp; &#8677;</DD>
+    Different FPANELs in a PANEL point to their successor only because it is typically not necessary to process them in both directions.
+</td></tr>
+</td>
 </tr>
 <tr>
 <td class="line">&nbsp;</td><td class="line"><div class="vline">&nbsp;</div></td>
@@ -98,7 +112,11 @@ fixed panel in the list.</td>
    <tr class="bottom"><td class="line">&nbsp;</td></tr>
 </tbody></table>
 </td>
-<td class="text">A panel with data-handling tools. Unlike the other derived classes, a data set does not point to other panels.</td>
+<td class="text">A panel with data-handling tools. Unlike the other derived classes, a data set does not point to other panels.
+    <DD class="disp">
+    DATA::PANEL
+    </DD>
+</td>
 </tr>
 </table>
 
@@ -273,7 +291,6 @@ Histogram
 
 </OL>
 
-
-<hr><a name="auto"><h1>Documentation of  Items Defined in Data.ox</h1></a>
+<a name="auto"><hr><h1>Documentation of  Items Defined in Data.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
 **/

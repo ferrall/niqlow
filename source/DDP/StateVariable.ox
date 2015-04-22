@@ -37,7 +37,7 @@ return    isclass(sv,"StateBlock")
 		||isclass(sv,"FixedEffectBlock") ;
 }
 
-/** Check if variable is a member of a block.
+/** Check if variable is a valid member of a block.
 @param sv `StateVariable`
 @return TRUE if sv is `Coevolving` or `CorrelatedEffect` or `SubEffect`<br>FALSE otherwise
 **/	
@@ -48,17 +48,27 @@ return    isclass(sv,"Coevolving")
 }
 
 
-/**Designate one or more values terminal.
+/**Designate one or more values of a the state variable terminal.
+
+<DT>A terminal value of a state variable is the case when reaching that state means decision making is ended.</DT>
+<DD>For example, in the
+simple search model presented in <a href="GetStarted">GetStarted</a>, once a price has been accepted the process is finished.</DD>
+
+<DT>A point &theta; in the state space &Theta; is terminal if any of the state variables in &theta; are at a terminal value.</DT>
+
+<DT><code>Utility()</code> returns a single terminating value of the process at a terminal value.  </DT>
+<DD>For example, if their is a
+bequest motive then <code>Utility</code> of being newly deceased should return the bequest value of the state.</DD>
+
 @comments The feasible action set for terminal states is automatically set to the first row of the gobal <var>A</var> matrix.
 @param TermValues integer or vector in the range 0...N-1
 @example
-  #import DDP
   s = new StateVariable("s",5);
   s->MakeTerminal(<3;4>);
   v = new StateVariable("v",1);
   v->MakeTerminal(1);
 </dd>
-Now any state &theta; for which <code>CV(s)=3</code> or <code>CV(s)=4</code> or <code>CV(s)=1</code>
+Now any state &theta; for which <code>CV(s)=3</code> or <code>CV(s)=4</code> or <code>CV(v)=1</code>
 will be marked as terminal: `Bellman::IsTerminal` = TRUE.
 @see Bellman::FeasibleActions, StateVariable::TermValues
 **/
@@ -97,13 +107,19 @@ StateVariable::UnReachable(clock) { return FALSE; }
 /** Create an equally likely discrete Exogenous variable.
 @param L string, label
 @param N integer, number of values the variable takes on.
-@example <pre>?? = new ??("",);</pre>
+<DT>The transition is simply</DT>
+<DD><pre>
+Prob(q' = v)  =  1 / N, for v=0,&hellip;,N&oline;
+</pre></DD>
+@example <pre>
+TFPshock = new SimpleJump("z",20);
+ExogenousStates(TFPshock);
+</pre></DD>
 **/
 SimpleJump::SimpleJump(L,N)	  	{	StateVariable(L,N); 	}
 
 /** Transition . **/
 SimpleJump::Transit(FeasA)	{return {vals,constant(1/N,1,N)};	}
-
 
 Augmented::Augmented(Lorb,N) {
     if (isclass(Lorb,"StateVariable")) {
@@ -134,6 +150,15 @@ Triggered::Transit(FeasA) {
     // no return, so error produced if called directly
     }
 
+/** Create a new augmented state variable for which an action triggers the change.
+@param b the base `StateVariable` whose transition is augmented.
+@param t the `ActionVariable` that triggers a different transition
+@param tv the integer (actual) or vector of integer values of tv that triggers the transition [default=1].
+@param rval the integer (current) value of the variable when the trigger occurs [default=0]
+
+<dt>The transition for an action triggered state:</dt>
+<dd><pre>Prob( q' = v ) = I{t&in;tv}\times I{v==rval} + (1-I{t&in;tv})\times Prob(b=v)</pre></dd>
+**/
 ActionTriggered::ActionTriggered(b,t,tv,rval){
     Triggered(b,t,tv,rval);
     if (!isclass(t,"ActionVariable")) oxrunerror("Trigger object must be ActionVariable");
@@ -154,6 +179,12 @@ ActionTriggered::Transit(FeasA) {
     }
 
 /** Augment a base transition to reset to 0 if the trigger is 1.
+@param b the base `StateVariable` whose transition is augmented.
+@param t the `ActionVariable` that triggers a different transition
+<dt>The transition for an action triggered state:</dt>
+<dd><pre>Prob( q' = v ) = I{t=1}\times I{v==0} + (1-I{t=1})\times Prob(b=v)</pre></dd>
+<dt>Note:
+<DD><pre>Reset(b,t) &equiv; ActionTriggered(b,t,1,0)</pre></dd>
 **/
 Reset::Reset(b,t) {
     ActionTriggered(b,t);
@@ -177,9 +208,12 @@ ValueTriggered::Transit(FeasA) {
     }
 
 /**  Augment a base transition so that a special value occurs with some probability.
+@param b base `StateVariable`
+@param Tprob &tau;, probability of the special event
+@param rval r, integer, value to jump to in the special event.
 <DT>Transition</DT>
 <DD><pre>
-Prob( q&prime;= z | q,b ) =  &tau;I{z=r} + (1-&tau;)Prob(b&prime;=z)
+Prob( q&prime;= z | q,b ) =  I{z=r}&tau; + (1-&tau;)Prob(b&prime;=z)
 </pre></DD>
 
 **/
@@ -200,14 +234,13 @@ RandomTrigger::Transit(FeasA) {
         tr[Qrho][][nf[0]] *= ft/(1-ft);   // fix up column with reset value
         return tr;
         }
-
     // concatentate reset value to feasible, adjust probabilities
     return { tr[Qi]~rval, ft*tr[Qrho]~(1-ft) };
-
     }
 
 /** Augment a variable so it freezes at its current value as long as a trigger is TRUE.
-
+@param b base `StateVariable`
+@param t `
 **/
 Freeze::Freeze(b,t) {
     ValueTriggered(b,t,TRUE);
@@ -753,6 +786,7 @@ StateBlock::StateBlock(L)	{
 
 /**	 Add state variable(s) to a block.
 @param news,... list of `Coevolving` state variables to add to the block.
+The default `StateBlock::Actual` matrix is built up from the actual vectors of variables added to the block.
 **/
 StateBlock::AddToBlock(news,...)	{
 	decl i,k,nd,newrow, s, oldallv;
@@ -762,7 +796,7 @@ StateBlock::AddToBlock(news,...)	{
 		s.bpos = N++;
 		Theta |= s;
 		v ~= .NaN;
-		if (N==1) { Allv = s.vals; }
+		if (N==1) { Allv = s.vals; Actual= s.actual; }
 		else {
 			nd = columns(Allv); newrow = <>;
 			oldallv = Allv;
@@ -771,17 +805,22 @@ StateBlock::AddToBlock(news,...)	{
 				newrow ~= constant(k,1,nd);
 				}
 			Allv |= newrow;
+            if (s.N> rows(Actual) ) {
+                Actual |= constant(.NaN,s.N-rows(Actual),columns(Actual));
+                Actual ~= s.actual;
+                }
+            else
+                Actual ~= s.actual|constant(.NaN,rows(Actual)-s.N,1);
 			}
 		}
-	actual = v';   //default actual values, replaced after each add block.
-    Actual = Allv;
+	actual = v';   //default actual values, replaced after each add to block.
     rnge = range(0,N-1);
 	}
 	
 StateBlock::Check() {   }
 
-/** Sets and returns the vector of <em>actual</em> values of the block as a vector. **/
-StateBlock::myAV() {  return actual = selectrc(Actual,rnge,v)';    }
+/** Sets and returns the vector of <em>actual</em> values of the block as a row vector. **/
+StateBlock::myAV() {  return actual = selectrc(Actual,v,rnge);    }
 
 /** An offer with layoff (match dissolution) risk.
 @param L string, label
@@ -861,7 +900,7 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 @comments Like all Update routines, this is called at `UpdateTime`.
 **/
 MVNormal::Update()	{
-	Actual = shape(CV(mu),N,1) + unvech(AV(CholLT))*reshape(quann(range(1,M)/(M+1)),N,M);	
+	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*reshape(quann(range(1,M)/(M+1)),N,M) )';	
 	}
 
 /** K mutually exclusive episodes.
@@ -959,35 +998,42 @@ Asset::Transit(FeasA) {
     return { all, tprob.*(all.==top) + bprob.*(all.==bot) };
     }
 
-ZVariable::ZVariable(L,N,held) {
+/** Create a discretized verison of the continuous &zeta; variable that enters the state when accepted (or kept).
+@param  L label
+@param  N number of points is
+**/
+KeptZeta::KeptZeta(L,N,keep,held) {
     StateVariable(L,N);
+    this.keep = keep;
     this.held = held;
     }
 
-ZVariable::Transit(FeasA) {
+KeptZeta::Transit(FeasA) {
     if (CV(held)) return UnChanged(FeasA);
-    return {vals, reshape(matrix(1/N),rows(FeasA),N)};
+    return {vals, constant(1/N,rows(FeasA),N)};
     }
 
-ZVariable::CDF(zstar) {
-    return probn(zstar);
-      }
+KeptZeta::CDF(zstar) {    return probn(zstar);      }
 
-ZVariable::Update() {
+KeptZeta::Update() {
     actual = quann( (vals+1) / (N+1) )';
     }
 
 /** Conditional distribution of Z given zstar.
 **/
-ZVariable::DynamicTransit(zstar) {
-    cdf = CDF(zstar);
-    M = actual[N-1]+actual[N-2];
-    df = M - zstar;
-    midpt = (M+zstar)/2;
-    zspot = sortcindex(zstar|actual)[0];
-    Fdif = (2*vals[zspot:]+1)/(2*N)-cdf;
-    A = (3/11)/df;
-    b = -4*A/sqr(df);
-    kern = A + b*sqr(actual[zspot:]'-midpt);
-    return zeros(1,zspot)~(Fdif.*kern /sumr(kern));
+KeptZeta::DynamicTransit(z,Qt) {
+    decl Nz = rows(z)-1, p = Qt[0][], j;
+    cdf = CDF(z)|1.0;    // F(z*)
+    zspot = sortcindex(sortcindex(z|actual))[:Nz]-vals[:Nz]' | N;    //Find where z* lands in actual values
+    for (j=0;j<=Nz;++j) {
+        df = (j==Nz ? (actual[N-1]+actual[N-2]): z[j+1]) - z[j];                          //
+        midpt = z[j] + df/2;
+        Fdif = (vals[zspot[j]:zspot[j+1]-1]+0.5) - N*cdf[j];    //undo default transit by multiplying both terms by N
+        Fdif /= sumr(Fdif);
+        A = (3/11)/df;
+        b = -4*A/sqr(df);
+        kern = A + b*sqr(actual[zspot[j]:zspot[j+1]-1]'-midpt);
+        p |= Qt[j+1][].*reshape( zeros(1,zspot[j]-1)~(Fdif.*kern /sumr(kern)~zeros(1,N-zspot[j+1])),1,columns(Qt));
+        }
+    return p;
     }

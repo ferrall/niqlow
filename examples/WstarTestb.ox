@@ -3,7 +3,7 @@
 
 WStar::Reachable()	{ return new WStar(); }
 WStar::WStar()      { zstar = zeros(N::R,1);}
-WStar::Udiff(z)     { return eta-z;	}
+WStar::Uz(z)        { return eta | z;	}
 WStar::Utility()    { return eta*(1-aa(d)) + zstar[I::r]*aa(d);	}
 
 WStar::Run()	{
@@ -15,8 +15,8 @@ WStar::Run()	{
 	SetDelta(0.4);
 	CreateSpaces();
 	RV = new ReservationValues();
-    SaveV::TrimTerminals=TRUE;
-    RV.Volume=QUIET;
+    RV.Volume=SILENT;
+	DPDebug::outAllV(TRUE,FALSE,FALSE,TRUE,FALSE);
 	RV->Solve();
     graphit();
     delete RV;

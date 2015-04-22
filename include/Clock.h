@@ -23,6 +23,7 @@ struct Clock : StateBlock {
     static Solving(ME,aVV,aSPstar);
     virtual Vupdate(VV);
     virtual setPstar();
+	virtual Last();
 	/* SubPeriods(Nsub) ;*/
 	}
 
@@ -38,9 +39,7 @@ struct Stationary : Clock	{
 /**A container for non-stationary clocks.
 @see DP::SetClock
 **/
-struct NonStationary : Clock {
-	virtual Last();
-	}
+struct NonStationary : Clock {	}
 	
 /**Timing in an ordinary finite horizon environment.
 

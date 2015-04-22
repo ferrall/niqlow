@@ -85,7 +85,7 @@ class Triggered : Augmented {
 <DD><code>t</code> be the value of <code>a</code> that pulls the trigger.</DD>
 <DD><code>r</code> be the value to go to when triggered.</DD>
 <DD><pre>
-q&prime; = I{a&ne;t} b&prime; + (1-I{a==t}}r
+Prob( q&prime;=z ) = (1-I{a&in;t}) Prob( b&prime;=z ) + I{a&in;t}}r
 </pre></DD>
 @example
 <pre>
@@ -552,12 +552,12 @@ struct Deterministic : NonRandom
 	 virtual Transit(FeasA);
 	 }
 
-/** Increments each period up to N<sup>-</sup> then returns to 0.
+/** Increments each period up to N&oline; then returns to 0.
 <DT>Transition<dd class="math"><pre>s' = I{s&lt;N<sup>-</sup>}(s+1)</pre></dd>
 @example
 <pre>
 decl qtr = new Cycle("Q",4);
-AddEndogenousStates(qtr);</pre>
+AddEndogenousStates(qtr);</pre></DD>
 **/
 struct Cycle : Deterministic { Cycle(L,N); }
 
@@ -604,7 +604,12 @@ struct Tracker : NonRandom {
 	Tracker(L,Target,ToTrack);
 	}
 	
-/**Indicates another state variable took on a value (<em>x</em>) last period.
+/**Indicates another state variable took on a value last period.
+Let <code>t</code> denote the state variable being tracked.  Let <code>r</code> denote
+the value or vector of values to track.
+<dd><pre>
+q' = I{t &in; r}.
+</pre></dd>
 @see ActionTracker
 **/
 struct StateTracker : Tracker	{
@@ -613,6 +618,9 @@ struct StateTracker : Tracker	{
 	}
 
 /**Indicates an action variable took on a value last period.
+<dd><pre>
+q' = I{a &in; r}.
+</pre></dd>
 @see StateTracker
 **/
 struct ActionTracker : Tracker	{
@@ -777,12 +785,18 @@ struct Asset : Random {
 	virtual Transit(FeasA);
 	}
 
-struct ZVariable : Random {
-    const decl held;
+/** A discretized version of a continous &zeta; value that enters the endogenous vector &theta; depending
+on reservation values to keep it.  WHen kept a random discrete version of the &zeta; enters the state as this
+variable.  Its value is constant as long as a state variable indicates it is being held.
+
+
+**/
+struct KeptZeta : Random {
+    const decl keep, held;
     static decl M, kern, cdf, df, midpt, A,b, Fdif, zspot;
-    ZVariable(L,N,held);
+    KeptZeta(L,N,keep,held);
     virtual Update();
+    virtual CDF(z);
     virtual Transit(FeasA);
-    virtual DynamicTransit(zstar);
-    virtual CDF(zstar);
+    virtual DynamicTransit(z,Qt);
     }

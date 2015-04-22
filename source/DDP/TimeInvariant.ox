@@ -94,18 +94,67 @@ FixedEffectBlock::FixedEffectBlock(L)	{
 
 /** Create a vector of fixed effects (FixedEffectBlock).
 @param L string prefix <br>or array of strings, individual labels
-@param vN vector of integer values, number of values each effect takes on.
+@param vNorM vector of integer values, number of values each effect takes on.<br>OR, a matrix of actual values.
+@param UseOnlyObserved  [default=TRUE] if a matrix is sent as the second argument then TRUE means
+that only combinations (rows) of actual fixed effects in the matrix will be created and solved.  Otherwise, all
+possible combinations of observed actual values will be solved for.
 @example
 Create 3 fixed effects that take on 2, 3 and 5 values, respectively:
 <pre> x = new Regressors("X",<2,3,5>); </pre>
 Give each effect a label:
 <pre> x = new Regressors({"Gender","Education","Occupation"},<2,3,5>); </pre>
+
+Here is an approach to combining parameters (estimated or chosen) with fixed effects.
+Suppose a parameter &psi; in the DP model depends on a subset of X variables, X<sub>p</sub> and
+coefficients &beta;.  That is,
+<pre>&psi; = exp{ X<sub>p</sub> &psi; } </pre>
+For example, &psi; is a function of an intercept and gender, but other X variables
+that do not affect &psi; are in the model.  The code segments below show how to give names to the columns
+of X, define the number of values each takes on and then how to make their current values determine
+the dynamically determined value of &psi;.
+<pre>
+enum{intercept,gender,race,sibling,test,NX}
+enum{Ni=1,Ng=2,Nr=2,Ns=2,Nt=3}
+&vellip;
+const decl psispec = intercept~gender;
+&vellip;
+beta = new Coefficients("B",columns(psispec));
+GroupVariables(X = new Regressors("X",Ng~Nr~Ns~Nt));
+X.Actual[][intercept] = 1;   // replace fixed 0 with fixed 1 for the intercept.
+&vellip;
+psi = [=]() { return exp(AV(X)[psipsec]*CV(Beta)); };
+</pre>
+Note the last line uses the lambda function feature introduced in Ox 7.  So psi() would return the
+dynamically determined value of &psi;.  The alternative is to define a static method which would have the same code.
 </dd>
 **/
-Regressors::Regressors(L,vN) {
+Regressors::Regressors(L,vNorM,UseOnlyObserved) {
     FixedEffectBlock(isstring(L) ? L : "X");
-    decl NN = vN,N,j;
-    foreach(N in NN[j]) AddToBlock(new SubEffect(isstring(L) ? L+sprint("%02.0f",j) : L[j],N));
+    decl NN,N,j;
+    if (columns(vNorM)==1 || rows(vNorM)==1) {
+        NN = vNorM;
+        foreach(N in NN[j]) AddToBlock(new SubEffect(isstring(L) ? L+sprint("%02.0f",j) : L[j],N));
+        ObservedX = 0;
+        return;
+        }
+    decl acol, am, neweff;
+    ObservedX = vNorM;
+    foreach(acol in vNorM[][j]) {
+        am = unique(acol);
+        N = columns(am);
+        neweff = new SubEffect(isstring(L) ? L+sprint("%02.0f",j) : L[j],N);
+        neweff.actual = am';
+        AddToBlock(neweff);
+        }
+    }
+
+/** Returns TRUE if any rows of InObservedX equal the current actual value of the block.
+**/
+Regressors::InObservedX() {
+    if (isint(ObservedX)) return TRUE;
+    decl r,i;
+    foreach(r in ObservedX[i][]) if (r==actual) return TRUE;
+    return FALSE;
     }
 
 /** Update `Discrete::pdf`, the distribution over the random effect.
@@ -140,8 +189,8 @@ RandomEffectBlock::RandomEffectBlock(L)	{
 	}
 
 RandomEffectBlock::Distribution() {
-	actual = v;
-	pdf = constant(1/rows(Allv),rows(Allv),1);
+	actual = v';
+	pdf = constant(1/columns(Allv),columns(Allv),1);
 	}
 
 /** Create a permanent discretized normal random effect.

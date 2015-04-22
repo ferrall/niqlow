@@ -64,10 +64,13 @@ FixedSolve::Run(){
 	cputime0 = timer();
     if (GroupTask::qtask.Volume>SILENT && N::F>1) print("f=",I::f);
 	rtask -> GroupTask::loop();
-    if (GroupTask::qtask.Volume>SILENT) {
-       if (N::G>1) println(" done ");
-	   if (qtask.Volume>QUIET) DPDebug::outV(TRUE);
-       }
+    if (DPDebug::OutAll) DPDebug::RunOut();
+    else {
+        if (GroupTask::qtask.Volume>SILENT) {
+           if (N::G>1) println(" done ");
+	       if (qtask.Volume>QUIET) DPDebug::outV(TRUE);
+            }
+        }
     Hooks::Do(PostRESolve);
 	}
 
@@ -216,7 +219,7 @@ ValueIteration::Update() {
 	decl dff= norm(VV[NOW][:I::MxEndogInd]-VV[LATER][:I::MxEndogInd],2);
 	if (dff==.NaN || Volume>LOUD) {
         println("\n t =",I::t,"%r",{"today","tomorrow"},VV[now][]|VV[later][]);	
-        if (dff==.NaN) oxrunerror("error while checking convergence");		
+        if (dff==.NaN) oxrunerror("error while checking convergence.  Value function listed above undefined.");		
         }
     counter->Vupdate(now);
     Swap();
@@ -289,9 +292,9 @@ This replaces the built-in version used by `ValueIteration`.
 <UL>
 <LI>Iterate backwards in the clock <code>t</code></LI>
 <UL>
-<LI>Iterate on the subsample endogenous states (using `KWEMax`), with `KWEMax::firstpass` &eq; TRUE</LI>
+<LI>Iterate on the subsample endogenous states (using `KWEMax`), with `KWEMax::firstpass` = TRUE</LI>
 <LI>Compute the approximtion from the subsample by calling `KeaneWolpin::Specification`()</LI>
-<LI>Iterate on the states not subsampled to predict using the approximation, `KWEMax::firstpass` &eq; FALSE</LI>
+<LI>Iterate on the states not subsampled to predict using the approximation, `KWEMax::firstpass` = FALSE</LI>
 </UL>
 </UL>
 

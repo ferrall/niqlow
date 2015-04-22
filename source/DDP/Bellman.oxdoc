@@ -1,5 +1,5 @@
 /** Specify Utility, Reachable States and other aspects of the state space &theta;.
-<a href="#auto">Skip down to documentation of items defined in Bellman.ox</a><p>
+<a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Bellman.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 
 @sortkey AAD
 
@@ -34,7 +34,15 @@ struct MyModel : ExPostSmoothing {
   <DD>Some methods may only operate if the user's model is derived from a compatible class of `Bellman` or has other required characteristics.</DD>
 
 <DT>Classes of type `Bellman` code the form of Bellman's equation for the specification:
-<DD><pre class="math">
+<DD class="disp">
+$V(\theta^\prime)\quad \equiv \quad \sum_{\eta}\ \sum_{\epsilon}\left[ \int_{\zeta} V\left(\eta,\epsilon,\eta,\theta^\prime\right)f(\eta)d\eta \right] P_\epsilon(\epsilon)P_\eta(\eta)$
+
+$EV(\theta^\prime) = E_{\alpha,\eta,\theta} \left[V(\theta^\prime)\right] = \sum_{\theta^\prime} \left [ V\left(\theta^\prime\right)P\left(\theta^\prime\ ;\ \alpha,\eta,\theta\right)\right]$
+
+$v(\alpha;\zeta,\epsilon,\eta,\theta) \equiv U(\alpha,\epsilon,\eta,\theta,\gamma) + \zeta_\alpha + \delta EV(\theta^\prime).$
+
+$V(\zeta,\epsilon,\eta,\theta)\quad=\quad\max_{\alpha\in A(\theta)}\ v(\alpha;\zeta,\epsilon,\eta,\theta).$ 
+<pre>
 V(&theta;&prime;) &equiv;  &sum;<sub>&eta;</sub>  &sum;<sub>&epsilon;</sub>  &int;<sub>&zeta;</sub> [ V(&zeta;,&epsilon;,&eta;,&theta;&prime;) ] f(&zeta;)d&zeta; &Rho;<sub>&epsilon;</sub>(&epsilon;)&Rho;<sub>&eta;</sub>(&eta;)
 
 EV(&theta;&prime;) = E<sub><code>&alpha;</code>,&eta;,&theta;</sub>V(&theta;&prime;)  = &sum;<sub>&theta;&prime;</sub> V(&theta;&prime;) &Rho;(&theta;&prime;;<code>&alpha;</code>,&eta;,&theta;)
@@ -91,11 +99,11 @@ Example 2.  States where state variables x and y greater than 5 are not reachabl
 <LI>Auxiliary Variables and ZetaRealization</LI>
 <DT><code>MyModel</code> can add `AuxiliaryValues`s and a `ZetaRealization` for simulating outcomes and accounting for partial observability of the state.</DT>
 <DD><code>MyCode</code> must sandwich the commands that add actions and states to the model between calls to <code>DPparent::Initialize(&hellip;)</code> and <code>DPparent::CreateSpaces(&hellip;)</code>.  </DD>
-<DD><code>MyModel</code> can supply its own version of these two methods, but then they <em>must</em> call the parent versions.  If <code>MyModel</code> does not have its own versions, then the prefix <code>DPparent::</code> is not needed because 
+<DD><code>MyModel</code> can supply its own version of these two methods, but then they <em>must</em> call the parent versions.  If <code>MyModel</code> does not have its own versions, then the prefix <code>DPparent::</code> is not needed because
 a reference to <code>Initialize()</code> will refer to the parent's version.</DD>
 </OL>
 
 </OL>
-<hr><a name="auto"><h1>Documentation of  Items Defined in Bellman.ox</h1></a>
+<a name="auto"><hr><h1>Documentation of Items Defined in Bellman.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
 **/

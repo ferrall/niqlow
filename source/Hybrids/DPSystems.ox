@@ -68,10 +68,18 @@ Rsystem::Rsystem(LB,Ncuts,METHOD) {
     meth.USELM = (Ncuts==1);
 	}
 	
-/** Objective for reservation value system.
+/** Objective for reservation value system (static EV).
 @internal
 **/
-Rsystem::vfunc() {	decl v = curth->Udiff(CV(zstar)) + dV; return v;	}
+Rsystem::vfunc() {	return dV - diagonal(DeltaV(curth->Uz(CV(zstar)')))';  }
+
+/** Objective for DYNAMIC reservation value system.
+@internal
+**/
+DynamicRsystem::vfunc() { return DeltaV( curth->DynamicActVal(CV(zstar)') ); }
+DynamicRsystem::DynamicRsystem(LB,Ncuts,METHOD) {
+        Rsystem(LB,Ncuts,METHOD);
+    }
 
 Rsystem::RVSolve(curth,dV) {
 	this.curth = curth;
@@ -92,9 +100,11 @@ ReservationValues::ReservationValues(LBvalue,METHOD) {
 	decl i,sysize;
     RValSys={};
     for (i=0;i<N::J;++i) {
-        sysize = rows(Asets[i])-1;
+        sysize = int(N::Options[i])-1;
         RValSys |= sysize
-			 ? new Rsystem(LBvalue,sysize,METHOD)
+			 ? Flags::HasKeptZ
+                    ? new DynamicRsystem(LBvalue,sysize,METHOD)
+                    : new Rsystem(LBvalue,sysize,METHOD)
 			 :  0;
         }
 	}

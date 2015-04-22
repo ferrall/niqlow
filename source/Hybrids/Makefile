@@ -22,6 +22,6 @@ DPSystems.oxo : $(oxobjects)
 
 .PHONY : document
 document:
-	$(OXDOC) -include $(INC) -uplevel *.ox
+	$(OXDOC) -include $(INC) -uplevel *.ox ../Shared/Help 
 	${MAKE} -C $(DOC) tweak
 

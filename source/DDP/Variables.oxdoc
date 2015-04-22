@@ -1,8 +1,8 @@
-/**Discrete quantities that appear in a DDP model.
+/**Discrete quantities that appear in DDP models (actions, states, fixed and random effects, auxiliary outcomes).
+<a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Variables.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 
 @sortkey AAA
 
-<a href="#auto">Skip down to documentation of items defined in Variables.ox</a><p>
 
 <DL>Quick Reference: a variable in a DP model is an object derived from `Quantity`</DT>
 <DT>the `ActionVariable` class and an element of the action vector <code>&alpha;</code><DT>
@@ -18,7 +18,7 @@
 <LI><a href="#ActionVariables">Action Variables</a></LI>
 <LI><a href="#StateVariables">State Variables</a></LI>
 <LI><a href="#Clock">The Clock:  keeping time in DDP</a></LI>
-<li><a href="#Fixed">Time Invariants: solving different DP problems</a>
+<li><a href="#Fixed">Time Invariants: solving different DP problems with random and fixed effects</a>
 <li><a href="#Auxiliary">Auxiliary Values: tracking function of actions and state variables</a>
 </OL>
 
@@ -141,7 +141,7 @@ The code segment allows the maximum hour to be 30 if the person has a (young) ch
 <DT>The A list contains the <em>actual</em> values not the <em>current</em> values.</DT>
 <DD>If the user provides an `Discrete::Update`() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values.</DD>
 <DD>Since the default is that actual values equal current values (<code>a.actual[a.v] = a.v</code>), then <code>A[Aind]</code> is always possible to use.</DD>
-<DD>The uncoded list of matrices is available as `DP::ActionMatrix`.</DD>
+<DD>The uncoded list of matrices is available as `Alpha::Matrix`.</DD>
 <DT>Example </DT><DD class="example">
 Suppose the only constraint on actions is that an action <var>a=0</var> is not feasible when a state variable <var>q=2</var>.  (For example, going to high school is not feasible if the person already has a high school degree.<pre>
 FeasibleActions(const A) {    return CV(x)==2 ? aa(a).!=0 : ones(rows(A),1) ;    }
@@ -213,13 +213,17 @@ MyModel::Initialize() {
 <a name="SVT"><LI>State Variable Transitions</LI></a>
 
 <DT>The overall state transition is  computed as follows</DT>
-<dd><pre>
-&Rho;(&epsilon;&prime;,&eta;&prime;,&theta;&prime;|&alpha;,&epsilon;,&eta;,&theta;); = &Rho;<sub>&epsilon;</sub>(&epsilon;&prime;) &Rho;<sub>&eta;</sub>(&eta;&prime;) &Rho;<sub>&theta;</sub>(&theta;&prime;|&alpha;,&eta;,&theta;).
-</pre>
-In turn<pre>
-&Rho;<sub>&epsilon;</sub>(&epsilon;&prime;) = &prod;<sub>k=0&hellip;&epsilon;.N&oline;</sub>  &Rho;<sub>e<sub>k</sub></sub>(e&prime;<sub>k</sub>)
-&Rho;<sub>&eta;</sub>(&eta;&prime;) = &prod;<sub>k=0&hellip;&eta;.N&oline;</sub>  &Rho;<sub>h<sub>k</sub></sub>(h&prime;<sub>k</sub>)
-&Rho;<sub>&theta;</sub>(&theta;&prime;|&alpha;,&eta;,&theta;) = &prod; <sub>k=0&hellip;&eta;.N&oline;</sub>  &Rho;<sub>q<sub>k</sub></sub>( q&prime;<sub>k</sub>; | &alpha;,&eta;,&theta; ).</pre></dd>
+<dd class="disp">
+$P\left(\epsilon^\prime,\eta^\prime,\theta^\prime\ |\ \alpha,\epsilon\eta,\theta\right) =
+P_\epsilon(\epsilon^\prime) P_\eta(\eta^\prime) P_\theta\left (\theta^\prime\ |\ \alpha,\eta,\theta\right).$</dd>
+That is, the joint probability distribution of all state variables next period is the product of the probabilities of the three state vectors.  So the vectors evolve independently conditional on the current state. Further, the IID nature of &epsilon; and &eta; mean that their probability is constant across current states and actions.  In turn,
+<dd class="disp">
+$P_\epsilon(\epsilon^\prime) = \prod_{k=0\dots \epsilon.N^-} P_{e_k}\left(e^\prime_k\right).$
+
+$P_\eta(\eta^\prime) = \prod_{k=0\dots \eta.N^-} P_{e_k}\left(e^\prime_k\right).$
+
+$P_\theta\left(\theta^\prime\ |\ \alpha,\eta,\theta\right) = \prod_{k=0\dots \theta.N^-} P_{q_k}\left(q^\prime_k\ |\ \alpha,\eta,\theta\right).$
+</dd>
 <DD>It is important to note that e<sub>k</sub>, h<sub>k</sub> and q<sub>k</sub> represents either an autonomous state variable or a whole state block, which is responsible for returning the joint transition of its coevolving members.</dd>
 
 <DT>Autonomous</DT>
@@ -354,12 +358,12 @@ Below is an <a href="#example">example</a> of how to define a new state variable
 
 <LI>Code the <code>Transit()</code> method</LI>
 <DL>
-    <DT>Besides a constructor, your state variable must also come with a transition.</DT>  
+    <DT>Besides a constructor, your state variable must also come with a transition.</DT>
     <DD>If it is derived from another state variable and your version will follow the same transition then you do not need to write a new one.  That is because <code>Transit()</code> is, in most cases, declared as a <em>virtual</em> method.  So if your state variable has no transition of its own, the one from the parent variable will be called in its place. This is why it must be called <code>Transit()</code>, because it replaces another version of a <code>Transit()</code> that would be called if necessary.</DD>
 
     <DD><code>Transit</code> must also take an argument, a matrix called <code>FeasA</code>.  This contains the feasible actions <code>&alpha;</code> at the <em>current</em> state. Each row of <code>FeasA</code> is an action vector <code>&alpha;</code>; each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
-        
-    <DT>Example: Possible Argument Passed to <code>Transit()</code></DT> 
+
+    <DT>Example: Possible Argument Passed to <code>Transit()</code></DT>
     <DD>The model has two binary choice variables, <var>i</var> and <var>j</var>.  Then the argument passed to <code>Transit()</code>  might look like this:</DD>
 <dd><pre>  FeasA
   i    j
@@ -367,7 +371,7 @@ Below is an <a href="#example">example</a> of how to define a new state variable
   1    0
   0    1
   1    1</pre> </dd>
-    <DT>Your code has to return two items, sent back in an Ox <em>array</em>. </DT> 
+    <DT>Your code has to return two items, sent back in an Ox <em>array</em>. </DT>
     <DD>The first is a <em>row vector</em> of feasible values: the  values this state could take on next period.  For convenience call this vector <code>F</code>.  That is, suppose one value, say 3, may be feasible only if a certain action is taken.  Then 3 must be in <code>F</code>, even if 3 is not feasible if another action were taken.  The elements of <code>F</code> do not need to be sorted.</DD>
     <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the rows of <code>FeasA</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state variable takes on the jth value in <code>F</code> given the agent chooses the ith action in the feasible set.</DD>
 
@@ -396,7 +400,7 @@ mystate = new MyStateVar("y",4,&hellip;);
 EndogenousStates(mystate);</pre>
 The <q>&hellip;</q> is not literal.  It is there because in this example the constructor <code>MyStateVar()</code> will require other arguments.  The state variable is stored in an Ox variable called <code>mystate</code>, but we will refer to it as <var>y</var>, which is the label given to it.</dd>
 
-<DT>What is <var>y</var> supposed to be? </DT> 
+<DT>What is <var>y</var> supposed to be? </DT>
 <DD>It is an indicator for the <em>previous</em> value of another state <var>x</var>, but only if a binary choice variable <var>i</var> is 1 last period.  For example, if <code>x</code> is an occupation code and the choice variable <code>i</code> indicates a choice to work, then <code>y</code> equals the occupation the person worked at last period if they did work.  </DD>
 <DD>Otherwise <code>y</code> should take on the value 0.  Simply put, the value of <var>y</var> next period is <var>y' = ix</var>. </DD>
 <DD>First, the <var>y</var> process as the feasible state next period:
@@ -501,7 +505,7 @@ When you write the code for your state variable you force the user (possibly you
     <DD>In particular, for the interpretation given so far the <var>x</var> variable takes on the value 0.  This might be code for not being associated with any occupation, which is fine.  But suppose you want this variable to handle the case that a person always has an occupation.  Then <var>y=0</var> is ambiguous. It could mean the person did not work last period or they did work but in the occupation coded as 0.  The problem is that state variables always take on the values 0 to <code>N-1</code>, at least when using the <code>v</code> member.</DD>
 
     <DT>You can resolve this by referring to the <code>actual</code> member of <code>occup</code>, not <code>v</code>.</DT>
-      <DD>Then, if real occupations are not coded as 0 to <code>N-1</code> but 1 to <code>N</code> (or any other set of values), the ambiguity in coding <var>ix</var> can be resolved.  
+      <DD>Then, if real occupations are not coded as 0 to <code>N-1</code> but 1 to <code>N</code> (or any other set of values), the ambiguity in coding <var>ix</var> can be resolved.
       A value of 0 for this state variable indicates the person did not work last period and starts out with no occupation.
       </DD>
       <DD>If there is an occupation actually coded as 0, then this state variable will infer that not working does not reset occupation.  That is, occupation is determined by something else (such as the kinds of jobs the person chooses to look for).</DD>
@@ -665,7 +669,7 @@ The major difference between a StateVariable and a StateBlock:  a state variable
     <dd class="example"><pre>
         decl stats;
         &vellip;
-        
+
         SemiExogenousStates(stats = new Vitals());
         </pre></dd>
       In this case, the vital state process is exogenous to other state variables, but if it influences the transitions of other state variables then the block is only <em>semi-exogenous</em>.
@@ -865,6 +869,7 @@ An auxiliary value <em>x</em> is typically a function of the state and action ve
 
 </OL>
 
-<hr><a name="auto"><h1>Documentation of  Items Defined in Variables.ox</h1></a>
+
+<a name="auto"><hr><h1>Documentation of  Items Defined in Variables.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
 **/

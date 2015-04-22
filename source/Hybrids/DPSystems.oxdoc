@@ -1,4 +1,5 @@
-/**	DP with non-linear systems.
+/**	Dynamic programs that evolving solving non-linear systems.
+<a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in DPSystems.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 
 @sortkey BAA
 
@@ -39,7 +40,8 @@ The distribution of the variable and the way it enters utility is unrestricted, 
 <LI>Required Information to solve z*</LI>
     <h4>4 functions of <code>z*</code></h4>
     <OL class="steps">
-    <LI>Utility differences at any candidate z*:  <code>U(0,z*)-U(1,z*)</code>.  User provides a method called <code>Udiff(z)</code>.</LI>
+    <LI>Utility differences at any candidate z*:  <code>U(0,z*)-U(1,z*)</code>. This information is received by the user-provided method called <code>Uz(z)</code>.  It returns a column vector with <code>U(0,z*)|U(1,z*)|&hellip;.</code>.  
+    (More generally when there are more <code>N</code> choices and <code>N-1</code> cut-off values it should return a <code>N &times; N-1</code> matrix.</LI>
     <LI>Expected utility for <code>a=0</code> given z*: <code>E[U(0,z)|z&lt;z*]</code>.  </LI>
     <LI>Expected utility for <code>a=1</code> given z*: <code>E[U(1,z)|z&gt;z*]</code>.</LI>
     <LI>Probability of acceptable offers: <code>Prob(z&lt;z*)</code></LI>
@@ -69,5 +71,6 @@ The distribution of the variable and the way it enters utility is unrestricted, 
 `SolveAsSystem`
 
 </OL>
+<a name="auto"><hr><h1>Documentation of Items Defined in DPSystems.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
 **/

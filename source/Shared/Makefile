@@ -24,7 +24,7 @@ clean:
 .PHONY : document
 document:
 	$(ERASE) ..\..\doc\Shared\*.ox.html
-	$(OXDOC) -include $(INC) *.ox
+	$(OXDOC) -include $(INC) Help *.ox
 
 .PHONY : install
 install:

@@ -46,15 +46,17 @@ enum { NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods}
 /** Points in the solution process that users can insert <em>static</em> functions or methods.
 
 <table class="enum_table" valign="top">
-<tr><td valign="top"><code>PreUpdate</code></td><tD>Called by `DP::UpdateVariables`().  The point it is called depends on `Flags::UpdateTime`</tD></tr>
+<tr><td valign="top"><code>PreUpdate</code></td><tD>Called by `DP::UpdateVariables`().  The point this occurs depends on `Flags::UpdateTime`</tD></tr>
 <tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::`RandomSolve::Run`()</code> after a call to `Method::Gsolve`() </tD></tr>
 <tr><td valign="top"><code>PostRESolve</code> </td><tD>Called by <code>FixedSolve::`FixedSolve::Run`()</code> after all random effects have been solved. </tD></tr>
 <tr><td valign="top"><code>PostFESolve</code></td><tD>Called by `Method::Solve`() after all fixed effect groups have been solved.</tD></tr>
+<tr><td valign="top"><code>GroupCreate</code></td><tD>Called by the task that sets up the group space Gamma (&Gamma;) before creation
+of each separate group. Your function should return TRUE if the the group should be created.</tD></tr>
 </table>
-@see Hooks, Flags::UpdateTime
+@see Hooks, Flags::UpdateTimes
 @name HookTimes
 **/
-enum {PreUpdate,PostGSolve,PostRESolve,PostFESolve,NHooks}
+enum {PreUpdate,PostGSolve,PostRESolve,PostFESolve,GroupCreate,NHooks}
 
 
 /**Stores information on a set of state variables, such as &theta; **/
@@ -96,14 +98,17 @@ struct Flags : Zauxiliary {
 		/** . @internal **/										Warned,
 		/** . **/												UseStateList,
 		/** create space to store &Rho;* **/  					IsErgodic,
+        /** Includes a kept continuous state variable.**/       HasKeptZ,
         /** UpdateVariables() has been called. **/              HasBeenUpdated,
 		/** &Gamma; already includes fixed effects **/			HasFixedEffect,
         /** Indicators for when transit update occurs.
             @see DP::SetUpdateTime **/                          UpdateTime,
-		/** Integer means all groups exist
-            Otherwise a function called by CGTask(),
-            an internal task that sets up the group space
-            &Gamma;. **/					                    GroupExists,
+		/** Integer TRUE (default) means all possible combination of fixed and random groups exist
+            in the group space &Gamma; and should be created.
+            If you add a function to the <code>GroupCreate</code> Hooks then this is set FALSE.
+            Your function should return TRUE if the current group oup should be created.
+            @see Hooks, HookTimes, Hooks::Add, FixedEffect, RandomEffect
+             **/					                            AllGroupsExist,
 		/** .@internal **/			                            DoSubSample,
 		/**  store &Alpha.D x &Theta.D matrix
 			of choice probabilities  **/  						StorePA,
@@ -163,7 +168,7 @@ struct I : Zauxiliary {
     static Initialize();
     }
 
-/** Contains an array that holds user-defined static functions/methods to call at different points in the solution process.
+/** Manages an array that holds user-defined static functions/methods to call at different points in the solution process.
 
 Hooks are places in the DP solution process where the user can add code to be carried out.  This is done using the `Hooks::Add`()
 procedure.  Hooks are added to a list of procedures to be called so more than one procedure can be carried out.
@@ -178,38 +183,75 @@ struct Hooks : Zauxiliary {
 	static  DoNothing();
     }
 
+/** Aspects of the Action Space.
+@see Bellman::FeasibleActions
+**/
+struct Alpha : Zauxiliary {
+	static decl
+		/** matrix of all action vectors, A.
+            This is a copy of `Alpha::List`[0].
+            As action variables are added to the model
+            using `DP::Actions`(), this matrix is built up.
+            `DP::CreateSpaces`() then calls <code>FeasibleActions()</code>
+            for each endogenous state &theta;.   Different feasible
+            sets are then added to `Alpha::list`. **/		   Matrix,   //ActionMatrix,
+		/** list of feasible action matrices (CV) values.
+            Each point in the endogenous state space
+            has an index: `Bellman::Aind` into this
+            list.  **/ 	                                        List,     // Asets,
+		/** List of Feassible Action indicators (column vector
+            of 0s and 1s). **/  	                            Sets,     //ActionSets,
+		/** (vector) Number of states for each A set.  **/      Count,    // AsetCount,
+		/** List of <em>actual</em> feasible action matrices (AV values),
+		automatically updated.
+            Each point in the endogenous state space
+            has an index: `Bellman::Aind` into this
+            list. Also `DP::A` points to this list so
+            the user can get the matrix of actual action values
+            with <code>A[Aind]</code> **/	                    A;
+    static Initialize();
+    }
+
+/** Contains arrays of labels for variables.
+**/
+struct Labels : Zauxiliary {
+	static const decl      /**  formatting string. @internal 	  **/ 		sfmt = "%4.0f";
+    static decl
+        /** arrays of labels of variable objects.**/            V,
+        /** abbreviated labels of variable objects.**/          Vprt,
+		/** .  @internal    **/                   				Sfmts;
+    static Initialize();
+    }
+
 /** Static elements shared by the user model, groups and data.
 
 The  base class for the DDP framework.
 
 **/
 struct DP {
-	static const decl      /**  formatting string. @internal 	  **/ 		sfmt = "%4.0f";
 	static decl
         /** category of clock. @see ClockTypes, DP::SetClock**/ ClockType,
 		/** counter variable.	@see DP::SetClock **/			counter,
 		/**   array of subvectors.  @internal **/  				S,
 		/**   array of subspaces . @internal  **/  				SS,
 		/** List of State Variables (in order).**/ 				States,
-		/** matrix of all action vectors, A.  **/		        ActionMatrix,
-		/** list of feasible action matrices.  **/ 	            Asets,
-		/** List of Feassible Action indicators. **/  	        ActionSets,
-		/** (vector) Number of states for each A set.  **/      AsetCount,
 		/** List of <em>actual</em> feasible action matrices,
 		automatically updated.  **/	                            A,
+
 		/** List of `StateBlock`s. @internal**/					Blocks,
 		/** List of SubVectors. @internal **/ 					SubVectors,
-        /** arrays of labels of variable objects.**/            Vlabels,
-        /** abbreviated labels of variable objects.**/          Vprtlabels,
 		/** . @internal **/										cputime0,
-		/** .  @internal    **/                   				Sfmts,
 		/** Output level. @see NoiseLevels **/ 					Volume,
 		/** distriubution over groups 		**/ 				gdist,
-		/**density of group.
-			sums to with for fixed effect
-			over random effects **/ 							curREdensity,		
+		/** density of current group.
+			Sums to 1.0 over random effects
+            for each fixed effect. **/ 							curREdensity,		
 
-		/** The discount factor &delta;.  @see DP::SetDelta **/ delta,
+		/** The discount factor &delta;.  @see DP::SetDelta,
+            DP::CVdelta  **/                                    delta,
+        /** The current value of &delta;. This is set in
+            `DP::UdateVariables`() to avoid repeated calls
+            to CV.  @see DP::delta .**/                         CVdelta,
 		/** Array of Exogenous next state indices
 			and transitions. **/ 					            NxtExog,
 		/** . @internal  				**/    					F,
@@ -238,7 +280,6 @@ struct DP {
 
 		static	SetDelta(delta);
 		static	SetClock(ClockType,...);
-		static	Last();
 		static	Gett();
 		static	Swap();
 		static 	ExogenousTransition();
@@ -247,7 +288,7 @@ struct DP {
         static  onlyDryRun();
 		static  CreateSpaces();
 		static	InitialsetPstar(task);
-		static 	Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
+		static 	Initialize(userReachable,UseStateList=FALSE);
 
 		static 	AddStates(SubV,va);
 		static 	GroupVariables(v1,...);
@@ -269,14 +310,30 @@ struct DP {
 		static  UpdateDistribution();
 		static	DrawOneExogenous(aState);
 		static  SyncAct(a);
-		static	SaveV(ToScreen,...);
         static  SubSampleStates(SampleProportion=1.0,MinSZ=0,MaxSZ=INT_MAX);
         static  SetUpdateTime(time=AfterFixed);
 		}
 
 
-/** Info needed across points in the state space.
-All members are automatic (non-static)
+/** Holds things that require processing subspaces (spanning a state Space).
+
+Derived classes of tasks are specialized to process different spaces:
+
+`GroupTask`s process the group space &Gamma; (fixed and random effects). `FETask`,
+`RETask` specialized to one or the other component of &gamma;
+
+`ThetaTask`s process the endogenous state space, &Theta;.  `Methods` to solve
+the DP problem are based on ThetaTask.  In turn, these methods call upon GroupTasks
+to loop over different problems for them.
+
+`ExTask` processes the exogenous vectors &epsilon; and &eta;.
+
+The engine of a task is its <code>loop()</code> method.  It will assign eveyr
+possible value of state variables in its vector(s) and for each unique
+vector call the <em>virtual</em> `Task::Run`() routine.  So any new job that requires going
+over a vector of states can be created by deriving a new Task and supplying
+a new <code>Run()</code> method.
+
 **/
 struct Task : DP {
 	const decl
@@ -285,11 +342,12 @@ struct Task : DP {
 	decl
 	/**N&times;1 vector, current &epsilon;&theta;			**/		state,
 	/**subspace to use for indexing during the task **/				subspace,
-																	iter,
+	/**Number of times `Task::Run`() has been called while in
+        progress.**/                                                iter,
 																	d,
-																	done,
-				  													trips,
-	/** max number of outer	Bellmn trips     **/    				MaxTrips;							
+	/**Indicates task is done (may require one more trip).**/		done,
+	/**Trips through the task's space. **/                          trips,
+	/** max number of outer	Bellman trip.s     **/    				MaxTrips;							
 	Task();
 	virtual Update();
 	virtual Run(th);
@@ -302,6 +360,11 @@ struct Task : DP {
 
 /** Base Class for tasks that loop over the endogenous state space &Theta;.
 
+The <code>Traverse()<code> method will either <code>loop</code> or <code>list()</code> depending on whether the user
+asked for the state space &Theta; to be processed according to a list of reachable
+states or looping over all combinations of state variable values.  This is done
+with an arguement to `DP::Initialize`().
+
 **/
 struct ThetaTask        :   Task {	decl curind; ThetaTask();	Run(th);	}
 struct FindReachables   : 	ThetaTask {	
@@ -309,6 +372,7 @@ struct FindReachables   : 	ThetaTask {
         FindReachables();
         virtual Run(g);	
         }
+
 struct CreateTheta 	    : 	ThetaTask {	
         decl insamp, th;
         CreateTheta(); 	
@@ -392,21 +456,20 @@ struct Group : DP {
 struct DPDebug : Task {
 	static const decl
 		div = "     ------------------------------------------------------------------------------";
-	static decl prtfmt0, prtfmt, SimLabels, SVlabels, MaxChoiceIndex, Vlabel0;
+	static decl prtfmt0, prtfmt, SimLabels, SVlabels, Vlabel0, rp, OutAll;
 	static Initialize();		
-	static outV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE);
+	static outV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
+    static outAllV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
+    static RunOut();
     static outAutoVars();
     DPDebug();
 	}
 
 
 struct SaveV	: DPDebug	{
-    static decl
-    /** TRUE=trim rows with terminal states from output. **/ TrimTerminals,
-    /** TRUE=trim rows no choices from output. **/           TrimZeroChoice;
-	const decl ToScreen, aM;
+	const decl ToScreen, aM, MaxChoiceIndex, TrimTerminals, TrimZeroChoice;
 	decl  re, stub, nottop, r, s;
-	SaveV(ToScreen=TRUE,aM=0,MaxChoiceIndex=FALSE);
+	SaveV(ToScreen=TRUE,aM=0,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
 	virtual Run(th);
 	}
 

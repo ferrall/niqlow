@@ -56,6 +56,19 @@ Outcome::Flat()	{
     return t~ind[tracking]~th.IsTerminal~th.Aind~state'~ind[onlyacts][0]~act~z~aux;  //ind[onlyacts] shows only A[0] index.
 	}
 
+/** Print the outcome as record.
+
+
+**/
+Outcome::Deep(const depth)	{
+	decl pfx = depth*5, th = Settheta(ind[tracking]);
+    Indent(pfx); println("|----------");
+    Indent(pfx); println("|t:",t);
+    Indent(pfx); println("|ind:",ind[tracking]);
+    Indent(pfx); println("|act:",ind[onlyacts][0]);
+    Indent(pfx); println("|",isclass(onext) ? "-->" : "----------");
+	}
+
 /** Simulate the IID stochastic elements of a realization.
 
 &theta; and &gamma; areas of `Task::state` already set.
@@ -120,6 +133,15 @@ Path::Flat(){
 	cur = this;
 	do pth |= i ~ cur->Outcome::Flat(); while(isclass(cur = cur.onext));
 	return pth;
+	}	
+/** Produce a two dimensional view of the path;
+**/
+Path::Deep(){
+    decl j=1;
+	cur = this;
+    Indent(j);println("_________________________________________________________________________________");
+    Indent(j);println("|Path: ",i," --> ");
+	do cur->Outcome::Deep(++j); while(isclass(cur = cur.onext));
 	}	
 
 /** Simulate a list of realized states and actions from an initial state.
@@ -253,6 +275,14 @@ FPanel::Flat()	{
 	return op;
 	}
 
+/** .
+**/
+FPanel::Deep()	{
+	cur = this;
+    println("Fpanel: ",f);
+	do cur->Path::Deep(); while (isclass(cur = cur.pnext));
+	}
+
 /** Set the nested DP solution method to use when evaluating the panel's econometric objective.
 @param method `Method`
 **/
@@ -277,10 +307,10 @@ Panel::Panel(r,method,FullyObserved) {
 	cur = this;
 	for (i=1;i<N::F;++i) cur = cur.fnext = fparray[i] = new FPanel(i,method,FullyObserved);
 	if (isint(Lflat)) {
-		Lflat = {PanelID}|{FPanelID}|{PathID}|PrefixLabels|Vprtlabels[svar]|{"|ai|"}|Vprtlabels[avar];
+		Lflat = {PanelID}|{FPanelID}|{PathID}|PrefixLabels|Labels::Vprt[svar]|{"|ai|"}|Labels::Vprt[avar];
 		for (i=0;i<zeta.length;++i) Lflat |= "z"+sprint(i);
 		foreach (q in Chi) Lflat |= q.L;
-		Fmtflat = {"%4.0f","%4.0f"}|{"%4.0f","%2.0f","%3.0f","%3.0f"}|Sfmts|"%4.0f";
+		Fmtflat = {"%4.0f","%4.0f"}|{"%4.0f","%2.0f","%3.0f","%3.0f"}|Labels::Sfmts|"%4.0f";
 		for (i=0;i<N::Av;++i) Fmtflat |= "%4.0f";
 		for (i=0;i<zeta.length;++i) Fmtflat |= "%7.3f";
         foreach (q in Chi) Fmtflat |= "%7.3f"; //		for (i=0;i<Naux;++i) Fmtflat |= "%7.3f";
@@ -321,6 +351,14 @@ Panel::Flat()	{
 	cur = this;
 	flat = <>;
 	do flat |= r~cur->FPanel::Flat(); while (isclass(cur = cur.fnext));
+	}
+
+/** Store the panel as long flat matrix. **/
+Panel::Deep()	{
+	cur = this;
+    println("**** PANEL: ",r);
+	do cur->FPanel::Deep(); while (isclass(cur = cur.fnext));
+    println("END PANEL: ",r);
 	}
 
 /** Produce a matrix of the panel.
@@ -705,11 +743,11 @@ DataSet::Summary(data,rlabels) {
 	decl rept = zeros(3,0),s;		
 	foreach (s in list) rept ~= s.obsv | s.force0 | s.incol;
 	println("\nOutcome Summary: ",label);
-	println("%c",Vprtlabels[idvar]|Vprtlabels[avar]|Vprtlabels[svar]|Vprtlabels[auxvar],"%r",{"observed"}|{"force0"}|{"column"},"%cf","%6.0f",rept);
+	println("%c",Labels::Vprt[idvar]|Labels::Vprt[avar]|Labels::Vprt[svar]|Labels::Vprt[auxvar],"%r",{"observed"}|{"force0"}|{"column"},"%cf","%6.0f",rept);
     if (ismatrix(data)) println("Source data summary", MyMoments(data,rlabels));
     else {
         Print(0);
-        println("Data set summary ",MyMoments(flat,{"f"}|"i"|"t"|"track"|"term"|"Ai"|Vprtlabels[svar]|"Arow"|Vprtlabels[avar]|Vprtlabels[auxvar]));
+        println("Data set summary ",MyMoments(flat,{"f"}|"i"|"t"|"track"|"term"|"Ai"|Labels::Vprt[svar]|"Arow"|Labels::Vprt[avar]|Labels::Vprt[auxvar]));
         }
 	}
 	
@@ -803,11 +841,11 @@ DataSet::Read(FNorDB,SearchLabels) {
 	if (SearchLabels) {
 		decl lnames,mtch, i,j;
 		lnames = source->GetAllNames();
-		mtch = strfind(lnames,Vlabels[svar]);
+		mtch = strfind(lnames,Labels::V[svar]);
 		foreach(i in mtch[j]) if (i!=NoMatch) MatchToColumn(States[j],i);
-		mtch = strfind(lnames,Vlabels[avar]);
+		mtch = strfind(lnames,Labels::V[avar]);
 		foreach(i in mtch[j]) if (i!=NoMatch) MatchToColumn(SubVectors[acts][j],i);
-		mtch = strfind(lnames,Vlabels[auxvar]);
+		mtch = strfind(lnames,Labels::V[auxvar]);
 		foreach(i in mtch[j]) if (i!=NoMatch) MatchToColumn(Chi[j],i);
 		}
 	decl i,s0=1+N::Av-1;
@@ -867,7 +905,7 @@ Prediction::Predict() {
         else if (Volume>LOUD) { pp += p[s]; unrch |= ReverseState(q,I::OO[tracking][])[lo:hi]' ; }
         }
     if (Volume>LOUD && pp>0.0)
-        println("At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Vprtlabels[svar][lo:hi],unrch);
+        println("At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
 	}
 	
 Prediction::Reset() {
@@ -1004,7 +1042,7 @@ Prediction::Histogram(tv,printit) {
 	decl q,k,cp;
     switch(tv.type) {
         case avar : tv.hist[] = 0.0;
-                    foreach (cp in ch[k]) tv.hist[ActionMatrix[k][tv.hd]] += cp;
+                    foreach (cp in ch[k]) tv.hist[Alpha::Matrix[k][tv.hd]] += cp;
                     predmom ~= tv->Distribution();
                     break;
 	    case svar : tv.hist[] = 0.0;

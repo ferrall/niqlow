@@ -185,8 +185,8 @@ LineMax::Iterate(Delta,maxiter)	{
 	Golden();
 	O->Decode(holdF+q.step*Delta);
     if (Volume>QUIET) println("Line: past golden",q);
-    OC.V = q.V;
  	OC.v = q.v;
+    if (ismember(q,"V")) OC.V = q.V;
 	}
 	
 /** .

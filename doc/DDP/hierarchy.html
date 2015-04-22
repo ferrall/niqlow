@@ -167,7 +167,8 @@ table.tree td.label { padding-left: 8px; padding-right: 32px; height: 1px; }
    <tr class="bottom"><td class="line">&nbsp;</td></tr>
 </tbody></table>
 </td>
-<td class="text"></td>
+<td class="text">A OneDimensionalChoice model in which a discretized approximation to &zeta; enters
+the state vector if the decision is to accept (<code>d&gt;0</code).</td>
 </tr>
 <tr>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -189,7 +190,7 @@ table.tree td.label { padding-left: 8px; padding-right: 32px; height: 1px; }
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">Info needed across points in the state space.</td>
+<td class="text">Holds things that require processing subspaces (spanning a state Space).</td>
 </tr>
 <tr>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -1231,7 +1232,7 @@ takes on a special value next period.</td>
    <tr class="bottom"><td class="line">&nbsp;</td></tr>
 </tbody></table>
 </td>
-<td class="text">Increments each period up to N<sup>-</sup> then returns to 0.</td>
+<td class="text">Increments each period up to N&oline; then returns to 0.</td>
 </tr>
 <tr>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -1357,7 +1358,7 @@ takes on a special value next period.</td>
    <tr class="bottom"><td class="line">&nbsp;</td></tr>
 </tbody></table>
 </td>
-<td class="text">Indicates another state variable took on a value (<em>x</em>) last period.</td>
+<td class="text">Indicates another state variable took on a value last period.</td>
 </tr>
 <tr>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -1417,6 +1418,22 @@ takes on a special value next period.</td>
 </tbody></table>
 </td>
 <td class="text">A placeholder for variables to be added to the model later.</td>
+</tr>
+<tr>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="4" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="Variables.ox.html#KeptZeta">KeptZeta</a></td></tr>
+   <tr class="bottom"><td class="line">&nbsp;</td></tr>
+</tbody></table>
+</td>
+<td class="text">A discretized version of a continous &zeta; value that enters the endogenous vector &theta; depending
+on reservation values to keep it.</td>
 </tr>
 <tr>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -1584,7 +1601,7 @@ takes on a special value next period.</td>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
-<td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
 <td style="height:1px; width:auto;" colspan="4" class="fffix">
 <table class="labelwrapper">
    <tbody><tr><td class="label"><a href="Variables.ox.html#Tauchen">Tauchen</a></td></tr>
@@ -1592,21 +1609,6 @@ takes on a special value next period.</td>
 </tbody></table>
 </td>
 <td class="text">A one-dimensional correlated discretized normal process using Tauchen's approach.</td>
-</tr>
-<tr>
-<td class="line"><div class="vline">&nbsp;</div></td>
-<td class="line"><div class="vline">&nbsp;</div></td>
-<td class="line">&nbsp;</td>
-<td class="line"><div class="vline">&nbsp;</div></td>
-<td class="line">&nbsp;</td>
-<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
-<td style="height:1px; width:auto;" colspan="4" class="fffix">
-<table class="labelwrapper">
-   <tbody><tr><td class="label"><a href="Variables.ox.html#ZVariable">ZVariable</a></td></tr>
-   <tr class="bottom"><td class="line">&nbsp;</td></tr>
-</tbody></table>
-</td>
-<td class="text"></td>
 </tr>
 <tr>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -2020,6 +2022,17 @@ takes on a special value next period.</td>
 <td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
 <td style="height:1px; width:auto;" colspan="8" class="fffix">
 <table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="DP.ox.html#Alpha">Alpha</a></td></tr>
+   <tr class="bottom"><td class="line">&nbsp;</td></tr>
+</tbody></table>
+</td>
+<td class="text">Aspects of the Action Space.</td>
+</tr>
+<tr>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="8" class="fffix">
+<table class="labelwrapper">
    <tbody><tr><td class="label"><a href="Data.ox.html#DataColumn">DataColumn</a></td></tr>
    <tr class="bottom"><td class="line">&nbsp;</td></tr>
 </tbody></table>
@@ -2092,7 +2105,7 @@ takes on a special value next period.</td>
    <tr class="bottom"><td class="line">&nbsp;</td></tr>
 </tbody></table>
 </td>
-<td class="text">Contains an array that holds user-defined static functions/methods to call at different points in the solution process.</td>
+<td class="text">Manages an array that holds user-defined static functions/methods to call at different points in the solution process.</td>
 </tr>
 <tr>
 <td class="line">&nbsp;</td>
@@ -2165,6 +2178,17 @@ takes on a special value next period.</td>
 </tbody></table>
 </td>
 <td class="text">Smooth Simulation of Multinomial Normal Probabilities.</td>
+</tr>
+<tr>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="8" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label"><a href="DP.ox.html#Labels">Labels</a></td></tr>
+   <tr class="bottom"><td class="line">&nbsp;</td></tr>
+</tbody></table>
+</td>
+<td class="text">Contains arrays of labels for variables.</td>
 </tr>
 <tr>
 <td class="line">&nbsp;</td>

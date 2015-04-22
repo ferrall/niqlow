@@ -16,6 +16,8 @@ struct  Bellman : DP {
 		/**TRUE if a Terminal state (no action chosen).
             Set in `DP::CreateSpaces`()
             @see StateVariable::MakeTerminal **/ 		            IsTerminal,
+        /** TRUE if last period a decision, depends on the Clock.
+            @see Clock::Last**/                                     IsLast,
 	    /** Full solution at this state.                 **/        InSubSample,
 		/**&theta;.j index into `DP::A`.**/  						Aind,
 		/**U(&alpha;&epsilon;,&eta;,&theta;,&gamma;). @internal **/	U,
@@ -26,7 +28,7 @@ struct  Bellman : DP {
 		/**EV(&theta;) across random &gamma;, **/					EV;
 
 			static 	Delete();
-			static 	Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
+			static 	Initialize(userReachable,UseStateList=FALSE);
 			static  CreateSpaces();
 			virtual FeasibleActions(Alpha);
 			virtual Utility();
@@ -59,13 +61,13 @@ smoothed ex post as follows:
 
 <dd><pre>
 U() = Utility(&alpha;,&eta;,&epsilon;,&theta;,&gamma;)
-v*(&alpha;) = exp[&rho;(v(&alpha;&epsilon,&eta;&theta;)-V(&epsilon,&eta;&theta;) )]	/ &rho;
+v*(&alpha;) = exp[&rho;(v(&alpha;,&epsilon;,&eta;&theta;)-V(&epsilon,&eta;&theta;) )]	/ &rho;
 &Rho;*(&alpha;;&epsilon;,&eta;&theta;) = v*(&alpha;) / &Sum;<sub>&alpha;'&in;A(&theta;) v*(&alpha;')</sub>
 </pre></dd>
 **/
 struct ExPostSmoothing : Bellman {
 	static decl Method, rho, sigma;
-	static Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
+	static Initialize(userReachable,UseStateList=FALSE);
 	static CreateSpaces(Method=NoSmoothing,smparam=1.0);
 	virtual Smooth(EV);
 			Logistic(EV);
@@ -97,7 +99,7 @@ struct ExtremeValue : Bellman {
 		/** Choice prob smoothing &rho;.**/ rho,
 		/** Hotz-Miller estimation task.**/ HMQ;
 	static SetRho(rho);
-	static Initialize(rho,userReachable,UseStateList=FALSE,GroupExists=FALSE);
+	static Initialize(rho,userReachable,UseStateList=FALSE);
 	static  CreateSpaces();
 	virtual thetaEMax() ;
 	virtual Smooth(EV);
@@ -110,7 +112,7 @@ struct ExtremeValue : Bellman {
 struct Rust : ExtremeValue {
 	static decl
 	/**The decision variable. **/ d;
-	static Initialize(userReachable,GroupExists=FALSE);
+	static Initialize(userReachable);
 	static CreateSpaces();
 	}
 
@@ -120,7 +122,7 @@ struct Rust : ExtremeValue {
 struct McFadden : ExtremeValue {
 	static decl
 	/**The decision variable. **/ d;
-	static Initialize(Nchoices,userReachable,UseStateList=FALSE,GroupExists=FALSE);
+	static Initialize(Nchoices,userReachable,UseStateList=FALSE);
 	static CreateSpaces();
 	ActVal(VV);
 	}
@@ -133,7 +135,7 @@ struct Normal : Bellman {
 					ev,
 					Chol,
 	/** **/			AChol;
-	static Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
+	static Initialize(userReachable,UseStateList=FALSE);
 	static CreateSpaces();
 	thetaEMax() ;
 	virtual Smooth(EV);
@@ -147,7 +149,7 @@ struct NnotIID : Normal {
 		/**  replications for GHK **/				R,
 		/**  RNG seed argument **/					iseed,
 		/**  . @internal;		**/					ghk;
-	static Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
+	static Initialize(userReachable,UseStateList=FALSE);
 	static SetIntegration(R,iseed,AChol);
 	static CreateSpaces();
 	static UpdateChol();
@@ -162,7 +164,7 @@ struct NIID : Normal {
 							MM,
 							GQNODES,
 							GQLevel;
-	static Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
+	static Initialize(userReachable,UseStateList=FALSE);
 	static SetIntegration(GQLevel,AChol);
 	static CreateSpaces() ;
 	static UpdateChol();
@@ -187,8 +189,7 @@ for inclusion in those vectors need to be placed in &theta;.</LI>
 &eta; = ()
 
 U(d;&zeta;,&theta;) = U(d;z,&theta;)
-</pre>
-</dd>
+</pre></dd>
 
 </UL>
 <!--&exists; unique z*<sub>0</sub> &lt; z*<sub>1</sub> &hellip; &lt; z*<sub>a.N&oline;</sub> such that
@@ -199,8 +200,9 @@ U(a;z,&theta;-->
 
 <DT>The user provides methods that return:<DT>
 <UL>
-<LI><code>Udiff(z)</code>: the differences in utility at a given value of z. <code>Udiff(z)</code> should return a <code>d.N-1</code> vector equal to the
-differences in utility between <code>d=j</code> and <code>d=j-1</code>.</LI>
+<LI><code>Uz(z)</code>: the utility matrix at a given vector of cut-offs z. <code>Uz(z)</code> should return a <code>d.N &times; d.N-1</code> matrix equal to the
+utility of each value of <code>d=i</code> at &zeta;=z<sub>j</sub>.  In the case of a binary choice there is just one cut-off and <code>Uz(z)</code> returns a column vector of
+the utilities of the two choices at <code>z</code>  Internally the difference between adjacent values of <code>d</code> is computed from this matrix.</LI>
 <LI><code>EUtility()</code>: an array of size <code>d.N</code> that returns the expected utlity of <code>d=j</code> for values of z in the interval (z*<sub>j-1</sub>,z*<sub>j</sub>)
 and the corresponding probabilities &Rho;[z &in (z*<sub>j-1</sub>,z*<sub>j</sub>) ].  <code>EUtility()</code> gets
 <code>z*star</code> from the data member `OneDimensionalChoice::zstar`.</LI>
@@ -223,19 +225,26 @@ struct OneDimensionalChoice : Bellman {
             /** single action variable. **/                     d;
 			decl
 			/**N::R x 1 array of reservation value vectors  **/		zstar;
-	static 	Initialize(userReachable,d=Two,UseStateList=FALSE,GroupExists=FALSE);
+	static 	Initialize(userReachable,d=Two,UseStateList=FALSE);
 	static  CreateSpaces();
-	virtual Udiff(z);
+	virtual Uz(z);
 	virtual EUtility();
 	virtual thetaEMax() ;
 	virtual Smooth(pstar);
 	virtual ActVal(VV);
 	}
 
+/** A OneDimensionalChoice model in which a discretized approximation to &zeta; enters
+the state vector if the decision is to accept (<code>d&gt;0</code).
+**/
 struct KeepZ : OneDimensionalChoice {
-	static 	decl keptz,kprob;
-	static 	Initialize(userReachable,UseStateList=FALSE,GroupExists=FALSE);
-	static  CreateSpaces(keptz);
-//	virtual thetaEMax();
+	static 	decl
+            /** Discrete state variable of kept &zeta;.**/ keptz, Qt, myVV;
+	static 	Initialize(userReachable,d=2,UseStateList=FALSE);
+    static  SetKeep(N,held=TRUE);
+	virtual thetaEMax();
 	virtual ActVal(VV);
+    virtual DynamicActVal(z);
+    virtual DynamicTransit(z,VV);
+    static  CreateSpaces();
 	}

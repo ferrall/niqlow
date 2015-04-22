@@ -83,18 +83,15 @@ struct SubEffect : FixedEffect {
 
 **/
 struct FixedEffectBlock : StateBlock {
-//    decl
-//	/** temporary list of effects**/ 				Theta,
-//													Allv,
-//    /** matrix of all <em>actual</em> values.**/    Actual,
-//    /** vector <0:N-1>, used in AV().**/            rnge;
-//
 	FixedEffectBlock(L="FEBlock");
-//    virtual myAV();
 	}
 
+/**
+**/
 struct Regressors : FixedEffectBlock {
-    Regressors(L,Nvector);
+    decl ObservedX;
+    Regressors(L,vNorM,UseOnlyObserved=TRUE);
+    InObservedX();
     }
 	
 /** An element of a RandomEffectBlock.
@@ -109,10 +106,7 @@ struct CorrelatedEffect : RandomEffect {
 
 **/
 struct RandomEffectBlock : StateBlock {
-//	/** temporary list of effects**/ 				decl Theta;
-//													decl Allv;
 	RandomEffectBlock(L="REBlock");
-//	AddToBlock(s,...);
 	virtual Distribution();
 	}
 

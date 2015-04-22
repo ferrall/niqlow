@@ -10,6 +10,6 @@ struct DynWStar : KeepZ	{
     DynWStar();
 	Utility();
 	EUtility();
-    Udiff(z);
+    Uz(z);
 	}
 	

@@ -15,7 +15,8 @@
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
 <h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">DPSystems.ox</span></h1>
 
-DP with non-linear systems.
+Dynamic programs that evolving solving non-linear systems.
+<a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in DPSystems.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 <P/>
 <OL class="content">
 <LI>Solve a DP model with continuous shocks and optimal reservation values </LI>
@@ -53,7 +54,8 @@ The distribution of the variable and the way it enters utility is unrestricted, 
 <LI>Required Information to solve z*</LI>
     <h4>4 functions of <code>z*</code></h4>
     <OL class="steps">
-    <LI>Utility differences at any candidate z*:  <code>U(0,z*)-U(1,z*)</code>.  User provides a method called <code>Udiff(z)</code>.</LI>
+    <LI>Utility differences at any candidate z*:  <code>U(0,z*)-U(1,z*)</code>. This information is received by the user-provided method called <code>Uz(z)</code>.  It returns a column vector with <code>U(0,z*)|U(1,z*)|&hellip;.</code>.  
+    (More generally when there are more <code>N</code> choices and <code>N-1</code> cut-off values it should return a <code>N &times; N-1</code> matrix.</LI>
     <LI>Expected utility for <code>a=0</code> given z*: <code>E[U(0,z)|z&lt;z*]</code>.  </LI>
     <LI>Expected utility for <code>a=1</code> given z*: <code>E[U(1,z)|z&gt;z*]</code>.</LI>
     <LI>Probability of acceptable offers: <code>Prob(z&lt;z*)</code></LI>
@@ -83,6 +85,7 @@ The distribution of the variable and the way it enters utility is unrestricted, 
 <a href="DPSystems.ox.html#SolveAsSystem">SolveAsSystem</a>
 <P/>
 </OL>
+<a name="auto"><hr><h1>Documentation of Items Defined in DPSystems.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
 <a name="global"></a>
 <h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global enumerations</span></h2>
@@ -99,6 +102,26 @@ The distribution of the variable and the way it enters utility is unrestricted, 
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DPSystem</span></h2>
 
 Represent V or R* as a non-linear system.
+
+<a name="DynamicRsystem"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DynamicRsystem : <a href="DPSystems.ox.html#Rsystem">Rsystem</a> : <a href="DPSystems.ox.html#DPSystem">DPSystem</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DPSystems.ox.html#DynamicRsystem___DynamicRsystem">DynamicRsystem</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="DPSystems.ox.html#Rsystem">Rsystem</a>:</dt><dd><a href="DPSystems.ox.html#Rsystem___Rsystem">Rsystem</a>, <a href="DPSystems.ox.html#Rsystem___RVSolve">RVSolve</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="DPSystems.ox.html#Rsystem">Rsystem</a>:</dt><dd><a href="DPSystems.ox.html#Rsystem___c">c</a>, <a href="DPSystems.ox.html#Rsystem___curth">curth</a>, <a href="DPSystems.ox.html#Rsystem___dV">dV</a>, <a href="DPSystems.ox.html#Rsystem___lbv">lbv</a>, <a href="DPSystems.ox.html#Rsystem___meth">meth</a>, <a href="DPSystems.ox.html#Rsystem___Ncuts">Ncuts</a>, <a href="DPSystems.ox.html#Rsystem___ru">ru</a>, <a href="DPSystems.ox.html#Rsystem___zstar">zstar</a></dd>
+</dl>
 
 <a name="EVSystem"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">EVSystem : <a href="DPSystems.ox.html#DPSystem">DPSystem</a></span></h2>
@@ -319,6 +342,15 @@ especially when &delta; is near 1.
 </tr>
 </table>
 
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DynamicRsystem</span></h2>
+
+<a name="DynamicRsystem___DynamicRsystem"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">DynamicRsystem</span></h3>
+
+<span class="declaration">DynamicRsystem :: DynamicRsystem ( LB , Ncuts , METHOD )</span>
+<dl><dd>
+
+</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">EVSystem</span></h2>
 
 <a name="EVSystem___EV"></a>

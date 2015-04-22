@@ -16,10 +16,16 @@
 <h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">Parameters.ox</span></h1>
 
 Continually varying scalars and vectors to be optimized.
-<a href="#auto">Skip down to documentation of items defined in Parameters.ox</a><p>
+<a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Parameters.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 <P/>
- <OL class="body">
-<LI>Overview</LI>
+<OL class="contents">
+<LI><a href="A">Overview</a></LI>
+<LI><a href="#B">Scaling and Constraining</a></LI>
+<LI><a href="#C">Creating a new Parameter Class</a></LI>
+</OL>
+<P/>
+<OL class="body">
+<a name="A"><LI>Overview</LI></a>
 <DT>A <a href="Shared.ox.html#Parameter">Parameter</a> represents a <em>continuously</em> varying quantity</DT>
 <DD>This is opposed to quantities of the <a href="Shared.ox.html#Discrete">Discrete</a> class designed for finite ranges, usually integer values.</DD>
 <P/>
@@ -34,16 +40,15 @@ Continually varying scalars and vectors to be optimized.
 <P/>
 <DT>Parameters that are not determined and are added to the objective will be controlled by the optimization algorithm.</DT>
 <P/>
-<LI>Scaling and Constraining</LI>
+<a name="B"><LI>Scaling and Constraining</LI></a>
 <DT>By default, parameters are <em>scaled</em> during optimization. </DT>
 <DD>Scaling of parameters is performed so that algorithms typically work with values near 1.0 even when the actual values is very large or small in absolute value.  This can often help algorithms work efficiently.</DD>
 <DD>Scaling can be turned off (for all parameters), using <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>().</DD>
 <DT>The feasible values of a parameter can be determined by <em>constraining</em> the parameter.</DT>
 <DD>Parameter constraints are set by which derived <a href="Shared.ox.html#Parameter">Parameter</a> class it is used to create it.</DD>
 <DD>Constraints are imposed through monotonic transformations of the parameters.  For example, if <var>x&gt;0</var>, then FiveO will set <var>x.v = exp(s*f)</var>, where <code>f</code> is the value under control of the algorithm and <code>s</code> is a fixed scaling factor set so that <var>exp(s) = x<sub>0</sub></var>, or <var>s = ln(x<sub>0</sub>)</var>.  That is, the value of <code>s</code> ensures that at the start of the algorithm the free parameter is 1 and the structural parameter starts at the initial value.</DD>
-<DD>Parameter constraint is always within an <em>open interval</em>. The interval can be dynamic, in that lower and/or upper bounds can depend on the <em>current</em> value of some other parameter or a function of other parameters.
-<blockquote>Caution: dynamic constraints are imposed in the order parameters are added to the model.  So if the range of feasible values for parameter <var>x</var> depends on some other parameter <var>y</var>, then <var>y</var> <b>must</b> be added
-to the parameter list before <var>x</var>.</blockquote></DD>
+<DD>Parameter constraint is always within an <em>open interval</em>. The interval can be dynamic, in that lower and/or upper bounds can depend on the <em>current</em> value of some other parameter or a function of other parameters.<details class="aside"><summary>Caution about ordering:</summary>Dynamic constraints are imposed in the order parameters are added to the model.  So if the range of feasible values for parameter <var>x</var> depends on some other parameter <var>y</var>, it follows that <var>y</var> <b>must</b> be added
+to the parameter list before <var>x</var>.</details></DD>
 <DD>When the starting values are near their optimal values scaling and constraining is not necessary and it distorts the Hessian of the parameter vector.  So <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>() turns off both scaling and constraints for parameters that are not determined. The algorithm then works with the parameter <var>x</var> directly and inferences based on the Hessian is direct.</DD>
 <P/>
 <li>Parameter Blocks</li>
@@ -73,12 +78,12 @@ to the parameter list before <var>x</var>.</blockquote></DD>
  <DD>The user will only call <code>Decode</code> themselves if they are writing their own optimization algorithm or performing a related operation. This is because all algorithms and other operations using the user's objective will call <code>Decode()</code> internally before making a call to <code>vfunc()</code>.  </DD>
  <DD>An important duty of <code>Decode()</code> is to ensure that each parameter object's <code>v</code> member is set equal to the current value in the (internal) &psi; vector. That is, the user's program will rarely if ever have to refer to a parameter vector.  They simply refer to current or starting values of individual parameters and parameter blocks.</DD>
 <P/>
-<LI>Creating a new Parameter Class</LI>
+<a name="C"><LI>Creating a new Parameter Class</LI></a>
 <DT>The user can define their own type of parameter or block.  This could be derived from an existing class as a special case that requires fewer inputs from the user. </DT>
 <DD>The class must include <code>Encode()</code> and <code>Decode()</code> if these act differently than the versions for the parent class..</DD>
 <P/>
 </OL>
-<hr><a name="auto"><h1>Documentation of  Items Defined in Parameters.ox</h1></a>
+<a name="auto"><hr><h1>Documentation of  Items Defined in Parameters.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
 <a name="global"></a>
 <h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global functions</span></h2>
@@ -103,16 +108,21 @@ Warning issued if |v<sub>0</sub>)-(UB+UB)/2| &lt; <a href="Shared.ox.html#Parame
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#Bounded___l">l</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#Bounded___LB">LB</a></td>
 <td class="modifiers"></td>
 <td class="description"><a href="Shared.ox.html#AV">AV</a> compatible, the lower bound  </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Parameters.ox.html#Bounded___UB">UB</a></td>
 <td class="modifiers"></td>
 <td class="description"><a href="Shared.ox.html#AV">AV</a> compatible, the upper bound  </td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Parameters.ox.html#Bounded___Bounded">Bounded</a></td>
 <td class="modifiers"></td>
 <td class="description">Create a parameter bounded above and below.</td>
@@ -240,7 +250,7 @@ Bounded as: <var>-1 &lt; v &lt; 1</var> .
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Parameters.ox.html#Bounded">Bounded</a>:</dt><dd><a href="Parameters.ox.html#Bounded___LB">LB</a>, <a href="Parameters.ox.html#Bounded___UB">UB</a></dd>
+<dt>Inherited fields from <a href="Parameters.ox.html#Bounded">Bounded</a>:</dt><dd><a href="Parameters.ox.html#Bounded___l">l</a>, <a href="Parameters.ox.html#Bounded___LB">LB</a>, <a href="Parameters.ox.html#Bounded___UB">UB</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
 </dl>
@@ -609,7 +619,7 @@ Bounded as: <var>0 &lt; v &lt; 1</var> .
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Parameters.ox.html#Bounded">Bounded</a>:</dt><dd><a href="Parameters.ox.html#Bounded___LB">LB</a>, <a href="Parameters.ox.html#Bounded___UB">UB</a></dd>
+<dt>Inherited fields from <a href="Parameters.ox.html#Bounded">Bounded</a>:</dt><dd><a href="Parameters.ox.html#Bounded___l">l</a>, <a href="Parameters.ox.html#Bounded___LB">LB</a>, <a href="Parameters.ox.html#Bounded___UB">UB</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Parameter">Parameter</a>:</dt><dd><a href="Shared.ox.html#Parameter___block">block</a>, <a href="Shared.ox.html#Parameter___DoNotConstrain">DoNotConstrain</a>, <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>, <a href="Shared.ox.html#Parameter___f">f</a>, <a href="Shared.ox.html#Parameter___ival">ival</a>, <a href="Shared.ox.html#Parameter___scale">scale</a>, <a href="Shared.ox.html#Parameter___start">start</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
 </dl>
@@ -720,6 +730,15 @@ Create a parameter bounded above and below.
 </table>
 </dd>
 </dl>
+</dd></dl>
+
+<hr>
+<a name="Bounded___l"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">l</span></h3>
+
+<span class="declaration">decl l [public]</span>
+<dl><dd>
+
 </dd></dl>
 
 <hr>

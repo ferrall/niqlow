@@ -17,8 +17,8 @@ WStar::Run()	{
 	RV -> Solve();
 	}
 
-/** Return difference in vector of utilities at the cutoff(s) z. **/	
-WStar::Udiff(z) {	return -z;	}
+/** Return vector of utilities at the cutoff(s) z. **/	
+WStar::Uz(z) {	return eta | eta+z;	}
 
 /** Return E[U|z&lt;z*] and E[U|z&ge;z*] and respective probabilities.
 Use Mill's ratio to compute truncated mean of normal.

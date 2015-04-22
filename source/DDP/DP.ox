@@ -30,17 +30,19 @@ Say hello after every Bellman iteration is complete:
 **/
 Hooks::Add(time,proc) {
     if ( time<0 || time>=NHooks ) oxrunerror("Invalid hook time.  See Hooks and HookTimes");
-    if ( !isfunction(proc) ) oxrunerror("proc must be static function or method");
+    if ( !isfunction(proc) ) oxrunerror("proc must be static function or method AND should return an integer value");
     hooks[time] |= proc;
+    if (time==GroupCreate) Flags::AllGroupsExist = FALSE;
     }
 
 /**  Call all the methods on the hook.
 @internal
 **/
 Hooks::Do(ht) {
-    decl p ;
+    decl p, rv=<>;
     h=hooks[ht];
-    foreach(p in h) p();
+    foreach(p in h) rv |= p();
+    return rv;
     }
 
 /** Tracks information about a subvector of the state vector. **/
@@ -277,6 +279,9 @@ DP::GroupVariables(v1,...)	{
 
 /** Add variables to the action vector <code>&alpha;</code>.
 @param Act1 ... `ActionVariable`s to add
+
+See <a href="Variables.ox.html#ActionVariables">Action Variables</a> for an explanation.
+
 @comments
 If no action variables are added to <code>MyModel</code> then a no-choice action is added by `DP::CreateSpaces`().
 **/
@@ -288,16 +293,16 @@ DP::Actions(Act1,...) 	{
 		N::AA |= va[i].N;
 		sL = va[i].L;
 		if (!pos) {
-			ActionMatrix = va[i].vals';
-			Vlabels[avar] = {sL};
-            Vprtlabels[avar] = {sL[:min(4,sizec(sL)-1)] };
+			Alpha::Matrix = va[i].vals';
+			Labels::V[avar] = {sL};
+            Labels::Vprt[avar] = {sL[:min(4,sizec(sL)-1)] };
 			}
 		else {
-			Vlabels[avar] |= sL;
-            Vprtlabels[avar] |= sL[:min(4,sizec(sL)-1)];
-			nr = rows(ActionMatrix);
-	 		ActionMatrix |= reshape(ActionMatrix,(va[i].N-1)*nr,pos);
-			ActionMatrix ~= vecr(va[i].vals' * ones(1,nr));
+			Labels::V[avar] |= sL;
+            Labels::Vprt[avar] |= sL[:min(4,sizec(sL)-1)];
+			nr = rows(Alpha::Matrix);
+	 		Alpha::Matrix |= reshape(Alpha::Matrix,(va[i].N-1)*nr,pos);
+			Alpha::Matrix ~= vecr(va[i].vals' * ones(1,nr));
 	 		}
 		++pos;
 		}
@@ -314,16 +319,16 @@ DP::AuxiliaryOutcomes(auxv,...) {
 		Chi |= va[i];
         sL =va[i].L;
 		if (!pos) {
-            Vlabels[auxvar] = {sL};
-            Vprtlabels[auxvar] = {sL[:min(4,sizec(sL)-1)]};
+            Labels::V[auxvar] = {sL};
+            Labels::Vprt[auxvar] = {sL[:min(4,sizec(sL)-1)]};
             }
         else {
-            Vlabels[auxvar] |= sL;
-            Vprtlabels[auxvar] |= sL[:min(4,sizec(sL)-1)];
+            Labels::V[auxvar] |= sL;
+            Labels::Vprt[auxvar] |= sL[:min(4,sizec(sL)-1)];
             }
         for (n=1;n<va[i].N;++n) {
-            Vlabels[auxvar] |= sL;
-            Vprtlabels[auxvar] |= sL[:min(4,sizec(sL)-1)];
+            Labels::V[auxvar] |= sL;
+            Labels::Vprt[auxvar] |= sL[:min(4,sizec(sL)-1)];
             }
 		va[i].pos = pos++;
 		}
@@ -381,7 +386,7 @@ CGTask::CGTask() {
 @internal
 **/
 CGTask::Run() {
-	Gamma[I::g] =  (isint(Flags::GroupExists)||Flags::GroupExists())
+	Gamma[I::g] =  (Flags::AllGroupsExist||any(Hooks::Do(GroupCreate)))
 						? new Group(I::g,state)
 						: 0;
 	}
@@ -393,6 +398,29 @@ DPMixture::DPMixture() 	{	RETask();	}
 @internal
 **/
 DPMixture::Run() 	{	if (isclass(CurGroup()))     GroupTask::qtask->GLike();	}
+
+/**
+@internal
+**/
+Alpha::Initialize() {
+	Count = <0>;
+	List = array(Matrix);
+	A = array(Matrix);
+	Sets = array(ones(N::A,1));
+    N::Options = matrix(rows(Matrix));
+    }
+
+/**
+@internal
+**/
+Labels::Initialize() {
+    V = new array[NColumnTypes];
+    Vprt = new array[NColumnTypes];
+    decl vl;
+    foreach(vl in V) vl = {};
+    foreach(vl in Vprt) vl = {};
+	format(500);
+    }
 
 /** Reset all Flags.
 @internal
@@ -414,8 +442,8 @@ N::Initialize() {
     G = DP::SS[bothgroup].size;
 	R = DP::SS[onlyrand].size;
 	F = DP::SS[onlyfixed].size;
-	A = rows(DP::ActionMatrix);
-	Av = sizec(DP::ActionMatrix);
+	A = rows(Alpha::Matrix);
+	Av = sizec(Alpha::Matrix);
     /*	if (Flags::UseStateList) */
     tfirst = constant(UnInitialized,T,1);
 	ReachableStates = TerminalStates = 0;
@@ -466,7 +494,6 @@ N::Reached(trackind) {
 FALSE if the state is not reachable.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE, traverse &Theta; through iteration on all state variables
-@param GroupExists integer [default], the full group space will be created.<br>a <em>static</em> function that returns TRUE if the group exists.
 
 @comments
 Each DDP has its own version of Initialize, which will call this as well as do further set up.
@@ -476,25 +503,20 @@ Each DDP has its own version of Initialize, which will call this as well as do f
 UseStateList=TRUE may be much faster if the untrimmed state space is very large compared to the trimmed (reachable) state space.
 
 **/
-DP::Initialize(userReachable,UseStateList,GroupExists) {
+DP::Initialize(userReachable,UseStateList) {
     decl subv;
     Version::Check();
     if (Flags::ThetaCreated) oxrunerror("Must call DP::Delete between calls to CreateSpaces and Initialize");
     Hooks::Reset();
     this.userReachable = userReachable;
     Flags::UseStateList=UseStateList;
-	Flags::GroupExists = isfunction(GroupExists) ? GroupExists : 0;
+	Flags::AllGroupsExist = TRUE;
  	now = NOW;
  	later = LATER;
  	SubVectors = new array[DSubVectors];
- 	Asets = Blocks = Gamma = Theta =  States = Sfmts= Chi = {};
-    Vlabels = new array[NColumnTypes];
-    Vprtlabels = new array[NColumnTypes];
-    decl vl;
-    foreach(vl in Vlabels) vl = {};
-    foreach(vl in Vprtlabels) vl = {};
-	format(500);
-	ActionMatrix = N::AA = N::Options = <>;
+    Alpha::Matrix = N::AA = N::Options = <>;
+    Blocks = Gamma = Theta =  States = Labels::Sfmts= Chi = {};
+    Labels::Initialize();
 	SS = new array[DSubSpaces];
  	S = new array[DSubVectors];
  	for (subv=0;subv<DSubVectors;++subv)  	{ SubVectors[subv]={}; S[subv] = new Space(); }
@@ -621,15 +643,15 @@ DP::CreateSpaces() {
 			sL = SubVectors[subv][m].L;
 			if (ismember(bb=SubVectors[subv][m],"block"))  			
 				bb.block.Theta[bb.bpos] = pos;
-            if (!sizeof(Vlabels[svar])) {
-                Vlabels[svar] = {sL};
-                Vprtlabels[svar] = {sL[:min(4,sizec(sL)-1)]};
+            if (!sizeof(Labels::V[svar])) {
+                Labels::V[svar] = {sL};
+                Labels::Vprt[svar] = {sL[:min(4,sizec(sL)-1)]};
                 }
             else {
-			 Vlabels[svar] |= sL;
-             Vprtlabels[svar] |= sL[:min(4,sizec(sL)-1)];
+			 Labels::V[svar] |= sL;
+             Labels::Vprt[svar] |= sL[:min(4,sizec(sL)-1)];
              }
-			Sfmts |= sfmt;
+			Labels::Sfmts |= Labels::sfmt;
 			}
 		N::All |= S[subv].N;
 		}
@@ -650,11 +672,7 @@ DP::CreateSpaces() {
 	SS[bothgroup]	->Dimensions(<rgroup;fgroup>,FALSE);
 	SS[allstates]	->Dimensions(<exog;semiexog;endog;clock;rgroup;fgroup>,FALSE);
     N::Initialize();
-	Asets = array(ActionMatrix);
-	AsetCount = <0>;
-	A = array(ActionMatrix);
-	ActionSets = array(ones(N::A,1));
-    N::Options |= rows(ActionMatrix);
+    Alpha::Initialize();
 	if (Flags::UseStateList) {
 		if (isclass(counter,"Stationary")) oxrunerror("canNOT use state list in stationary environment");
 		}
@@ -669,7 +687,7 @@ DP::CreateSpaces() {
 
         println("1. CLOCK\n    ",ClockType,". ",ClockTypeLabels[ClockType]);
 		println("2. STATE VARIABLES\n","%18s","|eps",w0,"|eta",w1,"|theta",w2,"-clock",w3,"|gamma",
-		"%r",{"       s.N"},"%cf","%7.0f","%c",Vprtlabels[svar],N::All');
+		"%r",{"       s.N"},"%cf","%7.0f","%c",Labels::Vprt[svar],N::All');
 		for (m=0;m<sizeof(States);++m)
 			if (!isclass(States[m],"Fixed")&&States[m].N>1)
 			++sbins[  isclass(States[m],"NonRandom") ? NONRANDOMSV
@@ -693,7 +711,7 @@ DP::CreateSpaces() {
 							"%cf",{"%17.0f"},
 			SS[onlyexog].size|SS[onlysemiexog].size|SS[onlyendog].size|SubVectors[clock][0].N|SS[iterating].size|SS[tracking].size|N::R|N::F|SS[allstates].size);
 		print("\n4. ACTION VARIABLES\n   Number of Distinct action vectors: ",N::A);
-		println("%r",{"    a.N"},"%cf","%7.0f","%c",Vprtlabels[avar],N::AA');
+		println("%r",{"    a.N"},"%cf","%7.0f","%c",Labels::Vprt[avar],N::AA');
 		}
     Flags::ThetaCreated = TRUE;
 	cputime0=timer();
@@ -713,8 +731,8 @@ DP::CreateSpaces() {
        delete tt.insamp;
        }
 	delete tt;
-    N::J = sizeof(ActionSets);
 	if ( Flags::IsErgodic && N::TerminalStates ) oxwarning("NOTE: time is ergodic but terminal states exist???");
+    N::J = sizeof(Alpha::Sets);
 	tt = new CGTask();	delete tt;
 	if (isint(zeta)) zeta = new ZetaRealization(0);
 	DPDebug::Initialize();
@@ -728,17 +746,17 @@ DP::CreateSpaces() {
         print("    -------------"); for (i=0;i<N::J;++i) print("---------"); println("");
         decl everfeasible, totalnever = 0;
 		for (j=0;j<N::A;++j) {
-			for (i=0,av="    (";i<N::Av;++i) av ~= sprint("%1u",ActionMatrix[j][i]);
+			for (i=0,av="    (";i<N::Av;++i) av ~= sprint("%1u",Alpha::Matrix[j][i]);
 			av~=")";
 			for (i=0;i<8-N::Av;++i) av ~= " ";
             everfeasible = FALSE;
 			for (i=0;i<N::J;++i) {
-                    av ~= ActionSets[i][j] ? "    X    " : "    -    ";
-                    everfeasible = everfeasible|| (AsetCount[i]&&ActionSets[i][j]);
+                    av ~= Alpha::Sets[i][j] ? "    X    " : "    -    ";
+                    everfeasible = everfeasible|| (Alpha::Count[i]&&Alpha::Sets[i][j]);
                     }
 			if (everfeasible) println(av);  else ++totalnever;
 			}
-		for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",AsetCount[i]);
+		for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",Alpha::Count[i]);
 		println(av);
         print("    -------------"); for (i=0;i<N::J;++i) print("---------");
         println("\n    Key: X = row vector is feasible. - = infeasible");
@@ -996,7 +1014,7 @@ DumpExogTrans::DumpExogTrans() {
 	left = S[exog].M;	right = S[semiexog].X;
 	s = <>;
 	loop();
-	print("Exogenous and Semi-Exogenous State Variable Transitions ","%c",{" "}|Vprtlabels[svar][S[exog].M:S[semiexog].X]|"f()","%cf",array(Sfmts[0])|Sfmts[3+S[exog].M:3+S[semiexog].X]|"%15.6f",s);
+	print("Exogenous and Semi-Exogenous State Variable Transitions ","%c",{" "}|Labels::Vprt[svar][S[exog].M:S[semiexog].X]|"f()","%cf",array(Labels::Sfmts[0])|Labels::Sfmts[3+S[exog].M:3+S[semiexog].X]|"%15.6f",s);
 	delete s;
 	}
 	
@@ -1096,12 +1114,6 @@ DP::SetClock(ClockOrType,...)	{
 	N::T = counter.t.N;
 	}
 
-/** End of the Process.
-@return TRUE if the current period is the absolute end of the process.<br> FALSE otherwise.
-**/
-DP::Last() { return counter->Last(); }
-
-
 
 /** Update dynamically changing components of the program at the time chosen by the user.
 
@@ -1138,18 +1150,20 @@ DP::UpdateVariables()	{
 		} while (i<sizeof(States));
 	for (i=0;i<sizeof(S[acts]);++i)	{
 		S[acts][i]->Update();
-		if (!i) A[0] = S[acts][i].actual;
+		if (!i) Alpha::A[0] = S[acts][i].actual;
 		else {
-			nr = rows(A[0]);
-	 		A[0] |= reshape(A[0],(S[acts][i].N-1)*nr,i);
-			A[0] ~= vecr(S[acts][i].actual * ones(1,nr));
+			nr = rows(Alpha::A[0]);
+	 		Alpha::A[0] |= reshape(Alpha::A[0],(S[acts][i].N-1)*nr,i);
+			Alpha::A[0] ~= vecr(S[acts][i].actual * ones(1,nr));
 			}		
 		}
-	for (i=1;i<N::J;++i) A[i][][] = selectifr(A[0],ActionSets[i]);
+	for (i=1;i<N::J;++i) Alpha::A[i][][] = selectifr(Alpha::A[0],Alpha::Sets[i]);
+    A = Alpha::A;  // Have DP::A point to Alpha::A.
 	ExogenousTransition();
     //    if (!isint(state)) ETT.state = state;
 	ETT.current = ETT.subspace = iterating;
 	ETT->Traverse();          //Endogenous transitions
+    CVdelta = AV(delta);
 	}
 
 /** .
@@ -1311,28 +1325,102 @@ UpdateDensity::UpdateDensity() {
 **/
 UpdateDensity::Run() {	CurGroup()->Density();	}
 
-/**Print the value function EV(&theta;) and choice probability <code>&Rho;*(&alpha;,&epsilon;,&eta;;&theta;)</code> or index of max &Rho;*.
+/** Print the table of value functions and choice probabilities for all fixed effect groups.
 @param ToScreen  TRUE means output is displayed.
 @param aM	address to return matrix<br>0, do not save
-@param MaxChoiceIndex FALSE &eq; print choice probability vector (default)<br>TRUE &eq; only print index of choice with max probability.  Useful when the full action matrix is very large.
+@param MaxChoiceIndex FALSE = print choice probability vector (default)<br>TRUE = only print index of choice with max probability.  Useful when the full action matrix is very large.
+@param TrimTerminals TRUE means states marked `Bellman::IsTerminal` are deleted
+@param TrimZeroChoice TRUE means states with no choice are deleted
+
+@example
+Print out everthing to the screen once model is solved:
+<pre>
+   &vellip;
+   CreateSpaces();
+   meth = new ValueIteration();
+   DPDebug::outAllV();
+   meth->Solve();
+</pre>
+Store everthing to a matrix without printing to the screen:
+<pre>
+   decl av;
+   &vellip;
+   DPDebug::outAllV(FALSE,&av);
+</pre>
+Print to screen only highest-probability choice index (not all probabilities) for non-terminal states with a real choice:
+<pre>
+   DPDebug::outAllV(TRUE,FALSE,TRUE,TRUE,TRUE);
+</pre>
+
+the screen once model is solved:
+
+</dd>
+The tables for individual fixed effect groups are concatenated together if <code>aM</code> is an address.
+On the screen the tables are printed out separately for each fixed effect.
+
+@see DPDebug::outV
+**/
+DPDebug::outAllV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
+	rp = new SaveV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice);
+    OutAll = TRUE;
+    }
+
+/**For the current fixed-effect group, print the value function EV(&theta;) and choice probability <code>&Rho;*(&alpha;,&epsilon;,&eta;;&theta;)</code> or index of max &Rho;*.
+@param ToScreen  TRUE means output is displayed.
+@param aM	address to return matrix<br>0, do not save
+@param MaxChoiceIndex FALSE = print choice probability vector (default)<br>TRUE = only print index of choice with max probability.  Useful when the full action matrix is very large.
+
 
 The columns of the matrix are:
 <DD><pre>
-StateIndex IsTerminal Aindex EndogenousStates t t' REStates FEStates EV &Rho;(&alpha;)'
-</pre></DD>
+StateIndex IsTerminal Aindex EndogenousStates t REIndex FEIndex EV &Rho;(&alpha;)'
+</pre>
+and
+<pre>
+Column                Definition
+---------------------------------------------------------------------------------------
+StateIndex            Integer index of the state in the endogenous state space &Theta;
+IsTerminal            The state is terminal, see `StateVariable::TerminalValues`
+Aindex                The index of the feasible action set, A(&theta;)
+EndogenousStates      The value of the endogenous state variables at &theta;
+t                     The time variable, see `DP::SetClock` and `I::t`.
+REIndex               The index into the random effect state space
+FEIndex               The index into the fixed effect state space
+EV                    EV(&theta;) integrating over any exogenous (&epsilon;) or
+                      semi-exogenous (&eta;) state variables.
+&Rho;                 The conditional choice probability vector (transposed into a column
+                      and expanded out to match the full potential action matrix.
+                      (or if <code>MaxChoiceIndex</code> just the index with the highest
+                      choice probability.
+</pre>
+</DD>
+
+@comments
+When a solution `Method::Volume` is set to <code>LOUD</code> this function is called after each
+fixed effect group is complete.
+
+@see DPDebug::outAllV
 
 **/
-DPDebug::outV(ToScreen,aM,MaxChoiceIndex) {
-	decl rp = new SaveV(ToScreen,aM,MaxChoiceIndex);
-	if (ToScreen) {
-        print("\n     Value of States and Choice Probabilities");
-        if (N::F>1) print("\n     Fixed Group Index(f): ",I::f);
-        println("\n",div);
-        }
-	rp -> Traverse();
-	if (ToScreen) println(div,"\n");	
-	delete rp;
+DPDebug::outV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
+    outAllV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice);
+    OutAll = FALSE;
+    DPDebug::RunOut();
 	}
+
+DPDebug::RunOut() {
+	if (rp.ToScreen) {
+            print("\n     Value of States and Choice Probabilities");
+            if (N::F>1) print("\n     Fixed Group Index(f): ",I::f);
+            println("\n",div);
+            }
+	rp -> Traverse();
+	if (rp.ToScreen) println(div,"\n");	
+	if (!OutAll || !I::f ) {   //last or only fixed group, so delete rp and reset.
+        delete rp;
+        OutAll = FALSE;
+        }
+    }
 
 DPDebug::outAutoVars() {
 	decl rp = new OutAuto();
@@ -1342,8 +1430,8 @@ DPDebug::outAutoVars() {
 
 DPDebug::Initialize() {
     sprintbuffer(16 * 4096);
-	prtfmt0 = array("%8.0f")|Sfmts[1:3]|Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%15.6f";
-	Vlabel0 = {"    Indx","I","T","A"}|Vprtlabels[svar][S[endog].M:S[clock].M]|"     r"|"       EV      |";
+	prtfmt0 = array("%8.0f")|Labels::Sfmts[1:3]|Labels::Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%6.0f"|"%15.6f";
+	Vlabel0 = {"    Indx","I","T","A"}|Labels::Vprt[svar][S[endog].M:S[clock].M]|"     r"|"     f"|"       EV      |";
 	}
 
 DPDebug::DPDebug() {
@@ -1355,13 +1443,15 @@ DPDebug::DPDebug() {
 
 /** Save the value function as a matrix and/or print.
 @param ToScreen  TRUE, print to output (default)
-@param aM  0&eq; do not save to a matrix (default) <br>address to save too
-@param MaxChoiceIndex FALSE &eq; print choice probability vector (default)<br>TRUE &eq; only print index of choice with max probability.  Useful when the full action matrix is very large.
+@param aM  = 0 do not save to a matrix (default) <br>address to save too
+@param MaxChoiceIndex = FALSE  print choice probability vector (default)<br>= TRUE only print index of choice with max probability.  Useful when the full action matrix is very large.
 **/
-SaveV::SaveV(ToScreen,aM,MaxChoiceIndex) {
+SaveV::SaveV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
     DPDebug::DPDebug();
 	this.ToScreen = ToScreen;
     this.MaxChoiceIndex = MaxChoiceIndex;
+    this.TrimTerminals = TrimTerminals;
+    this.TrimZeroChoice = TrimZeroChoice;
 	SVlabels = Vlabel0 | (MaxChoiceIndex ? {"index" | "maxP*" | "sum(P)"} : "Choice Probabilities:");
     prtfmt  = prtfmt0;
     if (MaxChoiceIndex)
@@ -1370,17 +1460,12 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex) {
         for(decl i=0;i<N::A;++i) prtfmt |= "%9.6f";
         prtfmt |= "%15.6f";
         }
-	if (isint(aM))
-		this.aM = 0;
-	else {
-		this.aM = aM;
-		this.aM[0] = <>;
-		}
+	if ( !isint(this.aM = aM) ) this.aM[0] = <>;
 	nottop = FALSE;
 	}
 	
 SaveV::Run(th) {
-	if (!isclass(th,"Bellman")  || (SaveV::TrimTerminals && th.IsTerminal) || (SaveV::TrimZeroChoice && N::Options[th.Aind]<=1) ) return;
+	if (!isclass(th,"Bellman")  || (TrimTerminals && th.IsTerminal) || (TrimZeroChoice && N::Options[th.Aind]<=1) ) return;
     decl mxi, p;
 	stub=I::all[tracking]~th.InSubSample~th.IsTerminal~th.Aind~state[S[endog].M:S[clock].M]';
 	for(re=0;re<sizeof(th.EV);++re) {

@@ -7,7 +7,7 @@ struct WStar : OneDimensionalChoice	{
 	static Reachable();
 	static Run();
 	WStar();
-	Udiff(z);
+	Uz(z);
 	EUtility();
 	Utility();
 	}
