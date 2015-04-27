@@ -2,9 +2,8 @@
 
 DynamicRoy::Replicate()	{
 	decl i, BF, KW,OutMat, AMat, BMat;	
-	Initialize(Reachable,TRUE,0);
+	Initialize(Reachable,TRUE);
 	SetClock(NormalAging,A1);
-    SubSampleStates(constant(1.0,1,3)~constant(0.2,1,A1-3),30,100 );
 	Actions(accept = new ActionVariable("Accept",Msectors));
     GroupVariables(lnk = new NormalRandomEffect("lnk",3,0.0,1.0));
 	EndogenousStates(attended   = new ActionTracker("attended",accept,school));
@@ -25,13 +24,14 @@ DynamicRoy::Replicate()	{
 	       | gamm;
             };
 	CreateSpaces(LogitKernel,1/4000.0);
-//	BF = new ValueIteration();
-//	BF -> Solve();
-//	DPDebug::outV(FALSE,&AMat);
+	BF = new ValueIteration();
+	BF -> Solve();
+    SubSampleStates(constant(1.0,1,3)~constant(0.2,1,A1-3),30,100 );
+	DPDebug::outV(FALSE,&AMat);
 	KW = new KeaneWolpin();
 	KW -> Solve();
-	DPDebug::outV(TRUE);  // (FALSE,&BMat);
-//    println("difference ","%c",{"EV","Choice Probs"},(BMat-AMat)[][columns(BMat)-Msectors-1:]);
+	DPDebug::outV(FALSE,&BMat);
+    println("difference ","%c",{"EV","Choice Probs"},(BMat-AMat)[][columns(BMat)-Msectors-1:]);
 }
 
 /** Rule out schooling if too old **/

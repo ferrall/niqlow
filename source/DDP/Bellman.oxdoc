@@ -14,7 +14,7 @@
 <pre>
 &#35;import DDP
 
-struct MyModel : ExPostSmoothing {
+class MyModel : ExPostSmoothing {
     // declare data members
             Utility(A);
     static Reachable();
@@ -35,13 +35,13 @@ struct MyModel : ExPostSmoothing {
 
 <DT>Classes of type `Bellman` code the form of Bellman's equation for the specification:
 <DD class="disp">
-$V(\theta^\prime)\quad \equiv \quad \sum_{\eta}\ \sum_{\epsilon}\left[ \int_{\zeta} V\left(\eta,\epsilon,\eta,\theta^\prime\right)f(\eta)d\eta \right] P_\epsilon(\epsilon)P_\eta(\eta)$
+$V(\theta^{\,\prime)}\quad \equiv \quad \sum_{\eta}\ \sum_{\epsilon}\left[ \int_{\zeta} V\left(\eta,\epsilon,\eta,\theta^{\,\prime}\right)f(\eta)d\eta \right] P_\epsilon(\epsilon)P_\eta(\eta)$
 
-$EV(\theta^\prime) = E_{\alpha,\eta,\theta} \left[V(\theta^\prime)\right] = \sum_{\theta^\prime} \left [ V\left(\theta^\prime\right)P\left(\theta^\prime\ ;\ \alpha,\eta,\theta\right)\right]$
+$EV(\theta^{\,\prime}) = E_{\alpha,\eta,\theta} \left[V(\theta^{\,\prime})\right] = \sum_{\theta^{\,\prime}} \left [ V\left(\theta^{\,\prime}\right)P\left(\theta^{\,\prime}\ ;\ \alpha,\eta,\theta\right)\right]$
 
-$v(\alpha;\zeta,\epsilon,\eta,\theta) \equiv U(\alpha,\epsilon,\eta,\theta,\gamma) + \zeta_\alpha + \delta EV(\theta^\prime).$
+$v(\alpha;\zeta,\epsilon,\eta,\theta) \equiv U(\alpha,\epsilon,\eta,\theta,\gamma) + \zeta_\alpha + \delta EV(\theta^{\,\prime}).$
 
-$V(\zeta,\epsilon,\eta,\theta)\quad=\quad\max_{\alpha\in A(\theta)}\ v(\alpha;\zeta,\epsilon,\eta,\theta).$ 
+$V(\zeta,\epsilon,\eta,\theta)\quad=\quad\max_{\alpha\in A(\theta)}\ v(\alpha;\zeta,\epsilon,\eta,\theta).$
 <pre>
 V(&theta;&prime;) &equiv;  &sum;<sub>&eta;</sub>  &sum;<sub>&epsilon;</sub>  &int;<sub>&zeta;</sub> [ V(&zeta;,&epsilon;,&eta;,&theta;&prime;) ] f(&zeta;)d&zeta; &Rho;<sub>&epsilon;</sub>(&epsilon;)&Rho;<sub>&eta;</sub>(&eta;)
 
@@ -89,7 +89,7 @@ Example 2.  States where state variables x and y greater than 5 are not reachabl
 <pre>MyModel::FeasibleActions(A) { return A[d.pos][] &lt;= CV(x); }</pre>
 </DD>
 <LI>Hooks and Update Time</LI>
-<DT><code>MyModel</code> can use `Hook::Add`() to have a static method/function called at different points in solution methods.</DT>
+<DT><code>MyModel</code> can use `Hooks::Add`() to have a static method/function called at different points in solution methods.</DT>
 <DT><code>MyModel</code> can also use `DP::SetUpdateTime`() to set when solution methods should update transition probabilities and utility of actions.  </DT>
 <DD>This allows transitions and utility to depend on fixed and random effect variables, but if they do not wasted computations can be avoided by updating higher up in the process.</DD>
 

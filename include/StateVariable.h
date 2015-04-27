@@ -16,35 +16,72 @@ struct StateVariable : Discrete	{
 	MakeTerminal(TermValues);
 	static  IsBlock(sv);
 	static  IsBlockMember(sv);		
+    static  Prunable(clock);
 	virtual Transit(FeasA);
 	virtual UnChanged(FeasA);
-    virtual UnReachable(clock=0);
+    virtual IsReachable(clock=0);
     virtual Check();
     virtual myAV();
 	}
 	
 /**Scalar `StateVariable` with statistically independent transition.
-@comment The transition may depend on the current action, states, and parameters: (&alpha;,&epsilon;,&theta;,&psi;).  But
-		 the probabilities of next states for this variable are independent of the transitions of all other states.
-		
-@see Coevolving, Random, NonRandom, PhasedTreatment
+
+<DT>A state variable <code>q</code> is <em>autonomous</em> when:</DT>
+<DD>Its conditional transition to the next value <code>q<sup>'</sup></code> is independent of all other transitions.  </DD>
+<DD>That is, its transition $P_q(q^{\,\prime}; \alpha,\theta,\epsilon)$ is statistically independent of all other
+transitions.</DD>
+<DD>An autonomous <code>q</code> is not necessarily independent of another state variable <code>s</code> because both
+transitions can depend on the current state and actions.</dd>
+<DD>So <em>autonomous</em> means independent conditional on all current state variables values and actions.</DD>
+<DT>The counterpart to an autonomous state variable is a `Coevolving` one</DT>
+
+
+@see Coevolving
 **/
 struct Autonomous : StateVariable { }
 
-/** State variables with non-random transition.
-Next state is determined by the current state and action.
-@comment The current version of the code makes no distinction between random and non-random states.  The classification is simply a way to
-organize different kinds of state variables into a taxonomy.
+/** A container class for state variables with a non-random transition.
+
+<span class="n">DDP</span> makes no distinction between random and non-random state variables except
+to organize different kinds of transitions into a taxonomy.
+
+A non-random state variable has a transition which is 0 for all possible states except one, for which
+it equals 1. Its state next period is determined by the current state and action.
+
+@example
+<code>q</code> counts how many times another state variable <code>s</code> has equalled 1 in the past.  Since
+the current value of <code>s</code> is known, the value of <code>q</code> next period is (conditionally)
+deterministic.
+As a transition function:
+<pre>
+q' = q + I{s=1}
+</pre>
+As a transition probability:
+&Rho;(q'; q,s) = I{ q' = q + I{s=1} }
+</pre></dd>
+
 **/
 class NonRandom : Autonomous { }
 
-/** State variables with a random transition.
-@comment The current version of the code makes no distinction between random and non-random states.  The classification is simply a way to
-organize different kinds of state variables into a taxonomy.
+/** State variables with a non-determinisitic transition.
+
+<span class="n">DDP</span> makes no distinction between random and non-random state variables except
+to organize different kinds of transitions into a taxonomy.
+
+A random state variable has a transition which is not a 0/1 . Its state next period is determined by the current state and action.
+
 **/
 class Random : Autonomous	{ }
 
 /** State variables that augment another state variable (the base) or otherwise specialize it.
+
+Augmented state variables groups together state variables whose transitions is modified version
+of some other pre-defined autonomous state variable.  They are designed to be somewhat flexible
+so that the nature of the augmentation is independent of the underlying base transition.
+
+For example, the `Triggered` state variables have a transition that is the same as the base variable sent
+when defining the augmented state variable unless a triggering condition is met.  In that case the
+value next period is a special one that is not what the base transition would be.
 
 **/
 class Augmented : StateVariable {
@@ -52,9 +89,11 @@ class Augmented : StateVariable {
     Augmented(Lorb,N=0);
     }
 
-/**Transition depends on transition of one or more other state variables.
+/**A member of a block: transition depends on transition of one or more other state variables.
+
 @comment Coevolving variables do not have their own Transit() function.  Instead they
 		 sit in a `StateBlock` that has a Transit().
+
 @see StateBlock, Autonomous, StateBlock::AddToBlock
 **/
 struct Coevolving : Augmented {
@@ -158,8 +197,9 @@ class RandomTrigger : Triggered {
     }
 
 /** When a `PermanentChoice` occurs then this state permanently becomes equal to its reset value.
-This class provides a replacement for `StateVariable::Unreachable`() that trims the state.
-This is ActionTriggered because it checks if `PermanentChoice::Target` is 1 and transits.
+This is ActionTriggered because it checks if `Lagged::Target` of the the PermanentChoice equals 1 and transits.
+This class provides a replacement for `StateVariable::IsReachable`() that trims the state space &Theta;
+because only cases of the target equal to 1 and this variable equal to its rval are reachable.
 @comments
 This state variable is designed to collapse the state space down when an event is triggered.
 **/
@@ -167,7 +207,7 @@ class Forget : ActionTriggered {
     const decl pstate;
     Forget(b,pstate,rval=0);
     virtual Transit(FeasA);
-    virtual UnReachable(clock=0);
+    virtual IsReachable(clock);
     }
 
 /** When the trigger value returns TRUE this state freezes at its current value.
@@ -201,10 +241,20 @@ struct LogNormalOffer : Offer {
 
 /**A Markov process.
 
+<DT>Definition: A Markov state variable <code>q</code> is an autonomous random variable </DT>
+
+<DD>whose a transition depends (at most) on its own current value.</DD>
+<DD>That is, its transition does not depend on either the values of other state variables or the current action vector.</DD>
+<DD>Because <code>q</code> is discrete and the transition to <code>q'</code> can only depend on <code>q</code>,
+the transition is a square matrix.</DD>
+<DD>Note that elements of the transition matrix do not have to be constant values.  They can be parameters or
+functions of parameters that are evaluated each time the problem is solved,</DD>
+<DD>The <span class="n">FiveO</span> function <a href="../FiveO/Parameters.ox.html#TransitionMatrix">TransitionMatrix</a>
+will create and return an array of simplexes which can be sent as the transition matrix in the general Markov case.</DD>
+
 <DT>Transition:</DT>
 
-The transition must be square.  The number of values it takes
-is determined by the dimension of the column or vector.
+The transition must be square.  The number of values it takes is determined by the dimension of the column or vector.
 
 If it is a matrix, then the rows are next period states and the columns are currents.
 <dd class="math">$$P(s'=z|s) = \Pi_{zs}$$</dd>
@@ -217,9 +267,10 @@ A 3x3 transition matrix.
                0.02 ~ 0.80 ~0.3;
                0.08 ~ 0.01 ~0.11>
   x = new Markov("x",tmat);
+  EndogenousStates(x);
 </pre></dd>
 
-@see Offer, TransitionMatrix
+@see Offer, <a href="../FiveO/Parameters.ox.html#TransitionMatrix">TransitionMatrix</a>
 **/
 struct Markov : Random {
 	const decl	Pi;
@@ -238,7 +289,8 @@ struct Markov : Random {
 decl health = new IIDJump("h",<0.1;0.8;0.1>);
 </pre>
 
-@comments Eligible to be an Exogenous variable, a member of &epsilon;
+@comments Unlike a general Markov variable, a IIDJump is eligible to be an Exogenous variable, a member of &epsilon;,
+added to the model with `DP::ExogenousStates`.
 
 **/
 struct IIDJump : Markov {
@@ -261,7 +313,7 @@ A job offer is available with a dynamically changing probability with initial va
 <pre>
 decl poff = new Probability("op",0.6);
 decl hasoffer = new IIDJump("off",poff);
-</pre>
+</pre></DD>
 
 **/
 struct IIDBinary : IIDJump {
@@ -280,10 +332,12 @@ struct SimpleJump : IIDJump {
 	Transit(FeasA);
 	}
 
-/**An IID variable that Jumps to a new value with probability &pi;.
-<DT>Transition:
+/**A variable that jumps to a new value with probability &pi;, otherwise stays the same.
+
+<DT>Transition:</DT>
 <dd class="math">$$P(s'=z|s) = \pi / N  + (1-\pi)I\{z=s\}.</pre></dd>
 @example
+
 @see SimpleJump, Offer
 **/
 struct Jump : Markov 	{
@@ -294,9 +348,14 @@ struct Jump : Markov 	{
 
 /** A placeholder for variables to be added to the model later.
 
-Used internally	so that no subvector is empty.  Takes on the value 0 each period.
+This class is used internally  so that no subvector is empty.  It takes on the value 0 each period.
 Since it takes on only one value it does not affect the size of state spaces, only the
 length of the state vector.
+
+The user might want to add a fixed variable to the model as placeholder for a state variable that
+is not coded yet.  For example, if in the complete model <code>q</code> is a complex new state
+variable that will require coding of a new <code>Transit()</code> function, then you made start
+with <code>q</code> as a Fixed so formulas involving it can be completed.
 **/
 struct Fixed : Random {
 	Fixed(L);
@@ -322,8 +381,8 @@ Fertility : FiniteHorizon	{
 	}
 Fertility::Initalize()	 {
 	q = new Coefficients("q",);
-	AddVariable(i = new Action("i",2));
-	AddEndogenousState( M = new RandomUpDown("M",20,Fertility::Mortality) );
+	Actions(i = new Action("i",2));
+	EndogenousState( M = new RandomUpDown("M",20,Fertility::Mortality) );
 	}	
 Fertility::Mortality(A)	{
 	decl p = probn(x*q);  // x has to be updated using current age and other x values.
@@ -337,12 +396,14 @@ struct RandomUpDown : Random	{
     decl fp;
 	RandomUpDown(L,N,fPi);
 	virtual Transit(FeasA);
+    virtual IsReachable(clock);
 	}
 	
 
 /** A binary variable to code an absorbing state.
 This transition from 0 to 1 happens with probability fPi, and
 the transition 1 to 1 happens with probability 1.
+
 @see PermanentChoice
 **/
 struct Absorbing : Random {
@@ -417,11 +478,12 @@ struct Counter : NonRandom  {
 	const decl
 	/**Variable to track 				**/  Target,
 	/**Values to track  				**/	 ToTrack,
-	/**`AV` compatiable reset to 0 flag **/	 Reset;
-    decl Prune, Warned;
-	Counter(L,N,Target,  ToTrack,Reset,Prune);
+	/**`AV` compatiable reset to 0 flag **/	 Reset,
+    /** Trim unreachable counts if finite horizon clock is deteched.**/ Prune;
+    decl Warned;
+	Counter(L,N,Target,ToTrack,Reset,Prune);
 	virtual Transit(FeasA);
-    virtual UnReachable(clock=0);
+    virtual IsReachable(clock);
 	}
 
 /**	 Counts periods value(s) of target state <em>s.x</em> have occurred.
@@ -434,7 +496,7 @@ The values to track of x to track are s.&tau;
 @example
 <pre>
 decl wks  = new ActionState("wksunemp",work,10,<0>); //track up to 10 years
-AddEndogenousStates(wks);</pre>
+EndogenousStates(wks);</pre>
 **/
 struct StateCounter : Counter  {
 	StateCounter(L,N,Target,ToTrack=<1>,Reset=FALSE,Prune=TRUE);
@@ -450,12 +512,12 @@ s' = s+I{s.a&in;s.&tau;}I{s &lt; s.N<sup>-</sup>}.
 @example
 <code><pre>
 decl exper = new ActionCounter("Yrs Experience",work,10,<1>); //track up to 10 years working
-AddEndogenousStates(exper);
+EndogenousStates(exper);
 </pre></code>
 **/
 struct ActionCounter : Counter  {
     decl inc;
-	ActionCounter(L,N,Target,ToTrack=<1>,Reset=FALSE,Prune=FALSE);
+	ActionCounter(L,N,Target,ToTrack=<1>,Reset=FALSE,Prune=TRUE);
 	virtual Transit(FeasA);
 	}
 
@@ -482,7 +544,7 @@ s' = min( s+ s.a, s.N<sup>-</sup>).
 @example
 <pre>
 decl tothrs = new ActionAccumulator("TotHrs",work,10);  //track work up to 10 hours
-AddEndogenousStates(tothrs);
+EndogenousStates(tothrs);
 </pre>
 **/
 struct ActionAccumulator : Accumulator  {
@@ -500,7 +562,7 @@ s' = min( s+ s.x, s.N<sup>-</sup>).
 @example
 <pre>
 decl totoff = new StateAccumulator("Total Offers",noffers,10);  //track total offers received up to 10
-AddEndogenousStates(totoff);
+EndogenousStates(totoff);
 </pre>
 **/
 struct StateAccumulator : Accumulator  {
@@ -557,7 +619,7 @@ struct Deterministic : NonRandom
 @example
 <pre>
 decl qtr = new Cycle("Q",4);
-AddEndogenousStates(qtr);</pre></DD>
+EndogenousStates(qtr);</pre></DD>
 **/
 struct Cycle : Deterministic { Cycle(L,N); }
 
@@ -581,7 +643,7 @@ Zurcher : Ergodic	{
 Zurcher::Initialize()	{
 	q = new Simplex("q",3);
 	AddVariable(i = new Action("i",2));
-	AddEndogenousState( x = new Renewal("x",90,i,q) );
+	EndogenousState( x = new Renewal("x",90,i,q) );
 	}
 </pre>
 **/
@@ -786,7 +848,7 @@ struct Asset : Random {
 	}
 
 /** A discretized version of a continous &zeta; value that enters the endogenous vector &theta; depending
-on reservation values to keep it.  WHen kept a random discrete version of the &zeta; enters the state as this
+on reservation values to keep it.  A kept random discrete version of &zeta; enters the state as this
 variable.  Its value is constant as long as a state variable indicates it is being held.
 
 

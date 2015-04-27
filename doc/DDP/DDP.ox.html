@@ -122,7 +122,7 @@ a<sub>0</sub> &times; a<sub>1</sub>
 <P/>
 <DT>DDP Models are derived from the <a href="Bellman.ox.html#Bellman">Bellman</a> class, which in turn is derived from the base <a href="DP.ox.html#DP">DP</a> class.</DT>
 <DD> If the user wants to call his/her model <var>MyModel</var>, they would have something like this
-<pre>MyModel : DPparent {
+<pre>class MyModel : DPparent {
     &vellip;
     }</pre>
 The Bellman class that <code>MyModel</code> is based on is called <code>DPparent</code> in these notes.
@@ -182,26 +182,26 @@ First, simplest and most general notation is introduced to describe a DDP.  Howe
 <blockquote><b>The general notion of a dynamic program used here has five primitives and four interrelated aspects of the solution.</b></blockquote>
 <DT>Primitives: basic elements of a complete DP model.</DT>
 <OL class="steps">
-<LI><code>&alpha; &in; A</code>: The (finite) set of possible actions</LI>
-<LI><code>&theta; &in;</code> <b>&Theta;</b>: The (discrete) state space</LI>
-<LI><code>&Rho;(&theta;&prime;|&alpha;,&theta;)</code>: Conditional transition to the next state, including any notion of a time dimension.</LI>
-<LI><code>U(&alpha;,&theta;)</code>: Utility/return/payoff of an action conditional on the state</LI>
-<LI><code>E[&sum;<sub>t=0,&hellip;</sub> &delta;<sup>t</sup> U(&alpha;<sub>t</sub>,&theta;<sub>t</sub>)]</code>: additively separable objective with foresight; &delta; is the discount factor.</LI>
+<LI><span class="expressions">\(\alpha \in A\)</span>: The (finite) set of possible actions</LI>
+<LI><span class="expressions">\(\theta \in \Theta\)</span>: The (discrete) state space</LI>
+<LI><span class="expressions">\(P(\theta^{\,\prime}\,|\,\alpha,\theta)\)</span>: Conditional transition to the next state, including any notion of a time dimension.</LI>
+<LI><span class="expressions">\(U(\alpha,\theta)\)</span>: Utility/return/payoff of an action conditional on the state</LI>
+<LI><span class="expressions">\(E\left[\sum_{t=0,\dots}\delta^t\,U(\alpha_t,\theta_t)\right]\)</span>: additively separable objective with foresight; <span class="expressions">\(\delta\)</span> is the discount factor.</LI>
 </OL>
 <P/>
 <DT>Aspects of the DP solution.</DT>
 <OL class="steps">
-<LI><code>v(&alpha;,&theta;)</code>: Value of current choice given future optimal choices.</LI>
-<LI><code>V(&theta;)</code>: Value of arriving at state &theta;, accounting for current optimal choice</LI>
-<LI><code>EV(&theta;&prime;|&alpha;,&theta;)</code>: Expected value entering next period</LI>
-<LI><code>&Rho;*(&alpha;|&theta;)</code>: Conditional choice probabilities</LI>
+<LI><span class="expressions">\(v(\alpha,\theta)\)</span>: Value of current choice given future optimal choices.</LI>
+<LI><span class="expressions">\(V(\theta)\)</span>: Value of arriving at state \theta, accounting for current optimal choice</LI>
+<LI><span class="expressions">\(EV(\theta\prime|\alpha,\theta)\)</span>: Expected value entering next period</LI>
+<LI><span class="expressions">\(P^\star(\alpha|\theta)\)</span>: Conditional choice probabilities</LI>
 </OL>
 <P/>
 <DT>Bellman's Equation: Solution of a DDP</DT>
 <DD class="disp">
 <span class="equation">$$\eqalign{
-v(\alpha,\theta)\quad &\equiv \quad U(\alpha,\theta) + \delta EV(\theta^\prime|\alpha,\theta),\quad \forall \alpha\in A, \theta \in \Theta\cr
-EV(\theta\prime|\alpha,\theta)\quad  &= \quad \sum_{\alpha\in\Theta} P(\theta^\prime;\alpha,\theta) V(\theta^\prime)\cr
+v(\alpha,\theta)\quad &\equiv \quad U(\alpha,\theta) + \delta EV(\theta^{\,\prime}|\alpha,\theta),\quad \forall \alpha\in A, \theta \in \Theta\cr
+EV(\theta\prime|\alpha,\theta)\quad  &= \quad \sum_{\alpha\in\Theta} P(\theta^{\,\prime};\alpha,\theta) V(\theta^{\,\prime})\cr
 V(\theta)\quad  &\equiv\quad  \max_{\alpha\in A}\quad v(\alpha,\theta)\cr
 P^\star(\alpha,\theta)\quad  &\equiv\quad   Prob\left[\ \alpha \in \arg\max_{\alpha\in A}\quad v(\alpha,\theta )\ \right]\cr
 }$$</span>
@@ -223,7 +223,7 @@ v(&alpha;,&theta;)</td></tr>
 This section shows how each of the elements of the general DP framework is represented in <span class="n">DDP</span>.  The user's code (known here as <code>MyCode</code>) will build the model up dynamically as the code executes. Then when all the elements of the model has been defined the code will call <code>DP::CreateSpaces()</code>, which will construct the action set and state space.  After this, <code>MyCode</code> can solve and use the model using techniques described elsewhere.
 <P/>
 <details><summary><b>Framework</b><br> The shell for the model.</summary>
-<pre>MyModel : DPparent {
+<pre>class MyModel : DPparent {
      // declare static members to hold action and state variables objects
      // declare required and optional methods
     static Reachable();
@@ -252,7 +252,7 @@ MyModel::Initialize() {
 An <a href="Variables.ox.html#ActionVariable">ActionVariable</a> is defined by its <a href="Shared.ox.html#Quantity___L">L</a>abel and the number of distinct values it takes on, <a href="Shared.ox.html#Discrete___N">N</a>.  DDP tracks values of <em>a</em> as 0 &hellip; N&oline;.
 <P/>
 <details><summary><b>Example</b><br> Define a binary choice variable <var>d</var> and add it to &alpha;.</summary>
-<pre>MyModel : DPparent {
+<pre>class MyModel : DPparent {
     &vellip;
     static decl d;                         // NEW
     &vellip;
@@ -291,7 +291,7 @@ In <span class="n">DDP</span>, state variables are classified as either <em>auto
 <DT>See <a href=".\StateVariable.ox.html">State Variable and Block Documentation</a>.</DT>
 <P/>
 <details><summary><b>Example</b><br> Define a state variable <var>m</var> that takes on the value of action variable <var>d</var> chosen last period.</summary>
-<pre>MyModel : DPparent {
+<pre>class MyModel : DPparent {
     &vellip;
     static decl d;
     static decl m;                                //NEW
@@ -324,7 +324,7 @@ The abstract DDP model defined above has an implicit concept of <q>today</q>, th
 Because timing is key to the efficient solution algorithm  <span class="n">DDP</span> always has the concept of a model clock.  But the literatures includes many models that have generalized notions of time that still exhibit monotonicity.  To account for these notions the clock is always a <a href="Variables.ox.html#StateBlock">StateBlock</a> with at least two state variables in it.
 <P/>
 <details><summary><b>Example</b><br>Set the clock to a finite horizon of 40 periods.</summary>
-<pre>MyModel : DPparent {
+<pre>class MyModel : DPparent {
     &vellip;
     static decl d;
     static decl m;
@@ -356,7 +356,7 @@ MyModel::Initialize() {
 <DD>You might expect <code>MyModel::Utility()</code> would require arguments to pass the value of state variables.  However, using the object-oriented approach to representing the model means that the values are available because <span class="n">DDP</span> will set the value of members of <code>MyModel</code> before calling U(). </DD>
 <P/>
 <details><summary><b>Example</b><br>Define the Utility to equal an indicator for whether the current action equals last period's action.</summary>
-<pre>MyModel : DPparent {
+<pre>class MyModel : DPparent {
     &vellip;
     static decl d;
     static decl m;
@@ -394,7 +394,7 @@ MyModel::Initialize() {
 <DD>Unlike other elements of the model, the discount factor can be set or changed after <code>CreateSpaces()</code> has been called.</DD>
 <P/>
 <details><summary><b>Example</b><br>Set &delta;, the discount factor, to 0.99.</summary>
-<pre>MyModel : DPparent {
+<pre>class MyModel : DPparent {
     &vellip;
     static decl d;
     static decl m;
@@ -573,16 +573,32 @@ By default: q.T = &empty; for built-in state variables.</DD>
 The current value of a state is always equal to some row in &Omega;: &theta;.v &in; &Omega;.</dd>
 <P/>
 <DT>Reachable States</DT>
-<DD>In some models, especially those with a finite horizon, &Omega; contains many endogenous states that cannot be reached from possible initial states of the user's situation.</DD>
-<DD>For example, many state variables are some sort of counter for previous actions or states.   They can only take on values less than or equal to <var>t</var>.</DD>
-<DD>As with feasibility of actions, <em>reachability</em> of a state is not a mechanical property.  Rather it depends on the model and how it will be used.  Since an endogenous state &theta; is not  just a vector of numbers but rather an object with many properties attached it, it is important that <span class="n">DDP</span> only create objects for reachable states.</DD>
+<DD>In some models, especially those with a finite horizon, &Omega; contains many endogenous states that cannot be reached from possible initial states of the user's situation. (The term <em>reachable</em> is used for two reasons.  First, in <span class="n">DDP</span> the term <em>feasible</em> applies to action sets not states.  And, second, reachable emphasizes the fact that it depends on what initial states are assumed not logical inconsistency.)</DD>
+<DD>As with feasibility of actions, <em>reachability</em> of a state is not a mechanical property.  Rather it depends on the model and how it will be used.  Since an endogenous state &theta; is not  just a vector of numbers but rather an object with many properties attached it, it is important for efficiency that <span class="n">DDP</span> only create and process objects for reachable states.</DD>
 <DD>The property <var>&theta;.R</var> equals 1 if <code>MyModel</code> specifies that &theta; is reachable.  Otherwise &theta;.R = 0.
-<DD class="example">The state space is the set of reachable states.  It emerges from the property &theta;.R of each logically possible state:
-<pre>   <b>&Theta;</b>  &equiv;  {  &theta; &in; &Omega; : &theta;.R = 1  }</pre></DD>
+<DD class="example">The state space &Theta; is the set of reachable states within the set of all possible states.  It emerges from the property &theta;.R of each logically possible state:
+<pre>   <b>&Theta;</b>  &equiv;  {  &theta; &in; &Omega; : &theta;.R = 1  }</pre>
+<details><summary>Storage Details</summary>The property &theta;.R is not actually stored as a member of the object &theta;, because that would require allocating space for unreachable states.  In practice, states that are not reachable are simply the integer 0 and states that are reachable are an object
+of the class <code>MyModel</code>. Storing a 0 for unreachable states still requires allocation of a single <code>oxvalue</code>, but it avoids storage of vectors and matrices associated with each reachable state (such as the utility vector, the optimal choice probability matrix, etc.).</details></DD>
 <P/>
-<DT><a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() and <code><a href="DP.ox.html#DP___userReachable">userReachable</a></code></DT>
-<DD><code>MyModel</code> must call <code><a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>()</code>, which sets up the list of feasible action matrices and creates the state space <b>&Theta;</b>.  It must traverse (loop over) the whole space &Omega; once.  For each  &theta; &in; &Omega; it calls the function passed to it as the first argument and stores what it returns in an array <code>Theta</code>.   <dd>Unlike <code>FeasibleActions</code>, which must have that name, this function can have any name.  Here it is called <code>Reachable()</code>.</dd>
-<dd class="example">Ox provides no mechanism for a 'default' version of <code>Reachable()</code>, so <code>MyModel</code> must include this function.  It should be a <code>static</code> member of the user's derived model class (so that it has direct access to the data members holding state variables).  <code>MyModel::Reachable()</code> indicates &theta; is reachable by returning a <code>new MyModel()</code>.  Otherwise it should return 0.  So
+<DT><a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>()</DT>
+<DD><code>MyModel</code> must call <code><a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>()</code>, which sets up the list of feasible action matrices and creates the state space <b>&Theta;</b>.  It must traverse (loop over) the possible state space &Omega; at least once  It is during
+this traversing that it is determined whether the point &theta; is reachable or not.  </DD>
+<DD><code>CreateSpaces()</code> uses two methods to determine reachability:  inherent reachability of included state variables and the user supplied routine that asserts reachability or not.</DD>
+<P/>
+<DT>Some State Variables Generate Inherently Unreachable States</DT>
+<DD>Above it was emphasized that reachability depends on the whole model, but including some kinds of state variables in your model will generate unreachable states in non-stationary environments (such as a finite decision horizon).</DD>
+<DD>As an example, a <a href="Variables.ox.html#Counter">Counter</a> state variable counts how many times an action or state has occurred in the past.  If the counter starts at 0 in a finite horizon model then the only reachable states are ones in which this state variable's current value is less than or
+equal to the value of the clock, <a href="DP.ox.html#I___t">t</a>.  This is true regardless on other state variables added to the model, which actions are feasible, etc.  It depends solely on the clock type, initial conditions and the presence of this variable in the model. </DD>
+<DD>So some trimming of the state space can be done automatically based on state variables in in the endogenous vector <em>and</em> the model's <a href="Variables.ox.html#Clock">Clock</a> block.  By design, state variable objects do not know directly about the model's clock, because all the discrete variable classes are defined and used by the <a href="DP.ox.html#DP">DP</a> class.  So checking for reachable requires sending the clock to the state variable.</DD>
+<DD>The <a href="Variables.ox.html#StateVariable">StateVariable</a> class includes a virtual method named <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>() which takes a single argument that will be the model's clock block.  The default function return <code>TRUE</code>.  That is, by default, no state variable says a point in the state space is unreachable.  However, some kinds of state variables that do generate unreachable states (such as counters) will supply a replacement copy of <code>IsReachable()</code>.  </DD>
+<DD>At each <em>possible</em> state in the space &Omega; <code>CreateSpaces</code> will call <code>IsRechable()</code> for each state variable in the endogenous state vector &theta;. If any of them return <code>FALSE</code> that point is marked as unreachable.</DD>
+<DD>If no state variables claim the current state is inherently unreachable then the user supplied method is called ...</DD>
+<P/>
+<DT><a href="DP.ox.html#DP___userReachable">userReachable</a>()</DT>
+<DD>User code must first call <code>DP::Initialize()</code>, the add variables to the model then call <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>.  A static function is be sent to <code>DP::Initialize()</code> that will assert reachability. Unlike <code>Bellman::FeasibleActions</code>, which must have that name because it is virutal function, this function is static and can have any name you like.  Here it is called <code>MyModel::Reachable()</code>.</dd>
+<DD>Inside <code>CreateSpaces()</code> and during the loop over the possible state space &Omega;,  and if no state variables assert inherent unreachability of their current value, then <code>MyModel::Reachable()</code> is called. </DD>
+<code><code>MyModel::Reachable()</code> indicates &theta; is reachable by returning a <code>new MyModel()</code>.  Otherwise it should return 0 to indicate something about the current values of all endogenous state variables makes this point unreachable.  So
 <pre>Reachable() returns
        new MyModel() if &theta;.R = 1
        0               if &theta;.R = 0.</pre></DD>

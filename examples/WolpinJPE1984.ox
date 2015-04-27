@@ -40,10 +40,10 @@ Fertility::Mortality(FeasA)	{
 	}
 
 /** State Space Creation.
-States with M &gt; t are not reachable (return 0).
-@return a new `Fertility` instance or 0.
+States with M &gt; t are not reachable (return 0), BUT this is now handled intrinsically by RandomUpDown
+@return a new `Fertility` instance .
 **/
-Fertility::Reachable() { return (M.v<=I::t) ? new Fertility() : FALSE; }
+Fertility::Reachable() { return new Fertility(); }
 
 /** Return A(&theta;).
 Fertility is not a feasible choice for t&gt;T-1

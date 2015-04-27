@@ -15,7 +15,7 @@ struct Objective	{
 	const	decl 	
 	/** label.     **/            								L,
 	/** Name for `Objective::Load` &amp; files	**/				fname,
-	/** Best so far @see Object::CheckMax    **/ 			    maxpt,
+	/** Best so far @see Objective::CheckMax    **/ 			maxpt,
 																hold,
 	/** current point.**/										cur;
 

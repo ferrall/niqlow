@@ -5,7 +5,7 @@
 
 This computes <em>&Rho;(&theta;&prime;,&alpha;,&eta;,&theta;)</em>
 
-When this task is run is determined by `DP::UpdateTime`
+When this task is run is determined by `Flags::UpdateTime`
 
 @comments
 The endogenous transition must be computed and stored at each point in the endogenous state space &Theta;. And at
@@ -146,7 +146,7 @@ If &theta; &in; <span class="o">&Theta;</span>, then v(&alpha;,&hellip;) = U(&al
 Computes and EV(&theta;).
 <DT>
 <DD>
-If `DP::setPstar` then &Rho;*(&alpha;) is computed using virtual `Bellman::Smooth`()
+If `Flags::setPstar` then &Rho;*(&alpha;) is computed using virtual `Bellman::Smooth`()
 @comment Derived DP problems replace this routine to account for &zeta; or alternatives to Bellman iteration.
 
 **/
@@ -184,7 +184,7 @@ Bellman::ExpandP(r) {
 Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
 @param future offset vector to use for computing states (tracking or solving)
 @param current  current offset vector.  If the same as future transitions are not recomputed. Indices are changed only.
-@comments computes `DP::Nxt` array of feasible indices of next period states and conforming matrix of probabilities.<br>If current is not -1, then simply recomputed indices.
+@comments computes `Bellman::Nxt` array of feasible indices of next period states and conforming matrix of probabilities.<br>If current is not -1, then simply recomputed indices.
 @see DP::ExogenousTransition
 **/
 Bellman::ThetaTransition(future,current) {
@@ -438,7 +438,7 @@ ExPostSmoothing::Initialize(userReachable,UseStateList){
 	}
 
 /**  Set up the ex-post smoothing state space.
-@param Method the `ExPostSmoothingMethods`, default = <code>NoSmoothing</code>
+@param Method the `SmoothingMethods`, default = <code>NoSmoothing</code>
 @param  smparam the smoothing parameter (e.g. &rho; or &sigma;)<br>Default value is 1.0.
 **/
 ExPostSmoothing::CreateSpaces(Method,smparam) {

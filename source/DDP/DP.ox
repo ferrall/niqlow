@@ -16,7 +16,7 @@ Hooks::Reset() {
     }
 
 /**  Add a static function or method to a hook.
-@param time integer tag, time point in solution method to call the routine.
+@param time integer tag `HookTimes`, point in time (where in model solution) to call the routine.
 @param proc <em>static</em> function or method to call.
 @example
 Say hello after every Bellman iteration is complete:
@@ -36,6 +36,7 @@ Hooks::Add(time,proc) {
     }
 
 /**  Call all the methods on the hook.
+@param ht `HookTimes`
 @internal
 **/
 Hooks::Do(ht) {
@@ -95,7 +96,7 @@ SubSpace::ActDimensions()	{
 	right = rows(O)-1;
 	}
 
-/** Sets all the state indices, called by `Task::loop` and anything else that directly sets the state.
+/** Sets and stores all the state indices, called by `Task::loop` and anything else that directly sets the state.
 @param state current state vector
 @param group TRUE if the group indices should be set as well.
 **/
@@ -209,7 +210,7 @@ DP::StorePalpha() {
 @param SubV	the subvector to add to.
 @param va state variable or block or array of state variables and blocks
 @comment User should typically not call this directly
-@see StateVariable, DP::Actions, DP::EndogenousStates DP::ExogenousStates, DP::SemiExogenousStates, DP::GroupVariables
+@see StateVariable, DP::Actions, DP::EndogenousStates, DP::ExogenousStates, DP::SemiExogenousStates, DP::GroupVariables
 **/
 DP::AddStates(SubV,va) 	{
 	decl pos, i, j;
@@ -280,7 +281,19 @@ DP::GroupVariables(v1,...)	{
 /** Add variables to the action vector <code>&alpha;</code>.
 @param Act1 ... `ActionVariable`s to add
 
-See <a href="Variables.ox.html#ActionVariables">Action Variables</a> for an explanation.
+See <a href="Variables.ox.html#ActionVariables">Action Variables</a> for more explanation.
+
+@example
+<pre>
+struct MyModel : Bellman {
+    &vellip;
+    static decl work;
+    &vellip;
+    }
+&vellip;
+Actions(work = new ActionVariable("w",2));
+</pre>
+</dd>
 
 @comments
 If no action variables are added to <code>MyModel</code> then a no-choice action is added by `DP::CreateSpaces`().
@@ -335,6 +348,11 @@ DP::AuxiliaryOutcomes(auxv,...) {
     N::aux = sizeof(Chi);
 	}
 	
+
+/** The default Run() ... prints out a message. **/
+Task::Run(th) { println("Task::Run() ... should be replaced by a virtual Run()");    }
+
+
 /** Base class for tasks involving random and fixed groups.
 @internal
 **/
@@ -535,12 +553,35 @@ DP::Initialize(userReachable,UseStateList) {
 /** Tell DDP when parameters and transitions have to be updated.
 @param time `UpdateTimes` [default=AfterFixed]
 
+THe default allows for transitions that depend on dynamically determined parameters <em>and</em>
+the current value of `FixedEffect` variables (if there are any).  But transitions do not depend on `RandomEffect`
+variables (if there are any).  Random effects can enter `Bellman::Utility`().
+
 @example
+
+MyModel is even simpler than the default:  it has no dynamically determined parameters, so transitions
+can calculated once-and-for-all when spaces are created:
+<pre>
+&vellip;
+SetUpdateTime(InCreateSpaces);  //have to tell me before you call CreateSpaces!
+CreateSpaces();
+</pre>
+MyModel is still simpler than the default, but it transitions do depend on dynamic parameters (say
+an estimated parameter).  So transitions have to be updated each time all solutions are initiated
+by `Method::Solve`() and can't just be done in <code>CreateSpaces</code>.
 <pre>
 &vellip;
 CreateSpaces();
-SetUpdateTime(OnlyOnce);
+SetUpdateTime(OnlyOnce);   // can be set after CreateSpaces
 </pre>
+MyModel is the most rich in that transitions and utility depend on random effect values.  So
+transitions have to be updated after random effect values are set (so before each solution starts):
+<pre>
+&vellip;
+CreateSpaces();
+SetUpdateTime(AfterRandom);
+</pre>
+
 </DD>
 
 **/
@@ -806,16 +847,27 @@ CreateTheta::Sampling() {
         }
     }	
 
-/** .
-@internal
+/** Called in CreateSpaces to set up &Theta;.
+
+Not called if a dry run is asked for.
 **/
 CreateTheta::CreateTheta() {
 	ThetaTask();
     Sampling();
 	}
 
+/** Find states that are reachable, put index on `N::Reached`, then delete the object immediately.
+Called by `DP::onlyDryRun` inside <code>CreateSpaces</code>.  When this is called, `CreateTheta` is
+not used.
+
+**/
 FindReachables::FindReachables() { 	ThetaTask(); }
 
+/** Process the state space but do not allocate memory to store &Theta;.
+
+This is called inside <code>CreateSpaces</code> when a dry run is called for.
+
+**/
 DryRun::DryRun() {
     FindReachables();
     PrevT = UnInitialized;
@@ -832,7 +884,9 @@ CreateTheta::picked() {
     }
 
 FindReachables::Run(g) {
+    decl v, h=DP::SubVectors[endog];
     curind=I::all[tracking];
+    foreach (v in h) if (!(th = v->IsReachable(DP::counter))) return;
 	if (isclass(th = userReachable(),"Bellman")) {
         N::Reached(curind);
         delete th;
@@ -840,9 +894,10 @@ FindReachables::Run(g) {
 	}
 
 /** .
-@internal
 **/
 CreateTheta::Run(g) {
+    decl v, h=DP::SubVectors[endog];
+    foreach (v in h) if (!(th = v->IsReachable((DP::counter)))) return;
 	if (isclass(th = userReachable(),"Bellman")) {
         curind=I::all[tracking];
 		th->Bellman(state,picked());
@@ -1380,7 +1435,7 @@ and
 Column                Definition
 ---------------------------------------------------------------------------------------
 StateIndex            Integer index of the state in the endogenous state space &Theta;
-IsTerminal            The state is terminal, see `StateVariable::TerminalValues`
+IsTerminal            The state is terminal, see `StateVariable::TermValues`
 Aindex                The index of the feasible action set, A(&theta;)
 EndogenousStates      The value of the endogenous state variables at &theta;
 t                     The time variable, see `DP::SetClock` and `I::t`.

@@ -598,7 +598,7 @@ DataSet::IDColumn(lORind) {
 	list[0]->Observed(lORind);
 	}
 
-/**
+/** Identify a variable with a data column.
 @param aORs  Either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
 			one of the state vectors, or a `AuxiliaryValues`, element of &chi;<br>
             <em>OR<em><br>

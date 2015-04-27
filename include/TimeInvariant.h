@@ -60,7 +60,7 @@ has been called.</DT>
 The user can define a derived class and supply a replacement to the virtual `RandomEffect::Distribution`().
 
 
-@see RETask, FixedEffect, RandomEffectBlcok
+@see RETask, FixedEffect, RandomEffectBlock
 
 **/
 struct RandomEffect : TimeInvariant	{

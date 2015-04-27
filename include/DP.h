@@ -6,12 +6,96 @@ static decl
         /** 2-d array pointing to &Gamma;. **/								Fgamma,
         /** &Theta; array (list) of all endogenous state nodes.**/  		Theta;
 
-		/** Categories of state variables.	@name StateTypes**/	
+		/** Categories of state variables.	
+            These categories are used mainly for summarizing the model.
+                @name StateTypes**/	
 enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTEDV,TIMINGV,TIMEINVARIANTV,NStateTypes}
-		/** Vectors of state variables. @name SubVectors **/
+
+		/** Vectors of state variables.
+        <DT>Explanation</DT>
+        <DD>Typically the user does not need to use these names unless building a new solution method
+        or similar core programming.  This information is for those curious about how the underlying code
+        is organized.</DD>
+        <DD>In the mathematical description of a <span class="n">DDP</span> model, there are several
+        <em>vectors</em> of variables.  These variables are represented by objects in the model
+        and the overall list of variable objects added to the model is stored in `DP::States`.</dd>
+        <DD>The vectors themselves are lists (<code>oxarray</code>s) of objects which store
+        store a pointer to (not a separate copy of) the state variables in `DP::States`.
+        This list of lists of variables is stored in `DP::SubVectors`.</DD>
+        <DD>To get things done the aspects of the separate state variables has to be combined
+        into information about the vector they belong.  The list `DP::SubVectors` itself cannot
+        capture that aggregate information.</DD>
+        <DD>This aggreate information about the variables in a vector include how many endogenous
+        state variables there are and how many points in the space they create. This information
+        is constructed by `DP::CreateSpaces`() for each vector and storedin objects of the `Space` class.
+        The list of `Space` objects is itself an <code>oxarray</code> held in <code>DP::S</code> (which is
+        documented only in the internal version of this documentation).</DD>
+        <DD>The integer tags listed here are the internal names of the elements of both that array
+        and the array `DP::SubVectors` of variable objects.</DD>
+        <DD>For example, when the user's code calls `DP::EndogenousStates`() it adds the objects
+        sent as arguments to the list <code>DP::SubVectors[endog]</code>. Then `DP::CreateSpaces`()
+        will go through that list and create information about the endogenous space &Theta;
+        and store it in object <code>DP::S[endog]</code></DD>
+
+        <table class="enum_table">
+        <tr><td valign="top">acts</td><td>The components of the action vector &alpha;.
+            Including action variables in the same list of lists makes the internal code
+            a little cleaner.</td></tr>
+        <tr><td valign="top">exog</td><td>The fully exogenous vector &epsilon;</td></tr>
+        <tr><td  valign="top">semiexog</td><td>The semi-exogenous vector &eta;</td></tr>
+        <tr><td  valign="top">endog</td><td>The endogenous vector &theta; (not including the clock).</td></tr>
+        <tr><td  valign="top">clock</td><td>The clock block.  In the mathematical description the
+            clock is an element of &theta; to avoid yet another vector and Greek letter.  However,
+            internally it is easier to separate the clock block from &theta;</td></tr>
+        <tr><td  valign="top">rgroup</td><td>The `RandomEffect` elements of the group vector &gamma;.
+                Again, to avoid extra notation, the mathematical description puts both random
+                and fixed effects into one vector, but internally they are stored on separate
+                lists.</td></tr>
+        <tr><td  valign="top">fgroup</td><td>The `FixedEffect` elements of &gamma;.</td></tr>
+        <tr><td  valign="top">DSubVectors</td><td>The number of different vectors.</td></tr>
+        <tr><td  valign="top">LeftSV</td><td>Equivalent to <code>exog</code>. This is the index
+            of the leftmost true state vector. This ensures some internal loops over
+            vectors start at the right place even if additional vectors have to be added
+            later to the code.</td></tr>
+        </table>
+            @name SubVectorNames **/
 enum {acts,exog,semiexog,endog,clock,rgroup,fgroup,DSubVectors,LeftSV=exog}
-		/** Groups of continugous `SubVectors`. @name SubSpaces **/
+
+		/** Groups of continguous `SubVectorNames`.
+        <DT>Explanation</DT>
+        <dd>Many aspects of a model solution or application require processing more than one
+        of the vector types organized by `SubVectorNames`.  In essentially all
+        such tasks the vectors to be processed are next to each other in the order they
+        are stored in `DP::S`. </DD>
+        <DD>The different sets of vectors that might be needed to carry out a task are
+        then group into a range of elements of the sub vector list.  </DD>
+        <DD>Different ranges of subvectors are represented as objects of the `SubSpace` class.
+        Subspace information is somewhat similar to the information in `Space`, and neither
+        class stores the state variables themselves.</DD>
+        <DD>Many of these ranges consist of only one vector.  They are the ones that
+        have <code>only</code> in their name.  For example, <code>onlyexog</code>
+        is the subspace that consists of only the <code>endog</code> space (the &epsilon; vector
+        in the mathematical description.).</DD>
+        <DD>The table below only describes the subspaces that are not the same as a vector.</dd>
+        <table class="enum_table">
+        <tr><td valign="top">bothexog</td><td>All state variables that either exogenous
+        or semi-exogenous.  That is, mathematically it is the concatentation of &epsilon; and &eta;</td></tr>
+        <tr><td valign="top">tracking</td><td>All state variables that are required for tracking
+        results of the model solution.  In the model this is simply &theta; again, but internally
+        it is both the <code>endog</code> and <code>clock</code> vectors</td>, except only the leftmost
+        element of the clock (the actual <em>t</em> variable) is included.  This avoids storing
+        unnecessary information about <em>t'</em>.</tr>
+        <tr><td valign="top">iterating</td><td>State variables needed when iterating on
+        Bellman's equation.  This subspace includes all elements of the clock block.</td></tr>
+        <tr><td valign="top">bothgroup</td><td>The full group vector &gamma;, concatenating
+        the <code>rgroup</code> and <code>fgroup</code> spaces.</td></tr>
+
+
+        </table>
+                @name SubSpaces
+                **/
 enum {onlyacts,onlyexog,onlysemiexog,bothexog,onlyendog,tracking,onlyclock,allstates,iterating,onlyrand,onlyfixed,bothgroup,DSubSpaces}
+
 		/** . @name Vspace  **/
 enum {NOW,LATER,DVspace}
 
@@ -47,13 +131,13 @@ enum { NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods}
 
 <table class="enum_table" valign="top">
 <tr><td valign="top"><code>PreUpdate</code></td><tD>Called by `DP::UpdateVariables`().  The point this occurs depends on `Flags::UpdateTime`</tD></tr>
-<tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::`RandomSolve::Run`()</code> after a call to `Method::Gsolve`() </tD></tr>
+<tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::`RandomSolve::Run`()</code> after a call to `Method::GSolve`() </tD></tr>
 <tr><td valign="top"><code>PostRESolve</code> </td><tD>Called by <code>FixedSolve::`FixedSolve::Run`()</code> after all random effects have been solved. </tD></tr>
 <tr><td valign="top"><code>PostFESolve</code></td><tD>Called by `Method::Solve`() after all fixed effect groups have been solved.</tD></tr>
 <tr><td valign="top"><code>GroupCreate</code></td><tD>Called by the task that sets up the group space Gamma (&Gamma;) before creation
 of each separate group. Your function should return TRUE if the the group should be created.</tD></tr>
 </table>
-@see Hooks, Flags::UpdateTimes
+@see Hooks, Flags::UpdateTime
 @name HookTimes
 **/
 enum {PreUpdate,PostGSolve,PostRESolve,PostFESolve,GroupCreate,NHooks}
@@ -173,7 +257,7 @@ struct I : Zauxiliary {
 Hooks are places in the DP solution process where the user can add code to be carried out.  This is done using the `Hooks::Add`()
 procedure.  Hooks are added to a list of procedures to be called so more than one procedure can be carried out.
 
-@see HookTimes, SetUpdateTime
+@see HookTimes, DP::SetUpdateTime
 **/
 struct Hooks : Zauxiliary {
     static decl hooks, h;
@@ -194,7 +278,7 @@ struct Alpha : Zauxiliary {
             using `DP::Actions`(), this matrix is built up.
             `DP::CreateSpaces`() then calls <code>FeasibleActions()</code>
             for each endogenous state &theta;.   Different feasible
-            sets are then added to `Alpha::list`. **/		   Matrix,   //ActionMatrix,
+            sets are then added to `Alpha::List`. **/		   Matrix,   //ActionMatrix,
 		/** list of feasible action matrices (CV) values.
             Each point in the endogenous state space
             has an index: `Bellman::Aind` into this
@@ -239,7 +323,8 @@ struct DP {
 		automatically updated.  **/	                            A,
 
 		/** List of `StateBlock`s. @internal**/					Blocks,
-		/** List of SubVectors. @internal **/ 					SubVectors,
+		/** List of variables by vector.
+            @see SubVectorNames **/ 		                    SubVectors,
 		/** . @internal **/										cputime0,
 		/** Output level. @see NoiseLevels **/ 					Volume,
 		/** distriubution over groups 		**/ 				gdist,
@@ -250,8 +335,8 @@ struct DP {
 		/** The discount factor &delta;.  @see DP::SetDelta,
             DP::CVdelta  **/                                    delta,
         /** The current value of &delta;. This is set in
-            `DP::UdateVariables`() to avoid repeated calls
-            to CV.  @see DP::delta .**/                         CVdelta,
+            `DP::UpdateVariables`() to avoid repeated calls
+            to `CV`.  @see DP::delta **/                         CVdelta,
 		/** Array of Exogenous next state indices
 			and transitions. **/ 					            NxtExog,
 		/** . @internal  				**/    					F,
@@ -322,7 +407,7 @@ Derived classes of tasks are specialized to process different spaces:
 `GroupTask`s process the group space &Gamma; (fixed and random effects). `FETask`,
 `RETask` specialized to one or the other component of &gamma;
 
-`ThetaTask`s process the endogenous state space, &Theta;.  `Methods` to solve
+`ThetaTask`s process the endogenous state space, &Theta;.  `Method`s to solve
 the DP problem are based on ThetaTask.  In turn, these methods call upon GroupTasks
 to loop over different problems for them.
 
@@ -367,12 +452,31 @@ with an arguement to `DP::Initialize`().
 
 **/
 struct ThetaTask        :   Task {	decl curind; ThetaTask();	Run(th);	}
+
+/** Identify unreachable states from &Theta;.
+
+Users do not call this function.
+
+The task called in `DP::CreateSpaces` that loops over the state space &Theta; and
+calls the user-supplied <code>Reachable()</code>.
+This task is called before `CreateTheta` so that reachable status can be determined before
+subsampling (if required).
+
+**/
 struct FindReachables   : 	ThetaTask {	
         decl th;
         FindReachables();
         virtual Run(g);	
         }
 
+/** Allocate space for each point &theta; &in; &Theta; that is reachable.
+
+The task called in `DP::CreateSpaces` that loops over the state space &Theta; and
+calls the user-supplied <code>Reachable()</code>.
+
+Users do not call this function.
+
+**/
 struct CreateTheta 	    : 	ThetaTask {	
         decl insamp, th;
         CreateTheta(); 	
@@ -380,18 +484,53 @@ struct CreateTheta 	    : 	ThetaTask {
         virtual    Run(g);	
         picked();
         }
+
+/** Go through &Theta; but do not allocate space.
+
+The task is called in `DP::CreateSpaces` if `Flags::onlyDryRun` was instead of
+`FindReachables`.  It will print out information about the size of the state space but will
+not allocate space.
+
+This is a utility routine that may be helfpul when working with a very large state space that
+will run out of memory if creating &Theta; is attempted.
+
+Users do not call this function.
+
+**/
 struct DryRun 	        : 	FindReachables {	
         decl PrevT,PrevA,PrevR,report;
         DryRun();
         Run(g);	
         }
+
+
+/** Called when subsampling &Theta; for `KeaneWolpin` approximation.
+
+This task is called if the user is asking for a new subsample of &Theta;.
+
+It `DP::CreateSpaces` that loops over the state space &Theta; and
+calls the user-supplied <code>Reachable()</code>.
+
+If a subsampled state is now not sampled its stored information is destroyed (using <code>Bellman::Delete</code>).
+
+If a non-sampled state is now sampled its point in &theta; is created.
+
+Users do not call this directly.
+
+**/
 struct ReSubSample 	    : 	CreateTheta    {	ReSubSample(); 		Run(th);	}
 
+/** Base Task for constructing the transition for endogenous states.
+
+**/
 struct EndogTrans 	    : 	ThetaTask {	decl current; EndogTrans();	Run(th);	}
 
+/** Base Task for looping over &Epsilon; and &Eta;.
+
+**/
 struct ExTask       :   Task { ExTask(); }
 	
-/** The argument used to keep track of what to do when looping over the group space &Gamma;.
+/**  The base task for processing &Gamma;.
 **/
 struct GroupTask : Task {
 	const 	decl 	span;
@@ -401,24 +540,34 @@ struct GroupTask : Task {
 	loop();
 	}
 
-/** . @internal **/
+/** The task called in CreateSpaces that creates &Gamma;.  **/
 struct CGTask 		: GroupTask {	CGTask();				Run();	}
 
-/** . @internal **/
+/** The base task for looping over random effects.  **/
 struct RETask 		: GroupTask { 	RETask();  SetFE(f);	}
 
-/** . @internal **/
+/** The base task for looping over fixed effects.
+These tasks typically have a member that is a `RETask` object to do proces
+random effects conditional on the current fixed effect group.
+**/
 struct FETask 		: GroupTask {	FETask();	}
+
+/** Dynamically reset the density over random effects given the current fixed effect group.
+**/
 struct UpdateDensity: RETask 	{	UpdateDensity(); 		Run();	}
+
 struct DPMixture 	: RETask 	{	DPMixture(); Run();	}
 
 /** . @internal **/
 struct SDTask		: RETask	{ 	SDTask(); Run(); }
 
-/** Related DP models differing only by `TimeInvariant` effects.
+/** Stores information for a point &gamma; in the Group Space &Gamma;.
 
-DDP will allocate a new group for each value of the &gamma; vector.  These are located in a static array
-named `Gamma` that is only accessible directly inside the file DP.ox.
+Related DP models differing only by `TimeInvariant` effects.
+
+`DP::CreateSpaces` allocates a new Group ojbect for each value of the &gamma; vector.  These
+are located in a static array named `Gamma` that is only accessible directly inside the
+file DP.ox.
 
 @see DP::SetGroup
 
@@ -450,7 +599,7 @@ struct Group : DP {
 		DrawfromStationary();			
 	}
 
-/** Various output routines .
+/** Output routines .
 
 **/
 struct DPDebug : Task {

@@ -44,7 +44,7 @@ To run the program and see results:
 </dd>
 <P/>
 <DT>Steps to Take From Design to Solution</DT>
-<OL class="chaplist"> 
+<OL class="chaplist">
 <LI><a href="#A">Define the model</a></LI>
 <LI><a href="#AB">Translate the model into <span="n">DDP</span> terms</a></LI>
 <LI><a href="#B">Code the model and solution method</a></LI>
@@ -62,7 +62,7 @@ Here p&prime; is the price next period and &Rho;<sub>p</sub>() is its <em>transi
 <div class="page-break"> </div>
 <p>The state variable <var>d</var> indicates whether a decision as been made or not. <var>d=0</var> means still searching, and <var>d=1</var> means a price has been accepted.  The transition for <var>d</var> today to <var>d</var> next period can written:
 	<dd class="disp"><span class="equation">$$d' = a\quad \Rightarrow\quad P_d(d';a,d) = I\{d'=a\}.$$</span></dd>
-    And <var>d=1</var> is a terminal value, which means that decision making ends whenever that value is reached.   
+    And <var>d=1</var> is a terminal value, which means that decision making ends whenever that value is reached.
 <p><var>Utility</var> equals realized costs: search costs,  <span class="expressions">\(\lambda > 0\)</span>, and the price paid if purchased:
 	<dd class="disp"><span class="equation">$$U(a,p,d) = -(1-d)[ \lambda + ap ]$$</span></dd>
 <p>Future returns are discounted by <var>&delta;&lt;1.</var>
@@ -106,13 +106,13 @@ However, since p, a, and d are <em>objects</em>, the Ox code to implement <var>U
 <div class="page-break"> </div>
 <DL>Line-by-line Description
 <DT>1. Import
-<DD>The Ox code relies on the <span class="n">DDP</span> package, so import the compiled code and header information for it. 
+<DD>The Ox code relies on the <span class="n">DDP</span> package, so import the compiled code and header information for it.
 See <a href="http://www.doornik.com/ox/oxtutlan.html#ox_tutlan_link">Multiple files in Ox</a>.
 </DD>
 <DT>2-9. Class Declaration</DT><br>
 A user's DP model is represented by a <code>class</code> (or <code>struct</code>). See <a href="http://www.doornik.com/ox/oxtutlan.html#ox_tutlan_oo">OOP in Ox</a>. The class name is <code>Search</code>. It is <em>derived</em> from an underlying class, <code><a href="Bellman.ox.html#Bellman">Bellman</a></code>.   The code inside <code>{}</code> declares variables (data members) and functions (method members) that are needed to code the model.   Each <q>instance</q> of a <code>Search</code> created while the program executes will represent one point in the state space. Aspects of the model that are shared across points in the state space are stored as <em>static</em> members of the class. Non-static elements are called <em>automatic</em> in Ox, but something is automatic by default unless the tag <code>static</code> appears when it is declared.
 <details><summary>More on static and automatic variables</summary>
-Here is a single class called <code>A</code> with two static members and one automatic member.</a>  Then three new instances (objects) of class <code>A</code> are created using the <code>new</code> operator. 
+Here is a single class called <code>A</code> with two static members and one automatic member.</a>  Then three new instances (objects) of class <code>A</code> are created using the <code>new</code> operator.
 <dd><pre>
 class A {
         static decl  a, b;
@@ -229,7 +229,7 @@ The code in <code>GetStarted.ox</code> does not run on its own.  Like C, Ox need
 <P/>
 From a command prompt in the examples directory (and assuming  <code>niqlow/include</code> is on the include path) <details class="aside"><summary>Include Path?</summary><DD>When your program relies on external code through the use of <code>#include</code> or <code>#import</code> then Ox needs to be able to find the code on the machine.  Computer languages like Ox are designed to look in different places for code so that you do not have to copy everything to the same folder as your program.  The list of places to look for things you include is called the <em>include path</em>.  And Ox calls its list <code>OX7Path</code>, which is an system environmental variable (if that helps explain it).  You can add a folder, such has <code>\Users\Me\Oxpgms</code> to <code>OX7PATH</code> when you run Ox by doing this:
 <pre>oxl -i\Users\Me\Oxpgms myprog </pre>
-If you use <code>OxEdit</code> or some other code editing program then you can set it up so folder(s) are added to the include path automatically so you do not have to type it each type.  
+If you use <code>OxEdit</code> or some other code editing program then you can set it up so folder(s) are added to the include path automatically so you do not have to type it each type.
 See <a href="http://www.doornik.com/ox/index.html#oxpath">Ox Path</a></dd> </details>
 <pre>oxl GetStartedMain </pre></dd>
 <div class="page-break"> </div>
@@ -343,9 +343,10 @@ Since <code>DataSet</code> is derived from the <a href="Data.ox.html#Panel">Pane
   <DD><code>Print()</code> calls <code>Flat()</code> to flatten this data structure into a <q>long</q> matrix, one row for each outcome and one column for each element of the full outcome Y* (except for the pointers to other outcomes).  Columns for path id and simulated time are added.  <code>Flat()</code>is itself a recursive task that builds up the matrix by processing fixed panels, paths and outcomes recursively.</dd>
 <P/>
 <li>Observability and Masking</li>
-<DT>DataSet::Observed() allows the user to control which parts of the outcome is seen in data (and available to econometric methods) and which are missing and require integration over.</DT>
+<DT><a href="Data.ox.html#DataSet___ObservedWithLabel">ObservedWithLabel</a>(), 	<a href="Data.ox.html#DataSet___MatchToColumn">MatchToColumn</a>() and 	<a href="Data.ox.html#DataSet___UnObserved">UnObserved</a>() allow you to control which parts of the outcome is seen in data (and available to econometric methods) and which are missing and require integration over.</DT>
 <DD>By default nothing is observed, so the user must explicitly add variables to the observed list.  State variables that are <a href="Variables.ox.html#Fixed">Fixed</a>, are placeholders that take on only one value, so they are implicitly observed.  These are marked as <code>force0</code> so that if reading in from external data the values will be filled in and they do not have to be explicitly observed.</DD>
-<DD><code>DataSet::Observed()</code> takes one or more <em>pairs</em> of arguments.  The first in the pair is the state, action or auxiliary variable that is observed.  The second is either the label for that variable's column in external data or the index of that column.  The code <code>UseLabel</code> means that the same label is used in the data as stored internally for the variable.  (When using simulated data this second argument is not used, but if the data were save to disk and read back in to a different DataSet object it would be best to use <code>UseLabel</code> because it is used for the column labels.,</dd>
+<DD><a href="Data.ox.html#DataSet___ObservedWithLabel">ObservedWithLabel</a>() takes one or more action/state/auxiliary objects as arguments.  <a href="Shared.ox.html#Quantity___L">L</a> label of the object is the same as the label or name of the column in the data set, which is how the data is matched with the model variable.</dd>
+<DD><a href="Data.ox.html#DataSet___MatchToColumn">MatchToColumn</a>() takes two arguments.  The first is the model variable object.  The second is either a label or the index of the column to match the variable with.</DD>
 <DT>Since the code is working with simulated data, the data set already has the full outcome <code>Y*</code> in memory.  </DT>
 <DD>When reading in external data, the observability of variables is specified <em>ex ante</em> and then the observable data is read in using <code><a href="Data.ox.html#DataSet___Read">Read</a>(const filename)</code>.  But here, observability is specified <em>ex post</em>.</DD>
 <DD>With simulated data, the user must apply <a href="Data.ox.html#DataSet___Mask">Mask</a>() before sending the data to an econometric method.  When reading in external data the mask is applied internally by <a href="Data.ox.html#DataSet___Read">Read</a>().</DD>
@@ -358,7 +359,7 @@ Since <code>DataSet</code> is derived from the <a href="Data.ox.html#Panel">Pane
 <P/>
 <DT>DataSet has a virtual method, <a href="Data.ox.html#DataSet___EconometricObjective">EconometricObjective</a>().  The default is to compute and return <a href="Data.ox.html#Panel___LogLikelihood">LogLikelihood</a>()</DT>
  <DD>The user can derive their own DataSet class and replace it with an alternative procedure (and other built in objectives, such as GMM, will be provided in later releases).</DD>
-<DD> Since it is log-likelihood it is easier to check the <code>exp()</code> in this small example .  As with all Objectives within <span class="n">FiveO</span>, it turns a vector of values that Algorithms will sum up or use directly to compute Jacobians as needed.</DD>
+<DD> Since it is log-likelihood it is easier to check the <code>exp()</code> in this small example .  As with all <a href="..\FiveO\Objective.ox.html">objectives</a> in  <span class="n">FiveO</span>, it returns a vector of values that an <a href="..\FiveO\Algorithms.ox.html">algorithm</a> will sum up or use directly to compute Jacobians as needed.</DD>
 <DT>Once data is masked or read in from an external source the value of any variable that was not marked as observed for force0 is now lost even if it were observed originally.  </DT>
 <DD>So it is not possible to undo <em>un</em>observability within a program and a single data set.  A second data set can be created without different observability and read in from the same source. (And simulated data could be saved using <code><a href="Data.ox.html#Panel___Print">Print</a>(filename)</code> and read into a new data set.)</DD>
 <DD>However, it is possible to undo observability, as the next line illustrates.  In the first evaluation of the likelihood the offered price, <em>p</em> was treated as observed.  Now, that mark is undone by sending the variable <code>p</code> to <a href="Data.ox.html#DataSet___UnObserved">UnObserved</a>() and re-masking the data.  The next likelihood will integrate out the offered price.</DD>

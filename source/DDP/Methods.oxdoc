@@ -65,7 +65,7 @@ phases of a model) the fixed point will be found.  For finite horizon models/pha
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">For the current fixed group, loop over random effect variables in &gamma;. Solve each problem by calling `Method::Gsolve`().<br> Reuse value iteration space but store choice probabilities for all random effect groups.</td></tr>
+<td class="text">For the current fixed group, loop over random effect variables in &gamma;. Solve each problem by calling `Method::GSolve`().<br> Reuse value iteration space but store choice probabilities for all random effect groups.</td></tr>
 <tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -74,7 +74,7 @@ phases of a model) the fixed point will be found.  For finite horizon models/pha
 <td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
 <td style="height:1px; width:auto;" colspan="4" class="fffix">
 <table class="labelwrapper">
-   <tbody><tr><td class="label">`Gsolve`</td></tr>
+   <tbody><tr><td class="label">`Method::GSolve`</td></tr>
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
@@ -86,7 +86,7 @@ phases of a model) the fixed point will be found.  For finite horizon models/pha
 <td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
 <td style="height:1px; width:auto;" colspan="3" class="fffix">
 <table class="labelwrapper">
-   <tbody><tr><td class="label">Inner loop of Gsolve</td></tr>
+   <tbody><tr><td class="label">Inner loop of GSolve</td></tr>
    <tr class="bottom"><td class="line">&nbsp;</td></tr>
 </tbody></table>
 </td>
@@ -98,7 +98,7 @@ phases of a model) the fixed point will be found.  For finite horizon models/pha
 <DT>Hooks</DT>
 <DD>The user can insert static functions at different points in this process using the `Hooks::Add`().</DD>
 <DD>`HookTimes` are the integer codes for when the function should be called.</DD>
-<DD>For example, to say hello after the inner loop above is done i.e. <code>Gsolve()</code> ends, do this:<pre>
+<DD>For example, to say hello after the inner loop above is done i.e. <code>GSolve()</code> ends, do this:<pre>
  sayhello() { print("hello"); }
  &vellip;
  Hooks::Add(PostGSolve,sayhello);

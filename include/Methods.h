@@ -5,7 +5,7 @@
 **/
 struct FixedSolve : FETask  { const decl rtask; FixedSolve(); Run();	}
 
-/**	Loop over random effect values &gamma;, call  Gsolve() method for the calling method.
+/**	Loop over random effect values &gamma;, call  GSolve() method for the calling method.
 **/
 struct RandomSolve : RETask { RandomSolve(); Run();}
 
@@ -13,8 +13,11 @@ struct RandomSolve : RETask { RandomSolve(); Run();}
 /** A container for solution methods.
 **/
 struct Method : ThetaTask {
+    decl
+    /** Output from the solution method.
+        @see NoiseLevels**/                         Volume;
     virtual Solve(Fgroups=AllFixed,MaxTrips=0);
-    virtual Gsolve(instate);
+    virtual GSolve(instate);
 	}
 
 /** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/
@@ -42,8 +45,6 @@ struct ValueIteration : Method {
         /** FALSE(default): iterate on V(&theta;)<br>
             TRUE: only compute transitions.**/      DoNotIterate,
 		/** Scratch space for value iteration. **/  VV,
-    /** Output from the solution method.
-        @see NoiseLevels**/                         Volume,
 	/** Tolerance on value function convergence in
     stationary environments.  Default=10<sup>-5</sup>.**/	
                                                      vtoler;
@@ -51,7 +52,7 @@ struct ValueIteration : Method {
 	NTrips();
 	virtual Update();
 	virtual Run(th);
-	virtual Gsolve(instate);
+	virtual GSolve(instate);
 	virtual Solve(Fgroups=AllFixed,MaxTrips=0);
 	}
 
@@ -175,7 +176,7 @@ struct KeaneWolpin : ValueIteration {
 
 					KeaneWolpin(myKWEMax=0);
 					Specification(kwstep,V=0,Vdelta=0);
-	virtual			Gsolve(instate);
+	virtual			GSolve(instate);
 	virtual 		Run(th);
 	}
 
@@ -234,7 +235,7 @@ struct HotzMiller : ValueIteration {
 	decl		        Q ;
 	HotzMiller(indata=0,bandwidth=0);
 	virtual Solve(Fgroups=AllFixed);
-    virtual Gsolve(instate);
+    virtual GSolve(instate);
 	Run(th);
 	}
 

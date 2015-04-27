@@ -89,7 +89,7 @@ RandomSolve::Run()  {
             ETT.state = state;
             UpdateVariables();
             }
-		GroupTask::qtask->Gsolve(this.state);
+		GroupTask::qtask->GSolve(this.state);
         if (GroupTask::qtask.Volume>SILENT && N::G>1) print(".");
         Hooks::Do(PostGSolve);
 		}
@@ -99,7 +99,7 @@ RandomSolve::Run()  {
 <OL>
 <LI>Compute the value of actions, <var>v(&alpha;,&theta;)</var> by calling `Bellman::ActVal`()</LI>
 <LI>Call `Bellman::thetaEMax`() and storing the value </LI>
-<LI>If `Flags::setPstar` then smooth choice probabilities.  And if `Flags:IsErgodic` then update the state-to-state transition matrix, &Rho;(&theta;&prime;;&theta;)</LI>
+<LI>If `Flags::setPstar` then smooth choice probabilities.  And if `Flags::IsErgodic` then update the state-to-state transition matrix, &Rho;(&theta;&prime;;&theta;)</LI>
 </OL>
 @param th, &theta;
 
@@ -121,7 +121,7 @@ ValueIteration::Run(th) {
 <LI>Iterate over states applying Bellman's equation.</LI>
 </OL>
 **/
-ValueIteration::Gsolve(instate) {
+ValueIteration::GSolve(instate) {
 	this.state = ndogU.state = instate;
 	ndogU->Traverse();
 	Flags::setPstar = counter->setPstar() ||  (MaxTrips==1);   // if first trip is last;
@@ -138,7 +138,7 @@ Method::Solve(Fgroups,MaxTrips) {    oxwarning("Called the default Solve() funct
 /** The function (method) that applies the method to a particular problem.
 This is the default value that does nothing.  It should be replaced by code for the solution method.
 **/
-Method::Gsolve(instate) {    oxwarning("Called the default Solve() function for Method.  Does not do anything");    }
+Method::GSolve(instate) {    oxwarning("Called the default Solve() function for Method.  Does not do anything");    }
 	
 /**Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
 @param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
@@ -150,8 +150,7 @@ time.<p>
 
 It uses a `FixedSolve`task stored in `ValueIteration::ftask` to loop over fixed effect values.
 
-If `DP::UpdateTime` is <code>OnlyOnce</code> (see `UpdateTimes`), then transitions and variables are updated here.</LI>
-
+If `Flags::UpdateTime`[OnlyOnce] is TRUE (see `UpdateTimes`), then transitions and variables are updated here.</LI>
 
 @comments Result stored in `ValueIteration::VV` matrix for only two or three ages (iterations) stored at any one time.  So this
 cannot be used after the solution is complete.  `Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
@@ -211,7 +210,7 @@ ValueIteration::NTrips() {
 
 /**	Check convergence in Bellman iteration, either infinite or finite horizon.
 Default task loop update routine for value iteration.
-This is called after one complete iteration of `ValueIteration::Gsolve`().
+This is called after one complete iteration of `ValueIteration::GSolve`().
 @return TRUE if converged or `Task::trips` equals `Task::MaxTrips`
 **/
 ValueIteration::Update() {
@@ -241,7 +240,7 @@ ValueIteration::Update() {
 **/
 KWEMax::KWEMax() {
 	EndogUtil();
-	right = S[endog].X;	 // clock is iterated in  KeaneWolpin::Gsolve
+	right = S[endog].X;	 // clock is iterated in  KeaneWolpin::GSolve
 	lo = ex.left;
 	hi = ex.right;
 	}
@@ -299,7 +298,7 @@ This replaces the built-in version used by `ValueIteration`.
 </UL>
 
 **/
-KeaneWolpin::Gsolve(instate) {
+KeaneWolpin::GSolve(instate) {
 	decl myt;
 	this.state = ndogU.state = instate;		
 	Flags::setPstar = TRUE;	
@@ -496,7 +495,7 @@ HMEndogU::Run(th) {
 	th->UpdatePtrans();
 	}
 
-HotzMiller::Gsolve(instate) {
+HotzMiller::GSolve(instate) {
 	decl cg = CurGroup(), tmpP = -AV(delta)*cg.Ptrans;
     HMEndogU::VV = (invert( setdiagonal(tmpP, 1+diagonal(tmpP)) ) * Q[I::f] )';   // (I-d*Ptrans)^{-1}
 	if (Volume>LOUD) println("HM inverse mapping: ",HMEndogU::VV );

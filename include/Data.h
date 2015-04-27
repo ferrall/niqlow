@@ -178,7 +178,7 @@ struct DataSet : Panel {
     /** Label for the data set. **/                 label;
 	decl											
     /**How much output to produce.
-        @see `NoiseLevels` **/                      Volume,
+        @see NoiseLevels  **/                       Volume,
 													masked,
 	/** labels  **/									dlabels,
 													list,
@@ -273,7 +273,7 @@ struct PanelPrediction : PathPrediction {
 
 struct EmpiricalMoments : PanelPrediction {
     const decl label;
-    decl     /**How much output to produce.@see `NoiseLevels` **/                      Volume,
+    decl     /**How much output to produce.@see NoiseLevels **/                      Volume,
             flist, UorCorL, FMethod;
     EmpiricalMoments(label="",method=0,UorCorL=UseLabel);
     Observed(as1,lc1=0,...);

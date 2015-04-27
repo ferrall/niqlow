@@ -291,6 +291,7 @@ MyMoments(M,rlabels)	{
 		print("%c",mymomlabels,moms);
 	}
 
+
 /** Gauss-Laguerre nodes and weights.
 <pre>
 &int;_<sub>0</sub><sup>+&infin;</sup> f(x)exp(-x) &cong; &sum;<sub>m</sub> &omega;<sub>m</sub> f(x<sub>m</sub>)

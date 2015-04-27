@@ -92,7 +92,7 @@ to the parameter list before <var>x</var>.</details></DD>
 <tr><td colspan="3" class="header" valign="top">Functions</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Parameters.ox.html#TransitionMatrix">TransitionMatrix</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create an array of <a href="Parameters.ox.html#Simplex">Simplex</a> blocks that act as a transition matrix.</td>
 </tr>
 </table>
 
@@ -695,7 +695,38 @@ x<sup>j</sup> = <a href="Parameters.ox.html#Positive">Positive</a>()
 
 <span class="declaration">TransitionMatrix ( L , imat )</span>
 <dl><dd>
+Create an array of <a href="Parameters.ox.html#Simplex">Simplex</a> blocks that act as a transition matrix.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">inmat</td>
+<td class="description" valign="baseline">a square matrix of initial values for the transitions.
+Each <em>column</em> of <code>inmat</code> should be a proper transition (not each row).
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example">Create a 3x3 transition matrix, where the current state is the column and the next state is the row.
+Initialize the transition but make the transition an array of <a href="Parameters.ox.html#Simplex">Simplex</a> blocs that can be controlled by an optimization routine.
+<pre>
+  decl tmat =< 0.90 ~ 0.09 ~0.05;
+               0.02 ~ 0.80 ~0.3;
+               0.08 ~ 0.01 ~0.11>
+<P/>
+   decl m = TransitionMatrix("p",<0.9~0.09~0.05;0.02~0.8~0.3;0.08~0.01~0.11>);
+   Parameters(m);
+   println("The current Markov transition matrix is ", CV(m));
+</pre></dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="../DDP/Variables.ox.html#Markov">Markov State Variable</a></dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Bounded</span></h2>
 

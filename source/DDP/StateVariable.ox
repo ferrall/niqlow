@@ -13,12 +13,12 @@ StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>; }
 
 
 /** Return actual[v].
-@see CV, AV, StateVariable::Update
+@see CV, AV, Discrete::Update
 **/
 StateVariable::myAV() { return actual[v]; }
 
 /** Check dimensions of <code>actual</code>.
-Called by DP::UpdateVariables() after `StateVariable::Update`() called.
+Called by DP::UpdateVariables() after `Discrete::Update`() called.
 **/
 StateVariable::Check() {
     if (columns(actual)!=1 || rows(actual)!=N) {
@@ -94,15 +94,15 @@ StateVariable::Transit(FeasA) { return { <0> , ones(rows(FeasA),1) }; }
 **/
 StateVariable::UnChanged(FeasA) { return { matrix(v), ones(rows(FeasA),1) }; }
 
-/** Default Indicator for intrinsic unreachable values of a state variable.
+/** Default Indicator for intrinsic reachable values of a state variable.
 
-@return FALSE
+@return TRUE
 
 @comments
 Most derived classes will not provide a replacement.  Examples that do (or could) are `Forget`
 augmented state variables; `ActionAccumulator` and `Duration` in normal aging models.
 **/
-StateVariable::UnReachable(clock) { return FALSE; }
+StateVariable::IsReachable(clock) { return TRUE; }
 
 /** Create an equally likely discrete Exogenous variable.
 @param L string, label
@@ -258,7 +258,7 @@ Freeze::Transit(FeasA) {
 @param pstate `PermanentChoice` state variable that triggers the forgetting
 @param rval integer between <code>0</code> and <code>b.N-1</code>, the value once forgotten.
 @comments
-`Forget::UnReachable`() prunes the state space accordingly
+`Forget::IsReachable`() prunes the state space accordingly
 **/
 Forget::Forget(b,pstate,rval) {
     if (!isclass(pstate,"PermanentChoice")) oxrunerror("pstate in Forget must be a Permanent Choice");
@@ -271,11 +271,12 @@ Forget::Transit(FeasA) {
     return {matrix(rval),ones(rows(FeasA),1)};
     }
 
-/**
+/**  This routine trims the state space of values that can't reach because they are forgotten.
+@return TRUE
 **/
-Forget::UnReachable(clock) {
+Forget::IsReachable(clock) {
     b.v = v;
-    if (CV(pstate)) return v==rval;
+    return !pstate.v || (v==rval);  //Not forgotten or at reset value
     }
 
 /**Create a standard normal N(0,1) discretize jump variable. **/
@@ -294,7 +295,7 @@ The dimensions of the transition probabilities determines the number of values t
                0.08 ~ 0.01 ~0.11>
   x = new Markov("x",tmat);
 </pre></dd>
-@see TransitionMatrix
+@see <a href="Shared.ox.html#TransitionMatrix">TransitionMatrix()</a>
 **/
 Markov::Markov(L,Pi) {	
     if (ismatrix(Pi) && (columns(Pi)!=rows(Pi) || any(!isdotfeq(sumc(Pi),1.0)) ) )
@@ -424,6 +425,10 @@ RandomUpDown::RandomUpDown(L,N,fPi)	{
 	this.fPi = fPi;
 	}
 	
+RandomUpDown::IsReachable(clock) {
+    return !( Prunable(clock)&& v>clock.v );
+    }
+
 /** .
 **/
 RandomUpDown::Transit(FeasA)	{
@@ -547,7 +552,6 @@ RetainMatch::Transit(FeasA) {
 	}
 	
 /** .
-@internal
 **/
 Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 	this.ToTrack = ToTrack;
@@ -579,15 +583,23 @@ StateCounter::Transit(FeasA)	{
 	return { matrix(v+1) , ones(rows(FeasA),1) };
     }
 
-Counter::UnReachable(clock) {
-    if (!Prune) return TRUE;
-    if (isclass(clock,"Aging")||isclass(clock,"Mortality")|| ( isclass(clock,"Longevity")&&(clock.v<clock.N-2)) ) {
-        if (v>clock.v) {
-            if (!Warned) oxwarning("StateCounter detects finite horizon and assumes initial count of 0. Will make values bigger than t unreachable. Set DontPrune to TRUE to avoid this");
-            Warned = TRUE;
+StateVariable::Prunable(clock) {
+    return isclass(clock,"Aging")||isclass(clock,"Mortality") || (isclass(clock,"Longevity")&&(clock.v<clock.N-2));
+    }
+
+/**  Trims the state space if the clock is exhibits aging, assuming that the counter is initialized
+as 0.
+@param clock the model's clock block
+**/
+Counter::IsReachable(clock) {
+    if (Prune && Prunable(clock) && v>clock.v) {
+            if (!Warned) {
+               oxwarning("A StateCounter variable detects finite horizon and assumes initial count of 0. Values bigger than t are unreachable. To avoid this behaviour send Prune=FALSE when defining the counter.");
+               Warned = TRUE;
+               }
             return FALSE;
             }
-        }
+    return TRUE;
     }
 
 /** Create a variable that counts how many times an action has taken on certain values.
@@ -897,7 +909,7 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 	}
 
 /** Updates the grid of Actual values.
-@comments Like all Update routines, this is called at `UpdateTime`.
+@comments Like all Update routines, this is called at `Flags::UpdateTime`.
 **/
 MVNormal::Update()	{
 	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*reshape(quann(range(1,M)/(M+1)),N,M) )';	
@@ -944,6 +956,14 @@ Episode::Transit(FeasA) 	{
 	
 	const decl mu, rho, sig, M;
 
+/** Tauchen discretizization.
+@param L
+@param N
+@param M
+@param mu
+@param sig
+@param rho
+**/
 Tauchen::Tauchen(L,N,M,mu,sig,rho) {
 	StateVariable(L,N);
 	this.M=M;

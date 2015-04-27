@@ -275,15 +275,14 @@ PathPrediction::SetColumns(dlabels) {
 
 /** Compute histogram(s) of an (array) of objects along the path.
 @param prntlevel `CV` compatible print level<br>
-        Zero (default): silent<br>One : formatted print each object and time<br>Two: create a flat matrix of moments stored in
-`PathPrediction::flat`.
+        Zero (default): silent<br>One : formatted print each object and time<br>Two: return a flat matrix of moments
 @param UseDist TRUE [default]: use endogenous choice probabilities &Rho;*<br>FALSE : use uniform choices.
 
 `PathPrediction::Predict`() must be called first.
 
-vlso, if prntlevel==Two leave in `PathPrediction::gmm` the total distance between predicted and empirical moments
+Also, if prntlevel==Two leave in `PathPrediction::gmm` the total distance between predicted and empirical moments
 
-Currently the objective is the square root of the squared differences.
+Currently the objective is the square root of the squared differences ( Ox built-in <code>norm(delt,'F')</code>).
 
 @example
 <pre>
@@ -469,7 +468,7 @@ EmpiricalMoments::EmpiricalMoments(label,method,UorCorL) {
 
 /** The default econometric objective: log-likelihood.
 @return `PanelPrediction::M`
-@see Panel::GMMdistance
+@see PanelPrediction::GMMdistance
 **/
 EmpiricalMoments::EconometricObjective() {
 	this->PanelPrediction::GMMdistance();
