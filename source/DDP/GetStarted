@@ -34,7 +34,7 @@ To run the program and see results:
 <OL class="chaplist">
 <LI><a href="#A">Define the model</a></LI>
 <LI><a href="#AB">Translate the model into <span="n">DDP</span> terms</a></LI>
-<LI><a href="#B">Code the model and solution method</a></LI>
+<LI><a href="#B">Code the model and apply a solution method to it.</a></LI>
 <LI><a href="#C">Run the code and look at the output</a></LI>
 </OL>
 <p></p><p></p>
@@ -85,7 +85,7 @@ However, since p, a, and d are <em>objects</em>, the Ox code to implement <var>U
  2:   class Search : Bellman {
  3:   		enum{Noff=10}
  4:   		static 	const		decl 	lam = 2.3;
- 5:   		static 	  		decl 	p, d, a, meth;
+ 5:   		static 	  		decl 	p, d, a;
  6:   		static 	Reachable();
  7:   		static 	Run();
  8:   		 	Utility();
@@ -120,9 +120,9 @@ However it is referenced, <code>a</code> and <code>b</code> refer to the same pl
 
 <DD>3: The number of offers <var>N</var> is an <em>enumeration</em>, a way of storing integer constants that Ox shares with C. </DD>
 <DD>4: The parameter &lambda; is stored as a static constant (its value is fixed at declaration).  More powerfully it could be represented as an objefct of the `Parameter` class discussed later.
-<DD>5: Four data members are declared static but variable (their value can change after the object is created).  The first three store the state variables <var>p</var> and <var>d</var> and the action variable <var>a</var>.  The final one, <code>meth</code>, will hold the solution method used to solve Bellman's equation.</DD>
+<DD>5: Threr data members are declared static but variable (their value can change after the object is created).  They sotre the state variables <var>p</var> and <var>d</var> and the action variable <var>a</var>.
 <div class="page-break"> </div>
-<DD>6: A function associated with an object is called a <code>method</code>.  <span class="n">DDP</span> requires two methods.  One tells <span class="n">DDP</span> that a particular point in the state space is reachable from a feasible path (or not).  In <code>Search</code> it is called <code>Reachable()</code>.  It must be a <code>static</code> method.</DD>
+<DD>6: A function associated with an object is called a <code>method</code>.  <span class="n">DDP</span> requires two methods.  One tells <span class="n">DDP</span> that a particular point in the state space is reachable from a feasible path (or not).  In <code>Search</code> it is called <code>Reachable()</code>.  It must be a <code>static</code> method. NB: <span class="n">DDP</span> uses the name <code>Method</code> for the class of DP solution methods.  (Upper and lower case do matter in Ox.) Unfortunately this may cause some confusion.  An attempt in these notes will be made to use "solution method" for dynamic programming method and just "method" when using it to refer to a function that belongs to a class. </DD>
 <DD>7:  The method <code>Run()</code> is not required, but it will be designed to set up and solve the model.</DD>
 <DD>8:  The second required  <code>method</code> cannot be <code>static</code>, and must have the name and declaration <code>Utility()</code>.  It returns the one-period payoff.</DD>
 </DL>
@@ -148,9 +148,7 @@ However it is referenced, <code>a</code> and <code>b</code> refer to the same pl
 16:  		d->MakeTerminal(1);	
 17:  		ExogenousStates(p = new SimpleJump("p",Noff));
 18:  		CreateSpaces();
-19:		meth = new ValueIteration(0);
-20:		meth.Volume = LOUD;
-21:		meth -> Solve(0,0);
+19:            VISolve(); 
 22:   }</pre></dd>
 </DL>
 <div class="page-break"> </div>
@@ -184,9 +182,10 @@ The method `DP::EndogenousStates`() adds the arguments sent to it to to the &the
 <DD>18: Once all elements have been created and added to the model, the user's code calls <code>CreateSpaces()</code>.  <code>CreateSpaces()</code> uses all the information available about elements added to the model to create the state space, the feasible Action sets and many other aspects of the problem.  To conserve memory requirements and computational time <span class="n">DDP</span> does not create separate points for the exogenous elements of the state space (here <var>p</var>). It treats these separately and <q>attaches</q> values related to the exogenous states to the points in the endogenous state space, <b>&Theta;</b></DD>
 
 <DT>Solve the Model (and more)</DT>
-<DD>19:  The model is separate from methods to solve it or use it in some way, including simulation and parameter estimation.  Solution methods are derived from the `Method` class, which itself is derived from the `Task` class.  Tasks are coded to go through the state space and do something at each point.  Tasks share the <code>static</code> aspects of the user's model, but they do not have the <code>automatic</code> variables that are specific to each point.  </dd>
-<DD>The most straightforward method for solving a DP model is iteration on Bellman's equation, either until convergence with an infinite horizon or backwards from the final decision period in a finite horizon.  This solution method is coded as  `ValueIteration`.  The user creates an object of this type.  That object can be stored in any kind of variable, but here it is stored in a static member of the <code>Search</code> class, <code>meth</code>.  Other solution methods could be created as well if more than one method will be used to solve the model (for example, to compare them or one to simulate data and another to use while estimating the model).</DD>
-<DD>Creating a `ValueIteration` object does not automatically invoke the method.  To do this, its `ValueIteration::Solve`() method is called.  This will carry out the iteration, and since tasks know about static aspects of the model, such as the type of clock, <code>Solve()</code> will handle the details.  The two arguments <code>(0,0)</code> relate to controlling the solution method, and are discussed elsewhere.</dd>
+<DD>The DP model is separate from methods to solve it or use it in some way, including simulation and parameter estimation.  Solution methods are derived from the `Method` class, which itself is derived from the `Task` class.  Tasks are coded to go through the state space and do something at each point.  Tasks share the <code>static</code> aspects of the user's model, but they do not have the <code>automatic</code> variables that are specific to each point.  </dd>
+<DD>19:  However, all those details can be left to <span class="n">DDP</span> by calling the function `VISolve`().  This routine creates an object of the  `ValueIteration` solution type and calls its `ValueIteration::Solve`() method to compute the solution to Bellman's equation for <code>MyModel</code>.  It also calls `DPDebug::outAllV`() so that a summary of the solution is printed to the screen. </DD>
+<DD>`ValueIteration` is the most straightforward method for solving a DP model is iteration on Bellman's equation, either until convergence with an infinite horizon or backwards from the final decision period in a finite horizon.  Other solution methods could be created as well if more than one method will be used to solve the model (for example, to compare them or one to simulate data and another to use while estimating the model).</DD>
+<DD>Using the `VISolve`() is convenient for testing and illustrating the code.   In most real applications the model will be solved repeatedly to estimate parameters, compare solution methods, conduct policy experiments, etc.  For more control on output and for repeated use it is better for the user to create the `Method` object and call its <code>Solve()</code> routine directly.  One reason is efficiency.  `VISolve`() creates and destroys the value iteration object each time it is called, which would waste computation if it were called repeated.</DD>.
 <DD>Representing solution methods with different classes that are dynamic (do not rely heavily on static data) means that different solution methods can be applied to the same model and compared to each other.</DD>
 </DL>
 
@@ -198,7 +197,7 @@ The method `DP::EndogenousStates`() adds the arguments sent to it to to the &the
 <LI>Actions and state variables are instances of predefined classes or user-defined classes.  They are added the model using DP methods (functions).
 <LI>Once all elements of the model have been added the user must call <code>CreateSpaces()</code> to set up the state space and other aspects of the model. The user's code must define a function that returns a <code>new</code> instance of their class which is passed to <code>CreateSpaces()</code>, which will call that function for each point in the state space <b>&Theta;</b>.
 <LI>The user must provide a <code>Utility</code> method and a function.  This replace the <em>virtual</em> method in Bellman of the same name.
-<LI>The model is solved by creating an solution object and calling the appropriate method (usually <code>Solve</code>).
+<LI>The model is solved by creating an solution object and calling the appropriate method (usually <code>Solve</code>), and the `VISolve`() routine will do all this for you when more control of options and repeated solutions is not needed.</LI>
 </UL>
 
 <a name="C"><LI>Run the code and see the output</LI></a>

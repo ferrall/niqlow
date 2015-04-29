@@ -18,6 +18,7 @@ MyModel::Initialize() {
 </dd>
 **/
 struct ActionVariable : Discrete	{
+    decl vL;
 	ActionVariable(L="a",N=1);
 	}
 

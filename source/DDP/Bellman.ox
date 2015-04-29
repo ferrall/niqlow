@@ -449,6 +449,13 @@ ExPostSmoothing::CreateSpaces(Method,smparam) {
 		}
 	Bellman::CreateSpaces();
 	}
+
+OneStateModel::Initialize(userReachable,Method,...) {
+    ExPostSmoothing::Initialize(userReachable);
+    SetClock(StaticProgram);
+    Actions(va_arglist());
+    CreateSpaces(Method);
+	}
 	
 /** Extreme Value Ex Post Choice Probability Smoothing.
 @internal

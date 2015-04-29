@@ -36,10 +36,7 @@ Test1::Run(UseList) {
 	Bellman::Initialize(Test1::Reachable,UseList);
 	SetClock(NormalAging,10);
 	CreateSpaces();
-	decl EMax = new ValueIteration(0);
-	EMax -> Solve();
-	DPDebug::outV(TRUE);
-	delete EMax;
+    VISolve();
 	Delete();
 	}
 
@@ -49,9 +46,7 @@ Test2::Run(UseList) {
 	Initialize(Test2::Reachable,UseList);
 	SetClock(UncertainLongevity,4,0.0);
 	CreateSpaces();
-	decl EMax = new ValueIteration(0);
-	EMax -> Solve();
-	delete EMax;
+    VISolve();
 	Delete();
 	}
 
@@ -118,10 +113,7 @@ Test4::Run() {
 	SetClock(NormalAging,10);
 	Actions(new ActionVariable("a",2));
 	CreateSpaces();
-	decl EMax = new ValueIteration(0);
-	EMax -> Solve();
-	delete EMax;
-	DPDebug::outV(TRUE);
+    VISolve();
 	Delete();
 	}
 
@@ -133,10 +125,7 @@ Test5::Run() {
 	Actions(new ActionVariable("a",2));
 	SetIntegration(100,-1,<1.0;0.99;1.0>);
 	CreateSpaces();
-	decl EMax = new ValueIteration(0);
-	EMax -> Solve();
-	delete EMax;
-	DPDebug::outV(TRUE);
+    VISolve();
 	Delete();
 	}
 
@@ -205,10 +194,10 @@ Test8::Run() {
 				   g = new FixedEffect("g",2));
 	CreateSpaces();
 	decl m = new ValueIteration(0);
+	DPDebug::outAllV();
 	m -> Solve();
-	DPDebug::outV(TRUE);
 	m -> Solve(1,0);
-	DPDebug::outV(TRUE);
+    delete m;
     Delete();
 	}
 

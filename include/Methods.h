@@ -1,6 +1,8 @@
 #import "DP"
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
+VISolve(); 
+
 /** Loop over fixed values in &gamma;, solve model for each.
 **/
 struct FixedSolve : FETask  { const decl rtask; FixedSolve(); Run();	}

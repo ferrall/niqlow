@@ -56,14 +56,13 @@ struct  Bellman : DP {
 
 /** Choice probabilities are smoothed ex post.
 
-<DT>Utility() has no continuous error terms.  After V() is computed, choice probabilities are
-smoothed ex post as follows:
+<DT>Utility() has no continuous error terms that affect the formula for computing $EV(\theta)$.
+</DT>
+<DT>After $V(\theta)$ is computed, choice probabilities are either </dt>
+<DD>left unsmoothed or </dd>
+<Dd>smoothed <em>ex post</em>
+according to the `SmoothingMethods` sent to `ExPostSmoothing::CreateSpaces`().</DD>
 
-<dd><pre>
-U() = Utility(&alpha;,&eta;,&epsilon;,&theta;,&gamma;)
-v*(&alpha;) = exp[&rho;(v(&alpha;,&epsilon;,&eta;&theta;)-V(&epsilon,&eta;&theta;) )]	/ &rho;
-&Rho;*(&alpha;;&epsilon;,&eta;&theta;) = v*(&alpha;) / &Sum;<sub>&alpha;'&in;A(&theta;) v*(&alpha;')</sub>
-</pre></dd>
 **/
 struct ExPostSmoothing : Bellman {
 	static decl Method, rho, sigma;
@@ -72,6 +71,11 @@ struct ExPostSmoothing : Bellman {
 	virtual Smooth(EV);
 			Logistic(EV);
 			Normal(EV);
+	}
+
+struct OneStateModel : ExPostSmoothing {
+	static Initialize(userReachable,Method,...);
+    static Choose();
 	}
 	
 /** Additve extreme value errors enter U().

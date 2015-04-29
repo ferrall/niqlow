@@ -216,9 +216,9 @@ struct GHK   : Integration {
 class Version : Zauxiliary {
 	/** Minimum Ox Version required. @name Oxversion **/
 //	enum {MinOxVersion=621}
-	enum {MinOxVersion=700}
+	enum {MinOxVersion=701}
 	/** Current niqlow version. @name niqlowversion **/
-	enum {version=200}
+	enum {version=220}
 	static decl checked;
 	static Check();
 	}

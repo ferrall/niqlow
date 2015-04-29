@@ -1,6 +1,28 @@
 #include "Methods.h"
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 
+/**  Simplified Value Iteration model solution.
+<DT>This function</DT>
+<DD>Creates a `ValueIteration` method</dd>
+<dd>Calls `DPDeubg::outAllV`()</dd>
+<DD>Calls `ValueIteration::Solve`()</dd>
+<dd>deletes the solution method</dd>
+
+This routine simplifies basic solving.  Simply call it after calling `DP::CreateSpaces`().
+Its useful for debugging and demonstration purposes because the user's code does not need to create
+the solution method object and call solve.
+
+This would be inefficient to use in any context when a solution method is applied repeatedly.
+
+**/
+VISolve() {
+	if (!Flags::ThetaCreated) oxrunerror("Must call CreateSpaces() before calling Choose()");
+    decl meth = new ValueIteration();
+    DPDebug::outAllV();
+    meth->Solve();
+    delete meth;
+    }
+
 /** Create an endogenous utility object.
 This task method has the job of looping over the endogenous state space when <var>U(&alpha;...)</var>
 and <var>P(&theta;&prime;;&alpha;,&eta;,&theta;)</var> need to be updated.

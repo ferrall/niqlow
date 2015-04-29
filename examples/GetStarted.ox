@@ -4,7 +4,7 @@
 struct Search : Bellman	{
 	enum{Noff=10}
 	static const decl lam = 2.3;
-	static decl p, d, a, meth;
+	static decl p, d, a;
 	static Reachable();
 	static Run();
 	Utility();
@@ -18,9 +18,7 @@ Search::Run()	{
 	d->MakeTerminal(1);	
 	ExogenousStates(p = new SimpleJump("p",Noff));
 	CreateSpaces();
-	meth = new ValueIteration();
-	meth.Volume = LOUD;
-	meth -> Solve();
+    VISolve();
 	}
 Search::Reachable()	{
 	return new Search();

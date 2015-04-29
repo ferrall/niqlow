@@ -215,7 +215,7 @@ DP::StorePalpha() {
 DP::AddStates(SubV,va) 	{
 	decl pos, i, j;
 	if (Flags::ThetaCreated) oxrunerror("Error: can't add variable after calling DP::CreateSpaces()");
-	if (!isarray(SubVectors)) oxrunerror("Error: can't add states before calling Initialize()",0);
+	if (!isarray(SubVectors)) oxrunerror("Error: can't add states before calling Initialize()");
 	if (isclass(va,"Discrete")) va = {va};
 	for(i=0;i<sizeof(va);++i)	{
 		if (StateVariable::IsBlock(va[i])) {
@@ -299,7 +299,7 @@ Actions(work = new ActionVariable("w",2));
 If no action variables are added to <code>MyModel</code> then a no-choice action is added by `DP::CreateSpaces`().
 **/
 DP::Actions(Act1,...) 	{
-	decl va = {Act1}|va_arglist(), i, nr, pos=S[acts].D, sL;
+	decl va = Act1|va_arglist(), i, nr, pos=S[acts].D, sL;
 	AddStates(acts,va);
 	for(i=0;i<sizeof(va);++i)	{
 		va[i].pos = pos;
@@ -588,13 +588,13 @@ SetUpdateTime(AfterRandom);
 DP::SetUpdateTime(time) {
     if (isint(Flags::UpdateTime)) Flags::UpdateTime = constant(FALSE,UpdateTimes,1);
     if (!isint(time) ) oxrunerror("Update time must be an integer");
-    if (Volume>SILENT)
+    if (Volume>QUIET)
         switch_single (time) {
             case InCreateSpaces : if (Flags::ThetaCreated) oxrunerror("Cannot specify UpdateTime as InCreateSpaces after it has been called");
                                   oxwarning("Transitions and actual values are fixed. They are computed in CreateSpaces() and never again.");
-            case OnlyOnce       : oxwarning("Setting update time to OnlyOnce. Transitions and actual values do not depend on fixed or random effect values.  If they do, results are not reliable.");
-            case AfterFixed     : oxwarning("Setting update time to AfterFixed. Transitions and actual values can depend on fixed effect values but not random effects.  If they do, results are not reliable.");
-            case AfterRandom    : oxwarning("Setting update time to AfterRandom. Transitions and actual values can depend on fixed and random effects, which is safe but may be redundant and therefore slower than necessary.");
+            case OnlyOnce       : oxwarning("Setting update time to OnlyOnce. Transitions and actual values do not depend on fixed or random effect values.\n  If they do, results are not reliable.");
+            case AfterFixed     : oxwarning("Setting update time to AfterFixed. Transitions and actual values can depend on fixed effect values but not random effects.\n  If they do, results are not reliable.");
+            case AfterRandom    : oxwarning("Setting update time to AfterRandom. Transitions and actual values can depend on fixed and random effects,\n  which is safe but may be redundant and therefore slower than necessary.");
             default             : oxrunerror("Update time must be between 0 and UpdateTimes-1");
             }
     Flags::UpdateTime[] = FALSE;
@@ -795,6 +795,9 @@ DP::CreateSpaces() {
                     av ~= Alpha::Sets[i][j] ? "    X    " : "    -    ";
                     everfeasible = everfeasible|| (Alpha::Count[i]&&Alpha::Sets[i][j]);
                     }
+            av ~= "    ";
+			for (i=0;i<N::Av;++i)
+                    if ( isarray(SubVectors[acts][i].vL) ) av ~= "-"~SubVectors[acts][i].vL[Alpha::Matrix[j][i]];
 			if (everfeasible) println(av);  else ++totalnever;
 			}
 		for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",Alpha::Count[i]);
@@ -1156,7 +1159,7 @@ DP::SetClock(ClockOrType,...)	{
 			case Ergodic:				counter = new Stationary(TRUE); break;
 			case InfiniteHorizon: 		counter = new Stationary(FALSE); break;
 			case NormalAging:  			counter = new Aging(va[0]); break;
-			case StaticProgram:			counter = new StaticP(); break;
+			case StaticProgram:			counter = new StaticP(); SetDelta(0.0); break;
 			case RandomAging:			counter = new AgeBrackets(va[0]);  break;
 			case RandomMortality:		counter = new Mortality(va[0],va[1]);  break;
             case UncertainLongevity:    counter = new Longevity(va[0],va[1]); break;
@@ -1525,7 +1528,7 @@ SaveV::Run(th) {
 	stub=I::all[tracking]~th.InSubSample~th.IsTerminal~th.Aind~state[S[endog].M:S[clock].M]';
 	for(re=0;re<sizeof(th.EV);++re) {
         p = th->ExpandP(re);
-		r = stub~re~th.EV[re]~(MaxChoiceIndex ? double(mxi = maxcindex(p))~p[mxi]~sumc(p) : p' );
+		r = stub~re~I::f~th.EV[re]~(MaxChoiceIndex ? double(mxi = maxcindex(p))~p[mxi]~sumc(p) : p' );
 		if (isclass(th,"OneDimensionalChoice") )  r ~= CV(th.zstar[re])';
 		if (!isint(aM)) aM[0] |= r;
 		if (ToScreen) {
