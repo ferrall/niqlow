@@ -16,7 +16,7 @@ dppobj = $(dppsrc:.=.oxo)
 dpsrc := Variables.
 dpobj = $(dpsrc:.=.oxo)
 
-xtradoc = GetStarted DDP.ox ../Shared/Help $(dpsrc:.=.ox) $(dppsrc:.=.ox) 
+xtradoc = DynProg GetStarted DDP.ox ../Shared/Help $(dpsrc:.=.ox) $(dppsrc:.=.ox)
 xtrahtml = $(xtradoc:.ox=.ox.html)
 
 DDP.oxo : $(dppobj)
@@ -45,7 +45,7 @@ clean:
 		
 .PHONY : document
 document:
-	$(OXDOC) -include $(INC) -uplevel $(xtradoc) ../Shared/Shared.ox 
+	$(OXDOC) -include $(INC) -uplevel $(xtradoc) ../Shared/Shared.ox
 	${MAKE} -C $(DOC) tweak	
 
 .PHONY : install

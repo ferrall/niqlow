@@ -1,5 +1,5 @@
 #include "AllTest.h"
-/* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 TestRun() {
 	println("\n\n***************** Test1 *****************\n");

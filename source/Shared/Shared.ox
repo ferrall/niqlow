@@ -1,12 +1,12 @@
 #include "Shared.h"
-/* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 Version::Check() {
  if (checked)  return ;
  if (oxversion()<MinOxVersion) oxrunerror("This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
  oxprintlevel(1);
  println("\n niqlow version ",sprint("%4.2f",version/100),
- " Copyright (C) 2011-2014 Christopher Ferrall.\n",
+ " Copyright (C) 2011-2015 Christopher Ferrall.\n",
  " Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n");
  checked = TRUE;
  }
@@ -172,7 +172,14 @@ DiscreteNormal(N,mu,sigma)	{
 @param N <em>positive integer</em>, number of values.<br>N=1 is a constant.
 **/
 Discrete::Discrete(L,N)  {
-	this.N = N; this.L = L;
+    if (!isint(N)||(N<=0)) oxrunerror("Number of discrete values has to be a non-negative integer");
+	this.N = N;
+    if (!isstring(L)) {
+        oxwarning("Label for discrete value should be a string.");
+        this.L = "";
+        }
+    else
+        this.L = L;
 	vals = range(0,N-1);
 	actual= vals';
 	subv = pos = UnInitialized;

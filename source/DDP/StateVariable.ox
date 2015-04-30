@@ -1,5 +1,5 @@
 #include "StateVariable.h"
-/* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 /**The base for state variables.
 @param N <em>positive integer</em> the number of values the variable takes on.<br>N=1 is a constant, which can be included as
@@ -121,10 +121,20 @@ SimpleJump::SimpleJump(L,N)	  	{	StateVariable(L,N); 	}
 /** Transition . **/
 SimpleJump::Transit(FeasA)	{return {vals,constant(1/N,1,N)};	}
 
+/** Synchronize base state variable value with current value.
+**/
+Augmented::Synch() {    b.v = v;     }
+
+/** Base creator augmented state variables
+@param Lorb either a `StateVariable` object, the base variable to augment<br>Or, string the label for this variable.
+@param N integer, if Otherwise, if &gt; b.N number of points of the augmented variable.  Otherwise, ignored and this.N = b.Nl
+
+If Lorb is a string then <code>b = new `Fixed`(Lorb)</code>.
+**/
 Augmented::Augmented(Lorb,N) {
     if (isclass(Lorb,"StateVariable")) {
         this.b = Lorb;
-        StateVariable(Lorb.L,Lorb.N);
+        StateVariable(Lorb.L,max(N,Lorb.N));
         }
     else {
         this.b = new Fixed(Lorb);
@@ -133,35 +143,38 @@ Augmented::Augmented(Lorb,N) {
     }
 
 /** The base for triggered augmentations.
+@param b the base `StateVariable` whose transition is augmented.
+@param t the trigger for a different transition
+@param tv the integer (actual) or vector of integer values of t that triggers the transition [default=1].
+@param rval the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 
 **/
 Triggered::Triggered(b,t,tv,rval) {
-    Augmented(b);
     this.t = t;
     if (!(isint(tv)||ismatrix(tv))) oxrunerror("Trigger values must be integer or matrix");
     this.tv = unique(tv);
-    if (!isint(rval) || rval<0 || rval>=N) oxrunerror("Reset value must be integer between 0 and N-1");
-    this.rval = rval;
+    if (!isint(rval) || rval<ResetValue || rval>b.N) oxrunerror("Reset value must be integer between -1 and b.N");
+    this.rval = (rval==ResetValue) ? b.N : rval;
+    Augmented(b,max(this.rval+1,b.N));
     }
 
 Triggered::Transit(FeasA) {
-    b.v = v;                    //synchronize base state value
+    Synch();
     tr = b->Transit(FeasA);
-    // no return, so error produced if called directly
     }
 
 /** Create a new augmented state variable for which an action triggers the change.
 @param b the base `StateVariable` whose transition is augmented.
 @param t the `ActionVariable` that triggers a different transition
 @param tv the integer (actual) or vector of integer values of tv that triggers the transition [default=1].
-@param rval the integer (current) value of the variable when the trigger occurs [default=0]
+@param rval the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 
 <dt>The transition for an action triggered state:</dt>
 <dd><pre>Prob( q' = v ) = I{t&in;tv}\times I{v==rval} + (1-I{t&in;tv})\times Prob(b=v)</pre></dd>
 **/
 ActionTriggered::ActionTriggered(b,t,tv,rval){
-    Triggered(b,t,tv,rval);
     if (!isclass(t,"ActionVariable")) oxrunerror("Trigger object must be ActionVariable");
+    Triggered(b,t,tv,rval);
     }
 
 ActionTriggered::Transit(FeasA) {
@@ -190,14 +203,15 @@ Reset::Reset(b,t) {
     ActionTriggered(b,t);
     }
 
-/** Augment a base transition so the value of some other object trigger a specail value.
-@param b the base `StateVariable` whose transition is augmented (the base should not be added to the model separately.
+/** Augment a base transition so the value of some other object trigger a special value.
+@param b the base `StateVariable` whose transition is augmented (the base should not be added to the model separately).
 @param t the `AV`-compatible value which triggers the change.  Usually this would be another state variable that is present in the model.
 @param tv the integer (actual) or vector of integer values of tv that triggers the transition [default=1].
-@param rval the integer (current) value of the variable when the trigger occurs [default=0]
+@param rval the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 
 **/
 ValueTriggered::ValueTriggered(b,t,tv,rval) {
+    if (!isclass(t,"StateVariable")) oxrunerror("Trigger object must be StateVariable");
     Triggered(b,t,tv,rval);
     }
 
@@ -210,7 +224,7 @@ ValueTriggered::Transit(FeasA) {
 /**  Augment a base transition so that a special value occurs with some probability.
 @param b base `StateVariable`
 @param Tprob &tau;, probability of the special event
-@param rval r, integer, value to jump to in the special event.
+@param rval r, integer, value to jump to in the special event.<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 <DT>Transition</DT>
 <DD><pre>
 Prob( q&prime;= z | q,b ) =  I{z=r}&tau; + (1-&tau;)Prob(b&prime;=z)
@@ -240,7 +254,7 @@ RandomTrigger::Transit(FeasA) {
 
 /** Augment a variable so it freezes at its current value as long as a trigger is TRUE.
 @param b base `StateVariable`
-@param t `
+@param t `CV`-compatible object
 **/
 Freeze::Freeze(b,t) {
     ValueTriggered(b,t,TRUE);
@@ -257,6 +271,7 @@ Freeze::Transit(FeasA) {
 @param b base `StateVariable` to augment
 @param pstate `PermanentChoice` state variable that triggers the forgetting
 @param rval integer between <code>0</code> and <code>b.N-1</code>, the value once forgotten.
+@param rval the integer (current) value of this state variable when value is forgotten [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 @comments
 `Forget::IsReachable`() prunes the state space accordingly
 **/
@@ -271,11 +286,11 @@ Forget::Transit(FeasA) {
     return {matrix(rval),ones(rows(FeasA),1)};
     }
 
-/**  This routine trims the state space of values that can't reach because they are forgotten.
+/**  This routine trims the state space of values that can't be reached because they are forgotten.
 @return TRUE
 **/
 Forget::IsReachable(clock) {
-    b.v = v;
+    Synch();
     return !pstate.v || (v==rval);  //Not forgotten or at reset value
     }
 
@@ -377,12 +392,16 @@ Jump::Transit(FeasA) {
 /** Create an offer state variable.
 @param L label
 @param N integer, number of values (0 ... N<sup>-</sup>)
-@param Pi either a double or a `Parameter`, the offer probability.
+@param Pi a `AV`(Pi,Feas)-compatible offer probability.
 @param Accept `ActionVariable` that indicates the offer is accepted.
 @comments 0 is treated as a the no offer probability.
 **/	
-Offer::Offer(L,N,Pi,Accept)
-	{	this.Pi = Pi;	this.Accept = Accept; StateVariable(L,N);	}
+Offer::Offer(L,N,Pi,Accept)	{	
+    this.Pi = Pi;	
+    if (!isclass(Accept,"ActionVariable")) oxrunerror("Accept object must be ActionVariable");
+    this.Accept = Accept;
+    StateVariable(L,N);	
+    }
 
 /** .
 **/
@@ -417,7 +436,7 @@ LogNormalOffer::Update() {
 /** Create a state variable that increments or decrements with state-dependent probabilities.
 @param L label
 @param N integer, number of values, N &ge; 3
-@param fPi(A) a `AV`(fPi,A) compatible object that returns a #A x 3 vector of probabilities.
+@param fPi(A) a `AV`(fPi,A) compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.
 **/
 RandomUpDown::RandomUpDown(L,N,fPi)	{
     if (N<NRUP) oxrunerror("RandomUpDown should take on at least 3 values");
@@ -441,21 +460,30 @@ RandomUpDown::Transit(FeasA)	{
         return { (v-1)~v~(v+1) , fp };
 	}
 
-/** . **/
-Deterministic::Deterministic(L,N,nextValue)
-	{	StateVariable(N,L); this.nextValueHash = nextValue;	}
+/** Create a state variable with an arbitrary deterministic transition.
+@param L label
+@param nextValues
+**/
+Deterministic::Deterministic(L,nextValues)	{	
+    if (!ismatrix(nextValues)||columns(nextValues)!=1) oxrunerror("nextValues should be a column vector");
+    StateVariable(L,rows(nextValues));
+    if (any(nextValues.<0)|| any(nextValues.>=N) ) oxrunerror("next values contains illegal values: must be between 0 and N-1");
+    this.nextValues = nextValues;	
+    }
 
 /** .
 **/
-Deterministic::Transit(FeasA)
-	{	return {matrix(nextValueHash[v]), ones(rows(FeasA),1)};	}	
+Deterministic::Transit(FeasA)	{	
+    return { matrix(nextValues[v]), ones(rows(FeasA),1) };	
+    }	
 
 /** Create a constant entry in the state vector.
 @param L label
 @comments
-The variable will only take on the value 0.  This can be used to hold
-a place for a variable to be added later.
-@example <pre>f = new Fixed("gender");</pre>
+The variable only takes on the value 0.  This can be used to hold a place for a variable to be added later.
+@example <dd>
+Create a fixed value that will later hold a health indicator (but for now is always 0):
+<pre>h = new Fixed("health");</pre></dd>
 **/
 Fixed::Fixed(L) 	{	StateVariable(L,1);	}
 
@@ -472,7 +500,7 @@ decl qtr = new Cycle("Quarter",4);
 EndogenousStates(qtr);
 </pre>
 **/
-Cycle::Cycle(L,N) 	{	Deterministic(L,N,range(1,N-1)~0);	}
+Cycle::Cycle(L,N) 	{	Deterministic(L,range(1,N-1)'|0);	}
 
 /** Takes on the value of another state or action.
 @internal
@@ -486,7 +514,10 @@ Lagged::Update()	{	actual = Target.actual;	}
 @param Target `StateVariable` to track.
 @example <pre>prevoccup = new LaggedState("Prev",occup);</pre>
 **/
-LaggedState::LaggedState(L,Target)	{	Lagged(L,Target);		}
+LaggedState::LaggedState(L,Target)	{	
+    if (!isclass(Target,"StateVariable")) oxrunerror("Target object must be a StateVariable");
+    Lagged(L,Target);		
+    }
 
 /** .
 **/
@@ -499,7 +530,10 @@ LaggedState::Transit(FeasA)	{
 @param Target `ActionVariable` to track.
 @example <pre>wrked = new LaggedAction("Worked Last Year",work);</pre>
 **/
-LaggedAction::LaggedAction(L,Target)	{	Lagged(L,Target);	}
+LaggedAction::LaggedAction(L,Target)	{	
+    if (!isclass(Target,"ActionVariable")) oxrunerror("Target object must be an ActionVariable");
+    Lagged(L,Target);	
+    }
 
 /** .
 **/
@@ -572,6 +606,7 @@ Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 @example <pre>noffers = new StateCounter("Total Offers",offer,5,<1:offer.N-1>,0);</pre>
 **/
 StateCounter::StateCounter(L,N,State,ToTrack,Reset,Prune) {
+    if (!isclass(State,"StateVariable")) oxrunerror("State object to count must be a StateVariable");
     Counter(L,N,State,ToTrack,Reset);
     }
 
@@ -616,7 +651,10 @@ decl exper = new ActionCounter("Yrs Experience",work,10);
 EndogenousStates(exper);
 </pre>
 **/
-ActionCounter::ActionCounter(L,N,Act,  ToTrack,Reset,Prune)	{ Counter(L,N,Act,ToTrack,Reset,Prune); }
+ActionCounter::ActionCounter(L,N,Act,  ToTrack,Reset,Prune)	{
+    if (!isclass(Act,"ActionVariable")) oxrunerror("Object to count must be an ActionVariable");
+    Counter(L,N,Act,ToTrack,Reset,Prune);
+    }
 	
 /** .
 **/
@@ -633,25 +671,32 @@ Accumulator::Accumulator(L,N,Target)	{
 	this.Target=Target;
 	StateVariable(L,N);
 	}
+
 /** Create a variable that tracks the cumulative value of another state.
 @param L label
 @param N integer, maximum value.
-@param State `StateVariable` to track.
+@param State `StateVariable` to accumulate values for.
 **/
-StateAccumulator::StateAccumulator(L,N,State) {Accumulator(L,N,State);}
+StateAccumulator::StateAccumulator(L,N,State) {
+    if (!isclass(State,"StateVariable")) oxrunerror("State object to accumulate must be a StateVariable");
+    Accumulator(L,N,State);
+    }
 
 /** .
 **/
 StateAccumulator::Transit(FeasA)	{
-
-	return { matrix(min(v+AV(Target),N-1)),  ones(rows(FeasA),1) };  }
+	return { matrix(min(v+AV(Target),N-1)),  ones(rows(FeasA),1) };
+    }
 
 /** Create a variable that counts how many times an action has taken on certain values.
 @param L label
 @param N integer, maximum number of times to count
-@param State `ActionVariable` to track.
+@param Action `ActionVariable` to accumulate values for.
 **/
-ActionAccumulator::ActionAccumulator(L,N,Action) {Accumulator(L,N,Action);}
+ActionAccumulator::ActionAccumulator(L,N,Action) {
+    if (!isclass(Action,"ActionVariable")) oxrunerror("Object to accumulate must be ActionVariable");
+    Accumulator(L,N,Action);
+    }
 
 /** .
 **/
@@ -684,7 +729,6 @@ contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of makin
 Duration::Duration(L,Current,Lag, N,Prune) {
 	if (!(isclass(Lag,"StateVariable")||ismatrix(Lag))) oxrunerror("Lag must be a State Variable or a vector");
 	if (!isclass(Current,"Discrete")) oxrunerror("Current must be a State or Action Variable");
-	StateVariable(L,N);
     Counter(L,N,Current,0,0,Prune);
 	isact = isclass(Target,"ActionVariable");
 	this.Lag = Lag;
@@ -710,6 +754,7 @@ Duration::Transit(FeasA) {
 @param Pi, vector or <a href="Parameters.ox.html#Simplex">Simplex</a> parameter block
 **/
 Renewal::Renewal(L,N,reset,Pi)	{
+    if (!isclass(reset,"ActionVariable")) oxrunerror("reset object must be ActionVariable");
 	StateVariable(L,N);
 	this.reset = reset;
 	this.Pi = Pi;
@@ -735,14 +780,19 @@ Renewal::Transit(FeasA)	{
 @internal
 **/
 Tracker::Tracker(L,Target,ToTrack)	{
-	this.ToTrack = ToTrack; this.Target = Target;	StateVariable(L,2);
+	this.ToTrack = ToTrack;
+    this.Target = Target;	
+    StateVariable(L,2);
 	}
 
 /** Create a binary variable that indicates if the previous value of state variable was in a set.
-@param Target `StateVariable` to track.
-@param ToTrack integer or vector of values to track
+@param Target `StateVariable` to track actual values of.
+@param ToTrack integer or vector of (actual) values to track
 **/
-StateTracker::StateTracker(L,Target,ToTrack)	{	Tracker(L,Target,ToTrack);		}
+StateTracker::StateTracker(L,Target,ToTrack)	{	
+    if (!isclass(Target,"StateVariable")) oxrunerror("Tracked object must be StateVariable");
+    Tracker(L,Target,ToTrack);		
+    }
 
 /** .
 **/
@@ -754,7 +804,10 @@ StateTracker::Transit(FeasA)	{
 @param Target `ActionVariable` to track
 @param ToTrack integer or vector of values to track
 **/
-ActionTracker::ActionTracker(L,Target,ToTrack)	{	Tracker(L,Target,ToTrack);	}
+ActionTracker::ActionTracker(L,Target,ToTrack)	{	
+    if (!isclass(Target,"ActionVariable")) oxrunerror("Target to track must be ActionVariable");
+    Tracker(L,Target,ToTrack);	
+    }
 
 /** .
 **/
@@ -787,13 +840,16 @@ Coevolving::Transit(FeasA) {
 
 /**Create a list of `Coevolving` state variables.
 @param L label for block
+@param ... list of `Coevolving` states to add to the block.
 **/
-StateBlock::StateBlock(L)	{
+StateBlock::StateBlock(L,...)	{
 	this.L = L;
 	N= 0;
 	Theta={};
 	pos = UnInitialized;
 	Actual = Allv = actual = v = <>;	
+    decl va = va_arglist(), v;
+    foreach (v in va) AddToBlock(v);
 	}
 
 /**	 Add state variable(s) to a block.
@@ -843,12 +899,11 @@ StateBlock::myAV() {  return actual = selectrc(Actual,v,rnge);    }
 
 **/
 OfferWithLayoff::OfferWithLayoff(L,N,accept,Pi,Lambda)	{
-	StateBlock(L);
+    if (!isclass(accept,"ActionVariable")) oxrunerror("accept must be ActionVariable");
 	this.accept=accept;
 	this.Lambda=Lambda;
 	this.Pi = Pi;
-	AddToBlock( offer = new Coevolving(L+"offer",N),
-				status = new Coevolving(L+"status",Nstatus));
+	StateBlock(L,offer = new Coevolving(L+"offer",N),status = new Coevolving(L+"status",Nstatus));
 	NN = offer.N;
 	}
 	
@@ -925,13 +980,10 @@ MVNormal::Update()	{
 				FALSE, T is limit of duration tracking.  Spell ends with prob. calculated at first case of t=T-1.
 **/
 Episode::Episode(L,K,T,Onset,End,Finite){
-	StateBlock(L);
 	this.Onset = Onset;
 	this.End = End;
 	this.Finite = Finite;
-	AddToBlock(	t = new Coevolving("t",T),
-				k = new Coevolving("k",K)
-				);
+	StateBlock(L,t = new Coevolving("t",T),k = new Coevolving("k",K));
 	probT = 0;
 	}
 
@@ -954,10 +1006,10 @@ Episode::Transit(FeasA) 	{
 							return {  (0 ~ tv+1)|(0~kv), reshape( pi ~ (1-pi), rows(FeasA), 2 ) };	
 	}
 	
-	const decl mu, rho, sig, M;
+//const decl mu, rho, sig, M;
 
 /** Tauchen discretizization.
-@param L
+@param L label
 @param N
 @param M
 @param mu

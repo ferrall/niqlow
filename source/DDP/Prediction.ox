@@ -1,5 +1,5 @@
 #include "Prediction.h"
-/* This file is part of niqlow. Copyright (C) 2011-2014 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 /** Compute the predicted distribution of actions and states.
 

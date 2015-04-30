@@ -1,16 +1,16 @@
 #include "AllTestOpt.h"
-/* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 OptTestRun() {
 decl s = "***************** ";
-//	println("\n\n",s,"A. Explore Test ",s,"\n");    new Nothing(20);
-//	println("\n\n",s,"A. Blackbox Test ",s,"\n");	BBTest();
-//	println("\n\n",s,"B. Simplex Test ",s,"\n");   SimpTest();
-//	println("\n\n",s,"C1. System Test ",s,"\n");    SysTest();
+	println("\n\n",s,"A. Explore Test ",s,"\n");    new Nothing(20);
+	println("\n\n",s,"A. Blackbox Test ",s,"\n");	BBTest();
+	println("\n\n",s,"B. Simplex Test ",s,"\n");   SimpTest();
+	println("\n\n",s,"C1. System Test ",s,"\n");    SysTest();
 	println("\n\n",s,"C2. System Test With Line Max",s,"\n");  LMSysTest();
-//	println("\n\n",s,"D. Separable Test ",s,"\n"); SepTest();
-//	println("\n\n",s,"E. Inequality Test ",s,"\n"); InEqTest();
-//	println("\n\n",s,"F. Mixture Test ",s,"\n"); MixTest();
+	println("\n\n",s,"D. Separable Test ",s,"\n"); SepTest();
+	println("\n\n",s,"E. Inequality Test ",s,"\n"); InEqTest();
+	println("\n\n",s,"F. Mixture Test ",s,"\n"); MixTest();
 	}
 
 Nothing::Nothing(Ncalls) {

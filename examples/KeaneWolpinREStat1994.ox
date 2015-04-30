@@ -1,4 +1,5 @@
 #include "KeaneWolpinREStat1994.h"
+/* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
 
 DynamicRoy::Replicate()	{
 	decl i, BF, KW,OutMat, AMat, BMat;	

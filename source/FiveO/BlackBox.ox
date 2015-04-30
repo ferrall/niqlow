@@ -1,4 +1,5 @@
 #include "BlackBox.h"
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 /** Create a blackbox objective.
 @param L string, a label for the problem.

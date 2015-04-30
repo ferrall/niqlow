@@ -1,5 +1,6 @@
 #import "database"
 #import "DP"
+/* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
 
 static const decl PathID = "path", FPanelID="Fxed", PanelID = "Panel";
 

@@ -1,5 +1,5 @@
-/* This file is part of niqlow. Copyright (C) 2012 Christopher Ferrall */
 #import "Shared"
+/* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
 
 		/** . elements of array returned by `StateVariable::Transit` @name StateTrans **/
 enum {Qi,Qrho,StateTrans}
@@ -87,6 +87,7 @@ value next period is a special one that is not what the base transition would be
 class Augmented : StateVariable {
     const decl /**base state variable.**/ b;
     Augmented(Lorb,N=0);
+    Synch();
     }
 
 /**A member of a block: transition depends on transition of one or more other state variables.
@@ -605,12 +606,13 @@ struct RetainMatch : NonRandom {
 	}	
 	
 /** A state variable with a general non-random transition.
-Transitions are stored in a matrix sent upon creation.
+The number of points the variable takes on equals the length of the second argument to
+the creator function.
 **/
 struct Deterministic : NonRandom
 	 {
-	 /** matrix with transition. **/ decl nextValueHash;
-	 Deterministic(L,N,nextValueHash);
+	 /** matrix with transition. **/ decl nextValues;
+	 Deterministic(L,nextValues);
 	 virtual Transit(FeasA);
 	 }
 
@@ -700,7 +702,7 @@ struct StateBlock : StateVariable {
 	/** matrix of all <em>current</em> values **/	Allv,
     /** matrix of all <em>actual</em> values.**/    Actual,
     /** vector <0:N-1>, used in AV().**/            rnge;
-	StateBlock(L);
+	StateBlock(L,...);
 	AddToBlock(s,...);
     Clones(N,base);
 	virtual Transit(FeasA);

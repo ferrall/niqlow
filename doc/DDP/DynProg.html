@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>DynProg - Derived Dynamic Programs</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">DynProg</span></h1>
+
+A Guide to Discrete Dynamic Programming using <span class="n">DDP</span> .
+<P/>
+<OL class="body">
+<LI>Discrete Choice</LI>
+<P/>
+Dynamic Programming is a framework for choices when those choices affect what happens in the future and therefore anticipating future choices is .
+<P/>
+We start with the <em>choice</em> elements first without dynamic programming.  In some ways, we start with such a simple  static choice framework that you might think it is trivial and that the computer code shown to implement the model is overkill.  Bear with this simple start because you will see that all the elements of dynamic programming in many areas of economics can be handled easily within the framework.
+<P/>
+Our focus is on discrete choice rather than continuous choice emphasized in neoclassical economics (marginal utility, marginal cost, first order conditions and all that).   Continuous choice is
+a topic related to the <a href="">FiveO</a> part of <span class="n">niqlow</span>.
+<P/>
+<a href="">Train (20??)</a> explains all aspects of discrete choice with an emphasis on econometric applications.   Readers are encouraged to refer to Train () for in-depth discussion of the static case.  We start even simpler than Train does.  Eventually the set up starts to look like the material in Train, but we move to dynamic choice.
+<P/>
+<h2>The choice set</h2>
+<P/>
+Choice is simply picking from a set of options.  We will let  <span class="expressions">\(A\)</span> denote the finite set of possible actions to choose among.   And we will let an arbitrary element of <span class="expressions">\(A\)</span> be denoted <span class="expressions">\(\alpha\)</span>.
+<P/>
+<DT>Example, Bob has applied for university, and 4 schools accepted him. These four places make up his discrete choice set:</DT>
+<DD><span class="expressions">\(A = \)</span> <code>{Harvard,Yale,Queen's,McGill}</code>.  </DD>
+<DD>We will sometimes need a symbol for the number of actions available, and will use <code>J</code> for that purpose.  So for Bob, <code>J=4</code>.</DD>
+<DD>Of course there are other schools but Bob either did not apply or did not get in to them, so those are <em>infeasible</em> choices whereas <span class="expressions">\(A\)</span> is his feasible choice set.</DD>
+<DD>While <span class="expressions">\(\alpha\)</span> stands for any of the feasible actions, at some point Bob makes a choice, and that school because special and we distinguish the choice made from the options considered. If Bob chooses to go to Yale we would write <span class="expressions">\(\alpha^\star = \)</span> <code>Yale</code>.  Typically we use <span class="expressions">\(\star\)</span> to mark things that are related to the optimal choice.  </DD>
+<P/>
+In some cases we might use discrete choice to approximate a continuous choice.
+<P/>
+<DT>Another Example:  Tommy is choosing how much time to study for a test the next day.</DT>
+<DD>So the choice might be any number between 0 and, say, 12 hours.</DD>
+<DD>It would then be natural (or convenient or intuitive) to think of the choice set as <span class="expressions">\(A=[0,12]\)</span>, to let <span class="expressions">\(\alpha\)</span> denote any real number in that range, and to characterize the optimal choice with a first-order condition (or marginal utility, <span class="expressions">\(U^{\,\prime}(\alpha)\)</span>.  </DD>
+<DD>However, for various reasons, we might also stick with a discrete choice set to model Tommy's choice.  To be specific, we might think of him as studying for a numbers of hours: <span class="expressions">\(A=\)</span> <code>{0,1,2,&hellip;,12}</code>.   In this case <span class="expressions">\(J=13\)</span>.  If Tommy actually studied 2.2 hours this would suggest that he did not choose among whole hours. However, this difference between actual and model behaviour might not matter to us, so we might approximate by rounding to the nearest element of <span class="expressions">\(A\)</span> so that <span class="expressions">\(\alpha^\star=\)</span><code>2</code>. </DD>
+<P/>
+<h2>Utility</h2>
+<P/>
+How did Bob choose Yale and how Tommy chose 2 hours (according to our discrete approximation)? Perhaps they considered all the pros and cons of their options and carefully weighed the factors to determine which was best.  Or maybe they threw a dart at the wall.   Whatever, we are not concerned with <em>how</em> the choice was made simply that a chose was made that was based on a  <em>utility</em> associated with each action.  <details class="aside"><summary>Optimality and the word <em>function</em></summary>Of course, much of social science concerns choices that are not optimal, but for our purposes what people do will always be optimal for them given their options and preferences. Also, a teacher of mine emphasized that utility is by definition a function, so writing and saying "utility function" is redundant. It would be like saying "truck vehicle" instead of simply "truck," because by definition a truck is a vehicle. word </details>
+<P/>
+Let <span class="expressions">\(U(\alpha)\)</span> denote Bob's utility for school <span class="expressions">\(\alpha\)</span>, which is just a real number associated with <span class="expressions">\(\alpha\)</span>.  Bob can have utility for options that are not feasible, such as U(<code>Stanford</code>), but we need a well-defined utility for each element of <span class="expressions">\(A\)</span>.  So, we can get fancy and write <span class="expressions">\(U: A\,\to\, \Re\)</span>.  But since <span class="expressions">\(A\)</span> is a discrete set, <span class="expressions">\(U\)</span> is really just four numbers, one for each feasible school.
+<P/>
+<DT>For example, Bob would set <span class="expressions">\(\alpha^\star=\)</span> <code>Yale</code> if his utility were:</DT>
+<DD><pre>
+&alpha;               U(&alpha;)
+----------------------
+Harvard        -20
+Yale            4.2
+Queen's        e<sup>1</sup>
+McGill          ln(0.0009)
+</pre>
+Many other utility levels would explain <code>Yale</code> as an optimal choice.
+</DD>
+<P/>
+<h2>Multiple Dimensions</h2>
+<P/>
+In many cases we want to model choices in more than one dimension.  So Bob was making a choice in the school dimension.  But he might also be
+making decisions in other dimensions, such as major, roommate, etc.    Before showing <span class="n">DDP</span> code for Bob's choice let's have him decide his major
+at the same time. One way to do this is to convert a choice in several (discrete) dimensions into a one dimensional choice by simply listing all the possible combinations.
+<P/>
+<DT>Example: Bob is choosing both a university and a major, and which major looks best might depend on which school he chooses.  </DT>
+<DD>For simplicity, suppose Bob's parents have told him he has to choose either <code>Economics</code> or <code>Physics</code>.  </DD>
+<DD>Then we could simply expand his choice set as follows: <code>{Harvard-Econ,Harvard-Physics,Yale-Econ,Yale-Physics,Queen's-Econ,QUeen's-Econ,McGill-Econ,McGill-Physics}</code>.  Utility is then a number assigned to each of these <code>J=8</code> options.  </DD>
+<DD>However, it can be more convenient not to collapse the two dimensions, but to consider them separate but simultaneous.  In this case, we can let school be the row and
+major the column:
+<pre>
+BOB'S UTILITY ON THE FEASIBLE MAJOR-SCHOOL CHOICE SET
+                    Econ                    Physics
+Harvard           -20                       -18
+Yale              4.2                      -0.6
+Queen's           1.5                        3.2
+McGill           -25                        -0.5
+</pre>
+</DD>
+<DD>Apparently Yale has a good Econ program, but if Bob had not gotten into Yale he would have chosen Queen's and majored in Physics.</DD>
+<P/>
+<DT>We can also keep the dimensions separate by letting <span class="expressions">\(\alpha\)</span> be a vector of action variables: <span class="expressions">\(\alpha = (a_0, a_1, \dots, a_{D-1})\)</span>.</DT>
+<P/>
+In the major-school choice, <code>D=2</code>, because there are two dimensions of choice,  <span class="expressions">\(a_0\)</span> is the major choice, and <span class="expressions">\(a_1\)</span> the major choice.  We start counting at 0 because that is the way counting is done in many computer languages.  So doing so now may avoid some confusion later when we see code.
+<P/>
+Although using rows and columns to represent two different action variables is clear, it is not very helpful when there are three or more variables.  We can combine the list version with the vector version to get something like this:
+<DD><pre>
+BOB'S UTILITY USING ACTION VARIABLES
+     &alpha;
+a<sub>0</sub>            a<sub>1</sub>                U(&alpha;)
+--------------------------------------
+Econ          Harvard          -20
+Physics       Harvard          -18
+Econ          Yale                4.2
+Physics       Yale              -0.6
+Econ          Queen's           1.5
+Physics       Queen's          3.2
+Econ           McGill           -25
+Physics       McGill           -0.5
+</pre></DD>
+<P/>
+<h2>Full Description of Bob's Problem</h2>
+<P/>
+As with the first example, each row is an action <span class="expressions">\(\alpha\)</span>, but it is associated with values of two action variables.
+<P/>
+Finally, labelling the choices certainly helps to understand them, but a computer program that is designed to handle any kinds of choices can hard-code labels like "Harvard" and use it to refer to utility.  Hopefully it is clear that in the abstract the choice over the four universities is just a case of choosing among 4 possibilities.  The labels are helpful to us, but generically the choices can just be numbered 0, 1, 2, and 3.
+<P/>
+<DT>The school-major choice can be describe with action variables that are just integers along with labels for each value.</DT>
+<dd><pre>
+&alpha; =  (a<sub>0</sub> a<sub>1</sub>)
+<P/>
+Index     Label        Options     Choice Set     Value Labels
+-------------------------------------------------------------------------
+0          Major             2         0 &hellip; 1       Econ, Physics
+1          School           4         0 &hellip; 3       Harvard,Yale,Queen's,McGill
+<P/>
+A = [0&hellip;1] &times; [0&hellip;3]
+a<sub>0</sub>     a<sub>1</sub>          U(&alpha;)
+-------------------------
+0       0        -20
+1       0        -18
+0       1         4.2
+1       1        -0.6
+0       2         1.5
+1       2         3.2
+0       3        -25
+1       3        -0.5</pre></DD>
+<P/>
+<DT>Bob's Choice</DT>
+<P/>
+So far we just have 8 options with arbitrary values (utilities) assigned to them.  And it turns out that the maximum of those utilities is 4.2 for the action of choosing <code>Yale</code> and <code>Econ</code>.
+<DD class="disp">
+<span class="expressions">\(\alpha^\star \equiv \arg\max_{A}U(\alpha)\)</span> = (<code>Econ</code>,<code>Yale</code>)
+<P/>
+<span class="expressions">\(EV \equiv \max_{A} U(\alpha) = U(\alpha^\star)\)</span> = <code>4.2</code>.
+</DD>
+<P/>
+Usually the highest utility possible is named <em>indirect utility</em>, but in dynamic programming it is usually called the (optimal) value of a state, so <span class="expressions">\(V\)</span> is used.  We are using <span class="expressions">\(EV\)</span> and not just <span class="expressions">\(V\)</span> because often there are elements of uncertainty in the choice.   In particular, the person deciding will know everything up until today when the choice is made, but they will have to make that choice without knowing everything that will happen in the future (tomorrow).  So <span class="expressions">\(EV\)</span> will end up being good notation since when deciding today they will have average (take the <b>E</b>expectation of) their optimal choices made tomorrow when they have more information than they have now.
+<P/>
+The notation also assumes there are no ties, the optimal choice is unique.  That won't be necessary.  Ties will be handled properly,  but ruling out ties does make the example simpler.
+<P/>
+<h2>Coding Bob's Choice in <span class="n">DDP</span></h2>
+<P/>
+Bob's choice is trivial.  Simply look at the 8 numbers that make up his utility.  Find the biggest number.  Look at the labels associated with that action. Finished.  These operations could easily be done by hand, in a spreadsheet, or even in Ox using its built in <code>maxc()</code> and <code>maxcindex()</code> routines.
+<P/>
+When you look at the code for Bob's Choice in <span class="n">DDP</span> you will see that it has some elements that are not obvious.  Indeed, it relies on some sophisticated
+features of the Ox programming language.  Even if you have done some programming in similar languages such as Matlab, Python or R, your reaction may be: that is a lot of complexity for such a simple choice.  And you are right!   However, I hope that you also see that there is some logic in the complications so that the code is not completely unrelated to the problem as you understand.  And you might see that some of the complication is there to make real models easier to build than if simple tools only were used.
+<P/>
+<DT>The Code</DT>
+<dd><details><summary>Source: <a href="../../examples/BobsChoice.ox">niqlow/examples/BobsChoice.ox</a></summary>
+<pre><object width="75%" height="300" type="text/plain" data="../../examples/BobsChoice.ox" border="1" ><p style="font-size:14pt"></object></pre></details>
+</dd>
+<P/>
+<DT>Line-by-line explanation of the code</DT>
+<DT> <code>&#35;import &hellip;</code>:</DT>
+ <DD>Import is a way to tell Ox that you are using code that is not part of this file. In this, case the program is importing <span class="n">DDP</span>!
+<details class="aside"><summary>&#35;import and &#35;include</summary> If you want to know more, see <a href="http://www.doornik.com/ox/oxtutlan.html#ox_tutlan_link">Multiple files in Ox</a>. Most examples shown in Ox start with <code>#include "oxstd.h"</code>.  That is done in <span class="n">DDP</span> so it is not necessary to do it explicitly.</details></DD>
+<P/>
+<DT><code>class &hellip; { &hellip; }</code>: Class Declaration</DT>
+<DD>A user's model is represented by a <code>class</code>, which is way to combine
+data and functions that work on the data in one package.  This is called <em>object oriented programming</em>. See <a href="http://www.doornik.com/ox/oxtutlan.html#ox_tutlan_oo">OOP in Ox</a> if you are familiar with objects already and want to know how they work in Ox.</DD>
+<DD>If you are not used to OOP, then here is some basic idea.  What is happening is
+the program is telling Ox that a new class is going to appear in this program.  These lines are describing the class for Ox, which is just a list of the variables (also called <em>members</em> and functions (also called <em>methods</em>) that make up the
+class.  Every class has a name, and the code gives this class the name
+<code>BobsChoice</code>.  </DD>
+<DD>One of the cool and powerful (but complicated and confusing) features of OOP is that one class can be based on another way that is already defined.  In this case,
+<code>BobsChoice</code> is based on a class called <code>OneStateModel</code> which is defined in <span class="n">DDP</span>.  The name is meant to apply that
+this model is really simple.  Unlike real dynamic programs there are many states at
+which the person (Bob) is making choices. He makes a choice once, so there is just one state.  (In turn, <code>OneStateModel</code> is a class based on other classes which are more flexible. The advantage of having a special class for a simple one state model is that some things can be done for the user.</DD>
+<DD>The choice involves two action variables, and this class makes room for them
+with the <code>static decl</code> statement.  The names are short but understandable in the context.  <code>decl</code> is short for <em>declare</em> and does just make room for two things.  What they end up holding is determined by other parts of the program.</DD>
+<DD>The <code>static</code> tag is important but it is not important at this point to
+understand why it is there.  It does not have anything to do with the fact that Bob's choice is a static choice.</DD>
+<DD>The <code>BobsChoice</code> class also has two functions in it: <code>Decide()</code> and <code>Utility()</code>.  Note that <code>Decide()</code> is declared <code>static</code> but <code>Utility()</code> is not.  Again, this is important but it is not important to understand yet.  And like with <code>decl</code>, listing functions in the declaration of  a class does not say anything about what they do.  The have to be <em>defined</em> later.</DD>
+<DT><code>main(){&hellip;}</code></DT>
+<DD>Every Ox program has to have a function (or routine) called <code>main()</code>. This is where the Ox program actually starts.  Even though the class declaration comes first in the file, it is <code>main()</code> that is the first thing to happen. I have written the code so that <code>main()</code> just does one thing: it asks that <code>Decide()</code> be executed. Once it is finished
+<code>main()</code> is finished (not other statements  appear inside <code>main()</code>).  Most experienced programmers make their main routines pretty simple. </DD>
+<DT><code>Make(){&hellip;}</code></DT>
+<DD>This is a routine that does one thing: it creates a new object of the class <code>BobsChoice</code> and returns that object as the value of the function.  That is pretty abstract and it would be better to hide this routine for this simple example.  However, any program using <span class="n">DDP</span> will need to have something like this (because of the way Ox allows a program to create new objects).  But understanding the logic of the program does not depend on understanding this, so we move on.</DD>
+<DT><code>BobsChoice::Decide(){&hellip;}</code></DT>
+<DD>Above the class declaration said that a routine belonging to <code>BobsChoice</code> and named <code>Decide()</code> would appear,
+and these lines <em>define</em> what this routine does.  It is the lines of code
+that are executed when <code>main()</code> refers to the function.  </DD>
+<DD><code>Decide()</code> does four things.  THat is, it has four statements
+each ending with <code>;</code>.  The first two say that <code>maj</code> and
+<code>sch</code> will each contain an <em>action variable</em>.  This routine
+<code>ActionVariable()</code> is part of <span class="n">DDP</span>, so it would not work to call it if we had not imported <span class="n">DDP</span>.  Hopefully, you can see that labels attached to the two variables are "major" and "school", respectively. Like nearly all computer languages, Ox asks you to put text inside quotes.  So <code>maj</code>, which is not in quotes is referring to a variable with that name and which  Ox has made room for because it was <code>decl</code>ared in the class declaration. However, the action variable has a name "major" which is just those characters not a variable or a routine.  </DD>
+<DD>In Bob's choice he had only two majors to choose from.  We could write
+<code>ActionVariable("major",2)</code> and this would mean <code>maj</code> would hold an action variable with two possible values.  This would not given meaningful names (or labels) to the two options: they are just be coded as <code>0</code> and <code>1</code>.  By sending two strings in quotes instead of <code>2</code> this gives each major a meaningful label.  The routine <code>ActionVariable()</code> counts the labels and knows that there are two choices.  They are still coded as <code>0</code> and <code>1</code> but those codes now have the labels "Econ" and "Physics". This will make some output easier to read.</DD>
+<DD>The variable <code>sch</code> will contain another action variable that takes on four values (because four labels are sent).</DD>
+<DD>The next statement calls a routine with the name <code>Initialize()</code>.  Again, this routine is part of <span class="n">DDP</span> not Ox itself.  As the name implies, it initializes or sets up the problem meant to solve Bob's Choice.  Four things are sent to <code>Initialize()</code>.  The first two are a bit mysterious: the mysterious <code>Make</code> routine and the number <code>0</code>.  As with some other
+parts of the code, these are important but it is not important to understand how these are chosen or used for this case problem.</DD>
+<DD>However, it is important to see that the variables <code>maj</code> and <code>sch</code> are sent as well.  This is how the <code>OneStateModel</code> in <span class="n">DDP</span> knows what action variables are part of the model</DD>
+<DD>You may think that the line that says <code>maj</code> contains an <code>ActionVariable</code> would add it to the model automatically.  It would be possible to make it work that way, but for other aspects of DP models (namely state variables) it is easier to separate creation of the variable from including it in the model. So to be consistent the same procedure is followed for action variables.</DD>
+<DD>The last thing <code>Decide()</code> does is call a routine <a href="Methods.ox.html#VISolve">VISolve</a>(), where "VI" stands for "value iteration."   That is a technique
+for solving a dynamic programming problem. This one state model is the most simple
+example of a DP problem, but one part of value iteration is to solve for the optimal choice at each state.  So this is where <span class="n">DDP</span> will actually solve Bob's problem.</DD>
+<DT><code>BobsChoice::Utility(){ &hellip;}</code></DT>
+<DD>Any DDP problem has to supply a utility, and here is Bob's.  In general, the
+utility has to return (send back to whoever called the routine) a vector of utilities in the same order as the actions &alpha;.  The use of <code>&lt; -20; &hellip; &gt;</code> is the way Ox lets you hard-code a vector or matrix of numbers.   So the list of utilities
+above has been copied and written in that format.  We should definitely check that
+the action variables are organized so that the numbers match up: we wouldn't want Bob to mistakenly go to McGill and major in Physics.</DD>
+<DD>Usually <code>Utility()</code> is a function of actions (and later states) and
+<em>parameters</em> of the problem.  So Bob's utility is not all typical in how it is
+coded.  Later examples and exercises will have utilities that are more like what show up in real DP problems.</DD>
+<P/>
+<h2>Run the program and look at the output.</h2>
+<P/>
+Getting Ox to run <code>BobsChoice.ox</code> and be able to use <span class="n">DDP</span> is not hard  if you are used to doing this kind of thing.  Otherwise, it can be a pain for the first few times you try something.  Go <a href="">here ???</a> for some help.</DD>
+<P/>
+<DT>The output you get should look something like this:</DT>
+<details><summary>Source: <a href="../../examples/BobsChoice.output.txt">niqlow/examples/BobsChoice.output.txt</a>.</summary>
+<pre><object width="75%" height="300" type="text/plain" data="../../examples/BobsChoice.output.txt" border="1" ><p style="font-size:14pt"></object></pre></details>
+</dd>
+<P/>
+<DT>Selected Output</DT>
+That output contains a lot of information that is not relevant to this simple case, so here are selected parts of the output:
+<details><summary>Selected Output</summary><dd><pre>
+-------------------- DP Model Summary ------------------------
+4. ACTION VARIABLES
+   Number of Distinct action vectors: 8
+         major  schoo
+    a.N      2      4
+<P/>
+6. FEASIBLE ACTION SETS
+<P/>
+    alpha       A[0]
+    ----------------------
+    (00)          X        -Econ-Harvard
+    (10)          X        -Physics-Harvard
+    (01)          X        -Econ-Yale
+    (11)          X        -Physics-Yale
+    (02)          X        -Econ-Queen's
+    (12)          X        -Physics-Queen's
+    (03)          X        -Econ-McGill
+    (13)          X        -Physics-McGill
+   &#35;States        1
+    ----------------------
+    Key: X = row vector is feasible. - = infeasible
+<P/>
+     Value of States and Choice Probabilities
+     ------------------------------------------------------------------------------
+    Indx   I   T   A   q   t     r     f       EV      |Choice Probabilities:
+       0   1   0   0   0   0     0     0       4.200000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+     ------------------------------------------------------------------------------</pre></dd></details>
+<DT>Explanation of Relevant Output</DT>
+<DD>The "DP Model Summary" is produced by <code>Initialize()</code> after everything is set up.  (In models that have more than one state <code>Initialize()</code> only does
+some of the things done here.  The rest are done by a routine that it calls but typically is called from the user's program.)</DD>
+<DD>Part 4 of the summary shows you the action vector &alpha;.  It shows that the new action variables assigned to <code>maj</code> and <code>sch</code> were added to the vector and that together they create 8 different options.</DD>
+<dd>Part 6 shows you the feasible action set <span class="expressions">\(A\)</span>.  It shows you each action &alpha; as two integer values and the labels that go along with them.  Recall that <code>Yale-Econ</code> was the third option in the list and it appears that <span class="expressions">\(A\)</span> was set up so that it matches up with the vector in <code>Utility()</code> (but make sure!). </dd>
+<DD>In real DP problems the actions that are feasible can depend on which state the system is at.  So this output is set up to show you the different values of <span class="expressions">\(A\)</span> in the model.  But with one state only there is one feasible set only.  Thus <span class="expressions">\(A\)</span> is called <code>A[0]</code>, because in some cases there will be <code>A[1]</code> and so forth.</DD>
+<DD><code>VISolve()</code> produces the table of values and choice probabilities.  The first 8 columns really don't apply to this simple model because
+there is only one state.  The table is designed to show the value of each state in the model.</DD>
+<DD>The parts that matter are the <code>EV</code> and <code>Choice Probabilities</code>.  Recall the <code>EV</code> is the DP version of indirect utility, and we
+know that the best Bob can do is 4.2.  And the optimal choice is the third element of <span class="expressions">\(A\)</span>, which Bob should chose with probability 1.0.  All the other options are
+sub-optimal and are chosen with 0 probability.</DD>
+<P/>
+<h2>Exercises</h2>
+<OL class="steps">Make a couple copies of <code>BobsChoice.ox</code> and experiment with them as follows. (Do not change the original file's contents.)
+<LI>Change the utility vector so that two options tie as the optimal choice.  See what happens to the output.</LI>
+<LI>Add a third option to the major choices, <code>Psycho</code>.  Modify utility so that <code>McGill-Psychology</code> is the optimal choice. Run the program and verify
+the changes.  Try to correct any errors in the code that Ox complains about.</LI>
+<LI>Modify your model to include a third action variable: <code>res</code> which is a binary choice to either live <code>ON</code> campus or <code>OFF</code>.  Tweak
+the utility so that Yale-Econ is still optimal as is <code>ON</code>.  Run the code and confirm your changes.</LI>
+<LI>Tommy's Choice</LI>
+<DD>Make a copy of the file named <code>TommysChoice.ox</code>.  Change the name of the <code>class</code> defined in the file.  Delete <code>major</code> and rename
+<code>school</code> to <code>hours</code>.  Use this create the action variable: <code>hours = new ActionVariable("h",13)</code>.  Because it is not
+useful to label hours in the same way that schools and majors, just send the number of options (no value labels will be created).</DD>
+<DD>Change the utility utility so that it is a function of the <code>hours</code> not just a list of arbitrary numbers.  In particular, if <var>U(h) = -(h-2.2)<sup>2</sup></var> then the optimal discrete
+choice will be <var>h* = 2</var>, which is the 3rd value that <code>hours</code> takes on (0, 1, 2, etc). The vector of values that <code>hours</code> takes on can be accessed as
+<code>aa(hours)</code> (see <a href="Bellman.ox.html#Bellman___aa">aa</a> for some details but do not worry about them at this point).  
+<DD>So, modify <code>Utility()</code> to have this form:
+<pre>
+TommysChoice::Utility() {
+        return -sqr(aa(hours)-2.2);
+        }</pre></DD>
+<DD>Debug your program  and run it until it produces the correct values of <code>EV</code> and choice probabilities.</DD>
+<LI>Continuing with <code>TommysChoice</code> change the utility to be <var>-(h-2.5)<sup>2</sup></var>, which induces a tie between 2 and 3.  Inspect the output.</LI>
+</OL>
+<P/>
+<LI>Smoothed Choice Probabilities</LI>
+<P/>
+<h2>Choice Probability</h2>
+<P/>
+</OL>
+
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

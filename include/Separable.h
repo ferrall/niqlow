@@ -1,6 +1,6 @@
 #import "Objective"
 #import "Algorithms"
-/* This file is part of niqlow. Copyright (C) 2014 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2014-2015 Christopher Ferrall */
 
 	
 /** Represent sum of <var>K</var> `BlackBox` objectives. **/

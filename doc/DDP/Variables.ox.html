@@ -879,34 +879,16 @@ An auxiliary value <em>x</em> is typically a function of the state and action ve
 <DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
 <P/>
 </OL>
-<P/>
-<a name="auto"><hr><h1>Documentation of  Items Defined in Variables.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2015 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
+
+<a name="auto"><hr><h1>Documentation of  Items Defined in Variables.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a></dd>
+</dl>
 <a name="global"></a>
-<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global variables, enumerations</span></h2>
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global enumerations</span></h2>
 
 <table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Variables</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#M">M</a></td>
-<td class="modifiers">const</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#mu">mu</a></td>
-<td class="modifiers">const</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#rho">rho</a></td>
-<td class="modifiers">const</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#sig">sig</a></td>
-<td class="modifiers">const</td>
-<td class="description"></td>
-</tr>
-<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Variables.ox.html#StateTrans">StateTrans</a></td>
 <td class="modifiers"></td>
 <td class="description">.</td>
@@ -1189,7 +1171,7 @@ Prob( q&prime;=z ) = (1-I{a&in;t}) Prob( b&prime;=z ) + I{a&in;t}}r
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#Triggered">Triggered</a>:</dt><dd><a href="Variables.ox.html#Triggered___Triggered">Triggered</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
@@ -1222,6 +1204,11 @@ MyModel::Initialize() {
 </dd>
 </dl>
 <table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#ActionVariable___vL">vL</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionVariable___ActionVariable">ActionVariable</a></td>
 <td class="modifiers"></td>
@@ -1445,7 +1432,13 @@ value next period is a special one that is not what the base transition would be
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Augmented___Augmented">Augmented</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Base creator augmented state variables
+</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Augmented___Synch">Synch</a></td>
+<td class="modifiers"></td>
+<td class="description">Synchronize base state variable value with current value.</td>
 </tr>
 </table>
 
@@ -1554,6 +1547,7 @@ MyModel::Initialize() {
 </dl>
 
 <dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#ActionVariable">ActionVariable</a>:</dt><dd><a href="Variables.ox.html#ActionVariable___vL">vL</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
 </dl>
@@ -1668,7 +1662,7 @@ A member of a block: transition depends on transition of one or more other state
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
@@ -1802,7 +1796,7 @@ EndogenousStates(qtr);</pre></DD>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Deterministic">Deterministic</a>:</dt><dd><a href="Variables.ox.html#Deterministic___nextValueHash">nextValueHash</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Deterministic">Deterministic</a>:</dt><dd><a href="Variables.ox.html#Deterministic___nextValues">nextValues</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
@@ -1812,18 +1806,19 @@ EndogenousStates(qtr);</pre></DD>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Deterministic : <a href="Variables.ox.html#NonRandom">NonRandom</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 A state variable with a general non-random transition.
-Transitions are stored in a matrix sent upon creation.
+The number of points the variable takes on equals the length of the second argument to
+the creator function.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Deterministic___nextValueHash">nextValueHash</a></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Deterministic___nextValues">nextValues</a></td>
 <td class="modifiers"></td>
 <td class="description">matrix with transition.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Deterministic___Deterministic">Deterministic</a></td>
 <td class="modifiers"></td>
-<td class="description">.</td>
+<td class="description">Create a state variable with an arbitrary deterministic transition.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Deterministic___Transit">Transit</a></td>
@@ -2091,7 +2086,7 @@ because only cases of the target equal to 1 and this variable equal to its rval 
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Forget___IsReachable">IsReachable</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">This routine trims the state space of values that can't reach because they are forgotten.</td>
+<td class="description">This routine trims the state space of values that can't be reached because they are forgotten.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Forget___Transit">Transit</a></td>
@@ -2103,7 +2098,7 @@ because only cases of the target equal to 1 and this variable equal to its rval 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#ActionTriggered">ActionTriggered</a>:</dt><dd><a href="Variables.ox.html#ActionTriggered___ActionTriggered">ActionTriggered</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#Triggered">Triggered</a>:</dt><dd><a href="Variables.ox.html#Triggered___Triggered">Triggered</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
@@ -2135,7 +2130,7 @@ When the trigger value returns TRUE this state freezes at its current value.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#ValueTriggered">ValueTriggered</a>:</dt><dd><a href="Variables.ox.html#ValueTriggered___ValueTriggered">ValueTriggered</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#Triggered">Triggered</a>:</dt><dd><a href="Variables.ox.html#Triggered___Triggered">Triggered</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
@@ -2955,7 +2950,7 @@ A container for non-stationary clocks.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#Coevolving">Coevolving</a>:</dt><dd><a href="Variables.ox.html#Coevolving___Coevolving">Coevolving</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
@@ -3445,7 +3440,7 @@ m = RandomTrigger( new LaggedAction("emp",a),lprob,0);
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#Triggered">Triggered</a>:</dt><dd><a href="Variables.ox.html#Triggered___Triggered">Triggered</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
@@ -3680,7 +3675,7 @@ If the trigger takes on more than two values only the value of 1 is the trigger.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#ActionTriggered">ActionTriggered</a>:</dt><dd><a href="Variables.ox.html#ActionTriggered___ActionTriggered">ActionTriggered</a>, <a href="Variables.ox.html#ActionTriggered___Transit">Transit</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#Triggered">Triggered</a>:</dt><dd><a href="Variables.ox.html#Triggered___Triggered">Triggered</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
@@ -4342,7 +4337,7 @@ Base class for members of a <a href="Variables.ox.html#Clock">Clock</a> block.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#Coevolving">Coevolving</a>:</dt><dd><a href="Variables.ox.html#Coevolving___Coevolving">Coevolving</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
@@ -4405,7 +4400,7 @@ not present in the base state.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
@@ -4444,13 +4439,13 @@ q&prime; = I{a&ne;t} b&prime; + (1-I{s==t}}r
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ValueTriggered___ValueTriggered">ValueTriggered</a></td>
 <td class="modifiers"></td>
-<td class="description">Augment a base transition so the value of some other object trigger a specail value.</td>
+<td class="description">Augment a base transition so the value of some other object trigger a special value.</td>
 </tr>
 </table>
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#Triggered">Triggered</a>:</dt><dd><a href="Variables.ox.html#Triggered___Triggered">Triggered</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
@@ -4533,40 +4528,6 @@ A jump variable whose acutal values are quantiles of the standard normal distrib
 </tr>
 </table>
 
-<a name="M"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">M</span></h3>
-
-<span class="declaration">const decl M</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="mu"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mu</span></h3>
-
-<span class="declaration">const decl mu</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="rho"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">rho</span></h3>
-
-<span class="declaration">const decl rho</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="sig"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sig</span></h3>
-
-<span class="declaration">const decl sig</span>
-<dl><dd>
-
-</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Absorbing</span></h2>
 
 <a name="Absorbing___Absorbing"></a>
@@ -4664,8 +4625,8 @@ Create a variable that counts how many times an action has taken on certain valu
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">State</td>
-<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> to track.</td>
+<td class="declaration" valign="baseline">Action</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> to accumulate values for.</td>
 </tr>
 </table>
 </dd>
@@ -4856,7 +4817,7 @@ Create a new augmented state variable for which an action triggers the change.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">rval</td>
-<td class="description" valign="baseline">the integer (current) value of the variable when the trigger occurs [default=0]
+<td class="description" valign="baseline">the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 <P/>
 <dt>The transition for an action triggered state:</dt>
 <dd><pre>Prob( q' = v ) = I{t&in;tv}\times I{v==rval} + (1-I{t&in;tv})\times Prob(b=v)</pre></dd></td>
@@ -4879,7 +4840,7 @@ Create a new augmented state variable for which an action triggers the change.
 <a name="ActionVariable___ActionVariable"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ActionVariable</span></h3>
 
-<span class="declaration">ActionVariable :: ActionVariable ( L , N )</span>
+<span class="declaration">ActionVariable :: ActionVariable ( L , NorVLabels )</span>
 <dl><dd>
 Create a new action variable.
 
@@ -4891,15 +4852,24 @@ Create a new action variable.
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">N</td>
-<td class="description" valign="baseline"><em>positive integer</em> the number of values the variable takes on.<br><em>default</em> N=1 is a constant, which can be included as
-a placeholder for extensions of a model.
+<td class="declaration" valign="baseline">NorVLabels</td>
+<td class="description" valign="baseline"><em>positive integer</em>, number of values the variable can take on.<br><em>default</em> N=1 is a constant, which can be included as
+a placeholder for extensions of a model.<br>OR<br>N-array of strings, holding labels for each choice (used in printing)
 </td>
 </tr>
 </table>
 </dd>
 <dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a></dd>
 </dl>
+</dd></dl>
+
+<hr>
+<a name="ActionVariable___vL"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">vL</span></h3>
+
+<span class="declaration">decl vL [public]</span>
+<dl><dd>
+
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AgeBrackets</span></h2>
 
@@ -5114,6 +5084,33 @@ Create a new asset state variable.
 
 <span class="declaration">Augmented :: Augmented ( Lorb , N )</span>
 <dl><dd>
+Base creator augmented state variables
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Lorb</td>
+<td class="description" valign="baseline">either a <a href="Variables.ox.html#StateVariable">StateVariable</a> object, the base variable to augment<br>Or, string the label for this variable.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">integer, if Otherwise, if &gt; b.N number of points of the augmented variable.  Otherwise, ignored and this.N = b.Nl
+<P/>
+If Lorb is a string then <code>b = new <a href="Variables.ox.html#Fixed">Fixed</a>(Lorb)</code>.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Augmented___Synch"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Synch</span></h3>
+
+<span class="declaration">Augmented :: Synch ( )</span>
+<dl><dd>
+Synchronize base state variable value with current value.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AuxiliaryValues</span></h2>
@@ -5523,17 +5520,30 @@ EndogenousStates(qtr);
 <a name="Deterministic___Deterministic"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Deterministic</span></h3>
 
-<span class="declaration">Deterministic :: Deterministic ( L , N , nextValue )</span>
+<span class="declaration">Deterministic :: Deterministic ( L , nextValues )</span>
 <dl><dd>
-.
+Create a state variable with an arbitrary deterministic transition.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">nextValues</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
-<a name="Deterministic___nextValueHash"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nextValueHash</span></h3>
+<a name="Deterministic___nextValues"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nextValues</span></h3>
 
-<span class="declaration">decl nextValueHash [public]</span>
+<span class="declaration">decl nextValues [public]</span>
 <dl><dd>
 matrix with transition.
 
@@ -5810,10 +5820,11 @@ Create a constant entry in the state vector.
 </tr>
 </table>
 </dd>
-<dt class="example">Example:</dt><dd class="example"><pre>f = new Fixed("gender");</pre>
+<dt class="example">Example:</dt><dd class="example"><dd>
+Create a fixed value that will later hold a health indicator (but for now is always 0):
+<pre>h = new Fixed("health");</pre></dd>
 </dd>
-<dt class="comments">Comments:</dt><dd class="comments">The variable will only take on the value 0.  This can be used to hold
-a place for a variable to be added later.
+<dt class="comments">Comments:</dt><dd class="comments">The variable only takes on the value 0.  This can be used to hold a place for a variable to be added later.
 </dd>
 </dl>
 </dd></dl>
@@ -5888,6 +5899,11 @@ Create an augmented state variable that 'forgets' its value when a permanent con
 <td class="description" valign="baseline">integer between <code>0</code> and <code>b.N-1</code>, the value once forgotten.
 </td>
 </tr>
+<tr>
+<td class="declaration" valign="baseline">rval</td>
+<td class="description" valign="baseline">the integer (current) value of this state variable when value is forgotten [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
+</td>
+</tr>
 </table>
 </dd>
 <dt class="comments">Comments:</dt><dd class="comments"><a href="Variables.ox.html#Forget___IsReachable">IsReachable</a>() prunes the state space accordingly
@@ -5901,7 +5917,7 @@ Create an augmented state variable that 'forgets' its value when a permanent con
 
 <span class="declaration">virtual Forget :: IsReachable ( clock )</span>
 <dl><dd>
-This routine trims the state space of values that can't reach because they are forgotten.
+This routine trims the state space of values that can't be reached because they are forgotten.
 
 <dl><dt class="returns">Returns:</dt><dd class="returns">TRUE
 </dd>
@@ -5934,7 +5950,7 @@ Augment a variable so it freezes at its current value as long as a trigger is TR
 </tr>
 <tr>
 <td class="declaration" valign="baseline">t</td>
-<td class="description" valign="baseline">`</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a>-compatible object</td>
 </tr>
 </table>
 </dd>
@@ -6882,7 +6898,7 @@ Create an offer state variable.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Pi</td>
-<td class="description" valign="baseline">either a double or a <a href="Shared.ox.html#Parameter">Parameter</a>, the offer probability.
+<td class="description" valign="baseline">a <a href="Shared.ox.html#AV">AV</a>(Pi,Feas)-compatible offer probability.
 </td>
 </tr>
 <tr>
@@ -7339,7 +7355,7 @@ Augment a base transition so that a special value occurs with some probability.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">rval</td>
-<td class="description" valign="baseline">r, integer, value to jump to in the special event.
+<td class="description" valign="baseline">r, integer, value to jump to in the special event.<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 <DT>Transition</DT>
 <DD><pre>
 Prob( q&prime;= z | q,b ) =  I{z=r}&tau; + (1-&tau;)Prob(b&prime;=z)
@@ -7416,7 +7432,7 @@ Create a state variable that increments or decrements with state-dependent proba
 </tr>
 <tr>
 <td class="declaration" valign="baseline">fPi(A)</td>
-<td class="description" valign="baseline">a <a href="Shared.ox.html#AV">AV</a>(fPi,A) compatible object that returns a #A x 3 vector of probabilities.</td>
+<td class="description" valign="baseline">a <a href="Shared.ox.html#AV">AV</a>(fPi,A) compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.</td>
 </tr>
 </table>
 </dd>
@@ -7823,7 +7839,7 @@ Create a variable that tracks the cumulative value of another state.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">State</td>
-<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a> to track.</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a> to accumulate values for.</td>
 </tr>
 </table>
 </dd>
@@ -7923,7 +7939,7 @@ vector <0:N-1>, used in AV().
 <a name="StateBlock___StateBlock"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">StateBlock</span></h3>
 
-<span class="declaration">StateBlock :: StateBlock ( L )</span>
+<span class="declaration">StateBlock :: StateBlock ( L , ... )</span>
 <dl><dd>
 Create a list of <a href="Variables.ox.html#Coevolving">Coevolving</a> state variables.
 
@@ -7931,7 +7947,12 @@ Create a list of <a href="Variables.ox.html#Coevolving">Coevolving</a> state var
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">L</td>
-<td class="description" valign="baseline">label for block</td>
+<td class="description" valign="baseline">label for block
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">...</td>
+<td class="description" valign="baseline">list of <a href="Variables.ox.html#Coevolving">Coevolving</a> states to add to the block.</td>
 </tr>
 </table>
 </dd>
@@ -8053,12 +8074,12 @@ Create a binary variable that indicates if the previous value of state variable 
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">Target</td>
-<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a> to track.
+<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a> to track actual values of.
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">ToTrack</td>
-<td class="description" valign="baseline">integer or vector of values to track</td>
+<td class="description" valign="baseline">integer or vector of (actual) values to track</td>
 </tr>
 </table>
 </dd>
@@ -8476,7 +8497,8 @@ Tauchen discretizization.
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
-<td class="declaration" valign="baseline">L
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
 </td>
 </tr>
 <tr>
@@ -8636,6 +8658,30 @@ Values to track
 <dl><dd>
 The base for triggered augmentations.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">b</td>
+<td class="description" valign="baseline">the base <a href="Variables.ox.html#StateVariable">StateVariable</a> whose transition is augmented.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">t</td>
+<td class="description" valign="baseline">the trigger for a different transition
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">tv</td>
+<td class="description" valign="baseline">the integer (actual) or vector of integer values of t that triggers the transition [default=1].
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">rval</td>
+<td class="description" valign="baseline">the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ValueTriggered</span></h2>
 
@@ -8653,13 +8699,13 @@ The base for triggered augmentations.
 
 <span class="declaration">ValueTriggered :: ValueTriggered ( b , t , tv , rval )</span>
 <dl><dd>
-Augment a base transition so the value of some other object trigger a specail value.
+Augment a base transition so the value of some other object trigger a special value.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">b</td>
-<td class="description" valign="baseline">the base <a href="Variables.ox.html#StateVariable">StateVariable</a> whose transition is augmented (the base should not be added to the model separately.
+<td class="description" valign="baseline">the base <a href="Variables.ox.html#StateVariable">StateVariable</a> whose transition is augmented (the base should not be added to the model separately).
 </td>
 </tr>
 <tr>
@@ -8674,7 +8720,7 @@ Augment a base transition so the value of some other object trigger a specail va
 </tr>
 <tr>
 <td class="declaration" valign="baseline">rval</td>
-<td class="description" valign="baseline">the integer (current) value of the variable when the trigger occurs [default=0]</td>
+<td class="description" valign="baseline">the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.</td>
 </tr>
 </table>
 </dd>

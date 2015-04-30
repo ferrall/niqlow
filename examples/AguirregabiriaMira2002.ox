@@ -1,5 +1,5 @@
 #include "AguirregabiriaMira2002.h"
-/* This file is part of niqlow. Copyright (C) 2011-2014 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 	
 AMZurcher::Run()  {
     Initialize(Reachable);

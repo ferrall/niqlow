@@ -454,6 +454,7 @@ OneStateModel::Initialize(userReachable,Method,...) {
     ExPostSmoothing::Initialize(userReachable);
     SetClock(StaticProgram);
     Actions(va_arglist());
+    EndogenousStates(new Fixed("q"));
     CreateSpaces(Method);
 	}
 	

@@ -1,5 +1,6 @@
 #import "RustEmet1987"
 #import "FiveO"
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 /** Put all objects related to the paper in a catchall class.
 

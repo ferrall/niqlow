@@ -1,6 +1,7 @@
 /** Run Various tests programs for FiveO.
 **/
 #import "FiveO"
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 OptTestRun();
 BBTest();

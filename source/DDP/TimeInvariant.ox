@@ -1,5 +1,5 @@
 #include "TimeInvariant.h"
-/* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 /** A state variable that is non-random an invariant for and individual DP problem.
 

@@ -1,4 +1,5 @@
 #import "DDP"
+/* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
 
 struct DynamicRoy : ExPostSmoothing	{
 	/** Labels for choices/sectors. @name Sectors **/

@@ -119,8 +119,11 @@ a reference to <code>Initialize()</code> will refer to the parent's version.</DD
 </OL>
 <P/>
 </OL>
-<a name="auto"><hr><h1>Documentation of Items Defined in Bellman.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2015 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
+
+<a name="auto"><hr><h1>Documentation of Items Defined in Bellman.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a></dd>
+</dl>
 <a name="Bellman"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Bellman : <a href="DP.ox.html#DP">DP</a></span></h2>
 
@@ -288,14 +291,12 @@ on static members in order to reduce memory requirements.  These are defined in 
 
 Choice probabilities are smoothed ex post.
 <P/>
-<DT>Utility() has no continuous error terms.  After V() is computed, choice probabilities are
-smoothed ex post as follows:
-<P/>
-<dd><pre>
-U() = Utility(&alpha;,&eta;,&epsilon;,&theta;,&gamma;)
-v*(&alpha;) = exp[&rho;(v(&alpha;,&epsilon;,&eta;&theta;)-V(&epsilon,&eta;&theta;) )]	/ &rho;
-&Rho;*(&alpha;;&epsilon;,&eta;&theta;) = v*(&alpha;) / &Sum;<sub>&alpha;'&in;A(&theta;) v*(&alpha;')</sub>
-</pre></dd>
+<DT>Utility() has no continuous error terms that affect the formula for computing <span class="expressions">\(EV(\theta)\)</span>.
+</DT>
+<DT>After <span class="expressions">\(V(\theta)\)</span> is computed, choice probabilities are either </dt>
+<DD>left unsmoothed or </dd>
+<Dd>smoothed <em>ex post</em>
+according to the <a href="DP.ox.html#SmoothingMethods">SmoothingMethods</a> sent to <a href="Bellman.ox.html#ExPostSmoothing___CreateSpaces">CreateSpaces</a>().</DD>
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -822,6 +823,35 @@ if <a href="DP.ox.html#Flags___setPstar">setPstar</a> is TRUE.</td>
 </dl>
 
 <dl class="inherited">
+<dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___InSubSample">InSubSample</a>, <a href="Bellman.ox.html#Bellman___IsLast">IsLast</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a></dd>
+<dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___CVdelta">CVdelta</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___SubVectors">SubVectors</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
+<a name="OneStateModel"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">OneStateModel : <a href="Bellman.ox.html#ExPostSmoothing">ExPostSmoothing</a> : <a href="Bellman.ox.html#Bellman">Bellman</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#OneStateModel___Choose">Choose</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#OneStateModel___Initialize">Initialize</a></td>
+<td class="modifiers">static</td>
+<td class="description">Initialize an ex post smoothing model.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Bellman.ox.html#ExPostSmoothing">ExPostSmoothing</a>:</dt><dd><a href="Bellman.ox.html#ExPostSmoothing___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#ExPostSmoothing___Normal">Normal</a>, <a href="Bellman.ox.html#ExPostSmoothing___Smooth">Smooth</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="Bellman.ox.html#Bellman___ActVal">ActVal</a>, <a href="Bellman.ox.html#Bellman___Allocate">Allocate</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___InSS">InSS</a>, <a href="Bellman.ox.html#Bellman___Interface">Interface</a>, <a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___OutputValue">OutputValue</a>, <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>, <a href="Bellman.ox.html#Bellman___ThetaTransition">ThetaTransition</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a>, <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AddStates">AddStates</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CurGroup">CurGroup</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___Gett">Gett</a>, <a href="DP.ox.html#DP___GetTrans">GetTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___SetGroup">SetGroup</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Bellman.ox.html#ExPostSmoothing">ExPostSmoothing</a>:</dt><dd><a href="Bellman.ox.html#ExPostSmoothing___Method">Method</a>, <a href="Bellman.ox.html#ExPostSmoothing___rho">rho</a>, <a href="Bellman.ox.html#ExPostSmoothing___sigma">sigma</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___InSubSample">InSubSample</a>, <a href="Bellman.ox.html#Bellman___IsLast">IsLast</a>, <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___A">A</a>, <a href="DP.ox.html#DP___alpha">alpha</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___chi">chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___CVdelta">CVdelta</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___ialpha">ialpha</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___SubVectors">SubVectors</a>, <a href="DP.ox.html#DP___userReachable">userReachable</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___zeta">zeta</a></dd>
 </dl>
@@ -2146,6 +2176,40 @@ if <a href="DP.ox.html#Flags___setPstar">setPstar</a> is TRUE.
 <dl><dd>
 N::R x 1 array of reservation value vectors
 
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">OneStateModel</span></h2>
+
+<a name="OneStateModel___Choose"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Choose</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="OneStateModel___Initialize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Initialize</span></h3>
+
+<span class="declaration">static OneStateModel :: Initialize ( userReachable , Method , ... )</span>
+<dl><dd>
+Initialize an ex post smoothing model.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">userReachable</td>
+<td class="description" valign="baseline">static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
+FALSE if the state is not reachable.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">UseStateList</td>
+<td class="description" valign="baseline">TRUE, traverse the state space &Theta; from a list of reachable indices<br>
+					FALSE, traverse &Theta; through iteration on all state variables</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Rust</span></h2>
 

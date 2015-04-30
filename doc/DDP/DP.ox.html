@@ -1703,8 +1703,21 @@ of each separate group. Your function should return TRUE if the the group should
 <tr class="even">
 <td class="declaration"><a name="SmoothingMethods"></a>SmoothingMethods</td>
 <td class="description">Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.
-         <DT>NoSmoothing</DT><DD>Indicator for optimal choice: &Rho;* = I{&alpha;&in;argmax v(&alpha;)}</DD>
-         <DT>LogitKernel</DT><DD>&Rho;* = exp{&rho;(v(&alpha;)-V)}/&Sigma;<sub>a</sub>exp{&rho;(v(a)-V)}</DD>
+         <DT>NoSmoothing</DT>
+         <DD class="disp">Optimal choices are equally likely, sub-optimal choices have zero choice
+         probability:
+            <pre>
+            <span class="expressions">\(n^\star = \)</span> number of feasible choices in <span class="expressions">\(\arg\max\ v(\alpha;\theta)\)</span>.
+            <span class="expressions">\(P^\star (\alpha;\theta) = I\left\{\alpha \in \arg\max_{\alpha}\ v(\alpha;\theta)\right\} / n^\star\)</span>
+            </pre>
+            Note:  exogenous (&epsilon;) and semi-exogenous (&eta;) state variables are allowed but they
+            are suppressed in the notation for readibility.</DD>
+         <DT>LogitKernel</DT>
+         <DD>
+         <pre>&Rho;* = exp{&rho;(v(&alpha;)-V)}/&Sigma;<sub>a</sub>exp{&rho;(v(a)-V)}
+              v*(&alpha;) = exp[&rho;(v(&alpha;,&epsilon;,&eta;&theta;)-V(&epsilon;,&eta;,&theta;) )]	// &rho;
+             &Rho;*(&alpha;;&epsilon;,&eta;&theta;) = v*(&alpha;) / &Sum;<sub>&alpha;'&in;A(&theta;) v*(&alpha;')</sub>
+         </pre></DD>
          <DT>GaussKernel</DT><DD></DD>
 </td>
 <td class="elements">NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods</td>

@@ -1,4 +1,5 @@
 #include "RustEmet1987mle.h"
+/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 /** Replicate the Group 4 bus estimation.
 **/
