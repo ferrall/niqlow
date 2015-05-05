@@ -176,10 +176,26 @@ Constrained::Constrained(L,ELorN,IELorN) {
 	maxpt = new CPoint(ELorN,IELorN);
 	maxpt.v = -.Inf;
 	}
-	
+
+/** Create a new system of equations object.
+@param L label for the system.
+@param LorN  The size of the system indicated in 1 of 3 ways:<br>
+integer [default = 1], N the size of the system<br>
+array of length N, where each element is a string, the label for the equation.<br>
+string with N space-separate labels, the labels
+of the equations parsed by `varlist`.
+
+@example
+Three ways to define a <code>3x3</code> system of equations:
+<pre>
+ mysys = new System(3);
+ mysys = new System({"A","B","C"});
+ mysys = new System("Eq0 Eq2 Eq2");
+</pre></dd>
+@see Objective::NvfuncTerms, `Equations`
+**/	
 System::System(L,LorN) {
 	Objective(L);
-//    delete cur;
     cur = new SysPoint();
 	hold = new SysPoint();
 	maxpt = clone(hold);
@@ -231,12 +247,17 @@ Objective::Decode(F)	{
 
 /** Encode vector of structural parameters.
 @param inX 0 [default] get new starting values from the parameters<br>a vector, new starting values.
-@comments if X is a vector then a value of .NaN means that parameter should be held fixed at the current value during this
-		   cycle of optimization.  If X=0 then the starting values are retrieved as follows: If this is the first
-		   call of Encode() the initial values passed to the parameters when they were created. If this.X already has elements
-		   then this is not the first call to Encode() and starting values will be retrieved from the current values of
-		   parameters.		
-@See Objective::nfree, Objective::nstruct, Objective::FinX
+
+@comments
+    <DT> if X is a vector</DT>
+    <DD>then a value of .NaN means that parameter should be held fixed at the current value during this
+		   cycle of optimization.</DD>
+    <DT>If X=0 then the starting values are retrieved as follows:</DT>
+           <DD> If this is the first call of Encode() the initial values passed to the parameters when they were created.</DD>
+           <DD>If this.X already has elements then this is not the first call to <code>Encode()</code> and starting values will be retrieved from the current values of
+		   parameters.</DD>
+
+@see Objective::nfree, Objective::nstruct, Objective::FinX
 **/
 Objective::Encode(inX)  {
 	decl k,f;
@@ -259,6 +280,35 @@ Objective::Encode(inX)  {
 		if (!isint(Psi[k].block)) Psi[k].block.v |= Psi[k].v;
 		}
 	}
+
+/** Revert all parameters to their hard-coded initial values.
+This routine can only be called after `Objective::Encode`() has been called.
+
+All parameters are reset to their hard-coded initial values, stored as `Parameter::ival`.
+
+This also sets the values of the `Objective::cur` vector, including the structural parameters
+`Point::X` and free parameters `Point::F`
+
+`Objective::ResetMax`() is called
+
+The result is as if no optimization has occurred and `Objective::Encode`(0) has just been executed
+for the first time.
+
+**/
+Objective::ReInitialize() {
+	decl k,f;
+   	if (!once) oxrunerror("Cannot ReInitialize() objective parameters before calling Encode() at least once.");
+    for (k=0;k<sizeof(Blocks);++k) Blocks[k].v = <>;
+	for (k=0,cur.X=<>,cur.F=<>,FinX=<>,nfree=0;k<nstruct;++k) {
+		f = Psi[k]->ReInitialize();
+		cur.F |= f;  FinX |= k;
+        if (nfree++) Flabels|= PsiL[k]; else Flabels = {PsiL[k]};
+		cur.X |= Psi[k].v;
+		if (!isint(Psi[k].block)) Psi[k].block.v |= Psi[k].v;
+		}
+	Start = cur.X;
+    ResetMax();
+    }
 	
 /** Compute the objective at multiple points.
 @param Fmat, N<sub>f</sub>&times;J matrix of column vectors to evaluate at

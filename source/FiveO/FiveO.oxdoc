@@ -154,7 +154,7 @@ main() {
  <DD><code>Load()</code> will check some aspects of the file for consistency, read in starting values, &psi;.O and ignore the other information.</DD>
  <DD>The parameter vector in the file can be edited to reset the values.</DD>
  <DD><code>MyObject</code> will always <q>hard code</q> starting values for parameters when they are created.  The code can be written so that these hard values are only used if the person wants to complete restart.  Otherwise, the starting vector, &psi;.O, will be loaded from a file:
- <pre> if (!Load(fn)) Encode(0); </pre>
+ <pre> if (!Load(fn)) Encode(); </pre>
  If <code>fn=-1</code> then <code>Load()</code> will return FALSE and do nothing.  Then <code>`Objective::Encode`(0)</code> will use the hard-coded values for &psi;.0.  On the other hand, if <code>fn = "hello"</code>, Load() will try to load values from <code>hello.oxobj</code>, returning TRUE if successful.   Finally, if <code>fn=0</code> it will do the same but using the default file name, <code>`Objective::L`.optobj</code>.
  </DD>
 

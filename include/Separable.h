@@ -34,7 +34,7 @@ struct Separable : UnConstrained	{
 	virtual vfunc();						   			
 	virtual fobj(F);
 	virtual vobj(F);
-	virtual	Encode(X,CallBase=FALSE);
+	virtual	Encode(X=0,CallBase=FALSE);
 	virtual	Decode(F=0);
 	virtual Jacobian();
 	virtual	Gradient();

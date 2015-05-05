@@ -27,7 +27,7 @@ Rosenbrock ::Rosenbrock (fn)	{
 	x = new Free("x",0.5);
 	y = new Free("y",0.0);
     Parameters(x,y);
-	if (!Load(fn)) Encode(0);
+	if (!Load(fn)) Encode();
 	}
 Rosenbrock ::vfunc() {
 	return -( sqr(1-x.v)+100*sqr(y.v - sqr(x.v)) );
@@ -81,7 +81,7 @@ SystemTest::SystemTest (N) {
 	System("Broyden system test",N);
 	x = new Coefficients("x",constant(0,1,N),0);
     Parameters(x);
-	Encode(0);
+	Encode();
 	}
 
 SystemTest::vfunc()	{
@@ -106,7 +106,7 @@ SeparableRosenbrock ::SeparableRosenbrock (K)	{
 	y = new Free("y",0.98);
     Parameters(x,y);
 //	CommonParameters(y);
-	Encode(0);
+	Encode();
 	}
 
 SeparableRosenbrock ::vfunc()	{
@@ -132,7 +132,7 @@ OnCircle::OnCircle() {
 	y = new Positive("y",0.75);
 	Parameters(x,y);  //,z
 	Volume= LOUD;
-	Encode(0);
+	Encode();
 	}
 	
 //OnCircle::vfunc() {return -(sqr(AV(x)) + sqr(AV(y)));	}	
@@ -160,7 +160,7 @@ SPobj::SPobj() {
 	BlackBox("Simp");
 	pi = new Simplex("pi",<0.25;0.25;0.5>);
     Parameters(pi);
-	Encode(0);
+	Encode();
 	}
 SPobj::vfunc() {
 	return prodc(AV(pi).^(1/3));
@@ -193,7 +193,7 @@ MX::vfunc() {
 
 MixTest() {
 	decl O = new MX(), d = new NelderMead(O);
-	O->Encode(0);
+	O->Encode();
 	d.Volume = O.Volume = NOISY;
   	O->vobj(0);
 	println("*** ",O.cur.v);

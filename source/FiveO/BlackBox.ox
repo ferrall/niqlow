@@ -29,7 +29,7 @@ PanelBB::PanelBB (L,data,...)	{
 	decl va = va_arglist(),i;
 	if (sizeof(va)) {
 		for(i=0;i<sizeof(va);++i) Parameters(va[i]);
-		Encode(0);
+		Encode();
 		}
 	else oxwarning("No estimated parameters added to "+L+" panel estimation ");
 	}

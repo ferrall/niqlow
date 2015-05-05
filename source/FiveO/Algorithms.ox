@@ -51,7 +51,7 @@ RandomSearch::RandomSearch(O) {
 	
 /** Initialize Simulated Annealing.
 @param O `Objective` to work on.
-@internal
+
 **/
 SimulatedAnnealing::SimulatedAnnealing(O)  {
 	Algorithm(O);
@@ -77,7 +77,6 @@ SimulatedAnnealing::Tune(maxiter,heat,cooling,shrinkage)	{
 
 
 /** accept or reject.
-@internal
 **/
 SimulatedAnnealing::Metropolis()	{
 	decl jm=-1, j, diff;
@@ -105,7 +104,7 @@ SimulatedAnnealing::Metropolis()	{
 @param chol matrix, Choleski matrix for random draws<br>0 use the identity matrix.
 **/
 SimulatedAnnealing::Iterate(chol)	{
-	O->Encode(0);
+	O->Encode();
 	N = rows(OC.F);
     if (!isclass(O.p2p) || O.p2p.IamClient) {  //MPI not running or I am the Client Node
        inp = isclass(O.p2p);
@@ -158,7 +157,7 @@ SysMax::SysMax(O) {
 	p6 = new SysLinePoint();
     }
 
-/** .
+/** Delete.
 @internal
 **/
 LineMax::~LineMax()	{
@@ -291,10 +290,12 @@ NelderMead::NelderMead(O)	{
 	
 /** Iterate on the Amoeba algorithm.
 
+@example
+See <a href="GetStarted.html">GetStarted</a>
 @see Objective::F
 **/
 NelderMead::Iterate(iplex)	{
-	O->Encode(0);
+	O->Encode();
     N = rows(OC.F);
     if (!isclass(O.p2p) || O.p2p.IamClient) {
 	   nodeV = constant(-.Inf,N+1,1);
@@ -405,7 +406,7 @@ NelderMead::Amoeba() 	{
 	}
 
 /** Initialize a Gradient-Based algorithm.
-@internal
+
 **/
 GradientBased::GradientBased(O) {
     Algorithm(O);
@@ -418,19 +419,72 @@ GradientBased::GradientBased(O) {
     LMitmax = 10;
 	}
 
-/** .  **/ BFGS::BFGS(O) {	GradientBased(O);	}
-/** .  **/ BHHH::BHHH(O) {	GradientBased(O);	}
-/** .  **/ DFP::DFP(O)      {
+/** Create an object of the BFGS algorithm.
+@param O the `Objective` object to apply this algorithm to.
+
+@example
+<pre>
+decl myobj = new MyObjective();
+decl bfgs = new BFGS(myobj);
+bfgs->Iterate();
+</pre></dd>
+
+@see <a href="./GetStarted.html">GetStarted</a>
+
+**/
+BFGS::BFGS(O) {	GradientBased(O);	}
+
+/** Create an object of the BHHH algorithm.
+@param O the `Objective` object to apply this algorithm to.
+
+@example
+<pre>
+decl myobj = new MyObjective();
+decl bhhh = new BHHH(myobj);
+bhhh->Iterate();
+</pre></dd>
+
+@see <a href="./???.html">????</a>
+
+  **/
+BHHH::BHHH(O) {	GradientBased(O);	}
+
+/** Create an object of the DFP algorithm.
+@param O the `Objective` object to apply this algorithm to.
+
+@example
+<pre>
+decl myobj = new MyObjective();
+decl dfp = new DFP(myobj);
+bfgs->Iterate();
+</pre></dd>
+
+  **/
+DFP::DFP(O)      {
 	oxrunerror("DFP not coded  yet");
 	GradientBased(O);
 	}
-/** .  **/
+
+/**Create an object of the Newton optimization algorithm.
+@param O the `Objective` object to apply this algorithm to.
+
+@example
+<pre>
+decl myobj = new MyObjective();
+decl newt = new Newtown(myobj);
+newt->Iterate();
+</pre></dd>
+
+@see <a href="./GetStarted.html">GetStarted</a>
+
+
+ **/
 Newton::Newton(O) {	GradientBased(O);	}
 
 
 /** Compute the direction for the current line search.
 If inversion of H fails, reset to I
-@internal
+
 @return direction vector.
 **/
 GradientBased::Direction()	{
@@ -446,7 +500,14 @@ GradientBased::Direction()	{
 	}
 
 /**  Update the gradient &nabla; f(&psi;).
-@return &nabla;f(&psi;) &lt; `GradientBased::gradtoler`
+
+<DT>This routine is called inside `GradentBased::Iterate`().</DT>
+<DD>Creates a copy of the current gradient.</DD>
+<DD>Calls `Objective::Gradient`() routine to compute <em>&nabla f(&psi;)</em>, which is (stored internally in `Point::G`).</DD>
+<DD>Then computes the size of &nabla; using the built-in Ox <code>norm(m,2)</code> routine.</DD>
+<DD>If `Algorithm::Volume` is louder than <code>QUIET</code> <em>&nabla; f()</em> is printed to the screen.</DD>
+
+@return TRUE if &nabla;f(&psi;) &lt; `GradientBased::gradtoler` <br>FALSE otherwise
 **/
 GradientBased::Gupdate()	{
 	oldG = OC.G;
@@ -457,11 +518,19 @@ GradientBased::Gupdate()	{
 	}
 
 /** Iterate on a gradient-based algorithm.
-@param H matrix, initial Hessian<br>integer, use identity I or compute H if Newton
+@param H matrix, initial Hessian<br>integer, use the identity <var>I</Var> as the initial value, or compute H if Newton.
+
+This routine works the <a href="../CFMPI/default.html">CFMPI</a> to execute the parallel task
+of computing the gradient.
+
+All gradient-based algorithms conduct a `LineMax`imization on each iteration.
+
+@see  ConvergenceResults
+
 **/
 GradientBased::Iterate(H)	{
     decl IamNewt = isclass(this,"Newton");
-	O->Encode(0);
+	O->Encode();
 	N = rows(holdF = OC.F);
     if (!isclass(O.p2p) || O.p2p.IamClient) {
 	   if (OC.v==.NaN) O->fobj(0);
@@ -499,6 +568,23 @@ GradientBased::Iterate(H)	{
     else O.p2p.server->Loop(N);
 	}
 
+/**Update the Hessian.
+@param FORCE see below.
+
+<DT>This is a wrapper for the virtual `GradientBased::Hupdate`() routine and is called
+on each iteration (except possibly the first if convergence is already achieved).</DT>
+
+<DD>Computes the difference in parameter values from this iteration and the last as well
+is the norm (both used by `QuasiNewton` algorithms).</DD>
+<DD>If <code>FORCE</code> is TRUE, call `GradientBased::Gupdate`() and check both
+<code>STRONG</code> and <code>WEAK</code> convergence criteria.</DD>
+<DD>Then call the algorithm-specific <code>Hupdate()</code> routine.</DD>
+
+@return the output of <code>Hupdate()</code>
+
+@see   ConvergenceResults
+
+**/
 GradientBased::HHupdate(FORCE) {
 	deltaX = norm(dx=(OC.F - holdF)',2);
 	if (!FORCE)	{
@@ -508,12 +594,23 @@ GradientBased::HHupdate(FORCE) {
     return this->Hupdate();
 	}
 
-/** Steepest Descent, H does not change.
-@internal
-@return NONE
+/** Default Hessian Update: Steepest Descent, so <var>H f(&psi;)</var> does not change.
+
+Since the default gradient-based algorithm is steepest descent, and since this
+algorithm does not use the Hessian, this return does nothing and returns
+
+@return <code>NONE</code>
+@see   ConvergenceResults
 **/
 GradientBased::Hupdate()  {  return NONE;   }
 
+/** Compute the objective's Hessian and the current parameter vector.
+
+@return <code>NONE</CODE>
+
+@see   ConvergenceResults, NoiseLevels
+
+**/
 Newton::Hupdate() {
     O->Hessian();
   	if (Volume>QUIET)  println("New Hessian","%c",O.Flabels,"%r",O.Flabels,"%lwr",OC.H);
@@ -531,7 +628,6 @@ Newton::Hupdate() {
 //    }
 
 /** .
-@internal
 @return NONE
 **/
 BHHH::Hupdate() {
@@ -540,7 +636,25 @@ BHHH::Hupdate() {
     return NONE;
     }
 
-/** . @internal **/
+/** Apply BFGS updating on the Hessian.
+
+<DD>Active Ox code in this routine:
+<pre>
+decl
+  dg = (OC.G - oldG),
+  A = double(dx*dg'),
+  B = double(outer(dx,OC.H));
+  if (fabs(A) < SQRT_EPS*norm(dg,2)*deltaX ) return FAIL;
+  OC.H += outer(dg,<>,'o')/A - outer(dx*OC.H,<>,'o')/B;
+  return NONE;
+</pre>
+
+
+@return <code>FAIL</CODE> if the updating tolerances are not met.<br>Otherwise <code>NONE</code>
+
+@see   ConvergenceResults, NoiseLevels
+
+**/
 BFGS::Hupdate() {
     decl
 	   dg = (OC.G - oldG),
@@ -552,14 +666,39 @@ BFGS::Hupdate() {
     return NONE;
     }
 
-/** . @internal **/
+/** Create a Newton-Raphson object to solve a system of equations.
+
+@param O, the `System`-derived object to solve.
+
+@example
+<pre>
+obj = new MyObjective();
+nr = new NewtonRaphson(obj);
+hr -> Iterate();
+</pre></dd>
+
+<DT>Also see <a href="GetStarted.html#B">GetStarted</a></DT>
+
+ **/
 NewtonRaphson::NewtonRaphson(O) {
 	if (!isclass(O,"System")) oxrunerror("Objective must be a System");
 	GradientBased(O);
     USELM = FALSE;
 	}
 
-/** . @internal **/
+/** Create a new Broyden solution for a system of equations.
+@param O, the `System`-derived object to solve.
+
+@example
+<pre>
+obj = new MyObjective();
+broy = new Broyden(obj);
+broy -> Iterate();
+</pre></dd>
+
+<DT>Also see <a href="GetStarted.html#B">GetStarted</a></DT>
+
+**/
 Broyden::Broyden(O) {
 	if (!isclass(O,"System")) oxrunerror("Objective must be a System");
 	GradientBased(O);
@@ -568,7 +707,6 @@ Broyden::Broyden(O) {
 
 /** Compute the direction.
 If inversion of J fails, reset to I
-@internal
 @return direction
 **/
 NonLinearSystem::Direction() 	{
@@ -588,8 +726,8 @@ NonLinearSystem::Direction() 	{
 		 }
 	}
 
-/** .
-@internal
+/** Upate gradient when using an aggregation of the system
+in a line search.
 **/
 NonLinearSystem::Gupdate()	{
 	oldG = OC.V;
@@ -604,10 +742,13 @@ NonLinearSystem::Gupdate()	{
 
 /** Iterate to solve a non-linear system.
 @param J matrix, initial Jacobian for Broyden.<br>integer, set to identity
+
+This routine is shared (inherited) by derive algorithms.
+
 **/
 NonLinearSystem::Iterate(J)	{
 decl d;
-	O->Encode(0);
+	O->Encode();
 	N = rows(holdF = OC.F);
     deltaX=.NaN;
     if (!isclass(O.p2p) || O.p2p.IamClient) {
@@ -647,7 +788,15 @@ decl d;
     else O.p2p.server->Loop(N);
 	}
 	
-/** . @internal **/
+/** Wrapper for updating the Jacobian of the system.
+
+<DT>This is a wrapper for the virtual `NonLinearSystem::Jupdate`() routine.</DT>
+
+@return <code>FAIL</code> if change in parameter values is too small.
+Otherwise, return <code>NONE</code>
+
+@see GradientBased::HHudpate
+ **/
 NonLinearSystem::JJupdate() {
 	decl dx;
 	if (this->Gupdate()) return STRONG;
@@ -657,9 +806,11 @@ NonLinearSystem::JJupdate() {
 	return NONE;
 	}
 	
-/** . @internal **/ NewtonRaphson::Jupdate(dx) {O->Jacobian(); }
-/** . @internal **/ Broyden::Jupdate(dx)       {OC.J += ((dg-OC.J*dx)/deltaX)*(dx');}
+/** Compute the objective's Jacobina.  **/
+NewtonRaphson::Jupdate(dx) {O->Jacobian(); }
 
+/** Apply Broyden's formula to update the Jacobian.  **/
+Broyden::Jupdate(dx)       {OC.J += ((dg-OC.J*dx)/deltaX)*(dx');}
 
 /** Create a new Sequential Quadratic Programming object.
 @param O `Constrained` objective
@@ -676,7 +827,7 @@ SQPBFGS::SQPBFGS(O) {
 	SQP(O);
 	}
 
-/** . @internal **/
+/** .  **/
 SQP::Hupdate() {
 	decl
 	   dg = OC.L - oldG,
@@ -696,7 +847,7 @@ SQP::Hupdate() {
 **/
 SQP::Iterate(H)  {
 	decl Qconv,deltx,mults;
-	O->Encode(0);
+	O->Encode();
 	N = rows(OC.F);
     if (!isclass(O.p2p) || O.p2p.IamClient) {
 	   OC.H = isint(H) ? unit(N) : H;
@@ -744,7 +895,6 @@ SQP::Iterate(H)  {
 	}
 
 /** .
-@internal
 **/
 SQP::Gupdate() {
 	O->Gradient();
@@ -754,7 +904,6 @@ SQP::Gupdate() {
 	}
 	
 /** .
-@internal
 **/
 SQP::HHupdate(FORCE) {
 	deltaX = norm(dx=(OC.F - holdF)',2);

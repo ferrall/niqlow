@@ -202,14 +202,30 @@ Parameter::Parameter(L,ival)	{
 	this.L = L;
 	v = start = scale = this.ival = ival;
 	f = 1.0;
-//	Hpsi = IsBayes =
 	block = DoNotVary = FALSE;
 	pos = UnInitialized;
 	}
 
-/** Default encoding: no scaling, no constraining. **/
+/** Reset the parameter to its hard-coded values.
+<DD>This does this:
+<pre>
+	v = start = scale = ival;
+	f = 1.0;
+    Encode();
+</pre>
+**/
+Parameter::ReInitialize() {
+	v = start = scale = ival;
+	f = 1.0;
+    return Encode();
+    }
+
+/** Default encoding: no scaling, no constraining.
+@return v
+**/
 Parameter::Encode()	{
 	v = start; scale =  1.0; f = v;
+    return v;
 	}
 
 /** Default decoding: no scaling, no constraining. **/
@@ -237,8 +253,9 @@ Indent(depth) { decl i; for(i=0;i<depth;++i) print(" "); }
 	
 /** Reset the starting value of a parameter.
 @param newv value to reset at
-@param IsCode TRUE newv is a free value<br>FALSE newv is structural
+@param IsCode TRUE [default] newv is a free value<br>FALSE newv is structural
 @return the new starting structural value
+@see Parameter::ReInitialize
 **/
 Parameter::Reset(newv,IsCode){
 	start = (IsCode) ? Decode(newv) : newv; 	return Encode(); }

@@ -9,8 +9,9 @@ Rosenbrock::Rosenbrock ()	{
 	x = new Free("x",0.5);
 	y = new Free("y",-0.8);
     Parameters(x,y);
-	Encode(0);
+	Encode();
 	}
 Rosenbrock::vfunc() {
-	return -( sqr(1-x.v)+100*sqr(y.v - sqr(x.v)) );
+    decl xv = CV(x);
+	return -( sqr(1-xv)+100*sqr(CV(y) - sqr(xv)) );
 	}

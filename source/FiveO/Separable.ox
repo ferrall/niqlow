@@ -101,7 +101,7 @@ Separable::Encode(X,CallBase)   {
 	decl f,k,h,i;
     if (CallBase) { Objective::Encode(X); return; }
 	if (!once) {
-		Objective::Encode(0);
+		Objective::Encode();
 		C = sizer(ComInd);
 		cur.X = reshape(Objective::cur.X,K,nstruct)';
 		kNvf = Objective::NvfuncTerms;
@@ -348,7 +348,7 @@ Mixture::WEncode(inW) {
 /** .		
 **/
 Mixture::Encode(inX)   {
-	if (!once) 	Separable::Encode(0);
+	if (!once) 	Separable::Encode();
 	if (ismatrix(inX) ) {
 		WEncode(inX[:DK-1]);
 		Separable::Encode(inX[DK:]);

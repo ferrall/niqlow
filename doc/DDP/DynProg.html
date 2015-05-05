@@ -27,7 +27,7 @@ We start with the <em>choice</em> elements first without dynamic programming.  I
 Our focus is on discrete choice rather than continuous choice emphasized in neoclassical economics (marginal utility, marginal cost, first order conditions and all that).   Continuous choice is
 a topic related to the <a href="">FiveO</a> part of <span class="n">niqlow</span>.
 <P/>
-<a href="">Train (20??)</a> explains all aspects of discrete choice with an emphasis on econometric applications.   Readers are encouraged to refer to Train () for in-depth discussion of the static case.  We start even simpler than Train does.  Eventually the set up starts to look like the material in Train, but we move to dynamic choice.
+<a href="">Train (20??)</a> explains all aspects of discrete choice with an emphasis on econometric applications.   Readers are encouraged to refer to Train () for in-depth discussion of the static case.  We start even simpler than Train does.  Eventually the set up starts to look like the material in Train, but we move to dynamic choice before going into the depths of various static choice models that Train does.
 <P/>
 <h2>The choice set</h2>
 <P/>
@@ -262,6 +262,19 @@ there is only one state.  The table is designed to show the value of each state 
 know that the best Bob can do is 4.2.  And the optimal choice is the third element of <span class="expressions">\(A\)</span>, which Bob should chose with probability 1.0.  All the other options are
 sub-optimal and are chosen with 0 probability.</DD>
 <P/>
+<h2>Summary</h2>
+<OL class="steps">
+<LI>At the heart of a <span class="n">DDP</span> model is a discrete choice.  Discrete dynamic programming links together many different discrete choices
+that are connected by state variables that evolve and forward-looking choices.</LI>
+<LI>In <span class="n">DDP</span> you build your model by defining a <em>class</em> that is derived from one of the built-in <a href="Bellman.ox.html#Bellman">Bellman</a> classes.  The simplest
+model to build from is <a href="Bellman.ox.html#OneStateModel">OneStateModel</a>, which is a single discrete choice (one state, no dynamics, etc).</LI>
+<LI>The discrete choice <span class="expressions">\(\alpha\)</span> is a vector of action variables, each taking on a finite number of values.  Your model builds <span class="expressions">\(\alpha\)</span> by creating new <a href="Variables.ox.html#ActionVariable">ActionVariable</a>s and
+adding them to your model.  In a <a href="Bellman.ox.html#OneStateModel">OneStateModel</a> you send all the action variables to <a href="Bellman.ox.html#OneStateModel___Initialize">Initialize</a>().  In general your code will add action variables to yourself after
+calling <code>Initialize()</code>.</LI>
+<LI>Your model must supply a <code>Utility()</code> which returns a vector of numbers corresponding to the elements of the feasible set <span class="expressions">\(A\)</span>.</LI>
+<LI>The optimal choice for the model can be found by calling <a href="Methods.ox.html#VISolve">VISolve</a>(), which does a four things that typically the user's code will do for itself in order to control output and solution methods.  For a one state model it simply finds <span class="expressions">\(\alpha^\star\)</span>, the maximizing action.  This framework makes it possible to build a DP model around discrete choices. </LI>
+</OL>
+<P/>
 <h2>Exercises</h2>
 <OL class="steps">Make a couple copies of <code>BobsChoice.ox</code> and experiment with them as follows. (Do not change the original file's contents.)
 <LI>Change the utility vector so that two options tie as the optimal choice.  See what happens to the output.</LI>
@@ -275,7 +288,7 @@ the utility so that Yale-Econ is still optimal as is <code>ON</code>.  Run the c
 useful to label hours in the same way that schools and majors, just send the number of options (no value labels will be created).</DD>
 <DD>Change the utility utility so that it is a function of the <code>hours</code> not just a list of arbitrary numbers.  In particular, if <var>U(h) = -(h-2.2)<sup>2</sup></var> then the optimal discrete
 choice will be <var>h* = 2</var>, which is the 3rd value that <code>hours</code> takes on (0, 1, 2, etc). The vector of values that <code>hours</code> takes on can be accessed as
-<code>aa(hours)</code> (see <a href="Bellman.ox.html#Bellman___aa">aa</a> for some details but do not worry about them at this point).  
+<code>aa(hours)</code> (see <a href="Bellman.ox.html#Bellman___aa">aa</a> for some details but do not worry about them at this point).
 <DD>So, modify <code>Utility()</code> to have this form:
 <pre>
 TommysChoice::Utility() {
@@ -285,9 +298,18 @@ TommysChoice::Utility() {
 <LI>Continuing with <code>TommysChoice</code> change the utility to be <var>-(h-2.5)<sup>2</sup></var>, which induces a tie between 2 and 3.  Inspect the output.</LI>
 </OL>
 <P/>
-<LI>Smoothed Choice Probabilities</LI>
-<P/>
 <h2>Choice Probability</h2>
+<P/>
+The examples above are not good models of behaviour.  For one thing, the utility values are arbitrary, whereas a good model would relate utility to observable characteristics of the chooser and the choices.  And, second, suppose Bob did not choose Yale-Econ?  Then our model is incorrect with probability 1.  This is not surprising because we typically are not modeling a single person's choice and we will never have access to the utility of all the options.  Instead, real discrete models provide a probability of people making choices not a 0/1 outcome.
+<P/>
+The logit model of choice would include a continuous random variable in the utility:
+<dd class="disp">
+<span class="equation">$$U(\alpha) = Utility(\alpha) + z_\alpha.$$</span>
+</dd>
+The extra component <span class="expressions">\(z_alpha\)</span> is assumed to follow the <a href="">Type I Extreme Value (Gumbel)</a> distribution.  Across options the z values are independent.  The term <code>Utility(&alpha;)</code> is given the same
+name as the routine that is part the model in <span class="disp">DDP</span>.   So the user's coding would be the same and the term <span class="expressions">\(z_\alpha\)</span> is not explicitly added.  
+<P/>
+Conceptually, Bob sees both <code>Utility()</code> (the part we see or assume or estimate) and the vector of values of <span class="expressions">\(z_\alpha\)</span> (the part we don't see but assume follows a convenient distribution).  With his information Bob still simply chooses the <span class="expressions">\(\alpha\)</span> that maximizes <span class="expressions">\(U(\alpha)\)</span>.  But since we don't see <span class="expressions">\(z_\alpha\)</span> any of the options might be optimal to Bob.  We simply get different probabilities of choices.  The probabilities depend on the observed vector of utilities, to the 0/1 vector of ouptut above would become a  vector of numbers between 0 and 1.  Since <code>Yale-Econ</code> has the highest value of <code>Utility()</code> it will have the greatest probability of being chosen.
 <P/>
 </OL>
 

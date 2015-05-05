@@ -60,6 +60,7 @@ struct Objective	{
 	virtual vobj(F);
 	virtual	Encode(X=0);
 	virtual	Decode(F=0);
+    virtual ReInitialize();
 	virtual funclist(Xmat,Fvec);
 	}
 
@@ -89,7 +90,7 @@ struct System : Objective {
 	decl
 	/** . @internal **/		 eqn,
                              normexp;
-			System(L,LorN);
+			System(L,LorN=1);
 	virtual equations();
 	virtual fobj(F);
 	}

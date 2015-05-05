@@ -36,7 +36,9 @@ static const decl ClockTypeLabels
 
 		/** Output tags for reservation value utility functions. @name EUvalues **/	
 enum {EUstar,Fstar,EUvalues}
-		/** Code for solutions to Optimization and Non-Linear System solving.	@name ConvergenceResults **/	
+		/** Code for solutions to Optimization and Non-Linear System solving.	
+            @name ConvergenceResults
+        **/	
 enum {NONE,MAXITERATIONS,FAIL,WEAK,SECONDRESET,STRONG,ConvergenceResults}
 		/** Possible next treatment phases. @name NextTreatmentStates **/	
 enum {stayinf,gotonextf,exittreatment,NextTreatmentStates}
@@ -88,7 +90,8 @@ struct Discretized : Zauxiliary {
 	Approx(x,trans);		
 	}
 
-/** Container for variables and parameters. **/
+/** Container for discrete variables (DDP) and continuous parameters (FiveO).
+**/
 struct Quantity {
 	const 	decl	
 		/** Label **/ 						L;
@@ -128,7 +131,8 @@ struct Parameter : Quantity {
 		/** Value at start of iteration.**/   			start,
 		/** Scaling value  s. **/              			scale;
 	Parameter(L,ival);
-	Reset(newv,IsCode);
+	Reset(newv,IsCode=TRUE);
+    ReInitialize();
 	virtual ToggleDoNotVary();
 	virtual Encode();
 	virtual Decode(f);
@@ -224,6 +228,9 @@ class Version : Zauxiliary {
 	}
 
 /** Code a system of constraints.
+
+Equations are used in systems and constrained optimization.
+
 **/
 struct Equations : Zauxiliary {
 	static 	const decl rlabels = {"lamba","values"};
