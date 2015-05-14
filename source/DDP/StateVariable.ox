@@ -503,20 +503,39 @@ EndogenousStates(qtr);
 Cycle::Cycle(L,N) 	{	Deterministic(L,range(1,N-1)'|0);	}
 
 /** Takes on the value of another state or action.
-@internal
+@comments
+Users should not create a variable of this type.  Use the derived classes `LaggedState` and `LaggedAction`
+@see DP::KLaggedState, DP::KLaggedAction
 **/
-Lagged::Lagged(L,Target)	{	this.Target = Target;	StateVariable(L,Target.N);		}
+Lagged::Lagged(L,Target,Prune,Order)	{	
+    this.Target = Target;	StateVariable(L,Target.N);
+    this.Prune = Prune;
+    this.Order = Order;
+    }
 
 Lagged::Update()	{	actual = Target.actual;	}
+
+/**
+@return TRUE if not pruning or not a prunable clock or `I::t` gt; `Lagged::Order` or value gt; 0
+**/
+Lagged::IsReachable(clock) {
+    return !Prune || !Prunable(clock) || (clock.v<Order) || v;
+    }
 
 /** Create a variable that tracks the previous value of another state variable.
 @param L label
 @param Target `StateVariable` to track.
-@example <pre>prevoccup = new LaggedState("Prev",occup);</pre>
+@param Prune [optional default=TRUE] prune unreachable states automatically if finite horizon
+@param Order [optional default=1] order of the lag (how many periods to prune)
+
+@example <pre>prevoccup = new LaggedState("Prev",occup);</pre></DD>
+
+@see DP::KLaggedState
+
 **/
-LaggedState::LaggedState(L,Target)	{	
+LaggedState::LaggedState(L,Target,Prune,Order)	{	
     if (!isclass(Target,"StateVariable")) oxrunerror("Target object must be a StateVariable");
-    Lagged(L,Target);		
+    Lagged(L,Target,Prune,Order);		
     }
 
 /** .
@@ -528,11 +547,14 @@ LaggedState::Transit(FeasA)	{
 /** Create a variable that tracks the previous value of action variable.
 @param L label
 @param Target `ActionVariable` to track.
+@param Prune TRUE [default]: prune non-zero states at t=0 if finite horizon detected.
 @example <pre>wrked = new LaggedAction("Worked Last Year",work);</pre>
+
+@see DP::KLaggedAction
 **/
-LaggedAction::LaggedAction(L,Target)	{	
+LaggedAction::LaggedAction(L,Target,Prune,Order)	{	
     if (!isclass(Target,"ActionVariable")) oxrunerror("Target object must be an ActionVariable");
-    Lagged(L,Target);	
+    Lagged(L,Target,Prune,Order);	
     }
 
 /** .
@@ -541,6 +563,35 @@ LaggedAction::Transit(FeasA)	{
 	decl v=unique(FeasA[][Target.pos]);
 	return {v, FeasA[][Target.pos].==v };
 	}
+
+/**  Record the value of an action variable at a given time.
+@param L label
+@param Target `ActionVariable` to record
+@param Clock the model `Clock` variable
+@param Tbar clock time at which to record choice
+@param Prune TRUE [default], prune unreachable states (non-zero values before Tbar
+
+@example
+<pre></pre></dd>
+**/
+ChoiceAtTbar::ChoiceAtTbar(L,Target,Clock,Tbar,Prune) {
+    LaggedAction(L,Target,Prune);
+    if (!isclass(Clock,"Clock")) oxrunerror("Clock is not a Clock Block. SetClock() before creating ChoiceAtTbar");
+    if (!Prunable(Clock)) oxwarning("Storing choice at a time in a non-standard Finite Horizon model");
+    this.Clock = Clock;
+    this.Tbar = Tbar;
+    }
+
+ChoiceAtTbar::Transit(FeasA) {
+    if (Clock.v<Tbar) return { <0>,ones(rows(FeasA),1) };
+    if (Clock.v>Tbar) return UnChanged(FeasA);
+    return LaggedAction::Transit(FeasA);
+    }
+
+ChoiceAtTbar::IsReachable(clock) {
+    return !Prune || !Prunable(clock) || clock.v>=Tbar || v;
+    }
+
 
 /** Create a variable that tracks a one-time permanent choice.
 @param L label

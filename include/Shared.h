@@ -219,8 +219,7 @@ struct GHK   : Integration {
 /** Checks minimum Ox version and prints copyright info. **/
 class Version : Zauxiliary {
 	/** Minimum Ox Version required. @name Oxversion **/
-//	enum {MinOxVersion=621}
-	enum {MinOxVersion=701}
+	enum {MinOxVersion=700}
 	/** Current niqlow version. @name niqlowversion **/
 	enum {version=220}
 	static decl checked;

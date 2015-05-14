@@ -347,6 +347,52 @@ DP::AuxiliaryOutcomes(auxv,...) {
 		}
     N::aux = sizeof(Chi);
 	}
+
+/**Create an K+1-array of a state variable and K lags of its values.
+@param L label
+@param Target `StateVariable` to track
+@param K positive integer, number of lags to track
+@param Prune TRUE [default] if clock is finite horizon, presume all lags initialize to 0 and prune unreachable values.
+@return K+1 - array, where the first element is the Target and the rest of the lagged values
+
+@example
+Create a binary Markov process and 3 lags, add all of them to &theta;
+<pre>
+status = KLaggedState(new Markov("q",<0.9,0.2;0.1,0.8>),3));
+EndogenousStates(status);
+</pre></dd>
+**/
+DP::KLaggedState(Target,K,Prune) {
+    decl lv = new array[K+1],i;
+    lv[0] = Target;
+    for (i=1;i<K;++i) lv[i] = new LaggedState(Target.L+"."+sprint(i),lv[i-1],Prune,i-1);
+    return lv;
+    }
+
+/**Create an K-array of lagged values of an action variable.
+@param L label
+@param Target `ActionVariable` to track
+@param K positive integer, number of lags to track
+@param Prune TRUE [default] if clock is finite horizon, presume all lags initialize to 0 and prune unreachable values.
+
+@return K-array, of the lagged values of Target
+
+@example
+Create a binary choice.  Add 3 lags of it to &theta;
+<pre>
+d = new BinaryChoice("d");
+status = KLaggedState(d,3);
+EndogenousStates(status);
+</pre></dd>
+
+
+**/
+DP::KLaggedAction(Target,K,Prune){
+    decl lv = new array[K], i;
+    lv[0] = new LaggedAction(Target.L+"."+sprint(0),Target,Prune,0);
+    for (i=1;i<K;++i) lv[i] = new LaggedState(Target.L+"."+sprint(i),lv[i],Prune,i-1);
+    return lv;
+    }
 	
 
 /** The default Run() ... prints out a message. **/

@@ -425,10 +425,14 @@ struct Zvariable : SimpleJump {
 @see LaggedState, LaggedAction
 **/
 struct Lagged : NonRandom	{
-	/**Variable to track **/ const decl Target;
-	Lagged(L,Target);
+    const decl
+	/**Variable to track. **/          Target,
+    /**Prune Unreachables.**/          Prune,
+    /**Order of lag (for pruning).**/  Order;
+	Lagged(L,Target,Prune=TRUE,Order=1);
 	virtual Update();
 	virtual Transit(FeasA);	
+    virtual IsReachable(clock);
 	}
 	
 /**s&prime; = current value of another state variable &in; &eta; or &theta;.
@@ -437,10 +441,10 @@ struct Lagged : NonRandom	{
 s' = s.x
 &Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z=s.x}.
 </pre></dd>
-@see LaggedAction
+@see LaggedAction, DP::KLaggedState
 **/
 struct LaggedState : Lagged	{
-	LaggedState(L,Target);
+	LaggedState(L,Target,Prune=TRUE,Order=1);
 	virtual Transit(FeasA);	
 	}
 
@@ -449,12 +453,55 @@ struct LaggedState : Lagged	{
 <dd class="math"><pre>s' = s.a
 &Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z=s.a}.
 </pre></dd>
-@see LaggedState
+
+<DT>IsReachable</DT>
+<DD>The default initial value is <code>0</code>, so for finite horizon clocks, <code>t=0,q&gt;0</code>
+is marked unreachable.   Set <code>Prune=FALSE</code> to not prune these unreachable states automatically.</DD>
+
+@see LaggedState, DP::KLaggedAction
 **/
 struct LaggedAction : Lagged	{
-	LaggedAction(L,Target);
+	LaggedAction(L,Target,Prune=TRUE,Order=1);
 	virtual Transit(FeasA);
 	}
+
+/** Record the value of an action variable at a specified time.
+<DT>Transition:
+<dd class="math"><pre>
+s' = 0 if t &lt; Tbar
+     s.a if t=Tbar
+     s if t &gt; Tbar
+&Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z=s.a}.
+</pre></dd>
+<DT>IsReachable</DT>
+<DD>Non-zero states are trimmed as unreachable for <code>t&le; Tbar</code></DD>
+@example
+The clock must be defined and the choice variable to track created:
+<pre>
+  SetClock(NormalAging,10);
+  d = new ActionVariable("d",2);
+</pre>
+Now record the choice made at the 6th time period (t=5):
+<pre>
+  EndogenousStates(d5 = new ChoiceAtTbar("d5",d,DP::counter,5));
+</pre>
+Or, track the first four choices of d:
+<pre>
+  dvals = new array[4];
+  decl i;
+  for(i=0;i<3;++i) dvals[i] = new ChoiceAtTbar("d"+sprint(i),d,DP::counter,i);
+  EndogenousStates(dvals);
+</pre>
+</dd>
+
+@see LaggedState, DP::KLaggedAction
+**/
+struct ChoiceAtTbar :  LaggedAction {
+    const decl Clock, Tbar;
+	ChoiceAtTbar(L,Target,Clock,Tbar,Prune=TRUE);
+	virtual Transit(FeasA);
+    virtual IsReachable(clock);
+    }
 
 /**s&prime; = value of an action first period it is not 0.
 <DT>Initial condition to include in Reachable:</DT>

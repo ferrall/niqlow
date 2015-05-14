@@ -28,6 +28,6 @@ document:
 	$(COPY)  $(INC)\CFMPI.ox .
 	$(COPY)  $(INC)\MPIinterface.ox .
 	$(COPY)  $(INC)\useMPI.ox .
-	$(OXDOC) -include $(INC) -uplevel CFMPI.ox MPIinterface.ox InstallAndUse MPI_FAQ
+	$(OXDOC) -include $(INC) -uplevel CFMPI.ox MPIinterface.ox InstallAndUse MPI_FAQ GetStartedDIY
 	$(ERASE) CFMPI.ox MPIinterface.ox useMPI.ox
 	${MAKE} -C $(DOCX) tweak

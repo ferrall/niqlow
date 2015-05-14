@@ -410,6 +410,11 @@ struct DP {
 		static  SyncAct(a);
         static  SubSampleStates(SampleProportion=1.0,MinSZ=0,MaxSZ=INT_MAX);
         static  SetUpdateTime(time=AfterFixed);
+
+        static KLaggedState(Target,K,Prune=TRUE);
+        static KLaggedAction(Target,K,Prune=TRUE);
+
+
 		}
 
 

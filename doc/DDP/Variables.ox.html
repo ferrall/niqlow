@@ -1552,6 +1552,82 @@ MyModel::Initialize() {
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
 </dl>
 
+<a name="ChoiceAtTbar"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ChoiceAtTbar : <a href="Variables.ox.html#LaggedAction">LaggedAction</a> : <a href="Variables.ox.html#Lagged">Lagged</a> : <a href="Variables.ox.html#NonRandom">NonRandom</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Record the value of an action variable at a specified time.
+<DT>Transition:
+<dd class="math"><pre>
+s' = 0 if t &lt; Tbar
+     s.a if t=Tbar
+     s if t &gt; Tbar
+&Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z=s.a}.
+</pre></dd>
+<DT>IsReachable</DT>
+<DD>Non-zero states are trimmed as unreachable for <code>t&le; Tbar</code></DD>
+
+<dl><dt class="example">Example:</dt><dd class="example">The clock must be defined and the choice variable to track created:
+<pre>
+  SetClock(NormalAging,10);
+  d = new ActionVariable("d",2);
+</pre>
+Now record the choice made at the 6th time period (t=5):
+<pre>
+  EndogenousStates(d5 = new ChoiceAtTbar("d5",d,DP::counter,5));
+</pre>
+Or, track the first four choices of d:
+<pre>
+  dvals = new array[4];
+  decl i;
+  for(i=0;i<3;++i) dvals[i] = new ChoiceAtTbar("d"+sprint(i),d,DP::counter,i);
+  EndogenousStates(dvals);
+</pre>
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#LaggedState">LaggedState</a>, <a href="DP.ox.html#DP___KLaggedAction">KLaggedAction</a></dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#ChoiceAtTbar___Clock">Clock</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#ChoiceAtTbar___Tbar">Tbar</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ChoiceAtTbar___ChoiceAtTbar">ChoiceAtTbar</a></td>
+<td class="modifiers"></td>
+<td class="description">Record the value of an action variable at a given time.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ChoiceAtTbar___IsReachable">IsReachable</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ChoiceAtTbar___Transit">Transit</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#LaggedAction">LaggedAction</a>:</dt><dd><a href="Variables.ox.html#LaggedAction___LaggedAction">LaggedAction</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Lagged">Lagged</a>, <a href="Variables.ox.html#Lagged___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Order">Order</a>, <a href="Variables.ox.html#Lagged___Prune">Prune</a>, <a href="Variables.ox.html#Lagged___Target">Target</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
 <a name="Clock"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Clock : <a href="Variables.ox.html#StateBlock">StateBlock</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
@@ -2402,11 +2478,31 @@ s&prime; = current value of action or state variable.
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Lagged___Order">Order</a></td>
+<td class="modifiers">const</td>
+<td class="description">Order of lag (for pruning).</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Lagged___Prune">Prune</a></td>
+<td class="modifiers">const</td>
+<td class="description">Prune Unreachables.</td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Lagged___Target">Target</a></td>
 <td class="modifiers">const</td>
-<td class="description">Variable to track  </td>
+<td class="description">Variable to track.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Lagged___IsReachable">IsReachable</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Lagged___Lagged">Lagged</a></td>
+<td class="modifiers"></td>
+<td class="description">Takes on the value of another state or action.</td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Lagged___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
@@ -2419,7 +2515,7 @@ s&prime; = current value of action or state variable.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -2437,8 +2533,12 @@ s&prime; = value of an action variable.
 <dd class="math"><pre>s' = s.a
 &Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z=s.a}.
 </pre></dd>
+<P/>
+<DT>IsReachable</DT>
+<DD>The default initial value is <code>0</code>, so for finite horizon clocks, <code>t=0,q&gt;0</code>
+is marked unreachable.   Set <code>Prune=FALSE</code> to not prune these unreachable states automatically.</DD>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#LaggedState">LaggedState</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#LaggedState">LaggedState</a>, <a href="DP.ox.html#DP___KLaggedAction">KLaggedAction</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -2454,13 +2554,13 @@ s&prime; = value of an action variable.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___IsReachable">IsReachable</a>, <a href="Variables.ox.html#Lagged___Lagged">Lagged</a>, <a href="Variables.ox.html#Lagged___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Target">Target</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Order">Order</a>, <a href="Variables.ox.html#Lagged___Prune">Prune</a>, <a href="Variables.ox.html#Lagged___Target">Target</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
@@ -2476,7 +2576,7 @@ s' = s.x
 &Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z=s.x}.
 </pre></dd>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#LaggedAction">LaggedAction</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#LaggedAction">LaggedAction</a>, <a href="DP.ox.html#DP___KLaggedState">KLaggedState</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -2492,13 +2592,13 @@ s' = s.x
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___IsReachable">IsReachable</a>, <a href="Variables.ox.html#Lagged___Lagged">Lagged</a>, <a href="Variables.ox.html#Lagged___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Target">Target</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Order">Order</a>, <a href="Variables.ox.html#Lagged___Prune">Prune</a>, <a href="Variables.ox.html#Lagged___Target">Target</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
@@ -3186,13 +3286,13 @@ s&prime; = value of an action first period it is not 0.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#LaggedAction">LaggedAction</a>:</dt><dd><a href="Variables.ox.html#LaggedAction___LaggedAction">LaggedAction</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___IsReachable">IsReachable</a>, <a href="Variables.ox.html#Lagged___Lagged">Lagged</a>, <a href="Variables.ox.html#Lagged___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___Prunable">Prunable</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Target">Target</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Order">Order</a>, <a href="Variables.ox.html#Lagged___Prune">Prune</a>, <a href="Variables.ox.html#Lagged___Target">Target</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
@@ -5178,6 +5278,86 @@ Default realized auxililary variable, sets <code>v=0.0</code>.
 Create a binary action variable.
 
 </dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ChoiceAtTbar</span></h2>
+
+<a name="ChoiceAtTbar___ChoiceAtTbar"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ChoiceAtTbar</span></h3>
+
+<span class="declaration">ChoiceAtTbar :: ChoiceAtTbar ( L , Target , Clock , Tbar , Prune )</span>
+<dl><dd>
+Record the value of an action variable at a given time.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Target</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> to record
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Clock</td>
+<td class="description" valign="baseline">the model <a href="Variables.ox.html#Clock">Clock</a> variable
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Tbar</td>
+<td class="description" valign="baseline">clock time at which to record choice
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Prune</td>
+<td class="description" valign="baseline">TRUE [default], prune unreachable states (non-zero values before Tbar
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre></pre></dd>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="ChoiceAtTbar___Clock"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Clock</span></h3>
+
+<span class="declaration">const decl Clock [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ChoiceAtTbar___IsReachable"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">IsReachable</span></h3>
+
+<span class="declaration">virtual ChoiceAtTbar :: IsReachable ( clock )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ChoiceAtTbar___Tbar"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Tbar</span></h3>
+
+<span class="declaration">const decl Tbar [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ChoiceAtTbar___Transit"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
+
+<span class="declaration">virtual ChoiceAtTbar :: Transit ( FeasA )</span>
+<dl><dd>
+.
+
+</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Clock</span></h2>
 
 <a name="Clock___aSPstar"></a>
@@ -6250,12 +6430,58 @@ Create a discretized verison of the continuous &zeta; variable that enters the s
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Lagged</span></h2>
 
+<a name="Lagged___IsReachable"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">IsReachable</span></h3>
+
+<span class="declaration">virtual Lagged :: IsReachable ( clock )</span>
+<dl><dd>
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if not pruning or not a prunable clock or <a href="DP.ox.html#I___t">t</a> gt; <a href="Variables.ox.html#Lagged___Order">Order</a> or value gt; 0
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Lagged___Lagged"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Lagged</span></h3>
+
+<span class="declaration">Lagged :: Lagged ( L , Target , Prune , Order )</span>
+<dl><dd>
+Takes on the value of another state or action.
+
+<dl><dt class="comments">Comments:</dt><dd class="comments">Users should not create a variable of this type.  Use the derived classes <a href="Variables.ox.html#LaggedState">LaggedState</a> and <a href="Variables.ox.html#LaggedAction">LaggedAction</a>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="DP.ox.html#DP___KLaggedAction">KLaggedAction</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Lagged___Order"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Order</span></h3>
+
+<span class="declaration">const decl Order [public]</span>
+<dl><dd>
+Order of lag (for pruning).
+
+</dd></dl>
+
+<hr>
+<a name="Lagged___Prune"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Prune</span></h3>
+
+<span class="declaration">const decl Prune [public]</span>
+<dl><dd>
+Prune Unreachables.
+
+</dd></dl>
+
+<hr>
 <a name="Lagged___Target"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Target</span></h3>
 
 <span class="declaration">const decl Target [public]</span>
 <dl><dd>
-Variable to track
+Variable to track.
 
 </dd></dl>
 
@@ -6280,7 +6506,7 @@ Variable to track
 <a name="LaggedAction___LaggedAction"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">LaggedAction</span></h3>
 
-<span class="declaration">LaggedAction :: LaggedAction ( L , Target )</span>
+<span class="declaration">LaggedAction :: LaggedAction ( L , Target , Prune , Order )</span>
 <dl><dd>
 Create a variable that tracks the previous value of action variable.
 
@@ -6296,10 +6522,16 @@ Create a variable that tracks the previous value of action variable.
 <td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> to track.
 </td>
 </tr>
+<tr>
+<td class="declaration" valign="baseline">Prune</td>
+<td class="description" valign="baseline">TRUE [default]: prune non-zero states at t=0 if finite horizon detected.
+</td>
+</tr>
 </table>
 </dd>
 <dt class="example">Example:</dt><dd class="example"><pre>wrked = new LaggedAction("Worked Last Year",work);</pre>
 </dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___KLaggedAction">KLaggedAction</a></dd>
 </dl>
 </dd></dl>
 
@@ -6317,7 +6549,7 @@ Create a variable that tracks the previous value of action variable.
 <a name="LaggedState___LaggedState"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">LaggedState</span></h3>
 
-<span class="declaration">LaggedState :: LaggedState ( L , Target )</span>
+<span class="declaration">LaggedState :: LaggedState ( L , Target , Prune , Order )</span>
 <dl><dd>
 Create a variable that tracks the previous value of another state variable.
 
@@ -6333,10 +6565,22 @@ Create a variable that tracks the previous value of another state variable.
 <td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a> to track.
 </td>
 </tr>
+<tr>
+<td class="declaration" valign="baseline">Prune</td>
+<td class="description" valign="baseline">[optional default=TRUE] prune unreachable states automatically if finite horizon
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Order</td>
+<td class="description" valign="baseline">[optional default=1] order of the lag (how many periods to prune)
+<P/>
+</td>
+</tr>
 </table>
 </dd>
-<dt class="example">Example:</dt><dd class="example"><pre>prevoccup = new LaggedState("Prev",occup);</pre>
+<dt class="example">Example:</dt><dd class="example"><pre>prevoccup = new LaggedState("Prev",occup);</pre></DD>
 </dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___KLaggedState">KLaggedState</a></dd>
 </dl>
 </dd></dl>
 
