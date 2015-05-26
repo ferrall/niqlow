@@ -1,4 +1,4 @@
-#import "Shared"
+#import "DDPShared"
 
 /** Base Class for variables related to outcomes.
 Auxiliary variables are typically functions of the state and action vectors that would be observed in the data.

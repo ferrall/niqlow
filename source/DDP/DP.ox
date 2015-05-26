@@ -2,48 +2,17 @@
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 
-/** .
-@internal
-**/
-Hooks::DoNothing() { }
-
-/** Empty the hooks (delete first if already created). **/
-Hooks::Reset() {
-    if (isarray(hooks)) delete hooks;
-    hooks = new array[NHooks];
-    decl h;
-    for(h=0;h<NHooks;++h) hooks[h] = {};
-    }
-
-/**  Add a static function or method to a hook.
-@param time integer tag `HookTimes`, point in time (where in model solution) to call the routine.
-@param proc <em>static</em> function or method to call.
-@example
-Say hello after every Bellman iteration is complete:
-<pre>
- sayhello() { print("hello"); }
- Hooks::Add(PostGSolve,sayhello);
-</pre>
-</dd>
-
-@see HookTimes, DP::SetUpdateTime
-**/
-Hooks::Add(time,proc) {
-    if ( time<0 || time>=NHooks ) oxrunerror("Invalid hook time.  See Hooks and HookTimes");
-    if ( !isfunction(proc) ) oxrunerror("proc must be static function or method AND should return an integer value");
-    hooks[time] |= proc;
-    if (time==GroupCreate) Flags::AllGroupsExist = FALSE;
-    }
-
-/**  Call all the methods on the hook.
-@param ht `HookTimes`
-@internal
-**/
-Hooks::Do(ht) {
-    decl p, rv=<>;
-    h=hooks[ht];
-    foreach(p in h) rv |= p();
-    return rv;
+/** Called by CreateSpaces. **/
+I::Initialize() {
+    decl i;
+    OO=zeros(1,N::S);
+	for(i=LeftSV;i<DSubSpaces;++i) OO |= DP::SS[i].O;
+	all = new matrix[rows(OO)][1];
+   	MxEndogInd = DP::SS[onlyendog].size-1;
+	decl lo = DP::SS[bothexog].left, hi = DP::SS[bothexog].right;	
+	MedianExogState= (N::All[lo:hi]-1)/2;
+	MESind = OO[bothexog][lo:hi]*MedianExogState;
+	MSemiEind = OO[onlysemiexog][lo:hi]*MedianExogState;
     }
 
 /** Tracks information about a subvector of the state vector. **/
@@ -95,32 +64,6 @@ SubSpace::ActDimensions()	{
 	if (D>1) O |= S[0].C[:D-2]';
 	right = rows(O)-1;
 	}
-
-/** Sets and stores all the state indices, called by `Task::loop` and anything else that directly sets the state.
-@param state current state vector
-@param group TRUE if the group indices should be set as well.
-**/
-I::Set(state,group) {
-	all[] = OO*state;
-    if (group) {
-	   g = int(all[bothgroup]);
-	   f = int(all[onlyfixed]);
-	   r = int(all[onlyrand]);
-       }
-    }
-
-/** Called by CreateSpaces. **/
-I::Initialize() {
-    decl i;
-    OO=zeros(1,N::S);
-	for(i=LeftSV;i<DSubSpaces;++i) OO |= DP::SS[i].O;
-	all = new matrix[rows(OO)][1];
-   	MxEndogInd = DP::SS[onlyendog].size-1;
-	decl lo = DP::SS[bothexog].left, hi = DP::SS[bothexog].right;	
-	MedianExogState= (N::All[lo:hi]-1)/2;
-	MESind = OO[bothexog][lo:hi]*MedianExogState;
-	MSemiEind = OO[onlysemiexog][lo:hi]*MedianExogState;
-    }
 
 /** Reset a group.
 This resets `Group::Ptrans`[&Rho;(&theta;&prime;;&theta;)] and it synch &gamma;
@@ -208,7 +151,7 @@ DP::StorePalpha() {
 
 /** Add state variables or blocks to a subvector of the overall state vector.
 @param SubV	the subvector to add to.
-@param va state variable or block or array of state variables and blocks
+@param va `StateVariable` or `ActionVariable` or `StateBlock` or array variables and blocks (nested arrays of these things okay but not nested StateBlocks)
 @comment User should typically not call this directly
 @see StateVariable, DP::Actions, DP::EndogenousStates, DP::ExogenousStates, DP::SemiExogenousStates, DP::GroupVariables
 **/
@@ -218,6 +161,10 @@ DP::AddStates(SubV,va) 	{
 	if (!isarray(SubVectors)) oxrunerror("Error: can't add states before calling Initialize()");
 	if (isclass(va,"Discrete")) va = {va};
 	for(i=0;i<sizeof(va);++i)	{
+        if (isarray(va[i])) {
+            AddStates(SubV,va[i]);
+            continue;
+            }
 		if (StateVariable::IsBlock(va[i])) {
 			for (j=0;j<va[i].N;++j) {
 				if (StateVariable::IsBlock(va[i].Theta[j])) oxrunerror("nested state blocks not allowed");
@@ -935,7 +882,8 @@ CreateTheta::picked() {
 FindReachables::Run(g) {
     decl v, h=DP::SubVectors[endog];
     curind=I::all[tracking];
-    foreach (v in h) if (!(th = v->IsReachable(DP::counter))) return;
+    Flags::Prunable = isclass(counter,"Aging")||isclass(counter,"Mortality") || (isclass(counter,"Longevity")&&(I::t<N::T-2));
+    foreach (v in h) if (!(th = v->IsReachable())) return;
 	if (isclass(th = userReachable(),"Bellman")) {
         N::Reached(curind);
         delete th;
@@ -946,7 +894,7 @@ FindReachables::Run(g) {
 **/
 CreateTheta::Run(g) {
     decl v, h=DP::SubVectors[endog];
-    foreach (v in h) if (!(th = v->IsReachable((DP::counter)))) return;
+    foreach (v in h) if (!(th = v->IsReachable())) return;
 	if (isclass(th = userReachable(),"Bellman")) {
         curind=I::all[tracking];
 		th->Bellman(state,picked());
@@ -1450,6 +1398,13 @@ Store everthing to a matrix without printing to the screen:
    decl av;
    &vellip;
    DPDebug::outAllV(FALSE,&av);
+</pre>
+If after solving the model you want to save the output table in an external file with labels for the columns use Ox's <code>savemat()</code>
+routine and `DPDebug::SVlabels`:
+<pre>
+   &vellip;
+   meth->Solve();
+   savemat("v.dta",av,DPDebug::SVlabels);
 </pre>
 Print to screen only highest-probability choice index (not all probabilities) for non-terminal states with a real choice:
 <pre>

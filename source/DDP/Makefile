@@ -9,11 +9,11 @@ vpath %.h $(INC)
 vpath %.oxo $(INC)
 vpath %.ox.html ../../doc/DDP
 
-varsrc := Shared. ActionVariable. StateVariable. Clock. TimeInvariant. AuxiliaryValues.
+varsrc := Shared. DDPShared. ActionVariable. StateVariable. Clock. TimeInvariant. AuxiliaryValues.
 varobj = $(varsrc:.=.oxo)
 dppsrc := DP. Bellman. Methods. Data.
 dppobj = $(dppsrc:.=.oxo)
-dpsrc := Variables.
+dpsrc := DDPShared. Variables.
 dpobj = $(dpsrc:.=.oxo)
 
 xtradoc = DynProg GetStarted DDP.ox ../Shared/Help $(dpsrc:.=.ox) $(dppsrc:.=.ox)
@@ -33,6 +33,7 @@ clean:
 	$(info $(CURDIR))
 	$(ERASE) $(INC)/DDP.oxo
 	$(ERASE) $(INC)/DP.oxo
+	$(ERASE) $(INC)/DDPShared.oxo
 	$(ERASE) $(INC)/AuxiliaryValues.oxo
 	$(ERASE) $(INC)/StateVariable.oxo
 	$(ERASE) $(INC)/Variables.oxo

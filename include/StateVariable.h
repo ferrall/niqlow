@@ -1,4 +1,4 @@
-#import "Shared"
+#import "DDPShared"
 /* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
 
 		/** . elements of array returned by `StateVariable::Transit` @name StateTrans **/
@@ -16,10 +16,9 @@ struct StateVariable : Discrete	{
 	MakeTerminal(TermValues);
 	static  IsBlock(sv);
 	static  IsBlockMember(sv);		
-    static  Prunable(clock);
 	virtual Transit(FeasA);
 	virtual UnChanged(FeasA);
-    virtual IsReachable(clock=0);
+    virtual IsReachable();
     virtual Check();
     virtual myAV();
 	}
@@ -208,7 +207,7 @@ class Forget : ActionTriggered {
     const decl pstate;
     Forget(b,pstate,rval=0);
     virtual Transit(FeasA);
-    virtual IsReachable(clock);
+    virtual IsReachable();
     }
 
 /** When the trigger value returns TRUE this state freezes at its current value.
@@ -397,7 +396,7 @@ struct RandomUpDown : Random	{
     decl fp;
 	RandomUpDown(L,N,fPi);
 	virtual Transit(FeasA);
-    virtual IsReachable(clock);
+    virtual IsReachable();
 	}
 	
 
@@ -432,7 +431,7 @@ struct Lagged : NonRandom	{
 	Lagged(L,Target,Prune=TRUE,Order=1);
 	virtual Update();
 	virtual Transit(FeasA);	
-    virtual IsReachable(clock);
+    virtual IsReachable();
 	}
 	
 /**s&prime; = current value of another state variable &in; &eta; or &theta;.
@@ -483,7 +482,8 @@ The clock must be defined and the choice variable to track created:
 </pre>
 Now record the choice made at the 6th time period (t=5):
 <pre>
-  EndogenousStates(d5 = new ChoiceAtTbar("d5",d,DP::counter,5));
+  EndogenousStates(d5 = new ChoiceAt
+  Tbar("d5",d,DP::counter,5));
 </pre>
 Or, track the first four choices of d:
 <pre>
@@ -497,10 +497,10 @@ Or, track the first four choices of d:
 @see LaggedState, DP::KLaggedAction
 **/
 struct ChoiceAtTbar :  LaggedAction {
-    const decl Clock, Tbar;
-	ChoiceAtTbar(L,Target,Clock,Tbar,Prune=TRUE);
+    const decl Tbar;
+	ChoiceAtTbar(L,Target,Tbar,Prune=TRUE);
 	virtual Transit(FeasA);
-    virtual IsReachable(clock);
+    virtual IsReachable();
     }
 
 /**s&prime; = value of an action first period it is not 0.
@@ -531,7 +531,7 @@ struct Counter : NonRandom  {
     decl Warned;
 	Counter(L,N,Target,ToTrack,Reset,Prune);
 	virtual Transit(FeasA);
-    virtual IsReachable(clock);
+    virtual IsReachable();
 	}
 
 /**	 Counts periods value(s) of target state <em>s.x</em> have occurred.

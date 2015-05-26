@@ -102,7 +102,7 @@ StateVariable::UnChanged(FeasA) { return { matrix(v), ones(rows(FeasA),1) }; }
 Most derived classes will not provide a replacement.  Examples that do (or could) are `Forget`
 augmented state variables; `ActionAccumulator` and `Duration` in normal aging models.
 **/
-StateVariable::IsReachable(clock) { return TRUE; }
+StateVariable::IsReachable() { return TRUE; }
 
 /** Create an equally likely discrete Exogenous variable.
 @param L string, label
@@ -289,7 +289,7 @@ Forget::Transit(FeasA) {
 /**  This routine trims the state space of values that can't be reached because they are forgotten.
 @return TRUE
 **/
-Forget::IsReachable(clock) {
+Forget::IsReachable() {
     Synch();
     return !pstate.v || (v==rval);  //Not forgotten or at reset value
     }
@@ -444,8 +444,8 @@ RandomUpDown::RandomUpDown(L,N,fPi)	{
 	this.fPi = fPi;
 	}
 	
-RandomUpDown::IsReachable(clock) {
-    return !( Prunable(clock)&& v>clock.v );
+RandomUpDown::IsReachable() {
+    return !( Flags::Prunable && v>I::t );
     }
 
 /** .
@@ -518,8 +518,8 @@ Lagged::Update()	{	actual = Target.actual;	}
 /**
 @return TRUE if not pruning or not a prunable clock or `I::t` gt; `Lagged::Order` or value gt; 0
 **/
-Lagged::IsReachable(clock) {
-    return !Prune || !Prunable(clock) || (clock.v<Order) || v;
+Lagged::IsReachable() {
+    return !Prune || !Flags::Prunable || (I::t<Order) || v;
     }
 
 /** Create a variable that tracks the previous value of another state variable.
@@ -567,29 +567,25 @@ LaggedAction::Transit(FeasA)	{
 /**  Record the value of an action variable at a given time.
 @param L label
 @param Target `ActionVariable` to record
-@param Clock the model `Clock` variable
 @param Tbar clock time at which to record choice
 @param Prune TRUE [default], prune unreachable states (non-zero values before Tbar
 
 @example
 <pre></pre></dd>
 **/
-ChoiceAtTbar::ChoiceAtTbar(L,Target,Clock,Tbar,Prune) {
+ChoiceAtTbar::ChoiceAtTbar(L,Target,Tbar,Prune) {
     LaggedAction(L,Target,Prune);
-    if (!isclass(Clock,"Clock")) oxrunerror("Clock is not a Clock Block. SetClock() before creating ChoiceAtTbar");
-    if (!Prunable(Clock)) oxwarning("Storing choice at a time in a non-standard Finite Horizon model");
-    this.Clock = Clock;
     this.Tbar = Tbar;
     }
 
 ChoiceAtTbar::Transit(FeasA) {
-    if (Clock.v<Tbar) return { <0>,ones(rows(FeasA),1) };
-    if (Clock.v>Tbar) return UnChanged(FeasA);
+    if (I::t<Tbar) return { <0>,ones(rows(FeasA),1) };
+    if (I::t>Tbar) return UnChanged(FeasA);
     return LaggedAction::Transit(FeasA);
     }
 
-ChoiceAtTbar::IsReachable(clock) {
-    return !Prune || !Prunable(clock) || clock.v>=Tbar || v;
+ChoiceAtTbar::IsReachable() {
+    return !Prune || !Flags::Prunable || I::t>Tbar || !v;
     }
 
 
@@ -669,16 +665,12 @@ StateCounter::Transit(FeasA)	{
 	return { matrix(v+1) , ones(rows(FeasA),1) };
     }
 
-StateVariable::Prunable(clock) {
-    return isclass(clock,"Aging")||isclass(clock,"Mortality") || (isclass(clock,"Longevity")&&(clock.v<clock.N-2));
-    }
-
 /**  Trims the state space if the clock is exhibits aging, assuming that the counter is initialized
 as 0.
 @param clock the model's clock block
 **/
-Counter::IsReachable(clock) {
-    if (Prune && Prunable(clock) && v>clock.v) {
+Counter::IsReachable() {
+    if (Prune && Flags::Prunable && v>I::t) {
             if (!Warned) {
                oxwarning("A StateCounter variable detects finite horizon and assumes initial count of 0. Values bigger than t are unreachable. To avoid this behaviour send Prune=FALSE when defining the counter.");
                Warned = TRUE;

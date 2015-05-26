@@ -178,7 +178,7 @@ Correlation::Correlation(L,v0)	{ Bounded(L,-1,1,v0); 	}
 
 /**Create a new block of related Parameters.
 @param L string Label for block
-@... a list of parameters to add to the block<br>
+@param ... a list of parameters to add to the block<br>
      if only one argument is supplied it should be an array of parameters.
 **/
 ParameterBlock::ParameterBlock(L, ...) {

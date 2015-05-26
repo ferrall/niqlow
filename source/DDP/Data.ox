@@ -1109,7 +1109,7 @@ ObjToTrack::print() {
 /** Objects to track mean values over the distribution.
 @param LorC  UseLabel: use object label to match to column.<br>NotInData [default] unmatched to data.<br>integer: column in data set<br>string: column label
 @param mom1 array or single action, state or auxiliary variable.
-@... others of the same
+@param ... others of the same
 This return can be called more than once, but once `PanelPrediction::Predict`() has been called no
 more objects are added to the list.
 **/

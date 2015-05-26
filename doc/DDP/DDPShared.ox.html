@@ -1,0 +1,1227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>DDPShared.ox - Derived Dynamic Programs</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">DDPShared.ox</span></h1>
+
+Items shared by Variable and DP classes.
+<P/>
+<a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in DP.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
+<P/>
+The objects that represent action and state variables are designed to be independent of the <a href="DP.ox.html#DP">DP</a> class, which along with derived classes represents the state spaces, the model, solution methods, and output. 
+<P/>
+The DP class relies on (that is, <code>imports</code>) the Variable classes, so they cannot in turn depend on the DP class.
+<P/>
+This file contains information about the DP model that is (usually) set or determined by methods of <a href="DP.ox.html#DP">DP</a> but that may be required by <a href="Variables.ox.html#StateVariable">StateVariable</a> classes.  
+<P/>
+For example, the transit functions for a state variable can rely on the current clock setting (<code>t</code>) even though it cannot know about the clock itself (which is stored in <a href="DP.ox.html#DP___counter">counter</a>).
+<P/>
+<DT>All of the data defined in DDPShared is <code>statci</code></DT>
+<P/>
+<OL class="body">
+<LI><a href="#ZAux">Flags, Indices, Counts and Hooks</a></LI>
+<P/>
+<a name="Flags"><LI>Flags: <a href="DDPShared.ox.html#Flags">Flags</a></LI></a>
+<DT>The <a href="DDPShared.ox.html#Flags">Flags</a> class contains  0/1 indicators for the status of the model.  </DD>
+<DD>The user can access the flag values but should not change them directly.  (However, they are not <em>protected</em> so user code could accidentally set a value and create an difficult-to-find bug.)</DD>
+<DT>There are flags the user can set, but this should be done using the DP methods cross-listed under <a href="DDPShared.ox.html#Flags">Flags</a></DT>
+<DT>Ox and <span class="n">niqlow</span> both use <code>TRUE</code> and <code>FALSE</code> as aliases for the integer values 0 and 1.</DT>
+<LI>Indices : <a href="DDPShared.ox.html#I">I</a></LI>
+<DT>Indices are integer values that track dynamically changing values related to various state spaces.</DT>
+<DT>User code access them but should <b>never</b> modify indices</DT>
+<P/>
+<LI>Model Dimensions and Counts: <a href="DDPShared.ox.html#N">N</a></DT>
+<DT>Counts are dimensions of the problem stored as static elements of <a href="DDPShared.ox.html#N">N</a>.</DD>
+<P/>
+<LI>Hooks: <a href="DDPShared.ox.html#Hooks">Hooks</a></LI>
+<P/>
+<LI>>Spaces </LI>
+<P/>
+<LI>Subspaces</LI>
+<P/>
+<a name="auto"><hr><h1>Documentation of  Items Defined in DDPShared.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
+
+<a name="global"></a>
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global enumerations</span></h2>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#DataColumnTypes">DataColumnTypes</a></td>
+<td class="modifiers"></td>
+<td class="description">Kinds of variables in data sets.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#HookTimes">HookTimes</a></td>
+<td class="modifiers"></td>
+<td class="description">Points in the solution process that users can insert <em>static</em> functions or methods.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#SmoothingMethods">SmoothingMethods</a></td>
+<td class="modifiers"></td>
+<td class="description">Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#StateTypes">StateTypes</a></td>
+<td class="modifiers"></td>
+<td class="description">Categories of state variables.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#SubSpaces">SubSpaces</a></td>
+<td class="modifiers"></td>
+<td class="description">Groups of continguous <a href="DDPShared.ox.html#SubVectorNames">SubVectorNames</a>.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#SubVectorNames">SubVectorNames</a></td>
+<td class="modifiers"></td>
+<td class="description">Vectors of state variables.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#UpdateTimes">UpdateTimes</a></td>
+<td class="modifiers"></td>
+<td class="description">Point in solving when updating of parameters and transitions needs to occur.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#Vspace">Vspace</a></td>
+<td class="modifiers"></td>
+<td class="description">.</td>
+</tr>
+</table>
+
+<a name="Alpha"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Alpha : <a href="DDPShared.ox.html#DDPauxiliary">DDPauxiliary</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
+
+Aspects of the Action Space.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a></dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___A">A</a></td>
+<td class="modifiers">static</td>
+<td class="description">List of <em>actual</em> feasible action matrices (AV values),
+		automatically updated.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___Count">Count</a></td>
+<td class="modifiers">static</td>
+<td class="description">(vector) Number of states for each A set.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___List">List</a></td>
+<td class="modifiers">static</td>
+<td class="description">list of feasible action matrices (CV) values.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___Matrix">Matrix</a></td>
+<td class="modifiers">static</td>
+<td class="description">matrix of all action vectors, A.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___Sets">Sets</a></td>
+<td class="modifiers">static</td>
+<td class="description">List of Feassible Action indicators (column vector
+            of 0s and 1s).</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___Initialize">Initialize</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+</table>
+
+<a name="DDPauxiliary"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DDPauxiliary : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
+
+Container for auxiliary classes in in DDP but not elsewhere (directly).
+
+<a name="Flags"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Flags : <a href="DDPShared.ox.html#DDPauxiliary">DDPauxiliary</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
+
+Indicators related to the DP problem.
+All elements are static and now object is created.
+A user's code can reference these variables but should never change them.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___AllGroupsExist">AllGroupsExist</a></td>
+<td class="modifiers">static</td>
+<td class="description">Integer TRUE (default) means all possible combination of fixed and random groups exist
+            in the group space &Gamma; and should be created.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___HasBeenUpdated">HasBeenUpdated</a></td>
+<td class="modifiers">static</td>
+<td class="description">UpdateVariables() has been called.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___HasFixedEffect">HasFixedEffect</a></td>
+<td class="modifiers">static</td>
+<td class="description">&Gamma; already includes fixed effects  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___HasKeptZ">HasKeptZ</a></td>
+<td class="modifiers">static</td>
+<td class="description">Includes a kept continuous state variable.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___IsErgodic">IsErgodic</a></td>
+<td class="modifiers">static</td>
+<td class="description">create space to store &Rho;*  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___onlyDryRun">onlyDryRun</a></td>
+<td class="modifiers">static</td>
+<td class="description">Do not create &Theta;, but do everything else.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___Prunable">Prunable</a></td>
+<td class="modifiers">static</td>
+<td class="description">TRUE if clock is finite horizon so automatic pruning
+            can apply.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___setPstar">setPstar</a></td>
+<td class="modifiers">static</td>
+<td class="description">set &Rho;*(<code>&alpha;</code>|&hellip;)
+            in Bellman  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___StorePA">StorePA</a></td>
+<td class="modifiers">static</td>
+<td class="description">store &Alpha.D x &Theta.D matrix
+			of choice probabilities  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___ThetaCreated">ThetaCreated</a></td>
+<td class="modifiers">static</td>
+<td class="description">CreateSpaces() has been called or not.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a></td>
+<td class="modifiers">static</td>
+<td class="description">Indicators for when transit update occurs.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___UseStateList">UseStateList</a></td>
+<td class="modifiers">static</td>
+<td class="description">.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___Reset">Reset</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+</table>
+
+<a name="Hooks"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Hooks : <a href="DDPShared.ox.html#DDPauxiliary">DDPauxiliary</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
+
+Manages an array (stored in <a href="DDPShared.ox.html#Hooks___hooks">hooks</a>) that holds user-defined static functions/methods to call at different points in the solution process.
+<P/>
+Hooks are places in the DP solution process where the user can add code to be carried out.  This is done using the <a href="DDPShared.ox.html#Hooks___Add">Add</a>()
+procedure.  Hooks are a list of procedures to be called so more than one procedure can be carried out.
+<P/>
+<a href="DDPShared.ox.html#Hooks___Reset">Reset</a>() will re-initialize hooks so that you can change what is done between one solution method and the next.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#HookTimes">HookTimes</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Hooks___h">h</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Hooks___hooks">hooks</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Hooks___Add">Add</a></td>
+<td class="modifiers">static</td>
+<td class="description">Add a static function or method to a hook.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Hooks___Reset">Reset</a></td>
+<td class="modifiers">static</td>
+<td class="description">Empty the hooks (delete first if already created).</td>
+</tr>
+</table>
+
+<a name="I"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">I : <a href="DDPShared.ox.html#DDPauxiliary">DDPauxiliary</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
+
+Dynamically updated indices into state spaces.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#I___all">all</a></td>
+<td class="modifiers">static</td>
+<td class="description">vector of current indices into spaces.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#I___f">f</a></td>
+<td class="modifiers">static</td>
+<td class="description">index of current fixed group.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#I___g">g</a></td>
+<td class="modifiers">static</td>
+<td class="description">index of current &gamma; group.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#I___OO">OO</a></td>
+<td class="modifiers">static</td>
+<td class="description">matrix of offsets.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#I___r">r</a></td>
+<td class="modifiers">static</td>
+<td class="description">index of current random group.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#I___t">t</a></td>
+<td class="modifiers">static</td>
+<td class="description">Current value of t.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#I___Initialize">Initialize</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#I___Set">Set</a></td>
+<td class="modifiers">static</td>
+<td class="description">Sets and stores all the state indices, called by <a href="DP.ox.html#Task___loop">loop</a> and anything else that directly sets the state.</td>
+</tr>
+</table>
+
+<a name="Labels"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Labels : <a href="DDPShared.ox.html#DDPauxiliary">DDPauxiliary</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
+
+Contains arrays of labels for variables.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Labels___V">V</a></td>
+<td class="modifiers">static</td>
+<td class="description">arrays of labels of variable objects.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Labels___Vprt">Vprt</a></td>
+<td class="modifiers">static</td>
+<td class="description">abbreviated labels of variable objects.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Labels___Initialize">Initialize</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+</table>
+
+<a name="N"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">N : <a href="DDPShared.ox.html#DDPauxiliary">DDPauxiliary</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
+
+Numbers and sizes of vectors related to the dynamic program.
+All elements are static and now object is created.
+A user's code can reference these variables but should never change them.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___A">A</a></td>
+<td class="modifiers">static</td>
+<td class="description">&Alpha;.N=rows(ActionMatrix), N unconstrained actions.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___AA">AA</a></td>
+<td class="modifiers">static</td>
+<td class="description">rows of feasible action sizes.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___All">All</a></td>
+<td class="modifiers">static</td>
+<td class="description">uninitialized state.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___Approximated">Approximated</a></td>
+<td class="modifiers">static</td>
+<td class="description">Number of states approximated (not subsampled).</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___aux">aux</a></td>
+<td class="modifiers">static</td>
+<td class="description">number of auxiliary variables, sizeof of <a href="DP.ox.html#DP___Chi">Chi</a>  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___Av">Av</a></td>
+<td class="modifiers">static</td>
+<td class="description">columns(ActionMatrix), action variables  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___F">F</a></td>
+<td class="modifiers">static</td>
+<td class="description">number of fixed effect groups.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___G">G</a></td>
+<td class="modifiers">static</td>
+<td class="description">number of groups, &Gamma;.D  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___J">J</a></td>
+<td class="modifiers">static</td>
+<td class="description">Number of different action sets.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___MaxSZ">MaxSZ</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___MinSZ">MinSZ</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___Options">Options</a></td>
+<td class="modifiers">static</td>
+<td class="description">vector of sizes of feasible action sets.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___R">R</a></td>
+<td class="modifiers">static</td>
+<td class="description">number of random groups  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___S">S</a></td>
+<td class="modifiers">static</td>
+<td class="description">number of all state variables.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___T">T</a></td>
+<td class="modifiers">static</td>
+<td class="description">counter.t.N, the decision horizon.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___TerminalStates">TerminalStates</a></td>
+<td class="modifiers">static</td>
+<td class="description">Count of reachable states.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___Initialize">Initialize</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___print">print</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___Reached">Reached</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___Reset">Reset</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___Sizes">Sizes</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___Subsample">Subsample</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global </span></h2>
+
+<table class="enum_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><a name="DataColumnTypes"></a>DataColumnTypes</td>
+<td class="description">Kinds of variables in data sets.
+</td>
+<td class="elements">idvar, avar, svar, auxvar, NColumnTypes</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><a name="HookTimes"></a>HookTimes</td>
+<td class="description">Points in the solution process that users can insert <em>static</em> functions or methods.
+<P/>
+<table class="enum_table" valign="top">
+<tr><td valign="top"><code>PreUpdate</code></td><tD>Called by <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a>().  The point this occurs depends on <a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a></tD></tr>
+<tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::<a href="Methods.ox.html#RandomSolve___Run">Run</a>()</code> after a call to <a href="Methods.ox.html#Method___GSolve">GSolve</a>() </tD></tr>
+<tr><td valign="top"><code>PostRESolve</code> </td><tD>Called by <code>FixedSolve::<a href="Methods.ox.html#FixedSolve___Run">Run</a>()</code> after all random effects have been solved. </tD></tr>
+<tr><td valign="top"><code>PostFESolve</code></td><tD>Called by <a href="Methods.ox.html#Method___Solve">Solve</a>() after all fixed effect groups have been solved.</tD></tr>
+<tr><td valign="top"><code>GroupCreate</code></td><tD>Called by the task that sets up the group space Gamma (&Gamma;) before creation
+of each separate group. Your function should return TRUE if the the group should be created.</tD></tr>
+</table>
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#Hooks">Hooks</a>, <a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a></dd>
+</dl></td>
+<td class="elements">PreUpdate, PostGSolve, PostRESolve, PostFESolve, GroupCreate, NHooks</td>
+</tr>
+<tr class="even">
+<td class="declaration"><a name="SmoothingMethods"></a>SmoothingMethods</td>
+<td class="description">Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.
+         <DT>NoSmoothing</DT>
+         <DD class="disp">Optimal choices are equally likely, sub-optimal choices have zero choice
+         probability:
+            <pre>
+            <span class="expressions">\(n^\star = \)</span> number of feasible choices in <span class="expressions">\(\arg\max\ v(\alpha;\theta)\)</span>.
+            <span class="expressions">\(P^\star (\alpha;\theta) = I\left\{\alpha \in \arg\max_{\alpha}\ v(\alpha;\theta)\right\} / n^\star\)</span>
+            </pre>
+            Note:  exogenous (&epsilon;) and semi-exogenous (&eta;) state variables are allowed but they
+            are suppressed in the notation for readibility.</DD>
+         <DT>LogitKernel</DT>
+         <DD>
+         <pre>&Rho;* = exp{&rho;(v(&alpha;)-V)}/&Sigma;<sub>a</sub>exp{&rho;(v(a)-V)}
+              v*(&alpha;) = exp[&rho;(v(&alpha;,&epsilon;,&eta;&theta;)-V(&epsilon;,&eta;,&theta;) )]	// &rho;
+             &Rho;*(&alpha;;&epsilon;,&eta;&theta;) = v*(&alpha;) / &Sum;<sub>&alpha;'&in;A(&theta;) v*(&alpha;')</sub>
+         </pre></DD>
+         <DT>GaussKernel</DT><DD></DD>
+</td>
+<td class="elements">NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><a name="StateTypes"></a>StateTypes</td>
+<td class="description">Categories of state variables.	
+            These categories are used mainly for summarizing the model.
+</td>
+<td class="elements">NONRANDOMSV, RANDOMSV, COEVOLVINGSV, AUGMENTEDV, TIMINGV, TIMEINVARIANTV, NStateTypes</td>
+</tr>
+<tr class="even">
+<td class="declaration"><a name="SubSpaces"></a>SubSpaces</td>
+<td class="description">Groups of continguous <a href="DDPShared.ox.html#SubVectorNames">SubVectorNames</a>.
+        <DT>Explanation</DT>
+        <dd>Many aspects of a model solution or application require processing more than one
+        of the vector types organized by <a href="DDPShared.ox.html#SubVectorNames">SubVectorNames</a>.  In essentially all
+        such tasks the vectors to be processed are next to each other in the order they
+        are stored in <a href="DP.ox.html#DP___S">S</a>. </DD>
+        <DD>The different sets of vectors that might be needed to carry out a task are
+        then group into a range of elements of the sub vector list.  </DD>
+        <DD>Different ranges of subvectors are represented as objects of the <a href="DP.ox.html#SubSpace">SubSpace</a> class.
+        Subspace information is somewhat similar to the information in <a href="DP.ox.html#Space">Space</a>, and neither
+        class stores the state variables themselves.</DD>
+        <DD>Many of these ranges consist of only one vector.  They are the ones that
+        have <code>only</code> in their name.  For example, <code>onlyexog</code>
+        is the subspace that consists of only the <code>endog</code> space (the &epsilon; vector
+        in the mathematical description.).</DD>
+        <DD>The table below only describes the subspaces that are not the same as a vector.</dd>
+        <table class="enum_table">
+        <tr><td valign="top">bothexog</td><td>All state variables that either exogenous
+        or semi-exogenous.  That is, mathematically it is the concatentation of &epsilon; and &eta;</td></tr>
+        <tr><td valign="top">tracking</td><td>All state variables that are required for tracking
+        results of the model solution.  In the model this is simply &theta; again, but internally
+        it is both the <code>endog</code> and <code>clock</code> vectors</td>, except only the leftmost
+        element of the clock (the actual <em>t</em> variable) is included.  This avoids storing
+        unnecessary information about <em>t'</em>.</tr>
+        <tr><td valign="top">iterating</td><td>State variables needed when iterating on
+        Bellman's equation.  This subspace includes all elements of the clock block.</td></tr>
+        <tr><td valign="top">bothgroup</td><td>The full group vector &gamma;, concatenating
+        the <code>rgroup</code> and <code>fgroup</code> spaces.</td></tr>
+<P/>
+        </table>
+</td>
+<td class="elements">onlyacts, onlyexog, onlysemiexog, bothexog, onlyendog, tracking, onlyclock, allstates, iterating, onlyrand, onlyfixed, bothgroup, DSubSpaces</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><a name="SubVectorNames"></a>SubVectorNames</td>
+<td class="description">Vectors of state variables.
+        <DT>Explanation</DT>
+        <DD>Typically the user does not need to use these names unless building a new solution method
+        or similar core programming.  This information is for those curious about how the underlying code
+        is organized.</DD>
+        <DD>In the mathematical description of a <span class="n">DDP</span> model, there are several
+        <em>vectors</em> of variables.  These variables are represented by objects in the model
+        and the overall list of variable objects added to the model is stored in <a href="DP.ox.html#DP___States">States</a>.</dd>
+        <DD>The vectors themselves are lists (<code>oxarray</code>s) of objects which store
+        store a pointer to (not a separate copy of) the state variables in <a href="DP.ox.html#DP___States">States</a>.
+        This list of lists of variables is stored in <a href="DP.ox.html#DP___SubVectors">SubVectors</a>.</DD>
+        <DD>To get things done the aspects of the separate state variables has to be combined
+        into information about the vector they belong.  The list <a href="DP.ox.html#DP___SubVectors">SubVectors</a> itself cannot
+        capture that aggregate information.</DD>
+        <DD>This aggreate information about the variables in a vector include how many endogenous
+        state variables there are and how many points in the space they create. This information
+        is constructed by <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() for each vector and storedin objects of the <a href="DP.ox.html#Space">Space</a> class.
+        The list of <a href="DP.ox.html#Space">Space</a> objects is itself an <code>oxarray</code> held in <code>DP::S</code> (which is
+        documented only in the internal version of this documentation).</DD>
+        <DD>The integer tags listed here are the internal names of the elements of both that array
+        and the array <a href="DP.ox.html#DP___SubVectors">SubVectors</a> of variable objects.</DD>
+        <DD>For example, when the user's code calls <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>() it adds the objects
+        sent as arguments to the list <code>DP::SubVectors[endog]</code>. Then <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>()
+        will go through that list and create information about the endogenous space &Theta;
+        and store it in object <code>DP::S[endog]</code></DD>
+<P/>
+        <table class="enum_table">
+        <tr><td valign="top">acts</td><td>The components of the action vector &alpha;.
+            Including action variables in the same list of lists makes the internal code
+            a little cleaner.</td></tr>
+        <tr><td valign="top">exog</td><td>The fully exogenous vector &epsilon;</td></tr>
+        <tr><td  valign="top">semiexog</td><td>The semi-exogenous vector &eta;</td></tr>
+        <tr><td  valign="top">endog</td><td>The endogenous vector &theta; (not including the clock).</td></tr>
+        <tr><td  valign="top">clock</td><td>The clock block.  In the mathematical description the
+            clock is an element of &theta; to avoid yet another vector and Greek letter.  However,
+            internally it is easier to separate the clock block from &theta;</td></tr>
+        <tr><td  valign="top">rgroup</td><td>The <a href="Variables.ox.html#RandomEffect">RandomEffect</a> elements of the group vector &gamma;.
+                Again, to avoid extra notation, the mathematical description puts both random
+                and fixed effects into one vector, but internally they are stored on separate
+                lists.</td></tr>
+        <tr><td  valign="top">fgroup</td><td>The <a href="Variables.ox.html#FixedEffect">FixedEffect</a> elements of &gamma;.</td></tr>
+        <tr><td  valign="top">DSubVectors</td><td>The number of different vectors.</td></tr>
+        <tr><td  valign="top">LeftSV</td><td>Equivalent to <code>exog</code>. This is the index
+            of the leftmost true state vector. This ensures some internal loops over
+            vectors start at the right place even if additional vectors have to be added
+            later to the code.</td></tr>
+        </table>
+</td>
+<td class="elements">acts, exog, semiexog, endog, clock, rgroup, fgroup, DSubVectors, LeftSV</td>
+</tr>
+<tr class="even">
+<td class="declaration"><a name="UpdateTimes"></a>UpdateTimes</td>
+<td class="description">Point in solving when updating of parameters and transitions needs to occur.
+<table class="enum_table">
+<tr><td valign="top">InCreateSpaces</td><td>Transitions and utility do not depend on any parameters that change so they can be initialized
+in <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() and never recalculated.</td></tr>
+<tr><td valign="top">OnlyOnce</td><td>Update transitions and utility just once on each call to <a href="Methods.ox.html#Method___Solve">Solve</a>(). This ensures that if transitions depend
+on parameters that are controlled by the outside (say by an optimization algorithm) the probabilities used in solving the model will
+reflect any changes in the parameters since the last time the solution method was applied. </td></tr>
+<tr><td  valign="top">AfterFixed</td><td>Update transitions after the value of the fixed groups is set.  This will allow transitions to depend on the value of
+fixed effect variables.</td></tr>
+<tr><td  valign="top">AfterRandom</td><td>Update transitions after the value of the random groups is set.  This will allow transitions to depend on the value of
+both fixed and random effect variables.</td></tr>
+</table>
+There is a potentially large computational cost of updating the transitions more often than is necessary.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
+</dl></td>
+<td class="elements">InCreateSpaces, OnlyOnce, AfterFixed, AfterRandom, UpdateTimes</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><a name="Vspace"></a>Vspace</td>
+<td class="description">.
+</td>
+<td class="elements">NOW, LATER, DVspace</td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Alpha</span></h2>
+
+<a name="Alpha___A"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">A</span></h3>
+
+<span class="declaration">static decl A [public]</span>
+<dl><dd>
+List of <em>actual</em> feasible action matrices (AV values),
+		automatically updated.
+            Each point in the endogenous state space
+            has an index: <a href="Bellman.ox.html#Bellman___Aind">Aind</a> into this
+            list. Also <a href="DP.ox.html#DP___A">A</a> points to this list so
+            the user can get the matrix of actual action values
+            with <code>A[Aind]</code>
+
+</dd></dl>
+
+<hr>
+<a name="Alpha___Count"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Count</span></h3>
+
+<span class="declaration">static decl Count [public]</span>
+<dl><dd>
+(vector) Number of states for each A set.
+
+</dd></dl>
+
+<hr>
+<a name="Alpha___Initialize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Initialize</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Alpha___List"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">List</span></h3>
+
+<span class="declaration">static decl List [public]</span>
+<dl><dd>
+list of feasible action matrices (CV) values.
+            Each point in the endogenous state space
+            has an index: <a href="Bellman.ox.html#Bellman___Aind">Aind</a> into this
+            list.
+
+</dd></dl>
+
+<hr>
+<a name="Alpha___Matrix"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Matrix</span></h3>
+
+<span class="declaration">static decl Matrix [public]</span>
+<dl><dd>
+matrix of all action vectors, A.
+            This is a copy of <a href="DDPShared.ox.html#Alpha___List">List</a>[0].
+            As action variables are added to the model
+            using <a href="DP.ox.html#DP___Actions">Actions</a>(), this matrix is built up.
+            <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() then calls <code>FeasibleActions()</code>
+            for each endogenous state &theta;.   Different feasible
+            sets are then added to <a href="DDPShared.ox.html#Alpha___List">List</a>.
+
+</dd></dl>
+
+<hr>
+<a name="Alpha___Sets"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Sets</span></h3>
+
+<span class="declaration">static decl Sets [public]</span>
+<dl><dd>
+List of Feassible Action indicators (column vector
+            of 0s and 1s).
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Flags</span></h2>
+
+<a name="Flags___AllGroupsExist"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">AllGroupsExist</span></h3>
+
+<span class="declaration">static decl AllGroupsExist [public]</span>
+<dl><dd>
+Integer TRUE (default) means all possible combination of fixed and random groups exist
+            in the group space &Gamma; and should be created.
+            If you add a function to the <code>GroupCreate</code> Hooks then this is set FALSE.
+            Your function should return TRUE if the current group oup should be created.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#Hooks">Hooks</a>, <a href="DDPShared.ox.html#HookTimes">HookTimes</a>, <a href="DDPShared.ox.html#Hooks___Add">Add</a>, <a href="Variables.ox.html#FixedEffect">FixedEffect</a>, <a href="Variables.ox.html#RandomEffect">RandomEffect</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Flags___HasBeenUpdated"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">HasBeenUpdated</span></h3>
+
+<span class="declaration">static decl HasBeenUpdated [public]</span>
+<dl><dd>
+UpdateVariables() has been called.
+
+</dd></dl>
+
+<hr>
+<a name="Flags___HasFixedEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">HasFixedEffect</span></h3>
+
+<span class="declaration">static decl HasFixedEffect [public]</span>
+<dl><dd>
+&Gamma; already includes fixed effects
+
+</dd></dl>
+
+<hr>
+<a name="Flags___HasKeptZ"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">HasKeptZ</span></h3>
+
+<span class="declaration">static decl HasKeptZ [public]</span>
+<dl><dd>
+Includes a kept continuous state variable.
+
+</dd></dl>
+
+<hr>
+<a name="Flags___IsErgodic"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">IsErgodic</span></h3>
+
+<span class="declaration">static decl IsErgodic [public]</span>
+<dl><dd>
+create space to store &Rho;*
+
+</dd></dl>
+
+<hr>
+<a name="Flags___onlyDryRun"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">onlyDryRun</span></h3>
+
+<span class="declaration">static decl onlyDryRun [public]</span>
+<dl><dd>
+Do not create &Theta;, but do everything else.
+
+</dd></dl>
+
+<hr>
+<a name="Flags___Prunable"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Prunable</span></h3>
+
+<span class="declaration">static decl Prunable [public]</span>
+<dl><dd>
+TRUE if clock is finite horizon so automatic pruning
+            can apply.
+
+</dd></dl>
+
+<hr>
+<a name="Flags___Reset"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Reset</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Flags___setPstar"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">setPstar</span></h3>
+
+<span class="declaration">static decl setPstar [public]</span>
+<dl><dd>
+set &Rho;*(<code>&alpha;</code>|&hellip;)
+            in Bellman
+
+</dd></dl>
+
+<hr>
+<a name="Flags___StorePA"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">StorePA</span></h3>
+
+<span class="declaration">static decl StorePA [public]</span>
+<dl><dd>
+store &Alpha.D x &Theta.D matrix
+			of choice probabilities
+
+</dd></dl>
+
+<hr>
+<a name="Flags___ThetaCreated"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ThetaCreated</span></h3>
+
+<span class="declaration">static decl ThetaCreated [public]</span>
+<dl><dd>
+CreateSpaces() has been called or not.
+
+</dd></dl>
+
+<hr>
+<a name="Flags___UpdateTime"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">UpdateTime</span></h3>
+
+<span class="declaration">static decl UpdateTime [public]</span>
+<dl><dd>
+Indicators for when transit update occurs.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Flags___UseStateList"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">UseStateList</span></h3>
+
+<span class="declaration">static decl UseStateList [public]</span>
+<dl><dd>
+.
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Hooks</span></h2>
+
+<a name="Hooks___Add"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Add</span></h3>
+
+<span class="declaration">static Hooks :: Add ( time , proc )</span>
+<dl><dd>
+Add a static function or method to a hook.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">time</td>
+<td class="description" valign="baseline">integer tag <a href="DDPShared.ox.html#HookTimes">HookTimes</a>, point in time (where in model solution) to call the routine.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">proc</td>
+<td class="description" valign="baseline"><em>static</em> function or method to call.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example">Say hello after every Bellman iteration is complete:
+<pre>
+ sayhello() { print("hello"); }
+ Hooks::Add(PostGSolve,sayhello);
+</pre>
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#HookTimes">HookTimes</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Hooks___h"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">h</span></h3>
+
+<span class="declaration">static decl h [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Hooks___hooks"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hooks</span></h3>
+
+<span class="declaration">static decl hooks [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Hooks___Reset"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Reset</span></h3>
+
+<span class="declaration">static Hooks :: Reset ( )</span>
+<dl><dd>
+Empty the hooks (delete first if already created).
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">I</span></h2>
+
+<a name="I___all"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">all</span></h3>
+
+<span class="declaration">static decl all [public]</span>
+<dl><dd>
+vector of current indices into spaces.
+
+</dd></dl>
+
+<hr>
+<a name="I___f"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">f</span></h3>
+
+<span class="declaration">static decl f [public]</span>
+<dl><dd>
+index of current fixed group.
+
+</dd></dl>
+
+<hr>
+<a name="I___g"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">g</span></h3>
+
+<span class="declaration">static decl g [public]</span>
+<dl><dd>
+index of current &gamma; group.
+
+</dd></dl>
+
+<hr>
+<a name="I___Initialize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Initialize</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="I___OO"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">OO</span></h3>
+
+<span class="declaration">static decl OO [public]</span>
+<dl><dd>
+matrix of offsets.
+
+</dd></dl>
+
+<hr>
+<a name="I___r"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">r</span></h3>
+
+<span class="declaration">static decl r [public]</span>
+<dl><dd>
+index of current random group.
+
+</dd></dl>
+
+<hr>
+<a name="I___Set"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Set</span></h3>
+
+<span class="declaration">static I :: Set ( state , group )</span>
+<dl><dd>
+Sets and stores all the state indices, called by <a href="DP.ox.html#Task___loop">loop</a> and anything else that directly sets the state.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">state</td>
+<td class="description" valign="baseline">current state vector
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">group</td>
+<td class="description" valign="baseline">TRUE if the group indices should be set as well.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="I___t"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">t</span></h3>
+
+<span class="declaration">static decl t [public]</span>
+<dl><dd>
+Current value of t.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___Gett">Gett</a></dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Labels</span></h2>
+
+<a name="Labels___Initialize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Initialize</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Labels___V"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">V</span></h3>
+
+<span class="declaration">static decl V [public]</span>
+<dl><dd>
+arrays of labels of variable objects.
+
+</dd></dl>
+
+<hr>
+<a name="Labels___Vprt"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Vprt</span></h3>
+
+<span class="declaration">static decl Vprt [public]</span>
+<dl><dd>
+abbreviated labels of variable objects.
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">N</span></h2>
+
+<a name="N___A"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">A</span></h3>
+
+<span class="declaration">static decl A [public]</span>
+<dl><dd>
+&Alpha;.N=rows(ActionMatrix), N unconstrained actions.
+
+</dd></dl>
+
+<hr>
+<a name="N___AA"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">AA</span></h3>
+
+<span class="declaration">static decl AA [public]</span>
+<dl><dd>
+rows of feasible action sizes.
+
+</dd></dl>
+
+<hr>
+<a name="N___All"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">All</span></h3>
+
+<span class="declaration">static decl All [public]</span>
+<dl><dd>
+uninitialized state.
+
+</dd></dl>
+
+<hr>
+<a name="N___Approximated"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Approximated</span></h3>
+
+<span class="declaration">static decl Approximated [public]</span>
+<dl><dd>
+Number of states approximated (not subsampled).
+
+</dd></dl>
+
+<hr>
+<a name="N___aux"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">aux</span></h3>
+
+<span class="declaration">static decl aux [public]</span>
+<dl><dd>
+number of auxiliary variables, sizeof of <a href="DP.ox.html#DP___Chi">Chi</a>
+
+</dd></dl>
+
+<hr>
+<a name="N___Av"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Av</span></h3>
+
+<span class="declaration">static decl Av [public]</span>
+<dl><dd>
+columns(ActionMatrix), action variables
+
+</dd></dl>
+
+<hr>
+<a name="N___F"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">F</span></h3>
+
+<span class="declaration">static decl F [public]</span>
+<dl><dd>
+number of fixed effect groups.
+
+</dd></dl>
+
+<hr>
+<a name="N___G"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">G</span></h3>
+
+<span class="declaration">static decl G [public]</span>
+<dl><dd>
+number of groups, &Gamma;.D
+
+</dd></dl>
+
+<hr>
+<a name="N___Initialize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Initialize</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="N___J"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">J</span></h3>
+
+<span class="declaration">static decl J [public]</span>
+<dl><dd>
+Number of different action sets.
+
+</dd></dl>
+
+<hr>
+<a name="N___MaxSZ"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">MaxSZ</span></h3>
+
+<span class="declaration">static decl MaxSZ [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="N___MinSZ"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">MinSZ</span></h3>
+
+<span class="declaration">static decl MinSZ [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="N___Options"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Options</span></h3>
+
+<span class="declaration">static decl Options [public]</span>
+<dl><dd>
+vector of sizes of feasible action sets.
+
+</dd></dl>
+
+<hr>
+<a name="N___print"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">print</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="N___R"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">R</span></h3>
+
+<span class="declaration">static decl R [public]</span>
+<dl><dd>
+number of random groups
+
+</dd></dl>
+
+<hr>
+<a name="N___Reached"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Reached</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="N___Reset"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Reset</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="N___S"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">S</span></h3>
+
+<span class="declaration">static decl S [public]</span>
+<dl><dd>
+number of all state variables.
+
+</dd></dl>
+
+<hr>
+<a name="N___Sizes"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Sizes</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="N___Subsample"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Subsample</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="N___T"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">T</span></h3>
+
+<span class="declaration">static decl T [public]</span>
+<dl><dd>
+counter.t.N, the decision horizon.
+
+</dd></dl>
+
+<hr>
+<a name="N___TerminalStates"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">TerminalStates</span></h3>
+
+<span class="declaration">static decl TerminalStates [public]</span>
+<dl><dd>
+Count of reachable states.
+
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

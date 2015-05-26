@@ -1,4 +1,4 @@
-#import "Shared"
+#import "DDPShared"
 
 /** An element of the action vector &alpha;.
 @example
