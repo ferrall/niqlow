@@ -42,8 +42,22 @@ struct Stationary : Clock	{
 struct NonStationary : Clock {	}
 	
 /**Timing in an ordinary finite horizon environment.
+Normal Finite Horizon Aging.
 
-@see DP::SetClock
+<DT>ClockType code to use this clock: <code>NormalAging</code></DT>
+@example
+Use SetClock, 10 time periods:
+<pre>
+SetClock(NormalAging,10);
+</pre>
+which is equivalent to this:
+<pre>
+SetClock(new Aging(10));
+</pre>
+</dd>
+
+@see DP::SetClock, ClockTypes
+
 **/
 struct Aging : NonStationary	{
 	Aging(T);
@@ -52,7 +66,25 @@ struct Aging : NonStationary	{
 	}
 
 /**A static one-shot program (T=1).
-@see DP::SetClock
+
+<DT>ClockType code to use this clock: <code>StaticProgram</code></DT>
+@example
+Use SetClock:
+<pre>
+SetClock(StaticProgram);
+</pre>
+which is equivalent to this:
+<pre>
+SetClock(new StaticP());
+</pre>
+which is also equivalent to this:
+<pre>
+SetClock(NormalAging,1);
+</pre>
+</dd>
+
+@see DP::SetClock, ClockTypes
+
 **/
 struct StaticP : Aging {
 	StaticP();
@@ -73,16 +105,30 @@ Time increments randomly, with probability equal to inverse of bracket length.
 If the bracket has size 1, then it is equivalent to `Aging` at that period.
 If the bracket is bigger than 1, the value function at that period is solved as a fix point.
 
-<dd class="math">Let B = the bracket size at period t.<pre>
+<DT>ClockType code to use this clock: <code>RandomAging</code></DT>
+@example
+Represent a lifecycle as a sequence of 10 periods that each last on average 5 years:
+<pre>
+SetClock(RandomAging,constant(5,1,10));
+</pre>
+which is equivalent to this:
+<pre>
+SetClock(new AgeBrackets(constant(5,1,10)));
+</pre>
+Have normal aging for the first 10 years, then 3 brackets of five years, then 2 of 10 years:
+<pre>
+SetClock(RandomAging,constant(1,1,10)~constant(5,1,3)~constant(10,1,2));
+</pre>
+</dd>
+
+<DT>Transition</DT>
+<dd class="math">Let B = the bracket size at period t. <pre>
 Prob( t&prime; = t+1 ) = 1/B;
 Prob( t&prime; = t ) = 1-1/B;
 </pre></dd>
 
-@example Represent a lifecycle as a sequence of 10 periods that each last on average 5 years:
-<pre>AgeBrackets(constant(5,1,10));</pre>
-Model decisions each year for the last five years before retirement, every five years for 15 years, then every 10 years for 30 years:
-<pre>AgeBrackets(<[3]10,[3]5,[5]1>);</pre>
-</dd>
+@see DP::SetClock, ClockTypes
+
 **/
 struct AgeBrackets : NonDeterministicAging	{
 	/**Vector of period lengths for each age **/	const	decl Brackets;
@@ -94,32 +140,48 @@ struct AgeBrackets : NonDeterministicAging	{
 	}
 
 /** Deterministic aging with random early death.
+
 This clock has the agent age each period but allows for a state-dependent probability that they
 die before the start of the next period.
 
-Death is a transition to the maximum value of the counter, <code>t.N-1</code = T*.  This allows
+Death is a transition to the maximum value of the counter, `N::T`-1.  This allows
 for endogenous bequest motives which are computed before iterating backwards on other ages.
 
-The probability of death should be a `CV`-compatible quantity.
+The probability of death should be a `CV`-compatible quantity.  This means that the mortality
+risk can be state dependent.
 
-<dd class="math">
+@example
+Model a lifetime of 7 ordinary periods with a constant probability of 1/10 of dying after each period (except the 7th period,
+which is the last period with certainty).
 <pre>
-t' = t with prob. 1-&pi;()
-     T* with prob. &pi;()
-</pre></dd>
-
-@example Model a lifetime of 7 ordinary periods with a constant probability of 1/10 of dying.
-<pre>
-Mortality(8,0.1);
+SetClock(RandomMortality,7,0.1);
 </pre>
-Allow mortality to increase in age.
+which is equivalent to:
 <pre>
-MyModel::Mprob() { return 1/(TT-curt-1) ; }
-Mortality(9,MyModel::Mprob);
+SetClock(new Mortality(7,0.1));
 </pre>
-
+Over 9 periods, allow mortality rate to be an increasing function of age and health status.
+Health is a binary state variable in the model, where 1 is good health and 0 is poor health and acts like aging 3
+periods:
+<pre>
+MyModel::Mprob() {
+    decl v = exp(I::t + 3*(1-CV(health)));
+    return  v/(1+v);
+    }
+&vellip;
+SetClock(RandomMortality,9,MyModel::Mprob);
+</pre>
 </dd>
 
+
+<DT>Transition</DT>
+<dd class="math">
+Let T* = `N::T`-1
+<pre>
+Prob(t' = t+1) = 1 - &pi;(t)
+Prob(t' = T*) = &pi;(t)
+</pre></dd>
+T* is the last period with probability 1.
 **/
 struct Mortality : NonDeterministicAging {
     const	decl 	
@@ -135,9 +197,42 @@ struct Mortality : NonDeterministicAging {
 	}
 
 /** Random mortality and uncertain lifetime.
-Like `Mortality` but T*-1 = TT-2 is a stationary environment.
+
+Like `Mortality` but at <code>t = T*-1 &equiv; `N::T`-2</code> a stationary environment occurs
+with constant probability of mortality.
+
+<DT>ClockType code to use this clock: <code>UncertainLongevity</code></DT>
+
+@example
+Model a lifetime of 5 ordinary periods with a constant probability of dying after each period.
+The 6th period (<code>t=5</code>) is stationary and transitions to the last period with
+probability 1/10 each period.
+<pre>
+SetClock(UncertainLongevity,7,0.1);
+</pre>
+which is equivalent to:
+<pre>
+SetClock(new Longevity(7,0.1));
+</pre>
+Over  periods allow mortality rate to increase linearly in age up to a stationary mortality
+rate of 50% in the final stage of life:
+<pre>
+MyModel::Mprob() { return 0.5*I::t/(N::T-2) ; }
+&vellip;
+SetClock(RandomMortality,9,MyModel::Mprob);
+</pre>
+</dd>
 
 
+<DT>Transition</DT>
+<dd class="math">
+Let T* = `N::T`-1
+<pre>
+Prob(t' = T*) = &pi;(t)
+Prob(t' = t+1) = 1 - &pi;(t) if t &lt; T*-1
+Prob(t' = t) = 1-&pi;(t) if t = T*-1.
+</pre></dd>
+T* is the last period with probability 1.
 
 **/
 struct Longevity : Mortality {

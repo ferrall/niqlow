@@ -18,7 +18,7 @@ Objective.oxo :  Shared.oxo $(algobj)
 BlackBox.oxo : Objective.oxo
 Separable.oxo : Objective.oxo
 
-xtradoc = FiveO.ox GetStarted $(objsrc:.=.ox) $(algsrc:.=.ox) ../Shared/Shared.ox 
+xtradoc = FiveO.ox GetStarted Error_And_Warning_Messages $(objsrc:.=.ox) $(algsrc:.=.ox) ../Shared/Shared.ox
 
 %.oxo : %.ox %.h
 	$(OX) $(OXFLAGS) -i$(INC) -c $<

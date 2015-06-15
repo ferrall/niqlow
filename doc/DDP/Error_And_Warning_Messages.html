@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>Error_And_Warning_Messages - Derived Dynamic Programs</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">Error_And_Warning_Messages</span></h1>
+
+Explanation and help for numbered warning and error messages produced by <span class="n">DDP</span>. 
+<P/>
+<h2>Click on the message  to see a detailed explanation and help to resolve it</h2>
+<h4><a href="#Err">Go down to error messages</a></h4>
+<P/>
+<h1>Warning Messages</h1>
+<OL class="alg">
+<P/>
+<LI><details><summary><em>Message:</em><pre>Your state variables are transiting to an unreachable state:</pre></summary>
+<DT>What does it mean?</DT>
+<DD>This is a diagnostic message.  </DD>
+<DD>This error is generated in <a href="Bellman.ox.html#Bellman___ThetaTransition">ThetaTransition</a>() when the transition, &Rho;(&theta;';&alpha;,&theta;), is being computed. The message is only generated if you set <a href="DP.ox.html#DP___Volume">Volume</a> to <code>NOISY</code>.</DD>
+<DD>When the transition is being computed a list of indices of states next period that can occur with positive probability based on the transitions for individual states.  This list is checked against states that have been designated unreachable. This could be because you have explicitly marked something that unreachable that is.  Or it could be that a state variable is saying it can move to a state outside its range of discrete values.</DD>
+<DD>This will likely call a runtime error later on during the model solution and will create simulated transition probabilities that do not sum to 1.</DD>
+<DT>What can/should I do to eliminate the issue?</DT>
+<DD>The output from the message can help determine at which states this is occurring, but it may not isolate the state variables that are causing the problem.  You can remove state variables from the model one at a time to see if the message disappears.  Then look at the <code>Transit()</code> method for the variable.  </DD>
+<DD>Note setting <code>Volume=NOISY</code> will slow the code down considerably.  You should lower the volume once problems have been resolved.</DD>
+</details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Using default Utility() equal to 0.
+Your derived DDP should provide a replacement for Bellman::Utility().</pre></summary>
+<DT>What does it mean?</DT>
+<DD></DD>
+<DT>What can/should I do to eliminate the issue?</DT>
+<DD>In the definition of <code>MyModel</code> list <code>Utility()</code> as a non-static method (see all examples). </DD>
+<DD>Then you must define the code for <code>Utility()</code> in the .ox file. If you don't do this a Ox runtime error will occur saying the routine does not exist.</DD>
+<P/>
+</details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Setting iseed to 0 means ranseed is not reset</pre></summary><DT>What does it mean?</DT><DD>GHK uses Ox's
+pseudo-random number generator.</DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Number of replications R not set or invalid.
+Setting to 1.</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>The creator routine for OneDimensionalChoice states has not been called.
+Runtime errors likely.</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Dynamic approximation to continuous state has not defined. Call SetKeep().</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Using AgeBrackets with deterministic aging: consider using Aging().</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Simulating ergodic paths without fixed Tmax?
+Path may be of unbounded length.</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Masking data for observability.</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>print level invalid</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Tracking of auxiliary outcomes still experimental.  It may not work.</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Do not add to tracking list after predictions made ... ignored</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary>Update Time Warnings<pre>Transitions and actual values &hellip;</pre></summary>
+<OL class="sub">
+<LI><em>Message:</em><pre>Transitions and actual values are fixed. They are computed in CreateSpaces() and never again.</pre><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></LI>
+<P/>
+<LI><em>Message:</em><pre>Setting update time to OnlyOnce.
+Transitions and actual values do not depend on fixed or random effect values.
+If they do, results are not reliable.</pre><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></LI>
+<P/>
+<LI><em>Message:</em><pre>Setting update time to AfterFixed.
+Transitions and actual values can depend on fixed effect values but not random effects.
+If they do, results are not reliable.</pre><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></LI>
+<P/>
+<LI><em>Message:</em><pre>Setting update time to AfterRandom.
+Transitions and actual values can depend on fixed and random effects,
+which is safe but may be redundant and therefore slower than necessary.</pre><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></LI>
+<P/>
+</OL>
+</details></li>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Clock must be set before calling SubsampleStates.
+Setting clock type to InfiniteHorizon.</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>State Space Already Defined.
+DryRun request ignored.</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Only a dry run of creating the state space Theta will be performed.
+Program ends at the end of CreateSpaces().</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>No actions have been added to the model.
+A no-choice action inserted.</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Clock has not been set.
+Setting clock type to InfiniteHorizon.</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>clock is ergodic but terminal states exist?
+Inconsistency in the set up.</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Linear systems solution for stationary distribution returns code 2.
+May be unreliable.</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>User code has called the default Solve() function for Method::GSolve(instate)</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>User code has called the default GSolve() function for Method.
+Does not do anything</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>User code has not set the discount factor yet.
+Setting it to default value of 0.90</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Must call SubSampleStates() before you use KeaneWolpin::Solve().</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Using KW approximazation on a model with infeasible actions at some states.
+All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible.</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+<LI><details><summary><em>Message:</em><pre>Label for discrete value should be a string.</pre></summary><DT>What does it mean?</DT><DD></DD><DT>What can/should I do to eliminate the issue?</DT><DD></DD></details></LI>
+<P/>
+</OL>
+<a name="Err"><hr>
+<h1>Error Messages</h1></hr>
+<OL class="alg"></OL>
+
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

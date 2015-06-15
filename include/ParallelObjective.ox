@@ -6,7 +6,7 @@
 @param DONOTUSECLIENT TRUE (default): client node does no object evaluation<br>FALSE after putting servers to work Client node does one evaluation.
 **/
 ParallelObjective(obj,DONOTUSECLIENT) {
-	if (isclass(obj.p2p)) {oxwarning("P2P object already exists for "+obj.L+". Nothing changed"); return;}
+	if (isclass(obj.p2p)) {oxwarning("CFMPI Warning 01.\n"+" P2P object already exists for "+obj.L+". Nothing changed.\n"); return;}
 	obj.p2p = new P2P(DONOTUSECLIENT,new ObjClient(obj),new ObjServer(obj));
 	}
 

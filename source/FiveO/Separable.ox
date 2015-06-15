@@ -41,8 +41,8 @@ Separable::Separable(L,Kvar) {
 		this.Kvar = new Discrete("K",Kvar.N);
 		this.Kvar.pdf = Kvar;
 		}
-	else oxrunerror("Kvar must be integer, matrix, ParameterBlock or Discrete object");
-	if ( (K = this.Kvar.N)<1) oxrunerror("Separable must have positive K");
+	else oxrunerror("FiveO Error 11. Kvar must be integer, matrix, ParameterBlock or Discrete object\n");
+	if ( (K = this.Kvar.N)<1) oxrunerror("FiveO Error 12. Separable must have positive K\n");
 	cur = new SepPoint(this.Kvar,Objective::cur);
 	hold = new SepPoint(this.Kvar,0);
 	maxpt = clone(hold);
@@ -58,15 +58,16 @@ Separable::Separable(L,Kvar) {
 
 /** Add parameters to the objective that will have a single value across types/sub-problems.
 @param psi1 `Parameter` one (and possibly only) parameter to add to the objective
-@comment On any call to <code>vfunc()</code> common parameters with have the same value for each <var>k</var>.
+@comment On any call to <code>vfunc()</code> common parameters will have the same value for each <var>k</var>.
 **/
-Separable::CommonParameters(psi1, ... ) {
+Separable::Common(psi1, ... ) {
 	decl cs = sizeof(Psi),m;
 	Objective::Parameters(isarray(psi1) ? psi1 : {psi1}|va_arglist());
 	for (m=cs;m<sizeof(Psi);++m) ComInd |= Psi[m].pos;
 	}
 
 /** .
+@param notgradient TRUE not a gradient call.
 @internal
 **/
 Separable::kEncode(notgradient)	{
@@ -111,7 +112,7 @@ Separable::Encode(X,CallBase)   {
 	if (!isint(X)) {
 		if (columns(X)==1) cur.X = reshape(X,nstruct,K);
 		else {
-			if (rows(X)!=nstruct || columns(X)!=K) oxrunerror("Encode X has wrong number of rows or columns");
+			if (rows(X)!=nstruct || columns(X)!=K) oxrunerror("FiveO Error 12. Encode X has wrong number of rows or columns\n");
 			cur.X = X;
 			}
 		}
@@ -146,7 +147,7 @@ Separable::funclist(Fmat,aFvec)	{
 		decl JDoK = J*DoK, Xmat= new matrix[nstruct][JDoK],kObj;
 	else
 		aFvec[0][][] = 0.0;
-    if (isparallel) oxrunerror("separable funclist not yet changed to send Fmat");
+    if (isparallel) oxrunerror("FiveO Error 13. separable funclist not yet changed to send Fmat\n");
 	for (j=0;j<J;++j) {
 		for (k=0,firstk=0,fvk=0;k<K;fvk+=kNvf,firstk += kfree[k++]) {
 				Kvar.v = k;
@@ -263,9 +264,9 @@ Mixture::Mixture(L,Dvar,Kvar,MixType,...) {
 		this.Dvar = new Discrete("D",sizeof(vec(Dvar)));
 		this.Dvar.pdf = vec(Dvar)';
 		}
-	else oxrunerror("Dvar must be integer, matrix, or Discrete object");
+	else oxrunerror("FiveO Error 14. Dvar must be integer, matrix, or Discrete object\n");
 	D = this.Dvar.N;
-	if (D<1) oxrunerror("Mixture D Dimension must be positive");
+	if (D<1) oxrunerror("FiveO Error 15. Mixture D Dimension must be positive\n");
 	Separable(L,Kvar);
 	DK = D*K;
 	DKL = new array[D][K];
@@ -279,7 +280,7 @@ Mixture::Mixture(L,Dvar,Kvar,MixType,...) {
 	dkfree = zeros(D,1);
 
 	if (sizeof(va)) {
-		if (!ismatrix(va[0])||rows(va[0])!=D||columns(va[0])!=K)	oxrunerror("4th argument must be DxK");
+		if (!ismatrix(va[0])||rows(va[0])!=D||columns(va[0])!=K)	oxrunerror("FiveO Error 15. 4th argument must be DxK\n");
 		}
 
 	WStart = <>;
@@ -317,8 +318,8 @@ Mixture::Print(orig){
 @comment default is ones(D,K)
 **/
 Mixture::IncludedDK(mDK) {
-	if (!ismatrix(mDK)) oxrunerror("must send a DxK matrix of 0s and 1s");
-	if (rows(mDK)!=D||columns(mDK)!=K) oxrunerror("incorrect matrix dimensions");
+	if (!ismatrix(mDK)) oxrunerror("FiveO Error 16. must send a DxK matrix of 0s and 1s\n");
+	if (rows(mDK)!=D||columns(mDK)!=K) oxrunerror("FiveO Error 17. incorrect matrix dimensions\n");
 	Included[][] = mDK[][];
 	if (Volume>QUIET) println("type and environment design","%2.0f",Included);
 	}
@@ -358,7 +359,7 @@ Mixture::Encode(inX)   {
 		Separable::Encode(inX[1]);
 		}
 	else {
-		if (!isint(inX)) oxrunerror("argument type not valid");
+		if (!isint(inX)) oxrunerror("FiveO Error 17. argument type not valid\n");
 		WEncode(0);
 		Separable::Encode(0);
 		}

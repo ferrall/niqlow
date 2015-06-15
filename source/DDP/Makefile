@@ -16,7 +16,7 @@ dppobj = $(dppsrc:.=.oxo)
 dpsrc := DDPShared. Variables.
 dpobj = $(dpsrc:.=.oxo)
 
-xtradoc = DynProg GetStarted DDP.ox ../Shared/Help $(dpsrc:.=.ox) $(dppsrc:.=.ox)
+xtradoc = DynProg GetStarted DDP.ox Error_And_Warning_Messages ../Shared/Help $(dpsrc:.=.ox) $(dppsrc:.=.ox)
 xtrahtml = $(xtradoc:.ox=.ox.html)
 
 DDP.oxo : $(dppobj)

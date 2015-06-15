@@ -39,17 +39,8 @@ Bellman::Bellman(state,picked) {
   do { IsTerminal = any(state[s].==States[s].TermValues);    } while (!IsTerminal && s++<S[endog].X);
   N::TerminalStates += IsTerminal;
   IsLast = counter->Last();
-  decl curJ= sizeof(Alpha::Sets),
-  		fa = IsTerminal ? 1|zeros(N::Options[0]-1,1) : FeasibleActions(Alpha::Matrix),
-		nfeas = int(sumc(fa));
-  Aind = 0; do { if (fa==Alpha::Sets[Aind]) {++Alpha::Count[Aind]; break;} } while (++Aind<curJ);
-  if (Aind==curJ) {
-  	Alpha::Sets |= fa;
-	Alpha::A |= array(new matrix[nfeas][N::Av]);
-    N::Options |= nfeas;
-	Alpha::List |= selectifr(Alpha::Matrix,fa);
-	Alpha::Count |= 1;
-	}
+  Aind = 0; //initializing this means aa() will work.
+  Aind = Alpha::AddA(IsTerminal ? 1|zeros(N::Options[0]-1,1) : FeasibleActions(Alpha::Matrix));
   InSubSample = UnInitialized;
   pandv = new array[N::R];
   Allocate(picked);
@@ -235,8 +226,8 @@ Bellman::ThetaTransition(future,current) {
         decl s,q;
         for(s=0;s<columns(F[now][]);++s) {
             if ( any(P[now][][s].>0.0) && !isclass( Settheta(I::OO[tracking][]*(q=ReverseState(F[now][s],I::OO[iterating][]))) ) )  {
-                oxwarning("transiting to unreachable state: ");
-                println("%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[endog].X],q[S[endog].M:S[endog].X]');
+                oxwarning("DDP Warning 01.\n Your state variables are transiting to an unreachable state: ");
+                println("%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[endog].X],q[S[endog].M:S[endog].X]',"\n");
                 }
             }
         }
@@ -246,11 +237,34 @@ Bellman::ThetaTransition(future,current) {
 This is a virtual method.  <code>MyModel</code> provides a replacement.
 **/
 Bellman::Utility()  {
-	if (!Flags::Warned) {Flags::Warned=TRUE; oxwarning("NOTE: Using default Utility() equal to 0.  Your derived DDP should provide a replacement for DP::Utility(). ");}
+	if (!Flags::Warned) {
+        Flags::Warned=TRUE; oxwarning("DDP Warning 02.\n Using default Utility() equal to 0.\n Your derived DDP should provide a replacement for Bellman::Utility().\n ");}
 	return zeros(N::Options[Aind],1);
 	}
 
+/** Extract and return rows of a matrix that correspond to feasible actions at the current state.
+@param myU `N::A` &times; m matrix
+
+@example
+A model has four possible actions and constant utility, but not all actions are feasible at each
+state.
+<pre>
+static const decl Uv = <0.1; 0.5; 0.7; -2.5>;
+&vellip;
+MyModel::Utility() {
+    return OnlyFeasible(Uv);
+    }
+</pre></dd>
+
+@return selectifr(myU,Alpha::Sets[Aind])
+@see Bellman::FeasibleActions, Alpha::Sets, Bellman::Aind
+**/
+Bellman::OnlyFeasible(myU) {
+    return selectifr(myU,Alpha::Sets[Aind]);
+    }
+
 Bellman::InSS() { return InSubSample; }
+
 /** .
 @internal
 **/
@@ -318,10 +332,9 @@ Bellman::ZetaRealization() {	return <.NaN>;	}
 @return A[Aind][][av.pos]
 **/
 Bellman::aa(av) {
-	if (isclass(av,"ActionVariable")) return A[Aind][][av.pos];
+	if (isclass(av,"ActionVariable")) return Alpha::A[Aind][][av.pos];
 	oxrunerror("Must send action variable to aa");
 	}
-
 
 /** .	  @internal **/
 Bellman::~Bellman() {	delete U, pandv, Nxt; 	}
@@ -354,7 +367,7 @@ Bellman::Delete() {
 	Volume = SampleProportion = Gamma = Theta = 0;	
 	}
 
-/**
+/** Base Initialize function.
 @param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
 FALSE if the state is not reachable.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
@@ -388,6 +401,8 @@ ExtremeValue::Initialize(rho,userReachable,UseStateList) {
 /** Set the smoothing parameter &rho;. **/
 ExtremeValue::SetRho(rho) {	this.rho = CV(rho)<0 ? double(DBL_MAX_E_EXP) : rho;	}
 
+/**  Currently this just calls the Bellman version, no special code.
+**/
 ExtremeValue::CreateSpaces() {	Bellman::CreateSpaces(); }
 
 /** Initialize a Rust model (Ergodic, binary choice, extreme value additive error with &rho;=1.0). 	
@@ -405,6 +420,8 @@ Rust::Initialize(userReachable) {
 	Actions(d = new BinaryChoice());
 	}
 
+/**  Currently this just calls the ExtremValue version, no special code.
+**/
 Rust::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 
 /** Initialize a McFadden model (one-shot, one-dimensional choice, extreme value additive error with &rho;=1.0). 	
@@ -421,6 +438,8 @@ McFadden::Initialize(Nchoices,userReachable,UseStateList) {
 	SetDelta(0.0);	
 	}
 
+/**  Currently this just calls the ExtremeValue version, no special code.
+**/
 McFadden::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 
 /** Myopic agent, so vv=U and no need to loop over &theta;&prime;.**/
@@ -440,6 +459,8 @@ ExPostSmoothing::Initialize(userReachable,UseStateList){
 /**  Set up the ex-post smoothing state space.
 @param Method the `SmoothingMethods`, default = <code>NoSmoothing</code>
 @param  smparam the smoothing parameter (e.g. &rho; or &sigma;)<br>Default value is 1.0.
+
+
 **/
 ExPostSmoothing::CreateSpaces(Method,smparam) {
 	this.Method = Method;
@@ -450,6 +471,19 @@ ExPostSmoothing::CreateSpaces(Method,smparam) {
 	Bellman::CreateSpaces();
 	}
 
+/** Short-cut set up for models with a single state.
+@param userReachable
+@param Method
+@param &hellip; `ActionVariables` to add to the model
+<DD>Calls `ExPostSmoothing::Initialize`().<<
+<DD>Sets the `ClockTypes` to <code>StaticProgram</code>
+<DD>Sends the optional arguments to `DP::Actions`()</DD>
+<DD>Calls `ExPostSmoothing::CreateSpaces`()</DD>
+
+<DT>By calling both <code>Initialize()</code> and <code>CreateSpaces()</code> this makes it impossible
+to add any state variables to the model.</DT>
+
+**/
 OneStateModel::Initialize(userReachable,Method,...) {
     ExPostSmoothing::Initialize(userReachable);
     SetClock(StaticProgram);
@@ -506,6 +540,8 @@ Normal::Initialize(userReachable,UseStateList) {
 	Bellman::Initialize(userReachable,UseStateList);
 	}
 
+/**  Calls the Bellman version and initialize `Normal::Chol`.
+**/
 Normal::CreateSpaces() {
 	Bellman::CreateSpaces();	
 	Chol = new array[N::J];
@@ -547,7 +583,9 @@ NIID::SetIntegration(GQLevel,AChol) {
 	this.AChol = AChol;
 	GQH::Initialize(this.GQLevel = GQLevel);
 	}
-	
+
+/**  Create spaces and set up quadrature for integration over the IID normal errors.
+**/
 NIID::CreateSpaces() {
 	Normal::CreateSpaces();
 	GQNODES = new array[N::J];
@@ -604,16 +642,18 @@ NnotIID::Initialize(userReachable,UseStateList) {
 NnotIID::SetIntegration(R,iseed, AChol) {
 	this.R = R;
 	this.iseed = iseed;
-	if (isint(iseed)&& iseed==0) oxwarning("NGHK Warning: setting iseed to 0 means ranseed is not reset");
+	if (isint(iseed)&& iseed==0) oxwarning("DDP Warning 03.\n Setting iseed to 0 means ranseed is not reset.\n");
 	this.AChol = AChol;
 	}
-	
+
+/**  Create spaces and set up GHK integration over non-iid errors.
+**/
 NnotIID::CreateSpaces() {
 	Normal::CreateSpaces();
 	ghk=new array[N::J];
 	decl mm= N::Options[0];
 	if (R<=0) {
-		oxwarning("Number of Replications not set or invalid, setting to 1");
+		oxwarning("DDP Warning 04.\n Number of replications R not set or invalid.\n Setting to 1.\n");
 		R = 1;		
 		}
 	if (isint(AChol)) AChol = vech(unit(mm)) ;
@@ -665,21 +705,42 @@ FALSE if the state is not reachable.
 **/
 OneDimensionalChoice::Initialize(userReachable,d,UseStateList) {
 	Bellman::Initialize(userReachable,UseStateList);
+    called = FALSE;
 	if (isclass(d,"ActionVariable")) Actions(this.d = d);
 	else if (isint(d) && d>0) Actions(this.d = new ActionVariable("d",d));
 	else oxrunerror("second argument 1d choice must provide an action or positive number of values");
     println("Action variable objected stored in d.  Label = '",this.d.L,"'.  Number of values: ",this.d.N);
 	}
 
-OneDimensionalChoice::CreateSpaces() {
-	Bellman::CreateSpaces();
+/** Create spaces and check that &alpha; has only one element.
+@param Method the `SmoothingMethods`, default = <code>NoSmoothing</code>
+@param  smparam the smoothing parameter (e.g. &rho; or &sigma;)<br>Default value is 1.0.
+
+**/
+OneDimensionalChoice::CreateSpaces(Method,smparam) {
+	ExPostSmoothing::CreateSpaces(Method,smparam);
+    if (!called)
+        oxwarning("DDP Warning 05.\n The creator routine for OneDimensionalChoice states has not been called.\nRuntime errors likely.\n");
 	if (N::Av!=1) oxrunerror("1-d model must have exactly one action variable");
 	if (SS[bothexog].size>1) oxrunerror("1-d model does not allow exogenous variables");	
 	}
 
+OneDimensionalChoice::OneDimensionalChoice() {
+    called = TRUE;
+    if (solvez) {
+        zstar = zeros(N::R,1);
+        }
+    else {
+        }
+    }
+
 OneDimensionalChoice::Smooth(VV) {
-	EV[I::r] = VV;
-	pandv[I::r][] =  pstar;
+    if (solvez) {
+	   EV[I::r] = VV;
+	   pandv[I::r][] =  pstar;
+       }
+    else
+        ExPostSmoothing::Smooth(VV);
 	}
 
 /**  Compute EV(&theta;) after optimal cutoffs z* have been found and compute choice probabilities
@@ -710,12 +771,16 @@ OneDimensionalChoice::ActVal(VV) {
     pandv[I::r][][] = IsTerminal || IsLast
                        ? 0.0
 	                   : CVdelta*Nxt[Qrho][0]*VV[Nxt[Qi][0]]';
+    if (!solvez) pandv[I::r] += U;
 	}	
 
 KeepZ::ActVal(VV) {
-    if (IsLast) return;
-    Qt = Nxt[Qrho][0];
-    myVV =VV[Nxt[Qi][0]]';
+    if (solvez) {
+        Qt = Nxt[Qrho][0];
+        myVV =VV[Nxt[Qi][0]]';
+        return;
+        }
+    OneDimensionalChoice::ActVal(VV);
     }
 
 KeepZ::DynamicActVal(z) {
@@ -730,20 +795,34 @@ KeepZ::thetaEMax () {
     return v;
     }
 
+/** Initialize the model.
+@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
+FALSE if the state is not reachable.
+@param d `ActionVariable` not already added to the model<br>
+		integer, number of options (action variable created) [default = 2]
+@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
+					FALSE [default], traverse &Theta; through iteration on all state variables
+**/	
 KeepZ::Initialize(userReachable,d,UseStateList) {
 	OneDimensionalChoice::Initialize(userReachable,d,UseStateList);
     keptz = UnInitialized;
 	}
 
+/** Set the dynamically kept continuous state variable.
+@param N integer, number of points for approximation
+@param held object that determines if z is retained.
+**/
 KeepZ::SetKeep(N,held) {
     if (S[endog].D) oxrunerror("SetKeep() must be called before any variables are added to the Endogenous vector (theta) to ensure the keptz state variable is the left-most element of theta");
     if (!isint(keptz)) oxrunerror("keptz state variable must be created (and added) by SetKeep().");
     EndogenousStates(keptz= new KeptZeta("kz",N,d,held));
-    if (isclass("held","StateVariable")) EndogenousStates(held);
+    if (isclass(held,"StateVariable")) EndogenousStates(held);
     Flags::HasKeptZ = TRUE;
     }
 
+/**
+**/
 KeepZ::CreateSpaces() {
-    if (!isclass(keptz)) oxwarning("keptz has not been created.  Call KeepZ::SetKeep() between Initialize() and CreateSpaces() to do so.");
+    if (!isclass(keptz)) oxwarning("DDP Warning 06.\n Dynamic approximation to continuous state has not defined.\n Call SetKeep().\n" );
 	OneDimensionalChoice::CreateSpaces();
 	}

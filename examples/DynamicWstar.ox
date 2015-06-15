@@ -1,12 +1,18 @@
 #include "DynamicWStar.h"
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
-DynWStar::Reachable()	{ return new DynWStar(); }
+DynWStar::Reachable()	{
+    if (CV(m)||!CV(keptz)) return new DynWStar();
+    return 0;
+    }
 DynWStar::DynWStar()    { zstar = zeros(N::R,1); }
-DynWStar::Uz(z)         { return eta | z;	}
+DynWStar::Uz(z)         {
+    if (!CV(m)) return eta | z;	
+    return 0.0 | CV(keptz);
+    }
 DynWStar::Utility()     {
-    decl acc = aa(d), wking = CV(m);
-    return eta*(1-acc) + acc*( wking*CV(keptz)+ (1-wking)*zstar[I::r] );	
+    decl acc = aa(d), wk = CV(m);
+    return (1-wk)*eta*(1-acc) + acc*( wk*CV(keptz) );	//+ (1-wk)*zstar[I::r]
     }
 
 DynWStar::Run()	{

@@ -200,9 +200,22 @@ struct DataSet : Panel {
 	}
 
 
+/** Contains information on an object (variable, auxiliary outcome, etc) to be tracked.
+**/
 struct ObjToTrack : Zauxiliary {
-    const decl type,obj,L,LorC;
-    decl hN,hd,hv,hist,hvals,mean,sqmean;
+    const decl
+    /**`DataColumnTypes` **/     type,
+    /** `Discrete` object**/     obj,
+    /** label  **/               L,
+    /** column label of index **/     LorC;
+    decl
+    /** **/     hN,
+    /** **/     hd,
+    /** **/     hv,
+    /** **/     hist,
+    /** **/     hvals,
+    /** **/     mean,
+    /** **/     sqmean;
     ObjToTrack(obj,LorC);
     Distribution(htmp=0,ptmp=0);
     print();
@@ -217,10 +230,9 @@ struct 	Prediction : Data {
 		/** state index **/		sind,
 		/** **/					p,
 		/** **/					ch,
-//		/** **/					unch,
                                 N,
-                                predmom,
-                                empmom,
+        /** predicted moment **/ predmom,
+        /** empirical moment **/ empmom,
 		/** next prediction
             in the panel **/	pnext;
 	Prediction(prev);
@@ -272,10 +284,15 @@ struct PanelPrediction : PathPrediction {
     Tracking(LorC,mom,...);
     }
 
+/** Stores data read in as moments and associate them with a panel of predictions.
+
+**/
 struct EmpiricalMoments : PanelPrediction {
-    const decl label;
+    const decl /** label **/ label;
     decl     /**How much output to produce.@see NoiseLevels **/                      Volume,
-            flist, UorCorL, FMethod;
+            /** **/ flist,
+            /** matrix of indices or array of labels or UseLabel  **/ UorCorL,
+            /** **/ FMethod;
     EmpiricalMoments(label="",method=0,UorCorL=UseLabel);
     Observed(as1,lc1=0,...);
     TrackingMatchToColumn(Fgroup,LorC,mom);

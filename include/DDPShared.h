@@ -93,7 +93,14 @@ enum {onlyacts,onlyexog,onlysemiexog,bothexog,onlyendog,tracking,onlyclock,allst
 		/** . @name Vspace  **/
 enum {NOW,LATER,DVspace}
 
-        /** Kinds of variables in data sets. @name DataColumnTypes **/
+        /** Kinds of variables in data sets. @name DataColumnTypes
+            <table class="enum_table">
+            <tr><td valign="top">idvar</td><td>Identifier for the path (agent)</td></tr>
+            <tr><td valign="top">avar</td><td>`ActionVariable`</td></tr>
+            <tr><td valign="top">svar</td><td>`StateVariable`</td></tr>
+            <tr><td valign="top">idvar</td><td>`AuxiliaryValues`</td></tr>
+            </table>
+        **/
 enum{idvar,avar,svar,auxvar,NColumnTypes}
 
 /** Point in solving when updating of parameters and transitions needs to occur.
@@ -281,6 +288,7 @@ struct Alpha : DDPauxiliary {
             the user can get the matrix of actual action values
             with <code>A[Aind]</code> **/	                    A;
     static Initialize();
+    static AddA(fa);
     }
 
 /** Contains arrays of labels for variables.

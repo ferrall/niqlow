@@ -30,7 +30,7 @@ the user sent discrete variable is used directly.</DD>
 <DT>Ordinarily a single parameter of a separable objective spawns <code>K</code> parameter <em>values</em>.</DT>
 <DD>`Objective::Parameters`(x) creates a single parameter (or block), but the value of that parameter will be allowed to vary across <code>k</code>.  </DD>
 <DD>Each value of a parameter is under the control of algorithms.  Any dependency between parameters within a sub-vector will be respected <code>k</code> by <code>k</code>.</DT>
-<DT>A parameter can be added to the objective with `Separable::CommonParameters`().</DT>
+<DT>A parameter can be added to the objective with `Separable::Common`().</DT>
 <DD> Now the parameter has only one value which will be the same across <code>k</code>.</DD>
 <DT>Total Parameters</DT>
 <DD>If no common parameters (and no `Determined` parameters) are added to a separable objective then the length of the (overall) parameter vector seen by an algorithm is <code>N = KM</code>.</DD>
@@ -48,12 +48,10 @@ the user sent discrete variable is used directly.</DD>
 <DT>Separate and Common Parameters</DT>
 <DD>`Separable::Parameters`() creates a type-specific parameter that varies across <code>k</code>.  So <code>Parameters(x)</code> creates <var>K</var> different parameters to be optimized over, one for each sub objective f<sub>k</sub>(&psi;<sub>k</sub>).
 <pre>Separable::Parameters(x)  &rarr;  &psi; = &#9001; (x<sub>0</sub> &hellip;) (x<sub>1</sub> &hellip;) &hellip; (x<sub>K&oline;</sub> &hellip;) &#9002 </pre></DD>
-<DD>In many applications, some parameters are common across sub-objectives.  A common parameter is added using `Separable::CommonParameters`().  So <code>CommonParameters(y)</code> creates only one parameter to optimize and its value will be the same for each k as <code>vfunc()</code> is called.
-<pre>Separable::CommonParameters(x)  &rarr;  &psi; = &#9001; (x &hellip;) (x &hellip;) &hellip; (x &hellip;) &#9002 </pre></DD>
+<DD>In many applications, some parameters are common across sub-objectives.  A common parameter is added using `Separable::Common`().  So <code>Common(y)</code> creates only one parameter to optimize and its value will be the same for each k as <code>vfunc()</code> is called.
+<pre>Separable::Common(x)  &rarr;  &psi; = &#9001; (x &hellip;) (x &hellip;) &hellip; (x &hellip;) &#9002 </pre></DD>
 
-<DD>`Separable::CommonBlock` adds a block of parameters common across types.</DD>
-
-<DT>Total Parameters
+<DT>Total Parameters</DT>
 <DD>If no common parameters are added to the objective then the length of the (overall) parameter vector is <code>N = KM</code>.
 <DD>`Separable::C` denotes the number of common parameters.  The overall parameter vector has length <code>N = C+K&times;(N-C)</code>.
 <DD>Parameters are always written out with duplicates, so it will appear that <var>N&times;K</var> parameters exist.  This means that parameters can be changed from common to specific and vice versa without modifying files created by `Objective::Save`().</DD>

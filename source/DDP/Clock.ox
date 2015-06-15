@@ -4,9 +4,13 @@
 /** . @internal **/
 TimeVariable::TimeVariable(L,N) { Coevolving(L,N); }
 
-/** Create the clock block.
+/** Base clock block.
 @param Nt integer, the number of different values <code>t</code> takes on
 @param Ntprime integer, the number of values <code>t'</code> takes on.
+@comment
+Typically use a derived clock type or `DP::SetClock`.  If you are
+creating your own clock that is not derived from something else your code would have
+to call this routine.
 **/
 Clock::Clock(Nt,Ntprime) {
 	StateBlock("clock");
@@ -17,6 +21,9 @@ Clock::Clock(Nt,Ntprime) {
 /** Flag for last period.
 This is the default method, used by simple NonStationary environments.  The Ergodic clock replaces
 this one and other clocks may as well.
+
+If TRUE then transitions are not computed.
+
 @returns TRUE if current time is the last possible.
 **/
 Clock::Last() { return t.v==t.N-1; }
@@ -30,6 +37,7 @@ Clock::Solving(inME,inaVV,inaSPstar) {
     }
 
 Clock::Vupdate(now) { }
+
 Clock::setPstar() { return FALSE; }
 	
 /** A stationary clock block.
@@ -47,9 +55,24 @@ Stationary::Last() { return FALSE; }
 
 
 /** Normal Finite Horizon Aging.
+
+<DT>ClockType code to use this clock: <code>NormalAging</code></DT>
+@example
+Use SetClock, 10 time periods:
+<pre>
+SetClock(NormalAging,10);
+</pre>
+which is equivalent to this:
+<pre>
+SetClock(new Aging(10));
+</pre>
+</dd>
+
+@see DP::SetClock, ClockTypes
+
 **/
 Aging::Aging(T) {
-    if (T<1) oxrunerror("T must be positive");
+    if (T<1) oxrunerror("DDP Error 69. T must be positive");
     Clock(T,1);	
     }
 
@@ -58,6 +81,24 @@ Aging::Transit(FeasA) {	return { min(t.N-1,t.v+1)|0 , ones(rows(FeasA),1) } ;	}
 Aging::setPstar() { return TRUE; }
 
 /** A static problem: Aging and T=1.
+
+<DT>ClockType code to use this clock: <code>StaticProgram</code></DT>
+@example
+Use SetClock:
+<pre>
+SetClock(StaticProgram);
+</pre>
+which is equivalent to this:
+<pre>
+SetClock(new StaticP());
+</pre>
+which is also equivalent to this:
+<pre>
+SetClock(NormalAging,1);
+</pre>
+</dd>
+
+@see DP::SetClock, ClockTypes
 **/
 StaticP::StaticP() { Aging(1); }
 
@@ -67,11 +108,32 @@ NonDeterministicAging::Vupdate(now) {
 	
 /**Create an aging clock with brackets.
 @param Brackets vector of period lengths
+
+
+<DT>ClockType code to use this clock: <code>StaticProgram</code></DT>
+@example
+Use SetClock:
+<pre>
+SetClock(StaticProgram);
+</pre>
+which is equivalent to this:
+<pre>
+SetClock(new StaticP());
+</pre>
+which is also equivalent to this:
+<pre>
+SetClock(NormalAging,1);
+</pre>
+</dd>
+
+@see DP::SetClock, ClockTypes
+
+
 **/
 AgeBrackets::AgeBrackets(Brackets){
 	decl cur,p,tN=sizerc(Brackets);
 	this.Brackets = Brackets;
-	if (!any(Brackets.!=1)) oxwarning("Using AgeBrackets with deterministic aging: consider using Aging().");
+	if (!any(Brackets.!=1)) oxwarning("DDP Warning 07.\nUsing AgeBrackets with deterministic aging: consider using Aging().\n");
 	Clock(tN,2);
 	TransMatrix = new array[tN];
 	for(cur=0;cur<tN-1;++cur) {

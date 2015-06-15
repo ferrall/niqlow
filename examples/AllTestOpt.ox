@@ -105,7 +105,6 @@ SeparableRosenbrock ::SeparableRosenbrock (K)	{
 	x = new Free("x",1.01);
 	y = new Free("y",0.98);
     Parameters(x,y);
-//	CommonParameters(y);
 	Encode();
 	}
 

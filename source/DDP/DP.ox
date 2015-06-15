@@ -145,7 +145,7 @@ DP::GetTrans(i,h) { return {Theta[i].Nxt[Qi][h],Theta[i].Nxt[Qrho][h]}; }
 @comment Can only be called before calling `DP::CreateSpaces`
 **/
 DP::StorePalpha() {
-	if (Flags::ThetaCreated) oxrunerror("Must be called before CreateSpaces");
+	if (Flags::ThetaCreated) oxrunerror("DDP Error 35. Must be called before CreateSpaces");
 	Flags::StorePA = TRUE;
 	}
 
@@ -157,8 +157,8 @@ DP::StorePalpha() {
 **/
 DP::AddStates(SubV,va) 	{
 	decl pos, i, j;
-	if (Flags::ThetaCreated) oxrunerror("Error: can't add variable after calling DP::CreateSpaces()");
-	if (!isarray(SubVectors)) oxrunerror("Error: can't add states before calling Initialize()");
+	if (Flags::ThetaCreated) oxrunerror("DDP Error 36a. Error: can't add variable after calling DP::CreateSpaces()");
+	if (!isarray(SubVectors)) oxrunerror("DDP Error 36b: can't add states before calling Initialize()");
 	if (isclass(va,"Discrete")) va = {va};
 	for(i=0;i<sizeof(va);++i)	{
         if (isarray(va[i])) {
@@ -167,7 +167,7 @@ DP::AddStates(SubV,va) 	{
             }
 		if (StateVariable::IsBlock(va[i])) {
 			for (j=0;j<va[i].N;++j) {
-				if (StateVariable::IsBlock(va[i].Theta[j])) oxrunerror("nested state blocks not allowed");
+				if (StateVariable::IsBlock(va[i].Theta[j])) oxrunerror("DDP Error 37. anested state blocks not allowed");
 				AddStates(SubV,va[i].Theta[j]);
 				va[i].Theta[j].block = va[i];
 				va[i].Theta[j] = 0;		    //avoids ping-pong reference
@@ -176,18 +176,18 @@ DP::AddStates(SubV,va) 	{
 			Blocks |= va[i];
 			continue;
 			}
-		if (va[i].N<1) oxrunerror("Cannot add variable with non-positive N");
-        if (va[i].subv!=UnInitialized) oxrunerror("Discrete Variable has already been added a vector.");
+		if (va[i].N<1) oxrunerror("DDP Error 38a. Cannot add variable with non-positive N");
+        if (va[i].subv!=UnInitialized) oxrunerror("DDP Error 38b. Discrete Variable has already been added a vector.");
 		switch_single(SubV) {
-			case clock : if(!isclass(va[i],"TimeVariable")) oxrunerror("Clock subvector must contain TimeVariables");
+			case clock : if(!isclass(va[i],"TimeVariable")) oxrunerror("DDP Error 38c.Clock subvector must contain TimeVariables");
 			case rgroup: if (va[i].N>1) {
-							if (Flags::HasFixedEffect) oxrunerror("Error: random effect cannot be added AFTER any fixed effects have been added to the model");
-							if (!isclass(va[i],"RandomEffect")) oxrunerror("Only add RandomEffects to random effects vector");
+							if (Flags::HasFixedEffect) oxrunerror("DDP Error 38d. random effect cannot be added AFTER any fixed effects have been added to the model");
+							if (!isclass(va[i],"RandomEffect")) oxrunerror("DDP Error 38e. Only add RandomEffects to random effects vector");
 							}
-			case fgroup :  if (!isclass(va[i],"FixedEffect")) oxrunerror("Only add FixedEffects to fixed effects vector");
+			case fgroup :  if (!isclass(va[i],"FixedEffect")) oxrunerror("DDP Error 38f. Only add FixedEffects to fixed effects vector");
 						Flags::HasFixedEffect = TRUE;
-			case acts : if (!isclass(va[i],"ActionVariable")) oxrunerror("Only add ActionVariables to the action vector ",0);
-			default   : if (!isclass(va[i],"StateVariable")) oxrunerror("Only add StateVariable to state vectors");
+			case acts : if (!isclass(va[i],"ActionVariable")) oxrunerror("DDP Error 38g. Only add ActionVariables to the action vector ",0);
+			default   : if (!isclass(va[i],"StateVariable")) oxrunerror("DDP Error 38h. Only add StateVariable to state vectors");
 			}
 		pos = S[SubV].D++;
 		SubVectors[SubV] |= va[i];
@@ -221,7 +221,7 @@ DP::GroupVariables(v1,...)	{
 	for(j=0;j<sizeof(va);++j) {
 		if (isclass(va[j],"FixedEffect")||isclass(va[j],"FixedEffectBlock")) AddStates(fgroup,va[j]);
 		else if (isclass(va[j],"RandomEffect")||isclass(va[j],"RandomEffectBlock")) AddStates(rgroup,va[j]);
-		else oxrunerror("argument is not a TimeInvariant variable");
+		else oxrunerror("DDP Error 39. argument is not a TimeInvariant variable");
 		}
 	}
 
@@ -272,10 +272,10 @@ DP::Actions(Act1,...) 	{
 @param v1 ... `AuxiliaryValues`s or array of auxiliary variables
 **/
 DP::AuxiliaryOutcomes(auxv,...) {
-	if (!isarray(SubVectors)) oxrunerror("Error: can't add auxiliary before calling Initialize()",0);
+	if (!isarray(SubVectors)) oxrunerror("DDP Error 40. Error: can't add auxiliary before calling Initialize()",0);
 	decl va = auxv|va_arglist(), pos = sizeof(Chi), i,sL,n;
 	for (i=0;i<sizeof(va);++i) {
-		if (!isclass(va[i],"AuxiliaryValues")) oxrunerror("not an AuxiliaryValues");
+		if (!isclass(va[i],"AuxiliaryValues")) oxrunerror("DDP Error 41. not an AuxiliaryValues");
 		Chi |= va[i];
         sL =va[i].L;
 		if (!pos) {
@@ -419,7 +419,22 @@ Alpha::Initialize() {
 	A = array(Matrix);
 	Sets = array(ones(N::A,1));
     N::Options = matrix(rows(Matrix));
+    N::J = 1;
     }
+
+Alpha::AddA(fa) {
+    decl nfeas = int(sumc(fa)), ai=0;
+    do { if (fa==Sets[ai]) {++Count[ai]; break;} } while (++ai<N::J);
+    if (ai==N::J) {
+  	 Sets |= fa;
+     N::Options |= nfeas;
+	 List |= selectifr(Matrix,fa);
+	 A |= List[N::J];
+     ++N::J;
+	 Count |= 1;
+     }
+   return ai;
+   }
 
 /**
 @internal
@@ -517,7 +532,7 @@ UseStateList=TRUE may be much faster if the untrimmed state space is very large 
 DP::Initialize(userReachable,UseStateList) {
     decl subv;
     Version::Check();
-    if (Flags::ThetaCreated) oxrunerror("Must call DP::Delete between calls to CreateSpaces and Initialize");
+    if (Flags::ThetaCreated) oxrunerror("DDP Error 42. Must call DP::Delete between calls to CreateSpaces and Initialize");
     Hooks::Reset();
     this.userReachable = userReachable;
     Flags::UseStateList=UseStateList;
@@ -580,15 +595,15 @@ SetUpdateTime(AfterRandom);
 **/
 DP::SetUpdateTime(time) {
     if (isint(Flags::UpdateTime)) Flags::UpdateTime = constant(FALSE,UpdateTimes,1);
-    if (!isint(time) ) oxrunerror("Update time must be an integer");
+    if (!isint(time) ) oxrunerror("DDP Error 43a. Update time must be an integer");
     if (Volume>QUIET)
         switch_single (time) {
             case InCreateSpaces : if (Flags::ThetaCreated) oxrunerror("Cannot specify UpdateTime as InCreateSpaces after it has been called");
-                                  oxwarning("Transitions and actual values are fixed. They are computed in CreateSpaces() and never again.");
-            case OnlyOnce       : oxwarning("Setting update time to OnlyOnce. Transitions and actual values do not depend on fixed or random effect values.\n  If they do, results are not reliable.");
-            case AfterFixed     : oxwarning("Setting update time to AfterFixed. Transitions and actual values can depend on fixed effect values but not random effects.\n  If they do, results are not reliable.");
-            case AfterRandom    : oxwarning("Setting update time to AfterRandom. Transitions and actual values can depend on fixed and random effects,\n  which is safe but may be redundant and therefore slower than necessary.");
-            default             : oxrunerror("Update time must be between 0 and UpdateTimes-1");
+                                  oxwarning("DDP Warning 13a.\n Transitions and actual values are fixed.\n They are computed in CreateSpaces() and never again.\n");
+            case OnlyOnce       : oxwarning("DDP Warning 13b.\n Setting update time to OnlyOnce.\n Transitions and actual values do not depend on fixed or random effect values.\n  If they do, results are not reliable.\n");
+            case AfterFixed     : oxwarning("DDP Warning 13c.\n Setting update time to AfterFixed.\n Transitions and actual values can depend on fixed effect values but not random effects.\n  If they do, results are not reliable.\n");
+            case AfterRandom    : oxwarning("DDP Warning 13d.\n Setting update time to AfterRandom.\n Transitions and actual values can depend on fixed and random effects,\n  which is safe but may be redundant and therefore slower than necessary.\n");
+            default             : oxrunerror("DDP Error 43b. Update time must be between 0 and UpdateTimes-1");
             }
     Flags::UpdateTime[] = FALSE;
     Flags::UpdateTime[time] = TRUE;
@@ -625,7 +640,7 @@ Storage for U and &Rho;() is re-allocated accordingly.</DD>
 **/
 DP::SubSampleStates(SampleProportion,MinSZ,MaxSZ) {
 	if (!sizerc(SubVectors[clock]))	{
-		oxwarning("Clock must be set before calling SubsampleStates.  Setting clock type to InfiniteHorizon.");
+		oxwarning("DDP Warning 14.\n Clock must be set before calling SubsampleStates.\n  Setting clock type to InfiniteHorizon.\n");
 		SetClock(InfiniteHorizon);
 		}
 	this.SampleProportion = isdouble(SampleProportion) ? constant(SampleProportion,N::T,1) : SampleProportion;
@@ -641,8 +656,11 @@ DP::SubSampleStates(SampleProportion,MinSZ,MaxSZ) {
     }
 
 DP::onlyDryRun() {
-    if (Flags::ThetaCreated) oxwarning("State Space Already Defined.");
-    oxwarning(" Only a dry run of creating the state space Theta will be performed.  Program ends at the end of CreateSpaces()");
+    if (Flags::ThetaCreated) {
+        oxwarning("DDP Warning 15.\n State Space Already Defined.\n DryRun request ignored.\n");
+        return;
+        }
+    oxwarning("DDP Warning 16.\n Only a dry run of creating the state space Theta will be performed.\n Program ends at the end of CreateSpaces().\n");
     Flags::onlyDryRun=TRUE;
     }
 
@@ -650,11 +668,11 @@ DP::onlyDryRun() {
 @comments No actions or variables can be added after CreateSpaces() has been called. <br>
 **/
 DP::CreateSpaces() {
-   if (Flags::ThetaCreated) oxrunerror("State Space Already Defined. Call CreateSpaces() only once");
+   if (Flags::ThetaCreated) oxrunerror("DDP Error 44. State Space Already Defined. Call CreateSpaces() only once");
    decl subv,i,pos,m,bb,sL,j,av, sbins = zeros(1,NStateTypes),w0,w1,w2,w3, tt,lo,hi,inargs = arglist();
    if (strfind(inargs,"NOISY")!=NoMatch) Volume=NOISY;
     if (!S[acts].D) {
-		oxwarning("No actions added to the model. A no-choice action inserted.");
+		oxwarning("DDP Warning 17.\n No actions have been added to the model.\n A no-choice action inserted.\n");
 		Actions(new ActionVariable());
 		}
 	S[acts].M=0;
@@ -663,7 +681,7 @@ DP::CreateSpaces() {
 		if (subv>LeftSV) S[subv].M = S[subv-1].X+1;
 		if (!sizerc(SubVectors[subv]))	{
 			if (subv==clock) {
-				oxwarning("setting clock type to stationary.");
+				oxwarning("DDP Warning 18.\n Clock has not been set.\n Setting clock type to InfiniteHorizon.\n");
 				SetClock(InfiniteHorizon);
 				}
 			else if (subv==rgroup) {AddStates(rgroup,new RandomEffect("r",1));}
@@ -708,7 +726,7 @@ DP::CreateSpaces() {
     N::Initialize();
     Alpha::Initialize();
 	if (Flags::UseStateList) {
-		if (isclass(counter,"Stationary")) oxrunerror("canNOT use state list in stationary environment");
+		if (isclass(counter,"Stationary")) oxrunerror("DDP Error 45. canNOT use state list in stationary environment");
 		}
     Flags::IsErgodic = counter.IsErgodic;
 	/* if (Flags::UseStateList || (Flags::IsErgodic) ) */
@@ -765,8 +783,8 @@ DP::CreateSpaces() {
        delete tt.insamp;
        }
 	delete tt;
-	if ( Flags::IsErgodic && N::TerminalStates ) oxwarning("NOTE: time is ergodic but terminal states exist???");
-    N::J = sizeof(Alpha::Sets);
+	if ( Flags::IsErgodic && N::TerminalStates )
+        oxwarning("DDP Warning 19.\n clock is ergodic but terminal states exist?\n Inconsistency in the set up.\n");
 	tt = new CGTask();	delete tt;
 	if (isint(zeta)) zeta = new ZetaRealization(0);
 	DPDebug::Initialize();
@@ -1115,7 +1133,7 @@ DP::SyncAct(a)	{
 <pre>
 Initialize(Reachable);
 SetClock(InfiniteHorizon);
-...
+&vellip;
 CreateSpaces();
 </pre>
 Finite Horizon
@@ -1123,7 +1141,7 @@ Finite Horizon
 decl T=65;	
 Initialize(Reachable);
 SetClock(NormalAging,T);
-...
+&vellip;
 CreateSpaces();
 </pre>
 Early Mortaliy
@@ -1132,7 +1150,7 @@ MyModel::Pi(FeasA);
 
 SetClock(RandomMortality,T,MyModel::Pi);
 Initialize(Reachable);
-...
+&vellip;
 CreateSpaces();
 
 </pre></dd>
@@ -1141,7 +1159,7 @@ CreateSpaces();
 		
 **/
 DP::SetClock(ClockOrType,...)	{
-	if (isclass(counter)) oxrunerror("Clock/counter state block already initialized");
+	if (isclass(counter)) oxrunerror("DDP Error 46. Clock/counter state block already initialized");
 	decl va = va_arglist() ;
 	if (isclass(ClockOrType,"Clock")) {
         counter = ClockOrType;
@@ -1305,10 +1323,10 @@ Group::StationaryDistribution() {
 	PT[0][]=1.0;
 	switch (declu(PT,&l,&u,&p)) {
 		case 0: println("*** Group ",pos);
-				oxrunerror("stationary distribution calculation failed");
+				oxrunerror("DDP Error 47. stationary distribution calculation failed");
 				break;
 		case 2:	println("*** Group ",pos);
-				oxwarning("stationary distribution may be unreliable");
+				oxwarning("DDP Warning 20.\n Linear systems solution for stationary distribution returns code 2.\n May be unreliable.\n");
 		case 1: Pinfinity[] = 0.0;
 				Pinfinity[N::ReachableIndices] = solvelu(l,u,p,statbvector);
 				break;

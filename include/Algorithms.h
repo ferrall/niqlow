@@ -50,7 +50,7 @@ struct NonGradient : Algorithm { }
 
 Bracket a maximum then golden rule iteration to reduce the interval.
 
-Typically, this method is called by `Gradient`-based routines, but the user can use it to one-dimensional
+Typically, this method is called by `GradientBased` routines, but the user can use it to one-dimensional
 search.
 
 
@@ -320,7 +320,7 @@ struct NonLinearSystem	: GradientBased {
         		JJupdate();
 				Iterate(H=0);
 				Direction();
-		virtual Jupdate(dx);
+		virtual Jupdate(dx=0);
 	   }
 
 /** Broyden approximation to the Jacobian.
@@ -334,7 +334,7 @@ struct Broyden : NonLinearSystem {
 /** Update the Jacobian on each iteration. **/
 struct NewtonRaphson : NonLinearSystem {
     			NewtonRaphson(O);
-    virtual 	Jupdate(dx);
+    virtual 	Jupdate(dx=0);
     }
 
 /** Sequential Quadratic Programming for constrained optimization. **/

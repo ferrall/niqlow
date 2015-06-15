@@ -362,7 +362,7 @@ One-dimensional line search for a maximum.
 <P/>
 Bracket a maximum then golden rule iteration to reduce the interval.
 <P/>
-Typically, this method is called by Gradient-based routines, but the user can use it to one-dimensional
+Typically, this method is called by <a href="Algorithms.ox.html#GradientBased">GradientBased</a> routines, but the user can use it to one-dimensional
 search.
 
 <table class="method_table">
@@ -618,7 +618,7 @@ Update the Jacobian on each iteration.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NewtonRaphson___Jupdate">Jupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Compute the objective's Jacobina.</td>
+<td class="description">Compute the objective's Jacobian.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NewtonRaphson___NewtonRaphson">NewtonRaphson</a></td>
@@ -697,7 +697,7 @@ in a line search.</td>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NonLinearSystem___Jupdate">Jupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Compute the objective's Jacobian.</td>
 </tr>
 </table>
 
@@ -1161,8 +1161,9 @@ decl myobj = new MyObjective();
 decl bfgs = new BFGS(myobj);
 bfgs->Iterate();
 </pre></dd>
+<P/>
+<DT>See <a href="./GetStarted.html">GetStarted</a></DT>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="./GetStarted.html">GetStarted</a></dd>
 </dl>
 </dd></dl>
 
@@ -1214,8 +1215,9 @@ decl myobj = new MyObjective();
 decl bhhh = new BHHH(myobj);
 bhhh->Iterate();
 </pre></dd>
+<P/>
+<DT>See <a href="./GetStarted.html">GetStarted</a></DT>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="./???.html">????</a></dd>
 </dl>
 </dd></dl>
 
@@ -1269,6 +1271,15 @@ broy -> Iterate();
 <dl><dd>
 Apply Broyden's formula to update the Jacobian.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">dx</td>
+<td class="description" valign="baseline">x<sub>t+1</sub> - x<sub>t</sub></td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CLineMax</span></h2>
 
@@ -1413,9 +1424,9 @@ Initialize a Gradient-Based algorithm.
 <dl><dd>
 Update the gradient &nabla; f(&psi;).
 <P/>
-<DT>This routine is called inside GradentBased::Iterate().</DT>
+<DT>This routine is called inside <a href="Algorithms.ox.html#GradientBased___Iterate">Iterate</a>().</DT>
 <DD>Creates a copy of the current gradient.</DD>
-<DD>Calls Objective::Gradient() routine to compute <em>&nabla f(&psi;)</em>, which is (stored internally in <a href="Shared.ox.html#Point___G">G</a>).</DD>
+<DD>Calls <a href="Objective.ox.html#Objective___Gradient">Gradient</a>() routine to compute <em>&nabla f(&psi;)</em>, which is (stored internally in <a href="Shared.ox.html#Point___G">G</a>).</DD>
 <DD>Then computes the size of &nabla; using the built-in Ox <code>norm(m,2)</code> routine.</DD>
 <DD>If <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a> is louder than <code>QUIET</code> <em>&nabla; f()</em> is printed to the screen.</DD>
 
@@ -1783,9 +1794,17 @@ default initial step size.
 <dl><dd>
 Iterate on the Amoeba algorithm.
 
-<dl><dt class="example">Example:</dt><dd class="example">See <a href="GetStarted.html">GetStarted</a>
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">iplex</td>
+<td class="description" valign="baseline"> N&times;N+1 matrix of initial steps.<br>double, initial step size (iplex is set to 0~unit(N))<br>integer &gt; 0, max starts of the algorithm<br>0 (default), use current mxstarts.
+</td>
+</tr>
+</table>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso">Objective::F</dd>
+<dt class="example">Example:</dt><dd class="example">See <a href="GetStarted.html">GetStarted</a>
+</dd>
 </dl>
 </dd></dl>
 
@@ -1973,7 +1992,7 @@ newt->Iterate();
 
 <span class="declaration">virtual NewtonRaphson :: Jupdate ( dx )</span>
 <dl><dd>
-Compute the objective's Jacobina.
+Compute the objective's Jacobian.
 
 </dd></dl>
 
@@ -2069,7 +2088,7 @@ This routine is shared (inherited) by derive algorithms.</td>
 <dl><dd>
 Wrapper for updating the Jacobian of the system.
 <P/>
-<DT>This is a wrapper for the virtual NonLinearSystem::Jupdate() routine.</DT>
+<DT>This is a wrapper for the virtual <a href="Algorithms.ox.html#NonLinearSystem___Jupdate">Jupdate</a>() routine.</DT>
 
 <dl><dt class="returns">Returns:</dt><dd class="returns"><code>FAIL</code> if change in parameter values is too small.
 Otherwise, return <code>NONE</code>
@@ -2082,7 +2101,10 @@ Otherwise, return <code>NONE</code>
 <a name="NonLinearSystem___Jupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Jupdate</span></h3>
 
+<span class="declaration">virtual NonLinearSystem :: Jupdate ( dx )</span>
 <dl><dd>
+Compute the objective's Jacobian.
+ @ param dx argument is ignored (default=0)
 
 </dd></dl>
 

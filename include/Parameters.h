@@ -139,7 +139,7 @@ struct FixedBlock : ParameterBlock	{
 <dd><pre>
 x<sup>0</sup> = `Probability`
 x<sup>j</sup> = `Bounded`(0.0,1-&sum;<sub>k=0&hellip;j-1</sub> x<sup>k</sup>)
-...
+&vellip;
 x<sup>J</sup> = `Determined`(1-&sum;x<sup>j</sup>)
 </pre></dd>
 @see TransitionMatrix

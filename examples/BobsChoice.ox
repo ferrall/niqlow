@@ -15,7 +15,7 @@ Make() { return new BobsChoice(); }
 BobsChoice::Decide() {
         maj = new ActionVariable("major",{"Econ","Physics"});
         sch = new ActionVariable("school",{"Harvard","Yale","Queen's","McGill"});
-        Initialize(Make,LogitKernel,maj,sch);
+        Initialize(Make,0,maj,sch);
         VISolve();
         }
 

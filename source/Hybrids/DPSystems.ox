@@ -22,7 +22,7 @@ EVSystem::vfunc()	{
 	}
 
 SolveAsSystem::SolveAsSystem() {
-	if (!Flags::IsErgodic) oxrunerror("SolveAsSystem only works with ergodic clock");
+	if (!Flags::IsErgodic) oxrunerror("DDP Error 34. SolveAsSystem only works with ergodic clock");
 	Task();
 	VI = new ValueIteration(0);
 	system = new EVSystem(SS[iterating].size,VI);
@@ -118,8 +118,13 @@ RVEdU::RVEdU() {
 	
 RVEdU::Run(th) {
 	if (!isclass(th,"Bellman")) return;
-	th.pandv[I::r][][] = .NaN;
-	th.U[] = 0;
+    if (th.solvez) {
+	   th.pandv[I::r][][] = .NaN;
+	   th.U[] = 0;
+       }
+    else {
+        th.U[]=th->Utility();	
+        }
 	}
 
 /**Solve for cut off values in the continuous shock &zeta;.
@@ -145,9 +150,9 @@ ReservationValues::Solve(Fgroups,MaxTrips) 	{
 
 ReservationValues::Run(th) {
 	if (!isclass(th,"Bellman")) return;
+    th->ActVal(VV[later]);
 	decl sysind = th.Aind;
-	th->ActVal(VV[later]);
-	if (isclass(RValSys[sysind])) {
+	if ( th.solvez && isclass(RValSys[sysind])) {
 		RValSys[sysind] ->	RVSolve(th,DeltaV(th.pandv[I::r]));
 		VV[now][I::all[iterating]] = th->thetaEMax();
 		}

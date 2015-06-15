@@ -195,8 +195,8 @@ LineMax::Try(pt,step)	{
 	pt.step = step;
 	O->fobj(holdF + step*Delta);
 	if (isnan(pt.v = OC.v)) {
-		println("*** Objective undefined at line max point ",pt,holdF+step*Delta,OC.X);
-		oxrunerror(" ");
+		println("*** ",pt,holdF+step*Delta,OC.X,"\n ****");
+		oxrunerror("FiveO Error 01. Objective undefined at line max point.\n");
 		}
 	improved = O->CheckMax() || improved;
 	}
@@ -210,7 +210,7 @@ SysMax::Try(pt,step) {
 @param O `Objective`
 **/
 CLineMax::CLineMax(O)	{
-	if (isclass(O,"UnConstrained")) oxrunerror("Objective must be Constrained");
+	if (isclass(O,"UnConstrained")) oxrunerror("FiveO Error 02. Objective must be Constrained\n");
 	LineMax(O);
 	}
 
@@ -221,8 +221,8 @@ CLineMax::Try(pt,step)	{
 	pt.step = step;
 	O->Merit(holdF + step*Delta);
 	if (isnan(pt.v = OC.L)) {
-		println("Lagrange undefined at line max point ",pt,OC.X);
-		oxrunerror(" ");
+		println("****",pt,OC.X,"\n****");
+		oxrunerror("FiveO Error 03.  Lagrange undefined at line max point\n");
 		}
 	improved = O->CheckMax() || improved ;
 	}
@@ -289,10 +289,9 @@ NelderMead::NelderMead(O)	{
 	}
 	
 /** Iterate on the Amoeba algorithm.
-
+@param iplex  N&times;N+1 matrix of initial steps.<br>double, initial step size (iplex is set to 0~unit(N))<br>integer &gt; 0, max starts of the algorithm<br>0 (default), use current mxstarts.
 @example
 See <a href="GetStarted.html">GetStarted</a>
-@see Objective::F
 **/
 NelderMead::Iterate(iplex)	{
 	O->Encode();
@@ -302,7 +301,9 @@ NelderMead::Iterate(iplex)	{
 	   OC.SE = OC.G = .NaN;
 	   iter = 1;
 	   if (!ismatrix(iplex))  {
-		  if (isdouble(iplex)) step = iplex;
+		  if (isdouble(iplex))
+                step = iplex;
+          else if (iplex>0) mxstarts = iplex;
 		  iplex = (0~unit(N));
 		  }
 	   else
@@ -429,7 +430,7 @@ decl bfgs = new BFGS(myobj);
 bfgs->Iterate();
 </pre></dd>
 
-@see <a href="./GetStarted.html">GetStarted</a>
+<DT>See <a href="./GetStarted.html">GetStarted</a></DT>
 
 **/
 BFGS::BFGS(O) {	GradientBased(O);	}
@@ -444,7 +445,7 @@ decl bhhh = new BHHH(myobj);
 bhhh->Iterate();
 </pre></dd>
 
-@see <a href="./???.html">????</a>
+<DT>See <a href="./GetStarted.html">GetStarted</a></DT>
 
   **/
 BHHH::BHHH(O) {	GradientBased(O);	}
@@ -461,7 +462,7 @@ bfgs->Iterate();
 
   **/
 DFP::DFP(O)      {
-	oxrunerror("DFP not coded  yet");
+	oxrunerror("FiveO Error 04. DFP not coded  yet");
 	GradientBased(O);
 	}
 
@@ -492,7 +493,7 @@ GradientBased::Direction()	{
 	if (declu(OC.H,&l,&u,&p)==1)
 		return solvelu(l,u,p,-OC.G');
 	else {
-		oxwarning("GradientBased: Hessian reset to I");
+		oxwarning("FiveO Warning 01. Hessian inversion failed.\n Hessian reset to the identify matrix I.\n");
 		OC.H = unit(N);
          ++Hresetcnt;
 		 return Direction();
@@ -501,7 +502,7 @@ GradientBased::Direction()	{
 
 /**  Update the gradient &nabla; f(&psi;).
 
-<DT>This routine is called inside `GradentBased::Iterate`().</DT>
+<DT>This routine is called inside `GradientBased::Iterate`().</DT>
 <DD>Creates a copy of the current gradient.</DD>
 <DD>Calls `Objective::Gradient`() routine to compute <em>&nabla f(&psi;)</em>, which is (stored internally in `Point::G`).</DD>
 <DD>Then computes the size of &nabla; using the built-in Ox <code>norm(m,2)</code> routine.</DD>
@@ -666,6 +667,7 @@ BFGS::Hupdate() {
     return NONE;
     }
 
+
 /** Create a Newton-Raphson object to solve a system of equations.
 
 @param O, the `System`-derived object to solve.
@@ -681,7 +683,7 @@ hr -> Iterate();
 
  **/
 NewtonRaphson::NewtonRaphson(O) {
-	if (!isclass(O,"System")) oxrunerror("Objective must be a System");
+	if (!isclass(O,"System")) oxrunerror("FiveO Error 05. Objective must be a System");
 	GradientBased(O);
     USELM = FALSE;
 	}
@@ -700,7 +702,7 @@ broy -> Iterate();
 
 **/
 Broyden::Broyden(O) {
-	if (!isclass(O,"System")) oxrunerror("Objective must be a System");
+	if (!isclass(O,"System")) oxrunerror("FiveO Error 06. Objective must be a System");
 	GradientBased(O);
     USELM = FALSE;
 	}
@@ -715,10 +717,10 @@ NonLinearSystem::Direction() 	{
 		return solvelu(l,u,p,-OC.V);
 	else {
 		 if (resat) {
-		 	println("**** NonLinear System Dump. ",OC.F',OC.J);
-		 	oxrunerror("Second failure to invert J");
+		 	println("**** ",OC.F',OC.J,"\n****");
+		 	oxrunerror("FiveO Error 07. Second failure to invert J.|n");
 			}
-		 oxwarning("NonLinearSystem: J reset to I");
+		 oxwarning("FiveO Warning 02. NonLinearSystem: J inversion failed. J reset to identity matrix I.\n");
          if (Volume>QUIET) println("Jacobian",OC.J);
 		 OC.J = unit(N);
 		 resat = TRUE;
@@ -806,18 +808,25 @@ NonLinearSystem::JJupdate() {
 	return NONE;
 	}
 	
-/** Compute the objective's Jacobina.  **/
-NewtonRaphson::Jupdate(dx) {O->Jacobian(); }
+/** Compute the objective's Jacobian.
+@ param dx argument is ignored (default=0)
+**/
+NonLinearSystem::Jupdate(dx) {O->Jacobian(); }
 
-/** Apply Broyden's formula to update the Jacobian.  **/
-Broyden::Jupdate(dx)       {OC.J += ((dg-OC.J*dx)/deltaX)*(dx');}
+/** Compute the objective's Jacobian.  **/
+NewtonRaphson::Jupdate(dx) { NonLinearSystem::Jupdate(); }
+
+/** Apply Broyden's formula to update the Jacobian.
+@param dx x<sub>t+1</sub> - x<sub>t</sub>
+**/
+Broyden::Jupdate(dx) {OC.J += ((dg-OC.J*dx)/deltaX)*(dx');}
 
 /** Create a new Sequential Quadratic Programming object.
 @param O `Constrained` objective
 **/
 SQP::SQP(O) {
 	oxwarning("SQP not working yet!!!!");
-	if (isclass(O,"UnConstrained")) oxrunerror("Objective must be Constrained");
+	if (isclass(O,"UnConstrained")) oxrunerror("FiveO Error 08. Objective must be Constrained");
 	GradientBased(O);	
 	ne = OC.eq.N;
 	ni = OC.ineq.N;
@@ -853,8 +862,8 @@ SQP::Iterate(H)  {
 	   OC.H = isint(H) ? unit(N) : H;
 	   OC.SE = OC.G = .NaN;
 	   O->Merit(0);
-	   if (any(OC.ineq.v.<0)) oxrunerror("Inequality constraints not satisfied at initial psi");
-	   if (any(OC.ineq.lam.<0)) oxrunerror("Initial inequality lambda has negative element(s)");
+	   if (any(OC.ineq.v.<0)) oxrunerror("FiveO Error 09. Inequality constraints not satisfied at initial psi");
+	   if (any(OC.ineq.lam.<0)) oxrunerror("FiveO Error 10. Initial inequality lambda has negative element(s)");
 	   if (Volume>QUIET)
 		  println("SQP on ",O.L," .f0=",OC.v,". #Equality: ",ne,". #InEquality: ",ni);		
 	   Hresetcnt = iter =0;

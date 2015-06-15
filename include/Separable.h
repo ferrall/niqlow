@@ -30,7 +30,7 @@ struct Separable : UnConstrained	{
 			ResetCommon(hold);
 	virtual Print(orig);
 //	virtual	CheckPoint(f,saving);
-	virtual	CommonParameters(psi, ... );	
+	virtual	Common(psi, ... );	
 	virtual vfunc();						   			
 	virtual fobj(F);
 	virtual vobj(F);

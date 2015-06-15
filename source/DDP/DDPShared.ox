@@ -27,8 +27,8 @@ Say hello after every Bellman iteration is complete:
 @see HookTimes, DP::SetUpdateTime
 **/
 Hooks::Add(time,proc) {
-    if ( time<0 || time>=NHooks ) oxrunerror("Invalid hook time.  See Hooks and HookTimes");
-    if ( !isfunction(proc) ) oxrunerror("proc must be static function or method AND should return an integer value");
+    if ( time<0 || time>=NHooks ) oxrunerror("DDP Error 48a. Invalid hook time.  See Hooks and HookTimes");
+    if ( !isfunction(proc) ) oxrunerror("DDP Error 48b. proc must be static function or method AND should return an integer value");
     hooks[time] |= proc;
     if (time==GroupCreate) Flags::AllGroupsExist = FALSE;
     }

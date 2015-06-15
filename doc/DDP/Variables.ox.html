@@ -1235,17 +1235,29 @@ Time increments randomly, with probability equal to inverse of bracket length.
 If the bracket has size 1, then it is equivalent to <a href="Variables.ox.html#Aging">Aging</a> at that period.
 If the bracket is bigger than 1, the value function at that period is solved as a fix point.
 <P/>
-<dd class="math">Let B = the bracket size at period t.<pre>
+<DT>ClockType code to use this clock: <code>RandomAging</code></DT>
+
+<dl><dt class="example">Example:</dt><dd class="example">Represent a lifecycle as a sequence of 10 periods that each last on average 5 years:
+<pre>
+SetClock(RandomAging,constant(5,1,10));
+</pre>
+which is equivalent to this:
+<pre>
+SetClock(new AgeBrackets(constant(5,1,10)));
+</pre>
+Have normal aging for the first 10 years, then 3 brackets of five years, then 2 of 10 years:
+<pre>
+SetClock(RandomAging,constant(1,1,10)~constant(5,1,3)~constant(10,1,2));
+</pre>
+</dd>
+<P/>
+<DT>Transition</DT>
+<dd class="math">Let B = the bracket size at period t. <pre>
 Prob( t&prime; = t+1 ) = 1/B;
 Prob( t&prime; = t ) = 1-1/B;
 </pre></dd>
-
-<dl><dt class="example">Example:</dt><dd class="example">Represent a lifecycle as a sequence of 10 periods that each last on average 5 years:
-<pre>AgeBrackets(constant(5,1,10));</pre>
-Model decisions each year for the last five years before retirement, every five years for 15 years, then every 10 years for 30 years:
-<pre>AgeBrackets(<[3]10,[3]5,[5]1>);</pre>
 </dd>
-</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="Shared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -1295,8 +1307,21 @@ Model decisions each year for the last five years before retirement, every five 
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Aging : <a href="Variables.ox.html#NonStationary">NonStationary</a> : <a href="Variables.ox.html#Clock">Clock</a> : <a href="Variables.ox.html#StateBlock">StateBlock</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 Timing in an ordinary finite horizon environment.
+Normal Finite Horizon Aging.
+<P/>
+<DT>ClockType code to use this clock: <code>NormalAging</code></DT>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a></dd>
+<dl><dt class="example">Example:</dt><dd class="example">Use SetClock, 10 time periods:
+<pre>
+SetClock(NormalAging,10);
+</pre>
+which is equivalent to this:
+<pre>
+SetClock(new Aging(10));
+</pre>
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="Shared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -1573,7 +1598,8 @@ s' = 0 if t &lt; Tbar
 </pre>
 Now record the choice made at the 6th time period (t=5):
 <pre>
-  EndogenousStates(d5 = new ChoiceAtTbar("d5",d,DP::counter,5));
+  EndogenousStates(d5 = new ChoiceAt
+  Tbar("d5",d,DP::counter,5));
 </pre>
 Or, track the first four choices of d:
 <pre>
@@ -1588,26 +1614,21 @@ Or, track the first four choices of d:
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#ChoiceAtTbar___Clock">Clock</a></td>
-<td class="modifiers">const</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#ChoiceAtTbar___Tbar">Tbar</a></td>
 <td class="modifiers">const</td>
 <td class="description"></td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ChoiceAtTbar___ChoiceAtTbar">ChoiceAtTbar</a></td>
 <td class="modifiers"></td>
 <td class="description">Record the value of an action variable at a given time.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ChoiceAtTbar___IsReachable">IsReachable</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ChoiceAtTbar___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">.</td>
@@ -1672,7 +1693,7 @@ to SetClock.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Clock___Clock">Clock</a></td>
 <td class="modifiers"></td>
-<td class="description">Create the clock block.</td>
+<td class="description">Base clock block.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Clock___Last">Last</a></td>
@@ -2648,8 +2669,42 @@ s' = s.x
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Longevity : <a href="Variables.ox.html#Mortality">Mortality</a> : <a href="Variables.ox.html#NonDeterministicAging">NonDeterministicAging</a> : <a href="Variables.ox.html#NonStationary">NonStationary</a> : <a href="Variables.ox.html#Clock">Clock</a> : <a href="Variables.ox.html#StateBlock">StateBlock</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 Random mortality and uncertain lifetime.
-Like <a href="Variables.ox.html#Mortality">Mortality</a> but T*-1 = TT-2 is a stationary environment.
+<P/>
+Like <a href="Variables.ox.html#Mortality">Mortality</a> but at <code>t = T*-1 &equiv; <a href="DDPShared.ox.html#N___T">T</a>-2</code> a stationary environment occurs
+with constant probability of mortality.
+<P/>
+<DT>ClockType code to use this clock: <code>UncertainLongevity</code></DT>
 
+<dl><dt class="example">Example:</dt><dd class="example">Model a lifetime of 5 ordinary periods with a constant probability of dying after each period.
+The 6th period (<code>t=5</code>) is stationary and transitions to the last period with
+probability 1/10 each period.
+<pre>
+SetClock(UncertainLongevity,7,0.1);
+</pre>
+which is equivalent to:
+<pre>
+SetClock(new Longevity(7,0.1));
+</pre>
+Over  periods allow mortality rate to increase linearly in age up to a stationary mortality
+rate of 50% in the final stage of life:
+<pre>
+MyModel::Mprob() { return 0.5*I::t/(N::T-2) ; }
+&vellip;
+SetClock(RandomMortality,9,MyModel::Mprob);
+</pre>
+</dd>
+<P/>
+<DT>Transition</DT>
+<dd class="math">
+Let T* = <a href="DDPShared.ox.html#N___T">T</a>-1
+<pre>
+Prob(t' = T*) = &pi;(t)
+Prob(t' = t+1) = 1 - &pi;(t) if t &lt; T*-1
+Prob(t' = t) = 1-&pi;(t) if t = T*-1.
+</pre></dd>
+T* is the last period with probability 1.
+</dd>
+</dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Longevity___twilight">twilight</a></td>
@@ -2769,31 +2824,46 @@ To be handled properly the state variable must be placed in the endogenous state
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Mortality : <a href="Variables.ox.html#NonDeterministicAging">NonDeterministicAging</a> : <a href="Variables.ox.html#NonStationary">NonStationary</a> : <a href="Variables.ox.html#Clock">Clock</a> : <a href="Variables.ox.html#StateBlock">StateBlock</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 Deterministic aging with random early death.
+<P/>
 This clock has the agent age each period but allows for a state-dependent probability that they
 die before the start of the next period.
 <P/>
-Death is a transition to the maximum value of the counter, <code>t.N-1</code = T*.  This allows
+Death is a transition to the maximum value of the counter, <a href="DDPShared.ox.html#N___T">T</a>-1.  This allows
 for endogenous bequest motives which are computed before iterating backwards on other ages.
 <P/>
-The probability of death should be a <a href="Shared.ox.html#CV">CV</a>-compatible quantity.
-<P/>
-<dd class="math">
-<pre>
-t' = t with prob. 1-&pi;()
-     T* with prob. &pi;()
-</pre></dd>
+The probability of death should be a <a href="Shared.ox.html#CV">CV</a>-compatible quantity.  This means that the mortality
+risk can be state dependent.
 
-<dl><dt class="example">Example:</dt><dd class="example">Model a lifetime of 7 ordinary periods with a constant probability of 1/10 of dying.
+<dl><dt class="example">Example:</dt><dd class="example">Model a lifetime of 7 ordinary periods with a constant probability of 1/10 of dying after each period (except the 7th period,
+which is the last period with certainty).
 <pre>
-Mortality(8,0.1);
+SetClock(RandomMortality,7,0.1);
 </pre>
-Allow mortality to increase in age.
+which is equivalent to:
 <pre>
-MyModel::Mprob() { return 1/(TT-curt-1) ; }
-Mortality(9,MyModel::Mprob);
+SetClock(new Mortality(7,0.1));
 </pre>
-<P/>
+Over 9 periods, allow mortality rate to be an increasing function of age and health status.
+Health is a binary state variable in the model, where 1 is good health and 0 is poor health and acts like aging 3
+periods:
+<pre>
+MyModel::Mprob() {
+    decl v = exp(I::t + 3*(1-CV(health)));
+    return  v/(1+v);
+    }
+&vellip;
+SetClock(RandomMortality,9,MyModel::Mprob);
+</pre>
 </dd>
+<P/>
+<DT>Transition</DT>
+<dd class="math">
+Let T* = <a href="DDPShared.ox.html#N___T">T</a>-1
+<pre>
+Prob(t' = t+1) = 1 - &pi;(t)
+Prob(t' = T*) = &pi;(t)
+</pre></dd>
+T* is the last period with probability 1.
 </dd>
 </dl>
 <table class="method_table">
@@ -4178,8 +4248,24 @@ Base Class for elements of state vectors, &epsilon;, &eta;, &theta;, &gamma; .
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StaticP : <a href="Variables.ox.html#Aging">Aging</a> : <a href="Variables.ox.html#NonStationary">NonStationary</a> : <a href="Variables.ox.html#Clock">Clock</a> : <a href="Variables.ox.html#StateBlock">StateBlock</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 A static one-shot program (T=1).
+<P/>
+<DT>ClockType code to use this clock: <code>StaticProgram</code></DT>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a></dd>
+<dl><dt class="example">Example:</dt><dd class="example">Use SetClock:
+<pre>
+SetClock(StaticProgram);
+</pre>
+which is equivalent to this:
+<pre>
+SetClock(new StaticP());
+</pre>
+which is also equivalent to this:
+<pre>
+SetClock(NormalAging,1);
+</pre>
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="Shared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -4979,10 +5065,28 @@ Create an aging clock with brackets.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">Brackets</td>
-<td class="description" valign="baseline">vector of period lengths</td>
+<td class="description" valign="baseline">vector of period lengths
+<P/>
+<DT>ClockType code to use this clock: <code>StaticProgram</code></DT>
+</td>
 </tr>
 </table>
 </dd>
+<dt class="example">Example:</dt><dd class="example">Use SetClock:
+<pre>
+SetClock(StaticProgram);
+</pre>
+which is equivalent to this:
+<pre>
+SetClock(new StaticP());
+</pre>
+which is also equivalent to this:
+<pre>
+SetClock(NormalAging,1);
+</pre>
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="Shared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 </dd></dl>
 
@@ -5032,7 +5136,21 @@ Transition matrix based on Brackets
 <span class="declaration">Aging :: Aging ( T )</span>
 <dl><dd>
 Normal Finite Horizon Aging.
+<P/>
+<DT>ClockType code to use this clock: <code>NormalAging</code></DT>
 
+<dl><dt class="example">Example:</dt><dd class="example">Use SetClock, 10 time periods:
+<pre>
+SetClock(NormalAging,10);
+</pre>
+which is equivalent to this:
+<pre>
+SetClock(new Aging(10));
+</pre>
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="Shared.ox.html#ClockTypes">ClockTypes</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5278,7 +5396,7 @@ Create a binary action variable.
 <a name="ChoiceAtTbar___ChoiceAtTbar"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ChoiceAtTbar</span></h3>
 
-<span class="declaration">ChoiceAtTbar :: ChoiceAtTbar ( L , Target , Clock , Tbar , Prune )</span>
+<span class="declaration">ChoiceAtTbar :: ChoiceAtTbar ( L , Target , Tbar , Prune )</span>
 <dl><dd>
 Record the value of an action variable at a given time.
 
@@ -5292,11 +5410,6 @@ Record the value of an action variable at a given time.
 <tr>
 <td class="declaration" valign="baseline">Target</td>
 <td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a> to record
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">Clock</td>
-<td class="description" valign="baseline">the model <a href="Variables.ox.html#Clock">Clock</a> variable
 </td>
 </tr>
 <tr>
@@ -5315,15 +5428,6 @@ Record the value of an action variable at a given time.
 <dt class="example">Example:</dt><dd class="example"><pre></pre></dd>
 </dd>
 </dl>
-</dd></dl>
-
-<hr>
-<a name="ChoiceAtTbar___Clock"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Clock</span></h3>
-
-<span class="declaration">const decl Clock [public]</span>
-<dl><dd>
-
 </dd></dl>
 
 <hr>
@@ -5380,7 +5484,7 @@ Pointer to methods VV function for iteration.
 
 <span class="declaration">Clock :: Clock ( Nt , Ntprime )</span>
 <dl><dd>
-Create the clock block.
+Base clock block.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -5391,9 +5495,14 @@ Create the clock block.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Ntprime</td>
-<td class="description" valign="baseline">integer, the number of values <code>t'</code> takes on.</td>
+<td class="description" valign="baseline">integer, the number of values <code>t'</code> takes on.
+</td>
 </tr>
 </table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">Typically use a derived clock type or <a href="DP.ox.html#DP___SetClock">SetClock</a>.  If you are
+creating your own clock that is not derived from something else your code would have
+to call this routine.
 </dd>
 </dl>
 </dd></dl>
@@ -5417,6 +5526,8 @@ Store Ergodic Distribution.
 Flag for last period.
 This is the default method, used by simple NonStationary environments.  The Ergodic clock replaces
 this one and other clocks may as well.
+<P/>
+If TRUE then transitions are not computed.
 
 <dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if current time is the last possible.
 </dd>
@@ -8545,7 +8656,25 @@ Returns the transition for a state variable that is unchanged next period.
 <span class="declaration">StaticP :: StaticP ( )</span>
 <dl><dd>
 A static problem: Aging and T=1.
+<P/>
+<DT>ClockType code to use this clock: <code>StaticProgram</code></DT>
 
+<dl><dt class="example">Example:</dt><dd class="example">Use SetClock:
+<pre>
+SetClock(StaticProgram);
+</pre>
+which is equivalent to this:
+<pre>
+SetClock(new StaticP());
+</pre>
+which is also equivalent to this:
+<pre>
+SetClock(NormalAging,1);
+</pre>
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="Shared.ox.html#ClockTypes">ClockTypes</a></dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Stationary</span></h2>
 

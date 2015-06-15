@@ -22,8 +22,9 @@ Called by DP::UpdateVariables() after `Discrete::Update`() called.
 **/
 StateVariable::Check() {
     if (columns(actual)!=1 || rows(actual)!=N) {
-        println("State Variable ",L," N=",N," Dimensions of actual:",rows(actual)," x ",columns(actual));
-        oxwarning("actual vector should be a Nx1 vector");
+        oxwarning("DDP Warning 27.");
+        println(" State Variable ",L," N=",N," Dimensions of actual:",rows(actual)," x ",columns(actual));
+        println(" actual vector should be a Nx1 vector.\n");
         }
     }
 
@@ -88,7 +89,7 @@ The built-in transit returns <code> &lt;0&gt; , ones(rows(FeasA),1) }</code>.  T
 probability one the value of the state variable next period is 0.
 
 **/
-StateVariable::Transit(FeasA) { return { <0> , ones(rows(FeasA),1) }; }
+StateVariable::Transit(FeasA) { return UnChanged(FeasA); }
 
 /** Returns the transition for a state variable that is unchanged next period.
 **/
@@ -151,9 +152,9 @@ Augmented::Augmented(Lorb,N) {
 **/
 Triggered::Triggered(b,t,tv,rval) {
     this.t = t;
-    if (!(isint(tv)||ismatrix(tv))) oxrunerror("Trigger values must be integer or matrix");
+    if (!(isint(tv)||ismatrix(tv))) oxrunerror("DDP Error 01. Trigger values must be integer or matrix\n");
     this.tv = unique(tv);
-    if (!isint(rval) || rval<ResetValue || rval>b.N) oxrunerror("Reset value must be integer between -1 and b.N");
+    if (!isint(rval) || rval<ResetValue || rval>b.N) oxrunerror("DDP Error 02. Reset value must be integer between -1 and b.N\n");
     this.rval = (rval==ResetValue) ? b.N : rval;
     Augmented(b,max(this.rval+1,b.N));
     }
@@ -173,7 +174,7 @@ Triggered::Transit(FeasA) {
 <dd><pre>Prob( q' = v ) = I{t&in;tv}\times I{v==rval} + (1-I{t&in;tv})\times Prob(b=v)</pre></dd>
 **/
 ActionTriggered::ActionTriggered(b,t,tv,rval){
-    if (!isclass(t,"ActionVariable")) oxrunerror("Trigger object must be ActionVariable");
+    if (!isclass(t,"ActionVariable")) oxrunerror("DDP Error 03. Trigger object must be ActionVariable\n");
     Triggered(b,t,tv,rval);
     }
 
@@ -211,7 +212,7 @@ Reset::Reset(b,t) {
 
 **/
 ValueTriggered::ValueTriggered(b,t,tv,rval) {
-    if (!isclass(t,"StateVariable")) oxrunerror("Trigger object must be StateVariable");
+    if (!isclass(t,"StateVariable")) oxrunerror("DDP Error 04. Trigger object must be StateVariable\n");
     Triggered(b,t,tv,rval);
     }
 
@@ -276,7 +277,7 @@ Freeze::Transit(FeasA) {
 `Forget::IsReachable`() prunes the state space accordingly
 **/
 Forget::Forget(b,pstate,rval) {
-    if (!isclass(pstate,"PermanentChoice")) oxrunerror("pstate in Forget must be a Permanent Choice");
+    if (!isclass(pstate,"PermanentChoice")) oxrunerror("DDP Error 05. pstate in Forget must be a Permanent Choice\n");
     this.pstate = pstate;
     ActionTriggered(b,pstate.Target,TRUE,rval);
     }
@@ -314,7 +315,7 @@ The dimensions of the transition probabilities determines the number of values t
 **/
 Markov::Markov(L,Pi) {	
     if (ismatrix(Pi) && (columns(Pi)!=rows(Pi) || any(!isdotfeq(sumc(Pi),1.0)) ) )
-        oxrunerror("Markov can only accept a square matrix transition whose columns sum to 1.0");
+        oxrunerror("DDP Error 06. Markov can only accept a square matrix transition whose columns sum to 1.0\n");
     this.Pi = Pi;
     StateVariable(L,sizeof(Pi));
     }
@@ -325,7 +326,7 @@ Markov::Markov(L,Pi) {
 **/
 IIDJump::IIDJump(L,Pi) {
     if (ismatrix(Pi) && ( columns(Pi) > 1 || !isfeq(sumc(Pi),1.0) ) )
-        oxrunerror("IIDJump can only accept column vector transition");
+        oxrunerror("DDP Error 07. IIDJump can only accept column vector transition\n");
     this.Pi = Pi;
     StateVariable(L,sizeof(Pi));
     }
@@ -398,7 +399,7 @@ Jump::Transit(FeasA) {
 **/	
 Offer::Offer(L,N,Pi,Accept)	{	
     this.Pi = Pi;	
-    if (!isclass(Accept,"ActionVariable")) oxrunerror("Accept object must be ActionVariable");
+    if (!isclass(Accept,"ActionVariable")) oxrunerror("DDP Error 08. Accept object must be ActionVariable\n");
     this.Accept = Accept;
     StateVariable(L,N);	
     }
@@ -439,7 +440,7 @@ LogNormalOffer::Update() {
 @param fPi(A) a `AV`(fPi,A) compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.
 **/
 RandomUpDown::RandomUpDown(L,N,fPi)	{
-    if (N<NRUP) oxrunerror("RandomUpDown should take on at least 3 values");
+    if (N<NRUP) oxrunerror("DDP Error 09. RandomUpDown should take on at least 3 values\n");
 	StateVariable(L,N);
 	this.fPi = fPi;
 	}
@@ -465,9 +466,9 @@ RandomUpDown::Transit(FeasA)	{
 @param nextValues
 **/
 Deterministic::Deterministic(L,nextValues)	{	
-    if (!ismatrix(nextValues)||columns(nextValues)!=1) oxrunerror("nextValues should be a column vector");
+    if (!ismatrix(nextValues)||columns(nextValues)!=1) oxrunerror("DDP Error 10. nextValues should be a column vector\n");
     StateVariable(L,rows(nextValues));
-    if (any(nextValues.<0)|| any(nextValues.>=N) ) oxrunerror("next values contains illegal values: must be between 0 and N-1");
+    if (any(nextValues.<0)|| any(nextValues.>=N) ) oxrunerror("DDP Error 11. next values contains illegal values: must be between 0 and N-1\n");
     this.nextValues = nextValues;	
     }
 
@@ -519,7 +520,7 @@ Lagged::Update()	{	actual = Target.actual;	}
 @return TRUE if not pruning or not a prunable clock or `I::t` gt; `Lagged::Order` or value gt; 0
 **/
 Lagged::IsReachable() {
-    return !Prune || !Flags::Prunable || (I::t<Order) || v;
+    return !Prune || !Flags::Prunable || (I::t>=Order) || v;
     }
 
 /** Create a variable that tracks the previous value of another state variable.
@@ -534,7 +535,7 @@ Lagged::IsReachable() {
 
 **/
 LaggedState::LaggedState(L,Target,Prune,Order)	{	
-    if (!isclass(Target,"StateVariable")) oxrunerror("Target object must be a StateVariable");
+    if (!isclass(Target,"StateVariable")) oxrunerror("DDP Error 12. Target object must be a StateVariable\n");
     Lagged(L,Target,Prune,Order);		
     }
 
@@ -553,7 +554,7 @@ LaggedState::Transit(FeasA)	{
 @see DP::KLaggedAction
 **/
 LaggedAction::LaggedAction(L,Target,Prune,Order)	{	
-    if (!isclass(Target,"ActionVariable")) oxrunerror("Target object must be an ActionVariable");
+    if (!isclass(Target,"ActionVariable")) oxrunerror("DDP Error 13. Target object must be an ActionVariable\n");
     Lagged(L,Target,Prune,Order);	
     }
 
@@ -653,7 +654,7 @@ Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 @example <pre>noffers = new StateCounter("Total Offers",offer,5,<1:offer.N-1>,0);</pre>
 **/
 StateCounter::StateCounter(L,N,State,ToTrack,Reset,Prune) {
-    if (!isclass(State,"StateVariable")) oxrunerror("State object to count must be a StateVariable");
+    if (!isclass(State,"StateVariable")) oxrunerror("DDP Error 14. State object to count must be a StateVariable\n");
     Counter(L,N,State,ToTrack,Reset);
     }
 
@@ -672,7 +673,7 @@ as 0.
 Counter::IsReachable() {
     if (Prune && Flags::Prunable && v>I::t) {
             if (!Warned) {
-               oxwarning("A StateCounter variable detects finite horizon and assumes initial count of 0. Values bigger than t are unreachable. To avoid this behaviour send Prune=FALSE when defining the counter.");
+               oxwarning("DDP Warning 28.\n A StateCounter variable detects finite horizon and assumes initial count of 0. Values bigger than t are unreachable.\n To avoid this behaviour send Prune=FALSE when defining the counter.\n");
                Warned = TRUE;
                }
             return FALSE;
@@ -695,7 +696,7 @@ EndogenousStates(exper);
 </pre>
 **/
 ActionCounter::ActionCounter(L,N,Act,  ToTrack,Reset,Prune)	{
-    if (!isclass(Act,"ActionVariable")) oxrunerror("Object to count must be an ActionVariable");
+    if (!isclass(Act,"ActionVariable")) oxrunerror("DDP Error 15. Object to count must be an ActionVariable\n");
     Counter(L,N,Act,ToTrack,Reset,Prune);
     }
 	
@@ -721,7 +722,7 @@ Accumulator::Accumulator(L,N,Target)	{
 @param State `StateVariable` to accumulate values for.
 **/
 StateAccumulator::StateAccumulator(L,N,State) {
-    if (!isclass(State,"StateVariable")) oxrunerror("State object to accumulate must be a StateVariable");
+    if (!isclass(State,"StateVariable")) oxrunerror("DDP Error 16. State object to accumulate must be a StateVariable\n");
     Accumulator(L,N,State);
     }
 
@@ -737,7 +738,7 @@ StateAccumulator::Transit(FeasA)	{
 @param Action `ActionVariable` to accumulate values for.
 **/
 ActionAccumulator::ActionAccumulator(L,N,Action) {
-    if (!isclass(Action,"ActionVariable")) oxrunerror("Object to accumulate must be ActionVariable");
+    if (!isclass(Action,"ActionVariable")) oxrunerror("DDP Error 17. Object to accumulate must be ActionVariable\n");
     Accumulator(L,N,Action);
     }
 
@@ -770,8 +771,8 @@ contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of makin
 </dd>
 **/
 Duration::Duration(L,Current,Lag, N,Prune) {
-	if (!(isclass(Lag,"StateVariable")||ismatrix(Lag))) oxrunerror("Lag must be a State Variable or a vector");
-	if (!isclass(Current,"Discrete")) oxrunerror("Current must be a State or Action Variable");
+	if (!(isclass(Lag,"StateVariable")||ismatrix(Lag))) oxrunerror("DDP Error 18a. Lag must be a State Variable or a vector\n");
+	if (!isclass(Current,"Discrete")) oxrunerror("DDP Error 18b. Current must be a State or Action Variable\n");
     Counter(L,N,Current,0,0,Prune);
 	isact = isclass(Target,"ActionVariable");
 	this.Lag = Lag;
@@ -797,7 +798,7 @@ Duration::Transit(FeasA) {
 @param Pi, vector or <a href="Parameters.ox.html#Simplex">Simplex</a> parameter block
 **/
 Renewal::Renewal(L,N,reset,Pi)	{
-    if (!isclass(reset,"ActionVariable")) oxrunerror("reset object must be ActionVariable");
+    if (!isclass(reset,"ActionVariable")) oxrunerror("DDP Error 19. reset object must be ActionVariable\n");
 	StateVariable(L,N);
 	this.reset = reset;
 	this.Pi = Pi;
@@ -833,7 +834,7 @@ Tracker::Tracker(L,Target,ToTrack)	{
 @param ToTrack integer or vector of (actual) values to track
 **/
 StateTracker::StateTracker(L,Target,ToTrack)	{	
-    if (!isclass(Target,"StateVariable")) oxrunerror("Tracked object must be StateVariable");
+    if (!isclass(Target,"StateVariable")) oxrunerror("DDP Error 20. Tracked object must be StateVariable\n");
     Tracker(L,Target,ToTrack);		
     }
 
@@ -848,7 +849,7 @@ StateTracker::Transit(FeasA)	{
 @param ToTrack integer or vector of values to track
 **/
 ActionTracker::ActionTracker(L,Target,ToTrack)	{	
-    if (!isclass(Target,"ActionVariable")) oxrunerror("Target to track must be ActionVariable");
+    if (!isclass(Target,"ActionVariable")) oxrunerror("DDP Error 21. Target to track must be ActionVariable\n");
     Tracker(L,Target,ToTrack);	
     }
 
@@ -878,7 +879,7 @@ Coevolving::Coevolving(Lorb,N)	{
 @internal
 **/
 Coevolving::Transit(FeasA) {
-    oxrunerror("Transit() of a coevolving variable should never be called");
+    oxrunerror("DDP Error 22. Transit() of a coevolving variable should never be called\n");
     }
 
 /**Create a list of `Coevolving` state variables.
@@ -903,7 +904,7 @@ StateBlock::AddToBlock(news,...)	{
 	decl i,k,nd,newrow, s, oldallv;
 	news = {news}|va_arglist();
 	for (i=0;i<sizeof(news);++i) {
-		if (!IsBlockMember(s = news[i])) oxrunerror("State Variable added to block not a block member object");
+		if (!IsBlockMember(s = news[i])) oxrunerror("DDP Error 23. State Variable added to block not a block member object\n");
 		s.bpos = N++;
 		Theta |= s;
 		v ~= .NaN;
@@ -942,7 +943,7 @@ StateBlock::myAV() {  return actual = selectrc(Actual,v,rnge);    }
 
 **/
 OfferWithLayoff::OfferWithLayoff(L,N,accept,Pi,Lambda)	{
-    if (!isclass(accept,"ActionVariable")) oxrunerror("accept must be ActionVariable");
+    if (!isclass(accept,"ActionVariable")) oxrunerror("DDP Error 24. accept must be ActionVariable\n");
 	this.accept=accept;
 	this.Lambda=Lambda;
 	this.Pi = Pi;
@@ -998,8 +999,8 @@ MVIID::Update() { }
 **/
 MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 	decl i;
-	if (sizerc(CV(mu))!=N) oxrunerror("mu should contain N items");
-	if (sizerc(CV(CholLT))!=N*(N+1)/2) oxrunerror("CholLT should contain N(N+1)/2 items",0);
+	if (sizerc(CV(mu))!=N) oxrunerror("DDP Error 25a. mu should contain N items\n");
+	if (sizerc(CV(CholLT))!=N*(N+1)/2) oxrunerror("DDP Error 25b. CholLT should contain N(N+1)/2 items\n");
 	MVIID(L,N,M);
 	this.mu = mu;
 	this.CholLT = CholLT;
@@ -1035,7 +1036,7 @@ Episode::Transit(FeasA) 	{
 	if (!kv) {		// no episode, get onset probabilities
 		probT = 0;
 		if (columns(pi = CV(Onset,FeasA))!=k.N)
-			oxrunerror("Onset probability must return 1xK or FxK matrix");
+			oxrunerror("DDP Error 26. Onset probability must return 1xK or FxK matrix\n");
 							return { 0 | k.vals, reshape(pi,rows(FeasA),k.N)  };
 		}
 	if (tv==t.N-1)  {

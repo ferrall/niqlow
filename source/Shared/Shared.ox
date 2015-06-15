@@ -3,7 +3,7 @@
 
 Version::Check() {
  if (checked)  return ;
- if (oxversion()<MinOxVersion) oxrunerror("This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
+ if (oxversion()<MinOxVersion) oxrunerror("niqlow Error 00. This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
  oxprintlevel(1);
  println("\n niqlow version ",sprint("%4.2f",version/100),
  " Copyright (C) 2011-2015 Christopher Ferrall.\n",
@@ -172,10 +172,10 @@ DiscreteNormal(N,mu,sigma)	{
 @param N <em>positive integer</em>, number of values.<br>N=1 is a constant.
 **/
 Discrete::Discrete(L,N)  {
-    if (!isint(N)||(N<=0)) oxrunerror("Number of discrete values has to be a non-negative integer");
+    if (!isint(N)||(N<=0)) oxrunerror("niqlow Error 02. Number of discrete values has to be a non-negative integer");
 	this.N = N;
     if (!isstring(L)) {
-        oxwarning("Label for discrete value should be a string.");
+        oxwarning("DDP Warning 26.\n Label for discrete value should be a string.\n");
         this.L = "";
         }
     else
@@ -372,7 +372,7 @@ GQL::Initialize(order)
                 1.54277824262E-023, 5.28465797982E-026, 1.38670562699E-028, 1.87054245572E-031,
                 1.18414925494E-034, 2.67172178868E-038 , 1.33869185345E-042, 4.51055359187E-048 >;
          }
-   default: oxrunerror("Gauss-Laguerre Error: weights for order="+sprint(order)+" not defined");
+   default: oxrunerror("niqlow Error 03. Gauss-Laguerre Error: weights for order="+sprint(order)+" not defined\n");
     }
   return 1;
  }
@@ -411,7 +411,7 @@ println("E[x*x] = ", GQH::wght * sqr(GQH::nodes) / M_SQRT2PI );
 
 **/
 GQH::Initialize(order) {
-	if (order < 1) oxrunerror("GQH("+sprint("%d",order)+") not supported");
+	if (order < 1) oxrunerror("niqlow Error 04. GQH("+sprint("%d",order)+") not supported\n");
 	if (order==this.order) return TRUE;
 	this.order = order;
 	decl i, pr, o1 = order-1, Hm1= reverser(coef(o1)), num = M_SQRT2PI * factorial(o1)/order;
@@ -432,7 +432,7 @@ GHK::GHK(R,J,iseed) {
 	decl j;
 	this.J = J;
     SimJ=J-2;
-    if (SimJ<0) oxrunerror("GHK J must be >= 2");
+    if (SimJ<0) oxrunerror("niqlow Error 05. GHK J must be >= 2\n");
 	this.R = R+imod(R,2);   // round R up to an even number
 	M = new array[J];
 	for (j=0;j<J;++j) {
@@ -545,11 +545,11 @@ Equations::Equations(LorN) {
 		L = new array[N];
 		for (n=0;n<N;++n) L[n] = "Eq"+sprint("%02u",n);
 		}
-	else oxrunerror("LorN should be array, string or non-negative integer");
+	else oxrunerror("niqlow Error 06. LorN should be array, string or non-negative integer\n");
 	v = constant(.NaN,N,1);
 	J = <>;
 	this.lam = zeros(N,1);
-	if (rows(this.lam)!=N) oxrunerror("initial multipliers not same dimension as system");
+	if (rows(this.lam)!=N) oxrunerror("shared Error 07. initial multipliers not same dimension as system\n");
 	}
 
 InEquality::InEquality(LorNorv)  {	Equations(LorNorv);	}

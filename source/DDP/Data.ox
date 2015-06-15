@@ -85,7 +85,7 @@ Outcome::Simulate() {
 	ind[onlyexog] = I::OO[onlyexog][]*state;
 	ind[onlysemiexog] = I::OO[onlysemiexog][]*state;
 	SyncStates(0,N::S-1);
-	if (!isclass(th = Settheta(ind[tracking]))) oxrunerror("simulated state "+sprint(ind[tracking])+" not reachable");
+	if (!isclass(th = Settheta(ind[tracking]))) oxrunerror("DDP Error 49. simulated state "+sprint(ind[tracking])+" not reachable");
 	snext = th->Simulate(this);
 	ind[onlyacts] = ialpha;
 	act = alpha;
@@ -226,10 +226,10 @@ FPanel::~FPanel() {
 **/
 FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
 	decl ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS, curg, Nstart=columns(ErgOrStateMat);
-	if (N <= 0) oxrunerror("First argument, panel size, must be positive");
+	if (N <= 0) oxrunerror("DDP Error 50a. First argument, panel size, must be positive");
     if (ii) {
 	   if (erg) {
-		  if (!isclass(SD)) oxrunerror("model not ergodic, can't draw from P*()");
+		  if (!isclass(SD)) oxrunerror("DDP Error 50b. model not ergodic, can't draw from P*()");
 		  SD->SetFE(f);
 		  SD->loop();
 		  }
@@ -239,7 +239,7 @@ FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
            }
         }
 	if (isclass(upddens)) upddens->SetFE(f);
-    if (Flags::IsErgodic && !T) oxwarning("Simulating ergodic paths without fixed T?");
+    if (Flags::IsErgodic && !T) oxwarning("DDP Warning 08.\nSimulating ergodic paths without fixed Tmax?\nPath may be of unbounded length.");
 	cputime0 = timer();
 	if (isclass(method)) method->Solve(f);
 	cur = this;
@@ -370,7 +370,7 @@ Flat version of the data set is stored in `Panel::flat`.
 Panel::Print(fn)	{
 	if (isint(flat)) Flat();
 	if (isint(fn)) { if (fn>0) print("%c",Lflat,"%cf",Fmtflat,flat); }
-	else if (!savemat(fn,flat,Lflat)) oxrunerror("FPanel print to "+fn+" failed");
+	else if (!savemat(fn,flat,Lflat)) oxrunerror("DDP Error 51. FPanel print to "+fn+" failed");
 	}
 	
 /** Compute conditional forward likelihood of an outcome.
@@ -481,7 +481,7 @@ Path::FullLikelihood() {
 		tom = !now;
 		if ( isnan(L *= cur->Outcome::FullLikelihood()) ) {
             println(" path id ",i);
-            oxrunerror("nothing feasible");
+            oxrunerror("DDP Error 52. nothing feasible");
             }
 		now = !now;
 		} while(isclass(cur = cur.prev));
@@ -507,7 +507,7 @@ DataColumn::Observed(LorC) {
 			ind = LorC;
 		return;
 		}
-	oxrunerror("LorC should be string or integer");		
+	oxrunerror("DDP Error 53. LorC should be string or integer");		
 	}
 
 DataColumn::UnObserved() {
@@ -594,7 +594,7 @@ DataSet::Mask() {
 @param lORind string, column label<br>integer&ge;0 column index;
 **/
 DataSet::IDColumn(lORind) {
-	if (isint(lORind)&&lORind<0) oxrunerror("column index cannot be negative");
+	if (isint(lORind)&&lORind<0) oxrunerror("DDP Error 54. column index cannot be negative");
 	list[0]->Observed(lORind);
 	}
 
@@ -608,13 +608,13 @@ DataSet::IDColumn(lORind) {
 
 **/
 DataSet::MatchToColumn(aORs,LorC) {
-	if (StateVariable::IsBlock(aORs)) oxrunerror("Can't use columns or external labels to match blocks. Must use ObservedWithLabel(...)");
+	if (StateVariable::IsBlock(aORs)) oxrunerror("DDP Error 55. Can't use columns or external labels to match blocks. Must use ObservedWithLabel(...)");
 	decl offset,k;
 	if (Volume>SILENT) print("\nAdded to the observed list: ");
 	offset = isclass(aORs,"ActionVariable") ? 1
 				: isclass(aORs,"StateVariable") ? 1+N::Av
 				: 1+N::Av+N::S;
-	if (list[offset+aORs.pos].obsv==FALSE && masked) oxrunerror("cannot recover observations on UnObserved variable after reading/masking");
+	if (list[offset+aORs.pos].obsv==FALSE && masked) oxrunerror("DDP Error 56. cannot recover observations on UnObserved variable after reading/masking");
 	list[offset+aORs.pos]->Observed(LorC);				
 	if (Volume>SILENT) print(aORs.L," Matched to column ",LorC);
     }
@@ -640,7 +640,7 @@ DataSet::ObservedWithLabel(as1,...) {
 				: isclass(aORs,"StateVariable") ? 1+N::Av
 				: isclass(aORs,"AuxiliaryValues") ? 1+N::Av+N::S
                 : 0;
-		if (list[offset+aORs.pos].obsv==FALSE && masked) oxrunerror("cannot recover observations on UnObserved variable after reading/masking");
+		if (list[offset+aORs.pos].obsv==FALSE && masked) oxrunerror("DDP Error 57. cannot recover observations on UnObserved variable after reading/masking");
 		list[offset+aORs.pos]->Observed(UseLabel);				
 		if (Volume>SILENT) print(aORs.L," ");
 		}
@@ -729,7 +729,7 @@ Outcome::AccountForUnobservables() {
 @see Panel::LogLikelihood
 **/
 DataSet::EconometricObjective() {
-	if (!masked) {oxwarning("masking data for observability"); Mask();}
+	if (!masked) {oxwarning("DDP Warning 09.\n Masking data for observability.\n"); Mask();}
 	this->Panel::LogLikelihood();
 	return M;
 	}
@@ -830,14 +830,14 @@ DataSet::LoadOxDB() {
 
 **/
 DataSet::Read(FNorDB,SearchLabels) {
-	if (FNT) oxrunerror("Cannot read data twice into the same data set. Merge files if necessary");
+	if (FNT) oxrunerror("DDP Error 58. Cannot read data twice into the same data set. Merge files if necessary");
     if (isstring(FNorDB)) {
 	   source = new Database();
-	   if (!source->Load(FNorDB)) oxrunerror("Failed to load data from "+FNorDB);
+	   if (!source->Load(FNorDB)) oxrunerror("DDP Error 59. Failed to load data from "+FNorDB);
         }
     else source = FNorDB;
 	cputime0=timer();
-	if (!list[0].obsv) oxrunerror("Must call DataSet::IDColumn to set column of ID variable before reading");
+	if (!list[0].obsv) oxrunerror("DDP Error 60. Must call DataSet::IDColumn to set column of ID variable before reading");
 	if (SearchLabels) {
 		decl lnames,mtch, i,j;
 		lnames = source->GetAllNames();
@@ -850,7 +850,7 @@ DataSet::Read(FNorDB,SearchLabels) {
 		}
 	decl i,s0=1+N::Av-1;
 	for (i=S[fgroup].M;i<=S[fgroup].X;++i)
-		if (!list[s0+i].obsv && !list[s0+i].force0) oxrunerror("Fixed Effect Variable "+sprint(list[s0+i].obj.L)+" must be observed or have N=1");
+		if (!list[s0+i].obsv && !list[s0+i].force0) oxrunerror("DDP Error 61. Fixed Effect Variable "+sprint(list[s0+i].obj.L)+" must be observed or have N=1");
 	LoadOxDB();
 	masked = TRUE;
 	delete source;
@@ -862,7 +862,7 @@ DataSet::Read(FNorDB,SearchLabels) {
 @param FullyObserved (default) FALSE, account for unobservability<br>TRUE use simple partial loglikelihood
 **/
 DataSet::DataSet(id,method,FullyObserved) {
-	if (!Flags::ThetaCreated) oxrunerror("Cannot create DataSet before calling CreateSpaces()");
+	if (!Flags::ThetaCreated) oxrunerror("DDP Error 62. Cannot create DataSet before calling CreateSpaces()");
 	label = id;
 	Panel(0,method,this.FullyObserved=FullyObserved);
 	Volume = QUIET;
@@ -957,12 +957,19 @@ PathPrediction::Predict(T,prtlevel){
         case Zero : break;
         case One : println(cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
         case Two : break;
-        default : oxwarning("print level invalid");
+        default : oxwarning("DDP Warning 10.\n print level invalid\n");
         }
 	 cur = cur.pnext;
   	 } while(cur.t<T);
   }
 
+/** Add empirical values to a path of predicted values.
+@param inmom  Txm matrix of values.
+
+@comments
+If T is greater than the current length of the path additional predictions are concatenated to the path
+
+**/
 PathPrediction::Empirical(inmom) {
     decl t=0;
     T = rows(inmom);
@@ -1004,7 +1011,7 @@ PathPrediction::PathPrediction(f,method,iDist){
 		}
 	else if (ismatrix(iDist)) {
 		sind |= SS[tracking].O*iDist;
-		if (!isclass(Settheta(sind[0]))) oxrunerror("Initial state is not reachable");
+		if (!isclass(Settheta(sind[0]))) oxrunerror("DDP Error 63. Initial state is not reachable");
 		p |= 1.0;
 		}
 	else if (isclass(iDist,"Prediction")) {
@@ -1012,10 +1019,14 @@ PathPrediction::PathPrediction(f,method,iDist){
 		p |= iDist.p;
 		}
 	else {
-        oxrunerror("iDist must be integer, vector or Prediction object");
+        oxrunerror("DDP Error 64. iDist must be integer, vector or Prediction object");
         }
 	}
 
+/**
+@param htmp
+@param ptmp
+**/
 ObjToTrack::Distribution(htmp,ptmp) {
     if (type==auxvar||type==idvar) {  // dynamic distribution.
         decl q,k,h,j,hh,mns;
@@ -1049,7 +1060,7 @@ Prediction::Histogram(tv,printit) {
                     foreach (q in  sind[][k]) tv.hist[ReverseState(q,SS[tracking].O)[tv.hd]] += p[k];
                     predmom ~= tv->Distribution();
                     break;
-        case auxvar :  oxwarning("tracking of auxiliiary still experimental");
+        case auxvar :  oxwarning("DDP Warning 11.\n  Tracking of auxiliary outcomes still experimental.  It may not work.\n");
         case idvar  :
             decl th, newqs,newp,j,uni,htmp,ptmp;
             ptmp = htmp=<>;
@@ -1074,6 +1085,12 @@ Prediction::Delta(mask) {
     return ismatrix(empmom) ? (selectifc(predmom,mask)-empmom) : selectifc(zeros(predmom),mask);
     }
 
+/** Track an object.
+@param LorC  string, label of column of data to associate with this object.<br>integer, column index to associate
+@param obj `Discrete` object to track
+
+@see Discrete, DataColumnTypes
+**/
 ObjToTrack::ObjToTrack(LorC,obj) {
   this.obj = obj;
   this.LorC = LorC;
@@ -1099,6 +1116,8 @@ ObjToTrack::ObjToTrack(LorC,obj) {
   hist = zeros(hN,1);
   }
 
+/** Print mean and histogram of tracked object.
+**/
 ObjToTrack::print() {
     println(L);
     println("%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},hvals'~hist);
@@ -1106,22 +1125,25 @@ ObjToTrack::print() {
     println("  Mean: ",double(mean),"\n\n");
     }
 
-/** Objects to track mean values over the distribution.
+/** Objects to track mean values over the path.
 @param LorC  UseLabel: use object label to match to column.<br>NotInData [default] unmatched to data.<br>integer: column in data set<br>string: column label
-@param mom1 array or single action, state or auxiliary variable.
-@param ... others of the same
-This return can be called more than once, but once `PanelPrediction::Predict`() has been called no
-more objects are added to the list.
+@param mom1 `Discrete` object or array or objects to track
+@param ... more objects or arrays of objects
+
+@comment
+This routine can be called more than once, but once `PanelPrediction::Predict`() has been called no
+more objects can be added to the list.
+
 **/
 PathPrediction::Tracking(LorC,mom1,...) {
     if (Nt!=UnInitialized) {
-        oxwarning("Don't add to tracking list after predictions made ... ignored");
+        oxwarning("DDP Warning 12.\n Do not add to tracking list after predictions made ... ignored\n");
         return;
         }
     decl v,args =  isarray(mom1) ? mom1 : {mom1};
     args |= va_arglist();
     if (sizeof(args)>1 && (isstring(LorC) || LorC>UseLabel) )
-        oxrunerror("Can't track with column matching more than one object at a time.  Send separately");
+        oxrunerror("DDP Error 65. Can't track with column matching more than one object at a time.  Send separately");
     foreach(v in args) {
         if (isarray(v)) Tracking(LorC,v);
         else {
@@ -1161,7 +1183,6 @@ PathPrediction::SetColumns(dlabels) {
 @param prntlevel `CV` compatible print level<br>
         Zero (default): silent<br>One : formatted print each object and time<br>Two: create a flat matrix of moments stored in
 `PathPrediction::flat`.
-@param UseDist TRUE [default]: use endogenous choice probabilities &Rho;*<br>FALSE : use uniform choices.
 
 `PathPrediction::Predict`() must be called first.
 
@@ -1217,6 +1238,18 @@ PathPrediction::Histogram(prntlevel) {
     }
   }
 
+/** Produce histograms and mean predictions for all paths in the panel.
+
+@param prntlevel `CV` compatible print level<br>
+        Zero (default): silent<br>One : formatted print each object and time<br>Two: create a flat matrix of moments stored in
+`PathPrediction::flat`.
+
+`PanelPrediction::M` is computed as the negative square root of the sum of the gmm objective values produced by each PathPrediction:
+
+<dd class="display">
+$$M = -\sqrt{ \sum_{n} dist(emp_n,pred_n)}$$
+</DD>
+**/
 PanelPrediction::Histogram(printlevel) {
     decl tf, td,cur=this;
     flat = {};
@@ -1225,7 +1258,7 @@ PanelPrediction::Histogram(printlevel) {
         flat |= cur->PathPrediction::Histogram(printlevel);
         M += cur.gmm;
         } while(isclass(cur=cur.fnext));
-    M = sqrt(M);
+    M = -sqrt(M);
     }
 
 /** Set an object to be tracked in predictions.
@@ -1286,6 +1319,11 @@ PanelPrediction::PanelPrediction(r,method) {
     FN = 1;
     }
 
+/** Predict outcomes in the panel.
+@param t positive integer or matrix of lengths of paths to predict (same length as number of paths in then panel)
+@param printit  FALSE [default] do not print<br>TRUE print state and choice probabilities
+
+**/
 PanelPrediction::Predict(t,printit) {
     decl cur=this;
     do {
@@ -1308,10 +1346,10 @@ PanelPrediction::Predict(t,printit) {
 //    return flat;
 //    }
 
-/** Track a single object that is matched to column in the data
-@param Fgroup  integer or vector of integers of fixed groups that the moment should be tracked for.<br> AllFixed, moment appears in all groups
-@param LorC  label or column index in the data
-@param mom object to track
+/** Track a single object that is matched to column in the data.
+@param Fgroup  integer or vector of integers of fixed groups that the moment should be tracked for.<br> <code>AllFixed</code>, moment appears in all groups
+@param LorC  label or column index in the data to associate with this moment.
+@param mom `Discrete` object to track
 **/
 EmpiricalMoments::TrackingMatchToColumn(Fgroup,LorC,mom) {
     if (Fgroup==AllFixed) PanelPrediction::Tracking(LorC,mom);
@@ -1347,7 +1385,7 @@ EmpiricalMoments::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
 /** Create a panel prediction that is matched with external data.
 @param label name for the data
 @param method solution method to call before predict
-@param UorCorL matrix of indices, array of label, UseLabel
+@param UorCorL matrix of indices, array of labels, UseLabel
 **/
 EmpiricalMoments::EmpiricalMoments(label,method,UorCorL) {
     decl q,j;
@@ -1355,7 +1393,7 @@ EmpiricalMoments::EmpiricalMoments(label,method,UorCorL) {
 	Volume = QUIET;
     PanelPrediction(label,method);
     if (ismatrix(UorCorL)||isarray(UorCorL)) {
-        if (sizerc(UorCorL)!=S[fgroup].D) oxrunerror("column index vector wrong size");
+        if (sizerc(UorCorL)!=S[fgroup].D) oxrunerror("DDP Error 66. column index vector wrong size");
         flist = UorCorL;
         }
     else if (UorCorL==UseLabel) {
@@ -1366,14 +1404,20 @@ EmpiricalMoments::EmpiricalMoments(label,method,UorCorL) {
     else flist = 0;
      }
 
-/** The default econometric objective: log-likelihood.
+/** The default econometric objective for a panel prediction: the overall GMM objective.
 @return `PanelPrediction::M`
-@see Panel::GMMdistance
+@see PanelPrediction::Histogram
+
+@comments
+Currently this is identical to `EmpiricalMoments::Solve`().  They may differ in later versions.
 **/
 EmpiricalMoments::EconometricObjective() {
-    //	return M;
+    return this->Solve();
 	}
 
+/** Calls `PanelPrediction::Histogram` and returns overall GMM objective.
+@returns `PanelPrediction::M`
+**/
 EmpiricalMoments::Solve() {
 	this->PanelPrediction::Histogram();
     return M;
@@ -1387,14 +1431,14 @@ EmpiricalMoments::Read(FNorDB) {
     decl curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone;
     if (isstring(FNorDB)) {
         source = new Database();
-	    if (!source->Load(FNorDB)) oxrunerror("Failed to load data from "+FNorDB);
+	    if (!source->Load(FNorDB)) oxrunerror("DDP Error 66. Failed to load data from "+FNorDB);
         }
     else source = FNorDB;
 	dlabels=source->GetAllNames();
 	data = source->GetAll();
     if (isarray(flist)) {
         fcols = strfind(dlabels,flist);
-        if (any(fcols.==NoMatch)) {println("***",flist,fcols); oxrunerror("label not found");}
+        if (any(fcols.==NoMatch)) {println("***",flist,fcols); oxrunerror("DDP Error 67. label not found");}
         }
     else if (ismatrix(flist)) {
         fcols = flist;
@@ -1417,7 +1461,7 @@ EmpiricalMoments::Read(FNorDB) {
     do {
         curf = inf;
         cur = (curf) ?  fparray[curf] : this;
-        if (fdone[curf]) oxrunerror("reading in moments for a fixed group more than once.  moments data file not sorted properly");
+        if (fdone[curf]) oxrunerror("DDP Error 68. reading in moments for a fixed group more than once.  moments data file not sorted properly");
         fdone[curf] = TRUE;
         inmom = <>;
         do {

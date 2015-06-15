@@ -2,14 +2,14 @@
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 WStar::Reachable()	{ return new WStar(); }
-WStar::WStar()      { zstar = zeros(N::R,1);}
+WStar::WStar()      { }
 WStar::Uz(z)        { return eta | z;	}
 WStar::Utility()    { return eta*(1-aa(d)) + zstar[I::r]*aa(d);	}
 
 WStar::Run()	{
 	Initialize(Reachable);
 	SetClock(NormalAging,10);
-	EndogenousStates(done = new LaggedAction("Done",d));
+	EndogenousStates(done = new LaggedAction("done",d));
 	GroupVariables(new RandomEffect("g",2),new FixedEffect("f",2));
 	done->MakeTerminal(1);
 	SetDelta(0.4);

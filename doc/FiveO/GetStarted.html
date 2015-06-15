@@ -100,7 +100,7 @@ with generic optimizers and user-defined objectives). </DD>
 <DD><code>fopen("file","l")</code> captures all output of the program as a log file, so that it can be included in this document below.</DD>
 <DD>The objective will be created and stored in the local main variable <code>obj</code> as will  and the two algorithms will used to optimize it, which are stored in <code>alg1</code> and <code>alg2</code>.  </DD>
 <DT>Algorithm and Objective Objects</DT>
-<DD>These are objects of classes, so they are assigned the return value of the  <code>new </code> statement.  Note that the Algorithms in <span class="n">FiveO</span> require the objective to be optimize be sent as the argument of the creator function.  Multiple objectives can be defined, and each can have algorithms associated with it.  But once created,
+<DD>These are objects of classes, so they are assigned the return value of the  <code>new </code> statement.  Note that the <a href="Algorithms.ox.html#Algorithm">Algorithm</a>s in <span class="n">FiveO</span> require the objective to be optimize be sent as the argument of the creator function.  Multiple objectives can be defined, and each can have algorithms associated with it.  But once created,
   each algorithm object is associated with the objective sent to it. <details class="aside"><summary>A difference with <span class="n">DDP</span></summary>In <a href="..\DDP\default.html">DDP</a> only a single DP problem is defined at a time because it relies heavily on <code>static</code> members to save storage. However,
   <span class="n">FiveO</span> avoids <code>static</code> variables so multiple objectives and multiple algorithms can all be created without creating memory conflicts
   that static allocation creates.</details>
@@ -200,7 +200,7 @@ vector is not aggregated into a real number.</DD>
 <DD>It calls the parent creator, and in the case of a system it must send the size of
 the system.</DD>
 <DD>In this case it also defines the parameter a vector of <a href="Parameters.ox.html#Coefficients">Coefficients</a>, which means a vector of <a href="Parameters.ox.html#Free">Free</a> parameters like regression coefficients.  Note that the system need not use vectors.  Like the Rosenbrock example above it could give each parameter a different name and store each in different members of the class..</DD>
-<DD>Parameters are added to the class with Parameters().</DD>
+<DD>Parameters are added to the objective with <a href="Objective.ox.html#Objective___Parameters">Parameters</a>().</DD>
 <DD><a href="Objective.ox.html#Objective___Encode">Encode</a>() can only be called after all parameters have been added.  It can take a argument, but with no arguments each parameter is set to its hard coded value.  When <code> x </code> was defined it initialized each one to be <code>0</code></DD>
 <DT><code>SysExample::vfunc() {&hellip; }</code></DT>
 <DD>This method computes and returns the system of equations as a function of

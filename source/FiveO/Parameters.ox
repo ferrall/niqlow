@@ -61,8 +61,9 @@ BoundedBelow::BoundedBelow(L,LB,v0)	{ Parameter(L,v0); this.LB = isclass(LB,"Par
 BoundedBelow::Encode() 	{
 	if (!isint(block)) block->BlockCode();
 	decl LB = CV(this.LB);
-	if (start<= LB ) oxrunerror("Bounded from below parameter "+L+" must start strictly above "+sprint(CV(LB)));
-	if (fabs(start-LB-1.0)< NearFlat) println("Warning: bounded parameter ",L," starting close to LB+1,","%12.9f",start);
+	if (start<= LB ) oxrunerror("FiveO Error 18. Bounded from below parameter "+L+" must start strictly above "+sprint(CV(LB)));
+	if (fabs(start-LB-1.0)< NearFlat)
+        { oxwarning("FiveO Warning ??. bounded parameter "+L+" starting close to LB+1"); println("%12.9f",start);}
 	if (DoNotConstrain)
 		{v = start; scale =  1.0; f = v;}
 	else
@@ -108,8 +109,9 @@ BoundedAbove::BoundedAbove(L,UB,v0)	{ Parameter(L,v0); this.UB = isclass(UB,"Par
 BoundedAbove::Encode()	{
 	if (!isint(block)) block->BlockCode();
 	decl UB = CV(this.UB);
-	if (start>= UB) oxrunerror("Bounded from below parameter "+L+" must start strictly below "+sprint(CV(UB)));
-	if (fabs(start-UB+1.0)< NearFlat) println("Warning: bounded parameter ",L," starting close to UB-1,","%12.9f",start);
+	if (start>= UB) oxrunerror("FiveO error 19. Bounded from below parameter "+L+" must start strictly below "+sprint(CV(UB)));
+	if (fabs(start-UB+1.0)< NearFlat)
+        { oxwarning("FiveO Warning ??. bounded parameter "+L+" starting close to LB+1"); println("%12.9f",start);}
     v = start;
 	if (DoNotConstrain)
 		{scale =  1.0; f = v;}
@@ -142,8 +144,9 @@ Bounded::Bounded(L,LB,UB,v0)	{
 Bounded::Encode()	{
 	if (!isint(block)) block->BlockCode();
 	decl LB = CV(this.LB),  UB = CV(this.UB);
-	if (start<= LB || start>=UB) oxrunerror("Bounded  parameter "+L+" must start strictly between "+sprint(CV(LB))+" and "+sprint(CV(UB)));
-	if (fabs(start-(LB+UB)/2)< NearFlat) println("Warning: bounded parameter ",L," starting close to midpoint of range,","%12.9f",start);
+	if (start<= LB || start>=UB) oxrunerror("FiveO error 20. Bounded  parameter "+L+" must start strictly between "+sprint(CV(LB))+" and "+sprint(CV(UB)));
+	if (fabs(start-(LB+UB)/2)< NearFlat)
+        {oxwarning("FiveO Warning ??. bounded parameter "+L+" starting close to midpoint of range,"); println("%12.9f",start);}
     v = start;
 	if (DoNotConstrain)
 		{scale =  1.0; f = v;}
@@ -197,10 +200,10 @@ ParameterBlock::ParameterBlock(L, ...) {
 **/
 ParameterBlock::AddToBlock(psi, ... )	{
 	decl va = {psi}|va_arglist(),j;
-	if (pos!=UnInitialized) oxrunerror("Cannot add to a Block after it has been added to the Objective");
+	if (pos!=UnInitialized) oxrunerror("FiveO Error 21a. Cannot add to a Block after it has been added to the Objective\n");
 	for (j=0;j<sizeof(va);++j) {
-		if (!isclass(va[j],"Parameter")) oxrunerror("Can only add Parameters to Parameter Block");
-		if (isclass(va[j],"ParameterBlock")) oxrunerror("Cannot a Parameter Block to a Parameter Block");
+		if (!isclass(va[j],"Parameter")) oxrunerror("FiveO Error 21b. Can only add Parameters to Parameter Block");
+		if (isclass(va[j],"ParameterBlock")) oxrunerror("FiveO Error 21c. Cannot a Parameter Block to a Parameter Block");
 		Psi |= va[j];
 		if (N) PsiL |= va[j].L; else PsiL = {va[j].L};
 		++N;
@@ -253,7 +256,8 @@ Simplex::Simplex(L,ivals)	{
 	else
 		{ivals = vec(ivals); myN = rows(ivals); }
 	if (any(ivals.>1)||any(ivals.<0)||fabs(sumc(ivals)-1)>stoler)
-		oxrunerror("Simplex "+L+" initial values not a simplex",ivals');
+        {println("**** ",ivals',"\n****");
+		oxrunerror("FiveO Error 22. Simplex "+L+" initial values not a simplex");}
 	cumprob = new Determined(L+"End",1.0);
 	for(k=0;k<myN-1;++k) {
 		AddToBlock(new Bounded(L+"_"+sprint(k),0.0,cumprob,ivals[k]));
@@ -280,11 +284,11 @@ Initialize the transition but make the transition an array of `Simplex` blocs th
    Parameters(m);
    println("The current Markov transition matrix is ", CV(m));
 </pre></dd>
-@see <a href="../DDP/Variables.ox.html#Markov">Markov State Variable</a>
+<DT>see <a href="../DDP/Variables.ox.html#Markov">Markov State Variable</a></dt>
 **/
 TransitionMatrix(L,imat) {
     decl N=rows(imat);
-    if (N!=columns(imat)) oxrunerror("Initial transition matrix must be square");
+    if (N!=columns(imat)) oxrunerror("FiveO Error 23. Initial transition matrix must be square");
     decl M = new array[N];
     decl i;
     for (i=0;i<M;++i) M[i] = new Simplex(L+sprint(i),imat[][i]);
@@ -313,8 +317,10 @@ DecreasingReturns::DecreasingReturns(L,ivals)	{
 	ParameterBlock(L);
 	ivals = vec(ivals);
 	myN = rows(ivals);
-	if (any(ivals.>1)||any(ivals.<0)||fabs(sumc(ivals)-1)>=1.0)
-		oxrunerror("Decreasing Returns "+L+" initial values not a valid",ivals');
+	if (any(ivals.>1)||any(ivals.<0)||fabs(sumc(ivals)-1)>=1.0) {
+        println("****",ivals',"\n****");
+		oxrunerror("FiveO Error 24. Decreasing Returns "+L+" initial values not a valid");
+        }
 	AddToBlock(new Probability(L+"0",ivals[0]));
 	cumprob = new Determined(L+"End",1.0-ivals[0]);
 	for(k=1;k<myN;++k) AddToBlock(new Bounded(L+sprint(k),0.0,cumprob,ivals[k]));
@@ -346,7 +352,10 @@ Increasing::Increasing(L,LB,ivals)	{
 		{ myN = ivals;  ivals = (ffree ? 0 : CV(LB)) +1.1*range(1,myN);}
 	else
 		{ivals = vec(ivals); myN = rows(ivals);}
-	if (any(ivals|.Inf.<=CV(LB)|ivals)) oxrunerror("Increasing Sequence "+L+" initial values not valid");
+	if (any(ivals|.Inf.<=CV(LB)|ivals)) {
+        println("****",ivals',"\n****");
+		oxrunerror("FiveO Error 25. Increasing Sequence  "+L+" initial values not a valid");
+        }
 	prevpsi = LB;
 	Psi = {};
 	for(k=0;k<myN;++k) 	{
@@ -375,7 +384,10 @@ Decreasing::Decreasing(L,UB,ivals)	{
 		{ myN = ivals;  ivals = (ffree ? 0 : CV(UB) ) -1.1*range(1,myN);}
 	else
 		{ivals = vec(ivals); myN = rows(ivals);}
-	if (any(ivals|-.Inf.>=CV(UB)|ivals)) oxrunerror("Decreasing Sequence "+L+" initial values not valid",CV(UB)~ivals');
+	if (any(ivals|-.Inf.>=CV(UB)|ivals)) {
+        println("**** ",CV(UB)~ivals',"\n****");
+		oxrunerror("FiveO Error 26. Decreasing Sequence "+L+" initial values not valid");
+        }
 	prevpsi = UB;
 	Psi = {};
 	for(k=0;k<myN;++k) {
@@ -400,7 +412,7 @@ Coefficients::Coefficients(L,ivals,labels) {
 	if (isint(ivals)) {
 		  if (ivals>0) myN = ivals;
 		  else
-			{ if (!haslabels) oxrunerror("Invalid inputs to Cofficients()",0); myN = sizeof(labels); }
+			{ if (!haslabels) oxrunerror("FiveO Error 267. Invalid inputs to Cofficients()\n"); myN = sizeof(labels); }
 		  ivals = zeros(myN,1);
 		}
 	else
@@ -420,12 +432,12 @@ StDeviations::StDeviations(L,ivals,labels) {
 	if (isint(ivals)) {
 		  if (ivals>0) myN = ivals;
 		  else
-			{ if (!haslabels) oxrunerror("Invalid inputs to StDeviations()",0); myN = sizeof(labels); }
+			{ if (!haslabels) oxrunerror("FiveO Error 27a. Invalid inputs to StDeviations()",0); myN = sizeof(labels); }
 		  ivals = ones(myN,1);
 		}
 	else {
 		ivals = vec(ivals);
-		if (any(ivals.<0.0)) oxrunerror("Initial stdev value invalid");
+		if (any(ivals.<0.0)) oxrunerror("FiveO Error 27b. Initial stdev value invalid");
 		myN = rows(ivals);
 		}
 	for(k=0;k<myN;++k) {AddToBlock(new Positive(haslabels ? labels[k] : L+sprint(k) ,ivals[k]));}
@@ -443,12 +455,12 @@ Probabilities::Probabilities(L,ivals,labels) {
 	if (isint(ivals)) {
 		  if (ivals>0) myN = ivals;
 		  else
-			{ if (!haslabels) oxrunerror("Invalid inputs to StDeviations()",0); myN = sizeof(labels); }
+			{ if (!haslabels) oxrunerror("FiveO Error 28a. Invalid inputs ",0); myN = sizeof(labels); }
 		  ivals = ones(myN,1);
 		}
 	else {
 		ivals = vec(ivals);
-		if (any(ivals.<=0.0)||any(ivals.>=1.0)) oxrunerror("Initial probability value invalid");
+		if (any(ivals.<=0.0)||any(ivals.>=1.0)) oxrunerror("FiveO Error 28b. Initial probability value invalid");
 		myN = rows(ivals);
 		}
 	for(k=0;k<myN;++k) {AddToBlock(new Probability(haslabels ? labels[k] : L+sprint(k) ,ivals[k]));}

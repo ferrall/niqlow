@@ -16,7 +16,7 @@ This would be inefficient to use in any context when a solution method is applie
 
 **/
 VISolve() {
-	if (!Flags::ThetaCreated) oxrunerror("Must call CreateSpaces() before calling Choose()");
+	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling Choose()");
     decl meth = new ValueIteration();
     DPDebug::outAllV();
     meth->Solve();
@@ -155,12 +155,12 @@ ValueIteration::GSolve(instate) {
 /** The function (method) that actually applies the DP Method to all problems (over fixed and random effect groups).
 This is the default value that does nothing.  It should be replaced by code for the solution method.
 **/
-Method::Solve(Fgroups,MaxTrips) {    oxwarning("Called the default Solve() function for Method.  Does not do anything");    }
+Method::Solve(Fgroups,MaxTrips) {    oxwarning("DDP Warning 21.\n User code has called the default Solve() function for Method.\n  Does not do anything.\n");    }
 
 /** The function (method) that applies the method to a particular problem.
 This is the default value that does nothing.  It should be replaced by code for the solution method.
 **/
-Method::GSolve(instate) {    oxwarning("Called the default Solve() function for Method.  Does not do anything");    }
+Method::GSolve(instate) {  oxwarning("DDP Warning 22.\n User code has called the default GSolve() function for Method.\n  Does not do anything\n");    }
 	
 /**Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
 @param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
@@ -206,7 +206,7 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
 
 **/
 ValueIteration::ValueIteration(myEndogUtil) {
-	if (!Flags::ThetaCreated) oxrunerror("Must create spaces before creating a solution method");
+	if (!Flags::ThetaCreated) oxrunerror("DDP Error 28. Must create spaces before creating a solution method");
 	ThetaTask();
  	vtoler = DefTolerance;
 //   	left = S[endog].M;
@@ -218,7 +218,8 @@ ValueIteration::ValueIteration(myEndogUtil) {
 	VV = new array[DVspace];
     decl i;
     for (i=0;i<DVspace;++i) VV[i] = zeros(1,SS[iterating].size);
-   	if (isint(delta)) oxwarning("Setting discount factor to default value of "+sprint(SetDelta(0.90)));
+   	if (isint(delta))
+        oxwarning("DDP Warning 23.\n User code has not set the discount factor yet.\n Setting it to default value of "+sprint(SetDelta(0.90))+"\n");
     DoNotIterate = FALSE;
     Volume = QUIET;
 	}
@@ -240,7 +241,7 @@ ValueIteration::Update() {
 	decl dff= norm(VV[NOW][:I::MxEndogInd]-VV[LATER][:I::MxEndogInd],2);
 	if (dff==.NaN || Volume>LOUD) {
         println("\n t =",I::t,"%r",{"today","tomorrow"},VV[now][]|VV[later][]);	
-        if (dff==.NaN) oxrunerror("error while checking convergence.  Value function listed above undefined.");		
+        if (dff==.NaN) oxrunerror("DDP Error 29. error while checking convergence.  Value function listed above undefined.");		
         }
     counter->Vupdate(now);
     Swap();
@@ -344,9 +345,9 @@ KeaneWolpin::GSolve(instate) {
 /** Initialize Keane-Wolpin Approximation method.
 **/
 KeaneWolpin::KeaneWolpin(myKWEMax) {
-    if (isint(SampleProportion)) oxwarning("Must call SubSampleStates() if you uses KeaneWolpin");
+    if (isint(SampleProportion)) oxwarning("DDP Warning 24.\n Must call SubSampleStates() before you use KeaneWolpin::Solve().\n");
 	ValueIteration(isint(myKWEMax) ? new KWEMax() : myKWEMax);
-    if (N::J>1) oxwarning("Using KW approximization on a model with infeasible actions at some states.  All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible");
+    if (N::J>1) oxwarning("DDP Warning 25.\n Using KW approximazation on a model with infeasible actions at some states.\n All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible.\n");
 	ndogU.meth = this;
 	cpos = counter.t.pos;
 	Bhat = new array[N::T];
@@ -374,7 +375,7 @@ KeaneWolpin::Specification(kwstep,V,Vdelta) {
 				Y |= VV[now][I::all[iterating]];
 				Xmat |= xrow;	
 		case	ComputeBhat	:
-                if (rows(Xmat)<=columns(Xmat)) oxrunerror("Fewer sample states than estimated coefficients.  Increase proportion");
+                if (rows(Xmat)<=columns(Xmat)) oxrunerror("DDP Error 30. Fewer sample states than estimated coefficients.  Increase proportion");
 				olsc(Y-Xmat[][0],dropc(Xmat,<0>),&xrow); //subtract maxE, drop from X
 				Bhat[I::t] = 1|xrow;  //tack 1.0 on as coefficient for maxE
 				if (Volume>QUIET) {
@@ -405,9 +406,9 @@ KWEMax::OutSample(th) {
 
 **/
 HotzMiller::HotzMiller(indata,bandwidth) {
-	if (SS[bothexog].size>1) oxrunerror("exogenous and semi-exogenous not allowed with Hotz-Miller");
-	if (SS[onlyrand].size>1) oxrunerror("Only FixedEffects allowed in Hotz-Miller.  No random effects");
-    if (!Flags::IsErgodic) oxrunerror("clock must be ergodic in Hotz Miller");
+	if (SS[bothexog].size>1) oxrunerror("DDP Error 31a. exogenous and semi-exogenous not allowed with Hotz-Miller");
+	if (SS[onlyrand].size>1) oxrunerror("DDP Error 31b. Only FixedEffects allowed in Hotz-Miller.  No random effects");
+    if (!Flags::IsErgodic) oxrunerror("DDP Error 31c. clock must be ergodic in Hotz Miller");
     ValueIteration(new HMEndogU(this));
     if (isclass(indata,"Panel")) {
         myccp = new CCP(indata,bandwidth);

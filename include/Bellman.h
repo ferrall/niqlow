@@ -30,6 +30,7 @@ struct  Bellman : DP {
 			static 	Delete();
 			static 	Initialize(userReachable,UseStateList=FALSE);
 			static  CreateSpaces();
+                    OnlyFeasible(myU);
 			virtual FeasibleActions(Alpha);
 			virtual Utility();
 			virtual thetaEMax() ;
@@ -80,7 +81,7 @@ struct OneStateModel : ExPostSmoothing {
 	
 /** Additve extreme value errors enter U().
 
-<DT>Specification
+<DT>Specification</DT>
 <dd><pre>
 U() = Utility(&alpha;,&eta;,&epsilon;,&theta;,&gamma;) + &zeta;
 &zeta;.N = (&theta;.A).D          IID error for each feasible &alpha;
@@ -92,7 +93,7 @@ v(&alpha;;&epsilon;,&eta;) = exp{  &rho;( U + &delta;&sum; <sub>&theta;&prime;</
 V(&epsilon;,&eta;) = log(&sum;<sub>&alpha;</sub> v(&alpha;;&epsilon;,&eta;))
 EV = &sum;<sub>&epsilon;,&eta;</sub> [ V(&epsilon;,&eta;)*f(&epsilon;)f(&eta;)/&rho; ]
 </pre>
-<DT>Choice Probabilities
+<DT>Choice Probabilities</DT>
 <DD>Once EV() has converged<pre>
 &Rho;*(&alpha;;&epsilon;,&eta;,&gamma;) =
 </pre></dd>
@@ -185,6 +186,7 @@ struct NIID : Normal {
 <LI>There are no exogenous (&epsilon;) or semi-exogenous (&eta;) states added to the model.  State variables that would be eligible
 for inclusion in those vectors need to be placed in &theta;.</LI>
 <LI>The model must exhibit a reservation property in z (i.e. a single-crossing property and if <code>d.N&gt;2</code> monotonicity in the crossing points.</LI>
+
 <LI>Formally,</LI>
 <DD><pre>
 &alpha; = (d)
@@ -196,17 +198,17 @@ U(d;&zeta;,&theta;) = U(d;z,&theta;)
 </pre></dd>
 
 </UL>
-<!--&exists; unique z*<sub>0</sub> &lt; z*<sub>1</sub> &hellip; &lt; z*<sub>a.N&oline;</sub> such that
 
-U(a;z,&theta;-->
+<!--&exists; unique z*<sub>0</sub> &lt; z*<sub>1</sub> &hellip; &lt; z*<sub>a.N&oline;</sub> such that U(a;z,&theta;-->
 
 <DT>The restrictions above do not apply if other solution methods are applied to a <code>OneDimensionalChoice</code>.</DT>
 
-<DT>The user provides methods that return:<DT>
+<DT>The user provides methods that return:</DT>
 <UL>
 <LI><code>Uz(z)</code>: the utility matrix at a given vector of cut-offs z. <code>Uz(z)</code> should return a <code>d.N &times; d.N-1</code> matrix equal to the
 utility of each value of <code>d=i</code> at &zeta;=z<sub>j</sub>.  In the case of a binary choice there is just one cut-off and <code>Uz(z)</code> returns a column vector of
 the utilities of the two choices at <code>z</code>  Internally the difference between adjacent values of <code>d</code> is computed from this matrix.</LI>
+
 <LI><code>EUtility()</code>: an array of size <code>d.N</code> that returns the expected utlity of <code>d=j</code> for values of z in the interval (z*<sub>j-1</sub>,z*<sub>j</sub>)
 and the corresponding probabilities &Rho;[z &in (z*<sub>j-1</sub>,z*<sub>j</sub>) ].  <code>EUtility()</code> gets
 <code>z*star</code> from the data member `OneDimensionalChoice::zstar`.</LI>
@@ -223,23 +225,29 @@ solve() computes <span="o">z</span><sub>0</sub> &hellip; <span="o">z</span><sub>
 The user writes routines that return ...-->
 
 **/
-struct OneDimensionalChoice : Bellman {
+struct OneDimensionalChoice : ExPostSmoothing {
 	static 	decl
             /** space for current Prob(z) in z* intervals. **/	pstar,
+            /** Flag for whether creator has been called. **/   called,
             /** single action variable. **/                     d;
 			decl
-			/**N::R x 1 array of reservation value vectors  **/		zstar;
+            /** TRUE: solve for z* at this state.
+                Otherwise, ordinary discrete choice.**/             solvez,
+			/**N::R x 1 array of reservation value vectors.  **/	zstar;
 	static 	Initialize(userReachable,d=Two,UseStateList=FALSE);
-	static  CreateSpaces();
+	static  CreateSpaces(Method=NoSmoothing,smparam=1.0);
 	virtual Uz(z);
 	virtual EUtility();
 	virtual thetaEMax() ;
 	virtual Smooth(pstar);
 	virtual ActVal(VV);
+            OneDimensionalChoice();
 	}
 
-/** A OneDimensionalChoice model in which a discretized approximation to &zeta; enters
-the state vector if the decision is to accept (<code>d&gt;0</code).
+/** A OneDimensionalChoice model with discretized approximation to &zeta;.
+
+A discrete approximation to &zeta; enters the state vector if the decision is to accept (<code>d&gt;0</code).
+
 **/
 struct KeepZ : OneDimensionalChoice {
 	static 	decl

@@ -26,7 +26,7 @@ Objective::Objective(L)	{
 	nstruct = 0;
 	if (Parameter::DoNotConstrain) {
 		Parameter::DoNotConstrain = FALSE;
-		oxwarning("Each new objective resets Parameter::DoNotConstrain to FALSE. User must reset it");
+		oxwarning("FiveO Warning 04.\n Each new objective resets Parameter::DoNotConstrain to FALSE.\n User must reset it after adding additional objectives.\n");
 		}
 	}
 
@@ -51,7 +51,7 @@ Objective::CheckPoint(f,saving) {
 		fscan(f,"%v",&inX,"%v",&inPsiL,"%v",&inPsiT,"%v",&inFX);
 		fclose(f);
 		if (sizer(inX)!=sizeof(Psi)) {
-			oxwarning("X in "+fname+"."+EXT+" not the same length as Psi. Load is doing nothing. ");
+			oxwarning("FiveO Warning 05.\n X in "+fname+"."+EXT+" not the same length as Psi.\n Load is doing nothing.\n ");
 			return FALSE;
 			}
 		if (!sizer(inPsiT)) inPsiT = <-1>;
@@ -84,17 +84,17 @@ Objective::Save(fname)	{
 **/
 Objective::Load(fname)	{
 	decl f,n,inL,inO,inX,inFX,k,m,inPsiL,otype,mml;
-	if (!sizeof(Psi)) oxrunerror("Cannot call Load before Parameter List is created.");
+	if (!sizeof(Psi)) oxrunerror("FiveO Error 29. Cannot call Load before Parameter List is created.");
 	if (isint(fname)) {if (fname==UnInitialized) return FALSE; fname = this.fname;}
 	f = fopen(fname+"."+EXT);
 	if (!isfile(f))	{
-		oxwarning("File "+fname+"."+EXT+" not found.  Load is doing nothing ");
+		oxwarning("FiveO Warning 06.\n File "+fname+"."+EXT+" not found.  Load is doing nothing.\n");
 		return FALSE;
 		}
 	if (Volume>SILENT) println(" Attempting to load from ",fname);
 	n = fscan(f,"%v",&otype,"%v",&inL,"%v",&inO);
-	if (otype!=classname(this)) oxwarning("Object stored in "+fname+" is of class "+otype+".  Current object is "+classname(this));
-	if (inL!=L) oxwarning("Object Label in "+fname+" is "+inL+" not the same as "+L);
+	if (otype!=classname(this)) oxwarning("FiveO Warning 07.\n Object stored in "+fname+" is of class "+otype+".  Current object is "+classname(this)+"\n");
+	if (inL!=L) oxwarning("FiveO Warning 08.\n Object Label in "+fname+" is "+inL+", which is not the same as "+L+"\n");
 	maxpt.v = cur.v = inO;
 	if (Volume>SILENT) println("Initial objective: ",cur.v);
 	return this->CheckPoint(f,FALSE);
@@ -122,7 +122,7 @@ Constrained::CheckPoint(f,saving)	{
 		fscan(f,"%v",&inX,"%v",&inPsiL,"%v",&inFX);
 		fclose(f);
 		if (sizer(inX)!=sizeof(Psi)) {
-			oxwarning("X in "+fname+"."+EXT+" not the same length as Psi. Load is doing nothing. ");
+			oxwarning("FiveO Warning 09.\n X in "+fname+"."+EXT+" not the same length as Psi.\n Load is doing nothing.\n ");
 			return FALSE;
 			}
 		inPsiL = varlist(inPsiL);
@@ -192,7 +192,7 @@ Three ways to define a <code>3x3</code> system of equations:
  mysys = new System({"A","B","C"});
  mysys = new System("Eq0 Eq2 Eq2");
 </pre></dd>
-@see Objective::NvfuncTerms, `Equations`
+@see Objective::NvfuncTerms, Equations
 **/	
 System::System(L,LorN) {
 	Objective(L);
@@ -232,7 +232,7 @@ each parameter block current value is updated.
 Objective::Decode(F)	{
 	decl k,m;
 	 if (!isint(F))	{
-		if (sizer(F)!=nfree) oxrunerror("Cannot change length of free vector during optimization.");
+		if (sizer(F)!=nfree) oxrunerror("FiveO Error 30. Cannot change length of free vector during optimization.");
 	  	cur.F = F;
 		}
 	for (k=0;k<sizeof(Blocks);++k) Blocks[k].v = <>;
@@ -264,13 +264,13 @@ Objective::Encode(inX)  {
    	if (!once) {
 		nstruct=sizeof(Psi); once = TRUE;
 		if (NvfuncTerms==UnInitialized) {
-			oxwarning(L+" NvfuncTerms, length of return vfunc(), not initialized. Set to 1");
+			oxwarning("FiveO Warning 10.\n "+L+" NvfuncTerms, length of return vfunc(), not initialized. Set to 1.\n");
 			NvfuncTerms = 1;
 			}
 		cur.V = constant(.NaN,NvfuncTerms,1);
 		}
 	Start = isint(inX) ? cur.X : inX;
-	if (sizer(Start)!=nstruct) oxrunerror("Start vector not same length as Psi");
+	if (sizer(Start)!=nstruct) oxrunerror("FiveO Error 31. Start vector not same length as Psi");
     for (k=0;k<sizeof(Blocks);++k) Blocks[k].v = <>;
 	for (k=0,cur.X=<>,cur.F=<>,FinX=<>,nfree=0;k<nstruct;++k) {
 		Psi[k].start = Start[k];
@@ -297,7 +297,7 @@ for the first time.
 **/
 Objective::ReInitialize() {
 	decl k,f;
-   	if (!once) oxrunerror("Cannot ReInitialize() objective parameters before calling Encode() at least once.");
+   	if (!once) oxrunerror("FiveO Error 32. Cannot ReInitialize() objective parameters before calling Encode() at least once.");
     for (k=0;k<sizeof(Blocks);++k) Blocks[k].v = <>;
 	for (k=0,cur.X=<>,cur.F=<>,FinX=<>,nfree=0;k<nstruct;++k) {
 		f = Psi[k]->ReInitialize();
@@ -333,8 +333,8 @@ Objective::funclist(Fmat,aFvec)	{
 			f[j] = cur.v;
 			}
 	if (best = maxcindex(f) < 0) {
-        println("------------ ",Fmat,f);
-        oxrunerror("undefined max over function list above");
+        println("**** ",Fmat,f,"\n****");
+        oxrunerror("FiveO Error 32. undefined max over function list above");
        }
 	cur.v = f[best];
 	Decode(Fmat[][best]);
@@ -416,21 +416,6 @@ Constrained::Merit(F) {
 	cur.L = cur.v - cur.ineq->penalty() - cur.eq->norm();
 	this->CheckMax();
 	}
-	
-/** Compute the &nabla;f(), objective's gradient at the current vector.
-@return <var>&nabla; f(&psi;)</var>
-**/
-UnConstrained::Gradient() {
-	this->Jacobian();
-	cur.G = sumc(cur.J);
-	}
-
-/** Compute the &nabla;f(), objective's gradient at the current vector.
-**/
-Constrained::Gradient() {
-	this->Jacobian();
-	cur.G = sumc(cur.J);
-	}
 
 /** Compute the Jg(), vector version of the objective's Jacobian at the current vector.
 @return <var>Jg(&psi;)</var> in cur.J
@@ -447,6 +432,37 @@ Objective::Jacobian() {
 	cur -> Copy(hold);
 	Decode(0);
 	cur.J = (GradMat[][:nfree-1] - GradMat[][nfree:])./(2*h');
+	}
+	
+/** Compute the &nabla;f(), objective's gradient at the current vector.
+
+<DT>Compute</DT>
+<pre><var>&nabla; f(&psi;)</var></pre>
+
+Stored in <code>cur.G</code>
+**/
+Objective::Gradient() {
+	this->Jacobian();
+	cur.G = sumc(cur.J);
+	}
+
+/** Compute the &nabla;f(), objective's gradient at the current vector.
+
+<DT>Compute</DT>
+<pre><var>&nabla; f(&psi;)</var></pre>
+
+Stored in <code>cur.G</code>
+**/
+UnConstrained::Gradient() {
+    Objective::Gradient();
+	}
+
+/** Compute the &nabla;f(), objective's gradient at the current vector.
+**/
+Constrained::Gradient() {
+    //	this->Jacobian();
+    //	cur.G = sumc(cur.J);
+    Objective::Gradient();
 	}
 
 /** Compute the Hf(), Hessian of objective at the current vector.
@@ -512,7 +528,7 @@ array: any argument can send an array which contains only parameters and blocks
 @see Parameter,  Objective::Psi
 **/
 Objective::Parameters(psi1, ... ) {
-	if (once) oxrunerror("Cannot add parameters after calling Objective::Encode()");
+	if (once) oxrunerror("FiveO Error 33. Cannot add parameters after calling Objective::Encode()");
  	decl a, b, nxt, i, args =  isarray(psi1) ? psi1 : {psi1};
 	args |= va_arglist();
 	for(a=0;a<sizeof(args);++a) {
@@ -528,7 +544,7 @@ Objective::Parameters(psi1, ... ) {
 					}
 				}
 			else if (isclass(nxt[i],"Parameter")) {
-				if(nxt[i].pos!=UnInitialized) oxrunerror("Parameter "+nxt[i].L+" already added to objective.");
+				if(nxt[i].pos!=UnInitialized) oxrunerror("FiveO Error 34. Parameter "+nxt[i].L+" already added to objective.");
 				nxt[i].pos = sizeof(Psi);
 				Psi |= nxt[i];
 				if (sizeof(PsiL))
@@ -538,7 +554,7 @@ Objective::Parameters(psi1, ... ) {
 				cur.X |= nxt[i].v;
 				}
 			else
-				oxrunerror("Argument not of Parameter Class");
+				oxrunerror("FiveO Error 34. Argument not of Parameter Class");
 			}
 		}
 	}
@@ -547,7 +563,9 @@ Objective::Parameters(psi1, ... ) {
 Prints a warning once and then returns 0.
 **/
 Objective::vfunc() {
-	if (!Warned) {Warned=TRUE; oxwarning("NOTE: Using default objective equal to 0.  Your derived objective should provide a replacement for vfunc(). ");}
+	if (!Warned) {
+        Warned=TRUE; oxwarning("FiveO Warning 11.\n Using default objective which equals 0.0.\n  Your derived objective should provide a replacement for vfunc().\n ");
+        }
 	return <0>;	
 	}
 

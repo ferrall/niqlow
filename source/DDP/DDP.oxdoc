@@ -1,11 +1,15 @@
-/** A Guide to Discrete Dynamic Programming using <span class="n">DDP</span> .
+/** Technical Guide to Discrete Dynamic Programming using <span class="n">DDP</span> .
 
 @sortkey AAB
 
-<DT>This concerns how to set up a model. See also ...</DT>
-<DD><a href="GetStarted.html">GetStarted</a> for a demonstration of coding.</DD>
+<DT>This document provides mathematical description of the fundaments of <span class="n">DDP</span>.</DT>
+<DD>This is the first document on the technical side.  For further help on using and extending your model see also:
 <DD><a href="./Methods.ox.html">Methods</a> for how to solve the model</DD>
 <DD><a href="./Outcomes.ox.html">Outcomes</a> for how to simulate data and read data in for estimation</DD>.
+
+<DT>This document will be useful for someone who already knows a great deal about dynamic programming and has some familiarity with Ox or similar languages.</DT>
+<DD>If you need a much more basic introduction, try <a href=""></a></DD>
+<DD>You can also start with <a href="GetStarted.html">GetStarted</a> for a demonstration of coding and return here..</DD>
 
 <OL class="contents">Contents
 <LI><a href="#NC">Notation and Conventions</a></LI>
@@ -439,8 +443,9 @@ MyModel::Initialize() {
 <DT>Completely general state variables</DT>
 <DD>A generic element of &theta; is denoted <var>q</var>. </DD>
 <DD>Anything that <code>MyCode</code> places in &epsilon;, &eta; or &gamma; could be in the &theta; (but not vice versa).</DD>
-<DD>States are added to &theta; using `DP::EndogenousStates`().</DD>
+<DD>State variables are added to &theta; using `DP::EndogenousStates`().</DD>
 <DT>Like any DDP model &theta; is a semi-Markov process in which the transition to &theta;' depends potentially on all current state variables and the action <code>&alpha;</code>.  </DT>
+
 <DD>The other state vectors separate out variables which evolve in a simpler or more restrictive way.</DD>
 <DD>&theta; always contains a single `StateBlock` derived from `Clock`.  See <a href="#clock">Clock Block</a> below.</DD>
 
@@ -506,8 +511,8 @@ returns a vector of length A.D containing I{A.i&in;&theta;.A}, i = 0 &hellip; (A
 
 <DT>The <var>A</var> List</DT>
 <DD>Typically there is a small number of different feasible sets relative to the size of the state space.  In this case, storing a matrix at each &theta; is wasteful.  So <span class="n">DDP</span> stores a list (<code>OxArray</code>) of different feasible sets.  Rather than storing &theta;.A it only stores an index &theta;.j into a list of feasible sets.</DD>
-<DD>In <span class="n">DDP</span>, the list of feasible matrices is simply <code>A</code>.  And the index &theta;.j into the list at a state is <code>Aind</code>. <code>MyModel</code> accesses the current feasible matrix as <code>A[Aind]</code>.</DD>
-<DD>The first matrix, <code>A[0]</code> is <em>always</em> the possible matrix <var>A</var>.  If <code>MyModel</code> does not specify feasible actions, then <code>Aind = &theta;.j = 0</code>.</DD>
+<DD>In <span class="n">DDP</span>, the list of feasible matrices is simply <code>A</code>.  And the index &theta;.j into the list at a state is <code>Aind</code>. <code>MyModel</code> accesses the current feasible matrix as <code>Alpha::A[Aind]</code>.</DD>
+<DD>The first matrix, <code>Alpha::A[0]</code> is <em>always</em> the possible matrix <var>A</var>.  If <code>MyModel</code> does not specify feasible actions, then <code>Aind = &theta;.j = 0</code>.</DD>
 <DD><b>Note</b>: the elements of the <var>A</var> list are the <em>actual</em> value of actions and are updated at the start of each value solve.  If an action variable does not have its own `Discrete::Update`() routine defined then the actual values are simply the default range 0 &hellip; (a.N)&oline;.</DD>
 
 <a name="aa"><DT>`Bellman::aa`(): the values of an action variable</DT></a>
@@ -580,7 +585,7 @@ this traversing that it is determined whether the point &theta; is reachable or 
 equal to the value of the clock, `I::t`.  This is true regardless on other state variables added to the model, which actions are feasible, etc.  It depends solely on the clock type, initial conditions and the presence of this variable in the model. </DD>
 <DD>So some trimming of the state space can be done automatically based on state variables in in the endogenous vector <em>and</em> the model's `Clock` block.  By design, state variable objects do not know directly about the model's clock, because all the discrete variable classes are defined and used by the `DP` class.  So checking for reachable requires sending the clock to the state variable.</DD>
 <DD>The `StateVariable` class includes a virtual method named `StateVariable::IsReachable`() which takes a single argument that will be the model's clock block.  The default function return <code>TRUE</code>.  That is, by default, no state variable says a point in the state space is unreachable.  However, some kinds of state variables that do generate unreachable states (such as counters) will supply a replacement copy of <code>IsReachable()</code>.  </DD>
-<DD>At each <em>possible</em> state in the space &Omega; <code>CreateSpaces</code> will call <code>IsRechable()</code> for each state variable in the endogenous state vector &theta;. If any of them return <code>FALSE</code> that point is marked as unreachable.</DD>
+<DD>At each <em>possible</em> state in the space &Omega; <code>CreateSpaces</code> will call <code>IsRechable()</code> for each state variable in the endogenous state vector &theta;. If any of them return <code>FALSE</code> that point is marked as unreachable. (This can be turned off when creating the state variable using the optional <code>Prune</code> argument.</DD>
 <DD>If no state variables claim the current state is inherently unreachable then the user supplied method is called ...</DD>
 
 <DT>`DP::userReachable`()</DT>
