@@ -4,12 +4,13 @@
 @sortkey AAA
 
 
-<DL>Quick Reference: a variable in a DP model is an object derived from `Quantity`</DT>
-<DT>the `ActionVariable` class and an element of the action vector <code>&alpha;</code><DT>
+<DL>Quick Reference: a variable in a DP model is an object derived from `Quantity` and can be of various types:</DT>
+<DT>The `ActionVariable` class is designed to represent a choice in the model (such as whether to work or not) and is an element of the action vector <code>&alpha;</code><DT>
 <DD>Action variables are added to the DP model using using the `DP::Actions`() method.</DD>
-<DT>the `StateVariable` class and a member of one of the state vectors (<code>&epsilon;,&eta;,&theta;,&gamma;</code>).</DT></DT>
-<DD>State variables are added to appropriate state vector using `DP::EndogenousStates`(), `DP::SemiExogenousStates`, `DP::ExogenousStates`() and `DP::GroupVariables`().</DD>
-<DT>or the `AuxiliaryValues` class and a member of the auxiliary vector <code>&chi;</code></DT>
+<DT>the `StateVariable` class is designed to be a member of one of the discrete state vectors (<code>&epsilon;,&eta;,&theta;,&gamma;</code>).</DT>
+<DD>State variables are added to appropriate state vector using  the method for the corresponding vector: `DP::EndogenousStates`(), `DP::SemiExogenousStates`, `DP::ExogenousStates`() and `DP::GroupVariables`().</DD>
+<DD>Many kinds of state variables are derived from the base class.</DD>
+<DT>The `AuxiliaryValues` class is designed to represent values that depend on actions and states and are of interest to the user but are not required to solve the model.  They are members of the auxiliary vector <code>&chi;</code></DT>
 <DD>Auxiliary values are added to the DP model using `DP::AuxiliaryOutcomes`()</DD>
 </DT>
 </DL>
@@ -175,12 +176,15 @@ A state variable <var>s</var> is a `Discrete` quantity.  It is defined by at lea
 <DT>`StateVariable::Transit`()</DT><DD>The transition for the variable, <code>&Rho;<sub>s</sub>(s&prime; | &alpha;,&eta;,&theta;)</code>.</DD>
 
 <DT>State variables are classified by how their transitions relate to actions and the current value and transitions of other state variables.   Either they are </DT>
-<DD><q>Autonomous</q> </DD>
+<DD><q>Autonomous</q>, which means their transition to new states does not have to be coordinated with transitions of other states </DD>
 <DD>or they are
 <DD><q>Coevolving</q>, in which case they must be a member of a `StateBlock`.</DD>
+<DT>The <em>innovations</em> of autonomous variables and state blocks are conditionally independent.  Within a state block the innovations of member state variables can be correlated in an arbitrary way.
+<DD>Many aspects of DP models can be handled by autonomous variables because the transition can depend on current values of other
+variables.</DD>
+<DD>  Only certain kinds of correlations between two or more variables require coevolving variables in a block.</DD>
 
-
-The <em>innovations</em> of autonomous variables and state blocks are conditionally independent.  Within a state block the innovations of member state variables can be correlated in an arbitrary way. The model places discrete state variables/blocks into one of four vectors.
+The model places discrete state variables/blocks into one of four vectors.
 <table class="overview" width="100%" > <tr><td></td><td colspan="4">DP State Vector</td></tr>
 <tr><td></td><td>Exogenous<br>(&epsilon;) </th><td>Semi-Exogenous<br>(&eta;) </td><td>Endogenous<br>(&theta;)</th><td>Group (`RandomEffect` or `FixedEffect`)<br>(&gamma;)</tr>
 <tr><td>Generic Element</td><td>e</td><td>h</td><td>q</td><td>g</td></tr>
@@ -264,7 +268,7 @@ That is, the transition probabilities are exogenous to the current actions, stat
 
 Some derived classes of state variables play special roles in <span class="n">DDP</span>.  Two major ones are
 <DT>`TimeVariable`s</DT>
- <DD>which serve as the <a href="Clock.html">DDP clock</a> </DD>
+ <DD>which serve as the <a href="#Clock">DDP clock</a> </DD>
  <DT>and</DT>
 <DT>`TimeInvariant`s</DT>
 <DD>which track variables that are fixed during a DDP and stored in the &gamma; vector.  <span class="n">DDP</span> will re-solve the model for each value of &gamma;.</DD>
@@ -707,14 +711,14 @@ The restricted natures of the different vectors is displayed by excluding them f
 </OL>
 
 <hr>
-<a name="Clock"><LI>The Clock Block: Time-Keeping `StateBlock` in <code>&theta;</code>.</LI>
+<a name="Clock"><LI>The Clock: Time-Keeping `StateBlock` in <code>&theta;</code>.</LI>
 
 <OL class="chapter">
 <LI>Overview</LI>
 
 Time is a key concept in dynamic programming.  At least the difference between now (today) and later (tomorrow) underlies Bellman's equation.  In a stationary environment that is all that matters while solving the model.  In a non-stationary world the clock takes on more values.  The primary assumption is that time progresses: <var>t&prime; &ge; t</var>.  This allows the value function to be solved backwards in time, saving storage or computation if, mistakenly the environment is assumed to be stationary.  (That is, with stationarity a fixed point in all states must be solved at once, but with non-stationarity only a subset of the state space needs to be consider at each stage as we work backwards.)
 
-So the two simple extremes are stationarity (today and tomorrow) and normal aging: <var>t&prime; = t+1</var> until <var>t=T&oline;</var>. However, timing can be more complicated that those two cases.  One is an agent facing a finite horizon problem and the possibility of early death.
+So the two simple extremes are stationarity (today is followed by tomorrow which is the same as today) and normal aging: <var>t&prime; = t+1</var> until <var>t=T&oline;</var>. However, timing can be more complicated that those two cases.  One is an agent facing a finite horizon problem and the possibility of early death.
 
 The Clock Block is a single `StateBlock` that is always in the endogenous vector &theta;, and is always the &quot;rightmost&quot; element of it, in the sense that all task that span the endogenous state space will loop over time in the outermost loop.
 
@@ -730,7 +734,7 @@ The Clock Block is a single `StateBlock` that is always in the endogenous vector
 <DD>Example
 <pre>
 Initialize();
-SetClock(Stationary);
+SetClock(InfiniteHorizon);
 CreateSpaces();
 </pre></DD>
 <DD>If <code>MyModel</code> does not set the clock explicitly, then a stationary infinite horizon clock is set by `DP::CreateSpaces`().</DD>
@@ -772,7 +776,7 @@ When T = &infin;,
 
 <li>Kinds of Clocks</li>
 
-See `ClockTypes`
+See `ClockTypes` 
 
 <DT><code>InfiniteHorizon</code>: <var>t&Prime; = t = 0 = T&oline;</var>.</DT>
 <DD>In the infinite horizon case Bellman 's equation must be iterated on from initial conditions until it converges.</DD>
@@ -781,6 +785,27 @@ See `ClockTypes`
 <DT><code>Ergodic</code></DT>
 <DD>The user can set the clock to be ergodic, which means that there are no absorbing or terminal states in the state space &Theta;  </DD>
 <DD>When the clock is <code>Ergodic</code> <span class="n">DDP</span> will compute the ergodic or stationary distribution across states, &Rho;<sub>&infin;</sub> (&theta;).  If the user's state transitions are not themselves stationary then this calculation may fail.</DD>
+
+<DT><code>SubPeriods</code></DT>
+<DD>In some models a sequence of decisions is made within a single period. </DD>
+<DD>The <code>SubPeriods</code> tag creates a `Divided` clock.
+
+<DT>What do subperiods mean?</DT>
+<DD>Usually each state variable only transitions between one subperiod (which differs across states).
+This can be handled very easily by sending a base state variable to the `SubState`() augmenting class.  Simply
+send the sub period for which this state variable transits.  For all other subperiod transitions the variable
+is frozen.</DD>
+<DD>Each action variable is usually only changeable in one subperiod.  This is handled by providing
+a replacement for `DP::FeasibleActions`().</DD>
+<DD>The discount factor &delta; is set to 1.0 for <var>s &lt; S-1</var>.  That is all payoffs
+within a subperiod occur simultaneously.  </DD>
+<DD>The discount factor takes on it normal value for <var>s= S-1</var> to capture the gap between major periods.</DD>
+<DT>Some implications</DT>
+<DD>Because transitions all depend on the value of the subperiod <code>s</code>, all state variables
+must be endogenous (added to &theta;).  This is checked in `DP::CreateSpaces`.</DD>
+<DD>The user should <em>augment</em> state variables using </DD>
+
+
 
 <DT><code>NormalAging</code>:  <var>t&prime; = t+1</var>, up to <var>T&oline;</var>; <var>t&Prime;=0</var>.</DT>
 <DD>With ordinary aging Bellman's equation is solved backwards starting at t=T&oline; down to 0. The auxiliary variable t&Prime; is not needed to account for deviations from normal time so it is simply 0 always.</DD>
@@ -798,7 +823,7 @@ See `ClockTypes`
 
 <DT><code>UncertainLongevity</code>:</DT>
 <DD>Many papers in the literature assume normal aging or random mortality with some long but finite maximum lifetime (say, age 100).  Often the last part of the lifecycle is included with little decision making only to get reasonable continuation values for early ages.  For &delta; not too close to 1 the cap on ages does not affect choices much earlier.</DD>
-<DD>Another, perhaps more elegant, approach is to treat the lifetime itself as uncertain.  <code>t=T&oline;</code> is still the case of death which is still random and occurs with probability &pi;() as above.  But now <code>t=T&oline;-1</code> is now a stationary problem and <code>t=T&oline;</code> is a terminal state.  Otherwise, once <code>t=&Toline;-1</code> today and tomorrow are the same.  <span class="n">DDP</span> iterates on the value function at <code>t=T&oline;</code> as if it were a (non-ergodic) stationary problem, continuing until convergence.  Then it will proceed backwards as with mortality.</DD>
+<DD>Another, perhaps more elegant, approach is to treat the lifetime itself as uncertain.  <code>t=T&oline;</code> is still the case of death which is still random and occurs with probability &pi;() as above.  But now <code>t=T&oline;-1</code> is now a stationary problem and <code>t=T&oline;</code> is a terminal state.  Otherwise, once <code>t=T&oline;-1</code> today and tomorrow are the same.  <span class="n">DDP</span> iterates on the value function at <code>t=T&oline;</code> as if it were a (non-ergodic) stationary problem, continuing until convergence.  Then it will proceed backwards as with mortality.</DD>
 <DD>The advantage of this approach is that there is a single choice probability for this final phase (conditional on other state variables) rather than computing and storing slightly different choice probabilities as <code>t</code> approaches <code>T&oline;</code>.  </DD>
 <DD>The `Longevity` clock combines a special case of a more general notion of <code>RandomAging</code> which uses  `AgeBrackets` for the state clock with random mortality.  But it is not a special case of either one so it is derived as a third class from `NonStationary`.
 
@@ -811,11 +836,16 @@ See `ClockTypes`
 
 <LI>Interacting With Value Function Iteration</LI>
 
-<DT>Clocks have two virtual methods associated with them which are called by `ValueIteration` and related solutionn methods.</DT>
-<DD>`Clock::Vupdate`() makes sure that the scratch space for the value function is updated after each iteration of Bellman's equation</DD>
+<DT>Clocks have three virtual methods associated with them which are called by `ValueIteration` and related solution methods.</DT>
+<DD>`Clock::Vupdate`() makes sure that the scratch space for the value function is updated after each iteration of Bellman's equation.  In stationary models (or stationary
+time periods within a non-stationary model) this method also computes the norm of the difference between the current value functions and the last value.  This norm is
+checked by the solution method against the given tolerance for convergence.</DD>
+<DD>`Clock::Sync`() is called any time the value of the clock changes (that is, it is called in `DP::SyncStates`()).  The default method simply places the current in `I::t` to b available to the user's code and other parts of <span class="DDP">DDP</span>.  Some kinds of clocks do more than this.</DD>
 <DD>`Clock::setPstar`() determines whether the next iteration should calculate choice probabilities or not.  If only one iteration is required to compute the value function at this point in the clock (no fixed point problem), then the clock will return <code>TRUE</code>.   This does not itself check for convergence, and other considerations may set `Flags::setPstar` to TRUE.</DD>
 
-<DT>Typically the user does nothing with these two methods unless they are creating their own solution method.  And if the create their own clock type they have to provide replacement methods if the inherited ones are not coorect.</DT>
+<DT>Typically the user does nothing with these methods unless they are creating their own solution method.  And if the create their own clock type they may have to provide replacement methods if the inherited ones are not coorect.</DT>
+
+
 
 </OL>
 

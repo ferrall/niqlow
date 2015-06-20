@@ -6,8 +6,12 @@ struct TimeVariable : Coevolving {
 	}
 
 /** Base class for timing in DP models.
-@comment The user often does not need to create this variable directly.  Instead, use the `DP::SetClock` routine.  Some methods do require the user to create a clock variable and send it
+@comment
+The user often does not need to create this variable directly.  Instead, use the `DP::SetClock` routine.
+Some methods do require the user to create a clock variable and send it
 to SetClock.
+
+@see DP::SetClock, ClockTypes
 **/
 struct Clock : StateBlock {
 	const decl
@@ -16,19 +20,37 @@ struct Clock : StateBlock {
 			V iteration to track possible clock values next period. **/		tprime,
 		/** Store Ergodic Distribution. **/ 								IsErgodic;
     static decl
-    /** Mx index for today into V. set in `Clock::Solving` **/              ME,
-    /** Pointer to methods VV function for iteration.   **/                 aVV,
-    /** Pointer to DP::setPstar   **/                                       aSPstar;
+    /** Pointer to methods VV function for iteration.   **/                 aVV;
 	Clock(Nt,Ntprime);
-    static Solving(ME,aVV,aSPstar);
-    virtual Vupdate(VV);
+    static Solving(aVV);
+    virtual Vupdate();
     virtual setPstar();
 	virtual Last();
-	/* SubPeriods(Nsub) ;*/
+    virtual Synch();
 	}
 
 /**Timing in a stationary environment.
-@see DP::SetClock
+
+<DT>`ClockTypes` tags to send to `DP::SetClock` for Stationary: </DT>
+<DD><code>InfiniteHorizon</code>, <code>Ergodic</code>
+
+@examples
+Using Tags:
+<pre>
+SetClock(InfiniteHorizon);
+
+SetClock(Ergodic);
+</pre>
+Sent directly:
+<pre>
+SetClock(new Stationary(FALSE));
+
+
+SetClock(new Stationary(TRUE));
+</pre>
+</dd>
+
+@see DP::SetClock, ClockTypes
 **/
 struct Stationary : Clock	{
 	Stationary(IsErgodic=FALSE);
@@ -37,10 +59,156 @@ struct Stationary : Clock	{
 	}
 	
 /**A container for non-stationary clocks.
-@see DP::SetClock
+
+@comment
+Some clocks classified as nonstationary may in fact be stationary for some parameter values.
+
+
+@see DP::SetClock, ClockTypes
 **/
-struct NonStationary : Clock {	}
+struct NonStationary : Clock {	
+    virtual Vupdate();
+	virtual Transit(FeasA);
+    }
 	
+/** A period is divided into sub-periods.
+
+Models with subperiods typically index a period <code>t</code> and within <code>t</code> a fixed
+and finite number of subperiods, <code>s=0,&hellip;,SubT-1</code>.
+
+<DT>Notation</DT>
+<DD>It can be confusing to consider re-define the usual concept of time coded as `I::t`, so it
+continues to track the sequence of sub-periods as if they were different periods.</DD>
+<DD>The concept of a subperiod is coded and available for use to the user as `I::subt`. The corresponding
+concept of a major period is coded as `I::majt`.  If the clock is not divided into subperiods then
+both of these variables are identically 0 at all times.</DD>
+<DD>In the simplest case of a divided clock, the user specifies the number of major periods, `Divided::MajT`,
+and the number of subperiods, `Divided::SubT`.</DD>
+<DD>So in the base case the total number of different periods is <code>T = MajT &times; SubT</code> and
+ordinary time simply advances from <code>t=0</code> to <code>t=T&oline;</code> like normal aging.</dd>
+<DD>As plain <code>t</code> advances, <code>subt</code> cycles through <code>0&hellip;SubT&oline;</code>.</dd>
+<DD>Major time starts at <code>majt=0</code> and stays there until <code>subt</code> returns to <code>0</code>
+at which point it increments to <code>1</code> and so on until it gets to <code>MajT&oline;</code>.
+<pre>
+MajT = 2, SubT =3
+             t
+      0 1 2 3 4 5
+     -------------
+ majt 0 0 0 1 1 1
+ subt 0 1 2 0 1 2
+</pre></dd>
+
+<DT>Options and Special Cases</DT>
+<DD><code>MajT=0</code>:  If the user sets <code>MajT=0</code> it indicates an infinite horizon problem
+(i.e. really <code>MajT=&infin;</code>).  <code>subt</code> continues to cycle deterministically.  The
+difference with the ordinary case is that normal time cycles as well: <code>t=0 1 &hellip;SubT&oline; 0 1 &hellip; SubT&oline; &hellip;</code>.
+The problem is then ergodic and the value of states is a solution to a fixed point problem.  Convergence
+only needs to be checked for <code>subt=0</code>.  Once that period has converged the subsequent subperiods
+will also automatically be at the fixed point after one last iteration.
+<pre>
+MajT = 0, SubT =2
+             t
+      0 1 0 1 0 1 0 1 0 &hellip;
+     ---------------------------
+ majt 0 0 0 0 0 0 0 0 0 &hellip;
+ subt 0 1 0 1 0 1 0 1 0 &hellip;
+</pre></dd>
+
+</dd>
+<DD><code>HasInit</code>: A model may have an initial undivided period that allows for, say, permanent
+heterogeneity to be realized.
+<pre>
+MajT = 2, SubT =3, HasInit = TRUE
+             t
+      0 1 2 3 4 5 6
+     ---------------
+ majt 0 1 1 1 2 2 2
+ subt 0 0 1 2 0 1 2
+
+
+MajT = 0, SubT =2, HasInit = TRUE
+             t
+      0 1 2 1 2 1 2 1 2 &hellip;
+     ---------------------------
+ majt 0 1 1 1 1 1 1 1 1 &hellip;
+ subt 0 0 1 0 1 0 1 0 0 &hellip;
+
+</pre></dd>
+
+<DD><code>HasFinal</code>: A model may have a final undivided period to allow for terminal conditions
+such as bequest motives.  This option cannot be combined with <code>MajT=0</code>.
+<pre>
+MajT = 2, SubT =3, HasFinal = TRUE
+             t
+      0 1 2 3 4 5 6
+     ---------------
+ majt 0 0 0 1 1 1 2
+ subt 0 1 2 0 1 2 0
+</pre></dd>
+
+
+<DT>transitions</DT>
+<DD class="disp">
+The standard time variable increments like normal aging <em>or</em> if <code>St=0</code> it then cycles back to
+<pre>
+</DD>
+
+<DT>What do subperiods mean?</DT>
+<DD>Usually each state variable only transitions between one subperiod (which differs across states).  This allows
+the timing of information arrival to occur within major periods. This can be handled very easily by sending a base state
+variable to the `SubState`() augmenting class.  Simply send the sub period for which this state variable transits.
+For all other subperiod transitions the variable is frozen.</DD>
+<DD>Each action variable is usually only changeable in one subperiod.  This is handled by providing
+a replacement for `DP::FeasibleActions`().</DD>
+<DD>The discount factor &delta; is set to 1.0 for <var>s &lt; S-1</var>.  That is all payoffs
+within a subperiod occur simultaneously. </DD>
+<DD>The discount factor takes on it normal value for <var>s= S-1</var> to capture the gap between major periods.</DD>
+
+<DT>Some implications</DT>
+<DD>When state transitions depend on the value of the subperiod <code>s</code> the state variable
+must be endogenous (added to &theta;).  So a state variable that would normally be exogenous has to
+be treated as endogenous unless it changes value every subperiod.</DD>
+
+@example
+Create a stationary infinite horizon model in which a household works and shops in a first sub period and consumes in the second:
+<pre>SetClock(SubPeriods,0,2);</pre>
+Allow for an initial period before the stationary phase begins:
+<pre>SetClock(SubPeriods,0,2,TRUE);</pre>
+Create a finite horizon model in which a person makes binary decisions in 3 separate subperiods over
+a lifetime of 10 periods
+<pre>SetClock(SubPeriods,10,3);
+d = {new Binary("d0"),new Binary("d1"),new Binary("d2")};
+Actions(d);
+&vellip;
+FeasibleActions(A) {
+  decl i,v;
+  notfeas = zeros(rows(A),1);
+  foreach(v in d[i]) notfeas .+= (I::subt.!=i)*A[][d[i].pos];   // d[i]=1 not feasible if subt &neq; i
+  return 1-notfeas;
+  }</pre>
+
+</DD>
+
+@see ClockTypes, SubState
+**/
+struct Divided : NonStationary {
+    const decl
+        /** Number of sub periods. **/                SubT,
+        /** Number of major periods, 0=Infinite horizon.**/               MajT,
+        /** Initial subdivided period (TRUE/FALSE).**/HasInit,
+        /** Final subdivided period (TRUE/FALSE).**/  HasFinal;
+    decl
+        /** zeros(SubT-1,0)|&delta;. **/                                    delts,
+                                                                            Vnext0;
+    Divided(MajT,SubT,HasInit=FALSE,HasFinal=FALSE);
+    virtual Transit(FeasA);
+    virtual setPstar();
+    virtual Last();
+    virtual Update();
+    virtual Vupdate();
+    virtual Synch();
+    }
+
 /**Timing in an ordinary finite horizon environment.
 Normal Finite Horizon Aging.
 
@@ -61,7 +229,6 @@ SetClock(new Aging(10));
 **/
 struct Aging : NonStationary	{
 	Aging(T);
-	Transit(FeasA);
     virtual setPstar();
 	}
 
@@ -94,7 +261,7 @@ struct StaticP : Aging {
 @see DP::SetClock
 **/
 struct NonDeterministicAging : NonStationary{
-    virtual Vupdate(VV);
+    virtual Vupdate();
     virtual sePstar();
     }
 	
@@ -193,7 +360,7 @@ struct Mortality : NonDeterministicAging {
 	Mortality(T,MortProb);
 	virtual Transit(FeasA);
     virtual setPstar();
-    virtual Vupdate(now);
+    virtual Vupdate();
 	}
 
 /** Random mortality and uncertain lifetime.
@@ -241,13 +408,13 @@ struct Longevity : Mortality {
 	Transit(FeasA);
     virtual Last();
     virtual setPstar();
-    virtual Vupdate(now);
+    virtual Vupdate();
 	}
 	
 /** A sequence of treatment phases with fixed maximum durations.
 
 **/
-struct PhasedTreatment : Clock 	{
+struct PhasedTreatment : NonDeterministicAging 	{
 	const decl
 	/** Vector of positive integers that are the
 		length of each of the phases. **/ 		Rmaxes,
@@ -261,7 +428,7 @@ struct PhasedTreatment : Clock 	{
 	/**vector of phases           **/   		phase,
 	/**indicates time=Rmax in phase**/			final;
 	
-	PhasedTreatment(Rmaxes,IsErgodic);
+	PhasedTreatment(Rmaxes,IsErgodic=TRUE);
 	virtual Transit(FeasA);
-    virtual Vupdate(now);
+    virtual Vupdate();
 	}

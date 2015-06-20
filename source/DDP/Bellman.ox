@@ -115,14 +115,14 @@ Bellman::Smooth(VV) {
 Bellman::ActVal(VV) {
 	pandv[I::r][][] = U;
 	if (IsTerminal||IsLast) return;   //IsLast added APril 2015??
-	decl eta, hi=sizerc(Nxt[Qrho]), width= SS[onlyexog].size, dl = CV(delta);
+	decl eta, hi=sizerc(Nxt[Qrho]), width= SS[onlyexog].size;
 	for (eta=0;eta<hi;++eta)
-		pandv[I::r][][eta*width:(eta+1)*width-1] += CVdelta*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]]));
+		pandv[I::r][][eta*width:(eta+1)*width-1] += I::CVdelta*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]]));
 	}
 
 /** Computes v() and V for out-of-sample states. **/
 Bellman::MedianActVal(EV) {
-    pandv[I::r][] = U[][] + (IsLast ? 0.0 : CVdelta*sumr(Nxt[Qrho][0]*diag(EV[Nxt[Qi][0]])));
+    pandv[I::r][] = U[][] + (IsLast ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][0]*diag(EV[Nxt[Qi][0]])));
 	V[] = maxc( pandv[I::r] );
 	}
 	
@@ -187,8 +187,7 @@ Bellman::ThetaTransition(future,current) {
             Nxt[Qi][ios][s] = future*ReverseState(Nxt[Qi][ios][s],current);
         return;
         }
-	 decl now,later, si,Nb,prob,feas,k,root,swap, mtches,curO;
-	 now = NOW, later=LATER;
+	 decl now=NOW,later=LATER, si,Nb,prob,feas,k,root,swap, mtches,curO;
  	 F[now] = <0>;	
 	 P[now] = ones(N::Options[Aind],1);
 	 si = S[clock].X;				// clock needs to be nxtcnt
@@ -474,7 +473,7 @@ ExPostSmoothing::CreateSpaces(Method,smparam) {
 /** Short-cut set up for models with a single state.
 @param userReachable
 @param Method
-@param &hellip; `ActionVariables` to add to the model
+@param &hellip; `ActionVariable`s to add to the model
 <DD>Calls `ExPostSmoothing::Initialize`().<<
 <DD>Sets the `ClockTypes` to <code>StaticProgram</code>
 <DD>Sends the optional arguments to `DP::Actions`()</DD>
@@ -553,7 +552,7 @@ NIID::ActVal(VV) {
 		decl eta,j,choicep,scaling,neta = sizec(Nxt[Qrho]), width = SS[onlyexog].size;
 		for (eta=0;eta<neta;++eta) {
 			lo = eta*width; hi = (eta+1)*width-1;
-			vv = ( pandv[I::r][][lo:hi] = U[][lo:hi] + CVdelta*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]])) )';
+			vv = ( pandv[I::r][][lo:hi] = U[][lo:hi] + I::CVdelta*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]])) )';
 			for (j=0;j<J;++j) { //,ev = 0.0
 				choicep = prodr(probn(GQNODES[Aind][j] + vv*MM[Aind][j] ))/M_SQRT2PI;
 //				ev +=   NxtExog[Qrho][eta]*(GQH::wght * (choicep.*(Chol[Aind][j]*GQH::nodes+ pandv[rind][j][lo:hi]))) ;
@@ -672,7 +671,7 @@ NnotIID::ActVal(VV) {
 	if (!IsTerminal && J>1)	{
 		decl eta, neta = sizec(Nxt[Qrho]), choicep;
 		for (eta=0;eta<neta;++eta) {	//,ev = 0.0
-			pandv[I::r][][eta] = U[][eta] + CVdelta*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]]));
+			pandv[I::r][][eta] = U[][eta] + I::CVdelta*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]]));
 			[V[],choicep] = ghk[Aind]->SimDP(pandv[I::r][][eta],Chol[Aind]);
 //			ev  +=   NxtExog[Qrho][eta]*(V'*choicep);
 			if (Flags::setPstar) pandv[I::r][][eta] = choicep;
@@ -741,6 +740,7 @@ OneDimensionalChoice::Smooth(VV) {
        }
     else
         ExPostSmoothing::Smooth(VV);
+    Hooks::Do(PostSmooth);
 	}
 
 /**  Compute EV(&theta;) after optimal cutoffs z* have been found and compute choice probabilities
@@ -760,7 +760,10 @@ OneDimensionalChoice::thetaEMax(){
 	decl eua;
 	[eua,pstar] = EUtility();
 	V[] = pstar*(eua+pandv[I::r]);
-	if (Flags::setPstar) this->Smooth(V);
+	if (Flags::setPstar) {
+        this->Smooth(V);
+        Hooks::Do(PostRESolve);
+        }
 	return V;
 	}
 
@@ -770,7 +773,7 @@ not depend on z*.
 OneDimensionalChoice::ActVal(VV) {
     pandv[I::r][][] = IsTerminal || IsLast
                        ? 0.0
-	                   : CVdelta*Nxt[Qrho][0]*VV[Nxt[Qi][0]]';
+	                   : I::CVdelta*Nxt[Qrho][0]*VV[Nxt[Qi][0]]';
     if (!solvez) pandv[I::r] += U;
 	}	
 
@@ -786,7 +789,7 @@ KeepZ::ActVal(VV) {
 KeepZ::DynamicActVal(z) {
     pandv[I::r][] = -diagonal(this->Uz(z),0,-1);    // keep adjacent values to be differenced later
     if (IsLast) return pandv[I::r]; // last period so no need to track next period's keptz
-    pandv[I::r][]  += CVdelta*(keptz->DynamicTransit(matrix(z),Qt))* myVV;
+    pandv[I::r][]  += I::CVdelta*(keptz->DynamicTransit(matrix(z),Qt))* myVV;
     return pandv[I::r];
     }
 

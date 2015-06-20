@@ -85,8 +85,11 @@ value next period is a special one that is not what the base transition would be
 **/
 class Augmented : StateVariable {
     const decl /**base state variable.**/ b;
+    decl
+    /** Holds the base transition. **/ basetr;
     Augmented(Lorb,N=0);
     Synch();
+    virtual Transit(FeasA);
     }
 
 /**A member of a block: transition depends on transition of one or more other state variables.
@@ -110,9 +113,8 @@ class Triggered : Augmented {
     const decl /**triggering action or value.**/    t,
                 /** triggering values.**/           tv,
                 /** reset value of state.**/        rval;
-    decl ft, idx, idy, rv, tr, nf;
+    decl ft, idx, idy, rv, nf;
     Triggered(b,t,tv=0,rval=0);
-    virtual Transit(FeasA);
     }
 
 /**  A state variable that augments a base transition so that the value of an action variable triggers this state to transit to a value.
@@ -215,6 +217,15 @@ class Forget : ActionTriggered {
 class Freeze : ValueTriggered {
     Freeze(b,t);
     virtual Transit(FeasA);
+    }
+
+/** Let a state variable transit only in one sub-period of a Divided clock.
+**/
+class SubState : ValueTriggered {
+    decl mys;
+    SubState(b,mys);
+    virtual Transit(FeasA);
+    virtual IsReachable();
     }
 
 /** A Basic Offer Variable.
@@ -392,9 +403,10 @@ Fertility::Mortality(A)	{
 **/
 struct RandomUpDown : Random	{
     enum { down, hold, up, NRUP}
-	const decl fPi;
+	const decl fPi,
+    /**Prune Unreachables.**/          Prune;
     decl fp;
-	RandomUpDown(L,N,fPi);
+	RandomUpDown(L,N,fPi,Prune=TRUE);
 	virtual Transit(FeasA);
     virtual IsReachable();
 	}
@@ -504,9 +516,7 @@ struct ChoiceAtTbar :  LaggedAction {
     }
 
 /**s&prime; = value of an action first period it is not 0.
-<DT>Initial condition to include in Reachable:</DT>
-<dd>Only include states for which s is 0 (choice not made yet)
-<pre>if (I::t==0 && CV(s)!=0 ) return 0;</pre></dd>
+
 <DT>Feasible action restriction </DT>
 <DD>Positive value of target only feasible if choice has not been made.
 <pre>A[][s.a.pos].==0 || CV(s)==0</pre></dd>
@@ -528,8 +538,7 @@ struct Counter : NonRandom  {
 	/**Values to track  				**/	 ToTrack,
 	/**`AV` compatiable reset to 0 flag **/	 Reset,
     /** Trim unreachable counts if finite horizon clock is deteched.**/ Prune;
-    decl Warned;
-	Counter(L,N,Target,ToTrack,Reset,Prune);
+	Counter(L,N,Target,ToTrack,Reset,Prune=TRUE);
 	virtual Transit(FeasA);
     virtual IsReachable();
 	}

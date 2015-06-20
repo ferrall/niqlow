@@ -129,10 +129,11 @@ RandomSolve::Run()  {
 ValueIteration::Run(th) {
 	if (!isclass(th,"Bellman")) return;
 	decl ev;
-	th->ActVal(VV[!now]);
-	VV[now][I::all[iterating]] = ev = th->thetaEMax();
+	th->ActVal(VV[I::later]);
+	VV[I::now][I::all[iterating]] = ev = th->thetaEMax();
 	if (Flags::setPstar)  {
 		th->Smooth(ev);
+        Hooks::Do(PostSmooth);
 		if (Flags::IsErgodic) th->UpdatePtrans();
 		}
 	}
@@ -149,7 +150,7 @@ ValueIteration::GSolve(instate) {
 	Flags::setPstar = counter->setPstar() ||  (MaxTrips==1);   // if first trip is last;
 	decl i;
 	Traverse();
-	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& later!=LATER) VV[LATER][] = VV[later][];    //initial value next time
+	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER) VV[LATER][] = VV[I::later][];    //initial value next time
 	}
 
 /** The function (method) that actually applies the DP Method to all problems (over fixed and random effect groups).
@@ -183,9 +184,9 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
     decl glo, ghi, g;
     if (MaxTrips==ResetValue) this.MaxTrips=0;
     else if (MaxTrips) this.MaxTrips = MaxTrips;
-   	now = NOW;	later = LATER;
+    I::NowSet();
     GroupTask::qtask = this;
-    Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
+    Clock::Solving(&VV);
     if (Flags::UpdateTime[OnlyOnce]) UpdateVariables();
     if (Volume>QUIET) println("\n>>>>>>Value Iteration Starting");
 	if (Fgroups==AllFixed)
@@ -227,7 +228,7 @@ ValueIteration::ValueIteration(myEndogUtil) {
 /** Update code for fixed number of trips. **/
 ValueIteration::NTrips() {
 	++trips;
-	Swap();
+	I::NowSwap();
 	return done = trips>=MaxTrips;
 	}
 
@@ -238,20 +239,19 @@ This is called after one complete iteration of `ValueIteration::GSolve`().
 **/
 ValueIteration::Update() {
 	++trips;
-	decl dff= norm(VV[NOW][:I::MxEndogInd]-VV[LATER][:I::MxEndogInd],2);
+	decl dff= counter->Vupdate();
 	if (dff==.NaN || Volume>LOUD) {
-        println("\n t =",I::t,"%r",{"today","tomorrow"},VV[now][]|VV[later][]);	
+        println("\n t =",I::t,"%r",{"today","tomorrow"},VV[I::now][]|VV[I::later][]);	
         if (dff==.NaN) oxrunerror("DDP Error 29. error while checking convergence.  Value function listed above undefined.");		
         }
-    counter->Vupdate(now);
-    Swap();
+    I::NowSwap();
 	state[right] -= Flags::setPstar;
 	done = SyncStates(right,right) <0 ; //converged & counter was at 0
 	if (!done) {
         Flags::setPstar =  (dff <vtoler)
 					|| MaxTrips==trips+1  //last trip coming up
                     || counter->setPstar();
-		VV[now][:I::MxEndogInd] = 0.0;
+		VV[I::now][:I::MxEndogInd] = 0.0;
 		}
 	if (Volume>=LOUD) println("   Trip:",trips,". Done:",done?"Yes":"No",". Visits:",iter,". V diff=",dff,". setP*:",Flags::setPstar ? "Yes" : "No");
  	state[right] += done;		//put counter back to 0 	if necessary
@@ -288,8 +288,8 @@ KWEMax::Run(th) {
     if (firstpass) {
         if (!inss) return;
 		EndogUtil::Run(th);
-		th->ActVal(meth.VV[!now]);
-		meth.VV[now][I::all[iterating]] = th->thetaEMax();
+		th->ActVal(meth.VV[I::later]);
+		meth.VV[I::now][I::all[iterating]] = th->thetaEMax();
 		if (!onlypass) {
 			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-th.pandv[I::r][][I::MESind])');
             }   //		InSample(th);	
@@ -304,7 +304,10 @@ KWEMax::Run(th) {
 		I::all[bothexog] = I::MESind;
 		I::all[onlysemiexog] = I::MSemiEind;
 		}
-	if (Flags::setPstar)  th->Smooth(meth.VV[now][I::all[iterating]]);
+	if (Flags::setPstar)  {
+        th->Smooth(meth.VV[I::now][I::all[iterating]]);
+        Hooks::Do(PostSmooth);
+        }
 	}
 
 KeaneWolpin::Run(th) {	}
@@ -338,7 +341,7 @@ KeaneWolpin::GSolve(instate) {
 			ndogU.firstpass = FALSE;
 			ndogU -> Traverse(myt);
 			}
-		Swap();
+		I::NowSwap();
 		}
 	}
 
@@ -372,7 +375,7 @@ KeaneWolpin::Specification(kwstep,V,Vdelta) {
 	if (!isint(Vdelta)) xrow = V~1~Vdelta~sqrt(Vdelta);
 	switch_single(kwstep) {
 		case	AddToSample :
-				Y |= VV[now][I::all[iterating]];
+				Y |= VV[I::now][I::all[iterating]];
 				Xmat |= xrow;	
 		case	ComputeBhat	:
                 if (rows(Xmat)<=columns(Xmat)) oxrunerror("DDP Error 30. Fewer sample states than estimated coefficients.  Increase proportion");
@@ -386,7 +389,7 @@ KeaneWolpin::Specification(kwstep,V,Vdelta) {
 					}
 				 Y -= Xmat[][0];
 		case	PredictEV	:
-				VV[now][I::all[iterating]] =  xrow*Bhat[I::t];
+				VV[I::now][I::all[iterating]] =  xrow*Bhat[I::t];
 		}
 	}
 	
@@ -396,7 +399,7 @@ KWEMax::InSample(th){
 
 	
 KWEMax::OutSample(th) {
-	th->MedianActVal(meth.VV[later]);
+	th->MedianActVal(meth.VV[I::later]);
 	meth->Specification(PredictEV,V[0],(V[0]-th.pandv[I::r])');
 	}
 	
@@ -513,13 +516,14 @@ HMEndogU::HMEndogU(meth) {
 HMEndogU::Run(th) {
 	if (!isclass(th,"Bellman")) return;
     th.U[] = th.Utility();
-	th.pandv[0][] = th.U + CV(delta)*sumr(th.Nxt[Qrho][0]*diag(VV[th.Nxt[Qi][0]]));
+	th.pandv[0][] = th.U + I::CVdelta*sumr(th.Nxt[Qrho][0]*diag(VV[th.Nxt[Qi][0]]));
     th->Smooth(th->thetaEMax());
+    Hooks::Do(PostSmooth);
 	th->UpdatePtrans();
 	}
 
 HotzMiller::GSolve(instate) {
-	decl cg = CurGroup(), tmpP = -AV(delta)*cg.Ptrans;
+	decl cg = CurGroup(), tmpP = -I::CVdelta*cg.Ptrans;
     HMEndogU::VV = (invert( setdiagonal(tmpP, 1+diagonal(tmpP)) ) * Q[I::f] )';   // (I-d*Ptrans)^{-1}
 	if (Volume>LOUD) println("HM inverse mapping: ",HMEndogU::VV );
 	this.state = ndogU.state = instate;
@@ -529,7 +533,7 @@ HotzMiller::GSolve(instate) {
 	
 HotzMiller::Solve(Fgroups) {
     GroupTask::qtask = this;
-    Clock::Solving(I::MxEndogInd,&VV,&Flags::setPstar);
+    Clock::Solving(&VV);
     if (Flags::UpdateTime[OnlyOnce]) UpdateVariables();
 	if (Fgroups==AllFixed)
 		ftask -> GroupTask::loop();
@@ -551,6 +555,7 @@ AguirregabiriaMira::Run(th) {
 	th.U[]=th->Utility();
     th->ActVal(VV);
 	th->Smooth(th->thetaEMax());
+    Hooks::Do(PostSmooth);
 	Q[I::all[tracking]] = th.pandv[0]'*(th.U+M_EULER-log(th.pandv[0]));
 	th->UpdatePtrans();
     }

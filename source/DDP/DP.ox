@@ -13,6 +13,7 @@ I::Initialize() {
 	MedianExogState= (N::All[lo:hi]-1)/2;
 	MESind = OO[bothexog][lo:hi]*MedianExogState;
 	MSemiEind = OO[onlysemiexog][lo:hi]*MedianExogState;
+    majt = subt = Zero;
     }
 
 /** Tracks information about a subvector of the state vector. **/
@@ -537,8 +538,7 @@ DP::Initialize(userReachable,UseStateList) {
     this.userReachable = userReachable;
     Flags::UseStateList=UseStateList;
 	Flags::AllGroupsExist = TRUE;
- 	now = NOW;
- 	later = LATER;
+    I::NowSet();
  	SubVectors = new array[DSubVectors];
     Alpha::Matrix = N::AA = N::Options = <>;
     Blocks = Gamma = Theta =  States = Labels::Sfmts= Chi = {};
@@ -894,16 +894,15 @@ DryRun::DryRun() {
     }
 
 CreateTheta::picked() {
-    return isarray(insamp) ? ( isint(insamp[I::t]) ? TRUE : any(insamp[I::t].==curind) ) : TRUE;
+    return isarray(insamp) ? ( isint(insamp[I::t]) ? TRUE : any(insamp[I::t].==I::all[tracking]) ) : TRUE;
     }
 
 FindReachables::Run(g) {
     decl v, h=DP::SubVectors[endog];
-    curind=I::all[tracking];
-    Flags::Prunable = isclass(counter,"Aging")||isclass(counter,"Mortality") || (isclass(counter,"Longevity")&&(I::t<N::T-2));
+    Flags::SetPrunable(counter);
     foreach (v in h) if (!(th = v->IsReachable())) return;
 	if (isclass(th = userReachable(),"Bellman")) {
-        N::Reached(curind);
+        N::Reached(I::all[tracking]);
         delete th;
         }
 	}
@@ -912,11 +911,11 @@ FindReachables::Run(g) {
 **/
 CreateTheta::Run(g) {
     decl v, h=DP::SubVectors[endog];
+    Flags::SetPrunable(counter);
     foreach (v in h) if (!(th = v->IsReachable())) return;
 	if (isclass(th = userReachable(),"Bellman")) {
-        curind=I::all[tracking];
 		th->Bellman(state,picked());
-        Theta[curind] = th;
+        Theta[I::all[tracking]] = th;
 		}
 	}
 
@@ -941,10 +940,7 @@ ReSubSample::ReSubSample() {
     }
 
 ReSubSample::Run(th) {
-    if (isclass(th)) {
-        curind=I::all[tracking];
-        th->Allocate(picked());
-        }
+    if (isclass(th))th->Allocate(picked());
     }
 
 
@@ -1101,6 +1097,9 @@ DP::SetDelta(delta) 	{ 	return CV(this.delta = delta);	 }
 @param dmin leftmost state variable
 @param dmax rightmost state variable
 @return the value of the dmax (rightmost)
+
+@comments
+If the clock is within the range of states to synch then `Clock::Synch`() is called at the end.
 **/
 Task::SyncStates(dmin,dmax)	{
 	decl d,sv,Sd;
@@ -1112,7 +1111,7 @@ Task::SyncStates(dmin,dmax)	{
 			if (sv>-1) Sd.block.actual[Sd.bpos] = Sd.actual[sv];	
 			}
 		}
-	I::t = Gett();
+    if (dmin<=S[clock].M && dmax>= S[clock].M) counter->Synch();
 	return sv;
 	}
 
@@ -1170,6 +1169,16 @@ DP::SetClock(ClockOrType,...)	{
 		switch(ClockType) {
 			case Ergodic:				counter = new Stationary(TRUE); break;
 			case InfiniteHorizon: 		counter = new Stationary(FALSE); break;
+            case SubPeriods:            switch(sizeof(va)) {
+                                          case 0 :
+                                          case 1 : oxrunerror("DDP Error ???. SubPeriods (Divided) clock requires 2,3, or 4 arguments");
+                                                    break;
+                                          case 2 : counter = new Divided(va[0],va[1],va[2]); break;
+                                          case 3 : counter = new Divided(va[0],va[1],va[2],va[3]); break;
+                                          default: oxrunerror("DDP Error ???. SubPeriods (Divided) clock requires 2,3, or 4 arguments");
+                                                    break;
+                                          }
+                                         break;
 			case NormalAging:  			counter = new Aging(va[0]); break;
 			case StaticProgram:			counter = new StaticP(); SetDelta(0.0); break;
 			case RandomAging:			counter = new AgeBrackets(va[0]);  break;
@@ -1177,7 +1186,7 @@ DP::SetClock(ClockOrType,...)	{
             case UncertainLongevity:    counter = new Longevity(va[0],va[1]); break;
             case RegimeChange:          oxrunerror("Sorry! Regime Change clock not supported yet"); break;
 			case SocialExperiment:		counter = new PhasedTreatment(va[0],TRUE);  break;
-//			default : ;
+			default :                   oxrunerror("DDP Error ??. ClockType tag not valid");
 			}
 		}
 	AddStates(clock,counter);
@@ -1201,6 +1210,7 @@ DP::UpdateVariables()	{
 	decl i,nr,j,a,nfeas;
     Flags::HasBeenUpdated = TRUE;
     Hooks::Do(PreUpdate);
+    I::CVdelta = AV(delta);   //moved June 2015 from bottom
 	i=0;
 	do {
 		if (StateVariable::IsBlockMember(States[i])) {
@@ -1230,10 +1240,8 @@ DP::UpdateVariables()	{
 	for (i=1;i<N::J;++i) Alpha::A[i][][] = selectifr(Alpha::A[0],Alpha::Sets[i]);
     A = Alpha::A;  // Have DP::A point to Alpha::A.
 	ExogenousTransition();
-    //    if (!isint(state)) ETT.state = state;
 	ETT.current = ETT.subspace = iterating;
 	ETT->Traverse();          //Endogenous transitions
-    CVdelta = AV(delta);
 	}
 
 /** .
@@ -1250,7 +1258,9 @@ SDTask::Run()   { CurGroup()->StationaryDistribution();}
 @return counter.v.t
 @see DP::SetClock, I::t
 **/
-DP::Gett(){return counter.t.v;}
+DP::Gett(){
+    return counter.t.v;
+    }
 
 
 ExTask::ExTask() {
@@ -1259,10 +1269,6 @@ ExTask::ExTask() {
     right = S[semiexog].X;	
     }
 
-/** .
-@internal
-**/
-DP::Swap() {now = later; later = !later;}
 		
 /** Create a new group node for value of &gamma;.
 @internal

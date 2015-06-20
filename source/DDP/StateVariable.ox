@@ -145,8 +145,8 @@ Augmented::Augmented(Lorb,N) {
 
 /** The base for triggered augmentations.
 @param b the base `StateVariable` whose transition is augmented.
-@param t the trigger for a different transition
-@param tv the integer (actual) or vector of integer values of t that triggers the transition [default=1].
+@param t the trigger for a different transition (action, state, or `AV`-compatible object)
+@param tv the integer (actual) value of t that triggers the transition [default=1]<br>or vector of integer values that trigger
 @param rval the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 
 **/
@@ -159,9 +159,9 @@ Triggered::Triggered(b,t,tv,rval) {
     Augmented(b,max(this.rval+1,b.N));
     }
 
-Triggered::Transit(FeasA) {
+Augmented::Transit(FeasA) {
     Synch();
-    tr = b->Transit(FeasA);
+    basetr = b->Transit(FeasA);
     }
 
 /** Create a new augmented state variable for which an action triggers the change.
@@ -179,17 +179,17 @@ ActionTriggered::ActionTriggered(b,t,tv,rval){
     }
 
 ActionTriggered::Transit(FeasA) {
-    Triggered::Transit(FeasA);
+    Augmented::Transit(FeasA);
     if (any(idx=FeasA[][t.pos].==tv)) {  //trigger value feasible
-        tr[Qrho] .*= (1-idx);
-        if (any(idy = tr[Qi].==rval) )   //reset values already present
-            tr[Qrho][][maxcindex(idy')] += idx;
+        basetr[Qrho] .*= (1-idx);
+        if (any(idy = basetr[Qi].==rval) )   //reset values already present
+            basetr[Qrho][][maxcindex(idy')] += idx;
         else {
-            tr[Qi] ~= rval;
-            tr[Qrho] ~= idx;
+            basetr[Qi] ~= rval;
+            basetr[Qrho] ~= idx;
 		    }
       }
-	return tr;
+	return basetr;
     }
 
 /** Augment a base transition to reset to 0 if the trigger is 1.
@@ -212,14 +212,14 @@ Reset::Reset(b,t) {
 
 **/
 ValueTriggered::ValueTriggered(b,t,tv,rval) {
-    if (!isclass(t,"StateVariable")) oxrunerror("DDP Error 04. Trigger object must be StateVariable\n");
+    if (isclass(t,"ActionVariable")) oxrunerror("DDP Error 04. Trigger object cannot be an ActionVariable.  Use ActionTriggered instead.\n");
     Triggered(b,t,tv,rval);
     }
 
 ValueTriggered::Transit(FeasA) {
-    Triggered::Transit(FeasA);
+    Augmented::Transit(FeasA);
     if ( any(AV(t).==tv ) ) return { matrix(rval), ones(rows(FeasA),1) };
-    return tr;
+    return basetr;
     }
 
 /**  Augment a base transition so that a special value occurs with some probability.
@@ -237,36 +237,66 @@ RandomTrigger::RandomTrigger(b,Tprob,rval) {
     }
 
 RandomTrigger::Transit(FeasA) {
-    Triggered::Transit(FeasA);
+    Augmented::Transit(FeasA);
     if ( (ft = AV(t))==0.0 ) // no chance of trigger
-            return tr;
+            return basetr;
 
     if ( ft ==1.0 )  // trigger happens for sure
         return {rval,ones(rows(FeasA),1)} ;
 
-    if ( (nf = find(tr[Qi],rval))>-1 ) {  //reset value already possible
-        tr[Qrho] *= 1-ft;                 // scale all probabilities
-        tr[Qrho][][nf[0]] *= ft/(1-ft);   // fix up column with reset value
-        return tr;
+    if ( (nf = find(basetr[Qi],rval))>-1 ) {  //reset value already possible
+        basetr[Qrho] *= 1-ft;                 // scale all probabilities
+        basetr[Qrho][][nf[0]] *= ft/(1-ft);   // fix up column with reset value
+        return basetr;
         }
     // concatentate reset value to feasible, adjust probabilities
-    return { tr[Qi]~rval, ft*tr[Qrho]~(1-ft) };
+    return { basetr[Qi]~rval, ft*basetr[Qrho]~(1-ft) };
     }
 
-/** Augment a variable so it freezes at its current value as long as a trigger is TRUE.
+/** Augment a state variable so it freezes at its current value as long as a trigger is TRUE.
 @param b base `StateVariable`
-@param t `CV`-compatible object
+@param t `AV`-compatible object
 **/
 Freeze::Freeze(b,t) {
     ValueTriggered(b,t,TRUE);
     }
 
 Freeze::Transit(FeasA) {
+    Augmented::Transit(FeasA);
     if (AV(t)) return UnChanged(FeasA);
-    Triggered::Transit(FeasA);
-    return tr;
+    return basetr;
     }
 
+/** Make a state variable only transit in one subperiod of a `Divided` clock.
+@param b base `Statevariable`
+@param s integer the subperiod this variable is not frozen and goes throug a regular transition.
+
+<DT>No check is made whether the period sent is a valid sub-period (between 0 and SubT-1).</DT>
+
+@see Divided, ClockTypes
+
+**/
+SubState::SubState(b,mys) {
+    this.mys = mys;
+    Augmented(b);
+    }
+
+SubState::Transit(FeasA) {
+    Augmented::Transit(FeasA);
+    if (I::subt==mys) return basetr;
+    return UnChanged(FeasA);
+    }
+
+/** Use `I::majt` for time period when checking reachability of the base state variable.
+**/
+SubState::IsReachable() {
+    Synch();
+    decl br, tmpt = I::t;
+    I::t = I::majt;
+    br = b->IsReachable();
+    I::t = tmpt;
+    return br;
+    }
 
 /** Create an augmented state variable that 'forgets' its value when a permanent condition occurs.
 @param b base `StateVariable` to augment
@@ -284,11 +314,12 @@ Forget::Forget(b,pstate,rval) {
 
 Forget::Transit(FeasA) {
     if (!CV(pstate)) return ActionTriggered::Transit(FeasA);
+    Synch();
     return {matrix(rval),ones(rows(FeasA),1)};
     }
 
-/**  This routine trims the state space of values that can't be reached because they are forgotten.
-@return TRUE
+/**  Trimsthe state space of values that can't be reached because they are forgotten.
+@return TRUE if value is not forgotten or equals the reset value.
 **/
 Forget::IsReachable() {
     Synch();
@@ -438,16 +469,16 @@ LogNormalOffer::Update() {
 @param L label
 @param N integer, number of values, N &ge; 3
 @param fPi(A) a `AV`(fPi,A) compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.
+@param Prune TRUE [default], prune unreachable states assuming initial value of 0<br>FALSE do not prune
 **/
-RandomUpDown::RandomUpDown(L,N,fPi)	{
+RandomUpDown::RandomUpDown(L,N,fPi,Prune)	{
     if (N<NRUP) oxrunerror("DDP Error 09. RandomUpDown should take on at least 3 values\n");
 	StateVariable(L,N);
 	this.fPi = fPi;
+    this.Prune = Prune;
 	}
 	
-RandomUpDown::IsReachable() {
-    return !( Flags::Prunable && v>I::t );
-    }
+RandomUpDown::IsReachable() { return ! (Prune && Flags::Prunable && (v>I::t) ) ;    }
 
 /** .
 **/
@@ -516,11 +547,11 @@ Lagged::Lagged(L,Target,Prune,Order)	{
 
 Lagged::Update()	{	actual = Target.actual;	}
 
-/**
-@return TRUE if not pruning or not a prunable clock or `I::t` gt; `Lagged::Order` or value gt; 0
+/** Presumes an initial value of 0 for prunable clocks.
+@return TRUE if not pruning or not a prunable clock or `I::t` gt; `Lagged::Order` or value = 0
 **/
 Lagged::IsReachable() {
-    return !Prune || !Flags::Prunable || (I::t>=Order) || v;
+    return !(Prune && Flags::Prunable && (I::t<Order) && v);
     }
 
 /** Create a variable that tracks the previous value of another state variable.
@@ -586,7 +617,7 @@ ChoiceAtTbar::Transit(FeasA) {
     }
 
 ChoiceAtTbar::IsReachable() {
-    return !Prune || !Flags::Prunable || I::t>Tbar || !v;
+    return !(Prune && Flags::Prunable && (I::t<=Tbar) && v);
     }
 
 
@@ -598,6 +629,8 @@ ChoiceAtTbar::IsReachable() {
 PermanentChoice::PermanentChoice(L,Target) {
 	LaggedAction(L,Target);
 	}
+
+
 	
 /** .
 **/
@@ -641,7 +674,6 @@ Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 	this.Reset = Reset;
 	StateVariable(L,N);
     this.Prune = Prune;
-    Warned = FALSE;
 	}
 
 /** Create a variable that counts how many times another state has taken on certain values.
@@ -668,18 +700,8 @@ StateCounter::Transit(FeasA)	{
 
 /**  Trims the state space if the clock is exhibits aging, assuming that the counter is initialized
 as 0.
-@param clock the model's clock block
 **/
-Counter::IsReachable() {
-    if (Prune && Flags::Prunable && v>I::t) {
-            if (!Warned) {
-               oxwarning("DDP Warning 28.\n A StateCounter variable detects finite horizon and assumes initial count of 0. Values bigger than t are unreachable.\n To avoid this behaviour send Prune=FALSE when defining the counter.\n");
-               Warned = TRUE;
-               }
-            return FALSE;
-            }
-    return TRUE;
-    }
+Counter::IsReachable() { return !(Prune && Flags::Prunable && (v>I::t)); }
 
 /** Create a variable that counts how many times an action has taken on certain values.
 @param L label
@@ -1085,6 +1107,7 @@ Tauchen::Update() {
 			  - r*actual')/s );
 	Grid[][] = pts[][1:]-pts[][:N-1];
 	actual += AV(mu);
+    actual = actual';
 	}
 
 /**Create a new asset state variable.

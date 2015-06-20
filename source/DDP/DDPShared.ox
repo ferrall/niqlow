@@ -57,3 +57,18 @@ I::Set(state,group) {
 	   r = int(all[onlyrand]);
        }
     }
+
+/** Swap the now and later indices for Bellman iteration.
+**/
+I::NowSwap() {now = later; later = !later;}
+I::NowSet() {now = NOW;	later = LATER; }
+
+/** Sets `Flags::Prunable` to TRUE if the clock setting makes automatic pruning of the state space valid.
+@see StateVariable::IsReachable
+**/
+Flags::SetPrunable(clock) {
+    Prunable = isclass(clock,"Aging")
+            ||isclass(clock,"Mortality")
+            || (isclass(clock,"Longevity")&&(I::t<N::T-2))
+            || (isclass(clock,"Divided")&&(clock.MajT));
+    }

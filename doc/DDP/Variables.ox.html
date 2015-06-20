@@ -18,12 +18,13 @@
 Discrete quantities that appear in DDP models (actions, states, fixed and random effects, auxiliary outcomes).
 <a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Variables.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 <P/>
-<DL>Quick Reference: a variable in a DP model is an object derived from <a href="Shared.ox.html#Quantity">Quantity</a></DT>
-<DT>the <a href="Variables.ox.html#ActionVariable">ActionVariable</a> class and an element of the action vector <code>&alpha;</code><DT>
+<DL>Quick Reference: a variable in a DP model is an object derived from <a href="Shared.ox.html#Quantity">Quantity</a> and can be of various types:</DT>
+<DT>The <a href="Variables.ox.html#ActionVariable">ActionVariable</a> class is designed to represent a choice in the model (such as whether to work or not) and is an element of the action vector <code>&alpha;</code><DT>
 <DD>Action variables are added to the DP model using using the <a href="DP.ox.html#DP___Actions">Actions</a>() method.</DD>
-<DT>the <a href="Variables.ox.html#StateVariable">StateVariable</a> class and a member of one of the state vectors (<code>&epsilon;,&eta;,&theta;,&gamma;</code>).</DT></DT>
-<DD>State variables are added to appropriate state vector using <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>(), <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>() and <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>().</DD>
-<DT>or the <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> class and a member of the auxiliary vector <code>&chi;</code></DT>
+<DT>the <a href="Variables.ox.html#StateVariable">StateVariable</a> class is designed to be a member of one of the discrete state vectors (<code>&epsilon;,&eta;,&theta;,&gamma;</code>).</DT>
+<DD>State variables are added to appropriate state vector using  the method for the corresponding vector: <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>(), <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>() and <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>().</DD>
+<DD>Many kinds of state variables are derived from the base class.</DD>
+<DT>The <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> class is designed to represent values that depend on actions and states and are of interest to the user but are not required to solve the model.  They are members of the auxiliary vector <code>&chi;</code></DT>
 <DD>Auxiliary values are added to the DP model using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>()</DD>
 </DT>
 </DL>
@@ -189,11 +190,15 @@ A state variable <var>s</var> is a <a href="Shared.ox.html#Discrete">Discrete</a
 <DT><a href="Variables.ox.html#StateVariable___Transit">Transit</a>()</DT><DD>The transition for the variable, <code>&Rho;<sub>s</sub>(s&prime; | &alpha;,&eta;,&theta;)</code>.</DD>
 <P/>
 <DT>State variables are classified by how their transitions relate to actions and the current value and transitions of other state variables.   Either they are </DT>
-<DD><q>Autonomous</q> </DD>
+<DD><q>Autonomous</q>, which means their transition to new states does not have to be coordinated with transitions of other states </DD>
 <DD>or they are
 <DD><q>Coevolving</q>, in which case they must be a member of a <a href="Variables.ox.html#StateBlock">StateBlock</a>.</DD>
+<DT>The <em>innovations</em> of autonomous variables and state blocks are conditionally independent.  Within a state block the innovations of member state variables can be correlated in an arbitrary way.
+<DD>Many aspects of DP models can be handled by autonomous variables because the transition can depend on current values of other
+variables.</DD>
+<DD>  Only certain kinds of correlations between two or more variables require coevolving variables in a block.</DD>
 <P/>
-The <em>innovations</em> of autonomous variables and state blocks are conditionally independent.  Within a state block the innovations of member state variables can be correlated in an arbitrary way. The model places discrete state variables/blocks into one of four vectors.
+The model places discrete state variables/blocks into one of four vectors.
 <table class="overview" width="100%" > <tr><td></td><td colspan="4">DP State Vector</td></tr>
 <tr><td></td><td>Exogenous<br>(&epsilon;) </th><td>Semi-Exogenous<br>(&eta;) </td><td>Endogenous<br>(&theta;)</th><td>Group (<a href="Variables.ox.html#RandomEffect">RandomEffect</a> or <a href="Variables.ox.html#FixedEffect">FixedEffect</a>)<br>(&gamma;)</tr>
 <tr><td>Generic Element</td><td>e</td><td>h</td><td>q</td><td>g</td></tr>
@@ -277,7 +282,7 @@ That is, the transition probabilities are exogenous to the current actions, stat
 <P/>
 Some derived classes of state variables play special roles in <span class="n">DDP</span>.  Two major ones are
 <DT><a href="Variables.ox.html#TimeVariable">TimeVariable</a>s</DT>
- <DD>which serve as the <a href="Clock.html">DDP clock</a> </DD>
+ <DD>which serve as the <a href="#Clock">DDP clock</a> </DD>
  <DT>and</DT>
 <DT><a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>s</DT>
 <DD>which track variables that are fixed during a DDP and stored in the &gamma; vector.  <span class="n">DDP</span> will re-solve the model for each value of &gamma;.</DD>
@@ -719,14 +724,14 @@ The restricted natures of the different vectors is displayed by excluding them f
 </OL>
 <P/>
 <hr>
-<a name="Clock"><LI>The Clock Block: Time-Keeping <a href="Variables.ox.html#StateBlock">StateBlock</a> in <code>&theta;</code>.</LI>
+<a name="Clock"><LI>The Clock: Time-Keeping <a href="Variables.ox.html#StateBlock">StateBlock</a> in <code>&theta;</code>.</LI>
 <P/>
 <OL class="chapter">
 <LI>Overview</LI>
 <P/>
 Time is a key concept in dynamic programming.  At least the difference between now (today) and later (tomorrow) underlies Bellman's equation.  In a stationary environment that is all that matters while solving the model.  In a non-stationary world the clock takes on more values.  The primary assumption is that time progresses: <var>t&prime; &ge; t</var>.  This allows the value function to be solved backwards in time, saving storage or computation if, mistakenly the environment is assumed to be stationary.  (That is, with stationarity a fixed point in all states must be solved at once, but with non-stationarity only a subset of the state space needs to be consider at each stage as we work backwards.)
 <P/>
-So the two simple extremes are stationarity (today and tomorrow) and normal aging: <var>t&prime; = t+1</var> until <var>t=T&oline;</var>. However, timing can be more complicated that those two cases.  One is an agent facing a finite horizon problem and the possibility of early death.
+So the two simple extremes are stationarity (today is followed by tomorrow which is the same as today) and normal aging: <var>t&prime; = t+1</var> until <var>t=T&oline;</var>. However, timing can be more complicated that those two cases.  One is an agent facing a finite horizon problem and the possibility of early death.
 <P/>
 The Clock Block is a single <a href="Variables.ox.html#StateBlock">StateBlock</a> that is always in the endogenous vector &theta;, and is always the &quot;rightmost&quot; element of it, in the sense that all task that span the endogenous state space will loop over time in the outermost loop.
 <P/>
@@ -735,14 +740,14 @@ The Clock Block is a single <a href="Variables.ox.html#StateBlock">StateBlock</a
 <DT><code>&theta;</code> <em>always</em> contains a single clock block derived from <a href="Variables.ox.html#Clock">Clock</a>.</DT>
 <P/>
 <DT>The simplest way to set the clock is to call <a href="DP.ox.html#DP___SetClock">SetClock</a>().  </DT>
-<DD>The first argument is either one of the <a href="Shared.ox.html#ClockTypes">ClockTypes</a> tags for built-in clocks, or it is an object of a class derived from <a href="Variables.ox.html#Clock">Clock</a>. </DD>
+<DD>The first argument is either one of the <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a> tags for built-in clocks, or it is an object of a class derived from <a href="Variables.ox.html#Clock">Clock</a>. </DD>
 <DD>If a tag is sent, other arguments may be required by that clock type.</DD>
 <P/>
 <DT>The call to <code>SetClock()</code> must take place between the calls to <code>Initialize()</code> and <code>CreateSpaces()</code></DT>
 <DD>Example
 <pre>
 Initialize();
-SetClock(Stationary);
+SetClock(InfiniteHorizon);
 CreateSpaces();
 </pre></DD>
 <DD>If <code>MyModel</code> does not set the clock explicitly, then a stationary infinite horizon clock is set by <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>().</DD>
@@ -784,7 +789,7 @@ When T = &infin;,
 <P/>
 <li>Kinds of Clocks</li>
 <P/>
-See <a href="Shared.ox.html#ClockTypes">ClockTypes</a>
+See <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a> 
 <P/>
 <DT><code>InfiniteHorizon</code>: <var>t&Prime; = t = 0 = T&oline;</var>.</DT>
 <DD>In the infinite horizon case Bellman 's equation must be iterated on from initial conditions until it converges.</DD>
@@ -793,6 +798,25 @@ See <a href="Shared.ox.html#ClockTypes">ClockTypes</a>
 <DT><code>Ergodic</code></DT>
 <DD>The user can set the clock to be ergodic, which means that there are no absorbing or terminal states in the state space &Theta;  </DD>
 <DD>When the clock is <code>Ergodic</code> <span class="n">DDP</span> will compute the ergodic or stationary distribution across states, &Rho;<sub>&infin;</sub> (&theta;).  If the user's state transitions are not themselves stationary then this calculation may fail.</DD>
+<P/>
+<DT><code>SubPeriods</code></DT>
+<DD>In some models a sequence of decisions is made within a single period. </DD>
+<DD>The <code>SubPeriods</code> tag creates a <a href="Variables.ox.html#Divided">Divided</a> clock.
+<P/>
+<DT>What do subperiods mean?</DT>
+<DD>Usually each state variable only transitions between one subperiod (which differs across states).
+This can be handled very easily by sending a base state variable to the <a href="Variables.ox.html#SubState">SubState</a>() augmenting class.  Simply
+send the sub period for which this state variable transits.  For all other subperiod transitions the variable
+is frozen.</DD>
+<DD>Each action variable is usually only changeable in one subperiod.  This is handled by providing
+a replacement for DP::FeasibleActions().</DD>
+<DD>The discount factor &delta; is set to 1.0 for <var>s &lt; S-1</var>.  That is all payoffs
+within a subperiod occur simultaneously.  </DD>
+<DD>The discount factor takes on it normal value for <var>s= S-1</var> to capture the gap between major periods.</DD>
+<DT>Some implications</DT>
+<DD>Because transitions all depend on the value of the subperiod <code>s</code>, all state variables
+must be endogenous (added to &theta;).  This is checked in <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>.</DD>
+<DD>The user should <em>augment</em> state variables using </DD>
 <P/>
 <DT><code>NormalAging</code>:  <var>t&prime; = t+1</var>, up to <var>T&oline;</var>; <var>t&Prime;=0</var>.</DT>
 <DD>With ordinary aging Bellman's equation is solved backwards starting at t=T&oline; down to 0. The auxiliary variable t&Prime; is not needed to account for deviations from normal time so it is simply 0 always.</DD>
@@ -810,7 +834,7 @@ See <a href="Shared.ox.html#ClockTypes">ClockTypes</a>
 <P/>
 <DT><code>UncertainLongevity</code>:</DT>
 <DD>Many papers in the literature assume normal aging or random mortality with some long but finite maximum lifetime (say, age 100).  Often the last part of the lifecycle is included with little decision making only to get reasonable continuation values for early ages.  For &delta; not too close to 1 the cap on ages does not affect choices much earlier.</DD>
-<DD>Another, perhaps more elegant, approach is to treat the lifetime itself as uncertain.  <code>t=T&oline;</code> is still the case of death which is still random and occurs with probability &pi;() as above.  But now <code>t=T&oline;-1</code> is now a stationary problem and <code>t=T&oline;</code> is a terminal state.  Otherwise, once <code>t=&Toline;-1</code> today and tomorrow are the same.  <span class="n">DDP</span> iterates on the value function at <code>t=T&oline;</code> as if it were a (non-ergodic) stationary problem, continuing until convergence.  Then it will proceed backwards as with mortality.</DD>
+<DD>Another, perhaps more elegant, approach is to treat the lifetime itself as uncertain.  <code>t=T&oline;</code> is still the case of death which is still random and occurs with probability &pi;() as above.  But now <code>t=T&oline;-1</code> is now a stationary problem and <code>t=T&oline;</code> is a terminal state.  Otherwise, once <code>t=T&oline;-1</code> today and tomorrow are the same.  <span class="n">DDP</span> iterates on the value function at <code>t=T&oline;</code> as if it were a (non-ergodic) stationary problem, continuing until convergence.  Then it will proceed backwards as with mortality.</DD>
 <DD>The advantage of this approach is that there is a single choice probability for this final phase (conditional on other state variables) rather than computing and storing slightly different choice probabilities as <code>t</code> approaches <code>T&oline;</code>.  </DD>
 <DD>The <a href="Variables.ox.html#Longevity">Longevity</a> clock combines a special case of a more general notion of <code>RandomAging</code> which uses  <a href="Variables.ox.html#AgeBrackets">AgeBrackets</a> for the state clock with random mortality.  But it is not a special case of either one so it is derived as a third class from <a href="Variables.ox.html#NonStationary">NonStationary</a>.
 <P/>
@@ -822,11 +846,14 @@ See <a href="Shared.ox.html#ClockTypes">ClockTypes</a>
 <P/>
 <LI>Interacting With Value Function Iteration</LI>
 <P/>
-<DT>Clocks have two virtual methods associated with them which are called by <a href="Methods.ox.html#ValueIteration">ValueIteration</a> and related solutionn methods.</DT>
-<DD><a href="Variables.ox.html#Clock___Vupdate">Vupdate</a>() makes sure that the scratch space for the value function is updated after each iteration of Bellman's equation</DD>
+<DT>Clocks have three virtual methods associated with them which are called by <a href="Methods.ox.html#ValueIteration">ValueIteration</a> and related solution methods.</DT>
+<DD><a href="Variables.ox.html#Clock___Vupdate">Vupdate</a>() makes sure that the scratch space for the value function is updated after each iteration of Bellman's equation.  In stationary models (or stationary
+time periods within a non-stationary model) this method also computes the norm of the difference between the current value functions and the last value.  This norm is
+checked by the solution method against the given tolerance for convergence.</DD>
+<DD>Clock::Sync() is called any time the value of the clock changes (that is, it is called in DP::SyncStates()).  The default method simply places the current in <a href="DDPShared.ox.html#I___t">t</a> to b available to the user's code and other parts of <span class="DDP">DDP</span>.  Some kinds of clocks do more than this.</DD>
 <DD><a href="Variables.ox.html#Clock___setPstar">setPstar</a>() determines whether the next iteration should calculate choice probabilities or not.  If only one iteration is required to compute the value function at this point in the clock (no fixed point problem), then the clock will return <code>TRUE</code>.   This does not itself check for convergence, and other considerations may set <a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> to TRUE.</DD>
 <P/>
-<DT>Typically the user does nothing with these two methods unless they are creating their own solution method.  And if the create their own clock type they have to provide replacement methods if the inherited ones are not coorect.</DT>
+<DT>Typically the user does nothing with these methods unless they are creating their own solution method.  And if the create their own clock type they may have to provide replacement methods if the inherited ones are not coorect.</DT>
 <P/>
 </OL>
 <P/>
@@ -1064,7 +1091,7 @@ EndogenousStates(exper);
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Counter">Counter</a>:</dt><dd><a href="Variables.ox.html#Counter___Prune">Prune</a>, <a href="Variables.ox.html#Counter___Reset">Reset</a>, <a href="Variables.ox.html#Counter___Target">Target</a>, <a href="Variables.ox.html#Counter___ToTrack">ToTrack</a>, <a href="Variables.ox.html#Counter___Warned">Warned</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Counter">Counter</a>:</dt><dd><a href="Variables.ox.html#Counter___Prune">Prune</a>, <a href="Variables.ox.html#Counter___Reset">Reset</a>, <a href="Variables.ox.html#Counter___Target">Target</a>, <a href="Variables.ox.html#Counter___ToTrack">ToTrack</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
@@ -1257,7 +1284,7 @@ Prob( t&prime; = t+1 ) = 1/B;
 Prob( t&prime; = t ) = 1-1/B;
 </pre></dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="Shared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -1289,14 +1316,14 @@ Prob( t&prime; = t ) = 1-1/B;
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#NonDeterministicAging">NonDeterministicAging</a>:</dt><dd><a href="Variables.ox.html#NonDeterministicAging___sePstar">sePstar</a>, <a href="Variables.ox.html#NonDeterministicAging___Vupdate">Vupdate</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aSPstar">aSPstar</a>, <a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___ME">ME</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -1321,7 +1348,7 @@ SetClock(new Aging(10));
 </pre>
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="Shared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -1334,22 +1361,18 @@ SetClock(new Aging(10));
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Aging___Transit">Transit</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Vupdate">Vupdate</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#NonStationary">NonStationary</a>:</dt><dd><a href="Variables.ox.html#NonStationary___Transit">Transit</a>, <a href="Variables.ox.html#NonStationary___Vupdate">Vupdate</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aSPstar">aSPstar</a>, <a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___ME">ME</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -1465,10 +1488,15 @@ value next period is a special one that is not what the base transition would be
 <td class="modifiers"></td>
 <td class="description">Synchronize base state variable value with current value.</td>
 </tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Augmented___Transit">Transit</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default Transit (transition for a state variable).</td>
+</tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___Transit">Transit</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -1654,30 +1682,22 @@ Or, track the first four choices of d:
 
 Base class for timing in DP models.
 
-<dl><dt class="comments">Comments:</dt><dd class="comments">The user often does not need to create this variable directly.  Instead, use the <a href="DP.ox.html#DP___SetClock">SetClock</a> routine.  Some methods do require the user to create a clock variable and send it
+<dl><dt class="comments">Comments:</dt><dd class="comments">The user often does not need to create this variable directly.  Instead, use the <a href="DP.ox.html#DP___SetClock">SetClock</a> routine.
+Some methods do require the user to create a clock variable and send it
 to SetClock.
 </dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Clock___aSPstar">aSPstar</a></td>
-<td class="modifiers">static</td>
-<td class="description">Pointer to DP::setPstar  </td>
-</tr>
-<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Clock___aVV">aVV</a></td>
 <td class="modifiers">static</td>
 <td class="description">Pointer to methods VV function for iteration.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a></td>
 <td class="modifiers">const</td>
 <td class="description">Store Ergodic Distribution.</td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Clock___ME">ME</a></td>
-<td class="modifiers">static</td>
-<td class="description">Mx index for today into V.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Clock___t">t</a></td>
@@ -1708,12 +1728,17 @@ to SetClock.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Clock___Solving">Solving</a></td>
 <td class="modifiers">static</td>
-<td class="description">Copy solution methods values to be used for updating and solving.</td>
+<td class="description">Copy solution method-specific values to be used for updating and solving.</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Clock___Vupdate">Vupdate</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Clock___Synch">Synch</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Clock___Vupdate">Vupdate</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">The base calculation to be carried out after the value of all states at time t have been computed.</td>
 </tr>
 </table>
 
@@ -1833,23 +1858,18 @@ Count periods value(s) of target action or state variable have occurred.
 <td class="modifiers">const</td>
 <td class="description">Values to track  </td>
 </tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Counter___Warned">Warned</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Counter___Counter">Counter</a></td>
 <td class="modifiers"></td>
 <td class="description">.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Counter___IsReachable">IsReachable</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Trims the state space if the clock is exhibits aging, assuming that the counter is initialized
 as 0.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Counter___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
@@ -1935,6 +1955,209 @@ the creator function.
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
 </dl>
 
+<a name="Divided"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Divided : <a href="Variables.ox.html#NonStationary">NonStationary</a> : <a href="Variables.ox.html#Clock">Clock</a> : <a href="Variables.ox.html#StateBlock">StateBlock</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A period is divided into sub-periods.
+<P/>
+Models with subperiods typically index a period <code>t</code> and within <code>t</code> a fixed
+and finite number of subperiods, <code>s=0,&hellip;,SubT-1</code>.
+<P/>
+<DT>Notation</DT>
+<DD>It can be confusing to consider re-define the usual concept of time coded as <a href="DDPShared.ox.html#I___t">t</a>, so it
+continues to track the sequence of sub-periods as if they were different periods.</DD>
+<DD>The concept of a subperiod is coded and available for use to the user as <a href="DDPShared.ox.html#I___subt">subt</a>. The corresponding
+concept of a major period is coded as <a href="DDPShared.ox.html#I___majt">majt</a>.  If the clock is not divided into subperiods then
+both of these variables are identically 0 at all times.</DD>
+<DD>In the simplest case of a divided clock, the user specifies the number of major periods, <a href="Variables.ox.html#Divided___MajT">MajT</a>,
+and the number of subperiods, <a href="Variables.ox.html#Divided___SubT">SubT</a>.</DD>
+<DD>So in the base case the total number of different periods is <code>T = MajT &times; SubT</code> and
+ordinary time simply advances from <code>t=0</code> to <code>t=T&oline;</code> like normal aging.</dd>
+<DD>As plain <code>t</code> advances, <code>subt</code> cycles through <code>0&hellip;SubT&oline;</code>.</dd>
+<DD>Major time starts at <code>majt=0</code> and stays there until <code>subt</code> returns to <code>0</code>
+at which point it increments to <code>1</code> and so on until it gets to <code>MajT&oline;</code>.
+<pre>
+MajT = 2, SubT =3
+             t
+      0 1 2 3 4 5
+     -------------
+ majt 0 0 0 1 1 1
+ subt 0 1 2 0 1 2
+</pre></dd>
+<P/>
+<DT>Options and Special Cases</DT>
+<DD><code>MajT=0</code>:  If the user sets <code>MajT=0</code> it indicates an infinite horizon problem
+(i.e. really <code>MajT=&infin;</code>).  <code>subt</code> continues to cycle deterministically.  The
+difference with the ordinary case is that normal time cycles as well: <code>t=0 1 &hellip;SubT&oline; 0 1 &hellip; SubT&oline; &hellip;</code>.
+The problem is then ergodic and the value of states is a solution to a fixed point problem.  Convergence
+only needs to be checked for <code>subt=0</code>.  Once that period has converged the subsequent subperiods
+will also automatically be at the fixed point after one last iteration.
+<pre>
+MajT = 0, SubT =2
+             t
+      0 1 0 1 0 1 0 1 0 &hellip;
+     ---------------------------
+ majt 0 0 0 0 0 0 0 0 0 &hellip;
+ subt 0 1 0 1 0 1 0 1 0 &hellip;
+</pre></dd>
+<P/>
+</dd>
+<DD><code>HasInit</code>: A model may have an initial undivided period that allows for, say, permanent
+heterogeneity to be realized.
+<pre>
+MajT = 2, SubT =3, HasInit = TRUE
+             t
+      0 1 2 3 4 5 6
+     ---------------
+ majt 0 1 1 1 2 2 2
+ subt 0 0 1 2 0 1 2
+<P/>
+MajT = 0, SubT =2, HasInit = TRUE
+             t
+      0 1 2 1 2 1 2 1 2 &hellip;
+     ---------------------------
+ majt 0 1 1 1 1 1 1 1 1 &hellip;
+ subt 0 0 1 0 1 0 1 0 0 &hellip;
+<P/>
+</pre></dd>
+<P/>
+<DD><code>HasFinal</code>: A model may have a final undivided period to allow for terminal conditions
+such as bequest motives.  This option cannot be combined with <code>MajT=0</code>.
+<pre>
+MajT = 2, SubT =3, HasFinal = TRUE
+             t
+      0 1 2 3 4 5 6
+     ---------------
+ majt 0 0 0 1 1 1 2
+ subt 0 1 2 0 1 2 0
+</pre></dd>
+<P/>
+<DT>transitions</DT>
+<DD class="disp">
+The standard time variable increments like normal aging <em>or</em> if <code>St=0</code> it then cycles back to
+<pre>
+</DD>
+<P/>
+<DT>What do subperiods mean?</DT>
+<DD>Usually each state variable only transitions between one subperiod (which differs across states).  This allows
+the timing of information arrival to occur within major periods. This can be handled very easily by sending a base state
+variable to the <a href="Variables.ox.html#SubState">SubState</a>() augmenting class.  Simply send the sub period for which this state variable transits.
+For all other subperiod transitions the variable is frozen.</DD>
+<DD>Each action variable is usually only changeable in one subperiod.  This is handled by providing
+a replacement for DP::FeasibleActions().</DD>
+<DD>The discount factor &delta; is set to 1.0 for <var>s &lt; S-1</var>.  That is all payoffs
+within a subperiod occur simultaneously. </DD>
+<DD>The discount factor takes on it normal value for <var>s= S-1</var> to capture the gap between major periods.</DD>
+<P/>
+<DT>Some implications</DT>
+<DD>When state transitions depend on the value of the subperiod <code>s</code> the state variable
+must be endogenous (added to &theta;).  So a state variable that would normally be exogenous has to
+be treated as endogenous unless it changes value every subperiod.</DD>
+
+<dl><dt class="example">Example:</dt><dd class="example">Create a stationary infinite horizon model in which a household works and shops in a first sub period and consumes in the second:
+<pre>SetClock(SubPeriods,0,2);</pre>
+Allow for an initial period before the stationary phase begins:
+<pre>SetClock(SubPeriods,0,2,TRUE);</pre>
+Create a finite horizon model in which a person makes binary decisions in 3 separate subperiods over
+a lifetime of 10 periods
+<pre>SetClock(SubPeriods,10,3);
+d = {new Binary("d0"),new Binary("d1"),new Binary("d2")};
+Actions(d);
+&vellip;
+FeasibleActions(A) {
+  decl i,v;
+  notfeas = zeros(rows(A),1);
+  foreach(v in d[i]) notfeas .+= (I::subt.!=i)*A[][d[i].pos];   // d[i]=1 not feasible if subt &neq; i
+  return 1-notfeas;
+  }</pre>
+<P/>
+</DD>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#ClockTypes">ClockTypes</a>, <a href="Variables.ox.html#SubState">SubState</a></dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Divided___delts">delts</a></td>
+<td class="modifiers"></td>
+<td class="description">zeros(SubT-1,0)|&delta;.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Divided___HasFinal">HasFinal</a></td>
+<td class="modifiers">const</td>
+<td class="description">Final subdivided period (TRUE/FALSE).</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Divided___HasInit">HasInit</a></td>
+<td class="modifiers">const</td>
+<td class="description">Initial subdivided period (TRUE/FALSE).</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Divided___MajT">MajT</a></td>
+<td class="modifiers">const</td>
+<td class="description">Number of major periods, 0=Infinite horizon.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Divided___SubT">SubT</a></td>
+<td class="modifiers">const</td>
+<td class="description">Number of sub periods.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Divided___Vnext0">Vnext0</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Divided___Divided">Divided</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a clock divided into subperiods.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Divided___Last">Last</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Not stationary and last period.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Divided___setPstar">setPstar</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Divided___Synch">Synch</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Divided___Transit">Transit</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Transition for sub-divided time.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Divided___Update">Update</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Divided___Vupdate">Vupdate</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Check newly computed values; an alternative to computing norm of value function differences.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
 <a name="Duration"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Duration : <a href="Variables.ox.html#Counter">Counter</a> : <a href="Variables.ox.html#NonRandom">NonRandom</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
@@ -1995,7 +2218,7 @@ s' = I{s.x=s.Lx}(s+ I{s &lt; s.N<sup>-</sup>}).
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Counter">Counter</a>:</dt><dd><a href="Variables.ox.html#Counter___Prune">Prune</a>, <a href="Variables.ox.html#Counter___Reset">Reset</a>, <a href="Variables.ox.html#Counter___Target">Target</a>, <a href="Variables.ox.html#Counter___ToTrack">ToTrack</a>, <a href="Variables.ox.html#Counter___Warned">Warned</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Counter">Counter</a>:</dt><dd><a href="Variables.ox.html#Counter___Prune">Prune</a>, <a href="Variables.ox.html#Counter___Reset">Reset</a>, <a href="Variables.ox.html#Counter___Target">Target</a>, <a href="Variables.ox.html#Counter___ToTrack">ToTrack</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
@@ -2183,7 +2406,7 @@ because only cases of the target equal to 1 and this variable equal to its rval 
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Forget___IsReachable">IsReachable</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">This routine trims the state space of values that can't be reached because they are forgotten.</td>
+<td class="description">Trimsthe state space of values that can't be reached because they are forgotten.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Forget___Transit">Transit</a></td>
@@ -2215,7 +2438,7 @@ When the trigger value returns TRUE this state freezes at its current value.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Freeze___Freeze">Freeze</a></td>
 <td class="modifiers"></td>
-<td class="description">Augment a variable so it freezes at its current value as long as a trigger is TRUE.</td>
+<td class="description">Augment a state variable so it freezes at its current value as long as a trigger is TRUE.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Freeze___Transit">Transit</a></td>
@@ -2516,7 +2739,7 @@ s&prime; = current value of action or state variable.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Lagged___IsReachable">IsReachable</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Presumes an initial value of 0 for prunable clocks.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Lagged___Lagged">Lagged</a></td>
@@ -2729,14 +2952,14 @@ T* is the last period with probability 1.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Longevity___Vupdate">Vupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Mixed value updating.</td>
 </tr>
 </table>
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#Mortality">Mortality</a>:</dt><dd><a href="Variables.ox.html#Mortality___Mortality">Mortality</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#NonDeterministicAging">NonDeterministicAging</a>:</dt><dd><a href="Variables.ox.html#NonDeterministicAging___sePstar">sePstar</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
@@ -2744,7 +2967,7 @@ T* is the last period with probability 1.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Mortality">Mortality</a>:</dt><dd><a href="Variables.ox.html#Mortality___DeathV">DeathV</a>, <a href="Variables.ox.html#Mortality___MortProb">MortProb</a>, <a href="Variables.ox.html#Mortality___mp">mp</a>, <a href="Variables.ox.html#Mortality___Tstar">Tstar</a></dd>
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aSPstar">aSPstar</a>, <a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___ME">ME</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -2900,20 +3123,20 @@ T* is the last period with probability 1.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Mortality___Vupdate">Vupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Mixed value updating.</td>
 </tr>
 </table>
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#NonDeterministicAging">NonDeterministicAging</a>:</dt><dd><a href="Variables.ox.html#NonDeterministicAging___sePstar">sePstar</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aSPstar">aSPstar</a>, <a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___ME">ME</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -3031,19 +3254,20 @@ Container for non-stationary and non-deterministic aging clocks.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#NonDeterministicAging___Vupdate">Vupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Mixed value updating.</td>
 </tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___setPstar">setPstar</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Transit">Transit</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#NonStationary">NonStationary</a>:</dt><dd><a href="Variables.ox.html#NonStationary___Transit">Transit</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___setPstar">setPstar</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aSPstar">aSPstar</a>, <a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___ME">ME</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -3089,17 +3313,32 @@ As a transition probability:
 
 A container for non-stationary clocks.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a></dd>
+<dl><dt class="comments">Comments:</dt><dd class="comments">Some clocks classified as nonstationary may in fact be stationary for some parameter values.
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#NonStationary___Transit">Transit</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">The baseline transition for non-stationary models (normal aging).</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#NonStationary___Vupdate">Vupdate</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Check newly computed values; an alternative to computing norm of value function differences.</td>
+</tr>
+</table>
+
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___setPstar">setPstar</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Vupdate">Vupdate</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Transit">Transit</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___setPstar">setPstar</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aSPstar">aSPstar</a>, <a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___ME">ME</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -3330,9 +3569,7 @@ If m=Quit or LaidOff,
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">PermanentChoice : <a href="Variables.ox.html#LaggedAction">LaggedAction</a> : <a href="Variables.ox.html#Lagged">Lagged</a> : <a href="Variables.ox.html#NonRandom">NonRandom</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 s&prime; = value of an action first period it is not 0.
-<DT>Initial condition to include in Reachable:</DT>
-<dd>Only include states for which s is 0 (choice not made yet)
-<pre>if (I::t==0 && CV(s)!=0 ) return 0;</pre></dd>
+<P/>
 <DT>Feasible action restriction </DT>
 <DD>Positive value of target only feasible if choice has not been made.
 <pre>A[][s.a.pos].==0 || CV(s)==0</pre></dd>
@@ -3369,7 +3606,7 @@ s&prime; = value of an action first period it is not 0.
 </dl>
 
 <a name="PhasedTreatment"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">PhasedTreatment : <a href="Variables.ox.html#Clock">Clock</a> : <a href="Variables.ox.html#StateBlock">StateBlock</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">PhasedTreatment : <a href="Variables.ox.html#NonDeterministicAging">NonDeterministicAging</a> : <a href="Variables.ox.html#NonStationary">NonStationary</a> : <a href="Variables.ox.html#Clock">Clock</a> : <a href="Variables.ox.html#StateBlock">StateBlock</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 A sequence of treatment phases with fixed maximum durations.
 
@@ -3419,21 +3656,27 @@ A sequence of treatment phases with fixed maximum durations.
 <td class="description">A sequence of finite-termed phases of treatment.</td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#PhasedTreatment___Transit">Transit</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">The default transition for treatment.</td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#PhasedTreatment___Vupdate">Vupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Mixed value updating.</td>
 </tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___setPstar">setPstar</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#NonDeterministicAging">NonDeterministicAging</a>:</dt><dd><a href="Variables.ox.html#NonDeterministicAging___sePstar">sePstar</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___setPstar">setPstar</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aSPstar">aSPstar</a>, <a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___ME">ME</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -3665,22 +3908,27 @@ Fertility::Mortality(A)	{
 <td class="modifiers">const</td>
 <td class="description"></td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#RandomUpDown___Prune">Prune</a></td>
+<td class="modifiers">const</td>
+<td class="description">Prune Unreachables.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RandomUpDown___IsReachable">IsReachable</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RandomUpDown___RandomUpDown">RandomUpDown</a></td>
 <td class="modifiers"></td>
 <td class="description">Create a state variable that increments or decrements with state-dependent probabilities.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RandomUpDown___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Variables.ox.html#RandomUpDown___Anonymous enum 1">Anonymous enum 1</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
@@ -4104,7 +4352,7 @@ EndogenousStates(wks);</pre>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Counter">Counter</a>:</dt><dd><a href="Variables.ox.html#Counter___Prune">Prune</a>, <a href="Variables.ox.html#Counter___Reset">Reset</a>, <a href="Variables.ox.html#Counter___Target">Target</a>, <a href="Variables.ox.html#Counter___ToTrack">ToTrack</a>, <a href="Variables.ox.html#Counter___Warned">Warned</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Counter">Counter</a>:</dt><dd><a href="Variables.ox.html#Counter___Prune">Prune</a>, <a href="Variables.ox.html#Counter___Reset">Reset</a>, <a href="Variables.ox.html#Counter___Target">Target</a>, <a href="Variables.ox.html#Counter___ToTrack">ToTrack</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
@@ -4265,7 +4513,7 @@ SetClock(NormalAging,1);
 </pre>
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="Shared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -4276,15 +4524,16 @@ SetClock(NormalAging,1);
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Aging">Aging</a>:</dt><dd><a href="Variables.ox.html#Aging___Aging">Aging</a>, <a href="Variables.ox.html#Aging___setPstar">setPstar</a>, <a href="Variables.ox.html#Aging___Transit">Transit</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Vupdate">Vupdate</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Aging">Aging</a>:</dt><dd><a href="Variables.ox.html#Aging___Aging">Aging</a>, <a href="Variables.ox.html#Aging___setPstar">setPstar</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#NonStationary">NonStationary</a>:</dt><dd><a href="Variables.ox.html#NonStationary___Transit">Transit</a>, <a href="Variables.ox.html#NonStationary___Vupdate">Vupdate</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aSPstar">aSPstar</a>, <a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___ME">ME</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -4295,8 +4544,25 @@ SetClock(NormalAging,1);
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Stationary : <a href="Variables.ox.html#Clock">Clock</a> : <a href="Variables.ox.html#StateBlock">StateBlock</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 Timing in a stationary environment.
+<P/>
+<DT><a href="DDPShared.ox.html#ClockTypes">ClockTypes</a> tags to send to <a href="DP.ox.html#DP___SetClock">SetClock</a> for Stationary: </DT>
+<DD><code>InfiniteHorizon</code>, <code>Ergodic</code>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a></dd>
+<dl><dt class="example">Example:</dt><dd class="example">Using Tags:
+<pre>
+SetClock(InfiniteHorizon);
+<P/>
+SetClock(Ergodic);
+</pre>
+Sent directly:
+<pre>
+SetClock(new Stationary(FALSE));
+<P/>
+SetClock(new Stationary(TRUE));
+</pre>
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -4312,14 +4578,14 @@ Timing in a stationary environment.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___setPstar">setPstar</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Vupdate">Vupdate</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___setPstar">setPstar</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a>, <a href="Variables.ox.html#Clock___Vupdate">Vupdate</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aSPstar">aSPstar</a>, <a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___ME">ME</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -4353,6 +4619,43 @@ An element of the FixedEffectBlock.
 <dt>Inherited methods from <a href="Variables.ox.html#FixedEffect">FixedEffect</a>:</dt><dd><a href="Variables.ox.html#FixedEffect___FixedEffect">FixedEffect</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="Variables.ox.html#TimeInvariant___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+</dl>
+
+<a name="SubState"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SubState : <a href="Variables.ox.html#ValueTriggered">ValueTriggered</a> : <a href="Variables.ox.html#Triggered">Triggered</a> : <a href="Variables.ox.html#Augmented">Augmented</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Let a state variable transit only in one sub-period of a Divided clock.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#SubState___IsReachable">IsReachable</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Use <a href="DDPShared.ox.html#I___majt">majt</a> for time period when checking reachability of the base state variable.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#SubState___SubState">SubState</a></td>
+<td class="modifiers"></td>
+<td class="description">Make a state variable only transit in one subperiod of a <a href="Variables.ox.html#Divided">Divided</a> clock.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#SubState___Transit">Transit</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#ValueTriggered">ValueTriggered</a>:</dt><dd><a href="Variables.ox.html#ValueTriggered___ValueTriggered">ValueTriggered</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Triggered">Triggered</a>:</dt><dd><a href="Variables.ox.html#Triggered___Triggered">Triggered</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
 
@@ -4569,11 +4872,6 @@ not present in the base state.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Triggered___Transit">Transit</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Triggered___Triggered">Triggered</a></td>
 <td class="modifiers"></td>
 <td class="description">The base for triggered augmentations.</td>
@@ -4581,7 +4879,7 @@ not present in the base state.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a>, <a href="Variables.ox.html#Augmented___Transit">Transit</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 </dl>
@@ -5086,7 +5384,7 @@ SetClock(NormalAging,1);
 </pre>
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="Shared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 </dd></dl>
 
@@ -5149,7 +5447,7 @@ SetClock(new Aging(10));
 </pre>
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="Shared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 </dd></dl>
 
@@ -5158,15 +5456,6 @@ SetClock(new Aging(10));
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">setPstar</span></h3>
 
 <span class="declaration">virtual Aging :: setPstar ( )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Aging___Transit"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
-
-<span class="declaration">Aging :: Transit ( FeasA )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5326,6 +5615,35 @@ If Lorb is a string then <code>b = new <a href="Variables.ox.html#Fixed">Fixed</
 Synchronize base state variable value with current value.
 
 </dd></dl>
+
+<hr>
+<a name="Augmented___Transit"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
+
+<span class="declaration">virtual Augmented :: Transit ( FeasA )</span>
+<dl><dd>
+Default Transit (transition for a state variable).
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">FeasA</td>
+<td class="description" valign="baseline"> matrix of feasible action vectors at the current state, &Alpha;(&theta;).
+<P/>
+This is a virtual method, so derived classes replace this default version with the one that goes along
+with the kind of state variable.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
+matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
+The built-in transit returns <code> &lt;0&gt; , ones(rows(FeasA),1) }</code>.  That is the with
+probability one the value of the state variable next period is 0.
+</dd>
+</dl>
+</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AuxiliaryValues</span></h2>
 
 <a name="AuxiliaryValues___AuxiliaryValues"></a>
@@ -5459,16 +5777,6 @@ Record the value of an action variable at a given time.
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Clock</span></h2>
 
-<a name="Clock___aSPstar"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">aSPstar</span></h3>
-
-<span class="declaration">static decl aSPstar [public]</span>
-<dl><dd>
-Pointer to DP::setPstar
-
-</dd></dl>
-
-<hr>
 <a name="Clock___aVV"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">aVV</span></h3>
 
@@ -5535,16 +5843,6 @@ If TRUE then transitions are not computed.
 </dd></dl>
 
 <hr>
-<a name="Clock___ME"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ME</span></h3>
-
-<span class="declaration">static decl ME [public]</span>
-<dl><dd>
-Mx index for today into V. set in <a href="Variables.ox.html#Clock___Solving">Solving</a>
-
-</dd></dl>
-
-<hr>
 <a name="Clock___setPstar"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">setPstar</span></h3>
 
@@ -5557,9 +5855,27 @@ Mx index for today into V. set in <a href="Variables.ox.html#Clock___Solving">So
 <a name="Clock___Solving"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Solving</span></h3>
 
-<span class="declaration">static Clock :: Solving ( inME , inaVV , inaSPstar )</span>
+<span class="declaration">static Clock :: Solving ( inaVV )</span>
 <dl><dd>
-Copy solution methods values to be used for updating and solving.
+Copy solution method-specific values to be used for updating and solving.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">inaVV</td>
+<td class="description" valign="baseline">address of solution method's value function vector</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Clock___Synch"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Synch</span></h3>
+
+<span class="declaration">virtual Clock :: Synch ( )</span>
+<dl><dd>
 
 </dd></dl>
 
@@ -5588,9 +5904,18 @@ Copy solution methods values to be used for updating and solving.
 <a name="Clock___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
-<span class="declaration">virtual Clock :: Vupdate ( now )</span>
+<span class="declaration">virtual Clock :: Vupdate ( )</span>
 <dl><dd>
+The base calculation to be carried out after the value of all states at time t have been computed.
+<DT>The clock <code>Vupdate()</code> is called by <a href="Methods.ox.html#ValueIteration___Update">Update</a>() at the end of one Bellman iteration.</DT>
+<P/>
+<DT>The base version returns the <code>norm()</code> of the change in the value function for convergence check.</DT>
+<DD>This the stationary calculation. See <a href="Variables.ox.html#NonStationary___Vupdate">Vupdate</a>() for an alternative</DD>
+<DD>Other specialized clocks copy part of the value functions into the vector of values for access in earlier time periods.</DD>
 
+<dl><dt class="returns">Returns:</dt><dd class="returns">||V(&theta;)-V'(&theta;&prime;)||
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Coevolving</span></h2>
 
@@ -5704,15 +6029,6 @@ Create a new CorrelatedEffect.
 Trims the state space if the clock is exhibits aging, assuming that the counter is initialized
 as 0.
 
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">clock</td>
-<td class="description" valign="baseline">the model's clock block</td>
-</tr>
-</table>
-</dd>
-</dl>
 </dd></dl>
 
 <hr>
@@ -5759,15 +6075,6 @@ Values to track
 <a name="Counter___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Counter___Warned"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Warned</span></h3>
-
-<span class="declaration">decl Warned [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -5843,6 +6150,165 @@ matrix with transition.
 <dl><dd>
 .
 
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Divided</span></h2>
+
+<a name="Divided___delts"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">delts</span></h3>
+
+<span class="declaration">decl delts [public]</span>
+<dl><dd>
+zeros(SubT-1,0)|&delta;.
+
+</dd></dl>
+
+<hr>
+<a name="Divided___Divided"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Divided</span></h3>
+
+<span class="declaration">Divided :: Divided ( MajT , SubT , HasInit , HasFinal )</span>
+<dl><dd>
+Create a clock divided into subperiods.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">MajT</td>
+<td class="description" valign="baseline">integer number of periods<br>0 infinite horizon
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">SubT</td>
+<td class="description" valign="baseline">positive integer, sub-periods
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">HasInit</td>
+<td class="description" valign="baseline">FALSE [default] <code>t=0</code> is a sub-period (so the subperiod increments and the major period stays the same)<br>TRUE <code>t=0</code> is not subdivided (so the subperiod stays 0 in the following period and the major period increments).
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">HasFinal</td>
+<td class="description" valign="baseline">FALSE [default] The final period is the final sub-period.<br>the final period is an undivided period (so its subperiod is 0)<br>
+<b>This cannot be combined with an infinite horizon</b>
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+</pre>
+</dd>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Divided___HasFinal"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">HasFinal</span></h3>
+
+<span class="declaration">const decl HasFinal [public]</span>
+<dl><dd>
+Final subdivided period (TRUE/FALSE).
+
+</dd></dl>
+
+<hr>
+<a name="Divided___HasInit"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">HasInit</span></h3>
+
+<span class="declaration">const decl HasInit [public]</span>
+<dl><dd>
+Initial subdivided period (TRUE/FALSE).
+
+</dd></dl>
+
+<hr>
+<a name="Divided___Last"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Last</span></h3>
+
+<span class="declaration">virtual Divided :: Last ( )</span>
+<dl><dd>
+Not stationary and last period.
+
+</dd></dl>
+
+<hr>
+<a name="Divided___MajT"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">MajT</span></h3>
+
+<span class="declaration">const decl MajT [public]</span>
+<dl><dd>
+Number of major periods, 0=Infinite horizon.
+
+</dd></dl>
+
+<hr>
+<a name="Divided___setPstar"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">setPstar</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Divided___SubT"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">SubT</span></h3>
+
+<span class="declaration">const decl SubT [public]</span>
+<dl><dd>
+Number of sub periods.
+
+</dd></dl>
+
+<hr>
+<a name="Divided___Synch"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Synch</span></h3>
+
+<span class="declaration">virtual Divided :: Synch ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Divided___Transit"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
+
+<span class="declaration">virtual Divided :: Transit ( FeasA )</span>
+<dl><dd>
+Transition for sub-divided time.
+
+</dd></dl>
+
+<hr>
+<a name="Divided___Update"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
+
+<span class="declaration">virtual Divided :: Update ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Divided___Vnext0"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Vnext0</span></h3>
+
+<span class="declaration">decl Vnext0 [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Divided___Vupdate"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
+
+<span class="declaration">virtual Divided :: Vupdate ( )</span>
+<dl><dd>
+Check newly computed values; an alternative to computing norm of value function differences.
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">+&infin; if the newly computed state values are all well-defined<br>.NaN otherwise
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Duration</span></h2>
 
@@ -6203,9 +6669,9 @@ Create an augmented state variable that 'forgets' its value when a permanent con
 
 <span class="declaration">virtual Forget :: IsReachable ( )</span>
 <dl><dd>
-This routine trims the state space of values that can't be reached because they are forgotten.
+Trimsthe state space of values that can't be reached because they are forgotten.
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">TRUE
+<dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if value is not forgotten or equals the reset value.
 </dd>
 </dl>
 </dd></dl>
@@ -6225,7 +6691,7 @@ This routine trims the state space of values that can't be reached because they 
 
 <span class="declaration">Freeze :: Freeze ( b , t )</span>
 <dl><dd>
-Augment a variable so it freezes at its current value as long as a trigger is TRUE.
+Augment a state variable so it freezes at its current value as long as a trigger is TRUE.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -6236,7 +6702,7 @@ Augment a variable so it freezes at its current value as long as a trigger is TR
 </tr>
 <tr>
 <td class="declaration" valign="baseline">t</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#CV">CV</a>-compatible object</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>-compatible object</td>
 </tr>
 </table>
 </dd>
@@ -6541,8 +7007,9 @@ Create a discretized verison of the continuous &zeta; variable that enters the s
 
 <span class="declaration">virtual Lagged :: IsReachable ( )</span>
 <dl><dd>
+Presumes an initial value of 0 for prunable clocks.
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if not pruning or not a prunable clock or <a href="DDPShared.ox.html#I___t">t</a> gt; <a href="Variables.ox.html#Lagged___Order">Order</a> or value gt; 0
+<dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if not pruning or not a prunable clock or <a href="DDPShared.ox.html#I___t">t</a> gt; <a href="Variables.ox.html#Lagged___Order">Order</a> or value = 0
 </dd>
 </dl>
 </dd></dl>
@@ -6837,8 +7304,13 @@ EV at <code>t=T-2</code> is treated as an infinite horizon problem and iterated 
 <a name="Longevity___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
-<span class="declaration">virtual Longevity :: Vupdate ( now )</span>
+<span class="declaration">virtual Longevity :: Vupdate ( )</span>
 <dl><dd>
+Mixed value updating.
+<DT><a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> determines behaviour</DT>
+<DT>If TRUE then either <code>t</code> is deterministic or convergence was reached on the last iteration.</DT>
+<DD>So copy current values for use by younger <code>t</code> and check for validity</DD>
+<DT>If FALSE then check for convergence</DT>
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Markov</span></h2>
@@ -6981,8 +7453,13 @@ Set clock to be deterministic aging with early random death.
 <a name="Mortality___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
-<span class="declaration">virtual Mortality :: Vupdate ( now )</span>
+<span class="declaration">virtual Mortality :: Vupdate ( )</span>
 <dl><dd>
+Mixed value updating.
+<DT><a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> determines behaviour</DT>
+<DT>If TRUE then either <code>t</code> is deterministic or convergence was reached on the last iteration.</DT>
+<DD>So copy current values for use by younger <code>t</code> and check for validity</DD>
+<DT>If FALSE then check for convergence</DT>
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MVIID</span></h2>
@@ -7120,9 +7597,37 @@ Updates the grid of Actual values.
 <a name="NonDeterministicAging___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
-<span class="declaration">virtual NonDeterministicAging :: Vupdate ( now )</span>
+<span class="declaration">virtual NonDeterministicAging :: Vupdate ( )</span>
 <dl><dd>
+Mixed value updating.
+<DT><a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> determines behaviour</DT>
+<DT>If TRUE then either <code>t</code> is deterministic or convergence was reached on the last iteration.</DT>
+<DD>So copy current values for use by younger <code>t</code> and check for validity</DD>
+<DT>If FALSE then check for convergence</DT>
 
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NonStationary</span></h2>
+
+<a name="NonStationary___Transit"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
+
+<span class="declaration">virtual NonStationary :: Transit ( FeasA )</span>
+<dl><dd>
+The baseline transition for non-stationary models (normal aging).
+
+</dd></dl>
+
+<hr>
+<a name="NonStationary___Vupdate"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
+
+<span class="declaration">virtual NonStationary :: Vupdate ( )</span>
+<dl><dd>
+Check newly computed values; an alternative to computing norm of value function differences.
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">+&infin; if the newly computed state values are all well-defined<br>.NaN otherwise
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NormalComponent</span></h2>
 
@@ -7553,11 +8058,35 @@ Vector of positive integers that are the
 </dd></dl>
 
 <hr>
+<a name="PhasedTreatment___Transit"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
+
+<span class="declaration">virtual PhasedTreatment :: Transit ( FeasA )</span>
+<dl><dd>
+The default transition for treatment.  All phases are deterministic.  No early transitions.
+The transition must be one of three values.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">FeasA</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
 <a name="PhasedTreatment___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
-<span class="declaration">virtual PhasedTreatment :: Vupdate ( now )</span>
+<span class="declaration">virtual PhasedTreatment :: Vupdate ( )</span>
 <dl><dd>
+Mixed value updating.
+<DT><a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> determines behaviour</DT>
+<DT>If TRUE then either <code>t</code> is deterministic or convergence was reached on the last iteration.</DT>
+<DD>So copy current values for use by younger <code>t</code> and check for validity</DD>
+<DT>If FALSE then check for convergence</DT>
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffect</span></h2>
@@ -7761,10 +8290,20 @@ Prob( q&prime;= z | q,b ) =  I{z=r}&tau; + (1-&tau;)Prob(b&prime;=z)
 </dd></dl>
 
 <hr>
+<a name="RandomUpDown___Prune"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Prune</span></h3>
+
+<span class="declaration">const decl Prune [public]</span>
+<dl><dd>
+Prune Unreachables.
+
+</dd></dl>
+
+<hr>
 <a name="RandomUpDown___RandomUpDown"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RandomUpDown</span></h3>
 
-<span class="declaration">RandomUpDown :: RandomUpDown ( L , N , fPi )</span>
+<span class="declaration">RandomUpDown :: RandomUpDown ( L , N , fPi , Prune )</span>
 <dl><dd>
 Create a state variable that increments or decrements with state-dependent probabilities.
 
@@ -7782,7 +8321,12 @@ Create a state variable that increments or decrements with state-dependent proba
 </tr>
 <tr>
 <td class="declaration" valign="baseline">fPi(A)</td>
-<td class="description" valign="baseline">a <a href="Shared.ox.html#AV">AV</a>(fPi,A) compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.</td>
+<td class="description" valign="baseline">a <a href="Shared.ox.html#AV">AV</a>(fPi,A) compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Prune</td>
+<td class="description" valign="baseline">TRUE [default], prune unreachable states assuming initial value of 0<br>FALSE do not prune</td>
 </tr>
 </table>
 </dd>
@@ -8673,7 +9217,7 @@ SetClock(NormalAging,1);
 </pre>
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="Shared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Stationary</span></h2>
@@ -8753,6 +9297,54 @@ Create a new Sub.
 </dd>
 <dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#FixedEffectBlock">FixedEffectBlock</a></dd>
 </dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SubState</span></h2>
+
+<a name="SubState___IsReachable"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">IsReachable</span></h3>
+
+<span class="declaration">virtual SubState :: IsReachable ( )</span>
+<dl><dd>
+Use <a href="DDPShared.ox.html#I___majt">majt</a> for time period when checking reachability of the base state variable.
+
+</dd></dl>
+
+<hr>
+<a name="SubState___SubState"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SubState</span></h3>
+
+<span class="declaration">SubState :: SubState ( b , mys )</span>
+<dl><dd>
+Make a state variable only transit in one subperiod of a <a href="Variables.ox.html#Divided">Divided</a> clock.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">b</td>
+<td class="description" valign="baseline">base Statevariable
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">s</td>
+<td class="description" valign="baseline">integer the subperiod this variable is not frozen and goes throug a regular transition.
+<P/>
+<DT>No check is made whether the period sent is a valid sub-period (between 0 and SubT-1).</DT>
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#Divided">Divided</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="SubState___Transit"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
+
+<span class="declaration">virtual SubState :: Transit ( FeasA )</span>
+<dl><dd>
+
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Tauchen</span></h2>
 
@@ -9001,15 +9593,6 @@ Values to track
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Triggered</span></h2>
 
-<a name="Triggered___Transit"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
-
-<span class="declaration">virtual Triggered :: Transit ( FeasA )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="Triggered___Triggered"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Triggered</span></h3>
 
@@ -9026,12 +9609,12 @@ The base for triggered augmentations.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">t</td>
-<td class="description" valign="baseline">the trigger for a different transition
+<td class="description" valign="baseline">the trigger for a different transition (action, state, or <a href="Shared.ox.html#AV">AV</a>-compatible object)
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">tv</td>
-<td class="description" valign="baseline">the integer (actual) or vector of integer values of t that triggers the transition [default=1].
+<td class="description" valign="baseline">the integer (actual) value of t that triggers the transition [default=1]<br>or vector of integer values that trigger
 </td>
 </tr>
 <tr>

@@ -84,7 +84,7 @@ ImaiJainChing::BayesianDP() {
 		DPmeth->Solve(AllFixed,Design[BellmanIterations]);
 		cur -> aggregator();
 		if (t>Design[Keep]) {  Xhist = dropc(Xhist,<1>); Vhist = dropc(Vhist,<1>);	}
-		Xhist ~= cur.X;		Vhist ~= DPmeth.VV[DP::later][];
+		Xhist ~= cur.X;		Vhist ~= DPmeth.VV[I::later][];
 		if (ranu(1,1)<1-exp(cur.v-hold.v)) cur->Copy(hold); //reject candidate
 		}
 	delete hold;

@@ -1,37 +1,38 @@
 /** Items shared by Variable and DP classes.
-
 <a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in DP.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 
-The objects that represent action and state variables are designed to be independent of the `DP` class, which along with derived classes represents the state spaces, the model, solution methods, and output. 
+The objects that represent action and state variables are designed to be independent of the `DP` class, which along with derived classes represents the state spaces, the model, solution methods, and output.
 
 The DP class relies on (that is, <code>imports</code>) the `Variable` classes, so they cannot in turn depend on the DP class.
 
-This file contains information about the DP model that is (usually) set or determined by methods of `DP` but that may be required by `StateVariable` classes.  
+This file defines information about the DP model that is (usually) set or determined by methods of `DP` but that may be required by `StateVariable` classes.
 
 For example, the transit functions for a state variable can rely on the current clock setting (<code>t</code>) even though it cannot know about the clock itself (which is stored in `DP::counter`).
 
-<DT>All of the data defined in DDPShared is <code>statci</code></DT>
+<DT>All of the data defined in DDPShared is <code>static</code></DT>
 
 <OL class="body">
-<LI><a href="#ZAux">Flags, Indices, Counts and Hooks</a></LI>
-
-<a name="Flags"><LI>Flags: `Flags`</LI></a>
+<LI>Flags: `Flags`</LI>
 <DT>The `Flags` class contains  0/1 indicators for the status of the model.  </DD>
 <DD>The user can access the flag values but should not change them directly.  (However, they are not <em>protected</em> so user code could accidentally set a value and create an difficult-to-find bug.)</DD>
 <DT>There are flags the user can set, but this should be done using the DP methods cross-listed under `Flags`</DT>
 <DT>Ox and <span class="n">niqlow</span> both use <code>TRUE</code> and <code>FALSE</code> as aliases for the integer values 0 and 1.</DT>
+
 <LI>Indices : `I`</LI>
 <DT>Indices are integer values that track dynamically changing values related to various state spaces.</DT>
 <DT>User code access them but should <b>never</b> modify indices</DT>
 
-<LI>Model Dimensions and Counts: `N`</DT>
+<LI>Model Dimensions and Counts: `N`</LI>
+
 <DT>Counts are dimensions of the problem stored as static elements of `N`.</DD>
 
 <LI>Hooks: `Hooks`</LI>
 
-<LI>>Spaces </LI>
+<LI>Spaces </LI>
 
 <LI>Subspaces</LI>
+
+</OL>
 
 <a name="auto"><hr><h1>Documentation of  Items Defined in DDPShared.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 

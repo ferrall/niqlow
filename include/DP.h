@@ -79,15 +79,10 @@ struct DP {
 
 		/** The discount factor &delta;.  @see DP::SetDelta,
             DP::CVdelta  **/                                    delta,
-        /** The current value of &delta;. This is set in
-            `DP::UpdateVariables`() to avoid repeated calls
-            to `CV`.  @see DP::delta **/                         CVdelta,
 		/** Array of Exogenous next state indices
 			and transitions. **/ 					            NxtExog,
 		/** . @internal  				**/    					F,
 		/** . @internal						**/    				P,
-		/** . @internal            **/ 			 				now,
-		/** . @internal           **/ 			 				later,
 		/** function that returns new state or 0.
             Sent as argument to `DP::Initialize`().**/	        userReachable,
 		/** max of vv. @internal       **/						V,
@@ -111,7 +106,6 @@ struct DP {
 		static	SetDelta(delta);
 		static	SetClock(ClockType,...);
 		static	Gett();
-		static	Swap();
 		static 	ExogenousTransition();
 
 		static	UpdateVariables();
@@ -201,7 +195,7 @@ states or looping over all combinations of state variable values.  This is done
 with an arguement to `DP::Initialize`().
 
 **/
-struct ThetaTask        :   Task {	decl curind; ThetaTask();	Run(th);	}
+struct ThetaTask        :   Task {	ThetaTask();	Run(th);	}
 
 /** Identify unreachable states from &Theta;.
 

@@ -204,9 +204,9 @@ struct DataSet : Panel {
 **/
 struct ObjToTrack : Zauxiliary {
     const decl
-    /**`DataColumnTypes` **/     type,
-    /** `Discrete` object**/     obj,
-    /** label  **/               L,
+    /** See `DataColumnTypes` **/     type,
+    /** `Discrete` object**/            obj,
+    /** label  **/                      L,
     /** column label of index **/     LorC;
     decl
     /** **/     hN,

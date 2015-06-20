@@ -2,7 +2,7 @@
 
 		/** Categories of state variables.	
             These categories are used mainly for summarizing the model.
-                @name StateTypes**/	
+                @name StateTypes **/	
 enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTEDV,TIMINGV,TIMEINVARIANTV,NStateTypes}
 
 		/** Vectors of state variables.
@@ -83,23 +83,27 @@ enum {acts,exog,semiexog,endog,clock,rgroup,fgroup,DSubVectors,LeftSV=exog}
         Bellman's equation.  This subspace includes all elements of the clock block.</td></tr>
         <tr><td valign="top">bothgroup</td><td>The full group vector &gamma;, concatenating
         the <code>rgroup</code> and <code>fgroup</code> spaces.</td></tr>
-
-
         </table>
                 @name SubSpaces
                 **/
 enum {onlyacts,onlyexog,onlysemiexog,bothexog,onlyendog,tracking,onlyclock,allstates,iterating,onlyrand,onlyfixed,bothgroup,DSubSpaces}
 
-		/** . @name Vspace  **/
+		/** Names for 0 and 1 for Bellman iteration.
+            In `ValueIteration` an 2-array of vectors are stored as scratch-space for Bellman
+            iteration. `I::now` and `I::later` toggled back and forth between 0 and 1
+            as iteration procedes which avoids copy potentially large vectors each time.
+            @name Vspace  **/
 enum {NOW,LATER,DVspace}
 
-        /** Kinds of variables in data sets. @name DataColumnTypes
+        /** Kinds of variables in data sets.
             <table class="enum_table">
             <tr><td valign="top">idvar</td><td>Identifier for the path (agent)</td></tr>
             <tr><td valign="top">avar</td><td>`ActionVariable`</td></tr>
             <tr><td valign="top">svar</td><td>`StateVariable`</td></tr>
             <tr><td valign="top">idvar</td><td>`AuxiliaryValues`</td></tr>
             </table>
+
+        @name DataColumnTypes
         **/
 enum{idvar,avar,svar,auxvar,NColumnTypes}
 
@@ -116,27 +120,24 @@ fixed effect variables.</td></tr>
 both fixed and random effect variables.</td></tr>
 </table>
 There is a potentially large computational cost of updating the transitions more often than is necessary.
-
-        @see DP::SetUpdateTime @name UpdateTimes **/
+@see DP::SetUpdateTime
+@name UpdateTimes **/
 enum {InCreateSpaces,OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
 
 		/** Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.
          <DT>NoSmoothing</DT>
-         <DD class="disp">Optimal choices are equally likely, sub-optimal choices have zero choice
-         probability:
-            <pre>
-            $n^\star = $ number of feasible choices in $\arg\max\ v(\alpha;\theta)$.
-            $P^\star (\alpha;\theta) = I\left\{\alpha \in \arg\max_{\alpha}\ v(\alpha;\theta)\right\} / n^\star$
-            </pre>
-            Note:  exogenous (&epsilon;) and semi-exogenous (&eta;) state variables are allowed but they
-            are suppressed in the notation for readibility.</DD>
+         <dd>Optimal choices are equally likely, sub-optimal choices have zero choice
+         probability:</dd>
+         <DD class="disp">
+            $n^\star = $ number of feasible choices in $\arg\max\ v(\alpha;\theta)$.<p>
+            $P^\star (\alpha;\theta) = I\left\{\alpha \in \arg\max_{\alpha}\ v(\alpha;\theta)\right\} / n^\star$<br></dd>
+         <dd>Note:  exogenous (&epsilon;) and semi-exogenous (&eta;) state variables are allowed but they are suppressed in the notation for readibility.</DD>
          <DT>LogitKernel</DT>
-         <DD>
-         <pre>&Rho;* = exp{&rho;(v(&alpha;)-V)}/&Sigma;<sub>a</sub>exp{&rho;(v(a)-V)}
-              v*(&alpha;) = exp[&rho;(v(&alpha;,&epsilon;,&eta;&theta;)-V(&epsilon;,&eta;,&theta;) )]	// &rho;
-             &Rho;*(&alpha;;&epsilon;,&eta;&theta;) = v*(&alpha;) / &Sum;<sub>&alpha;'&in;A(&theta;) v*(&alpha;')</sub>
-         </pre></DD>
-         <DT>GaussKernel</DT><DD></DD>
+         <DD class="disp">
+         $$P^\star = {e^{\rho\left(v(\alpha)-V\right)} \over \sum_{a\in A(\theta) } e^{\rho\left(v(a)-V\right)}}$$
+         </DD>
+         <DT>GaussKernel</DT>
+         <DD>&hellip; to be added</DD>
          @name SmoothingMethods **/	
 enum { NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods}
 
@@ -145,21 +146,52 @@ enum { NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods}
 
 <table class="enum_table" valign="top">
 <tr><td valign="top"><code>PreUpdate</code></td><tD>Called by `DP::UpdateVariables`().  The point this occurs depends on `Flags::UpdateTime`</tD></tr>
-<tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::`RandomSolve::Run`()</code> after a call to `Method::GSolve`() </tD></tr>
-<tr><td valign="top"><code>PostRESolve</code> </td><tD>Called by <code>FixedSolve::`FixedSolve::Run`()</code> after all random effects have been solved. </tD></tr>
-<tr><td valign="top"><code>PostFESolve</code></td><tD>Called by `Method::Solve`() after all fixed effect groups have been solved.</tD></tr>
+<tr><td valign="top" colspan="2" align="middle"><em>The times below are ordered in decreasing frequency of execution.</em></tD></tr>
+<tr><td valign="top"><code>PostSmooth</code> </td> <tD>Called by <code>Method::`Method::Run`()</code> after <em>each</em> time the value of a state has been computed and
+`Bellman::Smooth`() has been called to compute choice probabilities. That is, it is called only when `Flags::setPstar` is TRUE.  For stationary models
+this is only when convergence has been reached.  For non-stationary times it is after each value iteration.</tD></tr>
+<tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::`RandomSolve::Run`()</code> after a call to `Method::GSolve`().  That is, after the value of
+all states has been found. </tD></tr>
+<tr><td valign="top"><code>PostRESolve</code> </td><tD>Called by <code>FixedSolve::`FixedSolve::Run`()</code> after all random effects have been solved. That is, after all
+choice probabilities relevant to observationally-equivalent problems have been computed.  At this point a mixture over choice probabilities coudl be could be computed.</tD></tr>
+<tr><td valign="top"><code>PostFESolve</code></td><tD>Called by `Method::Solve`() after all fixed effect groups have been solved. That is, after all problems defined by
+the user's DP model have been solved.</tD></tr>
 <tr><td valign="top"><code>GroupCreate</code></td><tD>Called by the task that sets up the group space Gamma (&Gamma;) before creation
-of each separate group. Your function should return TRUE if the the group should be created.</tD></tr>
+of each separate group. The function added here should return TRUE if the group should be created and FALSE otherwise.</tD></tr>
 </table>
 @see Hooks, Flags::UpdateTime
 @name HookTimes
 **/
-enum {PreUpdate,PostGSolve,PostRESolve,PostFESolve,GroupCreate,NHooks}
+enum {PreUpdate,PostSmooth,PostGSolve,PostRESolve,PostFESolve,GroupCreate,NHooks}
+
+
+
+		/** Send one of these tags as first argument to `DP::SetClock`() to use that clock.
+        <table>
+        <tr><th>Tag</th><th>Clock Type</th></tr>
+        <tr><td>InfiniteHorizon</td><td>`Stationary`(FALSE)</td></tr>
+        <tr><td>Ergodic</td><td>`Stationary`(TRUE)</td></tr>
+        <tr><td>SubPeriods</td><td>`Divided`(&hellip;)</td></tr>
+        <tr><td>NormalAging</td><td>`Aging`(&hellip;)</td></tr>
+        <tr><td>StaticProgram</td><td>`StaticP`(&hellip;)</td></tr>
+        <tr><td>RandomAging</td><td>`AgeBrackets`(&hellip;)</td></tr>
+        <tr><td>RandomMortality</td><td>`Mortality`(&hellip;)</td></tr>
+        <tr><td>UncertainLongevity</td><td>`Longevity`(&hellip;)</td></tr>
+        <tr><td>RegimeChange</td><td>Not Coded Yet</td></tr>
+        <tr><td>SocialExperiment</td><td>`PhasedTreatment`(&hellip;)</td></tr>
+        </table>
+        @name ClockTypes **/
+enum {InfiniteHorizon,Ergodic,SubPeriods,NormalAging,StaticProgram,RandomAging,RandomMortality,UncertainLongevity,RegimeChange,SocialExperiment,UserDefined,NClockTypes}
+
+        /** parallel array of labels for the built-in clock types. **/
+static const decl ClockTypeLabels
+    = {"Infinite Horizon","Ergodic","Subdivided Periods","Normal Finite Horizon Aging","Static Program (finite horizon and T=1)","Random Aging (finite horizon but aging happens with probability<1 at some t","Random Mortaility (finite horizon with probability of early transition to last t, death)",
+    "Uncertain Longevity (finite horizon until last period which ends randomly)","Regime Change","Social Experiment","User Defined Clock"};
+
 
 /**Container for auxiliary classes in in DDP but not elsewhere (directly). **/
 struct DDPauxiliary : Zauxiliary {
     }
-
 
 /** Indicators related to the DP problem.
 All elements are static and now object is created.
@@ -191,6 +223,7 @@ struct Flags : DDPauxiliary {
 		/** set &Rho;*(<code>&alpha;</code>|&hellip;)
             in Bellman		**/		                            setPstar;
     static Reset();
+    static SetPrunable(clock);
     }
 
 /** Numbers and sizes of vectors related to the dynamic program.
@@ -236,12 +269,25 @@ struct I : DDPauxiliary {
     /** index of current random group. **/					r,
 	/** index of current &gamma; group. **/					g,																
 	/**  Current value of t. @see DP::Gett **/				t,
+	/**  Current value of sub period s.
+          This identically 0 unless the clock is Divided.
+            @see Divided **/				                subt,
+	/**  Current value of majt.
+           This equals <code>t</code> unless the clock
+           is Divided.  **/				                    majt,
+	/** .             **/ 			 				        now,
+	/** .            **/ 			 				        later,
 	/** . @internal **/										MedianExogState,
 	/** . @internal **/										MESind,
 	/** . @internal **/										MSemiEind,																
-	/** . @internal **/										MxEndogInd;
+	/** . @internal **/										MxEndogInd,
+    /** The current value of &delta;. This is set in
+            `DP::UpdateVariables`() to avoid repeated calls
+            to `CV`.  @see DP::delta **/                         CVdelta;
     static Set(state,group=FALSE);
     static Initialize();
+    static NowSwap();
+    static NowSet();
     }
 
 /** Manages an array (stored in `Hooks::hooks`) that holds user-defined static functions/methods to call at different points in the solution process.

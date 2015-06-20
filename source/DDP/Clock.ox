@@ -28,24 +28,37 @@ If TRUE then transitions are not computed.
 **/
 Clock::Last() { return t.v==t.N-1; }
 
-/**  Copy solution methods values to be used for updating and solving.
+/**  Copy solution method-specific values to be used for updating and solving.
+@param inaVV address of solution method's value function vector
 **/
-Clock::Solving(inME,inaVV,inaSPstar) {
-    ME = inME;
+Clock::Solving(inaVV) {
     aVV = inaVV;
-    aSPstar = inaSPstar;
     }
 
-Clock::Vupdate(now) { }
+/** The base calculation to be carried out after the value of all states at time t have been computed.
+<DT>The clock <code>Vupdate()</code> is called by `ValueIteration::Update`() at the end of one Bellman iteration.</DT>
+
+<DT>The base version returns the <code>norm()</code> of the change in the value function for convergence check.</DT>
+<DD>This the stationary calculation. See `NonStationary::Vupdate`() for an alternative</DD>
+<DD>Other specialized clocks copy part of the value functions into the vector of values for access in earlier time periods.</DD>
+
+@return ||V(&theta;)-V'(&theta;&prime;)||
+**/
+Clock::Vupdate() {
+    return norm(  aVV[0][NOW]  [ : I::MxEndogInd ]
+                 -aVV[0][LATER][ : I::MxEndogInd ]  ,2);
+    }
 
 Clock::setPstar() { return FALSE; }
+
+Clock::Synch() { I::t = t.v; }
 	
 /** A stationary clock block.
 @param IsErgodic  TRUE, store &Rho;*
 **/
 Stationary::Stationary(IsErgodic) {	Clock(1,1);	this.IsErgodic = IsErgodic;}
 
-/** .
+/** The baseline transition for stationary clocks (<code>t=t&prime;=0</code> always).
 @internal **/
 Stationary::Transit(FeasA) {	return { 0|0 , ones(rows(FeasA),1) } ;	}
 
@@ -53,6 +66,83 @@ Stationary::Transit(FeasA) {	return { 0|0 , ones(rows(FeasA),1) } ;	}
 @return FALSE **/
 Stationary::Last() { return FALSE; }
 
+
+/** The baseline transition for non-stationary models (normal aging). **/
+NonStationary::Transit(FeasA) {	
+    return { min(t.N-1,t.v+1)|0 , ones(rows(FeasA),1) } ;	
+    }
+
+/** Check newly computed values; an alternative to computing norm of value function differences.
+@return +&infin; if the newly computed state values are all well-defined<br>.NaN otherwise
+**/
+NonStationary::Vupdate() {
+    return isnan(aVV[0][I::now][:I::MxEndogInd]) ? .NaN : +.Inf;
+    }
+
+/** Create a clock divided into subperiods.
+@param MajT integer number of periods<br>0 infinite horizon
+@param SubT positive integer, sub-periods
+@param HasInit FALSE [default] <code>t=0</code> is a sub-period (so the subperiod increments and the major period stays the same)<br>TRUE <code>t=0</code> is not subdivided (so the subperiod stays 0 in the following period and the major period increments).
+@param HasFinal FALSE [default] The final period is the final sub-period.<br>the final period is an undivided period (so its subperiod is 0)<br>
+<b>This cannot be combined with an infinite horizon</b>
+
+@examples
+<pre>
+</pre>
+</dd>
+**/
+Divided::Divided(MajT,SubT,HasInit,HasFinal) {
+    if (SubT<One) oxrunerror("DDP Erorr ??a. Number of sub periods (SubT) must be positive.\n");
+    if (!MajT&&HasFinal) oxrunerror("DDP Error ??b. Infinite Horizon Subperiod cannot have a final period.\n");
+    this.MajT = MajT;
+    this.SubT = SubT;
+    this.HasInit = HasInit;
+    this.HasFinal = HasFinal;
+    Clock(HasInit+HasFinal+max(One,MajT)*SubT,1); //store previous s=0 to be used for convergence check.
+    delts = ones(SubT,1);
+    Vnext0 = UnInitialized;
+    }
+
+Divided::Update() {
+    Vnext0 = UnInitialized;
+    delts[SubT-1] = I::CVdelta;
+    }
+
+/** Not stationary and last period.
+**/
+Divided::Last() {
+    return MajT && Clock::Last();
+    }
+
+/** Transition for sub-divided time.
+**/
+Divided::Transit(FeasA) {
+    if (MajT) return NonStationary::Transit(FeasA);
+    return { (t.v==N-1 ? HasInit : t.v+1) | 0 , ones(rows(FeasA),1) };
+    }
+
+Divided::Vupdate() {
+	if (!MajT && !I::subt && (I::majt>=HasInit)) {
+        decl nrm;
+        if (isint(Vnext0))
+            nrm =  NonStationary::Vupdate();
+        else nrm = norm(aVV[0][I::now][:I::MxEndogInd]-Vnext0,2);
+        Vnext0 = aVV[0][I::now][:I::MxEndogInd];
+        return nrm;
+        }
+    return NonStationary::Vupdate();
+    }
+
+Divided::Synch() {
+    Clock::Synch();
+    if (!I::t) { I::subt = I::majt = Zero; }
+    else {
+        decl tmpt = I::t-HasInit;
+        I::majt = idiv(tmpt,SubT)+HasInit;
+        I::subt = tmpt - I::majt*SubT;
+        }
+    I::CVdelta = delts[I::subt];
+    }
 
 /** Normal Finite Horizon Aging.
 
@@ -75,8 +165,6 @@ Aging::Aging(T) {
     if (T<1) oxrunerror("DDP Error 69. T must be positive");
     Clock(T,1);	
     }
-
-Aging::Transit(FeasA) {	return { min(t.N-1,t.v+1)|0 , ones(rows(FeasA),1) } ;	}
 
 Aging::setPstar() { return TRUE; }
 
@@ -102,8 +190,19 @@ SetClock(NormalAging,1);
 **/
 StaticP::StaticP() { Aging(1); }
 
-NonDeterministicAging::Vupdate(now) {
-    if (aSPstar[0]) aVV[0][now][ME+1:] = aVV[0][now][:ME];	//copy today's value to tomorrow place
+/** Mixed value updating.
+<DT>`Flags::setPstar` determines behaviour</DT>
+<DT>If TRUE then either <code>t</code> is deterministic or convergence was reached on the last iteration.</DT>
+<DD>So copy current values for use by younger <code>t</code> and check for validity</DD>
+<DT>If FALSE then check for convergence</DT>
+**/
+NonDeterministicAging::Vupdate() {
+    if (Flags::setPstar) {
+        aVV[0][I::now][ I::MxEndogInd+1 : ] = aVV[0][I::now][ : I::MxEndogInd ];	//copy today's value to tomorrow place
+        return NonStationary::Vupdate();
+        }
+    else
+        return Clock::Vupdate();  //check for convergence
     }
 	
 /**Create an aging clock with brackets.
@@ -182,10 +281,13 @@ Mortality::Transit(FeasA) {
        }
 	}
 
-Mortality::Vupdate(now) {
-    NonDeterministicAging::Vupdate(now);
-	if (t.v==t.N-1) DeathV = aVV[0][now][:ME];
-	else aVV[0][now][:ME] = DeathV[];
+Mortality::Vupdate() {
+    decl nrm = NonDeterministicAging::Vupdate();
+	if (t.v==t.N-1)
+        DeathV = aVV[0][I::now][ : I::MxEndogInd];
+	else
+        aVV[0][I::now][ : I::MxEndogInd ] = DeathV;
+    return nrm;
     }
 
 Mortality::setPstar() { return TRUE; }
@@ -222,16 +324,13 @@ Longevity::Transit(FeasA) {
 /** With Longevity the last period (death) is definitively the last.**/
 Longevity::Last() { return Clock::Last(); }
 
-Longevity::Vupdate(now) {
-    NonDeterministicAging::Vupdate(now);
-	if (t.v==Tstar) {
-        aVV[0][now][ME+1:] = DeathV = aVV[0][now][:ME];    // Associate death value with t' = 1
-        return;
-        }
-    if (aSPstar[0]) {
-        aVV[0][now][ME+1:] = aVV[0][now][:ME];             // Copy today for tomorrow (t'=1)
-        aVV[0][now][:ME] = DeathV;                     // Associate death value with t' = 0
-        }
+Longevity::Vupdate() {
+    decl nrm = NonDeterministicAging::Vupdate();
+	if (t.v==Tstar)
+        DeathV = aVV[0][I::now][ : I::MxEndogInd ];    // Associate death value with t' = 1
+    if (Flags::setPstar)
+        aVV[0][I::now][ : I::MxEndogInd ] = DeathV;    // Associate death value with t' = 0
+    return nrm;
     }
 
 Longevity::setPstar() {
@@ -264,22 +363,20 @@ PhasedTreatment::PhasedTreatment(Rmaxes,IsErgodic)	{
 
 /**The default transition for treatment.  All phases are deterministic.  No early transitions.
 The transition must be one of three values.
-@internal
 @param FeasA
 **/
 PhasedTreatment::Transit(FeasA) 	{
-	decl tt = AV(t), notreal = phase[tt]>0  && phase[tt] <  MaxF, notendoftrtmnt = tt<t.N-1,
-	nxtpr = (notreal && time[tt]< Rmaxes[phase[tt]]-1) 	? stayinf
-				: notendoftrtmnt							? gotonextf
+    if (!phase[I::t] || phase[I::t]==MaxF) return ;
+	decl notendoftrtmnt = I::t<t.N-1,
+	nxtpr = (time[I::t]< Rmaxes[phase[I::t]]-1) 	? stayinf
+				: notendoftrtmnt					? gotonextf
 				: exittreatment;
 	return { matrix(nxtpr) , ones(rows(FeasA),1) };
 	}
 
-PhasedTreatment::Vupdate(now) {
-    if (aSPstar[0]) //copy today's value to tomorrow place
-        aVV[0][now][ME+1:] = aVV[0][now][:ME];	
+PhasedTreatment::Vupdate() {
+    decl nrm = NonDeterministicAging::Vupdate();
 	if (!ftime[t.v])	// current phase just starting, put in go-to-next-phase place
-		aVV[0][now][ME+1:2*ME] = aVV[0][now][:ME];
+		aVV[0][I::now][ I::MxEndogInd+1 : 2*I::MxEndogInd ] = aVV[0][I::now][ : I::MxEndogInd ];
+    return nrm;
     }
-
-	
