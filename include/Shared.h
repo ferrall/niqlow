@@ -205,7 +205,7 @@ class Version : Zauxiliary {
 	static decl checked;
 
 public: 	
-    static const decl version=220;
+    static const decl version=230;
 	static Check();
 	}
 
