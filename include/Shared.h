@@ -202,8 +202,10 @@ class Version : Zauxiliary {
 	/** Minimum Ox Version required. @name Oxversion **/
 	enum {MinOxVersion=700}
 	/** Current niqlow version. @name niqlowversion **/
-	enum {version=220}
 	static decl checked;
+
+public: 	
+    static const decl version=220;
 	static Check();
 	}
 

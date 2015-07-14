@@ -20,6 +20,8 @@ struct Objective	{
 	/** current point.**/										cur;
 
 	static decl
+    /** Version of niqlow that code is written for.
+        @see Objective::SetVersion **/                          MyVersion,
 	/** . internal **/											Warned;
 	decl
 	/** the P2P object for using MPI **/					    p2p,
@@ -46,6 +48,7 @@ struct Objective	{
 	static 	dFiniteDiff1(x);
 	static 	dFiniteDiff2(x);
 	static	ToggleParameterConstraint();
+    static  SetVersion(v=200);
 			
 	virtual	CheckMax();
 	virtual Print(orig);

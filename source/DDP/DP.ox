@@ -78,6 +78,17 @@ Group::Reset() {
 	return Density();	
 	}
 
+/** Checks the version number you send with the current version of niqlow.
+@param v integer [default=200]
+**/
+DP::SetVersion(v) {
+    MyVersion = v;
+    if (MyVersion<Version::version)
+        oxwarning("DP Warning ??. You are running your DP model on a newer niqlow version "+sprint(Version::version)+".\n");
+    if (MyVersion>Version::version)
+        oxwarning("DP Warning ??. You are running your DP model on an older niqlow version.  You should consider installing a newer release.\n");
+    }
+
 /** Return the element `I::g` element of `Gamma`.
 @see DP::SetGroup
 **/

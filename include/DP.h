@@ -44,6 +44,8 @@ The  base class for the DDP framework.
 **/
 struct DP {
 	static decl
+        /** Version of niqlow that code is written for.
+                @see DP::SetVersion **/                         MyVersion,
         /** category of clock. @see ClockTypes, DP::SetClock**/ ClockType,
 		/** counter variable.	@see DP::SetClock **/			counter,
 		/**   array of `Space`s, using `SubVectorNames` as names
@@ -103,6 +105,7 @@ struct DP {
             subsampling of the state space.
             @see DP::SubSampleStates **/			             SampleProportion;
 
+        static  SetVersion(V=200);
 		static	SetDelta(delta);
 		static	SetClock(ClockType,...);
 		static	Gett();

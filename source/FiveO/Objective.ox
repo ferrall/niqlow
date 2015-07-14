@@ -1,6 +1,18 @@
 #include "Objective.h"
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
+/** Checks the version number you send with the current version of niqlow.
+@param v integer [default=200]
+**/
+Objective::SetVersion(v) {
+    MyVersion = v;
+    if (MyVersion<Version::version)
+        oxwarning("FiveO Warning ??. You are running your Objective on a newer niqlow version "+sprint(Version::version)+".\n");
+    if (MyVersion>Version::version)
+        oxwarning("FiveO Warning ??. You are running your Objective on an older niqlow version.  You should consider installing a newer release.\n");
+    }
+
+
 /** Create a new objective.
 @param L string, label for the objective.
 @internal
