@@ -20,6 +20,10 @@ SchToWork::Reachable() {
 		: new SchToWork();
 	}
 
+SchToWork::SchToWork() {
+    OneDimensionalChoice();
+    }
+
 SchToWork::FeasibleActions(Alpha) {
 	zstar = <1.0>;
 	return hasoffer.v

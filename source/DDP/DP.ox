@@ -815,12 +815,14 @@ DP::CreateSpaces() {
 		println(av);
         print("    -------------"); for (i=0;i<N::J;++i) print("---------");
         println("\n    Key: X = row vector is feasible. - = infeasible");
-        if (totalnever) println("    Actions vectors not shown because they are never feasible: ",totalnever);
+        if (totalnever) println("    Actiouns vectors not shown because they are never feasible: ",totalnever);
         println("\n");
 		}
     if (Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
 	ETT = new EndogTrans();
-    if (Flags::UpdateTime[InCreateSpaces]) UpdateVariables();
+    if (Flags::UpdateTime[InCreateSpaces])
+        UpdateVariables();
+    else DP::A = Alpha::A;   //this is done in UpdateVariables()
  }
 
 /** .
@@ -1238,7 +1240,7 @@ DP::UpdateVariables()	{
 			}		
 		}
 	for (i=1;i<N::J;++i) Alpha::A[i][][] = selectifr(Alpha::A[0],Alpha::Sets[i]);
-    A = Alpha::A;  // Have DP::A point to Alpha::A.
+    DP::A = Alpha::A;  // Have DP::A point to Alpha::A.
 	ExogenousTransition();
 	ETT.current = ETT.subspace = iterating;
 	ETT->Traverse();          //Endogenous transitions

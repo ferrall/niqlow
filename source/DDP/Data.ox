@@ -715,10 +715,10 @@ Outcome::AccountForUnobservables() {
 				Ainds |= myA;
 		  		++s;
 				}
-			else //observed actions not feasible at this tracking state
+			else  //observed actions not feasible at this tracking state
 				ind[tracking] = dropr(ind[tracking],matrix(s));	  //do not increment s because of drop
 			}
-		else  // trim unreachable states from list
+		else   // trim unreachable states from list
 			ind[tracking] = dropr(ind[tracking],matrix(s));	 //do not increment s because of drop
 		} while (s<sizeof(ind[tracking]));
 //    println("acts",ind[onlyacts]," groups ",ind[bothgroup]," tracking ",ind[tracking],"---------");
@@ -1036,8 +1036,9 @@ ObjToTrack::Distribution(htmp,ptmp) {
         foreach(h in htmp[][j]) {
             hh = hvals[j] = unique(h);
             hist[j] = zeros(hh)';
-//            println("XX ",ptmp,h,hh);
-            foreach (q in hh[k]) hist[j][k] = sumc(selectifr(ptmp,h.==q));
+            foreach (q in hh[k]) {
+                hist[j][k] = sumc(selectifr(ptmp[][j],h.==q));
+                }
             mns ~= hh*hist[j];
             }
         return mns;
@@ -1064,14 +1065,14 @@ Prediction::Histogram(tv,printit) {
         case idvar  :
             decl th, newqs,newp,j,uni,htmp,ptmp;
             ptmp = htmp=<>;
-            foreach (q in sind[][k]) {
+            foreach (q in sind[][k]) {   //for each theta consistent with data
                 th = Settheta(q);
                 if (tv.type==idvar)
                     newqs = th->OutputValue();
                 else {
                     tv.obj->Realize(th); newqs = CV(tv.obj);
                     }
-                newp = p[k]*(th.pandv[0]);
+                newp = p[k]*(th.pandv[0]);  //state prob. * CCPs
                 if (isdouble(newqs) || rows(newqs)==1) newp = sumc(newp);
                 htmp |= newqs;
                 ptmp |= newp;

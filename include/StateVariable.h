@@ -832,7 +832,7 @@ struct MVIID : StateBlock {
 /** A discrete multivariate normal IID block of contemporaneously correlated variables.
 
 <dd><var><pre>
-x &sim; N( &mu;, C'C ).$$
+x &sim; N( &mu;, C'C ).
 </pre></var>
 **/
 struct MVNormal : MVIID {

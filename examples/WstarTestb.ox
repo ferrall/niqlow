@@ -2,7 +2,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 WStar::Reachable()	{ return new WStar(); }
-WStar::WStar()      { }
+WStar::WStar()      { solvez = TRUE; OneDimensionalChoice(); }
 WStar::Uz(z)        { return eta | z;	}
 WStar::Utility()    { return eta*(1-aa(d)) + zstar[I::r]*aa(d);	}
 

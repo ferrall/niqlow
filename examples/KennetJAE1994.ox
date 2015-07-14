@@ -56,7 +56,7 @@ PrattWhitney::Ehours() {
 **/	
 PrattWhitney::Run()	{
 	decl chprob,id,data,newd,EMax;
-	Initialize(PrattWhitney::Reachable,FALSE);
+	Initialize(PrattWhitney::Reachable);
 	StorePalpha();
 	EndogenousStates(x = new Engine(d,pars[col][theta3]) ); //same transition for both rows
 	CreateSpaces();
@@ -64,12 +64,11 @@ PrattWhitney::Run()	{
 	data = <>;
 	EMax = new ValueIteration(0);
 	EMax.vtoler = 1E-2;   								//loose tolerance because beta near 0 and 1
-	EMax.Volume = LOUD;	
 	for (col=1;col<3;++col) { //sizeof(pars)
 		println(pars[col]);
 		SetDelta(pars[col][disc]);
 		normalization = pars[col][theta1]*Units*mfact*NX/2 +pars[col][theta2]/2;	 //median cost, keep U() centered on 0.0
-		EMax->Solve(0,0);
+		EMax->Solve();
 		Ehours();
 		}
 	}

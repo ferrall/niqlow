@@ -629,8 +629,6 @@ ChoiceAtTbar::IsReachable() {
 PermanentChoice::PermanentChoice(L,Target) {
 	LaggedAction(L,Target);
 	}
-
-
 	
 /** .
 **/
