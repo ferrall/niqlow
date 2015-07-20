@@ -2,32 +2,56 @@
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 TestRun() {
-	println("\n\n***************** Test1 *****************\n");
-	Test1::Run(FALSE);	
-	println("\n\n***************** Test1 *****************\n");
-	Test1::Run(TRUE);	
-	println("\n\n***************** Test2 *****************\n");
-	Test2::Run(FALSE);	
-	println("\n\n***************** Test2 *****************\n");
-	Test2::Run(TRUE);	
-	println("\n\n***************** Test3 *****************\n");
-	Test3::Run(FALSE);	
-	println("\n\n***************** Test3 *****************\n");
-	Test3::Run(TRUE);	
-	println("\n\n***************** Test3a *****************\n");
-	Test3a::Run();	
-	println("\n\n***************** Test4 *****************\n");
-	Test4::Run();		
-	println("\n\n***************** Test5 *****************\n");
-	Test5::Run();		
-	println("\n\n***************** Test6 *****************\n");
-	Test6::Run();		
-	println("\n\n***************** Test7 *****************\n");
-	Test7::Run();		
-	println("\n\n***************** Test8 *****************\n");
-	Test8::Run();		
-	println("\n\n***************** Test9 *****************\n");
-	Test9::Run();		
+    decl k;
+    do {
+     scan("Enter 0 to run all, 1-9 to run that test, [-1]  QUIT\n?","%i",&k);
+	 if (k<Zero) return;
+       if(!k || k==1 ) {
+           println("\n\n***************** Test1A *****************\n");
+	       Test1::Run(FALSE);	
+	       println("\n\n***************** Test1B *****************\n");
+	       Test1::Run(TRUE);
+           }
+       if(!k || k==2 ) {
+	       println("\n\n***************** Test2A *****************\n");
+	       Test2::Run(FALSE);	
+	       println("\n\n***************** Test2B *****************\n");
+	       Test2::Run(TRUE);	
+           }
+       if(!k || k==3 ) {
+	       println("\n\n***************** Test3A *****************\n");
+	       Test3::Run(FALSE);	
+	       println("\n\n***************** Test3B *****************\n");
+	       Test3::Run(TRUE);	
+	       println("\n\n***************** Test3C *****************\n");
+	       Test3a::Run();	
+           }
+       if(!k || k==4 ) {
+	       println("\n\n***************** Test4 *****************\n");
+	       Test4::Run();		
+            }
+       if(!k || k==5 ) {
+	       println("\n\n***************** Test5 *****************\n");
+	       Test5::Run();		
+            }
+       if(!k || k==6 ) {
+	       println("\n\n***************** Test6 *****************\n");
+	       Test6::Run();		
+            }
+       if(!k || k==7 ) {
+	       println("\n\n***************** Test7 *****************\n");
+	       Test7::Run();		
+            }
+       if(!k || k==8 ) {
+	       println("\n\n***************** Test8 *****************\n");
+	       Test8::Run();
+            }		
+       if(!k || k==9 ) {
+	       println("\n\n***************** Test9 *****************\n");
+	       Test9::Run();		
+          }
+        }
+       while (TRUE);
 	}
 
 Test1::Reachable() { return new Test1(); }
@@ -41,12 +65,18 @@ Test1::Run(UseList) {
 	}
 
 Test2::Reachable() { return new Test2(); }
-Test2::Utility() { return I::t < N::T-1 ? 1.0 : 0.0; }
+Test2::Utility() { return I::t < 3 ? aa(a) : 1-aa(a); }
 Test2::Run(UseList) {
 	Initialize(Test2::Reachable,UseList);
-	SetClock(UncertainLongevity,4,0.0);
+	SetClock(UncertainLongevity,8,0.0);
+    Actions(a = new BinaryChoice());
 	CreateSpaces();
     VISolve();
+    decl pd = new PathPrediction();
+    pd->Tracking(NotInData,counter.t,a);
+    pd->Predict(15,TRUE);
+    pd->Histogram(TRUE);
+    delete pd;
 	Delete();
 	}
 

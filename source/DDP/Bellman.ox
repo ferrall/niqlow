@@ -281,17 +281,19 @@ Bellman::Predict(ps,tod) {
 		width = SS[onlyexog].size,
 		Pa = ExpandP(I::r);		
 	tod.ch += ps*Pa;
-//	tod.unch += Pa/columns(tod.sind);
+    //	tod.unch += Pa/columns(tod.sind);
 	hi = -1;
     decl d = 0.0;
     for (eta=0;eta<SS[onlysemiexog].size;++eta) if (sizerc(Nxt[Qi][eta])) {
 		  lo = hi+1;
 		  hi += width;
 		  Pa = (pandv[I::r][][lo:hi]*NxtExog[Qrho][lo:hi])';
-		  tom.sind ~= exclusion(Nxt[Qi][eta],tom.sind);
-		  if (nnew = columns(tom.sind)-columns(tom.p)) tom.p ~= zeros(1,nnew);
-		  intersection(tom.sind,Nxt[Qi][eta],&mynxt);
-		  tom.p[mynxt[0][]] += ps*Pa*Nxt[Qrho][eta][][mynxt[1][]];  //found bug Oct.2014.  was not resorting using mynxt[1] ...
+          if (isclass(tom)) {  // added check July 2015.  
+		      tom.sind ~= exclusion(Nxt[Qi][eta],tom.sind);
+		      if (nnew = columns(tom.sind)-columns(tom.p)) tom.p ~= zeros(1,nnew);
+		      intersection(tom.sind,Nxt[Qi][eta],&mynxt);
+		      tom.p[mynxt[0][]] += ps*Pa*Nxt[Qrho][eta][][mynxt[1][]];  //found bug Oct.2014.  was not resorting using mynxt[1] ...
+              }
           d += sumr(Pa*Nxt[Qrho][eta]);
 		  }
 

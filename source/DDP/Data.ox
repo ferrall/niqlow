@@ -930,7 +930,7 @@ Prediction::Prediction(t){
 	}
 
 /** Create a path of predicted distributions.
-@param T <em>integer</em> length of the path (default=1)
+@param T <em>integer</em> length of the path (default=1)<br>0 : predict only for existing predictions on the Path.
 @param prtlevel FALSE [default] do not print<br>TRUE print state and choice probabilities
 @example
 <pre>
@@ -948,10 +948,12 @@ PathPrediction::Predict(T,prtlevel){
 	}
   Nt = sizeof(tlist);
   do {
-	 if (!isclass(cur.pnext))
-        cur.pnext = new Prediction(cur.t+1);
+	 if (!isclass(cur.pnext)) {  // no tomorrow after current
+        if (T && cur.t+1<this.T)  // predict for a fixed T
+                cur.pnext = new Prediction(cur.t+1);
+        }
      else
-        cur.pnext->Reset();
+        cur.pnext->Reset();  //tomorrow already exists, reset it.
 	 cur->Prediction::Predict();
      switch_single(prtlevel) {
         case Zero : break;
@@ -960,7 +962,7 @@ PathPrediction::Predict(T,prtlevel){
         default : oxwarning("DDP Warning 10.\n print level invalid\n");
         }
 	 cur = cur.pnext;
-  	 } while(cur.t<T);
+  	 } while(isclass(cur));  //changed so that first part of loop determines if this is the last period or not.
   }
 
 /** Add empirical values to a path of predicted values.
@@ -1154,7 +1156,8 @@ PathPrediction::Tracking(LorC,mom1,...) {
         }
     }
 
-/**
+/** Set up data columns for tracked variables.
+@param dlabels array of column labels in the data.
 **/
 PathPrediction::SetColumns(dlabels) {
     decl v,lc,vl;
@@ -1217,16 +1220,14 @@ PathPrediction::Histogram(prntlevel) {
   decl flat = <>, delt =<>, v;
   if (isclass(method)) {
     method->Solve(f);
-    Predict();
+    Predict(0);  // 0 July 2015 so that more than full path prediction made
     }
   cur=this;
   do {
      cur.predmom=<>;
      foreach(v in tlist ) cur->Prediction::Histogram(v,FALSE);  //CV(prntlevel,cur)==One
-//     if (CV(prntlevel,cur)==Two) {
-        flat |= cur.t~cur.predmom;
-        delt |= cur->Delta(mask);
-//        }
+     flat |= cur.t~cur.predmom;
+     delt |= cur->Delta(mask);
   	 }  while (isclass(cur = cur.pnext,"Prediction"));
   if (rows(flat)) {
     gmm = norm(delt,'F');
@@ -1321,7 +1322,7 @@ PanelPrediction::PanelPrediction(r,method) {
     }
 
 /** Predict outcomes in the panel.
-@param t positive integer or matrix of lengths of paths to predict (same length as number of paths in then panel)
+@param t positive integer or matrix of lengths of paths to predict (same length as number of paths in then panel)<br>
 @param printit  FALSE [default] do not print<br>TRUE print state and choice probabilities
 
 **/
@@ -1475,7 +1476,7 @@ EmpiricalMoments::Read(FNorDB) {
                 }
             else inf = UnInitialized;  //get out of inner loop after installing
             cur->Empirical(inmom);
-            if (Volume>SILENT) { println("Moments of Moments Read in for fixed group ",curf); MyMoments(inmom);}
+            if (Volume>SILENT) { println("Moments of Moments Read in for fixed group ",curf); MyMoments(inmom,tlabels[2:]);}
             } while (inf==curf);
         } while(row<rows(data));
 	delete source;

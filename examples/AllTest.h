@@ -11,6 +11,7 @@ struct Test1 : Bellman {
 	}
 
 struct Test2 : Bellman {
+    static decl a;
 	static Reachable();
 	static Run(UseList);
 	Utility();

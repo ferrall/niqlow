@@ -84,9 +84,9 @@ Group::Reset() {
 DP::SetVersion(v) {
     MyVersion = v;
     if (MyVersion<Version::version)
-        oxwarning("DP Warning ??. You are running your DP model on a newer niqlow version "+sprint(Version::version)+".\n");
+        oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running it a newer niqlow version, "+sprint(Version::version)+".\n");
     if (MyVersion>Version::version)
-        oxwarning("DP Warning ??. You are running your DP model on an older niqlow version.  You should consider installing a newer release.\n");
+        oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running it an older niqlow version, "+sprint(Version::version)+".\n You should consider installing a newer release.\n");
     }
 
 /** Return the element `I::g` element of `Gamma`.
@@ -374,20 +374,17 @@ GroupTask::loop(){
 	SyncStates(left,right);
 	d=left+1;				   							// start at leftmost state variable to loop over
 	do	{
-		state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
-		SyncStates(left,d-1);
 		do {
-			States[left].v = state[left];
 			SyncStates(left,left);
             I::Set(state,TRUE);
 			this->Run();
 			} while (--state[left]>=0);
 		state[left] = 0;
-		SyncStates(left,left);
 		d = left+double(vecrindex(state[left:right]|1));
 		if (d<=right)	{
 			--state[d];			   			//still looping inside
-			SyncStates(d,d);
+		    state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
+		    SyncStates(left,d);
 			}
 		} while (d<=right);
     }
@@ -966,8 +963,6 @@ Task::loop(){
 	SyncStates(0,N::S-1);
 	d=left+1;				   		// start at leftmost state variable to loop over	
 	do	{
-		state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
-		SyncStates(left,d-1);
 		do {
 			SyncStates(left,left);
             I::Set(state);
@@ -975,13 +970,13 @@ Task::loop(){
 			++iter;
 			} while (--state[left]>=0);
 		state[left] = 0;
-		SyncStates(left,left);
 		d = left+double(vecrindex(state[left:right]|1));
-		if (d<right)	{
+		if (d<right)
 			--state[d];			   			//still looping inside
-			SyncStates(d,d);
-			}
-		 else { this->Update(); }
+		else
+            this->Update();
+		state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
+		SyncStates(left,d);
 		} while (d<=right || !done );  //Loop over variables to left of decremented, unless all vars were 0.
     }
 
@@ -993,7 +988,7 @@ FALSE otherwise.
 Task::Update() {
 	done = !state[right];
 	++trips;
-    if (!done) {--state[right];	SyncStates(right,right);}
+    if (!done) --state[right];	
 	return done;
 	}
 	
