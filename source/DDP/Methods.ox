@@ -16,11 +16,13 @@ This would be inefficient to use in any context when a solution method is applie
 
 **/
 VISolve() {
-	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling Choose()");
+	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling VISolve()");
     decl meth = new ValueIteration();
+    meth.RunSafe = FALSE;
     DPDebug::outAllV();
-    meth->Solve();
+    decl conv = meth->Solve();
     delete meth;
+    return conv;
     }
 
 /** Create an endogenous utility object.
@@ -241,8 +243,13 @@ ValueIteration::Update() {
 	++trips;
 	decl dff= counter->Vupdate();
 	if (dff==.NaN || Volume>LOUD) {
-        println("\n t =",I::t,"%r",{"today","tomorrow"},VV[I::now][]|VV[I::later][]);	
-        if (dff==.NaN) oxrunerror("DDP Error 29. error while checking convergence.  Value function listed above undefined.");		
+        fprintln(logf,"\n NaNs in Value Function at t =",I::t,"%r",{"today","tomorrow"},VV[I::now][]|VV[I::later][]);	
+        if (dff==.NaN) {
+            if (RunSafe )oxrunerror("DDP Error 29. error while checking convergence.  See log file.");		
+            oxwarning("DDP Warning ??. Value function includes NaNs, exiting Value Iteration.");
+            VV[I::now][] = VV[I::later][] = 0.0;
+            return done = IterationFailed;
+            }
         }
     I::NowSwap();
 	state[right] -= Flags::setPstar;
@@ -525,7 +532,7 @@ HMEndogU::Run(th) {
 HotzMiller::GSolve(instate) {
 	decl cg = CurGroup(), tmpP = -I::CVdelta*cg.Ptrans;
     HMEndogU::VV = (invert( setdiagonal(tmpP, 1+diagonal(tmpP)) ) * Q[I::f] )';   // (I-d*Ptrans)^{-1}
-	if (Volume>LOUD) println("HM inverse mapping: ",HMEndogU::VV );
+	if (Volume>LOUD) fprintln(logf,"HM inverse mapping: ",HMEndogU::VV );
 	this.state = ndogU.state = instate;
 	ndogU->Traverse();
 	Flags::setPstar = 	FALSE;

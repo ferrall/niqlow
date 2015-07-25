@@ -521,16 +521,26 @@ DataColumn::ReturnColumn(dlabels,incol)	{
 	return ind;
 	}
 	
-/** Compute the vector log-likelihood for paths in the panel.
+/** Compute the vector log-likelihood for paths in the fixed (homogeneous) panel.
 The vector of path log-likelihoods is stored in `FPanel::FPL`.
+<DT>If the method is a class</DT>
+<DD> `Method::Solve`() is called first.</DD>
+<DD>If `Method::done` equals <code>IterationFailed</code> the likelihood is not computed. <code>FPL</code>
+is set to a vector of <code>.NaN</code>.</DD>
 **/
 FPanel::LogLikelihood() {
 	decl i,cur;
-	FPL = zeros(N,1);  //NT
 	cputime0 =timer();
-	if (isclass(method)) method->Solve(f);
+	if (isclass(method)) {
+        method->Solve(f);
+        if (method.done==IterationFailed) {
+	       FPL = constant(.NaN,N,1);
+           return ;
+           }
+        }
     else
         if (Flags::UpdateTime[AfterFixed]) UpdateVariables();
+	FPL = zeros(N,1);  //NT
     if (isclass(upddens)) {
 		upddens->SetFE(state);
 		summand->SetFE(state);
@@ -904,8 +914,10 @@ Prediction::Predict() {
             }
         else if (Volume>LOUD) { pp += p[s]; unrch |= ReverseState(q,I::OO[tracking][])[lo:hi]' ; }
         }
-    if (Volume>LOUD && pp>0.0)
-        println("At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
+    if (Volume>LOUD && pp>0.0) {
+        fprintln(logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
+        oxwarning("DDP Warning ??. Leakage in transition probability.  See log file");
+        }
 	}
 	
 Prediction::Reset() {
@@ -1220,7 +1232,11 @@ PathPrediction::Histogram(prntlevel) {
   decl flat = <>, delt =<>, v;
   if (isclass(method)) {
     method->Solve(f);
-    Predict(0);  // 0 July 2015 so that more than full path prediction made
+    if (method.done==IterationFailed) {
+        gmm = .NaN;
+        return <>;
+        }
+    Predict();
     }
   cur=this;
   do {

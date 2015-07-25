@@ -542,6 +542,8 @@ DP::Initialize(userReachable,UseStateList) {
     decl subv;
     Version::Check();
     if (Flags::ThetaCreated) oxrunerror("DDP Error 42. Must call DP::Delete between calls to CreateSpaces and Initialize");
+    lognm = "DDP"+date()+replace(time(),":","-")+".log";
+    logf = fopen(lognm,"aV");
     Hooks::Reset();
     this.userReachable = userReachable;
     Flags::UseStateList=UseStateList;
@@ -563,7 +565,7 @@ DP::Initialize(userReachable,UseStateList) {
             Volume = NOISY;
             println(Volume,arglist());
             }
-    if (Volume>LOUD) println("DP::Intialize is complete. Action and State spaces are empty.");
+    if (Volume>=LOUD) println("DP::Intialize is complete. Action and State spaces are empty.\n Log file name is: ",lognm);
  }
 
 /** Tell DDP when parameters and transitions have to be updated.
@@ -973,11 +975,13 @@ Task::loop(){
 		d = left+double(vecrindex(state[left:right]|1));
 		if (d<right)
 			--state[d];			   			//still looping inside
-		else
-            this->Update();
+		else {
+            if ( this->Update() == IterationFailed ) return IterationFailed;
+            }
 		state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
 		SyncStates(left,d);
 		} while (d<=right || !done );  //Loop over variables to left of decremented, unless all vars were 0.
+    return TRUE;
     }
 
 
@@ -1025,14 +1029,16 @@ Task::list(span,inlows,inups) {
 	do {
 	   rold = state[right];
 	   news = lft | ReverseState(indices[s],I::OO[tracking][])[left:right] | rht;
-	   if (s<ups && news[right]<rold) Update();
+	   if (s<ups && news[right]<rold) {
+            if ( this->Update() == IterationFailed ) return IterationFailed;
+            }
 	   state = news;
 	   SyncStates(left,right);
        I::Set(state);
 	   this->Run(Theta[I::all[tracking]]);
 	   ++iter;
 	   } while (--s>=lows);
-	if (!done) Update();
+	if (!done) return this->Update();
     }
 		
 /** .
@@ -1505,8 +1511,13 @@ DPDebug::RunOut() {
             if (N::F>1) print("\n     Fixed Group Index(f): ",I::f);
             println("\n",div);
             }
+    else {
+        fprint(logf,"\n     Value of States and Choice Probabilities");
+        if (N::F>1) fprint(logf,"\n     Fixed Group Index(f): ",I::f);
+        fprintln(logf,"\n",div);
+        }
 	rp -> Traverse();
-	if (rp.ToScreen) println(div,"\n");	
+	if (rp.ToScreen) println(div,"\n");	else fprintln(logf,div,"\n");	
 	if (!OutAll || !I::f ) {   //last or only fixed group, so delete rp and reset.
         delete rp;
         OutAll = FALSE;
@@ -1564,13 +1575,11 @@ SaveV::Run(th) {
 		r = stub~re~I::f~th.EV[re]~(MaxChoiceIndex ? double(mxi = maxcindex(p))~p[mxi]~sumc(p) : p' );
 		if (isclass(th,"OneDimensionalChoice") )  r ~= CV(th.zstar[re])';
 		if (!isint(aM)) aM[0] |= r;
-		if (ToScreen) {
-			s = (nottop)
+		s = (nottop)
 				? sprint("%cf",prtfmt,r)
 				: sprint("%c",isclass(th,"OneDimensionalChoice") ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);
-			print(s[1:]);
-			nottop = TRUE;
-			}
+		if (ToScreen) print(s[1:]); else fprint(logf,s[1:]);
+		nottop = TRUE;
 		}
 	}
 

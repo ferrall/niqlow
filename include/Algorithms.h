@@ -203,6 +203,7 @@ struct SimulatedAnnealing : NonGradient {
 
 /** A special case of annealing in which the temperature stays the same and only improvements
 are accepted.
+@see Explore
 **/
 struct RandomSearch : SimulatedAnnealing {
     RandomSearch(O);

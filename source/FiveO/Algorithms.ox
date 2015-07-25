@@ -44,6 +44,7 @@ GradientBased::Tune(maxiter,toler,nfuncmax,LMitmax) {
 
 RandomSearch::RandomSearch(O) {
     SimulatedAnnealing(O);
+    O.RunSafe = FALSE;
     heat = 10000.0;
     shrinkage = 1.0;
     cooling = 1.0;
@@ -101,7 +102,8 @@ SimulatedAnnealing::Metropolis()	{
 	}
 
 /** Carry out annealing.
-@param chol matrix, Choleski matrix for random draws<br>0 use the identity matrix.
+@param chol Determines the Choleski matrix for random draws, <var>C</var><br>
+0 [default] $C = I$, the identity matrix<br>matrix, $C = $ chol.<br>double, common standard deviation, $C = chol I$.
 **/
 SimulatedAnnealing::Iterate(chol)	{
 	O->Encode();
@@ -110,7 +112,10 @@ SimulatedAnnealing::Iterate(chol)	{
        inp = isclass(O.p2p);
        M = inp ? O.p2P.Nodes : 1;
        Vtries=zeros(O.NvfuncTerms,M);
-	   this.chol = isint(chol) ? unit(N) : chol;
+	   this.chol = isint(chol)  ? unit(N)
+                                : isdouble(chol) ? chol*unit(N)
+                                                 : ismatrix(chol) ?  chol
+                                                                 :  unit(N);
 	   if (OC.v==.NaN) O->fobj(0);
 	   holdpt.step = OC.F; holdpt.v = OC.v;
 	   if (Volume>QUIET) O->Print("Annealing Start ");

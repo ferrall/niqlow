@@ -24,6 +24,9 @@ struct Objective	{
         @see Objective::SetVersion **/                          MyVersion,
 	/** . internal **/											Warned;
 	decl
+    /** TRUE (default): exit if NaNs encountered during iteration<br>
+            FALSE: exit with <code>IterationFailed</code> **/
+                                                            RunSafe,
 	/** the P2P object for using MPI **/					    p2p,
 	/** Initial vector after Encode() **/						Start,
 	/** TRUE if encoded once **/								once,

@@ -55,10 +55,11 @@ TestRun() {
 	}
 
 Test1::Reachable() { return new Test1(); }
-Test1::Utility() { return 1.0; }
+Test1::Utility() { return  1.0; }
 Test1::Run(UseList) {
 	Bellman::Initialize(Test1::Reachable,UseList);
 	SetClock(NormalAging,10);
+	GroupVariables(new FixedEffect("g",2));
 	CreateSpaces();
     VISolve();
 	Delete();
@@ -240,19 +241,23 @@ Test9::Run()	{
 	d->MakeTerminal(1);	
 	ExogenousStates(p = new SimpleJump("p",Noff));
     GroupVariables(fem = new FixedEffect("fem",2));
+    lam = new Coefficients("lam",<2.3;2.6>);
 	CreateSpaces();
-	meth = new ValueIteration(0);
+	meth = new ValueIteration();
 	meth.Volume = NOISY;
-//	meth -> Solve();
-    decl pd = new EmpiricalMoments("hi",meth,UseLabel);
-    pd->TrackingWithLabel(AllFixed,a,p);
-//    meth -> Solve();
-//    pd -> Predict(8,FALSE);
-    pd.T = 8;
+    meth -> Solve();
+    decl pd = new PanelPrediction("hi");
+    pd->Tracking (UseLabel,fem,a,p);
+    pd->Predict(15,FALSE);
     pd -> Histogram(Two);
     println("%c",pd.tlabels,pd.flat[0],pd.flat[1]);
-//    savemat(pd.flat,"Test9moms.dta",pd.tlabels);
+    savemat("Test9moms.dta",pd.flat[0]|pd.flat[1],pd.tlabels);
+    delete pd;
+    pd = new EmpiricalMoments("hi",meth,UseLabel);
+    pd->TrackingWithLabel(AllFixed,UseLabel,fem,a,p);
+    pd->Read("Test9moms.dta");
+    Explore(pd,10,0.1,lam);
 	Delete();
 	}
 Test9::Reachable()	{	return new Test9(); 	}
-Test9::Utility()  { 	return -(1-CV(d))*(lam[CV(fem)] + CV(p)*aa(a)) + (3-I::t); 	}	
+Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + CV(p)*aa(a)) + (3-I::t); 	}	

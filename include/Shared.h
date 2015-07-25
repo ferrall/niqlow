@@ -5,7 +5,7 @@
 /* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
 
 	/** Pseudonyms for -1. @name Names_for_-1 **/
-enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,UseSubSample=-1,ResetValue=-1}
+enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1}
     /** Used in tracking outcomes. @name NiD **/
 enum { NotInData=-2 }
 
@@ -118,14 +118,6 @@ struct Parameter : Quantity {
 	virtual Encode();
 	virtual Decode(f);
 
-	/* Aspects of Bayesian parameters */
-//	decl
-//		/** 1=Bayesian parameter **/ IsBayes,
-//		/** Hyperparameter list **/ Hpsi;	
-//	virtual draw(N);
-//	virtual posterior();
-//	virtual pdf();
-//	virtual cdf();
 	}
 
 /** Container for different integration techniques. **/
@@ -205,7 +197,7 @@ class Version : Zauxiliary {
 	static decl checked;
 
 public: 	
-    static const decl version=231;
+    static const decl version=232;
 	static Check();
 	}
 

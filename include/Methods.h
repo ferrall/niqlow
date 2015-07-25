@@ -1,7 +1,7 @@
 #import "DP"
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
-VISolve(); 
+VISolve();
 
 /** Loop over fixed values in &gamma;, solve model for each.
 **/
@@ -46,6 +46,9 @@ struct ValueIteration : Method {
 	decl
         /** FALSE(default): iterate on V(&theta;)<br>
             TRUE: only compute transitions.**/      DoNotIterate,
+        /** TRUE (default): exit if NaNs encountered during iteration<br>
+            FALSE: exit with <code>IterationFailed</code> **/
+                                                    RunSafe,
 		/** Scratch space for value iteration. **/  VV,
 	/** Tolerance on value function convergence in
     stationary environments.  Default=10<sup>-5</sup>.**/	

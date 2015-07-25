@@ -15,7 +15,7 @@ decl s = "***************** ";
 
 Nothing::Nothing(Ncalls) {
     alphas = new Simplex("alph",3);
-    Explore(this,Ncalls,alphas);
+    Explore(this,Ncalls,UseDefault,alphas);
     }
 
 Nothing::Solve() {

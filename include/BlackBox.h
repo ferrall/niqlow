@@ -2,7 +2,7 @@
 #import "Algorithms"
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
-Explore(model,Ncalls,...);
+Explore(model,Ncalls,Chol,...);
 
 /** Represents a blacbox objective.
 

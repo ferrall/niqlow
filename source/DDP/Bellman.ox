@@ -191,7 +191,7 @@ Bellman::ThetaTransition(future,current) {
  	 F[now] = <0>;	
 	 P[now] = ones(N::Options[Aind],1);
 	 si = S[clock].X;				// clock needs to be nxtcnt
-     if  (Volume>LOUD) println("Endogenous transitions at ",I::all[iterating]);
+     if  (Volume>LOUD) fprintln(logf,"Endogenous transitions at ",I::all[iterating]);
 	 do	{
 		F[later] = P[later] = <>;  swap = FALSE;
 		if (isclass(States[si],"Coevolving"))
@@ -201,10 +201,10 @@ Bellman::ThetaTransition(future,current) {
 		if (any(curO = future[si-Nb+1:si]))	{  // states are relevant to s'
 			[feas,prob] = root -> Transit(Alpha::List[Aind]);
             if (Volume>LOUD && root.N>1) {
-                println("     State: ",root.L,"%r",{"   ind","   prob"},feas|prob);
+                fprintln(logf,"     State: ",root.L,"%r",{"   ind","   prob"},feas|prob);
                 if (any(fabs( sumr(prob) -1.0) .>DIFF_EPS )) { // short-circuit && avoids sumr() unless NOISY
-                    println(si," ","%m",sumr(prob));
-                    oxrunerror("Transition probabilities are not valid (sum not close enough to 1.0)");
+                    fprintln(logf,si," ","%m",sumr(prob));
+                    oxrunerror("Transition probabilities are not valid (sum not close enough to 1.0).  Check log file");
                     }
                 }
 			feas = curO*feas;
@@ -221,12 +221,12 @@ Bellman::ThetaTransition(future,current) {
 	Nxt[Qi][ios] = F[now];
 	Nxt[Qrho][ios] = P[now];
     if (Volume>LOUD) {
-        println("Overall transition ","%r",{"ind","prob"},F[now]|P[now]);
+        fprintln(logf,"Overall transition ","%r",{"ind","prob"},F[now]|P[now]);
         decl s,q;
         for(s=0;s<columns(F[now][]);++s) {
             if ( any(P[now][][s].>0.0) && !isclass( Settheta(I::OO[tracking][]*(q=ReverseState(F[now][s],I::OO[iterating][]))) ) )  {
-                oxwarning("DDP Warning 01.\n Your state variables are transiting to an unreachable state: ");
-                println("%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[endog].X],q[S[endog].M:S[endog].X]',"\n");
+                oxwarning("DDP Warning 01.\n Your state variables are transiting to an unreachable state. See log file. ");
+                fprintln(logf,"%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[endog].X],q[S[endog].M:S[endog].X]',"\n");
                 }
             }
         }
@@ -288,7 +288,7 @@ Bellman::Predict(ps,tod) {
 		  lo = hi+1;
 		  hi += width;
 		  Pa = (pandv[I::r][][lo:hi]*NxtExog[Qrho][lo:hi])';
-          if (isclass(tom)) {  // added check July 2015.  
+          if (isclass(tom)) {  // added check July 2015.
 		      tom.sind ~= exclusion(Nxt[Qi][eta],tom.sind);
 		      if (nnew = columns(tom.sind)-columns(tom.p)) tom.p ~= zeros(1,nnew);
 		      intersection(tom.sind,Nxt[Qi][eta],&mynxt);
@@ -365,7 +365,8 @@ Bellman::Delete() {
 	delete ETT;
     Flags::Reset();
     N::Reset();
-	Volume = SampleProportion = Gamma = Theta = 0;	
+	lognm = Volume = SampleProportion = Gamma = Theta = 0;	
+    fclose(logf);
 	}
 
 /** Base Initialize function.

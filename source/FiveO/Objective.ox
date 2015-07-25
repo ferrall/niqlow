@@ -31,6 +31,7 @@ Objective::Objective(L)	{
 	PsiType = {};
 	Blocks = {};
 	Volume = QUIET;
+    RunSafe = TRUE;
 	cur = new Point();
 	hold = maxpt = NvfuncTerms  = UnInitialized;
 	FinX = <>;
@@ -344,13 +345,16 @@ Objective::funclist(Fmat,aFvec)	{
 			cur -> aggregate();
 			f[j] = cur.v;
 			}
-	if (best = maxcindex(f) < 0) {
-        println("**** ",Fmat,f,"\n****");
-        oxrunerror("FiveO Error 32. undefined max over function list above");
+	if ( (best = maxcindex(f) < 0) ) {
+        println("**** Matrix of Parameters ",Fmat,"Objective Value: ",f',"\n****");
+        if (RunSafe)
+            oxrunerror("FiveO Error 33. undefined max over function evaluation list");
+        oxwarning("FiveO Warning ??. undefined max over function evaluation list");
+	    best = 0;
        }
-	cur.v = f[best];
-	Decode(Fmat[][best]);
-	this->CheckMax();
+	 cur.v = f[best];
+	 Decode(Fmat[][best]);
+	 this->CheckMax();
 	return J;
 	}
 
@@ -543,6 +547,7 @@ Objective::Parameters(psi1, ... ) {
 	if (once) oxrunerror("FiveO Error 33. Cannot add parameters after calling Objective::Encode()");
  	decl a, b, nxt, i, args =  isarray(psi1) ? psi1 : {psi1};
 	args |= va_arglist();
+    if (!sizeof(args)) oxwarning("FiveO Warning??.  Parameters called with an empty list");
 	for(a=0;a<sizeof(args);++a) {
 		nxt = isarray(args[a]) ? args[a] : {args[a]};
 		for(i=0;i<sizeof(nxt);++i) {

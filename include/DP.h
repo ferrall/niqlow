@@ -44,6 +44,8 @@ The  base class for the DDP framework.
 **/
 struct DP {
 	static decl
+        /** file for diagnostic output **/                      logf,
+        /** dated file name for diagnostic output **/           lognm,
         /** Version of niqlow that code is written for.
                 @see DP::SetVersion **/                         MyVersion,
         /** category of clock. @see ClockTypes, DP::SetClock**/ ClockType,
