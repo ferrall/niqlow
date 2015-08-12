@@ -58,9 +58,9 @@ struct EFRetirement : EVExAnte	{
 			ejob,
 			parted;
 		static 	Run();
-		static 	Reachable();
 		static  mprob();
 				Utility();
+     	          Reachable();
 				FeasibleActions(A);
 	}
 	

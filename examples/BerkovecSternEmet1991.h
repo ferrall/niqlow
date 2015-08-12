@@ -52,10 +52,10 @@ struct Retirement : ExtremeValue	{
 	    	  0.0,     .613,      .398;
 	    	  0.0,     0.0,       .0872>}	;
 		static 	Run();
-		static 	Reachable();
 		static  mprob();
 		static  Sig1();
 		static  Sig2();
+		        Reachable();
 				Utility();
 				FeasibleActions(A);
 	}	

@@ -5,7 +5,6 @@ class Search : InfiniteHorizon {
 	static const decl mnoffer = 2.5;
 	static decl i, done;
 	static 	Init();
-	static	Reachable();
 			Utility();
 	}
 
@@ -14,7 +13,7 @@ main() {
 	}
 	
 Search::Init() {
-	InfiniteHorizon::Initialize(); 
+	InfiniteHorizon::Initialize();
 	AddActions(i=new ActionVariable("accept",2));
 	AddEndogenousStates(done = new LaggedAction("done",i));
 	done -> MakeTerminal(1);
@@ -24,8 +23,6 @@ Search::Init() {
 	Vsolve(ExAnteNormal);
 	Vprint();	
 	}
-
-Search::Reachable() { return new Search(); }
 
 Search::Utility() {
 	decl u;

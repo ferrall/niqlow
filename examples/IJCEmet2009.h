@@ -25,7 +25,7 @@ class FirmEntry : Rust {  //NQuadrature
 	static		GenerateSample();
 	static		Run();
 	static 		RunMH();
-	static 		Reachable();
+	            Reachable();
 				Utility();
 	}
 	

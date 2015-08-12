@@ -1,10 +1,7 @@
 #include "DynamicWStar.h"
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
-DynWStar::Reachable()	{
-    if (CV(m)||!CV(keptz)) return new DynWStar();
-    return 0;
-    }
+DynWStar::Reachable()	{    return (CV(m)||!CV(keptz));    }
 DynWStar::DynWStar()    { zstar = zeros(N::R,1); }
 DynWStar::Uz(z)         {
     if (!CV(m)) return eta | z;	
@@ -16,7 +13,7 @@ DynWStar::Utility()     {
     }
 
 DynWStar::Run()	{
-	Initialize(Reachable);
+	Initialize(new DynWStar());
     m = new LaggedAction("working",d);
     SetKeep(25,m);
 	SetClock(NormalAging,2);

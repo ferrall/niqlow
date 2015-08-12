@@ -1,11 +1,10 @@
 #include "WstarTest.h"
 
 WStar::WStar() {zstar = <0.0>;}
-WStar::Reachable()	{ return new WStar(); }
 
 WStar::Run()	{
 	eta = 0.02;
-	Initialize(WStar::Reachable);
+	Initialize(new WStar());
 	SetClock(InfiniteHorizon);
 	EndogenousStates(done = new LaggedAction("Done",d));
 	done->MakeTerminal(1);

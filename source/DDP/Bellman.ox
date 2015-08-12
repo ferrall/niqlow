@@ -47,6 +47,12 @@ Bellman::Bellman(state,picked) {
   EV = zeros(N::R,1);
   }
 
+/** Default indicator function for whether the current state is reachable from initial conditions or not.
+This is a major changes with niqlow version 2.4 and Ox version 7.10.
+
+**/
+Bellman::Reachable() {    return TRUE;     }
+
 /** Create space for U() and &Rho;() accounting for random subsampling.
 @see DP::SubSampleStates
 **/
@@ -115,14 +121,17 @@ Bellman::Smooth(VV) {
 Bellman::ActVal(VV) {
 	pandv[I::r][][] = U;
 	if (IsTerminal||IsLast) return;   //IsLast added APril 2015??
-	decl eta, hi=sizerc(Nxt[Qrho]), width= SS[onlyexog].size;
-	for (eta=0;eta<hi;++eta)
-		pandv[I::r][][eta*width:(eta+1)*width-1] += I::CVdelta*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]]));
+    eta = 0; etal = 0; etah = N::Ewidth-1;
+    do {  //switched to 1 trip loop August 2015
+	  pandv[I::r][][etal : etah] += I::CVdelta*sumr(Nxt[Qrho][eta].*VV[Nxt[Qi][eta]]); //Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]])
+      etal += N::Ewidth;
+      etah += N::Ewidth;
+      } while ( ++eta < sizerc(Nxt[Qrho]) );
 	}
 
 /** Computes v() and V for out-of-sample states. **/
 Bellman::MedianActVal(EV) {
-    pandv[I::r][] = U[][] + (IsLast ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][0]*diag(EV[Nxt[Qi][0]])));
+    pandv[I::r][] = U[][] + (IsLast ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][0].*EV[Nxt[Qi][0]]));  //Nxt[Qrho][0]*diag(EV[Nxt[Qi][0]]))
 	V[] = maxc( pandv[I::r] );
 	}
 	
@@ -183,8 +192,7 @@ Bellman::ThetaTransition(future,current) {
 	 if (IsTerminal || IsLast ) { Nxt[Qi][ios] = Nxt[Qrho][ios] = <>; return; }
      if (current!=future) {
         decl s;
-        for(s=0;s<columns(Nxt[Qi][ios]);++s)
-            Nxt[Qi][ios][s] = future*ReverseState(Nxt[Qi][ios][s],current);
+        for(s=0;s<columns(Nxt[Qi][ios]);++s) Nxt[Qi][ios][s] = future*ReverseState(Nxt[Qi][ios][s],current);
         return;
         }
 	 decl now=NOW,later=LATER, si,Nb,prob,feas,k,root,swap, mtches,curO;
@@ -353,7 +361,7 @@ The key output from the model can be saved or used prior to deleting it.
 Bellman::Delete() {
 	decl i;
 	for(i=0;i<sizeof(SubVectors);++i) if (isclass(SubVectors[i])) delete SubVectors[i];
-	delete SubVectors, States;
+	delete userState, SubVectors, States;
 	delete NxtExog, Blocks, Labels::Vprt, Labels::V;
 	for(i=0;i<sizeof(SS);++i) delete SS[i];
 	delete SS, S, F, P, delta, counter;
@@ -370,14 +378,13 @@ Bellman::Delete() {
 	}
 
 /** Base Initialize function.
-@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
-FALSE if the state is not reachable.
+@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE [default], traverse &Theta; through iteration on all state variables
 	
 **/
-Bellman::Initialize(userReachable,UseStateList) {
-	DP::Initialize(userReachable,UseStateList);
+Bellman::Initialize(userState,UseStateList) {
+	DP::Initialize(userState,UseStateList);
 	}
 
 Bellman::CreateSpaces() {	DP::CreateSpaces(); 	}
@@ -386,8 +393,7 @@ Bellman::CreateSpaces() {	DP::CreateSpaces(); 	}
 
 @param rho 	`AV` compatible, the smoothing parameter &rho;.<br>
 			CV(rho) &lt; 0, sets &rho; = <code>DBL_MAX_E_EXP</code> (i.e. no smoothing).
-@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
-FALSE if the state is not reachable.
+@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE, traverse &Theta; through iteration on all state variables
 	
@@ -395,8 +401,8 @@ With &rho; = 0 choice probabilities are completely smoothed. Each feasible choic
 
 
 **/
-ExtremeValue::Initialize(rho,userReachable,UseStateList) {								
-	Bellman::Initialize(userReachable,UseStateList);
+ExtremeValue::Initialize(rho,userState,UseStateList) {								
+	Bellman::Initialize(userState,UseStateList);
 	SetRho(rho);
 	}
 
@@ -408,16 +414,15 @@ ExtremeValue::SetRho(rho) {	this.rho = CV(rho)<0 ? double(DBL_MAX_E_EXP) : rho;	
 ExtremeValue::CreateSpaces() {	Bellman::CreateSpaces(); }
 
 /** Initialize a Rust model (Ergodic, binary choice, extreme value additive error with &rho;=1.0). 	
-@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
-FALSE if the state is not reachable.
+@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
 
 @comments
 The action variable is created by this function and stored in `Rust::d`
 The value of the smoothing parameter &rho; can be changed.
 UseStateList is forced to be FALSE because the environment is Ergodic.
 **/	
-Rust::Initialize(userReachable) {
-	ExtremeValue::Initialize(1.0,userReachable,FALSE);
+Rust::Initialize(userState) {
+	ExtremeValue::Initialize(1.0,userState,FALSE);
 	SetClock(Ergodic);
 	Actions(d = new BinaryChoice());
 	}
@@ -428,14 +433,14 @@ Rust::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 
 /** Initialize a McFadden model (one-shot, one-dimensional choice, extreme value additive error with &rho;=1.0). 	
 @param Nchoices <em>integer</em>, number of options.
-@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
+@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
 FALSE if the state is not reachable.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE, traverse &Theta; through iteration on all state variables
 
 **/
-McFadden::Initialize(Nchoices,userReachable,UseStateList) {
-	ExtremeValue::Initialize(1.0,userReachable,UseStateList);
+McFadden::Initialize(Nchoices,userState,UseStateList) {
+	ExtremeValue::Initialize(1.0,userState,UseStateList);
 	Actions(d = new ActionVariable("d",Nchoices));
 	SetDelta(0.0);	
 	}
@@ -448,14 +453,13 @@ McFadden::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 McFadden::ActVal(VV) { pandv[I::r][][] = U; }
 
 /** Initialize an ex post smoothing model.
-@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
-FALSE if the state is not reachable.
+@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE, traverse &Theta; through iteration on all state variables
 	
 **/
-ExPostSmoothing::Initialize(userReachable,UseStateList){
-	Bellman::Initialize(userReachable,UseStateList);
+ExPostSmoothing::Initialize(userState,UseStateList){
+	Bellman::Initialize(userState,UseStateList);
 	}
 
 /**  Set up the ex-post smoothing state space.
@@ -474,7 +478,7 @@ ExPostSmoothing::CreateSpaces(Method,smparam) {
 	}
 
 /** Short-cut set up for models with a single state.
-@param userReachable
+@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
 @param Method
 @param &hellip; `ActionVariable`s to add to the model
 <DD>Calls `ExPostSmoothing::Initialize`().<<
@@ -486,8 +490,8 @@ ExPostSmoothing::CreateSpaces(Method,smparam) {
 to add any state variables to the model.</DT>
 
 **/
-OneStateModel::Initialize(userReachable,Method,...) {
-    ExPostSmoothing::Initialize(userReachable);
+OneStateModel::Initialize(userState,Method,...) {
+    ExPostSmoothing::Initialize(userState);
     SetClock(StaticProgram);
     Actions(va_arglist());
     EndogenousStates(new Fixed("q"));
@@ -531,15 +535,14 @@ ExtremeValue::thetaEMax(){
     }
 
 /**  Initialize the normal-smoothed model.
-@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
-FALSE if the state is not reachable.
+@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE, traverse &Theta; through iteration on all state variables
 	
 
 **/
-Normal::Initialize(userReachable,UseStateList) {
-	Bellman::Initialize(userReachable,UseStateList);
+Normal::Initialize(userState,UseStateList) {
+	Bellman::Initialize(userState,UseStateList);
 	}
 
 /**  Calls the Bellman version and initialize `Normal::Chol`.
@@ -555,7 +558,7 @@ NIID::ActVal(VV) {
 		decl eta,j,choicep,scaling,neta = sizec(Nxt[Qrho]), width = SS[onlyexog].size;
 		for (eta=0;eta<neta;++eta) {
 			lo = eta*width; hi = (eta+1)*width-1;
-			vv = ( pandv[I::r][][lo:hi] = U[][lo:hi] + I::CVdelta*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]])) )';
+			vv = ( pandv[I::r][][lo:hi] = U[][lo:hi] + I::CVdelta*sumr(Nxt[Qrho][eta].*VV[Nxt[Qi][eta]]) )';
 			for (j=0;j<J;++j) { //,ev = 0.0
 				choicep = prodr(probn(GQNODES[Aind][j] + vv*MM[Aind][j] ))/M_SQRT2PI;
 //				ev +=   NxtExog[Qrho][eta]*(GQH::wght * (choicep.*(Chol[Aind][j]*GQH::nodes+ pandv[rind][j][lo:hi]))) ;
@@ -573,11 +576,12 @@ NIID::ActVal(VV) {
 Normal::Smooth(VV) {	EV[I::r] = VV; 	}
 
 /** Initialize a normal Gauss-Hermite integration over independent choice-specific errors.
+@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
 @param GQLevel integer, depth of Gauss-Hermite integration
 @param AChol `CV` compatible A&times;1 vector of standard deviations of action-specific errors.
 **/
-NIID::Initialize(userReachable,UseStateList) {
-	Normal::Initialize(userReachable,UseStateList);
+NIID::Initialize(userState,UseStateList) {
+	Normal::Initialize(userState,UseStateList);
 	Hooks::Add(PreUpdate,NIID::UpdateChol);
 	}
 
@@ -632,15 +636,19 @@ Compute v(&alpha;,&theta;), V(&theta;);  Add value to E[V(&theta;)].
 Normal::thetaEMax() {	return ev;	}
 	
 /** Initialize GHK correlated normal solution.
+@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
+@param UseStateList
+**/
+NnotIID::Initialize(userState,UseStateList) {
+	Normal::Initialize(userState,UseStateList);
+	Hooks::Add(PreUpdate,NnotIID::UpdateChol);
+	}
+
+/** Initialize the integration parameters.
 @param R integer, number of replications
 @param iseed integer, seed for random numbers
 @param AChol `CV` compatible vector of lower triangle of Cholesky matrix for full Action vector
 **/
-NnotIID::Initialize(userReachable,UseStateList) {
-	Normal::Initialize(userReachable,UseStateList);
-	Hooks::Add(PreUpdate,NnotIID::UpdateChol);
-	}
-
 NnotIID::SetIntegration(R,iseed, AChol) {
 	this.R = R;
 	this.iseed = iseed;
@@ -674,7 +682,7 @@ NnotIID::ActVal(VV) {
 	if (!IsTerminal && J>1)	{
 		decl eta, neta = sizec(Nxt[Qrho]), choicep;
 		for (eta=0;eta<neta;++eta) {	//,ev = 0.0
-			pandv[I::r][][eta] = U[][eta] + I::CVdelta*sumr(Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]]));
+			pandv[I::r][][eta] = U[][eta] + I::CVdelta*sumr(Nxt[Qrho][eta].*VV[Nxt[Qi][eta]]);
 			[V[],choicep] = ghk[Aind]->SimDP(pandv[I::r][][eta],Chol[Aind]);
 //			ev  +=   NxtExog[Qrho][eta]*(V'*choicep);
 			if (Flags::setPstar) pandv[I::r][][eta] = choicep;
@@ -698,15 +706,14 @@ NnotIID::UpdateChol() {
 	}
 
 /** Create the one dimensional choice model.
-@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
-FALSE if the state is not reachable.
+@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
 @param d `ActionVariable` not already added to the model<br>
 		integer, number of options (action variable created) [default = 2]
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE [default], traverse &Theta; through iteration on all state variables
 **/
-OneDimensionalChoice::Initialize(userReachable,d,UseStateList) {
-	Bellman::Initialize(userReachable,UseStateList);
+OneDimensionalChoice::Initialize(userState,d,UseStateList) {
+	Bellman::Initialize(userState,UseStateList);
     called = FALSE;
 	if (isclass(d,"ActionVariable")) Actions(this.d = d);
 	else if (isint(d) && d>0) Actions(this.d = new ActionVariable("d",d));
@@ -729,11 +736,7 @@ OneDimensionalChoice::CreateSpaces(Method,smparam) {
 
 OneDimensionalChoice::OneDimensionalChoice() {
     called = TRUE;
-    if (solvez) {
-        zstar = zeros(N::R,1);
-        }
-    else {
-        }
+    if (solvez) zstar = zeros(N::R,1);
     }
 
 OneDimensionalChoice::Smooth(VV) {
@@ -802,15 +805,14 @@ KeepZ::thetaEMax () {
     }
 
 /** Initialize the model.
-@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
-FALSE if the state is not reachable.
+@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
 @param d `ActionVariable` not already added to the model<br>
 		integer, number of options (action variable created) [default = 2]
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE [default], traverse &Theta; through iteration on all state variables
 **/	
-KeepZ::Initialize(userReachable,d,UseStateList) {
-	OneDimensionalChoice::Initialize(userReachable,d,UseStateList);
+KeepZ::Initialize(userState,d,UseStateList) {
+	OneDimensionalChoice::Initialize(userState,d,UseStateList);
     keptz = UnInitialized;
 	}
 

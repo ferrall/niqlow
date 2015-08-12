@@ -13,13 +13,11 @@ main() {
     BobsChoiceB::Decide();
     }
 
-Make() { return new BobsChoiceB(); }
-
 BobsChoiceB::Decide() {
     maj = new ActionVariable("major",{"Econ","Physics"});
     sch = new ActionVariable("school",{"Harvard","Yale","Queen's","McGill"});
 
-    Initialize(Make);   //Modified
+    Initialize(new BobsChoiceB());   //Modified
 
 //      These five statements added to BobsChoice
     SetClock(StaticProgram);

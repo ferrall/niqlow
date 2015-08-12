@@ -34,7 +34,7 @@ RustEstimates::DoAll() {
 ZurcherHat::FirstStage(row)	{
 	normalization = pars[row][theta1]*mfact*NX/2.0;	
 	hat = new array[Nparams];
-	Initialize(Reachable);
+	Initialize(new ZurcherHat());
   	hat[disc] = new Determined("delta",pars[row][disc]);
   	hat[RC] = new Positive("RC",pars[row][RC]);
   	hat[theta1] = new Positive("th1",pars[row][theta1]);
@@ -63,8 +63,6 @@ BusData::BusData(method) {
 	IDColumn("id");
 	Read("RustEmet1987.dta");	
 	}
-
-ZurcherHat::Reachable()	{ return new ZurcherHat(); }
 
 /** Return U() at estimated (<q>hat</q>) parameter values. **/
 ZurcherHat::Utility()  {

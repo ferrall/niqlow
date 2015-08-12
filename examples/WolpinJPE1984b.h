@@ -27,7 +27,6 @@ struct Fertility2 : OneDimensionalChoice	{
 	   /** stock of children **/ 		M,
 	   /** vector of huband income **/ Y;
 	static Mortality(FeasA);
-	static Reachable();
 	static Replicate();
 	 	   FeasibleActions(A);
 //		   Utility();

@@ -4,15 +4,15 @@
 @example
 <pre>MyModel : DPparent {
     static decl a;
-    &hellip;
+    &vellip;
     }
-&hellip;
+&vellip;
 MyModel::Initialize() {
-    DPparent::Initialize();
-    &hellip;
+    DPparent::Initialize(new MyModel());
+    &vellip;
     a = new ActionVariable("choice",2);
     Actions(a);
-    &hellip;
+    &vellip;
     CreateSpaces();
     }</pre>
 </dd>
@@ -26,15 +26,15 @@ struct ActionVariable : Discrete	{
 @example
 <pre>MyModel : DPparent {
     static decl a;
-    &hellip;
+    &vellip;
     }
 &hellip;
 MyModel::Initialize() {
-    DPparent::Initialize();
-    &hellip;
+    DPparent::Initialize(new MyModel());
+    &vellip;
     a = new BinaryChoice();
     Actions(a);
-    &hellip;
+    &vellip;
     CreateSpaces();
     }</pre>
 </dd>

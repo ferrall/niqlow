@@ -218,8 +218,6 @@ this model is really simple.  Unlike real dynamic programs there are many states
 <DT><code>main(){&hellip;}</code></DT>
 <DD>Every Ox program has to have a function (or routine) called <code>main()</code>. This is where the Ox program actually starts.  Even though the class declaration comes first in the file, it is <code>main()</code> that is the first thing to happen. I have written the code so that <code>main()</code> just does one thing: it asks that <code>Decide()</code> be executed. Once it is finished
 <code>main()</code> is finished (not other statements  appear inside <code>main()</code>).  Most experienced programmers make their main routines pretty simple. </DD>
-<DT><code>Make(){&hellip;}</code></DT>
-<DD>This is a routine that does one thing: it creates a new object of the class <code>BobsChoice</code> and returns that object as the value of the function.  That is pretty abstract and it would be better to hide this routine for this simple example.  However, any program using <span class="n">DDP</span> will need to have something like this (because of the way Ox allows a program to create new objects).  But understanding the logic of the program does not depend on understanding this, so we move on.</DD>
 <DT><code>BobsChoice::Decide(){&hellip;}</code></DT>
 <DD>Above the class declaration said that a routine belonging to <code>BobsChoice</code> and named <code>Decide()</code> would appear,
 and these lines <em>define</em> what this routine does.  It is the lines of code that are executed when <code>main()</code> refers to the function.  </DD>
@@ -229,7 +227,7 @@ and these lines <em>define</em> what this routine does.  It is the lines of code
 <DD>In Bob's choice he had only two majors to choose from.  We could write
 <code>ActionVariable("major",2)</code> and this would mean <code>maj</code> would hold an action variable with two possible values.  This would not given meaningful names (or labels) to the two options: they are just be coded as <code>0</code> and <code>1</code>.  By sending two strings in quotes instead of <code>2</code> this gives each major a meaningful label.  The routine <code>ActionVariable()</code> counts the labels and knows that there are two choices.  They are still coded as <code>0</code> and <code>1</code> but those codes now have the labels "Econ" and "Physics". This will make some output easier to read.</DD>
 <DD>The variable <code>sch</code> will contain another action variable that takes on four values (because a list of four labels are sent).</DD>
-<DD>The next statement calls a routine with the name <code>Initialize()</code>.  Again, this routine is part of <span class="n">DDP</span> not Ox itself.  As the name implies, it initializes or sets up the problem meant to solve Bob's Choice.  Four things are sent to <code>Initialize()</code>.  The first is the mysterious <code>Make</code> routine and the number <code>0</code>.  As with some other parts of the code, it is not important to understand how these are chosen or used for this case problem.</DD>
+<DD>The next statement calls a routine with the name <code>Initialize()</code>.  Again, this routine is part of <span class="n">DDP</span> not Ox itself.  As the name implies, it initializes or sets up the problem meant to solve Bob's Choice.  Four things are sent to <code>Initialize()</code>.  The first is a bit mysterious: <code>new BobsChoice()</code>. The second is the number <code>0</code>.  As with some other parts of the code, it is not <em>yet</em> important to understand how these are chosen or used for this problem. In particular, to explain what <code>new BobsChoice()</code> means and why it is there would take us on a tangent that is not necessary for now. </DD>
 <DD>However, it is important to see that the variables <code>maj</code> and <code>sch</code> are sent as well.  This is how the <code>OneStateModel</code> in <span class="n">DDP</span> knows what action variables are part of the model</DD>
 <DD>You may think that the line that says <code>maj</code> contains an <code>ActionVariable</code> would add it to the model automatically.  It would be possible to make it work that way, but for other aspects of DP models (namely state variables) it is easier to separate creation of the variable from including it in the model. So to be consistent the same procedure is followed for action variables.</DD>
 <DD>The last thing <code>Decide()</code> does is call a routine `VISolve`(), where "VI" stands for "value iteration."   That is a technique
@@ -367,22 +365,22 @@ As $\rho\to \infty$ the probability approach the non-smooth values.  As $\rho\to
 <DD>Recall that Bob's Choice was derived from the `OneStateModel` class of problems.</DD>
 <DD>That class is in turn a special case (a derived class) of the `ExPostSmoothing` class.</DD>
 <DD>The method for smoothing for the one state model is made at this point in the code:
-<pre>Initialize(Make,0,maj,sch)</pre></DD>
+<pre>Initialize(new BobsChoice(),0,maj,sch)</pre></DD>
 <DD>As you can see from the documentation of `OneStateModel::Initialize`(), the second argument is the smoothing method choice.</DD>
 <DD>To avoid having to explain everything at once, it was set to 0 in the code, which is the default choice in the general <code>ExPostSmoothing</code> class.</DD>
 <DD>Another more descriptive way to send 0 is to use a name for zero that is defined in <span class="n">DDP</span> in order to make the internal code easier to follow and debug:
-<pre>Initialize(Make,NoSmoothing,maj,sch)</pre>
+<pre>Initialize(new BobsChoice(),NoSmoothing,maj,sch)</pre>
 Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one of the `ExPostSmoothingMethods` that are really just names for the integers
 0, 1, and 2 (at the time of writing).</DD>
 <DD>The code for the ExPostSmoothing class of problems will look at the method sent to it and decide if and how to smooth the resulting choice probabilities.</DD>
 
 <DT>Logit Smoothing</DT>
 <DD>To make Bob's Choice a logit model, just modify the code to ask for logit smoothing:
-<pre>Initialize(Make,LogitKernel,maj,sch)</pre></DD>
+<pre>Initialize(new BobsChoice(),LogitKernel,maj,sch)</pre></DD>
 
 <DT>Probit Smoothing</DT>
 <DD>To make Bob's Choice a probit model, just modify the code to ask for probit smoothing:
-<pre>Initialize(Make,GaussKernel,maj,sch)</pre></DD>
+<pre>Initialize(new BobsChoice(),GaussKernel,maj,sch)</pre></DD>
 
 <DT>Why Ex Post?</DT>
 
@@ -446,7 +444,7 @@ added to <code>Uv</code> in order to compute overall utility.</DD>
 <DD>A variable to hold the scholarship state has been added to the model.</DD>
 <DT>Changes to <code>Decide</code></DT>
 <DD>We still need to <code>Initialize</code> the model, but the Bellman version of <code>Initialize</code> is different than the very special
-OneStateModel version.  It does not allow you to list actions.  It still needs to know about the mysterious <code>Make()</code> routine.</DD>
+OneStateModel version.  It does not allow you to list actions.  </DD>
 <DD><code> SetClock(StaticProgram)</code> says that this is a static (but possibly multi-state) model.</DD>
 <DD><code>Actions(maj,sch)</code>:  Except in specialized models like OneStateModel, action variables are added to the model by sending them to `DP::Actions`().  </DD>
 <DD><code>Qsch = new StateVariable("Qsch",2)</code>:  this creates a basic state variable that takes on two values.</DD>

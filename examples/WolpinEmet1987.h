@@ -12,7 +12,7 @@ class SchToWork : OneDimensionalChoice {
 						done;
 	static 	Replicate();
 	static 	Poff(...);
-	static	Reachable();
+	        Reachable();
 	 		FeasibleActions(Alpha);
 			Udiff(z);
 			EUtility();

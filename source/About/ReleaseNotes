@@ -7,13 +7,16 @@
 <DD>Imai Jain Ching not finished</DD>
 <DD>Aguirreabiria and Mira still iffy</DD>
 <DT>To Do</DT>
-<DD>Use promised features of next Ox release</DD>
 <DD>Complete Kept Z variable feature</DD>
 <DD>Finish Ferrall (1997) replication</DD>
 <DD>Incorporate student replications</DD>
 <DT>Overall</DT>
+<DT>Requires Ox Version 7.1 or greater</DT>
 <DD>Added Cholesky parameter to Explore()</DD>
 <DT>DDP</DT>
+<DD>Creating the state space now uses Ox clone() function.  So user code now sends an object of their DP model to <code>Initialize()</code> rather than
+a static function that returns an object.  The <code>Reachable()</code> method is now <em>virtual</em> and returns an indicator for whether the state is reachable or not.  The built-in version returns TRUE.  So the user only needs to supply a replacement in they need to prune states from the state space (and they are not automatically pruned by prunable state variables added to the model). </DD>
+<DD>ActVal:  Eliminated local variables, replaced diag() with .*, and changed loop from 0-pass to 1-pass for speed up.</DD>
 <DD>Diagnostic output now goes to a timestamped log file  rather than the screen</DD>
 <DD>Added a RunSafe option for value iteration.  If this is set to FALSE, iteration will return when NaNs are encountered but the program will not crash.  Likelihood and Moment Objectives will detect this and return NaNs.</DD>
 <DD>Add option on PathPrediction to predict only through the last existing Prediction.  Before a path length had to be specified and new predictions were added if necessary.  Now PathPrediction::Predict(0) will only use existing predictions.  This also required a new check in Bellman::Predict() </DD>

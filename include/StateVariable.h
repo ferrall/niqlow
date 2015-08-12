@@ -696,12 +696,14 @@ Rust (1987) is set up as
 <pre>
 Zurcher : Ergodic	{
 	static decl q, i, x;
-	Initialize();
+    &vellip;
 	}
 Zurcher::Initialize()	{
+    &vellip;
 	q = new Simplex("q",3);
 	AddVariable(i = new Action("i",2));
 	EndogenousState( x = new Renewal("x",90,i,q) );
+    &vellip;
 	}
 </pre>
 **/

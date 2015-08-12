@@ -14,12 +14,10 @@ main() {
     BobsChoiceC::Decide();
     }
 
-Make() { return new BobsChoiceC(); }
-
 BobsChoiceC::Decide() {
     maj = new ActionVariable("major",{"Econ","Physics"});
     sch = new ActionVariable("school",{"Harvard","Yale","Queen's","McGill"});
-    Initialize(Make);
+    Initialize(new BobsChoiceC());
     SetClock(StaticProgram);
     Actions(maj,sch);
     Yacc = new StateVariable("Yacc",2);

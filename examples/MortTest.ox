@@ -1,10 +1,10 @@
 #include "MortTest.h"
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 
-MortSearch::Reachable()	{ return Age()>0 || s.v==0 ? new MortSearch() : 0; }
+MortSearch::Reachable()	{ return Age()>0 || s.v==0  ; }
 
 MortSearch::Run()	{
-	Initialize(Reachable);
+	Initialize(new MortSearch());
 	SetClock(RandomMortality,20,0.01)
 	eta = -0.5;
 	Actions(a = new ActionVariable("Accept",2));

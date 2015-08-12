@@ -23,7 +23,6 @@ struct ZurcherHat : Zurcher	{
 		static 	decl hat;
 		static 	FirstStage(row);
         static  SecondStage();
-		static 	Reachable();
 				Utility();
 	}
 

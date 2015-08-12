@@ -117,10 +117,10 @@ Hours::Update() {
 MyModel::MaxH() { return CV(hasch) ? 30 : 50; }
 &vellip;
 MyModel::Initialize() {
-   hellip;
+   &vellip;
    GroupVariables(hasch = new FixedEffect("",2));
    Actions(h = new Hours(5,MyModel::MaxH));
-   hellip;
+   &vellip;
    }
 MyModel::Utility() {
         return CV(wage)*aa(h);
@@ -220,7 +220,7 @@ The model places discrete state variables/blocks into one of four vectors.
     }
 &vellip;
 MyModel::Initialize() {
-    DPparent::Initialize();
+    DPparent::Initialize(new MyModel());
     &vellip;
     ExogenousStates(e = new SimpleJump("iid",5));
     EndogenousStates(q = new LaggedState("lag",e));
@@ -302,7 +302,7 @@ That is, you want to <a href="Variables.ox.html#Freeze">Freeze</a> the current v
     }
 &vellip;
 MyModel::Initialize() {
-    DPparent::Initialize();
+    DPparent::Initialize(new MyModel());
     &vellip;
     Actions(a = new ActionVariable("a",2) ) ;
     EndogenousStates(
@@ -746,7 +746,7 @@ The Clock Block is a single <a href="Variables.ox.html#StateBlock">StateBlock</a
 <DT>The call to <code>SetClock()</code> must take place between the calls to <code>Initialize()</code> and <code>CreateSpaces()</code></DT>
 <DD>Example
 <pre>
-Initialize();
+Initialize(new MyModel());
 SetClock(InfiniteHorizon);
 CreateSpaces();
 </pre></DD>
@@ -789,7 +789,7 @@ When T = &infin;,
 <P/>
 <li>Kinds of Clocks</li>
 <P/>
-See <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a> 
+See <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a>
 <P/>
 <DT><code>InfiniteHorizon</code>: <var>t&Prime; = t = 0 = T&oline;</var>.</DT>
 <DD>In the infinite horizon case Bellman 's equation must be iterated on from initial conditions until it converges.</DD>
@@ -1216,15 +1216,15 @@ An element of the action vector &alpha;.
 
 <dl><dt class="example">Example:</dt><dd class="example"><pre>MyModel : DPparent {
     static decl a;
-    &hellip;
+    &vellip;
     }
-&hellip;
+&vellip;
 MyModel::Initialize() {
-    DPparent::Initialize();
-    &hellip;
+    DPparent::Initialize(new MyModel());
+    &vellip;
     a = new ActionVariable("choice",2);
     Actions(a);
-    &hellip;
+    &vellip;
     CreateSpaces();
     }</pre>
 </dd>
@@ -1572,15 +1572,15 @@ Easy way to create a binary choice.
 
 <dl><dt class="example">Example:</dt><dd class="example"><pre>MyModel : DPparent {
     static decl a;
-    &hellip;
+    &vellip;
     }
 &hellip;
 MyModel::Initialize() {
-    DPparent::Initialize();
-    &hellip;
+    DPparent::Initialize(new MyModel());
+    &vellip;
     a = new BinaryChoice();
     Actions(a);
-    &hellip;
+    &vellip;
     CreateSpaces();
     }</pre>
 </dd>
@@ -4026,12 +4026,14 @@ S* = min{s.N-s,&Pi;.N}<sup>-</sup>
 <pre>
 Zurcher : Ergodic	{
 	static decl q, i, x;
-	Initialize();
+    &vellip;
 	}
 Zurcher::Initialize()	{
+    &vellip;
 	q = new Simplex("q",3);
 	AddVariable(i = new Action("i",2));
 	EndogenousState( x = new Renewal("x",90,i,q) );
+    &vellip;
 	}
 </pre>
 </dd>

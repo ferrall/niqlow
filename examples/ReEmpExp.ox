@@ -58,15 +58,15 @@ ReEmpBonExp::Transit(FeasA){
 ReEmpBonExp::Bonus() {	return AV(phase)==Payout ? bonus/MUnit : 0.0;	}
 	
 UISearch::Reachable()	{
-	if (j->Employed() && AV(j.prevw)>0) return 0;			//forgot old wage
-	if (j->Searching() && AV(j.prevw)>0 && !AV(j.dur)) return 0;	//forgot previous wage if benefits exhausted
-	return new UISearch();
+	if (j->Employed() && AV(j.prevw)>0) return FALSE;			//forgot old wage
+	if (j->Searching() && AV(j.prevw)>0 && !AV(j.dur)) return FALSE;	//forgot previous wage if benefits exhausted
+	return TRUE;
 	}
 
 UISearch::OfferProb(FeasA) {	return FeasA[][x.pos] * 0.1; }
 	
 UISearch::Run()	{
-	EVExPost::Initialize(1.0);
+	EVExPost::Initialize(1.0,new UISearch());
 	SetClock(Ergodic); // experiment
 	Actions(a = new ActionVariable("Acc",2), x = new ActionVariable("Try",2));
 	j = new UIJob(Noffer,a,UISearch::OfferProb,0.1);

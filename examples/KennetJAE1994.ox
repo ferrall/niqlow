@@ -56,7 +56,7 @@ PrattWhitney::Ehours() {
 **/	
 PrattWhitney::Run()	{
 	decl chprob,id,data,newd,EMax;
-	Initialize(PrattWhitney::Reachable);
+	Initialize(new PrattWhitney());
 	StorePalpha();
 	EndogenousStates(x = new Engine(d,pars[col][theta3]) ); //same transition for both rows
 	CreateSpaces();
@@ -72,12 +72,6 @@ PrattWhitney::Run()	{
 		Ehours();
 		}
 	}
-
-/** User-defined static function that indicates a state is reachable along a feasible path.
-@return a new instance of Zurcher
-@comments In an ergodic model all states are reachable.
-**/
-PrattWhitney::Reachable()	{ return new PrattWhitney(); }
 
 /** The one period return.
 <pre>U = iRC+(1-i)&theta;<sub>1</sub>mx + n</pre>

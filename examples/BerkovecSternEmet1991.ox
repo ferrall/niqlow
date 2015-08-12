@@ -4,7 +4,7 @@
 /** Setup and solve the model for both columns.**/	
 Retirement::Run()	{
 	decl j, simdata, Emax;
-	Initialize(1.0,Reachable);
+	Initialize(1.0,new Retirement());
 	SetClock(RandomMortality,TMAX,Retirement::mprob);
 	Actions(i = new ActionVariable("i",Nactions));
 	SemiExogenousStates(eS = new Zvariable("etaS",nRepsS) );

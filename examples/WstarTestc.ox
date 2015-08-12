@@ -1,13 +1,12 @@
 #include "WstarTestb.h"
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
-WStar::Reachable()	{ return new WStar(); }
 WStar::WStar()      { solvez = !CV(wrk); zstar = zeros(N::R,1);}
 WStar::Uz(z)        { return eta | z;	}
 WStar::Utility()    { return solvez ? eta*(1-aa(d)) + zstar[I::r]*aa(d) :  aa(d)*eta/2.0;	}
 
 WStar::Run()	{
-	Initialize(Reachable);
+	Initialize(new Wstar());
 	SetClock(NormalAging,10);
 	EndogenousStates(wrk = new LaggedAction("wrk",d));
 	GroupVariables(new RandomEffect("g",2),new FixedEffect("f",2));

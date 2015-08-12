@@ -10,12 +10,10 @@ main() {
     BobsChoice::Decide();
     }
 
-Make() { return new BobsChoice(); }
-
 BobsChoice::Decide() {
         maj = new ActionVariable("major",{"Econ","Physics"});
         sch = new ActionVariable("school",{"Harvard","Yale","Queen's","McGill"});
-        Initialize(Make,0,maj,sch);
+        Initialize(new BobsChoice(),0,maj,sch);
         VISolve();
         }
 

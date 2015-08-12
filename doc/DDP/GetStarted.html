@@ -99,10 +99,9 @@ However, since p, a, and d are <em>objects</em>, the Ox code to implement <var>U
  3:   		enum{Noff=10}
  4:   		static 	const		decl 	lam = 2.3;
  5:   		static 	  		decl 	p, d, a;
- 6:   		static 	Reachable();
- 7:   		static 	Run();
- 8:   		 	Utility();
- 9:		}</pre></DD><details class="aside"><summary>.h and .ox files</summary>Usually the segment code above would appear in a separate header (<code>.h</code> or <code>.oxh</code>) file, but in the source code for this example it simply appears at the top of the <code>.ox</code> file.</details>
+ 6:   		static 	Run();
+ 7:   		 	Utility();
+ 8:		}</pre></DD><details class="aside"><summary>.h and .ox files</summary>Usually the segment code above would appear in a separate header (<code>.h</code> or <code>.oxh</code>) file, but in the source code for this example it simply appears at the top of the <code>.ox</code> file.</details>
 <div class="page-break"> </div>
 <DL>Line-by-line Description
 <DT>1. Import
@@ -133,27 +132,22 @@ However it is referenced, <code>a</code> and <code>b</code> refer to the same pl
 <P/>
 <DD>3: The number of offers <var>N</var> is an <em>enumeration</em>, a way of storing integer constants that Ox shares with C. </DD>
 <DD>4: The parameter &lambda; is stored as a static constant (its value is fixed at declaration).  More powerfully it could be represented as an objefct of the <a href="Shared.ox.html#Parameter">Parameter</a> class discussed later.
-<DD>5: Threr data members are declared static but variable (their value can change after the object is created).  They sotre the state variables <var>p</var> and <var>d</var> and the action variable <var>a</var>.
+<DD>5: Three data members are declared static but variable (their value can change after the object is created).  They store the state variables <var>p</var> and <var>d</var> and the action variable <var>a</var>.
 <div class="page-break"> </div>
-<DD>6: A function associated with an object is called a <code>method</code>.  <span class="n">DDP</span> requires two methods.  One tells <span class="n">DDP</span> that a particular point in the state space is reachable from a feasible path (or not).  In <code>Search</code> it is called <code>Reachable()</code>.  It must be a <code>static</code> method. NB: <span class="n">DDP</span> uses the name <code>Method</code> for the class of DP solution methods.  (Upper and lower case do matter in Ox.) Unfortunately this may cause some confusion.  An attempt in these notes will be made to use "solution method" for dynamic programming method and just "method" when using it to refer to a function that belongs to a class. </DD>
-<DD>7:  The method <code>Run()</code> is not required, but it will be designed to set up and solve the model.</DD>
-<DD>8:  The second required  <code>method</code> cannot be <code>static</code>, and must have the name and declaration <code>Utility()</code>.  It returns the one-period payoff.</DD>
+<DD>6: A function associated with an object is called a <code>method</code>.  <span class="n">DDP</span> requires two methods.  <details class="aside"><summary>NB:</summary> <span class="n">DDP</span> uses the name <code>Method</code> for the class of DP solution methods.  (Upper and lower case do matter in Ox.) Unfortunately this may cause some confusion.  An attempt in these notes will be made to use "solution method" for dynamic programming method and just "method" when using it to refer to a function that belongs to a class. </details> The method <code>Run()</code> is not required, but it will be designed to set up and solve the model.</DD>
+<DD>7:  The second required  <code>method</code> cannot be <code>static</code>, and must have the name and declaration <code>Utility()</code>.  It returns the one-period payoff.</DD>
 </DL>
 <div class="page-break"> </div>
 <DL>
 <DT>Define the required functions for the model</DT><DD><pre>
-23:	Search::Reachable()	{
-24:		return new Search();
-25:		}
-26:	Search::Utility()  {
-27:		return -(1-CV(d))*(lam + CV(p)*aa(a));
-28:		}</pre></DD>
-<DD>If it is unnecessary to trim infeasible states from <b>&Theta;</b> (to conserve memory) then <code>Reachable()</code> is very simple.  When called it returns a new point in the endogenous state space, &theta;.</DD>
+23:	Search::Utility()  {
+24:		return -(1-CV(d))*(lam + CV(p)*aa(a));
+25:		}</pre></DD>
 <DD>Utility returns a column of values for feasible actions.  It gets the current value of state variables by sending their objects to the <code><a href="Shared.ox.html#CV">CV</a>()</code> function.</DD>
 <div class="page-break"> </div>
 <DT>Define the code to set up and solve the model</DT><DD><pre>
 10:  Search::Run()	{
-11:  		Initialize(Reachable);
+11:  		Initialize(new Search());
 12:  		SetClock(InfiniteHorizon);
 13:  		SetDelta(0.99);
 14:  		Actions(a = new ActionVariable("a",2));
@@ -161,17 +155,17 @@ However it is referenced, <code>a</code> and <code>b</code> refer to the same pl
 16:  		d->MakeTerminal(1);	
 17:  		ExogenousStates(p = new SimpleJump("p",Noff));
 18:  		CreateSpaces();
-19:            VISolve(); 
+19:            VISolve();
 22:   }</pre></dd>
 </DL>
 <div class="page-break"> </div>
 <P/>
 <DL>Line-by-line Description
 <DT>Set Up the Problem</DT>
-<DD>11. The user's code must also call the <code>Initialize()</code> method before setting up or solving the model.
+<DD>11. The user's code must call the <code>Initialize()</code> method before setting up or solving the model.
 <details class="aside"><summary>More on <code>Initialize</code></summary>
 <a href="DP.ox.html#DP___Initialize">Initialize</a>() works only on <em>static</em> elements of the model, and these must be set before any instances of the model are created with <code>new</code>.  So it is not possible to put these tasks in the <q>constructor</q> for DP. The user may declare a <code>Initialize()</code> method if they expect the class (<code>Search</code>)  to be used as a base for other derived classes. Then <code>Search::Initialize()</code> would call <code>DP::Initialize()</code> and the prefix will be required to resolve the name.</details>
-The first (and only required) argument sent to <code>Initialize</code> is the name of the method that indicates if a state is reachable or not.  Note that <code>Reachable()</code> has been declared above but not yet defined.</DD>
+The first (and only required) argument sent to <code>Initialize</code> is an object of the model class.  An example of the simplest way to do this is show above: <code>new Search()</code>.  This creates an object of the user's model class, in the example <code>Search</code>.  Initialize will <q>clone</q> this object for each point in the state space of the model.  <details class="aside"><summary>Early version of Initialize</summary>Prior to the release of Ox version 7.1 there was no way to clone an object in the Ox language.  So older versions of <span class="n">DDP</span> required the user to provide a function that would create and return a new object every time it was called.  Now <span class="n">DDP</span> can do this by cloning the object sent to <code>Initialize()</code>.  This also allows <code>Reachable()</code> to be a virtual function now and in many cases does not need to be coded by the user (discussed elsewhere).</details></DD>
 <DD>Code to set up the model must appear after <code>Initialize()</code> and before the <code>CreateSpaces()</code> method is called.
 <DD>12: Every DDP model has a clock. There are several predefined clock types, and the user can create their own if necessary.  <code>InfiniteHorizon</code> is an enumeration like <code>Noff</code> in the file above which <code><a href="DP.ox.html#DP___SetClock">SetClock</a>()</code> uses to create the right kind of clock. </DD>
 <DD>13: Every DDP model has a discount factor <span class="expressions">\(\delta\)</span>.  <code><a href="DP.ox.html#DP___SetDelta">SetDelta</a>()</code> sets its value, which is constant here but could be set to a variable <a href="Shared.ox.html#Parameter">Parameter</a>..</DD>

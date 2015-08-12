@@ -28,7 +28,7 @@ FirmEntry::Run() {
 	}
 	
 FirmEntry::Initialize() {
-	Rust::Initialize(Reachable,0);
+	Rust::Initialize(new FirmEntry(),0);
 	sige = new StDeviations("sige",<0.3,0.3>,0);
 	entrant = new LaggedAction("entrant",d);
 	KP = new array[Kparams];
@@ -56,7 +56,7 @@ FirmEntry::GenerateSample() {
 	
 /** Capital stock can be positive only for incumbents.
 **/
-FirmEntry::Reachable()	{ return CV(entrant)*CV(K) ? 0 : new FirmEntry() ;	}
+FirmEntry::Reachable()	{ return !(CV(entrant)*CV(K)); }
 
 /** The one period return.
 <DD>

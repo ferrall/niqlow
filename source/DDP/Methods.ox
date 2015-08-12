@@ -212,8 +212,6 @@ ValueIteration::ValueIteration(myEndogUtil) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 28. Must create spaces before creating a solution method");
 	ThetaTask();
  	vtoler = DefTolerance;
-//   	left = S[endog].M;
-//   	right = S[clock].M;
    	subspace=iterating;
    	state = N::All-1;
     ftask = new FixedSolve();
@@ -523,7 +521,7 @@ HMEndogU::HMEndogU(meth) {
 HMEndogU::Run(th) {
 	if (!isclass(th,"Bellman")) return;
     th.U[] = th.Utility();
-	th.pandv[0][] = th.U + I::CVdelta*sumr(th.Nxt[Qrho][0]*diag(VV[th.Nxt[Qi][0]]));
+	th.pandv[0][] = th.U + I::CVdelta*sumr(th.Nxt[Qrho][0].*VV[th.Nxt[Qi][0]]);
     th->Smooth(th->thetaEMax());
     Hooks::Do(PostSmooth);
 	th->UpdatePtrans();

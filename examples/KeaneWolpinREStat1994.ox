@@ -3,7 +3,7 @@
 
 DynamicRoy::Replicate()	{
 	decl i, BF, KW,OutMat, AMat, BMat;	
-	Initialize(Reachable,TRUE);
+	Initialize(new DynamicRoy(),TRUE);
 	SetClock(NormalAging,A1);
 	Actions(accept = new ActionVariable("Accept",Msectors));
     GroupVariables(lnk = new NormalRandomEffect("lnk",3,0.0,1.0));
@@ -44,7 +44,7 @@ DynamicRoy::FeasibleActions(Alpha) {
 DynamicRoy::Reachable() {
 	decl i,totexp;
 	for (i=0,totexp=0;i<Msectors-1;++i) totexp += xper[i].v;
-	return I::t<min(A1,totexp) || xper[school].v>MaxXtraSchool ? 0 : new DynamicRoy();
+	return !(I::t<min(A1,totexp) || xper[school].v>MaxXtraSchool);
  	}
 
 /** Utility vector equals the vector of feasible returns.**/	

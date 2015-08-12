@@ -22,7 +22,6 @@ struct Zurcher : Rust	{
 		                                                    data,
                                                             chprob;
 
-		static 	Reachable();
 				Utility();
 		static 	Run();
         static  Output();

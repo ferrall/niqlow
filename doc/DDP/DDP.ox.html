@@ -230,14 +230,11 @@ This section shows how each of the elements of the general DP framework is repre
 <pre>class MyModel : DPparent {
      // declare static members to hold action and state variables objects
      // declare required and optional methods
-    static Reachable();
     static Initialize();
     }
 &vellip;
-MyModel::Reachable() { return new MyModel(); }
-&vellip;
 MyModel::Initialize() {
-    DPparent::Initialize(Reachable,&hellip;);
+    DPparent::Initialize(new MyModel(),&hellip;);
        // define actions and states (create objects)
        // add them to the model
     CreateSpaces();
@@ -260,14 +257,11 @@ An <a href="Variables.ox.html#ActionVariable">ActionVariable</a> is defined by i
     &vellip;
     static decl d;                         // NEW
     &vellip;
-    static Reachable();
     static Initialize();
     }
 &vellip;
-MyModel::Reachable() { return new MyModel(); }
-&vellip;
 MyModel::Initialize() {
-    DPparent::Initialize(Reachable,&hellip;);
+    DPparent::Initialize(new MyModel(),&hellip;);
     &vellip;
     d = new ActionVariable("choice",2);   // NEW
     Actions(a);                           // NEW
@@ -300,14 +294,11 @@ In <span class="n">DDP</span>, state variables are classified as either <em>auto
     static decl d;
     static decl m;                                //NEW
     &vellip;
-    static Reachable();
     static Initialize();
     }
 &vellip;
-MyModel::Reachable() { return new MyModel(); }
-&vellip;
 MyModel::Initialize() {
-    DPparent::Initialize(Reachable,&hellip;);
+    DPparent::Initialize(new MyModel(),&hellip;);
     &vellip;
     d = new ActionVariable("choice",2);
     Actions(a);
@@ -333,14 +324,11 @@ Because timing is key to the efficient solution algorithm  <span class="n">DDP</
     static decl d;
     static decl m;
     &vellip;
-    static Reachable();
     static Initialize();
     }
 &vellip;
-MyModel::Reachable() { return new MyModel(); }
-&vellip;
 MyModel::Initialize() {
-    DPparent::Initialize(Reachable,&hellip;);
+    DPparent::Initialize(new MyModel(),&hellip;);
     SetClock(NormalAging,40);                //NEW
     &vellip;
     d = new ActionVariable("choice",2);
@@ -366,17 +354,15 @@ MyModel::Initialize() {
     static decl m;
     Utility();                          //NEW
     &vellip;
-    static Reachable();
     static Initialize();
     }
 &vellip;
-MyModel::Reachable() { return new MyModel(); }
 MyModel Utility(); {                   //NEW
     return aa(d) .== m.v;              //NEW   See <a href="#aa">aa</a>
     }                                  //NEW
 &vellip;
 MyModel::Initialize() {
-    DPparent::Initialize(Reachable,&hellip;);
+    DPparent::Initialize(new MyModel(),&hellip;);
     SetClock(NormalAging,40);
     &vellip;
     d = new ActionVariable("choice",2);
@@ -404,17 +390,14 @@ MyModel::Initialize() {
     static decl m;
     Utility();
     &vellip;
-    static Reachable();
     static Initialize();
     }
-&vellip;
-MyModel::Reachable() { return new MyModel(); }
 MyModel Utility(); {
     return aa(d) .== m.v;
     }
 &vellip;
 MyModel::Initialize() {
-    DPparent::Initialize(Reachable,&hellip;);
+    DPparent::Initialize(new MyModel(),&hellip;);
     SetClock(NormalAging,40);
     &vellip;
     d = new ActionVariable("choice",2);
@@ -569,7 +552,7 @@ By default: q.T = &empty; for built-in state variables.</DD>
 <DD><code>MyModel::Utility()</code> returns this value.  <span class="n">DDP</span> sets it as V(&theta;) directly.</DD>
 <P/>
 <li>Trimming The State Space <b>&Theta;</b> </li>
-<blockquote><b><code>MyModel</code> can trim the state space by sending a <code>MyModel::Reachable()</code> routine to <code>CreateSpaces()</code> that only returns a new instance <code>MyModel</code> for states that can be reached. It can make values of a state variable terminal by calling <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>().</b></blockquote>
+<blockquote><b><code>MyModel</code> can trim the state space by providing a <code>MyModel::Reachable()</code> routine.  It should TRUE for states that can be reached from initial conditions and FALSE otherwise. <code>MyModel</code> can alos make values of a state variable terminal by calling <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>().</b></blockquote>
 <P/>
 <DT>Possible States: &Omega;</DT>
 <DD>Following the notion of possible versus feasible actions above, the Cartesian product of all possible values of the endogenous state variables is defined as the <em>possible state space</em>:</DD>
@@ -587,8 +570,7 @@ The current value of a state is always equal to some row in &Omega;: &theta;.v &
 of the class <code>MyModel</code>. Storing a 0 for unreachable states still requires allocation of a single <code>oxvalue</code>, but it avoids storage of vectors and matrices associated with each reachable state (such as the utility vector, the optimal choice probability matrix, etc.).</details></DD>
 <P/>
 <DT><a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>()</DT>
-<DD><code>MyModel</code> must call <code><a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>()</code>, which sets up the list of feasible action matrices and creates the state space <b>&Theta;</b>.  It must traverse (loop over) the possible state space &Omega; at least once  It is during
-this traversing that it is determined whether the point &theta; is reachable or not.  </DD>
+<DD><code>MyModel</code> must call <code><a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>()</code>, which sets up the list of feasible action matrices and creates the state space <b>&Theta;</b>.  It must traverse (loop over) the possible state space &Omega; at least once  It is during this traversing that it is determined whether the point &theta; is reachable or not.  </DD>
 <DD><code>CreateSpaces()</code> uses two methods to determine reachability:  inherent reachability of included state variables and the user supplied routine that asserts reachability or not.</DD>
 <P/>
 <DT>Some State Variables Generate Inherently Unreachable States</DT>
@@ -600,13 +582,15 @@ equal to the value of the clock, <a href="DDPShared.ox.html#I___t">t</a>.  This 
 <DD>At each <em>possible</em> state in the space &Omega; <code>CreateSpaces</code> will call <code>IsRechable()</code> for each state variable in the endogenous state vector &theta;. If any of them return <code>FALSE</code> that point is marked as unreachable. (This can be turned off when creating the state variable using the optional <code>Prune</code> argument.</DD>
 <DD>If no state variables claim the current state is inherently unreachable then the user supplied method is called ...</DD>
 <P/>
-<DT><a href="DP.ox.html#DP___userReachable">userReachable</a>()</DT>
-<DD>User code must first call <code>DP::Initialize()</code>, the add variables to the model then call <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>.  A static function is be sent to <code>DP::Initialize()</code> that will assert reachability. Unlike <code>Bellman::FeasibleActions</code>, which must have that name because it is virutal function, this function is static and can have any name you like.  Here it is called <code>MyModel::Reachable()</code>.</dd>
+<DT><a href="Bellman.ox.html#Bellman___Reachable">Reachable</a>() and its virtual replacement</DT>
+<DD>User code must first call <code>DP::Initialize()</code>, then add variables to the model then call <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>.  An object of <code>MyModel</code> is sent to <code>DP::Initialize()</code> which will <q>clone</q> it for each reachable point in the state space.  As with <code>Bellman::FeasibleActions</code>, which must have that name because it is virtual function, this function must have the name <code>Reachable()</code>.</dd>
+<DD>The base <code>Bellman</code> class has a method called <code>Reachable()</code> which simply returns TRUE.  So if <code>MyModel</code> does not provide its own version of <code>Reachable</code> all states will be reachable. (However, remember that some state variables may have inherently unreachable states in finite horizon models and these conditions will be checked regardless of whether <code>MyModel</code> provides its own <code>Reachable()</code>.)</DD>
+<DD>If a replacement for the virtual <code>Reachable</code> is provided it must return TRUE or FALSE depending on whether the current values of state variables are a reachable state.</DD>
 <DD>Inside <code>CreateSpaces()</code> and during the loop over the possible state space &Omega;,  and if no state variables assert inherent unreachability of their current value, then <code>MyModel::Reachable()</code> is called. </DD>
-<code><code>MyModel::Reachable()</code> indicates &theta; is reachable by returning a <code>new MyModel()</code>.  Otherwise it should return 0 to indicate something about the current values of all endogenous state variables makes this point unreachable.  So
+<code><code>MyModel::Reachable()</code> indicates &theta; is reachable by returning TRUE.  Otherwise it should return FALSE to indicate something about the current values of all endogenous state variables makes this point unreachable.  So
 <pre>Reachable() returns
-       new MyModel() if &theta;.R = 1
-       0               if &theta;.R = 0.</pre></DD>
+       1   if &theta;.R = 1
+       0   if &theta;.R = 0.</pre></DD>
 <P/>
 <DT>How should <span class="n">DDP</span> traverse <b>&Theta;</b>?</DT>
 <DD><code>CreateSpaces()</code> traverses &Omega; once in order to create <b>&Theta;</b>.  Thereafter the user has an option for how to  traverse <b>&Theta;</b>.</DD>

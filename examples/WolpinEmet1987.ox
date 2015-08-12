@@ -2,7 +2,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 
 SchToWork::Replicate() {
-	Initialize(SchToWork::Reachable,new ActionVariable("accept",2)); // 10.0;
+	Initialize(new SchToWork(),new ActionVariable("accept",2)); // 10.0;
 	SetClock(NormalAging,T+k+tau);
 	SetDelta(pars[delt]);
 	EndogenousStates(done = new LaggedAction("done",d));
@@ -15,9 +15,7 @@ SchToWork::Replicate() {
 	}
 
 SchToWork::Reachable() {
-	return
-		(hasoffer.v && done.v) ? FALSE	
-		: new SchToWork();
+	return !(hasoffer.v && done.v);
 	}
 
 SchToWork::SchToWork() {

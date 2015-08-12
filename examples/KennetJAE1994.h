@@ -42,7 +42,6 @@ class PrattWhitney : Rust {
 	/**add to U() to avoid underflow **/	normalization;
 
 		static 	Run();
-		static 	Reachable();
 				Utility();
 		static	Ehours();
 	}

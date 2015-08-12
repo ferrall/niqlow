@@ -2,7 +2,7 @@
 
 StaticRoy::Replicate()	{
 	decl i, Approx,Brute,AMat,BMat;	
-	Initialize(Reachable,TRUE,0);
+	Initialize(new StaticRoy(),TRUE,0);
 	SetClock(NormalAging,1);
 	Actions(accept = new ActionVariable("Accept",Msectors));
 	ExogenousStates(offers = new MVNormal("eps",Msectors,Noffers,zeros(Msectors,1),sig));
@@ -20,8 +20,6 @@ StaticRoy::Replicate()	{
 	DPDebug::outV(FALSE,&AMat);
     println("difference ","%c",{"EV","Choice Probs"},(BMat-AMat)[][columns(BMat)-4:]);
 }
-
-StaticRoy::Reachable() {return new StaticRoy(); 	}
 
 /** Utility vector equals the vector of feasible returns.**/	
 StaticRoy::Utility() {

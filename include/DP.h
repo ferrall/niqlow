@@ -87,8 +87,7 @@ struct DP {
 			and transitions. **/ 					            NxtExog,
 		/** . @internal  				**/    					F,
 		/** . @internal						**/    				P,
-		/** function that returns new state or 0.
-            Sent as argument to `DP::Initialize`().**/	        userReachable,
+        /** copy of user's Bellman object used for cloning.**/  userState,
 		/** max of vv. @internal       **/						V,
 		/** handles looping over endogenous transitions **/		ETT,
 		/** index into &Alpha; of current realized &alpha;. **/	ialpha,
@@ -117,7 +116,7 @@ struct DP {
         static  onlyDryRun();
 		static  CreateSpaces();
 		static	InitialsetPstar(task);
-		static 	Initialize(userReachable,UseStateList=FALSE);
+		static 	Initialize(userState,UseStateList=FALSE);
 
 		static 	AddStates(SubV,va);
 		static 	GroupVariables(v1,...);
@@ -207,7 +206,7 @@ struct ThetaTask        :   Task {	ThetaTask();	Run(th);	}
 Users do not call this function.
 
 The task called in `DP::CreateSpaces` that loops over the state space &Theta; and
-calls the user-supplied <code>Reachable()</code>.
+calls the virtual <code>Reachable()</code>.
 This task is called before `CreateTheta` so that reachable status can be determined before
 subsampling (if required).
 
@@ -221,7 +220,7 @@ struct FindReachables   : 	ThetaTask {
 /** Allocate space for each point &theta; &in; &Theta; that is reachable.
 
 The task called in `DP::CreateSpaces` that loops over the state space &Theta; and
-calls the user-supplied <code>Reachable()</code>.
+calls the virtual <code>Reachable()</code>.
 
 Users do not call this function.
 
@@ -258,7 +257,7 @@ struct DryRun 	        : 	FindReachables {
 This task is called if the user is asking for a new subsample of &Theta;.
 
 It `DP::CreateSpaces` that loops over the state space &Theta; and
-calls the user-supplied <code>Reachable()</code>.
+calls the virtual <code>Reachable()</code>.
 
 If a subsampled state is now not sampled its stored information is destroyed (using <code>Bellman::Delete</code>).
 

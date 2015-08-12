@@ -477,6 +477,7 @@ N::Initialize() {
     G = DP::SS[bothgroup].size;
 	R = DP::SS[onlyrand].size;
 	F = DP::SS[onlyfixed].size;
+    Ewidth= DP::SS[onlyexog].size;
 	A = rows(Alpha::Matrix);
 	Av = sizec(Alpha::Matrix);
     /*	if (Flags::UseStateList) */
@@ -525,10 +526,10 @@ N::Reached(trackind) {
     }
 
 /** Initialize static members.
-@param userReachable static function that <br>returns a new instance of the user's DP class if the state is reachable<br>or<br>returns
-FALSE if the state is not reachable.
+@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;. As of version 2.4, which requires Ox 7.1 or greater, the Ox
+<code>clone()</code> function is used to copy this object to fill out &Theta;.  This also allows userReachable() to be a virtual function (and is no longer an arugment to <code>Initialize()</code>)
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
-					FALSE, traverse &Theta; through iteration on all state variables
+					FALSE (default), traverse &Theta; through iteration on all state variables
 
 @comments
 Each DDP has its own version of Initialize, which will call this as well as do further set up.
@@ -538,14 +539,15 @@ Each DDP has its own version of Initialize, which will call this as well as do f
 UseStateList=TRUE may be much faster if the untrimmed state space is very large compared to the trimmed (reachable) state space.
 
 **/
-DP::Initialize(userReachable,UseStateList) {
+DP::Initialize(userState,UseStateList) {
     decl subv;
     Version::Check();
+    if (!isclass(userState,"Bellman")) oxrunerror("DDP Error ??.  You must send an object of your Bellman-derived class to Initialize.  For example,\n Initialize(new MyModel()); \n");
     if (Flags::ThetaCreated) oxrunerror("DDP Error 42. Must call DP::Delete between calls to CreateSpaces and Initialize");
     lognm = "DDP"+date()+replace(time(),":","-")+".log";
     logf = fopen(lognm,"aV");
     Hooks::Reset();
-    this.userReachable = userReachable;
+    this.userState = userState;
     Flags::UseStateList=UseStateList;
 	Flags::AllGroupsExist = TRUE;
     I::NowSet();
@@ -913,10 +915,9 @@ FindReachables::Run(g) {
     decl v, h=DP::SubVectors[endog];
     Flags::SetPrunable(counter);
     foreach (v in h) if (!(th = v->IsReachable())) return;
-	if (isclass(th = userReachable(),"Bellman")) {
-        N::Reached(I::all[tracking]);
-        delete th;
-        }
+	if (userState->Reachable()) N::Reached(I::all[tracking]);
+// isclass(th = userReachable(),"Bellman")) {
+//        delete th;      }
 	}
 
 /** .
@@ -925,9 +926,9 @@ CreateTheta::Run(g) {
     decl v, h=DP::SubVectors[endog];
     Flags::SetPrunable(counter);
     foreach (v in h) if (!(th = v->IsReachable())) return;
-	if (isclass(th = userReachable(),"Bellman")) {
-		th->Bellman(state,picked());
-        Theta[I::all[tracking]] = th;
+	if (userState->Reachable()) {   // isclass(th = userReachable(),"Bellman")) {
+        Theta[I::all[tracking]] = clone(userState,Zero);
+		Theta[I::all[tracking]] ->Bellman(state,picked());
 		}
 	}
 

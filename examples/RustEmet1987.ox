@@ -1,9 +1,6 @@
 #include "RustEmet1987.h"
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
-/** Return a new instance of Zurcher (a state &theta;).**/
-Zurcher::Reachable()	{ return new Zurcher(); }
-
 /** The one period return.
 <dd><pre>U = dRC+(1-d)&theta;<sub>1</sub>mx + n</pre></dd>
 **/
@@ -18,7 +15,7 @@ Zurcher::Utility()  {
 Zurcher::Run()	{
 	decl EMax,row;
 
-    Initialize(Reachable);
+    Initialize(new Zurcher());
 	EndogenousStates(x = new Renewal("x",NX,d,pars[0][theta3]) );
 	CreateSpaces();
 

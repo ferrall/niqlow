@@ -2,7 +2,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 	
 AMZurcher::Run()  {
-    Initialize(Reachable);
+    Initialize(new AMZurcher());
     EndogenousStates(x = new Renewal("x",AMNX,d,dgppars[theta3]) );
     CreateSpaces();
 	SetDelta(dgppars[disc]);	
@@ -53,7 +53,6 @@ ZPanel::BruteForce() {
 	alg->Iterate(0);
 	}
 	
-AMZurcher::Reachable()    { return new AMZurcher(); }
 AMZurcher::Utility()  {
 	decl i = aa(d);
     return -(i*CV(rc) + (1-i)*CV(th1)*mfact*x.v) +normalization;

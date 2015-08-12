@@ -5,7 +5,6 @@
 struct WStar : OneDimensionalChoice	{
     static const decl eta = 0.25;
 	static decl done, RV;
-	static Reachable();
 	static Run();
     static graphit();
     WStar();

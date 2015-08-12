@@ -4,7 +4,7 @@
 /** Setup and solve the model.
 **/	
 Zurcher::Run()	{
-	Initialize(Reachable);
+	Initialize(new Zurcher());
 	PreUpdate = SetParameters;
 	PostRESolve = GrabCP;
 	EndogenousStates(x = new Renewal("x",NX,d,pars[0][theta3]) ); //same transition for both rows
@@ -25,12 +25,6 @@ Zurcher::SetParameters() {
 	normalization = pars[r][theta1]*mfact*NX/2.0;	 //median cost, keep U() centered on 0.0
 	SetDelta(pars[r][disc]);
 	}
-
-/** User-defined static function that indicates a state is reachable along a feasible path.
-@return a new instance of Zurcher
-@comments In an ergodic model all states are reachable.
-**/
-Zurcher::Reachable()	{ return new Zurcher(); }
 
 /** The one period return.
 <pre>U = dRC+(1-d)&theta;<sub>1</sub>mx + n</pre>

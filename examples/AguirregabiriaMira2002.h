@@ -17,6 +17,5 @@ struct ZPanel : DataSet {
 	
 struct AMZurcher : Zurcher   {
     static  Run();
-    static  Reachable();
 			Utility();
         }

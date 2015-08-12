@@ -22,7 +22,7 @@ struct DynamicRoy : ExPostSmoothing	{
 		/** occupation experience array**/	xper,
         /** R vector (anonymous function).**/ R;
 	static 	Replicate();
-	static 	Reachable();
+	        Reachable();
 			Utility();
 	 	   	FeasibleActions(Alpha);
 	}

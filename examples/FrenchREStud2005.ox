@@ -4,7 +4,7 @@
 /** Setup and solve the model.
 **/	
 EFRetirement::Run()	{
-	EVExAnte::Initialize(1.0);
+	EVExAnte::Initialize(1.0,new EFRetirement());
 	SetClock(RandomMortality,TMAX,Retirement::mprob);
 	for (col = 1;col<sizerc(disc);++col) {
 		SetDelta(disc[col]);
@@ -52,21 +52,21 @@ Retirement::FeasibleActions(A) {
 **/
 Retirement::Reachable()	{
 	decl age = curt+T0;
-	if (parted.v && retired.v) return 0;
-	if (age>Tstar && (retired.v&&!dur.v&&!stayed.v&&!curs.v)) return new Retirement();
+	if (parted.v && retired.v) return FALSE;
+	if (age>Tstar && (retired.v&&!dur.v&&!stayed.v&&!curs.v)) return TRUE;
 	if (age>Tstar) return 0;
-	if (!curt&&(dur.v==S0)&&!retired.v&&!parted.v) return new Retirement();
-	if (curt&&(dur.v<=curt+S0)&&!(retired.v&&curs.v)) return new Retirement();
-	return 0;
+	if (!curt&&(dur.v==S0)&&!retired.v&&!parted.v) return TRUE;
+	if (curt&&(dur.v<=curt+S0)&&!(retired.v&&curs.v)) return TRUE;
+	return FALSE;
 	}
 
 /** The one period return.
 **/
 Retirement::Utility()  {
 	decl  s = dur.v, AA = A[Aind],u,
-			Xn =1~10~1~curt*(1~curt)~1~0~0,
+			Xn =1~10~1~I::t*(1~I::t)~1~0~0,
 			Xb = (Xn*acteqpars)';
-	if (!curt||curt==TMAX-1) return zeros(rows(AA),1);
+	if (!I::t||I::t==TMAX-1) return zeros(rows(AA),1);
 	if (rows(A[Aind])==Nactions) Xb |= Xb[parted.v ? Part : Full] + (s~s*s)*acteqpars[6:7][parted.v ? Part : Full];
 	u =   Xb
 	      +AV(eI)

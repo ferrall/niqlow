@@ -5,9 +5,9 @@
 struct DynWStar : KeepZ	{
     static const decl eta = 0.25;
 	static decl w, m, RV;
-	static Reachable();
 	static Run();
     DynWStar();
+	Reachable();
 	Utility();
 	EUtility();
     Uz(z);

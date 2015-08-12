@@ -30,7 +30,6 @@ struct Fertility : ExPostSmoothing	{
 	   /** stock of children **/ 		M,
 	   /** vector of huband income **/ Y;
 	static Mortality(FeasA);
-	static Reachable();
 	static Replicate();
 	 	   FeasibleActions(Alpha);
 		   Utility();

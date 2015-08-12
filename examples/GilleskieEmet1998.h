@@ -42,7 +42,7 @@ struct DynaHealth : ExPostSmoothing { //EVExAnte
 	static PIll(FeasA);
 	static PWell(FeasA);
 	static Replicate();
-	static Reachable();
+	       Reachable();
 	static NewEpisode(FeasA);
 		   FeasibleActions(Alpha);
 		   Utility();

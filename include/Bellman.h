@@ -12,6 +12,7 @@ on static members in order to reduce memory requirements.  These are defined in 
 
 **/
 struct  Bellman : DP {
+    static decl eta, etal, etah;
 	decl
 		/**TRUE if a Terminal state (no action chosen).
             Set in `DP::CreateSpaces`()
@@ -28,10 +29,11 @@ struct  Bellman : DP {
 		/**EV(&theta;) across random &gamma;, **/					EV;
 
 			static 	Delete();
-			static 	Initialize(userReachable,UseStateList=FALSE);
+			static 	Initialize(userState,UseStateList=FALSE);
 			static  CreateSpaces();
                     OnlyFeasible(myU);
 			virtual FeasibleActions(Alpha);
+            virtual Reachable();
 			virtual Utility();
 			virtual thetaEMax() ;
 			virtual ActVal(VV);
@@ -67,7 +69,7 @@ according to the `SmoothingMethods` sent to `ExPostSmoothing::CreateSpaces`().</
 **/
 struct ExPostSmoothing : Bellman {
 	static decl Method, rho, sigma;
-	static Initialize(userReachable,UseStateList=FALSE);
+	static Initialize(userState,UseStateList=FALSE);
 	static CreateSpaces(Method=NoSmoothing,smparam=1.0);
 	virtual Smooth(EV);
 			Logistic(EV);
@@ -75,7 +77,7 @@ struct ExPostSmoothing : Bellman {
 	}
 
 struct OneStateModel : ExPostSmoothing {
-	static Initialize(userReachable,Method,...);
+	static Initialize(userState,Method,...);
     static Choose();
 	}
 	
@@ -104,7 +106,7 @@ struct ExtremeValue : Bellman {
 		/** Choice prob smoothing &rho;.**/ rho,
 		/** Hotz-Miller estimation task.**/ HMQ;
 	static SetRho(rho);
-	static Initialize(rho,userReachable,UseStateList=FALSE);
+	static Initialize(rho,userState,UseStateList=FALSE);
 	static  CreateSpaces();
 	virtual thetaEMax() ;
 	virtual Smooth(EV);
@@ -117,7 +119,7 @@ struct ExtremeValue : Bellman {
 struct Rust : ExtremeValue {
 	static decl
 	/**The decision variable. **/ d;
-	static Initialize(userReachable);
+	static Initialize(userState);
 	static CreateSpaces();
 	}
 
@@ -127,7 +129,7 @@ struct Rust : ExtremeValue {
 struct McFadden : ExtremeValue {
 	static decl
 	/**The decision variable. **/ d;
-	static Initialize(Nchoices,userReachable,UseStateList=FALSE);
+	static Initialize(Nchoices,userState,UseStateList=FALSE);
 	static CreateSpaces();
 	ActVal(VV);
 	}
@@ -140,7 +142,7 @@ struct Normal : Bellman {
 					ev,
 					Chol,
 	/** **/			AChol;
-	static Initialize(userReachable,UseStateList=FALSE);
+	static Initialize(userState,UseStateList=FALSE);
 	static CreateSpaces();
 	thetaEMax() ;
 	virtual Smooth(EV);
@@ -154,7 +156,7 @@ struct NnotIID : Normal {
 		/**  replications for GHK **/				R,
 		/**  RNG seed argument **/					iseed,
 		/**  . @internal;		**/					ghk;
-	static Initialize(userReachable,UseStateList=FALSE);
+	static Initialize(userState,UseStateList=FALSE);
 	static SetIntegration(R,iseed,AChol);
 	static CreateSpaces();
 	static UpdateChol();
@@ -169,7 +171,7 @@ struct NIID : Normal {
 							MM,
 							GQNODES,
 							GQLevel;
-	static Initialize(userReachable,UseStateList=FALSE);
+	static Initialize(userState,UseStateList=FALSE);
 	static SetIntegration(GQLevel,AChol);
 	static CreateSpaces() ;
 	static UpdateChol();
@@ -234,7 +236,7 @@ struct OneDimensionalChoice : ExPostSmoothing {
             /** TRUE: solve for z* at this state.
                 Otherwise, ordinary discrete choice.**/             solvez,
 			/**N::R x 1 array of reservation value vectors.  **/	zstar;
-	static 	Initialize(userReachable,d=Two,UseStateList=FALSE);
+	static 	Initialize(userState,d=Two,UseStateList=FALSE);
 	static  CreateSpaces(Method=NoSmoothing,smparam=1.0);
 	virtual Uz(z);
 	virtual EUtility();
@@ -252,7 +254,7 @@ A discrete approximation to &zeta; enters the state vector if the decision is to
 struct KeepZ : OneDimensionalChoice {
 	static 	decl
             /** Discrete state variable of kept &zeta;.**/ keptz, Qt, myVV;
-	static 	Initialize(userReachable,d=2,UseStateList=FALSE);
+	static 	Initialize(userState,d=2,UseStateList=FALSE);
     static  SetKeep(N,held=TRUE);
 	virtual thetaEMax();
 	virtual ActVal(VV);

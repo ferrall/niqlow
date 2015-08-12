@@ -3,7 +3,7 @@
 
 MVTest::Replicate()	{
 	decl i;
-	Initialize(Reachable);
+	Initialize(new MVTest());
 	SetClock(StaticProgram);
 	Actions(accept = new ActionVariable("Accept",Mdimens));
 	decl sigu = diag(range(1,Mdimens));
@@ -14,8 +14,6 @@ MVTest::Replicate()	{
 	EMax.Volume = LOUD;
 	EMax->Solve(0,0);
 	}
-
-MVTest::Reachable() {	return new MVTest(); }
 
 MVTest::Utility() {
  	decl R = exp(selectrc(offers.Grid,accept.vals,offers.v));

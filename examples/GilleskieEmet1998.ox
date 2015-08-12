@@ -30,7 +30,7 @@ DynaHealth::PWell(FeasA) {
 	}
 
 DynaHealth::Replicate() {
-	Initialize(Reachable,FALSE,0); //EVExAnte
+	Initialize(new DynaHealth(),FALSE,0); //EVExAnte
 	SetClock(Ergodic);
 	SetDelta(disc);
 	Actions(wrk = new ActionVariable("work",2),
@@ -48,9 +48,9 @@ DynaHealth::Replicate() {
 
 DynaHealth::Reachable() {
 	decl tv = spell.t.v;
-	if (!spell.k.v && tv) return 0;  //duration not tracked when well.
-	if (tv < absents.v || tv < visits.v) return 0;
-	return new DynaHealth();
+	if (!spell.k.v && tv) return FALSE;  //duration not tracked when well.
+	if (tv < absents.v || tv < visits.v) return FALSE;
+	return TRUE;
 	}	
 
 DynaHealth::Utility() {

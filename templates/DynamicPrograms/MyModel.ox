@@ -26,7 +26,6 @@ struct «MyModel» : «BaseClass»	{
     /* decl ;  */                                           // Optional state-specific values (rarely needed, expensive)
 
     // Static methods can be called anything.
-	static «Reachable»();                                  // REQUIRED.
 	static «Initialize»(«arguments»);                      // Optional (suggested)
     static «Solve»();                                      // Optional (suggested)
 
@@ -34,6 +33,7 @@ struct «MyModel» : «BaseClass»	{
 
     /* «MyModel»(); */                                      //  Optional creator for each point in the state space.
 	Utility();                                              //  REQUIRED
+	/* Reachable(); */                                      //  REQUIRED if the state space should be trimmed for unreachable states
     /* FeasibleActions(A); */                               //  REQUIRED if feasible actions depend on the state.
 
     //  Reservation Value Methods require these methods as well
@@ -48,7 +48,7 @@ struct «MyModel» : «BaseClass»	{
 
 «MyModel»::Initialize()	{
 
-	«BaseClass»::Initialize(«Reachable»);
+	«BaseClass»::Initialize(new «MyModel»());
 
     // Specialize the environment if necessary
 	/* SetClock(«ClockType»); */
@@ -94,6 +94,13 @@ struct «MyModel» : «BaseClass»	{
     }
 */
 
+«MyModel»::Utility()  {
+	return /* column vector of utilities for feasible actions */;
+    //EXAMPLE: U = d*q, where d is an action variable and q is a state variable.
+    //return aa(d)*CV(q);
+	}	
+
+/*
 «MyModel»::Reachable()	{
     // For states that are not reachable: describe condition and return 0.
     // Create as many separate conditions as required.
@@ -103,12 +110,7 @@ struct «MyModel» : «BaseClass»	{
     /*  if («endogenous state condition»)
 	return new «MyModel»(); */
 	}
-
-«MyModel»::Utility()  {
-	return /* column vector of utilities for feasible actions */;
-    //EXAMPLE: U = d*q, where d is an action variable and q is a state variable.
-    //return aa(d)*CV(q);
-	}	
+*/
 
 /*
 «MyModel»::FeasibleActions(A) {

@@ -39,7 +39,7 @@ struct UISearch : EVExPost {
 		/** accept job offer **/        a,
 		/** active search **/           x,
 		/** insured job process **/     j;
-	static Reachable();
+	Reachable();
 	static OfferProb(FeasA);
 	static Run();
 	Utility();

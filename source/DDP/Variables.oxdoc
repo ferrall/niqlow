@@ -103,10 +103,10 @@ Hours::Update() {
 MyModel::MaxH() { return CV(hasch) ? 30 : 50; }
 &vellip;
 MyModel::Initialize() {
-   hellip;
+   &vellip;
    GroupVariables(hasch = new FixedEffect("",2));
    Actions(h = new Hours(5,MyModel::MaxH));
-   hellip;
+   &vellip;
    }
 MyModel::Utility() {
         return CV(wage)*aa(h);
@@ -206,7 +206,7 @@ The model places discrete state variables/blocks into one of four vectors.
     }
 &vellip;
 MyModel::Initialize() {
-    DPparent::Initialize();
+    DPparent::Initialize(new MyModel());
     &vellip;
     ExogenousStates(e = new SimpleJump("iid",5));
     EndogenousStates(q = new LaggedState("lag",e));
@@ -288,7 +288,7 @@ That is, you want to `Freeze` the current value of <code>q</code> when <code>h</
     }
 &vellip;
 MyModel::Initialize() {
-    DPparent::Initialize();
+    DPparent::Initialize(new MyModel());
     &vellip;
     Actions(a = new ActionVariable("a",2) ) ;
     EndogenousStates(
@@ -733,7 +733,7 @@ The Clock Block is a single `StateBlock` that is always in the endogenous vector
 <DT>The call to <code>SetClock()</code> must take place between the calls to <code>Initialize()</code> and <code>CreateSpaces()</code></DT>
 <DD>Example
 <pre>
-Initialize();
+Initialize(new MyModel());
 SetClock(InfiniteHorizon);
 CreateSpaces();
 </pre></DD>
@@ -776,7 +776,7 @@ When T = &infin;,
 
 <li>Kinds of Clocks</li>
 
-See `ClockTypes` 
+See `ClockTypes`
 
 <DT><code>InfiniteHorizon</code>: <var>t&Prime; = t = 0 = T&oline;</var>.</DT>
 <DD>In the infinite horizon case Bellman 's equation must be iterated on from initial conditions until it converges.</DD>

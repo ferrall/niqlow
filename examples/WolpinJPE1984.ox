@@ -4,7 +4,7 @@
 /**Run the  replication.
 **/
 Fertility::Replicate()	{
-	Initialize(Reachable);
+	Initialize(new Fertility());
 	SetClock(NormalAging,T+tau);
 	decl t,PD,expbirths, EMax, tab, row, prow,Yrow, cur;
 	SetDelta(delt);
@@ -38,12 +38,6 @@ Fertility::Mortality(FeasA)	{
 	b =	0 ~ (1-pt) ~ pt ;
 	return b;
 	}
-
-/** State Space Creation.
-States with M &gt; t are not reachable (return 0), BUT this is now handled intrinsically by RandomUpDown
-@return a new `Fertility` instance .
-**/
-Fertility::Reachable() { return new Fertility(); }
 
 /** Return A(&theta;).
 Fertility is not a feasible choice for t&gt;T-1

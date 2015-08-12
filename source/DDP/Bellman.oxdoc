@@ -17,7 +17,7 @@
 class MyModel : ExPostSmoothing {
     // declare data members
             Utility(A);
-    static Reachable();
+            Reachable();
     <details><summary>// Optional methods to replace built-in versions</summary>
            FeasibleActions(A);
     static PreUpdate();</details>
@@ -75,16 +75,16 @@ MyModel::Utility(A) {
     }
 </pre></DD>
 <LI>Reachable state creator</LI>
-<DT><code>MyModel</code> must include a static method/function that returns a new object of <code>MyModel</code> for any reachable state and 0 otherwise. </DT>
-<DT> <code>MyCode</code> must pass this method to <code>DPparent::Inititalize()</code>.</DT>
+<DT><code>MyModel</code> <em>can optionally</em> provide replacement for the virtual `Bellman::Reachable`() method to return an indicator for whether the current state is reachable from initial conditions or not. </DT>
 <DD>Example 1.  All states are reachable
-<pre>MyModel::Reachable() { return new MyModel(); }</pre>
-Example 2.  States where state variables x and y greater than 5 are not reachable
+<pre></pre>
+The built-in version of Reachable returns TRUE, so if all states are reachable the user does not need to provide a replacement.</DD>
+<DD>Example 2.  States where state variables x and y greater than 5 are not reachable
 <pre>MyModel::Reachable() {
-    return CV(x)+CV(y)&gt; 5 ? 0 : new MyModel();
+    return ! (CV(x)+CV(y)&gt; 5);
     }</pre></DD>
 <LI>Restricted Feasible Action spaces / matrices </LI>
-<DT><code>MyModel</code> <em>can</em> provide a replacement for the virtual `Bellman::FeasibleActions`() method to make the feasible choice set to vary with the endogenous state &theta;.</DT>
+<DT><code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::FeasibleActions`() method to make the feasible choice set to vary with the endogenous state &theta;.</DT>
 <DD>Example.  Only action vectors with <code>d</code> less than or equal to the value of state variable <code>x</code> are feasible.
 <pre>MyModel::FeasibleActions(A) { return A[d.pos][] &lt;= CV(x); }</pre>
 </DD>

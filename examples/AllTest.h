@@ -5,21 +5,18 @@
 TestRun();
 
 struct Test1 : Bellman {
-	static Reachable();
 	static Run(UseList);
 	Utility();
 	}
 
 struct Test2 : Bellman {
     static decl a;
-	static Reachable();
 	static Run(UseList);
 	Utility();
 	}
 
 struct Test3 : Bellman {
 	static decl a, d, s0, s1;
-	static Reachable();
 	static Run(UseList);
 	Utility();
 	}
@@ -39,26 +36,22 @@ struct Test3a : ExPostSmoothing	{
 		/** offer block **/		  		  	offers,
 		/** occupation experience array**/	xper;
 	static 	Run();
-	static 	Reachable();
 			Utility();
 	}
 
 	
 struct Test5 : NnotIID {
-	static Reachable();
 	static Run();
 	Utility();
 	}
 
 struct Test4 : NIID {
-	static Reachable();
 	static Run();
 	Utility();
 	}
 
 struct Test6 : Bellman {
 	static decl acc, job;
-	static Reachable();
 	static Run();
 	Utility();
 	}
@@ -69,13 +62,11 @@ struct Test7 : Rust  {
 						dgp = { 4.2, <0.3919;0.5953;1-0.3919-0.5953> };
     static decl  x,data,rc,th1;
     static  Run();
-    static  Reachable();
             Utility();
         }
 
 struct Test8 : Bellman {
 	static 	decl r, g, d;
-	static 	Reachable();
 	static	Run();
 			Utility();
 	}
@@ -83,7 +74,6 @@ struct Test8 : Bellman {
 struct Test9 : Bellman	{
 	enum{Noff=10}
 	static decl p, d, a, meth, fem, lam;
-	static Reachable();
 	static Run();
 	Utility();
 	}

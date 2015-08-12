@@ -54,10 +54,9 @@ TestRun() {
        while (TRUE);
 	}
 
-Test1::Reachable() { return new Test1(); }
 Test1::Utility() { return  1.0; }
 Test1::Run(UseList) {
-	Bellman::Initialize(Test1::Reachable,UseList);
+	Bellman::Initialize(new Test1(),UseList);
 	SetClock(NormalAging,10);
 	GroupVariables(new FixedEffect("g",2));
 	CreateSpaces();
@@ -65,10 +64,9 @@ Test1::Run(UseList) {
 	Delete();
 	}
 
-Test2::Reachable() { return new Test2(); }
 Test2::Utility() { return I::t < 3 ? aa(a) : 1-aa(a); }
 Test2::Run(UseList) {
-	Initialize(Test2::Reachable,UseList);
+	Initialize(new Test2(),UseList);
 	SetClock(UncertainLongevity,8,0.0);
     Actions(a = new BinaryChoice());
 	CreateSpaces();
@@ -81,10 +79,9 @@ Test2::Run(UseList) {
 	Delete();
 	}
 
-Test3::Reachable() { return new Test3(); }
 Test3::Utility() { decl u = A[Aind]*(CV(d)-5+CV(s0))+(1-A[Aind])*CV(s1); return u;}
 Test3::Run(UseList) {
-	Initialize(Test3::Reachable,UseList);
+	Initialize(new Test3(),UseList);
 	SetClock(NormalAging,5);
 	Actions(new ActionVariable("a",2));
 	ExogenousStates(d = new SimpleJump("d",11));
@@ -101,7 +98,7 @@ Test3::Run(UseList) {
 
 Test3a::Run()	{
 	decl i, Approx,Brute,AMat,BMat;	
-	Initialize(Reachable,FALSE);
+	Initialize(new Test3a(),FALSE);
 	SetClock(NormalAging,1);
 	Actions(accept = new ActionVariable("Accept",Msectors));
     GroupVariables(lnk = new NormalRandomEffect("lnk",3,0.0,0.1));
@@ -123,7 +120,6 @@ Test3a::Run()	{
     Delete();
 }
 
-Test3a::Reachable() { return new Test3a(); 	}
 
 /** Utility vector equals the vector of feasible returns.**/	
 Test3a::Utility() {
@@ -136,10 +132,9 @@ Test3a::Utility() {
 	return R;
 	}
 	
-Test4::Reachable() { return new Test4(); }
 Test4::Utility() { return 0|-0.5; }
 Test4::Run() {
-	Initialize(Test4::Reachable);
+	Initialize(new Test4());
 	SetIntegration(16,0);
 	SetClock(NormalAging,10);
 	Actions(new ActionVariable("a",2));
@@ -148,10 +143,9 @@ Test4::Run() {
 	Delete();
 	}
 
-Test5::Reachable() { return new Test5(); }
 Test5::Utility() { return 0|0; }
 Test5::Run() {
-	Initialize(Test5::Reachable);
+	Initialize(new Test5());
 	SetClock(NormalAging,1);
 	Actions(new ActionVariable("a",2));
 	SetIntegration(100,-1,<1.0;0.99;1.0>);
@@ -160,10 +154,9 @@ Test5::Run() {
 	Delete();
 	}
 
-Test6::Reachable() { return new Test6(); }
 Test6::Utility() { return (job.status.v==3) * job.offer.v * aa(acc) ; }
 Test6::Run() {
-	Initialize(Test6::Reachable);
+	Initialize(new Test6());
 	SetClock(Ergodic);
 	Actions(acc = new ActionVariable("a",2));
 	EndogenousStates(job = new OfferWithLayoff("",5,acc,0.4,0.2));
@@ -177,7 +170,7 @@ Test6::Run() {
 	}
 
 Test7::Run()  {
-	Initialize(Test7::Reachable);
+	Initialize(new Test7());
 	rc = new Positive("RC",dgp[RC]);
 	th1 = new Simplex("q",dgp[XT]);
 //	th1->Encode();
@@ -205,20 +198,18 @@ Test7::Run()  {
 	Delete();
 	}
 	
-Test7::Reachable()    { return new Test7(); }
 Test7::Utility()  {
 	decl ii = aa(d), u = -(ii*CV(rc) + (1-ii)*0.2*CV(x));
 //	if (CV(x)==0) println("RC ",CV(rc),CV(x.Pi)');
     return u;
 	}
 
-Test8::Reachable() { return new Test8(); }
 Test8::Utility() {
 	decl dg = CV(g), a = aa(d);
 	return dg*a + (1-dg)*(1-a) + 3*CV(r);
 	}
 Test8::Run() {
-	Initialize(Reachable);
+	Initialize(new Test8());
 	SetClock(StaticProgram);
 	Actions(d = new ActionVariable("d",2));
 	GroupVariables(r = new RandomEffect("r",2),
@@ -233,7 +224,7 @@ Test8::Run() {
 	}
 
 Test9::Run()	{
-	Initialize(Reachable);
+	Initialize(new Test9());
 	SetClock(UncertainLongevity,4,0.0);
 	SetDelta(0.1);
 	Actions(a = new ActionVariable("a",2));
@@ -259,5 +250,4 @@ Test9::Run()	{
     Explore(pd,10,0.1,lam);
 	Delete();
 	}
-Test9::Reachable()	{	return new Test9(); 	}
 Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + CV(p)*aa(a)) + (3-I::t); 	}	
