@@ -180,9 +180,9 @@ ActionTriggered::ActionTriggered(b,t,tv,rval){
 
 ActionTriggered::Transit(FeasA) {
     Augmented::Transit(FeasA);
-    if (any(idx=FeasA[][t.pos].==tv)) {  //trigger value feasible
+    if ((any(idx=FeasA[][t.pos].==tv))) {  //trigger value feasible
         basetr[Qrho] .*= (1-idx);
-        if (any(idy = basetr[Qi].==rval) )   //reset values already present
+        if ((any(idy = basetr[Qi].==rval) ))   //reset values already present
             basetr[Qrho][][maxcindex(idy')] += idx;
         else {
             basetr[Qi] ~= rval;
@@ -724,7 +724,7 @@ ActionCounter::ActionCounter(L,N,Act,  ToTrack,Reset,Prune)	{
 **/
 ActionCounter::Transit(FeasA)	{
     if (AV(Reset,FeasA)) return { <0>, ones(rows(FeasA),1) };
-    if (v==N-1 || !any( inc = sumr(FeasA[][Target.pos].==ToTrack)  ) ) return UnChanged(FeasA);
+    if (( v==N-1 || !any( inc = sumr(FeasA[][Target.pos].==ToTrack)  ) )) return UnChanged(FeasA);
     return { v~(v+1) , (1-inc)~inc };
 	}
 
@@ -924,7 +924,7 @@ StateBlock::AddToBlock(news,...)	{
 	decl i,k,nd,newrow, s, oldallv;
 	news = {news}|va_arglist();
 	for (i=0;i<sizeof(news);++i) {
-		if (!IsBlockMember(s = news[i])) oxrunerror("DDP Error 23. State Variable added to block not a block member object\n");
+		if ((!IsBlockMember(s = news[i]))) oxrunerror("DDP Error 23. State Variable added to block not a block member object\n");
 		s.bpos = N++;
 		Theta |= s;
 		v ~= .NaN;
@@ -1055,7 +1055,7 @@ Episode::Transit(FeasA) 	{
 	decl kv = k.v, tv = t.v, pi;
 	if (!kv) {		// no episode, get onset probabilities
 		probT = 0;
-		if (columns(pi = CV(Onset,FeasA))!=k.N)
+		if ((columns(pi = CV(Onset,FeasA))!=k.N))
 			oxrunerror("DDP Error 26. Onset probability must return 1xK or FxK matrix\n");
 							return { 0 | k.vals, reshape(pi,rows(FeasA),k.N)  };
 		}
@@ -1112,19 +1112,20 @@ Tauchen::Update() {
 @param L label
 @param N number of values
 @param r `AV`-compatible object, interest rate on current holding.
-@param NetSavings `AV`-compatible static function of the form <code>NetSavings(FeasA)</code>
+@param NetSavings `AV`-compatible static function of the form <code>NetSavings(FeasA)</code><br><em>or</em>`ActionVariable`
 @see Discretized
 **/
 Asset::Asset(L,N,r,NetSavings){
 	StateVariable(L,N);
     this.r = r;
     this.NetSavings = NetSavings;
+    isact = isclass(NetSavings,"ActionVariable");
 	}
 
 /**
 **/
 Asset::Transit(FeasA) {
-     atom = setbounds( AV(r)*actual[v]+AV(NetSavings,FeasA) , actual[0], actual[N-1] )';
+     atom = setbounds( AV(r)*actual[v]+isact ? NetSavings.actual[FeasA[][NetSavings.pos]] : AV(NetSavings,FeasA) , actual[0], actual[N-1] )';
      top = mincindex( (atom-DIFF_EPS.>actual) )';
      bot = setbounds(top-1,0,.Inf);
      mid = (actual[top]-actual[bot]);

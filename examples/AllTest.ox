@@ -241,8 +241,8 @@ Test9::Run()	{
     pd->Tracking (UseLabel,fem,a,p);
     pd->Predict(15,FALSE);
     pd -> Histogram(Two);
-    println("%c",pd.tlabels,pd.flat[0],pd.flat[1]);
-    savemat("Test9moms.dta",pd.flat[0]|pd.flat[1],pd.tlabels);
+    println("%c",{"f"}|pd.tlabels,pd.aflat[0],pd.aflat[1]);
+    savemat("Test9moms.dta",pd.aflat[0]|pd.aflat[1],{"f"}|pd.tlabels);
     delete pd;
     pd = new EmpiricalMoments("hi",meth,UseLabel);
     pd->TrackingWithLabel(AllFixed,UseLabel,fem,a,p);

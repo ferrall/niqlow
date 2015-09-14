@@ -5,8 +5,9 @@ OS := Windows
 DIRS := CFMPI DDP FiveO Hybrids Shared
 
 ifeq ($(OS), Windows)
-	OX := "C:\Program Files (x86)\$(Version)\Ox\bin\oxl.exe"
-	OXFLAGS := -DOX7
+#	OX := "C:\Program Files (x86)\$(Version)\Ox\bin\oxl.exe"
+	OX := "C:\Program Files\$(Version)\Ox\bin64\oxl.exe"
+	OXFLAGS := -DOX7 -v1 
 	ECHO := echo
 	CD := dir
 	COPY := copy

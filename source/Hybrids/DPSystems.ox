@@ -28,7 +28,7 @@ SolveAsSystem::SolveAsSystem() {
 	system = new EVSystem(SS[iterating].size,VI);
 	}
 
-SolveAsSystem::Run(th) {	th->thetaEMax(); }
+SolveAsSystem::Run() {	I::curth->thetaEMax(); }
 	
 SolveAsSystem::Solve(SystemSolutionMethod,mxiter)	{
 	Parameter::DoNotConstrain = FALSE;
@@ -116,15 +116,11 @@ RVEdU::RVEdU() {
 	subspace = iterating;
 	}
 	
-RVEdU::Run(th) {
-	if (!isclass(th,"Bellman")) return;
-    if (th.solvez) {
-	   th.pandv[I::r][][] = .NaN;
-	   th.U[] = 0;
-       }
-    else {
-        th.U[]=th->Utility();	
-        }
+RVEdU::Run() {
+    if (I::curth.solvez)
+        I::curth->UReset();
+    else
+        I::curth->ExogUtil();	
 	}
 
 /**Solve for cut off values in the continuous shock &zeta;.
@@ -148,20 +144,19 @@ ReservationValues::Solve(Fgroups,MaxTrips) 	{
         }
 	}
 
-ReservationValues::Run(th) {
-	if (!isclass(th,"Bellman")) return;
-    th->ActVal(VV[I::later]);
-	decl sysind = th.Aind;
-	if ( th.solvez && isclass(RValSys[sysind])) {
-		RValSys[sysind] ->	RVSolve(th,DeltaV(th.pandv[I::r]));
-		VV[I::now][I::all[iterating]] = th->thetaEMax();
+ReservationValues::Run() {
+    I::curth->ActVal(VV[I::later]);
+	decl sysind = I::curth.Aind;
+	if ( I::curth.solvez && isclass(RValSys[sysind])) {
+		RValSys[sysind] ->	RVSolve(I::curth,DeltaV(I::curth.pandv[I::r]));
+		VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
 		}
 	else {
-		VV[I::now][I::all[iterating]] = V = maxc(th.pandv[I::r]);
-		th.pstar = <1.0>;
-		th.zstar[I::r][] = .NaN;
+		VV[I::now][I::all[iterating]] = V = maxc(I::curth.pandv[I::r]);
+		I::curth.pstar = <1.0>;
+		I::curth.zstar[I::r][] = .NaN;
 		if (Flags::setPstar) {
-            th->Smooth(V);
+            I::curth->Smooth(V);
             Hooks::Do(PostSmooth);
             }
 		}

@@ -61,8 +61,9 @@ struct Path : Outcome {
 			decl
 		/** . @internal **/								cur,
 		/** Next Path in a `Panel`. @internal **/		pnext,		
-/** lenth of the path. **/						T,
+        /** lenth of the path. **/						T,
 		/** likelihood of the path.**/					L,
+        /** . **/                                       flat,
 		/**	Last `Outcome` in the path. @internal **/	last;
 			Path(id,state0);
 			~Path();
@@ -79,10 +80,10 @@ struct Path : Outcome {
 	}
 
 struct RandomEffectsIntegration : RETask {
-	decl path, L;
+	decl path, L, flat;
 	RandomEffectsIntegration();
 	Integrate(path);
-	Run(g);
+	Run();
 	}
 
 	
@@ -255,17 +256,19 @@ struct 	PathPrediction : Prediction {
     /** number of values tracked **/                Nt,
     /** the current prediction **/                  cur,
     /** length of the path. **/                     T,	
-    /** Distance between predictions and emp.mom.**/ gmm,
+    /** flat prediction matrix.**/                  flat,
+    /** Distance between predictions and emp.mom.**/ L,
     /** method to call for nested solution. **/		method,
     /** the next PathPrediction   **/               fnext;
 	PathPrediction(f=0,method=0,iDist=0);
+    Initialize();
 	~PathPrediction();
 	Predict(T=0,printit=FALSE);
     Empirical(inmoments);
     Tracking(LorC,mom1,...);
     SetColumns(dlabels);
 	Histogram(printit=TRUE);
-//    GMMobjective();
+    PathObjective();
 	}
 
 struct PanelPrediction : PathPrediction {
@@ -274,11 +277,12 @@ struct PanelPrediction : PathPrediction {
 	decl
 				        					fparray,
     /**length of vector returned by EconometricObjective.**/ FN,
-                                             flat,
+                                             aflat,
 	/** array of GMM vector. **/	 	     M;
     PanelPrediction(r=0,method=0);
     ~PanelPrediction();
-	Histogram(printit=TRUE);
+	Histogram(printit=FALSE);
+    Objective();
     Predict(T=0,printit=FALSE);
     GMMdistance();
     Tracking(LorC,mom,...);

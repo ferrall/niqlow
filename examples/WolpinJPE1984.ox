@@ -28,7 +28,7 @@ Fertility::Replicate()	{
             PD -> Tracking(NotInData,n,M);
 			PD -> Predict(20);
             PD -> Histogram(Two);
-			println("%c",PD.tlabels,PD.flat[0]);
+			println("%c",{"f"}|PD.tlabels,PD.flat);
 			}
 	}
 

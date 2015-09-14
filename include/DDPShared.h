@@ -1,5 +1,7 @@
 #import "Shared"
 
+ca(A,act);
+
 		/** Categories of state variables.	
             These categories are used mainly for summarizing the model.
                 @name StateTypes **/	
@@ -258,6 +260,7 @@ struct N : DDPauxiliary {
     static Reached(trackind);
     static Sizes();
     static Subsample(prop);
+    static IsReachable(trackind);
     }
 
 /**  Dynamically updated indices into state spaces.
@@ -282,6 +285,11 @@ struct I : DDPauxiliary {
 	/** . @internal **/										MESind,
 	/** . @internal **/										MSemiEind,																
 	/** . @internal **/										MxEndogInd,
+    /** index into &Alpha; of current realized &alpha;. **/	ialpha,
+    /** current point in state space, &theta;.
+        Set in `I::Set`. **/                                curth,
+    /** current point in group space, &gamma;..
+        Set in `I::Set`.  **/                               curg,
     /** The current value of &delta;. This is set in
             `DP::UpdateVariables`() to avoid repeated calls
             to `CV`.  @see DP::delta **/                         CVdelta;

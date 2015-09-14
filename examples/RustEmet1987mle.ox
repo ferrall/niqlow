@@ -19,10 +19,12 @@ RustEstimates::DoAll() {
 	mle -> Iterate(0);
 
     /* Second stage estimates */
+	decl cputime0 = -timer();
     ZurcherHat::SecondStage();
     EMax.DoNotIterate = FALSE;  //iterate on V until convergence
     nfxp->ResetMax();
 	mle -> Iterate(0);
+	println(" Estimation: ",timer()+cputime0);
 
     delete mle, nfxp, EMax;
     Bellman::Delete();

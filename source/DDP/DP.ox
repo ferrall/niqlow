@@ -13,7 +13,27 @@ I::Initialize() {
 	MedianExogState= (N::All[lo:hi]-1)/2;
 	MESind = OO[bothexog][lo:hi]*MedianExogState;
 	MSemiEind = OO[onlysemiexog][lo:hi]*MedianExogState;
+    ialpha = UnInitialized;
     majt = subt = Zero;
+    }
+
+/** Sets and stores all the state indices, called by `Task::loop` and anything else that directly sets the state.
+@param state current state vector
+@param group TRUE if the group indices should be set as well.
+**/
+I::Set(state,group) {
+	all[] = OO*state;
+    curth = Theta[all[tracking]];
+    if (group) {
+	   g = int(all[bothgroup]);
+	   f = int(all[onlyfixed]);
+	   r = int(all[onlyrand]);
+       curg = Gamma[g];
+       if (isclass(curg)) {
+	       curg->Sync();
+	       curg->Density();
+           }
+       }
     }
 
 /** Tracks information about a subvector of the state vector. **/
@@ -70,7 +90,7 @@ SubSpace::ActDimensions()	{
 This resets `Group::Ptrans`[&Rho;(&theta;&prime;;&theta;)] and it synch &gamma;
 @param gam , &gamma; group to reset.
 @return density of the the group.
-@see DP::SetGroup, DP::CurGroup
+@see DP::SetGroup
 **/
 Group::Reset() {
 	if (Flags::IsErgodic) Ptrans[][] = 0.0;
@@ -89,17 +109,12 @@ DP::SetVersion(v) {
         oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running it an older niqlow version, "+sprint(Version::version)+".\n You should consider installing a newer release.\n");
     }
 
-/** Return the element `I::g` element of `Gamma`.
-@see DP::SetGroup
-**/
-DP::CurGroup() { return Gamma[I::g]; }
-
 /** Set and return the current group node in &Gamma;.
 @param GorState matrix, the state vector for the group<br>integer, index of the group
 @return pointer to element of &Gamma; for the group. If this is not a class, then the group has been excluded from the model.
 @comments
 This also sets `I::f` and `I::g`
-@see DP::Settheta, DP::CurGroup
+@see DP::Settheta
 **/
 DP::SetGroup(GorState) {
 	I::g = ismatrix(GorState)
@@ -126,11 +141,12 @@ DP::DrawOneExogenous(aState) {
 	return i;
 	}
 
-/** return &theta;
+/** Sets the current &theta;.
 @param endogind  tracking index of the state &theta;.
-@return Theta[endogind]
+@return TRUE if &theta; is reachable. FALSE otherwise.
+@see `I::curth`
 **/	
-DP::Settheta(endogind) { return Theta[endogind]; }
+DP::Settheta(endogind) { return isclass(I::curth = Theta[endogind]); }
 
 /** Return index into the feasible A list for a &theta;.
 @param i index of &theta; in the state space &Theta;
@@ -355,7 +371,7 @@ DP::KLaggedAction(Target,K,Prune){
 	
 
 /** The default Run() ... prints out a message. **/
-Task::Run(th) { println("Task::Run() ... should be replaced by a virtual Run()");    }
+Task::Run() { println("Task::Run() ... should be replaced by a virtual Run()");    }
 
 
 /** Base class for tasks involving random and fixed groups.
@@ -369,7 +385,7 @@ GroupTask::GroupTask() {
 
 /** Loop over group-variable tasks.
 @internal **/
-GroupTask::loop(){
+GroupTask::loop(IsCreator){
 	Reset();
 	SyncStates(left,right);
 	d=left+1;				   							// start at leftmost state variable to loop over
@@ -377,7 +393,7 @@ GroupTask::loop(){
 		do {
 			SyncStates(left,left);
             I::Set(state,TRUE);
-			this->Run();
+			if (IsCreator || isclass(I::curg) )this->Run();
 			} while (--state[left]>=0);
 		state[left] = 0;
 		d = left+double(vecrindex(state[left:right]|1));
@@ -397,7 +413,7 @@ CGTask::CGTask() {
 	Gamma = new array[N::G];
 	Fgamma = new array[N::F][N::R];
 	gdist = zeros(N::F,N::R);
-	loop();
+	loop(TRUE);
 	decl r,g,f;
 	for (f=0,g=0;f<N::F;++f) {for (r=0;r<N::R;++r) Fgamma[f][r] = Gamma[g++];}
 	}
@@ -417,7 +433,7 @@ DPMixture::DPMixture() 	{	RETask();	}
 /** .
 @internal
 **/
-DPMixture::Run() 	{	if (isclass(CurGroup()))     GroupTask::qtask->GLike();	}
+DPMixture::Run() 	{	GroupTask::qtask->GLike();	}
 
 /**
 @internal
@@ -525,6 +541,14 @@ N::Reached(trackind) {
 	ReachableIndices |= trackind;
     }
 
+/** Check if trackind index is reachable list
+@param trackind tracking index
+@return any(ReachableIndices.==trackind)
+**/
+N::IsReachable(trackind) {
+    return any(ReachableIndices.==trackind);
+    }
+
 /** Initialize static members.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;. As of version 2.4, which requires Ox 7.1 or greater, the Ox
 <code>clone()</code> function is used to copy this object to fill out &Theta;.  This also allows userReachable() to be a virtual function (and is no longer an arugment to <code>Initialize()</code>)
@@ -561,7 +585,7 @@ DP::Initialize(userState,UseStateList) {
  	for (subv=0;subv<DSubSpaces;++subv)   	{ SS[subv]= new SubSpace();  }
 	F = new array[DVspace];
 	P = new array[DVspace];
-	alpha = ialpha = chi = zeta = delta = Impossible;
+	alpha = chi = zeta = delta = Impossible;
     SetUpdateTime();
     if (strfind(arglist(),"NOISY")!=NoMatch) {
             Volume = NOISY;
@@ -787,11 +811,17 @@ DP::CreateSpaces() {
         }
     else {
 	   tt = new FindReachables();
-	   tt->loop();
+	   tt->loop(TRUE);
+       if (Volume>LOUD) {
+            fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
+                          "1=Unreacheable because a user Reachable returns FALSE\n",
+                          "2=Reachable",
+                "%8.0f","%c",{"Reachble"}|{"Tracking"}|Labels::Vprt[svar][S[endog].M:S[clock].M],tt.rchable);
+            }
        delete tt;
        N::Sizes();
        tt = new CreateTheta();
-       tt->loop();
+       tt->loop(TRUE);
        delete tt.insamp;
        }
 	delete tt;
@@ -831,9 +861,17 @@ DP::CreateSpaces() {
         println("\n");
 		}
     if (Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
-	ETT = new EndogTrans();
-    if (Flags::UpdateTime[InCreateSpaces])
-        UpdateVariables();
+	ETTiter = new EndogTrans(iterating);
+    ETTtrack = new EndogTrans(tracking);
+    if (Flags::UpdateTime[InCreateSpaces]||Volume>LOUD) {
+            if (Volume>LOUD) {
+                oxwarning("Checking for valid transitions.  Look in the log file for problems.");
+                UpdateVariables(tracking);
+                --Volume;
+                ETTiter->Traverse();
+                }
+            else UpdateVariables(iterating);
+        }
     else DP::A = Alpha::A;   //this is done in UpdateVariables()
  }
 
@@ -844,6 +882,7 @@ Task::Task()	{
 	state 	= N::All-1;
 	subspace = UnInitialized;
 	MaxTrips = INT_MAX;
+    done = FALSE;
 	}
 
 /** .
@@ -889,7 +928,10 @@ Called by `DP::onlyDryRun` inside <code>CreateSpaces</code>.  When this is calle
 not used.
 
 **/
-FindReachables::FindReachables() { 	ThetaTask(); }
+FindReachables::FindReachables() { 	
+    ThetaTask();
+    rchable = <>;
+    }
 
 /** Process the state space but do not allocate memory to store &Theta;.
 
@@ -900,7 +942,7 @@ DryRun::DryRun() {
     FindReachables();
     PrevT = UnInitialized;
     report = <>;
-	loop();
+	loop(TRUE);
     println("%c",{"t","Reachable","Approximated","In-Sample-Ratio","Cumulative Full"},
                 "%cf",{"%6.0f","%15.0f","%15.0f","%15.5f","%15.0f"},report);
     println("niqlow may run out of memory  if cumulative full states is too large.");
@@ -911,18 +953,23 @@ CreateTheta::picked() {
     return isarray(insamp) ? ( isint(insamp[I::t]) ? TRUE : any(insamp[I::t].==I::all[tracking]) ) : TRUE;
     }
 
-FindReachables::Run(g) {
+FindReachables::Run() {
     decl v, h=DP::SubVectors[endog];
     Flags::SetPrunable(counter);
-    foreach (v in h) if (!(th = v->IsReachable())) return;
-	if (userState->Reachable()) N::Reached(I::all[tracking]);
-// isclass(th = userReachable(),"Bellman")) {
-//        delete th;      }
+    foreach (v in h) if (!(th = v->IsReachable())) {
+        if (Volume>LOUD) rchable |= 0~I::all[tracking]~(state[S[endog].M:S[clock].M]');
+        return;
+        }
+	if (userState->Reachable()) {
+        if (Volume>LOUD) rchable |= 2~I::all[tracking]~(state[S[endog].M:S[clock].M]');
+        N::Reached(I::all[tracking]);
+        }
+    else if (Volume>LOUD) rchable |= 1~I::all[tracking]~(state[S[endog].M:S[clock].M]');
 	}
 
 /** .
 **/
-CreateTheta::Run(g) {
+CreateTheta::Run() {
     decl v, h=DP::SubVectors[endog];
     Flags::SetPrunable(counter);
     foreach (v in h) if (!(th = v->IsReachable())) return;
@@ -935,7 +982,7 @@ CreateTheta::Run(g) {
 /** .
 @internal
 **/
-DryRun::Run(g) {
+DryRun::Run() {
     if (I::t!=PrevT) {
         if (PrevT!=-1)
             report |= PrevT~(N::ReachableStates-PrevR)~(N::Approximated-PrevA)~(1-(N::Approximated-PrevA)/(N::ReachableStates-PrevR))~(N::ReachableStates-N::Approximated);
@@ -943,7 +990,7 @@ DryRun::Run(g) {
         PrevR = N::ReachableStates;
         PrevT=I::t;
         }
-    FindReachables::Run(g);
+    FindReachables::Run();
 	}
 
 ReSubSample::ReSubSample() {
@@ -952,15 +999,13 @@ ReSubSample::ReSubSample() {
     delete insamp;
     }
 
-ReSubSample::Run(th) {
-    if (isclass(th))th->Allocate(picked());
-    }
+ReSubSample::Run() {    I::curth->Allocate(picked());     }
 
 
 /** Loop through the state space and carry out tasks leftgrp to rightgrp.
 @internal
 **/
-Task::loop(){
+Task::loop(IsCreator){
 	trips = iter = 0;
 	Reset();					// (re-)initialize variables in range
 	SyncStates(0,N::S-1);
@@ -969,7 +1014,7 @@ Task::loop(){
 		do {
 			SyncStates(left,left);
             I::Set(state);
-			this->Run(Theta[I::all[tracking]]);
+			if (isclass(I::curth)||IsCreator) this->Run();
 			++iter;
 			} while (--state[left]>=0);
 		state[left] = 0;
@@ -1036,7 +1081,7 @@ Task::list(span,inlows,inups) {
 	   state = news;
 	   SyncStates(left,right);
        I::Set(state);
-	   this->Run(Theta[I::all[tracking]]);
+	   if (isclass(I::curth)) this->Run();
 	   ++iter;
 	   } while (--s>=lows);
 	if (!done) return this->Update();
@@ -1091,16 +1136,15 @@ DP::ExogenousTransition() {
 
 /** Display the exogenous transition as a matrix. **/
 DumpExogTrans::DumpExogTrans() {
-	Task();
-	left = S[exog].M;	right = S[semiexog].X;
+	ExTask();
 	s = <>;
-	loop();
+	loop(TRUE);
 	print("Exogenous and Semi-Exogenous State Variable Transitions ","%c",{" "}|Labels::Vprt[svar][S[exog].M:S[semiexog].X]|"f()","%cf",array(Labels::Sfmts[0])|Labels::Sfmts[3+S[exog].M:3+S[semiexog].X]|"%15.6f",s);
 	delete s;
 	}
 	
 /** . @internal **/
-DumpExogTrans::Run(th) { decl i =I::all[bothexog];  s|=i~state[left:right]'~NxtExog[Qrho][i];}
+DumpExogTrans::Run() { decl i =I::all[bothexog];  s|=i~state[left:right]'~NxtExog[Qrho][i];}
 
 
 /** Set the discount factor, &delta;.
@@ -1221,7 +1265,7 @@ DP::SetClock(ClockOrType,...)	{
 
 @see DP::SetUpdateTime , UpdateTimes
 **/
-DP::UpdateVariables()	{
+DP::UpdateVariables(ttype)	{
 	decl i,nr,j,a,nfeas;
     Flags::HasBeenUpdated = TRUE;
     Hooks::Do(PreUpdate);
@@ -1255,8 +1299,7 @@ DP::UpdateVariables()	{
 	for (i=1;i<N::J;++i) Alpha::A[i][][] = selectifr(Alpha::A[0],Alpha::Sets[i]);
     DP::A = Alpha::A;  // Have DP::A point to Alpha::A.
 	ExogenousTransition();
-	ETT.current = ETT.subspace = iterating;
-	ETT->Traverse();          //Endogenous transitions
+    if (ttype==iterating) ETTiter->Traverse(); else ETTtrack->Traverse();
 	}
 
 /** .
@@ -1267,7 +1310,7 @@ SDTask::SDTask()  { RETask(); }
 /** .
 @internal
 **/
-SDTask::Run()   { CurGroup()->StationaryDistribution();}	
+SDTask::Run()   { I::curg->StationaryDistribution();}	
 
 /** Return t, current age of the DP process.
 @return counter.v.t
@@ -1373,8 +1416,9 @@ FETask::FETask() {
 **/
 RETask::SetFE(f) {
 	state = isint(f) ? ReverseState(f,I::OO[onlyfixed][])
-					 : f;
-
+       				 : f;
+    SyncStates(SS[onlyfixed].left,SS[onlyfixed].right);
+    I::f = I::all[onlyfixed];
 	}
 	
 /** .
@@ -1414,7 +1458,7 @@ UpdateDensity::UpdateDensity() {
 /** .
 @internal
 **/
-UpdateDensity::Run() {	CurGroup()->Density();	}
+UpdateDensity::Run() {	I::curg->Density();	}
 
 /** Print the table of value functions and choice probabilities for all fixed effect groups.
 @param ToScreen  TRUE means output is displayed.
@@ -1567,18 +1611,18 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 	nottop = FALSE;
 	}
 	
-SaveV::Run(th) {
-	if (!isclass(th,"Bellman")  || (TrimTerminals && th.IsTerminal) || (TrimZeroChoice && N::Options[th.Aind]<=1) ) return;
+SaveV::Run() {
+	if ((TrimTerminals && I::curth.IsTerminal) || (TrimZeroChoice && N::Options[I::curth.Aind]<=1) ) return;
     decl mxi, p;
-	stub=I::all[tracking]~th.InSubSample~th.IsTerminal~th.Aind~state[S[endog].M:S[clock].M]';
-	for(re=0;re<sizeof(th.EV);++re) {
-        p = th->ExpandP(re);
-		r = stub~re~I::f~th.EV[re]~(MaxChoiceIndex ? double(mxi = maxcindex(p))~p[mxi]~sumc(p) : p' );
-		if (isclass(th,"OneDimensionalChoice") )  r ~= CV(th.zstar[re])';
+	stub=I::all[tracking]~I::curth.InSubSample~I::curth.IsTerminal~I::curth.Aind~state[S[endog].M:S[clock].M]';
+	for(re=0;re<sizeof(I::curth.EV);++re) {
+        p = I::curth->ExpandP(re);
+		r = stub~re~I::f~I::curth.EV[re]~(MaxChoiceIndex ? double(mxi = maxcindex(p))~p[mxi]~sumc(p) : p' );
+		if (isclass(I::curth,"OneDimensionalChoice") )  r ~= CV(I::curth.zstar[re])';
 		if (!isint(aM)) aM[0] |= r;
 		s = (nottop)
 				? sprint("%cf",prtfmt,r)
-				: sprint("%c",isclass(th,"OneDimensionalChoice") ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);
+				: sprint("%c",isclass(I::curth,"OneDimensionalChoice") ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);
 		if (ToScreen) print(s[1:]); else fprint(logf,s[1:]);
 		nottop = TRUE;
 		}
@@ -1588,7 +1632,4 @@ OutAuto::OutAuto(){
     DPDebug::DPDebug();
     }
 
-OutAuto::Run(th) {
-	if (!isclass(th,"Bellman")) return;
-    th->AutoVarPrint1(this);
-    }	
+OutAuto::Run() { I::curth->AutoVarPrint1(this);  }	

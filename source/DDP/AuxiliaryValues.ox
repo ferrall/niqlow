@@ -16,10 +16,9 @@ AuxiliaryValues::AuxiliaryValues(L,N) {
 	}
 
 /** Default realized auxililary variable, sets <code>v=0.0</code>.
-@param q, the current endogenous state, &theta;
 @param y, the current realized outcome, &upsilon;.
 **/	
-AuxiliaryValues::Realize(q,y) {	v[] = 0.0; }
+AuxiliaryValues::Realize(y) {	v[] = 0.0; }
 
 /** Create a new &zeta;, the vector-valued realized shock vector.
 @param length integer, length of the (row) vector.
@@ -33,20 +32,19 @@ ZetaRealization::ZetaRealization(length) {
 
 /** Default: &zeta; is undefined, replace with a virtual function that returns a
 value drawn from the conditional distribution of &zeta;
-@param q, the current endogenous state, &theta;
 @param y, the current realized outcome, &upsilon;.**/	
-ZetaRealization::Realize(q,y) {	}
+ZetaRealization::Realize(y) {	}
 
 /** Realized utility, U().**/
 RealizedUtility::RealizedUtility() { 	AuxiliaryValues("U",1); 	}
 
-RealizedUtility::Realize(q,y) {	v = q->Utility()[q.ialpha];	}
+RealizedUtility::Realize(y) {	v = I::curth->Utility()[I::ialpha];	}
 
 StateIndicators::StateIndicators(target) {
     this.target = target;
     AuxiliaryValues(target.L,target.N);
     }
 
-StateIndicators::Realize(q,y) {
+StateIndicators::Realize(y) {
     v[] = CV(target).==target.vals;
     }

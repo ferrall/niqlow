@@ -32,9 +32,13 @@ struct  Bellman : DP {
 			static 	Initialize(userState,UseStateList=FALSE);
 			static  CreateSpaces();
                     OnlyFeasible(myU);
+                    HMEndogU(VV);
+                    AMEndogU(VV);
+                    ExogUtil();
 			virtual FeasibleActions(Alpha);
             virtual Reachable();
 			virtual Utility();
+            virtual UReset();
 			virtual thetaEMax() ;
 			virtual ActVal(VV);
 			virtual Smooth(EV);
@@ -50,7 +54,7 @@ struct  Bellman : DP {
 					~Bellman();
 					aa(av);
 					Simulate(Y);
-					ThetaTransition(future,current);
+					ThetaTransition(future);
 					UpdatePtrans();
 					ExpandP(r);
 					MedianActVal(EV);

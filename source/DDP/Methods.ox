@@ -43,10 +43,8 @@ EndogUtil::EndogUtil() {
 /** Loop over exogenous states computing U() at a give &theta;.
 @param th, point &theta; in the endogenous parameter space.
 **/
-EndogUtil::Run(th) {
-	if (!isclass(th,"Bellman")) return;
-	th.pandv[I::r][][] = .NaN;
-	th.U[][] = .NaN;
+EndogUtil::Run() {
+    I::curth->UReset();
 	ex.state = state;
 	ex->loop();
 	}
@@ -61,9 +59,7 @@ ExogUtil::ExogUtil() {
     subspace = iterating;
 	}
 	
-ExogUtil::Run(th) {	
-    th.U[][I::all[bothexog]]=th->Utility();	
-    }	
+ExogUtil::Run() { I::curth->ExogUtil();  }	
 
 FixedSolve::FixedSolve() {
 	FETask();
@@ -81,8 +77,8 @@ FixedSolve::FixedSolve() {
 FixedSolve::Run(){
 	rtask->SetFE(state);
     if (Flags::UpdateTime[AfterFixed]) {
-        ETT.state = state;
-        UpdateVariables();
+        ETTiter.state = state;
+        UpdateVariables(iterating);
         }
     if (GroupTask::qtask.DoNotIterate) return;
 	cputime0 = timer();
@@ -107,11 +103,10 @@ If <code>UpdateTime</code> = <code>AfterRandom</code>, then update transitions a
 Solution is not run if the density of the point in the group space equals 0.0.
 **/
 RandomSolve::Run()  {
-    decl gam = DP::CurGroup();
-	if (isclass(gam)&& gam->Reset()>0.0) {
+	if (I::curg->Reset()>0.0) {
         if (Flags::UpdateTime[AfterRandom]) {
-            ETT.state = state;
-            UpdateVariables();
+            ETTiter.state = state;
+            UpdateVariables(iterating);
             }
 		GroupTask::qtask->GSolve(this.state);
         if (GroupTask::qtask.Volume>SILENT && N::G>1) print(".");
@@ -125,18 +120,16 @@ RandomSolve::Run()  {
 <LI>Call `Bellman::thetaEMax`() and storing the value </LI>
 <LI>If `Flags::setPstar` then smooth choice probabilities.  And if `Flags::IsErgodic` then update the state-to-state transition matrix, &Rho;(&theta;&prime;;&theta;)</LI>
 </OL>
-@param th, &theta;
 
 **/
-ValueIteration::Run(th) {
-	if (!isclass(th,"Bellman")) return;
+ValueIteration::Run() {
 	decl ev;
-	th->ActVal(VV[I::later]);
-	VV[I::now][I::all[iterating]] = ev = th->thetaEMax();
+	I::curth->ActVal(VV[I::later]);
+	VV[I::now][I::all[iterating]] = ev = I::curth->thetaEMax();
 	if (Flags::setPstar)  {
-		th->Smooth(ev);
+		I::curth->Smooth(ev);
         Hooks::Do(PostSmooth);
-		if (Flags::IsErgodic) th->UpdatePtrans();
+		if (Flags::IsErgodic) I::curth->UpdatePtrans();
 		}
 	}
 
@@ -287,35 +280,33 @@ value across all exogenous states.</DD>
 <DD> The result is added to the KW sample</DD>
 </OL>
 **/
-KWEMax::Run(th) {
-	if (!isclass(th,"Bellman")) return;
-    decl inss = th->InSS();
+KWEMax::Run() {
+    decl inss = I::curth->InSS();
     if (firstpass) {
         if (!inss) return;
-		EndogUtil::Run(th);
-		th->ActVal(meth.VV[I::later]);
-		meth.VV[I::now][I::all[iterating]] = th->thetaEMax();
-		if (!onlypass) {
-			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-th.pandv[I::r][][I::MESind])');
-            }   //		InSample(th);	
+		EndogUtil::Run();
+		I::curth->ActVal(meth.VV[I::later]);
+		meth.VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
+		if (!onlypass)
+			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[I::r][][I::MESind])');
 		}
     else if (!inss) {
 		ex.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
 		SyncStates(lo,hi);
 		I::all[bothexog] = 0;    //     MESind;
 		I::all[onlysemiexog] = 0; //= MSemiEind;
-		ex -> Run(th);
-		OutSample(th);
+		ex -> Run();
+		OutSample();
 		I::all[bothexog] = I::MESind;
 		I::all[onlysemiexog] = I::MSemiEind;
 		}
 	if (Flags::setPstar)  {
-        th->Smooth(meth.VV[I::now][I::all[iterating]]);
+        I::curth->Smooth(meth.VV[I::now][I::all[iterating]]);
         Hooks::Do(PostSmooth);
         }
 	}
 
-KeaneWolpin::Run(th) {	}
+KeaneWolpin::Run() {	}
 
 /** Carry out Keane-Wolpin approximation at &theta; .
 This replaces the built-in version used by `ValueIteration`.
@@ -398,14 +389,14 @@ KeaneWolpin::Specification(kwstep,V,Vdelta) {
 		}
 	}
 	
-KWEMax::InSample(th){
-	meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-th.pandv[I::r][][I::MESind])');
+KWEMax::InSample(){
+	meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[I::r][][I::MESind])');
 	}
 
 	
-KWEMax::OutSample(th) {
-	th->MedianActVal(meth.VV[I::later]);
-	meth->Specification(PredictEV,V[0],(V[0]-th.pandv[I::r])');
+KWEMax::OutSample() {
+	I::curth->MedianActVal(meth.VV[I::later]);
+	meth->Specification(PredictEV,V[0],(V[0]-I::curth.pandv[I::r])');
 	}
 	
 /** Create a Hotz-Miller solution method.
@@ -430,7 +421,7 @@ HotzMiller::HotzMiller(indata,bandwidth) {
         }
 	}
 
-HotzMiller::Run(th) {
+HotzMiller::Run() {
     println("HM");
     oxrunerror("trace it");
     }
@@ -481,8 +472,8 @@ CCP::InitializePP() {
             q = curo.ind[tracking][0];
 	        ++cnt[g][q];
 	        ++ObsPstar[g][a][q];
-			} while (isclass(curo = curo.onext));
-		} while (isclass(curp=curp.pnext));
+			} while (( isclass(curo = curo.onext) ));
+		} while (( isclass(curp=curp.pnext) ));
     loop();
     return Q;
     }
@@ -493,8 +484,7 @@ CCPspace::CCPspace(qtask) {
     this.qtask = qtask;
     }
 
-CCPspace::Run(th) {
-	if (!isclass(th,"Bellman")) return;
+CCPspace::Run() {
     decl ii = I::all[tracking];
     if (! qtask.NotFirstTime ) {
 	   decl j,k;
@@ -506,9 +496,9 @@ CCPspace::Run(th) {
 	   nom =  qtask.ObsPstar[I::f].*qtask.Kernel[ii][],
 	   p = sumr(nom/dnom);
 	   p[0] = 1-sumc(p[1:]);
-       th.pandv[0][] = p;
-       th.U[]=th->Utility();
-	   qtask.Q[I::f][ii] = p'*(th.U+M_EULER-log(p));
+       I::curth.pandv[0][] = p;
+       I::curth->ExogUtil();    //.U[]=th->Utility();
+	   qtask.Q[I::f][ii] = p'*(I::curth.U+M_EULER-log(p));
 //       println(ii," ",qtask.Q[I::f][ii]);
        }
     }
@@ -518,17 +508,10 @@ HMEndogU::HMEndogU(meth) {
     this.meth = meth;
 	}
 
-HMEndogU::Run(th) {
-	if (!isclass(th,"Bellman")) return;
-    th.U[] = th.Utility();
-	th.pandv[0][] = th.U + I::CVdelta*sumr(th.Nxt[Qrho][0].*VV[th.Nxt[Qi][0]]);
-    th->Smooth(th->thetaEMax());
-    Hooks::Do(PostSmooth);
-	th->UpdatePtrans();
-	}
+HMEndogU::Run() {    I::curth->HMEndogU(VV);	}
 
 HotzMiller::GSolve(instate) {
-	decl cg = CurGroup(), tmpP = -I::CVdelta*cg.Ptrans;
+	decl  tmpP = -I::CVdelta*I::curg.Ptrans;
     HMEndogU::VV = (invert( setdiagonal(tmpP, 1+diagonal(tmpP)) ) * Q[I::f] )';   // (I-d*Ptrans)^{-1}
 	if (Volume>LOUD) fprintln(logf,"HM inverse mapping: ",HMEndogU::VV );
 	this.state = ndogU.state = instate;
@@ -555,15 +538,7 @@ AguirregabiriaMira::AguirregabiriaMira(data,bandwidth) {
     if (isclass(data,"Panel")) mle = data.method;
     }
 		
-AguirregabiriaMira::Run(th) {
-	if (!isclass(th,"Bellman")) return;
-	th.U[]=th->Utility();
-    th->ActVal(VV);
-	th->Smooth(th->thetaEMax());
-    Hooks::Do(PostSmooth);
-	Q[I::all[tracking]] = th.pandv[0]'*(th.U+M_EULER-log(th.pandv[0]));
-	th->UpdatePtrans();
-    }
+AguirregabiriaMira::Run() {    Q[I::all[tracking]] = I::curth->AMEndogU(VV);    }
 
 AguirregabiriaMira::Solve(Fgroups,inmle) {
     HotzMiller::Solve(Fgroups);

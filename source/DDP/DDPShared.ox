@@ -1,5 +1,13 @@
 #include "DDPShared.h"
 
+/** Return the column of feasible action matrix for the action variable.
+@param A matrix of feasible actions
+@param act `ActionVariable`
+@return A[][act.pos]
+@see `Bellman::aa`
+**/
+ca(A,act) { return A[][act.pos]; }
+
 /** .
 @internal
 **/
@@ -44,19 +52,6 @@ Hooks::Do(ht) {
     return rv;
     }
 
-
-/** Sets and stores all the state indices, called by `Task::loop` and anything else that directly sets the state.
-@param state current state vector
-@param group TRUE if the group indices should be set as well.
-**/
-I::Set(state,group) {
-	all[] = OO*state;
-    if (group) {
-	   g = int(all[bothgroup]);
-	   f = int(all[onlyfixed]);
-	   r = int(all[onlyrand]);
-       }
-    }
 
 /** Swap the now and later indices for Bellman iteration.
 **/

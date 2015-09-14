@@ -1,5 +1,5 @@
 /** Corrections and Additions.
-<h2>Release 2.4, TBA.</h2>
+<h2>Release 2.45</h2>
 <DL>
 <DT>Known Bugs</DT>
 <DD>SQP not working</DD>
@@ -14,6 +14,8 @@
 <DT>Requires Ox Version 7.1 or greater</DT>
 <DD>Added Cholesky parameter to Explore()</DD>
 <DT>DDP</DT>
+<DD>Added checks for transitions to unreachable states (when <code>DP::Volume=NOISY</code>).  All states and their reachability are also dumped to the log file.</DD>
+<DD>Fixed potential bug whereby transition indices for tracking (including Predictions and Outcomes) were not set properly in finite horizon models.  Reverse indexing of states was used to create tracking indices, but since iterating indices suppress values of <code>t</code> these indices were probably incorrect in finite horizon models. </DD>
 <DD>Creating the state space now uses Ox clone() function.  So user code now sends an object of their DP model to <code>Initialize()</code> rather than
 a static function that returns an object.  The <code>Reachable()</code> method is now <em>virtual</em> and returns an indicator for whether the state is reachable or not.  The built-in version returns TRUE.  So the user only needs to supply a replacement in they need to prune states from the state space (and they are not automatically pruned by prunable state variables added to the model). </DD>
 <DD>ActVal:  Eliminated local variables, replaced diag() with .*, and changed loop from 0-pass to 1-pass for speed up.</DD>

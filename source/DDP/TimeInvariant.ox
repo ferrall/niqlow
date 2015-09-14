@@ -133,7 +133,7 @@ Regressors::Regressors(L,vNorM,UseOnlyObserved) {
     decl NN,N,j;
     if (columns(vNorM)==1 || rows(vNorM)==1) {
         NN = vNorM;
-        foreach(N in NN[j]) AddToBlock(new SubEffect(isstring(L) ? L+sprint("%02.0f",j) : L[j],N));
+        foreach(N in NN[j]) AddToBlock(new SubEffect(isstring(L) ? L+sprint("%02.0f",j) : L[j],int(N)));
         ObservedX = 0;
         return;
         }

@@ -898,8 +898,8 @@ struct Tauchen : Random {
 **/
 struct Asset : Random {
 	const decl
-    /** `AV`-compatible static function, state- and action-dependent change in
-        asset holding.**/ NetSavings,
+    /** `AV`-compatible static function or `ActionVariable`. **/     NetSavings,
+                                                                     isact,
     /** `AV`-compatible object, interest rate on current holding.**/ r;
     /** @internal **/
         decl atom, top, bot, mid, all, tprob, bprob;

@@ -23,13 +23,13 @@ struct Method : ThetaTask {
 	}
 
 /** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/
-struct ExogUtil : 	ExTask {	ExogUtil();		Run(th);	}
+struct ExogUtil : 	ExTask {	ExogUtil();		Run();	}
 
 /** Loop over &theta; and apply `ExogUtil`. **/
 struct EndogUtil : 	ThetaTask {
 	const decl /**`ExogUtil` object.**/ ex;
 	EndogUtil();
-	Run(th);
+	Run();
 	}
 
 /**Iterate on Bellman's Equation, to solve EV(&theta;) for all fixed and random effects.
@@ -56,7 +56,7 @@ struct ValueIteration : Method {
 	ValueIteration(myEndogUtil=0);
 	NTrips();
 	virtual Update();
-	virtual Run(th);
+	virtual Run();
 	virtual GSolve(instate);
 	virtual Solve(Fgroups=AllFixed,MaxTrips=0);
 	}
@@ -67,9 +67,9 @@ struct KWEMax : 	EndogUtil {
 	decl 			meth, firstpass, onlypass;
 	
 					KWEMax();
-	virtual 		Run(th);
-	virtual 		InSample(th);
-	virtual	 		OutSample(th);
+	virtual 		Run();
+	virtual 		InSample();
+	virtual	 		OutSample();
 	}
 
 enum {AddToSample,ComputeBhat,PredictEV,NKWstages}
@@ -182,19 +182,19 @@ struct KeaneWolpin : ValueIteration {
 					KeaneWolpin(myKWEMax=0);
 					Specification(kwstep,V=0,Vdelta=0);
 	virtual			GSolve(instate);
-	virtual 		Run(th);
+	virtual 		Run();
 	}
 
 struct RVEdU : EndogUtil {
 	RVEdU();
-	Run(th);
+	Run();
 	}
 
 struct HMEndogU : EndogUtil {
     static decl VV;
     const decl meth;
     HMEndogU(meth);
-    Run(th);
+    Run();
     }
 
 /** Compute Estimate of Conditional Choice Probability from Data.
@@ -219,7 +219,7 @@ struct CCP : FETask {
 struct CCPspace : ThetaTask {
     const decl qtask;
     CCPspace(gtask);
-    Run(th);
+    Run();
 	Increment(a,q);
     }
 
@@ -241,7 +241,7 @@ struct HotzMiller : ValueIteration {
 	HotzMiller(indata=0,bandwidth=0);
 	virtual Solve(Fgroups=AllFixed);
     virtual GSolve(instate);
-	Run(th);
+	Run();
 	}
 
 /** Solve a DP model using the Aguiregabiria Mira iterative prodecure.
@@ -251,5 +251,5 @@ struct AguirregabiriaMira : HotzMiller  {
     decl                mle;
     AguirregabiriaMira(data=0,bandwidth=UseDefault);
     Solve(Fgroups=AllFixed,inmle=0);
-    virtual Run(th);
+    virtual Run();
     }

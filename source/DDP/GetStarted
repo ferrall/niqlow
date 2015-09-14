@@ -257,13 +257,13 @@ struct DerivedSearch : Search {
 <DD><pre>
 struct RealizedUtility : AuxiliaryValues {
 	RealizedUtility();
-	virtual Realize(q,y);
+	virtual Realize(y);
 	}
 
 RealizedUtility::RealizedUtility() { 	AuxiliaryValues("U"); 	}
 
-RealizedUtility::Realize(const q,const y) {
-	v = q->Utility()[y.ind[onlyacts]];
+RealizedUtility::Realize(y) {
+	v = I::curth->Utility()[I::ialpha];
 	}
 </pre>
 <DD>The constructor for an auxiliary variable simply has to call the base constructor and send a label.  (It could do other things of course.)</DD></DT>

@@ -51,6 +51,8 @@ static const decl
     Epanechnikov(X,h);
     ToggleParams(a,...);
     FLogit(x);
+    RowLogit(x,rho=1.0);
+    ColLogit(x,rho=1.0);
     SumToOne(v);
     Indent(depth);
 
@@ -197,7 +199,7 @@ class Version : Zauxiliary {
 	static decl checked;
 
 public: 	
-    static const decl version=240;
+    static const decl version=245;
 	static Check();
 	}
 

@@ -11,14 +11,14 @@ the outcome and read in along with other data.
 struct AuxiliaryValues : Quantity {
     const decl N;
 	AuxiliaryValues(L="",N=1);
-	virtual Realize(q,y=0);
+	virtual Realize(y=0);
 	}
 
 /** Built-in variable that records realized utility, <var>U(&alpha;,&epsilon;,&eta;,&theta;,&gamma;)</var>
 **/
 struct RealizedUtility : AuxiliaryValues {
 	RealizedUtility();
-	virtual Realize(q,y);
+	virtual Realize(y=0);
 	}
 	
 struct Indicators : AuxiliaryValues {
@@ -27,17 +27,17 @@ struct Indicators : AuxiliaryValues {
 
 struct StateIndicators : Indicators {
     StateIndicators(target);
-    Realize(q,y=0);
+    Realize(y=0);
     }
 
 struct ActionIndicators : Indicators {
     ActionIndicators(target);
-    Realize(q,y=0);
+    Realize(y=0);
     }
 
 struct ZetaRealization : Quantity {
 	const decl length;
 	ZetaRealization(length);
-	virtual Realize(q,y);
+	virtual Realize(y=0);
 	}
 	

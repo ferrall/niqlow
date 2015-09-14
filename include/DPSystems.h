@@ -21,7 +21,7 @@ struct SolveAsSystem : Method {
          VI
          ;
 	SolveAsSystem();
-	Run(th);
+	Run();
 	Solve(SystemMethod=USEBROYDEN,MaxTrips=0);	
 	}
 
@@ -88,7 +88,7 @@ struct ReservationValues : ValueIteration {
                                                         MaxTrips,
 	/** Objectives for each &Alpha;	**/					RValSys;
 	ReservationValues(LBvalue=-.Inf,METHOD=UseDefault);
-	Run(th);
+	Run();
 	Solve(Fgroups=AllFixed,MaxTrips=0);
 	}
 	

@@ -89,8 +89,10 @@ struct DP {
 		/** . @internal						**/    				P,
         /** copy of user's Bellman object used for cloning.**/  userState,
 		/** max of vv. @internal       **/						V,
-		/** handles looping over endogenous transitions **/		ETT,
-		/** index into &Alpha; of current realized &alpha;. **/	ialpha,
+		/** computes endogenous transitions
+                with tracking indices**/		                ETTtrack,
+		/** computes endogenous transitions with iterating
+                    indices **/		                            ETTiter,
 		/** current realized action vector, <code>&alpha;</code>,
 			only set during simulation of realized paths. **/ 	alpha,
 		/** `ZetaRealization`, realized continuous shocks, &zeta;,
@@ -112,7 +114,7 @@ struct DP {
 		static	Gett();
 		static 	ExogenousTransition();
 
-		static	UpdateVariables();
+		static	UpdateVariables(ttype=iterating);
         static  onlyDryRun();
 		static  CreateSpaces();
 		static	InitialsetPstar(task);
@@ -125,7 +127,6 @@ struct DP {
 		static	SemiExogenousStates(v1,...); 	
 		static	ExogenousStates(v1,...); 	
 		static	AuxiliaryOutcomes(v1,...);
-		static 	CurGroup();
 		static 	SetGroup(state);
 		static 	Settheta(ind);
 		static 	DrawGroup(find);
@@ -183,8 +184,8 @@ struct Task : DP {
 	/** max number of outer	Bellman trip.s     **/    				MaxTrips;							
 	Task();
 	virtual Update();
-	virtual Run(th);
-	virtual loop();
+	virtual Run();
+	virtual loop(IsCreator=FALSE);
 	virtual list(span=DoAll,lows=UseDefault,ups=UseDefault);
 	Reset();
 	Traverse(span=DoAll,lows=UseDefault,ups=UseDefault);
@@ -199,7 +200,7 @@ states or looping over all combinations of state variable values.  This is done
 with an arguement to `DP::Initialize`().
 
 **/
-struct ThetaTask        :   Task {	ThetaTask();	Run(th);	}
+struct ThetaTask        :   Task {	ThetaTask();	Run();	}
 
 /** Identify unreachable states from &Theta;.
 
@@ -212,9 +213,9 @@ subsampling (if required).
 
 **/
 struct FindReachables   : 	ThetaTask {	
-        decl th;
+        decl th, rchable;
         FindReachables();
-        virtual Run(g);	
+        virtual Run();	
         }
 
 /** Allocate space for each point &theta; &in; &Theta; that is reachable.
@@ -229,7 +230,7 @@ struct CreateTheta 	    : 	ThetaTask {
         decl insamp, th;
         CreateTheta(); 	
         Sampling();
-        virtual    Run(g);	
+        virtual    Run();	
         picked();
         }
 
@@ -248,7 +249,7 @@ Users do not call this function.
 struct DryRun 	        : 	FindReachables {	
         decl PrevT,PrevA,PrevR,report;
         DryRun();
-        Run(g);	
+        Run();	
         }
 
 
@@ -266,12 +267,12 @@ If a non-sampled state is now sampled its point in &theta; is created.
 Users do not call this directly.
 
 **/
-struct ReSubSample 	    : 	CreateTheta    {	ReSubSample(); 		Run(th);	}
+struct ReSubSample 	    : 	CreateTheta    {	ReSubSample(); 		Run();	}
 
 /** Base Task for constructing the transition for endogenous states.
 
 **/
-struct EndogTrans 	    : 	ThetaTask {	decl current; EndogTrans();	Run(th);	}
+struct EndogTrans 	    : 	ThetaTask {	EndogTrans(subspace);	Run();	}
 
 /** Base Task for looping over &Epsilon; and &Eta;.
 
@@ -285,7 +286,7 @@ struct GroupTask : Task {
 	static  decl	qtask;
 	GroupTask();
 	virtual Run();
-	loop();
+	loop(IsCreator=FALSE);
 	}
 
 /** The task called in CreateSpaces that creates &Gamma;.  **/
@@ -367,17 +368,17 @@ struct SaveV	: DPDebug	{
 	const decl ToScreen, aM, MaxChoiceIndex, TrimTerminals, TrimZeroChoice;
 	decl  re, stub, nottop, r, s;
 	SaveV(ToScreen=TRUE,aM=0,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
-	virtual Run(th);
+	virtual Run();
 	}
 
 struct OutAuto : DPDebug {
     OutAuto();
-    Run(th);
+    Run();
     }
 	
 /** . @internal **/
-struct DumpExogTrans : Task {
+struct DumpExogTrans : ExTask {
 	decl s;
 	DumpExogTrans();
-	Run(th);
+	Run();
 	}
