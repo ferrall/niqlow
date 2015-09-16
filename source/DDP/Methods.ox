@@ -2,9 +2,16 @@
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
 /**  Simplified Value Iteration model solution.
+
+@param ToScreen  TRUE [default] means output is displayed .
+@param aM	address to return matrix<br>0, do not save [default]
+@param MaxChoiceIndex FALSE = print choice probability vector [default]<br>TRUE = only print index of choice with max probability.  Useful when the full action matrix is very large.
+@param TrimTerminals TRUE [default] means states marked `Bellman::IsTerminal` are deleted
+@param TrimZeroChoice TRUE [default] means states with no choice are deleted
+<DT>Note:  All parameters are optional, so <code>SolveVI()</code> works.</DT>
 <DT>This function</DT>
 <DD>Creates a `ValueIteration` method</dd>
-<dd>Calls `DPDeubg::outAllV`()</dd>
+<dd>Calls `DPDeubg::outAllV`(<parameters>)</dd>
 <DD>Calls `ValueIteration::Solve`()</dd>
 <dd>deletes the solution method</dd>
 
@@ -15,11 +22,11 @@ the solution method object and call solve.
 This would be inefficient to use in any context when a solution method is applied repeatedly.
 
 **/
-VISolve() {
+VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling VISolve()");
     decl meth = new ValueIteration();
     meth.RunSafe = FALSE;
-    DPDebug::outAllV();
+    DPDebug::outAllV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice);
     decl conv = meth->Solve();
     delete meth;
     return conv;

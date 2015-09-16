@@ -461,6 +461,59 @@ Alpha::AddA(fa) {
    return ai;
    }
 
+Alpha::ResetA(alist) {
+    decl a, i;
+    foreach (a in alist[i]) {
+		a->Update();
+		if (!i) A[0] = a.actual;
+		else {
+			decl nr = rows(A[0]);
+	 		A[0] |= reshape(A[0],(a.N-1)*nr,i);
+			A[0] ~= vecr(a.actual * ones(1,nr));
+			}		
+        }
+    for (i=1;i<N::J;++i) A[i][][] = selectifr(A[0],Sets[i]);
+    }
+
+
+Alpha::Aprint() {
+    decl av,i,j;
+    decl everfeasible, totalnever = 0;
+    println("\n6. FEASIBLE ACTION SETS\n ");
+    Rlabels = new array[N::A];
+    aL1= "    [";
+	for (j=0;j<N::Av;++j) aL1 |= DP::SubVectors[acts][j].L[0];
+    aL1 |= "]";
+	av = sprint("%-14s",aL1);
+	for (i=0;i<N::J;++i) av ~= sprint("  A[","%1u",i,"]   ");
+		println(av);
+        print("    -------------"); for (i=0;i<N::J;++i) print("---------"); println("");
+		for (j=0;j<N::A;++j) {
+			for (i=0,av="    (";i<N::Av;++i) av ~= sprint("%1u",Matrix[j][i]);
+			av~=")";
+			for (i=0;i<N::J;++i) if (Sets[i][j]) {
+                    if (!sizeof(Rlabels[i])) Rlabels[i] = {av};
+                    else Rlabels[i] |= av;
+                    }
+			for (i=0;i<8-N::Av;++i) av ~= " ";
+            everfeasible = FALSE;
+			for (i=0;i<N::J;++i) {
+                av ~= Sets[i][j] ? "    X    " : "    -    ";
+                everfeasible = everfeasible|| (Count[i]&&Sets[i][j]);
+                }
+            av ~= "    ";
+			for (i=0;i<N::Av;++i)
+                    if ( isarray(DP::SubVectors[acts][i].vL) ) av ~= "-"~DP::SubVectors[acts][i].vL[Matrix[j][i]];
+			if (everfeasible) println(av);  else ++totalnever;
+			}
+		for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",Count[i]);
+		println(av);
+        print("    -------------"); for (i=0;i<N::J;++i) print("---------");
+        println("\n    Key: X = row vector is feasible. - = infeasible");
+        if (totalnever) println("    Actiouns vectors not shown because they are never feasible: ",totalnever);
+        println("\n");
+    }
+
 /**
 @internal
 **/
@@ -813,6 +866,7 @@ DP::CreateSpaces() {
 	   tt = new FindReachables();
 	   tt->loop(TRUE);
        if (Volume>LOUD) {
+            println("Note: Reachability of all states listed in the log file");
             fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
                           "1=Unreacheable because a user Reachable returns FALSE\n",
                           "2=Reachable",
@@ -833,32 +887,7 @@ DP::CreateSpaces() {
   	V = new matrix[1][SS[bothexog].size];
 	if (Volume>SILENT)	{		
         N::print();
-		println("\n6. FEASIBLE ACTION SETS\n ");
-		av = sprint("%-14s","    alpha");
-		for (i=0;i<N::J;++i) av ~= sprint("  A[","%1u",i,"]   ");
-		println(av);
-        print("    -------------"); for (i=0;i<N::J;++i) print("---------"); println("");
-        decl everfeasible, totalnever = 0;
-		for (j=0;j<N::A;++j) {
-			for (i=0,av="    (";i<N::Av;++i) av ~= sprint("%1u",Alpha::Matrix[j][i]);
-			av~=")";
-			for (i=0;i<8-N::Av;++i) av ~= " ";
-            everfeasible = FALSE;
-			for (i=0;i<N::J;++i) {
-                    av ~= Alpha::Sets[i][j] ? "    X    " : "    -    ";
-                    everfeasible = everfeasible|| (Alpha::Count[i]&&Alpha::Sets[i][j]);
-                    }
-            av ~= "    ";
-			for (i=0;i<N::Av;++i)
-                    if ( isarray(SubVectors[acts][i].vL) ) av ~= "-"~SubVectors[acts][i].vL[Alpha::Matrix[j][i]];
-			if (everfeasible) println(av);  else ++totalnever;
-			}
-		for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",Alpha::Count[i]);
-		println(av);
-        print("    -------------"); for (i=0;i<N::J;++i) print("---------");
-        println("\n    Key: X = row vector is feasible. - = infeasible");
-        if (totalnever) println("    Actiouns vectors not shown because they are never feasible: ",totalnever);
-        println("\n");
+        Alpha::Aprint();
 		}
     if (Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
 	ETTiter = new EndogTrans(iterating);
@@ -1266,37 +1295,26 @@ DP::SetClock(ClockOrType,...)	{
 @see DP::SetUpdateTime , UpdateTimes
 **/
 DP::UpdateVariables(ttype)	{
-	decl i,nr,j,a,nfeas;
+	decl i,nr,j,a,s,skip;
     Flags::HasBeenUpdated = TRUE;
     Hooks::Do(PreUpdate);
     I::CVdelta = AV(delta);   //moved June 2015 from bottom
-	i=0;
-	do {
-		if (StateVariable::IsBlockMember(States[i])) {
-			States[i].block->Update();
-            States[i].block->Check();
-			if (isclass(States[i],"CorrelatedEffect"))
-				States[i].block->Distribution();			
-			i+=States[i].block.N;
+    skip=UnInitialized;
+    foreach (s in States[i]) {
+        if (i<skip) continue;
+		if (StateVariable::IsBlockMember(s)) {
+			s.block->Update();
+            s.block->Check();
+			if (isclass(s,"CorrelatedEffect")) s.block->Distribution();			
+			skip = i + s.block.N;
 			}
 		else {
-			States[i]->Update();
-            States[i]->Check();
-			if (isclass(States[i],"RandomEffect"))
-				States[i]->Distribution();
-			++i;
+			s->Update();
+            s->Check();
+			if (isclass(s,"RandomEffect")) s->Distribution();
 			}
-		} while (i<sizeof(States));
-	for (i=0;i<sizeof(S[acts]);++i)	{
-		S[acts][i]->Update();
-		if (!i) Alpha::A[0] = S[acts][i].actual;
-		else {
-			nr = rows(Alpha::A[0]);
-	 		Alpha::A[0] |= reshape(Alpha::A[0],(S[acts][i].N-1)*nr,i);
-			Alpha::A[0] ~= vecr(S[acts][i].actual * ones(1,nr));
-			}		
 		}
-	for (i=1;i<N::J;++i) Alpha::A[i][][] = selectifr(Alpha::A[0],Alpha::Sets[i]);
+    Alpha::ResetA(SubVectors[acts]);
     DP::A = Alpha::A;  // Have DP::A point to Alpha::A.
 	ExogenousTransition();
     if (ttype==iterating) ETTiter->Traverse(); else ETTtrack->Traverse();
@@ -1460,6 +1478,8 @@ UpdateDensity::UpdateDensity() {
 **/
 UpdateDensity::Run() {	I::curg->Density();	}
 
+DPDebug::DPDebug() {	ThetaTask();     }
+
 /** Print the table of value functions and choice probabilities for all fixed effect groups.
 @param ToScreen  TRUE means output is displayed.
 @param aM	address to return matrix<br>0, do not save
@@ -1581,11 +1601,25 @@ DPDebug::Initialize() {
 	Vlabel0 = {"    Indx","I","T","A"}|Labels::Vprt[svar][S[endog].M:S[clock].M]|"     r"|"     f"|"       EV      |";
 	}
 
-DPDebug::DPDebug() {
-	Task();
-	left = S[endog].M;
-	right = S[clock].M; //don't do tprime
-    subspace=tracking;
+DPDebug::outSVTrans(S1,...) {
+	decl rp = new SVT(isarray(S1) ? S1|va_arglist() : array(S1)|va_arglist());
+	rp -> Traverse();
+	delete rp;
+    }
+
+SVT::SVT(Slist){
+    DPDebug();
+    this.Slist = Slist;
+    }
+
+SVT::Run() {
+    decl s,feas,prob;
+    fprint(logf,"State ","%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],state[S[endog].M:S[clock].M]');
+    foreach(s in Slist) {
+		if (isclass(s,"Coevolving")) s = s.block;
+		[feas,prob] = s -> Transit(Alpha::List[I::curth.Aind]);
+        fprintln(logf,"     State: ",s.L,"%r",{Alpha::aL1}|Alpha::Rlabels[I::curth.Aind],feas'|prob);
+		}
     }
 
 /** Save the value function as a matrix and/or print.
@@ -1599,7 +1633,7 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
     this.MaxChoiceIndex = MaxChoiceIndex;
     this.TrimTerminals = TrimTerminals;
     this.TrimZeroChoice = TrimZeroChoice;
-	SVlabels = Vlabel0 | (MaxChoiceIndex ? {"index" | "maxP*" | "sum(P)"} : "Choice Probabilities:");
+	SVlabels = Vlabel0 | (MaxChoiceIndex ? {"index " | " maxP* " | " sum(P) "} : "Choice Probabilities:");
     prtfmt  = prtfmt0;
     if (MaxChoiceIndex)
         prtfmt  |= "%5.0f" | "%9.6f" | "%15.6f";
@@ -1617,7 +1651,8 @@ SaveV::Run() {
 	stub=I::all[tracking]~I::curth.InSubSample~I::curth.IsTerminal~I::curth.Aind~state[S[endog].M:S[clock].M]';
 	for(re=0;re<sizeof(I::curth.EV);++re) {
         p = I::curth->ExpandP(re);
-		r = stub~re~I::f~I::curth.EV[re]~(MaxChoiceIndex ? double(mxi = maxcindex(p))~p[mxi]~sumc(p) : p' );
+        r =stub~re~I::f~I::curth.EV[re];
+        if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
 		if (isclass(I::curth,"OneDimensionalChoice") )  r ~= CV(I::curth.zstar[re])';
 		if (!isint(aM)) aM[0] |= r;
 		s = (nottop)

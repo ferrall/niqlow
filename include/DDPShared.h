@@ -341,9 +341,13 @@ struct Alpha : DDPauxiliary {
             has an index: `Bellman::Aind` into this
             list. Also `DP::A` points to this list so
             the user can get the matrix of actual action values
-            with <code>A[Aind]</code> **/	                    A;
+            with <code>A[Aind]</code> **/	                    A,
+         /** First character of action labels. **/              aL1,
+        /** Array of Array labels for rows of A that look like &alpha;. **/ Rlabels;
     static Initialize();
     static AddA(fa);
+    static Aprint();
+    static ResetA(alist);
     }
 
 /** Contains arrays of labels for variables.

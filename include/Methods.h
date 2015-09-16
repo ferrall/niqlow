@@ -1,7 +1,7 @@
 #import "DP"
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
-VISolve();
+VISolve(ToScreen=TRUE,aM=FALSE,MaxChoiceIndex=FALSE,TrimTerminals=TRUE,TrimZeroChoice=TRUE);
 
 /** Loop over fixed values in &gamma;, solve model for each.
 **/

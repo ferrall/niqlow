@@ -272,7 +272,9 @@ struct ReSubSample 	    : 	CreateTheta    {	ReSubSample(); 		Run();	}
 /** Base Task for constructing the transition for endogenous states.
 
 **/
-struct EndogTrans 	    : 	ThetaTask {	EndogTrans(subspace);	Run();	}
+struct EndogTrans 	    : 	ThetaTask {	EndogTrans(subspace=iterating);	Run();	}
+
+struct SVTrans          :   EndogTrans { decl Slist; SVTrans(Slist); Run();};
 
 /** Base Task for looping over &Epsilon; and &Eta;.
 
@@ -351,7 +353,7 @@ struct Group : DP {
 /** Output routines .
 
 **/
-struct DPDebug : Task {
+struct DPDebug : ThetaTask {
 	static const decl
 		div = "     ------------------------------------------------------------------------------";
 	static decl prtfmt0, prtfmt, SimLabels, SVlabels, Vlabel0, rp, OutAll;
@@ -360,6 +362,7 @@ struct DPDebug : Task {
     static outAllV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
     static RunOut();
     static outAutoVars();
+    static outSVTrans(S1,...);
     DPDebug();
 	}
 
@@ -375,7 +378,13 @@ struct OutAuto : DPDebug {
     OutAuto();
     Run();
     }
-	
+
+struct SVT : DPDebug {
+    decl Slist;
+    SVT(Slist);
+    Run();
+    }
+    	
 /** . @internal **/
 struct DumpExogTrans : ExTask {
 	decl s;
