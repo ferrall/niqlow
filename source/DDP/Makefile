@@ -24,7 +24,7 @@ DP.oxo : $(dpobj)
 Variables.oxo : $(varobj)
 
 %.oxo : %.ox %.h
-	$(OX) $(OXFLAGS) -i$(INC) -c $<
+	$(OX) $(OXFLAGS) -i$(INC) -d -c $<
 	$(COPY) $@ $(INC)
 	$(ERASE) $@
 

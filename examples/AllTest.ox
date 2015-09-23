@@ -64,18 +64,28 @@ Test1::Run(UseList) {
 	Delete();
 	}
 
-Test2::Utility() { return I::t < 3 ? aa(a) : 1-aa(a); }
-Test2::Run(UseList) {
-	Initialize(new Test2(),UseList);
-	SetClock(UncertainLongevity,8,0.0);
-    Actions(a = new BinaryChoice());
+
+Test2::Utility()  {
+	decl rep = aa(d);
+	return   -(rep*rc + (1-rep)*th1*mfact*CV(x))
+			 +normalization;	// added to avoid exp() underflow for delta near 1.0
+	}
+
+Test2::Run(UseList)	{
+	decl EMax, row=0;
+    Initialize(1.0,new Test2());
+    SetClock(UncertainLongevity,3,0.0);
+    Actions(d = new BinaryChoice());
+	EndogenousStates(x = new Renewal("x",NX,d,pars[0][theta3]) );
 	CreateSpaces();
-    VISolve();
-    decl pd = new PathPrediction();
-    pd->Tracking(NotInData,counter.t,a);
-    pd->Predict(15,TRUE);
-    pd->Histogram(TRUE);
-    delete pd;
+	EMax = new ValueIteration();
+	EMax.vtoler = 1E-1;   					//loose tolerance because beta near 0 and 1
+	SetDelta(pars[row][disc]);
+	th1 = pars[row][theta1];
+	normalization = th1*mfact*NX/2.0;	//median cost, keep U() centered on 0.0
+	rc = pars[row][RC];
+    EMax.Volume=LOUD;
+	EMax -> Solve();
 	Delete();
 	}
 

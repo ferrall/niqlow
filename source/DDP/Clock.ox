@@ -328,8 +328,9 @@ Longevity::Vupdate() {
     decl nrm = NonDeterministicAging::Vupdate();
 	if (t.v==Tstar)
         DeathV = aVV[0][I::now][ : I::MxEndogInd ];    // Associate death value with t' = 1
-    if (Flags::setPstar)
-        aVV[0][I::now][ : I::MxEndogInd ] = DeathV;    // Associate death value with t' = 0
+    else { if (Flags::setPstar)
+                aVV[0][I::now][ : I::MxEndogInd ] = DeathV;    // Associate death value with t' = 0
+        }
     return nrm;
     }
 

@@ -20,6 +20,7 @@ struct Method : ThetaTask {
         @see NoiseLevels**/                         Volume;
     virtual Solve(Fgroups=AllFixed,MaxTrips=0);
     virtual GSolve(instate);
+    ZeroTprime();
 	}
 
 /** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/

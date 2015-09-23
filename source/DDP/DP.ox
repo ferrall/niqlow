@@ -924,11 +924,11 @@ Task::Reset() {
 /** .
 @internal
 **/
-ThetaTask::ThetaTask() {
+ThetaTask::ThetaTask(subspace) {
 	Task();
 	left = S[endog].M;
 	right = S[clock].M;
-	subspace = tracking;
+	this.subspace = subspace;
     }
 
 /** .
@@ -948,7 +948,7 @@ CreateTheta::Sampling() {
 Not called if a dry run is asked for.
 **/
 CreateTheta::CreateTheta() {
-	ThetaTask();
+	ThetaTask(tracking);
     Sampling();
 	}
 
@@ -958,7 +958,7 @@ not used.
 
 **/
 FindReachables::FindReachables() { 	
-    ThetaTask();
+    ThetaTask(tracking);
     rchable = <>;
     }
 
@@ -1478,7 +1478,7 @@ UpdateDensity::UpdateDensity() {
 **/
 UpdateDensity::Run() {	I::curg->Density();	}
 
-DPDebug::DPDebug() {	ThetaTask();     }
+DPDebug::DPDebug() {	ThetaTask(tracking);     }
 
 /** Print the table of value functions and choice probabilities for all fixed effect groups.
 @param ToScreen  TRUE means output is displayed.
@@ -1618,7 +1618,7 @@ SVT::Run() {
     foreach(s in Slist) {
 		if (isclass(s,"Coevolving")) s = s.block;
 		[feas,prob] = s -> Transit(Alpha::List[I::curth.Aind]);
-        fprintln(logf,"     State: ",s.L,"%r",{Alpha::aL1}|Alpha::Rlabels[I::curth.Aind],feas'|prob);
+        fprintln(logf,"     State: ",s.L,"%r",{Alpha::aL1}|Alpha::Rlabels[I::curth.Aind],feas|prob);
 		}
     }
 

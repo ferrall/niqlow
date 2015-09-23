@@ -42,8 +42,7 @@ So utility is not stored for later use.  To retrieve it during simulation requir
 
 **/
 EndogUtil::EndogUtil() {
-	ThetaTask();
-	subspace = iterating;
+	ThetaTask(iterating);
 	ex = new ExogUtil();
 	}
 
@@ -148,12 +147,15 @@ ValueIteration::Run() {
 **/
 ValueIteration::GSolve(instate) {
 	this.state = ndogU.state = instate;
+    ZeroTprime();
 	ndogU->Traverse();
 	Flags::setPstar = counter->setPstar() ||  (MaxTrips==1);   // if first trip is last;
 	decl i;
 	Traverse();
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER) VV[LATER][] = VV[I::later][];    //initial value next time
 	}
+
+Method::ZeroTprime() { state[counter.tprime.pos] = 0; }
 
 /** The function (method) that actually applies the DP Method to all problems (over fixed and random effect groups).
 This is the default value that does nothing.  It should be replaced by code for the solution method.
@@ -210,9 +212,8 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
 **/
 ValueIteration::ValueIteration(myEndogUtil) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 28. Must create spaces before creating a solution method");
-	ThetaTask();
+	ThetaTask(iterating);
  	vtoler = DefTolerance;
-   	subspace=iterating;
    	state = N::All-1;
     ftask = new FixedSolve();
 	ndogU = isint(myEndogUtil) ? new EndogUtil() : myEndogUtil;
@@ -329,7 +330,8 @@ This replaces the built-in version used by `ValueIteration`.
 **/
 KeaneWolpin::GSolve(instate) {
 	decl myt;
-	this.state = ndogU.state = instate;		
+	this.state = ndogU.state = instate;
+    ZeroTprime();
 	Flags::setPstar = TRUE;	
 	for (myt=N::T-1;myt>=0;--myt) {
 		state[cpos] = ndogU.state[cpos] = myt;
@@ -486,8 +488,7 @@ CCP::InitializePP() {
     }
 
 CCPspace::CCPspace(qtask) {
-    ThetaTask();
-    subspace=tracking;
+    ThetaTask(tracking);
     this.qtask = qtask;
     }
 
@@ -522,6 +523,7 @@ HotzMiller::GSolve(instate) {
     HMEndogU::VV = (invert( setdiagonal(tmpP, 1+diagonal(tmpP)) ) * Q[I::f] )';   // (I-d*Ptrans)^{-1}
 	if (Volume>LOUD) fprintln(logf,"HM inverse mapping: ",HMEndogU::VV );
 	this.state = ndogU.state = instate;
+    ZeroTprime();
 	ndogU->Traverse();
 	Flags::setPstar = 	FALSE;
 	}

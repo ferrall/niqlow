@@ -1,4 +1,7 @@
 /** Corrections and Additions.
+<h2>Release 2.46</h2>
+<DT>DDP</DT>
+<DD>Fixed bug that affected value function iteration on non-standard clocks (t' has to be set to 0 in the Method::GSolve)</DD>
 <h2>Release 2.45</h2>
 <DL>
 <DT>Known Bugs</DT>
@@ -14,6 +17,7 @@
 <DT>Requires Ox Version 7.1 or greater</DT>
 <DD>Added Cholesky parameter to Explore()</DD>
 <DT>DDP</DT>
+<DD>Fixed bug that affected value function iteration on non-standard clocks (t' has to be set to 0 in the Method::GSolve)</DD>
 <DD>Added checks for transitions to unreachable states (when <code>DP::Volume=NOISY</code>).  All states and their reachability are also dumped to the log file.</DD>
 <DD>Fixed potential bug whereby transition indices for tracking (including Predictions and Outcomes) were not set properly in finite horizon models.  Reverse indexing of states was used to create tracking indices, but since iterating indices suppress values of <code>t</code> these indices were probably incorrect in finite horizon models. </DD>
 <DD>Creating the state space now uses Ox clone() function.  So user code now sends an object of their DP model to <code>Initialize()</code> rather than

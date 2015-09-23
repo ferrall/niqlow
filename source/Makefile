@@ -14,7 +14,7 @@ niqlow.oxo  : $(oxobjects)
 #	-for d in $(DIRS); do ($(CD) $$d; $(MAKE) $(MKFLAGS); $(ECHO) "\n\n\n Build attempt for directory: $$d complete\n\n\n"); done
 
 %.oxo : %.ox %.h
-	$(OX) $(OXFLAGS) -i$(INC) -c $<
+	$(OX) $(OXFLAGS) -i$(INC) -d -c $<
 	$(COPY) $@ $(INC)
 	$(ERASE) $@
 

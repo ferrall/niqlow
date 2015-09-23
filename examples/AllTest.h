@@ -9,11 +9,31 @@ struct Test1 : Bellman {
 	Utility();
 	}
 
-struct Test2 : Bellman {
-    static decl a;
-	static Run(UseList);
-	Utility();
+struct Test2 : ExtremeValue	{
+	/** tags for estimated parameters. @name Zparams **/
+	enum{disc,RC,theta1,theta3,Nparams}
+	enum{NX = 90}
+
+	static const  decl
+	       /** scaling on cost **/ 	 	mfact 	= 	0.001,	
+	       /** array of parameters. Table IX, Column 2 . **/ 	
+	           pars 	= {
+                           { 0.90,10.075,2.293 , <0.3919,0.5953,1-0.3919-0.5953> } //Row 1
+						  };
+	static 	decl 					
+		/** mileage state, <em>x</em>**/					x,
+                                                            d,
+		/** added to U() to avoid underflow **/				normalization,
+		/** value of &theta;<sub>1</sub> **/	            th1,
+		/** value of RC **/					                rc,
+		                                                    data,
+                                                            chprob;
+
+				Utility();
+		static 	Run(Uselist=FALSE);
+        static  Output();
 	}
+
 
 struct Test3 : Bellman {
 	static decl a, d, s0, s1;

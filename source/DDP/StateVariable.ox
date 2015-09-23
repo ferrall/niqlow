@@ -180,7 +180,7 @@ ActionTriggered::ActionTriggered(b,t,tv,rval){
 
 ActionTriggered::Transit(FeasA) {
     Augmented::Transit(FeasA);
-    if ((any(idx=FeasA[][t.pos].==tv))) {  //trigger value feasible
+    if ((any(idx=ca(FeasA,t).==tv))) {  //trigger value feasible
         basetr[Qrho] .*= (1-idx);
         if ((any(idy = basetr[Qi].==rval) ))   //reset values already present
             basetr[Qrho][][maxcindex(idy')] += idx;
@@ -438,7 +438,7 @@ Offer::Offer(L,N,Pi,Accept)	{
 /** .
 **/
 Offer::Transit(FeasA)	{
-  decl offprob = AV(Pi,FeasA), accept = FeasA[][Accept.pos];
+  decl offprob = AV(Pi,FeasA), accept = ca(FeasA,Accept);
   return {vals,(1-accept).*( (1-offprob)~(offprob*constant(1/(N-1),rows(FeasA),N-1)) )+ accept.*(constant(v,rows(FeasA),1).==vals)};
   }
 
@@ -592,8 +592,8 @@ LaggedAction::LaggedAction(L,Target,Prune,Order)	{
 /** .
 **/
 LaggedAction::Transit(FeasA)	{
-	decl v=unique(FeasA[][Target.pos]);
-	return {v, FeasA[][Target.pos].==v };
+	decl v=unique(ca(FeasA,Target));
+	return {v, ca(FeasA,Target).==v };
 	}
 
 /**  Record the value of an action variable at a given time.
@@ -657,8 +657,8 @@ RetainMatch::Transit(FeasA) {
 	repl = zeros(rows(FeasA),1);
 	hold = 1-repl;
 	for (i=0;i<sizeof(acc);++i) {
-		hold .*= any(FeasA[][acc[i].pos].==keep);  //all parties must stay
-		repl += any(FeasA[][acc[i].pos].==replace);	// any party can dissolve, get new match
+		hold .*= any(ca(FeasA,acc[i]).==keep);  //all parties must stay
+		repl += any(ca(FeasA,acc[i]).==replace);	// any party can dissolve, get new match
 		}
 	repl = repl.>= 1;
 	return {0~v~matchvalue.v, (1-hold-repl) ~ hold ~ repl};
@@ -724,7 +724,7 @@ ActionCounter::ActionCounter(L,N,Act,  ToTrack,Reset,Prune)	{
 **/
 ActionCounter::Transit(FeasA)	{
     if (AV(Reset,FeasA)) return { <0>, ones(rows(FeasA),1) };
-    if (( v==N-1 || !any( inc = sumr(FeasA[][Target.pos].==ToTrack)  ) )) return UnChanged(FeasA);
+    if (( v==N-1 || !any( inc = sumr(ca(FeasA,Target).==ToTrack)  ) )) return UnChanged(FeasA);
     return { v~(v+1) , (1-inc)~inc };
 	}
 
@@ -765,7 +765,7 @@ ActionAccumulator::ActionAccumulator(L,N,Action) {
 /** .
 **/
 ActionAccumulator::Transit(FeasA)	{
-    y = setbounds(v+FeasA[][Target.pos],0,N-1);
+    y = setbounds(v+ca(FeasA,Target),0,N-1);
     x = unique(y);
 	return { x ,  y.==x };
     }
@@ -803,7 +803,7 @@ Duration::Duration(L,Current,Lag, N,Prune) {
 Duration::Transit(FeasA) {
 	g= matrix(v +(v<N-1));
 	if (isact) {
-		nf = sumr(FeasA[][Target.pos].==AV(Lag));
+		nf = sumr(ca(FeasA,Target).==AV(Lag));
         if (!nf) return { <0> , ones(rows(FeasA),1) };
 		return { 0~g , (1-nf)~nf };
 		}
@@ -833,10 +833,10 @@ Renewal::Transit(FeasA)	{
    		 qstar = pstar ? pi[:pstar-1]~sumr(pi[pstar:]) : <1.0>;
 	decl tt = !isint(ovlap)
 			? {vals[:v+P-1],
-		      	((pi~ovlap).*FeasA[][reset.pos])
-		   	 +  ((ovlap ~ qstar).*(1-FeasA[][reset.pos])) }
+		      	((pi~ovlap).*ca(FeasA,reset))
+		   	 +  ((ovlap ~ qstar).*(1-ca(FeasA,reset))) }
 			: {vals[:P-1] ~ (v+vals[:pstar]) ,
-				pi.*FeasA[][reset.pos] ~ qstar.*(1-FeasA[][reset.pos]) };
+				pi.*ca(FeasA,reset) ~ qstar.*(1-ca(FeasA,reset)) };
 	return tt;
 	}
 
@@ -876,7 +876,7 @@ ActionTracker::ActionTracker(L,Target,ToTrack)	{
 /** .
 **/
 ActionTracker::Transit(FeasA)	{
-    d = sumr( FeasA[][Target.pos].==(ToTrack) );
+    d = sumr( ca(FeasA,Target).==(ToTrack) );
 	if (any(d)) {
 	    if (any(1-d)) return{ <0,1>, (1-d)~d };
 		return {<1>, ones(d)};
@@ -973,7 +973,7 @@ OfferWithLayoff::OfferWithLayoff(L,N,accept,Pi,Lambda)	{
 	
 /** .  **/
 OfferWithLayoff::Transit(FeasA)	{
-   decl prob = AV(Pi,FeasA), lprob = AV(Lambda,FeasA), acc = FeasA[][accept.pos], xoff, xprob;
+   decl prob = AV(Pi,FeasA), lprob = AV(Lambda,FeasA), acc = ca(FeasA,accept), xoff, xprob;
 
    if (status.v==Emp) return { offer.v | (Quit~LaidOff~Emp) ,  (1-acc) ~ acc.*(lprob~(1-lprob)) };
    xoff =    offer.vals | Unemp;
@@ -1125,7 +1125,7 @@ Asset::Asset(L,N,r,NetSavings){
 /**
 **/
 Asset::Transit(FeasA) {
-     atom = setbounds( AV(r)*actual[v]+isact ? NetSavings.actual[FeasA[][NetSavings.pos]] : AV(NetSavings,FeasA) , actual[0], actual[N-1] )';
+     atom = setbounds( AV(r)*actual[v]+isact ? NetSavings.actual[ca(FeasA,NetSavings)] : AV(NetSavings,FeasA) , actual[0], actual[N-1] )';
      top = mincindex( (atom-DIFF_EPS.>actual) )';
      bot = setbounds(top-1,0,.Inf);
      mid = (actual[top]-actual[bot]);

@@ -200,7 +200,7 @@ states or looping over all combinations of state variable values.  This is done
 with an arguement to `DP::Initialize`().
 
 **/
-struct ThetaTask        :   Task {	ThetaTask();	Run();	}
+struct ThetaTask        :   Task {	ThetaTask(subspace);	Run();	}
 
 /** Identify unreachable states from &Theta;.
 
@@ -272,7 +272,7 @@ struct ReSubSample 	    : 	CreateTheta    {	ReSubSample(); 		Run();	}
 /** Base Task for constructing the transition for endogenous states.
 
 **/
-struct EndogTrans 	    : 	ThetaTask {	EndogTrans(subspace=iterating);	Run();	}
+struct EndogTrans 	    : 	Task {	EndogTrans(subspace=iterating);	Run();	}
 
 struct SVTrans          :   EndogTrans { decl Slist; SVTrans(Slist); Run();};
 
