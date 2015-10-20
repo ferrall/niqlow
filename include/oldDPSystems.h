@@ -15,19 +15,16 @@ Newton-Raphson root solving to find the solution.  This can be much faster, but 
 especially when &delta; is near 1.
 **/	
 struct SolveAsSystem : Method {
-    const decl system,
-                VI;
-	decl   SystemSolutionMethod;
-    Run();
+	decl system,
+    /** Output from the solution method. **/        Volume,
+		/** Scratch space for value iteration. **/  VV,
+         VI
+         ;
 	SolveAsSystem();
+	Run();
 	Solve(SystemMethod=USEBROYDEN,MaxTrips=0);	
 	}
 
-struct SaSGSolve : GSolve {
-	SaSGSolve();
-	Solve(SystemMethod=USEBROYDEN,MaxTrips=0);	
-    Run();
-	}
 
 /** Represent V or R* as a non-linear system.
 **/
@@ -87,14 +84,11 @@ The user writes routines that return ...
 
 **/
 struct ReservationValues : ValueIteration {
-	ReservationValues(LBvalue=-.Inf,METHOD=UseDefault);
-	}
-
-struct RVGSolve : GSolve {
-    static decl                                         LBvalue,METHOD;
-	decl                                                Volume,
+	decl
+                                                        MaxTrips,
 	/** Objectives for each &Alpha;	**/					RValSys;
-    RVGSolve();
-    Solve(state);
-    Run();
-    }
+	ReservationValues(LBvalue=-.Inf,METHOD=UseDefault);
+	Run();
+	Solve(Fgroups=AllFixed,MaxTrips=0);
+	}
+	

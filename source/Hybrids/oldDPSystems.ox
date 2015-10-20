@@ -21,34 +21,28 @@ EVSystem::vfunc()	{
 	return (systask.VV[I::now][]-systask.VV[I::later][])';
 	}
 
-SaSGSolve::SaSGSolve() {    GSolve::GSolve();	}
-
-SaSGSolve::Run() {	I::curth->thetaEMax(); }
-	
 SolveAsSystem::SolveAsSystem() {
 	if (!Flags::IsErgodic) oxrunerror("DDP Error 34. SolveAsSystem only works with ergodic clock");
-    Method();
-	VI = new ValueIteration();
+	Task();
+	VI = new ValueIteration(0);
 	system = new EVSystem(SS[iterating].size,VI);
-    itask = new SaSGSolve();
-    }
-
-SolveAsSystem::Solve(SystemSolutionMethod,MaxTrips)	{
-    if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions(); // UpdateVariables();
-	Parameter::DoNotConstrain = FALSE;
-    this.SystemSolutionMethod = SystemSolutionMethod;
-    this.MaxTrips = MaxTrips;
-    this->GroupTask::loop();
-//    itask->Solve();
 	}
 
-SolveAsSystem::Run() {
-	VI -> Solve(I::g,5);
-	Flags::setPstar = FALSE;
-	system->Encode(VI.VV[I::later][]');	
-	system->Solve(SystemSolutionMethod,MaxTrips);
-	Flags::setPstar = TRUE;
-	itask->Traverse();		
+SolveAsSystem::Run() {	I::curth->thetaEMax(); }
+	
+SolveAsSystem::Solve(SystemSolutionMethod,mxiter)	{
+	Parameter::DoNotConstrain = FALSE;
+    Clock::Solving(&VV);
+    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables();
+	decl g;
+	for(g=0;g<N::F;++g) {
+		VI -> Solve(g,5);
+		Flags::setPstar = FALSE;
+		system->Encode(VI.VV[I::later][]');	
+		system->Solve(SystemSolutionMethod,mxiter);
+		Flags::setPstar = TRUE;
+		Traverse();		
+		}
 	}
 
 /** Create a system of nonlinear equations to solve for reservation values.
@@ -101,10 +95,18 @@ Rsystem::RVSolve(curth,dV) {
 
 **/
 ReservationValues::ReservationValues(LBvalue,METHOD) {
-	ValueIteration(new RVGSolve());
-    RVGSolve::LBvalue=LBvalue;
-    RVGSolve::METHOD=METHOD;
+	ValueIteration(new RVEdU());
     Volume = SILENT;
+	decl i,sysize;
+    RValSys={};
+    for (i=0;i<N::J;++i) {
+        sysize = int(N::Options[i])-1;
+        RValSys |= sysize
+			 ? Flags::HasKeptZ
+                    ? new DynamicRsystem(LBvalue,sysize,METHOD)
+                    : new Rsystem(LBvalue,sysize,METHOD)
+			 :  0;
+        }
 	}
 
 RVEdU::RVEdU() {
@@ -121,44 +123,28 @@ RVEdU::Run() {
         I::curth->ExogUtil();	
 	}
 
-/*Solve for cut off values in the continuous shock &zeta;.
+/**Solve for cut off values in the continuous shock &zeta;.
 @param Fgroups DoAll [default], loop over fixed groups<br>non-negative integer, solve only that fixed group index
+**/
 ReservationValues::Solve(Fgroups,MaxTrips) 	{
     I::NowSet();
-    GSolve::MaxTrips =MaxTrips;
-    if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions();
-	if (Fgroups==AllFixed)
-		this->GroupTask::loop();
-	else {
-        this->itask->Solve(ReverseState(Fgroups,I::OO[onlyfixed][]));
-        }
-	}
-*/
-
-RVGSolve::Solve(state) {
-    this.state = state;
+    this.MaxTrips = MaxTrips;
+    GroupTask::qtask = this;
+    if (Flags::UpdateTime[OnlyOnce]) UpdateVariables();
+    Clock::Solving(&VV);
     decl rv;
     foreach (rv in RValSys) if (isclass(rv)) { rv.meth.Volume = Volume; rv.meth->Tune(MaxTrips); }
-    Clock::Solving(&VV);
-    Traverse();
-    }
-
-RVGSolve::RVGSolve() {
-    GSolve(new RVEdU());
-	decl i,sysize;
-    RValSys={};
-    for (i=0;i<N::J;++i) {
-        sysize = int(N::Options[i])-1;
-        RValSys |= sysize
-			 ? Flags::HasKeptZ
-                    ? new DynamicRsystem(LBvalue,sysize,METHOD)
-                    : new Rsystem(LBvalue,sysize,METHOD)
-			 :  0;
+	if (Fgroups==AllFixed)
+		ftask -> GroupTask::loop();
+	else {
+	    ftask.state = state = ReverseState(Fgroups,I::OO[onlyfixed][]);
+		SyncStates(ftask.left,ftask.right);
+        I::Set(state,TRUE);
+		ftask->Run();
         }
-    Volume = QUIET;
-    }
+	}
 
-RVGSolve::Run() {
+ReservationValues::Run() {
     I::curth->ActVal(VV[I::later]);
 	decl sysind = I::curth.Aind;
 	if ( I::curth.solvez && isclass(RValSys[sysind])) {

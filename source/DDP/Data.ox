@@ -158,7 +158,7 @@ span the state space with `EndogTrans`.
 **/
 Path::Simulate(T,usecp,DropTerminal){
 	decl done;
-	ETTtrack->Traverse();
+//	ETTtrack->Traverse();
 	Outcome::usecp = usecp;
 	cur = this;
 	this.T=1;  //at least one outcome on a path
@@ -388,10 +388,10 @@ Outcome::Likelihood() {
 		arows=ind[onlyacts][Ainds[q]];
 		PS = GetPstar(qind)[arows][];
 		for (h = 0,totprob = 0.0;h<sizeof(dosemi);++h) {
-			[TF,TP] = GetTrans(qind,semicol = dosemi[h]);
+			[TF,TP] = GetTrackTrans(qind,semicol = dosemi[h]);
 			bothrows = ind[onlysemiexog]*width + einds;
-			curprob = sumr( PS[][ bothrows ].*NxtExog[Qrho][ bothrows ]' )';
-			totprob += sumc(NxtExog[Qrho][ bothrows ]);
+			curprob = sumr( PS[][ bothrows ].*NxtExog[Qprob][ bothrows ]' )';
+			totprob += sumc(NxtExog[Qprob][ bothrows ]);
             icol = 0;
 			vilikes[now][q] +=
 		 		(Ntom && rows(intersection(viinds[tom],TF,&icol)) )	
@@ -412,7 +412,7 @@ Outcome::FullLikelihood() {
         lk = OnlyTransitions ? 1.0 : GetPstar(viinds[now])[arow][ind[bothexog]] ;
 	if (viinds[tom]==UnInitialized) return lk;
     decl icol, TF, TP;
-	[TF,TP] = GetTrans(viinds[now],0);
+	[TF,TP] = GetTrackTrans(viinds[now],0);
     if (!rows(intersection(matrix(viinds[tom]),TF,&icol))) return .NaN;
 	lk *= TP[arow][icol[1][0]];
     return lk;
@@ -444,13 +444,15 @@ integrated flat output of the path.
 RandomEffectsIntegration::Integrate(path) {
 	this.path = path;
 	L = 0.0;
-    flat = <>;
+    flat = 0;
 	loop();
 	return {L,flat};
 	}
 	
 RandomEffectsIntegration::Run() {
-	flat += curREdensity*(path->PathObjective());
+    decl pf =path->PathObjective();
+    println("%% ",I::r," ",I::rtran," ",curREdensity);
+    if (isint(flat)) flat = curREdensity*pf; else flat += curREdensity*pf;
 	L += curREdensity*path.L;	
 	}
 	
@@ -461,9 +463,8 @@ Path::Likelihood() {
 		viinds = new array[DVspace];
 		vilikes = new array[DVspace];
 		}
-	if (isclass(summand)) {
+	if (isclass(summand))
 		[L,flat] = summand->Integrate(this);
-        }
 	else
 		PathObjective();
 	}
@@ -539,7 +540,7 @@ FPanel::LogLikelihood() {
            }
         }
     else
-        if (Flags::UpdateTime[AfterFixed]) UpdateVariables();
+        if (Flags::UpdateTime[AfterFixed]) ETT->Transitions(state);
 	FPL = zeros(N,1);  //NT
     if (isclass(upddens)) {
 		upddens->SetFE(state);
@@ -563,7 +564,7 @@ is called.
 Panel::LogLikelihood() {
 	cur = this;
 	M = <>;	
-	if (!isclass(method) && Flags::UpdateTime[OnlyOnce]) UpdateVariables();
+	if (!isclass(method) && Flags::UpdateTime[OnlyOnce]) ETT->Transitions(state);
 	do {
 		cur->FPanel::LogLikelihood();
 		M |= cur.FPL;
@@ -899,25 +900,31 @@ DataSet::~DataSet() {
 
 Usually the user would predict for a `PathPrediction` which would
 call this routine.
+@param tlist list of tracked objects to compute histograms for.
+@return TRUE if all current states are termimal or last states.
 
 **/
-Prediction::Predict() {
-	decl s,q,pp,unrch;
+Prediction::Predict(tlist) {
+	decl s,qi,q,pp,unrch,allterm=TRUE,v;
     state = zeros(N::All);
     if (Volume>LOUD) {pp = 0.0; unrch = <>; }
     foreach (q in sind[s]) {
+        qi = ReverseState(q,I::OO[tracking][])[lo:hi];
         if (Settheta(q)) {
-            state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
+            state[lo:hi] = qi;
             I::all[tracking] = I::OO[tracking][]*state;
             SyncStates(lo,hi);
             I::curth->Predict(p[s],this);
+            allterm *= I::curth.IsTerminal || I::curth.IsLast;
             }
-        else if (Volume>LOUD) { pp += p[s]; unrch |= ReverseState(q,I::OO[tracking][])[lo:hi]' ; }
+        else if (Volume>LOUD) { pp += p[s]; unrch |= qi' ; }
         }
+    foreach(v in tlist ) Histogram(v,FALSE);  //CV(prntlevel,cur)==One
     if (Volume>LOUD && pp>0.0) {
         fprintln(logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
         oxwarning("DDP Warning ??. Leakage in transition probability.  See log file");
         }
+    return allterm;
 	}
 	
 Prediction::Reset() {
@@ -941,20 +948,11 @@ Prediction::Prediction(t){
     ch = zeros(N::A,1);
 	}
 
-/** Create a path of predicted distributions.
-@param T <em>integer</em> length of the path (default=1)<br>0 : predict only for existing predictions on the Path.
-@param prtlevel FALSE [default] do not print<br>TRUE print state and choice probabilities
-@example
-<pre>
-  p = new PathPrediction(0);
-  p-&gt;Predict(10);
-</pre></dd>
+/**
 **/
-PathPrediction::Predict(T,prtlevel){
+PathPrediction::SetT(T) {
   cur=this;
-  if (T) this.T = T;
-  ETTtrack->Traverse();
-  Nt = sizeof(tlist);
+  this.T = T;
   do {
 	 if (!isclass(cur.pnext)) {  // no tomorrow after current
         if (T && cur.t+1<this.T)  // predict for a fixed T
@@ -962,15 +960,45 @@ PathPrediction::Predict(T,prtlevel){
         }
      else
         cur.pnext->Reset();  //tomorrow already exists, reset it.
-	 cur->Prediction::Predict();
-     switch_single(prtlevel) {
-        case Zero : break;
-        case One : println(cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
-        case Two : break;
-        default : oxwarning("DDP Warning 10.\n print level invalid\n");
-        }
   	 } while((isclass(cur = cur.pnext)));  //changed so that first part of loop determines if this is the last period or not.
+  return TRUE;
+    }
+
+/** Create a path of predicted distributions.
+@param T <em>integer</em> length of the path (default=1)<br>0 : predict only for existing predictions on the Path.
+@param prtlevel FALSE [default] do not print<br>TRUE print state and choice probabilities
+@return IterationFailed if method solution fails, otherwise TRUE
+@example
+<pre>
+  p = new PathPrediction(0);
+  p-&gt;Predict(10);
+</pre></dd>
+**/
+PathPrediction::Predict(prtlevel){
+  decl done;
+  cur=this;
+  Nt = sizeof(tlist);
+  if (Initialize()==IterationFailed) return IterationFailed;
+  cur=this;
+  flat = <>;
+  decl  delt =<>;
+  do {
+     cur.predmom=<>;
+     done =    cur->Prediction::Predict(tlist)          //all states terminal or last
+            || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
+     if (prtlevel==One) println(cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
+	 if (!done && !isclass(cur.pnext)) // no tomorrow after current
+                cur.pnext = new Prediction(cur.t+1);
+     flat |= cur.t~cur.predmom;
+     if (TRUE) delt |= cur->Delta(mask);
+     cur = cur.pnext;
+  	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
+  L = rows(delt) ? norm(delt,'F'): .NaN;
+  if (prtlevel==Two) println("%c",tlabels,"%8.4f",flat);
+  return f~flat;
+  return TRUE;
   }
+
 
 /** Add empirical values to a path of predicted values.
 @param inmom  Txm matrix of values.
@@ -1012,6 +1040,7 @@ PathPrediction::PathPrediction(f,method,iDist){
     hi = SS[tracking].right;
     mask = <>;
     Prediction(0);
+    state = ReverseState(f,SS[onlyfixed].O);
 	if (isint(iDist)) {
 		decl s=iDist;
 		while (!Settheta(s)) ++s;
@@ -1120,7 +1149,7 @@ ObjToTrack::ObjToTrack(LorC,obj) {
             L = obj.L;
             hN = obj.N;
             hd = obj.pos;
-            hvals = obj.vals;
+            hvals = obj.actual'; //obj.vals;
             break;
         }
   hist = zeros(hN,1);
@@ -1202,7 +1231,6 @@ PathPrediction::Initialize() {
             flat = <>;
             return IterationFailed;
             }
-        Predict();
         }
     return TRUE;
     }
@@ -1222,21 +1250,24 @@ Currently the objective is the square root of the squared differences.
 <pre>
    pd = new PathPrediction();
    pd->Tracking({capital,labour});
-   pd -&gt; Predict(10);
-   pd -&gt; Histogram(TRUE);  //print distribution
+   pd -&gt; TSet(10);
+   pd -&gt; Predict(TRUE);  //print distribution
 </pre></dd>
 
 @return flat matrix of predicted moments
 
-**/
 PathPrediction::Histogram(printit) {
   if (Initialize()==IterationFailed) return;
+//  Predict();
   if (isclass(summand))
 	   [L,flat] = summand->Integrate(this);
   else
 	   flat = PathObjective();
   if (printit) println("%c",tlabels,"%8.4f",flat);
+  return flat;
   }
+
+**/
 
 
 /** Integrate over the path.
@@ -1252,6 +1283,7 @@ PathPrediction::PathObjective() {
      delt |= cur->Delta(mask);
   	 }  while (( isclass(cur = cur.pnext,"Prediction") ));
   L = rows(delt) ? norm(delt,'F'): .NaN;
+  println(flat);
   return f~flat;
   }
 
@@ -1269,17 +1301,10 @@ $$M = -\sqrt{ \sum_{n} dist(emp_n,pred_n)}$$
 </DD>
 **/
 PanelPrediction::Objective() {
-    decl cur=this;
-    aflat = {};
-    M = 0.0;
-    do {
-        cur->Histogram(FALSE);
-        M += cur.L;
-	    aflat |= cur.flat;
-        } while((isclass(cur=cur.fnext)));
-    M = -sqrt(M);
+    Predict();
     }
 
+/*
 PanelPrediction::Histogram(printit) {
     decl cur=this;
     aflat = {};
@@ -1287,7 +1312,12 @@ PanelPrediction::Histogram(printit) {
         cur->PathPrediction::Histogram(FALSE);
 	    aflat |= cur.flat;
         } while((isclass(cur=cur.fnext)));
+    if (printit) {
+        decl m;
+        foreach(m in aflat) println("%c",{"f"}|tlabels,m);
+        }
     }
+*/
 
 /** Set an object to be tracked in predictions.
 @param LorC  UseLabel: use object label to match to column.<br>NotInData [default] unmatched to data.<br>integer: column in data set<br>string: column label
@@ -1353,9 +1383,15 @@ PanelPrediction::PanelPrediction(r,method) {
 **/
 PanelPrediction::Predict(t,printit) {
     decl cur=this;
+    aflat = {};
+    M = 0.0;
     do {
-        cur->PathPrediction::Predict(ismatrix(t) ? t[cur.f] : t,printit);
+        cur->SetT(ismatrix(t) ? t[cur.f] : t);
+        cur->PathPrediction::Predict(printit);
+        M += cur.L;
+	    aflat |= cur.f~cur.flat;
         } while((isclass(cur=cur.fnext)));
+    M = -sqrt(M);
     }
 
 /** Track a single object that is matched to column in the data.
@@ -1418,7 +1454,6 @@ EmpiricalMoments::EmpiricalMoments(label,method,UorCorL) {
 
 /** The default econometric objective for a panel prediction: the overall GMM objective.
 @return `PanelPrediction::M`
-@see PanelPrediction::Histogram
 
 @comments
 Currently this is identical to `EmpiricalMoments::Solve`().  They may differ in later versions.

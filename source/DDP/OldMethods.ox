@@ -25,7 +25,7 @@ This would be inefficient to use in any context when a solution method is applie
 VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling VISolve()");
     decl meth = new ValueIteration();
-    GSolve::RunSafe = FALSE;
+    meth.RunSafe = FALSE;
     DPDebug::outAllV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice);
     decl conv = meth->Solve();
     delete meth;
@@ -43,7 +43,7 @@ So utility is not stored for later use.  To retrieve it during simulation requir
 **/
 EndogUtil::EndogUtil() {
 	ThetaTask(iterating);
-	itask = new ExogUtil();
+	ex = new ExogUtil();
 	}
 
 /** Loop over exogenous states computing U() at a give &theta;.
@@ -51,8 +51,8 @@ EndogUtil::EndogUtil() {
 **/
 EndogUtil::Run() {
     I::curth->UReset();
-	itask.state = state;
-	itask->loop();
+	ex.state = state;
+	ex->loop();
 	}
 
 /** Create an endogenous utility object.
@@ -67,11 +67,10 @@ ExogUtil::ExogUtil() {
 	
 ExogUtil::Run() { I::curth->ExogUtil();  }	
 
-//FixedSolve::FixedSolve(gtask) {
-//	FETask();
-//    itask = new RandomSolve(gtask);
-//	}
-
+FixedSolve::FixedSolve() {
+	FETask();
+    rtask = new RandomSolve();
+	}
 
 /** Process a point in the fixed effect space.
 <OL>
@@ -81,28 +80,24 @@ ExogUtil::Run() { I::curth->ExogUtil();  }
 </OL>
 @see DP::SetUpdateTime , DP::UpdateVariables , HookTimes
 **/
-ValueIteration::Run(){
-    if (Flags::UpdateTime[AfterFixed]) ETT->Transitions(state);
-    if (DoNotIterate) return;
+FixedSolve::Run(){
+    rtask->SetFE(state);
+    if (Flags::UpdateTime[AfterFixed]) ETTiter->Transitions(state);
+    if (GroupTask::qtask.DoNotIterate) return;
 	cputime0 = timer();
-    if (Volume>SILENT && N::F>1) print("f=",I::f);
-
-    itask->SetFE(state);
-    itask->GroupTask::loop();
+    if (GroupTask::qtask.Volume>SILENT && N::F>1) print("f=",I::f);
+    rtask -> GroupTask::loop();
     if (DPDebug::OutAll)  DPDebug::RunOut();
     else {
-        if (GSolve::Volume>SILENT) {
+        if (GroupTask::qtask.Volume>SILENT) {
            if (N::G>1) println(" done ");
-	       if (GSolve::Volume>QUIET) DPDebug::outV(TRUE);
+	       if (qtask.Volume>QUIET) DPDebug::outV(TRUE);
            }
         }
     Hooks::Do(PostRESolve);
 	}
 
-RandomSolve::RandomSolve(gtask) {	
-    RETask();	
-    itask = gtask;
-    }
+RandomSolve::RandomSolve() {	RETask();	}
 
 /** Apply the solution method for the current fixed values.
 
@@ -112,9 +107,8 @@ Solution is not run if the density of the point in the group space equals 0.0.
 **/
 RandomSolve::Run()  {
 	if (I::curg->Reset()>0.0) {
-        println("Going in ",state');
-        if (Flags::UpdateTime[AfterRandom]) ETT->Transitions(state);
-		itask->Solve(this.state);
+        if (Flags::UpdateTime[AfterRandom]) ETTiter->Transitions(state);
+		gtask->Solve(this.state);
 		}
 	}
 
@@ -143,11 +137,10 @@ GSolve::Run() {
 <LI>Iterate over states applying Bellman's equation.</LI>
 </OL>
 **/
-GSolve::Solve(instate) {
-	this.state = itask.state = instate;
-    Clock::Solving(&VV);
+GSolve::GSolve(instate) {
+	this.state = ndogU.state = instate;
     ZeroTprime();
-	itask->Traverse();  //compute endogenous utility
+	ndogU->Traverse();
 	Flags::setPstar = counter->setPstar() ||  (MaxTrips==1);   // if first trip is last;
 	this->Traverse();
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER) VV[LATER][] = VV[I::later][];    //initial value next time
@@ -176,6 +169,8 @@ This method carries out Bellman's iteration on the user-defined problem.  It use
 the problem to determine whether it needs to find a fixed point or can simply work backwards in
 time.<p>
 
+It uses a `FixedSolve`task stored in `ValueIteration::ftask` to loop over fixed effect values.
+
 If `Flags::UpdateTime`[OnlyOnce] is TRUE (see `UpdateTimes`), then transitions and variables are updated here.</LI>
 
 @comments Result stored in `ValueIteration::VV` matrix for only two or three ages (iterations) stored at any one time.  So this
@@ -185,56 +180,51 @@ Choice probabilities are stored in `Bellman::pandv` by random group index
 **/
 ValueIteration::Solve(Fgroups,MaxTrips) 	{
     decl glo, ghi, g;
-   	if (isint(delta))
-        oxwarning("DDP Warning 23.\n User code has not set the discount factor yet.\n Setting it to default value of "+sprint(SetDelta(0.90))+"\n");
-    if (MaxTrips==ResetValue) GSolve::MaxTrips=0;
-    else if (MaxTrips) GSolve::MaxTrips = MaxTrips;
+    if (MaxTrips==ResetValue) this.MaxTrips=0;
+    else if (MaxTrips) this.MaxTrips = MaxTrips;
     I::NowSet();
-    if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions();
-    GSolve::Volume = Volume;
-    GSolve::vtoler = vtoler;
+    ftask = new FixedSolve();
+    GroupTask::qtask = this;
+    Clock::Solving(&VV);
+    if (Flags::UpdateTime[OnlyOnce]) ETTiter->Transitions(state);
     if (Volume>QUIET) println("\n>>>>>>Value Iteration Starting");
-	if (Fgroups==AllFixed) this->GroupTask::loop();
+	if (Fgroups==AllFixed) {
+        ftask -> GroupTask::loop();
+        }
     else {
-        state = ReverseState(Fgroups,I::OO[onlyfixed][]);
-        SyncStates(left,right);
+	    ftask.state = state = ReverseState(Fgroups,I::OO[onlyfixed][]);
+		SyncStates(ftask.left,ftask.right);
         I::Set(state,TRUE);
-        this->Run();
+		ftask->Run();
         }
     Hooks::Do(PostFESolve);
     Flags::HasBeenUpdated = FALSE;
     if (Volume>QUIET) println("\n>>>>>>Value Iteration Finished\n");
 	}
 
-Method::Method() {
-	if (!Flags::ThetaCreated) oxrunerror("DDP Error 28. Must create spaces before creating a solution method");
-	FETask();
-    DoNotIterate = FALSE;
-    Volume = QUIET;
-    vtoler = DefTolerance;
-    }
 /** Creates a new &quot;brute force&quot; Bellman iteration method.
 @param myEndogUtil  `EndogUtil` to use for iterating over endogenous states<br>0 (default), built in task will be used.
 
 **/
-ValueIteration::ValueIteration(myGSolve,myEndogUtil) {
-    Method();
-    itask = new RandomSolve(isint(myGSolve) ? new GSolve(myEndogUtil) : myGSolve);
-	}
-
-GSolve::GSolve(myEndogUtil) {
+ValueIteration::ValueIteration(myEndogUtil) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 28. Must create spaces before creating a solution method");
 	ThetaTask(iterating);
-	itask = isint(myEndogUtil) ? new EndogUtil()  : myEndogUtil;
+ 	vtoler = DefTolerance;
+   	state = N::All-1;
+    ftask = 0;                      //new FixedSolve();
+	ndogU = isint(myEndogUtil) ? new EndogUtil() : myEndogUtil;
 	VV = new array[DVspace];
     decl i;
     for (i=0;i<DVspace;++i) VV[i] = zeros(1,SS[iterating].size);
    	if (isint(delta))
         oxwarning("DDP Warning 23.\n User code has not set the discount factor yet.\n Setting it to default value of "+sprint(SetDelta(0.90))+"\n");
+    DoNotIterate = FALSE;
+    Volume = QUIET;
+    RunSafe = TRUE;
 	}
 
 /** Update code for fixed number of trips. **/
-GSolve::NTrips() {
+ValueIteration::NTrips() {
 	++trips;
 	I::NowSwap();
 	return done = trips>=MaxTrips;
@@ -245,7 +235,7 @@ Default task loop update routine for value iteration.
 This is called after one complete iteration of `ValueIteration::GSolve`().
 @return TRUE if converged or `Task::trips` equals `Task::MaxTrips`
 **/
-GSolve::Update() {
+ValueIteration::Update() {
 	++trips;
 	decl dff= counter->Vupdate();
 	if (dff==.NaN || Volume>LOUD) {
@@ -280,8 +270,8 @@ GSolve::Update() {
 KWEMax::KWEMax() {
 	EndogUtil();
 	right = S[endog].X;	 // clock is iterated in  KeaneWolpin::GSolve
-	lo = itask.left;
-	hi = itask.right;
+	lo = ex.left;
+	hi = ex.right;
 	}
 
 /** Carry out Keane-Wolpin approximation at an endogenous state &theta; .
@@ -309,11 +299,11 @@ KWEMax::Run() {
 			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[I::r][][I::MESind])');
 		}
     else if (!inss) {
-		itask.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
+		ex.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
 		SyncStates(lo,hi);
 		I::all[bothexog] = 0;    //     MESind;
 		I::all[onlysemiexog] = 0; //= MSemiEind;
-		itask -> Run();
+		ex -> Run();
 		OutSample();
 		I::all[bothexog] = I::MESind;
 		I::all[onlysemiexog] = I::MSemiEind;
@@ -323,6 +313,8 @@ KWEMax::Run() {
         Hooks::Do(PostSmooth);
         }
 	}
+
+KeaneWolpin::Run() {	}
 
 /** Carry out Keane-Wolpin approximation at &theta; .
 This replaces the built-in version used by `ValueIteration`.
@@ -336,23 +328,23 @@ This replaces the built-in version used by `ValueIteration`.
 </UL>
 
 **/
-KWGSolve::Solve(instate) {
+KeaneWolpin::GSolve(instate) {
 	decl myt;
-	this.state = itask.state = instate;
+	this.state = ndogU.state = instate;
     ZeroTprime();
 	Flags::setPstar = TRUE;	
 	for (myt=N::T-1;myt>=0;--myt) {
-		state[cpos] = itask.state[cpos] = myt;
+		state[cpos] = ndogU.state[cpos] = myt;
 		SyncStates(cpos,cpos);
 		Y = Xmat = <>;	
         curlabels = 0;
-		itask.onlypass = !Flags::DoSubSample[myt];
-		itask.firstpass = TRUE;
-		itask->Traverse(myt);
-		if (!itask.onlypass) {
+		ndogU.onlypass = !Flags::DoSubSample[myt];
+		ndogU.firstpass = TRUE;
+		ndogU->Traverse(myt);
+		if (!ndogU.onlypass) {
 			Specification(ComputeBhat);
-			itask.firstpass = FALSE;
-			itask -> Traverse(myt);
+			ndogU.firstpass = FALSE;
+			ndogU -> Traverse(myt);
 			}
 		I::NowSwap();
 		}
@@ -360,16 +352,12 @@ KWGSolve::Solve(instate) {
 
 /** Initialize Keane-Wolpin Approximation method.
 **/
-KeaneWolpin::KeaneWolpin(myGSolve,myEndogUtil) {
+KeaneWolpin::KeaneWolpin(myKWEMax) {
     if (isint(SampleProportion)) oxwarning("DDP Warning 24.\n Must call SubSampleStates() before you use KeaneWolpin::Solve().\n");
-	ValueIteration(isint(myGSolve) ? new KWGSolve(myEndogUtil) : myGSolve);
+	ValueIteration(isint(myKWEMax) ? new KWEMax() : myKWEMax);
     if (N::J>1) oxwarning("DDP Warning 25.\n Using KW approximazation on a model with infeasible actions at some states.\n All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible.\n");
-	}
-
-KWGSolve::KWGSolve(myKWEMax) {
+	ndogU.meth = this;
 	cpos = counter.t.pos;
-    itask = isint(myKWEMax) ? new KWEMax() : myKWEMax;
-	itask.meth = this;
 	Bhat = new array[N::T];
 	xlabels0 = {"maxE","const"};
     xlabels1 = new array[N::A];
@@ -377,13 +365,13 @@ KWGSolve::KWGSolve(myKWEMax) {
 	decl l,a;
     foreach(l in xlabels1[a])  l = "(V-vv)_"+sprint(a);
 	foreach ( l in xlabels2[a]) l = "sqrt(V-vv)_"+sprint(a);
-    }
+	}
 	
 /**The default specification of the KW regression.
 @param kwstep which step of KW approximation to perform
 @param Vdelta (V-vv)'
 **/
-KWGSolve::Specification(kwstep,V,Vdelta) {
+KeaneWolpin::Specification(kwstep,V,Vdelta) {
 	decl xrow;
 	if (!isint(Vdelta)) {
         xrow = V~1~Vdelta~sqrt(Vdelta);
@@ -429,8 +417,23 @@ HotzMiller::HotzMiller(indata,bandwidth) {
 	if (SS[bothexog].size>1) oxrunerror("DDP Error 31a. exogenous and semi-exogenous not allowed with Hotz-Miller");
 	if (SS[onlyrand].size>1) oxrunerror("DDP Error 31b. Only FixedEffects allowed in Hotz-Miller.  No random effects");
     if (!Flags::IsErgodic) oxrunerror("DDP Error 31c. clock must be ergodic in Hotz Miller");
-    ValueIteration(new HMGSolve(indata,bandwidth));
+    ValueIteration(new HMEndogU(this));
+    if (isclass(indata,"Panel")) {
+        myccp = new CCP(indata,bandwidth);
+        Q=myccp->InitializePP();
+        }
+    else if (isarray(indata)) {
+        Q = indata;
+        }
+    else {
+        Q = new array[N::F];
+        }
 	}
+
+HotzMiller::Run() {
+    println("HM");
+    oxrunerror("trace it");
+    }
 
 /** Collect observed choice frequencies from a dataset.
 @param data `Panel` of outcome data with `Outcome::ind` computed
@@ -446,8 +449,8 @@ CCP::CCP(data,bandwidth) {
     ObsPstar = new array[N::F];
     loop();
 	Kstates = new matrix[SS[tracking].D][SS[tracking].size];
-    itask = new CCPspace(this);
-    itask->loop();
+    entask = new CCPspace(this);
+    entask->loop();
 	Kernel = GaussianKernel(Kstates,bandwidth);
 	delete Kstates;
     NotFirstTime = TRUE;
@@ -460,7 +463,7 @@ CCP::Run() {
 	   Q[I::g]  = zeros(cnt[I::g])';
        }
     else {
-        itask->Traverse();
+        entask->Traverse();
         delete cnt[I::g];
         delete ObsPstar[I::g];
         }
@@ -486,24 +489,24 @@ CCP::InitializePP() {
 
 CCPspace::CCPspace(qtask) {
     ThetaTask(tracking);
-    itask = qtask;
+    this.qtask = qtask;
     }
 
 CCPspace::Run() {
     decl ii = I::all[tracking];
-    if (! itask.NotFirstTime ) {
+    if (! qtask.NotFirstTime ) {
 	   decl j,k;
-	   for (k=S[endog].M,j=0;k<=S[clock].M;++k,++j) itask.Kstates[j][ii] = AV(States[k]);
+	   for (k=S[endog].M,j=0;k<=S[clock].M;++k,++j) qtask.Kstates[j][ii] = AV(States[k]);
         }
     else {
        decl dnom,nom,p;
-	   dnom = itask.cnt[I::f].*itask.Kernel[ii][],
-	   nom =  itask.ObsPstar[I::f].*itask.Kernel[ii][],
+	   dnom = qtask.cnt[I::f].*qtask.Kernel[ii][],
+	   nom =  qtask.ObsPstar[I::f].*qtask.Kernel[ii][],
 	   p = sumr(nom/dnom);
 	   p[0] = 1-sumc(p[1:]);
        I::curth.pandv[0][] = p;
        I::curth->ExogUtil();    //.U[]=th->Utility();
-	   itask.Q[I::f][ii] = p'*(I::curth.U+M_EULER-log(p));
+	   qtask.Q[I::f][ii] = p'*(I::curth.U+M_EULER-log(p));
 //       println(ii," ",qtask.Q[I::f][ii]);
        }
     }
@@ -515,36 +518,26 @@ HMEndogU::HMEndogU(meth) {
 
 HMEndogU::Run() {    I::curth->HMEndogU(VV);	}
 
-HMGSolve::HMGSolve(indata,bandwidth) {
-    Clock::Solving(&VV);
-    if (isclass(indata,"Panel")) {
-        myccp = new CCP(indata,bandwidth);
-        Q=myccp->InitializePP();
-        }
-    else if (isarray(indata)) {
-        Q = indata;
-        }
-    else {
-        Q = new array[N::F];
-        }
-    }
-
-HMGSolve::Solve(instate) {
+HotzMiller::GSolve(instate) {
 	decl  tmpP = -I::CVdelta*I::curg.Ptrans;
     HMEndogU::VV = (invert( setdiagonal(tmpP, 1+diagonal(tmpP)) ) * Q[I::f] )';   // (I-d*Ptrans)^{-1}
 	if (Volume>LOUD) fprintln(logf,"HM inverse mapping: ",HMEndogU::VV );
-	this.state = itask.state = instate;
+	this.state = ndogU.state = instate;
     ZeroTprime();
-	itask->Traverse();
+	ndogU->Traverse();
 	Flags::setPstar = 	FALSE;
 	}
 	
 HotzMiller::Solve(Fgroups) {
-    if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions();
+    GroupTask::qtask = this;
+    Clock::Solving(&VV);
+    if (Flags::UpdateTime[OnlyOnce]) ETTiter->Transitions(state);
 	if (Fgroups==AllFixed)
-		itask -> GroupTask::loop();
-	else
-		itask->Solve(ReverseState(Fgroups,I::OO[onlyfixed][]));
+		ftask -> GroupTask::loop();
+	else {
+        ftask.state =ReverseState(Fgroups,I::OO[onlyfixed][]);
+		ftask->Run();
+        }
 	if (Volume>QUIET) println("Q inverse time: ",timer()-cputime0);
     Hooks::Do(PostFESolve);
 	}
@@ -553,19 +546,20 @@ AguirregabiriaMira::AguirregabiriaMira(data,bandwidth) {
     HotzMiller(data,bandwidth);
     if (isclass(data,"Panel")) mle = data.method;
     }
-
-AMGSolve::Run() {    Q[I::all[tracking]] = I::curth->AMEndogU(VV);    }
+		
+AguirregabiriaMira::Run() {    Q[I::all[tracking]] = I::curth->AMEndogU(VV);    }
 
 AguirregabiriaMira::Solve(Fgroups,inmle) {
     HotzMiller::Solve(Fgroups);
+    GroupTask::qtask = this;
     if (isclass(inmle)) mle = inmle;
     do {
        mle->Iterate(0);
 	   if (Fgroups==AllFixed)
-		  itask -> GroupTask::loop();
+		  ftask -> GroupTask::loop();
 	   else {
-          itask.state =ReverseState(Fgroups,I::OO[onlyfixed][]);
-		  itask->Run();
+          ftask.state =ReverseState(Fgroups,I::OO[onlyfixed][]);
+		  ftask->Run();
           }
         } while (mle.convergence<STRONG);
     }

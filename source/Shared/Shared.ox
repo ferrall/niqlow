@@ -11,6 +11,22 @@ Version::Check() {
  checked = TRUE;
  }
 
+/** Check that an object is of a required class.
+@param obj object
+@param cname Class name
+@param Fatal FALSE [default], issue warning.  TRUE= end the error
+@param msg Message to print if class matches (default message is "Class fails to match")
+**/
+TypeCheck(obj,cname,Fatal,msg) {
+    decl yes=isclass(obj,cname);
+    if (!yes) {
+        println("\n    *",classname(obj),"* : *",cname,"*");
+        if (Fatal) oxrunerror(msg);
+        oxwarning(msg);
+        }
+    return yes;
+    }
+
 /** Return the Current Value of a Quantity: access X.v, X, X() or X(arg).
 @param X a double, integer, static function of the form X() or X(arg), or any object with a member named v.<br>
 an array of `CV` compatible elements will return the horizontal concatenation value of the results as matrix.
@@ -79,13 +95,13 @@ SumToOne(v) {
 
 
 /**Recreate State vector from an index and offset vector.
-@param Ind
-@param O offset
-@return Segment of the full state vector related to O
+@param Ind, integer or row vector of integers
+@param O offset vector
+@return matrix of state vectors with index Ind given offset vector O
 **/
 ReverseState(Ind,O)	{
-	decl d=columns(O),state=zeros(d,1);
-	while (Ind && d--) Ind -= O[d] ? (state[d] = idiv(Ind,O[d]))*O[d] : 0;
+	decl d=columns(O),state=zeros(d,ismatrix(Ind) ? columns(Ind) : 1);
+	while (any(Ind) && d--) if (O[d]) Ind -= (state[d][] = idiv(Ind,O[d]))*O[d];
 	return state;
 	}
 
@@ -173,8 +189,8 @@ Discretized::Approx(x,trans) {
 /** Return Nx1 vector of values corresponding to the 1/(N+1) percentiles of
 the normal distribution.
 @param N number of points to return
-@param mu mean &mu;
-@param sigma standard deviation &sigma;
+@param mu mean &mu;<br>Default=0.0
+@param sigma standard deviation &sigma;<br>Default=1.0
 @return &mu; + &sigma;&Phi;<sup>-1</sup>(q), q=(1 ... N)/N+1
 **/
 DiscreteNormal(N,mu,sigma)	{

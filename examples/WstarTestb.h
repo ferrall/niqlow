@@ -7,7 +7,6 @@ struct WStar : OneDimensionalChoice	{
 	static decl done, RV;
 	static Run();
     static graphit();
-    WStar();
 	Utility();
 	EUtility();
     Uz(z);

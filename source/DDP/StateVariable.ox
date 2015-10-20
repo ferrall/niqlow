@@ -174,19 +174,21 @@ Augmented::Transit(FeasA) {
 <dd><pre>Prob( q' = v ) = I{t&in;tv}\times I{v==rval} + (1-I{t&in;tv})\times Prob(b=v)</pre></dd>
 **/
 ActionTriggered::ActionTriggered(b,t,tv,rval){
-    if (!isclass(t,"ActionVariable")) oxrunerror("DDP Error 03. Trigger object must be ActionVariable\n");
+    TypeCheck(t,"ActionVariable");
     Triggered(b,t,tv,rval);
     }
 
 ActionTriggered::Transit(FeasA) {
     Augmented::Transit(FeasA);
     if ((any(idx=ca(FeasA,t).==tv))) {  //trigger value feasible
-        basetr[Qrho] .*= (1-idx);
-        if ((any(idy = basetr[Qi].==rval) ))   //reset values already present
-            basetr[Qrho][][maxcindex(idy')] += idx;
+        basetr[Qprob] .*= (1-idx);
+        if ((any(idy = basetr[Qind].==rval) ))   { //reset values already present
+//            println("prob=",Qprob,"ind=",Qind,basetr,idx,idy);
+            basetr[Qprob][][maxcindex(idy')] += idx;
+            }
         else {
-            basetr[Qi] ~= rval;
-            basetr[Qrho] ~= idx;
+            basetr[Qind] ~= rval;
+            basetr[Qprob] ~= idx;
 		    }
       }
 	return basetr;
@@ -212,7 +214,7 @@ Reset::Reset(b,t) {
 
 **/
 ValueTriggered::ValueTriggered(b,t,tv,rval) {
-    if (isclass(t,"ActionVariable")) oxrunerror("DDP Error 04. Trigger object cannot be an ActionVariable.  Use ActionTriggered instead.\n");
+    if (isclass(t,"ActionVariable")) oxrunerror("DDP Error #06.  ValueTriggered target cannot be an ActionVariable");
     Triggered(b,t,tv,rval);
     }
 
@@ -244,13 +246,13 @@ RandomTrigger::Transit(FeasA) {
     if ( ft ==1.0 )  // trigger happens for sure
         return {rval,ones(rows(FeasA),1)} ;
 
-    if ( (nf = find(basetr[Qi],rval))>-1 ) {  //reset value already possible
-        basetr[Qrho] *= 1-ft;                 // scale all probabilities
-        basetr[Qrho][][nf[0]] *= ft/(1-ft);   // fix up column with reset value
+    if ( (nf = find(basetr[Qind],rval))>-1 ) {  //reset value already possible
+        basetr[Qprob] *= 1-ft;                 // scale all probabilities
+        basetr[Qprob][][nf[0]] *= ft/(1-ft);   // fix up column with reset value
         return basetr;
         }
     // concatentate reset value to feasible, adjust probabilities
-    return { basetr[Qi]~rval, ft*basetr[Qrho]~(1-ft) };
+    return { basetr[Qind]~rval, ft*basetr[Qprob]~(1-ft) };
     }
 
 /** Augment a state variable so it freezes at its current value as long as a trigger is TRUE.
@@ -266,6 +268,22 @@ Freeze::Transit(FeasA) {
     if (AV(t)) return UnChanged(FeasA);
     return basetr;
     }
+
+//UnFreeze::UnFreeze(Base,Trigger) {    Triggered(Base,Trigger,1);    }
+
+//UnFreeze::InitDist() {     return constant(1/N,1,N);    }
+
+//UnFreeze::Transit(FeasA) {
+//    Augmented::Transit(FeasA);
+//    if (CV(t)==One) return basetr;  // variable is now unfrozen
+//    unf = FeasA[][t.t.pos];
+//    if ( any(unf==One) ) {
+//        idist =   reshape(this->InitDist(),rows(unf),N); // distribution over values of unfrozen variables.
+//        g= unf==Zero;
+//        return { vals , g*(vals.==Zero) + (1-g).*idist[unf][vals]};
+//        }
+//    return UnChanged(FeasA);
+//    }
 
 /** Make a state variable only transit in one subperiod of a `Divided` clock.
 @param b base `Statevariable`
@@ -307,7 +325,7 @@ SubState::IsReachable() {
 `Forget::IsReachable`() prunes the state space accordingly
 **/
 Forget::Forget(b,pstate,rval) {
-    if (!isclass(pstate,"PermanentChoice")) oxrunerror("DDP Error 05. pstate in Forget must be a Permanent Choice\n");
+    TypeCheck(pstate,"PermanentChoice");
     this.pstate = pstate;
     ActionTriggered(b,pstate.Target,TRUE,rval);
     }
@@ -329,7 +347,7 @@ Forget::IsReachable() {
 /**Create a standard normal N(0,1) discretize jump variable. **/
 Zvariable::Zvariable(L,Ndraws) { SimpleJump(L,Ndraws); }
 
-Zvariable::Update() {	actual = DiscreteNormal (N, 0.0, 1.0)';	}
+Zvariable::Update() {	actual = DiscreteNormal (N)';	}
 
 /**Create a discrete Markov process.
 The dimensions of the transition probabilities determines the number of values taken on.
@@ -430,7 +448,7 @@ Jump::Transit(FeasA) {
 **/	
 Offer::Offer(L,N,Pi,Accept)	{	
     this.Pi = Pi;	
-    if (!isclass(Accept,"ActionVariable")) oxrunerror("DDP Error 08. Accept object must be ActionVariable\n");
+    TypeCheck(Accept,"ActionVariable");
     this.Accept = Accept;
     StateVariable(L,N);	
     }
@@ -566,7 +584,7 @@ Lagged::IsReachable() {
 
 **/
 LaggedState::LaggedState(L,Target,Prune,Order)	{	
-    if (!isclass(Target,"StateVariable")) oxrunerror("DDP Error 12. Target object must be a StateVariable\n");
+    TypeCheck(Target,"StateVariable");
     Lagged(L,Target,Prune,Order);		
     }
 
@@ -585,7 +603,7 @@ LaggedState::Transit(FeasA)	{
 @see DP::KLaggedAction
 **/
 LaggedAction::LaggedAction(L,Target,Prune,Order)	{	
-    if (!isclass(Target,"ActionVariable")) oxrunerror("DDP Error 13. Target object must be an ActionVariable\n");
+    TypeCheck(Target,"ActionVariable");
     Lagged(L,Target,Prune,Order);	
     }
 
@@ -684,7 +702,7 @@ Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 @example <pre>noffers = new StateCounter("Total Offers",offer,5,<1:offer.N-1>,0);</pre>
 **/
 StateCounter::StateCounter(L,N,State,ToTrack,Reset,Prune) {
-    if (!isclass(State,"StateVariable")) oxrunerror("DDP Error 14. State object to count must be a StateVariable\n");
+    TypeCheck(State,"StateVariable");
     Counter(L,N,State,ToTrack,Reset);
     }
 
@@ -716,7 +734,7 @@ EndogenousStates(exper);
 </pre>
 **/
 ActionCounter::ActionCounter(L,N,Act,  ToTrack,Reset,Prune)	{
-    if (!isclass(Act,"ActionVariable")) oxrunerror("DDP Error 15. Object to count must be an ActionVariable\n");
+    TypeCheck(Act,"ActionVariable");
     Counter(L,N,Act,ToTrack,Reset,Prune);
     }
 	
@@ -742,7 +760,7 @@ Accumulator::Accumulator(L,N,Target)	{
 @param State `StateVariable` to accumulate values for.
 **/
 StateAccumulator::StateAccumulator(L,N,State) {
-    if (!isclass(State,"StateVariable")) oxrunerror("DDP Error 16. State object to accumulate must be a StateVariable\n");
+    TypeCheck(State,"StateVariable");
     Accumulator(L,N,State);
     }
 
@@ -758,7 +776,7 @@ StateAccumulator::Transit(FeasA)	{
 @param Action `ActionVariable` to accumulate values for.
 **/
 ActionAccumulator::ActionAccumulator(L,N,Action) {
-    if (!isclass(Action,"ActionVariable")) oxrunerror("DDP Error 17. Object to accumulate must be ActionVariable\n");
+    TypeCheck(Action,"ActionVariable");
     Accumulator(L,N,Action);
     }
 
@@ -791,8 +809,10 @@ contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of makin
 </dd>
 **/
 Duration::Duration(L,Current,Lag, N,Prune) {
-	if (!(isclass(Lag,"StateVariable")||ismatrix(Lag))) oxrunerror("DDP Error 18a. Lag must be a State Variable or a vector\n");
-	if (!isclass(Current,"Discrete")) oxrunerror("DDP Error 18b. Current must be a State or Action Variable\n");
+    decl m ="DDP Error 04. Lag must be a State Variable or a vector\n";
+	TypeCheck(Lag,"StateVariable");
+    if (!ismatrix(Lag)) oxrunerror(m);
+	TypeCheck(Current,"Discrete");
     Counter(L,N,Current,0,0,Prune);
 	isact = isclass(Target,"ActionVariable");
 	this.Lag = Lag;
@@ -818,7 +838,7 @@ Duration::Transit(FeasA) {
 @param Pi, vector or <a href="Parameters.ox.html#Simplex">Simplex</a> parameter block
 **/
 Renewal::Renewal(L,N,reset,Pi)	{
-    if (!isclass(reset,"ActionVariable")) oxrunerror("DDP Error 19. reset object must be ActionVariable\n");
+    TypeCheck(reset,"ActionVariable");
 	StateVariable(L,N);
 	this.reset = reset;
 	this.Pi = Pi;
@@ -854,7 +874,7 @@ Tracker::Tracker(L,Target,ToTrack)	{
 @param ToTrack integer or vector of (actual) values to track
 **/
 StateTracker::StateTracker(L,Target,ToTrack)	{	
-    if (!isclass(Target,"StateVariable")) oxrunerror("DDP Error 20. Tracked object must be StateVariable\n");
+    TypeCheck(Target,"StateVariable");
     Tracker(L,Target,ToTrack);		
     }
 
@@ -869,7 +889,7 @@ StateTracker::Transit(FeasA)	{
 @param ToTrack integer or vector of values to track
 **/
 ActionTracker::ActionTracker(L,Target,ToTrack)	{	
-    if (!isclass(Target,"ActionVariable")) oxrunerror("DDP Error 21. Target to track must be ActionVariable\n");
+    TypeCheck(Target,"ActionVariable");
     Tracker(L,Target,ToTrack);	
     }
 
@@ -963,7 +983,7 @@ StateBlock::myAV() {  return actual = selectrc(Actual,v,rnge);    }
 
 **/
 OfferWithLayoff::OfferWithLayoff(L,N,accept,Pi,Lambda)	{
-    if (!isclass(accept,"ActionVariable")) oxrunerror("DDP Error 24. accept must be ActionVariable\n");
+    TypeCheck(accept,"ActionVariable");
 	this.accept=accept;
 	this.Lambda=Lambda;
 	this.Pi = Pi;
@@ -1125,7 +1145,7 @@ Asset::Asset(L,N,r,NetSavings){
 /**
 **/
 Asset::Transit(FeasA) {
-     atom = setbounds( AV(r)*actual[v]+isact ? NetSavings.actual[ca(FeasA,NetSavings)] : AV(NetSavings,FeasA) , actual[0], actual[N-1] )';
+     atom = setbounds( AV(r)*actual[v]+(isact ? NetSavings.actual[ca(FeasA,NetSavings)] : AV(NetSavings,FeasA)) , actual[0], actual[N-1] )';
      top = mincindex( (atom-DIFF_EPS.>actual) )';
      bot = setbounds(top-1,0,.Inf);
      mid = (actual[top]-actual[bot]);

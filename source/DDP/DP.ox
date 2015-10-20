@@ -28,6 +28,7 @@ I::Set(state,group) {
 	   g = int(all[bothgroup]);
 	   f = int(all[onlyfixed]);
 	   r = int(all[onlyrand]);
+       rtran = int(all[onlydynrand]);
        curg = Gamma[g];
        if (isclass(curg)) {
 	       curg->Sync();
@@ -44,9 +45,10 @@ SubSpace::SubSpace() {D=0; size=1; O=<>;}
 
 /** Calculate dimensions of a  subspace.
 @param subs index of subvectors of S to include in the subspace
-@param IsIterating include the rightmost variable in the index or set offset to 0
+@param IsIterating if the clock is included, use the rightmost variable in the index or set offset to 0<br>[default=TRUE]
+@param DynRand
 **/
-SubSpace::Dimensions(subs,IsIterating)	{
+SubSpace::Dimensions(subs,IsIterating,DynRand)	{
 	decl k,s,v,Nsubs = sizerc(subs),nxtO,mxd;
 	O = S[subs[0]].M ? zeros(1,S[subs[0]].M) : <>;
 	nxtO = 1;
@@ -59,13 +61,19 @@ SubSpace::Dimensions(subs,IsIterating)	{
 				O ~= IsIterating ? 0~nxtO : nxtO~0;
 				nxtO *= S[k].N[IsIterating] ;
 				}
-			else {
+			else if ( k!=rgroup || DynRand){
 				D += mxd = S[k].D;
 				size *= S[k].size;
 				O ~= nxtO;
 				if (mxd>1) O ~= nxtO * S[k].C[:mxd-2];
 				nxtO *= S[k].C[mxd-1] ;
 				}
+            else {  // separate transitions when random effects affect transitions
+				D += mxd = S[k].D;
+				size = 1;
+				O ~= 0;
+				if (mxd>1) O ~= 0;
+                }
 			++s;
 			}
 		else
@@ -136,8 +144,8 @@ Sets <code>I::g</code> and syncs state variables in &gamma;
 DP::DrawGroup(find) {	return SetGroup(find + DrawOne(gdist[find][]) );	}
 
 DP::DrawOneExogenous(aState) {
-	decl i = DrawOne(NxtExog[Qrho]);		
-	aState[0] += ReverseState(NxtExog[Qi][i],I::OO[bothexog][]);
+	decl i = DrawOne(NxtExog[Qprob]);		
+	aState[0] += ReverseState(NxtExog[Qind][i],I::OO[bothexog][]);
 	return i;
 	}
 
@@ -160,14 +168,14 @@ DP::GetAind(i) {return isclass(Theta[i]) ? Theta[i].Aind : NoMatch; }
 **/
 DP::GetPstar(i) {return Theta[i].pandv[Gamma[I::g].rind];}
 
-/** Return transition at a given &eta;,&theta; combination.
+/** Return tracking transition at a given &eta;,&theta; combination.
 @param i index of &theta; in the state space &Theta;
 @param h index of current &eta; vector
 @return  &Rho;(&theta;&prime;|&alpha;,&eta;,&theta;) as an array<br>
 First element is vector of indices for feasible states &theta;&prime;<br>
 Second element is a matrix of transition probabilities (rows for actions <code>&alpha;</code>, columns correspond to &theta;&prime;)
 **/
-DP::GetTrans(i,h) { return {Theta[i].Nxt[Qi][h],Theta[i].Nxt[Qrho][h]}; }
+DP::GetTrackTrans(i,h) { return {Theta[i].Nxt[Qtr][h],Theta[i].Nxt[Qrho+I::rtran][h]}; }
 
 /** Ask to store overall &Rho;*() choice probability matrix.
 @comment Can only be called before calling `DP::CreateSpaces`
@@ -207,15 +215,15 @@ DP::AddStates(SubV,va) 	{
 		if (va[i].N<1) oxrunerror("DDP Error 38a. Cannot add variable with non-positive N");
         if (va[i].subv!=UnInitialized) oxrunerror("DDP Error 38b. Discrete Variable has already been added a vector.");
 		switch_single(SubV) {
-			case clock : if(!isclass(va[i],"TimeVariable")) oxrunerror("DDP Error 38c.Clock subvector must contain TimeVariables");
+			case clock : TypeCheck(va[i],"TimeVariable","DDP Error 38c.Clock subvector must contain TimeVariables");
 			case rgroup: if (va[i].N>1) {
 							if (Flags::HasFixedEffect) oxrunerror("DDP Error 38d. random effect cannot be added AFTER any fixed effects have been added to the model");
-							if (!isclass(va[i],"RandomEffect")) oxrunerror("DDP Error 38e. Only add RandomEffects to random effects vector");
+							TypeCheck(va[i],"RandomEffect","DDP Error 38e. Only add RandomEffects to random effects vector");
 							}
-			case fgroup :  if (!isclass(va[i],"FixedEffect")) oxrunerror("DDP Error 38f. Only add FixedEffects to fixed effects vector");
+			case fgroup :  TypeCheck(va[i],"FixedEffect","DDP Error 38f. Only add FixedEffects to fixed effects vector");
 						Flags::HasFixedEffect = TRUE;
-			case acts : if (!isclass(va[i],"ActionVariable")) oxrunerror("DDP Error 38g. Only add ActionVariables to the action vector ",0);
-			default   : if (!isclass(va[i],"StateVariable")) oxrunerror("DDP Error 38h. Only add StateVariable to state vectors");
+			case acts : TypeCheck(va[i],"ActionVariable","DDP Error 38g. Only add ActionVariables to the action vector ");
+			default   : TypeCheck(va[i],"StateVariable","DDP Error 38h. Only add StateVariable to state vectors");
 			}
 		pos = S[SubV].D++;
 		SubVectors[SubV] |= va[i];
@@ -225,6 +233,19 @@ DP::AddStates(SubV,va) 	{
 		if (pos) S[SubV].C ~= (S[SubV].C[pos-1])*S[SubV].N[pos]; else S[SubV].C = S[SubV].N[pos];
 		}
 	}
+
+/** Uses `I::curth` to recover actual values of an action.
+@param a `ActionVariable'
+@see Bellman::aa
+**/
+DP::GetAV(a) {
+    I::curth -> aa(a);
+    }
+
+DP::NormalizeActual(v,MaxV) {
+    if (!TypeCheck(v,"Discrete",FALSE,"DDP Warning ??.\n Object is not Discrete.  Doing nothing")) return;
+    v.actual = MaxV*(v.vals)'/max(v.N-1,1);
+    }
 
 /** Add `StateVariable`s to the endogenous vector &theta;.
 @param v1,... `StateVariable`s
@@ -303,7 +324,7 @@ DP::AuxiliaryOutcomes(auxv,...) {
 	if (!isarray(SubVectors)) oxrunerror("DDP Error 40. Error: can't add auxiliary before calling Initialize()",0);
 	decl va = auxv|va_arglist(), pos = sizeof(Chi), i,sL,n;
 	for (i=0;i<sizeof(va);++i) {
-		if (!isclass(va[i],"AuxiliaryValues")) oxrunerror("DDP Error 41. not an AuxiliaryValues");
+		TypeCheck(va[i],"AuxiliaryValues");
 		Chi |= va[i];
         sL =va[i].L;
 		if (!pos) {
@@ -387,6 +408,7 @@ GroupTask::GroupTask() {
 @internal **/
 GroupTask::loop(IsCreator){
 	Reset();
+    if (trace) println(" Group task loop: ",classname(this),state');
 	SyncStates(left,right);
 	d=left+1;				   							// start at leftmost state variable to loop over
 	do	{
@@ -402,7 +424,10 @@ GroupTask::loop(IsCreator){
 		    state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
 		    SyncStates(left,d);
 			}
+
 		} while (d<=right);
+    if (trace) println(" *** Ending: ",classname(this));
+    return TRUE;
     }
 
 /** Create &Gamma; space.
@@ -481,15 +506,15 @@ Alpha::Aprint() {
     decl everfeasible, totalnever = 0;
     println("\n6. FEASIBLE ACTION SETS\n ");
     Rlabels = new array[N::A];
-    aL1= "    [";
+    aL1= "i    [";
 	for (j=0;j<N::Av;++j) aL1 |= DP::SubVectors[acts][j].L[0];
     aL1 |= "]";
 	av = sprint("%-14s",aL1);
 	for (i=0;i<N::J;++i) av ~= sprint("  A[","%1u",i,"]   ");
 		println(av);
-        print("    -------------"); for (i=0;i<N::J;++i) print("---------"); println("");
+        print("------------------"); for (i=0;i<N::J;++i) print("---------"); println("");
 		for (j=0;j<N::A;++j) {
-			for (i=0,av="    (";i<N::Av;++i) av ~= sprint("%1u",Matrix[j][i]);
+			for (i=0,av=sprint("%03u",j)~" (";i<N::Av;++i) av ~= sprint("%1u",Matrix[j][i]);
 			av~=")";
 			for (i=0;i<N::J;++i) if (Sets[i][j]) {
                     if (!sizeof(Rlabels[i])) Rlabels[i] = {av};
@@ -508,7 +533,7 @@ Alpha::Aprint() {
 			}
 		for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",Count[i]);
 		println(av);
-        print("    -------------"); for (i=0;i<N::J;++i) print("---------");
+        print("-----------------"); for (i=0;i<N::J;++i) print("---------");
         println("\n    Key: X = row vector is feasible. - = infeasible");
         if (totalnever) println("    Actiouns vectors not shown because they are never feasible: ",totalnever);
         println("\n");
@@ -545,6 +570,8 @@ N::Reset() {
 N::Initialize() {
     G = DP::SS[bothgroup].size;
 	R = DP::SS[onlyrand].size;
+    DynR = DP::SS[onlydynrand].size;
+println(" NNN  ",DP::SS[onlyrand].size);
 	F = DP::SS[onlyfixed].size;
     Ewidth= DP::SS[onlyexog].size;
 	A = rows(Alpha::Matrix);
@@ -619,7 +646,7 @@ UseStateList=TRUE may be much faster if the untrimmed state space is very large 
 DP::Initialize(userState,UseStateList) {
     decl subv;
     Version::Check();
-    if (!isclass(userState,"Bellman")) oxrunerror("DDP Error ??.  You must send an object of your Bellman-derived class to Initialize.  For example,\n Initialize(new MyModel()); \n");
+    TypeCheck(userState,"Bellman","DDP Error 05.  You must send an object of your Bellman-derived class to Initialize.  For example,\n Initialize(new MyModel()); \n");
     if (Flags::ThetaCreated) oxrunerror("DDP Error 42. Must call DP::Delete between calls to CreateSpaces and Initialize");
     lognm = "DDP"+date()+replace(time(),":","-")+".log";
     logf = fopen(lognm,"aV");
@@ -687,11 +714,12 @@ DP::SetUpdateTime(time) {
     if (!isint(time) ) oxrunerror("DDP Error 43a. Update time must be an integer");
     if (Volume>QUIET)
         switch_single (time) {
-            case InCreateSpaces : if (Flags::ThetaCreated) oxrunerror("Cannot specify UpdateTime as InCreateSpaces after it has been called");
+            case InCreateSpaces : if (Flags::ThetaCreated) oxrunerror("Cannot specify UpdateTime as InCreateSpaces after CreateSpaces has been called");
                                   oxwarning("DDP Warning 13a.\n Transitions and actual values are fixed.\n They are computed in CreateSpaces() and never again.\n");
             case OnlyOnce       : oxwarning("DDP Warning 13b.\n Setting update time to OnlyOnce.\n Transitions and actual values do not depend on fixed or random effect values.\n  If they do, results are not reliable.\n");
             case AfterFixed     : oxwarning("DDP Warning 13c.\n Setting update time to AfterFixed.\n Transitions and actual values can depend on fixed effect values but not random effects.\n  If they do, results are not reliable.\n");
-            case AfterRandom    : oxwarning("DDP Warning 13d.\n Setting update time to AfterRandom.\n Transitions and actual values can depend on fixed and random effects,\n  which is safe but may be redundant and therefore slower than necessary.\n");
+            case AfterRandom    : if (Flags::ThetaCreated) oxrunerror("Cannot set UpdateTime=AfterRandom after CreateSpaces has been called");
+                                  oxwarning("DDP Warning 13d.\n Setting update time to AfterRandom.\n Transitions and actual values can depend on fixed and random effects,\n  which is safe but may be redundant and therefore slower than necessary.\n");
             default             : oxrunerror("DDP Error 43b. Update time must be between 0 and UpdateTimes-1");
             }
     Flags::UpdateTime[] = FALSE;
@@ -796,19 +824,20 @@ DP::CreateSpaces() {
 			}
 		N::All |= S[subv].N;
 		}
-	NxtExog = new array[StateTrans];
+	NxtExog = new array[TransOutput];
     N::S = rows(N::All);
 	SubSpace::S = S;
 	SubSpace::ClockIndex = clock;
 	SS[onlyacts]	->ActDimensions();
-	SS[onlyexog]	->Dimensions(<exog>,TRUE);
-	SS[onlysemiexog]->Dimensions(<semiexog>,TRUE);
-	SS[bothexog] 	->Dimensions(<exog;semiexog>,TRUE);
-	SS[onlyendog]	->Dimensions(<endog>,TRUE);
+	SS[onlyexog]	->Dimensions(<exog>);
+	SS[onlysemiexog]->Dimensions(<semiexog>);
+	SS[bothexog] 	->Dimensions(<exog;semiexog>);
+	SS[onlyendog]	->Dimensions(<endog>);
 	SS[tracking]	->Dimensions(<endog;clock>,FALSE);
 	SS[onlyclock]	->Dimensions(<clock>,FALSE);
-    SS[iterating]	->Dimensions(<endog;clock>,TRUE);
+    SS[iterating]	->Dimensions(<endog;clock>);
 	SS[onlyrand]	->Dimensions(<rgroup>,FALSE);
+    SS[onlydynrand] ->Dimensions(<rgroup>,FALSE,Flags::UpdateTime[AfterRandom]);
 	SS[onlyfixed]	->Dimensions(<fgroup>,FALSE);
 	SS[bothgroup]	->Dimensions(<rgroup;fgroup>,FALSE);
 	SS[allstates]	->Dimensions(<exog;semiexog;endog;clock;rgroup;fgroup>,FALSE);
@@ -890,16 +919,13 @@ DP::CreateSpaces() {
         Alpha::Aprint();
 		}
     if (Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
-	ETTiter = new EndogTrans(iterating);
-    ETTtrack = new EndogTrans(tracking);
+	ETT = new EndogTrans();
     if (Flags::UpdateTime[InCreateSpaces]||Volume>LOUD) {
+            ETT->Transitions();
             if (Volume>LOUD) {
-                oxwarning("Checking for valid transitions.  Look in the log file for problems.");
-                UpdateVariables(tracking);
+                oxwarning("Checked for valid transitions.  Look in the log file for problems.");
                 --Volume;
-                ETTiter->Traverse();
                 }
-            else UpdateVariables(iterating);
         }
     else DP::A = Alpha::A;   //this is done in UpdateVariables()
  }
@@ -909,7 +935,7 @@ DP::CreateSpaces() {
 **/
 Task::Task()	{
 	state 	= N::All-1;
-	subspace = UnInitialized;
+	itask = subspace = UnInitialized;
 	MaxTrips = INT_MAX;
     done = FALSE;
 	}
@@ -1002,9 +1028,9 @@ CreateTheta::Run() {
     decl v, h=DP::SubVectors[endog];
     Flags::SetPrunable(counter);
     foreach (v in h) if (!(th = v->IsReachable())) return;
-	if (userState->Reachable()) {   // isclass(th = userReachable(),"Bellman")) {
+	if (userState->Reachable()) {
         Theta[I::all[tracking]] = clone(userState,Zero);
-		Theta[I::all[tracking]] ->Bellman(state,picked());
+		Theta[I::all[tracking]] ->SetTheta(state,picked());
 		}
 	}
 
@@ -1037,6 +1063,7 @@ ReSubSample::Run() {    I::curth->Allocate(picked());     }
 Task::loop(IsCreator){
 	trips = iter = 0;
 	Reset();					// (re-)initialize variables in range
+    if (trace) println("*** Task Loop ",classname(this),state');
 	SyncStates(0,N::S-1);
 	d=left+1;				   		// start at leftmost state variable to loop over	
 	do	{
@@ -1048,14 +1075,14 @@ Task::loop(IsCreator){
 			} while (--state[left]>=0);
 		state[left] = 0;
 		d = left+double(vecrindex(state[left:right]|1));
-		if (d<right)
-			--state[d];			   			//still looping inside
+		if (d<right) --state[d];			   			//still looping inside
 		else {
             if ( this->Update() == IterationFailed ) return IterationFailed;
             }
 		state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
 		SyncStates(left,d);
 		} while (d<=right || !done );  //Loop over variables to left of decremented, unless all vars were 0.
+    if (trace) println("*** End Loop ",classname(this));
     return TRUE;
     }
 
@@ -1083,6 +1110,7 @@ Task::list(span,inlows,inups) {
 	decl lft = left ? state[:left-1] : <>,
 		 rht = right<N::S-1 ? state[right+1:] : <> ,
 		 rold, ups, lows, s, news, indices;
+    if (trace) println("*** Task List: ",classname(this),state');
 	trips = iter = 0;
 	SyncStates(0,N::S-1);
 	if (isint(span)) {
@@ -1113,6 +1141,7 @@ Task::list(span,inlows,inups) {
 	   if (isclass(I::curth)) this->Run();
 	   ++iter;
 	   } while (--s>=lows);
+    if (trace) println("*** End List: ",classname(this));
 	if (!done) return this->Update();
     }
 		
@@ -1158,8 +1187,8 @@ DP::ExogenousTransition() {
 			 } while (++k<columns(prob));
 		cur = bef; 	bef = !cur;	si -= N;
 		} while (si>=0);
-	NxtExog[Qi] = F[bef][];
-	NxtExog[Qrho] = P[bef][]';
+	NxtExog[Qind] = F[bef][];
+	NxtExog[Qprob] = P[bef][]';
     if (Volume>LOUD) { decl d = new DumpExogTrans(); delete d; }
  }
 
@@ -1173,7 +1202,7 @@ DumpExogTrans::DumpExogTrans() {
 	}
 	
 /** . @internal **/
-DumpExogTrans::Run() { decl i =I::all[bothexog];  s|=i~state[left:right]'~NxtExog[Qrho][i];}
+DumpExogTrans::Run() { decl i =I::all[bothexog];  s|=i~state[left:right]'~NxtExog[Qprob][i];}
 
 
 /** Set the discount factor, &delta;.
@@ -1281,45 +1310,6 @@ DP::SetClock(ClockOrType,...)	{
 	N::T = counter.t.N;
 	}
 
-
-/** Update dynamically changing components of the program at the time chosen by the user.
-
-<OL>
-<LI>Do anything that was added to the <code>PreUpdate</code> hook (see `Hooks`).
-<LI> Update the <code>Distribution()</code> of random effects.</LI>
-<LI>Call the <code>Update()</code> method all actions and states to ensure actual values are current.</LI>
-<LI>Compute the exogenous transitions, &Rho;(&eps;&prime;) and &Rho;(&eta;&prime;).</LI>
-<LI>Compute the endogenous transitions at each point in the state space endogenous state space &Theta;</LI>
-</OL>
-
-@see DP::SetUpdateTime , UpdateTimes
-**/
-DP::UpdateVariables(ttype)	{
-	decl i,nr,j,a,s,skip;
-    Flags::HasBeenUpdated = TRUE;
-    Hooks::Do(PreUpdate);
-    I::CVdelta = AV(delta);   //moved June 2015 from bottom
-    skip=UnInitialized;
-    foreach (s in States[i]) {
-        if (i<skip) continue;
-		if (StateVariable::IsBlockMember(s)) {
-			s.block->Update();
-            s.block->Check();
-			if (isclass(s,"CorrelatedEffect")) s.block->Distribution();			
-			skip = i + s.block.N;
-			}
-		else {
-			s->Update();
-            s->Check();
-			if (isclass(s,"RandomEffect")) s->Distribution();
-			}
-		}
-    Alpha::ResetA(SubVectors[acts]);
-    DP::A = Alpha::A;  // Have DP::A point to Alpha::A.
-	ExogenousTransition();
-    if (ttype==iterating) ETTiter->Traverse(); else ETTtrack->Traverse();
-	}
-
 /** .
 @internal
 **/
@@ -1425,7 +1415,7 @@ Group::DrawfromStationary() {	return ReverseState(DrawOne(Pinfinity),I::OO[track
 @internal
 **/
 FETask::FETask() {
-	Task();
+	GroupTask();
 	span = onlyfixed;	left = SS[span].left;	right = SS[span].right;
 	}
 
@@ -1443,7 +1433,7 @@ RETask::SetFE(f) {
 @internal
 **/
 RETask::RETask() {
-	Task();
+	GroupTask();
 	span = onlyrand;	left = SS[span].left;	right = SS[span].right;
 	}
 

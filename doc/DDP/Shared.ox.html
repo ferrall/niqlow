@@ -128,56 +128,61 @@ the normal distribution.</td>
 <td class="description">Toggle DoNotVary for one or more parameters.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#TypeCheck">TypeCheck</a></td>
+<td class="modifiers"></td>
+<td class="description">Check that an object is of a required class.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#vararray">vararray</a></td>
 <td class="modifiers"></td>
 <td class="description">Convert an array of strings into a space-separated string.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#varlist">varlist</a></td>
 <td class="modifiers"></td>
 <td class="description">Parse a string for variable names; return array of strings.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#AggregatorTypes">AggregatorTypes</a></td>
 <td class="modifiers"></td>
 <td class="description">Tags for Types of vector-valued objective Aggregation.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#ConstraintTypes">ConstraintTypes</a></td>
 <td class="modifiers"></td>
 <td class="description">Tags for Types of Constraints.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#ConvergenceResults">ConvergenceResults</a></td>
 <td class="modifiers"></td>
 <td class="description">Code for solutions to Optimization and Non-Linear System solving.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#EUvalues">EUvalues</a></td>
 <td class="modifiers"></td>
 <td class="description">Output tags for reservation value utility functions.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#Names_for_012">Names_for_012</a></td>
 <td class="modifiers"></td>
 <td class="description">Pseudonyms for 0,1,2.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#Names_for_-1">Names_for_-1</a></td>
 <td class="modifiers"></td>
 <td class="description">Pseudonyms for -1.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#NextTreatmentStates">NextTreatmentStates</a></td>
 <td class="modifiers"></td>
 <td class="description">Possible next treatment phases.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#NiD">NiD</a></td>
 <td class="modifiers"></td>
 <td class="description">Used in tracking outcomes.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#NoiseLevels">NoiseLevels</a></td>
 <td class="modifiers"></td>
 <td class="description">Levels of output to produce while executing.</td>
@@ -1096,7 +1101,7 @@ an array of <a href="Shared.ox.html#CV">CV</a> compatible elements will return t
 </dd>
 <dt class="comments">Comments:</dt><dd class="comments">This allows elements of the code to be represented several different ways.<br>
 Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside <a href="Variables.ox.html#StateVariable___Transit">Transit</a>.<br>
-No argument is passed by <a href="DP.ox.html#DP___UpdateVariables">UpdateVariables</a>() and <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>
+No argument is passed by DP::UpdateVariables() and <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>
 </dd>
 </dl>
 </dd></dl>
@@ -1173,12 +1178,12 @@ the normal distribution.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">mu</td>
-<td class="description" valign="baseline">mean &mu;
+<td class="description" valign="baseline">mean &mu;<br>Default=0.0
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">sigma</td>
-<td class="description" valign="baseline">standard deviation &sigma;
+<td class="description" valign="baseline">standard deviation &sigma;<br>Default=1.0
 </td>
 </tr>
 </table>
@@ -1352,17 +1357,18 @@ Recreate State vector from an index and offset vector.
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
-<td class="declaration" valign="baseline">Ind
+<td class="declaration" valign="baseline">Ind,</td>
+<td class="description" valign="baseline">integer or row vector of integers
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">O</td>
-<td class="description" valign="baseline">offset
+<td class="description" valign="baseline">offset vector
 </td>
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns">Segment of the full state vector related to O
+<dt class="returns">Returns:</dt><dd class="returns">matrix of state vectors with index Ind given offset vector O
 </dd>
 </dl>
 </dd></dl>
@@ -1444,6 +1450,40 @@ Toggle DoNotVary for one or more parameters.
 <tr>
 <td class="declaration" valign="baseline">...</td>
 <td class="description" valign="baseline">more parameters or array of parameters.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="TypeCheck"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">TypeCheck</span></h3>
+
+<span class="declaration">TypeCheck ( obj , cname , Fatal , msg )</span>
+<dl><dd>
+Check that an object is of a required class.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">obj</td>
+<td class="description" valign="baseline">object
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">cname</td>
+<td class="description" valign="baseline">Class name
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Fatal</td>
+<td class="description" valign="baseline">FALSE [default], issue warning.  TRUE= end the error
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">msg</td>
+<td class="description" valign="baseline">Message to print if class matches (default message is "Class fails to match")</td>
 </tr>
 </table>
 </dd>

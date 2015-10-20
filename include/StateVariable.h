@@ -1,8 +1,8 @@
 #import "DDPShared"
 /* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
 
-		/** . elements of array returned by `StateVariable::Transit` @name StateTrans **/
-enum {Qi,Qrho,StateTrans}
+		/** . elements of array returned by `StateVariable::Transit` @name TransOutput **/
+enum {Qind,Qprob,TransOutput}
 
 /**Base Class for elements of state vectors, &epsilon;, &eta;, &theta;, &gamma; .
 
@@ -210,6 +210,13 @@ class Forget : ActionTriggered {
     Forget(b,pstate,rval=0);
     virtual Transit(FeasA);
     virtual IsReachable();
+    }
+
+class UnFreeze : Triggered {
+    decl unf, g, idist;
+    UnFreeze(base,trigger);
+    virtual Transit(FeasA);
+    virtual InitDist();
     }
 
 /** When the trigger value returns TRUE this state freezes at its current value.

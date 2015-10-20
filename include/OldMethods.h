@@ -3,48 +3,29 @@
 
 VISolve(ToScreen=TRUE,aM=FALSE,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
 
-///** Loop over fixed values in &gamma;, solve model for each.**/
-//struct FixedSolve : FETask  { FixedSolve(gtask); Solve(state=0); Run();	}
+/** Loop over fixed values in &gamma;, solve model for each.
+**/
+struct FixedSolve : FETask  { decl rtask; FixedSolve(); Run();	}
 
 /**	Loop over random effect values &gamma;, call  GSolve() method for the calling method.
 **/
-struct RandomSolve : RETask { RandomSolve(gtask); Run(); }
+struct RandomSolve : RETask { decl gtask; RandomSolve(); Run(); }
 
 
 /** A container for solution methods.
 **/
-struct Method : FETask {
-	static const decl
-		/** Default convergence tolerance on Bellman Iteration.**/ DefTolerance = 1E-5;
+struct Method : DP {
     decl
-        /** FALSE(default): iterate on V(&theta;)<br>
-            TRUE: only compute transitions.**/      DoNotIterate,
-                                                     vtoler,
-    /** Output from the solution method.  Passed on to `GSolve::Volume`.
+    /** Output from the solution method.
         @see NoiseLevels**/                         Volume;
-    Method();
     virtual Solve(Fgroups=AllFixed,MaxTrips=0);
 	}
 
 /** A container for iterating over &theta; during solution methods.
 **/
 struct GSolve : ThetaTask {
-//	const decl		/** **/									    ndogU;
-    static decl
-        /** TRUE (default): exit if NaNs encountered during iteration<br>
-            FALSE: exit with <code>IterationFailed</code> **/
-                                                    RunSafe,
-	/** Scratch space for value iteration. **/      VV,
-	/** Tolerance on value function convergence in
-    stationary environments.  Default=10<sup>-5</sup>.**/	
-                                                     vtoler,
-                                                     MaxTrips;
-	NTrips();
+    virtual Solve(Fgroups=AllFixed,MaxTrips=0);
     ZeroTprime();
-    GSolve(ndogU=0);
-    virtual Solve(instate);
-    virtual Run();
-	virtual Update();
 	}
 
 /** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/
@@ -52,7 +33,7 @@ struct ExogUtil : 	ExTask {	ExogUtil();		Run();	}
 
 /** Loop over &theta; and apply `ExogUtil`. **/
 struct EndogUtil : 	ThetaTask {
-//	const decl /**`ExogUtil` object.**/ ex;
+	const decl /**`ExogUtil` object.**/ ex;
 	EndogUtil();
 	Run();
 	}
@@ -63,10 +44,29 @@ cannot be used after the solution is complete.  `Bellman::EV` stores the result 
 Results are integrated over random effects, but results across fixed effects are overwritten.
 **/
 struct ValueIteration : Method {
-	ValueIteration(myGSolve=0,myEndogUtil=0);
+	static const decl
+		/** Default convergence tolerance on Bellman Iteration.**/ DefTolerance = 1E-5;
+	const decl
+		/** **/									ndogU;
+	decl
+		/** `FixedSolve` object.**/				ftask,
+        /** FALSE(default): iterate on V(&theta;)<br>
+            TRUE: only compute transitions.**/      DoNotIterate,
+        /** TRUE (default): exit if NaNs encountered during iteration<br>
+            FALSE: exit with <code>IterationFailed</code> **/
+                                                    RunSafe,
+		/** Scratch space for value iteration. **/  VV,
+	/** Tolerance on value function convergence in
+    stationary environments.  Default=10<sup>-5</sup>.**/	
+                                                     vtoler;
+	ValueIteration(myEndogUtil=0);
+	NTrips();
+	virtual Update();
+	virtual Run();
+	virtual GSolve(instate);
 	virtual Solve(Fgroups=AllFixed,MaxTrips=0);
-    virtual Run();
 	}
+
 
 struct KWEMax : 	EndogUtil {
 	const decl		lo, hi;
@@ -175,10 +175,7 @@ denote the cardinality of the sets (following the notations used elsewhere).  Th
 
 **/
 struct KeaneWolpin : ValueIteration {
-	KeaneWolpin(myGSolve=0,myKWEMax=0);
-	}
-
-struct KWGSolve : GSolve {
+	const decl 		cpos;
 	decl										
 												curlabels,
                                                 xlabels0,
@@ -188,12 +185,11 @@ struct KWGSolve : GSolve {
 		/** Y **/								Y,
 		/**N::T array of OLS coefficients	**/ Bhat;
 
-	const decl 		cpos;
+					KeaneWolpin(myKWEMax=0);
 					Specification(kwstep,V=0,Vdelta=0);
-    Solve(instate);
-    KWGSolve(myKWEMax=0);
-    Run();
-    }
+	virtual			GSolve(instate);
+	virtual 		Run();
+	}
 
 struct RVEdU : EndogUtil {
 	RVEdU();
@@ -211,6 +207,7 @@ struct HMEndogU : EndogUtil {
 **/
 struct CCP : FETask {
     const decl
+            /** task that loops over &Theta. **/    entask,
             /** F&times;1 array of CCPs.**/         Q,
             /**`Panel` containing data. **/         data,
             bandwidth;
@@ -226,6 +223,7 @@ struct CCP : FETask {
 	}
 
 struct CCPspace : ThetaTask {
+    const decl qtask;
     CCPspace(gtask);
     Run();
 	Increment(a,q);
@@ -243,18 +241,14 @@ struct CCPspace : ThetaTask {
 struct HotzMiller : ValueIteration {
 	static decl
 		/**  **/	     Kernel;
-	HotzMiller(indata=0,bandwidth=0);
-	virtual Solve(Fgroups=AllFixed);
-	}
-
-struct HMGSolve : GSolve {
     const decl
 		/** **/		    myccp;
 	decl		        Q ;
-    HMGSolve(indata=0,bandwidth=0);
-    Solve(instate);
-    virtual Run();
-    }
+	HotzMiller(indata=0,bandwidth=0);
+	virtual Solve(Fgroups=AllFixed);
+    virtual GSolve(instate);
+	Run();
+	}
 
 /** Solve a DP model using the Aguiregabiria Mira iterative prodecure.
 
@@ -264,8 +258,4 @@ struct AguirregabiriaMira : HotzMiller  {
     AguirregabiriaMira(data=0,bandwidth=UseDefault);
     Solve(Fgroups=AllFixed,inmle=0);
     virtual Run();
-    }
-
-struct AMGSolve : HMGSolve {
-    Run();
     }

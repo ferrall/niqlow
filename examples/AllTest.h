@@ -93,7 +93,17 @@ struct Test8 : Bellman {
 	
 struct Test9 : Bellman	{
 	enum{Noff=10}
-	static decl p, d, a, meth, fem, lam;
+	static decl p, d, a, meth, sk,fem, lam;
 	static Run();
 	Utility();
+	}
+
+/** A simple search over normally distributed offers. **/
+struct Test10 : OneDimensionalChoice	{
+    static const decl eta = 0.25;
+	static decl done, RV;
+	static Run();
+	Utility();
+	EUtility();
+    Uz(z);
 	}

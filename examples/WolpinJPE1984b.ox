@@ -23,6 +23,7 @@ Fertility2::Replicate()	{
 			Y = exp(va[0][Yrow]+va[1][Yrow]*range(1,T+tau))';
 			RV -> Solve(0,0);
 			PD = new 	PanelPrediction(0);
+            PD -> TSet(20);
 			PD -> Predict(20);
 			PD -> Histogram(n,TRUE,TRUE);
 			delete PD;

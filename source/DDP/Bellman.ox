@@ -15,17 +15,63 @@ If a state variable can be placed in &epsilon; instead of &eta; or &theta; it re
 
 @see DP::SetUpdateTime
 **/
-EndogTrans::EndogTrans(subspace) {
+EndogTrans::EndogTrans() {
 	Task();
    	left = S[semiexog].M; 	right = S[clock].M;
-    this.subspace = subspace;
 	}
 
 /** . @internal **/
 EndogTrans::Run() {
 	if (Flags::UpdateTime[AfterRandom]) I::curth.EV[I::r] = 0.0; else I::curth.EV[] = 0.0;
-    I::curth->ThetaTransition(SS[subspace].O);
+    Hooks::Do(AtThetaTrans);
+    I::curth->ThetaTransition();
 	}
+
+/** Update dynamically changing components of the program at the time chosen by the user.
+
+<OL>
+<LI>Do anything that was added to the <code>PreUpdate</code> hook (see `Hooks`).
+<LI> Update the <code>Distribution()</code> of random effects.</LI>
+<LI>Call the <code>Update()</code> method all actions and states to ensure actual values are current.</LI>
+<LI>Compute the exogenous transitions, &Rho;(&eps;&prime;) and &Rho;(&eta;&prime;).</LI>
+<LI>Compute the endogenous transitions at each point in the state space endogenous state space &Theta;</LI>
+</OL>
+
+@see DP::SetUpdateTime , UpdateTimes
+**/
+EndogTrans::Transitions(state) {
+    this.state = isint(state) ? N::All-1 : state;
+	decl i,nr,j,a,s,skip;
+    Flags::HasBeenUpdated = TRUE;
+    Hooks::Do(PreUpdate);
+    I::CVdelta = AV(delta);   //moved June 2015 from bottom
+    skip=UnInitialized;
+    foreach (s in States[i]) {
+        if (i<skip) continue;
+		if (StateVariable::IsBlockMember(s)) {
+			s.block->Update();
+            s.block->Check();
+			if (isclass(s,"CorrelatedEffect")) s.block->Distribution();			
+			skip = i + s.block.N;
+			}
+		else {
+			s->Update();
+            s->Check();
+			if (isclass(s,"RandomEffect")) s->Distribution();
+			}
+		}
+    Alpha::ResetA(SubVectors[acts]);
+    DP::A = Alpha::A;  // Have DP::A point to Alpha::A.
+	ExogenousTransition();
+    this->Traverse();
+    }
+
+/** Sets up a single point &theta; in the state space.
+This the default of the virtual routine.  It calls the creator for Bellman.
+The user's replacement for this must call this or the parent version.
+Currently, `OneDimensionalChoice' is the only class that replaces this.
+**/
+Bellman::SetTheta(state,picked) { Bellman(state,picked);    }
 
 /**Set the automatic (non-static) members of a state node.
 @param state  state vector
@@ -59,17 +105,18 @@ Bellman::Allocate(picked) {
   decl OldSS = InSubSample;
   InSubSample =     IsTerminal  ||  picked;  //ranu(1,1) < SampleProportion[I::t];
   N::Approximated += !(InSubSample);
+  decl s;
   if (OldSS!=InSubSample) {     //re-allocation required
     if (OldSS!=UnInitialized) delete Nxt, U;
     if (InSubSample) {
-        Nxt = new array[StateTrans][SS[onlysemiexog].size];
+        Nxt = new array[TransStore+N::DynR-1][SS[onlysemiexog].size];
         U = new matrix[N::Options[Aind]][SS[bothexog].size];
         }
     else {
-        Nxt = new array[StateTrans][1];
+        Nxt = new array[TransStore+N::DynR-1][1];
         U = new matrix[N::Options[Aind]][1];
         }
-    decl s; for(s=0;s<N::R;++s) pandv[s]= constant(.NaN,U);
+    for(s=0;s<N::R;++s) pandv[s]= constant(.NaN,U);
     }
   }
 
@@ -125,17 +172,14 @@ Bellman::ActVal(VV) {
 	pandv[I::r][][] = U;
 	if (IsTerminal||IsLast) return;   //IsLast added APril 2015??
     decl eta;
-    etah= sizerc(Nxt[Qrho]);
+    etah= sizerc(Nxt[Qit]);
     for (eta=0;eta<etah;++eta)
-	  pandv[I::r][][N::Ewidth*eta : N::Ewidth*eta+N::Ewidth-1] += I::CVdelta*sumr(Nxt[Qrho][eta].*VV[Nxt[Qi][eta]]);
-//Nxt[Qrho][eta]*diag(VV[Nxt[Qi][eta]])
-//    do {  //switched to 1 trip loop August 2015
-//      } while ( ++eta <  );
+	  pandv[I::r][][N::Ewidth*eta : N::Ewidth*eta+N::Ewidth-1] += I::CVdelta*sumr(Nxt[Qrho+I::rtran][eta].*VV[Nxt[Qit][eta]]);
 	}
 
 /** Computes v() and V for out-of-sample states. **/
 Bellman::MedianActVal(EV) {
-    pandv[I::r][] = U[][] + (IsLast ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][0].*EV[Nxt[Qi][0]]));  //Nxt[Qrho][0]*diag(EV[Nxt[Qi][0]]))
+    pandv[I::r][] = U[][] + (IsLast ? 0.0 : I::CVdelta*sumr(Nxt[Qrho+I::rtran][0].*EV[Nxt[Qit][0]]));
 	V[] = maxc( pandv[I::r] );
 	}
 	
@@ -155,19 +199,18 @@ If `Flags::setPstar` then &Rho;*(&alpha;) is computed using virtual `Bellman::Sm
 
 **/
 Bellman::thetaEMax() {
-	return sumc( (V[] = maxc(pandv[I::r]) )*NxtExog[Qrho] );  //sumc() handles cases of scalar V - point is outsample in KW.
+	return sumc( (V[] = maxc(pandv[I::r]) )*NxtExog[Qprob] );  //sumc() handles cases of scalar V - point is outsample in KW.
     }
 
 /** Compute endogenous state-to-state transition &Rho;(&theta;'|&theta;) for the current state <em>in `Stationary` environments</em>.
 **/
 Bellman::UpdatePtrans() {
 	decl eta,
-		 h = aggregatec(pandv[I::r] * NxtExog[Qrho],SS[onlyexog].size)',
-		 ii = I::all[onlyendog],  it = I::all[tracking];
-	for (eta=0;eta<sizerc(Nxt[Qi]);++eta) {
-		I::curg.Ptrans[ Nxt[Qi][eta] ][ii] += (h[eta][]*Nxt[Qrho][eta])';
-		}
-	if (Flags::StorePA) I::curg.Palpha[][it] = ExpandP(I::r);
+		 h = aggregatec(pandv[I::r] * NxtExog[Qprob],SS[onlyexog].size)',
+		 ii = I::all[onlyendog];
+	for (eta=0;eta<sizerc(Nxt[Qit]);++eta)
+		I::curg.Ptrans[ Nxt[Qit][eta] ][ii] += (h[eta][]*Nxt[Qrho+I::rtran][eta])';
+	if (Flags::StorePA) I::curg.Palpha[][I::all[tracking]] = ExpandP(I::r);
 	}
 
 Bellman::OutputValue() { return 0.0;     }
@@ -179,21 +222,20 @@ Bellman::OutputValue() { return 0.0;     }
 **/
 Bellman::ExpandP(r) {
 	decl p,i;
-	p =	(columns(pandv[r])==rows(NxtExog[Qrho])) ? pandv[r]*NxtExog[Qrho] : pandv[r];
+	p =	(columns(pandv[r])==rows(NxtExog[Qprob])) ? pandv[r]*NxtExog[Qprob] : pandv[r];
 	for (i=0;i<N::A;++i) if (!Alpha::Sets[Aind][i]) p = insertr(p,i,1);
 	return p;
 	}
 
 /** Computes the full endogneous transition, &Rho;(&theta;'; &alpha;,&eta; ), within a loop over &eta;.
 Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
-@param future offset vector to use for computing states (tracking or solving)
 @comments computes `Bellman::Nxt` array of feasible indices of next period states and conforming matrix of probabilities.<br>If current is not -1, then simply recomputed indices.
 @see DP::ExogenousTransition
 **/
-Bellman::ThetaTransition(future) {
-	 decl ios = InSubSample ? I::all[onlysemiexog] : 0;
-	 if (IsTerminal || IsLast ) { Nxt[Qi][ios] = Nxt[Qrho][ios] = <>; return; }
-	 decl now=NOW,later=LATER, si,Nb,prob,feas,k,root,swap, mtches,curO, rcheck=Volume>LOUD;
+Bellman::ThetaTransition() {
+	 decl ios = InSubSample ? I::all[onlysemiexog] : 0,k;
+	 if (IsTerminal || IsLast ) { for(k=0;k<sizeof(Nxt);++k) Nxt[k][ios] =  <>; return; }
+	 decl now=NOW,later=LATER, si,Nb,prob,feas,root,swap, mtches,curO, rcheck=Volume>LOUD;
  	 F[now] = <0>;	
 	 P[now] = ones(N::Options[Aind],1);
 	 si = S[clock].X;				// clock needs to be nxtcnt
@@ -204,7 +246,7 @@ Bellman::ThetaTransition(future) {
 			{Nb =  States[si].block.N; root = States[si].block; }
 		else
 			{ Nb = 1; root = States[si]; }
-		if (( any(curO = future[si-Nb+1:si]) ))	{  // states are relevant to s'
+		if (( any(curO = I::OO[<tracking;iterating>][si-Nb+1:si]) ))	{  // states are relevant to s'
 			[feas,prob] = root -> Transit(Alpha::List[Aind]);
             if (rcheck && root.N>1) {
                 fprintln(logf,"     State: ",root.L,"%r",{"   ind","   prob"},feas|prob);
@@ -216,7 +258,7 @@ Bellman::ThetaTransition(future) {
 			feas = curO*feas;
 			k=columns(feas)-1;
 			do	if (any(prob[][k])) {
-				F[later] ~=  F[now]+feas[k];
+				F[later] ~=  F[now]+feas[][k];
 				P[later] ~=  P[now].*prob[][k];
 				swap=TRUE;
 				} while ( --k >= 0  );
@@ -224,13 +266,14 @@ Bellman::ThetaTransition(future) {
 		si -= Nb;	 //skip remaining variables in block.
  		if(swap) { later = now; now = !now;	}
 		} while (si>=S[endog].M);
-	Nxt[Qi][ios] = F[now];
-	Nxt[Qrho][ios] = P[now];
+	Nxt[Qtr][ios] = F[now][Qtr][];
+	Nxt[Qit][ios] = F[now][Qit][];
+	Nxt[Qrho+I::rtran][ios] = P[now];
     if (rcheck) {
         decl s, q;
-        for (s=0;s<columns(F[now]);++s) {
-            if ( any(P[now][][s].> 0.0) && !N::IsReachable(F[now][s]) )  {
-                q = ReverseState(F[now][s],I::OO[tracking][]);
+        for (s=0;s<columns(Nxt[Qtr][ios]);++s) {
+            if ( any(P[now][][s].> 0.0) && !N::IsReachable(Nxt[Qtr][ios]) )  {
+                q = ReverseState(Nxt[Qtr][ios][s],I::OO[tracking][]);
                 fprint(logf,"Transition to unreachable state ",F[now][s],"%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],q[S[endog].M:S[clock].M]',"%r",{"prob"},P[now][][s]);
                 }
             }
@@ -254,9 +297,8 @@ Bellman::ExogUtil() { U[][I::all[bothexog]]=Utility();	}
 **/
 Bellman::HMEndogU(VV) {
     U[] = Utility();
-	pandv[I::r][] = U + I::CVdelta*sumr(Nxt[Qrho][I::r].*VV[Nxt[Qi][I::r]]);
+	pandv[I::r][] = U + I::CVdelta*sumr(Nxt[Qrho+Zero][Zero].*VV[Nxt[Qit][Zero]]);
     Smooth(thetaEMax());
-    Hooks::Do(PostSmooth);
 	UpdatePtrans();
     }
 
@@ -298,7 +340,7 @@ Bellman::InSS() { return InSubSample; }
 Bellman::AutoVarPrint1(task) {
 	print("\n---------------\n","%c",{"Index","IsTerm","InSamp","Aind"}|Labels::Vprt[svar][S[endog].M:S[clock].X],"%7.0f","%r",{"Values"},
 		I::all[tracking]~IsTerminal~InSubSample~Aind~ ( isclass(task) ? (task.state[S[endog].M:S[clock].X])' : 0 ),
-	"%r",{"EV"},EV',"pandv=","%v",pandv,"%r",{"FeasS","Prob"},Nxt[Qi][]|Nxt[Qrho][]);
+	"%r",{"EV"},EV',"pandv=","%v",pandv,"%r",{"FeasS","Prob"},Nxt[Qit][]|Nxt[Qrho+I::rtran][]);
     println("*** ",InSubSample," ",this.InSubSample);
 	}
 	
@@ -309,20 +351,19 @@ Bellman::Predict(ps,tod) {
 		width = SS[onlyexog].size,
 		Pa = ExpandP(I::r);		
 	tod.ch += ps*Pa;
-    //	tod.unch += Pa/columns(tod.sind);
 	hi = -1;
     decl d = 0.0;
-    for (eta=0;eta<SS[onlysemiexog].size;++eta) if (sizerc(Nxt[Qi][eta])) {
+    for (eta=0;eta<SS[onlysemiexog].size;++eta) if (sizerc(Nxt[Qtr][eta])) {
 		  lo = hi+1;
 		  hi += width;
-		  Pa = (pandv[I::r][][lo:hi]*NxtExog[Qrho][lo:hi])';
+		  Pa = (pandv[I::r][][lo:hi]*NxtExog[Qprob][lo:hi])';
           if (isclass(tom)) {  // added check July 2015.
-		      tom.sind ~= exclusion(Nxt[Qi][eta],tom.sind);
+		      tom.sind ~= exclusion(Nxt[Qtr][eta],tom.sind);
 		      if (nnew = columns(tom.sind)-columns(tom.p)) tom.p ~= zeros(1,nnew);
-		      intersection(tom.sind,Nxt[Qi][eta],&mynxt);
-		      tom.p[mynxt[0][]] += ps*Pa*Nxt[Qrho][eta][][mynxt[1][]];  //found bug Oct.2014.  was not resorting using mynxt[1] ...
+		      intersection(tom.sind,Nxt[Qtr][eta],&mynxt);
+		      tom.p[mynxt[0][]] += ps*Pa*Nxt[Qrho+I::rtran][eta][][mynxt[1][]];
               }
-          d += sumr(Pa*Nxt[Qrho][eta]);
+          d += sumr(Pa*Nxt[Qrho+I::rtran][eta]);
 		  }
 
 	}
@@ -346,7 +387,7 @@ Bellman::Simulate(Y) {
 		}
 	if (done) return UnInitialized;
 	i = (I::OO[bothgroup][]'.!=0) .* Y.state;
-	i += ReverseState(Nxt[Qi][Y.ind[onlysemiexog]][DrawOne(Nxt[Qrho][Y.ind[onlysemiexog]][I::ialpha][])],
+	i += ReverseState(Nxt[Qtr][Y.ind[onlysemiexog]][DrawOne(Nxt[Qrho+I::rtran][Y.ind[onlysemiexog]][I::ialpha][])],
 							I::OO[tracking][]);
 	return i;
 	}
@@ -361,8 +402,8 @@ Bellman::ZetaRealization() {	return <.NaN>;	}
 @return A[Aind][][av.pos]
 **/
 Bellman::aa(av) {
-	if (isclass(av,"ActionVariable")) return Alpha::A[Aind][][av.pos];
-	oxrunerror("Must send action variable to aa");
+    TypeCheck(av,"ActionVariable",TRUE);
+	return Alpha::A[Aind][][av.pos];
 	}
 
 /** .	  @internal **/
@@ -390,7 +431,7 @@ Bellman::Delete() {
 	for(i=0;i<sizeof(Theta);++i) delete Theta[i];
 	for(i=0;i<sizeof(Gamma);++i) delete Gamma[i];
 	delete Gamma, Theta;
-	delete ETTtrack, ETTiter;
+	delete ETT;
     Flags::Reset();
     N::Reset();
 	lognm = Volume = SampleProportion = Gamma = Theta = 0;	
@@ -550,7 +591,7 @@ ExtremeValue::Smooth(VV) {
 ExtremeValue::thetaEMax(){
 	decl rh = CV(rho);
 	V[] = sumc(pandv[I::r][][] = exp(rh*pandv[I::r]));
-	return log(V)*(NxtExog[Qrho]/rh);  //M_EULER+
+	return log(V)*(NxtExog[Qprob]/rh);  //M_EULER+
     }
 
 /**  Initialize the normal-smoothed model.
@@ -574,10 +615,10 @@ Normal::CreateSpaces() {
 NIID::ActVal(VV) {
 	decl J=rows(U),iterid=I::all[iterating],lo,hi,vv;
 	if (!IsTerminal && J>1)	{
-		decl eta,j,choicep,scaling,neta = sizec(Nxt[Qrho]), width = SS[onlyexog].size;
+		decl eta,j,choicep,scaling,neta = sizec(Nxt[Qit]), width = SS[onlyexog].size;
 		for (eta=0;eta<neta;++eta) {
 			lo = eta*width; hi = (eta+1)*width-1;
-			vv = ( pandv[I::r][][lo:hi] = U[][lo:hi] + I::CVdelta*sumr(Nxt[Qrho][eta].*VV[Nxt[Qi][eta]]) )';
+			vv = ( pandv[I::r][][lo:hi] = U[][lo:hi] + I::CVdelta*sumr(Nxt[Qrho+I::rtran][eta].*VV[Nxt[Qit][eta]]) )';
 			for (j=0;j<J;++j) { //,ev = 0.0
 				choicep = prodr(probn(GQNODES[Aind][j] + vv*MM[Aind][j] ))/M_SQRT2PI;
 //				ev +=   NxtExog[Qrho][eta]*(GQH::wght * (choicep.*(Chol[Aind][j]*GQH::nodes+ pandv[rind][j][lo:hi]))) ;
@@ -699,9 +740,9 @@ NnotIID::CreateSpaces() {
 NnotIID::ActVal(VV) {
 	decl J=rows(U),iterid=I::all[iterating];
 	if (!IsTerminal && J>1)	{
-		decl eta, neta = sizec(Nxt[Qrho]), choicep;
+		decl eta, neta = sizec(Nxt[Qrho+I::rtran]), choicep;
 		for (eta=0;eta<neta;++eta) {	//,ev = 0.0
-			pandv[I::r][][eta] = U[][eta] + I::CVdelta*sumr(Nxt[Qrho][eta].*VV[Nxt[Qi][eta]]);
+			pandv[I::r][][eta] = U[][eta] + I::CVdelta*sumr(Nxt[Qrho+I::rtran][eta].*VV[Nxt[Qit][eta]]);
 			[V[],choicep] = ghk[Aind]->SimDP(pandv[I::r][][eta],Chol[Aind]);
 //			ev  +=   NxtExog[Qrho][eta]*(V'*choicep);
 			if (Flags::setPstar) pandv[I::r][][eta] = choicep;
@@ -733,7 +774,6 @@ NnotIID::UpdateChol() {
 **/
 OneDimensionalChoice::Initialize(userState,d,UseStateList) {
 	Bellman::Initialize(userState,UseStateList);
-    called = FALSE;
 	if (isclass(d,"ActionVariable")) Actions(this.d = d);
 	else if (isint(d) && d>0) Actions(this.d = new ActionVariable("d",d));
 	else oxrunerror("second argument 1d choice must provide an action or positive number of values");
@@ -747,14 +787,14 @@ OneDimensionalChoice::Initialize(userState,d,UseStateList) {
 **/
 OneDimensionalChoice::CreateSpaces(Method,smparam) {
 	ExPostSmoothing::CreateSpaces(Method,smparam);
-    if (!called)
-        oxwarning("DDP Warning 05.\n The creator routine for OneDimensionalChoice states has not been called.\nRuntime errors likely.\n");
+//    if (!called) oxwarning("DDP Warning 05.\n The creator routine for OneDimensionalChoice states has not been called.\nRuntime errors likely.\n");
 	if (N::Av!=1) oxrunerror("1-d model must have exactly one action variable");
 	if (SS[bothexog].size>1) oxrunerror("1-d model does not allow exogenous variables");	
 	}
 
-OneDimensionalChoice::OneDimensionalChoice() {
-    called = TRUE;
+OneDimensionalChoice::SetTheta(state,picked,solvez) {
+    this.solvez = solvez;
+    Bellman(state,picked);
     if (solvez) zstar = zeros(N::R,1);
     }
 
@@ -796,16 +836,17 @@ OneDimensionalChoice::thetaEMax(){
 not depend on z*.
 **/
 OneDimensionalChoice::ActVal(VV) {
+    println(Qrho+I::rtran,Nxt);
     pandv[I::r][][] = IsTerminal || IsLast
                        ? 0.0
-	                   : I::CVdelta*Nxt[Qrho][0]*VV[Nxt[Qi][0]]';
+	                   : I::CVdelta*Nxt[Qrho+I::rtran][0]*VV[Nxt[Qit][0]]';
     if (!solvez) pandv[I::r] += U;
 	}	
 
 KeepZ::ActVal(VV) {
     if (solvez) {
-        Qt = Nxt[Qrho][0];
-        myVV =VV[Nxt[Qi][0]]';
+        Qt = Nxt[Qrho+I::rtran][0];
+        myVV =VV[Nxt[Qit][0]]';
         return;
         }
     OneDimensionalChoice::ActVal(VV);

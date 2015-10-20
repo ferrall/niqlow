@@ -1,6 +1,12 @@
 #import "Shared"
 
+/** Return the column of values of an Action Variable.
+@param A action matrix
+@param act `ActionVariable`
+@see Bellman::aa
+**/
 ca(A,act);
+
 
 		/** Categories of state variables.	
             These categories are used mainly for summarizing the model.
@@ -88,7 +94,7 @@ enum {acts,exog,semiexog,endog,clock,rgroup,fgroup,DSubVectors,LeftSV=exog}
         </table>
                 @name SubSpaces
                 **/
-enum {onlyacts,onlyexog,onlysemiexog,bothexog,onlyendog,tracking,onlyclock,allstates,iterating,onlyrand,onlyfixed,bothgroup,DSubSpaces}
+enum {onlyacts,onlyexog,onlysemiexog,bothexog,onlyendog,tracking,onlyclock,allstates,iterating,onlyrand,onlydynrand,onlyfixed,bothgroup,DSubSpaces}
 
 		/** Names for 0 and 1 for Bellman iteration.
             In `ValueIteration` an 2-array of vectors are stored as scratch-space for Bellman
@@ -147,8 +153,10 @@ enum { NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods}
 /** Points in the solution process that users can insert <em>static</em> functions or methods.
 
 <table class="enum_table" valign="top">
-<tr><td valign="top"><code>PreUpdate</code></td><tD>Called by `DP::UpdateVariables`().  The point this occurs depends on `Flags::UpdateTime`</tD></tr>
+<tr><td valign="top"><code>PreUpdate</code></td><tD>Called by `EndogTrans::Transitions`().  The point this occurs depends on `Flags::UpdateTime`</tD></tr>
 <tr><td valign="top" colspan="2" align="middle"><em>The times below are ordered in decreasing frequency of execution.</em></tD></tr>
+<tr><td valign="top"><code>AtThetaTrans</code> </td> <tD>Called by <code>Method::`Method::Run`()</code> for each endogenous state &theta; before
+the transition is computed.</tD></tr>
 <tr><td valign="top"><code>PostSmooth</code> </td> <tD>Called by <code>Method::`Method::Run`()</code> after <em>each</em> time the value of a state has been computed and
 `Bellman::Smooth`() has been called to compute choice probabilities. That is, it is called only when `Flags::setPstar` is TRUE.  For stationary models
 this is only when convergence has been reached.  For non-stationary times it is after each value iteration.</tD></tr>
@@ -164,7 +172,7 @@ of each separate group. The function added here should return TRUE if the group 
 @see Hooks, Flags::UpdateTime
 @name HookTimes
 **/
-enum {PreUpdate,PostSmooth,PostGSolve,PostRESolve,PostFESolve,GroupCreate,NHooks}
+enum {PreUpdate,AtThetaTrans,PostSmooth,PostGSolve,PostRESolve,PostFESolve,GroupCreate,NHooks}
 
 
 
@@ -184,6 +192,9 @@ enum {PreUpdate,PostSmooth,PostGSolve,PostRESolve,PostFESolve,GroupCreate,NHooks
         </table>
         @name ClockTypes **/
 enum {InfiniteHorizon,Ergodic,SubPeriods,NormalAging,StaticProgram,RandomAging,RandomMortality,UncertainLongevity,RegimeChange,SocialExperiment,UserDefined,NClockTypes}
+
+		/** . elements of array stored at each theta. @name TransStore **/
+enum {Qtr,Qit,Qrho,TransStore}
 
         /** parallel array of labels for the built-in clock types. **/
 static const decl ClockTypeLabels
@@ -209,7 +220,7 @@ struct Flags : DDPauxiliary {
 		/** . **/												UseStateList,
 		/** create space to store &Rho;* **/  					IsErgodic,
         /** Includes a kept continuous state variable.**/       HasKeptZ,
-        /** UpdateVariables() has been called. **/              HasBeenUpdated,
+        /** `EndogTrans::Transitions` has been called. **/      HasBeenUpdated,
 		/** &Gamma; already includes fixed effects **/			HasFixedEffect,
         /** Indicators for when transit update occurs.
             @see DP::SetUpdateTime **/                          UpdateTime,
@@ -238,6 +249,7 @@ struct N : DDPauxiliary {
 		/** number of groups, &Gamma;.D      **/				      G,
 		/** number of fixed effect groups.   **/					  F,
 		/** number of random groups **/							      R,
+		/** either 0 or R **/							              DynR,
 		/** number of all state variables. **/						  S,
 		/**	counter.t.N, the decision horizon.    **/  			      T,
         /** Width of columns in pandv for given eta.**/               Ewidth,
@@ -271,6 +283,7 @@ struct I : DDPauxiliary {
 	/** vector of current indices into spaces. **/	        all,
 	/** index of current fixed group. **/					f,
     /** index of current random group. **/					r,
+    /** index into dynamic random group. **/			    rtran,
 	/** index of current &gamma; group. **/					g,																
 	/**  Current value of t. @see DP::Gett **/				t,
 	/**  Current value of sub period s.

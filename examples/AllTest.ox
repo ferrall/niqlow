@@ -4,8 +4,8 @@
 TestRun() {
     decl k;
     do {
-     scan("Enter 0 to run all, 1-9 to run that test, [-1]  QUIT\n?","%i",&k);
-	 if (k<Zero) return;
+       scan("Enter 0 to run all or a positive number to run a specific case, [-1]  QUIT\n?","%i",&k);
+	   if (k<Zero) break;
        if(!k || k==1 ) {
            println("\n\n***************** Test1A *****************\n");
 	       Test1::Run(FALSE);	
@@ -50,8 +50,12 @@ TestRun() {
 	       println("\n\n***************** Test9 *****************\n");
 	       Test9::Run();		
           }
-        }
-       while (TRUE);
+       if(!k || k==10 ) {
+	       println("\n\n***************** Test10. Reservation Wage *****************\n");
+	       Test10::Run();		
+          }
+        if (!k) break;
+        } while (TRUE);
 	}
 
 Test1::Utility() { return  1.0; }
@@ -60,6 +64,7 @@ Test1::Run(UseList) {
 	SetClock(NormalAging,10);
 	GroupVariables(new FixedEffect("g",2));
 	CreateSpaces();
+//    Task::trace = TRUE;
     VISolve();
 	Delete();
 	}
@@ -78,6 +83,7 @@ Test2::Run(UseList)	{
     Actions(d = new BinaryChoice());
 	EndogenousStates(x = new Renewal("x",NX,d,pars[0][theta3]) );
 	CreateSpaces();
+//    Task::trace = TRUE;
 	EMax = new ValueIteration();
 	EMax.vtoler = 1E-1;   					//loose tolerance because beta near 0 and 1
 	SetDelta(pars[row][disc]);
@@ -189,6 +195,8 @@ Test7::Run()  {
   	CreateSpaces();
 	SetDelta(0.99);	
 	decl EMax = new ValueIteration(0);
+//    Task::trace = TRUE;
+    Volume = LOUD;
 	EMax -> Solve();
 	Volume=SILENT;
 	data = new DataSet(0,EMax);
@@ -241,7 +249,8 @@ Test9::Run()	{
 	EndogenousStates(d = new LaggedAction("d",a));
 	d->MakeTerminal(1);	
 	ExogenousStates(p = new SimpleJump("p",Noff));
-    GroupVariables(fem = new FixedEffect("fem",2));
+    GroupVariables(sk=new RandomEffect("sk",2),fem = new FixedEffect("fem",2));
+    sk.actual = <-1;1>;
     lam = new Coefficients("lam",<2.3;2.6>);
 	CreateSpaces();
 	meth = new ValueIteration();
@@ -250,7 +259,7 @@ Test9::Run()	{
     decl pd = new PanelPrediction("hi");
     pd->Tracking (UseLabel,fem,a,p);
     pd->Predict(15,FALSE);
-    pd -> Histogram(Two);
+//    pd -> Histogram(Two);
     println("%c",{"f"}|pd.tlabels,pd.aflat[0],pd.aflat[1]);
     savemat("Test9moms.dta",pd.aflat[0]|pd.aflat[1],{"f"}|pd.tlabels);
     delete pd;
@@ -260,4 +269,32 @@ Test9::Run()	{
     Explore(pd,10,0.1,lam);
 	Delete();
 	}
-Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + CV(p)*aa(a)) + (3-I::t); 	}	
+Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + AV(sk)*CV(p)*aa(a)) + (3-I::t); 	}	
+
+Test10::Uz(z)        { return eta | z;	}
+Test10::Utility()    { return eta*(1-aa(d)) + zstar[I::r]*aa(d);	}
+
+Test10::Run()	{
+	Initialize(new Test10());
+	SetClock(NormalAging,10);
+	EndogenousStates(done = new LaggedAction("done",d));
+	GroupVariables(new RandomEffect("g",2),new FixedEffect("f",2));
+	done->MakeTerminal(1);
+	SetDelta(0.4);
+	CreateSpaces();
+	RV = new ReservationValues();
+    RV.Volume=SILENT;
+	DPDebug::outAllV(TRUE,FALSE,FALSE,TRUE,FALSE);
+	RV->Solve();
+    delete RV;
+    Delete();
+	}
+
+/** Return E[U|z&lt;z*] and E[U|z&ge;z*] and respective probabilities.
+Use Mill's ratio to compute truncated mean of normal.
+@return Array of two vectors
+**/	
+Test10::EUtility()    {
+	decl pstar = 1-probn(zstar[I::r]);
+	return {  ( eta | densn(zstar[I::r])/pstar) , (1-pstar)~pstar};
+	}	

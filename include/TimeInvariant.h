@@ -115,7 +115,7 @@ struct RandomEffectBlock : StateBlock {
 **/
 struct NormalRandomEffect : RandomEffect {
 	const decl mu, sigma;
-	NormalRandomEffect(L,N,mu, sigma);
+	NormalRandomEffect(L,N,mu=0.0, sigma=1.0);
 	Distribution();
 	}		
 

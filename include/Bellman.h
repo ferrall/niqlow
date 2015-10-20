@@ -23,7 +23,7 @@ struct  Bellman : DP {
 		/**&theta;.j index into `DP::A`.**/  						Aind,
 		/**U(&alpha;&epsilon;,&eta;,&theta;,&gamma;). @internal **/	U,
 		/** array of &Rho;*(&hellip;,&gamma;). @internal**/   		pandv,
-		/** StateTrans x &eta;-Array of feasible endogenous	state
+		/** TransStore x &eta;-Array of feasible endogenous	state
 			indices and transitions
 			&Rho;(&gamma;&prime;;&alpha;,&eta;,&gamma;).**/			Nxt,
 		/**EV(&theta;) across random &gamma;, **/					EV;
@@ -48,13 +48,14 @@ struct  Bellman : DP {
 			virtual	Interface();
 			virtual Predict(ps,tod);
             virtual OutputValue();
+            virtual SetTheta(state=0,picked=0);
 
 					Bellman(state,picked);
                     Allocate(OldSS=UnInitialized);
 					~Bellman();
 					aa(av);
 					Simulate(Y);
-					ThetaTransition(future);
+					ThetaTransition();
 					UpdatePtrans();
 					ExpandP(r);
 					MedianActVal(EV);
@@ -234,7 +235,6 @@ The user writes routines that return ...-->
 struct OneDimensionalChoice : ExPostSmoothing {
 	static 	decl
             /** space for current Prob(z) in z* intervals. **/	pstar,
-            /** Flag for whether creator has been called. **/   called,
             /** single action variable. **/                     d;
 			decl
             /** TRUE: solve for z* at this state.
@@ -247,7 +247,7 @@ struct OneDimensionalChoice : ExPostSmoothing {
 	virtual thetaEMax() ;
 	virtual Smooth(pstar);
 	virtual ActVal(VV);
-            OneDimensionalChoice();
+    virtual SetTheta(state,picked,solvez=TRUE);
 	}
 
 /** A OneDimensionalChoice model with discretized approximation to &zeta;.

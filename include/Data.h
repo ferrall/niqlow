@@ -237,7 +237,7 @@ struct 	Prediction : Data {
 		/** next prediction
             in the panel **/	pnext;
 	Prediction(prev);
-	Predict();
+	Predict(tlist);
     Reset();
 	Histogram(v,printit);
     Delta(mask);
@@ -262,12 +262,14 @@ struct 	PathPrediction : Prediction {
     /** the next PathPrediction   **/               fnext;
 	PathPrediction(f=0,method=0,iDist=0);
     Initialize();
+
 	~PathPrediction();
-	Predict(T=0,printit=FALSE);
+	Predict(printit=FALSE);
+    SetT(T);
     Empirical(inmoments);
     Tracking(LorC,mom1,...);
     SetColumns(dlabels);
-	Histogram(printit=TRUE);
+//	Histogram(printit=TRUE);
     PathObjective();
 	}
 
@@ -277,11 +279,12 @@ struct PanelPrediction : PathPrediction {
 	decl
 				        					fparray,
     /**length of vector returned by EconometricObjective.**/ FN,
+                                             delt,
                                              aflat,
 	/** array of GMM vector. **/	 	     M;
     PanelPrediction(r=0,method=0);
     ~PanelPrediction();
-	Histogram(printit=FALSE);
+//	Histogram(printit=FALSE);
     Objective();
     Predict(T=0,printit=FALSE);
     GMMdistance();

@@ -30,7 +30,7 @@ DynaHealth::PWell(FeasA) {
 	}
 
 DynaHealth::Replicate() {
-	Initialize(new DynaHealth(),FALSE,0); //EVExAnte
+	Initialize(new DynaHealth(),FALSE); //EVExAnte
 	SetClock(Ergodic);
 	SetDelta(disc);
 	Actions(wrk = new ActionVariable("work",2),

@@ -32,7 +32,7 @@ struct SubSpace : DDPauxiliary  {
 	/** . @internal **/						left,
 	/** . @internal **/						right;	
 	SubSpace(); 	
-	Dimensions(subs,UseLast);
+	Dimensions(subs,UseLast=TRUE,DynRand=FALSE);
 	ActDimensions();
 	} 	
 
@@ -89,10 +89,7 @@ struct DP {
 		/** . @internal						**/    				P,
         /** copy of user's Bellman object used for cloning.**/  userState,
 		/** max of vv. @internal       **/						V,
-		/** computes endogenous transitions
-                with tracking indices**/		                ETTtrack,
-		/** computes endogenous transitions with iterating
-                    indices **/		                            ETTiter,
+		/** computes endogenous transitions**/		            ETT,
 		/** current realized action vector, <code>&alpha;</code>,
 			only set during simulation of realized paths. **/ 	alpha,
 		/** `ZetaRealization`, realized continuous shocks, &zeta;,
@@ -114,7 +111,6 @@ struct DP {
 		static	Gett();
 		static 	ExogenousTransition();
 
-		static	UpdateVariables(ttype=iterating);
         static  onlyDryRun();
 		static  CreateSpaces();
 		static	InitialsetPstar(task);
@@ -128,12 +124,13 @@ struct DP {
 		static	ExogenousStates(v1,...); 	
 		static	AuxiliaryOutcomes(v1,...);
 		static 	SetGroup(state);
+        static  NormalizeActual(v,MaxV=1.0);
 		static 	Settheta(ind);
 		static 	DrawGroup(find);
 		static 	StorePalpha();
 		static 	GetAind(i);
 		static 	GetPstar(i);
-		static 	GetTrans(i, h);
+		static 	GetTrackTrans(i, h);
 
 		static 	MakeGroups();
 		static  UpdateDistribution();
@@ -141,6 +138,7 @@ struct DP {
 		static  SyncAct(a);
         static  SubSampleStates(SampleProportion=1.0,MinSZ=0,MaxSZ=INT_MAX);
         static  SetUpdateTime(time=AfterFixed);
+        static  GetAV(a);
 
         static KLaggedState(Target,K,Prune=TRUE);
         static KLaggedAction(Target,K,Prune=TRUE);
@@ -171,9 +169,12 @@ a new <code>Run()</code> method.
 **/
 struct Task : DP {
 	const decl
+    /**Inner task for a stack of tasks to perform. **/              itask,
 	/**leftmost variable in state to loop over 				**/		left,
 	/**rightmost variable in state to loop over 			**/		right;
+    static decl                                                     trace;
 	decl
+    /**Label for debugging purposes.**/                             L,
 	/**N&times;1 vector, current &epsilon;&theta;			**/		state,
 	/**subspace to use for indexing during the task **/				subspace,
 	/**Number of times `Task::Run`() has been called while in
@@ -200,7 +201,7 @@ states or looping over all combinations of state variable values.  This is done
 with an arguement to `DP::Initialize`().
 
 **/
-struct ThetaTask        :   Task {	ThetaTask(subspace);	Run();	}
+struct ThetaTask        :   Task {	ThetaTask(subspace);	virtual Run();	}
 
 /** Identify unreachable states from &Theta;.
 
@@ -215,7 +216,7 @@ subsampling (if required).
 struct FindReachables   : 	ThetaTask {	
         decl th, rchable;
         FindReachables();
-        virtual Run();	
+        Run();	
         }
 
 /** Allocate space for each point &theta; &in; &Theta; that is reachable.
@@ -230,7 +231,7 @@ struct CreateTheta 	    : 	ThetaTask {
         decl insamp, th;
         CreateTheta(); 	
         Sampling();
-        virtual    Run();	
+        Run();	
         picked();
         }
 
@@ -272,7 +273,11 @@ struct ReSubSample 	    : 	CreateTheta    {	ReSubSample(); 		Run();	}
 /** Base Task for constructing the transition for endogenous states.
 
 **/
-struct EndogTrans 	    : 	Task {	EndogTrans(subspace=iterating);	Run();	}
+struct EndogTrans 	    : 	Task {	
+    EndogTrans();	
+    Run();	
+    Transitions(state=0);
+    }
 
 struct SVTrans          :   EndogTrans { decl Slist; SVTrans(Slist); Run();};
 

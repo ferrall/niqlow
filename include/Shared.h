@@ -42,7 +42,7 @@ static const decl
 	ReverseState(Ind,O);
 	DrawOne(P);
 	DeltaV(V);
-	DiscreteNormal(N,mu, sigma);
+	DiscreteNormal(N,mu=0.0, sigma=1.0);
 	varlist(s) ;
 	vararray(s);
 	MyMoments(M,rlabels=0);
@@ -55,6 +55,8 @@ static const decl
     ColLogit(x,rho=1.0);
     SumToOne(v);
     Indent(depth);
+    TypeCheck(obj,cname,msg="Niqlow Error #03. Class fails to match.",Fatal=TRUE);
+
 
 /** A container for auxiliary structures, which helps organize the hierarchy of classes. **/
 struct Zauxiliary { }

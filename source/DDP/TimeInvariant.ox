@@ -196,8 +196,8 @@ RandomEffectBlock::Distribution() {
 /** Create a permanent discretized normal random effect.
 @param L label
 @param N number of points
-@param mu `AV`() compatible mean of the effect, &mu;
-@param sigma `AV`() compatible standard deviation, &sigma;
+@param mu `AV`() compatible mean of the effect, &mu;<br>Default = 0.0
+@param sigma `AV`() compatible standard deviation, &sigma;<br>Default = 1.0
 
 The probabilities of each discrete value is 1/N.  The distribution is captured by adjusting the
 actual values to be at the quantiles of the distribution.
@@ -209,7 +209,7 @@ NormalRandomEffect::NormalRandomEffect(L,N,mu,sigma) {
 	this.sigma = sigma;	
 	}
 
-NormalRandomEffect::Distribution() { actual = AV(mu) + DiscreteNormal(N,0.0,AV(sigma));	}
+NormalRandomEffect::Distribution() { actual = AV(mu) + DiscreteNormal(N,0.0,AV(sigma))';	}
 
 /** Create a permanent discretized normal random effect.
 @param L label
