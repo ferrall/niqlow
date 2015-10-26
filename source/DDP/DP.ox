@@ -242,11 +242,6 @@ DP::GetAV(a) {
     I::curth -> aa(a);
     }
 
-DP::NormalizeActual(v,MaxV) {
-    if (!TypeCheck(v,"Discrete",FALSE,"DDP Warning ??.\n Object is not Discrete.  Doing nothing")) return;
-    v.actual = MaxV*(v.vals)'/max(v.N-1,1);
-    }
-
 /** Add `StateVariable`s to the endogenous vector &theta;.
 @param v1,... `StateVariable`s
 **/

@@ -112,7 +112,6 @@ Solution is not run if the density of the point in the group space equals 0.0.
 **/
 RandomSolve::Run()  {
 	if (I::curg->Reset()>0.0) {
-        println("Going in ",state');
         if (Flags::UpdateTime[AfterRandom]) ETT->Transitions(state);
 		itask->Solve(this.state);
 		}
@@ -250,8 +249,8 @@ GSolve::Update() {
 	decl dff= counter->Vupdate();
 	if (dff==.NaN || Volume>LOUD) {
         if (dff==.NaN) {
-            decl nans = ReverseState(vecindex(VV[I::now][],.NaN)',I::OO[iterating][])[S[endog].M:S[endog].X][]';
-            fprintln(logf,"\n t =",I::t,". States with V=NaN ","%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[endog].X],nans);
+            decl indx=vecindex(VV[I::now][],.NaN),nans = ReverseState(indx',I::OO[iterating][])[S[endog].M:S[endog].X][]';
+            fprintln(logf,"\n t =",I::t,". States with V=NaN ","%8.0f","%c",{"Index"}|Labels::Vprt[svar][S[endog].M:S[endog].X],indx~nans);
             if (RunSafe )oxrunerror("DDP Error 29. error while checking convergence.  See log file.");		
             oxwarning("DDP Warning ??. Value function includes NaNs, exiting Value Iteration.");
             VV[I::now][] = VV[I::later][] = 0.0;

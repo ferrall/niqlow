@@ -1,11 +1,8 @@
 #import "Shared"
 
-/** Return the column of values of an Action Variable.
-@param A action matrix
-@param act `ActionVariable`
-@see Bellman::aa
-**/
 ca(A,act);
+
+NormalizeActual(v,MaxV=1.0);
 
 
 		/** Categories of state variables.	

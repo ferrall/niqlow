@@ -122,6 +122,35 @@ SimpleJump::SimpleJump(L,N)	  	{	StateVariable(L,N); 	}
 /** Transition . **/
 SimpleJump::Transit(FeasA)	{return {vals,constant(1/N,1,N)};	}
 
+/**
+@param L label
+@param ProbEnd probability (`AV`-compatible) of a transition from 0 to 1 [default=0.5]
+@param Start 0/1 value (`ActionVariable` or `CV`-compatible) that moves from 0 to 1 [default=1]
+@comments
+v=1 at t=0 in finite horizon models is pruned.
+**/
+RandomSpell::RandomSpell(L,ProbEnd,Start) {
+    StateVariable(L,Two);
+    this.Start = Start;
+    this.ProbEnd = ProbEnd;
+    Prune = TRUE;
+    }
+
+RandomSpell::IsReachable() { return ! (Prune && Flags::Prunable && v && !I::t) ;    }
+
+RandomSpell::Transit(FeasA) {
+    if (v) {
+        pbend = AV(ProbEnd);
+        return { vals, reshape( pbend~(1-pbend),rows(FeasA),Two) };
+        }
+    if (isclass(Start),"ActionVariable") {
+        pbstart = ca(FeasA,Start);
+        return { vals, (1-pbstart)~pbstart };
+        }
+    else
+        return { matrix(CV(Start)) , ones(rows(FeasA),1) };
+    }
+
 /** Synchronize base state variable value with current value.
 **/
 Augmented::Synch() {    b.v = v;     }
@@ -183,7 +212,6 @@ ActionTriggered::Transit(FeasA) {
     if ((any(idx=ca(FeasA,t).==tv))) {  //trigger value feasible
         basetr[Qprob] .*= (1-idx);
         if ((any(idy = basetr[Qind].==rval) ))   { //reset values already present
-//            println("prob=",Qprob,"ind=",Qind,basetr,idx,idy);
             basetr[Qprob][][maxcindex(idy')] += idx;
             }
         else {
@@ -318,14 +346,13 @@ SubState::IsReachable() {
 
 /** Create an augmented state variable that 'forgets' its value when a permanent condition occurs.
 @param b base `StateVariable` to augment
-@param pstate `PermanentChoice` state variable that triggers the forgetting
-@param rval integer between <code>0</code> and <code>b.N-1</code>, the value once forgotten.
+@param pstate `PermanentChoice` state variable that triggers the forgetting<br>`CV`-compatiable value
 @param rval the integer (current) value of this state variable when value is forgotten [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 @comments
 `Forget::IsReachable`() prunes the state space accordingly
 **/
 Forget::Forget(b,pstate,rval) {
-    TypeCheck(pstate,"PermanentChoice");
+    if (isclass(pstate,"StateVariable")) TypeCheck(pstate,"PermanentChoice");
     this.pstate = pstate;
     ActionTriggered(b,pstate.Target,TRUE,rval);
     }
@@ -342,6 +369,26 @@ Forget::Transit(FeasA) {
 Forget::IsReachable() {
     Synch();
     return !pstate.v || (v==rval);  //Not forgotten or at reset value
+    }
+
+/** Create an augmented state variable that 'forgets' its value when at t==T* (effective T*+1).
+@param b base `StateVariable` to augment
+@param T
+@comments
+`ForgetAtT::IsReachable`() prunes the state space accordingly
+**/
+ForgetAtT::ForgetAtT(b,T) {
+    this.T = T;
+    Prune = TRUE;
+    Triggered(b,T);  //[=](){return I::t==T;}
+    }
+ForgetAtT::Transit(FeasA) {
+    Augmented::Transit(FeasA);
+    if ( I::t>=T ) return { matrix(rval), ones(rows(FeasA),1) };
+    return basetr;
+    }
+ForgetAtT::IsReachable() {
+    return ! (Prune && Flags::Prunable && v && (I::t>T) ) ;
     }
 
 /**Create a standard normal N(0,1) discretize jump variable. **/

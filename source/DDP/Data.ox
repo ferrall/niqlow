@@ -951,22 +951,29 @@ Prediction::Prediction(t){
 /**
 **/
 PathPrediction::SetT(T) {
-  cur=this;
+  decl cur=this,tmp;
   this.T = T;
   do {
 	 if (!isclass(cur.pnext)) {  // no tomorrow after current
         if (T && cur.t+1<this.T)  // predict for a fixed T
             cur.pnext = new Prediction(cur.t+1);
         }
-     else
-        cur.pnext->Reset();  //tomorrow already exists, reset it.
+     else {
+        if (T && cur.pnext>=this.T)  {    //fixed panel shorter than existing
+            tmp = cur.pnext;
+            cur.pnext = cur.pnext.pnext;
+            delete tmp;
+            }
+        else
+            cur.pnext->Reset();  //tomorrow already exists, reset it.
+        }
   	 } while((isclass(cur = cur.pnext)));  //changed so that first part of loop determines if this is the last period or not.
   return TRUE;
     }
 
 /** Create a path of predicted distributions.
 @param T <em>integer</em> length of the path (default=1)<br>0 : predict only for existing predictions on the Path.
-@param prtlevel FALSE [default] do not print<br>TRUE print state and choice probabilities
+@param prtlevel Zero [default] do not print<br>One print state and choice probabilities<br>Two print predictions
 @return IterationFailed if method solution fails, otherwise TRUE
 @example
 <pre>
@@ -990,7 +997,7 @@ PathPrediction::Predict(prtlevel){
 	 if (!done && !isclass(cur.pnext)) // no tomorrow after current
                 cur.pnext = new Prediction(cur.t+1);
      flat |= cur.t~cur.predmom;
-     if (TRUE) delt |= cur->Delta(mask);
+     delt |= cur->Delta(mask);
      cur = cur.pnext;
   	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
   L = rows(delt) ? norm(delt,'F'): .NaN;
@@ -1378,16 +1385,16 @@ PanelPrediction::PanelPrediction(r,method) {
 
 /** Predict outcomes in the panel.
 @param t positive integer or matrix of lengths of paths to predict (same length as number of paths in then panel)<br>
-@param printit  FALSE [default] do not print<br>TRUE print state and choice probabilities
+@param prtlevel Zero [default] do not print<br>One print state and choice probabilities<br>Two print predictions
 
 **/
-PanelPrediction::Predict(t,printit) {
+PanelPrediction::Predict(t,prtlevel) {
     decl cur=this;
     aflat = {};
     M = 0.0;
     do {
         cur->SetT(ismatrix(t) ? t[cur.f] : t);
-        cur->PathPrediction::Predict(printit);
+        cur->PathPrediction::Predict(prtlevel);
         M += cur.L;
 	    aflat |= cur.f~cur.flat;
         } while((isclass(cur=cur.fnext)));

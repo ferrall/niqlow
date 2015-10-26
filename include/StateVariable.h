@@ -62,6 +62,7 @@ As a transition probability:
 **/
 class NonRandom : Autonomous { }
 
+
 /** State variables with a non-determinisitic transition.
 
 <span class="n">DDP</span> makes no distinction between random and non-random state variables except
@@ -71,6 +72,22 @@ A random state variable has a transition which is not a 0/1 . Its state next per
 
 **/
 class Random : Autonomous	{ }
+
+/** A binary random state variable that goes from 1 to 0 with
+a `AV`-compatible probability and goes from 0 to 1 based on
+the value of an action or a `CV`-compatible object.
+
+**/
+class RandomSpell : Random {
+    decl ProbEnd,
+         Start,
+         pbend,
+    /**Prune Unreachables.**/          Prune,
+         pbstart;
+    RandomSpell(L,ProbEnd=0.5,Start=1);
+    IsReachable();
+    Transit(FeasA);
+    }
 
 /** State variables that augment another state variable (the base) or otherwise specialize it.
 
@@ -210,6 +227,18 @@ class Forget : ActionTriggered {
     Forget(b,pstate,rval=0);
     virtual Transit(FeasA);
     virtual IsReachable();
+    }
+
+/** Forget values when t==T (effective next time period).
+@comments
+This state variable is designed to collapse the state space down when an event is triggered.
+**/
+class ForgetAtT : ValueTriggered {
+    const decl T;
+    decl Prune;
+    ForgetAtT(b,T);
+    Transit(FeasA);
+    IsReachable();
     }
 
 class UnFreeze : Triggered {
