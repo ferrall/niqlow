@@ -905,9 +905,11 @@ call this routine.
 
 **/
 Prediction::Predict(tlist) {
-	decl s,qi,q,pp,unrch,allterm=TRUE,v;
+	decl s,qi,q,pp,unrch,allterm=TRUE;
     state = zeros(N::All);
-    if (Volume>LOUD) {pp = 0.0; unrch = <>; }
+    //if (Volume>LOUD) {
+    pp = 0.0; unrch = <>;
+    //}
     foreach (q in sind[s]) {
         qi = ReverseState(q,I::OO[tracking][])[lo:hi];
         if (Settheta(q)) {
@@ -917,13 +919,17 @@ Prediction::Predict(tlist) {
             I::curth->Predict(p[s],this);
             allterm *= I::curth.IsTerminal || I::curth.IsLast;
             }
-        else if (Volume>LOUD) { pp += p[s]; unrch |= qi' ; }
+        else {
+        pp += p[s]; unrch |= qi' ;
+        print(" t ",t," ",q," ",p[s],"%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],qi');
         }
-    foreach(v in tlist ) Histogram(v,FALSE);  //CV(prntlevel,cur)==One
-    if (Volume>LOUD && pp>0.0) {
+        }
+    if ( //Volume>LOUD &&
+        !isfeq(pp,0.0)) {
         fprintln(logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
         oxwarning("DDP Warning ??. Leakage in transition probability.  See log file");
         }
+    Histogram(tlist,FALSE);  //CV(prntlevel,cur)==One
     return allterm;
 	}
 	
@@ -1092,39 +1098,47 @@ ObjToTrack::Distribution(htmp,ptmp) {
     }
 
 /** Compute the histogram of tracked object at the prediction.
-@param v tracked object
+@param tlist array of tracked objects
 @param printit TRUE=output; FALSE=quiet
 **/
-Prediction::Histogram(tv,printit) {
-	decl q,k,cp;
-    switch(tv.type) {
-        case avar : tv.hist[] = 0.0;
+Prediction::Histogram(tlist,printit) {
+	decl q,k,cp,tv;
+    decl newqs,newp,j,uni,htmp,ptmp;
+    predmom=<>;
+    foreach(tv in tlist ) {
+        switch(tv.type) {
+            case avar : tv.hist[] = 0.0;
                     foreach (cp in ch[k]) tv.hist[Alpha::Matrix[k][tv.hd]] += cp;
                     predmom ~= tv->Distribution();
                     break;
-	    case svar : tv.hist[] = 0.0;
+	       case svar : tv.hist[] = 0.0;
                     foreach (q in  sind[][k]) tv.hist[ReverseState(q,SS[tracking].O)[tv.hd]] += p[k];
                     predmom ~= tv->Distribution();
                     break;
-        case auxvar :  oxwarning("DDP Warning 11.\n  Tracking of auxiliary outcomes still experimental.  It may not work.\n");
-        case idvar  :
-            decl newqs,newp,j,uni,htmp,ptmp;
-            ptmp = htmp=<>;
-            foreach (q in sind[][k]) {   //for each theta consistent with data
-                Settheta(q);
-                if (tv.type==idvar)
-                    newqs = I::curth->OutputValue();
-                else {
-                    tv.obj->Realize(); newqs = CV(tv.obj);
+            case auxvar :  // oxwarning("DDP Warning 11.\n  Tracking of auxiliary outcomes still experimental.  It may not work.\n");
+            case idvar  :
+                ptmp = htmp=<>;
+                foreach (q in sind[][k]) {   //for each theta consistent with data
+                    if (Settheta(q)) {
+                        if (tv.type==idvar)
+                            newqs = I::curth->OutputValue();
+                        else {
+                            tv.obj->Realize(); newqs = AV(tv.obj);
+                            }
+                        newp = p[k]*(I::curth.pandv[I::r]);  //state prob. * CCPs
+                        if (isdouble(newqs) || rows(newqs)==1) newp = sumc(newp);
+                        htmp |= newqs;
+                        ptmp |= newp;
+                        }
+                    else
+                        oxwarning("unreachable "+sprint(q)+" "+sprint(p[k]));
                     }
-                newp = p[k]*(I::curth.pandv[0]);  //state prob. * CCPs
-                if (isdouble(newqs) || rows(newqs)==1) newp = sumc(newp);
-                htmp |= newqs;
-                ptmp |= newp;
-                }
-            predmom ~= tv->Distribution(htmp,ptmp);
+                predmom ~= tv->Distribution(htmp,ptmp);
+                break;
+            }
+            if (printit) tv->print();
         }
-    if (printit) tv->print();
+    return t~predmom;
 	}
 
 Prediction::Delta(mask) {
@@ -1172,7 +1186,8 @@ ObjToTrack::print() {
     }
 
 /** Objects to track mean values over the path.
-@param LorC  UseLabel: use object label to match to column.<br>NotInData [default] unmatched to data.<br>integer: column in data set<br>string: column label
+@param LorC  UseLabel: use object label to match to column.<br>NotInData unmatched to data.<br>integer: column in data set<br>string: column label
+        <br>TrackAll : track all actions, endogenous states and auxiliaries
 @param mom1 `Discrete` object or array or objects to track
 @param ... more objects or arrays of objects
 
@@ -1181,15 +1196,21 @@ This routine can be called more than once, but once `PanelPrediction::Predict`()
 more objects can be added to the list.
 
 **/
-PathPrediction::Tracking(LorC,mom1,...) {
+PathPrediction::Tracking(LorC,...) {
     if (Nt!=UnInitialized) {
         oxwarning("DDP Warning 12.\n Do not add to tracking list after predictions made ... ignored\n");
         return;
         }
-    decl v,args =  isarray(mom1) ? mom1 : {mom1};
-    args |= va_arglist();
-    if (sizeof(args)>1 && (isstring(LorC) || LorC>UseLabel) )
-        oxrunerror("DDP Error 65. Can't track with column matching more than one object at a time.  Send separately");
+    decl v,args;
+    if (LorC==TrackAll) {
+        println("Tracking all actions, endogenous state and auxiliary variables");
+        args = SubVectors[acts]|SubVectors[endog]|Chi;
+        }
+    else {
+        args = va_arglist();
+        if (sizeof(args)>1 && (isstring(LorC) || LorC>UseLabel) )
+            oxrunerror("DDP Error 65. Can't track with column matching more than one object at a time.  Send separately");
+        }
     foreach(v in args) {
         if (isarray(v)) Tracking(LorC,v);
         else {
@@ -1284,9 +1305,7 @@ PathPrediction::PathObjective() {
   cur=this;
   decl flat = <>, delt =<>, v;
   do {
-     cur.predmom=<>;
-     foreach(v in tlist ) cur->Prediction::Histogram(v,FALSE);  //CV(prntlevel,cur)==One
-     flat |= cur.t~cur.predmom;
+     flat |= cur -> Prediction::Histogram(tlist,FALSE);  //CV(prntlevel,cur)==One
      delt |= cur->Delta(mask);
   	 }  while (( isclass(cur = cur.pnext,"Prediction") ));
   L = rows(delt) ? norm(delt,'F'): .NaN;
@@ -1327,13 +1346,12 @@ PanelPrediction::Histogram(printit) {
 */
 
 /** Set an object to be tracked in predictions.
-@param LorC  UseLabel: use object label to match to column.<br>NotInData [default] unmatched to data.<br>integer: column in data set<br>string: column label
-@param mom  object or array of objects to be tracked
-@param ... further objects
+@param LorC  UseLabel: use object label to match to column.<br>NotInData unmatched to data.<br>integer: column in data set<br>string: column label
+<br>TrackAll: add all actions, endogenous states, and auxliaries to the tracking list
+@param ... objects or arrays of objects to be tracked
 **/
-PanelPrediction::Tracking(LorC,mom,...) {
-    decl v,args =  isarray(mom) ? mom : {mom};
-    args |= va_arglist();
+PanelPrediction::Tracking(LorC,...) {
+    decl v,args=va_arglist();
     cur=this;
     do {
         cur->PathPrediction::Tracking(LorC,args);

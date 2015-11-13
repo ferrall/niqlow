@@ -530,7 +530,7 @@ Alpha::Aprint() {
 		println(av);
         print("-----------------"); for (i=0;i<N::J;++i) print("---------");
         println("\n    Key: X = row vector is feasible. - = infeasible");
-        if (totalnever) println("    Actiouns vectors not shown because they are never feasible: ",totalnever);
+        if (totalnever) println("    # of Action vectors not shown because they are never feasible: ",totalnever);
         println("\n");
     }
 
@@ -566,7 +566,7 @@ N::Initialize() {
     G = DP::SS[bothgroup].size;
 	R = DP::SS[onlyrand].size;
     DynR = DP::SS[onlydynrand].size;
-println(" NNN  ",DP::SS[onlyrand].size);
+//println(" NNN  ",DP::SS[onlyrand].size);
 	F = DP::SS[onlyfixed].size;
     Ewidth= DP::SS[onlyexog].size;
 	A = rows(Alpha::Matrix);
@@ -912,6 +912,12 @@ DP::CreateSpaces() {
 	if (Volume>SILENT)	{		
         N::print();
         Alpha::Aprint();
+        if (N::aux) {
+            println("\n7. AUXILIARY OUTCOMES\n ");
+            decl ax ;
+            foreach(ax in Chi) println("      ",ax.L," Columns=",ax.N);
+            println("\n\n");
+            }
 		}
     if (Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
 	ETT = new EndogTrans();

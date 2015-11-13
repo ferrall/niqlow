@@ -508,6 +508,7 @@ is marked unreachable.   Set <code>Prune=FALSE</code> to not prune these unreach
 @see LaggedState, DP::KLaggedAction
 **/
 struct LaggedAction : Lagged	{
+    decl acol, nxtv;
 	LaggedAction(L,Target,Prune=TRUE,Order=1);
 	virtual Transit(FeasA);
 	}

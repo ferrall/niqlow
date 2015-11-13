@@ -267,7 +267,7 @@ struct 	PathPrediction : Prediction {
 	Predict(printit=FALSE);
     SetT(T);
     Empirical(inmoments);
-    Tracking(LorC,mom1,...);
+    Tracking(LorC,...);
     SetColumns(dlabels);
 //	Histogram(printit=TRUE);
     PathObjective();
@@ -288,7 +288,7 @@ struct PanelPrediction : PathPrediction {
     Objective();
     Predict(T=0,printit=FALSE);
     GMMdistance();
-    Tracking(LorC,mom,...);
+    Tracking(LorC,...);
     }
 
 /** Stores data read in as moments and associate them with a panel of predictions.

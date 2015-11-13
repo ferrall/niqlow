@@ -10,7 +10,7 @@ the outcome and read in along with other data.
 **/
 struct AuxiliaryValues : Quantity {
     const decl N;
-	AuxiliaryValues(L="",N=1);
+	AuxiliaryValues(L="Aux",N=1);
 	virtual Realize(y=0);
 	}
 

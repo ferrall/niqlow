@@ -349,23 +349,29 @@ Bellman::Predict(ps,tod) {
 	decl lo,hi,nnew, mynxt,eta,
 		tom = tod.pnext,
 		width = SS[onlyexog].size,
-		Pa = ExpandP(I::r);		
-	tod.ch += ps*Pa;
+		Pa;		
+	tod.ch += ps*ExpandP(I::r);
 	hi = -1;
-    decl d = 0.0;
+//    decl d = 0.0;
     for (eta=0;eta<SS[onlysemiexog].size;++eta) if (sizerc(Nxt[Qtr][eta])) {
 		  lo = hi+1;
 		  hi += width;
 		  Pa = (pandv[I::r][][lo:hi]*NxtExog[Qprob][lo:hi])';
           if (isclass(tom)) {  // added check July 2015.
 		      tom.sind ~= exclusion(Nxt[Qtr][eta],tom.sind);
-		      if (nnew = columns(tom.sind)-columns(tom.p)) tom.p ~= zeros(1,nnew);
+		      if (nnew = columns(tom.sind)-columns(tom.p)) {
+                    tom.p ~= zeros(1,nnew);
+                    }
 		      intersection(tom.sind,Nxt[Qtr][eta],&mynxt);
 		      tom.p[mynxt[0][]] += ps*Pa*Nxt[Qrho+I::rtran][eta][][mynxt[1][]];
               }
-          d += sumr(Pa*Nxt[Qrho+I::rtran][eta]);
+//          d += sumr(Pa*Nxt[Qrho+I::rtran][eta]);
 		  }
-
+    if (isclass(tom)) {
+        nnew = tom.p.==0.0;
+        tom.p = deleteifc(tom.p,nnew);
+        tom.sind = deleteifc(tom.sind,nnew);
+        }
 	}
 
 /**Simulate the choice and next states from the current exogenous and endogenous state.

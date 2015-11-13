@@ -7,7 +7,7 @@
 	/** Pseudonyms for -1. @name Names_for_-1 **/
 enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1}
     /** Used in tracking outcomes. @name NiD **/
-enum { NotInData=-2 }
+enum { NotInData=-2,TrackAll=-3 }
 
 	/** Pseudonyms for 0,1,2. @name Names_for_012 **/
 enum {Zero,One,Two}

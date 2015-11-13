@@ -358,9 +358,8 @@ Forget::Forget(b,pstate,rval) {
     }
 
 Forget::Transit(FeasA) {
-    if (!CV(pstate)) return ActionTriggered::Transit(FeasA);
-    Synch();
-    return {matrix(rval),ones(rows(FeasA),1)};
+    basetr = ActionTriggered::Transit(FeasA);
+    return CV(pstate)?  {matrix(rval),ones(rows(FeasA),1)} : basetr;
     }
 
 /**  Trimsthe state space of values that can't be reached because they are forgotten.
@@ -657,8 +656,9 @@ LaggedAction::LaggedAction(L,Target,Prune,Order)	{
 /** .
 **/
 LaggedAction::Transit(FeasA)	{
-	decl v=unique(ca(FeasA,Target));
-	return {v, ca(FeasA,Target).==v };
+    acol=ca(FeasA,Target);
+    nxtv =unique(acol);
+	return {nxtv, ca(FeasA,Target).==nxtv };
 	}
 
 /**  Record the value of an action variable at a given time.
