@@ -907,25 +907,22 @@ call this routine.
 Prediction::Predict(tlist) {
 	decl s,qi,q,pp,unrch,allterm=TRUE;
     state = zeros(N::All);
-    //if (Volume>LOUD) {
     pp = 0.0; unrch = <>;
-    //}
     foreach (q in sind[s]) {
-        qi = ReverseState(q,I::OO[tracking][])[lo:hi];
         if (Settheta(q)) {
-            state[lo:hi] = qi;
-            I::all[tracking] = I::OO[tracking][]*state;
+            state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
+            I::all[tracking] = q; // I::OO[tracking][]*state;
             SyncStates(lo,hi);
             I::curth->Predict(p[s],this);
             allterm *= I::curth.IsTerminal || I::curth.IsLast;
             }
         else {
-        pp += p[s]; unrch |= qi' ;
-        print(" t ",t," ",q," ",p[s],"%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],qi');
+            qi = ReverseState(q,I::OO[tracking][])[lo:hi];
+            pp += p[s]; unrch |= qi' ;
+//            fprintln(logf," t ",t," ",q," ",p[s],"%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],qi');
+            }
         }
-        }
-    if ( //Volume>LOUD &&
-        !isfeq(pp,0.0)) {
+    if ( Volume>LOUD && !isfeq(pp,0.0)) {
         fprintln(logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
         oxwarning("DDP Warning ??. Leakage in transition probability.  See log file");
         }
@@ -965,7 +962,7 @@ PathPrediction::SetT(T) {
             cur.pnext = new Prediction(cur.t+1);
         }
      else {
-        if (T && cur.pnext>=this.T)  {    //fixed panel shorter than existing
+        if (T && cur.pnext.t>=this.T)  {    //fixed panel shorter than existing
             tmp = cur.pnext;
             cur.pnext = cur.pnext.pnext;
             delete tmp;
@@ -999,7 +996,7 @@ PathPrediction::Predict(prtlevel){
      cur.predmom=<>;
      done =    cur->Prediction::Predict(tlist)          //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
-     if (prtlevel==One) println(cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
+     if (prtlevel==One) fprintln(logf,cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
 	 if (!done && !isclass(cur.pnext)) // no tomorrow after current
                 cur.pnext = new Prediction(cur.t+1);
      flat |= cur.t~cur.predmom;
@@ -1131,7 +1128,7 @@ Prediction::Histogram(tlist,printit) {
                         ptmp |= newp;
                         }
                     else
-                        oxwarning("unreachable "+sprint(q)+" "+sprint(p[k]));
+                        fprintln(logf,"Histogram: unreachable ","%i",q,"%g",p[k]);
                     }
                 predmom ~= tv->Distribution(htmp,ptmp);
                 break;
@@ -1212,7 +1209,10 @@ PathPrediction::Tracking(LorC,...) {
             oxrunerror("DDP Error 65. Can't track with column matching more than one object at a time.  Send separately");
         }
     foreach(v in args) {
-        if (isarray(v)) Tracking(LorC,v);
+        if (isarray(v)) {
+            decl w;
+            foreach(w in v) Tracking(LorC,w);
+            }
         else {
             tlist |= new ObjToTrack(LorC,v);
             tlabels |= tlist[sizeof(tlist)-1].L;
@@ -1329,21 +1329,6 @@ $$M = -\sqrt{ \sum_{n} dist(emp_n,pred_n)}$$
 PanelPrediction::Objective() {
     Predict();
     }
-
-/*
-PanelPrediction::Histogram(printit) {
-    decl cur=this;
-    aflat = {};
-    do {
-        cur->PathPrediction::Histogram(FALSE);
-	    aflat |= cur.flat;
-        } while((isclass(cur=cur.fnext)));
-    if (printit) {
-        decl m;
-        foreach(m in aflat) println("%c",{"f"}|tlabels,m);
-        }
-    }
-*/
 
 /** Set an object to be tracked in predictions.
 @param LorC  UseLabel: use object label to match to column.<br>NotInData unmatched to data.<br>integer: column in data set<br>string: column label

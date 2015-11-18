@@ -4,14 +4,14 @@
 /** .
 @internal
 **/
-Separable::Print(orig){
-	decl b;
-	println("\n\nReport of ",orig," on ",L,"\n",
+Separable::Print(orig,fn){
+	decl b=sprint("\n\nReport of ",orig," on ",L,"\n",
 		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
 		"Free Parameters",
 		"%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~cur.F,
 		"Actual Parameters",
 		"%c",KL,"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
+    if (isfile(fn)) fprintln(fn,b); else println(b);
     }
 	
 
@@ -301,14 +301,14 @@ Mixture::Mixture(L,Dvar,Kvar,MixType,...) {
 /** .
 @internal
 **/
-Mixture::Print(orig){
-	decl b;
-	println("\n\nReport of ",orig," on ",L,"\n"," Not finished ..");
+Mixture::Print(orig,fn){
+	decl b=sprint("\n\nReport of ",orig," on ",L,"\n"," Not finished ..");
 //		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
 //		"Free Parameters",
 //		"%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~cur.F,
 //		"Actual Parameters",
 //		"%c",KL,"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
+    if (isfile(fn)) fprintln(fn,b); else println(b);
     }
 	
 

@@ -415,7 +415,6 @@ Bellman::aa(av) {
 /** .	  @internal **/
 Bellman::~Bellman() {	delete U, pandv, Nxt; 	}
 
-
 /** Delete the current DP model and reset.
 Since static variables are used, only one DP model can be stored at one time.
 

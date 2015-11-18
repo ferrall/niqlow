@@ -1,12 +1,12 @@
 #include "DDPShared.h"
 
 /** Return the column of feasible action matrix for the action variable.
-@param A matrix of feasible actions
+@param A matrix of feasible actions<br>integer: index into list of feasible action matrices.
 @param act `ActionVariable`
 @return A[][act.pos]
 @see `Bellman::aa`
 **/
-ca(A,act) { return A[][act.pos]; }
+ca(A,act) { return isint(A) ? Alpha::List[A][][act.pos] : A[][act.pos]; }
 
 NormalizeActual(v,MaxV) {
     if (!TypeCheck(v,"Discrete",FALSE,"DDP Warning ??.\n Object is not Discrete.  Doing nothing")) return;

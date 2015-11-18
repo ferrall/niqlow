@@ -148,14 +148,14 @@ Constrained::CheckPoint(f,saving)	{
 /** If <code>cur.v &gt; maxpt.v</code> call `Objective::Save` and update <code>maxpt</code>.
 @return TRUE if maxval was updated<br>FALSE otherwise.
 **/
-Objective::CheckMax()	{
-		if (Volume>LOUD) print(" ","%15.8f",cur.v);
+Objective::CheckMax(fn)	{
+		if (Volume>LOUD) { print(" ","%15.8f",cur.v); if (isfile(fn)) fprint(fn," ","%15.8f",cur.v); }
 		if (cur.v>maxpt.v)	{
 			this->Save(0);
 			maxpt -> Copy(cur);
 			if (Volume>QUIET) {
 				if (Volume<=LOUD) print(" ","%18.12f",maxpt.v);
-				println("*");
+				println("*"); if (isfile(fn)) fprintln(fn,"*");
 				}
 			return TRUE;
 			}
@@ -166,15 +166,15 @@ Objective::CheckMax()	{
 /** .
 @internal
 **/
-Objective::Print(orig){
-	decl b;
-	println("\n\nReport of ",orig," on ",L,"\n",
+Objective::Print(orig,fn){
+	decl b =sprint("\n\nReport of ",orig," on ",L,"\n",
 		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
 		"Free Parameters",
 		"%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},
 		FinX~cur.F,
 		"Actual Parameters",
 		"%c",{           "     Value "},"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
+    if (isfile(fn)) fprintln(fn,b); else println(b);
 	}
 
 UnConstrained::UnConstrained(L) {

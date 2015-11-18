@@ -12,6 +12,8 @@ struct Algorithm {
 	 		const 	decl
 //     /** . @internal **/                                    curpt,
 //	 /** . @internal **/									hold,
+     /** name of log file **/                               lognm,
+     /** log file **/                                       logf,
 	 /** User's objective. **/								O,
 	 /** objective's pt. @internal **/						OC;
     				decl

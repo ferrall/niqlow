@@ -4,6 +4,8 @@
 		/** . elements of array returned by `StateVariable::Transit` @name TransOutput **/
 enum {Qind,Qprob,TransOutput}
 
+static StripZeros(trans);
+
 /**Base Class for elements of state vectors, &epsilon;, &eta;, &theta;, &gamma; .
 
 @see DP::ExogenousStates, DP::EndogenousStates, DP::SemiExogenousStates, StateBlock
@@ -935,14 +937,27 @@ struct Tauchen : Random {
 **/
 struct Asset : Random {
 	const decl
-    /** `AV`-compatible static function or `ActionVariable`. **/     NetSavings,
-                                                                     isact,
     /** `AV`-compatible object, interest rate on current holding.**/ r;
     /** @internal **/
         decl atom, top, bot, mid, all, tprob, bprob;
-	Asset(L,N,r,NetSavings);
-	virtual Transit(FeasA);
+	Asset(L,N,r);
+	virtual Transit(pdelt);
 	}
+
+struct FixedAsset : Asset {
+	const decl
+    /** `ActionVariable`. **/     delta;
+    FixedAsset(L,N,r,delta);
+    Transit(FeasA);
+    }
+
+struct LiquidAsset : Asset {
+	const decl
+    /** `AV`-compatible static function or `ActionVariable`. **/     NetSavings,
+                                                                     isact;
+    LiquidAsset(L,N,NetSavings);
+    Transit(FeasA);
+    }
 
 /** A discretized version of a continous &zeta; value that enters the endogenous vector &theta; depending
 on reservation values to keep it.  A kept random discrete version of &zeta; enters the state as this

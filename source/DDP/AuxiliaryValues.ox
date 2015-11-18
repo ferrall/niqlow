@@ -15,10 +15,10 @@ AuxiliaryValues::AuxiliaryValues(L,N) {
 	v = constant(.NaN,1,N);
 	}
 
-/** Default realized auxililary variable, sets <code>v=0.0</code>.
+/** Default realized auxililary variable, sets <code>v=1.0</code>.
 @param y, the current realized outcome, &upsilon;.
 **/	
-AuxiliaryValues::Realize(y) {	v[] = 0.0; }
+AuxiliaryValues::Realize(y) {	v[] = 1.0; }
 
 /** Create a new &zeta;, the vector-valued realized shock vector.
 @param length integer, length of the (row) vector.

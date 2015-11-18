@@ -53,8 +53,8 @@ struct Objective	{
 	static	ToggleParameterConstraint();
     static  SetVersion(v=200);
 			
-	virtual	CheckMax();
-	virtual Print(orig);
+	virtual	CheckMax(fn=0);
+	virtual Print(orig,fn=0);
 	virtual	CheckPoint(f,saving);
 	virtual Parameters(psi, ... );			
 	virtual Block(B);

@@ -1,6 +1,14 @@
 #include "StateVariable.h"
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
+StripZeros(trans) {
+    decl allz = sumc(trans[1]).==0;
+    if (any(allz)) {
+        return {deleteifc(trans[0],allz),deleteifc(trans[1],allz)};
+        }
+    return trans;
+    }
+
 /**The base for state variables.
 @param N <em>positive integer</em> the number of values the variable takes on.<br>N=1 is a constant, which can be included as
 a placeholder for extensions of a model.
@@ -143,12 +151,8 @@ RandomSpell::Transit(FeasA) {
         pbend = AV(ProbEnd);
         return { vals, reshape( pbend~(1-pbend),rows(FeasA),Two) };
         }
-    if (isclass(Start),"ActionVariable") {
-        pbstart = ca(FeasA,Start);
-        return { vals, (1-pbstart)~pbstart };
-        }
-    else
-        return { matrix(CV(Start)) , ones(rows(FeasA),1) };
+    pbstart = isclass(Start,"ActionVariable") ? ca(FeasA,Start) : Start(FeasA);
+    return StripZeros({ vals, (1-pbstart)~pbstart });
     }
 
 /** Synchronize base state variable value with current value.
@@ -379,11 +383,11 @@ Forget::IsReachable() {
 ForgetAtT::ForgetAtT(b,T) {
     this.T = T;
     Prune = TRUE;
-    Triggered(b,T);  //[=](){return I::t==T;}
+    Triggered(b,0);  //[=](){return I::t==T;}
     }
 ForgetAtT::Transit(FeasA) {
     Augmented::Transit(FeasA);
-    if ( I::t>=T ) return { matrix(rval), ones(rows(FeasA),1) };
+    if ( I::t>=T-1 ) return { matrix(rval), ones(rows(FeasA),1) };
     return basetr;
     }
 ForgetAtT::IsReachable() {
@@ -1179,20 +1183,47 @@ Tauchen::Update() {
 @param L label
 @param N number of values
 @param r `AV`-compatible object, interest rate on current holding.
+@see Discretized
+**/
+Asset::Asset(L,N,r){
+	StateVariable(L,N);
+    this.r = r;
+	}
+
+/**Create a new FIXED asset state variable.
+@param L label
+@param N number of values
+@param r `AV`-compatible object, interest rate on current holding.
+@param delta `ActionVariable`
+@see Discretized
+**/
+FixedAsset::FixedAsset(L,N,r,delta){
+	Asset(L,N,r);
+    this.delta = delta;
+    TypeCheck(delta,"ActionVariable");
+	}
+
+/**Create a new LIQUID asset state variable.
+@param L label
+@param N number of values
 @param NetSavings `AV`-compatible static function of the form <code>NetSavings(FeasA)</code><br><em>or</em>`ActionVariable`
 @see Discretized
 **/
-Asset::Asset(L,N,r,NetSavings){
-	StateVariable(L,N);
-    this.r = r;
+LiquidAsset::LiquidAsset(L,N,NetSavings){
+	Asset(L,N,0.0);
     this.NetSavings = NetSavings;
     isact = isclass(NetSavings,"ActionVariable");
 	}
 
+FixedAsset::Transit(FeasA) { return Asset::Transit(actual[v] + delta.actual[ca(FeasA,delta)]); }
+
+LiquidAsset::Transit(FeasA) {
+    return Asset::Transit(isact ? NetSavings.actual[ca(FeasA,NetSavings)] : AV(NetSavings,FeasA));
+    }
 /**
 **/
-Asset::Transit(FeasA) {
-     atom = setbounds( AV(r)*actual[v]+(isact ? NetSavings.actual[ca(FeasA,NetSavings)] : AV(NetSavings,FeasA)) , actual[0], actual[N-1] )';
+Asset::Transit(pdelt) {
+     atom = setbounds( AV(r)*actual[v]+pdelt , actual[0], actual[N-1] )';
      top = mincindex( (atom-DIFF_EPS.>actual) )';
      bot = setbounds(top-1,0,.Inf);
      mid = (actual[top]-actual[bot]);

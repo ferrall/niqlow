@@ -643,7 +643,8 @@ DP::Initialize(userState,UseStateList) {
     Version::Check();
     TypeCheck(userState,"Bellman","DDP Error 05.  You must send an object of your Bellman-derived class to Initialize.  For example,\n Initialize(new MyModel()); \n");
     if (Flags::ThetaCreated) oxrunerror("DDP Error 42. Must call DP::Delete between calls to CreateSpaces and Initialize");
-    lognm = "DDP"+date()+replace(time(),":","-")+".log";
+    if (isint(L)) L = "DDP";
+    lognm = L+date()+replace(time(),":","-")+".log";
     logf = fopen(lognm,"aV");
     Hooks::Reset();
     this.userState = userState;
@@ -835,7 +836,7 @@ DP::CreateSpaces() {
     SS[onlydynrand] ->Dimensions(<rgroup>,FALSE,Flags::UpdateTime[AfterRandom]);
 	SS[onlyfixed]	->Dimensions(<fgroup>,FALSE);
 	SS[bothgroup]	->Dimensions(<rgroup;fgroup>,FALSE);
-	SS[allstates]	->Dimensions(<exog;semiexog;endog;clock;rgroup;fgroup>,FALSE);
+	SS[allstates]	->Dimensions(<exog;semiexog;endog;clock;rgroup;fgroup>,FALSE,TRUE);
     N::Initialize();
     Alpha::Initialize();
 	if (Flags::UseStateList) {
@@ -887,16 +888,27 @@ DP::CreateSpaces() {
         N::Sizes();
         }
     else {
-	   tt = new FindReachables();
-	   tt->loop(TRUE);
-       if (Volume>LOUD) {
-            println("Note: Reachability of all states listed in the log file");
-            fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
+       decl INf , inI = new I(), inN = new N();
+       if (Flags::ReadIN) {
+           INf = fopen(L+".dim","rV");
+           fscan(INf,"%v",&inI,"%v",&inN);
+           }
+       else {
+	       tt = new FindReachables();
+	       tt->loop(TRUE);
+           if (Volume>LOUD) {
+                println("Note: Reachability of all states listed in the log file");
+                fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
                           "1=Unreacheable because a user Reachable returns FALSE\n",
                           "2=Reachable",
                 "%8.0f","%c",{"Reachble"}|{"Tracking"}|Labels::Vprt[svar][S[endog].M:S[clock].M],tt.rchable);
+                }
+            delete tt;
+            INf = fopen(L+".dim","wV");
+            fprint(INf,"%v",&inI,"%v",&inN);
             }
-       delete tt;
+       fclose(INf);
+       delete inI, inN;
        N::Sizes();
        tt = new CreateTheta();
        tt->loop(TRUE);

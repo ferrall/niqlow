@@ -209,6 +209,8 @@ A user's code can reference these variables but should never change them.
 **/
 struct Flags : DDPauxiliary {
 	static decl
+        /** Read I and N objects from .dim file (avoids one span of
+            the state space to find reachable indices. **/      ReadIN,
         /** TRUE if clock is finite horizon so automatic pruning
             can apply.**/                                       Prunable,
         /** Do not create &Theta;, but do everything else. **/  onlyDryRun,

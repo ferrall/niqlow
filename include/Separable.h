@@ -28,7 +28,7 @@ struct Separable : UnConstrained	{
 			kEncode(notmulti);
 	virtual	Deconstruct(eval) ;
 			ResetCommon(hold);
-	virtual Print(orig);
+	virtual Print(orig,fn=0);
 //	virtual	CheckPoint(f,saving);
 	virtual	Common(psi, ... );	
 	virtual vfunc();						   			
@@ -62,7 +62,7 @@ struct Mixture : Separable {
 			WDecode(WF);
 			WEncode(inW);
 			IncludedDK(mDK);
-			Print(orig);
+			Print(orig,fn=0);
 	virtual	vfunc();
 			fobj(f);
 	virtual	Deconstruct(eval) ;
