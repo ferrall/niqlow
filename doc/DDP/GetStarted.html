@@ -264,7 +264,7 @@ struct DerivedSearch : Search {
 <P/>
 <li>Auxiliary Values</li>
 <P/>
-<DT>Realized utility is recorded as an AuxiliaryValues.  </DT>
+<DT>Realized utility is recorded as an <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>.  </DT>
 <DD>Typically a user would have to derive a new class to track the outcome of interest, but realized utility is a built-in class.  Here is the code that generates
 <DD><pre>
 struct RealizedUtility : AuxiliaryValues {
@@ -282,7 +282,7 @@ RealizedUtility::Realize(y) {
 <DT>Auxiliary values need to provide a <code>Realize()</code> function</DT>
 <DD><code>Realize</code> will be called only when simulating data (or in econometric estimation that involves matching predicted outcomes). </DD>
 <DD>Its first argument is the realized point in the state space (&theta;).  The second is the current realized outcome (&upsilon;).  This allows the auxiliary variable to access everything else.</DD>
-<DD>Since AuxiliaryValues is derived from <a href="Shared.ox.html#Quantity">Quantity</a> it has a current member, <code>v</code>.  The job of <code>Realize()</code> is to set <code>v</code> for other aspects of the code to use.  In this case, the auxiliary outcome calls <code>Utility()</code> and extracts the element of the vector returned that corresponds to the realized action.  </DD>
+<DD>Since <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> is derived from <a href="Shared.ox.html#Quantity">Quantity</a> it has a current member, <code>v</code>.  The job of <code>Realize()</code> is to set <code>v</code> for other aspects of the code to use.  In this case, the auxiliary outcome calls <code>Utility()</code> and extracts the element of the vector returned that corresponds to the realized action.  </DD>
 <DD>By using a virtual method <code>Realize</code>, the base <span class="n">DDP</span> code can update your auxiliary variables for you without knowing ahead of time what those variables are. </DD>
 <DD>Also note that an auxiliary value can be sent to <a href="Shared.ox.html#CV">CV</a>() after the call to <code>Realize()</code>.  For example, here <code>CV(u)</code> will return the realized value of utility of the current outcome.   So it is straightforward to build auxiliary variables into econometric objectives, equilibrium conditions, etc.</DD>
 <P/>

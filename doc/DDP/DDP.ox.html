@@ -429,7 +429,7 @@ MyModel::Initialize() {
 <DD>A generic state variable that is not associated with a particular vector is denoted <code>s</code>.</DD>
 <P/>
 <details class="aside"><summary>Placeholder state variables</summary>
-<DD>Any of the state vectors may be empty in <code>MyModel</code> except &theta; which always has a Clock.</DD>
+<DD>Any of the state vectors may be empty in <code>MyModel</code> except &theta; which always has a <a href="Variables.ox.html#Clock">Clock</a>.</DD>
 <DD>If a vector is empty in <code>MyModel</code> then <span class="n">DDP</span> places a special <a href="Variables.ox.html#Fixed">Fixed</a> state variable that takes on only the value 0.  This has no effect on the size of the state space but it greatly simplifies the internal coding of algorithms.</DD>
 <DD>These placeholders simplify the internal coding of the problem greatly and do nothing to expand the state space.  They do appear in output so they take up some space on the screen.</DD>
 </details>
@@ -443,7 +443,7 @@ MyModel::Initialize() {
 <DT>Like any DDP model &theta; is a semi-Markov process in which the transition to &theta;' depends potentially on all current state variables and the action <code>&alpha;</code>.  </DT>
 <P/>
 <DD>The other state vectors separate out variables which evolve in a simpler or more restrictive way.</DD>
-<DD>&theta; always contains a single <a href="Variables.ox.html#StateBlock">StateBlock</a> derived from Clock.  See <a href="#clock">Clock Block</a> below.</DD>
+<DD>&theta; always contains a single <a href="Variables.ox.html#StateBlock">StateBlock</a> derived from <a href="Variables.ox.html#Clock">Clock</a>.  See <a href="#clock">Clock Block</a> below.</DD>
 <P/>
 <LI>&eta;: Semi-Exogenous state vector</LI>
 <DT>A place for restricted endogenous variables. Their transition probabilities must be independent of all other variables.</DT>
@@ -577,7 +577,7 @@ of the class <code>MyModel</code>. Storing a 0 for unreachable states still requ
 <DD>Above it was emphasized that reachability depends on the whole model, but including some kinds of state variables in your model will generate unreachable states in non-stationary environments (such as a finite decision horizon).</DD>
 <DD>As an example, a <a href="Variables.ox.html#Counter">Counter</a> state variable counts how many times an action or state has occurred in the past.  If the counter starts at 0 in a finite horizon model then the only reachable states are ones in which this state variable's current value is less than or
 equal to the value of the clock, <a href="DDPShared.ox.html#I___t">t</a>.  This is true regardless on other state variables added to the model, which actions are feasible, etc.  It depends solely on the clock type, initial conditions and the presence of this variable in the model. </DD>
-<DD>So some trimming of the state space can be done automatically based on state variables in in the endogenous vector <em>and</em> the model's Clock block.  By design, state variable objects do not know directly about the model's clock, because all the discrete variable classes are defined and used by the <a href="DP.ox.html#DP">DP</a> class.  So checking for reachable requires sending the clock to the state variable.</DD>
+<DD>So some trimming of the state space can be done automatically based on state variables in in the endogenous vector <em>and</em> the model's <a href="Variables.ox.html#Clock">Clock</a> block.  By design, state variable objects do not know directly about the model's clock, because all the discrete variable classes are defined and used by the <a href="DP.ox.html#DP">DP</a> class.  So checking for reachable requires sending the clock to the state variable.</DD>
 <DD>The <a href="Variables.ox.html#StateVariable">StateVariable</a> class includes a virtual method named <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>() which takes a single argument that will be the model's clock block.  The default function return <code>TRUE</code>.  That is, by default, no state variable says a point in the state space is unreachable.  However, some kinds of state variables that do generate unreachable states (such as counters) will supply a replacement copy of <code>IsReachable()</code>.  </DD>
 <DD>At each <em>possible</em> state in the space &Omega; <code>CreateSpaces</code> will call <code>IsRechable()</code> for each state variable in the endogenous state vector &theta;. If any of them return <code>FALSE</code> that point is marked as unreachable. (This can be turned off when creating the state variable using the optional <code>Prune</code> argument.</DD>
 <DD>If no state variables claim the current state is inherently unreachable then the user supplied method is called ...</DD>

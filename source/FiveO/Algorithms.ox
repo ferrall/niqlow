@@ -85,10 +85,10 @@ SimulatedAnnealing::Metropolis()	{
 	decl jm=-1, j, diff;
     for(j=0;j<M;++j) {
         diff = vtries[j]-holdpt.v;
-	    if (Volume==LOUD) fprintln(logf,iter~vtries[j]~(vec(tries[][j])'));
+	    if (Volume>=LOUD) fprintln(logf,iter~vtries[j]~(vec(tries[][j])'));
 	    if ( (diff> 0.0) || ranu(1,1) < exp(diff/heat))	{
              jm = j;
-             holdpt.v = vtries[j];
+             holdpt.v = vtries[jm];
              holdpt.step = tries[][jm];
              ++accept;
 			 }
@@ -96,11 +96,12 @@ SimulatedAnnealing::Metropolis()	{
     if (accept>=N) {
 		heat *= cooling;  //cool off annealing
 	    chol *= shrinkage; //shrink
-		if (Volume>QUIET) println("Cool Down ",iter,". f=",vtries[j]," heat=",heat);
+		if (Volume>QUIET) println("Cool Down ",iter,". f=",vtries[jm]," heat=",heat);
 		accept = 0;
         }
 	OC.v = holdpt.v;
     OC.F = holdpt.step;
+    O->Save();
 	}
 
 /** Carry out annealing.

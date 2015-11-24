@@ -205,7 +205,8 @@ struct DataSet : Panel {
 **/
 struct ObjToTrack : Zauxiliary {
     const decl
-    /** See `DataColumnTypes` **/     type,
+    /** See `DataColumnTypes` **/       type,
+    /** Position in the flat list  **/  pos,
     /** `Discrete` object**/            obj,
     /** label  **/                      L,
     /** column label of index **/     LorC;
@@ -217,7 +218,7 @@ struct ObjToTrack : Zauxiliary {
     /** **/     hvals,
     /** **/     mean,
     /** **/     sqmean;
-    ObjToTrack(obj,LorC);
+    ObjToTrack(obj,LorC,pos);
     Distribution(htmp=0,ptmp=0);
     print();
     }

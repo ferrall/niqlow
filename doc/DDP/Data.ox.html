@@ -1826,7 +1826,7 @@ Identify a variable with a data column.
 <tr>
 <td class="declaration" valign="baseline">aORs</td>
 <td class="description" valign="baseline"> Either an <a href="Variables.ox.html#ActionVariable">ActionVariable</a>, element of &alpha;, or a <a href="Variables.ox.html#StateVariable">StateVariable</a>, element of
-			one of the state vectors, or a AuxiliaryValues, element of &chi;<br>
+			one of the state vectors, or a <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>, element of &chi;<br>
             <em>OR<em><br>
 </td>
 </tr>
@@ -1854,7 +1854,7 @@ Mark actions and state variables as observed in data, matched with their interna
 <tr>
 <td class="declaration" valign="baseline">aORs</td>
 <td class="description" valign="baseline"> Either an <a href="Variables.ox.html#ActionVariable">ActionVariable</a>, element of &alpha;, or a <a href="Variables.ox.html#StateVariable">StateVariable</a>, element of
-			one of the state vectors, or a AuxiliaryValues, element of &chi;<br>
+			one of the state vectors, or a <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>, element of &chi;<br>
             <em>OR<em><br>
             array of the form {v1,v2,&hellip;}.  In this case all other arguments are ignored.<br>
 </td>
@@ -3269,7 +3269,7 @@ tag for the panel.
 <a name="PanelPrediction___Tracking"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Tracking</span></h3>
 
-<span class="declaration">PanelPrediction :: Tracking ( LorC , mom , ... )</span>
+<span class="declaration">PanelPrediction :: Tracking ( LorC , ... )</span>
 <dl><dd>
 Set an object to be tracked in predictions.
 
@@ -3277,17 +3277,13 @@ Set an object to be tracked in predictions.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">LorC</td>
-<td class="description" valign="baseline"> UseLabel: use object label to match to column.<br>NotInData [default] unmatched to data.<br>integer: column in data set<br>string: column label
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">mom</td>
-<td class="description" valign="baseline"> object or array of objects to be tracked
+<td class="description" valign="baseline"> UseLabel: use object label to match to column.<br>NotInData unmatched to data.<br>integer: column in data set<br>string: column label
+<br>TrackAll: add all actions, endogenous states, and auxliaries to the tracking list
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">...</td>
-<td class="description" valign="baseline">further objects</td>
+<td class="description" valign="baseline">objects or arrays of objects to be tracked</td>
 </tr>
 </table>
 </dd>
@@ -3785,7 +3781,7 @@ list of objects to track.
 <a name="PathPrediction___Tracking"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Tracking</span></h3>
 
-<span class="declaration">PathPrediction :: Tracking ( LorC , mom1 , ... )</span>
+<span class="declaration">PathPrediction :: Tracking ( LorC , ... )</span>
 <dl><dd>
 Objects to track mean values over the path.
 
@@ -3793,7 +3789,8 @@ Objects to track mean values over the path.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">LorC</td>
-<td class="description" valign="baseline"> UseLabel: use object label to match to column.<br>NotInData [default] unmatched to data.<br>integer: column in data set<br>string: column label
+<td class="description" valign="baseline"> UseLabel: use object label to match to column.<br>NotInData unmatched to data.<br>integer: column in data set<br>string: column label
+        <br>TrackAll : track all actions, endogenous states and auxiliaries
 </td>
 </tr>
 <tr>
@@ -3874,15 +3871,15 @@ empirical moment
 <a name="Prediction___Histogram"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Histogram</span></h3>
 
-<span class="declaration">Prediction :: Histogram ( tv , printit )</span>
+<span class="declaration">Prediction :: Histogram ( tlist , printit )</span>
 <dl><dd>
 Compute the histogram of tracked object at the prediction.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
-<td class="declaration" valign="baseline">v</td>
-<td class="description" valign="baseline">tracked object
+<td class="declaration" valign="baseline">tlist</td>
+<td class="description" valign="baseline">array of tracked objects
 </td>
 </tr>
 <tr>

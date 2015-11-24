@@ -68,7 +68,13 @@ Objective::CheckPoint(f,saving) {
 			return FALSE;
 			}
 		if (!sizer(inPsiT)) inPsiT = <-1>;
-		for (k=0,m=0;k<sizeof(Psi);m+=inPsiT[m]==k,++k) Psi[k].DoNotVary = (inPsiT[m]!=k);			
+		for (k=0,m=0;k<sizeof(Psi);++k)  // changed Nov. 2015 to fix bug
+            if (m<sizeof(inPsiT)&& (inPsiT[m]!=k) )
+                Psi[k].DoNotVary = TRUE;
+            else {
+                Psi[k].DoNotVary = FALSE;
+                ++m;
+                }
 		Encode(inX);  //typo found Sept. 2014
 		}
 	}

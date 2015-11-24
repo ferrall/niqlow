@@ -1116,7 +1116,7 @@ Prediction::Histogram(tlist,printit) {
             case idvar  :
                 ptmp = htmp=<>;
                 foreach (q in sind[][k]) {   //for each theta consistent with data
-                    if (Settheta(q)) {
+                    if (Settheta(q)) {  // theta reachable?
                         if (tv.type==idvar)
                             newqs = I::curth->OutputValue();
                         else {
@@ -1127,8 +1127,7 @@ Prediction::Histogram(tlist,printit) {
                         htmp |= newqs;
                         ptmp |= newp;
                         }
-                    else
-                        fprintln(logf,"Histogram: unreachable ","%i",q,"%g",p[k]);
+                    else if (!isfeq(p[k],0.0)) fprintln(logf,"Histogram: unreachable ","%i : %g",double(q),double(p[k]));
                     }
                 predmom ~= tv->Distribution(htmp,ptmp);
                 break;
@@ -1145,12 +1144,13 @@ Prediction::Delta(mask) {
 /** Track an object.
 @param LorC  string, label of column of data to associate with this object.<br>integer, column index to associate
 @param obj `Discrete` object to track
-
+@param pos position in the target list
 @see Discrete, DataColumnTypes
 **/
-ObjToTrack::ObjToTrack(LorC,obj) {
+ObjToTrack::ObjToTrack(LorC,obj,pos) {
   this.obj = obj;
   this.LorC = LorC;
+  this.pos = pos;
   type = isclass(obj,"ActionVariable") ? avar
           : isclass(obj,"StateVariable") ? svar
           : isclass(obj,"AuxiliaryValues")? auxvar
@@ -1214,7 +1214,7 @@ PathPrediction::Tracking(LorC,...) {
             foreach(w in v) Tracking(LorC,w);
             }
         else {
-            tlist |= new ObjToTrack(LorC,v);
+            tlist |= new ObjToTrack(LorC,v,sizeof(tlist));
             tlabels |= tlist[sizeof(tlist)-1].L;
             }
         }

@@ -112,9 +112,9 @@ Group::Reset() {
 DP::SetVersion(v) {
     MyVersion = v;
     if (MyVersion<Version::version)
-        oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running it a newer niqlow version, "+sprint(Version::version)+".\n");
+        oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running on a newer niqlow version, "+sprint(Version::version)+".\n");
     if (MyVersion>Version::version)
-        oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running it an older niqlow version, "+sprint(Version::version)+".\n You should consider installing a newer release.\n");
+        oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running on an older niqlow version, "+sprint(Version::version)+".\n You should consider installing a newer release.\n");
     }
 
 /** Set and return the current group node in &Gamma;.

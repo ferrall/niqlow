@@ -34,7 +34,7 @@ struct  Bellman : DP {
                     OnlyFeasible(myU);
                     HMEndogU(VV);
                     AMEndogU(VV);
-                    ExogUtil();
+            virtual ExogUtil();
 			virtual FeasibleActions(Alpha);
             virtual Reachable();
 			virtual Utility();
