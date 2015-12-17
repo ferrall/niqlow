@@ -332,9 +332,10 @@ Objective::ReInitialize() {
 /** Compute the objective at multiple points.
 @param Fmat, N<sub>f</sub>&times;J matrix of column vectors to evaluate at
 @param aFvec, address of a ?&times;J matrix to return <var>f()</var> in.
+@param afvec, 0 or address to return aggregated values in.
 @returns J, the number of function evaluations
 **/
-Objective::funclist(Fmat,aFvec)	{
+Objective::funclist(Fmat,aFvec,afvec)	{
 	decl j,J=columns(Fmat),best, f=zeros(1,J), fj;
 	if (isclass(p2p))  {          //CFMPI has been initialized
 		p2p.client->ToDoList(Fmat,aFvec,NvfuncTerms,1);
@@ -361,6 +362,7 @@ Objective::funclist(Fmat,aFvec)	{
 	 cur.v = f[best];
 	 Decode(Fmat[][best]);
 	 this->CheckMax();
+     if (afvec) afvec[0] = f;
 	return J;
 	}
 
@@ -410,7 +412,6 @@ Objective::vobj(F)	{
 	cur.V[] = vfunc();
 	}
 
-
 /** Decode the input, compute the objective, check the maximum.
 @param F vector of free parameters.
 **/
@@ -449,8 +450,7 @@ Objective::Jacobian() {
 	h = dFiniteDiff1(cur.F);
 	ptmatrix = ( (cur.F+diag(h))~(cur.F-diag(h)) );
 	GradMat = zeros(NvfuncTerms,2*nfree);
-	Objective::funclist(ptmatrix,&GradMat);
-    //    cur->aggregate(GradMat,&gg);
+	Objective::funclist(ptmatrix,&GradMat,&gg);
 	cur -> Copy(hold);
 	Decode(0);
 	cur.J = (GradMat[][:nfree-1] - GradMat[][nfree:])./(2*h');
@@ -506,8 +506,7 @@ Objective::Hessian() {
                        ~cur.F - ind   - jnd ;
             }
 	GradMat = zeros(NvfuncTerms,columns(ptmatrix));
-	Objective::funclist(ptmatrix,&GradMat);
-    cur->aggregate(GradMat,&gg);
+	Objective::funclist(ptmatrix,&GradMat,&gg);
 	cur -> Copy(hold);
 	Decode(0);
 	cur.H = diag( (gg[1:nfree] - 2*gg[0] + gg[nfree+1:2*nfree])./(4*sqr(h')) );

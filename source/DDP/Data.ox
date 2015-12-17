@@ -908,6 +908,10 @@ Prediction::Predict(tlist) {
 	decl s,qi,q,pp,unrch,allterm=TRUE;
     state = zeros(N::All);
     pp = 0.0; unrch = <>;
+    if (!sizerc(sind)) {
+        predmom = constant(.NaN,1,sizeof(tlist));
+        return TRUE;
+        }
     foreach (q in sind[s]) {
         if (Settheta(q)) {
             state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
@@ -932,7 +936,6 @@ Prediction::Predict(tlist) {
 	
 Prediction::Reset() {
 	p = sind = <>;
-    //	unch =
     ch[] = 0.0;
     predmom = <>;
     }
@@ -944,7 +947,7 @@ Typically a user would create a `PathPrediction` which in turn creates predictio
 **/
 Prediction::Prediction(t){
 	this.t = t;
-	pnext = UnInitialized;
+	W = pnext = UnInitialized;
 	predmom = p = sind = <>;
     empmom = 0;
     //	unch =
@@ -992,6 +995,7 @@ PathPrediction::Predict(prtlevel){
   cur=this;
   flat = <>;
   decl  delt =<>;
+  oxwarning(0);
   do {
      cur.predmom=<>;
      done =    cur->Prediction::Predict(tlist)          //all states terminal or last
@@ -1000,9 +1004,10 @@ PathPrediction::Predict(prtlevel){
 	 if (!done && !isclass(cur.pnext)) // no tomorrow after current
                 cur.pnext = new Prediction(cur.t+1);
      flat |= cur.t~cur.predmom;
-     delt |= cur->Delta(mask);
+     delt |= cur->Delta(mask,prtlevel);
      cur = cur.pnext;
   	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
+  oxwarning(-1);
   L = rows(delt) ? norm(delt,'F'): .NaN;
   if (prtlevel==Two) println("%c",tlabels,"%8.4f",flat);
   return f~flat;
@@ -1012,16 +1017,30 @@ PathPrediction::Predict(prtlevel){
 
 /** Add empirical values to a path of predicted values.
 @param inmom  Txm matrix of values.
-
+@param Nincluded FALSE: no row observation column<br>TRUE: lastcolumn that contains observation count stored in `Prediction::N` and used for weighting of distances.
 @comments
 If T is greater than the current length of the path additional predictions are concatenated to the path
 
 **/
-PathPrediction::Empirical(inmom) {
-    decl t=0;
-    T = rows(inmom);
+PathPrediction::Empirical(inNandMom,Nincluded) {
+    decl t=0,inmom,totN,inN;
+    T = rows(inNandMom);
     cur = this;
+    if (Nincluded) {
+        decl ncol = columns(inNandMom)-1;
+        inN = inNandMom[][ncol];
+        inN = isdotnan(inN) .? 0 .: inN;
+        totN = sumc(inN);
+        inmom = dropc(inNandMom,ncol);
+        }
+    else {
+        inN = ones(T,1);
+        totN = 1.0;
+        inmom = inNandMom;
+        }
+    println(inN,totN);
     do {
+        cur.W = inN[t]/totN;
         cur.empmom = inmom[t++][];
         if (t<T) {
             if (cur.pnext==UnInitialized) cur.pnext = new Prediction(t);
@@ -1137,8 +1156,11 @@ Prediction::Histogram(tlist,printit) {
     return t~predmom;
 	}
 
-Prediction::Delta(mask) {
-    return ismatrix(empmom) ? (selectifc(predmom,mask)-empmom) : selectifc(zeros(predmom),mask);
+Prediction::Delta(mask,printit) {
+    if (!ismatrix(empmom)) return selectifc(zeros(predmom),mask);
+    if (printit)
+        println(t," ",W,"%r",{"pred.","obsv."},deletec(selectifc(predmom,mask)|empmom));
+    return !any(isdotnan(empmom)) ? W*(deletec(selectifc(predmom,mask)-empmom)) : 0.0;
     }
 
 /** Track an object.
@@ -1222,8 +1244,9 @@ PathPrediction::Tracking(LorC,...) {
 
 /** Set up data columns for tracked variables.
 @param dlabels array of column labels in the data.
+@param Nplace number of observations (row weight) column
 **/
-PathPrediction::SetColumns(dlabels) {
+PathPrediction::SetColumns(dlabels,Nplace) {
     decl v,lc,vl;
     cols = <>;
     mask = <>;
@@ -1244,6 +1267,10 @@ PathPrediction::SetColumns(dlabels) {
         else vl = lc;
         cols ~= strfind(dlabels,vl);
         mask ~= 1;
+        }
+    if (isstring(Nplace)|| Nplace!=UnInitialized) {
+        cols~= isint(Nplace) ? Nplace : strfind(dlabels,Nplace);
+        //mask???
         }
     }
 
@@ -1391,12 +1418,12 @@ PanelPrediction::PanelPrediction(r,method) {
 @param prtlevel Zero [default] do not print<br>One print state and choice probabilities<br>Two print predictions
 
 **/
-PanelPrediction::Predict(t,prtlevel) {
+PanelPrediction::Predict(T,prtlevel) {
     decl cur=this;
     aflat = {};
     M = 0.0;
     do {
-        cur->SetT(ismatrix(t) ? t[cur.f] : t);
+        cur->SetT(ismatrix(T) ? T[cur.f] : T);
         cur->PathPrediction::Predict(prtlevel);
         M += cur.L;
 	    aflat |= cur.f~cur.flat;
@@ -1421,46 +1448,62 @@ EmpiricalMoments::TrackingMatchToColumn(Fgroup,LorC,mom) {
             }
     }
 
+
 /** Track one or more objects that are matched to columns using the object's label.
 @param Fgroup  integer or vector of integers of fixed groups that the moment should be tracked for.<br> AllFixed, moment appears in all groups
-@param InDataOrNot
+@param InDataOrNot TRUE: the <code>UseLabel</code> tag will be passed to `PathPrediction::Tracking`()<br>FALSE: the <code>NotInData</code> tag will be sent.
 @param mom1 object or array of objects to track
 @param ... more objects
 **/
 EmpiricalMoments::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
-    decl v,args =  isarray(mom1) ? mom1 : {mom1};
+    decl v,args =  isarray(mom1) ? mom1 : {mom1}, pparg = InDataOrNot ? UseLabel : NotInData;
     args |= va_arglist();
-    if (Fgroup==AllFixed) PanelPrediction::Tracking(InDataOrNot,args);
+    if (Fgroup==AllFixed) PanelPrediction::Tracking(pparg,args);
     else
-        if (Fgroup==0) PathPrediction::Tracking(InDataOrNot,args);
+        if (Fgroup==0) PathPrediction::Tracking(pparg,args);
         else {
             decl f;
-            if (isint(Fgroup))fparray[Fgroup]->PathPrediction::Tracking(InDataOrNot,args);
-            else foreach (f in Fgroup) fparray[f]->PathPrediction::Tracking(InDataOrNot,args);
+            if (isint(Fgroup))fparray[Fgroup]->PathPrediction::Tracking(pparg,args);
+            else foreach (f in Fgroup) fparray[f]->PathPrediction::Tracking(pparg,args);
             }
     }
 
 /** Create a panel prediction that is matched with external data.
 @param label name for the data
 @param method solution method to call before predict
-@param UorCorL matrix of indices, array of labels, UseLabel
+@param UorCorL where to get fixed-effect values<br>matrix of indices, array of labels<br>UseLabel [default]<br>NotInData only allowed if F=1, then no column contains fixed variables
 **/
 EmpiricalMoments::EmpiricalMoments(label,method,UorCorL) {
     decl q,j;
     this.label = label;
 	Volume = QUIET;
+    Nplace = UnInitialized;
     PanelPrediction(label,method);
-    if (ismatrix(UorCorL)||isarray(UorCorL)) {
+    if (UorCorL==NotInData) {
+        if (N::F>1) oxwarning("Multiple fixed groups but data contain no fixed columns? Errors may result.");
+        flist = 0;
+        }
+    else if (ismatrix(UorCorL)||isarray(UorCorL)) {
         if (sizerc(UorCorL)!=S[fgroup].D) oxrunerror("DDP Error 66. column index vector wrong size");
         flist = UorCorL;
         }
     else if (UorCorL==UseLabel) {
-        decl s, FF=SubVectors[fgroup];
-        flist = {FF[0].L};
-        for(s=1;s<S[fgroup].D;++s) flist |= FF[s].L;
+        if (N::F==1) flist = 0;
+        else {
+            decl s, FF=SubVectors[fgroup];
+            flist = {FF[0].L};
+            for(s=1;s<S[fgroup].D;++s) flist |= FF[s].L;
+            }
         }
-    else flist = 0;
+    else oxrunerror("DDP Error 66. 3rd Argument UorCorL incorrect type");
      }
+
+EmpiricalMoments::Observations(LabelOrColumn) {
+    if ( (isint(LabelOrColumn)&&isarray(flist))
+        ||(isstring(LabelOrColumn)&&ismatrix(flist)))
+        oxrunerror("DP Error ??.  Argument has to be consistent with UorCorL argument sent to EmpiricalMoments Creator");
+    Nplace = LabelOrColumn;
+    }
 
 /** The default econometric objective for a panel prediction: the overall GMM objective.
 @return `PanelPrediction::M`
@@ -1512,7 +1555,7 @@ EmpiricalMoments::Read(FNorDB) {
             }
         }
     cur = this;
-    do { cur -> SetColumns(dlabels); } while ((isclass(cur = cur.fnext)));
+    do { cur -> SetColumns(dlabels,Nplace); } while ((isclass(cur = cur.fnext)));
     row = 0;
     inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
     do {
@@ -1530,7 +1573,7 @@ EmpiricalMoments::Read(FNorDB) {
                     }
                 }
             else inf = UnInitialized;  //get out of inner loop after installing
-            cur->Empirical(inmom);
+            cur->Empirical(inmom,Nplace);
             if (Volume>SILENT) { println("Moments of Moments Read in for fixed group ",curf); MyMoments(inmom,tlabels[1:]);}
             } while (inf==curf);
         } while(row<rows(data));

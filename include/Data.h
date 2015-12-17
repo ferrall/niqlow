@@ -232,7 +232,8 @@ struct 	Prediction : Data {
 		/** state index **/		sind,
 		/** **/					p,
 		/** **/					ch,
-                                N,
+        /**weight to put on
+            momement distance.**/W,
         /** predicted moment **/ predmom,
         /** empirical moment **/ empmom,
 		/** next prediction
@@ -240,8 +241,8 @@ struct 	Prediction : Data {
 	Prediction(prev);
 	Predict(tlist);
     Reset();
-	Histogram(v,printit);
-    Delta(mask);
+	Histogram(v,printit=FALSE);
+    Delta(mask,printit=FALSE);
 	}
 
 /** Predicted outcomes along a path.
@@ -267,9 +268,9 @@ struct 	PathPrediction : Prediction {
 	~PathPrediction();
 	Predict(printit=FALSE);
     SetT(T);
-    Empirical(inmoments);
+    Empirical(inmoments,Nincluded=FALSE);
     Tracking(LorC,...);
-    SetColumns(dlabels);
+    SetColumns(dlabels,Nplace=UnInitialized);
 //	Histogram(printit=TRUE);
     PathObjective();
 	}
@@ -297,14 +298,16 @@ struct PanelPrediction : PathPrediction {
 **/
 struct EmpiricalMoments : PanelPrediction {
     const decl /** label **/ label;
-    decl     /**How much output to produce.@see NoiseLevels **/                      Volume,
-            /** **/ flist,
-            /** matrix of indices or array of labels or UseLabel  **/ UorCorL,
-            /** **/ FMethod;
+    decl     /**How much output to produce.@see NoiseLevels **/         Volume,
+            /** **/                                                     flist,
+            /** matrix of indices or array of labels or UseLabel  **/   UorCorL,
+            /** observations location .**/                              Nplace,
+            /** **/                                                     FMethod;
     EmpiricalMoments(label="",method=0,UorCorL=UseLabel);
     Observed(as1,lc1=0,...);
     TrackingMatchToColumn(Fgroup,LorC,mom);
     TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);
+    Observations(LabelorColumn);
     Read(fn);
  	virtual EconometricObjective();
     virtual Solve();

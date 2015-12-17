@@ -27,9 +27,9 @@ PanelBB::PanelBB (L,data,...)	{
 	this.data = data;
 	NvfuncTerms = data.FN;  //total number of IID observations
 //	SetAggregation(LOGLINEAR);  Currently taking log() inside objective
-	decl va = va_arglist(),i;
+	decl va = va_arglist(),v;
 	if (sizeof(va)) {
-		for(i=0;i<sizeof(va);++i) Parameters(va[i]);
+        foreach(v in va) Parameters(v);
 		Encode();
 		}
 	else oxwarning("FiveO Warning 03.\n No estimated parameters added to "+L+" panel estimation ");

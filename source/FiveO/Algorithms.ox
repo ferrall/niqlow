@@ -11,8 +11,8 @@ Algorithm::Algorithm(O) {
 	OC = O.cur;
     tolerance = itoler;
 	Volume = SILENT;
-    lognm = classname(this)+"-On-"+O.L+date()+replace(time(),":","-")+".log";
-    logf = fopen(lognm,"aV");
+    lognm = classname(this)+"-On-"+O.L+date()+replace(time(),":","-");
+    logf = fopen(lognm+".log","aV");
     }
 
 /** Tune Parameters of the Algorithm.
@@ -84,24 +84,23 @@ SimulatedAnnealing::Tune(maxiter,heat,cooling,shrinkage)	{
 SimulatedAnnealing::Metropolis()	{
 	decl jm=-1, j, diff;
     for(j=0;j<M;++j) {
-        diff = vtries[j]-holdpt.v;
+        diff = vtries[j]-OC.v;
 	    if (Volume>=LOUD) fprintln(logf,iter~vtries[j]~(vec(tries[][j])'));
 	    if ( (diff> 0.0) || ranu(1,1) < exp(diff/heat))	{
              jm = j;
-             holdpt.v = vtries[jm];
-             holdpt.step = tries[][jm];
+             OC.v = vtries[jm];
+             OC.F = tries[][jm];
+             O->Save(lognm);
+             O->CheckMax();
              ++accept;
 			 }
         }
     if (accept>=N) {
 		heat *= cooling;  //cool off annealing
 	    chol *= shrinkage; //shrink
-		if (Volume>QUIET) println("Cool Down ",iter,". f=",vtries[jm]," heat=",heat);
+		if (Volume>QUIET) println("Cool Down ",iter,". f=",vtries[jm]," heat=",heat," chol=",chol);
 		accept = 0;
         }
-	OC.v = holdpt.v;
-    OC.F = holdpt.step;
-    O->Save();
 	}
 
 /** Carry out annealing.
@@ -120,14 +119,13 @@ SimulatedAnnealing::Iterate(chol)	{
                                                  : ismatrix(chol) ?  chol
                                                                  :  unit(N);
 	   if (OC.v==.NaN) O->fobj(0);
-	   holdpt.step = OC.F; holdpt.v = OC.v;
 	   if (Volume>QUIET) O->Print("Annealing Start ");
 	   OC.H = OC.SE = OC.G = .NaN;
 	   accept = iter =0;	
 	   do  {
+	      holdpt.step = OC.F; holdpt.v = OC.v;
           tries = holdpt.step + this.chol*rann(N,M);
-	      O->funclist(tries,&Vtries);
-          OC->aggregate(Vtries,&vtries);
+	      O->funclist(tries,&Vtries,&vtries);
 		  Metropolis();
 		} while (iter++<maxiter);
 	   O->Decode(0);
@@ -395,8 +393,7 @@ NelderMead::SimplexSize() {
 **/
 NelderMead::Amoeba() 	{
      decl fdiff, vF = zeros(O.NvfuncTerms,N+1);
-	 n_func += O->funclist(nodeX,&vF);
-     OC->aggregate(vF,&nodeV);
+	 n_func += O->funclist(nodeX,&vF,&nodeV);
 //	 nodeV = sumc(vF)';	   // aggregate!!!
 	 do	{
 	 	Sort();
@@ -407,8 +404,7 @@ NelderMead::Amoeba() 	{
 			Reflect(beta);
 			if (atry==worst){
 				nodeX = 0.5*(nodeX+nodeX[][mxi]);
-				n_func += O->funclist(nodeX,&vF);
-	 			nodeV = sumc(vF)';
+				n_func += O->funclist(nodeX,&vF,&nodeV);
 				}
 			}
 		} while (n_func < nfuncmax);

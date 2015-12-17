@@ -67,7 +67,7 @@ struct Objective	{
 	virtual	Encode(X=0);
 	virtual	Decode(F=0);
     virtual ReInitialize();
-	virtual funclist(Xmat,Fvec);
+	virtual funclist(Xmat,Fvec,afvec=0);
 	}
 
 	
