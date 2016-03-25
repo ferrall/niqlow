@@ -86,7 +86,7 @@ SimulatedAnnealing::Metropolis()	{
     for(j=0;j<M;++j) {
         diff = vtries[j]-OC.v;
 	    if (Volume>=LOUD) fprintln(logf,iter~vtries[j]~(vec(tries[][j])'));
-	    if ( (diff> 0.0) || ranu(1,1) < exp(diff/heat))	{
+	    if ( !isnan(diff) && (diff> 0.0) || ranu(1,1) < exp(diff/heat))	{
              jm = j;
              OC.v = vtries[jm];
              OC.F = tries[][jm];
@@ -201,8 +201,13 @@ LineMax::Try(pt,step)	{
 	pt.step = step;
 	O->fobj(holdF + step*Delta);
 	if (isnan(pt.v = OC.v)) {
-		println("*** ",pt,holdF+step*Delta,OC.X,"\n ****");
-		oxrunerror("FiveO Error 01. Objective undefined at line max point.\n");
+	   oxwarning("FiveO Warning 01. Objective undefined at first line try.  Trying 20% of step.\n");
+	   pt.step *= .2;
+	   O->fobj(holdF + pt.step*Delta);
+	   if (isnan(pt.v = OC.v)) {
+	           println("*** ",pt,holdF+pt.step*Delta,OC.X,"\n ****");
+		      oxrunerror("FiveO Error 01. Objective undefined at line max point.\n");
+            }
 		}
 	improved = O->CheckMax() || improved;
 	}
@@ -227,9 +232,14 @@ CLineMax::Try(pt,step)	{
 	pt.step = step;
 	O->Merit(holdF + step*Delta);
 	if (isnan(pt.v = OC.L)) {
-		println("****",pt,OC.X,"\n****");
-		oxrunerror("FiveO Error 03.  Lagrange undefined at line max point\n");
-		}
+	   oxrunerror("FiveO Error 03.  Lagrange undefined at first try. Trying 20% step\n");
+       pt.step *= 0.2;
+	   O->Merit(holdF + pt.step*Delta);
+	   if (isnan(pt.v = OC.L)) {
+		  println("****",pt,OC.X,"\n****");
+		  oxrunerror("FiveO Error 03.  Lagrange undefined at line max point\n");
+		  }
+        }
 	improved = O->CheckMax() || improved ;
 	}
 	

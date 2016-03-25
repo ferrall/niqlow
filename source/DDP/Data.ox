@@ -1008,10 +1008,10 @@ PathPrediction::Predict(prtlevel){
      cur = cur.pnext;
   	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
   oxwarning(-1);
-  L = rows(delt) ? norm(delt,'F'): .NaN;
+  L = rows(delt) ? norm(delt,'F'): .Inf;
+  println("L ",L); //delt
   if (prtlevel==Two) println("%c",tlabels,"%8.4f",flat);
   return f~flat;
-  return TRUE;
   }
 
 
@@ -1156,11 +1156,25 @@ Prediction::Histogram(tlist,printit) {
     return t~predmom;
 	}
 
+/** Difference between empirical and predicted moments.
+@param mask vector to mask out predictions
+@printit TRUE print out results
+@return  predicted-empirical<br>
+        with 0 if empirical is missing<br>
+        .Inf if prediction is undefined
+**/
 Prediction::Delta(mask,printit) {
-    if (!ismatrix(empmom)) return selectifc(zeros(predmom),mask);
+    decl mv = selectifc(predmom,mask),df;
+    if (!ismatrix(empmom))  // if no data difference is zero.
+        return zeros(mv);
+    df = isdotnan(empmom)           //find missing empirical moments
+                .? 0.0                  //difference is then 0.0
+                .:  (isdotnan(mv)   // else, find mising predictions
+                        .? .Inf             // difference unbounded
+                        .: W*(mv-empmom));   // weighted difference
     if (printit)
-        println(t," ",W,"%r",{"pred.","obsv."},deletec(selectifc(predmom,mask)|empmom));
-    return !any(isdotnan(empmom)) ? W*(deletec(selectifc(predmom,mask)-empmom)) : 0.0;
+        println(t,"%r",{"pred.","obsv.","delt"},mv|empmom|df);
+    return  df;
     }
 
 /** Track an object.
