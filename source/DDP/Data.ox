@@ -1009,7 +1009,6 @@ PathPrediction::Predict(prtlevel){
   	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
   oxwarning(-1);
   L = rows(delt) ? norm(delt,'F'): .Inf;
-  println("L ",L); //delt
   if (prtlevel==Two) println("%c",tlabels,"%8.4f",flat);
   return f~flat;
   }
