@@ -42,7 +42,10 @@ CV(X,...) {
 	decl arg = va_arglist();
     if (isarray(X)) {
         decl x,v=<>;
-        foreach(x in X) v ~= CV(x,arg[0]);
+//Leak
+foreach(x in X)
+//            for(x=0;x<sizeof(X);++x) //Leak
+            v ~= CV(x,arg[0]);  //Leak: X[x] just x
         return v;
         }
 	if (!sizeof(arg)) return X();

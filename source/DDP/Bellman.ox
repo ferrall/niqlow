@@ -46,8 +46,10 @@ EndogTrans::Transitions(state) {
     Hooks::Do(PreUpdate);
     I::CVdelta = AV(delta);   //moved June 2015 from bottom
     skip=UnInitialized;
-    foreach (s in States[i]) {
+//foreach foreach (s in States[i]) {
+    for (i=0;i<sizeof(States);++i) {
         if (i<skip) continue;
+        s = States[i]; //foreach
 		if (StateVariable::IsBlockMember(s)) {
 			s.block->Update();
             s.block->Check();
