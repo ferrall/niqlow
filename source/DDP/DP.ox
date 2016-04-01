@@ -306,7 +306,7 @@ DP::Actions(Act1,...) 	{
             Labels::Vprt[avar] |= sL[:min(4,sizec(sL)-1)];
 			nr = rows(Alpha::Matrix);
 	 		Alpha::Matrix |= reshape(Alpha::Matrix,(va[i].N-1)*nr,pos);
-			Alpha::Matrix ~= vecr(va[i].vals' * ones(1,nr));
+			Alpha::Matrix ~= vecr(va[i].vals' * ones(1,nr));	 		
 	 		}
 		++pos;
 		}
@@ -483,7 +483,8 @@ Alpha::AddA(fa) {
 
 Alpha::ResetA(alist) {
     decl a, i;
-    foreach (a in alist[i]) {
+//foreach foreach (a in alist[i]) {
+    for (i=0;i<sizeof(alist);++i) { a = alist[i];
 		a->Update();
 		if (!i) A[0] = a.actual;
 		else {
@@ -905,6 +906,7 @@ DP::CreateSpaces() {
                 }
             delete tt;
             INf = fopen(L+".dim","wV");
+            I::curth = I::curg = UnInitialized;
             fprint(INf,"%v",&inI,"%v",&inN);
             }
        fclose(INf);

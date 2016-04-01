@@ -345,13 +345,16 @@ Objective::funclist(Fmat,aFvec,afvec)	{
 			f[j] = cur.v;
 			}
 		}
-	else
-		foreach (fj in Fmat[][j]) {
+	else{
+//Leak		
+foreach (fj in Fmat[][j]) {
+//        for (j=0;j<columns(Fmat);++j) { fj = Fmat[][j];  //Leak
 			vobj(fj);
 			aFvec[0][][j] = cur.V;
 			cur -> aggregate();
 			f[j] = cur.v;
 			}
+        }
 	if ( (best = maxcindex(f) < 0) ) {
         println("**** Matrix of Parameters ",Fmat,"Objective Value: ",f',"\n****");
         if (RunSafe)

@@ -39,11 +39,19 @@ NelderMead::Tune(mxstarts,toler,nfuncmax,maxiter) {
 	if (maxiter) this.maxiter = maxiter;	
 	}
 
+/** Tune Parameters of the Algorithm.
+@param maxiter integer max. number of iterations <br>0 use current/default value
+@param toler double, simplex tolerance for convergence<br>0 use current/default value
+@param nfuncmax integer, number of function evaluations before resetting the simplex<br>0 use current/default value
+@param LMitmax interger, max number of line maximization iterions<br><br>0 use current/default value
+**/
 GradientBased::Tune(maxiter,toler,nfuncmax,LMitmax) {
     Algorithm::Tune(maxiter,toler,nfuncmax);
     if (LMitmax) this.LMitmax = LMitmax;
     }
 
+/** Random search without annealing.
+**/
 RandomSearch::RandomSearch(O) {
     SimulatedAnnealing(O);
     O.RunSafe = FALSE;

@@ -68,7 +68,8 @@ Choice is simply picking from a set of options.  We will let $A$ denote the fini
 <DD>$A = $ {<code>Harvard, Yale, Queen's, McGill</code>}.  </DD>
 <DD>We will sometimes need a symbol for the number of actions available, and will use <code>J</code> for that purpose.  So for Bob, <code>J=4</code>.</DD>
 <DD>Of course there are other schools but Bob either did not apply or did not get in to them.  They  are <em>infeasible</em> choices, and $A$ is his feasible choice set.</DD>
-<DD>While $\alpha$ stands for any of the feasible actions, at some point Bob makes a choice, and that school because special and we distinguish the choice made from the options considered. If Bob chooses to go to Yale we would write $\alpha^\star = $ <code>Yale</code>.  In these notes things marked with $\star$ are related to the optimal choice. </DD>
+<DD>While $\alpha$ stands for any of the feasible actions, at some point Bob makes a choice. The school he chooses becomes special, and we distinguish the choice made from the options considered. If Bob chooses to go to Yale we would write $\alpha^\star = $ <code>Yale</code>.  </DD>
+<DD>In these notes things marked with $\star$ are typically related to the optimal choice. </DD>
 
 In some cases we might use discrete choice to approximate a continuous choice, so here is another example:
 
@@ -80,7 +81,8 @@ In some cases we might use discrete choice to approximate a continuous choice, s
 
 <h2>Utility</h2>
 
-How did Bob choose Yale and how Tommy chose 2 hours (according to our discrete approximation)? Perhaps they considered all the pros and cons of their options and carefully weighed the factors to determine which was best.  Or maybe they threw a dart at the wall.
+How did Bob choose Yale? And how Tommy chose 2 hours (according to our discrete approximation)? 
+<DD>Perhaps they considered all the pros and cons of their options and carefully weighed the factors to determine which was best.  Or maybe they threw a dart at the wall.</DD>
 
 Whatever process they used, we are not concerned with <em>how</em> the choice was made, but that a chose was made based on a  <em>utility</em> associated with each action.  <details class="aside"><summary>Optimality and <em>function</em></summary>Of course, much of social science concerns choices that are not optimal, but for our purposes what people do will always be optimal for them given their options and preferences. Also, a teacher of mine emphasized that utility is by definition a function, so writing and saying "utility function" is redundant. It would be like saying "truck vehicle" instead of simply "truck," because by definition a truck is a vehicle. word </details>
 
@@ -100,13 +102,15 @@ Many other utility levels would explain <code>Yale</code> as an optimal choice.
 
 <h2>Multiple Dimensions</h2>
 
-In many cases we want to model choices in more than one dimension.  So Bob was making a choice in the school dimension.  But he might also be making decisions in other dimensions, such as major, roommate, etc.    Before showing <span class="n">DDP</span> code for Bob's choice let's have him decide his major at the same time. One way to do this is to convert a choice in several (discrete) dimensions into a one dimensional choice by simply listing all the possible combinations.
+In many cases we want to model choices in more than one dimension.  So Bob was making a choice in the <em>school</em> dimension.  But he might also be making decisions in other dimensions, such as <em>major</em>, <em>roommate</em>, etc.    Before showing <span class="n">DDP</span> code for Bob's choice let's have him decide his major at the same time. 
+<DD>One way to do this is to convert a choice in several (discrete) dimensions into a one dimensional choice by simply listing all the possible combinations.</DD>
+<DD>Another way is to make &alpha; a vector not a scalar.</DD>
+<DD>We illustrate both ways in the next example.</DD>
 
-<DT>Example: Bob is choosing both a university and a major, and which major looks best might depend on which school he chooses.  </DT>
+<DT>Example: Bob is choosing both a university <em>and</em> a major. Which major looks best might depend on which school he chooses.  </DT>
 <DD>For simplicity, suppose Bob's parents have told him he has to choose either <code>Economics</code> or <code>Physics</code>.  </DD>
-<DD>Then we could simply expand his choice set as follows: <code>{Harvard-Econ,Harvard-Physics,Yale-Econ,Yale-Physics,Queen's-Econ,Queen's-Econ,McGill-Econ,McGill-Physics}</code>.  Utility is then a number assigned to each of these <code>J=8</code> options.  </DD>
-<DD>However, it can be more convenient not to collapse the two dimensions, but to consider them separate but simultaneous.  In this case, we can let school be the row and
-major the column:
+<DD>Convert to 1 Dimensional: We could simply expand his choice set as follows: <code>{Harvard-Econ,Harvard-Physics,Yale-Econ,Yale-Physics,Queen's-Econ,Queen's-Econ,McGill-Econ,McGill-Physics}</code>.  Utility is then a number assigned to each of these <code>J=8</code> options.  </DD>
+<DD>Add a 2nd Dimension: However, it can be more convenient not to collapse the two dimensions, but to consider them separate but simultaneous.  In this case, we can let school be the row and major the column:
 <pre>
 BOB'S UTILITY ON THE FEASIBLE MAJOR-SCHOOL CHOICE SET
                     Econ                    Physics
@@ -139,7 +143,8 @@ Physics       McGill           -0.5
 </pre></DD>
 
 <DT>In  <span class="n">DDP</span>:  </DT>
-<DD>the action vector is built up by in this way by adding `ActionVariable`s to it as part of the set-up of the model.  The creation of the list of actions as shown above is done for you by <span class="n">DDP</span>.  As the user you only have to concern yourself with which variables are chosen and how many different values they take on.</DD>
+<DD>the action vector is built up by in this way by adding `ActionVariable`s to it as part of the set-up of the model.  The creation of the list of actions as shown above is done for you by <span class="n">DDP</span>.  </DD>
+<DD>As the user you only have to concern yourself with which variables are chosen and how many different values they take on.</DD>
 <DD>You can provide value labels for each action variable you add to the model.  In the example above "Econ" would be a label for a integer option value.</DD>
 
 
@@ -179,16 +184,19 @@ $\alpha^\star \equiv \arg\max_{A}U(\alpha)$ = (<code>Econ</code>,<code>Yale</cod
 $EV \equiv \max_{A} U(\alpha) = U(\alpha^\star)$ = <code>4.2</code>.
 </DD>
 
-Usually the highest utility possible is named <em>indirect utility</em>, but in dynamic programming it is usually called the (optimal) value of a state, so $V$ is used.  We are using $EV$ and not just $V$ because often there are elements of uncertainty in the choice.   In particular, the person deciding will know everything up until today when the choice is made, but they will have to make that choice without knowing everything that will happen in the future (tomorrow).  So $EV$ will end up being good notation since when deciding today they will have average (take the <b>E</b>expectation of) their optimal choices made tomorrow when they have more information than they have now.
+<DT>V, and EV</DT>
+<DD>In microeconomics the highest utility possible is named <em>indirect utility</em>, but in dynamic programming it is usually called the (optimal) <em>value</em> of a state.</DD>
+ <DD>So above $V$ is used to represent the value Bob receives from his choice once optimized.  </DD>
+ <DD>We use $EV$ and not just $V$ in anticipation that there can elements of uncertainty in the choice.   In particular, the person deciding will know everything up until today when the choice is made, but they will have to make that choice without knowing everything that will happen in the future (tomorrow).  </DD>
+ <DD>$EV$ will end up being good notation since when, deciding today, they will have to average (take the <b>E</b>expectation of) their optimal choices made tomorrow when they have more information than they have now.</DD>
 
-The notation also assumes there are no ties, the optimal choice is unique.  That won't be necessary.  Ties are handled properly by <span class="n">DDP</span>,  but assuming no  ties does make the example simpler.
+<DD>The notation also assumes there are no ties, the optimal choice is unique.  That won't be necessary.  Ties are handled properly by <span class="n">DDP</span>,  but assuming no  ties does make the example simpler.</DD>
 
 <h2>Coding Bob's Choice in <span class="n">DDP</span></h2>
 
 Bob's choice is trivial.  Simply look at the 8 numbers that make up his utility.  Find the biggest number.  Look at the labels associated with that action. Finished.  These operations could easily be done by hand, in a spreadsheet, or even in Ox using its built in <a href=""><code>maxc()</code> and <code>maxcindex()</code></a> routines.
 
-When you look at the code for Bob's Choice in <span class="n">DDP</span> you will see that it has some elements that are not obvious.  Indeed, it relies on some sophisticated
-features of the Ox programming language.  Even if you have done some programming in similar languages such as Matlab, Python or R, your reaction may be: that is a lot of complexity for such a simple choice.  And you are right!
+When you look at the code for Bob's Choice in <span class="n">DDP</span> you will see that it has some elements that are not obvious.  Indeed, it relies on some sophisticated features of the Ox programming language.  Even if you have done some programming in similar languages such as Matlab, Python or R, your reaction may be: that is a lot of complexity for such a simple choice.  And you are right!
 
 However, hopefully you see some logic in the complications so that the code is not completely unrelated to the problem as you understand it.  And you might see that some of the complication is there to make real models easier to build than if simple tools only were used.
 
@@ -384,13 +392,11 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 
 <DT>Why Ex Post?</DT>
 
-
-
 <a name="MS"><LI>More than One Unlinked Choice (Multiple Static States)</LI></a>
 
 Bob and Tommy's choices are one-time discrete choices.  By deriving a model of their choices from the <code>OneStateModel</code> class there was no possibility of dynamics or examining how the situation affects the choice.
 
-<DT>A state is a situation in which the agent makes a decision.  States differ from each other for one of many reasons.  </DT>
+<DT>A state is a situation in which the agent makes a decision.  States differ from each other for various reasons:</DT>
 <DD>Utility may differ between states (leading to different decisions).  </DD>
 <DD>The feasible action set may differ between states (which could handled be a change in utility, but <span class="n">DDP</span> distinguishes between the two).</DD>
 <DD>The effect of choices on which states occur in the future may differ between current states.</DD>
@@ -404,12 +410,12 @@ distinguish between types of states.  But a generic state will be denoted $\thet
 
 As with feasible actions, the state space is constructed by adding state variables to it.   We illustrate this with simple extension of Bob's Choice.
 
-<DT>Bob is still deciding between schools and majors, however he may or may not receive a scholarship to Queen's for which he is applied for.</DT>
+<DT>Example.  Bob is still deciding between schools and majors, however he may or may not receive a scholarship to Queen's for which he is applied for.</DT>
 
 <DD>Obviously he will make his decision based on whether he gets the scholarship or not, so the choice is contingent upon that.  We want the model to capture both choices.  One reason to do this is that we want to apply the model to data in which some people get scholarships and some don't.  </DD>
 <DD>The values of utility above will be the values without a scholarship.  Then in the event of getting the scholarship the utility of choosing Queen's goes up.</DD>
 <DD>Scholarships are measured in dollars, but Bob's utility from getting and accepting a scholarship may be different that the monetary value.  However, to keep things simple we will assume that the utilities already listed are in money-equivalent values so we can add the value of the scholarship to them in order to compute net utility for Bob.  </DD>
-<DD>Specifically, the Queen's scholarship has a value of $2,200 and utility is measured in thousands of dollars. So in the case of getting the scholarship and going to Queen's utility increases by 2.2.</DD>
+<DD>Specifically, the Queen's scholarship has a value of &#36;2,200 and utility is measured in thousands of dollars. So in the case of getting the scholarship and going to Queen's utility increases by 2.2.</DD>
 
 <h2>Coding Bob's New Choice in <span class="n">DDP</span></h2>
 

@@ -540,7 +540,7 @@ FPanel::LogLikelihood() {
            }
         }
     else
-        if (Flags::UpdateTime[AfterFixed]) ETT->Transitions(state);
+        if (Flags::UpdateTime[AfterFixed]) {ETT->Transitions(); }
 	FPL = zeros(N,1);  //NT
     if (isclass(upddens)) {
 		upddens->SetFE(state);
@@ -912,7 +912,9 @@ Prediction::Predict(tlist) {
         predmom = constant(.NaN,1,sizeof(tlist));
         return TRUE;
         }
-    foreach (q in sind[s]) {
+//Leak foreach (q in sind[s]) {
+        for (s=0;s<sizer(sind);++s) { //Leak
+        q = sind[s]; // Leak */
         if (Settheta(q)) {
             state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
             I::all[tracking] = q; // I::OO[tracking][]*state;
@@ -1096,14 +1098,18 @@ PathPrediction::PathPrediction(f,method,iDist){
 ObjToTrack::Distribution(htmp,ptmp) {
     if (type==auxvar||type==idvar) {  // dynamic distribution.
         decl q,k,h,j,hh,mns;
+        if (isarray(hist)) delete hist, hvals;
         hist = new array[columns(htmp)];
         hvals = new array[columns(htmp)];
         mns = <>;
-        foreach(h in htmp[][j]) {
+// Leak foreach(h in htmp[][j]) {
+            for (j=0;j< columns(htmp);++j) { //Leak
+            h = htmp[][j];  //Leak */
             hh = hvals[j] = unique(h);
             hist[j] = zeros(hh)';
-            foreach (q in hh[k]) {
-                hist[j][k] = sumc(selectifr(ptmp[][j],h.==q));
+//Leak foreach (q in hh[k]) {
+                for (k=0;k<sizec(hh);++k) { //Leak
+                hist[j][k] = sumc(selectifr(ptmp[][j],h.==hh[k])); //Leak: q becomes hh[k] becomes q
                 }
             mns ~= hh*hist[j];
             }
@@ -1120,20 +1126,26 @@ Prediction::Histogram(tlist,printit) {
 	decl q,k,cp,tv;
     decl newqs,newp,j,uni,htmp,ptmp;
     predmom=<>;
-    foreach(tv in tlist ) {
+//Leak foreach(tv in tlist ) {
+        decl i; for (i=0;i<sizeof(tlist);++i) { tv = tlist[i]; // Leak
         switch(tv.type) {
             case avar : tv.hist[] = 0.0;
-                    foreach (cp in ch[k]) tv.hist[Alpha::Matrix[k][tv.hd]] += cp;
+//Leak foreach (cp in ch[k])
+                        for(k=0;k<sizerc(ch);++k) //Leak
+                        tv.hist[Alpha::Matrix[k][tv.hd]] += ch[k];//Leak cp; becomes ch[k];
                     predmom ~= tv->Distribution();
                     break;
 	       case svar : tv.hist[] = 0.0;
-                    foreach (q in  sind[][k]) tv.hist[ReverseState(q,SS[tracking].O)[tv.hd]] += p[k];
+//Leak foreach (q in  sind[][k])
+                        for(k=0;k<columns(sind);++k) //Leak
+                        tv.hist[ReverseState(sind[][k],SS[tracking].O)[tv.hd]] += p[k]; //Leak:sind[][k] -> q
                     predmom ~= tv->Distribution();
                     break;
             case auxvar :  // oxwarning("DDP Warning 11.\n  Tracking of auxiliary outcomes still experimental.  It may not work.\n");
             case idvar  :
                 ptmp = htmp=<>;
-                foreach (q in sind[][k]) {   //for each theta consistent with data
+//Leak foreach (q in sind[][k]) {   //for each theta consistent with data
+                    for (k=0;k<columns(sind);++k) { q=sind[][k];  //Leak
                     if (Settheta(q)) {  // theta reachable?
                         if (tv.type==idvar)
                             newqs = I::curth->OutputValue();
