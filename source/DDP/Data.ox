@@ -913,7 +913,7 @@ Prediction::Predict(tlist) {
         return TRUE;
         }
 //Leak foreach (q in sind[s]) {
-        for (s=0;s<sizer(sind);++s) { //Leak
+        for (s=0;s<sizerc(sind);++s) { //Leak
         q = sind[s]; // Leak */
         if (Settheta(q)) {
             state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
@@ -1002,7 +1002,7 @@ PathPrediction::Predict(prtlevel){
      cur.predmom=<>;
      done =    cur->Prediction::Predict(tlist)          //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
-     if (prtlevel==One) fprintln(logf,cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
+     if (prtlevel>=One) fprintln(logf,cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
 	 if (!done && !isclass(cur.pnext)) // no tomorrow after current
                 cur.pnext = new Prediction(cur.t+1);
      flat |= cur.t~cur.predmom;
@@ -1157,7 +1157,7 @@ Prediction::Histogram(tlist,printit) {
                         htmp |= newqs;
                         ptmp |= newp;
                         }
-                    else if (!isfeq(p[k],0.0)) fprintln(logf,"Histogram: unreachable ","%i : %g",double(q),double(p[k]));
+                    else if (!isfeq(p[k],0.0)) fprintln(logf,"Histogram: unreachable ","%i",int(q)," : ",double(p[k]));
                     }
                 predmom ~= tv->Distribution(htmp,ptmp);
                 break;
