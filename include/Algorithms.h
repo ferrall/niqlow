@@ -1,6 +1,6 @@
 #import "Shared"
 #import <solveqp>
-/* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2016 Christopher Ferrall */
 
 /** Base for optimization and system-solving algorithms.
 
@@ -13,10 +13,10 @@ struct Algorithm {
 //     /** . @internal **/                                    curpt,
 //	 /** . @internal **/									hold,
      /** name of log file **/                               lognm,
-     /** log file **/                                       logf,
 	 /** User's objective. **/								O,
 	 /** objective's pt. @internal **/						OC;
     				decl
+     /** log file **/                                       logf,
 	 /** output level **/									Volume,
 	 /** maximum iterations **/ 	        				maxiter,
      /** current iteration count. @internal **/				iter,

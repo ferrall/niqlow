@@ -1,5 +1,5 @@
 #include "Objective.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
 
 /** Checks the version number you send with the current version of niqlow.
 @param v integer [default=200]
@@ -32,6 +32,10 @@ Objective::Objective(L)	{
 	Blocks = {};
 	Volume = QUIET;
     RunSafe = TRUE;
+    lognm = classname(this)+"-"+L+"-"+date()+"-"+replace(time(),":","-")+".log";
+    logf = fopen(lognm,"aV");
+    println(logf,"Created");
+    fclose(logf);
 	cur = new Point();
 	hold = maxpt = NvfuncTerms  = UnInitialized;
 	FinX = <>;
@@ -115,7 +119,12 @@ Objective::Load(fname)	{
 	if (otype!=classname(this)) oxwarning("FiveO Warning 07.\n Object stored in "+fname+" is of class "+otype+".  Current object is "+classname(this)+"\n");
 	if (inL!=L) oxwarning("FiveO Warning 08.\n Object Label in "+fname+" is "+inL+", which is not the same as "+L+"\n");
 	maxpt.v = cur.v = inO;
-	if (Volume>SILENT) println("Initial objective: ",cur.v);
+	if (Volume>SILENT) {
+        println("Initial objective: ",cur.v);
+        logf = fopen(lognm,"aV");
+        fprintln(logf,"Loading from ",fname,". # of values read: ",n,". Initial objective: ",cur.v);
+        fclose(logf);
+        }
 	return this->CheckPoint(f,FALSE);
 	}
 
@@ -155,24 +164,32 @@ Constrained::CheckPoint(f,saving)	{
 @return TRUE if maxval was updated<br>FALSE otherwise.
 **/
 Objective::CheckMax(fn)	{
-		if (Volume>LOUD) { print(" ","%15.8f",cur.v); if (isfile(fn)) fprint(fn," ","%15.8f",cur.v); }
-		if (cur.v>maxpt.v)	{
+        decl newx = cur.v>maxpt.v;
+        if (Volume>QUIET) {
+            logf = fopen(lognm,"aV");
+            fprint(logf,cur.v,newx ? " " : "*\n");
+		    if (Volume>LOUD) { print(" ","%15.8f",cur.v); if (isfile(fn)) fprint(fn," ","%15.8f",cur.v); }
+            fclose(logf);
+            }
+		if (newx)	{
 			this->Save(0);
 			maxpt -> Copy(cur);
 			if (Volume>QUIET) {
 				if (Volume<=LOUD) print(" ","%18.12f",maxpt.v);
 				println("*"); if (isfile(fn)) fprintln(fn,"*");
 				}
-			return TRUE;
+ 			return TRUE;
 			}
 		return FALSE;
 	}
 
 	
-/** .
-@internal
+/** Prints a message and details about the objective.
+@param orig string, origin of the print call
+@param fn integer, no print to file.<br>file, prints to file as well as screen
+@param toscreen TRUE: print to screen as well
 **/
-Objective::Print(orig,fn){
+Objective::Print(orig,fn,toscreen){
 	decl b =sprint("\n\nReport of ",orig," on ",L,"\n",
 		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
 		"Free Parameters",
@@ -180,7 +197,8 @@ Objective::Print(orig,fn){
 		FinX~cur.F,
 		"Actual Parameters",
 		"%c",{           "     Value "},"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
-    if (isfile(fn)) fprintln(fn,b); else println(b);
+    if (isfile(fn)) fprintln(fn,b);
+    if (toscreen) println(b);
 	}
 
 UnConstrained::UnConstrained(L) {
@@ -398,12 +416,8 @@ Constrained::funclist(Fmat,jake) {
 @param F vector of free parameters.
 **/
 Objective::fobj(F)	{
-	if (Volume>LOUD)
-		println("Free Parameters","%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~F);
 	vobj(F);
 	cur->aggregate();
-	if (Volume>LOUD)
-		println("Actual Parameters","%c",{           "     Value "},"%r",PsiL,"%cf",{"%#18.12g"},cur.X,"fobj = ",cur.v);
 //	this->CheckMax();
 	}
 
@@ -412,7 +426,18 @@ Objective::fobj(F)	{
 **/
 Objective::vobj(F)	{
 	Decode(F);
+    if (Volume>QUIET) {
+        logf = fopen(lognm,"aV");
+        Print("vobj",logf,Volume>LOUD);
+        fclose(logf);
+        }
 	cur.V[] = vfunc();
+    if (Volume>QUIET) {
+        logf = fopen(lognm,"aV");
+        fprint(logf,"vobj = ",cur.V);
+        if (Volume>LOUD)  println("vobj = ",cur.V);
+        fclose(logf);
+        }
 	}
 
 /** Decode the input, compute the objective, check the maximum.
@@ -469,6 +494,11 @@ Stored in <code>cur.G</code>
 Objective::Gradient() {
 	this->Jacobian();
 	cur.G = sumc(cur.J);
+    if (Volume>QUIET) {
+        logf = fopen(lognm,"aV");
+        println(logf,"Gradient: ",cur.G);
+        fclose(logf);
+        }
 	}
 
 /** Compute the &nabla;f(), objective's gradient at the current vector.

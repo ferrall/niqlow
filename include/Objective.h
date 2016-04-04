@@ -1,5 +1,5 @@
 #import "Parameters"
-/* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2016 Christopher Ferrall */
 
 /** Tags for Gradient-based optimization algorithms.	@name QuasiAlgorithms**/	
 enum{USEBHHH,USEBFGS,USEDFP,USESTEEP,USENEWTON,QuasiAlgorithms}
@@ -15,6 +15,7 @@ struct Objective	{
 	const	decl 	
 	/** label.     **/            								L,
 	/** Name for `Objective::Load` &amp; files	**/				fname,
+    /** name of log file **/                                    lognm,
 	/** Best so far @see Objective::CheckMax    **/ 			maxpt,
 																hold,
 	/** current point.**/										cur;
@@ -24,6 +25,7 @@ struct Objective	{
         @see Objective::SetVersion **/                          MyVersion,
 	/** . internal **/											Warned;
 	decl
+    /** log file **/                                            logf,
     /** TRUE (default): exit if NaNs encountered during iteration<br>
             FALSE: exit with <code>IterationFailed</code> **/
                                                             RunSafe,
@@ -54,7 +56,7 @@ struct Objective	{
     static  SetVersion(v=200);
 			
 	virtual	CheckMax(fn=0);
-	virtual Print(orig,fn=0);
+	virtual Print(orig,fn=0,toscreen=TRUE);
 	virtual	CheckPoint(f,saving);
 	virtual Parameters(psi, ... );			
 	virtual Block(B);

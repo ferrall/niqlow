@@ -83,7 +83,8 @@ Choice is simply picking from a set of options.  We will let <span class="expres
 <DD><span class="expressions">\(A = \)</span> {<code>Harvard, Yale, Queen's, McGill</code>}.  </DD>
 <DD>We will sometimes need a symbol for the number of actions available, and will use <code>J</code> for that purpose.  So for Bob, <code>J=4</code>.</DD>
 <DD>Of course there are other schools but Bob either did not apply or did not get in to them.  They  are <em>infeasible</em> choices, and <span class="expressions">\(A\)</span> is his feasible choice set.</DD>
-<DD>While <span class="expressions">\(\alpha\)</span> stands for any of the feasible actions, at some point Bob makes a choice, and that school because special and we distinguish the choice made from the options considered. If Bob chooses to go to Yale we would write <span class="expressions">\(\alpha^\star = \)</span> <code>Yale</code>.  In these notes things marked with <span class="expressions">\(\star\)</span> are related to the optimal choice. </DD>
+<DD>While <span class="expressions">\(\alpha\)</span> stands for any of the feasible actions, at some point Bob makes a choice. The school he chooses becomes special, and we distinguish the choice made from the options considered. If Bob chooses to go to Yale we would write <span class="expressions">\(\alpha^\star = \)</span> <code>Yale</code>.  </DD>
+<DD>In these notes things marked with <span class="expressions">\(\star\)</span> are typically related to the optimal choice. </DD>
 <P/>
 In some cases we might use discrete choice to approximate a continuous choice, so here is another example:
 <P/>
@@ -95,7 +96,8 @@ In some cases we might use discrete choice to approximate a continuous choice, s
 <P/>
 <h2>Utility</h2>
 <P/>
-How did Bob choose Yale and how Tommy chose 2 hours (according to our discrete approximation)? Perhaps they considered all the pros and cons of their options and carefully weighed the factors to determine which was best.  Or maybe they threw a dart at the wall.
+How did Bob choose Yale? And how Tommy chose 2 hours (according to our discrete approximation)? 
+<DD>Perhaps they considered all the pros and cons of their options and carefully weighed the factors to determine which was best.  Or maybe they threw a dart at the wall.</DD>
 <P/>
 Whatever process they used, we are not concerned with <em>how</em> the choice was made, but that a chose was made based on a  <em>utility</em> associated with each action.  <details class="aside"><summary>Optimality and <em>function</em></summary>Of course, much of social science concerns choices that are not optimal, but for our purposes what people do will always be optimal for them given their options and preferences. Also, a teacher of mine emphasized that utility is by definition a function, so writing and saying "utility function" is redundant. It would be like saying "truck vehicle" instead of simply "truck," because by definition a truck is a vehicle. word </details>
 <P/>
@@ -115,13 +117,15 @@ Many other utility levels would explain <code>Yale</code> as an optimal choice.
 <P/>
 <h2>Multiple Dimensions</h2>
 <P/>
-In many cases we want to model choices in more than one dimension.  So Bob was making a choice in the school dimension.  But he might also be making decisions in other dimensions, such as major, roommate, etc.    Before showing <span class="n">DDP</span> code for Bob's choice let's have him decide his major at the same time. One way to do this is to convert a choice in several (discrete) dimensions into a one dimensional choice by simply listing all the possible combinations.
+In many cases we want to model choices in more than one dimension.  So Bob was making a choice in the <em>school</em> dimension.  But he might also be making decisions in other dimensions, such as <em>major</em>, <em>roommate</em>, etc.    Before showing <span class="n">DDP</span> code for Bob's choice let's have him decide his major at the same time. 
+<DD>One way to do this is to convert a choice in several (discrete) dimensions into a one dimensional choice by simply listing all the possible combinations.</DD>
+<DD>Another way is to make &alpha; a vector not a scalar.</DD>
+<DD>We illustrate both ways in the next example.</DD>
 <P/>
-<DT>Example: Bob is choosing both a university and a major, and which major looks best might depend on which school he chooses.  </DT>
+<DT>Example: Bob is choosing both a university <em>and</em> a major. Which major looks best might depend on which school he chooses.  </DT>
 <DD>For simplicity, suppose Bob's parents have told him he has to choose either <code>Economics</code> or <code>Physics</code>.  </DD>
-<DD>Then we could simply expand his choice set as follows: <code>{Harvard-Econ,Harvard-Physics,Yale-Econ,Yale-Physics,Queen's-Econ,Queen's-Econ,McGill-Econ,McGill-Physics}</code>.  Utility is then a number assigned to each of these <code>J=8</code> options.  </DD>
-<DD>However, it can be more convenient not to collapse the two dimensions, but to consider them separate but simultaneous.  In this case, we can let school be the row and
-major the column:
+<DD>Convert to 1 Dimensional: We could simply expand his choice set as follows: <code>{Harvard-Econ,Harvard-Physics,Yale-Econ,Yale-Physics,Queen's-Econ,Queen's-Econ,McGill-Econ,McGill-Physics}</code>.  Utility is then a number assigned to each of these <code>J=8</code> options.  </DD>
+<DD>Add a 2nd Dimension: However, it can be more convenient not to collapse the two dimensions, but to consider them separate but simultaneous.  In this case, we can let school be the row and major the column:
 <pre>
 BOB'S UTILITY ON THE FEASIBLE MAJOR-SCHOOL CHOICE SET
                     Econ                    Physics
@@ -154,7 +158,8 @@ Physics       McGill           -0.5
 </pre></DD>
 <P/>
 <DT>In  <span class="n">DDP</span>:  </DT>
-<DD>the action vector is built up by in this way by adding <a href="Variables.ox.html#ActionVariable">ActionVariable</a>s to it as part of the set-up of the model.  The creation of the list of actions as shown above is done for you by <span class="n">DDP</span>.  As the user you only have to concern yourself with which variables are chosen and how many different values they take on.</DD>
+<DD>the action vector is built up by in this way by adding <a href="Variables.ox.html#ActionVariable">ActionVariable</a>s to it as part of the set-up of the model.  The creation of the list of actions as shown above is done for you by <span class="n">DDP</span>.  </DD>
+<DD>As the user you only have to concern yourself with which variables are chosen and how many different values they take on.</DD>
 <DD>You can provide value labels for each action variable you add to the model.  In the example above "Econ" would be a label for a integer option value.</DD>
 <P/>
 <h2>Full Description of Bob's Problem</h2>
@@ -193,16 +198,19 @@ So far we just have 8 options with arbitrary values (utilities) assigned to them
 <span class="expressions">\(EV \equiv \max_{A} U(\alpha) = U(\alpha^\star)\)</span> = <code>4.2</code>.
 </DD>
 <P/>
-Usually the highest utility possible is named <em>indirect utility</em>, but in dynamic programming it is usually called the (optimal) value of a state, so <span class="expressions">\(V\)</span> is used.  We are using <span class="expressions">\(EV\)</span> and not just <span class="expressions">\(V\)</span> because often there are elements of uncertainty in the choice.   In particular, the person deciding will know everything up until today when the choice is made, but they will have to make that choice without knowing everything that will happen in the future (tomorrow).  So <span class="expressions">\(EV\)</span> will end up being good notation since when deciding today they will have average (take the <b>E</b>expectation of) their optimal choices made tomorrow when they have more information than they have now.
+<DT>V, and EV</DT>
+<DD>In microeconomics the highest utility possible is named <em>indirect utility</em>, but in dynamic programming it is usually called the (optimal) <em>value</em> of a state.</DD>
+ <DD>So above <span class="expressions">\(V\)</span> is used to represent the value Bob receives from his choice once optimized.  </DD>
+ <DD>We use <span class="expressions">\(EV\)</span> and not just <span class="expressions">\(V\)</span> in anticipation that there can elements of uncertainty in the choice.   In particular, the person deciding will know everything up until today when the choice is made, but they will have to make that choice without knowing everything that will happen in the future (tomorrow).  </DD>
+ <DD><span class="expressions">\(EV\)</span> will end up being good notation since when, deciding today, they will have to average (take the <b>E</b>expectation of) their optimal choices made tomorrow when they have more information than they have now.</DD>
 <P/>
-The notation also assumes there are no ties, the optimal choice is unique.  That won't be necessary.  Ties are handled properly by <span class="n">DDP</span>,  but assuming no  ties does make the example simpler.
+<DD>The notation also assumes there are no ties, the optimal choice is unique.  That won't be necessary.  Ties are handled properly by <span class="n">DDP</span>,  but assuming no  ties does make the example simpler.</DD>
 <P/>
 <h2>Coding Bob's Choice in <span class="n">DDP</span></h2>
 <P/>
 Bob's choice is trivial.  Simply look at the 8 numbers that make up his utility.  Find the biggest number.  Look at the labels associated with that action. Finished.  These operations could easily be done by hand, in a spreadsheet, or even in Ox using its built in <a href=""><code>maxc()</code> and <code>maxcindex()</code></a> routines.
 <P/>
-When you look at the code for Bob's Choice in <span class="n">DDP</span> you will see that it has some elements that are not obvious.  Indeed, it relies on some sophisticated
-features of the Ox programming language.  Even if you have done some programming in similar languages such as Matlab, Python or R, your reaction may be: that is a lot of complexity for such a simple choice.  And you are right!
+When you look at the code for Bob's Choice in <span class="n">DDP</span> you will see that it has some elements that are not obvious.  Indeed, it relies on some sophisticated features of the Ox programming language.  Even if you have done some programming in similar languages such as Matlab, Python or R, your reaction may be: that is a lot of complexity for such a simple choice.  And you are right!
 <P/>
 However, hopefully you see some logic in the complications so that the code is not completely unrelated to the problem as you understand it.  And you might see that some of the complication is there to make real models easier to build than if simple tools only were used.
 <P/>
@@ -401,7 +409,7 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 <P/>
 Bob and Tommy's choices are one-time discrete choices.  By deriving a model of their choices from the <code>OneStateModel</code> class there was no possibility of dynamics or examining how the situation affects the choice.
 <P/>
-<DT>A state is a situation in which the agent makes a decision.  States differ from each other for one of many reasons.  </DT>
+<DT>A state is a situation in which the agent makes a decision.  States differ from each other for various reasons:</DT>
 <DD>Utility may differ between states (leading to different decisions).  </DD>
 <DD>The feasible action set may differ between states (which could handled be a change in utility, but <span class="n">DDP</span> distinguishes between the two).</DD>
 <DD>The effect of choices on which states occur in the future may differ between current states.</DD>
@@ -415,12 +423,12 @@ distinguish between types of states.  But a generic state will be denoted <span 
 <P/>
 As with feasible actions, the state space is constructed by adding state variables to it.   We illustrate this with simple extension of Bob's Choice.
 <P/>
-<DT>Bob is still deciding between schools and majors, however he may or may not receive a scholarship to Queen's for which he is applied for.</DT>
+<DT>Example.  Bob is still deciding between schools and majors, however he may or may not receive a scholarship to Queen's for which he is applied for.</DT>
 <P/>
 <DD>Obviously he will make his decision based on whether he gets the scholarship or not, so the choice is contingent upon that.  We want the model to capture both choices.  One reason to do this is that we want to apply the model to data in which some people get scholarships and some don't.  </DD>
 <DD>The values of utility above will be the values without a scholarship.  Then in the event of getting the scholarship the utility of choosing Queen's goes up.</DD>
 <DD>Scholarships are measured in dollars, but Bob's utility from getting and accepting a scholarship may be different that the monetary value.  However, to keep things simple we will assume that the utilities already listed are in money-equivalent values so we can add the value of the scholarship to them in order to compute net utility for Bob.  </DD>
-<DD>Specifically, the Queen's scholarship has a value of <span class="expressions">\(2,200 and utility is measured in thousands of dollars. So in the case of getting the scholarship and going to Queen's utility increases by 2.2.</DD>
+<DD>Specifically, the Queen's scholarship has a value of &#36;2,200 and utility is measured in thousands of dollars. So in the case of getting the scholarship and going to Queen's utility increases by 2.2.</DD>
 <P/>
 <h2>Coding Bob's New Choice in <span class="n">DDP</span></h2>
 <P/>
@@ -482,13 +490,13 @@ is unclear, you can add a <code>print()</code> statement above <code>return</cod
 <DT>Instead of the Queen's scholarship, we want our model to consider what happens if Yale does or does not accept him. </DT>
 <DD>We handle this by creating a model with two states, one in which Yale is in the feasible set of schools and another at which it is not.</DD>
 <P/>
-<DT>State-Dependence in \)</span>A<span class="expressions">\( </DT>
+<DT>State-Dependence in <span class="expressions">\(A\)</span> </DT>
 <DD>An important feature of many dynamic programming models: the feasible set depends on the state the action is being taken at.</DD>
 <DD>One way to handle this is to modify the utility so that infeasible states have value -&infin;.  This works fine, but <span class="n">DDP</span> also provides a method for creating
 different feasible sets.</DD>
-<DD>Given a state \)</span>\theta<span class="expressions">\(, we can specify that the feasible action set is \)</span>A(\theta)<span class="expressions">\(.  If we let plain old \)</span>A<span class="expressions">\( denote the unrestricted set (as above), then
-\)</span>A(\theta) \subseteq A<span class="expressions">\(.  </DD>
-<DD>Recall that each action vector \)</span>\alpha<span class="expressions">\( is represented in the code as a row in a matrix.  So far we have not needed to access this matrix directly (it's stored and available as <a href="DDPShared.ox.html#Alpha___Matrix">Matrix</a>).</DD>
+<DD>Given a state <span class="expressions">\(\theta\)</span>, we can specify that the feasible action set is <span class="expressions">\(A(\theta)\)</span>.  If we let plain old <span class="expressions">\(A\)</span> denote the unrestricted set (as above), then
+<span class="expressions">\(A(\theta) \subseteq A\)</span>.  </DD>
+<DD>Recall that each action vector <span class="expressions">\(\alpha\)</span> is represented in the code as a row in a matrix.  So far we have not needed to access this matrix directly (it's stored and available as <a href="DDPShared.ox.html#Alpha___Matrix">Matrix</a>).</DD>
 <P/>
 <DT><code>FeasibleActions()</code></DT>
 <DD>To restrict feasible actions, the user provides a method that will return a column vector of 0s and 1s that depends on the current state of the model.  This method is called by <span class="n">DDP</span> inside CreateSpaces() for each possible state.  A 1 indicates the action (row) is feasible at the state, 0 means infeasible.  </DD>
@@ -499,18 +507,18 @@ Here is what is important to gather from the examples:
 <LI>Discrete dynamic programming links together many different discrete choices that are made at different states.</LI>
 <LI>A static problem with more than one state generalizes the <a href="Bellman.ox.html#OneStateModel">OneStateModel</a> introduced first but is a special case of sequential decisions made over time.</LI>
 <LI>More generally then in the one-state example, your code will call routines/methods to first  <em>initialize</em> the DP environment, then add state variables and action variables to the model then <em>create the spaces</em> implied by the items added to the model.  Then the model can be solved.</LI>
-<LI>Unlike the simple one state set up, you build the action vector \)</span>\alpha<span class="expressions">\( by sending action variables to <a href="DP.ox.html#DP___Actions">Actions</a>() which will add them to the model.  This is done between initializing and creating spaces.</LI>
+<LI>Unlike the simple one state set up, you build the action vector <span class="expressions">\(\alpha\)</span> by sending action variables to <a href="DP.ox.html#DP___Actions">Actions</a>() which will add them to the model.  This is done between initializing and creating spaces.</LI>
 <LI>In <span class="n">DDP</span> timing is controlled by a clock and a static problem is specified by setting the clock as <code>StaticProgram</code>.  This is done between initializing and creating spaces.</LI>
-<LI>The discrete state vector \)</span>\theta<span class="expressions">\( is a vector of state variables, each taking on a finite number of values.  Your model builds \)</span>\theta<span class="expressions">\( by creating new state variable objects and
+<LI>The discrete state vector <span class="expressions">\(\theta\)</span> is a vector of state variables, each taking on a finite number of values.  Your model builds <span class="expressions">\(\theta\)</span> by creating new state variable objects and
 adding them to your model using <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>(). </LI>
 <LI>Different states in the model can affect the utility of actions and the set of feasible actions. </LI>
-<LI>Restrictions of actions is possible by providing a <code>FeasibleActions()</code> routine with your model.  It takes as an input argument the matrix of all possible actions, \)</span>A<span class="expressions">\(, and returns a column of 0s and 1s indicating which rows are feasible at the current state.</LI>
+<LI>Restrictions of actions is possible by providing a <code>FeasibleActions()</code> routine with your model.  It takes as an input argument the matrix of all possible actions, <span class="expressions">\(A\)</span>, and returns a column of 0s and 1s indicating which rows are feasible at the current state.</LI>
 <LI>As with <code>Utility()</code>, the <span class="n">DDP</span> code will always set the value of state variables before calling <code>FeasibleActions()</code>.  The value of a state variable is stored in its <code>.v</code> data member, or your code can send the state variable to <a href="Shared.ox.html#CV">CV</a>() which will return the value.</LI>
 </OL>
 <P/>
 <h2>Exercises</h2>
 <OL class="steps">Make a couple copies of <code>BobsChoiceB.ox</code> and <code>BobsChoiceC.ox</code> and experiment with them as follows. (Do not change the original file's contents.)
-<LI>Suppose Bob has also applied for a Justin Bieber Scholarship which is worth \)</span>100 <em>if</em> Bob attends a Canadian university.  Add a state variable to version B to account for this possibility as well as the Queen's scholarship (so now there will be two state variables and four possible states).</LI>
+<LI>Suppose Bob has also applied for a Justin Bieber Scholarship which is worth <span class="expressions">\(100 <em>if</em> Bob attends a Canadian university.  Add a state variable to version B to account for this possibility as well as the Queen's scholarship (so now there will be two state variables and four possible states).</LI>
 <LI>Suppose McGill's Physics department does <em>not</em> have an undergraduate degree, so McGill-Physics is not feasible but McGill-Econ is.  Modify <code>FeasibleActions</code> in version C so that this option is excluded for both states of <code>Yacc</code>.  </LI>
 </OL>
 <P/>
@@ -519,7 +527,7 @@ adding them to your model using <a href="DP.ox.html#DP___EndogenousStates">Endog
 So far the environment has multiple discrete choices but no dynamics.  Now we introduce dynamics.  We will use Tommy's choice to introduce dynamics.   That is, we will model how many hours Tommy studies for an exam in the period leading up to the exam.
 <P/>
 <DT>Tommy Choices Redux</DT>
-<DD>Tommy chooses among <span class="expressions">\(J=13\)</span> different discrete numbers of hours each night.  Nights are different (and thus his choice) because the opportunity cost of studying goes up on the weekend.</DD>
+<DD>Tommy chooses among \)</span>J=13<span class="expressions">\( different discrete numbers of hours each night.  Nights are different (and thus his choice) because the opportunity cost of studying goes up on the weekend.</DD>
 <DD>For now we continue a very simple (trivial) reason Tommy cares about studying. Later we add to the model that he knows how studying affects his expected score. </DD>
 <P/>
 <h2>Discounting and the Overall Objective</h2>
@@ -529,20 +537,20 @@ In the static examples earlier utility is the objective and there is nothing tha
 <DT>Time</DT>
 <DD>Let <var>t</var> denote time, which is discrete.</DD>
 <DD>The first decision occurs at <var>t=0</var>.  Suppose the chooser at time 0 is trying to decide among different sequences of choices.  </DD>
-<DD>A particular sequence of choices is <span class="expressions">\(\alpha \equiv \alpha_0, \alpha_0, \dots\)</span>.  For the moment the number of periods is left unspecified. It could be finite or infinite.  And for the moment we suppress any other state variables that may be part of the model other than <var>t</var>.</DD>
+<DD>A particular sequence of choices is \)</span>\alpha \equiv \alpha_0, \alpha_0, \dots<span class="expressions">\(.  For the moment the number of periods is left unspecified. It could be finite or infinite.  And for the moment we suppress any other state variables that may be part of the model other than <var>t</var>.</DD>
 <P/>
 <DT>Then, <span class="n">DDP</span> and the basic DP framework itself assume that the chooser places value (utility) on that sequence equal to</DT>
 <dd span="display">
-<span class="equation">$$V(\alpha)  = \sum_{t=0,1,\dots}\  \delta^t U(\alpha_t; t).$$</span>
+\)</span><span class="expressions">\(V(\alpha)  = \sum_{t=0,1,\dots}\  \delta^t U(\alpha_t; t).\)</span><span class="expressions">\(
 </dd>
-<DD>The new and fundamental parameter appearing in <span class="expressions">\(V()\)</span> is the <em>discount factor <span class="expressions">\(\delta\)</span></em>, which typically is in the range <span class="expressions">\([0,1)\)</span>.
+<DD>The new and fundamental parameter appearing in \)</span>V()<span class="expressions">\( is the <em>discount factor \)</span>\delta<span class="expressions">\(</em>, which typically is in the range \)</span>[0,1)<span class="expressions">\(.
 <details class="aside"><summary>Notes</summary>
-<DD>If the decision horizon is finite then <span class="expressions">\(\delta=1\)</span> is permissible.  </DD>
-<DD>This formulation allows utility to depend on time as well as the action chosen at time.  But soon we will move <var>t</var> into the state vector <span class="expressions">\(\theta\)</span> and it will simply be a somewhat specialized state variable not something completely set apart from other states.</DD></details></DD>
+<DD>If the decision horizon is finite then \)</span>\delta=1<span class="expressions">\( is permissible.  </DD>
+<DD>This formulation allows utility to depend on time as well as the action chosen at time.  But soon we will move <var>t</var> into the state vector \)</span>\theta<span class="expressions">\( and it will simply be a somewhat specialized state variable not something completely set apart from other states.</DD></details></DD>
 <P/>
 <h2>The Clock and Value Function Iteration</h2>
 <P/>
-Dynamic programming accounts for a choice made today affects outcomes in the future along with the current appreciation (utility) of the choice.  The linear separability of <span class="expressions">\(V()\)</span> (and geometric discounting) makes it possible to solve the overall dynamic problem by breaking it into many connected static problems.
+Dynamic programming accounts for a choice made today affects outcomes in the future along with the current appreciation (utility) of the choice.  The linear separability of \)</span>V()$ (and geometric discounting) makes it possible to solve the overall dynamic problem by breaking it into many connected static problems.
 <P/>
 <DT>Transitions</DT>
 <DD>The only required time distinction in DP is between now (today) and later (tomorrow).  </DD>

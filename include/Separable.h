@@ -28,7 +28,7 @@ struct Separable : UnConstrained	{
 			kEncode(notmulti);
 	virtual	Deconstruct(eval) ;
 			ResetCommon(hold);
-	virtual Print(orig,fn=0);
+	virtual Print(orig,fn=0,toscreen=TRUE);
 //	virtual	CheckPoint(f,saving);
 	virtual	Common(psi, ... );	
 	virtual vfunc();						   			
@@ -38,7 +38,7 @@ struct Separable : UnConstrained	{
 	virtual	Decode(F=0);
 	virtual Jacobian();
 	virtual	Gradient();
-	virtual funclist(Xmat,aFvec);
+	virtual funclist(Xmat,aFvec,afvec=0);
 	}
 
 struct Mixture : Separable {
@@ -62,7 +62,7 @@ struct Mixture : Separable {
 			WDecode(WF);
 			WEncode(inW);
 			IncludedDK(mDK);
-			Print(orig,fn=0);
+			Print(orig,fn=0,toscreen=TRUE);
 	virtual	vfunc();
 			fobj(f);
 	virtual	Deconstruct(eval) ;
