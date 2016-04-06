@@ -445,8 +445,9 @@ RandomEffectsIntegration::Integrate(path) {
 	this.path = path;
 	L = 0.0;
     flat = 0;
-//    println("######## Integrating ");
+//    println("######## Integrating ",L);
 	loop();
+//    println("######## Finished ",L);
 	return {L,flat};
 	}
 	

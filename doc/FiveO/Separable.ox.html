@@ -215,7 +215,7 @@ D arguments (va = array[D]), then each must be a <a href="Parameters.ox.html#Par
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Separable.ox.html#Mixture___funclist">funclist</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Compute the objective at multiple points.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Separable.ox.html#Mixture___Gradient">Gradient</a></td>
@@ -369,7 +369,7 @@ Represent sum of <var>K</var> <a href="BlackBox.ox.html#BlackBox">BlackBox</a> o
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Separable.ox.html#Separable___funclist">funclist</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Compute the objective at multiple points.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Separable.ox.html#Separable___Gradient">Gradient</a></td>
@@ -549,7 +549,30 @@ Decode the input, compute the objective, check the maximum.
 
 <span class="declaration">virtual Mixture :: funclist ( Fmat , aFvec )</span>
 <dl><dd>
+Compute the objective at multiple points.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Fmat,</td>
+<td class="description" valign="baseline">N<sub>f</sub>&times;J matrix of column vectors to evaluate at
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">aFvec,</td>
+<td class="description" valign="baseline">address of a ?&times;J matrix to return <var>f()</var> in.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">afvec,</td>
+<td class="description" valign="baseline">0 or address to return aggregated values in.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">J, the number of function evaluations
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -873,9 +896,32 @@ Decode the input, compute the objective, check the maximum.
 <a name="Separable___funclist"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">funclist</span></h3>
 
-<span class="declaration">virtual Separable :: funclist ( Fmat , aFvec )</span>
+<span class="declaration">virtual Separable :: funclist ( Fmat , aFvec , afvec )</span>
 <dl><dd>
+Compute the objective at multiple points.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Fmat,</td>
+<td class="description" valign="baseline">N<sub>f</sub>&times;J matrix of column vectors to evaluate at
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">aFvec,</td>
+<td class="description" valign="baseline">address of a ?&times;J matrix to return <var>f()</var> in.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">afvec,</td>
+<td class="description" valign="baseline">0 or address to return aggregated values in.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">J, the number of function evaluations
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
