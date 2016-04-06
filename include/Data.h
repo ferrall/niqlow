@@ -267,7 +267,7 @@ struct 	PathPrediction : Prediction {
     Initialize();
 
 	~PathPrediction();
-	Predict(printit=FALSE);
+	Predict(T=0,printit=FALSE);
     SetT(T);
     Empirical(inmoments,Nincluded=FALSE);
     Tracking(LorC,...);

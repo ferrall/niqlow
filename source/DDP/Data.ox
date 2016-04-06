@@ -993,8 +993,9 @@ PathPrediction::SetT(T) {
   p-&gt;Predict(10);
 </pre></dd>
 **/
-PathPrediction::Predict(prtlevel){
+PathPrediction::Predict(T,prtlevel){
     if (Initialize()==IterationFailed) return IterationFailed;
+    SetT(T);
 	if (isclass(summand))
 		[L,flat] = summand->Integrate(this);
 	else
@@ -1417,7 +1418,7 @@ PanelPrediction::Predict(T,prtlevel) {
     aflat = {};
     M = 0.0;
     do {
-        cur->PathPrediction::Predict(prtlevel);
+        cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
 	    aflat |= cur.f~cur.flat;
         } while((isclass(cur=cur.fnext)));

@@ -21,8 +21,8 @@ DerivedSearch::Run()	{
     simdata = new SearchData();
     decl pd = new PathPrediction();
     pd->Tracking(NotInData,dd);
-    pd->SetT(5);
-    pd->Predict();
+//    pd->SetT(5);
+    pd->Predict(5,TRUE);
 	}
 
 SearchData::SearchData() {

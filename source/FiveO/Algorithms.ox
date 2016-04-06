@@ -351,7 +351,7 @@ NelderMead::Iterate(iplex)	{
 	O->Encode();
     N = rows(OC.F);
     if (!isclass(O.p2p) || O.p2p.IamClient) {
-	   nodeV = constant(-.Inf,N+1,1);
+        //	   nodeV = constant(-.Inf,N+1,1);
 	   OC.SE = OC.G = .NaN;
 	   iter = 1;
 	   if (!ismatrix(iplex))  {
@@ -429,7 +429,7 @@ NelderMead::Reflect(fac) 	{
 @internal
 **/
 NelderMead::Sort()	{
-	decl sortind = sortcindex(nodeV);
+	decl sortind = sortcindex(nodeV');
 	mxi = sortind[N];
 	mni = sortind[0];
 	nmni = sortind[1];
@@ -442,7 +442,6 @@ NelderMead::Sort()	{
 **/
 NelderMead::SimplexSize() {
 	return double(sumc(maxr(fabs(nodeX-meanr(nodeX))))); // using maxr() now
-//	return (nodeV[mxi]-nodeV[mni])/max(fabs(nodeV[mxi]+nodeV[mni]),1E-7);
 	}
 
 /**	  .
