@@ -451,19 +451,27 @@ NelderMead::SimplexSize() {
 NelderMead::Amoeba() 	{
      decl fdiff, vF = zeros(O.NvfuncTerms,N+1);
 	 n_func += O->funclist(nodeX,&vF,&nodeV);
-//	 nodeV = sumc(vF)';	   // aggregate!!!
 	 do	{
 	 	Sort();
 		if (plexsize<tolerance) return TRUE;
 		Reflect(-alpha);
-		if (atry==hi) Reflect(gamma);
+        if (Volume>SILENT) {
+            logf = fopen(lognm,"aV");
+		    fprint(logf,"Amoeba: ",atry==hi," ",atry>nxtlo);
+            }
+		if (atry==hi) {
+            Reflect(gamma);
+            if (Volume>SILENT) fprint(logf," ... gamma ",atry);
+            }
 		else if (atry>nxtlo){
 			Reflect(beta);
+            if (Volume>SILENT) fprint(logf," ... beta ",atry==worst);
 			if (atry==worst){
 				nodeX = 0.5*(nodeX+nodeX[][mxi]);
 				n_func += O->funclist(nodeX,&vF,&nodeV);
 				}
 			}
+        if (Volume>SILENT) {fprintln(logf," ... ",n_func); fclose(logf);}
 		} while (n_func < nfuncmax);
 	 return FALSE;
 	}

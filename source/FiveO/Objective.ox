@@ -355,6 +355,11 @@ Objective::ReInitialize() {
 **/
 Objective::funclist(Fmat,aFvec,afvec)	{
 	decl j,J=columns(Fmat),best, f=zeros(1,J), fj;
+	if (Volume>SILENT) {
+        logf = fopen(lognm,"aV");
+        fprintln(logf,"funclist ",columns(Fmat));
+        fclose(logf);
+        }
 	if (isclass(p2p))  {          //CFMPI has been initialized
 		p2p.client->ToDoList(Fmat,aFvec,NvfuncTerms,1);
 		for(j=0;j<J;++j) {
@@ -373,10 +378,15 @@ foreach (fj in Fmat[][j]) {
 			f[j] = cur.v;
 			}
         }
-	if ( (best = maxcindex(f) < 0) ) {
+    best = maxcindex(f);
+	if (Volume>SILENT) {
+        logf = fopen(lognm,"aV");
+        fprintln(logf,"funclist finshed ",best, best>=0 ? f[best] : .NaN);
+        fclose(logf);
+        }
+	if ( ( best < 0) ) {
         println("**** Matrix of Parameters ",Fmat,"Objective Value: ",f',"\n****");
-        if (RunSafe)
-            oxrunerror("FiveO Error 33. undefined max over function evaluation list");
+        if (RunSafe) oxrunerror("FiveO Error 33. undefined max over function evaluation list");
         oxwarning("FiveO Warning ??. undefined max over function evaluation list");
 	    best = 0;
        }
