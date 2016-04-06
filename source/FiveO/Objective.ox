@@ -369,9 +369,8 @@ Objective::funclist(Fmat,aFvec,afvec)	{
 			}
 		}
 	else{
-//Leak		
-foreach (fj in Fmat[][j]) {
-//        for (j=0;j<columns(Fmat);++j) { fj = Fmat[][j];  //Leak
+//Leak	foreach (fj in Fmat[][j]) {
+  for (j=0;j<columns(Fmat);++j) { fj = Fmat[][j];  //Leak
 			vobj(fj);
 			aFvec[0][][j] = cur.V;
 			cur -> aggregate();

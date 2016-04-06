@@ -107,7 +107,7 @@ Path::Path(i,state0) {
 			Outcome( DrawGroup(state0).state );
 	else Outcome(state0);
 	last = pnext = UnInitialized;
-	if (N::R>1 && isint(summand)) {
+	if ( (N::R>One || N::DynR>One ) && isint(summand)) {
 		summand = new RandomEffectsIntegration();
 		upddens = new UpdateDensity();
 		}
@@ -445,15 +445,16 @@ RandomEffectsIntegration::Integrate(path) {
 	this.path = path;
 	L = 0.0;
     flat = 0;
+//    println("######## Integrating ");
 	loop();
 	return {L,flat};
 	}
 	
 RandomEffectsIntegration::Run() {
     decl pf =path->PathObjective();
-    println("%% ",I::r," ",I::rtran," ",curREdensity);
     if (isint(flat)) flat = curREdensity*pf; else flat += curREdensity*pf;
 	L += curREdensity*path.L;	
+//    println("%% ",I::r," ",I::rtran," ",curREdensity," ",path.L," ",L);
 	}
 	
 /** Compute likelihood of a realized path.
@@ -960,17 +961,20 @@ Prediction::Prediction(t){
 **/
 PathPrediction::SetT(T) {
   decl cur=this,tmp;
-  this.T = T;
+  if (T>0) this.T = T;
   do {
 	 if (!isclass(cur.pnext)) {  // no tomorrow after current
-        if (T && cur.t+1<this.T)  // predict for a fixed T
+        if (T && cur.t+1<this.T) { // predict for a fixed T
             cur.pnext = new Prediction(cur.t+1);
+            ++this.T;
+            }
         }
      else {
         if (T && cur.pnext.t>=this.T)  {    //fixed panel shorter than existing
             tmp = cur.pnext;
             cur.pnext = cur.pnext.pnext;
             delete tmp;
+            --this.T;
             }
         else
             cur.pnext->Reset();  //tomorrow already exists, reset it.
@@ -990,31 +994,12 @@ PathPrediction::SetT(T) {
 </pre></dd>
 **/
 PathPrediction::Predict(prtlevel){
-  decl done;
-  cur=this;
-  Nt = sizeof(tlist);
-  if (Initialize()==IterationFailed) return IterationFailed;
-  cur=this;
-  flat = <>;
-  decl  delt =<>;
-  oxwarning(0);
-  do {
-     cur.predmom=<>;
-     done =    cur->Prediction::Predict(tlist)          //all states terminal or last
-            || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
-     if (prtlevel>=One) fprintln(logf,cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
-	 if (!done && !isclass(cur.pnext)) // no tomorrow after current
-                cur.pnext = new Prediction(cur.t+1);
-     flat |= cur.t~cur.predmom;
-     delt |= cur->Delta(mask,prtlevel);
-     cur = cur.pnext;
-  	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
-  oxwarning(-1);
-  L = rows(delt) ? norm(delt,'F'): .Inf;
-  if (prtlevel==Two || Prediction::Volume>QUIET) println("%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat~delt);
-  return f~flat;
+    if (Initialize()==IterationFailed) return IterationFailed;
+	if (isclass(summand))
+		[L,flat] = summand->Integrate(this);
+	else
+		PathObjective();
   }
-
 
 /** Add empirical values to a path of predicted values.
 @param inmom  Txm matrix of values.
@@ -1089,7 +1074,30 @@ PathPrediction::PathPrediction(f,method,iDist){
 	else {
         oxrunerror("DDP Error 64. iDist must be integer, vector or Prediction object");
         }
+    if ((N::R>One || N::DynR>One ) && isint(summand)) {
+		summand = new RandomEffectsIntegration();
+		upddens = new UpdateDensity();
+		}
 	}
+
+/** clean up.
+**/
+Prediction::~Prediction() {
+    delete sind, p, ch, W,  predmom, empmom;
+	}
+
+PathPrediction::~PathPrediction() {
+	decl v;
+    foreach(v in tlist ) delete v;
+    delete tlabels;
+	while (isclass(pnext)) {
+		cur = pnext.pnext;
+		delete pnext;
+		pnext = cur;
+		}
+	if (isclass(summand)) {delete summand, upddens ; summand=UnInitialized;}
+	~Prediction();
+    }
 
 /**
 @param htmp
@@ -1314,56 +1322,35 @@ PathPrediction::Initialize() {
     return TRUE;
     }
 
-/** Compute histogram(s) of an (array) of objects along the path.
-@param prntlevel `CV` compatible print level<br>
-        Zero (default): silent<br>One : formatted print each object and time<br>Two: create and return a flat matrix of moments stored in
-collected in `PanelPrediction::flat`.
-
-`PathPrediction::Predict`() must be called first.
-
-Also, if prntlevel==Two leave in `PathPrediction::L` the total distance between predicted and empirical moments
-
-Currently the objective is the square root of the squared differences.
-
-@example
-<pre>
-   pd = new PathPrediction();
-   pd->Tracking({capital,labour});
-   pd -&gt; TSet(10);
-   pd -&gt; Predict(TRUE);  //print distribution
-</pre></dd>
-
-@return flat matrix of predicted moments
-
-PathPrediction::Histogram(printit) {
-  if (Initialize()==IterationFailed) return;
-//  Predict();
-  if (isclass(summand))
-	   [L,flat] = summand->Integrate(this);
-  else
-	   flat = PathObjective();
-  if (printit) println("%c",tlabels,"%8.4f",flat);
-  return flat;
-  }
-
-**/
-
-
-/** Integrate over the path.
-
-**/
+/** Compute predictions and distance over the path. **/
 PathPrediction::PathObjective() {
+  decl done;
+  Nt = sizeof(tlist);
   cur=this;
-  decl flat = <>, delt =<>, v;
+  flat = <>;
+  decl delt =<>;
+  oxwarning(0);
   do {
-     flat |= cur -> Prediction::Histogram(tlist,FALSE);  //CV(prntlevel,cur)==One
-     delt |= cur->Delta(mask);
-  	 }  while (( isclass(cur = cur.pnext,"Prediction") ));
-  L = rows(delt) ? norm(delt,'F'): .NaN;
-  println(flat);
+     cur.predmom=<>;
+     done =    cur->Prediction::Predict(tlist)          //all states terminal or last
+            || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
+     if (Prediction::Volume>LOUD) fprintln(logf,cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
+	 if (!done && !isclass(cur.pnext)) { // no tomorrow after current
+                cur.pnext = new Prediction(cur.t+1);
+                ++this.T;
+                }
+     flat |= cur.t~cur.predmom;
+     delt |= cur->Delta(mask,Prediction::Volume>LOUD);
+     cur = cur.pnext;
+  	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
+  oxwarning(-1);
+  L = rows(delt) ? norm(delt,'F'): .Inf;
+  if (Prediction::Volume>QUIET) {
+    println(I::r," ",I::rtran," r distance = ",L,
+        "%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat~delt);
+    }
   return f~flat;
   }
-
 
 /** Produce histograms and mean predictions for all paths in the panel.
 
@@ -1395,26 +1382,13 @@ PanelPrediction::Tracking(LorC,...) {
     }
 
 
-PathPrediction::~PathPrediction() {
-	decl tmp,v;
-    foreach(v in tlist ) delete v;
-    delete tlabels;
-	cur = pnext;
-	while (isclass(cur)) {
-		tmp = cur.pnext;
-		delete cur;
-		cur = tmp;
-		}
-	}	
-
 PanelPrediction::~PanelPrediction() {
-	decl tmp;
-	cur = pnext;
-	while (isclass(cur)) {
-		tmp = cur.pnext;
-		delete cur;
-		cur = tmp;
+	while (isclass(pnext)) {
+		cur = pnext.pnext;
+		delete pnext;
+		pnext = cur;
 		}
+    ~PathPrediction();
 	}	
 
 /** Create a panel of predictions.
@@ -1430,10 +1404,6 @@ PanelPrediction::PanelPrediction(r,method) {
 	fparray[0] = 0;
 	cur = this;
 	for (i=1;i<N::F;++i) cur = cur.fnext = fparray[i] = new PathPrediction(i,method);
-	if (N::R>1 && isint(summand)) {
-		summand = new RandomEffectsIntegration();
-		upddens = new UpdateDensity();
-		}
     FN = 1;
     }
 
@@ -1447,7 +1417,6 @@ PanelPrediction::Predict(T,prtlevel) {
     aflat = {};
     M = 0.0;
     do {
-        cur->SetT(ismatrix(T) ? T[cur.f] : T);
         cur->PathPrediction::Predict(prtlevel);
         M += cur.L;
 	    aflat |= cur.f~cur.flat;

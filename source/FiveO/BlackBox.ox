@@ -38,7 +38,7 @@ PanelBB::PanelBB (L,data,...)	{
 /** Calls and returns <code>data-&gt;EconometricObjective()</code>.
 **/
 PanelBB::vfunc() {
-	return data->EconometricObjective();
+    return data->EconometricObjective();
 	}
 
 /**  A wrapper that acts like an objective but just calls a model's Solve method and returns 1.0.

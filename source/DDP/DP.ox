@@ -261,10 +261,11 @@ DP::SemiExogenousStates(v1,...) 	{ AddStates(semiexog,v1|va_arglist()); }
 @param v1,... `TimeInvariant`s
 **/
 DP::GroupVariables(v1,...)	{
-	decl va = {v1}|va_arglist(),j;
-	for(j=0;j<sizeof(va);++j) {
-		if (isclass(va[j],"FixedEffect")||isclass(va[j],"FixedEffectBlock")) AddStates(fgroup,va[j]);
-		else if (isclass(va[j],"RandomEffect")||isclass(va[j],"RandomEffectBlock")) AddStates(rgroup,va[j]);
+	decl va = {v1}|va_arglist(), cv;
+    foreach(cv in va) {
+//	for(j=0;j<sizeof(va);++j) {
+		if (isclass(cv,"FixedEffect")||isclass(cv,"FixedEffectBlock")) AddStates(fgroup,cv);
+		else if (isclass(cv,"RandomEffect")||isclass(cv,"RandomEffectBlock")) AddStates(rgroup,cv);
 		else oxrunerror("DDP Error 39. argument is not a TimeInvariant variable");
 		}
 	}
@@ -567,7 +568,6 @@ N::Initialize() {
     G = DP::SS[bothgroup].size;
 	R = DP::SS[onlyrand].size;
     DynR = DP::SS[onlydynrand].size;
-//println(" NNN  ",DP::SS[onlyrand].size);
 	F = DP::SS[onlyfixed].size;
     Ewidth= DP::SS[onlyexog].size;
 	A = rows(Alpha::Matrix);

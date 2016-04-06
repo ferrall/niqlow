@@ -237,8 +237,9 @@ struct 	Prediction : Data {
         /** predicted moment **/ predmom,
         /** empirical moment **/ empmom,
 		/** next prediction
-            in the panel **/	pnext;
+            in the path **/	pnext;
 	Prediction(prev);
+    ~Prediction();
 	Predict(tlist);
     Reset();
 	Histogram(v,printit=FALSE);
