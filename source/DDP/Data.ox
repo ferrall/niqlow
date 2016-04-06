@@ -1011,7 +1011,7 @@ PathPrediction::Predict(prtlevel){
   	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
   oxwarning(-1);
   L = rows(delt) ? norm(delt,'F'): .Inf;
-  if (prtlevel==Two || Volume>QUIET) println("%c",tlabels,"%8.4f",flat);
+  if (prtlevel==Two || Prediction::Volume>QUIET) println("%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat~delt);
   return f~flat;
   }
 
@@ -1183,8 +1183,7 @@ Prediction::Delta(mask,printit) {
                 .:  (isdotnan(mv)   // else, find mising predictions
                         .? .Inf             // difference unbounded
                         .: W*(mv-empmom));   // weighted difference
-    if (printit || Volume>QUIET)
-        println(t,"%r",{"pred.","obsv.","delt"},"%8.4f",mv|empmom|df);
+    if (printit) println(t,"%r",{"pred.","obsv.","delt"},"%8.4f",mv|empmom|df);
     return df;
     }
 
