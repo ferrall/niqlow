@@ -450,15 +450,13 @@ NelderMead::SimplexSize() {
 @internal
 **/
 NelderMead::Amoeba() 	{
-     decl fdiff, vF = zeros(O.NvfuncTerms,N+1);
+     decl vF = zeros(O.NvfuncTerms,N+1);
 	 n_func += O->funclist(nodeX,&vF,&nodeV);
-     if (Volume>SILENT) {
-        logf = fopen(lognm,"aV");fprintln(logf,"Amoeba: ");
-        }
+     if (Volume>SILENT) { logf = fopen(lognm,"aV");fprintln(logf,"Amoeba: ");}
 	 do	{
 	 	Sort();
-		if (plexsize<tolerance) {fclose(logf); return TRUE;}
-        if (Volume>SILENT) {fprint(logf,"plexsize: ",plexsize," fdiff:",fdiff); }
+		if (plexsize<tolerance) {if (Volume>SILENT) fclose(logf); return TRUE;}
+        if (Volume>SILENT) fprint(logf,"plexsize: ",plexsize," fdiff:",fdiff);
 		Reflect(-alpha);
         if (Volume>SILENT) fprint(logf," ",atry==hi," ",atry>nxtlo);
 		if (atry==hi) {
