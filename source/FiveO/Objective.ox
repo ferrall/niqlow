@@ -32,7 +32,7 @@ Objective::Objective(L)	{
 	Blocks = {};
 	Volume = QUIET;
     RunSafe = TRUE;
-    lognm = classname(this)+"-"+L+"-"+date()+"-"+replace(time(),":","-")+".log";
+    lognm = replace(classname(this)+"-"+L+"-"+date()+"-"+replace(time(),":","-")," ","")+".log";
     logf = fopen(lognm,"aV");
     println(logf,"Created");
     fclose(logf);

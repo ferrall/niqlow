@@ -11,7 +11,7 @@ Algorithm::Algorithm(O) {
 	OC = O.cur;
     tolerance = itoler;
 	Volume = SILENT;
-    lognm = classname(this)+"-On-"+O.L+date()+replace(time(),":","-")+".log";
+    lognm = replace(classname(this)+"-On-"+O.L+"-"+date()+"-"+replace(time(),":","-")," ","")+".log";
     logf = fopen(lognm,"aV");
     fprintln(logf,"Created");
     fclose(logf);
@@ -340,6 +340,7 @@ NelderMead::NelderMead(O)	{
     Algorithm(O);
 	step = istep;
 	mxstarts =INT_MAX;
+    tolerance = itoler;
 	}
 	
 /** Iterate on the Amoeba algorithm.
@@ -381,7 +382,7 @@ NelderMead::Iterate(iplex)	{
 	       if (Volume>SILENT) {
               logf = fopen(lognm,"aV");
 	   		  fprintln(logf,"\n","%3u",iter,". N=","%5u",n_func," Step=","%8.5f",step,". Fmax=",nodeV[mxi]," .PlexSize=",plexsize,plexsize<tolerance ? " *Converged*" : "");
-	          if (Volume>QUIET) fprintln(logf," Bounds on Simplex","%r",{"min","max"},"%c",O.Flabels,limits(nodeX')[:1][]);
+	          fprintln(logf," Bounds on Simplex","%r",{"min","max"},"%c",O.Flabels,limits(nodeX')[:1][]);
               fclose(logf);
               }
 	       step *= 0.9;
@@ -435,13 +436,14 @@ NelderMead::Sort()	{
 	nmni = sortind[1];
 	psum = sumr(nodeX);		
 	plexsize = SimplexSize();
+    fdiff = norm(nodeV-meanr(nodeV));
 	}
 
 /** Compute size of the current simplex.
 @return &sum;<sub>j</sub> |X-&mu;|
 **/
 NelderMead::SimplexSize() {
-	return double(sumc(maxr(fabs(nodeX-meanr(nodeX))))); // using maxr() now
+	return norm(nodeX-meanr(nodeX),'F');
 	}
 
 /**	  .
@@ -450,14 +452,15 @@ NelderMead::SimplexSize() {
 NelderMead::Amoeba() 	{
      decl fdiff, vF = zeros(O.NvfuncTerms,N+1);
 	 n_func += O->funclist(nodeX,&vF,&nodeV);
+     if (Volume>SILENT) {
+        logf = fopen(lognm,"aV");fprintln(logf,"Amoeba: ");
+        }
 	 do	{
 	 	Sort();
-		if (plexsize<tolerance) return TRUE;
+		if (plexsize<tolerance) {fclose(logf); return TRUE;}
+        if (Volume>SILENT) {fprint(logf,"plexsize: ",plexsize," fdiff:",fdiff); }
 		Reflect(-alpha);
-        if (Volume>SILENT) {
-            logf = fopen(lognm,"aV");
-		    fprint(logf,"Amoeba: ",atry==hi," ",atry>nxtlo);
-            }
+        if (Volume>SILENT) fprint(logf," ",atry==hi," ",atry>nxtlo);
 		if (atry==hi) {
             Reflect(gamma);
             if (Volume>SILENT) fprint(logf," ... gamma ",atry);
@@ -470,8 +473,8 @@ NelderMead::Amoeba() 	{
 				n_func += O->funclist(nodeX,&vF,&nodeV);
 				}
 			}
-        if (Volume>SILENT) {fprintln(logf," ... ",n_func); fclose(logf);}
 		} while (n_func < nfuncmax);
+     if (Volume>SILENT) {fprintln(logf," ... ",n_func); fclose(logf);}
 	 return FALSE;
 	}
 

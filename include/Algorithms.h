@@ -129,6 +129,7 @@ struct NelderMead  : NonGradient {
 	enum{hi,nxtlo,lo,worst,TryResults};
 
 	static 	const 	decl
+	/** default Plexsize tolerance. **/ itoler = 1E-9,
     /** &alpha;.  **/					alpha = 1.0,
     /** &beta;.  **/					beta = 0.5,
     /** &gamma;. **/					gamma = 1.4,
@@ -139,9 +140,11 @@ struct NelderMead  : NonGradient {
     /** . @internal **/					psum,
     /** . @internal **/					plexshrunk,
 	/** current area of plex. **/		plexsize,
+    /** |f()-mean(f)| **/               fdiff,
 	/** function evaluations. **/		n_func,
-    /** model parameter simplex. **/	nodeX,
-    /** . **/							nodeV,
+    /** free parameter simplex. **/	    nodeX,
+    /** function values on the simples.
+            **/							nodeV,
     /** . @internal **/					mxi,
     /** . @internal **/					mni,
     /** . @internal **/					nmni,
