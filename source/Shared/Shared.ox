@@ -203,8 +203,9 @@ DiscreteNormal(N,mu,sigma)	{
 /**Create a discrete quantity .
 @param L <em>string</em> a label or name for the variable.
 @param N <em>positive integer</em>, number of values.<br>N=1 is a constant.
+@param Volume default=SILENT. `NoiseLevels`
 **/
-Discrete::Discrete(L,N)  {
+Discrete::Discrete(L,N,Volume)  {
     if (!isint(N)||(N<=0)) oxrunerror("niqlow Error 02. Number of discrete values has to be a non-negative integer");
 	this.N = N;
     if (!isstring(L)) {
@@ -213,6 +214,7 @@ Discrete::Discrete(L,N)  {
         }
     else
         this.L = L;
+    this.Volume = Volume;
 	vals = range(0,N-1);
 	actual= vals';
 	subv = pos = UnInitialized;
@@ -230,13 +232,15 @@ Discrete::PDF() {return ismember(pdf,"v") ? pdf.v[v] : pdf[v];	}
 /** Create a new parameter.
 @param L parameter label
 @param ival initial value
+@param Volume default=SILENT. `NoiseLevels`
 **/
-Parameter::Parameter(L,ival)	{
+Parameter::Parameter(L,ival,Volume)	{
 	this.L = L;
 	v = start = scale = this.ival = ival;
 	f = 1.0;
 	block = DoNotVary = FALSE;
 	pos = UnInitialized;
+    this.Volume = Volume;
 	}
 
 /** Reset the parameter to its hard-coded values.

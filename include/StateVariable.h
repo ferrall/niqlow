@@ -11,7 +11,7 @@ static StripZeros(trans);
 @see DP::ExogenousStates, DP::EndogenousStates, DP::SemiExogenousStates, StateBlock
 **/
 struct StateVariable : Discrete	{
-	StateVariable(L="s", N=1);
+	StateVariable(L="s", N=1,Volume=SILENT);
 	decl
 	/** A vector of values that end decision making
 		Equal to &lt; &gt; if state is not terminating.      **/     TermValues;
@@ -106,7 +106,7 @@ class Augmented : StateVariable {
     const decl /**base state variable.**/ b;
     decl
     /** Holds the base transition. **/ basetr;
-    Augmented(Lorb,N=0);
+    Augmented(Lorb,N=0,Volume=SILENT);
     Synch();
     virtual Transit(FeasA);
     }

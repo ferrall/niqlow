@@ -13,11 +13,12 @@ StripZeros(trans) {
 @param N <em>positive integer</em> the number of values the variable takes on.<br>N=1 is a constant, which can be included as
 a placeholder for extensions of a model.
 @param L <em>string</em> a label or name for the variable.
+@param Volume default=SILENT. `NoiseLevels`
 @comments
 The default transition is  s&prime; = 0, so it is very unlikely <code>MyModel</code> would ever include a variable of the
 base class.
 **/
-StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>; }
+StateVariable::StateVariable(L,N,Volume)	{	Discrete(L,N,Volume); 	TermValues = <>; }
 
 
 /** Return actual[v].
@@ -162,17 +163,17 @@ Augmented::Synch() {    b.v = v;     }
 /** Base creator augmented state variables
 @param Lorb either a `StateVariable` object, the base variable to augment<br>Or, string the label for this variable.
 @param N integer, if Otherwise, if &gt; b.N number of points of the augmented variable.  Otherwise, ignored and this.N = b.Nl
-
+@param Volume default=SILENT. `NoiseLevels`
 If Lorb is a string then <code>b = new `Fixed`(Lorb)</code>.
 **/
-Augmented::Augmented(Lorb,N) {
+Augmented::Augmented(Lorb,N,Volume) {
     if (isclass(Lorb,"StateVariable")) {
         this.b = Lorb;
-        StateVariable(Lorb.L,max(N,Lorb.N));
+        StateVariable(Lorb.L,max(N,Lorb.N),Volume);
         }
     else {
         this.b = new Fixed(Lorb);
-        StateVariable(Lorb,N);
+        StateVariable(Lorb,N,Volume);
         }
     }
 

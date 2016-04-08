@@ -205,11 +205,12 @@ struct DataSet : Panel {
 **/
 struct ObjToTrack : Zauxiliary {
     const decl
+    /** Inherited fromt the object.**/  Volume,
     /** See `DataColumnTypes` **/       type,
     /** Position in the flat list  **/  pos,
     /** `Discrete` object**/            obj,
     /** label  **/                      L,
-    /** column label of index **/     LorC;
+    /** column label of index **/       LorC;
     decl
     /** **/     hN,
     /** **/     hd,
@@ -268,12 +269,12 @@ struct 	PathPrediction : Prediction {
 
 	~PathPrediction();
 	Predict(T=0,printit=FALSE);
-    SetT(T);
+    SetT(T=0);
     Empirical(inmoments,Nincluded=FALSE);
     Tracking(LorC,...);
     SetColumns(dlabels,Nplace=UnInitialized);
 //	Histogram(printit=TRUE);
-    PathObjective();
+    PathObjective(T=0);
 	}
 
 struct PanelPrediction : PathPrediction {

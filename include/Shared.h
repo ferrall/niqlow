@@ -81,6 +81,7 @@ struct Quantity {
 	const 	decl	
 		/** Label **/ 						L;
 	decl
+        /** Volume of output. **/           Volume,
 		/** position in vector   **/  	  	pos,
 		/** Current actual value      **/  	v;
 	}
@@ -90,11 +91,11 @@ struct Discrete	: Quantity{
 	const 	decl	
 			/** range(0,N-1)			   **/  	vals;
 	decl	
-            /** subvector objected belongs to. **/   subv,
+            /** subvector objected belongs to. **/  subv,
 			/** Number of different values **/   	N,
 			/** corresponding model vals.  **/  	actual,
 			/** vector of prob. of vals. **/		pdf;
-	Discrete(L,N);
+	Discrete(L,N,Volume=SILENT);
 	virtual PDF();
 	virtual Update();
 	}
@@ -115,7 +116,7 @@ struct Parameter : Quantity {
 		/** 0 or pointer to param block.  **/     		block,
 		/** Value at start of iteration.**/   			start,
 		/** Scaling value  s. **/              			scale;
-	Parameter(L,ival);
+	Parameter(L,ival,Volume=SILENT);
 	Reset(newv,IsCode=TRUE);
     ReInitialize();
 	virtual ToggleDoNotVary();

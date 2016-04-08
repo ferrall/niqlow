@@ -996,11 +996,10 @@ PathPrediction::SetT(T) {
 **/
 PathPrediction::Predict(T,prtlevel){
     if (Initialize()==IterationFailed) return IterationFailed;
-    SetT(T);
 	if (isclass(summand))
 		[L,flat] = summand->Integrate(this);
 	else
-		PathObjective();
+		PathObjective(T);
   }
 
 /** Add empirical values to a path of predicted values.
@@ -1125,6 +1124,7 @@ ObjToTrack::Distribution(htmp,ptmp) {
             }
         return mns;
         }
+    if (Volume>SILENT) println(L," Dist:",double(hvals*hist),hvals|(hist'));
     return hvals*hist;
     }
 
@@ -1137,7 +1137,7 @@ Prediction::Histogram(tlist,printit) {
     decl newqs,newp,j,uni,htmp,ptmp;
     predmom=<>;
 //Leak foreach(tv in tlist ) {
-        decl i; for (i=0;i<sizeof(tlist);++i) { tv = tlist[i]; // Leak
+    decl i; for (i=0;i<sizeof(tlist);++i) { tv = tlist[i]; // Leak
         switch(tv.type) {
             case avar : tv.hist[] = 0.0;
 //Leak foreach (cp in ch[k])
@@ -1207,6 +1207,7 @@ ObjToTrack::ObjToTrack(LorC,obj,pos) {
   this.obj = obj;
   this.LorC = LorC;
   this.pos = pos;
+  Volume = ismember(obj,"Volume") ? obj.Volume : SILENT;
   type = isclass(obj,"ActionVariable") ? avar
           : isclass(obj,"StateVariable") ? svar
           : isclass(obj,"AuxiliaryValues")? auxvar
@@ -1325,9 +1326,10 @@ PathPrediction::Initialize() {
     }
 
 /** Compute predictions and distance over the path. **/
-PathPrediction::PathObjective() {
+PathPrediction::PathObjective(T) {
   decl done;
   Nt = sizeof(tlist);
+  SetT(T);
   cur=this;
   flat = <>;
   decl delt =<>;
