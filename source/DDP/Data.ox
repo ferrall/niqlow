@@ -932,12 +932,14 @@ Prediction::Predict(tlist) {
         else {
             qi = ReverseState(q,I::OO[tracking][])[lo:hi];
             pp += p[s]; unrch |= qi' ;
-//            fprintln(logf," t ",t," ",q," ",p[s],"%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],qi');
             }
         }
-    if ( Data::Volume>LOUD && !isfeq(pp,0.0)) {
+    if (!isfeq(pp,0.0)) {
         fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
-        oxwarning("DDP Warning ??. Leakage in transition probability.  See log file");
+        if (!LeakWarned) {
+            println("DDP Warning ??. Leakage in transition probability.  See log file");
+            LeakWarned = TRUE;
+            }
         }
     Histogram(tlist,FALSE);  //CV(prntlevel,cur)==One
     return allterm;
@@ -1062,6 +1064,7 @@ PathPrediction::InitialConditions() {
         oxrunerror("DDP Error 64. iDist must be integer, vector, function or Prediction object");
     if (Data::Volume>QUIET) fprintln(Data::logf,"Path for Group ",f,"Initial State Indices & Prob.",(sind~p)');
     ch[] = 0.0;
+    LeakWarned = FALSE;
     }
 
 /** Set up predicted distributions along a path.
@@ -1134,10 +1137,10 @@ ObjToTrack::Distribution(htmp,ptmp) {
                 }
             mns ~= hh*hist[j];
             }
-        if (Data::Volume>SILENT) fprintln(Data::logf,L," Mean ",mns);
+        if (Volume>SILENT) fprintln(Data::logf,L," Mean ",mns);
         return mns;
         }
-    if (Data::Volume>SILENT) fprintln(Data::logf,L," Dist:",double(hvals*hist),hvals|(hist'));
+    if (Volume>SILENT) fprintln(Data::logf,L," Dist:",double(hvals*hist),hvals|(hist'));
     return hvals*hist;
     }
 
@@ -1182,7 +1185,9 @@ Prediction::Histogram(tlist,printit) {
                         htmp |= newqs;
                         ptmp |= newp;
                         }
-                    else if (!isfeq(p[k],0.0)) fprintln(logf,"Histogram: unreachable ","%i",int(q)," : ",double(p[k]));
+                    else if (!isfeq(p[k],0.0)) {
+                        fprintln(logf,"%r",{"H unrchble"},"%cf",{"%8.7e","%9.0f"},"%c",{" prob "}|Labels::Vprt[svar][lo:hi],p[k]~(ReverseState(q,I::OO[tracking][])[lo:hi]'));
+                        }
                     }
                 predmom ~= tv->Distribution(htmp,ptmp);
                 break;

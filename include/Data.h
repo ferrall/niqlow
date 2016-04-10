@@ -221,7 +221,7 @@ struct ObjToTrack : Zauxiliary {
 /** Predicted distribution across states.
 **/	
 struct 	Prediction : Data {
-	static	decl ud, lo, hi;
+	static	decl ud, lo, hi, LeakWarned;
 	const  	decl t;
 	decl
 		/** state index **/		sind,
