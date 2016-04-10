@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Ox 2.10: new features and fixed bugs</title>
+   <meta name="author" lang="en" content="Jurgen A Doornik">
+   <meta name="copyright" content="&copy Jurgen A Doornik">
+   <base target="content-frame">
+</head>
+<body text="Black" bgcolor="#FFFFEA" link="darkblue" vlink="darkblue" alink="darkblue">
+
+&lt;<A HREF="Ox220.html">Next version of Ox</A>&gt;
+&lt;<A HREF="Ox200.html">Previous version of Ox</A>&gt;
+
+
+<hr><h1>Ox 2.10: new features and fixes</h1>
+
+<hr><h2>New features and enhancements</h2>
+<ul>
+
+<li>Created <a href="oxstd.html#iseq"><tt>iseq()</tt></a>.
+Now can use <a href="oxstd.html#isfeq"><tt>isfeq()</tt></a> for case-insensitive
+string comparison. Also created <a href="oxstd.html#strifind"><tt>strifind()</tt></a>
+as case-insensitive version of <a href="oxstd.html#strfind"><tt>strfind()</tt></a>.
+
+<li><tt>"aa"+"bb"</tt> is now the same as <tt>"aa"~"bb"</tt> 
+
+<li>Allowing <i>k</i> <tt>x</tt> <i>T</i> input for:
+<a href="oxdraw.html#DrawCorrelogram"><tt>DrawCorrelogram()</tt></a>,
+<a href="oxdraw.html#DrawBoxPlot"><tt>DrawBoxPlot()</tt></a>,
+<a href="oxdraw.html#DrawSpectrum"><tt>DrawSpectrum()</tt></a>,
+<a href="oxdraw.html#DrawQQ"><tt>DrawQQ()</tt></a>,
+<a href="oxdraw.html#DrawDensity"><tt>DrawDensity()</tt></a>
+Also created 2 argument <a href="oxdraw.html#Draw"><tt>Draw()</tt></a> function.
+
+<li>created:<br>
+<a href="oxclass.html#Database::Load"><tt>Database::Load</tt></a>,<br>
+<a href="oxclass.html#Sample::GetFrequency"><tt>Sample::GetFrequency</tt></a>, and<br>
+<a href="oxclass.html#Database::RemoveObsIf"><tt>Database::RemoveObsIf</tt></a>,<br>
+
+<li><a href="oxclass.html#Modelbase">Modelbase class</a>
+
+<li>Read Stata 4-6 .dta files (<a href="oxstd.html#loadmat"><tt>loadmat</tt></a>,
+<a href="oxclass.html#Database::LoadDta"><tt>Database::LoadDta</tt></a>)
+
+<li>The comma in a matrix constant to seperate elements within
+a row was made optional in Ox 2.00. However, this could lead to
+to errors which are difficult to find, and has been made compulsary again.
+
+<li>Other new and enhanced functions:
+
+<ul>
+<li><a href="oxstd.html#cerf"><tt>cerf()</tt></a> (Complex error function)
+<li><a href="oxstd.html#erf"><tt>erf()</tt></a> (Error function)
+<li><a href="oxpackages.html#randirichlet"><tt>randirichlet()</tt></a>,
+<li><a href="oxpackages.html#ranwishart"><tt>ranwishart()</tt></a>
+
+<li><a href="oxstd.html#today"><tt>today()</tt></a> to get current time/date as double (no of secs since 1970).<br>
+<a href="oxstd.html#timing"><tt>timing</tt></a><tt>(mtimes,1)</tt> to go from doubles to year,month,...
+
+<li><a href="oxpackages.html#NumJacobian"><tt>NumJacobian()</tt></a>: Now using vec in the returned function value,
+so can be used for matrix-valued functions.
+</ul>
+
+<li>assignment of array to part of array (i.e. using selection on right-hand side)
+now uses array contents of rhs.
+Previously, when both as1 and as 2 are arrays (of strings e.g.)
+<xmp>
+    as1[0:1] = as2
+</xmp>
+was executed as
+<xmp>
+    as1[0] = as2, as1[1] = as2;
+</xmp>
+thus going up one array level in as1[0] and as1[1].
+Now it is executed as:
+<xmp>
+    as1[0] = as2[0], as1[1] = as2[1];
+</xmp>
+thus preserving the array level in as1.
+	
+</ul>
+
+
+
+<hr><h2>Known problems in version 2.00a which are fixed in version 2.10:</h2>
+
+<ul>
+
+<li>assignment using one index on the left-hand side doesn't
+works as expected when the lhs is indexed as row (or column) and
+the right-hand side is a column (or row). For example:
+<xmp>
+    decl vp = <1;2;3;4>;	
+    vp[0:1] = <-1,-2>;	// WRONG!
+    vp[0:1] = <-1;-2>;	// OK
+</xmp>
+The first should set vp to -1;-2;3;4, but only did -1;2;3;4.
+
+<li>OxRun: GiveWin keeps grabbing focus when a new window is specified.
+Now this is only happening the first time; the window is brought
+to the foreground within GiveWin after SetTextWindow/SetDrawWindow, but
+GiveWin grabs focus only first time.
+
+<li><tt>&lt;0.1;0.7;&gt;</tt> would lead to an infite loop of error messages.
+Now the trailing semicolon or colon is allowed.
+
+<li>Error in PcFimlDgp.ox prevented use of more than one lag.
+
+<li>Small improvement to XLS reading.
+Also fixed problem with large negative numbers
+(which were mapped to an integer by Excel).
+
+<li>In rare occasions concatenation with a NULL string would lead to a crash.
+
+<li><tt>Database::Remove()</tt> did not remove the variable name.
+
+<li><tt>invertgen(x, 0)</tt> is wrong if x is not square.
+
+<li>Bug in <tt>NumJacobian()</tt>: dimensions of returned matrix are wrong.
+
+<li>
+Problem with scanning from a string:
+<tt>sscan(&s, ...)</tt> doesn't advance string correctly, resulting in a crash.
+<tt>sscan(s, ...)</tt> only works for first scanned element
+(again, the string location is not moved forward before reading
+the second element). As a consequence, the example on page 187
+will not work.
+
+<li>
+<tt>sortbyc()</tt> when sorting by multiple columns is likely
+to go wrong. The only version which works is
+when the sort column indices are of the form: 0,1,2,...
+(i.e. starting at 0, and consecutive range).
+
+</ul>
+
+
+<hr><h2>Known problems in version 2.00 which were fixed in version 2.00a:</h2>
+
+<ul>
+
+<li>There is a problem with using [] directly on the return value
+of a function when the function returns an array. Also when a function
+returns part of an array which resides in a local variable. For example:
+<xmp>
+    func1()
+    {   return {"a", "b"};
+    }
+    print(func1()[1]);
+    func2()
+    {   decl x = {"a", "b"};
+        return x[0:1];
+    }
+    print(func2());
+</xmp>
+In the first case <tt>x=func1()</tt> is fine. In the second case,
+assigning <tt>x[0:1]</tt> to a local variable which is then returned
+works without problems.
+        
+        
+<li>Saving as in7: base name with more than 12 chars causes problems
+(when trying to derive default project name) and could result in a crash.
+Can be avoided by using a base name (ie. file name without path and extension)
+with fewer than 13 characters.
+
+<li> <tt>a[0][x] * b[x][1]</tt> crashes, but only when the first dimension
+of <tt>a</tt> is 0 and the second dimension of <tt>b</tt> is 1.
+
+<li>Problem with reassigning different zero sized matrix. For example:
+<xmp>
+    decl x = zeros(0,5);
+    println(rows(x), " x ", columns(x));
+    x = zeros(0,6);
+    println(rows(x), " x ", columns(x));
+</xmp>
+prints:
+<xmp>
+    0 x 5
+    0 x 5
+</xmp>
+but should be
+<xmp>
+    0 x 5
+    0 x 6
+</xmp>
+
+</ul>
+
+
+<p><hr><b>Ox version 2.10. This file last changed 26-Feb-1999.</b>
+&copy JA Doornik<br>
+<i><a href="http://www.nuff.ox.ac.uk/Users/Doornik/Index.html" target="_top">
+&lt;Doornik home&gt;</a></i>
+
+</div><!-- /page-frame -->
+</body>
+</html>

@@ -45,7 +45,7 @@ static const decl
 	DiscreteNormal(N,mu=0.0, sigma=1.0);
 	varlist(s) ;
 	vararray(s);
-	MyMoments(M,rlabels=0);
+	MyMoments(M,rlabels=0,oxf=0);
 	prefix(pfx, s);
 	GaussianKernel(X,h=UseDefault);
     Epanechnikov(X,h);

@@ -1,0 +1,3173 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style/basic.css">
+  <link rel="stylesheet" type="text/css" href="style/theme-green.css">
+  <title>Ox Class Reference</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="author" lang="en" content="Jurgen A Doornik">
+  <meta name="copyright" content="&copy; Jurgen A Doornik">
+  <base target="content-frame">
+  <script src="style/loadincontent.js" language="javascript" type="text/javascript"></script>
+</head>
+
+<!-- Copyright Jurgen A. Doornik -->
+<body>
+<div class="page-frame">
+
+<h1>Ox Class Reference</h1>
+<p>
+<h2>Chapter contents:</h2><p>
+
+<dl>
+<dt><a href="#Database">Database class</a>
+<dd><dl>
+<dt><a href="#DatabaseFunc">Database function members</a>
+<dt><a href="#DatabaseData">Database data members</a>
+</dl><p>
+<dt><a href="#Modelbase">Modelbase class</a>
+<dd><dl>
+<dt><a href="#ModelbaseFunc">Modelbase function members</a>
+<!-- <dt><a href="#ModelbaseData">Modelbase data members</a>-->
+</dl><p>
+<dt><a href="#PcFiml">PcFiml class</a>
+<dd><dl>
+<dt><a href="#PcFimlFunc">PcFiml function members</a>
+</dl><p>
+<dt><a href="#PcFimlDgp">PcFimlDgp class</a>
+<dd><dl>
+<dt><a href="#PcFimlDgpFunc">PcFimlDgp function members</a>
+</dl><p>
+<dt><a href="#PcNaiveDgp">PcNaiveDgp class</a>
+<dd><dl>
+<dt><a href="#PcNaiveDgpFunc">PcNaiveDgp function members</a>
+</dl><p>
+<dt><a href="#RanMC">RanMC class</a>
+<dd><dl>
+<dt><a href="#RanMCFunc">RanMC function members</a>
+</dl><p>
+<dt><a href="#RanPcNaive">RanPcNaive class</a>
+<dd><dl>
+<dt><a href="#RanPcNaiveFunc">RanPcNaive function members</a>
+</dl><p>
+<dt><a href="#Sample">Sample class</a>
+<dd><dl>
+<dt><a href="#SampleFunc">Sample function members</a>
+<dt><a href="#SampleData">Sample data members</a>
+</dl><p>
+<dt><a href="#Simulator">Simulator class</a>
+<dd><dl>
+<dt><a href="#SimulationFunc">Simulator function members</a>
+</dl><p>
+</dl><p>
+
+
+<p><h2><a name="Database"></a>Database : Sample class</h2><p>
+
+The <tt>Database</tt> class stores a matrix of data, together
+with the sample period (the class derives from the
+<a href="#Sample">Sample class</a>),
+and the names of the variables.
+Functions to create a database from disk files
+(ASCII, <i>OxMetrics</i> and spreadsheet formats) are provided.
+
+<p>
+In addition, the <tt>Database</tt> class has built-in support
+to select variables (for modelling) from the database.
+Variables are selected by name, optionally with a lag length,
+and allocated to a group (e.g. to distinguish between
+dependent and independent variables).
+A sample period for the selection can be set.
+This selection can then be extracted from the database. The
+selected sample is always adjusted so as not to include
+missing values (<tt>.NaN</tt>).
+<p>
+The <tt>Database</tt> class also supports daily and weekly data.
+This is different because some years have 52 and others 53 weeks.
+Therefore, the method of using a fixed frequency, as implemented in
+the <tt>Sample</tt> class from which the <tt>Database</tt> class derives,
+does not work. Instead, a database can be dated:
+<ul>
+<li> the first column must be of type <tt>DB_DATE</tt>,
+<li> the first column holds date indices as created by <tt>dayofcalendar</tt>,
+<li> the optional fractional part of this indicates time,
+<li> the first and last observation must be valid, i.e. cannot be missing.
+</ul>
+These criteria are satisfied in <tt>data/dowjones.xls</tt>, and the Excel dates
+are translated in Ox dates when reading the file.
+Note that the underlying fixed frequency information is set to a
+frequency of one (equivalent to undated data),
+so that <tt>GetSize</tt> and other <tt>Sample</tt> functions
+still work.
+<p>
+Some sample code is given in <tt>ox/samples/database</tt>.
+<p>
+A choice variable has type <tt>DB_CHOICE</tt>.
+In that case, there is an array of text labels associated with values:
+value zero corresponds to index zero in the array, etc.
+See the example in <tt>ox/samples/database/dbchoice.ox</tt>. 
+<p>
+To use the class, link in the database code
+and include <tt>database.oxh</tt>. This is most easily done
+by adding an <tt>#import &lt;database&gt;</tt> statement
+at the top of your source code.
+
+<p><h3><a name="DatabaseFunc"></a>Database overview</h3><p>
+
+<table border="1">
+<tr><td width="200"><i>Base class</i><td>
+<a href="oxclass.html#Sample">Sample class</a>
+<tr><th colspan="2">Construction/Information
+<tr><td><a href="#Database::Database">Database</a><td>Constructor
+<tr><td><a href="#Database::Create">Create</a><td>Create a database	(not needed when using Load...)
+<tr><td><a href="#Database::Empty">Empty</a><td>empties the database and sample
+<tr><td><a href="#Database::GetDbName">GetDbName</a><td>get the database name
+<tr><td><a href="#Sample::GetSize">GetSize</a><td>  number of observations in the database
+<tr><td><a href="#Database::GetVarCount">GetVarCount</a><td>returns number of variables
+<tr><td><a href="#Database::Info">Info</a><td>Print summary information
+<tr><td><a href="#Database::IsEmpty">IsEmpty</a><td>returns TRUE if the database is empty
+<tr><td><a href="#Database::SetDbName">SetDbName</a><td>set the database name
+<tr><td><a href="#Database::Tabulate">Tabulate</a><td>cross-tabulation of discrete variables
+<tr><th colspan="2">Data input/output
+<tr><td><a href="#Database::Load">Load</a><td>Load a data file
+<tr><td><a href="#Database::LoadCsv">LoadCsv</a><td>Load a CSV spreadsheet file
+<tr><td><a href="#Database::LoadDht">LoadDht</a><td>Load a GAUSS .dht/.dat file
+<tr><td><a href="#Database::LoadDta">LoadDta</a><td>Load a Stata .dta file
+<tr><td><a href="#Database::LoadFmtVar">LoadFmtVar</a><td>Load a formatted .dat file
+<tr><td><a href="#Database::LoadIn7">LoadIn7</a><td>Load a .in7/.bn7 file
+<tr><td><a href="#Database::LoadObs">LoadObs</a><td>Load a human-readable file which is ordered by observation
+<tr><td><a href="#Database::LoadVar">LoadVar</a><td>Load a human-readable file which is ordered by variable
+<tr><td><a href="#Database::LoadXls">LoadXls</a><td>Load an Excel old-format spreadsheet file
+<tr><td><a href="#Database::LoadXlsx">LoadXlsx</a><td>Load an Excel Open XML spreadsheet file
+<tr><td><a href="#Database::Save">Save</a><td>Save the database
+<tr><td><a href="#Database::SaveCsv">SaveCsv</a><td>Save the database as a CSV spreadsheet file                             
+<tr><td><a href="#Database::SaveFmtVar">SaveFmtVar</a><td>Save the database as a formatted .dat file                          
+<tr><td><a href="#Database::SaveIn7">SaveIn7</a><td>Save the database as a .in7/.bn7 file                                     
+<tr><td><a href="#Database::SaveObs">SaveObs</a><td>Save the database as a human-readable file which is ordered by observation
+<tr><td><a href="#Database::SaveVar">SaveVar</a><td>Save the database as a human-readable file which is ordered by variable   
+<tr><td><a href="#Database::SaveXls">SaveXls</a><td>Save the database as an Excel spreadsheet file                            
+<tr><td><a href="#Database::SaveXlsx">SaveXlsx</a><td>Save the database as an Excel Open XML spreadsheet file                            
+<tr><th colspan="2">Adding/removing variables/observations
+<tr><td><a href="#Database::Append">Append</a><td>Append variables
+<tr><td><a href="#Database::Deterministic">Deterministic</a><td>Create deterministic variables
+<tr><td><a href="#Database::Grow">Grow</a><td>Add observations to the database sample
+<tr><td><a href="#Database::Recode">Recode</a><td>Recode observations of a variable
+<tr><td><a href="#Database::Remove">Remove</a><td>Remove the named variable from the database
+<tr><td><a href="#Database::RemoveObsIf">RemoveObsIf</a><td>Remove observations from the database
+<tr><td><a href="#Database::Rename">Rename</a><td>Rename a variable
+<tr><td><a href="#Database::Renew">Renew</a><td>Renew data on variables	 (append if new variable)
+<tr><td><a href="#Database::RenewBlock">RenewBlock</a><td>Renew data without checking
+<tr><td><a href="#Database::SetVar">SetVar</a><td>Sets variable(s) by name
+<tr><td><a href="#Database::Shrink">Shrink</a><td>Shrinks the database
+<tr><td><a href="#Database::SortBy">SortBy</a><td>Sort the database by a variable
+<tr><th colspan="2">Extraction
+<tr><td><a href="#Database::GetAll">GetAll</a><td>Return the whole data matrix
+<tr><td><a href="#Database::GetAllNames">GetAllNames</a><td>return all variable names
+<tr><td><a href="#Database::GetSample">GetSample</a><td>Returns text with database sample
+<tr><td><a href="#Database::GetSampleByIndex">GetSampleByIndex</a><td>virtual function returning sample text
+<tr><td><a href="#Database::GetVar">GetVar</a><td>Get the data on the named variable(s)
+<tr><td><a href="#Database::GetVarByIndex">GetVarByIndex</a><td>Get the data on variable(s) by the variable index
+<tr><td><a href="#Database::GetVarIndex">GetVarIndex</a><td>Get the database indices of the named variables
+<tr><td><a href="#Database::GetVarNameByIndex">GetVarNameByIndex</a><td>Get variable name(s) by database index
+<tr><th colspan="2">Database sample information: <tt>Sample</tt> class
+<tr><td><a href="#Sample::GetFrequency">GetFrequency</a><td>  data frequency
+<tr><td><a href="#Sample::GetIndex">GetIndex</a><td>  index of time point
+<tr><td><a href="#Sample::GetPeriod1">GetPeriod1</a><td>  period of first observation
+<tr><td><a href="#Sample::GetPeriod2">GetPeriod2</a><td>  period of last observation
+<tr><td><a href="#Sample::GetSize">GetSize</a><td>  number of observations in sample (the database)
+<tr><td><a href="#Sample::GetYear1">GetYear1</a><td>  year of first observation
+<tr><td><a href="#Sample::GetYear2">GetYear2</a><td>  year of last observation
+<tr><td><a href="#Sample::ObsPeriod">ObsPeriod</a><td>  finds period of observation index
+<tr><td><a href="#Sample::ObsYear">ObsYear</a><td>  finds year of observation index
+<tr><td><a href="#Sample::Resample">Resample</a><td> changes the sample period and frequency (but not the sample size)
+<tr><th colspan="2">Dated data, choice data, and variable types
+<tr><td><a href="#Database::GetDateByIndex">GetDateByIndex</a><td>	 get the date of a database index              
+<tr><td><a href="#Database::GetDates">GetDates</a><td>				 returns date variable or <tt>&lt;&gt;</tt> if undated 
+<tr><td><a href="#Database::GetIndexByDate">GetIndexByDate</a><td>	 get the index for a date (must be dated)      
+<tr><td><a href="#Database::GetIndexByDates">GetIndexByDates</a><td> get the indices for a date range (must be dated)
+<tr><td><a href="#Database::GetObsLabel">GetObsLabel</a><td>					gets the string representation of an observation
+<tr><td><a href="#Database::GetVarChoices">GetVarChoices</a><td>				gets the choice labels (array of strings)
+<tr><td><a href="#Database::GetVarChoicesByIndex">GetVarChoicesByIndex</a><td>	gets the choice labels (array of strings) 
+<tr><td><a href="#Database::GetVarType">GetVarType</a><td>			 gets the variable type                        
+<tr><td><a href="#Database::GetVarTypeByIndex">GetVarTypeByIndex</a><td>			 gets the variable type                        
+<tr><td><a href="#Database::IsDated">IsDated</a><td>				 returns TRUE if the database is dated         
+<tr><td><a href="#Database::SetDates">SetDates</a><td>				 sets the date variable                        
+<tr><td><a href="#Database::SetVarChoices">SetVarChoices</a><td>				sets the choice labels (array of strings)
+<tr><td><a href="#Database::SetVarChoicesByIndex">SetVarChoicesByIndex</a><td>	sets the choice labels (array of strings) 
+<tr><td><a href="#Database::SetVarType">SetVarType</a><td>			 sets the variable type                        
+<tr><td><a href="#Database::SetVarTypeByIndex">SetVarTypeByIndex</a><td>			 sets the variable type                        
+<tr><th colspan="2">Variable selection
+<tr><td><a href="#Database::DeSelect">DeSelect</a><td>Remove a selection
+<tr><td><a href="#Database::DeSelectByIndex">DeSelectByIndex</a><td>Remove a selected variable by its index
+<tr><td><a href="#Database::DeSelectByName">DeSelectByName</a><td>Remove a selected variable by its name
+<tr><td><a href="#Database::FindSelection">FindSelection</a><td>Find selection index of a variable
+<tr><td><a href="#Database::GetGroup">GetGroup</a><td>Get a group of selected variables
+<tr><td><a href="#Database::GetGroupLag">GetGroupLag</a><td>Get a group of selected variables wich have the specified lag
+<tr><td><a href="#Database::GetGroupLagNames">GetGroupLagNames</a><td>Get the names of a group of selected variables wich have the specified lag
+<tr><td><a href="#Database::GetGroupNames">GetGroupNames</a><td>Get the names of a group of selected variables
+<tr><td><a href="#Database::GetMaxGroupLag">GetMaxGroupLag</a><td>Get the highest lag in a selection group
+<tr><td><a href="#Database::GetMaxSelLag">GetMaxSelLag</a><td>Get the highest lag in the selection
+<tr><td><a href="#Database::GetSelInfo">GetSelInfo</a><td>Get the whole selection info
+<tr><td><a href="#Database::Select">Select</a><td>Select named variables into a selection group
+<tr><td><a href="#Database::SelectByIndex">SelectByIndex</a><td>Select variables into a selection group by index
+<tr><td><a href="#Database::SetSelInfo">SetSelInfo</a><td>Set the whole selection info
+<tr><th colspan="2">Sample selection
+<tr><td><a href="#Database::ForceSelSample">ForceSelSample</a><td>Set the selection sample without checking
+<tr><td><a href="#Database::ForceSelSampleByIndex">ForceSelSampleByIndex</a><td>Set the selection sample without checking
+<tr><td><a href="#Database::GetSelEnd">GetSelEnd</a><td>Get the observation index of the selection end
+<tr><td><a href="#Database::GetSelSample">GetSelSample</a><td>Returns a string with the selected sample text
+<tr><td><a href="#Database::GetSelSampleMode">GetSelSampleMode</a><td>Returns the current selection sample mode
+<tr><td><a href="#Database::GetSelStart">GetSelStart</a><td>Get the observation index of the selection start
+<tr><td><a href="#Database::SetSelDates">SetSelDates</a><td>select a sample by year, month, day
+<tr><td><a href="#Database::SetSelSample">SetSelSample</a><td>Set the selection sample
+<tr><td><a href="#Database::SetSelSampleByDates">SetSelSampleByDates</a><td>select a sample by date value
+<tr><td><a href="#Database::SetSelSampleByIndex">SetSelSampleByIndex</a><td>select a sample by datebase indices
+<tr><td><a href="#Database::SetSelSampleMode">SetSelSampleMode</a><td>Set the selection sample mode
+</table>
+
+<p><h3>Database function members</h3><p>
+
+<a name="Database::Append"></a>
+<hr><pre><b>
+Database::Append(const mNew, const asNew);
+Database::Append(const mNew, const asNew, const iT1);
+</b></pre>
+<dl>
+<dt><tt>mNew</tt>     <dd>in: <i>T</i> <tt>x</tt> <i>k</i> matrix with the new variables
+<dt><tt>asNew</tt>    <dd>in:  array with <i>k</i> variable names of the new variables
+<dt><tt>iT1</tt>      <dd>in:  starting observation index in database (0 if missing)
+</dl><p>
+
+<p>
+Appends the <i>k</i> new variables to the database,
+storing the observations and variable names.
+It is an error if the variable already exists (use <tt>Renew</tt> or <tt>SetVar</tt> instead),
+or if the new variable has more observations than the database (use <tt>Grow</tt> first
+or <tt>SetVar</tt> instead).
+<p>
+The first observation
+has database index <tt>iT1</tt> (omit the third argument, use 0 if the
+variables start at the same sample point as the database), the last is
+the end of the database sample, or the end of <tt>mNew</tt>, whichever comes
+first.
+
+<a name="Database::Create"></a>
+<hr><pre><b>
+Database::Create(const iFreq, const iYear1, const iPeriod1,
+    const iYear2, const iPeriod2);
+Database::Create(const cT);
+</b></pre>
+<dl>
+<dt><tt>iFreq</tt>    <dd>in: int, frequency
+<dt><tt>iYear1</tt>   <dd>in: int, start year
+<dt><tt>iPeriod1</tt> <dd>in: int, start period
+<dt><tt>iYear2</tt>   <dd>in: int, end year
+<dt><tt>iPeriod2</tt> <dd>in: int, end period
+<dt><tt>cT</tt>       <dd>in: int, number of observations
+</dl><p>
+
+<p>
+Creates a database. Use this when the database is not to be
+loaded from disk. The <tt>Append</tt> member function allows adding data to
+the database. Use <tt>Empty</tt> first if the database is not empty.
+<p>
+<tt>Create(cT)</tt> is equivalent to <tt>Create(1, 1, 1, cT, 1)</tt>.
+
+<a name="Database::Database"></a>
+<hr><pre><b>
+Database::Database();
+</b></pre>
+Constructor. Calls <a href="#Database::Empty"><tt>Empty</tt></a> and sets the sample selection mode to
+<tt>SAM_ALLVALID</tt>.
+
+<a name="Database::DeSelect"></a>
+<a name="Database::DeSelectByIndex"></a>
+<a name="Database::DeSelectByName"></a>
+<hr><pre><b>
+Database::DeSelect();
+Database::DeSelectByIndex(const iSel);
+Database::DeSelectByName(const sVar, const iGroup, const iLag);
+</b></pre>
+<dl>
+<dt><tt>iSel</tt>        <dd>in: int or matrix: selection indices of variables to delete
+<dt><tt>sVar</tt>        <dd>in: string: database name of variable to delete
+<dt><tt>iGroup</tt>      <dd>in: int: group identifier of variable to delete
+<dt><tt>iLag</tt>        <dd>in: int: lag length of variable to delete
+</dl><p>
+
+<p>
+<tt>DeSelect</tt> clears the current variable and sample selection completely.
+<p>
+The other two functions delete specific variable(s) from the current
+selection. The selection sample is not changed.
+
+<a name="Database::Deterministic"></a>
+<hr><pre><b>
+Database::Deterministic(const iCseason);
+</b></pre>
+<dl>
+<dt><tt>iCseason</tt>      <dd>in: int: -1: no seasonals; 0: <i>n</i> Seasonals
+<tt>Season</tt>, <tt>Season_1</tt>, ...; 1: <i>n</i> centred seasonals
+<tt>CSeason</tt>, <tt>CSeason_1</tt>; 2: 1 seasonal called <tt>Seasonal</tt>;
+3: 1 centred seasonal called <tt>CSeasonal</tt>.
+</dl><p>
+
+<p>
+Appends constant, trend and seasonals to the database.
+These variables are named <tt>Constant</tt>, <tt>Trend</tt> and <tt>Season</tt>.
+<tt>Season_1</tt>, ..., <tt>Season_</tt><i>x</i>,
+where <i>x</i> is the frequency.
+<p>
+<tt>Season</tt> has a 1 in quarter 1 (for quarterly data), and zeros elsewhere,
+<tt>Season_1</tt> has a 1 in quarter 2, etc.
+<p>
+
+If <tt>iCseason</tt> is 0, normal seasonals are created.
+If <tt>iCseason</tt> is 1, the seasonals
+are centred (with quarterly observations, for quarter 1:
+0.75, -0.25, -0.25, -0.25, ...),
+in which case the names are <tt>CSeason</tt>, <tt>CSeason_1</tt>,
+..., <tt>CSeason_</tt><i>x</i>.
+No seasonals are created if <tt>iCseason</tt> is &lt; 0.
+
+<a name="Database::Empty"></a>
+<hr><pre><b>
+Database::Empty();
+</b></pre>
+<p>
+Empties the database.
+
+<a name="Database::FindSelection"></a>
+<hr><pre><b>
+Database::FindSelection(const sVar, const iLag);
+</b></pre>
+<dl>
+<dt><tt>sVar</tt>        <dd>in: string, variable name
+<dt><tt>iLag</tt>        <dd>in: int, lag length
+</dl><p>
+
+Returns the selection index of the specified variable with the specified lag,
+or -1 if it is not selected.
+
+<a name="Database::ForceSelSample"></a>,<a name="Database::ForceSelSampleByIndex"></a>
+<hr><pre><b>
+Database::ForceSelSample(const iYear1, const iPeriod1,
+    const iYear2, const iPeriod2);
+Database::ForceSelSampleByIndex(const iT1, const iT2);    
+</b></pre>
+<dl>
+<dt><tt>iYear1</tt>        <dd>in: start year of selection, use -1 for earliest year and period
+<dt><tt>iPeriod1</tt>      <dd>in: start period of selection
+<dt><tt>iYear2</tt>        <dd>in: end year of selection, use -1 for latest year and period
+<dt><tt>iPeriod2</tt>      <dd>in: end period of selection
+<dt><tt>iT1</tt>           <dd>in: starting observation index in database
+<dt><tt>iT2</tt>           <dd>in: final observation index in database
+</dl><p>
+
+Returns the number of observations in the sample.
+<p>
+Sets a selection a sample for the variables previously
+selected with the <tt>Select</tt> function. This function
+does not check for missing values. Use <tt>SetSelSample()</tt>
+to set a sample with checking for missing values.
+
+<a name="Database::GetAll"></a>
+<a name="Database::GetAllNames"></a>
+<hr><pre><b>
+Database::GetAll();
+Database::GetAllNames();
+</b></pre><p>
+<tt>GetAll()</tt> returns the whole database matrix.
+<tt>GetAllNames()</tt> returns an array with all the variable names.
+
+<a name="Database::GetDateByIndex"></a>
+<hr><pre><b>
+Database::GetDateByIndex(const iT1)
+</b></pre>
+<dl>
+<dt><tt>iT1</tt>        <dd>int, observation index in database
+</dl><p>
+Returns the date at the specified index (the same as <tt>GetDates()[iT1]</tt>).
+This can be printed with the <tt>"%C"</tt> format, or translated
+using <a href="oxstd.html#dayofcalendar">dayofcalendar</a>.
+The database must be dated.
+
+<a name="Database::GetDates"></a>
+<hr><pre><b>
+Database::GetDates();
+</b></pre><p>
+Returns a column vector with the date variable or <tt>&lt;&gt;</tt> if
+the database is undated.
+
+<a name="Database::GetDbName"></a>
+<hr><pre><b>
+Database::GetDbName();
+</b></pre><p>
+Returns a string with the database name.
+
+<a name="Database::GetGroup"></a>
+<a name="Database::GetGroupLag"></a>
+<hr><pre><b>
+Database::GetGroup(const iGroup);
+Database::GetGroupLag(const iGroup, const iLag1, const iLag2);
+</b></pre>
+<dl>
+<dt><tt>iGroup</tt>       <dd>in: int, group number
+<dt><tt>iLag1</tt>        <dd>in: int, first lag
+<dt><tt>iLag2</tt>        <dd>in: int, last lag
+</dl><p>
+
+
+<tt>GetGroup</tt> returns a <i>T</i> <tt>x</tt> <i>n</i> matrix with all selected variables of
+group <tt>iGroup</tt>.
+<p>
+<tt>GetGroupLag</tt> returns only those with the specified
+lag length. If no database sample has been selected yet,
+the return value is a 0.
+
+<a name="Database::GetGroupLagNames"></a>
+<a name="Database::GetGroupNames"></a>
+<hr><pre><b>
+Database::GetGroupLagNames(const iGroup, const iLag1,
+    const iLag2, aasNames);
+Database::GetGroupNames(const iGroup, const aasNames);
+</b></pre>
+<dl>
+<dt><tt>iGroup</tt>       <dd>in: int, group number
+<dt><tt>iLag1</tt>        <dd>in: int, first lag
+<dt><tt>iLag2</tt>        <dd>in: int, last lag
+<dt><tt>aasNames</tt>     <dd>in: array
+<dd>out: will hold an array of strings with the names
+of the variables with specified group and lag
+</dl><p>
+
+<tt>GetGroupLagNames</tt> gets the names of all selected variables of group <tt>iGroup</tt>
+which have a lag in <tt>iLag1</tt> ... <tt>iLag2</tt>.
+<tt>GetGroupNames</tt> gets the names of all variables in the group.
+The selection sample period must have been set.
+
+<a name="Database::GetIndexByDate"></a>
+<a name="Database::GetIndexByDates"></a>
+<hr><pre><b>
+Database::GetIndexByDate(const dDate1)
+Database::GetIndexByDates(const dDate1, const dDate2)
+</b></pre>
+<dl>
+<dt><tt>dDate1</tt>        <dd>double, date value
+<dt><tt>dDate2</tt>        <dd>double, date value
+</dl><p>
+<tt>GetIndexByDate</tt> returns the index closest to the specified date.
+<p>
+<tt>GetIndexByDates</tt> returns the start and end indices of the specified
+period as an array of two integers. This can be used, for example, as
+<tt>[t1,t2] = GetIndexByDates(dayofcalendar(1990,1,1), dayofcalendar(1990,12,31))</tt>.
+
+<a name="Database::GetMaxGroupLag"></a>
+<a name="Database::GetMaxSelLag"></a>
+<hr><pre><b>
+Database::GetMaxGroupLag(iGroup);
+Database::GetMaxSelLag();
+</b></pre>
+<p>
+<tt>GetMaxSelLag</tt> returns the highest lag in all selected variables.
+
+<tt>GetMaxGroupLag</tt> returns the highest lag in selected variables
+of the specified group <tt>iGroup</tt>.
+
+<a name="Database::GetObsLabel"></a>
+<hr><pre><b>
+Database::GetObsLabel(sVar, const iT);
+</b></pre><p>
+
+<dl>
+<dt><tt>sVar</tt>        <dd>in: string, variable name
+<dt><tt>iT</tt>          <dd>in: int, observation index
+</dl><p>
+
+Return a string with the text of the observation, taking into account whether it is
+a choice, date or normal value.
+
+<a name="Database::GetSample"></a>
+<a name="Database::GetSampleByIndex"></a>
+<hr><pre><b>
+Database::GetSample();
+virtual Database::GetSampleByIndex(const iT1, const iT2)
+</b></pre><p>
+<dl>
+<dt><tt>iT1</tt>        <dd>int, first observation index in database
+<dt><tt>iT2</tt>        <dd>int, last observation index in database
+</dl><p>
+
+<tt>GetSample</tt> returns a string with the database sample,
+e.g. <tt>"1980(1) - 1990(2)"</tt>.
+<tt>GetSampleByIndex</tt> is called to create the text.
+<p>
+<tt>GetSampleByIndex</tt> writes the sample text for the sample with database
+indices <tt>iT1</tt>, <tt>iT2</tt>.
+<p>
+If <tt>iT1</tt>&lt;0 the output is <tt>"no sample"</tt>;
+if <tt>iT2</tt>&lt;0 the end-period is omitted, so only
+a sample date is returned.
+
+<a name="Database::GetSelStart"></a>
+<a name="Database::GetSelEnd"></a>
+<hr><pre><b>
+Database::GetSelStart();
+Database::GetSelEnd();
+</b></pre>
+<p>
+<tt>GetSelStart</tt> returns the database index of the first observation
+of the selected sample.
+
+<tt>GetSelEnd</tt> returns the database index of the last observation
+of the selected sample.
+
+<a name="Database::GetSelInfo"></a>
+<hr><pre><b>
+Database::GetSelInfo();
+</b></pre><p>
+
+Returns a 1 <tt>x</tt> 5 array with the selection information as follows
+(c is the number of selected variables):
+
+<dl>
+<dt><dd>0: 1 <tt>x</tt> c matrix with database indices of selected variables
+<dt><dd>1: 1 <tt>x</tt> c matrix with group index of selected variables
+<dt><dd>2: 1 <tt>x</tt> c matrix with lag lengths of selected variables
+<dt><dd>3: integer, first selection observation
+<dt><dd>4: integer, last selection observation.
+</dl><p>
+
+<a name="Database::GetSelSample"></a>
+<hr><pre><b>
+Database::GetSelSample();
+</b></pre>
+<p>
+<tt>GetSelSample</tt> returns a string with the text of the selected database sample,
+e.g. <tt>"1980(1) - 1984(2)"</tt>.
+<tt>GetSampleByIndex</tt> is called to create the text.
+
+<a name="Database::GetSelSampleMode"></a>
+<hr><pre><b>
+Database::GetSelSampleMode();
+</b></pre>
+<p>
+<tt>GetSelSampleMode</tt> returns the current sample selection mode
+(also see <a href="oxstd.html#findsample">findsample</a>), one of:
+<tt>SAM_ALLVALID</tt>, <tt>SAM_ENDSVALID</tt>, <tt>SAM_ANYVALID</tt>.
+
+<a name="Database::GetVar"></a>
+<a name="Database::GetVarByIndex"></a>
+<hr><pre><b>
+Database::GetVar(const sName);
+Database::GetVarByIndex(const iVar);
+</b></pre><p>
+
+<dl>
+<dt><tt>sName</tt>       <dd>in: string or array of strings with variable names
+<dt><tt>iVar</tt>        <dd>in: int or matrix of database indices of variables
+</dl><p>
+
+Returns a matrix with the specified variable(s), or the empty matrix if
+the variable cannot be found.
+
+<a name="Database::GetVarChoices"></a>,<a name="Database::GetVarChoicesByIndex"></a>
+<hr><pre><b>
+Database::GetVarChoices(const sVar);
+Database::GetVarChoicesByIndex(const iVar);
+</b></pre><p>
+
+<dl>
+<dt><tt>iVar</tt>        <dd>in: int or matrix of database indices of variables
+<dt><tt>sVar</tt>        <dd>in: istring or array of strings with variable names
+</dl><p>
+
+Return an array of strings with the choice labels; if multiple variables are specified the
+return value is an array of arrays of strings.
+
+<a name="Database::GetVarIndex"></a>
+<hr><pre><b>
+Database::GetVarIndex(const asName);
+</b></pre><p>
+
+<dl>
+<dt><tt>asName</tt>       <dd>in: string or array of strings with variable names
+</dl><p>
+
+Returns the database indices of the specified variable(s), or
+the empty matrix if none are found.
+
+<a name="Database::GetVarCount"></a>
+<hr><pre><b>
+Database::GetVarCount();
+</b></pre><p>
+
+Returns the number of variables in the database.
+
+<a name="Database::GetVarNameByIndex"></a>,<a name="Database::GetVarType"></a>,<a name="Database::GetVarTypeByIndex"></a>
+<hr><pre><b>
+Database::GetVarNameByIndex(const iVar);
+Database::GetVarType(const sVar);
+Database::GetVarTypeByIndex(const iVar);
+</b></pre><p>
+
+<dl>
+<dt><tt>iVar</tt>        <dd>in: int or matrix of database indices of variables
+<dt><tt>sVar</tt>        <dd>in: istring or array of strings with variable names
+</dl><p>
+
+<tt>GetVarNameByIndex</tt> returns an array with the names of the specified variable(s).
+If <tt>iVar</tt> is a scalar, s single string is returned.
+<p>
+<tt>GetVarTypeByIndex</tt> and <tt>GetVarType</tt> return the variable type, one of:
+<tt>DB_DOUBLE</tt>,
+<tt>DB_DATE  </tt>,
+<tt>DB_CHOICE</tt>.
+
+<a name="Database::Grow"></a>
+<hr><pre><b>
+Database::Grow(const cTadd);
+</b></pre><p>
+
+<dl>
+<dt><tt>cTadd</tt>       <dd>in: int, number of observations to grow database sample by
+							 (&gt; 0: <tt>cTadd</tt> observations are added at the end;
+							 &lt; 0: <tt>-cTadd</tt> observations are added at the beginning)
+</dl><p>
+
+<a name="Database::Shrink"></a>
+<hr><pre><b>
+Database::Shrink(const cTdel);
+</b></pre><p>
+
+<dl>
+<dt><tt>cTdel</tt>       <dd>in: int, number of observations to shrink database sample by
+							 (&gt; 0: <tt>cTdel</tt> observations are removed at the end;
+							 &lt; 0: <tt>-cTdel</tt> observations are removed at the beginning)
+</dl><p>
+
+<a name="Database::Info"></a>
+<hr><pre><b>
+Database::Info();
+</b></pre><p>
+
+Prints information on the contents of the database.
+
+<a name="Database::IsDated"></a>
+<hr><pre><b>
+Database::IsDated();
+</b></pre><p>
+
+<tt>TRUE</tt> if the database is dated, <tt>FALSE</tt> otherwise.
+
+<a name="Database::IsEmpty"></a>
+<hr><pre><b>
+Database::IsEmpty();
+</b></pre><p>
+
+<tt>TRUE</tt> if the database is dated, <tt>FALSE</tt> otherwise.
+
+<a name="Database::Load"></a>
+<a name="Database::LoadCsv"></a>
+<a name="Database::LoadDht"></a>
+<a name="Database::LoadDta"></a>
+<a name="Database::LoadFmtVar"></a>
+<a name="Database::LoadIn7"></a>
+<a name="Database::LoadObs"></a>
+<a name="Database::LoadVar"></a>
+<a name="Database::LoadXls"></a>
+<a name="Database::LoadXlsx"></a>
+<hr><pre><b>
+Database::Load(const sFilename);
+Database::LoadCsv(const sFilename);
+Database::LoadDht(const sFilename, const iYear1,
+    const iPeriod1, const iFreq);
+Database::LoadDta(const sFilename, const iYear1,
+    const iPeriod1, const iFreq);
+Database::LoadFmtVar(const sFilename);
+Database::LoadIn7(const sFilename);
+Database::LoadObs(const sFilename, const cVar,const cObs,
+    const iYear1, const iPeriod1, const iFreq,
+    const fOffendMis);
+Database::LoadVar(const sFilename, const cVar,const cObs,
+    const iYear1, const iPeriod1, const iFreq,
+    const fOffendMis);
+Database::LoadXls(const sFilename);
+Database::LoadXlsx(const sFilename);
+</b></pre><p>
+
+<dl>
+<dt><tt>sFilename</tt>   <dd>in: string, filename
+<dt><tt>cVar</tt>        <dd>in: int, number of variables
+<dt><tt>cObs</tt>        <dd>in: int, number of observations
+<dt><tt>iYear1</tt>      <dd>in: int, start year
+<dt><tt>iPeriod1</tt>    <dd>in: int, start period
+<dt><tt>iFreq</tt>       <dd>in: int, frequency
+<dt><tt>fOffendMis</tt>  <dd>in: int, TRUE:offending text treated as missing value
+                          FALSE: offending text skipped
+</dl><p>
+
+<p>
+Returns <tt>FALSE</tt> if the loading failed, <tt>TRUE</tt> otherwise.
+
+<p>
+<tt>Load</tt> creates the database and loads the specified data
+file from disk. The file type is derived from the extension.
+Supported are: <tt>.csv</tt>, <tt>.dat</tt> (see <tt>LoadFmtVar</tt>), <tt>.dht</tt>,
+<tt>.dta</tt>, <tt>.in7</tt>, <tt>.xls</tt>, <tt>.xlsx</tt>.
+
+<p>
+<tt>LoadDht</tt> creates the database and loads the specified <em>Gauss</em>
+data file from disk.
+
+<p>
+<tt>LoadDta</tt> creates the database and loads the specified <i>Stata</i>
+(version 4--6) data file from disk.
+
+<p>
+<tt>LoadIn7</tt> creates the database and loads the specified <i>OxMetrics</i>
+file
+(which is the same as a PcGive 7 data file)
+from disk.
+
+<p>
+<tt>LoadFmtVar</tt> creates the database and loads the ASCII
+file with formatting information from disk. In <i>OxMetrics</i>
+this is called `Data with load info'.
+Such a file
+is human-readable, with the data ordered by variable, and each
+variable preceded by a line of the type:
+
+<p>
+<tt>&gt;</tt> <i>name year1 period1 year2 period2 frequency</i>
+
+<p>
+<tt>LoadObs</tt> and <tt>LoadVar</tt> create the database and load the
+specified human-readable data file from disk.
+The data is ordered by observation (<tt>LoadObs</tt>), or by variable.
+Since there is no information on the sample or the variable names
+in these files, the sample must be provided as function arguments.
+The variable names are set to Var1, Var2, etc., use <tt>Rename</tt>
+to rename the variables.
+
+
+<p>
+<tt>LoadCsv</tt>, <tt>LoadXls</tt> and <tt>LoadXlsx</tt>
+create the database and load the specified spreadsheet
+file from disk.
+A <tt>.csv</tt> file is a comma-separated file, an <tt>.xls</tt> file is an
+old-format Excel worksheet. The modern Excel spreadsheet file has an <tt>.xlsx</tt> extension.
+
+<p><tt>Database</tt> class can read the following types of
+old-style Excel file:
+<ul>
+<li>Excel 2.1, 3.0, 4.0 worksheets;
+<li>Excel 5.0, 95, 97, XP, 2003 workbooks.
+</ul><p>
+When saving an old-style Excel file, it is written in Excel 2.1 format.
+
+<a name="Database::Recode"></a>
+<hr><pre><b>
+Database::Recode(const sVar, ...);
+</b></pre><p>
+
+<dl>
+<dt><tt>sVar</tt>       <dd>in: string, name of variable to recode
+<dt><tt>...</tt>        <dd>in: comma-separated pairs of recoding values: old-value, new value
+</dl><p>
+
+<table>
+<thead>
+<tr><th>recoding arguments</th><th>example</th></tr>
+</thead>
+<tr><td>scalar old-value, scalar new value </td><td><tt>2, 1</tt></td></tr>
+<tr><td>1x2 matrix <i>m</i>, scalar new value</td><td><tt>&lt;-.Inf,2&gt;, 1</tt></td></tr>
+<tr><td>old value is closed interval [<i>m</i>[0],<tt>m</tt>[1]]</td><td></td></tr>
+</table>
+
+<p>
+Note that the intervals are closed, and that recoding processes the arguments
+from left to right.
+<p>
+For example
+<xmp>
+    db.Recode("x", <-.Inf,2>,1, <3,5>,2, 6,3);
+</xmp>
+Is equivalent to
+<xmp>
+    decl x = db.GetVar("x");
+    x = x .<= 2 .? 1 .: x .>= 3 .|| x .<= 5 .? 2 .: x.== 6 .? 3 .: x;
+    db.SetVar(x, "x");
+</xmp>
+A further example is given in
+<tt>samples/database/dbchoice.ox</tt>.
+
+
+<a name="Database::Remove"></a>,
+<a name="Database::RemoveObsIf"></a>
+<hr><pre><b>
+Database::Remove(const sName);
+Database::RemoveObsIf(const vRemove)
+</b></pre><p>
+
+<dl>
+<dt><tt>sName</tt>       <dd>in: string or array of strings, variable name(s)
+<dt><tt>vRemove</tt>     <dd>in: matrix with <i>T</i> elements: non-zero at position of observations to remove, 0 for observations to keep
+</dl><p>
+
+Removes the named variable or specified observations from the database.
+
+<a name="Database::Rename"></a>
+<hr><pre><b>
+Database::Rename(const sNewName, const sOldName);
+</b></pre><p>
+
+<dl>
+<dt><tt>sNewName</tt>       <dd>in: string or array of strings, new name(s)
+<dt><tt>sOldName</tt>       <dd>in: string or array of strings, old name(s) of database variable(s)
+</dl><p>
+
+Renames a database variable. To rename more than one variable at once, both most be
+arrays of the same size, and all old names must exist in the database.
+
+<a name="Database::Renew"></a>
+<hr><pre><b>
+Database::Renew(const mNew, const asName);
+Database::Renew(const mNew, const asName, const iT1);
+</b></pre><p>
+
+<dl>
+<dt><tt>mNew</tt>        <dd>in: <i>T</i> <tt>x</tt> <i>k</i> matrix
+<dt><tt>asName</tt>      <dd>in: array with <i>k</i> variable names	(or string if <i>k</i>=1) 
+<dt><tt>iT1</tt>         <dd>in: first observation (0 if argument is missing)
+</dl><p>
+
+
+Renews the observations on the named variable. The first new observation
+has database index <tt>iT1</tt>, the last is the end of the database sample, or
+the end of <tt>mNew</tt>, whichever comes first.
+
+If a non-existent variable is renewed, the variable is created
+first using <tt>Append</tt>.  The database sample can be changed
+by <tt>Grow</tt> or <tt>SetVar</tt>, not by <tt>Renew</tt> or <tt>Append</tt>.
+
+<a name="Database::RenewBlock"></a>
+<hr><pre><b>
+Database::RenewBlock(const mNew, const iVarIndex);
+</b></pre><p>
+
+<dl>
+<dt><tt>mNew</tt>        <dd>in: <i>T</i> <tt>x</tt> <i>k</i> matrix
+<dt><tt>iVarIndex</tt>   <dd>in: database index of first variable to renew
+</dl><p>
+
+Renews the observations on the <i>k</i> variables starting from the first,
+without any checking for existence.
+
+<a name="Database::Save"></a>
+<a name="Database::SaveCsv"></a>
+<a name="Database::SaveIn7"></a>
+<a name="Database::SaveFmtVar"></a>
+<a name="Database::SaveObs"></a>
+<a name="Database::SaveVar"></a>
+<a name="Database::SaveXls"></a>
+<a name="Database::SaveXlsx"></a>
+<hr><pre><b>
+Database::Save(const sFilename);
+Database::SaveCsv(const sFilename);
+Database::SaveIn7(const sFilename);
+Database::SaveFmtVar(const sFilename);
+Database::SaveObs(const sFilename);
+Database::SaveVar(const sFilename);
+Database::SaveXls(const sFilename);
+Database::SaveXlsx(const sFilename);
+</b></pre><p>
+
+<dl>
+<dt><tt>sFilename</tt>        <dd>in: string, filename
+</dl><p>
+
+<p>
+<tt>Save</tt> derives the file type from the file extension
+(using <tt>.in7</tt>/<tt>.bn7</tt> if no extension is given).
+Supported are: <tt>.csv</tt>, <tt>.dat</tt> (see <tt>SaveFmtVar</tt>), <tt>.dht</tt>, <tt>.dta</tt>,
+<tt>.in7</tt>, <tt>.xls</tt>, <tt>.xlsx</tt>.
+
+<p>
+<tt>SaveIn7</tt> saves the database as a
+<i>OxMetrics</i> file.
+
+<p>
+<tt>SaveFmtVar</tt> saves the database as a formatted ASCII
+file. Also see under <tt>LoadFmtVar</tt>.
+
+<p>
+<tt>SaveObs</tt> and <tt>SaveVar</tt>
+save the database as a human-readable data
+file, ordered by observation, or by variable.
+Also see under <tt>LoadObs</tt>, <tt>LoadVar</tt>.
+
+<p>
+<tt>SaveCsv</tt>, <tt>SaveXls</tt>, and <tt>SaveXlsx</tt>
+save the database as a comma-separated, or old-style Excel, or Excel
+spreadsheet file respectively.
+Also see under <tt>LoadCsv</tt>, <tt>LoadXls</tt>, <tt>LoadXlsx</tt>.
+
+
+<a name="Database::Select"></a>
+<a name="Database::SelectByIndex"></a>
+<hr><pre><b>
+Database::Select(const iGroup, const aSel);
+Database::SelectByIndex(const iGroup, const iVar,
+    const iLag0, const iLag1);
+</b></pre><p>
+
+<dl>
+<dt><tt>iGroup</tt>   <dd>in: int, group number
+<dt><tt>aSel</tt>     <dd>in: 3<i>k</i> array, specifying name, start lag, end lag 
+<dt><tt>iVar</tt>     <dd>in: int: database index of variable to select
+<dt>                  <dd>in: matrix: database index of <i>k</i> variables to select
+<dt><tt>iLag0</tt>    <dd>in: int: initial lag length of variables to select
+<dt>                  <dd>in: matrix: <i>k</i> initial lag lengths of variables to select
+<dt><tt>iLag1</tt>    <dd>in: int: final lag length of variables to select
+<dt>                  <dd>in: matrix: <i>k</i> final lag lengths of variables to select
+</dl><p>
+
+Selects variables by name and with specified lags, and assigns the
+<tt>iGroup</tt> number to the selection. The <tt>aSel</tt> argument is
+an array consisting of sequences of three values: name, start lag,
+end lag.
+After a sample period is set, the selection can be
+extracted from the database.
+
+<a name="Database::SetDates"></a>
+<hr><pre><b>
+Database::SetDates(const vDates);
+</b></pre><p>
+If the database is not yet dated, <tt>vDates</tt> is set as the date
+column (the first column). Otherwise <tt>vDates</tt> replaces the current date column.
+
+<a name="Database::SetDbName"></a>
+<hr><pre><b>
+Database::SetDbName(const sName);
+</b></pre><p>
+Sets the database name to sName.
+
+<a name="Database::SetSelInfo"></a>
+<hr><pre><b>
+Database::SetSelInfo(const asInfo);
+</b></pre><p>
+
+<dl>
+<dt><tt>asInfo</tt>   <dd>in: 1 <tt>x</tt> 5 array with selection info
+</dl><p>
+
+Sets the selection based on the specified input array.
+No checking is done on the input values.
+
+The selection information should be organized as follows
+(c is the number of selected variables):
+
+<dl>
+<dt><dd>0: 1 <tt>x</tt> c matrix with database indices of selected variables
+<dt><dd>1: 1 <tt>x</tt> c matrix with group index of selected variables
+<dt><dd>2: 1 <tt>x</tt> c matrix with lag lengths of selected variables
+<dt><dd>3: integer, first selection observation
+<dt><dd>4: integer, last selection observation.
+</dl><p>
+
+The last two arguments may be omitted, in which case a call
+to <tt>SetSelSample</tt> may be required.
+
+<a name="Database::SetSelDates"></a>
+<hr><pre><b>
+Database::SetSelDates(const iYear1, const iMonth1, const iDay1,
+    const iYear2, const iMonth2, const iDay2)
+</b></pre><p>
+
+<dl>
+<dt><tt>iYear1</tt>  <dd>in: int, start year of selection 
+<dt><tt>iMonth1</tt> <dd>in: int, start month of selection
+<dt><tt>iDay1</tt>   <dd>in: int, start day of selection  
+<dt><tt>iYear2</tt>  <dd>in: int, end year of selection   
+<dt><tt>iMonth2</tt> <dd>in: int, end month of selection  
+<dt><tt>iDay2</tt>   <dd>in: int, end day of selection    
+</dl><p>
+
+Returns the number of observations in the sample.
+<p>
+This is the equivalent of SetSelSample that can be used when
+the database is dated.
+<p>
+Selects a sample for the variables previously
+selected with the <tt>Select</tt> function. The actually
+selected sample will be the largest starting from the
+specified starting date (but not exceeding the specified end date)
+without any missing values using the default selection mode.
+Use <tt>SetSelSampleMode</tt> to change the selection mode.
+Use <tt>DeSelect</tt> to deselect the current sample and variables.
+
+<a name="Database::SetSelSample"></a>
+<hr><pre><b>
+Database::SetSelSample(const iYear1, const iPeriod1,
+    const iYear2, const iPeriod2);
+</b></pre><p>
+
+<dl>
+<dt><tt>iYear1</tt>   <dd>in: int, start year of selection, use -1 for earliest year and period
+<dt><tt>iPeriod1</tt> <dd>in: int, start period of selection
+<dt><tt>iYear2</tt>   <dd>in: int, end year of selection, use -1 for latest year and period
+<dt><tt>iPeriod2</tt> <dd>in: int, end period of selection
+</dl><p>
+
+Returns the number of observations in the sample.
+<p>
+Selects a sample for the variables previously
+selected with the <tt>Select</tt> function. The actually
+selected sample will be the largest starting from the
+specified starting date (but not exceeding the specified end date)
+without any missing values using the default selection mode.
+Use <tt>SetSelSampleMode</tt> to change the selection mode.
+Use <tt>DeSelect</tt> to deselect the current sample and variables.
+
+<a name="Database::SetSelSampleByDates"></a>
+<a name="Database::SetSelSampleByIndex"></a>
+<hr><pre><b>
+Database::SetSelSampleByDates(const dDate1, const dDate2);
+Database::SetSelSampleByIndex(const iT1, const iT2);
+</b></pre><p>
+
+<dl>
+<dt><tt>dDate1</tt>     <dd>double, date value
+<dt><tt>dDate2</tt>     <dd>double, date value
+<dt><tt>iT1</tt>        <dd>int, first observation index in database
+<dt><tt>iT2</tt>        <dd>int, last observation index in database
+</dl><p>
+
+Returns the number of observations in the sample.
+
+
+<a name="Database::SetSelSampleMode"></a>
+<hr><pre><b>
+Database::SetSelSampleMode(const iMode);
+</b></pre><p>
+
+<dl>
+<dt><tt>iMode</tt>    <dd>in: int, the new sample selection mode, see <a href="oxstd.html#findsample">findsample</a>
+</dl><p>
+
+<a name="Database::SetVar"></a>
+<hr><pre><b>
+Database::SetVar(const mNew, const asName);
+</b></pre><p>
+
+<dl>
+<dt><tt>mNew</tt>        <dd>in: <i>T</i> <tt>x</tt> <i>k</i> matrix
+<dt><tt>asName</tt>      <dd>in: array with <i>k</i> variable names	(or string if <i>k</i>=1) 
+</dl><p>
+
+If any of the named variables exist in the database, the content is changed,
+otherwise the new variables are appended. If <i>T</i> is larger than the
+sample size of the database, the database is extended (unlike <tt>Renew</tt>);
+if it is shorter, the new (or changed) variable will have missing values for
+the remainder. If the database has not been created yet, it is created with
+frequency of unity (annual/undated).
+
+<a name="Database::SetVarChoices"></a>,<a name="Database::SetVarChoicesByIndex"></a>
+<hr><pre><b>
+Database::SetVarChoices(const sVar, const asChoices);
+Database::SetVarChoicesByIndex(const iVar, const asChoices);
+</b></pre><p>
+
+<dl>
+<dt><tt>iVar</tt>       <dd>in: int, database index of variable
+<dt><tt>sVar</tt>       <dd>in: string, name of variable
+<dt><tt>asChoices</tt>  <dd>in: array of strings, choice labels
+</dl><p>
+
+Makes the variable in a choice variable (<tt>DB_CHOICE</tt>), and assigns the array of labels.
+The label for value <i>i</i> is <tt>asChoices</tt>[<i>i</i>]. Choice labels are only preserved in
+in7, xlsx and dta files.
+
+If <tt>asChoices</tt> is an empty array, the choice labels are removed and the variable
+is changed into a normal variable (<tt>DB_DOUBLE</tt>).
+
+<a name="Database::SetVarType"></a>, <a name="Database::SetVarTypeByIndex"></a>
+<hr><pre><b>
+Database::SetVarType(const sVar, const iType);
+Database::SetVarTypeByIndex(const iVar, const iType);
+</b></pre><p>
+
+<dl>
+<dt><tt>sVar</tt>        <dd>in: istring or array of strings with variable names
+<dt><tt>iVar</tt>       <dd>in: int or matrix of database indices of variables
+<dt><tt>iType</tt>      <dd>in: int, type <tt>DB_DOUBLE</tt> (the default), <tt>DB_DATE</tt>, <tt>DB_CHOICE</tt>
+</dl><p>
+
+Sets the variable type.
+
+<a name="Database::SortBy"></a>
+<hr><pre><b>
+Database::SortBy(const sVar);
+</b></pre><p>
+
+<dl>
+<dt><tt>sVar</tt>       <dd>in: string, name of variable
+</dl><p>
+
+Sort the database by a variable.
+
+<a name="Database::Tabulate"></a>
+<hr><pre><b>
+Database::Tabulate(const sX);
+Database::Tabulate(const sX, const sY);
+Database::Tabulate(const sX, const sY, const sOption);
+</b></pre><p>
+
+<dl>
+<dt><tt>sX</tt>       <dd>in: string, name of first variable
+<dt><tt>sY</tt>       <dd>in: string, name of second variable
+<dt><tt>sOption</tt>  <dd>in: strings, "%" to print percentages instead of counts
+</dl><p>
+
+Returns an array of two elements with the vector of values and corresponding
+counts (tabulation), or an array of three elements with the vector of x-values (row),
+y-values (column) and corresponding matrix of counts (cross-tabulation).
+<p>
+Tabulates one variable or cross-tabulates two variables. An example is given in
+<tt>samples/database/dbchoice.ox</tt>.
+
+
+<p><h3><a name="DatabaseData"></a>Database data members</h3><p>
+
+<dl>
+<dt><tt>m_mData</tt>     	<dd>data matrix (<i>T</i> <tt>x</tt> <i>k</i>)
+<dt><tt>m_sDbName</tt>     	<dd>database name (string)
+<dt><tt>m_asNames</tt>   	<dd>variable names (array with <i>k</i> strings)
+<dt><tt>m_iSampleSelMode</tt><dd>sample selection mode (argument to <a href="oxstd.html#findsample">findsample</a> in <a href="oxclass.html#Database::SetSelSample">SetSelSample</a>)
+<dt><tt>m_vVarType</tt>		<dd>variable types (1 <tt>x</tt> <i>k</i>)
+<dt><tt>m_aasChoices</tt>	<dd>array[<i>k</i>] to store array of strings if choice type
+<dt>&nbsp;					<dd>Remainder is for sample selection:
+<dt><tt>m_mLagsel</tt>   	<dd>lag length of each entry in <tt>m_mVarsel</tt> (1 <tt>x</tt> <i>s</i> matrix)
+<dt><tt>m_mSelgroup</tt> 	<dd>group number of each entry in <tt>m_mVarsel</tt> (1 <tt>x</tt> <i>s</i> matrix)
+<dt><tt>m_iT1sel</tt>    	<dd>row index in <tt>m_mData</tt> of first selected observation (int)
+<dt><tt>m_iT2sel</tt>    	<dd>row index in <tt>m_mData</tt> of last selected observation (int)
+<dt><tt>m_mVarsel</tt>   	<dd>variable selection (1 <tt>x</tt> <i>s</i> matrix with selection)
+                         	the selection consists of indices in <tt>m_mData</tt> and <tt>m_asNames</tt>
+<dt><a href="oxclass.html#SampleData">Sample class data members</a>
+</dl><p>
+
+<p><h2><a name="Modelbase"></a>Modelbase : Database class</h2><p>
+
+The <tt>Modelbase</tt> class derives from the <a href="#Database"><tt>Database</tt> class</a> to implement
+model estimation features. <tt>Modelbase</tt> is not intended to be used directly,
+but as a base for a more specialized class. A range of virtual member functions
+allows for customization of the class. <tt>Modelbase</tt> facilitates
+interactive use with OxMetrics through the <b>OxPack</b> program.
+Dialogs and a test menu are easily created 
+by overriding just a few virtual functions. Additional information is 
+provided separately.
+
+In most cases, model estimation involves the following
+steps (key virtual functions are given in parentheses):
+<ul>
+<li> Call constructor (<tt>Modelbase</tt>),
+specify package name and version (<tt>GetPackage</tt>, <tt>GetVersion</tt>).
+<li> Initialize data: extract estimation data from underlying database (<tt>InitData</tt>).
+<li> Initialize parameters (<tt>InitPar</tt>):
+specify the number of parameters;
+set fixed parameters (if any);
+determine starting values (if necessary).
+<li> Estimate model (<tt>Estimate</tt> or <tt>DoEstimation</tt>).
+<li> Produce model output and evaluation (<tt>GetParNames</tt>, <tt>Covar</tt>, <tt>Output</tt>, etc.).
+</ul><p>
+
+<tt>Modelbase</tt> has a few essential properties to track this procedure:
+<table>
+<tr><td>Model status         <td><tt>GetModelStatus</tt>, <tt>SetModelStatus</tt> 
+<tr><td>Maximization method  <td><tt>GetMethod</tt>, <tt>SetMethod</tt>           
+<tr><td>Estimation result    <td><tt>GetResult</tt>, <tt>SetResult</tt>           
+<tr><td>Parameters           <td><tt>GetPar</tt>, <tt>SetPar</tt>, <tt>GetParCount</tt>, <tt>SetParCount</tt>
+<tr><td>Fixed/Free parameters<td><tt>GetFreeParCount</tt>, <tt>GetFreePar</tt>, <tt>SetFreePar</tt>, 
+<tr><td>                     <td><tt>FixPar</tt>, <tt>FreePar</tt> 
+<tr><td>Covariance           <td><tt>Covar</tt>         
+</table><p>
+
+The <tt>samples/database/mbclass.ox</tt> example shows a minimal <tt>Modelbase</tt> implementation:
+<pre>
+#include &lt;oxstd.oxh&gt;
+#import  &lt;modelbase&gt;
+
+class Ols : Modelbase
+{
+    decl m_mRes;
+    decl m_dSigmaSqr;
+
+    Ols();
+    GetPackageName();
+    GetPackageVersion();
+    DoEstimation(vP);
+};
+
+Ols::Ols()
+{
+    Modelbase();
+}
+Ols::GetPackageName()
+{
+    return "Ols";
+}
+Ols::GetPackageVersion()
+{
+    return "1.0";
+}
+Ols::DoEstimation(vP)
+{
+    decl cp = columns(m_mX);
+    SetParCount(cp);
+
+    olsc(m_mY, m_mX, &amp;vP, &amp;m_mCovar);
+    m_mRes = m_mY - m_mX * vP;
+    m_dSigmaSqr = m_mRes'm_mRes / (rows(m_mY) - cp);
+    m_mCovar *= m_dSigmaSqr;
+
+    SetResult(MAX_CONV);
+    
+    return vP;
+}
+
+main()
+{
+    decl ols = new Ols();
+
+    ols.Load("data/data.in7");
+    ols.Deterministic(FALSE);
+
+    ols.Select(Y_VAR, {"CONS", 0, 2});
+    ols.Select(X_VAR, {"Constant", 0, 0, "INC" , 0, 2});
+
+    ols.Estimate();
+}
+</pre>
+
+The program produces:
+<pre>
+Ols package version 1.0, object created on 19-03-1999
+
+---- Ols ----
+The estimation sample is 1953 (3) - 1992 (3)
+The dependent variable is: CONS
+                  Coefficient  Std.Error  t-value  t-prob
+CONS_1                1.31039    0.07564     17.3   0.000
+CONS_2              -0.352108    0.07915     4.45   0.000
+Constant             -2.17250      11.19    0.194   0.846
+INC                  0.508481    0.03606     14.1   0.000
+INC_1               -0.577251    0.05816     9.92   0.000
+INC_2                0.112122    0.05325     2.11   0.037
+
+log-likelihood           .NaN
+no. of observations       157  no. of parameters         6
+AIC                      .NaN  AIC/T                  .NaN
+mean(CONS)             875.78  var(CONS)           182.397
+</pre>
+<p>
+At first sight it may be somewhat surprising how much this program
+achives with so little coding. But, with an understanding of virtual
+functions, the documentation below, and the actual source code of <tt>Modelbase</tt>
+(in ox\src), it should be possible to implement
+a <tt>Modelbase</tt> derived package. Other examples of
+the use of <tt>Modelbase</tt> are the Arfima and DPD packages.
+
+<p><h3><a name="ModelbaseFunc"></a>Modelbase overview</h3><p>
+
+Functions which are used in a minimal implementation are marked as follows:
+<ul>
+<li>*      virtual function to override,
+<li>**    need to be called as part of the estimation procedure.
+</ul>
+
+<table border="1">
+<tr><td width="200"><i>Base class</i><td>
+<a href="oxclass.html#Database">Database class</a>
+<tr><th colspan="2">General
+<tr><td><a href="#Modelbase::Modelbase">      <tt>Modelbase</tt></a><td> constructor
+<tr><td><a href="#Modelbase::ClearEstimation"><tt>ClearEstimation</tt></a><td> removes results fom previous estimation
+<tr><td><a href="#Modelbase::ClearModel">     <tt>ClearModel</tt></a><td> sets model status to <tt>MS_NONE</tt>
+<tr><td><a href="#Modelbase::GetMethod">      <tt>GetMethod</tt></a><td> get the estimation method
+<tr><td><a href="#Modelbase::GetMethodLabel"> <tt>GetMethodLabel</tt></a><td> get the label for the current estimation method
+<tr><td><a href="#Modelbase::GetModelLabel">  <tt>GetModelLabel</tt></a><td> get the label for the model
+<tr><td><a href="#Modelbase::GetModelStatus"> <tt>GetModelStatus</tt></a><td> get the model status (<tt>MS_</tt>....)
+<tr><td><a href="#Modelbase::GetPackageName"> <tt>GetPackageName</tt></a>* <td> returns name of the package
+<tr><td><a href="#Modelbase::GetPackageVersion"><tt>GetPackageVersion</tt></a>*<td> returns version of the package
+<tr><td><a href="#Modelbase::GetResult">      <tt>GetResult</tt></a><td> get the estimation result
+<tr><td><a href="#Modelbase::Grow">           <tt>Grow</tt></a><td> extend database and update the deterministic terms
+<tr><td><a href="#Modelbase::Init">           <tt>Init</tt></a><td> resets all variables to default
+<tr><td><a href="#Modelbase::IsUnivariate">   <tt>IsUnivariate</tt></a><td> returns <tt>TRUE</tt> if only one <tt>Y_VAR</tt> allowed
+<tr><td><a href="#Modelbase::SetForecasts">   <tt>SetForecasts</tt></a><td> set the number of forecasts
+<tr><td><a href="#Modelbase::SetMethod">      <tt>SetMethod</tt></a><td> set the estimation method
+<tr><td><a href="#Modelbase::SetModelStatus"> <tt>SetModelStatus</tt></a>**<td> set the model status (<tt>MS_</tt>....)
+<tr><td><a href="#Modelbase::SetPrint">       <tt>SetPrint</tt></a><td> switch printing on or off
+<tr><td><a href="#Modelbase::SetRecursive">   <tt>SetRecursive</tt></a><td> set the number of recursive steps
+<tr><td><a href="#Modelbase::SetResult">      <tt>SetResult</tt></a>**     <td> set the estimation result
+<tr><td><a href="#Modelbase::ShowBanner">     <tt>ShowBanner</tt></a><td> static method to switch off creation banner
+<tr><th colspan="2">parameter related
+<tr><td><a href="#Modelbase::FixPar">        <tt>FixPar</tt></a><td> fixes parameters
+<tr><td><a href="#Modelbase::FreePar">       <tt>FreePar</tt></a><td> frees parameters
+<tr><td><a href="#Modelbase::GetFreePar">    <tt>GetFreePar</tt></a><td> get the vector of free parameters, <i>p</i><tt>x</tt>1
+<tr><td><a href="#Modelbase::GetFreeParCount"><tt>GetFreeParCount</tt></a><td> get number of free parameters <i>p</i>
+<tr><td><a href="#Modelbase::GetFreeParNames"><tt>GetFreeParNames</tt></a><td> get the names of the free parameters, array of length <i>p</i>
+<tr><td><a href="#Modelbase::GetPar">        <tt>GetPar</tt></a><td> get the vector of all parameters, <i>q</i><tt>x</tt>1
+<tr><td><a href="#Modelbase::GetParCount">   <tt>GetParCount</tt></a><td> get number of parameters <i>q</i> (including fixed)
+<tr><td><a href="#Modelbase::GetParNames">   <tt>GetParNames</tt></a>*    <td> get the names of all parameters, array of length <i>q</i>
+<tr><td><a href="#Modelbase::GetParStatus">  <tt>GetParStatus</tt></a><td> returns full parameter info
+<tr><td><a href="#Modelbase::GetParTypes">   <tt>GetParTypes</tt></a><td> returns array of type letters for each model variable
+<tr><td><a href="#Modelbase::MapParToFree">  <tt>MapParToFree</tt></a><td> return the free parameters from the argument
+<tr><td><a href="#Modelbase::ResetFixedPar"> <tt>ResetFixedPar</tt></a><td> reset the values of the fixed parameters
+<tr><td><a href="#Modelbase::SetFreePar">    <tt>SetFreePar</tt></a><td> set the free parameters
+<tr><td><a href="#Modelbase::SetPar">        <tt>SetPar</tt></a>**        <td> set the full parameter vector
+<tr><td><a href="#Modelbase::SetParCount">   <tt>SetParCount</tt></a>**   <td> set the number of parameters <i>q</i> (including fixed)
+<tr><th colspan="2">move up in model status
+<tr><td><a href="#Modelbase::DoEstimation"><tt>DoEstimation</tt></a><td> low level estimate
+<tr><td><a href="#Modelbase::Estimate">    <tt>Estimate</tt></a><td> high level estimate
+<tr><td><a href="#Modelbase::InitData">    <tt>InitData</tt></a><td> get the data: <i>Y,X</i>
+<tr><td><a href="#Modelbase::InitPar">     <tt>InitPar</tt></a><td> initializes the parameter values
+<tr><td><a href="#Modelbase::SetStartPar"> <tt>SetStartPar</tt></a><td> set the starting values
+<tr><th colspan="2">covariance evaluation
+<tr><td><a href="#Modelbase::Covar"><tt>Covar</tt></a>*          <td> sets <tt>m_mCovar</tt>
+<tr><th colspan="2">get model results
+<tr><td><a href="#Modelbase::GetCovar">       <tt>GetCovar</tt></a><td> returns <i>p</i><tt>x</tt><i>p</i> covariance matrix
+<tr><td><a href="#Modelbase::GetCovarRobust"> <tt>GetCovarRobust</tt></a><td> returns <tt>&lt;&gt;</tt> or <i>p</i><tt>x</tt><i>p</i>  robust covariance matrix
+<tr><td><a href="#Modelbase::GetLogLik">      <tt>GetLogLik</tt></a><td> return the log-likelihood, <tt>m_dLogLik</tt>
+<tr><td><a href="#Modelbase::GetResVar">      <tt>GetResVar</tt></a><td> returns residual variance, <i>n</i><tt>x</tt><i>n</i>
+<tr><td><a href="#Modelbase::GetResiduals">   <tt>GetResiduals</tt></a><td> returns residual matrix, <i>T</i><tt>x</tt><i>n</i>
+<tr><td><a href="#Modelbase::GetStdErr">      <tt>GetStdErr</tt></a><td> returns the std.errors (0 for fixed) <i>q</i><tt>x</tt>1
+<tr><td><a href="#Modelbase::GetStdErrRobust"><tt>GetStdErrRobust</tt></a><td> returns <tt>&lt;&gt;</tt> or robust standard errors
+<tr><td><a href="#Modelbase::GetcDfLoss">     <tt>GetcDfLoss</tt></a><td> returns degrees of freedom lost (for tailt, AIC)
+<tr><td><a href="#Modelbase::GetcT">          <tt>GetcT</tt></a><td> returns actual no of variables to use in output, <tt>m_cT</tt>
+<tr><th colspan="2">other get model functions
+<tr><td><a href="#Modelbase::GetPrint">       <tt> GetPrint</tt></a><td> returns current print setting
+<tr><td><a href="#Modelbase::GetX">           <tt> GetX</tt></a><td> returns  <i>X</i> matrix
+<tr><td><a href="#Modelbase::GetY">           <tt> GetY</tt></a><td> returns  <i>Y</i> matrix
+<tr><td><a href="#Modelbase::GetcX">          <tt> GetcX</tt></a><td> returns  no of <i>X</i> variables
+<tr><td><a href="#Modelbase::GetcY">          <tt> GetcY</tt></a><td> returns  no of <i>Y</i> variables
+<tr><td><a href="#Modelbase::GetcYlag">       <tt> GetcYlag</tt></a><td> returns  no of lags of <i>Y</i>  
+<tr><th colspan="2">post estimation
+<tr><td><a href="#Modelbase::DbDrawTMatrix">   <tt>DbDrawTMatrix</tt></a><td> draws using the database sample information
+<tr><td><a href="#Modelbase::GetForecastData"> <tt>GetForecastData</tt></a><td> returns available data over a forecast period
+<tr><td><a href="#Modelbase::Output">          <tt>Output</tt></a><td> prints output
+<tr><td><a href="#Modelbase::OutputHeader">    <tt>OutputHeader</tt></a><td> prints output header, returns <tt>TRUE</tt> to print rest
+<tr><td><a href="#Modelbase::OutputPar">       <tt>OutputPar</tt></a><td> prints parameter estimates
+<tr><td><a href="#Modelbase::OutputLogLik">    <tt>OutputLogLik</tt></a><td> prints log-likelihood, AIC, etc.
+<tr><td><a href="#Modelbase::OutputMax">       <tt>OutputMax</tt></a><td> prints maximization result and starting values
+<tr><td><a href="#Modelbase::PrintTestVal">    <tt>PrintTestVal</tt></a><td> prints a test statistic
+<tr><td><a href="#Modelbase::TestRestrictions"><tt>TestRestrictions</tt></a><td> tests restrictions on the parameters
+<tr><th colspan="2">OxPack related, separately documented
+<tr><td><tt>GetLongRunInfo</tt><td> returns 0 or info on long-run
+<tr><td><tt>GetLongRunNames</tt><td> returns 0 or names of long-run parameters
+<tr><td><tt>ReceiveData</tt><td> receive the data for estimation
+<tr><td><tt>ReceiveDialog</tt><td> receive output from a dialog
+<tr><td><tt>ReceiveModel</tt><td> receive the model specification
+<tr><td><tt>SendDialog</tt><td> send a dialog
+<tr><td><tt>SendFunctions</tt><td> send specification of special functions
+<tr><td><tt>SendMenu</tt><td> send a menu list
+<tr><td><tt>SendMethods</tt><td> send the estimation methods
+<tr><td><tt>SendResults</tt><td> send an output variable
+<tr><td><tt>SendSpecials</tt><td> send the names of special variables
+<tr><td><tt>SendVarStatus</tt><td> send the types of variables
+</table>
+
+
+<p><h3>Modelbase function members</h3><p>
+
+
+<a name="Modelbase::ClearEstimation"></a>
+<a name="Modelbase::ClearModel"></a>
+<hr><pre><b>
+virtual Modelbase::ClearEstimation()
+virtual Modelbase::ClearModel();
+</b></pre><p>
+
+<p>
+<tt>ClearEstimation()</tt> clears the model estimation settings.
+<tt>ClearModel()</tt> sets the model status to <tt>MS_NONE</tt>, and
+calls <tt>ClearEstimation()</tt>.
+
+
+<a name="Modelbase::Covar"></a>
+<hr><pre><b>
+virtual Modelbase::Covar();
+</b></pre><p>
+
+<p>
+In some models, the evaluation of the variance-covariance matrix of the
+estimated parameters is costly, therefore, this matrix is only computed
+on demand: when the covariance matrix does not yet exist, <tt>Covar()</tt>
+is called to compute it.
+
+By default, the <tt>m_mCovar</tt> member variable of <tt>Modelbase</tt> is -1 when estimation
+commences (through a call to <tt>ClearEstimation()</tt>). <tt>Covar()</tt> 
+should set <tt>m_mCovar</tt> to the variance-covariance matrix (but
+<tt>Estimate()</tt> or <tt>DoEstimation()</tt> may also do this, as in the
+example above). <tt>Covar()</tt> can optionally set <tt>m_mCovarRobust</tt> as well.
+If the covariance matrix does not exist, <tt>Covar()</tt> is automatically
+called when using <tt>GetCovar()</tt>, <tt>GetCovarRobust()</tt>, <tt>GetStdErr()</tt>, or
+<tt>GetStdErrRobust()</tt>.
+
+This procedure ensures that the covariance is only computed once when
+required, and not at all when not required (in some Monte Carlo experiments,
+for example).
+
+
+<a name="Modelbase::DbDrawTMatrix"></a>
+<hr><pre><b>
+Modelbase::DbDrawTMatrix(const iArea, const mYt, const asY, const iT1);
+Modelbase::DbDrawTMatrix(const iArea, const mYt, const asY, const iT1,
+        const iSymbol, const iIndex);
+</b></pre><p>
+
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>mYt</tt>
+<dd>in:   <i>m</i> <tt>x</tt> <i>T</i> matrix with <i>m</i> <i>y</i> variables
+<dt><tt>asY</tt>
+<dd>in:   array of strings (holds variable names), or 0 (no names)
+<dt><tt>iT1</tt>
+<dd>in:   int, database index of first observation
+<dt><tt>iSymbol</tt>
+<dd>in:   int, 0: draw line, 1: draw symbols, 2: draw both
+                       (optional argument, default is 0).
+<dt><tt>iIndex</tt>
+<dd>in: int, line index for first row, see <a href="#TabDraw1">Default line attributes</a>,
+                       (optional argument, default is 2).
+                       Each subsequent row will have the next index.
+</dl><p>
+
+<p>
+This is equivalent to <a href="oxdraw.html#DrawTMatrix"><tt>DrawTMatrix</tt></a>, but using sample information
+from the underlying database. The function will automatically draw
+a proper date axis if the database is dated.
+
+
+<a name="Modelbase::DoEstimation"></a>
+<a name="Modelbase::Estimate"></a>
+<hr><pre><b>
+virtual Modelbase::DoEstimation(vPar);
+virtual Modelbase::Estimate();
+</b></pre><p>
+
+<dl>
+<dt><tt>vPar</tt>   <dd>in:  matrix, vector of starting values (free parameters), <i>p</i><tt>x</tt>1
+</dl><p>
+
+<tt>DoEstimation()</tt> returns:
+<ul>
+<li>
+Direct estimation: <i>p</i><tt>x</tt>1 matrix with the estimated parameters.
+<li>
+Iterative estimation: array of length 3, with respectively:
+<ul>
+<li> <i>p</i><tt>x</tt>1 matrix with the estimated parameters,
+<li> string, name of the iterative procedure (<tt>"BFGS"</tt> for example),
+<li> <tt>TRUE</tt> if numerical derivatives were used, <tt>FALSE</tt> otherwise.
+</ul>
+</ul>
+
+<tt>Estimate()</tt> returns <tt>TRUE</tt> if estimation was successful, <tt>FALSE</tt> otherwise.
+
+
+<p>
+There are two ways to implement estimation:
+<ul>
+<li> 
+Override <tt>DoEstimation()</tt>, which is called from <tt>Modelbase::Estimate</tt>.
+In this case, the derived <tt>DoEstimation()</tt> returns the estimated parameters,
+and sets <tt>m_iResult</tt>, see <tt>SetResult()</tt>. Prior to calling
+<tt>DoEstimation()</tt>, <tt>Modelbase::Estimate()</tt> will call <tt>InitData()</tt>, <tt>InitPar()</tt>
+and <tt>ClearEstimation()</tt>. Afterwards, it will update the model status, and, if
+estimation was successful, <tt>Output()</tt>, and, if iterative estimation was
+used: <tt>OutputMax()</tt>.
+<li> 
+Override <tt>Estimate()</tt>, in which case <tt>DoEstimation()</tt> is not automatically called.
+This provides complete control, but requires more code. For example, a slightly
+simplified version of <tt>Modelbase::Estimate()</tt> is given below, showing the
+essential properties which must be set:
+<ul>
+<li> estimated free parameters: <tt>SetFreePar()</tt>,
+<li> <tt>m_iResult</tt>, see <tt>SetResult()</tt>
+<li> <tt>m_iModelStatus</tt>, see <tt>SetModelStatus()</tt>.
+</ul>
+
+</ul>
+<p>
+<pre class="small">
+Modelbase::Estimate()
+{
+    decl  vpstart, vpfree, estout;
+
+    if (!InitPar())          // calls InitData() if necessary
+        return FALSE;
+    
+    vpstart = GetFreePar();  // map pars to estimation format
+    estout = DoEstimation(vpstart); // do the estimation
+    vpfree = isarray(estout) ? estout[0] : estout;
+    
+    SetFreePar(vpfree);// map estimated pars to normal format
+
+    if (m_iResult &amp;gt;= MAX_CONV &amp;&amp; m_iResult &amp;lt; MAX_MAXIT)
+        m_iModelStatus = MS_ESTIMATED;
+    else
+        m_iModelStatus = MS_EST_FAILED;
+
+    if (m_fPrint)
+    {   Output();
+        if (isarray(estout))
+            OutputMax(estout[1],m_iResult,vpstart,estout[2]);
+    }
+    return m_iModelStatus == MS_ESTIMATED;
+}
+</pre>
+
+
+
+<a name="Modelbase::FixPar"></a>
+<hr><pre><b>
+Modelbase::FixPar(const iP, const dFix);
+</b></pre><p>
+
+<dl>
+<dt><tt>iP</tt>     <dd>in:  int, index of parameter to fix
+<dt><tt>dFix</tt>   <dd>in:  double, value to fix parameter at
+</dl><p>
+
+<p>
+<tt>FixPar()</tt> is used to fix a parameter at the specified value.
+Subsequently, this parameter is omitted from the vector returned
+by <tt>GetFreePar()</tt>.
+
+
+<a name="Modelbase::FreePar"></a>
+<hr><pre><b>
+Modelbase::FreePar(const iP)
+</b></pre><p>
+
+<dl>
+<dt><tt>iP</tt>   <dd>in:  int, index of parameter to free, use -1 to free all
+</dl><p>
+
+<p>
+Frees a parameter which was previously fixed by <tt>FixPar()</tt>.
+
+
+<a name="Modelbase::GetcDfLoss"></a>
+<hr><pre><b>
+virtual Modelbase::GetcDfLoss();
+</b></pre><p>
+
+Returns the loss in degrees of freedom in the estimated model.
+The default is the number of estimated parameters.
+
+<p>
+Only override this function if the number to be used in the
+output is different from that number of free parameters in the estimation.
+
+
+<a name="Modelbase::GetcT"></a>
+<hr><pre><b>
+virtual Modelbase::GetcT();
+</b></pre><p>
+
+Returns an integer with the actual number of observations
+to be used in the output.
+
+<p>
+Only override this function if the number reported in the
+output is different from that used in the estimation (<tt>m_cT</tt>).
+
+<a name="Modelbase::GetcX"></a>,<a name="Modelbase::GetcY"></a>,<a name="Modelbase::GetcYlag"></a>
+<hr><pre><b>
+Modelbase::GetcX();
+Modelbase::GetcY();
+Modelbase::GetcYlag();
+</b></pre><p>
+
+Returns respectively: no of <i>X</i> variables, no of <i>Y</i> variables, lag length of <i>Y</i>.
+
+<a name="Modelbase::GetCovar"></a>
+<a name="Modelbase::GetCovarRobust"></a>
+<hr><pre><b>
+Modelbase::GetCovar();
+Modelbase::GetCovarRobust();
+</b></pre><p>
+
+Returns the <i>p</i><tt>x</tt><i>p</i> variance-covariance matrix of the free parameters.
+
+<p>
+See <a href="#Modelbase::Covar"><tt>Covar</tt></a> for an explanation of the implementation.
+
+
+<a name="Modelbase::GetForecastData"></a>
+<hr><pre><b>
+GetForecastData(const iGroup, const mnLag, const mxLag,
+    const cTforc);
+GetForecastData(const iGroup, const mnLag, const mxLag,
+    const cTforc, const iT1forc);
+</b></pre><p>
+
+<dl>
+<dt><tt>iGroup</tt>   <dd>in: int, group number
+<dt><tt>mnLag</tt>    <dd>in: int: start lag length
+<dt><tt>mxLag</tt>    <dd>in: int: end lag length
+<dt><tt>cTforc</tt>   <dd>in: int: number of forecasts
+<dt><tt>iT1forc</tt>  <dd>in: int: first forecasts observation (default is <tt>m_iT2est+1</tt>)
+</dl><p>
+Returns a matrix with the available forecasts data (or an empty matrix if
+no there is no data).
+
+
+<a name="Modelbase::GetFreePar"></a>
+<a name="Modelbase::GetFreeParCount"></a>
+<a name="Modelbase::GetFreeParNames"></a>
+<hr><pre><b>
+Modelbase::GetFreePar();
+Modelbase::GetFreeParCount();
+Modelbase::GetFreeParNames();
+</b></pre><p>
+
+
+<tt>GetFreePar</tt> returns the <i>p</i><tt>x</tt>1 vector with free parameters.<br>
+
+<tt>GetFreeParCount</tt> returns the free parameter count <i>p</i>.<br>
+
+<tt>GetFreeParNames</tt> returns an array of length <i>p</i> with the names of the free parameters.<br>
+
+<p>
+<tt>GetFreePar</tt> returns the current values of the free parameters. Parameters are
+fixed with <tt>FixPar()</tt>. The value of free parameters is set with
+<tt>SetFreePar()</tt>.
+
+
+
+<a name="Modelbase::GetLogLik"></a>
+<hr><pre><b>
+Modelbase::GetLogLik();
+</b></pre><p>
+
+Returns the log-likelihood, which is the value of the <tt>m_dLogLik</tt> member variable.
+
+
+<a name="Modelbase::GetMethod"></a>
+<a name="Modelbase::GetMethodLabel"></a>
+<hr><pre><b>
+Modelbase::GetMethod();
+virtual Modelbase::GetMethodLabel();
+</b></pre><p>
+
+<tt>GetMethod</tt> returns an integer representing the estimation method,
+which is the value of the <tt>m_iMethod</tt> member variable.
+<p>
+<tt>GetMethodLabel</tt> returns the text label for the current estimation
+method <tt>m_iMethod</tt>.
+
+<a name="Modelbase::GetModelLabel"></a>
+<a name="Modelbase::GetModelStatus"></a>
+<hr><pre><b>
+virtual Modelbase::GetModelLabel();
+Modelbase::GetModelStatus();
+</b></pre><p>
+
+<tt>GetModelLabel</tt> returns the text label for the model.
+<p>
+<tt>GetModelStatus</tt> returns the model estimation status:
+
+<table>
+<thead>
+<tr><th>value                <th>description</tr>
+</thead>
+<tr><td><tt>MS_NONE      </tt> <td> no model preparatory action has been taken,</tr>
+<tr><td><tt>MS_DATA      </tt> <td> estimation data has been extracted from the database,</tr>
+<tr><td><tt>MS_PARAMS    </tt> <td> the starting values for estimation have been set,</tr>
+<tr><td><tt>MS_ESTIMATED </tt> <td> the model has been estimated,</tr>
+<tr><td><tt>MS_EST_FAILED</tt> <td> model estimation has failed.</tr>
+</table>
+
+This value is stored in the <tt>m_iModelStatus</tt> member variable.
+
+
+<a name="Modelbase::GetPackageName"></a>
+<hr><pre><b>
+virtual Modelbase::GetPackageName();
+</b></pre><p>
+
+Returns the name of the modelling package.
+
+<p>
+This virtual function should be overridden by the derived class.
+
+
+<a name="Modelbase::GetPackageVersion"></a>
+<hr><pre><b>
+virtual Modelbase::GetPackageVersion();
+</b></pre><p>
+
+Returns the version number of the modelling package.
+
+<p>
+This virtual function should be overridden by the derived class.
+
+
+<a name="Modelbase::GetPar"></a>
+<a name="Modelbase::GetParCount"></a>
+<a name="Modelbase::GetParNames"></a>
+<hr><pre><b>
+Modelbase::GetPar();
+Modelbase::GetParCount();
+virtual Modelbase::GetParNames();
+</b></pre><p>
+
+<tt>GetPar</tt> returns the <i>q</i><tt>x</tt>1 vector with the current parameter values (both fixed and free).<br>
+
+<tt>GetParCount</tt> returns the total parameter count <i>q</i> (both fixed and free parameters).<br>
+
+<tt>GetParNames</tt> returns an array of length <i>q</i> with the names of the parameters.<br>
+
+
+<p>
+<tt>GetParNames</tt> should be overridden to use proper labels in the output.
+
+
+<a name="Modelbase::GetParStatus"></a>
+<hr><pre><b>
+Modelbase::GetParStatus();
+</b></pre><p>
+
+Returns array with:
+<ol>
+<li> total number of parameters <i>q</i>,
+<li> <i>q</i><tt>x</tt>1 matrix with 1 in position of free parameters, and 0 for fixed,
+<li> <i>q</i><tt>x</tt>1 matrix with fixed value in position of fixed parameters (free positions are unused),
+</ol>
+
+<p>
+This function is infrequently used.
+
+<a name="Modelbase::GetParTypes"></a>
+<hr><pre><b>
+virtual Modelbase::GetParTypes();
+</b></pre><p>
+
+Override the default to return an array of strings indicating the
+type of each model variable, e.g. <tt>{"Y","X","X","U"}</tt>. The default
+returns 0, so that no types are indicated in the output.
+
+<p>
+This function is infrequently used.
+
+<a name="Modelbase::GetPrint"></a>
+<hr><pre><b>
+Modelbase::GetPrint();
+</b></pre><p>
+
+Returns the current print setting.
+
+
+<a name="Modelbase::GetResiduals"></a>
+<hr><pre><b>
+virtual Modelbase::GetResiduals();
+</b></pre><p>
+
+Returns the <i>T</i><tt>x</tt><i>n</i> matrix with residuals
+(<i>n</i> equals 1 for univariate models).
+
+<p>
+Must be overridden by the derived class to return residuals.
+
+
+<a name="Modelbase::GetResult"></a>
+<hr><pre><b>
+Modelbase::GetResult();
+</b></pre><p>
+
+The estimation result (normally a value from <tt>MaxBFGS</tt>),
+which is the value of the <tt>m_iResult</tt> member variable.
+
+
+<a name="Modelbase::GetResVar"></a>
+<hr><pre><b>
+virtual Modelbase::GetResVar();
+</b></pre><p>
+
+Returns the <i>n</i><tt>x</tt><i>n</i> matrix with the residual variance
+(<i>n</i> equals 1 for univariate models).
+
+<p>
+Must be overridden by the derived class.
+
+
+<a name="Modelbase::GetStdErr"></a>
+<a name="Modelbase::GetStdErrRobust"></a>
+<hr><pre><b>
+Modelbase::GetStdErr();
+Modelbase::GetStdErrRobust();
+</b></pre><p>
+
+Returns the <i>q</i><tt>x</tt>1 vector with standard errors (0 at position of fixed
+parameters).
+
+<p>
+See <a href="#Modelbase::Covar"><tt>Covar</tt></a> for an explanation of the implementation.
+
+<a name="Modelbase::GetX"></a>,<a name="Modelbase::GetY"></a>
+<hr><pre><b>
+Modelbase::GetX();
+Modelbase::GetY();
+</b></pre><p>
+
+Returns <i>X</i>, <i>Y</i> matrix.
+
+
+<a name="Modelbase::Grow"></a>
+<hr><pre><b>
+Modelbase::Grow(const cTadd);
+</b></pre><p>
+
+<dl>
+<dt><tt>cTadd</tt>       <dd>in: int, number of observations to grow database sample by
+							 (&gt; 0: <tt>cTadd</tt> observations are added at the end;
+							 &lt; 0: <tt>-cTadd</tt> observations are added at the beginning)
+</dl><p>
+
+<p>
+Calls <tt>Database::Grow</tt> and updates the deterministic variables
+("Constant", "Trend", "Seasonal", "CSeasonal").
+
+<a name="Modelbase::InitData"></a>
+<hr><pre><b>
+virtual Modelbase::InitData();
+</b></pre><p>
+
+Returns <tt>TRUE</tt> if successful.
+
+<p>
+Extracts the data for estimation from the underlying database.
+Sets the model status to <tt>MS_DATA</tt> if successful.
+
+
+<a name="Modelbase::InitPar"></a>
+<hr><pre><b>
+virtual Modelbase::InitPar();
+</b></pre><p>
+
+Returns <tt>TRUE</tt> if successful.
+
+<p>
+Gets starting values for the estimation procedure.
+Sets the model status to <tt>MS_PARAMS</tt> if successful.
+
+
+<a name="Modelbase::IsUnivariate"></a>
+<hr><pre><b>
+virtual Modelbase::IsUnivariate();
+</b></pre><p>
+
+Returns <tt>TRUE</tt> if only one dependent variable (<tt>Y_VAR</tt>) is allowed.
+
+<p>
+This virtual function should be overridden by the derived class if multivariate
+models are implemented.
+
+
+<a name="Modelbase::MapParToFree"></a>
+<hr><pre><b>
+Modelbase::MapParToFree(const vPar);
+</b></pre><p>
+
+<dl>
+<dt><tt>vPar</tt>   <dd>in:  int, <i>q</i> vector with parameter values (both fixed and free)
+</dl><p>
+
+Returns a <i>p</i><tt>x</tt>1 vector with free parameter values.
+
+<p>
+Extracts and returns the free parameter values from a full parameter vector.
+
+
+<a name="Modelbase::Modelbase"></a>
+<hr><pre><b>
+Modelbase::Modelbase();
+</b></pre><p>
+
+<p>
+Constructor function.
+
+
+<a name="Modelbase::Output"></a>
+<hr><pre><b>
+virtual Modelbase::Output();
+</b></pre><p>
+
+<p>
+Prints the estimation output.
+
+
+<a name="Modelbase::OutputHeader"></a>
+<hr><pre><b>
+Modelbase::OutputHeader(const sTitle);
+</b></pre><p>
+
+<dl>
+<dt><tt>sTitle</tt>   <dd>in:  string, title
+</dl><p>
+
+<p>
+Called by <tt>Output</tt> to print the header section.
+
+
+<a name="Modelbase::OutputLogLik"></a>
+<hr><pre><b>
+Modelbase::OutputLogLik();
+</b></pre><p>
+
+<p>
+Called by <tt>Output</tt> to print the loglikelihood and other summary statistics.
+
+
+<a name="Modelbase::OutputMax"></a>
+<hr><pre><b>
+Modelbase::OutputMax(const sMethod, const iResult, const vPstart,
+    const bNumerical);
+</b></pre><p>
+
+<dl>
+<dt><tt>sMethod</tt>   <dd>in:  maximization method
+<dt><tt>iResult</tt>   <dd>in:  int, maximization result
+<dt><tt>vPstart</tt>   <dd>in:  vector with starting values
+<dt><tt>bNumerical</tt><dd>in:  int, <tt>TRUE</tt> if using numerical derivatives
+</dl><p>
+
+<p>
+Called by <tt>Estimate</tt> to print the starting values and method used
+for iterative estimation.
+
+
+<a name="Modelbase::OutputPar"></a>
+<hr><pre><b>
+Modelbase::OutputPar();
+</b></pre><p>
+
+<p>
+Called by <tt>Output</tt> to print the parameter estimates.
+
+
+<a name="Modelbase::PrintTestVal"></a>
+<hr><pre><b>
+static PrintTestVal(const dTest, const cR, const cTdf, const sLabel);
+</b></pre><p>
+
+<dl>
+<dt><tt>dTest</tt>   <dd>in: test statistic
+<dt><tt>cR</tt>      <dd>in: first degrees of freedom
+<dt><tt>cTdf</tt>    <dd>in: second degrees of freedom
+<dt><tt>sLabel</tt>  <dd>in: name of test
+</dl><p>
+
+<p>
+Prints a test statistic and its significance.
+If <tt>cTdf</tt> is zero, the test is assumed to have Chi<sup>2</sup>(<tt>cR</tt>)
+distribution, otherwise an <i>F</i>(<tt>cR</tt>,<tt>cTdf</tt>) distribution.
+
+
+<a name="Modelbase::ResetFixedPar"></a>
+<hr><pre><b>
+Modelbase::ResetFixedPar();
+</b></pre><p>
+
+<p>
+Resets the fixed parameters to their prespecified values.
+
+
+<a name="Modelbase::SetForecasts"></a>
+<hr><pre><b>
+virtual SetForecasts(const cForc, const bIsLessForecasts);
+</b></pre><p>
+
+<dl>
+<dt><tt>cForc</tt>   <dd>in:  int, number of forecasts,
+<dt><tt>bIsLessForecasts</tt>   <dd>in:  int, <tt>TRUE</tt>: the forecasts are subtracted
+from the selection sample.
+</dl><p>
+
+<p>
+The <tt>Modelbase</tt> version sets <tt>m_cTforc</tt>.
+
+
+<a name="Modelbase::SetFreePar"></a>
+<hr><pre><b>
+Modelbase::SetFreePar(const vParFree);
+</b></pre><p>
+
+<dl>
+<dt><tt>vParFree</tt>   <dd>in:  <i>p</i> vector with free parameter values
+</dl><p>
+
+
+<a name="Modelbase::SetMethod"></a>
+<hr><pre><b>
+Modelbase::SetMethod(const iMethod);
+</b></pre><p>
+
+<dl>
+<dt><tt>iMethod</tt>   <dd>in:  int, estimation method (no values are predefined in Modelbase)
+</dl><p>
+
+<p>
+Sets <tt>m_iMethod</tt>.
+
+
+<a name="Modelbase::SetModelStatus"></a>
+<hr><pre><b>
+Modelbase::SetModelStatus(const iModelStatus);
+</b></pre><p>
+
+<dl>
+<dt><tt>iModelStatus</tt>   <dd>in:  int, model status to set, one of: <tt>MS_NONE</tt>,
+                            <tt>MS_DATA</tt>, <tt>MS_PARAMS</tt>, <tt>MS_ESTIMATED</tt>, <tt>MS_EST_FAILED</tt>
+</dl><p>
+
+<p>
+Sets  <tt>m_iModelStatus</tt>.
+
+
+<a name="Modelbase::SetPar"></a>
+<a name="Modelbase::SetParCount"></a>
+<hr><pre><b>
+Modelbase::SetPar(const vPar);
+Modelbase::SetParCount(const cPar);
+Modelbase::SetParCount(const cPar, const bAdd);
+</b></pre><p>
+
+<dl>
+<dt><tt>vPar</tt>   <dd>in:  <i>q</i><tt>x</tt>1 vector with new parameter values (both fixed and free)
+<dt><tt>cPar</tt>   <dd>in:  int, total number of parameters (fixed and free)
+<dt><tt>bAdd</tt>   <dd>in:  (optional) int, <tt>TRUE</tt>: add parameters to current count; else set the count.
+</dl><p>
+
+<p>
+<tt>SetParCount()</tt> must be called for the other parameter functions to work.
+
+
+<a name="Modelbase::SetPrint"></a>
+<hr><pre><b>
+Modelbase::SetPrint(fPrint);
+</b></pre><p>
+
+<dl>
+<dt><tt>fPrint</tt>   <dd>in:  int, <tt>TRUE</tt> to switch printing on, <tt>FALSE</tt> to switch off.
+</dl><p>
+
+<p>
+For Monte Carlo experiments, it can be useful to switch off printing.
+
+
+<a name="Modelbase::SetRecursive"></a>
+<hr><pre><b>
+virtual SetRecursive(const bSet, const cInit);
+</b></pre><p>
+
+<dl>
+<dt><tt>bSet</tt>   <dd>in:  int, <tt>TRUE</tt> to switch recursive estimation on,
+<dt><tt>cInit</tt>  <dd>in:  int, number of initialization steps.
+</dl><p>
+
+<p>
+The <tt>Modelbase</tt> version sets <tt>m_bRecursive</tt> and <tt>m_cTinit</tt>.
+
+
+<a name="Modelbase::SetResult"></a>
+<hr><pre><b>
+Modelbase::SetResult(const iResult);
+</b></pre><p>
+
+Sets the estimation result (normally a value from <tt>MaxBFGS</tt>),
+which is the value of the <tt>m_iResult</tt> member variable.
+
+
+<a name="Modelbase::SetStartPar"></a>
+<hr><pre><b>
+virtual Modelbase::SetStartPar(const vParFree);
+</b></pre><p>
+
+<dl>
+<dt><tt>vParFree</tt>   <dd>in:  <i>p</i> vector with the starting values for the free parameters
+</dl><p>
+
+<p>
+This is an alternative to <tt>InitPar</tt>, allowing for direct setting
+of the starting parameters prior to estimation.
+
+<a name="Modelbase::ShowBanner"></a>
+<hr><pre><b>
+static ShowBanner(const bSet);
+</b></pre><p>
+
+<dl>
+<dt><tt>bSet</tt>   <dd>in:  <tt>FALSE</tt>: suppress creation banner
+</dl><p>
+
+
+<a name="Modelbase::TestRestrictions"></a>
+<hr><pre><b>
+virtual Modelbase::TestRestrictions(vSel);
+virtual Modelbase::TestRestrictions(mR, const vR);
+</b></pre><p>
+
+<dl>
+<dt><tt>vSel</tt>   <dd>in: <i>p</i> vector, with a 1 for the coefficients which
+                      tested to be zero, 0 otherwise
+<dt><tt>mR</tt>     <dd>in: <i>s</i><tt>x</tt><i>p</i> matrix <i>R</i>
+<dt><tt>vR</tt>     <dd>in: <i>s</i> vector <i>r</i>
+</dl><p>
+
+<p>
+The one-argument version tests whether one or more coefficients
+are zero. The second form tests restrictions of the type <i>R</i>\<i>theta</i>=<i>r</i>.
+Both are implemented as a Wald test with a Chi<sup>2</sup>(<i>s</i>) distribution.
+<br>
+This function requires that <tt>Covar()</tt> and <tt>GetParNames()</tt> are implemented,
+and <tt>SetPar()</tt> or <tt>SetParFree()</tt> are used to set the estimated
+parameters.
+<p>
+
+
+
+<p><h2><a name="PcFiml"></a>PcFiml : Modelbase : Database class</h2><p>
+
+The <tt>PcFiml</tt> class provides part of the advanced
+computations available in the menu driven computer program
+<i>PcFiml</i>. The class is derived
+from the <tt>Modelbase</tt> class, and provides model formulation
+using variable names.
+
+The class allows for estimating
+a Vector Autoregression (VAR), cointegration analysis
+(`Johansen procedure'), and multivariate regression model
+(such as an unrestricted reduced form, URF),
+as well as a simultaneous equations model (2SLS, 3SLS, FIML).
+No identities equations are currently possible. Mis-specification tests
+include: vector autoregression, vector normality, vector
+heteroscedasticity, vector portmanteau, as well as a Chow test.
+
+
+<p><h3><a name="PcFimlFunc"></a>PcFiml function members</h3><p>
+
+<dl>
+<dt><tt>ArTest(const iAr1, const iAr2);</tt>
+<dd>System vector AR test for lags <tt>iAr1</tt>... <tt>iAr2</tt>.
+<dt><tt>Chow(const iYear, const iPeriod);</tt>
+<dd>Forecast Chow tests for break  on or after <tt>iYear</tt> (<tt>iPeriod</tt>).
+<dt><tt>Cointegration();</tt>
+<dd>Estimate cointegrating space.
+<dt><tt>CointegrationI2();</tt>
+<dd>I(2) cointegration analysis.
+<dt><tt>EgeArTest(const iAr1, const iAr2);</tt>
+<dd>Model vector AR test for lags <tt>iAr1</tt>...<tt>iAr2</tt>.
+<dt><tt>Estimate();</tt>
+<dd>Estimate the system (NB: use <tt>->SetSelSample()</tt> first).
+<dt><tt>Fiml();</tt>
+<dd>Do FIML estimation.
+<dt><tt>GetOmega();</tt>
+<dd>Returns <i>n</i> <tt>x</tt> <i>n</i> matrix of URF/RRF residual variance V'V/(<i>T-k</i>).
+<dt><tt>GetPi();</tt>
+<dd>Returns <i>n</i> <tt>x</tt> <i>k</i> matrix of URF/RRF coefficients.
+<dt><tt>GetResiduals();</tt>
+<dd>Returns <i>T</i> <tt>x</tt> <i>n</i> matrix <i>V</i> of URF/RRF residuals.
+<dt><tt>GetResult();</tt>
+<dd>Returns results from FIML estimation (return code from <tt>MaxBFGS</tt>).
+<dt><tt>GetStatus();</tt>
+<dd>Returns status of Constant and Trend
+(0: no constant; 1: restricted constant; 2: unrestricted constant;
+4: unrestricted trend; 3: restricted trend).
+<dt><tt>GetVarNames(const aasY, const aasW);</tt>
+<dd>Returns n ~ n1 ~ k (n1 is no of lagged <i>y</i>s); puts list of varnames in arguments.
+<dt><tt>GetVarPi();</tt>
+<dd>Returns <i>n</i> <tt>x</tt> <i>k</i> matrix with variances of RRF/URF coefficients.
+<dt><tt>GetVarRf();</tt>
+<dd>System: returns full <i>nk</i> <tt>x</tt> <i>nk</i> variance-covariance matrix of URF coefficients;
+<dd>Model: returns full <i>nk</i> <tt>x</tt> <i>nk</i> variance-covariance matrix of RRF coefficients.
+<dt><tt>GetVarTheta();</tt>
+<dd>System: returns full <i>nk</i> <tt>x</tt> <i>nk</i> variance-covariance matrix of URF coefficients;
+<dd>Model: returns full <i>np</i> <tt>x</tt> <i>np</i> variance-covariance matrix of model coefficients.
+<dt><tt>HeteroTest(const fStand, const fCross);</tt>
+<dd>Vector heteroscedasticity test.
+<dt><tt>NormalityTest();</tt>
+<dd>Vector normality test.
+<dt><tt>Output(const fSys, const fCoint);</tt>
+<dd>Print System and/or Cointegration results.
+<dt><tt>PcFiml();</tt>
+<dd>Constructor.
+<dt><tt>Portmanteau(const iLag);</tt>
+<dd>Vector portmanteau test up to lag <tt>iLag</tt>.
+<dt><tt>SetEquation(const sEquation, const aModel);</tt>
+<dd>Delete or add variable from model.
+<dt><tt>SetPrint(fPrint);</tt>
+<dd>Toggles print switch.
+<dt><tt>SetPrintUrf(fPrintUrf);</tt>
+<dd>Toggles URF print switch.
+<dt><tt>ThreeSLS();</tt>
+<dd>Do 3SLS estimation.
+<dt><tt>TwoSLS();</tt>
+<dd>Do 2SLS estimation.
+</dl><p>
+
+
+<p><h2><a name="PcFimlDgp"></a>PcFimlDgp : Database class</h2><p>
+
+The <tt>PcFimlDgp</tt> class is a data generation process (DGP),
+designed for use in dynamic econometric Monte Carlo experiments.
+Unlike the <tt>PcNaiveDgp</tt> class, it derives from <tt>Database</tt>
+to formulate the DGP and store the generated data. This makes
+the DGP more general, but somewhat more complex.
+The class is used through the header file <tt>pcfimldgp.h</tt>.
+The design is an <i>n</i>-variate version DGP:
+
+<dl>
+<dd><i>y</i><sub><i>t</i></sub>  =  <i>Pi</i> <i>w</i><sub><i>t</i></sub> + <i>u</i><sub><i>t</i></sub>,
+<dd><i>z</i><sub><i>t</i></sub>  =  <i>C</i><sub>0</sub> <i>z</i><sub><i>t</i>-1</sub> + <i>v</i><sub><i>t</i></sub>.
+</dl><p>
+
+The vectors <i>y</i><sub><i>t</i></sub> and <i>u</i><sub><i>t</i></sub> are <i>n</i> <tt>x</tt> 1,
+<i>w</i><sub><i>t</i></sub> is <i>k</i> <tt>x</tt> 1
+so that the	coefficient matrix <i>Pi</i> is <i>n</i> <tt>x</tt> <i>k</i>.
+The <i>z</i><sub><i>t</i></sub> vector is <i>q</i> <tt>x</tt> 1, making
+<i>C</i><sub>0</sub> <i>q</i> <tt>x</tt> <i>q</i>.
+The <i>z</i>s can be kept fixed between experiments, or regenerated
+for the experiment. A distribution for <i>u</i><sub><i>t</i></sub> and <i>v</i><sub><i>t</i></sub>
+can be specified.
+
+<p><h3><a name="PcFimlDgpFunc"></a>PcFimlDgp function members</h3><p>
+
+<a name="PcFimlDgp::Asymp"></a>
+<hr><pre><b>
+PcFimlDgp::Asymp();
+</b></pre><p>
+
+Prints an asymptotic analysis of the current DGP.
+
+<a name="PcFimlDgp::Create"></a>
+<hr><pre><b>
+PcFimlDgp::Create(const iFreq, const iYear1, const iPeriod1,
+    const cTdiscard, const mxDgpLag, const mxT);
+</b></pre><p>
+
+<dl>
+<dt><tt>iFreq</tt>     <dd>in: int, database frequency                             
+<dt><tt>iYear1</tt>    <dd>in: int, start year of observation
+<dt><tt>iPeriod1</tt>  <dd>in: int, start period of observation
+<dt><tt>cTdiscard</tt> <dd>in: int, number of discards
+<dt><tt>mxDgpLag</tt>  <dd>in: int, maximum lag to be used in DGP
+<dt><tt>mxT</tt>       <dd>in: int, maximum sample size to be used (this excludes lags and discards)
+</dl><p>
+
+Creates the database. After this, <tt>Select</tt> may be used to
+formulate the DGP, with group identifier <tt>Y_VAR</tt> or <tt>Z_VAR</tt>.
+The database name of the variables are <tt>"Ya"</tt>, <tt>"Yb"</tt>, ...,
+and  <tt>"Za"</tt>, <tt>"Zb"</tt>, .... The <tt>Constant</tt>, <tt>Trend</tt> and
+normal <tt>Seasonal</tt>s are automatically created.
+
+
+<a name="PcFimlDgp::DiscardZ"></a>
+<hr><pre><b>
+PcFimlDgp::DiscardZ();
+</b></pre><p>
+
+Discards the current <i>z</i><sub><i>t</i></sub>; the next call to
+<tt>GenerateTo()</tt> will generate new observations on <i>z</i><sub><i>t</i></sub>.
+
+
+<a name="PcFimlDgp::Generate"></a>
+<hr><pre><b>
+PcFimlDgp::Generate(const cT);
+</b></pre><p>
+
+<dl>
+<dt><tt>cT</tt>        <dd>in: int, sample size <i>T</i>
+</dl><p>
+
+<tt>GenerateTo</tt> returns generated (<i>Y</i>:<i>U</i>), as a <i>T</i> <tt>x</tt> 2<i>n</i> matrix.
+<br>
+Generates <tt>cT</tt> observation of the current DGP.
+
+
+<a name="PcFimlDgp::GenerateU"></a>
+<a name="PcFimlDgp::GenerateV"></a>
+<a name="PcFimlDgp::GenerateZ"></a>
+<a name="PcFimlDgp::GenerateY"></a>
+<a name="PcFimlDgp::GenerateU_t"></a>
+<a name="PcFimlDgp::GenerateV_t"></a>
+<a name="PcFimlDgp::GenerateZ_t"></a>
+<a name="PcFimlDgp::GenerateY_t"></a>
+<hr><pre><b>
+virtual PcFimlDgp::GenerateU(const cT);
+virtual PcFimlDgp::GenerateV(const cT);
+virtual PcFimlDgp::GenerateZ(const cT, const mC0t, const mV);
+virtual PcFimlDgp::GenerateY(const cT, const mPit, const mU);
+virtual PcFimlDgp::GenerateU_t(const iT);
+virtual PcFimlDgp::GenerateV_t(const iT);
+virtual PcFimlDgp::GenerateZ_t(const iT, const mC0t);
+virtual PcFimlDgp::GenerateY_t(const iT, const mPit);
+</b></pre><p>
+
+<dl>
+<dt><tt>cT</tt>      <dd>in: int, sample size <i>T</i>
+<dt><tt>iT</tt>      <dd>in: int, current observation <i>t</i>
+<dt><tt>mC0t</tt>    <dd>in: <i>q</i> <tt>x</tt> <i>q</i> matrix <i>C</i><sub>0</sub><sup>'</sup>
+<dt><tt>mPit</tt>    <dd>in: <i>k</i> <tt>x</tt> <i>n</i> matrix <i>Pi</i><sup>'</sup>
+<dt><tt>mV</tt>      <dd>in: <i>T</i> <tt>x</tt> <i>q</i> matrix <i>U</i>
+<dt><tt>mU</tt>      <dd>in: <i>T</i> <tt>x</tt> <i>n</i> matrix <i>V</i>
+</dl><p>
+
+These virtual functions are called by <tt>GenerateTo()</tt>
+to generate the data. The sub-t versions are called when using
+a for loop for data generation. This is the case
+after a call to <tt>UseObsLoop(TRUE)</tt>.
+
+
+<a name="PcFimlDgp::GetU"></a>
+<a name="PcFimlDgp::GetV"></a>
+<a name="PcFimlDgp::GetY"></a>
+<a name="PcFimlDgp::GetZ"></a>
+<hr><pre><b>
+PcFimlDgp::GetU();
+PcFimlDgp::GetV();
+PcFimlDgp::GetY();
+PcFimlDgp::GetZ();
+</b></pre><p>
+
+<tt>GetU</tt> returns current <i>U</i> as a <i>T</i> <tt>x</tt> <i>n</i> matrix.
+<br>
+<tt>GetV</tt> returns current <i>V</i> as a <i>T</i> <tt>x</tt> <i>q</i> matrix.
+<br>
+<tt>GetY</tt> returns current <i>Y</i> as a <i>T</i> <tt>x</tt> <i>n</i> matrix.
+<br>
+<tt>GetZ</tt> returns current <i>Z</i> as a <i>T</i> <tt>x</tt> <i>q</i> matrix.
+
+<a name="PcFimlDgp::PcFimlDgp"></a>
+<hr><pre><b>
+PcFimlDgp::PcFimlDgp(const cY, const cZ);
+</b></pre><p>
+
+<dl>
+<dt><tt>cY</tt>        <dd>in: int, <i>n</i>, dimension of <i>y</i><sub><i>t</i></sub>
+<dt><tt>cZ</tt>        <dd>in: int, <i>q</i>, dimension of <i>z</i><sub><i>t</i></sub>
+</dl><p>
+
+Constructor.
+
+<hr><pre><b>
+PcFimlDgp::Prepare();
+</b></pre><p>
+
+Virtual function which must be called prior to data generation.
+
+<a name="PcFimlDgp::Print"></a>
+<hr><pre><b>
+PcFimlDgp::Print();
+</b></pre><p>
+
+Prints the setup of the current DGP.
+
+<a name="PcFimlDgp::SetDistribution"></a>
+<hr><pre><b>
+PcFimlDgp::SetDistribution(const iEqn, const iDist,
+    mPar1, mPar2);
+</b></pre><p>
+
+See under <a href="#RanPcNaiveFunc">RanPcNaive</a>.
+
+<a name="PcFimlDgp::SetFixedZ"></a>
+<hr><pre><b>
+PcFimlDgp::SetFixedZ(const fSetting);
+</b></pre><p>
+
+See under <a href="#RanPcNaiveFunc">RanPcNaive</a>.
+
+
+<a name="PcFimlDgp::SetInit"></a>
+<hr><pre><b>
+PcFimlDgp::SetInit(const iDgp, const mInit);
+</b></pre><p>
+
+<dl>
+<dt><tt>iDgp</tt>        <dd>in: one of: <tt>Y_DGP</tt>, <tt>Z_DGP</tt>
+<dt><tt>mInit</tt>       <dd>in: or or:
+<dd><tt>Y_DGP</tt>: <i>s</i> <tt>x</tt> <i>n</i> matrix
+<dd><tt>Z_DGP</tt>: <i>s</i> <tt>x</tt> <i>q</i> matrix
+</dl><p>
+
+Specifies initial values for the DGP (default is 0).
+
+
+<a name="PcFimlDgp::SetYParameter"></a>
+<hr><pre><b>
+PcFimlDgp::SetYParameter(const mPit);
+</b></pre><p>
+
+<dl>
+<dt><tt>mPit</tt>    <dd>in: <i>k</i> <tt>x</tt> <i>n</i> matrix <i>Pi</i><sup>'</sup>
+</dl><p>
+
+Sets the parameters for the <i>y</i><sub><i>t</i></sub> equation.
+
+<a name="PcFimlDgp::SetZParameter"></a>
+<hr><pre><b>
+PcFimlDgp::SetZParameter(const mC0);
+</b></pre><p>
+
+<dl>
+<dt><tt>mC0</tt>         <dd>in: <i>q</i> <tt>x</tt> <i>q</i> matrix <i>C</i><sub>0</sub>
+</dl><p>
+
+Sets the parameters for the <i>z</i><sub><i>t</i></sub> equation.
+
+<a name="PcFimlDgp::UseObsLoop"></a>
+<hr><pre><b>
+PcFimlDgp::UseObsLoop(const bUseObsLoop);
+</b></pre><p>
+
+<dl>
+<dt><tt>bUseObsLoop</tt>    <dd>in: TRUE: generate data by looping over observations
+</dl><p>
+
+By default, the data are generated using matrix expressions.
+Use this to generate the data in a for loop. This is considerably
+slower, but gives more flexibility.
+
+
+<p><h2><a name="PcNaiveDgp"></a>PcNaiveDgp : RanPcNaive class</h2><p>
+
+The <tt>PcNaiveDgp</tt> class is a data generation process (DGP),
+designed for use in dynamic econometric Monte Carlo experiments.
+The class is used through the header file <tt>ranpcnaive.oxh</tt>.
+The design is an <i>n</i>-variate version DGP:
+
+The class derives from the <a href="#RanPcNaive">RanPcNaive class</a>. Unlike RanPcNaive,
+the generated data are stored inside the object, and retrieved using Get functions.
+
+
+<p><h3><a name="PcNaiveDgpFunc"></a>PcNaiveDgp function members</h3><p>
+
+<a name="PcNaiveDgp::DiscardZ"></a>
+<hr><pre><b>
+PcNaiveDgp::DiscardZ();
+</b></pre><p>
+
+Discards the current <i>z</i><sub><i>t</i></sub>; the next call to
+<tt>Generate()</tt> will generate new observations on <i>z</i><sub><i>t</i></sub>.
+
+<a name="PcNaiveDgp::Generate"></a>
+<a name="PcNaiveDgp::GenerateTo"></a>
+<hr><pre><b>
+PcNaiveDgp::Generate(const cT);
+PcNaiveDgp::GenerateTo(const cT);
+</b></pre><p>
+
+<dl>
+<dt><tt>cT</tt>        <dd>in: int, sample size <i>T</i>
+</dl><p>
+
+<tt>Generate</tt> returns generated <i>Y</i> = (<i>y</i><sub>0</sub> ... <i>y</i>_T)', as a <i>T</i> <tt>x</tt> <i>n</i> matrix.
+<br>
+<tt>GenerateTo</tt> returns generated (<i>Y</i>:<i>U</i>), as a <i>T</i> <tt>x</tt> 2<i>n</i> matrix.
+<br>
+Generates <tt>cT</tt> observation of the current DGP and stores it in the current object.
+
+
+<a name="PcNaiveDgp::GenerateBreakTo"></a>
+<hr><pre><b>
+PcNaiveDgp::GenerateBreakTo(const cT, const iTbreak,
+    const iTreset, const mA0, const mA1, const mA2,
+    const mA3, const mA5)
+</b></pre><p>
+
+<dl>
+<dt><tt>cT</tt>       <dd>in: int, sample size <i>T</i>
+<dt><tt>iTbreak</tt>  <dd>in: int, <i>T</i><sub>1</sub>, first observation with break
+<dt><tt>iTreset</tt>  <dd>in: int, <i>T</i><sub>2</sub>, first observation after the break
+<dt><tt>mA0</tt>      <dd>in: <i>n</i> <tt>x</tt> <i>n</i> matrix <i>A</i><sub>0</sub>*
+    <em>must have zeros on the diagonal</em>
+<dt><tt>mA1</tt>      <dd>in: <i>n</i> <tt>x</tt> <i>n</i> matrix <i>A</i><sub>1</sub>*
+<dt><tt>mA2</tt>      <dd>in: <i>n</i> <tt>x</tt> <i>q</i> matrix <i>A</i><sub>2</sub>*
+<dt><tt>mA3</tt>      <dd>in: <i>n</i> <tt>x</tt> 1 matrix <i>a</i><sub>3</sub>*
+<dt><tt>mA5</tt>      <dd>in: <i>n</i> <tt>x</tt> <i>n</i> matrix <i>A</i><sub>5</sub>*
+</dl><p>
+
+Returns generated (<i>Y</i>:<i>U</i>), as a <i>T</i> <tt>x</tt> 2<i>n</i> matrix.
+<p>
+Generates <tt>cT</tt> observation of the current DGP and stores it in the current object, using the alternative
+DGP over the specified period.
+
+
+<a name="PcNaiveDgp::GetU"></a>
+<a name="PcNaiveDgp::GetY"></a>
+<a name="PcNaiveDgp::GetZ"></a>
+<hr><pre><b>
+PcNaiveDgp::GetU();
+PcNaiveDgp::GetY();
+PcNaiveDgp::GetZ();
+</b></pre><p>
+
+<tt>GetU</tt> returns current <i>U</i> as a <i>T</i> <tt>x</tt> <i>n</i> matrix.
+<p>
+<tt>GetY</tt> returns current <i>Y</i> as a <i>T</i> <tt>x</tt> <i>n</i>
+matrix (as does <tt>Generate</tt>).
+<p>
+<tt>GetZ</tt> returns current <i>Z</i> as a <i>T</i> <tt>x</tt> <i>q</i> matrix.
+
+<a name="PcNaiveDgp::PcNaiveDgp"></a>
+<hr><pre><b>
+PcNaiveDgp::PcNaiveDgp(const cY, const cZ);
+</b></pre><p>
+
+<dl>
+<dt><tt>cY</tt>        <dd>in: int, <i>n</i>, dimension of <i>y</i><sub><i>t</i></sub>
+<dt><tt>cZ</tt>        <dd>in: int, <i>q</i>, dimension of <i>z</i><sub><i>t</i></sub>
+</dl><p>
+
+Constructor.
+
+
+
+<p><h2><a name="RanMC"></a>RanMC class</h2><p>
+
+The <tt>RanMC</tt> class provides random number generation of
+specific distribution for use by the RanPcNaive, PcNaiveDgp and PcFimlDgp classes.
+All member functions are static, and can be used without
+constructing an object, for example as:
+
+<pre>
+    x = RanMC::Choleski(x);
+</pre>
+
+<p><h3><a name="RanMCFunc"></a>RanMC function members</h3><p>
+
+<a name="RanMC::Choleski"></a>
+<hr><pre><b>
+static RanMC::Choleski(const mSig);
+</b></pre><p>
+Returns Choleski decomposition of <tt> mSig</tt>. <tt>mSig</tt> may have zeros
+on the diagonal. The corresponding rows and columns are
+ignored in the decomposition, and will be zero in the return value.
+
+<a name="RanMC::CheckDist"></a>
+<hr><pre><b>
+static RanMC::CheckDist(const sFunc, iDist, mPar1, mPar2);
+</b></pre><p>
+Returns an array of three values:
+<dl>
+<dt><tt>iDist</tt>, distribution
+<dt><tt>mPar1</tt> matrix, adjusted input value
+<dt><tt>mPar2</tt> matrix, adjusted input value
+</dl><p>
+
+<a name="RanMC::RanDist"></a>
+<hr><pre><b>
+static RanMC::RanDist(const iDist, const cT, const cY, const mDf1,
+    const mDf2);
+</b></pre><p>
+Returns a T <tt>x</tt> <i>n</i> matrix of random numbers from the specified
+distribution. The distribution parameters must be as returned from
+<tt>CheckDist()</tt>.
+
+<a name="RanMC::RanDist1"></a>
+<hr><pre><b>
+static RanMC::RanDist1(const iDist, const cY, const mDf1,
+    const mDf2, const mUlag, const mYlag);
+</b></pre><p>
+Returns a 1 <tt>x</tt> <i>n</i> matrix of random numbers from the specified
+distribution. The distribution parameters must be as returned from
+<tt> CheckDist()</tt>.
+
+<a name="RanMC::WriteDist"></a>
+<hr><pre><b>
+static RanMC::WriteDist(const sPar, const iDist, const mDf1,
+    const mDf2);
+</b></pre><p>
+Writes the used distribution. The distribution parameters must be as
+returned from <tt>CheckDist()</tt>.
+
+
+<p><h2><a name="RanPcNaive"></a>RanPcNaive class</h2><p>
+
+The <tt>RanPcNaive</tt> class is a data generation process (DGP),
+designed for use in dynamic econometric Monte Carlo experiments.
+The class is used through the header file <tt>ranpcnaive.oxh</tt>.
+The design is an <i>n</i>-variate version DGP:
+
+<dl>
+<dd><i>y</i><sub><i>t</i></sub>  =  <i>A</i><sub>0</sub><i>y</i><sub><i>t</i></sub> + <i>A</i><sub>1</sub><i>y</i><sub><i>t</i>-1</sub> + <i>A</i><sub>2</sub><i>z</i><sub><i>t</i></sub> +
+<i>a</i><sub>3</sub> + <i>A</i><sub>5</sub><i>y</i><sub><i>t</i>-2</sub> + <i>u</i><sub><i>t</i></sub>,
+<dd><i>u</i><sub><i>t</i></sub>  =  <i>B</i><sub>0</sub><i>u</i><sub><i>t</i>-1</sub> + <i>e</i><sub><i>t</i></sub> + <i>B</i><sub>1</sub><i>e</i><sub><i>t</i>-1</sub>,
+<dd><i>z</i><sub><i>t</i></sub>  =  <i>C</i><sub>0</sub><i>z</i><sub><i>t</i>-1</sub> + <i>c</i><sub>1</sub> + <i>c</i><sub>2</sub>t + <i>v</i><sub><i>t</i></sub>.
+</dl><p>
+
+The vectors <i>y</i><sub><i>t</i></sub>,<i>u</i><sub><i>t</i></sub>,<i>e</i><sub><i>t</i></sub> are <i>n</i> <tt>x</tt> 1, so that the
+coefficient matrices <i>A</i><sub>0</sub>,<i>A</i><sub>1</sub>,<i>B</i><sub>0</sub>,<i>B</i><sub>1</sub> are <i>n</i> <tt>x</tt> <i>n</i>,
+and <i>a</i><sub>3</sub> is <i>n</i> <tt>x</tt> 1.
+The <i>z</i><sub><i>t</i></sub> vector is <i>q</i> <tt>x</tt> 1, making
+<i>a</i><sub>2</sub> <i>n</i> <tt>x</tt> <i>q</i>, <i>C</i><sub>0</sub> <i>q</i> <tt>x</tt> <i>q</i>, and
+<i>c</i><sub>1</sub>,<i>c</i><sub>2</sub> <i>q</i> <tt>x</tt> 1.
+The <i>z</i>s can be kept fixed between experiments, or regenerated
+for the experiment. A distribution for <i>e</i><sub><i>t</i></sub> and <i>v</i><sub><i>t</i></sub>
+can be specified.
+
+<p><h3><a name="RanPcNaiveFunc"></a>RanPcNaive function members</h3><p>
+
+<a name="RanPcNaive::Asymp"></a>
+<hr><pre><b>
+RanPcNaive::Asymp();
+</b></pre><p>
+
+Prints an asymptotic analysis of the current DGP:
+companion matrix with eigenvalues, together with cointegrating
+space and level of integration of DGP: I(0), I(1) or I(2).
+
+Discards the current <i>z</i><sub><i>t</i></sub>; the next call to
+<tt>Generate()</tt> will generate new observations on <i>z</i><sub><i>t</i></sub>.
+
+<a name="RanPcNaive::GenerateTo"></a>
+<hr><pre><b>
+RanPcNaive::GenerateTo(const cT);
+</b></pre><p>
+
+<dl>
+<dt><tt>cT</tt>        <dd>in: int, sample size <i>T</i>
+</dl><p>
+
+<tt>GenerateTo</tt> returns an array of three elements, holding the
+generated {<i>Y</i>,<i>Z</i>,<i>U</i>}.
+<br>
+Generates <tt>cT</tt> observation of the current DGP.
+If <i>Z</i> is fixed, the fixed value is used, unless none has been set.
+
+
+<a name="RanPcNaive::GenerateBreakTo"></a>
+<hr><pre><b>
+RanPcNaive::GenerateBreakTo(const cT, const iTbreak,
+    const iTreset, const mA0, const mA1, const mA2,
+    const mA3, const mA5)
+</b></pre><p>
+
+<dl>
+<dt><tt>cT</tt>       <dd>in: int, sample size <i>T</i>
+<dt><tt>iTbreak</tt>  <dd>in: int, <i>T</i><sub>1</sub>, first observation with break
+<dt><tt>iTreset</tt>  <dd>in: int, <i>T</i><sub>2</sub>, first observation after the break
+<dt><tt>mA0</tt>      <dd>in: <i>n</i> <tt>x</tt> <i>n</i> matrix <i>A</i><sub>0</sub>*
+    <em>must have zeros on the diagonal</em>
+<dt><tt>mA1</tt>      <dd>in: <i>n</i> <tt>x</tt> <i>n</i> matrix <i>A</i><sub>1</sub>*
+<dt><tt>mA2</tt>      <dd>in: <i>n</i> <tt>x</tt> <i>q</i> matrix <i>A</i><sub>2</sub>*
+<dt><tt>mA3</tt>      <dd>in: <i>n</i> <tt>x</tt> 1 matrix <i>a</i><sub>3</sub>*
+<dt><tt>mA5</tt>      <dd>in: <i>n</i> <tt>x</tt> <i>n</i> matrix <i>A</i><sub>5</sub>*
+</dl><p>
+
+Returns returns an array of three elements, holding the
+generated {<i>Y</i>,<i>Z</i>,<i>U</i>}.
+<p>
+Generates <tt>cT</tt> observation of the current DGP, using the alternative
+DGP over the specified period.
+
+
+<a name="RanPcNaive::GetFixedZValue"></a>
+<hr><pre><b>
+RanPcNaive::GetFixedZValue();
+</b></pre><p>
+
+Returns the current fixed <i>Z</i> matrix.
+
+<a name="RanPcNaive::HasFixedZ"></a>
+<hr><pre><b>
+RanPcNaive::HasFixedZ();
+</b></pre><p>
+
+Returns current TRUE if <i>Z</i> is fixed.
+
+<a name="RanPcNaive::RanPcNaive"></a>
+<hr><pre><b>
+RanPcNaive::RanPcNaive(const cY, const cZ);
+</b></pre><p>
+
+<dl>
+<dt><tt>cY</tt>        <dd>in: int, <i>n</i>, dimension of <i>y</i><sub><i>t</i></sub>
+<dt><tt>cZ</tt>        <dd>in: int, <i>q</i>, dimension of <i>z</i><sub><i>t</i></sub>
+</dl><p>
+
+Constructor.
+
+<a name="RanPcNaive::Print"></a>
+<hr><pre><b>
+RanPcNaive::Print();
+</b></pre><p>
+
+Prints the setup of the current DGP.
+
+<a name="RanPcNaive::SetDistribution"></a>
+<hr><pre><b>
+RanPcNaive::SetDistribution(const iEqn, const iDist,
+    mPar1, mPar2);
+</b></pre><p>
+
+<dl>
+<dt><tt>iEqn</tt>        <dd>in: one of: <tt>U_DGP</tt>, <tt>Z_DGP</tt>
+<dt><tt>iDist</tt>       <dd>in: one of: <tt>NO_DIST</tt>, <tt>NORMAL</tt>, <tt>MVNORMAL</tt>, <tt>LOGNORMAL</tt>,
+        <tt>T_DIST</tt>, <tt>F_DIST</tt>, <tt>EXPONENTIAL</tt>, <tt>MVNARCH</tt>, <tt>MVNHETERO</tt>
+<dt><tt>mPar1</tt>       <dd>in: first parameter of distribution,
+        <tt>MVNARCH</tt>, <tt>MVNHETERO</tt>: <i>n</i> <tt>x</tt> <i>n</i> for <i>y</i><sub><i>t</i></sub>, <i>u</i><sub><i>t</i></sub>; <i>q</i> <tt>x</tt> <i>q</i> for <i>z</i><sub><i>t</i></sub>
+        others: <i>n</i> <tt>x</tt> 1 for <i>y</i><sub><i>t</i></sub>, <i>u</i><sub><i>t</i></sub>; <i>q</i> <tt>x</tt> 1 for <i>z</i><sub><i>t</i></sub>
+<dt><tt>mPar2</tt>       <dd>in: second parameter of distribution,
+        <tt>MVNORMAL</tt>, <tt>MVNARCH</tt>, <tt>MVNHETERO</tt>: <i>n</i> <tt>x</tt> <i>n</i> for <i>y</i><sub><i>t</i></sub>, <i>u</i><sub><i>t</i></sub>; <i>q</i> <tt>x</tt> <i>q</i> for <i>z</i><sub><i>t</i></sub>
+        others: <i>n</i> <tt>x</tt> 1 for <i>y</i><sub><i>t</i></sub>, <i>u</i><sub><i>t</i></sub>; <i>q</i> <tt>x</tt> 1 for <i>z</i><sub><i>t</i></sub>
+</dl><p>
+
+Specifies the distribution for the <i>u</i>, or <i>z</i>
+equations given <a href="#RanPcNaiveFunc">above</a>.
+The first argument indicates the equation,
+the second the distribution. The last two arguments parameterize
+the distribution.
+
+<a name="RanPcNaive::SetFixedZ"></a>
+<hr><pre><b>
+RanPcNaive::SetFixedZ(const fSetting);
+</b></pre><p>
+
+
+Specifies whether <i>z</i><sub><i>t</i></sub> is fixed (<tt>fSetting</tt> equals <tt>TRUE</tt>)
+or not, and clears the currently stored
+A new value for fixed <i>z</i><sub><i>t</i></sub> can be set by SetF<tt></tt>ixedZValue
+or generated by SetNewFixe<tt></tt>dZValue.
+
+
+<a name="RanPcNaive::SetFixedZValue"></a>
+<hr><pre><b>
+RanPcNaive::SetFixedZValue(const mZ);
+</b></pre><p>
+
+<dl>
+<dd><tt>mZ</tt>: <i>q</i> <tt>x</tt> <i>T</i> matrix <i>Z</i>
+</dl><p>
+
+Sets a new value for fixed <i>z</i><sub><i>t</i></sub> in the object.
+
+
+<a name="RanPcNaive::SetInit"></a>
+<hr><pre><b>
+RanPcNaive::SetInit(const iDgp, const mInit);
+</b></pre><p>
+
+<dl>
+<dt><tt>iDgp</tt>        <dd>in: one of: <tt>Y_DGP</tt>, <tt>Z_DGP</tt>
+<dt><tt>mInit</tt>       <dd>in: or or:
+<dd><tt>Y_DGP</tt>: <i>1</i> <tt>x</tt> <i>n</i> or <i>2</i> <tt>x</tt> <i>n</i> matrix
+<dd><tt>Z_DGP</tt>: <i>1</i> <tt>x</tt> <i>q</i> matrix
+</dl><p>
+
+Specifies initial values for the DGP (default is 0).
+
+
+<a name="RanPcNaive::SetNewFixedZValue"></a>
+<hr><pre><b>
+RanPcNaive::SetNewFixedZValue(const cT);
+</b></pre><p>
+
+<dl>
+<dt><tt>cT</tt>       <dd>in: int, sample size <i>T</i>
+</dl><p>
+
+Generates a new <i>Z</i> value and stores it in the object for subsequent use.
+
+
+<a name="RanPcNaive::SetUParameter"></a>
+<hr><pre><b>
+RanPcNaive::SetUParameter(const mLagAr, const mLagMa);
+</b></pre><p>
+
+<dl>
+<dt><tt>mLagAr</tt>        <dd>in: <i>n</i> <tt>x</tt> <i>n</i> matrix <i>B</i><sub>0</sub>
+<dt><tt>mLagMa</tt>        <dd>in: <i>n</i> <tt>x</tt> <i>n</i> matrix <i>B</i><sub>1</sub>
+</dl><p>
+
+Sets the parameters for the <i>e</i><sub><i>t</i></sub> equation.
+
+<a name="RanPcNaive::SetYParameter"></a>
+<hr><pre><b>
+RanPcNaive::SetYParameter(const mA0, const mA1,	const mA2, const mA3);
+RanPcNaive::SetYParameter(const mA0, const mA1,	const mA2, const mA3,
+    const mA5);
+</b></pre><p>
+
+<dl>
+<dt><tt>mA0</tt>      <dd>in: <i>n</i> <tt>x</tt> <i>n</i> matrix <i>A</i><sub>0</sub>
+    <em>must have zeros on the diagonal</em>
+<dt><tt>mA1</tt>      <dd>in: <i>n</i> <tt>x</tt> <i>n</i> matrix <i>A</i><sub>1</sub>
+<dt><tt>mA2</tt>      <dd>in: <i>n</i> <tt>x</tt> <i>q</i> matrix <i>A</i><sub>2</sub>
+<dt><tt>mA3</tt>      <dd>in: <i>n</i> <tt>x</tt> 1 matrix <i>a</i><sub>3</sub>
+<dt><tt>mA5</tt>      <dd>in: (optional argument) <i>n</i> <tt>x</tt> <i>n</i> matrix <i>A</i><sub>5</sub>
+</dl><p>
+
+Sets the parameters for the <i>y</i><sub><i>t</i></sub> equation.
+
+<a name="RanPcNaive::SetYParameterEcm"></a>
+<hr><pre><b>
+RanPcNaive::SetYParameterEcm(const mAlpha,
+    const mBeta, const mA2, const mA3);
+RanPcNaive::SetYParameterEcm(const mAlpha,
+    const mBeta, const mA2, const mA3, const mA5);
+</b></pre><p>
+
+<dl>
+<dt><tt>mAlpha</tt>   <dd>in: <i>n</i> <tt>x</tt> <i>p</i> matrix <i>alpha</i>
+<dt><tt>mBeta</tt>    <dd>in: <i>n</i> <tt>x</tt> <i>p</i> matrix <i>beta</i>
+<dt><tt>mA2</tt>      <dd>in: <i>n</i> <tt>x</tt> <i>q</i> matrix <i>A</i><sub>2</sub>
+<dt><tt>mA3</tt>      <dd>in: <i>n</i> <tt>x</tt> 1 matrix <i>a</i><sub>3</sub>
+<dt><tt>mA5</tt>      <dd>in: (optional argument) <i>n</i> <tt>x</tt> <i>n</i> matrix <i>A</i><sub>5</sub>*
+</dl><p>
+
+Sets the parameters for the <i>y</i><sub><i>t</i></sub> equation in equilibrium
+correction form.
+
+<a name="RanPcNaive::SetZParameter"></a>
+<hr><pre><b>
+RanPcNaive::SetZParameter(const mC0, const mC1, const mC2);
+</b></pre><p>
+
+<dl>
+<dt><tt>mC0</tt>         <dd>in: <i>q</i> <tt>x</tt> <i>q</i> matrix <i>C</i><sub>0</sub>
+<dt><tt>mC1</tt>       <dd>in: <i>q</i> <tt>x</tt> 1 matrix <i>c</i><sub>1</sub>
+<dt><tt>mC2</tt>       <dd>in: <i>q</i> <tt>x</tt> 1 matrix <i>c</i><sub>2</sub>
+</dl><p>
+
+Sets the parameters for the <i>z</i><sub><i>t</i></sub> equation.
+
+
+<a name="RanPcNaive::SetZCustom"></a>
+<hr><pre><b>
+RanPcNaive::SetZCustom(mCZ);
+</b></pre><p>
+
+<dl>
+<dt><tt>mCZ</tt>         <dd>in: <i>T</i> <tt>x</tt> <i>q</i> matrix with custom values.
+</dl><p>
+
+Installs a custom <i>Z</i>. This is added to <i>Z</i> after generation
+of <i>Z</i>, but before <i>Z</i> is used in the <i>Y</i> equation.
+
+<a name="RanPcNaive::StoreInDatabase"></a>
+<hr><pre><b>
+RanPcNaive::StoreInDatabase(const amYZU, const oDb, const iY0,
+    const iZ0, const iU0, const cTDiscard)
+</b></pre><p>
+
+<dl>
+<dt><tt>amYZU</tt>       <dd>in: array[3], holding {<i>Y</i>, <i>Z</i>, <i>U</i>} (e.g. as returned by <tt>GenerateTo</tt>)
+<dt><tt>oDb</tt>         <dd>in: object of Database type
+<dt><tt>iY0</tt>         <dd>in: int, -1 or index in Database object of first Y variable
+<dt><tt>iZ0</tt>         <dd>in: int, -1 or index in Database object of first Z variable
+<dt><tt>iU0</tt>         <dd>in: int, -1 or index in Database object of first U variable
+<dt><tt>cTDiscard</tt>   <dd>in: int, 0 or number of initial observations to remove from <i>Y</i>, <i>Z</i>, <i>U</i>
+</dl><p>
+
+Stores generated data in a database object. If the index is -1, the corresponding
+variable is not changed in the Database. It is assumed that the <i>Y</i> variables are in a
+consecutive block, similar for <i>Z</i> and <i>U</i>.
+
+
+<p><h2><a name="Sample"></a>Sample class</h2><p>
+
+The <tt>Sample</tt>
+class stores a time interval, and the frequency, e.g. 1980 (1) -- 1990 (1),
+with frequency 4 (i.e. quarterly observations).
+
+The <tt>Sample</tt> class is only used to derive from. It requires
+linking in the database code, and inclusion of <tt>database.h</tt>.
+This is most easily done
+by adding an <tt>#import &lt;database&gt;</tt> statement
+at the top of your source code.
+
+<p><h3><a name="SampleFunc"></a>Sample function members</h3><p>
+
+<a name="Sample::GetFrequency"></a>
+<hr><pre><b>
+Sample::GetFrequency();
+</b></pre><p>
+The frequency.
+
+<a name="Sample::GetIndex"></a>
+<hr><pre><b>
+Sample::GetIndex(const iYear, const iPeriod);
+</b></pre><p>
+The index of the specified time point.
+
+<a name="Sample::GetPeriod1"></a>
+<hr><pre><b>
+Sample::GetPeriod1();
+</b></pre><p>
+The period of the first observation.
+
+<a name="Sample::GetPeriod2"></a>
+<hr><pre><b>
+Sample::GetPeriod2();
+</b></pre><p>
+The period of the last observation.
+
+<a name="Sample::GetSize"></a>
+<hr><pre><b>
+Sample::GetSize();
+</b></pre><p>
+The number of observations in the sample.
+
+<a name="Sample::GetYear1"></a>
+<hr><pre><b>
+Sample::GetYear1();
+</b></pre><p>
+The year of the first observation.
+
+<a name="Sample::GetYear2"></a>
+<hr><pre><b>
+Sample::GetYear2();
+</b></pre><p>
+The year of the last observation.
+
+<a name="Sample::ObsPeriod"></a>
+<hr><pre><b>
+Sample::ObsPeriod(iObs);
+</b></pre><p>
+The period of the observation index.
+
+<a name="Sample::ObsYear"></a>
+<hr><pre><b>
+Sample::ObsYear(iObs);
+</b></pre><p>
+The year of the observation index.
+
+<a name="Sample::Resample"></a>
+<hr><pre><b>
+Sample::Resample(const iFreq, const iYear1, const iPeriod1);
+</b></pre><p>
+Changes the frequency and start year(period). The sample size is unchanged, so the
+end year(period) is derived from that.
+
+
+<p><h3><a name="SampleData"></a>Sample data members</h3><p>
+
+<dl>
+<dt><tt>m_iFreq</tt>    <dd>data frequency (int)
+<dt><tt>m_iYear1</tt>   <dd>year of first observation (int)
+<dt><tt>m_iPeriod1</tt> <dd>period of first observation (int)
+<dt><tt>m_iYear2</tt>   <dd>year of last observation (int)
+<dt><tt>m_iPeriod2</tt> <dd>period of last observation (int)
+</dl><p>
+
+
+<p><h2><a name="Simulator"></a>Simulator : SimulatorBase class</h2><p>
+
+The <tt>Simulator</tt> class can be used to set up Monte Carlo
+experiments. Derive your own simulation experimentation
+class from this, overriding the virtual functions.
+<tt>Simulator</tt> will handle the replications and storage,
+and print the final results. The type of data it can handle
+are coefficients, test statistics and p-values of test statistics.
+The class is used through the header file <tt>simula.oxh</tt>.
+
+<p>
+A table is printed at the end, which gives the results, for coefficients:
+<ul>
+<li>mean:   mean over all replications (MC mean),
+<li>std.dev: standard deviation around MC mean (MCSD),
+<li>mean bias: MC mean - true value,
+<li>se mean bias: MCSD / sqrt(<i>M</i>),
+<li>rmse: standard deviation around true value, sqrt(MCSD^2 + mean bias^2),
+</ul><p>
+where
+<i>M</i> is the number of replications and
+rmse is the root of the mean squared error.
+
+<p><h3><a name="SimulationFunc"></a>Simulator function members</h3><p>
+
+Note that the functions are documented as belonging to the Simulator
+class, but are actually mostly in SimulatorBase. The source code
+of both classes can be found in ox/src.
+<p>
+Simulator succeeds
+the Simulation class which was used up to Ox 6 (this is still available through
+<tt>simula.oxo</tt> and <tt>simula.oxh</tt>, but now deprecated).
+
+<p>
+<a name="Simulator::Generate"></a>
+<hr><pre><b>
+virtual Simulator::Generate(const iRep, const cT,
+    const mxT);
+</b></pre><p>
+
+<dl>
+<dt><tt>iRep</tt>       <dd>in: int, index of current replication (0 is first)
+<dt><tt>cT</tt>         <dd>in: int, sample size to be used for replication
+<dt><tt>mxT</tt>        <dd>in: int, maximum sample size to be used for replication
+    (this is only relevant when using common random numbers)
+</dl><p>
+
+Upon failure, <tt>Generate</tt> should return an empty matrix or array, or
+an array wich has integer 0 as the first element.
+<p>
+Upon success, <tt>Generate</tt> should return an array with four elements:
+<ol>
+<li>integer, value 1
+<li>coefficients or <tt>&lt;&gt;</tt>,
+<li>p-values or <tt>&lt;&gt;</tt>,
+<li>test statistics or <tt>&lt;&gt;</tt>.
+</ol>
+
+<p>
+If the call to the <tt>Generate</tt> function fails, additional
+experiments are run in an attempt to reach the required number of replications.
+The number of rejected replications is reported in the output.
+
+<p>
+The derived class must override the virtual function. It is called
+for every replication, and must perform the actual replication.
+
+
+<a name="Simulator::Plot"></a>
+<hr><pre><b>
+virtual Simulator::Plot(const iRep, const iT)
+</b></pre><p>
+
+<dl>
+<dt><tt>iRep</tt>       <dd>in: int, index of current replication (0 is first)
+<dt><tt>iT</tt>         <dd>in: int, sample size of current replication
+</dl><p>
+
+Virtual plot function. The default version does nothing.
+
+<a name="Simulator::Prepare"></a>
+<hr><pre><b>
+virtual Simulator::Prepare(const cT, const mxT);
+</b></pre><p>
+
+<dl>
+<dt><tt>cT</tt>         <dd>in: int, sample size to be used for replication
+<dt><tt>mxT</tt>        <dd>in: int, maximum sample size to be used for replication
+    (this is only relevant when using common random numbers)
+</dl><p>
+
+Virtual function which the derived class can override if necessary. It is called
+just before the replications for sample size <tt>cT</tt> commence.
+It can be used to initialize common regressors (e.g.), and is not run in a parallel
+section.
+
+<a name="Simulator::SaveIn7"></a>
+<a name="Simulator::SaveRecIn7"></a>
+<hr><pre><b>
+Simulator::SaveIn7(const sFilename);
+Simulator::SaveRecIn7(const sFilename);
+</b></pre><p>
+
+<dl>
+<dt><tt>sFilename</tt>  <dd>in: destination file name
+</dl><p>
+
+Saves simulation results to the named file.<br>
+<tt>SaveIn7</tt> stores the test and coefficient values.<br>
+<tt>SaveRecIn7</tt> stores: coefficients, MCSE, Bias, RMSE,
+test critical values (right tail), rejection frequencies and moments.
+
+
+<a name="Simulator::SetCoefNames"></a>
+<a name="Simulator::SetTestNames"></a>
+<hr><pre><b>
+Simulator::SetCoefNames(const asNames)
+Simulator::SetTestNames(const asNames)
+</b></pre><p>
+
+<dl>
+<dt><tt>asNames</tt>       <dd>in: array with names.
+For <tt>SetCoefNames</tt>: array with <i>s</i><sub><i>c</i></sub> names;
+for <tt>SetTestNames</tt>: array with <i>s</i><sub><i>t</i></sub> names.
+</dl><p>
+
+Installs the names of tests statistics and coefficients, to determine dimensions
+of the collected information, and to make the report more readable.
+
+<a name="Simulator::SetPlotRep"></a>
+<a name="Simulator::SetRecursive"></a>
+<a name="Simulator::SetStore"></a>
+<hr><pre><b>
+Simulator::SetPlotRep(const iPlotRep);
+Simulator::SetRecursive(const bRecursive);
+Simulator::SetStore(const bStore);
+</b></pre><p>
+
+<dl>
+<dt><tt>iPlotRep</tt>     <dd>in: call <tt>Plot()</tt> every <tt>iPlotRep</tt> replications (default is 0)
+<dt><tt>bRecursive</tt>   <dd>in: <tt>TRUE</tt>: do recursive Monte Carlo (default is <tt>FALSE</tt>)
+<dt><tt>bStore</tt>       <dd>in: store results of all replications for later access  (default is <tt>FALSE</tt>)
+</dl><p>
+
+<a name="Simulator::SetTwoSided"></a>
+<hr><pre><b>
+Simulator::SetTwoSided(const mIsTwoSided);
+</b></pre><p>
+
+<dl>
+<dt><tt>mIsTwoSided</tt>       <dd>1 <tt>x</tt> <i>s</i><sub><i>t</i></sub> matrix of 0--1 values, with a 1 for each test
+statistics which is two-sided.
+</dl><p>
+Should be called before <tt>Prepare</tt> is called to indicate which tests are
+two-sided. Need not be called if all tests are one-sided.
+
+The value of <i>s</i><sub><i>t</i></sub> is derived from the call to <tt>SetTestNames</tt>.
+
+
+<a name="Simulator::Simulate"></a>
+<hr><pre><b>
+Simulator::Simulate()
+</b></pre><p>
+
+This is the core function. It runs the Monte Carlo experiment,
+and prints the results.
+
+
+<a name="Simulator::Simulator"></a>
+<hr><pre><b>
+Simulator::Simulator(const mT, const mxT,
+    const cRep, const fCommon, const dSeed,
+    const mPvalue, const mTrueParam);
+</b></pre><p>
+
+<dl>
+<dt><tt>mT</tt>         <dd>in: 1 <tt>x</tt> <i>r</i> matrix of sample sizes
+<dt><tt>mxT</tt>        <dd>in: int, maximum sample size
+<dt><tt>cRep</tt>       <dd>in: int, number of replications
+<dt><tt>fCommon</tt>    <dd>in: 1: reset seed for each experiment; else 0
+<dt><tt>dSeed</tt>      <dd>in: double, resets seed to <tt>dSeed</tt>
+                         if <tt>fCommon == TRUE</tt>
+<dt><tt>mPvalue</tt>    <dd>in: 1 <tt>x</tt> <i>s</i><sub><i>p</i></sub> matrix with p-values to test at,
+                         only used if <tt>GetPvalues</tt> returns p-values
+<dt><tt>mTrueParam</tt> <dd>in: 1 <tt>x</tt> <i>s</i><sub><i>c</i></sub> matrix with true parameters, only
+                         used if <tt>GetCoefficients</tt> returns coefficients
+</dl><p>
+
+Constructor function.
+
+
+Calls to <tt>SetCoefNames</tt> (if coefficients are generated) and/or <tt>SetTestNames</tt>
+(if p-values or test statistics are generated) are also required.
+
+
+<p><hr><p><b>Ox version 7.00.</b>
+&copy; <i><a href="http://www.doornik.com" target="_top">
+JA Doornik</a></i>
+This file last changed <script type="text/javascript">document.write(document.lastModified);</script>.
+
+</div><!-- /page-frame -->
+</body>
+</html>

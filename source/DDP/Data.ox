@@ -1,6 +1,12 @@
 #include "Data.h"
 /* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
 
+Data::SetLog() {
+    Volume = SILENT;
+    lognm = replace("Data-"+date()+replace(time(),":","-")," ","")+".log";
+    logf = fopen(lognm,"aV");
+    }
+
 /** Record everything about a single realization of the DP.
 @param prior `Outcome` object, the previous realization along the path<br>
 		<em>integer</em>, this is first realization on the path. `Task::state` uninitialized.<br>
@@ -253,7 +259,7 @@ FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
 		if (++this.N<N && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
         cur = cur.pnext;
 		} while (this.N<N);
-	if (Volume>SILENT) println(" FPanel Simulation time: ",timer()-cputime0);
+	if (Data::Volume>SILENT) fprintln(Data::logf," FPanel Simulation time: ",timer()-cputime0);
 	}
 
 FPanel::Append(pathid) {
@@ -366,7 +372,7 @@ Flat version of the data set is stored in `Panel::flat`.
 **/
 Panel::Print(fn)	{
 	if (isint(flat)) Flat();
-	if (isint(fn)) { if (fn>0) print("%c",Lflat,"%cf",Fmtflat,flat); }
+	if (isint(fn)) { if (fn>0) fprint(Data::logf,"%c",Lflat,"%cf",Fmtflat,flat); }
 	else if (!savemat(fn,flat,Lflat)) oxrunerror("DDP Error 51. FPanel print to "+fn+" failed");
 	}
 	
@@ -455,7 +461,7 @@ RandomEffectsIntegration::Run() {
     decl pf =path->PathObjective();
     if (isint(flat)) flat = curREdensity*pf; else flat += curREdensity*pf;
 	L += curREdensity*path.L;	
-//    println("%% ",I::r," ",I::rtran," ",curREdensity," ",path.L," ",L);
+    fprintln(Data::logf,"%% ",I::r," ",I::rtran," ",curREdensity," ",path.L," ",L);
 	}
 	
 /** Compute likelihood of a realized path.
@@ -578,7 +584,7 @@ Path::Mask() {
 	}	
 	
 FPanel::Mask() {
-	cur = this;	do { cur -> Path::Mask(); } while (isclass(cur = cur.pnext));
+	cur = this;	do { cur -> Path::Mask(); } while ( (isclass(cur = cur.pnext)) );
 	}	
 
 /** Mask unobservables.
@@ -597,7 +603,7 @@ DataSet::Mask() {
 		if (list[s+low[svar]].obsv!=TRUE) {if (!list[s+low[svar]].force0) mask[svar] |= s; list[s+low[svar]].obsv=FALSE;}
 	for(s=0;s<N::aux;++s)
 		if (list[s+low[auxvar]].obsv!=TRUE) {mask[auxvar] |= s; list[s+low[auxvar]].obsv=FALSE;}
-	if (Volume>SILENT) Summary(0);
+	if (Data::Volume>SILENT) Summary(0);
 	cur = this;
 	do { cur -> FPanel::Mask(); } while ((isclass(cur = cur.fnext)));
 	masked = TRUE;
@@ -623,13 +629,13 @@ DataSet::IDColumn(lORind) {
 DataSet::MatchToColumn(aORs,LorC) {
 	if (StateVariable::IsBlock(aORs)) oxrunerror("DDP Error 55. Can't use columns or external labels to match blocks. Must use ObservedWithLabel(...)");
 	decl offset,k;
-	if (Volume>SILENT) print("\nAdded to the observed list: ");
+	if (Data::Volume>SILENT) fprint(Data::logf,"\nAdded to the observed list: ");
 	offset = isclass(aORs,"ActionVariable") ? 1
 				: isclass(aORs,"StateVariable") ? 1+N::Av
 				: 1+N::Av+N::S;
 	if (list[offset+aORs.pos].obsv==FALSE && masked) oxrunerror("DDP Error 56. cannot recover observations on UnObserved variable after reading/masking");
 	list[offset+aORs.pos]->Observed(LorC);				
-	if (Volume>SILENT) print(aORs.L," Matched to column ",LorC);
+	if (Data::Volume>SILENT) fprint(Data::logf,aORs.L," Matched to column ",LorC);
     }
 
 	
@@ -643,7 +649,7 @@ DataSet::MatchToColumn(aORs,LorC) {
 DataSet::ObservedWithLabel(as1,...) {
 	decl offset,aORs,LorC,va = isarray(as1) ? as1 : {as1},k,bv;
     va |= va_arglist();
-	if (Volume>SILENT) print("\nAdded to the observed list: ");
+	if (Data::Volume>SILENT) fprint(Data::logf,"\nAdded to the observed list: ");
     foreach (aORs in va) {
 		if (StateVariable::IsBlock(aORs)) {
 	        foreach (bv in aORs.Theta) ObservedWithLabel(States[bv]);
@@ -655,9 +661,9 @@ DataSet::ObservedWithLabel(as1,...) {
                 : 0;
 		if (list[offset+aORs.pos].obsv==FALSE && masked) oxrunerror("DDP Error 57. cannot recover observations on UnObserved variable after reading/masking");
 		list[offset+aORs.pos]->Observed(UseLabel);				
-		if (Volume>SILENT) print(aORs.L," ");
+		if (Data::Volume>SILENT) fprint(Data::logf,aORs.L," ");
 		}
-	if (Volume>SILENT) println(".");
+	if (Data::Volume>SILENT) fprintln(Data::logf,".");
 	}
 
 /** UnMark action and states variables as observed.
@@ -749,18 +755,18 @@ DataSet::EconometricObjective() {
 
 /** Produce a Stata-like summary statistics table.
 @param data <em>matrix</em>, data to summarize<br><em>integer</em>, summarize `Panel::flat`
-@param rlables [default=0], array of labels
+@param rlabels [default=0], array of labels
 
 **/
 DataSet::Summary(data,rlabels) {
 	decl rept = zeros(3,0),s;		
 	foreach (s in list) rept ~= s.obsv | s.force0 | s.incol;
-	println("\nOutcome Summary: ",label);
-	println("%c",Labels::Vprt[idvar]|Labels::Vprt[avar]|Labels::Vprt[svar]|Labels::Vprt[auxvar],"%r",{"observed"}|{"force0"}|{"column"},"%cf","%6.0f",rept);
-    if (ismatrix(data)) println("Source data summary", MyMoments(data,rlabels));
+	fprintln(Data::logf,"\nOutcome Summary: ",label);
+	fprintln(Data::logf,"%c",Labels::Vprt[idvar]|Labels::Vprt[avar]|Labels::Vprt[svar]|Labels::Vprt[auxvar],"%r",{"observed"}|{"force0"}|{"column"},"%cf","%6.0f",rept);
+    if (ismatrix(data)) MyMoments(data,rlabels,Data::logf);
     else {
         Print(0);
-        println("Data set summary ",MyMoments(flat,{"f"}|"i"|"t"|"track"|"term"|"Ai"|Labels::Vprt[svar]|"Arow"|Labels::Vprt[avar]|Labels::Vprt[auxvar]));
+        MyMoments(flat,{"f"}|"i"|"t"|"track"|"term"|"Ai"|Labels::Vprt[svar]|"Arow"|Labels::Vprt[avar]|Labels::Vprt[auxvar],Data::logf);
         }
 	}
 	
@@ -783,7 +789,7 @@ DataSet::LoadOxDB() {
     for (s=S[fgroup].M;s<=S[fgroup].X;++s)
             if (list[N::Av+s].obsv)
                 data = deleteifr(data,data[][list[N::Av+s].incol].>=SubVectors[fgroup][s].N);
-	if (Volume>SILENT) Summary(data,obslabels);
+	if (Data::Volume>SILENT) Summary(data,obslabels);
 	curid = UnInitialized;
 	cur = this;
 	FN = N = 0;
@@ -825,9 +831,9 @@ DataSet::LoadOxDB() {
 		fpcur -> Path::Append(curd);   // append outcome to current Path of current FPanel
 		++FNT;
 		}
-	if (Volume>SILENT) {
-            println(". Total Outcomes Loaded: ",FNT);
-            if (Volume>LOUD) Summary(0);
+	if (Data::Volume>SILENT) {
+            fprintln(Data::logf,". Total Outcomes Loaded: ",FNT);
+            if (Data::Volume>LOUD) Summary(0);
             }
 	}
 	
@@ -878,7 +884,6 @@ DataSet::DataSet(id,method,FullyObserved) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 62. Cannot create DataSet before calling CreateSpaces()");
 	label = id;
 	Panel(0,method,this.FullyObserved=FullyObserved);
-	Volume = QUIET;
 	masked = FALSE;
 	decl q, aa=SubVectors[acts];
 	list = {};
@@ -930,8 +935,8 @@ Prediction::Predict(tlist) {
 //            fprintln(logf," t ",t," ",q," ",p[s],"%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],qi');
             }
         }
-    if ( Volume>LOUD && !isfeq(pp,0.0)) {
-        fprintln(logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
+    if ( Data::Volume>LOUD && !isfeq(pp,0.0)) {
+        fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
         oxwarning("DDP Warning ??. Leakage in transition probability.  See log file");
         }
     Histogram(tlist,FALSE);  //CV(prntlevel,cur)==One
@@ -954,7 +959,6 @@ Prediction::Prediction(t){
 	W = pnext = UnInitialized;
 	predmom = p = sind = <>;
     empmom = 0;
-    //	unch =
     ch = zeros(N::A,1);
 	}
 
@@ -963,6 +967,7 @@ Prediction::Prediction(t){
 PathPrediction::SetT(T) {
   decl cur=this,tmp;
   if (T>0) this.T = T;
+  InitialConditions();
   do {
 	 if (!isclass(cur.pnext)) {  // no tomorrow after current
         if (T && cur.t+1<this.T) { // predict for a fixed T
@@ -1025,7 +1030,6 @@ PathPrediction::Empirical(inNandMom,Nincluded) {
         totN = 1.0;
         inmom = inNandMom;
         }
-    println(inN,totN);
     do {
         cur.W = inN[t]/totN;
         cur.empmom = inmom[t++][];
@@ -1034,6 +1038,30 @@ PathPrediction::Empirical(inNandMom,Nincluded) {
             cur = cur.pnext;
             }
         } while(t<T);
+    }
+
+PathPrediction::InitialConditions() {
+    if (isint(iDist)) {
+		sind=iDist; //start at iDist
+		while (!Settheta(sind)) ++sind;  // increment until reachable state found
+        sind = matrix(sind);
+		p = <1.0>;
+		}
+	else if (ismatrix(iDist)) {
+		sind = SS[tracking].O*iDist;
+		if (!Settheta(sind[0])) oxrunerror("DDP Error 63. Initial state is not reachable");
+		p = ones(sind)/rows(sind);
+		}
+	else if (isclass(iDist,"Prediction")) {
+		sind = iDist.sind;
+		p = iDist.p;
+		}
+	else if (isfunction(iDist))
+        iDist(this);
+    else
+        oxrunerror("DDP Error 64. iDist must be integer, vector, function or Prediction object");
+    if (Data::Volume>QUIET) fprintln(Data::logf,"Path for Group ",f,"Initial State Indices & Prob.",(sind~p)');
+    ch[] = 0.0;
     }
 
 /** Set up predicted distributions along a path.
@@ -1049,7 +1077,9 @@ The prediction is not made until `PathPrediction::Predict`() is called.
 PathPrediction::PathPrediction(f,method,iDist){
 	this.f = f;
 	this.method = method;
-	Nt = fnext = UnInitialized;
+    this.iDist = iDist;
+    EverPredicted = FALSE;
+	fnext = UnInitialized;
     tlabels = {"t"};
     tlist = {};
     lo = SS[tracking].left;
@@ -1057,24 +1087,6 @@ PathPrediction::PathPrediction(f,method,iDist){
     mask = <>;
     Prediction(0);
     state = ReverseState(f,SS[onlyfixed].O);
-	if (isint(iDist)) {
-		decl s=iDist;
-		while (!Settheta(s)) ++s;
-		sind |= s;
-		p |= 1.0;
-		}
-	else if (ismatrix(iDist)) {
-		sind |= SS[tracking].O*iDist;
-		if (!Settheta(sind[0])) oxrunerror("DDP Error 63. Initial state is not reachable");
-		p |= 1.0;
-		}
-	else if (isclass(iDist,"Prediction")) {
-		sind |= iDist.sind;
-		p |= iDist.p;
-		}
-	else {
-        oxrunerror("DDP Error 64. iDist must be integer, vector or Prediction object");
-        }
     if ((N::R>One || N::DynR>One ) && isint(summand)) {
 		summand = new RandomEffectsIntegration();
 		upddens = new UpdateDensity();
@@ -1122,9 +1134,10 @@ ObjToTrack::Distribution(htmp,ptmp) {
                 }
             mns ~= hh*hist[j];
             }
+        if (Data::Volume>SILENT) fprintln(Data::logf,L," Mean ",mns);
         return mns;
         }
-    if (Volume>SILENT) println(L," Dist:",double(hvals*hist),hvals|(hist'));
+    if (Data::Volume>SILENT) fprintln(Data::logf,L," Dist:",double(hvals*hist),hvals|(hist'));
     return hvals*hist;
     }
 
@@ -1139,10 +1152,12 @@ Prediction::Histogram(tlist,printit) {
 //Leak foreach(tv in tlist ) {
     decl i; for (i=0;i<sizeof(tlist);++i) { tv = tlist[i]; // Leak
         switch(tv.type) {
-            case avar : tv.hist[] = 0.0;
-//Leak foreach (cp in ch[k])
-                        for(k=0;k<sizerc(ch);++k) //Leak
-                        tv.hist[Alpha::Matrix[k][tv.hd]] += ch[k];//Leak cp; becomes ch[k];
+            case avar :
+                //tv.hist[] = 0.0;
+                for(k=0;k<tv.hN;++k) tv.hist[k] = sumc( selectifr(ch,Alpha::Matrix[][tv.hd].==k) );
+/*//Leak foreach (cp in ch[k])
+                        for(k=0;k<sizerc(ch);++k)  //Leak
+                            tv.hist[Alpha::Matrix[k][tv.hd]] += ch[k];  //Leak cp; becomes ch[k]; */
                     predmom ~= tv->Distribution();
                     break;
 	       case svar : tv.hist[] = 0.0;
@@ -1233,10 +1248,10 @@ ObjToTrack::ObjToTrack(LorC,obj,pos) {
 /** Print mean and histogram of tracked object.
 **/
 ObjToTrack::print() {
-    println(L);
-    println("%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},hvals'~hist);
+    fprintln(Data::logf,L);
+    fprintln(Data::logf,"%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},hvals'~hist);
     mean = hvals*hist;
-    println("  Mean: ",double(mean),"\n\n");
+    fprintln(Data::logf,"  Mean: ",double(mean),"\n\n");
     }
 
 /** Objects to track mean values over the path.
@@ -1251,7 +1266,7 @@ more objects can be added to the list.
 
 **/
 PathPrediction::Tracking(LorC,...) {
-    if (Nt!=UnInitialized) {
+    if (EverPredicted) {
         oxwarning("DDP Warning 12.\n Do not add to tracking list after predictions made ... ignored\n");
         return;
         }
@@ -1310,6 +1325,7 @@ PathPrediction::SetColumns(dlabels,Nplace) {
     }
 
 PathPrediction::Initialize() {
+    EverPredicted = TRUE;
 	if (isclass(upddens)) {
 		upddens->SetFE(state);
 		upddens->loop();
@@ -1328,7 +1344,6 @@ PathPrediction::Initialize() {
 /** Compute predictions and distance over the path. **/
 PathPrediction::PathObjective(T) {
   decl done;
-  Nt = sizeof(tlist);
   SetT(T);
   cur=this;
   flat = <>;
@@ -1338,19 +1353,19 @@ PathPrediction::PathObjective(T) {
      cur.predmom=<>;
      done =    cur->Prediction::Predict(tlist)          //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
-     if (Prediction::Volume>LOUD) fprintln(logf,cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
+     if (Data::Volume>LOUD) fprintln(Data::logf,cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
 	 if (!done && !isclass(cur.pnext)) { // no tomorrow after current
                 cur.pnext = new Prediction(cur.t+1);
                 ++this.T;
                 }
      flat |= cur.t~cur.predmom;
-     delt |= cur->Delta(mask,Prediction::Volume>LOUD);
+     delt |= cur->Delta(mask,Data::Volume>LOUD);
      cur = cur.pnext;
   	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
   oxwarning(-1);
   L = rows(delt) ? norm(delt,'F'): .Inf;
-  if (Prediction::Volume>QUIET) {
-    println(I::r," ",I::rtran," r distance = ",L,
+  if (Data::Volume>QUIET) {
+    fprintln(Data::logf,I::r," ",I::rtran," r distance = ",L,
         "%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat~delt);
     }
   return f~flat;
@@ -1382,7 +1397,7 @@ PanelPrediction::Tracking(LorC,...) {
     cur=this;
     do {
         cur->PathPrediction::Tracking(LorC,args);
-        } while(isclass(cur=cur.fnext));
+        } while( (isclass(cur=cur.fnext)) );
     }
 
 
@@ -1398,16 +1413,17 @@ PanelPrediction::~PanelPrediction() {
 /** Create a panel of predictions.
 @param r integer tag for the panel
 @param method `Method` to be called before predictions.
+@param iDist initial conditions for `PathPrediction`s
 **/
-PanelPrediction::PanelPrediction(r,method) {
+PanelPrediction::PanelPrediction(r,method,iDist) {
 	decl i, q;
     this.method = method;
 	this.r = r;
-	PathPrediction(0,method);	
+	PathPrediction(0,method,iDist);	
 	fparray = new array[N::F];
 	fparray[0] = 0;
 	cur = this;
-	for (i=1;i<N::F;++i) cur = cur.fnext = fparray[i] = new PathPrediction(i,method);
+	for (i=1;i<N::F;++i) cur = cur.fnext = fparray[i] = new PathPrediction(i,method,iDist);
     FN = 1;
     }
 
@@ -1469,13 +1485,13 @@ EmpiricalMoments::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
 @param label name for the data
 @param method solution method to call before predict
 @param UorCorL where to get fixed-effect values<br>matrix of indices, array of labels<br>UseLabel [default]<br>NotInData only allowed if F=1, then no column contains fixed variables
+@param iDist initial conditions set to `PathPrediction`s
 **/
-EmpiricalMoments::EmpiricalMoments(label,method,UorCorL) {
+EmpiricalMoments::EmpiricalMoments(label,method,UorCorL,iDist) {
     decl q,j;
     this.label = label;
-	Volume = QUIET;
     Nplace = UnInitialized;
-    PanelPrediction(label,method);
+    PanelPrediction(label,method,iDist);
     if (UorCorL==NotInData) {
         if (N::F>1) oxwarning("Multiple fixed groups but data contain no fixed columns? Errors may result.");
         flist = 0;
@@ -1529,19 +1545,20 @@ EmpiricalMoments::Read(FNorDB) {
     if (isstring(FNorDB)) {
         source = new Database();
 	    if (!source->Load(FNorDB)) oxrunerror("DDP Error 66. Failed to load data from "+FNorDB);
+        if (Data::Volume>SILENT) fprintln(Data::logf,"Reading in Moments from file ",FNorDB);
         }
-    else source = FNorDB;
+    else {
+        source = FNorDB;
+        if (Data::Volume>SILENT) fprintln(Data::logf,"Reading in Moments from Ox Database");
+        }
 	dlabels=source->GetAllNames();
 	data = source->GetAll();
     if (isarray(flist)) {
         fcols = strfind(dlabels,flist);
         if (any(fcols.==NoMatch)) {println("***",dlabels,flist,fcols); oxrunerror("DDP Error 67. label not found");}
         }
-    else if (ismatrix(flist)) {
-        fcols = flist;
-        }
     else
-        fcols = 0;
+       fcols = ismatrix(flist) ? flist : 0;
     fdone = zeros(sizeof(fparray),1);
     if (ismatrix(fcols)) {
         decl c, k;
@@ -1571,7 +1588,11 @@ EmpiricalMoments::Read(FNorDB) {
                 }
             else inf = UnInitialized;  //get out of inner loop after installing
             cur->Empirical(inmom,Nplace);
-            if (Volume>SILENT) { println("Moments of Moments Read in for fixed group ",curf); MyMoments(inmom,tlabels[1:]);}
+            if (Data::Volume>SILENT) {
+                    fprintln(Data::logf,"Moments read in for fixed group ",curf,". See log file");
+                    fprintln(Data::logf,"Moments of Moments for fixed group:",curf);
+                    MyMoments(inmom,tlabels[1:],Data::logf);
+                    }
             } while (inf==curf);
         } while(row<rows(data));
 	delete source;

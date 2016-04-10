@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" type="text/css" href="style/basic.css">
+	<link rel="stylesheet" type="text/css" href="style/theme-green.css">
+	<title>Ox - An Object-Oriented Matrix Language</title>
+	<meta name="author" lang="en" content="Jurgen A Doornik">
+	<meta name="copyright" content="&copy; Jurgen A Doornik">
+	<base target="content-frame">
+	<script src="style/loadincontent.js" type="text/javascript"></script>
+</head>
+
+<!-- Copyright Jurgen A. Doornik -->
+<body>
+<div class="page-frame">
+
+<h1><a id="ox_contents"></a>Ox - An Object-Oriented Matrix Language</h1><p>
+
+<p>
+<h3><a id="ox_over"></a>Chapter contents</h3>
+
+<table border="0" cellspacing="2">
+<tr>
+<td><a href="#ox_over_desc">Brief description</a>&nbsp;&nbsp;</td>
+<td><a href="#ox_quickstart">Quick start</a></td>
+<td><a href="#ox_over_data">Supported data file formats</a></td>
+</tr><tr>
+<td><a href="#ox_over_pack">Packages</a></td>
+<td><a href="#ox_over_which">Which Ox program to use?</a>&nbsp;&nbsp;</td>
+<td><a href="#ox_over_avail">Availability</a></td>
+</tr><tr>
+<td><a href="#ox_over_fast">Ox is fast</a></td>
+<td><a href="#ox_over_switch">Command line options</a></td>
+<td><a href="#ox_over_path">Using file names in Ox</a></td>
+</tr><tr>
+<td><a href="#ox_over_ext">Extending Ox</a></td>
+<td><a href="#ox_over_debug">Debug mode</a></td>
+<td><a href="#ox_over_interactive">Interactive mode</a></td>
+</tr><tr>
+<td><a href="#ox_over_oxedit">OxEdit</a></td>
+<td><a href="#ox_over_oxusers">Ox-users discussion list</a></td>
+<td></td>
+</tr>
+</table>
+
+<p>
+<h2><a id="ox_over_desc"></a>Brief description</h2><p>
+
+<b>Ox</b> is an object-oriented matrix programming language with a
+comprehensive mathematical and statistical function library.
+Matrices can be used directly in expressions, for example to multiply
+two matrices, or to invert a matrix. The major features
+of Ox are its speed, extensive library, and well-designed syntax,
+which leads to programs which are easier to maintain.
+
+For a first impression of the matrix and statistical function library
+see the	<a href="oxsumry.html">Function summary</a>.
+Versions of Ox are available for many <a href="#ox_over_which">platforms</a>.
+
+<p>
+<h3><a id="ox_over_ver"></a>Ox version</h3><p>
+
+This documentation refers to version 7.00.
+Please check my <i><a href="http://www.doornik.com" target="_top">
+work page</a></i> for the latest news, including
+<i><a href="http://www.doornik.com/ox/ox2do.html">known bugs</a></i>
+and planned extensions.<br>
+See <a href="changes.html">what's new</a> in this version.
+
+<p>
+<h3><a id="ox_read_first"></a>Read this first</h3><p>
+
+<a href="oxcite.html">Conditions, citation and copyright.</a>
+
+
+<p>
+<h2><a id="ox_quickstart"></a>Quick start</h2><p>
+
+<ul>
+<li><b>Running Ox programs</b><p>
+There are two versions under Windows:
+<ul>
+<li><i>Ox Professional</i><br>
+<b>oxl.exe</b> for use in a command prompt (console) window,
+<b>oxrun.exe</b> for full graphical functionality
+in conjunction with OxMetrics.
+The oxrun and oxli programs have an interactive and debug mode.
+Executables are in ox\bin.
+<li><i>Ox Console</i><br>
+<b>oxl.exe</b> for use in a command prompt window.
+</ul>
+More:
+<ul>
+<li>&nbsp;&nbsp;<a href="#ox_over_avail">Availability</a>
+<li>&nbsp;&nbsp;<a href="oxcite.html">Conditions, citation and copyright</a>
+<li>&nbsp;&nbsp;<a href="#ox_over_oxedit">OxEdit</a>
+<li>&nbsp;&nbsp;<a href="#ox_over_which">About non-Windows versions</a>
+<li>&nbsp;&nbsp;<a href="oxtutlan.html#ox_tutlan_run">Running the first Ox program</a>
+<li>&nbsp;&nbsp;Also see the table of contents
+</ul>
+<p>
+<li><b>Writing Ox programs</b><p>
+It is strongly recommended to start with
+the <i>Introduction to Ox</i> by J.A. Doornik and M. Ooms.
+This is supplied as part of the on-line help in
+<a href="OxIntro.pdf">PDF format</a>,
+and also available as a printed book.
+The accompanying tutorial programs are in the
+<tt>ox\tutorial</tt> folder.
+
+<p>
+More:
+<ul>
+<li>&nbsp;&nbsp;<a href="ox.html#ox_over_data">Data files</a>
+<li>&nbsp;&nbsp;<a href="oxsumry.html">Function summary</a>
+<li>&nbsp;&nbsp;<a href="oxtutlan.html">Language tutorial</a>
+<li>&nbsp;&nbsp;<a href="#ox_over_oxedit">OxEdit</a>
+<li>&nbsp;&nbsp;<a href="#ox_over_oxusers">Ox-users discussion list</a>
+<li>&nbsp;&nbsp;<a href="http://www.doornik.com/products.html#Ox" target="_top">www.doornik.com</a> latest news, versions,
+<a href="http://www.doornik.com/ox/ox2do.html" target="content">bugs</a>, etc.
+<li>&nbsp;&nbsp;Also see the table of contents
+</ul>
+<p>
+<li><b>Installation notes</b><p>
+<ul>
+<li>&nbsp;&nbsp;<a href="readox.txt">Windows</a>
+<li>&nbsp;&nbsp;<a href="readunix.txt">Linux/Unix</a>
+<li>&nbsp;&nbsp;<a href="#oxpath">OX7PATH</a>
+</ul>
+</ul>
+<hr>
+
+<p>
+<h2><a id="ox_over_data"></a>Ox supported data file formats</h2><p>
+
+Ox can read (and write) the following data files directly into a matrix:
+
+<ul>
+<li>.mat (ASCII matrix file),</li>
+
+<li>.dat (ASCII data file with load information),</li>
+
+<li>.in7 (PcGive 7 data file, with data in .bn7 file),</li>
+
+<li>.xls (Excel old-format worksheet file),</li>
+
+<li>.xlsx (Excel 2007 and newer worksheet or workbook file),</li>
+
+<li>.csv (comma separated data file),</li>
+
+<li>.dht (Gauss data file, with data in .dat file),</li>
+
+<li>.fmt (Gauss matrix file).</li>
+
+<li>.dta (Stata data file, version 4--6 and 11).</li>
+</ul>
+
+<p>Data files are loaded into a matrix using the
+<a href="oxstd.html#loadmat"><tt>loadmat()</tt></a> function.
+Alternatively, the <a href="oxclass.html#Database">Database class</a>
+can be used to load data files with sample period and variable
+names. The database function is <b>Load</b>.
+
+<p>In addition, there are text and binary functions for reading and
+writing.
+</p>
+
+<p>
+<h2><a id="ox_over_pack"></a>Ox packages</h2><p>
+
+Packages extend the functionality of Ox in various ways.
+Once installed, they become an integrated part of Ox.
+Some packages just add a few useful functions, whereas
+others offer their functionality in an extensive class.
+A package is also a convenient way for communicating research.
+
+<p>
+Check <i><a href="http://www.doornik.com/download.html#oxpack">
+www.doornik.com/download.html</a></i> for additional code and packages.
+A few are listed here:
+
+<dl>
+<dt><b>Arfima package</b>
+<dd>The Arfima package (by Jurgen Doornik and Marius Ooms)
+has a class for estimation and forecasting of
+ARFIMA(p,d,q) and ARMA(p,q) models. The available estimation methods
+are maximum likelihood and nonlinear least squares. The Arfima class derives
+from the database class to give easy loading of data sets and sample selection.
+An additional simulation class allows Monte Carlo experimentation of the
+facilities in the estimation class.
+The Arfima package can also be used as an OxPack package.
+
+<dt><b>Bootstrap and Simulation Classes</b>
+<dd>
+These classes by James Davidson provides the basis for Ox programs
+for computing and simulating parametric bootstrap tests. The double
+and fast double bootstraps are implemented. The zip file contains
+source code, PDF documentation and example programs.
+
+<dt><b>DPD package</b>
+<dd>
+DPD is a package for estimation of dynamic panel data models,
+developed by Manuel Arellano, Steve Bond and Jurgen Doornik.
+Some static panel estimators are also available.
+The DPD package can also be used as an OxPack package.
+
+<dt><b>EmmPack</b>
+<dd>
+EmmPack (by Pieter-Jelle van der Sluis) extends Ox with C/C++ code (compiled into a DLL)
+for estimation of univariate stochastic volatility models with the
+efficient method of moments.
+
+<dt><b>Financial Numerical Recipes</b>
+<dd>
+Financial Numerical Recipes is an Ox port of the code written by
+Bernt Arne &Oslash;degaard for advanced financial calculations.
+It contains the basic and some advanced algorithms for option
+pricing, and some algorithms dealing with term structure modeling
+and pricing of fixed income securities.
+
+<dt><b>G@RCH</b>
+<dd>G@RCH  (by S&eacute;bastien Laurent and Jean-Philippe Peters)
+is an Ox package dedicated to the estimation of ARCH model
+and many of its extensions (GARCH, IGARCH, FIGARCH, EGARCH, FIEGARCH,
+APARCH, FIAPARCH and GJR). It can be used via OxPack (with a dialog-oriented
+interface) or via the traditional way (OxEdit). It allows the use of three
+distributions (Normal, Student-t and GED), an AR(FI)MA specification in
+the mean equation and the inclusion of explanatory variables in the mean
+and variance equations.
+
+<dt><b>GnuDraw</b>
+<dd>
+GnuDraw is an Ox package meant for creating GnuPlot graphics from Ox,
+created by Charles Bos.
+The call syntax mimicks that of the Ox graphics functions.
+On Linux, Sun (Solaris) and Windows platforms, GnuPlot can be called
+automatically from within Ox.
+The resulting GnuPlot-files are in plain ASCII, and can be adapted to 
+fit final needs.
+Output of the GnuPlot files can be of many different types. Included is
+support for EPS (bw and color), GIF and TeX.
+
+<dt><b>Lapack</b>
+<dd>
+Lapack is a package for solving linear equations, linear least
+squares problems, eigenvalue problems, and singular value problems.  
+This is a port to Ox of the main driver files for real and
+symmetric matrices from <tt>lapack</tt>, which is in netlib.
+
+
+<dt><b>Loess Package</b>
+<dd>
+Loess is a package for smoothing of multivariate scattered data (LOESS);
+decompose time series into trend + seasonal + remainder (STL).
+This is a port to Ox of the port to Ox of the <tt>loess</tt> and <tt>stl</tt>
+code in netlib.
+
+<dt><b>Long Memory Modelling</b>
+<dd>
+An Ox package by James Davidson for computing ARFIMA time series
+models with GARCH disturbances, including FIGARCH and HYGARCH
+(long memory) variants. The zip file includes source code and
+PDF documentation. Also an Excel spreadsheet for generating
+ARIMA/GARCH data series.
+
+<dt><b>PcNaive</b>
+<dd>
+PcNaive is an Ox Professional package for designing
+Monte Carlo experiments of dynamic econometric
+models by David Hendry and Jurgen Doornik.
+There is a set of interactive dialogs in which the
+data generation process (DGP) and model are formulated,
+and the statistics of interest are selected. PcNaive then
+generates and runs an Ox program. The output appears in
+OxMetrics and can include:
+<ul>
+<li> theoretical analysis of the DGP,
+<li> live graphical output as the experiment progresses,
+<li> numerical output of final results.
+</ul>
+PcNaive comes with a 200 page book, containing
+extensive tutorials introducing Monte Carlo analysis, and
+showing how the program can be used. A separate part
+discusses how PcNaive can be used in teaching
+econometrics, starting from the elementary through
+intermediate and finally advanced econometrics. 
+PcNaive is available from Timberlake Consultants.
+
+<dt><b>Quantile regression</b>
+<dd>The Ox code accompanying Stephen Portnoys and Roger Koenkers
+paper <i>The Gaussian Hare and the Laplacian Tortoise:
+Computability of squared error vs absolute error estimators</i>
+is available. This can be used to compute <b>quantile regression</b>
+estimates.
+
+<dt><b>SsfPack</b>
+<dd>
+SsfPack is a package for analysing univariate Gaussian and non-Gaussian
+time series which can be placed in the state space form (SSF).
+SsfPack provides general filtering, smoothing and simulation smoothing
+routines. These can be tailored towards particular applications by the user.
+<br>See: S.J. Koopman, N. Shephard and J.A. Doornik (1999),
+`Statistical algorithms for models in state space form using 
+SsfPack 2.2' (with discussion),
+<i><a href="http://www.blackwellpublishers.co.uk/ectj/">Econometrics Journal</a></i>,
+Vol 2, 107-160.
+<br>
+The Professional version of SsfPack is available from Timberlake Consultants.
+
+<dt><b>STR2</b>
+<dd>
+An OxPack package by Ivar Pettersen
+for solving smooth transition regressions.
+The STR2 class can also be used as an OxPack package.
+
+<dt><b>SVPack</b>
+<dd>
+SVPack implements the computations required for the Sangjoon Kim,
+Neil Shephard, Siddhartha Chib SV paper entitled
+`Stochastic volatility: likelihood inference and comparison with
+ARCH models', <i>Review of Economic Studies</i>, 1998.
+SVPack contains the dynamic link libraries and documentation.
+Some of the functions use SsfPack 2.0 and ARMS (included in SVPack).
+</dl>
+
+<p>There are also several packages and utilities which are part
+of the basic release:
+
+<dl>
+<dt><b>ARMA functions</b>.
+<dd>The <a href="oxpackages.html#ArmaPack">Arma package</a>
+contains a few functions which are useful in ARMA models.
+
+<dt><b>Numerical optimization and differentiation</b>.
+<dd>The <a href="oxpackages.html#MaxPack">Maximization package</a>
+can be used to maximize functions
+of many parameters such as likelihood functions. Examples for
+binary probit models are in <tt>ox/samples/maximize</tt>.
+A quadratic programming solver is available (<tt>SolveQP</tt>), as
+well as solver for systems of nonlinear equations (<tt>SolveNLE</tt>).
+
+<dt><b>Probability functions</b>.
+<dd>The <a href="oxpackages.html#ProbPack">Probability package</a>
+adds density, quantile, cumulative density and random number generation
+of various probability functions.
+
+<dt><b>Econometrics</b>. The <a href="oxclass.html#PcFiml">PcFiml class</a>
+<dd>contains code for VARs, cointegration,
+simultaneous equations estimation, (multivariate) diagnostic tests.
+Some examples are in <tt>ox/samples/pcfiml</tt>.
+
+<dt><b>Monte Carlo experiments</b>.
+<dd>The <a href="oxclass.html#Simulator">Simulator class</a>
+allows for easy implementation of simulation experiments.
+Some examples are in <tt>ox/samples/simulation</tt>.
+
+<dt><b>QuadPack</b>.
+<dd>QuadPack is a Fortran library for univariate numerical integration
+(`quadrature') using adaptive rules. QuadPack is included with the
+standard Windows release of Ox (the Ox header file and DLL are in the basic release).
+</dl>
+
+<p>
+<h2><a id="ox_over_which"></a>Which Ox program to use?</h2><p>
+
+Versions of Ox are currently available on the following platforms
+(check  
+<i><a href="http://www.doornik.com" target="_top">
+www.doornik.com</a></i> for updated information, and downloading):<p>
+
+<hr><p>
+<table border="1">
+<tr><th>platform	            </th><th>executable </th><th>DLLs supported     </th><th>Debug              </th><th>save graphs</th>			  <th>show graphs</th>			  </tr>
+<tr><td>Windows 7/Vista/XP		</td><td>oxl		</td><td align=center>yes	</td><td align=center>no	</td><td align=center>yes</td><td align=center>no </td></tr>
+<tr><td>Windows 7/Vista/XP		</td><td>oxli		</td><td align=center>yes	</td><td align=center>yes	</td><td align=center>yes</td><td align=center>no </td></tr>
+<tr><td>Windows 7/Vista/XP		</td><td>OxRun		</td><td align=center>yes	</td><td align=center>no 	</td><td align=center>yes</td><td align=center>yes</td></tr>
+<tr><td>Linux (PC)				</td><td>oxl or oxl64</td><td align=center>yes	</td><td align=center>yes	</td><td align=center>yes</td><td align=center>no </td></tr>
+<tr><td>Linux (PC)          	</td><td>OxRun		</td><td align=center>yes	</td><td align=center>no 	</td><td align=center>yes</td><td align=center>yes</td></tr>
+<tr><td>Mac (OS-X)				</td><td>oxl   		</td><td align=center>yes	</td><td align=center>yes	</td><td align=center>yes</td><td align=center>no </td></tr>
+<tr><td>Mac (OS-X)       		</td><td>OxRun		</td><td align=center>yes	</td><td align=center>no 	</td><td align=center>yes</td><td align=center>yes</td></tr>
+<!--<tr><td>Sun (SunOs) 			</td><td>oxl	</td><td>sun	   </td><td align=center>yes	</td><td align=center>yes	</td><td align=center>yes,no </td></tr>
+-->
+</table><p>
+<hr>
+
+<p>
+Ox can be run in four ways:
+<ol>
+<li>from the console (command line) using <tt>oxl</tt> (bin64/oxl in 64-bit Windows;
+oxl64 in 64-bit Linux).
+<p>
+Graphs cannot be displayed.
+
+<li>from <tt>OxEdit</tt> (the `running person' icon) using <tt>oxl</tt>
+<p>
+Graphs cannot be displayed.
+
+<li>from <tt>OxMetrics</tt> (either using OxRun or the `running person' icon)
+<p>
+Graphs are shown in OxMetrics. This requires Ox Professional.
+
+<li>from the console (command line) using <tt>oxli</tt>
+<p>
+This supports command line debugging and interactive use.
+Graphs cannot be displayed. This requires Ox Professional.
+
+</ol>
+
+Console indicates whether the tool is launched from the command
+line, or using an interactive program.
+The first yes/no under graphics indicates whether graphs can be
+created and saved to disk, the second whether graphs can be displayed
+on screen by Ox.
+
+<p>
+Send an email to
+<a href="mailto:jurgen.doornik@nuffield.ox.ac.uk">jurgen.doornik@nuffield.ox.ac.uk</a>
+if you need Ox on other platforms. Most versions allow extending
+Ox using DLLs; you can also make direct calls to the underlying C code.
+
+<p>
+<h2><a id="ox_over_avail"></a>Availability of Ox</h2><p>
+
+Please check availability on my
+<i><a href="http://www.doornik.com">
+work page</a></i> to download the most recent version of Ox.
+
+<p>
+The Windows version, <b>Ox Professional</b>, is published by 
+
+<ul>
+<li>
+<a href="http://www.timberlake.co.uk/" target="_top"><i>Timberlake Consultants</i></a>
+</li>
+</ul>
+
+<p>
+Users at companies and other commercial users (including users
+at non-educational institutions, and academics using Ox for
+consulting) are welcome to download
+versions of Ox for evaluation purposes.
+However, when deciding to use Ox seriously, they are expected to purchase
+the Windows version of Ox and OxMetrics with documentation,
+regardless of which version they actually do use.
+More information may be found under <a href="oxcite.html">citation</a>.
+
+<p>
+<h2><a id="ox_over_fast"></a>Ox is fast</h2><p>
+
+Ox is faster than most other matrix programming languages.
+<i><a href="http://www.doornik.com/products.html#Ox">Some
+benchmarks</a></i> are available.
+
+<p>
+<h2><a id="oxpath"></a>OX7PATH</h2><p>
+
+Ox 7.x uses the <tt>OX7PATH</tt> environment variable if this has been set.
+Under Windows there is no need to set this variables
+anymore, because the system will use a default (determined from
+the location of oxwin.dll), e.g.
+
+<pre>
+    c:\ox\include;c:\ox
+</pre><p>
+
+if you installed to <tt>c:\ox</tt>. Under Unix, this variable must
+always be set, see <a href="readunix.txt">readunix.txt</a>.
+
+Ox will read the <tt>OX7PATH</tt> environment variable on all platforms.
+If you do set it, you must include the
+default paths. For example, when Ox is run from the network
+(<tt>X:\apps\ox</tt> for example), and you wish to also use packages
+installed on the local harddisk, you could set:
+
+<pre>
+    set OX7PATH=X:\apps\ox\include;X:\apps\ox;c:\ox
+</pre><p>
+
+Ox 6.x used the <tt>OX6PATH</tt> environment variable,
+allowing Ox version 7 and 6 installations to exist side by side.
+
+
+<p>
+<h2><a id="ox_over_switch"></a>Ox command line options</h2><p>
+
+To run an Ox program from the command-line using oxl:
+<pre>
+    oxl prog.ox
+</pre><p>
+In 64-bit linux the default script is oxl64:
+<pre>
+    oxl64 prog.ox
+</pre><p>
+To run an OxGauss program from the command-line using oxl:
+<pre>
+    oxl -g prog.src
+</pre><p>
+The general syntax is
+<pre>
+    oxl [options for oxl] program [options for program]
+</pre><p>
+Arguments before the Ox filename are passed to the compiler,
+those after to the running program. So in
+<pre>
+    oxl -DMYTEXT1 prog.ox -DMYTEXT2
+</pre><p>
+the string <tt>"-DMYTEXT2"</tt> is not handled by the compiler, but available
+to the <tt>prog.ox</tt> program when using the <a href="oxstd.html#arglist">arglist()</a> function.
+
+<p><h3>General switches</h3><p>
+
+<dl>
+<dt><b>-c</b><dd> Create an object (<tt>.oxo</tt>) file, there is no linking or
+                  running of the file. An <tt>.oxo</tt> file is a binary file
+                  which holds compiled Ox code. It can be linked in
+                  using the <tt>-l</tt> switch, or using the link <tt>pragma</tt>.
+<dt><b>-cl</b><dd>Create object (.oxo) file after linking in dependencies (Ox Professional only).
+<dt><b>-d</b>     <dd>Run program in debug mode (with -c: inserts debug
+                  information in compiled file).				  
+<dt><b>-Dtoken</b><dd>Define tokens, e.g. -DOPTION1+OPTION2 corresponds
+                  to the preprocessor statements
+                  <dl>
+                  <dd><tt>#define OPTION1</tt>
+                  <dd><tt>#define OPTION2</tt>
+                  </dl>
+<dt><b>-g</b>     <dd>The source code is an OxGauss file
+<dt><b>-lfilelist</b><dd> Link object file, e.g. -lfile1+file2+file3, which
+                  links in the named files (the <tt>.oxo</tt> extension is
+                  assumed). If the file cannot be found as specified,
+                  the linker will search along the include path.
+<dt><b>-i</b>     <dd>Run Ox in interactive mode (at start up the file called
+                  <tt>ox_init.ox</tt> is run automatically).
+<dt><b>-ipath</b><dd> Appends path in front of the current include path.
+                  Initially, the include path is that specified in
+                  the <tt>OX7PATH</tt> environment variable (under Windows
+                  when <tt>OX7PATH</tt> is not set, the default is obtained
+                  from the location of the binary file); use this
+                  switch to prepend directories for searching. Use a
+                  semicolon to separate directories, e.g.
+				  <tt>-id:\myox;c:\myox</tt>. The include path
+                  is used to search for files included in search code
+                  and link files.
+<dt><b>-v#</b><dd>Set verbosity level (-v1 or -v2).
+                  Use -v1 to print information on loaded files and required
+                  imports as well as canonical and parallel loops.
+                  Use -v2 to also print which include files are opened.
+<dt><b>-w0</b><dd>Switches off parse warnings.
+                  Currently, the parser warns for
+                  <dl>
+                  <dt><tt>isolated ; is empty statement</tt>
+                    <dd>This refers to expressions such as <tt>if (i == 10);</tt>
+                        where the semicolon terminates the expression.
+                        The warning is also issued for <tt>;</tt> after
+                        <tt>for</tt> and <tt>while</tt> statements.
+                  <dt><tt>assignment in test expression</tt>
+                    <dd>This refers to expressions such as <tt>if (i = 10)</tt>
+                        where an assignment is made inside a test expression.
+                        The warning is also issued for assignments in
+                        <tt>for</tt>, <tt>while</tt>, and <tt>do while</tt> statements.
+                  </dl>
+<dt><b>-x</b><dd> Clears the current include path. Use this prior to
+                  the <tt>-i</tt> switch if you do not wish to search in the
+                  directories specified by the <tt>OX7PATH</tt> environment
+                  variables.
+</dl>
+
+<p><h3>Optimization switches</h3>
+
+<dl>
+<dt><b>-od</b><dd>Switch code optimizations off. By default this is
+                  on. Usually, there is no reason to switch it off, other than to
+                  to check for speed differences.
+<dt><b>-on</b><dd>Switch line numbering off. Use this switch to prevent
+                  the emission of line numbers into the compiled code.
+                  This makes error messages less helpful; moreover, the
+                  speed improvement is virtually negligable.
+</dl>
+
+<p><h3>Run-time switches</h3>
+
+<dl>
+<dt><b>-r-</b><dd>Do not run code. The code will be compiled and linked.
+                  Could be useful to only do a syntax check.
+<dt><b>-rp#</b><dd>Set number of parallel threads (Ox Professional only).
+                  The default is the number of processor cores;
+                  use <tt>-rp1</tt> to force one thread only (serial code).
+<dt><b>-s</b>     <dd>Sets the set symbol table and
+                  stack size. The default is
+                  <tt>-s3000,1000</tt>. Setting larger sizes is only required
+                  when large programs run out of symbol table or stack space.
+</dl>
+
+
+<p>
+<h2><a id="ox_over_path"></a>Using file names in Ox</h2><p>
+
+If you specify full path names of files in a string constant,
+you must either use one	forward slash, or two backslashes:
+<pre>
+    "./data.mat"
+</pre><p>
+<pre>
+    ".\\data.mat"
+</pre><p>
+Ox will interpret one backslash in a string as an escape sequence
+(as in the newline character); 
+a single backslash will only work if it does not happen to
+form an escape sequence.
+Also note that the Windows and Unix versions of Ox can
+handle long file names, and that Unix treats file names
+in a case sensitive manner.
+
+<p>
+<h2><a id="ox_over_ext"></a>Extending Ox</h2><p>
+
+Ox implements a flexible run-time engine, and can be extended in various ways,
+for example:
+
+<ul>
+<li>Develop an OxPack compatible interactive package when
+deriving from the <a href="#Modelbase">Modelbase class</a> (Windows only).
+
+<li>Make extensions to Ox in e.g. C/C++ or Fortran, and put that in a DLL;
+such functions are then callable from Ox code. </li>
+
+<li>Use Ox as a mathematics library (e.g. if you are programming in C/C++
+but do not want to program in Ox; or to call functions such as Choleski
+decomposition or a random number generator in your Ox extension DLL). </li>
+
+<li>Write an interface wrapper around Ox code (Windows only). The Ox book provides
+examples of interface wrappers using Visual C++ and Visual Basic.
+</li>
+
+<li>It is possible to make callbacks to Ox from a C/C++ extension to Ox
+(e.g. to numerically integrate a function defined in Ox, where the integrator
+is in C). </li>
+</ul>
+
+<p>The documentation is in the <a href="OxDeveloper.pdf">Ox Developer's manual</a>.
+<p>Using OxRun, Ox can use OxMetrics as a front-end, which holds databases,
+and receives text and graphical output from Ox. </p>
+<p>
+
+
+<h2><a id="ox_over_debug"></a>Debug mode</h2><p>
+
+Most Ox versions have a debug mode, which is entered by
+using the <tt>-d</tt> switch (under Windows use oxli intead of oxl).
+The <tt>(debug)</tt> prompt
+indicates the debug mode. Just pressing enter will
+step through the code.
+
+<p>
+<em>Local and global variables in .oxo files can only be
+seen in the debugger if these have been compiled with the</em>
+<tt>-d</tt> <em>switch</em>.
+
+Note that expressions which are entered from the command line
+still need to be terminated with a semicolon as usual
+(including, for example, when just a few spaces are entered).
+
+<p>
+Type a question mark to see the
+available commands:
+
+<pre class="small">
+#break file line - set breakpoint at line of file
+#clear file line - clear breakpoint at line of file
+#clear all       - clear all breakpoints
+#go              - run to next breakpoint
+#go file line    - run to line of file
+#go line         - run to line of current file
+?                - debug command summary (also: help)
+??               - show all symbols and current break
+?symbol          - show a symbols
+#quit            - stop debugging
+#step in         - step (in to function) (also: just press return)
+#step over       - step (over function)
+#step out        - step out of current function
+#show            - shows current break
+#show calls      - show call stack
+#show variable   - as ?variable
+#show breaks     - show all breakpoints
+#show all        - show all variables
+#show full       - show all variables with full value
+#trace           - lists all lines executed
+#trace off       - switches trace off
+!command         - operating system command
+expression       - enter an Ox expression, e.g. x[0][0]=1; or print(x);
+</pre><p>
+
+
+<h2><a id="ox_over_interactive"></a>Interactive mode</h2><p>
+
+Most Ox versions have a interactive mode, which is entered by
+using the <tt>-i</tt> switch (under Windows use oxli intead of oxl).
+The <tt>(ox)</tt> prompt
+indicates the interactive mode. You can then enter Ox code
+from the command line. There are the differences from running
+a file with code:
+
+<ul>
+<li>At startup the file ox_init.ox is run.
+<li>Variables assigned to in code entered from the command line need not
+be declared explicitly.
+</ul><p>
+
+Note that expressions still need to be terminated with a semicolon
+as usual.
+(including, for example, when just a few spaces are entered).
+
+<p>
+Type a question mark to see the
+available commands:
+
+<pre class="small">
+?              - command summary (also: help)
+??             - show all symbols and current break
+?symbol        - show a symbols
+#new           - clear all code and symbols
+#quit          - quit Ox
+#show variable - show a named variable with full value (also: ?variable)
+#show all      - show all variables
+#show full     - show all variables with full value
+!command       - operating system command
+expression     - enter an expression
+</pre><p>
+
+
+<h2><a id="ox_over_oxedit"></a>OxEdit</h2><p>
+
+<i><a href="http://www.doornik.com/products.html#OxEdit">OxEdit</a></i>
+is a powerful text editor, and a very useful program in its
+own right. OxEdit has some features which are especially useful
+when writing Ox programs:
+
+<ul>
+<li>Syntax colouring
+
+Three colours are used to distinguish keywords, constants and comment.
+This makes the code more readable, and mistakes easier to spot.
+
+<li>Facility to easily comment in or comment out blocks of text
+
+<li>Run Ox programs from inside OxEdit
+
+The first time you use OxEdit, execute the <i>Add Ox modules</i>
+command on the <i>Modules</i> menu. From then on you can run
+your Ox programs without leaving OxEdit:
+
+<ul>
+<li><i>Ox</i> - runs the currently active document window
+using oxl.exe.
+The output will appear in the window called Ox Output.
+
+<li><i>OxRun</i> - runs the currently active document window
+using OxRun.
+The output will appear in OxMetrics.
+
+<li><i>Ox - interactive</i> - starts an interactive session.
+The input/output window is called Session.ox.
+
+<li><i>Ox - debug</i> - starts a debug session
+for the currently active document window.
+The input/output window is called Debug.ox.
+</ul>
+</ul>
+
+
+<h2><a id="ox_over_oxusers"></a>Ox-users discussion list</h2><p>
+
+The <b>ox-users</b> discussion group is an email-based forum
+to discuss any problems related to Ox programming, and share
+code and programming solutions.
+
+To join the list, send a message to
+<a href="mailto:jiscmail@jiscmail.ac.uk">jiscmail@jiscmail.ac.uk</a>.
+The <em>body</em> of your message should have the following text:<br>
+<pre>
+      join ox-users <i>firstname lastname</i>
+      --
+</pre><p>
+Instead of <i>firstname</i> and <i>lastname</i> type your own
+personal names (not your email address). The subject header
+is ignored. If you change email address, you will have to
+leave and rejoin the list. The <tt>--</tt> stops processing at that point,
+so is useful if you have a signature. You will receive an
+email which confirm your registration.
+<p>
+To post a message to the list, send an email to
+<a href="mailto:ox-users@jiscmail.ac.uk">ox-users@jiscmail.ac.uk</a>.
+Please note that join and
+leave commands go to <b>jiscmail@jiscmail.ac.uk</b>,
+whereas messages sent to <b>ox-users@jiscmail.ac.uk</b> are forwarded
+to all list subscribers.
+<p>
+Past messages are archived, and may be consulted at
+<a href="http://www.jiscmail.ac.uk/lists/ox-users.html">www.jiscmail.ac.uk/lists/ox-users.html</a>
+This link also provides general information about the mailbase service.
+
+
+
+<p><hr><p><b>Ox version 6.20.</b>
+&copy; <i><a href="http://www.doornik.com" target="_top">
+JA Doornik</a></i>
+This file last changed <script type="text/javascript">document.write(document.lastModified);</script>.
+
+</div><!-- /page-frame -->
+</body>
+</html>

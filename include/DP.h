@@ -396,3 +396,8 @@ struct DumpExogTrans : ExTask {
 	DumpExogTrans();
 	Run();
 	}
+
+struct Data : Task {
+    static decl logf, lognm, Volume;
+    static SetLog();
+   }

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style/basic.css">
+  <link rel="stylesheet" type="text/css" href="style/theme-green.css">
+  <title>Ox: planned features and known problems</title>
+  <base target="content-frame">
+  <script src="style/loadincontent.js" language="javascript"></script>
+</head>
+<body>
+<div class="page-frame">
+
+<h2>Ox: known problems in Ox 5.00</h2>
+
+<p>
+<ul>
+<li>&nbsp;
+</ul>
+
+<h2>OxGauss</h2>
+<ul>
+<li>A bug has been identified in a procedure which
+(1) calls as yet undefined procedures,
+(2) includes two or more for loops. In that case, the second
+(and further) loop incrementation can go awry. The reason is that
+there is insufficient space for the loop-local variables on the stack.
+<p>
+The following example is a minimal example:
+<xmp>
+/*external proc unknown;*/
+test();
+end;
+proc(0) = test();
+    unknown();
+    for f (1,6,1);
+        f;
+    endfor;
+    for d (1,6,1);
+        d;
+    endfor;
+endp;
+proc(0)=unknown();
+endp;
+</xmp>
+Until this is fixed in Ox, the problem can be avoided by ensuring that
+there are no undeclared functions. In the example above that means:
+(1) adding the line<br>
+<tt>external proc unknown;</tt><br>
+at the top, or moving <tt>unknown</tt> to above test.
+
+</ul>
+
+
+<p><p><hr>
+This file last changed <script>document.write(document.lastModified);</script>.
+
+</div><!-- /page-frame -->
+</body></html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Ox 2.00: new features and fixed bugs</title>
+   <meta name="author" lang="en" content="Jurgen A Doornik">
+   <meta name="copyright" content="&copy Jurgen A Doornik">
+   <base target="content-frame">
+</head>
+<body text="Black" bgcolor="#FFFFEA" link="darkblue" vlink="darkblue" alink="darkblue">
+
+&lt;<A HREF="Ox210.html">Next version of Ox</A>&gt;
+&lt;<A HREF="Ox120.html">Previous version of Ox</A>&gt;
+
+
+<hr><h1>Ox 2.00: new features and fixes</h1>
+
+<a name="oxread1st"></a>
+<hr><h2>Read this first</h2>
+
+When Ox 2.00 is released, the following is required after upgrading:
+
+<ul>
+<p>
+<li><b>Recompile .oxo files</b>
+<p>
+Of course, .oxo files which are part of this release need not
+be recompiled.
+<p>Note that you can see local variables when using the debugger
+to trace into .oxo files only if they have been compiled with
+debugging on (which leads to slower code).
+<p>
+</ul>
+
+<a name="oxnewfeat"></a>
+<hr><h2>New features</h2>
+
+<ul>
+<li>
+The <a href="oxsyntax.html#ox_syntax_import"><tt>#import</tt></a> statement
+allows for much easier linking of .oxo files than the link pragma.
+It also includes the corresponding header file. For an example
+see <a href="oxtutlan.html#ox_tutlan_import">here</a>.
+
+<li>Ox can now read most <b>Excel workbooks</b>, as created by Excel
+versions 5.0, 95 and 97.
+
+<li>Achieved some speed improvement in .fmt file reading/writing.
+
+<li>Implemented Gauss universal <b>matrix v96</b> format (.fmt).<br>
+<a href="oxstd.html#savemat"><tt>savemat()</tt></a><tt>("x.fmt", x, 1)</tt> uses v96.<br>
+<a href="oxstd.html#loadmat"><tt>loadmat()</tt></a> loads it automatically
+
+</ul>
+
+<a name="oxdev"></a>
+<hr><h2>Ox Development enhancements</h2>
+
+<ul>
+<li>
+The new Ox book gives examples on how to use <b>Visual Basic 5</b> to write an
+interface wrapper around Ox code (the old book already had examples
+for Visual C++. A basic file to facilitate this is part of the developer's kit.
+
+<li>Providing for input function replacement (OxGets)
+
+<li>Export more functions from the Ox DLL:
+<tt>SetNaN</tt>, <tt>FIsNaN</tt>, <tt>SetInf</tt>, <tt>FIsInf</tt>.
+</ul>
+
+
+<a name="oxsyntax"></a>
+<hr><h2>Syntax enhancements</h2>
+
+<ul>
+<li>cast to <a href="oxstd.html#array"><tt>array()</tt></a>.
+<li>The Ox compiler did not give an error message for duplicate member
+variables in a class.
+<li>printing warning for m ^ 2.1
+<li>Allowing <b><tt>.</tt></b> instead of <b><tt>-&gt;</tt></b> for object function member reference.
+<li>May use space to separate elements in matrix constants
+so <tt>&lt;1 2 3;4 5 6&gt;</tt> is allowed.
+<li>Allowing redefinition of scalar constant when value	is the same.
+</ul>
+
+
+<a name="oxfuncnew"></a>
+<hr><h2>New functions</h2>
+
+<ul>
+<li>New graphics functions:
+<ul>
+<li><a href="oxdraw.html#DrawAdjust"><tt>DrawAdjust()</tt></a>          
+<li><a href="oxdraw.html#DrawAxis"><tt>DrawAxis()</tt></a>              
+<li><a href="oxdraw.html#DrawAxisAuto"><tt>DrawAxisAuto()</tt></a>      
+<li><a href="oxdraw.html#DrawBoxPlot"><tt>DrawBoxPlot()</tt></a>        
+<li><a href="oxdraw.html#DrawLegend"><tt>DrawLegend()</tt></a>          
+<li><a href="oxdraw.html#DrawLine"><tt>DrawLine()</tt></a>              
+<li><a href="oxdraw.html#DrawPLine"><tt>DrawPLine()</tt></a>            
+<li><a href="oxdraw.html#DrawPSymbol"><tt>DrawPSymbol()</tt></a>        
+<li><a href="oxdraw.html#DrawPText"><tt>DrawPText()</tt></a>            
+<li><a href="oxdraw.html#DrawSymbol"><tt>DrawSymbol()</tt></a>          
+<li><a href="oxdraw.html#DrawText"><tt>DrawText()</tt></a>              
+<li><a href="oxdraw.html#DrawTitle"><tt>DrawTitle()</tt></a>            
+<li><a href="oxdraw.html#DrawZ"><tt>DrawZ()</tt></a>
+<li><a href="oxdraw.html#SetDraw"><tt>SetDraw()</tt></a>
+</ul>
+
+<li><a href="oxstd.html#aggregatec"><tt>aggregatec()</tt></a>
+<li><a href="oxstd.html#aggregater"><tt>aggregater()</tt></a>
+<li><a href="oxstd.html#exclusion"><tt>exclusion()</tt></a>
+<li><a href="oxpackages.html#GetMaxControl"><tt>GetMaxControl()</tt></a> (maximization package)
+<li><a href="oxpackages.html#GetMaxControlEps"><tt>GetMaxControlEps()</tt></a> (maximization package)
+<li><a href="oxstd.html#intersection"><tt>intersection()</tt></a>
+<li><a href="oxstd.html#invertgen"><tt>invertgen()</tt></a>
+<li><a href="oxpackages.html#MaxNewton"><tt>MaxNewton()</tt></a> (maximization package)
+<li><a href="oxpackages.html#modelforc"><tt>modelforc()</tt></a> (arma package)
+<li><a href="oxstd.html#selectrc"><tt>selectrc()</tt></a>
+<li><a href="oxstd.html#timestr"><tt>timestr()</tt></a>  
+<li><a href="oxstd.html#timing"><tt>timing()</tt></a>    
+<li><a href="oxstd.html#unique"><tt>unique()</tt></a>
+<li><a href="oxstd.html#unvech"><tt>unvech()</tt></a>
+
+</ul>
+	  
+
+<a name="oxfuncenh"></a>
+<hr><h2>Function enhancements</h2>
+
+<ul>
+<li><tt>sortr</tt>/<tt>sortc</tt> can sort array of strings
+<li>changed behaviour of <tt>exit()</tt> function: it still exits, but
+in amore controlled fashion. This allows interface wrappers to continue.
+<li>created <tt>isclass(a, "class")</tt> to check if an object is of
+type <tt>"class"</tt>, or derived from it.
+<li><tt>range()</tt> now uses truncf to get more consistent upper bound.	  
+<li>Added compact print format to maximization package.
+</ul>
+
+
+<a name="oxfuncfix"></a>
+<hr><h2>Function bug fixes</h2>
+
+<ul>
+<li><tt>savemat</tt> didn't return 1 if successful in
+writing .in7/.dat/.xls/.fmt.
+
+<li><tt>arma0</tt>: can crash if p > r.
+</ul>	
+
+<a name="oxbugfix"></a>
+<hr><h2>Bug fixes:</h2>
+
+<ul>
+<li>An Excel file cannot have more than 65536 rows, but this upperbound was not
+checked by Ox. Also reading of Excel files with more than 32K rows
+went wrong.	Reading of Excel 3 and 4 file reading did not work correctly
+on big endian machines (was OK for Windows).
+
+<li>Problem with array indexing (only with dimensions greater than 1), e.g.:
+<xmp>
+		decl ax = {{1,2}};//{{1,2}, {3,4}};
+		ax[0][0] = 10;
+</xmp>		
+didi not change the first element in <tt>a</tt>.
+<li>Fixed problem when calling a static function from class foo as
+static foo::bar() from inside another class.
+<li>An empty matrix indexing an array gave a run-time error.
+<li>Debug break numbering was not always correct.
+</ul>
+
+
+<p><hr><b>Ox version 2.00. This file last changed 23-May-1998.</b>
+&copy JA Doornik<br>
+<i><a href="http://www.nuff.ox.ac.uk/Users/Doornik/Index.html" target="_top">
+&lt;Doornik home&gt;</a></i>
+
+</div><!-- /page-frame -->
+</body>
+</html>

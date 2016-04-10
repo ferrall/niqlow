@@ -7,7 +7,7 @@ class BobsChoiceC : Bellman {
                 sch, maj;
         static Decide();
         Utility();
-        FeasibleActions(A);
+        FeasibleActions(A);  //Added
         }
 
 main() {
@@ -20,7 +20,7 @@ BobsChoiceC::Decide() {
     Initialize(new BobsChoiceC());
     SetClock(StaticProgram);
     Actions(maj,sch);
-    Yacc = new StateVariable("Yacc",2);
+    Yacc = new StateVariable("Yacc",2); //Added
     EndogenousStates(Yacc);
     CreateSpaces();
     VISolve();

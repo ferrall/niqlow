@@ -4,10 +4,6 @@
 
 static const decl PathID = "path", FPanelID="Fxed", PanelID = "Panel";
 
-struct Data : Task {
-
-  }
-
 /** A single realization of a discrete DP. **/
 struct Outcome : Data {
 	/** . @internal **/
@@ -179,8 +175,6 @@ struct DataSet : Panel {
 	const decl 										low,
     /** Label for the data set. **/                 label;
 	decl											
-    /**How much output to produce.
-        @see NoiseLevels  **/                       Volume,
 													masked,
 	/** labels  **/									dlabels,
 													list,
@@ -227,7 +221,7 @@ struct ObjToTrack : Zauxiliary {
 /** Predicted distribution across states.
 **/	
 struct 	Prediction : Data {
-	static	decl ud, lo, hi, Volume;
+	static	decl ud, lo, hi;
 	const  	decl t;
 	decl
 		/** state index **/		sind,
@@ -251,13 +245,13 @@ struct 	Prediction : Data {
 **/
 struct 	PathPrediction : Prediction {
 	static	decl summand, upddens;
-    const decl f;
+    const decl f, iDist;
 	decl
+    /** Predict() called before. **/                EverPredicted,
     /** list of objects to track.**/                tlist,
     /** labels of flat print. **/                   tlabels,
     /** indicator vector for observed moments.**/   mask,
     /** columns in data .     **/                   cols,
-    /** number of values tracked **/                Nt,
     /** the current prediction **/                  cur,
     /** length of the path. **/                     T,	
     /** flat prediction matrix.**/                  flat,
@@ -268,6 +262,7 @@ struct 	PathPrediction : Prediction {
     Initialize();
 
 	~PathPrediction();
+    InitialConditions();
 	Predict(T=0,printit=FALSE);
     SetT(T=0);
     Empirical(inmoments,Nincluded=FALSE);
@@ -286,7 +281,7 @@ struct PanelPrediction : PathPrediction {
                                              delt,
                                              aflat,
 	/** array of GMM vector. **/	 	     M;
-    PanelPrediction(r=0,method=0);
+    PanelPrediction(r=0,method=0,iDist=0);
     ~PanelPrediction();
 //	Histogram(printit=FALSE);
     Objective();
@@ -300,12 +295,12 @@ struct PanelPrediction : PathPrediction {
 **/
 struct EmpiricalMoments : PanelPrediction {
     const decl /** label **/ label;
-    decl     /**How much output to produce.@see NoiseLevels **/         Volume,
+    decl
             /** **/                                                     flist,
             /** matrix of indices or array of labels or UseLabel  **/   UorCorL,
             /** observations location .**/                              Nplace,
             /** **/                                                     FMethod;
-    EmpiricalMoments(label="",method=0,UorCorL=UseLabel);
+    EmpiricalMoments(label="",method=0,UorCorL=UseLabel,iDist=0);
     Observed(as1,lc1=0,...);
     TrackingMatchToColumn(Fgroup,LorC,mom);
     TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);

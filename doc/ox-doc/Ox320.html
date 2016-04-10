@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style/basic.css">
+  <link rel="stylesheet" type="text/css" href="style/theme-green.css">
+  <title>Ox 3.20: new features and fixed bugs</title>
+  <meta name="author" lang="en" content="Jurgen A Doornik">
+  <meta name="copyright" content="&copy Jurgen A Doornik">
+  <base target="content-frame">
+  <script src="style/loadincontent.js" language="javascript"></script>
+</head>
+<body>
+<div class="page-frame">
+
+&lt;<A href="Ox330.html">Next version of Ox</A>&gt;
+&lt;<a href="Ox310.html">Previous version of Ox</a>&gt;
+
+
+<hr><h1>Ox 3.20: new features and fixes</h1>
+
+
+<hr><h2>New features and enhancements</h2>
+<p>
+
+<ul>
+<li>Made Num1Derivative and Num2Derivative
+marginally more accurate. This can have minor impact on the
+paths taken by optimizers such as MaxBFGS and MaxNewton
+when using numerical derivatives.
+
+<li><tt>decschur</tt>: real Schur decomposition,<br> 
+<tt>decschurgen</tt>: generalized real Schur decomposition, and<br>
+<tt>decqrupdate</tt>: update a QR decomposition via Givens rotations.
+
+<li><tt>eigen</tt>: now using lapack implementation
+	   
+<li><tt>moments</tt>: function to compute mean, std.dev.,
+skewness, kurtosis, or the central moments.
+
+<li><tt>SolveQP</tt>:
+entirely rewritten, to use recursive updating
+of the QR decomposition (using the new decqrupdate function).
+This makes <tt>SolveQP</tt> more reliable (when starting from an infeasible
+point, the old version occasionally stopped at an infeasible solution
+without signalling this),
+and much faster. Using the new SolveQP, there are now also
+constrained maximizers: <tt>MaxSQP</tt> and <tt>MaxSQPF</tt>. SQP stands for sequential
+quadratic programming, and the F for feasible: starting from
+a feasible point, all subsequent iterates will be feasible.
+
+	   
+<li><tt>strtrim</tt>: removes leading and trailing white space from a string.
+
+<li>Almost all distributions that have a random number generator,
+now also have a <tt>dist</tt>, <tt>prob</tt> and <tt>quan</tt> version.
+	   
+<li><tt>min</tt> and <tt>max</tt> now ignore missing values
+
+<li><tt>SolveNLE</tt> to solve systems of nonlinear equations
+
+<li>New Bessel I, IE function implementation
+	   for nu != 0 or 1. This is will evaluate the function for
+	   more extreme arguments, and allow negative nu. 
+
+<li>Created warning for using extension in #import
+
+<li>aa' and a'a 3 times faster for 500<tt>x</tt>500 matrix.
+</ul>
+
+
+<hr><h2>Problems in version 3.10 which have been fixed in version 3.20:</h2>
+
+<ul>
+<li>fixed problem with complex eigenvectors of
+	   a general matrix which could occur in certain circumstances.
+
+<li><tt>range</tt> with infeasible arguments often returned 0
+	   when it should return &lt;&gt;. For example: <tt>range(3,1,1)</tt> now
+	   returns <>.
+
+<li><tt>exclusion(x,&lt;&gt;)</tt> returned &lt;&gt;, instead of
+       row vector with sorted unique values of x.
+
+<li>If an include-file finishes with a compiler
+       directive (e.g. <tt>#endif</tt>) without a new line, this gives an
+	   unexpected end of file error message.
+
+<li>created warning for using extension in #import
+
+<li><tt>&lt;-1^2&gt;</tt> was evaluated as <tt>&lt;(-1)^2&gt;</tt> instead of
+	   <tt>&lt;-(1^2)&gt;</tt> (only affecting terms inside matrix constants)
+
+<li>norm on empty matrix could lead to crash.
+
+<li>import path-only (e.g. #import "mypath/data/")
+	would give a warning message.
+
+<li>[2][0] * [0][2] gave undefined contents, now
+filled with missing values.
+
+<li>decqr, decsvd: give Runtime error: arguments must be different
+       for empty matrix arguments
+<li>
+OxGauss (thanks to S&eacute;bastien Laurent)
+<ul>
+<li> <tt>saved(y,dataset,vname)</tt> where y is one column uses name X1 instead of Y
+<li> <tt>coreleft</tt> now returns 2^15 instead of 2^31 (note that OxGauss this concept
+  has no meaning in Ox Gauss).
+<li> <tt>readr</tt> limits the number of rows arguments to the no of rows in the file
+<li> <tt>gradp</tt> now uses NumJacobianEx
+<li> <tt>indnv</tt> was wrong
+<li> fixed bug in multiple returns that could gradually lead to stack overflow
+<li> <tt>$+</tt> didn't work when left-hand side is matrix (e.g. y = 0 $+ "beta")
+</ul>
+</ul>
+
+
+<p><hr><p><b>Ox version 3.20.</b>
+&copy <i><a href="http://www.nuff.ox.ac.uk/Users/Doornik/index.html" target="_top">
+JA Doornik</a></i>
+This file last changed <script>document.write(document.lastModified);</script>.
+
+</div><!-- /page-frame -->
+</body>
+</html>

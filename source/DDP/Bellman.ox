@@ -361,7 +361,7 @@ Bellman::Predict(ps,tod) {
 		  Pa = (pandv[I::r][][lo:hi]*NxtExog[Qprob][lo:hi])';
           if (isclass(tom)) {  // added check July 2015.
 		      tom.sind ~= exclusion(Nxt[Qtr][eta],tom.sind);
-		      if (nnew = columns(tom.sind)-columns(tom.p)) {
+		      if ( (nnew = columns(tom.sind)-columns(tom.p)) ) {
                     tom.p ~= zeros(1,nnew);
                     }
 		      intersection(tom.sind,Nxt[Qtr][eta],&mynxt);

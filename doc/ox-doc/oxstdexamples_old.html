@@ -1,0 +1,3619 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="body.css">
+  <title>Ox function reference</title>
+  <base target="content">
+  <script src="loadinframe.js" language="javascript"></script>
+<style type="text/css">
+<!-- xmp { background-color: #E0E0D0; } -->
+</style>
+</head>
+
+<!-- Copyright Jurgen A. Doornik -->
+<body>
+
+<hr>
+<h1>Ox Function Examples</h1>
+
+<p>
+<h2>Chapter contents:</h2><p>
+<table>
+<tr><td><hr></td><td align=center><b>A</b><td><hr></td></tr><tr>
+<td><a href="#acf">acf</a></td>
+<td><a href="#acos">acos</a></td>
+<td><a href="#aggregatec">aggregatec</a></td>
+<td><a href="#aggregatec">aggregater</a></td>
+<td><a href="#any">any</a></td>
+</tr><tr>
+<td><a href="#arglist">arglist</a></td>
+<td><a href="#array">array</a></td>
+<tr><td><hr></td><td align=center><b>B</b><td><hr></td></tr><tr>
+<td><a href="#binand">binand</a></td>
+<td><a href="#binand">bincomp</a></td>
+<td><a href="#binand">binor</a></td>
+<tr><td><hr></td><td align=center><b>C</b><td><hr></td></tr><tr>
+<td><a href="#cabs">cabs</a></td>
+<td><a href="#cabs">cdiv</a></td>
+<td><a href="#cabs">cerf</a></td>
+<td><a href="#cabs">cexp</a></td>
+<td><a href="#cabs">clog</a></td>
+</tr><tr>
+<td><a href="#cabs">cmul</a></td>
+<td><a href="#cabs">csqrt</a></td>
+<td><a href="#ceil">ceil</a></td>
+<td><a href="#choleski">choleski</a></td>
+<td><a href="#columns">columns</a></td>
+</tr><tr>
+<td><a href="#constant">constant</a></td>
+<td><a href="#correlation">correlation</a></td>
+<td><a href="#countc">countc</a></td>
+<td><a href="#countc">countr</a></td>
+<td><a href="#cumsum">cumprod</a></td>
+</tr><tr>
+<td><a href="#cumsum">cumsum</a></td>
+<td><a href="#cumulate">cumulate</a></td>
+<tr><td><hr></td><td align=center><b>D</b><td><hr></td></tr><tr>
+<td><a href="#date">date</a></td>
+<td><a href="#dayofcalendar">dayofcalendar</a></td>
+<td><a href="#dayofcalendar">dayofeaster</a></td>
+<td><a href="#dayofcalendar">dayofmonth</a></td>
+<td><a href="#dayofcalendar">dayofweek</a></td>
+</tr><tr>
+<td><a href="#decldl">decldl</a></td>
+<td><a href="#decldlband">decldlband</a></td>
+<td><a href="#declu">declu</a></td>
+<td><a href="#decqr">decqr</a></td>
+<td><a href="#decqrmul">decqrmul</a></td>
+</tr><tr>
+<td><a href="#decqrupdate">decqrupdate</a></td>
+<td><a href="#decschur">decschur</a></td>
+<td><a href="#decschur">decschurgen</a></td>
+<td><a href="#decsvd">decsvd</a></td>
+<td><a href="#deleteifc">deleteifc</a></td>
+</tr><tr>
+<td><a href="#deleteifc">deleteifr</a></td>
+<td><a href="#determinant">determinant</a></td>
+<td><a href="#dfft">dfft</a></td>
+<td><a href="#diag">diag</a></td>
+<td><a href="#diagcat">diagcat</a></td>
+</tr><tr>
+<td><a href="#diagonal">diagonal</a></td>
+<td><a href="#diagonalize">diagonalize</a></td>
+<td><a href="#diff0">diff0</a></td>
+<td><a href="#discretize">discretize</a></td>
+<td><a href="#dropc">dropc</a></td>
+</tr><tr>
+<td><a href="#dropc">dropr</a></td>
+<tr><td><hr></td><td align=center><b>E</b><td><hr></td></tr><tr>
+<td><a href="#eigen">eigen</a></td>
+<td><a href="#eigen">eigensym</a></td>
+<td><a href="#eigensymgen">eigensymgen</a></td>
+<td><a href="#eprint">eprint</a></td>
+<td><a href="#exclusion">exclusion</a></td>
+</tr><tr>
+<td><a href="#exp">exp</a></td>
+<tr><td><hr></td><td align=center><b>F</b><td><hr></td></tr><tr>
+<td><a href="#fabs">fabs</a></td>
+<td><a href="#fprint">fclose</a></td>
+<td><a href="#fft">fft</a></td>
+<td><a href="#fft">fft1d</a></td>
+<td><a href="#findsample">findsample</a></td>
+</tr><tr>
+<td><a href="#ceil">floor</a></td>
+<td><a href="#fmod">fmod</a></td>
+<td><a href="#fprint">fopen</a></td>
+<td><a href="#fprint">fprint</a></td>
+<td><a href="#fprint">fprintln</a></td>
+</tr><tr>
+<td><a href="#fread">fread</a></td>
+<td><a href="#fscan">fscan</a></td>
+<td><a href="#fseek">fseek</a></td>
+<td><a href="#fwrite">fwrite</a></td>
+<tr><td><hr></td><td align=center><b>G</b><td><hr></td></tr><tr>
+<td><a href="#gammafunc">gammafunc</a></td>
+<td><a href="#getfiles">getfiles</a></td>
+<tr><td><hr></td><td align=center><b>I</b><td><hr></td></tr><tr>
+<td><a href="#idiv">idiv</a></td>
+<td><a href="#idiv">imod</a></td>
+<td><a href="#dropc">insertc</a></td>
+<td><a href="#ceil">int</a></td>
+<td><a href="#exclusion">intersection</a></td>
+</tr><tr>
+<td><a href="#invert">invert</a></td>
+<td><a href="#invertgen">invertgen</a></td>
+<td><a href="#invert">invertsym</a></td>
+<td><a href="#isdotfeq">isdotfeq</a></td>
+<td><a href="#isdotfeq">isfeq</a></td>
+</tr><tr>
+<td><a href="#isdotmissing">isdotmissing</a></td>
+<td><a href="#isdotmissing">isdotnan</a></td>
+<td><a href="#isdotmissing">ismissing</a></td>
+<td><a href="#isdotmissing">isnan</a></td>
+<tr><td><hr></td><td align=center><b>L</b><td><hr></td></tr><tr>
+<td><a href="#lag0">lag0</a></td>
+<td><a href="#limits">limits</a></td>
+<td><a href="#loadmat">loadmat</a></td>
+<td><a href="#log">log</a></td>
+<td><a href="#log">log10</a></td>
+</tr><tr>
+<td><a href="#loggamma">loggamma</a></td>
+<td><a href="#lower">lower</a></td>
+<tr><td><hr></td><td align=center><b>M</b><td><hr></td></tr><tr>
+<td><a href="#max">max</a></td>
+<td><a href="#maxc">maxc</a></td>
+<td><a href="#maxc">maxcindex</a></td>
+<td><a href="#variance">meanc</a></td>
+<td><a href="#max">min</a></td>
+</tr><tr>
+<td><a href="#moments">moments</a></td>
+<tr><td><hr></td><td align=center><b>N</b><td><hr></td></tr><tr>
+<td><a href="#norm">norm</a></td>
+<td><a href="#nullspace">nullspace</a></td>
+<tr><td><hr></td><td align=center><b>O</b><td><hr></td></tr><tr>
+<td><a href="#ols2c">ols2c</a></td>
+<td><a href="#ols2c">ols2r</a></td>
+<td><a href="#ols2c">olsc</a></td>
+<td><a href="#ols2c">olsr</a></td>
+<td><a href="#ones">ones</a></td>
+</tr><tr>
+<td><a href="#outer">outer</a></td>
+<td><a href="#oxprintlevel">oxprintlevel</a></td>
+<td><a href="#oxprintlevel">oxwarning</a></td>
+<tr><td><hr></td><td align=center><b>P</b><td><hr></td></tr><tr>
+<td><a href="#periodogram">periodogram</a></td>
+<td><a href="#polymul">polydiv</a></td>
+<td><a href="#polyeval">polyeval</a></td>
+<td><a href="#polygamma">polygamma</a></td>
+<td><a href="#polyroots">polymake</a></td>
+</tr><tr>
+<td><a href="#polymul">polymul</a></td>
+<td><a href="#polyroots">polyroots</a></td>
+<td><a href="#sqr">pow</a></td>
+<td><a href="#print">print</a></td>
+<td><a href="#print">println</a></td>
+</tr><tr>
+<td><a href="#probchi">probchi</a></td>
+<td><a href="#probchi">probf</a></td>
+<td><a href="#probchi">probn</a></td>
+<td><a href="#probchi">probt</a></td>
+<td><a href="#prodc">prodc</a></td>
+</tr><tr>
+<td><a href="#prodc">prodr</a></td>
+<tr><td><hr></td><td align=center><b>Q</b><td><hr></td></tr><tr>
+<td><a href="#quanchi">quanchi</a></td>
+<td><a href="#quanchi">quanf</a></td>
+<td><a href="#quanchi">quann</a></td>
+<td><a href="#quanchi">quant</a></td>
+<td><a href="#quantilec">quantilec</a></td>
+</tr><tr>
+<td><a href="#quantilec">quantiler</a></td>
+<tr><td><hr></td><td align=center><b>R</b><td><hr></td></tr><tr>
+<td><a href="#range">range</a></td>
+<td><a href="#rank">rank</a></td>
+<td><a href="#rann">rann</a></td>
+<td><a href="#ranseed">ranseed</a></td>
+<td><a href="#ranu">ranu</a></td>
+</tr><tr>
+<td><a href="#reflect">reflect</a></td>
+<td><a href="#reshape">reshape</a></td>
+<td><a href="#reversec">reversec</a></td>
+<td><a href="#reversec">reverser</a></td>
+<td><a href="#ceil">round</a></td>
+</tr><tr>
+<td><a href="#columns">rows</a></td>
+<tr><td><hr></td><td align=center><b>S</b><td><hr></td></tr><tr>
+<td><a href="#loadmat">savemat</a></td>
+<td><a href="#scan">scan</a></td>
+<td><a href="#selectrc">selectrc</a></td>
+<td><a href="#setbounds">setbounds</a></td>
+<td><a href="#setdiagonal">setdiagonal</a></td>
+</tr><tr>
+<td><a href="#setdiagonal">setlower</a></td>
+<td><a href="#setdiagonal">setupper</a></td>
+<td><a href="#shape">shape</a></td>
+<td><a href="#sizec">sizec</a></td>
+<td><a href="#sizec">sizeof</a></td>
+</tr><tr>
+<td><a href="#sizec">sizer</a></td>
+<td><a href="#sizec">sizerc</a></td>
+<td><a href="#decldl">solveldl</a></td>
+<td><a href="#decldlband">solveldlband</a></td>
+<td><a href="#declu">solvelu</a></td>
+</tr><tr>
+<td><a href="#solvetoeplitz">solvetoeplitz</a></td>
+<td><a href="#sortbyc">sortbyc</a></td>
+<td><a href="#sortbyc">sortbyr</a></td>
+<td><a href="#sortc">sortc</a></td>
+<td><a href="#sortc">sortcindex</a></td>
+</tr><tr>
+<td><a href="#sortc">sortr</a></td>
+<td><a href="#spline">spline</a></td>
+<td><a href="#sprint">sprint</a></td>
+<td><a href="#sqr">sqr</a></td>
+<td><a href="#sqr">sqrt</a></td>
+</tr><tr>
+<td><a href="#sscan">sscan</a></td>
+<td><a href="#correlation">standardize</a></td>
+<td><a href="#strfind">strfind</a></td>
+<td><a href="#strfind">strfindr</a></td>
+<td><a href="#strfind">strifind</a></td>
+</tr><tr>
+<td><a href="#strfind">strifindr</a></td>
+<td><a href="#strlwr">strlwr</a></td>
+<td><a href="#strlwr">strtrim</a></td>
+<td><a href="#strlwr">strupr</a></td>
+<td><a href="#sumc">sumc</a></td>
+</tr><tr>
+<td><a href="#sumc">sumr</a></td>
+<td><a href="#sumc">sumsqrc</a></td>
+<tr><td><hr></td><td align=center><b>T</b><td><hr></td></tr><tr>
+<td><a href="#tailchi">tailchi</a></td>
+<td><a href="#tailchi">tailf</a></td>
+<td><a href="#tailchi">tailn</a></td>
+<td><a href="#tailchi">tailt</a></td>
+<td><a href="#thinc">thinc</a></td>
+</tr><tr>
+<td><a href="#thinc">thinr</a></td>
+<td><a href="#date">time</a></td>
+<td><a href="#timeofday">timeofday</a></td>
+<td><a href="#timer">timer</a></td>
+<td><a href="#timer">timespan</a></td>
+</tr><tr>
+<td><a href="#timestr">timestr</a></td>
+<td><a href="#timestr">timing</a></td>
+<td><a href="#timestr">today</a></td>
+<td><a href="#solvetoeplitz">toeplitz</a></td>
+<td><a href="#trace">trace</a></td>
+</tr><tr>
+<td><a href="#trunc">trunc</a></td>
+<td><a href="#trunc">truncf</a></td>
+<tr><td><hr></td><td align=center><b>U</b><td><hr></td></tr><tr>
+<td><a href="#exclusion">unique</a></td>
+<td><a href="#unit">unit</a></td>
+<td><a href="#vech">unvech</a></td>
+<td><a href="#lower">upper</a></td>
+<tr><td><hr></td><td align=center><b>V</b><td><hr></td></tr><tr>
+<td><a href="#va_arglist">va_arglist</a></td>
+<td><a href="#varc">varc</a></td>
+<td><a href="#varc">varr</a></td>
+<td><a href="#variance">variance</a></td>
+<td><a href="#vec">vec</a></td>
+</tr><tr>
+<td><a href="#vech">vech</a></td>
+<td><a href="#vecindex">vecindex</a></td>
+<td><a href="#vecr">vecr</a></td>
+<td><a href="#vecrindex">vecrindex</a></td>
+<tr><td><hr></td><td align=center><b>Z</b><td><hr></td></tr><tr>
+<td><a href="#zeros">zeros</a></td>
+</tr>
+</table>
+<p><h2><a name="acf"></a><a href="oxstd.html#acf">acf</a></h2>
+<p>
+The example computes a correlogram twice, once using the library
+function, and once `manually' (in the matrix <tt>macf</tt>).
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl i, m1 = rann(200,2), m1m, macf, ilag = 5;
+
+    macf = new matrix[ilag + 1][2];
+    m1m = m1 - meanc(m1);         // in deviation from mean
+
+    for (i = 0; i <= ilag; ++i)
+        macf[i][] = diagonal(m1m'lag0(m1m, i));
+    macf = macf ./ macf[0][];          // scale by variance
+
+    print( acf(m1, ilag) ~ macf);
+}
+</xmp><p>
+produces
+<pre>
+       1.0000       1.0000       1.0000       1.0000
+   -0.0021973    -0.046870   -0.0021973    -0.046870
+    -0.041011    -0.051470    -0.041011    -0.051470
+    -0.050879    -0.039346    -0.050879    -0.039346
+     0.056525    -0.093980     0.056525    -0.093980
+     0.021034      0.12671     0.021034      0.12671
+</pre><p>
+<p><h2><a name="acos"></a><a href="oxstd.html#acos">acos</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( acos(<0,1>) );
+    print( asin(<0,1>) );
+    print( atan(<0,1>) );
+    print( cos(<0,1>) );
+    print( cosh(<0,1>) );
+    print( sin(<0,1>) );
+    print( sinh(<0,1>) );
+    print( tan(<0,1>) );
+    print( tanh(<0,1>) );
+}
+</xmp><p>
+produces
+<pre>
+     1.5708      0.00000
+    0.00000       1.5708
+    0.00000      0.78540
+     1.0000      0.54030
+     1.0000       1.5431
+    0.00000      0.84147
+    0.00000       1.1752
+    0.00000       1.5574
+    0.00000      0.76159
+</pre><p>
+<p><h2><a name="aggregatec"></a><a href="oxstd.html#aggregatec">aggregatec</a>, <a href="oxstd.html#aggregater">aggregater</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x = ones(20,1) ~ range(1,20)';
+
+    println(aggregatec(x, 5));
+    println(aggregatec(x, 6));
+    println(aggregater(x', 5));
+    println(aggregater(x', 6));
+}
+</xmp><p>
+produces
+<pre>
+       5.0000       15.000
+       5.0000       40.000
+       5.0000       65.000
+       5.0000       90.000
+
+       6.0000       21.000
+       6.0000       57.000
+       6.0000       93.000
+       2.0000       39.000
+
+       5.0000       5.0000       5.0000       5.0000
+       15.000       40.000       65.000       90.000
+
+       6.0000       6.0000       6.0000       2.0000
+       21.000       57.000       93.000       39.000
+</pre><p>
+<p><h2><a name="any"></a><a href="oxstd.html#any">any</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m1 = unit(2), m2 = zeros(2,2);
+
+    if (m1 == 0)       print ("TRUE ");
+    else               print ("FALSE ");
+    if (any(m1 .== 0)) print ("TRUE ");
+    else               print ("FALSE ");
+    if (!(m1 == 0))    print ("TRUE ");
+    else               print ("FALSE ");
+    if (any(m1 .!= 0)) print ("TRUE ");
+    else               print ("FALSE ");
+
+    if (m2 == 0)       print ("TRUE ");
+    else               print ("FALSE ");
+    if (any(m2 .== 0)) print ("TRUE ");
+    else               print ("FALSE ");
+    if (m2 != 0)       print ("TRUE ");
+    else               print ("FALSE ");
+    if (any(m2 .!= 0)) print ("TRUE ");
+    else               print ("FALSE ");
+}
+</xmp><p>
+produces: <tt>FALSE TRUE TRUE TRUE TRUE TRUE FALSE FALSE</tt>
+<p><h2><a name="arglist"></a><a href="oxstd.html#arglist">arglist</a></h2>
+<p>
+Running the following program <tt>arglist.ox</tt>:
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl args = arglist(), s, i, j;
+
+    for (i = 0; i < sizeof(args); ++i)
+    {
+        sscan(args[i], "%d", &j);
+        println("argument ", i, ": ", args[i],
+                " integer value:", j);
+    }
+}
+</xmp><p>
+
+as <tt>oxl arglist.ox a 12 c</tt>
+(the arguments before <tt>arglist.ox</tt> are passed to <tt>oxl</tt>,
+those after to <tt>arglist.ox</tt>), produces:
+
+<pre>
+argument 0: arglist.ox integer value:0
+argument 1: a integer value:0
+argument 2: 12 integer value:12
+argument 3: c integer value:0
+</pre><p>
+<p><h2><a name="array"></a><a href="oxstd.html#array">array</a></h2>
+<p>
+The <tt>array</tt> cast can be useful when an array indexing must remain
+an array. For example, a single index on an array of strings returns a
+string, whereas a multiple index returns an array of strings.
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl as = {"ax", "bx", "cx"};
+
+    print("single index is string: ", as[0],
+        "\nmultiple index is array of strings:", as[0:1],
+        "keep single index as array:", array(as[0]) );
+}
+</xmp><p>
+
+which produces:
+
+<pre>
+single index is string: ax
+multiple index is array of strings:
+[0] = ax
+[1] = bx
+keep single index as array:
+[0] = ax
+</pre><p>
+<p><h2><a name="binand"></a><a href="oxstd.html#binand">binand</a>, <a href="oxstd.html#bincomp">bincomp</a>, <a href="oxstd.html#binor">binor</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( binand(1,2,4), " ", binor(1,2,4) );
+}
+</xmp><p>
+produces: <tt>0 7</tt>
+<p><h2><a name="cabs"></a><a href="oxstd.html#cabs">cabs</a>, <a href="oxstd.html#cdiv">cdiv</a>, <a href="oxstd.html#cerf">cerf</a>, <a href="oxstd.html#cexp">cexp</a>, <a href="oxstd.html#clog">clog</a>, <a href="oxstd.html#cmul">cmul</a>, <a href="oxstd.html#csqrt">csqrt</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl v = <1, -1, -2>, rv = csqrt(v);
+    rv[0][1] = 1;/* change to a more interesting value */
+
+    print(v, rv, cabs(rv), cdiv(rv, rv), cmul(rv, rv),
+        cmul(rv, cdiv(ones(1,3), rv)) );
+    print(cexp(clog(rv)) );
+}
+</xmp><p>
+produces
+<pre>
+       1.0000      -1.0000      -2.0000
+
+       1.0000       1.0000      0.00000
+      0.00000       1.0000       1.4142
+
+       1.0000       1.4142       1.4142
+
+       1.0000       1.0000       1.0000
+      0.00000      0.00000      0.00000
+
+       1.0000      0.00000      -2.0000
+      0.00000       2.0000      0.00000
+
+       1.0000       1.0000       1.0000
+      0.00000      0.00000      0.00000
+
+       1.0000       1.0000  8.6593e-017
+      0.00000       1.0000       1.4142
+</pre><p>
+
+In the second example the complex functions are used
+to check if the computed roots of a polynomial indeed
+correspond to zeros of the polynomial:
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl v1, roots, cr;
+
+    v1 = <-1, 1.2274, -0.017197, -0.28369, -0.01028>;
+
+    polyroots(v1, &roots);
+
+    cr = columns(roots);
+    print("roots", roots,
+          "inverse roots", cdiv(ones(1,cr), roots) );
+
+    decl x1, x2, x3, x4, check;
+    x1 = roots;
+    x2 = cmul(x1, x1);                  /* roots ^ 2 */
+    x3 = cmul(x2, x1);                  /* roots ^ 3 */
+    x4 = cmul(x2, x2);                  /* roots ^ 4 */
+    check = v1[0][4] * (ones(1,cr) | zeros(1,cr)) +
+            v1[0][3] * x1 + v1[0][2] * x2 +
+            v1[0][1] * x3 + v1[0][0] * x4;
+
+    print("check (near-zeros could be different "
+          "with other Ox versions):", check);
+}
+</xmp><p>
+
+which produces:
+
+<pre>
+roots
+      0.82865      0.82865     -0.39337    -0.036535
+      0.16923     -0.16923      0.00000      0.00000
+inverse roots
+       1.1585       1.1585      -2.5422      -27.371
+     -0.23659      0.23659      0.00000      0.00000
+check (near-zeros could be different with other Ox versions):
+      0.00000      0.00000 -1.7000e-016 -8.4441e-018
+ -2.2204e-016  2.2204e-016      0.00000      0.00000
+</pre><p>
+<p><h2><a name="ceil"></a><a href="oxstd.html#ceil">ceil</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( ceil(<-1.8, -1.2, 1.2, 1.8>) );
+    print( floor(<-1.8, -1.2, 1.2, 1.8>) );
+    print( round(<-1.8, -1.2, 1.2, 1.8>) );
+    print( trunc(<-1.8, -1.2, 1.2, 1.8>) );
+
+    print( int(-1.8), " ", int(-1.2), " ",
+           int(1.2), " ", int(1.8) );
+}
+</xmp><p>
+produces
+<pre>
+      -1.0000      -1.0000       2.0000       2.0000
+      -2.0000      -2.0000       1.0000       1.0000
+      -2.0000      -1.0000       1.0000       2.0000
+      -1.0000      -1.0000       1.0000       1.0000
+-1 -1 1 1
+</pre><p>
+<p><h2><a name="choleski"></a><a href="oxstd.html#choleski">choleski</a></h2>
+<p>
+The example also shows how <tt>solvelu</tt> may be used to
+obtain P^-1</i>.
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl mp;
+
+    mp = choleski(<4,1;1,3>);
+    print(mp, mp*mp');
+
+    print(1/mp ~ solvelu(mp, 0, 0, unit(2)) );
+}
+</xmp><p>
+produces
+<pre>
+     2.0000      0.00000
+   0.500000       1.6583
+
+     4.0000       1.0000
+     1.0000       3.0000
+
+     0.50000      0.00000      0.50000      0.00000
+    -0.15076      0.60302     -0.15076      0.60302
+</pre><p>
+<p><h2><a name="columns"></a><a href="oxstd.html#columns">columns</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    println(columns(<0,1;1,2;3,4>), " ", columns("taylor"));
+    println(   rows(<0,1;1,2;3,4>), " ",    rows("taylor"));
+    println( sizerc(<0,1;1,2;3,4>), " ",  sizeof("taylor"));
+}
+</xmp><p>
+produces
+<pre>
+2 6
+3 6
+6 6
+</pre><p>
+<p><h2><a name="constant"></a><a href="oxstd.html#constant">constant</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( constant(1.5, 2, 2) );
+}
+</xmp><p>
+produces
+<pre>
+     1.5000       1.5000
+     1.5000       1.5000
+</pre><p>
+<p><h2><a name="correlation"></a><a href="oxstd.html#correlation">correlation</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m1 = rann(100,2), m2;
+
+    m2 = standardize(m1);
+    print( correlation(m1), m2'm2/rows(m2) );
+}
+</xmp><p>
+produces
+<pre>
+       1.0000    -0.039218
+    -0.039218       1.0000
+
+       1.0000    -0.039218
+    -0.039218       1.0000
+</pre><p>
+<p><h2><a name="countc"></a><a href="oxstd.html#countc">countc</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( countc(<0:3;1:4;2:5>, <2,4>) );
+    print( countr(<0:3;1:4;2:5>, <2>) );
+}
+</xmp><p>
+produces
+<pre>
+     3.0000       2.0000       1.0000      0.00000
+    0.00000       1.0000       2.0000       2.0000
+    0.00000      0.00000      0.00000       1.0000
+
+     3.0000       1.0000
+     2.0000       2.0000
+     1.0000       3.0000
+</pre><p>
+<p><h2><a name="cumsum"></a><a href="oxstd.html#cumsum">cumsum</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl mx = ones(5,1);
+    print( mx ~ cumsum(mx, <0.5>)
+              ~ cumsum(mx, <1, 0.5>, <1;2>)
+              ~ cumprod(mx * 2)
+              ~ cumprod(mx * 2, 2) );
+
+    print(cumsum(mx, <0.5;0.5;0.5;1;1>)' );
+}
+</xmp><p>
+produces
+<pre>
+     1.0000     1.0000     1.0000     2.0000     2.0000
+     1.0000     1.5000     2.0000     4.0000     2.0000
+     1.0000     1.7500     3.5000     8.0000     8.0000
+     1.0000     1.8750     5.5000     16.000     32.000
+     1.0000     1.9375     8.2500     32.000     512.00
+
+     1.0000     1.5000     1.7500     2.7500     3.7500
+</pre><p>
+<p><h2><a name="cumulate"></a><a href="oxstd.html#cumulate">cumulate</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( ones(5,1)
+           ~ cumulate(ones(5,1))
+           ~ cumulate(ones(5,1), <0.5>)
+           ~ cumulate(ones(5,1), <1>, <0.5>)
+           ~ cumulate(ones(5,1), {<1>, <0.5>}) );
+}
+</xmp><p>
+produces
+<pre>
+     1.0000     1.0000     1.0000     1.0000     1.0000
+     1.0000     2.0000     1.5000     2.0000     2.0000
+     1.0000     3.0000     1.7500     3.5000     3.5000
+     1.0000     4.0000     1.8750     5.5000     5.5000
+     1.0000     5.0000     1.9375     8.2500     8.2500
+</pre><p>
+<p><h2><a name="date"></a><a href="oxstd.html#date">date</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    println("\ntime=", time(), " date=", date());
+}
+</xmp><p>
+prints the current time and date.
+<p><h2><a name="dayofcalendar"></a><a href="oxstd.html#dayofcalendar">dayofcalendar</a>, <a href="oxstd.html#dayofeaster">dayofeaster</a>, <a href="oxstd.html#dayofmonth">dayofmonth</a>, <a href="oxstd.html#dayofweek">dayofweek</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    println("1-Jan-2000 was weekday ",
+        dayofweek(2000, 1, 1), " (7 is Saturday)");
+    println("1-Jan-2000 was yearday ",
+        dayofcalendar(2000, 1, 1));
+    println("2000 had ", dayofcalendar(2001, 1, 1)
+        - dayofcalendar(2000, 1, 1), " days");
+    println("2001 had ", dayofcalendar(2002, 1, 1)
+        - dayofcalendar(2001, 1, 1), " days");
+
+    println("%c", {"Easter Sunday", "Last Wed in May"},
+        "%17C", dayofeaster(range(2005, 2010)')
+                ~ dayofmonth(range(2005, 2010)', 5, 2, -1));
+        
+}
+</xmp><p>
+produces
+<pre>
+1-Jan-2000 was weekday 7 (7 is Saturday)
+1-Jan-2000 was yearday 2451545
+2000 had 366 days
+2001 had 365 days
+
+    Easter Sunday  Last Wed in May
+       2005-03-27       2005-05-30
+       2006-04-16       2006-05-29
+       2007-04-08       2007-05-28
+       2008-03-23       2008-05-26
+       2009-04-12       2009-05-25
+       2010-04-04       2010-05-31
+</pre><p>
+<p><h2><a name="decldl"></a><a href="oxstd.html#decldl">decldl</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl ma = <4,1;1,3>, md, ml, mi;
+
+    print("result = ", decldl(ma, &ml, &md));
+    print(" L =", ml, "D =", md);
+    print(ml*diag(1 ./ md)*ml');
+
+    mi = solveldl(ml, md, unit(2));
+    print(mi*ma);
+}
+</xmp><p>
+Note that <tt>diag(1 ./ md)</tt> and <tt>diag(1./md)</tt> are not the same.
+The program produces (the final matrix could have values of
+around 1e-16 instead of 0):
+<pre>
+result = 1 L =
+       1.0000      0.00000
+      0.25000       1.0000
+D =
+      0.25000      0.36364
+
+       4.0000       1.0000
+       1.0000       3.0000
+
+       1.0000      0.00000
+      0.00000       1.0000
+</pre><p>
+<p><h2><a name="decldlband"></a><a href="oxstd.html#decldlband">decldlband</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl i, j, k, m, mab, ma, ml, md, ct = 5, cb = 2;
+
+    ma = toeplitz(<5,4,3>, ct);   // create test matrix ma
+    for (i = 0; i < ct; ++i)
+        ma[i][i] += i;
+
+    mab = diagonal(ma, cb);  // create band matrix version
+    print("original matrix", ma, "band version", mab);
+                           
+    if (decldlband(mab, &ml, &md))  // decompose and solve
+        print("solved:", solveldlband(ml, md, <1;2;3;4;5>)' );
+
+    // undo banded storage:store L in lower diagonal of ma
+    for (i = 0, m = -cb; i < ct; ++i, m++)
+        for (j = max(0,m), k = j - m; j < i; ++j, ++k)
+            ma[i][j] =  ml[k][i];
+
+    print("band L=", ml, "L:U=", ma);
+}
+</xmp><p>
+produces
+<pre>
+original matrix
+       5.0000       4.0000       3.0000      0.00000      0.00000
+       4.0000       6.0000       4.0000       3.0000      0.00000
+       3.0000       4.0000       7.0000       4.0000       3.0000
+      0.00000       3.0000       4.0000       8.0000       4.0000
+      0.00000      0.00000       3.0000       4.0000       9.0000
+band version
+      0.00000      0.00000       3.0000       3.0000       3.0000
+      0.00000       4.0000       4.0000       4.0000       4.0000
+       5.0000       6.0000       7.0000       8.0000       9.0000
+solved:
+     0.012378      0.26172    -0.036251      0.17507      0.48983
+band L=
+      0.00000      0.00000      0.60000       1.0714      0.70000
+      0.00000      0.80000      0.57143      0.53333      0.67290
+       1.0000       1.0000       1.0000       1.0000       1.0000
+L:U=
+       5.0000       4.0000       3.0000      0.00000      0.00000
+      0.80000       6.0000       4.0000       3.0000      0.00000
+      0.60000      0.57143       7.0000       4.0000       3.0000
+      0.00000       1.0714      0.53333       8.0000       4.0000
+      0.00000      0.00000      0.70000      0.67290       9.0000
+</pre><p>
+<p><h2><a name="declu"></a><a href="oxstd.html#declu">declu</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl ma, ml, mu, vp, mx;
+
+    ma = <3,17,10;2,4,-2;6,18,-12>;
+    declu(ma, &ml, &mu, &vp);
+    print( (ml*mu)[ vp[0][] ][], (unit(rows(ma)))[ vp[0][] ][] );
+
+    mx = solvelu(ml, mu, vp, ma);
+    print(mx);
+}
+</xmp><p>
+produces (note that the last matrix is the identity
+matrix: whether it has zeros, or nearly zeros, could
+dependent on which Ox version was used):
+
+<pre>
+       3.0000       17.000       10.000
+       2.0000       4.0000      -2.0000
+       6.0000       18.000      -12.000
+
+      0.00000       1.0000      0.00000
+      0.00000      0.00000       1.0000
+       1.0000      0.00000      0.00000
+
+       1.0000 -3.7007e-017      0.00000
+ -3.7007e-017       1.0000      0.00000
+  1.8504e-017 -1.8504e-017       1.0000
+</pre><p>
+<p><h2><a name="decqr"></a><a href="oxstd.html#decqr">decqr</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl ma, mht, mr, mp, vp;   
+    ma = <2,1,4;5,1,7;8,1,9;11,1,12>;
+
+    decqr(ma, &mht, &mr, &mp);
+    vp = mp[0][];
+    print("A=", ma, "A\'A", ma'ma,
+        "R\'R (ignoring pivoting)", mr'mr,
+        "R\'R (after undoing pivoting)", (mr'mr)[vp][vp]);
+    println("Note that mp[0][] contains P':", vp);
+    println("The pivots on A (where AP=QR) are:",
+        sortcindex(vp') ');
+}
+</xmp><p>
+
+<pre>
+A=
+       2.0000       1.0000       4.0000
+       5.0000       1.0000       7.0000
+       8.0000       1.0000       9.0000
+       11.000       1.0000       12.000
+A'A
+       214.00       26.000       247.00
+       26.000       4.0000       32.000
+       247.00       32.000       290.00
+R'R (ignoring pivoting)
+       290.00       247.00       32.000
+       247.00       214.00       26.000
+       32.000       26.000       4.0000
+R'R (after undoing pivoting)
+       214.00       26.000       247.00
+       26.000       4.0000       32.000
+       247.00       32.000       290.00
+Note that mp[0][] contains P':
+       1.0000       2.0000      0.00000
+The pivots on A (where AP=QR) are:
+       2.0000      0.00000       1.0000
+</pre><p>
+<p><h2><a name="decqrmul"></a><a href="oxstd.html#decqrmul">decqrmul</a></h2>
+<p>
+The example shows how to obtain Q'</i>, reconstructs
+the original matrix, and implements regression using
+the QR decomposition (note that <tt>olsc</tt> is also 
+QR based).
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl iret, ma, maa, mht, mr, mp, mq, mb, vy;
+
+    ma = <1,2,3;1,5,6;1,8,9;1,11,12>;
+
+    iret = decqr(ma, &mht, &mr, &mp);
+    if (iret < 0)
+        println("Input matrix is singular");
+    print("H\'=", mht', "R1=", mr, "pivots", mp);
+
+    mq = decqrmul(mht);
+    maa = mq' * (mr | <0,0,0>);
+    print("Q\'=", mq', "ma (pivoted)=", maa,
+        "ma=", maa[][mp[0][]]);
+    
+    vy = <2;1;2;4>;
+    olsc(vy, ma, &mb);
+    print("regression coefficients (transposed)", mb');
+
+    decl rank = sumr(fabs(diagonal(mr)) .> 1e-14);
+    println("rank=", rank);
+    mr[rank:][] = 0;
+
+    mb = solvelu(0, mr, 0, decqrmul(mht, vy)[:2][]);
+    print("from QR", mb', "in correct order", mb[mp[0][]][]');
+}
+</xmp><p>
+<pre>
+Input matrix is singular
+H'=
+       1.0000      0.00000      0.00000
+      0.30877       1.0000      0.00000
+      0.46316     -0.32710       1.0000
+      0.61755     -0.78925      0.90403
+R1=
+      -16.432      -14.606      -1.8257
+      0.00000      0.81650     -0.81650
+      0.00000      0.00000 -6.6876e-016
+pivots
+       2.0000       1.0000      0.00000
+       2.0000       1.0000       2.0000
+Q'=
+     -0.18257     -0.81650      0.41241      0.36044
+     -0.36515     -0.40825     -0.81854     -0.17320
+     -0.54772 -2.8962e-016      0.39985     -0.73493
+     -0.73030      0.40825    0.0062784      0.54769
+ma (pivoted)=
+       3.0000       2.0000       1.0000
+       6.0000       5.0000       1.0000
+       9.0000       8.0000       1.0000
+       12.000       11.000       1.0000
+ma=
+       1.0000       2.0000       3.0000
+       1.0000       5.0000       6.0000
+       1.0000       8.0000       9.0000
+       1.0000       11.000       12.000
+regression coefficients (transposed)
+      0.00000     -0.50000      0.73333
+rank=
+       2.0000
+from QR
+      0.73333     -0.50000      0.00000
+in correct order
+      0.00000     -0.50000      0.73333
+</pre><p>
+<p><h2><a name="decqrupdate"></a><a href="oxstd.html#decqrupdate">decqrupdate</a></h2>
+<p>
+The example shows first how the QR decomposition of an
+upper Hessenberg matrix (a matrix with zeros below the subdiagonal)
+can be computed, and then updates
+after appending a column to a lower triangular matrix.
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl ma, maa, mht, mr, mp, mq, mb, vy;
+
+    ma = <1,2,3,4,5;1,5,6,7,8;0,1,8,9,10;0,0,1,11,12>;
+
+    println("Upper Hessenberg matrix A", ma);
+    mr = ma;
+    mq = unit(sizer(ma));
+    decqrupdate(&mq, &mr, 1);
+    println("triangular R:", mr);
+    println("original:", mq*mr);
+
+    mr[1:][0] = 1;
+    mq = unit(sizer(ma));
+    println("Column 0 changed:", mr);
+    decqrupdate(&mq, &mr, 0, sizer(mr));
+    println("Made triangular:", mr);
+    println("original:", mq*mr);
+}
+</xmp><p>
+<pre>
+Upper Hessenberg matrix A
+       1.0000       2.0000       3.0000       4.0000       5.0000
+       1.0000       5.0000       6.0000       7.0000       8.0000
+      0.00000       1.0000       8.0000       9.0000       10.000
+      0.00000      0.00000       1.0000       11.000       12.000
+triangular R:
+       1.4142       4.9497       6.3640       7.7782       9.1924
+      0.00000       2.3452       5.3300       5.7564       6.1828
+      0.00000      0.00000       6.4102       8.8637       9.9131
+      0.00000      0.00000      0.00000       9.7365       10.583
+original:
+       1.0000       2.0000       3.0000       4.0000       5.0000
+       1.0000       5.0000       6.0000       7.0000       8.0000
+      0.00000       1.0000       8.0000       9.0000       10.000
+      0.00000      0.00000       1.0000       11.000       12.000
+Column 0 changed:
+       1.4142       4.9497       6.3640       7.7782       9.1924
+       1.0000       2.3452       5.3300       5.7564       6.1828
+       1.0000      0.00000       6.4102       8.8637       9.9131
+       1.0000      0.00000      0.00000       9.7365       10.583
+Made triangular:
+       2.2361       4.1793       9.2753       15.812       17.745
+      0.00000       3.5403       1.4789      -3.9779      -4.0002
+      0.00000      0.00000       4.6671     -0.80946     -0.78739
+      0.00000      0.00000      0.00000     -0.70954      -1.2216
+original:
+       1.4142       4.9497       6.3640       7.7782       9.1924
+       1.0000       2.3452       5.3300       5.7564       6.1828
+       1.0000  3.8760e-016       6.4102       8.8637       9.9131
+       1.0000  3.8760e-016  8.6736e-018       9.7365       10.583
+</pre><p>
+<p><h2><a name="decschur"></a><a href="oxstd.html#decschur">decschur</a>, <a href="oxstd.html#decschurgen">decschurgen</a></h2>
+<p><xmp>
+#include <oxstd.h>
+
+main()
+{
+    decl a, b, ev, t, s, v, i, alpha, beta, vl, vr;
+
+    a = rann(4,4);  b = rann(4,4);
+    print("a", a);
+
+    i = decschur(a, &ev, &s);
+
+    print("eigenvalues", ev);
+    print("S", s);
+
+    i = decschur(a, &ev, &s, &v);
+
+    print("v*s*v'", v*s*v');
+
+    i = decschur(a, &ev, &s, &v, 0, 1);
+
+    print("cabs(eigenvalues) between 0 and 1 first, S=", s);
+
+    i = decschurgen(a, b, &alpha, &beta, &s, &t, &vl, &vr);
+
+    print("b", b);
+    println("decschurgen i=", i);
+    print("alpha", alpha);
+    print("beta", beta);
+    print("s", s, "vl*s*vr'", vl*s*vr');
+    print("t", t, "vl*t*vr'", vl*t*vr');
+
+    i = decschurgen(a, unit(rows(a)), &alpha, &beta, &s, &t,
+        &vl, &vr, 0, 1);
+
+    println("selecting gen. eigen values between 0 and 1 first");
+    print("alpha", alpha);
+    print("beta", beta);
+}
+</xmp><p>
+produces
+<pre>
+a
+      0.22489       1.7400     -0.20426     -0.91760
+     -0.67417     -0.34353      0.22335     -0.14139
+     -0.18338      0.68035     0.090558     -0.83328
+      0.81350       1.1174      0.31499     -0.50031
+eigenvalues
+     -0.25959     -0.25959   -0.0046060   -0.0046060
+       1.3775      -1.3775      0.32694     -0.32694
+S
+     -0.25959      -2.1654      -1.2665     -0.37296
+      0.87631     -0.25959     -0.51481      0.18777
+      0.00000      0.00000   -0.0046060      0.16910
+      0.00000      0.00000     -0.63214   -0.0046060
+v*s*v'
+      0.22489       1.7400     -0.20426     -0.91760
+     -0.67417     -0.34353      0.22335     -0.14139
+     -0.18338      0.68035     0.090558     -0.83328
+      0.81350       1.1174      0.31499     -0.50031
+cabs(eigenvalues) between 0 and 1 first, S=
+   -0.0046060     -0.20780      0.49340      0.64443
+      0.51441   -0.0046060      0.66321      0.24688
+      0.00000      0.00000     -0.25959      0.78487
+      0.00000      0.00000      -2.4177     -0.25959
+b
+      -1.6268      0.61943      -1.4574      -1.8035
+       2.0016      0.57912     -0.70797      0.59336
+     -0.58939       1.4674    -0.020230      0.73706
+       1.4795     -0.26881       1.2282       1.5784
+decschurgen i=0
+alpha
+       1.9293      0.70758     -0.68938     -0.22323
+beta
+     0.089639       3.2454       2.0066       1.7759
+s
+       1.9293       1.4371     -0.80659      0.35450
+      0.00000      0.70758      0.12850     -0.28463
+      0.00000      0.00000     -0.68938      0.61345
+      0.00000      0.00000      0.00000     -0.22323
+vl*s*vr'
+      0.22489       1.7400     -0.20426     -0.91760
+     -0.67417     -0.34353      0.22335     -0.14139
+     -0.18338      0.68035     0.090558     -0.83328
+      0.81350       1.1174      0.31499     -0.50031
+t
+     0.089639      0.68167     -0.46602     -0.52514
+      0.00000       3.2454       1.6897     -0.89339
+      0.00000      0.00000       2.0066     -0.75847
+      0.00000      0.00000      0.00000       1.7759
+vl*t*vr'
+      -1.6268      0.61943      -1.4574      -1.8035
+       2.0016      0.57912     -0.70797      0.59336
+     -0.58939       1.4674    -0.020230      0.73706
+       1.4795     -0.26881       1.2282       1.5784
+selecting gen. eigen values between 0 and 1 first
+alpha
+    -0.016364    -0.016364     -0.31713     -0.31713
+       1.1616      -1.1616       1.6829      -1.6829
+beta
+       3.5528       3.5528       1.2217       1.2217
+</pre><p>
+<p><h2><a name="decsvd"></a><a href="oxstd.html#decsvd">decsvd</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x=<1,2;3,4;5,6>, mu, mv, mw;
+
+    print("singular values: ", decsvd(x));
+    print("result = ", decsvd(x, &mu, &mw, &mv));
+    print(" A =", mu * diag(mw) * mv');
+    decsvd(x', &mu, &mw, &mv);
+    print(" A =", mu * diag(mw) * mv');
+}
+</xmp><p>
+produces
+<pre>
+singular values: 
+       9.5255      0.51430
+result = 0 A =
+       1.0000       2.0000
+       3.0000       4.0000
+       5.0000       6.0000
+ A =
+       1.0000       3.0000       5.0000
+       2.0000       4.0000       6.0000
+</pre><p>
+<p><h2><a name="deleteifc"></a><a href="oxstd.html#deleteifc">deleteifc</a>, <a href="oxstd.html#deleteifr">deleteifr</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m = <.,1,2,3;4:7;8,9,.,11;12:15>, m1,
+        del = <1,9,14>;
+    print(m, "NaN deleted", m1 = deleter(m));
+    print("delete", deleter(m1, del));
+    print("deleteif", deleteifr(m1, m1 .< 0 || m1 .> 14));
+}
+</xmp><p>
+produces:
+<pre>
+         .NaN       1.0000       2.0000       3.0000
+       4.0000       5.0000       6.0000       7.0000
+       8.0000       9.0000         .NaN       11.000
+       12.000       13.000       14.000       15.000
+NaN deleted
+       4.0000       5.0000       6.0000       7.0000
+       12.000       13.000       14.000       15.000
+delete
+       4.0000       5.0000       6.0000       7.0000
+deleteif
+       4.0000       5.0000       6.0000       7.0000
+</pre><p>
+<p><h2><a name="determinant"></a><a href="oxstd.html#determinant">determinant</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( determinant(<2,1;1,4>) );
+}
+</xmp><p>
+produces: <tt>7</tt>
+<p><h2><a name="dfft"></a><a href="oxstd.html#dfft">dfft</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( "dfft", dfft(<1,0,1>), "fft1d", fft1d(<1,0,1>),
+        "inverse dfft(dfft))", dfft(dfft(<1,0,1>), 2) );
+}
+</xmp><p>
+produces
+<pre>
+dfft
+       2.0000      0.50000      0.50000
+      0.00000      0.86603     -0.86603
+fft1d
+       2.0000      0.50000      0.50000
+      0.00000      0.86603     -0.86603
+inverse dfft(dfft))
+       1.0000 -1.4599e-016       1.0000
+</pre><p>
+<p><h2><a name="diag"></a><a href="oxstd.html#diag">diag</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( diag(<1,1>), diag(<1;1>) );
+}
+</xmp><p>
+produces
+<pre>
+     1.0000      0.00000
+    0.00000       1.0000
+
+     1.0000      0.00000
+    0.00000       1.0000
+</pre><p>
+<p><h2><a name="diagcat"></a><a href="oxstd.html#diagcat">diagcat</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( diagcat(<2,2>, unit(2)) );
+}
+</xmp><p>
+produces
+<pre>
+       2.0000       2.0000      0.00000      0.00000
+      0.00000      0.00000       1.0000      0.00000
+      0.00000      0.00000      0.00000       1.0000
+</pre><p>
+<p><h2><a name="diagonal"></a><a href="oxstd.html#diagonal">diagonal</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x = <1:5;11:15;21:25>;
+    print( "%6.0f", diagonal(x) );
+    print( "%6.0f", diagonal(x, 1, -1) );
+}
+</xmp><p>
+produces
+<pre>
+     1    12    23
+
+     0     2    13    24
+     1    12    23     0
+    11    22     0     0
+</pre><p>
+<p><h2><a name="diagonalize"></a><a href="oxstd.html#diagonalize">diagonalize</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( diagonalize( constant(2, 3, 4) ) );
+}
+</xmp><p>
+produces
+<pre>
+     2.0000      0.00000      0.00000      0.00000
+    0.00000       2.0000      0.00000      0.00000
+    0.00000      0.00000       2.0000      0.00000
+</pre><p>
+<p><h2><a name="diff0"></a><a href="oxstd.html#diff0">diff0</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( diff0(<1:5>',2) );
+}
+</xmp><p>
+produces
+<pre>
+    0.00000
+    0.00000
+     2.0000
+     2.0000
+     2.0000
+</pre><p>
+<p><h2><a name="discretize"></a><a href="oxstd.html#discretize">discretize</a></h2>
+<p>
+In this example, the three intervals are [-3,-1)</i>,
+[-1,1)</i> and [1,3)</i>. So the last observation of <tt>x</tt>
+will be ignored. The raw discretization simply counts the numbers
+in each interval, giving the first line of output.
+The weighted version looks at the distance to the points -2,0,2</i>
+(also printed as the last output line): -3</i> is to the left of the
+minimum, so fully assigned to the first interval. Apart from
+-1</i>, all observations are exactly on a point, so fully assigned;
+-1</i> falls halfway between -2</i> and 0</i>, so half is assigned to
+the first interval, and half to the second (if the value
+would have been -1.5</i>, 0.75</i> would go to the first interval, 0.25</i>
+to the second.
+
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl a = -2, b = 2, m = 3, t;
+    decl x = <-3,-2,-1,0,2,3>;
+
+    t = a + (b - a) * range(0, m - 1) / (m - 1);
+    print( discretize(x, a, b, m, 0)
+        | discretize(x, a, b, m, 1) | t);
+}
+</xmp><p>
+produces
+<pre>
+       2.0000       2.0000       1.0000
+       2.5000       1.5000       1.0000
+      -2.0000      0.00000       2.0000
+</pre><p>
+<p><h2><a name="dropc"></a><a href="oxstd.html#dropc">dropc</a>, <a href="oxstd.html#dropr">dropr</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x = <1,2,3;4,5,6>;
+    print( dropc(x, 1) );
+    print( dropr(x, 1) );
+    print( insertc(x, 0, 1) );
+    print( insertr(x, 0, 1) );
+
+    decl a = {{"A","B"},{1,2},{<1>,<2>}};
+    println("a=", a, "dropr(a,<1,2>)", dropr(a,<1,2>));
+    println("a[0]=", a[0], "dropr(a[0],<1>)", dropr(a[0],<1>));
+    println("insertr(a[0],0,2)", insertr(a[0],0,2));
+}
+</xmp><p>
+produces
+<pre>
+       1.0000       3.0000
+       4.0000       6.0000
+
+       1.0000       2.0000       3.0000
+
+      0.00000       1.0000       2.0000       3.0000
+      0.00000       4.0000       5.0000       6.0000
+
+      0.00000      0.00000      0.00000
+       1.0000       2.0000       3.0000
+       4.0000       5.0000       6.0000
+a=
+[0][0] = A
+[0][1] = B
+[1][0] = 1
+[1][1] = 2
+[2][0] = 
+       1.0000
+[2][1] = 
+       2.0000
+dropr(a,<1,2>)
+[0][0] = A
+[0][1] = B
+a[0]=
+[0] = A
+[1] = B
+dropr(a[0],<1>)
+[0] = A
+insertr(a[0],0,2)
+[0] = .Null
+[1] = .Null
+[2] = A
+[3] = B
+</pre><p>
+<p><h2><a name="eigen"></a><a href="oxstd.html#eigen">eigen</a>, <a href="oxstd.html#eigensym">eigensym</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl meval, mevec;
+
+    print("result=", eigensym(<2,1;1,3>, &meval, &mevec));
+    print(" eigenvalues:", meval, "eigenvectors:", mevec);
+
+    print("result=", eigen(<2,1;-3,1>, &meval));
+    print(" eigenvalues:", "%r",
+        {"real", "imaginary"}, meval);
+}
+</xmp><p>
+produces
+<pre>
+result=0 eigenvalues:
+     3.6180       1.3820
+eigenvectors:
+   -0.52573      0.85065
+   -0.85065     -0.52573
+result=0 eigenvalues:
+real                1.5000       1.5000
+imaginary           1.6583      -1.6583
+</pre><p>
+<p><h2><a name="eigensymgen"></a><a href="oxstd.html#eigensymgen">eigensymgen</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl meval, mevec;
+
+    print("result = ",
+        eigensymgen(<2,1;1,3>,<1,0;0,1>, &meval, &mevec));
+    print(" generalized eigenvectors:", mevec);
+}
+</xmp><p>
+produces
+<pre>
+result = 0 generalized eigenvectors:
+     -0.52573      0.85065
+     -0.85065     -0.52573
+</pre><p>
+<p><h2><a name="eprint"></a><a href="oxstd.html#eprint">eprint</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    eprint( "\nerror message\n" );
+}
+</xmp><p>
+prints <tt>error message</tt> to the console (even when the output
+is redirected to a file).
+<p><h2><a name="exclusion"></a><a href="oxstd.html#exclusion">exclusion</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x = <-1,1,.,-2,-2,.,4>, y = <3,3,.,-2,1>;
+    format("%5.1g");
+    print("exclusion", exclusion(x, y) );
+    print("intersection", intersection(x, y) );
+    print("union", unique(x ~ y) );
+}
+</xmp><p>
+produces
+<pre>
+exclusion
+   -1    4
+intersection
+   -2    1
+union
+   -2   -1    1    3    4
+</pre><p>
+<p><h2><a name="exp"></a><a href="oxstd.html#exp">exp</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( exp(<0,1>) );
+}
+</xmp><p>
+produces
+<pre>
+     1.0000       2.7183
+</pre><p>
+<p><h2><a name="fabs"></a><a href="oxstd.html#fabs">fabs</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( fabs(<-1.1,1.1>) );
+}
+</xmp><p>
+produces
+<pre>
+     1.1000       1.1000
+</pre><p>
+<p><h2><a name="fft"></a><a href="oxstd.html#fft">fft</a>, <a href="oxstd.html#fft1d">fft1d</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( fft(<1,0,1>), fft(fft(<1,0,1>), 2) );
+}
+</xmp><p>
+produces
+<pre>
+       2.0000      0.00000       2.0000      0.00000
+      0.00000      0.00000      0.00000      0.00000
+
+       1.0000      0.00000       1.0000      0.00000
+</pre><p>
+<p><h2><a name="findsample"></a><a href="oxstd.html#findsample">findsample</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x = range(0,5)' ~ range(10,15)', t1, t2;
+
+    x[2][1] = x[5][1] = .NaN;
+    x[4][] = .NaN;
+
+    println(x);
+    findsample(x, <>, <>, 0, -1, SAM_ALLVALID, &t1, &t2);
+    println("SAM_ALLVALID:  t1=", t1, " t2=", t2);
+    findsample(x, <>, <>, 0, -1, SAM_ENDSVALID, &t1, &t2);
+    println("SAM_ENDSVALID: t1=", t1, " t2=", t2);
+    findsample(x, <>, <>, 0, -1, SAM_ANYVALID, &t1, &t2);
+    println("SAM_ANYVALID:  t1=", t1, " t2=", t2);
+
+    findsample(x, <0,0>, <0,1>, 0, -1, SAM_ALLVALID, &t1, &t2);
+    println("SAM_ALLVALID:  t1=", t1, " t2=", t2,
+        " column 0, lags 0-1");
+}
+</xmp><p>
+produces
+<pre>
+      0.00000       10.000
+       1.0000       11.000
+       2.0000         .NaN
+       3.0000       13.000
+         .NaN         .NaN
+       5.0000         .NaN
+SAM_ALLVALID:  t1=0 t2=1
+SAM_ENDSVALID: t1=0 t2=3
+SAM_ANYVALID:  t1=0 t2=5
+SAM_ALLVALID:  t1=1 t2=3 column 0, lags 0-1
+</pre><p>
+<p><h2><a name="fmod"></a><a href="oxstd.html#fmod">fmod</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( fmod(3,2), " ", fmod(-3,2), " ",
+           fmod(3,-2), " ", fmod(-3,-2) );
+}
+</xmp><p>
+produces: <tt>1 -1 1 -1</tt>
+<p><h2><a name="fprint"></a><a href="oxstd.html#fprint">fprint</a>, <a href="oxstd.html#fprintln">fprintln</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl file = fopen("test.tmp", "w");
+
+    fprintln(file, "some text" );
+
+    fclose(file);
+}
+</xmp><p>
+produces a file test.tmp with the specified text.
+<p><h2><a name="fread"></a><a href="oxstd.html#fread">fread</a></h2>
+<p>
+A number of input/output examples is in the <tt>samples/inout</tt>
+directory. Below is <tt>samples/inout/inout7.ox</tt>. The programs <tt>inout10</tt>
+and <tt>inout11</tt> show how data can be read and written in blocks
+when the file is not a <tt>.fmt</tt> file.
+
+This example writes a matrix as a <tt>.fmt</tt> file using <tt>savemat</tt>.
+Then the matrix is written using <tt>fread</tt>, in such a way
+that the same format is used.
+
+Note that under Windows and MS-DOS these files are identical,
+but that on some platforms (such as the Sun)
+the files differ: <tt>iotest7.ox</tt> is little endian, but
+reading here assumes the platform ordering (which
+is big endian on a Sun).
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl file, x;
+    decl s, r, c, rc8;
+
+    x = rann(2,3);
+    x[0][] = double("tinker");
+    savemat("iotest7.fmt", x);
+                // open mode: read, binary, little-endian
+    file = fopen("iotest7.fmt", "rbe");
+    fread(file, &s, 'c', 4);
+
+    if (s == "\xDD\xEE\x86")
+        println("signature OK");
+    else
+    {   println("signature NOT OK!");
+        exit(1);
+    }
+
+    fread(file, &r, 'i');
+    fread(file, &c, 'i');
+    println("rows=", r, " columns=", c);
+
+    fread(file, &rc8, 'i');
+    fread(file, &x, 'f', r, c);
+    println("-1 indicates eof: ", fread(file, &s, 'c', 1));
+    if (feof(file))
+        println("Was indeed end of file.");
+
+    fclose(file);
+
+    println(string(x[0][0]), x[1:][]);
+}
+</xmp><p>
+produces:
+<pre>
+signature OK
+rows=2 columns=3
+-1 indicates eof: -1
+Was indeed end of file.
+tinker
+     -0.91760     -0.67417     -0.34353
+</pre><p>
+<p><h2><a name="fscan"></a><a href="oxstd.html#fscan">fscan</a></h2>
+<p>
+The example (<tt>samples/inout/iotest2.ox</tt>) writes a file, and reads it twice.
+The first time, the string read is <tt>tinker123</tt>,
+but then reading gets stuck, because the word
+tailor can not be read is an integer, double or matrix.
+Failure to read the matrix dimension generates an error message.
+
+The second time, the file is read properly.
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl file;
+
+    file = fopen("iotest2.txt", "w");
+    fprint(file, "tinker123\ntailor456.78\n 2 2 1 0 0 1\n");
+    fclose(file);
+
+    decl c = -2, s, i = 0, d = 0, m = 0;
+
+    file = fopen("iotest2.txt");
+    println("Next statement will print message: "
+          "\"load matrix: no matrix elements\"");
+
+    c = fscan(file, "%s", &s,       // stops after &s
+        "%d", &i, "%f", &d, "%m", &m);
+    fclose(file);
+
+    print("\nitems read=", c, " s=", s, " int=", i,
+        " dbl=", d, " mat=", m);
+
+    file = fopen("iotest2.txt");
+    c = fscan(file, "tinker%d", &i, " tailor%f", &d, "%m", &m);
+    fclose(file);
+
+    print("\nitems read=", c, " int=", i, " dbl=", d,
+        " mat=", m);
+
+    // token example:
+    decl str = "GMM(\"a\", 1.5, -3);";
+    decl func, arg0, arg1, arg2, arg3;
+
+    println("\ntoken string: ", str);
+    sscan(str, "%t", &func, "( %t", &arg0, ", %f", &arg1,
+        ", %d", &arg2);
+    println("scanned using \"%t\": ", func, " ", arg0,
+        " ", arg1, " ", arg2);
+
+    sscan(str, "%T", &func, "(%T", &arg0, ", %T", &arg1,
+        ", %T", &arg2, "%T", &arg3);
+    println("scanned using \"%T\":", func, arg0, arg1, arg2, arg3);
+}
+</xmp><p>
+produces
+<pre>
+Next statement will print message: "load matrix: no matrix elements"
+load matrix: no matrix elements
+
+items read=1 s=tinker123 int=0 dbl=0 mat=0
+items read=3 int=123 dbl=456.78 mat=
+       1.0000      0.00000
+      0.00000       1.0000
+
+token string: GMM("a", 1.5, -3);
+scanned using "%t": GMM a 1.5 -3
+scanned using "%T":
+[0] = GMM
+[1] = GMM
+[2] = 0
+
+[0] = a
+[1] = "a"
+[2] = 1
+
+[0] = 1.5
+[1] = 1.5
+[2] = 1
+
+[0] = -
+[1] = -
+[2] = 2
+
+[0] = 3
+[1] = 3
+[2] = 1
+</pre><p>
+<p><h2><a name="fseek"></a><a href="oxstd.html#fseek">fseek</a></h2>
+<p>
+This example (<tt>samples/inout/iotest9.ox</tt>) reads and writes to a matrix opened with the f format.
+In that case, the number of columns applies to the whole file,
+and seeking is by row. Once the file file holds data, each subsequent
+write must match the number of columns already in the file.
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl file, x, i;
+
+    file = fopen("iotest9.fmt", "wbf");  // write
+
+    fwrite(file, ones(1, 4));
+    fwrite(file, 1 + ones(1, 4));
+    fwrite(file, zeros(27, 4));
+
+    fclose(file);
+
+    file = fopen("iotest9.fmt", "abf");  // append
+    println("file is ", rows(file), " by ", columns(file));
+
+    fwrite(file, 2 + ones(1, 4));
+    fclose(file);
+
+    file = fopen("iotest9.fmt", "rbf");    // read
+    println("file is ", rows(file), " by ", columns(file));
+
+    fseek(file, 'f', 1);             // second row
+    fread(file, &x, 'f', 1);            // read it
+    print("row of twos:", x);
+
+    fseek(file, 'f', rows(file)-1);  // second row
+    fread(file, &x, 'f', 1);   // read it
+    print("row of threes:", x);
+}
+</xmp><p>
+produces:
+<pre>
+file is 29 by 4
+file is 30 by 4
+row of twos:
+       2.0000       2.0000       2.0000       2.0000
+row of threes:
+       3.0000       3.0000       3.0000       3.0000
+</pre><p>
+<p><h2><a name="fwrite"></a><a href="oxstd.html#fwrite">fwrite</a></h2>
+<p>
+A number of input/output examples is in the <tt>samples/inout</tt>
+directory. Below is <tt>samples/inout/inout6.ox</tt>,
+which saves a matrix as a <tt>.ftm</tt> file using <tt>savemat</tt>.
+Then the matrix is written using <tt>fwrite</tt>, in such a way
+that the same format is used. See under <tt>fread</tt> for a read example.
+
+Note that under Windows and MS-DOS these files are identical,
+but that on some platforms (such as the Sun)
+the files differ: <tt>iotest6a.fmt</tt> is little endian, but
+<tt>iotest6b.fmt</tt> big endian. So on a Sun, using <tt>loadmat</tt> on
+<tt>iotest6b.fmt</tt> fails to read the matrix correctly.
+
+The example also shows how a short string can be stores in matrix,
+and retrieved from it.
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl file, x = rann(2,3);
+    x[0][] = double("tinker");
+    savemat("iotest6a.fmt", x);
+                                 // force little-endian mode
+    file = fopen("iotest6b.fmt", "wbe");
+//  two ways if writing signature, first:
+//  decl s = new string[4];      // need four bytes
+//  s[0:2] = "\xDD\xEE\x86";     // signature is DDEE8600
+//  fwrite(file, s);
+//
+//  and second way:
+    fprint(file, "%c", 0xdd, "%c", 0xee, "%c", 0x86, "%c", 0x00);
+
+    fwrite(file, rows(x));
+    fwrite(file, columns(x));
+    fwrite(file, rows(x) * columns(x) * 8);
+    fwrite(file, x);
+    fclose(file);
+
+    decl y = loadmat("iotest6b.fmt");
+
+    println(string(x[0][0]), string(y[0][0]), x[1][1]-y[1][1]);
+}
+</xmp><p>
+produces: <tt>tinkertinker0</tt>
+<p><h2><a name="gammafunc"></a><a href="oxstd.html#gammafunc">gammafunc</a></h2>
+<p><xmp>
+#include <oxstd.h>
+#include <oxprob.h>       // required for probgamma
+main()
+{
+    print(probgamma(5.99, 1, 0.5), " ",
+          gammafunc(5.99 * 0.5, 1), "\n");
+    print(probgamma(5.99, 0.5, 1), " ",
+          gammafunc(5.99, 0.5) );
+}
+</xmp><p>
+produces
+<pre>
+0.949963 0.949963
+0.999462 0.999462
+</pre><p>
+<p><h2><a name="getfiles"></a><a href="oxstd.html#getfiles">getfiles</a></h2>
+<p><xmp>
+#include <oxstd.h>
+
+main()
+{
+    println("Current folder = ", getcwd());
+    chdir("D:\\OxMetrics5\\ox\\include");
+    // default is: chdir("C:\\Program Files\\OxMetrics5\\ox\\include");
+    println("Current folder = ", getcwd());
+    println("Files in folder: ", getfiles("*.ox"));
+}
+</xmp><p>
+produces
+<pre>
+Current folder = D:\Waste
+Current folder = D:\OxMetrics5\ox\include
+Files in folder: 
+[0] = g2ox.ox
+[1] = oxgauss.ox
+[2] = ox_init.ox
+</pre><p>
+<p><h2><a name="idiv"></a><a href="oxstd.html#idiv">idiv</a>, <a href="oxstd.html#imod">imod</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( idiv(3,2), " ", idiv(-4,2), " ",
+           idiv(3,-2), " ", idiv(-4,-2), " ");
+    print( imod(3,2), " ", imod(-3,2), " ",
+           imod(3,-2), " ", imod(-3,-2) );
+}
+</xmp><p>
+produces: <tt>1 -2 -1 2 1 -1 1 -1</tt>
+<p><h2><a name="invert"></a><a href="oxstd.html#invert">invert</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl mp;
+
+    mp = <4,1;1,3>;
+    print(invert(mp)*mp, invertsym(mp)*mp);
+}
+</xmp><p>
+produces (note that the both matrices are the identity
+matrix: whether it has zeros, or nearly zeros, could
+dependent on which Ox version was used):
+<pre>
+       1.0000 -2.7756e-017
+      0.00000       1.0000
+
+       1.0000 -2.7756e-017
+      0.00000       1.0000
+</pre><p>
+<p><h2><a name="invertgen"></a><a href="oxstd.html#invertgen">invertgen</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x, xx;
+    x = rann(20,2);
+    x = x ~ x[][0];
+    xx = x'x;
+
+    println("\nAA^A=A:");
+    print(xx * invertgen(xx, 30) * xx - xx);
+    print(xx * invertgen(x, 40) * xx - xx);
+
+    println("These generalized inverses are different:");
+    print("Choleski failed, so use SVD", invertgen(xx, 3));
+    print("Using QR", invertgen(x, 4));
+}
+</xmp><p>
+produces (note that the exact value of the zeros
+can depend on the computer platform and the version of Ox):
+<pre>
+AA^A=A:
+Warning: invertgen: singular matrix
+invertgen.ox (10): main
+
+  3.5527e-015 -1.3323e-015  3.5527e-015
+ -1.3323e-015  3.5527e-015 -1.3323e-015
+  3.5527e-015 -1.3323e-015  3.5527e-015
+Warning: invertgen: singular matrix
+invertgen.ox (11): main
+
+  3.5527e-015  4.4409e-016  3.5527e-015
+  4.4409e-016 -3.5527e-015  4.4409e-016
+  3.5527e-015  4.4409e-016  3.5527e-015
+These generalized inverses are different:
+Choleski failed, so use SVD
+     0.014260   -0.0023020     0.014260
+   -0.0023020     0.049276   -0.0023020
+     0.014260   -0.0023020     0.014260
+Using QR
+     0.057041   -0.0046039      0.00000
+   -0.0046039     0.049276      0.00000
+      0.00000      0.00000      0.00000
+</pre><p>
+<p><h2><a name="isdotfeq"></a><a href="oxstd.html#isdotfeq">isdotfeq</a>, <a href="oxstd.html#isfeq">isfeq</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m1 = <1+1e-17,1-1e-17;1+1e-17,1-1e-17 >;
+    decl m2 = <1+1e-17,1-1e-10;1+1e-17,1-1e-17 >;
+
+    print( "m1 is ", isfeq(m1,1) ? "" : "*** not *** ",
+        "fuzzy equal to 1\n");
+    print( "m2 is ", isfeq(m2,1) ? "" : "*** not *** ",
+        "fuzzy equal to 1\n");
+    print(isdotfeq(m1,1));
+}
+</xmp><p>
+produces
+<pre>
+m1 is fuzzy equal to 1
+m2 is *** not *** fuzzy equal to 1
+       1.0000       1.0000
+       1.0000       1.0000
+</pre><p>
+<p><h2><a name="isdotmissing"></a><a href="oxstd.html#isdotmissing">isdotmissing</a>, <a href="oxstd.html#isdotnan">isdotnan</a>, <a href="oxstd.html#ismissing">ismissing</a>, <a href="oxstd.html#isnan">isnan</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m1 = <1,2,3;4,5,6;7,8,9 >;
+    decl m2 = <1,.,3;4,5,.;7,8,9 >;
+
+    print( "m1 has ", isnan(m1) ? "" : "*** no *** ",
+        "missing values\n");
+    print( "m2 has ", isnan(m2) ? "" : "*** no *** ",
+        "missing values\n");
+
+    print(isdotnan(m2));
+    print("m2", m2, "rows with NaN deleted",
+        deleter(m2), deleteifr(m2, isdotnan(m2)));
+}
+</xmp><p>
+produces
+<pre>
+m1 has *** no *** missing values
+m2 has missing values
+
+      0.00000       1.0000      0.00000
+      0.00000      0.00000       1.0000
+      0.00000      0.00000      0.00000
+m2
+       1.0000         .NaN       3.0000
+       4.0000       5.0000         .NaN
+       7.0000       8.0000       9.0000
+rows with NaN deleted
+       7.0000       8.0000       9.0000
+
+       7.0000       8.0000       9.0000
+</pre><p>
+<p><h2><a name="lag0"></a><a href="oxstd.html#lag0">lag0</a></h2>
+<p><xmp>
+#include <oxstd.h>
+#include <oxfloat.h>            // reguired for M_NAN
+main()
+{
+    print( lag0(<1:5>',2) ~ lag0(<1:5>',2, M_NAN) );
+}
+</xmp><p>
+produces
+<pre>
+      0.00000         .NaN
+      0.00000         .NaN
+       1.0000       1.0000
+       2.0000       2.0000
+       3.0000       3.0000
+</pre><p>
+<p><h2><a name="limits"></a><a href="oxstd.html#limits">limits</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m = rann(7,2);
+    print( range(0, rows(m)-1)' ~ m,
+        "%r", {"column min","column max",
+        "row index of min","row index of max"}, limits(m) );
+}
+</xmp><p>
+produces
+<pre>
+      0.00000      0.22489       1.7400
+       1.0000     -0.20426     -0.91760
+       2.0000     -0.67417     -0.34353
+       3.0000      0.22335     -0.14139
+       4.0000     -0.18338      0.68035
+       5.0000     0.090558     -0.83328
+       6.0000      0.81350       1.1174
+
+column min           -0.67417     -0.91760
+column max            0.81350       1.7400
+row index of min       2.0000       1.0000
+row index of max       6.0000      0.00000
+</pre><p>
+<p><h2><a name="loadmat"></a><a href="oxstd.html#loadmat">loadmat</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m = unit(2), as;
+
+    savemat("t.mat", m);
+    print(m, loadmat("t.mat"));
+
+    savemat("t.in7", m, {"AA", "BB"});
+    loadmat("t.in7", &as);
+    println("names", as);
+}
+</xmp><p>
+produces
+<pre>
+       1.0000      0.00000
+      0.00000       1.0000
+
+       1.0000      0.00000
+      0.00000       1.0000
+names
+[0] = AA
+[1] = BB
+</pre><p>
+and a file called t.mat:
+<xmp>
+2 2
+   1.0000000000000000e+000   0.0000000000000000e+000
+   0.0000000000000000e+000   1.0000000000000000e+000
+</xmp><p>
+<p><h2><a name="log"></a><a href="oxstd.html#log">log</a>, <a href="oxstd.html#log10">log10</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( log(<1,10>) );
+    print( log10(<1,10>) );
+
+    // the following shows how to prevent log(0)
+    // in the computation of y*log(y) using the 
+    // dot-conditional operator:
+    decl y = range(0,4);
+    print(y .* log(y .> 0 .? y .: 1));
+}
+</xmp><p>
+produces
+<pre>
+      0.00000   2.3026
+      0.00000   1.0000
+      0.00000  0.00000   1.3863   3.2958   5.5452
+</pre><p>
+<p><h2><a name="loggamma"></a><a href="oxstd.html#loggamma">loggamma</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( loggamma(<0.5,1,10>) );
+}
+</xmp><p>
+produces
+<pre>
+      0.57236      0.00000       12.802
+</pre><p>
+<p><h2><a name="lower"></a><a href="oxstd.html#lower">lower</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( lower(ones(3,3)) );
+    print( upper(ones(3,3)) );
+}
+</xmp><p>
+produces
+<pre>
+       1.0000      0.00000      0.00000
+       1.0000       1.0000      0.00000
+       1.0000       1.0000       1.0000
+
+       1.0000       1.0000       1.0000
+      0.00000       1.0000       1.0000
+      0.00000      0.00000       1.0000
+</pre><p>
+<p><h2><a name="max"></a><a href="oxstd.html#max">max</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( min(<1.5,12.5>, 1, 6), " ", max(<1.5,12.5>, 1, 6) );
+}
+</xmp><p>
+produces: <tt>1  12.5</tt>
+<p><h2><a name="maxc"></a><a href="oxstd.html#maxc">maxc</a>, <a href="oxstd.html#maxcindex">maxcindex</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x = <11,12;10,15>;
+    print("x = ", x);
+    println("maxc and maxcindex", maxc(x) ~ maxcindex(x));
+    println("minc and mincindex", minc(x) ~ mincindex(x));
+}
+</xmp><p>
+produces
+<pre>
+x = 
+       11.000       12.000
+       10.000       15.000
+maxc and maxcindex
+       11.000       15.000      0.00000       1.0000
+minc and mincindex
+       10.000       12.000       1.0000      0.00000
+</pre><p>
+<p><h2><a name="moments"></a><a href="oxstd.html#moments">moments</a></h2>
+<p>The normal distribution N[mu,sigma^2]</i> has central moments:
+vspace1ex
+[
+    mu_r=sf Eleft[X-sf EXright]^r=left
+beginarrayll
+0 & textif r</i> is odd,<br>
+fracr!(r/2)!fracsigma^r2^r/2 & textif r</i> is even.<br>
+endarray
+right.    
+]
+So the standard normal distribution has skewness
+[
+sqrtbeta_1=mu_3/mu_2^3/2=0,
+]
+and kurtosis 
+[
+beta_2=mu_4/mu_2^2=3.
+]
+
+The exponential distribution exp(lambda)</i> has moments about zero:
+[
+    mu_r'=sf EX^r=fracr!lambda^r.
+]
+Therefore, when lambda=2</i>, the mean is 1/2</i>, the variance
+1/2-1/4=1/4</i>, etc.
+
+<xmp>
+#include <oxstd.h>
+#include <oxprob.h>
+main()
+{
+    decl m1 = rann(10000,1) ~ ranexp(10000,1, 2);
+
+    print("moment ratios",
+          "%r", {"T","mean","std.dev.","skewness","kurtosis"},
+          "%c", {"normal", "exp(2)"}, moments(m1));
+    print("first 6 central moments",
+          "%r", {"mean", "variance", "m3", "m4", "m5", "m6"},
+          moments(m1, 6, 0)[1:][]);
+}
+</xmp><p>
+produces
+<pre>
+moment ratios
+                    normal       exp(2)
+T                   10000.       10000.
+mean             -0.011605      0.49592
+std.dev.            1.0033      0.50088
+skewness          0.010556       1.9876
+kurtosis            3.0314       8.4267
+first 6 central moments
+mean             -0.011605      0.49592
+variance            1.0066      0.25088
+m3                0.010660      0.24976
+m4                  3.0713      0.53039
+m5                 0.13868       1.1581
+m6                  15.774       2.9434
+</pre><p>
+<p><h2><a name="norm"></a><a href="oxstd.html#norm">norm</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x = <1,2;3,4;5,6>;
+
+    print( norm(x), " " );
+    print( norm(x, 1), " " );
+    print( norm(x, 2), " " );
+    print( norm(x, 'F') );
+}
+</xmp><p>
+produces: <tt>11 12 9.52552 9.53939</tt>
+<p><h2><a name="nullspace"></a><a href="oxstd.html#nullspace">nullspace</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl ma = zeros(4,2);
+    ma[0][0] = ma[0][1] = 1;
+
+    print(ma, nullspace(ma));
+}
+</xmp><p>
+produces
+<pre>
+       1.0000       1.0000
+      0.00000      0.00000
+      0.00000      0.00000
+      0.00000      0.00000
+
+      0.00000      0.00000  3.4152e-017
+      0.00000      0.00000      -1.0000
+      0.00000       1.0000      0.00000
+       1.0000      0.00000      0.00000
+</pre><p>
+<p><h2><a name="ols2c"></a><a href="oxstd.html#ols2c">ols2c</a>, <a href="oxstd.html#ols2r">ols2r</a>, <a href="oxstd.html#olsc">olsc</a>, <a href="oxstd.html#olsr">olsr</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl mx, my, cy = 2, ct = 50, ck = 3, mb, mxtx, mxtxi;
+    mx = ranu(ct,ck);
+    my = rann(ct,cy) / 10 + mx * ones(ck,1);
+
+    olsc(my, mx, &mb);
+    print(mb);
+    olsr(my', mx', &mb, &mxtxi, &mxtx);
+    print(mb, mxtx ~ mxtxi);
+
+    print((1/mx)*my, mx'mx ~ invert(mx'mx));
+}
+</xmp><p>
+produces:
+<pre>
+  1.0992   0.98022
+  1.1068   0.95734
+ 0.78966    1.0401
+
+  1.0992    1.1068   0.78966
+ 0.98022   0.95734    1.0401
+
+  16.842    13.139    12.740   0.23380  -0.11726  -0.10967
+  13.139    15.095    11.872  -0.11726   0.24566 -0.098336
+  12.740    11.872    14.467  -0.10967 -0.098336   0.24639
+
+  1.0992   0.98022
+  1.1068   0.95734
+ 0.78966    1.0401
+
+  16.842    13.139    12.740   0.23380  -0.11726  -0.10967
+  13.139    15.095    11.872  -0.11726   0.24566 -0.098336
+  12.740    11.872    14.467  -0.10967 -0.098336   0.24639
+</pre><p>
+<p><h2><a name="ones"></a><a href="oxstd.html#ones">ones</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( ones(2, 2) );
+}
+</xmp><p>
+produces
+<pre>
+   1.0000       1.0000
+   1.0000       1.0000
+</pre><p>
+<p><h2><a name="outer"></a><a href="oxstd.html#outer">outer</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x = rann(2,3), y = ranu(3,3), s = y'y;
+    print( outer(x, s, 'd') | diagonal(outer(x, s))
+        | diagonal(x * s * x') );
+}
+</xmp><p>
+produces
+<pre>
+       3.7646       4.2561
+       3.7646       4.2561
+       3.7646       4.2561
+</pre><p>
+<p><h2><a name="oxprintlevel"></a><a href="oxstd.html#oxprintlevel">oxprintlevel</a></h2>
+<p><xmp>
+#include <oxstd.h>
+test()
+{
+    oxprintlevel(0);        // output off
+    // do some simulations which otherwise have output
+    for (decl i = 0; i < 1000; ++i)
+        println("i=", i);
+    oxprintlevel(1);        // output on
+
+    // do some simulations which has output and warning
+    oxprintlevel(-1);       // output and warnings off
+    for (decl i = 0; i < 1000; ++i)
+        println("i=", i, " invert(0):", invert(0));
+    oxprintlevel(1);        // output on
+
+
+    // do some simulations which have warnings
+    decl oldwarnings = oxwarning(0);    // all warnings off
+    for (decl i = 0; i < 1000; ++i)
+        invert(0);
+    oxwarning(oldwarnings);             // reset warning levels
+}
+main()
+{
+    // comment the next line in to overrule oxprintlevel calls
+    //oxprintlevel(2);
+    test();
+}
+</xmp><p>
+Prints nothing unless the <tt>oxprintlevel(2)</tt> statement is
+commented in.
+<p><h2><a name="periodogram"></a><a href="oxstd.html#periodogram">periodogram</a></h2>
+<p><xmp>
+#include <oxstd.h>
+#include <oxfloat.h>        // required for M_2PI
+
+main()
+{
+    decl ct = 2^3 + 7, x, y, yzt, p1, p2;
+
+    y = cumulate(rann(ct,1), 0.9);
+    p1 = periodogram(y) / ct;
+    x = M_2PI * range(0, int(ct/2))' / ct;
+
+    yzt = (y - meanc(y))';// FFT expects data in row
+    p2 = sqr(cabs(fft1d(yzt))') / (ct * M_2PI );
+    print("%c", {"periodogram", "frequencies", "FFT"},
+        p1 ~ x ~ p2);
+}
+</xmp><p>
+produces (the zeros at the end of the periodogram
+and frequencies are added in the concatenation with fft):
+<pre>
+  periodogram  frequencies          FFT
+      0.00000      0.00000  1.1253e-033
+      0.49542      0.41888      0.49542
+     0.060270      0.83776     0.060270
+     0.024741       1.2566     0.024741
+      0.16432       1.6755      0.16432
+     0.036133       2.0944     0.036133
+     0.019385       2.5133     0.019385
+     0.023846       2.9322     0.023846
+      0.00000      0.00000     0.023846
+      0.00000      0.00000     0.019385
+      0.00000      0.00000     0.036133
+      0.00000      0.00000      0.16432
+      0.00000      0.00000     0.024741
+      0.00000      0.00000     0.060270
+      0.00000      0.00000      0.49542
+</pre><p>
+<p><h2><a name="polyeval"></a><a href="oxstd.html#polyeval">polyeval</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl a = <1,-0.8,-0.1>;
+
+    println("a(x)=a[0]+a[1]*x+a[2]*x^2; a(3)=", polyeval(a, 3));
+}
+</xmp><p>
+produces
+<pre>
+a(x)=a[0]+a[1]*x+a[2]*x^2; a(3)=-2.3
+</pre><p>
+<p><h2><a name="polygamma"></a><a href="oxstd.html#polygamma">polygamma</a></h2>
+<p><xmp>
+#include <oxstd.h>
+#include <oxfloat.h>        // required for M_EULER
+
+main()
+{
+    print(polygamma(<0.5,1>, 0), -M_EULER - 2*log(2) ~ -M_EULER);
+    print("%12.7g", polygamma(0.5, <0,1,2,3>));
+}
+</xmp><p>
+produces
+<pre>
+      -1.9635     -0.57722
+      -1.9635     -0.57722
+     -1.96351     4.934802     -16.8288     97.40909
+</pre><p>
+<p><h2><a name="polymul"></a><a href="oxstd.html#polymul">polymul</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl a, b, c, ff;
+    format("%10.4f");
+
+    a = <1,-0.9>;  b = <1,-0.8,-0.1>;
+
+    print(polymul(a, b));
+    c = polymul(b, a);
+    print(polydiv(c, a, 5));
+
+       // multiply the two FFTs, padded with zeros
+    ff = cmul( fft(a~zeros(b)), fft(b~zeros(a)) );
+    ff = fft(ff, 2);     // apply inverse real FFT
+    print( ff[][:columns(a)+columns(b)-2] );
+
+         // divide the two FFTs, padded with zeros
+    ff = cdiv( fft(c~zeros(a)), fft(a~zeros(c)) );
+    ff = fft(ff, 2);     // apply inverse real FFT
+    print( ff[][:4] );
+}
+</xmp><p>
+produces
+<pre>
+    1.0000   -1.7000    0.6200    0.0900
+    1.0000   -0.8000   -0.1000   -0.0000   -0.0000
+    1.0000   -1.7000    0.6200    0.0900
+    1.0000   -0.8000   -0.1000    0.0000    0.0000
+</pre><p>
+<p><h2><a name="polyroots"></a><a href="oxstd.html#polyroots">polyroots</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl v1, roots, cr;
+    v1 = <-1, 1.2274, -0.017197, -0.28369, -0.01028>;
+
+    polyroots(v1, &roots);
+
+    cr = columns(roots);
+    print(v1, "roots", roots,
+        "inverse roots", cdiv(ones(1,cr), roots),
+        "polynomial", polymake(roots) );
+}
+</xmp><p>
+produces
+<pre>
+    -1.0000      1.2274   -0.017197    -0.28369   -0.010280
+roots
+    0.82865     0.82865    -0.39337   -0.036535
+    0.16923    -0.16923     0.00000     0.00000
+inverse roots
+     1.1585      1.1585     -2.5422     -27.371
+   -0.23659     0.23659     0.00000     0.00000
+polynomial
+     1.0000     -1.2274    0.017197     0.28369    0.010280
+    0.00000     0.00000     0.00000     0.00000     0.00000
+</pre><p>
+<p><h2><a name="print"></a><a href="oxstd.html#print">print</a>, <a href="oxstd.html#println">println</a></h2>
+<p><xmp>
+main()
+{
+    print( "%r", {"row 1", "row 2"},
+           "%c", {"col 1", "col 2"}, "%6.1g", unit(2) );
+
+    decl xp = 9*rann(2,1)~ranu(2,1);
+    print( "%c", {"x ", "p "},
+           "%cf",{"%8.4g", " [%4.2f]"}, xp);
+
+    decl x = rann(10,2);
+    print("\nLower diagonal:", "%lwr", x'x);
+}
+</xmp><p>
+produces
+<pre>
+      col 1 col 2
+row 1     1     0
+row 2     0     1
+
+      x      p 
+   2.024 [0.42]
+   15.66 [0.16]
+
+Lower diagonal:
+       10.585
+       3.1110       7.1178
+</pre><p>
+
+In the second example we show the output from the
+<tt>"%v"</tt> format.
+
+<xmp>
+#include <oxstd.h>
+
+class VClass
+{
+    decl m_mMatrix;
+    decl m_aArray;
+    VClass();
+}
+VClass::VClass()
+{
+    m_mMatrix = range(1,3);
+    m_aArray = {"a", "b", "c"};
+}
+main()
+{
+    print( "%r", {"row 1", "row 2"},
+           "%c", {"col 1", "col 2"}, "%6.1g", unit(2) );
+
+    decl xp = 9*rann(2,1)~ranu(2,1);
+    print( "%c", {"x ", "p "},
+           "%cf",{"%8.4g", " [%4.2f]"}, xp);
+
+    decl x = rann(10,2);
+    print("\nLower diagonal:", "%lwr", x'x);
+
+    decl vc = new VClass();
+    print("\nobject using %v:\n", "%v", vc);
+}
+</xmp><p>
+produces
+<pre>
+object using %v:
+::VClass
+{
+.m_mMatrix = <1,2,3>;
+.m_aArray = {"a","b","c"};
+}
+</pre><p>
+<p><h2><a name="probchi"></a><a href="oxstd.html#probchi">probchi</a>, <a href="oxstd.html#probf">probf</a>, <a href="oxstd.html#probn">probn</a>, <a href="oxstd.html#probt">probt</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m = <0,4.61,5.99>;
+
+    print("%r", {"chi:   "}, probchi(m, 2));
+    print("%r", {"normal:"}, probn(<-1.96, 0, 1.96>) );
+    print("%r", {"t:     "}, probt(<-1.96, 0, 1.96>, 4) );
+                          /* additional argument types: */
+    print("%r", {"chi:   "}, probchi(5.99, <2,3,4>),
+          "%r", {"chi:   "}, probchi(<6,7,8>, <2,3,4>) );
+    print("%r", {"nc chi:"}, probchi(m, 2, 5));
+    print("%r", {"nc t:  "}, probt(<-1.96, 0, 1.96>, 4, 5));
+}
+</xmp><p>
+produces
+<pre>
+chi:               0.00000      0.90024      0.94996
+normal:           0.024998      0.50000      0.97500
+t:                0.060777      0.50000      0.93922
+chi:               0.94996      0.88790      0.80010
+chi:               0.95021      0.92810      0.90842
+nc chi:            0.00000      0.37210      0.49621
+nc t:          7.3581e-010  2.8665e-007    0.0052148
+</pre><p>
+<p><h2><a name="prodc"></a><a href="oxstd.html#prodc">prodc</a>, <a href="oxstd.html#prodr">prodr</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( prodc(<0:3;1:4;2:5>) );
+    print( prodr(<0:3;1:4;2:5>) );
+}
+</xmp><p>
+produces
+<pre>
+      0.00000       6.0000       24.000       60.000
+
+      0.00000
+       24.000
+       120.00
+</pre><p>
+<p><h2><a name="quanchi"></a><a href="oxstd.html#quanchi">quanchi</a>, <a href="oxstd.html#quanf">quanf</a>, <a href="oxstd.html#quann">quann</a>, <a href="oxstd.html#quant">quant</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl t = range(1,10), tt = (t - 5) / 5;
+
+    print("%14.10g",
+        probf(t,10,10)' ~ quanf(probf(t,10,10),10,10)' 
+      ~ probt(tt,2)' ~ quant(probt(tt,2),2)' );
+}
+</xmp><p>
+produces
+<pre>
+           0.5             1   0.253817018          -0.8
+   0.855154194             2  0.3047166335          -0.6
+  0.9510726929             3  0.3639172365          -0.4
+    0.98041856             4  0.4299859958          -0.2
+  0.9910499384             5           0.5             0
+  0.9954702686             6  0.5700140042           0.2
+  0.9975177199             7  0.6360827635           0.4
+  0.9985507194             8  0.6952833665           0.6
+    0.99910908             9   0.746182982           0.8
+  0.9994284475            10  0.7886751346             1
+</pre><p>
+<p><h2><a name="quantilec"></a><a href="oxstd.html#quantilec">quantilec</a>, <a href="oxstd.html#quantiler">quantiler</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( quantilec(<3;2;1;4>, <1/4,2/4,3/4>) );
+    print( quantilec(<3;2;1;4>) );
+
+    decl m = rann(2,10000);        /* generate m */
+
+    print( quantiler(m, <0.8,0.9,0.95,0.975>) );
+    print( quantilec(m', <0.8,0.9,0.95,0.975>) );
+
+    m = sortr(m);                      /* sort m */
+    print( m[][columns(m) * <0.8,0.9,0.95,0.975> ] );
+}
+</xmp><p>
+produces:
+<pre>
+       1.7500
+       2.5000
+       3.2500
+
+       2.5000
+
+      0.83516       1.2728       1.6457       1.9635
+      0.84842       1.2740       1.6248       1.9570
+
+      0.83516      0.84842
+       1.2728       1.2740
+       1.6457       1.6248
+       1.9635       1.9570
+
+      0.83536       1.2734       1.6459       1.9638
+      0.84871       1.2744       1.6255       1.9585
+</pre><p>
+<p><h2><a name="range"></a><a href="oxstd.html#range">range</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( range(1,4), range(4,1), range(1,6,2));
+    print( range(1.2,4), range(1,6,2.1));
+}
+</xmp><p>
+produces
+<pre>
+       1.0000       2.0000       3.0000       4.0000
+       4.0000       3.0000       2.0000       1.0000
+       1.0000       3.0000       5.0000
+       1.2000       2.2000       3.2000
+       1.0000       3.1000       5.2000
+</pre><p>
+<p><h2><a name="rank"></a><a href="oxstd.html#rank">rank</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( rank(<1,0;1,0>), " " );
+    print( rank(<1e-200>), " " );
+    print( rank(0), " " );
+    print( rank(<1e-200>, inverteps(0)) );
+}
+</xmp><p>
+produces: <tt>1 1 0 0</tt>
+<p><h2><a name="rann"></a><a href="oxstd.html#rann">rann</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( sumc( rann(1000,1) ) / 1000 );
+
+    ranseed(-1);
+    print(rann(1,5));
+    ranseed(-1);
+    print(rann(1,3) ~ rann(1,2));
+}
+</xmp><p>
+produces
+<pre>
+    -0.035817
+
+   0.22489     1.7400   -0.20426   -0.91760   -0.67417
+   0.22489     1.7400   -0.20426   -0.91760   -0.67417
+</pre><p>
+<p><h2><a name="ranseed"></a><a href="oxstd.html#ranseed">ranseed</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl seed = ranseed(0);
+    print("RNG=", ranseed(""), " initial seeds: ",
+        seed[0], " ... ", seed[sizeof(seed) - 1]);
+    print( meanc(rann(10000,2)) | meanc(rann(10000,2)) );
+    seed = ranseed(0);
+    print("current seed: ",
+        seed[0], " ... ", seed[sizeof(seed) - 1]);
+    ranseed(-1);
+    print( meanc(rann(10000,2)) );
+
+    ranseed("GM");
+    print("RNG=", ranseed(""), " initial seed: ",  ranseed(0) );
+    print( meanc(rann(10000,2)) | meanc(rann(10000,2)) );
+    ranseed(-1);
+    print( meanc(rann(10000,2)) );
+}
+</xmp><p>
+produces
+<pre>
+RNG=MWC_52 initial seeds: 1013904223 ... 43164928
+    0.0011722   -0.0070313
+   -0.0024659   -0.0065795
+current seed: 866497328 ... -969946603
+    0.0011722   -0.0070313
+RNG=GM initial seed: 
+[0] = 362436069
+[1] = 521288629
+
+   -0.0046842     0.015912
+    0.0037562     0.017064
+
+   -0.0046842     0.015912
+</pre><p>
+<p><h2><a name="ranu"></a><a href="oxstd.html#ranu">ranu</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( ranu(2,3) );
+}
+</xmp><p>
+produces
+<pre>
+      0.56444      0.76994      0.41641
+      0.15881     0.098209      0.37477
+</pre><p>
+<p><h2><a name="reflect"></a><a href="oxstd.html#reflect">reflect</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( reflect(<2,1;1,4>) );
+}
+</xmp><p>
+produces
+<pre>
+   4.0000       1.0000
+   1.0000       2.0000
+</pre><p>
+<p><h2><a name="reshape"></a><a href="oxstd.html#reshape">reshape</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( reshape(<1:3>, 4, 3)' );
+}
+</xmp><p>
+produces
+<pre>
+       1.0000       1.0000       1.0000       1.0000
+       2.0000       2.0000       2.0000       2.0000
+       3.0000       3.0000       3.0000       3.0000
+</pre><p>
+<p><h2><a name="reversec"></a><a href="oxstd.html#reversec">reversec</a>, <a href="oxstd.html#reverser">reverser</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m = <0:3;4:7;8:11;12:15>;
+    print( m, reversec(m), reverser(m) );
+}
+</xmp><p>
+produces:
+<pre>
+      0.00000       1.0000       2.0000       3.0000
+       4.0000       5.0000       6.0000       7.0000
+       8.0000       9.0000       10.000       11.000
+       12.000       13.000       14.000       15.000
+
+
+       12.000       13.000       14.000       15.000
+       8.0000       9.0000       10.000       11.000
+       4.0000       5.0000       6.0000       7.0000
+      0.00000       1.0000       2.0000       3.0000
+
+       3.0000       2.0000       1.0000      0.00000
+       7.0000       6.0000       5.0000       4.0000
+       11.000       10.000       9.0000       8.0000
+       15.000       14.000       13.000       12.000
+</pre><p>
+<p><h2><a name="scan"></a><a href="oxstd.html#scan">scan</a></h2>
+<p>
+The following example reads one input line at a time (leading
+spaces in each line are skipped, because of the starting space
+in <tt>" %z"</tt>, and reads from that string using <tt>scan</tt>.
+The <tt>*</tt> in <tt>"%*d"</tt> suppresses assignment, so the integer
+is skipped in the file.
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl c, i, d, m;
+
+    c = scan("Enter an integer: %d", &i,
+             "Enter a double:   %f", &d);
+    print("items read=", c, " int=", i, " dbl=", d, "\n");
+
+    c = scan("Enter a 2 x 2 matrix: %#m", 2, 2, &m);
+    print("items read=", c, " mat=", m);
+
+    c = scan("Enter a matrix with dimensions: %m", &m);
+    print("items read=", c, " mat=", m);
+}
+</xmp><p>
+
+This program produces (keyboard input is written in italics):<br>
+<tt>Enter an integer: </tt> <i>24</i><br>
+<tt>Enter a double:   </tt> <i>25</i><br>
+<tt>items read=2 int=24 dbl=25</tt><br>
+<tt>Enter a 2 x 2 matrix:</tt> <i>1 0 0 1</i>
+<xmp>
+items read=1 mat=
+       1.0000      0.00000
+      0.00000       1.0000
+</xmp>
+<tt>Enter a matrix with dimensions:</tt> <i>2 2 1 0 0 1</i>
+<xmp>
+items read=1 mat=
+       1.0000      0.00000
+      0.00000       1.0000
+</xmp>
+
+<p><h2><a name="selectrc"></a><a href="oxstd.html#selectrc">selectrc</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m = <0:3;4:7;8:11;12:15>, sel = <1,9,10,14>;
+    print(m, "select", selectc(m, sel), selectr(m, sel));
+    print("selectif", selectifr(m, m .< 0 || m .> 14));
+    print("selectrc", selectrc(m, <2,3,4>, <2,3,4>));
+}
+</xmp><p>
+produces:
+<pre>
+      0.00000       1.0000       2.0000       3.0000
+       4.0000       5.0000       6.0000       7.0000
+       8.0000       9.0000       10.000       11.000
+       12.000       13.000       14.000       15.000
+select
+       1.0000       2.0000
+       5.0000       6.0000
+       9.0000       10.000
+       13.000       14.000
+
+      0.00000       1.0000       2.0000       3.0000
+       8.0000       9.0000       10.000       11.000
+       12.000       13.000       14.000       15.000
+selectif
+       12.000       13.000       14.000       15.000
+selectrc
+       10.000       15.000         .NaN
+</pre><p>
+<p><h2><a name="setbounds"></a><a href="oxstd.html#setbounds">setbounds</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x = <1,2,3;4,5,6>;
+    print( setbounds(x, 3, 4) );
+    print( setbounds(x, -.Inf, 4) );
+    print( setbounds(x, 2, .Inf) );
+}
+</xmp><p>
+produces
+<pre>
+       3.0000       3.0000       3.0000
+       4.0000       4.0000       4.0000
+
+       1.0000       2.0000       3.0000
+       4.0000       4.0000       4.0000
+
+       2.0000       2.0000       3.0000
+       4.0000       5.0000       6.0000
+</pre><p>
+<p><h2><a name="setdiagonal"></a><a href="oxstd.html#setdiagonal">setdiagonal</a>, <a href="oxstd.html#setlower">setlower</a>, <a href="oxstd.html#setupper">setupper</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl ma = ones(2,2);
+    print(setdiagonal(ma, zeros(2,1)),
+          setdiagonal(ma, 0),
+          setdiagonal(ma, zeros(2,2)) );
+
+    ma = ones(3,3);
+    decl mb = rann(3,3);
+
+    print(setlower(ma, mb, mb), setupper(ma, 0),
+          setupper(ma, 0, 2) );
+}
+</xmp><p>
+produces
+<pre>
+      0.00000       1.0000
+       1.0000      0.00000
+
+      0.00000       1.0000
+       1.0000      0.00000
+
+      0.00000       1.0000
+       1.0000      0.00000
+
+      0.22489       1.0000       1.0000
+     -0.91760     -0.67417       1.0000
+      0.22335     -0.14139     -0.18338
+
+       1.0000      0.00000      0.00000
+       1.0000       1.0000      0.00000
+       1.0000       1.0000       1.0000
+
+       2.0000      0.00000      0.00000
+       1.0000       2.0000      0.00000
+       1.0000       1.0000       2.0000
+</pre><p>
+<p><h2><a name="shape"></a><a href="oxstd.html#shape">shape</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( shape(<0:5>, 2, 4) );
+    print( shape(<0:5>, 4, 2)' );
+}
+</xmp><p>
+produces
+<pre>
+      0.00000       2.0000       4.0000      0.00000
+       1.0000       3.0000       5.0000      0.00000
+
+      0.00000       1.0000       2.0000       3.0000
+       4.0000       5.0000      0.00000      0.00000
+</pre><p>
+<p><h2><a name="sizec"></a><a href="oxstd.html#sizec">sizec</a>, <a href="oxstd.html#sizeof">sizeof</a>, <a href="oxstd.html#sizer">sizer</a>, <a href="oxstd.html#sizerc">sizerc</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl i, d, m, s, a, res;
+    i = 0; d = 0.0;
+    m = unit(3,2);
+    s = "aap", a = {"a", "b"};
+    res = columns(i)~rows(i)~sizec(i)~sizer(i)~sizerc(i)
+        | columns(d)~rows(d)~sizec(d)~sizer(d)~sizerc(d)
+        | columns(m)~rows(m)~sizec(m)~sizer(m)~sizerc(m)
+        | columns(s)~rows(s)~sizec(s)~sizer(s)~sizerc(s)
+        | columns(a)~rows(a)~sizec(a)~sizer(a)~sizerc(a);
+
+    print("%r",
+          {"int","double","matrix[3][2]","string[3]","array[2]"},
+          "%c",
+          {"columns","rows","sizec","sizer","sizerc"},
+          "%8.1g", res);
+}
+</xmp><p>
+produces:
+<pre>
+             columns    rows   sizec   sizer  sizerc
+int                0       0       1       1       1
+double             0       0       1       1       1
+matrix[3][2]       2       3       2       3       6
+string[3]          3       3       3       1       3
+array[2]           2       2       2       1       2
+</pre><p>
+<p><h2><a name="solvetoeplitz"></a><a href="oxstd.html#solvetoeplitz">solvetoeplitz</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl ct = 10, mb, mt, mx;
+
+    mb = <2;3;4;5;6>;
+    mx = solvetoeplitz(<3,.5,.2,.1>, 5, mb);
+    print(mx');
+    mx = invertsym( toeplitz(<3,.5,.2,.1>,5) ) * mb;
+    print(mx');
+}
+</xmp><p>
+produces
+<pre>
+    0.46189     0.63974     0.88536     1.1737     1.7240
+    0.46189     0.63974     0.88536     1.1737     1.7240
+</pre><p>
+<p><h2><a name="sortbyc"></a><a href="oxstd.html#sortbyc">sortbyc</a>, <a href="oxstd.html#sortbyr">sortbyr</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m = <1,0,3;0,4,4;4,3,0>;
+    print( sortbyc(m,0), sortbyr(m,0) );
+
+    m = <1,3;1,2;3,4;3,5;2,3;2,2>;
+
+    print("%4.1g", m ~ sortbyc(m, 0) ~ sortbyc(m, 0~1));
+}
+</xmp><p>
+produces
+<pre>
+      0.00000       4.0000       4.0000
+       1.0000      0.00000       3.0000
+       4.0000       3.0000      0.00000
+
+      0.00000       1.0000       3.0000
+       4.0000      0.00000       4.0000
+       3.0000       4.0000      0.00000
+
+    1    3    1    3    1    2
+    1    2    1    2    1    3
+    3    4    2    2    2    2
+    3    5    2    3    2    3
+    2    3    3    5    3    4
+    2    2    3    4    3    5
+</pre><p>
+<p><h2><a name="sortc"></a><a href="oxstd.html#sortc">sortc</a>, <a href="oxstd.html#sortcindex">sortcindex</a>, <a href="oxstd.html#sortr">sortr</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m = <1,0,3;0,4,4;4,3,0>;
+    print( sortc(m), sortr(m) );
+    print( sortcindex(m[0][]) );
+    print( sortc( {"x", "", 2, "aa", 1} ) );
+}
+</xmp><p>
+produces
+<pre>
+      0.00000      0.00000      0.00000
+       1.0000       3.0000       3.0000
+       4.0000       4.0000       4.0000
+
+      0.00000       1.0000       3.0000
+      0.00000       4.0000       4.0000
+      0.00000       3.0000       4.0000
+
+       1.0000
+      0.00000
+       2.0000
+
+[0] = 
+[1] = aa
+[2] = x
+[3] = 1
+[4] = 2
+</pre><p>
+<p><h2><a name="spline"></a><a href="oxstd.html#spline">spline</a></h2>
+<p>
+The following example first smoothes the four
+variables in the variable <tt>my</tt> using time as the X</i> variable, and
+automatic bandwidth selection. The second observation of the first
+variable is set to a missing value.
+
+The second spline smoothes the
+cross plot of the last three variables against the first,
+choosing the bandwidth as 12</i> equivalent parameters.
+
+<xmp>
+#include <oxstd.h>
+#include <oxfloat.h>
+
+main()
+{   decl my, ms, gcv;
+
+    my = loadmat("data/data.in7");
+    my[1][0] = M_NAN;
+    ms = spline(my, 0, 0);
+    print( "%c", {"CONS", "smooth"}, my[:4][0] ~ ms[:4][0]);
+
+    ms = spline(my[][1:], my[][0], 12, &gcv);
+    print( "%r", {"GCV", "k_e"}, gcv);
+}
+</xmp><p>
+produces
+<pre>
+         CONS       smooth
+       890.45       890.01
+         .NaN       888.19
+       886.33       886.58
+       884.88       885.38
+       885.25       884.66
+
+GCV                 13.932       1.4645       24.309
+k_e                 12.000       11.999       11.999
+</pre><p>
+<p><h2><a name="sprint"></a><a href="oxstd.html#sprint">sprint</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl s = sprint("a", "_", "%0X", 10);
+    print( s );
+}
+</xmp><p>
+produces: <tt>a_A</tt>
+<p><h2><a name="sqr"></a><a href="oxstd.html#sqr">sqr</a>, <a href="oxstd.html#sqrt">sqrt</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( sqrt(<2,3>), <2,3> .^ 0.5 );
+    print( sqr(<2,3>), <2,3> .^ 2 );
+
+    println( sqr(2^14), isint(sqr(2^14)) ? " int" : " double");
+    println( sqr(2^15), isint(sqr(2^15)) ? " int" : " double");
+    println( pow(2,15), isint(pow(2,15)) ? " int" : " double");
+}
+</xmp><p>
+produces
+<pre>
+       1.4142       1.7321
+       1.4142       1.7321
+       4.0000       9.0000
+       4.0000       9.0000
+268435456 int
+1.07374e+009 double
+32768 double
+</pre><p>
+<p><h2><a name="sscan"></a><a href="oxstd.html#sscan">sscan</a></h2>
+<p>
+The following example (samples/inout/inout5.ox) reads one input line at a time (leading
+spaces in each line are skipped, because of the starting space
+in <tt>" %z"</tt>), and reads from that string using <tt>sscan</tt>.
+The <tt>*</tt> in <tt>"%*d"</tt> suppresses assignment, so the integer
+is skipped in the file.
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl file, s, c;
+    decl svar, address;
+
+    file = fopen("data/data.in7");
+    if (!isfile(file))
+    {
+        print("failed to open file\n");
+        exit(1);
+    }
+    do
+    {   c = fscan(file, " %z", &s);
+        if (c > 0 && s[0] == '>')
+        {
+            sscan(&s, ">%s", &svar, "%*d", "%*d", "%*d",
+                "%*d", "%*d", "%d", &address, " ");
+            println("variable : ", svar, " address:", address);
+            println("remainder: ", s);
+        }
+    } while (c > 0);
+
+    fclose(file);
+}
+</xmp><p>
+
+If the .in7 file can be found, this program produces:
+
+<pre>
+variable : CONS address:32
+remainder: data 10-04-1992 13:20:38.33
+variable : INC address:1336
+remainder: data 10-04-1992 13:20:38.33
+variable : INFLAT address:2640
+remainder: data 10-04-1992 13:20:38.33
+variable : OUTPUT address:3944
+remainder: data 10-04-1992 13:20:38.33
+</pre><p>
+
+<p><h2><a name="strfind"></a><a href="oxstd.html#strfind">strfind</a>, <a href="oxstd.html#strfindr">strfindr</a>, <a href="oxstd.html#strifind">strifind</a>, <a href="oxstd.html#strifindr">strifindr</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl as1 = {"aa", "bb", "cc", "cc"};
+    decl as2 = {"cc", "dd", "aa"};
+
+    print("index = ", strfind(as1, "cc"), "\n",
+          "index = ", strfindr(as1, "cc"), "\n",
+          "index = ", strfind(as1, "ee"), "\n",
+          "index = ", strfind(as1,  as2),
+          "packed: ", deletec(strfind(as1, as2), -1) );
+    println("first ox is at position ", strfind("ooxox", "ox"),
+        " in \"ooxox\"");
+    println("last  ox is at position ", strifindr("oOXoX", "ox"),
+        " in \"oOXoX\" (no case)");
+    println("x is at position ", strfind("ox", 'x'), " in \"ox\"");
+    println("x is at position ", strfind("OX", 'x'), " in \"OX\"");
+    println("x is at position ", strifind("OX", 'x'),
+        " in \"OX\" (no case)");
+    println("index of x,o in \"OX\" (no case):",
+        strifind("OX", 'x'~'o'));
+}
+</xmp><p>
+
+produces (remember that the first entry has index 0):
+
+<pre>
+index = 2
+index = 3
+index = -1
+index = 
+       2.0000      -1.0000      0.00000
+packed: 
+       2.0000      0.00000
+first ox is at position 1 in "ooxox"
+last  ox is at position 3 in "oOXoX" (no case)
+x is at position 1 in "ox"
+x is at position -1 in "OX"
+x is at position 1 in "OX" (no case)
+index of x,o in "OX" (no case):
+       1.0000      0.00000
+</pre><p>
+
+<p><h2><a name="strlwr"></a><a href="oxstd.html#strlwr">strlwr</a>, <a href="oxstd.html#strtrim">strtrim</a>, <a href="oxstd.html#strupr">strupr</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl s = "A StrinG\n";
+    print( strlwr(s), strupr(s), s);
+    s = "  aa  bb \t\n";
+    print( "{", strtrim(s), "}");
+}
+</xmp><p>
+produces
+<pre>
+a string
+A STRING
+A StrinG
+{aa bb}
+</pre><p>
+<p><h2><a name="sumc"></a><a href="oxstd.html#sumc">sumc</a>, <a href="oxstd.html#sumr">sumr</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( sumc(<0:3;1:4;2:5>) | sumsqrc(<0:3;1:4;2:5>));
+    print( sumr(<0:3;1:4;2:5>) ~ sumsqrr(<0:3;1:4;2:5>));
+}
+</xmp><p>
+produces
+<pre>
+       3.0000       6.0000       9.0000       12.000
+       5.0000       14.000       29.000       50.000
+
+       6.0000       14.000
+       10.000       30.000
+       14.000       54.000
+</pre><p>
+<p><h2><a name="tailchi"></a><a href="oxstd.html#tailchi">tailchi</a>, <a href="oxstd.html#tailf">tailf</a>, <a href="oxstd.html#tailn">tailn</a>, <a href="oxstd.html#tailt">tailt</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print("%r", {"chi(2):"}, tailchi(<0,4.61,5.99>, 2));
+    print("%r", {"normal:"}, tailn(<-1.96, 0, 1.96>) );
+    print("%r", {"t(4):  "}, tailt(<-1.96, 0, 1.96>, 4) );
+    print("%r", {"t(50): "}, tailt(<-1.96, 0, 1.96>, 50) );
+}
+</xmp><p>
+produces
+<pre>
+chi(2):             1.0000     0.099759     0.050037
+normal:            0.97500      0.50000     0.024998
+t(4):              0.93922      0.50000     0.060777
+t(50):             0.97221      0.50000     0.027790
+</pre><p>
+<p><h2><a name="thinc"></a><a href="oxstd.html#thinc">thinc</a>, <a href="oxstd.html#thinr">thinr</a></h2>
+<p>
+Note in the example that, strictly speaking, it is not necessary to
+truncate the random indices in <tt>idx</tt>, as this is done automatically when
+using a matrix to index another matrix.
+
+<xmp>
+#include <oxstd.h>
+main()
+{
+    decl m = rann(1000, 2), idx;
+    print( thinr(m, 3) ~ m[<0,499,998>][] );
+    print( thinc(m', 3)' ~ m[<0,499,998>][] );
+               /* get three random indices in idx */
+    idx = trunc(ranu(1,3) * rows(m));
+    print(idx, m[idx][] ~ m[sortr(idx)][] );
+}
+</xmp><p>
+produces
+<pre>
+      0.22489       1.7400      0.22489       1.7400
+     -0.21417      -1.0037     -0.21417      -1.0037
+     0.084549      0.83591     0.084549      0.83591
+
+      0.22489       1.7400      0.22489       1.7400
+     -0.21417      -1.0037     -0.21417      -1.0037
+     0.084549      0.83591     0.084549      0.83591
+
+       408.00       852.00       877.00
+
+       1.9639     0.073371       1.9639     0.073371
+      0.25375      -1.2006      0.25375      -1.2006
+      -1.1932     -0.52929      -1.1932     -0.52929
+</pre><p>
+<p><h2><a name="timeofday"></a><a href="oxstd.html#timeofday">timeofday</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl timeidx = range(0,4)' / 6 + range(0,4)' / 360;
+
+    println("%5.0f", timeofday(timeidx),
+        "%20C", timeidx + dayofcalendar(2005,1,1) );
+}
+</xmp><p>
+produces
+<pre>
+    0    0    0    0
+    4    4    0    0
+    8    8    0    0
+   12   12    0    0
+   16   16    0    0
+
+          2005-01-01
+    2005-01-01T04:04
+    2005-01-01T08:08
+    2005-01-01T12:12
+    2005-01-01T16:16
+</pre><p>
+<p><h2><a name="timer"></a><a href="oxstd.html#timer">timer</a>, <a href="oxstd.html#timespan">timespan</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl i, time, m = rann(100,10), m2;
+
+    time = timer();
+
+    for (i = 0; i < 1000; ++i)
+        m2 = m'm;
+
+    print("time lapsed: ", timespan(time), "\n");
+    print("or in seconds: ", (timer() - time) / 100, "\n");
+    print("time lapsed: ", timespan(time, timer()), "\n");
+}
+</xmp><p>
+prints the time it took to do the for loop.
+<p><h2><a name="timestr"></a><a href="oxstd.html#timestr">timestr</a>, <a href="oxstd.html#timing">timing</a>, <a href="oxstd.html#today">today</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl time1, time2;
+
+    time1 = timing(<1990, 12, 1; 1991, 1, 1>);
+    time2 = timing(<1990, 12, 1, 12, 0, 1>);
+
+    println("time1[0]: ", timestr(time1[0]));
+    println("time1[1]: ", timestr(time1[1]));
+    println("time2:    ", timestr(time2));
+    println("today:    ", timestr(today()));
+    println("today:    ", "%6.0f", timing(today(), 1));
+    println("today:    ", "%C", timing(today(), 2));
+}
+</xmp><p>
+which produces as output:
+<pre>
+time1[0]: 1990-12-01
+time1[1]: 1991-01-01
+time2:    1990-12-01 12:00:01
+today:    2007-07-19 10:34:24
+today:    
+  2007     7    19    10    34    24
+today:    2007-07-19T10:34:24
+</pre><p>
+<p><h2><a name="trace"></a><a href="oxstd.html#trace">trace</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( trace(<2,1;1,4>) );
+}
+</xmp><p>
+produces: <tt>6</tt>
+<p><h2><a name="trunc"></a><a href="oxstd.html#trunc">trunc</a>, <a href="oxstd.html#truncf">truncf</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( trunc(<-2.0-1e-15, -2.0+1e-15, 2.0-1e-15, 2.0+1e-15>));
+    print(truncf(<-2.0-1e-15, -2.0+1e-15, 2.0-1e-15, 2.0+1e-15>));
+}
+</xmp><p>
+produces
+<pre>
+      -2.0000      -1.0000       1.0000       2.0000
+      -1.0000      -1.0000       2.0000       2.0000
+</pre><p>
+<p><h2><a name="unit"></a><a href="oxstd.html#unit">unit</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( unit(2) );
+}
+</xmp><p>
+produces
+<pre>
+    1.0000      0.00000
+   0.00000       1.0000
+</pre><p>
+<p><h2><a name="va_arglist"></a><a href="oxstd.html#va_arglist">va_arglist</a></h2>
+<p><xmp>
+#include <oxstd.h>
+test(const a, ...)
+{
+    decl i, args = va_arglist();
+
+    println("number of extra arguments: ", sizeof(args));
+    for (i = 0; i < sizeof(args); i++)
+        println("vararg [", i, "] = ", args[i]);
+}
+main()
+{
+    test("tinker", "tailor", "soldier");
+}
+</xmp><p>
+
+ which prints
+
+<pre>
+number of extra arguments: 2
+vararg [0] = tailor
+vararg [1] = soldier
+</pre><p>
+<p><h2><a name="varc"></a><a href="oxstd.html#varc">varc</a>, <a href="oxstd.html#varr">varr</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m1 = rann(100,2), m2;
+    print( variance(m1), varc(m1), varr(m1') );
+}
+</xmp><p>
+produces
+<pre>
+       1.0356    -0.037133
+    -0.037133      0.86569
+
+       1.0356      0.86569
+
+       1.0356
+      0.86569
+</pre><p>
+<p><h2><a name="variance"></a><a href="oxstd.html#variance">variance</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m1 = rann(100,2), m2;
+
+    m2 = m1 - meanc(m1);
+    print( variance(m1), m2'm2/rows(m2) );
+}
+</xmp><p>
+produces
+<pre>
+       1.0356    -0.037133
+    -0.037133      0.86569
+
+       1.0356    -0.037133
+    -0.037133      0.86569
+</pre><p>
+<p><h2><a name="vec"></a><a href="oxstd.html#vec">vec</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( vec(<0,1;2,3>) );
+}
+</xmp><p>
+produces
+<pre>
+   0.00000
+    2.0000
+    1.0000
+    3.0000
+</pre><p>
+<p><h2><a name="vech"></a><a href="oxstd.html#vech">vech</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl m = <0,1;2,3>;
+    print( vech(m), unvech(vech(m)) );
+}
+</xmp><p>
+produces
+<pre>
+      0.00000
+       2.0000
+       3.0000
+
+      0.00000       2.0000
+       2.0000       3.0000
+</pre><p>
+<p><h2><a name="vecindex"></a><a href="oxstd.html#vecindex">vecindex</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x = <0,1,2;0,2,0>;
+    print(vec(x), vecindex(x)', vecindex(x, 0)' );
+}
+</xmp><p>
+
+produces
+
+<pre>
+      0.00000
+      0.00000
+       1.0000
+       2.0000
+       2.0000
+      0.00000
+
+       2.0000       3.0000       4.0000
+
+      0.00000       1.0000       5.0000
+</pre><p>
+<p><h2><a name="vecr"></a><a href="oxstd.html#vecr">vecr</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x = <0,1;2,3>;
+    print( vecr(x) ~ x[] );
+}
+</xmp><p>
+produces
+<pre>
+      0.00000      0.00000
+       1.0000       1.0000
+       2.0000       2.0000
+       3.0000       3.0000
+</pre><p>
+<p><h2><a name="vecrindex"></a><a href="oxstd.html#vecrindex">vecrindex</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    decl x = <0,1,2;0,2,0>;
+
+    print(vecr(x),
+        "1 argument:",  vecrindex(x)',
+        "2 arguments:", vecrindex(x, 0)',
+        "3 arguments:", vecrindex(x, <0,2>, 1)');
+    print("non-zeros:", vecr(x)[vecrindex(x)]',
+          "zeros:", vecr(x)[vecrindex(x, 0)]' );
+}
+</xmp><p>
+produces
+<pre>
+      0.00000
+       1.0000
+       2.0000
+      0.00000
+       2.0000
+      0.00000
+1 argument:
+       1.0000       2.0000       4.0000
+2 arguments:
+      0.00000       3.0000       5.0000
+3 arguments:
+      0.00000       2.0000
+non-zeros:
+       1.0000       2.0000       2.0000
+zeros:
+      0.00000      0.00000      0.00000
+</pre><p>
+<p><h2><a name="zeros"></a><a href="oxstd.html#zeros">zeros</a></h2>
+<p><xmp>
+#include <oxstd.h>
+main()
+{
+    print( zeros(2, 2) );
+}
+</xmp><p>
+produces
+<pre>
+   0.00000      0.00000
+   0.00000      0.00000
+</pre><p>
+<p><hr><p><b>Ox version 4.00.</b>
+&copy <i><a href="http://www.doornik.com" target="_top">
+JA Doornik</a></i>
+This file last changed <script>document.write(document.lastModified);</script>.
+
+</body>
+</html>

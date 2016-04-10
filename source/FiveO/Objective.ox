@@ -32,9 +32,9 @@ Objective::Objective(L)	{
 	Blocks = {};
 	Volume = QUIET;
     RunSafe = TRUE;
-    lognm = replace(classname(this)+"-"+L+"-"+date()+"-"+replace(time(),":","-")," ","")+".log";
+    lognm = replace("Obj-"+classname(this)+"-"+L+"-"+date()+"-"+replace(time(),":","-")," ","")+".log";
     logf = fopen(lognm,"aV");
-    println(logf,"Created");
+    fprintln(logf,"Created");
     fclose(logf);
 	cur = new Point();
 	hold = maxpt = NvfuncTerms  = UnInitialized;
@@ -119,13 +119,15 @@ Objective::Load(fname)	{
 	if (otype!=classname(this)) oxwarning("FiveO Warning 07.\n Object stored in "+fname+" is of class "+otype+".  Current object is "+classname(this)+"\n");
 	if (inL!=L) oxwarning("FiveO Warning 08.\n Object Label in "+fname+" is "+inL+", which is not the same as "+L+"\n");
 	maxpt.v = cur.v = inO;
+    this->CheckPoint(f,FALSE);
 	if (Volume>SILENT) {
         println("Initial objective: ",cur.v);
         logf = fopen(lognm,"aV");
-        fprintln(logf,"Loading from ",fname,". # of values read: ",n,". Initial objective: ",cur.v);
+        fprintln(logf,"Parameters loaded from ",fname,". # of values read: ",n,". Initial objective: ",cur.v);
+		fprint(logf,"%r",PsiL,cur.X);
         fclose(logf);
         }
-	return this->CheckPoint(f,FALSE);
+	return TRUE;
 	}
 
 Objective::	SetAggregation(AggType) {

@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style/basic.css">
+  <link rel="stylesheet" type="text/css" href="style/theme-green.css">
+  <title>Ox Standard Packages</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="author" lang="en" content="Jurgen A Doornik">
+  <meta name="copyright" content="&copy; Jurgen A Doornik">
+  <base target="content-frame">
+  <script src="style/loadincontent.js" language="javascript" type="text/javascript"></script>
+</head>
+<!-- Copyright Jurgen A. Doornik -->
+
+<body>
+<div class="page-frame">
+
+<h1>Ox Standard Packages Reference</h1>
+
+<p>
+<p><h2>Chapter contents:</h2><p>
+
+
+<div>
+<ul class="column-list column-list-wide">
+<li class="newline"><b>Arma</b></li>
+
+<li><a href="#arma0">arma0</a></li>
+<li><a href="#armaforc">armaforc</a></li>
+<li><a href="#armagen">armagen</a></li>
+<li><a href="#armavar">armavar</a></li>
+
+<li><a href="#diffpow">diffpow</a></li>
+<li><a href="#modelforc">modelforc</a></li>
+<li><a href="#pacf">pacf</a></li>
+
+<li class="newline"><b>Maximization Control</b></li>
+
+<li><a href="#CMaxControl">CMaxControl</a> class</li>
+<li><a href="#GetMaxControl">GetMaxControl</a></li>
+<li><a href="#GetMaxControlEps">GetMaxControlEps</a></li>
+<li><a href="#MaxControl">MaxControl</a></li>
+
+<li><a href="#MaxControlEps">MaxControlEps</a></li>
+<li><a href="#MaxConvergenceMsg">MaxConvergenceMsg</a></li>
+
+<li class="newline"><b>Maximization Functions</b></li>
+
+<li><a href="#MaxBFGS">MaxBFGS</a></li>
+<li><a href="#MaxNewton">MaxNewton</a></li>
+<li><a href="#MaxSimplex">MaxSimplex</a></li>
+<li><a href="#MaxSQP">MaxSQP</a></li>
+
+<li><a href="#MaxSQPF">MaxSQPF</a></li>
+<li><a href="#Num1Derivative">Num1Derivative</a></li>
+<li><a href="#Num1Derivative">Num1Derivative_parallel</a></li>
+<li><a href="#Num2Derivative">Num2Derivative</a></li>
+
+<li><a href="#Num2Derivative">Num2Derivative_parallel</a></li>
+<li><a href="#NumJacobian">NumJacobian</a></li>
+<li><a href="#SolveNLE">SolveNLE</a></li>
+<li><a href="#SolveQP">SolveQP</a></li>
+
+<li class="newline"><b>Probability</b></li>
+
+<li><a href="#densbeta">densbeta</a></li>
+<li><a href="#densbinomial">densbinomial</a></li>
+<li><a href="#denscauchy">denscauchy</a></li>
+<li><a href="#densexp">densexp</a></li>
+
+<li><a href="#densextremevalue">densextremevalue</a></li>
+<li><a href="#densgamma">densgamma</a></li>
+<li><a href="#densgeometric">densgeometric</a></li>
+<li><a href="#densgh">densgh</a></li>
+
+<li><a href="#densgig">densgig</a></li>
+<li><a href="#denshypergeometric">denshypergeometric</a></li>
+<li><a href="#densinvgaussian">densinvgaussian</a></li>
+<li><a href="#denskernel">denskernel</a></li>
+
+<li><a href="#denslogarithmic">denslogarithmic</a></li>
+<li><a href="#denslogistic">denslogistic</a></li>
+<li><a href="#denslogn">denslogn</a></li>
+<li><a href="#densmises">densmises</a></li>
+
+<li><a href="#densnegbin">densnegbin</a></li>
+<li><a href="#denspareto">denspareto</a></li>
+<li><a href="#denspoisson">denspoisson</a></li>
+<li><a href="#densweibull">densweibull</a></li>
+
+<li><a href="#probbeta">probbeta</a></li>
+<li><a href="#probbinomial">probbinomial</a></li>
+<li><a href="#probbvn">probbvn</a></li>
+<li><a href="#probcauchy">probcauchy</a></li>
+
+<li><a href="#probexp">probexp</a></li>
+<li><a href="#probextremevalue">probextremevalue</a></li>
+<li><a href="#probgamma">probgamma</a></li>
+<li><a href="#probgeometric">probgeometric</a></li>
+
+<li><a href="#probhypergeometric">probhypergeometric</a></li>
+<li><a href="#probinvgaussian">probinvgaussian</a></li>
+<li><a href="#problogarithmic">problogarithmic</a></li>
+<li><a href="#problogistic">problogistic</a></li>
+
+<li><a href="#problogn">problogn</a></li>
+<li><a href="#probmises">probmises</a></li>
+<li><a href="#probmvn">probmvn</a></li>
+<li><a href="#probnegbin">probnegbin</a></li>
+
+<li><a href="#probpareto">probpareto</a></li>
+<li><a href="#probpoisson">probpoisson</a></li>
+<li><a href="#probweibull">probweibull</a></li>
+
+<li><a href="#quanbeta">quanbeta</a></li>
+<li><a href="#quanbinomial">quanbinomial</a></li>
+<li><a href="#quancauchy">quancauchy</a></li>
+<li><a href="#quanexp">quanexp</a></li>
+
+<li><a href="#quanextremevalue">quanextremevalue</a></li>
+<li><a href="#quangamma">quangamma</a></li>
+<li><a href="#quangeometric">quangeometric</a></li>
+<li><a href="#quanhypergeometric">quanhypergeometric</a></li>
+
+<li><a href="#quaninvgaussian">quaninvgaussian</a></li>
+<li><a href="#quanlogarithmic">quanlogarithmic</a></li>
+<li><a href="#quanlogistic">quanlogistic</a></li>
+<li><a href="#quanlogn">quanlogn</a></li>
+
+<li><a href="#quanmises">quanmises</a></li>
+<li><a href="#quannegbin">quannegbin</a></li>
+<li><a href="#quanpareto">quanpareto</a></li>
+<li><a href="#quanpoisson">quanpoisson</a></li>
+
+<li><a href="#quanweibull">quanweibull</a></li>
+
+<li><a href="#ranbeta">ranbeta</a></li>
+<li><a href="#ranbinomial">ranbinomial</a></li>
+<li><a href="#ranbrownianmotion">ranbrownianmotion</a></li>
+<li><a href="#rancauchy">rancauchy</a></li>
+
+<li><a href="#ranchi">ranchi</a></li>
+<li><a href="#randirichlet">randirichlet</a></li>
+<li><a href="#ranexp">ranexp</a></li>
+<li><a href="#ranextremevalue">ranextremevalue</a></li>
+
+<li><a href="#ranf">ranf</a></li>
+<li><a href="#rangamma">rangamma</a></li>
+<li><a href="#rangeometric">rangeometric</a></li>
+<li><a href="#rangh">rangh</a></li>
+
+<li><a href="#rangig">rangig</a></li>
+<li><a href="#ranhypergeometric">ranhypergeometric</a></li>
+<li><a href="#ranindex">ranindex</a></li>
+<li><a href="#ranlogarithmic">ranlogarithmic</a></li>
+
+<li><a href="#ranlogistic">ranlogistic</a></li>
+<li><a href="#ranlogn">ranlogn</a></li>
+<li><a href="#ranmises">ranmises</a></li>
+<li><a href="#ranmultinomial">ranmultinomial</a></li>
+
+<li><a href="#rannegbin">rannegbin</a></li>
+<li><a href="#ranpareto">ranpareto</a></li>
+<li><a href="#ranpoisson">ranpoisson</a></li>
+<li><a href="#ranpoissonprocess">ranpoissonprocess</a></li>
+
+<li><a href="#ranshuffle">ranshuffle</a></li>
+<li><a href="#ranstable">ranstable</a></li>
+<li><a href="#ransubsample">ransubsample</a></li>
+<li><a href="#rant">rant</a></li>
+
+<li><a href="#ranuorder">ranuorder</a></li>
+<li><a href="#ranwishart">ranwishart</a></li>
+<li><a href="#ranweibull">ranweibull</a></li>
+
+<li class="newline"><b>QuadPack</b></li>
+
+<li><a href="#QNG">QNG</a></li>
+<li><a href="#QAG">QAG</a></li>
+<li><a href="#QAGI">QAGI</a></li>
+<li><a href="#QAGP">QAGP</a></li>
+
+<li><a href="#QAGS">QAGS</a></li>
+<li><a href="#QAWC">QAWC</a></li>
+<li><a href="#QAWC">QAWF</a></li>
+<li><a href="#QAWC">QAWO</a></li>
+
+<li><a href="#QAWC">QAWS</a></li>
+<li><a href="#QPEPS">QPEPS</a></li>
+<li><a href="#QPEPS">QPWARN</a></li>
+</ul>
+</div>
+<div class="clear"></div>
+
+
+<p><h2><a name="ArmaPack"></a>Arma package</h2><p>
+
+The Arma package implements functions which are commonly
+used in autoregressive-moving average models.
+The Arma package requires the header file <tt>arma.h</tt>.
+Note that the Arma package uses the convention of writing the AR and MA
+coefficients on the right-hand side with a positive sign.
+
+<h3><a name="arma0"></a>arma0</h3>
+
+
+<pre>
+#include &lt;arma.h&gt;
+arma0(const ma, const vp, const cp, const cq);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>ma</tt>
+
+<dd>in: <i>T</i> <tt>x</tt> <i>n</i> matrix <i>A</i>
+
+<dt><tt>vp</tt>
+
+<dd>in: 1 <tt>x</tt> <i>s</i> matrix with AR coefficients \phi<sub>1</sub>,
+\phi<sub>2</sub>, ..., \phi<i><sub>p</sub></i> followed by
+MA coefficients \theta<sub>1</sub>, \theta<sub>2</sub>, ..., \theta<i><sub>q</sub></i>,
+<i>s</i> &gt;= <i>p</i>+<i>q</i>
+
+<dt><tt>cp</tt>
+
+<dd>in: int, no of AR coefficients (could be 0)
+
+<dt><tt>cq</tt>
+
+<dd>in: int, no of MA coefficients (could be 0)
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>Returns the residual from applying the ARMA(<i>p</i>,<i>q</i>) filter
+to each column of <i>A</i>. The result has the same dimensions as <tt>ma</tt>.
+The first <i>p</i> rows of the return value will be zero.
+
+<p>
+For example when <i>p</i> = 1 and <i>q</i> = 2:
+<dl>
+<dd><i>e</i><sub>0</sub> = 0,
+
+<dd><i>e</i><sub>1</sub> = <i>a</i><sub>1</sub> - \phi<sub>1</sub> <i>a</i><sub>0</sub> - \theta<sub>1</sub> <i>e</i><sub>0</sub>,
+
+<dd><i>e</i><sub>2</sub> = <i>a</i><sub>2</sub> - \phi<sub>1</sub> <i>a</i><sub>1</sub> - \theta<sub>1</sub> <i>e</i><sub>1</sub> - \theta <sub>1</sub> <i>e</i><sub>0</sub>, etc.
+</dl>
+
+<dt><i>See also</i>
+
+<dd>
+<tt><a href="#armagen">armagen</a></tt>, <tt><a href="#armaforc">armaforc</a></tt>,
+<tt><a href="#armavar">armavar</a></tt>,  
+<tt><a href="oxstd.html#diff0">diff0</a></tt>,
+<tt><a href="#diffpow">diffpow</a></tt>,
+<tt><a href="#pacf">pacf</a></tt>
+</dl>
+
+<h3><a name="armaforc"></a>armaforc</h3>
+
+
+<pre>
+#include &lt;arma.h&gt;
+armaforc(const mx, const vp, const cp, const cq);
+armaforc(const mx, const vp, const cp, const cq,
+    const ma);
+armaforc(const mx, const vp, const cp, const cq,
+    const ma, const me);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>mx</tt>
+<dd>in: <i>H</i> <tt>x</tt> <i>n</i> matrix <i>X</i>, fixed part of forecasts
+
+<dt><tt>vp</tt>
+<dd>in: 1 <tt>x</tt> <i>s</i> matrix with AR coefficients \phi<sub>1</sub>,
+\phi<sub>2</sub>, ..., \phi<i><sub>p</sub></i> followed by
+MA coefficients \theta<sub>1</sub>, \theta<sub>2</sub>, ..., \theta<i><sub>q</sub></i>,
+<i>s</i> &gt;= <i>p</i>+<i>q</i>
+
+<dt><tt>cp</tt>
+<dd>in: int, no of AR coefficients (could be 0)
+
+<dt><tt>cq</tt>
+<dd>in: int, no of MA coefficients (could be 0)
+
+<dt><tt>ma</tt>
+<dd>in: (optional argument) <i>T</i> <tt>x</tt> <i>n</i> matrix <i>A</i>,
+pre-forecast data values (default is zero)
+
+<dt><tt>me</tt>
+<dd>in: (optional argument) <i>T</i> <tt>x</tt> <i>n</i> matrix <i>E</i>,
+pre-forecast residual values (default is zero)
+
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>
+Returns the forecasts from an ARMA(<i>p</i>,<i>q</i>) model as
+an <i>H</i> <tt>x</tt> <i>n</i> matrix.  The same model is applied to each column
+of <tt>mx</tt>.
+
+<p>
+For example when <i>p</i> = 2 and <i>q</i> = 2:
+<dl>
+<dd><i>ahat</i><sub>0</sub> = <i>x</i><sub>0</sub> + \phi<sub>1</sub> <i>a</i><sub><i>T</i>-1</sub>
++ \phi<sub>2</sub> <i>a</i><sub><i>T</i>-2</sub>
++ \theta<sub>1</sub> <i>e</i><sub><i>T</i>-1</sub>
++ \theta<sub>2</sub> <i>e</i><sub><i>T</i>-2</sub>,
+
+<dd><i>ahat</i><sub>1</sub> = <i>x</i><sub>1</sub> + \phi<sub>1</sub> <i>ahat</i><sub>0</sub>
++ \phi<sub>2</sub> <i>a</i><sub><i>T-1</i></sub>
++ \theta<sub>2</sub> <i>e</i><sub><i>T</i>-1</sub>,
+
+<dd><i>ahat</i><sub>2</sub> = <i>x</i><sub>2</sub> + \phi<sub>1</sub> <i>ahat</i><sub>1</sub>
++ \phi<sub>2</sub> <i>ahat</i><sub>0</sub>, etc.
+</dl>
+
+
+
+<dt><i>See also</i>
+
+<dd><tt><a href="#arma0">arma0</a></tt>, <tt><a href="#armavar">armavar</a></tt>,
+<tt><a href="oxstd.html#cumulate">cumulate</a></tt>,
+<tt><a href="#modelforc">modelforc</a></tt>
+</dl>
+
+<h3><a name="armagen"></a>armagen</h3>
+
+
+<pre>
+#include &lt;arma.h&gt;
+armagen(const mx, const me, const vp, const cp, const cq);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>mx</tt>
+<dd>in: <i>T</i> <tt>x</tt> <i>n</i> matrix of known components <i>X</i>
+
+<dt><tt>me</tt>
+<dd>in: <i>T</i> <tt>x</tt> <i>n</i> matrix of errors <i>E</i>
+
+<dt><tt>vp</tt>
+<dd>in: 1 <tt>x</tt> <i>s</i> matrix with AR coefficients \phi<sub>1</sub>,
+\phi<sub>2</sub>, ..., \phi<i><sub>p</sub></i> followed by
+MA coefficients \theta<sub>1</sub>, \theta<sub>2</sub>, ..., \theta<i><sub>q</sub></i>,
+<i>s</i> &gt;= <i>p</i>+<i>q</i>
+
+<dt><tt>cp</tt>
+<dd>in: int, no of AR coefficients (could be 0)
+
+<dt><tt>cq</tt>
+<dd>in: int, no of MA coefficients (could be 0)
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>
+Generates a an ARMA(<i>p</i>,<i>q</i>) series from
+an error term (<tt>me</tt>) and a mean term (<tt>mx</tt>)
+The result has the same dimensions as <tt>mx</tt>.
+The first <i>p</i>
+rows of the return value will be identical to those of <tt>mx</tt>; the
+recursion will be applied from the <i>p</i>th term onward (missing
+lagged errors are set to zero).
+
+<p>
+For example when <i>p</i> = 1 and <i>q</i> = 2:
+<dl>
+<dd><i>a</i><sub>0</sub> = <i>x</i><sub>0</sub>,
+
+<dd><i>a</i><sub>1</sub> = <i>x</i><sub>1</sub> + \phi<sub>1</sub> <i>a</i><sub>0</sub> +
+<i>e</i><sub>1</sub> + \theta<sub>1</sub> <i>e</i><sub>0</sub>,
+
+<dd><i>a</i><sub>2</sub> = <i>x</i><sub>2</sub> + \phi<sub>1</sub> <i>a</i><sub>1</sub> +
+<i>e</i><sub>2</sub> + \theta<sub>1</sub> <i>e</i><sub>1</sub> + \theta<sub>2</sub> <i>e</i><sub>0</sub>, etc.
+</dl>
+
+
+
+<dt><i>See also</i>
+
+<dd><tt><a href="#arma0">arma0</a></tt>, <tt><a href="#armaforc">armaforc</a></tt>, <tt><a href="#armavar">armavar</a></tt>,
+<tt><a href="oxstd.html#cumsum">cumsum</a></tt>, <tt><a href="oxstd.html#cumulate">cumulate</a></tt>
+</dl>
+
+<h3><a name="armavar"></a>armavar</h3>
+
+
+<pre>
+#include &lt;arma.h&gt;
+armavar(const vp, const cp, const cq, const dvar,
+    const ct);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>vp</tt>
+
+<dd>in: 1 <tt>x</tt> <i>s</i> matrix with AR coefficients \phi<sub>1</sub>,
+\phi<sub>2</sub>, ..., \phi<i><sub>p</sub></i> followed by
+MA coefficients \theta<sub>1</sub>, \theta<sub>2</sub>, ..., \theta<i><sub>q</sub></i>,
+<i>s</i> &gt;= <i>p</i>+<i>q</i>
+
+<dt><tt>cp</tt>
+
+<dd>in: int, no of AR coefficients (could be 0)
+
+<dt><tt>cq</tt>
+
+<dd>in: int, no of MA coefficients (could be 0)
+
+<dt><tt>dvar</tt>
+
+<dd>in: double, variance of disturbance, \sigma<sup>2</sup> <sub>\epsilon</sub>.
+
+
+<dt><tt>ct</tt>
+
+<dd>in: int, number of autocovariance terms required, <i>T</i>
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>Returns a 1 <tt>x</tt> <i>T</i> matrix with the autocovariances of
+the ARMA(<i>p</i>,<i>q</i>) process. Or <tt>0</tt> if the computations
+failed (e.g. when all AR coefficients are zero).
+
+<dt><i>See also</i>
+
+<dd><tt><a href="#arma0">arma0</a></tt>, <tt><a href="#pacf">pacf</a></tt>
+</dl>
+
+
+<h3><a name="diffpow"></a>diffpow</h3>
+
+
+<pre>
+#include &lt;arma.h&gt;
+diffpow(const ma, const d);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>ma</tt>
+
+<dd>in: <i>T</i> <tt>x</tt> <i>n</i> matrix <i>A</i>
+
+<dt><tt>d</tt>
+
+<dd>in: double, length of difference <i>d</i>, |<i>d</i>| &lt;= 10000
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>Returns a <i>T</i> <tt>x</tt> <i>n</i> matrix with (1-<i>L</i>)<i><sup>d</sup>A</i>.
+The result has the same dimensions as <tt>ma</tt>.
+
+<dt><i>See also</i>
+
+<dd><tt><a href="#arma0">arma0</a></tt>, <tt><a href="oxstd.html#diff0">diff0</a></tt>
+</dl>
+
+
+<h3><a name="modelforc"></a>modelforc</h3>
+
+
+<pre>
+#include &lt;arma.h&gt;
+modelforc(const mU, const mData, const miDep,
+    const miSel, const miLag, const mPi, const iTmin);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>mU</tt>
+<dd>in: 0 or (<i>T</i>-<i>T</i><sub><i>0</i></sub>) <tt>x</tt> <i>n</i>
+matrix with error terms
+
+<dt><tt>mData</tt>
+<dd>in: <i>T</i> <tt>x</tt> <i>d</i> matrix, the database
+
+<dt><tt>miDep</tt>
+<dd>in: <i>1</i> <tt>x</tt> <i>n</i> matrix with database indices
+of dependent variables
+
+<dt><tt>miSel</tt>
+<dd>in: <i>1</i> <tt>x</tt> <i>k</i> matrix with database indices
+of explanatory variables
+
+<dt><tt>miLag</tt>
+<dd>in: <i>1</i> <tt>x</tt> <i>k</i> matrix with lag lengths
+of explanatory variables
+
+<dt><tt>miPi</tt>
+<dd>in: <i>n</i> <tt>x</tt> <i>k</i> matrix with coefficients
+
+<dt><tt>iTmin</tt>
+<dd>in: int, first forecast observation (may be 0)
+
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>
+Returns the dynamic forecasts from a linear dynamic model as a 
+(<i>T</i>-<i>T</i><sub><i>0</i></sub>) <tt>x</tt> <i>n</i> matrix.
+
+<dt><i>See also</i>
+
+<dd><tt><a href="#armaforc">armaforc</a></tt>
+<tt><a href="oxstd.html#cumulate">cumulate</a></tt>
+</dl>
+
+
+
+<h3><a name="pacf"></a>pacf</h3>
+
+
+<pre>
+#include &lt;arma.h&gt;
+pacf(const macf);
+pacf(const macf, const alogdet);
+pacf(const macf, const alogdet, const my);
+pacf(const macf, const meps);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>macf</tt>
+<dd>in: arithmetic type, <i>T</i> <tt>x</tt> <i>1</i> matrix of autocovariances
+or autocorrelations
+
+<dt><tt>alogdet</tt>
+<dd>in: (optional argument) address of variable
+<dd>out: the determinant of the filter
+
+<dt><tt>my</tt>
+<dd>in: (optional argument) <i>T</i> <tt>x</tt> <i>n</i> data matrix
+to apply filter to
+
+<dt><tt>meps</tt>
+<dd>in: (optional argument) <i>T</i> <tt>x</tt> <i>n</i> data matrix
+to apply inverse filter to
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>
+<ul>
+<li><tt>pacf(macf);</tt><br>
+<li><tt>pacf(macf, alogdet);</tt><br>
+Returns a <i>T</i> <tt>x</tt> <i>1</i> matrix with the partial autocorrelation
+function of the columns of <tt>macf</tt>. 
+
+<li><tt>pacf(macf, alogdet, my);</tt><br>
+Returns a <i>T</i> <tt>x</tt> (<i>n</i>+1) matrix with the residuals from the
+filter based on the specified ACF applied to the columns of <tt>my</tt>.
+The last column contains the standard devations of the filter.
+
+<li><tt>pacf(macf, meps);</tt><br>
+Returns a <i>T</i> <tt>x</tt> <i>n</i> matrix with the generated data from the
+inverse filter based on the specified ACF applied to the columns of <tt>meps</tt>.
+</ul>
+
+<dd>
+Returns 0 if the computations
+fail (the stochastic process has a root on the unit circle).
+
+<dt><i>See also</i>
+
+<dd><tt><a href="oxstd.html#acf">acf</a></tt>, <tt><a href="#arma0">arma0</a></tt>,
+<tt><a href="#armavar">armavar</a></tt>,
+<tt><a href="oxstd.html#solvetoeplitz">solvetoeplitz</a></tt>
+</dl>
+
+
+<p><h2><a name="MaxPack"></a>Maximization package</h2><p>
+
+<p><h3><a name="MaxControl"></a>Maximization control</h3><p>
+
+<h3>
+<a name="CMaxControl"></a>CMaxControl Class
+</h3>
+
+<dl>
+<dt><tt>CMaxControl(const iOptions=0);                               </tt>
+<dd>Constructor. Only possible option is <tt>CMaxControl::PARALLEL_SCORE</tt>.
+<dt><tt>GetControl();                                                </tt>
+<dd>returns <tt>{ mxIter, iPrint, bCompact }</tt>. 
+<dt><tt>GetEps();                                                    </tt>
+<dd>returns <tt>{ dEps1, dEps2 }</tt>. 
+<dt><tt>GetIterationCount();                                         </tt>
+<dd>returns the iteration count. 
+<dt><tt>GetResult();                                                 </tt>
+<dd>returns the convergence code. 
+<dt><tt>SetControl(const mxIter, const iPrint=-1, const bCompact=-1);</tt>
+<dd>See <tt>MaxControl</tt>. 
+<dt><tt>SetEps(const dEps1, const dEps2=-1);                         </tt>
+<dd>See <tt>GetMaxControl</tt>. 
+<dt><tt>SetIterationCount(const cIter);                              </tt>
+<dd>Sets the iteration count. 
+<dt><tt>SetOptions(const iOptions);                               </tt>
+<dd>Only possible option is <tt>CMaxControl::PARALLEL_SCORE</tt>.
+<dt><tt>SetResult(const iResult);                                    </tt>
+<dd>Sets the convergence code. 
+</dl>
+
+<p>
+The <tt>CMaxControl</tt> class manages the configurable maximization options
+in a more convenient way. The added flexibility is
+that parallel numerical scores can be used, and the number of iterations retrieved
+upon convergence.
+<p>
+
+<h3>
+<a name="GetMaxControl"></a>GetMaxControl,
+<a name="GetMaxControlEps"></a>GetMaxControlEps
+</h3>
+
+
+<pre>#import &lt;maximize&gt;
+GetMaxControl();
+GetMaxControlEps();
+</pre>
+
+<dl>
+<dt><i>Return value</i>
+<dd>
+Return an array with three values and two values respectively.<br>
+
+<tt>GetMaxControl</tt> returns <tt>{ mxIter, iPrint, bCompact }</tt>.<br>
+
+<tt>GetMaxControlEps</tt> returns <tt>{ dEps1, dEps2 }</tt>.
+
+
+<dt><i>See also</i>
+
+<dd><tt><a href="#MaxControl">MaxControl</a></tt>, <tt><a href="#MaxControlEps">MaxControlEps</a></tt>
+</dl>
+
+
+<h3><a name="MaxConvergenceMsg"></a>MaxConvergenceMsg</h3>
+
+
+<pre>#import &lt;maximize&gt;
+MaxConvergenceMsg(const iCode);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iCode</tt>
+
+<dd>in: int, code returned by <tt><a href="#MaxBFGS">MaxBFGS</a></tt> or <tt><a href="#MaxSimplex">MaxSimplex</a></tt>
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>Returns the text corresponding to the convergence code listed under
+the return values of <tt><a href="#MaxBFGS">MaxBFGS</a></tt>.
+
+<dt><i>See also</i>
+
+<dd><tt><a href="#MaxBFGS">MaxBFGS</a></tt>,
+<tt><a href="#MaxNewton">MaxNewton</a></tt>,
+<tt><a href="#MaxSimplex">MaxSimplex</a></tt>,
+<tt><a href="#MaxSQP">MaxSQP</a></tt>,
+<tt><a href="#MaxSQPF">MaxSQPF</a></tt>
+</dl>
+
+<h3>
+<a name="MaxControl"></a>MaxControl,
+<a name="MaxControlEps"></a>MaxControlEps
+</h3>
+
+
+<pre>#import &lt;maximize&gt;
+MaxControl(const mxIter, const iPrint);
+MaxControl(const mxIter, const iPrint, const bCompact);
+MaxControlEps(const dEps1, const dEps2);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>mxIter</tt>
+
+<dd>in: int, maximum number of iterations; default is 1000, use -1 to leave
+the current value unchanged
+
+<dt><tt>iPrint</tt>
+
+<dd>in: int, print results every iPrint'th iteration; default is 0, use
+-1 to leave the current value unchanged
+
+<dt><tt>bCompact</tt>
+
+<dd>in: int, if TRUE uses compact format for iteration results (optional argument)
+
+<dt><tt>dEps1</tt>
+
+<dd>in: double, <i>eps</i><sub>1</sub>, default is 1e-4, use &le; 0 to leave the current value unchanged
+
+<dt><tt>dEps2</tt>
+
+<dd>in: double, <i>eps</i><sub>2</sub>, default is 5e-3, use  &le; 0 to leave the current value unchanged
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>No return value.
+
+<dt><i>See also</i>
+
+<dd>
+<tt><a href="#GetMaxControl">GetMaxControl</a></tt>,      
+<tt><a href="#GetMaxControlEps">GetMaxControlEps</a></tt>,
+<tt><a href="#MaxNewton">MaxNewton</a></tt>,
+<tt><a href="#MaxSimplex">MaxSimplex</a></tt>,
+<tt><a href="#MaxSQP">MaxSQP</a></tt>,
+<tt><a href="#MaxSQPF">MaxSQPF</a></tt>
+</dl>
+
+<p><h3><a name="MaxFunctions"></a>Maximization functions</h3><p>
+
+<h3><a name="MaxBFGS"></a>MaxBFGS</h3>
+
+
+<pre>#import &lt;maximize&gt;
+MaxBFGS(const func, const avP, const adFunc, const amInvHess, const fNumDer);
+MaxBFGS(const func, const avP, const adFunc, const amInvHess, const fNumDer, const objMaxCtrl);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>func</tt>
+
+<dd>in: a function computing the function value, optionally with derivatives
+
+
+<dt><tt>avP</tt>
+
+<dd>in: address of <i>p</i> <tt>x</tt> 1 matrix with starting values
+
+<dd>out: <i>p</i> <tt>x</tt> 1 matrix with final coefficients
+
+<dt><tt>adFunc</tt>
+
+<dd>in: address
+
+<dd>out: double, final function value
+
+<dt><tt>amInvHess</tt>
+
+<dd>in: <tt>0</tt> or address of <i>p</i> <tt>x</tt> <i>p</i> matrix,
+initial (inverse negative) quasi-Hessian <i><b>K</b></i>;
+a possible starting value is the identity matrix (which is used
+when <tt>0</tt> is used as argument);
+
+<dd>out: if not <tt>0</tt> on input: final <i><b>K</b></i> (not reliable as estimate of actual Hessian)
+
+<dt><tt>fNumDer</tt>
+
+<dd>in: 0: <tt>func</tt> provides analytical first derivatives
+1: use numerical first derivatives
+
+<dt><tt>objMaxCtrl</tt>
+
+<dd>in: <a href="#CMaxControl">CMaxControl</a> object (optional argument)
+
+<dd>out: updated to reflect status and iteration count.
+
+</dl>
+
+<dl>
+<dt>
+<a name="MaxBFGS_func"></a>The supplied <tt>func</tt>
+argument should have the following format:
+<dd><pre>
+func(const vP, const adFunc, const avScore, const amHessian);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>vP</tt>
+
+<dd>in: <i>p</i> <tt>x</tt> 1 matrix with coefficients
+
+<dt><tt>adFunc</tt>
+
+<dd>in: address
+
+<dd>out: double, function value at <tt>vP</tt>
+
+<dt><tt>avScore</tt>
+
+<dd>in: 0, or an address
+
+<dd>out: if !0 on input: <i>p</i> <tt>x</tt> 1 matrix with first derivatives
+at <tt>vP</tt>
+
+<dt><tt>amHessian</tt>
+
+<dd>in: always 0 for MaxBFGS, as it does not need the Hessian;
+<dt><i>returns</i>
+<dd>1: successful, 0: function evaluation failed
+</dl>
+</dl>
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>Returns the status of the iterative process:
+<dl>
+<dt><tt>MAX_CONV</tt>
+<dd><i>Strong convergence</i> Both convergence tests
+were passed, using tolerance <i>eps</i> = <i>eps</i><sub>1</sub>.
+<dt><tt>MAX_WEAK_CONV</tt>
+<dd><i>Weak convergence (no improvement in line search)</i> The step length
+<i>s<sub>i</sub></i> has become too small. The convergence test
+) was passed, using tolerance <i>eps</i> = <i>eps</i><sub>2</sub>.
+<dt><tt>MAX_MAXIT</tt>
+<dd><i>No convergence (maximum no of iterations reached)</i>
+<dt><tt>MAX_LINE_FAIL</tt>
+<dd><i>No convergence (no improvement in line search)</i> The step length
+<i>s<sub>i</sub></i> has become too small. The convergence test
+was not passed, using tolerance <i>eps</i> = <i>eps</i><sub>2</sub>.
+<dt><tt>MAX_FUNC_FAIL</tt>
+<dd><i>No convergence (function evaluation failed)</i>
+<dt><tt>MAX_NOCONV</tt>
+<dd><i>No convergence</i> Probably not yet attempted to maximize.
+</dl>
+
+<p>The chosen default values for the tolerances are:
+
+<p><i>eps</i><sub>1</sub>=1e-4, <i>eps</i><sub>2</sub>=5e-3.
+
+<dt><i>See also</i>
+
+<dd><tt><a href="#MaxControl">MaxControl</a></tt>, <a href="#CMaxControl">CMaxControl</a>,
+<tt><a href="#MaxConvergenceMsg">MaxConvergenceMsg</a></tt>, <tt><a href="#Num1Derivative">Num1Derivative</a></tt>,
+<tt><a href="#Num2Derivative">Num2Derivative</a></tt>
+
+<dt><i>Examples</i>
+<dd>
+See <tt>ox/samples/maximize/</tt>.
+</dl>
+
+<h3><a name="MaxNewton"></a>MaxNewton</h3>
+
+
+<pre>#import &lt;maximize&gt;
+MaxNewton(const func, const avP, const adFunc, const amHessian, const fNumDer);
+MaxNewton(const func, const avP, const adFunc, const amHessian, const fNumDer, const objMaxCtrl);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>func</tt>
+
+<dd>in: a function computing the function value, optionally with derivatives
+
+
+<dt><tt>avP</tt>
+
+<dd>in: address of <i>p</i> <tt>x</tt> 1 matrix with starting values
+
+<dd>out: <i>p</i> <tt>x</tt> 1 matrix with final coefficients
+
+<dt><tt>adFunc</tt>
+
+<dd>in: address
+
+<dd>out: double, final function value
+
+<dt><tt>amHessian</tt>
+
+<dd>in: <tt>0</tt> or address
+
+<dd>out: if not <tt>0</tt> on input: final Hessian matrix <i><b>H</b></i>
+
+<dt><tt>fNumDer</tt>
+
+<dd>in: 0: <tt>func</tt> provides analytical second derivatives
+1: use numerical second derivatives
+
+<dt><tt>objMaxCtrl</tt>
+
+<dd>in: <a href="#CMaxControl">CMaxControl</a> object (optional argument)
+
+<dd>out: updated to reflect status and iteration count.
+</dl>
+
+<dl>
+<dt>
+<a name="MaxNewton_func"></a>The supplied <tt>func</tt>
+argument should have the following format:
+<dd><pre>
+func(const vP, const adFunc, const avScore, const amHessian);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>vP</tt>
+
+<dd>in: <i>p</i> <tt>x</tt> 1 matrix with coefficients
+
+<dt><tt>adFunc</tt>
+
+<dd>in: address
+
+<dd>out: double, function value at <tt>vP</tt>
+
+<dt><tt>avScore</tt>
+
+<dd>in: 0, or an address
+
+<dd>out: if !0 on input: <i>p</i> <tt>x</tt> 1 matrix with first derivatives
+at <tt>vP</tt>
+
+<dt><tt>amHessian</tt>
+
+<dd>in: 0, or an address
+
+<dd>out: if !0 on input: <i>p</i> <tt>x</tt> <i>p</i> Hessian matrix
+at <tt>vP</tt>
+
+<dt><i>returns</i>
+<dd>1: successful, 0: function evaluation failed
+</dl>
+</dl>
+</dl>
+
+<dt><i>Return value</i>
+
+See <tt><a href="#MaxBFGS">MaxBFGS</a></tt>.
+
+<dt><i>See also</i>
+
+<dd><tt><a href="#MaxBFGS">MaxBFGS</a></tt>, <tt><a href="#GetMaxControl">GetMaxControl</a></tt>,
+<a href="#CMaxControl">CMaxControl</a>,
+<tt><a href="#MaxConvergenceMsg">MaxConvergenceMsg</a></tt>, <tt><a href="#Num1Derivative">Num1Derivative</a></tt>,
+<tt><a href="#Num2Derivative">Num2Derivative</a></tt>
+
+<dt><i>Examples</i>
+<dd>
+See <tt>ox/samples/maximize/</tt>.
+</dl>
+
+
+
+<h3><a name="MaxSimplex"></a>MaxSimplex</h3>
+
+
+<pre>#import &lt;maximize&gt;
+MaxSimplex(const func, const avP, const adFunc, vDelta);
+MaxSimplex(const func, const avP, const adFunc, vDelta, const objMaxCtrl);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>func</tt>
+
+<dd>in: a function computing the function value
+
+<dt><tt>avP</tt>
+
+<dd>in: address of <i>p</i> <tt>x</tt> 1 matrix with starting values
+
+<dd>out: <i>p</i> <tt>x</tt> 1 matrix with coefficients at convergence
+
+<dt><tt>adFunc</tt>
+
+<dd>in: address
+
+<dd>out: double, function value at convergence
+
+<dt><tt>vDelta</tt>
+
+<dd>in: 0, or a <i>p</i> <tt>x</tt> 1 matrix with the initial simplex
+(if 0 is specified, the score is used for the initial simplex)
+
+<dt><tt>objMaxCtrl</tt>
+
+<dd>in: <a href="#CMaxControl">CMaxControl</a> object (optional argument)
+
+<dd>out: updated to reflect status and iteration count.
+</dl>
+
+<p>The supplied <tt><a href="#MaxBFGS_func">func</a></tt> argument should have the same format as in
+<tt><a href="#MaxBFGS">MaxBFGS</a></tt>.
+
+<dt><i>Return value</i>
+
+<dd>Returns the status of the iterative process, as documented under <tt><a href="#MaxBFGS">MaxBFGS</a></tt>.
+
+</dl>
+
+
+<h3><a name="MaxSQP"></a>MaxSQP,
+<a name="MaxSQPF"></a>MaxSQPF</h3>
+
+<pre>#import &lt;maxsqp&gt;
+MaxSQP(const func, const avP, const adFunc, const amHessian,
+    const fNumDer, const cfunc_gt0, const cfunc_eq0, vLo, vHi);
+MaxSQP(const func, const avP, const adFunc, const amHessian,
+    const fNumDer, const cfunc_gt0, const cfunc_eq0, vLo, vHi,
+	const cfunc_gt0_jac, const cfunc_eq0_jac, ...);
+MaxSQPF(const func, const avP, const adFunc, const amHessian,
+    const fNumDer, const cfunc_gt0, const cfunc_eq0, vLo, vHi);
+MaxSQPF(const func, const avP, const adFunc, const amHessian,
+    const fNumDer, const cfunc_gt0, const cfunc_eq0, vLo, vHi,
+	const cfunc_gt0_jac, const cfunc_eq0_jac, ...);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>func</tt>
+
+<dd>in: a function computing the function value, optionally with derivatives
+
+
+<dt><tt>avP</tt>
+
+<dd>in: address of <i>p</i> <tt>x</tt> 1 matrix with starting values
+
+<dd>out: <i>p</i> <tt>x</tt> 1 matrix with final coefficients
+
+<dt><tt>adFunc</tt>
+
+<dd>in: address
+
+<dd>out: double, final function value
+
+<dt><tt>amHessian</tt>
+
+<dd>in: <tt>0</tt> or address
+
+<dd>out: if not <tt>0</tt> on input: final Hessian approximation matrix <i><b>B</b></i>
+
+
+<dt><tt>fNumDer</tt>
+
+<dd>in: 0: <tt>func</tt> provides analytical first derivatives
+1: use numerical first derivatives
+
+<dt><tt>vLo</tt>
+
+<dd>in: <i>p</i> <tt>x</tt> 1 matrix with lower bounds, or &lt;&gt; if
+there are no lower bounds
+
+<dt><tt>vHi</tt>
+
+<dd>in: <i>p</i> <tt>x</tt> 1 matrix with upper bounds, or &lt;&gt; if
+there are no lower bounds
+</dl>
+
+<dl>
+<dt>
+The supplied <tt><a href="#MaxBFGS_func">func</a></tt> argument should have the same format as in
+<tt><a href="#MaxBFGS">MaxBFGS</a></tt>.
+
+<dd>
+The <tt>cfunc_gt0</tt> argument can be zero, or a function
+evaluating the nonlinear constraints (which will be
+constrained to be positive) with the following format:
+<pre>
+cfunc_gt0(const avF, const vP);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>avF</tt>
+
+<dd>in: address
+
+<dd>out: <i>m</i> <tt>x</tt> 1 matrix with constraints at <tt>vP</tt>
+<dt><tt>vP</tt>
+
+<dd>in: <i>p</i> <tt>x</tt> 1 matrix with coefficients
+
+</dl>
+<dt><i>returns</i>
+<dd>1: successful, 0: constraint evaluation failed
+</dl>
+
+
+<dt>
+The <tt>cfunc_eq0</tt> argument can be zero, or a function
+evaluating the nonlinear constraints (which will be
+constrained to zero) with the following format:
+<dd><pre>
+cfunc_eq0(const avF, const vP);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>avF</tt>
+
+<dd>in: address
+
+<dd>out: <i>m<sub>e</sub></i> <tt>x</tt> 1 matrix with equality constraints at <tt>vP</tt>
+<dt><tt>vP</tt>
+
+<dd>in: <i>p</i> <tt>x</tt> 1 matrix with coefficients
+
+</dl>
+<dt><i>returns</i>
+<dd>1: successful, 0: constraint evaluation failed
+</dl>
+
+<dd>
+The <tt>cfunc_gt0_jac</tt> and <tt>cfunc_eq0_jac</tt>
+are optional functions that return the analytical Jacobian matrix
+of the constraints. They have the same
+format, returning in <tt>avF</tt> an <i>m</i> <tt>x</tt> <i>p</i>
+and an <i>m<sub>e</sub></i> <tt>x</tt> <i>p</i> matrix
+respectively.
+<p>
+</dl>
+
+<dt><i>Return value</i>
+<dd>
+See <tt><a href="#MaxBFGS">MaxBFGS</a></tt>.
+<p>
+
+<dt><i>Description</i>
+<dd>
+<tt>MaxSQP</tt> implements
+a sequential quadratic programming technique to maximize
+a non-linear function subject to non-linear constraints,
+similar to Algorithm 18.7 in
+Nocedal and Wright (1999, <i>Numerical Optimization</i>).
+<p>
+<tt>MaxSQPF</tt> enforces all iterates to be feasible, using
+the Algorithm by Lawrence and Tits (2001, <i>SIAM J. Optim.</i>).
+The current version does not support equality constraints.
+If a starting point is infeasible, <tt>MaxSQPF</tt> will try to
+minimize the squared constraint violations to find a feasible
+point.
+
+<dt><i>See also</i>
+
+
+<dd><tt><a href="#MaxBFGS">MaxBFGS</a></tt>, <tt><a href="#GetMaxControl">GetMaxControl</a></tt>,
+<tt><a href="#MaxConvergenceMsg">MaxConvergenceMsg</a></tt>, <tt><a href="#Num1Derivative">Num1Derivative</a></tt>,
+<tt><a href="#Num2Derivative">Num2Derivative</a></tt>
+
+<dt><i>Examples</i>
+<dd>
+See <tt>ox/samples/maximize/</tt>.
+</dl>
+
+
+<h3>
+<a name="Num1Derivative"></a>Num1Derivative, Num1Derivative_parallel
+<a name="Num2Derivative"></a>Num2Derivative, Num2Derivative_parallel
+</h3>
+
+
+<pre>#import &lt;maximize&gt;
+Num1Derivative(const func, vP, const avScore);
+Num1Derivative_parallel(const func, vP, const avScore);
+Num2Derivative(const func, vP, const amHessian);
+Num2Derivative_parallel(const func, vP, const amHessian);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>func</tt>
+
+<dd>in: a function computing the function value, optionally with derivatives
+
+
+<dt><tt>vP</tt>
+
+<dd>in: <i>p</i> <tt>x</tt> 1 matrix with parameter values
+
+<dt><tt>mHessian</tt>
+
+<dd>in: <i>p</i> <tt>x</tt> <i>p</i> matrix, initial Hessian
+
+<dt><tt>avScore</tt>
+
+<dd>in: an address
+
+<dd>out: <i>p</i> <tt>x</tt> 1 matrix with 1st derivatives at <tt>vP</tt>
+
+
+<dt><tt>amHessian</tt>
+
+<dd>in: an address
+
+<dd>out: <i>p</i> <tt>x</tt> <i>p</i> matrix with 2nd derivatives at <tt>vP</tt>
+
+</dl>
+
+<p>The supplied <tt><a href="#MaxBFGS_func">func</a></tt> argument should have the format as documented
+under <tt><a href="#MaxBFGS">MaxBFGS</a></tt>.
+
+<dt><i>Return value</i>
+
+<dd>Returns 1 if successful, 0 otherwise.
+
+<dt><i>See also</i>
+
+<dd><tt><a href="#MaxBFGS">MaxBFGS</a></tt>
+
+<dt><i>Examples</i>
+<dd>
+See <tt>ox/samples/maximize/numder.ox</tt>.
+</dl>
+
+<h3><a name="NumJacobian"></a>NumJacobian</h3>
+
+
+<pre>#import &lt;maximize&gt;
+NumJacobian(const func, vU, const amJacobian);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>func</tt>
+
+<dd>in: function mapping from restricted to unrestricted parameters
+
+<dt><tt>vU</tt>
+
+<dd>in: of <i>u</i> <tt>x</tt> 1 matrix with parameters
+
+<dt><tt>amJacobian</tt>
+
+<dd>in: address
+
+<dd>out: <i>r</i> <tt>x</tt> <i>u</i> Jacobian matrix corresponding to
+mapping
+</dl>
+
+<dl>
+<dd>
+The supplied <tt>func</tt> argument should have the following format:
+<pre>
+func(const avR, const vU);
+</pre>
+
+
+<dl>
+<dt><tt>avR</tt>
+
+<dd>in: address
+
+<dd>out: <i>r</i> <tt>x</tt> 1 matrix with restricted coefficients
+
+<dt><tt>vU</tt>
+
+<dd>in: <i>u</i> <tt>x</tt> 1 matrix with unrestricted coefficients
+</dl>
+<dt><i>returns</i>
+<dd>1: successful, 0: function evaluation failed
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>Returns 1 if successful, 0 otherwise.
+
+<dt><i>See also</i>
+
+<dd><tt><a href="#Num1Derivative">Num1Derivative</a></tt>
+
+<dt><i>Examples</i>
+<dd>
+See <tt>ox/samples/maximize/jacobian.ox</tt>.
+</dl>
+
+
+<h3><a name="SolveNLE"></a>SolveNLE</h3>
+
+
+<pre>#import &lt;solvenle&gt;
+SolveNLE(const func, const avX);
+SolveNLE(const func, const avX, iMode, funcJac, dEps1, dEps2,
+    mxIter, iPrint, mxItInner);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>func</tt>
+
+<dd>in: Ox function evaluating the nonlinear equations (see below)
+
+<dt><tt>avX</tt>
+
+<dd>in: address of <i>n</i> <tt>x</tt> 1 matrix with starting values
+
+<dd>out: <i>n</i> <tt>x</tt> 1 matrix with final coefficients
+
+<dt><tt>iMode</tt>
+
+<dd>in: int, mode of operation:
+<table>
+<tr><td>-1 (default)</td><td>mode 1 if <i>n</i> &lt; 80, else mode 3</td></tr>
+<tr><td>0</td><td>tensor-Newton method using analytical Jacobian</td></tr>
+<tr><td>1</td><td>tensor-Newton method using numerical Jacobian</td></tr>
+<tr><td>2</td><td>tensor method using Broyden's approximation to Jacobian</td></tr>
+<tr><td>3</td><td>large scale problem (tensor-gmres-Newton method, avoiding <i>n</i><tt>x</tt><i>n</i> Jacobian matrix)</td></tr>
+</table>
+
+<dt><tt>dEps1</tt>
+
+<dd>in: double, <i>eps</i><sub>1</sub>, default is 1e-4, use  &le; 0 to leave the current value unchanged (can also be set with <tt>MaxControlEps</tt>)
+
+<dt><tt>dEps2</tt>
+
+<dd>in: double, <i>eps</i><sub>2</sub>, default is 5e-3, use  &le; 0 to leave the current value unchanged (can also be set with <tt>MaxControlEps</tt>)
+
+<dt><tt>mxIter</tt>
+
+<dd>in: int, maximum number of iterations; default is 1000, use -1 to leave
+the current value unchanged (can also be set with <tt>MaxControls</tt>)
+
+<dt><tt>iPrint</tt>
+
+<dd>in: int, print results every iPrint'th iteration; default is 0, use
+-1 to leave the current value unchanged (can also be set with <tt>MaxControls</tt>)
+
+<dt><tt>mxItInner</tt>
+
+<dd>in: int, number of inner iterations for large scale problems, default is
+max(50, 10 * log10(<i>n</i>))
+</dl>
+
+<dl>
+<dd>
+The supplied <tt>func</tt> argument should have the following format:
+<pre>
+func(const avF, const vX)
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>avF</tt>
+
+<dd>in: address
+
+<dd>out: <i>n</i> <tt>x</tt> 1 matrix with nonlinear system <i>f(x)</i> evaluated at <i>x</i>
+
+<dt><tt>vX</tt>
+
+<dd>in: <i>n</i> <tt>x</tt> 1 matrix with <i>x</i> values
+</dl>
+<dt><i>returns</i>
+<dd>1: successful, 0: function evaluation failed
+</dl>
+
+<dl>
+<dd>
+When the analytical Jacobian is used, the <tt>funcJac</tt> argument should have the following format:
+<pre>
+funcJac(const amJac, const vX)
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>amJac</tt>
+
+<dd>in: address
+
+<dd>out: <i>n</i> <tt>x</tt> <i>n</i> matrix with Jacobian matrix evaluated at <tt>vX</tt>
+
+<dt><tt>vX</tt>
+
+<dd>in: <i>n</i> <tt>x</tt> 1 matrix with <i>X</i> values
+unrestricted coefficients returns
+1: successful, 0: function evaluation failed
+</dl>
+<dt><i>returns</i>
+<dd>1: successful, 0: function evaluation failed
+</dl>
+</dl>
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>Returns the status of the iterative process:
+<dl>
+<dt><tt>MAX_CONV</tt>
+<dd><i>Strong convergence</i> norm(<i>f(x)</i>) &lt; 0.001<i>eps</i><sub>1</sub>.
+<dt><tt>MAX_WEAK_CONV</tt>
+<dd><i>Weak convergence (no improvement in line search)</i> The step length
+has become too small and
+norm(<i>f(x)</i>) &lt; <i>eps</i><sub>2</sub>.
+<dt><tt>MAX_MAXIT</tt>
+<dd><i>No convergence (maximum no of iterations reached)</i>
+<dt><tt>MAX_LINE_FAIL</tt>
+<dd><i>No convergence (no improvement in line search)</i> The step length
+has become too small and weak convergence was not achieved.
+<dt><tt>MAX_FUNC_FAIL</tt>
+<dd><i>No convergence (function evaluation failed)</i>
+<dt><tt>MAX_NOCONV</tt>
+<dd><i>No convergence</i> Probably not yet attempted to solve the system.
+</dl>
+
+<dt><i>Description</i>
+<dd>Solves a system <i>f(x)</i> of <i>n</i> nonlinear equations in <i>n</i>
+unknowns. 
+
+
+<dt><i>See also</i>
+<dd>
+<tt><a href="#MaxControls">MaxControls</a></tt>,
+<tt><a href="#MaxControlsEps">MaxControlsEps</a></tt>
+
+<dt><i>Examples</i>
+<dd>
+See <tt>ox/samples/maximize/solvenle1.ox</tt> and
+<tt>ox/samples/maximize/solvenle2.ox</tt>.
+</dl>
+
+
+<h3><a name="SolveQP"></a>SolveQP</h3>
+
+
+<pre>#import &lt;solveqp&gt;
+SolveQP(const mG, const vG, const mA, const vB, const mC,
+    const vD, const vLo, const vHi);
+SolveQPE(const mG, const vG, const mC, const vD);
+SolveQPS(const sFile, const iVerbose)
+SolveQPS(const sFile, const iVerbose, const fnSolveQP)
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>mG</tt>
+<dd>in: <i>n</i> <tt>x</tt> <i>n</i> symmetric matrix <i>G</i> with quadratic weights, or
+            <i>n</i> <tt>x</tt> 1 vector with diagonal of <i>G</i>
+
+<dt><tt>vG</tt>
+<dd>in: <i>n</i> <tt>x</tt> 1 vector <i>g</i> with linear weights
+
+<dt><tt>mA</tt>
+<dd>in: <i>m</i> <tt>x</tt> <i>n</i>  matrix <i>A</i> with linear inequality constraints <i>Ax</i>&gt;=<i>b</i> (may be empty)
+
+<dt><tt>vB</tt>
+<dd>in: <i>m</i> <tt>x</tt> 1 vector <i>b</i> with right-hand side for linear inequality constraints (empty if <i>A</i> is empty)
+
+<dt><tt>mC</tt>
+<dd>in: <i>m<sub>e</sub></i> <tt>x</tt> <i>n</i> matrix <i>C</i> with linear equality constraints <i>cx</i>=<i>d</i> (may be empty)
+
+<dt><tt>vD</tt>
+<dd>in: <i>m<sub>e</sub></i> <tt>x</tt> 1 vector <i>d</i> with right-hand side for linear equality constraints (empty if <i>C</i> is empty)
+
+<dt><tt>vLo</tt>
+<dd>in: <i>n</i> <tt>x</tt> 1 vector with lower bounds (may be empty)
+
+<dt><tt>vHi</tt>
+<dd>in: <i>n</i> <tt>x</tt> 1 vector with upper bounds (may be empty)
+
+<dt><tt>sFile</tt>
+<dd>in: string with <tt>.qps</tt> file name
+
+<dt><tt>iVerbose</tt>
+<dd>in: int, 0 for no output, 1 for one line summary output, 2 to print all matrices and results.
+
+<dt><tt>fnSolveQP</tt>
+<dd>in: (optional argument) QP solver with call syntax as <tt>SolveQP</tt>.
+If absent <tt>SolveQP</tt> is used.
+
+</dl>
+
+<dt><i>Return value</i>
+
+<dd><tt>SolveQP</tt> returns an array with three elements:
+<ul>
+<li> <tt>[0]</tt> integer return value:<br>
+&nbsp;&nbsp;0: success<br>
+&nbsp;&nbsp;1: infeasible constraints<br>
+&nbsp;&nbsp;2: maximum number of iterations reached<br>
+&nbsp;&nbsp;3: Choleski decomposition failed<br>
+<li> <tt>[1]</tt>  <i>n</i> <tt>x</tt> 1 vector with solution <i>x</i>
+<li> <tt>[2]</tt>  <i>m*</i> <tt>x</tt> 1 vector with Lagrange multipliers,
+<i>m*</i>=<i>m<sub>e</sub></i>+<i>m</i>+2<i>n</i><br>
+in order: equality constraints, inequality constraints, lower bounds,
+upper bounds.
+</ul>
+
+<dd><tt>SolveQPE</tt> returns an array with three elements:
+<ul>
+<li> <tt>[0]</tt> <i>n</i> <tt>x</tt> 1 vector with solution <i>x</i>
+<li> <tt>[1]</tt> <i>m<sub>e</sub></i> <tt>x</tt> 1 vector with Lagrange multipliers
+<li> <tt>[2]</tt> <i>p</i> <tt>x</tt> 1 vector with index of redundant constraint (<i>p</i>=0 if all constraints were used)
+</ul>
+
+<dd><tt>SolveQPS</tt> returns an array with four elements: the first three
+as <tt>SolveQP</tt>, the fourth is the value of the objective function
+f(<i>x</i>).
+
+<dt><i>Description</i>
+<dd><tt>SolveQP</tt> solves the quadratic program
+<center>
+min f(<i>x</i>)=<i>x'Gx</i>/2 + <i>x'g</i>, subject to:<br>
+Ax &gt;= b,<br>
+Cx = d,<br>
+x<sub>lo</sub> &lt;= x &lt;= x<sub>hi</sub>.
+</center>
+using an active set method.	If <i>G</i> is not positive definite, a small
+number is added to its diagonal.
+<p>
+<tt>SolveQPE</tt> solves an equality-constrained problem using a null-space method. 
+<p>
+<tt>SolveQPS</tt> solves a QP problem that is stored in a <tt>.qps</tt> file. 
+
+<dt><i>Examples</i>
+<dd>
+See <tt>samples/maximize/solveqp1.ox</tt>.
+</dl>
+
+
+<p><h2><a name="ProbPack"></a>Probability package</h2><p>
+
+<h3>
+<a name="densbeta"></a>densbeta,
+<a name="densbinomial"></a>densbinomial,
+<a name="denscauchy"></a>denscauchy,
+<a name="densexp"></a>densexp,
+<a name="densextremevalue"></a>densextremevalue,
+<a name="densgamma"></a>densgamma,
+<a name="densgeometric"></a>densgeometric,
+<a name="densgh"></a>densgh,
+<a name="densgig"></a>densgig,
+<a name="denshypergeometric"></a>denshypergeometric,
+<a name="densinvgaussian"></a>densinvgaussian,
+<a name="denskernel"></a>denskernel,
+<a name="denslogarithmic"></a>denslogarithmic,
+<a name="denslogistic"></a>denslogistic,
+<a name="denslogn"></a>denslogn,
+<a name="densmises"></a>densmises,
+<a name="densnegbin"></a>densnegbin,
+<a name="denspareto"></a>denspareto,
+<a name="denspoisson"></a>denspoisson,
+<a name="densweibull"></a>densweibull,
+</h3>
+
+
+<pre>
+#include &lt;oxprob.h&gt;
+densbeta(const ma, const a, const b);
+densbinomial(const ma, const n, const p);
+denscauchy(const ma);
+densexp(const ma, const lambda);
+densextremevalue(const ma, const alpha, const beta);
+densgamma(const ma, const dr, const da);
+densgeometric(const ma, const p);
+densgh(const ma, const nu, const delta, const gamma, const beta);
+densgig(const ma, const nu, const delta, const gamma);
+denshypergeometric(const ma, const n, const k, const m);
+densinvgaussian(const ma, const mu, const lambda);
+denskernel(const ma, const itype);
+denslogarithmic(const ma, const alpha);
+denslogistic(const ma, const alpha, const beta);
+denslogn(const ma);
+densmises(const ma, const mu, const kappa);
+densnegbin(const ma, const k, const p);
+denspareto(const ma, const k, const a);
+denspoisson(const ma, const mu);
+densweibull(const ma, const a, const b);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>ma</tt>
+<dd>in: arithmetic type
+
+<dt><tt>a</tt>,<tt>b</tt>
+<dd>in: arithmetic type, arguments for Beta distribution
+
+<dt><tt>dr</tt>
+<dd>in: arithmetic type
+
+<dt><tt>da</tt>
+<dd>in: arithmetic type
+
+<dt><tt>alpha</tt>,<tt>beta</tt>
+<dd>in: arithmetic type, location and scale parameter
+
+<dt><tt>mu</tt>
+<dd>in: arithmetic type, von Mises: mean direction; Poisson: mean
+
+<dt><tt>kappa</tt>
+<dd>in: arithmetic type, dispersion parameter
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>Returns the requested density at <tt>ma</tt> (the returned densities
+are between positive):
+
+<a name="densities"></a>
+
+<table border="0" cellspacing="0" cellpadding="0">
+<tr><td><img src="./oxdens1.png" border="0" alt="./oxdens1.png" class="scaled-img"></td></tr>
+<tr><td><img src="./oxdens2.png" border="0" alt="./oxdens2.png" class="scaled-img"></td></tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr><td><img src="./oxdens3.gif" border="0" alt="./oxdens3.gif" class="scaled-img"></td></tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr><td><img src="./oxdens4.gif" border="0" alt="./oxdens4.gif" class="scaled-img"></td></tr>
+</table>
+
+
+The return type is derived as follows:
+
+<ul>
+<li><i>m</i> <tt>x</tt> <i>n</i> matrix, when <tt>ma</tt> is an <i>m</i>
+<tt>x</tt> <i>n</i> matrix, and the rest is scalar;
+
+
+<li><i>m</i> <tt>x</tt> <i>n</i> matrix, when <tt>ma</tt> is a scalar,
+and the rest are <i>m</i> <tt>x</tt> <i>n</i> matrices;
+
+<li><i>m</i> <tt>x</tt> <i>n</i> matrix, when <tt>ma</tt> is an <i>m</i>
+<tt>x</tt> <i>n</i> matrix, and the rest are <i>m</i> <tt>x</tt> <i>n</i>
+matrices;
+
+<li>double, when <tt>ma</tt> is scalar, and the rest is also scalar (int
+for <tt>denst</tt>).
+</ul>
+
+<dt><i>See also</i>
+
+<dd><tt><a href="oxstd.html#probchi">prob...</a></tt>,
+<tt><a href="oxstd.html#quanchi">quan...</a></tt>,
+<tt><a href="oxstd.html#tailchi">tail...</a></tt>
+</dl>
+
+
+
+<h3>
+<a name="probbeta"></a>probbeta,
+<a name="probbinomial"></a>probbinomial,
+<a name="probbvn"></a>probbvn,
+<a name="probcauchy"></a>probcauchy,
+<a name="probexp"></a>probexp,
+<a name="probextremevalue"></a>probextremevalue,
+<a name="probgamma"></a>probgamma,
+<a name="probgeometric"></a>probgeometric,
+<a name="probhypergeometric"></a>probhypergeometric,
+<a name="probinvgaussian"></a>probinvgaussian,
+<a name="problogarithmic"></a>problogarithmic,
+<a name="problogistic"></a>problogistic,
+<a name="problogn"></a>problogn,
+<a name="probmises"></a>probmises,
+<a name="probmvn"></a>probmvn,
+<a name="probnegbin"></a>probnegbin,
+<a name="probpareto"></a>probpareto,
+<a name="probpoisson"></a>probpoisson,
+<a name="probweibull"></a>probweibull,
+</h3>
+
+
+<pre>
+#include &lt;oxprob.h&gt;
+probbeta(const ma, const a, const b);
+probbinomial(const ma, const n, const p);
+probbvn(const da, const db, const drho);
+probcauchy(const ma);
+probexp(const ma, const lambda);
+probextremevalue(const ma, const alpha, const beta);
+probgamma(const ma, const dr, const da);
+probgeometric(const ma, const p);
+probhypergeometric(const ma, const n, const k, const m);
+probinvgaussian(const ma, const mu, const lambda);
+problogarithmic(const ma, const alpha);
+problogistic(const ma, const alpha, const beta);
+problogn(const ma);
+probmises(const ma, const mu, const kappa);
+probmvn(const mx, const msigma);
+probnegbin(const ma, const k, const p);
+probpareto(const ma, const k, const a);
+probpoisson(const ma, const mu);
+probweibull(const ma, const a, const b);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>ma</tt>
+<dd>in: arithmetic type
+
+<dt><tt>a</tt>,<tt>b</tt>
+<dd>in: arithmetic type, arguments for Beta distribution
+
+<dt><tt>dr</tt>, <tt>da</tt>
+<dd>in: arithmetic type
+
+<dt><tt>idf</tt>
+<dd>in: int, degrees of freedom
+
+<dt><tt>mu</tt>
+<dd>in: arithmetic type, von Mises: mean location (use <tt>M_PI</tt> for
+symmetric between 0 and 2pi); Poisson: mean
+
+<dt><tt>kappa</tt>
+<dd>in: arithmetic type, dispersion parameter
+
+<dt><tt>alpha</tt>,<tt>beta</tt>
+<dd>in: arithmetic type, location and scale parameter
+
+<dt><tt>da</tt>, <tt>db</tt>
+<dd>in: arithmetic type, upper limits of integration
+
+<dt><tt>drho</tt>
+<dd>in: arithmetic type, correlation coefficient
+
+<dt><tt>mx</tt>
+<dd>in: <i>m</i> <tt>x</tt> <i>n</i> matrix for <i>n</i>-variate normal, with <i>m</i> upper limits
+
+<dt><tt>msigma</tt>
+<dd>in: <i>n</i> <tt>x</tt> <i>n</i> variance matrix
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>Returns the requested cumulative distribution functions at <tt>ma</tt>
+(<i>P</i>[<i>X</i>&le;= <i>x</i>]; the returned probabilities
+are between zero and one):
+
+<ul>
+<li><tt>probbeta</tt>: probabilities from Beta(<i>a</i>,<i>b</i>) distribution,
+
+<li><tt>probbinomial</tt>: probabilities from Bin(<i>n,p</i>) distribution,
+
+<li><tt>probbvn</tt>: probabilities from the bivariate normal distribution,
+
+<li><tt>probcauchy</tt>: probabilities from the Cauchy distribution,
+
+<li><tt>probexp</tt>: probabilities from the exp(lambda) distribution with mean 1 / lambda,
+
+<li><tt>probextremevalue</tt>: probabilities from the Extreme Value (type I or Gumbel) distribution,
+
+<li><tt>probgamma</tt>: probabilities from the Gamma distribution,
+
+<li><tt>probgeometric</tt>: probabilities from the Geometric distribution, 
+
+<li><tt>probhypergeometric</tt>: probabilities from the Hypergeometric distribution, 
+
+<li><tt>probinvgaussian</tt>: probabilities from the Inverse Gaussian distribution, 
+
+<li><tt>problogarithmic</tt>: probabilities from the Logarithmic distribution,
+
+<li><tt>problogistic</tt>: probabilities from the Logistic distribution,
+
+<li><tt>problogn</tt>: probabilities from the Lognormal distribution,
+
+<li><tt>probmises</tt>: probabilities from the VM(<i>mu</i>, <i>kappa</i>) distribution (von Mises),
+
+<li><tt>probmvn</tt>: probabilities from the multivariate normal distribution (currently up to trivariate),
+
+<li><tt>probnegbin</tt>: probabilities from the Negative Binomial distribution, 
+
+<li><tt>probpareto</tt>: probabilities from the Pareto distribution, 
+
+<li><tt>probpoisson</tt>: probabilities from the Poisson mu distribution,
+
+<li><tt>probweibull</tt>: probabilities from the Weibull distribution. 
+
+</ul>
+<p>The functional forms are listed under the <a href="#densities">density functions</a>.
+
+<p>The probabilities are accurate to about 10 digits.
+
+The return type for <tt>probbeta</tt>, <tt>probgamma</tt>, <tt>probmises</tt>,  
+<tt>probpoisson</tt> is derived as follows:
+
+<ul>
+<li><i>m</i> <tt>x</tt> <i>n</i> matrix, when <tt>ma</tt> is an <i>m</i>
+<tt>x</tt> <i>n</i> matrix, and the rest is scalar;
+
+
+<li><i>m</i> <tt>x</tt> <i>n</i> matrix, when <tt>ma</tt> is a scalar,
+and the rest are <i>m</i> <tt>x</tt> <i>n</i> matrices;
+
+<li><i>m</i> <tt>x</tt> <i>n</i> matrix, when <tt>ma</tt> is an <i>m</i>
+<tt>x</tt> <i>n</i> matrix, and the rest are <i>m</i> <tt>x</tt> <i>n</i>
+matrices;
+
+<li>double, when <tt>ma</tt> is scalar, and the rest is also scalar (int
+for <tt>probt</tt>).
+</ul>
+<p>
+The return type for <tt>probbvn</tt> is a double if all arguments are
+scalar, or an <i>m</i> <tt>x</tt> <i>n</i> matrix if one or more arguments
+are an <i>m</i> <tt>x</tt> <i>n</i> matrix.
+<p>
+The return type for <tt>probmvn</tt> is a double if <i>m</i>=1,
+or an <i>m</i> <tt>x</tt> 1 vector if <i>m</i>&gt;1, where <i>m</i>
+is the number of rows of the first argument.
+<p>
+Note that the von Mises distribution runs from 0 to 2pi, with mean direction
+<i>mu</i> (i.e. what tends to be written as VM(0,k) is VM(pi,k) here).
+
+<dt><i>See also</i>
+
+<dd>
+<tt><a href="oxstd.html#bessel">bessel</a></tt>,
+<tt><a href="oxstd.html#betafunc">betafunc</a></tt>,
+<tt><a href="oxstd.html#gammafunc">gammafunc</a></tt>,
+<tt><a href="oxstd.html#denschi">dens...</a></tt>,
+<tt><a href="oxstd.html#quanchi">quan...</a></tt>,
+<tt><a href="oxstd.html#tailchi">tail...</a></tt>
+</dl>
+
+
+<h3>
+<a name="quanbeta"></a>quanbeta,
+<a name="quanbinomial"></a>quanbinomial,
+<a name="quancauchy"></a>quancauchy,
+<a name="quanexp"></a>quanexp,
+<a name="quanextremevalue"></a>quanextremevalue,
+<a name="quangamma"></a>quangamma,
+<a name="quangeometric"></a>quangeometric,
+<a name="quanhypergeometric"></a>quanhypergeometric,
+<a name="quaninvgaussian"></a>quaninvgaussian,
+<a name="quanlogarithmic"></a>quanlogarithmic,
+<a name="quanlogistic"></a>quanlogistic,
+<a name="quanlogn"></a>quanlogn,
+<a name="quanmises"></a>quanmises,
+<a name="quannegbin"></a>quannegbin,
+<a name="quanpareto"></a>quanpareto,
+<a name="quanpoisson"></a>quanpoisson,
+<a name="quanweibull"></a>quanweibull,
+</h3>
+
+
+<pre>
+#include &lt;oxprob.h&gt;
+quanbeta(const ma, const a, const b);
+quanbinomial(const ma, const n, const p);
+quancauchy(const ma);
+quanexp(const ma, const lambda);
+quanextremevalue(const ma, const alpha, const beta);
+quangamma(const ma, const dr, const da);
+quangeometric(const ma, const p);
+quanhypergeometric(const ma, const n, const k, const m);
+quaninvgaussian(const ma, const mu, const lambda);
+quanlogarithmic(const ma, const alpha);
+quanlogistic(const ma, const alpha, const beta);
+quanlogn(const mx);
+quanmises(const mp, const mu, const kappa);
+quannegbin(const ma, const k, const p);
+quanpareto(const ma, const k, const a);
+quanpoisson(const ma, const mu);
+quanweibull(const ma, const a, const b);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>ma</tt>
+<dd>in: arithmetic type, probabilities: all values must be between 0 and 1
+
+<dt><tt>a</tt>,<tt>b</tt>
+<dd>in: arithmetic type, arguments for Beta distribution
+
+<dt><tt>dr</tt>, <tt>da</tt>
+<dd>in: arithmetic type
+
+<dt><tt>alpha</tt>,<tt>beta</tt>
+<dd>in: arithmetic type, location and scale parameter
+
+<dt><tt>idf</tt>
+<dd>in: int, degrees of freedom
+
+<dt><tt>kappa</tt>
+<dd>in: arithmetic type, dispersion parameter
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>Returns the requested quantiles (inverse probability function; percentage
+points) at <tt>ma</tt>:
+
+<ul>
+<li><tt>quanbeta</tt>: quantiles from Beta(<i>a</i>,<i>b</i>) distribution,
+
+<li><tt>quanbinomial</tt>: quantiles from Bin(<i>n,p</i>) distribution,
+
+<li><tt>quancauchy</tt>: quantiles from the Cauchy distribution,
+
+<li><tt>quanexp</tt>: quantiles from the exp(lambda) distribution with mean 1 / lambda,
+
+<li><tt>quanextremevalue</tt>: quantiles from the Extreme Value (type I or Gumbel) distribution,
+
+<li><tt>quangamma</tt>: quantiles from the Gamma distribution,
+
+<li><tt>quangeometric</tt>: quantiles from the Geometric distribution, 
+
+<li><tt>quanhypergeometric</tt>: quantiles from the Hypergeometric distribution, 
+
+<li><tt>quaninvgaussian</tt>: quantiles from the Inverse Gaussian distribution, 
+
+<li><tt>quanlogarithmic</tt>: quantiles from the Logarithmic distribution,
+
+<li><tt>quanlogistic</tt>: quantiles from the Logistic distribution,
+
+<li><tt>quanlogn</tt>: quantiles from the Lognormal distribution,
+
+<li><tt>quanmises</tt>: quantiles from the VM(<i>mu</i>, <i>kappa</i>) distribution (von Mises),
+
+<li><tt>quannegbin</tt>: quantiles from the Negative Binomial distribution, 
+
+<li><tt>quanpareto</tt>: quantiles from the Pareto distribution, 
+
+<li><tt>quanpoisson</tt>: quantiles from the Poisson mu distribution,
+
+<li><tt>quanweibull</tt>: quantiles from the Weibull distribution. 
+</ul>
+
+<p>The functional forms are listed under the <a href="#densities">density functions</a>.
+
+<p>The quantiles are accurate to about 10 digits.
+
+The return type is derived as follows:
+
+<ul>
+<li><i>m</i> <tt>x</tt> <i>n</i> matrix, when <tt>ma</tt> is an <i>m</i>
+<tt>x</tt> <i>n</i> matrix, and the rest is scalar;
+
+
+<li><i>m</i> <tt>x</tt> <i>n</i> matrix, when <tt>ma</tt> is a scalar,
+and the rest are <i>m</i> <tt>x</tt> <i>n</i> matrices;
+
+<li><i>m</i> <tt>x</tt> <i>n</i> matrix, when <tt>ma</tt> is an <i>m</i>
+<tt>x</tt> <i>n</i> matrix, and the rest are <i>m</i> <tt>x</tt> <i>n</i>
+matrices;
+
+<li>double, when <tt>ma</tt> is scalar, and the rest is also scalar.
+</ul>
+
+<dt><i>See also</i>
+
+<dd><tt><a href="oxstd.html#denschi">dens...</a></tt>,
+<tt><a href="oxstd.html#probchi">prob...</a></tt>,
+<tt><a href="oxstd.html#tailchi">tail...</a></tt>
+</dl>
+
+
+<h3>
+<a name="ranbeta"></a>ranbeta,
+<a name="ranbinomial"></a>ranbinomial,
+<a name="ranbrownianmotion"></a>ranbrownianmotion,
+<a name="rancauchy"></a>rancauchy,
+<a name="ranchi"></a>ranchi,
+<a name="randirichlet"></a>randirichlet,
+<a name="ranexp"></a>ranexp,
+<a name="ranextremevalue"></a>ranextremevalue,
+<a name="ranf"></a>ranf,
+<a name="rangamma"></a>rangamma,
+<a name="rangeometric"></a>rangeometric,
+<a name="rangh"></a>rangh,
+<a name="rangig"></a>rangig,
+<a name="ranhypergeometric"></a>ranhypergeometric,
+<a name="ranindex"></a>ranindex,
+<a name="raninvgaussian"></a>raninvgaussian,
+<a name="ranlogarithmic"></a>ranlogarithmic,
+<a name="ranlogistic"></a>ranlogistic,
+<a name="ranlogn"></a>ranlogn,
+<a name="ranmises"></a>ranmises,
+<a name="ranmultinomial"></a>ranmultinomial,
+<a name="rannegbin"></a>rannegbin,
+<a name="ranpareto"></a>ranpareto,
+<a name="ranpoisson"></a>ranpoisson,
+<a name="ranpoissonprocess"></a>ranpoissonprocess,
+<a name="ranshuffle"></a>ranshuffle,
+<a name="ranstable"></a>ranstable,
+<a name="ransubsample"></a>ransubsample,
+<a name="rant"></a>rant,
+<a name="ranuorder"></a>ranuorder,
+<a name="ranwishart"></a>ranwishart,
+<a name="ranweibull"></a>ranweibull
+</h3>
+
+
+<pre>
+#include &lt;oxprob.h&gt;
+ranbeta(const r, const c, const a, const b);
+ranbinomial(const r, const c, const n, const p);
+ranbrownianmotion(const r, const times);
+rancauchy(const r, const c);
+ranchi(const r, const c, const df);
+randirichlet(const r, const valpha);
+ranexp(const r, const c, const lambda);
+ranextremevalue(const r, const c, const alpha, const beta);
+ranf(const r, const c, const df1, const df2);
+rangamma(const r, const c, const dr, const da);
+rangeometric(const r, const c, const p);
+rangh(const r, const c, const nu, const delta, const gamma,
+    const beta);
+ranhypergeometric(const r, const c, const n, const k, const m);
+rangig(const r, const c, const nu, const delta, const gamma);
+ranindex(const c);
+ranindex(const c, const n);
+raninvgaussian(const r, const c, const mu, const lambda);
+ranlogarithmic(const r, const c, const alpha);
+ranlogistic(const r, const c);
+ranlogn(const r, const c);
+ranmises(const r, const c, const kappa);
+ranmultinomial(const n, const vp);
+rannegbin(const r, const c, const n, const p);
+ranpareto(const r, const c, const k, const a);
+ranpoisson(const r, const c, const mu);
+ranpoissonprocess(const r, const times, const mu);
+ranshuffle(const c, const x);
+ranstable(const r, const c, const alpha, const beta);
+ransubsample(const c, const n);
+rant(const r, const c, const df);
+ranuorder(const c);
+ranweibull(const r, const c, const a, const b);
+ranwishart(const n, const p);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>r</tt>
+<dd>in: int, number of rows
+
+<dt><tt>c</tt>
+<dd>in: int, number of columns
+
+<dt><tt>a</tt>,<tt>b</tt>
+<dd>in: double or <i>r</i><tt>x</tt><i>c</i> matrix, arguments for Beta distribution
+
+<dt><tt>n</tt>
+<dd>in: int, number of trials
+
+<dt><tt>p</tt>
+<dd>in: double, probability of success (rangeometric also allows or <i>r</i><tt>x</tt><i>c</i> matrix)
+
+<dt><tt>vp</tt>
+<dd>in: column or row vector with <i>c</i> probabilities of success (must sum to one)
+
+<dt><tt>lambda</tt>
+<dd>in: double or <i>r</i><tt>x</tt><i>c</i> matrix
+
+<dt><tt>df</tt>
+<dd>in: double or <i>r</i><tt>x</tt><i>c</i> matrix, degrees of freedom
+
+<dt><tt>df1</tt>
+<dd>in: double or <i>r</i><tt>x</tt><i>c</i> matrix, degrees of freedom in the numerator
+
+<dt><tt>df2</tt>
+<dd>in: double or <i>r</i><tt>x</tt><i>c</i> matrix, degrees of freedom in the denominator
+
+<dt><tt>dr</tt>
+<dd>in: double or <i>r</i><tt>x</tt><i>c</i> matrix
+
+<dt><tt>da</tt>
+<dd>in: double or <i>r</i><tt>x</tt><i>c</i> matrix
+
+<dt><tt>mu</tt>
+<dd>in: double or <i>r</i><tt>x</tt><i>c</i> matrix, mean
+
+<dt><tt>kappa</tt>
+<dd>in: double or <i>r</i><tt>x</tt><i>c</i> matrix, dispersion parameter (mean direction is pi)
+
+<dt><tt>alpha</tt>
+<dd>in: double or <i>r</i><tt>x</tt><i>c</i> matrix
+
+<dt><tt>beta</tt>
+<dd>in: double or <i>r</i><tt>x</tt><i>c</i> matrix
+
+<dt><tt>nu</tt>
+<dd>in: double, parameter for GH and GIG distributions
+
+<dt><tt>valpha</tt>
+<dd>in: vector with <i>c</i>+1 shape parameters for Dirichlet distribution
+
+<dt><tt>times</tt>
+<dd>in:  column or row vector with <i>c</i> time points (must be non-decreasing)
+
+<dt><tt>x</tt>
+<dd>in:  column or row vector to sample from
+
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>The following return a <tt>r</tt> by <tt>c</tt> matrix of random numbers from the
+selected distribution:
+
+<ul>
+<li><tt>ranbeta </tt>: Beta(<i>a</i>,<i>b</i>) distribution,
+
+<li><tt>ranbinomial</tt>: Binomial(<i>n</i>,<i>p</i>) distribution,
+
+<li><tt>ranbrownianmotion </tt>: <i>r</i> realizations of the Brownian motion,
+with time steps specified by the vector <tt>times</tt>,
+
+<li><i>rancauchy</i>: equals <tt>rant(r, c, 1)</tt>,
+
+<li><tt>ranchi </tt>: chi<sup>2</sup>(df) distribution,
+
+<li><tt>randirichlet </tt>: Dirichlet(\alpha<sub>1</sub>,...,\alpha<sub>c+1</sub>) distributed random numbers
+(each row is a realization of the <i>c</i>-variate random variable),
+
+<li><tt>ranexp </tt>: exp(\lambda) distribution with mean 1 / \lambda,
+
+<li><tt>ranextremevalue </tt>: Extreme Value (type I or Gumbel) distribution
+
+<li><tt>ranf </tt>: F(df1, df2) distribution,
+
+<li><tt>rangamma </tt>: Gamma(<i>r</i>,<i>a</i>) distribution,
+
+<li><tt>rangeometric</tt>: Geometric distribution, 
+
+<li><tt>rangh</tt>: GH(nu,delta,gamma,beta) distribution,
+
+<li><tt>rangig</tt>: GIG(nu,delta,gamma) distribution,
+
+<li><tt>ranhypergeometric</tt>: Hypergeometric distribution, 
+
+<li><tt>raninvgaussian </tt>: Inverse Gaussian(<i>mu</i>,<i>lambda</i>) distribution,
+
+<li><tt>ranlogarithmic </tt>: logarithmic distribution,
+
+<li><tt>ranlogistic </tt>: logistic distribution,
+
+<li><tt>ranlogn </tt>: log normal distribution,
+
+<li><tt>ranmises</tt>: VM(pi, <i>kappa</i>) distribution (von Mises),
+
+<li><tt>rannegbin</tt>: Negative binomial(<i>n</i>,<i>p</i>) distribution,
+
+<li><tt>ranpareto</tt>: Pareto(<i>k</i>,<i>a</i>) distribution, 
+
+<li><tt>ranpoisson </tt>: Poisson(mu) distribution,
+
+<li><tt>ranpoissonprocess </tt>: <i>r</i> realizations of the Poisson process,
+with time steps specified by the vector <tt>times</tt>,
+
+<li><tt>ranstable </tt>: S(<i>alpha</i>,<i>beta</i>) distribution,
+
+<li><tt>rant </tt>: Student t(df) distribution, degrees of freedom need not be integer,
+
+<li><tt>ranweibull</tt>: Weibull distribution. 
+
+<li><tt>ranwishart </tt>: Wishart(n, <i><b>I</b><sub>p</sub></i>) distributed random drawing, returns an <i>p</i> <tt>x</tt> <i>p</i> matrix.
+</ul>
+
+<p>The functional forms are listed under the <a href="#densities">density functions</a>.
+
+<dd><p>The matrix is filled by row. Note that, if both <tt>r</tt>
+and <tt>c</tt> are 1, the return value is a scalar of type double!
+
+<dd><p>The following return a <tt>1</tt> by <tt>c</tt> matrix of random numbers from the
+selected distribution:
+
+<ul>
+<li><tt>ranindex(c)</tt>:    draws <i>c</i> numbers from 0,...,<i>c</i>-1 without replacement,
+<li><tt>ranindex(c,n)</tt>:  draws <i>c</i> numbers from 0,...,<i>n</i>-1 without replacement
+                     (this is the same as <tt>ranshuffle(c, range(0,n-1))</tt>),
+<li><tt>ranmultinomial</tt>: Multinomial(<i>n</i>,<i>p</i><sub>1</sub>,...,<i>p<sub>c</sub></i>) distribution,
+<li><tt>ranshuffle</tt>: draws <i>c</i> elements from <tt>x</tt> without replacement,
+<li><tt>ransubsample</tt>: draws <i>c</i> numbers from the integers 0,...,<i>n</i>-1 without replacement,
+returning the ordered numbers (the return value is sorted, so <tt>ransubsample(n,n)</tt> just returns 0,...,<i>n</i>-1),
+<li><tt>ranuorder</tt>:	generates <i>c</i> uniform order statistics.
+</ul>
+
+<p>
+The von Mises is generated between 0 and 2pi, with mean direction pi,
+corresponding to <tt><a href="#probmises">probmises</a>(.,M_PI,kappa)</tt>.
+To use a different mean:
+<pre>
+    y = fmod(ranmises(r, c, kappa) + mu, M_2PI);
+</pre>
+<tt>M_PI</tt> and <tt>M_2PI</tt> require <tt>oxfloat.h</tt>.
+
+<dt><i>See also</i>
+
+<dd><tt><a href="oxstd.html#rann">rann</a></tt>,
+<tt><a href="oxstd.html#ranseed">ranseed</a></tt>,
+<tt><a href="oxstd.html#ranu">ranu</a></tt>
+</dl>
+
+
+<p><h2><a name="quadpack"></a>QuadPack</h2><p>
+<p>
+QuadPack is a Fortran library for univariate numerical integration
+(`quadrature') using adaptive rules. The main driver functions are exported to Ox
+from a dynamic link library, using the header file
+<tt>quadpack.h</tt>.
+<p>
+Full documentation is in Piessens et al. (1983),
+<i>QUADPACK, A Subroutine Package for Automatic Integration</i>,
+Springer-Verlag.
+
+<h3>
+<a name="QAG"></a>QAG,
+<a name="QAGI"></a>QAGI,
+<a name="QAGP"></a>QAGP,
+<a name="QAGS"></a>QAGS,
+<a name="QNG"></a>QNG
+</h3>
+
+
+<pre>
+#include &lt;quadpack.h&gt;
+QNG (const func, const a, const b, const aresult,
+    const aabserr);
+QAG (const func, const a, const b, const key,
+    const aresult, const aabserr);
+QAGS(const func, const a, const b, const aresult,
+    const aabserr);
+QAGP(const func, const a, const b, const vpoints,
+    const aresult, const aabserr);
+QAGI(const func, const bound, const inf, const aresult,
+    const aabserr);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>func</tt>
+<dd>in: function to integrate;
+func must be a function of one
+argument (a double), returning a double
+
+<dt><tt>a</tt>
+<dd>in: double, lower limit of integration
+
+<dt><tt>b</tt>
+<dd>in: double, upper limit of integration
+
+<dt><tt>key</tt>
+<dd>in: int, key for choice of local integration rule, which
+determines the number of points in the Gauss-Kronrod
+pair:  1 or less (7-15 points), 2 (10-21 points),
+3 (15-31 points), 4 (20-41 points),
+5 (25-51 points), 6 or more (30-61 points).
+
+<dt><tt>vpoints</tt>
+<dd>in: row vector with singularities of integrand
+
+<dt><tt>bound</tt>
+<dd>in: double, lower bound (<tt>inf</tt> == 1) or upper bound (<tt>inf</tt> == -1)
+
+<dt><tt>inf</tt>
+<dd>in: int, 1: integral from b to infinity, -1: integral from minus infinity to b,
+2: integral from minus infinity to infinity
+
+<dt><tt>aresult</tt>
+<dd>in:  address of variable
+<dd>out: double, approximation to the integral
+
+<dt><tt>aabserr</tt>
+<dd>in:  address of variable
+<dd>out: double, estimate of the modulus of the absolute error
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>Result of the QuadPack routine:
+<ul>
+<li>0: normal and reliable termination of routine; 
+<li>1: maximum number of steps has been executed; 
+<li>2: roundoff error prevents reaching the desired tolerance; 
+<li>3: extremely bad integrand behaviour prevents reaching tolerance; 
+<li>4: algorithm does not converge; 
+<li>5: integral is probably convergent or slowly divergent;
+<li>6: invalid input; 
+<li>10: not enough memory; 
+</ul>
+An error message greater than 0 is reported unless switched off with <tt>QPWARN</tt>.
+
+<dt><i>Description</i>
+
+<dd>
+<tt>QNG</tt>: simple non-adaptive automatic integrator for a smooth integrand.
+
+<dd>
+<tt>QAG</tt>: simple globally adaptive Gauss-Kronrod-based integrator, with
+choice of formulae.
+
+<dd>
+<tt>QAGS</tt>: globally adaptive integrator with extrapolation, which can handle
+integrand singularities of several types.
+
+<dd>
+<tt>QAGP</tt>: as <tt>QAGS</tt>, but allows the user to specify singularities,
+discontinuities and other difficulties of the integrand.
+
+<dd>
+<tt>QAGI</tt>: as <tt>QAGS</tt>, but handles integration over infinite integrals.
+
+</dl>
+
+<h3>
+<a name="QAWO"></a>QAWO,
+<a name="QAWF"></a>QAWF,
+<a name="QAWS"></a>QAWS,
+<a name="QAWC"></a>QAWC
+</h3>
+
+
+<pre>
+#include &lt;quadpack.h&gt;
+QAWO(const func, const a, const b, const omega, const fcos,
+	const maxp1, const aresult, const aabserr);     
+QAWF(const func, const a, const omega, const fcos, const limlst,
+	const maxp1, const aresult, const aabserr);
+QAWS(const func, const a, const b, const alpha, const beta,
+	const type, const aresult, const aabserr);      
+QAWC(const func, const a, const b, const c, const aresult,
+	const aabserr);                                  
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>func</tt>
+<dd>in: function to integrate;
+func must be a function of one
+argument (a double), returning a double
+
+<dt><tt>a</tt>
+<dd>in: double, lower limit of integration
+
+<dt><tt>b</tt>
+<dd>in: double, upper limit of integration
+
+<dt><tt>omega</tt>
+<dd>in: double, factor in cosine or sine function
+
+<dt><tt>fcos</tt>
+<dd>in: int, 1: function to integrate is cos(omega*x)*f(x), else
+it is sin(omega*x)*f(x)
+
+<dt><tt>maxp1</tt>
+<dd>in: int, upper bound on the number of Chebyshev
+moments which can be stored.
+
+<dt><tt>limlst</tt>
+<dd>in: int, upper bound on the number of cycles (must be &gt;= 3).
+
+<dt><tt>alpha,beta</tt>
+<dd>in: double, powers in w(x), both &gt;-1.
+
+<dt><tt>itype</tt>
+<dd>in: int, 1: v(x)=1; 2: v(x)=log(x-a); 3: v(x)=log(b-x); 4: v(x)=log(x-a)*log(b-x).
+
+<dt><tt>c</tt>
+<dd>in: double, term for Cauchy principal value (!= a and != b).
+
+<dt><tt>aresult</tt>
+<dd>in:  address of variable
+<dd>out: double, approximation to the integral
+
+<dt><tt>aabserr</tt>
+<dd>in:  address of variable
+<dd>out: double, estimate of the modulus of the absolute error
+</dl>
+
+<dt><i>Return value</i>
+
+<dd>Result of the QuadPack routine:
+<ul>
+<li>0: normal and reliable termination of routine; 
+<li>1: maximum number of steps has been executed; 
+<li>2: roundoff error prevents reaching the desired tolerance; 
+<li>3: extremely bad integrand behaviour prevents reaching tolerance; 
+<li>4: algorithm does not converge; 
+<li>5: integral is probably convergent or slowly divergent;
+<li>6: invalid input; 
+<li>10: not enough memory; 
+</ul>
+An error message greater than 0 is reported unless switched off with <tt>QPWARN</tt>.
+
+<dt><i>Description</i>
+
+<dd>
+<tt>QAWO</tt>: integrates cos(omega*x)*f(x)
+or sin(omega*x)*f(x) over a finite interval (a,b).
+
+<dd>
+<tt>QAWF</tt>: Fourier cosine or Fourier sine transform of f(x),
+from a to infinity. (<tt>QAWF</tt> returns error 6 if
+epsabs is zero, use <tt>QPEPS</tt> to change the value of epsabs.)
+
+<dd>
+<tt>QAWS</tt>: integrates w(x)*f(x) over a finite interval (a,b),
+where w(x) = [(x-a)^alpha]*[(b-x)^beta]*v(x), and
+v(x) depends on the <tt>itype</tt> argument.
+
+<dd>
+<tt>QAWC</tt>: Cauchy principal value of f(x)/(x-c)
+over a finite interval (a,b) and for user-determined c.
+
+</dl>
+
+
+
+<h3>
+<a name="QPEPS"></a>QPEPS,
+<a name="QPWARN"></a>QPWARN
+</h3>
+
+
+<pre>
+#include &lt;quadpack.h&gt;
+QPEPS(const epsabs, const epsrel);
+QPWARN(const ion);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>epsabs</tt>
+<dd>in:  double, absolute accuracy requested (the default value is 0)
+
+<dt><tt>epsrel</tt>
+<dd>in:  double, relative accuracy requested (the default value is 1e-10)
+
+<dt><tt>ion</tt>
+<dd>in:  int, 1: print warning and error messages (the default), or 0: don't print
+</dl>
+
+<dt><i>No return</i>
+
+<dt><i>Description</i>
+
+<dd>
+<tt>QPEPS</tt>: sets the accuracy for all QuadPack functions.
+
+<dd>
+<tt>QPWARN</tt>: controls whether warning/error messages are printed or not.
+</dl>
+
+
+<hr><p><b>Ox version 7.00.</b>
+&copy; <i><a href="http://www.doornik.com" target="_top">
+JA Doornik</a></i>
+This file last changed <script type="text/javascript">document.write(document.lastModified);</script>.
+
+</div><!-- /page-frame -->
+</body>
+</html>

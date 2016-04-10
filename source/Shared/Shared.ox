@@ -342,14 +342,17 @@ return o;
 /** Print Column Moments.
     @param M <em>matrix</em>: matrix to compute (column) moments for
     @param rlabels (optional), array of labels for variables
+    @param oxf int, print to screen (default),<br>file, printed to file
     @comments See Ox <tt>moments()</tt>
+    @return matrix of moments
 **/
-MyMoments(M,rlabels)	{
-	decl moms = (moments(M,2)|minc(M)|maxc(M))';
-	if (isarray(rlabels))
-		print("%r",rlabels,"%c",mymomlabels,moms);
-	else
-		print("%c",mymomlabels,moms);
+MyMoments(M,rlabels,oxf)	{
+	decl moms = (moments(M,2)|minc(M)|maxc(M))', mstr;
+	mstr = isarray(rlabels)
+                    ? sprint("%r",rlabels,"%c",mymomlabels,moms)
+                    : print("%c",mymomlabels,moms);
+    if (isfile(oxf)) fprintln(oxf,mstr); else println(mstr);
+    return moms;
 	}
 
 
