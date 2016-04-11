@@ -205,7 +205,9 @@ class Version : Zauxiliary {
 
 public: 	
     static const decl version=250;
-	static Check();
+    static decl logdir, tmstmp;
+	static Check(logdir="");
+
 	}
 
 /** Code a system of constraints.

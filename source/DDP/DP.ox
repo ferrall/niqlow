@@ -645,9 +645,9 @@ DP::Initialize(userState,UseStateList) {
     TypeCheck(userState,"Bellman","DDP Error 05.  You must send an object of your Bellman-derived class to Initialize.  For example,\n Initialize(new MyModel()); \n");
     if (Flags::ThetaCreated) oxrunerror("DDP Error 42. Must call DP::Delete between calls to CreateSpaces and Initialize");
     if (isint(L)) L = "DDP";
-    lognm = replace("DP-"+L+"-"+date()+replace(time(),":","-")," ","")+".log";
+    lognm = replace(Version::logdir+"DP-"+L+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"aV");
-    Discrete::logf = fopen(replace("Variables-"+L+"-"+date()+replace(time(),":","-")," ","")+".log","aV");
+    Discrete::logf = fopen(replace(Version::logdir+"Variables-"+L+Version::tmstmp+".log"," ",""),"aV");
     Hooks::Reset();
     this.userState = userState;
     Flags::UseStateList=UseStateList;

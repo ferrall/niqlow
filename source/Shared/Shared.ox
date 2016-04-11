@@ -1,13 +1,21 @@
 #include "Shared.h"
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
-Version::Check() {
+/** Check versions and set timestamp, log directory.
+@param logdir str (default="").  A directory path or file prefix to attach to all log files.
+All log files will receive the same time stamp, which is set here.
+@comments
+ Only the first call does anything.  Any subsequent calls return immediately.
+**/
+Version::Check(logdir) {
  if (checked)  return ;
  if (oxversion()<MinOxVersion) oxrunerror("niqlow Error 00. This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
  oxprintlevel(1);
  println("\n niqlow version ",sprint("%4.2f",version/100),
  " Copyright (C) 2011-2015 Christopher Ferrall.\n",
  " Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n");
+ this.logdir = logdir;
+ tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
  checked = TRUE;
  }
 
@@ -271,7 +279,10 @@ Parameter::Decode(f)	{
 	}
 
 /** Toggle the value of `Parameter::DoNotVary`.**/
-Parameter::ToggleDoNotVary() { DoNotVary = !DoNotVary; }
+Parameter::ToggleDoNotVary() {
+    DoNotVary = !DoNotVary;
+    println("Toggling parameter ",L," DoNotVary=",DoNotVary);
+    }
 
 /** Toggle DoNotVary for one or more parameters.
 @param a `Parameter` or array of parameters
@@ -281,7 +292,8 @@ ToggleParams(a,...) {
     decl v, va = va_arglist()|a;
 	foreach (v in va) {
         if (isarray(v)) ToggleParams(v);
-        else v->ToggleDoNotVary();
+        else
+            v->ToggleDoNotVary();
         }
     }
 

@@ -11,7 +11,7 @@ Algorithm::Algorithm(O) {
 	OC = O.cur;
     tolerance = itoler;
 	Volume = SILENT;
-    lognm = replace("Alg-"+classname(this)+"-On-"+O.L+"-"+date()+"-"+replace(time(),":","-")," ","")+".log";
+    lognm = replace(Version::logdir+"Alg-"+classname(this)+"-On-"+O.L+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"aV");
     fprintln(logf,"Created");
     }

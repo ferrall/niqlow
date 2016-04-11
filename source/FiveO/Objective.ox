@@ -32,7 +32,7 @@ Objective::Objective(L)	{
 	Blocks = {};
 	Volume = QUIET;
     RunSafe = TRUE;
-    lognm = replace("Obj-"+classname(this)+"-"+L+"-"+date()+"-"+replace(time(),":","-")," ","")+".log";
+    lognm = replace(Version::logdir+"Obj-"+classname(this)+"-"+L+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"aV");
     fprintln(logf,"Created");
 	cur = new Point();

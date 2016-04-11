@@ -238,7 +238,7 @@ struct 	Prediction : Data {
 	Predict(tlist);
     Reset();
 	Histogram(v,printit=FALSE);
-    Delta(mask,printit=FALSE);
+    Delta(mask,printit=FALSE,tlabels=0);
 	}
 
 /** Predicted outcomes along a path.

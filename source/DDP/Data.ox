@@ -3,7 +3,7 @@
 
 Data::SetLog() {
     Volume = SILENT;
-    lognm = replace("Data-"+date()+replace(time(),":","-")," ","")+".log";
+    lognm = replace(Version::logdir+"Data-"+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"aV");
     }
 
@@ -1032,8 +1032,9 @@ PathPrediction::Empirical(inNandMom,Nincluded) {
         totN = 1.0;
         inmom = inNandMom;
         }
+    decl invsd = 1.0 ./ setbounds(moments(inmom,2)[2][],sqrt(0.25),+.Inf);
     do {
-        cur.W = inN[t]/totN;
+        cur.W = (inN[t]/totN)*invsd;
         cur.empmom = inmom[t++][];
         if (t<T) {
             if (cur.pnext==UnInitialized) cur.pnext = new Prediction(t);
@@ -1204,16 +1205,16 @@ Prediction::Histogram(tlist,printit) {
         with 0 if empirical is missing<br>
         .Inf if prediction is undefined
 **/
-Prediction::Delta(mask,printit) {
-    decl mv = selectifc(predmom,mask),df;
+Prediction::Delta(mask,printit,tlabels) {
+    decl mv = selectifc(predmom,mask), mW = selectifc(W,mask), df;
     if (!ismatrix(empmom))  // if no data difference is zero.
         return zeros(mv);
     df = isdotnan(empmom)           //find missing empirical moments
                 .? 0.0                  //difference is then 0.0
                 .:  (isdotnan(mv)   // else, find mising predictions
                         .? .Inf             // difference unbounded
-                        .: W*(mv-empmom));   // weighted difference
-    if (printit) println(t,"%r",{"pred.","obsv.","delt"},"%8.4f",mv|empmom|df);
+                        .: mW.*(mv-empmom));   // weighted difference
+    if (printit) fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4f","%c",tlabels,mv|empmom|mW|df);
     return df;
     }
 
@@ -1364,7 +1365,7 @@ PathPrediction::PathObjective(T) {
                 ++this.T;
                 }
      flat |= cur.t~cur.predmom;
-     delt |= cur->Delta(mask,Data::Volume>LOUD);
+     delt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
      cur = cur.pnext;
   	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
   oxwarning(-1);
