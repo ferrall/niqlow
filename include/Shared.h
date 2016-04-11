@@ -78,6 +78,7 @@ struct Discretized : Zauxiliary {
 /** Container for discrete variables (DDP) and continuous parameters (FiveO).
 **/
 struct Quantity {
+
 	const 	decl	
 		/** Label **/ 						L;
 	decl
@@ -88,6 +89,7 @@ struct Quantity {
 	
 /** Represent discrete values.**/
 struct Discrete	: Quantity{
+    static  decl                                    logf;
 	const 	decl	
 			/** range(0,N-1)			   **/  	vals;
 	decl	

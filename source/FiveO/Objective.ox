@@ -35,7 +35,6 @@ Objective::Objective(L)	{
     lognm = replace("Obj-"+classname(this)+"-"+L+"-"+date()+"-"+replace(time(),":","-")," ","")+".log";
     logf = fopen(lognm,"aV");
     fprintln(logf,"Created");
-    fclose(logf);
 	cur = new Point();
 	hold = maxpt = NvfuncTerms  = UnInitialized;
 	FinX = <>;
@@ -122,10 +121,8 @@ Objective::Load(fname)	{
     this->CheckPoint(f,FALSE);
 	if (Volume>SILENT) {
         println("Initial objective: ",cur.v);
-        logf = fopen(lognm,"aV");
         fprintln(logf,"Parameters loaded from ",fname,". # of values read: ",n,". Initial objective: ",cur.v);
 		fprint(logf,"%r",PsiL,cur.X);
-        fclose(logf);
         }
 	return TRUE;
 	}
@@ -168,10 +165,8 @@ Constrained::CheckPoint(f,saving)	{
 Objective::CheckMax(fn)	{
         decl newx = cur.v>maxpt.v;
         if (Volume>QUIET) {
-            logf = fopen(lognm,"aV");
             fprint(logf,cur.v,newx ? " " : "*\n");
 		    if (Volume>LOUD) { print(" ","%15.8f",cur.v); if (isfile(fn)) fprint(fn," ","%15.8f",cur.v); }
-            fclose(logf);
             }
 		if (newx)	{
 			this->Save(0);
@@ -347,6 +342,7 @@ Objective::ReInitialize() {
 		}
 	Start = cur.X;
     ResetMax();
+    Save();
     }
 	
 /** Compute the objective at multiple points.
@@ -360,11 +356,7 @@ The maximum value is also computed and checked.
 **/
 Objective::funclist(Fmat,aFvec,afvec)	{
 	decl j,J=columns(Fmat),best, f=zeros(J,1), fj;
-	if (Volume>SILENT) {
-        logf = fopen(lognm,"aV");
-        fprintln(logf,"funclist ",columns(Fmat));
-        fclose(logf);
-        }
+	if (Volume>SILENT) fprintln(logf,"funclist ",columns(Fmat));
 	if (isclass(p2p))  {          //CFMPI has been initialized
 		p2p.client->ToDoList(Fmat,aFvec,NvfuncTerms,1);
 		for(j=0;j<J;++j) {
@@ -383,11 +375,7 @@ Objective::funclist(Fmat,aFvec,afvec)	{
 			}
         }
     best = int(maxcindex(f));
-	if (Volume>SILENT) {
-        logf = fopen(lognm,"aV");
-        fprintln(logf,"funclist finshed ",best, best>=0 ? f[best] : .NaN);
-        fclose(logf);
-        }
+	if (Volume>SILENT) fprintln(logf,"funclist finshed ",best, best>=0 ? f[best] : .NaN);
 	if ( ( best < 0) ) {
         println("**** Matrix of Parameters ",Fmat,"Objective Value: ",f',"\n****");
         if (RunSafe) oxrunerror("FiveO Error 33. undefined max over function evaluation list");
@@ -440,17 +428,11 @@ Objective::fobj(F)	{
 **/
 Objective::vobj(F)	{
 	Decode(F);
-    if (Volume>QUIET) {
-        logf = fopen(lognm,"aV");
-        Print("vobj",logf,Volume>LOUD);
-        fclose(logf);
-        }
+    if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
 	cur.V[] = vfunc();
     if (Volume>QUIET) {
-        logf = fopen(lognm,"aV");
         fprint(logf,"vobj = ",cur.V);
         if (Volume>LOUD)  println("vobj = ",cur.V);
-        fclose(logf);
         }
 	}
 
@@ -508,11 +490,7 @@ Stored in <code>cur.G</code>
 Objective::Gradient() {
 	this->Jacobian();
 	cur.G = sumc(cur.J);
-    if (Volume>QUIET) {
-        logf = fopen(lognm,"aV");
-        println(logf,"Gradient: ",cur.G);
-        fclose(logf);
-        }
+    if (Volume>QUIET) println(logf,"Gradient: ",cur.G);
 	}
 
 /** Compute the &nabla;f(), objective's gradient at the current vector.

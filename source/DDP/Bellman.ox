@@ -442,7 +442,8 @@ Bellman::Delete() {
     Flags::Reset();
     N::Reset();
 	lognm = Volume = SampleProportion = Gamma = Theta = 0;	
-    fclose(logf);
+    if (isfile(logf)) { fclose(logf); logf = 0; }
+    if (isfile(Discrete::logf))  {fclose(Discrete::logf); Discrete::logf=0;}
 	}
 
 /** Base Initialize function.

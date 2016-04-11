@@ -398,7 +398,10 @@ ForgetAtT::IsReachable() {
 /**Create a standard normal N(0,1) discretize jump variable. **/
 Zvariable::Zvariable(L,Ndraws) { SimpleJump(L,Ndraws); }
 
-Zvariable::Update() {	actual = DiscreteNormal (N)';	}
+Zvariable::Update() {	
+    actual = DiscreteNormal (N)';
+    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
+    }
 
 /**Create a discrete Markov process.
 The dimensions of the transition probabilities determines the number of values taken on.
@@ -532,6 +535,7 @@ actual = 0 ~ exp{ &sigma;&Phi;<sup>-1</sub>(v/N)+ &mu;}
 **/
 LogNormalOffer::Update() {
 	actual = 0 | exp(DiscreteNormal(N-1,CV(mu),CV(sigma)))';
+    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
 	}
 
 /** Create a state variable that increments or decrements with state-dependent probabilities.
@@ -614,7 +618,10 @@ Lagged::Lagged(L,Target,Prune,Order)	{
     this.Order = Order;
     }
 
-Lagged::Update()	{	actual = Target.actual;	}
+Lagged::Update()	{	
+    actual = Target.actual;	
+    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
+    }
 
 /** Presumes an initial value of 0 for prunable clocks.
 @return TRUE if not pruning or not a prunable clock or `I::t` gt; `Lagged::Order` or value = 0
@@ -1104,6 +1111,7 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 **/
 MVNormal::Update()	{
 	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*reshape(quann(range(1,M)/(M+1)),N,M) )';	
+    if (Volume>SILENT) fprintln(logf,L," update actuals ",Actual);
 	}
 
 /** K mutually exclusive episodes.
@@ -1178,6 +1186,7 @@ Tauchen::Update() {
 	Grid[][] = pts[][1:]-pts[][:N-1];
 	actual += AV(mu);
     actual = actual';
+    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
 	}
 
 /**Create a new asset state variable.
@@ -1254,6 +1263,7 @@ KeptZeta::CDF(zstar) {    return probn(zstar);      }
 
 KeptZeta::Update() {
     actual = quann( (vals+1) / (N+1) )';
+    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
     }
 
 /** Conditional distribution of Z given zstar.
