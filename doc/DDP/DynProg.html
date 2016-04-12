@@ -147,7 +147,7 @@ McGill           -25                        -0.5
 <P/>
 <DD>In the major-school choice, <code>D=2</code>, because there are two dimensions of choice,  <span class="expressions">\(a_0\)</span> is the major choice, and <span class="expressions">\(a_1\)</span> the major choice.  <details class="aside"><summary>Start at 0?</summary>We start counting at 0 because that is the way counting is done in many computer languages.  So doing so now may avoid some confusion later when we see code.</details>
 <P/>
-Although using rows and columns to represent two different action variables is clear, it is not very helpful when there are three or more variables.  
+Although using rows and columns to represent two different action variables is clear, it is not very helpful when there are three or more variables.
 <P/>
 <DT>We can combine the list version with the vector version to get something like this:</DT>
 <DD><pre>
@@ -527,8 +527,25 @@ different feasible sets.</DD>
 <span class="expressions">\(A(\theta) \subseteq A\)</span>.  </DD>
 <DD>Recall that each action vector <span class="expressions">\(\alpha\)</span> is represented in the code as a row in a matrix.  So far we have not needed to access this matrix directly (it's stored and available as <a href="DDPShared.ox.html#Alpha___Matrix">Matrix</a>).</DD>
 <P/>
+<h2>Coding Bob's New Choice in <span class="n">DDP</span></h2>
+<P/>
 <DT><code>FeasibleActions()</code></DT>
-<DD>To restrict feasible actions, the user provides a method that will return a column vector of 0s and 1s that depends on the current state of the model.  This method is called by <span class="n">DDP</span> inside CreateSpaces() for each possible state.  A 1 indicates the action (row) is feasible at the state, 0 means infeasible.  </DD>
+<DD>To restrict feasible actions, the user provides a <em>method</em> that returns a column vector of 0s and 1s.  This column vector depends on the current state of the model. A 1 indicates the action (row) is feasible at the state, 0 means infeasible.  </DD>
+<DD>The user's method is called by <span class="n">DDP</span> inside <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() for each possible state.   </DD>
+<P/>
+<details><summary><b>The Code</b></summary>
+<DT>Source: <a href="../../examples/BobsChoiceC.ox">niqlow/examples/BobsChoiceC.ox</a></DT>
+<DD><pre><object width="75%" height="300" type="text/plain" data="../../examples/BobsChoiceC.ox" border="1" >
+<p style="font-size:14pt"></p></object></pre></DD></details>
+<P/>
+<DT>Line-by-line explanation of the (new and modified) code</DT>
+<DD><code>Yacc</code> is added to the class so that it can</DD>
+<P/>
+<h2>Run the program and look at the output.</h2>
+<P/>
+<details><summary><b>The output you get should look something like this:</b></summary>
+<DT>Source: <a href="../../examples/BobsChoiceB.output.txt">niqlow/examples/BobsChoiceB.output.txt</a>.</DT>
+<dd><pre><object width="75%" height="300" type="text/plain" data="../../examples/BobsChoiceB.output.txt" border="1" ><p style="font-size:14pt"></p></object></pre></dd></details>
 <P/>
 <h2>Summary</h2>
 Here is what is important to gather from the examples:
@@ -602,7 +619,7 @@ This is the <em>transition</em> of a normal aging clock.  Each day you get anoth
 <DD>A stationary simply says tomorrow is just like today:
 <pre>t' = t</pre>
 </DD>
-<DD>Again, tomorrow is different from today but when the chooser wakes up tomorrow it is just like today.  However, what state the chosoer is in tomorrow may be different than the state he was in today.  <details class="aside"><summary>A perfect analogy</summary>In <em>Ground Hog Day</em> in which Bill Murray knows he will wake up and relive the same day, apparently forever, but his state can be different each day he wakes up.  He can learn to play the piano and every day he wakes up a little better.  And each day he makes choices that affect his utility in the future.  It is a perfect analogy to a stationary decision environment and also a perfect movie.</details></DD>
+<DD>Again, tomorrow is different from today but when the chooser wakes up tomorrow it is just like today.  However, what state the chooser is in tomorrow may be different than the state he was in today.  <details class="aside"><summary>A perfect analogy</summary>In <em>Ground Hog Day</em> in which Bill Murray knows he will wake up and relive the same day, apparently forever, but his state can be different each day he wakes up.  He can learn to play the piano and every day he wakes up a little better.  And each day he makes choices that affect his utility in the future.  It is a perfect analogy to a stationary decision environment and also a perfect movie.</details></DD>
 <DD>An the important feature of time is that if there is a yesterday (as in normal aging) it can never come again.  Any state that occur in the future cannot have a value of time less than <var>t</var>.  </DD>
 <P/>
 <h2>Setting the Clock in <span class="n">DDP</span></h2>

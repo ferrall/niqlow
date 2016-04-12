@@ -1032,7 +1032,7 @@ PathPrediction::Empirical(inNandMom,Nincluded) {
         totN = 1.0;
         inmom = inNandMom;
         }
-    decl invsd = 1.0 ./ setbounds(moments(inmom,2)[2][],sqrt(0.25),+.Inf);
+    decl invsd = 1.0 ./ setbounds(moments(inmom,2)[2][],0.5,+.Inf);
     do {
         cur.W = (inN[t]/totN)*invsd;
         cur.empmom = inmom[t++][];
@@ -1206,7 +1206,7 @@ Prediction::Histogram(tlist,printit) {
         .Inf if prediction is undefined
 **/
 Prediction::Delta(mask,printit,tlabels) {
-    decl mv = selectifc(predmom,mask), mW = selectifc(W,mask), df;
+    decl df, mv = selectifc(predmom,mask), mW = selectifc(W,mask);
     if (!ismatrix(empmom))  // if no data difference is zero.
         return zeros(mv);
     df = isdotnan(empmom)           //find missing empirical moments
