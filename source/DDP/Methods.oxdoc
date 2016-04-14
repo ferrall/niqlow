@@ -29,8 +29,9 @@ phases of a model) the fixed point will be found.  For finite horizon models/pha
 <DT>Two or more solution objects can be created and applied to the model for comparison purposes.</DT>
 <DT>Solution methods work at the highest level of the DP environment.</DT>
 <DD>To carry out the work they call methods to handle fixed and random effects.</DD>
-<DD>The basic structure of a what happens with a call to <code>Solve()</code>
-<table class="tree">
+
+<DT>What happens with a call to <code>Solve()</code></DT>
+<DD><table class="tree">
 <tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
@@ -95,8 +96,9 @@ phases of a model) the fixed point will be found.  For finite horizon models/pha
     1. `ValueIteration::Run`            loop over bellman iterations (or other task)
     2. `ValueIteration::Update`         check convergence/work backwards (return to 1 until finished.)</pre>
 </td></tr></table></DD>
+
 <DT>Hooks</DT>
-<DD>The user can insert static functions at different points in this process using the `Hooks::Add`().</DD>
+<DD>The user can insert static functions at different points in this process using `Hooks::Add`().</DD>
 <DD>`HookTimes` are the integer codes for when the function should be called.</DD>
 <DD>For example, to say hello after the inner loop above is done i.e. <code>GSolve()</code> ends, do this:<pre>
  sayhello() { print("hello"); }
@@ -106,7 +108,7 @@ phases of a model) the fixed point will be found.  For finite horizon models/pha
 
 <li>Value Function Iteration Methods</LI>
 
-Value function iteration applies Bellman's <code>V(&theta;) = max U() + &delta;EV(&theta;&prime;)</code> to solve for the value function and optimal choice probabilities.
+Value function iteration applies Bellman's EMax operator, $V(\theta)\ =\ \max U() + \delta EV(\theta')</code> $ to solve for the value function and optimal choice probabilities.
 
 <OL class="chapter">
 <LI>Brute Force Iteration</LI>
@@ -152,7 +154,7 @@ HM = new HotzMiller(data);
 
 </OL>
 </OL>
-@author &copy; 2011-2015 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
+@author &copy; 2011-2016 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
 <a name="auto"><hr><h1>Documentation of  Items Defined in Methods.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
 **/

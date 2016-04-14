@@ -1,4 +1,23 @@
-/** Components shared by components of <span class="n"><a href="../default.html">niqlow</a></span> .**/
+/** Components shared by components of <span class="n"><a href="../default.html">niqlow</a></span> .
+<a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Shared.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
+
+<OL class="body">
+
+<LI>CV and AV</LI>
+
+<LI>Volume and Noise Levels</LI>
+
+<LI>Log Files</LI>
+
+<LI>Integration, Kernels</LI>
+
+</OL>
+
+
+@author &copy; 2011-2016 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
+<a name="auto"><hr><h1>Documentation of  Items Defined in Shared.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
+
+**/
 #include <oxstd.oxh>
 #include <oxfloat.oxh>
 #include <oxprob.oxh>

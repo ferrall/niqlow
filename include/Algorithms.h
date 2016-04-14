@@ -16,6 +16,7 @@ struct Algorithm {
 	 /** User's objective. **/								O,
 	 /** objective's pt. @internal **/						OC;
     				decl
+     /** Client node or no MPI .**/                         IIterate,
      /** log file **/                                       logf,
 	 /** output level **/									Volume,
 	 /** maximum iterations **/ 	        				maxiter,
@@ -28,6 +29,7 @@ struct Algorithm {
      /** Convergence code.  See `ConvergenceResults` **/	convergence;
 	virtual Tune(maxiter=0,toler=0,nfuncmax=0);
 	virtual Iterate();
+    virtual ItStartCheck();
 	Algorithm(O);
     }
 
@@ -243,6 +245,7 @@ struct GradientBased : Algorithm {
        /** # of time H reset to I  **/                          Hresetcnt;
 
 
+        virtual   ItStartCheck();
 		virtual   Iterate(H=0);
 		virtual   Direction();
 	    virtual   Tune(maxiter=0,toler=0,nfuncmax=0,LMitmax=0);

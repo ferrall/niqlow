@@ -27,6 +27,18 @@ Algorithm::Tune(maxiter,toler,nfuncmax) {
 	if (nfuncmax) this.nfuncmax = nfuncmax;
 	}
 
+Algorithm::ItStartCheck() {
+    O->Encode();
+	N = rows(OC.F);
+    IIterate = !isclass(O.p2p) || O.p2p.IamClient;
+    if (!N && IIterate) {
+        oxwarning("No parameters are free.  Objective will be evaluated and then return");
+    	O->fobj(0);
+        return FALSE;
+        }
+    return TRUE;
+    }
+
 /** Tune NelderMead Parameters .
 @param mxstarts integer number of simplex restarts<br>0 use current/default value
 @param toler double, simplex tolerance for convergence<br>0 use current/default value
@@ -112,14 +124,15 @@ SimulatedAnnealing::Metropolis()	{
         }
 	}
 
+
+
 /** Carry out annealing.
 @param chol Determines the Choleski matrix for random draws, <var>C</var><br>
 0 [default] $C = I$, the identity matrix<br>matrix, $C = $ chol.<br>double, common standard deviation, $C = chol I$.
 **/
 SimulatedAnnealing::Iterate(chol)	{
-	O->Encode();
-	N = rows(OC.F);
-    if (!isclass(O.p2p) || O.p2p.IamClient) {  //MPI not running or I am the Client Node
+    if (!ItStartCheck()) return;
+    if (IIterate) {  //MPI not running or I am the Client Node
        inp = isclass(O.p2p);
        M = inp ? O.p2P.Nodes : 1;
        Vtries=zeros(O.NvfuncTerms,M);
@@ -328,9 +341,8 @@ NelderMead::NelderMead(O)	{
 See <a href="GetStarted.html">GetStarted</a>
 **/
 NelderMead::Iterate(iplex)	{
-	O->Encode();
-    N = rows(OC.F);
-    if (!isclass(O.p2p) || O.p2p.IamClient) {
+    if (!ItStartCheck()) return;
+    if (IIterate) {
         //	   nodeV = constant(-.Inf,N+1,1);
 	   OC.SE = OC.G = .NaN;
 	   iter = 1;
@@ -442,8 +454,8 @@ NelderMead::Amoeba() 	{
 				n_func += O->funclist(nodeX,&vF,&nodeV);
 				}
 			}
+        if (Volume>SILENT) fprintln(logf," ... ",n_func);
 		} while (n_func < nfuncmax);
-     if (Volume>SILENT) fprintln(logf," ... ",n_func);
 	 return FALSE;
 	}
 
@@ -559,6 +571,11 @@ GradientBased::Gupdate()	{
 	return deltaG<gradtoler;
 	}
 
+GradientBased::ItStartCheck() {
+    holdF = OC.F;
+    return Algorithm::ItStartCheck();
+    }
+
 /** Iterate on a gradient-based algorithm.
 @param H matrix, initial Hessian<br>integer, use the identity <var>I</Var> as the initial value, or compute H if Newton.
 
@@ -571,11 +588,9 @@ All gradient-based algorithms conduct a `LineMax`imization on each iteration.
 
 **/
 GradientBased::Iterate(H)	{
+    if (!ItStartCheck()) return;
     decl IamNewt = isclass(this,"Newton"), istr;
-	O->Encode();
-	N = rows(holdF = OC.F);
-    if (!isclass(O.p2p) || O.p2p.IamClient) {  //Only Client Node Iterates
-
+    if (IIterate) {  //Only Client Node Iterates
 	   if (OC.v==.NaN) O->fobj(0);
        if (IamNewt) {
 	     if (isint(H)) O->Hessian();
@@ -795,10 +810,9 @@ This routine is shared (inherited) by derive algorithms.
 **/
 NonLinearSystem::Iterate(J)	{
     decl d,istr;
-	O->Encode();
-	N = rows(holdF = OC.F);
+    if (!ItStartCheck()) return;
     deltaX=.NaN;
-    if (!isclass(O.p2p) || O.p2p.IamClient) {
+    if (IIterate) {
 	   Hresetcnt = iter =0;
 	   OC.H = OC.SE = OC.G = .NaN;	
 	   resat = FALSE;
@@ -910,9 +924,8 @@ SQP::Hupdate() {
 **/
 SQP::Iterate(H)  {
 	decl Qconv,deltx,mults,istr;
-	O->Encode();
-	N = rows(OC.F);
-    if (!isclass(O.p2p) || O.p2p.IamClient) {
+    if (!ItStartCheck()) return;
+    if (IIterate) {
 	   OC.H = isint(H) ? unit(N) : H;
 	   OC.SE = OC.G = .NaN;
 	   O->Merit(0);

@@ -19,11 +19,13 @@ Discrete quantities that appear in DDP models (actions, states, fixed and random
 <a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Variables.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 <P/>
 <DL>Quick Reference: a variable in a DP model is an object derived from <a href="Shared.ox.html#Quantity">Quantity</a> and can be of various types:</DT>
-<DT>The <a href="Variables.ox.html#ActionVariable">ActionVariable</a> class is designed to represent a choice in the model (such as whether to work or not) and is an element of the action vector <code>&alpha;</code><DT>
+<DT>The <a href="Variables.ox.html#ActionVariable">ActionVariable</a> class represents a choice in the model (such as whether to work or not) and is an element of the action vector <code>&alpha;</code><DT>
 <DD>Action variables are added to the DP model using using the <a href="DP.ox.html#DP___Actions">Actions</a>() method.</DD>
-<DT>the <a href="Variables.ox.html#StateVariable">StateVariable</a> class is designed to be a member of one of the discrete state vectors (<code>&epsilon;,&eta;,&theta;,&gamma;</code>).</DT>
+<P/>
+<DT>The <a href="Variables.ox.html#StateVariable">StateVariable</a> class is designed to be a member of one of the discrete state vectors (<code>&epsilon;,&eta;,&theta;,&gamma;</code>).</DT>
 <DD>State variables are added to appropriate state vector using  the method for the corresponding vector: <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>(), <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>() and <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>().</DD>
 <DD>Many kinds of state variables are derived from the base class.</DD>
+<P/>
 <DT>The <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> class is designed to represent values that depend on actions and states and are of interest to the user but are not required to solve the model.  They are members of the auxiliary vector <code>&chi;</code></DT>
 <DD>Auxiliary values are added to the DP model using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>()</DD>
 </DT>
@@ -33,8 +35,9 @@ Discrete quantities that appear in DDP models (actions, states, fixed and random
 <LI><a href="#ActionVariables">Action Variables</a></LI>
 <LI><a href="#StateVariables">State Variables</a></LI>
 <LI><a href="#Clock">The Clock:  keeping time in DDP</a></LI>
-<li><a href="#Fixed">Time Invariants: solving different DP problems with random and fixed effects</a>
-<li><a href="#Auxiliary">Auxiliary Values: tracking function of actions and state variables</a>
+<li><a href="#Fixed">Time Invariants: solving different DP problems with random and fixed effects</a></li>
+<li><a href="#Auxiliary">Auxiliary Values: tracking function of actions and state variables</a></li>
+<li><a href="#Volume">Volume (getting output specific to a variable)</a></li>
 </OL>
 <P/>
 <OL class="body">
@@ -163,6 +166,7 @@ FeasibleActions(const A) {    return CV(x)==2 ? aa(a).!=0 : ones(rows(A),1) ;   
 </pre>
 Code this way it does not matter whether more variables are added to the model and it does not matter what order the code adds the actions to &alpha;.  <code>FeasibleActions</code> is robust to those details.
 </DD>
+<P/>
 </OL>
 <P/>
 <hr>
@@ -904,6 +908,14 @@ An auxiliary value <em>x</em> is typically a function of the state and action ve
  <DT>Auxiliary values are added to the outcome (appended to &chi;) using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>().</DT>
  <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual <a href="Variables.ox.html#AuxiliaryValues___Realize">Realize</a>().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
 <DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
+<P/>
+<a name="#Volume"><li>Volume (getting output specific to a variable)</li></a>
+<DT>All <a href="Shared.ox.html#Quantity">Quantity</a> based objects have their own <code>Volume</code> member.</DT>
+<DD>By default the Volume is set to <code>SILENT</code>.</DD>
+<P/>
+<DT>If you set the volume to one of the other <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a> then:</DT>
+ <DD>Some internal routines will print out information specific to variable.</DD>
+ <DD>The output goes to the <code>Variables</code> log file </code>
 <P/>
 </OL>
 

@@ -5,11 +5,13 @@
 
 
 <DL>Quick Reference: a variable in a DP model is an object derived from `Quantity` and can be of various types:</DT>
-<DT>The `ActionVariable` class is designed to represent a choice in the model (such as whether to work or not) and is an element of the action vector <code>&alpha;</code><DT>
+<DT>The `ActionVariable` class represents a choice in the model (such as whether to work or not) and is an element of the action vector <code>&alpha;</code><DT>
 <DD>Action variables are added to the DP model using using the `DP::Actions`() method.</DD>
-<DT>the `StateVariable` class is designed to be a member of one of the discrete state vectors (<code>&epsilon;,&eta;,&theta;,&gamma;</code>).</DT>
+
+<DT>The `StateVariable` class is designed to be a member of one of the discrete state vectors (<code>&epsilon;,&eta;,&theta;,&gamma;</code>).</DT>
 <DD>State variables are added to appropriate state vector using  the method for the corresponding vector: `DP::EndogenousStates`(), `DP::SemiExogenousStates`, `DP::ExogenousStates`() and `DP::GroupVariables`().</DD>
 <DD>Many kinds of state variables are derived from the base class.</DD>
+
 <DT>The `AuxiliaryValues` class is designed to represent values that depend on actions and states and are of interest to the user but are not required to solve the model.  They are members of the auxiliary vector <code>&chi;</code></DT>
 <DD>Auxiliary values are added to the DP model using `DP::AuxiliaryOutcomes`()</DD>
 </DT>
@@ -19,8 +21,9 @@
 <LI><a href="#ActionVariables">Action Variables</a></LI>
 <LI><a href="#StateVariables">State Variables</a></LI>
 <LI><a href="#Clock">The Clock:  keeping time in DDP</a></LI>
-<li><a href="#Fixed">Time Invariants: solving different DP problems with random and fixed effects</a>
-<li><a href="#Auxiliary">Auxiliary Values: tracking function of actions and state variables</a>
+<li><a href="#Fixed">Time Invariants: solving different DP problems with random and fixed effects</a></li>
+<li><a href="#Auxiliary">Auxiliary Values: tracking function of actions and state variables</a></li>
+<li><a href="#Volume">Volume (getting output specific to a variable)</a></li>
 </OL>
 
 <OL class="body">
@@ -149,6 +152,8 @@ FeasibleActions(const A) {    return CV(x)==2 ? aa(a).!=0 : ones(rows(A),1) ;   
 </pre>
 Code this way it does not matter whether more variables are added to the model and it does not matter what order the code adds the actions to &alpha;.  <code>FeasibleActions</code> is robust to those details.
 </DD>
+
+
 </OL>
 
 <hr>
@@ -896,6 +901,14 @@ An auxiliary value <em>x</em> is typically a function of the state and action ve
  <DT>Auxiliary values are added to the outcome (appended to &chi;) using `DP::AuxiliaryOutcomes`().</DT>
  <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual `AuxiliaryValues::Realize`().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
 <DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
+
+<a name="#Volume"><li>Volume (getting output specific to a variable)</li></a>
+<DT>All `Quantity` based objects have their own <code>Volume</code> member.</DT>
+<DD>By default the Volume is set to <code>SILENT</code>.</DD>
+
+<DT>If you set the volume to one of the other `NoiseLevels` then:</DT>
+ <DD>Some internal routines will print out information specific to variable.</DD>
+ <DD>The output goes to the <code>Variables</code> log file </code>
 
 </OL>
 
