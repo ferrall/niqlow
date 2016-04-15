@@ -1116,65 +1116,63 @@ PathPrediction::~PathPrediction() {
 	~Prediction();
     }
 
-/**
+/** Compute expected value of the object
 @param htmp
 @param ptmp
 **/
-ObjToTrack::Distribution(htmp,ptmp) {
-    if (type==auxvar||type==idvar) {  // dynamic distribution.
-        decl q,k,h,j,hh,mns;
-        if (isarray(hist)) delete hist, hvals;
-        hist = new array[columns(htmp)];
-        hvals = new array[columns(htmp)];
-        mns = <>;
-// Leak foreach(h in htmp[][j]) {
-            for (j=0;j< columns(htmp);++j) { //Leak
-            h = htmp[][j];  //Leak */
-            hh = hvals[j] = unique(h);
-            hist[j] = zeros(hh)';
-//Leak foreach (q in hh[k]) {
-                for (k=0;k<sizec(hh);++k) { //Leak
-                hist[j][k] = sumc(selectifr(ptmp[][j],h.==hh[k])); //Leak: q becomes hh[k] becomes q
+ObjToTrack::Distribution(htmp,ptmp) {// dynamic distribution.
+    decl q,k,h,j,hh,Nv = columns(htmp);
+    if (isarray(hist)) delete hist, hvals;
+    hist = new array[Nv];
+    hvals = new array[Nv];
+    mean = <>;
+    // Leak foreach(h in htmp[][j]) {
+    for (j=0;j<Nv;++j) { //Leak
+        h = htmp[][j];  //Leak */
+        hh = hvals[j] = unique(h);
+        hist[j] = zeros(hh)';
+                //Leak foreach (q in hh[k]) {
+        for (k=0;k<sizec(hh);++k) { //Leak
+            hist[j][k] = sumc(selectifr(ptmp[][j],h.==hh[k])); //Leak: q becomes hh[k] becomes q
                 }
-            mns ~= hh*hist[j];
-            }
-        if (Volume>SILENT) fprintln(Data::logf,L," Mean ",mns);
-        return mns;
+        mean ~= hh*hist[j];
         }
-    if (Volume>SILENT) fprintln(Data::logf,L," Dist:",double(hvals*hist),hvals|(hist'));
-    return hvals*hist;
+    return mean;
     }
 
 /** Compute the histogram of tracked object at the prediction.
-@param tlist array of tracked objects
+@param tlist array of `ObjToTrack`s (tracked objects)
 @param printit TRUE=output; FALSE=quiet
+@comments
+output will also be produced for any objects in tlist with Volume &gt; SILENT
 **/
 Prediction::Histogram(tlist,printit) {
 	decl q,k,cp,tv;
     decl newqs,newp,j,uni,htmp,ptmp;
     predmom=<>;
-//Leak foreach(tv in tlist ) {
-    decl i; for (i=0;i<sizeof(tlist);++i) { tv = tlist[i]; // Leak
+    //Leak foreach(tv in tlist ) {
+    decl i; for (i=0;i<sizeof(tlist);++i) {
+        tv = tlist[i]; // Leak
         switch(tv.type) {
             case avar :
                 //tv.hist[] = 0.0;
                 for(k=0;k<tv.hN;++k) tv.hist[k] = sumc( selectifr(ch,Alpha::Matrix[][tv.hd].==k) );
-/*//Leak foreach (cp in ch[k])
-                        for(k=0;k<sizerc(ch);++k)  //Leak
-                            tv.hist[Alpha::Matrix[k][tv.hd]] += ch[k];  //Leak cp; becomes ch[k]; */
-                    predmom ~= tv->Distribution();
-                    break;
+                /*//Leak foreach (cp in ch[k])  for(k=0;k<sizerc(ch);++k)  tv.hist[Alpha::Matrix[k][tv.hd]] += ch[k];  //Leak cp; becomes ch[k]; */
+                tv.mean = hvals*hist; //tv->Distribution();
+                break;
 	       case svar : tv.hist[] = 0.0;
-//Leak foreach (q in  sind[][k])
-                        for(k=0;k<columns(sind);++k) //Leak
-                        tv.hist[ReverseState(sind[][k],SS[tracking].O)[tv.hd]] += p[k]; //Leak:sind[][k] -> q
-                    predmom ~= tv->Distribution();
-                    break;
-            case auxvar :  // oxwarning("DDP Warning 11.\n  Tracking of auxiliary outcomes still experimental.  It may not work.\n");
-            case idvar  :
-                ptmp = htmp=<>;
-//Leak foreach (q in sind[][k]) {   //for each theta consistent with data
-                    for (k=0;k<columns(sind);++k) { q=sind[][k];  //Leak
+                //Leak foreach (q in  sind[][k])
+                for(k=0;k<columns(sind);++k) //Leak
+                    tv.hist[ReverseState(sind[][k],SS[tracking].O)[tv.hd]] += p[k]; //Leak:sind[][k] -> q
+                tv.mean = hvals*hist; //predmom ~= tv->Distribution();
+                break;
+           case auxvar :  // oxwarning("DDP Warning 11.\n  Tracking of auxiliary outcomes still experimental.  It may not work.\n");
+           case idvar  :
+                // ptmp = htmp=<>;  April 2016 deleted
+                tv.mean = <0.0>;
+                //Leak foreach (q in sind[][k]) {   //for each theta consistent with data
+                for (k=0;k<columns(sind);++k) {
+                    q=sind[][k];  //Leak
                     if (Settheta(q)) {  // theta reachable?
                         if (tv.type==idvar)
                             newqs = I::curth->OutputValue();
@@ -1183,17 +1181,17 @@ Prediction::Histogram(tlist,printit) {
                             }
                         newp = p[k]*(I::curth.pandv[I::r]);  //state prob. * CCPs
                         if (isdouble(newqs) || rows(newqs)==1) newp = sumc(newp);
-                        htmp |= newqs;
-                        ptmp |= newp;
+                        //htmp |= newqs;
+                        //ptmp |= newp;
+                        mean += sumc(sumr(newqs.*newp));
                         }
-                    else if (!isfeq(p[k],0.0)) {
-                        fprintln(logf,"%r",{"H unrchble"},"%cf",{"%8.7e","%9.0f"},"%c",{" prob "}|Labels::Vprt[svar][lo:hi],p[k]~(ReverseState(q,I::OO[tracking][])[lo:hi]'));
-                        }
+                    else if (!isfeq(p[k],0.0)) fprintln(logf,"%r",{"H unrchble"},"%cf",{"%8.7e","%9.0f"},"%c",{" prob "}|Labels::Vprt[svar][lo:hi],p[k]~(ReverseState(q,I::OO[tracking][])[lo:hi]'));
                     }
-                predmom ~= tv->Distribution(htmp,ptmp);
-                break;
+//                    tv->Distribution(htmp,ptmp);
+                    break;
             }
-            if (printit) tv->print();
+        predmom ~= tv.mean;
+        if (printit||(tv.Volume>SILENT)) tv->print();
         }
     return t~predmom;
 	}
@@ -1255,9 +1253,16 @@ ObjToTrack::ObjToTrack(LorC,obj,pos) {
 **/
 ObjToTrack::print() {
     fprintln(Data::logf,L);
-    fprintln(Data::logf,"%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},hvals'~hist);
-    mean = hvals*hist;
-    fprintln(Data::logf,"  Mean: ",double(mean),"\n\n");
+    if (isarray(hvals)) {
+        for (decl j=0; j<sizeof(hvals);++j) {
+            fprintln(Data::logf,"%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},hvals[j]'~hist[j]);
+            fprintln(Data::logf,"  Mean: ",mean[j],"\n\n");
+            }
+        }
+    else {
+        fprintln(Data::logf,"%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},hvals'~hist);
+        fprintln(Data::logf,"  Mean: ",mean,"\n\n");
+        }
     }
 
 /** Objects to track mean values over the path.

@@ -669,7 +669,7 @@ DP::Initialize(userState,UseStateList) {
             Volume = NOISY;
             println(Volume,arglist());
             }
-    if (Volume>=LOUD) println("DP::Intialize is complete. Action and State spaces are empty.\n Log file name is: ",lognm);
+    if (Volume>=QUIET) println("DP::Intialize is complete. Action and State spaces are empty.\n Log file name is: ",lognm);
  }
 
 /** Tell DDP when parameters and transitions have to be updated.
