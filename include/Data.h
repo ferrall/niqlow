@@ -197,10 +197,12 @@ struct DataSet : Panel {
 
 /** Contains information on an object (variable, auxiliary outcome, etc) to be tracked.
 **/
-struct ObjToTrack : Zauxiliary {
+struct TrackObj : Zauxiliary {
     const decl
     /** Inherited fromt the object.**/  Volume,
     /** See `DataColumnTypes` **/       type,
+    /** object can have a continuous
+        dynamic distribution. **/       contdist,
     /** Position in the flat list  **/  pos,
     /** `Discrete` object**/            obj,
     /** label  **/                      L,
@@ -213,9 +215,28 @@ struct ObjToTrack : Zauxiliary {
     /** **/     hvals,
     /** **/     mean,
     /** **/     sqmean;
-    ObjToTrack(obj,LorC,pos);
-    Distribution(htmp=0,ptmp=0);
-    print();
+    static Create(LorC,obj,pos);
+    TrackObj(LorC,obj,pos);
+    virtual Distribution();
+    virtual Update();
+    virtual print();
+    }
+
+struct oTrack : TrackObj {
+    oTrack(LorC,obj,pos);
+    Distribution(pobj);
+    }
+struct aTrack : TrackObj {
+    aTrack(LorC,obj,pos);
+    Distribution(pobj);
+    }
+struct sTrack : TrackObj {
+    sTrack(LorC,obj,pos);
+    Distribution(pobj);
+    }
+struct xTrack : TrackObj {
+    xTrack(LorC,obj,pos);
+    Distribution(pobj);
     }
 
 /** Predicted distribution across states.
@@ -265,25 +286,24 @@ struct 	PathPrediction : Prediction {
     InitialConditions();
 	Predict(T=0,printit=FALSE);
     SetT(T=0);
-    Empirical(inmoments,Nincluded=FALSE);
+    Empirical(inmoments,Nincluded=FALSE,wght=TRUE);
     Tracking(LorC,...);
     SetColumns(dlabels,Nplace=UnInitialized);
-//	Histogram(printit=TRUE);
     PathObjective(T=0);
 	}
 
 struct PanelPrediction : PathPrediction {
 	const decl
-	/** tag for the panel. **/ 				r;
+	/** tag for the panel. **/ 				r,
+    /** Weight Moments for GMM. **/         wght;
 	decl
 				        					fparray,
     /**length of vector returned by EconometricObjective.**/ FN,
                                              delt,
                                              aflat,
 	/** array of GMM vector. **/	 	     M;
-    PanelPrediction(r=0,method=0,iDist=0);
+    PanelPrediction(r=0,method=0,iDist=0,wght=FALSE);
     ~PanelPrediction();
-//	Histogram(printit=FALSE);
     Objective();
     Predict(T=0,printit=FALSE);
     GMMdistance();
@@ -300,7 +320,7 @@ struct EmpiricalMoments : PanelPrediction {
             /** matrix of indices or array of labels or UseLabel  **/   UorCorL,
             /** observations location .**/                              Nplace,
             /** **/                                                     FMethod;
-    EmpiricalMoments(label="",method=0,UorCorL=UseLabel,iDist=0);
+    EmpiricalMoments(label="",method=0,UorCorL=UseLabel,iDist=0,wght=TRUE);
     Observed(as1,lc1=0,...);
     TrackingMatchToColumn(Fgroup,LorC,mom);
     TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);

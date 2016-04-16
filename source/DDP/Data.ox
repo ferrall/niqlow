@@ -461,7 +461,9 @@ RandomEffectsIntegration::Run() {
     decl pf =path->PathObjective();
     if (isint(flat)) flat = curREdensity*pf; else flat += curREdensity*pf;
 	L += curREdensity*path.L;	
-    fprintln(Data::logf,"%% ",I::r," ",I::rtran," ",curREdensity," ",path.L," ",L);
+    if (Data::Volume>QUIET)
+        fprintln(Data::logf,"%% ",I::r," ",I::rtran," ",curREdensity," ",path.L," ",L);
+    println("%% ",I::r," ",I::rtran," ",curREdensity," ",path.L," ",L);
 	}
 	
 /** Compute likelihood of a realized path.
@@ -974,7 +976,7 @@ PathPrediction::SetT(T) {
 	 if (!isclass(cur.pnext)) {  // no tomorrow after current
         if (T && cur.t+1<this.T) { // predict for a fixed T
             cur.pnext = new Prediction(cur.t+1);
-            ++this.T;
+            //++this.T;
             }
         }
      else {
@@ -1016,8 +1018,8 @@ PathPrediction::Predict(T,prtlevel){
 If T is greater than the current length of the path additional predictions are concatenated to the path
 
 **/
-PathPrediction::Empirical(inNandMom,Nincluded) {
-    decl t=0,inmom,totN,inN;
+PathPrediction::Empirical(inNandMom,Nincluded,wght) {
+    decl t=0,inmom,totN,inN,invsd;
     T = rows(inNandMom);
     cur = this;
     if (Nincluded) {
@@ -1032,7 +1034,7 @@ PathPrediction::Empirical(inNandMom,Nincluded) {
         totN = 1.0;
         inmom = inNandMom;
         }
-    decl invsd = 1.0 ./ setbounds(moments(inmom,2)[2][],0.5,+.Inf);
+    invsd = wght ? (1.0 ./ setbounds(moments(inmom,2)[2][],0.5,+.Inf)) : 1.0;
     do {
         cur.W = (inN[t]/totN)*invsd;
         cur.empmom = inmom[t++][];
@@ -1090,6 +1092,7 @@ PathPrediction::PathPrediction(f,method,iDist){
     hi = SS[tracking].right;
     mask = <>;
     Prediction(0);
+    T = 1;
     state = ReverseState(f,SS[onlyfixed].O);
     if ((N::R>One || N::DynR>One ) && isint(summand)) {
 		summand = new RandomEffectsIntegration();
@@ -1116,26 +1119,53 @@ PathPrediction::~PathPrediction() {
 	~Prediction();
     }
 
-/** Compute expected value of the object
-@param htmp
-@param ptmp
-**/
-ObjToTrack::Distribution(htmp,ptmp) {// dynamic distribution.
-    decl q,k,h,j,hh,Nv = columns(htmp);
-    if (isarray(hist)) delete hist, hvals;
-    hist = new array[Nv];
-    hvals = new array[Nv];
-    mean = <>;
-    // Leak foreach(h in htmp[][j]) {
-    for (j=0;j<Nv;++j) { //Leak
-        h = htmp[][j];  //Leak */
-        hh = hvals[j] = unique(h);
-        hist[j] = zeros(hh)';
-                //Leak foreach (q in hh[k]) {
-        for (k=0;k<sizec(hh);++k) { //Leak
-            hist[j][k] = sumc(selectifr(ptmp[][j],h.==hh[k])); //Leak: q becomes hh[k] becomes q
-                }
-        mean ~= hh*hist[j];
+aTrack::Distribution(pobj) {
+                /*//Leak foreach (cp in ch[k])  for(k=0;k<sizerc(ch);++k)  tv.hist[Alpha::Matrix[k][tv.hd]] += ch[k];  //Leak cp; becomes ch[k]; */
+    for(decl k=0;k<hN;++k)
+        hist[k] = sumc( selectifr(pobj.ch,Alpha::Matrix[][hd].==k) );
+    return mean = hvals*hist; //tv->Distribution();
+    }
+
+sTrack::Distribution(pobj) {
+    hist[] = 0.0;       //Leak foreach (q in  sind[][k])
+    decl sind = pobj.sind,k;
+    for(k=0;k<columns(sind);++k) //Leak
+        hist[ReverseState(sind[][k],DP::SS[tracking].O)[hd]] += pobj.p[k]; //Leak:sind[][k] -> q
+    return mean = hvals*hist;
+    }
+
+xTrack::Distribution(pobj) {
+    mean = <0.0>;
+    //Leak foreach (q in sind[][k]) {   //for each theta consistent with data
+    decl sind = pobj.sind,k,q;
+    for (k=0;k<columns(sind);++k) {
+        q=sind[][k];  //Leak
+        if (DP::Settheta(q)) {  // theta reachable?
+            obj->Realize();
+            hvals = AV(obj);
+            hist = pobj.p[k]*(I::curth.pandv[I::r]);  //state prob. * CCPs
+            //if (isdouble(hvals) || rows(htmp)==1) htmp = sumc(htmp);
+            mean += sumc(sumr(hvals.*hist));
+            }
+//        else if (!isfeq(pobj.p[k],0.0)) fprintln(Data::logf,"%r",{"H unrchble"},"%cf",{"%8.7e","%9.0f"},"%c",{" prob "}|Labels::Vprt[svar][lo:hi],pobj.p[k]~(ReverseState(q,I::OO[tracking][])[lo:hi]'));
+        }
+    //print();
+    return mean;
+    }
+
+oTrack::Distribution(pobj) {
+    decl sind = pobj.sind,k,q;
+    mean = <0.0>;
+    //Leak foreach (q in sind[][k]) {   //for each theta consistent with data
+    for (k=0;k<columns(sind);++k) {
+        q=sind[][k];  //Leak
+        if (DP::Settheta(q)) {  // theta reachable?
+            hvals = I::curth->OutputValue();
+            hist = pobj.p[k]*(I::curth.pandv[I::r]);  //state prob. * CCPs
+            //if (isdouble(newqs) || rows(newqs)==1) newp = sumc(newp);
+            mean += sumc(sumr(hvals.*hist));
+            }
+//        else if (!isfeq(pobj.p[k],0.0)) fprintln(Data::logf,"%r",{"H unrchble"},"%cf",{"%8.7e","%9.0f"},"%c",{" prob "}|Labels::Vprt[svar][lo:hi],p[k]~(ReverseState(q,I::OO[tracking][])[lo:hi]'));
         }
     return mean;
     }
@@ -1147,51 +1177,13 @@ ObjToTrack::Distribution(htmp,ptmp) {// dynamic distribution.
 output will also be produced for any objects in tlist with Volume &gt; SILENT
 **/
 Prediction::Histogram(tlist,printit) {
-	decl q,k,cp,tv;
-    decl newqs,newp,j,uni,htmp,ptmp;
+	decl i,tv;
     predmom=<>;
     //Leak foreach(tv in tlist ) {
-    decl i; for (i=0;i<sizeof(tlist);++i) {
-        tv = tlist[i]; // Leak
-        switch(tv.type) {
-            case avar :
-                //tv.hist[] = 0.0;
-                for(k=0;k<tv.hN;++k) tv.hist[k] = sumc( selectifr(ch,Alpha::Matrix[][tv.hd].==k) );
-                /*//Leak foreach (cp in ch[k])  for(k=0;k<sizerc(ch);++k)  tv.hist[Alpha::Matrix[k][tv.hd]] += ch[k];  //Leak cp; becomes ch[k]; */
-                tv.mean = hvals*hist; //tv->Distribution();
-                break;
-	       case svar : tv.hist[] = 0.0;
-                //Leak foreach (q in  sind[][k])
-                for(k=0;k<columns(sind);++k) //Leak
-                    tv.hist[ReverseState(sind[][k],SS[tracking].O)[tv.hd]] += p[k]; //Leak:sind[][k] -> q
-                tv.mean = hvals*hist; //predmom ~= tv->Distribution();
-                break;
-           case auxvar :  // oxwarning("DDP Warning 11.\n  Tracking of auxiliary outcomes still experimental.  It may not work.\n");
-           case idvar  :
-                // ptmp = htmp=<>;  April 2016 deleted
-                tv.mean = <0.0>;
-                //Leak foreach (q in sind[][k]) {   //for each theta consistent with data
-                for (k=0;k<columns(sind);++k) {
-                    q=sind[][k];  //Leak
-                    if (Settheta(q)) {  // theta reachable?
-                        if (tv.type==idvar)
-                            newqs = I::curth->OutputValue();
-                        else {
-                            tv.obj->Realize(); newqs = AV(tv.obj);
-                            }
-                        newp = p[k]*(I::curth.pandv[I::r]);  //state prob. * CCPs
-                        if (isdouble(newqs) || rows(newqs)==1) newp = sumc(newp);
-                        //htmp |= newqs;
-                        //ptmp |= newp;
-                        mean += sumc(sumr(newqs.*newp));
-                        }
-                    else if (!isfeq(p[k],0.0)) fprintln(logf,"%r",{"H unrchble"},"%cf",{"%8.7e","%9.0f"},"%c",{" prob "}|Labels::Vprt[svar][lo:hi],p[k]~(ReverseState(q,I::OO[tracking][])[lo:hi]'));
-                    }
-//                    tv->Distribution(htmp,ptmp);
-                    break;
-            }
-        predmom ~= tv.mean;
-        if (printit||(tv.Volume>SILENT)) tv->print();
+    for (i=0;i<sizeof(tlist);++i) {
+        tv = tlist[i];
+        predmom ~= tv->Distribution(this); // Leak
+//        if (printit) tv->print();
         }
     return t~predmom;
 	}
@@ -1204,7 +1196,9 @@ Prediction::Histogram(tlist,printit) {
         .Inf if prediction is undefined
 **/
 Prediction::Delta(mask,printit,tlabels) {
-    decl df, mv = selectifc(predmom,mask), mW = selectifc(W,mask);
+    decl df;
+    decl mv = selectifc(predmom,mask);
+    decl mW = ismatrix(W) ? selectifc(W,mask) : W;
     if (!ismatrix(empmom))  // if no data difference is zero.
         return zeros(mv);
     df = isdotnan(empmom)           //find missing empirical moments
@@ -1222,47 +1216,64 @@ Prediction::Delta(mask,printit,tlabels) {
 @param pos position in the target list
 @see Discrete, DataColumnTypes
 **/
-ObjToTrack::ObjToTrack(LorC,obj,pos) {
+TrackObj::Create(LorC,obj,pos) {
+    if (isclass(obj,"ActionVariable"))  return new aTrack(LorC,obj,pos);
+    if (isclass(obj,"StateVariable"))   return new sTrack(LorC,obj,pos);
+    if (isclass(obj,"AuxiliaryValues")) return new xTrack(LorC,obj,pos);
+    return new oTrack(LorC,obj,pos);
+    }
+
+TrackObj::TrackObj(LorC,obj,pos) {
   this.obj = obj;
   this.LorC = LorC;
   this.pos = pos;
   Volume = ismember(obj,"Volume") ? obj.Volume : SILENT;
-  type = isclass(obj,"ActionVariable") ? avar
-          : isclass(obj,"StateVariable") ? svar
-          : isclass(obj,"AuxiliaryValues")? auxvar
-          : idvar;  // used for OutputValues
-  switch (type) {
-        case auxvar :  L = obj.L;
-                    hN = 0;
-                    break;
-        case idvar : L = "Output";
-                    hN = 0;
-                 break;
-        case avar :
-        case svar :
-            L = obj.L;
-            hN = obj.N;
-            hd = obj.pos;
-            hvals = obj.actual'; //obj.vals;
-            break;
-        }
-  hist = zeros(hN,1);
+  if (!contdist) {
+    L = obj.L;
+    hN = obj.N;
+    hd = obj.pos;
+    hvals = obj.actual'; //obj.vals;
+    hist = zeros(hN,1);
+    }
+  else {
+    hN = 0;
+    hist = zeros(hN,1);
+    }
+  }
+
+TrackObj::Update() {
+  if (!contdist) hvals = obj.actual'; //obj.vals;
+  }
+
+oTrack::oTrack(LorC,obj,pos){
+  type =  idvar;  // used for OutputValues
+  contdist =  TRUE;
+  TrackObj(LorC,obj,pos);
+  L = "Output";
+  }
+aTrack::aTrack(LorC,obj,pos) {
+  type =  idvar;  // used for OutputValues
+  contdist =  FALSE;
+  TrackObj(LorC,obj,pos);
+  }
+xTrack::xTrack(LorC,obj,pos) {
+  type =  idvar;  // used for OutputValues
+  contdist =  TRUE;
+  TrackObj(LorC,obj,pos);
+  L = obj.L;
+  }
+sTrack::sTrack(LorC,obj,pos) {
+  type =  idvar;  // used for OutputValues
+  contdist =  FALSE;
+  TrackObj(LorC,obj,pos);
   }
 
 /** Print mean and histogram of tracked object.
 **/
-ObjToTrack::print() {
-    fprintln(Data::logf,L);
-    if (isarray(hvals)) {
-        for (decl j=0; j<sizeof(hvals);++j) {
-            fprintln(Data::logf,"%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},hvals[j]'~hist[j]);
-            fprintln(Data::logf,"  Mean: ",mean[j],"\n\n");
-            }
-        }
-    else {
-        fprintln(Data::logf,"%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},hvals'~hist);
-        fprintln(Data::logf,"  Mean: ",mean,"\n\n");
-        }
+TrackObj::print() {
+    fprintln(Data::logf,L,"  Mean: ",mean);
+    //fprintln(Data::logf,"%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},hvals'~hist);
+    //fprintln(Data::logf,"hv",hvals',"hist",hist);
     }
 
 /** Objects to track mean values over the path.
@@ -1297,7 +1308,7 @@ PathPrediction::Tracking(LorC,...) {
             foreach(w in v) Tracking(LorC,w);
             }
         else {
-            tlist |= new ObjToTrack(LorC,v,sizeof(tlist));
+            tlist |= TrackObj::Create(LorC,v,sizeof(tlist));
             tlabels |= tlist[sizeof(tlist)-1].L;
             }
         }
@@ -1305,7 +1316,7 @@ PathPrediction::Tracking(LorC,...) {
 
 /** Set up data columns for tracked variables.
 @param dlabels array of column labels in the data.
-@param Nplace number of observations (row weight) column
+@param Nplace number of observations (row weight) column<br>UnInitialized no row weights
 **/
 PathPrediction::SetColumns(dlabels,Nplace) {
     decl v,lc,vl;
@@ -1337,6 +1348,9 @@ PathPrediction::SetColumns(dlabels,Nplace) {
 
 PathPrediction::Initialize() {
     EverPredicted = TRUE;
+    //foreach
+    decl t;
+    for (t=0;t<sizeof(tlist);++t) tlist[t]->Update();
 	if (isclass(upddens)) {
 		upddens->SetFE(state);
 		upddens->loop();
@@ -1425,11 +1439,13 @@ PanelPrediction::~PanelPrediction() {
 @param r integer tag for the panel
 @param method `Method` to be called before predictions.
 @param iDist initial conditions for `PathPrediction`s
+@param wght [default=FALSE]
 **/
-PanelPrediction::PanelPrediction(r,method,iDist) {
+PanelPrediction::PanelPrediction(r,method,iDist,wght) {
 	decl i, q;
     this.method = method;
 	this.r = r;
+    this.wght = wght;
 	PathPrediction(0,method,iDist);	
 	fparray = new array[N::F];
 	fparray[0] = 0;
@@ -1497,12 +1513,13 @@ EmpiricalMoments::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
 @param method solution method to call before predict
 @param UorCorL where to get fixed-effect values<br>matrix of indices, array of labels<br>UseLabel [default]<br>NotInData only allowed if F=1, then no column contains fixed variables
 @param iDist initial conditions set to `PathPrediction`s
+@param wght Weight moments [default=TRUE]
 **/
-EmpiricalMoments::EmpiricalMoments(label,method,UorCorL,iDist) {
+EmpiricalMoments::EmpiricalMoments(label,method,UorCorL,iDist,wght) {
     decl q,j;
     this.label = label;
     Nplace = UnInitialized;
-    PanelPrediction(label,method,iDist);
+    PanelPrediction(label,method,iDist,wght);
     if (UorCorL==NotInData) {
         if (N::F>1) oxwarning("Multiple fixed groups but data contain no fixed columns? Errors may result.");
         flist = 0;
@@ -1598,7 +1615,7 @@ EmpiricalMoments::Read(FNorDB) {
                     }
                 }
             else inf = UnInitialized;  //get out of inner loop after installing
-            cur->Empirical(inmom,Nplace);
+            cur->Empirical(inmom,isstring(Nplace)||(Nplace!=UnInitialized),wght);
             if (Data::Volume>SILENT) {
                     fprintln(Data::logf,"Moments read in for fixed group ",curf,". See log file");
                     fprintln(Data::logf,"Moments of Moments for fixed group:",curf);

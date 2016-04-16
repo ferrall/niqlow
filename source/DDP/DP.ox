@@ -48,7 +48,7 @@ SubSpace::SubSpace() {D=0; size=1; O=<>;}
 @param IsIterating if the clock is included, use the rightmost variable in the index or set offset to 0<br>[default=TRUE]
 @param DynRand
 **/
-SubSpace::Dimensions(subs,IsIterating,DynRand)	{
+SubSpace::Dimensions(subs,IsIterating,FullDim)	{
 	decl k,s,v,Nsubs = sizerc(subs),nxtO,mxd;
 	O = S[subs[0]].M ? zeros(1,S[subs[0]].M) : <>;
 	nxtO = 1;
@@ -61,7 +61,7 @@ SubSpace::Dimensions(subs,IsIterating,DynRand)	{
 				O ~= IsIterating ? 0~nxtO : nxtO~0;
 				nxtO *= S[k].N[IsIterating] ;
 				}
-			else if ( k!=rgroup || DynRand){
+			else if ( k!=rgroup || FullDim ){  //this was wrong until April 2016
 				D += mxd = S[k].D;
 				size *= S[k].size;
 				O ~= nxtO;
@@ -834,10 +834,10 @@ DP::CreateSpaces() {
 	SS[tracking]	->Dimensions(<endog;clock>,FALSE);
 	SS[onlyclock]	->Dimensions(<clock>,FALSE);
     SS[iterating]	->Dimensions(<endog;clock>);
-	SS[onlyrand]	->Dimensions(<rgroup>,FALSE);
+	SS[onlyrand]	->Dimensions(<rgroup>,FALSE,TRUE);
     SS[onlydynrand] ->Dimensions(<rgroup>,FALSE,Flags::UpdateTime[AfterRandom]);
 	SS[onlyfixed]	->Dimensions(<fgroup>,FALSE);
-	SS[bothgroup]	->Dimensions(<rgroup;fgroup>,FALSE);
+	SS[bothgroup]	->Dimensions(<rgroup;fgroup>,FALSE,TRUE);
 	SS[allstates]	->Dimensions(<exog;semiexog;endog;clock;rgroup;fgroup>,FALSE,TRUE);
     N::Initialize();
     Alpha::Initialize();
@@ -873,11 +873,13 @@ DP::CreateSpaces() {
                  "                 Times",
                  "         EV()Iterating",
 				 "      ChoiceProb.track",
-                 "  Random Groups(Gamma)",
-                 "   Fixed Groups(Gamma)",
+                 "         Random Groups",
+                 " Dynamic Random Groups",
+                 "          Fixed Groups",
+                 "   Total Groups(Gamma)",
                  "       Total Untrimmed"},
 							"%cf",{"%17.0f"},
-			SS[onlyexog].size|SS[onlysemiexog].size|SS[onlyendog].size|SubVectors[clock][0].N|SS[iterating].size|SS[tracking].size|N::R|N::F|SS[allstates].size);
+			SS[onlyexog].size|SS[onlysemiexog].size|SS[onlyendog].size|SubVectors[clock][0].N|SS[iterating].size|SS[tracking].size|N::R|N::DynR|N::F|N::G|SS[allstates].size);
 		print("\n4. ACTION VARIABLES\n   Number of Distinct action vectors: ",N::A);
 		println("%r",{"    a.N"},"%cf","%7.0f","%c",Labels::Vprt[avar],N::AA');
 		}

@@ -263,7 +263,7 @@ Test9::Run()	{
     println("%c",{"f"}|pd.tlabels,pd.aflat[0],pd.aflat[1]);
     savemat("Test9moms.dta",pd.aflat[0]|pd.aflat[1],{"f"}|pd.tlabels);
     delete pd;
-    pd = new EmpiricalMoments("hi",meth,UseLabel);
+    pd = new EmpiricalMoments("hi",meth,UseLabel,FALSE,FALSE);
     pd->TrackingWithLabel(AllFixed,UseLabel,fem,a,p);
     pd->Read("Test9moms.dta");
     Explore(pd,10,0.1,lam);
