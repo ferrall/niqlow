@@ -46,7 +46,7 @@ struct  Bellman : DP {
 			virtual ZetaRealization();
 			virtual	AutoVarPrint1(task);
 			virtual	Interface();
-			virtual Predict(ps,tod);
+			virtual Predict(tod);
             virtual OutputValue();
             virtual SetTheta(state=0,picked=0);
 
@@ -57,7 +57,7 @@ struct  Bellman : DP {
 					Simulate(Y);
 					ThetaTransition();
 					UpdatePtrans();
-					ExpandP(r);
+					ExpandP(r,Agg=TRUE);
 					MedianActVal(EV);
                     InSS();
 	}																																				

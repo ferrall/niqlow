@@ -109,7 +109,6 @@ struct FPanel : Path {
 	virtual Simulate(N, T,ErgOrStateMat=0,DropTerminal=FALSE);
 	        LogLikelihood();
             FullLogLikelihood();
-            GMMdistance();
 	virtual Collapse(cond,stat);
 			Append(i);
 	}
@@ -217,6 +216,7 @@ struct TrackObj : Zauxiliary {
     /** **/     sqmean;
     static Create(LorC,obj,pos);
     TrackObj(LorC,obj,pos);
+    virtual Reset();
     virtual Distribution();
     virtual Update();
     virtual print();
@@ -245,15 +245,18 @@ struct 	Prediction : Data {
 	static	decl ud, lo, hi, LeakWarned;
 	const  	decl t;
 	decl
-		/** state index **/		sind,
-		/** **/					p,
-		/** **/					ch,
+		/** state index **/		     sind,
+        /** index into sind.**/      q,
+		/** **/					     p,
+		/** Expanded ch. prob.**/	 ch,
+        /** current ch. prob.**/     chq,
+        /** current p. **/           pq,
         /**weight to put on
-            momement distance.**/W,
-        /** predicted moment **/ predmom,
-        /** empirical moment **/ empmom,
+            momement distance.**/    W,
+        /** predicted moment **/     predmom,
+        /** empirical moment **/     empmom,
 		/** next prediction
-            in the path **/	pnext;
+            in the path **/	         pnext;
 	Prediction(prev);
     ~Prediction();
 	Predict(tlist);
@@ -268,7 +271,10 @@ struct 	PathPrediction : Prediction {
 	static	decl summand, upddens;
     const decl f, iDist;
 	decl
+    /** Empirical moments read in. **/              HasObservations,
     /** Predict() called before. **/                EverPredicted,
+    /** Path length sent it.**/                     inT,
+    /** .**/                                        prtlevel,
     /** list of objects to track.**/                tlist,
     /** labels of flat print. **/                   tlabels,
     /** indicator vector for observed moments.**/   mask,
@@ -285,11 +291,11 @@ struct 	PathPrediction : Prediction {
 	~PathPrediction();
     InitialConditions();
 	Predict(T=0,printit=FALSE);
-    SetT(T=0);
+    SetT();
     Empirical(inmoments,Nincluded=FALSE,wght=TRUE);
     Tracking(LorC,...);
     SetColumns(dlabels,Nplace=UnInitialized);
-    PathObjective(T=0);
+    PathObjective();
 	}
 
 struct PanelPrediction : PathPrediction {
@@ -306,7 +312,6 @@ struct PanelPrediction : PathPrediction {
     ~PanelPrediction();
     Objective();
     Predict(T=0,printit=FALSE);
-    GMMdistance();
     Tracking(LorC,...);
     }
 

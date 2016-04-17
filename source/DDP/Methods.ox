@@ -91,10 +91,10 @@ ValueIteration::Run(){
     itask->GroupTask::loop();
     if (DPDebug::OutAll)  DPDebug::RunOut();
     else {
- //       if (GSolve::Volume>SILENT) {
-//           if (N::G>1) println(" done ");
+        if (GSolve::Volume>SILENT) {
+           if (N::G>1) println("X");
 	       if (GSolve::Volume>QUIET) DPDebug::outV(TRUE);
-//           }
+          }
         }
     Hooks::Do(PostRESolve);
 	}

@@ -24,6 +24,7 @@ I::Initialize() {
 I::Set(state,group) {
 	all[] = OO*state;
     curth = Theta[all[tracking]];
+    curAi = isclass(curth) ? curth.Aind : NoMatch;
     if (group) {
 	   g = int(all[bothgroup]);
 	   f = int(all[onlyfixed]);
@@ -1659,7 +1660,7 @@ SaveV::Run() {
     decl mxi, p;
 	stub=I::all[tracking]~I::curth.InSubSample~I::curth.IsTerminal~I::curth.Aind~state[S[endog].M:S[clock].M]';
 	for(re=0;re<sizeof(I::curth.EV);++re) {
-        p = I::curth->ExpandP(re);
+        p = I::curth->ExpandP(re,TRUE);
         r =stub~re~I::f~I::curth.EV[re];
         if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
 		if (isclass(I::curth,"OneDimensionalChoice") )  r ~= CV(I::curth.zstar[re])';

@@ -451,19 +451,19 @@ RandomEffectsIntegration::Integrate(path) {
 	this.path = path;
 	L = 0.0;
     flat = 0;
-//    println("######## Integrating ",L);
 	loop();
-//    println("######## Finished ",L);
 	return {L,flat};
 	}
 	
 RandomEffectsIntegration::Run() {
     decl pf =path->PathObjective();
-    if (isint(flat)) flat = curREdensity*pf; else flat += curREdensity*pf;
+    if (isint(flat))
+        flat = curREdensity*pf;
+    else
+        flat += curREdensity*pf;
 	L += curREdensity*path.L;	
     if (Data::Volume>QUIET)
         fprintln(Data::logf,"%% ",I::r," ",I::rtran," ",curREdensity," ",path.L," ",L);
-    println("%% ",I::r," ",I::rtran," ",curREdensity," ",path.L," ",L);
 	}
 	
 /** Compute likelihood of a realized path.
@@ -906,29 +906,36 @@ DataSet::~DataSet() {
 	}
 
 /** Compute the predicted distribution of actions and states.
+This is called by `PathPrediction::PathObjective`.
+Average values of tracked objects are stored in `Predict::predmom`
+Transitions to unreachable states is tracked and logged in the Data logfile.
 
-Usually the user would predict for a `PathPrediction` which would
-call this routine.
 @param tlist list of tracked objects to compute histograms for.
-@return TRUE if all current states are termimal or last states.
 
+@return TRUE if all current states are termimal or last states.
+@see `TrackObj::Distribution`
 **/
 Prediction::Predict(tlist) {
-	decl s,qi,q,pp,unrch,allterm=TRUE;
+	decl k,s,qi,pp,unrch,allterm=TRUE, Ns = sizec(sind),Ntr=sizeof(tlist);
     state = zeros(N::All);
     pp = 0.0; unrch = <>;
-    if (!sizerc(sind)) {
-        predmom = constant(.NaN,1,sizeof(tlist));
+    if (!Ns) {
+        predmom = constant(.NaN,1,Ntr);
         return TRUE;
         }
-//Leak foreach (q in sind[s]) {
-        for (s=0;s<sizerc(sind);++s) { //Leak
+    predmom = zeros(1,Ntr);
+    for (k=0;k<Ntr;++k) tlist[k]->Reset();
+
+    //Leak foreach (q in sind[s]) {
+    for (s=0;s<Ns;++s) { //Leak
         q = sind[s]; // Leak */
+        pq = p[s];
         if (Settheta(q)) {
             state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
             I::all[tracking] = q; // I::OO[tracking][]*state;
             SyncStates(lo,hi);
-            I::curth->Predict(p[s],this);
+            I::curth->Predict(this);
+            for (k=0;k<Ntr;++k) tlist[k]->Distribution(this);
             allterm *= I::curth.IsTerminal || I::curth.IsLast;
             }
         else {
@@ -936,6 +943,7 @@ Prediction::Predict(tlist) {
             pp += p[s]; unrch |= qi' ;
             }
         }
+    for (k=0;k<Ntr;++k) predmom[k] = tlist[k].mean;
     if (!isfeq(pp,0.0)) {
         fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
         if (!LeakWarned) {
@@ -943,7 +951,8 @@ Prediction::Predict(tlist) {
             LeakWarned = TRUE;
             }
         }
-    Histogram(tlist,FALSE);  //CV(prntlevel,cur)==One
+    //Histogram(tlist,FALSE);  //CV(prntlevel,cur)==One
+
     return allterm;
 	}
 	
@@ -968,19 +977,19 @@ Prediction::Prediction(t){
 
 /**
 **/
-PathPrediction::SetT(T) {
+PathPrediction::SetT() {
   decl cur=this,tmp;
-  if (T>0) this.T = T;
+  if (inT>0) this.T = inT;
   InitialConditions();
   do {
 	 if (!isclass(cur.pnext)) {  // no tomorrow after current
-        if (T && cur.t+1<this.T) { // predict for a fixed T
+        if (inT && cur.t+1<this.T) { // predict for a fixed T
             cur.pnext = new Prediction(cur.t+1);
             //++this.T;
             }
         }
      else {
-        if (T && cur.pnext.t>=this.T)  {    //fixed panel shorter than existing
+        if (inT && cur.pnext.t>=this.T)  {    //fixed panel shorter than existing
             tmp = cur.pnext;
             cur.pnext = cur.pnext.pnext;
             delete tmp;
@@ -991,29 +1000,36 @@ PathPrediction::SetT(T) {
         }
   	 } while((isclass(cur = cur.pnext)));  //changed so that first part of loop determines if this is the last period or not.
   return TRUE;
-    }
+  }
 
-/** Create a path of predicted distributions.
-@param T <em>integer</em> length of the path (default=1)<br>0 : predict only for existing predictions on the Path.
+/** Create or update a path of predicted distributions.
+@param inT <em>integer</em> length of the path<br>0 (default) : predict only for existing predictions on the Path.<br>
+If existing path is longer than inT (and inT &gt; 0) then extra predictions are deleted.
 @param prtlevel Zero [default] do not print<br>One print state and choice probabilities<br>Two print predictions
 @return IterationFailed if method solution fails, otherwise TRUE
+
+Predictions are averaged over random effect groups.
+
 @example
 <pre>
   p = new PathPrediction(0);
   p-&gt;Predict(10);
 </pre></dd>
 **/
-PathPrediction::Predict(T,prtlevel){
+PathPrediction::Predict(inT,prtlevel){
+    this.inT = inT;
+    this.prtlevel = prtlevel;
     if (Initialize()==IterationFailed) return IterationFailed;
 	if (isclass(summand))
 		[L,flat] = summand->Integrate(this);
 	else
-		PathObjective(T);
+		PathObjective();
   }
 
 /** Add empirical values to a path of predicted values.
 @param inmom  Txm matrix of values.
 @param Nincluded FALSE: no row observation column<br>TRUE: lastcolumn that contains observation count stored in `Prediction::N` and used for weighting of distances.
+@param wght TRUE: weight columns by inverse standard deviations.
 @comments
 If T is greater than the current length of the path additional predictions are concatenated to the path
 
@@ -1044,7 +1060,10 @@ PathPrediction::Empirical(inNandMom,Nincluded,wght) {
             }
         } while(t<T);
     }
+/** Set the initial conditions of a path prediction.
+What happens depends on `PathPrediction::iDist`.
 
+**/
 PathPrediction::InitialConditions() {
     if (isint(iDist)) {
 		sind=iDist; //start at iDist
@@ -1094,6 +1113,7 @@ PathPrediction::PathPrediction(f,method,iDist){
     Prediction(0);
     T = 1;
     state = ReverseState(f,SS[onlyfixed].O);
+    HasObservations = FALSE;
     if ((N::R>One || N::DynR>One ) && isint(summand)) {
 		summand = new RandomEffectsIntegration();
 		upddens = new UpdateDensity();
@@ -1120,54 +1140,35 @@ PathPrediction::~PathPrediction() {
     }
 
 aTrack::Distribution(pobj) {
-                /*//Leak foreach (cp in ch[k])  for(k=0;k<sizerc(ch);++k)  tv.hist[Alpha::Matrix[k][tv.hd]] += ch[k];  //Leak cp; becomes ch[k]; */
-    for(decl k=0;k<hN;++k)
-        hist[k] = sumc( selectifr(pobj.ch,Alpha::Matrix[][hd].==k) );
-    return mean = hvals*hist; //tv->Distribution();
+    decl v = 0.0, hk;
+    for(decl k=0;k<hN;++k) {
+        hk = sumr( sumc( selectifr(pobj.chq,Alpha::List[I::curth.Aind][][hd].==k) ) );
+        v += hvals[k]*hk;
+        hist[k] += hk;
+        }
+    mean += v;
+    return v; //tv->Distribution();
     }
 
 sTrack::Distribution(pobj) {
-    hist[] = 0.0;       //Leak foreach (q in  sind[][k])
-    decl sind = pobj.sind,k;
-    for(k=0;k<columns(sind);++k) //Leak
-        hist[ReverseState(sind[][k],DP::SS[tracking].O)[hd]] += pobj.p[k]; //Leak:sind[][k] -> q
-    return mean = hvals*hist;
+    decl me = pobj.state[hd], v;
+    hist[me] += pobj.pq;        //Leak:sind[][k] -> q
+    v =hvals[me]*pobj.pq;
+    mean += v;
+    return v;
     }
 
 xTrack::Distribution(pobj) {
-    mean = <0.0>;
-    //Leak foreach (q in sind[][k]) {   //for each theta consistent with data
-    decl sind = pobj.sind,k,q;
-    for (k=0;k<columns(sind);++k) {
-        q=sind[][k];  //Leak
-        if (DP::Settheta(q)) {  // theta reachable?
-            obj->Realize();
-            hvals = AV(obj);
-            hist = pobj.p[k]*(I::curth.pandv[I::r]);  //state prob. * CCPs
-            //if (isdouble(hvals) || rows(htmp)==1) htmp = sumc(htmp);
-            mean += sumc(sumr(hvals.*hist));
-            }
-//        else if (!isfeq(pobj.p[k],0.0)) fprintln(Data::logf,"%r",{"H unrchble"},"%cf",{"%8.7e","%9.0f"},"%c",{" prob "}|Labels::Vprt[svar][lo:hi],pobj.p[k]~(ReverseState(q,I::OO[tracking][])[lo:hi]'));
-        }
-    //print();
-    return mean;
+    obj->Realize();
+    decl v = sumc(sumr( AV(obj).* pobj.chq));
+    mean += v;
+    return v;
     }
 
 oTrack::Distribution(pobj) {
-    decl sind = pobj.sind,k,q;
-    mean = <0.0>;
-    //Leak foreach (q in sind[][k]) {   //for each theta consistent with data
-    for (k=0;k<columns(sind);++k) {
-        q=sind[][k];  //Leak
-        if (DP::Settheta(q)) {  // theta reachable?
-            hvals = I::curth->OutputValue();
-            hist = pobj.p[k]*(I::curth.pandv[I::r]);  //state prob. * CCPs
-            //if (isdouble(newqs) || rows(newqs)==1) newp = sumc(newp);
-            mean += sumc(sumr(hvals.*hist));
-            }
-//        else if (!isfeq(pobj.p[k],0.0)) fprintln(Data::logf,"%r",{"H unrchble"},"%cf",{"%8.7e","%9.0f"},"%c",{" prob "}|Labels::Vprt[svar][lo:hi],p[k]~(ReverseState(q,I::OO[tracking][])[lo:hi]'));
-        }
-    return mean;
+    decl v = pobj.pq * I::curth->OutputValue();
+    mean += v;
+    return v;
     }
 
 /** Compute the histogram of tracked object at the prediction.
@@ -1241,6 +1242,11 @@ TrackObj::TrackObj(LorC,obj,pos) {
     }
   }
 
+TrackObj::Reset() {
+    hist[] = 0.0;
+    mean = 0.0;
+    }
+
 TrackObj::Update() {
   if (!contdist) hvals = obj.actual'; //obj.vals;
   }
@@ -1272,7 +1278,7 @@ sTrack::sTrack(LorC,obj,pos) {
 **/
 TrackObj::print() {
     fprintln(Data::logf,L,"  Mean: ",mean);
-    //fprintln(Data::logf,"%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},hvals'~hist);
+    fprintln(Data::logf,"%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},hvals'~hist);
     //fprintln(Data::logf,"hv",hvals',"hist",hist);
     }
 
@@ -1367,9 +1373,9 @@ PathPrediction::Initialize() {
     }
 
 /** Compute predictions and distance over the path. **/
-PathPrediction::PathObjective(T) {
+PathPrediction::PathObjective() {
   decl done;
-  SetT(T);
+  SetT();
   cur=this;
   flat = <>;
   decl delt =<>;
@@ -1384,16 +1390,20 @@ PathPrediction::PathObjective(T) {
                 ++this.T;
                 }
      flat |= cur.t~cur.predmom;
-     delt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+     if (HasObservations) delt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
      cur = cur.pnext;
   	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
   oxwarning(-1);
-  L = rows(delt) ? norm(delt,'F'): .Inf;
+  L = HasObservations ?
+            (rows(delt) ? norm(delt,'F'): .Inf)
+            : 0.0;
   if (Data::Volume>QUIET) {
-    fprintln(Data::logf,I::r," ",I::rtran," r distance = ",L,
+    fprintln(Data::logf,I::r," ",L,
         "%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat~delt);
     }
-  return f~flat;
+  if (prtlevel)
+    println(I::r,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat);
+  return flat;
   }
 
 /** Produce histograms and mean predictions for all paths in the panel.
@@ -1570,6 +1580,7 @@ EmpiricalMoments::Solve() {
 **/
 EmpiricalMoments::Read(FNorDB) {
     decl curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone;
+    HasObservations = TRUE;
     if (isstring(FNorDB)) {
         source = new Database();
 	    if (!source->Load(FNorDB)) oxrunerror("DDP Error 66. Failed to load data from "+FNorDB);

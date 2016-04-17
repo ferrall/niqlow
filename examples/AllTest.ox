@@ -257,16 +257,16 @@ Test9::Run()	{
 	meth.Volume = NOISY;
     meth -> Solve();
     decl pd = new PanelPrediction("hi");
-    pd->Tracking (UseLabel,fem,a,p);
-    pd->Predict(15,FALSE);
-//    pd -> Histogram(Two);
+    pd->Tracking (UseLabel,fem,a,d);
+    pd->Predict(15,TRUE);
+    //    pd -> Histogram(Two);
     println("%c",{"f"}|pd.tlabels,pd.aflat[0],pd.aflat[1]);
     savemat("Test9moms.dta",pd.aflat[0]|pd.aflat[1],{"f"}|pd.tlabels);
     delete pd;
     pd = new EmpiricalMoments("hi",meth,UseLabel,FALSE,FALSE);
-    pd->TrackingWithLabel(AllFixed,UseLabel,fem,a,p);
+    pd->TrackingWithLabel(AllFixed,UseLabel,fem,a,d);
     pd->Read("Test9moms.dta");
-    Explore(pd,10,0.1,lam);
+//    Explore(pd,10,0.1,lam);
 	Delete();
 	}
 Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + AV(sk)*CV(p)*aa(a)) + (3-I::t); 	}	

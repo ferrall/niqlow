@@ -302,6 +302,7 @@ struct I : DDPauxiliary {
         Set in `I::Set`. **/                                curth,
     /** current point in group space, &gamma;..
         Set in `I::Set`.  **/                               curg,
+    /** current feasible action set .**/                    curAi,
     /** The current value of &delta;. This is set in
             `DP::UpdateVariables`() to avoid repeated calls
             to `CV`.  @see DP::delta **/                         CVdelta;
@@ -343,7 +344,7 @@ struct Alpha : DDPauxiliary {
 		/** list of feasible action matrices (CV) values.
             Each point in the endogenous state space
             has an index: `Bellman::Aind` into this
-            list.  **/ 	                                        List,     // Asets,
+            list.  Also set as `I::curAi`.**/ 	                List,     // Asets,
 		/** List of Feassible Action indicators (column vector
             of 0s and 1s). **/  	                            Sets,     //ActionSets,
 		/** (vector) Number of states for each A set.  **/      Count,    // AsetCount,
