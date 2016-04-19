@@ -24,6 +24,7 @@ I::Initialize() {
 I::Set(state,group) {
 	all[] = OO*state;
     curth = Theta[all[tracking]];
+    curAi = isclass(curth) ? curth.Aind : NoMatch;
     if (group) {
 	   g = int(all[bothgroup]);
 	   f = int(all[onlyfixed]);
@@ -48,7 +49,7 @@ SubSpace::SubSpace() {D=0; size=1; O=<>;}
 @param IsIterating if the clock is included, use the rightmost variable in the index or set offset to 0<br>[default=TRUE]
 @param DynRand
 **/
-SubSpace::Dimensions(subs,IsIterating,DynRand)	{
+SubSpace::Dimensions(subs,IsIterating,FullDim)	{
 	decl k,s,v,Nsubs = sizerc(subs),nxtO,mxd;
 	O = S[subs[0]].M ? zeros(1,S[subs[0]].M) : <>;
 	nxtO = 1;
@@ -61,7 +62,7 @@ SubSpace::Dimensions(subs,IsIterating,DynRand)	{
 				O ~= IsIterating ? 0~nxtO : nxtO~0;
 				nxtO *= S[k].N[IsIterating] ;
 				}
-			else if ( k!=rgroup || DynRand){
+			else if ( k!=rgroup || FullDim ){  //this was wrong until April 2016
 				D += mxd = S[k].D;
 				size *= S[k].size;
 				O ~= nxtO;
@@ -464,6 +465,7 @@ Alpha::Initialize() {
 	List = array(Matrix);
 	A = array(Matrix);
 	Sets = array(ones(N::A,1));
+    AIlist = array(range(0,N::A-1)');
     N::Options = matrix(rows(Matrix));
     N::J = 1;
     }
@@ -472,13 +474,14 @@ Alpha::AddA(fa) {
     decl nfeas = int(sumc(fa)), ai=0;
     do { if (fa==Sets[ai]) {++Count[ai]; break;} } while (++ai<N::J);
     if (ai==N::J) {
-  	 Sets |= fa;
-     N::Options |= nfeas;
-	 List |= selectifr(Matrix,fa);
-	 A |= List[N::J];
-     ++N::J;
-	 Count |= 1;
-     }
+  	     Sets   |= fa;
+         N::Options |= nfeas;
+	     List   |= selectifr(Matrix,fa);
+	     A      |= List[N::J];
+         AIlist |= selectifr(AIlist[0],fa);
+        ++N::J;
+	    Count |= 1;
+        }
    return ai;
    }
 
@@ -508,32 +511,32 @@ Alpha::Aprint() {
     aL1 |= "]";
 	av = sprint("%-14s",aL1);
 	for (i=0;i<N::J;++i) av ~= sprint("  A[","%1u",i,"]   ");
-		println(av);
-        print("------------------"); for (i=0;i<N::J;++i) print("---------"); println("");
-		for (j=0;j<N::A;++j) {
-			for (i=0,av=sprint("%03u",j)~" (";i<N::Av;++i) av ~= sprint("%1u",Matrix[j][i]);
-			av~=")";
-			for (i=0;i<N::J;++i) if (Sets[i][j]) {
-                    if (!sizeof(Rlabels[i])) Rlabels[i] = {av};
-                    else Rlabels[i] |= av;
-                    }
-			for (i=0;i<8-N::Av;++i) av ~= " ";
-            everfeasible = FALSE;
-			for (i=0;i<N::J;++i) {
-                av ~= Sets[i][j] ? "    X    " : "    -    ";
-                everfeasible = everfeasible|| (Count[i]&&Sets[i][j]);
-                }
-            av ~= "    ";
-			for (i=0;i<N::Av;++i)
-                    if ( isarray(DP::SubVectors[acts][i].vL) ) av ~= "-"~DP::SubVectors[acts][i].vL[Matrix[j][i]];
-			if (everfeasible) println(av);  else ++totalnever;
-			}
-		for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",Count[i]);
-		println(av);
-        print("-----------------"); for (i=0;i<N::J;++i) print("---------");
-        println("\n    Key: X = row vector is feasible. - = infeasible");
-        if (totalnever) println("    # of Action vectors not shown because they are never feasible: ",totalnever);
-        println("\n");
+	println(av);
+    print("------------------"); for (i=0;i<N::J;++i) print("---------"); println("");
+	for (j=0;j<N::A;++j) {
+		for (i=0,av=sprint("%03u",j)~" (";i<N::Av;++i) av ~= sprint("%1u",Matrix[j][i]);
+		av~=")";
+		for (i=0;i<N::J;++i) if (Sets[i][j]) {
+            if (!sizeof(Rlabels[i])) Rlabels[i] = {av};
+            else Rlabels[i] |= av;
+            }
+		for (i=0;i<8-N::Av;++i) av ~= " ";
+        everfeasible = FALSE;
+		for (i=0;i<N::J;++i) {
+            av ~= Sets[i][j] ? "    X    " : "    -    ";
+            everfeasible = everfeasible|| (Count[i]&&Sets[i][j]);
+            }
+        av ~= "    ";
+		for (i=0;i<N::Av;++i)
+            if ( isarray(DP::SubVectors[acts][i].vL) ) av ~= "-"~DP::SubVectors[acts][i].vL[Matrix[j][i]];
+		if (everfeasible) println(av);  else ++totalnever;
+		}
+	for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",Count[i]);
+	println(av);
+    print("-----------------"); for (i=0;i<N::J;++i) print("---------");
+    println("\n    Key: X = row vector is feasible. - = infeasible");
+    if (totalnever) println("    # of Action vectors not shown because they are never feasible: ",totalnever);
+    println("\n");
     }
 
 /**
@@ -669,7 +672,7 @@ DP::Initialize(userState,UseStateList) {
             Volume = NOISY;
             println(Volume,arglist());
             }
-    if (Volume>=LOUD) println("DP::Intialize is complete. Action and State spaces are empty.\n Log file name is: ",lognm);
+    if (Volume>=QUIET) println("DP::Intialize is complete. Action and State spaces are empty.\n Log file name is: ",lognm);
  }
 
 /** Tell DDP when parameters and transitions have to be updated.
@@ -834,10 +837,10 @@ DP::CreateSpaces() {
 	SS[tracking]	->Dimensions(<endog;clock>,FALSE);
 	SS[onlyclock]	->Dimensions(<clock>,FALSE);
     SS[iterating]	->Dimensions(<endog;clock>);
-	SS[onlyrand]	->Dimensions(<rgroup>,FALSE);
+	SS[onlyrand]	->Dimensions(<rgroup>,FALSE,TRUE);
     SS[onlydynrand] ->Dimensions(<rgroup>,FALSE,Flags::UpdateTime[AfterRandom]);
 	SS[onlyfixed]	->Dimensions(<fgroup>,FALSE);
-	SS[bothgroup]	->Dimensions(<rgroup;fgroup>,FALSE);
+	SS[bothgroup]	->Dimensions(<rgroup;fgroup>,FALSE,TRUE);
 	SS[allstates]	->Dimensions(<exog;semiexog;endog;clock;rgroup;fgroup>,FALSE,TRUE);
     N::Initialize();
     Alpha::Initialize();
@@ -873,11 +876,13 @@ DP::CreateSpaces() {
                  "                 Times",
                  "         EV()Iterating",
 				 "      ChoiceProb.track",
-                 "  Random Groups(Gamma)",
-                 "   Fixed Groups(Gamma)",
+                 "         Random Groups",
+                 " Dynamic Random Groups",
+                 "          Fixed Groups",
+                 "   Total Groups(Gamma)",
                  "       Total Untrimmed"},
 							"%cf",{"%17.0f"},
-			SS[onlyexog].size|SS[onlysemiexog].size|SS[onlyendog].size|SubVectors[clock][0].N|SS[iterating].size|SS[tracking].size|N::R|N::F|SS[allstates].size);
+			SS[onlyexog].size|SS[onlysemiexog].size|SS[onlyendog].size|SubVectors[clock][0].N|SS[iterating].size|SS[tracking].size|N::R|N::DynR|N::F|N::G|SS[allstates].size);
 		print("\n4. ACTION VARIABLES\n   Number of Distinct action vectors: ",N::A);
 		println("%r",{"    a.N"},"%cf","%7.0f","%c",Labels::Vprt[avar],N::AA');
 		}
@@ -1657,7 +1662,7 @@ SaveV::Run() {
     decl mxi, p;
 	stub=I::all[tracking]~I::curth.InSubSample~I::curth.IsTerminal~I::curth.Aind~state[S[endog].M:S[clock].M]';
 	for(re=0;re<sizeof(I::curth.EV);++re) {
-        p = I::curth->ExpandP(re);
+        p = I::curth->ExpandP(re,TRUE);
         r =stub~re~I::f~I::curth.EV[re];
         if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
 		if (isclass(I::curth,"OneDimensionalChoice") )  r ~= CV(I::curth.zstar[re])';

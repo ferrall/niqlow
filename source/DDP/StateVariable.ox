@@ -1104,6 +1104,7 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 	this.mu = mu;
 	this.CholLT = CholLT;
 	for (i=0;i<N;++i) AddToBlock(new NormalComponent(L+sprint(i),M));
+    Volume = SILENT;
 	}
 
 /** Updates the grid of Actual values.

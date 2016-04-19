@@ -212,19 +212,26 @@ Bellman::UpdatePtrans() {
 		 ii = I::all[onlyendog];
 	for (eta=0;eta<sizerc(Nxt[Qit]);++eta)
 		I::curg.Ptrans[ Nxt[Qit][eta] ][ii] += (h[eta][]*Nxt[Qrho+I::rtran][eta])';
-	if (Flags::StorePA) I::curg.Palpha[][I::all[tracking]] = ExpandP(I::r);
+	if (Flags::StorePA) I::curg.Palpha[][I::all[tracking]] = ExpandP(I::r,TRUE);
 	}
 
 Bellman::OutputValue() { return 0.0;     }
 	
-/**Return choice probabilities conditioned on &theta; with zeros inserted for infeasible actions.
-@param r random effects index to insert for
-@return &Rho;(&alpha;|&theta), J&times;1 matrix of choice probabilities
+/**Return choice probabilities conditioned on &theta; in different forms.
+@param r random effects index .
+@param Agg TRUE: 1. integrate out exogenous shocks if pandv is compatible. <br>
+           FALSE: 1. simply multiply exogenous shock distribution
+
+        2. insert zeros for infeasible action vectors.  So results are consistent
+        across states that have different feasible action sets.
+@return if Agg TRUE, &Rho;(&alpha;|&theta;), J&times;1 matrix of choice probabilities<br>
+        if Agg FALSE &Rho;(&alpha;|&eps;,&eta;;&theta;)
 @see DPDebug::outV
 **/
-Bellman::ExpandP(r) {
+Bellman::ExpandP(r,Agg) {
 	decl p,i;
-	p =	(columns(pandv[r])==rows(NxtExog[Qprob])) ? pandv[r]*NxtExog[Qprob] : pandv[r];
+	p =	Agg ? ( columns(pandv[r])==rows(NxtExog[Qprob]) ? pandv[r]*NxtExog[Qprob] : pandv[r])
+            : pandv[r].*(NxtExog[Qprob]');
 	for (i=0;i<N::A;++i) if (!Alpha::Sets[Aind][i]) p = insertr(p,i,1);
 	return p;
 	}
@@ -347,12 +354,13 @@ Bellman::AutoVarPrint1(task) {
 	}
 	
 /** . @internal **/
-Bellman::Predict(ps,tod) {
+Bellman::Predict(tod) {
 	decl lo,hi,nnew, mynxt,eta,
 		tom = tod.pnext,
 		width = SS[onlyexog].size,
 		Pa;		
-	tod.ch += ps*ExpandP(I::r);
+    tod.chq  = tod.pq*pandv[I::r].*(NxtExog[Qprob]');
+    tod.ch  += tod.pq*ExpandP(I::r,FALSE);
 	hi = -1;
 //    decl d = 0.0;
     for (eta=0;eta<SS[onlysemiexog].size;++eta) if (sizerc(Nxt[Qtr][eta])) {
@@ -365,7 +373,7 @@ Bellman::Predict(ps,tod) {
                     tom.p ~= zeros(1,nnew);
                     }
 		      intersection(tom.sind,Nxt[Qtr][eta],&mynxt);
-		      tom.p[mynxt[0][]] += ps*Pa*Nxt[Qrho+I::rtran][eta][][mynxt[1][]];
+		      tom.p[mynxt[0][]] += tod.pq*Pa*Nxt[Qrho+I::rtran][eta][][mynxt[1][]];
               }
 //          d += sumr(Pa*Nxt[Qrho+I::rtran][eta]);
 		  }
