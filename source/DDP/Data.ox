@@ -928,19 +928,20 @@ Prediction::Predict(tlist) {
 
     //Leak foreach (q in sind[s]) {
     for (s=0;s<Ns;++s) { //Leak
-        q = sind[s]; // Leak */
         pq = p[s];
-        if (Settheta(q)) {
-            state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
-            I::all[tracking] = q; // I::OO[tracking][]*state;
-            SyncStates(lo,hi);
-            I::curth->Predict(this);
-            for (k=0;k<Ntr;++k) tlist[k]->Distribution(this);
-            allterm *= I::curth.IsTerminal || I::curth.IsLast;
-            }
-        else {
-            qi = ReverseState(q,I::OO[tracking][])[lo:hi];
-            pp += p[s]; unrch |= qi' ;
+        if (pq>1E-20) {
+            q = sind[s]; // Leak */
+            if (Settheta(q)) {
+                state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
+                I::all[tracking] = q; // I::OO[tracking][]*state;
+                SyncStates(lo,hi);            I::curth->Predict(this);
+                for (k=0;k<Ntr;++k) tlist[k]->Distribution(this);
+                allterm *= I::curth.IsTerminal || I::curth.IsLast;
+                }
+            else {
+                qi = ReverseState(q,I::OO[tracking][])[lo:hi];
+                pp += p[s]; unrch |= qi' ;
+                }
             }
         }
     for (k=0;k<Ntr;++k) predmom[k] = tlist[k].mean;
@@ -952,7 +953,12 @@ Prediction::Predict(tlist) {
             }
         }
     //Histogram(tlist,FALSE);  //CV(prntlevel,cur)==One
-
+     if (Data::Volume>LOUD) {
+        decl ach = sumr(ch), posch = !isdotfeq(ach,0.0);
+        fprintln(Data::logf,t," States and probabilities ","%r",{"Index","Prob."},selectifc(sind|p,p.>1E-20),
+            Alpha::aL1,"Non-zero Choice Probabilities ",
+            "%r",Alpha::Rlabels[0][selectifr(Alpha::AIlist[0],posch)],selectifr(ach,posch));
+        }
     return allterm;
 	}
 	
@@ -1384,7 +1390,6 @@ PathPrediction::PathObjective() {
      cur.predmom=<>;
      done =    cur->Prediction::Predict(tlist)          //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
-     if (Data::Volume>LOUD) fprintln(Data::logf,cur.t," States and probabilities ","%r",{"Index","Prob."},cur.sind|cur.p,"Choice Probabilities ",ch);
 	 if (!done && !isclass(cur.pnext)) { // no tomorrow after current
                 cur.pnext = new Prediction(cur.t+1);
                 ++this.T;

@@ -356,6 +356,8 @@ struct Alpha : DDPauxiliary {
             the user can get the matrix of actual action values
             with <code>A[Aind]</code> **/	                    A,
          /** First character of action labels. **/              aL1,
+         /** Array of indices into Matrix for each
+            feasible set . **/                                  AIlist,
         /** Array of Array labels for rows of A that look like &alpha;. **/ Rlabels;
     static Initialize();
     static AddA(fa);

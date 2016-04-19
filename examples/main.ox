@@ -2,7 +2,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
 						
 main() {
-	Version::Check();
+	Version::Check("logs/");
 	reps = {
 			{"RustEmet1987",			Zurcher::Run},
 			{"BerkovecSternEmet1991",	Retirement::Run},

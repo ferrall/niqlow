@@ -465,6 +465,7 @@ Alpha::Initialize() {
 	List = array(Matrix);
 	A = array(Matrix);
 	Sets = array(ones(N::A,1));
+    AIlist = array(range(0,N::A-1)');
     N::Options = matrix(rows(Matrix));
     N::J = 1;
     }
@@ -473,13 +474,14 @@ Alpha::AddA(fa) {
     decl nfeas = int(sumc(fa)), ai=0;
     do { if (fa==Sets[ai]) {++Count[ai]; break;} } while (++ai<N::J);
     if (ai==N::J) {
-  	 Sets |= fa;
-     N::Options |= nfeas;
-	 List |= selectifr(Matrix,fa);
-	 A |= List[N::J];
-     ++N::J;
-	 Count |= 1;
-     }
+  	     Sets   |= fa;
+         N::Options |= nfeas;
+	     List   |= selectifr(Matrix,fa);
+	     A      |= List[N::J];
+         AIlist |= selectifr(AIlist[0],fa);
+        ++N::J;
+	    Count |= 1;
+        }
    return ai;
    }
 
@@ -509,32 +511,32 @@ Alpha::Aprint() {
     aL1 |= "]";
 	av = sprint("%-14s",aL1);
 	for (i=0;i<N::J;++i) av ~= sprint("  A[","%1u",i,"]   ");
-		println(av);
-        print("------------------"); for (i=0;i<N::J;++i) print("---------"); println("");
-		for (j=0;j<N::A;++j) {
-			for (i=0,av=sprint("%03u",j)~" (";i<N::Av;++i) av ~= sprint("%1u",Matrix[j][i]);
-			av~=")";
-			for (i=0;i<N::J;++i) if (Sets[i][j]) {
-                    if (!sizeof(Rlabels[i])) Rlabels[i] = {av};
-                    else Rlabels[i] |= av;
-                    }
-			for (i=0;i<8-N::Av;++i) av ~= " ";
-            everfeasible = FALSE;
-			for (i=0;i<N::J;++i) {
-                av ~= Sets[i][j] ? "    X    " : "    -    ";
-                everfeasible = everfeasible|| (Count[i]&&Sets[i][j]);
-                }
-            av ~= "    ";
-			for (i=0;i<N::Av;++i)
-                    if ( isarray(DP::SubVectors[acts][i].vL) ) av ~= "-"~DP::SubVectors[acts][i].vL[Matrix[j][i]];
-			if (everfeasible) println(av);  else ++totalnever;
-			}
-		for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",Count[i]);
-		println(av);
-        print("-----------------"); for (i=0;i<N::J;++i) print("---------");
-        println("\n    Key: X = row vector is feasible. - = infeasible");
-        if (totalnever) println("    # of Action vectors not shown because they are never feasible: ",totalnever);
-        println("\n");
+	println(av);
+    print("------------------"); for (i=0;i<N::J;++i) print("---------"); println("");
+	for (j=0;j<N::A;++j) {
+		for (i=0,av=sprint("%03u",j)~" (";i<N::Av;++i) av ~= sprint("%1u",Matrix[j][i]);
+		av~=")";
+		for (i=0;i<N::J;++i) if (Sets[i][j]) {
+            if (!sizeof(Rlabels[i])) Rlabels[i] = {av};
+            else Rlabels[i] |= av;
+            }
+		for (i=0;i<8-N::Av;++i) av ~= " ";
+        everfeasible = FALSE;
+		for (i=0;i<N::J;++i) {
+            av ~= Sets[i][j] ? "    X    " : "    -    ";
+            everfeasible = everfeasible|| (Count[i]&&Sets[i][j]);
+            }
+        av ~= "    ";
+		for (i=0;i<N::Av;++i)
+            if ( isarray(DP::SubVectors[acts][i].vL) ) av ~= "-"~DP::SubVectors[acts][i].vL[Matrix[j][i]];
+		if (everfeasible) println(av);  else ++totalnever;
+		}
+	for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",Count[i]);
+	println(av);
+    print("-----------------"); for (i=0;i<N::J;++i) print("---------");
+    println("\n    Key: X = row vector is feasible. - = infeasible");
+    if (totalnever) println("    # of Action vectors not shown because they are never feasible: ",totalnever);
+    println("\n");
     }
 
 /**
