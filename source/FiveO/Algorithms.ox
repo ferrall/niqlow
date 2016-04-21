@@ -106,7 +106,7 @@ SimulatedAnnealing::Metropolis()	{
 	decl jm=-1, j, diff;
     for(j=0;j<M;++j) {
         diff = vtries[j]-OC.v;
-	    if (Volume>=LOUD) fprintln(logf,iter~vtries[j]~(vec(tries[][j])'));
+	    if (Volume>=LOUD) { fprintln(logf,iter~vtries[j]~(vec(tries[][j])')); fflush(logf);}
 	    if ( !isnan(diff) && (diff> 0.0) || ranu(1,1) < exp(diff/heat))	{
              jm = j;
              OC.v = vtries[jm];
@@ -206,13 +206,13 @@ LineMax::Iterate(Delta,maxiter)	{
 	this->Try(p2,min(maxstp/maxdelt,1.0));
 	if (p2.v>p1.v) {q = p2;a=p1;} else {q=p1;a=p2;}
 	b = p3;
-    if (Volume>SILENT) fprintln(logf,"Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);
+    if (Volume>SILENT) { fprintln(logf,"Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);fflush(logf);}
     Bracket();
     if (Volume>QUIET) println("Line: past bracket",a,b,q);
 	Golden();
 	O->Decode(holdF+q.step*Delta);
     if (Volume>SILENT) {
-        fprintln(logf,"Past golden",q);
+        fprintln(logf,"Past golden",q);fflush(logf);
         if (Volume> QUIET) println("Line: past golden",q);
         }
  	OC.v = q.v;
@@ -297,7 +297,7 @@ LineMax::Bracket()	{
 		else this->Try(u,(1+gold)*b.step-gold*q.step);
         if (notdone)
 			{a = q;	q = b;	b = u;  notdone= b.v>q.v;  }
-        if (Volume>SILENT) fprintln(logf,"Bracket ",notdone,"a:",a,"q",q,"b",b);
+        if (Volume>SILENT) {fprintln(logf,"Bracket ",notdone,"a:",a,"q",q,"b",b);fflush(logf);}
 		}
 	}
 
@@ -319,6 +319,7 @@ LineMax::Golden()	{
          if (Volume>SILENT) {
                 istr = sprint("Line: ",iter,". improve: ",improved,". step diff = ",x3.step," - ",x0.step);
                 fprintln(logf,istr);
+                fflush(logf);
                 if (Volume>QUIET) println(istr);
                 }
 		} while (fabs(x3.step-x0.step) > tolerance*fabs(x1.step+x2.step) && (iter<maxiter) );
@@ -359,6 +360,7 @@ NelderMead::Iterate(iplex)	{
 		  fprintln(logf,"\n Max # evaluations ",nfuncmax,
 				"\n Max # restarts ",mxstarts,
 				"\n Plex size tolerance ",tolerance);
+          fflush(logf);
 		  }
 	   do {
            n_func = 0;
@@ -371,6 +373,7 @@ NelderMead::Iterate(iplex)	{
 	       if (Volume>SILENT) {
 	   		  fprintln(logf,"\n","%3u",iter,". N=","%5u",n_func," Step=","%8.5f",step,". Fmax=",nodeV[mxi]," .PlexSize=",plexsize,plexsize<tolerance ? " *Converged*" : "");
 	          fprintln(logf," Bounds on Simplex","%r",{"min","max"},"%c",O.Flabels,limits(nodeX')[:1][]);
+              fflush(logf);
               }
 	       step *= 0.9;
            } while (++iter<mxstarts && !plexshrunk && n_func < nfuncmax);
@@ -435,7 +438,7 @@ NelderMead::SimplexSize() {
 NelderMead::Amoeba() 	{
      decl vF = zeros(O.NvfuncTerms,N+1);
 	 n_func += O->funclist(nodeX,&vF,&nodeV);
-     if (Volume>SILENT) { logf = fopen(lognm,"aV");fprintln(logf,"Amoeba: ");}
+     if (Volume>SILENT) { fprintln(logf,"Amoeba: ");fflush(logf);}
 	 do	{
 	 	Sort();
 		if (plexsize<tolerance) return TRUE;
@@ -454,7 +457,7 @@ NelderMead::Amoeba() 	{
 				n_func += O->funclist(nodeX,&vF,&nodeV);
 				}
 			}
-        if (Volume>SILENT) fprintln(logf," ... ",n_func);
+        if (Volume>SILENT) { fprintln(logf," ... ",n_func);fflush(logf);}
 		} while (n_func < nfuncmax);
 	 return FALSE;
 	}
@@ -567,7 +570,7 @@ GradientBased::Gupdate()	{
 	oldG = OC.G;
 	O->Gradient();	
 	deltaG = norm(OC.G,2);
-	if (Volume>QUIET) fprintln(logf,"%r",{"Gradient "},"%c",O.Flabels,OC.G);
+	if (Volume>QUIET) {fprintln(logf,"%r",{"Gradient "},"%c",O.Flabels,OC.G);fflush(logf);}
 	return deltaG<gradtoler;
 	}
 
@@ -615,6 +618,7 @@ GradientBased::Iterate(H)	{
                 fprintln(logf,istr);
                 if(Volume>QUIET) println(istr);
                 O->Print("",logf,Volume>QUIET);
+                fflush(logf);
                 }
 
 		  } while (convergence==NONE);
@@ -623,6 +627,7 @@ GradientBased::Iterate(H)	{
                 istr =sprint("\nFinished: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient"},OC.F'|OC.G);
                 fprintln(logf,istr);
                 if (Volume>QUIET) println(istr);
+                fflush(logf);
                 }
 	     if (convergence>=WEAK) {
             this->HHupdate(TRUE);
@@ -839,6 +844,7 @@ NonLinearSystem::Iterate(J)	{
                 istr = sprint("\n",iter,".  deltaX: ",deltaX," deltaG:",deltaG,"%c",O.Flabels,"%r",{"    Params Vector","           System","        Direction"},OC.F'|OC.V'|d');
                 fprintln(logf,istr);			
                 if (Volume>QUIET) println(istr);
+                fflush(logf);
                 }
 			} while (convergence==NONE && !isnan(deltaX) );
 		  }
@@ -934,6 +940,7 @@ SQP::Iterate(H)  {
 	   if (Volume>SILENT) {
           O->Print("SQP Starting",logf,Volume>QUIET);
 		  fprintln(logf," .f0=",OC.v,". #Equality: ",ne,". #InEquality: ",ni);	
+          fflush(logf);
           }	
 	   Hresetcnt = iter =0;
 	   do  {
@@ -947,6 +954,7 @@ SQP::Iterate(H)  {
 		  if (Volume>SILENT) {
             istr = sprint("\n",iter,". convergence:",convergence,". QP code:",Qconv,". L=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
 		    fprintln(logf,istr);
+            fflush(logf);
             if (Volume>QUIET) println(istr);
 			OC.eq->print();
 			OC.ineq->print();
@@ -954,6 +962,7 @@ SQP::Iterate(H)  {
 		  } while (convergence==NONE);
 	   if (Volume>SILENT) {
             fprintln(logf,"\nConverged: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient"},OC.F'|OC.G);
+            fflush(logf);
             OC.eq->print();
             OC.ineq->print();
 		    }

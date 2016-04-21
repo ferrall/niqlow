@@ -462,8 +462,7 @@ RandomEffectsIntegration::Run() {
     else
         flat += curREdensity*pf;
 	L += curREdensity*path.L;	
-    if (Data::Volume>QUIET)
-        fprintln(Data::logf,"%% ",I::r," ",I::rtran," ",curREdensity," ",path.L," ",L);
+    if (Data::Volume>LOUD) fprintln(Data::logf,"%% ",I::r," ",I::rtran," ",curREdensity," ",path.L," ",L);
 	}
 	
 /** Compute likelihood of a realized path.
@@ -1030,6 +1029,8 @@ PathPrediction::Predict(inT,prtlevel){
 		[L,flat] = summand->Integrate(this);
 	else
 		PathObjective();
+    if (Data::Volume>QUIET)
+        fprintln(Data::logf,L,"%12.4f","%c",tlabels,flat);
   }
 
 /** Add empirical values to a path of predicted values.
@@ -1056,10 +1057,19 @@ PathPrediction::Empirical(inNandMom,Nincluded,wght) {
         totN = 1.0;
         inmom = inNandMom;
         }
-    invsd = wght ? (1.0 ./ setbounds(moments(inmom,2)[2][],0.5,+.Inf)) : 1.0;
+
+    decl j;  //insert columns for moments not matched in the data
+    for (j=0;j<columns(cols);++j)
+        if (cols[j]==NotInData) {
+            if (j==0) inmom = .NaN ~ inmom;
+            else if (j>=columns(inmom)) inmom ~= .NaN;
+            else inmom = inmom[][:j-1]~.NaN~inmom[][j:];
+            }
+    invsd = wght ? selectifc( 1.0 ./ setbounds(moments(inmom,2)[2][],0.5,+.Inf),mask) : 1.0;
     do {
         cur.W = (inN[t]/totN)*invsd;
-        cur.empmom = inmom[t++][];
+        cur.readmom = inmom[t++][];
+        cur.empmom = selectifc(cur.readmom,mask);
         if (t<T) {
             if (cur.pnext==UnInitialized) cur.pnext = new Prediction(t);
             cur = cur.pnext;
@@ -1205,15 +1215,14 @@ Prediction::Histogram(tlist,printit) {
 Prediction::Delta(mask,printit,tlabels) {
     decl df;
     decl mv = selectifc(predmom,mask);
-    decl mW = ismatrix(W) ? selectifc(W,mask) : W;
     if (!ismatrix(empmom))  // if no data difference is zero.
         return zeros(mv);
     df = isdotnan(empmom)           //find missing empirical moments
                 .? 0.0                  //difference is then 0.0
                 .:  (isdotnan(mv)   // else, find mising predictions
                         .? .Inf             // difference unbounded
-                        .: mW.*(mv-empmom));   // weighted difference
-    if (printit) fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4f","%c",tlabels,mv|empmom|mW|df);
+                        .: W.*(mv-empmom));   // weighted difference
+    if (printit) fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4f","%c",tlabels,mv|empmom|W|df);
     return df;
     }
 
@@ -1339,6 +1348,7 @@ PathPrediction::SetColumns(dlabels,Nplace) {
         if (isint(lc)){
             if (lc==NotInData) {
                 mask ~= 0;
+                cols ~= NotInData;
                 continue;
                 }
             if (lc>UseLabel) {
@@ -1584,7 +1594,7 @@ EmpiricalMoments::Solve() {
 @param FNorDB  string, name of file that contains the data.<br>A Ox database object.
 **/
 EmpiricalMoments::Read(FNorDB) {
-    decl curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone;
+    decl curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone,incol;
     HasObservations = TRUE;
     if (isstring(FNorDB)) {
         source = new Database();
@@ -1622,11 +1632,13 @@ EmpiricalMoments::Read(FNorDB) {
         if (fdone[curf]) oxrunerror("DDP Error 68. reading in moments for a fixed group more than once.  moments data file not sorted properly");
         fdone[curf] = TRUE;
         inmom = <>;
+        incol = selectifc(cur.cols,cur.cols.>=0);
         do {
             if (row<rows(data)) {  //read one more
                 inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
                 if (inf==curf ) {  //same fixed group
-                    inmom |= data[row++][cur.cols];   //add moments, increment row
+                    inmom |= data[row++][incol];   //add moments, increment row
+
                     continue;                        // don't install moments
                     }
                 }

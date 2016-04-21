@@ -245,16 +245,16 @@ struct 	Prediction : Data {
 	static	decl ud, lo, hi, LeakWarned;
 	const  	decl t;
 	decl
-		/** state index **/		     sind,
-        /** index into sind.**/      q,
-		/** **/					     p,
-		/** Expanded ch. prob.**/	 ch,
-        /** current ch. prob.**/     chq,
-        /** current p. **/           pq,
-        /**weight to put on
-            momement distance.**/    W,
-        /** predicted moment **/     predmom,
-        /** empirical moment **/     empmom,
+		/** state index **/		             sind,
+        /** index into sind.**/             q,
+		/** **/					              p,
+		/** Expanded ch. prob.**/	         ch,
+        /** current ch. prob.**/            chq,
+        /** current p. **/                  pq,
+        /** masked weight to put on distance.**/        W,
+        /** (unmasked) predicted moment vector**/       predmom,
+        /** (unmasked) empirical moments. **/           readmom,
+        /** used (masked) empiricalmoments.**/          empmom,
 		/** next prediction
             in the path **/	         pnext;
 	Prediction(prev);

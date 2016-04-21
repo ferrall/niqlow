@@ -194,7 +194,7 @@ Objective::Print(orig,fn,toscreen){
 		FinX~cur.F,
 		"Actual Parameters",
 		"%c",{           "     Value "},"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
-    if (isfile(fn)) fprintln(fn,b);
+    if (isfile(fn)) {fprintln(fn,b); fflush(logf);}
     if (toscreen) println(b);
 	}
 
@@ -433,6 +433,7 @@ Objective::vobj(F)	{
     if (Volume>QUIET) {
         fprint(logf,"vobj = ",cur.V);
         if (Volume>LOUD)  println("vobj = ",cur.V);
+        fflush(logf);
         }
 	}
 
