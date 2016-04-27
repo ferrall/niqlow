@@ -35,7 +35,7 @@ struct ActionIndicators : Indicators {
     Realize(y=0);
     }
 
-struct ZetaRealization : Quantity {
+struct ZetaRealization : AuxiliaryValues {  //Changed April 2016 from Quantity 
 	const decl length;
 	ZetaRealization(length,Volume=SILENT);
 	virtual Realize(y=0);

@@ -65,19 +65,19 @@ struct LineMax	: NonGradient {
 		/** . @internal **/        	glimit           = 10.0,
 		/** . @internal **/        	gold             = 1.61803399,
 		/** . @internal **/        	rgold            = .61803399,
-		/** . @internal **/        	cgold            = 1-.61803399,
-		/** . @internal **/        	maxstp           = 5.0;
+		/** . @internal **/        	cgold            = 1-.61803399;
 
 		/** hold evaluations. @internal **/
 				const	decl		p1,p2,p3,p4,p5,p6;
 						decl 	
+		/** . **/        	        maxstp,
         /** . **/                   improved,
 		/** Direction vector. **/   Delta,
 						        	q,a,b;
 		
 		LineMax(O);
 		~LineMax();
-		Iterate(Delta,maxiter=0);
+		Iterate(Delta,maxiter=0,maxstp=0);
 		virtual Try(pt,step);
 		Bracket();
 		Golden();
@@ -239,6 +239,7 @@ struct GradientBased : Algorithm {
 		  			     										gradtoler,
         /** max iterations on line search. @see GradientBased::Tune **/
                                                                 LMitmax,
+        /** maximum step size in line search. **/               LMmaxstep,
        /** |&nabla;<sub>m</sub>-&nabla;<sub>m-1</sub>|.**/ 		deltaG,
        /** |x<sub>m</sub>-x<sub>m-1</sub>.**/					deltaX,
        /**                      **/								dx,
@@ -248,7 +249,7 @@ struct GradientBased : Algorithm {
         virtual   ItStartCheck();
 		virtual   Iterate(H=0);
 		virtual   Direction();
-	    virtual   Tune(maxiter=0,toler=0,nfuncmax=0,LMitmax=0);
+	    virtual   Tune(maxiter=0,toler=0,nfuncmax=0,LMitmax=0,LMmaxstep=0);
 		          HHupdate(FORCE);
 		virtual   Gupdate();		
 		virtual   Hupdate();

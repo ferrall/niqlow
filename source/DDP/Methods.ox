@@ -67,11 +67,6 @@ ExogUtil::ExogUtil() {
 	
 ExogUtil::Run() { I::curth->ExogUtil();  }	
 
-//FixedSolve::FixedSolve(gtask) {
-//	FETask();
-//    itask = new RandomSolve(gtask);
-//	}
-
 
 /** Process a point in the fixed effect space.
 <OL>

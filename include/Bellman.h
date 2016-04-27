@@ -234,6 +234,7 @@ The user writes routines that return ...-->
 **/
 struct OneDimensionalChoice : ExPostSmoothing {
 	static 	decl
+            /** space for E[U] in z* intervals.            **/	EUstar,
             /** space for current Prob(z) in z* intervals. **/	pstar,
             /** single action variable. **/                     d;
 			decl
@@ -252,12 +253,12 @@ struct OneDimensionalChoice : ExPostSmoothing {
 
 /** A OneDimensionalChoice model with discretized approximation to &zeta;.
 
-A discrete approximation to &zeta; enters the state vector if the decision is to accept (<code>d&gt;0</code).
+A discrete approximation to &zeta; enters the state vector if the decision is to accept (<code>d&gt;0</code>).
 
 **/
 struct KeepZ : OneDimensionalChoice {
 	static 	decl
-            /** Discrete state variable of kept &zeta;.**/ keptz, Qt, myVV;
+            /** Discrete state variable of kept &zeta;.**/ keptz, myios;
 	static 	Initialize(userState,d=2,UseStateList=FALSE);
     static  SetKeep(N,held=TRUE);
 	virtual thetaEMax();

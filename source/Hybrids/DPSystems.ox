@@ -91,6 +91,7 @@ Rsystem::RVSolve(curth,dV) {
 	this.curth = curth;
 	this.dV = dV;
 	Encode(setbounds(curth.zstar[I::r][],lbv+1.1,.Inf));
+    //meth.Volume = LOUD;
 	meth->Iterate();
 	curth.zstar[I::r][] = CV(zstar);
 	}
@@ -101,9 +102,7 @@ Rsystem::RVSolve(curth,dV) {
 
 **/
 ReservationValues::ReservationValues(LBvalue,METHOD) {
-	ValueIteration(new RVGSolve());
-    RVGSolve::LBvalue=LBvalue;
-    RVGSolve::METHOD=METHOD;
+	ValueIteration(new RVGSolve(LBvalue,METHOD));
     Volume = SILENT;
 	}
 
@@ -143,16 +142,16 @@ RVGSolve::Solve(state) {
     Traverse();
     }
 
-RVGSolve::RVGSolve() {
+RVGSolve::RVGSolve(LBvalue,Method) {
     GSolve(new RVEdU());
 	decl i,sysize;
     RValSys={};
     for (i=0;i<N::J;++i) {
         sysize = int(N::Options[i])-1;
         RValSys |= sysize
-			 ? Flags::HasKeptZ
-                    ? new DynamicRsystem(LBvalue,sysize,METHOD)
-                    : new Rsystem(LBvalue,sysize,METHOD)
+			 ? (Flags::HasKeptZ
+                    ? new DynamicRsystem(LBvalue,sysize,Method)
+                    : new Rsystem(LBvalue,sysize,Method))
 			 :  0;
         }
     Volume = QUIET;

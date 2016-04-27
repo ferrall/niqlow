@@ -967,10 +967,13 @@ variable.  Its value is constant as long as a state variable indicates it is bei
 **/
 struct KeptZeta : Random {
     const decl keep, held;
-    static decl M, kern, cdf, df, midpt, A,b, Fdif, zspot;
+//    static decl M, kern, cdf, df, midpt, A,b, Fdif, zspot;
+    decl df, dist, cdf, zspot, addst, DynI, DynR, myVV, NxtI, NxtR, isheld, NOth;
     KeptZeta(L,N,keep,held);
     virtual Update();
     virtual CDF(z);
+    virtual Quantile(u);
     virtual Transit(FeasA);
-    virtual DynamicTransit(z,Qt);
+    virtual DynamicTransit(z);
+    virtual InitDynamic(cth,VV);
     }

@@ -856,6 +856,7 @@ DP::CreateSpaces() {
 		w2 = sprint("%",7*S[endog].D,"s");
 		w3 = sprint("%",7*S[clock].D,"s");
 
+        println("0. USER BELLMAN CLASS\n    ",classname(userState));
         println("1. CLOCK\n    ",ClockType,". ",ClockTypeLabels[ClockType]);
 		println("2. STATE VARIABLES\n","%18s","|eps",w0,"|eta",w1,"|theta",w2,"-clock",w3,"|gamma",
 		"%r",{"       s.N"},"%cf","%7.0f","%c",Labels::Vprt[svar],N::All');

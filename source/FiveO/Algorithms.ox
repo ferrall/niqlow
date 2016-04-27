@@ -53,14 +53,16 @@ NelderMead::Tune(mxstarts,toler,nfuncmax,maxiter) {
 	}
 
 /** Tune Parameters of the Algorithm.
-@param maxiter integer max. number of iterations <br>0 use current/default value
-@param toler double, simplex tolerance for convergence<br>0 use current/default value
-@param nfuncmax integer, number of function evaluations before resetting the simplex<br>0 use current/default value
-@param LMitmax interger, max number of line maximization iterions<br><br>0 use current/default value
+@param maxiter integer max. number of iterations <br/>0 use current/default value
+@param toler double, simplex tolerance for convergence<br/>0 use current/default value
+@param nfuncmax integer, number of function evaluations before resetting the simplex<br/>0 use current/default value
+@param LMitmax integer, max number of line maximization iterions<br/>0 use current/default value
+@param LMmaxstep double, maximum change in line maximization
 **/
-GradientBased::Tune(maxiter,toler,nfuncmax,LMitmax) {
+GradientBased::Tune(maxiter,toler,nfuncmax,LMitmax,LMmaxstep) {
     Algorithm::Tune(maxiter,toler,nfuncmax);
     if (LMitmax) this.LMitmax = LMitmax;
+    if (isdouble(LMmaxstep)) this.LMmaxstep = LMmaxstep;
     }
 
 /** Random search without annealing.
@@ -167,6 +169,7 @@ SimulatedAnnealing::Iterate(chol)	{
 **/
 LineMax::LineMax(O)	{
 	Algorithm(O);
+    maxstp = 5.0;
 	p1 = new LinePoint();
 	p2 = new LinePoint();
 	p3 = new LinePoint();
@@ -177,6 +180,7 @@ LineMax::LineMax(O)	{
 
 SysMax::SysMax(O) {
 	Algorithm(O);
+    maxstp = 5.0;
 	p1 = new SysLinePoint();
 	p2 = new SysLinePoint();
 	p3 = new SysLinePoint();
@@ -195,11 +199,13 @@ LineMax::~LineMax()	{
 /** Optimize on a line optimization.
 @param Delta vector of directions to define the line
 @param maxiter &gt; 0 max. number iterations<br>0 set to 1000
+@param maxstp &gt; 0, maximum step size in parameters.
 **/
-LineMax::Iterate(Delta,maxiter)	{
+LineMax::Iterate(Delta,maxiter,maxstp)	{
 	decl maxdelt = maxc(fabs(Delta));
 	this.Delta = Delta;
 	this.maxiter = maxiter>0 ? maxiter : 1000;
+    if (isdouble(maxstp)) this.maxstp = maxstp;
 	holdF = OC.F;
 	improved = FALSE;
 	p1.step = 0.0; p1.v = OC.v;
@@ -474,6 +480,7 @@ GradientBased::GradientBased(O) {
                 : new SysMax(O);
 	gradtoler = igradtoler;
     LMitmax = 10;
+    LMmaxstep = 0;
 	}
 
 /** Create an object of the BFGS algorithm.
@@ -609,7 +616,7 @@ GradientBased::Iterate(H)	{
 	   else do  {                      // HEART OF THE GRADIENT ITERATION
 
 		  holdF = OC.F;
-		  LM->Iterate(Direction(),LMitmax);
+		  LM->Iterate(Direction(),LMitmax,LMmaxstep);
 		  convergence = (++iter>maxiter) ? MAXITERATIONS
                                          : IamNewt ? this->HHupdate(FALSE)
                                                    : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE)) ;
@@ -834,7 +841,7 @@ NonLinearSystem::Iterate(J)	{
 		  	holdF = OC.F;
             d = Direction();
 		    if (USELM)
-                LM->Iterate(d,LMitmax);
+                LM->Iterate(d,LMitmax,LMmaxstep);
             else
                 O->Decode(holdF+d);
 
@@ -949,7 +956,7 @@ SQP::Iterate(H)  {
 		  [Qconv,deltx,mults] = SolveQP(OC.H,OC.L',OC.ineq.J,OC.ineq.v,OC.eq.J,OC.eq.v,<>,<>);  // -ineq or +ineq?
 		  if (ne) OC.eq.lam =  mults[:ne-1];
 		  if (ni) OC.ineq.lam =  mults[ne:];
-		  LM->Iterate(deltx,1);
+		  LM->Iterate(deltx,1,LMmaxstep);
 		  convergence = (++iter>maxiter) ? MAXITERATIONS : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE));		
 		  if (Volume>SILENT) {
             istr = sprint("\n",iter,". convergence:",convergence,". QP code:",Qconv,". L=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);

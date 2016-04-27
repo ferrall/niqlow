@@ -59,7 +59,7 @@ Objective::CheckPoint(f,saving) {
 	if (saving) {
 		decl fl = vararray(PsiL);
 		fprint(f,"%v",cur.X,"\n","%v",fl,"\n","%v",FinX,"\n","%v",cur.F);
-		fprint(f,"------------\n","%r",PsiL,cur.X,"%v",PsiType,"%r",fl,"%c",{"  Gradient  "},cur.G,
+		fprint(f,"\n------------\n","%r",PsiL,cur.X,"%v",PsiType,"%r",fl,"%c",{"  Gradient  "},cur.G,
 		"Hessian ","%r",fl,"%c",fl,cur.H);
 		}
 	else {

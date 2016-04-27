@@ -243,7 +243,7 @@ Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exog
 **/
 Bellman::ThetaTransition() {
 	 decl ios = InSubSample ? I::all[onlysemiexog] : 0,k;
-	 if (IsTerminal || IsLast ) { for(k=0;k<sizeof(Nxt);++k) Nxt[k][ios] =  <>; return; }
+	 if (IsTerminal || IsLast ) { for(k=0;k<sizeof(Nxt);++k) Nxt[k][ios ] =  <>; return; }
 	 decl now=NOW,later=LATER, si,Nb,prob,feas,root,swap, mtches,curO, rcheck=Volume>LOUD;
  	 F[now] = <0>;	
 	 P[now] = ones(N::Options[Aind],1);
@@ -632,19 +632,21 @@ NIID::ActVal(VV) {
 	decl J=rows(U),iterid=I::all[iterating],lo,hi,vv;
 	if (!IsTerminal && J>1)	{
 		decl eta,j,choicep,scaling,neta = sizec(Nxt[Qit]), width = SS[onlyexog].size;
+        ev = 0.0;
 		for (eta=0;eta<neta;++eta) {
 			lo = eta*width; hi = (eta+1)*width-1;
-			vv = ( pandv[I::r][][lo:hi] = U[][lo:hi] + I::CVdelta*sumr(Nxt[Qrho+I::rtran][eta].*VV[Nxt[Qit][eta]]) )';
+			pandv[I::r][][lo:hi] = U[][lo:hi] + (IsLast ? 0.0 : I::CVdelta*sumr(Nxt[Qrho+I::rtran][eta].*VV[Nxt[Qit][eta]]));
+            vv = pandv[I::r][][lo:hi]';
 			for (j=0;j<J;++j) { //,ev = 0.0
 				choicep = prodr(probn(GQNODES[Aind][j] + vv*MM[Aind][j] ))/M_SQRT2PI;
-//				ev +=   NxtExog[Qrho][eta]*(GQH::wght * (choicep.*(Chol[Aind][j]*GQH::nodes+ pandv[rind][j][lo:hi]))) ;
+				ev +=   NxtExog[Qprob][eta]*(GQH::wght * (choicep.*(Chol[Aind][j]*GQH::nodes+ pandv[I::r][j][lo:hi]))) ;
 				if (Flags::setPstar) pandv[I::r][j][lo:hi] = GQH::wght * choicep;
 				}
 			}		
 		if (Flags::setPstar) pandv[I::r] += (1-sumc(pandv[I::r]))/J;  // fix choice prob. for numerical error
 		}
 	else	{
-//		ev = meanc(U)*NxtExog[Qrho];
+		ev = meanc(U)*NxtExog[Qprob];
 		if (Flags::setPstar) pandv[I::r][][] = 1/J;
 		}
 	}
@@ -653,17 +655,22 @@ Normal::Smooth(VV) {	EV[I::r] = VV; 	}
 
 /** Initialize a normal Gauss-Hermite integration over independent choice-specific errors.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
-@param GQLevel integer, depth of Gauss-Hermite integration
-@param AChol `CV` compatible A&times;1 vector of standard deviations of action-specific errors.
+@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
+					FALSE [default], traverse &Theta; through iteration on all state variables
 **/
 NIID::Initialize(userState,UseStateList) {
 	Normal::Initialize(userState,UseStateList);
 	Hooks::Add(PreUpdate,NIID::UpdateChol);
 	}
 
+/** Initialize a normal Gauss-Hermite integration over independent choice-specific errors.
+@param GQLevel integer, depth of Gauss-Hermite integration
+@param AChol `CV` compatible A&times;1 vector of standard deviations of action-specific errors.
+**/
 NIID::SetIntegration(GQLevel,AChol) {
 	this.AChol = AChol;
 	GQH::Initialize(this.GQLevel = GQLevel);
+    if (Volume>SILENT) println("Initializing Gauss-Hermite Integration\nLevel",GQLevel,"Choleski:",diag(AV(AChol)));
 	}
 
 /**  Create spaces and set up quadrature for integration over the IID normal errors.
@@ -673,7 +680,8 @@ NIID::CreateSpaces() {
 	GQNODES = new array[N::J];
 	MM = new array[N::J];
 	decl mm = N::Options[0],i;
-	if (isint(AChol)) AChol = ones(mm,1);
+	if (isint(AChol)||!GQLevel)
+        SetIntegration(5,ones(mm,1));
 	else if (rows(AV(AChol))!=mm) oxrunerror("Length of Choleski vector must equal rows of full action matrix");
 	for (i=0;i<N::J;++i) {
 		MM[i] = new array[N::Options[i]];
@@ -824,8 +832,7 @@ OneDimensionalChoice::Smooth(VV) {
     Hooks::Do(PostSmooth);
 	}
 
-/**  Compute EV(&theta;) after optimal cutoffs z* have been found and compute choice probabilities
-if `Flags::setPstar` is TRUE.
+/**  Compute EV(&theta;) after optimal cutoffs z* have been found and compute choice probabilities if `Flags::setPstar` is TRUE.
 <dd class="disp">
 $$EV(\theta) = \sum_{j=0}^{d.N^-} \left[ \left\{ Prob(z^\star_{j-1}<z\le z^\star_j)( EU_{z*}(d=j) + \delta EV(\theta'|d=j)\right\}dz\right].$$
 </dd>
@@ -838,9 +845,8 @@ $$EV(\theta) = \sum_{j=0}^{d.N^-} \left[ \left\{ Prob(z^\star_{j-1}<z\le z^\star
 @return EV
 **/
 OneDimensionalChoice::thetaEMax(){
-	decl eua;
-	[eua,pstar] = EUtility();
-	V[] = pstar*(eua+pandv[I::r]);
+	[EUstar,pstar] = EUtility();
+	V[] = pstar*(EUstar+pandv[I::r]);
 	if (Flags::setPstar) {
         this->Smooth(V);
         Hooks::Do(PostRESolve);
@@ -848,11 +854,10 @@ OneDimensionalChoice::thetaEMax(){
 	return V;
 	}
 
-/** Initialize v(d;&theta), stored in `Bellman::pandv`, as the constant future component that does
+/** Initialize v(d;&theta;), stored in `Bellman::pandv`, as the constant future component that does
 not depend on z*.
 **/
 OneDimensionalChoice::ActVal(VV) {
-    println(Qrho+I::rtran,Nxt);
     pandv[I::r][][] = IsTerminal || IsLast
                        ? 0.0
 	                   : I::CVdelta*Nxt[Qrho+I::rtran][0]*VV[Nxt[Qit][0]]';
@@ -861,17 +866,16 @@ OneDimensionalChoice::ActVal(VV) {
 
 KeepZ::ActVal(VV) {
     if (solvez) {
-        Qt = Nxt[Qrho+I::rtran][0];
-        myVV =VV[Nxt[Qit][0]]';
+        keptz->InitDynamic(this,VV);
         return;
         }
     OneDimensionalChoice::ActVal(VV);
     }
 
 KeepZ::DynamicActVal(z) {
-    pandv[I::r][] = -diagonal(this->Uz(z),0,-1);    // keep adjacent values to be differenced later
-    if (IsLast) return pandv[I::r]; // last period so no need to track next period's keptz
-    pandv[I::r][]  += I::CVdelta*(keptz->DynamicTransit(matrix(z),Qt))* myVV;
+    pandv[I::r][] = diagonal(this->Uz(z),0,-1);    // keep adjacent values to be differenced later
+                                                    // April 2016.  This was -diagonal() but not consistent with later addin EV
+    if (!IsLast) pandv[I::r][]  += I::CVdelta*keptz->DynamicTransit(z);
     return pandv[I::r];
     }
 
@@ -882,13 +886,14 @@ KeepZ::thetaEMax () {
 
 /** Initialize the model.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
-@param d `ActionVariable` not already added to the model<br>
+@param d <b>Binary</b> `ActionVariable` not already added to the model<br>
 		integer, number of options (action variable created) [default = 2]
 @param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
 					FALSE [default], traverse &Theta; through iteration on all state variables
 **/	
 KeepZ::Initialize(userState,d,UseStateList) {
 	OneDimensionalChoice::Initialize(userState,d,UseStateList);
+    if (this.d.N!=2) oxrunerror("KeepZ can only handle binary choice in this version");
     keptz = UnInitialized;
 	}
 

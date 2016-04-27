@@ -1247,7 +1247,10 @@ Asset::Transit(pdelt) {
 
 /** Create a discretized verison of the continuous &zeta; variable that enters the state when accepted (or kept).
 @param  L label
-@param  N number of points is
+@param  N number of points the state variable will take on.
+@param keep `ActionVariable`() that indicates &zeta; is kept.  Next period this variable will contain
+    a discrete approximiation to it.
+@param held
 **/
 KeptZeta::KeptZeta(L,N,keep,held) {
     StateVariable(L,N);
@@ -1255,33 +1258,77 @@ KeptZeta::KeptZeta(L,N,keep,held) {
     this.held = held;
     }
 
+/** Static transition of a kept continuous variable.
+The static transition.  If keeping current z is feasible then initialize to zero.
+Otherwise, leave unchanged.
+**/
 KeptZeta::Transit(FeasA) {
-    if (CV(held)) return UnChanged(FeasA);
-    return {vals, constant(1/N,rows(FeasA),N)};
+    if (any(FeasA[][keep.pos])) return {<0>, ones(rows(FeasA),1)} ;
+    return UnChanged(FeasA);
+//    if (CV(held)) return {v~0,(1-FeasA)~FeasA};
+//    return {<0>, ones(rows(FeasA),1)} ; // Changed April 2016 {vals, constant(1/N,rows(Fe asA),N)};
     }
 
+/** The default cdf of a kept continuous variable: &Phi;(z*).
+@param zstar, cut-off value
+@return F(zstar)
+**/
 KeptZeta::CDF(zstar) {    return probn(zstar);      }
 
+/** The default quantile of a kept continuous variable: &Phi;<sup>-1</sup>(u).
+@param u, vector of
+@return F<sup>-1</sup>(y)
+**/
+KeptZeta::Quantile(u) {    return quann(u);      }
+
+/** Default update of actual values.
+
+**/
 KeptZeta::Update() {
-    actual = quann( (vals+1) / (N+1) )';
+    actual = this->Quantile( (vals+1)/(N+1) )';
     if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
     }
 
-/** Conditional distribution of Z given zstar.
+KeptZeta::InitDynamic(cth,VV) {
+    myVV =VV';
+    isheld = CV(held);
+    addst = I::OO[iterating][keep.pos]*vals;
+    decl myios = cth.InSubSample ? I::all[onlysemiexog] : 0;
+    NxtI = cth.Nxt[Qit][myios];
+    NxtR = cth.Nxt[Qrho+I::rtran][myios];
+    NOth= columns(NxtR)-1;
+    println(I::t," ",isheld," ",v," ",NxtI," ",NxtR," ",I::OO[iterating][keep.pos],VV);
+    }
+
+/**
+            Pold   0
+            0      Pold
+
 **/
-KeptZeta::DynamicTransit(z,Qt) {
-    decl Nz = rows(z)-1, p = Qt[0][], j;
-    cdf = CDF(z)|1.0;    // F(z*)
-    zspot = sortcindex(sortcindex(z|actual))[:Nz]-vals[:Nz]' | N;    //Find where z* lands in actual values
-    for (j=0;j<=Nz;++j) {
-        df = (j==Nz ? (actual[N-1]+actual[N-2]): z[j+1]) - z[j];                          //
-        midpt = z[j] + df/2;
-        Fdif = (vals[zspot[j]:zspot[j+1]-1]+0.5) - N*cdf[j];    //undo default transit by multiplying both terms by N
-        Fdif /= sumr(Fdif);
-        A = (3/11)/df;
-        b = -4*A/sqr(df);
-        kern = A + b*sqr(actual[zspot[j]:zspot[j+1]-1]'-midpt);
-        p |= Qt[j+1][].*reshape( zeros(1,zspot[j]-1)~(Fdif.*kern /sumr(kern)~zeros(1,N-zspot[j+1])),1,columns(Qt));
+KeptZeta::DynamicTransit(z) {
+    decl j;
+    cdf = CDF(z);
+    DynI  = NxtI;
+    DynR =  NxtR;
+    zspot = 0;
+    do { if (z<actual[zspot]) break; ++zspot; } while(zspot<N);
+    if (zspot>=N-1) { //cut-off above second biggest value, so largest value occurs with prob. one 1. if d==1
+        DynI ~= DynI+addst[N-1];
+        DynR ~= 0.0|DynR[1][];
+        DynR[1][:NOth] = 0.0;
         }
-    return p;
+    else {
+        df = zspot>0 ? CDF((actual[zspot-1]+actual[zspot])/2)-cdf : -cdf;
+        dist = (1+df)~ones(1,N-zspot-1);
+        dist /= (N-zspot)*(1-cdf);
+        for(j=zspot;j<columns(addst);++j)
+            if (j>0) {
+                DynI ~= NxtI+addst[j];
+                DynR ~= 0.0|(dist[j-zspot]*NxtR[1][]);
+                DynR[1][:NOth] = 0.0;
+                }
+            else
+                DynR[1][:NOth] *= dist[0];
+        }
+    return DynR*myVV[DynI];
     }

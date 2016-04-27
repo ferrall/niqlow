@@ -31,7 +31,7 @@ The default &zeta; is a 0 length vector.
 **/
 ZetaRealization::ZetaRealization(length,Volume) {
 	this.L = "zeta";
-	this.length = length;
+	N = this.length = length;
 	v = constant(.NaN,1,length);
 	}
 
