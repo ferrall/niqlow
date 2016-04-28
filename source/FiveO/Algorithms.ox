@@ -209,7 +209,7 @@ LineMax::Iterate(Delta,maxiter,maxstp)	{
 	holdF = OC.F;
 	improved = FALSE;
 	p1.step = 0.0; p1.v = OC.v;
-	this->Try(p2,min(maxstp/maxdelt,1.0));
+	this->Try(p2,min(this.maxstp/maxdelt,1.0));
 	if (p2.v>p1.v) {q = p2;a=p1;} else {q=p1;a=p2;}
 	b = p3;
     if (Volume>SILENT) { fprintln(logf,"Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);fflush(logf);}

@@ -34,8 +34,8 @@ enum {Zero,One,Two}
 	/** Levels of output to produce while executing. @name NoiseLevels **/	
 enum {SILENT=-1,QUIET,LOUD,NOISY,NoiseLevels}
 
-		/** Output tags for reservation value utility functions. @name EUvalues **/	
-enum {EUstar,Fstar,EUvalues}
+//		/** Output tags for reservation value utility functions. @name EUvalues **/	
+//enum {EUstar,Fstar,EUvalues}
 		/** Code for solutions to Optimization and Non-Linear System solving.	
             @name ConvergenceResults
         **/	

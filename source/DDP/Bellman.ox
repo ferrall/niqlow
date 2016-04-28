@@ -819,7 +819,11 @@ OneDimensionalChoice::CreateSpaces(Method,smparam) {
 OneDimensionalChoice::SetTheta(state,picked,solvez) {
     this.solvez = solvez;
     Bellman(state,picked);
-    if (solvez) zstar = zeros(N::R,1);
+    if (solvez) {
+        zstar = new array[N::R];
+        //foreach
+        decl r; for(r=0;r<sizeof(zstar);++r) zstar[r] = ones(d.N-1,1);
+        }
     }
 
 OneDimensionalChoice::Smooth(VV) {
@@ -853,6 +857,9 @@ OneDimensionalChoice::thetaEMax(){
         }
 	return V;
 	}
+
+OneDimensionalChoice::Getz() { return zstar[I::r]; }
+OneDimensionalChoice::Setz(z){ zstar[I::r][] = z;}
 
 /** Initialize v(d;&theta;), stored in `Bellman::pandv`, as the constant future component that does
 not depend on z*.

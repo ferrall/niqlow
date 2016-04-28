@@ -234,7 +234,7 @@ The user writes routines that return ...-->
 **/
 struct OneDimensionalChoice : ExPostSmoothing {
 	static 	decl
-            /** space for E[U] in z* intervals.            **/	EUstar,
+            /** scratch space for E[U] in z* intervals.     **/	EUstar,
             /** space for current Prob(z) in z* intervals. **/	pstar,
             /** single action variable. **/                     d;
 			decl
@@ -249,6 +249,8 @@ struct OneDimensionalChoice : ExPostSmoothing {
 	virtual Smooth(pstar);
 	virtual ActVal(VV);
     virtual SetTheta(state,picked,solvez=TRUE);
+            Getz();
+            Setz(z);
 	}
 
 /** A OneDimensionalChoice model with discretized approximation to &zeta;.

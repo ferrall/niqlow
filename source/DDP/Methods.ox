@@ -8,7 +8,7 @@
 @param MaxChoiceIndex FALSE = print choice probability vector [default]<br>TRUE = only print index of choice with max probability.  Useful when the full action matrix is very large.
 @param TrimTerminals FALSE [default] <br>TRUE means states marked `Bellman::IsTerminal` are deleted
 @param TrimZeroChoice FALSE [default] <br> TRUE means states with no choice are deleted
-<DT>Note:  All parameters are optional, so <code>SolveVI()</code> works.</DT>
+<DT>Note:  All parameters are optional, so <code>VISolve()</code> works.</DT>
 <DT>This function</DT>
 <DD>Creates a `ValueIteration` method</dd>
 <dd>Calls `DPDeubg::outAllV`(<parameters>)</dd>

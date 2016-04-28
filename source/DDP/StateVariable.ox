@@ -268,7 +268,7 @@ Prob( q&prime;= z | q,b ) =  I{z=r}&tau; + (1-&tau;)Prob(b&prime;=z)
 
 **/
 RandomTrigger::RandomTrigger(b,Tprob,rval) {
-    Triggered(b,Tprob,1,matrix(rval));
+    Triggered(b,Tprob,1,rval);
     }
 
 RandomTrigger::Transit(FeasA) {

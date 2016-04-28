@@ -1666,7 +1666,7 @@ SaveV::Run() {
         p = I::curth->ExpandP(re,TRUE);
         r =stub~re~I::f~I::curth.EV[re];
         if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
-		if (isclass(I::curth,"OneDimensionalChoice") )  r ~= CV(I::curth.zstar[re])';
+		if (isclass(I::curth,"OneDimensionalChoice") )  r ~= I::curth->Getz()';
 		if (!isint(aM)) aM[0] |= r;
 		s = (nottop)
 				? sprint("%cf",prtfmt,r)
