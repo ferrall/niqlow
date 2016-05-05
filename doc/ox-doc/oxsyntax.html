@@ -15,7 +15,7 @@
 <!-- Copyright Jurgen A. Doornik -->
 <body>
 
-<h1>Ox Syntax Reference</h1>
+<h1>Ox Programming</h1>
 
 <p><h2>Chapter contents:</h2><p><p>
 
@@ -61,18 +61,7 @@
 <dt><a href="#ox_syntax_RefDefaultargs">Default values for function arguments</a>
 <dt><a href="#ox_syntax_RefVarArg">Variable length argument list</a>
 </dl><p>
-<dt><a href="#ox_syntax_RefClasses">Classes</a>
-<dd><dl>
-<dt><a href="#ox_syntax_RefMemFunc">Member function definitions</a>
-<dt><a href="#ox_syntax_RefConstructor">Constructor and destructor functions</a>
-<dt><a href="#ox_syntax_RefPublic"><tt>public</tt> and <tt>protected</tt> members, <tt>struct</tt>s</a>
-<dt><a href="#ox_syntax_RefThis">The <tt>this</tt> reference and member scope</a>
-<dt><a href="#ox_syntax_RefMemStatic">Static members</a>
-<dt><a href="#ox_syntax_RefDerClass">Derived classes</a>
-<dt><a href="#ox_syntax_RefVirtual">Virtual functions</a>
-</dl><p>
-</dl><p>
-<dt><a href="#ox_syntax_namespace">Namespace</a>
+<dt>
 <dt><a href="#ox_syntax_stat">Statements</a>
 <dd><dl>
 <dt><a href="#ox_syntax_RefSelection">Selection statements</a>
@@ -80,18 +69,12 @@
 <dt><a href="#ox_syntax_iter">Iteration statements</a>
 <dt><a href="#ox_syntax_Jumpstatements">Jump statements</a>
 <dt><a href="#ox_syntax_decl">Declaration statements</a>
-<dt><a href="#ox_syntax_Closedblock">Closed block</a>
-<dt><a href="#ox_syntax_RefParallel">Parallel programming</a>
-<dd><dl>
-<dt><a href="#ox_syntax_Canonical">Canonical <tt>for</tt> and <tt>foreach</tt> loops</a>
-<dt><a href="#ox_syntax_Parfor">Parallel <tt>for</tt> and <tt>foreach</tt> loops</a>
-</dl><p>
+<dd>
 </dl><p>
 <dt><a href="#ox_syntax_exp">Expressions</a>
 <dd><dl>
 <dt><a href="#ox_syntax_primary">Primary expressions</a>
 <dt><a href="#ox_syntax_MultAssign">Multiple assignment</a>
-<dt><a href="#ox_syntax_Lambda">Lambda functions</a>
 <dt><a href="#ox_syntax_postfix">Postfix expressions</a>
 <dd><dl>
 <dt><a href="#ox_syntax_memref">Member reference</a>
@@ -124,14 +107,6 @@
 <dt><a href="#ox_syntax_comma">Comma expression</a>
 <dt><a href="#ox_syntax_RefConstExp">Constant expressions</a>
 </dl><p>
-<dt><a href="#ox_syntax_proproc">Preprocessing</a>
-<dd><dl>
-<dt><a href="#ox_syntax_include">File inclusion</a>
-<dt><a href="#ox_syntax_import">Import of modules</a>
-<dt><a href="#ox_syntax_RefPreCond">Conditional compilation</a>
-<dt><a href="#ox_syntax_RefPrePragma">Pragmas</a>
-</dl><p>
-<dt><a href="#ox_syntax_ansic">Difference with ANSI C and C++</a>
 </dl><p>
 
 <p><big>Tables:</big>
@@ -144,29 +119,18 @@
 <dt><a href="#TabSyntaxOXMISREL">Result from relational operators involving missing values</a>
 </dl><p>
 
-<p>
-<hr><p><h2>
-<a name="ox_syntax_lex"></a>Lexical conventions</h2><p><p>
-
 <h3><a name="ox_syntax_comment"></a>Comment</h3><p>
-Anything between <tt>/*</tt> and <tt>*/</tt> is considered comment.
-This comment <em>can</em> be nested (unlike C and C++).
-Everything following <tt>//</tt> up to the end of the line is also
-comment, but is ignored inside <tt>/*</tt> ... <tt>*/</tt> type comment.
-So nested comment is possible:
+Anything between <tt>/*</tt> and <tt>*/</tt> is considered comment. This comment <em>can</em> be nested (unlike C and C++). Everything following <tt>//</tt> up to the end of the line is also comment, but is ignored inside <tt>/*</tt> ... <tt>*/</tt> type comment. So nested comment is possible:
 
 <xmp>
     one = cons + 1;   // comment
     /* two = cons + 1;   // comment
     */
-</xmp><p>
+</xmp>
 
-<p><h2><a name="ox_syntax_ident"></a>Identifiers</h2><p><p>
+<h2><a name="ox_syntax_ident"></a>Identifiers</h2>
 
-Identifiers are made up of letters and digits. The first character
-must be a letter. Underscores (_) count as a letter.
-The maximum length of an identifier is 60 characters, additional characters
-are ignored.
+An "Identifiers are made up of letters and digits. The first character must be a letter. Underscores (_) count as a letter.
 
 <h3><a name="ox_syntax_keyword"></a>Keywords</h3><p>
 The following keywords are reserved:
@@ -184,106 +148,51 @@ decl      for       new        short      while
 
 <h3><a name="ox_syntax_RefConstant"></a>Constants</h3><p>
 
-<h4><a name="ox_syntax_intconst"></a>Integer constants</h4><p>
+<h4><a name="ox_syntax_intconst"></a>Integer constants</h4>
 
-<p>A sequence of digits is an integer constant. A hexadecimal constant is
-a sequence of digits and the letters <tt>A</tt> to <tt>F</tt> or <tt>a</tt> to <tt>f</tt>,
-prefixed by <tt>0x</tt> or <tt>0X</tt>.
+A sequence of digits is an integer constant. 
 
-<h4><a name="ox_syntax_RefChConst"></a>Character constants</h4><p>
+<h4><a name="ox_syntax_dblconst"></a>Double constants</h4>
 
+A double constant consists of an integer part, a decimal point, a fraction part, an <tt>e</tt>, <tt>E</tt>, <tt>d</tt> or <tt>D</tt> and an optionally signed integer exponent. Either the integer or the fraction part may be missing (not both); either the decimal point or the full exponent may be missing (not both). .
 
-<p>Character constants are interpreted as an integer constant.
-A character constant is an integer constant consisting of
-a single character enclosed in single quotes
-(e.g. <tt>'a'</tt> and <tt>'0'</tt>) or an escape sequence enclosed in single quotes.
+Double constants in an <a href="#ox_syntax_RefExtVarDecl">external declaration</a> may use a dot to represent a missing values. This sets the variable to NaN (Not a Number).
 
-<h3><a name="TabSyntax1"></a>Table syn.1: Escape-sequence</h3><p>
-<xmp>
-\"      double quote
-\'      single quote
-\0      null character
-\\      backslash
-\a      alert (bel)
-\b      backspace
-\f      formfeed
-\n      newline
-\r      carriage return
-\t      horizontal tab
-\v      vertical tab
-\xhh    hexadecimal number hh
-</xmp><p>
-<hr>
+<h4><a name="ox_syntax_matconst"></a>Matrix constants</h4>
 
-So <tt>'\n'</tt> is the integer constant corresponding to the newline
-character.
-
-<h4><a name="ox_syntax_dblconst"></a>Double constants</h4><p>
-
-<p>A double constant consists of an integer part, a decimal point, a fraction
-part, an <tt>e</tt>, <tt>E</tt>, <tt>d</tt> or <tt>D</tt> and an
-optionally signed integer exponent. Either the
-integer or the fraction part may be missing (not both); either the decimal
-point or the full exponent may be missing (not both). A hexadecimal
-double constant is written as <tt>0x.</tt><i>hhhhhhhhhhhhhhhh</i>. The
-format used is an 8 byte IEEE real. The hexadecimal string is written
-with the most significant byte first (the sign and exponent are on the left).
-If any hexadecimal digits are missing,
-the string is left padded with 0's.
-
-Double constants in an <a href="#ox_syntax_RefExtVarDecl">external declaration</a> may use
-a dot to represent a missing values. This sets the variable to
-NaN (Not a Number).
-
-<h4><a name="ox_syntax_matconst"></a>Matrix constants</h4><p>
-
-<p>A matrix constant lists within <tt>&lt;</tt> and <tt>&gt;</tt> the elements of the matrix,
-row by row. Each row is delimited by a semicolon, successive elements
-in a row are separated by a comma.
-For example:
+A matrix constant lists within <tt>&lt;</tt> and <tt>&gt;</tt> the elements of the matrix, row by row. Each row is delimited by a semicolon, successive elements in a row are separated by a comma. For example:
 
 <xmp>
     < 00, 01, 02; 10, 11, 12 >
     < 0.0, 0.1, 0.2 >
     < 1100 >
-</xmp><p>
+</xmp>
 
-which are respectively a 2 by 3 matrix, a 1 by 3 matrix and
-a 1 by 1  matrix, the first constant is:
+which are respectively a 2 by 3 matrix, a 1 by 3 matrix and a 1 by 1  matrix, the first constant is:
 
 <xmp>
 00   01   02
 10   11   12
-</xmp><p>
+</xmp>
 
-The comma is optional, so the first matrix constant may be
-written as (the semicolon is still required):
+The comma is optional, so the first matrix constant may be written as (the semicolon is still required):
 <xmp>
     < 00 01 02; 10 11 12 >
 </xmp><p>
 
-The index of each row is one higher than the previous row.
-Within each row, the column index of an element is one higher than
-that created with the previous element in the same row.
+The index of each row is one higher than the previous row. Within each row, the column index of an element is one higher than that created with the previous element in the same row.
 
 <p>
 An <i>integer range</i> may be specified, e.g. <tt>2:5</tt> corresponds to <tt>2,3,4,5</tt>.
-The range may decrease, so that <tt>5.3:2.8</tt> corresponds to
-<tt>5.3,4.3,3.3</tt>.
+The range may decrease, so that <tt>5.3:2.8</tt> corresponds to <tt>5.3,4.3,3.3</tt>.<p>
 
-<p>
-A <i>stepsize</i> may be specified, as in <tt>2:[2]8</tt>, which gives <tt>2,4,6,8</tt>.
+A <i>stepsize</i> may be specified, as in <tt>2:[2]8</tt>, which gives <tt>2,4,6,8</tt>.<p>
 
-<p>
-A <i>specific element</i> in the matrix can be set. This overrides the location
-implicit in the position of the element in the matrix constant.
-Note that the top left element is <tt>[0][0]</tt>, the second element in
-the first row <tt>[0][1]</tt>, etc.
+A <i>specific element</i> in the matrix can be set. This overrides the location implicit in the position of the element in the matrix constant. Note that the top left element is <tt>[0][0]</tt>, the second element in
+the first row <tt>[0][1]</tt>, etc.<p>
 
-<p>A number of <i>identical elements</i> can be specified, e.g. <tt>[3]*0</tt>
-corresponds to <tt>0,0,0</tt>. Unspecified elements are set to zero.
+A number of <i>identical elements</i> can be specified, e.g. <tt>[3]*0</tt> corresponds to <tt>0,0,0</tt>. Unspecified elements are set to zero.<p>
 
-<p>
 As an example involving all types, consider:
 
 <xmp>
@@ -298,42 +207,26 @@ which corresponds to:
  8    5    2   0   0   0
 </xmp><p>
 
-Missing values in a matrix constant could be represented with a dot
-or <tt>.NaN</tt>, which represents NaN (Not a Number), e.g.:
+Missing values in a matrix constant could be represented with a dot or <tt>.NaN</tt>, which represents NaN (Not a Number), e.g.:
 <xmp>
     < .,2,3; 4,.,6 >
 </xmp><p>
 Similarly, <tt>.Inf</tt> represents infinity.
 
 An empty matrix can be writen as:
-
 <xmp>
     < >
 </xmp><p>
 
 
-Further examples are given in
-<a href="#ox_syntax_RefExtVarDecl">external declarations</a>.
-
 <h4><a name="ox_syntax_strconst"></a>String constants</h4><p>
 
-<p>A string constant is a text enclosed in double quotes,
-for example: <tt>"tailor"</tt>. Adjacent string
-constants are concatenated. A null character is always appended to
-indicate the end of a string. The maximum length of a string constant
-is 1024 characters.
-<a href="#TabSyntax1">Escape sequences</a> can be used to represent
-special characters.
+<p>A string constant is a text enclosed in double quotes, for example: <tt>"tailor"</tt>. Adjacent string
+constants are concatenated. A null character is always appended to indicate the end of a string. The maximum length of a string constant is 1024 characters. 
 
 <h4><a name="ox_syntax_arconst"></a>Array constants</h4><p>
 
-<p>An array constant is a list of constants in braces, separated by
-a comma. This is a recursive definition, because the constant can
-itself be an array
-constant. The terminating level consists
-of non-array constants. Each level of array constants creates an array
-of references.
-For example:
+<p>An array constant is a list of constants in braces, separated by a comma. This is a recursive definition, because the constant can itself be an array constant. The terminating level consists of non-array constants. Each level of array constants creates an array of references. For example:
 
 <xmp>
     { "tinker", "tailor", "soldier" }
@@ -344,12 +237,8 @@ For example:
 
 <h3><a name="ox_syntax_RefTypes"></a>Types</h3><p>
 
-Variables in Ox are <em>implicitly typed</em>, and can change type during their
-lifetime. The life of a variable corresponds to the level of its
-declaration. Its scope is the section of the program in which it can be seen.
-Scope and life do not have to coincide.
+Variables in Ox are <em>implicitly typed</em>, and can change type during their lifetime. The life of a variable corresponds to the level of its declaration. Its scope is the section of the program in which it can be seen. Scope and life do not have to coincide.<p>
 
-<p>
 There are three basic types and four derived types.
 
 <ul>
@@ -365,50 +254,25 @@ There are three basic types and four derived types.
 
 <h4><a name="ox_syntax_typeconv"></a>Type conversion</h4><p>
 
-<p>When a double is converted to an int, the fractional part is discarded;
-if the resulting value cannot be represented, the behaviour is undefined.
-When an int is converted to a double, the nearest representation will
-be used. For example, conversion to int of 1.3 and 1.7 will be 1 on both
+<p>When a double is converted to an int, the fractional part is discarded; if the resulting value cannot be represented, the behaviour is undefined. When an int is converted to a double, the nearest representation will be used. For example, conversion to int of 1.3 and 1.7 will be 1 on both
 occasions.
-
-<p>A single element of a string (a character) is of type int.
-An int or double can be assigned to a string element, which first results
-in conversion to int, and then to a single byte character.
-
-<p>Also see <a href="#ox_syntax_RefCast">explicit type conversion</a>.
 
 
 <h3><a name="ox_syntax_scope"></a>Scope</h3><p>
-Variables declared at the start of a statement block have scope and life
-restricted to the block. These variables are called
-<i>automatic</i>:
-they are created and initialized whenever the block is entered, and removed
-as soon as the block is exited. Variables declared outside any statement
-block have global scope and life; these are called <i>static</i>.
-Note that Ox assignment of arithmetic types and string type
-implies copying over
-the contents from the right-hand side to the left-hand side.
-Automatic variables of any type can
-be assigned to variables with broader scope.
+Variables declared at the start of a statement block have scope and life restricted to the block. These variables are called <i>automatic</i>: they are created and initialized whenever the block is entered, and removed as soon as the block is exited. 
+
+Variables declared outside any statement block have global scope and life; these are called <i>static</i>.
+
+Note that Ox assignment of arithmetic types and string type implies copying over the contents from the right-hand side to the left-hand side. Automatic variables of any type can be assigned to variables with broader scope.
 
 <p><h2><a name="ox_syntax_RefExtDecl"></a>External declarations</h2><p><p>
 
-An Ox program consists of a sequence of external declarations. These either
-reserve storage for an object, or serve to inform of the existence of
-objects created elsewhere. Each program must define one function called
-<tt>main</tt>, where execution of the program will start.
-The return value from <tt>main</tt> (if any) is returned to the console window.
+An Ox program consists of a sequence of external declarations. These either reserve storage for an object, or serve to inform of the existence of objects created elsewhere. Each program must define one function called <tt>main</tt>, where execution of the program will start. The return value from <tt>main</tt> (if any) is returned to the console window.
 
 <h3><a name="ox_syntax_RefEnum"></a>Enumerations</h3><p>
-An enumeration defines a list of integer constants.
-By default,
-the first member will have value 0, and each successive member will
-have a value of one plus that of the previous member. The value of
-a member can be set by assigning it a constant integer value.
+An enumeration defines a list of integer constants. By default, the first member will have value 0, and each successive member will have a value of one plus that of the previous member. The value of a member can be set by assigning it a constant integer value.
 
-<p>Enumerator names only exist in the file in which they occur.
-Enumerations should be placed in header files if they need to be shared
-between several source files.
+<p>Enumerator names only exist in the file in which they occur. Enumerations should be placed in header files if they need to be shared between several source files.
 
 <p>Here are some examples with corresponding values:
 
@@ -420,42 +284,22 @@ between several source files.
 </xmp><p>
 
 <h3><a name="ox_syntax_spec"></a>Storage class specifiers</h3><p>
-External variable declarations (i.e. declared outside a function) create global variables:
-such variables exist while the program runs.
-The <tt>static</tt> specifier restricts the scope of the declared object to
-the remainder of the file. Although it will exist throughout the
-program's life, it cannot be seen from other files.
-In <a href="#ox_syntax_RefClasses">classes</a>, the <tt>static</tt> keyword
-is used with a different meaning.
+External variable declarations (i.e. declared outside a function) create global variables: such variables exist while the program runs. The <tt>static</tt> specifier restricts the scope of the declared object to
+the remainder of the file. Although it will exist throughout the program's life, it cannot be seen from other files. 
 <p>
-The <tt>extern</tt> specifier informs the remainder of the file
-that the object can be accessed, although defined (created) in
-another file.
-The <tt>extern</tt> and <tt>static</tt> specifiers are mutually exclusive.
+The <tt>extern</tt> specifier informs the remainder of the file that the object can be accessed, although defined (created) in another file. The <tt>extern</tt> and <tt>static</tt> specifiers are mutually exclusive.
 External declarations are most conveniently placed in header files.
 
 <h3><a name="ox_syntax_qualifier"></a>Type qualifiers</h3><p>
-A <tt>const</tt> object can only be initialized once, and not changed thereafter.
-The use of <tt>serial</tt> is explained in <a href="#ox_syntax_RefParallel">this section</a>.
-The <tt>const</tt> and <tt>serial</tt> qualifiers are  mutually exclusive.
+A <tt>const</tt> object can only be initialized once, and not changed thereafter. The use of <tt>serial</tt> is explained in <a href="#ox_syntax_RefParallel">this section</a>. The <tt>const</tt> and <tt>serial</tt> qualifiers are  mutually exclusive.
 
 <h3><a name="ox_syntax_RefExtVarDecl"></a>External variable declarations</h3><p>
-The <tt>static</tt> or <tt>extern</tt> specifier and the <tt>const</tt> qualifier
-preceding an external variable declaration list applies to all variables
-in the list. Each identifier creates space for an object with
-global lifetime, unless declared <tt>extern</tt> or <tt>const</tt>.
+The <tt>static</tt> or <tt>extern</tt> specifier and the <tt>const</tt> qualifier preceding an external variable declaration list applies to all variables in the list. Each identifier creates space for an object with global lifetime, unless declared <tt>extern</tt> or <tt>const</tt>.
 
-<p>A <tt>const</tt> object must be initialized (unless declared <tt>extern</tt>)
-but its value may not be changed thereafter. Unless declared <tt>extern</tt>,
-a <tt>const</tt> object cannot be accessed from other files.
-If of scalar <a href="#ox_syntax_RefTypes">type</a>, a <tt>const</tt> can
-appear in a constant-expression.
+<p>A <tt>const</tt> object must be initialized (unless declared <tt>extern</tt>) but its value may not be changed thereafter. Unless declared <tt>extern</tt>, a <tt>const</tt> object cannot be accessed from other files. If of scalar <a href="#ox_syntax_RefTypes">type</a>, a <tt>const</tt> can appear in a constant-expression.
 
-<p>At the external level of declarations, as treated here, it is possible
-to specify a matrix size, and initialize that matrix to zero.
-If an external variable is created without explicit value and without
-dimensions, it will
-default to an int with value 0. Here are some examples:
+<p>At the external level of declarations, as treated here, it is possible to specify a matrix size, and initialize that matrix to zero. If an external variable is created without explicit value and without
+dimensions, it will default to an int with value 0. Here are some examples:
 
 <xmp>
     decl a, b;                  // default to type int, value 0
@@ -480,12 +324,7 @@ default to an int with value 0. Here are some examples:
 <h3><a name="ox_syntax_RefFunctions"></a>Functions</h3><p>
 
 <h4><a name="ox_syntax_RefFuncDecl"></a>Function declarations</h4><p>
-A function declaration communicates the number of arguments and their types
-to a file, so that the function can be called correctly from that file.
-The actual creation of the function is done through a function
-definition (which at the same time declares the function).
-A function can be declared many times, but type and number of arguments must
-always be identical:
+A function declaration communicates the number of arguments and their types to a file, so that the function can be called correctly from that file. The actual creation of the function is done through a function definition (which at the same time declares the function). A function can be declared many times, but type and number of arguments must always be identical:
 
 <xmp>
     test0();                     // function takes no arguments
@@ -497,52 +336,12 @@ always be identical:
     test1(a1);     // error: previous declaration was different
 </xmp><p>
 
-<p>A second form, which uses <tt>extern</tt> <i>string-constant</i>,
-provides dynamic linking of extension functions
-(which could be written in C, FORTRAN, etc.; creation of
-dynamic link libraries is platform dependent).
-In the following example, <tt>test5</tt>
-corresponds to the external function <tt>MyCFunc</tt>(), located in the
-dynamic library <tt>mydll</tt>.
-<xmp>
-    extern "mydll,MyCFunc" test5(a1);
-</xmp><p>
-
-The 64-bit version will try to load
-<tt>mydll_64</tt> first, then try <tt>mydll</tt>; the appropriate extension
-is appended automatically. The following table lists the defaults
-that are searched first (thus allowing the folder structure to
-be shared between platforms):
-<xmp>
-        mydll.dll            Windows 32-bit
-        mydll_64.dll         Windows 64-bit
-        mydll.so             Linux 32-bit
-        mydll_64.so          Linux 64-bit
-        mydll_osx.so         OS X 32-bit
-        mydll_sparc.so       Solaris on Sparc, 32-bit
-        mydll_sunx86.so      Solaris on x86, 32-bit
-        mydll_sparc_64.so    Solaris on Sparc, 64-bit
-        mydll_sunx86_64.so   Solaris on x86, 64-bit
-</xmp><p>
-
-When the Ox program is linked, <tt>mydll</tt> will
-be automatically loaded, and the function imported.
 
 <h4><a name="ox_syntax_funcdef"></a>Function definitions</h4><p>
-A function definition specifies the function header and body, and declares
-the function so that it can be used in the remainder of the file.
-A function can be declared many times, but
-defined only once.
+A function definition specifies the function header and body, and declares the function so that it can be used in the remainder of the file. A function can be declared many times, but defined only once.
 <p>
-The use of <tt>const</tt> is recommended:
-arguments declared <tt>const</tt> can be referenced, but cannot be changed inside
-the function. If the argument is a <tt>const</tt> reference, the reference
-cannot be changed, but what it references can.
-The <tt>decl</tt> keyword is optional in front of an argument.
-An empty argument list indicates that the function takes no arguments at all.
-The <tt>...</tt> indicates a variable
-number of arguments; it must have the last position in the header, but
-cannot be the first.
+The use of <tt>const</tt> is recommended: arguments declared <tt>const</tt> can be referenced, but cannot be changed inside the function. If the argument is a <tt>const</tt> reference, the reference cannot be changed, but what it references can. The <tt>decl</tt> keyword is optional in front of an argument. An empty argument list indicates that the function takes no arguments at all. The <tt>...</tt> indicates a variable
+number of arguments; it must have the last position in the header, but cannot be the first.
 
 <xmp>
     test1(const a1);                    // declaration of test1
@@ -558,32 +357,13 @@ cannot be the first.
     }
 </xmp><p>
 
-All function arguments are passed by value. This means that a copy
-of the actual object is made (although the compiler will avoid this internally
-if the argument is not assigned to).
-For int, double, matrix and string types
-the whole object is copied.
-Any changes to the copy are lost as
-soon as the function returns.
-Derived <a href="#ox_syntax_RefTypes">types</a> are accessed
-through a reference, and that reference is passed by value. However, what
-is pointed to may be changed, and that change will remain in effect after
-function return. So passing references allows a function to
-make a permanent change to a variable, for examples see
-<a href="#ox_syntax_RefFuncCall">function calls</a>.
-It is good practice to label an argument <tt>const</tt>
-if a function doesn't change the variable.
+All function arguments are passed by value. This means that a copy of the actual object is made (although the compiler will avoid this internally if the argument is not assigned to). For int, double, matrix and string types the whole object is copied. Any changes to the copy are lost as soon as the function returns. Derived <a href="#ox_syntax_RefTypes">types</a> are accessed through a reference, and that reference is passed by value. However, what is pointed to may be changed, and that change will remain in effect after function return. So passing references allows a function to make a permanent change to a variable, for examples see <a href="#ox_syntax_RefFuncCall">function calls</a>. It is good practice to label an argument <tt>const</tt> if a function doesn't change the variable.
 
 <h4><a name="ox_syntax_RefReturn"></a>Returning a value</h4><p>
 
-<p>All functions may have a return value, but this return value need not
-be used by the caller. <em>If a function does not return a value, its
-actual return value is undefined.</em>
+<p>All functions may have a return value, but this return value need not be used by the caller. 
 <p>
-The <tt>return</tt> statement returns a value from the function, <i>and also
-exits the function</i>. So, when the program flow reaches a <tt>return</tt>
-statement, control returns to the caller, without executing the remainder
-of the function.
+The <tt>return</tt> statement returns a value from the function, <i>and also exits the function</i>. So, when the program flow reaches a <tt>return</tt> statement, control returns to the caller, without executing the remainder of the function.
 <p>
 The syntax of the return statement is:<br>
     <tt>return</tt> <i>return_value</i> <tt>;</tt>
@@ -605,21 +385,6 @@ The following example illustrates the use of <tt>return</tt>:
 </xmp>
 
 
-<p>
-Multiple returns can be implemented through the <a href="#ox_syntax_MultAssign">Multiple assignment</a>
-statement:
-<xmp>
-    func(const r, const c)                  // definition of threes
-    {
-        return {zeros(r,c), ones(r,c)};    // array with 2 elements
-    }
-    otherfunc()
-    {
-        decl x1, x2;
-        [x1, x2] = func(3, 3);//get element [0] in x1 and [1] in x2
-    }
-</xmp>
-
 
 <h4><a name="ox_syntax_RefDefaultargs"></a>Default values for function arguments</h4><p>
 <p>
@@ -627,15 +392,11 @@ statement:
 Default values for function arguments can be supplied, subject to the following constraints
 <ol>
 <li>A default value cannot be replaced by another default.
-<li>The value must be within scope when the call is made, so that it can
-be substituted when compiling.
-<li>When a default value is supplied for an argument, all subsequent arguments
-must have a default value.
+<li>The value must be within scope when the call is made, so that it can be substituted when compiling.
+<li>When a default value is supplied for an argument, all subsequent arguments must have a default value.
 </ol>
 
-Default values for member calls and functions that are called as a string
-are injected at run-time. This is possible, because the default values become
-a property of the function.
+Default values for member calls and functions that are called as a string are injected at run-time. This is possible, because the default values become a property of the function.
 
 The following example illustrates the use of a default argument:
 
@@ -655,10 +416,7 @@ The following example illustrates the use of a default argument:
 
 <h4><a name="ox_syntax_RefVarArg"></a>Variable length argument list</h4><p>
 
-<p>A special library function <tt>va_arglist()</tt> is used to access
-arguments in the variable argument list. It returns the
-arguments supplied for the ellipse as an array.
-An example illustrates:
+<p>A special library function <tt>va_arglist()</tt> is used to access arguments in the variable argument list. It returns the arguments supplied for the ellipse as an array. An example illustrates:
 
 <xmp>
     test(const a, ...)
@@ -676,415 +434,13 @@ An example illustrates:
 
 which prints <tt>vararg 0: tailor vararg 1: soldier</tt>.
 
-<h3><a name="ox_syntax_RefClasses"></a>Classes</h3><p>
-
-A class is a collection of data objects combined with functions operating on
-those objects. Access to data members from outside the class
-is through member functions:
-only member functions can access data directly (at least, that is the default,
-see <a href="#ox_syntax_RefPublic">below</a>). So by default, all data members are protected,
-and all function members public, using C++ parlance.
-
-<p>Consider a simple line class,
-which supports drawing lines from the current cursor position to the next,
-and moving the cursor:
-
-<xmp>
-    class Line                        // Line is the class name
-    {
-        decl m_x, m_y;                      // two data members
-        const decl m_origin;               // const data member
-        static decl sm_cLines;            // static data member
-        Line(const orig);                        // constructor
-        moveto(const x, const y);                // move cursor
-        lineto(const x, const y);  // draw line and move cursor
-        static getcLines();                  // static function
-        static setcLines(c);                 // static function
-public:
-        static const decl M_CONST = 1;// value must be set here
-        enum { M_AA, M_BB = -1};
-    };                      // ; is optional in Ox (unlike C++)
-</xmp><p>
-
-All member names within a class must be unique. A class declaration
-introduces a type, and can be shared between source files through
-inclusion in header files. Ox accesses an object through a reference
-to the object which is created using the <tt>new</tt> operator.
-An object is removed from memory using the <tt>delete</tt> operator (if there is
-no matching <tt>delete</tt>, the object will exist until the program terminates).
-Both <tt>new</tt> and <tt>delete</tt> are unary operators.
-<p>
-A member function declaration can specify default arguments, subject to the
-restriction that, when a default value is supplied for an argument, all subsequent arguments
-must have a default value. Default arguments are added to the call at run time.
-<p>
-Data members that are <tt>static const</tt> must be initialized
-in the class declaration.
-Data members that are not <tt>static</tt> but are <tt>const</tt> can
-only be initialized in the <a href="#ox_syntax_RefConstructor">constructor function</a>.
-Otherwise data members can be initialized in the
-<a href="#ox_syntax_RefConstructor">constructor function</a>, or anywhere else
-they are accessible.
-<p>
-Enumerations of constants can be defined within the class through
-the <a href="#ox_syntax_RefExtVarDecl"><tt>enum</tt></a> keyword.
-Constants defined through <tt>enum</tt> behave the same as <tt>static const decl</tt>
-member variables. In the example above, the <tt>public</tt> keyword means
-that <tt>M_CONST</tt>, <tt>M_AA</tt> and <tt>M_BB</tt> can be accessed from outside the class
-as <tt>Line::M_CONST</tt>, etc.
-
-<h4><a name="ox_syntax_RefMemFunc"></a>Member function definitions</h4><p>
-A member function provides access to data members of an object.
-It is defined as its class name, followed by <tt>::</tt> and
-the function name. The function name must have been declared in the
-class. Member functions cannot be declared outside a class; the
-class declaration contains the member function declaration.
-Only a member function can use data members of its own class
-directly.
-
-<p>
-Function member definitions cannot specify default arguments;
-they must be specified in the declarations instead (which is usually in a header file).
-
-<p>Here are the definitions of the member functions of class <tt>Line</tt>:
-
-<xmp>
-    Line::Line(const orig)
-    {
-        m_x = m_y = orig;               // set cursor at the origin
-        m_origin = orig;             // only allowed in constructor
-        sm_cLines++;                // count number of Line objects
-    }
-    Line::moveto(const x, const y)
-    {
-        m_x = x;  m_y = y;
-        println("moved to ", x, " ", y);
-        return this;
-    }
-    Line::lineto(const x, const y)
-    {
-                         // draw the line from (x,y) to (ax,ay) ...
-        m_x = x;  m_y = y;
-        println("line to ", x, " ", y);
-        return this;
-    }
-</xmp><p>
-
-The <tt>new</tt> operator creates an object of the specified class,
-calls the constructor function, and returns a reference to it.
-A member function is called through a member reference, which
-is a class object named followed by <tt>-&gt;</tt> or a dot.
-For example:
-
-<xmp>
-    lineobj = new Line(0);                 // create object and
-                                         // set cursor to (0,0)
-    lineobj.lineto(10, 10);            // draw line to (10, 10)
-    lineobj->Line::lineto(10, 10);                 // same call
-    lineobj::lineto(10, 10);            // error, needs -> or .
-</xmp><p>
-
-Since <tt>lineobj</tt> is of class <tt>Line</tt>, both calls to <tt>lineto</tt>
-are to the same function. The only difference is one of efficiency.
-Ox has implicit typing, so can only know the class of <tt>lineobj</tt>
-at run time. In the second case the class is specified, and the
-function address can be resolved at compile time.
-
-<p>
-<h4><a name="ox_syntax_RefConstructor"></a>Constructor and destructor functions</h4><p>
-
-<p>The member function with the same name as the class is called the
-constructor, and is automatically invoked when creating an object
-of the class. If the constructor function is absent, a default constructor
-function will be assumed which takes no arguments. A constructor may
-not be static.
-A constructor always returns a reference to the object for which it was
-called and may not specify a return value.
-Only the constructor function may set <tt>const</tt> data members.
-In the <tt>Line</tt> class, the origin is only set during construction,
-and not thereafter. However, each <tt>Line</tt> object has its own
-origin (unless origin is made <tt>static</tt>).
-
-<p>A destructor is called after a request to delete an object, and before
-the object is actually removed. It may be used to clear up any
-allocated objects inside the object to be deleted. A destructor function
-has the same name as the class, is prefixed by ~, and may neither
-take arguments, nor return a value. It
-does however receive the <tt>this</tt> reference.
-
-<xmp>
-    class Line
-    {   /* ... */
-        Line(const orig);                        // constructor
-        ~Line();                                  // destructor
-        /* ... */
-    };
-    test()
-    {
-        decl lineobj;
-
-        lineobj = new Line(0);//create object, call constructor
-        delete lineobj;       // call destructor, delete object
-    }
-</xmp><p>
-
-<h4><a name="ox_syntax_RefPublic"></a><tt>public</tt> and <tt>protected</tt> members, <tt>struct</tt>s</h4>
-
-<p>
-All function members are public and data members are protected
-by default in a class. This means that function members can be called
-from anywhere by accessing an object, while data members can only
-be accessed from inside a class or derived class:
-
-<xmp>
-    class Line
-    {   /* ... */
-        decl m_x;
-        Func();
-    };
-    Line::Func()
-    {
-        m_x = 0;              // can access data member from inside
-    }
-    test()
-    {
-        decl lineobj = new Line(0);
-        lineobj.Func();               // can access function member
-        lineobj.m_x = 1;        // error: cannot access data member
-    }
-</xmp><p>
-A <tt>struct</tt> differs from a <tt>class</tt> only in that <i>all
-members are public</i>. So, if in the above example we would
-have used <tt>struct Line</tt>, then the last line
-(<tt>lineobj.m_x = 1</tt>) would have been allowed.
-<p>
-More fine-grained control is available using the <tt>public</tt> and
-<tt>protected</tt> specifiers: some variables can be made accessible,
-and others not. The following code illustrates:
-
-<xmp>
-    class Line
-    {   /* ... */
-    public:
-        decl m_x;
-        decl m_y;
-    protected:
-        decl m_z;
-        Func();
-    };
-    test()
-    {
-        decl lineobj = new Line(0);
-        lineobj.Func();               // can access function member
-        lineobj.m_y = 1;                       // OK: m_y is public
-        lineobj.m_z = 1;                 // error: m_z is protected
-    }
-</xmp><p>
-Note, however, that in Ox, the addition of <tt>public</tt> and <tt>protected</tt>
-only applies to variables. Functions remain public.
-
-<h4><a name="ox_syntax_RefThis"></a>The <tt>this</tt> reference and member scope</h4><p>
-
-<p>All non-static member functions receive a hidden argument called <tt>this</tt>,
-which points to the object for which the function is called.
-So the constructor function <tt>Line</tt> obtains in <tt>this</tt>
-a reference to the newly created object. The assignment to <tt>m_x</tt> and
-<tt>m_y</tt> refer to the members of the <tt>this</tt> object.
-When accessing a variable in a member function, it is determined
-first whether the function is a local variable or an argument.
-Next it is considered as a member of <tt>this</tt>.
-If all these fail, it is considered as a global variable.
-So local variables and arguments hide members, together these hide
-global variables. The following example shows how the scope
-resolution operator <tt>::</tt> may be used to resolve
-conflicts:
-
-<xmp>
-    decl x, y;                              // global variables
-    extern moveto(x, y);                   // external function
-
-    Line::moveto(const x, const y)
-    {
-        ::x = x;        // assign arguments to global variables
-        ::y = y;
-        this.m_x = x;       // assign arguments to data members
-        this.m_y = y; // this. needed if these were als x and y
-
-        ::moveto(x, y);             // call non-member function
-        moveto(x, y);             // error: call to itself will
-    }                                    // cause infinite loop
-</xmp><p>
-
-
-<h4><a name="ox_syntax_RefMemStatic"></a>Static members</h4><p>
-
-There is only one copy
-of a static member, shared by all objects of a class.
-A static member may not have the same name as the class it is in.
-
-<h4><a name="ox_syntax_RefDerClass"></a>Derived classes</h4><p>
-
-<p>A class may derive from a previously declared class. A derived
-class will inherit all members from its base class, and
-can access these inherited members as its own members.
-However, if the derived class has members with the same
-name as members of the base class, the former take precedence.
-In this way, a
-class can redefine functionality of its base class.
-If a function is redefined, the base class name followed by
-<tt>::</tt> may be used to refer to the base class function.
-
-Deriving from the <tt>Line</tt> class:
-
-<xmp>
-    class Angle : Line                // Line is the base class
-    {
-        Angle();                                 // constructor
-        lineto(const x, const y);     // draw dash, move cursor
-    };
-    Angle::Angle()
-    {
-        Line(0);                              // starts at zero
-    }
-    Angle::lineto(const ax, const ay)
-    {
-        Line::lineto(ax, y);                 // horizontal line
-        Line::lineto(ax, ay);                  // vertical line
-        print("is angle to ", ax, " ", ay, "\n");
-        moveto(ax, ay);
-    }
-</xmp><p>
-
-<tt>Angle</tt>'s constructor just calls the base class constructor,
-as the body may be read as <tt>this->Line(0);</tt>.
-Note that the base class constructor and destructor functions
-are <em>not</em> called automatically (unlike in C++).
-In the new
-<tt>lineto</tt> object, <tt>Line::lineto</tt> is used to make sure that we
-call the correct function (otherwise it would make a recursive call).
-For the <tt>moveto</tt> that is no problem, <tt>moveto</tt> calls the base
-function, as it was not redefined in the <tt>Angle</tt> class.
-Non-static member functions may be declared as virtual (that is, they can
-be redefined by a derived class), this is discussed in the next section.
-
-<p>New classes may be derived from a class which is itself derived, but Ox
-only supports single inheritance: a class can only derive from one other
-class at a time.
-
-<h4><a name="ox_syntax_RefVirtual"></a>Virtual functions</h4><p>
-
-<p>Virtual functions allow a derived class to
-supply a new version of the virtual function in the
-derived class, replacing the version of the base class.
-When the base class calls the virtual function, it will actually
-use the function of the derived class.
-For a virtual function, the call can only be resolved at run time.
-Then, the object type is known, and the called function is the one
-first found in the object, when moving from the highest class towards
-the base class. A virtual function cannot be static.
-
-<p><h2><a name="ox_syntax_namespace"></a>Namespace</h2><p><p>
-
-<tt>namespace</tt> <i>identifier</i><br>
-<tt>{</tt>
-&nbsp;&nbsp; <i>external-declaration</i><br>
-<tt>}</tt>
-
-<p>
-A namespace surrounds a section of external declarations,
-separating it from functions and variables in other namespaces,
-or from those outside the namespace. If the namespace is called
-<tt>ns</tt>, then identifiers inside the namespace are first resolved
-within that namespace, and then in the unnamed space.
-From another namespace, access is by prefix <tt>ns::</tt>.
-
-Namespaces in Ox cannot be nested, and unnamed namespaces are unsupported.
-
-<xmp>
-    foo()
-    {
-        println("foo");
-    }
-    bar()
-    {
-        println("bar");
-    }
-    namespace test
-    {
-    bar()
-    {
-        println("test::bar");
-    }
-    foo()
-    {
-        println("in test::foo");
-        bar();      // calls test::bar
-        ::bar();    // calls bar
-    }
-    }   // end of namespace
-    main()
-    {
-        println("calling ::foo");
-        foo();
-        println("calling test::foo");
-        test::foo();
-    }
-</xmp><p>
-
-which prints:
-
-<xmp>
-    calling ::foo
-    in foo
-    calling test::foo
-    in test::foo
-    in test::bar
-    in bar
-</xmp><p>
-
 <p><h2><a name="ox_syntax_stat"></a>Statements</h2><p><p>
 
-The executable part of a program consists of a sequence of statements.
-Expression statements are expressions or function calls. It can be
-a do-nothing expression, as in:
-
-<xmp>
-    for (i = 0; i < 10; i++)
-        ;
-</xmp><p>
-
-A compound statement groups statements together in a block, e.g.:
-
-<xmp>
-    for (i = 0; i < 10; i++)
-    {
-        a = test(b);
-        b = b + 10;
-    }
-</xmp><p>
-
-A statement can be prefixed by a label as in:
-
-<xmp>
-    :L001
-        for (i = 0; i < 10; i++)
-            ;
-</xmp><p>
-
-Labels are the targets of <tt>goto</tt>
-<a href="#ox_syntax_Jumpstatements">statements</a>; labels are local
-to a function and have a separate name space (which
-means that variables and labels may have the same name).
-Note that labels are defined in a non-standard way: the colon
-is prefixed, rather than suffixed as in C or C++.
+The executable part of a program consists of a sequence of statements. Expression statements are expressions or function calls. 
 
 <h3><a name="ox_syntax_RefSelection"></a>Selection statements</h3><p>
 
-The conditional expression in an <tt>if</tt> statement is evaluated, and if
-it evaluates to true (<em>for a matrix: no element evaluates to false</em>),
-the statement is executed.
-Zero (0), the empty matrix (<tt>&lt;&gt;</tt>) and a missing
-value (<tt>.NaN</tt>) all evaluate to false.
+The conditional expression in an <tt>if</tt> statement is evaluated, and if it evaluates to true (<em>for a matrix: no element evaluates to false</em>), the statement is executed. Zero (0), the empty matrix (<tt>&lt;&gt;</tt>) and a missing value (<tt>.NaN</tt>) all evaluate to false. 
 <p>
 The conditional expression may not be a declaration statement.
 <p>
@@ -1113,16 +469,13 @@ Some examples for the <tt>if</tt> statement:
         j = -1;                            // do only if i != 0
 </xmp><p>
 
-Each <tt>else</tt> part matches the closest previous <tt>if</tt>, but this can
-be changed by using braces. When coding nested <tt>if</tt>s, it is advisable
-to use braces to make the program more readable and avoid potential mistakes.
+Each <tt>else</tt> part matches the closest previous <tt>if</tt>, but this can be changed by using braces. When coding nested <tt>if</tt>s, it is advisable to use braces to make the program more readable and avoid potential mistakes.
 
 <p>Further examples involving matrices are given in <a href="#ox_syntax_RefEqExpr">equality expressions</a>.
 
 <h3><a name="ox_syntax_RefSwitch"></a>Switch statements</h3><p>
 
-A <tt>switch</tt> statement is a compact way of writing a sequence
-of <tt>if</tt> statements involving the same variable for comparison:
+A <tt>switch</tt> statement is a compact way of writing a sequence of <tt>if</tt> statements involving the same variable for comparison:
 
 <xmp>
     decl i = 1;
@@ -1140,17 +493,9 @@ of <tt>if</tt> statements involving the same variable for comparison:
     }
 </xmp><p>
 
-which prints: "<tt>one</tt>". There is a sequence of <tt>case</tt>
-blocks, and an optional <tt>default</tt> block, which must be the last.
-The <tt>break</tt> statement jumps out of the <tt>switch</tt> statement.
+which prints: "<tt>one</tt>". There is a sequence of <tt>case</tt> blocks, and an optional <tt>default</tt> block, which must be the last. The <tt>break</tt> statement jumps out of the <tt>switch</tt> statement.
 
-Here, the value of <tt>i</tt> is compared to each value in turn, until
-a comparison is true. Then all the statements for that case
-<em>and all subsequent cases</em> are executed (including the default)
-until a <tt>break</tt> is encountered. If no case is true, the default
-statements are executed. So, once inside a case, we
-automatically fall through to the next case. The advantage is that
-several cases can be grouped together:
+Here, the value of <tt>i</tt> is compared to each value in turn, until a comparison is true. Then all the statements for that case <em>and all subsequent cases</em> are executed (including the default) until a <tt>break</tt> is encountered. If no case is true, the default statements are executed. So, once inside a case, we automatically fall through to the next case. The advantage is that several cases can be grouped together:
 
 <xmp>
     switch (i)
@@ -1170,8 +515,7 @@ several cases can be grouped together:
 
 printing <tt>one,two</tt> when <tt>i</tt> is 1 or 2.
 
-The drawback is that is easy to forget the <tt>break</tt> statements,
-and get unexpected results. The following code
+The drawback is that is easy to forget the <tt>break</tt> statements, and get unexpected results. The following code
 
 <xmp>
     switch (i)
@@ -1194,9 +538,7 @@ will print when <tt>i</tt> equals zero:
     default
 </xmp><p>
 
-To emphasize that distinction, and allow for more readable code,
-Ox also has the <tt>switch_single</tt> statement. Then, one and only
-one case (or default) is executed:
+To emphasize that distinction, and allow for more readable code, Ox also has the <tt>switch_single</tt> statement. Then, one and only one case (or default) is executed:
 
 <xmp>
     switch_single (i)
@@ -1214,17 +556,10 @@ one case (or default) is executed:
 
 <h3><a name="ox_syntax_iter"></a>Iteration statements</h3><p>
 
-The <tt>while</tt> statement excutes the substatement as long as the test
-expression is nonzero (for a matrix: all elements are nonzero).
-The test is performed before the substatement is executed.
+The <tt>while</tt> statement excutes the substatement as long as the test expression is nonzero (for a matrix: all elements are nonzero). The test is performed before the substatement is executed.
 
-<p>The <tt>do</tt> statement excutes the substatement, then repeats this
-as long as the test expression is nonzero
-(for a matrix: all elements are nonzero).
-The test is performed after the substatement is executed.
-So for the <tt>do</tt>
-statement the substatement is executed one or more times, whereas
-for the <tt>while</tt> statement this is zero or more times.
+<p>The <tt>do</tt> statement executes the substatement, then repeats this as long as the test expression is nonzero (for a matrix: all elements are nonzero). The test is performed after the substatement is executed.
+So for the <tt>do</tt> statement the substatement is executed one or more times, whereas for the <tt>while</tt> statement this is zero or more times.
 
 <p>The <tt>for</tt> expression:
 
@@ -1243,12 +578,10 @@ corresponds to:
 <dt><tt>}</tt>
 </dl><p>
 
-Note that, when the <i>init_expr</i> is a
-declaration statement, the declaration is local to the <tt>for</tt> statement.
+Note that, when the <i>init_expr</i> is a declaration statement, the declaration is local to the <tt>for</tt> statement.
 
 <p>
-The <tt>foreach</tt> expression is used to loop over all elements in a matrix, array or string.
-The most simple form:
+The <tt>foreach</tt> expression is used to loop over all elements in a matrix, array or string. The most simple form:
 
 <dl>
 <dt>&nbsp;&nbsp;<tt>foreach (</tt><i>element-identifier</i> <tt>in</tt> <i>collection-identifier</i><tt>)</tt>  <i>statement</i>
@@ -1300,20 +633,13 @@ Some examples:
 
 <h3><a name="ox_syntax_Jumpstatements"></a>Jump statements</h3><p>
 
-The <tt>return</tt> statement exits the function; if it is followed by an expression, the
-value of the expression is returned to the caller, see <a href="#ox_syntax_RefReturn">returning values</a>.
+The <tt>return</tt> statement exits the function; if it is followed by an expression, the value of the expression is returned to the caller, see <a href="#ox_syntax_RefReturn">returning values</a>.
 
-<p>A <tt>continue</tt> statement may only appear within an iteration statement
-and causes control to pass to the loop-continuation portion of the smallest
-enclosing iteration statement.
+<p>A <tt>continue</tt> statement may only appear within an iteration statement and causes control to pass to the loop-continuation portion of the smallest enclosing iteration statement.
 
-<p>The use of <tt>goto</tt> should be kept to a minimum, but could be useful
-to jump out of a nested loop, jump to the end of a routine or
-when converting Fortran code. It is always possible to rewrite
-the code such that no <tt>goto</tt>s are required.
+<p>The use of <tt>goto</tt> should be kept to a minimum, but could be useful to jump out of a nested loop, jump to the end of a routine or when converting Fortran code. It is always possible to rewrite the code such that no <tt>goto</tt>s are required.
 
-<p>A <tt>break</tt> statement may only appear within an iteration statement
-and terminates the smallest enclosing iteration statement.
+<p>A <tt>break</tt> statement may only appear within an iteration statement and terminates the smallest enclosing iteration statement.
 
 <p>Two examples:
 
@@ -1334,21 +660,9 @@ and terminates the smallest enclosing iteration statement.
 
 <h3><a name="ox_syntax_decl"></a>Declaration statements</h3><p>
 
-Declarations at the <a href="#ox_syntax_RefExtDecl">external level</a> were discussed before.
-Here we treat declaration within a block.
+Declarations at the <a href="#ox_syntax_RefExtDecl">external level</a> were discussed before. Here we treat declaration within a block.
 <p>
-Declaration statements create a `local' variable for further manipulation
-as long as it stays within scope. The created object is removed as
-soon as the block in which it was created is exited.
-Variables can be intitialized in a declaration statement.
-Variables in Ox are implicitly typed, and their type can change
-during program execution. Non-externally declared variables
-must be initialized before they can be used in an expression.
-It is not possible to specify matrix dimension as can be done
-at the external level, so instead of <tt>decl ma[3][3] = 1.5</tt>
-write <tt>decl ma = constant(1.5,3,3)</tt>.
-Unlike C, declaration statements do not have to occur at the start of
-a block. Consider for example:
+Declaration statements create a `local' variable for further manipulation as long as it stays within scope. The created object is removed as soon as the block in which it was created is exited. Variables can be intitialized in a declaration statement. Variables in Ox are implicitly typed, and their type can change during program execution. Non-externally declared variables must be initialized before they can be used in an expression. It is not possible to specify matrix dimension as can be done at the external level, so instead of <tt>decl ma[3][3] = 1.5</tt> write <tt>decl ma = constant(1.5,3,3)</tt>. Unlike C, declaration statements do not have to occur at the start of a block. Consider for example:
 
 <xmp>
     test1(arg0)
@@ -1367,20 +681,7 @@ a block. Consider for example:
         }
 </xmp><p>
 
-Variables declared in an inner block hide variables in the
-outer block.
-
-<h3><a name="ox_syntax_Closedblock"></a>Closed statement list</h3><p>
-
-A statement list is closed if the only possible entry is at the top
-of the block, and the only exit at the bottom. So a closed block may not contain <tt>return</tt>
-or <tt>break</tt> to terminate a loop (thus leaving the block; but continue is allowed). Neither may there be a jump statement
-into or out of the block.
-
-<h3><a name="ox_syntax_RefParallel"></a>Parallel programming</h3><p>
-
-This section gives a summary of the use of <tt>parallel</tt> and <tt>serial</tt>.
-Examples are given in the Ox book.
+Variables declared in an inner block hide variables in the outer block.
 
 <h4><a name="ox_syntax_Canonical"></a>Canonical <tt>for</tt> and <tt>foreach</tt> loops</h4><p>
 
@@ -1392,8 +693,7 @@ A <tt>for</tt> loop is <i>canonical</i> if:
 <li> the iterator is incremented (or decremented) by an integer constant,
 <li> the upperbound can be computed before the loop starts,
 
-In particular, it is either the value of a variable, or <tt>sizer</tt>, <tt>sizec</tt>,
-<tt>sizerc</tt>, <tt>sizeof</tt>, <tt>rows</tt>, <tt>columns</tt> of a variable.
+In particular, it is either the value of a variable, or <tt>sizer</tt>, <tt>sizec</tt>, <tt>sizerc</tt>, <tt>sizeof</tt>, <tt>rows</tt>, <tt>columns</tt> of a variable.
 
 <li> the upperbound is fixed while the loop executes,
 <li> the loop body is a closed statement list.
@@ -1401,100 +701,7 @@ In particular, it is either the value of a variable, or <tt>sizer</tt>, <tt>size
 
 Except for the last condition, all are automatically satisfied by a <tt>foreach</tt> loop.
 
-Ox can determine whether a <tt>for</tt> or <tt>foreach</tt> loop is canonical, and
-use compiled code for the iteration aspect, which is more efficient. If you use
-the <tt>-v</tt> command line switch, a message will indicate if a loop was optimized
-this way.
-
-<h4><a name="ox_syntax_Parfor"></a>Parallel <tt>for</tt> and <tt>foreach</tt> loops</h4><p>
-
-A canonical <tt>for</tt> or <tt>foreach</tt> loop can be run in parallel (Ox Professional only) if there
-is no dependency between iterations, i.e. if the ordering of the iterations
-does not matter. This condition is not verified by Ox, but the user can label
-a loop as <tt>parallel</tt>.
-<p>
-When Ox starts running code in parallel, <i>n</i> threads are created. Each thread gets its own
-space for local variables. Initially these are the same as the main thread (integers and doubles
-are copied, the remainder are references to the value in the main thread).
-As the threads proceed in parallel, the local variables may be different in each thread.
-When the parallel section is finished, only the local variables in the main thread
-survive, the others are removed. This is useful because it separates local variables,
-but a problem for reduction operations such as accumulating a sum.
-<p>
-There is just one version of global variables. These are safe for reading, but writing
-(or writing and reading) in parallel is unsafe, resulting in a race condition.
-Or even a crash
-when memory allocation and deallocation overlaps.
-<p>
-Ox variables can be declared as <tt>serial</tt>, in which case only one thread at a time is
-able to modify the variable through the following compound assignment operations:
-<tt>*=  /=  += -=  ~=  |=  .*=  ./=  ++  --</tt>.
-Note that simple assignment (<tt>=</tt>) is unaffected by the <tt>serial</tt> declaraion.
-
-
-<xmp>
-    decl i, j, crep = 10;
-
-    decl sum1 = 0;
-    parallel for (i = 0; i < crep; ++i)
-    {
-        sum1 += 1;
-    }
-    println("sum1=", sum1);
-
-    serial decl sum2 = 0;
-    parallel for (i = 0; i < crep; ++i)
-    {
-        sum2 += 1;
-    }
-    println("sum2=", sum2);
-</xmp>
-
-prints
-
-<xmp>
-    sum1=3
-    sum2=10
-</xmp>
-
-The precise value of <tt>sum1</tt> depends on the number of threads,
-i.e.what part is executed in the main thread. However, it clearly has not
-the intended result.
-
-
-The value of <tt>sum2</tt> is correct though: only one thread at a time was
-allowed to update, so, while one was doing this, the others had to wait.
-the price we pay for this is slower code.
-
-Note that updating matrix elements is safe, provided the matrix is pre-allocated,
-and each iteration updates a different element.
-
-Note that functions written in Ox code cannot be labelled as serial, but calls
-to dynamic-link libraries can.
-
-
-Sections of code may need to be executed together in serial fashion. This can be achieved
-by creating a <tt>serial</tt> block. For example, to keep the print statements
-together:
-
-<xmp>
-    parallel for (i = 0; i < crep; ++i)
-    {
-        // lengthy computation running in parallel
-        // ....
-        serial
-        {
-            print("i=");
-            println(i);
-        }
-    }
-</xmp>
-
-Parallel computations are not-nested: if a parallel loop contains another
-parallel loop, the latter is executed serially. Relatedly, any parallel loops
-inside a serial section will not be executed in parallel.
-Specifying the <tt>-rp1</tt>
-Ox command line switch also forces the program to run serially.
+Ox can determine whether a <tt>for</tt> or <tt>foreach</tt> loop is canonical, and use compiled code for the iteration aspect, which is more efficient. If you use the <tt>-v</tt> command line switch, a message will indicate if a loop was optimized this way.
 
 <p><h2><a name="ox_syntax_exp"></a>Expressions</h2><p><p>
 
@@ -1530,12 +737,7 @@ assignment          = *= /= += -= ~= |= .*= ./=   right to left
 comma               ,                             left to right
 </xmp><p>
 
-Table <a href="#TabSyntaxOXPREC">syn.2</a> gives a summary if the operators available in Ox,
-together with their precedence (in order of decreasing precedence)
-and associativity. The precedence is in decreasing order. Operators
-on the same line have the same precedence, in which case the associativity
-gives the order of the operators. Note that the order of
-evaluation of expressions is not fully specified. In:
+Table <a href="#TabSyntaxOXPREC">syn.2</a> gives a summary if the operators available in Ox, together with their precedence (in order of decreasing precedence) and associativity. The precedence is in decreasing order. Operators on the same line have the same precedence, in which case the associativity gives the order of the operators. Note that the order of evaluation of expressions is not fully specified. In:
 
 <xmp>
     i = a() + b();
@@ -1543,21 +745,9 @@ evaluation of expressions is not fully specified. In:
 it is unknown whether <tt>a</tt> or <tt>b</tt> is called first.
 
 <a name="ox_syntax_lvalue"></a>
-Subsections below give a
-more comprehensive discussion. Several operators require an
-<i>lvalue</i>, which is a region of memory to which an assignment can
-be made. Note that an object which was declared <tt>const</tt> is
-not an lvalue. Many operators require operands of arithmetic
-type, that is int, double or matrix.
+Subsections below give a more comprehensive discussion. Several operators require an <i>lvalue</i>, which is a region of memory to which an assignment can be made. Note that an object which was declared <tt>const</tt> is not an lvalue. Many operators require operands of arithmetic type, that is int, double or matrix.
 
-<p>The most common operators are <em>dot-operators</em>
-(operating element-by-element) and relational operators
-(operating element by element, but returning a single boolean value).
-The resulting value is given Tables <a href="#TabSyntaxOXDOTOP">syn.3</a> and <a href="#TabSyntaxOXDOTREL">syn.4</a>
-respectively. In addition, there are special matrix operations,
-such as matrix multiplication and division; the result from
-these operators is explained below. A scalar consists of:
-int, double or 1 <tt>x</tt> 1 matrix.
+<p>The most common operators are <em>dot-operators</em> (operating element-by-element) and relational operators (operating element by element, but returning a single boolean value). The resulting value is given Tables <a href="#TabSyntaxOXDOTOP">syn.3</a> and <a href="#TabSyntaxOXDOTREL">syn.4</a> respectively. In addition, there are special matrix operations, such as matrix multiplication and division; the result from these operators is explained below. A scalar consists of: int, double or 1 <tt>x</tt> 1 matrix.
 
 <h3><a name="TabSyntaxOXDOTOP"></a>Table syn.3: Result from dot operators</h3><p>
 <xmp>
@@ -1625,152 +815,26 @@ operator   either argument .NaN      both arguments .NaN
 
 <h3><a name="ox_syntax_primary"></a>Primary expressions</h3><p>
 
-An expression in parenthesis is a primary expression. Its main
-use is to change the order of evaluation, or clarify the
-expression.
+An expression in parenthesis is a primary expression. Its main use is to change the order of evaluation, or clarify the expression.
 
-<p>An expression in curly braces creates an array of the
-comma-separated expressions.
+<p>An expression in curly braces creates an array of the comma-separated expressions.
 
-<p>All types of <a href="#ox_syntax_RefConstant">constants</a>
-form a primary expression.
+<p>All types of <a href="#ox_syntax_RefConstant">constants</a> form a primary expression.
 
-<p>The operator <tt>::</tt> followed by an identifier references
-a variable declared <a href="#ox_syntax_RefExtDecl">externally</a>.
-<a href="#ox_syntax_RefThis">Examples</a> are given.
-A class name followed by <tt>::</tt> and a
-<a href="#ox_syntax_RefMemFunc">function member</a> of that class references
-a <a href="#ox_syntax_RefMemStatic">static</a> function
-member, or any function member if preceded by an object reference.
+<p>The operator <tt>::</tt> followed by an identifier references a variable declared <a href="#ox_syntax_RefExtDecl">externally</a>. <a href="#ox_syntax_RefThis">Examples</a> are given. A class name followed by <tt>::</tt> and a <a href="#ox_syntax_RefMemFunc">function member</a> of that class references
+a <a href="#ox_syntax_RefMemStatic">static</a> function member, or any function member if preceded by an object reference.
 
-<p>The <tt>this</tt> reference is only available inside non-static
-class member functions, and points to the object for which the
-function was called.
+<p>The <tt>this</tt> reference is only available inside non-static class member functions, and points to the object for which the function was called.
 
-
-<h4><a name="ox_syntax_MultAssign"></a>Multiple assignment</h4><p>
-
-A comma-separated list of lvalues in square brackets can be used
-for multiple assignments. When the right-hand side is an array,
-each array value in turn is assigned to the next value of the
-left-hand side. The return value of a multiple
-assignment expression is zero (the examples below illustrate).
-When there is one lvalue in the square brackets, the right-hand side
-need not be an array. Few array elements on the right than
-lvalues on the left leads to a runtime error. The converse is no problem.
-A multiple assignment expression can be used to implement multiple
-returns from a function.
-
-<p>The following examples illustrate multiple assignments:
-
-<xmp>
-    decl x1, x2, x3, x4, as;
-    as = {"a", <10,11>, "b"};
-    [x1, x2, x3] = as;
-    println("x1=", x1, " x2=", x2, "x3=", x3);
-
-    [x1] = 10;
-    [x2, x3] = {11,12,13};
-    //[x2, x3, x4] = {11,12};     // error
-    println("x1=", x1, " x2=", x2, " x3=", x3);
-
-    x3 = 10 + ([x1, x2] = as[<0,2>]);
-    println("x1=", x1, " x2=", x2, " x3=", x3);
-
-    x1=<1,2,3,4>;
-    [x1[0], x1[3]] = {-1, -3};
-    println("x1=", x1);
-</xmp><p>
-
-Which prints:
-
-<xmp>
-    x1=a x2=
-           10.000       11.000
-    x3=b
-    x1=10 x2=11 x3=12
-    x1=a x2=b x3=10
-    x1=
-          -1.0000      2.0000      3.0000     -3.0000
-</xmp><p>
-
-<h4><a name="ox_syntax_Lambda"></a>Lamda functions</h4><p>
-
-A lambda function can be useful to create a local function with a
-different signature, or to provide access to local variables
-when the signature is proscribed (as e.g. the function for maximization). (This can also
-be achieved through a class, because a function member can access the members of the object
-to which it belongs, even when passed as an argument.)
-
-A lambda function can have arguments and local variables.
-It is somewhat different from a normal function: it has no function name
-(it is also called an anonymous function) but can be stored in a variable.
-Moreover, it has access to all the local variables that are in the scope of its definition:
-
-<xmp>
-    decl a, b;
-    decl fnlam = [=](arg) { println("a=", a, " arg=", arg); return b; };
-</xmp>
-
-
-There are some restrictions:
-<ul>
-<li> Variable and default arguments are not allowed.
-<li> [=] captures local variables and arguments of the lambda context by value: they cannot be modified.
-This implies that a lambda function can be safely used in a parallel setting.
-<li>However, internally, the local variables are captured by reference. So a lambda function
-that accesses local variables can only be used when these are in existence. As a consequence, care
-is required returning a lambda function: when the function
-surrounding the lambda returns, the local variables disappear, and the lambda is invalid.
-In other words: the closure is incomplete, because it is by reference.
-This implementation is less flexible than, say, JavaScript, but is efficient because large
-matrices are not unneccesarily copied.
-</ul>
-
-A lambda function can also be created in place, from <tt>samples/maximize/probit1a</tt>:
-
-<xmp>
-    ir = MaxBFGS(
-        [=](const vP, const adFunc, const avScore, const amHessian)
-        {
-            return fProbit(vP, adFunc, mx, my);
-        }, &vp, &dfunc, 0, TRUE);
-</xmp>
-
-But as a variable may be easier to read, see <tt>samples/maximize/probit1b</tt>:
-
-<xmp>
-	decl fprobit_max = [=](const vP, const adFunc, const avScore, const amHessian)
-	{
-		return fProbit(vP, adFunc, mx, my);
-	};
-	ir = MaxBFGS(fprobit_max, &vp, &dfunc, 0, TRUE, maxctrl);
-</xmp>
-
-<h3><a name="ox_syntax_postfix"></a>Postfix expressions</h3><p>
 
 <h4><a name="ox_syntax_memref"></a>Member reference</h4><p>
 
-The <tt>-></tt> operator selects a member from an object reference.
-The left-hand expression must evaluate to a reference to an
-object, the right-hand expression must result in a member of
-that object. See <a href="#ox_syntax_RefClasses">classes</a>.
+The <tt>-></tt> operator selects a member from an object reference. The left-hand expression must evaluate to a reference to an object, the right-hand expression must result in a member of that object. 
 
 
 <h4><a name="ox_syntax_RefFuncCall"></a>Function calls</h4><p>
 
-A function call is a postfix expression consisting of the function
-name, followed in parenthesis by a possibly empty, comma-separated
-list of assignment expressions.
-All argument passing is by value, but when an array is passed, its
-contents may be changed by the function (unless they are <tt>const</tt>).
-The order of evaluation of the arguments is unspecified;
-all arguments are evaluated
-before the function is entered. Recursive function calls are allowed.
-A function must be declared before it can be called, and the number of
-arguments in the call must coincide with the number in the
-<a href="#ox_syntax_RefFuncDecl">declaration</a>, unless the declaration
-has <tt>...</tt> as the last argument.
+A function call is a postfix expression consisting of the function name, followed in parenthesis by a possibly empty, comma-separated list of assignment expressions. All argument passing is by value, but when an array is passed, its contents may be changed by the function (unless they are <tt>const</tt>). The order of evaluation of the arguments is unspecified; all arguments are evaluated before the function is entered. Recursive function calls are allowed. A function must be declared before it can be called, and the number of arguments in the call must coincide with the number in the <a href="#ox_syntax_RefFuncDecl">declaration</a>, unless the declaration has <tt>...</tt> as the last argument.
 
 <p>Some examples:
 
@@ -1795,8 +859,7 @@ has <tt>...</tt> as the last argument.
     }
 </xmp><p>
 
-In the latter example <tt>a</tt> will have been changed by <tt>func3</tt>.
-Function arguments are passed by giving the name of the function:
+In the latter example <tt>a</tt> will have been changed by <tt>func3</tt>. Function arguments are passed by giving the name of the function:
 
 <xmp>
     func4(a0, a1)
@@ -1818,46 +881,9 @@ Function arguments are passed by giving the name of the function:
 Note that the parentheses in <tt>func5()</tt> indicate that it is a function call,
 whereas lack of brackets just passes the function itself.
 
-<h4><a name="ox_syntax_RefCast"></a>Explicit type conversion</h4><p>
-
-Explicit type conversion has the same syntax as a function call,
-using types <tt>int</tt>, <tt>double</tt>, <tt>matrix</tt> and <tt>string</tt>:
-
-<xmp>
-            int     double    matrix        string
-            v=0;    v=0.6;    v=<0.6,1>;    v="tinker";
-matrix(v)   <0>     <0.6>     v             <116>
-double(v)   0.0     v         0.6           see below
-int(v)      v       0         0             116
-</xmp><p>
-
-The double to string conversion function and its reverse are for packing
-string values in a double and subsequently extracting it.
-This is usually better avoided, as it restricts the string length to
-eight characters (more flexibility is offered by using arrays of strings).
-Use the <tt>sprint</tt> library function to
-express double (or any other) value as a string.
-
-For example, <tt>double("tinker")</tt> packs the string in a double value.
-Since a double is 8 bytes, the string is truncated at 8 characters
-(or padded by null characters).
-Conversely, <tt>string(dbl)</tt> extracts the string from a double value,
-automatically appending a null character.
-
-Calling <tt>string</tt> on a function returns the function name; on an object
-the class name.
-
-
 <h4><a name="ox_syntax_idx"></a>Indexing vector and array types</h4><p>
 
-Vector types (that is, string or matrix) and array types are
-indexed by postfixing square brackets.
-A matrix can have one or
-two indexes, a string only one. For an array type it depends on the
-level of indirection.
-<em>Note that indexing always
-starts at zero.</em>
-So a 2 by 3 matrix has elements:
+Vector types (that is, string or matrix) and array types are indexed by postfixing square brackets. A matrix can have one or two indexes, a string only one. For an array type it depends on the level of indirection. <em>Note that indexing always starts at zero.</em> So a 2 by 3 matrix has elements:
 
 <xmp>
      [0][0]   [0][1]   [0][2]
@@ -1873,40 +899,17 @@ matrix               yes          yes     m[0][<0,1,2>]
 range                yes          yes     m[][1:]
 </xmp><p>
 
-In the first indexing case (allowed for all non-scalar types),
-the expression inside square brackets must have
-scalar type, whereby double is converted to integer.
+In the first indexing case (allowed for all non-scalar types), the expression inside square brackets must have scalar type, whereby double is converted to integer.
 
-<p>Vector types may also be indexed by a matrix
-or have a range expression inside the brackets.
-In a matrix index to a string
-the first <em>column</em> of the matrix specifies the selected elements of
-the string.
+<p>Vector types may also be indexed by a matrix or have a range expression inside the brackets. In a matrix index to a string the first <em>column</em> of the matrix specifies the selected elements of the string.
 
-<p>It is possible to use only one index to a matrix.
-If a matrix <tt>x</tt> is a column or row vector,
-<tt>x[i]</tt> it will pick the <i>i</i>th element from the vector.
-If <tt>x</tt> is a matrix, it will treat the matrix as a
-vector (row by row, which corresponds to the <tt>vecr</tt>).
+<p>It is possible to use only one index to a matrix. If a matrix <tt>x</tt> is a column or row vector, <tt>x[i]</tt> it will pick the <i>i</i>th element from the vector. If <tt>x</tt> is a matrix, it will treat the matrix as a vector (row by row, which corresponds to the <tt>vecr</tt>).
 
-<p>If a matrix is used as an index to a matrix, then each element (row by
-row, i.e. the <tt>vecr</tt> of the argument) is used as an index.
-As a consequence, indexing by a column vector or its transpose (a row
-vector) has the same effect.
-A matrix in the first index selects rows, a matrix in the second index
-selects columns. The resulting matrix is the intersection of those rows
-and columns.
+<p>If a matrix is used as an index to a matrix, then each element (row by row, i.e. the <tt>vecr</tt> of the argument) is used as an index. As a consequence, indexing by a column vector or its transpose (a row vector) has the same effect. A matrix in the first index selects rows, a matrix in the second index selects columns. The resulting matrix is the intersection of those rows and columns.
 
-<p>A range index has the form <i>start-index</i> <tt>:</tt> <i>end-index</i>.
-Either the start-index or the end-index may be missing, which results
-in the lower-bound or upper-bound being used respectively.
-An empty index selects all elements. The resulting type from a
-range or empty index is always a vector type.
+<p>A range index has the form <i>start-index</i> <tt>:</tt> <i>end-index</i>. Either the start-index or the end-index may be missing, which results in the lower-bound or upper-bound being used respectively. An empty index selects all elements. The resulting type from a range or empty index is always a vector type.
 
-<p>Indexing beyond the end will result in a fatal run-time error.
-An exception is indexing a string for reference: this can
-be done one position beyond the end, which returns 0. For example,
-<tt>i=s[sizeof(s)]</tt> sets <tt>i</tt> to 0.
+<p>Indexing beyond the end will result in a fatal run-time error. An exception is indexing a string for reference: this can be done one position beyond the end, which returns 0. For example, <tt>i=s[sizeof(s)]</tt> sets <tt>i</tt> to 0.
 
 <p>Some examples:
 
@@ -1939,21 +942,11 @@ be done one position beyond the end, which returns 0. For example,
 
 <h4><a name="ox_syntax_postfixinc"></a>Postfix incrementation</h4><p>
 
-A postfix expression followed by <tt>++</tt> or <tt>--</tt> leads to the value
-of the expression being evaluated and then incremented or
-decremented by 1.
-The operand must be an lvalue and
-must have arithmetic type. For a matrix the operator is applied to
-each element separately.
-The result of the expression is the value prior to the
-increment/decrement operation.
+A postfix expression followed by <tt>++</tt> or <tt>--</tt> leads to the value of the expression being evaluated and then incremented or decremented by 1. The operand must be an lvalue and must have arithmetic type. For a matrix the operator is applied to each element separately. The result of the expression is the value prior to the increment/decrement operation.
 
 <h4><a name="ox_syntax_RefTranspose"></a>Transpose</h4><p>
 
-The postfix operator <tt>'</tt> takes the transpose of a matrix. It has
-no effect on other arithmetic types of operands.
-Note that the single quote is also used in a character constant;
-the context avoids any ambiguity:
+The postfix operator <tt>'</tt> takes the transpose of a matrix. It has no effect on other arithmetic types of operands. Note that the single quote is also used in a character constant; the context avoids any ambiguity:
 
 <xmp>
     mat = m' * a';
@@ -1964,9 +957,7 @@ the context avoids any ambiguity:
 
 <h3><a name="ox_syntax_power"></a>Power expressions</h3><p>
 
-The operands of the power operator must have arithmetic type,
-and the result is given in the table. If the first operand is
-not a matrix .^ and ^ are the same.
+The operands of the power operator must have arithmetic type, and the result is given in the table. If the first operand is not a matrix .^ and ^ are the same.
 
 <xmp>
 left  a      operator  right b        result         computes
@@ -1980,14 +971,9 @@ matrix m x n   .^      matrix  m x n  matrix m x n   a_{ij}^{b_{ij}}
 matrix m x m   ^       scalar         matrix m x m   a^int(b)
 </xmp><p>
 
-When <i>a</i> and <i>b</i> are integers, then <tt>a ^ b</tt> is an integer if
-<i>b</i> &gt;= 0 and if the result can be represented as a 32 bit signed integer.
-If <i>b</i> < 0 and <i>a</i> != 0 or the integer result would lead to overflow,
-the return type is double, giving the outcome of the floating point
-power operation.
+When <i>a</i> and <i>b</i> are integers, then <tt>a ^ b</tt> is an integer if <i>b</i> &gt;= 0 and if the result can be represented as a 32 bit signed integer. If <i>b</i> < 0 and <i>a</i> != 0 or the integer result would lead to overflow, the return type is double, giving the outcome of the floating point power operation.
 
-<p>The first line in the example shows that power has higher precedence
-than unary minus:
+<p>The first line in the example shows that power has higher precedence than unary minus:
 
 <xmp>
     i = - 2 ^ 2;                                      // i = -4
@@ -2007,26 +993,15 @@ than unary minus:
 
 <h4><a name="ox_syntax_prefix"></a>Prefix incrementation</h4><p>
 
-A prefix expression preceded by <tt>++</tt> or <tt>--</tt> leads to the lvalue
-being incremented or decremented by 1. This new value is the
-result of the operation. The operand must be an lvalue and
-must have arithmetic type.
-For a matrix the operator is applied to
-each element separately.
+A prefix expression preceded by <tt>++</tt> or <tt>--</tt> leads to the lvalue being incremented or decremented by 1. This new value is the result of the operation. The operand must be an lvalue and must have arithmetic type. For a matrix the operator is applied to each element separately.
 
 <h4><a name="ox_syntax_uminus"></a>Unary minus and plus</h4><p>
 
-The operand of the unary minus operator must have arithmetic type,
-and the result is the negative of the operand. For a matrix each element
-is set to its negative. Unary plus is ignored.
+The operand of the unary minus operator must have arithmetic type, and the result is the negative of the operand. For a matrix each element is set to its negative. Unary plus is ignored.
 
 <h4><a name="ox_syntax_neg"></a>Logical negation</h4><p>
 
-The operand of the logical negation operator must have arithmetic type,
-and the result is 1 if the operand is equal to 0 and 0 otherwise.
-For a matrix, logical negation is applied to each element.
-Negating a missing value returns 0, and negating an empty
-matrix returns an empty matrix.
+The operand of the logical negation operator must have arithmetic type, and the result is 1 if the operand is equal to 0 and 0 otherwise. For a matrix, logical negation is applied to each element. Negating a missing value returns 0, and negating an empty matrix returns an empty matrix.
 
 <xmp>
     j = 0;  k = 10;
@@ -2036,48 +1011,25 @@ matrix returns an empty matrix.
 
 <h4><a name="ox_syntax_address"></a>Address operator</h4><p>
 
-The operand of the address operator <tt>&</tt> must be an lvalue.
-In addition, it must be an object: it is possible to take the address
-of a class object, a function, or an array element, but not of a matrix
-element. The result
-is an array of one element, pointing to the region of space occupied
-by the lvalue.
-Referencing works through arrays;
-unlike C and C++ (but like the Java programming language),
+The operand of the address operator <tt>&</tt> must be an lvalue. In addition, it must be an object: it is possible to take the address of a class object, a function, or an array element, but not of a matrix
+element. The result is an array of one element, pointing to the region of space occupied
+by the lvalue.  Referencing works through arrays; unlike C and C++ (but like the Java programming language),
 Ox does not have pointers.
 
-Some examples were in the section on
-<a href="#ox_syntax_RefFuncCall">function calls</a>.
+Some examples were in the section on <a href="#ox_syntax_RefFuncCall">function calls</a>.
 
 <h4><a name="ox_syntax_new"></a>New and delete</h4><p>
 
-The <tt>new</tt> operator can be used to create an object of a class,
-or to create a matrix, string or array. The <tt>delete</tt> operator
-removes an object created by <tt>new</tt>. Note that matrices, strings
-and arrays are automatically removed when they go out of scope; this is
-not the case for objects.
-A class object, on the other hand, must be removed explicitly using
-the <tt>delete</tt> operator. If not, it will exist until the program terminates
-(which may be acceptable).
+The <tt>new</tt> operator can be used to create an object of a class, or to create a matrix, string or array. The <tt>delete</tt> operator removes an object created by <tt>new</tt>. Note that matrices, strings and arrays are automatically removed when they go out of scope; this is not the case for objects. A class object, on the other hand, must be removed explicitly using the <tt>delete</tt> operator. If not, it will exist until the program terminates (which may be acceptable).
 
-Only one or two array levels at a time can be created by <tt>new</tt>;
-however, <tt>delete</tt> removes all sublevels.
-A string created by <tt>new</tt> consists of null characters,
-a matrix will have all elements zero.
-Matrix, string and array objects with dimension zero are allowed
-(this can be useful to start concatenation
-in an iterative loop; remember that an empty matrix constant is <tt>&lt;&gt;</tt>,
-and an empty array <tt>{}</tt>). Matrices and arrays can be created
-with either one or two dimensions.
+Only one or two array levels at a time can be created by <tt>new</tt>; however, <tt>delete</tt> removes all sublevels. A string created by <tt>new</tt> consists of null characters, a matrix will have all elements zero. Matrix, string and array objects with dimension zero are allowed (this can be useful to start concatenation
+in an iterative loop; remember that an empty matrix constant is <tt>&lt;&gt;</tt>, and an empty array <tt>{}</tt>). Matrices and arrays can be created with either one or two dimensions.
 
 <p>Examples involving objects of <a href="#ox_syntax_RefClasses">classes</a> are given.
 
 <h3><a name="ox_syntax_RefMultExpr"></a>Multiplicative expressions</h3><p>
 
-The operators <tt>**</tt>, <tt>*</tt>, <tt>.*</tt>, <tt>/</tt>, and <tt>./</tt>
-group left-to-right and require operands of arithmetic type.
-Strings are not allowed.
-These operators conform to Table <a href="#TabSyntaxOXDOTOP">syn.3</a>, except for:
+The operators <tt>**</tt>, <tt>*</tt>, <tt>.*</tt>, <tt>/</tt>, and <tt>./</tt> group left-to-right and require operands of arithmetic type. Strings are not allowed. These operators conform to Table <a href="#TabSyntaxOXDOTOP">syn.3</a>, except for:
 
 <xmp>
 left   a     operator  right b        result          computes
@@ -2091,52 +1043,18 @@ matrix m x n    /      scalar         matrix m x n    a_{ij}/b
 scalar          / ./   scalar         double          a/b
 </xmp><p>
 
-This implies that <tt>* **</tt> are the same as <tt>.*</tt> when
-one or both arguments are scalar, and similarly for <tt>/</tt> and <tt>./</tt>
-when the right-hand operand is not a matrix.
+This implies that <tt>* **</tt> are the same as <tt>.*</tt> when one or both arguments are scalar, and similarly for <tt>/</tt> and <tt>./</tt> when the right-hand operand is not a matrix.
 
-<p>Kronecker product is denoted by <tt>**</tt>. If neither operand is a matrix, this
-is identical to normal multiplication.
+<p>The binary <tt>*</tt> operator denotes multiplication. If both operands are a matrix, this is matrix multiplication and the number of columns of the first operand has to be identical to the number of rows of the second operand. <p>The <tt>.*</tt> operator defines element by element multiplication. It is only
+different from <tt>*</tt> if both operands are a matrix (these must have identical dimensions, however, if one or both of the arguments is a 1 <tt>x</tt> 1 matrix, <tt>*</tt> is equal to <tt>.*</tt>). 
 
-<p>The binary <tt>*</tt> operator denotes multiplication.
-If both operands are a matrix, this is matrix multiplication and
-the number of columns of the first operand has to be identical to the number
-of rows of the second operand.
-<p>The <tt>.*</tt> operator defines element by element multiplication. It is only
-different from <tt>*</tt> if both operands are a matrix (these must have
-identical dimensions, however, if one or both of the arguments
-is a 1 <tt>x</tt> 1 matrix, <tt>*</tt> is equal to <tt>.*</tt>).
-<p>The product of two integers remains an integer. This means that
-overflow could occur (when it would not occur in operations
-where one of the argument is a double). For example
-<tt>5000 * 50000</tt> fits in an integer and yields 250,000,000, but
-<tt>50000 * 50000</tt> overflows, yielding -1.794,967,296. When using double
-arithmetic: <tt>50000.0 * 50000</tt> = 2500,000,000.0.
+<p>The product of two integers remains an integer. This means that overflow could occur (when it would not occur in operations where one of the argument is a double). For example <tt>5000 * 50000</tt> fits in an integer and yields 250,000,000, but <tt>50000 * 50000</tt> overflows, yielding -1.794,967,296. When using double arithmetic: <tt>50000.0 * 50000</tt> = 2500,000,000.0.
 
+<p>The binary <tt>/</tt> operator denotes division. If the second operand is a matrix, this is identical to post-multiplication by the inverse (if the matrix is square the matrix is inverted using the <tt>invert()</tt> library function; if that fails, or the matrix is non-square, the generalized inverse is used). If the second operand is a scalar, each element of the first is divided by it. If the first operand is a scalar, it is multiplied by the inverse of the second argument.
 
-<p>The binary <tt>/</tt> operator denotes division. If the second operand is a
-matrix, this is identical to post-multiplication by the inverse
-(if the matrix is square the matrix is inverted using the
-<tt>invert()</tt> library function;
-if that fails, or the matrix is non-square, the generalized inverse is
-used).
-If the second operand is a scalar, each element of the first is divided
-by it. If the first operand is a scalar, it is multiplied by the inverse
-of the second argument.
+<p>The <tt>./</tt> operator defines element by element division. If either argument is not a matrix, this is identical to normal division. It is only different from <tt>/</tt> if both operands are a matrix (these must have identical dimensions).
 
-<p>The <tt>./</tt> operator defines element by element division. If either
-argument is not a matrix, this is identical to normal division.
-It is only
-different from <tt>/</tt> if both operands are a matrix (these must have
-identical dimensions).
-
-<p>Note that <tt>/</tt> does not support integer division (such as e.g. 3 / 2
-resulting in 1). In Ox, the result of dividing
-two integers is a double (3 / 2 gives 1.5). Integer division can be
-performed using the <tt>idiv</tt> library function.
-The remainder operator (<tt>%</tt> in C and C++)
-is supported through the library function <tt>imod</tt>.
-Multiplication of two integers returns an integer.
+<p>Note that <tt>/</tt> does not support integer division (such as e.g. 3 / 2 resulting in 1). In Ox, the result of dividing two integers is a double (3 / 2 gives 1.5). Integer division can be performed using the <tt>idiv</tt> library function. The remainder operator (<tt>%</tt> in C and C++) is supported through the library function <tt>imod</tt>. Multiplication of two integers returns an integer.
 
 
 <p>Some examples of multiplication and division involving matrices:
@@ -2164,27 +1082,11 @@ Multiplication of two integers returns an integer.
 </xmp><p>
 
 
-Notice the difference between <tt>2./ m2</tt> and <tt>2 ./ m2</tt>. In the first
-case, the dot is interpreted as part of the real number <tt>2.</tt>,
-whereas in the second case it is part of the <tt>./</tt> dot-division operator.
-The white space is used here to change the syntax (as in the example
-in <a href="#ox_syntax_RefTranspose">transpose</a>); it would be more clear to write the second
-case as <tt>2.0 ./ m2</tt>.
-The same difference applies for dot-multiplication,
-but note that <tt>2.0*m2</tt> and <tt>2.0.*m2</tt> give the same result.
+Notice the difference between <tt>2./ m2</tt> and <tt>2 ./ m2</tt>. In the first case, the dot is interpreted as part of the real number <tt>2.</tt>, whereas in the second case it is part of the <tt>./</tt> dot-division operator. The white space is used here to change the syntax (as in the example in <a href="#ox_syntax_RefTranspose">transpose</a>); it would be more clear to write the second case as <tt>2.0 ./ m2</tt>. The same difference applies for dot-multiplication, but note that <tt>2.0*m2</tt> and <tt>2.0.*m2</tt> give the same result.
 
 <h3><a name="ox_syntax_add"></a>Additive expressions</h3><p>
 
-The additive operators <tt>+</tt> and <tt>-</tt> are dot-operators,
-conforming to Table <a href="#TabSyntaxOXDOTOP">syn.3</a>.
-The exception is that adding strings amounts to concatenation, and subtraction
-involving strings is not allowed.
-Both operators group left-to-right.
-They respectively return the sum and the difference of the operands, which
-must both have arithmetic type.
-Matrices must be conformant in both dimensions, and the operator
-is applied element by element.
-For example:
+The additive operators <tt>+</tt> and <tt>-</tt> are dot-operators, conforming to Table <a href="#TabSyntaxOXDOTOP">syn.3</a>. The exception is that adding strings amounts to concatenation, and subtraction involving strings is not allowed. Both operators group left-to-right. They respectively return the sum and the difference of the operands, which must both have arithmetic type. Matrices must be conformant in both dimensions, and the operator is applied element by element. For example:
 
 <xmp>
     decl m1 = <1,2; 2,1>, m2 = <2,3; 3,2>;
@@ -2212,20 +1114,10 @@ array          ~  |    array           array
 array          ~  |    any basic type  array
 </xmp><p>
 
-If both operands have arithmetic type, the concatenation operators
-are used to create a larger matrix out of the operands. If both
-operands are scalar the result is a row vector (for ~) or
-a column vector (for <tt>|</tt>). If one operand is scalar, and the
-other a matrix, an extra column (~) or row  (<tt>|</tt>) is
-pre/appended. If both operands are a matrix, the matrices are joined.
-Note that the dimensions need not match: missing elements are set to
-zero (however, a warning is printed of non-matching matrices are concatenated).
-Horizontal concatenation has higher precedence than vertical
-concatenation.
+If both operands have arithmetic type, the concatenation operators are used to create a larger matrix out of the operands. If both operands are scalar the result is a row vector (for ~) or a column vector (for <tt>|</tt>). If one operand is scalar, and the other a matrix, an extra column (~) or row  (<tt>|</tt>) is
+pre/appended. If both operands are a matrix, the matrices are joined. Note that the dimensions need not match: missing elements are set to zero (however, a warning is printed of non-matching matrices are concatenated). Horizontal concatenation has higher precedence than vertical concatenation.
 
-<p>Two strings or an integer and a string can be concatenated, resulting
-in a longer string. Both horizontal and vertical concatenation yield
-the same result.
+<p>Two strings or an integer and a string can be concatenated, resulting in a longer string. Both horizontal and vertical concatenation yield the same result. 
 
 <p>The result is most easily demonstrated by examples:
 
@@ -2244,10 +1136,7 @@ the same result.
     print("tinker" "&" "tailor" );
 </xmp><p>
 
-In the latter case, the matrix and string are created at
-compile time, whereas in the former case this is done at run time.
-Clearly, the compile time evaluation is more efficient. However,
-only the concatenation expressions can involve non-constant variables:
+In the latter case, the matrix and string are created at compile time, whereas in the former case this is done at run time. Clearly, the compile time evaluation is more efficient. However, only the concatenation expressions can involve non-constant variables:
 
 <xmp>
     decl  i1 = 1, i2 = 2, s1 = "tinke";
@@ -2256,8 +1145,7 @@ only the concatenation expressions can involve non-constant variables:
     print(s1 ~ 'r');                                // "tinker"
 </xmp><p>
 
-Array concatenation results in an array with combined size,
-with assignment of each member of both arrays to the new array.
+Array concatenation results in an array with combined size, with assignment of each member of both arrays to the new array.
 
 <xmp>
     decl  i, a1 = {"tinker", "tailor"}, a2 = {"soldier"};
@@ -2274,8 +1162,7 @@ This prints:
     [2] = soldier
 </xmp><p>
 
-Often, concatenation is required in a loop. In that case, it is
-convenient to start from a matrix of dimension zero, for example:
+Often, concatenation is required in a loop. In that case, it is convenient to start from a matrix of dimension zero, for example:
 
 <xmp>
     decl m, i;
@@ -2288,45 +1175,24 @@ convenient to start from a matrix of dimension zero, for example:
 
 <h3><a name="ox_syntax_rel"></a>Relational expressions</h3><p>
 
-The relational operators are <tt>&lt;</tt>, <tt>&lt;=</tt>, <tt>></tt>, <tt>>=</tt>,
-standing for `less',
-`less or equal', `greater', `greater or equal'. They all yield 0 if
-the specified relation is false, and 1 if it is true. The type of the
-result is always an integer, see Table <a href="#TabSyntaxOXDOTREL">syn.4</a>.
-If both operands are a matrix the return value is true if the relation
-holds for each element.
-If one of the
-operands is of scalar-type, and the other of matrix-type, each element
-in the matrix is compared to the scalar, and the result is true
-if each comparison is true.
+The relational operators are <tt>&lt;</tt>, <tt>&lt;=</tt>, <tt>></tt>, <tt>>=</tt>, standing for `less',
+`less or equal', `greater', `greater or equal'. They all yield 0 if the specified relation is false, and 1 if it is true. The type of the result is always an integer, see Table <a href="#TabSyntaxOXDOTREL">syn.4</a>. If both operands are a matrix the return value is true if the relation holds for each element. If one of the operands is of scalar-type, and the other of matrix-type, each element in the matrix is compared to the scalar, and the result is true if each comparison is true.
 
 <p>The dot relational operators are <tt>.&lt;</tt>, <tt>.&lt;=</tt>, <tt>.&gt;</tt>, <tt>.&gt;=</tt>,
-standing for `dot less',
-`dot less or equal', `dot greater', `dot greater or equal'.
-They conform to Table <a href="#TabSyntaxOXDOTOP">syn.3</a>.
+standing for `dot less', `dot less or equal', `dot greater', `dot greater or equal'. They conform to Table <a href="#TabSyntaxOXDOTOP">syn.3</a>.
 
-<p>If both arguments are scalar, the result type inherits the higher type,
-so <tt>1 >= 1.5</tt> yields a double with value <tt>0.0</tt>.
-If both operands are a matrix the return value is
-a matrix with a 1 in each position where the relation is true and zero
-If one of the
-operands is of scalar-type, and the other of matrix-type, each element
-in the matrix is compared to the scalar returning a matrix with 1 at each
-position where the relation holds.
+<p>If both arguments are scalar, the result type inherits the higher type, so <tt>1 >= 1.5</tt> yields a double with value <tt>0.0</tt>. If both operands are a matrix the return value is a matrix with a 1 in each position where the relation is true and zero If one of the operands is of scalar-type, and the other of matrix-type, each element in the matrix is compared to the scalar returning a matrix with 1 at each position where the relation holds.
 
-<p>String-type operands can be compared in a similar way. If both operands
-are a string, the results is int with value 1 or 0,
-depending on the case sensitive string comparison.
+<p>String-type operands can be compared in a similar way. If both operands are a string, the results is int with value 1 or 0, depending on the case sensitive string comparison.
 
 Examples are given in the next section.
 
 <h3><a name="ox_syntax_RefEqExpr"></a>Equality expressions</h3><p>
 
-The <tt>==</tt> (is equal to), <tt>!=</tt> (is not equal to),
-<tt>.==</tt> (is dot equal to) and <tt>.!=</tt> (is not dot equal to)
-are analogous to the relational operators, but have lower precedence.
+The <tt>==</tt> (is equal to), <tt>!=</tt> (is not equal to), <tt>.==</tt> (is dot equal to) and <tt>.!=</tt> (is not dot equal to) are analogous to the relational operators, but have lower precedence.
 
-The non-dotted versions conform to Table <a href="#TabSyntaxOXDOTREL">syn.4</a>.
+The non-dotted versions conform to Table <a href="#TabSyntaxOXDOTREL">syn.4</a>. 
+
 <p>The dotted versions conform to Table <a href="#TabSyntaxOXDOTOP">syn.3</a>.
 
 <p>For example:
@@ -2355,21 +1221,11 @@ The non-dotted versions conform to Table <a href="#TabSyntaxOXDOTREL">syn.4</a>.
 </xmp><p>
 
 
-The non-dotted versions only return true if the relation holds for each
-element. In the first two examples neither <tt>m1 == 1</tt> nor <tt>m1 != 1</tt>
-is true for each element, hence the return value 0. The third example
-shows how to test if a matrix is not equal to a value. The parenthesis
-are necessary, because <tt>!</tt> has higher precedence than <tt>==</tt>, and
-<tt>!m1 == 1</tt> results in <tt><0,0; 0,0> == 1</tt> which is false.
+The non-dotted versions only return true if the relation holds for each element. In the first two examples neither <tt>m1 == 1</tt> nor <tt>m1 != 1</tt> is true for each element, hence the return value 0. The third example shows how to test if a matrix is not equal to a value. The parenthesis are necessary, because <tt>!</tt> has higher precedence than <tt>==</tt>, and <tt>!m1 == 1</tt> results in <tt><0,0; 0,0> == 1</tt> which is false.
 
-<p>The last four examples use dot-relational expressions, resulting
-in a matrix of zeros and ones. In <tt>if</tt> statements, it
-is possible to use such matrices.
-Remember that a matrix is true if all elements are true (i.e. no
-element is zero).
+<p>The last four examples use dot-relational expressions, resulting in a matrix of zeros and ones. In <tt>if</tt> statements, it is possible to use such matrices. Remember that a matrix is true if all elements are true (i.e. no element is zero).
 
-<p>The <tt>any</tt> library function evaluates to
-TRUE if any element is TRUE, e.g.
+<p>The <tt>any</tt> library function evaluates to TRUE if any element is TRUE, e.g.
 
 <xmp>
                     evaluates to         leads to
@@ -2381,66 +1237,30 @@ if (m1 != 1)        if (0)               else part
 
 <h3><a name="ox_syntax_dotand"></a>Logical dot-AND expressions</h3><p>
 
-The <tt>.&amp;&amp;</tt> operator returns 1 if both of its
-operands compare unequal to 0, 0 otherwise. Both operands must have
-arithmetic type. Handling of matrix-type is as for dot-relational operators:
-if one or both operands is a matrix, the result is a matrix of zeros and ones.
-Unlike the non-dotted version, both operands will always be executed.
-For example, in the expression <tt>func1() .&amp;&amp; func2()</tt>
-the second function is called, regardless of the return value of <tt>func1()</tt>.
+The <tt>.&amp;&amp;</tt> operator returns 1 if both of its operands compare unequal to 0, 0 otherwise. Both operands must have arithmetic type. Handling of matrix-type is as for dot-relational operators: if one or both operands is a matrix, the result is a matrix of zeros and ones. Unlike the non-dotted version, both operands will always be executed. For example, in the expression <tt>func1() .&amp;&amp; func2()</tt> the second function is called, regardless of the return value of <tt>func1()</tt>.
 
 <h3><a name="ox_syntax_and"></a>Logical-AND expressions</h3><p>
 
-The <tt>&amp;&amp;</tt> operator returns the integer 1 if both of its
-operands compare unequal to 0, and the integer 0 otherwise.
-Both operands must have arithmetic type. First the left operand is evaluated,
-if it is false (for a matrix: there is at least one zero element),
-the result is false, and the right operand will not be evaluated. So in
-the expression <tt>func1() &amp;&amp; func2()</tt> the second function will <em>not</em>
+The <tt>&amp;&amp;</tt> operator returns the integer 1 if both of its operands compare unequal to 0, and the integer 0 otherwise. Both operands must have arithmetic type. First the left operand is evaluated, if it is false (for a matrix: there is at least one zero element), the result is false, and the right operand will not be evaluated. So in the expression <tt>func1() &amp;&amp; func2()</tt> the second function will <em>not</em>
 be called if the first function returned false.
 
 
 <h3><a name="ox_syntax_dotor"></a>Logical dot-OR expressions</h3><p>
 
-The <tt>.||</tt> operator returns 1 if either of its
-operands compares unequal to 0, 0 otherwise. Both operands must have
-arithmetic type. Handling of matrix-type is as for dot-relational operators:
-if one or both operands is a matrix, the result is a matrix of zeros and ones.
-Unlike the non-dotted version, both operands will always be executed.
-For example, in the expression <tt>func1() .|| func2()</tt>
-the second function is called, regardless of the return value of <tt>func1()</tt>.
+The <tt>.||</tt> operator returns 1 if either of its operands compares unequal to 0, 0 otherwise. Both operands must have arithmetic type. Handling of matrix-type is as for dot-relational operators: if one or both operands is a matrix, the result is a matrix of zeros and ones. Unlike the non-dotted version, both operands will always be executed. For example, in the expression <tt>func1() .|| func2()</tt> the second function is called, regardless of the return value of <tt>func1()</tt>.
 
 
 <h3><a name="ox_syntax_or"></a>Logical-OR expressions</h3><p>
 
-The <tt>||</tt> operator returns the integer 1 if
-either of its operands compares unequal to 0, integer value 0 otherwise.
-Both operands must have arithmetic type. First the left operand is evaluated,
-it it is true (for a matrix: no element is zero),
-the result is true, and the right operand will not be evaluated. So in
-the expression <tt>func1() || func2()</tt> the second function will <em>not</em>
-be called if the first function returned true.
+The <tt>||</tt> operator returns the integer 1 if either of its operands compares unequal to 0, integer value 0 otherwise. Both operands must have arithmetic type. First the left operand is evaluated, it it is true (for a matrix: no element is zero), the result is true, and the right operand will not be evaluated. So in the expression <tt>func1() || func2()</tt> the second function will <em>not</em> be called if the first function returned true.
 
 
 <h3><a name="ox_syntax_CondExp"></a>Conditional expression</h3><p>
 
-Both the conditional and the dot-conditional expression
-are ternary expressions. For the conditional expression, the first expression
-(before the <tt>?</tt>) is evaluated. If it is unequal to 0, the result is the
-second expression, otherwise the third expression.
+Both the conditional and the dot-conditional expression are ternary expressions. For the conditional expression, the first expression (before the <tt>?</tt>) is evaluated. If it is unequal to 0, the result is the second expression, otherwise the third expression.
 
-<p>The dot-conditional expression only differs from the conditional
-expression if the first expression evaluates to a matrix,
-here called the test matrix.
-In that case the result is a matrix of the same size as the test matrix,
-and the test matrix can be seen as a filter: non zero elements get
-a value corresponding to the second expression, zero elements
-corresponding to the third expression. If the second or third expression
-is scalar, each matrix element will get the appropriate scalar value.
-If it is a matrix, the corresponding matrix element will be used, unless
-the matrix is too small, in which case the value 0. will be used.
-<em>Note that in the dot-conditional expression both parts are executed,
-whereas in the conditional expression only one of the two parts is executed.</em>
+<p>The dot-conditional expression only differs from the conditional expression if the first expression evaluates to a matrix, here called the test matrix. In that case the result is a matrix of the same size as the test matrix, and the test matrix can be seen as a filter: non zero elements get a value corresponding to the second expression, zero elements corresponding to the third expression. If the second or third expression
+is scalar, each matrix element will get the appropriate scalar value. If it is a matrix, the corresponding matrix element will be used, unless the matrix is too small, in which case the value 0. will be used. <em>Note that in the dot-conditional expression both parts are executed, whereas in the conditional expression only one of the two parts is executed.</em>
 
 <xmp>
     decl r, m2;
@@ -2453,16 +1273,9 @@ whereas in the conditional expression only one of the two parts is executed.</em
 
 <h3><a name="ox_syntax_assign"></a>Assignment expressions</h3><p>
 
-The assignment operators are the  simple assignment <tt>=</tt> as well
-as the compound  <tt>*=  /=  +=  -=  ~=  |=  .*=  ./=</tt> operators.
-An lvalue is required as the left operand. The type of an assignment
-is that of its right operand.
-The compoundd assignment <i>l</i> <i>op</i><tt>=</tt> <i>r</i> is equivalent
-to <i>l</i> <tt>=</tt> <i>l op (r)</i>.
+The assignment operators are the  simple assignment <tt>=</tt> as well as the compound  <tt>*=  /=  +=  -=  ~=  |=  .*=  ./=</tt> operators. An lvalue is required as the left operand. The type of an assignment is that of its right operand. The compoundd assignment <i>l</i> <i>op</i><tt>=</tt> <i>r</i> is equivalent to <i>l</i> <tt>=</tt> <i>l op (r)</i>.
 
-<p>If the left-hand side is a comma-separated list in square brackets, the
-statement is a <a href="#ox_syntax_MultAssign">Multiple assignment</a>
-expression.
+<p>If the left-hand side is a comma-separated list in square brackets, the statement is a <a href="#ox_syntax_MultAssign">Multiple assignment</a> expression.
 
 <p>The following code:
 
@@ -2480,214 +1293,19 @@ writes:
     i = 4 k = 8
 </xmp><p>
 
-Assigning an object to another variable only passes a reference: both
-will refer to the same object. The <tt>clone</tt> library function makes
-a copy which should be removed using <tt>delete</tt>.
+Assigning an object to another variable only passes a reference: both will refer to the same object. The <tt>clone</tt> library function makes a copy which should be removed using <tt>delete</tt>.
 
 
 <h3><a name="ox_syntax_comma"></a>Comma expression</h3><p>
 
-A pair of expressions separated by a comma is evaluated left to right,
-and the value of the left expression is discarded. The result
-will have type and value corresponding to the right operand.
-The example in the previous section has two instances of the comma operator
-in the for loop: <tt>i = 0, k = 1</tt>.
+A pair of expressions separated by a comma is evaluated left to right, and the value of the left expression is discarded. The result will have type and value corresponding to the right operand. The example in the previous section has two instances of the comma operator in the for loop: <tt>i = 0, k = 1</tt>.
 
 <h3><a name="ox_syntax_RefConstExp"></a>Constant expressions</h3><p>
 
-An expression that evaluates to a constant is required in initializers
-and certain preprocessor expressions.
-A constant expression can have the operators <tt>*  /  +  -</tt>, but only
-if the operands have scalar type.
-Some examples were given in sections on
-<a href="#ox_syntax_RefEnum">enumerations</a> and
-<a href="#ox_syntax_RefExtVarDecl">external declarations</a>.
+An expression that evaluates to a constant is required in initializers and certain preprocessor expressions.
+A constant expression can have the operators <tt>*  /  +  -</tt>, but only if the operands have scalar type.
+Some examples were given in sections on <a href="#ox_syntax_RefEnum">enumerations</a> and <a href="#ox_syntax_RefExtVarDecl">external declarations</a>.
 
-<p><h2><a name="ox_syntax_proproc"></a>Preprocessing</h2><p><p>
-
-
-Preprocessing in Ox is primarily used for inclusion of files
-and conditional compilation of code. As such it is more restricted
-than the options available in C or C++.
-Escape sequences in strings literals are interpreted
-when used in preprocessor statements.
-
-<h3><a name="ox_syntax_include"></a>File inclusion</h3><p>
-
-A line of the form
-<xmp>
-#include "filename"
-</xmp><p>
-will insert the contents of the specified file at that position. The
-file is searched for as follows:
-
-<ul>
-<li>
-in the directory containing the source file (if just a filename,
-or a filename with a relative path is specified),
-or in the specified directory (if the filename has an absolute path);
-
-<li> the directories specified on the compiler command line (if any);
-
-<li> the directories specified in the <tt>OX7PATH</tt> environment string (if any).
-
-<li> in the current directory.
-</ul><p>
-
-A line of the form
-<pre>
-#include &lt;filename&gt;
-</pre><p>
-will skip the first step, and search as follows:
-<ul>
-<li> the directories specified on the compiler command line (if any);
-
-<li> the directories specified in the <tt>OX7PATH</tt> environment string (if any);
-
-<li> in the current directory.
-</ul><p>
-
-The quoted form is primarily for inclusion of user created header
-or code files, whereas the second form will be mainly for header files
-that are an integral part of Ox. The default extension for Ox
-header files is <tt>.oxh</tt>. (Up to version 6 the <tt>.h</tt> extension was used.
-For compatibility with older code, when a <tt>.h</tt> is included, the search is first for the file
-with a <tt>.oxh</tt> extension, and, if that fails, for the <tt>.h</tt> file.)
-<p>
-Note that escape sequences <em>are</em>
-interpreted in the include string, but not in the version
-which uses <tt>&lt;</tt>...<tt>></tt>
-(so in
-<tt>#include "dir\nheader.h"</tt>, the <tt>\n</tt> is replaced by a newline
-character). Both forward and backslashes are allowed (use
-<tt>#include "dir/nheader.h"</tt>, to avoid the newline
-character).
-
-
-<h3><a name="ox_syntax_import"></a>Import of modules</h3><p>
-
-The <tt>#import</tt> preprocessor statement makes it easier to import
-compiled code modules. The statement can only happen at the
-external level, and has the form:
-<dl>
-<dt><tt>    #import &lt;</tt><i>modulename</i><tt>&gt;</tt>
-</dl><p>
-
-For example
-<dl>
-<dt><tt>    #import &lt;pcnaive&gt;</tt>
-</dl><p>
-has the following effect:
-<dl>
-<dt><tt>    #include &lt;pcnaive.oxh&gt;</tt><br>
-The header file is inserted at that location.
-<dt>link the <tt>pcnaive.oxo</tt> file when the program is run,
-or if this is not found:
-<dt>compile and link the <tt>pcnaive.ox</tt> file when the program is run.
-</dl><p>
-
-Similarly:
-<dl>
-<dt><tt>    #import "pcnaive"</tt>
-</dl><p>
-has the following effect:
-<dl>
-<dt><tt>    #include "pcnaive.oxh"</tt><br>
-The header file is inserted at that location.
-<dt>link <tt>pcnaive.oxo</tt>  (or <tt>pcnaive.ox</tt> if the <tt>.oxo</tt> file
-is not found) when the program is run.
-</dl><p>
-
-The import statement marks the file for linking, but that linking
-only happens when the file is executed. Even when a module is imported
-multiple times, it will only be linked in once. Similarly, the header file
-will not be included more than once in the same source code file.
-
-If the import
-name ends in a backward/forward slash, no header file is included,
-but the path will be searched when
-trying to find a DLL or loading a data file into Ox.
-
-<h3><a name="ox_syntax_RefPreCond"></a>Conditional compilation</h3><p>
-
-The first step in conditional compilation is to define (or undefine)
-identifiers:
-<dl>
-<dt><tt>    #define </tt><i>identifier</i>
-<dt><tt>    #undef </tt><i>identifier</i>
-</dl><p>
-
-Identifiers so defined only exist during the scanning process of the
-input file, and can subsequently be used by <tt>#ifdef</tt> and
-<tt>#ifndef</tt> preprocessor statements:
-<dl>
-<dt><tt>    #ifdef </tt><i>identifier</i>
-<dt><tt>    #ifndef </tt><i>identifier</i>
-<dt><tt>    #else</tt>
-<dt><tt>    #endif</tt>
-</dl><p>
-
-As an example, consider the following header file:
-
-<xmp>
-    #ifndef OXSTD_INCLUDED
-    #define OXSTD_INCLUDED
-
-    // header statements
-
-    #endif
-</xmp><p>
-
-Now multiple inclusion of the header file into a source code file will
-only once include the actual header statements; on second inclusion,
-<tt>OXSTD_INCLUDED</tt> will be defined, and the code skipped.
-
-<h3><a name="ox_syntax_RefPrePragma"></a>Pragmas</h3><p>
-
-Pragmas influence the parsing process of the Ox compiler.
-Pragmas may only occur at the level of external declarations.
-Defined is:
-<dl>
-<dt><tt>    #pragma array_base(</tt><i>integer</i><tt>)</tt>
-</dl><p>
-
-<p>
-As discussed at various points, indices in matrices, arrays and strings
-always start at 0. This is the C and C++ convention. Ox, however,
-allows circumventing this convention by using the <tt>array_base</tt> pragma.
-Library functions which return a set of indices,
-are aware of the <tt>array_base</tt> settings, and will return
-appropriate values.
-<em>It is recommended to adopt the zero-based convention,
-and not use the <tt>array_base</tt> pragma.</em>
-
-<p><h2><a name="ox_syntax_ansic"></a>Difference with ANSI C and C++</h2><p><p>
-
-
-This section lists some of the differences between Ox
-and C/C++ which might cause confusion:
-
-<ul>
-<li> /* */ type comments can be nested in Ox.
-<li> <tt>sizeof</tt> is a function in Ox, not an operator
-      (and not a reserved word).
-<li> Labels (targets of <tt>goto</tt> statements) have the colon prefixed, rather than suffixed.
-<li> By default, all data members of a class are protected, all function members public.
-<li> The base class constructor and destructor functions
-      are <em>not</em> called automatically.
-<li> Integer division is not used, so <tt>1 / 2</tt> yields 0.5,
-      instead of 0. Use <tt>idiv(1, 2)</tt> for integer division of 1 by 2.
-<li> The preprocessor does not allow: <tt>#define XXX value</tt>,
-      for integer constants, <tt>enum</tt>s could be used, but more
-      convenient is:
-      <tt>const decl XXX = value;</tt>.
-</ul><p>
-
-
-<hr><p><b>Ox version 7.00.</b>
-&copy; <i><a href="http://www.doornik.com" target="_top">
-JA Doornik</a></i>
-This file last changed <script type="text/javascript">document.write(document.lastModified);</script>.
 
 </body>
 </html>

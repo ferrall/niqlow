@@ -6,10 +6,6 @@ struct Search : Bellman {
 	static Run();
 	Utility();
 	}
-main() {
-    fopen("output/S0.txt","l");
-    Search::Run();
-    }
 Search::Run()	{
 	Initialize(new Search());
 	SetClock(InfiniteHorizon);
@@ -24,3 +20,7 @@ Search::Run()	{
 Search::Utility()  {
 	return -(1-CV(m))*(lam + CV(p)*aa(d));
 	}	
+main() {
+    fopen("output/S0.txt","l");
+    Search::Run();
+    }

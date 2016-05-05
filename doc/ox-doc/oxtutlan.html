@@ -32,58 +32,25 @@
 <dt><a href="#ox_tutlan_oo">Object-oriented programming</a>
 <dt><a href="#ox_tutlan_style">Style and Hungarian notation</a>
 <dt><a href="#ox_tutlan_opt">Optimizing for speed</a>
-<dt><a href="#ox_tutlan_oxgauss">OxGauss</a>
 </dl>
 
 <p>
 <h2><a name="ox_tutlan_intro"></a>Introduction</h2><p>
 
-This chapter will give a brief overview of the important elements
-of the Ox language.
-A more formal description of the Ox syntax is in
-the <a href="oxsyntax.html">syntax chapter</a>.
+This chapter will give a brief overview of the important elements of the Ox language. A more formal description of the Ox syntax is in the <a href="oxsyntax.html">syntax chapter</a>.
 
 <p>
-A more comprehensive tutorial introduction to the Ox language
-is available as a <a href="OxIntro.pdf">separate book in
-PDF format</a>. The accompanying tutorial programs are in the
-<tt>ox\tutorial</tt> folder. The complete reference is:
-<ul>
-<li><b>Doornik, J.A. and Ooms, M. (2006)</b>.
-<i>Introduction to Ox</i>,
-London: Timberlake Consultants Press. (ISBN 0-9533394-1-6).
-</ul><p>
-This is the recommended starting-point for learning the Ox language.
-
-
-<p>
-The next section will introduce the first Ox program,
-showing how matrix are used.
-We shall see that a program always includes header files to define
-the standard library functions, and that it must have a <tt>main</tt>
-function, which is where program control starts. We shall also see
-that the body of the function is enclosed in curly braces.
+The next section will introduce the first Ox program, showing how matrix are used. We shall see that a program always includes header files to define the standard library functions, and that it must have a <tt>main</tt> function, which is where program control starts. We shall also see that the body of the function is enclosed in curly braces.
 
 <p>
 <h2><a name="ox_tutlan_first"></a>A first Ox program</h2><p>
 
-Ox is an object-oriented matrix language with a comprehensive
-mathematical and statistical function library. Matrices can
-be used directly in expressions, for example to multiply
-two matrices, or to invert a matrix.
-The basic syntax elements of Ox are similar to the C, C++ and
-Java languages (however, knowledge if these
-languages is not a prerequisite for using Ox).
-This similarity is most clear in syntax items such as loops,
-functions, arrays and classes.
-A major difference is that Ox variables have no explicit type,
-and that special support for matrices is available.
-
+Ox is an object-oriented matrix language with a comprehensive mathematical and statistical function library. Matrices can be used directly in expressions, for example to multiply two matrices, or to invert a matrix.
+The basic syntax elements of Ox are similar to the C, C++ and Java languages (however, knowledge if these
+languages is not a prerequisite for using Ox). This similarity is most clear in syntax items such as loops,
+functions, arrays and classes. A major difference is that Ox variables have no explicit type, and that special support for matrices is available. 
 <p>
-The advantages of object-oriented programming are that it
-potentially improves the clarity and maintainability of the code,
-as well as reducing coding effort through inheritance. Several
-useful classes are provided with Ox.
+The advantages of object-oriented programming are that it potentially improves the clarity and maintainability of the code, as well as reducing coding effort through inheritance. Several useful classes are provided with Ox.
 
 <p>
 As a first example of an Ox program consider the following Ox code:
@@ -105,8 +72,7 @@ main()              // function main is the starting point
 </xmp><p>
 
 <p>
-The program is in <tt>ox\samples\myfirst.ox</tt>;
-running this program should produce the following result:
+The program is in <tt>ox\samples\myfirst.ox</tt>; running this program should produce the following result:
 
 <xmp>
 two matrices
@@ -119,191 +85,34 @@ two matrices
 </xmp><p>
 
 <p>
-An Ox program consists of one or more <i>source code</i> files.
-All source files have the <tt>.ox</tt> extension. Header
-files are used to communicate declarations from
-one source file to another. <i>Header files</i> have the <tt>.oxh</tt>
-extension.
-The next section explains how to run the Ox program on your
+An Ox program consists of one or more <i>source code</i> files. All source files have the <tt>.ox</tt> extension. Header files are used to communicate declarations from one source file to another. <i>Header files</i> have the <tt>.oxh</tt> extension. The next section explains how to run the Ox program on your
 system. First we consider the <tt>myfirst.ox</tt> program in more detail:
 
 <ul>
 <li>
-The first line includes the <tt>oxstd.oxh</tt> file into the
-source code (literally: the contents of the file are inserted at
-that point). This file contains the function declarations of the standard
-library, so that the function calls can be checked for number of arguments.
-The file name is between <tt>&lt;  ></tt>, indicating that the header file
-came with the Ox program.
+The first line includes the <tt>oxstd.oxh</tt> file into the source code (literally: the contents of the file are inserted at that point). This file contains the function declarations of the standard library, so that the function calls can be checked for number of arguments. The file name is between <tt>&lt;  ></tt>, indicating that the header file came with the Ox program.
 </li>
 <li>
-The function <tt>main</tt> is the starting point, and each program
-is only allowed one such function. Even though <tt>main</tt>
-has no arguments, it still requires <tt>()</tt>.
+The function <tt>main</tt> is the starting point, and each program is only allowed one such function. Even though <tt>main</tt> has no arguments, it still requires <tt>()</tt>.
 </li>
 <li>
-Variables may be declared by using the <tt>decl</tt> statement,
-and have no type until the program is actually run.
-</li>
+Variables may be declared by using the <tt>decl</tt> statement, and have no type until the program is actually run. </li>
 <li>
-<tt>unit</tt> is a standard library function, which creates an identity
-matrix; here it is called with argument <tt>3</tt>.
-The result is assigned to the variable <tt>m1</tt>.
-The type of <tt>m1</tt> has become <em>matrix</em>, and until a reassignment
-is made (or it goes out of scope), <tt>m1</tt> will keep its type and value.
+<tt>unit</tt> is a standard library function, which creates an identity matrix; here it is called with argument <tt>3</tt>. The result is assigned to the variable <tt>m1</tt>. The type of <tt>m1</tt> has become <em>matrix</em>, and until a reassignment is made (or it goes out of scope), <tt>m1</tt> will keep its type and value.
 </li>
-<li>Note that <em>indexing starts at zero</em>, so the top-left element
-is <tt>m1[0][0]</tt>: row 0, column 0. The first index is the row index:
-<tt>m1[1][2]</tt> is row 1, column 2.
-Ox has this convention in common with many other programming
-languages (but it could be changed, see
-<a href="oxsyntax.html#ox_syntax_RefPrePragma"><tt>array_base</tt> pragma</a>,
-this is not recommended).
+<li>Note that <em>indexing starts at zero</em>, so the top-left element is <tt>m1[0][0]</tt>: row 0, column 0. The first index is the row index: <tt>m1[1][2]</tt> is row 1, column 2. </li>
 
-<li>
-<tt><0,0,0;1,1,1></tt> is a <em>matrix constant</em>. Elements are listed
-by row, whereby rows are separated by a semicolon, and elements within
-a row by a colon.
-This value is stored in <tt>m2</tt>, which is now also
-of type matrix.
+<li><tt><0,0,0;1,1,1></tt> is a <em>matrix constant</em>. Elements are listed by row, whereby rows are separated by a semicolon, and elements within a row by a colon. This value is stored in <tt>m2</tt>, which is now also of type matrix.
 </li>
-<li>
-<tt>println</tt> is a library function, which can print any type of
-variable or constant to the standard output screen. It can take any
-number of arguments. Here it has three: a <em>string constant</em> and
-two variables (which both happen to be matrices).
-</li>
+<li> <tt>println</tt> is a library function, which can print any type of variable or constant to the standard output screen. It can take any number of arguments. Here it has three: a <em>string constant</em> and two variables (which both happen to be matrices).</li>
 </ul>
 
 <p>
-An important advantage of Ox is that we can directly work with
-matrices, and do not have to worry about memory allocation and deallocation.
-Low-level languages may be faster, although
-we have encountered several cases in which Ox performed better
-than a comparable C program. Ox code has a much closer correspondence
-to mathematical expressions used on paper.
 
-<p>
-<details><summary><h2><a name="ox_tutlan_run"></a>Running the first Ox program</h2><p></p></summary>
-
-<p><h3>Ox Professional under Windows</h3><p>
-
-Load the <tt>myfirst.ox</tt> program in OxMetrics and click on Run
-(the running person icon on the toolbar).
-<p>
-Or right-click on myfirst.ox in the workspace window
-after it has een loaded into GiveWinn, and select <i>Run Ox</i>.
-
-<p><h3>Ox Console under Windows</h3><p>
-
-If Ox Console (or Ox Professional) has been installed correctly,
-the Ox program can be run
-from a command window (Command prompt or MS-DOS prompt under Windows)
-by typing (this assumes Ox is installed in <tt>\Program Files\OxMetrics5\ox</tt> on the current drive):
-<pre>
-    cd &quot;\Program Files\OxMetrics5\ox\samples&quot;
-</pre><p>
-Followed by
-<pre>
-    oxl myfirst
-</pre><p>
-There is no need to add the .ox extension.
-If <tt>oxl</tt> cannot be found, you have to add the path
-to the executable file, which is in <tt>ox\bin</tt>:
-<pre>
-    ..\bin\oxl myfirst
-</pre><p>
-
-Having to add the path to <tt>oxl.exe</tt> everytime is a nuisance,
-and there are several alternatives which are more convenient:
-<ul>
-<li>Add the <tt>ox\bin</tt> folder to the environment <tt>PATH</tt>.
-In the default installation this is <tt>C:\Program Files\OxMetrics5\ox\bin</tt>.
-<li>Use <b>OxEdit</b> to run your Ox programs.
-<li>Ox Professional users can run their programs (with graphics)
-from <b>OxMetrics</b>.
-</ul><p>
-
-In the remainder, we refer to the MS-DOS window as the console window,
-and to <tt>oxl.exe</tt> as the console version of the Ox compiler.
-
-<p><h3>Unix</h3><p>
-
-If Ox has been installed correctly, the Ox program can be run
-from a command window by typing (this assumes Ox is installed in <tt>/ox</tt>
-on the current drive, which is unlikely to be the correct path):
-<xmp>
-    cd /ox/samples
-</xmp><p>
-Followed by
-<xmp>
-    oxl myfirst
-</xmp><p>
-There is no need to add the .ox extension.
-Currently, there is only the console version under Unix.
-
-If your output is:
-
-<xmp>
-    myfirst.ox (1): 'oxstd.oxh' include file not found
-    myfirst.ox (7): 'unit' undeclared identifier
-    myfirst.ox (12): 'print' undeclared identifier
-</xmp><p>
-
-Then the header file was not found, and the <tt>OX5PATH</tt>
-environment variable is not set, or set wrongly. (Note that the
-environment variable has been renamed from <tt>OX3PATH</tt>
-to <tt>OX5PATH</tt> with version 4.)
-
-
-<p><h3>Running programs with graphics</h3><p>
-
-Several types of graphs are readily produced in Ox, such
-as graphs over time of several variables, cross-plots,
-histograms, correlograms, etc.
-Although all graph saving will work on any system supported by Ox,
-the result on screen will not always be identical.
-<p>
-A graph can be saved in various formats:
-<dl>
-<dd>encapsulated PostScript (<tt>.eps</tt>),
-<dd>PostScript (<tt>.ps</tt>), and
-<dd>PDF: Portable document format (<tt>.pdf</tt>),
-<dd>OxMetrics graphics file (<tt>.gwg</tt>).
-</dl>
-<p>
-When using <i>OxMetrics</i>, graphs can also be saved in Windows Metafile
-format (<tt>.wmf</tt>), and copied to the clipboard for pasting
-into wordprocessors.
-
-<h4>Console graphics</h4><p>
-Console versions of Ox can create graphs, and save them to disk.
-However, they cannot display the graphs on screen. It is possible
-to save the graph as PostScript, and then use GhostScript/GhostView
-to view the graph.  There is also a GnuPlot package for Ox.
-
-
-<h4>Windows graphics (<i>OxRun</i> and <i>OxMetrics</i>)</h4><p>
-
-Text and graphics
-output from the Ox program will appear in <i>OxMetrics</i>.
-There, text and graphs can be edited further, or copied to the clipboard
-for pasting into other programs.
-
-</details>
-<p>
 <a name="ox_tutlan_vars"></a>
 <h2>Variables, types and scope</h2><p>
 <p>
-Variables are declared using the <tt>decl</tt> keyword. Unlike
-C, variables are <em>implicitly</em> typed. This means that variables
-do not have a type when they are declared, but get a type when
-values are assigned to them. So a variable can change type during
-its lifetime. The most important implicit types are <em>int</em>
-for an integer value, <em>double</em> for a real number, <em>string</em>
-for a text string and <em>matrix</em> for a matrix (two-dimensional array)
-of real numbers.
-The next Ox program illustrates implicit declaration and scope:
+Variables are declared using the <tt>decl</tt> keyword. Unlike C, variables are <em>implicitly</em> typed. This means that variables do not have a type when they are declared, but get a type when values are assigned to them. So a variable can change type during its lifetime. The most important implicit types are <em>int</em> for an integer value, <em>double</em> for a real number, <em>string</em> for a text string and <em>matrix</em> for a matrix (two-dimensional array) of real numbers. The next Ox program illustrates implicit declaration and scope:
 <p>
 <pre>
     #include &lt;oxstd.oxh&gt;
@@ -327,16 +136,9 @@ This prints (<tt>\n</tt> is the newline character):
           0.00000      0.00000      0.00000
           0.00000      0.00000      0.00000
 </pre><p>
-The <em>scope</em> of a variable refers to the parts of the program
-which can see the variable. This could be different from its
-lifetime: a variable can be `alive' but not `seen'. If a variable is
-declared outside any function, its scope is the remainder of the source
-file. It is possible to export such variables to other source files,
-as we shall see shortly.
+The <em>scope</em> of a variable refers to the parts of the program which can see the variable. This could be different from its lifetime: a variable can be `alive' but not `seen'. If a variable is declared outside any function, its scope is the remainder of the source file. It is possible to export such variables to other source files, as we shall see shortly.
 <p>
-Variables declared inside a function have scope until the closing
-brace of the level at which it is declared. The following example
-illustrates:
+Variables declared inside a function have scope until the closing brace of the level at which it is declared. The following example illustrates:
 <p>
 <pre>
     #include &lt;oxstd.oxh&gt;
@@ -352,21 +154,12 @@ illustrates:
         print(&quot;\ni=&quot;, i);    // revert to old i, prints: i=0
     }
 </pre><p>
-The variable <tt>mX</tt> (here we use
-<a href="#ox_tutlan_style">Hungarian notation</a>), can be seen everywhere in the <tt>main</tt>
-function. To make sure that it can never be seen in
-other source files, prefix it with the word <tt>static</tt>. It is
-good programming practice to use <tt>static</tt> in such cases, because
-it is very useful to know that it is not used in any other files
-(we may than rename it, e.g., without any unexpected side effects).
-An example will be given in <tt>myfunc.ox</tt> below.
+The variable <tt>mX</tt> (here we use <a href="#ox_tutlan_style">Hungarian notation</a>), can be seen everywhere in the <tt>main</tt> function. To make sure that it can never be seen in other source files, prefix it with the word <tt>static</tt>. It is good programming practice to use <tt>static</tt> in such cases, because it is very useful to know that it is not used in any other files (we may than rename it, e.g., without any unexpected side effects). An example will be given in <tt>myfunc.ox</tt> below.
 <p>
 <a name="ox_tutlan_index"></a>
 <h2>Indexing matrices</h2><p>
 <p>
-Indexing starts at zero, so <tt>m[0][0]</tt> is the first element
-of the matrix <tt>m</tt>. It is easy to select individual elements
-or a subset of the matrix. Here are some examples:
+Indexing starts at zero, so <tt>m[0][0]</tt> is the first element of the matrix <tt>m</tt>. It is easy to select individual elements or a subset of the matrix. Here are some examples:
 <p>
 <pre>
     #include &lt;oxstd.oxh&gt;
@@ -410,13 +203,7 @@ These expressions may also be used in assignments, for example:
 <a name="ox_tutlan_func"></a>
 <h2>Functions and function arguments</h2><p>
 <p>
-We have already used various functions from the standard
-library (such as <tt>print</tt>, <tt>ones</tt> and <tt>zeros</tt>), and written
-various <tt>main</tt> functions).
-Indeed, an Ox program is primarily a collection of functions.
-It is important to know that all function arguments are <em>passed by
-value</em>. This means that the function gets a copy which it can
-change without changing the original. For example:
+We have already used various functions from the standard library (such as <tt>print</tt>, <tt>ones</tt> and <tt>zeros</tt>), and written various <tt>main</tt> functions). Indeed, an Ox program is primarily a collection of functions. It is important to know that all function arguments are <em>passed by value</em>. This means that the function gets a copy which it can change without changing the original. For example:
 <p>
 <pre>
     #include &lt;oxstd.oxh&gt;
@@ -444,9 +231,7 @@ which prints:
     ma after func()
            1.0000       1.0000
 </pre><p>
-If the function argument is not changed by the function, it
-is good programming style to prefix it with the <tt>const</tt>
-keyword, as in:
+If the function argument is not changed by the function, it is good programming style to prefix it with the <tt>const</tt> keyword, as in:
 <p>
 <pre>
     func(const mA)
@@ -454,9 +239,7 @@ keyword, as in:
         print(&quot;ma in func()&quot;, mA);
     }
 </pre><p>
-Of course it is possible to return changed values from the function.
-If there is only one return value, this is most simply done by
-using the <tt>return</tt> statement:
+Of course it is possible to return changed values from the function. If there is only one return value, this is most simply done by using the <tt>return</tt> statement:
 <p>
 <pre>
     #include &lt;oxstd.oxh&gt;
@@ -498,27 +281,15 @@ ma in func()
 ma after func()
       0.00000      0.00000
 </pre><p>
-Now the change to <tt>ma</tt> is permanent. The argument
-to the function was the address of <tt>ma</tt>, and
-<tt>func</tt> received that address as a reference. Now we can modify
-the contents of the reference by assigning a value to <tt>pmA[0]</tt>.
-When <tt>func</tt> has finished, <tt>ma</tt> has been changed permanently.
-Note that we gave the argument a <tt>const</tt> qualification.
-This was possible because we did not change <tt>pmA</tt> itself,
-but what it referred to.
+Now the change to <tt>ma</tt> is permanent. The argument to the function was the address of <tt>ma</tt>, and
+<tt>func</tt> received that address as a reference. Now we can modify the contents of the reference by assigning a value to <tt>pmA[0]</tt>. When <tt>func</tt> has finished, <tt>ma</tt> has been changed permanently. Note that we gave the argument a <tt>const</tt> qualification. This was possible because we did not change <tt>pmA</tt> itself, but what it referred to.
 <p>
 <a name="ox_tutlan_loop"></a>
 <h2>The <tt>for</tt> and <tt>while</tt> loops</h2><p>
 <p>
-Since Ox is a matrix language, there is much less need for
-loop statements than in C or C++. Indeed, because Ox is compiled
-and then interpreted, there is a speed penalty for using
-loop statements when they are not necessary.
+Since Ox is a matrix language, there is much less need for loop statements than in C or C++. Indeed, because Ox is compiled and then interpreted, there is a speed penalty for using loop statements when they are not necessary.
 <p>
-The <tt>for</tt>, <tt>while</tt> and <tt>do while</tt> loops have the same syntax as
-in C. The <tt>for</tt> loop consists of three parts,
-an initialization part, a termination check, and an incrementation
-part. The <tt>while</tt> loops only have a termination check.
+The <tt>for</tt>, <tt>while</tt> and <tt>do while</tt> loops have the same syntax as in C. The <tt>for</tt> loop consists of three parts, an initialization part, a termination check, and an incrementation part. The <tt>while</tt> loops only have a termination check.
 <p>
 <pre>
     #include &lt;oxstd.oxh&gt;
@@ -532,8 +303,7 @@ part. The <tt>while</tt> loops only have a termination check.
         }
     }
 </pre><p>
-which prints (<tt>println</tt> is like <tt>print</tt>, but ensures that the next
-output will be starting on a new line):
+which prints (<tt>println</tt> is like <tt>print</tt>, but ensures that the next output will be starting on a new line):
 <p>
 <pre>
     0
@@ -558,42 +328,31 @@ This could also be written, less elegantly, using <tt>while</tt> as follows:
         }
     }
 </pre><p>
-It is not uncommon to have more than one loop counter
-in the <tt>for</tt> statement, as
-the following code snippet illustrates:
+It is not uncommon to have more than one loop counter in the <tt>for</tt> statement, as the following code snippet illustrates:
 <p>
 <pre>
     decl i, j;
     for (i = 0, j = 10; i &lt; 5 &amp;&amp; j &gt; 0; ++i, --j)
         println(i * j);
 </pre><p>
-The <tt>&amp;&amp;</tt> is <em>logical-and</em>, whereas <tt>||</tt> is <em>logical-or</em>.
-The <tt>++i</tt> statement is called (prefix) incrementation, and means
-`add one to <tt>i</tt>'. Similarly, <tt>--j</tt> subtracts one from <tt>j</tt>.
-There is a difference between prefix and postfix incrementation
-(decrementation). For example, the second line in
+The <tt>&amp;&amp;</tt> is <em>logical-and</em>, whereas <tt>||</tt> is <em>logical-or</em>. The <tt>++i</tt> statement is called (prefix) incrementation, and means `add one to <tt>i</tt>'. Similarly, <tt>--j</tt> subtracts one from <tt>j</tt>. There is a difference between prefix and postfix incrementation (decrementation). For example, the second line in
 <p>
 <pre>
     i = 3;
     j = ++i;
 </pre><p>
-means: add one to <tt>i</tt>, and assign the result
-to <tt>j</tt>, which will get the value 4. But
+means: add one to <tt>i</tt>, and assign the result to <tt>j</tt>, which will get the value 4. But
 <p>
 <pre>
     i = 3;
     j = i++;
 </pre><p>
-means: leave the value of <tt>i</tt> on the stack for assignment,
-then afterwards increment <tt>i</tt>. So <tt>j</tt> will get the value 3.
-In the incrementation part of the <tt>for</tt> loop it does not matter
-whether you use the prefix or postfix form.
+means: leave the value of <tt>i</tt> on the stack for assignment, then afterwards increment <tt>i</tt>. So <tt>j</tt> will get the value 3. In the incrementation part of the <tt>for</tt> loop it does not matter whether you use the prefix or postfix form.
 <p>
 <a name="ox_tutlan_foreach"></a>
 <h2>The <tt>foreach</tt> statement</h2><p>
 <p>
-The <tt>foreach</tt> loop is a convenient way to loop over the elements
-of an array or matrix, without the need to `count' the number of elements:
+The <tt>foreach</tt> loop is a convenient way to loop over the elements of an array or matrix, without the need to `count' the number of elements:
 
 <xmp>
     #include <oxstd.oxh>
@@ -608,9 +367,7 @@ of an array or matrix, without the need to `count' the number of elements:
     }
 </xmp>
 
-which prints <tt>AA BB</tt>. Similarly, <tt>foreach (xi in mx)</tt> loops over each
-element in <tt>mx</tt>. The element variable (<tt>xi</tt> here), must be a local variable,
-while the collection (<tt>mx</tt>) can be any pre-existing variable:
+which prints <tt>AA BB</tt>. Similarly, <tt>foreach (xi in mx)</tt> loops over each element in <tt>mx</tt>. The element variable (<tt>xi</tt> here), must be a local variable, while the collection (<tt>mx</tt>) can be any pre-existing variable:
 
 <xmp>
     #include <oxstd.oxh>
@@ -625,9 +382,7 @@ while the collection (<tt>mx</tt>) can be any pre-existing variable:
     }
 </xmp>
 
-The elements are accessed element-by-element, ordered by row, so this prints: <tt>123456789</tt>.
-Sometimes it is useful to access the matrix by entire rows or columns.
-Or to have access to the iterator. Both are possible:
+The elements are accessed element-by-element, ordered by row, so this prints: <tt>123456789</tt>. Sometimes it is useful to access the matrix by entire rows or columns. Or to have access to the iterator. Both are possible:
 
 <xmp>
     #include <oxstd.oxh>
@@ -677,18 +432,13 @@ This prints:
     vector element 3: 4
 </xmp>
 
-Note that changing the element does not change the matrix, and that the dimension
-of the matrix os not allowed to change during the loop.
+Note that changing the element does not change the matrix, and that the dimension of the matrix os not allowed to change during the loop.
 
 <p>
 <a name="ox_tutlan_if"></a>
 <h2>The <tt>if</tt> statement</h2><p>
 <p>
-The <tt>if</tt> statement allows for conditional program flow.
-In the following example we draw a uniform random number.
-Such a random number is always between zero and one. The <tt>ranu</tt>
-returns a matrix, unless we ask it to generate just one number.
-Then it returns a double, as is the case here.
+The <tt>if</tt> statement allows for conditional program flow. In the following example we draw a uniform random number. Such a random number is always between zero and one. The <tt>ranu</tt> returns a matrix, unless we ask it to generate just one number. Then it returns a double, as is the case here.
 <p>
 <pre>
     decl d = ranu(1,1);
@@ -699,10 +449,7 @@ Then it returns a double, as is the case here.
     else
         println(&quot;greater than 0.75&quot;);
 </pre><p>
-Again, braces are used to group multiple statements together.
-They should also be used when nesting <tt>if</tt> statements,
-to avoid confusion about which <tt>else</tt> belongs to which
-<tt>if</tt>.
+Again, braces are used to group multiple statements together. They should also be used when nesting <tt>if</tt> statements, to avoid confusion about which <tt>else</tt> belongs to which <tt>if</tt>.
 <p>
 <pre>
     decl d1 = ranu(1,1), d2 = ranu(1,1);
@@ -716,15 +463,8 @@ to avoid confusion about which <tt>else</tt> belongs to which
             println(&quot;d1 &gt;= 0.5 and d2 &lt;= 0.75&quot;);
     }
 </pre><p>
-The <tt>if</tt> part is executed if the expression evaluates to
-a non-zero value (<em>true</em>). The <tt>else</tt> part otherwise, i.e. when
-the expression evaluates to zero (<em>false</em>: either an integer 0, or
-a double 0.0).
-Some care is required when using matrices in <tt>if</tt> statements.
-A matrix expression is a true statement if all elements are true
-(non-zero). Even if only one element is zero, the matrix expression
-is false, so
-<p>
+The <tt>if</tt> part is executed if the expression evaluates to a non-zero value (<em>true</em>). The <tt>else</tt> part otherwise, i.e. when the expression evaluates to zero (<em>false</em>: either an integer 0, or a double 0.0). Some care is required when using matrices in <tt>if</tt> statements. A matrix expression is a true statement if all elements are true (non-zero). Even if only one element is zero, the matrix expression
+is false, so <p>
 <pre>
     #include &lt;oxstd.oxh&gt;
     main()
@@ -739,13 +479,9 @@ is false, so
 </pre><p>
 prints: <tt>yesnono</tt>.
 <p>
-There are two forms of relational operators.
-There is
+There are two forms of relational operators. There is
 <tt>&lt;</tt>  <tt>&lt;=</tt>  <tt>&gt;</tt>  <tt>&gt;=</tt>  <tt>==</tt>  <tt>!=</tt>
-meaning `less', `less than or equal', `greater',
-`greater than or equal', `is equal' and `is not equal'. These always produce
-the integer value 1 (true) or 0 (false). If any of the arguments is a matrix,
-the result is only true if it is true for each element:
+meaning `less', `less than or equal', `greater', `greater than or equal', `is equal' and `is not equal'. These always produce the integer value 1 (true) or 0 (false). If any of the arguments is a matrix, the result is only true if it is true for each element:
 <p>
 <pre>
     #include &lt;oxstd.oxh&gt;
@@ -761,19 +497,11 @@ the result is only true if it is true for each element:
 </pre><p>
 prints: <tt>yesnono</tt>.
 <p>
-The second form are the dot-relational operators
-<tt>.&lt;</tt>  <tt>.&lt;=</tt>  <tt>.&gt;</tt>  <tt>.&gt;=</tt>  <tt>.==</tt>  <tt>.!=</tt>
-meaning `dot less', `dot less than or equal',
-`dot greater',
-`dot greater than or equal', `is dot equal' and `is not dot equal'.
-If any of the arguments is a matrix,
-the result is a matrix of zeros and ones, with each element indicating
-the relevant result.
+The second form are the dot-relational operators <tt>.&lt;</tt>  <tt>.&lt;=</tt>  <tt>.&gt;</tt>  <tt>.&gt;=</tt>  <tt>.==</tt>  <tt>.!=</tt> meaning `dot less', `dot less than or equal', `dot greater',
+`dot greater than or equal', `is dot equal' and `is not dot equal'. If any of the arguments is a matrix,
+the result is a matrix of zeros and ones, with each element indicating the relevant result.
 <p>
-The <tt>any</tt> library function returns <tt>1</tt> (true) if
-<em>any</em> element of the matrix is non-zero, so that
-<tt>yesyesno</tt> will be printed by:
-<p>
+The <tt>any</tt> library function returns <tt>1</tt> (true) if <em>any</em> element of the matrix is non-zero, so that <tt>yesyesno</tt> will be printed by:<p>
 <pre>
     #include &lt;oxstd.oxh&gt;
     main()
@@ -786,49 +514,22 @@ The <tt>any</tt> library function returns <tt>1</tt> (true) if
         else                 print(&quot;no&quot;);
     }
 </pre><p>
-To conclude: you can test whether all elements
-of a matrix <tt>m</tt> are equal to one (say) by
-writing: <tt>if (m == 1)</tt>. To test whether any element
-is equal to one: <tt>if (any(m .== 1))</tt>. The expression
-<tt>if (m != 1)</tt>, on the other hand, is only true if none
-of the elements is equal to one. So, use <tt>if (!(m == 1))</tt>
-to test whether it is true that not all elements are equal to one.
+To conclude: you can test whether all elements of a matrix <tt>m</tt> are equal to one (say) by writing: <tt>if (m == 1)</tt>. To test whether any element is equal to one: <tt>if (any(m .== 1))</tt>. The expression
+<tt>if (m != 1)</tt>, on the other hand, is only true if none of the elements is equal to one. So, use <tt>if (!(m == 1))</tt> to test whether it is true that not all elements are equal to one.
 <p>
 <a name="ox_tutlan_op"></a>
 <h2>Operations and matrix programming</h2><p>
 <p>
-To a large extent, the same operators are available in Ox
-as in C or C++. Some of the additional operators are
-power (<tt>^</tt>), horizontal concatenation (<tt>~</tt>), vertical
-concatenation (<tt>|</tt>) and the Kronecker product (<tt>**</tt>).
-One important distinction is that the operators are also available
-for matrices, so that, for example, two matrices can
-be added up directly. For some operators, such as multiplication,
-there is a distinction between the dot operators (e.g. <tt>.*</tt> is
-element by element multiplication and <tt>*</tt> is matrix multiplication
-if both arguments are matrices). Not available in Ox are the bitwise
-operators, instead you need to use the library functions
-<tt>binand</tt> and <tt>binor</tt>.
+To a large extent, the same operators are available in Ox as in C or C++. Some of the additional operators are power (<tt>^</tt>), horizontal concatenation (<tt>~</tt>), vertical concatenation (<tt>|</tt>) and the Kronecker product (<tt>**</tt>). One important distinction is that the operators are also available for matrices, so that, for example, two matrices can be added up directly. For some operators, such as multiplication, there is a distinction between the dot operators (e.g. <tt>.*</tt> is element by element multiplication and <tt>*</tt> is matrix multiplication if both arguments are matrices). 
 <p>
-Because Ox is implicitly typed, the resulting type of the
-expression will depend on the types of the variables
-in the expression. When a mixture of types is involved, the result
-is promoted upwards in the order integer, double, matrix.
-So in an expression consisting if an integer and a double, the integer
-will be promoted to a double. An expression of only integers yields
-an integer. However, there are two important exceptions
-to this rule:
+Because Ox is implicitly typed, the resulting type of the expression will depend on the types of the variables in the expression. When a mixture of types is involved, the result is promoted upwards in the order integer, double, matrix. So in an expression consisting if an integer and a double, the integer will be promoted to a double. An expression of only integers yields an integer. However, there are two important exceptions to this rule:
 <p>
 <ol>
-<li>integer division is done in floating point and yields a double.
-<em>This is an important difference with C, where integer division
-is truncated to an integer.</em>
-<li>power expressions involving integers which yield a result too
-large to be expressed as an integer give a double result.
-</ol><p>
+<li>integer division is done in floating point and yields a double. <em>This is an important difference with C, where integer division is truncated to an integer.</em></li>
+<li>power expressions involving integers which yield a result too large to be expressed as an integer give a double result.</li>
+    </ol><p>
 <p>
-To illustrate, we write the Fahrenheit to Celsius example of <a href="#Kern88">Kernighan and Ritchie (1988)</a>
-in Ox:
+To illustrate, we write the Fahrenheit to Celsius example of <a href="#Kern88">Kernighan and Ritchie (1988)</a> in Ox:
 <p>
 <pre>
     #include &lt;oxstd.oxh&gt;
@@ -853,12 +554,9 @@ which prints:
      80   26.7
     100   37.8
 </pre><p>
-In C we have to write <tt>5.0/9.0</tt>, because <tt>5/9</tt>
-evaluates to zero. In Ox both expressions are evaluated
-in floating point arithmetic.
+In C we have to write <tt>5.0/9.0</tt>, because <tt>5/9</tt> evaluates to zero. In Ox both expressions are evaluated in floating point arithmetic.
 <p>
-In general we get more more efficient code
-by vectorizing each program as much as possible:
+In general we get more more efficient code by vectorizing each program as much as possible:
 <p>
 <pre>
     #include &lt;oxstd.oxh&gt;
@@ -872,27 +570,17 @@ by vectorizing each program as much as possible:
     }
 </pre><p>
 <ul>
-<li>As in the first version of the program, we declare three constants
-which define the Fahrenheit part of the table.
+<li>As in the first version of the program, we declare three constants which define the Fahrenheit part of the table.</li>
 <p>
-<li>The <tt>range()</tt> function creates a 1&times;n matrix
-with the values <tt>LOWER</tt>, <tt>LOWER</tt>+<tt>STEP</tt>,
-<tt>LOWER</tt> + 2<tt>STEP</tt>, ..., <tt>UPPER</tt>.
+<li>The <tt>range()</tt> function creates a 1&times;n matrix with the values <tt>LOWER</tt>, <tt>LOWER</tt>+<tt>STEP</tt>, <tt>LOWER</tt> + 2<tt>STEP</tt>, ..., <tt>UPPER</tt>.</li>
 <p>
-<li>The transpose operator <tt>'</tt> changes this into an n&times;1
-matrix.
+<li>The transpose operator <tt>'</tt> changes this into an n&times;1 matrix.</li>
 <p>
-<li>The conversion to Celsius in the print statement works on the
-matrix as a whole: multiplication of a matrix by a scalar is equivalent
-to multiplication by the scalar of each element of the matrix.
+<li>The conversion to Celsius in the print statement works on the matrix as a whole: multiplication of a matrix by a scalar is equivalent to multiplication by the scalar of each element of the matrix.</li>
 <p>
-<li>The <tt>~</tt> operator concatenates the two column vectors into
-an n &times;2 matrix.
+<li>The <tt>~</tt> operator concatenates the two column vectors into an n &times;2 matrix.</li>
 <p>
-<li>Finally, the <tt>print</tt> function is different from the
-<tt>printf</tt> in C. In Ox each variable to print is simply specified
-sequentially. It is possible, as done here with <tt>&quot;%6.1f&quot;</tt>, to
-insert formatting strings for the next variable.
+<li>Finally, the <tt>print</tt> function is different from the <tt>printf</tt> in C. In Ox each variable to print is simply specified sequentially. It is possible, as done here with <tt>&quot;%6.1f&quot;</tt>, to insert formatting strings for the next variable.</li>
 </ul><p>
 <p>
 The program prints a table similar to the earlier output:
@@ -905,13 +593,9 @@ The program prints a table similar to the earlier output:
      80.0   26.7
     100.0   37.8
 </pre><p>
-<a name="ox_tutlan_array"></a>
-<h2>Arrays</h2><p>
+<a name="ox_tutlan_array"></a><h2>Arrays</h2><p>
 <p>
-The Ox syntax allows for arrays, so you may use, for
-example, an array of strings (often useful),
-an array of matrices, or even an array of an array of matrices
-(etc.). The following program gives an example.
+The Ox syntax allows for arrays, so you may use, for example, an array of strings (often useful), an array of matrices, or even an array of an array of matrices (etc.). The following program gives an example.
 <p>
 <pre>
     #include &lt;oxstd.oxh&gt;
@@ -938,33 +622,18 @@ which prints
     row 1              0.15174      0.74598
 </pre><p>
 <ul>
-<li>The <tt>new</tt> operator declares a new object. That could be
-a class object, as discussed in the next chapter, a matrix, a string,
-or, as used here, an array. The argument in square brackets is the size
-of the array. (When creating a matrix in this way, note that a matrix is
-always two-dimensional, and needs two arguments,
-as in: <tt>m = new matrix[2][2]</tt>.)
+<li>The <tt>new</tt> operator declares a new object. That could be a class object, as discussed in the next chapter, a matrix, a string, or, as used here, an array. The argument in square brackets is the size of the array. (When creating a matrix in this way, note that a matrix is always two-dimensional, and needs two arguments, as in: <tt>m = new matrix[2][2]</tt>.)</li>
 <p>
-<li>The <tt>sprint</tt> functions return a string, which is stored in the
-arrays.
+<li>The <tt>sprint</tt> functions return a string, which is stored in the arrays.</li>
 <p>
-<li>In <tt>print()</tt>, we use <tt>&quot;%r&quot;</tt> followed by an array of strings
-to specify row labels for the subsequent matrix. Column labels
-use <tt>&quot;%c&quot;</tt>.
+<li>In <tt>print()</tt>, we use <tt>&quot;%r&quot;</tt> followed by an array of strings to specify row labels for the subsequent matrix. Column labels use <tt>&quot;%c&quot;</tt>.</li>
 </ul><p>
 <p>
 <a name="ox_tutlan_link"></a>
 <h2>Multiple files: using <tt>#include</tt> and <tt>#import</tt></h2><p>
 <p>
-The source code of larger projects will often be spread over several
-source files. Usually the <tt>.ox</tt> file containing the <tt>main</tt> function
-is only a few tens of lines. We have already seen that information
-about other source files is passed on through included header files.
-However, to run the entire program, the code
-of those files needs to be linked
-together as well. Ox offers various ways of doing this.
-As an example, consider a mini-project consisting
-of two files: a source code file and a header file. The third file
+The source code of larger projects will often be spread over several source files. Usually the <tt>.ox</tt> file containing the <tt>main</tt> function is only a few tens of lines. We have already seen that information
+about other source files is passed on through included header files. However, to run the entire program, the code of those files needs to be linked together as well. Ox offers various ways of doing this. As an example, consider a mini-project consisting of two files: a source code file and a header file. The third file
 will contain the <tt>main</tt> function.
 <p>
 Mini project
@@ -985,27 +654,12 @@ MyFunction(const ma)
     MyFunction(const ma);
 </pre><p>
 <p>
-The header file <tt>myfunc.h</tt> <em>declares</em> the <tt>MyFunction</tt> function,
-so that it can be used in other Ox files.
-Note that the declaration ends in a semicolon.
-The source code file contains the <em>definition</em> of the function,
-which is the actual code of the function. The header of the definition
-does not end in a semicolon, but is followed by
-the opening brace of the body
-of the function. The <tt>s_iCalls</tt> variable is declared outside
-any function, making it an <em>external</em> variable. Here we
-also use the <tt>static</tt> <em>type specifier</em>, which restricts
-the scope of the variable to the <tt>myfunc.ox</tt> file: <tt>s_iCalls</tt>
-is invisible anywhere else (and other files may contain their
-own <tt>s_iCalls</tt> variable).
-Variables declared inside a block of curly braces have a more limited
-lifetime. Their life starts when they are declared,
-and finishes at the closing brace (matching the brace level of declaration).
+The header file <tt>myfunc.h</tt> <em>declares</em> the <tt>MyFunction</tt> function, so that it can be used in other Ox files. Note that the declaration ends in a semicolon. The source code file contains the <em>definition</em> of the function, which is the actual code of the function. The header of the definition does not end in a semicolon, but is followed by the opening brace of the body of the function. The <tt>s_iCalls</tt> variable is declared outside any function, making it an <em>external</em> variable. Here we
+also use the <tt>static</tt> <em>type specifier</em>, which restricts the scope of the variable to the <tt>myfunc.ox</tt> file: <tt>s_iCalls</tt> is invisible anywhere else (and other files may contain their
+own <tt>s_iCalls</tt> variable). Variables declared inside a block of curly braces have a more limited
+lifetime. Their life starts when they are declared, and finishes at the closing brace (matching the brace level of declaration).
 <p>
-It is also possible to share variables between various
-source files, although there can be only one declaration
-(physical allocation) of the
-shared variable. The following modifications would do that for
+It is also possible to share variables between various source files, although there can be only one declaration (physical allocation) of the shared variable. The following modifications would do that for
 the <tt>myfunc.ox</tt> program: <br>
 (1) delete the <tt>static</tt> keyword from the declaration,<br>
 (2) add to <tt>myfunc.h</tt> the line
@@ -1018,12 +672,9 @@ the <tt>myfunc.ox</tt> program: <br>
 Any code which includes <tt>myfunc.h</tt> can now reference or change
 the <tt>g_iCalls</tt> variable.
 <p>
-<a name="1.8.1"></a>
-<h3>Including the code into the main file</h3><p>
+<a name="1.8.1"></a> <h3>Including the code into the main file</h3><p>
 <p>
-The first way of combining the mini project with the <tt>main</tt>
-function is to <tt>#include</tt> the actual code. In that case
-the <tt>myfunc.h</tt> header file is not needed:
+The first way of combining the mini project with the <tt>main</tt> function is to <tt>#include</tt> the actual code. In that case the <tt>myfunc.h</tt> header file is not needed:
 <p>
 [samples/mymaina.ox]
 <pre>
@@ -1035,17 +686,12 @@ main()
 }
 </pre><p>
 <p>
-The result will be just one code file, and <tt>mymaina.ox</tt> can be run
-as <tt>oxl mymaina</tt>.
+The result will be just one code file, and <tt>mymaina.ox</tt> can be run as <tt>oxl mymaina</tt>.
 <p>
 <a name="1.8.2"></a>
 <h3>Importing the code into the main file</h3><p>
 <p>
-The drawback of the previous method of including source code
-using <tt>#include</tt>, is that it can only be done once.
-That is not a problem in this short program, but is difficult
-to ensure if a library is used at many points in a large project.
-The <tt>#import</tt> command solves this problem.
+The drawback of the previous method of including source code using <tt>#include</tt>, is that it can only be done once. That is not a problem in this short program, but is difficult to ensure if a library is used at many points in a large project. The <tt>#import</tt> command solves this problem.
 <p>
 [samples/mymainc.ox]
 <pre>
@@ -1059,127 +705,51 @@ main()
 <p>
 Again, <tt>mymainc.ox</tt> can be run as <tt>oxl mymainc</tt>.
 
-There is no extension in the argument to <tt>#import</tt>.
-The effect is as an <tt>#include "myfunc.h"</tt> statement
-followed by marking <tt>myfunc.ox</tt> for linking.<br>
+There is no extension in the argument to <tt>#import</tt>. The effect is as an <tt>#include "myfunc.h"</tt> statement followed by marking <tt>myfunc.ox</tt> for linking.<br>
 [<small>
-<tt>#import</tt> will actually try to find the <tt>.oxo</tt> file
-first. If that is not found, it will search for the <tt>.ox</tt> file.
-If neither is found, the program cannot run. More detail is
-in <a href="oxsyntax.html#ox_syntax_import">import of modules</a>.
-</small>]<br>
-The actual linking only happens when the file is run,
-and the same <tt>#import</tt> statement may occur multiple times
-(as well as in compiled files). So even when the same file
-is imported many times, it will only be linked once.
+<tt>#import</tt> will actually try to find the <tt>.oxo</tt> file first. If that is not found, it will search for the <tt>.ox</tt> file. If neither is found, the program cannot run. More detail is in <a href="oxsyntax.html#ox_syntax_import">import of modules</a>. </small>]<br>
+The actual linking only happens when the file is run, and the same <tt>#import</tt> statement may occur multiple times (as well as in compiled files). So even when the same file is imported many times, it will only be linked once.
 
 <p>
 <a name="1.8.3"></a>
 <h3>Importing Ox packages</h3><p>
 <p>
-If <tt>myfunc.ox</tt> would require
-the maximization package, it could have at the top:
+If <tt>myfunc.ox</tt> would require the maximization package, it could have at the top:
 
 <xmp>
     #include <oxstd.h>
     #import <maximize>
 </xmp><p>
 
-Partial paths can be used. Searching is relative to the
-<tt>OX5PATH</tt> environment variable.
-For example, if the Arfima package is in its default
-location of <tt>ox/packages/arfima</tt>, we would use:
 
-<xmp>
-    #import <packages/arfima/arfima>
-</xmp><p>
-
-The distinction between angular brackets and double quotes in the
-include and import statements is discussed in
-<a href="oxsyntax.html#ox_syntax_include">file inclusion</a>.
-Roughly, the <tt>&lt;&gt;</tt> form should be used for files which are
-part of the Ox system, and the double quotes for your own files,
-which will not be in the Ox tree.
+The distinction between angular brackets and double quotes in the include and import statements is discussed in <a href="oxsyntax.html#ox_syntax_include">file inclusion</a>. Roughly, the <tt>&lt;&gt;</tt> form should be used for files which are part of the Ox system, and the double quotes for your own files, which will not be in the Ox tree.
 
 <p>
 <a name="1.8.4"></a>
 <h3>Separate compilation</h3><p>
 <p>
-Ox source code files can be compiled into Ox object files. These files
-have the <tt>.oxo</tt> extension, and are binary. The format is identical across
-operating systems, but since they are binary, transfer from one
+Ox source code files can be compiled into Ox object files. These files have the <tt>.oxo</tt> extension, and are binary. The format is identical across operating systems, but since they are binary, transfer from one
 platform to another has to be done in binary mode.
 <p>
-To compile <tt>myfunc.ox</tt> into an Ox object file use the <tt>-c</tt>
-switch:
+To compile <tt>myfunc.ox</tt> into an Ox object file use the <tt>-c</tt> switch:
 <p>
 <pre>
     oxl -c myfunc
 </pre><p>
-This creates <tt>myfunc.oxo</tt> (the .oxo extension is automatically appended).
-Remember that <tt>myfunc.oxo</tt> must be recreated every time
-<tt>myfunc.ox</tt> changes.
+This creates <tt>myfunc.oxo</tt> (the .oxo extension is automatically appended). Remember that <tt>myfunc.oxo</tt> must be recreated every time <tt>myfunc.ox</tt> changes.
 <p>
-Now, when rerunning <tt>mymainc.ox</tt>, it will automatically
-use the <tt>.oxo</tt> instead of the <tt>.ox</tt> file.
+Now, when rerunning <tt>mymainc.ox</tt>, it will automatically use the <tt>.oxo</tt> instead of the <tt>.ox</tt> file.
 <p>
-Compiled Ox files can be useful for very large files (although
-even then compilation will be very fast), or if you do not
-wish to distribute the source files. They are inconvenient when
-the code is still under development.
+Compiled Ox files can be useful for very large files (although even then compilation will be very fast), or if you do not wish to distribute the source files. They are inconvenient when the code is still under development.
 
 <p>
-<a name="ox_tutlan_oo"></a>
-<h2>Object-oriented programming</h2><p>
-<p>
-Object-oriented programming involves the grouping together
-of functions and variables in convenient building blocks.
-These blocks can then be used directly, or as starting
-point for a more specialized implementation. A major
-advantage of object-oriented programming is that it avoids
-the use of global variables, thus making the code more re-entrant:
-several instances will not conflict wiith each other.
-<p>
-The object-oriented features in Ox are not as sophisticated
-as in some low-level languages. However, this avoids the
-complexity of a language such as C++, while still providing
-most of the benefits.
-<p>
-Ox allows you to completely ignore the object-oriented features.
-However, you will then not be able to use the preprogrammed classes
-for data management and simulation. It is especially in the latter
-task that we found a considerable reduction in the required
-programming effort after writing the base class.
-<p>
-The <em>class</em> is the main vehicle for object-oriented programming.
-A class is nothing more than a group of variables (the data)
-and functions (the actions) packaged together. This makes it a supercharged
-<tt>struct</tt> (or <tt>record</tt> in Pascal terminology).
-Inheritance allows for a new class
-to add data and functions to the base class, or even redefine functionality
-of the base class.
-<p>
-In Ox, the default is that all data members of the class are protected (only visible to class
-members), and all function members are public. Like C++, Ox
-has the <tt>virtual</tt> keyword to define functions which can be
-replaced by the derived class. Classes are used by dynamically
-creating objects of that class. No static objects exist in Ox.
-When an object is created, the <em>constructor</em> function is called,
-when the object is deleted, the <em>destructor</em> function is called.
-More information on object-oriented programming is
-given in the <a href="oxsyntax.html#ox_syntax_RefClasses">syntax chapter</a>.
-<p>
+
 <a name="ox_tutlan_style"></a>
 <h2>Style and Hungarian notation</h2><p>
 <p>
-The readability and maintainability of a program is considerably
-enhanced when using a consistent style and notation, together with
-proper indentation and documentation. Style is a personal matter; this
-section describes the one I have adopted.
+The readability and maintainability of a program is considerably enhanced when using a consistent style and notation, together with proper indentation and documentation. Style is a personal matter; this section describes the one I have adopted.
 <p>
-In my code, I always indent by one tab (four spaces) at the next level
-of control (i.e. after each opening brace), jumping back on the
-closing brace.
+In my code, I always indent by one tab (four spaces) at the next level of control (i.e. after each opening brace), jumping back on the closing brace.
 <p>
 <a name="TabHung1"></a>
 <center>
@@ -1204,14 +774,8 @@ closing brace.
 </table>
 </center>
 <p>
-I have found Hungarian notation especially
-useful (see e.g. <a href="#Petz92">Petzold, 1992</a>, Ch.&nbsp;1).
-Hungarian notation involves the decoration of variable names.
-There are two elements to Hungarian notation: prefixing of variable
-names to indicate type
-(Table <a href="#TabHung1">Table 1</a>), and using case to indicate scope
-(Table <a href="#TabHung2">Table 2</a>, remember
-that Ox is case sensitive).
+I have found Hungarian notation especially useful (see e.g. <a href="#Petz92">Petzold, 1992</a>, Ch.&nbsp;1).
+Hungarian notation involves the decoration of variable names. There are two elements to Hungarian notation: prefixing of variable names to indicate type (Table <a href="#TabHung1">Table 1</a>), and using case to indicate scope (Table <a href="#TabHung2">Table 2</a>, remember that Ox is case sensitive).
 <p>
 <a name="TabHung2"></a>
 <center>
@@ -1245,11 +809,7 @@ As an example consider:
     }
 </pre><p>
 <p>
-<tt>Func2</tt> expects a <tt>cT</tt> &times; <tt>cX</tt> matrix, and
-corresponding array of <tt>cX</tt> variable names.
-The <tt>c</tt> prefix is used for the number of elements in a matrix or string.
-Note however, that it is not necessary in Ox to pass dimensions separately.
-You can ask <tt>mX</tt> and <tt>asX</tt> what dimensions they have:
+<tt>Func2</tt> expects a <tt>cT</tt> &times; <tt>cX</tt> matrix, and corresponding array of <tt>cX</tt> variable names. The <tt>c</tt> prefix is used for the number of elements in a matrix or string. Note however, that it is not necessary in Ox to pass dimensions separately. You can ask <tt>mX</tt> and <tt>asX</tt> what dimensions they have:
 <p>
 <pre>
     Func2(const mX, const asX)
@@ -1261,176 +821,7 @@ You can ask <tt>mX</tt> and <tt>asX</tt> what dimensions they have:
             print(&quot;error: dimensions don't match&quot;);
     }
 </pre><p>
-<a name="ox_tutlan_opt"></a>
-<details><summary><h2>Optimizing for speed</h2></summary>
 <p>
-Ox is very fast: current benchmarks suggest that it is faster
-than most (if not all) other commonly used matrix language interpreters.
-A program can never be fast enough though, and here are some
-tips to achieve even higher speed:
-<p>
-<ul>
-<li>Use matrices as much as you can, avoiding loops and
-matrix indexing.
-<li>Use built-in functions where possible.
-<li>When optimizing a program with loops, it usually only pays
-to optimize the inner most loop. One option is to move loop invariants
-to a variable outside the loop.
-<li>Avoid using `hat' matrices, i.e. avoid using outer products
-over large dimensions when not necessary.
-<li>Note that matrices are stored by row (the C and C++ default,
-but transposed from the Fortran default), so it could
-sometimes be faster to transpose matrices (i.e. have data variables
-in rows instead of columns).
-<li>If necessary, you can link in C or Fortran code.
-</ul><p>
-<p>
-</details>
-<details><summary><h2><a name="ox_tutlan_oxgauss"></a>OxGauss</h2></summary>
-
-Ox has the capability of running a wide range of
-Gauss (GAUSS is a trademark of Aptech Systems, Inc., Maple Valley, WA, USA)
-programs. Gauss code can be called from Ox programs, or run on its
-own. The formal syntax of OxGauss is described in
-the <a href="OxDeveloper.pdf">Ox Developer's manual</a>, which also
-lists some of the limitations of OxGauss, and gives a function summary.
-The remainder of this chapter gives some examples on its use.
-More information on OxGauss can be found:
-<ul>
-<li>in the <a href="OxDeveloper.pdf">Ox Developer's manual</a>,
-<li>on the web: <a href="http://facweb.arch.ohio-state.edu/pviton/support/oxgauss.html"><i>Running GAUSS programs Under Ox3</i></a>
-by Philip A. Viton.
-</ul>
-
-
-<p><h3>Running OxGauss programs from the command line</h3><p>
-
-As an example we consider a small project, consisting of a code file
-that contains a procedure and an external variable, together
-with a code file that includes the former and calls the function.
-We shall use the <tt>.src</tt> or <tt>.oxgauss</tt> extension for the OxGauss programs.
-<p>
-[samples/oxgauss/gaussfunc.src]
-<xmp>
-    declare matrix _g_base = 1;
-
-    proc(0)=gaussfunc(a,b);
-        "calling gaussfunc";
-        retp(a+_g_base*eye(b));
-    endp;
-</xmp><p>
-
-[samples/oxgauss/gausscall.src]
-<xmp>
-    #include gaussfunc.src;
-
-    _g_base = 20;
-    z = gaussfunc(10,2);
-    "result from gaussfunc" z;
-</xmp><p>
-
-To run this program on the command line, enter
-<xmp>
-    oxl -g gausscall.src
-</xmp><p>
-
-Which produces the output:
-
-<xmp>
-Ox version 4.00 (Windows/U) (C) J.A. Doornik, 1994-2006
-calling gaussfunc
-result from gaussfunc
-       30.000000        10.000000
-       10.000000        30.000000
-</xmp><p>
-
-If there are problems at this stage, we suggest to start by reading the
-first chapter of the <a href="OxIntro.pdf">Introduction to Ox</a>.
-
-<p><h3>Running OxGauss programs from OxMetrics</h3><p>
-
-Using Ox Professional, the OxGauss program can be loaded into
-OxMetrics. The syntax highlighting makes understanding the program
-easier.
-
-Click on Run (the running person) to execute the program.
-This runs the program using the <i>OxGauss</i> application, with the
-output in a window entitled `OxGauss Session'.
-OxMetrics will treat the file as an OxGauss file if it has
-the <tt>.src</tt>, <tt>.g</tt> or <tt>.oxgauss</tt> extension.  If not, the
-file can still be run by launching <i>OxGauss</i> from the OxMetrics
-workspace window.
-
-<p><a name="ox_tutlan_oxgimp"></a><h3>Calling OxGauss from Ox</h3><p>
-
-The main objective of creating OxGauss was to allow Gauss code to be called
-from Ox. This helps in the transition to Ox, and increases the
-amount of code that is available to users of Ox.
-
-The main point to note is that the <i>OxGauss code lives inside the</i>
-<tt>gauss</tt> <i>namespace</i>. In this way, the Ox and OxGauss code
-can never conflict.
-
-Returning to the earlier example, the first requirement is to make an
-Ox header file for <tt>gaussfunc.src</tt>. This must declare the
-external variables and procedures explicitly in the <tt>gauss</tt> namespace:
-<p>
-[samples/oxgauss/gaussfunc.h]
-<xmp>
-	namespace gauss
-	{
-	    extern decl _g_base;
-	    gaussfunc(const a, const b);
-	}
-</xmp><p>
-
-Next, the OxGauss code must be imported into the Ox program.
-The <tt>#import</tt> command has been extended to recognize OxGauss imports
-by prefixing the file name with <tt>gauss::</tt>, as in the following program:
-<p>
-[samples/oxgauss/gausscall.ox]
-<xmp>
-	#include <oxstd.oxh>
-	#import "gauss::gaussfunc"
-	main()
-	{
-	    gauss::_g_base = 20;
-	    decl z = gauss::gaussfunc(10,2);
-	    println("result from gaussfunc", z);
-	}
-</xmp><p>
-
-When the OxGauss functions or variables are accessed, they must
-also be prefixed with the namespace identifier <tt>gauss::</tt>.
-The output is:
-
-<xmp>
-calling gaussfunc
-result from gaussfunc
-       30.000       10.000
-       10.000       30.000
-</xmp>
-
-<p>
-</details>
-<h3>References</h3><p>
-<p>Doornik, J.A. and Ooms, M. (2006).
-<i>Introduction to Ox</i>, 2nd ed.,
-London: Timberlake Consultants Press.
-
-<p><a name="Kern88"></a>Kernighan, B.W. and Ritchie, D.M. (1988).
-<em>The C Programming Language</em> 2nd Ed.
-Englewood Cliffs, NJ: Prentice Hall.
-
-<p><a name="Petz92"></a>Petzold, C. (1992).
-<em>Programming Windows 3.1</em>.
-Redmond: Microsoft Press.
-
-
-<p><hr><p><b>Ox version 7.00.</b>
-&copy; <i><a href="http://www.doornik.com" target="_top">
-JA Doornik</a></i>
-This file last changed <script type="text/javascript">document.write(document.lastModified);</script>.
 
 </body>
 </html>
