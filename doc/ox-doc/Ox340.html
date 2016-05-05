@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style/basic.css">
+  <link rel="stylesheet" type="text/css" href="style/theme-green.css">
+  <title>Ox 3.40: new features and fixed bugs</title>
+  <base target="content-frame">
+  <script src="style/loadincontent.js" language="javascript"></script>
+</head>
+<body>
+<div class="page-frame">
+
+&lt;<A href="Ox400.html">Next version of Ox</A>&gt;
+&lt;<a href="Ox330.html">Previous version of Ox</a>&gt;
+
+
+<hr><h1>Ox 3.40: new features and fixes</h1>
+
+<hr><h2>New features and enhancements</h2>
+
+<p>
+<ul>
+<li>Added the ability to import oxo files that were
+	  generated from OxGauss files. 
+<li>Add RTLD_GLOBAL flag to dynamic loading on Linux.
+	  (Was needed to link to libdbi.)
+<li>Added some ability for the symbol table to grow
+      (but this can only happen at the external code level).
+</ul>
+
+<hr><h2>Problems in version 3.30 which have been fixed in version 3.40:</h2>
+
+<p>
+<ul>
+<li>In program: <tt>main(){while(1)0;}</tt>
+      the loop is executed only once, while it should be an infinite loop.
+	  This only happens if while is the first statement of the program and
+	  the last statement in the while loop evaluates to 0 (so quite unlikely).
+
+<li><tt>dayofcalendar</tt> rather than <tt>dayofcalender</tt> (but both now
+      exist to maintain backward compatibility).
+
+<li><tt>polyroots</tt> of empty matrix now returns empty matrix
+      instead of negative dimension error
+
+<li>small fix in solvenle (SolveGMRes) to check
+	  if the residual norm is a missing value.
+
+<li>In rare circumstances a call to <tt>ols2c</tt>/<tt>ols2r</tt>
+	  with singularity could
+	  lateron lead to an Out of memory error message.
+
+<li>exit code specified in <tt>exit()</tt> was not used when
+      running from the command line.
+
+<li>vector == matrix crashes, e.g: <tt>&lt;1,1&gt; == &lt;1,1; 0,1; 1,0&gt;</tt>
+<li><tt>x=zeros(1,0); x[0][]=1;</tt> leads to crash
+	  (should leave x unchanged).
+
+<li><tt>variance(&lt;&gt;)</tt>, <tt>correlation(&lt;&gt;)</tt>,
+<tt>standardize(&lt;&gt;)</tt> gives out of memory error message.
+
+<li>"%z" format did not work for sscan
+<li><tt>&lt;&gt;.^2</tt> crashes Ox.
+Note that <tt>sqr(&lt;&gt;)</tt> is not affected by this.
+<li>The following don't work with empty matrices: <tt>savemat</tt>
+and complex functions (<tt>cmul</tt>, <tt>cdiv</tt>, etc.).
+<li><tt>pacf</tt> of 1<tt>x</tt>1 matrix doesn't work.
+<li><tt>lib/longrun.ox</tt>: LongRun() is printing negative long-run
+	  covariances as zero.
+<li>printing a function prints the name
+	  (and address if it is an internal function, e.g. print(rann)).
+	  Specifying a format for this could lead to a crash.
+<li><tt>quanbeta(x,1,1)</tt> returns 0.5 instead of 1.
+<li>Singularity decision in <tt>olsr</tt>/<tt>olsc</tt>/<tt>decqr</tt> was
+too stringent. Now it is based on <tt>inverteps()</tt> multiplied by the
+maximum diagonal element of X'X (previously
+it just used sqrt(inverteps()).	Also, the warning for scaling is now given
+when the ratio of the largest to the smallest diagonal element of X'X
+is less than <tt>inverteps()</tt>
+(previously, it was given when the ratio was less than 1e-10 or the minimum
+less than 1e-12).
+
+<li>Extending Ox:
+<ul>
+<li>value argument of <tt>OxValSetDouble</tt> was int not double
+<li>Providing missing documentation for	exported functions from DLL:
+	  OxSetOxArgs,OxGetOxArgs, OxGetMainArgs, OxSetMainArgs,
+	  OxSetPrintlevel, OxGetPrintlevel, OxPuts.
+<li>OxValGetStringCopy was not exported
+</ul>
+
+</ul>
+
+<h2>OxGauss</h2>
+<ul>
+<li><tt>vech</tt> is wrongly using the Ox version.
+<li><tt>qqre</tt>,<tt>qre</tt>,<tt>qtyre</tt>,<tt>qyre</tt> should return P instead of P'
+<li><tt>export</tt> is missing
+<li><tt>__olsres</tt> should be <tt>_olsres</tt>.
+<li><tt>scalmiss</tt> should return 1 for empty matrix and 0 for empty string
+<li><tt>errorlog "Error message"</tt> now prints the message
+<li><tt>ftos</tt> omits a single character following the format
+<li>power followed by unary operator gave error (e.g. x ^ -2)
+<li>_eigerr was not defined
+<li><tt>files</tt> was missing second argument (which is ignored)
+<li>a statement like <tt>let x0 = a+a b+b;</tt> did not compile correctly
+<li><tt>`declare external x'</tt> should be a syntax error but seems to be
+		treated as declare x.
+<li>created <tt>lag(x)</tt> to be the same as lag1(x)
+<li>now allowing function forward reference when address is taken in argument
+<li>removed all conditional sections (for g2ox) from g2ox.ox and g2ox.h.
+	  The default behaviour is now same as when OX_GAUSS was defined before.
+</ul>
+
+
+<p><hr><p><b>Ox version 3.40.</b>
+&copy <i><a href="http://www.doornik.com" target="_top">
+JA Doornik</a></i>
+<p><p><hr>
+This file last changed <script>document.write(document.lastModified);</script>.
+
+</BODY></HTML>

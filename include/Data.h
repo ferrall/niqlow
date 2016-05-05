@@ -1,12 +1,8 @@
 #import "database"
 #import "DP"
-/* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2016 Christopher Ferrall */
 
 static const decl PathID = "path", FPanelID="Fxed", PanelID = "Panel";
-
-struct Data : Task {
-
-  }
 
 /** A single realization of a discrete DP. **/
 struct Outcome : Data {
@@ -113,7 +109,6 @@ struct FPanel : Path {
 	virtual Simulate(N, T,ErgOrStateMat=0,DropTerminal=FALSE);
 	        LogLikelihood();
             FullLogLikelihood();
-            GMMdistance();
 	virtual Collapse(cond,stat);
 			Append(i);
 	}
@@ -179,8 +174,6 @@ struct DataSet : Panel {
 	const decl 										low,
     /** Label for the data set. **/                 label;
 	decl											
-    /**How much output to produce.
-        @see NoiseLevels  **/                       Volume,
 													masked,
 	/** labels  **/									dlabels,
 													list,
@@ -203,13 +196,16 @@ struct DataSet : Panel {
 
 /** Contains information on an object (variable, auxiliary outcome, etc) to be tracked.
 **/
-struct ObjToTrack : Zauxiliary {
+struct TrackObj : Zauxiliary {
     const decl
+    /** Inherited fromt the object.**/  Volume,
     /** See `DataColumnTypes` **/       type,
+    /** object can have a continuous
+        dynamic distribution. **/       contdist,
     /** Position in the flat list  **/  pos,
     /** `Discrete` object**/            obj,
     /** label  **/                      L,
-    /** column label of index **/     LorC;
+    /** column label of index **/       LorC;
     decl
     /** **/     hN,
     /** **/     hd,
@@ -218,44 +214,71 @@ struct ObjToTrack : Zauxiliary {
     /** **/     hvals,
     /** **/     mean,
     /** **/     sqmean;
-    ObjToTrack(obj,LorC,pos);
-    Distribution(htmp=0,ptmp=0);
-    print();
+    static Create(LorC,obj,pos);
+    TrackObj(LorC,obj,pos);
+    virtual Reset();
+    virtual Distribution();
+    virtual Update();
+    virtual print();
+    }
+
+struct oTrack : TrackObj {
+    oTrack(LorC,obj,pos);
+    Distribution(pobj);
+    }
+struct aTrack : TrackObj {
+    aTrack(LorC,obj,pos);
+    Distribution(pobj);
+    }
+struct sTrack : TrackObj {
+    sTrack(LorC,obj,pos);
+    Distribution(pobj);
+    }
+struct xTrack : TrackObj {
+    xTrack(LorC,obj,pos);
+    Distribution(pobj);
     }
 
 /** Predicted distribution across states.
 **/	
 struct 	Prediction : Data {
-	static	decl ud, lo, hi, Volume;
+	static	decl ud, lo, hi, LeakWarned;
 	const  	decl t;
 	decl
-		/** state index **/		sind,
-		/** **/					p,
-		/** **/					ch,
-        /**weight to put on
-            momement distance.**/W,
-        /** predicted moment **/ predmom,
-        /** empirical moment **/ empmom,
+		/** state index **/		             sind,
+        /** index into sind.**/             q,
+		/** **/					              p,
+		/** Expanded ch. prob.**/	         ch,
+        /** current ch. prob.**/            chq,
+        /** current p. **/                  pq,
+        /** masked weight to put on distance.**/        W,
+        /** (unmasked) predicted moment vector**/       predmom,
+        /** (unmasked) empirical moments. **/           readmom,
+        /** used (masked) empiricalmoments.**/          empmom,
 		/** next prediction
-            in the panel **/	pnext;
+            in the path **/	         pnext;
 	Prediction(prev);
+    ~Prediction();
 	Predict(tlist);
     Reset();
 	Histogram(v,printit=FALSE);
-    Delta(mask,printit=FALSE);
+    Delta(mask,printit=FALSE,tlabels=0);
 	}
 
 /** Predicted outcomes along a path.
 **/
 struct 	PathPrediction : Prediction {
 	static	decl summand, upddens;
-    const decl f;
+    const decl f, iDist;
 	decl
+    /** Empirical moments read in. **/              HasObservations,
+    /** Predict() called before. **/                EverPredicted,
+    /** Path length sent it.**/                     inT,
+    /** .**/                                        prtlevel,
     /** list of objects to track.**/                tlist,
     /** labels of flat print. **/                   tlabels,
     /** indicator vector for observed moments.**/   mask,
     /** columns in data .     **/                   cols,
-    /** number of values tracked **/                Nt,
     /** the current prediction **/                  cur,
     /** length of the path. **/                     T,	
     /** flat prediction matrix.**/                  flat,
@@ -266,30 +289,29 @@ struct 	PathPrediction : Prediction {
     Initialize();
 
 	~PathPrediction();
-	Predict(printit=FALSE);
-    SetT(T);
-    Empirical(inmoments,Nincluded=FALSE);
+    InitialConditions();
+	Predict(T=0,printit=FALSE);
+    SetT();
+    Empirical(inmoments,Nincluded=FALSE,wght=TRUE);
     Tracking(LorC,...);
     SetColumns(dlabels,Nplace=UnInitialized);
-//	Histogram(printit=TRUE);
     PathObjective();
 	}
 
 struct PanelPrediction : PathPrediction {
 	const decl
-	/** tag for the panel. **/ 				r;
+	/** tag for the panel. **/ 				r,
+    /** Weight Moments for GMM. **/         wght;
 	decl
 				        					fparray,
     /**length of vector returned by EconometricObjective.**/ FN,
                                              delt,
                                              aflat,
 	/** array of GMM vector. **/	 	     M;
-    PanelPrediction(r=0,method=0);
+    PanelPrediction(r=0,method=0,iDist=0,wght=FALSE);
     ~PanelPrediction();
-//	Histogram(printit=FALSE);
     Objective();
     Predict(T=0,printit=FALSE);
-    GMMdistance();
     Tracking(LorC,...);
     }
 
@@ -298,12 +320,12 @@ struct PanelPrediction : PathPrediction {
 **/
 struct EmpiricalMoments : PanelPrediction {
     const decl /** label **/ label;
-    decl     /**How much output to produce.@see NoiseLevels **/         Volume,
+    decl
             /** **/                                                     flist,
             /** matrix of indices or array of labels or UseLabel  **/   UorCorL,
             /** observations location .**/                              Nplace,
             /** **/                                                     FMethod;
-    EmpiricalMoments(label="",method=0,UorCorL=UseLabel);
+    EmpiricalMoments(label="",method=0,UorCorL=UseLabel,iDist=0,wght=TRUE);
     Observed(as1,lc1=0,...);
     TrackingMatchToColumn(Fgroup,LorC,mom);
     TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);

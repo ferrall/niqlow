@@ -1,8 +1,27 @@
-/** Components shared by components of <span class="n"><a href="../default.html">niqlow</a></span> .**/
+/** Components shared by components of <span class="n"><a href="../default.html">niqlow</a></span> .
+<a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Shared.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
+
+<OL class="body">
+
+<LI>CV and AV</LI>
+
+<LI>Volume and Noise Levels</LI>
+
+<LI>Log Files</LI>
+
+<LI>Integration, Kernels</LI>
+
+</OL>
+
+
+@author &copy; 2011-2016 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
+<a name="auto"><hr><h1>Documentation of  Items Defined in Shared.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
+
+**/
 #include <oxstd.oxh>
 #include <oxfloat.oxh>
 #include <oxprob.oxh>
-/* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2016 Christopher Ferrall */
 
 	/** Pseudonyms for -1. @name Names_for_-1 **/
 enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1}
@@ -15,8 +34,8 @@ enum {Zero,One,Two}
 	/** Levels of output to produce while executing. @name NoiseLevels **/	
 enum {SILENT=-1,QUIET,LOUD,NOISY,NoiseLevels}
 
-		/** Output tags for reservation value utility functions. @name EUvalues **/	
-enum {EUstar,Fstar,EUvalues}
+//		/** Output tags for reservation value utility functions. @name EUvalues **/	
+//enum {EUstar,Fstar,EUvalues}
 		/** Code for solutions to Optimization and Non-Linear System solving.	
             @name ConvergenceResults
         **/	
@@ -45,7 +64,7 @@ static const decl
 	DiscreteNormal(N,mu=0.0, sigma=1.0);
 	varlist(s) ;
 	vararray(s);
-	MyMoments(M,rlabels=0);
+	MyMoments(M,rlabels=0,oxf=0);
 	prefix(pfx, s);
 	GaussianKernel(X,h=UseDefault);
     Epanechnikov(X,h);
@@ -78,23 +97,26 @@ struct Discretized : Zauxiliary {
 /** Container for discrete variables (DDP) and continuous parameters (FiveO).
 **/
 struct Quantity {
+
 	const 	decl	
 		/** Label **/ 						L;
 	decl
+        /** Volume of output. **/           Volume,
 		/** position in vector   **/  	  	pos,
 		/** Current actual value      **/  	v;
 	}
 	
 /** Represent discrete values.**/
 struct Discrete	: Quantity{
+    static  decl                                    logf;
 	const 	decl	
 			/** range(0,N-1)			   **/  	vals;
 	decl	
-            /** subvector objected belongs to. **/   subv,
+            /** subvector objected belongs to. **/  subv,
 			/** Number of different values **/   	N,
 			/** corresponding model vals.  **/  	actual,
 			/** vector of prob. of vals. **/		pdf;
-	Discrete(L,N);
+	Discrete(L,N,Volume=SILENT);
 	virtual PDF();
 	virtual Update();
 	}
@@ -115,7 +137,7 @@ struct Parameter : Quantity {
 		/** 0 or pointer to param block.  **/     		block,
 		/** Value at start of iteration.**/   			start,
 		/** Scaling value  s. **/              			scale;
-	Parameter(L,ival);
+	Parameter(L,ival,Volume=SILENT);
 	Reset(newv,IsCode=TRUE);
     ReInitialize();
 	virtual ToggleDoNotVary();
@@ -202,7 +224,9 @@ class Version : Zauxiliary {
 
 public: 	
     static const decl version=250;
-	static Check();
+    static decl logdir, tmstmp;
+	static Check(logdir="");
+
 	}
 
 /** Code a system of constraints.

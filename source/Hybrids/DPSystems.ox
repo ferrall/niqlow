@@ -77,7 +77,9 @@ Rsystem::Rsystem(LB,Ncuts,METHOD) {
 /** Objective for reservation value system (static EV).
 @internal
 **/
-Rsystem::vfunc() {	return dV - diagonal(DeltaV(curth->Uz(CV(zstar)')))';  }
+Rsystem::vfunc() {	
+    return dV - diagonal(DeltaV(curth->Uz(CV(zstar)')))';
+    }
 
 /** Objective for DYNAMIC reservation value system.
 @internal
@@ -90,9 +92,9 @@ DynamicRsystem::DynamicRsystem(LB,Ncuts,METHOD) {
 Rsystem::RVSolve(curth,dV) {
 	this.curth = curth;
 	this.dV = dV;
-	Encode(setbounds(curth.zstar[I::r][],lbv+1.1,.Inf));
+	Encode(setbounds(curth->Getz()[],lbv+1.1,.Inf));
 	meth->Iterate();
-	curth.zstar[I::r][] = CV(zstar);
+	curth->Setz(CV(zstar));
 	}
 
 /** Solve for reservation values.
@@ -101,9 +103,7 @@ Rsystem::RVSolve(curth,dV) {
 
 **/
 ReservationValues::ReservationValues(LBvalue,METHOD) {
-	ValueIteration(new RVGSolve());
-    RVGSolve::LBvalue=LBvalue;
-    RVGSolve::METHOD=METHOD;
+	ValueIteration(new RVGSolve(LBvalue,METHOD));
     Volume = SILENT;
 	}
 
@@ -121,38 +121,29 @@ RVEdU::Run() {
         I::curth->ExogUtil();	
 	}
 
-/*Solve for cut off values in the continuous shock &zeta;.
-@param Fgroups DoAll [default], loop over fixed groups<br>non-negative integer, solve only that fixed group index
-ReservationValues::Solve(Fgroups,MaxTrips) 	{
-    I::NowSet();
-    GSolve::MaxTrips =MaxTrips;
-    if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions();
-	if (Fgroups==AllFixed)
-		this->GroupTask::loop();
-	else {
-        this->itask->Solve(ReverseState(Fgroups,I::OO[onlyfixed][]));
-        }
-	}
-*/
 
 RVGSolve::Solve(state) {
     this.state = state;
     decl rv;
     foreach (rv in RValSys) if (isclass(rv)) { rv.meth.Volume = Volume; rv.meth->Tune(MaxTrips); }
     Clock::Solving(&VV);
-    Traverse();
+    ZeroTprime();
+    this->Traverse();
+	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER) VV[LATER][] = VV[I::later][];    //initial value next time
+    Hooks::Do(PostGSolve);
+    if (Volume>SILENT && N::G>1) print(".");
     }
 
-RVGSolve::RVGSolve() {
+RVGSolve::RVGSolve(LBvalue,Method) {
     GSolve(new RVEdU());
 	decl i,sysize;
     RValSys={};
     for (i=0;i<N::J;++i) {
         sysize = int(N::Options[i])-1;
         RValSys |= sysize
-			 ? Flags::HasKeptZ
-                    ? new DynamicRsystem(LBvalue,sysize,METHOD)
-                    : new Rsystem(LBvalue,sysize,METHOD)
+			 ? (Flags::HasKeptZ
+                    ? new DynamicRsystem(LBvalue,sysize,Method)
+                    : new Rsystem(LBvalue,sysize,Method))
 			 :  0;
         }
     Volume = QUIET;
@@ -175,3 +166,30 @@ RVGSolve::Run() {
             }
 		}
 	}
+
+/**  Simplified Reservation Value Iteration model solution.
+
+@param ToScreen  TRUE [default] means output is displayed .
+@param aM	address to return matrix<br>0, do not save [default]
+<DT>Note:  All parameters are optional, so <code>VISolve()</code> works.</DT>
+<DT>This function</DT>
+<DD>Creates a `ReservationValues` method</dd>
+<dd>Calls `DPDeubg::outAllV`(<parameters>)</dd>
+<DD>Calls `ReservationValues::Solve`()</dd>
+<dd>deletes the solution method</dd>
+
+This routine simplifies basic reservation value solving.  Simply call it after calling `DP::CreateSpaces`().
+Its useful for debugging and demonstration purposes because the user's code does not need to create
+the solution method object and call solve.
+
+This would be inefficient to use in any context when a solution method is applied repeatedly.
+
+**/
+RVSolve(ToScreen,aM) {
+	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling RVSolve()");
+    decl meth = new ReservationValues();
+	DPDebug::outAllV(ToScreen,aM);
+	decl conv = meth->Solve();
+    delete meth;
+    return conv;
+    }

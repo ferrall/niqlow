@@ -13,7 +13,7 @@ main() {
 BobsChoice::Decide() {
         maj = new ActionVariable("major",{"Econ","Physics"});
         sch = new ActionVariable("school",{"Harvard","Yale","Queen's","McGill"});
-        Initialize(new BobsChoice(),0,maj,sch);
+        Initialize(new BobsChoice(),LogitKernel,maj,sch);
         VISolve();
         }
 

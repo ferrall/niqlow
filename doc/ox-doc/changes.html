@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style/basic.css">
+  <link rel="stylesheet" type="text/css" href="style/theme-green.css">
+  <title>Ox 7.1: new features and fixed bugs</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="author" lang="en" content="Jurgen A Doornik">
+  <meta name="copyright" content="&copy; Jurgen A Doornik">
+  <base target="content-frame">
+<!-- changes.html is a copy of the most recent Ox***.html -->
+  <script src="style/loadincontent.js" language="javascript" type="text/javascript"></script>
+</head>
+<body>
+<div class="page-frame">
+
+<!-- &lt;<A href="Ox800.html">Next version of Ox</A>&gt; -->
+&lt;<a href="Ox700.html">Previous version of Ox</a>&gt;
+
+
+<hr><h1>Ox 7.1: new features and fixes</h1>
+
+<p>
+<a href="#v710_new">New features and enhancements in version 7.1</a><br>
+<a href="#v710_fix">Fixed problems in version 7.1</a><br>
+<p>
+
+
+<a name="v710_new"></a>
+
+<p>
+<hr><h2>New features and enhancements in version 7.1</h2>
+<p>
+<ul>
+<li> OS X
+<ul>
+<li>command line version of Ox Professional now is 64-bit and multi-threaded, so supporting parallel loops.
+Note that the Ox version called from OxMetrics
+and OxRun is still 32-bit, because the GUI is still 32-bit.
+<li>OxMetrics now disables AppNapp for OxModel, OxPack and OxRun at start-up.
+</ul>
+
+<li>Handling of computations involving empty matrices improved to be more intuitive.
+(Some of these changes may impact existing code.)
+<ul>
+<li><tt>x*y'</tt> returns <tt>&lt;&gt;</tt> if y is empty (to conform to x*z when z is empty),
+		previously it gave a run-time error;
+<li><tt>outer(&lt;&gt;,y)</tt> returns <tt>&lt;&gt;</tt> (rather than give a run-time error)
+<li><tt>determinant(&lt;&gt;)</tt> returns 0
+<li><tt>logdet(&lt;&gt;)</tt> returns <tt>-.Inf</tt> with signdet 0
+<li><tt>logdet</tt>(singular matrix) returns <tt>-.Inf</tt> with signdet 0 (was 1 with signdet 0)
+<li><tt>shape(x, y, r, c)</tt> and <tt>reshape(x, y, r, c)</tt> return an r x c matrix of zeros when x or y is empty or r,c is zero.
+<li><tt>nullspace(&lt;&gt;)</tt> returns <tt>&lt;&gt;</tt>, <tt>nullspace</tt>(full rank m x m) returns zeros(m,0), nullspace(zeros(m,0)) returns
+an identity matrix.
+</ul>
+
+<li>Linux:
+<ul>
+<li>Removed linux GLIBC dependencies on version 2.14 and 2.17 (Debian Wheezy is
+        still on 2.13 while RHEL 6 is on 2.12).
+<li>Removed dependency on GLIBCXX_3.4.14.
+
+<li>OxMetrics was using the user locale, instead of the C locale.
+		For many languages, this meant using the , as decimal separator instead of the .
+		This in turn messed up display and saving of floating point numbers.
+		Now using the C locale, as the console versions already did.
+
+<li>Producing some debian packages for installation now as well.
+
+</ul>
+
+<li> Now can use lambda function in callback (<tt>FOxRunCallBack</tt>)
+
+<li> `Warning: assignment in test expression' now <i>not</i> given if assignment is in parenthesis:
+		if (a = b) gives warning
+		if ((a = b)) and if ((a = c) &gt;= 0) do not give warnings anymore.
+
+<li><tt>MaxSQP/MaxSQPF</tt>: hi,lo parameters can be scalar: in that case same value is used for all parameters.
+
+<li> Improved decisions when to do A*B and A'B in parallel.
+
+<li><tt>rank</tt>() could create run-time error when matrix has missing values.
+        Now a warning, returning rank 0.
+
+<li>New responsive html help (using iframes instead of frames).		
+
+</ul>
+
+<a name="v710_fix"></a>
+<hr><h2>Fixed problems in version 7.1:</h2>
+
+<p>
+<ul>
+
+<li>OSX OxEdit Add/Remove Modules/Load From: crash. 
+
+<li><tt>foreach</tt> loops on arrays were accessing the items by reference rather
+		than value. This could lead to errors when the array item is changed in the loop, such as:
+<xmp>		
+			decl amres_hs = {1,unit(2),unit(3)}, h, i, j;
+			foreach (h in amres_hs[i])
+			{
+				amres_hs[i] = h + i * 10;
+				h += 1;
+				println(">>h?", h);
+			}
+			println(amres_hs);
+</xmp>
+		This is now safe.
+	
+<li><tt>foreach</tt> was not allowed on variables that were const or serial. The following
+		resulted in compilation error: 'amH' cannot take reference of constant:
+<xmp>		
+			decl jac_alphabeta = [=](const amH)
+			{
+				decl mj = <>, h, i;
+				foreach (h in amH[i])
+				{
+				}
+			};
+</xmp>
+
+<li><tt>MaxSQP/MaxSQPF</tt> if error in argument, would just print function name
+		rather than the full run-time error message before stopping
+	
+<li> <tt>j = sscan("AA:5", "%*t", ":", "%d", &i);</tt> should have j=1 (not j=2)
+        %* means skip the assignment, and such fields should not be counted. They were,
+		however, for %t,%v,%C.
+
+<li> If a data member of an object holds a function reference, this would be called
+        with the wrong number of arguments, leading to a runtime error.
+
+<li> <tt>find</tt> when searching for a string inside an array: defaulted to
+		reverse search and ignored mode argument. When searching for a string inside a string
+		it was always using reverse search, regardless of the mode.
+
+<li> Base class in class declaration did not handle namespace correctly.
+	Now in
+<xmp>	
+		class A : B { ... }
+</xmp>	
+	B defaults to the namespace in which it resides (or ::B for the global namespace,
+	or N::B for namespace N if in the global namespace).
+
+<li> <tt>clone</tt> was not preserving the pubic flag when copying an array (making it by value).
+If a member was an object, <tt>clone</tt> would lose its public or static property
+		after copying the object.
+
+<li> <tt>Database::FindSelection</tt> should not give an error message when a variable is not found
+
+<li> Problem with println("S\xF8ren"); and println("S&oslash;ren");
+<ul>
+	<li>On the Windows console: depends on the active code page (chcp).
+	<li>in OxEdit: skips quite a bit of output after that. 
+</ul>
+	Can make the Windows console UTF-8 by using chcp 65001 and the Lucinda Console font, then correct in both.
+	So best solution is for OxEdit/OxMetrics to treat all files with upper ASCII as UTF-8, not just
+	files with characters &gt; 0xFF.
+
+<li> A <tt>do {...}</tt> while loop as the very first executable code in a function can go wrong
+		because an invalid optimization makes the returning jump statement out by one
+		position in the code. Example:
+<xmp>		
+			#include <oxstd.h>
+			test(a, c)
+			{
+				decl b;//;=0;
+				do {  b = a;  ++c; 	} while (c < 0);
+				println(b);
+			}
+			main()
+			{
+				test(10, -2);
+			}	
+</xmp>		
+		 prints 1 instead of 10.<br>
+		 If the first statement is <tt>decl b = 0;</tt>, then there is executable
+		 code before the do statement, and the issue does not arise.
+	 
+<li> An indexation error in a function call argument would be reported at the wrong location.
+
+<li> OS X OxEdit packaging error: has RunOnce with both files.
+
+<li> If the number of arguments of a function declaration does not match a previous
+		declaration, it could crash Ox, rather than give a compilation error.
+
+<li> <tt>replace("%", "", "_");</tt> gets stuck in infinite loop
+
+<li> static member variables could lead to a crash when an object was used in a
+		parallel loop (solved by creating a new global lock).
+
+<li> Refactoring of gamma function code, small change in DGammaRatio_22.
+
+<li>Autometrics: Backward elimination did not consider the empty model.
+</ul>
+
+
+<p><hr><p><b>Ox version 7.10.</b>
+&copy; <i><a href="http://www.doornik.com" target="_top">
+JA Doornik</a></i>
+<p><p><hr>
+This file last changed <script type="text/javascript">document.write(document.lastModified);</script>.
+
+</div><!-- /page-frame -->
+</body></html>

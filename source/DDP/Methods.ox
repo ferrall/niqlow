@@ -1,5 +1,5 @@
 #include "Methods.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
 
 /**  Simplified Value Iteration model solution.
 
@@ -8,7 +8,7 @@
 @param MaxChoiceIndex FALSE = print choice probability vector [default]<br>TRUE = only print index of choice with max probability.  Useful when the full action matrix is very large.
 @param TrimTerminals FALSE [default] <br>TRUE means states marked `Bellman::IsTerminal` are deleted
 @param TrimZeroChoice FALSE [default] <br> TRUE means states with no choice are deleted
-<DT>Note:  All parameters are optional, so <code>SolveVI()</code> works.</DT>
+<DT>Note:  All parameters are optional, so <code>VISolve()</code> works.</DT>
 <DT>This function</DT>
 <DD>Creates a `ValueIteration` method</dd>
 <dd>Calls `DPDeubg::outAllV`(<parameters>)</dd>
@@ -67,11 +67,6 @@ ExogUtil::ExogUtil() {
 	
 ExogUtil::Run() { I::curth->ExogUtil();  }	
 
-//FixedSolve::FixedSolve(gtask) {
-//	FETask();
-//    itask = new RandomSolve(gtask);
-//	}
-
 
 /** Process a point in the fixed effect space.
 <OL>
@@ -92,9 +87,9 @@ ValueIteration::Run(){
     if (DPDebug::OutAll)  DPDebug::RunOut();
     else {
         if (GSolve::Volume>SILENT) {
-           if (N::G>1) println(" done ");
+           if (N::G>1) println("X");
 	       if (GSolve::Volume>QUIET) DPDebug::outV(TRUE);
-           }
+          }
         }
     Hooks::Do(PostRESolve);
 	}

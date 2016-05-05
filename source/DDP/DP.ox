@@ -1,5 +1,5 @@
 #include "DP.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
 
 
 /** Called by CreateSpaces. **/
@@ -24,6 +24,7 @@ I::Initialize() {
 I::Set(state,group) {
 	all[] = OO*state;
     curth = Theta[all[tracking]];
+    curAi = isclass(curth) ? curth.Aind : NoMatch;
     if (group) {
 	   g = int(all[bothgroup]);
 	   f = int(all[onlyfixed]);
@@ -48,7 +49,7 @@ SubSpace::SubSpace() {D=0; size=1; O=<>;}
 @param IsIterating if the clock is included, use the rightmost variable in the index or set offset to 0<br>[default=TRUE]
 @param DynRand
 **/
-SubSpace::Dimensions(subs,IsIterating,DynRand)	{
+SubSpace::Dimensions(subs,IsIterating,FullDim)	{
 	decl k,s,v,Nsubs = sizerc(subs),nxtO,mxd;
 	O = S[subs[0]].M ? zeros(1,S[subs[0]].M) : <>;
 	nxtO = 1;
@@ -61,7 +62,7 @@ SubSpace::Dimensions(subs,IsIterating,DynRand)	{
 				O ~= IsIterating ? 0~nxtO : nxtO~0;
 				nxtO *= S[k].N[IsIterating] ;
 				}
-			else if ( k!=rgroup || DynRand){
+			else if ( k!=rgroup || FullDim ){  //this was wrong until April 2016
 				D += mxd = S[k].D;
 				size *= S[k].size;
 				O ~= nxtO;
@@ -261,10 +262,11 @@ DP::SemiExogenousStates(v1,...) 	{ AddStates(semiexog,v1|va_arglist()); }
 @param v1,... `TimeInvariant`s
 **/
 DP::GroupVariables(v1,...)	{
-	decl va = {v1}|va_arglist(),j;
-	for(j=0;j<sizeof(va);++j) {
-		if (isclass(va[j],"FixedEffect")||isclass(va[j],"FixedEffectBlock")) AddStates(fgroup,va[j]);
-		else if (isclass(va[j],"RandomEffect")||isclass(va[j],"RandomEffectBlock")) AddStates(rgroup,va[j]);
+	decl va = {v1}|va_arglist(), cv;
+    foreach(cv in va) {
+//	for(j=0;j<sizeof(va);++j) {
+		if (isclass(cv,"FixedEffect")||isclass(cv,"FixedEffectBlock")) AddStates(fgroup,cv);
+		else if (isclass(cv,"RandomEffect")||isclass(cv,"RandomEffectBlock")) AddStates(rgroup,cv);
 		else oxrunerror("DDP Error 39. argument is not a TimeInvariant variable");
 		}
 	}
@@ -463,6 +465,7 @@ Alpha::Initialize() {
 	List = array(Matrix);
 	A = array(Matrix);
 	Sets = array(ones(N::A,1));
+    AIlist = array(range(0,N::A-1)');
     N::Options = matrix(rows(Matrix));
     N::J = 1;
     }
@@ -471,13 +474,14 @@ Alpha::AddA(fa) {
     decl nfeas = int(sumc(fa)), ai=0;
     do { if (fa==Sets[ai]) {++Count[ai]; break;} } while (++ai<N::J);
     if (ai==N::J) {
-  	 Sets |= fa;
-     N::Options |= nfeas;
-	 List |= selectifr(Matrix,fa);
-	 A |= List[N::J];
-     ++N::J;
-	 Count |= 1;
-     }
+  	     Sets   |= fa;
+         N::Options |= nfeas;
+	     List   |= selectifr(Matrix,fa);
+	     A      |= List[N::J];
+         AIlist |= selectifr(AIlist[0],fa);
+        ++N::J;
+	    Count |= 1;
+        }
    return ai;
    }
 
@@ -507,32 +511,32 @@ Alpha::Aprint() {
     aL1 |= "]";
 	av = sprint("%-14s",aL1);
 	for (i=0;i<N::J;++i) av ~= sprint("  A[","%1u",i,"]   ");
-		println(av);
-        print("------------------"); for (i=0;i<N::J;++i) print("---------"); println("");
-		for (j=0;j<N::A;++j) {
-			for (i=0,av=sprint("%03u",j)~" (";i<N::Av;++i) av ~= sprint("%1u",Matrix[j][i]);
-			av~=")";
-			for (i=0;i<N::J;++i) if (Sets[i][j]) {
-                    if (!sizeof(Rlabels[i])) Rlabels[i] = {av};
-                    else Rlabels[i] |= av;
-                    }
-			for (i=0;i<8-N::Av;++i) av ~= " ";
-            everfeasible = FALSE;
-			for (i=0;i<N::J;++i) {
-                av ~= Sets[i][j] ? "    X    " : "    -    ";
-                everfeasible = everfeasible|| (Count[i]&&Sets[i][j]);
-                }
-            av ~= "    ";
-			for (i=0;i<N::Av;++i)
-                    if ( isarray(DP::SubVectors[acts][i].vL) ) av ~= "-"~DP::SubVectors[acts][i].vL[Matrix[j][i]];
-			if (everfeasible) println(av);  else ++totalnever;
-			}
-		for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",Count[i]);
-		println(av);
-        print("-----------------"); for (i=0;i<N::J;++i) print("---------");
-        println("\n    Key: X = row vector is feasible. - = infeasible");
-        if (totalnever) println("    # of Action vectors not shown because they are never feasible: ",totalnever);
-        println("\n");
+	println(av);
+    print("------------------"); for (i=0;i<N::J;++i) print("---------"); println("");
+	for (j=0;j<N::A;++j) {
+		for (i=0,av=sprint("%03u",j)~" (";i<N::Av;++i) av ~= sprint("%1u",Matrix[j][i]);
+		av~=")";
+		for (i=0;i<N::J;++i) if (Sets[i][j]) {
+            if (!sizeof(Rlabels[i])) Rlabels[i] = {av};
+            else Rlabels[i] |= av;
+            }
+		for (i=0;i<8-N::Av;++i) av ~= " ";
+        everfeasible = FALSE;
+		for (i=0;i<N::J;++i) {
+            av ~= Sets[i][j] ? "    X    " : "    -    ";
+            everfeasible = everfeasible|| (Count[i]&&Sets[i][j]);
+            }
+        av ~= "    ";
+		for (i=0;i<N::Av;++i)
+            if ( isarray(DP::SubVectors[acts][i].vL) ) av ~= "-"~DP::SubVectors[acts][i].vL[Matrix[j][i]];
+		if (everfeasible) println(av);  else ++totalnever;
+		}
+	for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",Count[i]);
+	println(av);
+    print("-----------------"); for (i=0;i<N::J;++i) print("---------");
+    println("\n    Key: X = row vector is feasible. - = infeasible");
+    if (totalnever) println("    # of Action vectors not shown because they are never feasible: ",totalnever);
+    println("\n");
     }
 
 /**
@@ -567,7 +571,6 @@ N::Initialize() {
     G = DP::SS[bothgroup].size;
 	R = DP::SS[onlyrand].size;
     DynR = DP::SS[onlydynrand].size;
-//println(" NNN  ",DP::SS[onlyrand].size);
 	F = DP::SS[onlyfixed].size;
     Ewidth= DP::SS[onlyexog].size;
 	A = rows(Alpha::Matrix);
@@ -645,8 +648,9 @@ DP::Initialize(userState,UseStateList) {
     TypeCheck(userState,"Bellman","DDP Error 05.  You must send an object of your Bellman-derived class to Initialize.  For example,\n Initialize(new MyModel()); \n");
     if (Flags::ThetaCreated) oxrunerror("DDP Error 42. Must call DP::Delete between calls to CreateSpaces and Initialize");
     if (isint(L)) L = "DDP";
-    lognm = L+date()+replace(time(),":","-")+".log";
+    lognm = replace(Version::logdir+"DP-"+L+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"aV");
+    Discrete::logf = fopen(replace(Version::logdir+"Variables-"+L+Version::tmstmp+".log"," ",""),"aV");
     Hooks::Reset();
     this.userState = userState;
     Flags::UseStateList=UseStateList;
@@ -668,7 +672,7 @@ DP::Initialize(userState,UseStateList) {
             Volume = NOISY;
             println(Volume,arglist());
             }
-    if (Volume>=LOUD) println("DP::Intialize is complete. Action and State spaces are empty.\n Log file name is: ",lognm);
+    if (Volume>=QUIET) println("DP::Intialize is complete. Action and State spaces are empty.\n Log file name is: ",lognm);
  }
 
 /** Tell DDP when parameters and transitions have to be updated.
@@ -833,10 +837,10 @@ DP::CreateSpaces() {
 	SS[tracking]	->Dimensions(<endog;clock>,FALSE);
 	SS[onlyclock]	->Dimensions(<clock>,FALSE);
     SS[iterating]	->Dimensions(<endog;clock>);
-	SS[onlyrand]	->Dimensions(<rgroup>,FALSE);
+	SS[onlyrand]	->Dimensions(<rgroup>,FALSE,TRUE);
     SS[onlydynrand] ->Dimensions(<rgroup>,FALSE,Flags::UpdateTime[AfterRandom]);
 	SS[onlyfixed]	->Dimensions(<fgroup>,FALSE);
-	SS[bothgroup]	->Dimensions(<rgroup;fgroup>,FALSE);
+	SS[bothgroup]	->Dimensions(<rgroup;fgroup>,FALSE,TRUE);
 	SS[allstates]	->Dimensions(<exog;semiexog;endog;clock;rgroup;fgroup>,FALSE,TRUE);
     N::Initialize();
     Alpha::Initialize();
@@ -852,6 +856,7 @@ DP::CreateSpaces() {
 		w2 = sprint("%",7*S[endog].D,"s");
 		w3 = sprint("%",7*S[clock].D,"s");
 
+        println("0. USER BELLMAN CLASS\n    ",classname(userState));
         println("1. CLOCK\n    ",ClockType,". ",ClockTypeLabels[ClockType]);
 		println("2. STATE VARIABLES\n","%18s","|eps",w0,"|eta",w1,"|theta",w2,"-clock",w3,"|gamma",
 		"%r",{"       s.N"},"%cf","%7.0f","%c",Labels::Vprt[svar],N::All');
@@ -872,11 +877,13 @@ DP::CreateSpaces() {
                  "                 Times",
                  "         EV()Iterating",
 				 "      ChoiceProb.track",
-                 "  Random Groups(Gamma)",
-                 "   Fixed Groups(Gamma)",
+                 "         Random Groups",
+                 " Dynamic Random Groups",
+                 "          Fixed Groups",
+                 "   Total Groups(Gamma)",
                  "       Total Untrimmed"},
 							"%cf",{"%17.0f"},
-			SS[onlyexog].size|SS[onlysemiexog].size|SS[onlyendog].size|SubVectors[clock][0].N|SS[iterating].size|SS[tracking].size|N::R|N::F|SS[allstates].size);
+			SS[onlyexog].size|SS[onlysemiexog].size|SS[onlyendog].size|SubVectors[clock][0].N|SS[iterating].size|SS[tracking].size|N::R|N::DynR|N::F|N::G|SS[allstates].size);
 		print("\n4. ACTION VARIABLES\n   Number of Distinct action vectors: ",N::A);
 		println("%r",{"    a.N"},"%cf","%7.0f","%c",Labels::Vprt[avar],N::AA');
 		}
@@ -943,6 +950,7 @@ DP::CreateSpaces() {
                 }
         }
     else DP::A = Alpha::A;   //this is done in UpdateVariables()
+   Data::SetLog();
  }
 
 /** .
@@ -1655,10 +1663,10 @@ SaveV::Run() {
     decl mxi, p;
 	stub=I::all[tracking]~I::curth.InSubSample~I::curth.IsTerminal~I::curth.Aind~state[S[endog].M:S[clock].M]';
 	for(re=0;re<sizeof(I::curth.EV);++re) {
-        p = I::curth->ExpandP(re);
+        p = I::curth->ExpandP(re,TRUE);
         r =stub~re~I::f~I::curth.EV[re];
         if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
-		if (isclass(I::curth,"OneDimensionalChoice") )  r ~= CV(I::curth.zstar[re])';
+		if (isclass(I::curth,"OneDimensionalChoice") )  r ~= I::curth->Getz()';
 		if (!isint(aM)) aM[0] |= r;
 		s = (nottop)
 				? sprint("%cf",prtfmt,r)

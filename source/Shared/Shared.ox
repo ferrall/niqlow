@@ -1,14 +1,23 @@
 #include "Shared.h"
 /* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
 
-Version::Check() {
+/** Check versions and set timestamp, log directory.
+@param logdir str (default="").  A directory path or file prefix to attach to all log files.
+All log files will receive the same time stamp, which is set here.
+@comments
+ Only the first call does anything.  Any subsequent calls return immediately.
+**/
+Version::Check(logdir) {
  if (checked)  return ;
  if (oxversion()<MinOxVersion) oxrunerror("niqlow Error 00. This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
- oxprintlevel(1);
- println("\n niqlow version ",sprint("%4.2f",version/100),
- " Copyright (C) 2011-2015 Christopher Ferrall.\n",
- " Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n");
  checked = TRUE;
+ oxprintlevel(1);
+ this.logdir = logdir;
+ tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
+ println("\n niqlow version ",sprint("%4.2f",version/100),
+    "Copyright (C) 2011-2016 Christopher Ferrall.\n",
+    "Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n",
+    "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
  }
 
 /** Check that an object is of a required class.
@@ -203,8 +212,9 @@ DiscreteNormal(N,mu,sigma)	{
 /**Create a discrete quantity .
 @param L <em>string</em> a label or name for the variable.
 @param N <em>positive integer</em>, number of values.<br>N=1 is a constant.
+@param Volume default=SILENT. `NoiseLevels`
 **/
-Discrete::Discrete(L,N)  {
+Discrete::Discrete(L,N,Volume)  {
     if (!isint(N)||(N<=0)) oxrunerror("niqlow Error 02. Number of discrete values has to be a non-negative integer");
 	this.N = N;
     if (!isstring(L)) {
@@ -213,6 +223,7 @@ Discrete::Discrete(L,N)  {
         }
     else
         this.L = L;
+    this.Volume = Volume;
 	vals = range(0,N-1);
 	actual= vals';
 	subv = pos = UnInitialized;
@@ -230,13 +241,15 @@ Discrete::PDF() {return ismember(pdf,"v") ? pdf.v[v] : pdf[v];	}
 /** Create a new parameter.
 @param L parameter label
 @param ival initial value
+@param Volume default=SILENT. `NoiseLevels`
 **/
-Parameter::Parameter(L,ival)	{
+Parameter::Parameter(L,ival,Volume)	{
 	this.L = L;
 	v = start = scale = this.ival = ival;
 	f = 1.0;
 	block = DoNotVary = FALSE;
 	pos = UnInitialized;
+    this.Volume = Volume;
 	}
 
 /** Reset the parameter to its hard-coded values.
@@ -267,7 +280,10 @@ Parameter::Decode(f)	{
 	}
 
 /** Toggle the value of `Parameter::DoNotVary`.**/
-Parameter::ToggleDoNotVary() { DoNotVary = !DoNotVary; }
+Parameter::ToggleDoNotVary() {
+    DoNotVary = !DoNotVary;
+    println("Toggling parameter ",L," DoNotVary=",DoNotVary);
+    }
 
 /** Toggle DoNotVary for one or more parameters.
 @param a `Parameter` or array of parameters
@@ -277,7 +293,8 @@ ToggleParams(a,...) {
     decl v, va = va_arglist()|a;
 	foreach (v in va) {
         if (isarray(v)) ToggleParams(v);
-        else v->ToggleDoNotVary();
+        else
+            v->ToggleDoNotVary();
         }
     }
 
@@ -338,14 +355,17 @@ return o;
 /** Print Column Moments.
     @param M <em>matrix</em>: matrix to compute (column) moments for
     @param rlabels (optional), array of labels for variables
+    @param oxf int, print to screen (default),<br>file, printed to file
     @comments See Ox <tt>moments()</tt>
+    @return matrix of moments
 **/
-MyMoments(M,rlabels)	{
-	decl moms = (moments(M,2)|minc(M)|maxc(M))';
-	if (isarray(rlabels))
-		print("%r",rlabels,"%c",mymomlabels,moms);
-	else
-		print("%c",mymomlabels,moms);
+MyMoments(M,rlabels,oxf)	{
+	decl moms = (moments(M,2)|minc(M)|maxc(M))', mstr;
+	mstr = isarray(rlabels)
+                    ? sprint("%r",rlabels,"%c",mymomlabels,moms)
+                    : print("%c",mymomlabels,moms);
+    if (isfile(oxf)) fprintln(oxf,mstr); else println(mstr);
+    return moms;
 	}
 
 

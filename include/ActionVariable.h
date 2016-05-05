@@ -19,7 +19,7 @@ MyModel::Initialize() {
 **/
 struct ActionVariable : Discrete	{
     decl vL;
-	ActionVariable(L="a",N=1);
+	ActionVariable(L="a",N=1,Volume=SILENT);
 	}
 
 /** Easy way to create a binary choice.
@@ -40,5 +40,5 @@ MyModel::Initialize() {
 </dd>
 **/
 struct BinaryChoice : ActionVariable {
-    BinaryChoice();
+    BinaryChoice(Volume=SILENT);
     }

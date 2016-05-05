@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Ox 2.20: new features and fixed bugs</title>
+   <meta name="author" lang="en" content="Jurgen A Doornik">
+   <meta name="copyright" content="&copy Jurgen A Doornik">
+   <base target="content-frame">
+</head>
+<body text="Black" bgcolor="#FFFFEA" link="darkblue" vlink="darkblue" alink="darkblue">
+
+&lt;<A HREF="Ox300.html">Next version of Ox</A>&gt;
+&lt;<A HREF="Ox210.html">Previous version of Ox</A>&gt;
+
+
+<hr><h1>Ox 2.20: new features and fixes</h1>
+
+<hr><h2>New features and enhancements</h2>
+<ul>
+<li>Minor adjustment to GiveWin for Windows 2000.
+<li>OxPack with always on top option. Now installed with Ox Professional
+in <tt>ox\bin</tt>.
+<li><tt>invertgen(.,30)</tt> now distinguishes between singular
+       and negative definite matrix.
+<li><tt>sortc</tt> of <i>T</i> <tt>x</tt> 1 matrix now same speed as <tt>sortr</tt>.
+</ul>
+
+
+
+<hr><h2>Problems in version 2.10 which have been fixed in version 2.20:</h2>
+
+<ul>
+<li>Fixed bug in OxMainCmd which affected the Visual Basic RanApp example.
+<li>Assigning member functions to a variable
+       could lead to problems if reassignment of the variable
+	   to another member function is made.
+<li>Modelbase: keeping sign on t-values.
+<li>automatic creation of backup files when saving data has been removed.
+<li><tt>sscan</tt> with %c format could return too much text.
+<li>Spreadsheets: now writing "#N/A" for missing values
+  in Excel files; @NA in Lotus 1-2-3 files.
+<li>Problem with reading dates from data.xls:
+	   doesn't pick up dates when date column is unlabelled.
+<li>Compile only: returns exit code !0
+<li><tt>choleski</tt>(): doesn't return 0 when decomposition fails.
+	   Also made <tt>choleski</tt>() fail at same point as <tt>decldl</tt>():
+	   checking <tt>a[i][i]</tt> rather than <tt>sqrt(a[i][i])</tt>.
+<li>PcFiml class <tt>Chow</tt>(): if break-point beyond sample: would
+give .NaN because <tt>m_dLogLik</tt> was cleared by Modelbase::<tt>SetSelSample</tt>().
+<li>Note: QuadPack is compiled FORTRAN. Consequently call backs are
+non-re-entrant,	and a QuadPack function cannot call the same function.
+However, now it can call a different QuadPack function, allowing for 
+double integrals.
+<li>Database class: Lagged seasonals are actually leads,
+so: Season_1 is Q4, Season_2 is Q3, Season_3 is Q2.
+<li>Removed artificial upper limit on line length (format function).
+<li>DrawTitle doesn't replace an existing title. Fixed in GiveWin.
+<li>When starting OxRun from GiveWin, it may loose the last section
+of output.
+<li>Small fix in lib/longrun
+</ul>
+
+
+<p><hr><b>Ox version 2.20. This file last changed 22-Feb-2000.</b>
+&copy JA Doornik<br>
+<i><a href="http://www.nuff.ox.ac.uk/Users/Doornik/Index.html" target="_top">
+&lt;Doornik home&gt;</a></i>
+
+</div><!-- /page-frame -->
+</body>
+</html>

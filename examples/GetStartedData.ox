@@ -1,6 +1,6 @@
 /** See <a href="..\doc\DDP\GetStarted.html#GS1">GetStarted Part 2</a> for discussion. **/
 //#include "GetStarted.ox"  not needed if run from main.ox
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
 
 struct DerivedSearch : Search {
 	static decl u, simdata, dd;
@@ -21,8 +21,8 @@ DerivedSearch::Run()	{
     simdata = new SearchData();
     decl pd = new PathPrediction();
     pd->Tracking(NotInData,dd);
-    pd->SetT(5);
-    pd->Predict();
+//    pd->SetT(5);
+    pd->Predict(5,TRUE);
 	}
 
 SearchData::SearchData() {

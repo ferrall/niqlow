@@ -1,5 +1,5 @@
 #import "DP"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
 
 /** &theta;-specific values.
 
@@ -46,7 +46,7 @@ struct  Bellman : DP {
 			virtual ZetaRealization();
 			virtual	AutoVarPrint1(task);
 			virtual	Interface();
-			virtual Predict(ps,tod);
+			virtual Predict(tod);
             virtual OutputValue();
             virtual SetTheta(state=0,picked=0);
 
@@ -57,7 +57,7 @@ struct  Bellman : DP {
 					Simulate(Y);
 					ThetaTransition();
 					UpdatePtrans();
-					ExpandP(r);
+					ExpandP(r,Agg=TRUE);
 					MedianActVal(EV);
                     InSS();
 	}																																				
@@ -234,6 +234,7 @@ The user writes routines that return ...-->
 **/
 struct OneDimensionalChoice : ExPostSmoothing {
 	static 	decl
+            /** scratch space for E[U] in z* intervals.     **/	EUstar,
             /** space for current Prob(z) in z* intervals. **/	pstar,
             /** single action variable. **/                     d;
 			decl
@@ -248,16 +249,18 @@ struct OneDimensionalChoice : ExPostSmoothing {
 	virtual Smooth(pstar);
 	virtual ActVal(VV);
     virtual SetTheta(state,picked,solvez=TRUE);
+            Getz();
+            Setz(z);
 	}
 
 /** A OneDimensionalChoice model with discretized approximation to &zeta;.
 
-A discrete approximation to &zeta; enters the state vector if the decision is to accept (<code>d&gt;0</code).
+A discrete approximation to &zeta; enters the state vector if the decision is to accept (<code>d&gt;0</code>).
 
 **/
 struct KeepZ : OneDimensionalChoice {
 	static 	decl
-            /** Discrete state variable of kept &zeta;.**/ keptz, Qt, myVV;
+            /** Discrete state variable of kept &zeta;.**/ keptz, myios;
 	static 	Initialize(userState,d=2,UseStateList=FALSE);
     static  SetKeep(N,held=TRUE);
 	virtual thetaEMax();

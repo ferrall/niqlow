@@ -1,5 +1,5 @@
 #import "Variables"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
 
 static decl
         /** &Gamma; array (list) of groups of fixed and random effects. **/ Gamma,
@@ -396,3 +396,8 @@ struct DumpExogTrans : ExTask {
 	DumpExogTrans();
 	Run();
 	}
+
+struct Data : Task {
+    static decl logf, lognm, Volume;
+    static SetLog();
+   }

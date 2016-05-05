@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style/basic.css">
+  <link rel="stylesheet" type="text/css" href="style/theme-green.css">
+  <title>Ox 5.0: new features and fixed bugs</title>
+  <base target="content-frame">
+<!-- changes.html is a copy of the most recent Ox***.html -->
+  <script src="style/loadincontent.js" language="javascript"></script>
+</head>
+<body>
+<div class="page-frame">
+
+&lt;<A href="Ox600.html">Next version of Ox</A>&gt;
+&lt;<a href="Ox400.html">Previous version of Ox</a>&gt;
+
+
+<hr><h1>Ox 5: new features and fixes</h1>
+
+<p>
+<a href="#v510_fix">Fixed problems in version 5.1</a><br>
+<a href="#v500_new">New features and enhancements in version 5.0</a><br>
+<a href="#v500_fix">Fixed problems in version 5.0</a><br>
+<p>
+
+
+<a name="v510_fix"></a>
+<hr><h2>Fixed problems in version 5.1</h2>
+
+<p>
+<ul>
+<li>OxPack cannot run modelling package that depends on files outside
+	  the implied package folder: need option to specify additional run options.
+	  Redesigned the Add/Remove Package dialog.
+
+<li>Ability to read csv file written by Excel on Mac.
+Save csv file: no more warning about maximum rows/columns.
+The <tt>loadmat</tt>/<tt>savemat</tt> documentation now mentions csv
+(the wks/wk1 formats are now deprecated).
+<p>
+<i>Warning: Excel may write csv files with only single precision (9 significant
+digits, rather than the 17 that are needed for loss-less saving).
+</i>
+
+<li><tt>DrawTMatrix</tt> and daily data: sub sample plotting picked an upper bound for the x-axis that was
+      too low when using annual major ticks. Now also extending axis one day further, to include
+	  the next major tick mark on the axis.
+
+<li>Fixed memory leak in <tt>choleski</tt> of large matrices
+
+<li><tt>DrawBoxPlot</tt>: third argument was not interpreted as
+      variable name but as line index.
+
+<li><tt>Modelbase::Grow</tt> creates wrong Seasonal/CSeasonal for
+      weekly data.
+
+<li>Couldn't use <tt>GetModelStatus()</tt> in PcFiml derived classes.
+
+<li>Examples (html): title had link back, but now also added
+	  definition at end of example to jump to definition.
+
+<li><tt>Companion()</tt> (in <tt>lib/longrun.ox</tt>) would give run-time error
+	  for static model.
+
+<li>Found solution for annoying Internet Explorer ActiveX
+	  warning with Ox html files
+
+<li>bin64/oxl.exe was not statically linked
+
+<li>Fixed crash in <tt>loadmat</tt> of non-existent .xls file
+
+<li>Increased precision of today function (Windows,Linux);
+	  timer under Linux now returns wallclock instead of CPU time (as in Windows).
+
+</ul>
+
+<a name="v500_new"></a>
+<hr><h2>New features and enhancements in version 5.0</h2>
+
+<p>
+<ul>
+<li>Multithreaded version (Ox Professional only)
+
+New command line option <tt>-rp</tt> to specify number of parallel threads.
+The default is to use the same as the number of cores/processors.
+Use <tt>-rp1</tt> to force running on just one (serial instead of parallel).
+
+<li>Can now have <tt>enum</tt> inside class declaration (behaving as
+	  <tt>static const decl</tt> member variables).
+
+<li>Can now declare the same class twice (e.g. by accidentally
+	  including a header file twice, provided the declarations are identical)
+
+<li><tt>Modelbase::ForceYlag</tt> changed all types to <tt>Y_VAR</tt> for lagged
+      Y variables. Now argument can be array of two values to specify which type
+	  to change (first is value to change to, second to change from).
+	  <tt>Modelbase::ReceiveModel()</tt> now only changes <tt>X_VAR</tt>
+	  to <tt>Y_VAR</tt> for lagged dep.vars using
+	  <tt>ForceYlag( {Y_VAR, X_VAR} );</tt>
+
+<li><tt>ismember</tt> and <tt>classname</tt> functions.
+
+<li>improved <tt>invertgen</tt> documentation.
+
+<li><tt>Database::Grow</tt> and <tt>Modelbase::Grow</tt> now accept a negative
+argument to add observations at the beginning. Improved the created dates
+when extending a dated (weekly or 5 days per week) database.
+
+<li><tt>Database::Remove</tt> and <tt>Database::Rename</tt> now accept arrays of strings
+      as arguments.
+
+<li><tt>dropr</tt> and <tt>insertr</tt> now also work on arrays.
+
+<li><tt>getfiles</tt> function
+
+<li>OxPack:
+<ul>
+<li>    Added <tt>"OxPackGetData"("DbFullPath")</tt>
+<li>	  Can now specify multiple extensions in OP_FILE_OPEN, e.g.
+	    <tt>"OxPackSpecialDialog"("OP_FILE_OPEN", 0, "*.in7;*.xls"</tt>
+<li>      Added <tt>OP_VARIABLE</tt> (OxPackSpecialDialog) and <tt>CTL_VARIABLE</tt>
+      (dialog control). This allows editing any Ox variable, including
+	  arrays and objects of classes. The type of components cannot be changed.
+</ul>
+
+<li>Now can take the reference (address) of const variables
+      (previously this would be a compile-time error).
+	  This allows using <tt>fscan("%v", &this)</tt> to read an object from disk. Also
+	  allowed is &this in <tt>OP_VARIABLE</tt> or <tt>CTL_VARIABLE</tt>.
+
+<li>Faster sorting functions
+
+<li><tt>exclusion</tt> function with 3 arguments now sets idx to <>
+      if the input is empty
+
+<li>improvements for <tt>quanbeta</tt> and <tt>quanf</tt>, <tt>probf</tt>, <tt>tailf</tt>
+now allows n,m&gt;0
+	  instead of n,m&gt;1.
+
+</ul>
+
+<a name="v500_fix"></a>
+<hr><h2>Fixed problems in version 5.0:</h2>
+
+<p>
+<ul>
+
+<li><tt>"%v"</tt> format: don't read/write static const members.
+
+<li><tt>public static</tt> data members were not directly accessible.
+
+<li>In Ox 4 <tt>ranseed</tt> returns the 256 seeds. However, the
+      generator has an additional state and carry integer, so this is not
+	  enough to get the exact state of the generator. Now <tt>ranseed</tt> will
+	  return 258 numbers: the 256 seeds followed by state and carry.
+	  This allows for the exact state to be replicated (defaults are
+	  used for seeds, state or carry that are missing). 
+
+<li><tt>raninvgaussian</tt> could generate negative draws for very large mu,
+	  e.g. raninvgaussian(1,1,1e10,0.53).
+	  This was a problem with the original algorithm (Michael et al. 1976).
+
+<li>Parser recognizes &lt;&lt; and &gt;&gt;, however they could cause
+      stack overflow (and subsequent crash). Now solved stack problem.
+	  Currently, it is a no-op: doesn't do anything.
+
+<li>The following code
+<xmp>
+		Get() {	return {"AA"}; 			}
+		main(){	println(Get()[<0,0>]);	}
+</xmp>
+	  prints
+<xmp>
+		[0] = AA
+		[1] = 0
+</xmp>
+	  instead of
+<xmp>
+		[0] = AA
+		[1] = AA
+</xmp>
+	  
+<li><tt>modelforc</tt> crashed after error message: Some lagged variables
+	  are not given at lag 0.
+	  Now better at taking zero coefficients in account.
+
+<li><tt>gammafact(.NaN)</tt> results in crash (infinite recursion) on Linux.
+
+<li>The <tt>spline</tt> function with specified <i>X</i> and missing value(s)
+      would crash. To fix this, the return value of the spline function
+	  when an <i>X</i> variable is specified is different: previously it was the
+	  sorted smooth values. Now the values are in the original position
+	  (i.e. corresponding to the input <i>Y</i> data).<br>
+	  Spline against time was unaffected and is unchanged.
+	  
+<li>OxPack:
+<ul>
+<li>	  <tt>SaveOptions</tt> did not get called when closing OxMetrics.
+<li>	  <tt>CTL_LABEL</tt> should not affect the column partitioning.
+</ul>
+
+<li><tt>DrawTMatrix</tt> with dates for X axis did not work in Ox Console
+      (but worked with OxMetrics).
+
+
+</ul>
+
+
+<p><hr><p><b>Ox version 5.00.</b>
+&copy; <i><a href="http://www.doornik.com" target="_top">
+JA Doornik</a></i>
+<p><p><hr>
+This file last changed <script>document.write(document.lastModified);</script>.
+
+</div><!-- /page-frame -->
+</body></html>

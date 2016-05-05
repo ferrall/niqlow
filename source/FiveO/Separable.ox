@@ -4,14 +4,15 @@
 /** .
 @internal
 **/
-Separable::Print(orig,fn){
+Separable::Print(orig,fn,toscreen){
 	decl b=sprint("\n\nReport of ",orig," on ",L,"\n",
 		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
 		"Free Parameters",
 		"%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~cur.F,
 		"Actual Parameters",
 		"%c",KL,"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
-    if (isfile(fn)) fprintln(fn,b); else println(b);
+    if (isfile(fn)) fprintln(fn,b);
+    if (toscreen) println(b);
     }
 	
 
@@ -141,7 +142,13 @@ Separable::Encode(X,CallBase)   {
 	ResetCommon(FALSE);
 	}
 
-Separable::funclist(Fmat,aFvec)	{
+/** Compute the objective at multiple points.
+@param Fmat, N<sub>f</sub>&times;J matrix of column vectors to evaluate at
+@param aFvec, address of a ?&times;J matrix to return <var>f()</var> in.
+@param afvec, 0 or address to return aggregated values in.
+@returns J, the number of function evaluations
+**/
+Separable::funclist(Fmat,aFvec,afvec)	{
 	decl j,J=columns(Fmat),firstk,fvk,k, DoK = sumr(Included), isparallel=isclass(p2p);
 	if (isparallel)
 		decl JDoK = J*DoK, Xmat= new matrix[nstruct][JDoK],kObj;
@@ -171,6 +178,7 @@ Separable::funclist(Fmat,aFvec)	{
 			}
 		}
 	ResetCommon(FALSE);
+    if (afvec) cur->aggregate(aFvec[0],afvec);
 	return J;
 	}
 	
@@ -226,8 +234,7 @@ Separable::Jacobian() {
 	Decode(0);					// F should already be set
 	hold -> GCopy(cur);
 	decl h= dFiniteDiff1(cur.F), GradMat= zeros(NvfuncTerms,2*nfree), gg;	
-	Separable::funclist((cur.F+diag(h))~(cur.F-diag(h)),&GradMat);
-    cur->aggregate(GradMat,&gg);
+	Separable::funclist((cur.F+diag(h))~(cur.F-diag(h)),&GradMat,&gg);
     println("SepJac ",GradMat,gg);
 	cur.J = (gg[:nfree-1] - gg[nfree:])./(2*h);
 	cur->GCopy(hold);
@@ -301,14 +308,15 @@ Mixture::Mixture(L,Dvar,Kvar,MixType,...) {
 /** .
 @internal
 **/
-Mixture::Print(orig,fn){
+Mixture::Print(orig,fn,toscreen){
 	decl b=sprint("\n\nReport of ",orig," on ",L,"\n"," Not finished ..");
 //		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
 //		"Free Parameters",
 //		"%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~cur.F,
 //		"Actual Parameters",
 //		"%c",KL,"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
-    if (isfile(fn)) fprintln(fn,b); else println(b);
+    if (isfile(fn)) fprintln(fn,b);
+    if (toscreen) println(b);
     }
 	
 

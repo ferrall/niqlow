@@ -3,19 +3,64 @@
 
 @sortkey BAA
 
+<h2>Overview</h2>
+
 The `Data` class and its derivatives are used to simulate DDP data, compute predictions, read external data sets, and interface with <span class="n">Five-O</span>.
 
 `Data` objects relate to realizations along the path of the program.  Unlike other spaces (e.g. the group space <b>&Gamma;</b> and the state space <b>&Theta;</b>), multiple instances of different types of data can be stored simultaneously.  That is, there is no single <q>data space</q>.
 
-<OL class="contents">Contents
-<LI><a href="#Outcomes">Outcomes</a>
+There two parallel but separate kinds of data:
+
+<table class="tree">
+<tr>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="7" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label">`Data`</td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">The basis of simulation, prediction, and data.</td>
+</tr>
+<tr>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="6" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label">`Outcome`</td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">The concept behind simulating data from a DP and estimation based on likelihood.</td>
+</tr>
+<tr>
+<td class="line">&nbsp;</td>
+<td class="line"><div class="vline">&nbsp;</div></td>
+<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
+<td style="height:1px; width:auto;" colspan="6" class="fffix">
+<table class="labelwrapper">
+   <tbody><tr><td class="label">`Prediction`</td></tr>
+   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
+</tbody></table>
+</td>
+<td class="text">The concept behind average or expect results from the DP and estimation based on GMM.</td>
+</tr>
+</table>
+
+<H2>Contents</H2>
+<OL class="contents">
+<LI><a href="#Outcomes">Outcomes</a></LI>
 <DD><a href="#SS">Simulation</a></DD>
-<DD><a href="#Emet">Likelihood</a></DD></LI>
-<LI><a href="#PD">Prediction</a>
+<DD><a href="#Emet">Likelihood</a></DD>
+<LI><a href="#PD">Prediction</a></LI>
 <DD><a href="#Track">Tracking Objects to Predict</a></DD>
 <DD><a href="#moms">Moments</a></DD>
-<DD><a href="#GMM">GMM</a></DD></LI>
+<DD><a href="#GMM">GMM</a></DD>
 </OL>
+
+<h1>Data</h1>
 
 <OL class="body">
 <a name="Outcomes"><LI>Outcomes</LI></a>
@@ -193,7 +238,7 @@ During simulation, the vector &zeta; is filled in before calling <code>Auxiliary
 <dd>Endogenous states, &theta;</dd>
 <dd>Sampling from the stationary distribution</dd>
 
-<LI>Observed nad Partially Observed Outcomes</LI>
+<LI>Observed and Partially Observed Outcomes</LI>
 <DT>Recall that <em>Y*</em> is the full realized outcome of the DP model is a single period.  It includes all states, actions and auxiliary variables.  In practice the full outcome is not directly observed.  The limited information can be variables whose realized values are simply missing, or they only affect an auxiliary variable which combines other elements of the outcome.  </DT>
 <DD>Express the <em>observable outcome</em> as<pre>
 Y = &equiv; (x<sub>0</sub> &hellip; x<sub>&chi;.N</sub>  - - &hellip; a<sub>o0</sub> - &hellip; - a<sub>o1</sub> - &hellip; - z<sub>o0</sub> - &hellip; - e<sub>o0</sub> - &hellip; - h<sub>o0</sub> - &hellip; - q<sub>o0</sub> &hellip; - g<sub>o0</sub> - &hellip; )

@@ -13,11 +13,12 @@ StripZeros(trans) {
 @param N <em>positive integer</em> the number of values the variable takes on.<br>N=1 is a constant, which can be included as
 a placeholder for extensions of a model.
 @param L <em>string</em> a label or name for the variable.
+@param Volume default=SILENT. `NoiseLevels`
 @comments
 The default transition is  s&prime; = 0, so it is very unlikely <code>MyModel</code> would ever include a variable of the
 base class.
 **/
-StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>; }
+StateVariable::StateVariable(L,N,Volume)	{	Discrete(L,N,Volume); 	TermValues = <>; }
 
 
 /** Return actual[v].
@@ -162,17 +163,17 @@ Augmented::Synch() {    b.v = v;     }
 /** Base creator augmented state variables
 @param Lorb either a `StateVariable` object, the base variable to augment<br>Or, string the label for this variable.
 @param N integer, if Otherwise, if &gt; b.N number of points of the augmented variable.  Otherwise, ignored and this.N = b.Nl
-
+@param Volume default=SILENT. `NoiseLevels`
 If Lorb is a string then <code>b = new `Fixed`(Lorb)</code>.
 **/
-Augmented::Augmented(Lorb,N) {
+Augmented::Augmented(Lorb,N,Volume) {
     if (isclass(Lorb,"StateVariable")) {
         this.b = Lorb;
-        StateVariable(Lorb.L,max(N,Lorb.N));
+        StateVariable(Lorb.L,max(N,Lorb.N),Volume);
         }
     else {
         this.b = new Fixed(Lorb);
-        StateVariable(Lorb,N);
+        StateVariable(Lorb,N,Volume);
         }
     }
 
@@ -267,7 +268,7 @@ Prob( q&prime;= z | q,b ) =  I{z=r}&tau; + (1-&tau;)Prob(b&prime;=z)
 
 **/
 RandomTrigger::RandomTrigger(b,Tprob,rval) {
-    Triggered(b,Tprob,1,matrix(rval));
+    Triggered(b,Tprob,1,rval);
     }
 
 RandomTrigger::Transit(FeasA) {
@@ -397,7 +398,10 @@ ForgetAtT::IsReachable() {
 /**Create a standard normal N(0,1) discretize jump variable. **/
 Zvariable::Zvariable(L,Ndraws) { SimpleJump(L,Ndraws); }
 
-Zvariable::Update() {	actual = DiscreteNormal (N)';	}
+Zvariable::Update() {	
+    actual = DiscreteNormal (N)';
+    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
+    }
 
 /**Create a discrete Markov process.
 The dimensions of the transition probabilities determines the number of values taken on.
@@ -531,6 +535,7 @@ actual = 0 ~ exp{ &sigma;&Phi;<sup>-1</sub>(v/N)+ &mu;}
 **/
 LogNormalOffer::Update() {
 	actual = 0 | exp(DiscreteNormal(N-1,CV(mu),CV(sigma)))';
+    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
 	}
 
 /** Create a state variable that increments or decrements with state-dependent probabilities.
@@ -613,7 +618,10 @@ Lagged::Lagged(L,Target,Prune,Order)	{
     this.Order = Order;
     }
 
-Lagged::Update()	{	actual = Target.actual;	}
+Lagged::Update()	{	
+    actual = Target.actual;	
+    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
+    }
 
 /** Presumes an initial value of 0 for prunable clocks.
 @return TRUE if not pruning or not a prunable clock or `I::t` gt; `Lagged::Order` or value = 0
@@ -1096,6 +1104,7 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 	this.mu = mu;
 	this.CholLT = CholLT;
 	for (i=0;i<N;++i) AddToBlock(new NormalComponent(L+sprint(i),M));
+    Volume = SILENT;
 	}
 
 /** Updates the grid of Actual values.
@@ -1103,6 +1112,7 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 **/
 MVNormal::Update()	{
 	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*reshape(quann(range(1,M)/(M+1)),N,M) )';	
+    if (Volume>SILENT) fprintln(logf,L," update actuals ",Actual);
 	}
 
 /** K mutually exclusive episodes.
@@ -1177,6 +1187,7 @@ Tauchen::Update() {
 	Grid[][] = pts[][1:]-pts[][:N-1];
 	actual += AV(mu);
     actual = actual';
+    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
 	}
 
 /**Create a new asset state variable.
@@ -1236,7 +1247,10 @@ Asset::Transit(pdelt) {
 
 /** Create a discretized verison of the continuous &zeta; variable that enters the state when accepted (or kept).
 @param  L label
-@param  N number of points is
+@param  N number of points the state variable will take on.
+@param keep `ActionVariable`() that indicates &zeta; is kept.  Next period this variable will contain
+    a discrete approximiation to it.
+@param held
 **/
 KeptZeta::KeptZeta(L,N,keep,held) {
     StateVariable(L,N);
@@ -1244,32 +1258,77 @@ KeptZeta::KeptZeta(L,N,keep,held) {
     this.held = held;
     }
 
+/** Static transition of a kept continuous variable.
+The static transition.  If keeping current z is feasible then initialize to zero.
+Otherwise, leave unchanged.
+**/
 KeptZeta::Transit(FeasA) {
-    if (CV(held)) return UnChanged(FeasA);
-    return {vals, constant(1/N,rows(FeasA),N)};
+    if (any(FeasA[][keep.pos])) return {<0>, ones(rows(FeasA),1)} ;
+    return UnChanged(FeasA);
+//    if (CV(held)) return {v~0,(1-FeasA)~FeasA};
+//    return {<0>, ones(rows(FeasA),1)} ; // Changed April 2016 {vals, constant(1/N,rows(Fe asA),N)};
     }
 
+/** The default cdf of a kept continuous variable: &Phi;(z*).
+@param zstar, cut-off value
+@return F(zstar)
+**/
 KeptZeta::CDF(zstar) {    return probn(zstar);      }
 
+/** The default quantile of a kept continuous variable: &Phi;<sup>-1</sup>(u).
+@param u, vector of
+@return F<sup>-1</sup>(y)
+**/
+KeptZeta::Quantile(u) {    return quann(u);      }
+
+/** Default update of actual values.
+
+**/
 KeptZeta::Update() {
-    actual = quann( (vals+1) / (N+1) )';
+    actual = this->Quantile( (vals+1)/(N+1) )';
+    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
     }
 
-/** Conditional distribution of Z given zstar.
+KeptZeta::InitDynamic(cth,VV) {
+    myVV =VV';
+    isheld = CV(held);
+    addst = I::OO[iterating][keep.pos]*vals;
+    decl myios = cth.InSubSample ? I::all[onlysemiexog] : 0;
+    NxtI = cth.Nxt[Qit][myios];
+    NxtR = cth.Nxt[Qrho+I::rtran][myios];
+    NOth= columns(NxtR)-1;
+    println(I::t," ",isheld," ",v," ",NxtI," ",NxtR," ",I::OO[iterating][keep.pos],VV);
+    }
+
+/**
+            Pold   0
+            0      Pold
+
 **/
-KeptZeta::DynamicTransit(z,Qt) {
-    decl Nz = rows(z)-1, p = Qt[0][], j;
-    cdf = CDF(z)|1.0;    // F(z*)
-    zspot = sortcindex(sortcindex(z|actual))[:Nz]-vals[:Nz]' | N;    //Find where z* lands in actual values
-    for (j=0;j<=Nz;++j) {
-        df = (j==Nz ? (actual[N-1]+actual[N-2]): z[j+1]) - z[j];                          //
-        midpt = z[j] + df/2;
-        Fdif = (vals[zspot[j]:zspot[j+1]-1]+0.5) - N*cdf[j];    //undo default transit by multiplying both terms by N
-        Fdif /= sumr(Fdif);
-        A = (3/11)/df;
-        b = -4*A/sqr(df);
-        kern = A + b*sqr(actual[zspot[j]:zspot[j+1]-1]'-midpt);
-        p |= Qt[j+1][].*reshape( zeros(1,zspot[j]-1)~(Fdif.*kern /sumr(kern)~zeros(1,N-zspot[j+1])),1,columns(Qt));
+KeptZeta::DynamicTransit(z) {
+    decl j;
+    cdf = CDF(z);
+    DynI  = NxtI;
+    DynR =  NxtR;
+    zspot = 0;
+    do { if (z<actual[zspot]) break; ++zspot; } while(zspot<N);
+    if (zspot>=N-1) { //cut-off above second biggest value, so largest value occurs with prob. one 1. if d==1
+        DynI ~= DynI+addst[N-1];
+        DynR ~= 0.0|DynR[1][];
+        DynR[1][:NOth] = 0.0;
         }
-    return p;
+    else {
+        df = zspot>0 ? CDF((actual[zspot-1]+actual[zspot])/2)-cdf : -cdf;
+        dist = (1+df)~ones(1,N-zspot-1);
+        dist /= (N-zspot)*(1-cdf);
+        for(j=zspot;j<columns(addst);++j)
+            if (j>0) {
+                DynI ~= NxtI+addst[j];
+                DynR ~= 0.0|(dist[j-zspot]*NxtR[1][]);
+                DynR[1][:NOth] = 0.0;
+                }
+            else
+                DynR[1][:NOth] *= dist[0];
+        }
+    return DynR*myVV[DynI];
     }

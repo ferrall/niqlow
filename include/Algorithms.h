@@ -1,6 +1,6 @@
 #import "Shared"
 #import <solveqp>
-/* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2016 Christopher Ferrall */
 
 /** Base for optimization and system-solving algorithms.
 
@@ -13,10 +13,11 @@ struct Algorithm {
 //     /** . @internal **/                                    curpt,
 //	 /** . @internal **/									hold,
      /** name of log file **/                               lognm,
-     /** log file **/                                       logf,
 	 /** User's objective. **/								O,
 	 /** objective's pt. @internal **/						OC;
     				decl
+     /** Client node or no MPI .**/                         IIterate,
+     /** log file **/                                       logf,
 	 /** output level **/									Volume,
 	 /** maximum iterations **/ 	        				maxiter,
      /** current iteration count. @internal **/				iter,
@@ -28,6 +29,7 @@ struct Algorithm {
      /** Convergence code.  See `ConvergenceResults` **/	convergence;
 	virtual Tune(maxiter=0,toler=0,nfuncmax=0);
 	virtual Iterate();
+    virtual ItStartCheck();
 	Algorithm(O);
     }
 
@@ -63,19 +65,19 @@ struct LineMax	: NonGradient {
 		/** . @internal **/        	glimit           = 10.0,
 		/** . @internal **/        	gold             = 1.61803399,
 		/** . @internal **/        	rgold            = .61803399,
-		/** . @internal **/        	cgold            = 1-.61803399,
-		/** . @internal **/        	maxstp           = 5.0;
+		/** . @internal **/        	cgold            = 1-.61803399;
 
 		/** hold evaluations. @internal **/
 				const	decl		p1,p2,p3,p4,p5,p6;
 						decl 	
+		/** . **/        	        maxstp,
         /** . **/                   improved,
 		/** Direction vector. **/   Delta,
 						        	q,a,b;
 		
 		LineMax(O);
 		~LineMax();
-		Iterate(Delta,maxiter=0);
+		Iterate(Delta,maxiter=0,maxstp=0);
 		virtual Try(pt,step);
 		Bracket();
 		Golden();
@@ -129,6 +131,7 @@ struct NelderMead  : NonGradient {
 	enum{hi,nxtlo,lo,worst,TryResults};
 
 	static 	const 	decl
+	/** default Plexsize tolerance. **/ itoler = 1E-9,
     /** &alpha;.  **/					alpha = 1.0,
     /** &beta;.  **/					beta = 0.5,
     /** &gamma;. **/					gamma = 1.4,
@@ -139,9 +142,11 @@ struct NelderMead  : NonGradient {
     /** . @internal **/					psum,
     /** . @internal **/					plexshrunk,
 	/** current area of plex. **/		plexsize,
+    /** |f()-mean(f)| **/               fdiff,
 	/** function evaluations. **/		n_func,
-    /** model parameter simplex. **/	nodeX,
-    /** . **/							nodeV,
+    /** free parameter simplex. **/	    nodeX,
+    /** function values on the simples.
+            **/							nodeV,
     /** . @internal **/					mxi,
     /** . @internal **/					mni,
     /** . @internal **/					nmni,
@@ -234,15 +239,17 @@ struct GradientBased : Algorithm {
 		  			     										gradtoler,
         /** max iterations on line search. @see GradientBased::Tune **/
                                                                 LMitmax,
+        /** maximum step size in line search. **/               LMmaxstep,
        /** |&nabla;<sub>m</sub>-&nabla;<sub>m-1</sub>|.**/ 		deltaG,
        /** |x<sub>m</sub>-x<sub>m-1</sub>.**/					deltaX,
        /**                      **/								dx,
        /** # of time H reset to I  **/                          Hresetcnt;
 
 
+        virtual   ItStartCheck();
 		virtual   Iterate(H=0);
 		virtual   Direction();
-	    virtual   Tune(maxiter=0,toler=0,nfuncmax=0,LMitmax=0);
+	    virtual   Tune(maxiter=0,toler=0,nfuncmax=0,LMitmax=0,LMmaxstep=0);
 		          HHupdate(FORCE);
 		virtual   Gupdate();		
 		virtual   Hupdate();

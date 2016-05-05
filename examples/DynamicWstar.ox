@@ -5,25 +5,27 @@ DynWStar::Reachable()	{    return (CV(m)||!CV(keptz));    }
 DynWStar::DynWStar()    { zstar = zeros(N::R,1); }
 DynWStar::Uz(z)         {
     if (!CV(m)) return eta | z;	
-    return 0.0 | CV(keptz);
+    return AV(keptz) | z;
     }
+
 DynWStar::Utility()     {
-    decl acc = aa(d), wk = CV(m);
-    return (1-wk)*eta*(1-acc) + acc*( wk*CV(keptz) );	//+ (1-wk)*zstar[I::r]
+    return EUstar;  // Really needs to be [I::r]
+//    decl acc = aa(d), wk = CV(m);
+//    return (1-wk)*eta*(1-acc) + wk*( acc*zstar[I::r] + (1-acc)*AV(keptz) );	//+ (1-wk)*zstar[I::r]
     }
 
 DynWStar::Run()	{
 	Initialize(new DynWStar());
-    m = new LaggedAction("working",d);
-    SetKeep(25,m);
-	SetClock(NormalAging,2);
+    SetKeep(7,m = new LaggedAction("working",d));
+    keptz.Volume = LOUD;
+	SetClock(NormalAging,3);
 	SetDelta(0.4);
-//    Volume = NOISY;
+    //Volume = NOISY;
 	CreateSpaces();
 	RV = new ReservationValues();
-//    RV.Volume=NOISY;
-	RV->Solve(0,10);
-	DPDebug::outV(TRUE);
+    RV.Volume=SILENT;
+	DPDebug::outAllV(TRUE,FALSE,FALSE,TRUE,FALSE);
+	RV->Solve(0,20);
     delete RV;
 	}
 
@@ -32,6 +34,6 @@ Use Mill's ratio to compute truncated mean of normal.
 @return Array of two vectors
 **/	
 DynWStar::EUtility()    {
-	pstar = 1-probn(zstar[I::r]);
-	return {  ( eta | densn(zstar[I::r])/pstar) , (1-pstar)~pstar};
+	decl pacc = 1-probn(zstar[I::r]), vrej = CV(m) ? AV(keptz) :  eta ;
+	return {  ( vrej | densn(zstar[I::r])/pacc) , (1-pacc)~pacc};
 	}	

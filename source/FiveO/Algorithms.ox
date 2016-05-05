@@ -1,5 +1,5 @@
 #include "Algorithms.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
 
 /** Base class for non-linear programming algorithms.
 @param O `Objective` to work on.
@@ -11,8 +11,9 @@ Algorithm::Algorithm(O) {
 	OC = O.cur;
     tolerance = itoler;
 	Volume = SILENT;
-    lognm = classname(this)+"-On-"+O.L+date()+replace(time(),":","-");
-    logf = fopen(lognm+".log","aV");
+    lognm = replace(Version::logdir+"Alg-"+classname(this)+"-On-"+O.L+Version::tmstmp," ","")+".log";
+    logf = fopen(lognm,"aV");
+    fprintln(logf,"Created");
     }
 
 /** Tune Parameters of the Algorithm.
@@ -25,6 +26,18 @@ Algorithm::Tune(maxiter,toler,nfuncmax) {
 	if (isdouble(toler)) this.tolerance = toler;
 	if (nfuncmax) this.nfuncmax = nfuncmax;
 	}
+
+Algorithm::ItStartCheck() {
+    O->Encode();
+	N = rows(OC.F);
+    IIterate = !isclass(O.p2p) || O.p2p.IamClient;
+    if (!N && IIterate) {
+        oxwarning("No parameters are free.  Objective will be evaluated and then return");
+    	O->fobj(0);
+        return FALSE;
+        }
+    return TRUE;
+    }
 
 /** Tune NelderMead Parameters .
 @param mxstarts integer number of simplex restarts<br>0 use current/default value
@@ -40,14 +53,16 @@ NelderMead::Tune(mxstarts,toler,nfuncmax,maxiter) {
 	}
 
 /** Tune Parameters of the Algorithm.
-@param maxiter integer max. number of iterations <br>0 use current/default value
-@param toler double, simplex tolerance for convergence<br>0 use current/default value
-@param nfuncmax integer, number of function evaluations before resetting the simplex<br>0 use current/default value
-@param LMitmax interger, max number of line maximization iterions<br><br>0 use current/default value
+@param maxiter integer max. number of iterations <br/>0 use current/default value
+@param toler double, simplex tolerance for convergence<br/>0 use current/default value
+@param nfuncmax integer, number of function evaluations before resetting the simplex<br/>0 use current/default value
+@param LMitmax integer, max number of line maximization iterions<br/>0 use current/default value
+@param LMmaxstep double, maximum change in line maximization
 **/
-GradientBased::Tune(maxiter,toler,nfuncmax,LMitmax) {
+GradientBased::Tune(maxiter,toler,nfuncmax,LMitmax,LMmaxstep) {
     Algorithm::Tune(maxiter,toler,nfuncmax);
     if (LMitmax) this.LMitmax = LMitmax;
+    if (isdouble(LMmaxstep)) this.LMmaxstep = LMmaxstep;
     }
 
 /** Random search without annealing.
@@ -93,7 +108,7 @@ SimulatedAnnealing::Metropolis()	{
 	decl jm=-1, j, diff;
     for(j=0;j<M;++j) {
         diff = vtries[j]-OC.v;
-	    if (Volume>=LOUD) fprintln(logf,iter~vtries[j]~(vec(tries[][j])'));
+	    if (Volume>=LOUD) { fprintln(logf,iter~vtries[j]~(vec(tries[][j])')); fflush(logf);}
 	    if ( !isnan(diff) && (diff> 0.0) || ranu(1,1) < exp(diff/heat))	{
              jm = j;
              OC.v = vtries[jm];
@@ -111,14 +126,15 @@ SimulatedAnnealing::Metropolis()	{
         }
 	}
 
+
+
 /** Carry out annealing.
 @param chol Determines the Choleski matrix for random draws, <var>C</var><br>
 0 [default] $C = I$, the identity matrix<br>matrix, $C = $ chol.<br>double, common standard deviation, $C = chol I$.
 **/
 SimulatedAnnealing::Iterate(chol)	{
-	O->Encode();
-	N = rows(OC.F);
-    if (!isclass(O.p2p) || O.p2p.IamClient) {  //MPI not running or I am the Client Node
+    if (!ItStartCheck()) return;
+    if (IIterate) {  //MPI not running or I am the Client Node
        inp = isclass(O.p2p);
        M = inp ? O.p2P.Nodes : 1;
        Vtries=zeros(O.NvfuncTerms,M);
@@ -127,7 +143,7 @@ SimulatedAnnealing::Iterate(chol)	{
                                                  : ismatrix(chol) ?  chol
                                                                  :  unit(N);
 	   if (OC.v==.NaN) O->fobj(0);
-	   if (Volume>QUIET) O->Print("Annealing Start ");
+	   if (Volume>SILENT)O->Print("Annealing Start ",logf,Volume>QUIET);
 	   OC.H = OC.SE = OC.G = .NaN;
 	   accept = iter =0;	
 	   do  {
@@ -137,7 +153,7 @@ SimulatedAnnealing::Iterate(chol)	{
 		  Metropolis();
 		} while (iter++<maxiter);
 	   O->Decode(0);
-	   if (Volume>SILENT) O->Print(" Annealing Done ");
+	   if (Volume>SILENT) O->Print(" Annealing Done ",logf,Volume>QUIET);
        if (inp) {
             O.p2p.client->Stop();
             O.p2p.client->Announce(O.cur.X);
@@ -153,6 +169,7 @@ SimulatedAnnealing::Iterate(chol)	{
 **/
 LineMax::LineMax(O)	{
 	Algorithm(O);
+    maxstp = 5.0;
 	p1 = new LinePoint();
 	p2 = new LinePoint();
 	p3 = new LinePoint();
@@ -163,6 +180,7 @@ LineMax::LineMax(O)	{
 
 SysMax::SysMax(O) {
 	Algorithm(O);
+    maxstp = 5.0;
 	p1 = new SysLinePoint();
 	p2 = new SysLinePoint();
 	p3 = new SysLinePoint();
@@ -181,23 +199,28 @@ LineMax::~LineMax()	{
 /** Optimize on a line optimization.
 @param Delta vector of directions to define the line
 @param maxiter &gt; 0 max. number iterations<br>0 set to 1000
+@param maxstp &gt; 0, maximum step size in parameters.
 **/
-LineMax::Iterate(Delta,maxiter)	{
+LineMax::Iterate(Delta,maxiter,maxstp)	{
 	decl maxdelt = maxc(fabs(Delta));
 	this.Delta = Delta;
 	this.maxiter = maxiter>0 ? maxiter : 1000;
+    if (isdouble(maxstp)) this.maxstp = maxstp;
 	holdF = OC.F;
 	improved = FALSE;
 	p1.step = 0.0; p1.v = OC.v;
-	this->Try(p2,min(maxstp/maxdelt,1.0));
+	this->Try(p2,min(this.maxstp/maxdelt,1.0));
 	if (p2.v>p1.v) {q = p2;a=p1;} else {q=p1;a=p2;}
 	b = p3;
-    if (Volume>SILENT) fprintln(logf,"Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);
-	Bracket();
+    if (Volume>SILENT) { fprintln(logf,"Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);fflush(logf);}
+    Bracket();
     if (Volume>QUIET) println("Line: past bracket",a,b,q);
 	Golden();
 	O->Decode(holdF+q.step*Delta);
-    if (Volume>QUIET) println("Line: past golden",q);
+    if (Volume>SILENT) {
+        fprintln(logf,"Past golden",q);fflush(logf);
+        if (Volume> QUIET) println("Line: past golden",q);
+        }
  	OC.v = q.v;
     if (ismember(q,"V")) OC.V = q.V;
 	}
@@ -280,6 +303,7 @@ LineMax::Bracket()	{
 		else this->Try(u,(1+gold)*b.step-gold*q.step);
         if (notdone)
 			{a = q;	q = b;	b = u;  notdone= b.v>q.v;  }
+        if (Volume>SILENT) {fprintln(logf,"Bracket ",notdone,"a:",a,"q",q,"b",b);fflush(logf);}
 		}
 	}
 
@@ -287,7 +311,7 @@ LineMax::Bracket()	{
 
 **/
 LineMax::Golden()	{
-	decl x0 = a,  x3 = b,  x1 = p5,  x2 = p6, iter=0, s, tmp;
+	decl x0 = a,  x3 = b,  x1 = p5,  x2 = p6, iter=0, s, tmp, istr;
     if (fabs(b.step-q.step) > fabs(q.step-a.step))
 	  		{x1=q; this->Try(x2,q.step + cgold*(b.step-q.step));}
     else
@@ -298,7 +322,12 @@ LineMax::Golden()	{
          else
             { s=x3; tmp = x1.step; x3=x2; x2=x1; x1=s; this->Try(x1,rgold*tmp+cgold*x0.step); }
 		 iter += improved;  // don't start counting until f() improves
-         if (Volume>QUIET) fprintln(logf,"Line: ",iter,". improve: ",improved,". step diff = ",x3.step," - ",x0.step);
+         if (Volume>SILENT) {
+                istr = sprint("Line: ",iter,". improve: ",improved,". step diff = ",x3.step," - ",x0.step);
+                fprintln(logf,istr);
+                fflush(logf);
+                if (Volume>QUIET) println(istr);
+                }
 		} while (fabs(x3.step-x0.step) > tolerance*fabs(x1.step+x2.step) && (iter<maxiter) );
     if (x1.v > x2.v) q = x1; else q= x2;
     }
@@ -310,6 +339,7 @@ NelderMead::NelderMead(O)	{
     Algorithm(O);
 	step = istep;
 	mxstarts =INT_MAX;
+    tolerance = itoler;
 	}
 	
 /** Iterate on the Amoeba algorithm.
@@ -318,10 +348,9 @@ NelderMead::NelderMead(O)	{
 See <a href="GetStarted.html">GetStarted</a>
 **/
 NelderMead::Iterate(iplex)	{
-	O->Encode();
-    N = rows(OC.F);
-    if (!isclass(O.p2p) || O.p2p.IamClient) {
-	   nodeV = constant(-.Inf,N+1,1);
+    if (!ItStartCheck()) return;
+    if (IIterate) {
+        //	   nodeV = constant(-.Inf,N+1,1);
 	   OC.SE = OC.G = .NaN;
 	   iter = 1;
 	   if (!ismatrix(iplex))  {
@@ -332,11 +361,12 @@ NelderMead::Iterate(iplex)	{
 		  }
 	   else
 		  step = 1.0;
-	   if (Volume>QUIET) {
-		  O->Print("Simplex Starting ",logf);
+	   if (Volume>SILENT) {
+		  O->Print("Simplex Starting ",logf,Volume>QUIET);
 		  fprintln(logf,"\n Max # evaluations ",nfuncmax,
 				"\n Max # restarts ",mxstarts,
 				"\n Plex size tolerance ",tolerance);
+          fflush(logf);
 		  }
 	   do {
            n_func = 0;
@@ -346,13 +376,15 @@ NelderMead::Iterate(iplex)	{
 	       OC.F = nodeX[][mxi];
 	       OC.v = nodeV[mxi];
 	       holdF = OC.F;
-	       if (Volume>SILENT)
+	       if (Volume>SILENT) {
 	   		  fprintln(logf,"\n","%3u",iter,". N=","%5u",n_func," Step=","%8.5f",step,". Fmax=",nodeV[mxi]," .PlexSize=",plexsize,plexsize<tolerance ? " *Converged*" : "");
-	       if (Volume>QUIET) fprintln(logf," Bounds on Simplex","%r",{"min","max"},"%c",O.Flabels,limits(nodeX')[:1][]);
+	          fprintln(logf," Bounds on Simplex","%r",{"min","max"},"%c",O.Flabels,limits(nodeX')[:1][]);
+              fflush(logf);
+              }
 	       step *= 0.9;
            } while (++iter<mxstarts && !plexshrunk && n_func < nfuncmax);
 	   O->Decode(0);
-	   if (Volume>QUIET) O->Print("Simplex Final ");
+	   if (Volume>SILENT) O->Print("Simplex Final ",logf,Volume>QUIET);
        if (isclass(O.p2p)) {
             O.p2p.client->Stop();
             O.p2p.client->Announce(O.cur.X);
@@ -390,41 +422,48 @@ NelderMead::Reflect(fac) 	{
 @internal
 **/
 NelderMead::Sort()	{
-	decl sortind = sortcindex(nodeV);
+	decl sortind = sortcindex(nodeV');
 	mxi = sortind[N];
 	mni = sortind[0];
 	nmni = sortind[1];
 	psum = sumr(nodeX);		
 	plexsize = SimplexSize();
+    fdiff = norm(nodeV-meanr(nodeV));
 	}
 
 /** Compute size of the current simplex.
 @return &sum;<sub>j</sub> |X-&mu;|
 **/
 NelderMead::SimplexSize() {
-	return double(sumc(maxr(fabs(nodeX-meanr(nodeX))))); // using maxr() now
-//	return (nodeV[mxi]-nodeV[mni])/max(fabs(nodeV[mxi]+nodeV[mni]),1E-7);
+	return norm(nodeX-meanr(nodeX),'F');
 	}
 
 /**	  .
 @internal
 **/
 NelderMead::Amoeba() 	{
-     decl fdiff, vF = zeros(O.NvfuncTerms,N+1);
+     decl vF = zeros(O.NvfuncTerms,N+1);
 	 n_func += O->funclist(nodeX,&vF,&nodeV);
-//	 nodeV = sumc(vF)';	   // aggregate!!!
+     if (Volume>SILENT) { fprintln(logf,"Amoeba: ");fflush(logf);}
 	 do	{
 	 	Sort();
 		if (plexsize<tolerance) return TRUE;
+        if (Volume>SILENT) fprint(logf,"plexsize: ",plexsize," fdiff:",fdiff);
 		Reflect(-alpha);
-		if (atry==hi) Reflect(gamma);
+        if (Volume>SILENT) fprint(logf," ",atry==hi," ",atry>nxtlo);
+		if (atry==hi) {
+            Reflect(gamma);
+            if (Volume>SILENT) fprint(logf," ... gamma ",atry);
+            }
 		else if (atry>nxtlo){
 			Reflect(beta);
+            if (Volume>SILENT) fprint(logf," ... beta ",atry==worst);
 			if (atry==worst){
 				nodeX = 0.5*(nodeX+nodeX[][mxi]);
 				n_func += O->funclist(nodeX,&vF,&nodeV);
 				}
 			}
+        if (Volume>SILENT) { fprintln(logf," ... ",n_func);fflush(logf);}
 		} while (n_func < nfuncmax);
 	 return FALSE;
 	}
@@ -441,6 +480,7 @@ GradientBased::GradientBased(O) {
                 : new SysMax(O);
 	gradtoler = igradtoler;
     LMitmax = 10;
+    LMmaxstep = 0;
 	}
 
 /** Create an object of the BFGS algorithm.
@@ -537,9 +577,14 @@ GradientBased::Gupdate()	{
 	oldG = OC.G;
 	O->Gradient();	
 	deltaG = norm(OC.G,2);
-	if (Volume>QUIET) fprintln(logf,"%r",{"Gradient "},"%c",O.Flabels,OC.G);
+	if (Volume>QUIET) {fprintln(logf,"%r",{"Gradient "},"%c",O.Flabels,OC.G);fflush(logf);}
 	return deltaG<gradtoler;
 	}
+
+GradientBased::ItStartCheck() {
+    holdF = OC.F;
+    return Algorithm::ItStartCheck();
+    }
 
 /** Iterate on a gradient-based algorithm.
 @param H matrix, initial Hessian<br>integer, use the identity <var>I</Var> as the initial value, or compute H if Newton.
@@ -553,10 +598,9 @@ All gradient-based algorithms conduct a `LineMax`imization on each iteration.
 
 **/
 GradientBased::Iterate(H)	{
-    decl IamNewt = isclass(this,"Newton");
-	O->Encode();
-	N = rows(holdF = OC.F);
-    if (!isclass(O.p2p) || O.p2p.IamClient) {
+    if (!ItStartCheck()) return;
+    decl IamNewt = isclass(this,"Newton"), istr;
+    if (IIterate) {  //Only Client Node Iterates
 	   if (OC.v==.NaN) O->fobj(0);
        if (IamNewt) {
 	     if (isint(H)) O->Hessian();
@@ -566,23 +610,38 @@ GradientBased::Iterate(H)	{
 	       OC.H = isint(H) ? unit(N) : H;
 	   Hresetcnt = iter =0;
        OC.SE = OC.G = .NaN;
-	   if (Volume>QUIET)	O->Print("Gradient Starting");
-	   if (this->Gupdate()) {convergence=STRONG;}
-	   else do  {
+	   if (Volume>SILENT)O->Print("Gradient Starting",logf,Volume>QUIET);
+	   if (this->Gupdate())
+            convergence=STRONG;         //finished before we start!
+	   else do  {                      // HEART OF THE GRADIENT ITERATION
+
 		  holdF = OC.F;
-		  LM->Iterate(Direction(),LMitmax);
+		  LM->Iterate(Direction(),LMitmax,LMmaxstep);
 		  convergence = (++iter>maxiter) ? MAXITERATIONS
                                          : IamNewt ? this->HHupdate(FALSE)
                                                    : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE)) ;
-		  if (Volume>QUIET) fprintln(logf,iter,". f=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
+		  if (Volume>SILENT) {  //Report on Current Iteration
+                istr = sprint(iter,". f=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
+                fprintln(logf,istr);
+                if(Volume>QUIET) println(istr);
+                O->Print("",logf,Volume>QUIET);
+                fflush(logf);
+                }
+
 		  } while (convergence==NONE);
-	   if (Volume>SILENT) fprintln(logf,"\nFinished: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient"},OC.F'|OC.G);
-	   if (convergence>=WEAK) {
-		  this->HHupdate(TRUE);
-		  OC.SE = sqrt(diagonal(invert(OC.H)));
-		  }
+
+	     if (Volume>SILENT) {  //Report on Result of Iteration
+                istr =sprint("\nFinished: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient"},OC.F'|OC.G);
+                fprintln(logf,istr);
+                if (Volume>QUIET) println(istr);
+                fflush(logf);
+                }
+	     if (convergence>=WEAK) {
+            this->HHupdate(TRUE);
+		    OC.SE = sqrt(diagonal(invert(OC.H)));
+		    }
 	   O->Decode(0);
-	   if (Volume>SILENT) O->Print("Gradient Ending");
+	   if (Volume>SILENT) O->Print("Gradient Ending",logf,Volume>QUIET);
        if (isclass(O.p2p)) {
             decl reply;
             O.p2p.client->Stop();
@@ -641,17 +700,7 @@ Newton::Hupdate() {
     return NONE;
     }
 
-///** .
-//@internal
-//**/	
-//BHHH::Gupdate() {
-//	oldG = OC.G;
-//	O->Gradient();
-//	deltaG = norm(OC.G,2);
-//	return deltaG<gradtoler;
-//    }
-
-/** .
+/** UPdate the Hessian for the BHHH algorithm.
 @return NONE
 **/
 BHHH::Hupdate() {
@@ -736,15 +785,15 @@ If inversion of J fails, reset to I
 **/
 NonLinearSystem::Direction() 	{
 	decl  l, u, p;
-	if (declu(OC.J,&l,&u,&p)==1)
+	if (declu(OC.J,&l,&u,&p)==1) {
 		return solvelu(l,u,p,-OC.V);
+        }
 	else {
 		 if (resat) {
 		 	println("**** ",OC.F',OC.J,"\n****");
 		 	oxrunerror("FiveO Error 07. Second failure to invert J.|n");
 			}
 		 oxwarning("FiveO Warning 02. NonLinearSystem: J inversion failed. J reset to identity matrix I.\n");
-         if (Volume>QUIET) fprintln(logf,"Jacobian",OC.J);
 		 OC.J = unit(N);
 		 resat = TRUE;
 		 return Direction();
@@ -772,39 +821,48 @@ This routine is shared (inherited) by derive algorithms.
 
 **/
 NonLinearSystem::Iterate(J)	{
-decl d;
-	O->Encode();
-	N = rows(holdF = OC.F);
+    decl d,istr;
+    if (!ItStartCheck()) return;
     deltaX=.NaN;
-    if (!isclass(O.p2p) || O.p2p.IamClient) {
+    if (IIterate) {
 	   Hresetcnt = iter =0;
 	   OC.H = OC.SE = OC.G = .NaN;	
 	   resat = FALSE;
-	   if (Volume>QUIET)	O->Print("Non-linear System Starting");
-	   if (this->Gupdate()) { convergence=STRONG;  }
+	   if (Volume>SILENT) O->Print("Non-linear System Starting",logf,Volume>QUIET);
+	   if (this->Gupdate())
+            convergence=STRONG;   //Finished before we start!
 	   else {
 		  if (isclass(this,"Broyden"))
                 OC.J =isint(J) ? unit(N) : J;
 		  else
 		  		O->Jacobian();
 	 	  do {
+
 		  	holdF = OC.F;
             d = Direction();
 		    if (USELM)
-                LM->Iterate(d,LMitmax);
+                LM->Iterate(d,LMitmax,LMmaxstep);
             else
                 O->Decode(holdF+d);
+
 			convergence = (++iter>maxiter) ? MAXITERATIONS : (Hresetcnt>1 ? SECONDRESET : this->JJupdate());
-			if (Volume>QUIET) {
-                fprintln(logf,iter,".  deltaX: ",deltaX," deltaG:",deltaG);
-			    if (Volume>LOUD) fprintln(logf,"%c",O.Flabels,"%r",{"    Params Vector","           System"},OC.F'|OC.V');
+
+			if (Volume>SILENT) {
+                istr = sprint("\n",iter,".  deltaX: ",deltaX," deltaG:",deltaG,"%c",O.Flabels,"%r",{"    Params Vector","           System","        Direction"},OC.F'|OC.V'|d');
+                fprintln(logf,istr);			
+                if (Volume>QUIET) println(istr);
+                fflush(logf);
                 }
 			} while (convergence==NONE && !isnan(deltaX) );
 		  }
-	    if (Volume>SILENT)
-		  fprintln(logf,"\nConverged:","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Params Vector","           System"},OC.F'|OC.V');
+
 	    O->Decode(0);		
-	    if (Volume>SILENT) O->Print("Non-linear System Ending",logf);
+	    if (Volume>SILENT) {
+            istr = sprint("\nConverged:","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Params Vector","           System"},OC.F'|OC.V');
+		    fprintln(logf,istr);
+		    if (Volume>QUIET) println(istr);
+            O->Print("Non-linear System Ending",logf,Volume>QUIET);
+            }
         if (isclass(O.p2p)) {
             O.p2p.client->Stop();
             O.p2p.client->Announce(O.cur.X);
@@ -878,17 +936,19 @@ SQP::Hupdate() {
 @param H initial Hessian<br>integer, use I
 **/
 SQP::Iterate(H)  {
-	decl Qconv,deltx,mults;
-	O->Encode();
-	N = rows(OC.F);
-    if (!isclass(O.p2p) || O.p2p.IamClient) {
+	decl Qconv,deltx,mults,istr;
+    if (!ItStartCheck()) return;
+    if (IIterate) {
 	   OC.H = isint(H) ? unit(N) : H;
 	   OC.SE = OC.G = .NaN;
 	   O->Merit(0);
 	   if (any(OC.ineq.v.<0)) oxrunerror("FiveO Error 09. Inequality constraints not satisfied at initial psi");
 	   if (any(OC.ineq.lam.<0)) oxrunerror("FiveO Error 10. Initial inequality lambda has negative element(s)");
-	   if (Volume>QUIET)
-		  fprintln(logf," .f0=",OC.v,". #Equality: ",ne,". #InEquality: ",ni);		
+	   if (Volume>SILENT) {
+          O->Print("SQP Starting",logf,Volume>QUIET);
+		  fprintln(logf," .f0=",OC.v,". #Equality: ",ne,". #InEquality: ",ni);	
+          fflush(logf);
+          }	
 	   Hresetcnt = iter =0;
 	   do  {
 		  holdF = OC.F;
@@ -896,19 +956,20 @@ SQP::Iterate(H)  {
 		  [Qconv,deltx,mults] = SolveQP(OC.H,OC.L',OC.ineq.J,OC.ineq.v,OC.eq.J,OC.eq.v,<>,<>);  // -ineq or +ineq?
 		  if (ne) OC.eq.lam =  mults[:ne-1];
 		  if (ni) OC.ineq.lam =  mults[ne:];
-//		  println("deltx ",OC.F',deltx');
-		  LM->Iterate(deltx,1);
-//		  println(deltx',holdF',OC.F');
+		  LM->Iterate(deltx,1,LMmaxstep);
 		  convergence = (++iter>maxiter) ? MAXITERATIONS : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE));		
-          println(iter," ",convergence);
-		  if (Volume>QUIET) {
-		    fprintln(logf,"\n",iter,". QP code:",Qconv,". L=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
+		  if (Volume>SILENT) {
+            istr = sprint("\n",iter,". convergence:",convergence,". QP code:",Qconv,". L=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
+		    fprintln(logf,istr);
+            fflush(logf);
+            if (Volume>QUIET) println(istr);
 			OC.eq->print();
 			OC.ineq->print();
 			}
 		  } while (convergence==NONE);
 	   if (Volume>SILENT) {
             fprintln(logf,"\nConverged: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient"},OC.F'|OC.G);
+            fflush(logf);
             OC.eq->print();
             OC.ineq->print();
 		    }
@@ -917,7 +978,7 @@ SQP::Iterate(H)  {
 		  OC.SE = sqrt(diagonal(invert(OC.H)));
 		  }
 	   O->Decode(0);
-	   if (Volume>SILENT) O->Print("SQP Ending");
+	   if (Volume>SILENT) O->Print("SQP Ending",logf,Volume>QUIET);
        if (isclass(O.p2p)) {
             O.p2p.client->Stop();
             O.p2p.client->Announce(O.cur.X);

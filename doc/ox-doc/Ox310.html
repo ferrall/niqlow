@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style/basic.css">
+  <link rel="stylesheet" type="text/css" href="style/theme-green.css">
+  <title>Ox 3.10: new features and fixed bugs</title>
+  <meta name="author" lang="en" content="Jurgen A Doornik">
+  <meta name="copyright" content="&copy Jurgen A Doornik">
+  <base target="content-frame">
+  <script src="style/loadincontent.js" language="javascript"></script>
+</head>
+<body>
+<div class="page-frame">
+
+&lt;<A href="Ox320.html">Next version of Ox</A>&gt;
+&lt;<a href="Ox300.html">Previous version of Ox</a>&gt;
+
+
+<hr><h1>Ox 3.10: new features and fixes</h1>
+
+
+<hr><h2>New features and enhancements</h2>
+<p>
+
+<ul>
+<li>Updated Basic examples to Visual Basic 6. Updated
+ox/dev/OxWin.bas, and created ox/dev/OxGiveWin.bas for link to GiveWin.
+<li>checked Borland version of threes.c.
+
+<li>Updated OxPack documentation in Appendix
+
+<li>Updated exported function list in Appendix.
+
+<li>Put the Imhof code in ox/lib/probimhof.ox
+
+<li>Online help: added all the examples of the standard function library.
+
+<li>Added "%lwr" to print only lower diagonal. For example:
+<tt>print("%lwr", x);</tt>
+
+<li>added isdotmissing/ismissing (test for NaN or infinity).
+
+<li>Added ADJ_LEGEND for DrawAdjust.
+
+<li>Improved number of columns per line when using "%cf" print format.
+</ul>
+
+
+<hr><h2>Problems in version 3.00 which have been fixed in version 3.10:</h2>
+
+<ul>
+<li>Online help: GetDbName/SetDbName should be in Modelbase
+
+<li>Improved timer function under Linux.
+  
+<li>Matrix multiplication is slow:
+some left-in debugging code resulted in the multiplication
+done twice (once slowly, once quickly, so slow overall!). This
+would be noticeable when working with large matrices.
+<li>Fixed problem with the contour plots in DrawXYZ.
+
+<li>SolveQP with bounds only didn't work; didn't
+	   always handle bounds correctly.
+(NB. this SolveQP is very slow on larger problems. A new
+version is under development.)
+
+<li>Docs: default for dMin argument of DrawHistogram is 1, not 0.
+
+<li>OxGauss: gradp returned result transposed.
+
+<li>Reading version 2.1 .xls files: integers beween
+       32000 and 64000 are read as negative numbers (not a problem
+	   for version 3 or more recent Excel files; note that Ox
+	   never saves an .xls file with integers).
+
+<li>Saving as in7 file: didn't check for spaces (could
+	be problem, e.g., when loading from .xls, and then saving).
+	The .in7 file with spaces in variable names would not load
+	properly, suggesting a corrupted file. However, the data (.bn7 file)
+	was intact, and the .in7 file (which is a text file), can
+	be easily fixed.
+</ul>
+
+
+<p><hr><p><b>Ox version 3.10.</b>
+&copy <i><a href="http://www.nuff.ox.ac.uk/Users/Doornik/index.html" target="_top">
+JA Doornik</a></i>
+This file last changed <script>document.write(document.lastModified);</script>.
+
+</div><!-- /page-frame -->
+</body>
+</html>

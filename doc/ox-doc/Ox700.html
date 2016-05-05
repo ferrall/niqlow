@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style/basic.css">
+  <link rel="stylesheet" type="text/css" href="style/theme-green.css">
+  <title>Ox 7.0: new features and fixed bugs</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="author" lang="en" content="Jurgen A Doornik">
+  <meta name="copyright" content="&copy; Jurgen A Doornik">
+  <base target="content-frame">
+<!-- changes.html is a copy of the most recent Ox***.html -->
+  <script src="style/loadincontent.js" language="javascript" type="text/javascript"></script>
+</head>
+<body>
+<div class="page-frame">
+
+&lt;<A href="Ox710.html">Next version of Ox</A>&gt;
+&lt;<a href="Ox600.html">Previous version of Ox</a>&gt;
+
+
+<hr><h1>Ox 7: new features and fixes</h1>
+
+<p>
+<a href="#v700_new">New features and enhancements in version 7.0</a><br>
+<a href="#v700_fix">Fixed problems in version 7.0</a><br>
+<p>
+
+The Ox version number is kept in line with the OxMetrics front-end version.
+
+<a name="v700_new"></a>
+<hr><h2>Overview of new features  version 7.0</h2>
+
+<p>
+<b>Dynamic link libraries and oxo files need to be recompiled for Ox 7!</b>
+<p>
+<b>Multithreaded computation is only supported by Ox Professional</b>
+<p>
+
+<p>
+<ul>
+<li>New syntax          
+<ul>
+<li><a href="oxsyntax.html#ox_syntax_iter"><tt>foreach</tt></a> loops
+<li><a href="oxsyntax.html#ox_syntax_Lambda">Lambda functions</a> (anonymous functions)
+</ul>
+<li>Input handling      
+<ul>
+<li><a href="oxstd.html#fopen">Open a zip file</a> for reading.
+The following file functions can handle the opened zip file:
+<tt>fread</tt>, <tt>fscan</tt>, <tt>feof</tt>, <tt>fsize</tt>.
+<li><a href="oxclass.html#Database">Database class</a> handles choice variables            
+<li><a href="oxstd.html#replace"><tt>replace</tt></a>: replace text in string           
+<li><a href="oxstd.html#loadsheet"><tt>loadsheet</tt></a>: loads an entire sheet from xlsx file (can be any sheet, not just the first)
+<li>Improved handling of files &gt;2GB                  
+</ul>
+<li>Efficiency          
+<ul>
+<li>Improved handling of function arguments that are not labelled as <tt>const</tt>.
+<li>Faster virtual function calls                                                   
+<li>Lower overhead of sub matrix assignment                                         
+<li>Compilation of <a href="oxsyntax.html#ox_syntax_Canonical">canonical <tt>for</tt> and <tt>foreach</tt> loops</a>                                              
+</ul>
+<li>Parallel programming
+<ul>
+<li><a href="oxsyntax.html#ox_syntax_Parfor">Parallel loops</a>
+<li>Parallel simulation using <a href="oxclass.html#Simulator">Simulator class</a>
+</ul>
+<li>Developer
+<ul>
+<li>Renamed Appendices to Developer's manual. Created C# and Java examples.
+<li>Java version of RanApp (usung NetBeans)
+</ul>
+</ul>
+
+<p>
+<hr><h2>New features and enhancements in version 7.0</h2>
+<p>
+<ul>
+<li>New syntax
+<ul>
+<li>extended dot-relational and dot-equality operators for strings. Eg.
+<xmp>
+    print("AACGTGGC" .== "ACCTTGGC");       // <1,0,1,0,1,1,1,1>
+    print("AACGTGGC" .== 'A');              // <1,1,0,0,0,0,0,0>
+</xmp>
+<li>Added [=] lambda functions
+<li>Added <tt>foreach</tt> loop
+<li>Added <tt>parallel for</tt> and <tt>parallel foreach</tt> loops, and <tt>serial</tt> keyword
+	to synchronize thread access (Professional). See the new chapter in the Ox book.
+<li>Added default values for function arguments.
+<li>There are three new keywords: foreach, parallel and serial. Any
+	existing code that uses these as variable names will have to be modified to
+	use slightly different names.
+<li>Now using <tt>.oxh</tt> as default header extension. This allows us to distinguish
+	Ox header files from C/C++ header files. Of course, <tt>.h</tt> is still allowed. For
+	backward compatibility, <tt>include &lt;file.h&gt;</tt> will try .oxh first, then, if that fails, the .h file.
+<li>Changed meaning of <tt>a = b = c</tt>; Now leaving c on the stack.<br> 
+	Previously the documentation said: `The type of an
+	assignment is that of its left operand.' However, this is impossible, because the
+	left-hand side in Ox may not have a type.
+	This change is only noticeable when using matrix indices, e.g. <tt>a = b[4][] = c</tt>,
+	and is highly unlikely to affect existing code.
+<li>Handling of <tt>const</tt> improved:
+<ul>
+<li>Taking reference of a constant (except const argument) is now disallowed (more
+	  useful compile-time error instead of possible run-time error).
+<li>Function arguments are now treated as const by default (and automatically
+	  adjusted internally to non-const if required and allowed).<br>
+	  So it is not necessary anymore to use const function arguments for efficiency.
+	  It is still good programming practice (but at the same time
+	  I found this a difficult feature when teaching Ox to beginners.)
+</ul>
+</ul>
+<li>New functions
+<ul>
+<li><tt>clone</tt> to clone a class object
+<li><tt>ftime</tt> function
+<li><tt>getfolders</tt>
+<li><tt>loadsheet</tt> to load a sheet from a xlsx file into a two-dimensional array. Can also load a .csv file.
+<li><tt>maxr</tt>, <tt>minr</tt> for symmetry with maxc, minc
+<li><tt>nans</tt>() as in zeros, ones 
+<li><tt>Num1Derivative_parallel</tt>
+<li><tt><tt>replace</tt></tt> and <tt>find</tt>
+<li><tt>ranindex</tt>: same as <tt>ranshuffle(c, range(0,c-1))</tt>
+<li><tt>ranloopseed</tt>, clone (to clone a class object)
+<li><tt>union</tt> function for symmetry with <tt>intersection</tt>
+<li><tt>binxor</tt>, <tt>binpop</tt> and <tt>binvec</tt>
+<li><tt>diff</tt> and <tt>lag</tt> which default to missing values instead of zero for the gaps
+</ul>
+<li>Changes to existing functions
+<ul>
+<li><tt>DrawXYZ</tt> was plotting Y,X,Z instead of X,Y,Z<br>
+		This change affects existing code, and calls to DrawXYZ should be adjusted.
+		If you write in your Ox 6 code:
+<pre>		
+			DrawXYZ(0, x, y, z)
+</pre>		
+		this should be changed to
+<pre>		
+			DrawXYZ(0, y, x, z')
+</pre>		
+		to get exactly the same graph.
+<li><tt>limits(zeros(0,1))</tt> crashes
+<li><tt>DrawMatrix, DrawTMatrix, DrawXMatrix</tt>: symbol and index arguments can be a vector with a value for each row in the data matrix.
+<li><tt>fopen</tt>: Added v (print message if fails) and V (message and run-time	error if fails) to fopen format.
+<li><tt>fread</tt>, <tt>fscan</tt>: Read from zip files
+<li><tt>fsize</tt> for files &gt;2GB: now returns double
+<li><tt>ismissing</tt> and <tt>isdotmissing</tt> now also treat undefined (.Null) as a missing value (see ox/samples/inout/iotest13.ox)
+<li><tt>main</tt>: return value from main now returned to console
+<li>Maximization functions <tt>MaxSQP</tt>(<tt>F</tt>) and <tt>SolveNLE</tt> are now fully reentrant.
+<li>Maximization functions can use CMaxControl object (last argument)
+as an alternative for setting arguments, and retrieving the iteration count.
+<li>(<tt>f</tt>)<tt>print</tt>(<tt>ln</tt>): Always printing time with "%C" using seconds: 11:00:00 instead of 11:00
+<li>(<tt>f</tt>)<tt>print</tt>(<tt>ln</tt>): Now printing {} for empty array (as &lt;&gt; for matrix}
+<li><tt>print</tt>(<tt>ln</tt>): Default line length now 104
+<li><tt>string</tt>(func) returns string with name of function func, <tt>string</tt>(object) returns class name.
+<li><tt>vecindex</tt>/<tt>vecrindex</tt> is faster for very large vectors
+<li>all <tt>bin..</tt> functions now allow vector arguments
+<li><tt>setlower</tt> can have a vector for the second argument. In that case the
+	 lower diagonal is filled by column (from left to right) with the elements of the
+	 vector (until the vector runs out). This amounts to setting the strict lower
+	 diagonal to <tt>unvech</tt> of the vector.
+<li><tt>loadmat("file.xlsx", 0)</tt> did not load strings as missing values
+<li>Getting the Julian date index of today is quite tedious: <tt>int(timing(today(), 2))</tt>.<br>
+	 Added <tt>dayofcalendar()</tt> and <tt>timeofday()</tt> for current values
+<li>Increased default sprint buffer from 2K to 16K
+</ul>
+<li>Classes
+<ul>
+<li>Database class:
+<ul>
+<li>support for DB_CHOICE (choice variables), and related
+new member functions:
+	<tt>SetVarChoicesByIndex</tt>, <tt>SetVarChoices</tt>, <tt>GetVarChoicesByIndex</tt>, <tt>GetVarChoices</tt>,
+	<tt>GetObsLabel</tt>, <tt>GetVarType</tt>, <tt>SetVarType</tt>
+<li>
+	<tt>GetSize</tt> returns 0 when empty
+<li>
+	<tt>Create</tt> with one argument (size of database)
+<li>
+	<tt>GetVarCount</tt>, <tt>IsEmpty</tt>, <tt>Shrink</tt>
+<li>
+	<tt>Recode</tt>, <tt>Tabulate</tt>, <tt>SortBy</tt>
+<li>Much faster <tt>Database::Renew</tt> when the variables are new to the database
+</ul>
+<li>Sample: <tt>Resample(const iFreq, const iYear1, const iPeriod1)</tt>
+<li>Modelbase: <tt>GetPrint</tt>, <tt>GetcY</tt>, <tt>GetcX</tt>, <tt>GetcYlag</tt>, <tt>GetX</tt>, <tt>GetY</tt>
+<li>Simulator class, which is a new version of the Simulation
+	class (still available). The Simulator class defaults to parallel mode, requiring
+	the Generate function to be useable in parallel.
+<li>Split PcNaiveDgp into RanPcNaive, which has the generation facilities without storing
+	the results internally, and PcNaiveDgp, which derives from this and stores
+	the results internally. Both use header file ranpcnaive.oxh.
+</ul>
+<li>Other changes
+<ul>
+<li>Define <tt>OX_PARALLEL</tt> to indicate that the parallel and serial keywords are defined.
+<li>Handle .in7 and .fmt files that are larger than 2GB data (64-bit version).
+	Avoiding need for transpose in saving of in7/bn7.
+	Allow spaces in variable names when saving as in7 file.
+<li>Member call code refactoring: faster object/virtual calls.
+<li>Because of internal changes, all dynamic-link libraries
+	and .oxo files must be recompiled.
+<li>Changed oxo version
+<li>Better multi-threaded tuning of some large matrix multiplications (Professional)
+<li>Switching to dynamic linking of openmp (Professional): libiomp5md.dll to avoid warning
+	message	when using MKL kernel replacement.
+<li>Indexing a vector with &lt;&gt; (single index): the vector has zero elements,
+     and now it is created as 0 <tt>x</tt> 0 matrix instead of 1 <tt>x</tt> 0 or 0 <tt>x</tt> 1.
+<li>New exported functions:
+	 OxStoreCreate, OxStoreDelete, OxValGetBlob, OxValGetVecc, OxValGetVecr,
+	 OxValSetArray, OxValSetBlob, OxValSetMat, OxValSetMatZero, OxValSetVecc, OxValSetVecr,
+OxValGetStaticObject, OxValGetClassName,
+OxValDuplicate, OxValTransfer, OxCloneObject, FOxLibAddFunctionEx
+<li>Added #pragma _ox_stdlib(1)/#pragma _ox_stdlib(0) (for <tt>oxstd.oxh</tt> only)
+	so that FNI optimizations and arraybase adjustments are only done for internal
+	ox stdlib functions.
+<li>Improved decision on when to start blocking matrix multiplication,
+     giving good speed improvements in some cases (and marginal slow downs in a few others).	
+<li>Improved handling of import when it uses a relative path; solved crash in
+     matrix constant when syntax error 
+<li>Spreadsheet data: slightly better at recognizing fixed frequency when
+      using calendar dates.	Improved handling of variables that mix
+	  labels and values: choice variable now constructed such that values are not reused.
+	  .xls now only load an unlabelled first column if it contains values other than dates.
+</ul>
+</ul>
+
+<a name="v700_fix"></a>
+<hr><h2>Fixed problems in version 7.0:</h2>
+
+<p>
+<ul>
+<li>fixed local declaration issue, e.g.:
+<xmp>
+    fn()
+    {
+        decl i1;
+        {  decl i2 = <10;10>;
+        }
+        decl i3;
+        println(i3);    // prints 10 rather than error because i3
+                        // and i2 share location.
+    }
+</xmp>
+    Now i3 will be undefined, and the memory for i2
+    cleared when the local block is exited.
+
+<li>Print model for pdf/postscript was still not correctly set when
+    saving within Ox Console.
+Saving graphs as pdf/eps now obeys the
+     print colour mode i as set by <tt>DrawAdjust(ADJ_COLORMODEL, -1, i);</tt>
+
+<li><tt>fopen("x", "wa")</tt> crashes: added better argument check.
+
+<li>Cannot use class-based constant in constant expression.          
+
+<li>crash if trying to saving empty Database
+
+<li>Database::Save for Stata file doesn't work.
+
+<li><tt>fseek/fsize</tt> (and other file functions) with large files in
+    64-bit version.
+
+<li>Reading of field with time component in .csv: not recognized as time
+    variable
+
+<li>vector indexed by vector could result in memory leak
+
+<li><tt>dropr(array, &lt;&gt;)</tt> should return the whole array, not an empty array.
+
+<li><tt>isdotfeq</tt> and <tt>isfeq</tt> now treat <tt>.NaN</tt> as the <tt>==</tt> and <tt>.==</tt> operators.
+
+<li><tt>tailf</tt>(0, ...) was 1, but <tt>tailf</tt>(almost 0, ...) was 0
+
+</ul>
+
+
+<p><hr><p><b>Ox version 7.00.</b>
+&copy; <i><a href="http://www.doornik.com" target="_top">
+JA Doornik</a></i>
+<p><p><hr>
+This file last changed <script type="text/javascript">document.write(document.lastModified);</script>.
+
+</div><!-- /page-frame -->
+</body></html>

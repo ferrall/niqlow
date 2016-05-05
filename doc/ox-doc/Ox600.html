@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style/basic.css">
+  <link rel="stylesheet" type="text/css" href="style/theme-green.css">
+  <title>Ox 6.3: new features and fixed bugs</title>
+  <base target="content-frame">
+<!-- changes.html is a copy of the most recent Ox***.html -->
+  <script src="style/loadincontent.js" language="javascript"></script>
+</head>
+<body>
+<div class="page-frame">
+
+&lt;<A href="Ox700.html">Next version of Ox</A>&gt;
+&lt;<a href="Ox500.html">Previous version of Ox</a>&gt;
+
+
+<hr><h1>Ox 6: new features and fixes</h1>
+
+<p>
+<a href="#v630_new">New features and fixed problems in version 6.3</a><br>
+<a href="#v621_new">New features and fixed problems in version 6.21</a><br>
+<a href="#v620_new">New features and fixed problems in version 6.2</a><br>
+<a href="#v610_new">New features and fixed problems in version 6.1</a><br>
+<a href="#v600_new">New features and enhancements in version 6.0</a><br>
+<a href="#v600_fix">Fixed problems in version 6.0</a><br>
+<p>
+
+The Ox version number is kept in line with the OxMetrics front-end version.
+
+<a name="v630_new"></a>
+<hr><h2>Fixed problems in version 6.3</h2>
+
+<p>
+<ul>
+<li>Fixed: When running Ox code in OxMetrics: call to SaveDrawWindow could crash
+      under Linux and OSX.
+
+<li>Fixed: reading of csv with one column and no label treats first
+      number as label: now read as unlabelled.
+
+<li>Fixed: reading "%C" format using <tt>sscan</tt>/<tt>fscan</tt> did not always work correctly.
+	
+<li>Fixed: xlsx: empty cell (i.e. specified cell without content) would be read as zero.
+	
+<li>Fixed: <tt>static virtual</tt> and <tt>virtual static</tt> now flagged as error.
+	
+<li>Improved: <tt>DrawTitle(i, "");</tt> now removes the existing title.
+</ul>	  
+
+<a name="v621_new"></a>
+<hr><h2>Fixed problems in version 6.21</h2>
+
+<p>
+<ul>
+<li>Fixed: problem using <tt>for(;;)</tt> when it is the first statement
+      in a function (i.e. there are only declarations without assignments before it).
+<li>Fixed: A scan format using * to suppress assignment of the read
+	  variable did not work for matrix or token types.
+<li>Fixed: problem using public static variables in base class,
+	  which are accessed via an object of a derived class.
+<xmp>	  
+	class Ca
+	{
+	public:
+		static decl sm_a;
+		static Set_a(const a);
+	}
+	Ca::Set_a(const a) { sm_a = a; }
+	class Cb : Ca { }
+</xmp>	  
+	  The first two approaches did not work for a derived class when using static variables in the base class:
+<ol>	  
+<li>Public access through an object	did not work:
+<xmp>	  
+	  	 decl obj = new Cb();
+		 obj.sm_a = 10;
+</xmp>	  
+<li>Printing an object directly or using <tt>"%v"</tt>	did not work:
+<xmp>	  
+	  	 println(obj, "%v", obj);
+</xmp>	  
+<li>Access through an object using a `getter' function worked fine:
+<xmp>	  
+    	 obj.Set_a(10);
+</xmp>	  
+<li>Access using the class directly worked fine:
+<xmp>	  
+	     Cb::sm_a = 10;
+</xmp>	  
+<li>Access using the class and a static `getter' function worked fine:
+<xmp>	  
+		 Cb::Set_a(10);
+</xmp>
+Note that 4 and 5 are more efficient than 1 and 3, because the variable can be resolved
+at compile time.
+</ol>	  
+</ul>
+
+<a name="v620_new"></a>
+<hr><h2>New features and fixed problems in version 6.2</h2>
+
+<p>
+<ul>
+<li>New: Added <tt>hyper_2F1(a, b, c, z)</tt> to compute the Gauss Hypergeometric
+function <sub>2</sub><i>F</i><sub>1</sub> with real parameters <i>a</i>, <i>b</i>, <i>c</i> and real argument <i>z</i>.
+<li>Improved: <tt>exit</tt> now exits with the specified return code (in a console)
+<li>Improved: <tt>polygamma</tt> now allows negative arguments
+<li>Improved: xlsx: allow reading of strings created through a formula
+<li>Improved: xlsm can be read as xlsx
+<li>Fixed: Save graph as PDF: hats on symbols showed next to the symbol; large ellipses were squeezed in the middle.
+<li>Fixed: xlsx: column labelling error when &gt; 26 columns. Reading
+      file written by OxMetrics works, but there are gaps. Reading file written
+      in Excel will result in skipped columns.
+<li>Fixed: There was a bug in some quantile functions that could lead to return of wrong value
+    in some rare cases.	This could affect quantiles of F, Beta and Inverse Gaussian.
+<li>Fixed: Chrome/Safari/Opera frame loading fixed (was entering infinite
+	reload loop). Improved default browser detection under Windows.
+	Improved Chrome/Safari jumping to help item.
+</ul>
+
+<a name="v610_new"></a>
+<hr><h2>New features and fixed problems in version 6.1</h2>
+
+<p>
+<ul>
+<li>New: Added read and write support for Excel xlsx files.
+Added read (113,114) and write (114) support for Stata 11 .dta files.
+
+<li>New: Added PDF as new save format for graphics.
+
+<li>Changed: Now using thinner symbols on very thick lines in plots.
+
+<li>Fixed: PostScript BWG did not obey BWG line types
+
+<li>Fixed: <tt>dev/.../Makefile</tt> files were missing from the installation.
+
+<li>Fixed: <tt>SetTextWindow</tt> could appear to be delayed relative
+      to the output, so output from the previous window could show in the
+	  new one.
+
+<li>Fixed: This wouldn't work from OxRun (from draw4.ox):
+	    ShowDrawWindow();                 // show this concoction
+	    SaveDrawWindow("draw4.gwg");
+	    SaveDrawWindow("draw4.eps");
+	  The second graph would not be created, and would create an empty draw4 window.
+</ul>
+
+<a name="v600_new"></a>
+<hr><h2>New features and enhancements in version 6.0</h2>
+
+<p>
+<ul>
+<li>
+<li>Added <tt>QQ_N_SE</tt> for <tt>DrawQQ</tt>: pointwise asymptotic Std.Error bands
+	  on normal QQ-plots.
+
+<li>Recession shading line style (style constant is <tt>ST_SHADING</tt>;
+shading is on when the variable has value 1, off otherwise).
+
+<li>oxdraw.h: defining ST_
+
+<li>Introduced oxo version (separate from Ox version), current
+	  version is 5 (unchanged from Ox 5 to Ox 6). When the oxo version changes, .oxo
+	  files must be recompiled.
+
+</ul>
+
+<a name="v600_fix"></a>
+<hr><h2>Fixed problems in version 6.0:</h2>
+
+<p>
+<ul>
+
+<li>OxPack: fixed potential issue in <tt>"OxPackSpecialDialog"("OP_VARIABLE",...</tt>
+
+<li>Repeatedly running an Ox file that saves a graph could
+	  result in multiple instances of the same graphics files being open in
+	  OxMetrics (asking for a reload every time it changes).
+
+<li>The following code would leak memory:
+<xmp>
+		fn()
+		{
+			decl logdet = rann(100000, 100);
+			invertsym(2 * unit(2), &logdet);
+		}
+</xmp>
+	  Because <tt>invertsym</tt> wouldn't free before assigning. This applies to a few
+	  library functions that return an integer or double through an argument
+	  (and was only likely if a variable was reused).
+
+<li>PcFiml class lacked GetResVar() (virtual from Modelbase)
+
+<li><tt>DrawAdjust</tt> doesn't work for <tt>DrawDensity</tt> because the title
+      is drawn after the density.
+
+<li><tt>MaxSQP(F)</tt>: didn't return <tt>MAX_MAXIT</tt> if max reached;
+      rounding errors on Hi/Low bounds could push parameters outside bounds by a tiny bit.
+
+</ul>
+
+
+<p><hr><p><b>Ox version 6.30.</b>
+&copy; <i><a href="http://www.doornik.com" target="_top">
+JA Doornik</a></i>
+<p><p><hr>
+This file last changed <script>document.write(document.lastModified);</script>.
+
+</div><!-- /page-frame -->
+</body></html>

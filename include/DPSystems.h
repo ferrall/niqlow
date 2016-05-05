@@ -5,6 +5,8 @@
 /** Tags for Nonlinear System Solver Algorithms. @name SystemAlgorithms **/	
 enum{USEBROYDEN,USENEWTONRAPHSON,SystemAlgorithms}
 
+RVSolve(ToScreen=TRUE,aM=FALSE);
+
 /** Solve EV as as a non-linear system in a stationary EVExAnte environment.
 In an ergodic system <em>EV(&theta;) = EV'(&theta;)</em> where <em>EV(&theta;)</em> is
 the result of applying Bellman's equation to <em>V'(&theta;)</em>.  This can be written
@@ -91,10 +93,10 @@ struct ReservationValues : ValueIteration {
 	}
 
 struct RVGSolve : GSolve {
-    static decl                                         LBvalue,METHOD;
+    //static decl                                         LBvalue,METHOD;
 	decl                                                Volume,
 	/** Objectives for each &Alpha;	**/					RValSys;
-    RVGSolve();
+    RVGSolve(LBvalue,Method);
     Solve(state);
     Run();
     }

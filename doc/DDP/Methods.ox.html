@@ -43,8 +43,9 @@ phases of a model) the fixed point will be found.  For finite horizon models/pha
 <DT>Two or more solution objects can be created and applied to the model for comparison purposes.</DT>
 <DT>Solution methods work at the highest level of the DP environment.</DT>
 <DD>To carry out the work they call methods to handle fixed and random effects.</DD>
-<DD>The basic structure of a what happens with a call to <code>Solve()</code>
-<table class="tree">
+<P/>
+<DT>What happens with a call to <code>Solve()</code></DT>
+<DD><table class="tree">
 <tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline"><div class="hline">&nbsp;</div></div></td>
@@ -109,8 +110,9 @@ phases of a model) the fixed point will be found.  For finite horizon models/pha
     1. <a href="Methods.ox.html#ValueIteration___Run">Run</a>            loop over bellman iterations (or other task)
     2. ValueIteration::Update         check convergence/work backwards (return to 1 until finished.)</pre>
 </td></tr></table></DD>
+<P/>
 <DT>Hooks</DT>
-<DD>The user can insert static functions at different points in this process using the <a href="DDPShared.ox.html#Hooks___Add">Add</a>().</DD>
+<DD>The user can insert static functions at different points in this process using <a href="DDPShared.ox.html#Hooks___Add">Add</a>().</DD>
 <DD><a href="DDPShared.ox.html#HookTimes">HookTimes</a> are the integer codes for when the function should be called.</DD>
 <DD>For example, to say hello after the inner loop above is done i.e. <code>GSolve()</code> ends, do this:<pre>
  sayhello() { print("hello"); }
@@ -120,7 +122,7 @@ phases of a model) the fixed point will be found.  For finite horizon models/pha
 <P/>
 <li>Value Function Iteration Methods</LI>
 <P/>
-Value function iteration applies Bellman's <code>V(&theta;) = max U() + &delta;EV(&theta;&prime;)</code> to solve for the value function and optimal choice probabilities.
+Value function iteration applies Bellman's EMax operator, <span class="expressions">\(V(\theta)\ =\ \max U() + \delta EV(\theta')</code> \)</span> to solve for the value function and optimal choice probabilities.
 <P/>
 <OL class="chapter">
 <LI>Brute Force Iteration</LI>
@@ -166,7 +168,7 @@ HM = new HotzMiller(data);
 </OL>
 </OL>
 
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2015 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2016 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
 <a name="auto"><hr><h1>Documentation of  Items Defined in Methods.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a></dd>
 </dl>
 <a name="global"></a>
@@ -1076,7 +1078,7 @@ Simplified Value Iteration model solution.
 <tr>
 <td class="declaration" valign="baseline">TrimZeroChoice</td>
 <td class="description" valign="baseline">FALSE [default] <br> TRUE means states with no choice are deleted
-<DT>Note:  All parameters are optional, so <code>SolveVI()</code> works.</DT>
+<DT>Note:  All parameters are optional, so <code>VISolve()</code> works.</DT>
 <DT>This function</DT>
 <DD>Creates a <a href="Methods.ox.html#ValueIteration">ValueIteration</a> method</dd>
 <dd>Calls DPDeubg::outAllV(<parameters>)</dd>

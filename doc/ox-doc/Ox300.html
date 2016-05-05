@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style/basic.css">
+  <link rel="stylesheet" type="text/css" href="style/theme-green.css">
+  <title>Ox 3.00: new features and fixed bugs</title>
+  <meta name="author" lang="en" content="Jurgen A Doornik">
+  <meta name="copyright" content="&copy Jurgen A Doornik">
+  <base target="content-frame">
+  <script src="style/loadincontent.js" language="javascript"></script>
+</head>
+<body>
+<div class="page-frame">
+
+&lt;<A HREF="Ox310.html">Next version of Ox</A>&gt;
+&lt;<A HREF="Ox220.html">Previous version of Ox</A>&gt;
+
+
+<hr><h1>Ox 3.00: new features and fixes</h1>
+
+<hr><h2>New features and enhancements</h2>
+<p>
+<h3>New functions</h3>
+
+<ul>
+<li><tt>insertc</tt>, <tt>insertr</tt>, <tt>setbounds</tt>, <tt>outer</tt>, <tt>diagcat</tt>
+
+<li><tt>rangh</tt>, <tt>rangig</tt>, <tt>ranshuffle</tt>, <tt>ranpoissonprocess</tt>, <tt>ranbrownianmotion</tt>
+
+<li><tt>probbvn</tt>, <tt>probmvn</tt> (bi- and tri-variate normal probabilities)
+
+<li><tt>tailf</tt>, <tt>tailt</tt> (non-central F, non-central t distributions),
+<tt>densgh</tt>, <tt>densgig</tt>
+
+<li><tt>SolveQP</tt> (quadratic programming)
+
+<li><tt>maxc</tt>, <tt>maxcindex</tt>, <tt>minc</tt>, <tt>mincindex</tt>, <tt>sortcindex</tt>
+
+<li>new graphics functions:
+<tt>DrawAcf</tt>, <tt>DrawHistogram</tt>, <tt>DrawXYZ</tt>; extended: <tt>DrawDensity</tt>
+
+<li><tt>dayofweek</tt>, <tt>dayofcalender</tt>
+
+<li><tt>chdir</tt>, <tt>getenv</tt>, <tt>fremove</tt>, <tt>getcwd</tt>, <tt>systemcall</tt>
+
+<li><tt>bessel</tt> (fractional orders), <tt>dawson</tt>, <tt>expint</tt>
+
+<li> <tt>strfind</tt> to find character in a string, <tt>strfindr</tt> for
+reverse searching, also to search for substring in a string;
+<tt>strifind</tt> and <tt>strifindr</tt> are case insensitive versions.
+</ul>
+
+<h3>Enhanced functions</h3>
+
+<ul>
+<li><tt>probt</tt>, <tt>tailt</tt>, <tt>probf</tt> more accurate for small probabilities.
+<tt>probbeta</tt>, <tt>tailt</tt>, <tt>probf</tt> more accurate for large a,b.
+Non-central distributions more accurate over larger range.
+
+<li><tt>probt</tt>, <tt>tailt</tt>, <tt>quant</tt>
+with non-integer df.
+
+<li><tt>decqrmul</tt> now works for reversed H; one argument version
+to compute Q.
+<tt>decqr</tt> now allows m < n.
+<tt>decldlband</tt> now sets diagonal of L to 1.
+
+<li><tt>idiv</tt> and <tt>imod</tt> can handle matrix arguments
+
+<li><tt>vecfind</tt>/<tt>vecrfind</tt> to search for specific value now work with missing
+	   values.
+
+<li>Can write dht/dat file; use fread/fwrite on dht files;
+ability to fread 4-byte reals.
+</ul>
+
+<h3>Syntax enhancements</h3>
+<ul>
+<li><tt>#import</tt> can now also import <tt>.ox</tt> files. It will
+first try to find the <tt>.oxo</tt> file, and if that fails it will search
+for the <tt>.ox</tt> file.
+<li>Ox can now run many Gauss files directly. Use <tt>oxl -g</tt>
+from the command line or OxGauss with Ox Professional.
+<li>Now allowing <tt>decl</tt> in function header; also
+allowing declaration in for loop, as in:<br>
+<tt>for (decl i=0;...) s</tt><br>
+which equals<br>
+<tt>{decl i=0; for (;...) s }</tt>
+
+<li>indexing string for reference: can index one beyond end, which
+	   returns 0.
+
+<li>Optional warning for accessing matrix as vector (see oxwarning function)
+
+<li>Parser recognizes <tt>.NaN</tt> and <tt>.Inf</tt>;
+relational operators now treat missing values properly.
+
+<li><tt>new array[r][c]</tt> and <tt>new matrix[r]</tt> now allowed.
+
+<li>Moved power to above unary ops, so <tt>-x^2</tt> is
+	   now identical to <tt>-(x^2)</tt>. This change only affects code where the
+	   power is even: previously, the sign would disappear, but now
+	   the sign of the result is changed. 
+<li>x[][] and x[1][] now works for 1x0 matrix.
+
+<li>concatenation for illegal types (functions etc.):
+casting lhs to array, so that concatenation will work.
+</ul>
+
+<h3>Run-time system</h3>
+<ul>
+<li>Moved to <tt>OX3PATH</tt> environment variable instead of OXPATH.
+Setting default <tt>OX3PATH</tt> value under
+Windows based on location of oxwin.dll. Therefor installation program does not
+need to set <tt>OX3PATH</tt>, nor update the path anymore.
+
+<li>Increased default stack size to -s2000,1000
+</ul>
+
+<h3>Ox classes	</h3>
+<ul>
+<li>Simulation class: added support for two-sided tests
+	   and saving of results.
+<li>Numerous enhancements to <tt>Modelbase</tt>	and <i>OxPack</i>.   
+<li>Several small labelling changes to <tt>Simulation</tt>/<tt>PcNaive</tt>/<tt>PcFimlDgp</tt>
+	   class for PcNaive.
+<li>Added UnitRoot test to PcFiml class with Ericsson&amp;MacKinnon
+5%/1% critical values.
+</ul>
+
+<h3>New Packages</h3>
+
+<dl>
+<dt><b>Financial Numerical Recipes</b>
+<dd>
+Financial Numerical Recipes is an Ox port of the code written by
+Bernt Arne &Oslash;degaard for advanced financial calculations.
+It contains the basic and some advanced algorithms for option
+pricing, and some algorithms dealing with term structure modeling
+and pricing of fixed income securities.
+
+<dt><b>Lapack</b>
+<dd>
+Lapack is a package for solving linear equations, linear least
+squares problems, eigenvalue problems, and singular value problems.  
+This is a port to Ox of the main driver files for real and
+symmetric matrices from <tt>lapack</tt>, part of netlib.
+
+
+<dt><b>Loess Package</b>
+<dd>
+Loess is a package for smoothing of multivariate scattered data (LOESS);
+decompose time series into trend + seasonal + remainder (STL).
+This is a port to Ox of the port to Ox of the <tt>loess</tt> and <tt>stl</tt>
+code in netlib.
+</dl>
+
+
+<hr><h2>Problems in version 2.20 which have been fixed in version 3.00:</h2>
+
+<ul>
+<li><tt>cumulate(rann(0,1))</tt> would crash
+<li><tt>CloseDrawWindow</tt> via OxRun did not clear graphics window
+<li><tt>discretize</tt> on empty matrix crashes
+<li>problem with <tt>decqr</tt> if m < n
+<li><tt>rank</tt> of empty matrix gave runtime error 
+<li><tt>SetDraw(SET_PRINTPAGE, PAGE_USER, PAGE_LANDSCAPE, 600, 1300);</tt>
+	had documentation error, and would set both X and Y size to 1300.
+<li><tt>sumsqrc</tt>/<tt>sumsqrr</tt> of integer/double scalar
+	would not take square. Integer power of negative integer could overflow.
+<li>fixed minor problem with loading Excel 97/2000 files.
+<li>fixed rare instance of infinite loop in axis division
+<li><tt>LoadDta</tt> didn't set specified sample
+<li><tt>string == ""</tt> could crash when running oxo file
+<li><tt>Sample::ObsYear</tt> and <tt>Sample::ObsPeriod</tt>
+	   incorrect for some negative indices.
+<li><tt>print("%% crit")</tt> now prints one %
+<li><tt>x[][:-1]</tt> returns whole matrix, but should give index error.
+<li><i>int==string</i> returns a value, but should fail like <i>string==int</i>
+<li>Using '\\' in code which is skipped because of
+       preprocessor statement would lead to scan errors.
+<li>Fixed sign problem with eigenvectors of general
+	   matrix when there are isolated eigenvalues.
+<li><tt>betafunc(1</tt>,a,b) was wrong
+<li><i>matrix[1][1] * matrix[r][c]</i> didn't work
+<li><tt>if (x[0])</tt> wouldn't dereference one index, and always be true.
+<li>In <tt>sscan("9", "%2d", &i)</tt>, the variable i would be set to 9.
+	   However, in <tt>sscan("09", "%2d", &i)</tt> "09" is treated as
+	   octal because it is prefixed with a zero.
+	   Now "i" is treated as "d", and x,u,o formats are also allowed.
+<li><tt>as=as[2:3]</tt> would not work for arrays (but <tt>as1=as[2:3]</tt> world work).
+Also solved problem with indexing of higher order arrays.
+<li>This doesn't parse: <tt>println(!!2);</tt>
+<li>Fixed <tt>densgamma</tt> for x --> 0 for nu <= 1
+</ul>
+
+
+<p><hr><p><b>Ox version 3.00.</b>
+&copy <i><a href="http://www.nuff.ox.ac.uk/Users/Doornik/index.html" target="_top">
+JA Doornik</a></i>
+This file last changed <script>document.write(document.lastModified);</script>.
+
+</div><!-- /page-frame -->
+</body>
+</html>

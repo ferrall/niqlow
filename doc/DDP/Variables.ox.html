@@ -19,11 +19,13 @@ Discrete quantities that appear in DDP models (actions, states, fixed and random
 <a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Variables.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 <P/>
 <DL>Quick Reference: a variable in a DP model is an object derived from <a href="Shared.ox.html#Quantity">Quantity</a> and can be of various types:</DT>
-<DT>The <a href="Variables.ox.html#ActionVariable">ActionVariable</a> class is designed to represent a choice in the model (such as whether to work or not) and is an element of the action vector <code>&alpha;</code><DT>
+<DT>The <a href="Variables.ox.html#ActionVariable">ActionVariable</a> class represents a choice in the model (such as whether to work or not) and is an element of the action vector <code>&alpha;</code><DT>
 <DD>Action variables are added to the DP model using using the <a href="DP.ox.html#DP___Actions">Actions</a>() method.</DD>
-<DT>the <a href="Variables.ox.html#StateVariable">StateVariable</a> class is designed to be a member of one of the discrete state vectors (<code>&epsilon;,&eta;,&theta;,&gamma;</code>).</DT>
+<P/>
+<DT>The <a href="Variables.ox.html#StateVariable">StateVariable</a> class is designed to be a member of one of the discrete state vectors (<code>&epsilon;,&eta;,&theta;,&gamma;</code>).</DT>
 <DD>State variables are added to appropriate state vector using  the method for the corresponding vector: <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>(), <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>() and <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>().</DD>
 <DD>Many kinds of state variables are derived from the base class.</DD>
+<P/>
 <DT>The <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> class is designed to represent values that depend on actions and states and are of interest to the user but are not required to solve the model.  They are members of the auxiliary vector <code>&chi;</code></DT>
 <DD>Auxiliary values are added to the DP model using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>()</DD>
 </DT>
@@ -33,8 +35,9 @@ Discrete quantities that appear in DDP models (actions, states, fixed and random
 <LI><a href="#ActionVariables">Action Variables</a></LI>
 <LI><a href="#StateVariables">State Variables</a></LI>
 <LI><a href="#Clock">The Clock:  keeping time in DDP</a></LI>
-<li><a href="#Fixed">Time Invariants: solving different DP problems with random and fixed effects</a>
-<li><a href="#Auxiliary">Auxiliary Values: tracking function of actions and state variables</a>
+<li><a href="#Fixed">Time Invariants: solving different DP problems with random and fixed effects</a></li>
+<li><a href="#Auxiliary">Auxiliary Values: tracking function of actions and state variables</a></li>
+<li><a href="#Volume">Volume (getting output specific to a variable)</a></li>
 </OL>
 <P/>
 <OL class="body">
@@ -163,6 +166,7 @@ FeasibleActions(const A) {    return CV(x)==2 ? aa(a).!=0 : ones(rows(A),1) ;   
 </pre>
 Code this way it does not matter whether more variables are added to the model and it does not matter what order the code adds the actions to &alpha;.  <code>FeasibleActions</code> is robust to those details.
 </DD>
+<P/>
 </OL>
 <P/>
 <hr>
@@ -905,6 +909,14 @@ An auxiliary value <em>x</em> is typically a function of the state and action ve
  <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual <a href="Variables.ox.html#AuxiliaryValues___Realize">Realize</a>().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
 <DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
 <P/>
+<a name="#Volume"><li>Volume (getting output specific to a variable)</li></a>
+<DT>All <a href="Shared.ox.html#Quantity">Quantity</a> based objects have their own <code>Volume</code> member.</DT>
+<DD>By default the Volume is set to <code>SILENT</code>.</DD>
+<P/>
+<DT>If you set the volume to one of the other <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a> then:</DT>
+ <DD>Some internal routines will print out information specific to variable.</DD>
+ <DD>The output goes to the <code>Variables</code> log file </code>
+<P/>
 </OL>
 
 <dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2015 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
@@ -966,8 +978,8 @@ the transition 1 to 1 happens with probability 1.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Accumulator"></a>
@@ -1000,8 +1012,8 @@ s' = min( s+ s.a, s.N<sup>-</sup>).
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="ActionAccumulator"></a>
@@ -1051,8 +1063,8 @@ EndogenousStates(tothrs);
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Accumulator">Accumulator</a>:</dt><dd><a href="Variables.ox.html#Accumulator___Target">Target</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="ActionCounter"></a>
@@ -1098,8 +1110,8 @@ EndogenousStates(exper);
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Counter">Counter</a>:</dt><dd><a href="Variables.ox.html#Counter___Prune">Prune</a>, <a href="Variables.ox.html#Counter___Reset">Reset</a>, <a href="Variables.ox.html#Counter___Target">Target</a>, <a href="Variables.ox.html#Counter___ToTrack">ToTrack</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="ActionIndicators"></a>
@@ -1126,7 +1138,7 @@ EndogenousStates(exper);
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Indicators">Indicators</a>:</dt><dd><a href="Variables.ox.html#Indicators___target">target</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___N">N</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="ActionTracker"></a>
@@ -1165,8 +1177,8 @@ q' = I{a &in; r}.
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Tracker">Tracker</a>:</dt><dd><a href="Variables.ox.html#Tracker___Target">Target</a>, <a href="Variables.ox.html#Tracker___ToTrack">ToTrack</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="ActionTriggered"></a>
@@ -1210,8 +1222,8 @@ Prob( q&prime;=z ) = (1-I{a&in;t}) Prob( b&prime;=z ) + I{a&in;t}}r
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="ActionVariable"></a>
@@ -1253,8 +1265,8 @@ MyModel::Initialize() {
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="AgeBrackets"></a>
@@ -1331,8 +1343,8 @@ Prob( t&prime; = t ) = 1-1/B;
 <dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Aging"></a>
@@ -1380,8 +1392,8 @@ SetClock(new Aging(10));
 <dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Asset"></a>
@@ -1458,8 +1470,8 @@ Discretized interest-bearing asset.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Augmented"></a>
@@ -1501,8 +1513,8 @@ value next period is a special one that is not what the base transition would be
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Autonomous"></a>
@@ -1528,8 +1540,8 @@ transitions can depend on the current state and actions.</dd>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="AuxiliaryValues"></a>
@@ -1561,7 +1573,7 @@ the outcome and read in along with other data.
 </table>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="BinaryChoice"></a>
@@ -1600,8 +1612,8 @@ MyModel::Initialize() {
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#ActionVariable">ActionVariable</a>:</dt><dd><a href="Variables.ox.html#ActionVariable___vL">vL</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="ChoiceAtTbar"></a>
@@ -1673,8 +1685,8 @@ Or, track the first four choices of d:
 <dt>Inherited fields from <a href="Variables.ox.html#LaggedAction">LaggedAction</a>:</dt><dd><a href="Variables.ox.html#LaggedAction___acol">acol</a>, <a href="Variables.ox.html#LaggedAction___nxtv">nxtv</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Order">Order</a>, <a href="Variables.ox.html#Lagged___Prune">Prune</a>, <a href="Variables.ox.html#Lagged___Target">Target</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Clock"></a>
@@ -1751,8 +1763,8 @@ to SetClock.
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Coevolving"></a>
@@ -1791,8 +1803,8 @@ A member of a block: transition depends on transition of one or more other state
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="CorrelatedEffect"></a>
@@ -1828,8 +1840,8 @@ An element of a RandomEffectBlock.
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="Variables.ox.html#RandomEffect___fDist">fDist</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Counter"></a>
@@ -1883,8 +1895,8 @@ as 0.</td>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Cycle"></a>
@@ -1915,8 +1927,8 @@ EndogenousStates(qtr);</pre></DD>
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Deterministic">Deterministic</a>:</dt><dd><a href="Variables.ox.html#Deterministic___nextValues">nextValues</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Deterministic"></a>
@@ -1951,8 +1963,8 @@ the creator function.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Divided"></a>
@@ -2154,8 +2166,8 @@ FeasibleActions(A) {
 <dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Duration"></a>
@@ -2220,8 +2232,8 @@ s' = I{s.x=s.Lx}(s+ I{s &lt; s.N<sup>-</sup>}).
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Counter">Counter</a>:</dt><dd><a href="Variables.ox.html#Counter___Prune">Prune</a>, <a href="Variables.ox.html#Counter___Reset">Reset</a>, <a href="Variables.ox.html#Counter___Target">Target</a>, <a href="Variables.ox.html#Counter___ToTrack">ToTrack</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Episode"></a>
@@ -2289,8 +2301,8 @@ episode and duration.  Duration is not tracked for k=0.  New episodes occur with
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Fixed"></a>
@@ -2327,8 +2339,8 @@ with <code>q</code> as a Fixed so formulas involving it can be completed.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="FixedAsset"></a>
@@ -2362,8 +2374,8 @@ with <code>q</code> as a Fixed so formulas involving it can be completed.
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Asset">Asset</a>:</dt><dd><a href="Variables.ox.html#Asset___all">all</a>, <a href="Variables.ox.html#Asset___bot">bot</a>, <a href="Variables.ox.html#Asset___bprob">bprob</a>, <a href="Variables.ox.html#Asset___mid">mid</a>, <a href="Variables.ox.html#Asset___r">r</a>, <a href="Variables.ox.html#Asset___top">top</a>, <a href="Variables.ox.html#Asset___tprob">tprob</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="FixedEffect"></a>
@@ -2391,8 +2403,8 @@ Solution methods loop over fixed effect values, re-using storage space.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="FixedEffectBlock"></a>
@@ -2417,8 +2429,8 @@ A Block of <a href="Variables.ox.html#FixedEffect">FixedEffect</a> group variabl
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Forget"></a>
@@ -2460,8 +2472,8 @@ because only cases of the target equal to 1 and this variable equal to its rval 
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="ForgetAtT"></a>
@@ -2500,8 +2512,8 @@ Forget values when t==T (effective next time period).
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Freeze"></a>
@@ -2532,8 +2544,8 @@ When the trigger value returns TRUE this state freezes at its current value.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="IIDBinary"></a>
@@ -2578,8 +2590,8 @@ decl hasoffer = new IIDJump("off",poff);
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a>, <a href="Variables.ox.html#Markov___Pi">Pi</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="IIDJump"></a>
@@ -2620,8 +2632,8 @@ added to the model with <a href="DP.ox.html#DP___ExogenousStates">ExogenousState
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a>, <a href="Variables.ox.html#Markov___Pi">Pi</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Indicators"></a>
@@ -2642,7 +2654,7 @@ added to the model with <a href="DP.ox.html#DP___ExogenousStates">ExogenousState
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___N">N</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Jump"></a>
@@ -2683,8 +2695,8 @@ A variable that jumps to a new value with probability &pi;, otherwise stays the 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="KeptZeta"></a>
@@ -2696,33 +2708,43 @@ variable.  Its value is constant as long as a state variable indicates it is bei
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___A">A</a></td>
-<td class="modifiers">static</td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___addst">addst</a></td>
+<td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___b">b</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___cdf">cdf</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___df">df</a></td>
-<td class="modifiers">static</td>
+<td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 <tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___Fdif">Fdif</a></td>
-<td class="modifiers">static</td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___df">df</a></td>
+<td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___dist">dist</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___DynI">DynI</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___DynR">DynR</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___held">held</a></td>
 <td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___isheld">isheld</a></td>
+<td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 <tr class="even">
@@ -2731,34 +2753,45 @@ variable.  Its value is constant as long as a state variable indicates it is bei
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___kern">kern</a></td>
-<td class="modifiers">static</td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___myVV">myVV</a></td>
+<td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 <tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___M">M</a></td>
-<td class="modifiers">static</td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___NOth">NOth</a></td>
+<td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___midpt">midpt</a></td>
-<td class="modifiers">static</td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___NxtI">NxtI</a></td>
+<td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 <tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___zspot">zspot</a></td>
-<td class="modifiers">static</td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___NxtR">NxtR</a></td>
+<td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___zspot">zspot</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___CDF">CDF</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">The default cdf of a kept continuous variable: &Phi;(z*).</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___DynamicTransit">DynamicTransit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Conditional distribution of Z given zstar.</td>
+<td class="description">Pold   0
+            0      Pold  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___InitDynamic">InitDynamic</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___KeptZeta">KeptZeta</a></td>
@@ -2766,14 +2799,19 @@ variable.  Its value is constant as long as a state variable indicates it is bei
 <td class="description">Create a discretized verison of the continuous &zeta; variable that enters the state when accepted (or kept).</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___Transit">Transit</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___Quantile">Quantile</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">The default quantile of a kept continuous variable: &Phi;<sup>-1</sup>(u).</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___Transit">Transit</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Static transition of a kept continuous variable.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#KeptZeta___Update">Update</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Default update of actual values.</td>
 </tr>
 </table>
 
@@ -2784,8 +2822,8 @@ variable.  Its value is constant as long as a state variable indicates it is bei
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Lagged"></a>
@@ -2840,8 +2878,8 @@ s&prime; = current value of action or state variable.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="LaggedAction"></a>
@@ -2891,8 +2929,8 @@ is marked unreachable.   Set <code>Prune=FALSE</code> to not prune these unreach
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Order">Order</a>, <a href="Variables.ox.html#Lagged___Prune">Prune</a>, <a href="Variables.ox.html#Lagged___Target">Target</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="LaggedState"></a>
@@ -2929,8 +2967,8 @@ s' = s.x
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Order">Order</a>, <a href="Variables.ox.html#Lagged___Prune">Prune</a>, <a href="Variables.ox.html#Lagged___Target">Target</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="LiquidAsset"></a>
@@ -2969,8 +3007,8 @@ s' = s.x
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Asset">Asset</a>:</dt><dd><a href="Variables.ox.html#Asset___all">all</a>, <a href="Variables.ox.html#Asset___bot">bot</a>, <a href="Variables.ox.html#Asset___bprob">bprob</a>, <a href="Variables.ox.html#Asset___mid">mid</a>, <a href="Variables.ox.html#Asset___r">r</a>, <a href="Variables.ox.html#Asset___top">top</a>, <a href="Variables.ox.html#Asset___tprob">tprob</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="LogNormalOffer"></a>
@@ -3009,8 +3047,8 @@ s' = s.x
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Offer">Offer</a>:</dt><dd><a href="Variables.ox.html#Offer___Accept">Accept</a>, <a href="Variables.ox.html#Offer___Pi">Pi</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Longevity"></a>
@@ -3095,8 +3133,8 @@ T* is the last period with probability 1.
 <dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Markov"></a>
@@ -3164,8 +3202,8 @@ To be handled properly the state variable must be placed in the endogenous state
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Mortality"></a>
@@ -3264,8 +3302,8 @@ T* is the last period with probability 1.
 <dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="MVIID"></a>
@@ -3310,8 +3348,8 @@ Container for a block of discrete multivariate IID variables (can be contemporan
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="MVNormal"></a>
@@ -3359,8 +3397,8 @@ x &sim; N( &mu;, C'C ).
 <dt>Inherited fields from <a href="Variables.ox.html#MVIID">MVIID</a>:</dt><dd><a href="Variables.ox.html#MVIID___M">M</a>, <a href="Variables.ox.html#MVIID___MtoN">MtoN</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="NonDeterministicAging"></a>
@@ -3395,8 +3433,8 @@ Container for non-stationary and non-deterministic aging clocks.
 <dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="NonRandom"></a>
@@ -3429,8 +3467,8 @@ As a transition probability:
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="NonStationary"></a>
@@ -3466,8 +3504,8 @@ A container for non-stationary clocks.
 <dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="NormalComponent"></a>
@@ -3492,8 +3530,8 @@ A container for non-stationary clocks.
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Coevolving">Coevolving</a>:</dt><dd><a href="Variables.ox.html#Coevolving___block">block</a>, <a href="Variables.ox.html#Coevolving___bpos">bpos</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="NormalRandomEffect"></a>
@@ -3536,8 +3574,8 @@ A permanent discretize N(0,&sigma;<sup>2</sup>) random effect.
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="Variables.ox.html#RandomEffect___fDist">fDist</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Offer"></a>
@@ -3585,8 +3623,8 @@ Acceptance is a value of 1 in the AcceptAction.pos column of FeasAct
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="OfferWithLayoff"></a>
@@ -3686,8 +3724,8 @@ If m=Quit or LaidOff,
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="PermanentChoice"></a>
@@ -3727,8 +3765,8 @@ s&prime; = value of an action first period it is not 0.
 <dt>Inherited fields from <a href="Variables.ox.html#LaggedAction">LaggedAction</a>:</dt><dd><a href="Variables.ox.html#LaggedAction___acol">acol</a>, <a href="Variables.ox.html#LaggedAction___nxtv">nxtv</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Order">Order</a>, <a href="Variables.ox.html#Lagged___Prune">Prune</a>, <a href="Variables.ox.html#Lagged___Target">Target</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="PhasedTreatment"></a>
@@ -3805,8 +3843,8 @@ A sequence of treatment phases with fixed maximum durations.
 <dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Random"></a>
@@ -3826,8 +3864,8 @@ A random state variable has a transition which is not a 0/1 . Its state next per
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="RandomEffect"></a>
@@ -3901,8 +3939,8 @@ The user can define a derived class and supply a replacement to the virtual <a h
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="RandomEffectBlock"></a>
@@ -3932,8 +3970,8 @@ A Block of <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a> gro
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="RandomSpell"></a>
@@ -3968,8 +4006,8 @@ the value of an action or a <a href="Shared.ox.html#CV">CV</a>-compatible object
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="RandomTrigger"></a>
@@ -4022,8 +4060,8 @@ m = RandomTrigger( new LaggedAction("emp",a),lprob,0);
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="RandomUpDown"></a>
@@ -4104,8 +4142,8 @@ Fertility::Mortality(A)	{
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="RealizedUtility"></a>
@@ -4132,7 +4170,7 @@ Built-in variable that records realized utility, <var>U(&alpha;,&epsilon;,&eta;,
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___N">N</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Regressors"></a>
@@ -4167,8 +4205,8 @@ Built-in variable that records realized utility, <var>U(&alpha;,&epsilon;,&eta;,
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Renewal"></a>
@@ -4235,8 +4273,8 @@ Zurcher::Initialize()	{
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Reset"></a>
@@ -4264,8 +4302,8 @@ If the trigger takes on more than two values only the value of 1 is the trigger.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="RetainMatch"></a>
@@ -4336,8 +4374,8 @@ s' = .
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="SimpleJump"></a>
@@ -4371,8 +4409,8 @@ Equally likely values each period (IID).
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a>, <a href="Variables.ox.html#Markov___Pi">Pi</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="StateAccumulator"></a>
@@ -4412,8 +4450,8 @@ EndogenousStates(totoff);
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Accumulator">Accumulator</a>:</dt><dd><a href="Variables.ox.html#Accumulator___Target">Target</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="StateBlock"></a>
@@ -4476,8 +4514,8 @@ A Block of <a href="Variables.ox.html#Coevolving">Coevolving</a> state variables
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="StateCounter"></a>
@@ -4518,8 +4556,8 @@ EndogenousStates(wks);</pre>
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Counter">Counter</a>:</dt><dd><a href="Variables.ox.html#Counter___Prune">Prune</a>, <a href="Variables.ox.html#Counter___Reset">Reset</a>, <a href="Variables.ox.html#Counter___Target">Target</a>, <a href="Variables.ox.html#Counter___ToTrack">ToTrack</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="StateIndicators"></a>
@@ -4546,7 +4584,7 @@ EndogenousStates(wks);</pre>
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Indicators">Indicators</a>:</dt><dd><a href="Variables.ox.html#Indicators___target">target</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___N">N</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="StateTracker"></a>
@@ -4582,8 +4620,8 @@ q' = I{t &in; r}.
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Tracker">Tracker</a>:</dt><dd><a href="Variables.ox.html#Tracker___Target">Target</a>, <a href="Variables.ox.html#Tracker___ToTrack">ToTrack</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="StateVariable"></a>
@@ -4652,8 +4690,8 @@ Base Class for elements of state vectors, &epsilon;, &eta;, &theta;, &gamma; .
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="StaticP"></a>
@@ -4700,8 +4738,8 @@ SetClock(NormalAging,1);
 <dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Stationary"></a>
@@ -4752,8 +4790,8 @@ SetClock(new Stationary(TRUE));
 <dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___aVV">aVV</a>, <a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="SubEffect"></a>
@@ -4788,8 +4826,8 @@ An element of the FixedEffectBlock.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="SubState"></a>
@@ -4825,8 +4863,8 @@ Let a state variable transit only in one sub-period of a Divided clock.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Tauchen"></a>
@@ -4911,8 +4949,8 @@ A one-dimensional correlated discretized normal process using Tauchen's approach
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="TauchenRandomEffect"></a>
@@ -4950,8 +4988,8 @@ Use Tauchen's method to discretize a normal variable.
 <dt>Inherited fields from <a href="Variables.ox.html#NormalRandomEffect">NormalRandomEffect</a>:</dt><dd><a href="Variables.ox.html#NormalRandomEffect___mu">mu</a>, <a href="Variables.ox.html#NormalRandomEffect___sigma">sigma</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="Variables.ox.html#RandomEffect___fDist">fDist</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="TimeInvariant"></a>
@@ -4974,8 +5012,8 @@ An element of the group vector &gamma;.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="TimeVariable"></a>
@@ -4993,8 +5031,8 @@ Base class for members of a <a href="Variables.ox.html#Clock">Clock</a> block.
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Coevolving">Coevolving</a>:</dt><dd><a href="Variables.ox.html#Coevolving___block">block</a>, <a href="Variables.ox.html#Coevolving___bpos">bpos</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Tracker"></a>
@@ -5024,8 +5062,8 @@ Indicates a state or action took on particular values last period.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Triggered"></a>
@@ -5050,8 +5088,8 @@ not present in the base state.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="UnFreeze"></a>
@@ -5085,8 +5123,8 @@ not present in the base state.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="ValueTriggered"></a>
@@ -5130,12 +5168,12 @@ q&prime; = I{a&ne;t} b&prime; + (1-I{s==t}}r
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="ZetaRealization"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ZetaRealization : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ZetaRealization : <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 
 <table class="method_table">
@@ -5159,7 +5197,12 @@ value drawn from the conditional distribution of &zeta;
 </table>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___AuxiliaryValues">AuxiliaryValues</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___N">N</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <a name="Zvariable"></a>
@@ -5191,8 +5234,8 @@ A jump variable whose acutal values are quantiles of the standard normal distrib
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a>, <a href="Variables.ox.html#Markov___Pi">Pi</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___logf">logf</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
 <h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global </span></h2>
@@ -5525,7 +5568,7 @@ Create a new augmented state variable for which an action triggers the change.
 <a name="ActionVariable___ActionVariable"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ActionVariable</span></h3>
 
-<span class="declaration">ActionVariable :: ActionVariable ( L , NorVLabels )</span>
+<span class="declaration">ActionVariable :: ActionVariable ( L , NorVLabels , Volume )</span>
 <dl><dd>
 Create a new action variable.
 
@@ -5540,6 +5583,11 @@ Create a new action variable.
 <td class="declaration" valign="baseline">NorVLabels</td>
 <td class="description" valign="baseline"><em>positive integer</em>, number of values the variable can take on.<br><em>default</em> N=1 is a constant, which can be included as
 a placeholder for extensions of a model.<br>OR<br>N-array of strings, holding labels for each choice (used in printing)
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Volume</td>
+<td class="description" valign="baseline">default=SILENT. <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a>
 </td>
 </tr>
 </table>
@@ -5774,7 +5822,7 @@ Create a new asset state variable.
 <a name="Augmented___Augmented"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Augmented</span></h3>
 
-<span class="declaration">Augmented :: Augmented ( Lorb , N )</span>
+<span class="declaration">Augmented :: Augmented ( Lorb , N , Volume )</span>
 <dl><dd>
 Base creator augmented state variables
 
@@ -5788,7 +5836,11 @@ Base creator augmented state variables
 <tr>
 <td class="declaration" valign="baseline">N</td>
 <td class="description" valign="baseline">integer, if Otherwise, if &gt; b.N number of points of the augmented variable.  Otherwise, ignored and this.N = b.Nl
-<P/>
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Volume</td>
+<td class="description" valign="baseline">default=SILENT. <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a>
 If Lorb is a string then <code>b = new <a href="Variables.ox.html#Fixed">Fixed</a>(Lorb)</code>.</td>
 </tr>
 </table>
@@ -5839,7 +5891,7 @@ probability one the value of the state variable next period is 0.
 <a name="AuxiliaryValues___AuxiliaryValues"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AuxiliaryValues</span></h3>
 
-<span class="declaration">AuxiliaryValues :: AuxiliaryValues ( L , N )</span>
+<span class="declaration">AuxiliaryValues :: AuxiliaryValues ( L , N , Volume )</span>
 <dl><dd>
 Create a new element of &chi;, the space of auxiliary outcomes.
 
@@ -5848,6 +5900,16 @@ Create a new element of &chi;, the space of auxiliary outcomes.
 <tr>
 <td class="declaration" valign="baseline">L</td>
 <td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of distinct values
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Volume</td>
+<td class="description" valign="baseline">default=SILENT. <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a>
 <P/>
 </td>
 </tr>
@@ -5889,10 +5951,19 @@ Default realized auxililary variable, sets <code>v=1.0</code>.
 <a name="BinaryChoice___BinaryChoice"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">BinaryChoice</span></h3>
 
-<span class="declaration">BinaryChoice :: BinaryChoice ( )</span>
+<span class="declaration">BinaryChoice :: BinaryChoice ( Volume )</span>
 <dl><dd>
 Create a binary action variable.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Volume</td>
+<td class="description" valign="baseline">default=SILENT. <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a></td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ChoiceAtTbar</span></h2>
 
@@ -7121,19 +7192,10 @@ parameter for jump probability &pi;
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">KeptZeta</span></h2>
 
-<a name="KeptZeta___A"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">A</span></h3>
+<a name="KeptZeta___addst"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">addst</span></h3>
 
-<span class="declaration">static decl A [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="KeptZeta___b"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">b</span></h3>
-
-<span class="declaration">static decl b [public]</span>
+<span class="declaration">decl addst [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7144,14 +7206,27 @@ parameter for jump probability &pi;
 
 <span class="declaration">virtual KeptZeta :: CDF ( zstar )</span>
 <dl><dd>
+The default cdf of a kept continuous variable: &Phi;(z*).
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">zstar,</td>
+<td class="description" valign="baseline">cut-off value
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">F(zstar)
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="KeptZeta___cdf"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cdf</span></h3>
 
-<span class="declaration">static decl cdf [public]</span>
+<span class="declaration">decl cdf [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7160,7 +7235,16 @@ parameter for jump probability &pi;
 <a name="KeptZeta___df"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">df</span></h3>
 
-<span class="declaration">static decl df [public]</span>
+<span class="declaration">decl df [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KeptZeta___dist"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">dist</span></h3>
+
+<span class="declaration">decl dist [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7169,17 +7253,27 @@ parameter for jump probability &pi;
 <a name="KeptZeta___DynamicTransit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">DynamicTransit</span></h3>
 
-<span class="declaration">virtual KeptZeta :: DynamicTransit ( z , Qt )</span>
+<span class="declaration">virtual KeptZeta :: DynamicTransit ( z )</span>
 <dl><dd>
-Conditional distribution of Z given zstar.
+Pold   0
+            0      Pold
 
 </dd></dl>
 
 <hr>
-<a name="KeptZeta___Fdif"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Fdif</span></h3>
+<a name="KeptZeta___DynI"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DynI</span></h3>
 
-<span class="declaration">static decl Fdif [public]</span>
+<span class="declaration">decl DynI [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KeptZeta___DynR"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DynR</span></h3>
+
+<span class="declaration">decl DynR [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7189,6 +7283,24 @@ Conditional distribution of Z given zstar.
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">held</span></h3>
 
 <span class="declaration">const decl held [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KeptZeta___InitDynamic"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">InitDynamic</span></h3>
+
+<span class="declaration">virtual KeptZeta :: InitDynamic ( cth , VV )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KeptZeta___isheld"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">isheld</span></h3>
+
+<span class="declaration">decl isheld [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7219,7 +7331,17 @@ Create a discretized verison of the continuous &zeta; variable that enters the s
 </tr>
 <tr>
 <td class="declaration" valign="baseline"></td>
-<td class="description" valign="baseline">N number of points is</td>
+<td class="description" valign="baseline">N number of points the state variable will take on.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">keep</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#ActionVariable">ActionVariable</a>() that indicates &zeta; is kept.  Next period this variable will contain
+    a discrete approximiation to it.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">held</td>
 </tr>
 </table>
 </dd>
@@ -7227,30 +7349,61 @@ Create a discretized verison of the continuous &zeta; variable that enters the s
 </dd></dl>
 
 <hr>
-<a name="KeptZeta___kern"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">kern</span></h3>
+<a name="KeptZeta___myVV"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">myVV</span></h3>
 
-<span class="declaration">static decl kern [public]</span>
+<span class="declaration">decl myVV [public]</span>
 <dl><dd>
 
 </dd></dl>
 
 <hr>
-<a name="KeptZeta___M"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">M</span></h3>
+<a name="KeptZeta___NOth"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NOth</span></h3>
 
-<span class="declaration">static decl M [public]</span>
+<span class="declaration">decl NOth [public]</span>
 <dl><dd>
 
 </dd></dl>
 
 <hr>
-<a name="KeptZeta___midpt"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">midpt</span></h3>
+<a name="KeptZeta___NxtI"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NxtI</span></h3>
 
-<span class="declaration">static decl midpt [public]</span>
+<span class="declaration">decl NxtI [public]</span>
 <dl><dd>
 
+</dd></dl>
+
+<hr>
+<a name="KeptZeta___NxtR"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NxtR</span></h3>
+
+<span class="declaration">decl NxtR [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="KeptZeta___Quantile"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Quantile</span></h3>
+
+<span class="declaration">virtual KeptZeta :: Quantile ( u )</span>
+<dl><dd>
+The default quantile of a kept continuous variable: &Phi;<sup>-1</sup>(u).
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">u,</td>
+<td class="description" valign="baseline">vector of
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">F<sup>-1</sup>(y)
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -7259,6 +7412,9 @@ Create a discretized verison of the continuous &zeta; variable that enters the s
 
 <span class="declaration">virtual KeptZeta :: Transit ( FeasA )</span>
 <dl><dd>
+Static transition of a kept continuous variable.
+The static transition.  If keeping current z is feasible then initialize to zero.
+Otherwise, leave unchanged.
 
 </dd></dl>
 
@@ -7268,6 +7424,7 @@ Create a discretized verison of the continuous &zeta; variable that enters the s
 
 <span class="declaration">virtual KeptZeta :: Update ( )</span>
 <dl><dd>
+Default update of actual values.
 
 </dd></dl>
 
@@ -7275,7 +7432,7 @@ Create a discretized verison of the continuous &zeta; variable that enters the s
 <a name="KeptZeta___zspot"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">zspot</span></h3>
 
-<span class="declaration">static decl zspot [public]</span>
+<span class="declaration">decl zspot [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -9518,7 +9675,7 @@ Return actual[v].
 <a name="StateVariable___StateVariable"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">StateVariable</span></h3>
 
-<span class="declaration">StateVariable :: StateVariable ( L , N )</span>
+<span class="declaration">StateVariable :: StateVariable ( L , N , Volume )</span>
 <dl><dd>
 The base for state variables.
 
@@ -9533,6 +9690,11 @@ a placeholder for extensions of a model.
 <tr>
 <td class="declaration" valign="baseline">L</td>
 <td class="description" valign="baseline"><em>string</em> a label or name for the variable.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Volume</td>
+<td class="description" valign="baseline">default=SILENT. <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a>
 </td>
 </tr>
 </table>
@@ -10126,7 +10288,7 @@ value drawn from the conditional distribution of &zeta;
 <a name="ZetaRealization___ZetaRealization"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ZetaRealization</span></h3>
 
-<span class="declaration">ZetaRealization :: ZetaRealization ( length )</span>
+<span class="declaration">ZetaRealization :: ZetaRealization ( length , Volume )</span>
 <dl><dd>
 Create a new &zeta;, the vector-valued realized shock vector.
 
@@ -10135,6 +10297,12 @@ Create a new &zeta;, the vector-valued realized shock vector.
 <tr>
 <td class="declaration" valign="baseline">length</td>
 <td class="description" valign="baseline">integer, length of the (row) vector.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Volume</td>
+<td class="description" valign="baseline">default=SILENT. <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a>
+<P/>
 The default &zeta; is a 0 length vector.</td>
 </tr>
 </table>

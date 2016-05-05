@@ -1,0 +1,12 @@
+#!/bin/sh
+export OXHOME=/usr/share/OxMetrics7/ox
+export PATH=$PATH:$OXHOME/bin64
+export OX7PATH=$OXHOME/include
+htout=$(mktemp)
+oxout=$(mktemp)
+myname=${0##*/}
+oxl $myname.ox $htout > $oxout
+cat $htout
+cat $oxout
+rm $htout
+rm $oxout

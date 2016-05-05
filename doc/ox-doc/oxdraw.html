@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)http://www.doornik.com/ox/ -->
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="style/basic.css">
+	<link rel="stylesheet" type="text/css" href="style/theme-green.css">
+	<title>Ox Graphics Function Reference</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="author" lang="en" content="Jurgen A Doornik">
+	<meta name="copyright" content="&copy; Jurgen A Doornik">
+	<base target="content-frame">
+	<script src="style/loadincontent.js" language="javascript" type="text/javascript"></script>
+</head>
+
+<!-- Copyright Jurgen A. Doornik -->
+<body>
+<div class="page-frame">
+
+<h1>Ox Graphics Function Reference</h1>
+
+<h2>Chapter contents:</h2>
+
+
+<div>
+<ul class="column-list">
+<li><a href="#CloseDrawWindow">CloseDrawWindow</a></li>
+<li><a href="#Draw">Draw</a></li>
+<li><a href="#DrawAcf">DrawAcf</a></li>
+<li><a href="#DrawAdjust">DrawAdjust</a></li>
+
+<li><a href="#DrawAxis">DrawAxis</a></li>
+<li><a href="#DrawAxisAuto">DrawAxisAuto</a></li>
+<li><a href="#DrawBoxPlot">DrawBoxPlot</a></li>
+<li><a href="#DrawCorrelogram">DrawCorrelogram</a></li>
+
+<li><a href="#DrawDensity">DrawDensity</a></li>
+<li><a href="#DrawHistogram">DrawHistogram</a></li>
+<li><a href="#DrawLegend">DrawLegend</a></li>
+<li><a href="#DrawLine">DrawLine</a></li>
+
+<li><a href="#DrawMatrix">DrawMatrix</a></li>
+<li><a href="#DrawPLine">DrawPLine</a></li>
+<li><a href="#DrawPSymbol">DrawPSymbol</a></li>
+<li><a href="#DrawPText">DrawPText</a></li>
+
+<li><a href="#DrawQQ">DrawQQ</a></li>
+<li><a href="#DrawSpectrum">DrawSpectrum</a></li>
+<li><a href="#DrawSymbol">DrawSymbol</a></li>
+<li><a href="#DrawT">DrawT</a></li>
+
+<li><a href="#DrawText">DrawText</a></li>
+<li><a href="#DrawTitle">DrawTitle</a></li>
+<li><a href="#DrawTMatrix">DrawTMatrix</a></li>
+<li><a href="#DrawX">DrawX</a></li>
+
+<li><a href="#DrawXMatrix">DrawXMatrix</a></li>
+<li><a href="#DrawXYZ">DrawXYZ</a></li>
+<li><a href="#DrawZ">DrawZ</a></li>
+<li><a href="#SaveDrawWindow">SaveDrawWindow</a></li>
+
+<li><a href="#SetDraw">SetDraw</a></li>
+<li><a href="#SetDrawWindow">SetDrawWindow</a></li>
+<li><a href="#SetTextWindow">SetTextWindow</a></li>
+<li><a href="#ShowDrawWindow">ShowDrawWindow</a></li>
+</ul>
+</div>
+<div class="clear"></div>
+
+<p>Tables:
+
+<dl>
+<dt><a href="#TabDraw1">Default line and pallete attributes</a>
+<dt><a href="#TabDraw2">Symbol types</a>
+<dt><a href="#TabDraw3">Line types</a>
+<dt><a href="#TabDraw4">Plotting styles</a>
+</dl>
+
+<h3><a name="TabDraw1"></a>Table draw.1: Default line attributes</h3>
+<pre>
+index    color           line type  width   symbol   size
+
+ 0       white            solid      10     plus     90
+ 1       black            solid       6     plus     90
+ 2       red              solid      10     plus     90
+ 3       blue             solid      10     box      90
+ 4       blue/green       solid      10     circle   90
+ 5       purple           dotted     10     plus     90
+ 6       green            dotted     10     plus     90
+ 7       brown/yellow     long dash  10     plus     90
+ 8       dark purple      long dash  10     plus     90
+ 9       pastel yellow    dotted     10     plus     90
+10       pastel green     dotted     10     plus     90
+11       pastel blue      solid      10     plus     90
+12                        solid      10     plus     90
+13       light grey       solid      10     plus     90
+14       grey             solid      10     plus     90
+15       light grey       solid      10     plus     90
+
+palette  color      (palette is for 3D surface and error fans)      
+-1       wireframe
+ 0       white           
+ 1       gray           
+ 2       red             
+ 3       blue            
+ 4       blue/green      
+ 5       purple          
+ 6       green
+ 7       brown/yellow
+</pre>
+
+<h3><a name="TabDraw2"></a>Table draw.2: Symbol types</h3>
+<pre>
+    PL_FILLBOX    filled box        PL_FILLCIRCLE    filled circle   
+    PL_BOX        open box          PL_TRIANGLE      triangle        
+    PL_PLUS       plus              PL_FILLTRIANGLE  filled triangle 
+    PL_DASH       dash              PL_DIAMOND       diamond         
+    PL_CIRCLE     circle            PL_FILLDIAMOND   filled diamond  
+    PL_LINE       no symbol         PL_CROSS         cross           
+</pre>
+
+<h3><a name="TabDraw3"></a>Table draw.3: Line types</h3>
+<pre>
+    TP_SOLID     solid line 
+    TP_DOTTED    dotted line 
+    TP_DASHED    dashed line 
+    TP_LDASHED   long-dashed line 
+    TP_USER      user-defined line 
+</pre>
+
+<h3><a name="TabDraw4"></a>Table draw.4: Plotting styles</h3>
+<pre>
+    ST_LINE           line (points connected)
+    ST_SYMBOLS        symbols              
+    ST_LINESYMBOLS    line and symbols     
+    ST_INDEX          index line           
+    ST_INDEXSYMBOLS   index line with symbols
+    ST_BARS           bars                 
+    ST_SHADING        shading              
+</pre>
+<hr>
+
+
+<h2><a name="CloseDrawWindow"></a>CloseDrawWindow</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+CloseDrawWindow();
+</pre>
+
+<dl><dd>
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+Starts a new draw window for subsequent graphs.
+Note that the <i>OxMetrics</i> graphics window
+will remain active there.
+A call to <tt>ShowDrawDrawing</tt> also clears the graphics buffer,
+so does not need to be followed by a call to <tt>CloseDrawWindow</tt>.
+</dl>   
+
+<h2><a name="Draw"></a>Draw</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+Draw(const iArea, const mYt);
+Draw(const iArea, const mYt, const dXfirst, const dXstep);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>mYt</tt>
+<dd>in:   <i>m</i> <tt>x</tt> <i>T</i> matrix with <i>m</i> rows of data
+<dt><tt>dXfirst</tt>
+<dd>in:   (optional) double, <i>X</i>-value of first observation, <i>x</i>, default is 1
+<dt><tt>dXstep</tt>
+<dd>in:   (optional) double, gap between <i>X</i>-values, <i>d<sub>x</sub></i>, default is 1
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+This function draws <i>m</i> variables against an <i>X</i> variable, where the
+<i>X</i> variable consists of evenly spaced observations
+<i>x</i>, <i>x</i>+<i>d<sub>x</sub></i>, <i>x</i>+2<i>d<sub>x</sub></i>, <i>x</i>+3<i>d<sub>x</sub></i>, ....
+Each variable is drawn by linking up the points.
+The first line index is 2.
+</dl>   
+
+<h2><a name="DrawAcf"></a>DrawAcf</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawAcf(const iArea, const vY, const sY, const cLag, ...);
+DrawAcf(const iArea, const vY, const sY, const cLag, const fAcf,
+    const fPacf, const fErrorBand, int iIndex, const fBar);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>vY</tt>
+<dd>in:   <i>k</i> <tt>x</tt> <i>T</i> matrix, each row is a new plot
+<dt><tt>sY</tt>
+<dd>in:   string, variable name, or array of strings (<i>k</i> &gt; 1)
+<dt><tt>cLag</tt>
+<dd>in:   int, highest lag to be used in the ACF
+<dt><tt>fAcf</tt>
+<dd>in:   int, <tt>TRUE</tt>: draw ACF (optional argument, drawn by default)
+<dt><tt>fPacf</tt>
+<dd>in:   int, <tt>TRUE</tt>: draw PACF (optional argument, not drawn by default)
+<dt><tt>fErrorBand</tt>
+<dd>in:   int, <tt>TRUE</tt>: draw error bands (optional argument, not drawn by default) 
+<dt><tt>iIndex</tt>
+<dd>in: int, line index, see <a href="#TabDraw1">default line attributes</a>,
+                       (optional argument, default is 2).
+<dt><tt>fBar</tt>
+<dd>in:   int, <tt>TRUE</tt>: draw bar plot, else draw index plot  (optional argument, using bars by default)
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+Draws an ACF and/or PACF. 
+</dl>   
+
+
+<h2><a name="DrawAdjust"></a>DrawAdjust</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawAdjust(const iType, ...);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iType</tt>
+<dd>in:   int, type of adjustment
+<dt><tt>d1</tt> ... <tt>d4</tt>
+<dd>in:   optional arguments (defaults to -1 if missing)
+</dl>
+
+<dt><i>No return value</i>.
+<dt><i>Description</i>.
+<dd>
+This function adjusts the properties of the current graph.
+<p>
+The expected number of arguments depends on the type of adjustment
+(use -1 to keep the default value):
+
+<pre>
+constant         d1          d2          d3        d4        d5
+ADJ_AREAMATRIX   Y areas     X areas     box all   margin
+ADJ_AREA_3D      area        azimuth     elevation distance  twist
+ADJ_AREA_P       area        x_1         y_1       width     height
+ADJ_AREA_X       area        x_1         x_2       grow
+ADJ_AREA_Y       area        y_1         y_2       grow
+ADJ_AREA_Z       area        z_1         z_2       grow
+ADJ_AREASCOLOR   red:0-255   green:0-255 blue:0-255
+ADJ_AXISCENTRE   0,1                    
+ADJ_AXISGRID     0,1         colour      type
+ADJ_AXISHIDE     0,1                    
+ADJ_AXISLABEL    rotation    font size   tick size
+ADJ_AXISLINE     zero line   above       no line   no small
+ADJ_AXISSCALE    type        scale       shift
+ADJ_COLOR        colour      type
+ADJ_COLORMODEL   display:0,1 print:0-3
+ADJ_INDEX        0,1,2       base
+ADJ_LEGEND       area        no columns  font size resize    box     
+ADJ_MINMAX       minimum     maximum 
+ADJ_PAPERCOLOR   red:0-255   green:0-255 blue:0-255
+ADJ_PAPERSCALE   percentage
+ADJ_SCALE        scale       shift
+ADJ_SYMBOL       type        size
+ADJ_SYMBOLUSE    style 
+</pre>
+
+The type for <tt>ADJ_AXISSCALE</tt> is one of:
+<pre>
+    AXIS_LINEAR  standard axis,
+    AXIS_LOG     log-scale (data is in natural logarithms),
+    AXIS_LOG10   log10-scale (data is in base-10 logarithms),
+    AXIS_SCALED  scaled: set scale and shift,
+    AXIS_DATE    dated: interpret as Julian date/time values.
+</pre>
+<p>
+<tt>ADJ_INDEX</tt> with first argument equal to 1 draws an index line,
+use 2 for bars. The second argument sets the base for the index line or bars.
+<p>
+<tt>ADJ_AREA_X</tt>, <tt>ADJ_AREA_Y</tt>, <tt>ADJ_AREA_Z</tt> have an
+optional argument grow. Set this to one if the area should only grow
+if it already has dimensions fixed.
+<p>
+<tt>ADJ_COLORMODEL</tt>:
+the display mode can be 0 (colour) or 1 (b&amp;w);
+the print mode can be: 0 = black &amp; white,
+1 = black,white&amp;gray, 2 = gray levels, 3 = colour.
+This defines the colour model that is used for saving graphs in PDF and PostScript.
+
+<p>
+The azimuth is the rotation along the <i>Z</i> axis (or, more precisely orthogonal to
+the line of view). Elevation is the angle with the <i>X-Y</i> plane, and
+twist the rotation along the line of view. 
+Azimuth, elevation and twist are specified in degrees,
+distance is in area units. The default values of azimuth, elevation,
+distance and twist could correspond approximately to: -125, 25, 1800, 0;
+</dl>   
+
+
+<h2><a name="DrawAxis"></a>DrawAxis,
+<a name="DrawAxisAuto"></a>DrawAxisAuto
+</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawAxis(const iArea, const iIsXaxis, const dAnchor,
+    const dAxmin, const dAxmax, const dFirstLarge,
+    const dLargeStep, const dSmallStep, const iFreq);
+DrawAxis(const iArea, const iIsXaxis, const dAnchor,
+    const dAxmin, const dAxmax, const dFirstLarge,
+    const dLargeStep, const dSmallStep, const iFreq,
+    const dAnchor2);
+DrawAxisAuto(const iArea, const iIsXaxis, ...);
+DrawAxisAuto(const iArea, const iIsXaxis, const fShow,
+    const iAnchor, const dAnchor, const dAnchor2);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>iIsXaxis</tt>
+<dd>in:   int, 1: <i>X</i> axis, 0: <i>Y</i> axis, 2: <i>Z</i> axis         
+<dt><tt>dAnchor</tt>                                                                  
+<dd>in:   int, if <tt>iAnchor</tt>=<tt>ANCHOR_USER</tt>: anchor of the axis (<i>Y</i> location of <i>X</i>, <i>X</i> location of <i>Y</i> and <i>Z</i> axis)
+<dt><tt>dAxmin</tt>                                                                   
+<dd>in:   axis minimum                                                
+<dt><tt>dAxmax</tt>                                                                   
+<dd>in:   axis maximum                                                
+<dt><tt>dFirstLarge</tt>                                                              
+<dd>in:   location of first large tick                                
+<dt><tt>dLargeStep</tt>                                                               
+<dd>in:   step size between large ticks                               
+<dt><tt>dSmallStep</tt>                                                               
+<dd>in:   step size between small ticks                               
+<dt><tt>iFreq</tt>                                                                    
+<dd>in:   int, frequency (for time series X-axis, set to 0 otherwise)                            
+<dt><tt>fShow</tt>                                                                    
+<dd>in:   int, <tt>TRUE</tt>: show the axis
+<dt><tt>iAnchor</tt>                                                                      
+<dd>in:   int, axis anchor location, <tt>ANCHOR_MIN</tt>: at minimum,                  
+<tt>ANCHOR_MAX</tt>: at maximum, <tt>ANCHOR_USER</tt>: at <tt>dAnchor</tt> 
+<dt><tt>dAnchor2</tt>                                                                  
+<dd>in:   int, if <tt>iAnchor</tt>=<tt>ANCHOR_USER</tt>: anchor of the 3D axis (<i>Z</i> location of <i>X</i> and <i>Y</i> axis, <i>Y</i> location of <i>Z</i>)
+</dl>                                                                              
+
+<dt><i>No return value</i>.
+</dl>   
+
+
+<h2><a name="DrawBoxPlot"></a>DrawBoxPlot</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawBoxPlot(const iArea, const vY, const sY);
+DrawBoxPlot(const iArea, const vY, const sY, const iIndex);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>vY</tt>
+<dd>in:   <i>k</i> <tt>x</tt> <i>T</i> matrix, each row is a new plot (needs T>5)
+<dt><tt>sY</tt>
+<dd>in:   string, variable name, or array of strings (<i>k</i> &gt; 1)
+<dt><tt>iIndex</tt>
+<dd>in: int, line index, see <a href="#TabDraw1">default line attributes</a>,
+                       (optional argument, default is 2).
+</dl>
+
+<dt><i>No return value</i>.
+</dl>   
+
+
+<h2><a name="DrawCorrelogram"></a>DrawCorrelogram</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawCorrelogram(const iArea, const vY, const sY, const cLag);
+DrawCorrelogram(const iArea, const mY, const sY, const cLag, const iIndex);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>vY</tt>
+<dd>in:   <i>k</i> <tt>x</tt> <i>T</i> matrix, each row is a new plot
+<dt><tt>sY</tt>
+<dd>in:   string, variable name, or array of strings (<i>k</i> &gt; 1)
+<dt><tt>cLag</tt>
+<dd>in:   int, highest lag to be used in correlogram
+<dt><tt>iIndex</tt>
+<dd>in: int, line index, see <a href="#TabDraw1">default line attributes</a>,
+                       (optional argument, default is 2).
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+Draws a correlogram (the ACF is computed slightly differently from
+<tt><a href="oxstd.html#acf">acf</a></tt>). This function
+has been replaced by <tt><a href="oxdraw.html#DrawAcf">DrawAcf</a></tt>.
+</dl>   
+
+
+<h2><a name="DrawDensity"></a>DrawDensity</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawDensity(const iArea, const vY, const sY, ...);
+DrawDensity(const iArea, const vY, const sY, const fDens, const fHist,
+	const fNormal, BOOL fCdf, BOOL fStand, const cBar, const iIndex);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>vY</tt>
+<dd>in:   <i>k</i> <tt>x</tt> <i>T</i> matrix, each row is a new plot
+<dt><tt>sY</tt>
+<dd>in:   string, variable name, or array of strings (<i>k</i> &gt; 1)
+<dt><tt>fDens</tt>
+<dd>in:   int, TRUE: draw estimated density (optional argument, default)
+<dt><tt>fHist</tt>
+<dd>in:   int, TRUE: draw histogram (optional argument, not drawn by default)
+<dt><tt>fNormal</tt>
+<dd>in:   int, TRUE: add the normal density with same mean and variance for reference   (optional argument, not drawn by default)
+<dt><tt>fCdf</tt>
+<dd>in:   int, TRUE: plot the CDF in separate area  (optional argument, not drawn by default);
+this is drawn as a QQ plot against the normal with same mean and variance (unless <tt>fStand=TRUE</tt>)
+<dt><tt>fStand</tt>
+<dd>in:   int, TRUE: use standardized data  (optional argument, default uses original data)
+<dt><tt>cBar</tt>
+<dd>in:   int, number of bars (0: use default; optional argument)
+<dt><tt>iIndex</tt>
+<dd>in: int, line index, see <a href="#TabDraw1">default line attributes</a>,
+                       (optional argument, default is 2).
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+Draws the histogram and/or
+density 
+of the data in the specified area. When <tt>fNormal</tt> is <tt>TRUE</tt>,
+a normal density with the same mean and variance as the data
+will be drawn.
+</dl>   
+
+<h2><a name="DrawHistogram"></a>DrawHistogram</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawHistogram(const iArea, const vBar, ...);
+DrawHistogram(const iArea, const vBar, const dMin, const dStep,
+    const iIndex, const iColorIn);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>vBar</tt>
+<dd>in:   <i>k</i> <tt>x</tt> <i>T</i> matrix with bar heights, each row is a new plot
+<dt><tt>dMin</tt>
+<dd>in:   double, first <i>X</i>-coordinate of histogram (optional argument, default is 1)
+<dt><tt>dStep</tt>
+<dd>in:   double, bar step size (optional argument, default is 1)
+<dt><tt>iIndex</tt>
+<dd>in: int, line index, see <a href="#TabDraw1">default line attributes</a>,
+                       (optional argument, default is 2).
+<dt><tt>iColorIn</tt>
+<dd>in: int, colour index for inside of bars, see <a href="#TabDraw1">default line attributes</a>,
+                       (optional argument, default is 0: white).
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+Draws a histogram when the data is already in histogram
+format, i.e. <tt>vBar</tt> contains the bar heights.
+</dl>   
+
+<h2><a name="DrawLegend"></a>DrawLegend</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawLegend(const iArea, const iOffsX, const iOffsY,
+    const fHidden);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>iOffsX</tt>
+<dd>in:   int, <i>X</i> pixel offset from top left
+<dt><tt>iOffsY</tt>
+<dd>in:   int, <i>Y</i> pixel offset from top left
+<dt><tt>fHidden</tt>
+<dd>in:   int, <tt>TRUE</tt>: hide the legend
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+<tt>DrawLegend</tt> determines the location of the legend.
+By default, a legend is drawn in the top left-hand corner,
+with a scale that adjusts automatically to the area size.
+<tt>DrawLegend</tt> can also be used to hide the legend.
+
+The content of the legend is determined by the
+variable names that are used when drawing vectors.
+</dl>   
+
+
+<h2><a name="DrawLine"></a>DrawLine</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawLine(const iArea, const dX1, const dY1, const dX2,
+    const dY2, const iIndex);
+DrawLine(const iArea, const dX1, const dY1, const dZ1,
+    const dX2, const dY2, const dZ2, const iIndex);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>dX1</tt>, <tt>dY1</tt>
+<dd>in:   int, real-world coordinates of starting point
+<dt><tt>dX2</tt>, <tt>dY2</tt>
+<dd>in:   int, <i>Y</i> real-world coordinates of end point
+<dt><tt>dZ1</tt>, <tt>dZ2</tt>
+<dd>in:   int, real-world <i>Z</i> coordinates for symbol in 3D graph
+<dt><tt>iIndex</tt>
+<dd>in: int, line index for first row, see <a href="#TabDraw1">default line attributes</a>.
+</dl>
+
+<dt><i>No return value</i>.
+</dl>   
+
+
+<h2><a name="DrawMatrix"></a>DrawMatrix</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawMatrix(const iArea, const mYt, const asY,
+    const dXfirst, const dXstep, ...);
+DrawMatrix(const iArea, const mYt, const asY,
+    const dXfirst, const dXstep, iSymbol, iIndex);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>mYt</tt>
+<dd>in:   <i>m</i> <tt>x</tt> <i>T</i> matrix with <i>m</i> rows of data
+<dt><tt>asY</tt>
+<dd>in:   array of strings (holds variable names), or 0 (no names)
+<dt><tt>dXfirst</tt>
+<dd>in:   double, <i>X</i>-value of first observation, <i>x</i>
+<dt><tt>dXstep</tt>
+<dd>in:   double, gap between <i>X</i>-values, <i>d<sub>x</sub></i>
+<dt><tt>iSymbol</tt>
+<dd>in:   int, 0: draw line, 1: draw symbols, 2: draw both
+                       (optional argument, default is 0), see <a href="#TabDraw4">Plotting styles</a>.
+                       <br>Or vector with value for each row of data.
+<dt><tt>iIndex</tt>
+<dd>in: int, line index for first row, see <a href="#TabDraw1">default line attributes</a>,
+                       (optional argument, default is 2).
+                       Each subsequent row will have the next index.
+                       <br>Or vector with value for each row of data.
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+This is a more flexible version of the <tt>Draw()</tt> function.
+<tt>DrawMatrix</tt> draws the <i>m</i> variables in the rows of <tt>mYt</tt>.
+The <i>X</i> variable consists of evenly spaced observations
+<i>x</i>, <i>x</i>+<i>d<sub>x</sub></i>, <i>x</i>+2<i>d<sub>x</sub></i>, <i>x</i>+3<i>d<sub>x</sub></i>, ....
+
+The following table gives the default settings for each line index.
+Note that index 0 is the background colour, and 1 the foreground colour.
+
+</dl>   
+
+
+<h2><a name="DrawPLine"></a>DrawPLine,
+<a name="DrawPSymbol"></a>DrawPSymbol,
+<a name="DrawPText"></a>DrawPText
+</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawPLine(const iArea, const iX1, const iY1, const iX2,
+    const iY2, const iIndex);
+DrawPSymbol(const iArea, const iX1, const iY1, const iX2,
+    const iY2, const iSymType, const iIndex);
+DrawPText(const iArea, const sText, const iPx1,
+    const iPy1, ...);
+DrawPText(const iArea, const sText,const iPx1,const iPy1,
+    const iFontNo, const iFontSize, const iTitle, const iRotation);
+</pre>
+
+<dl>
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+Pixel coordinate versions of
+<a href="#DrawLine">DrawLine</a>, <a href="#DrawSymbol">DrawSymbol</a>
+<a href="#DrawText">DrawText</a>.
+</dl>
+
+
+<h2><a name="DrawQQ"></a>DrawQQ</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawQQ(const iArea, const vY, const sY, const iDens,
+    const df1, const df2);
+DrawQQ(const iArea, const mY, const sY, const iDens,
+    const df1, const df2, const iIndex);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>vY</tt>
+<dd>in:   <i>k</i> <tt>x</tt> <i>T</i> matrix, each row is a new plot
+<dt><tt>sY</tt>
+<dd>in:   string, variable name, or array of strings (<i>k</i> &gt; 1)
+<dt><tt>iDens</tt>
+<dd>in:   int, one of: <tt>QQ_CHI</tt>, <tt>QQ_F</tt>, <tt>QQ_N</tt>, <tt>QQ_T</tt>, <tt>QQ_U</tt>
+<dt><tt>df1</tt>
+<dd>in:   int, first parameter for distribution
+<dt><tt>df2</tt>
+<dd>in:   int, second parameter for distribution
+<dt><tt>iIndex</tt>
+<dd>in: int, line index for first row, see <a href="#TabDraw1">default line attributes</a>,
+                       (optional argument, default is 2).
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+Draws a QQ plot.
+
+The following distributions are supported:
+<ul>
+<li><tt>QQ_CHI  </tt>:  chi ^2(df1),
+<li><tt>QQ_F    </tt>:  F(df1, df2),
+<li><tt>QQ_N    </tt>:  N(0, 1),
+<li><tt>QQ_N_SE </tt>:  N(0, 1), with pointwise asymptotic 95% standard error
+bands, as derived in Engler and Nielsen(2009),
+<li><tt>QQ_T    </tt>:  t(df1),
+<li><tt>QQ_U    </tt>:  Uniform(0,1), resulting in a Quantile plot.
+</ul>
+</dl>   
+
+<h2><a name="DrawSpectrum"></a>DrawSpectrum</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawSpectrum(const iArea, const vY, const sY, const iOrder);
+DrawSpectrum(const iArea, const mY, const sY, const iOrder,
+    const iIndex);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>vY</tt>
+<dd>in:   <i>k</i> <tt>x</tt> <i>T</i> matrix, each row is a new plot
+<dt><tt>sY</tt>
+<dd>in:   string, variable name, or array of strings (<i>k</i> &gt; 1)
+<dt><tt>iOrder</tt>
+<dd>in:   int, lag truncation parameter <i>m</i>
+<dt><tt>iIndex</tt>
+<dd>in: int, line index for first row, see <a href="#TabDraw1">default line attributes</a>,
+                       (optional argument, default is 2).
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+Draws the estimated spectral density.
+</dl>   
+
+
+<h2><a name="DrawSymbol"></a>DrawSymbol</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawSymbol(const iArea, const dX1, const dY1, const dX2,
+    const dY2, const iSymType, const iIndex);
+DrawSymbol(const iArea, const dX1, const dY1, const dZ1, const dX2,
+    const dY2, const dZ2, const iSymType, const iIndex);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>dX1</tt>, <tt>dY1</tt>
+<dd>in:   int, real-world coordinates, lower-left corner of bounding box
+<dt><tt>dX2</tt>, <tt>dY2</tt>
+<dd>in:   int, real-world coordinates, upper-right corner of bounding box
+<dt><tt>dZ1</tt>, <tt>dZ2</tt>
+<dd>in:   int, real-world <i>Z</i> coordinates for symbol in 3D graph
+<dt><tt>iSymType</tt>
+<dd>in: int, <a href="#TabDraw2">symbol type</a>
+<dt><tt>iIndex</tt>
+<dd>in: int, line index for first row, see <a href="#TabDraw1">default line attributes</a>,
+                       (optional argument, default is 2).
+                       Each subsequent row will have the next index.
+</dl>
+
+<dt><i>No return value</i>.
+</dl>   
+
+
+<h2><a name="DrawT"></a>DrawT</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawT(const iArea, const mYt, const mnYear,
+    const mnPeriod, const iFreq);
+DrawT(const iArea, const mYt, const vDates, 0, 0);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>mYt</tt>
+<dd>in:   <i>m</i> <tt>x</tt> <i>T</i> matrix with <i>m</i> <i>y</i> variables
+<dt><tt>mnYear</tt>
+<dd>in:   int, year of first observation
+<dt><tt>mnPeriod</tt>
+<dd>in:   int, period of first observation
+<dt><tt>iFreq</tt>
+<dd>in:   int, frequency of observations
+<dt><tt>vDates</tt>
+<dd>in:   1 <tt>x</tt> <i>T</i> matrix with with Julian dates (and/or times,
+see <a href="oxstd.html#dayofcalendar">dayofcalendar</a> and
+<a href="oxstd.html#timeofday">timeofday</a>)
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+Draws <i>m</i> variables in the specified area against time.
+Each variable is drawn by linking up the points.
+The first line index is 2.
+</dl>   
+
+
+<h2><a name="DrawText"></a>DrawText,
+<a name="DrawTitle"></a>DrawTitle
+</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawText(const iArea, const sText, const dX1,
+    const dY1, ...);
+DrawText(const iArea, const sText, const dX1, const dY1,
+    const iFontNo, const iFontSize, const iTitle, const iRotation,
+    const dZ1);
+DrawTitle(const iArea, const sText);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>sText</tt>
+<dd>in:   string, the text may include LaTeX-style formatting
+<dt><tt>dX1</tt>, <tt>dY1</tt>
+<dd>in:   int, real-world coordinates, anchor of text
+<dt><tt>iFontNo</tt>
+<dd>in: int, font number (0 for first font; use -1 for the default font)
+<dt><tt>iFontSize</tt>
+<dd>in: int, font size (e.g. 330; use -1 for the default size)
+<dt><tt>iTitle</tt>
+<dd>in: int,<br>
+&nbsp;&nbsp;<tt>TEXT_TEXT</tt> or <tt>0</tt>: is normal text, else is graph title (coordinates are ignored):<br>
+&nbsp;&nbsp;<tt>TEXT_TITLE </tt> - graph title<br>
+&nbsp;&nbsp;<tt>TEXT_XLABEL</tt> - label along <i>X</i>-axis<br>
+&nbsp;&nbsp;<tt>TEXT_YLABEL</tt> - label along <i>Y</i>-axis<br>
+&nbsp;&nbsp;<tt>TEXT_ZLABEL</tt> - label along <i>Z</i>-axis<br>
+<dt><tt>iRotation</tt>
+<dd>in: int, rotation (in degrees, default is 0), only effective if the <tt>iTitle</tt> argument is zero
+<dt><tt>dZ1</tt>
+<dd>in: int, real-world <i>Z</i> coordinate of text anchor (for text in 3D graphs; default is 0)
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+Note that the forward slash for LaTeX commands
+must be doubled, for example:
+<pre>
+    DrawText(0, "$\\leftarrow\\arrowext$", 1962, 1, -1, -1, 0, 45);
+</pre>
+
+<tt>DrawTitle</tt> draws text at the title location. This corresponds to
+<tt>DrawText(iArea, sText, 0, 0, -1, -1, TEXT_TITLE)</tt>.
+<p>
+Text can also be rotated, by specifying the angle in degrees.
+This will not work well for multiple
+line text blocks.
+</dl>   
+
+
+<h2><a name="DrawTMatrix"></a>DrawTMatrix</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawTMatrix(const iArea, const mYt, const asY, ...);
+DrawTMatrix(const iArea, const mYt, const asY,
+    const mnYear, const mnPeriod, const iFreq, iSymbol,
+    iIndex);
+DrawTMatrix(const iArea, const mYt, const asY, const vDates,...);
+DrawTMatrix(const iArea, const mYt, const asY, const vDates,
+    0, 0, const iSymbol, const iIndex);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>mYt</tt>
+<dd>in:   <i>m</i> <tt>x</tt> <i>T</i> matrix with <i>m</i> <i>y</i> variables
+<dt><tt>asY</tt>
+<dd>in:   array of strings (holds variable names), or 0 (no names)
+<dt><tt>mnYear</tt>
+<dd>in:   int, year of first observation
+<dt><tt>mnPeriod</tt>
+<dd>in:   int, period of first observation
+<dt><tt>iFreq</tt>
+<dd>in:   int, frequency of observations
+<dt><tt>iSymbol</tt>
+<dd>in:   int, 0: draw line, 1: draw symbols, 2: draw both
+                       (optional argument, default is 0), see <a href="#TabDraw4">Plotting styles</a>.
+                       <br>Or vector with value for each row of data.
+<dt><tt>iIndex</tt>
+<dd>in: int, line index for first row, see <a href="#TabDraw1">Default line attributes</a>,
+                       (optional argument, default is 2).
+                       Each subsequent row will have the next index.
+                       <br>Or vector with value for each row of data.
+<dt><tt>vDates</tt>
+<dd>in:   1 <tt>x</tt> <i>T</i> matrix with with Julian dates (and/or times,
+see <a href="oxstd.html#dayofcalendar">dayofcalendar</a> and
+<a href="oxstd.html#timeofday">timeofday</a>)
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+This is a more flexible version of the <tt>DrawT()</tt> function.
+Draws <i>m</i> variables in the specified area against time.
+See under <tt>DrawMatrix</tt> for the default settings for each line index.
+<p>
+
+See <tt>ox/samples/graphics/draw10.ox</tt> for an example using
+fixed frequency, daily and timed data.
+See <a href="oxclass.html#Modelbase::DbDrawTMatrix">Modelbase::DbDrawTMatrix</a>
+for a version that uses the database sample information for the horizontal axis.
+
+</dl>   
+
+<h2><a name="DrawX"></a>DrawX</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawX(const iArea, const mYt, const vX);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>mYt</tt>
+<dd>in:   <i>m</i> <tt>x</tt> <i>T</i> matrix with <i>m</i> <i>y</i> variables
+<dt><tt>vX</tt>
+<dd>in:   1 <tt>x</tt> <i>T</i> matrix with <i>x</i> variable
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+Draws <i>m</i> <i>y</i> variables in the specified area against an <i>x</i> variable.
+Each point is marked, but the points are not linked, resulting in a cross plot.
+The first line index is 2.
+</dl>   
+
+
+<h2><a name="DrawXMatrix"></a>DrawXMatrix</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawXMatrix(const iArea, const mYt, const asY, const vX,
+    const sX, ...);
+DrawXMatrix(const iArea, const mYt, const asY, const vX,
+    const sX, iSymbol, iIndex);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>vX</tt>
+<dd>in:   1 <tt>x</tt> <i>T</i> matrix with <i>x</i> variable
+<dt><tt>iSymbol</tt>
+<dd>in:   int, 0: draw line, 1: draw symbols, 2: draw both
+                       (optional argument, default is 0), see <a href="#TabDraw4">Plotting styles</a>.
+                       <br>Or vector with value for each row of data.
+<dt><tt>iIndex</tt>
+<dd>in: int, line index for first row, see <a href="#TabDraw1">Default line attributes</a>,
+                       (optional argument, default is 2).
+                       Each subsequent row will have the next index.
+                       <br>Or vector with value for each row of data.
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+This is a more flexible version of the <tt>DrawX()</tt> function.
+Draws <i>m</i> variables in the specified area against an <i>x</i> variable
+See under <tt>DrawMatrix</tt> for the default settings for each line index.
+<p>
+See <tt>ox/samples/graphics/draw11.ox</tt> for an example using
+fixed frequency and daily data.
+</dl>   
+
+
+<h2><a name="DrawXYZ"></a>DrawXYZ</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawXYZ(const iArea, const vX, const vY, const mZ, ...);
+DrawXYZ(const iArea, const vX, const vY, const mZ,
+    const iMode, const sX, const sY, const sZ,
+    const iPalette, const iIndex);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index 
+<dt><tt>vX</tt>
+<dd>in:   1 <tt>x</tt> <i>k</i> matrix with <i>X</i> variable 
+<dt><tt>vY</tt>
+<dd>in:   1 <tt>x</tt> <i>n</i> matrix with <i>Y</i> variable 
+<dt><tt>mZ</tt>
+<dd>in:   <i>k</i> <tt>x</tt> <i>n</i> matrix with <i>Z</i> variable, heights above XY plane
+(tabular format)<br>
+<i>or</i>
+<dd>in:   1 <tt>x</tt> <i>n=k</i> matrix with Z coordinates for points 
+              (X, Y, Z), rough approximation of surface is constructed (scatter format)
+<dt><tt>iMode</tt>
+<dd>in:   int, type of plot  (optional argument): <br>
+<tt>-1</tt> - triangulation (only for scatter format)<br>
+<tt>0</tt> - surface plot only (default)<br>
+<tt>1</tt> - currently unsupported: surface plot with contours on ground level<br>
+<tt>2</tt> - 2-dimensional contour plot<br>
+<dt><tt>sX</tt>
+<dd>in:   string, name of X variable (optional argument)
+<dt><tt>sY</tt>
+<dd>in:   string, name of Y variable (optional argument)
+<dt><tt>sZ</tt>
+<dd>in:   string, name of Z variable (optional argument)
+<dt><tt>iPalette</tt>
+<dd>in: int, palette index, see <a href="#TabDraw1">Default line attributes</a>,
+                       (optional argument, default is 2: red).
+<dt><tt>iIndex</tt>
+<dd>in: int, line index for mesh, see <a href="#TabDraw1">Default line attributes</a>,
+                       (optional argument, default is 1: black).
+</dl>
+
+<dt><i>No return value</i>.
+
+</dl>   
+
+
+<h2><a name="DrawZ"></a>DrawZ</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+DrawZ(const vZ, ...);
+DrawZ(const vZ, const sZ, const iMode, const dFac,
+    const iIndex);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iArea</tt>
+<dd>in:   int, area index
+<dt><tt>vZ</tt>
+<dd>in:   1 <tt>x</tt> <i>T</i> matrix with <i>Z</i> variable
+<dt><tt>sZ</tt>
+<dd>in:   string, 1 name of <i>Z</i> variable
+<dt><tt>iMode</tt>
+<dd>in:   int, type of <i>Z</i> variable (optional argument): <br>
+<tt>ZMODE_SYMBOL</tt> - use values as symbol size, <br>
+<tt>ZMODE_VALUE</tt>  - draw value as text, <br>
+<tt>ZMODE_BAR</tt>    - draw error bars (the default), <br>
+<tt>ZMODE_BAND</tt>   - draw error bands, <br>
+<tt>ZMODE_FAN</tt>    - draw error fans, <br>
+<tt>ZMODE_HILO</tt>   - draw high-low plot, <br>
+<tt>ZMODE_3D</tt>     - draw 3-D points.
+<dt><tt>dFac</tt>
+<dd>in:   double,   bar/band factor  (optional argument, 2.0 is default)
+<dt><tt>iIndex</tt>
+<dd>in: int, line index for first row, see <a href="#TabDraw1">Default line attributes</a>,
+                       (optional argument, default is 2).
+                       Each subsequent row will have the next index.
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+<tt>DrawZ</tt> adds a <i>Z</i> component to the most recent graphics
+object. <tt>DrawZ</tt> should be used
+immediately after a call to one of the draw functions
+<tt>Draw</tt>, <tt>DrawMatrix</tt>, <tt>DrawX</tt>, etc.).
+</dl>   
+
+
+<h2><a name="SetDraw"></a>SetDraw</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+SetDraw(const iOption, ...);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>iType</tt>
+<dd>in:   int, type of adjustment
+<dt><tt>i1</tt> ... <tt>i5</tt>
+<dd>in:   optional arguments
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+This function changes the default settings used in graphics.
+When run via OxMetrics, this will affect the persistent
+OxMetrics settings. Check first under <a href="#DrawAdjust"><tt>DrawAdjust</tt></a> if the
+required customization is available there.
+<p>
+The expected number of arguments depends on the type of adjustment:
+
+<pre>
+option             i1             i2             i3            i4           i5 
+
+SET_AXIS           fontsize       step           tick       
+SET_AXISFORMAT     width:8        precision:6    same prec:0,1 lead zero:0,1 
+SET_AXISLINE       no X-line      no Y-line      center dates  no small Y      
+SET_BOX            box:0-1        X-grid:0-1     Y-grid:0-1       
+SET_BWG            lineno:0-15    red:0-255      green:0-255   blue:0-255     
+SET_COLOR          lineno:0-15    red:0-255      green:0-255   blue:0-255     
+SET_COLORMODEL     model:0-3          
+SET_FONT           fontno:0-3     fontsize         
+SET_GRID           color:0-15     type:0-15         
+SET_HISTOGRAM      inside:0-15    outside:0-15         
+SET_LEGEND         boxed:0-1      columns         
+SET_LEGENDFONTSIZE fontsize     
+SET_LEGENDHIDE     hide:0-1          
+SET_LEGENDRESIZE   resize:0,1     
+SET_LINE           lineno:0-15    linetype:0-4  width         on           off 
+SET_LINEBWG        lineno:0-15    linetype:0-4  width         on           off 
+SET_MARGIN         left-margin    top-margin
+SET_PALETTE_MAX    lineno:0-7     red:0-255     green:0-255   blue:0-255      
+SET_PALETTE_MIN    lineno:0-7     red:0-255     green:0-255   blue:0-255     
+SET_PAPERCOLOR     red:0-255      green:0-255   blue:0-255     
+SET_PRINTPAGE      papertype:0-2  orient:0-1    X-size        Y-size     
+SET_SYMBOL         lineno:0-15    symtype:0-4   size            
+SET_XYSTYLE        2D-style:0,1   3D-style:0,1
+</pre>
+
+Paper, orientation and model arguments for
+<tt>SET_PRINTPAGE</tt> and <tt>SET_COLORMODEL</tt>
+are:
+<pre>
+papertype    orientation        model
+PAGE_A4      PAGE_PORTRAIT      0   black &amp; white
+PAGE_LETTER  PAGE_LANDSCAPE     1   black, white, gray
+PAGE_USER                       2   gray
+                                3   color
+</pre>
+
+</dl>   
+
+
+<h2><a name="SaveDrawWindow"></a>SaveDrawWindow</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+SaveDrawWindow(const sFilename);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>sFilename</tt>
+<dd>in:   valid file name
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+Saves the current graph to the specified file. The file
+format for saving is derived from the extension.
+The following formats are supported:
+
+<p>
+<ul>
+<li><tt>.eps  </tt>:      Encapsulated PostScript
+<li><tt>.gwg  </tt>:      <i>OxMetrics</i> graphics file
+<li><tt>.pdf   </tt>:     PDF: Portable document format
+<li><tt>.ps   </tt>:      PostScript
+</ul>
+
+See the <i>OxMetrics</i> book for a description of these formats.
+When saving in a format other than <tt>.gwg</tt>, the <tt>.gwg</tt> file is automatically saved as well (using the
+same file name with <tt>.gwg</tt> appended).
+</dl>   
+
+<h2><a name="SetDrawWindow"></a>SetDrawWindow</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+SetDrawWindow(const sTitle);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>sTitle</tt>
+<dd>in:   string, name of window
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+This function is only relevant when interacting with <i>OxMetrics</i>
+otherwise it does nothing. It sets the name of
+the <i>OxMetrics</i> window in which the graphs of the Ox program
+appear to <tt>sTitle</tt>.
+</dl>   
+
+<h2><a name="SetTextWindow"></a>SetTextWindow</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+SetTextWindow(const sTitle);
+</pre>
+
+<dl><dd>
+<dl>
+<dt><tt>sTitle</tt>
+<dd>in:   string, name of window
+</dl>
+
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+This function is only relevant when interacting with <i>OxMetrics</i>
+otherwise it does nothing. It sets the name of
+the <i>OxMetrics</i> window in which the output (from the <tt>print()</tt> function)
+of the Ox program appears to <tt>sTitle</tt>.
+</dl>   
+
+<h2><a name="ShowDrawWindow"></a>ShowDrawWindow</h2>
+
+<pre>
+#include &lt;oxdraw.oxh&gt;
+ShowDrawWindow();
+</pre>
+
+<dl><dd>
+<dt><i>No return value</i>.
+
+<dt><i>Description</i>.
+<dd>
+Shows the drawing. Note that in some implementations the graphs
+cannot be displayed. Then a message is printed
+(<tt>SaveDrawWindow()</tt> will still work in that case!).
+
+A call to <tt>ShowDrawWindow</tt> also clears the drawing buffer,
+so does not need to be followed by a call to <tt>CloseDrawWindow</tt>.
+Therefore, two subsequent calls to <tt>ShowDrawWindow</tt> first show,
+then clear the graph from the active window.
+</dl>   
+
+
+<hr><p><b>Ox version 7.00.</b>
+&copy; <i><a href="http://www.doornik.com" target="_top">
+JA Doornik</a></i>
+This file last changed <script type="text/javascript">document.write(document.lastModified);</script>.
+
+</div><!-- /page-frame -->
+</body>
+</html>

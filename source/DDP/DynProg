@@ -81,12 +81,16 @@ In some cases we might use discrete choice to approximate a continuous choice, s
 
 <h2>Utility</h2>
 
-How did Bob choose Yale? And how Tommy chose 2 hours (according to our discrete approximation)? 
+<DT>How did Bob choose Yale? And how Tommy chose 2 hours (according to our discrete approximation)?</DT>
 <DD>Perhaps they considered all the pros and cons of their options and carefully weighed the factors to determine which was best.  Or maybe they threw a dart at the wall.</DD>
 
-Whatever process they used, we are not concerned with <em>how</em> the choice was made, but that a chose was made based on a  <em>utility</em> associated with each action.  <details class="aside"><summary>Optimality and <em>function</em></summary>Of course, much of social science concerns choices that are not optimal, but for our purposes what people do will always be optimal for them given their options and preferences. Also, a teacher of mine emphasized that utility is by definition a function, so writing and saying "utility function" is redundant. It would be like saying "truck vehicle" instead of simply "truck," because by definition a truck is a vehicle. word </details>
+<DT>Whatever process they used ...</DT>
+ <DD>we are not concerned with <em>how</em> the choice was made, but that a chose was made based on a  <em>utility</em> associated with each action.  <details class="aside"><summary>Optimality and <em>function</em></summary>Of course, much of social science concerns choices that are not optimal, but for our purposes what people do will always be optimal for them given their options and preferences. Also, a teacher of mine emphasized that utility is by definition a function, so writing and saying "utility function" is redundant. It would be like saying "truck vehicle" instead of simply "truck," because by definition a truck is a vehicle. word </details></DD>
 
-Let $U(\alpha)$ denote Bob's utility for school $\alpha$, which is just a real number associated with $\alpha$.  Bob can have utility for options that are not feasible (not in $A$), such as U(<code>Stanford</code>), but we don't have a complete model until utility is defined for each element of $A$.  So, we can get fancy and write $U: A\,\to\, \Re$.  But since $A$ is a discrete set, $U$ is really just four numbers, one for each feasible school.
+<DT>Let $U(\alpha)$ denote Bob's utility for school $\alpha$.</DT>
+ <DD>$U(\alpha)$ is just a real number associated with $\alpha$.  </DD>
+ <DD>Bob can have utility for options that are not feasible (not in $A$), such as U(<code>UCLA</code>), but we don't have a complete model until utility is defined for each element of $A$.  </DD>
+ <DD>So, we can get fancy and write $U: A\,\to\, \Re$.  But since $A$ is a discrete set, $U$ is really just four numbers, one for each feasible school.</DD>
 
 <DT>For example, Bob would set $\alpha^\star=$ <code>Yale</code> if his utility were:</DT>
 <DD><pre>
@@ -102,12 +106,14 @@ Many other utility levels would explain <code>Yale</code> as an optimal choice.
 
 <h2>Multiple Dimensions</h2>
 
-In many cases we want to model choices in more than one dimension.  So Bob was making a choice in the <em>school</em> dimension.  But he might also be making decisions in other dimensions, such as <em>major</em>, <em>roommate</em>, etc.    Before showing <span class="n">DDP</span> code for Bob's choice let's have him decide his major at the same time. 
+<DT>In many cases we want to model choices in more than one dimension.</DT>
+  <DD>Bob was making a choice in the <em>school</em> dimension.  But he might also be making decisions in other dimensions, such as <em>major</em>, <em>roommate</em>, etc.</DD>
+    <DD>Before showing <span class="n">DDP</span> code for Bob's choice let's have him decide his major at the same time.</DD>
 <DD>One way to do this is to convert a choice in several (discrete) dimensions into a one dimensional choice by simply listing all the possible combinations.</DD>
 <DD>Another way is to make &alpha; a vector not a scalar.</DD>
 <DD>We illustrate both ways in the next example.</DD>
 
-<DT>Example: Bob is choosing both a university <em>and</em> a major. Which major looks best might depend on which school he chooses.  </DT>
+<DT>Example: Bob is choosing both a university <em>and</em> a major. Which major is best might depend on which school he chooses.  </DT>
 <DD>For simplicity, suppose Bob's parents have told him he has to choose either <code>Economics</code> or <code>Physics</code>.  </DD>
 <DD>Convert to 1 Dimensional: We could simply expand his choice set as follows: <code>{Harvard-Econ,Harvard-Physics,Yale-Econ,Yale-Physics,Queen's-Econ,Queen's-Econ,McGill-Econ,McGill-Physics}</code>.  Utility is then a number assigned to each of these <code>J=8</code> options.  </DD>
 <DD>Add a 2nd Dimension: However, it can be more convenient not to collapse the two dimensions, but to consider them separate but simultaneous.  In this case, we can let school be the row and major the column:
@@ -124,9 +130,11 @@ McGill           -25                        -0.5
 
 <DT>We can also keep the dimensions separate by letting $\alpha$ be a <em>vector</em> of action variables: $\alpha = (a_0, a_1, \dots, a_{D-1})$.</DT>
 
-In the major-school choice, <code>D=2</code>, because there are two dimensions of choice,  $a_0$ is the major choice, and $a_1$ the major choice.  We start counting at 0 because that is the way counting is done in many computer languages.  So doing so now may avoid some confusion later when we see code.
+<DD>In the major-school choice, <code>D=2</code>, because there are two dimensions of choice,  $a_0$ is the major choice, and $a_1$ the major choice.  <details class="aside"><summary>Start at 0?</summary>We start counting at 0 because that is the way counting is done in many computer languages.  So doing so now may avoid some confusion later when we see code.</details>
 
-Although using rows and columns to represent two different action variables is clear, it is not very helpful when there are three or more variables.  We can combine the list version with the vector version to get something like this:
+Although using rows and columns to represent two different action variables is clear, it is not very helpful when there are three or more variables.
+
+<DT>We can combine the list version with the vector version to get something like this:</DT>
 <DD><pre>
 BOB'S UTILITY USING ACTION VARIABLES
      &alpha;
@@ -143,16 +151,18 @@ Physics       McGill           -0.5
 </pre></DD>
 
 <DT>In  <span class="n">DDP</span>:  </DT>
-<DD>the action vector is built up by in this way by adding `ActionVariable`s to it as part of the set-up of the model.  The creation of the list of actions as shown above is done for you by <span class="n">DDP</span>.  </DD>
+<DD>the action vector is built up by in this way by adding `ActionVariable`s to it as part of the set-up of the model.  </DD>
+<DD>The creation of the list of actions as shown above is done for you by <span class="n">DDP</span> as you add action variables to the action vector.</DD>
 <DD>As the user you only have to concern yourself with which variables are chosen and how many different values they take on.</DD>
-<DD>You can provide value labels for each action variable you add to the model.  In the example above "Econ" would be a label for a integer option value.</DD>
+<DD>You can provide value labels for each action variable you add to the model.  In the example above "Econ" would be a label for an integer option value.</DD>
 
 
 <h2>Full Description of Bob's Problem</h2>
 
 As with the first example, each row is an action $\alpha$, but it is associated with values of two action variables.
 
-Labelling the choices certainly helps to understand them, but a computer program that is designed to handle any kinds of choices can hard-code labels like "Harvard" and use it to refer to utility.  Hopefully it is clear that in the abstract the choice over the four universities is just a case of choosing among 4 possibilities.  The labels are helpful to us, but generically the choices can just be numbered 0, 1, 2, and 3.
+<DD>Labelling the choices certainly helps to understand them, but a computer program that is designed to handle any kinds of choices can hard-code labels like "Harvard" and use it to refer to utility.  </DD>
+<DD>Hopefully it is clear that in the abstract the choice over the four universities is just a case of choosing among 4 possibilities.  The labels are helpful to us, but generically the choices can just be numbered 0, 1, 2, and 3.</DD>
 
 <DT>The school-major choice can be describe with action variables that are just integers along with labels for each value.</DT>
 <dd><pre>
@@ -177,7 +187,8 @@ a<sub>0</sub>     a<sub>1</sub>          U(&alpha;)
 
 <DT>Bob's Choice</DT>
 
-So far we just have 8 options with arbitrary values (utilities) assigned to them.  And it turns out that the maximum of those utilities is 4.2 for the action of choosing <code>Yale</code> and <code>Econ</code>.
+<DD>So far we just have 8 options with arbitrary values (utilities) assigned to them.  </DD>
+<DD>And it turns out that the maximum of those utilities is 4.2 for the action of choosing <code>Yale</code> and <code>Econ</code>.
 <DD class="disp">
 $\alpha^\star \equiv \arg\max_{A}U(\alpha)$ = (<code>Econ</code>,<code>Yale</code>)
 
@@ -188,17 +199,21 @@ $EV \equiv \max_{A} U(\alpha) = U(\alpha^\star)$ = <code>4.2</code>.
 <DD>In microeconomics the highest utility possible is named <em>indirect utility</em>, but in dynamic programming it is usually called the (optimal) <em>value</em> of a state.</DD>
  <DD>So above $V$ is used to represent the value Bob receives from his choice once optimized.  </DD>
  <DD>We use $EV$ and not just $V$ in anticipation that there can elements of uncertainty in the choice.   In particular, the person deciding will know everything up until today when the choice is made, but they will have to make that choice without knowing everything that will happen in the future (tomorrow).  </DD>
- <DD>$EV$ will end up being good notation since when, deciding today, they will have to average (take the <b>E</b>expectation of) their optimal choices made tomorrow when they have more information than they have now.</DD>
-
-<DD>The notation also assumes there are no ties, the optimal choice is unique.  That won't be necessary.  Ties are handled properly by <span class="n">DDP</span>,  but assuming no  ties does make the example simpler.</DD>
+ <DD>$EV$ will end up being good notation since when, deciding today, they will have to average (take the <b>E</b>expectation of) their optimal choices made tomorrow when they have more information than they have now.
+<details class="aside"><summary>Ties</summary><DD>The notation also assumes there are no ties, the optimal choice is unique.  That won't be necessary.  Ties are handled properly by <span class="n">DDP</span>,  but assuming no  ties does make the example simpler.</DD></details></DD>
 
 <h2>Coding Bob's Choice in <span class="n">DDP</span></h2>
 
-Bob's choice is trivial.  Simply look at the 8 numbers that make up his utility.  Find the biggest number.  Look at the labels associated with that action. Finished.  These operations could easily be done by hand, in a spreadsheet, or even in Ox using its built in <a href=""><code>maxc()</code> and <code>maxcindex()</code></a> routines.
+<DT>Bob's choice is trivial.</DT>
+  <DD>Simply look at the 8 numbers that make up his utility.  </DD>
+  <DD>Find the biggest number.  </DD>
+  <DD>Look up the labels associated with that action. Finished.  </DD>
 
-When you look at the code for Bob's Choice in <span class="n">DDP</span> you will see that it has some elements that are not obvious.  Indeed, it relies on some sophisticated features of the Ox programming language.  Even if you have done some programming in similar languages such as Matlab, Python or R, your reaction may be: that is a lot of complexity for such a simple choice.  And you are right!
+<DD>These operations could easily be done by hand, in a spreadsheet, or even in Ox using its built in <a href=""><code>maxc()</code> and <code>maxcindex()</code></a> routines.
 
-However, hopefully you see some logic in the complications so that the code is not completely unrelated to the problem as you understand it.  And you might see that some of the complication is there to make real models easier to build than if simple tools only were used.
+<DD>When you look at the code for Bob's Choice in <span class="n">DDP</span> you will see that it has some elements that are not obvious.  Indeed, it relies on some sophisticated features of the Ox programming language.  Even if you have done some programming in similar languages such as Matlab, Python or R, your reaction may be: that is a lot of complexity for such a simple choice.  And you are right!</DD>
+
+<DD>However, hopefully you see some logic in the complications so that the code is not completely unrelated to the problem as you understand it.  And you might see that some of the complication is there to make real models easier to build than if simple tools only were used.</DD>
 
 <details><summary>The Code.</summary>
 <DT>Source: <a href="../../examples/BobsChoice.ox">niqlow/examples/BobsChoice.ox</a></DT>
@@ -341,31 +356,42 @@ The examples above are not good models of behaviour.  For one thing, the utility
 
 <DT>The <em>logit model</em> of choice includes a continuous random variable in the utility:</DT>
 <dd class="disp">
-$$U(\alpha) = Utility(\alpha) + z_\alpha.$$
+$$U(\alpha) = Util(\alpha) + z_\alpha.$$
 </dd>
-<DD>The extra component $z_alpha$ is assumed to follow the <a href="https://en.wikipedia.org/wiki/Gumbel_distribution">Type I Extreme Value (Gumbel) distribution</a>.  Across options $z_\alpha$ values are independent.  </DD>
-<DD>The term <code>Utility(&alpha;)</code> is given the same name as the routine that is part the model in <span class="disp">DDP</span>.   So the user's coding would be the same and the term $z_\alpha$ is not explicitly added.</DD>
+<DD>The extra component $z_\alpha$ is assumed to follow the <a href="https://en.wikipedia.org/wiki/Gumbel_distribution">Type I Extreme Value (Gumbel) distribution</a>.  Across options $z_\alpha$ values are independent.  </DD>
+<DD>The term <code>Util(&alpha;)</code> is a shortened version of name of the routine that is part the model in <span class="disp">DDP</span>.   So the user's coding would be the same <em>and the term $z_\alpha$ is not explicitly added to it.</em></DD>
 
 <DT>The <em>probit model</em> of choice makes a different distributional assumption</DT>
 <dd class="disp">
-$$U(\alpha) = Utility(\alpha) + z_\alpha, \qquad z_\alpha \sim N(0,1).$$
+$$U(\alpha) = Util(\alpha) + z_\alpha, \qquad z_\alpha \sim N(0,1).$$
 </dd>
 <DD>Across options $z_\alpha$ values are independent.  </DD>
 
-<DT>Conceptually, Bob sees both <code>Utility()</code> (the part we see or assume or estimate) and the vector of values of $z_\alpha$ (the part we don't see but assume follows a convenient distribution).</DT>
+<DT>Conceptually ...</DT>
+ <DD>Bob sees both <code>Utility()</code> (the part we see or assume or estimate) and the vector of values of $z_\alpha$ (the part we don't see but assume follows a convenient distribution).</DD>
   <DD>With his information Bob still simply chooses the $\alpha$ that maximizes $U(\alpha)$.  But since we don't see $z_\alpha$ any of the options might be optimal to Bob.  We simply get different <em>probabilities</em> of choices being optimal.  </DD>
   <DD>The probabilities depend on the observed vector of utilities, to the 0/1 vector of ouptut above would become a  vector of numbers between 0 and 1.  Since <code>Yale-Econ</code> has the highest value of <code>Utility()</code> it will have the greatest probability of being chosen, but the probability will not be 1.0.</DD>
 
 <DT>Choice Probabilities under logit</DT>
 <DD>Logit:
-$$P(\alpha) = {e^{Utility(\alpha)}  \over \sum_{\alpha'\in A} e^{Utility(\alpha')}} = {e^{Utility(\alpha)-Utility(\alpha^\star)}  \over \sum_{\alpha'\in A} e^{Utility(\alpha')-Utility(\alpha^\star)}}$$
+$$P(\alpha) = {e^{Util(\alpha)}  \over \sum_{\alpha'\in A} e^{Util(\alpha')}} = {e^{Util(\alpha)-Util(\alpha^\star)}  \over \sum_{\alpha'\in A} e^{Util(\alpha')-Util(\alpha^\star)}}$$
 The second version expresses the probability in relative utility loss compared to the optimal choice $\alpha^\star$.</DD>
 <DD>Following the literature, <span class="n">DDP</span> generalizes the logit expression to allow the amount of smoothing to be chosen by setting a parameter $\rho$:
-$$P(\alpha)  = {e^{\rho\left(Utility(\alpha)-Utility(\alpha^\star)\right)}  \over \sum_{\alpha'\in A} e^{\rho\left(Utility(\alpha')-Utility(\alpha^\star)\right)}}$$
+$$P(\alpha)  = {e^{\rho\left(Util(\alpha)-Util(\alpha^\star)\right)}  \over \sum_{\alpha'\in A} e^{\rho\left(Util(\alpha')-Util(\alpha^\star)\right)}}$$
 As $\rho\to \infty$ the probability approach the non-smooth values.  As $\rho\to 0$ the smoothing becomes complete and each feasible choice is equally likely.</DD>
 
 <details><summary>See Train (20??)</summary>
 <a href="">Train (20??)</a> explains all aspects of discrete choice with an emphasis on econometric applications.   Readers are encouraged to refer to Train () for in-depth discussion of the static case.  We start even simpler than Train does.  Eventually the set up starts to look like the material in Train, but we move to dynamic choice before going into the depths of various static choice models that Train does.</details>
+
+<DT>Choice Probabilities under Probit</DT>
+<DD>Independent Probit:
+$$\eqalign{ P(\alpha) &= Prob( U(\alpha) \ge U(\alpha') ), \forall \alpha'\in A.\cr
+&= \prod_{\alpha'\ne\alpha}\ \Phi\left( \rho(U(\alpha)-U(\alpha'))\right)\cr}$$
+</DD>
+<DD>Again, <span class="n">DDP</span> generalizes the standard probit by varying how important the deterministic component to utility is to choice. The smoothing parameter $\rho = 1/\sigma$ and $\sigma$ is the standard deviation of the difference $z_\alpha-z_{\alpha'}$.  This smoothing would not be identified if/when $U(\alpha)$ is based on estimated coefficients on variables related to $\alpha$. </DD>
+<DD>Correlated Probit:</DD>
+
+
 
 <h2>Smoothing Choice Probabilities in <span class="n">DDP</span></h2>
 
@@ -390,7 +416,12 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 <DD>To make Bob's Choice a probit model, just modify the code to ask for probit smoothing:
 <pre>Initialize(new BobsChoice(),GaussKernel,maj,sch)</pre></DD>
 
-<DT>Why Ex Post?</DT>
+<details><summary>Why Ex Post?</summary>
+<DD>In the standard discrete choice econometric model the error term $z$ is considered something known/observed by the chooser but not us.  In a more complicated situation, namely a dynamic one, Bob might make other choices before he knows the value of $z$.  For example, $z$ may be observed when Bob wakes up in the morning but he had to make a choice the day before that was affected by what he does today.  In that case, the value of $z$ is not just smoothing the choice probability for our sake, it is also have a direct effect on other decisions.  </DD>
+<DD><span class="n">DDP</span> distinguishes between choice probability smoothing for our own sake and real uncertainty that affects the chooser in a dynamic environment.</DD>
+<DD>The case of <em> ex-post smoothing</em> is when $z$ is not a real part of Bob's environment.  He is really just making a deterministic choice based on $Util(\alpha)$.  But after his choice we smooth the probability as if he also add a value of $z$.  </DD>
+<DD>The case of <em>ex-ante</em> smoothing allows $z$ to play a role in other decisions made by Bob so it is a real "structural" error term.  </DD>
+</details>
 
 <a name="MS"><LI>More than One Unlinked Choice (Multiple Static States)</LI></a>
 
@@ -487,8 +518,27 @@ different feasible sets.</DD>
 $A(\theta) \subseteq A$.  </DD>
 <DD>Recall that each action vector $\alpha$ is represented in the code as a row in a matrix.  So far we have not needed to access this matrix directly (it's stored and available as `Alpha::Matrix`).</DD>
 
+<h2>Coding Bob's New Choice in <span class="n">DDP</span></h2>
+
 <DT><code>FeasibleActions()</code></DT>
-<DD>To restrict feasible actions, the user provides a method that will return a column vector of 0s and 1s that depends on the current state of the model.  This method is called by <span class="n">DDP</span> inside `CreateSpaces`() for each possible state.  A 1 indicates the action (row) is feasible at the state, 0 means infeasible.  </DD>
+<DD>To restrict feasible actions, the user provides a <em>method</em> that returns a column vector of 0s and 1s.  This column vector depends on the current state of the model. A 1 indicates the action (row) is feasible at the state, 0 means infeasible.  </DD>
+<DD>The user's method is called by <span class="n">DDP</span> inside `DP::CreateSpaces`() for each possible state.   </DD>
+
+<details><summary><b>The Code</b></summary>
+<DT>Source: <a href="../../examples/BobsChoiceC.ox">niqlow/examples/BobsChoiceC.ox</a></DT>
+<DD><pre><object width="75%" height="300" type="text/plain" data="../../examples/BobsChoiceC.ox" border="1" >
+<p style="font-size:14pt"></p></object></pre></DD></details>
+
+<DT>Line-by-line explanation of the (new and modified) code</DT>
+<DD><code>Yacc</code> is added to the class so that it can</DD>
+
+
+<h2>Run the program and look at the output.</h2>
+
+<details><summary><b>The output you get should look something like this:</b></summary>
+<DT>Source: <a href="../../examples/BobsChoiceC.output.txt">niqlow/examples/BobsChoiceB.output.txt</a>.</DT>
+<dd><pre><object width="75%" height="300" type="text/plain" data="../../examples/BobsChoiceB.output.txt" border="1" ><p style="font-size:14pt"></p></object></pre></dd></details>
+
 
 <h2>Summary</h2>
 Here is what is important to gather from the examples:
@@ -507,7 +557,7 @@ adding them to your model using `DP::EndogenousStates`(). </LI>
 
 <h2>Exercises</h2>
 <OL class="steps">Make a couple copies of <code>BobsChoiceB.ox</code> and <code>BobsChoiceC.ox</code> and experiment with them as follows. (Do not change the original file's contents.)
-<LI>Suppose Bob has also applied for a Justin Bieber Scholarship which is worth $100 <em>if</em> Bob attends a Canadian university.  Add a state variable to version B to account for this possibility as well as the Queen's scholarship (so now there will be two state variables and four possible states).</LI>
+<LI>Suppose Bob has also applied for a Justin Bieber Scholarship which is worth &#36;100 <em>if</em> Bob attends a Canadian university.  Add a state variable to version B to account for this possibility as well as the Queen's scholarship (so now there will be two state variables and four possible states).</LI>
 <LI>Suppose McGill's Physics department does <em>not</em> have an undergraduate degree, so McGill-Physics is not feasible but McGill-Econ is.  Modify <code>FeasibleActions</code> in version C so that this option is excluded for both states of <code>Yacc</code>.  </LI>
 </OL>
 
@@ -562,7 +612,7 @@ This is the <em>transition</em> of a normal aging clock.  Each day you get anoth
 <DD>A stationary simply says tomorrow is just like today:
 <pre>t' = t</pre>
 </DD>
-<DD>Again, tomorrow is different from today but when the chooser wakes up tomorrow it is just like today.  However, what state the chosoer is in tomorrow may be different than the state he was in today.  <details class="aside"><summary>A perfect analogy</summary>In <em>Ground Hog Day</em> in which Bill Murray knows he will wake up and relive the same day, apparently forever, but his state can be different each day he wakes up.  He can learn to play the piano and every day he wakes up a little better.  And each day he makes choices that affect his utility in the future.  It is a perfect analogy to a stationary decision environment and also a perfect movie.</details></DD>
+<DD>Again, tomorrow is different from today but when the chooser wakes up tomorrow it is just like today.  However, what state the chooser is in tomorrow may be different than the state he was in today.  <details class="aside"><summary>A perfect analogy</summary>In <em>Ground Hog Day</em> in which Bill Murray knows he will wake up and relive the same day, apparently forever, but his state can be different each day he wakes up.  He can learn to play the piano and every day he wakes up a little better.  And each day he makes choices that affect his utility in the future.  It is a perfect analogy to a stationary decision environment and also a perfect movie.</details></DD>
 <DD>An the important feature of time is that if there is a yesterday (as in normal aging) it can never come again.  Any state that occur in the future cannot have a value of time less than <var>t</var>.  </DD>
 
 <h2>Setting the Clock in <span class="n">DDP</span></h2>
