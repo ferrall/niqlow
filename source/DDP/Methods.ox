@@ -213,6 +213,7 @@ Method::Method() {
 **/
 ValueIteration::ValueIteration(myGSolve,myEndogUtil) {
     Method();
+    if (!isint(myGSolve) && !isclass(myGSolve,"ThetaTask")) oxrunerror("First argument must be 0 or a ThetaTask");
     itask = new RandomSolve(isint(myGSolve) ? new GSolve(myEndogUtil) : myGSolve);
 	}
 

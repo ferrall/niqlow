@@ -245,10 +245,13 @@ struct OneDimensionalChoice : ExPostSmoothing {
 	static  CreateSpaces(Method=NoSmoothing,smparam=1.0);
 	virtual Uz(z);
 	virtual EUtility();
+    virtual Utility();
 	virtual thetaEMax() ;
 	virtual Smooth(pstar);
 	virtual ActVal(VV);
-    virtual SetTheta(state,picked,solvez=TRUE);
+    virtual SetTheta(state=0,picked=0);
+    virtual Continuous();
+            SysSolve(RVs,VV);
             Getz();
             Setz(z);
 	}

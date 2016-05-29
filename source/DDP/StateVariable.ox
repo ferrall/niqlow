@@ -158,7 +158,7 @@ RandomSpell::Transit(FeasA) {
 
 /** Synchronize base state variable value with current value.
 **/
-Augmented::Synch() {    b.v = v;     }
+Augmented::Synch() {    b.v = min(v,b.N-1);     }
 
 /** Base creator augmented state variables
 @param Lorb either a `StateVariable` object, the base variable to augment<br>Or, string the label for this variable.

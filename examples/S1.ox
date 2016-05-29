@@ -1,6 +1,6 @@
 #import "niqlow"
 struct UI : OneDimensionalChoice {
-    static const decl eta = 0.25;
+    static const decl eta = 0.1;
     static decl m;
     static Run();
     Utility();

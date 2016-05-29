@@ -78,7 +78,7 @@ Rsystem::Rsystem(LB,Ncuts,METHOD) {
 @internal
 **/
 Rsystem::vfunc() {	
-    return dV - diagonal(DeltaV(curth->Uz(CV(zstar)')))';
+    return dV + diagonal(DeltaV(curth->Uz(CV(zstar)')))';
     }
 
 /** Objective for DYNAMIC reservation value system.
@@ -129,6 +129,7 @@ RVGSolve::Solve(state) {
     Clock::Solving(&VV);
     ZeroTprime();
     this->Traverse();
+	Flags::setPstar = counter->setPstar();   // REMOVED MaxTrips??? See GSolve().
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER) VV[LATER][] = VV[I::later][];    //initial value next time
     Hooks::Do(PostGSolve);
     if (Volume>SILENT && N::G>1) print(".");
@@ -149,23 +150,7 @@ RVGSolve::RVGSolve(LBvalue,Method) {
     Volume = QUIET;
     }
 
-RVGSolve::Run() {
-    I::curth->ActVal(VV[I::later]);
-	decl sysind = I::curth.Aind;
-	if ( I::curth.solvez && isclass(RValSys[sysind])) {
-		RValSys[sysind] ->	RVSolve(I::curth,DeltaV(I::curth.pandv[I::r]));
-		VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
-		}
-	else {
-		VV[I::now][I::all[iterating]] = V = maxc(I::curth.pandv[I::r]);
-		I::curth.pstar = <1.0>;
-		I::curth.zstar[I::r][] = .NaN;
-		if (Flags::setPstar) {
-            I::curth->Smooth(V);
-            Hooks::Do(PostSmooth);
-            }
-		}
-	}
+RVGSolve::Run() {    V = I::curth->SysSolve(RValSys,&VV);	}
 
 /**  Simplified Reservation Value Iteration model solution.
 
@@ -189,6 +174,7 @@ RVSolve(ToScreen,aM) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling RVSolve()");
     decl meth = new ReservationValues();
 	DPDebug::outAllV(ToScreen,aM);
+    //meth.Volume = NOISY;
 	decl conv = meth->Solve();
     delete meth;
     return conv;
