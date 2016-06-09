@@ -16,7 +16,7 @@ UI1::EUtility(){
              (1-pstar)~pstar };
 	}
 UI1::Define(toclone)	{
-    Initialize(toclone,2);
+    OneDimensionalChoice::Initialize(toclone,2);
     m = new LaggedAction("m",d);
     m->	MakeTerminal(1);	
     }
@@ -25,10 +25,10 @@ UI1::Run() {
     CreateSpaces();
     RVSolve();
 	}
-/*
+
 main() {
     fopen("output/S1.txt","l");
     UI1::Define(new UI1());
     UI1::Run();
     }
-*/
+
