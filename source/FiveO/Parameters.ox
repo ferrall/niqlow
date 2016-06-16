@@ -359,10 +359,10 @@ Increasing::Increasing(L,LB,ivals)	{
 	prevpsi = LB;
 	Psi = {};
 	for(k=0;k<myN;++k) 	{
-		Psi |= (!k && ffree)
+		AddToBlock( (!k && ffree)
 				? new Free(L+sprint(k),ivals[0])
-				: new BoundedBelow(L+sprint(k),prevpsi,ivals[k]);
-		AddToBlock(Psi[k]);
+				: new BoundedBelow(L+sprint(k),prevpsi,ivals[k])
+                );
 		prevpsi = Psi[k];
 		}
 	}
@@ -391,10 +391,9 @@ Decreasing::Decreasing(L,UB,ivals)	{
 	prevpsi = UB;
 	Psi = {};
 	for(k=0;k<myN;++k) {
-		Psi |= (!k && ffree)
+		AddToBlock( (!k && ffree)
 				? new Free(L+sprint(k),ivals[0])
-				: new BoundedAbove(L+sprint(k),prevpsi,ivals[k]);
-		AddToBlock(Psi[k]);
+				: new BoundedAbove(L+sprint(k),prevpsi,ivals[k]) );
 		prevpsi = Psi[k];
 		}
 	}
