@@ -60,14 +60,14 @@ BoundedBelow::BoundedBelow(L,LB,v0)	{ Parameter(L,v0); this.LB = isclass(LB,"Par
 /** . @internal **/
 BoundedBelow::Encode() 	{
 	if (!isint(block)) block->BlockCode();
-	decl LB = CV(this.LB);
-	if (start<= LB ) oxrunerror("FiveO Error 18. Bounded from below parameter "+L+" must start strictly above "+sprint(CV(LB)));
-	if (fabs(start-LB-1.0)< NearFlat)
+	decl lv = CV(this.LB);
+	if (start<= lv ) oxrunerror("FiveO Error 18. Bounded from below parameter "+L+" must start strictly above "+sprint(lv));
+	if (fabs(start-lv-1.0)< NearFlat)
         { oxwarning("FiveO Warning ??. bounded parameter "+L+" starting close to LB+1"); println("%12.9f",start);}
 	if (DoNotConstrain)
 		{v = start; scale =  1.0; f = v;}
 	else
-		{v = start; scale =  log(start-LB); f = 1.0;}
+		{v = start; scale =  log(start-lv); f = 1.0;}
 	return DoNotVary ? .NaN : f;
 	}
 
@@ -108,15 +108,15 @@ BoundedAbove::BoundedAbove(L,UB,v0)	{ Parameter(L,v0); this.UB = isclass(UB,"Par
 /** . @internal **/
 BoundedAbove::Encode()	{
 	if (!isint(block)) block->BlockCode();
-	decl UB = CV(this.UB);
-	if (start>= UB) oxrunerror("FiveO error 19. Bounded from below parameter "+L+" must start strictly below "+sprint(CV(UB)));
-	if (fabs(start-UB+1.0)< NearFlat)
+	decl bv = CV(UB);
+	if (start>= bv) oxrunerror("FiveO error 19. Bounded from below parameter "+L+" must start strictly below "+sprint(bv));
+	if (fabs(start-bv+1.0)< NearFlat)
         { oxwarning("FiveO Warning ??. bounded parameter "+L+" starting close to LB+1"); println("%12.9f",start);}
     v = start;
 	if (DoNotConstrain)
 		{scale =  1.0; f = v;}
 	else
-		{scale =  log(UB-start); f = 1.0;}
+		{scale =  log(bv-start); f = 1.0;}
 	return DoNotVary ? .NaN : f;
 	}
 	
@@ -143,15 +143,15 @@ Bounded::Bounded(L,LB,UB,v0)	{
 /** . @internal **/
 Bounded::Encode()	{
 	if (!isint(block)) block->BlockCode();
-	decl LB = CV(this.LB),  UB = CV(this.UB);
-	if (start<= LB || start>=UB) oxrunerror("FiveO error 20. Bounded  parameter "+L+" must start strictly between "+sprint(CV(LB))+" and "+sprint(CV(UB)));
-	if (fabs(start-(LB+UB)/2)< NearFlat)
+	decl lv = CV(LB),  uv = CV(UB);
+	if (start<= lv || start>=uv) oxrunerror("FiveO error 20. Bounded  parameter "+L+" must start strictly between "+sprint(lv)+" and "+sprint(uv));
+	if (fabs(start-(lv+uv)/2)< NearFlat)
         {oxwarning("FiveO Warning ??. bounded parameter "+L+" starting close to midpoint of range,"); println("%12.9f",start);}
     v = start;
 	if (DoNotConstrain)
 		{scale =  1.0; f = v;}
 	else
-		{scale =  log((start-LB)/(UB-start)); f = 1.0;}
+		{scale =  log((start-lv)/(uv-start)); f = 1.0;}
 	return DoNotVary ? .NaN : f ;
 	}
 
@@ -344,15 +344,16 @@ LB &lt; x<sub>1</sub> &lt; x<sub>2</sub> &lt; &hellip; &lt; x<sub>N</sub>
 @comment if ivals is an integer N then the sequence is initialized as LB+1, LB+2, &hellip; LB+N.
 **/
 Increasing::Increasing(L,LB,ivals)	{
-	decl k,myN,newpsi,prevpsi,ffree;
+	decl k,myN,newpsi,prevpsi,ffree,lv;
 	ParameterBlock(L);
 	this.LB = LB;
-	ffree = CV(LB)==-.Inf;
+    lv = CV(LB);
+	ffree = lv==-.Inf;
 	if (isint(ivals))
-		{ myN = ivals;  ivals = (ffree ? 0 : CV(LB)) +1.1*range(1,myN);}
+		{ myN = ivals;  ivals = (ffree ? 0 : lv) +1.1*range(1,myN);}
 	else
 		{ivals = vec(ivals); myN = rows(ivals);}
-	if (any(ivals|.Inf.<=CV(LB)|ivals)) {
+	if (any(ivals|.Inf.<=lv|ivals)) {
         println("****",ivals',"\n****");
 		oxrunerror("FiveO Error 25. Increasing Sequence  "+L+" initial values not a valid");
         }
@@ -376,16 +377,17 @@ LB &lt; x<sub>1</sub> &gt; x<sub>2</sub> &gt; &hellip; &gt; x<sub>N</sub>
 @comment if ivals is an integer N then the sequence is initialized as UB-1, UB-2, &hellip; UB-N
 **/
 Decreasing::Decreasing(L,UB,ivals)	{
-	decl k,myN,newpsi,prevpsi,ffree;
+	decl k,myN,newpsi,prevpsi,ffree,bv;
 	ParameterBlock(L);
 	this.UB = UB;
-	ffree = UB==.Inf;
+    bv = CV(UB);
+	ffree = bv==.Inf;
 	if (isint(ivals))
-		{ myN = ivals;  ivals = (ffree ? 0 : CV(UB) ) -1.1*range(1,myN);}
+		{ myN = ivals;  ivals = (ffree ? 0 : bv ) -1.1*range(1,myN);}
 	else
 		{ivals = vec(ivals); myN = rows(ivals);}
-	if (any(ivals|-.Inf.>=CV(UB)|ivals)) {
-        println("**** ",CV(UB)~ivals',"\n****");
+	if (any(ivals|-.Inf.>=bv|ivals)) {
+        println("**** ",bv~ivals',"\n****");
 		oxrunerror("FiveO Error 26. Decreasing Sequence "+L+" initial values not valid");
         }
 	prevpsi = UB;

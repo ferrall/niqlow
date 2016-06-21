@@ -58,26 +58,41 @@ Objective::ResetMax() {
 Objective::CheckPoint(f,saving) {
 	if (saving) {
 		decl fl = vararray(PsiL);
-		fprint(f,"%v",cur.X,"\n","%v",fl,"\n","%v",FinX,"\n","%v",cur.F);
-		fprint(f,"\n------------\n","%r",PsiL,cur.X,"%v",PsiType,"%r",fl,"%c",{"  Gradient  "},cur.G,
-		"Hessian ","%r",fl,"%c",fl,cur.H);
+		fprintln(f,"%v",cur.X,"\n-------Human Readable Parameter Summary-------");
+        decl i,j,fp;
+        j=0;
+        for(i=0;i<sizeof(cur.X);++i) {
+            fp = (j<sizeof(FinX)) ? FinX[j]==i : 0;
+            fprintln(f,"%03u",i,"\t",fp,"\t",cur.X[i],"\t\t\t\"",PsiL[i],"\"\t\t\t",PsiType[i],"\"\t\t\t",fp ? FinX[j] : -1,"\t\t\t",fp ? cur.F[j] : .NaN);
+            j += fp;
+            }
+		fprintln(f,"\n------------\n","%r",PsiL[FinX],"%c",{"  Gradient  "},cur.G,"Hessian ","%r",PsiL[FinX],"%c",PsiL[FinX],cur.H);
+        fprintln(f,"$ Lines below read by CheckPoint");
+        fprintln(f,"%v",PsiL,"%v",PsiType,"%v",cur.F);
 		}
 	else {
-		decl inX,inPsiL,inFX,inPsiT,k,m;
-		fscan(f,"%v",&inX,"%v",&inPsiL,"%v",&inPsiT,"%v",&inFX);
+		decl inX,inPsiL,inFX,inPsiT,k,m,fend;
+		fscan(f,"%v",&inX);
+        do {  // find $ in the first column
+            fend=fscan(f,"c",&k,"%z",&m);
+            } while(k!='$' && fend>-1);
+        if (k=='$') {
+            fscan(f,"%v",&inPsiL,"%v",&inPsiT,"%v",&inFX);
+		    if (sizer(inX)!=sizeof(Psi)) {
+			 oxwarning("FiveO Warning 05.\n X in "+fname+"."+EXT+" not the same length as Psi.\n Load is doing nothing.\n ");
+			 return FALSE;
+			 }
+		    if (!sizer(inPsiT)) inPsiT = <-1>;
+		    for (k=0,m=0;k<sizeof(Psi);++k)  // changed Nov. 2015 to fix bug
+                if (m<sizeof(inPsiT)&& (inPsiT[m]!=k) )
+                    Psi[k].DoNotVary = TRUE;
+                else {
+                    Psi[k].DoNotVary = FALSE;
+                    ++m;
+                    }
+            }
+        else oxwarning(" parameter file does not contain $ marker, only structural parameters read in ");
 		fclose(f);
-		if (sizer(inX)!=sizeof(Psi)) {
-			oxwarning("FiveO Warning 05.\n X in "+fname+"."+EXT+" not the same length as Psi.\n Load is doing nothing.\n ");
-			return FALSE;
-			}
-		if (!sizer(inPsiT)) inPsiT = <-1>;
-		for (k=0,m=0;k<sizeof(Psi);++k)  // changed Nov. 2015 to fix bug
-            if (m<sizeof(inPsiT)&& (inPsiT[m]!=k) )
-                Psi[k].DoNotVary = TRUE;
-            else {
-                Psi[k].DoNotVary = FALSE;
-                ++m;
-                }
 		Encode(inX);  //typo found Sept. 2014
 		}
 	}
