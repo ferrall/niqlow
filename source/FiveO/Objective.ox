@@ -74,7 +74,7 @@ Objective::CheckPoint(f,saving) {
 		decl inX,inPsiL,inFX,inPsiT,k,m,fend;
 		fscan(f,"%v",&inX);
         do {  // find $ in the first column
-            fend=fscan(f,"c",&k,"%z",&m);
+            fend=fscan(f,"%c",&k,"%z",&m);
             } while(k!='$' && fend>-1);
         if (k=='$') {
             fscan(f,"%v",&inPsiL,"%v",&inPsiT,"%v",&inFX);
