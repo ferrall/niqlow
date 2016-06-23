@@ -63,10 +63,10 @@ Objective::CheckPoint(f,saving) {
         j=0;
         for(i=0;i<sizeof(cur.X);++i) {
             fp = (j<sizeof(FinX)) ? FinX[j]==i : 0;
-            fprintln(f,"%03u",i,"\t",fp,"\t",cur.X[i],"\t\t\t\"",PsiL[i],"\"\t\t\t",PsiType[i],"\"\t\t\t",fp ? FinX[j] : -1,"\t\t\t",fp ? cur.F[j] : .NaN);
+            fprintln(f,"%03u",i,"\t",fp,"\t","%10.6f",cur.X[i],"\t\"","%-15s",PsiL[i],"\"\t\"","%-15s",PsiType[i],"\"\t",fp ? FinX[j] : -1,"\t",fp ? cur.F[j] : .NaN);
             j += fp;
             }
-		fprintln(f,"\n------------\n","%r",PsiL[FinX],"%c",{"  Gradient  "},cur.G,"Hessian ","%r",PsiL[FinX],"%c",PsiL[FinX],cur.H);
+		fprintln(f,"\n------------\n","%r",PsiL[FinX],"%c",{"  Gradient  "},cur.G,"\nHessian ","%r",PsiL[FinX],"%c",PsiL[FinX],cur.H);
         fprintln(f,"$ Lines below read by CheckPoint");
         fprintln(f,"%v",PsiL,"%v",PsiType,"%v",cur.F);
 		}
