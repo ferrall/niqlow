@@ -67,31 +67,10 @@ Objective::CheckPoint(f,saving) {
             j += fp;
             }
 		fprintln(f,"\n------------\n","%r",PsiL[FinX],"%c",{"  Gradient  "},cur.G,"\nHessian ","%r",PsiL[FinX],"%c",PsiL[FinX],cur.H);
-        fprintln(f,"$ Lines below read by CheckPoint");
-        fprintln(f,"%v",PsiL,"%v",PsiType,"%v",cur.F);
 		}
 	else {
-		decl inX,inPsiL,inFX,inPsiT,k,m,fend;
+		decl inX;
 		fscan(f,"%v",&inX);
-        do {  // find $ in the first column
-            fend=fscan(f,"%c",&k,"%z",&m);
-            } while(k!='$' && fend>-1);
-        if (k=='$') {
-            fscan(f,"%v",&inPsiL,"%v",&inPsiT,"%v",&inFX);
-		    if (sizer(inX)!=sizeof(Psi)) {
-			 oxwarning("FiveO Warning 05.\n X in "+fname+"."+EXT+" not the same length as Psi.\n Load is doing nothing.\n ");
-			 return FALSE;
-			 }
-		    if (!sizer(inPsiT)) inPsiT = <-1>;
-		    for (k=0,m=0;k<sizeof(Psi);++k)  // changed Nov. 2015 to fix bug
-                if (m<sizeof(inPsiT)&& (inPsiT[m]!=k) )
-                    Psi[k].DoNotVary = TRUE;
-                else {
-                    Psi[k].DoNotVary = FALSE;
-                    ++m;
-                    }
-            }
-        else oxwarning(" parameter file does not contain $ marker, only structural parameters read in ");
 		fclose(f);
 		Encode(inX);  //typo found Sept. 2014
 		}
