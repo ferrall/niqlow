@@ -70,6 +70,8 @@ struct Objective	{
 	virtual	Decode(F=0);
     virtual ReInitialize();
 	virtual funclist(Xmat,Fvec,afvec=0);
+    virtual Menu();
+    virtual Interact();
 	}
 
 	

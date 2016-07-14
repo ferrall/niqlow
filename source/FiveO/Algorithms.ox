@@ -29,6 +29,7 @@ Algorithm::Tune(maxiter,toler,nfuncmax) {
 
 Algorithm::ItStartCheck() {
     O->Encode();
+    O->Save(classname(this)+"-IterStart-"+O.L);
 	N = rows(OC.F);
     IIterate = !isclass(O.p2p) || O.p2p.IamClient;
     if (!N && IIterate) {

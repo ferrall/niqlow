@@ -16,12 +16,17 @@ Determined::Decode(f) { if (!isint(block)) block->BlockCode(); if (isclass(ival)
 /** DoNotVary does not toggle for Determined parameter. **/
 Determined::ToggleDoNotVary() { }
 
+Determined::Menu(fp) {
+ fprintln(fp,"<fieldset><legend>",L,". Type:",classname(this),"</legend>");
+ fprintln(fp,"Value <input type=\"number\" name=\"",L+CGI::ivalsuffix,"\" step=\"any\" value=\"",start," >");
+ fprintln(fp,"</fieldset>");
+ }
+
 /** Create a free, unrestricted parameter.
 @param L parameter label
 @param v0 `CV` compatible default value, v<sub>0</sub>
 **/
 Free::Free(L,v0)	{	Parameter(L,v0); }
-
 
 /** .
 @internal
@@ -46,6 +51,11 @@ Free::Decode(f) {
 	return v = DoNotConstrain ? f : scale*f;
 	}
 
+Free::Menu(fp) {
+    Parameter::Menu(fp);
+    fprintln(fp,"Value <input type=\"number\" name=\"",L+CGI::ivalsuffix,"\" step=\"any\" value=\"",start,"\" >");
+    fprintln(fp,"</fieldset>");
+    }
 
 /** A parameter bounded below.
 @param L parameter label
@@ -78,6 +88,12 @@ BoundedBelow::Decode(f) {
 	if (DoNotVary) return v;
 	return v = DoNotConstrain ? f : CV(LB)+exp(scale*f);
 	}
+
+BoundedBelow::Menu(fp) {
+    Parameter::Menu(fp);
+    fprintln(fp,"Value <input type=\"number\" name=\"",L+CGI::ivalsuffix,"\" step=\"any\" min=\"",AV(LB),"\" value=\"",start," >");
+    fprintln(fp,"</fieldset>");
+    }
 
 /** Create a parameter bounded below by 0.
 @param L parameter label
@@ -128,6 +144,12 @@ BoundedAbove::Decode(f)	{
 	return v = DoNotConstrain ? f : CV(UB)-exp(scale*f);
 	}
 
+BoundedAbove::Menu(fp) {
+    Parameter::Menu(fp);
+    fprintln(fp,"Value <input type=\"number\" name=\"",L+CGI::ivalsuffix,"\" step=\"any\" max=\"",AV(UB),"\" value=\"",start," >");
+    fprintln(fp,"</fieldset>");
+    }
+
 /** Create a parameter bounded above and below.
 @param L parameter label
 @param LB double or `Parameter`, the lower bound
@@ -164,6 +186,12 @@ Bounded::Decode(f)	{
 	else { l=CV(LB); v = l + (CV(UB)-l)*FLogit(scale*f); }
 	return v;
 	}
+
+Bounded::Menu(fp) {
+    Parameter::Menu(fp);
+    fprintln(fp,"Value <input type=\"number\" name=\"",L+CGI::ivalsuffix,"\" step=\"any\" min=\"",AV(LB),"\ max=\"",AV(UB),"\" value=\"",start," >");
+    fprintln(fp,"</fieldset>");
+    }
 
 /** Create a new parameter bounded above by 1 and below by 0.
 @param L parameter label
@@ -227,6 +255,13 @@ ParameterBlock::ToggleDoNotVary() {
 	decl p;
 	foreach (p in Psi) p->ToggleDoNotVary();
 	}
+
+ParameterBlock::Menu(fp) {
+	decl p;
+    fprintln(fp,"<fieldset><legend>",L,". Type:",classname(this),"</legend>");
+	foreach (p in Psi) p->Menu(fp);
+    fprintln(fp,"</fieldset>");
+    }
 
 FixedBlock::FixedBlock(L,v0) {
 	decl i,v;
@@ -333,6 +368,7 @@ DecreasingReturns::BlockCode()	{
 	cumprob.v = (!curpar) ? 1.0 : cumprob.v - v[curpar-1];
 	ParameterBlock::BlockCode();
 	}
+
 	
 /**Create an increasing vector of  parameters.
 <dd><pre>
@@ -403,8 +439,8 @@ Decreasing::Decreasing(L,UB,ivals)	{
 
 /** Create a block of free parameters.
 @param L label for the block (e.g. the equation)
-@param labels 0: use numbers for labels<br>array of strings, labels for coefficients (e.g. variable names)
 @param ivals 0: set to length of labels and initialize values to 0<br> &gt; 0: number of coefficients, initialize to 0
+@param labels 0: use numbers for labels<br>array of strings, labels for coefficients (e.g. variable names)
    <br>vector: initial values
 **/	
 Coefficients::Coefficients(L,ivals,labels) {

@@ -76,6 +76,25 @@ Objective::CheckPoint(f,saving) {
 		}
 	}
 
+Objective::Menu() {
+    // Get Stage from program arguments
+    // switch(Stage) {
+    // case ?? :
+    if (CGI::Initialize("Objective:"+L)) {
+        fprintln(CGI::out,"<h2>Objective</h2><fieldset><legend>",L,"</legend>");
+        fprint(CGI::out,"Run Safe? ");
+        CGI::CheckBox(L+"runsafe",1,RunSafe);
+        CGI::VolumeCtrl(L,Volume);
+        CGI::CreateForm(Psi);
+        fprintln(CGI::out,"</fieldset>");
+//        }
+    // case ?? :
+        CGI::ReadForm(Psi);
+        Encode();
+        fobj(0);
+    }
+   }
+
 /** Store current state (checkpoint to disk).
 @param fname string, name of file<br>0 [default] use `Objective::fname`
 @see Objective::Load, Objective::EXT
@@ -623,4 +642,3 @@ Constrained::inequality() 	{ return <>; }
 
 CPoint::Vec() {	return vec(V)|vec(ineq.v)|vec(eq.v);	}
 	
-		
