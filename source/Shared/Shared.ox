@@ -285,6 +285,14 @@ Parameter::ToggleDoNotVary() {
     println("Toggling parameter ",L," DoNotVary=",DoNotVary);
     }
 
+Parameter::Menu() {
+ fprintln(CGI::out,"<fieldset><legend>",L,". Type:",classname(this),"</legend>");
+ fprint(CGI::out,"Do Not Vary? ");
+ CGI::CheckBox(L+CGI::dnvsuffix,1,DoNotVary);
+ CGI::VolumeCtrl(L,Volume);
+ }
+
+
 /** Toggle DoNotVary for one or more parameters.
 @param a `Parameter` or array of parameters
 @param ... more parameters or array of parameters.
@@ -744,15 +752,130 @@ MixPoint::Copy(h) {
 //	eq.v = h.eq.v;
 //	}
 
-/*
-GetVM() {
-    decl f,mem;
-    systemcall("cat /proc/self/status | grep VmSize > vm.zzz");
-    if (isfile((f = fopen("vm.zzz","r")))) {
-        fscan(f,"VmSize: %d",&mem);
-        fclose(f);
-        return mem;
+
+/** Initialize the processing of CGI post data.
+@param title string, HTML title
+**/
+CGI::Initialize(title) {
+    kvals = {};
+    decl key;																						
+    foreach (key in keys) kvals |= getenv(key);
+    decl aa = arglist(), loc;
+    loc = strifind(aa,cgiopt);
+    iscgi = loc!=-1;
+    if (!iscgi) {
+        post = out = 0;
+        return FALSE;
         }
-    return "VM not ready on this platform";
+    loc = strfind(aa,pfopt);
+    post = (loc>-1) ? fopen(aa[loc][sizeof(pfopt):],"r") : 0;
+    loc = strfind(aa,htopt);
+    out = (loc>-1) ? fopen(aa[1],"w") : 0;
+    if (isfile(out))
+    fprintln(out,"<!doctype html><html xml:lang=\"en\">",
+        "<head><meta charset=\"utf-8\"><title>",title,
+        "</title><meta name=\"description\" content=\"CGI for Ox\">",
+        "<meta name=\"author\" content=\"Christopher Ferrall\">",
+        "<script type=\"text/x-mathjax-config\">",
+        "MathJax.Hub.Config({tex2jax: {inlineMath:",
+        "[[\"$\",\"$\"],[\"\\(\",\"\\)\"]]}});</script>",
+        "<script type=\"text/javascript\"",
+        "src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>",
+        "</head><body>");
+    return TRUE;
     }
-*/
+
+/** Finalize the CGI component of the output; Ox output appears below.
+**/
+CGI::Finalize() {
+    if (isfile(out) ) {
+        fprintln(out,"<h2>Ox Output</h2><code><pre>");
+        fclose(out);
+        }
+    if (isfile(post)) fclose(post);
+    }
+
+/** Parse the query
+**/
+CGI::ParseQ() {
+    decl q = GetVar("QUERY_STRING");
+    }
+/** Find and return the CGI key value
+@param key string, CGI post keyword
+@return value of the key<br>-1 if key not valid
+**/
+CGI::GetVar(key) {
+    if (!isstring(key)) {
+        oxwarning("key must be a string");
+        return -1;
+        }
+    decl ind = strfind(keys,key);
+    if (ind==-1) return -1;
+    return kvals[ind];
+    }
+
+/** Parse and return the values of a HTML form.
+@return array of parallel values
+**/
+CGI::Parse() {
+    if (!isfile(post)) {
+        oxwarning("post data file not found.");
+        return {};
+        }
+	decl instr, loc,nms,vals, val;
+    nms = {}; vals = <>;
+    fscan(post,"%s",&instr);
+    do {
+        loc=strfind(instr,eq);
+        if (loc>0) {
+            nms |= instr[:loc-1];
+            instr = instr[loc:];
+            loc = strfind(instr,amp);
+            if ((loc>0)) {
+                sscan(instr[1:loc-1],"%g",&val);
+                instr = instr[loc+1:];
+                }
+            else {
+                sscan(instr[1:],"%g",&val);
+                instr = "";
+                }
+            vals |= val;
+            }
+        }  while (loc>0);
+    return {nms,vals};
+	}
+
+CGI::VolumeCtrl(pref,Volume) {
+    fprint  (out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"",-1,"\" ",Volume==-1 ? "checked>" : ">","SILENT&nbsp;");
+    fprint  (out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"", 0,"\" ",Volume== 0 ? "checked>" : ">","QUIET&nbsp;");
+    fprint  (out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"", 1,"\" ",Volume== 1 ? "checked>" : ">","LOUD&nbsp;");
+    fprintln(out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"", 2,"\" ",Volume== 2 ? "checked>" : ">","NOISY; &emsp;");
+    }
+
+CGI::CheckBox(nm,val,checked) {
+ fprintln(out,"<input type=\"checkbox\" name=\"",nm,"\" value=\"",val,"\" ",checked ?  "checked>" : ">");
+ }
+
+CGI::CreateForm(list) {
+   fprintln(out,"<h3>Parameters</h3><OL>");
+   decl p;
+   foreach(p in list) {
+        fprintln(out,"<LI>");
+        p->Menu();
+        fprintln(out,"</LI>");
+        }
+   fprintln(out,"</OL>");
+    }
+
+CGI::ReadForm(list) {
+    decl parlabs,parvals,loc,p;
+    Initialize();
+    [parlabs,parvals] = Parse();
+    Finalize();
+    foreach(p in list) {
+        loc= strfind(parlabs,p.L+ivalsuffix);
+        if (loc>-1) p.start = parvals[loc];
+        loc= strfind(parlabs,p.L+dnvsuffix);
+        if (loc>-1) p.DoNotVary = parvals[loc];
+        }
+    }

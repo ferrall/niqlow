@@ -17,9 +17,12 @@ class CGI {
         "SERVER_PORT",
         "SERVER_PROTOCOL",
         "SERVER_SOFTWARE"};
-    static decl http, kvals, query;
+    static const decl eq='=', amp='&';
+    static decl post, out, kvals, query;
     static Initialize(title="OX CGI");
     static ParseQ();
+    static Parse();
     static GetVar(key);
     static Finalize();
+    static VolumeCtrl(fp,pref="",Volume=0);
     }

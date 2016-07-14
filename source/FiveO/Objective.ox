@@ -58,29 +58,42 @@ Objective::ResetMax() {
 Objective::CheckPoint(f,saving) {
 	if (saving) {
 		decl fl = vararray(PsiL);
-		fprint(f,"%v",cur.X,"\n","%v",fl,"\n","%v",FinX,"\n","%v",cur.F);
-		fprint(f,"\n------------\n","%r",PsiL,cur.X,"%v",PsiType,"%r",fl,"%c",{"  Gradient  "},cur.G,
-		"Hessian ","%r",fl,"%c",fl,cur.H);
+		fprintln(f,"%v",cur.X,"\n-------Human Readable Parameter Summary-------");
+        decl i,j,fp;
+        j=0;
+        for(i=0;i<sizeof(cur.X);++i) {
+            fp = (j<sizeof(FinX)) ? FinX[j]==i : 0;
+            fprintln(f,"%03u",i,"\t",fp,"\t","%10.6f",cur.X[i],"\t\"","%-15s",PsiL[i],"\"\t\"","%-15s",PsiType[i],"\"\t",fp ? FinX[j] : -1,"\t",fp ? cur.F[j] : .NaN);
+            j += fp;
+            }
+		fprintln(f,"\n------------\n","%r",PsiL[FinX],"%c",{"  Gradient  "},cur.G,"\nHessian ","%r",PsiL[FinX],"%c",PsiL[FinX],cur.H);
 		}
 	else {
-		decl inX,inPsiL,inFX,inPsiT,k,m;
-		fscan(f,"%v",&inX,"%v",&inPsiL,"%v",&inPsiT,"%v",&inFX);
+		decl inX;
+		fscan(f,"%v",&inX);
 		fclose(f);
-		if (sizer(inX)!=sizeof(Psi)) {
-			oxwarning("FiveO Warning 05.\n X in "+fname+"."+EXT+" not the same length as Psi.\n Load is doing nothing.\n ");
-			return FALSE;
-			}
-		if (!sizer(inPsiT)) inPsiT = <-1>;
-		for (k=0,m=0;k<sizeof(Psi);++k)  // changed Nov. 2015 to fix bug
-            if (m<sizeof(inPsiT)&& (inPsiT[m]!=k) )
-                Psi[k].DoNotVary = TRUE;
-            else {
-                Psi[k].DoNotVary = FALSE;
-                ++m;
-                }
 		Encode(inX);  //typo found Sept. 2014
 		}
 	}
+
+Objective::Menu() {
+    // Get Stage from program arguments
+    // switch(Stage) {
+    // case ?? :
+    if (CGI::Initialize("Objective:"+L)) {
+        fprintln(CGI::out,"<h2>Objective</h2><fieldset><legend>",L,"</legend>");
+        fprint(CGI::out,"Run Safe? ");
+        CGI::CheckBox(L+"runsafe",1,RunSafe);
+        CGI::VolumeCtrl(L,Volume);
+        CGI::CreateForm(Psi);
+        fprintln(CGI::out,"</fieldset>");
+//        }
+    // case ?? :
+        CGI::ReadForm(Psi);
+        Encode();
+        fobj(0);
+    }
+   }
 
 /** Store current state (checkpoint to disk).
 @param fname string, name of file<br>0 [default] use `Objective::fname`
@@ -629,4 +642,3 @@ Constrained::inequality() 	{ return <>; }
 
 CPoint::Vec() {	return vec(V)|vec(ineq.v)|vec(eq.v);	}
 	
-		

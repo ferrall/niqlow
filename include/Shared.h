@@ -2,17 +2,11 @@
 <a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Shared.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 
 <OL class="body">
-
 <LI>CV and AV</LI>
-
 <LI>Volume and Noise Levels</LI>
-
 <LI>Log Files</LI>
-
 <LI>Integration, Kernels</LI>
-
 </OL>
-
 
 @author &copy; 2011-2016 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
 <a name="auto"><hr><h1>Documentation of  Items Defined in Shared.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
@@ -143,7 +137,8 @@ struct Parameter : Quantity {
 	virtual ToggleDoNotVary();
 	virtual Encode();
 	virtual Decode(f);
-
+    virtual Menu();
+    virtual ReadCGI(labs,vals);
 	}
 
 /** Container for different integration techniques. **/
@@ -223,7 +218,7 @@ class Version : Zauxiliary {
 	static decl checked;
 
 public: 	
-    static const decl version=250;
+    static const decl version=270;
     static decl logdir, tmstmp;
 	static Check(logdir="");
 
@@ -320,3 +315,34 @@ struct CPoint : Point {
 	virtual Copy(h);
 	}
 		
+class CGI {
+    static const decl keys ={
+        "AUTH_TYPE",
+        "CONTENT_LENGTH",
+        "CONTENT_TYPE",
+        "GATEWAY_INTERFACE",
+        "PATH_INFO",
+        "PATH_TRANSLATED",
+        "QUERY_STRING",
+        "REMOTE_HOST",
+        "REMOTE_IDENT",
+        "REMOTE_USER",
+        "REQUEST_METHOD",
+        "SCRIPT_NAME",
+        "SERVER_NAME",
+        "SERVER_PORT",
+        "SERVER_PROTOCOL",
+        "SERVER_SOFTWARE"};
+    static const decl eq='=', amp='&', dnvsuffix = "-dnv", ivalsuffix="-val", cgiopt = "-DCGI",
+            pfopt = "post=", htopt="html=";
+    static decl iscgi, post, out, kvals, query;
+    static Initialize(title="OX CGI");
+    static ParseQ();
+    static Parse();
+    static GetVar(key);
+    static Finalize();
+    static VolumeCtrl(pref="",Volume=0);
+    static CheckBox(nm,val,checked);
+    static ReadForm(list);
+    static CreateForm(list);
+    }

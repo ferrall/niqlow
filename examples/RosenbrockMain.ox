@@ -7,5 +7,5 @@ main()	{
 	alg2 =  new Newton(obj);
 	alg1.Volume =	alg2.Volume = obj.Volume= LOUD;
 	alg1 -> Iterate(0);
-	alg2 -> Iterate(0);
+//	alg2 -> Iterate(0);
 	}

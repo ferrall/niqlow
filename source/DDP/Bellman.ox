@@ -71,7 +71,6 @@ EndogTrans::Transitions(state) {
 /** Sets up a single point &theta; in the state space.
 This the default of the virtual routine.  It calls the creator for Bellman.
 The user's replacement for this must call this or the parent version.
-Currently, `OneDimensionalChoice' is the only class that replaces this.
 **/
 Bellman::SetTheta(state,picked) { Bellman(state,picked);    }
 
@@ -804,6 +803,10 @@ OneDimensionalChoice::Initialize(userState,d,UseStateList) {
     println("Action variable objected stored in d.  Label = '",this.d.L,"'.  Number of values: ",this.d.N);
 	}
 
+/** Default 1-d utility, returns `OneDimensional::EUstar` already completed.
+**/
+OneDimensionalChoice::Utility()    { return EUstar;}
+
 /** Create spaces and check that &alpha; has only one element.
 @param Method the `SmoothingMethods`, default = <code>NoSmoothing</code>
 @param  smparam the smoothing parameter (e.g. &rho; or &sigma;)<br>Default value is 1.0.
@@ -816,13 +819,22 @@ OneDimensionalChoice::CreateSpaces(Method,smparam) {
 	if (SS[bothexog].size>1) oxrunerror("1-d model does not allow exogenous variables");	
 	}
 
-OneDimensionalChoice::SetTheta(state,picked,solvez) {
-    this.solvez = solvez;
+/** The default indicator whether a continuous choice is made at &theta;.
+The user's model can replace this to return FALSE if ordinary discrete choice occurs at the state.
+The answer is stored in <code>solvez</code>.
+<h3>NOTE: not tested yet!.</h3>
+
+@return TRUE
+**/
+OneDimensionalChoice::Continuous() { return TRUE;   }
+
+OneDimensionalChoice::SetTheta(state,picked) {
     Bellman(state,picked);
+    solvez = Continuous();
     if (solvez) {
         zstar = new array[N::R];
         //foreach
-        decl r; for(r=0;r<sizeof(zstar);++r) zstar[r] = ones(d.N-1,1);
+        decl r; for(r=0;r<N::R;++r) zstar[r] = ones(N::Options[Aind]-1,1);
         }
     }
 
@@ -870,6 +882,26 @@ OneDimensionalChoice::ActVal(VV) {
 	                   : I::CVdelta*Nxt[Qrho+I::rtran][0]*VV[Nxt[Qit][0]]';
     if (!solvez) pandv[I::r] += U;
 	}	
+
+OneDimensionalChoice::SysSolve(RVs,VV) {
+    ActVal(VV[0][I::later]);
+	if ( solvez && isclass(RVs[Aind])) {
+		RVs[Aind] -> RVSolve(this,DeltaV(pandv[I::r]));
+		V[] = VV[0][I::now][I::all[iterating]] = thetaEMax();
+		}
+	else {
+		V[] = VV[0][I::now][I::all[iterating]] = maxc(pandv[I::r]);
+        if (solvez) {
+		  pstar = <1.0>;
+		  zstar[I::r][] = .NaN;
+          }
+	    if (Flags::setPstar) {
+            this->Smooth(V);
+            Hooks::Do(PostSmooth);
+            }
+		}
+    return V;
+    }
 
 KeepZ::ActVal(VV) {
     if (solvez) {

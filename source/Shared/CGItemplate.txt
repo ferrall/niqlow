@@ -1,0 +1,24 @@
+#!/bin/bash
+# Script template for calling an Ox program through CGI.
+# The script must have the same name as the main Ox program file.
+# Ox code that uses the CGI class will follow these requirements
+#    1. send HTML output to the first program argument
+#    2. receive the CGI post input in the second argument
+# Any Ox output to stout and stderr is placed below the HTML output.
+# Make a copy of this then modify if necessary.
+echo Content-type: text/html
+echo
+echo
+export OXHOME=/usr/share/OxMetrics7/ox
+export PATH=$PATH:$OXHOME/bin64
+export OX7PATH=$OXHOME/include
+post=$(mktemp)
+cat - > $post
+htout=$(mktemp)
+oxout=$(mktemp)
+myname=${0##*/}
+oxl $myname.ox $htout $post > $oxout
+cat $htout
+cat $oxout
+echo </code></pre></body></html>
+rm $htout $oxout $post

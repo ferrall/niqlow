@@ -7,6 +7,7 @@ struct Determined : Parameter	{
 	Encode();
 	Decode(f);
 	ToggleDoNotVary();
+    Menu(fp);
 	}
 
 /** Can take on any real number: <var>-&infin; &lt; v &lt; +&infin;</var> .
@@ -25,6 +26,7 @@ struct Free : Parameter {
 	Free(L="",ival=0.0);
 	Encode();
 	Decode(f);
+    Menu(fp);
 	}
 
 /** Not free and not determined. **/
@@ -43,6 +45,7 @@ struct BoundedBelow : Limited	{
 	BoundedBelow(L,LB, v0);
 	Encode();
 	Decode(f);
+    virtual Menu(fp);
 	}
 	
 /** Bounded from below by 0.
@@ -66,6 +69,7 @@ struct BoundedAbove : Parameter	{
 	BoundedAbove(L,UB, v0);
 	Encode();
 	Decode(f);
+    virtual Menu(fp);
 	}
 
 /** Bounded from above by 0.
@@ -91,13 +95,16 @@ struct Bounded : Limited	{
 	Bounded(L,LB, UB, v0);
 	Encode();
 	Decode(f);
+    virtual Menu(fp);
 	}
 
 /** Bounded as: <var>0 &lt; v &lt; 1</var> .
 
 <code>Bounded(L,0.0,1.0)</code>)
 **/
-struct Probability : Bounded	{	Probability(L,v0);}
+struct Probability : Bounded	{	
+    Probability(L,v0);
+    }
 
 
 /** Bounded as: <var>-1 &lt; v &lt; 1</var> .
@@ -105,7 +112,9 @@ struct Probability : Bounded	{	Probability(L,v0);}
 <code>Bounded(L,-1.0,1.0)</code>)
 
 **/
-struct Correlation : Bounded	{	Correlation(L,ival);}
+struct Correlation : Bounded	{	
+    Correlation(L,ival);
+    }
 	
 /** Two or more parameters whose ranges interact or are related for some other reason. **/
 struct ParameterBlock : Parameter {
@@ -119,6 +128,7 @@ struct ParameterBlock : Parameter {
 	ToggleDoNotVary();
 	virtual BlockCode();
 	Encode();
+    virtual Menu(fp);
 	}
 
 /** Vector of values determined <em>exactly</em> by some other value, not
@@ -165,7 +175,6 @@ struct DecreasingReturns : ParameterBlock		{
 	DecreasingReturns(L,ivals);
 	virtual BlockCode();
 	}
-
 	
 /** Vector of parameters that are sequentially increasing.
 <dd><pre>

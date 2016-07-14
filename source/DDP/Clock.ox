@@ -39,7 +39,7 @@ Clock::Solving(inaVV) {
 <DT>The clock <code>Vupdate()</code> is called by `ValueIteration::Update`() at the end of one Bellman iteration.</DT>
 
 <DT>The base version returns the <code>norm()</code> of the change in the value function for convergence check.</DT>
-<DD>This the stationary calculation. See `NonStationary::Vupdate`() for an alternative</DD>
+<DD>This is the stationary calculation. See `NonStationary::Vupdate`() for an alternative</DD>
 <DD>Other specialized clocks copy part of the value functions into the vector of values for access in earlier time periods.</DD>
 
 @return ||V(&theta;)-V'(&theta;&prime;)||

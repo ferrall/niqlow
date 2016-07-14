@@ -698,7 +698,6 @@ Outcome::FromData(extd) {
 	act[] = extd[avar][];
 	state[] = extd[svar][];
 	aux[] = extd[auxvar][];
-//	println("##",extd);
 	AccountForUnobservables();
 	}
 
@@ -975,9 +974,9 @@ Typically a user would create a `PathPrediction` which in turn creates predictio
 Prediction::Prediction(t){
 	this.t = t;
 	W = pnext = UnInitialized;
-	predmom = p = sind = <>;
-    empmom = 0;
     ch = zeros(N::A,1);
+    empmom = 0;
+    Reset();
 	}
 
 /**
@@ -1100,7 +1099,7 @@ PathPrediction::InitialConditions() {
         iDist(this);
     else
         oxrunerror("DDP Error 64. iDist must be integer, vector, function or Prediction object");
-    if (Data::Volume>QUIET) fprintln(Data::logf,"Path for Group ",f,"Initial State Indices & Prob.",(sind~p)');
+    if (Data::Volume>QUIET) fprintln(Data::logf,"Path for Group ",f,". Initial State Indices & Prob.","%r",{"Ind.","prob."},(sind~p)',"----");
     ch[] = 0.0;
     LeakWarned = FALSE;
     }
@@ -1175,7 +1174,7 @@ sTrack::Distribution(pobj) {
     }
 
 xTrack::Distribution(pobj) {
-    obj->Realize();
+    obj->Realize(pobj);
     decl v = sumc(sumr( AV(obj).* pobj.chq));
     mean += v;
     return v;
@@ -1417,7 +1416,7 @@ PathPrediction::PathObjective() {
         "%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat~delt);
     }
   if (prtlevel)
-    println(I::r,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat);
+    println("f=",I::f,"r=",I::r,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat);
   return flat;
   }
 
