@@ -439,7 +439,7 @@ Objective::fobj(F)	{
 /** Decode the input, return the whole vector.
 @param F vector of free parameters.
 **/
-Objective::vobj(F)	{
+Objective::vobj()	{
 	Decode(F);
     if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
 	cur.V[] = vfunc();
@@ -641,4 +641,51 @@ Constrained::equality() 	{ return <>; }
 Constrained::inequality() 	{ return <>; }
 
 CPoint::Vec() {	return vec(V)|vec(ineq.v)|vec(eq.v);	}
+
+/** Graph the level curves of the objective in two parameters.
+@param Npts  integer [default=100], number of points to evaluate in each dimensions
+@param Xpar `Parameter` for the x axis
+@param Ypar `Parameter` for the y axis
+@param lims 2&times;2 matrix of upper and lower bounds for axes
+@
+**/
+Objective::contour(Npts,Xpar,Ypar,lims) {
+    decl xv,yv,
+    df = lims[][hi]-lims[][lo],
+    ptsx = lims[x][lo] + df[x].*(range(0,Npts-1)'/(Npts-1)),
+    ptsy = lims[y][lo] + df[y].*(range(0,Npts-1)'/(Npts-1)),
+    grid = <>,
+    myF = cur.F;
+    foreach(xv in ptsx)
+        foreach(yv in ptsy) {
+            myF[Xpar.?] = xv;
+            myF[Ypar.?] = yv;
+            fobj(myF);
+            grid |= xv~yv~cur.v;
+            }
+    grid[][z] -= minc(grid[][z]);  // paths are plotted on same plane as level curves
+
+    //plotting the surface, 1 is the 3d mesh , 2 is the contour plot
+    DrawXYZ(0,grid[][x],grid[][y],grid[][z],1);
+    DrawXYZ(0,grid[][x],grid[][y],grid[][z],2);
+    DrawAdjust(ADJ_AREA_Z,0,0,maxc(grid[][z]));
+    }
+
 	
+Objective::contour(Npts,lims) {
+    decl xv,yv,
+    df = lims[][hi]-lims[][lo],
+    ptsx = lims[x][lo] + df[x].*(range(0,Npts-1)'/(Npts-1)),
+    ptsy = lims[y][lo] + df[y].*(range(0,Npts-1)'/(Npts-1)),
+    grid = <>;
+    foreach(xv in ptsx)
+        foreach(yv in ptsy) {
+            grid |= xv~yv~obj(xv|yv);
+            }
+    grid[][z] -= minc(grid[][z]);  // paths are plotted on same plane as level curves
+
+    //plotting the surface, 1 is the 3d mesh , 2 is the contour plot
+    DrawXYZ(0,grid[][x],grid[][y],grid[][z],1);
+    DrawXYZ(0,grid[][x],grid[][y],grid[][z],2);
+    DrawAdjust(ADJ_AREA_Z,0,0,maxc(grid[][z]));
+    }

@@ -11,6 +11,7 @@ Algorithm::Algorithm(O) {
 	OC = O.cur;
     tolerance = itoler;
 	Volume = SILENT;
+    StorePath = FALSE;
     lognm = replace(Version::logdir+"Alg-"+classname(this)+"-On-"+O.L+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"aV");
     fprintln(logf,"Created");
@@ -32,6 +33,7 @@ Algorithm::ItStartCheck() {
     O->Save(classname(this)+"-IterStart-"+O.L);
 	N = rows(OC.F);
     IIterate = !isclass(O.p2p) || O.p2p.IamClient;
+    path = <>;
     if (!N && IIterate) {
         oxwarning("No parameters are free.  Objective will be evaluated and then return");
     	O->fobj(0);
@@ -152,6 +154,7 @@ SimulatedAnnealing::Iterate(chol)	{
           tries = holdpt.step + this.chol*rann(N,M);
 	      O->funclist(tries,&Vtries,&vtries);
 		  Metropolis();
+          if (StorePath) path ~= OC.F;
 		} while (iter++<maxiter);
 	   O->Decode(0);
 	   if (Volume>SILENT) O->Print(" Annealing Done ",logf,Volume>QUIET);
@@ -241,6 +244,7 @@ LineMax::Try(pt,step)	{
 		      oxrunerror("FiveO Error 01. Objective undefined at line max point.\n");
             }
 		}
+    if (StorePath) path ~= OC.F;
 	improved = O->CheckMax() || improved;
 	}
 
@@ -402,6 +406,7 @@ NelderMead::Reflect(fac) 	{
 	fac1 = (1.0-fac)/N;
 	ptry = fac1*psum - (fac1-fac)*nodeX[][mni];
 	O->fobj(ptry);
+    if (StorePath) path ~= OC.F;
     O->CheckMax();
 	ftry = OC.v;
 	++n_func;
@@ -617,7 +622,10 @@ GradientBased::Iterate(H)	{
 	   else do  {                      // HEART OF THE GRADIENT ITERATION
 
 		  holdF = OC.F;
+          LM.StorePath = StorePath;
+          if (StorePath) path ~= OC.F;
 		  LM->Iterate(Direction(),LMitmax,LMmaxstep);
+          if (StorePath) path ~= LM.path;
 		  convergence = (++iter>maxiter) ? MAXITERATIONS
                                          : IamNewt ? this->HHupdate(FALSE)
                                                    : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE)) ;
@@ -628,7 +636,6 @@ GradientBased::Iterate(H)	{
                 O->Print("",logf,Volume>QUIET);
                 fflush(logf);
                 }
-
 		  } while (convergence==NONE);
 
 	     if (Volume>SILENT) {  //Report on Result of Iteration
@@ -1007,3 +1014,17 @@ SQP::HHupdate(FORCE) {
 		}
     return this->Hupdate();
 	}
+
+
+Algorithm::out(fn) {    SaveDrawWindow(fn~".pdf");    }
+
+Algorithm::path(starts) {
+    decl start,i=2;
+    StorePath = TRUE;
+    foreach (start in starts){
+        O->Encode(start);
+        Iterate();
+        DrawXMatrix(0,path[x][],"X",path[y][],"Y",2,i);
+        ++i;
+        }
+    }

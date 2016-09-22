@@ -20,6 +20,8 @@ struct Algorithm {
      /** log file **/                                       logf,
 	 /** output level **/									Volume,
 	 /** maximum iterations **/ 	        				maxiter,
+     /** Store path of iterations in `Algorithm::path'.**/  StorePath,
+     /** sequence of structural parameters .**/             path,
      /** current iteration count. @internal **/				iter,
 	 /**  top level convergence tolerance **/        	    tolerance,
      /** . @internal **/                                    N,
