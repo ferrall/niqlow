@@ -94,7 +94,7 @@ BoundedBelow::Decode(f) {
 	if (!DoNotVary) this.f = f;
 	if (!isint(block)) block->BlockCode();
 	if (DoNotVary) return v;
-	return v = DoNotConstrain||nearflat ? f : CV(LB)+exp(scale*f);
+	return v = (DoNotConstrain||nearflat) ? f : CV(LB)+exp(scale*f);
 	}
 
 BoundedBelow::Menu(fp) {
@@ -153,7 +153,7 @@ BoundedAbove::Decode(f)	{
 	if (!DoNotVary) this.f = f;
 	if (!isint(block)) block->BlockCode();
 	if (DoNotVary) return v;
-	return v = DoNotConstrain||nearflat ? f : CV(UB)-exp(scale*f);
+	return v = (DoNotConstrain||nearflat) ? f : CV(UB)-exp(scale*f);
 	}
 
 BoundedAbove::Menu(fp) {
@@ -202,11 +202,6 @@ Bounded::Decode(f)	{
 	return v;
 	}
 
-Bounded::Menu(fp) {
-    Parameter::Menu(fp);
-    fprintln(fp,"Value <input type=\"number\" name=\"",L+CGI::ivalsuffix,"\" step=\"any\" min=\"",AV(LB),"\ max=\"",AV(UB),"\" value=\"",start," >");
-    fprintln(fp,"</fieldset>");
-    }
 
 /** Create a new parameter bounded above by 1 and below by 0.
 @param L parameter label
@@ -517,3 +512,9 @@ Probabilities::Probabilities(L,ivals,labels) {
 		}
 	for(k=0;k<myN;++k) {AddToBlock(new Probability(haslabels ? labels[k] : L+sprint(k) ,ivals[k]));}
 	}		
+
+Bounded::Menu(fp) {
+    Parameter::Menu(fp);
+    fprintln(fp,"Value <input type=\"number\" name=\"",L+CGI::ivalsuffix,"\" step=\"any\" min=\"",AV(LB),"\" max=\"",AV(UB),"\" value=\"",start,"\" >");
+    fprintln(fp,"</fieldset>");
+    }
