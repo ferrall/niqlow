@@ -57,6 +57,11 @@ Free::Menu(fp) {
     fprintln(fp,"</fieldset>");
     }
 
+Limited::Limited(L,v0) {
+    Parameter(L,v0);
+    nearflat = FALSE;
+    }
+
 /** A parameter bounded below.
 @param L parameter label
 @param LB double or Parameter, the lower bound
@@ -65,19 +70,22 @@ Free::Menu(fp) {
 be strictly greater than LB as LB value changes.<br> LB should be added to the parameter list
 first.
 **/
-BoundedBelow::BoundedBelow(L,LB,v0)	{ Parameter(L,v0); this.LB = isclass(LB,"Parameter") ? LB : double(LB); }
+BoundedBelow::BoundedBelow(L,LB,v0)	{ Limited(L,v0); this.LB = isclass(LB,"Parameter") ? LB : double(LB); }
 
 /** . @internal **/
 BoundedBelow::Encode() 	{
 	if (!isint(block)) block->BlockCode();
 	decl lv = CV(this.LB);
 	if (start<= lv ) oxrunerror("FiveO Error 18. Bounded from below parameter "+L+" must start strictly above "+sprint(lv));
-	if (fabs(start-lv-1.0)< NearFlat)
-        { oxwarning("FiveO Warning ??. bounded parameter "+L+" starting close to LB+1"); println("%12.9f",start);}
-	if (DoNotConstrain)
-		{v = start; scale =  1.0; f = v;}
+	if (fabs(start-lv-1.0)< NearFlat) {
+          oxwarning("FiveO Warning ??. bounded parameter "+L+" starting value = "+sprint("%12.9f",start)+". Close to LB+1\n NOT CONSTRAINED");
+          nearflat = TRUE;
+          }
+    v = start;
+	if (DoNotConstrain||nearflat)
+		{scale =  1.0; f = v;}
 	else
-		{v = start; scale =  log(start-lv); f = 1.0;}
+		{scale =  log(start-lv); f = 1.0;}
 	return DoNotVary ? .NaN : f;
 	}
 
@@ -86,7 +94,7 @@ BoundedBelow::Decode(f) {
 	if (!DoNotVary) this.f = f;
 	if (!isint(block)) block->BlockCode();
 	if (DoNotVary) return v;
-	return v = DoNotConstrain ? f : CV(LB)+exp(scale*f);
+	return v = DoNotConstrain||nearflat ? f : CV(LB)+exp(scale*f);
 	}
 
 BoundedBelow::Menu(fp) {
@@ -119,17 +127,21 @@ Negative::Negative(L,v0)	{ BoundedAbove(L,0.0,v0); }
 be strictly less than UB as UB's value changes.<br> UB should be added to the parameter list
 first.
 **/
-BoundedAbove::BoundedAbove(L,UB,v0)	{ Parameter(L,v0); this.UB = isclass(UB,"Parameter") ? UB : double(UB); }
+BoundedAbove::BoundedAbove(L,UB,v0)	{
+    Limited(L,v0); this.UB = isclass(UB,"Parameter") ? UB : double(UB);
+    }
 
 /** . @internal **/
 BoundedAbove::Encode()	{
 	if (!isint(block)) block->BlockCode();
 	decl bv = CV(UB);
 	if (start>= bv) oxrunerror("FiveO error 19. Bounded from below parameter "+L+" must start strictly below "+sprint(bv));
-	if (fabs(start-bv+1.0)< NearFlat)
-        { oxwarning("FiveO Warning ??. bounded parameter "+L+" starting close to LB+1"); println("%12.9f",start);}
+	if (fabs(start-bv+1.0)< NearFlat) {
+          oxwarning("FiveO Warning ??. bounded parameter "+L+" starting value = "+sprint("%12.9f",start)+". Close to LB+1\n NOT CONSTRAINED");
+          nearflat = TRUE;
+          }
     v = start;
-	if (DoNotConstrain)
+	if (DoNotConstrain||nearflat)
 		{scale =  1.0; f = v;}
 	else
 		{scale =  log(bv-start); f = 1.0;}
@@ -141,7 +153,7 @@ BoundedAbove::Decode(f)	{
 	if (!DoNotVary) this.f = f;
 	if (!isint(block)) block->BlockCode();
 	if (DoNotVary) return v;
-	return v = DoNotConstrain ? f : CV(UB)-exp(scale*f);
+	return v = DoNotConstrain||nearflat ? f : CV(UB)-exp(scale*f);
 	}
 
 BoundedAbove::Menu(fp) {
@@ -157,7 +169,7 @@ BoundedAbove::Menu(fp) {
 @param v0 `CV` compatible default value, v<sub>0</sub>
 **/
 Bounded::Bounded(L,LB,UB,v0)	{
-	Parameter(L,v0);
+	Limited(L,v0);
  	this.UB = isclass(UB,"Parameter") ? UB : double(UB);
 	this.LB = isclass(LB,"Parameter") ? LB : double(LB);
 	}
@@ -167,10 +179,13 @@ Bounded::Encode()	{
 	if (!isint(block)) block->BlockCode();
 	decl lv = CV(LB),  uv = CV(UB);
 	if (start<= lv || start>=uv) oxrunerror("FiveO error 20. Bounded  parameter "+L+" must start strictly between "+sprint(lv)+" and "+sprint(uv));
-	if (fabs(start-(lv+uv)/2)< NearFlat)
-        {oxwarning("FiveO Warning ??. bounded parameter "+L+" starting close to midpoint of range,"); println("%12.9f",start);}
+
+	if (fabs(start-(lv+uv)/2)< NearFlat) {
+          oxwarning("FiveO Warning ??. bounded parameter "+L+" starting value = "+sprint("%12.9f",start)+". Close to LB+1\n NOT CONSTRAINED");
+          nearflat = TRUE;
+          }
     v = start;
-	if (DoNotConstrain)
+	if (DoNotConstrain||nearflat)
 		{scale =  1.0; f = v;}
 	else
 		{scale =  log((start-lv)/(uv-start)); f = 1.0;}
@@ -182,7 +197,7 @@ Bounded::Decode(f)	{
 	if (!DoNotVary) this.f = f;
 	if (!isint(block)) block->BlockCode();
 	if (DoNotVary) return v;
-	if (DoNotConstrain) v = f;
+	if (DoNotConstrain||nearflat) v = f;
 	else { l=CV(LB); v = l + (CV(UB)-l)*FLogit(scale*f); }
 	return v;
 	}

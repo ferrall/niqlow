@@ -32,6 +32,8 @@ struct Algorithm {
 	virtual Tune(maxiter=0,toler=0,nfuncmax=0);
 	virtual Iterate();
     virtual ItStartCheck();
+    virtual out(fn);
+    virtual Paths(starts=1);
 	Algorithm(O);
     }
 

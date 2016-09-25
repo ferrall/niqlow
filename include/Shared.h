@@ -15,6 +15,7 @@
 #include <oxstd.oxh>
 #include <oxfloat.oxh>
 #include <oxprob.oxh>
+#include <oxdraw.oxh>
 /* This file is part of niqlow. Copyright (C) 2012-2016 Christopher Ferrall */
 
 	/** Pseudonyms for -1. @name Names_for_-1 **/
@@ -27,6 +28,9 @@ enum {Zero,One,Two}
 
 	/** Levels of output to produce while executing. @name NoiseLevels **/	
 enum {SILENT=-1,QUIET,LOUD,NOISY,NoiseLevels}
+    /** x,y,z dimensions for graphs @name Axes**/
+enum{xax,yax,zax,Naxes}
+enum{lo,hi,Limits}
 
 //		/** Output tags for reservation value utility functions. @name EUvalues **/	
 //enum {EUstar,Fstar,EUvalues}

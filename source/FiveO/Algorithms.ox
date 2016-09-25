@@ -1018,13 +1018,13 @@ SQP::HHupdate(FORCE) {
 
 Algorithm::out(fn) {    SaveDrawWindow(fn~".pdf");    }
 
-Algorithm::path(starts) {
+Algorithm::Paths(starts) {
     decl start,i=2;
     StorePath = TRUE;
     foreach (start in starts){
         O->Encode(start);
         Iterate();
-        DrawXMatrix(0,path[x][],"X",path[y][],"Y",2,i);
+        DrawXMatrix(0,path[xax][],"X",path[yax][],"Y",2,i);
         ++i;
         }
     }

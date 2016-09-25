@@ -439,7 +439,7 @@ Objective::fobj(F)	{
 /** Decode the input, return the whole vector.
 @param F vector of free parameters.
 **/
-Objective::vobj()	{
+Objective::vobj(F)	{
 	Decode(F);
     if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
 	cur.V[] = vfunc();
@@ -652,40 +652,41 @@ CPoint::Vec() {	return vec(V)|vec(ineq.v)|vec(eq.v);	}
 Objective::contour(Npts,Xpar,Ypar,lims) {
     decl xv,yv,
     df = lims[][hi]-lims[][lo],
-    ptsx = lims[x][lo] + df[x].*(range(0,Npts-1)'/(Npts-1)),
-    ptsy = lims[y][lo] + df[y].*(range(0,Npts-1)'/(Npts-1)),
+    ptsx = lims[xax][lo] + df[xax].*(range(0,Npts-1)'/(Npts-1)),
+    ptsy = lims[yax][lo] + df[yax].*(range(0,Npts-1)'/(Npts-1)),
     grid = <>,
     myF = cur.F;
     foreach(xv in ptsx)
         foreach(yv in ptsy) {
-            myF[Xpar.?] = xv;
-            myF[Ypar.?] = yv;
+            myF[Xpar.v] = xv;
+            myF[Ypar.v] = yv;
             fobj(myF);
             grid |= xv~yv~cur.v;
             }
-    grid[][z] -= minc(grid[][z]);  // paths are plotted on same plane as level curves
+    grid[][zax] -= minc(grid[][zax]);  // paths are plotted on same plane as level curves
 
     //plotting the surface, 1 is the 3d mesh , 2 is the contour plot
-    DrawXYZ(0,grid[][x],grid[][y],grid[][z],1);
-    DrawXYZ(0,grid[][x],grid[][y],grid[][z],2);
-    DrawAdjust(ADJ_AREA_Z,0,0,maxc(grid[][z]));
+    DrawXYZ(0,grid[][xax],grid[][yax],grid[][zax],1);
+    DrawXYZ(0,grid[][xax],grid[][yax],grid[][zax],2);
+    DrawAdjust(ADJ_AREA_Z,0,0,maxc(grid[][zax]));
     }
 
-	
+/*
 Objective::contour(Npts,lims) {
     decl xv,yv,
     df = lims[][hi]-lims[][lo],
-    ptsx = lims[x][lo] + df[x].*(range(0,Npts-1)'/(Npts-1)),
-    ptsy = lims[y][lo] + df[y].*(range(0,Npts-1)'/(Npts-1)),
+    ptsx = lims[xax][lo] + df[xax].*(range(0,Npts-1)'/(Npts-1)),
+    ptsy = lims[yax][lo] + df[yax].*(range(0,Npts-1)'/(Npts-1)),
     grid = <>;
     foreach(xv in ptsx)
         foreach(yv in ptsy) {
-            grid |= xv~yv~obj(xv|yv);
+            grid |= xv~yv~vobj(xv|yv);
             }
-    grid[][z] -= minc(grid[][z]);  // paths are plotted on same plane as level curves
+    grid[][zax] -= minc(grid[][zax]);  // paths are plotted on same plane as level curves
 
     //plotting the surface, 1 is the 3d mesh , 2 is the contour plot
-    DrawXYZ(0,grid[][x],grid[][y],grid[][z],1);
-    DrawXYZ(0,grid[][x],grid[][y],grid[][z],2);
-    DrawAdjust(ADJ_AREA_Z,0,0,maxc(grid[][z]));
+    DrawXYZ(0,grid[][xax],grid[][yax],grid[][zax],1);
+    DrawXYZ(0,grid[][xax],grid[][yax],grid[][zax],2);
+    DrawAdjust(ADJ_AREA_Z,0,0,maxc(grid[][zax]));
     }
+*/

@@ -72,6 +72,7 @@ struct Objective	{
 	virtual funclist(Xmat,Fvec,afvec=0);
     virtual Menu();
     virtual Interact();
+    virtual contour(Npts,Xpar,Ypar,lims);
 	}
 
 	
