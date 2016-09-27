@@ -436,6 +436,7 @@ The key output from the model can be saved or used prior to deleting it.
 Bellman::Delete() {
 	decl i;
 	for(i=0;i<sizeof(SubVectors);++i) if (isclass(SubVectors[i])) delete SubVectors[i];
+    foreach(i in States) delete i;  //Added Sep. 2016.  Might create new error??
 	delete userState, SubVectors, States;
 	delete NxtExog, Blocks, Labels::Vprt, Labels::V;
 	for(i=0;i<sizeof(SS);++i) delete SS[i];
@@ -450,7 +451,7 @@ Bellman::Delete() {
     N::Reset();
 	lognm = Volume = SampleProportion = Gamma = Theta = 0;	
     if (isfile(logf)) { fclose(logf); logf = 0; }
-    if (isfile(Discrete::logf))  {fclose(Discrete::logf); Discrete::logf=0;}
+    //if (isfile(Discrete::logf))  {fclose(Discrete::logf); Discrete::logf=0;}
 	}
 
 /** Base Initialize function.

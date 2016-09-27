@@ -99,14 +99,15 @@ struct Quantity {
 	const 	decl	
 		/** Label **/ 						L;
 	decl
-        /** Volume of output. **/           Volume,
-		/** position in vector   **/  	  	pos,
-		/** Current actual value      **/  	v;
+        /** Volume of output. **/               Volume,
+        /** Log dedicated to this qty.**/       logf,
+		/** position in vector   **/  	  	    pos,
+		/** Current actual value      **/  	    v;
+    SetVolume(Volume);
 	}
 	
 /** Represent discrete values.**/
 struct Discrete	: Quantity{
-    static  decl                                    logf;
 	const 	decl	
 			/** range(0,N-1)			   **/  	vals;
 	decl	
@@ -114,7 +115,7 @@ struct Discrete	: Quantity{
 			/** Number of different values **/   	N,
 			/** corresponding model vals.  **/  	actual,
 			/** vector of prob. of vals. **/		pdf;
-	Discrete(L,N,Volume=SILENT);
+	Discrete(L,N);
 	virtual PDF();
 	virtual Update();
 	}
@@ -135,7 +136,7 @@ struct Parameter : Quantity {
 		/** 0 or pointer to param block.  **/     		block,
 		/** Value at start of iteration.**/   			start,
 		/** Scaling value  s. **/              			scale;
-	Parameter(L,ival,Volume=SILENT);
+	Parameter(L,ival);
 	Reset(newv,IsCode=TRUE);
     ReInitialize();
 	virtual ToggleDoNotVary();

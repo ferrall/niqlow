@@ -209,12 +209,37 @@ DiscreteNormal(N,mu,sigma)	{
 	return mu+sigma*quann(range(1,N)/(N+1));
 	}
 
+/** Control variable-specifc output.
+@param Volume new `NoiseLevels`
+
+Each quantity variable has a volume setting which is initialized to SILENT.
+
+If the new Volume is greater than the current value then a log file is opened if one is not already open.
+
+If the new Volume is SILENT and a log file is already open then the log file is closed.
+
+@see `Quantity::logf`
+**/
+Quantity::SetVolume(Volume) {
+    if (Volume > this.Volume) {
+        if (isint(logf))
+            logf = fopen(Version::logdir+"Q-"+classname(this)+"-"+L+"-"+Version::tmstmp+".log","w");
+        }
+    else {
+        if (Volume==SILENT && isfile(logf)) {
+            fclose(logf);
+            logf = UnInitialized;
+            }
+        }
+    this.Volume = Volume;
+    }
+
 /**Create a discrete quantity .
 @param L <em>string</em> a label or name for the variable.
 @param N <em>positive integer</em>, number of values.<br>N=1 is a constant.
 @param Volume default=SILENT. `NoiseLevels`
 **/
-Discrete::Discrete(L,N,Volume)  {
+Discrete::Discrete(L,N)  {
     if (!isint(N)||(N<=0)) oxrunerror("niqlow Error 02. Number of discrete values has to be a non-negative integer");
 	this.N = N;
     if (!isstring(L)) {
@@ -223,10 +248,10 @@ Discrete::Discrete(L,N,Volume)  {
         }
     else
         this.L = L;
-    this.Volume = Volume;
 	vals = range(0,N-1);
 	actual= vals';
-	subv = pos = UnInitialized;
+	logf = subv = pos = UnInitialized;
+    Volume = SILENT;
 	pdf = ones(vals);
     v = 0;
 	}
@@ -241,15 +266,14 @@ Discrete::PDF() {return ismember(pdf,"v") ? pdf.v[v] : pdf[v];	}
 /** Create a new parameter.
 @param L parameter label
 @param ival initial value
-@param Volume default=SILENT. `NoiseLevels`
 **/
-Parameter::Parameter(L,ival,Volume)	{
+Parameter::Parameter(L,ival)	{
 	this.L = L;
 	v = start = scale = this.ival = ival;
 	f = 1.0;
 	block = DoNotVary = FALSE;
-	pos = UnInitialized;
-    this.Volume = Volume;
+	Volume = SILENT;
+    logf = pos = UnInitialized;
 	}
 
 /** Reset the parameter to its hard-coded values.

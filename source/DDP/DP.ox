@@ -650,7 +650,7 @@ DP::Initialize(userState,UseStateList) {
     if (isint(L)) L = "DDP";
     lognm = replace(Version::logdir+"DP-"+L+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"aV");
-    Discrete::logf = fopen(replace(Version::logdir+"Variables-"+L+Version::tmstmp+".log"," ",""),"aV");
+    //Discrete::logf = fopen(replace(Version::logdir+"Variables-"+L+Version::tmstmp+".log"," ",""),"aV");
     Hooks::Reset();
     this.userState = userState;
     Flags::UseStateList=UseStateList;

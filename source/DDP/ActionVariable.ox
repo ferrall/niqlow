@@ -5,21 +5,19 @@
 @param L <em>string</em> a label or name for the variable.<br><em>default</em> = &quot;a&quot;
 @param NorVLabels <em>positive integer</em>, number of values the variable can take on.<br><em>default</em> N=1 is a constant, which can be included as
 a placeholder for extensions of a model.<br>OR<br>N-array of strings, holding labels for each choice (used in printing)
-@param Volume default=SILENT. `NoiseLevels`
 @see DP::Actions, Bellman::FeasibleActions
 **/
-ActionVariable::ActionVariable(L,NorVLabels,Volume) {
+ActionVariable::ActionVariable(L,NorVLabels) {
     if (isint(NorVLabels)) {
-        Discrete(L,NorVLabels,Volume);
+        Discrete(L,NorVLabels);
         vL = 0;
         }
     else {
-        Discrete(L,sizeof(NorVLabels),Volume);
+        Discrete(L,sizeof(NorVLabels));
         vL = NorVLabels;
         }
     }
 
 /**Create a binary action variable.
-@param Volume default=SILENT. `NoiseLevels`
 **/
-BinaryChoice::BinaryChoice(Volume) { ActionVariable("a",2,Volume); }
+BinaryChoice::BinaryChoice() { ActionVariable("a",2); }

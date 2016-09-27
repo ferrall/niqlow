@@ -464,7 +464,7 @@ Coefficients::Coefficients(L,ivals,labels) {
 		}
 	else
 		{ivals = vec(ivals); myN = rows(ivals);}
-	for(k=0;k<myN;++k) {AddToBlock(new Free(haslabels ? labels[k] : L+sprint(k) ,ivals[k]));}
+	for(k=0;k<myN;++k) {AddToBlock(new Free(haslabels ? L+":"+labels[k] : L+sprint(k) ,ivals[k]));}
 	}
 
 /** Create a block of positive parameters, for example a vector of standard deviations.
@@ -487,7 +487,7 @@ StDeviations::StDeviations(L,ivals,labels) {
 		if (any(ivals.<0.0)) oxrunerror("FiveO Error 27b. Initial stdev value invalid");
 		myN = rows(ivals);
 		}
-	for(k=0;k<myN;++k) {AddToBlock(new Positive(haslabels ? labels[k] : L+sprint(k) ,ivals[k]));}
+	for(k=0;k<myN;++k) {AddToBlock(new Positive(haslabels ? L+":"+labels[k] : L+sprint(k) ,ivals[k]));}
 	}		
 
 /** Create a block of parameters all constrained to be probabilities.
@@ -510,7 +510,7 @@ Probabilities::Probabilities(L,ivals,labels) {
 		if (any(ivals.<=0.0)||any(ivals.>=1.0)) oxrunerror("FiveO Error 28b. Initial probability value invalid");
 		myN = rows(ivals);
 		}
-	for(k=0;k<myN;++k) {AddToBlock(new Probability(haslabels ? labels[k] : L+sprint(k) ,ivals[k]));}
+	for(k=0;k<myN;++k) {AddToBlock(new Probability(haslabels ? L+":"+labels[k] : L+sprint(k) ,ivals[k]));}
 	}		
 
 Bounded::Menu(fp) {
