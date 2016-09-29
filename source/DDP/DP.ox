@@ -240,7 +240,7 @@ DP::AddStates(SubV,va) 	{
 @see Bellman::aa
 **/
 DP::GetAV(a) {
-    I::curth -> aa(a);
+    return I::curth -> aa(a);   // Sep. 2016.  Ugghh!  return was missing
     }
 
 /** Add `StateVariable`s to the endogenous vector &theta;.
@@ -497,7 +497,8 @@ Alpha::ResetA(alist) {
 			A[0] ~= vecr(a.actual * ones(1,nr));
 			}		
         }
-    for (i=1;i<N::J;++i) A[i][][] = selectifr(A[0],Sets[i]);
+    for (i=1;i<N::J;++i)
+        A[i][][] = selectifr(A[0],Sets[i]);
     }
 
 
