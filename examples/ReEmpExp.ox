@@ -79,6 +79,6 @@ UISearch::Run()	{
 
 /**  **/	
 UISearch::Utility() {
-	decl acc = aa(a);
+	decl acc = Alpha::CV(a);
 	return  acc*CV(j.offer) + (1-acc)*(c + j->Benefits()) + trtmnt->Bonus();
 	}

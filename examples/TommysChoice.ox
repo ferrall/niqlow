@@ -28,7 +28,7 @@ TommysChoice::Utility() {
     decl i, totx;
     totx=CV(X);
     Ewage = 0.05*totx - 0.01*sqr(totx)/Xmax;
-    return Uv + aa(m)*Ewage;
+    return Uv + Alpha::CV(m)*Ewage;
     }
 
 main() {

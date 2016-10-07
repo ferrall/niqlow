@@ -36,8 +36,8 @@ DynamicRoy::Replicate()	{
 }
 
 /** Rule out schooling if too old **/
-DynamicRoy::FeasibleActions(Alpha) {
-	return (I::t+Age0>MaxAgeAtt) ? Alpha.!=school : ones(Alpha);
+DynamicRoy::FeasibleActions() {
+	return (I::t+Age0>MaxAgeAtt) ? Alpha::CV().!=school : ones(Alpha::NFA);
 	}
 	
 /** Total experience cannot exceed age;  Total schooling limited.**/	

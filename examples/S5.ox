@@ -14,7 +14,7 @@ struct UI : OneDimensionalChoice {
     static pvf();
 	Utility();
     Benefits();
-    FeasibleActions(A);
+    FeasibleActions();
     Reachable();
 	EUtility();
     Uz(z);
@@ -66,7 +66,7 @@ main() {
     UI::Fit();
     }
 
-UI::FeasibleActions(A){    return !CV(m)|1;    }
+UI::FeasibleActions(){    return !CV(m)|1;    }
 UI::Reachable() {
     if (CV(m)&&!I::t) return FALSE;
     return TRUE;

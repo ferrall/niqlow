@@ -6,7 +6,7 @@
 struct UI3 : UI2 {
 	static Define(toclone);
     static LayoffProb();
-    FeasibleActions(A);
+    FeasibleActions();
 	}
 UI3::LayoffProb() { return CV(lam)*CV(m); }
 UI3::Define(toclone)	{
@@ -16,7 +16,7 @@ UI3::Define(toclone)	{
         new LaggedAction("m",d),LayoffProb,0
         );
     }
-UI3::FeasibleActions(A){
+UI3::FeasibleActions(){
     return !CV(m) | 1;  // must chose d=1 if m==1
     }
 /*

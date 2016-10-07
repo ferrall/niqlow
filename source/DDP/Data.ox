@@ -359,9 +359,7 @@ Panel::Flat()	{
 /** Store the panel as long flat matrix. **/
 Panel::Deep()	{
 	cur = this;
-    println("**** PANEL: ",r);
 	do cur->FPanel::Deep(); while ((isclass(cur = cur.fnext)));
-    println("END PANEL: ",r);
 	}
 
 /** Produce a matrix of the panel.
@@ -462,7 +460,7 @@ RandomEffectsIntegration::Run() {
     else
         flat += curREdensity*pf;
 	L += curREdensity*path.L;	
-    if (Data::Volume>LOUD) fprintln(Data::logf,"%% ",I::r," ",I::rtran," ",curREdensity," ",path.L," ",L);
+    if (Data::Volume>LOUD) fprintln(Data::logf,"## ",I::r," ",I::rtran," ",curREdensity," ",path.L," ",L);
 	}
 	
 /** Compute likelihood of a realized path.
@@ -724,8 +722,10 @@ Outcome::AccountForUnobservables() {
 			}					
 	ind[onlyacts] = new array[N::J];
 	s = 0;
+    println("** ",s,ind[tracking][]);
   	do {
-		if ( (myA = GetAind(ind[tracking][s]))!=NoMatch) {
+        println(" ",s);
+		if (( (myA = GetAind(ind[tracking][s]))!=NoMatch )) {
 			ai =  A[myA]*SS[onlyacts].O;	 // indices of feasible acts
 			myi = selectifr( A[myA],prodr((A[myA] .== act) + isdotnan(act)) )
 					* SS[onlyacts].O; //indices of consistent acts
@@ -932,7 +932,9 @@ Prediction::Predict(tlist) {
             if (Settheta(q)) {
                 state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
                 I::all[tracking] = q; // I::OO[tracking][]*state;
-                SyncStates(lo,hi);            I::curth->Predict(this);
+                SyncStates(lo,hi);
+                Alpha::SetFA(I::curth.Aind);
+                I::curth->Predict(this);
                 for (k=0;k<Ntr;++k) tlist[k]->Distribution(this);
                 allterm *= I::curth.IsTerminal || I::curth.IsLast;
                 }
@@ -1196,11 +1198,13 @@ Prediction::Histogram(tlist,printit) {
 	decl i,tv;
     predmom=<>;
     //Leak foreach(tv in tlist ) {
+    Alpha::SetFA(I::curth.Aind);
     for (i=0;i<sizeof(tlist);++i) {
         tv = tlist[i];
         predmom ~= tv->Distribution(this); // Leak
 //        if (printit) tv->print();
         }
+    Alpha::ClearFA();
     return t~predmom;
 	}
 
@@ -1417,7 +1421,7 @@ PathPrediction::PathObjective() {
     }
   if (prtlevel)
     println("f=",I::f,"r=",I::r,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat);
-  return flat;
+  return flat|constant(.NaN,this.T-rows(flat),columns(flat));  //added Oct. 2017 so terminal outcomes still work
   }
 
 /** Produce histograms and mean predictions for all paths in the panel.

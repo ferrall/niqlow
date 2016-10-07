@@ -69,7 +69,7 @@ EndogTrans::Transitions(state) {
     }
 
 /** Sets up a single point &theta; in the state space.
-This the default of the virtual routine.  It calls the creator for Bellman.
+This is the default of the virtual routine.  It calls the creator for Bellman.
 The user's replacement for this must call this or the parent version.
 **/
 Bellman::SetTheta(state,picked) { Bellman(state,picked);    }
@@ -86,7 +86,7 @@ Bellman::Bellman(state,picked) {
   N::TerminalStates += IsTerminal;
   IsLast = counter->Last();
   Aind = 0; //initializing this means aa() will work.
-  Aind = Alpha::AddA(IsTerminal ? 1|zeros(N::Options[0]-1,1) : FeasibleActions(Alpha::Matrix));
+  Aind = Alpha::AddA(IsTerminal ? 1|zeros(N::Options[0]-1,1) : FeasibleActions());
   InSubSample = UnInitialized;
   pandv = new array[N::R];
   Allocate(picked);
@@ -144,7 +144,7 @@ This is <em>not</em> called at unreachable or terminal states.
 
 @see Alpha, DP::Actions, ActionVariable
 **/	
-Bellman::FeasibleActions(Alpha)	{  	return ones(rows(Alpha),1); 	}
+Bellman::FeasibleActions(A)	{  	return ones(rows(Alpha::FA),1); 	}
 
 Bellman::UReset() {
 	pandv[I::r][][] = .NaN;
@@ -393,6 +393,7 @@ Bellman::Simulate(Y) {
 	I::ialpha = done  	? 0
 			  		: DrawOne( Y.usecp ? pandv[curr][][InSubSample*(Y.ind[bothexog])]  //if approximated, only one column in pandv
                                        : constant(1/curJ,curJ,1) );
+    Alpha::SetFA(Aind);
 	SyncAct(alpha = Alpha::A[Aind][I::ialpha][]);
 	zeta -> Realize(Y);
 	decl i;
@@ -404,6 +405,7 @@ Bellman::Simulate(Y) {
 	i = (I::OO[bothgroup][]'.!=0) .* Y.state;
 	i += ReverseState(Nxt[Qtr][Y.ind[onlysemiexog]][DrawOne(Nxt[Qrho+I::rtran][Y.ind[onlysemiexog]][I::ialpha][])],
 							I::OO[tracking][]);
+    Alpha::ClearFA();
 	return i;
 	}
 

@@ -31,6 +31,6 @@ struct Fertility : ExPostSmoothing	{
 	   /** vector of huband income **/ Y;
 	static Mortality(FeasA);
 	static Replicate();
-	 	   FeasibleActions(Alpha);
+	 	   FeasibleActions();
 		   Utility();
 	}

@@ -7,7 +7,7 @@ struct UI : OneDimensionalChoice {
                 pvfactor;        // Added
 	static Run();
 	Utility();
-    FeasibleActions(A);
+    FeasibleActions();
 	EUtility();
     Uz(z);
 	}                           //Modified
@@ -32,7 +32,7 @@ UI::Run()	{
     pvfactor = 1/(1-(1-lam)*mydelt); //Added
     RVSolve();
     }
-UI::FeasibleActions(A){
+UI::FeasibleActions(){
     return !CV(m)|1;
     }
 main() {

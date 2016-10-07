@@ -57,5 +57,5 @@ struct Retirement : ExtremeValue	{
 		static  Sig2();
 		        Reachable();
 				Utility();
-				FeasibleActions(A);
+				FeasibleActions();
 	}	

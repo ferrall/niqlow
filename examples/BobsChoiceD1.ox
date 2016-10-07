@@ -45,8 +45,8 @@ Wage::Realize(y) {
     }
 
 BobsChoiceD::Utility() {
-    decl i, totx;
+    decl i, totx, mv = Alpha::CV(m);
     totx=CV(X);
     Ewage = 0.05*totx - 0.01*sqr(totx)/Xmax;
-    return Uv - aa(m)*Ewage + 0.5*(aa(m).!=CV(pstat));
+    return Uv - mv*Ewage + 0.5*(mv.!=CV(pstat));
     }

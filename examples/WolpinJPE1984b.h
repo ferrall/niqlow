@@ -28,7 +28,7 @@ struct Fertility2 : OneDimensionalChoice	{
 	   /** vector of huband income **/ Y;
 	static Mortality(FeasA);
 	static Replicate();
-	 	   FeasibleActions(A);
+	 	   FeasibleActions();
 //		   Utility();
 		   RUtility();
 		   EUtility();

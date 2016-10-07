@@ -7,7 +7,7 @@ class BobsChoiceC : Bellman {
                 sch, maj;
         static Decide();
         Utility();
-        FeasibleActions(A);  //Added
+        FeasibleActions();  //Added
         }
 
 main() {
@@ -26,9 +26,9 @@ BobsChoiceC::Decide() {
     VISolve();
     }
 
-BobsChoiceC::FeasibleActions(A) {       //Added
-    if (CV(Yacc)==1) return ones(rows(A),1);
-    return A[][sch.pos].!=1;
+BobsChoiceC::FeasibleActions() {       //Added
+    if (CV(Yacc)==1) return ones(Alpha::NFA,1);
+    return Alpha::CV(sch).!=1;
     }
 
 BobsChoiceC::Utility() {

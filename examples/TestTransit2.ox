@@ -3,7 +3,7 @@ struct test : ExtremeValue	{
 	static decl mv, b, a, meth,pc,fg;
 	static Reachable();
 	static Run();
-    FeasibleActions(A);
+    FeasibleActions();
 	Utility();
 	}
 test::Run()	{
@@ -21,16 +21,16 @@ test::Run()	{
     pd->Predict(5);
     pd->Histogram(fg);
 	}
-test::FeasibleActions(FeasA) {
-    return ones(rows(FeasA),1);
+test::FeasibleActions() {
+    return ones(Alpha::NFA,1);
     }
 test::Reachable()	{
 //	return (CV(pc)&&CV(fg)) ? 0 : new test();
     return new test();
 	}
 test::Utility()  {
-    decl xx =CV(fg);
-	return -2.0*(1-aa(a)) + aa(a)*(4.0*xx - 0.5*sqr(xx)) - 1.5*aa(b);
+    decl xx =CV(fg), av = Alpha::AV(a);
+	return -2.0*(1-av) + av*(4.0*xx - 0.5*sqr(xx)) - 1.5*Alpha::AV(b);
 	}	
 main() {
     test::Run();

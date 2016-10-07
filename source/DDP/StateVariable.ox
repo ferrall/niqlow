@@ -988,6 +988,7 @@ StateBlock::StateBlock(L,...)	{
 	N= 0;
 	Theta={};
 	pos = UnInitialized;
+    Volume = SILENT;
 	Actual = Allv = actual = v = <>;	
     decl va = va_arglist(), v;
     foreach (v in va) AddToBlock(v);

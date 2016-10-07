@@ -35,5 +35,5 @@ struct Ahn : ExtremeValue  {//ExPostSmoothing
     static Run();	
 	Reachable();
 	Utility();
-	FeasibleActions(Alpha);			
+	FeasibleActions();			
 	}

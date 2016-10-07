@@ -35,7 +35,7 @@ struct  Bellman : DP {
                     HMEndogU(VV);
                     AMEndogU(VV);
             virtual ExogUtil();
-			virtual FeasibleActions(Alpha);
+			virtual FeasibleActions(Alpha=0);
             virtual Reachable();
 			virtual Utility();
             virtual UReset();

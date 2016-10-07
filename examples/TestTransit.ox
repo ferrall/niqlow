@@ -24,8 +24,8 @@ test::Reachable()	{
 	return (CV(mv)>curt) ? 0 : new test();
 	}
 test::Utility()  {
-    decl xx =CV(mv);
-	return -2.0*(1-aa(a)) + aa(a)*(4.0*xx - 0.5*sqr(xx)) - 3*aa(b);
+    decl xx =CV(mv), av=Alpha::CV(a);
+	return -2.0*(1-av) + av*(4.0*xx - 0.5*sqr(xx)) - 3*Alpha::CV(b);
 	}	
 main() {
     test::Run();

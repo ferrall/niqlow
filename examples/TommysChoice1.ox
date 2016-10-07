@@ -41,7 +41,8 @@ TommysChoice::Utility() {
     decl totx;
     totx=CV(X);
     Eearn = 0.05*totx - 0.01*sqr(totx)/Xmax;
-    return Uv + aa(m)*Eearn - 0.5*(aa(m).!=CV(pstat));
+    decl mv = Alpha::CV(m);
+    return Uv + mv*Eearn - 0.5*(mv.!=CV(pstat));
     }
 
 main() {

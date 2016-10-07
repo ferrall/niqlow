@@ -25,6 +25,7 @@ I::Set(state,group) {
 	all[] = OO*state;
     curth = Theta[all[tracking]];
     curAi = isclass(curth) ? curth.Aind : NoMatch;
+    Alpha::SetFA(curAi);
     if (group) {
 	   g = int(all[bothgroup]);
 	   f = int(all[onlyfixed]);
@@ -47,7 +48,7 @@ SubSpace::SubSpace() {D=0; size=1; O=<>;}
 /** Calculate dimensions of a  subspace.
 @param subs index of subvectors of S to include in the subspace
 @param IsIterating if the clock is included, use the rightmost variable in the index or set offset to 0<br>[default=TRUE]
-@param DynRand
+@param FullDim
 **/
 SubSpace::Dimensions(subs,IsIterating,FullDim)	{
 	decl k,s,v,Nsubs = sizerc(subs),nxtO,mxd;
@@ -237,10 +238,10 @@ DP::AddStates(SubV,va) 	{
 
 /** Uses `I::curth` to recover actual values of an action.
 @param a `ActionVariable'
-@see Bellman::aa
+@see Bellman::aa, Alpha::AV
 **/
 DP::GetAV(a) {
-    return I::curth -> aa(a);   // Sep. 2016.  Ugghh!  return was missing
+    return Alpha::AV(a); // I::curth -> aa(a);   // Sep. 2016.  Ugghh!  return was missing
     }
 
 /** Add `StateVariable`s to the endogenous vector &theta;.
@@ -412,7 +413,7 @@ GroupTask::loop(IsCreator){
 		do {
 			SyncStates(left,left);
             I::Set(state,TRUE);
-			if (IsCreator || isclass(I::curg) )this->Run();
+			if (IsCreator || isclass(I::curg) ) this->Run();
 			} while (--state[left]>=0);
 		state[left] = 0;
 		d = left+double(vecrindex(state[left:right]|1));
@@ -468,8 +469,22 @@ Alpha::Initialize() {
     AIlist = array(range(0,N::A-1)');
     N::Options = matrix(rows(Matrix));
     N::J = 1;
+    NFA = FA = FAactual = UnInitialized;
     }
-
+Alpha::AV(actvar) { return FAactual[][actvar.pos]; }
+Alpha::CV(actvar) { return FA[][actvar.pos]; }
+Alpha::SetFA(inAi) {
+    if (inAi==NoMatch) {
+        FA = Matrix;
+        FAactual = UnInitialized;
+        NFA = rows(FA);
+        return;
+        }
+    FA = List[inAi];
+    NFA = rows(FA);
+    FAactual = A[inAi];
+    }
+Alpha::ClearFA() { NFA = FAactual = FA = UnInitialized; }
 Alpha::AddA(fa) {
     decl nfeas = int(sumc(fa)), ai=0;
     do { if (fa==Sets[ai]) {++Count[ai]; break;} } while (++ai<N::J);
@@ -714,14 +729,17 @@ SetUpdateTime(AfterRandom);
 DP::SetUpdateTime(time) {
     if (isint(Flags::UpdateTime)) Flags::UpdateTime = constant(FALSE,UpdateTimes,1);
     if (!isint(time) ) oxrunerror("DDP Error 43a. Update time must be an integer");
+    if (Flags::ThetaCreated) {
+        if (time==AfterRandom) oxrunerror("Cannot set UpdateTime=AfterRandom after CreateSpaces has been called.");
+        if (time==InCreateSpaces) oxrunerror("Cannot specify UpdateTime as InCreateSpaces after CreateSpaces has been called");
+        }
     if (Volume>QUIET)
         switch_single (time) {
             case InCreateSpaces : if (Flags::ThetaCreated) oxrunerror("Cannot specify UpdateTime as InCreateSpaces after CreateSpaces has been called");
                                   oxwarning("DDP Warning 13a.\n Transitions and actual values are fixed.\n They are computed in CreateSpaces() and never again.\n");
             case OnlyOnce       : oxwarning("DDP Warning 13b.\n Setting update time to OnlyOnce.\n Transitions and actual values do not depend on fixed or random effect values.\n  If they do, results are not reliable.\n");
             case AfterFixed     : oxwarning("DDP Warning 13c.\n Setting update time to AfterFixed.\n Transitions and actual values can depend on fixed effect values but not random effects.\n  If they do, results are not reliable.\n");
-            case AfterRandom    : if (Flags::ThetaCreated) oxrunerror("Cannot set UpdateTime=AfterRandom after CreateSpaces has been called");
-                                  oxwarning("DDP Warning 13d.\n Setting update time to AfterRandom.\n Transitions and actual values can depend on fixed and random effects,\n  which is safe but may be redundant and therefore slower than necessary.\n");
+            case AfterRandom    : oxwarning("DDP Warning 13d.\n Setting update time to AfterRandom.\n Transitions and actual values can depend on fixed and random effects,\n  which is safe but may be redundant and therefore slower than necessary.\n");
             default             : oxrunerror("DDP Error 43b. Update time must be between 0 and UpdateTimes-1");
             }
     Flags::UpdateTime[] = FALSE;
@@ -920,8 +938,10 @@ DP::CreateSpaces() {
        fclose(INf);
        delete inI, inN;
        N::Sizes();
+       Alpha::SetFA(NoMatch);
        tt = new CreateTheta();
        tt->loop(TRUE);
+       Alpha::ClearFA();
        delete tt.insamp;
        }
 	delete tt;
