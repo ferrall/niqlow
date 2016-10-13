@@ -388,6 +388,7 @@ Objective::funclist(Fmat,aFvec,afvec)	{
 			}
         }
     best = int(maxcindex(f));
+    if (best<0) best = int(mincindex(f));  //added Oct. 2016 so that -.Inf is not treated as .NaN
 	if (Volume>SILENT) fprintln(logf,"funclist finshed ",best, best>=0 ? f[best] : .NaN);
 	if ( ( best < 0) ) {
         println("**** Matrix of Parameters ",Fmat,"Objective Value: ",f',"\n****");

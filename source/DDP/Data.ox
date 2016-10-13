@@ -934,7 +934,7 @@ Prediction::Predict(tlist) {
                 I::all[tracking] = q; // I::OO[tracking][]*state;
                 SyncStates(lo,hi);
                 Alpha::SetFA(I::curth.Aind);
-                I::curth->Predict(this);
+                if ( I::curth->Predict(this) ) return IterationFailed;
                 for (k=0;k<Ntr;++k) tlist[k]->Distribution(this);
                 allterm *= I::curth.IsTerminal || I::curth.IsLast;
                 }
@@ -1393,15 +1393,19 @@ PathPrediction::Initialize() {
 
 /** Compute predictions and distance over the path. **/
 PathPrediction::PathObjective() {
-  decl done;
+  decl done, pcode, anyfail=FALSE, delt =<>;
   SetT();
   cur=this;
   flat = <>;
-  decl delt =<>;
   oxwarning(0);
   do {
      cur.predmom=<>;
-     done =    cur->Prediction::Predict(tlist)          //all states terminal or last
+     pcode = cur->Prediction::Predict(tlist);
+     if (pcode==IterationFailed) {
+        anyfail = TRUE;
+        pcode = FALSE;
+        }
+     done =  pcode                               //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
 	 if (!done && !isclass(cur.pnext)) { // no tomorrow after current
                 cur.pnext = new Prediction(cur.t+1);
@@ -1413,14 +1417,13 @@ PathPrediction::PathObjective() {
   	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
   oxwarning(-1);
   L = HasObservations ?
-            (rows(delt) ? norm(delt,'F'): .Inf)
-            : 0.0;
+                ( rows(delt)&&!anyfail ? norm(delt,'F') : +.Inf )
+                : 0.0;
   if (Data::Volume>QUIET) {
     fprintln(Data::logf,I::r," ",L,
         "%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat~delt);
     }
-  if (prtlevel)
-    println("f=",I::f,"r=",I::r,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat);
+  if (prtlevel) println("f=",I::f,"r=",I::r,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat);
   return flat|constant(.NaN,this.T-rows(flat),columns(flat));  //added Oct. 2017 so terminal outcomes still work
   }
 

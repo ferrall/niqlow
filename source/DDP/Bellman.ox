@@ -372,10 +372,7 @@ Bellman::Predict(tod) {
                     tom.p ~= zeros(1,nnew);
                     }
 		      intersection(tom.sind,Nxt[Qtr][eta],&mynxt);
-              if ( !(mynxt[1][]<columns(Nxt[Qrho+I::rtran][eta])) ) {
-                println("*** ",sizerc(tom.sind)," ",sizerc(Nxt[Qtr][eta]),columns(Nxt[Qrho+I::rtran][eta]),mynxt');
-                mynxt[1][] = setbounds(mynxt[1][],-.Inf,(columns(Nxt[Qrho+I::rtran][eta])-1));
-                }
+              if ( !(mynxt[1][]<columns(Nxt[Qrho+I::rtran][eta])) ) return TRUE;
               tom.p[mynxt[0][]] += tod.pq*Pa*Nxt[Qrho+I::rtran][eta][][mynxt[1][]];
               }
 //          d += sumr(Pa*Nxt[Qrho+I::rtran][eta]);
@@ -385,6 +382,7 @@ Bellman::Predict(tod) {
         tom.p = deleteifc(tom.p,nnew);
         tom.sind = deleteifc(tom.sind,nnew);
         }
+    return FALSE;
 	}
 
 /**Simulate the choice and next states from the current exogenous and endogenous state.
