@@ -1383,7 +1383,7 @@ PathPrediction::Initialize() {
     if (isclass(method)) {
         method->Solve(f);
         if (method.done==IterationFailed) {
-            L = .NaN;
+            L = -.Inf;
             flat = <>;
             return IterationFailed;
             }
