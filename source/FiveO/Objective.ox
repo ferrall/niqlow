@@ -66,7 +66,7 @@ Objective::CheckPoint(f,saving) {
             fprintln(f,"%03u",i,"\t",fp,"\t","%10.6f",cur.X[i],"\t\"","%-15s",PsiL[i],"\"\t\"","%-15s",PsiType[i],"\"\t",fp ? FinX[j] : -1,"\t",fp ? cur.F[j] : .NaN);
             j += fp;
             }
-		fprintln(f,"\n------------\n","%r",PsiL[FinX],"%c",{"  Gradient  "},cur.G,"\nHessian ","%r",PsiL[FinX],"%c",PsiL[FinX],cur.H);
+		fprintln(f,"\n------------\n","%c",PsiL[FinX],"%r",{"  Gradient  "},cur.G,"\nHessian ","%r",PsiL[FinX],"%c",PsiL[FinX],cur.H);
 		}
 	else {
 		decl inX;
