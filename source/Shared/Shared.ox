@@ -376,7 +376,11 @@ vararray(s) {
  return  vlist;
  }
 
-
+/** put a prefix in front of string or array of strings.
+@param pfx string to pre-fix
+@param s string or array of strings
+@return pfx pre-fixed to s
+**/
 prefix(pfx, s) {
 if (isstring(s)) return pfx+s;
 decl o = {}, t;

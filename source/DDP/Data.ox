@@ -1066,7 +1066,7 @@ PathPrediction::Empirical(inNandMom,Nincluded,wght) {
             else if (j>=columns(inmom)) inmom ~= .NaN;
             else inmom = inmom[][:j-1]~.NaN~inmom[][j:];
             }
-    invsd = wght ? selectifc( 1.0 ./ setbounds(moments(inmom,2)[2][],0.5,+.Inf),mask) : 1.0;
+    invsd = wght ? selectifc( 1.0 ./ setbounds(moments(inmom,2)[2][],0.1,+.Inf),mask) : 1.0; // 0.5,+.InF
     do {
         cur.W = (inN[t]/totN)*invsd;
         cur.readmom = inmom[t++][];
@@ -1225,7 +1225,7 @@ Prediction::Delta(mask,printit,tlabels) {
                 .:  (isdotnan(mv)   // else, find mising predictions
                         .? .Inf             // difference unbounded
                         .: W.*(mv-empmom));   // weighted difference
-    if (printit) fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4f","%c",tlabels,mv|empmom|W|df);
+    if (printit) fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4g","%c",tlabels,mv|empmom|W|df);
     return df;
     }
 
