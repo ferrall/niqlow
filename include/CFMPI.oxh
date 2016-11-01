@@ -35,6 +35,7 @@ struct P2P : MPI {
 			/** . @internal                **/		SECVER1;
 
 	decl
+            /** Nodes or Nnodes-1.**/               Nsimul,
 			/** Place for MPI message (in/out)**/	Buffer,
 			/** `Client` object.  **/				client,
 			/** `Server` object. **/				server,

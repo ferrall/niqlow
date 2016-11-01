@@ -139,7 +139,7 @@ SimulatedAnnealing::Iterate(chol)	{
     if (!ItStartCheck()) return;
     if (IIterate) {  //MPI not running or I am the Client Node
        inp = isclass(O.p2p);
-       M = inp ? (O.p2p.Nodes-O.p2p.SECVER1) : 1;
+       M = inp ? O.p2p.Nsimul : 1;
        Vtries=zeros(O.NvfuncTerms,M);
 	   this.chol = isint(chol)  ? unit(N)
                                 : isdouble(chol) ? chol*unit(N)
