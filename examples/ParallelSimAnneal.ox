@@ -6,8 +6,8 @@
 #endif
 
 main()	{
-	fopen("output/ParallelSimAnneal.txt","l");
-	decl obj, alg;
+    Version::Check("logs/");
+    decl obj, alg;
 	obj  = new Rosenbrock();
     ParallelObjective(obj);
 	alg = new SimulatedAnnealing(obj);
