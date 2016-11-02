@@ -108,18 +108,20 @@ SimulatedAnnealing::Tune(maxiter,heat,cooling,shrinkage)	{
 /** accept or reject.
 **/
 SimulatedAnnealing::Metropolis()	{
-	decl jm=-1, j, diff;
+	decl jm=-1, j, diff,lab;
     for(j=0;j<M;++j) {
-        diff = vtries[j]-OC.v;
-	    if (Volume>=LOUD) { fprintln(logf,iter~vtries[j]~(vec(tries[][j])')); fflush(logf);}
-	    if ( !isnan(diff) && (diff> 0.0) || ranu(1,1) < exp(diff/heat))	{
+        diff = vtries[j]-holdpt.v;
+	    if ( !isnan(diff) && ( (diff> 0.0) || (ranu(1,1) < exp(diff/heat)) ) )	{
+	         lab = "*";
              jm = j;
-             OC.v = vtries[jm];
-             OC.F = tries[][jm];
+             holdpt.v =    OC.v = vtries[jm];
+             holdpt.step = OC.F = tries[][jm];
              O->Save(lognm);
              O->CheckMax();
              ++accept;
 			 }
+        else lab = "-";
+	    if (Volume>=LOUD) fprint(logf,"%r",{lab},"%cf",{"%5.0f","%12.5g"},iter~diff~vtries[j]~(vec(tries[][j])'));
         }
     if (accept>=N) {
 		heat *= cooling;  //cool off annealing
@@ -149,8 +151,9 @@ SimulatedAnnealing::Iterate(chol)	{
 	   if (Volume>SILENT)O->Print("Annealing Start ",logf,Volume>QUIET);
 	   OC.H = OC.SE = OC.G = .NaN;
 	   accept = iter =0;	
+	   holdpt.step = OC.F; holdpt.v = OC.v;
+       if (Volume>=LOUD) fprint(logf,"%r",{"#"},"%c",{"i","delt","v","x vals"},"%cf",{"%5.0f","%12.5g"},-1~0.0~holdpt.v~(holdpt.step'));
 	   do  {
-	      holdpt.step = OC.F; holdpt.v = OC.v;
           tries = holdpt.step + this.chol*rann(N,M);
 	      O->funclist(tries,&Vtries,&vtries);
 		  Metropolis();
