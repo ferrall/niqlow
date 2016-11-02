@@ -6,7 +6,7 @@
 #endif
 
 main()	{
-    Version::Check("logs/");
+    Version::Check("output/");
     decl obj, alg;
 	obj  = new Rosenbrock();
     ParallelObjective(obj);

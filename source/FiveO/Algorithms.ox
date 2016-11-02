@@ -108,19 +108,19 @@ SimulatedAnnealing::Tune(maxiter,heat,cooling,shrinkage)	{
 /** accept or reject.
 **/
 SimulatedAnnealing::Metropolis()	{
-	decl jm, diff,lab,mxtry,mxind;
-    jm = maxcindex(vtries);
-    diff = vtries[jm]-holdpt.v;
-    lab = "-";
-	if ( !isnan(diff) && ( (diff> 0.0) || (ranu(1,1) < exp(diff/heat)) ) )	{
-	   lab = "*";
-       holdpt.v =    OC.v = vtries[jm];
-       holdpt.step = OC.F = tries[][jm];
-       O->Save(lognm);
-       O->CheckMax();
-       ++accept;
-	   }
-	if (Volume>=LOUD) fprint(logf,"%r",{lab},"%cf",{"%5.0f","%12.5g"},iter~jm~diff~vtries[jm]~(vec(tries[][jm])'));
+	decl jm=-1, j, diff;
+    for(j=0;j<M;++j) {
+        diff = vtries[j]-holdpt.v;
+	    if ( !isnan(diff) && ( (diff> 0.0) || (ranu(1,1) < exp(diff/heat)) ) )	{
+             jm = j;
+             holdpt.v =    OC.v = vtries[jm];
+             holdpt.step = OC.F = tries[][jm];
+             O->Save(lognm);
+             O->CheckMax();
+             ++accept;
+			 }
+	    if (Volume>=LOUD) fprint(logf,"%r",{j==jm ? "*" : "-"},"%cf",{"%5.0f","%3.0f","%12.5g"},iter~j~diff~vtries[j]~(vec(tries[][j])'));
+        }
     if (accept>=N) {
 		heat *= cooling;  //cool off annealing
 	    chol *= shrinkage; //shrink
