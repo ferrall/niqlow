@@ -32,16 +32,12 @@ MPI::Barrier() {MPI_Barrier();}
 **/
 P2P::P2P(DONOTUSECLIENT,client, server) {
 	MPI::Initialize();
-	SECVER1 = Nodes>1 ? DONOTUSECLIENT : CLIENT;  //if there are no servers use client as one
-    Nsimul = Nodes - SECVER1;
-	if (!IamClient) {
-		this.server = server;
-		if (isclass(client)) delete client;
-        client = FALSE;
-		}
-	else {
+    decl USEMYSELF = !DONOTUSECLIENT || (Nodes==1);
+	SERVER1 = !USEMYSELF;              //if there are no servers use client as one
+    MaxSimJobs = Nodes - SERVER1;      //1st run through max. simultaneous tasks
+	if (IamClient) {
 		this.client = client;
-		if (!SECVER1) {
+		if (USEMYSELF) {
             this.server = server;
             if (isclass(client)) client.me_as_server = server;
             }
@@ -49,6 +45,11 @@ P2P::P2P(DONOTUSECLIENT,client, server) {
             if (isclass(server)) delete server; server = FALSE;
             }
         if (fake) setfakeP2P(this);
+		}
+	else {
+		this.server = server;
+		if (isclass(client)) delete client;
+        client = FALSE;
 		}
     Buffer = <>;
 	}
@@ -227,10 +228,10 @@ Client::ToDoList(Inputs,aResults,mxlength,BASETAG)	{
 	if (!IamClient) { oxwarning(" A server should not call ToDoList()"); return;}
 	if (BASETAG<=0) oxrunerror(" Basetag must be a positive integer");
 	decl n, inT, arrIn = isarray(Inputs), nsends = sizec(Inputs);
-    decl dest, clientonce, notdone;
+    decl dest, clientdone, notdone;
 	aResults[0] = constant(.NaN,mxlength,nsends);
 	notdone = constant(TRUE,nsends,1);
-	clientonce = SECVER1 || (Nodes==1);
+	clientdone = SERVER1 || (Nodes==1);
 	idle = (Nodes==1) | constant(TRUE,Nodes-1,1);
 	n = 0;
 	while (any(notdone)) {
@@ -243,13 +244,13 @@ Client::ToDoList(Inputs,aResults,mxlength,BASETAG)	{
 				++n;
 				continue;
 				}
-			if (!clientonce) {
+			if (!clientdone) {
 				Tag = BASETAG+n;
-				Buffer = arrIn ? Inputs[n] : Inputs[][n];
+				Buffer = me_as_server.Buffer = arrIn ? Inputs[n] : Inputs[][n];
 				me_as_server->Execute();
-				aResults[0][][n] = Buffer;
+				Buffer = aResults[0][][n] = me_as_server.Buffer;
 				notdone[n++] = FALSE;
-				clientonce = TRUE;
+				clientdone = TRUE;
 				continue;
 				}
 			}
@@ -276,7 +277,7 @@ Client::ToDoList(Inputs,aResults,mxlength,BASETAG)	{
 Client::Announce(Msg,BASETAG,aResults,mxlength)	{
     decl wait =!isint(aResults);
 	if (BASETAG<=0) oxrunerror(" Basetag must be a positive integer");
-	decl n, clientonce  = SECVER1 || (Nodes==1), notdone= clientonce | constant(TRUE,Nodes-1,1);
+	decl n, clientonce  = SERVER1 || (Nodes==1), notdone= clientonce | constant(TRUE,Nodes-1,1);
 	Buffer = vec(Msg);
 	if (Volume>QUIET) println("Client::Announce msg ",Buffer');
 	for(n = Nodes-1;n>=!clientonce;--n) Send(0,n,BASETAG+wait*n);

@@ -32,10 +32,10 @@ struct P2P : MPI {
 	static decl
 			/** Receive from any node**/			ANY_SOURCE,
 			/** Receive any tag**/					ANY_TAG,
-			/** . @internal                **/		SECVER1;
+			/** . @internal                **/		SERVER1;
 
 	decl
-            /** Nodes or Nnodes-1.**/               Nsimul,
+            /** Nodes or Nnodes-1.**/               MaxSimJobs,
 			/** Place for MPI message (in/out)**/	Buffer,
 			/** `Client` object.  **/				client,
 			/** `Server` object. **/				server,
