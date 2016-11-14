@@ -119,7 +119,7 @@ SimulatedAnnealing::Metropolis()	{
              O->CheckMax();
              ++accept;
 			 }
-	    if (Volume>=LOUD) fprint(logf,"%r",{j==jm ? "*" : "-"},"%cf",{"%5.0f","%3.0f","%12.5g"},iter~j~diff~vtries[j]~(vec(tries[][j])'));
+	    if (Volume>=LOUD) fprint(logf,"%r",{j==jm ? "*" : "-"},"%cf",{"%5.0f","%3.0f","%12.5g"},iter~j~diff~exp(diff/heat)~vtries[j]~(vec(tries[][j])'));
         }
     if (accept>=N) {
 		heat *= cooling;  //cool off annealing
@@ -150,7 +150,7 @@ SimulatedAnnealing::Iterate(chol)	{
 	   OC.H = OC.SE = OC.G = .NaN;
 	   accept = iter =0;	
 	   holdpt.step = OC.F; holdpt.v = OC.v;
-       if (Volume>=LOUD) fprint(logf,"%r",{"#"},"%c",{"i","j","delt","v","x vals"},"%cf",{"%5.0f","%3.0f","%12.5g"},-1~0~0.0~holdpt.v~(holdpt.step'));
+       if (Volume>=LOUD) fprint(logf,"%r",{"#"},"%c",{"i","j","delt","prob.","v","x vals"},"%cf",{"%5.0f","%3.0f","%12.5g"},-1~0~0.0~0.0~holdpt.v~(holdpt.step'));
 	   do  {
           tries = holdpt.step + this.chol*rann(N,M);
 	      O->funclist(tries,&Vtries,&vtries);

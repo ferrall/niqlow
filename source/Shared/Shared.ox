@@ -20,20 +20,22 @@ Version::Check(logdir) {
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
  }
 
-/** Check that an object is of a required class.
+/** Check that an object is of a required class, or one of a required class.
 @param obj object
-@param cname Class name
-@param Fatal FALSE [default], issue warning.  TRUE= end the error
-@param msg Message to print if class matches (default message is "Class fails to match")
+@param cname Class name</br>Array of class names
+@param Fatal TRUE [default]= end on the error</br>FALSE , only issue warning.
+@param msg Message to print if class fails to match (default message is "Class fails to match")
 **/
 TypeCheck(obj,cname,Fatal,msg) {
-    decl yes=isclass(obj,cname);
-    if (!yes) {
-        println("\n    *",classname(obj),"* : *",cname,"*");
-        if (Fatal) oxrunerror(msg);
-        oxwarning(msg);
+    decl names = isarray(cname) ? cname : {cname}, yes = FALSE, cc;
+    foreach(cc in names) {
+        yes = isclass(obj,cc);
+        if (yes) return TRUE;
         }
-    return yes;
+    println("\n    *",classname(obj)," Checked Against: ",cname);
+    if (Fatal) oxrunerror(msg);
+    oxwarning(msg);
+    return FALSE;
     }
 
 /** Return the Current Value of a Quantity: access X.v, X, X() or X(arg).

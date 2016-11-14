@@ -1066,6 +1066,7 @@ PathPrediction::Empirical(inNandMom,Nincluded,wght) {
             else if (j>=columns(inmom)) inmom ~= .NaN;
             else inmom = inmom[][:j-1]~.NaN~inmom[][j:];
             }
+    if (wght && columns(inmom)!=columns(mask)) oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
     invsd = wght ? selectifc( 1.0 ./ setbounds(moments(inmom,2)[2][],0.1,+.Inf),mask) : 1.0; // 0.5,+.InF
     do {
         cur.W = (inN[t]/totN)*invsd;

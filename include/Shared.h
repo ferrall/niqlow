@@ -72,7 +72,7 @@ static const decl
     ColLogit(x,rho=1.0);
     SumToOne(v);
     Indent(depth);
-    TypeCheck(obj,cname,msg="Niqlow Error #03. Class fails to match.",Fatal=TRUE);
+    TypeCheck(obj,cname,Fatal=TRUE,msg="Niqlow Error #03. Class fails to match.");
 
 
 /** A container for auxiliary structures, which helps organize the hierarchy of classes. **/

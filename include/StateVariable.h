@@ -12,6 +12,10 @@ static StripZeros(trans);
 **/
 struct StateVariable : Discrete	{
 	StateVariable(L="s", N=1);
+    const decl
+    /** Trim unreachable states if finite horizon clock is detected.
+        <b>Default is FALSE.</b>
+        @see StateVariable::IsReachable().**/ Prune;
 	decl
 	/** A vector of values that end decision making
 		Equal to &lt; &gt; if state is not terminating.      **/     TermValues;
@@ -84,7 +88,6 @@ class RandomSpell : Random {
     decl ProbEnd,
          Start,
          pbend,
-    /**Prune Unreachables.**/          Prune,
          pbstart;
     RandomSpell(L,ProbEnd=0.5,Start=1);
     IsReachable();
@@ -101,6 +104,8 @@ For example, the `Triggered` state variables have a transition that is the same 
 when defining the augmented state variable unless a triggering condition is met.  In that case the
 value next period is a special one that is not what the base transition would be.
 
+The virtual IsReachable() for Augmented state variables is to return the base IsReachable() value.
+
 **/
 class Augmented : StateVariable {
     const decl /**base state variable.**/ b;
@@ -109,6 +114,7 @@ class Augmented : StateVariable {
     Augmented(Lorb,N=0);
     Synch();
     virtual Transit(FeasA);
+    virtual IsReachable();
     }
 
 /**A member of a block: transition depends on transition of one or more other state variables.
@@ -217,16 +223,15 @@ class RandomTrigger : Triggered {
     virtual Transit(FeasA);
     }
 
-/** When a `PermanentChoice` occurs then this state permanently becomes equal to its reset value.
-This is ActionTriggered because it checks if `Lagged::Target` of the the PermanentChoice equals 1 and transits.
+/** When a permanent condition will occur next period because an action is chosen now this state permanently becomes equal to its reset value.
 This class provides a replacement for `StateVariable::IsReachable`() that trims the state space &Theta;
-because only cases of the target equal to 1 and this variable equal to its rval are reachable.
+because only cases of the target equal to tv and this variable equal to its rval are reachable.
 @comments
 This state variable is designed to collapse the state space down when an event is triggered.
 **/
 class Forget : ActionTriggered {
-    const decl pstate;
-    Forget(b,pstate,rval=0);
+    const decl FCond;
+    Forget(b,t,FCond,tv=1,rval=0);
     virtual Transit(FeasA);
     virtual IsReachable();
     }
@@ -237,7 +242,6 @@ This state variable is designed to collapse the state space down when an event i
 **/
 class ForgetAtT : ValueTriggered {
     const decl T;
-    decl Prune;
     ForgetAtT(b,T);
     Transit(FeasA);
     IsReachable();
@@ -441,8 +445,7 @@ Fertility::Mortality(A)	{
 **/
 struct RandomUpDown : Random	{
     enum { down, hold, up, NRUP}
-	const decl fPi,
-    /**Prune Unreachables.**/          Prune;
+	const decl fPi;
     decl fp;
 	RandomUpDown(L,N,fPi,Prune=TRUE);
 	virtual Transit(FeasA);
@@ -476,7 +479,6 @@ struct Zvariable : SimpleJump {
 struct Lagged : NonRandom	{
     const decl
 	/**Variable to track. **/          Target,
-    /**Prune Unreachables.**/          Prune,
     /**Order of lag (for pruning).**/  Order;
 	Lagged(L,Target,Prune=TRUE,Order=1);
 	virtual Update();
@@ -565,7 +567,7 @@ struct ChoiceAtTbar :  LaggedAction {
 </pre></dd>
 **/
 struct PermanentChoice : LaggedAction {
-	PermanentChoice(L,Target);
+	PermanentChoice(L,Target,Prune=TRUE);
 	Transit(FeasA);
 	}
 	
@@ -575,8 +577,7 @@ struct Counter : NonRandom  {
 	const decl
 	/**Variable to track 				**/  Target,
 	/**Values to track  				**/	 ToTrack,
-	/**`AV` compatiable reset to 0 flag **/	 Reset,
-    /** Trim unreachable counts if finite horizon clock is deteched.**/ Prune;
+	/**`AV` compatiable reset to 0 flag **/	 Reset;
 	Counter(L,N,Target,ToTrack,Reset,Prune=TRUE);
 	virtual Transit(FeasA);
     virtual IsReachable();
@@ -678,9 +679,9 @@ s' = I{s.x=s.Lx}(s+ I{s &lt; s.N<sup>-</sup>}).
 </pre></code>
 **/
 struct Duration : Counter {
-	const decl Current, Lag, isact;
-	decl nf, g;
-	Duration(L,Current,Lag,N,Prune=TRUE);
+	const decl Current, Lag, isact, MaxOnce;
+	decl nf, add1, g;
+	Duration(L,Current,Lag,N,MaxOnce=FALSE,Prune=TRUE);
 	virtual Transit(FeasA);
 	}
 
@@ -762,7 +763,8 @@ struct Tracker : NonRandom {
 	const decl
 	/**Variable to track **/ Target,
 	/**Values to track  **/	 ToTrack;
-	Tracker(L,Target,ToTrack);
+	Tracker(L,Target,ToTrack,Prune=TRUE);
+    IsReachable();
 	}
 	
 /**Indicates another state variable took on a value last period.
@@ -774,7 +776,7 @@ q' = I{t &in; r}.
 @see ActionTracker
 **/
 struct StateTracker : Tracker	{
-	StateTracker(L,Target,ToTrack);
+	StateTracker(L,Target,ToTrack=<1>,Prune=TRUE);
 	virtual Transit(FeasA);	
 	}
 
@@ -786,9 +788,15 @@ q' = I{a &in; r}.
 **/
 struct ActionTracker : Tracker	{
     decl d;
-	ActionTracker(L,Target,ToTrack);
+	ActionTracker(L,Target,ToTrack=<1>,Prune=TRUE);
 	virtual Transit(FeasA);
 	}
+
+struct PermanentCondition : ActionTracker {
+    const decl Cond, cval;
+    PermanentCondition(L,Target,ToTrack=<>,Cond=TRUE,cval=TRUE,Prune=TRUE);
+	virtual Transit(FeasA);
+    }
 
 /** A Block of `Coevolving` state variables.
 

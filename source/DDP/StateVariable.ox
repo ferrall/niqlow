@@ -17,7 +17,7 @@ a placeholder for extensions of a model.
 The default transition is  s&prime; = 0, so it is very unlikely <code>MyModel</code> would ever include a variable of the
 base class.
 **/
-StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>; }
+StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>;  Prune=FALSE;}
 
 
 /** Return actual[v].
@@ -196,6 +196,12 @@ Augmented::Transit(FeasA) {
     basetr = b->Transit(FeasA);
     }
 
+Augmented::IsReachable() {
+    Synch();
+    return b->IsReachable();
+    }
+
+
 /** Create a new augmented state variable for which an action triggers the change.
 @param b the base `StateVariable` whose transition is augmented.
 @param t the `ActionVariable` that triggers a different transition
@@ -212,7 +218,7 @@ ActionTriggered::ActionTriggered(b,t,tv,rval){
 
 ActionTriggered::Transit(FeasA) {
     Augmented::Transit(FeasA);
-    if ((any(idx=ca(FeasA,t).==tv))) {  //trigger value feasible
+    if ((any(idx=Alpha::CV(t).==tv))) {  //trigger value feasible
         basetr[Qprob] .*= (1-idx);
         if ((any(idy = basetr[Qind].==rval) ))   { //reset values already present
             basetr[Qprob][][maxcindex(idy')] += idx;
@@ -347,22 +353,23 @@ SubState::IsReachable() {
     return br;
     }
 
-/** Create an augmented state variable that 'forgets' its value when a permanent condition occurs.
+/** Create an augmented state variable that 'forgets' its value when an action leads to a permanent condition.
 @param b base `StateVariable` to augment
-@param pstate `PermanentChoice` state variable that triggers the forgetting<br>`CV`-compatiable value
-@param rval the integer (current) value of this state variable when value is forgotten [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
+@param t the `ActionVariable` that triggers a different transition
+@param FCond (permanent) `CV`-compatible value that indicates condition already exists if TRUE, FALSE otherwise<br>
+@param tv the integer (actual) or vector of integer values of tv that triggers the transition [default=1].
+@param rval the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 @comments
 `Forget::IsReachable`() prunes the state space accordingly
 **/
-Forget::Forget(b,pstate,rval) {
-    if (isclass(pstate,"StateVariable")) TypeCheck(pstate,"PermanentChoice");
-    this.pstate = pstate;
-    ActionTriggered(b,pstate.Target,TRUE,rval);
+Forget::Forget(b,t,FCond,tv,rval) {
+    ActionTriggered(b,t,tv,rval);
+    this.FCond = FCond;
     }
 
 Forget::Transit(FeasA) {
-    basetr = ActionTriggered::Transit(FeasA);
-    return CV(pstate)?  {matrix(rval),ones(rows(FeasA),1)} : basetr;
+    ActionTriggered::Transit(FeasA);
+    return CV(FCond) ?  {matrix(rval),ones(rows(FeasA),1)} : basetr;
     }
 
 /**  Trimsthe state space of values that can't be reached because they are forgotten.
@@ -370,7 +377,7 @@ Forget::Transit(FeasA) {
 **/
 Forget::IsReachable() {
     Synch();
-    return !pstate.v || (v==rval);  //Not forgotten or at reset value
+    return !CV(FCond) || (v==rval);  //Not forgotten or at reset value
     }
 
 /** Create an augmented state variable that 'forgets' its value when at t==T* (effective T*+1).
@@ -381,9 +388,10 @@ Forget::IsReachable() {
 **/
 ForgetAtT::ForgetAtT(b,T) {
     this.T = T;
-    Prune = TRUE;
     Triggered(b,0);  //[=](){return I::t==T;}
+    Prune = TRUE;
     }
+
 ForgetAtT::Transit(FeasA) {
     Augmented::Transit(FeasA);
     if ( I::t>=T-1 ) return { matrix(rval), ones(rows(FeasA),1) };
@@ -611,7 +619,8 @@ Users should not create a variable of this type.  Use the derived classes `Lagge
 @see DP::KLaggedState, DP::KLaggedAction
 **/
 Lagged::Lagged(L,Target,Prune,Order)	{	
-    this.Target = Target;	StateVariable(L,Target.N);
+    this.Target = Target;	
+    StateVariable(L,Target.N);
     this.Prune = Prune;
     this.Order = Order;
     }
@@ -695,21 +704,39 @@ ChoiceAtTbar::IsReachable() {
     return !(Prune && Flags::Prunable && (I::t<=Tbar) && v);
     }
 
-
 /** Create a variable that tracks a one-time permanent choice.
 @param L label
 @param Target `ActionVariable` to track.
 @example <pre>retired = new PermanentChoice("Ret",retire);</pre></dd>
 **/
-PermanentChoice::PermanentChoice(L,Target) {
-	LaggedAction(L,Target);
+PermanentChoice::PermanentChoice(L,Target,Prune) {
+	LaggedAction(L,Target,Prune);
 	}
 	
-/** .
-**/
 PermanentChoice::Transit(FeasA) {
 	if (v) return UnChanged(FeasA);
     return LaggedAction::Transit(FeasA);
+	}	
+	
+/** Create a variable that tracks a one-time permanent choice.
+@param L label
+@param Target `ActionVariable` to track.
+@param ToTrack vector of values to Track. Default=<1>.
+@param Cond `CV`-compatible condition to check
+@param cval value of Cond (Default=TRUE)
+@param Prune.  Begins at 0 in finite horizon clocks.
+@example <pre>??</pre></dd>
+**/
+PermanentCondition::PermanentCondition(L,Target,ToTrack,Cond,cval,Prune) {
+    this.Cond = Cond;
+    this.cval = cval;
+    ActionTracker(L,Target,ToTrack,Prune);
+    }
+
+PermanentCondition::Transit(FeasA) {
+	if (v || CV(Cond)!=cval ) return UnChanged(FeasA);
+    if (Volume>SILENT) fprintln(logf,v,ActionTracker::Transit(FeasA));
+    return ActionTracker::Transit(FeasA);
 	}	
 	
 /** .
@@ -761,6 +788,7 @@ Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 StateCounter::StateCounter(L,N,State,ToTrack,Reset,Prune) {
     TypeCheck(State,"StateVariable");
     Counter(L,N,State,ToTrack,Reset);
+    this.Prune = Prune;
     }
 
 /** .
@@ -865,24 +893,27 @@ prechoice = new LaggedAction("lagc",Choice);
 contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of making same choice up to 5 periods
 </dd>
 **/
-Duration::Duration(L,Current,Lag, N,Prune) {
+Duration::Duration(L,Current,Lag, N,MaxOnce,Prune) {
     decl m ="DDP Error 04. Lag must be a State Variable or a vector\n";
-	TypeCheck(Lag,"StateVariable");
-    if (!ismatrix(Lag)) oxrunerror(m);
+	if (!TypeCheck(Lag,"StateVariable",FALSE) && !ismatrix(Lag)) oxrunerror(m);
 	TypeCheck(Current,"Discrete");
     Counter(L,N,Current,0,0,Prune);
 	isact = isclass(Target,"ActionVariable");
 	this.Lag = Lag;
+    this.MaxOnce = MaxOnce;
 	}
 
 /** .
 **/
 Duration::Transit(FeasA) {
+    if (v==N-1 && MaxOnce) return UnChanged(FeasA);
 	g= matrix(v +(v<N-1));
 	if (isact) {
-		nf = sumr(ca(FeasA,Target).==AV(Lag));
+        add1 = ca(FeasA,Target).==AV(Lag);
+		nf = int(sumc(add1));
+        if (Volume>SILENT) fprintln(logf,v," ",AV(Lag),nf,ca(FeasA,Target));
         if (!nf) return { <0> , ones(rows(FeasA),1) };
-		return { 0~g , (1-nf)~nf };
+		return { 0~g , (1-add1)~add1 };
 		}
     if ( !any(AV(Target).==AV(Lag)) ) return { <0> , ones(rows(FeasA),1) };
 	return { g , ones(rows(FeasA),1) };
@@ -920,19 +951,27 @@ Renewal::Transit(FeasA)	{
 /** Indicates a state or action took on particular value(s) last period.
 @internal
 **/
-Tracker::Tracker(L,Target,ToTrack)	{
+Tracker::Tracker(L,Target,ToTrack,Prune)	{
 	this.ToTrack = ToTrack;
     this.Target = Target;	
     StateVariable(L,2);
+    this.Prune = Prune;
 	}
+
+/** Default initial value for Tracker variables is 0.
+**/
+Tracker::IsReachable(){
+    return !(Prune && Flags::Prunable && !(I::t) && v);
+    }
 
 /** Create a binary variable that indicates if the previous value of state variable was in a set.
 @param Target `StateVariable` to track actual values of.
 @param ToTrack integer or vector of (actual) values to track
+@param Prune, prune non-zero states at t==0 in finite horizon.
 **/
-StateTracker::StateTracker(L,Target,ToTrack)	{	
+StateTracker::StateTracker(L,Target,ToTrack,Prune)	{	
     TypeCheck(Target,"StateVariable");
-    Tracker(L,Target,ToTrack);		
+    Tracker(L,Target,ToTrack,Prune);		
     }
 
 /** .
@@ -942,12 +981,14 @@ StateTracker::Transit(FeasA)	{
 	}
 
 /** Create a binary variable that indicates if the previous value of action variable was in a set.
+@param L Label
 @param Target `ActionVariable` to track
 @param ToTrack integer or vector of values to track
+@param Prune Prune in finite horizon (starts at 0)
 **/
-ActionTracker::ActionTracker(L,Target,ToTrack)	{	
+ActionTracker::ActionTracker(L,Target,ToTrack,Prune)	{	
     TypeCheck(Target,"ActionVariable");
-    Tracker(L,Target,ToTrack);	
+    Tracker(L,Target,ToTrack,Prune);	
     }
 
 /** .
