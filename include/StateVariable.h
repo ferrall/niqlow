@@ -792,9 +792,10 @@ struct ActionTracker : Tracker	{
 	virtual Transit(FeasA);
 	}
 
-struct PermanentCondition : ActionTracker {
-    const decl Cond, cval;
-    PermanentCondition(L,Target,ToTrack=<>,Cond=TRUE,cval=TRUE,Prune=TRUE);
+/** Indicator for a condition (ever) occuring in the past.
+**/
+struct PermanentCondition : StateTracker {
+    PermanentCondition(L,Target,ToTrack=<1>,Prune=TRUE);
 	virtual Transit(FeasA);
     }
 

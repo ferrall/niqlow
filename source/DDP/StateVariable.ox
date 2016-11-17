@@ -718,26 +718,22 @@ PermanentChoice::Transit(FeasA) {
     return LaggedAction::Transit(FeasA);
 	}	
 	
-/** Create a variable that tracks a one-time permanent choice.
+/** Create a variable that tracks that some Target condition has occurred in the past.
+Once the Target is current in the ToTrack set this variable will be TRUE
 @param L label
-@param Target `ActionVariable` to track.
+@param Target `CV`-compatible value to track.
 @param ToTrack vector of values to Track. Default=<1>.
-@param Cond `CV`-compatible condition to check
-@param cval value of Cond (Default=TRUE)
 @param Prune.  Begins at 0 in finite horizon clocks.
 @example <pre>??</pre></dd>
 **/
-PermanentCondition::PermanentCondition(L,Target,ToTrack,Cond,cval,Prune) {
-    this.Cond = Cond;
-    this.cval = cval;
-    ActionTracker(L,Target,ToTrack,Prune);
+PermanentCondition::PermanentCondition(L,Target,ToTrack,Prune) {
+    StateTracker(L,Target,ToTrack,Prune);
     }
 
 PermanentCondition::Transit(FeasA) {
-	if (v || CV(Cond)!=cval ) return UnChanged(FeasA);
-    if (Volume>SILENT) fprintln(logf,v,ActionTracker::Transit(FeasA));
-    return ActionTracker::Transit(FeasA);
-	}	
+	if (v) return UnChanged(FeasA);
+    return StateTracker::Transit(FeasA);
+	}
 	
 /** .
 @param matchvalue
