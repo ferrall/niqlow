@@ -83,6 +83,7 @@ struct LineMax	: NonGradient {
 		~LineMax();
 		Iterate(Delta,maxiter=0,maxstp=0);
 		virtual Try(pt,step);
+        virtual PTry(pt,left,right);
 		Bracket();
 		Golden();
 		}

@@ -362,12 +362,13 @@ Objective::ReInitialize() {
 @param Fmat, N<sub>f</sub>&times;J matrix of column vectors to evaluate at
 @param aFvec, address of a ?&times;J matrix to return <var>f()</var> in.
 @param afvec, 0 or address to return aggregated values in (as a 1 &times; J ROW vector)
+@param abest, 0 or address to return index of best vector
 
 The maximum value is also computed and checked.
 
 @returns J, the number of function evaluations
 **/
-Objective::funclist(Fmat,aFvec,afvec)	{
+Objective::funclist(Fmat,aFvec,afvec,abest)	{
 	decl j,J=columns(Fmat),best, f=zeros(J,1), fj;
 	if (Volume>SILENT) fprintln(logf,"funclist ",columns(Fmat));
 	if (isclass(p2p))  {          //CFMPI has been initialized
@@ -398,6 +399,7 @@ Objective::funclist(Fmat,aFvec,afvec)	{
        }
 	 cur.v = f[best];
 	 Decode(Fmat[][best]);
+     if (!isint(abest)) abest[0]=best;
 	 this->CheckMax();
      if (afvec) afvec[0] = f';
 	return J;

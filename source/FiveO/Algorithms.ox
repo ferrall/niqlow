@@ -214,22 +214,34 @@ LineMax::Iterate(Delta,maxiter,maxstp)	{
 	holdF = OC.F;
 	improved = FALSE;
 	p1.step = 0.0; p1.v = OC.v;
-	this->Try(p2,min(this.maxstp/maxdelt,1.0));
+    this->Try(p2,min(this.maxstp/maxdelt,1.0));
 	if (p2.v>p1.v) {q = p2;a=p1;} else {q=p1;a=p2;}
 	b = p3;
-    if (Volume>SILENT) { fprintln(logf,"Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);fflush(logf);}
+    if (Volume>SILENT) fprintln(logf,"Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);
     Bracket();
     if (Volume>QUIET) println("Line: past bracket",a,b,q);
 	Golden();
 	O->Decode(holdF+q.step*Delta);
     if (Volume>SILENT) {
-        fprintln(logf,"Past golden",q);fflush(logf);
+        fprintln(logf,"Past golden",q);
         if (Volume> QUIET) println("Line: past golden",q);
         }
  	OC.v = q.v;
     if (ismember(q,"V")) OC.V = q.V;
 	}
-	
+
+LineMax::PTry(pt,left,right) {
+    decl M = O.p2p.MaxSimJobs,df=(right-left)/M,
+        steps =range(left+df,right-df,(right-left-2*df)/M),best,
+        Vtries=zeros(O.NvfuncTerms,M),
+        vtries,
+        tries = holdF + Delta.*steps;
+	O->funclist(tries,&Vtries,&vtries,&best);
+    pt.step = steps[best];
+    if (StorePath) path ~= OC.F;
+	improved = O->CheckMax() || improved;
+    }
+    	
 /** .
 @internal
 **/
@@ -237,14 +249,14 @@ LineMax::Try(pt,step)	{
 	pt.step = step;
 	O->fobj(holdF + step*Delta);
 	if (isnan(pt.v = OC.v)) {
-	   oxwarning("FiveO Warning 01. Objective undefined at first line try.  Trying 20% of step.\n");
-	   pt.step *= .2;
-	   O->fobj(holdF + pt.step*Delta);
-	   if (isnan(pt.v = OC.v)) {
-	           println("*** ",pt,holdF+pt.step*Delta,OC.X,"\n ****");
-		      oxrunerror("FiveO Error 01. Objective undefined at line max point.\n");
+	  oxwarning("FiveO Warning 01. Objective undefined at first line try.  Trying 20% of step.\n");
+	  pt.step *= .2;
+	  O->fobj(holdF + pt.step*Delta);
+	  if (isnan(pt.v = OC.v)) {
+	       println("*** ",pt,holdF+pt.step*Delta,OC.X,"\n ****");
+		   oxrunerror("FiveO Error 01. Objective undefined at line max point.\n");
             }
-		}
+	   }
     if (StorePath) path ~= OC.F;
 	improved = O->CheckMax() || improved;
 	}
@@ -285,7 +297,11 @@ CLineMax::Try(pt,step)	{
 **/
 LineMax::Bracket()	{
     decl u = p4, r, s, ulim, us, notdone;
-	this->Try(b,(1+gold)*q.step-gold*a.step);
+    if (isclass(O.p2p)) {
+       this->PTry(b,min(a.step,q.step),max(a.step,q.step));
+       }
+    else
+        this->Try(b,(1+gold)*q.step-gold*a.step);
 	notdone = b.v>q.v;
 	while (notdone)	{
 		r = (q.step-a.step)*(q.v-b.v);
@@ -309,7 +325,7 @@ LineMax::Bracket()	{
 		else this->Try(u,(1+gold)*b.step-gold*q.step);
         if (notdone)
 			{a = q;	q = b;	b = u;  notdone= b.v>q.v;  }
-        if (Volume>SILENT) {fprintln(logf,"Bracket ",notdone,"a:",a,"q",q,"b",b);fflush(logf);}
+        if (Volume>SILENT) fprintln(logf,"Bracket ",notdone,"a:",a,"q",q,"b",b);
 		}
 	}
 
