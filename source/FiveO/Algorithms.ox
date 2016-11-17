@@ -239,6 +239,7 @@ LineMax::PTry(pt,left,right) {
     println("in PTry ",steps);
 	O->funclist(tries,&Vtries,&vtries,&best);
     pt.step = steps[best];
+    pt.v = OC.v;
     if (StorePath) path ~= OC.F;
 	improved = O->CheckMax() || improved;
     println("Exiting PTry ",best," ",improved);
