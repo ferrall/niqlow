@@ -209,7 +209,7 @@ LineMax::~LineMax()	{
 LineMax::Iterate(Delta,maxiter,maxstp)	{
 	decl maxdelt = maxc(fabs(Delta));
 	this.Delta = Delta;
-	this.maxiter = maxiter>0 ? maxiter : 1000;
+	this.maxiter = maxiter>0 ? maxiter : 3;
     if (isdouble(maxstp)) this.maxstp = maxstp;
 	holdF = OC.F;
 	improved = FALSE;
