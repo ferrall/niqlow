@@ -610,7 +610,7 @@ ExtremeValue::Smooth(VV) {
 **/
 ExtremeValue::thetaEMax(){
 	decl rh = CV(rho);
-	V[] = sumc(pandv[I::r][][] = exp(rh*pandv[I::r]));
+	V[] = sumc(pandv[I::r][][] = exp(setbounds( rh*pandv[I::r],lowb,hib ) ));
 	return log(V)*(NxtExog[Qprob]/rh);  //M_EULER+
     }
 

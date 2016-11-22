@@ -8,6 +8,7 @@
 @param MaxChoiceIndex FALSE = print choice probability vector [default]<br>TRUE = only print index of choice with max probability.  Useful when the full action matrix is very large.
 @param TrimTerminals FALSE [default] <br>TRUE means states marked `Bellman::IsTerminal` are deleted
 @param TrimZeroChoice FALSE [default] <br> TRUE means states with no choice are deleted
+@return TRUE if method fails, FALSE if it succees
 <DT>Note:  All parameters are optional, so <code>VISolve()</code> works.</DT>
 <DT>This function</DT>
 <DD>Creates a `ValueIteration` method</dd>
@@ -27,9 +28,9 @@ VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
     decl meth = new ValueIteration();
     GSolve::RunSafe = FALSE;
     DPDebug::outAllV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice);
-    decl conv = meth->Solve();
+    decl succeed = meth->Solve();
     delete meth;
-    return conv;
+    return succeed;
     }
 
 /** Create an endogenous utility object.
@@ -83,7 +84,7 @@ ValueIteration::Run(){
     if (Volume>SILENT && N::F>1) print("f=",I::f);
 
     itask->SetFE(state);
-    itask->GroupTask::loop();
+    done = done || itask->GroupTask::loop();
     if (DPDebug::OutAll)  DPDebug::RunOut();
     else {
         if (GSolve::Volume>SILENT) {
@@ -108,7 +109,7 @@ Solution is not run if the density of the point in the group space equals 0.0.
 RandomSolve::Run()  {
 	if (I::curg->Reset()>0.0) {
         if (Flags::UpdateTime[AfterRandom]) ETT->Transitions(state);
-		itask->Solve(this.state);
+		return itask->Solve(this.state);
 		}
 	}
 
@@ -143,7 +144,9 @@ GSolve::Solve(instate) {
     ZeroTprime();
 	itask->Traverse();  //compute endogenous utility
 	Flags::setPstar = counter->setPstar() ||  (MaxTrips==1);   // if first trip is last;
-	this->Traverse();
+    succeed = TRUE;
+    warned = FALSE;
+    decl tmp = this->Traverse() ;
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER) VV[LATER][] = VV[I::later][];    //initial value next time
     Hooks::Do(PostGSolve);
     if (Volume>SILENT && N::G>1) print(".");
@@ -165,7 +168,7 @@ Method::GSolve(instate) {  oxwarning("DDP Warning 22.\n User code has called the
 /**Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
 @param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
 @param MaxTrips 0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
-
+@return TRUE if all solutions succeed; FALSE if any fail.
 This method carries out Bellman's iteration on the user-defined problem.  It uses the `DP::ClockType` of
 the problem to determine whether it needs to find a fixed point or can simply work backwards in
 time.<p>
@@ -187,6 +190,7 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
     if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions();
     GSolve::Volume = Volume;
     GSolve::vtoler = vtoler;
+    done = FALSE;
     if (Volume>QUIET) println("\n>>>>>>Value Iteration Starting");
 	if (Fgroups==AllFixed) this->GroupTask::loop();
     else {
@@ -198,6 +202,7 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
     Hooks::Do(PostFESolve);
     Flags::HasBeenUpdated = FALSE;
     if (Volume>QUIET) println("\n>>>>>>Value Iteration Finished\n");
+    return GSolve::succeed;
 	}
 
 Method::Method() {
@@ -242,15 +247,19 @@ This is called after one complete iteration of `ValueIteration::GSolve`().
 **/
 GSolve::Update() {
 	++trips;
-	decl dff= counter->Vupdate();
-	if (dff==.NaN || Volume>LOUD) {
-        if (dff==.NaN) {
+	decl dff= counter->Vupdate(), mesucc = !(dff==.NaN);
+    succeed *= mesucc;
+	if ( !mesucc || Volume>LOUD) {
+        if (!mesucc) {
             decl indx=vecindex(VV[I::now][],.NaN),nans = ReverseState(indx',I::OO[iterating][])[S[endog].M:S[endog].X][]';
             fprintln(logf,"\n t =",I::t,". States with V=NaN ","%8.0f","%c",{"Index"}|Labels::Vprt[svar][S[endog].M:S[endog].X],indx~nans);
             if (RunSafe )oxrunerror("DDP Error 29. error while checking convergence.  See log file.");		
-            oxwarning("DDP Warning ??. Value function includes NaNs, exiting Value Iteration.");
+            if (!warned) {
+                oxwarning("DDP Warning ??. Value function includes NaNs, exiting Value Iteration.");
+                warned = TRUE;
+                }
             VV[I::now][] = VV[I::later][] = 0.0;
-            return done = IterationFailed;
+            return done = TRUE;
             }
         else
             fprintln(logf,"Value Function at t =",I::t," ",VV[I::now][]);	

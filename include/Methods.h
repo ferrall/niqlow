@@ -29,11 +29,12 @@ struct Method : FETask {
 /** A container for iterating over &theta; during solution methods.
 **/
 struct GSolve : ThetaTask {
-//	const decl		/** **/									    ndogU;
     static decl
         /** TRUE (default): exit if NaNs encountered during iteration<br>
             FALSE: exit with <code>IterationFailed</code> **/
                                                     RunSafe,
+    /** TRUE if all tasks suceed.**/                succeed,
+                                                    warned,
 	/** Scratch space for value iteration. **/      VV,
 	/** Tolerance on value function convergence in
     stationary environments.  Default=10<sup>-5</sup>.**/	

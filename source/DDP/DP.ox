@@ -1194,9 +1194,9 @@ Task::list(span,inlows,inups) {
 **/
 Task::Traverse(span,lows,ups) {
 	if (Flags::UseStateList)
-        list(span,lows,ups);
+        return list(span,lows,ups);
 	else
- 		loop();
+ 		return loop();
 	}
 
 /** .

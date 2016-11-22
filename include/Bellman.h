@@ -107,6 +107,8 @@ EV = &sum;<sub>&epsilon;,&eta;</sub> [ V(&epsilon;,&eta;)*f(&epsilon;)f(&eta;)/&
 
 **/
 struct ExtremeValue : Bellman {
+    static const decl lowb = 0.9*DBL_MIN_E_EXP,
+                      hib = 0.9*DBL_MAX_E_EXP;
 	static decl
 		/** Choice prob smoothing &rho;.**/ rho,
 		/** Hotz-Miller estimation task.**/ HMQ;

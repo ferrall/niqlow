@@ -317,7 +317,11 @@ Objective::Encode(inX)  {
 		cur.V = constant(.NaN,NvfuncTerms,1);
 		}
 	Start = isint(inX) ? cur.X : inX;
-	if (sizer(Start)!=nstruct) oxrunerror("FiveO Error 31. Start vector not same length as Psi");
+	if (sizer(Start)!=nstruct) {
+        println("In vector as ",sizer(Start)," rows.  Psi has ",nstruct);
+        println("%r",PsiL,"%c",{"Read Values"},Start);
+        oxrunerror("FiveO Error 31. Start vector not same length as Psi");
+        }
     for (k=0;k<sizeof(Blocks);++k) Blocks[k].v = <>;
 	for (k=0,cur.X=<>,cur.F=<>,FinX=<>,nfree=0;k<nstruct;++k) {
 		Psi[k].start = Start[k];

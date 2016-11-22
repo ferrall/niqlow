@@ -228,7 +228,7 @@ FPanel::~FPanel() {
 @comments &gamma; region of state is masked out.
 **/
 FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
-	decl ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS, curg, Nstart=columns(ErgOrStateMat);
+	decl msucc=FALSE, ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS, curg, Nstart=columns(ErgOrStateMat);
 	if (N <= 0) oxrunerror("DDP Error 50a. First argument, panel size, must be positive");
     if (ii) {
 	   if (erg) {
@@ -244,7 +244,8 @@ FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
 	if (isclass(upddens)) upddens->SetFE(f);
     if (Flags::IsErgodic && !T) oxwarning("DDP Warning 08.\nSimulating ergodic paths without fixed Tmax?\nPath may be of unbounded length.");
 	cputime0 = timer();
-	if (isclass(method)) method->Solve(f);
+	if (isclass(method))
+        if (!method->Solve(f)) oxrunerror("DDP Error. Solution Method failed during simulation.");
 	cur = this;
 	do {		
 		curg = DrawGroup(f);
@@ -540,8 +541,7 @@ FPanel::LogLikelihood() {
 	decl i,cur;
 	cputime0 =timer();
 	if (isclass(method)) {
-        method->Solve(f);
-        if (method.done==IterationFailed) {
+        if (method->Solve(f)) {
 	       FPL = constant(.NaN,N,1);
            return ;
            }
@@ -1025,13 +1025,14 @@ Predictions are averaged over random effect groups.
 PathPrediction::Predict(inT,prtlevel){
     this.inT = inT;
     this.prtlevel = prtlevel;
-    if (Initialize()==IterationFailed) return IterationFailed;
+    if (!Initialize()) {return FALSE; }
 	if (isclass(summand))
 		[L,flat] = summand->Integrate(this);
 	else
 		PathObjective();
     if (Data::Volume>QUIET)
         fprintln(Data::logf,L,"%12.4f","%c",tlabels,flat);
+    return TRUE;
   }
 
 /** Add empirical values to a path of predicted values.
@@ -1068,6 +1069,8 @@ PathPrediction::Empirical(inNandMom,Nincluded,wght) {
             }
     if (wght && columns(inmom)!=columns(mask)) oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
     invsd = wght ? selectifc( 1.0 ./ setbounds(moments(inmom,2)[2][],0.1,+.Inf),mask) : 1.0; // 0.5,+.InF
+//    decl invmn = wght ? selectifc( 1.0 ./ setbounds(fabs(moments(inmom,2)[1][]),0.1,+.Inf),mask) : 1.0; // 0.5,+.InF
+//    println(inmom,"*",invmn,"**",inN);
     do {
         cur.W = (inN[t]/totN)*invsd;
         cur.readmom = inmom[t++][];
@@ -1382,11 +1385,10 @@ PathPrediction::Initialize() {
 		upddens->loop();
 		}
     if (isclass(method)) {
-        method->Solve(f);
-        if (method.done==IterationFailed) {
+        if (!method->Solve(f)) {
             L = -.Inf;
             flat = <>;
-            return IterationFailed;
+            return FALSE;
             }
         }
     return TRUE;
@@ -1394,7 +1396,7 @@ PathPrediction::Initialize() {
 
 /** Compute predictions and distance over the path. **/
 PathPrediction::PathObjective() {
-  decl done, pcode, anyfail=FALSE, delt =<>;
+  decl done, pcode, delt =<>;
   SetT();
   cur=this;
   flat = <>;
@@ -1402,10 +1404,6 @@ PathPrediction::PathObjective() {
   do {
      cur.predmom=<>;
      pcode = cur->Prediction::Predict(tlist);
-     if (pcode==IterationFailed) {
-        anyfail = TRUE;
-        pcode = FALSE;
-        }
      done =  pcode                               //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
 	 if (!done && !isclass(cur.pnext)) { // no tomorrow after current
@@ -1418,7 +1416,7 @@ PathPrediction::PathObjective() {
   	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
   oxwarning(-1);
   L = HasObservations ?
-                ( rows(delt)&&!anyfail ? norm(delt,'F') : +.Inf )
+                ( rows(delt) ? norm(delt,'F') : +.Inf )
                 : 0.0;
   if (Data::Volume>QUIET) {
     fprintln(Data::logf,I::r," ",L,
@@ -1441,7 +1439,7 @@ $$M = -\sqrt{ \sum_{n} dist(emp_n,pred_n)}$$
 </DD>
 **/
 PanelPrediction::Objective() {
-    Predict();
+    return Predict();
     }
 
 /** Set an object to be tracked in predictions.
@@ -1492,15 +1490,17 @@ PanelPrediction::PanelPrediction(r,method,iDist,wght) {
 
 **/
 PanelPrediction::Predict(T,prtlevel) {
-    decl cur=this;
+    decl cur=this, succ;
     aflat = {};
     M = 0.0;
+    succ = TRUE;
     do {
-        cur->PathPrediction::Predict(T,prtlevel);
+        succ = succ && cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
 	    aflat |= cur.f~cur.flat;
         } while((isclass(cur=cur.fnext)));
-    M = -sqrt(M);
+    M = succ ? -sqrt(M) : -.Inf;
+    return succ;
     }
 
 /** Track a single object that is matched to column in the data.
