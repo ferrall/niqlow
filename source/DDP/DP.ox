@@ -486,6 +486,10 @@ Alpha::SetFA(inAi) {
     }
 Alpha::ClearFA() { NFA = FAactual = FA = UnInitialized; }
 Alpha::AddA(fa) {
+    if (!ismatrix(fa)||rows(fa)!=rows(Sets[0])||columns(fa)>1 || ( sumc(fa.==1)+sumc(fa.==0) != rows(fa))  ) {
+        println("Invalid value returned by user FeasibleAction():",fa);
+        return Impossible;
+        }
     decl nfeas = int(sumc(fa)), ai=0;
     do { if (fa==Sets[ai]) {++Count[ai]; break;} } while (++ai<N::J);
     if (ai==N::J) {
@@ -830,7 +834,7 @@ DP::CreateSpaces() {
 			SubVectors[subv][m].pos = pos;
 			States |= SubVectors[subv][m];
 			sL = SubVectors[subv][m].L;
-			if (ismember(bb=SubVectors[subv][m],"block"))  			
+			if (( ismember(bb=SubVectors[subv][m],"block") ))  			
 				bb.block.Theta[bb.bpos] = pos;
             if (!sizeof(Labels::V[svar])) {
                 Labels::V[svar] = {sL};

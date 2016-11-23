@@ -242,7 +242,7 @@ struct xTrack : TrackObj {
 /** Predicted distribution across states.
 **/	
 struct 	Prediction : Data {
-	static	decl ud, lo, hi, LeakWarned;
+	static	decl ud, lo, hi, LeakWarned, PredictFailure;
 	const  	decl t;
 	decl
 		/** state index **/		             sind,

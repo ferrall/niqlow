@@ -190,6 +190,7 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
     if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions();
     GSolve::Volume = Volume;
     GSolve::vtoler = vtoler;
+    GSolve::succeed = TRUE;
     done = FALSE;
     if (Volume>QUIET) println("\n>>>>>>Value Iteration Starting");
 	if (Fgroups==AllFixed) this->GroupTask::loop();
@@ -201,7 +202,7 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
         }
     Hooks::Do(PostFESolve);
     Flags::HasBeenUpdated = FALSE;
-    if (Volume>QUIET) println("\n>>>>>>Value Iteration Finished\n");
+    if (Volume>QUIET) println("\n>>>>>>Value Iteration Finished.  Succeed: ",GSolve::succeed,"\n");
     return GSolve::succeed;
 	}
 

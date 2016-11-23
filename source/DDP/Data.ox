@@ -541,9 +541,10 @@ FPanel::LogLikelihood() {
 	decl i,cur;
 	cputime0 =timer();
 	if (isclass(method)) {
-        if (method->Solve(f)) {
+        if (!method->Solve(f)) {
+           println("#### Solve says fail");
 	       FPL = constant(.NaN,N,1);
-           return ;
+           return FALSE;
            }
         }
     else
@@ -558,6 +559,7 @@ FPanel::LogLikelihood() {
 		if (FullyObserved) cur->Path::FullLikelihood(); else cur->Path::Likelihood();
 		FPL[i] = log(cur.L);
 		}
+    return TRUE;
 	}
 
 
@@ -569,13 +571,16 @@ is called.
 @see DataSet::EconometricObjective
 **/
 Panel::LogLikelihood() {
+    decl succ;
 	cur = this;
 	M = <>;	
+    succ = TRUE;
 	if (!isclass(method) && Flags::UpdateTime[OnlyOnce]) ETT->Transitions(state);
 	do {
-		cur->FPanel::LogLikelihood();
+		succ = succ && cur->FPanel::LogLikelihood();
 		M |= cur.FPL;
 		} while ((isclass(cur=cur.fnext)));
+    return succ;
 	}
 
 Path::Mask() {		
@@ -722,9 +727,7 @@ Outcome::AccountForUnobservables() {
 			}					
 	ind[onlyacts] = new array[N::J];
 	s = 0;
-    println("** ",s,ind[tracking][]);
   	do {
-        println(" ",s);
 		if (( (myA = GetAind(ind[tracking][s]))!=NoMatch )) {
 			ai =  A[myA]*SS[onlyacts].O;	 // indices of feasible acts
 			myi = selectifr( A[myA],prodr((A[myA] .== act) + isdotnan(act)) )
@@ -934,7 +937,10 @@ Prediction::Predict(tlist) {
                 I::all[tracking] = q; // I::OO[tracking][]*state;
                 SyncStates(lo,hi);
                 Alpha::SetFA(I::curth.Aind);
-                if ( I::curth->Predict(this) ) return IterationFailed;
+                if ( I::curth->Predict(this) ) {
+                        PredictFailure = TRUE;
+                        return TRUE;
+                        }
                 for (k=0;k<Ntr;++k) tlist[k]->Distribution(this);
                 allterm *= I::curth.IsTerminal || I::curth.IsLast;
                 }
@@ -1012,7 +1018,7 @@ PathPrediction::SetT() {
 @param inT <em>integer</em> length of the path<br>0 (default) : predict only for existing predictions on the Path.<br>
 If existing path is longer than inT (and inT &gt; 0) then extra predictions are deleted.
 @param prtlevel Zero [default] do not print<br>One print state and choice probabilities<br>Two print predictions
-@return IterationFailed if method solution fails, otherwise TRUE
+@return TRUE if everything succeeds<br/>FALSE if either the solution method or the prediction fails
 
 Predictions are averaged over random effect groups.
 
@@ -1025,14 +1031,14 @@ Predictions are averaged over random effect groups.
 PathPrediction::Predict(inT,prtlevel){
     this.inT = inT;
     this.prtlevel = prtlevel;
-    if (!Initialize()) {return FALSE; }
+    if (!Initialize()) { return FALSE; }
 	if (isclass(summand))
 		[L,flat] = summand->Integrate(this);
 	else
 		PathObjective();
     if (Data::Volume>QUIET)
         fprintln(Data::logf,L,"%12.4f","%c",tlabels,flat);
-    return TRUE;
+    return !PredictFailure;
   }
 
 /** Add empirical values to a path of predicted values.
@@ -1377,6 +1383,7 @@ PathPrediction::SetColumns(dlabels,Nplace) {
 
 PathPrediction::Initialize() {
     EverPredicted = TRUE;
+    PredictFailure = FALSE;
     //foreach
     decl t;
     for (t=0;t<sizeof(tlist);++t) tlist[t]->Update();
@@ -1406,6 +1413,7 @@ PathPrediction::PathObjective() {
      pcode = cur->Prediction::Predict(tlist);
      done =  pcode                               //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
+     if (PredictFailure) break;
 	 if (!done && !isclass(cur.pnext)) { // no tomorrow after current
                 cur.pnext = new Prediction(cur.t+1);
                 ++this.T;
@@ -1416,13 +1424,13 @@ PathPrediction::PathObjective() {
   	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
   oxwarning(-1);
   L = HasObservations ?
-                ( rows(delt) ? norm(delt,'F') : +.Inf )
+                ( rows(delt)&&(!PredictFailure) ? norm(delt,'F') : +.Inf )
                 : 0.0;
   if (Data::Volume>QUIET) {
-    fprintln(Data::logf,I::r," ",L,
+    fprintln(Data::logf,I::r," ",L," Fail:",PredictFailure,
         "%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat~delt);
     }
-  if (prtlevel) println("f=",I::f,"r=",I::r,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat);
+  if (prtlevel) println("f=",I::f,"r=",I::r," Fail:",PredictFailure,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat);
   return flat|constant(.NaN,this.T-rows(flat),columns(flat));  //added Oct. 2017 so terminal outcomes still work
   }
 

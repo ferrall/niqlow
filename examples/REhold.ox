@@ -8,6 +8,7 @@ RustEstimates::DoAll() {
 	toglist = ZurcherHat::FirstStage(0);
 	EMax = new ValueIteration(0);
 	EMax.vtoler = 1E-01;
+
 	buses = new BusData(EMax);
 	nfxp = new PanelBB("ZurcherMLE",buses,ZurcherHat::hat);
 	nfxp.Volume = LOUD;
@@ -71,7 +72,7 @@ BusData::BusData(method) {
 /** Return U() at estimated (<q>hat</q>) parameter values. **/
 ZurcherHat::Utility()  {
 	decl rep = Alpha::CV(d);
-    return   -(rep*CV(hat[RC]) + (1-rep)*CV(hat[theta1])*mfact*CV(x))
+	return   -(rep*CV(hat[RC]) + (1-rep)*CV(hat[theta1])*mfact*CV(x))
 			 +normalization;	// added to avoid exp() underflow for delta near 1.0
 	}
 	

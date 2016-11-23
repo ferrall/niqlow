@@ -87,6 +87,10 @@ Bellman::Bellman(state,picked) {
   IsLast = counter->Last();
   Aind = 0; //initializing this means aa() will work.
   Aind = Alpha::AddA(IsTerminal ? 1|zeros(N::Options[0]-1,1) : FeasibleActions());
+  if (Aind==Impossible) {
+        println("Error occurs at state vector: ","%cf","%7.0f","%c",Labels::Vprt[svar],state');
+        oxrunerror("DDP Error ??.  Improper FeasibleAction() return");
+        }
   InSubSample = UnInitialized;
   pandv = new array[N::R];
   Allocate(picked);

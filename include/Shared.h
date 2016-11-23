@@ -66,7 +66,6 @@ static const decl
 	prefix(pfx, s);
 	GaussianKernel(X,h=UseDefault);
     Epanechnikov(X,h);
-    ToggleParams(a,...);
     FLogit(x);
     RowLogit(x,rho=1.0);
     ColLogit(x,rho=1.0);

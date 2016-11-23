@@ -263,6 +263,7 @@ of the economic parameters not the free-to-vary optimization parameters.
 **/
 Objective::ToggleParameterConstraint()	{
 	Parameter::DoNotConstrain = !Parameter::DoNotConstrain;
+    this->Recode(FALSE);
 	}
 
 /** @internal **/ Objective::dFiniteDiff0(x) {   return maxr( (fabs(x) + SQRT_EPS) * DIFF_EPS  ~ SQRT_EPS);  }
@@ -292,6 +293,37 @@ Objective::Decode(F)	{
 //	return cur.X;
 	}
 
+/** Toggle DoNotVary for one or more parameters.
+@param a `Parameter` or array of parameters
+@param ... more parameters or array of parameters.
+**/
+Objective::ToggleParams(a,...) {
+    decl v, va = va_arglist()|a;
+	foreach (v in va) {
+        if (isarray(v)) ToggleParams(v);
+        else
+            v->ToggleDoNotVary();
+        }
+    this->Recode(FALSE);
+    }
+
+/**Reset the free parameter vector and the complete structural parameter vector.
+@param HardCode  TRUE=hard-coded parameter values used.<br/>FALSE [default] Start vector used
+Must be called anytime a change in constraints is made.  So it is called by `Objective::Encode`()
+and `Objective::Reinitialize`()
+**/
+Objective::Recode(HardCode) {
+	decl k,f;
+    for (k=0;k<sizeof(Blocks);++k) Blocks[k].v = <>;
+	for (k=0,cur.X=<>,cur.F=<>,FinX=<>,nfree=0;k<nstruct;++k) {
+		Psi[k].start = Start[k];
+		f = HardCode ? Psi[k]->ReInitialize() : Psi[k]->Encode();
+		if (!isnan(f)) {cur.F |= f;  FinX |= k; if (nfree++) Flabels|= PsiL[k]; else Flabels = {PsiL[k]}; }
+		cur.X |= Psi[k].v;
+		if (!isint(Psi[k].block)) Psi[k].block.v |= Psi[k].v;
+		}
+    }
+
 /** Encode vector of structural parameters.
 @param inX 0 [default] get new starting values from the parameters<br>a vector, new starting values.
 
@@ -304,10 +336,9 @@ Objective::Decode(F)	{
            <DD>If this.X already has elements then this is not the first call to <code>Encode()</code> and starting values will be retrieved from the current values of
 		   parameters.</DD>
 
-@see Objective::nfree, Objective::nstruct, Objective::FinX
+@see Objective::Recode, Objective::nfree, Objective::nstruct, Objective::FinX
 **/
 Objective::Encode(inX)  {
-	decl k,f;
    	if (!once) {
 		nstruct=sizeof(Psi); once = TRUE;
 		if (NvfuncTerms==UnInitialized) {
@@ -322,14 +353,7 @@ Objective::Encode(inX)  {
         println("%r",PsiL,"%c",{"Read Values"},Start);
         oxrunerror("FiveO Error 31. Start vector not same length as Psi");
         }
-    for (k=0;k<sizeof(Blocks);++k) Blocks[k].v = <>;
-	for (k=0,cur.X=<>,cur.F=<>,FinX=<>,nfree=0;k<nstruct;++k) {
-		Psi[k].start = Start[k];
-		f = Psi[k]->Encode();
-		if (!isnan(f)) {cur.F |= f;  FinX |= k; if (nfree++) Flabels|= PsiL[k]; else Flabels = {PsiL[k]}; }
-		cur.X |= Psi[k].v;
-		if (!isint(Psi[k].block)) Psi[k].block.v |= Psi[k].v;
-		}
+    this->Recode(FALSE);
 	}
 
 /** Revert all parameters to their hard-coded initial values.
@@ -347,16 +371,8 @@ for the first time.
 
 **/
 Objective::ReInitialize() {
-	decl k,f;
    	if (!once) oxrunerror("FiveO Error 32. Cannot ReInitialize() objective parameters before calling Encode() at least once.");
-    for (k=0;k<sizeof(Blocks);++k) Blocks[k].v = <>;
-	for (k=0,cur.X=<>,cur.F=<>,FinX=<>,nfree=0;k<nstruct;++k) {
-		f = Psi[k]->ReInitialize();
-		cur.F |= f;  FinX |= k;
-        if (nfree++) Flabels|= PsiL[k]; else Flabels = {PsiL[k]};
-		cur.X |= Psi[k].v;
-		if (!isint(Psi[k].block)) Psi[k].block.v |= Psi[k].v;
-		}
+    this->Recode(TRUE);
 	Start = cur.X;
     ResetMax();
     Save();
@@ -499,6 +515,7 @@ Objective::Jacobian() {
 	cur -> Copy(hold);
 	Decode(0);
 	cur.J = (GradMat[][:nfree-1] - GradMat[][nfree:])./(2*h');
+	if (Volume>LOUD) fprintln(logf,"Gradient/Jacobian Calculation ",nfree," ",NvfuncTerms,"%15.10f","%c",{"h","fore","back","diff"},"%r",PsiL[FinX],h~(GradMat[][:nfree-1]'~(GradMat[][nfree:]')),"Jacob",cur.J');
 	}
 	
 /** Compute the &nabla;f(), objective's gradient at the current vector.
@@ -511,7 +528,7 @@ Stored in <code>cur.G</code>
 Objective::Gradient() {
 	this->Jacobian();
 	cur.G = sumc(cur.J);
-    if (Volume>QUIET) println(logf,"Gradient: ",cur.G);
+    if (Volume>QUIET) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
 	}
 
 /** Compute the &nabla;f(), objective's gradient at the current vector.

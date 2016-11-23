@@ -319,19 +319,6 @@ Parameter::Menu() {
  }
 
 
-/** Toggle DoNotVary for one or more parameters.
-@param a `Parameter` or array of parameters
-@param ... more parameters or array of parameters.
-**/
-ToggleParams(a,...) {
-    decl v, va = va_arglist()|a;
-	foreach (v in va) {
-        if (isarray(v)) ToggleParams(v);
-        else
-            v->ToggleDoNotVary();
-        }
-    }
-
 /** Print a number of spaces.**/
 Indent(depth) { decl i; for(i=0;i<depth;++i) print(" "); }
 	

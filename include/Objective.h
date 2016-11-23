@@ -52,9 +52,11 @@ struct Objective	{
 	static 	dFiniteDiff0(x);
 	static 	dFiniteDiff1(x);
 	static 	dFiniteDiff2(x);
-	static	ToggleParameterConstraint();
     static  SetVersion(v=200);
-			
+
+	        ToggleParameterConstraint();
+    virtual Recode(HardCode=FALSE);
+	virtual	ToggleParams(a,...);
 	virtual	CheckMax(fn=0);
 	virtual Print(orig,fn=0,toscreen=TRUE);
 	virtual	CheckPoint(f,saving);
