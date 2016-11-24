@@ -241,8 +241,7 @@ LineMax::PTry(pt,left,right) {
     pt.step = steps[best];
     pt.v = OC.v;
     if (StorePath) path ~= OC.F;
-	improved = O->CheckMax() || improved;
-    println("Exiting PTry ",best," ",improved);
+	improved = O.newmax || improved;  //eliminated CheckMax because it is called in funclist
     }
     	
 /** .

@@ -26,9 +26,10 @@ struct Objective	{
 	/** . internal **/											Warned;
 	decl
     /** log file **/                                            logf,
+    /** Set in CheckMax(), TRUE if latest check was new max.**/ newmax,
     /** TRUE (default): exit if NaNs encountered during iteration<br>
             FALSE: exit with <code>IterationFailed</code> **/
-                                                            RunSafe,
+                                                                RunSafe,
 	/** the P2P object for using MPI **/					    p2p,
 	/** Initial vector after Encode() **/						Start,
 	/** TRUE if encoded once **/								once,

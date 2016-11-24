@@ -426,7 +426,7 @@ Outcome::FullLikelihood() {
 /** Integrate over the path.
 
 **/
-Path::PathObjective() {
+Path::TypeContribution() {
 	decl cur, glk;
 	now = NOW;
 	viinds[!now] = vilikes[!now] = <>;
@@ -450,18 +450,15 @@ RandomEffectsIntegration::Integrate(path) {
 	this.path = path;
 	L = 0.0;
     flat = 0;
+    first = TRUE;
 	loop();
 	return {L,flat};
 	}
 	
 RandomEffectsIntegration::Run() {
-    decl pf =path->PathObjective();
-    if (isint(flat))
-        flat = curREdensity*pf;
-    else
-        flat += curREdensity*pf;
-	L += curREdensity*path.L;	
-    if (Data::Volume>LOUD) fprintln(Data::logf,"## ",I::r," ",I::rtran," ",curREdensity," ",path.L," ",L);
+    path->TypeContribution(first,curREdensity);
+    first = FALSE;
+    //if (isint(flat))        flat = curREdensity*pf;    else        flat += curREdensity*pf;
 	}
 	
 /** Compute likelihood of a realized path.
@@ -474,7 +471,7 @@ Path::Likelihood() {
 	if (isclass(summand))
 		[L,flat] = summand->Integrate(this);
 	else
-		PathObjective();
+		TypeContribution();
 	}
 
 /** Integrate over a fully observed path.
@@ -907,7 +904,6 @@ DataSet::~DataSet() {
 	}
 
 /** Compute the predicted distribution of actions and states.
-This is called by `PathPrediction::PathObjective`.
 Average values of tracked objects are stored in `Predict::predmom`
 Transitions to unreachable states is tracked and logged in the Data logfile.
 
@@ -1033,12 +1029,28 @@ PathPrediction::Predict(inT,prtlevel){
     this.prtlevel = prtlevel;
     if (!Initialize()) { return FALSE; }
 	if (isclass(summand))
-		[L,flat] = summand->Integrate(this);
+		summand->Integrate(this);
 	else
-		PathObjective();
-    if (Data::Volume>QUIET)
-        fprintln(Data::logf,L,"%12.4f","%c",tlabels,flat);
-    return !PredictFailure;
+		TypeContribution(TRUE,1.0);
+    if (PredictFailure) {
+        L = +.Inf;
+        return FALSE;
+        }
+    else {
+        decl delt =<>;
+        flat = <>;
+        cur=this;
+        do {
+            flat |= cur.t~cur.accmom;
+            if (HasObservations) delt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+            cur = cur.pnext;
+  	        } while(isclass(cur));
+        L = rows(delt) ? norm(delt,'F') : 0.0;
+        if (Data::Volume>QUIET)
+            fprintln(Data::logf," ",L,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat~delt);
+        flat |= constant(.NaN,this.T-rows(flat),columns(flat));
+        return TRUE;
+        }
   }
 
 /** Add empirical values to a path of predicted values.
@@ -1111,7 +1123,7 @@ PathPrediction::InitialConditions() {
         iDist(this);
     else
         oxrunerror("DDP Error 64. iDist must be integer, vector, function or Prediction object");
-    if (Data::Volume>QUIET) fprintln(Data::logf,"Path for Group ",f,". Initial State Indices & Prob.","%r",{"Ind.","prob."},(sind~p)',"----");
+    if (Data::Volume>LOUD) fprintln(Data::logf,"Path for Group ",f,". Initial State Indices & Prob.","%r",{"Ind.","prob."},(sind~p)',"----");
     ch[] = 0.0;
     LeakWarned = FALSE;
     }
@@ -1227,7 +1239,7 @@ Prediction::Histogram(tlist,printit) {
 **/
 Prediction::Delta(mask,printit,tlabels) {
     decl df;
-    decl mv = selectifc(predmom,mask);
+    decl mv = selectifc(accmom,mask);
     if (!ismatrix(empmom))  // if no data difference is zero.
         return zeros(mv);
     df = isdotnan(empmom)           //find missing empirical moments
@@ -1401,13 +1413,12 @@ PathPrediction::Initialize() {
     return TRUE;
     }
 
+
 /** Compute predictions and distance over the path. **/
-PathPrediction::PathObjective() {
-  decl done, pcode, delt =<>;
+PathPrediction::TypeContribution(first,pf) {
+  decl done, pcode;
   SetT();
   cur=this;
-  flat = <>;
-  oxwarning(0);
   do {
      cur.predmom=<>;
      pcode = cur->Prediction::Predict(tlist);
@@ -1418,20 +1429,14 @@ PathPrediction::PathObjective() {
                 cur.pnext = new Prediction(cur.t+1);
                 ++this.T;
                 }
-     flat |= cur.t~cur.predmom;
-     if (HasObservations) delt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+     if (first)
+        cur.accmom = pf*cur.predmom;
+     else
+        cur.accmom += pf*cur.predmom;
      cur = cur.pnext;
   	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
-  oxwarning(-1);
-  L = HasObservations ?
-                ( rows(delt)&&(!PredictFailure) ? norm(delt,'F') : +.Inf )
-                : 0.0;
-  if (Data::Volume>QUIET) {
-    fprintln(Data::logf,I::r," ",L," Fail:",PredictFailure,
-        "%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat~delt);
-    }
-  if (prtlevel) println("f=",I::f,"r=",I::r," Fail:",PredictFailure,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat);
-  return flat|constant(.NaN,this.T-rows(flat),columns(flat));  //added Oct. 2017 so terminal outcomes still work
+//  if (prtlevel) println("f=",I::f,"r=",I::r," Fail:",PredictFailure,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat);
+//  return flat|constant(.NaN,this.T-rows(flat),columns(flat));  //added Oct. 2017 so terminal outcomes still work
   }
 
 /** Produce histograms and mean predictions for all paths in the panel.

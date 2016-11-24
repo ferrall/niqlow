@@ -176,21 +176,20 @@ Constrained::CheckPoint(f,saving)	{
 @return TRUE if maxval was updated<br>FALSE otherwise.
 **/
 Objective::CheckMax(fn)	{
-        decl newx = cur.v>maxpt.v;
-        if (Volume>QUIET) {
-            fprint(logf,cur.v,newx ? " " : "*\n");
-		    if (Volume>LOUD) { print(" ","%15.8f",cur.v); if (isfile(fn)) fprint(fn," ","%15.8f",cur.v); }
-            }
-		if (newx)	{
-			this->Save(0);
-			maxpt -> Copy(cur);
-			if (Volume>QUIET) {
-				if (Volume<=LOUD) print(" ","%18.12f",maxpt.v);
-				println("*"); if (isfile(fn)) fprintln(fn,"*");
-				}
- 			return TRUE;
+    newmax = cur.v>maxpt.v;
+    if (Volume>QUIET) {
+        fprint(logf,cur.v,newmax ? " " : "*\n");
+		 if (Volume>LOUD) { print(" ","%15.8f",cur.v); if (isfile(fn)) fprint(fn," ","%15.8f",cur.v); }
+        }
+	if (newmax)	{
+		this->Save(0);
+		maxpt -> Copy(cur);
+		if (Volume>QUIET) {
+			if (Volume<=LOUD) print(" ","%18.12f",maxpt.v);
+			println("*"); if (isfile(fn)) fprintln(fn,"*");
 			}
-		return FALSE;
+		}
+	return newmax;
 	}
 
 	

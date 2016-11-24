@@ -66,6 +66,7 @@ struct Path : Outcome {
 	virtual	Simulate(T,UseChoiceProb=TRUE,DropTerminal=FALSE);
 	        Likelihood();
 			FullLikelihood();
+            TypeContribution();
 			PathObjective();
 			ReadObs(data);
 			Mask();
@@ -76,7 +77,7 @@ struct Path : Outcome {
 	}
 
 struct RandomEffectsIntegration : RETask {
-	decl path, L, flat;
+	decl path, L, flat, first;
 	RandomEffectsIntegration();
 	Integrate(path);
 	Run();
@@ -252,6 +253,7 @@ struct 	Prediction : Data {
         /** current ch. prob.**/            chq,
         /** current p. **/                  pq,
         /** masked weight to put on distance.**/        W,
+        /** accumulated predicted moments across r **/  accmom,
         /** (unmasked) predicted moment vector**/       predmom,
         /** (unmasked) empirical moments. **/           readmom,
         /** used (masked) empiricalmoments.**/          empmom,
@@ -295,7 +297,7 @@ struct 	PathPrediction : Prediction {
     Empirical(inmoments,Nincluded=FALSE,wght=TRUE);
     Tracking(LorC,...);
     SetColumns(dlabels,Nplace=UnInitialized);
-    PathObjective();
+    TypeContribution(first=TRUE,pf=1.0);
 	}
 
 struct PanelPrediction : PathPrediction {
