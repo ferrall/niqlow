@@ -18,29 +18,29 @@ ObjServer::ObjServer(obj) {
     this.obj = obj;	
     basetag = P2P::STOP_TAG+1;
     iml = obj.NvfuncTerms;
-    Nparams = obj.nstruct;
+    Nstruct = obj.nstruct;
     }
 
 /** Wait on the objective client.
 **/
 ObjServer::Loop(nxtmsgsz) {
-    Nparams = nxtmsgsz;   //free param length is no greater than Nparams
-    if (Volume>QUIET) println("ObjServer server ",ID," Nparams ",Nparams);
-    Server::Loop(Nparams);
+    Nfree = nxtmsgsz;   //current free param length sent from algorithm
+    if (Volume>QUIET) println("ObjServer server ",ID," Nfree= ",Nfree);
+    Server::Loop(Nfree);
     Recv(ANY_TAG);                      //receive the ending parameter vector
-    obj->Encode(Buffer[:Nparams-1]);   //encode it.
+    obj->Encode(Buffer[:Nstruct-1]);   //encode it.
     }
 
 /** Do the objective evaluation.
 Receive structural parameter vector and `Objective::Encode`() it.
 Call `Objective::vfunc`().
-@return Nparams (max. length of next expected message);
+@return Nstruct (max. length of next expected message);
 **/
 ObjServer::Execute() {
 	obj->Decode(Buffer[:obj.nfree-1]);
 	Buffer = obj.cur.V[] = obj->vfunc();
     if (Volume>QUIET) println("Server Executive: ",ID," vfunc[0]= ",Buffer[0]);
-	return obj.nstruct;
+	return Nstruct;
 	}
 
 CstrServer::CstrServer(obj) { ObjServer(obj);	}

@@ -22,7 +22,7 @@ struct ObjServer : Server {
 	const decl
     /** Objective. **/    obj,	
                           basetag;
-    decl Nparams;
+    decl Nfree, Nstruct;
 	ObjServer(obj);
     Loop(nxtmsgsz);
 	virtual Execute();
