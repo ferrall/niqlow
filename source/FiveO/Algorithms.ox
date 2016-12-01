@@ -438,7 +438,7 @@ NelderMead::Reflect(fac) 	{
 	tries = fac1.*psum - (fac1-fac).*nodeX[][mni];
 	O->funclist(tries,&Vtries,&vtries,&best);
 	ftry = vtries[best];
-    ptry = tries[best];
+    ptry = tries[][best];
     }
 	++n_func;
     atry = (ftry<nodeV[mni])
