@@ -159,6 +159,7 @@ SimulatedAnnealing::Iterate(chol)	{
 		  Metropolis();
           if (M>1 && accept>acc0) {
             tries = OC.F + rann(1,M).*(vec0-OC.F);
+            if (Volume>=LOUD) fprintln(logf,"Line Search",(vec0-OC.F)');
 	        O->funclist(tries,&Vtries,&vtries);
 		    Metropolis();
             }
