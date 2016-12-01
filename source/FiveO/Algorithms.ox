@@ -236,7 +236,6 @@ LineMax::PTry(pt,left,right) {
         Vtries=zeros(O.NvfuncTerms,M),
         vtries,
         tries = holdF + Delta.*steps;
-    println("in PTry ",steps);
 	O->funclist(tries,&Vtries,&vtries,&best);
     pt.step = steps[best];
     pt.v = OC.v;
@@ -421,15 +420,28 @@ NelderMead::Iterate(iplex)	{
 @param fac factor
 **/
 NelderMead::Reflect(fac) 	{
-    decl fac1, ptry, ftry;
+  decl fac1, ptry, ftry;
+  if (!isclass(O.p2p)) {
 	fac1 = (1.0-fac)/N;
 	ptry = fac1*psum - (fac1-fac)*nodeX[][mni];
 	O->fobj(ptry);
     if (StorePath) path ~= OC.F;
     O->CheckMax();
 	ftry = OC.v;
+    }
+ else {
+    decl M = O.p2p.MaxSimJobs,
+    facs = fac*exp(range(-1,1,2/M)),
+    Vtries=zeros(O.NvfuncTerms,M), best,
+    vtries, tries;
+    fac1 = (1-facs)/N;
+	tries = fac1.*psum - (fac1-fac).*nodeX[][mni];
+	O->funclist(tries,&Vtries,&vtries,&best);
+	ftry = vtries[best];
+    ptry = tries[best];
+    }
 	++n_func;
-	atry = (ftry<nodeV[mni])
+    atry = (ftry<nodeV[mni])
 					? worst
 					: (ftry > nodeV[mxi])
 					    ? hi
