@@ -138,6 +138,7 @@ SimulatedAnnealing::Metropolis()	{
 SimulatedAnnealing::Iterate(chol)	{
     if (!ItStartCheck()) return;
     if (IIterate) {  //MPI not running or I am the Client Node
+        decl vec0, acc0;
        inp = isclass(O.p2p);
        M = inp ? O.p2p.MaxSimJobs : 1;
        Vtries=zeros(O.NvfuncTerms,M);
@@ -153,8 +154,14 @@ SimulatedAnnealing::Iterate(chol)	{
        if (Volume>=LOUD) fprint(logf,"%r",{"#"},"%c",{"i","j","delt","prob.","v","x vals"},"%cf",{"%5.0f","%3.0f","%12.5g"},-1~0~0.0~0.0~holdpt.v~(holdpt.step'));
 	   do  {
           tries = holdpt.step + this.chol*rann(N,M);
+          vec0 = holdpt.step; acc0 = accept;
 	      O->funclist(tries,&Vtries,&vtries);
 		  Metropolis();
+          if (M>1 && accept>acc0) {
+            tries = OC.F + rann(1,M).*(vec0-OC.F);
+	        O->funclist(tries,&Vtries,&vtries);
+		    Metropolis();
+            }
           if (StorePath) path ~= OC.F;
 		} while (iter++<maxiter);
 	   O->Decode(0);
