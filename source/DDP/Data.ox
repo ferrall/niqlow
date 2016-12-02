@@ -1047,7 +1047,9 @@ PathPrediction::Predict(inT,prtlevel){
   	        } while(isclass(cur));
         L = rows(delt) ? norm(delt,'F') : 0.0;
         if (Data::Volume>QUIET)
-            fprintln(Data::logf," ",L,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat~delt);
+            fprintln(Data::logf," Predicted Moments ",L,
+                    "%c",tlabels,"%cf",{"5.0f","%12.4f"},flat,
+                    "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",tlabels[1:],delt);
         flat |= constant(.NaN,this.T-rows(flat),columns(flat));
         return TRUE;
         }
