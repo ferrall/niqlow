@@ -83,22 +83,29 @@ ValueIteration::Run(){
 	cputime0 = timer();
     if (Volume>SILENT && N::F>1) print("f=",I::f);
 
-    itask->SetFE(state);
-    done = done || itask->GroupTask::loop();
-    if (DPDebug::OutAll)  DPDebug::RunOut();
-    else {
-        if (GSolve::Volume>SILENT) {
-           if (N::G>1) println("X");
-	       if (GSolve::Volume>QUIET) DPDebug::outV(TRUE);
-          }
+    if (Rgroups==AllRand) {
+        itask->SetFE(state);
+        done = done || itask->GroupTask::loop();
+        if (DPDebug::OutAll)  DPDebug::RunOut();
+        else {
+            if (GSolve::Volume>SILENT) {
+                if (N::G>1) println("X");
+	            if (GSolve::Volume>QUIET) DPDebug::outV(TRUE);
+                }
+            }
+        Hooks::Do(PostRESolve);
         }
-    Hooks::Do(PostRESolve);
+    else {
+        itask->SetRE(state,Rgroups);
+        done = done || itask->Run();
+        }
 	}
 
 RandomSolve::RandomSolve(gtask) {	
     RETask();	
     itask = gtask;
     }
+
 
 /** Apply the solution method for the current fixed values.
 
@@ -157,7 +164,7 @@ GSolve::ZeroTprime() { state[counter.tprime.pos] = 0; }
 /** The function (method) that actually applies the DP Method to all problems (over fixed and random effect groups).
 This is the default value that does nothing.  It should be replaced by code for the solution method.
 **/
-Method::Solve(Fgroups,MaxTrips) {    oxwarning("DDP Warning 21.\n User code has called the default Solve() function for Method.\n  Does not do anything.\n");    }
+Method::Solve(Fgroups,Rgroups,MaxTrips) {    oxwarning("DDP Warning 21.\n User code has called the default Solve() function for Method.\n  Does not do anything.\n");    }
 
 /** The function (method) that applies the method to a particular problem.
 This is the default value that does nothing.  It should be replaced by code for the solution method.
@@ -180,7 +187,7 @@ cannot be used after the solution is complete.  `Bellman::EV` stores the result 
 Results are integrated over random effects, but results across fixed effects are overwritten.<br>
 Choice probabilities are stored in `Bellman::pandv` by random group index
 **/
-ValueIteration::Solve(Fgroups,MaxTrips) 	{
+ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
     decl glo, ghi, g;
    	if (isint(delta))
         oxwarning("DDP Warning 23.\n User code has not set the discount factor yet.\n Setting it to default value of "+sprint(SetDelta(0.90))+"\n");
@@ -193,11 +200,16 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
     GSolve::succeed = TRUE;
     done = FALSE;
     if (Volume>QUIET) println("\n>>>>>>Value Iteration Starting");
-	if (Fgroups==AllFixed) this->GroupTask::loop();
+	if (Fgroups==AllFixed) {
+        if (Rgroups!=AllRand) oxwarning("DDP Warning: Must solve all random groups if solving All Fixed");
+        this.Rgroups = AllRand;
+        this->GroupTask::loop();
+        }
     else {
         state = ReverseState(Fgroups,I::OO[onlyfixed][]);
         SyncStates(left,right);
         I::Set(state,TRUE);
+        this.Rgroups = Rgroups;
         this->Run();
         }
     Hooks::Do(PostFESolve);
@@ -311,7 +323,7 @@ KWEMax::Run() {
 		I::curth->ActVal(meth.VV[I::later]);
 		meth.VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
 		if (!onlypass)
-			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[I::r][][I::MESind])');
+			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])'); //NoR! [I::r]
 		}
     else if (!inss) {
 		itask.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
@@ -416,13 +428,13 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
 	}
 	
 KWEMax::InSample(){
-	meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[I::r][][I::MESind])');
+	meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])'); //NoR! [I::r]
 	}
 
 	
 KWEMax::OutSample() {
 	I::curth->MedianActVal(meth.VV[I::later]);
-	meth->Specification(PredictEV,V[0],(V[0]-I::curth.pandv[I::r])');
+	meth->Specification(PredictEV,V[0],(V[0]-I::curth.pandv)'); //NoR [I::r]
 	}
 	
 /** Create a Hotz-Miller solution method.
@@ -506,7 +518,7 @@ CCPspace::Run() {
 	   nom =  itask.ObsPstar[I::f].*itask.Kernel[ii][],
 	   p = sumr(nom/dnom);
 	   p[0] = 1-sumc(p[1:]);
-       I::curth.pandv[0][] = p;
+       I::curth.pandv[] = p; //NoR! [0]
        I::curth->ExogUtil();    //.U[]=th->Utility();
 	   itask.Q[I::f][ii] = p'*(I::curth.U+M_EULER-log(p));
 //       println(ii," ",qtask.Q[I::f][ii]);

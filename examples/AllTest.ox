@@ -272,7 +272,7 @@ Test9::Run()	{
 Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + AV(sk)*CV(p)*Alpha::CV(a)) + (3-I::t); 	}	
 
 Test10::Uz(z)        { return eta | z;	}
-Test10::Utility()    { decl dv =Alpha::CV(d); return eta*(1-dv) + zstar[I::r]*dv;	}
+Test10::Utility()    { decl dv =Alpha::CV(d); return eta*(1-dv) + zstar/*NoR![I::r]*/*dv;	}
 
 Test10::Run()	{
 	Initialize(new Test10());
@@ -295,6 +295,6 @@ Use Mill's ratio to compute truncated mean of normal.
 @return Array of two vectors
 **/	
 Test10::EUtility()    {
-	decl pstar = 1-probn(zstar[I::r]);
-	return {  ( eta | densn(zstar[I::r])/pstar) , (1-pstar)~pstar};
+	decl pstar = 1-probn(zstar); /*NoR![I::r]*/
+	return {  ( eta | densn(zstar/pstar)) , (1-pstar)~pstar}; /*NoR![I::r])*/
 	}	

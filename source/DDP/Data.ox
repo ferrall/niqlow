@@ -228,7 +228,7 @@ FPanel::~FPanel() {
 @comments &gamma; region of state is masked out.
 **/
 FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
-	decl msucc=FALSE, ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS, curg, Nstart=columns(ErgOrStateMat);
+	decl msucc=FALSE, ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS, curg, Nstart=columns(ErgOrStateMat), rvals, curr, i;
 	if (N <= 0) oxrunerror("DDP Error 50a. First argument, panel size, must be positive");
     if (ii) {
 	   if (erg) {
@@ -241,25 +241,33 @@ FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
            iS = ReverseState(iS,I::OO[tracking][]);
            }
         }
-	if (isclass(upddens)) upddens->SetFE(f);
+	if (isclass(upddens)) {
+        upddens->SetFE(f);
+        rvals = DrawFsamp(f,N);
+        }
+    else rvals = matrix(N);
     if (Flags::IsErgodic && !T) oxwarning("DDP Warning 08.\nSimulating ergodic paths without fixed Tmax?\nPath may be of unbounded length.");
 	cputime0 = timer();
-	if (isclass(method))
-        if (!method->Solve(f)) oxrunerror("DDP Error. Solution Method failed during simulation.");
 	cur = this;
-	do {		
-		curg = DrawGroup(f);
-		cur.state = curg.state;
-		cur.state += (erg) ? curg->DrawfromStationary()
+    for (curr=0;curr<columns(rvals);++curr) {
+        if (!rvals[curr]) continue;  // no observations
+	    if (isclass(method))
+            if (!method->Solve(f,curr)) oxrunerror("DDP Error. Solution Method failed during simulation.");
+        else
+	       curg = SetG(f,curr);
+        for(i=0;i<rvals[curr];++i) {
+            cur.state = curg.state;
+		    cur.state += (erg) ? curg->DrawfromStationary()
                            : ( (ii)
                                 ? iS
                                 : ErgOrStateMat[][imod(this.N,Nstart)]
                               );
-		cur->Path::Simulate(T,TRUE,DropTerminal);
-		NT += cur.T;
-		if (++this.N<N && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
-        cur = cur.pnext;
-		} while (this.N<N);
+		    cur->Path::Simulate(T,TRUE,DropTerminal);
+		    NT += cur.T;
+		    if (++this.N<N && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
+            cur = cur.pnext;
+		    }
+        }
 	if (Data::Volume>SILENT) fprintln(Data::logf," FPanel Simulation time: ",timer()-cputime0);
 	}
 
@@ -450,14 +458,12 @@ RandomEffectsIntegration::Integrate(path) {
 	this.path = path;
 	L = 0.0;
     flat = 0;
-    first = TRUE;
 	loop();
 	return {L,flat};
 	}
 	
 RandomEffectsIntegration::Run() {
-    path->TypeContribution(first,curREdensity);
-    first = FALSE;
+    path->TypeContribution(curREdensity);
     //if (isint(flat))        flat = curREdensity*pf;    else        flat += curREdensity*pf;
 	}
 	
@@ -1027,11 +1033,15 @@ Predictions are averaged over random effect groups.
 PathPrediction::Predict(inT,prtlevel){
     this.inT = inT;
     this.prtlevel = prtlevel;
-    if (!Initialize()) { return FALSE; }
+    if (!Initialize()) {
+        L = -.Inf;
+        flat = <>;
+        return FALSE;
+        }
 	if (isclass(summand))
 		summand->Integrate(this);
 	else
-		TypeContribution(TRUE,1.0);
+		TypeContribution(1.0);
     if (PredictFailure) {
         L = +.Inf;
         return FALSE;
@@ -1405,20 +1415,20 @@ PathPrediction::Initialize() {
 		upddens->SetFE(state);
 		upddens->loop();
 		}
-    if (isclass(method)) {
-        if (!method->Solve(f)) {
-            L = -.Inf;
-            flat = <>;
-            return FALSE;
-            }
-        }
+    first = TRUE;
     return TRUE;
     }
 
-
 /** Compute predictions and distance over the path. **/
-PathPrediction::TypeContribution(first,pf) {
+PathPrediction::TypeContribution(pf) {
   decl done, pcode;
+  if (isclass(method)) {
+    if (!method->Solve(f,I::r)) {
+        L = -.Inf;
+        flat = <>;
+        return FALSE;
+        }
+    }
   SetT();
   cur=this;
   do {
@@ -1431,14 +1441,13 @@ PathPrediction::TypeContribution(first,pf) {
                 cur.pnext = new Prediction(cur.t+1);
                 ++this.T;
                 }
-     if (first)
+     if (first)       //either first or only
         cur.accmom = pf*cur.predmom;
      else
         cur.accmom += pf*cur.predmom;
      cur = cur.pnext;
-  	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
-//  if (prtlevel) println("f=",I::f,"r=",I::r," Fail:",PredictFailure,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat);
-//  return flat|constant(.NaN,this.T-rows(flat),columns(flat));  //added Oct. 2017 so terminal outcomes still work
+  	 } while(!done);
+  first = FALSE;
   }
 
 /** Produce histograms and mean predictions for all paths in the panel.

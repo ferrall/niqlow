@@ -1330,7 +1330,7 @@ KeptZeta::InitDynamic(cth,VV) {
     addst = I::OO[iterating][keep.pos]*vals;
     decl myios = cth.InSubSample ? I::all[onlysemiexog] : 0;
     NxtI = cth.Nxt[Qit][myios];
-    NxtR = cth.Nxt[Qrho+I::rtran][myios];
+    NxtR = cth.Nxt[Qrho/*NoR! +I::rtran*/][myios];
     NOth= columns(NxtR)-1;
     println(I::t," ",isheld," ",v," ",NxtI," ",NxtR," ",I::OO[iterating][keep.pos],VV);
     }

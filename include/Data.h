@@ -77,7 +77,7 @@ struct Path : Outcome {
 	}
 
 struct RandomEffectsIntegration : RETask {
-	decl path, L, flat, first;
+	decl path, L, flat;
 	RandomEffectsIntegration();
 	Integrate(path);
 	Run();
@@ -286,6 +286,7 @@ struct 	PathPrediction : Prediction {
     /** flat prediction matrix.**/                  flat,
     /** Distance between predictions and emp.mom.**/ L,
     /** method to call for nested solution. **/		method,
+                                                    first,
     /** the next PathPrediction   **/               fnext;
 	PathPrediction(f=0,method=0,iDist=0);
     Initialize();
@@ -297,7 +298,7 @@ struct 	PathPrediction : Prediction {
     Empirical(inmoments,Nincluded=FALSE,wght=TRUE);
     Tracking(LorC,...);
     SetColumns(dlabels,Nplace=UnInitialized);
-    TypeContribution(first=TRUE,pf=1.0);
+    TypeContribution(pf=1.0);
 	}
 
 struct PanelPrediction : PathPrediction {

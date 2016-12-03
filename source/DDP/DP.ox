@@ -138,12 +138,24 @@ DP::SetGroup(GorState) {
 		}
 	return Gamma[I::g];
 	}
+
+DP::SetG(f,r) {
+	if (isclass(Fgamma[f][r]))
+        return SetGroup(Fgamma[f][r].pos);
+    }
 	
 /** Draw &gamma; from &Gamma; according to the density.
 Sets <code>I::g</code> and syncs state variables in &gamma;
 @return &Gamma;[gind], for external access to &Gamma;
 @see DrawOne **/
 DP::DrawGroup(find) {	return SetGroup(find + DrawOne(gdist[find][]) );	}
+
+/** Draw a population count andom sample of N values from the random effects distribution.
+@param find index of fixed group
+@param N number of draws to take
+@see DrawGroup
+**/
+DP::DrawFsamp(find,N) { return ranmultinomial(N,gdist[find][]); }
 
 DP::DrawOneExogenous(aState) {
 	decl i = DrawOne(NxtExog[Qprob]);		
@@ -166,9 +178,12 @@ DP::GetAind(i) {return isclass(Theta[i]) ? Theta[i].Aind : NoMatch; }
 
 /** Return choice probability for a &theta; and current &gamma;.
 @param i index of &theta; in the state space &Theta;
-@return &Rho;*(&alpha;|&epsilon;,&eta;,&theta;,&gamma;)  (Theta[i].pandv[I:r])
+@return &Rho;*(&alpha;|&epsilon;,&eta;,&theta;,&gamma;)  (Theta[i].pandv)
 **/
-DP::GetPstar(i) {return Theta[i].pandv[Gamma[I::g].rind];}
+DP::GetPstar(i) {return
+//NoR!        Theta[i].pandv[Gamma[I::g].rind];
+        Theta[i].pandv;
+        }
 
 /** Return tracking transition at a given &eta;,&theta; combination.
 @param i index of &theta; in the state space &Theta;
@@ -177,7 +192,7 @@ DP::GetPstar(i) {return Theta[i].pandv[Gamma[I::g].rind];}
 First element is vector of indices for feasible states &theta;&prime;<br>
 Second element is a matrix of transition probabilities (rows for actions <code>&alpha;</code>, columns correspond to &theta;&prime;)
 **/
-DP::GetTrackTrans(i,h) { return {Theta[i].Nxt[Qtr][h],Theta[i].Nxt[Qrho+I::rtran][h]}; }
+DP::GetTrackTrans(i,h) { return {Theta[i].Nxt[Qtr][h],Theta[i].Nxt[Qrho/*NoR! +I::rtran*/][h]}; }
 
 /** Ask to store overall &Rho;*() choice probability matrix.
 @comment Can only be called before calling `DP::CreateSpaces`
@@ -1483,6 +1498,16 @@ RETask::SetFE(f) {
 RETask::RETask() {
 	GroupTask();
 	span = onlyrand;	left = SS[span].left;	right = SS[span].right;
+	}
+
+/** .
+@internal
+**/
+RETask::SetRE(f,r) {
+    SetFE(f);
+	state += ReverseState(r,I::OO[onlyrand][]);
+    SyncStates(left,right);
+    I::Set(state,TRUE);
 	}
 
 /** Compute density of current group &gamma; conditional on fixed effects.

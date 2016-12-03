@@ -21,8 +21,8 @@ struct  Bellman : DP {
             @see Clock::Last**/                                     IsLast,
 	    /** Full solution at this state.                 **/        InSubSample,
 		/**&theta;.j index into `DP::A`.**/  						Aind,
-		/**U(&alpha;&epsilon;,&eta;,&theta;,&gamma;). @internal **/	U,
-		/** array of &Rho;*(&hellip;,&gamma;). @internal**/   		pandv,
+		/**U(&alpha;&epsilon;,&eta;,&theta;,&gamma;).  **/	        U,
+		/** array of &Rho;*(&hellip;,&gamma;). **/   		        pandv,
 		/** TransStore x &eta;-Array of feasible endogenous	state
 			indices and transitions
 			&Rho;(&gamma;&prime;;&alpha;,&eta;,&gamma;).**/			Nxt,

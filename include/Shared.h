@@ -19,7 +19,7 @@
 /* This file is part of niqlow. Copyright (C) 2012-2016 Christopher Ferrall */
 
 	/** Pseudonyms for -1. @name Names_for_-1 **/
-enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1}
+enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,AllRand=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1}
     /** Used in tracking outcomes. @name NiD **/
 enum { NotInData=-2,TrackAll=-3 }
 

@@ -17,13 +17,14 @@ struct Method : FETask {
 	static const decl
 		/** Default convergence tolerance on Bellman Iteration.**/ DefTolerance = 1E-5;
     decl
+        /** Either r or AllRan to solve for all random effects.**/  Rgroups,
         /** FALSE(default): iterate on V(&theta;)<br>
             TRUE: only compute transitions.**/      DoNotIterate,
                                                      vtoler,
     /** Output from the solution method.  Passed on to `GSolve::Volume`.
         @see NoiseLevels**/                         Volume;
     Method();
-    virtual Solve(Fgroups=AllFixed,MaxTrips=0);
+    virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
 	}
 
 /** A container for iterating over &theta; during solution methods.
@@ -65,7 +66,7 @@ Results are integrated over random effects, but results across fixed effects are
 **/
 struct ValueIteration : Method {
 	ValueIteration(myGSolve=0,myEndogUtil=0);
-	virtual Solve(Fgroups=AllFixed,MaxTrips=0);
+	virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
     virtual Run();
 	}
 

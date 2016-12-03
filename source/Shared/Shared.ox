@@ -125,6 +125,7 @@ ReverseState(Ind,O)	{
 **/
 DrawOne(P) { return int(maxcindex(ranmultinomial(1,P)')); }
 
+
 /** Row-Difference of a matrix.
 @param V Nx1 x N matrix vector, N &gt; 1.
 @return (N-1)xM matrix, &delta; = V[i][]-V[i-1][]
