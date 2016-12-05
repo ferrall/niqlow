@@ -159,6 +159,26 @@ RandomSpell::Transit(FeasA) {
 **/
 Augmented::Synch() {    b.v = min(v,b.N-1);     }
 
+/**Default Augmented Update.
+The Update() for the base type is called.  And its actual vector is copied to the augmented actuals.
+**/
+Augmented::Update() {
+    b->Update();
+    actual = b.actual;
+    }
+
+/** Normalize the actual values of the base variable and then copy them to these actuals.
+@param MaxV positive real, default = 1.0
+Sets the actual vector to 0,&ellip;, MaxV.
+@see `Discrete::Update`
+**/
+Augmented::SetActual(MaxV) {
+    println("Setting Actual values of Augmented ",L,"\n----\n");
+    b -> SetActual(MaxV);
+    actual = b.actual;
+    println("\n----\nAugmented: ","%r",{"index","actual"},vals|actual');
+    }
+
 /** Base creator augmented state variables
 @param Lorb either a `StateVariable` object, the base variable to augment<br>Or, string the label for this variable.
 @param N integer, if Otherwise, if &gt; b.N number of points of the augmented variable.  Otherwise, ignored and this.N = b.Nl
@@ -189,6 +209,11 @@ Triggered::Triggered(b,t,tv,rval) {
     if (!isint(rval) || rval<ResetValue || rval>b.N) oxrunerror("DDP Error 02. Reset value must be integer between -1 and b.N\n");
     this.rval = (rval==ResetValue) ? b.N : rval;
     Augmented(b,max(this.rval+1,b.N));
+    }
+
+Triggered::Update() {
+    b->Update();
+    actual = N==b.N ? b.actual : (b.actual|ResetValue);
     }
 
 Augmented::Transit(FeasA) {
@@ -1261,7 +1286,9 @@ LiquidAsset::LiquidAsset(L,N,NetSavings){
     isact = isclass(NetSavings,"ActionVariable");
 	}
 
-FixedAsset::Transit(FeasA) { return Asset::Transit(actual[v] + delta.actual[ca(FeasA,delta)]); }
+FixedAsset::Transit(FeasA) {
+    return Asset::Transit(actual[v] + delta.actual[ca(FeasA,delta)]);
+    }
 
 LiquidAsset::Transit(FeasA) {
     return Asset::Transit(isact ? NetSavings.actual[ca(FeasA,NetSavings)] : AV(NetSavings,FeasA));
@@ -1276,7 +1303,6 @@ Asset::Transit(pdelt) {
      tprob = (mid .!= 0.0) .? (atom'-actual[bot])./mid .:  1.0 ;
     bprob = 1-tprob;
     all = union(bot,top);
-//   if ( any(tprob.>1.0) ) println("%c",{"AA","Bound","aB","mid","At"},AV(r)*actual[v]+AV(NetSavings,FeasA)~atom~actual[bot]'~mid~actual[top]'," tp ",tprob'," bp ",bprob'," all ",all);
     return { all, tprob.*(all.==top) + bprob.*(all.==bot) };
     }
 

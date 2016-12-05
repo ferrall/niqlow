@@ -263,7 +263,10 @@ Bellman::ThetaTransition() {
 		if (( any(curO = I::OO[<tracking;iterating>][si-Nb+1:si]) ))	{  // states are relevant to s'
 			[feas,prob] = root -> Transit(Alpha::List[Aind]);
             if (rcheck && root.N>1) {
-                fprintln(logf,"     State: ",root.L,"%r",{"   ind","   prob"},feas|prob);
+                if (maxr(feas)<rows(root.actual))
+                    fprintln(logf,"     State: ",root.L,"%r",{"   ind","actual","   prob"},feas|(root.actual[feas]')|prob);
+                else
+                    fprintln(logf,"     State: ",root.L,"%r",{"   ind","   prob"},feas|prob);
                 if (any(!isdotfeq(sumr(prob),1.0))) { // short-circuit && avoids sumr() unless NOISY
                     fprintln(logf,"Transition probability error at state ",si,"%m",sumr(prob));
                     oxwarning("Transition probabilities are not valid (sum not close enough to 1.0).  Check log file");

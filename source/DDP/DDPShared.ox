@@ -9,12 +9,6 @@
 ca(A,act) { return isint(A) ? Alpha::List[A][][act.pos] : A[][act.pos]; }
 
 
-
-NormalizeActual(v,MaxV) {
-    if (!TypeCheck(v,"Discrete",FALSE,"DDP Warning ??.\n Object is not Discrete.  Doing nothing")) return;
-    v.actual = MaxV*(v.vals)'/max(v.N-1,1);
-    }
-
 /** .
 @internal
 **/

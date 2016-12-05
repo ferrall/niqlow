@@ -260,12 +260,30 @@ Discrete::Discrete(L,N)  {
 	}
 
 /** The default Discrete Variable update does nothing.
-@internal
+Derived discrete types can define their own Updates which called when parameters of a model (may) have changed.
+This depends on `UpdateTimes`
+@see DP::SetUpdateTime
 **/
 Discrete::Update() { }
 
 Discrete::PDF() {return ismember(pdf,"v") ? pdf.v[v] : pdf[v];	}
-	
+
+/** Initialize the actual values.
+@param MaxV non-zero double, default = 1.0<br>
+            N&times;1 vector, actual
+If a double is sent the actual vector to 0,&ellip;, MaxV.
+@see `Discrete::Update`
+**/
+Discrete::SetActual(MaxV) {
+    if (isdouble(MaxV)||isint(MaxV))
+        actual = MaxV*(vals)'/max(N-1,1);
+    else {
+        if (rows(vec(MaxV))!=N) oxrunerror("DDP Error. Actual vector must be of length N");
+        actual = vec(MaxV);
+        }
+    println("Setting Actual Values of ",L,"%r",{"index","actual"},vals|actual');
+    }
+
 /** Create a new parameter.
 @param L parameter label
 @param ival initial value

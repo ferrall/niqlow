@@ -117,6 +117,7 @@ struct Discrete	: Quantity{
 	Discrete(L,N);
 	virtual PDF();
 	virtual Update();
+    virtual SetActual(MaxV=1.0);
 	}
 
 /** Represent a continuously varying quantity.**/
