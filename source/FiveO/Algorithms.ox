@@ -307,12 +307,12 @@ CLineMax::Try(pt,step)	{
 **/
 LineMax::Bracket()	{
     decl u = p4, r, s, ulim, us, notdone;
-    if (isclass(O.p2p) && O.p2p.MaxSimJobs>1) {
+/*    if (isclass(O.p2p) && O.p2p.MaxSimJobs>1) {
         println("ptry");
        this->PTry(b,min(a.step,q.step),max(a.step,q.step));
        println(b);
        }
-    else
+    else */
         this->Try(b,(1+gold)*q.step-gold*a.step);
 	notdone = b.v>q.v;
 	while (notdone)	{
@@ -432,14 +432,14 @@ NelderMead::Iterate(iplex)	{
 **/
 NelderMead::Reflect(fac) 	{
   decl fac1, ptry, ftry;
-  if (!isclass(O.p2p)) {
+  // if (!isclass(O.p2p)) {
 	fac1 = (1.0-fac)/N;
 	ptry = fac1*psum - (fac1-fac)*nodeX[][mni];
 	O->fobj(ptry);
     if (StorePath) path ~= OC.F;
     O->CheckMax();
 	ftry = OC.v;
-    }
+/*    }
  else {
     decl M = O.p2p.MaxSimJobs,
     facs = fac*exp(range(-1,1,2/M)),
@@ -451,6 +451,7 @@ NelderMead::Reflect(fac) 	{
 	ftry = vtries[best];
     ptry = tries[][best];
     }
+    */
   ++n_func;
   atry = (ftry<nodeV[mni])
 			? worst
@@ -477,6 +478,9 @@ NelderMead::Sort()	{
 	psum = sumr(nodeX);		
 	plexsize = SimplexSize();
     fdiff = norm(nodeV-meanr(nodeV));
+    if (Volume>LOUD) {
+        fprintln(logf,"Simplex: ","%r",{"f","p"},nodeV|nodeX,"MXi:",mxi," MNi:",mni," nmni:",nmni);
+        }
 	}
 
 /** Compute size of the current simplex.

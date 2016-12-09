@@ -10,6 +10,7 @@ Rosenbrock ::Rosenbrock (fn)	{
 	BlackBox("Test of Blackbox");
 	x = new Coefficients("x",constant(0.1,NN,1));
     Parameters(x);
+    Volume = LOUD;
 	if (!Load(fn)) Encode(0);
 	}
 Rosenbrock ::vfunc() {

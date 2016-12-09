@@ -203,7 +203,7 @@ Server::Loop(nxtmsgsize)	{
 		++trips;
 		Buffer = constant(.NaN,nxtmsgsize,1);
 		Recv(ANY_TAG);
-		if (Volume>QUIET) println("P2P Server:",ID," trip: ",trips," Source: ",Source," Tag: ",Tag," Size: ",sizerc(Buffer));
+		if (Volume>QUIET) println("P2P Server: ",ID," trip: ",trips," Source: ",Source," Tag: ",Tag,". Message 0...9: ",Buffer[:min(sizerc(Buffer)-1,9)]);
         if (Tag!=STOP_TAG) {		
             nxtmsgsize = this->Execute();
 		    Send(0,Tag);
