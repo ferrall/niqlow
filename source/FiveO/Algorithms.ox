@@ -142,7 +142,7 @@ SimulatedAnnealing::Iterate(chol)	{
     if (IIterate) {  //MPI not running or I am the Client Node
        decl vec0;
        inp = isclass(O.p2p);
-       M = inp ? O.p2p.MaxSimJobs : 1;
+       M = inp ? max(O.p2p.MaxSimJobs,1) : 1;
        Vtries=zeros(O.NvfuncTerms,M);
 	   this.chol = isint(chol)  ? unit(N)
                                 : isdouble(chol) ? chol*unit(N)
@@ -307,8 +307,10 @@ CLineMax::Try(pt,step)	{
 **/
 LineMax::Bracket()	{
     decl u = p4, r, s, ulim, us, notdone;
-    if (isclass(O.p2p)) {
+    if (isclass(O.p2p) && O.p2p.MaxSimJobs>1) {
+        println("ptry");
        this->PTry(b,min(a.step,q.step),max(a.step,q.step));
+       println(b);
        }
     else
         this->Try(b,(1+gold)*q.step-gold*a.step);
@@ -449,17 +451,17 @@ NelderMead::Reflect(fac) 	{
 	ftry = vtries[best];
     ptry = tries[][best];
     }
-	++n_func;
-    atry = (ftry<nodeV[mni])
-					? worst
-					: (ftry > nodeV[mxi])
-					    ? hi
-						: (ftry > nodeV[nmni])
-						      ? nxtlo
-							  : lo;
-	 if (atry!=worst)	{
+  ++n_func;
+  atry = (ftry<nodeV[mni])
+			? worst
+			: (ftry > nodeV[mxi])
+				? hi
+			    : (ftry > nodeV[nmni])
+				    ? nxtlo
+					: lo;
+    if (atry!=worst) {
 		psum += (ptry-nodeX[][mni]);
-		nodeV[mni]=ftry;
+		nodeV[mni]=ftry;               //mni is temporarily not right but that's okay
 		nodeX[][mni]=ptry;
 		}
 	}
@@ -498,7 +500,7 @@ NelderMead::Amoeba() 	{
 		Reflect(-alpha);
         if (Volume>SILENT) fprint(logf," ",atry==hi," ",atry>nxtlo);
 		if (atry==hi) {
-            Reflect(gamma);
+            Reflect(gamma);  //new best in mni so reflecting thru it
             if (Volume>SILENT) fprint(logf," ... gamma ",atry);
             }
 		else if (atry>nxtlo){
