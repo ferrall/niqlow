@@ -30,7 +30,8 @@ struct Objective	{
     /** TRUE (default): exit if NaNs encountered during iteration<br>
             FALSE: exit with <code>IterationFailed</code> **/
                                                                 RunSafe,
-	/** the P2P object for using MPI **/					    p2p,
+	/** P2P object for using MPI across param vectors**/	    p2p,
+    /** P2P object for MPI on a single param vector.**/         subp2p,
 	/** Initial vector after Encode() **/						Start,
 	/** TRUE if encoded once **/								once,
 	/** User-defined subvectors of parameters. @internal**/		Blocks,
@@ -66,7 +67,7 @@ struct Objective	{
 	virtual Gradient();
 	virtual Jacobian();
     virtual Hessian();
-	virtual vfunc();
+	virtual vfunc(subp=DoAll);
 	virtual fobj(F);
 	virtual vobj(F);
 	virtual	Encode(X=0);
@@ -76,6 +77,7 @@ struct Objective	{
     virtual Menu();
     virtual Interact();
     virtual contour(Npts,Xpar,Ypar,lims);
+    virtual CombineSubOutput(outmat);
 	}
 
 	

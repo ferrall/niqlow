@@ -4,38 +4,37 @@
 /** Set up MPI Client-Server support for DP prediction.
 @param pp `PanelPrediction' to parallelize
 **/
-ParallelObjective(pp) {
+ParallelPredict(pp,maxT) {
 	if (isclass(pp.p2p)) {oxwarning("CFMPI Warning 01.\n"+" P2P object already exists for "+pp.L+". Nothing changed.\n"); return;}
-	pp.p2p = new P2P(TRUE,new PredClient(pp),new PredServer(pp));
+	pp.p2p = new P2P(TRUE,new PredClient(pp,maxT),new PredServer(pp,maxT));
 	}
 
-PredClient::PredClient(pp) { this.pp = pp;    }
+PredClient::PredClient(pp,maxT) { this.pp = pp;    }
 
 PredClient::Execute() {    }
 
-PredServer::PredServer(pp) {	
+PredServer::PredServer(pp,maxT) {	
     this.pp = pp;	
-    basetag = P2P::STOP_TAG+OneThousand;
-    iml = pp.???;
+    basetag = P2P::STOP_TAG+ServerOffset;
+    iml = pp->MaxPathVectorLength(maxT);
     }
 
 /** Wait on the objective client.
 **/
-PredServer::Loop(nxtmsgsz) {
-    N??? = nxtmsgsz;   //current free param length sent from algorithm
+PredServer::Loop() {
     if (Volume>QUIET) println("PredServer server ",ID," N???= ",N???);
-    Server::Loop(N???);
-    Recv(ANY_TAG);                      //receive the ending parameter vector
-    //pp->Encode(Buffer[:Nstruct-1]);   //encode it.
+    Server::Loop(iml);
     }
 
 /** Do the objective evaluation.
 @return (max. length of next expected message);
 **/
 PredServer::Execute() {
-
-	pp.method->Solve(?,?);
-	Buffer = pp.??.??;
+    decode tag into f and r;
+    Set I::r; curDensity...
+    if (f) pp.fparray[f].->TypeContribution(pf);
+    else pp->TypeContribution(pf);
+	Buffer = pp.flat;
     if (Volume>QUIET) println("Server Executive: ",ID," pp.??= ",Buffer[0]);
-	return N???;
+	return iml;
 	}

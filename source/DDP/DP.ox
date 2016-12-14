@@ -140,8 +140,7 @@ DP::SetGroup(GorState) {
 	}
 
 DP::SetG(f,r) {
-	if (isclass(Fgamma[f][r]))
-        return SetGroup(Fgamma[f][r].pos);
+        return isclass(Fgamma[f][r]) ? SetGroup(Fgamma[f][r].pos) : 0;
     }
 	
 /** Draw &gamma; from &Gamma; according to the density.

@@ -119,7 +119,7 @@ at <a href="http://en.wikipedia.org/wiki/Nelder-Mead_method">Wikipedia</a>
 <pre>
 class MyObjective : BlackBox{
     &vellip;
-    vfunc();
+    vfunc(subp=DoAll);
     }
 &vellip;
 decl myobj = new MyObjective();
@@ -180,7 +180,7 @@ struct NelderMead  : NonGradient {
 <pre>
 class MyObjective : BlackBox{
     &vellip;
-    vfunc();
+    vfunc(subp=DoAll);
     }
 &vellip;
 decl myobj = new MyObjective();
@@ -281,7 +281,7 @@ See <a href="http://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldf
 <pre>
 class MyObjective : BlackBox{
     &vellip;   // parameters should be declared as members of your class
-    vfunc();  // you have to define the objective
+    vfunc(subp=DoAll);  // you have to define the objective
     }
 &vellip;
 decl myobj = new MyObjective();

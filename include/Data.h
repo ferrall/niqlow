@@ -191,7 +191,7 @@ struct DataSet : Panel {
 	Read(fn,SearchLabels=FALSE);
 	IDColumn(lORind);
 	Summary(data,rlabels=0);
-    virtual EconometricObjective();
+    virtual EconometricObjective(subp=DoAll);
 	}
 
 
@@ -298,7 +298,8 @@ struct 	PathPrediction : Prediction {
     Empirical(inmoments,Nincluded=FALSE,wght=TRUE);
     Tracking(LorC,...);
     SetColumns(dlabels,Nplace=UnInitialized);
-    TypeContribution(pf=1.0);
+    TypeContribution(pf=1.0,subsolve=FALSE);
+    ProcessContributions(cmat=0);
 	}
 
 struct PanelPrediction : PathPrediction {
@@ -314,8 +315,9 @@ struct PanelPrediction : PathPrediction {
     PanelPrediction(r=0,method=0,iDist=0,wght=FALSE);
     ~PanelPrediction();
     Objective();
-    Predict(T=0,printit=FALSE);
+    Predict(T=0,printit=FALSE,subarr=0);
     Tracking(LorC,...);
+    MaxPathVectorLength(inT=0);
     }
 
 /** Stores data read in as moments and associate them with a panel of predictions.
@@ -334,6 +336,6 @@ struct EmpiricalMoments : PanelPrediction {
     TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);
     Observations(LabelorColumn);
     Read(fn);
- 	virtual EconometricObjective();
-    virtual Solve();
+ 	virtual EconometricObjective(subp=DoAll);
+    virtual Solve(subp=DoAll);
     }

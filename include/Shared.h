@@ -32,6 +32,17 @@ enum {SILENT=-1,QUIET,LOUD,NOISY,NoiseLevels}
 enum{xax,yax,zax,Naxes}
 enum{lo,hi,Limits}
 
+    /** Modes of Execution when executing in parallel. See `BaseTag`
+         <DD>MultiParamVectors: Sending different parameter vectors to nodes to compute
+            overall objective.</DD>
+         <DD>SubProblems: Sending a single parameter vector to nodes to solve
+            separate sub-problems which will be aggregated by the Client.
+            This involves `Objective::vfunc`().</DD>
+        @name ParallelExecutionModes **/
+    enum{MultiParamVectors,SubProblems,ParallelModes}
+    static const decl
+        /** Base tags for parallel messaging.**/    BaseTag = <One,1000>;
+
 //		/** Output tags for reservation value utility functions. @name EUvalues **/	
 //enum {EUstar,Fstar,EUvalues}
 		/** Code for solutions to Optimization and Non-Linear System solving.	

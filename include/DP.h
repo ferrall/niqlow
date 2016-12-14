@@ -125,7 +125,7 @@ struct DP {
 		static	ExogenousStates(v1,...); 	
 		static	AuxiliaryOutcomes(v1,...);
 		static 	SetGroup(state);
-        static  SetG(f,r);
+        static  SetG(f=0,r=0);
 		static 	Settheta(ind);
 		static 	DrawGroup(find);
 		static 	StorePalpha();

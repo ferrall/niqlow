@@ -5,8 +5,6 @@
 #include "UseMPI.ox"
 #endif
 
-ParallelPredict(pp);
-
 /** Client for parallel evaluation of objectives.
 **/
 struct PredClient : Client {
@@ -19,6 +17,7 @@ struct PredClient : Client {
 /** Server for parallel evaluation of BlackBox objectives.
 **/
 struct PredServer : Server {
+    static const decl     ServerOffset = 1000;
 	const decl
     /** Objective. **/    pp,	
                           basetag;

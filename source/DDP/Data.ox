@@ -253,8 +253,7 @@ FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
         if (!rvals[curr]) continue;  // no observations
 	    if (isclass(method))
             if (!method->Solve(f,curr)) oxrunerror("DDP Error. Solution Method failed during simulation.");
-        else
-	       curg = SetG(f,curr);
+	    curg = SetG(f,curr);
         for(i=0;i<rvals[curr];++i) {
             cur.state = curg.state;
 		    cur.state += (erg) ? curg->DrawfromStationary()
@@ -750,13 +749,20 @@ Outcome::AccountForUnobservables() {
 	}
 
 /** The default econometric objective: log-likelihood.
+@param subp  DoAll (default), solve all subproblems and return likelihood vector<br/>
+             Non-negative integer, solve only subproblem, return contribution to overall L
 @return `Panel::M`, <em>lnL = (lnL<sub>1</sub> lnL<sub>2</sub> &hellip;)</em>
 @see Panel::LogLikelihood
 **/
-DataSet::EconometricObjective() {
+DataSet::EconometricObjective(subp) {
 	if (!masked) {oxwarning("DDP Warning 09.\n Masking data for observability.\n"); Mask();}
-	this->Panel::LogLikelihood();
-	return M;
+    if (subp==DoAll) {
+	   this->Panel::LogLikelihood();
+	   return M;
+         }
+    else {
+        oxwarning("DataSet Objective not updated for subproblem parallelization");
+        }
 	}
 
 /** Produce a Stata-like summary statistics table.
@@ -1016,6 +1022,24 @@ PathPrediction::SetT() {
   return TRUE;
   }
 
+PathPrediction::ProcessContributions(cmat){
+    decl delt =<>;
+    flat = <>;
+    cur=this;
+    do {
+        if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
+        flat |= cur.t~cur.accmom;
+        if (HasObservations) delt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+        cur = cur.pnext;
+  	    } while(isclass(cur));
+    L = rows(delt) ? norm(delt,'F') : 0.0;
+    if (Data::Volume>QUIET)
+    fprintln(Data::logf," Predicted Moments ",L,
+        "%c",tlabels,"%cf",{"5.0f","%12.4f"},flat,
+        "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",tlabels[1:],delt);
+    flat |= constant(.NaN,this.T-rows(flat),columns(flat));
+    }
+
 /** Create or update a path of predicted distributions.
 @param inT <em>integer</em> length of the path<br>0 (default) : predict only for existing predictions on the Path.<br>
 If existing path is longer than inT (and inT &gt; 0) then extra predictions are deleted.
@@ -1047,20 +1071,7 @@ PathPrediction::Predict(inT,prtlevel){
         return FALSE;
         }
     else {
-        decl delt =<>;
-        flat = <>;
-        cur=this;
-        do {
-            flat |= cur.t~cur.accmom;
-            if (HasObservations) delt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
-            cur = cur.pnext;
-  	        } while(isclass(cur));
-        L = rows(delt) ? norm(delt,'F') : 0.0;
-        if (Data::Volume>QUIET)
-            fprintln(Data::logf," Predicted Moments ",L,
-                    "%c",tlabels,"%cf",{"5.0f","%12.4f"},flat,
-                    "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",tlabels[1:],delt);
-        flat |= constant(.NaN,this.T-rows(flat),columns(flat));
+        ProcessContributions();
         return TRUE;
         }
   }
@@ -1413,6 +1424,7 @@ PathPrediction::Initialize() {
     for (t=0;t<sizeof(tlist);++t) tlist[t]->Update();
 	if (isclass(upddens)) {
 		upddens->SetFE(state);
+		summand->SetFE(state);
 		upddens->loop();
 		}
     first = TRUE;
@@ -1420,7 +1432,7 @@ PathPrediction::Initialize() {
     }
 
 /** Compute predictions and distance over the path. **/
-PathPrediction::TypeContribution(pf) {
+PathPrediction::TypeContribution(pf,subsolve) {
   decl done, pcode;
   if (isclass(method)) {
     if (!method->Solve(f,I::r)) {
@@ -1441,13 +1453,16 @@ PathPrediction::TypeContribution(pf) {
                 cur.pnext = new Prediction(cur.t+1);
                 ++this.T;
                 }
-     if (first)       //either first or only
+     if (first) {       //either first or only
         cur.accmom = pf*cur.predmom;
+        if (subsolve) flat |= cur.accom;
+        }
      else
         cur.accmom += pf*cur.predmom;
      cur = cur.pnext;
   	 } while(!done);
   first = FALSE;
+  return subsolve ? flat : 0;
   }
 
 /** Produce histograms and mean predictions for all paths in the panel.
@@ -1464,6 +1479,17 @@ $$M = -\sqrt{ \sum_{n} dist(emp_n,pred_n)}$$
 **/
 PanelPrediction::Objective() {
     return Predict();
+    }
+
+/** Returns the longest MPI message length sent back by a path prediction call
+**/
+PanelPrediction::MaxPathVectorLength(inT) {
+    decl n=0;
+    cur = this;
+    do {
+        n= max(n,max(inT,cur.T) * sizeof(cur.tlist));
+        } while(isclass(cur = cur.fnext));
+    return n;
     }
 
 /** Set an object to be tracked in predictions.
@@ -1511,15 +1537,21 @@ PanelPrediction::PanelPrediction(r,method,iDist,wght) {
 /** Predict outcomes in the panel.
 @param t positive integer or matrix of lengths of paths to predict (same length as number of paths in then panel)<br>
 @param prtlevel Zero [default] do not print<br>One print state and choice probabilities<br>Two print predictions
-
+@param outmat
 **/
-PanelPrediction::Predict(T,prtlevel) {
-    decl cur=this, succ;
+PanelPrediction::Predict(T,prtlevel,outmat) {
+    decl cur=this, succ,left=0,right=N::R-1;
     aflat = {};
     M = 0.0;
     succ = TRUE;
     do {
-        succ = succ && cur->PathPrediction::Predict(T,prtlevel);
+        if (ismatrix(outmat)) {
+            cur->PathPrediction::ProcessContributions(sumr(outmat[][left:right]));
+            left += N::R;
+            right += N::R;
+            }
+        else
+            succ = succ && cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
 	    aflat |= cur.f~cur.flat;
         } while((isclass(cur=cur.fnext)));
@@ -1603,21 +1635,29 @@ EmpiricalMoments::Observations(LabelOrColumn) {
     }
 
 /** The default econometric objective for a panel prediction: the overall GMM objective.
+@param subp  DoAll (default), solve all subproblems and return likelihood vector<br/>
+             Non-negative integer, solve only subproblem, return contribution to overall L
 @return `PanelPrediction::M`
 
-@comments
-Currently this is identical to `EmpiricalMoments::Solve`().  They may differ in later versions.
 **/
-EmpiricalMoments::EconometricObjective() {
-    return this->Solve();
+EmpiricalMoments::EconometricObjective(subp) {
+    return this->Solve(subp);
 	}
 
 /** Calls `PanelPrediction::Objective` and returns overall GMM objective.
 @returns `PanelPrediction::M`
 **/
-EmpiricalMoments::Solve() {
-    PanelPrediction::Objective();
-    return M;
+EmpiricalMoments::Solve(subp) {
+    if (subp==DoAll) {
+        PanelPrediction::Objective();
+        return M;
+        }
+    else {
+        decl cg = SetG(idiv(subp,N::F),imod(subp,N::F)),
+            pobj = subp ? fparray[cg.find] : this;
+        pobj->PathPrediction::Initialize();
+        return pobj->TypeContribution(cg.curREdensity,TRUE);
+        }
     }
 
 

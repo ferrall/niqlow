@@ -5,18 +5,24 @@
 @param obj `Objective' to parallelize
 @param DONOTUSECLIENT TRUE (default): client node does no object evaluation<br>FALSE after putting servers to work Client node does one evaluation.
 **/
-ParallelObjective(obj,DONOTUSECLIENT) {
+ParallelObjective(obj,DONOTUSECLIENT,NSubProblems,MaxSubReturn) {
 	if (isclass(obj.p2p)) {oxwarning("CFMPI Warning 01.\n"+" P2P object already exists for "+obj.L+". Nothing changed.\n"); return;}
-	obj.p2p = new P2P(DONOTUSECLIENT,new ObjClient(obj),new ObjServer(obj));
+	obj.p2p = new P2P(DONOTUSECLIENT,new ObjClient(obj),new ObjServer(obj),NSubProblems,MaxSubReturn);
 	}
 
-ObjClient::ObjClient(obj) { this.obj = obj;    }
+ObjClient::ObjClient(obj) {  this.obj = obj; }
 
 ObjClient::Execute() {    }
 
+ObjClient::SubProblems(F) {
+    decl subV=new array[NSubProblems];
+    ToDoList(NSubProblems,F,&subV,MaxSubReturn,SubProblems);
+    return subV;
+    }
+
 ObjServer::ObjServer(obj) {	
     this.obj = obj;	
-    basetag = P2P::STOP_TAG+1;
+    //basetag = P2P::STOP_TAG+MultiParameterOffset;
     iml = obj.NvfuncTerms;
     Nstruct = obj.nstruct;
     }
@@ -38,8 +44,13 @@ Call `Objective::vfunc`().
 **/
 ObjServer::Execute() {
 	obj->Decode(Buffer[:obj.nfree-1]);
-	Buffer = obj.cur.V[] = obj->vfunc();
-    if (Volume>QUIET) println("Server Executive: ",ID," vfunc[0]= ",Buffer[0]);
+    if (Volume>QUIET) println("Server Executive: ",ID," vfunc[0]= ",Buffer[:min(9,obj.nfree-1)]);
+    if (Tag>=BaseTag[SubProblems]) {
+        Buffer = obj->vfunc(Tag-BaseTag[SubProblems]);
+        }
+    else {
+	   Buffer = obj.cur.V[] = obj->vfunc();
+       }
 	return Nstruct;
 	}
 
@@ -56,7 +67,8 @@ CstrServer::Execute() {
 /** Separable objective evaluations.
 **/
 SepServer::Execute() {
-	obj.Kvar.v = imod(Tag-basetag,obj.K);
+	obj.Kvar.v = imod(Tag-BaseTag[],obj.K);
+    oxrunerror("SepServer has not been updated concerning Pmode");
 	obj->Encode(Buffer,TRUE);		
 	Buffer = obj.Kvar->PDF() * obj->vfunc();
 	return obj.NvfuncTerms;

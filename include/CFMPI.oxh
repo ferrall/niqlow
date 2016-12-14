@@ -33,7 +33,8 @@ struct P2P : MPI {
 			/** Receive from any node**/			ANY_SOURCE,
 			/** Receive any tag**/					ANY_TAG,
 			/** . @internal                **/		SERVER1;
-
+    const decl                                      NSubProblems,
+                                                    MaxSubReturn;
 	decl
             /** Nodes or Nnodes-1.**/               MaxSimJobs,
 			/** Place for MPI message (in/out)**/	Buffer,
@@ -41,7 +42,7 @@ struct P2P : MPI {
 			/** `Server` object. **/				server,
 			/** Node that sent the last message**/	Source,
 			/** Tag of last message**/				Tag;													
-	P2P(DONOTUSECLIENT=0,client=0,server=0);
+	P2P(DONOTUSECLIENT=0,client=0,server=0,NSubProblems=0,MaxSubReturn=0);
     virtual Execute();
 	}
 
@@ -65,8 +66,8 @@ struct Client : P2P {
 	Send(iCount, iDest, iTag);
 	Recv(iSource, iTag) ;
 	Stop();	
-	Announce(Msg,BASETAG=1,aResults=0,mxlength=1);
-	ToDoList(Inputs,aResults,mxlength,BASETAG);
+	Announce(Msg,Pmode=0,aResults=0,mxlength=1);
+	ToDoList(mode,Inputs,aResults,mxlength,Pmode=0);
     virtual Execute();
 	}
 

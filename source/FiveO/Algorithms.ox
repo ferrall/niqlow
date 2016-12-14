@@ -465,6 +465,9 @@ NelderMead::Reflect(fac) 	{
 		nodeV[mni]=ftry;               //mni is temporarily not right but that's okay
 		nodeX[][mni]=ptry;
 		}
+    if (Volume>LOUD) {
+        fprintln(logf,"Reflect: ",atry,"%15.5f",ftry,"%r",{"f","p"},(ftry~nodeV)|(ptry~nodeX),"MXi:",mxi," MNi:",mni," nmni:",nmni);
+        }
 	}
 	
 /**	 .
@@ -479,7 +482,7 @@ NelderMead::Sort()	{
 	plexsize = SimplexSize();
     fdiff = norm(nodeV-meanr(nodeV));
     if (Volume>LOUD) {
-        fprintln(logf,"Simplex: ","%r",{"f","p"},nodeV|nodeX,"MXi:",mxi," MNi:",mni," nmni:",nmni);
+        fprintln(logf,"Simplex: ","%15.5f","%r",{"f","p"},nodeV|nodeX,"MXi:",mxi," MNi:",mni," nmni:",nmni);
         }
 	}
 
@@ -511,8 +514,14 @@ NelderMead::Amoeba() 	{
 			Reflect(beta);
             if (Volume>SILENT) fprint(logf," ... beta ",atry==worst);
 			if (atry==worst){
+                decl holdfx = nodeV[mxi], holdX = nodeX[][mxi];
 				nodeX = 0.5*(nodeX+nodeX[][mxi]);
 				n_func += O->funclist(nodeX,&vF,&nodeV);
+                if (!isfeq(holdfx,nodeV[mxi])) {
+                    println("%c",{"New","Old"},"%cf","%20.10f",(nodeV[mxi]~holdfx)|(holdX~nodeX[][mxi]));
+                    oxwarning("FiveO Warning: recomputing objective at same params");
+                    nodeV[mxi] = holdfx;
+                    }
 				}
 			}
         if (Volume>SILENT) { fprintln(logf," ... ",n_func);fflush(logf);}
