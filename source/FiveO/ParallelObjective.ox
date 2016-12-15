@@ -8,8 +8,10 @@
 ParallelObjective(obj,DONOTUSECLIENT,NSubProblems,MaxSubReturn) {
 	if (isclass(obj.p2p)) {oxwarning("CFMPI Warning 01.\n"+" P2P object already exists for "+obj.L+". Nothing changed.\n"); return;}
 	obj.p2p = new P2P(DONOTUSECLIENT,new ObjClient(obj),new ObjServer(obj));
-    obj.p2p.client.NSubProblems=NSubProblems;
-    obj.p2p.client.MaxSubReturn=MaxSubReturn;
+    if (isclass(obj.p2p.client)) {
+        obj.p2p.client.NSubProblems=NSubProblems;
+        obj.p2p.client.MaxSubReturn=MaxSubReturn;
+        }
 	}
 
 ObjClient::ObjClient(obj) {  this.obj = obj; }
