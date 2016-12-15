@@ -1455,7 +1455,7 @@ PathPrediction::TypeContribution(pf,subsolve) {
                 }
      if (first) {       //either first or only
         cur.accmom = pf*cur.predmom;
-        if (subsolve) flat |= cur.accom;
+        if (subsolve) flat |= cur.accmom;
         }
      else
         cur.accmom += pf*cur.predmom;
