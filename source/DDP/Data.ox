@@ -1654,8 +1654,10 @@ EmpiricalMoments::Solve(subp) {
         return M;
         }
     else {
-        decl cg = SetG(idiv(subp,N::F),imod(subp,N::F)),
-            pobj = subp ? fparray[cg.find] : this;
+        decl f =idiv(subp,N::F), r =imod(subp,N::F);
+        println("*** ",subp," ",f," ",r);
+        decl cg = SetG(f,r);
+        decl pobj = f ? fparray[f] : this;
         pobj->PathPrediction::Initialize();
         return pobj->TypeContribution(cg.curREdensity,TRUE);
         }
