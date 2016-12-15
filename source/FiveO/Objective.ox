@@ -178,7 +178,7 @@ Constrained::CheckPoint(f,saving)	{
 Objective::CheckMax(fn)	{
     newmax = cur.v>maxpt.v;
     if (Volume>QUIET) {
-        fprint(logf,cur.v,newmax ? " " : "*\n");
+        fprint(logf,cur.v,newmax ? "*" : " \n");
 		 if (Volume>LOUD) { print(" ","%15.8f",cur.v); if (isfile(fn)) fprint(fn," ","%15.8f",cur.v); }
         }
 	if (newmax)	{
@@ -458,7 +458,7 @@ Objective::fobj(F)	{
 //	this->CheckMax();
 	}
 
-Objective::CombineSubOutput(outmat) {
+Objective::Combine(outmat) {
     oxwarning("FiveO Warning: Running default Objective in parallel mode SubProblems. ");
     return vfunc();
     }
@@ -469,8 +469,8 @@ Objective::CombineSubOutput(outmat) {
 Objective::vobj(F)	{
 	Decode(F);
     if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
-    if (isclass(p2p)&& p2p.NSubProblems)
-        cur.V[] = this->CombineSubOutput( p2p.client->SubProblems(F) );
+    if (isclass(p2p)&& p2p.client.NSubProblems)
+        cur.V[] = this->Combine( p2p.client->Distribute(F) );
     else
 	    cur.V[] =  vfunc();
     if (Volume>QUIET) {

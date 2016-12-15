@@ -35,8 +35,6 @@ P2P::P2P(DONOTUSECLIENT,client, server,NSubProblems,MaxSubReturn) {
     decl USEMYSELF = !DONOTUSECLIENT || (Nodes==1);
 	SERVER1 = !USEMYSELF;              //if there are no servers use client as one
     MaxSimJobs = Nodes - SERVER1;      //1st run through max. simultaneous tasks
-    this.MaxSubReturn = MaxSubReturn;
-    this.NSubProblems = NSubProblems;
 	if (IamClient) {
 		this.client = client;
 		if (USEMYSELF) {

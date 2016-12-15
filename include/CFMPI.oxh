@@ -33,8 +33,6 @@ struct P2P : MPI {
 			/** Receive from any node**/			ANY_SOURCE,
 			/** Receive any tag**/					ANY_TAG,
 			/** . @internal                **/		SERVER1;
-    const decl                                      NSubProblems,
-                                                    MaxSubReturn;
 	decl
             /** Nodes or Nnodes-1.**/               MaxSimJobs,
 			/** Place for MPI message (in/out)**/	Buffer,
@@ -61,7 +59,8 @@ struct Server : P2P {
 struct Client : P2P {
 	static decl
 	/** . @internal                **/		idle;
-    decl
+    decl                                    NSubProblems,
+                                            MaxSubReturn,
    /** If client node should work, then this holds the `Server` object. **/ me_as_server;
 	Send(iCount, iDest, iTag);
 	Recv(iSource, iTag) ;

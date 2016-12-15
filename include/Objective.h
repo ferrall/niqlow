@@ -77,7 +77,7 @@ struct Objective	{
     virtual Menu();
     virtual Interact();
     virtual contour(Npts,Xpar,Ypar,lims);
-    virtual CombineSubOutput(outmat);
+    virtual Combine(outmat);
 	}
 
 	
