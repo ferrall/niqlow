@@ -1654,7 +1654,7 @@ EmpiricalMoments::Solve(subp) {
         return M;
         }
     else {
-        decl f =idiv(subp,N::F), r =imod(subp,N::F);
+        decl f = idiv(subp,N::R), r =imod(subp,N::R);
         println("*** ",subp," ",f," ",r);
         decl cg = SetG(f,r);
         decl pobj = f ? fparray[f] : this;
