@@ -42,14 +42,15 @@ P2P::P2P(DONOTUSECLIENT,client, server,NSubProblems,MaxSubReturn) {
             if (isclass(client)) client.me_as_server = server;
             }
         else {
-            if (isclass(server)) delete server; server = FALSE;
+            if (isclass(server)) delete server;
+            this.server = FALSE;
             }
         if (fake) setfakeP2P(this);
 		}
 	else {
 		this.server = server;
 		if (isclass(client)) delete client;
-        client = FALSE;
+        this.client = FALSE;
 		}
     Buffer = <>;
 	}
