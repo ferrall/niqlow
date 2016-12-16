@@ -433,7 +433,7 @@ Outcome::FullLikelihood() {
 /** Integrate over the path.
 
 **/
-Path::TypeContribution() {
+Path::TypeContribution(pf,subflat) {
 	decl cur, glk;
 	now = NOW;
 	viinds[!now] = vilikes[!now] = <>;
@@ -443,7 +443,7 @@ Path::TypeContribution() {
 		cur->Outcome::Likelihood();
 		now = !now;
 		} while((isclass(cur = cur.prev)));
-	L = double(sumr(vilikes[!now]));
+	return L = pf*double(sumr(vilikes[!now]));
 	}
 
 RandomEffectsIntegration::RandomEffectsIntegration() {	RETask(); 	}
@@ -462,9 +462,9 @@ RandomEffectsIntegration::Integrate(path) {
 	}
 	
 RandomEffectsIntegration::Run() {
-    path->TypeContribution(curREdensity);
-    //if (isint(flat))        flat = curREdensity*pf;    else        flat += curREdensity*pf;
-	}
+    path.rcur = I::r;  //Added Dec. 2016
+    L += path->TypeContribution(curREdensity);	
+    }
 	
 /** Compute likelihood of a realized path.
 **/
@@ -1057,17 +1057,14 @@ Predictions are averaged over random effect groups.
 PathPrediction::Predict(inT,prtlevel){
     this.inT = inT;
     this.prtlevel = prtlevel;
-    if (!Initialize()) {
-        L = -.Inf;
-        flat = <>;
-        return FALSE;
-        }
+    if (!Initialize()) return FALSE;
 	if (isclass(summand))
 		summand->Integrate(this);
 	else
-		TypeContribution(1.0);
+		TypeContribution();
     if (PredictFailure) {
         L = +.Inf;
+        flat = <>;
         return FALSE;
         }
     else {
@@ -1427,20 +1424,16 @@ PathPrediction::Initialize() {
 		summand->SetFE(state);
 		upddens->loop();
 		}
+    flat = <>;
+    L = +.Inf;
     first = TRUE;
     return TRUE;
     }
 
 /** Compute predictions and distance over the path. **/
-PathPrediction::TypeContribution(pf,subsolve) {
+PathPrediction::TypeContribution(pf,subflat) {
   decl done, pcode;
-  if (isclass(method)) {
-    if (!method->Solve(f,I::r)) {
-        L = -.Inf;
-        flat = <>;
-        return FALSE;
-        }
-    }
+  if (isclass(method) && !method->Solve(f,rcur)) return FALSE;
   SetT();
   cur=this;
   do {
@@ -1455,14 +1448,14 @@ PathPrediction::TypeContribution(pf,subsolve) {
                 }
      if (first) {       //either first or only
         cur.accmom = pf*cur.predmom;
-        if (subsolve) flat |= cur.accmom;
+        if (!isint(subflat)) subflat[0] |= cur.accmom;
         }
      else
         cur.accmom += pf*cur.predmom;
      cur = cur.pnext;
   	 } while(!done);
   first = FALSE;
-  return subsolve ? flat : 0;
+  return 0;
   }
 
 /** Produce histograms and mean predictions for all paths in the panel.
@@ -1654,12 +1647,12 @@ EmpiricalMoments::Solve(subp) {
         return M;
         }
     else {
-        decl f = idiv(subp,N::R), r =imod(subp,N::R);
-        println("*** ",subp," ",f," ",r);
-        decl cg = SetG(f,r);
-        decl pobj = f ? fparray[f] : this;
+        decl cg = SetG(idiv(subp,N::R),imod(subp,N::R)), subflat=<>;
+        decl pobj = cg.find ? fparray[cg.find] : this;
+        pobj.rcur = cg.rind;
         pobj->PathPrediction::Initialize();
-        return pobj->TypeContribution(cg.curREdensity,TRUE);
+        pobj->TypeContribution(cg.curREdensity,&subflat);
+        return subflat;
         }
     }
 
@@ -1670,6 +1663,7 @@ EmpiricalMoments::Solve(subp) {
 EmpiricalMoments::Read(FNorDB) {
     decl curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone,incol;
     HasObservations = TRUE;
+
     if (isstring(FNorDB)) {
         source = new Database();
 	    if (!source->Load(FNorDB)) oxrunerror("DDP Error 66. Failed to load data from "+FNorDB);

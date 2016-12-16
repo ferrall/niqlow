@@ -8,7 +8,7 @@ VISolve(ToScreen=TRUE,aM=FALSE,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZero
 
 /**	Loop over random effect values &gamma;, call  GSolve() method for the calling method.
 **/
-struct RandomSolve : RETask { RandomSolve(gtask); Run(); }
+struct RandomSolve : RETask { decl retval; RandomSolve(gtask); Run(); }
 
 
 /** A container for solution methods.

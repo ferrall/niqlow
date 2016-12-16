@@ -82,23 +82,16 @@ ValueIteration::Run(){
     if (DoNotIterate) return;
 	cputime0 = timer();
     if (Volume>SILENT && N::F>1) print("f=",I::f);
-
     if (Rgroups==AllRand) {
         itask->SetFE(state);
         done = done || itask->GroupTask::loop();
-        if (DPDebug::OutAll)  DPDebug::RunOut();
-        else {
-            if (GSolve::Volume>SILENT) {
-                if (N::G>1) println("X");
-	            if (GSolve::Volume>QUIET) DPDebug::outV(TRUE);
-                }
-            }
         Hooks::Do(PostRESolve);
         }
     else {
         itask->SetRE(state,Rgroups);
         done = done || itask->Run();
         }
+    if (Volume>SILENT && N::F>1) println("X");
 	}
 
 RandomSolve::RandomSolve(gtask) {	
@@ -116,7 +109,12 @@ Solution is not run if the density of the point in the group space equals 0.0.
 RandomSolve::Run()  {
 	if (I::curg->Reset()>0.0) {
         if (Flags::UpdateTime[AfterRandom]) ETT->Transitions(state);
-		return itask->Solve(this.state);
+        retval =itask->Solve(this.state);
+        if (DPDebug::OutAll)
+            DPDebug::RunOut();
+        else
+            if (GSolve::Volume>QUIET) DPDebug::outV(TRUE);
+        return retval;
 		}
 	}
 
@@ -185,7 +183,7 @@ If `Flags::UpdateTime`[OnlyOnce] is TRUE (see `UpdateTimes`), then transitions a
 @comments Result stored in `ValueIteration::VV` matrix for only two or three ages (iterations) stored at any one time.  So this
 cannot be used after the solution is complete.  `Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
 Results are integrated over random effects, but results across fixed effects are overwritten.<br>
-Choice probabilities are stored in `Bellman::pandv` by random group index
+Choice probabilities are stored in `Bellman::pandv`
 **/
 ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
     decl glo, ghi, g;
@@ -323,7 +321,7 @@ KWEMax::Run() {
 		I::curth->ActVal(meth.VV[I::later]);
 		meth.VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
 		if (!onlypass)
-			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])'); //NoR! [I::r]
+			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');
 		}
     else if (!inss) {
 		itask.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
@@ -428,7 +426,7 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
 	}
 	
 KWEMax::InSample(){
-	meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])'); //NoR! [I::r]
+	meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');
 	}
 
 	
@@ -518,7 +516,7 @@ CCPspace::Run() {
 	   nom =  itask.ObsPstar[I::f].*itask.Kernel[ii][],
 	   p = sumr(nom/dnom);
 	   p[0] = 1-sumc(p[1:]);
-       I::curth.pandv[] = p; //NoR! [0]
+       I::curth.pandv[] = p;
        I::curth->ExogUtil();    //.U[]=th->Utility();
 	   itask.Q[I::f][ii] = p'*(I::curth.U+M_EULER-log(p));
 //       println(ii," ",qtask.Q[I::f][ii]);

@@ -55,6 +55,7 @@ struct Path : Outcome {
 	const 	decl
 		/** index of path in a panel. **/	i;
 			decl
+        /** current index of random effects.**/         rcur,
 		/** . @internal **/								cur,
 		/** Next Path in a `Panel`. @internal **/		pnext,		
         /** lenth of the path. **/						T,
@@ -66,7 +67,7 @@ struct Path : Outcome {
 	virtual	Simulate(T,UseChoiceProb=TRUE,DropTerminal=FALSE);
 	        Likelihood();
 			FullLikelihood();
-            TypeContribution();
+            TypeContribution(pf=1.0,subflat=0);
 			PathObjective();
 			ReadObs(data);
 			Mask();
@@ -273,6 +274,7 @@ struct 	PathPrediction : Prediction {
 	static	decl summand, upddens;
     const decl f, iDist;
 	decl
+    /** current index of random effects.**/         rcur,
     /** Empirical moments read in. **/              HasObservations,
     /** Predict() called before. **/                EverPredicted,
     /** Path length sent it.**/                     inT,
@@ -298,7 +300,7 @@ struct 	PathPrediction : Prediction {
     Empirical(inmoments,Nincluded=FALSE,wght=TRUE);
     Tracking(LorC,...);
     SetColumns(dlabels,Nplace=UnInitialized);
-    TypeContribution(pf=1.0,subsolve=FALSE);
+    TypeContribution(pf=1.0,subflat=0);
     ProcessContributions(cmat=0);
 	}
 

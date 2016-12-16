@@ -22,7 +22,7 @@ struct  Bellman : DP {
 	    /** Full solution at this state.                 **/        InSubSample,
 		/**&theta;.j index into `DP::A`.**/  						Aind,
 		/**U(&alpha;&epsilon;,&eta;,&theta;,&gamma;).  **/	        U,
-		/** array of &Rho;*(&hellip;,&gamma;). **/   		        pandv,
+		/**  &Rho;*(&hellip;,&gamma;). **/   		                pandv,
 		/** TransStore x &eta;-Array of feasible endogenous	state
 			indices and transitions
 			&Rho;(&gamma;&prime;;&alpha;,&eta;,&gamma;).**/			Nxt,
@@ -57,7 +57,7 @@ struct  Bellman : DP {
 					Simulate(Y);
 					ThetaTransition();
 					UpdatePtrans();
-					ExpandP(r,Agg=TRUE);
+					ExpandP(Agg=TRUE);
 					MedianActVal(EV);
                     InSS();
 	}																																				

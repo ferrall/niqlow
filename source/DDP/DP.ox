@@ -179,10 +179,7 @@ DP::GetAind(i) {return isclass(Theta[i]) ? Theta[i].Aind : NoMatch; }
 @param i index of &theta; in the state space &Theta;
 @return &Rho;*(&alpha;|&epsilon;,&eta;,&theta;,&gamma;)  (Theta[i].pandv)
 **/
-DP::GetPstar(i) {return
-//NoR!        Theta[i].pandv[Gamma[I::g].rind];
-        Theta[i].pandv;
-        }
+DP::GetPstar(i) {return Theta[i].pandv; }
 
 /** Return tracking transition at a given &eta;,&theta; combination.
 @param i index of &theta; in the state space &Theta;
@@ -191,7 +188,7 @@ DP::GetPstar(i) {return
 First element is vector of indices for feasible states &theta;&prime;<br>
 Second element is a matrix of transition probabilities (rows for actions <code>&alpha;</code>, columns correspond to &theta;&prime;)
 **/
-DP::GetTrackTrans(i,h) { return {Theta[i].Nxt[Qtr][h],Theta[i].Nxt[Qrho/*NoR! +I::rtran*/][h]}; }
+DP::GetTrackTrans(i,h) { return {Theta[i].Nxt[Qtr][h],Theta[i].Nxt[Qrho][h]}; }
 
 /** Ask to store overall &Rho;*() choice probability matrix.
 @comment Can only be called before calling `DP::CreateSpaces`
@@ -1635,12 +1632,12 @@ DPDebug::outV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 DPDebug::RunOut() {
 	if (rp.ToScreen) {
             print("\n     Value of States and Choice Probabilities");
-            if (N::F>1) print("\n     Fixed Group Index(f): ",I::f);
+            if (N::G>1) print("\n     Fixed Group Index(f): ",I::f,". Random Group Index(r): ",I::r);
             println("\n",div);
             }
     else {
         fprint(logf,"\n     Value of States and Choice Probabilities");
-        if (N::F>1) fprint(logf,"\n     Fixed Group Index(f): ",I::f);
+        if (N::G>1) fprint(logf,"\n     Fixed Group Index(f): ",I::f,". Random Group Index(r): ",I::r);
         fprintln(logf,"\n",div);
         }
 	rp -> Traverse();
@@ -1711,18 +1708,16 @@ SaveV::Run() {
 	if ((TrimTerminals && I::curth.IsTerminal) || (TrimZeroChoice && N::Options[I::curth.Aind]<=1) ) return;
     decl mxi, p;
 	stub=I::all[tracking]~I::curth.InSubSample~I::curth.IsTerminal~I::curth.Aind~state[S[endog].M:S[clock].M]';
-	for(re=0;re<sizeof(I::curth.EV);++re) {
-        p = I::curth->ExpandP(re,TRUE);
-        r =stub~re~I::f~I::curth.EV[re];
-        if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
-		if (isclass(I::curth,"OneDimensionalChoice") )  r ~= I::curth->Getz()';
-		if (!isint(aM)) aM[0] |= r;
-		s = (nottop)
-				? sprint("%cf",prtfmt,r)
-				: sprint("%c",isclass(I::curth,"OneDimensionalChoice") ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);
-		if (ToScreen) print(s[1:]); else fprint(logf,s[1:]);
-		nottop = TRUE;
-		}
+    p = I::curth->ExpandP(TRUE);
+    r =stub~I::r~I::f~I::curth.EV;
+    if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
+	if (isclass(I::curth,"OneDimensionalChoice") )  r ~= I::curth->Getz()';
+	if (!isint(aM)) aM[0] |= r;
+	s = (nottop)
+		? sprint("%cf",prtfmt,r)
+		: sprint("%c",isclass(I::curth,"OneDimensionalChoice") ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);
+	if (ToScreen) print(s[1:]); else fprint(logf,s[1:]);
+	nottop = TRUE;
 	}
 
 OutAuto::OutAuto(){

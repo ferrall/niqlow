@@ -383,7 +383,7 @@ struct DPDebug : ThetaTask {
 
 struct SaveV	: DPDebug	{
 	const decl ToScreen, aM, MaxChoiceIndex, TrimTerminals, TrimZeroChoice;
-	decl  re, stub, nottop, r, s;
+	decl  stub, nottop, r, s;
 	SaveV(ToScreen=TRUE,aM=0,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
 	virtual Run();
 	}
