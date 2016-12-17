@@ -1026,12 +1026,15 @@ PathPrediction::ProcessContributions(cmat){
     decl delt =<>;
     flat = <>;
     cur=this;
-    if (ismatrix(cmat)) 
+    if (ismatrix(cmat)) {
+        cmat = shape(cmat,sizeof(tlist),this.T)';
         println("PC ",rows(cmat)," ",columns(cmat));
-    else
-        println("PC?? ",cmat);
+        }
     do {
-        if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
+        if (ismatrix(cmat)) {
+            cur.accmom = cmat[cur.t][];
+            println(cur.t," ",cur.accmom);
+            }
         flat |= cur.t~cur.accmom;
         if (HasObservations) delt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
         cur = cur.pnext;
