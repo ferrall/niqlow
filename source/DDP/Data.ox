@@ -1548,6 +1548,7 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
     do {
         if (ismatrix(outmat)) {
             cur->PathPrediction::ProcessContributions(sumr(outmat[][left:right]));
+            println(left," ",cur.L);
             left += N::R;
             right += N::R;
             }
@@ -1556,6 +1557,7 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
         M += cur.L;
 	    aflat |= cur.f~cur.flat;
         } while((isclass(cur=cur.fnext)));
+    println("## ",M);
     M = succ ? -sqrt(M) : -.Inf;
     return succ;
     }
