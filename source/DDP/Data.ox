@@ -1031,10 +1031,7 @@ PathPrediction::ProcessContributions(cmat){
         println("PC ",rows(cmat)," ",columns(cmat));
         }
     do {
-        if (ismatrix(cmat)) {
-            cur.accmom = cmat[cur.t][];
-            println(cur.t," ",cur.accmom);
-            }
+        if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
         flat |= cur.t~cur.accmom;
         if (HasObservations) delt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
         cur = cur.pnext;
@@ -1557,7 +1554,6 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
         M += cur.L;
 	    aflat |= cur.f~cur.flat;
         } while((isclass(cur=cur.fnext)));
-    println("## ",M);
     M = succ ? -sqrt(M) : -.Inf;
     return succ;
     }

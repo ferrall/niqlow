@@ -36,7 +36,8 @@ PanelBB::PanelBB (L,data,...)	{
 	}
 
 PanelBB::Combine(outmat) {
-    return data->Predict(0,FALSE,outmat);
+    data->Predict(0,FALSE,outmat);
+    return data.M;
     }
 
 /** Calls and returns <code>data-&gt;EconometricObjective()</code>.
