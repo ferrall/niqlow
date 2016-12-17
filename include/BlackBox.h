@@ -17,7 +17,7 @@ struct PanelBB : BlackBox {
 	const decl data;
 	PanelBB(L,data, ...);
 	virtual vfunc(subp=DoAll);
-    virtual CombineSubOutput(outmat);
+    virtual Combine(outmat);
 	}
 
 struct NoObjective : BlackBox {

@@ -35,7 +35,7 @@ PanelBB::PanelBB (L,data,...)	{
 	else oxwarning("FiveO Warning 03.\n No estimated parameters added to "+L+" panel estimation ");
 	}
 
-PanelBB::CombineSubOutput(outmat) {
+PanelBB::Combine(outmat) {
     return data->Predict(0,FALSE,outmat);
     }
 
