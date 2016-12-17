@@ -1026,6 +1026,10 @@ PathPrediction::ProcessContributions(cmat){
     decl delt =<>;
     flat = <>;
     cur=this;
+    if (ismatrix(cmat)) 
+        println("PC ",rows(cmat)," ",columns(cmat));
+    else
+        println("PC?? ",cmat);
     do {
         if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
         flat |= cur.t~cur.accmom;
