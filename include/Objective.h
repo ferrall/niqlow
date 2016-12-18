@@ -108,5 +108,5 @@ struct System : Objective {
                              normexp;
 			System(L,LorN=1);
 	virtual equations();
-	virtual fobj(F);
+	//virtual fobj(F);
 	}

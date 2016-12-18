@@ -81,7 +81,7 @@ ValueIteration::Run(){
     if (Flags::UpdateTime[AfterFixed]) ETT->Transitions(state);
     if (DoNotIterate) return;
 	cputime0 = timer();
-    if (Volume>SILENT && N::F>1) print("f=",I::f);
+    if (Volume>SILENT && N::G>1) print("f=",I::f," ");
     if (Rgroups==AllRand) {
         itask->SetFE(state);
         done = done || itask->GroupTask::loop();
@@ -91,7 +91,7 @@ ValueIteration::Run(){
         itask->SetRE(state,Rgroups);
         done = done || itask->Run();
         }
-    if (Volume>SILENT && N::F>1) println("X");
+    if (Volume>SILENT && N::G>1) println("X");
 	}
 
 RandomSolve::RandomSolve(gtask) {	

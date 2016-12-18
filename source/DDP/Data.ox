@@ -1026,10 +1026,7 @@ PathPrediction::ProcessContributions(cmat){
     decl delt =<>;
     flat = <>;
     cur=this;
-    if (ismatrix(cmat)) {
-        cmat = shape(cmat,sizeof(tlist),this.T)';
-        println("PC ",rows(cmat)," ",columns(cmat));
-        }
+    if (ismatrix(cmat)) cmat = shape(cmat,sizeof(tlist),this.T)';
     do {
         if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
         flat |= cur.t~cur.accmom;
@@ -1545,7 +1542,6 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
     do {
         if (ismatrix(outmat)) {
             cur->PathPrediction::ProcessContributions(sumr(outmat[][left:right]));
-            println(left," ",cur.L);
             left += N::R;
             right += N::R;
             }

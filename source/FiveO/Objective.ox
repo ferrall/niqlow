@@ -453,9 +453,12 @@ Constrained::funclist(Fmat,jake) {
 @param F vector of free parameters.
 **/
 Objective::fobj(F)	{
-	vobj(F);
+	this->vobj(F);
 	cur->aggregate();
-//	this->CheckMax();
+    if (Volume>SILENT) {
+        fprint(logf,"fobj = ",cur.v);
+        if (Volume>QUIET) println("fobj = ",cur.v);
+        }
 	}
 
 Objective::Combine(outmat) {
@@ -479,14 +482,18 @@ Objective::vobj(F)	{
         }
 	}
 
-/** Decode the input, compute the objective, check the maximum.
+/* Decode the input, compute the objective, check the maximum.
 @param F vector of free parameters.
-**/
 System::fobj(F)	{
 	vobj(F);
 	cur->aggregate();
+    if (Volume>SILENT) {
+        fprint(logf,"fobj = ",cur.v);
+        if (Volume>QUIET) println("fobj = ",cur.v);
+        }
 //	this->CheckMax();
 	}
+*/
 
 /** Decode the input, return the whole vector, inequality and equality constraints, if any.
 @param F vector of free parameters.
