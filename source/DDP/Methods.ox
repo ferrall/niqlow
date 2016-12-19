@@ -81,7 +81,6 @@ ValueIteration::Run(){
     if (Flags::UpdateTime[AfterFixed]) ETT->Transitions(state);
     if (DoNotIterate) return;
 	cputime0 = timer();
-    if (Volume>SILENT && N::G>1) print("f=",I::f," ");
     if (Rgroups==AllRand) {
         itask->SetFE(state);
         done = done || itask->GroupTask::loop();
@@ -91,7 +90,6 @@ ValueIteration::Run(){
         itask->SetRE(state,Rgroups);
         done = done || itask->Run();
         }
-    if (Volume>SILENT && N::G>1) println("X");
 	}
 
 RandomSolve::RandomSolve(gtask) {	
@@ -197,7 +195,7 @@ ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
     GSolve::vtoler = vtoler;
     GSolve::succeed = TRUE;
     done = FALSE;
-    if (Volume>QUIET) println("\n>>>>>>Value Iteration Starting");
+    if (Volume>QUIET && (Fgroups==AllFixed && Rgroups==AllRand)) println("\n>>>>>>Value Iteration Starting");
 	if (Fgroups==AllFixed) {
         if (Rgroups!=AllRand) oxwarning("DDP Warning: Must solve all random groups if solving All Fixed");
         this.Rgroups = AllRand;
@@ -212,7 +210,9 @@ ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
         }
     Hooks::Do(PostFESolve);
     Flags::HasBeenUpdated = FALSE;
-    if (Volume>QUIET) println("\n>>>>>>Value Iteration Finished.  Succeed: ",GSolve::succeed,"\n");
+    if (Volume>QUIET && (Fgroups==AllFixed && Rgroups==AllRand))
+        println("\n>>>>>>Value Iteration Finished.  Succeed: ",GSolve::succeed,"\n");
+    else  if (Volume>SILENT && Fgroups==N::F-1 && Rgroups==N::F-1) println("X");
     return GSolve::succeed;
 	}
 
