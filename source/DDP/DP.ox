@@ -1700,7 +1700,7 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
         for(decl i=0;i<N::A;++i) prtfmt |= "%9.6f";
         prtfmt |= "%15.6f";
         }
-	if ( !isint(this.aM = aM) ) this.aM[0] = <>;
+	if (( !isint(this.aM = aM) )) this.aM[0] = <>;
 	nottop = FALSE;
 	}
 	

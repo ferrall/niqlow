@@ -258,11 +258,11 @@ LineMax::PTry(pt,left,right) {
 LineMax::Try(pt,step)	{
 	pt.step = step;
 	O->fobj(holdF + step*Delta);
-	if (isnan(pt.v = OC.v)) {
+	if ((isnan(pt.v = OC.v))) {
 	  oxwarning("FiveO Warning 01. Objective undefined at first line try.  Trying 20% of step.\n");
 	  pt.step *= .2;
 	  O->fobj(holdF + pt.step*Delta);
-	  if (isnan(pt.v = OC.v)) {
+	  if ((isnan(pt.v = OC.v))) {
 	       println("*** ",pt,holdF+pt.step*Delta,OC.X,"\n ****");
 		   oxrunerror("FiveO Error 01. Objective undefined at line max point.\n");
             }
@@ -290,11 +290,11 @@ CLineMax::CLineMax(O)	{
 CLineMax::Try(pt,step)	{
 	pt.step = step;
 	O->Merit(holdF + step*Delta);
-	if (isnan(pt.v = OC.L)) {
+	if ((isnan(pt.v = OC.L))) {
 	   oxrunerror("FiveO Error 03.  Lagrange undefined at first try. Trying 20% step\n");
        pt.step *= 0.2;
 	   O->Merit(holdF + pt.step*Delta);
-	   if (isnan(pt.v = OC.L)) {
+	   if ((isnan(pt.v = OC.L))) {
 		  println("****",pt,OC.X,"\n****");
 		  oxrunerror("FiveO Error 03.  Lagrange undefined at line max point\n");
 		  }
@@ -400,7 +400,6 @@ NelderMead::Iterate(iplex)	{
 		  fprintln(logf,"\n Max # evaluations ",nfuncmax,
 				"\n Max # restarts ",mxstarts,
 				"\n Plex size tolerance ",tolerance);
-          fflush(logf);
 		  }
 	   do {
            n_func = 0;
@@ -413,7 +412,6 @@ NelderMead::Iterate(iplex)	{
 	       if (Volume>SILENT) {
 	   		  fprintln(logf,"\n","%3u",iter,". N=","%5u",n_func," Step=","%8.5f",step,". Fmax=",nodeV[mxi]," .PlexSize=",plexsize,plexsize<tolerance ? " *Converged*" : "");
 	          fprintln(logf," Bounds on Simplex","%r",{"min","max"},"%c",O.Flabels,limits(nodeX')[:1][]);
-              fflush(logf);
               }
 	       step *= 0.9;
            } while (++iter<mxstarts && !plexshrunk && n_func < nfuncmax);
@@ -432,26 +430,12 @@ NelderMead::Iterate(iplex)	{
 **/
 NelderMead::Reflect(fac) 	{
   decl fac1, ptry, ftry;
-  // if (!isclass(O.p2p)) {
 	fac1 = (1.0-fac)/N;
 	ptry = fac1*psum - (fac1-fac)*nodeX[][mni];
 	O->fobj(ptry);
     if (StorePath) path ~= OC.F;
     O->CheckMax();
 	ftry = OC.v;
-/*    }
- else {
-    decl M = O.p2p.MaxSimJobs,
-    facs = fac*exp(range(-1,1,2/M)),
-    Vtries=zeros(O.NvfuncTerms,M), best,
-    vtries, tries;
-    fac1 = (1-facs)/N;
-	tries = fac1.*psum - (fac1-fac).*nodeX[][mni];
-	O->funclist(tries,&Vtries,&vtries,&best);
-	ftry = vtries[best];
-    ptry = tries[][best];
-    }
-    */
   ++n_func;
   atry = (ftry<nodeV[mni])
 			? worst
@@ -465,9 +449,7 @@ NelderMead::Reflect(fac) 	{
 		nodeV[mni]=ftry;               //mni is temporarily not right but that's okay
 		nodeX[][mni]=ptry;
 		}
-    if (Volume>LOUD) {
-        fprintln(logf,"Reflect: ",atry,"%15.5f",ftry,"%r",{"f","p"},(ftry~nodeV)|(ptry~nodeX),"MXi:",mxi," MNi:",mni," nmni:",nmni);
-        }
+    //if (Volume>LOUD) fprintln(logf,"Reflect: ",atry,"%15.5f",ftry,"%r",{"f","p"},(ftry~nodeV)|(ptry~nodeX),"MXi:",mxi," MNi:",mni," nmni:",nmni);
 	}
 	
 /**	 .
@@ -481,8 +463,10 @@ NelderMead::Sort()	{
 	psum = sumr(nodeX);		
 	plexsize = SimplexSize();
     fdiff = norm(nodeV-meanr(nodeV));
-    if (Volume>LOUD) {
-        fprintln(logf,"Simplex: ","%15.5f","%r",{"f","p"},nodeV|nodeX,"MXi:",mxi," MNi:",mni," nmni:",nmni);
+    if (Volume>SILENT) {
+        fprint(logf,"Sorted plexsize: ",plexsize," fdiff:",fdiff);
+        if (Volume>LOUD) fprint(logf,"%15.5f","%r",{"f","p"},nodeV|nodeX,"MXi:",mxi," MNi:",mni," nmni:",nmni);
+        fprintln(logf,"\n-------");
         }
 	}
 
@@ -503,28 +487,22 @@ NelderMead::Amoeba() 	{
 	 do	{
 	 	Sort();
 		if (plexsize<tolerance) return TRUE;
-        if (Volume>SILENT) fprint(logf,"plexsize: ",plexsize," fdiff:",fdiff);
 		Reflect(-alpha);
-        if (Volume>SILENT) fprint(logf," ",atry==hi," ",atry>nxtlo);
-		if (atry==hi) {
+		if (atry==hi)
             Reflect(gamma);  //new best in mni so reflecting thru it
-            if (Volume>SILENT) fprint(logf," ... gamma ",atry);
-            }
 		else if (atry>nxtlo){
 			Reflect(beta);
-            if (Volume>SILENT) fprint(logf," ... beta ",atry==worst);
 			if (atry==worst){
                 decl holdfx = nodeV[mxi], holdX = nodeX[][mxi];
 				nodeX = 0.5*(nodeX+nodeX[][mxi]);
 				n_func += O->funclist(nodeX,&vF,&nodeV);
-                if (!isfeq(holdfx,nodeV[mxi])) {
+                if (fabs(holdfx-nodeV[mxi])<SQRT_EPS) {
                     println("%c",{"New","Old"},"%cf","%20.10f",(nodeV[mxi]~holdfx)|(holdX~nodeX[][mxi]));
                     oxwarning("FiveO Warning: recomputing objective at same params");
                     nodeV[mxi] = holdfx;
                     }
 				}
 			}
-        if (Volume>SILENT) { fprintln(logf," ... ",n_func);fflush(logf);}
 		} while (n_func < nfuncmax);
 	 return FALSE;
 	}

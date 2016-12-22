@@ -297,9 +297,9 @@ struct 	PathPrediction : Prediction {
     InitialConditions();
 	Predict(T=0,printit=FALSE);
     SetT();
-    Empirical(inmoments,Nincluded=FALSE,wght=TRUE);
+    Empirical(inmoments,hasN=FALSE,hasT=FALSE,wght=TRUE);
     Tracking(LorC,...);
-    SetColumns(dlabels,Nplace=UnInitialized);
+    SetColumns(dlabels,Nplace=UnInitialized,Tplace=UnInitialized);
     TypeContribution(pf=1.0,subflat=0);
     ProcessContributions(cmat=0);
 	}
@@ -330,13 +330,14 @@ struct EmpiricalMoments : PanelPrediction {
     decl
             /** **/                                                     flist,
             /** matrix of indices or array of labels or UseLabel  **/   UorCorL,
-            /** observations location .**/                              Nplace,
+            /** observations column (index or label).**/                Nplace,
+            /** time column (index or label).**/                        Tplace,
             /** **/                                                     FMethod;
     EmpiricalMoments(label="",method=0,UorCorL=UseLabel,iDist=0,wght=TRUE);
     Observed(as1,lc1=0,...);
     TrackingMatchToColumn(Fgroup,LorC,mom);
     TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);
-    Observations(LabelorColumn);
+    Observations(NLabelorColumn,TLabelorColumn=UnInitialized);
     Read(fn);
  	virtual EconometricObjective(subp=DoAll);
     virtual Solve(subp=DoAll);

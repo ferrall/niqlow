@@ -1076,29 +1076,40 @@ PathPrediction::Predict(inT,prtlevel){
 
 /** Add empirical values to a path of predicted values.
 @param inmom  Txm matrix of values.
-@param Nincluded FALSE: no row observation column<br>TRUE: lastcolumn that contains observation count stored in `Prediction::N` and used for weighting of distances.
+@param hasN FALSE: no row observation column<br>TRUE: second-to-last column that contains observation count stored in `Prediction::N` and used for weighting of distances.
+@param hasT FALSE: no model t column<br>TRUE: last column contains observation count stored in `Prediction::N` and used for weighting of distances.
 @param wght TRUE: weight columns by inverse standard deviations.
 @comments
 If T is greater than the current length of the path additional predictions are concatenated to the path
 
 **/
-PathPrediction::Empirical(inNandMom,Nincluded,wght) {
-    decl t=0,inmom,totN,inN,invsd;
+PathPrediction::Empirical(inNandMom,hasN,hasT,wght) {
+    decl inmom,totN,inN,invsd,C = columns(inNandMom)-1,influ,dt,datat,negt;
+    influ = ones(1,C-1);
     T = rows(inNandMom);
+    if (hasT) {
+        negt = inNandMom[][C].<0;
+        if ( any(negt)  ) {
+            influ = inNandMom[maxcindex(negt)][:C-2];
+            inNandMom = deleteifr(inNandMom,negt);
+            }
+        datat = inNandMom[][C];
+        T = rows(inNandMom);
+        }
+    else
+        datat = range(0,T-1)';
     cur = this;
-    if (Nincluded) {
-        decl ncol = columns(inNandMom)-1;
-        inN = inNandMom[][ncol];
+    dt = 0;
+    if (hasN) {
+        inN = inNandMom[][C-1];
         inN = isdotnan(inN) .? 0 .: inN;
         totN = sumc(inN);
-        inmom = dropc(inNandMom,ncol);
         }
     else {
         inN = ones(T,1);
         totN = 1.0;
-        inmom = inNandMom;
         }
-
+    inmom = inNandMom[][:C-2];
     decl j;  //insert columns for moments not matched in the data
     for (j=0;j<columns(cols);++j)
         if (cols[j]==NotInData) {
@@ -1108,17 +1119,23 @@ PathPrediction::Empirical(inNandMom,Nincluded,wght) {
             }
     if (wght && columns(inmom)!=columns(mask)) oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
     invsd = wght ? selectifc( 1.0 ./ setbounds(moments(inmom,2)[2][],0.1,+.Inf),mask) : 1.0; // 0.5,+.InF
-//    decl invmn = wght ? selectifc( 1.0 ./ setbounds(fabs(moments(inmom,2)[1][]),0.1,+.Inf),mask) : 1.0; // 0.5,+.InF
-//    println(inmom,"*",invmn,"**",inN);
+    if (Data::Volume>LOUD)
+        fprintln(Data::logf,"Row influence: ",influ,"Weighting by row and column",(inN/totN).*invsd.*influ);
     do {
-        cur.W = (inN[t]/totN)*invsd;
-        cur.readmom = inmom[t++][];
+        if (cur.t==datat[dt]) {
+            cur.W = (inN[dt]/totN)*(invsd.*influ);
+            cur.readmom = inmom[dt++][];
+            }
+        else {
+            cur.W = zeros(influ);
+            cur.readmom = constant(.NaN,mask);
+            }
         cur.empmom = selectifc(cur.readmom,mask);
-        if (t<T) {
-            if (cur.pnext==UnInitialized) cur.pnext = new Prediction(t);
+        if (dt<T) {
+            if (cur.pnext==UnInitialized) cur.pnext = new Prediction(cur.t+1);
             cur = cur.pnext;
             }
-        } while(t<T);
+        } while(dt<T);
     }
 /** Set the initial conditions of a path prediction.
 What happens depends on `PathPrediction::iDist`.
@@ -1384,8 +1401,9 @@ PathPrediction::Tracking(LorC,...) {
 /** Set up data columns for tracked variables.
 @param dlabels array of column labels in the data.
 @param Nplace number of observations (row weight) column<br>UnInitialized no row weights
+@param tplace model t column<br>UnInitialized
 **/
-PathPrediction::SetColumns(dlabels,Nplace) {
+PathPrediction::SetColumns(dlabels,Nplace,Tplace) {
     decl v,lc,vl;
     cols = <>;
     mask = <>;
@@ -1408,10 +1426,14 @@ PathPrediction::SetColumns(dlabels,Nplace) {
         cols ~= strfind(dlabels,vl);
         mask ~= 1;
         }
-    if (isstring(Nplace)|| Nplace!=UnInitialized) {
-        cols~= isint(Nplace) ? Nplace : strfind(dlabels,Nplace);
-        //mask???
-        }
+    if (isstring(Nplace)|| Nplace!=UnInitialized)
+        cols ~= isint(Nplace) ? Nplace : strfind(dlabels,Nplace);
+    else
+        cols ~= .NaN;
+    if (isstring(Tplace)|| Tplace!=UnInitialized)
+        cols~= isint(Tplace) ? Tplace : strfind(dlabels,Tplace);
+    else
+        cols ~= .NaN;
     }
 
 PathPrediction::Initialize() {
@@ -1482,7 +1504,7 @@ PanelPrediction::MaxPathVectorLength(inT) {
     cur = this;
     do {
         n= max(n,max(inT,cur.T) * sizeof(cur.tlist));
-        } while(isclass(cur = cur.fnext));
+        } while((isclass(cur = cur.fnext)));
     println("Return Max Length: ",n);
     return n;
     }
@@ -1601,7 +1623,7 @@ EmpiricalMoments::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
 EmpiricalMoments::EmpiricalMoments(label,method,UorCorL,iDist,wght) {
     decl q,j;
     this.label = label;
-    Nplace = UnInitialized;
+    Tplace = Nplace = UnInitialized;
     PanelPrediction(label,method,iDist,wght);
     if (UorCorL==NotInData) {
         if (N::F>1) oxwarning("Multiple fixed groups but data contain no fixed columns? Errors may result.");
@@ -1622,11 +1644,21 @@ EmpiricalMoments::EmpiricalMoments(label,method,UorCorL,iDist,wght) {
     else oxrunerror("DDP Error 66. 3rd Argument UorCorL incorrect type");
      }
 
-EmpiricalMoments::Observations(LabelOrColumn) {
-    if ( (isint(LabelOrColumn)&&isarray(flist))
-        ||(isstring(LabelOrColumn)&&ismatrix(flist)))
-        oxrunerror("DP Error ??.  Argument has to be consistent with UorCorL argument sent to EmpiricalMoments Creator");
-    Nplace = LabelOrColumn;
+/** Define columns where observations and time values appear.
+@param NLabelOrColumn  integer or string for column of data containing observation counts.
+                       This is used to adjust weight of rows in moments.
+@param TLabelOrColumn  integer or string for column of data containing model t value.<br/>
+                        Data must still be sorted in time!  However, this allows
+                        missing time periods to be skipped.  Further, it allows
+                        for a special row containing moment influence/importance adjustments.<br/>
+
+**/
+EmpiricalMoments::Observations(NLabelOrColumn,TLabelOrColumn) {
+    if ( (isint(NLabelOrColumn)&&isarray(flist))
+        ||(isstring(NLabelOrColumn)&&ismatrix(flist)))
+        oxrunerror("DP Error ??.  First argument has to be consistent with UorCorL argument sent to EmpiricalMoments Creator");
+    Nplace = NLabelOrColumn;
+    Tplace = TLabelOrColumn;
     }
 
 /** The default econometric objective for a panel prediction: the overall GMM objective.
@@ -1692,9 +1724,11 @@ EmpiricalMoments::Read(FNorDB) {
             }
         }
     cur = this;
-    do { cur -> SetColumns(dlabels,Nplace); } while ((isclass(cur = cur.fnext)));
+    do { cur -> SetColumns(dlabels,Nplace,Tplace); } while ((isclass(cur = cur.fnext)));
     row = 0;
     inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
+    decl hasN = isstring(Nplace)||(Nplace!=UnInitialized),
+         hasT = isstring(Tplace)||(Tplace!=UnInitialized);
     do {
         curf = inf;
         cur = (curf) ?  fparray[curf] : this;
@@ -1712,7 +1746,7 @@ EmpiricalMoments::Read(FNorDB) {
                     }
                 }
             else inf = UnInitialized;  //get out of inner loop after installing
-            cur->Empirical(inmom,isstring(Nplace)||(Nplace!=UnInitialized),wght);
+            cur->Empirical(inmom,hasN,hasT,wght);
             if (Data::Volume>SILENT) {
                     fprintln(Data::logf,"Moments read in for fixed group ",curf,". See log file");
                     fprintln(Data::logf,"Moments of Moments for fixed group:",curf);
