@@ -264,9 +264,9 @@ Test9::Run()	{
     savemat("Test9moms.dta",pd.aflat[0]|pd.aflat[1],{"f"}|pd.tlabels);
     delete pd;
     pd = new EmpiricalMoments("hi",meth,UseLabel,FALSE,FALSE);
-    pd->TrackingWithLabel(AllFixed,UseLabel,fem,a,d);
+    pd->TrackingWithLabel(AllFixed,TRUE,a,d);
     pd->Read("Test9moms.dta");
-//    Explore(pd,10,0.1,lam);
+    Explore(pd,10,0.1,lam);
 	Delete();
 	}
 Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + AV(sk)*CV(p)*Alpha::CV(a)) + (3-I::t); 	}	

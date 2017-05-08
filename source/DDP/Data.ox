@@ -1109,7 +1109,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT,wght) {
         inN = ones(T,1);
         totN = 1.0;
         }
-    inmom = inNandMom[][:C-2];
+    inmom = inNandMom[][:C-hasN-hasT];
     decl j;  //insert columns for moments not matched in the data
     for (j=0;j<columns(cols);++j)
         if (cols[j]==NotInData) {
@@ -1654,7 +1654,7 @@ EmpiricalMoments::EmpiricalMoments(label,method,UorCorL,iDist,wght) {
 
 **/
 EmpiricalMoments::Observations(NLabelOrColumn,TLabelOrColumn) {
-    if ( (isint(NLabelOrColumn)&&isarray(flist))
+    if ( (isint(NLabelOrColumn)&&(NLabelOrColumn>=0)&&isarray(flist))
         ||(isstring(NLabelOrColumn)&&ismatrix(flist)))
         oxrunerror("DP Error ??.  First argument has to be consistent with UorCorL argument sent to EmpiricalMoments Creator");
     Nplace = NLabelOrColumn;
@@ -1724,24 +1724,23 @@ EmpiricalMoments::Read(FNorDB) {
             }
         }
     cur = this;
-    do { cur -> SetColumns(dlabels,Nplace,Tplace); } while ((isclass(cur = cur.fnext)));
-    row = 0;
-    inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
     decl hasN = isstring(Nplace)||(Nplace!=UnInitialized),
          hasT = isstring(Tplace)||(Tplace!=UnInitialized);
+    row = 0;
+    inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
     do {
         curf = inf;
         cur = (curf) ?  fparray[curf] : this;
         if (fdone[curf]) oxrunerror("DDP Error 68. reading in moments for a fixed group more than once.  moments data file not sorted properly");
         fdone[curf] = TRUE;
         inmom = <>;
+        cur -> SetColumns(dlabels,Nplace,Tplace);
         incol = selectifc(cur.cols,cur.cols.>=0);
         do {
             if (row<rows(data)) {  //read one more
                 inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
                 if (inf==curf ) {  //same fixed group
                     inmom |= data[row++][incol];   //add moments, increment row
-
                     continue;                        // don't install moments
                     }
                 }
