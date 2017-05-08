@@ -66,7 +66,7 @@ Objective::CheckPoint(f,saving) {
             fprintln(f,"%03u",i,"\t",fp,"\t","%10.6f",cur.X[i],"\t\"","%-15s",PsiL[i],"\"\t\"","%-15s",PsiType[i],"\"\t",fp ? FinX[j] : -1,"\t",fp ? cur.F[j] : .NaN);
             j += fp;
             }
-		fprintln(f,"\n------------\n","%r",PsiL[FinX],"%c",{"  Gradient  "},cur.G,"\nHessian ","%r",PsiL[FinX],"%c",PsiL[FinX],cur.H);
+		fprintln(f,"\n------------\n","%c",PsiL[FinX],"%r",{"  Gradient  "},cur.G,"\nHessian ","%r",PsiL[FinX],"%c",PsiL[FinX],cur.H);
 		}
 	else {
 		decl inX;
@@ -176,21 +176,20 @@ Constrained::CheckPoint(f,saving)	{
 @return TRUE if maxval was updated<br>FALSE otherwise.
 **/
 Objective::CheckMax(fn)	{
-        decl newx = cur.v>maxpt.v;
-        if (Volume>QUIET) {
-            fprint(logf,cur.v,newx ? " " : "*\n");
-		    if (Volume>LOUD) { print(" ","%15.8f",cur.v); if (isfile(fn)) fprint(fn," ","%15.8f",cur.v); }
-            }
-		if (newx)	{
-			this->Save(0);
-			maxpt -> Copy(cur);
-			if (Volume>QUIET) {
-				if (Volume<=LOUD) print(" ","%18.12f",maxpt.v);
-				println("*"); if (isfile(fn)) fprintln(fn,"*");
-				}
- 			return TRUE;
+    newmax = cur.v>maxpt.v;
+    if (Volume>QUIET) {
+        fprint(logf,cur.v,newmax ? "*" : " \n");
+		 if (Volume>LOUD) { print(" ","%15.8f",cur.v); if (isfile(fn)) fprint(fn," ","%15.8f",cur.v); }
+        }
+	if (newmax)	{
+		this->Save(0);
+		maxpt -> Copy(cur);
+		if (Volume>QUIET) {
+			if (Volume<=LOUD) print(" ","%18.12f",maxpt.v);
+			println("*"); if (isfile(fn)) fprintln(fn,"*");
 			}
-		return FALSE;
+		}
+	return newmax;
 	}
 
 	
@@ -263,6 +262,7 @@ of the economic parameters not the free-to-vary optimization parameters.
 **/
 Objective::ToggleParameterConstraint()	{
 	Parameter::DoNotConstrain = !Parameter::DoNotConstrain;
+    this->Recode(FALSE);
 	}
 
 /** @internal **/ Objective::dFiniteDiff0(x) {   return maxr( (fabs(x) + SQRT_EPS) * DIFF_EPS  ~ SQRT_EPS);  }
@@ -292,6 +292,37 @@ Objective::Decode(F)	{
 //	return cur.X;
 	}
 
+/** Toggle DoNotVary for one or more parameters.
+@param a `Parameter` or array of parameters
+@param ... more parameters or array of parameters.
+**/
+Objective::ToggleParams(a,...) {
+    decl v, va = va_arglist()|a;
+	foreach (v in va) {
+        if (isarray(v)) ToggleParams(v);
+        else
+            v->ToggleDoNotVary();
+        }
+    this->Recode(FALSE);
+    }
+
+/**Reset the free parameter vector and the complete structural parameter vector.
+@param HardCode  TRUE=hard-coded parameter values used.<br/>FALSE [default] Start vector used
+Must be called anytime a change in constraints is made.  So it is called by `Objective::Encode`()
+and `Objective::Reinitialize`()
+**/
+Objective::Recode(HardCode) {
+	decl k,f;
+    for (k=0;k<sizeof(Blocks);++k) Blocks[k].v = <>;
+	for (k=0,cur.X=<>,cur.F=<>,FinX=<>,nfree=0;k<nstruct;++k) {
+		Psi[k].start = Start[k];
+		f = HardCode ? Psi[k]->ReInitialize() : Psi[k]->Encode();
+		if (!isnan(f)) {cur.F |= f;  FinX |= k; if (nfree++) Flabels|= PsiL[k]; else Flabels = {PsiL[k]}; }
+		cur.X |= Psi[k].v;
+		if (!isint(Psi[k].block)) Psi[k].block.v |= Psi[k].v;
+		}
+    }
+
 /** Encode vector of structural parameters.
 @param inX 0 [default] get new starting values from the parameters<br>a vector, new starting values.
 
@@ -304,10 +335,9 @@ Objective::Decode(F)	{
            <DD>If this.X already has elements then this is not the first call to <code>Encode()</code> and starting values will be retrieved from the current values of
 		   parameters.</DD>
 
-@see Objective::nfree, Objective::nstruct, Objective::FinX
+@see Objective::Recode, Objective::nfree, Objective::nstruct, Objective::FinX
 **/
 Objective::Encode(inX)  {
-	decl k,f;
    	if (!once) {
 		nstruct=sizeof(Psi); once = TRUE;
 		if (NvfuncTerms==UnInitialized) {
@@ -317,15 +347,12 @@ Objective::Encode(inX)  {
 		cur.V = constant(.NaN,NvfuncTerms,1);
 		}
 	Start = isint(inX) ? cur.X : inX;
-	if (sizer(Start)!=nstruct) oxrunerror("FiveO Error 31. Start vector not same length as Psi");
-    for (k=0;k<sizeof(Blocks);++k) Blocks[k].v = <>;
-	for (k=0,cur.X=<>,cur.F=<>,FinX=<>,nfree=0;k<nstruct;++k) {
-		Psi[k].start = Start[k];
-		f = Psi[k]->Encode();
-		if (!isnan(f)) {cur.F |= f;  FinX |= k; if (nfree++) Flabels|= PsiL[k]; else Flabels = {PsiL[k]}; }
-		cur.X |= Psi[k].v;
-		if (!isint(Psi[k].block)) Psi[k].block.v |= Psi[k].v;
-		}
+	if (sizer(Start)!=nstruct) {
+        println("In vector as ",sizer(Start)," rows.  Psi has ",nstruct);
+        println("%r",PsiL,"%c",{"Read Values"},Start);
+        oxrunerror("FiveO Error 31. Start vector not same length as Psi");
+        }
+    this->Recode(FALSE);
 	}
 
 /** Revert all parameters to their hard-coded initial values.
@@ -343,16 +370,8 @@ for the first time.
 
 **/
 Objective::ReInitialize() {
-	decl k,f;
    	if (!once) oxrunerror("FiveO Error 32. Cannot ReInitialize() objective parameters before calling Encode() at least once.");
-    for (k=0;k<sizeof(Blocks);++k) Blocks[k].v = <>;
-	for (k=0,cur.X=<>,cur.F=<>,FinX=<>,nfree=0;k<nstruct;++k) {
-		f = Psi[k]->ReInitialize();
-		cur.F |= f;  FinX |= k;
-        if (nfree++) Flabels|= PsiL[k]; else Flabels = {PsiL[k]};
-		cur.X |= Psi[k].v;
-		if (!isint(Psi[k].block)) Psi[k].block.v |= Psi[k].v;
-		}
+    this->Recode(TRUE);
 	Start = cur.X;
     ResetMax();
     Save();
@@ -362,16 +381,17 @@ Objective::ReInitialize() {
 @param Fmat, N<sub>f</sub>&times;J matrix of column vectors to evaluate at
 @param aFvec, address of a ?&times;J matrix to return <var>f()</var> in.
 @param afvec, 0 or address to return aggregated values in (as a 1 &times; J ROW vector)
+@param abest, 0 or address to return index of best vector
 
 The maximum value is also computed and checked.
 
 @returns J, the number of function evaluations
 **/
-Objective::funclist(Fmat,aFvec,afvec)	{
+Objective::funclist(Fmat,aFvec,afvec,abest)	{
 	decl j,J=columns(Fmat),best, f=zeros(J,1), fj;
 	if (Volume>SILENT) fprintln(logf,"funclist ",columns(Fmat));
 	if (isclass(p2p))  {          //CFMPI has been initialized
-		p2p.client->ToDoList(Fmat,aFvec,NvfuncTerms,1);
+		p2p.client->ToDoList(0,Fmat,aFvec,NvfuncTerms,MultiParamVectors);
 		for(j=0;j<J;++j) {
 			cur.V = aFvec[0][][j];
 			cur -> aggregate();
@@ -388,6 +408,7 @@ Objective::funclist(Fmat,aFvec,afvec)	{
 			}
         }
     best = int(maxcindex(f));
+    if (best<0) best = int(mincindex(f));  //added Oct. 2016 so that -.Inf is not treated as .NaN
 	if (Volume>SILENT) fprintln(logf,"funclist finshed ",best, best>=0 ? f[best] : .NaN);
 	if ( ( best < 0) ) {
         println("**** Matrix of Parameters ",Fmat,"Objective Value: ",f',"\n****");
@@ -397,6 +418,7 @@ Objective::funclist(Fmat,aFvec,afvec)	{
        }
 	 cur.v = f[best];
 	 Decode(Fmat[][best]);
+     if (!isint(abest)) abest[0]=best;
 	 this->CheckMax();
      if (afvec) afvec[0] = f';
 	return J;
@@ -412,7 +434,7 @@ Constrained::funclist(Fmat,jake) {
 		decl nn = NvfuncTerms~cur.ineq.N~cur.eq.N,
 			 sumN = sumr(nn),
 			 tmp = new matrix[sumN][J];
-		p2p.client->ToDoList(Fmat,&tmp,NvfuncTerms,1);
+		p2p.client->ToDoList(0,Fmat,&tmp,NvfuncTerms,MultiParamVectors);
 		jake.V[] =   tmp[0][:nn[0]-1][];
 		jake.ineq.v[][] = tmp[0][nn[0]:(nn[0]+nn[1]-1)][];
 		jake.eq.v[][] =   tmp[0][nn[0]+nn[1]:][];
@@ -431,10 +453,18 @@ Constrained::funclist(Fmat,jake) {
 @param F vector of free parameters.
 **/
 Objective::fobj(F)	{
-	vobj(F);
+	this->vobj(F);
 	cur->aggregate();
-//	this->CheckMax();
+    if (Volume>SILENT) {
+        fprint(logf,"fobj = ",cur.v);
+        if (Volume>QUIET) println("fobj = ",cur.v);
+        }
 	}
+
+Objective::Combine(outmat) {
+    oxwarning("FiveO Warning: Running default Objective in parallel mode SubProblems. ");
+    return vfunc();
+    }
 
 /** Decode the input, return the whole vector.
 @param F vector of free parameters.
@@ -442,22 +472,28 @@ Objective::fobj(F)	{
 Objective::vobj(F)	{
 	Decode(F);
     if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
-	cur.V[] = vfunc();
+    if (isclass(p2p)&& p2p.client.NSubProblems)
+        cur.V[] = this->Combine( p2p.client->Distribute(F) );
+    else
+	    cur.V[] =  vfunc();
     if (Volume>QUIET) {
         fprint(logf,"vobj = ",cur.V);
         if (Volume>LOUD)  println("vobj = ",cur.V);
-        fflush(logf);
         }
 	}
 
-/** Decode the input, compute the objective, check the maximum.
+/* Decode the input, compute the objective, check the maximum.
 @param F vector of free parameters.
-**/
 System::fobj(F)	{
 	vobj(F);
 	cur->aggregate();
+    if (Volume>SILENT) {
+        fprint(logf,"fobj = ",cur.v);
+        if (Volume>QUIET) println("fobj = ",cur.v);
+        }
 //	this->CheckMax();
 	}
+*/
 
 /** Decode the input, return the whole vector, inequality and equality constraints, if any.
 @param F vector of free parameters.
@@ -492,6 +528,7 @@ Objective::Jacobian() {
 	cur -> Copy(hold);
 	Decode(0);
 	cur.J = (GradMat[][:nfree-1] - GradMat[][nfree:])./(2*h');
+	if (Volume>LOUD) fprintln(logf,"Gradient/Jacobian Calculation ",nfree," ",NvfuncTerms,"%15.10f","%c",{"h","fore","back","diff"},"%r",PsiL[FinX],h~(GradMat[][:nfree-1]'~(GradMat[][nfree:]')),"Jacob",cur.J');
 	}
 	
 /** Compute the &nabla;f(), objective's gradient at the current vector.
@@ -504,7 +541,7 @@ Stored in <code>cur.G</code>
 Objective::Gradient() {
 	this->Jacobian();
 	cur.G = sumc(cur.J);
-    if (Volume>QUIET) println(logf,"Gradient: ",cur.G);
+    if (Volume>QUIET) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
 	}
 
 /** Compute the &nabla;f(), objective's gradient at the current vector.
@@ -623,7 +660,7 @@ Objective::Parameters(psi1, ... ) {
 /** Built in objective, f(&psi;).
 Prints a warning once and then returns 0.
 **/
-Objective::vfunc() {
+Objective::vfunc(subp) {
 	if (!Warned) {
         Warned=TRUE; oxwarning("FiveO Warning 11.\n Using default objective which equals 0.0.\n  Your derived objective should provide a replacement for vfunc().\n ");
         }
@@ -641,4 +678,52 @@ Constrained::equality() 	{ return <>; }
 Constrained::inequality() 	{ return <>; }
 
 CPoint::Vec() {	return vec(V)|vec(ineq.v)|vec(eq.v);	}
-	
+
+/** Graph the level curves of the objective in two parameters.
+@param Npts  integer [default=100], number of points to evaluate in each dimensions
+@param Xpar `Parameter` for the x axis
+@param Ypar `Parameter` for the y axis
+@param lims 2&times;2 matrix of upper and lower bounds for axes
+@
+**/
+Objective::contour(Npts,Xpar,Ypar,lims) {
+    decl xv,yv,
+    df = lims[][hi]-lims[][lo],
+    ptsx = lims[xax][lo] + df[xax].*(range(0,Npts-1)'/(Npts-1)),
+    ptsy = lims[yax][lo] + df[yax].*(range(0,Npts-1)'/(Npts-1)),
+    grid = <>,
+    myF = cur.F;
+    foreach(xv in ptsx)
+        foreach(yv in ptsy) {
+            myF[Xpar.v] = xv;
+            myF[Ypar.v] = yv;
+            fobj(myF);
+            grid |= xv~yv~cur.v;
+            }
+    grid[][zax] -= minc(grid[][zax]);  // paths are plotted on same plane as level curves
+
+    //plotting the surface, 1 is the 3d mesh , 2 is the contour plot
+    DrawXYZ(0,grid[][xax],grid[][yax],grid[][zax],1);
+    DrawXYZ(0,grid[][xax],grid[][yax],grid[][zax],2);
+    DrawAdjust(ADJ_AREA_Z,0,0,maxc(grid[][zax]));
+    }
+
+/*
+Objective::contour(Npts,lims) {
+    decl xv,yv,
+    df = lims[][hi]-lims[][lo],
+    ptsx = lims[xax][lo] + df[xax].*(range(0,Npts-1)'/(Npts-1)),
+    ptsy = lims[yax][lo] + df[yax].*(range(0,Npts-1)'/(Npts-1)),
+    grid = <>;
+    foreach(xv in ptsx)
+        foreach(yv in ptsy) {
+            grid |= xv~yv~vobj(xv|yv);
+            }
+    grid[][zax] -= minc(grid[][zax]);  // paths are plotted on same plane as level curves
+
+    //plotting the surface, 1 is the 3d mesh , 2 is the contour plot
+    DrawXYZ(0,grid[][xax],grid[][yax],grid[][zax],1);
+    DrawXYZ(0,grid[][xax],grid[][yax],grid[][zax],2);
+    DrawAdjust(ADJ_AREA_Z,0,0,maxc(grid[][zax]));
+    }
+*/

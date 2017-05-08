@@ -65,59 +65,54 @@ For example, the transit functions for a state variable can rely on the current 
 <tr><td colspan="3" class="header" valign="top">Functions</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="DDPShared.ox.html#ca">ca</a></td>
 <td class="modifiers"></td>
-<td class="description">Return the column of feasible action matrix for the action variable.</td>
+<td class="description">Use Alpha::CV() instead:  Return the column of feasible action matrix for the action variable.</td>
 </tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="DDPShared.ox.html#NormalizeActual">NormalizeActual</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></td>
 <td class="modifiers"></td>
 <td class="description">Send one of these tags as first argument to <a href="DP.ox.html#DP___SetClock">SetClock</a>() to use that clock.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#DataColumnTypes">DataColumnTypes</a></td>
 <td class="modifiers"></td>
 <td class="description">Kinds of variables in data sets.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#HookTimes">HookTimes</a></td>
 <td class="modifiers"></td>
 <td class="description">Points in the solution process that users can insert <em>static</em> functions or methods.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#SmoothingMethods">SmoothingMethods</a></td>
 <td class="modifiers"></td>
 <td class="description">Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#StateTypes">StateTypes</a></td>
 <td class="modifiers"></td>
 <td class="description">Categories of state variables.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#SubSpaces">SubSpaces</a></td>
 <td class="modifiers"></td>
 <td class="description">Groups of continguous <a href="DDPShared.ox.html#SubVectorNames">SubVectorNames</a>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#SubVectorNames">SubVectorNames</a></td>
 <td class="modifiers"></td>
 <td class="description">Vectors of state variables.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#TransStore">TransStore</a></td>
 <td class="modifiers"></td>
 <td class="description">.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#UpdateTimes">UpdateTimes</a></td>
 <td class="modifiers"></td>
 <td class="description">Point in solving when updating of parameters and transitions needs to occur.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#Vspace">Vspace</a></td>
 <td class="modifiers"></td>
 <td class="description">Names for 0 and 1 for Bellman iteration.</td>
@@ -155,6 +150,16 @@ Aspects of the Action Space.
 <td class="description">(vector) Number of states for each A set.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___FA">FA</a></td>
+<td class="modifiers">static</td>
+<td class="description">Current feasible action matrix.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___FAactual">FAactual</a></td>
+<td class="modifiers">static</td>
+<td class="description">Current ACTUAL feasible actions.</td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___List">List</a></td>
 <td class="modifiers">static</td>
 <td class="description">list of feasible action matrices (CV) values.</td>
@@ -165,23 +170,43 @@ Aspects of the Action Space.
 <td class="description">matrix of all action vectors, A.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___NFA">NFA</a></td>
+<td class="modifiers">static</td>
+<td class="description">Rows of FA, # of feasible actions.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___Rlabels">Rlabels</a></td>
 <td class="modifiers">static</td>
 <td class="description">Array of Array labels for rows of A that look like &alpha;.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___Sets">Sets</a></td>
 <td class="modifiers">static</td>
 <td class="description">List of Feassible Action indicators (column vector
             of 0s and 1s).</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___AddA">AddA</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___Aprint">Aprint</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___AV">AV</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___ClearFA">ClearFA</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___CV">CV</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
@@ -192,6 +217,11 @@ Aspects of the Action Space.
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___ResetA">ResetA</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___SetFA">SetFA</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
@@ -817,7 +847,7 @@ There is a potentially large computational cost of updating the transitions more
 
 <span class="declaration">ca ( A , act )</span>
 <dl><dd>
-Return the column of feasible action matrix for the action variable.
+Use Alpha::CV() instead:  Return the column of feasible action matrix for the action variable.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -835,7 +865,7 @@ Return the column of feasible action matrix for the action variable.
 </dd>
 <dt class="returns">Returns:</dt><dd class="returns">A[][act.pos]
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#Bellman___aa">aa</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#Bellman___aa">aa</a>, <a href="DP.ox.html#Alpha___CV">CV</a></dd>
 </dl>
 </dd></dl>
 
@@ -846,15 +876,6 @@ Return the column of feasible action matrix for the action variable.
 <span class="declaration">static const decl ClockTypeLabels</span>
 <dl><dd>
 parallel array of labels for the built-in clock types.
-
-</dd></dl>
-
-<hr>
-<a name="NormalizeActual"></a>
-<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">NormalizeActual</span></h3>
-
-<span class="declaration">NormalizeActual ( v , MaxV )</span>
-<dl><dd>
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Alpha</span></h2>
@@ -912,12 +933,58 @@ First character of action labels.
 </dd></dl>
 
 <hr>
+<a name="Alpha___AV"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AV</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Alpha___ClearFA"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ClearFA</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="Alpha___Count"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Count</span></h3>
 
 <span class="declaration">static decl Count [public]</span>
 <dl><dd>
 (vector) Number of states for each A set.
+
+</dd></dl>
+
+<hr>
+<a name="Alpha___CV"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CV</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Alpha___FA"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">FA</span></h3>
+
+<span class="declaration">static decl FA [public]</span>
+<dl><dd>
+Current feasible action matrix.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#Alpha___SetFA">SetFA</a>, <a href="DP.ox.html#Alpha___CV">CV</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Alpha___FAactual"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">FAactual</span></h3>
+
+<span class="declaration">static decl FAactual [public]</span>
+<dl><dd>
+Current ACTUAL feasible actions.
 
 </dd></dl>
 
@@ -959,6 +1026,16 @@ matrix of all action vectors, A.
 </dd></dl>
 
 <hr>
+<a name="Alpha___NFA"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NFA</span></h3>
+
+<span class="declaration">static decl NFA [public]</span>
+<dl><dd>
+Rows of FA, # of feasible actions.
+
+</dd></dl>
+
+<hr>
 <a name="Alpha___ResetA"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ResetA</span></h3>
 
@@ -973,6 +1050,14 @@ matrix of all action vectors, A.
 <span class="declaration">static decl Rlabels [public]</span>
 <dl><dd>
 Array of Array labels for rows of A that look like &alpha;.
+
+</dd></dl>
+
+<hr>
+<a name="Alpha___SetFA"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetFA</span></h3>
+
+<dl><dd>
 
 </dd></dl>
 

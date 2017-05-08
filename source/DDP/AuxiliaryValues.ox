@@ -10,12 +10,12 @@
 @see DP::AuxiliaryOutcomes
 
 **/
-AuxiliaryValues::AuxiliaryValues(L,N,Volume) {
+AuxiliaryValues::AuxiliaryValues(L,N) {
 	this.L = L;
     this.N = N;
-    this.Volume = Volume;
-	pos = UnInitialized;
+	logf = pos = UnInitialized;
 	v = constant(.NaN,1,N);
+    Volume = SILENT;
 	}
 
 /** Default realized auxililary variable, sets <code>v=1.0</code>.
@@ -29,7 +29,7 @@ AuxiliaryValues::Realize(y) {	v[] = 1.0; }
 
 The default &zeta; is a 0 length vector.
 **/
-ZetaRealization::ZetaRealization(length,Volume) {
+ZetaRealization::ZetaRealization(length) {
 	this.L = "zeta";
 	N = this.length = length;
 	v = constant(.NaN,1,length);

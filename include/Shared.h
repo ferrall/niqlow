@@ -15,10 +15,11 @@
 #include <oxstd.oxh>
 #include <oxfloat.oxh>
 #include <oxprob.oxh>
+#include <oxdraw.oxh>
 /* This file is part of niqlow. Copyright (C) 2012-2016 Christopher Ferrall */
 
 	/** Pseudonyms for -1. @name Names_for_-1 **/
-enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1}
+enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,AllRand=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1}
     /** Used in tracking outcomes. @name NiD **/
 enum { NotInData=-2,TrackAll=-3 }
 
@@ -27,6 +28,20 @@ enum {Zero,One,Two}
 
 	/** Levels of output to produce while executing. @name NoiseLevels **/	
 enum {SILENT=-1,QUIET,LOUD,NOISY,NoiseLevels}
+    /** x,y,z dimensions for graphs @name Axes**/
+enum{xax,yax,zax,Naxes}
+enum{lo,hi,Limits}
+
+    /** Modes of Execution when executing in parallel. See `BaseTag`
+         <DD>MultiParamVectors: Sending different parameter vectors to nodes to compute
+            overall objective.</DD>
+         <DD>SubProblems: Sending a single parameter vector to nodes to solve
+            separate sub-problems which will be aggregated by the Client.
+            This involves `Objective::vfunc`().</DD>
+        @name ParallelExecutionModes **/
+    enum{MultiParamVectors,SubProblems,ParallelModes}
+    static const decl
+        /** Base tags for parallel messaging.**/    BaseTag = <One,1000>;
 
 //		/** Output tags for reservation value utility functions. @name EUvalues **/	
 //enum {EUstar,Fstar,EUvalues}
@@ -62,13 +77,12 @@ static const decl
 	prefix(pfx, s);
 	GaussianKernel(X,h=UseDefault);
     Epanechnikov(X,h);
-    ToggleParams(a,...);
     FLogit(x);
     RowLogit(x,rho=1.0);
     ColLogit(x,rho=1.0);
     SumToOne(v);
     Indent(depth);
-    TypeCheck(obj,cname,msg="Niqlow Error #03. Class fails to match.",Fatal=TRUE);
+    TypeCheck(obj,cname,Fatal=TRUE,msg="Niqlow Error #03. Class fails to match.");
 
 
 /** A container for auxiliary structures, which helps organize the hierarchy of classes. **/
@@ -95,14 +109,15 @@ struct Quantity {
 	const 	decl	
 		/** Label **/ 						L;
 	decl
-        /** Volume of output. **/           Volume,
-		/** position in vector   **/  	  	pos,
-		/** Current actual value      **/  	v;
+        /** Volume of output. **/               Volume,
+        /** Log dedicated to this qty.**/       logf,
+		/** position in vector   **/  	  	    pos,
+		/** Current actual value      **/  	    v;
+    SetVolume(Volume);
 	}
 	
 /** Represent discrete values.**/
 struct Discrete	: Quantity{
-    static  decl                                    logf;
 	const 	decl	
 			/** range(0,N-1)			   **/  	vals;
 	decl	
@@ -110,9 +125,10 @@ struct Discrete	: Quantity{
 			/** Number of different values **/   	N,
 			/** corresponding model vals.  **/  	actual,
 			/** vector of prob. of vals. **/		pdf;
-	Discrete(L,N,Volume=SILENT);
+	Discrete(L,N);
 	virtual PDF();
 	virtual Update();
+    virtual SetActual(MaxV=1.0);
 	}
 
 /** Represent a continuously varying quantity.**/
@@ -131,7 +147,7 @@ struct Parameter : Quantity {
 		/** 0 or pointer to param block.  **/     		block,
 		/** Value at start of iteration.**/   			start,
 		/** Scaling value  s. **/              			scale;
-	Parameter(L,ival,Volume=SILENT);
+	Parameter(L,ival);
 	Reset(newv,IsCode=TRUE);
     ReInitialize();
 	virtual ToggleDoNotVary();

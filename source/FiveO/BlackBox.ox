@@ -26,7 +26,7 @@ PanelBB::PanelBB (L,data,...)	{
 	BlackBox(L);
 	this.data = data;
 	NvfuncTerms = data.FN;  //total number of IID observations
-//	SetAggregation(LOGLINEAR);  Currently taking log() inside objective
+    //	SetAggregation(LOGLINEAR);  Currently taking log() inside objective
 	decl va = va_arglist(),v;
 	if (sizeof(va)) {
         foreach(v in va) Parameters(v);
@@ -35,10 +35,15 @@ PanelBB::PanelBB (L,data,...)	{
 	else oxwarning("FiveO Warning 03.\n No estimated parameters added to "+L+" panel estimation ");
 	}
 
+PanelBB::Combine(outmat) {
+    data->Predict(0,FALSE,outmat);
+    return data.M;
+    }
+
 /** Calls and returns <code>data-&gt;EconometricObjective()</code>.
 **/
-PanelBB::vfunc() {
-    return data->EconometricObjective();
+PanelBB::vfunc(subp) {
+    return data->EconometricObjective(subp);
 	}
 
 /**  A wrapper that acts like an objective but just calls a model's Solve method and returns 1.0.
@@ -51,7 +56,7 @@ NoObjective::NoObjective(model) {
     this.model = model;
     }
 
-NoObjective::vfunc() {
+NoObjective::vfunc(subp) {
     if (!ismember(model,"Volume") || model.Volume>SILENT) Print("explore");
     v = model->Solve();
     println("\n Value = ",v,"\n-------------------------");

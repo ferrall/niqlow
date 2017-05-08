@@ -24,5 +24,5 @@ struct DynamicRoy : ExPostSmoothing	{
 	static 	Replicate();
 	        Reachable();
 			Utility();
-	 	   	FeasibleActions(Alpha);
+	 	   	FeasibleActions();
 	}

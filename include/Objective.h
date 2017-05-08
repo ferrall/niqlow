@@ -26,10 +26,12 @@ struct Objective	{
 	/** . internal **/											Warned;
 	decl
     /** log file **/                                            logf,
+    /** Set in CheckMax(), TRUE if latest check was new max.**/ newmax,
     /** TRUE (default): exit if NaNs encountered during iteration<br>
             FALSE: exit with <code>IterationFailed</code> **/
-                                                            RunSafe,
-	/** the P2P object for using MPI **/					    p2p,
+                                                                RunSafe,
+	/** P2P object for using MPI across param vectors**/	    p2p,
+    /** P2P object for MPI on a single param vector.**/         subp2p,
 	/** Initial vector after Encode() **/						Start,
 	/** TRUE if encoded once **/								once,
 	/** User-defined subvectors of parameters. @internal**/		Blocks,
@@ -52,9 +54,11 @@ struct Objective	{
 	static 	dFiniteDiff0(x);
 	static 	dFiniteDiff1(x);
 	static 	dFiniteDiff2(x);
-	static	ToggleParameterConstraint();
     static  SetVersion(v=200);
-			
+
+	        ToggleParameterConstraint();
+    virtual Recode(HardCode=FALSE);
+	virtual	ToggleParams(a,...);
 	virtual	CheckMax(fn=0);
 	virtual Print(orig,fn=0,toscreen=TRUE);
 	virtual	CheckPoint(f,saving);
@@ -63,15 +67,17 @@ struct Objective	{
 	virtual Gradient();
 	virtual Jacobian();
     virtual Hessian();
-	virtual vfunc();
+	virtual vfunc(subp=DoAll);
 	virtual fobj(F);
 	virtual vobj(F);
 	virtual	Encode(X=0);
 	virtual	Decode(F=0);
     virtual ReInitialize();
-	virtual funclist(Xmat,Fvec,afvec=0);
+	virtual funclist(Xmat,Fvec,afvec=0,abest=0);
     virtual Menu();
     virtual Interact();
+    virtual contour(Npts,Xpar,Ypar,lims);
+    virtual Combine(outmat);
 	}
 
 	
@@ -102,5 +108,5 @@ struct System : Objective {
                              normexp;
 			System(L,LorN=1);
 	virtual equations();
-	virtual fobj(F);
+	//virtual fobj(F);
 	}

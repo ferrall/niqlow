@@ -25,7 +25,7 @@ Ahn::Utility()  {
         }
     else v = 0.0;
 
-	decl u = (Y[I::t] + v + aa(d)*ExpValAtBirth);
+	decl u = (Y[I::t] + v + Alpha::CV(d)*ExpValAtBirth);
 
 	//println(I::t," ",nc," ",CV(nb)," ",v," ",double(maxc(u)));
 
@@ -66,7 +66,7 @@ Ahn::Run(){
     }
 
 /** d=1 (decision to have a child) is only allowed for the first 7 periods. **/
-Ahn::FeasibleActions(Alpha) {
+Ahn::FeasibleActions() {
 	return 1|(I::t<tau) ;
     }
 

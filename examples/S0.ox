@@ -18,7 +18,7 @@ Search::Run()	{
     VISolve();
 	}
 Search::Utility()  {
-	return -(1-CV(m))*(lam + CV(p)*aa(d));
+	return -(1-CV(m))*(lam + CV(p)*Alpha::CV(d));
 	}	
 main() {
     fopen("output/S0.txt","l");

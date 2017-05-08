@@ -1,18 +1,22 @@
 #include "ParallelObjective.ox"
 
+enum{NN=7}
 struct Rosenbrock : BlackBox {
-	decl x,y;
+	decl x;
 	Rosenbrock(fn);
 	virtual vfunc();
 	}
 Rosenbrock ::Rosenbrock (fn)	{
 	BlackBox("Test of Blackbox");
-	x = new Free("x",0.9);
-	y = new Free("y",1.2);
-    Parameters(x,y);
+	x = new Coefficients("x",constant(0.1,NN,1));
+    Parameters(x);
+    Volume = LOUD;
 	if (!Load(fn)) Encode(0);
 	}
-Rosenbrock ::vfunc() { return -( sqr(1-x.v)+100*sqr(y.v - sqr(x.v)) ); 	}
+Rosenbrock ::vfunc() {
+    decl cx = CV(x);
+    return -( sumc( sqr(1-cx[:NN-2])+100*sqr(cx[1:] - sqr(cx[:NN-2])) ) ); 	
+    }
 
 main() {
 	fopen("output/ParallelObjectiveTest.txt","l");
@@ -21,8 +25,8 @@ main() {
 	decl v = new Rosenbrock(-1);
     ParallelObjective(v,TRUE);
     decl alg;
-    alg = new BFGS(v);
+    alg = new NelderMead(v);
 	alg.Volume = NOISY;
-    alg->Iterate(0);
+    alg->Iterate(0.1);
 	delete v,alg;
 	}

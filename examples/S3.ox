@@ -7,7 +7,7 @@ struct UI : OneDimensionalChoice {
                 pvf;                  // Added
 	static Run();
     static LayoffProb();
-    FeasibleActions(A);
+    FeasibleActions();
 	EUtility();
     Uz(z);
 	}
@@ -26,7 +26,7 @@ UI::Run()	{
     CreateSpaces();
     RVSolve();
     }
-UI::FeasibleActions(A){
+UI::FeasibleActions(){
     return !CV(m) | 1;  // must chose d=1 if m==1
     }
 main() {

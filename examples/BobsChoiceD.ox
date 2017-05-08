@@ -33,5 +33,5 @@ BobsChoiceD::Utility() {
     totx=zeros(Occupations+1,1);
     for(i=0;i<Occupations;++i)
         totx[i] += CV(X[i]);
-    return Uv + 0.05*totx - 0.01*sqr(totx) - 0.5*(aa(occ).!=CV(pocc));
+    return Uv + 0.05*totx - 0.01*sqr(totx) - 0.5*(Alpha::CV(occ).!=CV(pocc));
     }

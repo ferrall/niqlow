@@ -17,7 +17,7 @@ MortSearch::Run()	{
 	}
 
 MortSearch::Utility()   {
-	decl u = (Age()<TT-1)*( (1-aa(a))*(eta+s.v) + x.v*aa(a) );
+	decl av = Alpha::CV(a), u = (Age()<TT-1)*( (1-av)*(eta+s.v) + x.v*av );
 //	println("%cf",{"%3.0f","%3.0f","%3.0f","%3.0f","%6.3f","%6.3f"},counter.tprime.v~counter.t.v~x.v~s.v~(u'));
 	return u ;
 	}

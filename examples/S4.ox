@@ -11,7 +11,7 @@ struct UI : OneDimensionalChoice {
     static LayoffProb();
 	Utility();
     Benefits();
-    FeasibleActions(A);
+    FeasibleActions();
     Reachable();
 	EUtility();
     Uz(z);
@@ -35,7 +35,7 @@ UI::Run()	{
     CreateSpaces();
     RVSolve();
     }
-UI::FeasibleActions(A){
+UI::FeasibleActions(){
     return !CV(m)|1;
     }
 UI::Reachable() {

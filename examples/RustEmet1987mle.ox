@@ -4,24 +4,26 @@
 /** Replicate the Group 4 bus estimation.
 **/
 RustEstimates::DoAll() {
-	ZurcherHat::FirstStage(0);
+    decl toglist;
+	toglist = ZurcherHat::FirstStage(0);
 	EMax = new ValueIteration(0);
-	EMax.vtoler = 1E-01;
-
+	EMax.vtoler = 1E-03;
 	buses = new BusData(EMax);
 	nfxp = new PanelBB("ZurcherMLE",buses,ZurcherHat::hat);
 	nfxp.Volume = LOUD;
 	mle = new NelderMead(nfxp);
-	mle.Volume = LOUD;
+	mle.Volume = NOISY;
 
     /* First stage estimates, do not require nested DP solution */
     EMax.DoNotIterate = TRUE;  //only recompute transitions, do not solve for V
+    nfxp -> ToggleParams(toglist);
 	mle -> Iterate(0);
 
     /* Second stage estimates */
 	decl cputime0 = -timer();
-    ZurcherHat::SecondStage();
+    toglist = ZurcherHat::SecondStage();
     EMax.DoNotIterate = FALSE;  //iterate on V until convergence
+    nfxp->ToggleParams(toglist);
     nfxp->ResetMax();
 	mle -> Iterate(0);
 	println(" Estimation: ",timer()+cputime0);
@@ -45,15 +47,15 @@ ZurcherHat::FirstStage(row)	{
   	EndogenousStates(x = new Renewal("x",NX,d, hat[theta3]) );
 	CreateSpaces();
     /* Exclude Utility parameters from first stage, and do not include choice probabilities in likelihood*/
-    ToggleParams(hat[RC],hat[theta1]);
     Outcome::OnlyTransitions = TRUE;
+    return {hat[RC],hat[theta1]};
 	}
 
 /** Second stage estimation requiring Value function iteration.
 **/
 ZurcherHat::SecondStage() {
-    ToggleParams(hat[theta3],hat[RC],hat[theta1]);
     Outcome::OnlyTransitions = FALSE;
+    return {hat[theta3],hat[RC],hat[theta1]};
     }
 
 /** Read in the data.
@@ -68,8 +70,8 @@ BusData::BusData(method) {
 
 /** Return U() at estimated (<q>hat</q>) parameter values. **/
 ZurcherHat::Utility()  {
-	decl rep = aa(d);
-	return   -(rep*CV(hat[RC]) + (1-rep)*CV(hat[theta1])*mfact*CV(x))
+	decl rep = Alpha::CV(d);
+    return   -(rep*CV(hat[RC]) + (1-rep)*CV(hat[theta1])*mfact*CV(x))
 			 +normalization;	// added to avoid exp() underflow for delta near 1.0
 	}
 	

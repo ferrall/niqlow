@@ -40,12 +40,12 @@ Retirement::mprob() {
 			: 	0.0;
 	}
 	
-Retirement::FeasibleActions(A) {
-	decl age = curt+T0;
-	if (age==T0) return (A.==Stay);  				//drawing random effect
-	if (age >= Tstar) return (A.==Retire);	  		//only retirement
-	if (retired.v) return (A.<Stay);				//can't choose to keep current job
-	return ones(rows(A),1);
+Retirement::FeasibleActions() {
+	decl age = curt+T0, iv = Alpha::CV();
+	if (age==T0) return (iv.==Stay);  				//drawing random effect
+	if (age >= Tstar) return (iv.==Retire);	  		//only retirement
+	if (retired.v) return (iv.<Stay);				//can't choose to keep current job
+	return ones(rows(iv),1);
 	}
 	
 /** Duration must be feasible, do not track current eta if retired.

@@ -20,20 +20,22 @@ Version::Check(logdir) {
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
  }
 
-/** Check that an object is of a required class.
+/** Check that an object is of a required class, or one of a required class.
 @param obj object
-@param cname Class name
-@param Fatal FALSE [default], issue warning.  TRUE= end the error
-@param msg Message to print if class matches (default message is "Class fails to match")
+@param cname Class name</br>Array of class names
+@param Fatal TRUE [default]= end on the error</br>FALSE , only issue warning.
+@param msg Message to print if class fails to match (default message is "Class fails to match")
 **/
 TypeCheck(obj,cname,Fatal,msg) {
-    decl yes=isclass(obj,cname);
-    if (!yes) {
-        println("\n    *",classname(obj),"* : *",cname,"*");
-        if (Fatal) oxrunerror(msg);
-        oxwarning(msg);
+    decl names = isarray(cname) ? cname : {cname}, yes = FALSE, cc;
+    foreach(cc in names) {
+        yes = isclass(obj,cc);
+        if (yes) return TRUE;
         }
-    return yes;
+    println("\n    *",classname(obj)," Checked Against: ",cname);
+    if (Fatal) oxrunerror(msg);
+    oxwarning(msg);
+    return FALSE;
     }
 
 /** Return the Current Value of a Quantity: access X.v, X, X() or X(arg).
@@ -123,6 +125,7 @@ ReverseState(Ind,O)	{
 **/
 DrawOne(P) { return int(maxcindex(ranmultinomial(1,P)')); }
 
+
 /** Row-Difference of a matrix.
 @param V Nx1 x N matrix vector, N &gt; 1.
 @return (N-1)xM matrix, &delta; = V[i][]-V[i-1][]
@@ -209,12 +212,37 @@ DiscreteNormal(N,mu,sigma)	{
 	return mu+sigma*quann(range(1,N)/(N+1));
 	}
 
+/** Control variable-specifc output.
+@param Volume new `NoiseLevels`
+
+Each quantity variable has a volume setting which is initialized to SILENT.
+
+If the new Volume is greater than the current value then a log file is opened if one is not already open.
+
+If the new Volume is SILENT and a log file is already open then the log file is closed.
+
+@see `Quantity::logf`
+**/
+Quantity::SetVolume(Volume) {
+    if (Volume > this.Volume) {
+        if (isint(logf))
+            logf = fopen(Version::logdir+"Q-"+classname(this)+"-"+L+"-"+Version::tmstmp+".log","w");
+        }
+    else {
+        if (Volume==SILENT && isfile(logf)) {
+            fclose(logf);
+            logf = UnInitialized;
+            }
+        }
+    this.Volume = Volume;
+    }
+
 /**Create a discrete quantity .
 @param L <em>string</em> a label or name for the variable.
 @param N <em>positive integer</em>, number of values.<br>N=1 is a constant.
 @param Volume default=SILENT. `NoiseLevels`
 **/
-Discrete::Discrete(L,N,Volume)  {
+Discrete::Discrete(L,N)  {
     if (!isint(N)||(N<=0)) oxrunerror("niqlow Error 02. Number of discrete values has to be a non-negative integer");
 	this.N = N;
     if (!isstring(L)) {
@@ -223,33 +251,50 @@ Discrete::Discrete(L,N,Volume)  {
         }
     else
         this.L = L;
-    this.Volume = Volume;
 	vals = range(0,N-1);
 	actual= vals';
-	subv = pos = UnInitialized;
+	logf = subv = pos = UnInitialized;
+    Volume = SILENT;
 	pdf = ones(vals);
     v = 0;
 	}
 
 /** The default Discrete Variable update does nothing.
-@internal
+Derived discrete types can define their own Updates which called when parameters of a model (may) have changed.
+This depends on `UpdateTimes`
+@see DP::SetUpdateTime
 **/
 Discrete::Update() { }
 
 Discrete::PDF() {return ismember(pdf,"v") ? pdf.v[v] : pdf[v];	}
-	
+
+/** Initialize the actual values.
+@param MaxV non-zero double, default = 1.0<br>
+            N&times;1 vector, actual
+If a double is sent the actual vector to 0,&ellip;, MaxV.
+@see `Discrete::Update`
+**/
+Discrete::SetActual(MaxV) {
+    if (isdouble(MaxV)||isint(MaxV))
+        actual = MaxV*(vals)'/max(N-1,1);
+    else {
+        if (rows(vec(MaxV))!=N) oxrunerror("DDP Error. Actual vector must be of length N");
+        actual = vec(MaxV);
+        }
+    println("Setting Actual Values of ",L,"%r",{"index","actual"},vals|actual');
+    }
+
 /** Create a new parameter.
 @param L parameter label
 @param ival initial value
-@param Volume default=SILENT. `NoiseLevels`
 **/
-Parameter::Parameter(L,ival,Volume)	{
+Parameter::Parameter(L,ival)	{
 	this.L = L;
 	v = start = scale = this.ival = ival;
 	f = 1.0;
 	block = DoNotVary = FALSE;
-	pos = UnInitialized;
-    this.Volume = Volume;
+	Volume = SILENT;
+    logf = pos = UnInitialized;
 	}
 
 /** Reset the parameter to its hard-coded values.
@@ -292,19 +337,6 @@ Parameter::Menu() {
  CGI::VolumeCtrl(L,Volume);
  }
 
-
-/** Toggle DoNotVary for one or more parameters.
-@param a `Parameter` or array of parameters
-@param ... more parameters or array of parameters.
-**/
-ToggleParams(a,...) {
-    decl v, va = va_arglist()|a;
-	foreach (v in va) {
-        if (isarray(v)) ToggleParams(v);
-        else
-            v->ToggleDoNotVary();
-        }
-    }
 
 /** Print a number of spaces.**/
 Indent(depth) { decl i; for(i=0;i<depth;++i) print(" "); }
@@ -352,7 +384,11 @@ vararray(s) {
  return  vlist;
  }
 
-
+/** put a prefix in front of string or array of strings.
+@param pfx string to pre-fix
+@param s string or array of strings
+@return pfx pre-fixed to s
+**/
 prefix(pfx, s) {
 if (isstring(s)) return pfx+s;
 decl o = {}, t;

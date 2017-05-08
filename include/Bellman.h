@@ -21,8 +21,8 @@ struct  Bellman : DP {
             @see Clock::Last**/                                     IsLast,
 	    /** Full solution at this state.                 **/        InSubSample,
 		/**&theta;.j index into `DP::A`.**/  						Aind,
-		/**U(&alpha;&epsilon;,&eta;,&theta;,&gamma;). @internal **/	U,
-		/** array of &Rho;*(&hellip;,&gamma;). @internal**/   		pandv,
+		/**U(&alpha;&epsilon;,&eta;,&theta;,&gamma;).  **/	        U,
+		/**  &Rho;*(&hellip;,&gamma;). **/   		                pandv,
 		/** TransStore x &eta;-Array of feasible endogenous	state
 			indices and transitions
 			&Rho;(&gamma;&prime;;&alpha;,&eta;,&gamma;).**/			Nxt,
@@ -35,7 +35,7 @@ struct  Bellman : DP {
                     HMEndogU(VV);
                     AMEndogU(VV);
             virtual ExogUtil();
-			virtual FeasibleActions(Alpha);
+			virtual FeasibleActions(Alpha=0);
             virtual Reachable();
 			virtual Utility();
             virtual UReset();
@@ -57,7 +57,7 @@ struct  Bellman : DP {
 					Simulate(Y);
 					ThetaTransition();
 					UpdatePtrans();
-					ExpandP(r,Agg=TRUE);
+					ExpandP(Agg=TRUE);
 					MedianActVal(EV);
                     InSS();
 	}																																				
@@ -107,6 +107,8 @@ EV = &sum;<sub>&epsilon;,&eta;</sub> [ V(&epsilon;,&eta;)*f(&epsilon;)f(&eta;)/&
 
 **/
 struct ExtremeValue : Bellman {
+    static const decl lowb = 0.9*DBL_MIN_E_EXP,
+                      hib = 0.9*DBL_MAX_E_EXP;
 	static decl
 		/** Choice prob smoothing &rho;.**/ rho,
 		/** Hotz-Miller estimation task.**/ HMQ;

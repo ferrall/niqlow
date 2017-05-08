@@ -20,6 +20,8 @@ struct Algorithm {
      /** log file **/                                       logf,
 	 /** output level **/									Volume,
 	 /** maximum iterations **/ 	        				maxiter,
+     /** Store path of iterations in `Algorithm::path'.**/  StorePath,
+     /** sequence of structural parameters .**/             path,
      /** current iteration count. @internal **/				iter,
 	 /**  top level convergence tolerance **/        	    tolerance,
      /** . @internal **/                                    N,
@@ -30,6 +32,8 @@ struct Algorithm {
 	virtual Tune(maxiter=0,toler=0,nfuncmax=0);
 	virtual Iterate();
     virtual ItStartCheck();
+    virtual out(fn);
+    virtual Paths(starts=1);
 	Algorithm(O);
     }
 
@@ -79,6 +83,7 @@ struct LineMax	: NonGradient {
 		~LineMax();
 		Iterate(Delta,maxiter=0,maxstp=0);
 		virtual Try(pt,step);
+        virtual PTry(pt,left,right);
 		Bracket();
 		Golden();
 		}
@@ -114,7 +119,7 @@ at <a href="http://en.wikipedia.org/wiki/Nelder-Mead_method">Wikipedia</a>
 <pre>
 class MyObjective : BlackBox{
     &vellip;
-    vfunc();
+    vfunc(subp=DoAll);
     }
 &vellip;
 decl myobj = new MyObjective();
@@ -175,7 +180,7 @@ struct NelderMead  : NonGradient {
 <pre>
 class MyObjective : BlackBox{
     &vellip;
-    vfunc();
+    vfunc(subp=DoAll);
     }
 &vellip;
 decl myobj = new MyObjective();
@@ -276,7 +281,7 @@ See <a href="http://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldf
 <pre>
 class MyObjective : BlackBox{
     &vellip;   // parameters should be declared as members of your class
-    vfunc();  // you have to define the objective
+    vfunc(subp=DoAll);  // you have to define the objective
     }
 &vellip;
 decl myobj = new MyObjective();

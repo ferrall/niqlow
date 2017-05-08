@@ -8,7 +8,7 @@ VISolve(ToScreen=TRUE,aM=FALSE,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZero
 
 /**	Loop over random effect values &gamma;, call  GSolve() method for the calling method.
 **/
-struct RandomSolve : RETask { RandomSolve(gtask); Run(); }
+struct RandomSolve : RETask { decl retval; RandomSolve(gtask); Run(); }
 
 
 /** A container for solution methods.
@@ -17,23 +17,25 @@ struct Method : FETask {
 	static const decl
 		/** Default convergence tolerance on Bellman Iteration.**/ DefTolerance = 1E-5;
     decl
+        /** Either r or AllRan to solve for all random effects.**/  Rgroups,
         /** FALSE(default): iterate on V(&theta;)<br>
             TRUE: only compute transitions.**/      DoNotIterate,
                                                      vtoler,
     /** Output from the solution method.  Passed on to `GSolve::Volume`.
         @see NoiseLevels**/                         Volume;
     Method();
-    virtual Solve(Fgroups=AllFixed,MaxTrips=0);
+    virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
 	}
 
 /** A container for iterating over &theta; during solution methods.
 **/
 struct GSolve : ThetaTask {
-//	const decl		/** **/									    ndogU;
     static decl
         /** TRUE (default): exit if NaNs encountered during iteration<br>
             FALSE: exit with <code>IterationFailed</code> **/
                                                     RunSafe,
+    /** TRUE if all tasks suceed.**/                succeed,
+                                                    warned,
 	/** Scratch space for value iteration. **/      VV,
 	/** Tolerance on value function convergence in
     stationary environments.  Default=10<sup>-5</sup>.**/	
@@ -64,7 +66,7 @@ Results are integrated over random effects, but results across fixed effects are
 **/
 struct ValueIteration : Method {
 	ValueIteration(myGSolve=0,myEndogUtil=0);
-	virtual Solve(Fgroups=AllFixed,MaxTrips=0);
+	virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
     virtual Run();
 	}
 

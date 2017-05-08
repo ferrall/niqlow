@@ -40,12 +40,12 @@ Fertility2::Mortality(FeasA)	{
 /** Return indicators for &theta.A.
 Fertility is not a feasible choice for t&gt;T-1
 **/
-Fertility2::FeasibleActions(Alpha) { return 1|(I::t<T) ; }
+Fertility2::FeasibleActions() { return 1|(I::t<T) ; }
 
 /** Utility. **/
 Fertility2::RUtility() {
 	decl t=I::t+1, Mv = M.v;
-	decl     X = Y[t-1]-(b+c1*(t==1)+c2*(t==2)+(1~t~sqr(t))*c3)*aa(n);
+	decl     X = Y[t-1]-(b+c1*(t==1)+c2*(t==2)+(1~t~sqr(t))*c3)*Alpha::CV(n);
 	println("** ",Mv," ",X);
 	decl u = CV(zstar)*Mv + (Mv~sqr(Mv))*alph + (X~sqr(X))*bet + Mv*(X~Sbar)*gam;
 	return u;
@@ -54,7 +54,7 @@ Fertility2::RUtility() {
 /** Utility. **/
 Fertility2::EUtility() {
 	decl t=I::t+1, Mv = M.v,
-	     X = Y[t-1]-(b+c1*(t==1)+c2*(t==2)+(1~t~sqr(t))*c3)*aa(n),
+	     X = Y[t-1]-(b+c1*(t==1)+c2*(t==2)+(1~t~sqr(t))*c3)*Alpha::CV(n),
 		 pstar = 1-probn(CV(zstar)),
 		 Ez = densn(CV(zstar)) * ( -1/(1-pstar) | 1/pstar  ),
 		 u = Ez*Mv + (Mv~sqr(Mv))*alph + (X~sqr(X))*bet + Mv*(X~Sbar)*gam;

@@ -11,6 +11,7 @@ Algorithm::Algorithm(O) {
 	OC = O.cur;
     tolerance = itoler;
 	Volume = SILENT;
+    StorePath = FALSE;
     lognm = replace(Version::logdir+"Alg-"+classname(this)+"-On-"+O.L+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"aV");
     fprintln(logf,"Created");
@@ -32,6 +33,7 @@ Algorithm::ItStartCheck() {
     O->Save(classname(this)+"-IterStart-"+O.L);
 	N = rows(OC.F);
     IIterate = !isclass(O.p2p) || O.p2p.IamClient;
+    path = <>;
     if (!N && IIterate) {
         oxwarning("No parameters are free.  Objective will be evaluated and then return");
     	O->fobj(0);
@@ -106,18 +108,19 @@ SimulatedAnnealing::Tune(maxiter,heat,cooling,shrinkage)	{
 /** accept or reject.
 **/
 SimulatedAnnealing::Metropolis()	{
-	decl jm=-1, j, diff;
+	decl jm=-1, j, diff, change=FALSE;
     for(j=0;j<M;++j) {
-        diff = vtries[j]-OC.v;
-	    if (Volume>=LOUD) { fprintln(logf,iter~vtries[j]~(vec(tries[][j])')); fflush(logf);}
-	    if ( !isnan(diff) && (diff> 0.0) || ranu(1,1) < exp(diff/heat))	{
+        diff = vtries[j]-holdpt.v;
+	    if ( !isnan(diff) && ( (diff> 0.0) || (ranu(1,1) < exp(diff/heat)) ) )	{
              jm = j;
-             OC.v = vtries[jm];
-             OC.F = tries[][jm];
+             holdpt.v =    OC.v = vtries[jm];
+             holdpt.step = OC.F = tries[][jm];
              O->Save(lognm);
              O->CheckMax();
              ++accept;
+             change = TRUE;
 			 }
+	    if (Volume>=LOUD) fprint(logf,"%r",{j==jm ? "*" : "-"},"%cf",{"%5.0f","%3.0f","%12.5g"},iter~j~diff~exp(diff/heat)~vtries[j]~(vec(tries[][j])'));
         }
     if (accept>=N) {
 		heat *= cooling;  //cool off annealing
@@ -125,6 +128,7 @@ SimulatedAnnealing::Metropolis()	{
 		if (Volume>QUIET) println("Cool Down ",iter,". f=",vtries[jm]," heat=",heat," chol=",chol);
 		accept = 0;
         }
+    return change;
 	}
 
 
@@ -136,8 +140,9 @@ SimulatedAnnealing::Metropolis()	{
 SimulatedAnnealing::Iterate(chol)	{
     if (!ItStartCheck()) return;
     if (IIterate) {  //MPI not running or I am the Client Node
+       decl vec0;
        inp = isclass(O.p2p);
-       M = inp ? O.p2P.Nodes : 1;
+       M = inp ? max(O.p2p.MaxSimJobs,1) : 1;
        Vtries=zeros(O.NvfuncTerms,M);
 	   this.chol = isint(chol)  ? unit(N)
                                 : isdouble(chol) ? chol*unit(N)
@@ -147,11 +152,19 @@ SimulatedAnnealing::Iterate(chol)	{
 	   if (Volume>SILENT)O->Print("Annealing Start ",logf,Volume>QUIET);
 	   OC.H = OC.SE = OC.G = .NaN;
 	   accept = iter =0;	
+	   holdpt.step = OC.F; holdpt.v = OC.v;
+       if (Volume>=LOUD) fprint(logf,"%r",{"#"},"%c",{"i","j","delt","prob.","v","x vals"},"%cf",{"%5.0f","%3.0f","%12.5g"},-1~0~0.0~0.0~holdpt.v~(holdpt.step'));
 	   do  {
-	      holdpt.step = OC.F; holdpt.v = OC.v;
           tries = holdpt.step + this.chol*rann(N,M);
+          vec0 = holdpt.step;
 	      O->funclist(tries,&Vtries,&vtries);
-		  Metropolis();
+          if (Metropolis() && M>1) {  // order matters!  no short circuit
+            tries = OC.F + rann(1,M).*(vec0-OC.F);
+            if (Volume>=LOUD) fprintln(logf,"Line Search",(vec0-OC.F)');
+	        O->funclist(tries,&Vtries,&vtries);
+		    Metropolis();
+            }
+          if (StorePath) path ~= OC.F;
 		} while (iter++<maxiter);
 	   O->Decode(0);
 	   if (Volume>SILENT) O->Print(" Annealing Done ",logf,Volume>QUIET);
@@ -205,42 +218,56 @@ LineMax::~LineMax()	{
 LineMax::Iterate(Delta,maxiter,maxstp)	{
 	decl maxdelt = maxc(fabs(Delta));
 	this.Delta = Delta;
-	this.maxiter = maxiter>0 ? maxiter : 1000;
+	this.maxiter = maxiter>0 ? maxiter : 3;
     if (isdouble(maxstp)) this.maxstp = maxstp;
 	holdF = OC.F;
 	improved = FALSE;
 	p1.step = 0.0; p1.v = OC.v;
-	this->Try(p2,min(this.maxstp/maxdelt,1.0));
+    this->Try(p2,min(this.maxstp/maxdelt,1.0));
 	if (p2.v>p1.v) {q = p2;a=p1;} else {q=p1;a=p2;}
 	b = p3;
-    if (Volume>SILENT) { fprintln(logf,"Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);fflush(logf);}
+    if (Volume>SILENT) fprintln(logf,"Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);
     Bracket();
     if (Volume>QUIET) println("Line: past bracket",a,b,q);
 	Golden();
 	O->Decode(holdF+q.step*Delta);
     if (Volume>SILENT) {
-        fprintln(logf,"Past golden",q);fflush(logf);
+        fprintln(logf,"Past golden",q);
         if (Volume> QUIET) println("Line: past golden",q);
         }
  	OC.v = q.v;
     if (ismember(q,"V")) OC.V = q.V;
 	}
-	
+
+LineMax::PTry(pt,left,right) {
+    decl M = O.p2p.MaxSimJobs,df=(right-left)/M,
+        steps =range(left+df,right-df,(right-left-2*df)/M),best,
+        Vtries=zeros(O.NvfuncTerms,M),
+        vtries,
+        tries = holdF + Delta.*steps;
+	O->funclist(tries,&Vtries,&vtries,&best);
+    pt.step = steps[best];
+    pt.v = OC.v;
+    if (StorePath) path ~= OC.F;
+	improved = O.newmax || improved;  //eliminated CheckMax because it is called in funclist
+    }
+    	
 /** .
 @internal
 **/
 LineMax::Try(pt,step)	{
 	pt.step = step;
 	O->fobj(holdF + step*Delta);
-	if (isnan(pt.v = OC.v)) {
-	   oxwarning("FiveO Warning 01. Objective undefined at first line try.  Trying 20% of step.\n");
-	   pt.step *= .2;
-	   O->fobj(holdF + pt.step*Delta);
-	   if (isnan(pt.v = OC.v)) {
-	           println("*** ",pt,holdF+pt.step*Delta,OC.X,"\n ****");
-		      oxrunerror("FiveO Error 01. Objective undefined at line max point.\n");
+	if ((isnan(pt.v = OC.v))) {
+	  oxwarning("FiveO Warning 01. Objective undefined at first line try.  Trying 20% of step.\n");
+	  pt.step *= .2;
+	  O->fobj(holdF + pt.step*Delta);
+	  if ((isnan(pt.v = OC.v))) {
+	       println("*** ",pt,holdF+pt.step*Delta,OC.X,"\n ****");
+		   oxrunerror("FiveO Error 01. Objective undefined at line max point.\n");
             }
-		}
+	   }
+    if (StorePath) path ~= OC.F;
 	improved = O->CheckMax() || improved;
 	}
 
@@ -263,11 +290,11 @@ CLineMax::CLineMax(O)	{
 CLineMax::Try(pt,step)	{
 	pt.step = step;
 	O->Merit(holdF + step*Delta);
-	if (isnan(pt.v = OC.L)) {
+	if ((isnan(pt.v = OC.L))) {
 	   oxrunerror("FiveO Error 03.  Lagrange undefined at first try. Trying 20% step\n");
        pt.step *= 0.2;
 	   O->Merit(holdF + pt.step*Delta);
-	   if (isnan(pt.v = OC.L)) {
+	   if ((isnan(pt.v = OC.L))) {
 		  println("****",pt,OC.X,"\n****");
 		  oxrunerror("FiveO Error 03.  Lagrange undefined at line max point\n");
 		  }
@@ -280,7 +307,13 @@ CLineMax::Try(pt,step)	{
 **/
 LineMax::Bracket()	{
     decl u = p4, r, s, ulim, us, notdone;
-	this->Try(b,(1+gold)*q.step-gold*a.step);
+/*    if (isclass(O.p2p) && O.p2p.MaxSimJobs>1) {
+        println("ptry");
+       this->PTry(b,min(a.step,q.step),max(a.step,q.step));
+       println(b);
+       }
+    else */
+        this->Try(b,(1+gold)*q.step-gold*a.step);
 	notdone = b.v>q.v;
 	while (notdone)	{
 		r = (q.step-a.step)*(q.v-b.v);
@@ -304,7 +337,7 @@ LineMax::Bracket()	{
 		else this->Try(u,(1+gold)*b.step-gold*q.step);
         if (notdone)
 			{a = q;	q = b;	b = u;  notdone= b.v>q.v;  }
-        if (Volume>SILENT) {fprintln(logf,"Bracket ",notdone,"a:",a,"q",q,"b",b);fflush(logf);}
+        if (Volume>SILENT) fprintln(logf,"Bracket ",notdone,"a:",a,"q",q,"b",b);
 		}
 	}
 
@@ -367,7 +400,6 @@ NelderMead::Iterate(iplex)	{
 		  fprintln(logf,"\n Max # evaluations ",nfuncmax,
 				"\n Max # restarts ",mxstarts,
 				"\n Plex size tolerance ",tolerance);
-          fflush(logf);
 		  }
 	   do {
            n_func = 0;
@@ -380,7 +412,6 @@ NelderMead::Iterate(iplex)	{
 	       if (Volume>SILENT) {
 	   		  fprintln(logf,"\n","%3u",iter,". N=","%5u",n_func," Step=","%8.5f",step,". Fmax=",nodeV[mxi]," .PlexSize=",plexsize,plexsize<tolerance ? " *Converged*" : "");
 	          fprintln(logf," Bounds on Simplex","%r",{"min","max"},"%c",O.Flabels,limits(nodeX')[:1][]);
-              fflush(logf);
               }
 	       step *= 0.9;
            } while (++iter<mxstarts && !plexshrunk && n_func < nfuncmax);
@@ -398,25 +429,27 @@ NelderMead::Iterate(iplex)	{
 @param fac factor
 **/
 NelderMead::Reflect(fac) 	{
-    decl fac1, ptry, ftry;
+  decl fac1, ptry, ftry;
 	fac1 = (1.0-fac)/N;
 	ptry = fac1*psum - (fac1-fac)*nodeX[][mni];
 	O->fobj(ptry);
+    if (StorePath) path ~= OC.F;
     O->CheckMax();
 	ftry = OC.v;
-	++n_func;
-	atry = (ftry<nodeV[mni])
-					? worst
-					: (ftry > nodeV[mxi])
-					    ? hi
-						: (ftry > nodeV[nmni])
-						      ? nxtlo
-							  : lo;
-	 if (atry!=worst)	{
+  ++n_func;
+  atry = (ftry<nodeV[mni])
+			? worst
+			: (ftry > nodeV[mxi])
+				? hi
+			    : (ftry > nodeV[nmni])
+				    ? nxtlo
+					: lo;
+    if (atry!=worst) {
 		psum += (ptry-nodeX[][mni]);
-		nodeV[mni]=ftry;
+		nodeV[mni]=ftry;               //mni is temporarily not right but that's okay
 		nodeX[][mni]=ptry;
 		}
+    //if (Volume>LOUD) fprintln(logf,"Reflect: ",atry,"%15.5f",ftry,"%r",{"f","p"},(ftry~nodeV)|(ptry~nodeX),"MXi:",mxi," MNi:",mni," nmni:",nmni);
 	}
 	
 /**	 .
@@ -430,6 +463,11 @@ NelderMead::Sort()	{
 	psum = sumr(nodeX);		
 	plexsize = SimplexSize();
     fdiff = norm(nodeV-meanr(nodeV));
+    if (Volume>SILENT) {
+        fprint(logf,"Sorted plexsize: ",plexsize," fdiff:",fdiff);
+        if (Volume>LOUD) fprint(logf,"%15.5f","%r",{"f","p"},nodeV|nodeX,"MXi:",mxi," MNi:",mni," nmni:",nmni);
+        fprintln(logf,"\n-------");
+        }
 	}
 
 /** Compute size of the current simplex.
@@ -449,22 +487,22 @@ NelderMead::Amoeba() 	{
 	 do	{
 	 	Sort();
 		if (plexsize<tolerance) return TRUE;
-        if (Volume>SILENT) fprint(logf,"plexsize: ",plexsize," fdiff:",fdiff);
 		Reflect(-alpha);
-        if (Volume>SILENT) fprint(logf," ",atry==hi," ",atry>nxtlo);
-		if (atry==hi) {
-            Reflect(gamma);
-            if (Volume>SILENT) fprint(logf," ... gamma ",atry);
-            }
+		if (atry==hi)
+            Reflect(gamma);  //new best in mni so reflecting thru it
 		else if (atry>nxtlo){
 			Reflect(beta);
-            if (Volume>SILENT) fprint(logf," ... beta ",atry==worst);
 			if (atry==worst){
+                decl holdfx = nodeV[mxi], holdX = nodeX[][mxi];
 				nodeX = 0.5*(nodeX+nodeX[][mxi]);
 				n_func += O->funclist(nodeX,&vF,&nodeV);
+                if (fabs(holdfx-nodeV[mxi])<SQRT_EPS) {
+                    println("%c",{"New","Old"},"%cf","%20.10f",(nodeV[mxi]~holdfx)|(holdX~nodeX[][mxi]));
+                    oxwarning("FiveO Warning: recomputing objective at same params");
+                    nodeV[mxi] = holdfx;
+                    }
 				}
 			}
-        if (Volume>SILENT) { fprintln(logf," ... ",n_func);fflush(logf);}
 		} while (n_func < nfuncmax);
 	 return FALSE;
 	}
@@ -617,7 +655,10 @@ GradientBased::Iterate(H)	{
 	   else do  {                      // HEART OF THE GRADIENT ITERATION
 
 		  holdF = OC.F;
+          LM.StorePath = StorePath;
+          if (StorePath) path ~= OC.F;
 		  LM->Iterate(Direction(),LMitmax,LMmaxstep);
+          if (StorePath) path ~= LM.path;
 		  convergence = (++iter>maxiter) ? MAXITERATIONS
                                          : IamNewt ? this->HHupdate(FALSE)
                                                    : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE)) ;
@@ -628,7 +669,6 @@ GradientBased::Iterate(H)	{
                 O->Print("",logf,Volume>QUIET);
                 fflush(logf);
                 }
-
 		  } while (convergence==NONE);
 
 	     if (Volume>SILENT) {  //Report on Result of Iteration
@@ -1007,3 +1047,17 @@ SQP::HHupdate(FORCE) {
 		}
     return this->Hupdate();
 	}
+
+
+Algorithm::out(fn) {    SaveDrawWindow(fn~".pdf");    }
+
+Algorithm::Paths(starts) {
+    decl start,i=2;
+    StorePath = TRUE;
+    foreach (start in starts){
+        O->Encode(start);
+        Iterate();
+        DrawXMatrix(0,path[xax][],"X",path[yax][],"Y",2,i);
+        ++i;
+        }
+    }

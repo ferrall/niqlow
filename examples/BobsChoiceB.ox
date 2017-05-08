@@ -30,5 +30,5 @@ BobsChoiceB::Decide() {
     }
 
 BobsChoiceB::Utility() {
-    return Uv + 2.2*CV(Qsch)*(aa(sch).==2);   // Modified
+    return Uv + 2.2*CV(Qsch)*(Alpha::CV(sch).==2);   // Modified
     }

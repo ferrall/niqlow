@@ -61,6 +61,6 @@ struct EFRetirement : EVExAnte	{
 		static  mprob();
 				Utility();
      	          Reachable();
-				FeasibleActions(A);
+				FeasibleActions();
 	}
 	

@@ -13,12 +13,11 @@ StripZeros(trans) {
 @param N <em>positive integer</em> the number of values the variable takes on.<br>N=1 is a constant, which can be included as
 a placeholder for extensions of a model.
 @param L <em>string</em> a label or name for the variable.
-@param Volume default=SILENT. `NoiseLevels`
 @comments
 The default transition is  s&prime; = 0, so it is very unlikely <code>MyModel</code> would ever include a variable of the
 base class.
 **/
-StateVariable::StateVariable(L,N,Volume)	{	Discrete(L,N,Volume); 	TermValues = <>; }
+StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>;  Prune=FALSE;}
 
 
 /** Return actual[v].
@@ -152,7 +151,7 @@ RandomSpell::Transit(FeasA) {
         pbend = AV(ProbEnd);
         return { vals, reshape( pbend~(1-pbend),rows(FeasA),Two) };
         }
-    pbstart = isclass(Start,"ActionVariable") ? ca(FeasA,Start) : Start(FeasA);
+    pbstart = isclass(Start,"ActionVariable") ? Alpha::CV(Start) : Start(FeasA);
     return StripZeros({ vals, (1-pbstart)~pbstart });
     }
 
@@ -160,20 +159,39 @@ RandomSpell::Transit(FeasA) {
 **/
 Augmented::Synch() {    b.v = min(v,b.N-1);     }
 
+/**Default Augmented Update.
+The Update() for the base type is called.  And its actual vector is copied to the augmented actuals.
+**/
+Augmented::Update() {
+    b->Update();
+    actual = b.actual;
+    }
+
+/** Normalize the actual values of the base variable and then copy them to these actuals.
+@param MaxV positive real, default = 1.0
+Sets the actual vector to 0,&ellip;, MaxV.
+@see `Discrete::Update`
+**/
+Augmented::SetActual(MaxV) {
+    println("Setting Actual values of Augmented ",L,"\n----\n");
+    b -> SetActual(MaxV);
+    actual = b.actual;
+    println("\n----\nAugmented: ","%r",{"index","actual"},vals|actual');
+    }
+
 /** Base creator augmented state variables
 @param Lorb either a `StateVariable` object, the base variable to augment<br>Or, string the label for this variable.
 @param N integer, if Otherwise, if &gt; b.N number of points of the augmented variable.  Otherwise, ignored and this.N = b.Nl
-@param Volume default=SILENT. `NoiseLevels`
 If Lorb is a string then <code>b = new `Fixed`(Lorb)</code>.
 **/
-Augmented::Augmented(Lorb,N,Volume) {
+Augmented::Augmented(Lorb,N) {
     if (isclass(Lorb,"StateVariable")) {
         this.b = Lorb;
-        StateVariable(Lorb.L,max(N,Lorb.N),Volume);
+        StateVariable(Lorb.L,max(N,Lorb.N));
         }
     else {
         this.b = new Fixed(Lorb);
-        StateVariable(Lorb,N,Volume);
+        StateVariable(Lorb,N);
         }
     }
 
@@ -193,10 +211,21 @@ Triggered::Triggered(b,t,tv,rval) {
     Augmented(b,max(this.rval+1,b.N));
     }
 
+Triggered::Update() {
+    b->Update();
+    actual = N==b.N ? b.actual : (b.actual|ResetValue);
+    }
+
 Augmented::Transit(FeasA) {
     Synch();
     basetr = b->Transit(FeasA);
     }
+
+Augmented::IsReachable() {
+    Synch();
+    return b->IsReachable();
+    }
+
 
 /** Create a new augmented state variable for which an action triggers the change.
 @param b the base `StateVariable` whose transition is augmented.
@@ -214,7 +243,7 @@ ActionTriggered::ActionTriggered(b,t,tv,rval){
 
 ActionTriggered::Transit(FeasA) {
     Augmented::Transit(FeasA);
-    if ((any(idx=ca(FeasA,t).==tv))) {  //trigger value feasible
+    if ((any(idx=Alpha::CV(t).==tv))) {  //trigger value feasible
         basetr[Qprob] .*= (1-idx);
         if ((any(idy = basetr[Qind].==rval) ))   { //reset values already present
             basetr[Qprob][][maxcindex(idy')] += idx;
@@ -349,22 +378,23 @@ SubState::IsReachable() {
     return br;
     }
 
-/** Create an augmented state variable that 'forgets' its value when a permanent condition occurs.
+/** Create an augmented state variable that 'forgets' its value when an action leads to a permanent condition.
 @param b base `StateVariable` to augment
-@param pstate `PermanentChoice` state variable that triggers the forgetting<br>`CV`-compatiable value
-@param rval the integer (current) value of this state variable when value is forgotten [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
+@param t the `ActionVariable` that triggers a different transition
+@param FCond (permanent) `CV`-compatible value that indicates condition already exists if TRUE, FALSE otherwise<br>
+@param tv the integer (actual) or vector of integer values of tv that triggers the transition [default=1].
+@param rval the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 @comments
 `Forget::IsReachable`() prunes the state space accordingly
 **/
-Forget::Forget(b,pstate,rval) {
-    if (isclass(pstate,"StateVariable")) TypeCheck(pstate,"PermanentChoice");
-    this.pstate = pstate;
-    ActionTriggered(b,pstate.Target,TRUE,rval);
+Forget::Forget(b,t,FCond,tv,rval) {
+    ActionTriggered(b,t,tv,rval);
+    this.FCond = FCond;
     }
 
 Forget::Transit(FeasA) {
-    basetr = ActionTriggered::Transit(FeasA);
-    return CV(pstate)?  {matrix(rval),ones(rows(FeasA),1)} : basetr;
+    ActionTriggered::Transit(FeasA);
+    return CV(FCond) ?  {matrix(rval),ones(rows(FeasA),1)} : basetr;
     }
 
 /**  Trimsthe state space of values that can't be reached because they are forgotten.
@@ -372,7 +402,7 @@ Forget::Transit(FeasA) {
 **/
 Forget::IsReachable() {
     Synch();
-    return !pstate.v || (v==rval);  //Not forgotten or at reset value
+    return !CV(FCond) || (v==rval);  //Not forgotten or at reset value
     }
 
 /** Create an augmented state variable that 'forgets' its value when at t==T* (effective T*+1).
@@ -383,9 +413,10 @@ Forget::IsReachable() {
 **/
 ForgetAtT::ForgetAtT(b,T) {
     this.T = T;
-    Prune = TRUE;
     Triggered(b,0);  //[=](){return I::t==T;}
+    Prune = TRUE;
     }
+
 ForgetAtT::Transit(FeasA) {
     Augmented::Transit(FeasA);
     if ( I::t>=T-1 ) return { matrix(rval), ones(rows(FeasA),1) };
@@ -510,7 +541,7 @@ Offer::Offer(L,N,Pi,Accept)	{
 /** .
 **/
 Offer::Transit(FeasA)	{
-  decl offprob = AV(Pi,FeasA), accept = ca(FeasA,Accept);
+  decl offprob = AV(Pi,FeasA), accept = Alpha::CV(Accept);
   return {vals,(1-accept).*( (1-offprob)~(offprob*constant(1/(N-1),rows(FeasA),N-1)) )+ accept.*(constant(v,rows(FeasA),1).==vals)};
   }
 
@@ -613,7 +644,8 @@ Users should not create a variable of this type.  Use the derived classes `Lagge
 @see DP::KLaggedState, DP::KLaggedAction
 **/
 Lagged::Lagged(L,Target,Prune,Order)	{	
-    this.Target = Target;	StateVariable(L,Target.N);
+    this.Target = Target;	
+    StateVariable(L,Target.N);
     this.Prune = Prune;
     this.Order = Order;
     }
@@ -668,9 +700,9 @@ LaggedAction::LaggedAction(L,Target,Prune,Order)	{
 /** .
 **/
 LaggedAction::Transit(FeasA)	{
-    acol=ca(FeasA,Target);
+    acol=Alpha::CV(Target);
     nxtv =unique(acol);
-	return {nxtv, ca(FeasA,Target).==nxtv };
+	return {nxtv, acol.==nxtv };
 	}
 
 /**  Record the value of an action variable at a given time.
@@ -697,22 +729,36 @@ ChoiceAtTbar::IsReachable() {
     return !(Prune && Flags::Prunable && (I::t<=Tbar) && v);
     }
 
-
 /** Create a variable that tracks a one-time permanent choice.
 @param L label
 @param Target `ActionVariable` to track.
 @example <pre>retired = new PermanentChoice("Ret",retire);</pre></dd>
 **/
-PermanentChoice::PermanentChoice(L,Target) {
-	LaggedAction(L,Target);
+PermanentChoice::PermanentChoice(L,Target,Prune) {
+	LaggedAction(L,Target,Prune);
 	}
 	
-/** .
-**/
 PermanentChoice::Transit(FeasA) {
 	if (v) return UnChanged(FeasA);
     return LaggedAction::Transit(FeasA);
 	}	
+	
+/** Create a variable that tracks that some Target condition has occurred in the past.
+Once the Target is current in the ToTrack set this variable will be TRUE
+@param L label
+@param Target `CV`-compatible value to track.
+@param ToTrack vector of values to Track. Default=<1>.
+@param Prune.  Begins at 0 in finite horizon clocks.
+@example <pre>??</pre></dd>
+**/
+PermanentCondition::PermanentCondition(L,Target,ToTrack,Prune) {
+    StateTracker(L,Target,ToTrack,Prune);
+    }
+
+PermanentCondition::Transit(FeasA) {
+	if (v) return UnChanged(FeasA);
+    return StateTracker::Transit(FeasA);
+	}
 	
 /** .
 @param matchvalue
@@ -734,8 +780,8 @@ RetainMatch::Transit(FeasA) {
 	repl = zeros(rows(FeasA),1);
 	hold = 1-repl;
 	for (i=0;i<sizeof(acc);++i) {
-		hold .*= any(ca(FeasA,acc[i]).==keep);  //all parties must stay
-		repl += any(ca(FeasA,acc[i]).==replace);	// any party can dissolve, get new match
+		hold .*= any(Alpha::CV(acc[i]).==keep);  //all parties must stay
+		repl += any(Alpha::CV(acc[i]).==replace);	// any party can dissolve, get new match
 		}
 	repl = repl.>= 1;
 	return {0~v~matchvalue.v, (1-hold-repl) ~ hold ~ repl};
@@ -763,6 +809,7 @@ Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 StateCounter::StateCounter(L,N,State,ToTrack,Reset,Prune) {
     TypeCheck(State,"StateVariable");
     Counter(L,N,State,ToTrack,Reset);
+    this.Prune = Prune;
     }
 
 /** .
@@ -801,7 +848,7 @@ ActionCounter::ActionCounter(L,N,Act,  ToTrack,Reset,Prune)	{
 **/
 ActionCounter::Transit(FeasA)	{
     if (AV(Reset,FeasA)) return { <0>, ones(rows(FeasA),1) };
-    if (( v==N-1 || !any( inc = sumr(ca(FeasA,Target).==ToTrack)  ) )) return UnChanged(FeasA);
+    if (( v==N-1 || !any( inc = sumr(Alpha::CV(Target).==ToTrack)  ) )) return UnChanged(FeasA);
     return { v~(v+1) , (1-inc)~inc };
 	}
 
@@ -842,7 +889,7 @@ ActionAccumulator::ActionAccumulator(L,N,Action) {
 /** .
 **/
 ActionAccumulator::Transit(FeasA)	{
-    y = setbounds(v+ca(FeasA,Target),0,N-1);
+    y = setbounds(v+Alpha::CV(Target),0,N-1);
     x = unique(y);
 	return { x ,  y.==x };
     }
@@ -867,24 +914,27 @@ prechoice = new LaggedAction("lagc",Choice);
 contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of making same choice up to 5 periods
 </dd>
 **/
-Duration::Duration(L,Current,Lag, N,Prune) {
+Duration::Duration(L,Current,Lag, N,MaxOnce,Prune) {
     decl m ="DDP Error 04. Lag must be a State Variable or a vector\n";
-	TypeCheck(Lag,"StateVariable");
-    if (!ismatrix(Lag)) oxrunerror(m);
+	if (!TypeCheck(Lag,"StateVariable",FALSE) && !ismatrix(Lag)) oxrunerror(m);
 	TypeCheck(Current,"Discrete");
     Counter(L,N,Current,0,0,Prune);
 	isact = isclass(Target,"ActionVariable");
 	this.Lag = Lag;
+    this.MaxOnce = MaxOnce;
 	}
 
 /** .
 **/
 Duration::Transit(FeasA) {
+    if (v==N-1 && MaxOnce) return UnChanged(FeasA);
 	g= matrix(v +(v<N-1));
 	if (isact) {
-		nf = sumr(ca(FeasA,Target).==AV(Lag));
+        add1 = Alpha::CV(Target).==AV(Lag);
+		nf = int(sumc(add1));
+        if (Volume>SILENT) fprintln(logf,v," ",AV(Lag),nf,Alpha::CV(Target));
         if (!nf) return { <0> , ones(rows(FeasA),1) };
-		return { 0~g , (1-nf)~nf };
+		return { 0~g , (1-add1)~add1 };
 		}
     if ( !any(AV(Target).==AV(Lag)) ) return { <0> , ones(rows(FeasA),1) };
 	return { g , ones(rows(FeasA),1) };
@@ -910,31 +960,40 @@ Renewal::Transit(FeasA)	{
 		 pi = reshape(AV(Pi,FeasA),1,P),
 		 ovlap = v < P ? zeros(1,v) : 0,
    		 qstar = pstar ? pi[:pstar-1]~sumr(pi[pstar:]) : <1.0>;
-	decl tt = !isint(ovlap)
+	decl  rr =Alpha::CV(reset),
+        tt = !isint(ovlap)
 			? {vals[:v+P-1],
-		      	((pi~ovlap).*ca(FeasA,reset))
-		   	 +  ((ovlap ~ qstar).*(1-ca(FeasA,reset))) }
+		      	((pi~ovlap).*rr)
+		   	 +  ((ovlap ~ qstar).*(1-rr)) }
 			: {vals[:P-1] ~ (v+vals[:pstar]) ,
-				pi.*ca(FeasA,reset) ~ qstar.*(1-ca(FeasA,reset)) };
+				pi.*rr ~ qstar.*(1-rr) };
 	return tt;
 	}
 
 /** Indicates a state or action took on particular value(s) last period.
 @internal
 **/
-Tracker::Tracker(L,Target,ToTrack)	{
+Tracker::Tracker(L,Target,ToTrack,Prune)	{
 	this.ToTrack = ToTrack;
     this.Target = Target;	
     StateVariable(L,2);
+    this.Prune = Prune;
 	}
+
+/** Default initial value for Tracker variables is 0.
+**/
+Tracker::IsReachable(){
+    return !(Prune && Flags::Prunable && !(I::t) && v);
+    }
 
 /** Create a binary variable that indicates if the previous value of state variable was in a set.
 @param Target `StateVariable` to track actual values of.
 @param ToTrack integer or vector of (actual) values to track
+@param Prune, prune non-zero states at t==0 in finite horizon.
 **/
-StateTracker::StateTracker(L,Target,ToTrack)	{	
+StateTracker::StateTracker(L,Target,ToTrack,Prune)	{	
     TypeCheck(Target,"StateVariable");
-    Tracker(L,Target,ToTrack);		
+    Tracker(L,Target,ToTrack,Prune);		
     }
 
 /** .
@@ -944,18 +1003,20 @@ StateTracker::Transit(FeasA)	{
 	}
 
 /** Create a binary variable that indicates if the previous value of action variable was in a set.
+@param L Label
 @param Target `ActionVariable` to track
 @param ToTrack integer or vector of values to track
+@param Prune Prune in finite horizon (starts at 0)
 **/
-ActionTracker::ActionTracker(L,Target,ToTrack)	{	
+ActionTracker::ActionTracker(L,Target,ToTrack,Prune)	{	
     TypeCheck(Target,"ActionVariable");
-    Tracker(L,Target,ToTrack);	
+    Tracker(L,Target,ToTrack,Prune);	
     }
 
 /** .
 **/
 ActionTracker::Transit(FeasA)	{
-    d = sumr( ca(FeasA,Target).==(ToTrack) );
+    d = sumr( Alpha::CV(Target).==(ToTrack) );
 	if (any(d)) {
 	    if (any(1-d)) return{ <0,1>, (1-d)~d };
 		return {<1>, ones(d)};
@@ -990,6 +1051,7 @@ StateBlock::StateBlock(L,...)	{
 	N= 0;
 	Theta={};
 	pos = UnInitialized;
+    Volume = SILENT;
 	Actual = Allv = actual = v = <>;	
     decl va = va_arglist(), v;
     foreach (v in va) AddToBlock(v);
@@ -1052,7 +1114,7 @@ OfferWithLayoff::OfferWithLayoff(L,N,accept,Pi,Lambda)	{
 	
 /** .  **/
 OfferWithLayoff::Transit(FeasA)	{
-   decl prob = AV(Pi,FeasA), lprob = AV(Lambda,FeasA), acc = ca(FeasA,accept), xoff, xprob;
+   decl prob = AV(Pi,FeasA), lprob = AV(Lambda,FeasA), acc = Alpha::CV(accept), xoff, xprob;
 
    if (status.v==Emp) return { offer.v | (Quit~LaidOff~Emp) ,  (1-acc) ~ acc.*(lprob~(1-lprob)) };
    xoff =    offer.vals | Unemp;
@@ -1104,7 +1166,6 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 	this.mu = mu;
 	this.CholLT = CholLT;
 	for (i=0;i<N;++i) AddToBlock(new NormalComponent(L+sprint(i),M));
-    Volume = SILENT;
 	}
 
 /** Updates the grid of Actual values.
@@ -1226,10 +1287,12 @@ LiquidAsset::LiquidAsset(L,N,NetSavings){
     isact = isclass(NetSavings,"ActionVariable");
 	}
 
-FixedAsset::Transit(FeasA) { return Asset::Transit(actual[v] + delta.actual[ca(FeasA,delta)]); }
+FixedAsset::Transit(FeasA) {
+    return Asset::Transit(actual[v] + delta.actual[Alpha::CV(delta)]);
+    }
 
 LiquidAsset::Transit(FeasA) {
-    return Asset::Transit(isact ? NetSavings.actual[ca(FeasA,NetSavings)] : AV(NetSavings,FeasA));
+    return Asset::Transit(isact ? NetSavings.actual[Alpha::CV(NetSavings)] : AV(NetSavings,FeasA));
     }
 /**
 **/
@@ -1241,7 +1304,6 @@ Asset::Transit(pdelt) {
      tprob = (mid .!= 0.0) .? (atom'-actual[bot])./mid .:  1.0 ;
     bprob = 1-tprob;
     all = union(bot,top);
-//   if ( any(tprob.>1.0) ) println("%c",{"AA","Bound","aB","mid","At"},AV(r)*actual[v]+AV(NetSavings,FeasA)~atom~actual[bot]'~mid~actual[top]'," tp ",tprob'," bp ",bprob'," all ",all);
     return { all, tprob.*(all.==top) + bprob.*(all.==bot) };
     }
 
@@ -1295,7 +1357,7 @@ KeptZeta::InitDynamic(cth,VV) {
     addst = I::OO[iterating][keep.pos]*vals;
     decl myios = cth.InSubSample ? I::all[onlysemiexog] : 0;
     NxtI = cth.Nxt[Qit][myios];
-    NxtR = cth.Nxt[Qrho+I::rtran][myios];
+    NxtR = cth.Nxt[Qrho][myios];
     NOth= columns(NxtR)-1;
     println(I::t," ",isheld," ",v," ",NxtI," ",NxtR," ",I::OO[iterating][keep.pos],VV);
     }

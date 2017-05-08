@@ -30,7 +30,11 @@ struct Free : Parameter {
 	}
 
 /** Not free and not determined. **/
-struct Limited : Parameter { }
+struct Limited : Parameter {
+    decl
+    /** starting value is near the flat spot of the transformation. **/ nearflat;
+    Limited(L,v0);
+    }
 	
 /** Bounded from below:  <var>LB &lt; v &lt; &infin;</var>.
 <DD>Transformation:<pre>
@@ -64,7 +68,7 @@ f = 1</pre>
 Warning issued if |v<sub>0</sub>)-UB + 1| &lt; `Parameter::NearFlat`</dd>
 
 **/
-struct BoundedAbove : Parameter	{
+struct BoundedAbove : Limited	{
 	/** `AV` compatible, the upper bound**/ 	decl UB;
 	BoundedAbove(L,UB, v0);
 	Encode();

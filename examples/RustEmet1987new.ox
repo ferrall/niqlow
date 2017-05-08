@@ -30,7 +30,7 @@ Zurcher::SetParameters() {
 <pre>U = dRC+(1-d)&theta;<sub>1</sub>mx + n</pre>
 **/
 Zurcher::Utility()  {
-	decl rep = aa(d);
+	decl rep = Alpha::CV(d);
 	return   -(rep*rc + (1-rep)*th1*mfact*x.v)
 			 +normalization;	// added to avoid exp() underflow for delta near 1.0
 	}

@@ -8,6 +8,7 @@
 @param MaxChoiceIndex FALSE = print choice probability vector [default]<br>TRUE = only print index of choice with max probability.  Useful when the full action matrix is very large.
 @param TrimTerminals FALSE [default] <br>TRUE means states marked `Bellman::IsTerminal` are deleted
 @param TrimZeroChoice FALSE [default] <br> TRUE means states with no choice are deleted
+@return TRUE if method fails, FALSE if it succees
 <DT>Note:  All parameters are optional, so <code>VISolve()</code> works.</DT>
 <DT>This function</DT>
 <DD>Creates a `ValueIteration` method</dd>
@@ -27,9 +28,9 @@ VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
     decl meth = new ValueIteration();
     GSolve::RunSafe = FALSE;
     DPDebug::outAllV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice);
-    decl conv = meth->Solve();
+    decl succeed = meth->Solve();
     delete meth;
-    return conv;
+    return succeed;
     }
 
 /** Create an endogenous utility object.
@@ -80,24 +81,22 @@ ValueIteration::Run(){
     if (Flags::UpdateTime[AfterFixed]) ETT->Transitions(state);
     if (DoNotIterate) return;
 	cputime0 = timer();
-    if (Volume>SILENT && N::F>1) print("f=",I::f);
-
-    itask->SetFE(state);
-    itask->GroupTask::loop();
-    if (DPDebug::OutAll)  DPDebug::RunOut();
-    else {
-        if (GSolve::Volume>SILENT) {
-           if (N::G>1) println("X");
-	       if (GSolve::Volume>QUIET) DPDebug::outV(TRUE);
-          }
+    if (Rgroups==AllRand) {
+        itask->SetFE(state);
+        done = done || itask->GroupTask::loop();
+        Hooks::Do(PostRESolve);
         }
-    Hooks::Do(PostRESolve);
+    else {
+        itask->SetRE(state,Rgroups);
+        done = done || itask->Run();
+        }
 	}
 
 RandomSolve::RandomSolve(gtask) {	
     RETask();	
     itask = gtask;
     }
+
 
 /** Apply the solution method for the current fixed values.
 
@@ -108,7 +107,12 @@ Solution is not run if the density of the point in the group space equals 0.0.
 RandomSolve::Run()  {
 	if (I::curg->Reset()>0.0) {
         if (Flags::UpdateTime[AfterRandom]) ETT->Transitions(state);
-		itask->Solve(this.state);
+        retval =itask->Solve(this.state);
+        if (DPDebug::OutAll)
+            DPDebug::RunOut();
+        else
+            if (GSolve::Volume>QUIET) DPDebug::outV(TRUE);
+        return retval;
 		}
 	}
 
@@ -143,7 +147,9 @@ GSolve::Solve(instate) {
     ZeroTprime();
 	itask->Traverse();  //compute endogenous utility
 	Flags::setPstar = counter->setPstar() ||  (MaxTrips==1);   // if first trip is last;
-	this->Traverse();
+    succeed = TRUE;
+    warned = FALSE;
+    decl tmp = this->Traverse() ;
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER) VV[LATER][] = VV[I::later][];    //initial value next time
     Hooks::Do(PostGSolve);
     if (Volume>SILENT && N::G>1) print(".");
@@ -154,7 +160,7 @@ GSolve::ZeroTprime() { state[counter.tprime.pos] = 0; }
 /** The function (method) that actually applies the DP Method to all problems (over fixed and random effect groups).
 This is the default value that does nothing.  It should be replaced by code for the solution method.
 **/
-Method::Solve(Fgroups,MaxTrips) {    oxwarning("DDP Warning 21.\n User code has called the default Solve() function for Method.\n  Does not do anything.\n");    }
+Method::Solve(Fgroups,Rgroups,MaxTrips) {    oxwarning("DDP Warning 21.\n User code has called the default Solve() function for Method.\n  Does not do anything.\n");    }
 
 /** The function (method) that applies the method to a particular problem.
 This is the default value that does nothing.  It should be replaced by code for the solution method.
@@ -165,7 +171,7 @@ Method::GSolve(instate) {  oxwarning("DDP Warning 22.\n User code has called the
 /**Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
 @param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
 @param MaxTrips 0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
-
+@return TRUE if all solutions succeed; FALSE if any fail.
 This method carries out Bellman's iteration on the user-defined problem.  It uses the `DP::ClockType` of
 the problem to determine whether it needs to find a fixed point or can simply work backwards in
 time.<p>
@@ -175,9 +181,9 @@ If `Flags::UpdateTime`[OnlyOnce] is TRUE (see `UpdateTimes`), then transitions a
 @comments Result stored in `ValueIteration::VV` matrix for only two or three ages (iterations) stored at any one time.  So this
 cannot be used after the solution is complete.  `Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
 Results are integrated over random effects, but results across fixed effects are overwritten.<br>
-Choice probabilities are stored in `Bellman::pandv` by random group index
+Choice probabilities are stored in `Bellman::pandv`
 **/
-ValueIteration::Solve(Fgroups,MaxTrips) 	{
+ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
     decl glo, ghi, g;
    	if (isint(delta))
         oxwarning("DDP Warning 23.\n User code has not set the discount factor yet.\n Setting it to default value of "+sprint(SetDelta(0.90))+"\n");
@@ -187,17 +193,27 @@ ValueIteration::Solve(Fgroups,MaxTrips) 	{
     if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions();
     GSolve::Volume = Volume;
     GSolve::vtoler = vtoler;
-    if (Volume>QUIET) println("\n>>>>>>Value Iteration Starting");
-	if (Fgroups==AllFixed) this->GroupTask::loop();
+    GSolve::succeed = TRUE;
+    done = FALSE;
+    if (Volume>QUIET && (Fgroups==AllFixed && Rgroups==AllRand)) println("\n>>>>>>Value Iteration Starting");
+	if (Fgroups==AllFixed) {
+        if (Rgroups!=AllRand) oxwarning("DDP Warning: Must solve all random groups if solving All Fixed");
+        this.Rgroups = AllRand;
+        this->GroupTask::loop();
+        }
     else {
         state = ReverseState(Fgroups,I::OO[onlyfixed][]);
         SyncStates(left,right);
         I::Set(state,TRUE);
+        this.Rgroups = Rgroups;
         this->Run();
         }
     Hooks::Do(PostFESolve);
     Flags::HasBeenUpdated = FALSE;
-    if (Volume>QUIET) println("\n>>>>>>Value Iteration Finished\n");
+    if (Volume>QUIET && (Fgroups==AllFixed && Rgroups==AllRand))
+        println("\n>>>>>>Value Iteration Finished.  Succeed: ",GSolve::succeed,"\n");
+    else  if (Volume>SILENT && Fgroups==N::F-1 && Rgroups==N::F-1) println("X");
+    return GSolve::succeed;
 	}
 
 Method::Method() {
@@ -242,15 +258,19 @@ This is called after one complete iteration of `ValueIteration::GSolve`().
 **/
 GSolve::Update() {
 	++trips;
-	decl dff= counter->Vupdate();
-	if (dff==.NaN || Volume>LOUD) {
-        if (dff==.NaN) {
+	decl dff= counter->Vupdate(), mesucc = !(dff==.NaN);
+    succeed *= mesucc;
+	if ( !mesucc || Volume>LOUD) {
+        if (!mesucc) {
             decl indx=vecindex(VV[I::now][],.NaN),nans = ReverseState(indx',I::OO[iterating][])[S[endog].M:S[endog].X][]';
             fprintln(logf,"\n t =",I::t,". States with V=NaN ","%8.0f","%c",{"Index"}|Labels::Vprt[svar][S[endog].M:S[endog].X],indx~nans);
             if (RunSafe )oxrunerror("DDP Error 29. error while checking convergence.  See log file.");		
-            oxwarning("DDP Warning ??. Value function includes NaNs, exiting Value Iteration.");
+            if (!warned) {
+                oxwarning("DDP Warning ??. Value function includes NaNs, exiting Value Iteration.");
+                warned = TRUE;
+                }
             VV[I::now][] = VV[I::later][] = 0.0;
-            return done = IterationFailed;
+            return done = TRUE;
             }
         else
             fprintln(logf,"Value Function at t =",I::t," ",VV[I::now][]);	
@@ -301,7 +321,7 @@ KWEMax::Run() {
 		I::curth->ActVal(meth.VV[I::later]);
 		meth.VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
 		if (!onlypass)
-			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[I::r][][I::MESind])');
+			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');
 		}
     else if (!inss) {
 		itask.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
@@ -406,13 +426,13 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
 	}
 	
 KWEMax::InSample(){
-	meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[I::r][][I::MESind])');
+	meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');
 	}
 
 	
 KWEMax::OutSample() {
 	I::curth->MedianActVal(meth.VV[I::later]);
-	meth->Specification(PredictEV,V[0],(V[0]-I::curth.pandv[I::r])');
+	meth->Specification(PredictEV,V[0],(V[0]-I::curth.pandv)'); //NoR [I::r]
 	}
 	
 /** Create a Hotz-Miller solution method.
@@ -496,7 +516,7 @@ CCPspace::Run() {
 	   nom =  itask.ObsPstar[I::f].*itask.Kernel[ii][],
 	   p = sumr(nom/dnom);
 	   p[0] = 1-sumc(p[1:]);
-       I::curth.pandv[0][] = p;
+       I::curth.pandv[] = p;
        I::curth->ExogUtil();    //.U[]=th->Utility();
 	   itask.Q[I::f][ii] = p'*(I::curth.U+M_EULER-log(p));
 //       println(ii," ",qtask.Q[I::f][ii]);

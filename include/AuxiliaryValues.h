@@ -10,7 +10,7 @@ the outcome and read in along with other data.
 **/
 struct AuxiliaryValues : Quantity {
     const decl N;
-	AuxiliaryValues(L="Aux",N=1,Volume=SILENT);
+	AuxiliaryValues(L="Aux",N=1);
 	virtual Realize(y=0);
 	}
 
@@ -35,9 +35,9 @@ struct ActionIndicators : Indicators {
     Realize(y=0);
     }
 
-struct ZetaRealization : AuxiliaryValues {  //Changed April 2016 from Quantity 
+struct ZetaRealization : AuxiliaryValues {  //Changed April 2016 from Quantity
 	const decl length;
-	ZetaRealization(length,Volume=SILENT);
+	ZetaRealization(length);
 	virtual Realize(y=0);
 	}
 	

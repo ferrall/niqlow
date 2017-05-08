@@ -5,42 +5,57 @@
 @param obj `Objective' to parallelize
 @param DONOTUSECLIENT TRUE (default): client node does no object evaluation<br>FALSE after putting servers to work Client node does one evaluation.
 **/
-ParallelObjective(obj,DONOTUSECLIENT) {
+ParallelObjective(obj,DONOTUSECLIENT,NSubProblems,MaxSubReturn) {
 	if (isclass(obj.p2p)) {oxwarning("CFMPI Warning 01.\n"+" P2P object already exists for "+obj.L+". Nothing changed.\n"); return;}
 	obj.p2p = new P2P(DONOTUSECLIENT,new ObjClient(obj),new ObjServer(obj));
+    if (isclass(obj.p2p.client)) {
+        obj.p2p.client.NSubProblems=NSubProblems;
+        obj.p2p.client.MaxSubReturn=MaxSubReturn;
+        }
 	}
 
-ObjClient::ObjClient(obj) { this.obj = obj;    }
+ObjClient::ObjClient(obj) {  this.obj = obj; }
 
 ObjClient::Execute() {    }
 
+ObjClient::Distribute(F) {
+    decl subV=zeros(MaxSubReturn,NSubProblems);
+    ToDoList(NSubProblems,F,&subV,MaxSubReturn,SubProblems);
+    return subV;
+    }
+
 ObjServer::ObjServer(obj) {	
     this.obj = obj;	
-    basetag = P2P::STOP_TAG+1;
+    //basetag = P2P::STOP_TAG+MultiParameterOffset;
     iml = obj.NvfuncTerms;
-    Nparams = obj.nstruct;
+    Nstruct = obj.nstruct;
     }
 
 /** Wait on the objective client.
 **/
 ObjServer::Loop(nxtmsgsz) {
-    Nparams = nxtmsgsz;   //free param length is no greater than Nparams
-    if (Volume>QUIET) println("ObjServer server ",ID," Nparams ",Nparams);
-    Server::Loop(Nparams);
+    Nfree = nxtmsgsz;   //current free param length sent from algorithm
+    if (Volume>QUIET) println("ObjServer server ",ID," Nfree= ",Nfree);
+    Server::Loop(Nfree);
     Recv(ANY_TAG);                      //receive the ending parameter vector
-    obj->Encode(Buffer[:Nparams-1]);   //encode it.
+    obj->Encode(Buffer[:Nstruct-1]);   //encode it.
     }
 
 /** Do the objective evaluation.
 Receive structural parameter vector and `Objective::Encode`() it.
 Call `Objective::vfunc`().
-@return Nparams (max. length of next expected message);
+@return Nstruct (max. length of next expected message);
 **/
 ObjServer::Execute() {
 	obj->Decode(Buffer[:obj.nfree-1]);
-	Buffer = obj.cur.V[] = obj->vfunc();
-    if (Volume>QUIET) println("Server Executive: ",ID," vfunc[0]= ",Buffer[0]);
-	return obj.nstruct;
+    if (Volume>QUIET) println("Server Executive: ",ID," vfunc[0]= ",Buffer[:min(9,obj.nfree-1)]);
+    if (Tag>=BaseTag[SubProblems]) {
+        Buffer = obj->vfunc(Tag-BaseTag[SubProblems]);
+        }
+    else {
+	   Buffer = obj.cur.V[] = obj->vfunc();
+       }
+	return Nstruct;
 	}
 
 CstrServer::CstrServer(obj) { ObjServer(obj);	}
@@ -56,7 +71,8 @@ CstrServer::Execute() {
 /** Separable objective evaluations.
 **/
 SepServer::Execute() {
-	obj.Kvar.v = imod(Tag-basetag,obj.K);
+	obj.Kvar.v = imod(Tag-BaseTag[],obj.K);
+    oxrunerror("SepServer has not been updated concerning Pmode");
 	obj->Encode(Buffer,TRUE);		
 	Buffer = obj.Kvar->PDF() * obj->vfunc();
 	return obj.NvfuncTerms;

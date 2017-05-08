@@ -55,8 +55,8 @@ DynaHealth::Reachable() {
 
 DynaHealth::Utility() {
 	decl kv = spell.k.v,
-		 vis = aa(trt),
-		 work = aa(wrk),
+		 vis = Alpha::CV(trt),
+		 work = Alpha::CV(wrk),
 		 at1 = absents.v+(1-work),
 		 X = Y-phyfee*copay*vis-Y*(1-probn((1~at1)*phi)*L).*(1-work);
 	if (!kv) return X;
@@ -64,7 +64,8 @@ DynaHealth::Utility() {
 	return (1~vis~work~X)*alph[][kv];
 	}
 
-DynaHealth::FeasibleActions(A) {
-	return (spell.k.v) ? ones(rows(A),1) : (1-A[][trt.pos]).*A[][wrk.pos] ;
+DynaHealth::FeasibleActions() {
+    decl wv = Alpha::CV(wrk);
+	return (spell.k.v) ? ones(rows(wv),1) : (1-Alpha::CV(trt)).*wv ;
 	}
 	

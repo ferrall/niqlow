@@ -2,8 +2,6 @@
 
 ca(A,act);
 
-NormalizeActual(v,MaxV=1.0);
-
 
 		/** Categories of state variables.	
             These categories are used mainly for summarizing the model.
@@ -334,6 +332,10 @@ struct Hooks : DDPauxiliary {
 **/
 struct Alpha : DDPauxiliary {
 	static decl
+         /** Rows of FA, # of feasible actions. **/             NFA,
+        /** Current feasible action matrix.
+            @see Alpha::SetFA, Alpha::CV    **/                 FA,
+        /** Current ACTUAL feasible actions. **/                FAactual,
 		/** matrix of all action vectors, A.
             This is a copy of `Alpha::List`[0].
             As action variables are added to the model
@@ -363,6 +365,10 @@ struct Alpha : DDPauxiliary {
     static AddA(fa);
     static Aprint();
     static ResetA(alist);
+    static CV(actvar);
+    static AV(actvar);
+    static SetFA(FA);
+    static ClearFA();
     }
 
 /** Contains arrays of labels for variables.

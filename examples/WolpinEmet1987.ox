@@ -18,13 +18,14 @@ SchToWork::Reachable() {
 	return !(hasoffer.v && done.v);
 	}
 
-SchToWork::FeasibleActions(Alpha) {
+SchToWork::FeasibleActions() {
 	zstar = <1.0>;
+    decl dv = Alpha::CV(d);
 	return hasoffer.v
 			? (I::t<T+k
-				? ones(Alpha)  //has a choice
-			    : Alpha[].==1) //must accept
-			: Alpha[].==0;    //no offer
+				? ones(dv)  //has a choice
+			    : dv.==1) //must accept
+			: dv.==0;    //no offer
 	}
 	
 SchToWork::Poff(...) { decl d=max(0,I::t-k-1); 	return d ? probn(pars[m0]+pars[m1]*d) : pars[P0] ; }
@@ -32,7 +33,7 @@ SchToWork::Poff(...) { decl d=max(0,I::t-k-1); 	return d ? probn(pars[m0]+pars[m
 SchToWork::Udiff(z) {
 	if (CV(done)) return 0.0;
 	if (!CV(hasoffer)) return -pars[c];
-	if (I::t<T+k) return DeltaV(-pars[c] - z*aa(d));
+	if (I::t<T+k) return DeltaV(-pars[c] - z*Alpha::AV(d));
 	return 0.0;
 	}
 

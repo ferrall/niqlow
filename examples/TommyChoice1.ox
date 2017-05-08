@@ -38,10 +38,9 @@ Earn::Realize(y) {
     }
 
 TommysChoice::Utility() {
-    decl totx;
-    totx=CV(X);
+    decl totx=CV(X), mv = Alpha::AV(m);
     Eearn = 0.05*totx - 0.01*sqr(totx)/Xmax;
-    return Uv + aa(m)*Eearn - 0.5*(aa(m).!=CV(pstat));
+    return Uv + mv*Eearn - 0.5*(mv.!=CV(pstat));
     }
 
 main() {
