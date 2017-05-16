@@ -7,12 +7,12 @@ RustEstimates::DoAll() {
     decl toglist;
 	toglist = ZurcherHat::FirstStage(0);
 	EMax = new ValueIteration(0);
-	EMax.vtoler = 1E-01;
+	EMax.vtoler = 1E-03;
 	buses = new BusData(EMax);
 	nfxp = new PanelBB("ZurcherMLE",buses,ZurcherHat::hat);
 	nfxp.Volume = LOUD;
 	mle = new NelderMead(nfxp);
-	mle.Volume = LOUD;
+	mle.Volume = NOISY;
 
     /* First stage estimates, do not require nested DP solution */
     EMax.DoNotIterate = TRUE;  //only recompute transitions, do not solve for V

@@ -16,11 +16,12 @@ struct BlackBox : UnConstrained	{
 struct PanelBB : BlackBox {
 	const decl data;
 	PanelBB(L,data, ...);
-	virtual vfunc();
+	virtual vfunc(subp=DoAll);
+    virtual Combine(outmat);
 	}
 
 struct NoObjective : BlackBox {
     decl model,v;
     NoObjective(model);
-    vfunc();
+    vfunc(subp=DoAll);
     }

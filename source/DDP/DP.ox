@@ -138,12 +138,23 @@ DP::SetGroup(GorState) {
 		}
 	return Gamma[I::g];
 	}
+
+DP::SetG(f,r) {
+        return isclass(Fgamma[f][r]) ? SetGroup(Fgamma[f][r].pos) : 0;
+    }
 	
 /** Draw &gamma; from &Gamma; according to the density.
 Sets <code>I::g</code> and syncs state variables in &gamma;
 @return &Gamma;[gind], for external access to &Gamma;
 @see DrawOne **/
 DP::DrawGroup(find) {	return SetGroup(find + DrawOne(gdist[find][]) );	}
+
+/** Draw a population count andom sample of N values from the random effects distribution.
+@param find index of fixed group
+@param N number of draws to take
+@see DrawGroup
+**/
+DP::DrawFsamp(find,N) { return ranmultinomial(N,gdist[find][]); }
 
 DP::DrawOneExogenous(aState) {
 	decl i = DrawOne(NxtExog[Qprob]);		
@@ -166,9 +177,9 @@ DP::GetAind(i) {return isclass(Theta[i]) ? Theta[i].Aind : NoMatch; }
 
 /** Return choice probability for a &theta; and current &gamma;.
 @param i index of &theta; in the state space &Theta;
-@return &Rho;*(&alpha;|&epsilon;,&eta;,&theta;,&gamma;)  (Theta[i].pandv[I:r])
+@return &Rho;*(&alpha;|&epsilon;,&eta;,&theta;,&gamma;)  (Theta[i].pandv)
 **/
-DP::GetPstar(i) {return Theta[i].pandv[Gamma[I::g].rind];}
+DP::GetPstar(i) {return Theta[i].pandv; }
 
 /** Return tracking transition at a given &eta;,&theta; combination.
 @param i index of &theta; in the state space &Theta;
@@ -177,7 +188,7 @@ DP::GetPstar(i) {return Theta[i].pandv[Gamma[I::g].rind];}
 First element is vector of indices for feasible states &theta;&prime;<br>
 Second element is a matrix of transition probabilities (rows for actions <code>&alpha;</code>, columns correspond to &theta;&prime;)
 **/
-DP::GetTrackTrans(i,h) { return {Theta[i].Nxt[Qtr][h],Theta[i].Nxt[Qrho+I::rtran][h]}; }
+DP::GetTrackTrans(i,h) { return {Theta[i].Nxt[Qtr][h],Theta[i].Nxt[Qrho][h]}; }
 
 /** Ask to store overall &Rho;*() choice probability matrix.
 @comment Can only be called before calling `DP::CreateSpaces`
@@ -1485,6 +1496,16 @@ RETask::RETask() {
 	span = onlyrand;	left = SS[span].left;	right = SS[span].right;
 	}
 
+/** .
+@internal
+**/
+RETask::SetRE(f,r) {
+    SetFE(f);
+	state += ReverseState(r,I::OO[onlyrand][]);
+    SyncStates(left,right);
+    I::Set(state,TRUE);
+	}
+
 /** Compute density of current group &gamma; conditional on fixed effects.
 **/
 Group::Density(){
@@ -1611,12 +1632,12 @@ DPDebug::outV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 DPDebug::RunOut() {
 	if (rp.ToScreen) {
             print("\n     Value of States and Choice Probabilities");
-            if (N::F>1) print("\n     Fixed Group Index(f): ",I::f);
+            if (N::G>1) print("\n     Fixed Group Index(f): ",I::f,". Random Group Index(r): ",I::r);
             println("\n",div);
             }
     else {
         fprint(logf,"\n     Value of States and Choice Probabilities");
-        if (N::F>1) fprint(logf,"\n     Fixed Group Index(f): ",I::f);
+        if (N::G>1) fprint(logf,"\n     Fixed Group Index(f): ",I::f,". Random Group Index(r): ",I::r);
         fprintln(logf,"\n",div);
         }
 	rp -> Traverse();
@@ -1679,7 +1700,7 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
         for(decl i=0;i<N::A;++i) prtfmt |= "%9.6f";
         prtfmt |= "%15.6f";
         }
-	if ( !isint(this.aM = aM) ) this.aM[0] = <>;
+	if (( !isint(this.aM = aM) )) this.aM[0] = <>;
 	nottop = FALSE;
 	}
 	
@@ -1687,18 +1708,16 @@ SaveV::Run() {
 	if ((TrimTerminals && I::curth.IsTerminal) || (TrimZeroChoice && N::Options[I::curth.Aind]<=1) ) return;
     decl mxi, p;
 	stub=I::all[tracking]~I::curth.InSubSample~I::curth.IsTerminal~I::curth.Aind~state[S[endog].M:S[clock].M]';
-	for(re=0;re<sizeof(I::curth.EV);++re) {
-        p = I::curth->ExpandP(re,TRUE);
-        r =stub~re~I::f~I::curth.EV[re];
-        if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
-		if (isclass(I::curth,"OneDimensionalChoice") )  r ~= I::curth->Getz()';
-		if (!isint(aM)) aM[0] |= r;
-		s = (nottop)
-				? sprint("%cf",prtfmt,r)
-				: sprint("%c",isclass(I::curth,"OneDimensionalChoice") ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);
-		if (ToScreen) print(s[1:]); else fprint(logf,s[1:]);
-		nottop = TRUE;
-		}
+    p = I::curth->ExpandP(TRUE);
+    r =stub~I::r~I::f~I::curth.EV;
+    if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
+	if (isclass(I::curth,"OneDimensionalChoice") )  r ~= I::curth->Getz()';
+	if (!isint(aM)) aM[0] |= r;
+	s = (nottop)
+		? sprint("%cf",prtfmt,r)
+		: sprint("%c",isclass(I::curth,"OneDimensionalChoice") ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);
+	if (ToScreen) print(s[1:]); else fprint(logf,s[1:]);
+	nottop = TRUE;
 	}
 
 OutAuto::OutAuto(){

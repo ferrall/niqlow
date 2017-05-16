@@ -115,6 +115,8 @@ class Augmented : StateVariable {
     Synch();
     virtual Transit(FeasA);
     virtual IsReachable();
+    virtual Update();
+    virtual SetActual(MaxV=1.0);
     }
 
 /**A member of a block: transition depends on transition of one or more other state variables.
@@ -140,6 +142,7 @@ class Triggered : Augmented {
                 /** reset value of state.**/        rval;
     decl ft, idx, idy, rv, nf;
     Triggered(b,t,tv=0,rval=0);
+    virtual Update();
     }
 
 /**  A state variable that augments a base transition so that the value of an action variable triggers this state to transit to a value.

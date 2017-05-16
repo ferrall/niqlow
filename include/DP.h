@@ -125,6 +125,7 @@ struct DP {
 		static	ExogenousStates(v1,...); 	
 		static	AuxiliaryOutcomes(v1,...);
 		static 	SetGroup(state);
+        static  SetG(f=0,r=0);
 		static 	Settheta(ind);
 		static 	DrawGroup(find);
 		static 	StorePalpha();
@@ -135,6 +136,7 @@ struct DP {
 		static 	MakeGroups();
 		static  UpdateDistribution();
 		static	DrawOneExogenous(aState);
+        static  DrawFsamp(find,N=1);
 		static  SyncAct(a);
         static  SubSampleStates(SampleProportion=1.0,MinSZ=0,MaxSZ=INT_MAX);
         static  SetUpdateTime(time=AfterFixed);
@@ -201,7 +203,10 @@ states or looping over all combinations of state variable values.  This is done
 with an arguement to `DP::Initialize`().
 
 **/
-struct ThetaTask        :   Task {	ThetaTask(subspace);	virtual Run();	}
+struct ThetaTask        :   Task {	
+    ThetaTask(subspace);	
+    virtual Run();	
+    }
 
 /** Identify unreachable states from &Theta;.
 
@@ -300,7 +305,11 @@ struct GroupTask : Task {
 struct CGTask 		: GroupTask {	CGTask();				Run();	}
 
 /** The base task for looping over random effects.  **/
-struct RETask 		: GroupTask { 	RETask();  SetFE(f);	}
+struct RETask 		: GroupTask { 	
+    RETask();
+    SetFE(f);	
+    SetRE(f,r);
+    }
 
 /** The base task for looping over fixed effects.
 These tasks typically have a member that is a `RETask` object to do proces
@@ -374,7 +383,7 @@ struct DPDebug : ThetaTask {
 
 struct SaveV	: DPDebug	{
 	const decl ToScreen, aM, MaxChoiceIndex, TrimTerminals, TrimZeroChoice;
-	decl  re, stub, nottop, r, s;
+	decl  stub, nottop, r, s;
 	SaveV(ToScreen=TRUE,aM=0,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
 	virtual Run();
 	}

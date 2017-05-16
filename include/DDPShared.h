@@ -2,8 +2,6 @@
 
 ca(A,act);
 
-NormalizeActual(v,MaxV=1.0);
-
 
 		/** Categories of state variables.	
             These categories are used mainly for summarizing the model.

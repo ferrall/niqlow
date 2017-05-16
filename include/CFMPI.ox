@@ -30,7 +30,7 @@ MPI::Barrier() {MPI_Barrier();}
 @param client
 @param server
 **/
-P2P::P2P(DONOTUSECLIENT,client, server) {
+P2P::P2P(DONOTUSECLIENT,client, server,NSubProblems,MaxSubReturn) {
 	MPI::Initialize();
     decl USEMYSELF = !DONOTUSECLIENT || (Nodes==1);
 	SERVER1 = !USEMYSELF;              //if there are no servers use client as one
@@ -42,14 +42,15 @@ P2P::P2P(DONOTUSECLIENT,client, server) {
             if (isclass(client)) client.me_as_server = server;
             }
         else {
-            if (isclass(server)) delete server; server = FALSE;
+            if (isclass(server)) delete server;
+            this.server = FALSE;
             }
         if (fake) setfakeP2P(this);
 		}
 	else {
 		this.server = server;
 		if (isclass(client)) delete client;
-        client = FALSE;
+        this.client = FALSE;
 		}
     Buffer = <>;
 	}
@@ -203,7 +204,7 @@ Server::Loop(nxtmsgsize)	{
 		++trips;
 		Buffer = constant(.NaN,nxtmsgsize,1);
 		Recv(ANY_TAG);
-		if (Volume>QUIET) println("P2P Server:",ID," trip: ",trips," Source: ",Source," Tag: ",Tag," Size: ",sizerc(Buffer));
+		if (Volume>QUIET) println("P2P Server: ",ID," trip: ",trips," Source: ",Source," Tag: ",Tag,". Message 0...9: ",Buffer[:min(sizerc(Buffer)-1,9)]);
         if (Tag!=STOP_TAG) {		
             nxtmsgsize = this->Execute();
 		    Send(0,Tag);
@@ -216,19 +217,29 @@ Server::Loop(nxtmsgsize)	{
 /** Distribute parallel tasks to all servers and return the results.
 
 Exits if run by a Server node.
-@param Inputs either an array of length nsends or a M x nsends matrix<br>The inputs to send on each task.
+@param mode 0: Inputs is a matrix or array of messages<br/>
+            nsends: Input is a single vector message.  nsends is how many subtasks to call
+@param Inputs an array of length nsends or a M x nsends matrix<br>The inputs to send on each task.
 @param aResults an address, returned as a mxlength x nsends matrix<br>The output of all the tasks.
 @param mxlength integer, size to set `P2P::Buffer` before `Client::Recv` or `Server::Recv`
-@param BASETAG POSITIVE integer, the base tag of the MPI messages.  Actual tags sent equal BASETAG+n, n=0...(nsends-1).
-@comment since `P2P::STOP_TAG` is 0 and Tags must be non-negative the BASETAG must be positive.<br>
-	If DONOTUSECLIENT was sent as TRUE to `P2P::P2P`()  and MPI::Nodes&gt; 0 then the CLIENT does not call itself.
+@param Pmode index into base tags.  See `ParallelExecutionModes`.  Actual tags sent equal BaseTag[Pmode]+n, n=0...(nsends-1).
+@comment If DONOTUSECLIENT was sent as TRUE to `P2P::P2P`()  and MPI::Nodes&gt; 0 then the CLIENT does not call itself.
 	Otherwise the CLIENT will call itself exactly once after getting all Servers busy.
 **/
-Client::ToDoList(Inputs,aResults,mxlength,BASETAG)	{
+Client::ToDoList(mode,Inputs,aResults,mxlength,Pmode)	{
 	if (!IamClient) { oxwarning(" A server should not call ToDoList()"); return;}
-	if (BASETAG<=0) oxrunerror(" Basetag must be a positive integer");
-	decl n, inT, arrIn = isarray(Inputs), nsends = sizec(Inputs);
-    decl dest, clientdone, notdone;
+	//if (BASETAG<=0) oxrunerror(" BaseTag must be a positive integer");
+	decl n, inT, arrIn, nsends, dest, clientdone, notdone;
+    if (mode) {
+        arrIn = FALSE;
+        nsends = mode;
+        if (!ismatrix(Inputs) || columns(Inputs)>1)
+            oxrunerror("When mode>0 Inputs must be a column vector");
+        }
+    else {
+	   arrIn = isarray(Inputs);
+        nsends = sizec(Inputs);
+        }
 	aResults[0] = constant(.NaN,mxlength,nsends);
 	notdone = constant(TRUE,nsends,1);
 	clientdone = SERVER1 || (Nodes==1);
@@ -239,14 +250,16 @@ Client::ToDoList(Inputs,aResults,mxlength,BASETAG)	{
 			if (any(idle))	{
 				dest = maxcindex(idle);
 				idle[dest] = FALSE;
-				Buffer = arrIn ? Inputs[n] : Inputs[][n];
-				Send(0,dest,BASETAG+n);
+				Buffer = mode ? Inputs
+                              : arrIn ? Inputs[n] : Inputs[][n];
+				Send(0,dest,BaseTag[Pmode]+n);
 				++n;
 				continue;
 				}
 			if (!clientdone) {
-				Tag = BASETAG+n;
-				Buffer = me_as_server.Buffer = arrIn ? Inputs[n] : Inputs[][n];
+				Tag = BaseTag[Pmode]+n;
+				Buffer = me_as_server.Buffer = mode ? Inputs
+                              : arrIn ? Inputs[n] : Inputs[][n];
 				me_as_server->Execute();
 				Buffer = aResults[0][][n] = me_as_server.Buffer;
 				notdone[n++] = FALSE;
@@ -256,7 +269,7 @@ Client::ToDoList(Inputs,aResults,mxlength,BASETAG)	{
 			}
 		Buffer = reshape(Buffer, max(mxlength,sizerc(Buffer)),1);
 		Recv(ANY_SOURCE,ANY_TAG);
-		inT = Tag-BASETAG;
+		inT = Tag-BaseTag[Pmode];
 		if (Volume>QUIET)
 			println("Client: received from Node: ",Source," Tag:",Tag,"message 0...9: ",Buffer[:min(sizerc(Buffer)-1,9)]);
 		notdone[inT] = FALSE;
@@ -267,26 +280,25 @@ Client::ToDoList(Inputs,aResults,mxlength,BASETAG)	{
 
 /** Announce a message to everyone (and perhaps get answers).
 @param Msg arithmetic type.  Buffer is set to vec(Msg).
-@param BASETAG integer (default=1), the base tag of the MPI messages.<br>If aResults is an address actual tags sent equal BASETAG+n, n=0...(Nodes-1).
+@param Pmode index into parallel modes, see `ParallelExecutionModes` (default=MultiParamVectors), the base tag of the MPI messages.<br>If aResults is an address actual tags sent equal BaseTag[Pmode]+n, n=0...(Nodes-1).
 @param aResults integer (default), no results reported<br>an address, returned as a mxlength x nsends matrix<br>The answer of all the nodes.
 @param mxlength integer (default=1), size to set `P2P::Buffer` before `Client::Recv` or `Server::Recv`
-@the BASETAG can be 0 (the STOP_TAG), but only when aResults is an integer. Otherwise, it must be positive.<br>
-	If DONOTUSECLIENT was sent as TRUE to `P2P::P2P`()  and MPI::Nodes&gt; 0 then the CLIENT does not call itself.
+@the If DONOTUSECLIENT was sent as TRUE to `P2P::P2P`()  and MPI::Nodes&gt; 0 then the CLIENT does not call itself.
 	Otherwise the CLIENT will announce to itself (after everyone else).
 **/
-Client::Announce(Msg,BASETAG,aResults,mxlength)	{
+Client::Announce(Msg,Pmode,aResults,mxlength)	{
     decl wait =!isint(aResults);
-	if (BASETAG<=0) oxrunerror(" Basetag must be a positive integer");
+	//if (BASETAG<=0) oxrunerror(" BaseTag must be a positive integer");
 	decl n, clientonce  = SERVER1 || (Nodes==1), notdone= clientonce | constant(TRUE,Nodes-1,1);
 	Buffer = vec(Msg);
 	if (Volume>QUIET) println("Client::Announce msg ",Buffer');
-	for(n = Nodes-1;n>=!clientonce;--n) Send(0,n,BASETAG+wait*n);
+	for(n = Nodes-1;n>=!clientonce;--n) Send(0,n,BaseTag[Pmode]+wait*n);
     if (wait) {
 	   aResults[0] = constant(.NaN,mxlength,Nodes);
 	   Buffer = reshape(Buffer,mxlength,1);
 	   while (any(notdone)) {
 		  Recv(ANY_SOURCE,ANY_TAG);
-		  n = Tag-BASETAG;
+		  n = Tag-BaseTag[Pmode];
 		  notdone[n] = FALSE;
 		  aResults[0][:rows(Buffer)-1][n] = Buffer[];
 		  }

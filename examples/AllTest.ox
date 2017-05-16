@@ -264,15 +264,15 @@ Test9::Run()	{
     savemat("Test9moms.dta",pd.aflat[0]|pd.aflat[1],{"f"}|pd.tlabels);
     delete pd;
     pd = new EmpiricalMoments("hi",meth,UseLabel,FALSE,FALSE);
-    pd->TrackingWithLabel(AllFixed,UseLabel,fem,a,d);
+    pd->TrackingWithLabel(AllFixed,TRUE,a,d);
     pd->Read("Test9moms.dta");
-//    Explore(pd,10,0.1,lam);
+    Explore(pd,10,0.1,lam);
 	Delete();
 	}
 Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + AV(sk)*CV(p)*Alpha::CV(a)) + (3-I::t); 	}	
 
 Test10::Uz(z)        { return eta | z;	}
-Test10::Utility()    { decl dv =Alpha::CV(d); return eta*(1-dv) + zstar[I::r]*dv;	}
+Test10::Utility()    { decl dv =Alpha::CV(d); return eta*(1-dv) + zstar*dv;	}
 
 Test10::Run()	{
 	Initialize(new Test10());
@@ -295,6 +295,6 @@ Use Mill's ratio to compute truncated mean of normal.
 @return Array of two vectors
 **/	
 Test10::EUtility()    {
-	decl pstar = 1-probn(zstar[I::r]);
-	return {  ( eta | densn(zstar[I::r])/pstar) , (1-pstar)~pstar};
+	decl pstar = 1-probn(zstar);
+	return {  ( eta | densn(zstar/pstar)) , (1-pstar)~pstar};
 	}	

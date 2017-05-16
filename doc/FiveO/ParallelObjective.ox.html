@@ -50,7 +50,7 @@ Client and Server classes for parallel optimization using CFMPI.
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="ParallelObjective.ox.html#ObjServer">ObjServer</a>:</dt><dd><a href="ParallelObjective.ox.html#ObjServer___basetag">basetag</a>, <a href="ParallelObjective.ox.html#ObjServer___Nparams">Nparams</a>, <a href="ParallelObjective.ox.html#ObjServer___obj">obj</a></dd>
+<dt>Inherited fields from <a href="ParallelObjective.ox.html#ObjServer">ObjServer</a>:</dt><dd><a href="ParallelObjective.ox.html#ObjServer___Nfree">Nfree</a>, <a href="ParallelObjective.ox.html#ObjServer___Nstruct">Nstruct</a>, <a href="ParallelObjective.ox.html#ObjServer___obj">obj</a></dd>
 </dl>
 
 <a name="ObjClient"></a>
@@ -65,11 +65,16 @@ Client for parallel evaluation of objectives.
 <td class="description">Objective.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="ParallelObjective.ox.html#ObjClient___Execute">Execute</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="ParallelObjective.ox.html#ObjClient___Distribute">Distribute</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="ParallelObjective.ox.html#ObjClient___Execute">Execute</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="ParallelObjective.ox.html#ObjClient___ObjClient">ObjClient</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
@@ -83,12 +88,12 @@ Server for parallel evaluation of BlackBox objectives.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="ParallelObjective.ox.html#ObjServer___basetag">basetag</a></td>
-<td class="modifiers">const</td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="ParallelObjective.ox.html#ObjServer___Nfree">Nfree</a></td>
+<td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="ParallelObjective.ox.html#ObjServer___Nparams">Nparams</a></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="ParallelObjective.ox.html#ObjServer___Nstruct">Nstruct</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
@@ -136,7 +141,7 @@ Server for parallel evaluation of BlackBox objectives.
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="ParallelObjective.ox.html#ObjServer">ObjServer</a>:</dt><dd><a href="ParallelObjective.ox.html#ObjServer___basetag">basetag</a>, <a href="ParallelObjective.ox.html#ObjServer___Nparams">Nparams</a>, <a href="ParallelObjective.ox.html#ObjServer___obj">obj</a></dd>
+<dt>Inherited fields from <a href="ParallelObjective.ox.html#ObjServer">ObjServer</a>:</dt><dd><a href="ParallelObjective.ox.html#ObjServer___Nfree">Nfree</a>, <a href="ParallelObjective.ox.html#ObjServer___Nstruct">Nstruct</a>, <a href="ParallelObjective.ox.html#ObjServer___obj">obj</a></dd>
 </dl>
 
 <h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global </span></h2>
@@ -144,7 +149,7 @@ Server for parallel evaluation of BlackBox objectives.
 <a name="ParallelObjective"></a>
 <h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">ParallelObjective</span></h3>
 
-<span class="declaration">ParallelObjective ( obj , DONOTUSECLIENT )</span>
+<span class="declaration">ParallelObjective ( obj , DONOTUSECLIENT , NSubProblems , MaxSubReturn )</span>
 <dl><dd>
 Set up MPI Client-Server support for objective optimization.
 
@@ -183,12 +188,21 @@ Do the objective evaluation.
 Receive structural parameter vector and <a href="Objective.ox.html#Objective___Encode">Encode</a>() it.
 Call <a href="Objective.ox.html#Objective___vfunc">vfunc</a>().
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">Nparams (max. length of next expected message);
+<dl><dt class="returns">Returns:</dt><dd class="returns">Nstruct (max. length of next expected message);
 </dd>
 </dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ObjClient</span></h2>
 
+<a name="ObjClient___Distribute"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Distribute</span></h3>
+
+<span class="declaration">ObjClient :: Distribute ( F )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="ObjClient___Execute"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Execute</span></h3>
 
@@ -217,15 +231,6 @@ Objective.
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ObjServer</span></h2>
 
-<a name="ObjServer___basetag"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">basetag</span></h3>
-
-<span class="declaration">const decl basetag [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="ObjServer___Execute"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Execute</span></h3>
 
@@ -235,7 +240,7 @@ Do the objective evaluation.
 Receive structural parameter vector and <a href="Objective.ox.html#Objective___Encode">Encode</a>() it.
 Call <a href="Objective.ox.html#Objective___vfunc">vfunc</a>().
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">Nparams (max. length of next expected message);
+<dl><dt class="returns">Returns:</dt><dd class="returns">Nstruct (max. length of next expected message);
 </dd>
 </dl>
 </dd></dl>
@@ -251,10 +256,19 @@ Wait on the objective client.
 </dd></dl>
 
 <hr>
-<a name="ObjServer___Nparams"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Nparams</span></h3>
+<a name="ObjServer___Nfree"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Nfree</span></h3>
 
-<span class="declaration">decl Nparams [public]</span>
+<span class="declaration">decl Nfree [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ObjServer___Nstruct"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Nstruct</span></h3>
+
+<span class="declaration">decl Nstruct [public]</span>
 <dl><dd>
 
 </dd></dl>

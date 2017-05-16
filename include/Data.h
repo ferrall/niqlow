@@ -55,6 +55,7 @@ struct Path : Outcome {
 	const 	decl
 		/** index of path in a panel. **/	i;
 			decl
+        /** current index of random effects.**/         rcur,
 		/** . @internal **/								cur,
 		/** Next Path in a `Panel`. @internal **/		pnext,		
         /** lenth of the path. **/						T,
@@ -66,7 +67,7 @@ struct Path : Outcome {
 	virtual	Simulate(T,UseChoiceProb=TRUE,DropTerminal=FALSE);
 	        Likelihood();
 			FullLikelihood();
-            TypeContribution();
+            TypeContribution(pf=1.0,subflat=0);
 			PathObjective();
 			ReadObs(data);
 			Mask();
@@ -77,7 +78,7 @@ struct Path : Outcome {
 	}
 
 struct RandomEffectsIntegration : RETask {
-	decl path, L, flat, first;
+	decl path, L, flat;
 	RandomEffectsIntegration();
 	Integrate(path);
 	Run();
@@ -191,7 +192,7 @@ struct DataSet : Panel {
 	Read(fn,SearchLabels=FALSE);
 	IDColumn(lORind);
 	Summary(data,rlabels=0);
-    virtual EconometricObjective();
+    virtual EconometricObjective(subp=DoAll);
 	}
 
 
@@ -273,6 +274,7 @@ struct 	PathPrediction : Prediction {
 	static	decl summand, upddens;
     const decl f, iDist;
 	decl
+    /** current index of random effects.**/         rcur,
     /** Empirical moments read in. **/              HasObservations,
     /** Predict() called before. **/                EverPredicted,
     /** Path length sent it.**/                     inT,
@@ -286,6 +288,7 @@ struct 	PathPrediction : Prediction {
     /** flat prediction matrix.**/                  flat,
     /** Distance between predictions and emp.mom.**/ L,
     /** method to call for nested solution. **/		method,
+                                                    first,
     /** the next PathPrediction   **/               fnext;
 	PathPrediction(f=0,method=0,iDist=0);
     Initialize();
@@ -294,10 +297,11 @@ struct 	PathPrediction : Prediction {
     InitialConditions();
 	Predict(T=0,printit=FALSE);
     SetT();
-    Empirical(inmoments,Nincluded=FALSE,wght=TRUE);
+    Empirical(inmoments,hasN=FALSE,hasT=FALSE,wght=TRUE);
     Tracking(LorC,...);
-    SetColumns(dlabels,Nplace=UnInitialized);
-    TypeContribution(first=TRUE,pf=1.0);
+    SetColumns(dlabels,Nplace=UnInitialized,Tplace=UnInitialized);
+    TypeContribution(pf=1.0,subflat=0);
+    ProcessContributions(cmat=0);
 	}
 
 struct PanelPrediction : PathPrediction {
@@ -313,8 +317,9 @@ struct PanelPrediction : PathPrediction {
     PanelPrediction(r=0,method=0,iDist=0,wght=FALSE);
     ~PanelPrediction();
     Objective();
-    Predict(T=0,printit=FALSE);
+    Predict(T=0,printit=FALSE,subarr=0);
     Tracking(LorC,...);
+    MaxPathVectorLength(inT=0);
     }
 
 /** Stores data read in as moments and associate them with a panel of predictions.
@@ -325,14 +330,15 @@ struct EmpiricalMoments : PanelPrediction {
     decl
             /** **/                                                     flist,
             /** matrix of indices or array of labels or UseLabel  **/   UorCorL,
-            /** observations location .**/                              Nplace,
+            /** observations column (index or label).**/                Nplace,
+            /** time column (index or label).**/                        Tplace,
             /** **/                                                     FMethod;
     EmpiricalMoments(label="",method=0,UorCorL=UseLabel,iDist=0,wght=TRUE);
     Observed(as1,lc1=0,...);
     TrackingMatchToColumn(Fgroup,LorC,mom);
     TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);
-    Observations(LabelorColumn);
+    Observations(NLabelorColumn,TLabelorColumn=UnInitialized);
     Read(fn);
- 	virtual EconometricObjective();
-    virtual Solve();
+ 	virtual EconometricObjective(subp=DoAll);
+    virtual Solve(subp=DoAll);
     }

@@ -178,7 +178,7 @@ Constrained::CheckPoint(f,saving)	{
 Objective::CheckMax(fn)	{
     newmax = cur.v>maxpt.v;
     if (Volume>QUIET) {
-        fprint(logf,cur.v,newmax ? " " : "*\n");
+        fprint(logf,cur.v,newmax ? "*" : " \n");
 		 if (Volume>LOUD) { print(" ","%15.8f",cur.v); if (isfile(fn)) fprint(fn," ","%15.8f",cur.v); }
         }
 	if (newmax)	{
@@ -391,7 +391,7 @@ Objective::funclist(Fmat,aFvec,afvec,abest)	{
 	decl j,J=columns(Fmat),best, f=zeros(J,1), fj;
 	if (Volume>SILENT) fprintln(logf,"funclist ",columns(Fmat));
 	if (isclass(p2p))  {          //CFMPI has been initialized
-		p2p.client->ToDoList(Fmat,aFvec,NvfuncTerms,1);
+		p2p.client->ToDoList(0,Fmat,aFvec,NvfuncTerms,MultiParamVectors);
 		for(j=0;j<J;++j) {
 			cur.V = aFvec[0][][j];
 			cur -> aggregate();
@@ -434,7 +434,7 @@ Constrained::funclist(Fmat,jake) {
 		decl nn = NvfuncTerms~cur.ineq.N~cur.eq.N,
 			 sumN = sumr(nn),
 			 tmp = new matrix[sumN][J];
-		p2p.client->ToDoList(Fmat,&tmp,NvfuncTerms,1);
+		p2p.client->ToDoList(0,Fmat,&tmp,NvfuncTerms,MultiParamVectors);
 		jake.V[] =   tmp[0][:nn[0]-1][];
 		jake.ineq.v[][] = tmp[0][nn[0]:(nn[0]+nn[1]-1)][];
 		jake.eq.v[][] =   tmp[0][nn[0]+nn[1]:][];
@@ -453,10 +453,18 @@ Constrained::funclist(Fmat,jake) {
 @param F vector of free parameters.
 **/
 Objective::fobj(F)	{
-	vobj(F);
+	this->vobj(F);
 	cur->aggregate();
-//	this->CheckMax();
+    if (Volume>SILENT) {
+        fprint(logf,"fobj = ",cur.v);
+        if (Volume>QUIET) println("fobj = ",cur.v);
+        }
 	}
+
+Objective::Combine(outmat) {
+    oxwarning("FiveO Warning: Running default Objective in parallel mode SubProblems. ");
+    return vfunc();
+    }
 
 /** Decode the input, return the whole vector.
 @param F vector of free parameters.
@@ -464,22 +472,28 @@ Objective::fobj(F)	{
 Objective::vobj(F)	{
 	Decode(F);
     if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
-	cur.V[] = vfunc();
+    if (isclass(p2p)&& p2p.client.NSubProblems)
+        cur.V[] = this->Combine( p2p.client->Distribute(F) );
+    else
+	    cur.V[] =  vfunc();
     if (Volume>QUIET) {
         fprint(logf,"vobj = ",cur.V);
         if (Volume>LOUD)  println("vobj = ",cur.V);
-        fflush(logf);
         }
 	}
 
-/** Decode the input, compute the objective, check the maximum.
+/* Decode the input, compute the objective, check the maximum.
 @param F vector of free parameters.
-**/
 System::fobj(F)	{
 	vobj(F);
 	cur->aggregate();
+    if (Volume>SILENT) {
+        fprint(logf,"fobj = ",cur.v);
+        if (Volume>QUIET) println("fobj = ",cur.v);
+        }
 //	this->CheckMax();
 	}
+*/
 
 /** Decode the input, return the whole vector, inequality and equality constraints, if any.
 @param F vector of free parameters.
@@ -646,7 +660,7 @@ Objective::Parameters(psi1, ... ) {
 /** Built in objective, f(&psi;).
 Prints a warning once and then returns 0.
 **/
-Objective::vfunc() {
+Objective::vfunc(subp) {
 	if (!Warned) {
         Warned=TRUE; oxwarning("FiveO Warning 11.\n Using default objective which equals 0.0.\n  Your derived objective should provide a replacement for vfunc().\n ");
         }

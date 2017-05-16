@@ -19,7 +19,7 @@
 /* This file is part of niqlow. Copyright (C) 2012-2016 Christopher Ferrall */
 
 	/** Pseudonyms for -1. @name Names_for_-1 **/
-enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1}
+enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,AllRand=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1}
     /** Used in tracking outcomes. @name NiD **/
 enum { NotInData=-2,TrackAll=-3 }
 
@@ -31,6 +31,17 @@ enum {SILENT=-1,QUIET,LOUD,NOISY,NoiseLevels}
     /** x,y,z dimensions for graphs @name Axes**/
 enum{xax,yax,zax,Naxes}
 enum{lo,hi,Limits}
+
+    /** Modes of Execution when executing in parallel. See `BaseTag`
+         <DD>MultiParamVectors: Sending different parameter vectors to nodes to compute
+            overall objective.</DD>
+         <DD>SubProblems: Sending a single parameter vector to nodes to solve
+            separate sub-problems which will be aggregated by the Client.
+            This involves `Objective::vfunc`().</DD>
+        @name ParallelExecutionModes **/
+    enum{MultiParamVectors,SubProblems,ParallelModes}
+    static const decl
+        /** Base tags for parallel messaging.**/    BaseTag = <One,1000>;
 
 //		/** Output tags for reservation value utility functions. @name EUvalues **/	
 //enum {EUstar,Fstar,EUvalues}
@@ -117,6 +128,7 @@ struct Discrete	: Quantity{
 	Discrete(L,N);
 	virtual PDF();
 	virtual Update();
+    virtual SetActual(MaxV=1.0);
 	}
 
 /** Represent a continuously varying quantity.**/

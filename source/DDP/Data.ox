@@ -228,7 +228,7 @@ FPanel::~FPanel() {
 @comments &gamma; region of state is masked out.
 **/
 FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
-	decl msucc=FALSE, ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS, curg, Nstart=columns(ErgOrStateMat);
+	decl msucc=FALSE, ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS, curg, Nstart=columns(ErgOrStateMat), rvals, curr, i;
 	if (N <= 0) oxrunerror("DDP Error 50a. First argument, panel size, must be positive");
     if (ii) {
 	   if (erg) {
@@ -241,25 +241,32 @@ FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
            iS = ReverseState(iS,I::OO[tracking][]);
            }
         }
-	if (isclass(upddens)) upddens->SetFE(f);
+	if (isclass(upddens)) {
+        upddens->SetFE(f);
+        rvals = DrawFsamp(f,N);
+        }
+    else rvals = matrix(N);
     if (Flags::IsErgodic && !T) oxwarning("DDP Warning 08.\nSimulating ergodic paths without fixed Tmax?\nPath may be of unbounded length.");
 	cputime0 = timer();
-	if (isclass(method))
-        if (!method->Solve(f)) oxrunerror("DDP Error. Solution Method failed during simulation.");
 	cur = this;
-	do {		
-		curg = DrawGroup(f);
-		cur.state = curg.state;
-		cur.state += (erg) ? curg->DrawfromStationary()
+    for (curr=0;curr<columns(rvals);++curr) {
+        if (!rvals[curr]) continue;  // no observations
+	    if (isclass(method))
+            if (!method->Solve(f,curr)) oxrunerror("DDP Error. Solution Method failed during simulation.");
+	    curg = SetG(f,curr);
+        for(i=0;i<rvals[curr];++i) {
+            cur.state = curg.state;
+		    cur.state += (erg) ? curg->DrawfromStationary()
                            : ( (ii)
                                 ? iS
                                 : ErgOrStateMat[][imod(this.N,Nstart)]
                               );
-		cur->Path::Simulate(T,TRUE,DropTerminal);
-		NT += cur.T;
-		if (++this.N<N && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
-        cur = cur.pnext;
-		} while (this.N<N);
+		    cur->Path::Simulate(T,TRUE,DropTerminal);
+		    NT += cur.T;
+		    if (++this.N<N && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
+            cur = cur.pnext;
+		    }
+        }
 	if (Data::Volume>SILENT) fprintln(Data::logf," FPanel Simulation time: ",timer()-cputime0);
 	}
 
@@ -426,7 +433,7 @@ Outcome::FullLikelihood() {
 /** Integrate over the path.
 
 **/
-Path::TypeContribution() {
+Path::TypeContribution(pf,subflat) {
 	decl cur, glk;
 	now = NOW;
 	viinds[!now] = vilikes[!now] = <>;
@@ -436,7 +443,7 @@ Path::TypeContribution() {
 		cur->Outcome::Likelihood();
 		now = !now;
 		} while((isclass(cur = cur.prev)));
-	L = double(sumr(vilikes[!now]));
+	return L = pf*double(sumr(vilikes[!now]));
 	}
 
 RandomEffectsIntegration::RandomEffectsIntegration() {	RETask(); 	}
@@ -450,16 +457,14 @@ RandomEffectsIntegration::Integrate(path) {
 	this.path = path;
 	L = 0.0;
     flat = 0;
-    first = TRUE;
 	loop();
 	return {L,flat};
 	}
 	
 RandomEffectsIntegration::Run() {
-    path->TypeContribution(first,curREdensity);
-    first = FALSE;
-    //if (isint(flat))        flat = curREdensity*pf;    else        flat += curREdensity*pf;
-	}
+    path.rcur = I::r;  //Added Dec. 2016
+    L += path->TypeContribution(curREdensity);	
+    }
 	
 /** Compute likelihood of a realized path.
 **/
@@ -744,13 +749,20 @@ Outcome::AccountForUnobservables() {
 	}
 
 /** The default econometric objective: log-likelihood.
+@param subp  DoAll (default), solve all subproblems and return likelihood vector<br/>
+             Non-negative integer, solve only subproblem, return contribution to overall L
 @return `Panel::M`, <em>lnL = (lnL<sub>1</sub> lnL<sub>2</sub> &hellip;)</em>
 @see Panel::LogLikelihood
 **/
-DataSet::EconometricObjective() {
+DataSet::EconometricObjective(subp) {
 	if (!masked) {oxwarning("DDP Warning 09.\n Masking data for observability.\n"); Mask();}
-	this->Panel::LogLikelihood();
-	return M;
+    if (subp==DoAll) {
+	   this->Panel::LogLikelihood();
+	   return M;
+         }
+    else {
+        oxwarning("DataSet Objective not updated for subproblem parallelization");
+        }
 	}
 
 /** Produce a Stata-like summary statistics table.
@@ -1010,6 +1022,25 @@ PathPrediction::SetT() {
   return TRUE;
   }
 
+PathPrediction::ProcessContributions(cmat){
+    decl delt =<>;
+    flat = <>;
+    cur=this;
+    if (ismatrix(cmat)) cmat = shape(cmat,sizeof(tlist),this.T)';
+    do {
+        if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
+        flat |= cur.t~cur.accmom;
+        if (HasObservations) delt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+        cur = cur.pnext;
+  	    } while(isclass(cur));
+    L = rows(delt) ? norm(delt,'F') : 0.0;
+    if (Data::Volume>QUIET)
+    fprintln(Data::logf," Predicted Moments ",L,
+        "%c",tlabels,"%cf",{"5.0f","%12.4f"},flat,
+        "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",tlabels[1:],delt);
+    flat |= constant(.NaN,this.T-rows(flat),columns(flat));
+    }
+
 /** Create or update a path of predicted distributions.
 @param inT <em>integer</em> length of the path<br>0 (default) : predict only for existing predictions on the Path.<br>
 If existing path is longer than inT (and inT &gt; 0) then extra predictions are deleted.
@@ -1027,59 +1058,58 @@ Predictions are averaged over random effect groups.
 PathPrediction::Predict(inT,prtlevel){
     this.inT = inT;
     this.prtlevel = prtlevel;
-    if (!Initialize()) { return FALSE; }
+    if (!Initialize()) return FALSE;
 	if (isclass(summand))
 		summand->Integrate(this);
 	else
-		TypeContribution(TRUE,1.0);
+		TypeContribution();
     if (PredictFailure) {
         L = +.Inf;
+        flat = <>;
         return FALSE;
         }
     else {
-        decl delt =<>;
-        flat = <>;
-        cur=this;
-        do {
-            flat |= cur.t~cur.accmom;
-            if (HasObservations) delt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
-            cur = cur.pnext;
-  	        } while(isclass(cur));
-        L = rows(delt) ? norm(delt,'F') : 0.0;
-        if (Data::Volume>QUIET)
-            fprintln(Data::logf," Predicted Moments ",L,
-                    "%c",tlabels,"%cf",{"5.0f","%12.4f"},flat,
-                    "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",tlabels[1:],delt);
-        flat |= constant(.NaN,this.T-rows(flat),columns(flat));
+        ProcessContributions();
         return TRUE;
         }
   }
 
 /** Add empirical values to a path of predicted values.
 @param inmom  Txm matrix of values.
-@param Nincluded FALSE: no row observation column<br>TRUE: lastcolumn that contains observation count stored in `Prediction::N` and used for weighting of distances.
+@param hasN FALSE: no row observation column<br>TRUE: second-to-last column that contains observation count stored in `Prediction::N` and used for weighting of distances.
+@param hasT FALSE: no model t column<br>TRUE: last column contains observation count stored in `Prediction::N` and used for weighting of distances.
 @param wght TRUE: weight columns by inverse standard deviations.
 @comments
 If T is greater than the current length of the path additional predictions are concatenated to the path
 
 **/
-PathPrediction::Empirical(inNandMom,Nincluded,wght) {
-    decl t=0,inmom,totN,inN,invsd;
+PathPrediction::Empirical(inNandMom,hasN,hasT,wght) {
+    decl inmom,totN,inN,invsd,C = columns(inNandMom)-1,influ,dt,datat,negt;
+    influ = ones(1,C-1);
     T = rows(inNandMom);
+    if (hasT) {
+        negt = inNandMom[][C].<0;
+        if ( any(negt)  ) {
+            influ = inNandMom[maxcindex(negt)][:C-2];
+            inNandMom = deleteifr(inNandMom,negt);
+            }
+        datat = inNandMom[][C];
+        T = rows(inNandMom);
+        }
+    else
+        datat = range(0,T-1)';
     cur = this;
-    if (Nincluded) {
-        decl ncol = columns(inNandMom)-1;
-        inN = inNandMom[][ncol];
+    dt = 0;
+    if (hasN) {
+        inN = inNandMom[][C-1];
         inN = isdotnan(inN) .? 0 .: inN;
         totN = sumc(inN);
-        inmom = dropc(inNandMom,ncol);
         }
     else {
         inN = ones(T,1);
         totN = 1.0;
-        inmom = inNandMom;
         }
-
+    inmom = inNandMom[][:C-hasN-hasT];
     decl j;  //insert columns for moments not matched in the data
     for (j=0;j<columns(cols);++j)
         if (cols[j]==NotInData) {
@@ -1089,17 +1119,23 @@ PathPrediction::Empirical(inNandMom,Nincluded,wght) {
             }
     if (wght && columns(inmom)!=columns(mask)) oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
     invsd = wght ? selectifc( 1.0 ./ setbounds(moments(inmom,2)[2][],0.1,+.Inf),mask) : 1.0; // 0.5,+.InF
-//    decl invmn = wght ? selectifc( 1.0 ./ setbounds(fabs(moments(inmom,2)[1][]),0.1,+.Inf),mask) : 1.0; // 0.5,+.InF
-//    println(inmom,"*",invmn,"**",inN);
+    if (Data::Volume>LOUD)
+        fprintln(Data::logf,"Row influence: ",influ,"Weighting by row and column",(inN/totN).*invsd.*influ);
     do {
-        cur.W = (inN[t]/totN)*invsd;
-        cur.readmom = inmom[t++][];
+        if (cur.t==datat[dt]) {
+            cur.W = (inN[dt]/totN)*(invsd.*influ);
+            cur.readmom = inmom[dt++][];
+            }
+        else {
+            cur.W = zeros(influ);
+            cur.readmom = constant(.NaN,mask);
+            }
         cur.empmom = selectifc(cur.readmom,mask);
-        if (t<T) {
-            if (cur.pnext==UnInitialized) cur.pnext = new Prediction(t);
+        if (dt<T) {
+            if (cur.pnext==UnInitialized) cur.pnext = new Prediction(cur.t+1);
             cur = cur.pnext;
             }
-        } while(t<T);
+        } while(dt<T);
     }
 /** Set the initial conditions of a path prediction.
 What happens depends on `PathPrediction::iDist`.
@@ -1365,8 +1401,9 @@ PathPrediction::Tracking(LorC,...) {
 /** Set up data columns for tracked variables.
 @param dlabels array of column labels in the data.
 @param Nplace number of observations (row weight) column<br>UnInitialized no row weights
+@param tplace model t column<br>UnInitialized
 **/
-PathPrediction::SetColumns(dlabels,Nplace) {
+PathPrediction::SetColumns(dlabels,Nplace,Tplace) {
     decl v,lc,vl;
     cols = <>;
     mask = <>;
@@ -1389,10 +1426,14 @@ PathPrediction::SetColumns(dlabels,Nplace) {
         cols ~= strfind(dlabels,vl);
         mask ~= 1;
         }
-    if (isstring(Nplace)|| Nplace!=UnInitialized) {
-        cols~= isint(Nplace) ? Nplace : strfind(dlabels,Nplace);
-        //mask???
-        }
+    if (isstring(Nplace)|| Nplace!=UnInitialized)
+        cols ~= isint(Nplace) ? Nplace : strfind(dlabels,Nplace);
+    else
+        cols ~= .NaN;
+    if (isstring(Tplace)|| Tplace!=UnInitialized)
+        cols~= isint(Tplace) ? Tplace : strfind(dlabels,Tplace);
+    else
+        cols ~= .NaN;
     }
 
 PathPrediction::Initialize() {
@@ -1403,22 +1444,19 @@ PathPrediction::Initialize() {
     for (t=0;t<sizeof(tlist);++t) tlist[t]->Update();
 	if (isclass(upddens)) {
 		upddens->SetFE(state);
+		summand->SetFE(state);
 		upddens->loop();
 		}
-    if (isclass(method)) {
-        if (!method->Solve(f)) {
-            L = -.Inf;
-            flat = <>;
-            return FALSE;
-            }
-        }
+    flat = <>;
+    L = +.Inf;
+    first = TRUE;
     return TRUE;
     }
 
-
 /** Compute predictions and distance over the path. **/
-PathPrediction::TypeContribution(first,pf) {
+PathPrediction::TypeContribution(pf,subflat) {
   decl done, pcode;
+  if (isclass(method) && !method->Solve(f,rcur)) return FALSE;
   SetT();
   cur=this;
   do {
@@ -1431,14 +1469,16 @@ PathPrediction::TypeContribution(first,pf) {
                 cur.pnext = new Prediction(cur.t+1);
                 ++this.T;
                 }
-     if (first)
+     if (first) {       //either first or only
         cur.accmom = pf*cur.predmom;
+        if (!isint(subflat)) subflat[0] |= cur.accmom;
+        }
      else
         cur.accmom += pf*cur.predmom;
      cur = cur.pnext;
-  	 } while(!done);  //changed so that first part of loop determines if this is the last period or not.
-//  if (prtlevel) println("f=",I::f,"r=",I::r," Fail:",PredictFailure,"%c",tlabels|tlabels[1:],"%cf",{"5.0f","%12.4f"},flat);
-//  return flat|constant(.NaN,this.T-rows(flat),columns(flat));  //added Oct. 2017 so terminal outcomes still work
+  	 } while(!done);
+  first = FALSE;
+  return 0;
   }
 
 /** Produce histograms and mean predictions for all paths in the panel.
@@ -1455,6 +1495,18 @@ $$M = -\sqrt{ \sum_{n} dist(emp_n,pred_n)}$$
 **/
 PanelPrediction::Objective() {
     return Predict();
+    }
+
+/** Returns the longest MPI message length sent back by a path prediction call
+**/
+PanelPrediction::MaxPathVectorLength(inT) {
+    decl n=0;
+    cur = this;
+    do {
+        n= max(n,max(inT,cur.T) * sizeof(cur.tlist));
+        } while((isclass(cur = cur.fnext)));
+    println("Return Max Length: ",n);
+    return n;
     }
 
 /** Set an object to be tracked in predictions.
@@ -1502,15 +1554,21 @@ PanelPrediction::PanelPrediction(r,method,iDist,wght) {
 /** Predict outcomes in the panel.
 @param t positive integer or matrix of lengths of paths to predict (same length as number of paths in then panel)<br>
 @param prtlevel Zero [default] do not print<br>One print state and choice probabilities<br>Two print predictions
-
+@param outmat
 **/
-PanelPrediction::Predict(T,prtlevel) {
-    decl cur=this, succ;
+PanelPrediction::Predict(T,prtlevel,outmat) {
+    decl cur=this, succ,left=0,right=N::R-1;
     aflat = {};
     M = 0.0;
     succ = TRUE;
     do {
-        succ = succ && cur->PathPrediction::Predict(T,prtlevel);
+        if (ismatrix(outmat)) {
+            cur->PathPrediction::ProcessContributions(sumr(outmat[][left:right]));
+            left += N::R;
+            right += N::R;
+            }
+        else
+            succ = succ && cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
 	    aflat |= cur.f~cur.flat;
         } while((isclass(cur=cur.fnext)));
@@ -1565,7 +1623,7 @@ EmpiricalMoments::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
 EmpiricalMoments::EmpiricalMoments(label,method,UorCorL,iDist,wght) {
     decl q,j;
     this.label = label;
-    Nplace = UnInitialized;
+    Tplace = Nplace = UnInitialized;
     PanelPrediction(label,method,iDist,wght);
     if (UorCorL==NotInData) {
         if (N::F>1) oxwarning("Multiple fixed groups but data contain no fixed columns? Errors may result.");
@@ -1586,29 +1644,49 @@ EmpiricalMoments::EmpiricalMoments(label,method,UorCorL,iDist,wght) {
     else oxrunerror("DDP Error 66. 3rd Argument UorCorL incorrect type");
      }
 
-EmpiricalMoments::Observations(LabelOrColumn) {
-    if ( (isint(LabelOrColumn)&&isarray(flist))
-        ||(isstring(LabelOrColumn)&&ismatrix(flist)))
-        oxrunerror("DP Error ??.  Argument has to be consistent with UorCorL argument sent to EmpiricalMoments Creator");
-    Nplace = LabelOrColumn;
+/** Define columns where observations and time values appear.
+@param NLabelOrColumn  integer or string for column of data containing observation counts.
+                       This is used to adjust weight of rows in moments.
+@param TLabelOrColumn  integer or string for column of data containing model t value.<br/>
+                        Data must still be sorted in time!  However, this allows
+                        missing time periods to be skipped.  Further, it allows
+                        for a special row containing moment influence/importance adjustments.<br/>
+
+**/
+EmpiricalMoments::Observations(NLabelOrColumn,TLabelOrColumn) {
+    if ( (isint(NLabelOrColumn)&&(NLabelOrColumn>=0)&&isarray(flist))
+        ||(isstring(NLabelOrColumn)&&ismatrix(flist)))
+        oxrunerror("DP Error ??.  First argument has to be consistent with UorCorL argument sent to EmpiricalMoments Creator");
+    Nplace = NLabelOrColumn;
+    Tplace = TLabelOrColumn;
     }
 
 /** The default econometric objective for a panel prediction: the overall GMM objective.
+@param subp  DoAll (default), solve all subproblems and return likelihood vector<br/>
+             Non-negative integer, solve only subproblem, return contribution to overall L
 @return `PanelPrediction::M`
 
-@comments
-Currently this is identical to `EmpiricalMoments::Solve`().  They may differ in later versions.
 **/
-EmpiricalMoments::EconometricObjective() {
-    return this->Solve();
+EmpiricalMoments::EconometricObjective(subp) {
+    return this->Solve(subp);
 	}
 
 /** Calls `PanelPrediction::Objective` and returns overall GMM objective.
 @returns `PanelPrediction::M`
 **/
-EmpiricalMoments::Solve() {
-    PanelPrediction::Objective();
-    return M;
+EmpiricalMoments::Solve(subp) {
+    if (subp==DoAll) {
+        PanelPrediction::Objective();
+        return M;
+        }
+    else {
+        decl cg = SetG(idiv(subp,N::R),imod(subp,N::R)), subflat=<>;
+        decl pobj = cg.find ? fparray[cg.find] : this;
+        pobj.rcur = cg.rind;
+        pobj->PathPrediction::Initialize();
+        pobj->TypeContribution(cg.curREdensity,&subflat);
+        return subflat;
+        }
     }
 
 
@@ -1618,6 +1696,7 @@ EmpiricalMoments::Solve() {
 EmpiricalMoments::Read(FNorDB) {
     decl curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone,incol;
     HasObservations = TRUE;
+
     if (isstring(FNorDB)) {
         source = new Database();
 	    if (!source->Load(FNorDB)) oxrunerror("DDP Error 66. Failed to load data from "+FNorDB);
@@ -1645,7 +1724,8 @@ EmpiricalMoments::Read(FNorDB) {
             }
         }
     cur = this;
-    do { cur -> SetColumns(dlabels,Nplace); } while ((isclass(cur = cur.fnext)));
+    decl hasN = isstring(Nplace)||(Nplace!=UnInitialized),
+         hasT = isstring(Tplace)||(Tplace!=UnInitialized);
     row = 0;
     inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
     do {
@@ -1654,18 +1734,18 @@ EmpiricalMoments::Read(FNorDB) {
         if (fdone[curf]) oxrunerror("DDP Error 68. reading in moments for a fixed group more than once.  moments data file not sorted properly");
         fdone[curf] = TRUE;
         inmom = <>;
+        cur -> SetColumns(dlabels,Nplace,Tplace);
         incol = selectifc(cur.cols,cur.cols.>=0);
         do {
             if (row<rows(data)) {  //read one more
                 inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
                 if (inf==curf ) {  //same fixed group
                     inmom |= data[row++][incol];   //add moments, increment row
-
                     continue;                        // don't install moments
                     }
                 }
             else inf = UnInitialized;  //get out of inner loop after installing
-            cur->Empirical(inmom,isstring(Nplace)||(Nplace!=UnInitialized),wght);
+            cur->Empirical(inmom,hasN,hasT,wght);
             if (Data::Volume>SILENT) {
                     fprintln(Data::logf,"Moments read in for fixed group ",curf,". See log file");
                     fprintln(Data::logf,"Moments of Moments for fixed group:",curf);

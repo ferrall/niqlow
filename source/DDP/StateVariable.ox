@@ -151,13 +151,33 @@ RandomSpell::Transit(FeasA) {
         pbend = AV(ProbEnd);
         return { vals, reshape( pbend~(1-pbend),rows(FeasA),Two) };
         }
-    pbstart = isclass(Start,"ActionVariable") ? ca(FeasA,Start) : Start(FeasA);
+    pbstart = isclass(Start,"ActionVariable") ? Alpha::CV(Start) : Start(FeasA);
     return StripZeros({ vals, (1-pbstart)~pbstart });
     }
 
 /** Synchronize base state variable value with current value.
 **/
 Augmented::Synch() {    b.v = min(v,b.N-1);     }
+
+/**Default Augmented Update.
+The Update() for the base type is called.  And its actual vector is copied to the augmented actuals.
+**/
+Augmented::Update() {
+    b->Update();
+    actual = b.actual;
+    }
+
+/** Normalize the actual values of the base variable and then copy them to these actuals.
+@param MaxV positive real, default = 1.0
+Sets the actual vector to 0,&ellip;, MaxV.
+@see `Discrete::Update`
+**/
+Augmented::SetActual(MaxV) {
+    println("Setting Actual values of Augmented ",L,"\n----\n");
+    b -> SetActual(MaxV);
+    actual = b.actual;
+    println("\n----\nAugmented: ","%r",{"index","actual"},vals|actual');
+    }
 
 /** Base creator augmented state variables
 @param Lorb either a `StateVariable` object, the base variable to augment<br>Or, string the label for this variable.
@@ -189,6 +209,11 @@ Triggered::Triggered(b,t,tv,rval) {
     if (!isint(rval) || rval<ResetValue || rval>b.N) oxrunerror("DDP Error 02. Reset value must be integer between -1 and b.N\n");
     this.rval = (rval==ResetValue) ? b.N : rval;
     Augmented(b,max(this.rval+1,b.N));
+    }
+
+Triggered::Update() {
+    b->Update();
+    actual = N==b.N ? b.actual : (b.actual|ResetValue);
     }
 
 Augmented::Transit(FeasA) {
@@ -516,7 +541,7 @@ Offer::Offer(L,N,Pi,Accept)	{
 /** .
 **/
 Offer::Transit(FeasA)	{
-  decl offprob = AV(Pi,FeasA), accept = ca(FeasA,Accept);
+  decl offprob = AV(Pi,FeasA), accept = Alpha::CV(Accept);
   return {vals,(1-accept).*( (1-offprob)~(offprob*constant(1/(N-1),rows(FeasA),N-1)) )+ accept.*(constant(v,rows(FeasA),1).==vals)};
   }
 
@@ -675,9 +700,9 @@ LaggedAction::LaggedAction(L,Target,Prune,Order)	{
 /** .
 **/
 LaggedAction::Transit(FeasA)	{
-    acol=ca(FeasA,Target);
+    acol=Alpha::CV(Target);
     nxtv =unique(acol);
-	return {nxtv, ca(FeasA,Target).==nxtv };
+	return {nxtv, acol.==nxtv };
 	}
 
 /**  Record the value of an action variable at a given time.
@@ -755,8 +780,8 @@ RetainMatch::Transit(FeasA) {
 	repl = zeros(rows(FeasA),1);
 	hold = 1-repl;
 	for (i=0;i<sizeof(acc);++i) {
-		hold .*= any(ca(FeasA,acc[i]).==keep);  //all parties must stay
-		repl += any(ca(FeasA,acc[i]).==replace);	// any party can dissolve, get new match
+		hold .*= any(Alpha::CV(acc[i]).==keep);  //all parties must stay
+		repl += any(Alpha::CV(acc[i]).==replace);	// any party can dissolve, get new match
 		}
 	repl = repl.>= 1;
 	return {0~v~matchvalue.v, (1-hold-repl) ~ hold ~ repl};
@@ -823,7 +848,7 @@ ActionCounter::ActionCounter(L,N,Act,  ToTrack,Reset,Prune)	{
 **/
 ActionCounter::Transit(FeasA)	{
     if (AV(Reset,FeasA)) return { <0>, ones(rows(FeasA),1) };
-    if (( v==N-1 || !any( inc = sumr(ca(FeasA,Target).==ToTrack)  ) )) return UnChanged(FeasA);
+    if (( v==N-1 || !any( inc = sumr(Alpha::CV(Target).==ToTrack)  ) )) return UnChanged(FeasA);
     return { v~(v+1) , (1-inc)~inc };
 	}
 
@@ -864,7 +889,7 @@ ActionAccumulator::ActionAccumulator(L,N,Action) {
 /** .
 **/
 ActionAccumulator::Transit(FeasA)	{
-    y = setbounds(v+ca(FeasA,Target),0,N-1);
+    y = setbounds(v+Alpha::CV(Target),0,N-1);
     x = unique(y);
 	return { x ,  y.==x };
     }
@@ -905,9 +930,9 @@ Duration::Transit(FeasA) {
     if (v==N-1 && MaxOnce) return UnChanged(FeasA);
 	g= matrix(v +(v<N-1));
 	if (isact) {
-        add1 = ca(FeasA,Target).==AV(Lag);
+        add1 = Alpha::CV(Target).==AV(Lag);
 		nf = int(sumc(add1));
-        if (Volume>SILENT) fprintln(logf,v," ",AV(Lag),nf,ca(FeasA,Target));
+        if (Volume>SILENT) fprintln(logf,v," ",AV(Lag),nf,Alpha::CV(Target));
         if (!nf) return { <0> , ones(rows(FeasA),1) };
 		return { 0~g , (1-add1)~add1 };
 		}
@@ -935,12 +960,13 @@ Renewal::Transit(FeasA)	{
 		 pi = reshape(AV(Pi,FeasA),1,P),
 		 ovlap = v < P ? zeros(1,v) : 0,
    		 qstar = pstar ? pi[:pstar-1]~sumr(pi[pstar:]) : <1.0>;
-	decl tt = !isint(ovlap)
+	decl  rr =Alpha::CV(reset),
+        tt = !isint(ovlap)
 			? {vals[:v+P-1],
-		      	((pi~ovlap).*ca(FeasA,reset))
-		   	 +  ((ovlap ~ qstar).*(1-ca(FeasA,reset))) }
+		      	((pi~ovlap).*rr)
+		   	 +  ((ovlap ~ qstar).*(1-rr)) }
 			: {vals[:P-1] ~ (v+vals[:pstar]) ,
-				pi.*ca(FeasA,reset) ~ qstar.*(1-ca(FeasA,reset)) };
+				pi.*rr ~ qstar.*(1-rr) };
 	return tt;
 	}
 
@@ -990,7 +1016,7 @@ ActionTracker::ActionTracker(L,Target,ToTrack,Prune)	{
 /** .
 **/
 ActionTracker::Transit(FeasA)	{
-    d = sumr( ca(FeasA,Target).==(ToTrack) );
+    d = sumr( Alpha::CV(Target).==(ToTrack) );
 	if (any(d)) {
 	    if (any(1-d)) return{ <0,1>, (1-d)~d };
 		return {<1>, ones(d)};
@@ -1088,7 +1114,7 @@ OfferWithLayoff::OfferWithLayoff(L,N,accept,Pi,Lambda)	{
 	
 /** .  **/
 OfferWithLayoff::Transit(FeasA)	{
-   decl prob = AV(Pi,FeasA), lprob = AV(Lambda,FeasA), acc = ca(FeasA,accept), xoff, xprob;
+   decl prob = AV(Pi,FeasA), lprob = AV(Lambda,FeasA), acc = Alpha::CV(accept), xoff, xprob;
 
    if (status.v==Emp) return { offer.v | (Quit~LaidOff~Emp) ,  (1-acc) ~ acc.*(lprob~(1-lprob)) };
    xoff =    offer.vals | Unemp;
@@ -1261,10 +1287,12 @@ LiquidAsset::LiquidAsset(L,N,NetSavings){
     isact = isclass(NetSavings,"ActionVariable");
 	}
 
-FixedAsset::Transit(FeasA) { return Asset::Transit(actual[v] + delta.actual[ca(FeasA,delta)]); }
+FixedAsset::Transit(FeasA) {
+    return Asset::Transit(actual[v] + delta.actual[Alpha::CV(delta)]);
+    }
 
 LiquidAsset::Transit(FeasA) {
-    return Asset::Transit(isact ? NetSavings.actual[ca(FeasA,NetSavings)] : AV(NetSavings,FeasA));
+    return Asset::Transit(isact ? NetSavings.actual[Alpha::CV(NetSavings)] : AV(NetSavings,FeasA));
     }
 /**
 **/
@@ -1276,7 +1304,6 @@ Asset::Transit(pdelt) {
      tprob = (mid .!= 0.0) .? (atom'-actual[bot])./mid .:  1.0 ;
     bprob = 1-tprob;
     all = union(bot,top);
-//   if ( any(tprob.>1.0) ) println("%c",{"AA","Bound","aB","mid","At"},AV(r)*actual[v]+AV(NetSavings,FeasA)~atom~actual[bot]'~mid~actual[top]'," tp ",tprob'," bp ",bprob'," all ",all);
     return { all, tprob.*(all.==top) + bprob.*(all.==bot) };
     }
 
@@ -1330,7 +1357,7 @@ KeptZeta::InitDynamic(cth,VV) {
     addst = I::OO[iterating][keep.pos]*vals;
     decl myios = cth.InSubSample ? I::all[onlysemiexog] : 0;
     NxtI = cth.Nxt[Qit][myios];
-    NxtR = cth.Nxt[Qrho+I::rtran][myios];
+    NxtR = cth.Nxt[Qrho][myios];
     NOth= columns(NxtR)-1;
     println(I::t," ",isheld," ",v," ",NxtI," ",NxtR," ",I::OO[iterating][keep.pos],VV);
     }
