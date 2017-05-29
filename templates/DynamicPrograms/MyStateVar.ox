@@ -4,7 +4,7 @@
 struct MyStateVar : NonRandom  {
      decl occup, work,nozero;
      MyStateVar(L,occup,work);
-     Transit(FeasA);
+     Transit(); //TTT
      Update();
      }
 
@@ -21,12 +21,12 @@ MyStateVar::MyStateVar(L,occup,work) {
                  : occup.actual;
      }
 
-MyStateVar::Transit(FeasA) {
+MyStateVar::Transit() {
      if  (nozero) {
-        decl w =FeasA[][work.pos];
+        decl w =I::curAi[][work.pos];
         return { 0~occup.v , (1-w) ~ w };
         }
-     return { occup.v , ones(rows(FeasA),1) };
+     return { occup.v , CondProbOne };
      }
 
 // Do nothing in order to keep default StateVariable::Update from resetting actual

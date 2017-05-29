@@ -4,7 +4,7 @@
 /** An element of the group vector &gamma;.
 **/
 struct TimeInvariant : StateVariable {
-	Transit(FeasA);
+	Transit();
 	Update();
 	}
 

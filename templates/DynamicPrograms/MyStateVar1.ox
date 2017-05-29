@@ -4,7 +4,7 @@
 struct MyStateVar : NonRandom  {
      decl occup, work;
      MyStateVar(L,occup,work);
-     Transit(FeasA);
+     Transit(); //TTT
      }
 
 MyStateVar::MyStateVar(L,occup,work) {
@@ -13,7 +13,7 @@ MyStateVar::MyStateVar(L,occup,work) {
      this.work = work;
      }
 
-MyStateVar::Transit(FeasA) {
-     decl w =FeasA[][work.pos];
+MyStateVar::Transit(/*I::curAi*/) {
+     decl w =I::curAi[][work.pos];
      return {  0~occup.v  ,  (1-w) ~ w  };
      }

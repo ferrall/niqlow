@@ -72,7 +72,7 @@ TimeInvariant::Update() { }
 /** TimeInvariants have a fixed transition.
 @internal
 **/
-TimeInvariant::Transit(FeasA) { return { matrix(v) , ones(rows(FeasA),1) }; }
+TimeInvariant::Transit() { return { matrix(v) , CondProbOne }; }
 
 /** Create a new Sub.
 @param L label

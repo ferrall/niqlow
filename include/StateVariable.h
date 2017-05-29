@@ -22,8 +22,8 @@ struct StateVariable : Discrete	{
 	MakeTerminal(TermValues);
 	static  IsBlock(sv);
 	static  IsBlockMember(sv);		
-	virtual Transit(FeasA);
-	virtual UnChanged(FeasA);
+	virtual Transit();
+	virtual UnChanged();
     virtual IsReachable();
     virtual Check();
     virtual myAV();
@@ -91,7 +91,7 @@ class RandomSpell : Random {
          pbstart;
     RandomSpell(L,ProbEnd=0.5,Start=1);
     IsReachable();
-    Transit(FeasA);
+    Transit();
     }
 
 /** State variables that augment another state variable (the base) or otherwise specialize it.
@@ -113,7 +113,7 @@ class Augmented : StateVariable {
     /** Holds the base transition. **/ basetr;
     Augmented(Lorb,N=0);
     Synch();
-    virtual Transit(FeasA);
+    virtual Transit();
     virtual IsReachable();
     virtual Update();
     virtual SetActual(MaxV=1.0);
@@ -130,7 +130,7 @@ struct Coevolving : Augmented {
 	/** StateBlock that I belong to  **/		decl block;
 	/** Index into block array/vector **/    	decl bpos;
 	Coevolving(Lorb, N=1);
-    Transit(FeasA);
+    Transit();
 	}
 
 /** Container for augmented state variables in which a value or an action trigger a transition
@@ -162,7 +162,7 @@ Prob( q&prime;=z ) = (1-I{a&in;t}) Prob( b&prime;=z ) + I{a&in;t}}r
 **/
 class ActionTriggered : Triggered {
     ActionTriggered(b,t,tv=1,rval=0);
-    virtual Transit(FeasA);
+    virtual Transit();
     }
 
 /** A state variable that augments a base transition so that the value of a `AV` compatible object triggers this state to transit to a special value.
@@ -183,7 +183,7 @@ q&prime; = I{a&ne;t} b&prime; + (1-I{s==t}}r
 **/
 class ValueTriggered : Triggered {
     ValueTriggered(b,t,tv=TRUE,rval=0);
-    virtual Transit(FeasA);
+    virtual Transit();
     }
 
 /** When the trigger is 1 the variable is base transition resets to 0.
@@ -223,7 +223,7 @@ m = RandomTrigger( new LaggedAction("emp",a),lprob,0);
 **/
 class RandomTrigger : Triggered {
     RandomTrigger(b,Tprob,rval=0);
-    virtual Transit(FeasA);
+    virtual Transit();
     }
 
 /** When a permanent condition will occur next period because an action is chosen now this state permanently becomes equal to its reset value.
@@ -235,7 +235,7 @@ This state variable is designed to collapse the state space down when an event i
 class Forget : ActionTriggered {
     const decl FCond;
     Forget(b,t,FCond,tv=1,rval=0);
-    virtual Transit(FeasA);
+    virtual Transit();
     virtual IsReachable();
     }
 
@@ -246,14 +246,14 @@ This state variable is designed to collapse the state space down when an event i
 class ForgetAtT : ValueTriggered {
     const decl T;
     ForgetAtT(b,T);
-    Transit(FeasA);
+    Transit();
     IsReachable();
     }
 
 class UnFreeze : Triggered {
     decl unf, g, idist;
     UnFreeze(base,trigger);
-    virtual Transit(FeasA);
+    virtual Transit();
     virtual InitDist();
     }
 
@@ -261,7 +261,7 @@ class UnFreeze : Triggered {
 **/
 class Freeze : ValueTriggered {
     Freeze(b,t);
-    virtual Transit(FeasA);
+    virtual Transit();
     }
 
 /** Let a state variable transit only in one sub-period of a Divided clock.
@@ -269,7 +269,7 @@ class Freeze : ValueTriggered {
 class SubState : ValueTriggered {
     decl mys;
     SubState(b,mys);
-    virtual Transit(FeasA);
+    virtual Transit();
     virtual IsReachable();
     }
 
@@ -285,7 +285,7 @@ struct Offer : Random	{
 	  /** &pi; Double, Parameter or static function, offer probability **/ 	Pi,
 	  /**`ActionVariable` - indicates aceptance       **/ 	Accept;
 	  Offer(L,N,Pi,Accept);
-	  virtual Transit(FeasA);
+	  virtual Transit();
 	  virtual Update();
 	}
 
@@ -332,7 +332,7 @@ struct Markov : Random {
 	const decl	Pi;
     decl jprob;
 		Markov(L,Pi);
-		virtual Transit(FeasA);
+		virtual Transit();
      }
 
 /**A discrete IID process.
@@ -351,7 +351,7 @@ added to the model with `DP::ExogenousStates`.
 **/
 struct IIDJump : Markov {
     IIDJump(L,Pi);
-    virtual Transit(FeasA);
+    virtual Transit();
     }	
 
 /** A binary IID process.  It accepts a scalar as the transition.
@@ -374,7 +374,7 @@ decl hasoffer = new IIDJump("off",poff);
 **/
 struct IIDBinary : IIDJump {
     IIDBinary(L,Pi=0.5);
-    virtual Transit(FeasA);
+    virtual Transit();
     }
 
 /** Equally likely values each period (IID).
@@ -385,7 +385,7 @@ struct IIDBinary : IIDJump {
 **/
 struct SimpleJump : IIDJump {
 	SimpleJump(L,N);
-	Transit(FeasA);
+	Transit();
 	}
 
 /**A variable that jumps to a new value with probability &pi;, otherwise stays the same.
@@ -399,7 +399,7 @@ struct SimpleJump : IIDJump {
 struct Jump : Markov 	{
 	/**parameter for jump probability &pi; **/	 	const decl	Pi;
 		Jump(L,N,Pi);
-		virtual Transit(FeasA);
+		virtual Transit();
 	}
 
 /** A placeholder for variables to be added to the model later.
@@ -415,7 +415,7 @@ with <code>q</code> as a Fixed so formulas involving it can be completed.
 **/
 struct Fixed : Random {
 	Fixed(L);
-	Transit(FeasA);
+	Transit();
 	}
 	
 /**A state variable that can stay the same, increase by 1 or decrease by 1.
@@ -451,7 +451,7 @@ struct RandomUpDown : Random	{
 	const decl fPi;
     decl fp;
 	RandomUpDown(L,N,fPi,Prune=TRUE);
-	virtual Transit(FeasA);
+	virtual Transit();
     virtual IsReachable();
 	}
 	
@@ -466,7 +466,7 @@ struct Absorbing : Random {
     const decl fPi;
     decl p;
     Absorbing(L="",fPi=0.5);
-    Transit(FeasA);
+    Transit();
     }
 
 /** A jump variable whose acutal values are quantiles of the standard normal distribution.
@@ -485,7 +485,7 @@ struct Lagged : NonRandom	{
     /**Order of lag (for pruning).**/  Order;
 	Lagged(L,Target,Prune=TRUE,Order=1);
 	virtual Update();
-	virtual Transit(FeasA);	
+	virtual Transit();	
     virtual IsReachable();
 	}
 	
@@ -499,7 +499,7 @@ s' = s.x
 **/
 struct LaggedState : Lagged	{
 	LaggedState(L,Target,Prune=TRUE,Order=1);
-	virtual Transit(FeasA);	
+	virtual Transit();	
 	}
 
 /**s&prime; = value of an action variable.
@@ -517,7 +517,7 @@ is marked unreachable.   Set <code>Prune=FALSE</code> to not prune these unreach
 struct LaggedAction : Lagged	{
     decl acol, nxtv;
 	LaggedAction(L,Target,Prune=TRUE,Order=1);
-	virtual Transit(FeasA);
+	virtual Transit();
 	}
 
 /** Record the value of an action variable at a specified time.
@@ -555,7 +555,7 @@ Or, track the first four choices of d:
 struct ChoiceAtTbar :  LaggedAction {
     const decl Tbar;
 	ChoiceAtTbar(L,Target,Tbar,Prune=TRUE);
-	virtual Transit(FeasA);
+	virtual Transit();
     virtual IsReachable();
     }
 
@@ -571,7 +571,7 @@ struct ChoiceAtTbar :  LaggedAction {
 **/
 struct PermanentChoice : LaggedAction {
 	PermanentChoice(L,Target,Prune=TRUE);
-	Transit(FeasA);
+	Transit();
 	}
 	
 /**	 Count periods value(s) of target action or state variable have occurred.
@@ -582,7 +582,7 @@ struct Counter : NonRandom  {
 	/**Values to track  				**/	 ToTrack,
 	/**`AV` compatiable reset to 0 flag **/	 Reset;
 	Counter(L,N,Target,ToTrack,Reset,Prune=TRUE);
-	virtual Transit(FeasA);
+	virtual Transit();
     virtual IsReachable();
 	}
 
@@ -600,7 +600,7 @@ EndogenousStates(wks);</pre>
 **/
 struct StateCounter : Counter  {
 	StateCounter(L,N,Target,ToTrack=<1>,Reset=FALSE,Prune=TRUE);
-	virtual Transit(FeasA);
+	virtual Transit();
 }
 
 /**	 Track number of periods value(s) of target action variable have occurred.
@@ -618,7 +618,7 @@ EndogenousStates(exper);
 struct ActionCounter : Counter  {
     decl inc;
 	ActionCounter(L,N,Target,ToTrack=<1>,Reset=FALSE,Prune=TRUE);
-	virtual Transit(FeasA);
+	virtual Transit();
 	}
 
 /**	 Add up the values of the target action or state up to a maximum.
@@ -632,7 +632,7 @@ struct Accumulator : NonRandom  {
 	const decl
 	/**Variable to track 				**/  Target;
 	Accumulator(L,N,Target);
-	virtual Transit(FeasA);
+	virtual Transit();
 	}
 
 /**	 Add up the values of a target action up to a maximum.
@@ -650,7 +650,7 @@ EndogenousStates(tothrs);
 struct ActionAccumulator : Accumulator  {
     decl x,y;
 	ActionAccumulator(L,N,Target);
-	virtual Transit(FeasA);
+	virtual Transit();
     }
 
 /**	 Add up the values of the target state.
@@ -667,7 +667,7 @@ EndogenousStates(totoff);
 **/
 struct StateAccumulator : Accumulator  {
 	StateAccumulator(L,N,Target);
-	virtual Transit(FeasA);
+	virtual Transit();
     }
 
 /** Track number of consecutive periods an action or state variable has had the same value.
@@ -685,7 +685,7 @@ struct Duration : Counter {
 	const decl Current, Lag, isact, MaxOnce;
 	decl nf, add1, g;
 	Duration(L,Current,Lag,N,MaxOnce=FALSE,Prune=TRUE);
-	virtual Transit(FeasA);
+	virtual Transit();
 	}
 
 /** Store a new offer or retain its current value.
@@ -701,7 +701,7 @@ struct RetainMatch : NonRandom {
 	const decl matchvalue, acc, replace, keep;
 	decl i, repl, hold;	
 	RetainMatch(matchvalue,acc,replace,keep);
-	virtual Transit(FeasA);
+	virtual Transit();
 	}	
 	
 /** A state variable with a general non-random transition.
@@ -712,7 +712,7 @@ struct Deterministic : NonRandom
 	 {
 	 /** matrix with transition. **/ decl nextValues;
 	 Deterministic(L,nextValues);
-	 virtual Transit(FeasA);
+	 virtual Transit();
 	 }
 
 /** Increments each period up to N&oline; then returns to 0.
@@ -756,7 +756,7 @@ struct Renewal : Random {
 	/** block or vector of increment probabilities **/	 Pi,
 	/** length of Pi                               **/   P;
 	Renewal(L,N,reset,Pi);
-	virtual Transit(FeasA);
+	virtual Transit();
 	}
 
 /**Indicates a state or action took on particular values last period.
@@ -780,7 +780,7 @@ q' = I{t &in; r}.
 **/
 struct StateTracker : Tracker	{
 	StateTracker(L,Target,ToTrack=<1>,Prune=TRUE);
-	virtual Transit(FeasA);	
+	virtual Transit();	
 	}
 
 /**Indicates an action variable took on a value last period.
@@ -792,14 +792,14 @@ q' = I{a &in; r}.
 struct ActionTracker : Tracker	{
     decl d;
 	ActionTracker(L,Target,ToTrack=<1>,Prune=TRUE);
-	virtual Transit(FeasA);
+	virtual Transit();
 	}
 
 /** Indicator for a condition (ever) occuring in the past.
 **/
 struct PermanentCondition : StateTracker {
     PermanentCondition(L,Target,ToTrack=<1>,Prune=TRUE);
-	virtual Transit(FeasA);
+	virtual Transit();
     }
 
 /** A Block of `Coevolving` state variables.
@@ -814,7 +814,7 @@ struct StateBlock : StateVariable {
 	StateBlock(L,...);
 	AddToBlock(s,...);
     Clones(N,base);
-	virtual Transit(FeasA);
+	virtual Transit();
     virtual Check();
     virtual myAV();
 	}
@@ -863,7 +863,7 @@ struct OfferWithLayoff : StateBlock    {
 	Employed();
 	Searching();
 	OfferWithLayoff(L,N,accept,Pi,Lambda);
-	virtual Transit(FeasA);
+	virtual Transit();
 	
 	}
 
@@ -878,7 +878,7 @@ struct MVIID : StateBlock {
 	/**Number of points per variable   **/      M,
     /**total number points in the block. **/    MtoN;
 	MVIID(L,N,M,base=0);
-	virtual Transit(FeasA);
+	virtual Transit();
 	virtual Update();
     }
 
@@ -917,7 +917,7 @@ struct Episode : StateBlock {
 	decl
 		/**Stores end probability at t=T-1 for non-Finite episodes **/ probT;
 	Episode(L,K,T,StartProb,EndProb,Finite);
-	virtual Transit(FeasA);
+	virtual Transit();
 	}
 
 /** A one-dimensional correlated discretized normal process using Tauchen's approach.
@@ -927,7 +927,7 @@ struct Tauchen : Random {
 	const decl mu, rho, sig, M, gaps;
 	decl rnge, pts, s, r, Grid;
 	Tauchen(L,N,M,mu, sig,rho);
-	virtual Transit(FeasA);
+	virtual Transit();
 	virtual Update();
 	}
 
@@ -960,7 +960,7 @@ struct FixedAsset : Asset {
 	const decl
     /** `ActionVariable`. **/     delta;
     FixedAsset(L,N,r,delta);
-    Transit(FeasA);
+    Transit();
     }
 
 struct LiquidAsset : Asset {
@@ -968,7 +968,7 @@ struct LiquidAsset : Asset {
     /** `AV`-compatible static function or `ActionVariable`. **/     NetSavings,
                                                                      isact;
     LiquidAsset(L,N,NetSavings);
-    Transit(FeasA);
+    Transit();
     }
 
 /** A discretized version of a continous &zeta; value that enters the endogenous vector &theta; depending
@@ -985,7 +985,7 @@ struct KeptZeta : Random {
     virtual Update();
     virtual CDF(z);
     virtual Quantile(u);
-    virtual Transit(FeasA);
+    virtual Transit();
     virtual DynamicTransit(z);
     virtual InitDynamic(cth,VV);
     }

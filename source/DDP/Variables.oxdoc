@@ -370,11 +370,12 @@ Below is an <a href="#example">example</a> of how to define a new state variable
     <DT>Besides a constructor, your state variable must also come with a transition.</DT>
     <DD>If it is derived from another state variable and your version will follow the same transition then you do not need to write a new one.  That is because <code>Transit()</code> is, in most cases, declared as a <em>virtual</em> method.  So if your state variable has no transition of its own, the one from the parent variable will be called in its place. This is why it must be called <code>Transit()</code>, because it replaces another version of a <code>Transit()</code> that would be called if necessary.</DD>
 
-    <DD><code>Transit</code> must also take an argument, a matrix called <code>FeasA</code>.  This contains the feasible actions <code>&alpha;</code> at the <em>current</em> state. Each row of <code>FeasA</code> is an action vector <code>&alpha;</code>; each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
+    <DD><code>Transit</code> will often need to access matrix of current feasible actions at the current state, which is available in `I::curAi` that is set every time the point in the state space is changed
+    or initialized.  Each row of <code>I::curAi</code> is an action vector <code>&alpha;</code>; each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
 
     <DT>Example: Possible Argument Passed to <code>Transit()</code></DT>
     <DD>The model has two binary choice variables, <var>i</var> and <var>j</var>.  Then the argument passed to <code>Transit()</code>  might look like this:</DD>
-<dd><pre>  FeasA
+<dd><pre>  I::curAi
   i    j
   0    0
   1    0
@@ -382,7 +383,7 @@ Below is an <a href="#example">example</a> of how to define a new state variable
   1    1</pre> </dd>
     <DT>Your code has to return two items, sent back in an Ox <em>array</em>. </DT>
     <DD>The first is a <em>row vector</em> of feasible values: the  values this state could take on next period.  For convenience call this vector <code>F</code>.  That is, suppose one value, say 3, may be feasible only if a certain action is taken.  Then 3 must be in <code>F</code>, even if 3 is not feasible if another action were taken.  The elements of <code>F</code> do not need to be sorted.</DD>
-    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the rows of <code>FeasA</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state variable takes on the jth value in <code>F</code> given the agent chooses the ith action in the feasible set.</DD>
+    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the rows of <code>I::curAi</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state variable takes on the jth value in <code>F</code> given the agent chooses the ith action in the feasible set.</DD>
 
     <DD>The array returned as the value of <code>Transit()</code> might be sent using code that looks like this:  <code>return {F,P};</code>, presuming you have declared local variables <code>F</code> and <code>P</code> and filled them with the correct information in the correct format.</DD>
 
@@ -390,7 +391,6 @@ Below is an <a href="#example">example</a> of how to define a new state variable
 
     <DT>The example will</DT>
 
-<!--    <LI>The reason why is <code>FeasA</code> passed explicitly but the rest of the state is not is discussed more below.</LI>-->
     </DL>
 
 <LI><h3>Debug your code and make sure it does what you want it to do.</h3>
@@ -440,7 +440,7 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
    2    0   3   8</pre></dd>
 <DD>The variable <code>t</code> is the age variable in the finite horizon.  Now we can represent the transition of <code>y'</code> at this particular state as follows:
 <pre>
-    FeasA              Prob(y')   trim 0 cols &rarr;     Prob(y')
+    I::curAi          Prob(y')   trim 0 cols &rarr;     Prob(y')
      i    j     y'=  0   1   2   3             y'=0   2
     -----------------------------------------------------
     0    0          1   0   0   0                1   0
@@ -455,7 +455,7 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
 <DD>Note that the first column of Prob(y') is simple the value <code>1-i</code>.  And the second column is simply <code>i</code>.</DD>
 
 <DT>Use the <var>constructor</var> to support <code>Transit</code>. </DT>
-<DD>How will <code>Transit()</code> know that <code>x=2</code> currently?   And how will it know that <code>i</code> is in the first column of <code>FeasA</code> not the second?  This is where the object-oriented approach to building a dynamic programming model comes in handy compared to using vectors of values to represent the state vector.  </DD>
+<DD>How will <code>Transit()</code> know that <code>x=2</code> currently?   And how will it know that <code>i</code> is in the first column of <code>I::curAi</code> not the second?  This is where the object-oriented approach to building a dynamic programming model comes in handy compared to using vectors of values to represent the state vector.  </DD>
 <DD><code>Transit()</code>  will know about <code>x</code> and <code>i</code> because it will be <em>constructed</em> to know them as the following code illustrates:</dd>
 <details><summary><b>Version 1.</b> Source: niqlow/templates/DynamicPrograms/MyStateVar1.ox</summary>
 <DD><pre><object width="95%" height="350" type="text/plain" data="../../templates/DynamicPrograms/MyStateVar1.ox" border="1" ></object></pre></DD></details>
@@ -473,8 +473,8 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
 
 <DD>In the code for Transit the expression <code>0~occup.v</code> generates, for the state above, the row vector <code>&lt;0 2&gt;</code>.  These are the only feasible values next period, or possible values of <code>y'</code>.   So the current value of <var>x</var> is not accessed from a vector of numbers, which might be the way DP code in FORTRAN might do.  </DD> <DD>Instead it is accessed from a <em>public</em> member of a variable stored within the <code>MyStateVar</code> class.  It does not matter to <code>MyStateVar</code> whether <code>occup</code> has the label <q>x</q>.  It does not matter that <code>occup</code> happens to be first in the state vector.  It <em>does</em> matter, of course, that <code>occup</code> is indeed a state variable, and it has to know this before anything is done in the model.</DD>
 
-<DD>The second expression in the <code>return</code> statement is simply Ox code to copy in <code>1-i</code> and <code>i</code>.  However, these are column vectors and they get their value from values from <code>FeasA</code>.  </DD>
-<DT>Which column of <code>FeasA</code> will <code>i</code> be in?</DT>
+<DD>The second expression in the <code>return</code> statement is simply Ox code to copy in <code>1-i</code> and <code>i</code>.  However, these are column vectors and they get their value from values from <code>I::curAi</code>.  </DD>
+<DT>Which column of <code>I::curAi</code> will <code>i</code> be in?</DT>
   <DD>The answer is whichever column the <var>work</var> choice variable is stored in.  </DD>
   <DD>Again, the constructor requires the argument <code>work</code> which gets copied to the member with the same name.  And <span class="n">DDP</span> puts the position of the action in the action matrix in <code>pos</code>.  So whatever column it is any instance of <code>MyStateVar</code> will know which one it is.</DD>
 
@@ -641,21 +641,20 @@ These instructions follow the ones provided for creating a <a href="#ASV">StateV
 
 <LI>Code the <code>Transit()</code> method</LI>
 The major difference between a StateVariable and a StateBlock:  a state variable <code>Transit()</code> function returns a single row vector of "prime states" but a block must return a matrix of feasible "prime" states, each row is the state of the corresponding member of the block in the order they were added to the block.  The transition probabilities still pertain to each column of the matrix.  The rows of the transition probabilities correspond to the rows of the feasible actions &theta;.A.
-   <DT><code>Transit</code> must also take an argument, a matrix called <code>FeasA</code>.  </DT>
-   <DD>This contains the feasible actions <code>&alpha;</code> at the <em>current</em> state.</DD>
+   <DT><code>Transit</code> can access the feasible actions <code>&alpha;</code> at the <em>current</em> state. in `I::curAi'.</DT>
    <DT>Your code has to return two items, sent back in an Ox <em>array</em>. </DT>
     <DD>The first is a <em>matrix vector</em> of feasible values, <code>F</code>: the values this block could take on next period.  Each row corresponds to one of the variables in the block.  Each column is a different outcome.  This is what allows for correlated transitions within a block.</DD>
-    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the <em>rows</em> of <code>FeasA</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state block takes on the vector of values in column j of <code>F</code> given the agent chooses the ith action in the feasible set <code>FeasA</code>.
+    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the <em>rows</em> of <code>I::curAi</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state block takes on the vector of values in column j of <code>F</code> given the agent chooses the ith action in the feasible set <code>I::curAi</code>.
 
     <DT>As a simple example: </DT>
     <DD>Suppose that height increases by one value or stays the same.  Weight can go up or down or stay the same.  However, weight cannot go down if height goes up (the correlated innovation).  Further, assume that the transitions do not depend on actions.  In this case, the probabilities are duplicated using <code>reshape</code> to get the right dimensions:
     <dd class="example"><pre>
-        Vitals::Transit(const FeasA) {
+        Vitals::Transit() {
             decl F, P;
             F =   wght.v-1 ~ wght.v ~ wght.v+1 ~ wght.v   ~ wght.v+1
                 | hght.v   ~ hght.v ~ hght.v   ~ hght.v+1 ~ hght.v+1;
             P = GrowthProb();
-            return { F , reshape(P,rows(FeasA),columns(F)) };
+            return { F , reshape(P,I::curNAi,columns(F)) };
             } </pre></dd>
    <DD>So, if weight and height were currently at levels 2 and 3, respectively, then <code>F</code> would be:<pre>
               1 2 3 2 3

@@ -25,6 +25,7 @@ I::Set(state,group) {
 	all[] = OO*state;
     curth = Theta[all[tracking]];
     curAi = isclass(curth) ? curth.Aind : NoMatch;
+    curNAi = rows(curAi);
     Alpha::SetFA(curAi);
     if (group) {
 	   g = int(all[bothgroup]);
@@ -1237,7 +1238,7 @@ DP::ExogenousTransition() {
 			{N =  curst.block.N; root = curst.block; }
 		else
 			{ N = 1; root = curst; }
-		[feas,prob] = root -> Transit(<0>);
+		[feas,prob] = root -> Transit();
 		feas = Off[curst.pos-N+1 : curst.pos]*feas;
 		k=0;
 		do if (prob[k])	{
@@ -1321,7 +1322,7 @@ CreateSpaces();
 </pre>
 Early Mortaliy
 <pre>
-MyModel::Pi(FeasA);	
+MyModel::Pi();	
 
 SetClock(RandomMortality,T,MyModel::Pi);
 Initialize(Reachable);
@@ -1676,7 +1677,7 @@ SVT::Run() {
     fprint(logf,"State ","%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],state[S[endog].M:S[clock].M]');
     foreach(s in Slist) {
 		if (isclass(s,"Coevolving")) s = s.block;
-		[feas,prob] = s -> Transit(Alpha::List[I::curth.Aind]);
+		[feas,prob] = s -> Transit(); //TTT
         fprintln(logf,"     State: ",s.L,"%r",{Alpha::aL1}|Alpha::Rlabels[I::curth.Aind],feas|prob);
 		}
     }

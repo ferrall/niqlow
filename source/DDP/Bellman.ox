@@ -253,33 +253,38 @@ Bellman::ThetaTransition() {
 	 si = S[clock].X;				// clock needs to be nxtcnt
      if  (rcheck) fprintln(logf,"Endogenous transitions at ",I::all[tracking]);
 	 do	{
-		F[later] = P[later] = <>;  swap = FALSE;
+		F[later] = P[later] = <>;
+        swap = FALSE;
 		if (isclass(States[si],"Coevolving"))
 			{Nb =  States[si].block.N; root = States[si].block; }
 		else
 			{ Nb = 1; root = States[si]; }
 		if (( any(curO = I::OO[<tracking;iterating>][si-Nb+1:si]) ))	{  // states are relevant to s'
-			[feas,prob] = root -> Transit(Alpha::List[Aind]);
-            if (rcheck && root.N>1) {
+			[feas,prob] = root -> Transit();
+            if (rcheck && root.N>1 && !isint(prob) ) {
                 if (maxr(feas)<rows(root.actual))
                     fprintln(logf,"     State: ",root.L,"%r",{"   ind","actual","   prob"},feas|(root.actual[feas]')|prob);
                 else
                     fprintln(logf,"     State: ",root.L,"%r",{"   ind","   prob"},feas|prob);
-                if (any(!isdotfeq(sumr(prob),1.0))) { // short-circuit && avoids sumr() unless NOISY
+                if ( any(!isdotfeq(sumr(prob),1.0))) { // short-circuit && avoids sumr() unless NOISY
                     fprintln(logf,"Transition probability error at state ",si,"%m",sumr(prob));
                     oxwarning("Transition probabilities are not valid (sum not close enough to 1.0).  Check log file");
                     }
                 }
 			feas = curO*feas;
-			k=columns(feas)-1;
-			do	if (any(prob[][k])) {
-				F[later] ~=  F[now]+feas[][k];
-				P[later] ~=  P[now].*prob[][k];
-				swap=TRUE;
-				} while ( --k >= 0  );
+            // avoid swap and concatenation for deterministic transition
+            if (( (k=columns(feas))==1 ))
+				F[now] +=  feas;
+            else {
+			     do	if (any(prob[][--k])) {
+				    F[later] ~=  F[now]+feas[][k];
+				    P[later] ~=  P[now].*prob[][k];
+				    swap=TRUE;
+				    } while ( k > 0  );
+                }
 			}
 		si -= Nb;	 //skip remaining variables in block.
- 		if(swap) { later = now; now = !now;	}
+ 		if (swap) { later = now; now = !now;	}
 		} while (si>=S[endog].M);
 	Nxt[Qtr][ios] = F[now][Qtr][];
 	Nxt[Qit][ios] = F[now][Qit][];
