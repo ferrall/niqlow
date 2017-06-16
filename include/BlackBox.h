@@ -1,6 +1,6 @@
 #import "Objective"
 #import "Algorithms"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 Explore(model,Ncalls,Chol,...);
 

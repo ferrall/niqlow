@@ -94,7 +94,6 @@ Outcome::Simulate() {
 	SyncStates(0,N::S-1);
 	if ((!Settheta(ind[tracking]))) oxrunerror("DDP Error 49. simulated state "+sprint(ind[tracking])+" not reachable");
 	snext = I::curth->Simulate(this);
-	ind[onlyacts] = I::ialpha;
 	act = alpha;
 	z = CV(zeta);
 	aux = chi;
@@ -390,8 +389,7 @@ L(&theta;) = &sum;<sub>eta; &in; ?</sub> &sum; <sub>&alpha; &in; </sub> &Rho*() 
 Outcome::Likelihood() {
 	decl h, q, qind, PS, TF, TP, icol, semicol, bothrows, arows, curprob, totprob,
 		dosemi = ind[onlysemiexog]==DoAll ? range(0,S[onlysemiexog].N-1)' : ind[onlysemiexog],
-		width = SS[onlyexog].size,
-		einds = (ind[onlyexog]==DoAll) ? range(0,width-1) :	ind[onlyexog],
+		einds = (ind[onlyexog]==DoAll) ? range(0,N::Ewidth-1) :	ind[onlyexog],
 		Ntom = columns(viinds[tom]),
 		Nnow = columns(viinds[now] = vecr(ind[tracking])');
 	vilikes[now] = zeros(viinds[now]);
@@ -401,7 +399,7 @@ Outcome::Likelihood() {
 		PS = GetPstar(qind)[arows][];
 		for (h = 0,totprob = 0.0;h<sizeof(dosemi);++h) {
 			[TF,TP] = GetTrackTrans(qind,semicol = dosemi[h]);
-			bothrows = ind[onlysemiexog]*width + einds;
+			bothrows = ind[onlysemiexog]*N::Ewidth + einds;
 			curprob = sumr( PS[][ bothrows ].*NxtExog[Qprob][ bothrows ]' )';
 			totprob += sumc(NxtExog[Qprob][ bothrows ]);
             icol = 0;
@@ -625,7 +623,7 @@ DataSet::IDColumn(lORind) {
 
 /** Identify a variable with a data column.
 @param aORs  Either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
-			one of the state vectors, or a `AuxiliaryValues`, element of &chi;<br>
+			one of the state vectors, or a `AuxiliaryValue`, element of &chi;<br>
             <em>OR<em><br>
 @param LorC	 UseLabel, variable's label to denote column of data with observations <br>
              integer &ge; 0, column of data matrix that contains observations<br>
@@ -647,7 +645,7 @@ DataSet::MatchToColumn(aORs,LorC) {
 	
 /** Mark actions and state variables as observed in data, matched with their internal label.
 @param aORs  Either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
-			one of the state vectors, or a `AuxiliaryValues`, element of &chi;<br>
+			one of the state vectors, or a `AuxiliaryValue`, element of &chi;<br>
             <em>OR<em><br>
             array of the form {v1,v2,&hellip;}.  In this case all other arguments are ignored.<br>
 @param ... continues with object2, LoC2, object3, LorC3, etc.<br>
@@ -663,7 +661,7 @@ DataSet::ObservedWithLabel(as1,...) {
 			}
 		offset = isclass(aORs,"ActionVariable") ? 1
 				: isclass(aORs,"StateVariable") ? 1+N::Av
-				: isclass(aORs,"AuxiliaryValues") ? 1+N::Av+N::S
+				: isclass(aORs,"AuxiliaryValue") ? 1+N::Av+N::S
                 : 0;
 		if (list[offset+aORs.pos].obsv==FALSE && masked) oxrunerror("DDP Error 57. cannot recover observations on UnObserved variable after reading/masking");
 		list[offset+aORs.pos]->Observed(UseLabel);				
@@ -731,8 +729,8 @@ Outcome::AccountForUnobservables() {
 	s = 0;
   	do {
 		if (( (myA = GetAind(ind[tracking][s]))!=NoMatch )) {
-			ai =  A[myA]*SS[onlyacts].O;	 // indices of feasible acts
-			myi = selectifr( A[myA],prodr((A[myA] .== act) + isdotnan(act)) )
+			ai =  Alpha::AList[myA]*SS[onlyacts].O;	 // indices of feasible acts
+			myi = selectifr( Alpha::AList[myA],prodr((Alpha::AList[myA] .== act) + isdotnan(act)) )
 					* SS[onlyacts].O; //indices of consistent acts
 			if (sizeof(intersection(ai,myi,&inta))) {
 				if (!ismatrix( ind[onlyacts][myA] )) ind[onlyacts][myA] = matrix(inta[0][]);	  //rows of A[Aind] that are consistent with acts
@@ -944,8 +942,8 @@ Prediction::Predict(tlist) {
                 state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
                 I::all[tracking] = q; // I::OO[tracking][]*state;
                 SyncStates(lo,hi);
-                Alpha::SetFA(I::curth.Aind);
-                if ( I::curth->Predict(this) ) {
+                Alpha::SetA();
+                if ( I::curth->StateToStatePrediction(this) ) {
                         PredictFailure = TRUE;
                         return TRUE;
                         }
@@ -1117,7 +1115,9 @@ PathPrediction::Empirical(inNandMom,hasN,hasT,wght) {
             else if (j>=columns(inmom)) inmom ~= .NaN;
             else inmom = inmom[][:j-1]~.NaN~inmom[][j:];
             }
-    if (wght && columns(inmom)!=columns(mask)) oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
+    if (wght && columns(inmom)!=columns(mask)) {
+            oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
+            }
     invsd = wght ? selectifc( 1.0 ./ setbounds(moments(inmom,2)[2][],0.1,+.Inf),mask) : 1.0; // 0.5,+.InF
     if (Data::Volume>LOUD)
         fprintln(Data::logf,"Row influence: ",influ,"Weighting by row and column",(inN/totN).*invsd.*influ);
@@ -1219,7 +1219,7 @@ PathPrediction::~PathPrediction() {
 aTrack::Distribution(pobj) {
     decl v = 0.0, hk;
     for(decl k=0;k<hN;++k) {
-        hk = sumr( sumc( selectifr(pobj.chq,Alpha::List[I::curth.Aind][][hd].==k) ) );
+        hk = sumr( sumc( selectifr(pobj.chq,Alpha::C[][hd].==k) ) );
         v += hvals[k]*hk;
         hist[k] += hk;
         }
@@ -1248,6 +1248,7 @@ oTrack::Distribution(pobj) {
     return v;
     }
 
+
 /** Compute the histogram of tracked object at the prediction.
 @param tlist array of `ObjToTrack`s (tracked objects)
 @param printit TRUE=output; FALSE=quiet
@@ -1257,14 +1258,14 @@ output will also be produced for any objects in tlist with Volume &gt; SILENT
 Prediction::Histogram(tlist,printit) {
 	decl i,tv;
     predmom=<>;
+    Alpha::SetA();
     //Leak foreach(tv in tlist ) {
-    Alpha::SetFA(I::curth.Aind);
     for (i=0;i<sizeof(tlist);++i) {
         tv = tlist[i];
         predmom ~= tv->Distribution(this); // Leak
 //        if (printit) tv->print();
         }
-    Alpha::ClearFA();
+    Alpha::ClearA();
     return t~predmom;
 	}
 
@@ -1298,7 +1299,7 @@ Prediction::Delta(mask,printit,tlabels) {
 TrackObj::Create(LorC,obj,pos) {
     if (isclass(obj,"ActionVariable"))  return new aTrack(LorC,obj,pos);
     if (isclass(obj,"StateVariable"))   return new sTrack(LorC,obj,pos);
-    if (isclass(obj,"AuxiliaryValues")) return new xTrack(LorC,obj,pos);
+    if (isclass(obj,"AuxiliaryValue")) return new xTrack(LorC,obj,pos);
     return new oTrack(LorC,obj,pos);
     }
 
@@ -1352,6 +1353,7 @@ sTrack::sTrack(LorC,obj,pos) {
   TrackObj(LorC,obj,pos);
   }
 
+
 /** Print mean and histogram of tracked object.
 **/
 TrackObj::print() {
@@ -1404,7 +1406,7 @@ PathPrediction::Tracking(LorC,...) {
 @param tplace model t column<br>UnInitialized
 **/
 PathPrediction::SetColumns(dlabels,Nplace,Tplace) {
-    decl v,lc,vl;
+    decl v,lc,vl,myc;
     cols = <>;
     mask = <>;
     foreach(v in tlist) {
@@ -1423,7 +1425,10 @@ PathPrediction::SetColumns(dlabels,Nplace,Tplace) {
             vl = v.L;
             }
         else vl = lc;
-        cols ~= strfind(dlabels,vl);
+        myc = strfind(dlabels,vl);
+        if (myc<0 && Data::Volume>SILENT)
+            oxwarning("DDP: moment label -"+vl+"-not found.");
+        cols ~= myc;
         mask ~= 1;
         }
     if (isstring(Nplace)|| Nplace!=UnInitialized)
@@ -1510,7 +1515,10 @@ PanelPrediction::MaxPathVectorLength(inT) {
     }
 
 /** Set an object to be tracked in predictions.
-@param LorC  UseLabel: use object label to match to column.<br>NotInData unmatched to data.<br>integer: column in data set<br>string: column label
+@param LorC  UseLabel: use object label to match to column.
+<br>NotInData unmatched to data.
+<br>integer: column in data set
+<br>string: column label
 <br>TrackAll: add all actions, endogenous states, and auxliaries to the tracking list
 @param ... objects or arrays of objects to be tracked
 **/
@@ -1521,7 +1529,6 @@ PanelPrediction::Tracking(LorC,...) {
         cur->PathPrediction::Tracking(LorC,args);
         } while( (isclass(cur=cur.fnext)) );
     }
-
 
 PanelPrediction::~PanelPrediction() {
 	while (isclass(pnext)) {
@@ -1613,6 +1620,7 @@ EmpiricalMoments::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
             }
     }
 
+
 /** Create a panel prediction that is matched with external data.
 @param label name for the data
 @param method solution method to call before predict
@@ -1696,7 +1704,10 @@ EmpiricalMoments::Solve(subp) {
 EmpiricalMoments::Read(FNorDB) {
     decl curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone,incol;
     HasObservations = TRUE;
-
+    if (Data::Volume>SILENT) {
+        println("List of Empirical Moments");
+        foreach(v in tlabels[row]) println("   ",row,". ",v);
+        }
     if (isstring(FNorDB)) {
         source = new Database();
 	    if (!source->Load(FNorDB)) oxrunerror("DDP Error 66. Failed to load data from "+FNorDB);
@@ -1708,6 +1719,7 @@ EmpiricalMoments::Read(FNorDB) {
         }
 	dlabels=source->GetAllNames();
 	data = source->GetAll();
+    println("Data columns",dlabels);
     if (isarray(flist)) {
         fcols = strfind(dlabels,flist);
         if (any(fcols.==NoMatch)) {println("***",dlabels,flist,fcols); oxrunerror("DDP Error 67. label not found");}

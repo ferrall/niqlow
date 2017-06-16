@@ -1,5 +1,5 @@
 #include "AllTest.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 TestRun() {
     decl k;
@@ -95,7 +95,7 @@ Test2::Run(UseList)	{
 	Delete();
 	}
 
-Test3::Utility() { decl u = A[Aind]*(CV(d)-5+CV(s0))+(1-A[Aind])*CV(s1); return u;}
+Test3::Utility() { decl u = Alpha::A[Aind]*(CV(d)-5+CV(s0))+(1-Alpha::A[Aind])*CV(s1); return u;}
 Test3::Run(UseList) {
 	Initialize(new Test3(),UseList);
 	SetClock(NormalAging,5);

@@ -1,5 +1,5 @@
 #include "Clock.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 /** . @internal **/
 TimeVariable::TimeVariable(L,N) { Coevolving(L,N); }
@@ -246,7 +246,7 @@ AgeBrackets::AgeBrackets(Brackets){
 AgeBrackets::Transit()	 {
 	 decl nxt =	range(t.v,min(t.v+1,t.N-1)),
 	 	  nxtpr = nxt.>t.v;   // 1 if ordinary transition, 0 if stay at t
-	 return  { nxt|nxtpr , reshape(TransMatrix[t.v],I::curNAi,columns(nxt)) };
+	 return  { nxt|nxtpr , reshape(TransMatrix[t.v],Alpha::N,columns(nxt)) };
 	 }
 
 /** Return flag for very last period possible.
@@ -274,7 +274,7 @@ Mortality::Transit() {
     else {
         mp = AV(MortProb);
 	    if ( mp > 0.0) 			// early death possible
-            return { (t.v+1 ~ Tstar) | (1~0) , reshape((1-mp)~mp,I::curNAi,2) };
+            return { (t.v+1 ~ Tstar) | (1~0) , reshape((1-mp)~mp,Alpha::N,2) };
 	   else //just age
 	        return { t.v+1 | 1 , CondProbOne };
        }
@@ -309,11 +309,11 @@ Longevity::Transit() {
     else {
         mp = AV(MortProb);
         if (t.v==twilight)
-            return (mp>0.0) ?  { (twilight ~ Tstar) | (0~1) , reshape((1-mp)~mp,I::curNAi,2)}
+            return (mp>0.0) ?  { (twilight ~ Tstar) | (0~1) , reshape((1-mp)~mp,Alpha::N,2)}
                             :  { twilight | 0               , CondProbOne };
         else {
             decl tnext = t.v+1;
-            return (mp>0.0) ? { (tnext ~ Tstar) | (1~0) , reshape((1-mp)~mp,I::curNAi,2)}
+            return (mp>0.0) ? { (tnext ~ Tstar) | (1~0) , reshape((1-mp)~mp,Alpha::N,2)}
                             : { tnext | 1               , CondProbOne             };
             }
         }

@@ -12,8 +12,8 @@ Kapital::Kapital(L,const N,const entrant,const exit,const KP){
 	upper = log(actual~.Inf);
 	}
 	
-Kapital::Transit(FeasA) {
-	decl ent =CV(entrant), stayout = FeasA[][exit.pos], tprob, sigu = CV(KP[SigU]);
+Kapital::Transit() {
+	decl ent =CV(entrant), stayout = Alpha::CV(exit), tprob, sigu = CV(KP[SigU]);
 	if (!v && !ent) return { <0>, ones(stayout) };
 	tprob = ent ? probn( (upper-CV(KP[Kbe]))/sigu )
 	           : probn( (upper-(CV(KP[Kb0])+CV(KP[Kb2])*upper[v])) / sigu );

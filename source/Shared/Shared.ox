@@ -1,5 +1,5 @@
 #include "Shared.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 /** Check versions and set timestamp, log directory.
 @param logdir str (default="").  A directory path or file prefix to attach to all log files.
@@ -48,19 +48,24 @@ No argument is passed by `DP::UpdateVariables`() and `DP::ExogenousTransition`
 @returns X.v, X, X(), X(arg)
 **/
 CV(X,...) {
-	if (ismember(X,"v")) return X.v;
+	if (ismember(X,"v")) {
+        if (isclass(X,"ActionVariable")) return X->myCV();
+        return X.v;
+        }
 	if (!(isfunction(X)||isarray(X)) ) return X;
-	decl arg = va_arglist();
+	decl arg = va_arglist(), noarg = !sizeof(arg);
     if (isarray(X)) {
         decl x,v=<>;
-//Leak
-foreach(x in X)
-//            for(x=0;x<sizeof(X);++x) //Leak
-            v ~= CV(x,arg[0]);  //Leak: X[x] just x
+//Leak foreach(x in X)
+        if (noarg)
+            for(x=0;x<sizeof(X);++x) //Leak
+                v ~= CV(X[x]);  //Leak: X[x] just x
+        else
+            for(x=0;x<sizeof(X);++x) //Leak
+                v ~= CV(X[x],arg[0]);  //Leak: X[x] just x
         return v;
         }
-	if (!sizeof(arg)) return X();
-	return X(arg[0]);
+	return noarg ? X() : X(arg[0]);
 	}
 
 /**ActualValue: Returns either  X.actual[X.v] or `CV`(X).
@@ -72,7 +77,7 @@ This also works for `StateBlock` which will return the items from the Grid of po
 @see CV
 **/
 AV(X,...) {
-    if (ismember(X,"actual")) return X->myAV();
+    if (ismember(X,"myAV")) return X->myAV();
 //	if (ismember(X,"actual")) return X.actual[X.v];
 	decl arg=va_arglist();
 	return (!sizeof(arg)) ?  CV(X) : CV(X,arg[0]) ;
@@ -395,6 +400,15 @@ decl o = {}, t;
 foreach (t in s) o |= pfx+t;
 return o;													
 }
+
+/**  Abbreviate a string or list of strings.
+**/
+abbrev(s) {
+    if (isstring(s)) return s[ : min(sizeof(s),abbrevsz)-1 ];
+    decl o = {}, t;
+    foreach (t in s) o |= t[ : min(sizeof(s),abbrevsz)-1 ];
+    return o;													
+    }
 
 /** Print Column Moments.
     @param M <em>matrix</em>: matrix to compute (column) moments for

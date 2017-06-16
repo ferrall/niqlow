@@ -10,7 +10,7 @@ struct BobsChoiceD : NIID {
     Utility();
     }
 
-class Wage : AuxiliaryValues {
+class Wage : AuxiliaryValue {
     Realize(y);
     Wage();
     }
@@ -36,7 +36,7 @@ BobsChoiceD::Decide() {
     }
 
 Wage::Wage() {
-    AuxiliaryValues("W",1);
+    AuxiliaryValue("W",1);
     }
 
 Wage::Realize(y) {

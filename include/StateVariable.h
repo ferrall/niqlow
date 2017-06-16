@@ -1,5 +1,5 @@
 #import "DDPShared"
-/* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2017 Christopher Ferrall */
 
 		/** . elements of array returned by `StateVariable::Transit` @name TransOutput **/
 enum {Qind,Qprob,TransOutput}
@@ -442,7 +442,7 @@ Fertility::Initalize()	 {
 	}	
 Fertility::Mortality(A)	{
 	decl p = probn(x*q);  // x has to be updated using current age and other x values.
-	decl ivals = A[Aind][][i.pos];
+	decl ivals = CV(i);
 	return 0 ~ (1-p*ivals) ~ p*ivals;
 	}</pre>
 **/

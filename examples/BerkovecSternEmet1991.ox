@@ -48,8 +48,8 @@ Retirement::Sig2() { return sig2[col]; }
 Retirement::FeasibleActions() {
 	decl age = I::t+T0;
 	if (age >= Tstar) return (Alpha::CV(i).==Retire);	  		//only retirement
-	if (PrevJob.v==Retire) return (A.<Stay);		//can't choose to keep current job
-	return ones(rows(A),1);
+	if (PrevJob.v==Retire) return (Alpha::CV(i).<Stay);		//can't choose to keep current job
+	return ones(Alpha::N,1);
 	}
 	
 /** Duration must be feasible, do not track current eta if retired.**/

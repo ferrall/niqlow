@@ -13,7 +13,7 @@ MyStateVar::MyStateVar(L,occup,work) {
      this.work = work;
      }
 
-MyStateVar::Transit(/*I::curAi*/) {
-     decl w =I::curAi[][work.pos];
+MyStateVar::Transit() {
+     decl w =Alpha::CV(work);
      return {  0~occup.v  ,  (1-w) ~ w  };
      }

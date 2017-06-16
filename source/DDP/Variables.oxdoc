@@ -12,7 +12,7 @@
 <DD>State variables are added to appropriate state vector using  the method for the corresponding vector: `DP::EndogenousStates`(), `DP::SemiExogenousStates`, `DP::ExogenousStates`() and `DP::GroupVariables`().</DD>
 <DD>Many kinds of state variables are derived from the base class.</DD>
 
-<DT>The `AuxiliaryValues` class is designed to represent values that depend on actions and states and are of interest to the user but are not required to solve the model.  They are members of the auxiliary vector <code>&chi;</code></DT>
+<DT>The `AuxiliaryValue` class represents values that depend on actions and states and are of interest to the user but are not required to solve the model.  They are members of the auxiliary vector <code>&chi;</code></DT>
 <DD>Auxiliary values are added to the DP model using `DP::AuxiliaryOutcomes`()</DD>
 </DT>
 </DL>
@@ -140,7 +140,7 @@ The code segment allows the maximum hour to be 30 if the person has a (young) ch
 <DD>This requirement explains that the default method returns a vector of 1s equal in size to the rows of <var>A</var>.
 <DT>The A List</DT>
 <DD>`DP::CreateSpaces` constructs the possible matrix A, actually stored as the first element of a list (<code>OxArray</code>):  <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state &theta;.  Every time a different value is returned a new matrix is added to the A list.  The index into the list is then stored as  <code>Aind</code> &harr;  &theta;.j.</DD>
-<DD>The user's feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available directly as <code>A[Aind][][a.pos]</code> or with <code>aa(a)</code>.</DD>
+<DD>The user's feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available directly as <code>Alpha::CV(a)</code> or with <code>aa(a)</code>.</DD>
 <DD>In short, &theta;.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = &theta;.j = 0</code> for all states.</DD>
 <DT>The A list contains the <em>actual</em> values not the <em>current</em> values.</DT>
 <DD>If the user provides an `Discrete::Update`() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values.</DD>
@@ -370,12 +370,12 @@ Below is an <a href="#example">example</a> of how to define a new state variable
     <DT>Besides a constructor, your state variable must also come with a transition.</DT>
     <DD>If it is derived from another state variable and your version will follow the same transition then you do not need to write a new one.  That is because <code>Transit()</code> is, in most cases, declared as a <em>virtual</em> method.  So if your state variable has no transition of its own, the one from the parent variable will be called in its place. This is why it must be called <code>Transit()</code>, because it replaces another version of a <code>Transit()</code> that would be called if necessary.</DD>
 
-    <DD><code>Transit</code> will often need to access matrix of current feasible actions at the current state, which is available in `I::curAi` that is set every time the point in the state space is changed
-    or initialized.  Each row of <code>I::curAi</code> is an action vector <code>&alpha;</code>; each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
+    <DD><code>Transit</code> will often need to access matrix of current feasible actions at the current state, which is available in `Alpha::C` that is set every time the point in the state space is changed
+    or initialized.  Each row of <code>Alpha::C</code> is an action vector <code>&alpha;</code>; each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
 
     <DT>Example: Possible Argument Passed to <code>Transit()</code></DT>
     <DD>The model has two binary choice variables, <var>i</var> and <var>j</var>.  Then the argument passed to <code>Transit()</code>  might look like this:</DD>
-<dd><pre>  I::curAi
+<dd><pre>  Alpha::C
   i    j
   0    0
   1    0
@@ -383,7 +383,7 @@ Below is an <a href="#example">example</a> of how to define a new state variable
   1    1</pre> </dd>
     <DT>Your code has to return two items, sent back in an Ox <em>array</em>. </DT>
     <DD>The first is a <em>row vector</em> of feasible values: the  values this state could take on next period.  For convenience call this vector <code>F</code>.  That is, suppose one value, say 3, may be feasible only if a certain action is taken.  Then 3 must be in <code>F</code>, even if 3 is not feasible if another action were taken.  The elements of <code>F</code> do not need to be sorted.</DD>
-    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the rows of <code>I::curAi</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state variable takes on the jth value in <code>F</code> given the agent chooses the ith action in the feasible set.</DD>
+    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the rows of <code>Alpha::C</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state variable takes on the jth value in <code>F</code> given the agent chooses the ith action in the feasible set.</DD>
 
     <DD>The array returned as the value of <code>Transit()</code> might be sent using code that looks like this:  <code>return {F,P};</code>, presuming you have declared local variables <code>F</code> and <code>P</code> and filled them with the correct information in the correct format.</DD>
 
@@ -440,7 +440,7 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
    2    0   3   8</pre></dd>
 <DD>The variable <code>t</code> is the age variable in the finite horizon.  Now we can represent the transition of <code>y'</code> at this particular state as follows:
 <pre>
-    I::curAi          Prob(y')   trim 0 cols &rarr;     Prob(y')
+    Alpha::C          Prob(y')   trim 0 cols &rarr;     Prob(y')
      i    j     y'=  0   1   2   3             y'=0   2
     -----------------------------------------------------
     0    0          1   0   0   0                1   0
@@ -455,7 +455,7 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
 <DD>Note that the first column of Prob(y') is simple the value <code>1-i</code>.  And the second column is simply <code>i</code>.</DD>
 
 <DT>Use the <var>constructor</var> to support <code>Transit</code>. </DT>
-<DD>How will <code>Transit()</code> know that <code>x=2</code> currently?   And how will it know that <code>i</code> is in the first column of <code>I::curAi</code> not the second?  This is where the object-oriented approach to building a dynamic programming model comes in handy compared to using vectors of values to represent the state vector.  </DD>
+<DD>How will <code>Transit()</code> know that <code>x=2</code> currently?   And how will it know that <code>i</code> is in the first column of <code>Alpha::C</code> not the second?  This is where the object-oriented approach to building a dynamic programming model comes in handy compared to using vectors of values to represent the state vector.  </DD>
 <DD><code>Transit()</code>  will know about <code>x</code> and <code>i</code> because it will be <em>constructed</em> to know them as the following code illustrates:</dd>
 <details><summary><b>Version 1.</b> Source: niqlow/templates/DynamicPrograms/MyStateVar1.ox</summary>
 <DD><pre><object width="95%" height="350" type="text/plain" data="../../templates/DynamicPrograms/MyStateVar1.ox" border="1" ></object></pre></DD></details>
@@ -473,8 +473,8 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
 
 <DD>In the code for Transit the expression <code>0~occup.v</code> generates, for the state above, the row vector <code>&lt;0 2&gt;</code>.  These are the only feasible values next period, or possible values of <code>y'</code>.   So the current value of <var>x</var> is not accessed from a vector of numbers, which might be the way DP code in FORTRAN might do.  </DD> <DD>Instead it is accessed from a <em>public</em> member of a variable stored within the <code>MyStateVar</code> class.  It does not matter to <code>MyStateVar</code> whether <code>occup</code> has the label <q>x</q>.  It does not matter that <code>occup</code> happens to be first in the state vector.  It <em>does</em> matter, of course, that <code>occup</code> is indeed a state variable, and it has to know this before anything is done in the model.</DD>
 
-<DD>The second expression in the <code>return</code> statement is simply Ox code to copy in <code>1-i</code> and <code>i</code>.  However, these are column vectors and they get their value from values from <code>I::curAi</code>.  </DD>
-<DT>Which column of <code>I::curAi</code> will <code>i</code> be in?</DT>
+<DD>The second expression in the <code>return</code> statement is simply Ox code to copy in <code>1-i</code> and <code>i</code>.  However, these are column vectors and they get their value from values from <code>Alpha::C</code>.  </DD>
+<DT>Which column of <code>Alpha::C</code> will <code>i</code> be in?</DT>
   <DD>The answer is whichever column the <var>work</var> choice variable is stored in.  </DD>
   <DD>Again, the constructor requires the argument <code>work</code> which gets copied to the member with the same name.  And <span class="n">DDP</span> puts the position of the action in the action matrix in <code>pos</code>.  So whatever column it is any instance of <code>MyStateVar</code> will know which one it is.</DD>
 
@@ -641,10 +641,10 @@ These instructions follow the ones provided for creating a <a href="#ASV">StateV
 
 <LI>Code the <code>Transit()</code> method</LI>
 The major difference between a StateVariable and a StateBlock:  a state variable <code>Transit()</code> function returns a single row vector of "prime states" but a block must return a matrix of feasible "prime" states, each row is the state of the corresponding member of the block in the order they were added to the block.  The transition probabilities still pertain to each column of the matrix.  The rows of the transition probabilities correspond to the rows of the feasible actions &theta;.A.
-   <DT><code>Transit</code> can access the feasible actions <code>&alpha;</code> at the <em>current</em> state. in `I::curAi'.</DT>
+   <DT><code>Transit</code> can access the feasible actions <code>&alpha;</code> at the <em>current</em> state. in `Alpha::C'.</DT>
    <DT>Your code has to return two items, sent back in an Ox <em>array</em>. </DT>
     <DD>The first is a <em>matrix vector</em> of feasible values, <code>F</code>: the values this block could take on next period.  Each row corresponds to one of the variables in the block.  Each column is a different outcome.  This is what allows for correlated transitions within a block.</DD>
-    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the <em>rows</em> of <code>I::curAi</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state block takes on the vector of values in column j of <code>F</code> given the agent chooses the ith action in the feasible set <code>I::curAi</code>.
+    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the <em>rows</em> of <code>Alpha::C</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state block takes on the vector of values in column j of <code>F</code> given the agent chooses the ith action in the feasible set <code>Alpha::C</code>.
 
     <DT>As a simple example: </DT>
     <DD>Suppose that height increases by one value or stays the same.  Weight can go up or down or stay the same.  However, weight cannot go down if height goes up (the correlated innovation).  Further, assume that the transitions do not depend on actions.  In this case, the probabilities are duplicated using <code>reshape</code> to get the right dimensions:
@@ -654,7 +654,7 @@ The major difference between a StateVariable and a StateBlock:  a state variable
             F =   wght.v-1 ~ wght.v ~ wght.v+1 ~ wght.v   ~ wght.v+1
                 | hght.v   ~ hght.v ~ hght.v   ~ hght.v+1 ~ hght.v+1;
             P = GrowthProb();
-            return { F , reshape(P,I::curNAi,columns(F)) };
+            return { F , reshape(P,Alpha::N,columns(F)) };
             } </pre></dd>
    <DD>So, if weight and height were currently at levels 2 and 3, respectively, then <code>F</code> would be:<pre>
               1 2 3 2 3
@@ -892,13 +892,13 @@ Storage is re-used while solving for different values of &gamma;. <span class="n
 
 <a name="Auxiliary"><li>Auxiliary Values</li>
 
-An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from `AuxiliaryValues` and is added to the list &chi;.
+An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from `AuxiliaryValue` and is added to the list &chi;.
 
 <DT>Elements of &chi; are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  </DT>
 <DD>Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so &chi; adds no additional information to the full outcome. </DD>
  <DD>That is, &chi; is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
  <DT>Auxiliary values are added to the outcome (appended to &chi;) using `DP::AuxiliaryOutcomes`().</DT>
- <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual `AuxiliaryValues::Realize`().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
+ <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual `AuxiliaryValue::Realize`().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
 <DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
 
 <a name="#Volume"><li>Volume (getting output specific to a variable)</li></a>
@@ -911,7 +911,7 @@ An auxiliary value <em>x</em> is typically a function of the state and action ve
 
 </OL>
 
-@author &copy; 2011-2015 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
+@author &copy; 2011-2017 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
 
 <a name="auto"><hr><h1>Documentation of  Items Defined in Variables.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 

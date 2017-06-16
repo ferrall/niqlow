@@ -15,7 +15,7 @@ struct Engine : StateBlock {
 	/** visit variable (not required) **/						visit,
 	/** &theta;<sub>3</sub> vector **/                          q;
     Engine(visit, const q);	
-	virtual Transit(FeasA);
+	Transit();
 	}
 
 	

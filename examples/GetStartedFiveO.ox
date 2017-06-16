@@ -1,6 +1,6 @@
 #include "Rosenbrock.ox"
 #include "SysExample.ox"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 main()	{
 	decl obj, alg1, alg2;

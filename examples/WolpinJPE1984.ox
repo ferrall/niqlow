@@ -26,8 +26,8 @@ Fertility::Replicate()	{
 			DPDebug::outV(TRUE,0);
 			PD = new PanelPrediction(0);
             PD -> Tracking(NotInData,n,M);
-			PD -> TSet(20);
-			PD -> Predict(Two);
+			//PD -> TSet(20);
+			PD -> Predict(20,Two);
 //            PD -> Histogram(Two);
 			println("%c",{"f"}|PD.tlabels,PD.flat);
 			}

@@ -1,5 +1,5 @@
 #include "WstarTestb.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 WStar::WStar()      { solvez = !CV(wrk); zstar = zeros(N::R,1);}
 WStar::Uz(z)        { return eta | z;	}

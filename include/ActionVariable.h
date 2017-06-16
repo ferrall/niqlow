@@ -20,6 +20,8 @@ MyModel::Initialize() {
 struct ActionVariable : Discrete	{
     decl vL;
 	ActionVariable(L="a",N=1);
+    virtual myAV();
+    virtual myCV();
 	}
 
 /** Easy way to create a binary choice.

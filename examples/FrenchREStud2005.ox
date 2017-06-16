@@ -41,7 +41,7 @@ Retirement::mprob() {
 	}
 	
 Retirement::FeasibleActions() {
-	decl age = curt+T0, iv = Alpha::CV();
+	decl age = curt+T0, iv = Alpha::C[][i.pos];
 	if (age==T0) return (iv.==Stay);  				//drawing random effect
 	if (age >= Tstar) return (iv.==Retire);	  		//only retirement
 	if (retired.v) return (iv.<Stay);				//can't choose to keep current job

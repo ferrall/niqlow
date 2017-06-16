@@ -15,13 +15,13 @@ SchToWork::Replicate() {
 	}
 
 SchToWork::Reachable() {
-	return !(hasoffer.v && done.v);
+	return !(CV(hasoffer) && CV(done) );
 	}
 
 SchToWork::FeasibleActions() {
 	zstar = <1.0>;
     decl dv = Alpha::CV(d);
-	return hasoffer.v
+	return CV(hasoffer)
 			? (I::t<T+k
 				? ones(dv)  //has a choice
 			    : dv.==1) //must accept

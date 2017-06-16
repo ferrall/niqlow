@@ -66,8 +66,8 @@ struct DP {
             Variables are added to this list in  the order they were added during execution.
         **/ 				
                                                                 States,
-		/** List of <em>actual</em> feasible action matrices,
-		automatically updated at `UpdateTimes`.  **/	        A,
+		/* List of <em>actual</em> feasible action matrices,
+		automatically updated at `UpdateTimes`.  	        A, */
 
 		/** List of `StateBlock`s added to the model.
             <b>User code will typically not access this objects except perhaps in a new
@@ -98,8 +98,8 @@ struct DP {
 			`DP::alpha`. **/ 	                                zeta,
 		/** current realized auxiliary vector, &chi;,
 			only set during simulation of realized paths. **/ 	chi,
-	/** list of `AuxiliaryValues`s that depend on the current outcome.
-		`AuxiliaryValues::Realize`() is called by `Bellman::Simulate`()
+	/** list of `AuxiliaryValue`s that depend on the current outcome.
+		`AuxiliaryValue::Realize`() is called by `Bellman::Simulate`()
 		after <code>&alpha;</code>, &zeta; and full state vectors have been set. **/
 																Chi,
 		/** FALSE means no subsampling.  Otherwise, pattern of
@@ -124,6 +124,9 @@ struct DP {
 		static	SemiExogenousStates(v1,...); 	
 		static	ExogenousStates(v1,...); 	
 		static	AuxiliaryOutcomes(v1,...);
+        static  Interactions(ivar,olist=UnInitialized,prefix=UseLabel,ilo=0,thi=100);
+        static  Indicators(ivar,prefix=UseLabel,ilo=0,ihi=100);
+        static  MultiInteractions(ivarlist,ilov,ihiv,olist,prefix);
 		static 	SetGroup(state);
         static  SetG(f=0,r=0);
 		static 	Settheta(ind);
@@ -140,7 +143,7 @@ struct DP {
 		static  SyncAct(a);
         static  SubSampleStates(SampleProportion=1.0,MinSZ=0,MaxSZ=INT_MAX);
         static  SetUpdateTime(time=AfterFixed);
-        static  GetAV(a);
+        //static  GetAV(a);
 
         static KLaggedState(Target,K,Prune=TRUE);
         static KLaggedAction(Target,K,Prune=TRUE);
@@ -290,6 +293,7 @@ struct SVTrans          :   EndogTrans { decl Slist; SVTrans(Slist); Run();};
 
 **/
 struct ExTask       :   Task { ExTask(); }
+
 	
 /**  The base task for processing &Gamma;.
 **/

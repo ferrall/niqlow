@@ -23,7 +23,7 @@ test::Run()	{
     pd->Histogram(fg); */
 	}
 test::FeasibleActions() {
-    return ones(Alpha::NFA,1);
+    return ones(Alpha::N,1);
     }
 test::Reachable()	{
 //	return (CV(pc)&&CV(fg)) ? 0 : new test();

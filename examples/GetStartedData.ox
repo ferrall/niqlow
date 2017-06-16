@@ -16,7 +16,7 @@ DerivedSearch::Run()	{
 	Search::Run();
 	AuxiliaryOutcomes(
         u = new RealizedUtility(),
-        dd = new StateIndicators(p)
+        dd = Indicators(p)
         );
     simdata = new SearchData();
     decl pd = new PathPrediction();

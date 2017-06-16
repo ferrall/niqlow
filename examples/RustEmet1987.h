@@ -1,6 +1,6 @@
 #import "DDP"
 #include <oxdraw.h>
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 struct Zurcher : Rust	{
 	/** tags for estimated parameters. @name Zparams **/

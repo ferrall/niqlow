@@ -103,7 +103,7 @@ enum {NOW,LATER,DVspace}
             <tr><td valign="top">idvar</td><td>Identifier for the path (agent)</td></tr>
             <tr><td valign="top">avar</td><td>`ActionVariable`</td></tr>
             <tr><td valign="top">svar</td><td>`StateVariable`</td></tr>
-            <tr><td valign="top">idvar</td><td>`AuxiliaryValues`</td></tr>
+            <tr><td valign="top">idvar</td><td>`AuxiliaryValue`</td></tr>
             </table>
 
         @name DataColumnTypes
@@ -295,13 +295,15 @@ struct I : DDPauxiliary {
 	/** . @internal **/										MESind,
 	/** . @internal **/										MSemiEind,																
 	/** . @internal **/										MxEndogInd,
-    /** index into &Alpha; of current realized &alpha;. **/	ialpha,
     /** current point in state space, &theta;.
         Set in `I::Set`. **/                                curth,
     /** current point in group space, &gamma;..
         Set in `I::Set`.  **/                               curg,
-    /** current feasible action set .**/                    curAi,
-    /** rows(curAi), number of feasible actions.**/         curNAi,
+                                                            eta,
+                                                            elo,
+                                                            ehi,
+    /* current feasible action set .                    curAi,*/
+    /* rows(curAi), number of feasible actions.         curNAi,*/
     /** The current value of &delta;. This is set in
             `DP::UpdateVariables`() to avoid repeated calls
             to `CV`.  @see DP::delta **/                         CVdelta;
@@ -333,10 +335,14 @@ struct Hooks : DDPauxiliary {
 **/
 struct Alpha : DDPauxiliary {
 	static decl
-         /** Rows of FA, # of feasible actions. **/             NFA,
+         /** Rows of A, # of feasible actions. **/             N,
         /** Current feasible action matrix.
-            @see Alpha::SetFA, Alpha::CV    **/                 FA,
-        /** Current ACTUAL feasible actions. **/                FAactual,
+            @see Alpha::SetA, Alpha::CV    **/                 C,
+        /** Index of FA in List.**/
+        /** Current ACTUAL feasible actions. **/                A,
+        /** row index of simulated alpha.**/                   aI,
+        /** Simulated realized action (row of C).**/           aC,
+        /** Simulated actual realized action .**/              aA,
 		/** matrix of all action vectors, A.
             This is a copy of `Alpha::List`[0].
             As action variables are added to the model
@@ -347,17 +353,13 @@ struct Alpha : DDPauxiliary {
 		/** list of feasible action matrices (CV) values.
             Each point in the endogenous state space
             has an index: `Bellman::Aind` into this
-            list.  Also set as `I::curAi`.**/ 	                List,     // Asets,
+            list.  .**/ 	                                    CList,     // Asets,
 		/** List of Feassible Action indicators (column vector
             of 0s and 1s). **/  	                            Sets,     //ActionSets,
 		/** (vector) Number of states for each A set.  **/      Count,    // AsetCount,
 		/** List of <em>actual</em> feasible action matrices (AV values),
-		automatically updated.
-            Each point in the endogenous state space
-            has an index: `Bellman::Aind` into this
-            list. Also `DP::A` points to this list so
-            the user can get the matrix of actual action values
-            with <code>A[Aind]</code> **/	                    A,
+		automatically updated. Each point in the endogenous state space
+        has an index: `Bellman::Aind` into this list.  **/	    AList,
          /** First character of action labels. **/              aL1,
          /** Array of indices into Matrix for each
             feasible set . **/                                  AIlist,
@@ -368,8 +370,8 @@ struct Alpha : DDPauxiliary {
     static ResetA(alist);
     static CV(actvar);
     static AV(actvar);
-    static SetFA(FA);
-    static ClearFA();
+    static SetA(ini = UseCurrent);
+    static ClearA();
     }
 
 /** Contains arrays of labels for variables.

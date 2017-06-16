@@ -9,7 +9,7 @@ class Kapital : Random {
 	static const decl Kbar = 5.0;
 	decl entrant, exit, KP, upper;
 	Kapital(L,const N,const entrant,const exit,const KP);
-	Transit(FeasA);
+	Transit();
 	}
 	
 class FirmEntry : Rust {  //NQuadrature

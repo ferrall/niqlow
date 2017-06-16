@@ -23,7 +23,7 @@ MyStateVar::MyStateVar(L,occup,work) {
 
 MyStateVar::Transit() {
      if  (nozero) {
-        decl w =I::curAi[][work.pos];
+        decl w =Alpha::CV(work);
         return { 0~occup.v , (1-w) ~ w };
         }
      return { occup.v , CondProbOne };

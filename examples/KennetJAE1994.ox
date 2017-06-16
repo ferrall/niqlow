@@ -17,7 +17,7 @@ Engine::Engine(visit,const q) {
 	AddToBlock(sd,h);
 	}
 
-Engine::Transit(FeasA) {
+Engine::Transit() {
 	decl cur = sd.v|h.v,  mycases = cur[0]+2*(cur[1]==0);
 	switch_single(mycases) {
 		case 0:	if (cur[1]==h.N-1)

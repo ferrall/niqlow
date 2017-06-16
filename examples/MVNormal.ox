@@ -18,5 +18,5 @@ MVTest::Replicate()	{
 MVTest::Utility() {
  	decl R = exp(selectrc(offers.Grid,accept.vals,offers.v));
 	println("offer indices",offers.v,R);
-	return R[A[Aind]]';
+	return R[Alpha::C]';
 	}

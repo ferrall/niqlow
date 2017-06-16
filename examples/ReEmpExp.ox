@@ -63,7 +63,7 @@ UISearch::Reachable()	{
 	return TRUE;
 	}
 
-UISearch::OfferProb() {	return I::curAi[][x.pos] * 0.1; }
+UISearch::OfferProb() {	return Alpha::CV(x) * 0.1; }
 	
 UISearch::Run()	{
 	EVExPost::Initialize(1.0,new UISearch());

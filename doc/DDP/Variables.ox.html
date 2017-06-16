@@ -383,11 +383,12 @@ Below is an <a href="#example">example</a> of how to define a new state variable
     <DT>Besides a constructor, your state variable must also come with a transition.</DT>
     <DD>If it is derived from another state variable and your version will follow the same transition then you do not need to write a new one.  That is because <code>Transit()</code> is, in most cases, declared as a <em>virtual</em> method.  So if your state variable has no transition of its own, the one from the parent variable will be called in its place. This is why it must be called <code>Transit()</code>, because it replaces another version of a <code>Transit()</code> that would be called if necessary.</DD>
 <P/>
-    <DD><code>Transit</code> must also take an argument, a matrix called <code>FeasA</code>.  This contains the feasible actions <code>&alpha;</code> at the <em>current</em> state. Each row of <code>FeasA</code> is an action vector <code>&alpha;</code>; each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
+    <DD><code>Transit</code> will often need to access matrix of current feasible actions at the current state, which is available in <a href="DDPShared.ox.html#I___curAi">curAi</a> that is set every time the point in the state space is changed
+    or initialized.  Each row of <code>I::curAi</code> is an action vector <code>&alpha;</code>; each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
 <P/>
     <DT>Example: Possible Argument Passed to <code>Transit()</code></DT>
     <DD>The model has two binary choice variables, <var>i</var> and <var>j</var>.  Then the argument passed to <code>Transit()</code>  might look like this:</DD>
-<dd><pre>  FeasA
+<dd><pre>  I::curAi
   i    j
   0    0
   1    0
@@ -395,7 +396,7 @@ Below is an <a href="#example">example</a> of how to define a new state variable
   1    1</pre> </dd>
     <DT>Your code has to return two items, sent back in an Ox <em>array</em>. </DT>
     <DD>The first is a <em>row vector</em> of feasible values: the  values this state could take on next period.  For convenience call this vector <code>F</code>.  That is, suppose one value, say 3, may be feasible only if a certain action is taken.  Then 3 must be in <code>F</code>, even if 3 is not feasible if another action were taken.  The elements of <code>F</code> do not need to be sorted.</DD>
-    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the rows of <code>FeasA</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state variable takes on the jth value in <code>F</code> given the agent chooses the ith action in the feasible set.</DD>
+    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the rows of <code>I::curAi</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state variable takes on the jth value in <code>F</code> given the agent chooses the ith action in the feasible set.</DD>
 <P/>
     <DD>The array returned as the value of <code>Transit()</code> might be sent using code that looks like this:  <code>return {F,P};</code>, presuming you have declared local variables <code>F</code> and <code>P</code> and filled them with the correct information in the correct format.</DD>
 <P/>
@@ -403,7 +404,6 @@ Below is an <a href="#example">example</a> of how to define a new state variable
 <P/>
     <DT>The example will</DT>
 <P/>
-<!--    <LI>The reason why is <code>FeasA</code> passed explicitly but the rest of the state is not is discussed more below.</LI>-->
     </DL>
 <P/>
 <LI><h3>Debug your code and make sure it does what you want it to do.</h3>
@@ -453,7 +453,7 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
    2    0   3   8</pre></dd>
 <DD>The variable <code>t</code> is the age variable in the finite horizon.  Now we can represent the transition of <code>y'</code> at this particular state as follows:
 <pre>
-    FeasA              Prob(y')   trim 0 cols &rarr;     Prob(y')
+    I::curAi          Prob(y')   trim 0 cols &rarr;     Prob(y')
      i    j     y'=  0   1   2   3             y'=0   2
     -----------------------------------------------------
     0    0          1   0   0   0                1   0
@@ -468,7 +468,7 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
 <DD>Note that the first column of Prob(y') is simple the value <code>1-i</code>.  And the second column is simply <code>i</code>.</DD>
 <P/>
 <DT>Use the <var>constructor</var> to support <code>Transit</code>. </DT>
-<DD>How will <code>Transit()</code> know that <code>x=2</code> currently?   And how will it know that <code>i</code> is in the first column of <code>FeasA</code> not the second?  This is where the object-oriented approach to building a dynamic programming model comes in handy compared to using vectors of values to represent the state vector.  </DD>
+<DD>How will <code>Transit()</code> know that <code>x=2</code> currently?   And how will it know that <code>i</code> is in the first column of <code>I::curAi</code> not the second?  This is where the object-oriented approach to building a dynamic programming model comes in handy compared to using vectors of values to represent the state vector.  </DD>
 <DD><code>Transit()</code>  will know about <code>x</code> and <code>i</code> because it will be <em>constructed</em> to know them as the following code illustrates:</dd>
 <details><summary><b>Version 1.</b> Source: niqlow/templates/DynamicPrograms/MyStateVar1.ox</summary>
 <DD><pre><object width="95%" height="350" type="text/plain" data="../../templates/DynamicPrograms/MyStateVar1.ox" border="1" ></object></pre></DD></details>
@@ -486,8 +486,8 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
 <P/>
 <DD>In the code for Transit the expression <code>0~occup.v</code> generates, for the state above, the row vector <code>&lt;0 2&gt;</code>.  These are the only feasible values next period, or possible values of <code>y'</code>.   So the current value of <var>x</var> is not accessed from a vector of numbers, which might be the way DP code in FORTRAN might do.  </DD> <DD>Instead it is accessed from a <em>public</em> member of a variable stored within the <code>MyStateVar</code> class.  It does not matter to <code>MyStateVar</code> whether <code>occup</code> has the label <q>x</q>.  It does not matter that <code>occup</code> happens to be first in the state vector.  It <em>does</em> matter, of course, that <code>occup</code> is indeed a state variable, and it has to know this before anything is done in the model.</DD>
 <P/>
-<DD>The second expression in the <code>return</code> statement is simply Ox code to copy in <code>1-i</code> and <code>i</code>.  However, these are column vectors and they get their value from values from <code>FeasA</code>.  </DD>
-<DT>Which column of <code>FeasA</code> will <code>i</code> be in?</DT>
+<DD>The second expression in the <code>return</code> statement is simply Ox code to copy in <code>1-i</code> and <code>i</code>.  However, these are column vectors and they get their value from values from <code>I::curAi</code>.  </DD>
+<DT>Which column of <code>I::curAi</code> will <code>i</code> be in?</DT>
   <DD>The answer is whichever column the <var>work</var> choice variable is stored in.  </DD>
   <DD>Again, the constructor requires the argument <code>work</code> which gets copied to the member with the same name.  And <span class="n">DDP</span> puts the position of the action in the action matrix in <code>pos</code>.  So whatever column it is any instance of <code>MyStateVar</code> will know which one it is.</DD>
 <P/>
@@ -653,21 +653,20 @@ These instructions follow the ones provided for creating a <a href="#ASV">StateV
 <P/>
 <LI>Code the <code>Transit()</code> method</LI>
 The major difference between a StateVariable and a StateBlock:  a state variable <code>Transit()</code> function returns a single row vector of "prime states" but a block must return a matrix of feasible "prime" states, each row is the state of the corresponding member of the block in the order they were added to the block.  The transition probabilities still pertain to each column of the matrix.  The rows of the transition probabilities correspond to the rows of the feasible actions &theta;.A.
-   <DT><code>Transit</code> must also take an argument, a matrix called <code>FeasA</code>.  </DT>
-   <DD>This contains the feasible actions <code>&alpha;</code> at the <em>current</em> state.</DD>
+   <DT><code>Transit</code> can access the feasible actions <code>&alpha;</code> at the <em>current</em> state. in I::curAi'.</DT>
    <DT>Your code has to return two items, sent back in an Ox <em>array</em>. </DT>
     <DD>The first is a <em>matrix vector</em> of feasible values, <code>F</code>: the values this block could take on next period.  Each row corresponds to one of the variables in the block.  Each column is a different outcome.  This is what allows for correlated transitions within a block.</DD>
-    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the <em>rows</em> of <code>FeasA</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state block takes on the vector of values in column j of <code>F</code> given the agent chooses the ith action in the feasible set <code>FeasA</code>.
+    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the <em>rows</em> of <code>I::curAi</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state block takes on the vector of values in column j of <code>F</code> given the agent chooses the ith action in the feasible set <code>I::curAi</code>.
 <P/>
     <DT>As a simple example: </DT>
     <DD>Suppose that height increases by one value or stays the same.  Weight can go up or down or stay the same.  However, weight cannot go down if height goes up (the correlated innovation).  Further, assume that the transitions do not depend on actions.  In this case, the probabilities are duplicated using <code>reshape</code> to get the right dimensions:
     <dd class="example"><pre>
-        Vitals::Transit(const FeasA) {
+        Vitals::Transit() {
             decl F, P;
             F =   wght.v-1 ~ wght.v ~ wght.v+1 ~ wght.v   ~ wght.v+1
                 | hght.v   ~ hght.v ~ hght.v   ~ hght.v+1 ~ hght.v+1;
             P = GrowthProb();
-            return { F , reshape(P,rows(FeasA),columns(F)) };
+            return { F , reshape(P,I::curNAi,columns(F)) };
             } </pre></dd>
    <DD>So, if weight and height were currently at levels 2 and 3, respectively, then <code>F</code> would be:<pre>
               1 2 3 2 3
@@ -698,9 +697,9 @@ The major difference between a StateVariable and a StateBlock:  a state variable
 <P/>
 <a name="ASB"><LI>Accessing  State Block Values </LI></a>
 <P/>
-Since a StateBlock is a type of StateVariable it has a <code>.v</code> data member.  <span class="n">DDP</span> ensures that it always contains the vector of values of the state variables, in the same order as they were sent to AddToBlock.  And this means that <a href="Shared.ox.html#CV">CV</a>() will return the vector of values for a block just as it returns <code>.v</code> for a scalar state.
+Since a StateBlock is a type of StateVariable it has a <code>.v</code> data member.  <span class="n">DDP</span> ensures that it always contains the vector of values of the state variables, in the same order as they were sent to AddToBlock.  And this means that CV() will return the vector of values for a block just as it returns <code>.v</code> for a scalar state.
 <P/>
-In addition, <a href="Shared.ox.html#AV">AV</a>() will return the vector of <code>actual</code> values that correspond to the indices in <code>.v</code>.  That is, it will pull out of the <code>actual</code> matrix the right value for each of the M variables at their current values.
+In addition, AV() will return the vector of <code>actual</code> values that correspond to the indices in <code>.v</code>.  That is, it will pull out of the <code>actual</code> matrix the right value for each of the M variables at their current values.
 </OL>
 <P/>
 <li name="Trans">The Transition for states and state vectors</li>
@@ -728,7 +727,7 @@ The restricted natures of the different vectors is displayed by excluding them f
 </OL>
 <P/>
 <hr>
-<a name="Clock"><LI>The Clock: Time-Keeping <a href="Variables.ox.html#StateBlock">StateBlock</a> in <code>&theta;</code>.</LI>
+<a name="Clock"><LI>The Clock: Time-Keeping StateBlock in <code>&theta;</code>.</LI>
 <P/>
 <OL class="chapter">
 <LI>Overview</LI>
@@ -737,14 +736,14 @@ Time is a key concept in dynamic programming.  At least the difference between n
 <P/>
 So the two simple extremes are stationarity (today is followed by tomorrow which is the same as today) and normal aging: <var>t&prime; = t+1</var> until <var>t=T&oline;</var>. However, timing can be more complicated that those two cases.  One is an agent facing a finite horizon problem and the possibility of early death.
 <P/>
-The Clock Block is a single <a href="Variables.ox.html#StateBlock">StateBlock</a> that is always in the endogenous vector &theta;, and is always the &quot;rightmost&quot; element of it, in the sense that all task that span the endogenous state space will loop over time in the outermost loop.
+The Clock Block is a single StateBlock that is always in the endogenous vector &theta;, and is always the &quot;rightmost&quot; element of it, in the sense that all task that span the endogenous state space will loop over time in the outermost loop.
 <P/>
 <LI>Setting the Clock </LI>
 <P/>
-<DT><code>&theta;</code> <em>always</em> contains a single clock block derived from <a href="Variables.ox.html#Clock">Clock</a>.</DT>
+<DT><code>&theta;</code> <em>always</em> contains a single clock block derived from Clock.</DT>
 <P/>
-<DT>The simplest way to set the clock is to call <a href="DP.ox.html#DP___SetClock">SetClock</a>().  </DT>
-<DD>The first argument is either one of the <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a> tags for built-in clocks, or it is an object of a class derived from <a href="Variables.ox.html#Clock">Clock</a>. </DD>
+<DT>The simplest way to set the clock is to call DP::SetClock().  </DT>
+<DD>The first argument is either one of the ClockTypes tags for built-in clocks, or it is an object of a class derived from Clock. </DD>
 <DD>If a tag is sent, other arguments may be required by that clock type.</DD>
 <P/>
 <DT>The call to <code>SetClock()</code> must take place between the calls to <code>Initialize()</code> and <code>CreateSpaces()</code></DT>
@@ -754,7 +753,7 @@ Initialize(new MyModel());
 SetClock(InfiniteHorizon);
 CreateSpaces();
 </pre></DD>
-<DD>If <code>MyModel</code> does not set the clock explicitly, then a stationary infinite horizon clock is set by <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>().</DD>
+<DD>If <code>MyModel</code> does not set the clock explicitly, then a stationary infinite horizon clock is set by DP::CreateSpaces().</DD>
 <P/>
 <DT>All clock blocks have the same first two variables in the block</DT>
 <P/>
@@ -772,8 +771,8 @@ With anticipation (foresight), V(&theta;) can/should be solved backwards in <var
 <P/>
 <LI>Current time and the decision horizon</LI>
 <P/>
-<DT>The clock block is available as <a href="DP.ox.html#DP___counter">counter</a>, but usually <code>MyModel</code> does not need to refer to it directly.</DT>
-<DT>The current value of <var>t</var>, is available to <code>MyModel</code> as <a href="DDPShared.ox.html#I___t">t</a>.  That is,</DT>
+<DT>The clock block is available as DP::counter, but usually <code>MyModel</code> does not need to refer to it directly.</DT>
+<DT>The current value of <var>t</var>, is available to <code>MyModel</code> as I::t.  That is,</DT>
 <DD><pre>I::t &equiv; counter.t.v</pre></DD>
 <DD>Since <code>t</code> is in the index class I <code>MyModel</code> can use the identifier <code>t</code> for its own use.</DD>
 <P/>
@@ -782,7 +781,7 @@ With anticipation (foresight), V(&theta;) can/should be solved backwards in <var
 <pre>
         T &equiv; t.N
         T = 1 for an infinite horizon model (T = &infin;).</pre></DD>
-<DT>Because it is crucial to the solution method, this is a property of <code>MyModel</code> stored as <a href="DDPShared.ox.html#N___T">T</a>
+<DT>Because it is crucial to the solution method, this is a property of <code>MyModel</code> stored as N::T
 <DD><pre>
 When T is finite,
         N::T  &equiv;  T  =  counter.t.N,
@@ -793,7 +792,7 @@ When T = &infin;,
 <P/>
 <li>Kinds of Clocks</li>
 <P/>
-See <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a>
+See ClockTypes
 <P/>
 <DT><code>InfiniteHorizon</code>: <var>t&Prime; = t = 0 = T&oline;</var>.</DT>
 <DD>In the infinite horizon case Bellman 's equation must be iterated on from initial conditions until it converges.</DD>
@@ -805,11 +804,11 @@ See <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a>
 <P/>
 <DT><code>SubPeriods</code></DT>
 <DD>In some models a sequence of decisions is made within a single period. </DD>
-<DD>The <code>SubPeriods</code> tag creates a <a href="Variables.ox.html#Divided">Divided</a> clock.
+<DD>The <code>SubPeriods</code> tag creates a Divided clock.
 <P/>
 <DT>What do subperiods mean?</DT>
 <DD>Usually each state variable only transitions between one subperiod (which differs across states).
-This can be handled very easily by sending a base state variable to the <a href="Variables.ox.html#SubState">SubState</a>() augmenting class.  Simply
+This can be handled very easily by sending a base state variable to the SubState() augmenting class.  Simply
 send the sub period for which this state variable transits.  For all other subperiod transitions the variable
 is frozen.</DD>
 <DD>Each action variable is usually only changeable in one subperiod.  This is handled by providing
@@ -819,12 +818,12 @@ within a subperiod occur simultaneously.  </DD>
 <DD>The discount factor takes on it normal value for <var>s= S-1</var> to capture the gap between major periods.</DD>
 <DT>Some implications</DT>
 <DD>Because transitions all depend on the value of the subperiod <code>s</code>, all state variables
-must be endogenous (added to &theta;).  This is checked in <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>.</DD>
+must be endogenous (added to &theta;).  This is checked in DP::CreateSpaces.</DD>
 <DD>The user should <em>augment</em> state variables using </DD>
 <P/>
 <DT><code>NormalAging</code>:  <var>t&prime; = t+1</var>, up to <var>T&oline;</var>; <var>t&Prime;=0</var>.</DT>
 <DD>With ordinary aging Bellman's equation is solved backwards starting at t=T&oline; down to 0. The auxiliary variable t&Prime; is not needed to account for deviations from normal time so it is simply 0 always.</DD>
-<DD>A special case is a non-dynamic environment, <code>StaticProgram</code>, with T&line;=0. <DD><span class="n">DDP</span> knows that an infinite horizon model is different than a static program, because in the static case it does not iterate on V() until convergence. Since <code>StaticProgram</code> is a tag associated with the class <a href="Variables.ox.html#StaticP">StaticP</a>, which is derived from the class <a href="Variables.ox.html#Aging">Aging</a>, <span class="n">DDP</span> cannot confuse this with a <a href="Variables.ox.html#Stationary">Stationary</a> environment.</DD>
+<DD>A special case is a non-dynamic environment, <code>StaticProgram</code>, with T&line;=0. <DD><span class="n">DDP</span> knows that an infinite horizon model is different than a static program, because in the static case it does not iterate on V() until convergence. Since <code>StaticProgram</code> is a tag associated with the class StaticP, which is derived from the class Aging, <span class="n">DDP</span> cannot confuse this with a Stationary environment.</DD>
 <P/>
 <DT><code>RandomMortality</code>: the agent either ages normally or dies before the start of the next period</DT>
 <DD>Random mortality means that, for there are two possible values of t and t&Prime; next period <pre>
@@ -840,7 +839,7 @@ must be endogenous (added to &theta;).  This is checked in <a href="DP.ox.html#D
 <DD>Many papers in the literature assume normal aging or random mortality with some long but finite maximum lifetime (say, age 100).  Often the last part of the lifecycle is included with little decision making only to get reasonable continuation values for early ages.  For &delta; not too close to 1 the cap on ages does not affect choices much earlier.</DD>
 <DD>Another, perhaps more elegant, approach is to treat the lifetime itself as uncertain.  <code>t=T&oline;</code> is still the case of death which is still random and occurs with probability &pi;() as above.  But now <code>t=T&oline;-1</code> is now a stationary problem and <code>t=T&oline;</code> is a terminal state.  Otherwise, once <code>t=T&oline;-1</code> today and tomorrow are the same.  <span class="n">DDP</span> iterates on the value function at <code>t=T&oline;</code> as if it were a (non-ergodic) stationary problem, continuing until convergence.  Then it will proceed backwards as with mortality.</DD>
 <DD>The advantage of this approach is that there is a single choice probability for this final phase (conditional on other state variables) rather than computing and storing slightly different choice probabilities as <code>t</code> approaches <code>T&oline;</code>.  </DD>
-<DD>The <a href="Variables.ox.html#Longevity">Longevity</a> clock combines a special case of a more general notion of <code>RandomAging</code> which uses  <a href="Variables.ox.html#AgeBrackets">AgeBrackets</a> for the state clock with random mortality.  But it is not a special case of either one so it is derived as a third class from <a href="Variables.ox.html#NonStationary">NonStationary</a>.
+<DD>The Longevity clock combines a special case of a more general notion of <code>RandomAging</code> which uses  AgeBrackets for the state clock with random mortality.  But it is not a special case of either one so it is derived as a third class from NonStationary.
 <P/>
 <DT><code>SocialExperiment</code>:  Phased treatment and random assignment</DT>
 <DD>In this environment the agent believes they are in a stationary problem and acts accordingly.  However, they are unexpectedly placed in a temporary experimental situation in which their utility and possibly state transitions have changed.  They again act accordingly but they know that eventually they will return to the original environment, which acts as the terminal values for the experiment.  There are three possible values of t&Prime; during treatment.</DD>
@@ -850,12 +849,12 @@ must be endogenous (added to &theta;).  This is checked in <a href="DP.ox.html#D
 <P/>
 <LI>Interacting With Value Function Iteration</LI>
 <P/>
-<DT>Clocks have three virtual methods associated with them which are called by <a href="Methods.ox.html#ValueIteration">ValueIteration</a> and related solution methods.</DT>
-<DD><a href="Variables.ox.html#Clock___Vupdate">Vupdate</a>() makes sure that the scratch space for the value function is updated after each iteration of Bellman's equation.  In stationary models (or stationary
+<DT>Clocks have three virtual methods associated with them which are called by ValueIteration and related solution methods.</DT>
+<DD>Clock::Vupdate() makes sure that the scratch space for the value function is updated after each iteration of Bellman's equation.  In stationary models (or stationary
 time periods within a non-stationary model) this method also computes the norm of the difference between the current value functions and the last value.  This norm is
 checked by the solution method against the given tolerance for convergence.</DD>
-<DD>Clock::Sync() is called any time the value of the clock changes (that is, it is called in DP::SyncStates()).  The default method simply places the current in <a href="DDPShared.ox.html#I___t">t</a> to b available to the user's code and other parts of <span class="DDP">DDP</span>.  Some kinds of clocks do more than this.</DD>
-<DD><a href="Variables.ox.html#Clock___setPstar">setPstar</a>() determines whether the next iteration should calculate choice probabilities or not.  If only one iteration is required to compute the value function at this point in the clock (no fixed point problem), then the clock will return <code>TRUE</code>.   This does not itself check for convergence, and other considerations may set <a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> to TRUE.</DD>
+<DD>Clock::Sync() is called any time the value of the clock changes (that is, it is called in DP::SyncStates()).  The default method simply places the current in I::t to b available to the user's code and other parts of <span class="DDP">DDP</span>.  Some kinds of clocks do more than this.</DD>
+<DD>Clock::setPstar() determines whether the next iteration should calculate choice probabilities or not.  If only one iteration is required to compute the value function at this point in the clock (no fixed point problem), then the clock will return <code>TRUE</code>.   This does not itself check for convergence, and other considerations may set Flags::setPstar to TRUE.</DD>
 <P/>
 <DT>Typically the user does nothing with these methods unless they are creating their own solution method.  And if the create their own clock type they may have to provide replacement methods if the inherited ones are not coorect.</DT>
 <P/>
@@ -874,19 +873,19 @@ The basic DP model concerns a single agent in a single environment.  However, ma
 <P/>
 The state vector &gamma; holds variables that are fixed for an agent but differ across agents.  As with other state vectors, anything that can go in &gamma; could be placed in &theta;.  However, since the state does not vary it is inefficient to included invariant states in <b><b>&Theta;</b></b>.  Instead, <span class="n">DDP</span> resuses <b>&Theta;</b> for each value of &gamma; and stores only a minimum amount of information for previously solved models.
 <P/>
-Only state variables derived from the <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> class can be added to &gamma;.    Invariants do not have a transition.
+Only state variables derived from the TimeInvariant class can be added to &gamma;.    Invariants do not have a transition.
 <P/>
 <LI>Fixed and Random Effects</LI>
 <P/>
-<span class="n">DDP</span> distinguishes between two kinds of invariants.  Each is either a <a href="Variables.ox.html#FixedEffect">FixedEffect</a> or a <a href="Variables.ox.html#RandomEffect">RandomEffect</a>.  This distinction plays the same role as in panel models.  Fixed effects typically correspond to constant observed variables, such as gender.  So if the model is to be solved separately for men and women, with different primitives, then a binary FixedEffect would be added to &gamma;.  On the other hand, a <a href="Variables.ox.html#RandomEffect">RandomEffect</a> is designed to account for unobserved variation in the underlying problem.  An example would be a model that allows agents to have different (unobserved and permanent) skill levels.  A single skill variable taking on discrete values could be added to &gamma;  In estimation DDP will sum over the distribution of skills.
+<span class="n">DDP</span> distinguishes between two kinds of invariants.  Each is either a FixedEffect or a RandomEffect.  This distinction plays the same role as in panel models.  Fixed effects typically correspond to constant observed variables, such as gender.  So if the model is to be solved separately for men and women, with different primitives, then a binary FixedEffect would be added to &gamma;.  On the other hand, a RandomEffect is designed to account for unobserved variation in the underlying problem.  An example would be a model that allows agents to have different (unobserved and permanent) skill levels.  A single skill variable taking on discrete values could be added to &gamma;  In estimation DDP will sum over the distribution of skills.
 <P/>
-If a TimeInvariant class has a <code>Transit()</code> function defined it is never called because the DP problem presumes the value will never change.  A fixed effect also has no distribution, but a random effect does,  <a href="Variables.ox.html#RandomEffect___Distribution">Distribution</a>().   The distribution is used to integrate out the random effect after solving for behavior conditional on each value.  The distribution can depend on the value of the fixed effects. For example, the distribution of skills can depend on gender.    This is called once for each value of the fixed effects and this updates the <a href="Shared.ox.html#Discrete___pdf">pdf</a>(), a vector of probabilities or weights place on the values of the random effect.
+If a TimeInvariant class has a <code>Transit()</code> function defined it is never called because the DP problem presumes the value will never change.  A fixed effect also has no distribution, but a random effect does,  RandomEffect::Distribution().   The distribution is used to integrate out the random effect after solving for behavior conditional on each value.  The distribution can depend on the value of the fixed effects. For example, the distribution of skills can depend on gender.    This is called once for each value of the fixed effects and this updates the Discrete::pdf(), a vector of probabilities or weights place on the values of the random effect.
 <P/>
-Correlated random effects are created by adding a <a href="Variables.ox.html#RandomEffectBlock">RandomEffectBlock</a> to &gamma;
+Correlated random effects are created by adding a RandomEffectBlock to &gamma;
 <P/>
 <LI>The Group Space</LI>
 <P/>
-Each combination of random and fixed effects implies a value of &gamma;, and for each &gamma; a <a href="DP.ox.html#Group">Group</a> node is created.  The set of all group nodes is the <em>group space</em>, denoted &Gamma;.
+Each combination of random and fixed effects implies a value of &gamma;, and for each &gamma; a Group node is created.  The set of all group nodes is the <em>group space</em>, denoted &Gamma;.
 <P/>
 As with allowing state variables to be declared exogenous, moving time invariant variables from &theta; to &gamma; saves time and especially storage while solving the model. An invariant does not need to be tracked during iteration over <b>&Theta;</b>.  So group variable <code>Transit()</code> methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>.
 <P/>
@@ -900,20 +899,20 @@ Storage is re-used while solving for different values of &gamma;. <span class="n
 <P/>
 <a name="Auxiliary"><li>Auxiliary Values</li>
 <P/>
-An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> and is added to the list &chi;.
+An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from AuxiliaryValues and is added to the list &chi;.
 <P/>
 <DT>Elements of &chi; are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  </DT>
 <DD>Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so &chi; adds no additional information to the full outcome. </DD>
  <DD>That is, &chi; is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
- <DT>Auxiliary values are added to the outcome (appended to &chi;) using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>().</DT>
- <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual <a href="Variables.ox.html#AuxiliaryValues___Realize">Realize</a>().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
+ <DT>Auxiliary values are added to the outcome (appended to &chi;) using DP::AuxiliaryOutcomes().</DT>
+ <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual AuxiliaryValues::Realize().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
 <DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
 <P/>
 <a name="#Volume"><li>Volume (getting output specific to a variable)</li></a>
-<DT>All <a href="Shared.ox.html#Quantity">Quantity</a> based objects have their own <code>Volume</code> member.</DT>
+<DT>All Quantity based objects have their own <code>Volume</code> member.</DT>
 <DD>By default the Volume is set to <code>SILENT</code>.</DD>
 <P/>
-<DT>If you set the volume to one of the other <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a> then:</DT>
+<DT>If you set the volume to one of the other NoiseLevels` then:</DT>
  <DD>Some internal routines will print out information specific to variable.</DD>
  <DD>The output goes to the <code>Variables</code> log file </code>
 <P/>
@@ -5426,9 +5425,9 @@ Create a binary endogenous absorbing state.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">fPi</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>(FeasA) compatible object that returns either:<br>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible object that returns either:<br>
 a probability p of transiting to state 1<br>
-a vector equal in length to FeasA.<br>
+a vector equal in length to I::curAi.<br>
 The default value is 0.5: the absorbing state happens with probability 0.5.
 </td>
 </tr>
@@ -5461,7 +5460,7 @@ The default value is 0.5: the absorbing state happens with probability 0.5.
 <a name="Absorbing___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">Absorbing :: Transit ( FeasA )</span>
+<span class="declaration">Absorbing :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5517,7 +5516,7 @@ Create a variable that counts how many times an action has taken on certain valu
 <a name="ActionAccumulator___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual ActionAccumulator :: Transit ( FeasA )</span>
+<span class="declaration">virtual ActionAccumulator :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -5605,7 +5604,7 @@ EndogenousStates(exper);
 <a name="ActionCounter___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual ActionCounter :: Transit ( FeasA )</span>
+<span class="declaration">virtual ActionCounter :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -5674,7 +5673,7 @@ Create a binary variable that indicates if the previous value of action variable
 <a name="ActionTracker___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual ActionTracker :: Transit ( FeasA )</span>
+<span class="declaration">virtual ActionTracker :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -5721,7 +5720,7 @@ Create a new augmented state variable for which an action triggers the change.
 <a name="ActionTriggered___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual ActionTriggered :: Transit ( FeasA )</span>
+<span class="declaration">virtual ActionTriggered :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -6052,26 +6051,16 @@ Synchronize base state variable value with current value.
 <a name="Augmented___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual Augmented :: Transit ( FeasA )</span>
+<span class="declaration">virtual Augmented :: Transit ( )</span>
 <dl><dd>
 Default Transit (transition for a state variable).
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">FeasA</td>
-<td class="description" valign="baseline"> matrix of feasible action vectors at the current state, &Alpha;(&theta;).
 <P/>
 This is a virtual method, so derived classes replace this default version with the one that goes along
 with the kind of state variable.
-<P/>
-</td>
-</tr>
-</table>
-</dd>
-<dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>I::curNAi</code> &times; L
 matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
-The built-in transit returns <code> &lt;0&gt; , ones(rows(FeasA),1) }</code>.  That is the with
+The built-in transit returns <code> &lt;0&gt; , CondProbOne }</code>.  That is the with
 probability one the value of the state variable next period is 0.
 </dd>
 </dl>
@@ -6218,7 +6207,7 @@ Record the value of an action variable at a given time.
 <a name="ChoiceAtTbar___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual ChoiceAtTbar :: Transit ( FeasA )</span>
+<span class="declaration">virtual ChoiceAtTbar :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -6584,7 +6573,7 @@ matrix with transition.
 <a name="Deterministic___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual Deterministic :: Transit ( FeasA )</span>
+<span class="declaration">virtual Deterministic :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -6712,7 +6701,7 @@ Number of sub periods.
 <a name="Divided___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual Divided :: Transit ( FeasA )</span>
+<span class="declaration">virtual Divided :: Transit ( )</span>
 <dl><dd>
 Transition for sub-divided time.
 
@@ -6869,7 +6858,7 @@ contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of makin
 <a name="Duration___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual Duration :: Transit ( FeasA )</span>
+<span class="declaration">virtual Duration :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -6986,26 +6975,16 @@ Stores end probability at t=T-1 for non-Finite episodes
 <a name="Episode___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual Episode :: Transit ( FeasA )</span>
+<span class="declaration">virtual Episode :: Transit ( )</span>
 <dl><dd>
 Default Transit (transition for a state variable).
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">FeasA</td>
-<td class="description" valign="baseline"> matrix of feasible action vectors at the current state, &Alpha;(&theta;).
 <P/>
 This is a virtual method, so derived classes replace this default version with the one that goes along
 with the kind of state variable.
-<P/>
-</td>
-</tr>
-</table>
-</dd>
-<dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>I::curNAi</code> &times; L
 matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
-The built-in transit returns <code> &lt;0&gt; , ones(rows(FeasA),1) }</code>.  That is the with
+The built-in transit returns <code> &lt;0&gt; , CondProbOne }</code>.  That is the with
 probability one the value of the state variable next period is 0.
 </dd>
 </dl>
@@ -7041,7 +7020,7 @@ Create a fixed value that will later hold a health indicator (but for now is alw
 <a name="Fixed___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">Fixed :: Transit ( FeasA )</span>
+<span class="declaration">Fixed :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -7097,7 +7076,7 @@ Create a new FIXED asset state variable.
 <a name="FixedAsset___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">FixedAsset :: Transit ( FeasA )</span>
+<span class="declaration">FixedAsset :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -7196,7 +7175,7 @@ Trimsthe state space of values that can't be reached because they are forgotten.
 <a name="Forget___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual Forget :: Transit ( FeasA )</span>
+<span class="declaration">virtual Forget :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -7240,7 +7219,7 @@ Create an augmented state variable that 'forgets' its value when at t==T* (effec
 <a name="ForgetAtT___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">ForgetAtT :: Transit ( FeasA )</span>
+<span class="declaration">ForgetAtT :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -7273,7 +7252,7 @@ Augment a state variable so it freezes at its current value as long as a trigger
 <a name="Freeze___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual Freeze :: Transit ( FeasA )</span>
+<span class="declaration">virtual Freeze :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -7306,7 +7285,7 @@ Create binary state variable for which Prob(s=1) = Pi.
 <a name="IIDBinary___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual IIDBinary :: Transit ( FeasA )</span>
+<span class="declaration">virtual IIDBinary :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -7339,7 +7318,7 @@ Create a new IID Jump process.
 <a name="IIDJump___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual IIDJump :: Transit ( FeasA )</span>
+<span class="declaration">virtual IIDJump :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -7375,7 +7354,7 @@ Create a variable that jumps with probability
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Pi</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>(FeasA) compatible jump probability.</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible jump probability.</td>
 </tr>
 </table>
 </dd>
@@ -7396,7 +7375,7 @@ parameter for jump probability &pi;
 <a name="Jump___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual Jump :: Transit ( FeasA )</span>
+<span class="declaration">virtual Jump :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -7620,7 +7599,7 @@ The default quantile of a kept continuous variable: &Phi;<sup>-1</sup>(u).
 <a name="KeptZeta___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual KeptZeta :: Transit ( FeasA )</span>
+<span class="declaration">virtual KeptZeta :: Transit ( )</span>
 <dl><dd>
 Static transition of a kept continuous variable.
 The static transition.  If keeping current z is feasible then initialize to zero.
@@ -7766,7 +7745,7 @@ Create a variable that tracks the previous value of action variable.
 <a name="LaggedAction___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual LaggedAction :: Transit ( FeasA )</span>
+<span class="declaration">virtual LaggedAction :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -7815,7 +7794,7 @@ Create a variable that tracks the previous value of another state variable.
 <a name="LaggedState___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual LaggedState :: Transit ( FeasA )</span>
+<span class="declaration">virtual LaggedState :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -7852,7 +7831,7 @@ Create a new LIQUID asset state variable.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">NetSavings</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>-compatible static function of the form <code>NetSavings(FeasA)</code><br><em>or</em><a href="Variables.ox.html#ActionVariable">ActionVariable</a>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>-compatible static function of the form <code>NetSavings(I::curAi)</code><br><em>or</em><a href="Variables.ox.html#ActionVariable">ActionVariable</a>
 </td>
 </tr>
 </table>
@@ -7875,7 +7854,7 @@ Create a new LIQUID asset state variable.
 <a name="LiquidAsset___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">LiquidAsset :: Transit ( FeasA )</span>
+<span class="declaration">LiquidAsset :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -8054,7 +8033,7 @@ The dimensions of the transition probabilities determines the number of values t
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Pi</td>
-<td class="description" valign="baseline">N&times;1 array of <a href="Shared.ox.html#AV">AV</a>(FeasA) compatible transition probabilities.
+<td class="description" valign="baseline">N&times;1 array of <a href="Shared.ox.html#AV">AV</a>(I::curAi) compatible transition probabilities.
 </td>
 </tr>
 </table>
@@ -8083,7 +8062,7 @@ The dimensions of the transition probabilities determines the number of values t
 <a name="Markov___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual Markov :: Transit ( FeasA )</span>
+<span class="declaration">virtual Markov :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -8209,7 +8188,7 @@ total number points in the block.
 <a name="MVIID___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual MVIID :: Transit ( FeasA )</span>
+<span class="declaration">virtual MVIID :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -8324,7 +8303,7 @@ Mixed value updating.
 <a name="NonStationary___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual NonStationary :: Transit ( FeasA )</span>
+<span class="declaration">virtual NonStationary :: Transit ( )</span>
 <dl><dd>
 The baseline transition for non-stationary models (normal aging).
 
@@ -8495,7 +8474,7 @@ Create an offer state variable.
 <a name="Offer___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual Offer :: Transit ( FeasA )</span>
+<span class="declaration">virtual Offer :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -8630,7 +8609,7 @@ searching, just laid off,
 <a name="OfferWithLayoff___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual OfferWithLayoff :: Transit ( FeasA )</span>
+<span class="declaration">virtual OfferWithLayoff :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -8667,7 +8646,7 @@ Create a variable that tracks a one-time permanent choice.
 <a name="PermanentChoice___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">PermanentChoice :: Transit ( FeasA )</span>
+<span class="declaration">PermanentChoice :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -8715,7 +8694,7 @@ Once the Target is current in the ToTrack set this variable will be TRUE
 <a name="PermanentCondition___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual PermanentCondition :: Transit ( FeasA )</span>
+<span class="declaration">virtual PermanentCondition :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -8822,19 +8801,11 @@ Vector of positive integers that are the
 <a name="PhasedTreatment___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual PhasedTreatment :: Transit ( FeasA )</span>
+<span class="declaration">virtual PhasedTreatment :: Transit ( )</span>
 <dl><dd>
 The default transition for treatment.  All phases are deterministic.  No early transitions.
 The transition must be one of three values.
 
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">FeasA</td>
-</tr>
-</table>
-</dd>
-</dl>
 </dd></dl>
 
 <hr>
@@ -9017,7 +8988,7 @@ Create a list of <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</
 <a name="RandomSpell___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">RandomSpell :: Transit ( FeasA )</span>
+<span class="declaration">RandomSpell :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -9059,7 +9030,7 @@ Prob( q&prime;= z | q,b ) =  I{z=r}&tau; + (1-&tau;)Prob(b&prime;=z)
 <a name="RandomTrigger___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual RandomTrigger :: Transit ( FeasA )</span>
+<span class="declaration">virtual RandomTrigger :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -9137,7 +9108,7 @@ Create a state variable that increments or decrements with state-dependent proba
 <a name="RandomUpDown___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual RandomUpDown :: Transit ( FeasA )</span>
+<span class="declaration">virtual RandomUpDown :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -9320,7 +9291,7 @@ state or action that resets the process to 0
 <a name="Renewal___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual Renewal :: Transit ( FeasA )</span>
+<span class="declaration">virtual Renewal :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -9457,7 +9428,7 @@ Augment a base transition to reset to 0 if the trigger is 1.
 <a name="RetainMatch___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual RetainMatch :: Transit ( FeasA )</span>
+<span class="declaration">virtual RetainMatch :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -9500,7 +9471,7 @@ ExogenousStates(TFPshock);
 <a name="SimpleJump___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">SimpleJump :: Transit ( FeasA )</span>
+<span class="declaration">SimpleJump :: Transit ( )</span>
 <dl><dd>
 Transition .
 
@@ -9539,7 +9510,7 @@ Create a variable that tracks the cumulative value of another state.
 <a name="StateAccumulator___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual StateAccumulator :: Transit ( FeasA )</span>
+<span class="declaration">virtual StateAccumulator :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -9654,23 +9625,13 @@ Create a list of <a href="Variables.ox.html#Coevolving">Coevolving</a> state var
 
 <dl><dd>
 Default Transit (transition for a state variable).
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">FeasA</td>
-<td class="description" valign="baseline"> matrix of feasible action vectors at the current state, &Alpha;(&theta;).
 <P/>
 This is a virtual method, so derived classes replace this default version with the one that goes along
 with the kind of state variable.
-<P/>
-</td>
-</tr>
-</table>
-</dd>
-<dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>I::curNAi</code> &times; L
 matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
-The built-in transit returns <code> &lt;0&gt; , ones(rows(FeasA),1) }</code>.  That is the with
+The built-in transit returns <code> &lt;0&gt; , CondProbOne }</code>.  That is the with
 probability one the value of the state variable next period is 0.
 </dd>
 </dl>
@@ -9708,7 +9669,7 @@ Create a variable that counts how many times another state has taken on certain 
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Reset</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>(FeasA) compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>(I::curAi) compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
 </td>
 </tr>
 <tr>
@@ -9727,7 +9688,7 @@ Create a variable that counts how many times another state has taken on certain 
 <a name="StateCounter___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual StateCounter :: Transit ( FeasA )</span>
+<span class="declaration">virtual StateCounter :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -9784,7 +9745,7 @@ Create a binary variable that indicates if the previous value of state variable 
 <a name="StateTracker___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual StateTracker :: Transit ( FeasA )</span>
+<span class="declaration">virtual StateTracker :: Transit ( )</span>
 <dl><dd>
 .
 
@@ -9971,26 +9932,16 @@ A vector of values that end decision making
 <a name="StateVariable___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual StateVariable :: Transit ( FeasA )</span>
+<span class="declaration">virtual StateVariable :: Transit ( )</span>
 <dl><dd>
 Default Transit (transition for a state variable).
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">FeasA</td>
-<td class="description" valign="baseline"> matrix of feasible action vectors at the current state, &Alpha;(&theta;).
 <P/>
 This is a virtual method, so derived classes replace this default version with the one that goes along
 with the kind of state variable.
-<P/>
-</td>
-</tr>
-</table>
-</dd>
-<dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>I::curNAi</code> &times; L
 matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
-The built-in transit returns <code> &lt;0&gt; , ones(rows(FeasA),1) }</code>.  That is the with
+The built-in transit returns <code> &lt;0&gt; , CondProbOne }</code>.  That is the with
 probability one the value of the state variable next period is 0.
 </dd>
 </dl>
@@ -10000,7 +9951,7 @@ probability one the value of the state variable next period is 0.
 <a name="StateVariable___UnChanged"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">UnChanged</span></h3>
 
-<span class="declaration">virtual StateVariable :: UnChanged ( FeasA )</span>
+<span class="declaration">virtual StateVariable :: UnChanged ( )</span>
 <dl><dd>
 Returns the transition for a state variable that is unchanged next period.
 
@@ -10155,7 +10106,7 @@ Make a state variable only transit in one subperiod of a <a href="Variables.ox.h
 <a name="SubState___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual SubState :: Transit ( FeasA )</span>
+<span class="declaration">virtual SubState :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -10293,7 +10244,7 @@ Tauchen discretizization.
 <a name="Tauchen___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual Tauchen :: Transit ( FeasA )</span>
+<span class="declaration">virtual Tauchen :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -10488,7 +10439,7 @@ The Update() for the base type is called.  And its actual vector is copied to th
 <a name="ValueTriggered___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
-<span class="declaration">virtual ValueTriggered :: Transit ( FeasA )</span>
+<span class="declaration">virtual ValueTriggered :: Transit ( )</span>
 <dl><dd>
 
 </dd></dl>

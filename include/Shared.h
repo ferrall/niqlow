@@ -18,15 +18,14 @@
 #include <oxdraw.oxh>
 /* This file is part of niqlow. Copyright (C) 2012-2016 Christopher Ferrall */
 
-	/** Pseudonyms for -1. @name Names_for_-1 **/
-enum {CondProbOne=1,UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,AllRand=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1}
-    /** Used in tracking outcomes. @name NiD **/
-enum { NotInData=-2,TrackAll=-3 }
+	/** Pseudonyms for -1, -2, &hellip, 2 . @name Names_for_Integers **/
+enum {CondProbOne=1,UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,AllRand=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1,
+       NotInData=-2, UseCurrent=-2, TrackAll=-3,
+        Zero = 0, One, Two,
+       abbrevsz = 4  //standard size of abbreviated strings
+       }
 
-	/** Pseudonyms for 0,1,2. @name Names_for_012 **/
-enum {Zero,One,Two}
-
-	/** Levels of output to produce while executing. @name NoiseLevels **/	
+/** Levels of output to produce while executing. @name NoiseLevels **/	
 enum {SILENT=-1,QUIET,LOUD,NOISY,NoiseLevels}
     /** x,y,z dimensions for graphs @name Axes**/
 enum{xax,yax,zax,Naxes}
@@ -43,8 +42,6 @@ enum{lo,hi,Limits}
     static const decl
         /** Base tags for parallel messaging.**/    BaseTag = <One,1000>;
 
-//		/** Output tags for reservation value utility functions. @name EUvalues **/	
-//enum {EUstar,Fstar,EUvalues}
 		/** Code for solutions to Optimization and Non-Linear System solving.	
             @name ConvergenceResults
         **/	
@@ -75,6 +72,7 @@ static const decl
 	vararray(s);
 	MyMoments(M,rlabels=0,oxf=0);
 	prefix(pfx, s);
+    abbrev(s);
 	GaussianKernel(X,h=UseDefault);
     Epanechnikov(X,h);
     FLogit(x);

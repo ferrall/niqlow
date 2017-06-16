@@ -1,5 +1,5 @@
 #include "StateVariable.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 StripZeros(trans) {
     decl allz = sumc(trans[1]).==0;
@@ -90,7 +90,7 @@ StateVariable::MakeTerminal(TermValues)	{
 This is a virtual method, so derived classes replace this default version with the one that goes along
 with the kind of state variable.
 
-@return  a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>I::curNAi</code> &times; L
+@return  a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>Alpha::N</code> &times; L
 matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
 The built-in transit returns <code> &lt;0&gt; , CondProbOne }</code>.  That is the with
 probability one the value of the state variable next period is 0.
@@ -148,9 +148,9 @@ RandomSpell::IsReachable() { return ! (Prune && Flags::Prunable && v && !I::t) ;
 RandomSpell::Transit() {
     if (v) {
         pbend = AV(ProbEnd);
-        return { vals, reshape( pbend~(1-pbend),I::curNAi,Two) };
+        return { vals, reshape( pbend~(1-pbend),Alpha::N,Two) };
         }
-    pbstart = isclass(Start,"ActionVariable") ? Alpha::CV(Start) : Start();
+    pbstart = CV(Start);
     return StripZeros({ vals, (1-pbstart)~pbstart });
     }
 
@@ -242,7 +242,7 @@ ActionTriggered::ActionTriggered(b,t,tv,rval){
 
 ActionTriggered::Transit() {
     Augmented::Transit();
-    if ((any(idx=Alpha::CV(t).==tv))) {  //trigger value feasible
+    if ((any(idx=CV(t).==tv))) {  //trigger value feasible
         basetr[Qprob] .*= (1-idx);
         if ((any(idy = basetr[Qind].==rval) ))   { //reset values already present
             basetr[Qprob][][maxcindex(idy')] += idx;
@@ -337,7 +337,7 @@ Freeze::Transit() {
 //UnFreeze::Transit() {
 //    Augmented::Transit();
 //    if (CV(t)==One) return basetr;  // variable is now unfrozen
-//    unf = I::curAi[][t.t.pos];
+//    unf = CV(t.t);
 //    if ( any(unf==One) ) {
 //        idist =   reshape(this->InitDist(),rows(unf),N); // distribution over values of unfrozen variables.
 //        g= unf==Zero;
@@ -436,7 +436,7 @@ Zvariable::Update() {
 /**Create a discrete Markov process.
 The dimensions of the transition probabilities determines the number of values taken on.
 @param L label
-@param Pi N&times;1 array of `AV`(I::curAi) compatible transition probabilities.
+@param Pi N&times;1 array of `AV`(Alpha::C) compatible transition probabilities.
 @example
 <pre>
   decl tmat =< 0.90 ~ 0.09 ~0.05;
@@ -484,7 +484,7 @@ Jump::Jump(L,N,Pi)	{	this.Pi = Pi; StateVariable(L,N); }
 @param L label
 @param fPi `AV`() compatible object that returns either:<br>
 a probability p of transiting to state 1<br>
-a vector equal in length to I::curAi.<br>
+a vector equal in length to Alpha::C.<br>
 The default value is 0.5: the absorbing state happens with probability 0.5.
 @comments
 fPi is only called if the current value is 0.
@@ -496,25 +496,25 @@ Absorbing::Absorbing(L,fPi) {
 
 Absorbing::Transit() {
     if (v) return UnChanged();
-    p = fPi(I::curAi);
-    return { <0,1>, reshape((1-p)~p, I::curNAi, N ) };
+    p = fPi(Alpha::C);
+    return { <0,1>, reshape((1-p)~p, Alpha::N, N ) };
     }
 
 /**  **/
 Markov::Transit() {
     jprob = AV(Pi[v]);
-    return {vals,reshape(jprob,I::curNAi,N)};	
+    return {vals,reshape(jprob,Alpha::N,N)};	
     }
 
 /**  **/
 IIDJump::Transit() {
     jprob = AV(Pi);
-    return {vals,reshape(jprob,I::curNAi,N)};	
+    return {vals,reshape(jprob,Alpha::N,N)};	
     }
 
 IIDBinary::Transit() {
     jprob = AV(Pi);
-    return {vals,reshape((1-jprob)|jprob,I::curNAi,N)};	
+    return {vals,reshape((1-jprob)|jprob,Alpha::N,N)};	
     }
 
 /**  **/
@@ -540,8 +540,8 @@ Offer::Offer(L,N,Pi,Accept)	{
 /** .
 **/
 Offer::Transit()	{
-  decl offprob = AV(Pi,I::curAi), accept = Alpha::CV(Accept);
-  return {vals,(1-accept).*( (1-offprob)~(offprob*constant(1/(N-1),I::curNAi,N-1)) )+ accept.*(constant(v,I::curNAi,1).==vals)};
+  decl offprob = AV(Pi,Alpha::C), accept = CV(Accept);
+  return {vals,(1-accept).*( (1-offprob)~(offprob*constant(1/(N-1),Alpha::N,N-1)) )+ accept.*(constant(v,Alpha::N,1).==vals)};
   }
 
 /** Create a discretized lognorm offer.
@@ -586,7 +586,7 @@ RandomUpDown::IsReachable() { return ! (Prune && Flags::Prunable && (v>I::t) ) ;
 /** .
 **/
 RandomUpDown::Transit()	{
-    fp = AV(fPi,I::curAi);
+    fp = AV(fPi,Alpha::C);
     if (v==0)
         return { 0~1 , (fp[][down]+fp[][hold])~fp[][up] };
     if (v==N-1)
@@ -699,7 +699,7 @@ LaggedAction::LaggedAction(L,Target,Prune,Order)	{
 /** .
 **/
 LaggedAction::Transit()	{
-    acol=Alpha::CV(Target);
+    acol=CV(Target);
     nxtv =unique(acol);
 	return {nxtv, acol.==nxtv };
 	}
@@ -776,11 +776,11 @@ RetainMatch::RetainMatch(matchvalue,acc,replace,keep) {
 	}
 
 RetainMatch::Transit() {
-	repl = zeros(I::curNAi,1);
+	repl = zeros(Alpha::N,1);
 	hold = 1-repl;
 	for (i=0;i<sizeof(acc);++i) {
-		hold .*= any(Alpha::CV(acc[i]).==keep);  //all parties must stay
-		repl += any(Alpha::CV(acc[i]).==replace);	// any party can dissolve, get new match
+		hold .*= any(CV(acc[i]).==keep);  //all parties must stay
+		repl += any(CV(acc[i]).==replace);	// any party can dissolve, get new match
 		}
 	repl = repl.>= 1;
 	return {0~v~matchvalue.v, (1-hold-repl) ~ hold ~ repl};
@@ -801,7 +801,7 @@ Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 @param N integer, maximum number of times to count
 @param State `StateVariable` or `AV`() compatible object to track.
 @param ToTrack integer or vector, values of State to count. (default = <1>).
-@param Reset `AV`(I::curAi) compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
+@param Reset `AV`(Alpha::C) compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
 @param Prune TRUE [default]: prune states if finite horizon detected.
 @example <pre>noffers = new StateCounter("Total Offers",offer,5,<1:offer.N-1>,0);</pre>
 **/
@@ -814,7 +814,7 @@ StateCounter::StateCounter(L,N,State,ToTrack,Reset,Prune) {
 /** .
 **/
 StateCounter::Transit()	{
-    if (AV(Reset,I::curAi)) return { <0>, CondProbOne };
+    if (AV(Reset,Alpha::C)) return { <0>, CondProbOne };
     if (v==N-1  || !any(AV(Target).==ToTrack)) return UnChanged();
 	return { matrix(v+1) , CondProbOne };
     }
@@ -846,8 +846,8 @@ ActionCounter::ActionCounter(L,N,Act,  ToTrack,Reset,Prune)	{
 /** .
 **/
 ActionCounter::Transit()	{
-    if (AV(Reset,I::curAi)) return { <0>, CondProbOne };
-    if (( v==N-1 || !any( inc = sumr(Alpha::CV(Target).==ToTrack)  ) )) return UnChanged();
+    if (AV(Reset,Alpha::C)) return { <0>, CondProbOne };
+    if (( v==N-1 || !any( inc = sumr(CV(Target).==ToTrack)  ) )) return UnChanged();
     return { v~(v+1) , (1-inc)~inc };
 	}
 
@@ -888,7 +888,7 @@ ActionAccumulator::ActionAccumulator(L,N,Action) {
 /** .
 **/
 ActionAccumulator::Transit()	{
-    y = setbounds(v+Alpha::CV(Target),0,N-1);
+    y = setbounds(v+CV(Target),0,N-1);
     x = unique(y);
 	return { x ,  y.==x };
     }
@@ -929,9 +929,9 @@ Duration::Transit() {
     if (v==N-1 && MaxOnce) return UnChanged();
 	g= matrix(v +(v<N-1));
 	if (isact) {
-        add1 = Alpha::CV(Target).==AV(Lag);
+        add1 = CV(Target).==AV(Lag);
 		nf = int(sumc(add1));
-        if (Volume>SILENT) fprintln(logf,v," ",AV(Lag),nf,Alpha::CV(Target));
+        if (Volume>SILENT) fprintln(logf,v," ",AV(Lag),nf,CV(Target));
         if (!nf) return { <0> , CondProbOne };
 		return { 0~g , (1-add1)~add1 };
 		}
@@ -956,10 +956,10 @@ Renewal::Renewal(L,N,reset,Pi)	{
 /** . **/
 Renewal::Transit()	{
 	decl pstar = min(P,N-v)-1,
-		 pi = reshape(AV(Pi,I::curAi),1,P),
+		 pi = reshape(AV(Pi,Alpha::C),1,P),
 		 ovlap = v < P ? zeros(1,v) : 0,
    		 qstar = pstar ? pi[:pstar-1]~sumr(pi[pstar:]) : <1.0>;
-	decl  rr =Alpha::CV(reset),
+	decl  rr =CV(reset),
         tt = !isint(ovlap)
 			? {vals[:v+P-1],
 		      	((pi~ovlap).*rr)
@@ -1015,7 +1015,7 @@ ActionTracker::ActionTracker(L,Target,ToTrack,Prune)	{
 /** .
 **/
 ActionTracker::Transit()	{
-    d = sumr( Alpha::CV(Target).==(ToTrack) );
+    d = sumr( CV(Target).==(ToTrack) );
 	if (any(d)) {
 	    if (any(1-d)) return{ <0,1>, (1-d)~d };
 		return {<1>, ones(d)};
@@ -1113,12 +1113,12 @@ OfferWithLayoff::OfferWithLayoff(L,N,accept,Pi,Lambda)	{
 	
 /** .  **/
 OfferWithLayoff::Transit()	{
-   decl prob = AV(Pi,I::curAi), lprob = AV(Lambda,I::curAi), acc = Alpha::CV(accept), xoff, xprob;
+   decl prob = AV(Pi,Alpha::C), lprob = AV(Lambda,Alpha::C), acc = CV(accept), xoff, xprob;
 
    if (status.v==Emp) return { offer.v | (Quit~LaidOff~Emp) ,  (1-acc) ~ acc.*(lprob~(1-lprob)) };
    xoff =    offer.vals | Unemp;
    xprob=    (1-prob)~ prob*constant(1/(NN-1),1,NN-1);
-   if (status.v==Quit || status.v==LaidOff) return { xoff , reshape(xprob,I::curNAi,NN) };
+   if (status.v==Quit || status.v==LaidOff) return { xoff , reshape(xprob,Alpha::N,NN) };
    return { (offer.v | Emp ) ~ xoff ,  acc ~ ((1-acc).*xprob) };
 	}
 
@@ -1196,19 +1196,19 @@ Episode::Transit() 	{
 	decl kv = k.v, tv = t.v, pi;
 	if (!kv) {		// no episode, get onset probabilities
 		probT = 0;
-		if ((columns(pi = CV(Onset,I::curAi))!=k.N))
+		if ((columns(pi = CV(Onset,Alpha::C))!=k.N))
 			oxrunerror("DDP Error 26. Onset probability must return 1xK or FxK matrix\n");
-							return { 0 | k.vals, reshape(pi,I::curNAi,k.N)  };
+							return { 0 | k.vals, reshape(pi,Alpha::N,k.N)  };
 		}
 	if (tv==t.N-1)  {
 		if (Finite) 		return { 0|0         , CondProbOne };	
 		pi = isdouble(probT)
 			? probT
-			: (probT = CV(End,I::curAi)) ;
-							return {  (0 ~ tv)|(0~kv), reshape( pi ~ (1-pi), I::curNAi, 2 ) };
+			: (probT = CV(End,Alpha::C)) ;
+							return {  (0 ~ tv)|(0~kv), reshape( pi ~ (1-pi), Alpha::N, 2 ) };
 		}
-	pi = CV(End,I::curAi);
-							return {  (0 ~ tv+1)|(0~kv), reshape( pi ~ (1-pi), I::curNAi, 2 ) };	
+	pi = CV(End,Alpha::C);
+							return {  (0 ~ tv+1)|(0~kv), reshape( pi ~ (1-pi), Alpha::N, 2 ) };	
 	}
 	
 //const decl mu, rho, sig, M;
@@ -1233,7 +1233,7 @@ Tauchen::Tauchen(L,N,M,mu,sig,rho) {
 	}
 	
 Tauchen::Transit() {
-	return {vals,reshape(Grid[v][],N,I::curNAi)'};
+	return {vals,reshape(Grid[v][],N,Alpha::N)'};
 	}
 	
 Tauchen::Update() {
@@ -1277,7 +1277,7 @@ FixedAsset::FixedAsset(L,N,r,delta){
 /**Create a new LIQUID asset state variable.
 @param L label
 @param N number of values
-@param NetSavings `AV`-compatible static function of the form <code>NetSavings(I::curAi)</code><br><em>or</em>`ActionVariable`
+@param NetSavings `AV`-compatible static function of the form <code>NetSavings(Alpha::C)</code><br><em>or</em>`ActionVariable`
 @see Discretized
 **/
 LiquidAsset::LiquidAsset(L,N,NetSavings){
@@ -1287,11 +1287,11 @@ LiquidAsset::LiquidAsset(L,N,NetSavings){
 	}
 
 FixedAsset::Transit() {
-    return Asset::Transit(actual[v] + delta.actual[Alpha::CV(delta)]);
+    return Asset::Transit(actual[v] + delta.actual[CV(delta)]);
     }
 
 LiquidAsset::Transit() {
-    return Asset::Transit(isact ? NetSavings.actual[Alpha::CV(NetSavings)] : AV(NetSavings,I::curAi));
+    return Asset::Transit(isact ? NetSavings.actual[CV(NetSavings)] : AV(NetSavings,Alpha::C));
     }
 /**
 **/
@@ -1324,9 +1324,9 @@ The static transition.  If keeping current z is feasible then initialize to zero
 Otherwise, leave unchanged.
 **/
 KeptZeta::Transit() {
-    if (any(I::curAi[][keep.pos])) return {<0>, CondProbOne} ;
+    if (any(CV(keep))) return {<0>, CondProbOne} ;
     return UnChanged();
-//    if (CV(held)) return {v~0,(1-I::curAi)~I::curAi};
+//    if (CV(held)) return {v~0,(1-Alpha::C)~Alpha::C};
 //    return {<0>, CondProbOne} ; // Changed April 2016 {vals, constant(1/N,rows(Fe asA),N)};
     }
 
