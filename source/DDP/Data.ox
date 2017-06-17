@@ -266,7 +266,7 @@ FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
             cur = cur.pnext;
 		    }
         }
-	if (Data::Volume>SILENT) fprintln(Data::logf," FPanel Simulation time: ",timer()-cputime0);
+	if (!Version::MPIserver && Data::Volume>SILENT) fprintln(Data::logf," FPanel Simulation time: ",timer()-cputime0);
 	}
 
 FPanel::Append(pathid) {
@@ -607,7 +607,7 @@ DataSet::Mask() {
 		if (list[s+low[svar]].obsv!=TRUE) {if (!list[s+low[svar]].force0) mask[svar] |= s; list[s+low[svar]].obsv=FALSE;}
 	for(s=0;s<N::aux;++s)
 		if (list[s+low[auxvar]].obsv!=TRUE) {mask[auxvar] |= s; list[s+low[auxvar]].obsv=FALSE;}
-	if (Data::Volume>SILENT) Summary(0);
+	if (!Version::MPIserver && Data::Volume>SILENT) Summary(0);
 	cur = this;
 	do { cur -> FPanel::Mask(); } while ((isclass(cur = cur.fnext)));
 	masked = TRUE;
@@ -633,13 +633,13 @@ DataSet::IDColumn(lORind) {
 DataSet::MatchToColumn(aORs,LorC) {
 	if (StateVariable::IsBlock(aORs)) oxrunerror("DDP Error 55. Can't use columns or external labels to match blocks. Must use ObservedWithLabel(...)");
 	decl offset,k;
-	if (Data::Volume>SILENT) fprint(Data::logf,"\nAdded to the observed list: ");
+	if (!Version::MPIserver && Data::Volume>SILENT) fprint(Data::logf,"\nAdded to the observed list: ");
 	offset = isclass(aORs,"ActionVariable") ? 1
 				: isclass(aORs,"StateVariable") ? 1+N::Av
 				: 1+N::Av+N::S;
 	if (list[offset+aORs.pos].obsv==FALSE && masked) oxrunerror("DDP Error 56. cannot recover observations on UnObserved variable after reading/masking");
 	list[offset+aORs.pos]->Observed(LorC);				
-	if (Data::Volume>SILENT) fprint(Data::logf,aORs.L," Matched to column ",LorC);
+	if (!Version::MPIserver && Data::Volume>SILENT) fprint(Data::logf,aORs.L," Matched to column ",LorC);
     }
 
 	
@@ -653,7 +653,7 @@ DataSet::MatchToColumn(aORs,LorC) {
 DataSet::ObservedWithLabel(as1,...) {
 	decl offset,aORs,LorC,va = isarray(as1) ? as1 : {as1},k,bv;
     va |= va_arglist();
-	if (Data::Volume>SILENT) fprint(Data::logf,"\nAdded to the observed list: ");
+	if (!Version::MPIserver && Data::Volume>SILENT) fprint(Data::logf,"\nAdded to the observed list: ");
     foreach (aORs in va) {
 		if (StateVariable::IsBlock(aORs)) {
 	        foreach (bv in aORs.Theta) ObservedWithLabel(States[bv]);
@@ -665,9 +665,9 @@ DataSet::ObservedWithLabel(as1,...) {
                 : 0;
 		if (list[offset+aORs.pos].obsv==FALSE && masked) oxrunerror("DDP Error 57. cannot recover observations on UnObserved variable after reading/masking");
 		list[offset+aORs.pos]->Observed(UseLabel);				
-		if (Data::Volume>SILENT) fprint(Data::logf,aORs.L," ");
+		if (!Version::MPIserver && Data::Volume>SILENT) fprint(Data::logf,aORs.L," ");
 		}
-	if (Data::Volume>SILENT) fprintln(Data::logf,".");
+	if (!Version::MPIserver && Data::Volume>SILENT) fprintln(Data::logf,".");
 	}
 
 /** UnMark action and states variables as observed.
@@ -841,7 +841,7 @@ DataSet::LoadOxDB() {
 		fpcur -> Path::Append(curd);   // append outcome to current Path of current FPanel
 		++FNT;
 		}
-	if (Data::Volume>SILENT) {
+	if (!Version::MPIserver && Data::Volume>SILENT) {
             fprintln(Data::logf,". Total Outcomes Loaded: ",FNT);
             if (Data::Volume>LOUD) Summary(0);
             }
@@ -1119,7 +1119,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT,wght) {
             oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
             }
     invsd = wght ? selectifc( 1.0 ./ setbounds(moments(inmom,2)[2][],0.1,+.Inf),mask) : 1.0; // 0.5,+.InF
-    if (Data::Volume>LOUD)
+    if (!Version::MPIserver && Data::Volume>LOUD)
         fprintln(Data::logf,"Row influence: ",influ,"Weighting by row and column",(inN/totN).*invsd.*influ);
     do {
         if (cur.t==datat[dt]) {
@@ -1161,7 +1161,7 @@ PathPrediction::InitialConditions() {
         iDist(this);
     else
         oxrunerror("DDP Error 64. iDist must be integer, vector, function or Prediction object");
-    if (Data::Volume>LOUD) fprintln(Data::logf,"Path for Group ",f,". Initial State Indices & Prob.","%r",{"Ind.","prob."},(sind~p)',"----");
+    if (!Version::MPIserver && Data::Volume>LOUD) fprintln(Data::logf,"Path for Group ",f,". Initial State Indices & Prob.","%r",{"Ind.","prob."},(sind~p)',"----");
     ch[] = 0.0;
     LeakWarned = FALSE;
     }
@@ -1286,7 +1286,7 @@ Prediction::Delta(mask,printit,tlabels) {
                 .:  (isdotnan(mv)   // else, find mising predictions
                         .? .Inf             // difference unbounded
                         .: W.*(mv-empmom));   // weighted difference
-    if (printit) fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4g","%c",tlabels,mv|empmom|W|df);
+    if (!Version::MPIserver && printit) fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4g","%c",tlabels,mv|empmom|W|df);
     return df;
     }
 
@@ -1426,7 +1426,7 @@ PathPrediction::SetColumns(dlabels,Nplace,Tplace) {
             }
         else vl = lc;
         myc = strfind(dlabels,vl);
-        if (myc<0 && Data::Volume>SILENT)
+        if (myc<0 && !Version::MPIserver && Data::Volume>SILENT)
             oxwarning("DDP: moment label -"+vl+"-not found.");
         cols ~= myc;
         mask ~= 1;
@@ -1702,24 +1702,25 @@ EmpiricalMoments::Solve(subp) {
 @param FNorDB  string, name of file that contains the data.<br>A Ox database object.
 **/
 EmpiricalMoments::Read(FNorDB) {
-    decl curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone,incol;
+    decl curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone,incol,
+    report = !Version::MPIserver && Data::Volume>SILENT;
     HasObservations = TRUE;
-    if (Data::Volume>SILENT) {
+    if (report) {
         println("List of Empirical Moments");
         foreach(v in tlabels[row]) println("   ",row,". ",v);
         }
     if (isstring(FNorDB)) {
         source = new Database();
 	    if (!source->Load(FNorDB)) oxrunerror("DDP Error 66. Failed to load data from "+FNorDB);
-        if (Data::Volume>SILENT) fprintln(Data::logf,"Reading in Moments from file ",FNorDB);
+        if (report) fprintln(Data::logf,"Reading in Moments from file ",FNorDB);
         }
     else {
         source = FNorDB;
-        if (Data::Volume>SILENT) fprintln(Data::logf,"Reading in Moments from Ox Database");
+        if (report) fprintln(Data::logf,"Reading in Moments from Ox Database");
         }
 	dlabels=source->GetAllNames();
 	data = source->GetAll();
-    println("Data columns",dlabels);
+    if (report) println("Data columns",dlabels);
     if (isarray(flist)) {
         fcols = strfind(dlabels,flist);
         if (any(fcols.==NoMatch)) {println("***",dlabels,flist,fcols); oxrunerror("DDP Error 67. label not found");}
@@ -1758,7 +1759,7 @@ EmpiricalMoments::Read(FNorDB) {
                 }
             else inf = UnInitialized;  //get out of inner loop after installing
             cur->Empirical(inmom,hasN,hasT,wght);
-            if (Data::Volume>SILENT) {
+            if (report) {
                     fprintln(Data::logf,"Moments read in for fixed group ",curf,". See log file");
                     fprintln(Data::logf,"Moments of Moments for fixed group:",curf);
                     MyMoments(inmom,tlabels[1:],Data::logf);
