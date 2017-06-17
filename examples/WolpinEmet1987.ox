@@ -20,7 +20,7 @@ SchToWork::Reachable() {
 
 SchToWork::FeasibleActions() {
 	zstar = <1.0>;
-    decl dv = Alpha::CV(d);
+    decl dv = CV(d);
 	return CV(hasoffer)
 			? (I::t<T+k
 				? ones(dv)  //has a choice
@@ -33,7 +33,7 @@ SchToWork::Poff(...) { decl d=max(0,I::t-k-1); 	return d ? probn(pars[m0]+pars[m
 SchToWork::Udiff(z) {
 	if (CV(done)) return 0.0;
 	if (!CV(hasoffer)) return -pars[c];
-	if (I::t<T+k) return DeltaV(-pars[c] - z*Alpha::AV(d));
+	if (I::t<T+k) return DeltaV(-pars[c] - z*AV(d));
 	return 0.0;
 	}
 

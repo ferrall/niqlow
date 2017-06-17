@@ -48,7 +48,7 @@ Fertility::FeasibleActions() { return 1|(I::t<T) ; }
 /** Utility. **/
 Fertility::Utility() {
 	decl t=I::t+1, Mv = M.v,
-	     X = Y[t-1]-(b+c[1]*(t==1)+c[2]*(t==2)+(1~t~sqr(t))*c[3])*Alpha::CV(n),
+	     X = Y[t-1]-(b+c[1]*(t==1)+c[2]*(t==2)+(1~t~sqr(t))*c[3])*CV(n),
 		 u = AV(psi)*Mv + (Mv~sqr(Mv))*alph + (X~sqr(X))*bet + Mv*(X~Sbar)*gam;
 	return u;
 	}

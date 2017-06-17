@@ -3,7 +3,7 @@
 
 WStar::WStar()      { solvez = !CV(wrk); zstar = zeros(N::R,1);}
 WStar::Uz(z)        { return eta | z;	}
-WStar::Utility()    { decl dv = Alpha::CV(d); return solvez ? eta*(1-dv) + zstar[I::r]*dv :  dv*eta/2.0;	}
+WStar::Utility()    { decl dv = CV(d); return solvez ? eta*(1-dv) + zstar[I::r]*dv :  dv*eta/2.0;	}
 
 WStar::Run()	{
 	Initialize(new Wstar());

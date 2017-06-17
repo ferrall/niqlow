@@ -911,7 +911,7 @@ DP::CreateSpaces() {
    decl subv,i,pos,m,bb,sL,j,av, sbins = zeros(1,NStateTypes),w0,w1,w2,w3, tt,lo,hi,inargs = arglist();
    if (strfind(inargs,"NOISY")!=NoMatch) Volume=NOISY;
     if (!S[acts].D) {
-		oxwarning("DDP Warning 17.\n No actions have been added to the model.\n A no-choice action inserted.\n");
+		if (!Version::MPIserver) oxwarning("DDP Warning 17.\n No actions have been added to the model.\n A no-choice action inserted.\n");
 		Actions(new ActionVariable());
 		}
 	S[acts].M=0;
@@ -920,7 +920,7 @@ DP::CreateSpaces() {
 		if (subv>LeftSV) S[subv].M = S[subv-1].X+1;
 		if (!sizerc(SubVectors[subv]))	{
 			if (subv==clock) {
-				oxwarning("DDP Warning 18.\n Clock has not been set.\n Setting clock type to InfiniteHorizon.\n");
+				if (!Version::MPIserver) oxwarning("DDP Warning 18.\n Clock has not been set.\n Setting clock type to InfiniteHorizon.\n");
 				SetClock(InfiniteHorizon);
 				}
 			else if (subv==rgroup) {AddStates(rgroup,new RandomEffect("r",1));}
@@ -969,8 +969,7 @@ DP::CreateSpaces() {
 		if (isclass(counter,"Stationary")) oxrunerror("DDP Error 45. canNOT use state list in stationary environment");
 		}
     Flags::IsErgodic = counter.IsErgodic;
-	/* if (Flags::UseStateList || (Flags::IsErgodic) ) */
-	if (Volume>SILENT)	{		
+	if (!Version::MPIserver && Volume>SILENT)	{		
 		println("-------------------- DP Model Summary ------------------------\n");
 		w0 = sprint("%",7*S[exog].D,"s");
 		w1 = sprint("%",7*S[semiexog].D,"s");
@@ -1025,7 +1024,7 @@ DP::CreateSpaces() {
        else {
 	       tt = new FindReachables();
 	       tt->loop(TRUE);
-           if (Volume>LOUD) {
+           if (!Version::MPIserver && Volume>LOUD) {
                 println("Note: Reachability of all states listed in the log file");
                 fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
                           "1=Unreacheable because a user Reachable returns FALSE\n",
@@ -1047,13 +1046,13 @@ DP::CreateSpaces() {
        delete tt.insamp;
        }
 	delete tt;
-	if ( Flags::IsErgodic && N::TerminalStates )
+	if ( !Version::MPIserver && Flags::IsErgodic && N::TerminalStates )
         oxwarning("DDP Warning 19.\n clock is ergodic but terminal states exist?\n Inconsistency in the set up.\n");
 	tt = new CGTask();	delete tt;
 	if (isint(zeta)) zeta = new ZetaRealization(0);
 	DPDebug::Initialize();
   	V = new matrix[1][SS[bothexog].size];
-	if (Volume>SILENT)	{		
+	if (!Version::MPIserver && Volume>SILENT)	{		
         N::print();
         Alpha::Aprint();
         if (N::aux) {
@@ -1063,11 +1062,11 @@ DP::CreateSpaces() {
             println("\n\n");
             }
 		}
-    if (Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
+    if (!Version::MPIserver && Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
 	ETT = new EndogTrans();
     if (Flags::UpdateTime[InCreateSpaces]||Volume>LOUD) {
             ETT->Transitions();
-            if (Volume>LOUD) {
+            if (!Version::MPIserver && Volume>LOUD) {
                 oxwarning("Checked for valid transitions.  Look in the log file for problems.");
                 --Volume;
                 }

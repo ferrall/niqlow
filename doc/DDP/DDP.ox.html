@@ -184,7 +184,7 @@ If <span class="n">DDP</span> did not provide <code>MyModel</code> flexibility i
     <DD><code>AV(x)</code> acts like <code>CV()</code> but it returns <code>x.actual[x.v]</code>.  By default this equals <code>CV(x)</code> unless you specify different actual values.  So in the default case <code>AV(x) = CV(x)</code>.</DD>
     <DD>In this way <code>a-&gt;Update()</code> is only called once for each variable on each model solution to reset <code>.actual</code>.  If <code>.actual</code> were not a vector <code>x-&gt;Update()</code> would have to be called every time <code>x.v</code> changed.</DD>
 <P/>
-<DT><code><a href="DP.ox.html#DP___GetAV">GetAV</a>()</code> and <code><a href="Bellman.ox.html#Bellman___aa">aa</a>()</code></DT>
+<DT><code>DP::GetAV()</code> and <code>Bellman::aa()</code></DT>
 <DD>As <a href="#aa-def">explained below</a> the <code>.v</code> property is not well-defined for action variables inside the dynamic program.  Instead, <code>aa(act)</code> or the equivalent <code>DP::GetAV()</code> must be used.</DD>
 </OL>
 <P/>
@@ -527,11 +527,11 @@ returns a vector of length A.D containing I{A.i&in;&theta;.A}, i = 0 &hellip; (A
 <DD>The first matrix, <code>Alpha::A[0]</code> is <em>always</em> the possible matrix <var>A</var>.  If <code>MyModel</code> does not specify feasible actions, then <code>Aind = &theta;.j = 0</code>.</DD>
 <DD><b>Note</b>: the elements of the <var>A</var> list are the <em>actual</em> value of actions and are updated at the start of each value solve.  If an action variable does not have its own <a href="Shared.ox.html#Discrete___Update">Update</a>() routine defined then the actual values are simply the default range 0 &hellip; (a.N)&oline;.</DD>
 <P/>
-<DT><dfn id="aa-def"><a href="Bellman.ox.html#Bellman___aa">aa</a>(): the values of an action variable</dfn></DT></a>
+<DT><dfn id="aa-def">Bellman::aa(): the values of an action variable</dfn></DT></a>
 <DD>In <span class="n">DDP</span> the key functions, U() and &Rho;() act on a single point in the state space at a time.  So the current value of a state variable is placed in the <code>.v</code> property of the Ox variable representing it.</DD>
 <DD>On the other hand, both U() and &Rho;() are 'vectorized' in actions: they must operate on the whole feasible matrix at once.  Action variables have the <code>.v</code> property, but it is not used for them.  Their current values are in a column of the &theta;.A matrix, which is <code>A[Aind]</code> in the code.</DD>
 <DD>The position of an action variable <code>a</code> in the matrix is stored in its <code>a.pos</code> property.  Thus, <code>A[Aind][][a.pos].</code> would be the column of values for the action variable <code>a</code>.</DD>
-<DD>The <a href="Bellman.ox.html#Bellman___aa">aa</a>() method returns this column, making the user's code cleaner and more robust to changes.
+<DD>The Bellman::aa() method returns this column, making the user's code cleaner and more robust to changes.
 <details class="aside"><summary>For example</summary> Consider a model that has two choices: work hours and whether to volunteer or not.   Then at some state &theta;.A may look like this, along with the return value of <code>a(work)</code>.
 <pre>     A[Aind]     |
 work      vol    |  aa(work)
@@ -543,7 +543,7 @@ work      vol    |  aa(work)
  1         1      |    1
  2         1      |    2  </pre></details>
  </DD>
-<DD>[Confusion Alert!] <a href="DP.ox.html#DP___GetAV">GetAV</a>() does the same thing as <a href="Bellman.ox.html#Bellman___aa">aa</a>().  It can be used inside a function that does not "belong" to <code>MyModel</code> and thus does not inherit direct access to <code>aa()</code>.  </DD>
+<DD>[Confusion Alert!] DP::GetAV() does the same thing as Bellman::aa().  It can be used inside a function that does not "belong" to <code>MyModel</code> and thus does not inherit direct access to <code>aa()</code>.  </DD>
 <P/>
 <a name="TS"><LI>Terminal States and Terminal Values of State Variables</LI></a>
 <blockquote><b><code>MyModel</code> can make values of a state variable terminal by calling <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>().</b></blockquote>

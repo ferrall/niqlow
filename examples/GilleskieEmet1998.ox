@@ -17,8 +17,8 @@ DynaHealth::PIll() {
 First column is the probability of k=0 state continuing.
 **/
 DynaHealth::PWell() {
-	decl vis = Alpha::CV(trt),
-		 work = Alpha::CV(wrk.pos),
+	decl vis = CV(trt),
+		 work = CV(wrk),
 		 tt = CV(spell.t),
 		 vv = CV(visits) + vis,
 		 aa = CV(absents) + (1-work),
@@ -53,8 +53,8 @@ DynaHealth::Reachable() {
 
 DynaHealth::Utility() {
 	decl kv = spell.k.v,
-		 vis = Alpha::CV(trt),
-		 work = Alpha::CV(wrk),
+		 vis = CV(trt),
+		 work = CV(wrk),
 		 at1 = absents.v+(1-work),
 		 X = Y-phyfee*copay*vis-Y*(1-probn((1~at1)*phi)*L).*(1-work);
 	if (!kv) return X;
@@ -63,7 +63,7 @@ DynaHealth::Utility() {
 	}
 
 DynaHealth::FeasibleActions() {
-    decl wv = Alpha::CV(wrk);
-	return (spell.k.v) ? ones(rows(wv),1) : (1-Alpha::CV(trt)).*wv ;
+    decl wv = CV(wrk);
+	return (spell.k.v) ? ones(rows(wv),1) : (1-CV(trt)).*wv ;
 	}
 	

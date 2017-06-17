@@ -33,7 +33,7 @@ HSearch::Run()	{
 	}
 HSearch::Utility()  {
     if (!CV(d) && !I::t) println(AV(abil)," ",CV(p)," ",AV(p));
-	return (1-CV(d))*(lam + AV(p)*Alpha::CV(a));
+	return (1-CV(d))*(lam + AV(p)*CV(a));
 	}	
 HSearchData::HSearchData() {
     EM = new ValueIteration();

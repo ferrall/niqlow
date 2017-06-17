@@ -77,7 +77,7 @@ PrattWhitney::Run()	{
 <pre>U = iRC+(1-i)&theta;<sub>1</sub>mx + n</pre>
 **/
 PrattWhitney::Utility()  {
-	decl dd = Alpha::CV(d), u =
+	decl dd = CV(d), u =
 	 -(dd*pars[col][RC] + (1-dd)*(pars[col][theta1]*mfact*Units*x.h.v+pars[col][theta2]*x.sd.v))
 			 +normalization;	// added to avoid exp() underflow for delta near 1.0
 	return u;

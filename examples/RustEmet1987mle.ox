@@ -70,7 +70,7 @@ BusData::BusData(method) {
 
 /** Return U() at estimated (<q>hat</q>) parameter values. **/
 ZurcherHat::Utility()  {
-	decl rep = Alpha::CV(d);
+	decl rep = CV(d);
     return   -(rep*CV(hat[RC]) + (1-rep)*CV(hat[theta1])*mfact*CV(x))
 			 +normalization;	// added to avoid exp() underflow for delta near 1.0
 	}

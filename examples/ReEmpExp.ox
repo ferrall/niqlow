@@ -63,7 +63,7 @@ UISearch::Reachable()	{
 	return TRUE;
 	}
 
-UISearch::OfferProb() {	return Alpha::CV(x) * 0.1; }
+UISearch::OfferProb() {	return CV(x) * 0.1; }
 	
 UISearch::Run()	{
 	EVExPost::Initialize(1.0,new UISearch());
@@ -79,6 +79,6 @@ UISearch::Run()	{
 
 /**  **/	
 UISearch::Utility() {
-	decl acc = Alpha::CV(a);
+	decl acc = CV(a);
 	return  acc*CV(j.offer) + (1-acc)*(c + j->Benefits()) + trtmnt->Bonus();
 	}

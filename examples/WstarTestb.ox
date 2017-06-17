@@ -2,7 +2,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 WStar::Uz(z)        { return eta | z;	}
-WStar::Utility()    { decl dv = Alpha::CV(d); return eta*(1-dv) + zstar[I::r]*dv;	}
+WStar::Utility()    { decl dv = CV(d); return eta*(1-dv) + zstar[I::r]*dv;	}
 
 WStar::Run()	{
 	Initialize(new WStar());

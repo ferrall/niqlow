@@ -14,6 +14,6 @@ MyStateVar::MyStateVar(L,occup,work) {
      }
 
 MyStateVar::Transit() {
-     decl w =Alpha::CV(work);
+     decl w =CV(work);
      return {  0~occup.v  ,  (1-w) ~ w  };
      }

@@ -15,7 +15,7 @@ Version::Check(logdir) {
  this.logdir = logdir;
  tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
  println("\n niqlow version ",sprint("%4.2f",version/100),
-    "Copyright (C) 2011-2016 Christopher Ferrall.\n",
+    "Copyright (C) 2011-2017 Christopher Ferrall.\n",
     "Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n",
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
  }

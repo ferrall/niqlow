@@ -28,7 +28,7 @@ BobsChoiceC::Decide() {
 
 BobsChoiceC::FeasibleActions() {       //Added
     if (CV(Yacc)==1) return ones(Alpha::N,1);
-    return Alpha::CV(sch).!=1;
+    return CV(sch).!=1;
     }
 
 BobsChoiceC::Utility() {

@@ -54,6 +54,6 @@ ZPanel::BruteForce() {
 	}
 	
 AMZurcher::Utility()  {
-	decl i = Alpha::CV(d);
+	decl i = CV(d);
     return -(i*CV(rc) + (1-i)*CV(th1)*mfact*x.v) +normalization;
 	}

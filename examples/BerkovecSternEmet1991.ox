@@ -47,8 +47,8 @@ Retirement::Sig2() { return sig2[col]; }
 	
 Retirement::FeasibleActions() {
 	decl age = I::t+T0;
-	if (age >= Tstar) return (Alpha::CV(i).==Retire);	  		//only retirement
-	if (PrevJob.v==Retire) return (Alpha::CV(i).<Stay);		//can't choose to keep current job
+	if (age >= Tstar) return (CV(i).==Retire);	  		//only retirement
+	if (PrevJob.v==Retire) return (CV(i).<Stay);		//can't choose to keep current job
 	return ones(Alpha::N,1);
 	}
 	
@@ -73,7 +73,7 @@ Retirement::Reachable()	{
 
 /** The one period return. **/
 Retirement::Utility()  {
-	decl  j, s = AV(dur), AA = Alpha::CV(i), ej,
+	decl  j, s = AV(dur), AA = CV(i), ej,
 			Xn =1~10~1~I::t*(1~I::t)~1~0~0,
 			Xb = (Xn*acteqpars)',
 			retd = AV(PrevJob)==Retire,

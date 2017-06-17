@@ -16,7 +16,7 @@
 #include <oxfloat.oxh>
 #include <oxprob.oxh>
 #include <oxdraw.oxh>
-/* This file is part of niqlow. Copyright (C) 2012-2016 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2017 Christopher Ferrall */
 
 	/** Pseudonyms for -1, -2, &hellip, 2 . @name Names_for_Integers **/
 enum {CondProbOne=1,UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,AllRand=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1,
@@ -228,12 +228,13 @@ struct GHK   : Integration {
 class Version : Zauxiliary {
 	/** Minimum Ox Version required. @name Oxversion **/
 	enum {MinOxVersion=709} //700
-	/** Current niqlow version. @name niqlowversion **/
+
 	static decl checked;
 
 public: 	
-    static const decl version=270;
-    static decl logdir, tmstmp;
+    static const decl
+    	/** Current niqlow version. @name niqlowversion **/ version=300;
+    static decl logdir, tmstmp, MPIserver=FALSE;
 	static Check(logdir="");
 
 	}

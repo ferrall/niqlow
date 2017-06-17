@@ -353,7 +353,7 @@ the utility so that Yale-Econ is still optimal as is <code>ON</code>.  Run the c
 useful to label hours in the same way that schools and majors, just send the number of options (no value labels will be created).</DD>
 <DD>Change the utility utility so that it is a function of the <code>hours</code> not just a list of arbitrary numbers.  In particular, if <var>U(h) = -(h-2.2)<sup>2</sup></var> then the optimal discrete
 choice will be <var>h* = 2</var>, which is the 3rd value that <code>hours</code> takes on (0, 1, 2, etc). The vector of values that <code>hours</code> takes on can be accessed as
-<code>aa(hours)</code> (see <a href="Bellman.ox.html#Bellman___aa">aa</a> for some details but do not worry about them at this point).
+<code>aa(hours)</code> (see Bellman::aa for some details but do not worry about them at this point).
 <DD>So, modify <code>Utility()</code> to have this form:
 <pre>
 TommysChoice::Utility() {
@@ -502,7 +502,7 @@ to the <em>endogenous</em> state space.
 <DD>Utility now returns a different vector depending on whether <code>Qsch</code> equals 0 or 1.</DD>
 <DD><code>Qsch</code> is the state variable and takes on 2 values, 0 and 1.  We set utility up so that a value of 1 indicates the Queen's scholarship was received and its value should be added to the utility of Queen's programs when choosing where to go.  </DD>
 <DD>The underlying code will call <code>Utility</code> for all values of all states added to the model.  The value of <code>Qsch</code> when called can be accessed a couple different ways.  One way is directly:  <code>Qsch.v</code> will hold either 0 or 1 when Utility is called.  Or the variable itself can be sent to <a href="Shared.ox.html#CV">CV</a>() which will access the value return it.  <code>CV()</code> is a flexible way of incorporating state variables, parameters and even constants in your model in such way that it looks the same regardless of the kind of thing it is.</DD>
-<DD>The trickier thing to understand at this point is accessing values of the school choice, which is an action variable not a state variable.  Unlike states, which take on a single value when Utility is called, the full action vector is relevant so <code>CV(sch)</code> will not work.   The equivalent for actions is to sent to <a href="Bellman.ox.html#Bellman___aa">aa</a>() which returns a vector.
+<DD>The trickier thing to understand at this point is accessing values of the school choice, which is an action variable not a state variable.  Unlike states, which take on a single value when Utility is called, the full action vector is relevant so <code>CV(sch)</code> will not work.   The equivalent for actions is to sent to Bellman::aa() which returns a vector.
 </DD>
 <DD>The value of the scholarship is 2.2, but only if Queen's is chosen.  Looking at the list of labels associated with <code>sch</code>, Queen's is the 3rd value, or <code>2</code> since
 we start actions at 0.  Ox's <code>.==</code> operator will compare a vector to a value and return a vector of 0s and 1s for whether corresponding element equals the value.  If this

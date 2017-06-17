@@ -140,7 +140,7 @@ The code segment allows the maximum hour to be 30 if the person has a (young) ch
 <DD>This requirement explains that the default method returns a vector of 1s equal in size to the rows of <var>A</var>.
 <DT>The A List</DT>
 <DD>`DP::CreateSpaces` constructs the possible matrix A, actually stored as the first element of a list (<code>OxArray</code>):  <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state &theta;.  Every time a different value is returned a new matrix is added to the A list.  The index into the list is then stored as  <code>Aind</code> &harr;  &theta;.j.</DD>
-<DD>The user's feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available directly as <code>Alpha::CV(a)</code> or with <code>aa(a)</code>.</DD>
+<DD>The user's feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a).</DD>
 <DD>In short, &theta;.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = &theta;.j = 0</code> for all states.</DD>
 <DT>The A list contains the <em>actual</em> values not the <em>current</em> values.</DT>
 <DD>If the user provides an `Discrete::Update`() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values.</DD>

@@ -15,6 +15,7 @@ MPI::Initialize()  	{
 		called = TRUE;
 		MPI_Init(&ID,&Nodes,&P2P::ANY_TAG,&P2P::ANY_SOURCE);
 		IamClient = ID==CLIENT;
+        Version::MPIserver = !IamClient;
 	    if (Volume>SILENT) println("MPI Initialized.  Nodes: ",Nodes," ID: ",ID," IamClient: ",IamClient," faking MPI: ",fake);
 		}
 	}

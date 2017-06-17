@@ -20,5 +20,5 @@ Search::Run()	{
     VISolve();
 	}
 Search::Utility()  {
-	return -(1-CV(d))*(lam + CV(p)*Alpha::CV(a));
+	return -(1-CV(d))*(lam + CV(p)*CV(a));
 	}	

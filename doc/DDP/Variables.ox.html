@@ -26,7 +26,7 @@ Discrete quantities that appear in DDP models (actions, states, fixed and random
 <DD>State variables are added to appropriate state vector using  the method for the corresponding vector: <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>(), <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>() and <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>().</DD>
 <DD>Many kinds of state variables are derived from the base class.</DD>
 <P/>
-<DT>The <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> class is designed to represent values that depend on actions and states and are of interest to the user but are not required to solve the model.  They are members of the auxiliary vector <code>&chi;</code></DT>
+<DT>The <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> class represents values that depend on actions and states and are of interest to the user but are not required to solve the model.  They are members of the auxiliary vector <code>&chi;</code></DT>
 <DD>Auxiliary values are added to the DP model using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>()</DD>
 </DT>
 </DL>
@@ -91,13 +91,13 @@ Usually an action variable can be an object of the base <a href="Variables.ox.ht
 <DT>Current Value</DT>
         <DD><span class="n">DDP</span> requires <code>MyModel</code> to handle/process the full matrix of feasible actions in utility and transitions.
         <DD>For this reason, <code>MyModel</code> will rarely if ever access the current value of an action, <code>a.v</code>.  </DD>
-        <DD>The vector of values of an action variable that corresponds to feasible &alpha;s is returned by <code><a href="Bellman.ox.html#Bellman___aa">aa</a>(a).</code></DD>
+        <DD>The vector of values of an action variable that corresponds to feasible &alpha;s is returned by <code>Bellman::aa(a).</code></DD>
 <DT>
 <DT>Actual Value</DT>
 <DD>Optionally, the user can create a class derived from <a href="Variables.ox.html#ActionVariable">ActionVariable</a> and supply a <a href="Shared.ox.html#Discrete___Update">Update</a> function with it.</DD>
 <DD>This allows the user to associate a meaningful value for the numbers 0 to N&oline;, stored as <code>a.<a href="Shared.ox.html#Discrete___actual">actual</a></code>.</DD>
 <DD><span class="n">DDP</span> updates an action each time the problem is resolved, so actual values can depend on <a href="Shared.ox.html#Parameter">Parameter</a> values.</DD>
-<DD><a href="Bellman.ox.html#Bellman___aa">aa</a>(a) will indeed return the actual values of <code>a</code> that correspond to each feasible action vector &alpha;.</DD>
+<DD>Bellman::aa(a) will indeed return the actual values of <code>a</code> that correspond to each feasible action vector &alpha;.</DD>
 <DD>The default virtual <a href="Shared.ox.html#Discrete___Update">Update</a>() simply sets actual to the vector &lt; 0 : N-1 &gt;.</DD>
 <P/>
 <DT>Example of Custom <code>Update()</code></DT>
@@ -154,7 +154,7 @@ The code segment allows the maximum hour to be 30 if the person has a (young) ch
 <DD>This requirement explains that the default method returns a vector of 1s equal in size to the rows of <var>A</var>.
 <DT>The A List</DT>
 <DD><a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a> constructs the possible matrix A, actually stored as the first element of a list (<code>OxArray</code>):  <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state &theta;.  Every time a different value is returned a new matrix is added to the A list.  The index into the list is then stored as  <code>Aind</code> &harr;  &theta;.j.</DD>
-<DD>The user's feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available directly as <code>A[Aind][][a.pos]</code> or with <code>aa(a)</code>.</DD>
+<DD>The user's feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a).</DD>
 <DD>In short, &theta;.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = &theta;.j = 0</code> for all states.</DD>
 <DT>The A list contains the <em>actual</em> values not the <em>current</em> values.</DT>
 <DD>If the user provides an <a href="Shared.ox.html#Discrete___Update">Update</a>() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values.</DD>
@@ -383,12 +383,12 @@ Below is an <a href="#example">example</a> of how to define a new state variable
     <DT>Besides a constructor, your state variable must also come with a transition.</DT>
     <DD>If it is derived from another state variable and your version will follow the same transition then you do not need to write a new one.  That is because <code>Transit()</code> is, in most cases, declared as a <em>virtual</em> method.  So if your state variable has no transition of its own, the one from the parent variable will be called in its place. This is why it must be called <code>Transit()</code>, because it replaces another version of a <code>Transit()</code> that would be called if necessary.</DD>
 <P/>
-    <DD><code>Transit</code> will often need to access matrix of current feasible actions at the current state, which is available in <a href="DDPShared.ox.html#I___curAi">curAi</a> that is set every time the point in the state space is changed
-    or initialized.  Each row of <code>I::curAi</code> is an action vector <code>&alpha;</code>; each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
+    <DD><code>Transit</code> will often need to access matrix of current feasible actions at the current state, which is available in <a href="DDPShared.ox.html#Alpha___C">C</a> that is set every time the point in the state space is changed
+    or initialized.  Each row of <code>Alpha::C</code> is an action vector <code>&alpha;</code>; each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
 <P/>
     <DT>Example: Possible Argument Passed to <code>Transit()</code></DT>
     <DD>The model has two binary choice variables, <var>i</var> and <var>j</var>.  Then the argument passed to <code>Transit()</code>  might look like this:</DD>
-<dd><pre>  I::curAi
+<dd><pre>  Alpha::C
   i    j
   0    0
   1    0
@@ -396,7 +396,7 @@ Below is an <a href="#example">example</a> of how to define a new state variable
   1    1</pre> </dd>
     <DT>Your code has to return two items, sent back in an Ox <em>array</em>. </DT>
     <DD>The first is a <em>row vector</em> of feasible values: the  values this state could take on next period.  For convenience call this vector <code>F</code>.  That is, suppose one value, say 3, may be feasible only if a certain action is taken.  Then 3 must be in <code>F</code>, even if 3 is not feasible if another action were taken.  The elements of <code>F</code> do not need to be sorted.</DD>
-    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the rows of <code>I::curAi</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state variable takes on the jth value in <code>F</code> given the agent chooses the ith action in the feasible set.</DD>
+    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the rows of <code>Alpha::C</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state variable takes on the jth value in <code>F</code> given the agent chooses the ith action in the feasible set.</DD>
 <P/>
     <DD>The array returned as the value of <code>Transit()</code> might be sent using code that looks like this:  <code>return {F,P};</code>, presuming you have declared local variables <code>F</code> and <code>P</code> and filled them with the correct information in the correct format.</DD>
 <P/>
@@ -453,7 +453,7 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
    2    0   3   8</pre></dd>
 <DD>The variable <code>t</code> is the age variable in the finite horizon.  Now we can represent the transition of <code>y'</code> at this particular state as follows:
 <pre>
-    I::curAi          Prob(y')   trim 0 cols &rarr;     Prob(y')
+    Alpha::C          Prob(y')   trim 0 cols &rarr;     Prob(y')
      i    j     y'=  0   1   2   3             y'=0   2
     -----------------------------------------------------
     0    0          1   0   0   0                1   0
@@ -468,7 +468,7 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
 <DD>Note that the first column of Prob(y') is simple the value <code>1-i</code>.  And the second column is simply <code>i</code>.</DD>
 <P/>
 <DT>Use the <var>constructor</var> to support <code>Transit</code>. </DT>
-<DD>How will <code>Transit()</code> know that <code>x=2</code> currently?   And how will it know that <code>i</code> is in the first column of <code>I::curAi</code> not the second?  This is where the object-oriented approach to building a dynamic programming model comes in handy compared to using vectors of values to represent the state vector.  </DD>
+<DD>How will <code>Transit()</code> know that <code>x=2</code> currently?   And how will it know that <code>i</code> is in the first column of <code>Alpha::C</code> not the second?  This is where the object-oriented approach to building a dynamic programming model comes in handy compared to using vectors of values to represent the state vector.  </DD>
 <DD><code>Transit()</code>  will know about <code>x</code> and <code>i</code> because it will be <em>constructed</em> to know them as the following code illustrates:</dd>
 <details><summary><b>Version 1.</b> Source: niqlow/templates/DynamicPrograms/MyStateVar1.ox</summary>
 <DD><pre><object width="95%" height="350" type="text/plain" data="../../templates/DynamicPrograms/MyStateVar1.ox" border="1" ></object></pre></DD></details>
@@ -486,8 +486,8 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
 <P/>
 <DD>In the code for Transit the expression <code>0~occup.v</code> generates, for the state above, the row vector <code>&lt;0 2&gt;</code>.  These are the only feasible values next period, or possible values of <code>y'</code>.   So the current value of <var>x</var> is not accessed from a vector of numbers, which might be the way DP code in FORTRAN might do.  </DD> <DD>Instead it is accessed from a <em>public</em> member of a variable stored within the <code>MyStateVar</code> class.  It does not matter to <code>MyStateVar</code> whether <code>occup</code> has the label <q>x</q>.  It does not matter that <code>occup</code> happens to be first in the state vector.  It <em>does</em> matter, of course, that <code>occup</code> is indeed a state variable, and it has to know this before anything is done in the model.</DD>
 <P/>
-<DD>The second expression in the <code>return</code> statement is simply Ox code to copy in <code>1-i</code> and <code>i</code>.  However, these are column vectors and they get their value from values from <code>I::curAi</code>.  </DD>
-<DT>Which column of <code>I::curAi</code> will <code>i</code> be in?</DT>
+<DD>The second expression in the <code>return</code> statement is simply Ox code to copy in <code>1-i</code> and <code>i</code>.  However, these are column vectors and they get their value from values from <code>Alpha::C</code>.  </DD>
+<DT>Which column of <code>Alpha::C</code> will <code>i</code> be in?</DT>
   <DD>The answer is whichever column the <var>work</var> choice variable is stored in.  </DD>
   <DD>Again, the constructor requires the argument <code>work</code> which gets copied to the member with the same name.  And <span class="n">DDP</span> puts the position of the action in the action matrix in <code>pos</code>.  So whatever column it is any instance of <code>MyStateVar</code> will know which one it is.</DD>
 <P/>
@@ -653,10 +653,10 @@ These instructions follow the ones provided for creating a <a href="#ASV">StateV
 <P/>
 <LI>Code the <code>Transit()</code> method</LI>
 The major difference between a StateVariable and a StateBlock:  a state variable <code>Transit()</code> function returns a single row vector of "prime states" but a block must return a matrix of feasible "prime" states, each row is the state of the corresponding member of the block in the order they were added to the block.  The transition probabilities still pertain to each column of the matrix.  The rows of the transition probabilities correspond to the rows of the feasible actions &theta;.A.
-   <DT><code>Transit</code> can access the feasible actions <code>&alpha;</code> at the <em>current</em> state. in I::curAi'.</DT>
+   <DT><code>Transit</code> can access the feasible actions <code>&alpha;</code> at the <em>current</em> state. in Alpha::C'.</DT>
    <DT>Your code has to return two items, sent back in an Ox <em>array</em>. </DT>
     <DD>The first is a <em>matrix vector</em> of feasible values, <code>F</code>: the values this block could take on next period.  Each row corresponds to one of the variables in the block.  Each column is a different outcome.  This is what allows for correlated transitions within a block.</DD>
-    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the <em>rows</em> of <code>I::curAi</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state block takes on the vector of values in column j of <code>F</code> given the agent chooses the ith action in the feasible set <code>I::curAi</code>.
+    <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the <em>rows</em> of <code>Alpha::C</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state block takes on the vector of values in column j of <code>F</code> given the agent chooses the ith action in the feasible set <code>Alpha::C</code>.
 <P/>
     <DT>As a simple example: </DT>
     <DD>Suppose that height increases by one value or stays the same.  Weight can go up or down or stay the same.  However, weight cannot go down if height goes up (the correlated innovation).  Further, assume that the transitions do not depend on actions.  In this case, the probabilities are duplicated using <code>reshape</code> to get the right dimensions:
@@ -666,7 +666,7 @@ The major difference between a StateVariable and a StateBlock:  a state variable
             F =   wght.v-1 ~ wght.v ~ wght.v+1 ~ wght.v   ~ wght.v+1
                 | hght.v   ~ hght.v ~ hght.v   ~ hght.v+1 ~ hght.v+1;
             P = GrowthProb();
-            return { F , reshape(P,I::curNAi,columns(F)) };
+            return { F , reshape(P,Alpha::N,columns(F)) };
             } </pre></dd>
    <DD>So, if weight and height were currently at levels 2 and 3, respectively, then <code>F</code> would be:<pre>
               1 2 3 2 3
@@ -899,13 +899,13 @@ Storage is re-used while solving for different values of &gamma;. <span class="n
 <P/>
 <a name="Auxiliary"><li>Auxiliary Values</li>
 <P/>
-An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from AuxiliaryValues and is added to the list &chi;.
+An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from AuxiliaryValue and is added to the list &chi;.
 <P/>
 <DT>Elements of &chi; are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  </DT>
 <DD>Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so &chi; adds no additional information to the full outcome. </DD>
  <DD>That is, &chi; is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
  <DT>Auxiliary values are added to the outcome (appended to &chi;) using DP::AuxiliaryOutcomes().</DT>
- <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual AuxiliaryValues::Realize().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
+ <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual AuxiliaryValue::Realize().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
 <DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
 <P/>
 <a name="#Volume"><li>Volume (getting output specific to a variable)</li></a>
@@ -918,7 +918,7 @@ An auxiliary value <em>x</em> is typically a function of the state and action ve
 <P/>
 </OL>
 
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2015 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2017 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
 
 <a name="auto"><hr><h1>Documentation of  Items Defined in Variables.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a></dd>
 </dl>
@@ -1117,34 +1117,6 @@ EndogenousStates(exper);
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
-<a name="ActionIndicators"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ActionIndicators : <a href="Variables.ox.html#Indicators">Indicators</a> : <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
-
-
-<table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionIndicators___ActionIndicators">ActionIndicators</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionIndicators___Realize">Realize</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-</table>
-
-<dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___AuxiliaryValues">AuxiliaryValues</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
-</dl>
-
-<dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Indicators">Indicators</a>:</dt><dd><a href="Variables.ox.html#Indicators___target">target</a></dd>
-<dt>Inherited fields from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___N">N</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
-</dl>
-
 <a name="ActionTracker"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ActionTracker : <a href="Variables.ox.html#Tracker">Tracker</a> : <a href="Variables.ox.html#NonRandom">NonRandom</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
@@ -1264,6 +1236,16 @@ MyModel::Initialize() {
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionVariable___ActionVariable">ActionVariable</a></td>
 <td class="modifiers"></td>
 <td class="description">Create a new action variable.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionVariable___myAV">myAV</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Return A[][pos].</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionVariable___myCV">myCV</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
 </tr>
 </table>
 
@@ -1574,8 +1556,8 @@ transitions can depend on the current state and actions.</dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
-<a name="AuxiliaryValues"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AuxiliaryValues : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<a name="AuxiliaryValue"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AuxiliaryValue : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 Base Class for variables related to outcomes.
 Auxiliary variables are typically functions of the state and action vectors that would be observed in the data.
@@ -1585,18 +1567,13 @@ both unobserved, but the wage, <var> w = xm</var>, is observed.  Then an auxilia
 the outcome and read in along with other data.
 
 <table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#AuxiliaryValues___N">N</a></td>
-<td class="modifiers">const</td>
-<td class="description"></td>
-</tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AuxiliaryValues___AuxiliaryValues">AuxiliaryValues</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AuxiliaryValue___AuxiliaryValue">AuxiliaryValue</a></td>
 <td class="modifiers"></td>
 <td class="description">Create a new element of &chi;, the space of auxiliary outcomes.</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AuxiliaryValues___Realize">Realize</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AuxiliaryValue___Realize">Realize</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Default realized auxililary variable, sets <code>v=1.0</code>.</td>
 </tr>
@@ -1640,7 +1617,7 @@ MyModel::Initialize() {
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#ActionVariable">ActionVariable</a>:</dt><dd><a href="Variables.ox.html#ActionVariable___ActionVariable">ActionVariable</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#ActionVariable">ActionVariable</a>:</dt><dd><a href="Variables.ox.html#ActionVariable___ActionVariable">ActionVariable</a>, <a href="Variables.ox.html#ActionVariable___myAV">myAV</a>, <a href="Variables.ox.html#ActionVariable___myCV">myCV</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
@@ -2694,25 +2671,49 @@ added to the model with <a href="DP.ox.html#DP___ExogenousStates">ExogenousState
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
-<a name="Indicators"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Indicators : <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<a name="Indicator"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Indicator : <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Indicators___target">target</a></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Indicator___iacted">iacted</a></td>
 <td class="modifiers">const</td>
 <td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Indicator___iobj">iobj</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Indicator___myval">myval</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Indicator___target">target</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Indicator___Indicator">Indicator</a></td>
+<td class="modifiers"></td>
+<td class="description">Create an indicator (or indicator interacted with another outcome).</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Indicator___Realize">Realize</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default realized auxililary variable, sets <code>v=1.0</code>.</td>
 </tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___AuxiliaryValues">AuxiliaryValues</a>, <a href="Variables.ox.html#AuxiliaryValues___Realize">Realize</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValue___AuxiliaryValue">AuxiliaryValue</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___N">N</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
@@ -3367,6 +3368,34 @@ T* is the last period with probability 1.
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
+<a name="MultiIndicator"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MultiIndicator : <a href="Variables.ox.html#Indicator">Indicator</a> : <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#MultiIndicator___MultiIndicator">MultiIndicator</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#MultiIndicator___Realize">Realize</a></td>
+<td class="modifiers"></td>
+<td class="description">Default realized auxililary variable, sets <code>v=1.0</code>.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#Indicator">Indicator</a>:</dt><dd><a href="Variables.ox.html#Indicator___Indicator">Indicator</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValue___AuxiliaryValue">AuxiliaryValue</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#Indicator">Indicator</a>:</dt><dd><a href="Variables.ox.html#Indicator___iacted">iacted</a>, <a href="Variables.ox.html#Indicator___iobj">iobj</a>, <a href="Variables.ox.html#Indicator___myval">myval</a>, <a href="Variables.ox.html#Indicator___target">target</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
@@ -4205,7 +4234,7 @@ Fertility::Initalize()	 {
 	}	
 Fertility::Mortality(A)	{
 	decl p = probn(x*q);  // x has to be updated using current age and other x values.
-	decl ivals = A[Aind][][i.pos];
+	decl ivals = CV(i);
 	return 0 ~ (1-p*ivals) ~ p*ivals;
 	}</pre>
 </dd>
@@ -4256,7 +4285,7 @@ Fertility::Mortality(A)	{
 </dl>
 
 <a name="RealizedUtility"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RealizedUtility : <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RealizedUtility : <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 Built-in variable that records realized utility, <var>U(&alpha;,&epsilon;,&eta;,&theta;,&gamma;)</var>
 
@@ -4274,12 +4303,11 @@ Built-in variable that records realized utility, <var>U(&alpha;,&epsilon;,&eta;,
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___AuxiliaryValues">AuxiliaryValues</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValue___AuxiliaryValue">AuxiliaryValue</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___N">N</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
@@ -4675,34 +4703,6 @@ EndogenousStates(wks);</pre>
 <dt>Inherited fields from <a href="Variables.ox.html#Counter">Counter</a>:</dt><dd><a href="Variables.ox.html#Counter___Reset">Reset</a>, <a href="Variables.ox.html#Counter___Target">Target</a>, <a href="Variables.ox.html#Counter___ToTrack">ToTrack</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
-</dl>
-
-<a name="StateIndicators"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateIndicators : <a href="Variables.ox.html#Indicators">Indicators</a> : <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
-
-
-<table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateIndicators___Realize">Realize</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateIndicators___StateIndicators">StateIndicators</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-</table>
-
-<dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___AuxiliaryValues">AuxiliaryValues</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
-</dl>
-
-<dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Indicators">Indicators</a>:</dt><dd><a href="Variables.ox.html#Indicators___target">target</a></dd>
-<dt>Inherited fields from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___N">N</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
@@ -5322,7 +5322,7 @@ q&prime; = I{a&ne;t} b&prime; + (1-I{s==t}}r
 </dl>
 
 <a name="ZetaRealization"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ZetaRealization : <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ZetaRealization : <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 
 <table class="method_table">
@@ -5346,12 +5346,11 @@ value drawn from the conditional distribution of &zeta;
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___AuxiliaryValues">AuxiliaryValues</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValue___AuxiliaryValue">AuxiliaryValue</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#AuxiliaryValues">AuxiliaryValues</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValues___N">N</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
@@ -5427,7 +5426,7 @@ Create a binary endogenous absorbing state.
 <td class="declaration" valign="baseline">fPi</td>
 <td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible object that returns either:<br>
 a probability p of transiting to state 1<br>
-a vector equal in length to I::curAi.<br>
+a vector equal in length to Alpha::C.<br>
 The default value is 0.5: the absorbing state happens with probability 0.5.
 </td>
 </tr>
@@ -5609,22 +5608,6 @@ EndogenousStates(exper);
 .
 
 </dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ActionIndicators</span></h2>
-
-<a name="ActionIndicators___ActionIndicators"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ActionIndicators</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="ActionIndicators___Realize"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
-
-<dl><dd>
-
-</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ActionTracker</span></h2>
 
 <a name="ActionTracker___ActionTracker"></a>
@@ -5750,6 +5733,27 @@ a placeholder for extensions of a model.<br>OR<br>N-array of strings, holding la
 </dd>
 <dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a></dd>
 </dl>
+</dd></dl>
+
+<hr>
+<a name="ActionVariable___myAV"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">myAV</span></h3>
+
+<span class="declaration">virtual ActionVariable :: myAV ( )</span>
+<dl><dd>
+Return A[][pos].
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#CV">CV</a>, <a href="Shared.ox.html#AV">AV</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="ActionVariable___myCV"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">myCV</span></h3>
+
+<span class="declaration">virtual ActionVariable :: myCV ( )</span>
+<dl><dd>
+
 </dd></dl>
 
 <hr>
@@ -6058,7 +6062,7 @@ Default Transit (transition for a state variable).
 This is a virtual method, so derived classes replace this default version with the one that goes along
 with the kind of state variable.
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>I::curNAi</code> &times; L
+<dl><dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>Alpha::N</code> &times; L
 matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
 The built-in transit returns <code> &lt;0&gt; , CondProbOne }</code>.  That is the with
 probability one the value of the state variable next period is 0.
@@ -6076,12 +6080,12 @@ Default Augmented Update.
 The Update() for the base type is called.  And its actual vector is copied to the augmented actuals.
 
 </dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AuxiliaryValues</span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AuxiliaryValue</span></h2>
 
-<a name="AuxiliaryValues___AuxiliaryValues"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AuxiliaryValues</span></h3>
+<a name="AuxiliaryValue___AuxiliaryValue"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AuxiliaryValue</span></h3>
 
-<span class="declaration">AuxiliaryValues :: AuxiliaryValues ( L , N )</span>
+<span class="declaration">AuxiliaryValue :: AuxiliaryValue ( L )</span>
 <dl><dd>
 Create a new element of &chi;, the space of auxiliary outcomes.
 
@@ -6110,19 +6114,10 @@ Create a new element of &chi;, the space of auxiliary outcomes.
 </dd></dl>
 
 <hr>
-<a name="AuxiliaryValues___N"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">N</span></h3>
-
-<span class="declaration">const decl N [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="AuxiliaryValues___Realize"></a>
+<a name="AuxiliaryValue___Realize"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
 
-<span class="declaration">virtual AuxiliaryValues :: Realize ( y )</span>
+<span class="declaration">virtual AuxiliaryValue :: Realize ( y )</span>
 <dl><dd>
 Default realized auxililary variable, sets <code>v=1.0</code>.
 
@@ -6982,7 +6977,7 @@ Default Transit (transition for a state variable).
 This is a virtual method, so derived classes replace this default version with the one that goes along
 with the kind of state variable.
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>I::curNAi</code> &times; L
+<dl><dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>Alpha::N</code> &times; L
 matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
 The built-in transit returns <code> &lt;0&gt; , CondProbOne }</code>.  That is the with
 probability one the value of the state variable next period is 0.
@@ -7322,9 +7317,89 @@ Create a new IID Jump process.
 <dl><dd>
 
 </dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Indicators</span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Indicator</span></h2>
 
-<a name="Indicators___target"></a>
+<a name="Indicator___iacted"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">iacted</span></h3>
+
+<span class="declaration">const decl iacted [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Indicator___Indicator"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Indicator</span></h3>
+
+<span class="declaration">Indicator :: Indicator ( target , myval , iobj , prefix )</span>
+<dl><dd>
+Create an indicator (or indicator interacted with another outcome).
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">target</td>
+<td class="description" valign="baseline">State or Action variable to create indicator value for
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">myval</td>
+<td class="description" valign="baseline">value to indicate
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iobj</td>
+<td class="description" valign="baseline">integer (no indicator) or an outcome to interact.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">prefix</td>
+<td class="description" valign="baseline">string for column matching or integer (not in data)</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Indicator___iobj"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">iobj</span></h3>
+
+<span class="declaration">const decl iobj [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Indicator___myval"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">myval</span></h3>
+
+<span class="declaration">const decl myval [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Indicator___Realize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
+
+<span class="declaration">virtual Indicator :: Realize ( y )</span>
+<dl><dd>
+Default realized auxililary variable, sets <code>v=1.0</code>.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">y,</td>
+<td class="description" valign="baseline">the current realized outcome, &upsilon;.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Indicator___target"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">target</span></h3>
 
 <span class="declaration">const decl target [public]</span>
@@ -7831,7 +7906,7 @@ Create a new LIQUID asset state variable.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">NetSavings</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>-compatible static function of the form <code>NetSavings(I::curAi)</code><br><em>or</em><a href="Variables.ox.html#ActionVariable">ActionVariable</a>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>-compatible static function of the form <code>NetSavings(Alpha::C)</code><br><em>or</em><a href="Variables.ox.html#ActionVariable">ActionVariable</a>
 </td>
 </tr>
 </table>
@@ -8033,7 +8108,7 @@ The dimensions of the transition probabilities determines the number of values t
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Pi</td>
-<td class="description" valign="baseline">N&times;1 array of <a href="Shared.ox.html#AV">AV</a>(I::curAi) compatible transition probabilities.
+<td class="description" valign="baseline">N&times;1 array of <a href="Shared.ox.html#AV">AV</a>(Alpha::C) compatible transition probabilities.
 </td>
 </tr>
 </table>
@@ -8153,6 +8228,34 @@ Mixed value updating.
 <DD>So copy current values for use by younger <code>t</code> and check for validity</DD>
 <DT>If FALSE then check for convergence</DT>
 
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MultiIndicator</span></h2>
+
+<a name="MultiIndicator___MultiIndicator"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">MultiIndicator</span></h3>
+
+<span class="declaration">MultiIndicator :: MultiIndicator ( targlist , nvec , iobj , prefix )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="MultiIndicator___Realize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
+
+<span class="declaration">MultiIndicator :: Realize ( y )</span>
+<dl><dd>
+Default realized auxililary variable, sets <code>v=1.0</code>.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">y,</td>
+<td class="description" valign="baseline">the current realized outcome, &upsilon;.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MVIID</span></h2>
 
@@ -9629,7 +9732,7 @@ Default Transit (transition for a state variable).
 This is a virtual method, so derived classes replace this default version with the one that goes along
 with the kind of state variable.
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>I::curNAi</code> &times; L
+<dl><dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>Alpha::N</code> &times; L
 matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
 The built-in transit returns <code> &lt;0&gt; , CondProbOne }</code>.  That is the with
 probability one the value of the state variable next period is 0.
@@ -9669,7 +9772,7 @@ Create a variable that counts how many times another state has taken on certain 
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Reset</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>(I::curAi) compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>(Alpha::C) compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
 </td>
 </tr>
 <tr>
@@ -9691,24 +9794,6 @@ Create a variable that counts how many times another state has taken on certain 
 <span class="declaration">virtual StateCounter :: Transit ( )</span>
 <dl><dd>
 .
-
-</dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateIndicators</span></h2>
-
-<a name="StateIndicators___Realize"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
-
-<span class="declaration">StateIndicators :: Realize ( y )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="StateIndicators___StateIndicators"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">StateIndicators</span></h3>
-
-<span class="declaration">StateIndicators :: StateIndicators ( target )</span>
-<dl><dd>
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateTracker</span></h2>
@@ -9939,7 +10024,7 @@ Default Transit (transition for a state variable).
 This is a virtual method, so derived classes replace this default version with the one that goes along
 with the kind of state variable.
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>I::curNAi</code> &times; L
+<dl><dt class="returns">Returns:</dt><dd class="returns">a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>Alpha::N</code> &times; L
 matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
 The built-in transit returns <code> &lt;0&gt; , CondProbOne }</code>.  That is the with
 probability one the value of the state variable next period is 0.

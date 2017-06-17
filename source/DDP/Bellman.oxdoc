@@ -86,7 +86,7 @@ The built-in version of Reachable returns TRUE, so if all states are reachable t
 <LI>Restricted Feasible Action spaces / matrices </LI>
 <DT><code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::FeasibleActions`() method to make the feasible choice set to vary with the endogenous state &theta;.</DT>
 <DD>Example.  Only action vectors with <code>d</code> less than or equal to the value of state variable <code>x</code> are feasible.
-<pre>MyModel::FeasibleActions() { return Alpha::CV(d) &lt;= CV(x); }</pre>
+<pre>MyModel::FeasibleActions() { return CV(d) &lt;= CV(x); }</pre>
 </DD>
 <LI>Hooks and Update Time</LI>
 <DT><code>MyModel</code> can use `Hooks::Add`() to have a static method/function called at different points in solution methods.</DT>

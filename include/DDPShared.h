@@ -336,8 +336,7 @@ struct Hooks : DDPauxiliary {
 struct Alpha : DDPauxiliary {
 	static decl
          /** Rows of A, # of feasible actions. **/             N,
-        /** Current feasible action matrix.
-            @see Alpha::SetA, Alpha::CV    **/                 C,
+        /** Current feasible action matrix. @see CV    **/     C,
         /** Index of FA in List.**/
         /** Current ACTUAL feasible actions. **/                A,
         /** row index of simulated alpha.**/                   aI,

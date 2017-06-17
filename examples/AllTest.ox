@@ -71,7 +71,7 @@ Test1::Run(UseList) {
 
 
 Test2::Utility()  {
-	decl rep = Alpha::CV(d);
+	decl rep = CV(d);
 	return   -(rep*rc + (1-rep)*th1*mfact*CV(x))
 			 +normalization;	// added to avoid exp() underflow for delta near 1.0
 	}
@@ -170,7 +170,7 @@ Test5::Run() {
 	Delete();
 	}
 
-Test6::Utility() { return (job.status.v==3) * job.offer.v * Alpha::CV(acc) ; }
+Test6::Utility() { return (job.status.v==3) * job.offer.v * CV(acc) ; }
 Test6::Run() {
 	Initialize(new Test6());
 	SetClock(Ergodic);
@@ -217,13 +217,13 @@ Test7::Run()  {
 	}
 	
 Test7::Utility()  {
-	decl ii = Alpha::CV(d), u = -(ii*CV(rc) + (1-ii)*0.2*CV(x));
+	decl ii = CV(d), u = -(ii*CV(rc) + (1-ii)*0.2*CV(x));
 //	if (CV(x)==0) println("RC ",CV(rc),CV(x.Pi)');
     return u;
 	}
 
 Test8::Utility() {
-	decl dg = CV(g), a = Alpha::CV(d);
+	decl dg = CV(g), a = CV(d);
 	return dg*a + (1-dg)*(1-a) + 3*CV(r);
 	}
 Test8::Run() {
@@ -269,10 +269,10 @@ Test9::Run()	{
     Explore(pd,10,0.1,lam);
 	Delete();
 	}
-Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + AV(sk)*CV(p)*Alpha::CV(a)) + (3-I::t); 	}	
+Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + AV(sk)*CV(p)*CV(a)) + (3-I::t); 	}	
 
 Test10::Uz(z)        { return eta | z;	}
-Test10::Utility()    { decl dv =Alpha::CV(d); return eta*(1-dv) + zstar*dv;	}
+Test10::Utility()    { decl dv =CV(d); return eta*(1-dv) + zstar*dv;	}
 
 Test10::Run()	{
 	Initialize(new Test10());
