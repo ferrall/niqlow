@@ -1032,10 +1032,12 @@ PathPrediction::ProcessContributions(cmat){
         cur = cur.pnext;
   	    } while(isclass(cur));
     L = rows(delt) ? norm(delt,'F') : 0.0;
-    if (Data::Volume>QUIET)
-    fprintln(Data::logf," Predicted Moments ",L,
+    if (!Version::MPIserver && Data::Volume>QUIET) {
+        fprintln(Data::logf," Predicted Moments ",L,
         "%c",tlabels,"%cf",{"5.0f","%12.4f"},flat,
         "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",tlabels[1:],delt);
+        savemat(replace(Version::logdir+DP::L+"_PredMoments_"," ","")+".dta",flat,tlabels);
+        }
     flat |= constant(.NaN,this.T-rows(flat),columns(flat));
     }
 
@@ -1286,7 +1288,9 @@ Prediction::Delta(mask,printit,tlabels) {
                 .:  (isdotnan(mv)   // else, find mising predictions
                         .? .Inf             // difference unbounded
                         .: W.*(mv-empmom));   // weighted difference
-    if (!Version::MPIserver && printit) fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4g","%c",tlabels,mv|empmom|W|df);
+    if (!Version::MPIserver && printit) {
+        fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4g","%c",tlabels,mv|empmom|W|df);
+        }
     return df;
     }
 

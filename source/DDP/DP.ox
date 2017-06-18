@@ -666,7 +666,7 @@ Labels::Initialize() {
     decl vl;
     foreach(vl in V) vl = {};
     foreach(vl in Vprt) vl = {};
-	format(500);
+	format(1024);
     }
 
 /** Reset all Flags.
