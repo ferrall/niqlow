@@ -62,6 +62,8 @@ static const decl
 		/** tolerance level 1.**/                 DIFF_EPS1	=	5E-6,
 		/** tolerance level 2.**/                 DIFF_EPS2	=	1E-4;
 
+/** Used in CV() and AV(). static to reduce overhead. @internal **/
+static decl _arg, _noarg, _x, _v;
 	CV(X,...);
 	AV(X,...);
 	ReverseState(Ind,O);

@@ -540,7 +540,8 @@ Offer::Offer(L,N,Pi,Accept)	{
 /** .
 **/
 Offer::Transit()	{
-  decl offprob = AV(Pi), accept = CV(Accept);
+  offprob = AV(Pi);
+  accept = CV(Accept);
   return {vals,(1-accept).*( (1-offprob)~(offprob*constant(1/(N-1),Alpha::N,N-1)) )+ accept.*(constant(v,Alpha::N,1).==vals)};
   }
 
@@ -914,8 +915,8 @@ contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of makin
 </dd>
 **/
 Duration::Duration(L,Current,Lag, N,MaxOnce,Prune) {
-    decl m ="DDP Error 04. Lag must be a State Variable or a vector\n";
-	if (!TypeCheck(Lag,"StateVariable",FALSE) && !ismatrix(Lag)) oxrunerror(m);
+	if (!TypeCheck(Lag,"StateVariable",FALSE) && !ismatrix(Lag))
+        oxrunerror("DDP Error 04. Lag must be a State Variable or a vector\n");
 	TypeCheck(Current,"Discrete");
     Counter(L,N,Current,0,0,Prune);
 	isact = isclass(Target,"ActionVariable");

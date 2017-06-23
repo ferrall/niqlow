@@ -284,6 +284,7 @@ struct Offer : Random	{
 	const decl
 	  /** &pi; Double, Parameter or static function, offer probability **/ 	Pi,
 	  /**`ActionVariable` - indicates aceptance       **/ 	Accept;
+        decl offprob, accept;
 	  Offer(L,N,Pi,Accept);
 	  virtual Transit();
 	  virtual Update();

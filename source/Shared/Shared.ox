@@ -61,19 +61,20 @@ CV(X,...) {
         return X.v;
         }
 	if (!(isfunction(X)||isarray(X)) ) return X;
-	decl arg = va_arglist(), noarg = !sizeof(arg);
+	_arg = va_arglist();
+    _noarg = !sizeof(_arg);
     if (isarray(X)) {
-        decl x,v=<>;
-//Leak foreach(x in X)
-        if (noarg)
-            for(x=0;x<sizeof(X);++x) //Leak
-                v ~= CV(X[x]);  //Leak: X[x] just x
+        _v=<>;
+        //Leak foreach(x in X)
+        if (_noarg)
+            for(_x=0;_x<sizeof(X);++_x) //Leak
+                _v ~= CV(X[_x]);  //Leak: X[x] just x
         else
-            for(x=0;x<sizeof(X);++x) //Leak
-                v ~= CV(X[x],arg[0]);  //Leak: X[x] just x
-        return v;
+            for(_x=0;_x<sizeof(X);++_x) //Leak
+                _v ~= CV(X[_x],_arg[0]);  //Leak: X[x] just x
+        return _v;
         }
-	return noarg ? X() : X(arg[0]);
+	return _noarg ? X() : X(_arg[0]);
 	}
 
 /**ActualValue: Returns either  X.actual[X.v] or `CV`(X).
@@ -86,9 +87,8 @@ This also works for `StateBlock` which will return the items from the Grid of po
 **/
 AV(X,...) {
     if (ismember(X,"myAV")) return X->myAV();
-//	if (ismember(X,"actual")) return X.actual[X.v];
-	decl arg=va_arglist();
-	return (!sizeof(arg)) ?  CV(X) : CV(X,arg[0]) ;
+	_arg=va_arglist();
+	return (!sizeof(_arg)) ?  CV(X) : CV(X,_arg[0]) ;
 	}
 
 /** The standard logistic cumulative distribution.
