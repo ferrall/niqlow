@@ -95,10 +95,10 @@ Indicator::Realize(y) {
     }
 
 MultiIndicator::Realize(y) {
-    decl t, n;
+    decl n;
     v = <1>;
 //    foreach(t in target[n]) v .*= CV(t).==myval[n];
-    for(t=0;t<sizeof(target);++t) v .*= CV(target[n]).==myval[n];
+    for(n=0;n<sizeof(target);++n) v .*= CV(target[n]).==myval[n];
     if (iacted) {
        if (isclass(iobj,"AuxiliaryValue")) iobj->Realize(y);
        v .*= AV(iobj);
