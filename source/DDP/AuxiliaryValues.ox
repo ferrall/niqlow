@@ -79,6 +79,7 @@ Indicator::Indicator(target,myval,iobj,prefix) {
     prefix = (isstring(prefix) ? prefix : abbrev(target.L))+"_"+sprint("%02u",myval);
     if ((iacted = isclass(iobj))) {
         TypeCheck(iobj,{"StateVariable","ActionVariable","AuxiliaryValue"});
+        iacted += isclass(iobj,"AuxiliaryValue");
         AuxiliaryValue(prefix+"_"+abbrev(iobj.L)); 	
         }
     else
@@ -88,9 +89,9 @@ Indicator::Indicator(target,myval,iobj,prefix) {
 Indicator::Realize(y) {
     v = CV(target).==myval;
     if (iacted) {
-        if (isclass(iobj,"AuxiliaryValue")) iobj->Realize(y);
+        if (iacted==Two) iobj->Realize(y);
         v .*= AV(iobj);
-       }
+        }
     }
 
 MultiIndicator::Realize(y) {

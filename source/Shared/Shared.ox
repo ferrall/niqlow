@@ -12,7 +12,15 @@ Version::Check(logdir) {
  if (oxversion()<MinOxVersion) oxrunerror("niqlow Error 00. This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
  checked = TRUE;
  oxprintlevel(1);
- this.logdir = logdir;
+ if (logdir!="") {
+    decl hdir = getcwd(), chk = chdir(logdir);
+    if (!chk) {
+        oxwarning("Attempting to create log file directory: "+logdir);
+        systemcall("mkdir "+logdir);
+        }
+    chdir(hdir);
+    }
+ this.logdir = logdir+"/";
  tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
  println("\n niqlow version ",sprint("%4.2f",version/100),
     "Copyright (C) 2011-2017 Christopher Ferrall.\n",

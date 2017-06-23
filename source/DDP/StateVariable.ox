@@ -387,12 +387,12 @@ SubState::IsReachable() {
 `Forget::IsReachable`() prunes the state space accordingly
 **/
 Forget::Forget(b,t,FCond,tv,rval) {
-    ActionTriggered(b,t,tv,rval);
+    Triggered(b,t,tv,rval);
     this.FCond = FCond;
     }
 
 Forget::Transit() {
-    ActionTriggered::Transit();
+    Triggered::Transit();
     return CV(FCond) ?  {matrix(rval),CondProbOne} : basetr;
     }
 
@@ -496,7 +496,7 @@ Absorbing::Absorbing(L,fPi) {
 
 Absorbing::Transit() {
     if (v) return UnChanged();
-    p = fPi(Alpha::C);
+    p = fPi();
     return { <0,1>, reshape((1-p)~p, Alpha::N, N ) };
     }
 
@@ -540,7 +540,7 @@ Offer::Offer(L,N,Pi,Accept)	{
 /** .
 **/
 Offer::Transit()	{
-  decl offprob = AV(Pi,Alpha::C), accept = CV(Accept);
+  decl offprob = AV(Pi), accept = CV(Accept);
   return {vals,(1-accept).*( (1-offprob)~(offprob*constant(1/(N-1),Alpha::N,N-1)) )+ accept.*(constant(v,Alpha::N,1).==vals)};
   }
 
@@ -571,7 +571,7 @@ LogNormalOffer::Update() {
 /** Create a state variable that increments or decrements with state-dependent probabilities.
 @param L label
 @param N integer, number of values, N &ge; 3
-@param fPi(A) a `AV`(fPi,A) compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.
+@param fPi() a `AV`() compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.
 @param Prune TRUE [default], prune unreachable states assuming initial value of 0<br>FALSE do not prune
 **/
 RandomUpDown::RandomUpDown(L,N,fPi,Prune)	{
@@ -586,7 +586,7 @@ RandomUpDown::IsReachable() { return ! (Prune && Flags::Prunable && (v>I::t) ) ;
 /** .
 **/
 RandomUpDown::Transit()	{
-    fp = AV(fPi,Alpha::C);
+    fp = AV(fPi);
     if (v==0)
         return { 0~1 , (fp[][down]+fp[][hold])~fp[][up] };
     if (v==N-1)
@@ -801,7 +801,7 @@ Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 @param N integer, maximum number of times to count
 @param State `StateVariable` or `AV`() compatible object to track.
 @param ToTrack integer or vector, values of State to count. (default = <1>).
-@param Reset `AV`(Alpha::C) compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
+@param Reset `AV`() compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
 @param Prune TRUE [default]: prune states if finite horizon detected.
 @example <pre>noffers = new StateCounter("Total Offers",offer,5,<1:offer.N-1>,0);</pre>
 **/
@@ -814,7 +814,7 @@ StateCounter::StateCounter(L,N,State,ToTrack,Reset,Prune) {
 /** .
 **/
 StateCounter::Transit()	{
-    if (AV(Reset,Alpha::C)) return { <0>, CondProbOne };
+    if (AV(Reset)) return { <0>, CondProbOne };
     if (v==N-1  || !any(AV(Target).==ToTrack)) return UnChanged();
 	return { matrix(v+1) , CondProbOne };
     }
@@ -846,7 +846,7 @@ ActionCounter::ActionCounter(L,N,Act,  ToTrack,Reset,Prune)	{
 /** .
 **/
 ActionCounter::Transit()	{
-    if (AV(Reset,Alpha::C)) return { <0>, CondProbOne };
+    if (AV(Reset)) return { <0>, CondProbOne };
     if (( v==N-1 || !any( inc = sumr(CV(Target).==ToTrack)  ) )) return UnChanged();
     return { v~(v+1) , (1-inc)~inc };
 	}
@@ -956,7 +956,7 @@ Renewal::Renewal(L,N,reset,Pi)	{
 /** . **/
 Renewal::Transit()	{
 	decl pstar = min(P,N-v)-1,
-		 pi = reshape(AV(Pi,Alpha::C),1,P),
+		 pi = reshape(AV(Pi),1,P),
 		 ovlap = v < P ? zeros(1,v) : 0,
    		 qstar = pstar ? pi[:pstar-1]~sumr(pi[pstar:]) : <1.0>;
 	decl  rr =CV(reset),
@@ -1113,7 +1113,7 @@ OfferWithLayoff::OfferWithLayoff(L,N,accept,Pi,Lambda)	{
 	
 /** .  **/
 OfferWithLayoff::Transit()	{
-   decl prob = AV(Pi,Alpha::C), lprob = AV(Lambda,Alpha::C), acc = CV(accept), xoff, xprob;
+   decl prob = AV(Pi), lprob = AV(Lambda), acc = CV(accept), xoff, xprob;
 
    if (status.v==Emp) return { offer.v | (Quit~LaidOff~Emp) ,  (1-acc) ~ acc.*(lprob~(1-lprob)) };
    xoff =    offer.vals | Unemp;
@@ -1196,7 +1196,7 @@ Episode::Transit() 	{
 	decl kv = k.v, tv = t.v, pi;
 	if (!kv) {		// no episode, get onset probabilities
 		probT = 0;
-		if ((columns(pi = CV(Onset,Alpha::C))!=k.N))
+		if ((columns(pi = CV(Onset))!=k.N))
 			oxrunerror("DDP Error 26. Onset probability must return 1xK or FxK matrix\n");
 							return { 0 | k.vals, reshape(pi,Alpha::N,k.N)  };
 		}
@@ -1204,10 +1204,10 @@ Episode::Transit() 	{
 		if (Finite) 		return { 0|0         , CondProbOne };	
 		pi = isdouble(probT)
 			? probT
-			: (probT = CV(End,Alpha::C)) ;
+			: (probT = CV(End)) ;
 							return {  (0 ~ tv)|(0~kv), reshape( pi ~ (1-pi), Alpha::N, 2 ) };
 		}
-	pi = CV(End,Alpha::C);
+	pi = CV(End);
 							return {  (0 ~ tv+1)|(0~kv), reshape( pi ~ (1-pi), Alpha::N, 2 ) };	
 	}
 	
@@ -1277,7 +1277,7 @@ FixedAsset::FixedAsset(L,N,r,delta){
 /**Create a new LIQUID asset state variable.
 @param L label
 @param N number of values
-@param NetSavings `AV`-compatible static function of the form <code>NetSavings(Alpha::C)</code><br><em>or</em>`ActionVariable`
+@param NetSavings `AV`-compatible static function of the form <code>NetSavings()</code><br><em>or</em>`ActionVariable`
 @see Discretized
 **/
 LiquidAsset::LiquidAsset(L,N,NetSavings){
@@ -1291,7 +1291,7 @@ FixedAsset::Transit() {
     }
 
 LiquidAsset::Transit() {
-    return Asset::Transit(isact ? NetSavings.actual[CV(NetSavings)] : AV(NetSavings,Alpha::C));
+    return Asset::Transit(isact ? NetSavings.actual[CV(NetSavings)] : AV(NetSavings));
     }
 /**
 **/
