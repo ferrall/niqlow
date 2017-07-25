@@ -419,6 +419,7 @@ NelderMead::Iterate(iplex)	{
           if (Volume>QUIET)
             fprintln(logf,"Initial Plex",step*iplex);
 		  }
+       if (rank(iplex,SQRT_EPS)<N) oxrunerror("Five0 Error: initial simplex is not full rank");
 	   do {
            n_func = 0;
            nodeX = reshape(OC.F,N+1,N)' + step*iplex;
