@@ -19,11 +19,13 @@
 /* This file is part of niqlow. Copyright (C) 2012-2017 Christopher Ferrall */
 
 	/** Pseudonyms for -1, -2, &hellip, 2 . @name Names_for_Integers **/
-enum {CondProbOne=1,UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,AllRand=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1,
-       NotInData=-2, UseCurrent=-2, TrackAll=-3,
-        Zero = 0, One, Two,
-       abbrevsz = 4  //standard size of abbreviated strings
-       }
+enum {CondProbOne=1,UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,
+      DoAll=-1,NoMatch=-1,AllFixed=-1,AllRand=-1,UseSubSample=-1,ResetValue=-1,
+      IterationFailed=-1, NotInData=-2, UseCurrent=-2, TrackAll=-3,
+      UseGradient=-1,
+      Zero = 0, One, Two,
+      abbrevsz = 4  //standard size of abbreviated strings
+      }
 
 /** Levels of output to produce while executing. @name NoiseLevels **/	
 enum {SILENT=-1,QUIET,LOUD,NOISY,NoiseLevels}

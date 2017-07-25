@@ -377,7 +377,11 @@ NelderMead::NelderMead(O)	{
 	}
 	
 /** Iterate on the Amoeba algorithm.
-@param iplex  N&times;N+1 matrix of initial steps.<br>double, initial step size (iplex is set to 0~unit(N))<br>integer &gt; 0, max starts of the algorithm<br>0 (default), use current mxstarts.
+@param iplex  N&times;N+1 matrix of initial steps.
+</br>double, initial step size (iplex is set to 0~unit(N))
+</br>integer &gt; 0, max starts of the algorithm
+</br>0 (default), use current mxstarts.
+</br>= -1 (UseGradient), compute gradient and use its normed value as initial simplex
 @example
 See <a href="GetStarted.html">GetStarted</a>
 **/
@@ -385,21 +389,35 @@ NelderMead::Iterate(iplex)	{
     if (!ItStartCheck()) return;
     if (IIterate) {
         //	   nodeV = constant(-.Inf,N+1,1);
-	   OC.SE = OC.G = .NaN;
 	   iter = 1;
 	   if (!ismatrix(iplex))  {
 		  if (isdouble(iplex))
-                step = iplex;
-          else if (iplex>0) mxstarts = iplex;
-		  iplex = (0~unit(N));
-		  }
-	   else
+            step = iplex;
+          else {
+            if (iplex==UseGradient) {
+                O->Gradient();
+                iplex = 0~diag(OC.G/norm(OC.G,2));
+		        step = 1.0;
+                }
+            else {
+                if (iplex>0) mxstarts = iplex;
+		        iplex = (0~unit(N));
+                }
+		    }
+          }
+	   else {
 		  step = 1.0;
+          if ( rows(iplex)!=N || columns(iplex)!=N+1 )
+             oxrunerror("Five0 error: initial simplex sent to NelderMead not Nx(N+1)");
+          }
+	   OC.SE = OC.G = .NaN;
 	   if (Volume>SILENT) {
 		  O->Print("Simplex Starting ",logf,Volume>QUIET);
 		  fprintln(logf,"\n Max # evaluations ",nfuncmax,
 				"\n Max # restarts ",mxstarts,
 				"\n Plex size tolerance ",tolerance);
+          if (Volume>QUIET)
+            fprintln(logf,"Initial Plex",step*iplex);
 		  }
 	   do {
            n_func = 0;
@@ -666,7 +684,7 @@ GradientBased::Iterate(H)	{
                 istr = sprint(iter,". f=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
                 fprintln(logf,istr);
                 if(Volume>QUIET) println(istr);
-                O->Print("",logf,Volume>QUIET);
+                O->Print("Gradient Iteration",logf,Volume>QUIET);
                 fflush(logf);
                 }
 		  } while (convergence==NONE);
