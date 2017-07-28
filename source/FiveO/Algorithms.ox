@@ -391,12 +391,16 @@ NelderMead::Iterate(iplex)	{
         //	   nodeV = constant(-.Inf,N+1,1);
 	   iter = 1;
 	   if (!ismatrix(iplex))  {
-		  if (isdouble(iplex))
+		  if (isdouble(iplex)) {
             step = iplex;
+            iplex = (0~unit(N));
+            }
           else {
             if (iplex==UseGradient) {
+                O.Volume = LOUD;
                 O->Gradient();
-                OC.G = fabs(OC.G)<1E-2 .? 0.01 .: OC.G;
+                O.Volume = QUIET;
+                OC.G = (fabs(OC.G) .< 1E-2) .? 0.01 .: OC.G;
                 iplex = 0~diag(OC.G/norm(OC.G,2));
 		        step = 1.0;
                 }

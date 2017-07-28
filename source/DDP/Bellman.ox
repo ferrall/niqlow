@@ -45,7 +45,10 @@ EndogTrans::Transitions(state) {
 	decl i,nr,j,a,s,skip;
     Flags::HasBeenUpdated = TRUE;
     Hooks::Do(PreUpdate);
-    I::CVdelta = AV(delta);   //moved June 2015 from bottom
+/*??  Problem when delta depends on params.
+Moved below loop August 2017
+I::CVdelta = AV(delta);   //moved June 2015 from bottom
+*/
     skip=UnInitialized;
 //foreach foreach (s in States[i]) {
     for (i=0;i<sizeof(States);++i) {
@@ -63,6 +66,7 @@ EndogTrans::Transitions(state) {
 			if (isclass(s,"RandomEffect")) s->Distribution();
 			}
 		}
+    I::CVdelta = AV(delta);   
     Alpha::ResetA(SubVectors[acts]);
 	ExogenousTransition();
     this->Traverse();
