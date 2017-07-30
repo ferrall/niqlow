@@ -64,7 +64,7 @@ BBTest() {
 	alg = new NelderMead(v);
 	alg.Volume = NOISY;
 //	alg->Tune(0,0,10);
-	alg->Iterate(-1);
+	alg->Iterate(0.1);
     decl k;
     scan("Enter 0 to continue, [-1]  QUIT\n?","%i",&k);
     if (k<0) return;
