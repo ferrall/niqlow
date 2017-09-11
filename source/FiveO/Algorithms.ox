@@ -12,7 +12,8 @@ Algorithm::Algorithm(O) {
     tolerance = itoler;
 	Volume = SILENT;
     StorePath = FALSE;
-    lognm = replace(Version::logdir+"Alg-"+classname(this)+"-On-"+O.L+Version::tmstmp," ","")+".log";
+    logpfx = Version::logdir+"Alg-"+classname(this)+"-On-"+O.L;
+    lognm = replace(logpfx+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"aV");
     fprintln(logf,"Created");
     }
@@ -34,6 +35,7 @@ Algorithm::ItStartCheck() {
 	N = rows(OC.F);
     IIterate = !isclass(O.p2p) || O.p2p.IamClient;
     path = <>;
+    NormalStart = TRUE;
     if (!N && IIterate) {
         oxwarning("No parameters are free.  Objective will be evaluated and then return");
     	O->fobj(0);
@@ -382,13 +384,13 @@ NelderMead::NelderMead(O)	{
 </br>integer &gt; 0, max starts of the algorithm
 </br>0 (default), use current mxstarts.
 </br>= -1 (UseGradient), compute gradient and use its normed value as initial simplex
+</br>= -2 (UseCheckPoint), read in checkpoint file to return to last state.
 @example
 See <a href="GetStarted.html">GetStarted</a>
 **/
 NelderMead::Iterate(iplex)	{
     if (!ItStartCheck()) return;
     if (IIterate) {
-        //	   nodeV = constant(-.Inf,N+1,1);
 	   iter = 1;
 	   if (!ismatrix(iplex))  {
 		  if (isdouble(iplex)) {
@@ -396,17 +398,23 @@ NelderMead::Iterate(iplex)	{
             iplex = (0~unit(N));
             }
           else {
-            if (iplex==UseGradient) {
+            switch(iplex) {
+            case UseCheckPoint :
+                CheckPoint(FALSE);
+                NormalStart = FALSE;
+                break;
+            case UseGradient :
                 O.Volume = LOUD;
                 O->Gradient();
                 O.Volume = QUIET;
                 OC.G = (fabs(OC.G) .< 1E-2) .? 0.01 .: OC.G;
                 iplex = 0~diag(OC.G/norm(OC.G,2));
 		        step = 1.0;
-                }
-            else {
-                if (iplex>0) mxstarts = iplex;
+                break;
+            case Zero :
 		        iplex = (0~unit(N));
+            default :
+                mxstarts = iplex;
                 }
 		    }
           }
@@ -425,10 +433,10 @@ NelderMead::Iterate(iplex)	{
             fprintln(logf,"Initial Plex",step*iplex);
 		  }
 //       if (rank(iplex,SQRT_EPS)<N) oxrunerror("Five0 Error: initial simplex is not full rank");
+
 	   do {
            n_func = 0;
-           nodeX = reshape(OC.F,N+1,N)' + step*iplex;
-	       plexshrunk = Amoeba();
+	       plexshrunk = Amoeba(iplex);
 	       Sort();
 	       OC.F = nodeX[][mxi];
 	       OC.v = nodeV[mxi];
@@ -489,10 +497,29 @@ NelderMead::Sort()	{
     fdiff = norm(nodeV-meanr(nodeV));
     if (Volume>SILENT) {
         fprint(logf,"Sorted plexsize: ",plexsize," fdiff:",fdiff);
-        if (Volume>LOUD) fprint(logf,"%15.5f","%r",{"f","p"},nodeV|nodeX,"MXi:",mxi," MNi:",mni," nmni:",nmni);
+        if (Volume>LOUD) {
+            fprint(logf,"%15.5f","%r",{"f","p"},nodeV|nodeX,"MXi:",mxi," MNi:",mni," nmni:",nmni);
+            if (NormalStart)  //don't rewrite checkpoint right away.
+                CheckPoint(TRUE);
+            }
         fprintln(logf,"\n-------");
         }
+    NormalStart = TRUE;
 	}
+
+NelderMead::CheckPoint(WriteOut) {
+    decl chkpt = fopen(logpfx,WriteOut ? "w" : "r");
+    if (WriteOut) {
+        fprint(chkpt,"%v",step,"%v",O.Start,"%v",OC.F,"%v",nodeV);
+        }
+    else {
+        decl instart,infree;
+        fscan(chkpt,"%v",&step,"%v",&instart,"%v",&infree,"%v",nodeV);
+        O->Encode(instart);
+        OC.F = infree;
+        }
+    fclose(chkpt);
+    }
 
 /** Compute size of the current simplex.
 @return &sum;<sub>j</sub> |X-&mu;|
@@ -504,10 +531,13 @@ NelderMead::SimplexSize() {
 /**	  .
 @internal
 **/
-NelderMead::Amoeba() 	{
-     decl vF = zeros(O.NvfuncTerms,N+1);
-	 n_func += O->funclist(nodeX,&vF,&nodeV);
-     if (Volume>SILENT) { fprintln(logf,"Amoeba: ");fflush(logf);}
+NelderMead::Amoeba(iplex) 	{
+    decl vF = zeros(O.NvfuncTerms,N+1);
+    if (NormalStart) {
+        nodeX = reshape(OC.F,N+1,N)' + step*iplex;
+	    n_func += O->funclist(nodeX,&vF,&nodeV);
+        }
+     if (Volume>SILENT) fprintln(logf,"Amoeba starting... ");
 	 do	{
 	 	Sort();
 		if (plexsize<tolerance) return TRUE;

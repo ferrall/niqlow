@@ -1,5 +1,5 @@
 #include "Objective.h"
-/* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 /** Checks the version number you send with the current version of niqlow.
 @param v integer [default=200]
@@ -34,7 +34,6 @@ Objective::Objective(L)	{
     RunSafe = TRUE;
     lognm = replace(Version::logdir+"Obj-"+classname(this)+"-"+L+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"aV");
-    fprintln(logf,"Created");
 	cur = new Point();
 	hold = maxpt = NvfuncTerms  = UnInitialized;
 	FinX = <>;
@@ -132,7 +131,7 @@ Objective::Load(fname)	{
 	if (inL!=L) oxwarning("FiveO Warning 08.\n Object Label in "+fname+" is "+inL+", which is not the same as "+L+"\n");
 	maxpt.v = cur.v = inO;
     this->CheckPoint(f,FALSE);
-	if (Volume>SILENT) {
+	if (!Version::MPIserver && Volume>SILENT) {
         println("Initial objective: ",cur.v);
         fprintln(logf,"Parameters loaded from ",fname,". # of values read: ",n,". Initial objective: ",cur.v);
 		fprint(logf,"%r",PsiL,cur.X);
@@ -206,7 +205,7 @@ Objective::Print(orig,fn,toscreen){
 		FinX~cur.F,
 		"Actual Parameters",
 		"%c",{           "     Value "},"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
-    if (isfile(fn)) {fprintln(fn,b); fflush(logf);}
+    if (isfile(fn)) {fprintln(fn,b); }
     if (toscreen) println(b);
 	}
 
