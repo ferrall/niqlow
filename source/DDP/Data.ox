@@ -1638,7 +1638,7 @@ EmpiricalMoments::EmpiricalMoments(label,method,UorCorL,iDist,wght) {
     Tplace = Nplace = UnInitialized;
     PanelPrediction(label,method,iDist,wght);
     if (UorCorL==NotInData) {
-        if (N::F>1) oxwarning("Multiple fixed groups but data contain no fixed columns? Errors may result.");
+        if (N::F>1) oxrunerror("Multiple fixed groups but data contain no fixed columns.  ");
         flist = 0;
         }
     else if (ismatrix(UorCorL)||isarray(UorCorL)) {
@@ -1753,17 +1753,22 @@ EmpiricalMoments::Read(FNorDB) {
         inmom = <>;
         cur -> SetColumns(dlabels,Nplace,Tplace);
         incol = selectifc(cur.cols,cur.cols.>=0);
+        print("#",curf);
         do {
             if (row<rows(data)) {  //read one more
                 inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
                 if (inf==curf ) {  //same fixed group
                     inmom |= data[row++][incol];   //add moments, increment row
+                    if (report) print(".");
                     continue;                        // don't install moments
                     }
                 }
-            else inf = UnInitialized;  //get out of inner loop after installing
+            else {
+                inf = UnInitialized;  //get out of inner loop after installing
+                }
             cur->Empirical(inmom,hasN,hasT,wght);
             if (report) {
+                    println("#");
                     fprintln(Data::logf,"Moments read in for fixed group ",curf,". See log file");
                     fprintln(Data::logf,"Moments of Moments for fixed group:",curf);
                     MyMoments(inmom,tlabels[1:],Data::logf);

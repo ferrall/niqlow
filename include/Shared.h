@@ -58,6 +58,7 @@ enum{EQUALITY,INEQUALITY,ConstraintTypes}
 enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,Aggregators}
 
 static const decl
+        curdir = ".",
 		mymomlabels = {"sample size","mean","st.dev.","min","max"},
 		/** square-root of machine &epsilon; **/ SQRT_EPS 	=	1E-8,
 		/** tolerance level 0. **/                DIFF_EPS 	=	1E-8,
@@ -239,7 +240,7 @@ public:
     static const decl
     	/** Current niqlow version. @name niqlowversion **/ version=300;
     static decl logdir, tmstmp, MPIserver=FALSE;
-	static Check(logdir="");
+	static Check(logdir=curdir);
 
 	}
 

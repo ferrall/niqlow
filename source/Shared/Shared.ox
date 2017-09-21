@@ -2,7 +2,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 /** Check versions and set timestamp, log directory.
-@param logdir str (default="").  A directory path or file prefix to attach to all log files.
+@param logdir str (default=".").  A directory path or file prefix to attach to all log files.
 All log files will receive the same time stamp, which is set here.
 @comments
  Only the first call does anything.  Any subsequent calls return immediately.
@@ -11,8 +11,9 @@ Version::Check(logdir) {
  if (checked)  return ;
  if (oxversion()<MinOxVersion) oxrunerror("niqlow Error 00. This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
  checked = TRUE;
+ format(1024);
  oxprintlevel(1);
- if (logdir!="") {
+ if (logdir!=curdir) {
     decl hdir = getcwd(), chk = chdir(logdir);
     if (!chk) {
         oxwarning("Attempting to create log file directory: "+logdir);
@@ -23,7 +24,7 @@ Version::Check(logdir) {
  this.logdir = logdir+"/";
  tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
  println("\n niqlow version ",sprint("%4.2f",version/100),
-    "Copyright (C) 2011-2017 Christopher Ferrall.\n",
+    ". Copyright (C) 2011-2017 Christopher Ferrall.\n",
     "Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n",
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
  }

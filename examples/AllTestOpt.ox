@@ -63,8 +63,10 @@ BBTest() {
     decl alg;
 	alg = new NelderMead(v);
 	alg.Volume = NOISY;
-//	alg->Tune(0,0,10);
+	alg->Tune(0,0,10);
 	alg->Iterate(0.1);
+    println("\n Trying to read from checkpoint");
+    alg->Iterate(UseCheckPoint);
     decl k;
     scan("Enter 0 to continue, [-1]  QUIT\n?","%i",&k);
     if (k<0) return;
@@ -81,7 +83,6 @@ SysTest() {
 	decl v = new SystemTest (8),
 		 nr = new NewtonRaphson(v),
 		 br = new Broyden(v);
-	format(250);
 	v->ToggleParameterConstraint();
 	nr.Volume = br.Volume = NOISY;
 	br ->Iterate(0);
@@ -96,7 +97,6 @@ LMSysTest() {
 	println("\n\n  System of Equation with Line Minimization ");
 	decl v = new SystemTest (1),
 		 br = new Broyden(v);
-	format(250);
 	v->ToggleParameterConstraint();
     br.USELM = TRUE;
 	br.LM.Volume = QUIET;

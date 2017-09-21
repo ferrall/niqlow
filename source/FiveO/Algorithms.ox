@@ -429,8 +429,7 @@ NelderMead::Iterate(iplex)	{
 		  fprintln(logf,"\n Max # evaluations ",nfuncmax,
 				"\n Max # restarts ",mxstarts,
 				"\n Plex size tolerance ",tolerance);
-          if (Volume>QUIET)
-            fprintln(logf,"Initial Plex",step*iplex);
+          if (Volume>QUIET) fprintln(logf,"Initial Plex",step*iplex);
 		  }
 //       if (rank(iplex,SQRT_EPS)<N) oxrunerror("Five0 Error: initial simplex is not full rank");
 
@@ -441,7 +440,7 @@ NelderMead::Iterate(iplex)	{
 	       OC.F = nodeX[][mxi];
 	       OC.v = nodeV[mxi];
 	       holdF = OC.F;
-	       if (Volume>SILENT) {
+	       if (Volume>QUIET) {
 	   		  fprintln(logf,"\n","%3u",iter,". N=","%5u",n_func," Step=","%8.5f",step,". Fmax=",nodeV[mxi]," .PlexSize=",plexsize,plexsize<tolerance ? " *Converged*" : "");
 	          fprintln(logf," Bounds on Simplex","%r",{"min","max"},"%c",O.Flabels,limits(nodeX')[:1][]);
               }
@@ -495,7 +494,7 @@ NelderMead::Sort()	{
 	psum = sumr(nodeX);		
 	plexsize = SimplexSize();
     fdiff = norm(nodeV-meanr(nodeV));
-    if (Volume>SILENT) {
+    if (Volume>QUIET) {
         fprint(logf,"Sorted plexsize: ",plexsize," fdiff:",fdiff);
         if (Volume>LOUD) {
             fprint(logf,"%15.5f","%r",{"f","p"},nodeV|nodeX,"MXi:",mxi," MNi:",mni," nmni:",nmni);
@@ -508,15 +507,16 @@ NelderMead::Sort()	{
 	}
 
 NelderMead::CheckPoint(WriteOut) {
-    decl chkpt = fopen(logpfx,WriteOut ? "w" : "r");
+    decl chkpt = fopen(logpfx+".chkpt",WriteOut ? "w" : "r");
     if (WriteOut) {
-        fprint(chkpt,"%v",step,"%v",O.Start,"%v",OC.F,"%v",nodeV);
+        fprint(chkpt,"%v",OC.v,"\n","%v",step,"\n","%v",O.Start,"\n","%v",OC.F,"\n","%v",nodeV);
         }
     else {
-        decl instart,infree;
-        fscan(chkpt,"%v",&step,"%v",&instart,"%v",&infree,"%v",nodeV);
+        decl instart,infree,inv;
+        fscan(chkpt,"%v",&inv,"%v",&step,"%v",&instart,"%v",&infree,"%v",&nodeV);
+        OC.v = inv;
         O->Encode(instart);
-        OC.F = infree;
+        O->Decode(infree);
         }
     fclose(chkpt);
     }

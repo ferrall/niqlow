@@ -16,39 +16,40 @@
 <h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">GetStarted</span></h1>
 
 A Quick Start <span class="n">FiveO</span> by Example.
-
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2017 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd></dd>
-<dt class="example">Example:</dt><dd class="example">Files referred to:
-<pre>niqlow/examples/Rosenbrock.ox
-niqlow/examples/SysExample.ox
-niqlow/examples/GetStartedFiveO.ox
-</pre>
-To run the program and see results:
-<pre>oxl GetStartedFiveO</pre></dd>
 <P/>
-<DT> In <span class="n">FiveO</span> optimization and system solving (root finding) are treated nearly the same.  This shows an example of both.</DT>
-<P/>
-<h3>If your interest is primarily system solving, go <a href="#B">here</a></h3>.
+<span class="n">FiveO</span> treats the problems of <em>optimization</em> and <em>system solving (root finding)</em> as nearly the same.  This document provides examples of both. If your interest is primarily <em>system solving</em>, you can skip down to <a href="#B">here</a></DT>
 <P/>
 <a name="A"><h1>Optimization Example: Rosenbrock</h1></a>
-<OL class="contents">
+<P/>
+    <DT>Contents</DT>
+    <OL class="contents">
 	<LI><a href="#AA">Define the Problem</a></LI>
 	<LI><a href="#AB">Code the Objective</a></LI>
-        <LI><a href="#AC">Optimize</a></LI>
-        <LI><a href="#AD">Results</a></LI>
-        <LI><a href="#AE">Variations</a></LI></OL>
+    <LI><a href="#AC">Optimize</a></LI>
+    <LI><a href="#AD">Beyond the Basics</a></LI>
+</OL>
+<P/>
+    <DT>Files referred to:</DT>
+    <DD><pre>
+        niqlow/examples/Rosenbrock.ox
+        niqlow/examples/FiveOExampleA.ox
+        niqlow/examples/FiveOExampleB.ox</pre>
+    To run the first program and see results:
+        <pre>oxl FiveExampleA </pre></dd>
 <P/>
 <OL class="body">
-<P/>
 <a name="AA"><LI>Define the Problem</LI></a>
 Consider the two-parameter <a href="http://en.wikipedia.org/wiki/Rosenbrock_function">Rosenbrock Function</a>, also used in Ox as an example.
-<DT>The parameter vector and space:</DT><DD> <code> &psi; &equiv; (x y),  x, y &in; (-&infin;,+&infin;) </code></DD>
-<DT>The objective:</DT> <DD><code>&fnof;(&psi;) &equiv; -[ (1-x)<sup>2</sup>+100(y - x<sup>2</sup>)<sup>2</sup>]</code></DD>
-<DT>Starting values</DT><DD><code>&psi;.0 = (0.5,-.8)</code></DD>
-<DT>The global maximum:</DT><DD> <code>&psi;* = (1 1)<br> &fnof;(&psi;*) = 0</code></DD>
-<DT>Algorithms:</DT>
+<DT>The parameter vector and space:</DT>
+<span class="equation">$$\psi \equiv \pmatrix{x & y} \in \Re^2.$$</span>
+<DT>The objective:</DT>
+<span class="equation">$$f(\psi) \equiv -\left[ (1-x)^2 + 100\left(y-x^2\right)^2\right].$$</span>
+<DT>Starting values</DT>
+<span class="equation">$$\psi^0 = \pmatrix{0.5 &-.8}$$</span>
+<DT>The global maximum:</DT>
+<span class="equation">$$\psi^\star = \pmatrix{1&1}\qquad f(\psi^\star) = 0$$</span>
+<DT>Algorithm:</DT>
     <DD><a href="Algorithms.ox.html#NelderMead">NelderMead</a> Simplex</DD>
-    <DD><a href="Algorithms.ox.html#BFGS">BFGS</a> to <q>polish</q> the values.</DD>
 <P/>
 <a name="AB"><LI>Code the objective</LI></a>
 <dd><details><summary>Source: <a href="../../examples/Rosebrock.ox">niqlow/examples/Rosenbrock.ox</a></summary>
@@ -58,101 +59,85 @@ Consider the two-parameter <a href="http://en.wikipedia.org/wiki/Rosenbrock_func
 <DD>The first line says this Ox code relies on <span class="n">FiveO</span>.  It could also <code>#import niqlow</code> since it includes FiveO.</DD>
 <DT><code>struct Rosenbrock : BlackBox { &hellip; }</code></DT>
 <DD>The next five lines declare the class of the objective, named <code>Rosenbrock</code>. This is a a <a href="BlackBox.ox.html#BlackBox">BlackBox</a> objective, so we derive <code>Rosenbrock</code> from that predefined class. The objective has two parameters, <code>x</code> and <code>y</code> declared as data members of the Rosenbrock class.</DD>
-<DD>Next, the <defn>constructor</defn>, <code>Rosenbrock()</code>, is declared, a method with the same name as the class which is called when <code>new Rosenbrock()</code> is executed.</DD>
-<DD>The method that codes &fnof;() itself is declared and <em>must</em> have the name <code>vfunc()</code>.  The v means that it can return a <b>v</b>ector of values to sum up to compute the objective.  That is <pre>
-&fnof;() = &sum;<sub>i</sub> vfunc()[i].</pre>
-This makes it easier to use the <a href="Algorithms.ox.html#BHHH">BHHH</a> approximation for the Hessian and to relate objectives with non-linear systems. <code>vfunc()</code> takes no arguments.  The current values of the parameters are passed through the members of the class.</DD>
+<DD>Next, the <defn>constructor</defn>, <code>Rosenbrock()</code>, is declared, a method with the same name as the class which is called when <code>new Rosenbrock()</code> is executed. Your objective should always define a constructor because some things must be initialized by it.</DD>
+<DD>The method that codes <span class="expressions">\(f()\)</span> is declared and <em>must</em> have the name <code>vfunc()</code>.  The reason the name must match is because your code will replace a default function (also known as a virtual method). The <b>v</b> means that it can return a <b>v</b>ector of values to sum up to compute the objective.  <span class="equation">$$f() = \sum_{j=0}^{M^-} vfunc()[j].$$</span>
+Summation is the default aggregation method, but others exist or can be defined, such as <em>sum of logs</em> or <em>product</em>. Notice that the function your code provides takes no arguments.  How does it know what parameter values to evaluate the function at?  The current values of the parameters are passed through the members of the class described below.</DD>
 <P/>
 <DT><code> Rosenbrock ::Rosenbrock () { &hellip; }</code></DT>
-<DD>This method initializes the problem.  First, it is <em>necessary</em> for the objective to call the <q>constructor</q> for the parent class, in this case <code>BlackBox()</code>, which takes a string to label output.</DD>
-<DD>Next the parameters of the objective are created.  In this problem both <var>x</var> and <var>y</var> can take on any value: <var> -&infin; &lt; x &lt; +&infin;</var>  and the same for <var>y</var>.  <span class="n">FiveO</span> designates this as a <a href="Parameters.ox.html#Free">Free</a> parameter.</DD>
-<DD>Every parameter can be given a label and an initial value can be passed when the parameter is created.  The values passed, in this case 0.5 and -0.8, are default starting values that can be used to completely reset the problem. Under some conditions this value will be the actual starting value for the parameter during optimization (x<sub>0</sub>).  But this value can be replaced with a different starting value before optimization begins.  This means it is not necessary to change this code to change the starting values, but as a fail safe reasonable starting values are hard-coded.  </DD>
-<DD><span class="n">FiveO</span>  must know about the parameters, so they are added to the objective with <a href="Objective.ox.html#Objective___Parameters">Parameters</a>().  These three commands to define the parameters and add them can be collapsed to one complicated one:
+<DD>This method initializes the problem (it is the <em>constructor</em> for the class). First, it is <em>necessary</em> for the objective to call the <q>constructor</q> for the parent class, in this case <code>BlackBox()</code>, which takes a string to label output.</DD>
+<DD>Next the parameters of the objective are created.  In this problem both <span class="expressions">\(x\)</span> and <span class="expressions">\(y\)</span> can take on any real-value.
+<span class="n">FiveO</span> designates this as a <a href="Parameters.ox.html#Free">Free</a> parameter.</DD>
+<DD>Every parameter can be given a label and an initial value can be passed when the parameter is created.
+The values passed, in this case 0.5 and -0.8, are default starting values that can be used to completely reset the problem. Under some conditions this value will be the actual starting value for the parameter during optimization (x<sub>0</sub>).  But this value can be replaced with a different starting value before optimization begins. This means it is not necessary to change this code to change the starting values, but as a fail safe reasonable starting values are hard-coded.  </DD>
+<DD><span class="n">FiveO</span>  must know about the parameters, so they are added to the objective with <a href="Objective.ox.html#Objective___Parameters">Parameters</a>().
+These three commands to define the parameters and add them can be collapsed to one complicated one:
 <code>Parameters(x = new Free("x",0.5),y = new Free("y",-.8));</code></DD>
-<P/>
-<DT>Encode()</DT><DD><code>Encode()</code> sets the real starting values of the parameters at their current values, in this case the hard-coded values 0.5 and -0.8.  A vector of different values could be sent to <code>Encode()</code>, and starting values can be read from a specially formatted file using <code><a href="Objective.ox.html#Objective___Load">Load</a>()</code>.  This will attempt to load starting values saved during an earlier optimization run stored in the current folder.  </DD>
+<DD>Often you want to start optimizing at a parameter vector that is read from a file or is passed to the algorithm during execution. You do this by using <code><a href="Objective.ox.html#Objective___Encode">Encode</a>()</code> or <code><a href="Objective.ox.html#Objective___Load">Load</a>()</code>.  However, if we want to start at hard-coded values 0.5 and -0.8 there is no need to do this. Use of these functions can be seen in other examples.</DD>
 <!--""If successful <code>Load()</code> returns <code>TRUE</code>  If unsuccessful then <code>Encode()</code> will set the starting values at whatever the current values are.  <a href="Objective.ox.html#Objective___Encode">Encode</a>() can also take a vector to use as the starting values.-->
 <P/>
 <DT><code>Rosenbrock ::vfunc() {&hellip;}</code></DT>
-<DD>This codes the objective itself.  The current values of the parameters are <em>not</em> passed through a vector to be decoded by the user's code (as is typcially done
-with generic optimizers and user-defined objectives). </DD>
-<DD>Instead, <span class="n">FiveO</span> always places the current values in the members <code>x</code> and <code>y</code> before calling <code>vfunc()</code>.  </DD>
-<DD>One member of any <a href="Shared.ox.html#Parameter">Parameter</a> object is <code>v</code>, which is where FiveO puts the values.</dd>
-<DD>So <code>x.v.</code> is the value of the parameter object <code>x</code> and <code>y.v</code> is the value of <code>y</code>.  The code uses the <span class="n">niqlow</span> defined function <a href="Shared.ox.html#CV">CV</a>(), which will retrieve the value of <code>v</code> for objects passed to it.</DD>
-<DD>Since the Rosenbrock function refers to value of <code>x</code> twice, the code stores the value of <code>x</code> in a local variable (<code>xv</code>).</DD>
-<DD>The advantage of <code>CV(y)</code> over <code>y.v</code> is that it will retrieve the value regardless of whether its argument is a <a href="Shared.ox.html#Parameter">Parameter</a>, an Ox double, an Ox integer, or even a function that returns the value.  This means that <code>y</code> can be changed from a constant to a parameter to maximize over to a function of other parameters without changing <code>vfunc()</code>.</DD>
+<DD>This codes the calculation of the objective itself.  The current values of the parameters are <em>not</em> passed through a vector to be decoded by the user's code (as is typically done with generic optimizers and user-defined objectives).  Instead, <span class="n">FiveO</span> always places the current values in the members <code>x</code> and <code>y</code> before calling <code>vfunc()</code>.  </DD>
+<DD>One member of any <a href="Shared.ox.html#Parameter">Parameter</a> object is <code>v</code>, which is where FiveO puts the values. So <code>x.v.</code> is the value of the parameter object <code>x</code> and <code>y.v</code> is the value of <code>y</code>. The code uses the <span class="n">niqlow</span> defined function <a href="Shared.ox.html#CV">CV</a>(), which will retrieve the value of <code>v</code> for objects passed to it.</DD>
+<DD>The advantage of <code>CV(y)</code> over <code>y.v</code> is that it will retrieve the value regardless of whether its argument is a <a href="Shared.ox.html#Parameter">Parameter</a>, an Ox double, an Ox integer, or even a function that returns the value.  This means that <code>y</code> can be changed from a constant to a Parameter to maximize over to a function of other parameters without changing <code>vfunc()</code>.</DD>
 </DL>
 <P/>
 <a name="AC"><LI>Optimize</LI></a>
 <P/>
-<span class="n">FiveO</span> imposes constraints and scaling on the parameters.  To do this it operates on a <defn>free</defn> vector, stored in <a href="Objective.ox.html#Objective___cur">cur</a>.F which typically begins as a vector of ones.  Before the user-supplied <code>vfunc()</code> is called <code>F</code> is decoded and re-scaled to create the <q>structural</q> parameter vector, <a href="Objective.ox.html#Objective___cur">cur</a>.X.  Because the values in <code>X</code> are copied into each parameters <code>v</code> member, the user is never required to work with <code>F</code> and <code>X</code> directly.
-<P/>
-<DD><a href="Objective.ox.html#Objective___Decode">Decode</a> and <a href="Objective.ox.html#Objective___Encode">Encode</a> are the routines that work between the free and structural parameter vectors.</DD>
-<P/>
-<DT>The code above is then used in a program, perhaps by using <code>#include</code>:</DT>
-<details><summary>Source: <a href="../../examples/GetStartedFiveO.ox">GetStartedFiveO.ox</a></summary>
-<pre><object width="75%" height="200" type="text/plain" data="../../examples/GetStartedFiveO.ox" border="1" ></object></pre></details>
+<DT>The code in the file <code>Rosenbrock.ox</code> is used in a program, perhaps by using <code>#include</code>:</DT>
+<details><summary>Source: <a href="../../examples/FiveOExampleA.ox">FiveOExampleA.ox</a></summary>
+<pre><object width="75%" height="200" type="text/plain" data="../../examples/FiveOExampleA.ox" border="1" ></object></pre></details>
 <DL>Line-by-line Explanation
-<DT>Include</DT>
-<DD>First the code for the problem is included in the program.  If the declaration and definition of the <code>Rosenbrock</code> class were placed in separate <code>.oxh</code> and <code>.ox</code> files, then it could be <em>imported</em> instead of <em>included</em>, which is sometimes better when using shared code or possibly combining files that might try to include the same file more than once. </DD>
+<DT>#nclude</DT>
+<DD>The code for the problem is included in the program.  By separating Rosenbrock from the main program it is possible to use the function in different programs, an example of  the software design principle <q>Code once, use often</q>. </DD>
 <DT><code>main(){&hellip;}</code>
-<DD>Like C programs, all Ox programs must contain a <code>main()</code> procedure which is where execution starts.</DD>
-<DD><code>fopen("file","l")</code> captures all output of the program as a log file, so that it can be included in this document below.</DD>
-<DD>The objective will be created and stored in the local main variable <code>obj</code> as will  and the two algorithms will used to optimize it, which are stored in <code>alg1</code> and <code>alg2</code>.  </DD>
-<DT>Algorithm and Objective Objects</DT>
-<DD>These are objects of classes, so they are assigned the return value of the  <code>new </code> statement.  Note that the <a href="Algorithms.ox.html#Algorithm">Algorithm</a>s in <span class="n">FiveO</span> require the objective to be optimize be sent as the argument of the creator function.  Multiple objectives can be defined, and each can have algorithms associated with it.  But once created,
-  each algorithm object is associated with the objective sent to it. <details class="aside"><summary>A difference with <span class="n">DDP</span></summary>In <a href="..\DDP\default.html">DDP</a> only a single DP problem is defined at a time because it relies heavily on <code>static</code> members to save storage. However,
-  <span class="n">FiveO</span> avoids <code>static</code> variables so multiple objectives and multiple algorithms can all be created without creating memory conflicts
-  that static allocation creates.</details>
+<DD>Any Ox program must contain a <code>main()</code> procedure which is where execution starts.</DD>
+<DD>The objective will be created and stored in the variable <code>obj</code> as will and the algorithm used to optimize it in <code>alg</code>.  These are objects of classes, so they are assigned the return value of a  <code>new </code> statement.  The <a href="Algorithms.ox.html#Algorithm">Algorithm</a>s in <span class="n">FiveO</span> require the objective to be optimize be sent as the argument of the creator function.  Multiple objectives can be defined, and each can have algorithms associated with it.  But once created, each algorithm object is associated with the objective sent to it. <details class="aside"><summary>A difference with <span class="n">DDP</span></summary>In <a href="..\DDP\default.html">DDP</a> only a single DP problem is defined at a time because it relies heavily on <code>static</code> members to save storage. However,  <span class="n">FiveO</span> avoids <code>static</code> variables so multiple objectives and multiple algorithms can all be created without creating memory conflicts  that static allocation creates.</details>
 <DT>Volume of output generated</DT>
-<DD>Objective, Algorithm, Bellman and Method classes in <span class="n">niqlow</span> all have <code>Volume</code> data members.  These can set separately to control how much output is produced.  See <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a></DD>
-<DD>Here, the volume of each object is set to <code>LOUD</code> which means they will produce a large amount of output (but not the maximum which is <code>NOISY</code>)</DD>
+<DD>Many different objects defined in <span class="n">niqlow</span> have a <code>Volume</code> data member which can be set to control the amount of output it produces.  These can set separately to control how much output is produced.  Here, the volume of both objects is set to <code>QUIET</code> which is one step above the default level of <code>SILENT</code>.  See <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a> for the different values. </DD>
 <DT>Iterate</DT>
-<DD>To apply an optimization algorithm to objective, simply call its <code>Iterate()</code> method.  </DD>
-<DD>Different algorithms take different arguments in <code>Iterate</code>, but often the defaults apply so <code>Iterate()</code> may work as desired.  The parameters of algorithms can be <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a>d before iterating.</DD>
-<DD>When <code>NelderMead</code> ends  it leaves the best value of the free parameters in <a href="Objective.ox.html#Objective___cur">cur</a>.F, and the structural parameters in <a href="Objective.ox.html#Objective___cur">cur</a>.X.  When <a href="Algorithms.ox.html#GradientBased___Iterate">Iterate</a>() is invoked it starts at the same structural parameters but resets the free parameters.</DD>
-<DT><a href="Objective.ox.html#Objective___ReInitialize">ReInitialize</a>()</DT>
-<DD>This resets all parameters of the objective to the values before optimizing (at their hard-coded inital values).  This is done to compare <code>NelderMead</code> and <code>Newton</code> from the same starting point.</DD>
-<DT>Delete</DT>
-<DD>It's a good idea to use <code>delete</code> to clean up  objects that have been created and will not be needed anymore.</DD>
-<DD>This is especially true because this example also shows how to solve a non-linear system and reuses the variables <code>alg1</code> and <code>alg2</code>. If they were not deleted first, the memory they currently use would be wasted (and in a large application may become a memory leak).</DD>
+<DD>To apply an optimization algorithm to objective, simply call its <code>Iterate()</code> method. Different algorithms take different arguments in <code>Iterate</code>, but often the defaults apply so <code>Iterate()</code> often works as desired.  The parameters of algorithms can also be <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a>d before iterating.</DD>
 <P/>
-<a name="AD"><LI>Results</li></a>
-<DT>From the directory that contains the program, it can be run from a command line as:</DT>
-<DD><pre>oxl GetStartedFiveO</pre>
-The output to the OxEdit screen would include the segment captured by the log as show here:<pre>
-<details><summary>Source: <a href=""../../examples/output/Rosenbrock.txt">niqlow/examples/output/Rosenbrock.txt</a></summary>
-<pre><object width="75%" height="200" type="text/plain" data="../../examples/output/Rosenbrock.txt" border="1" ></object></details>
-</pre></dd>
+From the directory that contains the program, it can be run from a command line as:
+<DD><pre>oxl FiveOExampleA</pre>
+The output would is shown here:
+<details><summary>Source: <a href=""../../examples/output/FiveOExampleA.txt">niqlow/examples/output/FiveOExampleA.txt</a></summary>
+<pre><object width="75%" height="200" type="text/plain" data="../../examples/output/FiveOExampleA.txt" border="1" ></object></pre></details>
+</dd>
 <P/>
 <DT>Explanation</DT>
-<DD>After 133 function evaluations NelderMead reports that the simplex has collapsed (converged).  Sometimes in large, less well-behaved problems, it can be better to reset the simplex after a certain number of function evaluations, but in this case it is unnecessary. </DD>
+<DD>First both Ox and <span class="n">niqlow</span> print some version and licensing output.</DD>
+<DD>Next,  <span class="n">FiveO</span> prints out a warning because the program never explicitly set the length of the vector <code>vfunc()</code> returns.  Since this is a simple objective it returns a single number so the default size of 1 is appropriate.  </DD>
+<DD>Many components of <span class="n">niqlow</span> will produce <em>log</em> files that track output, errors, etc.  They will write to files with different names based on the algorithm or the name of the objective given by the user.  However, all log files from execution of a program will also include a <q>timestamp</q> as part of the file name.  The timestamp is the same for all log files started from a a program so the log files that go together can be identified.</DD>
+<DD>Because the volume of output was set to <code>QUIET</code> the Nelder-Mead algorithm simply prints a message when it starts and when it ends.  In between the objective itself keeps track of whether the computed value <span class="expressions">\(f(\psi)\)</span> has improved or not.  Again, because its volume is also <code>QUIET</code> it only prints out improvements not every function evaluation.  Improvements are marked with <code>*</code>. </DD>
 <P/>
-<DD>The <em>free</em> parameter for <var>x</var> has gone from 1.0 to 2.0, and for <var>y</var> it has gone from 1.0 (since <var>y</var> to about -1.25.  What this means for the real parameters is stated in the final report once Simplex converges: the <em>actual</em> or <em>structural</em> parameters have converged to within 1.0E-5 of the true optimal values <var>x* = y* = </var> 1.0.</DD>
+<DT>Log file</DT>
+<DD>The log files for Nelder Mead (given the volume level) has more detail that the direct-to-screen output:
+<details><summary>Source: <a href=""../../examples/FiveOExampleAlogfile.txt">niqlow/examples/FiveOExampleAlogfile.txt</a></summary>
+<pre><object width="75%" height="200" type="text/plain" data="../../examples/FiveOExampleAlogfile.txt" border="1" ></object></pre></details>
+</dd>
+<DD>It shows the final parameter values are as expected. The <em>free</em> parameter for <var>x</var> has gone from 1.0 to 2.0, and for <var>y</var> it has gone from 1.0 (since <var>y</var> to about -1.25.  What this means for the real parameters is stated in the final report once Simplex converges: the <em>actual</em> or <em>structural</em> parameters have converged to within 1.0E-5 of the true optimal values <var>x* = y* = </var> 1.0.</DD>
 <P/>
-<DD>Next we see that BFGS agrees.  It does not iterate because the norm of the gradient <code>&nabla;&fnof;</code> is close enough to 0 to declare convergence immediately. It terminates without changing the parameters.</DD>
+<a name="AD"><LI>Beyond the Basics</LI></a>
 <P/>
-<DT>ReInitialize</DT>
+<DT>Loading/Saving parameter values to/from disk</DT>
 <P/>
-<DT>Saved values on disk</DT>
+Each time <span class="n">FiveO</span>  finds an improvement on the objective function it writes out the result to a file (<em>and</em> reports on the screen unless  <code>Volume=SILENT</code>).  This is designed for slow and difficult optimization problems that one often kills the program before convergence and restarts.  Here is the file produced at the end of the process.<pre>Source:  niqlow/doc/examples/Rosenbrock.Example.optobj
+<object width="75%" height="200" type="text/plain" data="../../examples/Rosenbrock.Example.optobj" border="1" ></object>
+</pre>
+The top part of the file is printed using Ox's <a href="http://www.doornik.com/ox/oxstd.html#TabStd2"><q>%v</q></a> format, which ensures accurately reading the values back in using <a href="Objective.ox.html#Objective___Load">Load</a>.  The best parameter vector starts on line 4 and continues until <q>&gt;</q> is reached, in this case it is a 2&times;1 vector.  The rest of the file is for information.  In particular, the structural vector is printed again with labels, but notice with not quite as many digits.</DD>
 <P/>
-<DD>Each time <span class="n">FiveO</span>  finds an improvement on the objective function it reports on the screen (unless running <code>QUIET</code>ly) and writes out to a file.  This is designed for slow and difficult optimization problems that one often kills the program before convergence and restarts.  Here is the file produced at the end of the process.<pre>Source:  niqlow/doc/examples/Rosenbrock.Get_Started.optobj
-<object width="75%" height="200" type="text/plain" data="../../examples/Rosenbrock.Get_Started.optobj" border="1" ></object>
-</pre></DD>
+The program could start at the values in the <code>optobj</code> file by adding <code>obj-&gt;Load()</code> before the iteration begins.  The 0 means <code>Load()</code> will look in the file created by optimization.  If you copy the file to <code>Joe.optobj</code> and edit the starting values your program can start there with <code>obj-&gt;Load("Joe");</code>.  </p>
 <P/>
-<DD>The top part of the file is printed using Ox's <a href="http://www.doornik.com/ox/oxstd.html#TabStd2"><q>%v</q></a> format, which ensures accuracy reading the values back in using <a href="Objective.ox.html#Objective___Load">Load</a>.  The best parameter vector starts on line 4 and continues until <q>&gt;</q> is reached, in this case it is a 2&times;1 vector.  The rest of the file is for information.  In particular, the structural vector is printed again with labels, but notice with not quite as many digits.</DD>
+<DT>Sequential use of algorithms</DT>
 <P/>
-<DD>The user could start at these values by adding <code>obj-&gt;Load(0)</code> before the first algorithm is invoked.  The 0 means <code>Load()</code> will look in the file created by optimization.  The user could also copy the file to <code>Joe.optobj</code>, change the starting values and start there with <code>obj-&gt;Load("Joe");</code>.  This means that the user can conveniently read starting values from files after saving the default hard-coded values once or the current best vector at any point in a first optimization attempt.</DD>
+Next we see that BFGS agrees.  It does not iterate because the norm of the gradient <code>f(x)</code> is close enough to 0 to declare convergence immediately. It terminates without changing the parameters.</DD>
+<P/>
+<DT>Parameter Vector instead of individual parameters</DT>
 <P/>
 <DT>Using final values in the code</DT>
 <P/>
-<a name="AE"><LI>Variations</li></a>
-<DL>
-<DT>Other parameter types and parameter blocks</DT>
-<DT>Separable Objectives</DT>
-<DT>Mixture Objectives</DT>
-<DT>Parallel Execution</DT>
-</DL>
+<DT>Parameter Block</DT>
+<P/>
 </OL>
 <P/>
 <a name="B"><h1>System Example: lagged equations </h1></a>
@@ -168,12 +153,12 @@ The output to the OxEdit screen would include the segment captured by the log as
  <DD>(see Ox <a href="http://www.doornik.com/ox/oxpackages.html#SolveNLE">SolvenLE</a> and <code>../Ox/exmples/maximize/solvene2.ox</code>).</DD>
 <P/>
 <DT>The System</DT>
-<DD><pre>
-Parameter vector:
-  &psi; = ( x<sub>0</sub> ··· x<sub>N&oline;</sub> )
-System of equations in &psi;
-  &fnof; (&psi;) =  (3-2x<sub>t</sub>)x<sub>t</sub> - x<sub>t-1</sub> - 2*x<sub>t+1</sub> + 1,  for t = 1,&hellip;,N</pre></DD>
-<DD>The solution is a N-vector &psi;* for which &fnof;(&psi;*) = <b>0</b> (a N-vector of zeros).</DD>
+<DD>Parameter vector:</DD>
+<span class="equation">$$\psi  = \pmatrix{ x_0 &\cdots &x_{N^-}}.$$</span>
+<DD>System of equations in <span class="expressions">\(\psi\)</span></DD>
+<span class="equation">$$f(\psi) =  (3-2x_t)x_t - x_{t-1} - 2*x_{t+1} + 1,\qquad  t = 1,\dots,N$$</span></DD>
+<DD>The solution is a N-vector <span class="expressions">\(\psi^\star\)</span> for which </DD>
+<span class="equation">$$f(\psi^\star) = 0.$$</span>
 <P/>
 <LI><a name="BA">Code the System</a></LI>
 <P/>
@@ -189,9 +174,7 @@ they want to solve as class derived from a built-in class,  in this case <a href
 <DD>Your class has to have creator method (same name as the class itself) because
 it will have to call the creator for the parent class.
 <details class="aside"><summary>Ox Creators</summary>If you a class <code>Child</code> is derived from <code>Parent</code>, then the
-expression <code>new Child()</code> will call the routine <code>Child::Child()</code> as part of creating the new object.  If <code>Child::Child()</code> was not defined
-nothing is called.  So if <code>Parent::Parent()</code> exists (and in <span class="n">FiveO</span> it does and must be called), then the child class has to have
-a creator defined and one (and perhaps the only) it does is call <code>Parent()</code>. As a derived class it could use <code>Parent::Parent()</code>, but this is not necessary because it inherits all the methods of the parent class and these are considered part of it so the prefix <code>Parent::</code> is not needed.</details></DD>
+expression <code>new Child()</code> will call the routine <code>Child::Child()</code> as part of creating the new object.  If <code>Child::Child()</code> was not defined nothing is called.  So if <code>Parent::Parent()</code> exists (and in <span class="n">FiveO</span> it does and must be called), then the child class has to have a creator defined and one (and perhaps the only) it does is call <code>Parent()</code>. As a derived class it could use <code>Parent::Parent()</code>, but this is not necessary because it inherits all the methods of the parent class and these are considered part of it so the prefix <code>Parent::</code> is not needed.</details></DD>
 <DD>The system of equations is computed and returned by a method that must be called <code>vfunc()</code>.  As discussed above, <code>vfunc()</code> is always expected to return a vector even if the class is an objective not a system of equations.  The difference with <a href="Objective.ox.html#System">System</a> and with most system solution algorithms is that the
 vector is not aggregated into a real number.</DD>
 <DT><code>SysExample::SysExample(N){&hellip;}</code></DT>
@@ -249,7 +232,8 @@ The output to the OxEdit screen would include the segment captured by the log as
 <LI><a name="BD">Variations</a></LI></OL>
 <P/>
 </OL>
-</dd>
+
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2017 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd></dd>
 </dl>
 <div class="footer">
 Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>

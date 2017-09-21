@@ -101,7 +101,6 @@ Objective::Menu() {
 Objective::Save(fname)	{
 	decl f;
 	if (isint(fname)) fname = this.fname;
-	format(500);
 	f = fopen(fname+"."+EXT,"w");
 	if (!isfile(f)) println("File name:",fname+"."+EXT);
 	fprint(f,"%v",classname(this),"\n","%v",L,"\n","%v",cur.v,"\n");
@@ -176,17 +175,18 @@ Constrained::CheckPoint(f,saving)	{
 **/
 Objective::CheckMax(fn)	{
     newmax = cur.v>maxpt.v;
-    if (Volume>QUIET) {
-        fprint(logf,cur.v,newmax ? "*" : " \n");
-		 if (Volume>LOUD) { print(" ","%15.8f",cur.v); if (isfile(fn)) fprint(fn," ","%15.8f",cur.v); }
+    decl suffx = newmax ? "*" : " ";
+    if (Volume>SILENT) {
+        fprintln(logf,suffx);
+		if (Volume>QUIET) {
+            println(" ","%15.8f",cur.v,suffx);
+            if (isfile(fn)) fprintln(fn," ","%15.8f",cur.v,suffx);
+            }
+        else if (newmax) println(" ","%15.8f",cur.v,suffx);
         }
 	if (newmax)	{
 		this->Save(0);
 		maxpt -> Copy(cur);
-		if (Volume>QUIET) {
-			if (Volume<=LOUD) print(" ","%18.12f",maxpt.v);
-			println("*"); if (isfile(fn)) fprintln(fn,"*");
-			}
 		}
 	return newmax;
 	}
@@ -195,18 +195,16 @@ Objective::CheckMax(fn)	{
 /** Prints a message and details about the objective.
 @param orig string, origin of the print call
 @param fn integer, no print to file.<br>file, prints to file as well as screen
-@param toscreen TRUE: print to screen as well
+@param toscreen TRUE: print full report to screen as well</br>FALSE: only print orig to screen
 **/
 Objective::Print(orig,fn,toscreen){
-	decl b =sprint("\n\nReport of ",orig," on ",L,"\n",
-		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
-		"Free Parameters",
-		"%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},
-		FinX~cur.F,
-		"Actual Parameters",
-		"%c",{           "     Value "},"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
-    if (isfile(fn)) {fprintln(fn,b); }
-    if (toscreen) println(b);
+	decl note =sprint("\n\nReport of ",orig," on ",L,"\n"),
+         details = sprint("%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
+		          "Free Parameters",
+		          "%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~cur.F,
+		          "Actual Parameters","%c",{           "     Value "},"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
+    if (isfile(fn)) {fprintln(fn,note,details); }
+    println(note, toscreen ? details : "");
 	}
 
 UnConstrained::UnConstrained(L) {
