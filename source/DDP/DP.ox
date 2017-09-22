@@ -1813,3 +1813,33 @@ OutAuto::OutAuto(){
     }
 
 OutAuto::Run() { I::curth->AutoVarPrint1(this);  }	
+
+/** .
+**/
+RandomEffectsIntegration::RandomEffectsIntegration() {	RETask(); 	}
+
+/** .	
+@param path Observed path to integrate likelihood over random effects for.
+@return array {L,flat}, where L is the path objective, integrating over random &gamma;
+and flat is the
+integrated flat output of the path.
+**/
+RandomEffectsIntegration::Integrate(path) {
+	this.path = path;
+	L = 0.0;
+    flat = 0;
+	loop();
+	return {L,flat};
+	}
+	
+RandomEffectsIntegration::Run() {
+    path.rcur = I::r;  //Added Dec. 2016
+    L += path->TypeContribution(curREdensity);	
+    println("int ",curREdensity," ",L);
+    }
+
+Data::SetLog() {
+    Volume = SILENT;
+    lognm = replace(Version::logdir+"Data-"+Version::tmstmp," ","")+".log";
+    logf = fopen(lognm,"aV");
+    }

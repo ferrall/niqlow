@@ -330,6 +330,13 @@ struct DPMixture 	: RETask 	{	DPMixture(); Run();	}
 /** . @internal **/
 struct SDTask		: RETask	{ 	SDTask(); Run(); }
 
+struct RandomEffectsIntegration : RETask {
+	decl path, L, flat;
+	RandomEffectsIntegration();
+	Integrate(path);
+	Run();
+	}
+
 /** Stores information for a point &gamma; in the Group Space &Gamma;.
 
 Related DP models differing only by `TimeInvariant` effects.
