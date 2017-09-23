@@ -124,7 +124,6 @@ PathPrediction::ProcessContributions(cmat){
         fprintln(Data::logf," Predicted Moments group ",f," ",L,
         "%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat,
         "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",tlabels[1:],delt);
-//        savemat(replace(Version::logdir+DP::L+"_PredMoments_","","")+".dta",flat,tlabels);
         }
     flat |= constant(.NaN,this.T-rows(flat),columns(flat));
     }
@@ -228,7 +227,6 @@ PathPrediction::Empirical(inNandMom,hasN,hasT,wght) {
     do {
         if (cur.t==datat[dt]) {
             cur.W = (inN[dt]/totN)*(invsd.*influ);
-            if (isnan(cur.W)) println("!! ",dt," ",inN[dt]," ",totN," isd ",invsd," infl ",influ);
             cur.readmom = inmom[dt++][];
             }
         else {
@@ -686,7 +684,6 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
     M = 0.0;
     succ = TRUE;
     do {
-        println("f =",cur.f," ",ismatrix(outmat));
         if (ismatrix(outmat)) {
             cur->PathPrediction::ProcessContributions(sumr(outmat[][left:right]));
             left += N::R;
@@ -884,14 +881,12 @@ EmpiricalMoments::Read(FNorDB) {
         inmom = <>;
         cur -> SetColumns(dlabels,Nplace,Tplace);
         incol = selectifc(cur.cols,cur.cols.>=0);
-        print("#",curf);
         do {
             if (row<rows(data)) {  //read one more
                 inf = (isint(fcols)) ? 0 :
                 I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
                 if (inf==curf ) {  //same fixed group
                     inmom |= data[row++][incol];   //add moments, increment row
-                    if (report) print(".");
                     continue;                        // don't install moments
                     }
                 }
