@@ -1835,7 +1835,6 @@ RandomEffectsIntegration::Integrate(path) {
 RandomEffectsIntegration::Run() {
     path.rcur = I::r;  //Added Dec. 2016
     L += path->TypeContribution(curREdensity);	
-    println("int ",curREdensity," ",L);
     }
 
 Data::SetLog() {
