@@ -509,11 +509,11 @@ NelderMead::Sort()	{
 NelderMead::CheckPoint(WriteOut) {
     decl chkpt = fopen(logpfx+".chkpt",WriteOut ? "w" : "r");
     if (WriteOut) {
-        fprint(chkpt,"%v",OC.v,"\n","%v",step,"\n","%v",O.Start,"\n","%v",OC.F,"\n","%v",nodeV);
+        fprint(chkpt,"%v",OC.v,"\n","%v",step,"\n","%v",O.Start,"\n","%v",OC.F,"\n","%v",nodeV,"\n","%v",nodeX);
         }
     else {
         decl instart,infree,inv;
-        fscan(chkpt,"%v",&inv,"%v",&step,"%v",&instart,"%v",&infree,"%v",&nodeV);
+        fscan(chkpt,"%v",&inv,"%v",&step,"%v",&instart,"%v",&infree,"%v",&nodeV,"%v",&nodeX);
         OC.v = inv;
         O->Encode(instart);
         O->Decode(infree);
