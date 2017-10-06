@@ -54,7 +54,8 @@ enum {stayinf,gotonextf,exittreatment,NextTreatmentStates}
 		/** Tags for Types of Constraints. @name ConstraintTypes **/	
 enum{EQUALITY,INEQUALITY,ConstraintTypes}
 
-		/** Tags for Types of vector-valued objective Aggregation. @name AggregatorTypes **/	
+		/** Tags for Types of vector-valued objective Aggregation.
+            @name AggregatorTypes **/	
 enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,Aggregators}
 
 static const decl
@@ -284,7 +285,9 @@ Algorithms use a point to store temporary values.
 **/
 struct Point : Zauxiliary {
 	decl
-									AggType,
+	/**form of aggregation of vfunc() into
+        func().    @see Objective::SetAggregation
+        **/								AggType,
 	/** Free vector. **/				F,
 	/** Parameter vector.**/			X,
 	/** object vector. **/				V,

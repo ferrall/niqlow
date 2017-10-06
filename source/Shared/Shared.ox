@@ -23,7 +23,8 @@ Version::Check(logdir) {
     }
  this.logdir = logdir+"/";
  tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
- println("\n niqlow version ",sprint("%4.2f",version/100),
+ if (!Version::MPIserver)
+    println("\n niqlow version ",sprint("%4.2f",version/100),
     ". Copyright (C) 2011-2017 Christopher Ferrall.\n",
     "Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n",
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
@@ -702,6 +703,8 @@ SysPoint::SysPoint() {
 @param inV=0, if no argument, V data member holds individual values<br>matrix of separable values to be aggregated within columns
 @param outv=0, if no argument, objective stored in this.v<br>address to return objective
 The matrix passed as <code>inV</code> should be <var>N&times;M</var>.
+
+@see AggregatorTypes, Objective::SetAggregation
 **/
 Point::aggregate(inV,outv) {
     decl locv;

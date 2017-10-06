@@ -295,6 +295,7 @@ PathPrediction::PathPrediction(f,method,iDist){
     mask = <>;
     Prediction(0);
     T = 1;
+    inT = 0;
     state = ReverseState(f,SS[onlyfixed].O);
     HasObservations = FALSE;
     if ((N::R>One || N::DynR>One ) && isint(summand)) {
@@ -895,7 +896,6 @@ EmpiricalMoments::Read(FNorDB) {
                 }
             cur->Empirical(inmom,hasN,hasT,wght);
             if (report) {
-                    println("#");
                     fprintln(Data::logf,"Moments read in for fixed group ",curf,". See log file");
                     fprintln(Data::logf,"Moments of Moments for fixed group:",curf);
                     MyMoments(inmom,tlabels[1:],Data::logf);

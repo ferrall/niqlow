@@ -498,11 +498,11 @@ NelderMead::Sort()	{
         fprint(logf,"Sorted plexsize: ",plexsize," fdiff:",fdiff);
         if (Volume>LOUD) {
             fprint(logf,"%15.5f","%r",{"f","p"},nodeV|nodeX,"MXi:",mxi," MNi:",mni," nmni:",nmni);
-            if (NormalStart)  //don't rewrite checkpoint right away.
-                CheckPoint(TRUE);
             }
         fprintln(logf,"\n-------");
         }
+    if (NormalStart)  //don't rewrite checkpoint right away.
+        CheckPoint(TRUE);
     NormalStart = TRUE;
 	}
 

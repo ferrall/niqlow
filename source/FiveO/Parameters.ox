@@ -296,8 +296,8 @@ FixedBlock::Encode() { return constant(.NaN,N,1); }
 Simplex::Simplex(L,ivals)	{
 	decl k,myN;
 	ParameterBlock(L);
-	if (isint(ivals))
-		{ myN = ivals;  ivals = constant(1/myN,myN,1);}
+	if (isint(ivals)||isdouble(ivals))
+		{ myN = int(ivals);  ivals = constant(1/myN,myN,1);}
 	else
 		{ivals = vec(ivals); myN = rows(ivals); }
 	if (any(ivals.>1)||any(ivals.<0)||fabs(sumc(ivals)-1)>stoler)
@@ -379,7 +379,32 @@ DecreasingReturns::BlockCode()	{
 	ParameterBlock::BlockCode();
 	}
 
-	
+Ordered::Ordered(L,B,ivals,sign) {
+	decl k,myN,newpsi,prevpsi,ffree,bv;
+	ParameterBlock(L);
+    this.B = B;
+    bv = CV(B);
+	ffree = bv == -sign *  .Inf;
+	if (isint(ivals)||isdouble(ivals))
+		{ myN = int(ivals);  ivals = (ffree ? 0 : bv) + sign*(1.1)*range(1,myN);}
+	else
+		{ivals = vec(ivals); myN = rows(ivals);}
+	if ( (sign>0)&&any(ivals|.Inf .<=bv|ivals)
+         || (sign<0)&&any(ivals|-.Inf.>=bv|ivals) ) {
+        println("****",ivals',"\n****");
+		oxrunerror("FiveO Error 25. Ordered Sequence  "+L+" initial values not a valid");
+        }
+	prevpsi = B;
+	Psi = {};
+	for(k=0;k<myN;++k) {
+		AddToBlock( (!k && ffree)
+				        ? new Free(L+sprint(k),ivals[0])
+				        : (sign>0) ? new BoundedBelow(L+sprint(k),prevpsi,ivals[k])
+				                   : new BoundedAbove(L+sprint(k),prevpsi,ivals[k]) );
+		prevpsi = Psi[k];
+		}
+    }
+
 /**Create an increasing vector of  parameters.
 <dd><pre>
 LB &lt; x<sub>1</sub> &lt; x<sub>2</sub> &lt; &hellip; &lt; x<sub>N</sub>
@@ -390,28 +415,7 @@ LB &lt; x<sub>1</sub> &lt; x<sub>2</sub> &lt; &hellip; &lt; x<sub>N</sub>
 @comment if ivals is an integer N then the sequence is initialized as LB+1, LB+2, &hellip; LB+N.
 **/
 Increasing::Increasing(L,LB,ivals)	{
-	decl k,myN,newpsi,prevpsi,ffree,lv;
-	ParameterBlock(L);
-	this.LB = LB;
-    lv = CV(LB);
-	ffree = lv==-.Inf;
-	if (isint(ivals))
-		{ myN = ivals;  ivals = (ffree ? 0 : lv) +1.1*range(1,myN);}
-	else
-		{ivals = vec(ivals); myN = rows(ivals);}
-	if (any(ivals|.Inf.<=lv|ivals)) {
-        println("****",ivals',"\n****");
-		oxrunerror("FiveO Error 25. Increasing Sequence  "+L+" initial values not a valid");
-        }
-	prevpsi = LB;
-	Psi = {};
-	for(k=0;k<myN;++k) 	{
-		AddToBlock( (!k && ffree)
-				? new Free(L+sprint(k),ivals[0])
-				: new BoundedBelow(L+sprint(k),prevpsi,ivals[k])
-                );
-		prevpsi = Psi[k];
-		}
+    Ordered(L,LB,ivals,+1);
 	}
 
 
@@ -423,27 +427,7 @@ LB &lt; x<sub>1</sub> &gt; x<sub>2</sub> &gt; &hellip; &gt; x<sub>N</sub>
 @comment if ivals is an integer N then the sequence is initialized as UB-1, UB-2, &hellip; UB-N
 **/
 Decreasing::Decreasing(L,UB,ivals)	{
-	decl k,myN,newpsi,prevpsi,ffree,bv;
-	ParameterBlock(L);
-	this.UB = UB;
-    bv = CV(UB);
-	ffree = bv==.Inf;
-	if (isint(ivals))
-		{ myN = ivals;  ivals = (ffree ? 0 : bv ) -1.1*range(1,myN);}
-	else
-		{ivals = vec(ivals); myN = rows(ivals);}
-	if (any(ivals|-.Inf.>=bv|ivals)) {
-        println("**** ",bv~ivals',"\n****");
-		oxrunerror("FiveO Error 26. Decreasing Sequence "+L+" initial values not valid");
-        }
-	prevpsi = UB;
-	Psi = {};
-	for(k=0;k<myN;++k) {
-		AddToBlock( (!k && ffree)
-				? new Free(L+sprint(k),ivals[0])
-				: new BoundedAbove(L+sprint(k),prevpsi,ivals[k]) );
-		prevpsi = Psi[k];
-		}
+    Ordered(L,UB,ivals,-1);
 	}
 
 
@@ -456,8 +440,8 @@ Decreasing::Decreasing(L,UB,ivals)	{
 Coefficients::Coefficients(L,ivals,labels) {
 	decl k, myN, haslabels = isarray(labels);
 	ParameterBlock(L);
-	if (isint(ivals)) {
-		  if (ivals>0) myN = ivals;
+	if (isint(ivals)||isdouble(ivals)) {
+		  if (ivals>0) myN = int(ivals);
 		  else
 			{ if (!haslabels) oxrunerror("FiveO Error 267. Invalid inputs to Cofficients()\n"); myN = sizeof(labels); }
 		  ivals = zeros(myN,1);
@@ -476,8 +460,8 @@ Coefficients::Coefficients(L,ivals,labels) {
 StDeviations::StDeviations(L,ivals,labels) {
 	decl k, myN, haslabels = isarray(labels);
 	ParameterBlock(L);
-	if (isint(ivals)) {
-		  if (ivals>0) myN = ivals;
+	if (isint(ivals)||isdouble(ivals)) {
+		  if (ivals>0) myN = int(ivals);
 		  else
 			{ if (!haslabels) oxrunerror("FiveO Error 27a. Invalid inputs to StDeviations()",0); myN = sizeof(labels); }
 		  ivals = ones(myN,1);
@@ -485,7 +469,7 @@ StDeviations::StDeviations(L,ivals,labels) {
 	else {
 		ivals = vec(ivals);
 		if (any(ivals.<0.0)) oxrunerror("FiveO Error 27b. Initial stdev value invalid");
-		myN = rows(ivals);
+		myN = int(rows(ivals));
 		}
 	for(k=0;k<myN;++k) {AddToBlock(new Positive(haslabels ? L+":"+labels[k] : L+sprint(k) ,ivals[k]));}
 	}		

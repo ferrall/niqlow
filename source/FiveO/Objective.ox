@@ -138,6 +138,9 @@ Objective::Load(fname)	{
 	return TRUE;
 	}
 
+/** Set the formula .
+@see AggregatorTypes
+**/
 Objective::	SetAggregation(AggType) {
 	hold.AggType = cur.AggType = AggType;
 	}	

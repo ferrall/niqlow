@@ -18,20 +18,8 @@
 Discrete quantities that appear in DDP models (actions, states, fixed and random effects, auxiliary outcomes).
 <a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Variables.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 <P/>
-<DL>Quick Reference: a variable in a DP model is an object derived from <a href="Shared.ox.html#Quantity">Quantity</a> and can be of various types:</DT>
-<DT>The <a href="Variables.ox.html#ActionVariable">ActionVariable</a> class represents a choice in the model (such as whether to work or not) and is an element of the action vector <code>&alpha;</code><DT>
-<DD>Action variables are added to the DP model using using the <a href="DP.ox.html#DP___Actions">Actions</a>() method.</DD>
-<P/>
-<DT>The <a href="Variables.ox.html#StateVariable">StateVariable</a> class is designed to be a member of one of the discrete state vectors (<code>&epsilon;,&eta;,&theta;,&gamma;</code>).</DT>
-<DD>State variables are added to appropriate state vector using  the method for the corresponding vector: <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>(), <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>() and <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>().</DD>
-<DD>Many kinds of state variables are derived from the base class.</DD>
-<P/>
-<DT>The <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> class represents values that depend on actions and states and are of interest to the user but are not required to solve the model.  They are members of the auxiliary vector <code>&chi;</code></DT>
-<DD>Auxiliary values are added to the DP model using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>()</DD>
-</DT>
-</DL>
-<P/>
 <OL class="contents">Contents
+<LI><a href="#OV">Overview</a></LI>
 <LI><a href="#ActionVariables">Action Variables</a></LI>
 <LI><a href="#StateVariables">State Variables</a></LI>
 <LI><a href="#Clock">The Clock:  keeping time in DDP</a></LI>
@@ -42,28 +30,39 @@ Discrete quantities that appear in DDP models (actions, states, fixed and random
 <P/>
 <OL class="body">
 <P/>
+<a name="OV"/><li>Overview</li>
+<P/>
+<DT>A variable in a DP model is an object derived from <a href="Shared.ox.html#Quantity">Quantity</a> and can be of various types:</DT>
+<P/>
+<DD>The <a href="Variables.ox.html#ActionVariable">ActionVariable</a> class represents a choice in the model (such as whether to work or not) and is an element of the action vector <span class="expressions">\(\alpha\)</span>. Action variables are added to the DP model using using the <a href="DP.ox.html#DP___Actions">Actions</a>() method.</DD>
+<P/>
+<DD>The <a href="Variables.ox.html#StateVariable">StateVariable</a> class is designed to be a member of one of the discrete state vectors (<span class="expressions">\(\epsilon,\eta,\theta,\gamma\)</span>). State variables are added to appropriate state vector using  the method for the corresponding vector:<br/>
+<a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>() adds ordinary state variables (with general transitions)<br/>
+<a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a> adds state variables with iid transitions whose values can affect other transitions<br/>
+<a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>() adds pure iid state variables<br/>
+<a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>() adds variables that do not change within a DP problem, both fixed- and random-effect type variables.</DD>
+<DD>Many kinds of state variables are derived from the base class.</DD>
+<P/>
+<DD>The <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> class represents values that depend on actions and states but are not required to solve the model.  They are members of the auxiliary vector <span class="expressions">\(\chi\)</span>.  Auxiliary values are added to the DP model using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>()</DD>
+<P/>
 <a name="ActionVariables"><LI>Action Variables</LI></a>
 <OL class="chapter">
 <a name="Basics"><LI>Basics</LI></a>
-<DT>Action vector <code>&alpha;</code> :</DT>
-    <DD>The vector of discrete actions.  A generic element of <code>&alpha;</code> is denoted <var>a</var>.  An action variable takes on <code>a.N</code> different values.</DD>
-    <DD>The action vector includes <code>&alpha;.N</code> variables, denoted a<sub>0</sub> through a<sub>(&alpha;.N)&oline;</sub>.</DD>
-    <DD>Action variables are represented as an <a href="Variables.ox.html#ActionVariable">ActionVariable</a> and are added to <code>MyModel</code> and to <code>&alpha;</code> using <a href="DP.ox.html#DP___Actions">Actions</a>(). </DD>
-    <DD>Calls to <code>Actions()</code> and other model-building routines is part of <code>MyCode</code>.</DD>
 <P/>
-<DT>Possible Actions: <code>&Alpha;</code></DT>
-<DD>In the basic definition of a DDP model, <code>&Alpha;</code> is defined as the set of possible actions. In <span class="n">DDP</span> the set of actions is built up by adding action variables to <code>&alpha;</code>.  So <code>&Alpha;</code> emerges from the properties of the variables added to <code>&alpha;</code>.</DD>
-<DD class="example">Possible Actions is the matrix of all possible action vectors: <details class="aside"><summary>Terminology:</summary>The word <em>possible</em> is used instead of <em>feasible</em>, because this notion of <code>&Alpha;</code> is constructed mechanically from properties of the actions.  It has nothing to do with the interpretation of the actions.  Feasible actions are defined below. An <em>action</em> refers to a particular value of the action vector <code>&alpha;</code>, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column.</details>
-<pre>
-    &Alpha; &equiv; &times;<sub>j=0 &hellip; (&alpha;.N)&oline; </sub> { 0, 1, &hellip;, (a<sub>j</sub>.N)&oline; }</pre>
-    DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</DD>
+The action vector <span class="expressions">\(\alpha\)</span> is the vector of discrete actions chosen conditional on the state of the DP.  A generic element of <span class="expressions">\(\alpha\)</span> is denoted <var>a</var>.  An action variable takes on <span class="expressions">\(a.N\)</span> different values. The action vector includes <span class="expressions">\(\alpha\)</span>.N variables, denoted a<sub>0</sub> through a<sub>(<span class="expressions">\(\alpha\)</span>.N)&oline;</sub>. Action variables are represented as an <a href="Variables.ox.html#ActionVariable">ActionVariable</a> and are added to <code>MyModel</code> and to <span class="expressions">\(\alpha\)</span> using <a href="DP.ox.html#DP___Actions">Actions</a>().  Calls to <code>Actions()</code> and other model-building routines is part of <code>MyCode</code>.</p>
+<P/>
+<DD>In the basic definition of a DDP model, <code>&Alpha;</code> is defined as the set of possible actions. In <span class="n">DDP</span> the set of actions is built up by adding action variables to <span class="expressions">\(\alpha\)</span>.  So <code>&Alpha;</code> emerges from the properties of the variables added to <span class="expressions">\(\alpha\)</span>.</DD>
+<DD class="example">Possible Actions is the matrix of all possible action vectors: <details class="aside"><summary>Terminology:</summary>The word <em>possible</em> is used instead of <em>feasible</em>, because this notion of <code>&Alpha;</code> is constructed mechanically from properties of the actions.  It has nothing to do with the interpretation of the actions.  Feasible actions are defined below. An <em>action</em> refers to a particular value of the action vector <span class="expressions">\(\alpha\)</span>, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column.</details>
+<span class="equation">$$A \equiv \times_{j=0,\dots \alpha.N^-} \{ 0, 1, \dots a{j.N)^-} }$$</span>
+DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</DD>
 <DT>Alternative Notation</DT>
 <DD>Discrete choice is described in two ways other than the one above used in <span class="n">DDP</span>.</DD>
 <DD>For example, suppose there are two action variables and 6 total action vectors:
- <pre>&alpha; = (a<sub>0</sub>,a<sub>1</sub>)
- a<sub>0</sub>.N=3
- a<sub>1</sub>.N=2
- &alpha;.D=6</pre></DD>
+ <span class="equation">$$\eqalign{
+ \alpha &= (a_0,a_1)\cr
+ a_0.N &= 3\cr
+ a_1.N &= 2\cr
+ \alpha.D &=6}$$</span>
  <DD>Some papers would treat this as a <em>single action</em> with six values.</DD>
 <DD>And/or papers may define a vector of 6 indicator variables to denote which choice was made: <var>d<sub>i</sub>=I{a=i}</var>.</DD>
 <details><summary>The three different approaches to coding discrete choices are illustrate in this table:</summary><dd><pre>
@@ -76,8 +75,8 @@ Discrete quantities that appear in DDP models (actions, states, fixed and random
          0          1       |       3       |    0   0   0   1   0   0
          1          1       |       4       |    0   0   0   0   1   0
          2          1       |       5       |    0   0   0   0   0   1</pre></DD></details>
-<DD>One reason to use an action vector like <code>&alpha;</code> is that each variable can be interpreted as a dimension of choice.  There is no obvious interpretation of <q>a=3</q> in the table, and the interpretation would change with the dimensions of the action variables. This approach would force <code>MyModel</code> to decode into an action vector to make their code look like a mathematical model. Another reason: the action vector approach makes it natural to impose feasibility conditions on the choice set, as discussed below.</dd>
-<DD>The use of indicator vectors makes it possible to write any utility as a sum: <var>U = &sum;<sub>k</sub> d<sub>k</sub>u<sub>k</sub></var>. But as with the single action approach the interpretation is not obvious and <var>U()</var> will in no way resemble usual mathematical notation for an objective.</DD>
+<DD>One reason to use an action vector like <span class="expressions">\(\alpha\)</span> is that each variable can be interpreted as a dimension of choice.  There is no obvious interpretation of <q>a=3</q> in the table, and the interpretation would change with the dimensions of the action variables. This approach would force <code>MyModel</code> to decode into an action vector to make their code look like a mathematical model. Another reason: the action vector approach makes it natural to impose feasibility conditions on the choice set, as discussed below.</dd>
+<DD>The use of indicator vectors makes it possible to write any utility as a sum: <span class="expressions">\(U = \sum_k d_k u_k\)</span>. But as with the single action approach the interpretation is not obvious and <span class="expressions">\(U()\)</span> will in no way resemble usual mathematical notation for an objective.</DD>
 <P/>
 <DT>Explanation:</DT>
 <DD>Action variables objects must be <code>static</code> data members of <code>MyModel</code>. </DD>
@@ -91,13 +90,13 @@ Usually an action variable can be an object of the base <a href="Variables.ox.ht
 <DT>Current Value</DT>
         <DD><span class="n">DDP</span> requires <code>MyModel</code> to handle/process the full matrix of feasible actions in utility and transitions.
         <DD>For this reason, <code>MyModel</code> will rarely if ever access the current value of an action, <code>a.v</code>.  </DD>
-        <DD>The vector of values of an action variable that corresponds to feasible &alpha;s is returned by <code>Bellman::aa(a).</code></DD>
+        <DD>The vector of values of an action variable that corresponds to feasible <span class="expressions">\(\alpha\)</span>s is returned by <code>Bellman::aa(a).</code></DD>
 <DT>
 <DT>Actual Value</DT>
 <DD>Optionally, the user can create a class derived from <a href="Variables.ox.html#ActionVariable">ActionVariable</a> and supply a <a href="Shared.ox.html#Discrete___Update">Update</a> function with it.</DD>
 <DD>This allows the user to associate a meaningful value for the numbers 0 to N&oline;, stored as <code>a.<a href="Shared.ox.html#Discrete___actual">actual</a></code>.</DD>
 <DD><span class="n">DDP</span> updates an action each time the problem is resolved, so actual values can depend on <a href="Shared.ox.html#Parameter">Parameter</a> values.</DD>
-<DD>Bellman::aa(a) will indeed return the actual values of <code>a</code> that correspond to each feasible action vector &alpha;.</DD>
+<DD>Bellman::aa(a) will indeed return the actual values of <code>a</code> that correspond to each feasible action vector <span class="expressions">\(\alpha\)</span>.</DD>
 <DD>The default virtual <a href="Shared.ox.html#Discrete___Update">Update</a>() simply sets actual to the vector &lt; 0 : N-1 &gt;.</DD>
 <P/>
 <DT>Example of Custom <code>Update()</code></DT>
@@ -133,29 +132,28 @@ The code segment allows the maximum hour to be 30 if the person has a (young) ch
 <P/>
 <LI>Possible and Feasible Actions</LI>
 <DT>Possible Actions.</DT>
-<DD><var>A</var> is defined as the set of possible actions, built up by adding action variables to &alpha;:<pre>
-<b>Possible Actions</b> is the matrix of all possible action values:
-    A &equiv; &times;<sub>j=0 &hellip; &alpha;.N&oline; </sub> { 0, 1, &hellip;, a<sub>j</sub>.N&oline; }</pre>
-    An action vector &alpha; is a <em>row</em> of the matrix A.    </DD>
+<DD><var>A</var> is defined as the set of possible actions, built up by adding action variables to <span class="expressions">\(\alpha\)</span>.  All possible actions is the matrix :
+<span class="equation">$$    A \equiv \times_{j=0,\dots, \alpha.N^- } \{ 0, 1, \dots, a_j.N^- \}$$</span>
+An action vector <span class="expressions">\(\alpha\)</span> is a <em>row</em> of the matrix A.
 <DT>The position property</DT>
 <DD class="example">An action variable is a column of <var>A</var>.  Its position is the property <code>a.pos</code>. </DD>
 <DT>Feasible Actions</DT>
-<DD><em>Feasibility</em> is a property <code>MyModel</code> imposes on &alpha;. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of &alpha;.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We write feasibility as a property of the state:
-<pre>The <b>feasible actions</b> at &theta; is a matrix property:
-     &forall; &theta; &in; <b><b>&Theta;</b></b>, &theta;.A &sube; A.</pre></DD>
+<DD><em>Feasibility</em> is a property <code>MyModel</code> imposes on <span class="expressions">\(\alpha\)</span>. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of <span class="expressions">\(\alpha\)</span>.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We write feasibility as a property of the state.  The <b>feasible actions</b> at <span class="expressions">\(\theta\)</span> is a matrix property:
+<span class="equation">$$\forall \theta \in \Theta,\qquad \theta.A \subseteq A.$$</span>
 <DT><a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>(): by default all possible actions are feasible</DT>
-<DD>If <code>MyModel</code> does not say otherwise, &theta;.A &equiv; A for all endogenous states.</DD>
+<DD>If <code>MyModel</code> does not say otherwise, <span class="expressions">\(\theta.A \equiv A\)</span> for all endogenous states.</DD>
 <DD>This behaviour is produced by including a built in method, <code>Bellman::FeasibleActions()</code>, which is a virtual method, meaning that <code>MyModel</code> can replace it with its own version.
 <DT>Overriding the default: <code>MyModel::FeasibleActions()</code></DT>
-<DD>If the user supplies a replacement for <code>FeasibleActions()</code> it must take a single argument <code>A</code>, which is the possible matrix <var>A</var>, each row is an action vector &alpha; and each column is an action variable a that was added to the model.
-<DD class="example"><code>MyModel::</code>must return a column vector which indicates that &alpha; is feasible or not.
-<pre>FeasibleActions() = a A.N vector containing
-      I{A.i&in;&theta;.A}, i = 0 &hellip; A.N&oline;.</pre></DD>
-<DD>This requirement explains that the default method returns a vector of 1s equal in size to the rows of <var>A</var>.
+<DD>If the user supplies a replacement for <code>FeasibleActions()</code> it must take a single argument <code>A</code>, which is the possible matrix <var>A</var>, each row is an action vector <span class="expressions">\(\alpha\)</span> and each column is an action variable a that was added to the model.
+<DD class="example"><code>MyModel::</code>must return a column vector which indicates that <span class="expressions">\(\alpha\)</span> is feasible or not.
+<pre>FeasibleActions() = a A.N vector containing I{A.i<span class="expressions">\(\in\theta\)</span>.A}, i = 0 &hellip; A.N&oline;.</pre></DD>
+<DD>This requirement explains that the default method returns a vector of 1s equal in size to the rows of <var>A</var>.</DD>
 <DT>The A List</DT>
-<DD><a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a> constructs the possible matrix A, actually stored as the first element of a list (<code>OxArray</code>):  <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state &theta;.  Every time a different value is returned a new matrix is added to the A list.  The index into the list is then stored as  <code>Aind</code> &harr;  &theta;.j.</DD>
+<DD><a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a> constructs the possible matrix A, actually stored as the first element of a list (<code>OxArray</code>):
+    <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state <span class="expressions">\(\theta\)</span>.
+    Every time a different value is returned a new matrix is added to the A list.  The index into the list is then stored as  <code>Aind</code> &harr;  <span class="expressions">\(\theta\)</span>.j.</DD>
 <DD>The user's feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a).</DD>
-<DD>In short, &theta;.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = &theta;.j = 0</code> for all states.</DD>
+<DD>In short, <span class="expressions">\(\theta\)</span>.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = <span class="expressions">\(\theta\)</span>.j = 0</code> for all states.</DD>
 <DT>The A list contains the <em>actual</em> values not the <em>current</em> values.</DT>
 <DD>If the user provides an <a href="Shared.ox.html#Discrete___Update">Update</a>() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values.</DD>
 <DD>Since the default is that actual values equal current values (<code>a.actual[a.v] = a.v</code>), then <code>A[Aind]</code> is always possible to use.</DD>
@@ -164,14 +162,14 @@ The code segment allows the maximum hour to be 30 if the person has a (young) ch
 Suppose the only constraint on actions is that an action <var>a=0</var> is not feasible when a state variable <var>q=2</var>.  (For example, going to high school is not feasible if the person already has a high school degree.<pre>
 FeasibleActions(const A) {    return CV(x)==2 ? aa(a).!=0 : ones(rows(A),1) ;    }
 </pre>
-Code this way it does not matter whether more variables are added to the model and it does not matter what order the code adds the actions to &alpha;.  <code>FeasibleActions</code> is robust to those details.
+Code this way it does not matter whether more variables are added to the model and it does not matter what order the code adds the actions to <span class="expressions">\(\alpha\)</span>.  <code>FeasibleActions</code> is robust to those details.
 </DD>
 <P/>
 </OL>
 <P/>
 <hr>
 <a name="StateVariables"><LI>State Variables</LI></a>
-Elements of State Vectors, <code>&epsilon;, &eta;, &theta; &gamma;</code>.
+Elements of State Vectors, <span class="expressions">\(\epsilon, \eta, \theta \gamma\)</span>.
 <P/>
 <OL class="chapter"> Content of the StateVariable Section
 <LI><a href="#OV">Overview</a></LI>
@@ -191,7 +189,7 @@ Elements of State Vectors, <code>&epsilon;, &eta;, &theta; &gamma;</code>.
 A state variable <var>s</var> is a <a href="Shared.ox.html#Discrete">Discrete</a> quantity.  It is defined by at least the 3 required elements:
 <DT><a href="Shared.ox.html#Quantity___L">L</a> </DT><DD>a short tag for the variable (can be blank, <q></q>)</DD>
 <DT><a href="Shared.ox.html#Discrete___N">N</a> </DT><DD>The number of values it takes, which are 0 &hellip; N&oline;</DD>
-<DT><a href="Variables.ox.html#StateVariable___Transit">Transit</a>()</DT><DD>The transition for the variable, <code>&Rho;<sub>s</sub>(s&prime; | &alpha;,&eta;,&theta;)</code>.</DD>
+<DT><a href="Variables.ox.html#StateVariable___Transit">Transit</a>()</DT><DD>The transition for the variable, <span class="expressions">\(P_s(s\prime | \alpha,\eta,\theta)\)</span>.</DD>
 <P/>
 <DT>State variables are classified by how their transitions relate to actions and the current value and transitions of other state variables.   Either they are </DT>
 <DD><q>Autonomous</q>, which means their transition to new states does not have to be coordinated with transitions of other states </DD>
@@ -204,15 +202,15 @@ variables.</DD>
 <P/>
 The model places discrete state variables/blocks into one of four vectors.
 <table class="overview" width="100%" > <tr><td></td><td colspan="4">DP State Vector</td></tr>
-<tr><td></td><td>Exogenous<br>(&epsilon;) </th><td>Semi-Exogenous<br>(&eta;) </td><td>Endogenous<br>(&theta;)</th><td>Group (<a href="Variables.ox.html#RandomEffect">RandomEffect</a> or <a href="Variables.ox.html#FixedEffect">FixedEffect</a>)<br>(&gamma;)</tr>
+<tr><td></td><td>Exogenous<br>(\epsilon) </th><td>Semi-Exogenous<br>(\eta) </td><td>Endogenous<br>(\theta)</th><td>Group (<a href="Variables.ox.html#RandomEffect">RandomEffect</a> or <a href="Variables.ox.html#FixedEffect">FixedEffect</a>)<br>(\gamma)</tr>
 <tr><td>Generic Element</td><td>e</td><td>h</td><td>q</td><td>g</td></tr>
-<tr><td>Form of &Rho;<sub>s</sub></td><td colspan="2">&Rho;<sub>s</sub>(s&prime;)</td><td>&Rho;<sub>s</sub>(s&prime;|&alpha;,&epsilon;,&eta;,&theta;)</td><td>g&prime;=g</td></tr>
-<tr><td>Explanation</td><td colspan="2">Transition IID of everything.</td><td>Transition can depend on value of states and &alpha;.  </td><td>fixed</td></tr>
-<tr><td>Special form of<br> &Rho;<sub>q</sub>, q&in;&theta;, q&ne;s</td><td>cannot enter &Rho;<sub>q</sub></td><td colspan="2">can enter </td><td>can enter but<br>see <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></td></tr>
-<tr><td>Explanation</td><td>q independent of &epsilon;, given &alpha;</td>
-<td colspan="2">&eta; and &theta; can affect q</td><td>default is random effects can <em>only</em> enter U() not &Rho;()</tr>
-<tr><td>Computing Implication</td><td colspan="2">Compute and store &Rho;<sub>&epsilon;</sub> and &Rho;<sub>&eta;</sub> once on each solution.</td>
-<td>Compute and store &Rho;<sub>&theta;</sub> at each &theta;, store as a <em>matrix</em> for each &alpha; and each &eta; </td><td>Reuse space for each fixed effect. Store only <code>&Rho;*(&alpha;|&hellip;&gamma;) for separate random effects.</code></td><tr>
+<tr><td>Form of \Rho<sub>s</sub></td><td colspan="2">\Rho<sub>s</sub>(s\prime)</td><td>&Rho;<sub>s</sub>(s\prime|\alpha,\epsilon,\eta,\theta)</td><td>g\prime=g</td></tr>
+<tr><td>Explanation</td><td colspan="2">Transition IID of everything.</td><td>Transition can depend on value of states and \alpha.  </td><td>fixed</td></tr>
+<tr><td>Special form of<br> &Rho;<sub>q</sub>, q\in\theta, q\neq s</td><td>cannot enter &Rho;<sub>q</sub></td><td colspan="2">can enter </td><td>can enter but<br>see <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></td></tr>
+<tr><td>Explanation</td><td>q independent of \epsilon, given \alpha</td>
+<td colspan="2">\eta and \theta can affect q</td><td>default is random effects can <em>only</em> enter U() not &Rho;()</tr>
+<tr><td>Computing Implication</td><td colspan="2">Compute and store &Rho;<sub>\epsilon</sub> and &Rho;<sub>\eta</sub> once on each solution.</td>
+<td>Compute and store &Rho;<sub>\theta</sub> at each \theta, store as a <em>matrix</em> for each \alpha and each \eta </td><td>Reuse space for each fixed effect. Store only <span class="expressions">\(&Rho;*(\alpha|\hellip\gamma) for separate random effects.\)</span></td><tr>
 </table>
 <P/>
 <details><summary><b>Example</b> <br>Include an Semi-Exogenous IID jump process and an Endogenous tracker of its previous value to a DDP model:</summary>
@@ -235,34 +233,32 @@ MyModel::Initialize() {
 <a name="SVT"><LI>State Variable Transitions</LI></a>
 <P/>
 <DT>The overall state transition is  computed as follows</DT>
-<dd class="disp">
-<span class="expressions">\(P\left(\epsilon^{\,\prime},\eta^{\,\prime},\theta^{\,\prime}\ |\ \alpha,\epsilon\eta,\theta\right) =
-P_\epsilon(\epsilon^{\,\prime}) P_\eta(\eta^{\,\prime}) P_\theta\left (\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right).\)</span></dd>
-That is, the joint probability distribution of all state variables next period is the product of the probabilities of the three state vectors.  So the vectors evolve independently conditional on the current state. Further, the IID nature of &epsilon; and &eta; mean that their probability is constant across current states and actions.  In turn,
-<dd class="disp">
-<span class="expressions">\(P_\epsilon(\epsilon^{\,\prime}) = \prod_{k=0\dots \epsilon.N^-} P_{e_k}\left(e^{\,\prime}_k\right).\)</span>
+<span class="equation">$$P\left(\epsilon^{\,\prime},\eta^{\,\prime},\theta^{\,\prime}\ |\ \alpha,\epsilon\eta,\theta\right) =
+P_\epsilon(\epsilon^{\,\prime}) P_\eta(\eta^{\,\prime}) P_\theta\left (\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right).$$</span>
+That is, the joint probability distribution of all state variables next period is the product of the probabilities of the three state vectors.  So the vectors evolve independently conditional on the current state. Further, the IID nature of <span class="expressions">\(\epsilon\)</span> and <span class="expressions">\(\eta\)</span> mean that their probability is constant across current states and actions.  In turn,
+<span class="equation">$$P_\epsilon(\epsilon^{\,\prime}) = \prod_{k=0\dots \epsilon.N^-} P_{e_k}\left(e^{\,\prime}_k\right).$$</span>
 <P/>
-<span class="expressions">\(P_\eta(\eta^{\,\prime}) = \prod_{k=0\dots \eta.N^-} P_{e_k}\left(e^{\,\prime}_k\right).\)</span>
+<span class="equation">$$P_\eta(\eta^{\,\prime}) = \prod_{k=0\dots \eta.N^-} P_{e_k}\left(e^{\,\prime}_k\right).$$</span>
 <P/>
-<span class="expressions">\(P_\theta\left(\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right) = \prod_{k=0\dots \theta.N^-} P_{q_k}\left(q^{\,\prime}_k\ |\ \alpha,\eta,\theta\right).\)</span>
-</dd>
+<span class="equation">$$P_\theta\left(\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right) = \prod_{k=0\dots \theta.N^-} P_{q_k}\left(q^{\,\prime}_k\ |\ \alpha,\eta,\theta\right).$$</span>
+<P/>
 <DD>It is important to note that e<sub>k</sub>, h<sub>k</sub> and q<sub>k</sub> represents either an autonomous state variable or a whole state block, which is responsible for returning the joint transition of its coevolving members.</dd>
 <P/>
 <DT>Autonomous</DT>
 <DD class="example">Let the value of a state variable <var>s</var> realized next period be denoted <var>s'</var>.  The probability that
 <var>s'</var> takes on the value <var>z</var> in the next period be written generally as
-<pre>&Rho;(s' = z | &alpha;,&epsilon;,&eta;,&theta;) = p<sub>s</sub>(z,&alpha;,&epsilon;,&eta;,&theta;).</pre></DD>
+<span class="equation">$$P(s' = z | \alpha,\epsilon,\eta,\theta) = p<sub>s</sub>(z,\alpha,\epsilon,\eta,\theta).$$</span></DD>
 <P/>
 <DT>Exogenous</DT>
-<DD>State Variables classified as (fully) Exogenous are denoted generically as <em>e</em> and are elements of the vector &epsilon;.
+<DD>State Variables classified as (fully) Exogenous are denoted generically as <em>e</em> and are elements of the vector <span class="expressions">\(\epsilon\)</span>.
 <P/>
 <DT>Endogenous</DT>
-<DD>State Variables classified as Endogenous are denoted generically <em>s</em> and are elements of the vector &theta;.
+<DD>State Variables classified as Endogenous are denoted generically <em>s</em> and are elements of the vector <span class="expressions">\(\theta\)</span>.
 <P/>
 <DT>A single variable that is both Exogenous and Autonomous would satisfy the usual definition of a simple IID random variable.
     In that case
-    <dd class="example"><pre>&Rho;(e' = z | &alpha;,&epsilon;,&eta;,&theta;) = p<sub>e</sub>(z).</pre> That is, the transition
-    probabilities are exogenous to the current actions, state values and their transitions.</dd>
+<span class="equation">$$P(e' = z | \alpha,\epsilon,\eta,\theta) = p_e(z).$$</span>
+That is, the transition    probabilities are exogenous to the current actions, state values and their transitions.</dd>
 <P/>
 <DT>Coevolving</DT>
     <DD>A State Variable is <a href="Variables.ox.html#Coevolving">Coevolving</a> if it is not autonomous, meaning it is <em>not</em> conditionally independent of all other
@@ -271,10 +267,10 @@ That is, the joint probability distribution of all state variables next period i
 <P/>
 <DT>Endogenous and Autonomous</DT>
 <DD class="example">An endogenous and autonomous state has transition probabilities that can depend on the current state and action, but they cannot be correlated with the transition of any other state variable:
-<pre>Prob(q&prime; = z | &alpha;,&epsilon;,&theta;,&chi;) = &Rho;<sub>q</sub>(z,&alpha;,&epsilon;,&theta;,&chi;).</pre>
+<span class="equation">$$Prob(q\prime = z | \alpha,\epsilon,\theta,\chi) = P_q(z,\alpha,\epsilon,\theta,\chi).$$</span>
 That is, the transition probabilities are exogenous to the current actions, state values and their transitions.</dd>
 <P/>
-<DD>Note that an endogenous state variable's transition can depend on exogenous states in &epsilon;  and &eta;.</DD>
+<DD>Note that an endogenous state variable's transition can depend on exogenous states in <span class="expressions">\(\epsilon\)</span>  and <span class="expressions">\(\eta\)</span>.</DD>
 <P/>
 <DD>An autonomous <a href="Variables.ox.html#StateVariable">StateVariable</a> <code>s</code> has marginal transition probabilities that enter the overall transition probability as multiplicative factors, conditional on current actions, states and parameters.   This is in contrast to <a href="Variables.ox.html#Coevolving">Coevolving</a> state variables which are part of a <a href="Variables.ox.html#StateBlock">StateBlock</a>. The difference with an <a href="Variables.ox.html#Autonomous">Autonomous</a> state is that its transition is jointly distributed with one or more other Coevolving states.</DD>
 <P/>
@@ -289,7 +285,7 @@ Some derived classes of state variables play special roles in <span class="n">DD
  <DD>which serve as the <a href="#Clock">DDP clock</a> </DD>
  <DT>and</DT>
 <DT><a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>s</DT>
-<DD>which track variables that are fixed during a DDP and stored in the &gamma; vector.  <span class="n">DDP</span> will re-solve the model for each value of &gamma;.</DD>
+<DD>which track variables that are fixed during a DDP and stored in the <span class="expressions">\(\gamma\)</span> vector.  <span class="n">DDP</span> will re-solve the model for each value of <span class="expressions">\(\gamma\)</span>.</DD>
 <P/>
 Your model may include state variables that are already defined in <span class="n">DDP</span> but require some changes to accommodate the environment.  The next section discusses how to create a new derived class for your state variable, but it may be possible to avoid that using the <a href="Variables.ox.html#Augmented">Augmented</a> state variable feature.
 <P/>
@@ -384,7 +380,7 @@ Below is an <a href="#example">example</a> of how to define a new state variable
     <DD>If it is derived from another state variable and your version will follow the same transition then you do not need to write a new one.  That is because <code>Transit()</code> is, in most cases, declared as a <em>virtual</em> method.  So if your state variable has no transition of its own, the one from the parent variable will be called in its place. This is why it must be called <code>Transit()</code>, because it replaces another version of a <code>Transit()</code> that would be called if necessary.</DD>
 <P/>
     <DD><code>Transit</code> will often need to access matrix of current feasible actions at the current state, which is available in <a href="DDPShared.ox.html#Alpha___C">C</a> that is set every time the point in the state space is changed
-    or initialized.  Each row of <code>Alpha::C</code> is an action vector <code>&alpha;</code>; each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
+    or initialized.  Each row of <code>Alpha::C</code> is an action vector <span class="expressions">\(\alpha\)</span> each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
 <P/>
     <DT>Example: Possible Argument Passed to <code>Transit()</code></DT>
     <DD>The model has two binary choice variables, <var>i</var> and <var>j</var>.  Then the argument passed to <code>Transit()</code>  might look like this:</DD>
@@ -571,18 +567,18 @@ The innermost loop of nearly all discrete dynamic programming solution algorithm
 <li>Accounting for Correlated Innovations</li>
 <P/>
 <DT>If a state is not <em>autonomous</em> it is <em>coevolving</em> with at least one other state variable.
-<DD>State variables f and g are coevolving if<pre>
-for some f&prime;, g&prime;, &alpha; &in; &theta;.A, &eta; and &theta;,
-                &Rho;( f&prime;, g&prime; | &alpha;,&eta;,&theta; ) &ne; &Rho;<sub>f</sub>(f&prime; | &alpha;,&eta;,&theta;)  &Rho;<sub>g</sub>(g&prime; | &alpha;,&eta;,&theta;)
-</pre>
+<DD>State variables f and g are coevolving if
+<span class="equation">$$for some f\prime, g\prime, \alpha \in \theta.A, \eta and \theta,
+                &Rho;( f\prime, g\prime | \alpha,\eta,\theta ) &ne; &Rho;<sub>f</sub>(f\prime | \alpha,\eta,\theta)  &Rho;<sub>g</sub>(g\prime | \alpha,\eta,\theta)
+$$</span>
 The term coevolving is used rather than correlated, because it is ambiguous. Some users may interpret correlated as an unconditional property of the variables. Typically <q>|</q> is not used in these notes, but here it is used to emphasize that f and g may be correlated if we do not observe or condition on current action and state values.</DD>
 <P/>
 <DT>Example of state block</DT>
 <DD><details><summary>Height and weight of a child as they grow older within a model of the parent's actions.</summary>
-<DD>The child's age is a simple counter that is not only autonomous of all other states but it is also deterministic.  That is, its innovation (age&prime;-age = 1) depends on nothing else in the model.</DD>
-<DD>If the model tracks the child's weight (w) then it would obviously not be deterministic.  Its transition may depend on age and actions such as meals cooked, activities paid for, etc.  However, it might be reasonable to treat weight accumulation, w&prime;-w, as distributed independently of other state variables' innovations.</DD>
+<DD>The child's age is a simple counter that is not only autonomous of all other states but it is also deterministic.  That is, its innovation (age\prime-age = 1) depends on nothing else in the model.</DD>
+<DD>If the model tracks the child's weight (w) then it would obviously not be deterministic.  Its transition may depend on age and actions such as meals cooked, activities paid for, etc.  However, it might be reasonable to treat weight accumulation, w\prime-w, as distributed independently of other state variables' innovations.</DD>
 <DD>However, suppose the model includes not just weight but height (h) as well.  It might be reasonable to treat h as evolving in some way separate from decisions or other factors other than age and current height (if growth of the children in the sample are not nutritionally constrained).  But obviously weight gain is correlated with height gain.</DD>
-<DD>That is, <code>MyModel</code> might specify individual transitions of the form &Rho;<sub>h</sub>(h&prime;|h,age) &Rho;<sub>w</sub>(w&prime;|h&prime;-h,w,age).   This formulation could be used to rule out, for example, a growth spurt (h&prime &gt;&gt; h) and significant weight loss (w&prime; &lt;&lt w ).   This requires a sequence in the realizations:  h&prime; is realized first and then its value feeds into the transition probabilities for weight.  In some ways this sequencing of the realizations makes the model simpler to specify.</DD>
+<DD>That is, <code>MyModel</code> might specify individual transitions of the form &Rho;<sub>h</sub>(h\prime|h,age) &Rho;<sub>w</sub>(w\prime|h\prime-h,w,age).   This formulation could be used to rule out, for example, a growth spurt (h' &gt;&gt; h) and significant weight loss (w&prime; &lt;&lt w ).   This requires a sequence in the realizations:  h&prime; is realized first and then its value feeds into the transition probabilities for weight.  In some ways this sequencing of the realizations makes the model simpler to specify.</DD>
 <DD>However, <span class="n">DDP</span> has no mechanism to ensure this sequencing occurs properly for <em>autonomous</em> variables.  That is, since h&prime; enters the transition of another variable it cannot be classified as autonomous even though its own innovation can be generated without reference to other innovations.</DD>
 <DD>To account for this correlation, the variables w and h must be specified as <a href="Variables.ox.html#Coevolving">Coevolving</a> and placed in a <a href="Variables.ox.html#StateBlock">StateBlock</a> which will determine their joint transition.  The block might, for example, ensure that weight does not go down if height goes up.  In effect, placing them in a state block specifies a transition of the form &Rho;<sub>w,h</sub>(w&prime;,h&prime;|h,w,age), which includes as a special case that h&prime;-h affects the transition probabilities for weight.</DD>
 <DD> Alerted to the presence of a state block in the state vector, <span class="n">DDP</span> processes the block's transition once to build up h&prime; and w&prime; simultaneously.</DD>
@@ -713,7 +709,7 @@ In addition, AV() will return the vector of <code>actual</code> values that corr
 <dd class="example"><pre>
 &Rho;(&zeta;&prime;,&epsilon;&prime;,&eta;&prime;,&theta;&prime;,&gamma;&prime;|&alpha;,&zeta;,&epsilon;,&eta;,&theta;,&gamma;) = f<sub>&zeta;</sub>(&zeta;&prime;) &times; &Rho;<sub>&epsilon;</sub>(&epsilon;&prime;) &times; &Rho;<sub>&eta;</sub>(&eta;&prime;) &times; &Rho;<sub>&theta;</sub>(&theta;&prime;|&alpha;,&eta;,&theta;) &times; I{&gamma;&prime;=&gamma;).
 </pre>
-The restricted natures of the different vectors is displayed by excluding them from other transitions.  In particular, both &zeta; and &epsilon; are excluded from all other transitions. The continuity of the &zeta;'s distribution is illustrated by using f<sub>&zeta;</sub>() instead of &Rho;() for its transition.  The semi-exogenous nature of &eta; is show by its own IID transition and the fact that it is not excluded from the transition of &theta;.  The current value of &eta; can have a direct effect on the transition of endogenous states but its own transition depends on nothing.  Finally, on the other side of the full endogenous states &theta; is the transition of the grouping vector &gamma;.  Since it is fixed during a given program its transition is an indicator for keeping the same value next period.  The realized values of all the state variables do affect the transition of &theta;&prime; but, except for &theta; and &eta;, only indirectly through the agent's optimal choice of <code>&alpha;</code> conditional on the full realized state.  We could illustrate this above by writing <code>&alpha;</code> as <code>&alpha;(&zeta;,&epsilon;,&eta;,&theta;,&gamma;)</code>. </dd>
+The restricted natures of the different vectors is displayed by excluding them from other transitions.  In particular, both &zeta; and &epsilon; are excluded from all other transitions. The continuity of the &zeta;'s distribution is illustrated by using f<sub>&zeta;</sub>() instead of &Rho;() for its transition.  The semi-exogenous nature of &eta; is show by its own IID transition and the fact that it is not excluded from the transition of &theta;.  The current value of &eta; can have a direct effect on the transition of endogenous states but its own transition depends on nothing.  Finally, on the other side of the full endogenous states &theta; is the transition of the grouping vector &gamma;.  Since it is fixed during a given program its transition is an indicator for keeping the same value next period.  The realized values of all the state variables do affect the transition of &theta;&prime; but, except for &theta; and &eta;, only indirectly through the agent's optimal choice of <span class="expressions">(&alpha;)</span> conditional on the full realized state.  We could illustrate this above by writing <span class="expressions">(&alpha;)</span> as <span class="expressions">(&alpha;(&zeta;,&epsilon;,&eta;,&theta;,&gamma;))</span>. </dd>
 <P/>
 <DT>In turn, each state vector's transition is the product of the individual elements (either block or autonomous):</DT>
 <DD><pre>
@@ -727,7 +723,7 @@ The restricted natures of the different vectors is displayed by excluding them f
 </OL>
 <P/>
 <hr>
-<a name="Clock"><LI>The Clock: Time-Keeping StateBlock in <code>&theta;</code>.</LI>
+<a name="Clock"><LI>The Clock: Time-Keeping StateBlock in <span class="expressions">(&theta;)</span>.</LI>
 <P/>
 <OL class="chapter">
 <LI>Overview</LI>
@@ -740,7 +736,7 @@ The Clock Block is a single StateBlock that is always in the endogenous vector &
 <P/>
 <LI>Setting the Clock </LI>
 <P/>
-<DT><code>&theta;</code> <em>always</em> contains a single clock block derived from Clock.</DT>
+<DT><span class="expressions">(&theta;)</span> <em>always</em> contains a single clock block derived from Clock.</DT>
 <P/>
 <DT>The simplest way to set the clock is to call DP::SetClock().  </DT>
 <DD>The first argument is either one of the ClockTypes tags for built-in clocks, or it is an object of a class derived from Clock. </DD>
@@ -866,7 +862,7 @@ checked by the solution method against the given tolerance for convergence.</DD>
 <P/>
 <OL class="chapter">
 <P/>
-Index different DP models (elements of <code>&gamma;</code>). Time invariants are variables that take on different values across agents but are fixed for a given agent.
+Index different DP models (elements of <span class="expressions">(&gamma;)</span>). Time invariants are variables that take on different values across agents but are fixed for a given agent.
 <P/>
 <LI>Overview</LI>
 The basic DP model concerns a single agent in a single environment.  However, many applications involve related DP problems that differ in parameter values, which in turn alter the primitives U(), &Rho;(), &delta;.
@@ -889,7 +885,7 @@ Each combination of random and fixed effects implies a value of &gamma;, and for
 <P/>
 As with allowing state variables to be declared exogenous, moving time invariant variables from &theta; to &gamma; saves time and especially storage while solving the model. An invariant does not need to be tracked during iteration over <b>&Theta;</b>.  So group variable <code>Transit()</code> methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>.
 <P/>
-Storage is re-used while solving for different values of &gamma;. <span class="n">DDP</span> reuses the state space <b>&Theta;</b> for each value of &gamma;. Choice probabilities <code>&Rho;*(&alpha | &epsilon;, &eta;, &theta;, &gamma; )</code> are stored separably for each random value of &gamma;.  EV(&theta;) integrates out the random effects, conditional on the value of the fixed effects in &gamma;. Both utility and a transitions can depend on the value of fixed effects.  However, only utility can depend on random effects.
+Storage is re-used while solving for different values of &gamma;. <span class="n">DDP</span> reuses the state space <b>&Theta;</b> for each value of &gamma;. Choice probabilities <span class="expressions">(&Rho;*(&alpha | &epsilon;, &eta;, &theta;, &gamma; ))</span> are stored separably for each random value of &gamma;.  EV(&theta;) integrates out the random effects, conditional on the value of the fixed effects in &gamma;. Both utility and a transitions can depend on the value of fixed effects.  However, only utility can depend on random effects.
 <P/>
 <DT>Finite Mixture Heterogeneity</DT>
 <P/>
