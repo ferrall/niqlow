@@ -412,7 +412,8 @@ NelderMead::Iterate(iplex)	{
 		        step = 1.0;
                 break;
             case Zero :
-		        iplex = (0~unit(N));
+ 		        iplex = (0~unit(N));
+                break;
             default :
                 mxstarts = iplex;
                 }

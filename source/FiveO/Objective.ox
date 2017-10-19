@@ -399,13 +399,12 @@ Objective::funclist(Fmat,aFvec,afvec,abest)	{
 			}
 		}
 	else{
-//Leak	foreach (fj in Fmat[][j]) {
-  for (j=0;j<columns(Fmat);++j) { fj = Fmat[][j];  //Leak
-			vobj(fj);
-			aFvec[0][][j] = cur.V;
-			cur -> aggregate();
-			f[j] = cur.v;
-			}
+        foreach (fj in Fmat[][j]) {//Leak	for (j=0;j<columns(Fmat);++j) { fj = Fmat[][j];  //Leak
+		  vobj(fj);
+		  aFvec[0][][j] = cur.V;
+		  cur -> aggregate();
+		  f[j] = cur.v;
+		  }
         }
     best = int(maxcindex(f));
     if (best<0) best = int(mincindex(f));  //added Oct. 2016 so that -.Inf is not treated as .NaN
@@ -472,8 +471,9 @@ Objective::Combine(outmat) {
 Objective::vobj(F)	{
 	Decode(F);
     if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
-    if (isclass(p2p)&& p2p.client.NSubProblems)
+    if (isclass(p2p)&& (p2p.client.NSubProblems>Zero)) {
         cur.V[] = this->Combine( p2p.client->Distribute(F) );
+        }
     else
 	    cur.V[] =  vfunc();
     if (Volume>QUIET) {

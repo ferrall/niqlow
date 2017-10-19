@@ -50,10 +50,9 @@ Moved below loop August 2017
 I::CVdelta = AV(delta);   //moved June 2015 from bottom
 */
     skip=UnInitialized;
-//foreach foreach (s in States[i]) {
-    for (i=0;i<sizeof(States);++i) {
+    foreach (s in States[i]) {  //for (i=0;i<sizeof(States);++i) {
         if (i<skip) continue;
-        s = States[i]; //foreach
+        //s = States[i]; //foreach
 		if (StateVariable::IsBlockMember(s)) {
 			s.block->Update();
             s.block->Check();
@@ -66,7 +65,7 @@ I::CVdelta = AV(delta);   //moved June 2015 from bottom
 			if (isclass(s,"RandomEffect")) s->Distribution();
 			}
 		}
-    I::CVdelta = AV(delta);   
+    I::CVdelta = AV(delta);
     Alpha::ResetA(SubVectors[acts]);
 	ExogenousTransition();
     this->Traverse();

@@ -66,14 +66,13 @@ CV(X,...) {
 	_arg = va_arglist();
     _noarg = !sizeof(_arg);
     if (isarray(X)) {
-        _v=<>;
+        decl x;
+        _v=<>; 
         //Leak foreach(x in X)
         if (_noarg)
-            for(_x=0;_x<sizeof(X);++_x) //Leak
-                _v ~= CV(X[_x]);  //Leak: X[x] just x
+            foreach(x in X) _v ~= CV(x);  //Leak: X[x] just x        //for(_x=0;_x<sizeof(X);++_x) //Leak
         else
-            for(_x=0;_x<sizeof(X);++_x) //Leak
-                _v ~= CV(X[_x],_arg[0]);  //Leak: X[x] just x
+            foreach(x in X) _v ~= CV(x,_arg[0]);  //Leak: X[x] just x        //for(_x=0;_x<sizeof(X);++_x) //Leak
         return _v;
         }
 	return _noarg ? X() : X(_arg[0]);
@@ -405,11 +404,11 @@ vararray(s) {
 @return pfx pre-fixed to s
 **/
 prefix(pfx, s) {
-if (isstring(s)) return pfx+s;
-decl o = {}, t;
-foreach (t in s) o |= pfx+t;
-return o;													
-}
+    if (isstring(s)) return pfx+s;
+    decl o = {}, t;
+    foreach (t in s) o |= pfx+t;
+    return o;													
+    }
 
 /**  Abbreviate a string or list of strings.
 **/

@@ -4,6 +4,8 @@
 /** Set up MPI Client-Server support for objective optimization.
 @param obj `Objective' to parallelize
 @param DONOTUSECLIENT TRUE (default): client node does no object evaluation<br>FALSE after putting servers to work Client node does one evaluation.
+@param NSubProblems
+@param MaxSubReturn
 **/
 ParallelObjective(obj,DONOTUSECLIENT,NSubProblems,MaxSubReturn) {
 	if (isclass(obj.p2p)) {oxwarning("CFMPI Warning 01.\n"+" P2P object already exists for "+obj.L+". Nothing changed.\n"); return;}

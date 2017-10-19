@@ -402,8 +402,7 @@ DP::MultiInteractions(ivarlist,ilov,ihiv,olist,prefix) {
 	d=1;				   							// start at leftmost state variable to loop over
 	do	{
 		do {
-            foreach(k in olist)
-                ilist |= new MultiIndicator(ivarlist,nvec,k,prefix);
+            foreach(k in olist) ilist |= new MultiIndicator(ivarlist,nvec,k,prefix);
 			} while (++nvec[0]<=ihiv[0]);
 		nvec[0] = ihiv[0];
 		d = double(vecrindex(ihiv-nvec|1));
@@ -603,9 +602,7 @@ Alpha::AddA(fa) {
 
 Alpha::ResetA(alist) {
     decl a, i;
-//foreach foreach (a in alist[i]) {
-    for (i=0;i<sizeof(alist);++i) {
-        a = alist[i];
+    foreach (a in alist[i]) {   //for (i=0;i<sizeof(alist);++i) { a = alist[i];
 		a->Update();
 		if (!i) AList[0] = a.actual;
 		else {

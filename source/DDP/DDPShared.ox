@@ -49,8 +49,7 @@ Hooks::Add(time,proc) {
 Hooks::Do(ht) {
     decl p, rv=<>;
     h=hooks[ht];
-//Leak    foreach(p in h) rv |= p();
-    for(p=0;p<sizeof(h);++p) rv |= h[p]();  //Leak
+    foreach(p in h) rv |= p(); //Leak        for(p=0;p<sizeof(h);++p) rv |= h[p]();  //Leak
     return rv;
     }
 

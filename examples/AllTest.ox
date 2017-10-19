@@ -257,9 +257,9 @@ Test9::Run()	{
 	meth.Volume = NOISY;
     meth -> Solve();
     decl pd = new PanelPrediction("hi");
+    Data::Volume = LOUD;
     pd->Tracking (UseLabel,fem,a,d);
     pd->Predict(15,TRUE);
-    //    pd -> Histogram(Two);
     println("%c",{"f"}|pd.tlabels,pd.aflat[0],pd.aflat[1]);
     savemat("Test9moms.dta",pd.aflat[0]|pd.aflat[1],{"f"}|pd.tlabels);
     delete pd;

@@ -11,31 +11,22 @@ Transitions to unreachable states is tracked and logged in the Data logfile.
 @see `TrackObj::Distribution`
 **/
 Prediction::Predict(tlist) {
-	decl k,s,qi,pp,unrch,allterm=TRUE, Ns = sizec(sind),Ntr=sizeof(tlist);
     state = zeros(N::All);
-    pp = 0.0; unrch = <>;
-    if (!Ns) {
-        predmom = constant(.NaN,1,Ntr);
+    if (!sizec(sind)) {
+        predmom = constant(.NaN,1,sizeof(tlist));
         return TRUE;
         }
-    predmom = zeros(1,Ntr);
-    for (k=0;k<Ntr;++k) tlist[k]->Reset();
-
-    //Leak foreach (q in sind[s]) {
-    for (s=0;s<Ns;++s) { //Leak
-        pq = p[s];
-        if (pq>1E-20) {
-            q = sind[s]; // Leak */
+	decl k,t,s,q,qi,pp=0.0,unrch=<>,allterm=TRUE;
+    foreach(t in tlist) t->Reset();
+    foreach (q in sind[s]) {
+        if ((pq = p[s] > tinyP)) {
             if (Settheta(q)) {
                 state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
-                I::all[tracking] = q; // I::OO[tracking][]*state;
+                I::all[tracking] = q;
                 SyncStates(lo,hi);
                 Alpha::SetA();
-                if ( I::curth->StateToStatePrediction(this) ) {
-                        PredictFailure = TRUE;
-                        return TRUE;
-                        }
-                for (k=0;k<Ntr;++k) tlist[k]->Distribution(this);
+                if ( I::curth->StateToStatePrediction(this) ) return  PredictFailure = TRUE;
+                foreach (t in tlist) t->Distribution(this);
                 allterm *= I::curth.IsTerminal || I::curth.IsLast;
                 }
             else {
@@ -44,7 +35,7 @@ Prediction::Predict(tlist) {
                 }
             }
         }
-    for (k=0;k<Ntr;++k) predmom[k] = tlist[k].mean;
+    predmom = <>; foreach(t in tlist) predmom ~= t.mean;
     if (!isfeq(pp,0.0)) {
         fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
         if (!LeakWarned) {
@@ -52,10 +43,9 @@ Prediction::Predict(tlist) {
             LeakWarned = TRUE;
             }
         }
-    //Histogram(tlist,FALSE);  //CV(prntlevel,cur)==One
      if (Data::Volume>LOUD) {
         decl ach = sumr(ch), posch = !isdotfeq(ach,0.0);
-        fprintln(Data::logf,t," States and probabilities","%r",{"Index","Prob."},selectifc(sind|p,p.>1E-20),
+        fprintln(Data::logf,t," States and probabilities","%r",{"Index","Prob."},selectifc(sind|p,p.>tinyP),
             Alpha::aL1,"Non-zero Choice Probabilities ",
             "%r",Alpha::Rlabels[0][selectifr(Alpha::AIlist[0],posch)],selectifr(ach,posch));
         }
@@ -363,14 +353,12 @@ oTrack::Distribution(pobj) {
 output will also be produced for any objects in tlist with Volume &gt; SILENT
 **/
 Prediction::Histogram(tlist,printit) {
-	decl i,tv;
+	decl tv;
     predmom=<>;
     Alpha::SetA();
-    //Leak foreach(tv in tlist ) {
-    for (i=0;i<sizeof(tlist);++i) {
-        tv = tlist[i];
-        predmom ~= tv->Distribution(this); // Leak
-//        if (printit) tv->print();
+    foreach(tv in tlist ) { //Leak     for (i=0;i<sizeof(tlist);++i) { //tv = tlist[i];Leak
+        predmom ~= tv->Distribution(this);
+        if (printit) tv->print();
         }
     Alpha::ClearA();
     return t~predmom;
@@ -558,7 +546,8 @@ PathPrediction::Initialize() {
     PredictFailure = FALSE;
     //foreach
     decl t;
-    for (t=0;t<sizeof(tlist);++t) tlist[t]->Update();
+    //for (t=0;t<sizeof(tlist);++t) tlist[t]->Update();
+    foreach (t in tlist) t->Update();
 	if (isclass(upddens)) {
 		upddens->SetFE(state);
 		summand->SetFE(state);
@@ -677,7 +666,8 @@ PanelPrediction::PanelPrediction(r,method,iDist,wght) {
 number of paths in then panel)<br>
 @param prtlevel Zero [default] do not print<br>One print state and choice
 probabilities<br>Two print predictions
-@param outmat
+@param outmat matrix, predictions already made, just process contributions
+@return succ TRUE no problems</br>FALSE prediction or solution failed.
 **/
 PanelPrediction::Predict(T,prtlevel,outmat) {
     decl cur=this, succ,left=0,right=N::R-1;

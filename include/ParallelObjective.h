@@ -5,7 +5,7 @@
 #include "UseMPI.ox"
 #endif
 
-ParallelObjective(obj,DONOTUSECLIENT=TRUE,NSubProblems=0,MaxSubReturn=0);
+ParallelObjective(obj,DONOTUSECLIENT=TRUE,NSubProblems=DoAll,MaxSubReturn=0);
 
 /** Client for parallel evaluation of objectives.
 **/

@@ -30,6 +30,8 @@ MPI::Barrier() {MPI_Barrier();}
 @param DONOTUSECLIENT TRUE the client (node 0) will not be used as a server in `Client::ToDoList`() <br>FALSE  it will used ONCE after all other nodes are busy
 @param client
 @param server
+@param NSubProblems
+@param MaxSubReturn
 **/
 P2P::P2P(DONOTUSECLIENT,client, server,NSubProblems,MaxSubReturn) {
 	MPI::Initialize();

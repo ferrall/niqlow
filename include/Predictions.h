@@ -67,6 +67,7 @@ struct xTrack : TrackObj {
 /** Predicted distribution across states.
 **/	
 struct 	Prediction : Data {
+    static   const  decl tinyP = 1E-20;
 	static	decl ud, lo, hi, LeakWarned, PredictFailure;
 	const  	decl t;
 	decl
