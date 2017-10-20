@@ -68,8 +68,8 @@ struct Objective	{
 	virtual Jacobian();
     virtual Hessian();
 	virtual vfunc(subp=DoAll);
-	virtual fobj(F);
-	virtual vobj(F);
+	virtual fobj(F=0);
+	virtual vobj(F=0);
 	virtual	Encode(X=0);
 	virtual	Decode(F=0);
     virtual ReInitialize();

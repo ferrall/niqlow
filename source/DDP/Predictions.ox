@@ -139,6 +139,7 @@ Predictions are averaged over random effect groups.
 PathPrediction::Predict(inT,prtlevel){
     this.inT = inT;
     this.prtlevel = prtlevel;
+    print(" Path ",inT," ",isclass(summand));
     if (!Initialize()) return FALSE;
 	if (isclass(summand))
 		summand->Integrate(this);
@@ -150,7 +151,9 @@ PathPrediction::Predict(inT,prtlevel){
         return FALSE;
         }
     else {
+        print(" * ");
         ProcessContributions();
+        println(" ",L);
         return TRUE;
         }
   }
@@ -676,16 +679,21 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
     aflat = {};
     M = 0.0;
     succ = TRUE;
+    println("Panel ",ismatrix(outmat));
     do {
         if (ismatrix(outmat)) {
             cur->PathPrediction::ProcessContributions(sumr(outmat[][left:right]));
             left += N::R;
             right += N::R;
             }
-        else
+        else {
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
+            }
         M += cur.L;
-	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur.f~cur.flat;
+	    if (!Version::MPIserver && Data::Volume>QUIET) {
+                aflat |= cur.f~cur.flat;
+                println("f ",cur.f," ",cur.L," ",M);
+                }
         } while((isclass(cur=cur.fnext)));
     if (!Version::MPIserver && Data::Volume>QUIET) {
         decl amat = <>,f;
@@ -693,6 +701,7 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
         savemat(replace(Version::logdir+DP::L+"_PredMoments_"," ","")+".dta",amat,{"f"}|tlabels);
         }
     M = succ ? -sqrt(M) : -.Inf;
+    println("finished ",M);
     return succ;
     }
 
@@ -808,6 +817,7 @@ objective.
 @return `PanelPrediction::M` or `PathPrediction::L`
 **/
 PredictionDataSet::EconometricObjective(subp) {
+    println("Prediction ",subp," ",DoAll);
     if (subp==DoAll) {
         PanelPrediction::Predict();
         return M;
