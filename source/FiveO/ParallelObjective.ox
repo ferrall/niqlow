@@ -20,11 +20,28 @@ ObjClient::ObjClient(obj) {  this.obj = obj; }
 
 ObjClient::Execute() {    }
 
-ObjClient::Distribute(F) {
-    decl subV=zeros(MaxSubReturn,NSubProblems);
-    ToDoList(NSubProblems,F,&subV,MaxSubReturn,SubProblems);
-    return subV;
+ObjClient::MultiParam(Fmat,aFvec,af) {
+    ToDoList(MultiParamVectors,Fmat,aFvec,obj.NvfuncTerms,MultiParamVectors);
+    decl j;
+    for (j=0; j<columns(aFvec[0]); ++j) {
+		obj.cur.V = aFvec[0][][j];
+		obj.cur -> aggregate();
+		af[0][j] = obj.cur.v;
+		}
     }
+
+ObjClient::SubProblems(F) {
+    if (NSubProblems>Zero) {
+        decl subV=zeros(MaxSubReturn,NSubProblems);
+        ToDoList(NSubProblems,F,&subV,MaxSubReturn,SubProblems);
+        obj.cur.V[] = obj->AggSubProbMat(subV);
+        }
+    else
+    	obj.cur.V[] =  obj->vfunc();
+    }
+
+
+//ObjClient::Distribute(F) {    return subV;    }
 
 ObjServer::ObjServer(obj) {	
     this.obj = obj;	

@@ -17,7 +17,7 @@ BlackBox::BlackBox(L)	 {
 /** A blackbox economic model with panel data and (possibly) nested solution method.
 @param L string, label
 @param data a <a href="../DDP/Data.ox.html#Panel">Panel<a/> or <a href="../DDP/Data.ox.html#PanelPrediction">PanelPrediction</a>. object (including
-the possibility of the derived DataSet and EmpiricalMoments variety).
+the possibility of the derived OutcomeDataSet and PredictionDataSet variety).
 @param ... `Parameter`s and arrays of Parameters to optimize over.
 @comments  `Objective::NvfuncTerms` is set to <code>data.FN</code>, the total number of paths in the panel
 **/
@@ -35,8 +35,8 @@ PanelBB::PanelBB (L,data,...)	{
 	else oxwarning("FiveO Warning 03.\n No estimated parameters added to "+L+" panel estimation ");
 	}
 
-PanelBB::Combine(outmat) {
-    data->Predict(0,FALSE,outmat);
+PanelBB::AggSubProbMat(submat) {
+    data->Predict(0,FALSE,submat);
     return data.M;
     }
 

@@ -29,6 +29,6 @@ struct ZurcherHat : Zurcher	{
 /** Some of the bus data used .
 See <a href="RustEmet1987readdata.ox.html" target="_blank">RustEmet1987readdata</a>.
 **/
-struct BusData : DataSet {
+struct BusData : OutcomeDataSet {
 	BusData(method=0);
 	}	

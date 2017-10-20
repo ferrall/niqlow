@@ -48,7 +48,7 @@ FirmEntry::GenerateSample() {
 	Volume = LOUD;
 	EM = new ValueIteration(0);
 //	EM -> Solve(0,0);
-	data = new DataSet(0,EM);
+	data = new OutcomeDataSet(0,EM);
 	data->Simulate(DataN,DataT,0,FALSE);
 	data->Print("firmentry.xls");
 	BDP = new ImaiJainChing("FMH",data,EM,ecost,sige,kcoef,KP,delta); 	

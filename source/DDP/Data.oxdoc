@@ -153,7 +153,7 @@ fixed panel in the list.
 <td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
 <td style="height:1px; width:auto;" colspan="3" class="fffix">
 <table class="labelwrapper">
-   <tbody><tr><td class="label"><a href="Data.ox.html#DataSet">DataSet</a></td></tr>
+   <tbody><tr><td class="label"><a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a></td></tr>
    <tr class="bottom"><td class="line">&nbsp;</td></tr>
 </tbody></table>
 </td>
@@ -168,7 +168,7 @@ fixed panel in the list.
 <LI>Examples</LI>
 <DT>Create a data set from external data</DT>
 <dd><pre>
-	data = new DataSet("DPdata",method,TRUE);
+	data = new OutcomeDataSet("DPdata",method,TRUE);
 	data->Observed(x,"x",d,"d");
 	data->IDColumn("id");
 	data->Read("data.dta");	
@@ -214,7 +214,7 @@ The base `Outcome` class captures a single period, and it points to the previous
 Image Y*  Y* Y* ...
 -->
 
-Finally, `DataSet` is a class derived from `Panel` that includes methods to read in outcomes from data accounting for partial or complete unobservability of actions and states.
+Finally, `OutcomeDataSet` is a class derived from `Panel` that includes methods to read in outcomes from data accounting for partial or complete unobservability of actions and states.
 
 This organization can be seen by clicking on <em>hierarchy</em> in the upper right corner of any page of DDP documentation.
 
@@ -251,7 +251,7 @@ Y = &equiv; (x<sub>0</sub> &hellip; x<sub>&chi;.N</sub>  - - &hellip; a<sub>o0</
 
 <a name="Data"><LI>Data Sets</LI></a>
 
-The `DataSet` class is derived from `Panel`.  It adds to the notion of a (heterogeneous) panel methods to read in external data and to account for observability and unobservability of aspects of the DP.
+The `OutcomeDataSet` class is derived from `Panel`.  It adds to the notion of a (heterogeneous) panel methods to read in external data and to account for observability and unobservability of aspects of the DP.
 
 <h3>Observability</h3>
 
@@ -276,7 +276,7 @@ On the other hand, the `Prediction` class is designed to handle the distribution
 
 The base class `Prediction` tracks a list of possible state indices and their associated probabilities of occurring.  It also tracks choice probabilities.
 
-Starting from some initial conditions a `PathPrediction` is a list of predictions, each providing the distribution across states and choices at that point in time.  A `PanelPrediction` is a set of `PathPrediction`s across fixed effect groups.  Data can be read in to match up with predictions using the `EmpiricalMoments` class derived from `PanelPrediction`.
+Starting from some initial conditions a `PathPrediction` is a list of predictions, each providing the distribution across states and choices at that point in time.  A `PanelPrediction` is a set of `PathPrediction`s across fixed effect groups.  Data can be read in to match up with predictions using the `PredictionDataSet` class derived from `PanelPrediction`.
 
 <table class="tree">
 <td class="line">&nbsp;</td>
@@ -321,7 +321,7 @@ Starting from some initial conditions a `PathPrediction` is a list of prediction
 <td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
 <td style="height:1px; width:auto;" colspan="4" class="fffix">
 <table class="labelwrapper">
-   <tbody><tr><td class="label">`EmpiricalMoments`</td></tr>
+   <tbody><tr><td class="label">`PredictionDataSet`</td></tr>
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>

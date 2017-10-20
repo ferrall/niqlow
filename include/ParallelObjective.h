@@ -12,7 +12,9 @@ ParallelObjective(obj,DONOTUSECLIENT=TRUE,NSubProblems=DoAll,MaxSubReturn=0);
 struct ObjClient : Client {
     const decl
     /** Objective. **/ obj;
-    Distribute(X);
+    MultiParam(Fmat,aFvec,af);
+    SubProblems(F);
+//    Distribute(X);
     ObjClient(obj);
     Execute();
     }

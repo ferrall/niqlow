@@ -551,7 +551,7 @@ The vector of path log-likelihoods is stored in `Panel::M`,
 it is constructed by appending each `FPanel::FPL`.
 If `FPanel::method` is an object, then <code>`FPanel::method`-&gt;Solve()</code>
 is called.
-@see DataSet::EconometricObjective
+@see OutcomeDataSet::EconometricObjective
 **/
 Panel::LogLikelihood() {
     decl succ;
@@ -576,7 +576,7 @@ FPanel::Mask() {
 
 /** Mask unobservables.
 **/
-DataSet::Mask() {
+OutcomeDataSet::Mask() {
 	decl s;
 	if (isint(mask)) mask = new array[NColumnTypes];
     for(s=0;s<NColumnTypes;++s) mask[s] = <>;
@@ -599,7 +599,7 @@ DataSet::Mask() {
 /** set the column label or index of the observation ID.
 @param lORind string, column label<br>integer&ge;0 column index;
 **/
-DataSet::IDColumn(lORind) {
+OutcomeDataSet::IDColumn(lORind) {
 	if (isint(lORind)&&lORind<0) oxrunerror("DDP Error 54. column index cannot be negative");
 	list[0]->Observed(lORind);
 	}
@@ -614,7 +614,7 @@ element of
 			 string, label of column with observations.
 
 **/
-DataSet::MatchToColumn(aORs,LorC) {
+OutcomeDataSet::MatchToColumn(aORs,LorC) {
 	if (StateVariable::IsBlock(aORs)) oxrunerror("DDP Error 55. Can't use columns or external labels to match blocks. Must use ObservedWithLabel(...)");
 	decl offset,k;
 	if (!Version::MPIserver && Data::Volume>SILENT) fprint(Data::logf,"\nAdded to the observed list: ");
@@ -635,7 +635,7 @@ DataSet::MatchToColumn(aORs,LorC) {
             ignored.<br>
 @param ... continues with object2, LoC2, object3, LorC3, etc.<br>
 **/
-DataSet::ObservedWithLabel(as1,...) {
+OutcomeDataSet::ObservedWithLabel(as1,...) {
 	decl offset,aORs,LorC,va = isarray(as1) ? as1 : {as1},k,bv;
     va |= va_arglist();
 	if (!Version::MPIserver && Data::Volume>SILENT) fprint(Data::logf,"\nAdded to the observed list: ");
@@ -663,9 +663,9 @@ DataSet::ObservedWithLabel(as1,...) {
 @param ... as2, etc.
 
 @comments Does nothing unless variable was already sent to
-`DataSet::ObservedWithLabel`();
+`OutcomeDataSet::ObservedWithLabel`();
 **/
-DataSet::UnObserved(as1,...) {
+OutcomeDataSet::UnObserved(as1,...) {
 	decl offset,aORs,va = {as1}|va_arglist(),k;
 	for (k=0;k<sizeof(va);++k) {
 		aORs = va[k];
@@ -741,14 +741,14 @@ vec(ind[ss]+reshape(I::OO[ss][s]*States[s].actual,rows(ind[ss]),States[s].N));
 @return `Panel::M`, <em>lnL = (lnL<sub>1</sub> lnL<sub>2</sub> &hellip;)</em>
 @see Panel::LogLikelihood
 **/
-DataSet::EconometricObjective(subp) {
+OutcomeDataSet::EconometricObjective(subp) {
 	if (!masked) {oxwarning("DDP Warning 09.\n Masking data for observability.\n"); Mask();}
     if (subp==DoAll) {
 	   this->Panel::LogLikelihood();
 	   return M;
          }
     else {
-        oxwarning("DataSet Objective not updated for subproblem parallelization");
+        oxrunerror("OutcomeDataSet Objective not updated for subproblem parallelization");
         }
 	}
 
@@ -757,7 +757,7 @@ DataSet::EconometricObjective(subp) {
 @param rlabels [default=0], array of labels
 
 **/
-DataSet::Summary(data,rlabels) {
+OutcomeDataSet::Summary(data,rlabels) {
 	decl rept = zeros(3,0),s;		
 	foreach (s in list) rept ~= s.obsv | s.force0 | s.incol;
 	fprintln(Data::logf,"\nOutcome Summary: ",label);
@@ -772,7 +772,7 @@ DataSet::Summary(data,rlabels) {
 /** Load data from the Ox DataBase in <code>source</code>.
 @internal
 **/
-DataSet::LoadOxDB() {
+OutcomeDataSet::LoadOxDB() {
 	decl s,curid,data,curd = new array[NColumnTypes],row,obscols,inf,fpcur,obslabels,nc;
 	dlabels=source->GetAllNames();
 	obscols=<>;
@@ -843,12 +843,12 @@ DataSet::LoadOxDB() {
 
 @example
 <pre>
-  d = new DataSet();
+  d = new OutcomeDataSet();
   d -&gt; Read("data.dta");
 </pre></dd>
 
 **/
-DataSet::Read(FNorDB,SearchLabels) {
+OutcomeDataSet::Read(FNorDB,SearchLabels) {
 	if (FNT) oxrunerror("DDP Error 58. Cannot read data twice into the same data set. Merge files if necessary");
     if (isstring(FNorDB)) {
 	   source = new Database();
@@ -856,7 +856,7 @@ DataSet::Read(FNorDB,SearchLabels) {
         }
     else source = FNorDB;
 	cputime0=timer();
-	if (!list[0].obsv) oxrunerror("DDP Error 60. Must call DataSet::IDColumn to set column of ID variable before reading");
+	if (!list[0].obsv) oxrunerror("DDP Error 60. Must call OutcomeDataSet::IDColumn to set column of ID variable before reading");
 	if (SearchLabels) {
 		decl lnames,mtch, i,j;
 		lnames = source->GetAllNames();
@@ -882,8 +882,8 @@ solution
 @param FullyObserved (default) FALSE, account for unobservability<br>TRUE use simple
 partial loglikelihood
 **/
-DataSet::DataSet(id,method,FullyObserved) {
-	if (!Flags::ThetaCreated) oxrunerror("DDP Error 62. Cannot create DataSet before calling CreateSpaces()");
+OutcomeDataSet::OutcomeDataSet(id,method,FullyObserved) {
+	if (!Flags::ThetaCreated) oxrunerror("DDP Error 62. Cannot create OutcomeDataSet before calling CreateSpaces()");
 	label = id;
 	Panel(0,method,this.FullyObserved=FullyObserved);
 	masked = FALSE;
@@ -898,7 +898,7 @@ DataSet::DataSet(id,method,FullyObserved) {
 
 /** Delete a data set.
 **/
-DataSet::~DataSet() {
+OutcomeDataSet::~OutcomeDataSet() {
 	~Panel();
 	decl q;
 	foreach (q in list) delete q;

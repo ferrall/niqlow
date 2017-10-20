@@ -77,7 +77,7 @@ struct Objective	{
     virtual Menu();
     virtual Interact();
     virtual contour(Npts,Xpar,Ypar,lims);
-    virtual Combine(outmat);
+    virtual AggSubProbMat(submat);
 	}
 
 	

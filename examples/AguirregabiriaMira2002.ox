@@ -32,7 +32,7 @@ ZPanel::ZPanel(params,const ivals) {
     for(k=0;k<AMNX-1;++k)  //convert odometer reading into category.
 		bus[][xc] = miles.>=binsz*k .&& miles.<binsz*(k+1) .? k .: bus[][xc];
     savemat("am2002.dta",bus,{"ID",AMZurcher::x.L,AMZurcher::d.L});
-	DataSet(0,EM,TRUE);
+	OutcomeDataSet(0,EM,TRUE);
     //	Simulate(MCSampleSize,PanelLength,0,0);
     //  Print("am2002.dta");
     IDColumn("ID");

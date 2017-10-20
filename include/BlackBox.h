@@ -17,7 +17,7 @@ struct PanelBB : BlackBox {
 	const decl data;
 	PanelBB(L,data, ...);
 	virtual vfunc(subp=DoAll);
-    virtual Combine(outmat);
+    virtual AggSubProbMat(submat);
 	}
 
 struct NoObjective : BlackBox {

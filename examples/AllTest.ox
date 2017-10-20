@@ -199,7 +199,7 @@ Test7::Run()  {
     Volume = LOUD;
 	EMax -> Solve();
 	Volume=SILENT;
-	data = new DataSet(0,EMax);
+	data = new OutcomeDataSet(0,EMax);
 	data -> Simulate(300,3,0,0);
 	decl g=SetGroup(0);
 	g->StationaryDistribution();
@@ -263,7 +263,7 @@ Test9::Run()	{
     println("%c",{"f"}|pd.tlabels,pd.aflat[0],pd.aflat[1]);
     savemat("Test9moms.dta",pd.aflat[0]|pd.aflat[1],{"f"}|pd.tlabels);
     delete pd;
-    pd = new EmpiricalMoments("hi",meth,UseLabel,FALSE,FALSE);
+    pd = new PredictionDataSet("hi",meth,UseLabel,FALSE,FALSE);
     pd->TrackingWithLabel(AllFixed,TRUE,a,d);
     pd->Read("Test9moms.dta");
     Explore(pd,10,0.1,lam);

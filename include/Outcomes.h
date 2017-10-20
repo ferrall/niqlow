@@ -130,7 +130,7 @@ struct Panel : FPanel {
 	Flat();
     Deep();
 	Print(fn=0);
-//	Auxiliary(av,...);
+//    virtual Combine(V);
 	virtual Simulate(N,T,ErgOrStateMat=0,DropTerminal=FALSE);
 	virtual Collapse(cond,stat);
 	}
@@ -157,13 +157,13 @@ struct DataColumn : Zauxiliary {
 A data set is designed to hold data for estimation purposes.
 
 @example
-    d = new DataSet("d");
+    d = new OutcomeDataSet("d");
 </dd>
 
 See <a href="../FiveO/Objective.ox.html#PanelBB">PanelBB</a>.
 
 **/
-struct DataSet : Panel {
+struct OutcomeDataSet : Panel {
 	const decl 										low,
     /** Label for the data set. **/                 label;
 	decl											
@@ -172,12 +172,11 @@ struct DataSet : Panel {
 													list,
 													source,
 													ids;
-	DataSet(label="",method=0,FullyObserved=0);
-	~DataSet();
+	OutcomeDataSet(label="",method=0,FullyObserved=0);
+	~OutcomeDataSet();
 	Mask();
 	LoadOxDB();
 	MatchToColumn(aORs, LorC);
-//    Observed(as1,lc1,...);
     ObservedWithLabel(as1,...);
 	UnObserved(aORs,...);
 	Read(fn,SearchLabels=FALSE);

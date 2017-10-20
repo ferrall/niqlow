@@ -388,18 +388,13 @@ The maximum value is also computed and checked.
 @returns J, the number of function evaluations
 **/
 Objective::funclist(Fmat,aFvec,afvec,abest)	{
-	decl j,J=columns(Fmat),best, f=zeros(J,1), fj;
+    decl best, J=columns(Fmat), f=constant(.NaN,J,1);
 	if (Volume>SILENT) fprintln(logf,"funclist ",columns(Fmat));
-	if (isclass(p2p))  {          //CFMPI has been initialized
-		p2p.client->ToDoList(0,Fmat,aFvec,NvfuncTerms,MultiParamVectors);
-		for(j=0;j<J;++j) {
-			cur.V = aFvec[0][][j];
-			cur -> aggregate();
-			f[j] = cur.v;
-			}
-		}
+	if (isclass(p2p))  //CFMPI has been initialized
+        p2p.client->MultiParam(Fmat,aFvec,&f);
 	else{
-        foreach (fj in Fmat[][j]) {//Leak	for (j=0;j<columns(Fmat);++j) { fj = Fmat[][j];  //Leak
+	    decl j,fj;
+        foreach (fj in Fmat[][j]) {
 		  vobj(fj);
 		  aFvec[0][][j] = cur.V;
 		  cur -> aggregate();
@@ -409,7 +404,7 @@ Objective::funclist(Fmat,aFvec,afvec,abest)	{
     best = int(maxcindex(f));
     if (best<0) best = int(mincindex(f));  //added Oct. 2016 so that -.Inf is not treated as .NaN
 	if (Volume>SILENT) fprintln(logf,"funclist finshed ",best, best>=0 ? f[best] : .NaN);
-	if ( ( best < 0) ) {
+	if ( best < 0 ) {
         println("**** Matrix of Parameters ",Fmat,"Objective Value: ",f',"\n****");
         if (RunSafe) oxrunerror("FiveO Error 33. undefined max over function evaluation list");
         oxwarning("FiveO Warning ??. undefined max over function evaluation list");
@@ -460,7 +455,7 @@ Objective::fobj(F)	{
         }
 	}
 
-Objective::Combine(outmat) {
+Objective::AggSubProbMat(submat) {
     oxwarning("FiveO Warning: Running default Objective in parallel mode SubProblems. ");
     return vfunc();
     }
@@ -471,9 +466,8 @@ Objective::Combine(outmat) {
 Objective::vobj(F)	{
 	Decode(F);
     if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
-    if (isclass(p2p)&& (p2p.client.NSubProblems>Zero)) {
-        cur.V[] = this->Combine( p2p.client->Distribute(F) );
-        }
+    if (isclass(p2p))
+        p2p.client->SubProblems(F);
     else
 	    cur.V[] =  vfunc();
     if (Volume>QUIET) {

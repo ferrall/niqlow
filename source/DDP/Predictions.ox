@@ -155,6 +155,16 @@ PathPrediction::Predict(inT,prtlevel){
         }
   }
 
+PanelPrediction::ParallelSolveSub(subp) {
+    decl cg = SetG(idiv(subp,N::R),imod(subp,N::R)), subflat=<>;
+    decl pobj = cg.find ? fparray[cg.find] : this;
+    pobj.rcur = cg.rind;
+    pobj->PathPrediction::Initialize();
+    pobj->TypeContribution(cg.curREdensity,&subflat);
+    return subflat;
+    }
+
+
 /** Add empirical values to a path of predicted values.
 @param inmom  Txm matrix of values.
 @param hasN FALSE: no row observation column<br>TRUE: second-to-last column that
@@ -587,23 +597,15 @@ PathPrediction::TypeContribution(pf,subflat) {
   return 0;
   }
 
-/** Produce histograms and mean predictions for all paths in the panel.
-
-@param prntlevel `CV` compatible print level<br>
-        Zero (default): silent<br>One : formatted print each object and time<br>Two:
-        create a flat matrix of moments stored in
-`PathPrediction::flat`.
-
+/**
 `PanelPrediction::M` is computed as the negative square root of the sum of the gmm
 objective values produced by each PathPrediction:
 
 <dd class="display">
 $$M = -\sqrt{ \sum_{n} dist(emp_n,pred_n)}$$
 </DD>
+PanelPrediction::Objective() {    Predict(); return M; }
 **/
-PanelPrediction::Objective() {
-    return Predict();
-    }
 
 /** Returns the longest MPI message length sent back by a path prediction call
 **/
@@ -694,13 +696,21 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
     return succ;
     }
 
+/*
+@param V vector if individual panel distance measures.
+@return $-\sqrt{\sum V_i}$
+PanelPrediction::Combine(V) {
+    return -sqrt(double(sumc(V)));
+    }
+*/
+
 /** Track a single object that is matched to column in the data.
 @param Fgroup  integer or vector of integers of fixed groups that the moment should be
 tracked for.<br> <code>AllFixed</code>, moment appears in all groups
 @param LorC  label or column index in the data to associate with this moment.
 @param mom `Discrete` object to track
 **/
-EmpiricalMoments::TrackingMatchToColumn(Fgroup,LorC,mom) {
+PredictionDataSet::TrackingMatchToColumn(Fgroup,LorC,mom) {
     if (Fgroup==AllFixed) PanelPrediction::Tracking(LorC,mom);
     else
         if (Fgroup==0) PathPrediction::Tracking(LorC,mom);
@@ -721,7 +731,7 @@ tracked for.<br> AllFixed, moment appears in all groups
 @param mom1 object or array of objects to track
 @param ... more objects
 **/
-EmpiricalMoments::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
+PredictionDataSet::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
     decl v,args =  isarray(mom1) ? mom1 : {mom1}, pparg = InDataOrNot ? UseLabel :
     NotInData;
     args |= va_arglist();
@@ -746,7 +756,7 @@ fixed variables
 @param iDist initial conditions set to `PathPrediction`s
 @param wght Weight moments [default=TRUE]
 **/
-EmpiricalMoments::EmpiricalMoments(label,method,UorCorL,iDist,wght) {
+PredictionDataSet::PredictionDataSet(label,method,UorCorL,iDist,wght) {
     decl q,j;
     this.label = label;
     Tplace = Nplace = UnInitialized;
@@ -782,10 +792,10 @@ value.<br/>
                         adjustments.<br/>
 
 **/
-EmpiricalMoments::Observations(NLabelOrColumn,TLabelOrColumn) {
+PredictionDataSet::Observations(NLabelOrColumn,TLabelOrColumn) {
     if ( (isint(NLabelOrColumn)&&(NLabelOrColumn>=0)&&isarray(flist))
         ||(isstring(NLabelOrColumn)&&ismatrix(flist)))
-        oxrunerror("DP Error ??.  First argument has to be consistent with UorCorL argument sent to EmpiricalMoments Creator");
+        oxrunerror("DP Error ??.  First argument has to be consistent with UorCorL argument sent to PredictionDataSet Creator");
     Nplace = NLabelOrColumn;
     Tplace = TLabelOrColumn;
     }
@@ -795,36 +805,22 @@ objective.
 @param subp  DoAll (default), solve all subproblems and return likelihood vector<br/>
              Non-negative integer, solve only subproblem, return contribution to
              overall L
-@return `PanelPrediction::M`
-
+@return `PanelPrediction::M` or `PathPrediction::L`
 **/
-EmpiricalMoments::EconometricObjective(subp) {
-    return this->Solve(subp);
-	}
-
-/** Calls `PanelPrediction::Objective` and returns overall GMM objective.
-@returns `PanelPrediction::M`
-**/
-EmpiricalMoments::Solve(subp) {
+PredictionDataSet::EconometricObjective(subp) {
     if (subp==DoAll) {
-        PanelPrediction::Objective();
+        PanelPrediction::Predict();
         return M;
         }
-    else {
-        decl cg = SetG(idiv(subp,N::R),imod(subp,N::R)), subflat=<>;
-        decl pobj = cg.find ? fparray[cg.find] : this;
-        pobj.rcur = cg.rind;
-        pobj->PathPrediction::Initialize();
-        pobj->TypeContribution(cg.curREdensity,&subflat);
-        return subflat;
-        }
-    }
+    else
+        return ParallelSolveSub(subp);
+	}
 
 
 /** Read in external moments of tracked objects.
 @param FNorDB  string, name of file that contains the data.<br>A Ox database object.
 **/
-EmpiricalMoments::Read(FNorDB) {
+PredictionDataSet::Read(FNorDB) {
     decl curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone,incol,
     report = !Version::MPIserver && Data::Volume>SILENT;
     if (report) {

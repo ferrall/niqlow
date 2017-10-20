@@ -140,16 +140,16 @@ struct PanelPrediction : PathPrediction {
 	/** array of GMM vector. **/	 	     M;
     PanelPrediction(r=0,method=0,iDist=0,wght=FALSE);
     ~PanelPrediction();
-    Objective();
-    Predict(T=0,printit=FALSE,subarr=0);
+    Predict(T=0,printit=FALSE,submat=0);
     Tracking(LorC,...);
     MaxPathVectorLength(inT=0);
+    ParallelSolveSub(subp);
     }
 
 /** Stores data read in as moments and associate them with a panel of predictions.
 
 **/
-struct EmpiricalMoments : PanelPrediction {
+struct PredictionDataSet : PanelPrediction {
     const decl /** label **/ label;
     decl
             /** **/                                                     flist,
@@ -157,12 +157,11 @@ struct EmpiricalMoments : PanelPrediction {
             /** observations column (index or label).**/                Nplace,
             /** time column (index or label).**/                        Tplace,
             /** **/                                                     FMethod;
-    EmpiricalMoments(label="",method=0,UorCorL=UseLabel,iDist=0,wght=TRUE);
+    PredictionDataSet(label="",method=0,UorCorL=UseLabel,iDist=0,wght=TRUE);
     Observed(as1,lc1=0,...);
     TrackingMatchToColumn(Fgroup,LorC,mom);
     TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);
     Observations(NLabelorColumn,TLabelorColumn=UnInitialized);
     Read(fn);
  	virtual EconometricObjective(subp=DoAll);
-    virtual Solve(subp=DoAll);
     }
