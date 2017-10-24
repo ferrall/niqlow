@@ -67,7 +67,7 @@ CV(X,...) {
     _noarg = !sizeof(_arg);
     if (isarray(X)) {
         decl x;
-        _v=<>; 
+        _v=<>;
         //Leak foreach(x in X)
         if (_noarg)
             foreach(x in X) _v ~= CV(x);  //Leak: X[x] just x        //for(_x=0;_x<sizeof(X);++_x) //Leak
@@ -813,7 +813,6 @@ MixPoint::Copy(h) {
 //	eq.v = h.eq.v;
 //	}
 
-
 /** Initialize the processing of CGI post data.
 @param title string, HTML title
 **/
@@ -910,7 +909,7 @@ CGI::VolumeCtrl(pref,Volume) {
     fprint  (out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"",-1,"\" ",Volume==-1 ? "checked>" : ">","SILENT&nbsp;");
     fprint  (out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"", 0,"\" ",Volume== 0 ? "checked>" : ">","QUIET&nbsp;");
     fprint  (out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"", 1,"\" ",Volume== 1 ? "checked>" : ">","LOUD&nbsp;");
-    fprintln(out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"", 2,"\" ",Volume== 2 ? "checked>" : ">","NOISY; &emsp;");
+    fprintln(out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"", 2,"\" ",Volume== 2 ? "checked>" : ">","NOISY;&emsp;");
     }
 
 CGI::CheckBox(nm,val,checked) {

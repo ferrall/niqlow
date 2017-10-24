@@ -16,17 +16,18 @@ Prediction::Predict(tlist) {
         predmom = constant(.NaN,1,sizeof(tlist));
         return TRUE;
         }
-	decl k,t,s,q,qi,pp=0.0,unrch=<>,allterm=TRUE;
-    foreach(t in tlist) t->Reset();
+	decl k,tv,s,q,qi,pp=0.0,unrch=<>,allterm=TRUE;
+    foreach(tv in tlist) tv->Reset();
     foreach (q in sind[s]) {
-        if ((pq = p[s] > tinyP)) {
+        pq = p[s];
+        if (pq > tinyP) {
             if (Settheta(q)) {
                 state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
                 I::all[tracking] = q;
                 SyncStates(lo,hi);
                 Alpha::SetA();
                 if ( I::curth->StateToStatePrediction(this) ) return  PredictFailure = TRUE;
-                foreach (t in tlist) t->Distribution(this);
+                foreach (tv in tlist) tv->Distribution(this);
                 allterm *= I::curth.IsTerminal || I::curth.IsLast;
                 }
             else {
@@ -35,7 +36,7 @@ Prediction::Predict(tlist) {
                 }
             }
         }
-    predmom = <>; foreach(t in tlist) predmom ~= t.mean;
+    predmom = <>; foreach(tv in tlist) predmom ~= tv.mean;
     if (!isfeq(pp,0.0)) {
         fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
         if (!LeakWarned) {
@@ -139,7 +140,6 @@ Predictions are averaged over random effect groups.
 PathPrediction::Predict(inT,prtlevel){
     this.inT = inT;
     this.prtlevel = prtlevel;
-    print(" Path ",inT," ",isclass(summand));
     if (!Initialize()) return FALSE;
 	if (isclass(summand))
 		summand->Integrate(this);
@@ -151,9 +151,7 @@ PathPrediction::Predict(inT,prtlevel){
         return FALSE;
         }
     else {
-        print(" * ");
         ProcessContributions();
-        println(" ",L);
         return TRUE;
         }
   }
@@ -243,6 +241,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT,wght) {
             }
         } while(dt<T);
     }
+
 /** Set the initial conditions of a path prediction.
 What happens depends on `PathPrediction::iDist`.
 
@@ -327,8 +326,9 @@ PathPrediction::~PathPrediction() {
     }
 
 aTrack::Distribution(pobj) {
-    decl v = 0.0, hk;
-    for(decl k=0;k<hN;++k) {
+    decl hk, k;
+    v = 0.0;
+    for(k=0;k<hN;++k) {
         hk = sumr( sumc( selectifr(pobj.chq,Alpha::C[][hd].==k) ) );
         v += hvals[k]*hk;
         hist[k] += hk;
@@ -338,7 +338,7 @@ aTrack::Distribution(pobj) {
     }
 
 sTrack::Distribution(pobj) {
-    decl me = pobj.state[hd], v;
+    decl me = pobj.state[hd];
     hist[me] += pobj.pq;        //Leak:sind[][k] -> q
     v =hvals[me]*pobj.pq;
     mean += v;
@@ -353,7 +353,7 @@ xTrack::Distribution(pobj) {
     }
 
 oTrack::Distribution(pobj) {
-    decl v = pobj.pq * I::curth->OutputValue();
+    v = pobj.pq * I::curth->OutputValue();
     mean += v;
     return v;
     }
@@ -370,7 +370,8 @@ Prediction::Histogram(tlist,printit) {
     predmom=<>;
     Alpha::SetA();
     foreach(tv in tlist ) { //Leak     for (i=0;i<sizeof(tlist);++i) { //tv = tlist[i];Leak
-        predmom ~= tv->Distribution(this);
+        tv->Distribution(this);
+        predmom ~= tv.v;
         if (printit) tv->print();
         }
     Alpha::ClearA();
@@ -679,21 +680,16 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
     aflat = {};
     M = 0.0;
     succ = TRUE;
-    println("Panel ",ismatrix(outmat));
     do {
         if (ismatrix(outmat)) {
             cur->PathPrediction::ProcessContributions(sumr(outmat[][left:right]));
             left += N::R;
             right += N::R;
             }
-        else {
+        else
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
-            }
         M += cur.L;
-	    if (!Version::MPIserver && Data::Volume>QUIET) {
-                aflat |= cur.f~cur.flat;
-                println("f ",cur.f," ",cur.L," ",M);
-                }
+	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur.f~cur.flat;
         } while((isclass(cur=cur.fnext)));
     if (!Version::MPIserver && Data::Volume>QUIET) {
         decl amat = <>,f;
@@ -701,7 +697,6 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
         savemat(replace(Version::logdir+DP::L+"_PredMoments_"," ","")+".dta",amat,{"f"}|tlabels);
         }
     M = succ ? -sqrt(M) : -.Inf;
-    println("finished ",M);
     return succ;
     }
 
@@ -817,7 +812,6 @@ objective.
 @return `PanelPrediction::M` or `PathPrediction::L`
 **/
 PredictionDataSet::EconometricObjective(subp) {
-    println("Prediction ",subp," ",DoAll);
     if (subp==DoAll) {
         PanelPrediction::Predict();
         return M;
@@ -892,7 +886,7 @@ PredictionDataSet::Read(FNorDB) {
                 }
             cur->Empirical(inmom,hasN,hasT,wght);
             if (report) {
-                    fprintln(Data::logf,"Moments read in for fixed group ",curf,". See log file");
+                    println("Moments read in for fixed group ",curf,". See log file");
                     fprintln(Data::logf,"Moments of Moments for fixed group:",curf);
                     MyMoments(inmom,tlabels[1:],Data::logf);
                     }

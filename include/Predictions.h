@@ -32,6 +32,7 @@ struct TrackObj : Zauxiliary {
     /** label  **/                      L,
     /** column label of index **/       LorC;
     decl
+    /** **/     v,
     /** **/     hN,
     /** **/     hd,
     /** **/     hv,

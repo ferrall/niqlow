@@ -16,6 +16,7 @@
 #include <oxfloat.oxh>
 #include <oxprob.oxh>
 #include <oxdraw.oxh>
+
 /* This file is part of niqlow. Copyright (C) 2012-2017 Christopher Ferrall */
 
 	/** Pseudonyms for -1, -2, &hellip, 2 . @name Names_for_Integers **/
@@ -338,7 +339,7 @@ struct CPoint : Point {
 	virtual Copy(h);
 	}
 		
-class CGI {
+class CGI  {
     static const decl keys ={
         "AUTH_TYPE",
         "CONTENT_LENGTH",
