@@ -37,11 +37,11 @@ enum{lo,hi,Limits}
     /** Modes of Execution when executing in parallel. See `BaseTag`
          <DD>MultiParamVectors: Sending different parameter vectors to nodes to compute
             overall objective.</DD>
-         <DD>SubProblems: Sending a single parameter vector to nodes to solve
+         <DD>OneVector: Sending a single parameter vector to nodes to solve
             separate sub-problems which will be aggregated by the Client.
             This involves `Objective::vfunc`().</DD>
         @name ParallelExecutionModes **/
-    enum{MultiParamVectors,SubProblems,ParallelModes}
+    enum{MultiParamVectors,OneVector,ParallelModes}
     static const decl
         /** Base tags for parallel messaging.**/    BaseTag = <One,1000>;
 

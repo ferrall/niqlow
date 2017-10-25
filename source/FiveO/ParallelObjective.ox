@@ -33,7 +33,7 @@ ObjClient::MultiParam(Fmat,aFvec,af) {
 ObjClient::SubProblems(F) {
     if (NSubProblems>Zero) {
         decl subV=zeros(MaxSubReturn,NSubProblems);
-        ToDoList(NSubProblems,F,&subV,MaxSubReturn,SubProblems);
+        ToDoList(NSubProblems,F,&subV,MaxSubReturn,OneVector);
         obj.cur.V[] = obj->AggSubProbMat(subV);
         }
     else
@@ -68,8 +68,8 @@ Call `Objective::vfunc`().
 ObjServer::Execute() {
 	obj->Decode(Buffer[:obj.nfree-1]);
     if (Volume>QUIET) println("Server Executive: ",ID," vfunc[0]= ",Buffer[:min(9,obj.nfree-1)]);
-    if (Tag>=BaseTag[SubProblems]) {
-        Buffer = obj->vfunc(Tag-BaseTag[SubProblems]);
+    if (Tag>=BaseTag[OneVector]) {
+        Buffer = obj->vfunc(Tag-BaseTag[OneVector]);
         }
     else {
 	   Buffer = obj.cur.V[] = obj->vfunc();
