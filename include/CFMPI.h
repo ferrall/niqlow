@@ -1,4 +1,4 @@
-#include "cshared.h"
+#include "C/cshared.h"
 #include "mpi.h"
 
 void mpi_exit() ;
