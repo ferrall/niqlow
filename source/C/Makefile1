@@ -1,0 +1,20 @@
+include ..\Makefile.inc
+
+CC = gcc
+INC := ..\..\include\C
+DOC := ..\..\doc\C
+CFLAGS = -Wall -O2 -m64 -I$(INC) -c 
+
+vpath %.c .
+vpath %.h $(INC)
+vpath %.so $(INC)
+
+CFcurl_64.dll : CFcurl.o
+
+%.o : %.c %.h
+	$(CC) $(CFLAGS) $<
+
+%.dll : 
+	$(CC) -shared -L$(INC) -I$(INC) -o $@ $^ -loxwin -lcurl CFcurl.def
+	$(COPY) $@ $(INC)
+	$(ERASE) $@

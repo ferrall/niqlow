@@ -37,9 +37,9 @@
 
 The action vector $\alpha$ is the vector of discrete actions chosen conditional on the state of the DP.  A generic element of $\alpha$ is denoted <var>a</var>.  An action variable takes on $a.N$ different values. The action vector includes $\alpha$.N variables, denoted a<sub>0</sub> through a<sub>($\alpha$.N)&oline;</sub>. Action variables are represented as an `ActionVariable` and are added to <code>MyModel</code> and to $\alpha$ using `DP::Actions`().  Calls to <code>Actions()</code> and other model-building routines is part of <code>MyCode</code>.</p>
 
-<DD>In the basic definition of a DDP model, <code>&Alpha;</code> is defined as the set of possible actions. In <span class="n">DDP</span> the set of actions is built up by adding action variables to $\alpha$.  So <code>&Alpha;</code> emerges from the properties of the variables added to $\alpha$.</DD>
+<DD>In the basic definition of a DDP model, <code>$\Alpha$</code> is defined as the set of possible actions. In <span class="n">DDP</span> the set of actions is built up by adding action variables to $\alpha$.  So <code>&Alpha;</code> emerges from the properties of the variables added to $\alpha$.</DD>
 <DD class="example">Possible Actions is the matrix of all possible action vectors: <details class="aside"><summary>Terminology:</summary>The word <em>possible</em> is used instead of <em>feasible</em>, because this notion of <code>&Alpha;</code> is constructed mechanically from properties of the actions.  It has nothing to do with the interpretation of the actions.  Feasible actions are defined below. An <em>action</em> refers to a particular value of the action vector $\alpha$, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column.</details>
-$$A \equiv \times_{j=0,\dots \alpha.N^-} \{ 0, 1, \dots a{j.N)^-} }$$
+$$A \equiv \times_{j=0,\dots \alpha.N^{-}} \left\{ 0, 1, \dots, a{j.N)^{-}\right\}.$$
 DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</DD>
 <DT>Alternative Notation</DT>
 <DD>Discrete choice is described in two ways other than the one above used in <span class="n">DDP</span>.</DD>
@@ -128,17 +128,17 @@ An action vector $\alpha$ is a <em>row</em> of the matrix A.
 $$\forall \theta \in \Theta,\qquad \theta.A \subseteq A.$$
 <DT>`Bellman::FeasibleActions`(): by default all possible actions are feasible</DT>
 <DD>If <code>MyModel</code> does not say otherwise, $\theta.A \equiv A$ for all endogenous states.</DD>
-<DD>This behaviour is produced by including a built in method, <code>Bellman::FeasibleActions()</code>, which is a virtual method, meaning that <code>MyModel</code> can replace it with its own version.
+<DD>This behaviour is produced by including a built in method, <code>Bellman::FeasibleActions()</code>, which is a virtual method, meaning that <code>MyModel</code> can replace it with its own version.</DD>
 <DT>Overriding the default: <code>MyModel::FeasibleActions()</code></DT>
 <DD>If the user supplies a replacement for <code>FeasibleActions()</code> it must take a single argument <code>A</code>, which is the possible matrix <var>A</var>, each row is an action vector $\alpha$ and each column is an action variable a that was added to the model.
 <DD class="example"><code>MyModel::</code>must return a column vector which indicates that $\alpha$ is feasible or not.
-<pre>FeasibleActions() = a A.N vector containing I{A.i$\in\theta$.A}, i = 0 &hellip; A.N&oline;.</pre></DD>
+<pre>FeasibleActions() = a A.N vector containing I{A.i &in; &theta;.A}, i = 0 &hellip; A.N&oline;.</pre></DD>
 <DD>This requirement explains that the default method returns a vector of 1s equal in size to the rows of <var>A</var>.</DD>
 <DT>The A List</DT>
 <DD>`DP::CreateSpaces` constructs the possible matrix A, actually stored as the first element of a list (<code>OxArray</code>):
     <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state $\theta$.
     Every time a different value is returned a new matrix is added to the A list.  The index into the list is then stored as  <code>Aind</code> &harr;  $\theta$.j.</DD>
-<DD>The user's feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a).</DD>
+<DD>The user's feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a)</code>.</DD>
 <DD>In short, $\theta$.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = $\theta$.j = 0</code> for all states.</DD>
 <DT>The A list contains the <em>actual</em> values not the <em>current</em> values.</DT>
 <DD>If the user provides an `Discrete::Update`() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values.</DD>
@@ -150,7 +150,6 @@ FeasibleActions(const A) {    return CV(x)==2 ? aa(a).!=0 : ones(rows(A),1) ;   
 </pre>
 Code this way it does not matter whether more variables are added to the model and it does not matter what order the code adds the actions to $\alpha$.  <code>FeasibleActions</code> is robust to those details.
 </DD>
-
 
 </OL>
 
@@ -189,15 +188,15 @@ variables.</DD>
 
 The model places discrete state variables/blocks into one of four vectors.
 <table class="overview" width="100%" > <tr><td></td><td colspan="4">DP State Vector</td></tr>
-<tr><td></td><td>Exogenous<br>(\epsilon) </th><td>Semi-Exogenous<br>(\eta) </td><td>Endogenous<br>(\theta)</th><td>Group (`RandomEffect` or `FixedEffect`)<br>(\gamma)</tr>
+<tr><td></td><td>Exogenous<br>($\epsilon$) </th><td>Semi-Exogenous<br>($\eta$) </td><td>Endogenous<br>($\theta$)</th><td>Group (`RandomEffect` or `FixedEffect`)<br>($\gamma$)</tr>
 <tr><td>Generic Element</td><td>e</td><td>h</td><td>q</td><td>g</td></tr>
-<tr><td>Form of \Rho<sub>s</sub></td><td colspan="2">\Rho<sub>s</sub>(s\prime)</td><td>&Rho;<sub>s</sub>(s\prime|\alpha,\epsilon,\eta,\theta)</td><td>g\prime=g</td></tr>
-<tr><td>Explanation</td><td colspan="2">Transition IID of everything.</td><td>Transition can depend on value of states and \alpha.  </td><td>fixed</td></tr>
-<tr><td>Special form of<br> &Rho;<sub>q</sub>, q\in\theta, q\neq s</td><td>cannot enter &Rho;<sub>q</sub></td><td colspan="2">can enter </td><td>can enter but<br>see `DP::SetUpdateTime`</td></tr>
-<tr><td>Explanation</td><td>q independent of \epsilon, given \alpha</td>
-<td colspan="2">\eta and \theta can affect q</td><td>default is random effects can <em>only</em> enter U() not &Rho;()</tr>
-<tr><td>Computing Implication</td><td colspan="2">Compute and store &Rho;<sub>\epsilon</sub> and &Rho;<sub>\eta</sub> once on each solution.</td>
-<td>Compute and store &Rho;<sub>\theta</sub> at each \theta, store as a <em>matrix</em> for each \alpha and each \eta </td><td>Reuse space for each fixed effect. Store only $&Rho;*(\alpha|\hellip\gamma) for separate random effects.$</td><tr>
+<tr><td>Form of $P$<sub>s</sub></td><td colspan="2">$P_s(s^\prime)$</td><td>$P_s(s^\prime|\alpha,\epsilon,\eta,\theta)$</td><td>$g^\prime=g$</td></tr>
+<tr><td>Explanation</td><td colspan="2">Transition IID of everything.</td><td>Transition can depend on value of states and $\alpha$.  </td><td>fixed</td></tr>
+<tr><td>Special form of<br> $P_q$, $q\in\theta$, $q\neq s$</td><td>cannot enter $P_q$</td><td colspan="2">can enter </td><td>can enter but<br>see `DP::SetUpdateTime`</td></tr>
+<tr><td>Explanation</td><td>$q$ independent of $\epsilon$, given $\alpha$</td>
+<td colspan="2">$\eta$ and $\theta$ can affect $q$</td><td>default is random effects can <em>only</em> enter $U()$ not $P()$</tr>
+<tr><td>Computing Implication</td><td colspan="2">Compute and store $P_\epsilon$ and $P_\eta$ once on each solution.</td>
+<td>Compute and store $P_\theta$ at each $\theta$, store as a <em>matrix</em> for each $\alpha$ and each $\eta$ </td><td>Reuse space for each fixed effect. Store only $P^\star(\alpha|\dots\gamma)$ for separate random effects.</td></tr>
 </table>
 
 <details><summary><b>Example</b> <br>Include an Semi-Exogenous IID jump process and an Endogenous tracker of its previous value to a DDP model:</summary>
@@ -220,8 +219,8 @@ MyModel::Initialize() {
 <a name="SVT"><LI>State Variable Transitions</LI></a>
 
 <DT>The overall state transition is  computed as follows</DT>
-$$P\left(\epsilon^{\,\prime},\eta^{\,\prime},\theta^{\,\prime}\ |\ \alpha,\epsilon\eta,\theta\right) =
-P_\epsilon(\epsilon^{\,\prime}) P_\eta(\eta^{\,\prime}) P_\theta\left (\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right).$$
+$$P\left(\epsilon^{\,\prime},\eta^{\,\prime},\theta^{\,\prime}\ |\ \alpha,\epsilon,\eta,\theta\right) =
+P_\epsilon(\epsilon^{\,\prime}) P_\eta(\eta^{\,\prime}) P_\theta\left(\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right).$$
 That is, the joint probability distribution of all state variables next period is the product of the probabilities of the three state vectors.  So the vectors evolve independently conditional on the current state. Further, the IID nature of $\epsilon$ and $\eta$ mean that their probability is constant across current states and actions.  In turn,
 $$P_\epsilon(\epsilon^{\,\prime}) = \prod_{k=0\dots \epsilon.N^-} P_{e_k}\left(e^{\,\prime}_k\right).$$
 
@@ -234,7 +233,7 @@ $$P_\theta\left(\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right) = \prod_{k=0\dot
 <DT>Autonomous</DT>
 <DD class="example">Let the value of a state variable <var>s</var> realized next period be denoted <var>s'</var>.  The probability that
 <var>s'</var> takes on the value <var>z</var> in the next period be written generally as
-$$P(s' = z | \alpha,\epsilon,\eta,\theta) = p<sub>s</sub>(z,\alpha,\epsilon,\eta,\theta).$$</DD>
+$$P(s' = z | \alpha,\epsilon,\eta,\theta) = p_s(z,\alpha,\epsilon,\eta,\theta).$$</DD>
 
 <DT>Exogenous</DT>
 <DD>State Variables classified as (fully) Exogenous are denoted generically as <em>e</em> and are elements of the vector $\epsilon$.
@@ -366,12 +365,11 @@ Below is an <a href="#example">example</a> of how to define a new state variable
     <DT>Besides a constructor, your state variable must also come with a transition.</DT>
     <DD>If it is derived from another state variable and your version will follow the same transition then you do not need to write a new one.  That is because <code>Transit()</code> is, in most cases, declared as a <em>virtual</em> method.  So if your state variable has no transition of its own, the one from the parent variable will be called in its place. This is why it must be called <code>Transit()</code>, because it replaces another version of a <code>Transit()</code> that would be called if necessary.</DD>
 
-    <DD><code>Transit</code> will often need to access matrix of current feasible actions at the current state, which is available in `Alpha::C` that is set every time the point in the state space is changed
-    or initialized.  Each row of <code>Alpha::C</code> is an action vector $\alpha$ each column is an action variable <var>a</var>.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
+    <DD><code>Transit</code> will often need to access matrix of current feasible actions at the current state, which is available in Alpha::C that is set every time the point in the state space is changed or initialized.  Each row of <code>Alpha::C</code> is an action vector $\alpha$ each column is an action variable $a$.  <code>Transit()</code> must report back the transitions of an instance of the state variable from a given current point in the state space.</DD>
 
     <DT>Example: Possible Argument Passed to <code>Transit()</code></DT>
-    <DD>The model has two binary choice variables, <var>i</var> and <var>j</var>.  Then the argument passed to <code>Transit()</code>  might look like this:</DD>
-<dd><pre>  Alpha::C
+    <DD>The model has two binary choice variables, $i$ and $j$.  Then the argument passed to <code>Transit()</code>  might look like this:
+    <pre>  Alpha::C
   i    j
   0    0
   1    0
@@ -554,21 +552,18 @@ The innermost loop of nearly all discrete dynamic programming solution algorithm
 <li>Accounting for Correlated Innovations</li>
 
 <DT>If a state is not <em>autonomous</em> it is <em>coevolving</em> with at least one other state variable.
-<DD>State variables f and g are coevolving if
-$$for some f\prime, g\prime, \alpha \in \theta.A, \eta and \theta,
-                &Rho;( f\prime, g\prime | \alpha,\eta,\theta ) &ne; &Rho;<sub>f</sub>(f\prime | \alpha,\eta,\theta)  &Rho;<sub>g</sub>(g\prime | \alpha,\eta,\theta)
-$$
+<DD>State variables f and g are coevolving if for some $f^\prime, g^\prime, \alpha \in \theta.A, \eta$ and $\theta$,
+$$P( f^\prime, g^\prime | \alpha,\eta,\theta ) \neq P_f(f^\prime | \alpha,\eta,\theta)  P_g(g^\prime | \alpha,\eta,\theta).$$
 The term coevolving is used rather than correlated, because it is ambiguous. Some users may interpret correlated as an unconditional property of the variables. Typically <q>|</q> is not used in these notes, but here it is used to emphasize that f and g may be correlated if we do not observe or condition on current action and state values.</DD>
-
 
 <DT>Example of state block</DT>
 <DD><details><summary>Height and weight of a child as they grow older within a model of the parent's actions.</summary>
 <DD>The child's age is a simple counter that is not only autonomous of all other states but it is also deterministic.  That is, its innovation (age\prime-age = 1) depends on nothing else in the model.</DD>
 <DD>If the model tracks the child's weight (w) then it would obviously not be deterministic.  Its transition may depend on age and actions such as meals cooked, activities paid for, etc.  However, it might be reasonable to treat weight accumulation, w\prime-w, as distributed independently of other state variables' innovations.</DD>
 <DD>However, suppose the model includes not just weight but height (h) as well.  It might be reasonable to treat h as evolving in some way separate from decisions or other factors other than age and current height (if growth of the children in the sample are not nutritionally constrained).  But obviously weight gain is correlated with height gain.</DD>
-<DD>That is, <code>MyModel</code> might specify individual transitions of the form &Rho;<sub>h</sub>(h\prime|h,age) &Rho;<sub>w</sub>(w\prime|h\prime-h,w,age).   This formulation could be used to rule out, for example, a growth spurt (h' &gt;&gt; h) and significant weight loss (w&prime; &lt;&lt w ).   This requires a sequence in the realizations:  h&prime; is realized first and then its value feeds into the transition probabilities for weight.  In some ways this sequencing of the realizations makes the model simpler to specify.</DD>
+<DD>That is, <code>MyModel</code> might specify individual transitions of the form $P_h(h\prime|h,age) P_w(w\prime|h\prime-h,w,age)$.   This formulation could be used to rule out, for example, a growth spurt ($h' > h$) and significant weight loss ($w' \lt w$).   This requires a sequence in the realizations:  h&prime; is realized first and then its value feeds into the transition probabilities for weight.  In some ways this sequencing of the realizations makes the model simpler to specify.</DD>
 <DD>However, <span class="n">DDP</span> has no mechanism to ensure this sequencing occurs properly for <em>autonomous</em> variables.  That is, since h&prime; enters the transition of another variable it cannot be classified as autonomous even though its own innovation can be generated without reference to other innovations.</DD>
-<DD>To account for this correlation, the variables w and h must be specified as `Coevolving` and placed in a `StateBlock` which will determine their joint transition.  The block might, for example, ensure that weight does not go down if height goes up.  In effect, placing them in a state block specifies a transition of the form &Rho;<sub>w,h</sub>(w&prime;,h&prime;|h,w,age), which includes as a special case that h&prime;-h affects the transition probabilities for weight.</DD>
+<DD>To account for this correlation, the variables w and h must be specified as `Coevolving` and placed in a `StateBlock` which will determine their joint transition.  The block might, for example, ensure that weight does not go down if height goes up.  In effect, placing them in a state block specifies a transition of the form $P_{w,h(w^{\,\prime},h^{\,\prime}|h,w,age)$, which includes as a special case that h&prime;-h affects the transition probabilities for weight.</DD>
 <DD> Alerted to the presence of a state block in the state vector, <span class="n">DDP</span> processes the block's transition once to build up h&prime; and w&prime; simultaneously.</DD>
 </details>
 
@@ -577,7 +572,7 @@ The term coevolving is used rather than correlated, because it is ambiguous. Som
 
 <DD>State blocks are are autonomous with other variables and blocks.  In the example, the state variables for weight and height would be placed in a state block.   The block would handle the correlation in the innovations.  There is no method to allow nested blocks.  Only `Coevolving` states can be added to a block and a StateBlock is not derived from the `Coevolving` class.
 
-<DD>Just like a single autonomous state variable, a state block can be an element of any of the state vectors, &epsilon;, &eta;, &theta; and &gamma;. For example, serially uncorrelated but contemporaneously correlated wage offers would be handled as an exogenous state block.  If accepted wages do not enter the state next period then the block could be fully exogenous.  Otherwise it would be placed in the semi-exogenous class.
+<DD>Just like a single autonomous state variable, a state block can be an element of any of the state vectors, $\epsilon$, $\eta$, $\theta$ and $\gamma$. For example, serially uncorrelated but contemporaneously correlated wage offers would be handled as an exogenous state block.  If accepted wages do not enter the state next period then the block could be fully exogenous.  Otherwise it would be placed in the semi-exogenous class.
 
 <DD>Note that the `Clock` is a State Block, so its transitions cannot depend on states outside the block.  The user can derive their own class of Clock that includes coevolving states. State variables added to the clock must be (derived from) `TimeVariable` objects, which is a 'container' class derived from coevolving.
 
@@ -636,8 +631,8 @@ These instructions follow the ones provided for creating a <a href="#ASV">StateV
     <DD>It is done in the example to abstract away from passing information to the constructor since this is the same as with a `StateVariable`.</DD>
 
 <LI>Code the <code>Transit()</code> method</LI>
-The major difference between a StateVariable and a StateBlock:  a state variable <code>Transit()</code> function returns a single row vector of "prime states" but a block must return a matrix of feasible "prime" states, each row is the state of the corresponding member of the block in the order they were added to the block.  The transition probabilities still pertain to each column of the matrix.  The rows of the transition probabilities correspond to the rows of the feasible actions &theta;.A.
-   <DT><code>Transit</code> can access the feasible actions <code>&alpha;</code> at the <em>current</em> state. in `Alpha::C'.</DT>
+The major difference between a StateVariable and a StateBlock:  a state variable <code>Transit()</code> function returns a single row vector of "prime states" but a block must return a matrix of feasible "prime" states, each row is the state of the corresponding member of the block in the order they were added to the block.  The transition probabilities still pertain to each column of the matrix.  The rows of the transition probabilities correspond to the rows of the feasible actions $\theta$.A.
+   <DT><code>Transit</code> can access the feasible actions <code>$\alpha$</code> at the <em>current</em> state. in `Alpha::C`.</DT>
    <DT>Your code has to return two items, sent back in an Ox <em>array</em>. </DT>
     <DD>The first is a <em>matrix vector</em> of feasible values, <code>F</code>: the values this block could take on next period.  Each row corresponds to one of the variables in the block.  Each column is a different outcome.  This is what allows for correlated transitions within a block.</DD>
     <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the <em>rows</em> of <code>Alpha::C</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state block takes on the vector of values in column j of <code>F</code> given the agent chooses the ith action in the feasible set <code>Alpha::C</code>.
@@ -689,34 +684,41 @@ In addition, `AV`() will return the vector of <code>actual</code> values that co
 <li name="Trans">The Transition for states and state vectors</li>
 
 <DT>Terminology</DT>
-<DD>Recall that generic elements of the vectors are denoted with corresponding Roman letters (h<sub>2</sub> is an element of &eta;).  <span class="n">DDP</span> keeps track of the individual state variables inside the block as well the block itself.  So elements of a block can still be denoted generically.</DD>
+<DD>Recall that generic elements of the vectors are denoted with corresponding Roman letters (h<sub>2</sub> is an element of $\eta$).  <span class="n">DDP</span> keeps track of the individual state variables inside the block as well the block itself.  So elements of a block can still be denoted generically.</DD>
 <DD>The difference is that the block handles the transition of all the members of the block. So in defining the transition of the state vectors, the generic elements are either autonomous state variables or a state block.</DD>
 <DD>But from the point of view of <code>MyModel</code> each generic element is a separate state variable.</DD>
 
 <DT>The overall state transition is the product of the separate vector transitions:</DT>
-<dd class="example"><pre>
-&Rho;(&zeta;&prime;,&epsilon;&prime;,&eta;&prime;,&theta;&prime;,&gamma;&prime;|&alpha;,&zeta;,&epsilon;,&eta;,&theta;,&gamma;) = f<sub>&zeta;</sub>(&zeta;&prime;) &times; &Rho;<sub>&epsilon;</sub>(&epsilon;&prime;) &times; &Rho;<sub>&eta;</sub>(&eta;&prime;) &times; &Rho;<sub>&theta;</sub>(&theta;&prime;|&alpha;,&eta;,&theta;) &times; I{&gamma;&prime;=&gamma;).
-</pre>
-The restricted natures of the different vectors is displayed by excluding them from other transitions.  In particular, both &zeta; and &epsilon; are excluded from all other transitions. The continuity of the &zeta;'s distribution is illustrated by using f<sub>&zeta;</sub>() instead of &Rho;() for its transition.  The semi-exogenous nature of &eta; is show by its own IID transition and the fact that it is not excluded from the transition of &theta;.  The current value of &eta; can have a direct effect on the transition of endogenous states but its own transition depends on nothing.  Finally, on the other side of the full endogenous states &theta; is the transition of the grouping vector &gamma;.  Since it is fixed during a given program its transition is an indicator for keeping the same value next period.  The realized values of all the state variables do affect the transition of &theta;&prime; but, except for &theta; and &eta;, only indirectly through the agent's optimal choice of $&alpha;$ conditional on the full realized state.  We could illustrate this above by writing $&alpha;$ as $&alpha;(&zeta;,&epsilon;,&eta;,&theta;,&gamma;)$. </dd>
+
+
+$$P(\zeta^{\,\prime},\epsilon^{\,\prime},\eta^{\,\prime},\theta^{\,\prime},\gamma^{\,\prime}\ |\ \alpha,\zeta,\epsilon,\eta,\theta,\gamma\ ) = f_\zeta(\zeta^{\,\prime}) \times P_\epsilon(\epsilon^{\,\prime}) \times P_\eta(\eta^{\,\prime}) \times P_\theta(\theta^{\,\prime}\ |\ \alpha,\eta,\theta) \times I\left\{\gamma^{\,\prime}=\gamma\right\}.$$
+
+The restricted natures of the different vectors is displayed by excluding them from other transitions.  In particular, both $\zeta$ and $\epsilon$ are excluded from all other transitions. The continuity of the $\zeta$'s distribution is illustrated by using $f_\zeta()$ instead of $P()$ for its transition.  The semi-exogenous nature of $\eta$ is show by its own IID transition and the fact that it is not excluded from the transition of $\theta$.  The current value of $\eta$ can have a direct effect on the transition of endogenous states but its own transition depends on nothing.  Finally, on the other side of the full endogenous states $\theta$ is the transition of the grouping vector $\gamma$.  Since it is fixed during a given program its transition is an indicator for keeping the same value next period.  The realized values of all the state variables do affect the transition of $\theta^{\,\prime}$ but, except for $\theta$ and $\eta$, only indirectly through the agent's optimal choice of $\alpha$ conditional on the full realized state.  We could illustrate this above by writing $\alpha;$ as $\alpha(\zeta,\epsilon,\eta,\theta,\gamma)$. </dd>
 
 <DT>In turn, each state vector's transition is the product of the individual elements (either block or autonomous):</DT>
-<DD><pre>
+
+$$\eqalign{
+P_\epsilon \left(\epsilon^{\,\prime}\right) &= \prod_{k=0,\dots,\epsilon.N^-} P_{e_k}(e_k^\prime)\cr
+P_\eta \left(\eta^{\,\prime}\right) &= \prod_{k=0,\dots,\eta.N^{-}} P_{h_k} (h_k^\prime)\cr
+P_\theta \left(\theta^{\,\prime}|\alpha,eta,\theta\right) &= \prod_{k=0,\dots,\theta.N^{-}} P_q(q_k^{\,\prime} | \alpha,\eta,\theta).\cr}$$
+
+<!--
 &Rho;<sub>&epsilon;</sub>(&epsilon;&prime;) = &prod;<sub>k=0&hellip;(&epsilon;.N)&oline;</sub>  &Rho;<sub>e<sub>k</sub></sub>(e<sub>k</sub>&prime;)
 &Rho;<sub>&eta;</sub>(&eta;&prime;) = &prod;<sub>k=0&hellip;(&eta;.N)&oline;</sub>  &Rho;<sub>h<sub>k</sub></sub>(h<sub>k</sub>&prime;)
 &Rho;<sub>&theta;</sub>(&theta;&prime;|&alpha;,&eta;,&theta;) = &prod; <sub>k=0&hellip;(&eta;.N)&oline;</sub>  &Rho;<sub>q<sub>k</sub></sub>( q<sub>k</sub>&prime; | &alpha;,&eta;,&theta; ).</pre></DD>
+-->
 <DT>The group variables are constant within a single solution but across solutions follow a similar distribution:</DT>
-<DD>
-<pre>&Rho;<sub>&gamma;</sub>(&gamma;) = &prod;<sub>k=0&hellip;(&gamma;.N)&oline;</sub>  &Rho;<sub>g<sub>k</sub></sub>(g<sub>k</sub>&prime;).</pre></DD>
-
+$$P_\gamma (\gamma) = \prod_{k=0,\dots,\gamma.N^{-}} P_{g_k}(g_k^\prime).$$
+<!--<DD><pre>&Rho;<sub>&gamma;</sub>(&gamma;) = &prod;<sub>k=0&hellip;(&gamma;.N)&oline;</sub>  &Rho;<sub>g<sub>k</sub></sub>(g<sub>k</sub>&prime;).</pre></DD>-->
 </OL>
 
 <hr>
-<a name="Clock"><LI>The Clock: Time-Keeping `StateBlock` in $&theta;$.</LI>
+<a name="Clock"><LI>The Clock: Time-Keeping `StateBlock` &in; &theta;.</LI>
 
 <OL class="chapter">
 <LI>Overview</LI>
 
-Time is a key concept in dynamic programming.  At least the difference between now (today) and later (tomorrow) underlies Bellman's equation.  In a stationary environment that is all that matters while solving the model.  In a non-stationary world the clock takes on more values.  The primary assumption is that time progresses: <var>t&prime; &ge; t</var>.  This allows the value function to be solved backwards in time, saving storage or computation if, mistakenly the environment is assumed to be stationary.  (That is, with stationarity a fixed point in all states must be solved at once, but with non-stationarity only a subset of the state space needs to be consider at each stage as we work backwards.)
+Time is a key concept in dynamic programming.  At least the difference between now (today) and later (tomorrow) underlies Bellman's equation.  In a stationary environment that is all that matters while solving the model.  In a non-stationary world the clock takes on more values.  The primary assumption is that time progresses: $t^{\,\prime} \ge t$.  This allows the value function to be solved backwards in time, saving storage or computation if, mistakenly the environment is assumed to be stationary.  (That is, with stationarity a fixed point in all states must be solved at once, but with non-stationarity only a subset of the state space needs to be consider at each stage as we work backwards.)
 
 So the two simple extremes are stationarity (today is followed by tomorrow which is the same as today) and normal aging: <var>t&prime; = t+1</var> until <var>t=T&oline;</var>. However, timing can be more complicated that those two cases.  One is an agent facing a finite horizon problem and the possibility of early death.
 
@@ -724,7 +726,7 @@ The Clock Block is a single `StateBlock` that is always in the endogenous vector
 
 <LI>Setting the Clock </LI>
 
-<DT>$&theta;$ <em>always</em> contains a single clock block derived from `Clock`.</DT>
+<DT>$\theta$ <em>always</em> contains a single clock block derived from `Clock`.</DT>
 
 <DT>The simplest way to set the clock is to call `DP::SetClock`().  </DT>
 <DD>The first argument is either one of the `ClockTypes` tags for built-in clocks, or it is an object of a class derived from `Clock`. </DD>
@@ -745,8 +747,8 @@ CreateSpaces();
 <pre>t&prime; &ge; t</pre>
 With anticipation (foresight), V(&theta;) can/should be solved backwards in <var>t</var> if time is important in the model beyond just today and tomorrow in an infinite horizon.  </DD>
 
-<DT>The second co-evovling variable in the clock block, <var>t&Prime;</var>, tracks feasible values of <var>t</var> next period during model solution.</DT>
-  <DD><span class="n">DDP</span> uses t&Prime; to avoid storing the full V(&theta;) while iterating. The user typically does nothing with t&Prime;.</DD>
+<DT>The second co-evolving variable in the clock block, <var>t&Prime;</var>, tracks feasible values of <var>t</var> next period during model solution.</DT>
+  <DD><span class="n">DDP</span> uses t&Prime; to avoid storing the full $V(\theta)$ while iterating. The user typically does nothing with t&Prime;.</DD>
 
 <DT>For example, with a <code>RandomMortality</code> clock described below, the next time may be either <code>t+1</code> or <code>T-1</code> if death occurs.  </DT>
  <DD>The value function for the those two times must be available while computing the value at time <code>t</code>.  However, no other time periods must be stored, so separate coding of the <code>t</code> process and <code>t&Prime;</code> process conserves memory in complex environments.</DD>
@@ -783,8 +785,8 @@ See `ClockTypes`
 <DD>The algorithms know when today (t=0) is being accessed, and when tomorrow (t&prime;) is being accessed. The code for <code>MyModel</code> only has to deal with today and the transitions of state variables.</DD>
 
 <DT><code>Ergodic</code></DT>
-<DD>The user can set the clock to be ergodic, which means that there are no absorbing or terminal states in the state space &Theta;  </DD>
-<DD>When the clock is <code>Ergodic</code> <span class="n">DDP</span> will compute the ergodic or stationary distribution across states, &Rho;<sub>&infin;</sub> (&theta;).  If the user's state transitions are not themselves stationary then this calculation may fail.</DD>
+<DD>The user can set the clock to be ergodic, which means that there are no absorbing or terminal states in the state space $\Theta$  </DD>
+<DD>When the clock is <code>Ergodic</code> <span class="n">DDP</span> will compute the ergodic or stationary distribution across states, $P_\infty(\theta)$.  If the user's state transitions are not themselves stationary then this calculation may fail.</DD>
 
 <DT><code>SubPeriods</code></DT>
 <DD>In some models a sequence of decisions is made within a single period. </DD>
@@ -797,12 +799,12 @@ send the sub period for which this state variable transits.  For all other subpe
 is frozen.</DD>
 <DD>Each action variable is usually only changeable in one subperiod.  This is handled by providing
 a replacement for `DP::FeasibleActions`().</DD>
-<DD>The discount factor &delta; is set to 1.0 for <var>s &lt; S-1</var>.  That is all payoffs
+<DD>The discount factor $\delta$ is set to 1.0 for <var>s &lt; S-1</var>.  That is all payoffs
 within a subperiod occur simultaneously.  </DD>
 <DD>The discount factor takes on it normal value for <var>s= S-1</var> to capture the gap between major periods.</DD>
 <DT>Some implications</DT>
 <DD>Because transitions all depend on the value of the subperiod <code>s</code>, all state variables
-must be endogenous (added to &theta;).  This is checked in `DP::CreateSpaces`.</DD>
+must be endogenous (added to $\theta$).  This is checked in `DP::CreateSpaces`.</DD>
 <DD>The user should <em>augment</em> state variables using </DD>
 
 
@@ -812,17 +814,17 @@ must be endogenous (added to &theta;).  This is checked in `DP::CreateSpaces`.</
 <DD>A special case is a non-dynamic environment, <code>StaticProgram</code>, with T&line;=0. <DD><span class="n">DDP</span> knows that an infinite horizon model is different than a static program, because in the static case it does not iterate on V() until convergence. Since <code>StaticProgram</code> is a tag associated with the class `StaticP`, which is derived from the class `Aging`, <span class="n">DDP</span> cannot confuse this with a `Stationary` environment.</DD>
 
 <DT><code>RandomMortality</code>: the agent either ages normally or dies before the start of the next period</DT>
-<DD>Random mortality means that, for there are two possible values of t and t&Prime; next period <pre>
-        (t&prime;,t&Prime;) = (T&oline;,1)  w/ prob. &pi;(&alpha;,&theta;)
-        (t&prime;,t&Prime;) = (t+1,0)         w/ prob. 1-&pi;(&alpha;,&theta;).</pre></DD>
+<DD>Random mortality means that, for there are two possible values of t and t&Prime; next period </DD>
+<DD>$(t^{\,\prime},t^{\,\prime\prime}) = (T^{-},1)$  with prob. $\pi(\alpha,\theta)$</DD>
+<DD>$(t^{\,\prime},t^{\,\prime\prime}) = (t+1,0)$ with prob. $1-\pi(\alpha,\theta)$</DD>
 <DD>With premature mortality Bellman's equation is solved backwards but the final period is also tracked at each t as a potential state next period.  The use of the auxiliary state variable t&Prime; now becomes important computationally.  While iterating <span class="n">DDP</span> does not store the value function for all t, only the final and next.  So when indexing these values it does not use t&prime; but t&Prime;.  It ensures that as <code>t</code> is decremented the just-solved for values are placed where <code>t&Prime; = 0</code> will reach it.
 <DD>This means that <code>t&Prime;=0</code> is typically associated with "ordinary" time evolution while other values are perturbations such as premature death of the agent.</DD>
-<DD>The mortality probability &pi;() can constant or depend on the current state and current actions.</DD>
+<DD>The mortality probability $\pi()$ can constant or depend on the current state and current actions.</DD>
 
 <DT><code>RandomAging</code>: the agent spends a random amount of time in each age bracket</DT>
 
 <DT><code>UncertainLongevity</code>:</DT>
-<DD>Many papers in the literature assume normal aging or random mortality with some long but finite maximum lifetime (say, age 100).  Often the last part of the lifecycle is included with little decision making only to get reasonable continuation values for early ages.  For &delta; not too close to 1 the cap on ages does not affect choices much earlier.</DD>
+<DD>Many papers in the literature assume normal aging or random mortality with some long but finite maximum lifetime (say, age 100).  Often the last part of the lifecycle is included with little decision making only to get reasonable continuation values for early ages.  For $\delta$ not too close to 1 the cap on ages does not affect choices much earlier.</DD>
 <DD>Another, perhaps more elegant, approach is to treat the lifetime itself as uncertain.  <code>t=T&oline;</code> is still the case of death which is still random and occurs with probability &pi;() as above.  But now <code>t=T&oline;-1</code> is now a stationary problem and <code>t=T&oline;</code> is a terminal state.  Otherwise, once <code>t=T&oline;-1</code> today and tomorrow are the same.  <span class="n">DDP</span> iterates on the value function at <code>t=T&oline;</code> as if it were a (non-ergodic) stationary problem, continuing until convergence.  Then it will proceed backwards as with mortality.</DD>
 <DD>The advantage of this approach is that there is a single choice probability for this final phase (conditional on other state variables) rather than computing and storing slightly different choice probabilities as <code>t</code> approaches <code>T&oline;</code>.  </DD>
 <DD>The `Longevity` clock combines a special case of a more general notion of <code>RandomAging</code> which uses  `AgeBrackets` for the state clock with random mortality.  But it is not a special case of either one so it is derived as a third class from `NonStationary`.
@@ -855,7 +857,7 @@ checked by the solution method against the given tolerance for convergence.</DD>
 
 <OL class="chapter">
 
-Index different DP models (elements of $&gamma;$). Time invariants are variables that take on different values across agents but are fixed for a given agent.
+Index different DP models (elements of $\gamma$). Time invariants are variables that take on different values across agents but are fixed for a given agent.
 
 <LI>Overview</LI>
 The basic DP model concerns a single agent in a single environment.  However, many applications involve related DP problems that differ in parameter values, which in turn alter the primitives U(), &Rho;(), &delta;.
@@ -874,11 +876,11 @@ Correlated random effects are created by adding a `RandomEffectBlock` to &gamma;
 
 <LI>The Group Space</LI>
 
-Each combination of random and fixed effects implies a value of &gamma;, and for each &gamma; a `Group` node is created.  The set of all group nodes is the <em>group space</em>, denoted &Gamma;.
+Each combination of random and fixed effects implies a value of $\gamma$, and for each $\gamma$ a `Group` node is created.  The set of all group nodes is the <em>group space</em>, denoted $\Gamma$.
 
 As with allowing state variables to be declared exogenous, moving time invariant variables from &theta; to &gamma; saves time and especially storage while solving the model. An invariant does not need to be tracked during iteration over <b>&Theta;</b>.  So group variable <code>Transit()</code> methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>.
 
-Storage is re-used while solving for different values of &gamma;. <span class="n">DDP</span> reuses the state space <b>&Theta;</b> for each value of &gamma;. Choice probabilities $&Rho;*(&alpha | &epsilon;, &eta;, &theta;, &gamma; )$ are stored separably for each random value of &gamma;.  EV(&theta;) integrates out the random effects, conditional on the value of the fixed effects in &gamma;. Both utility and a transitions can depend on the value of fixed effects.  However, only utility can depend on random effects.
+Storage is re-used while solving for different values of $\gamma$. <span class="n">DDP</span> reuses the state space $\Theta$ for each value of $\gamma$. Choice probabilities $P^\star(\alpha | \epsilon, \eta, \theta, \gamma )$ are stored separably for each random value of $\gamma$.  $EV(\theta)$ integrates out the random effects, conditional on the value of the fixed effects in \gamma. Both utility and a transitions can depend on the value of fixed effects.  However, only utility can depend on random effects.
 
 <DT>Finite Mixture Heterogeneity</DT>
 
@@ -888,12 +890,12 @@ Storage is re-used while solving for different values of &gamma;. <span class="n
 
 <a name="Auxiliary"><li>Auxiliary Values</li>
 
-An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from `AuxiliaryValue` and is added to the list &chi;.
+An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from `AuxiliaryValue` and is added to the list \chi.
 
-<DT>Elements of &chi; are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  </DT>
-<DD>Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so &chi; adds no additional information to the full outcome. </DD>
- <DD>That is, &chi; is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
- <DT>Auxiliary values are added to the outcome (appended to &chi;) using `DP::AuxiliaryOutcomes`().</DT>
+<DT>Elements of \chi are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  </DT>
+<DD>Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so \chi adds no additional information to the full outcome. </DD>
+ <DD>That is, \chi is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
+ <DT>Auxiliary values are added to the outcome (appended to \chi) using `DP::AuxiliaryOutcomes`().</DT>
  <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual `AuxiliaryValue::Realize`().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
 <DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
 

@@ -1,4 +1,9 @@
-#include <oxstd.h>
+#ifndef curlHEADED
+#define curHEADED
+#import "Shared"
+	extern "CFcurl,fget"   			get(url,file);
+#endif
+
 enum{FINDCMD=1,INSTALL=2}
 class net {
     static decl iswin;

@@ -26,8 +26,8 @@ clean:
 
 .PHONY : document
 document:
-	$(ERASE) ..\doc\default.html
-	$(OXDOC) -uplevel -include $(INC) niqlow.ox "About niqlow"
+#	$(ERASE) ..\doc\default.html
+#	$(OXDOC) -uplevel -include $(INC) niqlow.ox "About niqlow"
 	${MAKE} -C $(DOC) tweak
 	${MAKE} -C About document
 	${MAKE} -C DDP document
@@ -48,3 +48,5 @@ install:
 	${MAKE} -C $(XMP)
 	$(ERASE) $(XMP)\PeerCommunicationTestA.oxo
 	$(ERASE) $(XMP)\ClientServerTestA.oxo
+#   $(ERASE) $(INC)\C\*.so
+#	${MAKE} -C C

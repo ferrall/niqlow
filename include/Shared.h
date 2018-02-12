@@ -17,6 +17,8 @@
 #include <oxprob.oxh>
 #include <oxdraw.oxh>
 
+	extern "CFcurl,fget"   			curl_get(url,file);
+
 /* This file is part of niqlow. Copyright (C) 2012-2017 Christopher Ferrall */
 
 	/** Pseudonyms for -1, -2, &hellip, 2 . @name Names_for_Integers **/

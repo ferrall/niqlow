@@ -58,10 +58,8 @@ No argument is passed by `DP::UpdateVariables`() and `DP::ExogenousTransition`
 @returns X.v, X, X(), X(arg)
 **/
 CV(X,...) {
-	if (ismember(X,"v")) {
-        if (isclass(X,"ActionVariable")) return X->myCV();
-        return X.v;
-        }
+    if (isclass(X,"ActionVariable")) return X->myCV();
+	if (ismember(X,"v")) return X.v;
 	if (!(isfunction(X)||isarray(X)) ) return X;
 	_arg = va_arglist();
     _noarg = !sizeof(_arg);
@@ -69,10 +67,12 @@ CV(X,...) {
         decl x;
         _v=<>;
         //Leak foreach(x in X)
-        if (_noarg)
+        if (_noarg) {
             foreach(x in X) _v ~= CV(x);  //Leak: X[x] just x        //for(_x=0;_x<sizeof(X);++_x) //Leak
-        else
+            }
+        else {
             foreach(x in X) _v ~= CV(x,_arg[0]);  //Leak: X[x] just x        //for(_x=0;_x<sizeof(X);++_x) //Leak
+            }
         return _v;
         }
 	return _noarg ? X() : X(_arg[0]);

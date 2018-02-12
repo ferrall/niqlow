@@ -21,7 +21,7 @@ struct PanelBB : BlackBox {
 	}
 
 struct NoObjective : BlackBox {
-    decl model,v;
+    decl model,v,modelmethod;
     NoObjective(model);
     vfunc(subp=DoAll);
     }

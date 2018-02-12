@@ -1,5 +1,4 @@
 #include "CFMPI.h"
-#define OXARGS (OxVALUE *rtn, OxVALUE *pv, int cArg)
 
 static int 
     s_MPI_Root, 

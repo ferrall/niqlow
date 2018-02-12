@@ -2,7 +2,7 @@ Version := OxMetrics7
 OS := Windows
 
 # list of subdirectories to make
-DIRS := CFMPI DDP FiveO Hybrids Shared
+DIRS := CFMPI DDP FiveO Hybrids Shared C 
 
 ifeq ($(OS), Windows)
 #	OX := "C:\Program Files (x86)\$(Version)\Ox\bin\oxl.exe"
