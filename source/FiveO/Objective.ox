@@ -273,8 +273,8 @@ Objective::ToggleParameterConstraint()	{
 /** Decode a vector of free variables.
 Converts an optimized parameter vector into the structural parameter vector.  Ensure that each parameter and
 each parameter block current value is updated.
-@param F, nfree x 1 vector of optimized parameters.<br>0 [default], use this.F for decode
-@return X, the structural parameter vector.
+@param F, nfree x 1 vector of optimized parameters.<br>0 [default], use cur.F for decode
+
 **/
 Objective::Decode(F)	{
 	decl k,m;
@@ -467,7 +467,7 @@ Objective::vobj(F)	{
 	Decode(F);
     if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
     if (isclass(p2p))
-        p2p.client->SubProblems(F);
+        p2p.client->SubProblems(cur.F);  // argument was F, but needs to be a vector; might not be
     else
 	    cur.V[] =  vfunc();
     if (Volume>QUIET) {
