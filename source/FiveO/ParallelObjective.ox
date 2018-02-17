@@ -52,7 +52,7 @@ ObjServer::ObjServer(obj) {
 
 /** Wait on the objective client.
 **/
-ObjServer::Loop(nxtmsgsz) {
+ObjServer::Loop(nxtmsgsz,calledby) {
     Nfree = nxtmsgsz;   //current free param length sent from algorithm
     if (Volume>QUIET) println("ObjServer server ",ID," Nfree= ",Nfree);
     Server::Loop(Nfree);

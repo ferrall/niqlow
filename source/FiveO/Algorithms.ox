@@ -41,6 +41,9 @@ Algorithm::ItStartCheck() {
     	O->fobj(0);
         return FALSE;
         }
+    else if (!IIterate) {
+        O.p2p.server->Loop(N," ItStartCheck ");
+        }
     return TRUE;
     }
 
@@ -175,9 +178,6 @@ SimulatedAnnealing::Iterate(chol)	{
             O.p2p.client->Announce(O.cur.X);
             }
        }
-    else {
-        O.p2p.server->Loop(N);
-        }
 	}
 
 /** .
@@ -454,7 +454,6 @@ NelderMead::Iterate(iplex)	{
             O.p2p.client->Announce(O.cur.X);
             }
        }
-    else O.p2p.server->Loop(N);
 	}
 
 /**	  Reflect through simplex.
@@ -744,7 +743,6 @@ GradientBased::Iterate(H)	{
             O.p2p.client->Announce(O.cur.X);
             }
        }
-    else O.p2p.server->Loop(N);
 	}
 
 /**Update the Hessian.
@@ -964,7 +962,6 @@ NonLinearSystem::Iterate(J)	{
             O.p2p.client->Announce(O.cur.X);
             }
         }
-    else O.p2p.server->Loop(N);
 	}
 	
 /** Wrapper for updating the Jacobian of the system.
@@ -1080,7 +1077,6 @@ SQP::Iterate(H)  {
             O.p2p.client->Announce(O.cur.X);
             }
        }
-    else O.p2p.server->Loop(N);
 	}
 
 /** .

@@ -42,7 +42,9 @@ install:
 	${MAKE} -C DDP
 	${MAKE} -C FiveO
 	$(COPY) FiveO\ParallelObjective.ox $(INC)
+	$(ERASE) $(INC)\ParallelObjective.oxo
 	${MAKE} -C Hybrids
+	${MAKE} -C $(INC)
 	${MAKE} -C .
 	$(ERASE) $(XMP)\*.oxo
 	${MAKE} -C $(XMP)

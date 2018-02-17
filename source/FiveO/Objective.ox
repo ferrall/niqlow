@@ -447,13 +447,21 @@ Constrained::funclist(Fmat,jake) {
 @param F vector of free parameters.
 **/
 Objective::fobj(F)	{
-	this->vobj(F);
-	cur->aggregate();
-    if (Volume>SILENT) {
-        fprint(logf,"fobj = ",cur.v);
-        if (Volume>QUIET) println("fobj = ",cur.v);
+    if (Version::MPIserver)  // I am a server but standalone objective has been called
+       p2p.server->Loop(rows(cur.F),"fobj");
+    else {
+	   this->vobj(F);
+	   cur->aggregate();
+        if (Volume>SILENT) {
+            fprint(logf,"fobj = ",cur.v);
+            if (Volume>QUIET) println("fobj = ",cur.v);
+            }
+       if (isclass(p2p)) {
+            p2p.client->Stop();
+            p2p.client->Announce(cur.X);
+	       }
         }
-	}
+    }
 
 Objective::AggSubProbMat(submat) {
     oxwarning("FiveO Warning: Running default Objective in parallel mode SubProblems. ");
@@ -466,7 +474,7 @@ Objective::AggSubProbMat(submat) {
 Objective::vobj(F)	{
 	Decode(F);
     if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
-    if (isclass(p2p))
+    if (isclass(p2p))  // now servers are in loop if fobj() was called.
         p2p.client->SubProblems(cur.F);  // argument was F, but needs to be a vector; might not be
     else
 	    cur.V[] =  vfunc();
@@ -526,16 +534,22 @@ Objective::Jacobian() {
 	}
 	
 /** Compute the &nabla;f(), objective's gradient at the current vector.
-
 <DT>Compute</DT>
-<pre><var>&nabla; f(&psi;)</var></pre>
-
+$$\nabla f(\psi)$$
 Stored in <code>cur.G</code>
 **/
 Objective::Gradient() {
-	this->Jacobian();
-	cur.G = sumc(cur.J);
-    if (Volume>QUIET) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
+    if (Version::MPIserver)
+       p2p.server->Loop(rows(cur.F),"gradient"); //Gradient won't get called if already in loop
+    else {
+	   this->Jacobian();
+	   cur.G = sumc(cur.J);
+       if (Volume>QUIET) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
+       if (isclass(p2p)) {
+            p2p.client->Stop();
+            p2p.client->Announce(cur.X);
+	       }
+        }
 	}
 
 /** Compute the &nabla;f(), objective's gradient at the current vector.
@@ -561,13 +575,16 @@ Constrained::Gradient() {
 @return <var>Hg(&psi;)</var> in cur.H
 **/
 Objective::Hessian() {
-    decl h, GradMat, ptmatrix,gg,i,j,and,ind,jnd,b;
-	Decode(0);					
-	hold -> Copy(cur);	
-	h = dFiniteDiff1(cur.F);
-	ptmatrix = ( cur.F~(cur.F+2*diag(h))~(cur.F-2*diag(h)) );
-    and = range(0,nfree-1,1)';
-    for (i=0;i<nfree-1;++i) {
+    if (Version::MPIserver)
+       p2p.server->Loop(rows(cur.F),"hessian"); //Hessian won't get called if already in iteration loop
+    else {
+       decl h, GradMat, ptmatrix,gg,i,j,and,ind,jnd,b;
+	   Decode(0);					
+	   hold -> Copy(cur);	
+	   h = dFiniteDiff1(cur.F);
+	   ptmatrix = ( cur.F~(cur.F+2*diag(h))~(cur.F-2*diag(h)) );
+       and = range(0,nfree-1,1)';
+       for (i=0;i<nfree-1;++i) {
             ind = h.*(and.==i);
             jnd = h.*(and.==and[i+1:]');
             ptmatrix ~= cur.F + ind   + jnd
@@ -575,16 +592,21 @@ Objective::Hessian() {
                        ~cur.F + ind   - jnd
                        ~cur.F - ind   - jnd ;
             }
-	GradMat = zeros(NvfuncTerms,columns(ptmatrix));
-	Objective::funclist(ptmatrix,&GradMat,&gg);
-	cur -> Copy(hold);
-	Decode(0);
-	cur.H = diag( (gg[1:nfree] - 2*gg[0] + gg[nfree+1:2*nfree])./(4*sqr(h')) );
-    b = 2*nfree+1;
-    for (i=0;i<nfree-1;++i) {
+	   GradMat = zeros(NvfuncTerms,columns(ptmatrix));
+	   Objective::funclist(ptmatrix,&GradMat,&gg);
+	   cur -> Copy(hold);
+	   Decode(0);
+	   cur.H = diag( (gg[1:nfree] - 2*gg[0] + gg[nfree+1:2*nfree])./(4*sqr(h')) );
+       b = 2*nfree+1;
+       for (i=0;i<nfree-1;++i) {
             cur.H[i][i+1:] = cur.H[i+1:][i] = (gg[b]-gg[b+1]-gg[b+2]+gg[b+3])./(4*h[i]*h[i+1:]);
             b += 4*(nfree-i-1);
             }
+       if (isclass(p2p)) {
+            p2p.client->Stop();
+            p2p.client->Announce(cur.X);
+	       }
+       }
 	}
 
 /** Compute the Jg(), vector version of the Lagrangian's Jacobian at the current vector.

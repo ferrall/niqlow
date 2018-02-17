@@ -190,6 +190,7 @@ Server::Execute() {
 
 /**	A Server loop that calls a virtual Execute() method.
 @param nxtmsgsize integer.  The size of Buffer expected on the first message Received.  It is updated
+@param calledby string.  Name or description of routine loop was called from.
 by <code>Execute()</code> on each call.
 @return the number of trips through the loop.
 <DD>Program goes into server mode (unless I am the CLIENT).
@@ -200,9 +201,10 @@ If the current ID equals CLIENT then simply return.</dd>
     <DD>If Tag does NOT equal `P2P::STOP_TAG`  then send `P2P::Buffer` back to Client.</DD>
 	<DD>If Tag is STOP_TAG then exit the loop and return.</DD>
 **/
-Server::Loop(nxtmsgsize)	{
+Server::Loop(nxtmsgsize,calledby)	{
 	decl trips=0;
 	if (ID==CLIENT) return;
+    if (Volume>QUIET) println("P2P Server: ",ID," Loop called from ",calledby);
 	do {
 		++trips;
 		Buffer = constant(.NaN,nxtmsgsize,1);
@@ -213,7 +215,7 @@ Server::Loop(nxtmsgsize)	{
 		    Send(0,Tag);
             }
 		} while (Tag!=STOP_TAG);
-	if (Volume>SILENT) println("P2P Server:",ID," exiting loop");
+	if (Volume>SILENT) println("P2P Server:",ID," exiting loop ",calledby);
 	return trips;	
 	}
 

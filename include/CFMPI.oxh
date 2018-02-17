@@ -51,7 +51,7 @@ struct Server : P2P {
     /** initial messge length, first call to Loop. **/ iml;
 	Send(iCount, iTag);
 	Recv(iTag) ;
-	virtual Loop(nxtmsgsize);
+	virtual Loop(nxtmsgsize,calledby="");
 	virtual Execute();
 	}
 

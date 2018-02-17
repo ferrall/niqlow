@@ -26,7 +26,7 @@ struct ObjServer : Server {
     /** Objective. **/    obj;
     decl Nfree, Nstruct;
 	ObjServer(obj);
-    Loop(nxtmsgsz);
+    virtual Loop(nxtmsgsz,calledby="not set");
 	virtual Execute();
 	}
 
