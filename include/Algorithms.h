@@ -12,6 +12,7 @@ struct Algorithm {
 	 		const 	decl
 //     /** . @internal **/                                    curpt,
 //	 /** . @internal **/									hold,
+     /** prefix on log before timestamp added. **/          logpfx,
      /** name of log file **/                               lognm,
 	 /** User's objective. **/								O,
 	 /** objective's pt. @internal **/						OC;
@@ -19,6 +20,7 @@ struct Algorithm {
      /** Client node or no MPI .**/                         IIterate,
      /** log file **/                                       logf,
 	 /** output level **/									Volume,
+     /** Not restarting from alg. checkpoint. **/           NormalStart,
 	 /** maximum iterations **/ 	        				maxiter,
      /** Store path of iterations in `Algorithm::path'.**/  StorePath,
      /** sequence of structural parameters .**/             path,
@@ -34,6 +36,7 @@ struct Algorithm {
     virtual ItStartCheck();
     virtual out(fn);
     virtual Paths(starts=1);
+    virtual CheckPoint(WriteOut);
 	Algorithm(O);
     }
 
@@ -163,7 +166,8 @@ struct NelderMead  : NonGradient {
 		SimplexSize();
 		Iterate(iplex=0);
 		Sort();
-		Amoeba();
+		Amoeba(iplex);
+        CheckPoint(WriteOut);
 		Reflect(fac);
 	}
 

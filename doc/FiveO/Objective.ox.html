@@ -31,7 +31,7 @@ unconstrained objectives should be derived from one of three sub-classes:</LI>
 <LI><a href="Objective.ox.html#System">System</a>:  A square system of non-linear equations for which roots are to be found.  See <a href="NonLinearSystem.html">Non-Linear System</a> for details.</LI>
 </UL>
 <P/>
-<DT>The objective &fnof;(&psi;)  is provided by the user as <code>MyObjective::vfunc()</code>.</DT>
+<DT>The objective <span class="expressions">\((\psi)\)</span>  is provided by the user as <code>MyObjective::vfunc()</code>.</DT>
 <DD>The v indicates that it can return the vector of values that, if summed up, is the value of the objective at the current parameter values.</DD>
 <P/>
 <DT>Parameters to choose to optimize the objective are represented by an object derived from the <a href="Shared.ox.html#Parameter">Parameter</a> class.  </DT>
@@ -43,7 +43,7 @@ unconstrained objectives should be derived from one of three sub-classes:</LI>
 <DT>The work of optimization of the objective (or solution to the system) is done using a method of the <a href="Algorithms.ox.html#Algorithm">Algorithm</a> class.</DT>
 <DD>When an algorithm object is created the objective is sent as a argument and is assigned as a <code>constant</code> member.  So during execution an algorithm object is associated with a single objective, but multiple algorithms can be applied to the same objective.  This allows for a comparison of algorithms and/or applying a sequence of algorithms in order to carry out the optimization.</DD>
 
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2015 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2017 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
 
 <a name="auto"><hr><h1>Documentation of  Items Defined in Objective.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a></dd>
 </dl>
@@ -117,7 +117,7 @@ Container for Constrained Objectives.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___Block">Block</a>, <a href="Objective.ox.html#Objective___CheckMax">CheckMax</a>, <a href="Objective.ox.html#Objective___Combine">Combine</a>, <a href="Objective.ox.html#Objective___contour">contour</a>, <a href="Objective.ox.html#Objective___Decode">Decode</a>, <a href="Objective.ox.html#Objective___Encode">Encode</a>, <a href="Objective.ox.html#Objective___fobj">fobj</a>, <a href="Objective.ox.html#Objective___Hessian">Hessian</a>, <a href="Objective.ox.html#Objective___Interact">Interact</a>, <a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___Menu">Menu</a>, <a href="Objective.ox.html#Objective___Parameters">Parameters</a>, <a href="Objective.ox.html#Objective___Print">Print</a>, <a href="Objective.ox.html#Objective___Recode">Recode</a>, <a href="Objective.ox.html#Objective___ReInitialize">ReInitialize</a>, <a href="Objective.ox.html#Objective___ResetMax">ResetMax</a>, <a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a>, <a href="Objective.ox.html#Objective___SetVersion">SetVersion</a>, <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>, <a href="Objective.ox.html#Objective___ToggleParams">ToggleParams</a>, <a href="Objective.ox.html#Objective___vfunc">vfunc</a>, <a href="Objective.ox.html#Objective___vobj">vobj</a></dd>
+<dt>Inherited methods from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___AggSubProbMat">AggSubProbMat</a>, <a href="Objective.ox.html#Objective___Block">Block</a>, <a href="Objective.ox.html#Objective___CheckMax">CheckMax</a>, <a href="Objective.ox.html#Objective___contour">contour</a>, <a href="Objective.ox.html#Objective___Decode">Decode</a>, <a href="Objective.ox.html#Objective___Encode">Encode</a>, <a href="Objective.ox.html#Objective___fobj">fobj</a>, <a href="Objective.ox.html#Objective___Hessian">Hessian</a>, <a href="Objective.ox.html#Objective___Interact">Interact</a>, <a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___Menu">Menu</a>, <a href="Objective.ox.html#Objective___Parameters">Parameters</a>, <a href="Objective.ox.html#Objective___Print">Print</a>, <a href="Objective.ox.html#Objective___Recode">Recode</a>, <a href="Objective.ox.html#Objective___ReInitialize">ReInitialize</a>, <a href="Objective.ox.html#Objective___ResetMax">ResetMax</a>, <a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a>, <a href="Objective.ox.html#Objective___SetVersion">SetVersion</a>, <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>, <a href="Objective.ox.html#Objective___ToggleParams">ToggleParams</a>, <a href="Objective.ox.html#Objective___vfunc">vfunc</a>, <a href="Objective.ox.html#Objective___vobj">vobj</a></dd>
 </dl>
 
 <dl class="inherited">
@@ -265,24 +265,24 @@ Base class for objective optimization and system solving.
 <td class="description">.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___AggSubProbMat">AggSubProbMat</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___Block">Block</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___CheckMax">CheckMax</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">If <code>cur.v &gt; maxpt.v</code> call <a href="Objective.ox.html#Objective___Save">Save</a> and update <code>maxpt</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___CheckPoint">CheckPoint</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Load or save state of the problem to a file.</td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___Combine">Combine</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___contour">contour</a></td>
@@ -372,7 +372,7 @@ Base class for objective optimization and system solving.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Set the formula .</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Objective___SetVersion">SetVersion</a></td>
@@ -425,7 +425,7 @@ A non-linear system of equations to solve.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___Block">Block</a>, <a href="Objective.ox.html#Objective___CheckMax">CheckMax</a>, <a href="Objective.ox.html#Objective___CheckPoint">CheckPoint</a>, <a href="Objective.ox.html#Objective___Combine">Combine</a>, <a href="Objective.ox.html#Objective___contour">contour</a>, <a href="Objective.ox.html#Objective___Decode">Decode</a>, <a href="Objective.ox.html#Objective___Encode">Encode</a>, <a href="Objective.ox.html#Objective___fobj">fobj</a>, <a href="Objective.ox.html#Objective___funclist">funclist</a>, <a href="Objective.ox.html#Objective___Gradient">Gradient</a>, <a href="Objective.ox.html#Objective___Hessian">Hessian</a>, <a href="Objective.ox.html#Objective___Interact">Interact</a>, <a href="Objective.ox.html#Objective___Jacobian">Jacobian</a>, <a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___Menu">Menu</a>, <a href="Objective.ox.html#Objective___Parameters">Parameters</a>, <a href="Objective.ox.html#Objective___Print">Print</a>, <a href="Objective.ox.html#Objective___Recode">Recode</a>, <a href="Objective.ox.html#Objective___ReInitialize">ReInitialize</a>, <a href="Objective.ox.html#Objective___ResetMax">ResetMax</a>, <a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a>, <a href="Objective.ox.html#Objective___SetVersion">SetVersion</a>, <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>, <a href="Objective.ox.html#Objective___ToggleParams">ToggleParams</a>, <a href="Objective.ox.html#Objective___vfunc">vfunc</a>, <a href="Objective.ox.html#Objective___vobj">vobj</a></dd>
+<dt>Inherited methods from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___AggSubProbMat">AggSubProbMat</a>, <a href="Objective.ox.html#Objective___Block">Block</a>, <a href="Objective.ox.html#Objective___CheckMax">CheckMax</a>, <a href="Objective.ox.html#Objective___CheckPoint">CheckPoint</a>, <a href="Objective.ox.html#Objective___contour">contour</a>, <a href="Objective.ox.html#Objective___Decode">Decode</a>, <a href="Objective.ox.html#Objective___Encode">Encode</a>, <a href="Objective.ox.html#Objective___fobj">fobj</a>, <a href="Objective.ox.html#Objective___funclist">funclist</a>, <a href="Objective.ox.html#Objective___Gradient">Gradient</a>, <a href="Objective.ox.html#Objective___Hessian">Hessian</a>, <a href="Objective.ox.html#Objective___Interact">Interact</a>, <a href="Objective.ox.html#Objective___Jacobian">Jacobian</a>, <a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___Menu">Menu</a>, <a href="Objective.ox.html#Objective___Parameters">Parameters</a>, <a href="Objective.ox.html#Objective___Print">Print</a>, <a href="Objective.ox.html#Objective___Recode">Recode</a>, <a href="Objective.ox.html#Objective___ReInitialize">ReInitialize</a>, <a href="Objective.ox.html#Objective___ResetMax">ResetMax</a>, <a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a>, <a href="Objective.ox.html#Objective___SetVersion">SetVersion</a>, <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>, <a href="Objective.ox.html#Objective___ToggleParams">ToggleParams</a>, <a href="Objective.ox.html#Objective___vfunc">vfunc</a>, <a href="Objective.ox.html#Objective___vobj">vobj</a></dd>
 </dl>
 
 <dl class="inherited">
@@ -451,7 +451,7 @@ Container for Unconstrained Objectives.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___Block">Block</a>, <a href="Objective.ox.html#Objective___CheckMax">CheckMax</a>, <a href="Objective.ox.html#Objective___CheckPoint">CheckPoint</a>, <a href="Objective.ox.html#Objective___Combine">Combine</a>, <a href="Objective.ox.html#Objective___contour">contour</a>, <a href="Objective.ox.html#Objective___Decode">Decode</a>, <a href="Objective.ox.html#Objective___Encode">Encode</a>, <a href="Objective.ox.html#Objective___fobj">fobj</a>, <a href="Objective.ox.html#Objective___funclist">funclist</a>, <a href="Objective.ox.html#Objective___Hessian">Hessian</a>, <a href="Objective.ox.html#Objective___Interact">Interact</a>, <a href="Objective.ox.html#Objective___Jacobian">Jacobian</a>, <a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___Menu">Menu</a>, <a href="Objective.ox.html#Objective___Parameters">Parameters</a>, <a href="Objective.ox.html#Objective___Print">Print</a>, <a href="Objective.ox.html#Objective___Recode">Recode</a>, <a href="Objective.ox.html#Objective___ReInitialize">ReInitialize</a>, <a href="Objective.ox.html#Objective___ResetMax">ResetMax</a>, <a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a>, <a href="Objective.ox.html#Objective___SetVersion">SetVersion</a>, <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>, <a href="Objective.ox.html#Objective___ToggleParams">ToggleParams</a>, <a href="Objective.ox.html#Objective___vfunc">vfunc</a>, <a href="Objective.ox.html#Objective___vobj">vobj</a></dd>
+<dt>Inherited methods from <a href="Objective.ox.html#Objective">Objective</a>:</dt><dd><a href="Objective.ox.html#Objective___AggSubProbMat">AggSubProbMat</a>, <a href="Objective.ox.html#Objective___Block">Block</a>, <a href="Objective.ox.html#Objective___CheckMax">CheckMax</a>, <a href="Objective.ox.html#Objective___CheckPoint">CheckPoint</a>, <a href="Objective.ox.html#Objective___contour">contour</a>, <a href="Objective.ox.html#Objective___Decode">Decode</a>, <a href="Objective.ox.html#Objective___Encode">Encode</a>, <a href="Objective.ox.html#Objective___fobj">fobj</a>, <a href="Objective.ox.html#Objective___funclist">funclist</a>, <a href="Objective.ox.html#Objective___Hessian">Hessian</a>, <a href="Objective.ox.html#Objective___Interact">Interact</a>, <a href="Objective.ox.html#Objective___Jacobian">Jacobian</a>, <a href="Objective.ox.html#Objective___Load">Load</a>, <a href="Objective.ox.html#Objective___Menu">Menu</a>, <a href="Objective.ox.html#Objective___Parameters">Parameters</a>, <a href="Objective.ox.html#Objective___Print">Print</a>, <a href="Objective.ox.html#Objective___Recode">Recode</a>, <a href="Objective.ox.html#Objective___ReInitialize">ReInitialize</a>, <a href="Objective.ox.html#Objective___ResetMax">ResetMax</a>, <a href="Objective.ox.html#Objective___Save">Save</a>, <a href="Objective.ox.html#Objective___SetAggregation">SetAggregation</a>, <a href="Objective.ox.html#Objective___SetVersion">SetVersion</a>, <a href="Objective.ox.html#Objective___ToggleParameterConstraint">ToggleParameterConstraint</a>, <a href="Objective.ox.html#Objective___ToggleParams">ToggleParams</a>, <a href="Objective.ox.html#Objective___vfunc">vfunc</a>, <a href="Objective.ox.html#Objective___vobj">vobj</a></dd>
 </dl>
 
 <dl class="inherited">
@@ -619,6 +619,15 @@ Decode the input, return the whole vector, inequality and equality constraints, 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Objective</span></h2>
 
+<a name="Objective___AggSubProbMat"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AggSubProbMat</span></h3>
+
+<span class="declaration">virtual Objective :: AggSubProbMat ( submat )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="Objective___Block"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Block</span></h3>
 
@@ -661,15 +670,6 @@ Load or save state of the problem to a file.
 </table>
 </dd>
 </dl>
-</dd></dl>
-
-<hr>
-<a name="Objective___Combine"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Combine</span></h3>
-
-<span class="declaration">virtual Objective :: Combine ( outmat )</span>
-<dl><dd>
-
 </dd></dl>
 
 <hr>
@@ -731,12 +731,9 @@ each parameter block current value is updated.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">F,</td>
-<td class="description" valign="baseline">nfree x 1 vector of optimized parameters.<br>0 [default], use this.F for decode
-</td>
+<td class="description" valign="baseline">nfree x 1 vector of optimized parameters.<br>0 [default], use cur.F for decode</td>
 </tr>
 </table>
-</dd>
-<dt class="returns">Returns:</dt><dd class="returns">X, the structural parameter vector.
 </dd>
 </dl>
 </dd></dl>
@@ -1125,7 +1122,7 @@ Prints a message and details about the objective.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">toscreen</td>
-<td class="description" valign="baseline">TRUE: print to screen as well</td>
+<td class="description" valign="baseline">TRUE: print full report to screen as well</br>FALSE: only print orig to screen</td>
 </tr>
 </table>
 </dd>
@@ -1242,7 +1239,10 @@ Store current state (checkpoint to disk).
 
 <span class="declaration">Objective :: SetAggregation ( AggType )</span>
 <dl><dd>
+Set the formula .
 
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#AggregatorTypes">AggregatorTypes</a></dd>
+</dl>
 </dd></dl>
 
 <hr>

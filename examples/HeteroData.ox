@@ -9,7 +9,7 @@ struct HSearch : Bellman	{
 	static Run();
 	Utility();
 	}
-struct HSearchData : EmpiricalMoments {
+struct HSearchData : PredictionDataSet {
 	enum{N=15,MaxOb=20}
     static decl EM;
     HSearchData();
@@ -33,11 +33,11 @@ HSearch::Run()	{
 	}
 HSearch::Utility()  {
     if (!CV(d) && !I::t) println(AV(abil)," ",CV(p)," ",AV(p));
-	return (1-CV(d))*(lam + AV(p)*Alpha::CV(a));
+	return (1-CV(d))*(lam + AV(p)*CV(a));
 	}	
 HSearchData::HSearchData() {
     EM = new ValueIteration();
-    EmpiricalMoments("",EM,NotInData);
+    PredictionDataSet("",EM,NotInData);
     Volume=LOUD;
 	//Simulate(N,MaxOb,zeros(N::All),TRUE); //TRUE censors terminal states
     TrackingWithLabel(AllFixed,TRUE,HSearch::a,HSearch::d);

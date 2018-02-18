@@ -20,7 +20,7 @@ struct  Bellman : DP {
         /** TRUE if last period a decision, depends on the Clock.
             @see Clock::Last**/                                     IsLast,
 	    /** Full solution at this state.                 **/        InSubSample,
-		/**&theta;.j index into `DP::A`.**/  						Aind,
+		/**&theta;.j index into `Alpha::Alist`.**/  				Aind,
 		/**U(&alpha;&epsilon;,&eta;,&theta;,&gamma;).  **/	        U,
 		/**  &Rho;*(&hellip;,&gamma;). **/   		                pandv,
 		/** TransStore x &eta;-Array of feasible endogenous	state
@@ -34,8 +34,10 @@ struct  Bellman : DP {
                     OnlyFeasible(myU);
                     HMEndogU(VV);
                     AMEndogU(VV);
+            virtual IntegrateOverEta(VV);
+            virtual ExogExpectedV(VV);
             virtual ExogUtil();
-			virtual FeasibleActions(Alpha=0);
+			virtual FeasibleActions();
             virtual Reachable();
 			virtual Utility();
             virtual UReset();
@@ -46,6 +48,7 @@ struct  Bellman : DP {
 			virtual ZetaRealization();
 			virtual	AutoVarPrint1(task);
 			virtual	Interface();
+            virtual ExpectedOutcomesOverEpsilon(CondChoiceProb);
 			virtual Predict(tod);
             virtual OutputValue();
             virtual SetTheta(state=0,picked=0);
@@ -53,11 +56,12 @@ struct  Bellman : DP {
 					Bellman(state,picked);
                     Allocate(OldSS=UnInitialized);
 					~Bellman();
-					aa(av);
+					//aa(av);
 					Simulate(Y);
 					ThetaTransition();
 					UpdatePtrans();
-					ExpandP(Agg=TRUE);
+                    StateToStatePrediction(tod);
+					ExpandP(p0/*Agg=TRUE*/);
 					MedianActVal(EV);
                     InSS();
 	}																																				
@@ -168,6 +172,7 @@ struct NnotIID : Normal {
 	static CreateSpaces();
 	static UpdateChol();
 	ActVal(VV);
+    ExogExpectedV(VV);
 	}
 
 /** Numerically integrate using Gauss-Hermite Quadrature.
@@ -183,6 +188,7 @@ struct NIID : Normal {
 	static CreateSpaces() ;
 	static UpdateChol();
 	ActVal(VV);
+    ExogExpectedV(VV);
 	}
 
 /** One-dimensional action models with user defined distribution of &zeta;.

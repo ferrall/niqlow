@@ -1,10 +1,10 @@
 #import "StateVariable"
-/* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2017 Christopher Ferrall */
 
 /** An element of the group vector &gamma;.
 **/
 struct TimeInvariant : StateVariable {
-	Transit(FeasA);
+	Transit();
 	Update();
 	}
 

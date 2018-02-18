@@ -1,5 +1,5 @@
 #include "BlackBox.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 /** Create a blackbox objective.
 @param L string, a label for the problem.
@@ -12,12 +12,10 @@ BlackBox::BlackBox(L)	 {
 	maxpt.v = -.Inf;
 	}
 
-
-
 /** A blackbox economic model with panel data and (possibly) nested solution method.
 @param L string, label
 @param data a <a href="../DDP/Data.ox.html#Panel">Panel<a/> or <a href="../DDP/Data.ox.html#PanelPrediction">PanelPrediction</a>. object (including
-the possibility of the derived DataSet and EmpiricalMoments variety).
+the possibility of the derived OutcomeDataSet and PredictionDataSet variety).
 @param ... `Parameter`s and arrays of Parameters to optimize over.
 @comments  `Objective::NvfuncTerms` is set to <code>data.FN</code>, the total number of paths in the panel
 **/
@@ -35,8 +33,8 @@ PanelBB::PanelBB (L,data,...)	{
 	else oxwarning("FiveO Warning 03.\n No estimated parameters added to "+L+" panel estimation ");
 	}
 
-PanelBB::Combine(outmat) {
-    data->Predict(0,FALSE,outmat);
+PanelBB::AggSubProbMat(submat) {
+    data->Predict(0,FALSE,submat);
     return data.M;
     }
 
@@ -47,18 +45,24 @@ PanelBB::vfunc(subp) {
 	}
 
 /**  A wrapper that acts like an objective but just calls a model's Solve method and returns 1.0.
-@param model Object with a method named <code>Solve()</code>
+@param model Object with a method named <code>Solve()</code> <em>or</em> a member named <code>method</code> with
+a method named <code>Solve()</code>
 **/
 NoObjective::NoObjective(model) {
     BlackBox("NoObject");
     NvfuncTerms = 1;
-    if (ismember(model,"Solve")!=1) oxrunerror("object sent to NoObjective must have a method named Solve");
+    if (ismember(model,"Solve"))
+        modelmethod = model;
+    else if (ismember(model,"method")&&ismember(model.method,"Solve"))
+        modelmethod = model.method;
+    else
+        oxrunerror("object sent to NoObjective must have a Solve method or  a method member with Solve method");
     this.model = model;
     }
 
 NoObjective::vfunc(subp) {
     if (!ismember(model,"Volume") || model.Volume>SILENT) Print("explore");
-    v = model->Solve();
+    v = modelmethod->Solve();
     println("\n Value = ",v,"\n-------------------------");
     return matrix(v);
     }

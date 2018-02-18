@@ -1,6 +1,5 @@
-#include "DPSystems.oxdoc"
 #include "DPSystems.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 /** Initialize EV() as a system of non-linear equations. **/	
 EVSystem::EVSystem(spacesize,systask)		{

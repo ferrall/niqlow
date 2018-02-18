@@ -12,7 +12,8 @@ Algorithm::Algorithm(O) {
     tolerance = itoler;
 	Volume = SILENT;
     StorePath = FALSE;
-    lognm = replace(Version::logdir+"Alg-"+classname(this)+"-On-"+O.L+Version::tmstmp," ","")+".log";
+    logpfx = Version::logdir+"Alg-"+classname(this)+"-On-"+O.L;
+    lognm = replace(logpfx+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"aV");
     fprintln(logf,"Created");
     }
@@ -34,10 +35,14 @@ Algorithm::ItStartCheck() {
 	N = rows(OC.F);
     IIterate = !isclass(O.p2p) || O.p2p.IamClient;
     path = <>;
+    NormalStart = TRUE;
     if (!N && IIterate) {
         oxwarning("No parameters are free.  Objective will be evaluated and then return");
     	O->fobj(0);
         return FALSE;
+        }
+    else if (!IIterate) {
+        O.p2p.server->Loop(N," ItStartCheck ");
         }
     return TRUE;
     }
@@ -173,9 +178,6 @@ SimulatedAnnealing::Iterate(chol)	{
             O.p2p.client->Announce(O.cur.X);
             }
        }
-    else {
-        O.p2p.server->Loop(N);
-        }
 	}
 
 /** .
@@ -377,39 +379,69 @@ NelderMead::NelderMead(O)	{
 	}
 	
 /** Iterate on the Amoeba algorithm.
-@param iplex  N&times;N+1 matrix of initial steps.<br>double, initial step size (iplex is set to 0~unit(N))<br>integer &gt; 0, max starts of the algorithm<br>0 (default), use current mxstarts.
+@param iplex  N&times;N+1 matrix of initial steps.
+</br>double, initial step size (iplex is set to 0~unit(N))
+</br>integer &gt; 0, max starts of the algorithm
+</br>0 (default), use current mxstarts.
+</br>= -1 (UseGradient), compute gradient and use its normed value as initial simplex
+</br>= -2 (UseCheckPoint), read in checkpoint file to return to last state.
 @example
 See <a href="GetStarted.html">GetStarted</a>
 **/
 NelderMead::Iterate(iplex)	{
     if (!ItStartCheck()) return;
     if (IIterate) {
-        //	   nodeV = constant(-.Inf,N+1,1);
-	   OC.SE = OC.G = .NaN;
 	   iter = 1;
 	   if (!ismatrix(iplex))  {
-		  if (isdouble(iplex))
-                step = iplex;
-          else if (iplex>0) mxstarts = iplex;
-		  iplex = (0~unit(N));
-		  }
-	   else
+		  if (isdouble(iplex)) {
+            step = iplex;
+            iplex = (0~unit(N));
+            }
+          else {
+            switch(iplex) {
+            case UseCheckPoint :
+                CheckPoint(FALSE);
+                NormalStart = FALSE;
+                break;
+            case UseGradient :
+                O.Volume = LOUD;
+                O->Gradient();
+                O.Volume = QUIET;
+                OC.G = (fabs(OC.G) .< 1E-2) .? 0.01 .: OC.G;
+                iplex = 0~diag(OC.G/norm(OC.G,2));
+		        step = 1.0;
+                break;
+            case Zero :
+ 		        iplex = (0~unit(N));
+                break;
+            default :
+                mxstarts = iplex;
+                }
+		    }
+          }
+	   else {
 		  step = 1.0;
+          if ( rows(iplex)!=N || columns(iplex)!=N+1 )
+             oxrunerror("Five0 error: initial simplex sent to NelderMead not Nx(N+1)");
+          }
+	   OC.SE = OC.G = .NaN;
 	   if (Volume>SILENT) {
 		  O->Print("Simplex Starting ",logf,Volume>QUIET);
 		  fprintln(logf,"\n Max # evaluations ",nfuncmax,
 				"\n Max # restarts ",mxstarts,
 				"\n Plex size tolerance ",tolerance);
+          if (Volume>QUIET) fprintln(logf,"Initial Plex",step*iplex);
 		  }
+//       if (rank(iplex,SQRT_EPS)<N) oxrunerror("Five0 Error: initial simplex is not full rank");
+
 	   do {
            n_func = 0;
-           nodeX = reshape(OC.F,N+1,N)' + step*iplex;
-	       plexshrunk = Amoeba();
+	       plexshrunk = Amoeba(iplex);
 	       Sort();
 	       OC.F = nodeX[][mxi];
 	       OC.v = nodeV[mxi];
 	       holdF = OC.F;
-	       if (Volume>SILENT) {
+	       if (Volume>QUIET) {
 	   		  fprintln(logf,"\n","%3u",iter,". N=","%5u",n_func," Step=","%8.5f",step,". Fmax=",nodeV[mxi]," .PlexSize=",plexsize,plexsize<tolerance ? " *Converged*" : "");
 	          fprintln(logf," Bounds on Simplex","%r",{"min","max"},"%c",O.Flabels,limits(nodeX')[:1][]);
               }
@@ -422,7 +454,6 @@ NelderMead::Iterate(iplex)	{
             O.p2p.client->Announce(O.cur.X);
             }
        }
-    else O.p2p.server->Loop(N);
 	}
 
 /**	  Reflect through simplex.
@@ -463,12 +494,32 @@ NelderMead::Sort()	{
 	psum = sumr(nodeX);		
 	plexsize = SimplexSize();
     fdiff = norm(nodeV-meanr(nodeV));
-    if (Volume>SILENT) {
+    if (Volume>QUIET) {
         fprint(logf,"Sorted plexsize: ",plexsize," fdiff:",fdiff);
-        if (Volume>LOUD) fprint(logf,"%15.5f","%r",{"f","p"},nodeV|nodeX,"MXi:",mxi," MNi:",mni," nmni:",nmni);
+        if (Volume>LOUD) {
+            fprint(logf,"%15.5f","%r",{"f","p"},nodeV|nodeX,"MXi:",mxi," MNi:",mni," nmni:",nmni);
+            }
         fprintln(logf,"\n-------");
         }
+    if (NormalStart)  //don't rewrite checkpoint right away.
+        CheckPoint(TRUE);
+    NormalStart = TRUE;
 	}
+
+NelderMead::CheckPoint(WriteOut) {
+    decl chkpt = fopen(logpfx+".chkpt",WriteOut ? "w" : "r");
+    if (WriteOut) {
+        fprint(chkpt,"%v",OC.v,"\n","%v",step,"\n","%v",O.Start,"\n","%v",OC.F,"\n","%v",nodeV,"\n","%v",nodeX);
+        }
+    else {
+        decl instart,infree,inv;
+        fscan(chkpt,"%v",&inv,"%v",&step,"%v",&instart,"%v",&infree,"%v",&nodeV,"%v",&nodeX);
+        OC.v = inv;
+        O->Encode(instart);
+        O->Decode(infree);
+        }
+    fclose(chkpt);
+    }
 
 /** Compute size of the current simplex.
 @return &sum;<sub>j</sub> |X-&mu;|
@@ -480,10 +531,13 @@ NelderMead::SimplexSize() {
 /**	  .
 @internal
 **/
-NelderMead::Amoeba() 	{
-     decl vF = zeros(O.NvfuncTerms,N+1);
-	 n_func += O->funclist(nodeX,&vF,&nodeV);
-     if (Volume>SILENT) { fprintln(logf,"Amoeba: ");fflush(logf);}
+NelderMead::Amoeba(iplex) 	{
+    decl vF = zeros(O.NvfuncTerms,N+1);
+    if (NormalStart) {
+        nodeX = reshape(OC.F,N+1,N)' + step*iplex;
+	    n_func += O->funclist(nodeX,&vF,&nodeV);
+        }
+     if (Volume>SILENT) fprintln(logf,"Amoeba starting... ");
 	 do	{
 	 	Sort();
 		if (plexsize<tolerance) return TRUE;
@@ -666,7 +720,7 @@ GradientBased::Iterate(H)	{
                 istr = sprint(iter,". f=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
                 fprintln(logf,istr);
                 if(Volume>QUIET) println(istr);
-                O->Print("",logf,Volume>QUIET);
+                O->Print("Gradient Iteration",logf,Volume>QUIET);
                 fflush(logf);
                 }
 		  } while (convergence==NONE);
@@ -689,7 +743,6 @@ GradientBased::Iterate(H)	{
             O.p2p.client->Announce(O.cur.X);
             }
        }
-    else O.p2p.server->Loop(N);
 	}
 
 /**Update the Hessian.
@@ -909,7 +962,6 @@ NonLinearSystem::Iterate(J)	{
             O.p2p.client->Announce(O.cur.X);
             }
         }
-    else O.p2p.server->Loop(N);
 	}
 	
 /** Wrapper for updating the Jacobian of the system.
@@ -1025,7 +1077,6 @@ SQP::Iterate(H)  {
             O.p2p.client->Announce(O.cur.X);
             }
        }
-    else O.p2p.server->Loop(N);
 	}
 
 /** .

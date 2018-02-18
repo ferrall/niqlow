@@ -10,7 +10,7 @@ struct BobsChoiceD : NIID {
     Utility();
     }
 
-class Wage : AuxiliaryValues {
+class Wage : AuxiliaryValue {
     Realize(y);
     Wage();
     }
@@ -36,7 +36,7 @@ BobsChoiceD::Decide() {
     }
 
 Wage::Wage() {
-    AuxiliaryValues("W",1);
+    AuxiliaryValue("W",1);
     }
 
 Wage::Realize(y) {
@@ -45,7 +45,7 @@ Wage::Realize(y) {
     }
 
 BobsChoiceD::Utility() {
-    decl i, totx, mv = Alpha::CV(m);
+    decl i, totx, mv = CV(m);
     totx=CV(X);
     Ewage = 0.05*totx - 0.01*sqr(totx)/Xmax;
     return Uv - mv*Ewage + 0.5*(mv.!=CV(pstat));

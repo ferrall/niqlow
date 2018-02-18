@@ -1,5 +1,5 @@
 #include "RustEmet1987mle.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 /** Replicate the Group 4 bus estimation.
 **/
@@ -61,7 +61,7 @@ ZurcherHat::SecondStage() {
 /** Read in the data.
 **/
 BusData::BusData(method) {
-	DataSet("Zurcher",method,TRUE);
+	OutcomeDataSet("Zurcher",method,TRUE);
 	MatchToColumn(Zurcher::x,"x");
     MatchToColumn(Zurcher::d,"d");
 	IDColumn("id");
@@ -70,7 +70,7 @@ BusData::BusData(method) {
 
 /** Return U() at estimated (<q>hat</q>) parameter values. **/
 ZurcherHat::Utility()  {
-	decl rep = Alpha::CV(d);
+	decl rep = CV(d);
     return   -(rep*CV(hat[RC]) + (1-rep)*CV(hat[theta1])*mfact*CV(x))
 			 +normalization;	// added to avoid exp() underflow for delta near 1.0
 	}

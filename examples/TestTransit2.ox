@@ -23,15 +23,15 @@ test::Run()	{
     pd->Histogram(fg); */
 	}
 test::FeasibleActions() {
-    return ones(Alpha::NFA,1);
+    return ones(Alpha::N,1);
     }
 test::Reachable()	{
 //	return (CV(pc)&&CV(fg)) ? 0 : new test();
     return TRUE;
 	}
 test::Utility()  {
-    decl xx =CV(fg), av = Alpha::AV(a);
-	return -2.0*(1-av) + av*(4.0*xx - 0.5*sqr(xx)) - 1.5*Alpha::AV(b);
+    decl xx =CV(fg), av = AV(a);
+	return -2.0*(1-av) + av*(4.0*xx - 0.5*sqr(xx)) - 1.5*AV(b);
 	}	
 main() {
     test::Run();

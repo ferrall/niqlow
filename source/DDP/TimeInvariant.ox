@@ -1,5 +1,5 @@
 #include "TimeInvariant.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 /** A state variable that is non-random an invariant for and individual DP problem.
 
@@ -72,7 +72,7 @@ TimeInvariant::Update() { }
 /** TimeInvariants have a fixed transition.
 @internal
 **/
-TimeInvariant::Transit(FeasA) { return { matrix(v) , ones(rows(FeasA),1) }; }
+TimeInvariant::Transit() { return { matrix(v) , CondProbOne }; }
 
 /** Create a new Sub.
 @param L label

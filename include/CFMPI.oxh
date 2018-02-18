@@ -40,7 +40,7 @@ struct P2P : MPI {
 			/** `Server` object. **/				server,
 			/** Node that sent the last message**/	Source,
 			/** Tag of last message**/				Tag;													
-	P2P(DONOTUSECLIENT=0,client=0,server=0,NSubProblems=0,MaxSubReturn=0);
+	P2P(DONOTUSECLIENT=0,client=0,server=0,NSubProblems=DoAll,MaxSubReturn=0);
     virtual Execute();
 	}
 
@@ -51,7 +51,7 @@ struct Server : P2P {
     /** initial messge length, first call to Loop. **/ iml;
 	Send(iCount, iTag);
 	Recv(iTag) ;
-	virtual Loop(nxtmsgsize);
+	virtual Loop(nxtmsgsize,calledby="");
 	virtual Execute();
 	}
 

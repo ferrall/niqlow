@@ -1,5 +1,5 @@
 #include "KeaneWolpinREStat1994.h"
-/* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2017 Christopher Ferrall */
 
 DynamicRoy::Replicate()	{
 	decl i, BF, KW,OutMat, AMat, BMat;	
@@ -37,7 +37,7 @@ DynamicRoy::Replicate()	{
 
 /** Rule out schooling if too old **/
 DynamicRoy::FeasibleActions() {
-	return (I::t+Age0>MaxAgeAtt) ? Alpha::CV().!=school : ones(Alpha::NFA);
+	return (I::t+Age0>MaxAgeAtt) ? Alpha::C.!=school : ones(Alpha::N,1);
 	}
 	
 /** Total experience cannot exceed age;  Total schooling limited.**/	
@@ -52,5 +52,5 @@ DynamicRoy::Utility() {
     decl rr = R(), ee = AV(offers);
 	rr[:blue] = exp(rr[:blue]+ee[:blue]);
 	rr[school:] += ee[school:];
-	return rr[A[Aind]];
+	return rr[Alpha::C];
 	}

@@ -1,5 +1,5 @@
 #include "AllTest.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 TestRun() {
     decl k;
@@ -71,7 +71,7 @@ Test1::Run(UseList) {
 
 
 Test2::Utility()  {
-	decl rep = Alpha::CV(d);
+	decl rep = CV(d);
 	return   -(rep*rc + (1-rep)*th1*mfact*CV(x))
 			 +normalization;	// added to avoid exp() underflow for delta near 1.0
 	}
@@ -95,7 +95,7 @@ Test2::Run(UseList)	{
 	Delete();
 	}
 
-Test3::Utility() { decl u = A[Aind]*(CV(d)-5+CV(s0))+(1-A[Aind])*CV(s1); return u;}
+Test3::Utility() { decl u = Alpha::A[Aind]*(CV(d)-5+CV(s0))+(1-Alpha::A[Aind])*CV(s1); return u;}
 Test3::Run(UseList) {
 	Initialize(new Test3(),UseList);
 	SetClock(NormalAging,5);
@@ -170,7 +170,7 @@ Test5::Run() {
 	Delete();
 	}
 
-Test6::Utility() { return (job.status.v==3) * job.offer.v * Alpha::CV(acc) ; }
+Test6::Utility() { return (job.status.v==3) * job.offer.v * CV(acc) ; }
 Test6::Run() {
 	Initialize(new Test6());
 	SetClock(Ergodic);
@@ -199,7 +199,7 @@ Test7::Run()  {
     Volume = LOUD;
 	EMax -> Solve();
 	Volume=SILENT;
-	data = new DataSet(0,EMax);
+	data = new OutcomeDataSet(0,EMax);
 	data -> Simulate(300,3,0,0);
 	decl g=SetGroup(0);
 	g->StationaryDistribution();
@@ -217,13 +217,13 @@ Test7::Run()  {
 	}
 	
 Test7::Utility()  {
-	decl ii = Alpha::CV(d), u = -(ii*CV(rc) + (1-ii)*0.2*CV(x));
+	decl ii = CV(d), u = -(ii*CV(rc) + (1-ii)*0.2*CV(x));
 //	if (CV(x)==0) println("RC ",CV(rc),CV(x.Pi)');
     return u;
 	}
 
 Test8::Utility() {
-	decl dg = CV(g), a = Alpha::CV(d);
+	decl dg = CV(g), a = CV(d);
 	return dg*a + (1-dg)*(1-a) + 3*CV(r);
 	}
 Test8::Run() {
@@ -257,22 +257,22 @@ Test9::Run()	{
 	meth.Volume = NOISY;
     meth -> Solve();
     decl pd = new PanelPrediction("hi");
+    Data::Volume = LOUD;
     pd->Tracking (UseLabel,fem,a,d);
     pd->Predict(15,TRUE);
-    //    pd -> Histogram(Two);
     println("%c",{"f"}|pd.tlabels,pd.aflat[0],pd.aflat[1]);
     savemat("Test9moms.dta",pd.aflat[0]|pd.aflat[1],{"f"}|pd.tlabels);
     delete pd;
-    pd = new EmpiricalMoments("hi",meth,UseLabel,FALSE,FALSE);
+    pd = new PredictionDataSet("hi",meth,UseLabel,FALSE,FALSE);
     pd->TrackingWithLabel(AllFixed,TRUE,a,d);
     pd->Read("Test9moms.dta");
     Explore(pd,10,0.1,lam);
 	Delete();
 	}
-Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + AV(sk)*CV(p)*Alpha::CV(a)) + (3-I::t); 	}	
+Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + AV(sk)*CV(p)*CV(a)) + (3-I::t); 	}	
 
 Test10::Uz(z)        { return eta | z;	}
-Test10::Utility()    { decl dv =Alpha::CV(d); return eta*(1-dv) + zstar*dv;	}
+Test10::Utility()    { decl dv =CV(d); return eta*(1-dv) + zstar*dv;	}
 
 Test10::Run()	{
 	Initialize(new Test10());

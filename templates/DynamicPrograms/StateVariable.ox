@@ -18,7 +18,7 @@ struct «VarName» : «BaseClass» {
      const decl ... ;                // declare needed constants
      decl ... ;                      // declare needed members
      «VarName»(L,N, ...);           // declare the constructor
-	Transit(FeasA);					// declare the transition method
+	Transit();					// declare the transition method
 	 /* Update();*/					// optional: replace inherited Update() with your own
      }
 
@@ -29,7 +29,7 @@ struct «VarName» : «BaseClass» {
 	//initialize more constants and members
     }
 
-«VarName» :: Transit(FeasA) {
+«VarName» :: Transit() {
 		// Compute vector of next states & matrix of transition probabilities
 		// See documentation for explanation
 		// return them as an array like this

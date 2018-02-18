@@ -1,5 +1,5 @@
 #include "StateVariable.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 StripZeros(trans) {
     decl allz = sumc(trans[1]).==0;
@@ -86,22 +86,21 @@ StateVariable::MakeTerminal(TermValues)	{
 	}
 
 /** Default Transit (transition for a state variable).
-@param FeasA  matrix of feasible action vectors at the current state, &Alpha;(&theta;).
 
 This is a virtual method, so derived classes replace this default version with the one that goes along
 with the kind of state variable.
 
-@return  a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>rows(FeasA)</code> &times; L
+@return  a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>Alpha::N</code> &times; L
 matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
-The built-in transit returns <code> &lt;0&gt; , ones(rows(FeasA),1) }</code>.  That is the with
+The built-in transit returns <code> &lt;0&gt; , CondProbOne }</code>.  That is the with
 probability one the value of the state variable next period is 0.
 
 **/
-StateVariable::Transit(FeasA) { return UnChanged(FeasA); }
+StateVariable::Transit() { return UnChanged(); }
 
 /** Returns the transition for a state variable that is unchanged next period.
 **/
-StateVariable::UnChanged(FeasA) { return { matrix(v), ones(rows(FeasA),1) }; }
+StateVariable::UnChanged() { return { matrix(v), CondProbOne }; }
 
 /** Default Indicator for intrinsic reachable values of a state variable.
 
@@ -128,7 +127,7 @@ ExogenousStates(TFPshock);
 SimpleJump::SimpleJump(L,N)	  	{	StateVariable(L,N); 	}
 
 /** Transition . **/
-SimpleJump::Transit(FeasA)	{return {vals,constant(1/N,1,N)};	}
+SimpleJump::Transit()	{return {vals,constant(1/N,1,N)};	}
 
 /**
 @param L label
@@ -146,12 +145,12 @@ RandomSpell::RandomSpell(L,ProbEnd,Start) {
 
 RandomSpell::IsReachable() { return ! (Prune && Flags::Prunable && v && !I::t) ;    }
 
-RandomSpell::Transit(FeasA) {
+RandomSpell::Transit() {
     if (v) {
         pbend = AV(ProbEnd);
-        return { vals, reshape( pbend~(1-pbend),rows(FeasA),Two) };
+        return { vals, reshape( pbend~(1-pbend),Alpha::N,Two) };
         }
-    pbstart = isclass(Start,"ActionVariable") ? Alpha::CV(Start) : Start(FeasA);
+    pbstart = CV(Start);
     return StripZeros({ vals, (1-pbstart)~pbstart });
     }
 
@@ -216,9 +215,9 @@ Triggered::Update() {
     actual = N==b.N ? b.actual : (b.actual|ResetValue);
     }
 
-Augmented::Transit(FeasA) {
+Augmented::Transit() {
     Synch();
-    basetr = b->Transit(FeasA);
+    basetr = b->Transit();
     }
 
 Augmented::IsReachable() {
@@ -241,9 +240,9 @@ ActionTriggered::ActionTriggered(b,t,tv,rval){
     Triggered(b,t,tv,rval);
     }
 
-ActionTriggered::Transit(FeasA) {
-    Augmented::Transit(FeasA);
-    if ((any(idx=Alpha::CV(t).==tv))) {  //trigger value feasible
+ActionTriggered::Transit() {
+    Augmented::Transit();
+    if ((any(idx=CV(t).==tv))) {  //trigger value feasible
         basetr[Qprob] .*= (1-idx);
         if ((any(idy = basetr[Qind].==rval) ))   { //reset values already present
             basetr[Qprob][][maxcindex(idy')] += idx;
@@ -280,9 +279,9 @@ ValueTriggered::ValueTriggered(b,t,tv,rval) {
     Triggered(b,t,tv,rval);
     }
 
-ValueTriggered::Transit(FeasA) {
-    Augmented::Transit(FeasA);
-    if ( any(AV(t).==tv ) ) return { matrix(rval), ones(rows(FeasA),1) };
+ValueTriggered::Transit() {
+    Augmented::Transit();
+    if ( any(AV(t).==tv ) ) return { matrix(rval), CondProbOne };
     return basetr;
     }
 
@@ -300,13 +299,13 @@ RandomTrigger::RandomTrigger(b,Tprob,rval) {
     Triggered(b,Tprob,1,rval);
     }
 
-RandomTrigger::Transit(FeasA) {
-    Augmented::Transit(FeasA);
+RandomTrigger::Transit() {
+    Augmented::Transit();
     if ( (ft = AV(t))==0.0 ) // no chance of trigger
             return basetr;
 
     if ( ft ==1.0 )  // trigger happens for sure
-        return {rval,ones(rows(FeasA),1)} ;
+        return {rval,CondProbOne} ;
 
     if ( (nf = find(basetr[Qind],rval))>-1 ) {  //reset value already possible
         basetr[Qprob] *= 1-ft;                 // scale all probabilities
@@ -325,9 +324,9 @@ Freeze::Freeze(b,t) {
     ValueTriggered(b,t,TRUE);
     }
 
-Freeze::Transit(FeasA) {
-    Augmented::Transit(FeasA);
-    if (AV(t)) return UnChanged(FeasA);
+Freeze::Transit() {
+    Augmented::Transit();
+    if (AV(t)) return UnChanged();
     return basetr;
     }
 
@@ -335,16 +334,16 @@ Freeze::Transit(FeasA) {
 
 //UnFreeze::InitDist() {     return constant(1/N,1,N);    }
 
-//UnFreeze::Transit(FeasA) {
-//    Augmented::Transit(FeasA);
+//UnFreeze::Transit() {
+//    Augmented::Transit();
 //    if (CV(t)==One) return basetr;  // variable is now unfrozen
-//    unf = FeasA[][t.t.pos];
+//    unf = CV(t.t);
 //    if ( any(unf==One) ) {
 //        idist =   reshape(this->InitDist(),rows(unf),N); // distribution over values of unfrozen variables.
 //        g= unf==Zero;
 //        return { vals , g*(vals.==Zero) + (1-g).*idist[unf][vals]};
 //        }
-//    return UnChanged(FeasA);
+//    return UnChanged();
 //    }
 
 /** Make a state variable only transit in one subperiod of a `Divided` clock.
@@ -361,10 +360,10 @@ SubState::SubState(b,mys) {
     Augmented(b);
     }
 
-SubState::Transit(FeasA) {
-    Augmented::Transit(FeasA);
+SubState::Transit() {
+    Augmented::Transit();
     if (I::subt==mys) return basetr;
-    return UnChanged(FeasA);
+    return UnChanged();
     }
 
 /** Use `I::majt` for time period when checking reachability of the base state variable.
@@ -388,13 +387,13 @@ SubState::IsReachable() {
 `Forget::IsReachable`() prunes the state space accordingly
 **/
 Forget::Forget(b,t,FCond,tv,rval) {
-    ActionTriggered(b,t,tv,rval);
+    Triggered(b,t,tv,rval);
     this.FCond = FCond;
     }
 
-Forget::Transit(FeasA) {
-    ActionTriggered::Transit(FeasA);
-    return CV(FCond) ?  {matrix(rval),ones(rows(FeasA),1)} : basetr;
+Forget::Transit() {
+    Triggered::Transit();
+    return CV(FCond) ?  {matrix(rval),CondProbOne} : basetr;
     }
 
 /**  Trimsthe state space of values that can't be reached because they are forgotten.
@@ -417,9 +416,9 @@ ForgetAtT::ForgetAtT(b,T) {
     Prune = TRUE;
     }
 
-ForgetAtT::Transit(FeasA) {
-    Augmented::Transit(FeasA);
-    if ( I::t>=T-1 ) return { matrix(rval), ones(rows(FeasA),1) };
+ForgetAtT::Transit() {
+    Augmented::Transit();
+    if ( I::t>=T-1 ) return { matrix(rval), CondProbOne };
     return basetr;
     }
 ForgetAtT::IsReachable() {
@@ -437,7 +436,7 @@ Zvariable::Update() {
 /**Create a discrete Markov process.
 The dimensions of the transition probabilities determines the number of values taken on.
 @param L label
-@param Pi N&times;1 array of `AV`(FeasA) compatible transition probabilities.
+@param Pi N&times;1 array of `AV`(Alpha::C) compatible transition probabilities.
 @example
 <pre>
   decl tmat =< 0.90 ~ 0.09 ~0.05;
@@ -477,15 +476,15 @@ IIDBinary::IIDBinary(L,Pi) {
 /**Create a variable that jumps with probability
 @param L label
 @param N number of values
-@param Pi `AV`(FeasA) compatible jump probability.
+@param Pi `AV`() compatible jump probability.
 **/
 Jump::Jump(L,N,Pi)	{	this.Pi = Pi; StateVariable(L,N); }
 
 /** Create a binary endogenous absorbing state.
 @param L label
-@param fPi `AV`(FeasA) compatible object that returns either:<br>
+@param fPi `AV`() compatible object that returns either:<br>
 a probability p of transiting to state 1<br>
-a vector equal in length to FeasA.<br>
+a vector equal in length to Alpha::C.<br>
 The default value is 0.5: the absorbing state happens with probability 0.5.
 @comments
 fPi is only called if the current value is 0.
@@ -495,31 +494,31 @@ Absorbing::Absorbing(L,fPi) {
     this.fPi = fPi;
     }
 
-Absorbing::Transit(FeasA) {
-    if (v) return UnChanged(FeasA);
-    p = fPi(FeasA);
-    return { <0,1>, reshape((1-p)~p, rows(FeasA), N ) };
+Absorbing::Transit() {
+    if (v) return UnChanged();
+    p = fPi();
+    return { <0,1>, reshape((1-p)~p, Alpha::N, N ) };
     }
 
 /**  **/
-Markov::Transit(FeasA) {
+Markov::Transit() {
     jprob = AV(Pi[v]);
-    return {vals,reshape(jprob,rows(FeasA),N)};	
+    return {vals,reshape(jprob,Alpha::N,N)};	
     }
 
 /**  **/
-IIDJump::Transit(FeasA) {
+IIDJump::Transit() {
     jprob = AV(Pi);
-    return {vals,reshape(jprob,rows(FeasA),N)};	
+    return {vals,reshape(jprob,Alpha::N,N)};	
     }
 
-IIDBinary::Transit(FeasA) {
+IIDBinary::Transit() {
     jprob = AV(Pi);
-    return {vals,reshape((1-jprob)|jprob,rows(FeasA),N)};	
+    return {vals,reshape((1-jprob)|jprob,Alpha::N,N)};	
     }
 
 /**  **/
-Jump::Transit(FeasA) {
+Jump::Transit() {
     jprob = AV(Pi);
     return {vals,jprob*constant(1/N,1,N) + (1-jprob)*(v.==vals)};	
     }
@@ -540,9 +539,10 @@ Offer::Offer(L,N,Pi,Accept)	{
 
 /** .
 **/
-Offer::Transit(FeasA)	{
-  decl offprob = AV(Pi,FeasA), accept = Alpha::CV(Accept);
-  return {vals,(1-accept).*( (1-offprob)~(offprob*constant(1/(N-1),rows(FeasA),N-1)) )+ accept.*(constant(v,rows(FeasA),1).==vals)};
+Offer::Transit()	{
+  offprob = AV(Pi);
+  accept = CV(Accept);
+  return {vals,(1-accept).*( (1-offprob)~(offprob*constant(1/(N-1),Alpha::N,N-1)) )+ accept.*(constant(v,Alpha::N,1).==vals)};
   }
 
 /** Create a discretized lognorm offer.
@@ -572,7 +572,7 @@ LogNormalOffer::Update() {
 /** Create a state variable that increments or decrements with state-dependent probabilities.
 @param L label
 @param N integer, number of values, N &ge; 3
-@param fPi(A) a `AV`(fPi,A) compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.
+@param fPi() a `AV`() compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.
 @param Prune TRUE [default], prune unreachable states assuming initial value of 0<br>FALSE do not prune
 **/
 RandomUpDown::RandomUpDown(L,N,fPi,Prune)	{
@@ -586,8 +586,8 @@ RandomUpDown::IsReachable() { return ! (Prune && Flags::Prunable && (v>I::t) ) ;
 
 /** .
 **/
-RandomUpDown::Transit(FeasA)	{
-    fp = AV(fPi,FeasA);
+RandomUpDown::Transit()	{
+    fp = AV(fPi);
     if (v==0)
         return { 0~1 , (fp[][down]+fp[][hold])~fp[][up] };
     if (v==N-1)
@@ -609,8 +609,8 @@ Deterministic::Deterministic(L,nextValues)	{
 
 /** .
 **/
-Deterministic::Transit(FeasA)	{	
-    return { matrix(nextValues[v]), ones(rows(FeasA),1) };	
+Deterministic::Transit()	{	
+    return { matrix(nextValues[v]), CondProbOne };	
     }	
 
 /** Create a constant entry in the state vector.
@@ -625,7 +625,7 @@ Fixed::Fixed(L) 	{	StateVariable(L,1);	}
 
 /** .
 **/
-Fixed::Transit(FeasA) 	    {	return UnChanged(FeasA); }	
+Fixed::Transit() 	    {	return UnChanged(); }	
 
 /**Create a deterministic cycle variable.
 @param L label
@@ -680,8 +680,8 @@ LaggedState::LaggedState(L,Target,Prune,Order)	{
 
 /** .
 **/
-LaggedState::Transit(FeasA)	{
-	return { matrix(Target.v)  , ones(rows(FeasA),1) };
+LaggedState::Transit()	{
+	return { matrix(Target.v)  , CondProbOne };
 	}
 
 /** Create a variable that tracks the previous value of action variable.
@@ -699,8 +699,8 @@ LaggedAction::LaggedAction(L,Target,Prune,Order)	{
 
 /** .
 **/
-LaggedAction::Transit(FeasA)	{
-    acol=Alpha::CV(Target);
+LaggedAction::Transit()	{
+    acol=CV(Target);
     nxtv =unique(acol);
 	return {nxtv, acol.==nxtv };
 	}
@@ -719,10 +719,10 @@ ChoiceAtTbar::ChoiceAtTbar(L,Target,Tbar,Prune) {
     this.Tbar = Tbar;
     }
 
-ChoiceAtTbar::Transit(FeasA) {
-    if (I::t<Tbar) return { <0>,ones(rows(FeasA),1) };
-    if (I::t>Tbar) return UnChanged(FeasA);
-    return LaggedAction::Transit(FeasA);
+ChoiceAtTbar::Transit() {
+    if (I::t<Tbar) return { <0>,CondProbOne };
+    if (I::t>Tbar) return UnChanged();
+    return LaggedAction::Transit();
     }
 
 ChoiceAtTbar::IsReachable() {
@@ -738,9 +738,9 @@ PermanentChoice::PermanentChoice(L,Target,Prune) {
 	LaggedAction(L,Target,Prune);
 	}
 	
-PermanentChoice::Transit(FeasA) {
-	if (v) return UnChanged(FeasA);
-    return LaggedAction::Transit(FeasA);
+PermanentChoice::Transit() {
+	if (v) return UnChanged();
+    return LaggedAction::Transit();
 	}	
 	
 /** Create a variable that tracks that some Target condition has occurred in the past.
@@ -755,9 +755,9 @@ PermanentCondition::PermanentCondition(L,Target,ToTrack,Prune) {
     StateTracker(L,Target,ToTrack,Prune);
     }
 
-PermanentCondition::Transit(FeasA) {
-	if (v) return UnChanged(FeasA);
-    return StateTracker::Transit(FeasA);
+PermanentCondition::Transit() {
+	if (v) return UnChanged();
+    return StateTracker::Transit();
 	}
 	
 /** .
@@ -776,12 +776,12 @@ RetainMatch::RetainMatch(matchvalue,acc,replace,keep) {
 	actual = matchvalue.actual;
 	}
 
-RetainMatch::Transit(FeasA) {
-	repl = zeros(rows(FeasA),1);
+RetainMatch::Transit() {
+	repl = zeros(Alpha::N,1);
 	hold = 1-repl;
 	for (i=0;i<sizeof(acc);++i) {
-		hold .*= any(Alpha::CV(acc[i]).==keep);  //all parties must stay
-		repl += any(Alpha::CV(acc[i]).==replace);	// any party can dissolve, get new match
+		hold .*= any(CV(acc[i]).==keep);  //all parties must stay
+		repl += any(CV(acc[i]).==replace);	// any party can dissolve, get new match
 		}
 	repl = repl.>= 1;
 	return {0~v~matchvalue.v, (1-hold-repl) ~ hold ~ repl};
@@ -802,7 +802,7 @@ Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 @param N integer, maximum number of times to count
 @param State `StateVariable` or `AV`() compatible object to track.
 @param ToTrack integer or vector, values of State to count. (default = <1>).
-@param Reset `AV`(FeasA) compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
+@param Reset `AV`() compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
 @param Prune TRUE [default]: prune states if finite horizon detected.
 @example <pre>noffers = new StateCounter("Total Offers",offer,5,<1:offer.N-1>,0);</pre>
 **/
@@ -814,10 +814,10 @@ StateCounter::StateCounter(L,N,State,ToTrack,Reset,Prune) {
 
 /** .
 **/
-StateCounter::Transit(FeasA)	{
-    if (AV(Reset,FeasA)) return { <0>, ones(rows(FeasA),1) };
-    if (v==N-1  || !any(AV(Target).==ToTrack)) return UnChanged(FeasA);
-	return { matrix(v+1) , ones(rows(FeasA),1) };
+StateCounter::Transit()	{
+    if (AV(Reset)) return { <0>, CondProbOne };
+    if (v==N-1  || !any(AV(Target).==ToTrack)) return UnChanged();
+	return { matrix(v+1) , CondProbOne };
     }
 
 /**  Trims the state space if the clock is exhibits aging, assuming that the counter is initialized
@@ -846,9 +846,9 @@ ActionCounter::ActionCounter(L,N,Act,  ToTrack,Reset,Prune)	{
 	
 /** .
 **/
-ActionCounter::Transit(FeasA)	{
-    if (AV(Reset,FeasA)) return { <0>, ones(rows(FeasA),1) };
-    if (( v==N-1 || !any( inc = sumr(Alpha::CV(Target).==ToTrack)  ) )) return UnChanged(FeasA);
+ActionCounter::Transit()	{
+    if (AV(Reset)) return { <0>, CondProbOne };
+    if (( v==N-1 || !any( inc = sumr(CV(Target).==ToTrack)  ) )) return UnChanged();
     return { v~(v+1) , (1-inc)~inc };
 	}
 
@@ -872,8 +872,8 @@ StateAccumulator::StateAccumulator(L,N,State) {
 
 /** .
 **/
-StateAccumulator::Transit(FeasA)	{
-	return { matrix(min(v+AV(Target),N-1)),  ones(rows(FeasA),1) };
+StateAccumulator::Transit()	{
+	return { matrix(min(v+AV(Target),N-1)),  CondProbOne };
     }
 
 /** Create a variable that counts how many times an action has taken on certain values.
@@ -888,8 +888,8 @@ ActionAccumulator::ActionAccumulator(L,N,Action) {
 
 /** .
 **/
-ActionAccumulator::Transit(FeasA)	{
-    y = setbounds(v+Alpha::CV(Target),0,N-1);
+ActionAccumulator::Transit()	{
+    y = setbounds(v+CV(Target),0,N-1);
     x = unique(y);
 	return { x ,  y.==x };
     }
@@ -915,8 +915,8 @@ contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of makin
 </dd>
 **/
 Duration::Duration(L,Current,Lag, N,MaxOnce,Prune) {
-    decl m ="DDP Error 04. Lag must be a State Variable or a vector\n";
-	if (!TypeCheck(Lag,"StateVariable",FALSE) && !ismatrix(Lag)) oxrunerror(m);
+	if (!TypeCheck(Lag,"StateVariable",FALSE) && !ismatrix(Lag))
+        oxrunerror("DDP Error 04. Lag must be a State Variable or a vector\n");
 	TypeCheck(Current,"Discrete");
     Counter(L,N,Current,0,0,Prune);
 	isact = isclass(Target,"ActionVariable");
@@ -926,18 +926,18 @@ Duration::Duration(L,Current,Lag, N,MaxOnce,Prune) {
 
 /** .
 **/
-Duration::Transit(FeasA) {
-    if (v==N-1 && MaxOnce) return UnChanged(FeasA);
+Duration::Transit() {
+    if (v==N-1 && MaxOnce) return UnChanged();
 	g= matrix(v +(v<N-1));
 	if (isact) {
-        add1 = Alpha::CV(Target).==AV(Lag);
+        add1 = CV(Target).==AV(Lag);
 		nf = int(sumc(add1));
-        if (Volume>SILENT) fprintln(logf,v," ",AV(Lag),nf,Alpha::CV(Target));
-        if (!nf) return { <0> , ones(rows(FeasA),1) };
+        if (Volume>SILENT) fprintln(logf,v," ",AV(Lag),nf,CV(Target));
+        if (!nf) return { <0> , CondProbOne };
 		return { 0~g , (1-add1)~add1 };
 		}
-    if ( !any(AV(Target).==AV(Lag)) ) return { <0> , ones(rows(FeasA),1) };
-	return { g , ones(rows(FeasA),1) };
+    if ( !any(AV(Target).==AV(Lag)) ) return { <0> , CondProbOne };
+	return { g , CondProbOne };
 	}
 	
 /** Create a renewal state with random incrementing.
@@ -955,12 +955,12 @@ Renewal::Renewal(L,N,reset,Pi)	{
 	}
 
 /** . **/
-Renewal::Transit(FeasA)	{
+Renewal::Transit()	{
 	decl pstar = min(P,N-v)-1,
-		 pi = reshape(AV(Pi,FeasA),1,P),
+		 pi = reshape(AV(Pi),1,P),
 		 ovlap = v < P ? zeros(1,v) : 0,
    		 qstar = pstar ? pi[:pstar-1]~sumr(pi[pstar:]) : <1.0>;
-	decl  rr =Alpha::CV(reset),
+	decl  rr =CV(reset),
         tt = !isint(ovlap)
 			? {vals[:v+P-1],
 		      	((pi~ovlap).*rr)
@@ -998,8 +998,8 @@ StateTracker::StateTracker(L,Target,ToTrack,Prune)	{
 
 /** .
 **/
-StateTracker::Transit(FeasA)	{
-	return { matrix(any(AV(Target)==ToTrack))  , ones(rows(FeasA),1) };
+StateTracker::Transit()	{
+	return { matrix(any(AV(Target)==ToTrack))  , CondProbOne };
 	}
 
 /** Create a binary variable that indicates if the previous value of action variable was in a set.
@@ -1015,8 +1015,8 @@ ActionTracker::ActionTracker(L,Target,ToTrack,Prune)	{
 
 /** .
 **/
-ActionTracker::Transit(FeasA)	{
-    d = sumr( Alpha::CV(Target).==(ToTrack) );
+ActionTracker::Transit()	{
+    d = sumr( CV(Target).==(ToTrack) );
 	if (any(d)) {
 	    if (any(1-d)) return{ <0,1>, (1-d)~d };
 		return {<1>, ones(d)};
@@ -1038,7 +1038,7 @@ Coevolving::Coevolving(Lorb,N)	{
 /** .
 @internal
 **/
-Coevolving::Transit(FeasA) {
+Coevolving::Transit() {
     oxrunerror("DDP Error 22. Transit() of a coevolving variable should never be called\n");
     }
 
@@ -1113,13 +1113,13 @@ OfferWithLayoff::OfferWithLayoff(L,N,accept,Pi,Lambda)	{
 	}
 	
 /** .  **/
-OfferWithLayoff::Transit(FeasA)	{
-   decl prob = AV(Pi,FeasA), lprob = AV(Lambda,FeasA), acc = Alpha::CV(accept), xoff, xprob;
+OfferWithLayoff::Transit()	{
+   decl prob = AV(Pi), lprob = AV(Lambda), acc = CV(accept), xoff, xprob;
 
    if (status.v==Emp) return { offer.v | (Quit~LaidOff~Emp) ,  (1-acc) ~ acc.*(lprob~(1-lprob)) };
    xoff =    offer.vals | Unemp;
    xprob=    (1-prob)~ prob*constant(1/(NN-1),1,NN-1);
-   if (status.v==Quit || status.v==LaidOff) return { xoff , reshape(xprob,rows(FeasA),NN) };
+   if (status.v==Quit || status.v==LaidOff) return { xoff , reshape(xprob,Alpha::N,NN) };
    return { (offer.v | Emp ) ~ xoff ,  acc ~ ((1-acc).*xprob) };
 	}
 
@@ -1145,7 +1145,7 @@ MVIID::MVIID(L,N,M,base) {
 
 /** .
 **/
-MVIID::Transit(FeasA)	{
+MVIID::Transit()	{
 	 return {Allv,ones(1,MtoN)/MtoN};
 	}
 
@@ -1193,23 +1193,23 @@ Episode::Episode(L,K,T,Onset,End,Finite){
 	probT = 0;
 	}
 
-Episode::Transit(FeasA) 	{
+Episode::Transit() 	{
 	decl kv = k.v, tv = t.v, pi;
 	if (!kv) {		// no episode, get onset probabilities
 		probT = 0;
-		if ((columns(pi = CV(Onset,FeasA))!=k.N))
+		if ((columns(pi = CV(Onset))!=k.N))
 			oxrunerror("DDP Error 26. Onset probability must return 1xK or FxK matrix\n");
-							return { 0 | k.vals, reshape(pi,rows(FeasA),k.N)  };
+							return { 0 | k.vals, reshape(pi,Alpha::N,k.N)  };
 		}
 	if (tv==t.N-1)  {
-		if (Finite) 		return { 0|0         , ones(rows(FeasA),1) };	
+		if (Finite) 		return { 0|0         , CondProbOne };	
 		pi = isdouble(probT)
 			? probT
-			: (probT = CV(End,FeasA)) ;
-							return {  (0 ~ tv)|(0~kv), reshape( pi ~ (1-pi), rows(FeasA), 2 ) };
+			: (probT = CV(End)) ;
+							return {  (0 ~ tv)|(0~kv), reshape( pi ~ (1-pi), Alpha::N, 2 ) };
 		}
-	pi = CV(End,FeasA);
-							return {  (0 ~ tv+1)|(0~kv), reshape( pi ~ (1-pi), rows(FeasA), 2 ) };	
+	pi = CV(End);
+							return {  (0 ~ tv+1)|(0~kv), reshape( pi ~ (1-pi), Alpha::N, 2 ) };	
 	}
 	
 //const decl mu, rho, sig, M;
@@ -1233,8 +1233,8 @@ Tauchen::Tauchen(L,N,M,mu,sig,rho) {
 	Grid = zeros(N,N);
 	}
 	
-Tauchen::Transit(FeasA) {
-	return {vals,reshape(Grid[v][],N,rows(FeasA))'};
+Tauchen::Transit() {
+	return {vals,reshape(Grid[v][],N,Alpha::N)'};
 	}
 	
 Tauchen::Update() {
@@ -1278,7 +1278,7 @@ FixedAsset::FixedAsset(L,N,r,delta){
 /**Create a new LIQUID asset state variable.
 @param L label
 @param N number of values
-@param NetSavings `AV`-compatible static function of the form <code>NetSavings(FeasA)</code><br><em>or</em>`ActionVariable`
+@param NetSavings `AV`-compatible static function of the form <code>NetSavings()</code><br><em>or</em>`ActionVariable`
 @see Discretized
 **/
 LiquidAsset::LiquidAsset(L,N,NetSavings){
@@ -1287,12 +1287,12 @@ LiquidAsset::LiquidAsset(L,N,NetSavings){
     isact = isclass(NetSavings,"ActionVariable");
 	}
 
-FixedAsset::Transit(FeasA) {
-    return Asset::Transit(actual[v] + delta.actual[Alpha::CV(delta)]);
+FixedAsset::Transit() {
+    return Asset::Transit(actual[v] + delta.actual[CV(delta)]);
     }
 
-LiquidAsset::Transit(FeasA) {
-    return Asset::Transit(isact ? NetSavings.actual[Alpha::CV(NetSavings)] : AV(NetSavings,FeasA));
+LiquidAsset::Transit() {
+    return Asset::Transit(isact ? NetSavings.actual[CV(NetSavings)] : AV(NetSavings));
     }
 /**
 **/
@@ -1324,11 +1324,11 @@ KeptZeta::KeptZeta(L,N,keep,held) {
 The static transition.  If keeping current z is feasible then initialize to zero.
 Otherwise, leave unchanged.
 **/
-KeptZeta::Transit(FeasA) {
-    if (any(FeasA[][keep.pos])) return {<0>, ones(rows(FeasA),1)} ;
-    return UnChanged(FeasA);
-//    if (CV(held)) return {v~0,(1-FeasA)~FeasA};
-//    return {<0>, ones(rows(FeasA),1)} ; // Changed April 2016 {vals, constant(1/N,rows(Fe asA),N)};
+KeptZeta::Transit() {
+    if (any(CV(keep))) return {<0>, CondProbOne} ;
+    return UnChanged();
+//    if (CV(held)) return {v~0,(1-Alpha::C)~Alpha::C};
+//    return {<0>, CondProbOne} ; // Changed April 2016 {vals, constant(1/N,rows(Fe asA),N)};
     }
 
 /** The default cdf of a kept continuous variable: &Phi;(z*).

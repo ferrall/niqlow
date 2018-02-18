@@ -18,6 +18,12 @@ ActionVariable::ActionVariable(L,NorVLabels) {
         }
     }
 
+/** Return A[][pos].
+@see CV, AV, Discrete::Update
+**/
+ActionVariable::myAV() { return Alpha::A[][pos];    }
+ActionVariable::myCV() { return Alpha::C[][pos];    }
+
 /**Create a binary action variable.
 **/
 BinaryChoice::BinaryChoice() { ActionVariable("a",2); }

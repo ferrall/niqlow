@@ -13,7 +13,6 @@ I::Initialize() {
 	MedianExogState= (N::All[lo:hi]-1)/2;
 	MESind = OO[bothexog][lo:hi]*MedianExogState;
 	MSemiEind = OO[onlysemiexog][lo:hi]*MedianExogState;
-    ialpha = UnInitialized;
     majt = subt = Zero;
     }
 
@@ -24,8 +23,7 @@ I::Initialize() {
 I::Set(state,group) {
 	all[] = OO*state;
     curth = Theta[all[tracking]];
-    curAi = isclass(curth) ? curth.Aind : NoMatch;
-    Alpha::SetFA(curAi);
+    Alpha::SetA(isclass(curth) ? UseCurrent : NoMatch);
     if (group) {
 	   g = int(all[bothgroup]);
 	   f = int(all[onlyfixed]);
@@ -247,13 +245,13 @@ DP::AddStates(SubV,va) 	{
 		}
 	}
 
-/** Uses `I::curth` to recover actual values of an action.
+/* Uses `I::curth` to recover actual values of an action.
 @param a `ActionVariable'
-@see Bellman::aa, Alpha::AV
-**/
+@see AV
 DP::GetAV(a) {
-    return Alpha::AV(a); // I::curth -> aa(a);   // Sep. 2016.  Ugghh!  return was missing
+    return AV(a); // I::curth -> aa(a);   // Sep. 2016.  Ugghh!  return was missing
     }
+*/
 
 /** Add `StateVariable`s to the endogenous vector &theta;.
 @param v1,... `StateVariable`s
@@ -313,11 +311,11 @@ DP::Actions(Act1,...) 	{
 		if (!pos) {
 			Alpha::Matrix = va[i].vals';
 			Labels::V[avar] = {sL};
-            Labels::Vprt[avar] = {sL[:min(4,sizec(sL)-1)] };
+            Labels::Vprt[avar] = {abbrev(sL)};
 			}
 		else {
 			Labels::V[avar] |= sL;
-            Labels::Vprt[avar] |= sL[:min(4,sizec(sL)-1)];
+            Labels::Vprt[avar] |= abbrev(sL);
 			nr = rows(Alpha::Matrix);
 	 		Alpha::Matrix |= reshape(Alpha::Matrix,(va[i].N-1)*nr,pos);
 			Alpha::Matrix ~= vecr(va[i].vals' * ones(1,nr));	 		
@@ -326,32 +324,112 @@ DP::Actions(Act1,...) 	{
 		}
 	}
 
-/** Add `AuxiliaryValues`s to `DP::Chi`.
-@param v1 ... `AuxiliaryValues`s or array of auxiliary variables
+/** Add `AuxiliaryValue`s to `DP::Chi`.
+@param v1 ... `AuxiliaryValue`s or array of auxiliary variables
 **/
 DP::AuxiliaryOutcomes(auxv,...) {
 	if (!isarray(SubVectors)) oxrunerror("DDP Error 40. Error: can't add auxiliary before calling Initialize()",0);
-	decl va = auxv|va_arglist(), pos = sizeof(Chi), i,sL,n;
+	decl va = auxv|va_arglist(), pos = sizeof(Chi), i,sL;
 	for (i=0;i<sizeof(va);++i) {
-		TypeCheck(va[i],"AuxiliaryValues");
+        if (isarray(va[i])) {
+            AuxiliaryOutcomes(va[i]);
+            continue;
+            }
+		TypeCheck(va[i],"AuxiliaryValue");
 		Chi |= va[i];
         sL =va[i].L;
 		if (!pos) {
             Labels::V[auxvar] = {sL};
-            Labels::Vprt[auxvar] = {sL[:min(4,sizec(sL)-1)]};
+            Labels::Vprt[auxvar] = {abbrev(sL)};
             }
         else {
             Labels::V[auxvar] |= sL;
-            Labels::Vprt[auxvar] |= sL[:min(4,sizec(sL)-1)];
-            }
-        for (n=1;n<va[i].N;++n) {
-            Labels::V[auxvar] |= sL;
-            Labels::Vprt[auxvar] |= sL[:min(4,sizec(sL)-1)];
+            Labels::Vprt[auxvar] |= abbrev(sL);
             }
 		va[i].pos = pos++;
 		}
     N::aux = sizeof(Chi);
 	}
+
+/** Create and return a list of auxiliary values for interactions.
+@param ivar state variable or action variable to interact
+@param olist Unitialized, no interaction</br>
+       list of objects to interact with indicators for ivar
+@prefix UseLabel:  use abbreviated ivar.L</br>
+        string: start of column labels for matching to data.
+@param ilo minimum value of ivar to track interaction (default=0)
+@param ihi maximum index to track (default = 100)
+
+For objects in data, tracked moment label must have the form
+prefix_kk_xlabbrev
+
+kk: current (not actual) value of ivar with a leading 0
+xlabbrev: abbreviated label of member of olist (max 4 characters)
+
+**/
+DP::Interactions(ivar,olist,prefix,ilo,ihi) {
+    decl n,k, ilist = {};
+    olist = isarray(olist) ? olist : {olist};
+    foreach(k in olist)
+        for(n=max(0,ilo);n<min(ivar.N,ihi+1);++n) {
+            ilist |= new Indicator(ivar,n,k,prefix);
+            }
+    return ilist;
+    }
+
+/** Create and return a list of auxiliary values for interactions.
+@param ivar state variable or action variable to interact
+@param olist Unitialized, no interaction</br>
+       list of objects to interact with indicators for ivar
+@prefix UseLabel:  use abbreviated ivar.L</br>
+        string: start of column labels for matching to data.
+@param ilo minimum value of ivar to track interaction (default=0)
+@param ihi maximum index to track (default = 100)
+
+For objects in data, tracked moment label must have the form
+prefix_kk_xlabbrev
+
+kk: current (not actual) value of ivar with a leading 0
+xlabbrev: abbreviated label of member of olist (max 4 characters)
+
+**/
+DP::MultiInteractions(ivarlist,ilov,ihiv,olist,prefix) {
+    decl k, ilist = {},nvec,d,M=sizeof(ivarlist);
+    if (M!=rows(ilov)||M!=rows(ihiv)) oxrunerror("Arrays and bounds not same length");
+    foreach(k in ivarlist[d]) ihiv[d] = min(ihiv[d],k.N-1);
+    olist = isarray(olist) ? olist : {olist};
+    nvec = ilov;
+	d=1;				   							// start at leftmost state variable to loop over
+	do	{
+		do {
+            foreach(k in olist) ilist |= new MultiIndicator(ivarlist,nvec,k,prefix);
+			} while (++nvec[0]<=ihiv[0]);
+		nvec[0] = ihiv[0];
+		d = double(vecrindex(ihiv-nvec|1));
+		if (d<M)	{
+			++nvec[d];			   			//still looping inside
+		    nvec[:d-1] = ilov[:d-1];		// (re-)initialize variables to left of d
+			}
+		} while (d<M);
+    return ilist;
+    }
+
+
+/** Create auxiliary values that are indicators for a state or action.
+@param ivar state variable or action variable to interact
+@prefix UseLabel:  use abbreviated ivar.L</br>
+        string: start of column labels for matching to data.
+@param ilo minimum value of ivar to track interaction (default=0)
+@param ihi maximum index to track (default = 100)
+
+For objects in data, tracked moment label must have the form
+prefix_kk
+
+
+**/
+DP::Indicators(ivar,prefix,ilo,ihi) {
+    return Interactions(ivar,UnInitialized,prefix,ilo,ihi);
+    }
 
 /**Create an K+1-array of a state variable and K lags of its values.
 @param L label
@@ -474,28 +552,35 @@ DPMixture::Run() 	{	GroupTask::qtask->GLike();	}
 **/
 Alpha::Initialize() {
 	Count = <0>;
-	List = array(Matrix);
-	A = array(Matrix);
+	CList = array(Matrix);
+	AList = array(Matrix);
 	Sets = array(ones(N::A,1));
     AIlist = array(range(0,N::A-1)');
     N::Options = matrix(rows(Matrix));
     N::J = 1;
-    NFA = FA = FAactual = UnInitialized;
+    N = A = C = UnInitialized;
     }
-Alpha::AV(actvar) { return FAactual[][actvar.pos]; }
-Alpha::CV(actvar) { return FA[][actvar.pos]; }
-Alpha::SetFA(inAi) {
+Alpha::AV(actvar) { return A[][actvar.pos]; }
+Alpha::CV(actvar) { return C[][actvar.pos]; }
+Alpha::SetA(inAi) {
+    aI = aA = aC = UnInitialized;
     if (inAi==NoMatch) {
-        FA = Matrix;
-        FAactual = UnInitialized;
-        NFA = rows(FA);
+        C = Matrix;
+        A = UnInitialized;
+        N = rows(C);
         return;
         }
-    FA = List[inAi];
-    NFA = rows(FA);
-    FAactual = A[inAi];
+    decl myi = I::curth.Aind;
+    C = CList[myi];
+    N = rows(C);
+    A = AList[myi];
+    if (inAi>UseCurrent) {
+        aI = inAi;
+        aC = C[aI][];
+        aA = A[aI][];
+        }
     }
-Alpha::ClearFA() { NFA = FAactual = FA = UnInitialized; }
+Alpha::ClearA() { N = A = C = UnInitialized; }
 Alpha::AddA(fa) {
     if (!ismatrix(fa)||rows(fa)!=rows(Sets[0])||columns(fa)>1 || ( sumc(fa.==1)+sumc(fa.==0) != rows(fa))  ) {
         println("Invalid value returned by user FeasibleAction():",fa);
@@ -504,11 +589,11 @@ Alpha::AddA(fa) {
     decl nfeas = int(sumc(fa)), ai=0;
     do { if (fa==Sets[ai]) {++Count[ai]; break;} } while (++ai<N::J);
     if (ai==N::J) {
-  	     Sets   |= fa;
+  	     Sets       |= fa;
          N::Options |= nfeas;
-	     List   |= selectifr(Matrix,fa);
-	     A      |= List[N::J];
-         AIlist |= selectifr(AIlist[0],fa);
+	     CList      |= selectifr(Matrix,fa);
+	     AList      |= CList[N::J];
+         AIlist     |= selectifr(AIlist[0],fa);
         ++N::J;
 	    Count |= 1;
         }
@@ -517,18 +602,17 @@ Alpha::AddA(fa) {
 
 Alpha::ResetA(alist) {
     decl a, i;
-//foreach foreach (a in alist[i]) {
-    for (i=0;i<sizeof(alist);++i) { a = alist[i];
+    foreach (a in alist[i]) {   //for (i=0;i<sizeof(alist);++i) { a = alist[i];
 		a->Update();
-		if (!i) A[0] = a.actual;
+		if (!i) AList[0] = a.actual;
 		else {
-			decl nr = rows(A[0]);
-	 		A[0] |= reshape(A[0],(a.N-1)*nr,i);
-			A[0] ~= vecr(a.actual * ones(1,nr));
+			decl nr = rows(AList[0]);
+	 		AList[0] |= reshape(AList[0],(a.N-1)*nr,i);
+			AList[0] ~= vecr(a.actual * ones(1,nr));
 			}		
         }
     for (i=1;i<N::J;++i)
-        A[i][][] = selectifr(A[0],Sets[i]);
+        AList[i][][] = selectifr(AList[0],Sets[i]);
     }
 
 
@@ -579,7 +663,7 @@ Labels::Initialize() {
     decl vl;
     foreach(vl in V) vl = {};
     foreach(vl in Vprt) vl = {};
-	format(500);
+	format(1024);
     }
 
 /** Reset all Flags.
@@ -824,7 +908,7 @@ DP::CreateSpaces() {
    decl subv,i,pos,m,bb,sL,j,av, sbins = zeros(1,NStateTypes),w0,w1,w2,w3, tt,lo,hi,inargs = arglist();
    if (strfind(inargs,"NOISY")!=NoMatch) Volume=NOISY;
     if (!S[acts].D) {
-		oxwarning("DDP Warning 17.\n No actions have been added to the model.\n A no-choice action inserted.\n");
+		if (!Version::MPIserver) oxwarning("DDP Warning 17.\n No actions have been added to the model.\n A no-choice action inserted.\n");
 		Actions(new ActionVariable());
 		}
 	S[acts].M=0;
@@ -833,7 +917,7 @@ DP::CreateSpaces() {
 		if (subv>LeftSV) S[subv].M = S[subv-1].X+1;
 		if (!sizerc(SubVectors[subv]))	{
 			if (subv==clock) {
-				oxwarning("DDP Warning 18.\n Clock has not been set.\n Setting clock type to InfiniteHorizon.\n");
+				if (!Version::MPIserver) oxwarning("DDP Warning 18.\n Clock has not been set.\n Setting clock type to InfiniteHorizon.\n");
 				SetClock(InfiniteHorizon);
 				}
 			else if (subv==rgroup) {AddStates(rgroup,new RandomEffect("r",1));}
@@ -849,11 +933,11 @@ DP::CreateSpaces() {
 				bb.block.Theta[bb.bpos] = pos;
             if (!sizeof(Labels::V[svar])) {
                 Labels::V[svar] = {sL};
-                Labels::Vprt[svar] = {sL[:min(4,sizec(sL)-1)]};
+                Labels::Vprt[svar] = {abbrev(sL)};
                 }
             else {
 			 Labels::V[svar] |= sL;
-             Labels::Vprt[svar] |= sL[:min(4,sizec(sL)-1)];
+             Labels::Vprt[svar] |= abbrev(sL);
              }
 			Labels::Sfmts |= Labels::sfmt;
 			}
@@ -882,8 +966,7 @@ DP::CreateSpaces() {
 		if (isclass(counter,"Stationary")) oxrunerror("DDP Error 45. canNOT use state list in stationary environment");
 		}
     Flags::IsErgodic = counter.IsErgodic;
-	/* if (Flags::UseStateList || (Flags::IsErgodic) ) */
-	if (Volume>SILENT)	{		
+	if (!Version::MPIserver && Volume>SILENT)	{		
 		println("-------------------- DP Model Summary ------------------------\n");
 		w0 = sprint("%",7*S[exog].D,"s");
 		w1 = sprint("%",7*S[semiexog].D,"s");
@@ -938,7 +1021,7 @@ DP::CreateSpaces() {
        else {
 	       tt = new FindReachables();
 	       tt->loop(TRUE);
-           if (Volume>LOUD) {
+           if (!Version::MPIserver && Volume>LOUD) {
                 println("Note: Reachability of all states listed in the log file");
                 fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
                           "1=Unreacheable because a user Reachable returns FALSE\n",
@@ -953,39 +1036,39 @@ DP::CreateSpaces() {
        fclose(INf);
        delete inI, inN;
        N::Sizes();
-       Alpha::SetFA(NoMatch);
+       Alpha::SetA(NoMatch);
        tt = new CreateTheta();
        tt->loop(TRUE);
-       Alpha::ClearFA();
+       Alpha::ClearA();
        delete tt.insamp;
        }
 	delete tt;
-	if ( Flags::IsErgodic && N::TerminalStates )
+	if ( !Version::MPIserver && Flags::IsErgodic && N::TerminalStates )
         oxwarning("DDP Warning 19.\n clock is ergodic but terminal states exist?\n Inconsistency in the set up.\n");
 	tt = new CGTask();	delete tt;
 	if (isint(zeta)) zeta = new ZetaRealization(0);
 	DPDebug::Initialize();
   	V = new matrix[1][SS[bothexog].size];
-	if (Volume>SILENT)	{		
+	if (!Version::MPIserver && Volume>SILENT)	{		
         N::print();
         Alpha::Aprint();
         if (N::aux) {
             println("\n7. AUXILIARY OUTCOMES\n ");
             decl ax ;
-            foreach(ax in Chi) println("      ",ax.L," Columns=",ax.N);
+            foreach(ax in Chi) println("      ",ax.L);  //," Columns=",ax.N
             println("\n\n");
             }
 		}
-    if (Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
+    if (!Version::MPIserver && Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
 	ETT = new EndogTrans();
     if (Flags::UpdateTime[InCreateSpaces]||Volume>LOUD) {
             ETT->Transitions();
-            if (Volume>LOUD) {
+            if (!Version::MPIserver && Volume>LOUD) {
                 oxwarning("Checked for valid transitions.  Look in the log file for problems.");
                 --Volume;
                 }
         }
-    else DP::A = Alpha::A;   //this is done in UpdateVariables()
+//    else DP::A = Alpha::A;   //this is done in UpdateVariables()
    Data::SetLog();
  }
 
@@ -1214,6 +1297,7 @@ Task::Traverse(span,lows,ups) {
  		return loop();
 	}
 
+
 /** .
 @internal
 **/
@@ -1237,7 +1321,7 @@ DP::ExogenousTransition() {
 			{N =  curst.block.N; root = curst.block; }
 		else
 			{ N = 1; root = curst; }
-		[feas,prob] = root -> Transit(<0>);
+		[feas,prob] = root -> Transit();
 		feas = Off[curst.pos-N+1 : curst.pos]*feas;
 		k=0;
 		do if (prob[k])	{
@@ -1321,7 +1405,7 @@ CreateSpaces();
 </pre>
 Early Mortaliy
 <pre>
-MyModel::Pi(FeasA);	
+MyModel::Pi();	
 
 SetClock(RandomMortality,T,MyModel::Pi);
 Initialize(Reachable);
@@ -1393,7 +1477,6 @@ ExTask::ExTask() {
     left = S[exog].M;	
     right = S[semiexog].X;	
     }
-
 		
 /** Create a new group node for value of &gamma;.
 @internal
@@ -1676,7 +1759,7 @@ SVT::Run() {
     fprint(logf,"State ","%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],state[S[endog].M:S[clock].M]');
     foreach(s in Slist) {
 		if (isclass(s,"Coevolving")) s = s.block;
-		[feas,prob] = s -> Transit(Alpha::List[I::curth.Aind]);
+		[feas,prob] = s -> Transit(); //TTT
         fprintln(logf,"     State: ",s.L,"%r",{Alpha::aL1}|Alpha::Rlabels[I::curth.Aind],feas|prob);
 		}
     }
@@ -1708,7 +1791,9 @@ SaveV::Run() {
 	if ((TrimTerminals && I::curth.IsTerminal) || (TrimZeroChoice && N::Options[I::curth.Aind]<=1) ) return;
     decl mxi, p;
 	stub=I::all[tracking]~I::curth.InSubSample~I::curth.IsTerminal~I::curth.Aind~state[S[endog].M:S[clock].M]';
-    p = I::curth->ExpandP(TRUE);
+    p = columns(I::curth.pandv)==rows(NxtExog[Qprob])
+            ?  I::curth->ExpandP( I::curth.pandv*NxtExog[Qprob])
+            :  I::curth->ExpandP( I::curth.pandv );
     r =stub~I::r~I::f~I::curth.EV;
     if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
 	if (isclass(I::curth,"OneDimensionalChoice") )  r ~= I::curth->Getz()';
@@ -1725,3 +1810,32 @@ OutAuto::OutAuto(){
     }
 
 OutAuto::Run() { I::curth->AutoVarPrint1(this);  }	
+
+/** .
+**/
+RandomEffectsIntegration::RandomEffectsIntegration() {	RETask(); 	}
+
+/** .	
+@param path Observed path to integrate likelihood over random effects for.
+@return array {L,flat}, where L is the path objective, integrating over random &gamma;
+and flat is the
+integrated flat output of the path.
+**/
+RandomEffectsIntegration::Integrate(path) {
+	this.path = path;
+	L = 0.0;
+    flat = 0;
+	loop();
+	return {L,flat};
+	}
+	
+RandomEffectsIntegration::Run() {
+    path.rcur = I::r;  //Added Dec. 2016
+    L += path->TypeContribution(curREdensity);	
+    }
+
+Data::SetLog() {
+    Volume = SILENT;
+    lognm = replace(Version::logdir+"Data-"+Version::tmstmp," ","")+".log";
+    logf = fopen(lognm,"aV");
+    }

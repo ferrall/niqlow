@@ -1,6 +1,6 @@
 #import "Objective"
 #import "Algorithms"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 Explore(model,Ncalls,Chol,...);
 
@@ -17,11 +17,11 @@ struct PanelBB : BlackBox {
 	const decl data;
 	PanelBB(L,data, ...);
 	virtual vfunc(subp=DoAll);
-    virtual Combine(outmat);
+    virtual AggSubProbMat(submat);
 	}
 
 struct NoObjective : BlackBox {
-    decl model,v;
+    decl model,v,modelmethod;
     NoObjective(model);
     vfunc(subp=DoAll);
     }

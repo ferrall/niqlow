@@ -15,6 +15,7 @@ MPI::Initialize()  	{
 		called = TRUE;
 		MPI_Init(&ID,&Nodes,&P2P::ANY_TAG,&P2P::ANY_SOURCE);
 		IamClient = ID==CLIENT;
+        Version::MPIserver = !IamClient;
 	    if (Volume>SILENT) println("MPI Initialized.  Nodes: ",Nodes," ID: ",ID," IamClient: ",IamClient," faking MPI: ",fake);
 		}
 	}
@@ -29,6 +30,8 @@ MPI::Barrier() {MPI_Barrier();}
 @param DONOTUSECLIENT TRUE the client (node 0) will not be used as a server in `Client::ToDoList`() <br>FALSE  it will used ONCE after all other nodes are busy
 @param client
 @param server
+@param NSubProblems
+@param MaxSubReturn
 **/
 P2P::P2P(DONOTUSECLIENT,client, server,NSubProblems,MaxSubReturn) {
 	MPI::Initialize();
@@ -59,7 +62,7 @@ P2P::P2P(DONOTUSECLIENT,client, server,NSubProblems,MaxSubReturn) {
 If <em>IamClient</em> call the (virtual) `Client::Execute`().  Otherwise, enter the (virtual) `Server::Loop`
 **/
 P2P::Execute() {
-    if (IamClient) client->Execute(); else  server->Loop(Server::iml);
+    if (IamClient) client->Execute(); else  server->Loop(Server::iml,"P2P::Execute");
     }
 	
 /** Point-to-Point: Sends buffer to a destination node.
@@ -187,6 +190,7 @@ Server::Execute() {
 
 /**	A Server loop that calls a virtual Execute() method.
 @param nxtmsgsize integer.  The size of Buffer expected on the first message Received.  It is updated
+@param calledby string.  Name or description of routine loop was called from.
 by <code>Execute()</code> on each call.
 @return the number of trips through the loop.
 <DD>Program goes into server mode (unless I am the CLIENT).
@@ -197,9 +201,10 @@ If the current ID equals CLIENT then simply return.</dd>
     <DD>If Tag does NOT equal `P2P::STOP_TAG`  then send `P2P::Buffer` back to Client.</DD>
 	<DD>If Tag is STOP_TAG then exit the loop and return.</DD>
 **/
-Server::Loop(nxtmsgsize)	{
+Server::Loop(nxtmsgsize,calledby)	{
 	decl trips=0;
 	if (ID==CLIENT) return;
+    if (Volume>QUIET) println("P2P Server: ",ID," Loop called from ",calledby);
 	do {
 		++trips;
 		Buffer = constant(.NaN,nxtmsgsize,1);
@@ -210,7 +215,7 @@ Server::Loop(nxtmsgsize)	{
 		    Send(0,Tag);
             }
 		} while (Tag!=STOP_TAG);
-	if (Volume>SILENT) println("P2P Server:",ID," exiting loop");
+	if (Volume>SILENT) println("P2P Server:",ID," exiting loop ",calledby);
 	return trips;	
 	}
 

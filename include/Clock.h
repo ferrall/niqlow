@@ -54,7 +54,7 @@ SetClock(new Stationary(TRUE));
 **/
 struct Stationary : Clock	{
 	Stationary(IsErgodic=FALSE);
-	Transit(FeasA);
+	Transit();
 	virtual Last();
 	}
 	
@@ -68,7 +68,7 @@ Some clocks classified as nonstationary may in fact be stationary for some param
 **/
 struct NonStationary : Clock {	
     virtual Vupdate();
-	virtual Transit(FeasA);
+	virtual Transit();
     }
 	
 /** A period is divided into sub-periods.
@@ -201,7 +201,7 @@ struct Divided : NonStationary {
         /** zeros(SubT-1,0)|&delta;. **/                                    delts,
                                                                             Vnext0;
     Divided(MajT,SubT,HasInit=FALSE,HasFinal=FALSE);
-    virtual Transit(FeasA);
+    virtual Transit();
     virtual setPstar();
     virtual Last();
     virtual Update();
@@ -301,7 +301,7 @@ struct AgeBrackets : NonDeterministicAging	{
 	/**Vector of period lengths for each age **/	const	decl Brackets;
 	/**Transition matrix based on Brackets   **/ 			decl TransMatrix;
 	AgeBrackets(Brackets);
-	Transit(FeasA);
+	Transit();
 	virtual Last();
     virtual setPstar();
 	}
@@ -358,7 +358,7 @@ struct Mortality : NonDeterministicAging {
 	/** EV at t=T-1, value of death **/				DeathV,
                                                     mp;		
 	Mortality(T,MortProb);
-	virtual Transit(FeasA);
+	virtual Transit();
     virtual setPstar();
     virtual Vupdate();
 	}
@@ -405,7 +405,7 @@ T* is the last period with probability 1.
 struct Longevity : Mortality {
     const decl twilight;
 	Longevity(T,MortProb);
-	Transit(FeasA);
+	Transit();
     virtual Last();
     virtual setPstar();
     virtual Vupdate();
@@ -429,6 +429,6 @@ struct PhasedTreatment : NonDeterministicAging 	{
 	/**indicates time=Rmax in phase**/			final;
 	
 	PhasedTreatment(Rmaxes,IsErgodic=TRUE);
-	virtual Transit(FeasA);
+	virtual Transit();
     virtual Vupdate();
 	}

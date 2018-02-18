@@ -1,5 +1,5 @@
 #import "DDP"
-/* This file is part of niqlow. Copyright (C) 2015-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2015-2017 Christopher Ferrall */
 class BobsChoice : OneStateModel {
         static decl sch, maj;
         static Decide();

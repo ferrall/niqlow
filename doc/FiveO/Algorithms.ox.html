@@ -18,11 +18,11 @@
 Methods to Optimize an Objective or Solve a Non-Linear System.
 <a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Algorithms.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 <P/>
-Algorithms are methods to optimize/solve &fnof;(&psi;).  They are standalone classes derived from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>.
+Algorithms are methods to optimize/solve <span class="expressions">\((\psi)\)</span>.  They are standalone classes derived from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>.
 <P/>
 See the FiveO <a href="hierarchy.html" target="_blank">class hierarchy</a> to see all the available algorithms.
 
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2015 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2017 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
 
 <a name="auto"><hr><h1>Documentation of  Items Defined in Algorithms.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a></dd>
 </dl>
@@ -63,9 +63,19 @@ Base for optimization and system-solving algorithms.
 <td class="description">name of log file  </td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a></td>
+<td class="modifiers">const</td>
+<td class="description">prefix on log before timestamp added.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a></td>
 <td class="modifiers"></td>
 <td class="description">maximum iterations  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a></td>
+<td class="modifiers"></td>
+<td class="description">Not restarting from alg.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___O">O</a></td>
@@ -98,26 +108,31 @@ Base for optimization and system-solving algorithms.
 <td class="description">Base class for non-linear programming algorithms.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___Iterate">Iterate</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___out">out</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Tune Parameters of the Algorithm.</td>
@@ -166,12 +181,12 @@ decl nm = new BFGS(myobj);
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___Direction">Direction</a>, <a href="Algorithms.ox.html#GradientBased___GradientBased">GradientBased</a>, <a href="Algorithms.ox.html#GradientBased___Gupdate">Gupdate</a>, <a href="Algorithms.ox.html#GradientBased___HHupdate">HHupdate</a>, <a href="Algorithms.ox.html#GradientBased___Iterate">Iterate</a>, <a href="Algorithms.ox.html#GradientBased___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___cmsg">cmsg</a>, <a href="Algorithms.ox.html#GradientBased___deltaG">deltaG</a>, <a href="Algorithms.ox.html#GradientBased___deltaX">deltaX</a>, <a href="Algorithms.ox.html#GradientBased___dx">dx</a>, <a href="Algorithms.ox.html#GradientBased___gradtoler">gradtoler</a>, <a href="Algorithms.ox.html#GradientBased___Hresetcnt">Hresetcnt</a>, <a href="Algorithms.ox.html#GradientBased___igradtoler">igradtoler</a>, <a href="Algorithms.ox.html#GradientBased___LM">LM</a>, <a href="Algorithms.ox.html#GradientBased___LMitmax">LMitmax</a>, <a href="Algorithms.ox.html#GradientBased___LMmaxstep">LMmaxstep</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="BHHH"></a>
@@ -196,12 +211,12 @@ Berndt Hall Hall Hausman Updating.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#Newton">Newton</a>:</dt><dd><a href="Algorithms.ox.html#Newton___Newton">Newton</a></dd>
 <dt>Inherited methods from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___Direction">Direction</a>, <a href="Algorithms.ox.html#GradientBased___GradientBased">GradientBased</a>, <a href="Algorithms.ox.html#GradientBased___Gupdate">Gupdate</a>, <a href="Algorithms.ox.html#GradientBased___HHupdate">HHupdate</a>, <a href="Algorithms.ox.html#GradientBased___Iterate">Iterate</a>, <a href="Algorithms.ox.html#GradientBased___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___cmsg">cmsg</a>, <a href="Algorithms.ox.html#GradientBased___deltaG">deltaG</a>, <a href="Algorithms.ox.html#GradientBased___deltaX">deltaX</a>, <a href="Algorithms.ox.html#GradientBased___dx">dx</a>, <a href="Algorithms.ox.html#GradientBased___gradtoler">gradtoler</a>, <a href="Algorithms.ox.html#GradientBased___Hresetcnt">Hresetcnt</a>, <a href="Algorithms.ox.html#GradientBased___igradtoler">igradtoler</a>, <a href="Algorithms.ox.html#GradientBased___LM">LM</a>, <a href="Algorithms.ox.html#GradientBased___LMitmax">LMitmax</a>, <a href="Algorithms.ox.html#GradientBased___LMmaxstep">LMmaxstep</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="Broyden"></a>
@@ -225,13 +240,13 @@ Broyden approximation to the Jacobian.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#NonLinearSystem">NonLinearSystem</a>:</dt><dd><a href="Algorithms.ox.html#NonLinearSystem___Direction">Direction</a>, <a href="Algorithms.ox.html#NonLinearSystem___Gupdate">Gupdate</a>, <a href="Algorithms.ox.html#NonLinearSystem___Iterate">Iterate</a>, <a href="Algorithms.ox.html#NonLinearSystem___JJupdate">JJupdate</a></dd>
 <dt>Inherited methods from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___GradientBased">GradientBased</a>, <a href="Algorithms.ox.html#GradientBased___HHupdate">HHupdate</a>, <a href="Algorithms.ox.html#GradientBased___Hupdate">Hupdate</a>, <a href="Algorithms.ox.html#GradientBased___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#NonLinearSystem">NonLinearSystem</a>:</dt><dd><a href="Algorithms.ox.html#NonLinearSystem___dg">dg</a>, <a href="Algorithms.ox.html#NonLinearSystem___resat">resat</a>, <a href="Algorithms.ox.html#NonLinearSystem___USELM">USELM</a></dd>
 <dt>Inherited fields from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___cmsg">cmsg</a>, <a href="Algorithms.ox.html#GradientBased___deltaG">deltaG</a>, <a href="Algorithms.ox.html#GradientBased___deltaX">deltaX</a>, <a href="Algorithms.ox.html#GradientBased___dx">dx</a>, <a href="Algorithms.ox.html#GradientBased___gradtoler">gradtoler</a>, <a href="Algorithms.ox.html#GradientBased___Hresetcnt">Hresetcnt</a>, <a href="Algorithms.ox.html#GradientBased___igradtoler">igradtoler</a>, <a href="Algorithms.ox.html#GradientBased___LM">LM</a>, <a href="Algorithms.ox.html#GradientBased___LMitmax">LMitmax</a>, <a href="Algorithms.ox.html#GradientBased___LMmaxstep">LMmaxstep</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="CLineMax"></a>
@@ -254,12 +269,12 @@ Constrained line maximization.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#LineMax">LineMax</a>:</dt><dd><a href="Algorithms.ox.html#LineMax___Bracket">Bracket</a>, <a href="Algorithms.ox.html#LineMax___Golden">Golden</a>, <a href="Algorithms.ox.html#LineMax___Iterate">Iterate</a>, <a href="Algorithms.ox.html#LineMax___PTry">PTry</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a>, <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a>, <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#LineMax">LineMax</a>:</dt><dd><a href="Algorithms.ox.html#LineMax___a">a</a>, <a href="Algorithms.ox.html#LineMax___b">b</a>, <a href="Algorithms.ox.html#LineMax___Delta">Delta</a>, <a href="Algorithms.ox.html#LineMax___improved">improved</a>, <a href="Algorithms.ox.html#LineMax___maxstp">maxstp</a>, <a href="Algorithms.ox.html#LineMax___p2">p2</a>, <a href="Algorithms.ox.html#LineMax___p3">p3</a>, <a href="Algorithms.ox.html#LineMax___p4">p4</a>, <a href="Algorithms.ox.html#LineMax___p5">p5</a>, <a href="Algorithms.ox.html#LineMax___p6">p6</a>, <a href="Algorithms.ox.html#LineMax___q">q</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="DFP"></a>
@@ -282,12 +297,12 @@ Constrained line maximization.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___Direction">Direction</a>, <a href="Algorithms.ox.html#GradientBased___GradientBased">GradientBased</a>, <a href="Algorithms.ox.html#GradientBased___Gupdate">Gupdate</a>, <a href="Algorithms.ox.html#GradientBased___HHupdate">HHupdate</a>, <a href="Algorithms.ox.html#GradientBased___Iterate">Iterate</a>, <a href="Algorithms.ox.html#GradientBased___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___cmsg">cmsg</a>, <a href="Algorithms.ox.html#GradientBased___deltaG">deltaG</a>, <a href="Algorithms.ox.html#GradientBased___deltaX">deltaX</a>, <a href="Algorithms.ox.html#GradientBased___dx">dx</a>, <a href="Algorithms.ox.html#GradientBased___gradtoler">gradtoler</a>, <a href="Algorithms.ox.html#GradientBased___Hresetcnt">Hresetcnt</a>, <a href="Algorithms.ox.html#GradientBased___igradtoler">igradtoler</a>, <a href="Algorithms.ox.html#GradientBased___LM">LM</a>, <a href="Algorithms.ox.html#GradientBased___LMitmax">LMitmax</a>, <a href="Algorithms.ox.html#GradientBased___LMmaxstep">LMmaxstep</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="GradientBased"></a>
@@ -398,11 +413,11 @@ Other algorithms are derived classes.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="LineMax"></a>
@@ -494,11 +509,11 @@ search.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a>, <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a>, <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="LinePoint"></a>
@@ -610,31 +625,36 @@ decl nm = new NelderMead(myobj);
 <td class="description">current step size to create simplex  </td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___CheckPoint">CheckPoint</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___Iterate">Iterate</a></td>
 <td class="modifiers"></td>
 <td class="description">Iterate on the Amoeba algorithm.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___NelderMead">NelderMead</a></td>
 <td class="modifiers"></td>
 <td class="description">Initialize a Nelder-Mead Simplex Maximization.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___Reflect">Reflect</a></td>
 <td class="modifiers"></td>
 <td class="description">Reflect through simplex.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___SimplexSize">SimplexSize</a></td>
 <td class="modifiers"></td>
 <td class="description">Compute size of the current simplex.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___Tune">Tune</a></td>
 <td class="modifiers"></td>
 <td class="description">Tune NelderMead Parameters .</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___TryResults">TryResults</a></td>
 <td class="modifiers"></td>
 <td class="description">Results from an amoeba try.</td>
@@ -646,7 +666,7 @@ decl nm = new NelderMead(myobj);
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="Newton"></a>
@@ -671,12 +691,12 @@ Evaluate Hessian at each iteration.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___Direction">Direction</a>, <a href="Algorithms.ox.html#GradientBased___GradientBased">GradientBased</a>, <a href="Algorithms.ox.html#GradientBased___Gupdate">Gupdate</a>, <a href="Algorithms.ox.html#GradientBased___HHupdate">HHupdate</a>, <a href="Algorithms.ox.html#GradientBased___Iterate">Iterate</a>, <a href="Algorithms.ox.html#GradientBased___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___cmsg">cmsg</a>, <a href="Algorithms.ox.html#GradientBased___deltaG">deltaG</a>, <a href="Algorithms.ox.html#GradientBased___deltaX">deltaX</a>, <a href="Algorithms.ox.html#GradientBased___dx">dx</a>, <a href="Algorithms.ox.html#GradientBased___gradtoler">gradtoler</a>, <a href="Algorithms.ox.html#GradientBased___Hresetcnt">Hresetcnt</a>, <a href="Algorithms.ox.html#GradientBased___igradtoler">igradtoler</a>, <a href="Algorithms.ox.html#GradientBased___LM">LM</a>, <a href="Algorithms.ox.html#GradientBased___LMitmax">LMitmax</a>, <a href="Algorithms.ox.html#GradientBased___LMmaxstep">LMmaxstep</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="NewtonRaphson"></a>
@@ -700,13 +720,13 @@ Update the Jacobian on each iteration.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#NonLinearSystem">NonLinearSystem</a>:</dt><dd><a href="Algorithms.ox.html#NonLinearSystem___Direction">Direction</a>, <a href="Algorithms.ox.html#NonLinearSystem___Gupdate">Gupdate</a>, <a href="Algorithms.ox.html#NonLinearSystem___Iterate">Iterate</a>, <a href="Algorithms.ox.html#NonLinearSystem___JJupdate">JJupdate</a></dd>
 <dt>Inherited methods from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___GradientBased">GradientBased</a>, <a href="Algorithms.ox.html#GradientBased___HHupdate">HHupdate</a>, <a href="Algorithms.ox.html#GradientBased___Hupdate">Hupdate</a>, <a href="Algorithms.ox.html#GradientBased___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#NonLinearSystem">NonLinearSystem</a>:</dt><dd><a href="Algorithms.ox.html#NonLinearSystem___dg">dg</a>, <a href="Algorithms.ox.html#NonLinearSystem___resat">resat</a>, <a href="Algorithms.ox.html#NonLinearSystem___USELM">USELM</a></dd>
 <dt>Inherited fields from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___cmsg">cmsg</a>, <a href="Algorithms.ox.html#GradientBased___deltaG">deltaG</a>, <a href="Algorithms.ox.html#GradientBased___deltaX">deltaX</a>, <a href="Algorithms.ox.html#GradientBased___dx">dx</a>, <a href="Algorithms.ox.html#GradientBased___gradtoler">gradtoler</a>, <a href="Algorithms.ox.html#GradientBased___Hresetcnt">Hresetcnt</a>, <a href="Algorithms.ox.html#GradientBased___igradtoler">igradtoler</a>, <a href="Algorithms.ox.html#GradientBased___LM">LM</a>, <a href="Algorithms.ox.html#GradientBased___LMitmax">LMitmax</a>, <a href="Algorithms.ox.html#GradientBased___LMmaxstep">LMmaxstep</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="NonGradient"></a>
@@ -715,11 +735,11 @@ Update the Jacobian on each iteration.
 Container for algorithms that do not rely on gradients.
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___Iterate">Iterate</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a>, <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___Iterate">Iterate</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a>, <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="NonLinearSystem"></a>
@@ -773,12 +793,12 @@ in a line search.</td>
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___GradientBased">GradientBased</a>, <a href="Algorithms.ox.html#GradientBased___HHupdate">HHupdate</a>, <a href="Algorithms.ox.html#GradientBased___Hupdate">Hupdate</a>, <a href="Algorithms.ox.html#GradientBased___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___cmsg">cmsg</a>, <a href="Algorithms.ox.html#GradientBased___deltaG">deltaG</a>, <a href="Algorithms.ox.html#GradientBased___deltaX">deltaX</a>, <a href="Algorithms.ox.html#GradientBased___dx">dx</a>, <a href="Algorithms.ox.html#GradientBased___gradtoler">gradtoler</a>, <a href="Algorithms.ox.html#GradientBased___Hresetcnt">Hresetcnt</a>, <a href="Algorithms.ox.html#GradientBased___igradtoler">igradtoler</a>, <a href="Algorithms.ox.html#GradientBased___LM">LM</a>, <a href="Algorithms.ox.html#GradientBased___LMitmax">LMitmax</a>, <a href="Algorithms.ox.html#GradientBased___LMmaxstep">LMmaxstep</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="QuasiNewton"></a>
@@ -790,12 +810,12 @@ the same as creating <a href="Algorithms.ox.html#GradientBased">GradientBased</a
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___Direction">Direction</a>, <a href="Algorithms.ox.html#GradientBased___GradientBased">GradientBased</a>, <a href="Algorithms.ox.html#GradientBased___Gupdate">Gupdate</a>, <a href="Algorithms.ox.html#GradientBased___HHupdate">HHupdate</a>, <a href="Algorithms.ox.html#GradientBased___Hupdate">Hupdate</a>, <a href="Algorithms.ox.html#GradientBased___Iterate">Iterate</a>, <a href="Algorithms.ox.html#GradientBased___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___cmsg">cmsg</a>, <a href="Algorithms.ox.html#GradientBased___deltaG">deltaG</a>, <a href="Algorithms.ox.html#GradientBased___deltaX">deltaX</a>, <a href="Algorithms.ox.html#GradientBased___dx">dx</a>, <a href="Algorithms.ox.html#GradientBased___gradtoler">gradtoler</a>, <a href="Algorithms.ox.html#GradientBased___Hresetcnt">Hresetcnt</a>, <a href="Algorithms.ox.html#GradientBased___igradtoler">igradtoler</a>, <a href="Algorithms.ox.html#GradientBased___LM">LM</a>, <a href="Algorithms.ox.html#GradientBased___LMitmax">LMitmax</a>, <a href="Algorithms.ox.html#GradientBased___LMmaxstep">LMmaxstep</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="RandomSearch"></a>
@@ -816,12 +836,12 @@ are accepted.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#SimulatedAnnealing">SimulatedAnnealing</a>:</dt><dd><a href="Algorithms.ox.html#SimulatedAnnealing___Iterate">Iterate</a>, <a href="Algorithms.ox.html#SimulatedAnnealing___Metropolis">Metropolis</a>, <a href="Algorithms.ox.html#SimulatedAnnealing___SimulatedAnnealing">SimulatedAnnealing</a>, <a href="Algorithms.ox.html#SimulatedAnnealing___Tune">Tune</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#SimulatedAnnealing">SimulatedAnnealing</a>:</dt><dd><a href="Algorithms.ox.html#SimulatedAnnealing___accept">accept</a>, <a href="Algorithms.ox.html#SimulatedAnnealing___chol">chol</a>, <a href="Algorithms.ox.html#SimulatedAnnealing___cooling">cooling</a>, <a href="Algorithms.ox.html#SimulatedAnnealing___heat">heat</a>, <a href="Algorithms.ox.html#SimulatedAnnealing___holdpt">holdpt</a>, <a href="Algorithms.ox.html#SimulatedAnnealing___inp">inp</a>, <a href="Algorithms.ox.html#SimulatedAnnealing___M">M</a>, <a href="Algorithms.ox.html#SimulatedAnnealing___shrinkage">shrinkage</a>, <a href="Algorithms.ox.html#SimulatedAnnealing___tries">tries</a>, <a href="Algorithms.ox.html#SimulatedAnnealing___Vtries">Vtries</a>, <a href="Algorithms.ox.html#SimulatedAnnealing___vtries">vtries</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="SimulatedAnnealing"></a>
@@ -931,11 +951,11 @@ decl nm = new SimulatedAnnealing(myobj);
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="SQP"></a>
@@ -988,12 +1008,12 @@ Sequential Quadratic Programming for constrained optimization.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___Direction">Direction</a>, <a href="Algorithms.ox.html#GradientBased___GradientBased">GradientBased</a>, <a href="Algorithms.ox.html#GradientBased___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___cmsg">cmsg</a>, <a href="Algorithms.ox.html#GradientBased___deltaG">deltaG</a>, <a href="Algorithms.ox.html#GradientBased___deltaX">deltaX</a>, <a href="Algorithms.ox.html#GradientBased___dx">dx</a>, <a href="Algorithms.ox.html#GradientBased___gradtoler">gradtoler</a>, <a href="Algorithms.ox.html#GradientBased___Hresetcnt">Hresetcnt</a>, <a href="Algorithms.ox.html#GradientBased___igradtoler">igradtoler</a>, <a href="Algorithms.ox.html#GradientBased___LM">LM</a>, <a href="Algorithms.ox.html#GradientBased___LMitmax">LMitmax</a>, <a href="Algorithms.ox.html#GradientBased___LMmaxstep">LMmaxstep</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="SQPBFGS"></a>
@@ -1011,13 +1031,13 @@ Sequential Quadratic Programming for constrained optimization.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#SQP">SQP</a>:</dt><dd><a href="Algorithms.ox.html#SQP___Gupdate">Gupdate</a>, <a href="Algorithms.ox.html#SQP___HHupdate">HHupdate</a>, <a href="Algorithms.ox.html#SQP___Hupdate">Hupdate</a>, <a href="Algorithms.ox.html#SQP___Iterate">Iterate</a>, <a href="Algorithms.ox.html#SQP___SQP">SQP</a></dd>
 <dt>Inherited methods from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___Direction">Direction</a>, <a href="Algorithms.ox.html#GradientBased___GradientBased">GradientBased</a>, <a href="Algorithms.ox.html#GradientBased___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#SQP">SQP</a>:</dt><dd><a href="Algorithms.ox.html#SQP___BETA">BETA</a>, <a href="Algorithms.ox.html#SQP___ne">ne</a>, <a href="Algorithms.ox.html#SQP___ni">ni</a></dd>
 <dt>Inherited fields from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___cmsg">cmsg</a>, <a href="Algorithms.ox.html#GradientBased___deltaG">deltaG</a>, <a href="Algorithms.ox.html#GradientBased___deltaX">deltaX</a>, <a href="Algorithms.ox.html#GradientBased___dx">dx</a>, <a href="Algorithms.ox.html#GradientBased___gradtoler">gradtoler</a>, <a href="Algorithms.ox.html#GradientBased___Hresetcnt">Hresetcnt</a>, <a href="Algorithms.ox.html#GradientBased___igradtoler">igradtoler</a>, <a href="Algorithms.ox.html#GradientBased___LM">LM</a>, <a href="Algorithms.ox.html#GradientBased___LMitmax">LMitmax</a>, <a href="Algorithms.ox.html#GradientBased___LMmaxstep">LMmaxstep</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="SQPNEWTON"></a>
@@ -1035,13 +1055,13 @@ Sequential Quadratic Programming for constrained optimization.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#SQP">SQP</a>:</dt><dd><a href="Algorithms.ox.html#SQP___Gupdate">Gupdate</a>, <a href="Algorithms.ox.html#SQP___HHupdate">HHupdate</a>, <a href="Algorithms.ox.html#SQP___Hupdate">Hupdate</a>, <a href="Algorithms.ox.html#SQP___Iterate">Iterate</a>, <a href="Algorithms.ox.html#SQP___SQP">SQP</a></dd>
 <dt>Inherited methods from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___Direction">Direction</a>, <a href="Algorithms.ox.html#GradientBased___GradientBased">GradientBased</a>, <a href="Algorithms.ox.html#GradientBased___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#SQP">SQP</a>:</dt><dd><a href="Algorithms.ox.html#SQP___BETA">BETA</a>, <a href="Algorithms.ox.html#SQP___ne">ne</a>, <a href="Algorithms.ox.html#SQP___ni">ni</a></dd>
 <dt>Inherited fields from <a href="Algorithms.ox.html#GradientBased">GradientBased</a>:</dt><dd><a href="Algorithms.ox.html#GradientBased___cmsg">cmsg</a>, <a href="Algorithms.ox.html#GradientBased___deltaG">deltaG</a>, <a href="Algorithms.ox.html#GradientBased___deltaX">deltaX</a>, <a href="Algorithms.ox.html#GradientBased___dx">dx</a>, <a href="Algorithms.ox.html#GradientBased___gradtoler">gradtoler</a>, <a href="Algorithms.ox.html#GradientBased___Hresetcnt">Hresetcnt</a>, <a href="Algorithms.ox.html#GradientBased___igradtoler">igradtoler</a>, <a href="Algorithms.ox.html#GradientBased___LM">LM</a>, <a href="Algorithms.ox.html#GradientBased___LMitmax">LMitmax</a>, <a href="Algorithms.ox.html#GradientBased___LMmaxstep">LMmaxstep</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <a name="SysLinePoint"></a>
@@ -1076,12 +1096,12 @@ Systems line maximization.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#LineMax">LineMax</a>:</dt><dd><a href="Algorithms.ox.html#LineMax___Bracket">Bracket</a>, <a href="Algorithms.ox.html#LineMax___Golden">Golden</a>, <a href="Algorithms.ox.html#LineMax___Iterate">Iterate</a>, <a href="Algorithms.ox.html#LineMax___PTry">PTry</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a>, <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a>, <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Algorithms.ox.html#LineMax">LineMax</a>:</dt><dd><a href="Algorithms.ox.html#LineMax___a">a</a>, <a href="Algorithms.ox.html#LineMax___b">b</a>, <a href="Algorithms.ox.html#LineMax___Delta">Delta</a>, <a href="Algorithms.ox.html#LineMax___improved">improved</a>, <a href="Algorithms.ox.html#LineMax___maxstp">maxstp</a>, <a href="Algorithms.ox.html#LineMax___p2">p2</a>, <a href="Algorithms.ox.html#LineMax___p3">p3</a>, <a href="Algorithms.ox.html#LineMax___p4">p4</a>, <a href="Algorithms.ox.html#LineMax___p5">p5</a>, <a href="Algorithms.ox.html#LineMax___p6">p6</a>, <a href="Algorithms.ox.html#LineMax___q">q</a></dd>
-<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Algorithm</span></h2>
@@ -1102,6 +1122,14 @@ Base class for non-linear programming algorithms.
 </table>
 </dd>
 </dl>
+</dd></dl>
+
+<hr>
+<a name="Algorithm___CheckPoint"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CheckPoint</span></h3>
+
+<dl><dd>
+
 </dd></dl>
 
 <hr>
@@ -1181,12 +1209,32 @@ name of log file
 </dd></dl>
 
 <hr>
+<a name="Algorithm___logpfx"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">logpfx</span></h3>
+
+<span class="declaration">const decl logpfx [public]</span>
+<dl><dd>
+prefix on log before timestamp added.
+
+</dd></dl>
+
+<hr>
 <a name="Algorithm___maxiter"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">maxiter</span></h3>
 
 <span class="declaration">decl maxiter [public]</span>
 <dl><dd>
 maximum iterations
+
+</dd></dl>
+
+<hr>
+<a name="Algorithm___NormalStart"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NormalStart</span></h3>
+
+<span class="declaration">decl NormalStart [public]</span>
+<dl><dd>
+Not restarting from alg. checkpoint.
 
 </dd></dl>
 
@@ -1969,6 +2017,15 @@ obj value.
 </dd></dl>
 
 <hr>
+<a name="NelderMead___CheckPoint"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CheckPoint</span></h3>
+
+<span class="declaration">NelderMead :: CheckPoint ( WriteOut )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="NelderMead___fdiff"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">fdiff</span></h3>
 
@@ -2010,7 +2067,12 @@ Iterate on the Amoeba algorithm.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">iplex</td>
-<td class="description" valign="baseline"> N&times;N+1 matrix of initial steps.<br>double, initial step size (iplex is set to 0~unit(N))<br>integer &gt; 0, max starts of the algorithm<br>0 (default), use current mxstarts.
+<td class="description" valign="baseline"> N&times;N+1 matrix of initial steps.
+</br>double, initial step size (iplex is set to 0~unit(N))
+</br>integer &gt; 0, max starts of the algorithm
+</br>0 (default), use current mxstarts.
+</br>= -1 (UseGradient), compute gradient and use its normed value as initial simplex
+</br>= -2 (UseCheckPoint), read in checkpoint file to return to last state.
 </td>
 </tr>
 </table>

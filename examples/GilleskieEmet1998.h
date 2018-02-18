@@ -1,6 +1,6 @@
 #import "DDP"
 	 //21
-enum{T= 5,NK=3,L=1,MaxVisits=3,MaxAbsences=4}
+enum{T= 5,NK=3,LX=1,MaxVisits=3,MaxAbsences=4}
 	
 struct DynaHealth : ExPostSmoothing { //EVExAnte
 	static const decl
@@ -39,11 +39,11 @@ struct DynaHealth : ExPostSmoothing { //EVExAnte
 		t,
 		visits,
 		absents;
-	static PIll(FeasA);
-	static PWell(FeasA);
+	static PIll();
+	static PWell();
 	static Replicate();
 	       Reachable();
-	static NewEpisode(FeasA);
+	static NewEpisode();
 		   FeasibleActions();
 		   Utility();
 	}

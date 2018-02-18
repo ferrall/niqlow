@@ -5,7 +5,7 @@ struct «BlockName» : StateBlock  {
      const decl ... ;                            // declare needed constants
      decl ... ;                                 // declare needed members
 	«BlockName»( ... );
-	Transit(const FeasA);
+	Transit();
 //	Update();
 	}
 
@@ -17,7 +17,7 @@ struct «BlockName» : StateBlock  {
 	NN = offer.N;
 	}
 	
-«BlockName»::Transit(const FeasA)	{
+«BlockName»::Transit()	{
    return { «matrix-of-values» , «row-vector-of-probabilities» };
 	}
 

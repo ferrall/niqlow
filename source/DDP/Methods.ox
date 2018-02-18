@@ -39,7 +39,7 @@ and <var>P(&theta;&prime;;&alpha;,&eta;,&theta;)</var> need to be updated.
 It calls `ExogUtil` task stored in `EndogUtil::ex` to loop over &eta; and &epsilon;
 @comment
 This task uses <code>iterating</code> indexing because it is called at the start of Bellman iteration.
-So utility is not stored for later use.  To retrieve it during simulation requires `AuxiliaryValues`.
+So utility is not stored for later use.  To retrieve it during simulation requires `AuxiliaryValue`.
 
 **/
 EndogUtil::EndogUtil() {
@@ -66,8 +66,7 @@ ExogUtil::ExogUtil() {
     subspace = iterating;
 	}
 	
-ExogUtil::Run() { I::curth->ExogUtil();  }	
-
+ExogUtil::Run() { I::curth->ExogUtil();  }
 
 /** Process a point in the fixed effect space.
 <OL>
@@ -336,6 +335,7 @@ KWEMax::Run() {
 	if (Flags::setPstar)  {
         I::curth->Smooth(meth.VV[I::now][I::all[iterating]]);
         Hooks::Do(PostSmooth);
+		if (Flags::IsErgodic) I::curth->UpdatePtrans();
         }
 	}
 

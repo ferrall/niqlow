@@ -20,7 +20,7 @@ Technical Guide to Discrete Dynamic Programming using <span class="n">DDP</span>
 <DT>This document provides mathematical description of the fundamentals of <span class="n">DDP</span>.</DT>
 <DD>This is the first document on the technical side.  For further help on using and extending your model see also:
 <DD><a href="./Methods.ox.html">Methods</a> for how to solve the model</DD>
-<DD><a href="./Outcomes.ox.html">Outcomes</a> for how to simulate data and read data in for estimation</DD>.
+<DD><a href="./Data.ox.html">Data</a> for how to simulate data, read external data in for estimation</DD>.
 <P/>
 <DT>This document will be useful for someone who already knows a great deal about dynamic programming and has some familiarity with Ox or similar languages.</DT>
 <DD>If you want a much more basic introduction, try <a href="DynProg.html">Foundations of (Discrete) Dynamic Programming</a></DD>
@@ -175,7 +175,7 @@ If <span class="n">DDP</span> did not provide <code>MyModel</code> flexibility i
 <DT><code><a href="Shared.ox.html#CV">CV</a>()</code></DT>
     <DD><code>CV(x)</code> is a routine in <span class="n">niqlow</span> that you can send almost anyting to and it will return the value of the object.</DD>
     <DD>It examines the argument <code>x</code> and if it is a <a href="Shared.ox.html#Quantity">Quantity</a> object with an element <code>v</code> then <code>CV(x)</code> will return it.   That is <code>CV(x) = x.v</code>.</DD>
-    <DD>What makes it very useful is that it will also return the value of other things that are not 
+    <DD>What makes it very useful is that it will also return the value of other things that are not
     Quantity objects.  If you send a real number (called a <code>double</code> in Ox) as <code>x</code> then <code>CV()</code> simply returns the value.  </DD>
     <DD>If you send a function to <code>CV()</code> then it will call the function and return its value.</DD>
     <DD>Thus, you do not need to change your code as some concept changes during programming if you use <code>CV(x)</code>.</DD>
@@ -184,7 +184,7 @@ If <span class="n">DDP</span> did not provide <code>MyModel</code> flexibility i
     <DD><code>AV(x)</code> acts like <code>CV()</code> but it returns <code>x.actual[x.v]</code>.  By default this equals <code>CV(x)</code> unless you specify different actual values.  So in the default case <code>AV(x) = CV(x)</code>.</DD>
     <DD>In this way <code>a-&gt;Update()</code> is only called once for each variable on each model solution to reset <code>.actual</code>.  If <code>.actual</code> were not a vector <code>x-&gt;Update()</code> would have to be called every time <code>x.v</code> changed.</DD>
 <P/>
-<DT><code><a href="DP.ox.html#DP___GetAV">GetAV</a>()</code> and <code><a href="Bellman.ox.html#Bellman___aa">aa</a>()</code></DT>
+<DT><code>DP::GetAV()</code> and <code>Bellman::aa()</code></DT>
 <DD>As <a href="#aa-def">explained below</a> the <code>.v</code> property is not well-defined for action variables inside the dynamic program.  Instead, <code>aa(act)</code> or the equivalent <code>DP::GetAV()</code> must be used.</DD>
 </OL>
 <P/>
@@ -527,11 +527,11 @@ returns a vector of length A.D containing I{A.i&in;&theta;.A}, i = 0 &hellip; (A
 <DD>The first matrix, <code>Alpha::A[0]</code> is <em>always</em> the possible matrix <var>A</var>.  If <code>MyModel</code> does not specify feasible actions, then <code>Aind = &theta;.j = 0</code>.</DD>
 <DD><b>Note</b>: the elements of the <var>A</var> list are the <em>actual</em> value of actions and are updated at the start of each value solve.  If an action variable does not have its own <a href="Shared.ox.html#Discrete___Update">Update</a>() routine defined then the actual values are simply the default range 0 &hellip; (a.N)&oline;.</DD>
 <P/>
-<DT><dfn id="aa-def"><a href="Bellman.ox.html#Bellman___aa">aa</a>(): the values of an action variable</dfn></DT></a>
+<DT><dfn id="aa-def">Bellman::aa(): the values of an action variable</dfn></DT></a>
 <DD>In <span class="n">DDP</span> the key functions, U() and &Rho;() act on a single point in the state space at a time.  So the current value of a state variable is placed in the <code>.v</code> property of the Ox variable representing it.</DD>
 <DD>On the other hand, both U() and &Rho;() are 'vectorized' in actions: they must operate on the whole feasible matrix at once.  Action variables have the <code>.v</code> property, but it is not used for them.  Their current values are in a column of the &theta;.A matrix, which is <code>A[Aind]</code> in the code.</DD>
 <DD>The position of an action variable <code>a</code> in the matrix is stored in its <code>a.pos</code> property.  Thus, <code>A[Aind][][a.pos].</code> would be the column of values for the action variable <code>a</code>.</DD>
-<DD>The <a href="Bellman.ox.html#Bellman___aa">aa</a>() method returns this column, making the user's code cleaner and more robust to changes.
+<DD>The Bellman::aa() method returns this column, making the user's code cleaner and more robust to changes.
 <details class="aside"><summary>For example</summary> Consider a model that has two choices: work hours and whether to volunteer or not.   Then at some state &theta;.A may look like this, along with the return value of <code>a(work)</code>.
 <pre>     A[Aind]     |
 work      vol    |  aa(work)
@@ -543,7 +543,7 @@ work      vol    |  aa(work)
  1         1      |    1
  2         1      |    2  </pre></details>
  </DD>
-<DD>[Confusion Alert!] <a href="DP.ox.html#DP___GetAV">GetAV</a>() does the same thing as <a href="Bellman.ox.html#Bellman___aa">aa</a>().  It can be used inside a function that does not "belong" to <code>MyModel</code> and thus does not inherit direct access to <code>aa()</code>.  </DD>
+<DD>[Confusion Alert!] DP::GetAV() does the same thing as Bellman::aa().  It can be used inside a function that does not "belong" to <code>MyModel</code> and thus does not inherit direct access to <code>aa()</code>.  </DD>
 <P/>
 <a name="TS"><LI>Terminal States and Terminal Values of State Variables</LI></a>
 <blockquote><b><code>MyModel</code> can make values of a state variable terminal by calling <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>().</b></blockquote>
@@ -588,7 +588,7 @@ The current value of a state is always equal to some row in &Omega;: &theta;.v &
 <DD>Just because a state is possible (<span class="expressions">\(\theta\in\Omega\)</span>) does not mean the DP can ever get there.  Of course, if the DP was solved and then started at exactly <span class="expressions">\(\theta\)</span> it would be reached.  But finite horizon dynamic programs must have initial conditions specified.  And those initial conditions can mean that some states in <span class="expressions">\(\Omega\)</span> will never be reached.  And if they can't be reached then they do not need to be stored and included in the solutions to <a href="#BE-defn">Bellman's Equation</a>.</DD>
 <P/>
 <DT>Reachable States</DT>
-<DD>In some models, especially those with a finite horizon, &Omega; contains many endogenous states that cannot be reached from possible initial states of the user's situation. 
+<DD>In some models, especially those with a finite horizon, &Omega; contains many endogenous states that cannot be reached from possible initial states of the user's situation.
 <details class="aside"><summary>The term Reachable</summary><DT>The term <em>reachable</em> is used for two reasons.  </DT><DD>First, in <span class="n">DDP</span> the term <em>feasible</em> applies to action sets not states.  </DD><DD>And, second, reachable emphasizes the fact that it depends on what initial states are assumed not logical inconsistency.)</DD></details>
 <P/>
 <DD>As with feasibility of actions, <em>reachability</em> of a state is not a mechanical property.  Rather it depends on the model and how it will be used.  Since, in <span class="n">DDP</span>, an endogenous state &theta; is not just a vector of numbers but rather an object with many properties attached it, it is important for efficiency that <span class="n">DDP</span> only create and process objects for reachable states.</DD>
@@ -747,10 +747,10 @@ Before programming, state <code>MyModel</code> in the notation used above (which
 <LI>Steps</LI>
 <OL class="steps">
 <LI>Choose the DDP <code>struct</code> that  <code>MyModel</code> is derived from, referred to as <code>DDPparent</code>.</LI>
-        <DD>See ??? for the solving and smoothing methods available.</DD>
+        <DD>See <a href="Methods.ox.html">Methods</a> for the solving and smoothing methods available.</DD>
 <LI>Write the declaration and definition of <code>MyModel</code> and any other derived elements needed in the model.</LI>
         <DL>
-        <DT>See ??? to create custom state variables, state blocks and action variables.</DD>
+        <DT>See <a href="Variables.ox.html">Variables</a> to create custom state variables, state blocks and action variables.</DD>
         <DT>Decide if you want to use the <code>#import</code> or <code>#include</code> approach to using <code>MyModel</code> in an Ox program.
         <DD><pre> #import "MyModel"</pre>
         requires two separate files: <code>MyModel.h</code> and <code>MyModel.ox</code></DD>

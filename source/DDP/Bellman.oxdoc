@@ -86,7 +86,7 @@ The built-in version of Reachable returns TRUE, so if all states are reachable t
 <LI>Restricted Feasible Action spaces / matrices </LI>
 <DT><code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::FeasibleActions`() method to make the feasible choice set to vary with the endogenous state &theta;.</DT>
 <DD>Example.  Only action vectors with <code>d</code> less than or equal to the value of state variable <code>x</code> are feasible.
-<pre>MyModel::FeasibleActions(A) { return A[d.pos][] &lt;= CV(x); }</pre>
+<pre>MyModel::FeasibleActions() { return CV(d) &lt;= CV(x); }</pre>
 </DD>
 <LI>Hooks and Update Time</LI>
 <DT><code>MyModel</code> can use `Hooks::Add`() to have a static method/function called at different points in solution methods.</DT>
@@ -97,14 +97,14 @@ The built-in version of Reachable returns TRUE, so if all states are reachable t
 <DT><code>MyModel</code> can supply replacements for `Bellman::thetaEMax`(), `Bellman::ActVal`(), `Bellman::Smooth`().  Many of the derived classes of Bellman already specialize these operations.</DT>
 
 <LI>Auxiliary Variables and ZetaRealization</LI>
-<DT><code>MyModel</code> can add `AuxiliaryValues`s and a `ZetaRealization` for simulating outcomes and accounting for partial observability of the state.</DT>
+<DT><code>MyModel</code> can add `AuxiliaryValue`s and a `ZetaRealization` for simulating outcomes and accounting for partial observability of the state.</DT>
 <DD><code>MyCode</code> must sandwich the commands that add actions and states to the model between calls to <code>DPparent::Initialize(&hellip;)</code> and <code>DPparent::CreateSpaces(&hellip;)</code>.  </DD>
 <DD><code>MyModel</code> can supply its own version of these two methods, but then they <em>must</em> call the parent versions.  If <code>MyModel</code> does not have its own versions, then the prefix <code>DPparent::</code> is not needed because
 a reference to <code>Initialize()</code> will refer to the parent's version.</DD>
 </OL>
 
 </OL>
-@author &copy; 2011-2015 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
+@author &copy; 2011-2017 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
 
 <a name="auto"><hr><h1>Documentation of Items Defined in Bellman.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 

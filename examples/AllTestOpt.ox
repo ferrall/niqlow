@@ -1,16 +1,39 @@
 #include "AllTestOpt.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 OptTestRun() {
-decl s = "***************** ";
-	println("\n\n",s,"A. Explore Test ",s,"\n");    new Nothing(20);
-	println("\n\n",s,"A. Blackbox Test ",s,"\n");	BBTest();
-	println("\n\n",s,"B. Simplex Test ",s,"\n");   SimpTest();
-	println("\n\n",s,"C1. System Test ",s,"\n");    SysTest();
-	println("\n\n",s,"C2. System Test With Line Max",s,"\n");  LMSysTest();
-	println("\n\n",s,"D. Separable Test ",s,"\n"); SepTest();
-	println("\n\n",s,"E. Inequality Test ",s,"\n"); InEqTest();
-	println("\n\n",s,"F. Mixture Test ",s,"\n"); MixTest();
+    decl s = "***************** ";
+    decl k;
+    println("1. Explore\n2. Blackbox\n3. Simplex\n4. System\n5. Spearable\n6. Inequality\n7. Mixture");
+    do {
+       scan("Enter 0 to run all or a positive number to run a specific case, [-1]  QUIT\n?","%i",&k);
+	   if (k<Zero) break;
+       if(!k || k==1 ) {
+	       println("\n\n",s,"A. Explore Test ",s,"\n");    new Nothing(20);
+           }
+       if(!k || k==2 ) {
+	       println("\n\n",s,"A. Blackbox Test ",s,"\n");	BBTest();
+           }
+       if(!k || k==3 ) {
+	       println("\n\n",s,"B. Simplex Test ",s,"\n");   SimpTest();
+            }
+       if(!k || k==4 ) {
+        	println("\n\n",s,"C1. System Test ",s,"\n");    SysTest();
+            }
+       if(!k || k==5 ) {
+	       println("\n\n",s,"C2. System Test With Line Max",s,"\n");  LMSysTest();
+            }
+       if(!k || k==6 ) {
+	       println("\n\n",s,"D. Separable Test ",s,"\n"); SepTest();
+            }
+       if(!k || k==7 ) {
+	       println("\n\n",s,"E. Inequality Test ",s,"\n"); InEqTest();
+            }
+       if(!k || k==8 ) {
+	       println("\n\n",s,"F. Mixture Test ",s,"\n"); MixTest();
+	       }
+        if (!k) break;
+        } while (TRUE);
 	}
 
 Nothing::Nothing(Ncalls) {
@@ -41,7 +64,12 @@ BBTest() {
 	alg = new NelderMead(v);
 	alg.Volume = NOISY;
 	alg->Tune(0,0,10);
-	alg->Iterate(0);
+	alg->Iterate(0.1);
+    println("\n Trying to read from checkpoint");
+    alg->Iterate(UseCheckPoint);
+    decl k;
+    scan("Enter 0 to continue, [-1]  QUIT\n?","%i",&k);
+    if (k<0) return;
     delete alg;
     alg = new Newton(v);
 	alg.Volume = NOISY;
@@ -55,10 +83,12 @@ SysTest() {
 	decl v = new SystemTest (8),
 		 nr = new NewtonRaphson(v),
 		 br = new Broyden(v);
-	format(250);
 	v->ToggleParameterConstraint();
 	nr.Volume = br.Volume = NOISY;
 	br ->Iterate(0);
+    decl k;
+    scan("Enter 0 to continue, [-1]  QUIT\n?","%i",&k);
+    if (k<0) return;
 	nr ->Iterate(0);
 	delete v,nr,br;
 	}
@@ -67,7 +97,6 @@ LMSysTest() {
 	println("\n\n  System of Equation with Line Minimization ");
 	decl v = new SystemTest (1),
 		 br = new Broyden(v);
-	format(250);
 	v->ToggleParameterConstraint();
     br.USELM = TRUE;
 	br.LM.Volume = QUIET;
@@ -96,6 +125,9 @@ SepTest()	{
 	nm.Volume = bfgs.Volume = v.Volume = LOUD;
 	nm->Tune(0,0,40);
 	nm->Iterate(0);
+    decl k;
+    scan("Enter 0 to continue, [-1]  QUIT\n?","%i",&k);
+    if (k<0) return;
 	bfgs->Iterate(0);
 	delete v, nm, bfgs;
 	}

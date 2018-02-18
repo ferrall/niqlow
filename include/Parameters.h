@@ -1,5 +1,5 @@
 #import "Shared"
-/* This file is part of niqlow. Copyright (C) 2012-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2017 Christopher Ferrall */
 
 /** Value determined <em>exactly</em> by some other value, not chosen by optimization. **/
 struct Determined : Parameter	{
@@ -167,6 +167,7 @@ struct Simplex : ParameterBlock		{
 
 TransitionMatrix(L,inmat);
 
+
 /** Vector of <code>J</code> probabilities that sum to strictly less than 1.
 <dd><pre>
 x<sup>0</sup> = `Probability`
@@ -179,6 +180,11 @@ struct DecreasingReturns : ParameterBlock		{
 	DecreasingReturns(L,ivals);
 	virtual BlockCode();
 	}
+
+struct Ordered : ParameterBlock {
+	/** `AV` compatible, bound for first value. **/ decl B;
+    Ordered(L,B,ivals,sign);
+    }
 	
 /** Vector of parameters that are sequentially increasing.
 <dd><pre>
@@ -186,10 +192,10 @@ x<sup>0</sup> = `BoundedBelow`(LB) or `Free`()
 x<sup>j</sup> = `BoundedBelow`(x<sup>j-1</sup>)
 </pre></dd>
 **/
-struct Increasing : ParameterBlock	{
-	/** `AV` compatible, lower bound for first value.  Can be -.Inf. **/ decl LB;
+struct Increasing : Ordered	{
 	Increasing(L,LB,ivals);
 	}	
+
 
 /** Vector of parameters that are sequentially decreasing.
 <dd><pre>
@@ -197,8 +203,7 @@ x<sup>0</sup> = `BoundedAbove`(UB) or `Free`()
 x<sup>j</sup> = `BoundedAbove`(x<sup>j-1</sup>)
 </pre></dd>
 **/
-struct Decreasing : ParameterBlock	{
-	/** `AV` compatible, upper bound for first value.  Can be +.Inf. **/ 	decl UB;
+struct Decreasing : Ordered	{
 	Decreasing(L,UB,ivals);
 	}	
 	

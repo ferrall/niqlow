@@ -1,13 +1,14 @@
-include ..\Makefile.inc
+include ../Makefile.inc
 
 CC = mpicc
-INC := ..\..\include
+INC := ../../include
+INCX := ..\..\include
 DOC := ..\..\doc\CFMPI
 DOCX := ../../doc/CFMPI
 OXDEV := /home/ferrallc/bin/OxMetrics7/ox/include
-C64PATH=-L$(MPI)/lib -I$(MPI)/include -I$(INC) -I$(OXDEV)
-CFLAGS = -fPIC -Wall -O2  -m64 -D__cdecl= $(C64PATH) -lmpi -c
-SHFLAGS = -m64 -shared
+C64PATH= -I$(INC) -I$(OXDEV) -I$(OXDEV)/dev $(LIB_DIRS)
+CFLAGS = -fPIC -Wall -O2  -m64 $(C64PATH) -lmpi -c 
+SHFLAGS =  -shared 
 
 vpath %.ox $(INC)
 vpath %.c .
@@ -20,14 +21,15 @@ CFMPI.so : CFMPI.o
 	$(CC)  $(CFLAGS) $<
 
 %.so :
-	$(CC) $(SHFLAGS) -o $@ $^
+	$(CC) $(SHFLAGS) -o $@ $^ 
 	mv $@ $(INC)
 
 .PHONY : document
 document:
-	$(COPY)  $(INC)\CFMPI.ox .
-	$(COPY)  $(INC)\MPIinterface.ox .
-	$(COPY)  $(INC)\useMPI.ox .
+	$(COPY)  $(INCX)\CFMPI.ox .
+	$(COPY)  $(INCX)\MPIinterface.ox .
+	$(COPY)  $(INCX)\useMPI.ox .
 	$(OXDOC) -include $(INC) -uplevel CFMPI.ox MPIinterface.ox InstallAndUse MPI_FAQ GetStartedDIY
 	$(ERASE) CFMPI.ox MPIinterface.ox useMPI.ox
 	${MAKE} -C $(DOCX) tweak
+

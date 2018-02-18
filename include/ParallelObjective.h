@@ -5,14 +5,16 @@
 #include "UseMPI.ox"
 #endif
 
-ParallelObjective(obj,DONOTUSECLIENT=TRUE,NSubProblems=0,MaxSubReturn=0);
+ParallelObjective(obj,DONOTUSECLIENT=TRUE,NSubProblems=DoAll,MaxSubReturn=0);
 
 /** Client for parallel evaluation of objectives.
 **/
 struct ObjClient : Client {
     const decl
     /** Objective. **/ obj;
-    Distribute(X);
+    MultiParam(Fmat,aFvec,af);
+    SubProblems(F);
+//    Distribute(X);
     ObjClient(obj);
     Execute();
     }
@@ -24,7 +26,7 @@ struct ObjServer : Server {
     /** Objective. **/    obj;
     decl Nfree, Nstruct;
 	ObjServer(obj);
-    Loop(nxtmsgsz);
+    virtual Loop(nxtmsgsz,calledby="not set");
 	virtual Execute();
 	}
 

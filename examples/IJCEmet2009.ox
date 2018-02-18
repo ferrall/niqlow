@@ -12,8 +12,8 @@ Kapital::Kapital(L,const N,const entrant,const exit,const KP){
 	upper = log(actual~.Inf);
 	}
 	
-Kapital::Transit(FeasA) {
-	decl ent =CV(entrant), stayout = FeasA[][exit.pos], tprob, sigu = CV(KP[SigU]);
+Kapital::Transit() {
+	decl ent =CV(entrant), stayout = CV(exit), tprob, sigu = CV(KP[SigU]);
 	if (!v && !ent) return { <0>, ones(stayout) };
 	tprob = ent ? probn( (upper-CV(KP[Kbe]))/sigu )
 	           : probn( (upper-(CV(KP[Kb0])+CV(KP[Kb2])*upper[v])) / sigu );
@@ -48,7 +48,7 @@ FirmEntry::GenerateSample() {
 	Volume = LOUD;
 	EM = new ValueIteration(0);
 //	EM -> Solve(0,0);
-	data = new DataSet(0,EM);
+	data = new OutcomeDataSet(0,EM);
 	data->Simulate(DataN,DataT,0,FALSE);
 	data->Print("firmentry.xls");
 	BDP = new ImaiJainChing("FMH",data,EM,ecost,sige,kcoef,KP,delta); 	

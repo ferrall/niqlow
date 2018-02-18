@@ -16,17 +16,21 @@
 #include <oxfloat.oxh>
 #include <oxprob.oxh>
 #include <oxdraw.oxh>
-/* This file is part of niqlow. Copyright (C) 2012-2016 Christopher Ferrall */
 
-	/** Pseudonyms for -1. @name Names_for_-1 **/
-enum {UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,DoAll=-1,NoMatch=-1,AllFixed=-1,AllRand=-1,UseSubSample=-1,ResetValue=-1,IterationFailed=-1}
-    /** Used in tracking outcomes. @name NiD **/
-enum { NotInData=-2,TrackAll=-3 }
+//	extern "CFcurl,fget"   			curl_get(url,file);
 
-	/** Pseudonyms for 0,1,2. @name Names_for_012 **/
-enum {Zero,One,Two}
+/* This file is part of niqlow. Copyright (C) 2012-2017 Christopher Ferrall */
 
-	/** Levels of output to produce while executing. @name NoiseLevels **/	
+	/** Pseudonyms for -1, -2, &hellip, 2 . @name Names_for_Integers **/
+enum {CondProbOne=1,UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,
+      DoAll=-1,NoMatch=-1,AllFixed=-1,AllRand=-1,UseSubSample=-1,ResetValue=-1,
+      IterationFailed=-1, NotInData=-2, UseCurrent=-2, TrackAll=-3,
+      UseGradient=-1, UseCheckPoint = -2,
+      Zero = 0, One, Two,
+      abbrevsz = 4  //standard size of abbreviated strings
+      }
+
+/** Levels of output to produce while executing. @name NoiseLevels **/	
 enum {SILENT=-1,QUIET,LOUD,NOISY,NoiseLevels}
     /** x,y,z dimensions for graphs @name Axes**/
 enum{xax,yax,zax,Naxes}
@@ -35,16 +39,14 @@ enum{lo,hi,Limits}
     /** Modes of Execution when executing in parallel. See `BaseTag`
          <DD>MultiParamVectors: Sending different parameter vectors to nodes to compute
             overall objective.</DD>
-         <DD>SubProblems: Sending a single parameter vector to nodes to solve
+         <DD>OneVector: Sending a single parameter vector to nodes to solve
             separate sub-problems which will be aggregated by the Client.
             This involves `Objective::vfunc`().</DD>
         @name ParallelExecutionModes **/
-    enum{MultiParamVectors,SubProblems,ParallelModes}
+    enum{MultiParamVectors,OneVector,ParallelModes}
     static const decl
         /** Base tags for parallel messaging.**/    BaseTag = <One,1000>;
 
-//		/** Output tags for reservation value utility functions. @name EUvalues **/	
-//enum {EUstar,Fstar,EUvalues}
 		/** Code for solutions to Optimization and Non-Linear System solving.	
             @name ConvergenceResults
         **/	
@@ -55,16 +57,20 @@ enum {stayinf,gotonextf,exittreatment,NextTreatmentStates}
 		/** Tags for Types of Constraints. @name ConstraintTypes **/	
 enum{EQUALITY,INEQUALITY,ConstraintTypes}
 
-		/** Tags for Types of vector-valued objective Aggregation. @name AggregatorTypes **/	
+		/** Tags for Types of vector-valued objective Aggregation.
+            @name AggregatorTypes **/	
 enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,Aggregators}
 
 static const decl
+        curdir = ".",
 		mymomlabels = {"sample size","mean","st.dev.","min","max"},
 		/** square-root of machine &epsilon; **/ SQRT_EPS 	=	1E-8,
 		/** tolerance level 0. **/                DIFF_EPS 	=	1E-8,
 		/** tolerance level 1.**/                 DIFF_EPS1	=	5E-6,
 		/** tolerance level 2.**/                 DIFF_EPS2	=	1E-4;
 
+/** Used in CV() and AV(). static to reduce overhead. @internal **/
+static decl _arg, _noarg, _x, _v;
 	CV(X,...);
 	AV(X,...);
 	ReverseState(Ind,O);
@@ -75,6 +81,7 @@ static const decl
 	vararray(s);
 	MyMoments(M,rlabels=0,oxf=0);
 	prefix(pfx, s);
+    abbrev(s);
 	GaussianKernel(X,h=UseDefault);
     Epanechnikov(X,h);
     FLogit(x);
@@ -229,14 +236,15 @@ struct GHK   : Integration {
 /** Checks minimum Ox version and prints copyright info. **/
 class Version : Zauxiliary {
 	/** Minimum Ox Version required. @name Oxversion **/
-	enum {MinOxVersion=709} //700
-	/** Current niqlow version. @name niqlowversion **/
+	enum {MinOxVersion=719} //709 700
+
 	static decl checked;
 
 public: 	
-    static const decl version=270;
-    static decl logdir, tmstmp;
-	static Check(logdir="");
+    static const decl
+    	/** Current niqlow version. @name niqlowversion **/ version=310;
+    static decl logdir, tmstmp, MPIserver=FALSE;
+	static Check(logdir=curdir);
 
 	}
 
@@ -280,7 +288,9 @@ Algorithms use a point to store temporary values.
 **/
 struct Point : Zauxiliary {
 	decl
-									AggType,
+	/**form of aggregation of vfunc() into
+        func().    @see Objective::SetAggregation
+        **/								AggType,
 	/** Free vector. **/				F,
 	/** Parameter vector.**/			X,
 	/** object vector. **/				V,
@@ -331,7 +341,7 @@ struct CPoint : Point {
 	virtual Copy(h);
 	}
 		
-class CGI {
+class CGI  {
     static const decl keys ={
         "AUTH_TYPE",
         "CONTENT_LENGTH",

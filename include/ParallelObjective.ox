@@ -1,9 +1,12 @@
 /** Client and Server classes for parallel optimization using CFMPI.**/
 #include "ParallelObjective.h"
 
+
 /** Set up MPI Client-Server support for objective optimization.
 @param obj `Objective' to parallelize
 @param DONOTUSECLIENT TRUE (default): client node does no object evaluation<br>FALSE after putting servers to work Client node does one evaluation.
+@param NSubProblems integer, number of subproblems that can be done simultaneously.
+@param MaxSubReturn integer, longest vector returned by a subproblem
 **/
 ParallelObjective(obj,DONOTUSECLIENT,NSubProblems,MaxSubReturn) {
 	if (isclass(obj.p2p)) {oxwarning("CFMPI Warning 01.\n"+" P2P object already exists for "+obj.L+". Nothing changed.\n"); return;}
@@ -18,11 +21,28 @@ ObjClient::ObjClient(obj) {  this.obj = obj; }
 
 ObjClient::Execute() {    }
 
-ObjClient::Distribute(F) {
-    decl subV=zeros(MaxSubReturn,NSubProblems);
-    ToDoList(NSubProblems,F,&subV,MaxSubReturn,SubProblems);
-    return subV;
+ObjClient::MultiParam(Fmat,aFvec,af) {
+    ToDoList(MultiParamVectors,Fmat,aFvec,obj.NvfuncTerms,MultiParamVectors);
+    decl j;
+    for (j=0; j<columns(aFvec[0]); ++j) {
+		obj.cur.V = aFvec[0][][j];
+		obj.cur -> aggregate();
+		af[0][j] = obj.cur.v;
+		}
     }
+
+ObjClient::SubProblems(F) {
+    if (NSubProblems>Zero) {
+        decl subV=zeros(MaxSubReturn,NSubProblems);
+        ToDoList(NSubProblems,F,&subV,MaxSubReturn,OneVector);
+        obj.cur.V[] = obj->AggSubProbMat(subV);
+        }
+    else
+    	obj.cur.V[] =  obj->vfunc();
+    }
+
+
+//ObjClient::Distribute(F) {    return subV;    }
 
 ObjServer::ObjServer(obj) {	
     this.obj = obj;	
@@ -33,10 +53,10 @@ ObjServer::ObjServer(obj) {
 
 /** Wait on the objective client.
 **/
-ObjServer::Loop(nxtmsgsz) {
+ObjServer::Loop(nxtmsgsz,calledby) {
     Nfree = nxtmsgsz;   //current free param length sent from algorithm
     if (Volume>QUIET) println("ObjServer server ",ID," Nfree= ",Nfree);
-    Server::Loop(Nfree);
+    Server::Loop(Nfree,calledby);
     Recv(ANY_TAG);                      //receive the ending parameter vector
     obj->Encode(Buffer[:Nstruct-1]);   //encode it.
     }
@@ -49,8 +69,8 @@ Call `Objective::vfunc`().
 ObjServer::Execute() {
 	obj->Decode(Buffer[:obj.nfree-1]);
     if (Volume>QUIET) println("Server Executive: ",ID," vfunc[0]= ",Buffer[:min(9,obj.nfree-1)]);
-    if (Tag>=BaseTag[SubProblems]) {
-        Buffer = obj->vfunc(Tag-BaseTag[SubProblems]);
+    if (Tag>=BaseTag[OneVector]) {
+        Buffer = obj->vfunc(Tag-BaseTag[OneVector]);
         }
     else {
 	   Buffer = obj.cur.V[] = obj->vfunc();

@@ -1,11 +1,11 @@
 #include "RustEmet1987.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 /** The one period return.
 <dd><pre>U = dRC+(1-d)&theta;<sub>1</sub>mx + n</pre></dd>
 **/
 Zurcher::Utility()  {
-	decl rep = Alpha::CV(d);
+	decl rep = CV(d);
 	return   -(rep*rc + (1-rep)*th1*mfact*CV(x))
 			 +normalization;	// added to avoid exp() underflow for delta near 1.0
 	}

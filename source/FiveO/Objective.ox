@@ -1,5 +1,5 @@
 #include "Objective.h"
-/* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 /** Checks the version number you send with the current version of niqlow.
 @param v integer [default=200]
@@ -34,7 +34,6 @@ Objective::Objective(L)	{
     RunSafe = TRUE;
     lognm = replace(Version::logdir+"Obj-"+classname(this)+"-"+L+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"aV");
-    fprintln(logf,"Created");
 	cur = new Point();
 	hold = maxpt = NvfuncTerms  = UnInitialized;
 	FinX = <>;
@@ -102,7 +101,6 @@ Objective::Menu() {
 Objective::Save(fname)	{
 	decl f;
 	if (isint(fname)) fname = this.fname;
-	format(500);
 	f = fopen(fname+"."+EXT,"w");
 	if (!isfile(f)) println("File name:",fname+"."+EXT);
 	fprint(f,"%v",classname(this),"\n","%v",L,"\n","%v",cur.v,"\n");
@@ -132,7 +130,7 @@ Objective::Load(fname)	{
 	if (inL!=L) oxwarning("FiveO Warning 08.\n Object Label in "+fname+" is "+inL+", which is not the same as "+L+"\n");
 	maxpt.v = cur.v = inO;
     this->CheckPoint(f,FALSE);
-	if (Volume>SILENT) {
+	if (!Version::MPIserver && Volume>SILENT) {
         println("Initial objective: ",cur.v);
         fprintln(logf,"Parameters loaded from ",fname,". # of values read: ",n,". Initial objective: ",cur.v);
 		fprint(logf,"%r",PsiL,cur.X);
@@ -140,6 +138,9 @@ Objective::Load(fname)	{
 	return TRUE;
 	}
 
+/** Set the formula .
+@see AggregatorTypes
+**/
 Objective::	SetAggregation(AggType) {
 	hold.AggType = cur.AggType = AggType;
 	}	
@@ -177,17 +178,18 @@ Constrained::CheckPoint(f,saving)	{
 **/
 Objective::CheckMax(fn)	{
     newmax = cur.v>maxpt.v;
-    if (Volume>QUIET) {
-        fprint(logf,cur.v,newmax ? "*" : " \n");
-		 if (Volume>LOUD) { print(" ","%15.8f",cur.v); if (isfile(fn)) fprint(fn," ","%15.8f",cur.v); }
+    decl suffx = newmax ? "*" : " ";
+    if (Volume>SILENT) {
+        fprintln(logf,suffx);
+		if (Volume>QUIET) {
+            println(" ","%15.8f",cur.v,suffx);
+            if (isfile(fn)) fprintln(fn," ","%15.8f",cur.v,suffx);
+            }
+        else if (newmax) println(" ","%15.8f",cur.v,suffx);
         }
 	if (newmax)	{
 		this->Save(0);
 		maxpt -> Copy(cur);
-		if (Volume>QUIET) {
-			if (Volume<=LOUD) print(" ","%18.12f",maxpt.v);
-			println("*"); if (isfile(fn)) fprintln(fn,"*");
-			}
 		}
 	return newmax;
 	}
@@ -196,18 +198,16 @@ Objective::CheckMax(fn)	{
 /** Prints a message and details about the objective.
 @param orig string, origin of the print call
 @param fn integer, no print to file.<br>file, prints to file as well as screen
-@param toscreen TRUE: print to screen as well
+@param toscreen TRUE: print full report to screen as well</br>FALSE: only print orig to screen
 **/
 Objective::Print(orig,fn,toscreen){
-	decl b =sprint("\n\nReport of ",orig," on ",L,"\n",
-		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
-		"Free Parameters",
-		"%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},
-		FinX~cur.F,
-		"Actual Parameters",
-		"%c",{           "     Value "},"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
-    if (isfile(fn)) {fprintln(fn,b); fflush(logf);}
-    if (toscreen) println(b);
+	decl note =sprint("\n\nReport of ",orig," on ",L,"\n"),
+         details = sprint("%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
+		          "Free Parameters",
+		          "%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~cur.F,
+		          "Actual Parameters","%c",{           "     Value "},"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
+    if (isfile(fn)) {fprintln(fn,note,details); }
+    println(note, toscreen ? details : "");
 	}
 
 UnConstrained::UnConstrained(L) {
@@ -273,8 +273,8 @@ Objective::ToggleParameterConstraint()	{
 /** Decode a vector of free variables.
 Converts an optimized parameter vector into the structural parameter vector.  Ensure that each parameter and
 each parameter block current value is updated.
-@param F, nfree x 1 vector of optimized parameters.<br>0 [default], use this.F for decode
-@return X, the structural parameter vector.
+@param F, nfree x 1 vector of optimized parameters.<br>0 [default], use cur.F for decode
+
 **/
 Objective::Decode(F)	{
 	decl k,m;
@@ -388,29 +388,23 @@ The maximum value is also computed and checked.
 @returns J, the number of function evaluations
 **/
 Objective::funclist(Fmat,aFvec,afvec,abest)	{
-	decl j,J=columns(Fmat),best, f=zeros(J,1), fj;
+    decl best, J=columns(Fmat), f=constant(.NaN,J,1);
 	if (Volume>SILENT) fprintln(logf,"funclist ",columns(Fmat));
-	if (isclass(p2p))  {          //CFMPI has been initialized
-		p2p.client->ToDoList(0,Fmat,aFvec,NvfuncTerms,MultiParamVectors);
-		for(j=0;j<J;++j) {
-			cur.V = aFvec[0][][j];
-			cur -> aggregate();
-			f[j] = cur.v;
-			}
-		}
+	if (isclass(p2p))  //CFMPI has been initialized
+        p2p.client->MultiParam(Fmat,aFvec,&f);
 	else{
-//Leak	foreach (fj in Fmat[][j]) {
-  for (j=0;j<columns(Fmat);++j) { fj = Fmat[][j];  //Leak
-			vobj(fj);
-			aFvec[0][][j] = cur.V;
-			cur -> aggregate();
-			f[j] = cur.v;
-			}
+	    decl j,fj;
+        foreach (fj in Fmat[][j]) {
+		  vobj(fj);
+		  aFvec[0][][j] = cur.V;
+		  cur -> aggregate();
+		  f[j] = cur.v;
+		  }
         }
     best = int(maxcindex(f));
     if (best<0) best = int(mincindex(f));  //added Oct. 2016 so that -.Inf is not treated as .NaN
 	if (Volume>SILENT) fprintln(logf,"funclist finshed ",best, best>=0 ? f[best] : .NaN);
-	if ( ( best < 0) ) {
+	if ( best < 0 ) {
         println("**** Matrix of Parameters ",Fmat,"Objective Value: ",f',"\n****");
         if (RunSafe) oxrunerror("FiveO Error 33. undefined max over function evaluation list");
         oxwarning("FiveO Warning ??. undefined max over function evaluation list");
@@ -453,15 +447,23 @@ Constrained::funclist(Fmat,jake) {
 @param F vector of free parameters.
 **/
 Objective::fobj(F)	{
-	this->vobj(F);
-	cur->aggregate();
-    if (Volume>SILENT) {
-        fprint(logf,"fobj = ",cur.v);
-        if (Volume>QUIET) println("fobj = ",cur.v);
+    if (Version::MPIserver)  // I am a server but standalone objective has been called
+       p2p.server->Loop(rows(cur.F),"fobj");
+    else {
+	   this->vobj(F);
+	   cur->aggregate();
+        if (Volume>SILENT) {
+            fprint(logf,"fobj = ",cur.v);
+            if (Volume>QUIET) println("fobj = ",cur.v);
+            }
+       if (isclass(p2p)) {
+            p2p.client->Stop();
+            p2p.client->Announce(cur.X);
+	       }
         }
-	}
+    }
 
-Objective::Combine(outmat) {
+Objective::AggSubProbMat(submat) {
     oxwarning("FiveO Warning: Running default Objective in parallel mode SubProblems. ");
     return vfunc();
     }
@@ -472,8 +474,8 @@ Objective::Combine(outmat) {
 Objective::vobj(F)	{
 	Decode(F);
     if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
-    if (isclass(p2p)&& p2p.client.NSubProblems)
-        cur.V[] = this->Combine( p2p.client->Distribute(F) );
+    if (isclass(p2p))  // now servers are in loop if fobj() was called.
+        p2p.client->SubProblems(cur.F);  // argument was F, but needs to be a vector; might not be
     else
 	    cur.V[] =  vfunc();
     if (Volume>QUIET) {
@@ -532,16 +534,22 @@ Objective::Jacobian() {
 	}
 	
 /** Compute the &nabla;f(), objective's gradient at the current vector.
-
 <DT>Compute</DT>
-<pre><var>&nabla; f(&psi;)</var></pre>
-
+$$\nabla f(\psi)$$
 Stored in <code>cur.G</code>
 **/
 Objective::Gradient() {
-	this->Jacobian();
-	cur.G = sumc(cur.J);
-    if (Volume>QUIET) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
+    if (Version::MPIserver)
+       p2p.server->Loop(rows(cur.F),"gradient"); //Gradient won't get called if already in loop
+    else {
+	   this->Jacobian();
+	   cur.G = sumc(cur.J);
+       if (Volume>QUIET) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
+       if (isclass(p2p)) {
+            p2p.client->Stop();
+            p2p.client->Announce(cur.X);
+	       }
+        }
 	}
 
 /** Compute the &nabla;f(), objective's gradient at the current vector.
@@ -567,13 +575,16 @@ Constrained::Gradient() {
 @return <var>Hg(&psi;)</var> in cur.H
 **/
 Objective::Hessian() {
-    decl h, GradMat, ptmatrix,gg,i,j,and,ind,jnd,b;
-	Decode(0);					
-	hold -> Copy(cur);	
-	h = dFiniteDiff1(cur.F);
-	ptmatrix = ( cur.F~(cur.F+2*diag(h))~(cur.F-2*diag(h)) );
-    and = range(0,nfree-1,1)';
-    for (i=0;i<nfree-1;++i) {
+    if (Version::MPIserver)
+       p2p.server->Loop(rows(cur.F),"hessian"); //Hessian won't get called if already in iteration loop
+    else {
+       decl h, GradMat, ptmatrix,gg,i,j,and,ind,jnd,b;
+	   Decode(0);					
+	   hold -> Copy(cur);	
+	   h = dFiniteDiff1(cur.F);
+	   ptmatrix = ( cur.F~(cur.F+2*diag(h))~(cur.F-2*diag(h)) );
+       and = range(0,nfree-1,1)';
+       for (i=0;i<nfree-1;++i) {
             ind = h.*(and.==i);
             jnd = h.*(and.==and[i+1:]');
             ptmatrix ~= cur.F + ind   + jnd
@@ -581,16 +592,21 @@ Objective::Hessian() {
                        ~cur.F + ind   - jnd
                        ~cur.F - ind   - jnd ;
             }
-	GradMat = zeros(NvfuncTerms,columns(ptmatrix));
-	Objective::funclist(ptmatrix,&GradMat,&gg);
-	cur -> Copy(hold);
-	Decode(0);
-	cur.H = diag( (gg[1:nfree] - 2*gg[0] + gg[nfree+1:2*nfree])./(4*sqr(h')) );
-    b = 2*nfree+1;
-    for (i=0;i<nfree-1;++i) {
+	   GradMat = zeros(NvfuncTerms,columns(ptmatrix));
+	   Objective::funclist(ptmatrix,&GradMat,&gg);
+	   cur -> Copy(hold);
+	   Decode(0);
+	   cur.H = diag( (gg[1:nfree] - 2*gg[0] + gg[nfree+1:2*nfree])./(4*sqr(h')) );
+       b = 2*nfree+1;
+       for (i=0;i<nfree-1;++i) {
             cur.H[i][i+1:] = cur.H[i+1:][i] = (gg[b]-gg[b+1]-gg[b+2]+gg[b+3])./(4*h[i]*h[i+1:]);
             b += 4*(nfree-i-1);
             }
+       if (isclass(p2p)) {
+            p2p.client->Stop();
+            p2p.client->Announce(cur.X);
+	       }
+       }
 	}
 
 /** Compute the Jg(), vector version of the Lagrangian's Jacobian at the current vector.

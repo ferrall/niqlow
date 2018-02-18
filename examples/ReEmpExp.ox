@@ -4,7 +4,7 @@
 /** Simple replacement ratio UI benefits.
 @return 0 if ineligible<br>previous_wage &times; replacement_ratio  otherwise.
 **/
-UIJob::Benefits(FeasA) {
+UIJob::Benefits() {
 	decl st = AV(status);
 	if (st==Quit||st==Emp || !CV(dur)) return 0.0;
 	return rrate*(st==LaidOff ? CV(offer) : CV(prevw));
@@ -25,9 +25,9 @@ UIJob::UIJob(N,const accept,const phi,const lambda) {
 
 /** Append duration and previous wage states to base transition.
 **/
-UIJob::Transit(FeasA) {
+UIJob::Transit() {
 	decl f,p,app,nf, dv = AV(dur), ov = AV(offer);
-	[f,p] = OfferWithLayoff::Transit(FeasA);
+	[f,p] = OfferWithLayoff::Transit();
 	nf = columns(f);
 	switch_single(AV(status)) {
 		case Quit: 		app = (0|0);  //ineligible
@@ -45,13 +45,13 @@ ReEmpBonExp::ReEmpBonExp(){
 	PhasedTreatment(fR);
 	}
 
-ReEmpBonExp::Transit(FeasA){
-	decl nA = rows(FeasA), f = phase[AV(t)], r = ftime[AV(t)];
+ReEmpBonExp::Transit(){
+	decl f = phase[AV(t)], r = ftime[AV(t)];
 	switch(f-1) {
 		case -1 :
-		case Nphases: 		return { 0|0 , ones(nA,1) }; break;	//real phases last forever
-		case Qualifying: 	return {  0   , ones(nA,1) }; break; //bump r if working until max, otherwise Nphases
-		case Working: 		return {  0   , ones(nA,1) }; break; //transit for real
+		case Nphases: 		return { 0|0 , CondProbOne }; break;	//real phases last forever
+		case Qualifying: 	return {  0   , CondProbOne }; break; //bump r if working until max, otherwise Nphases
+		case Working: 		return {  0   , CondProbOne }; break; //transit for real
 		}
 	}
 
@@ -63,7 +63,7 @@ UISearch::Reachable()	{
 	return TRUE;
 	}
 
-UISearch::OfferProb(FeasA) {	return FeasA[][x.pos] * 0.1; }
+UISearch::OfferProb() {	return CV(x) * 0.1; }
 	
 UISearch::Run()	{
 	EVExPost::Initialize(1.0,new UISearch());
@@ -79,6 +79,6 @@ UISearch::Run()	{
 
 /**  **/	
 UISearch::Utility() {
-	decl acc = Alpha::CV(a);
+	decl acc = CV(a);
 	return  acc*CV(j.offer) + (1-acc)*(c + j->Benefits()) + trtmnt->Bonus();
 	}

@@ -7,7 +7,7 @@ struct DerivedSearch : Search {
 	static Run();
 	}
 
-struct SearchData : DataSet {
+struct SearchData : OutcomeDataSet {
 	enum{N=15,MaxOb=20}
     SearchData();
     }
@@ -16,7 +16,7 @@ DerivedSearch::Run()	{
 	Search::Run();
 	AuxiliaryOutcomes(
         u = new RealizedUtility(),
-        dd = new StateIndicators(p)
+        dd = Indicators(p)
         );
     simdata = new SearchData();
     decl pd = new PathPrediction();
@@ -26,7 +26,7 @@ DerivedSearch::Run()	{
 	}
 
 SearchData::SearchData() {
-	DataSet("Search Data");   //don't re-solve
+	OutcomeDataSet("Search Data");   //don't re-solve
     Volume=LOUD;
 	Simulate(N,MaxOb,zeros(N::All),TRUE); //TRUE censors terminal states
 	Print(1);

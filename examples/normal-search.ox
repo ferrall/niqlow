@@ -26,5 +26,5 @@ Search::Init() {
 
 Search::Utility() {
 	decl u;
-	return (1-CV(done))*Alpha::CV(i)*mnoffer ;
+	return (1-CV(done))*CV(i)*mnoffer ;
 	}

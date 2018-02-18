@@ -11,11 +11,11 @@ MUnit is the unit of money (dollars) in the model.
 struct UIJob : OfferWithLayoff {
 	static 	const	decl rrate = RepRate/100.0;
 			const	decl dur, prevw, ins;
-	static 	BenWks(FeasA);
-	static 	Eligible(FeasA);
-			Benefits(FeasA);
+	static 	BenWks();
+	static 	Eligible();
+			Benefits();
 			UIJob(N,const accept,const phi,const lambda);
-	Transit(FeasA);
+	Transit(); //TTT
 	}
 
 /** The design of the Illinois Re-Employment Insurance Experiment. **/
@@ -27,7 +27,7 @@ struct ReEmpBonExp : PhasedTreatment {
 	/** Max Phase Lengths **/
 	static const decl fR = <16,12,1>;
 	ReEmpBonExp();
-	Transit(FeasA);
+	Transit(); //TTT
 	Bonus();
 	}
 	
@@ -40,7 +40,7 @@ struct UISearch : EVExPost {
 		/** active search **/           x,
 		/** insured job process **/     j;
 	Reachable();
-	static OfferProb(FeasA);
+	static OfferProb();
 	static Run();
 	Utility();
 	}

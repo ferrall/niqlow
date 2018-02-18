@@ -1,5 +1,5 @@
 #include "DynamicWStar.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 DynWStar::Reachable()	{    return (CV(m)||!CV(keptz));    }
 DynWStar::DynWStar()    { zstar = zeros(N::R,1); }

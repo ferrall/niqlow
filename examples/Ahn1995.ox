@@ -25,7 +25,7 @@ Ahn::Utility()  {
         }
     else v = 0.0;
 
-	decl u = (Y[I::t] + v + Alpha::CV(d)*ExpValAtBirth);
+	decl u = (Y[I::t] + v + CV(d)*ExpValAtBirth);
 
 	//println(I::t," ",nc," ",CV(nb)," ",v," ",double(maxc(u)));
 

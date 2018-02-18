@@ -1,5 +1,5 @@
 #include "Clock.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 /** . @internal **/
 TimeVariable::TimeVariable(L,N) { Coevolving(L,N); }
@@ -60,7 +60,7 @@ Stationary::Stationary(IsErgodic) {	Clock(1,1);	this.IsErgodic = IsErgodic;}
 
 /** The baseline transition for stationary clocks (<code>t=t&prime;=0</code> always).
 @internal **/
-Stationary::Transit(FeasA) {	return { 0|0 , ones(rows(FeasA),1) } ;	}
+Stationary::Transit() {	return { 0|0 , CondProbOne } ;	}
 
 /** No period is the last period in a stationary environment.
 @return FALSE **/
@@ -68,8 +68,8 @@ Stationary::Last() { return FALSE; }
 
 
 /** The baseline transition for non-stationary models (normal aging). **/
-NonStationary::Transit(FeasA) {	
-    return { min(t.N-1,t.v+1)|0 , ones(rows(FeasA),1) } ;	
+NonStationary::Transit() {	
+    return { min(t.N-1,t.v+1)|0 , CondProbOne } ;	
     }
 
 /** Check newly computed values; an alternative to computing norm of value function differences.
@@ -116,9 +116,9 @@ Divided::Last() {
 
 /** Transition for sub-divided time.
 **/
-Divided::Transit(FeasA) {
-    if (MajT) return NonStationary::Transit(FeasA);
-    return { (t.v==N-1 ? HasInit : t.v+1) | 0 , ones(rows(FeasA),1) };
+Divided::Transit() {
+    if (MajT) return NonStationary::Transit();
+    return { (t.v==N-1 ? HasInit : t.v+1) | 0 , CondProbOne };
     }
 
 Divided::Vupdate() {
@@ -243,10 +243,10 @@ AgeBrackets::AgeBrackets(Brackets){
 	}
 
 /** . @internal **/
-AgeBrackets::Transit(FeasA)	 {
+AgeBrackets::Transit()	 {
 	 decl nxt =	range(t.v,min(t.v+1,t.N-1)),
 	 	  nxtpr = nxt.>t.v;   // 1 if ordinary transition, 0 if stay at t
-	 return  { nxt|nxtpr , reshape(TransMatrix[t.v],rows(FeasA),columns(nxt)) };
+	 return  { nxt|nxtpr , reshape(TransMatrix[t.v],Alpha::N,columns(nxt)) };
 	 }
 
 /** Return flag for very last period possible.
@@ -268,16 +268,15 @@ Mortality::Mortality(T,MortProb) {
 	}
 
 /** . @internal **/
-Mortality::Transit(FeasA) {
-	decl nr = rows(FeasA);
+Mortality::Transit() {
     if (t.v==Tstar)
-		return { Tstar | 1,	ones(nr,1) };
+		return { Tstar | 1,	CondProbOne };
     else {
         mp = AV(MortProb);
 	    if ( mp > 0.0) 			// early death possible
-            return { (t.v+1 ~ Tstar) | (1~0) , reshape((1-mp)~mp,nr,2) };
+            return { (t.v+1 ~ Tstar) | (1~0) , reshape((1-mp)~mp,Alpha::N,2) };
 	   else //just age
-	        return { t.v+1 | 1 , ones(nr,1) };
+	        return { t.v+1 | 1 , CondProbOne };
        }
 	}
 
@@ -304,19 +303,18 @@ Longevity::Longevity(T,MortProb) {
 	}
 
 /** . @internal **/
-Longevity::Transit(FeasA) {
-	decl nr = rows(FeasA);
+Longevity::Transit() {
     if (t.v==Tstar)
-		return { Tstar | 1,	ones(nr,1) };
+		return { Tstar | 1,	CondProbOne };
     else {
         mp = AV(MortProb);
         if (t.v==twilight)
-            return (mp>0.0) ?  { (twilight ~ Tstar) | (0~1) , reshape((1-mp)~mp,nr,2)}
-                            :  { twilight | 0               , ones(nr,1) };
+            return (mp>0.0) ?  { (twilight ~ Tstar) | (0~1) , reshape((1-mp)~mp,Alpha::N,2)}
+                            :  { twilight | 0               , CondProbOne };
         else {
             decl tnext = t.v+1;
-            return (mp>0.0) ? { (tnext ~ Tstar) | (1~0) , reshape((1-mp)~mp,nr,2)}
-                            : { tnext | 1               , ones(nr,1)             };
+            return (mp>0.0) ? { (tnext ~ Tstar) | (1~0) , reshape((1-mp)~mp,Alpha::N,2)}
+                            : { tnext | 1               , CondProbOne             };
             }
         }
 	}
@@ -364,15 +362,14 @@ PhasedTreatment::PhasedTreatment(Rmaxes,IsErgodic)	{
 
 /**The default transition for treatment.  All phases are deterministic.  No early transitions.
 The transition must be one of three values.
-@param FeasA
 **/
-PhasedTreatment::Transit(FeasA) 	{
+PhasedTreatment::Transit() 	{
     if (!phase[I::t] || phase[I::t]==MaxF) return ;
 	decl notendoftrtmnt = I::t<t.N-1,
 	nxtpr = (time[I::t]< Rmaxes[phase[I::t]]-1) 	? stayinf
 				: notendoftrtmnt					? gotonextf
 				: exittreatment;
-	return { matrix(nxtpr) , ones(rows(FeasA),1) };
+	return { matrix(nxtpr) , CondProbOne };
 	}
 
 PhasedTreatment::Vupdate() {

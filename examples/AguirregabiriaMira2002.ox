@@ -1,5 +1,5 @@
 #include "AguirregabiriaMira2002.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 	
 AMZurcher::Run()  {
     Initialize(new AMZurcher());
@@ -32,7 +32,7 @@ ZPanel::ZPanel(params,const ivals) {
     for(k=0;k<AMNX-1;++k)  //convert odometer reading into category.
 		bus[][xc] = miles.>=binsz*k .&& miles.<binsz*(k+1) .? k .: bus[][xc];
     savemat("am2002.dta",bus,{"ID",AMZurcher::x.L,AMZurcher::d.L});
-	DataSet(0,EM,TRUE);
+	OutcomeDataSet(0,EM,TRUE);
     //	Simulate(MCSampleSize,PanelLength,0,0);
     //  Print("am2002.dta");
     IDColumn("ID");
@@ -54,6 +54,6 @@ ZPanel::BruteForce() {
 	}
 	
 AMZurcher::Utility()  {
-	decl i = Alpha::CV(d);
+	decl i = CV(d);
     return -(i*CV(rc) + (1-i)*CV(th1)*mfact*x.v) +normalization;
 	}

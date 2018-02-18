@@ -1,5 +1,5 @@
 #import "DDP"
-/* This file is part of niqlow. Copyright (C) 2015-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2015-2017 Christopher Ferrall */
 
 class BobsChoiceC : Bellman {
         static const decl Uv =  < -20; -18;  4.2; -0.6;  1.5;  3.2; -25; -0.5>;
@@ -27,8 +27,8 @@ BobsChoiceC::Decide() {
     }
 
 BobsChoiceC::FeasibleActions() {       //Added
-    if (CV(Yacc)==1) return ones(Alpha::NFA,1);
-    return Alpha::CV(sch).!=1;
+    if (CV(Yacc)==1) return ones(Alpha::N,1);
+    return CV(sch).!=1;
     }
 
 BobsChoiceC::Utility() {

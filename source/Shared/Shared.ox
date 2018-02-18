@@ -1,8 +1,8 @@
 #include "Shared.h"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 /** Check versions and set timestamp, log directory.
-@param logdir str (default="").  A directory path or file prefix to attach to all log files.
+@param logdir str (default=".").  A directory path or file prefix to attach to all log files.
 All log files will receive the same time stamp, which is set here.
 @comments
  Only the first call does anything.  Any subsequent calls return immediately.
@@ -11,11 +11,21 @@ Version::Check(logdir) {
  if (checked)  return ;
  if (oxversion()<MinOxVersion) oxrunerror("niqlow Error 00. This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
  checked = TRUE;
+ format(1024);
  oxprintlevel(1);
- this.logdir = logdir;
+ if (logdir!=curdir) {
+    decl hdir = getcwd(), chk = chdir(logdir);
+    if (!chk) {
+        oxwarning("Attempting to create log file directory: "+logdir);
+        systemcall("mkdir "+logdir);
+        }
+    chdir(hdir);
+    }
+ this.logdir = logdir+"/";
  tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
- println("\n niqlow version ",sprint("%4.2f",version/100),
-    "Copyright (C) 2011-2016 Christopher Ferrall.\n",
+ if (!Version::MPIserver)
+    println("\n niqlow version ",sprint("%4.2f",version/100),
+    ". Copyright (C) 2011-2017 Christopher Ferrall.\n",
     "Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n",
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
  }
@@ -48,19 +58,24 @@ No argument is passed by `DP::UpdateVariables`() and `DP::ExogenousTransition`
 @returns X.v, X, X(), X(arg)
 **/
 CV(X,...) {
+    if (isclass(X,"ActionVariable")) return X->myCV();
 	if (ismember(X,"v")) return X.v;
 	if (!(isfunction(X)||isarray(X)) ) return X;
-	decl arg = va_arglist();
+	_arg = va_arglist();
+    _noarg = !sizeof(_arg);
     if (isarray(X)) {
-        decl x,v=<>;
-//Leak
-foreach(x in X)
-//            for(x=0;x<sizeof(X);++x) //Leak
-            v ~= CV(x,arg[0]);  //Leak: X[x] just x
-        return v;
+        decl x;
+        _v=<>;
+        //Leak foreach(x in X)
+        if (_noarg) {
+            foreach(x in X) _v ~= CV(x);  //Leak: X[x] just x        //for(_x=0;_x<sizeof(X);++_x) //Leak
+            }
+        else {
+            foreach(x in X) _v ~= CV(x,_arg[0]);  //Leak: X[x] just x        //for(_x=0;_x<sizeof(X);++_x) //Leak
+            }
+        return _v;
         }
-	if (!sizeof(arg)) return X();
-	return X(arg[0]);
+	return _noarg ? X() : X(_arg[0]);
 	}
 
 /**ActualValue: Returns either  X.actual[X.v] or `CV`(X).
@@ -72,15 +87,14 @@ This also works for `StateBlock` which will return the items from the Grid of po
 @see CV
 **/
 AV(X,...) {
-    if (ismember(X,"actual")) return X->myAV();
-//	if (ismember(X,"actual")) return X.actual[X.v];
-	decl arg=va_arglist();
-	return (!sizeof(arg)) ?  CV(X) : CV(X,arg[0]) ;
+    if (ismember(X,"myAV")) return X->myAV();
+	_arg=va_arglist();
+	return (!sizeof(_arg)) ?  CV(X) : CV(X,_arg[0]) ;
 	}
 
 /** The standard logistic cumulative distribution.
 @param x  double or vector.
-@return exp(x)/(1+exp(x))
+@return exp(x)./(1+exp(x))
 **/
 FLogit(x){ decl v=exp(x); return v ./ (1+v); }
 
@@ -390,11 +404,20 @@ vararray(s) {
 @return pfx pre-fixed to s
 **/
 prefix(pfx, s) {
-if (isstring(s)) return pfx+s;
-decl o = {}, t;
-foreach (t in s) o |= pfx+t;
-return o;													
-}
+    if (isstring(s)) return pfx+s;
+    decl o = {}, t;
+    foreach (t in s) o |= pfx+t;
+    return o;													
+    }
+
+/**  Abbreviate a string or list of strings.
+**/
+abbrev(s) {
+    if (isstring(s)) return s[ : min(sizeof(s),abbrevsz)-1 ];
+    decl o = {}, t;
+    foreach (t in s) o |= t[ : min(sizeof(s),abbrevsz)-1 ];
+    return o;													
+    }
 
 /** Print Column Moments.
     @param M <em>matrix</em>: matrix to compute (column) moments for
@@ -679,6 +702,8 @@ SysPoint::SysPoint() {
 @param inV=0, if no argument, V data member holds individual values<br>matrix of separable values to be aggregated within columns
 @param outv=0, if no argument, objective stored in this.v<br>address to return objective
 The matrix passed as <code>inV</code> should be <var>N&times;M</var>.
+
+@see AggregatorTypes, Objective::SetAggregation
 **/
 Point::aggregate(inV,outv) {
     decl locv;
@@ -788,7 +813,6 @@ MixPoint::Copy(h) {
 //	eq.v = h.eq.v;
 //	}
 
-
 /** Initialize the processing of CGI post data.
 @param title string, HTML title
 **/
@@ -885,7 +909,7 @@ CGI::VolumeCtrl(pref,Volume) {
     fprint  (out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"",-1,"\" ",Volume==-1 ? "checked>" : ">","SILENT&nbsp;");
     fprint  (out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"", 0,"\" ",Volume== 0 ? "checked>" : ">","QUIET&nbsp;");
     fprint  (out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"", 1,"\" ",Volume== 1 ? "checked>" : ">","LOUD&nbsp;");
-    fprintln(out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"", 2,"\" ",Volume== 2 ? "checked>" : ">","NOISY; &emsp;");
+    fprintln(out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"", 2,"\" ",Volume== 2 ? "checked>" : ">","NOISY;&emsp;");
     }
 
 CGI::CheckBox(nm,val,checked) {

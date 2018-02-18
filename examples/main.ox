@@ -50,5 +50,7 @@ main() {
 	 fopen("output/"+menu[k][prompt]+".txt","l");
 	 println("Output of ",menu[k][prompt],sep);
 	 menu[k][call]();
-
+ 	 //scan("... finished. Trying to exit gracefully\n","%i",&k);
+    println("... finished.\n");
+    exit(0);
 	}	

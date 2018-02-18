@@ -1,12 +1,12 @@
 #include "DDPShared.h"
 
-/** Use Alpha::CV() instead:  Return the column of feasible action matrix for the action variable.
+/* Use CV() instead:  Return the column of feasible action matrix for the action variable.
 @param A matrix of feasible actions<br>integer: index into list of feasible action matrices.
 @param act `ActionVariable`
 @return A[][act.pos]
-@see Bellman::aa,  Alpha::CV
-**/
-ca(A,act) { return isint(A) ? Alpha::List[A][][act.pos] : A[][act.pos]; }
+@see CV
+ca(A,act) { return isint(A) ? Alpha::CList[A][][act.pos] : A[][act.pos]; }
+*/
 
 
 /** .
@@ -49,9 +49,7 @@ Hooks::Add(time,proc) {
 Hooks::Do(ht) {
     decl p, rv=<>;
     h=hooks[ht];
-//Leak
-    foreach(p in h) rv |= p();
-    //for(p=0;p<sizeof(h);++p) rv |= h[p]();  //Leak
+    foreach(p in h) rv |= p(); //Leak        for(p=0;p<sizeof(h);++p) rv |= h[p]();  //Leak
     return rv;
     }
 
