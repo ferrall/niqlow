@@ -212,7 +212,7 @@ Server::Loop(nxtmsgsize,calledby)	{
 		if (Volume>QUIET) println("P2P Server: ",ID," trip: ",trips," Source: ",Source," Tag: ",Tag,". Message 0...9: ",Buffer[:min(sizerc(Buffer)-1,9)]);
         if (Tag!=STOP_TAG) {		
             nxtmsgsize = this->Execute();
-		    Send(0,Tag);
+		    Send(0,Tag);  //Buffer is set by Execute
             }
 		} while (Tag!=STOP_TAG);
 	if (Volume>SILENT) println("P2P Server:",ID," exiting loop ",calledby);

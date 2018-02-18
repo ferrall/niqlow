@@ -42,9 +42,9 @@ TypeCheck(obj,cname,Fatal,msg) {
         yes = isclass(obj,cc);
         if (yes) return TRUE;
         }
-    println("\n    *",classname(obj)," Checked Against: ",cname);
+    if (!Version::MPIserver) println("\n    *",classname(obj)," Checked Against: ",cname);
     if (Fatal) oxrunerror(msg);
-    oxwarning(msg);
+    if (!Version::MPIserver) oxwarning(msg);
     return FALSE;
     }
 
@@ -295,7 +295,8 @@ Discrete::SetActual(MaxV) {
         if (rows(vec(MaxV))!=N) oxrunerror("DDP Error. Actual vector must be of length N");
         actual = vec(MaxV);
         }
-    println("Setting Actual Values of ",L,"%r",{"index","actual"},vals|actual');
+    if (!Version::MPIserver)
+        println("Setting Actual Values of ",L,"%r",{"index","actual"},vals|actual');
     }
 
 /** Create a new parameter.

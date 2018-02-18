@@ -619,7 +619,6 @@ PanelPrediction::MaxPathVectorLength(inT) {
     do {
         n= max(n,max(inT,cur.T) * sizeof(cur.tlist));
         } while((isclass(cur = cur.fnext)));
-    println("Return Max Length: ",n);
     return n;
     }
 

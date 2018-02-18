@@ -111,9 +111,9 @@ Group::Reset() {
 **/
 DP::SetVersion(v) {
     MyVersion = v;
-    if (MyVersion<Version::version)
+    if (MyVersion<Version::version && !Version::MPIserver)
         oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running on a newer niqlow version, "+sprint(Version::version)+".\n");
-    if (MyVersion>Version::version)
+    if (MyVersion>Version::version && !Version::MPIserver)
         oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running on an older niqlow version, "+sprint(Version::version)+".\n You should consider installing a newer release.\n");
     }
 
@@ -787,7 +787,8 @@ DP::Initialize(userState,UseStateList) {
             Volume = NOISY;
             println(Volume,arglist());
             }
-    if (Volume>=QUIET) println("DP::Intialize is complete. Action and State spaces are empty.\n Log file name is: ",lognm);
+    if (Volume>=QUIET && !Version::MPIserver)
+        println("DP::Intialize is complete. Action and State spaces are empty.\n Log file name is: ",lognm);
  }
 
 /** Tell DDP when parameters and transitions have to be updated.

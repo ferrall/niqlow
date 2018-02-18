@@ -6,7 +6,7 @@
 #include "UseMPI.ox"
 #endif
 
-enum{order=9,ncoef=order+1}    //order+1 of polynomial to find roots of
+enum{Node0=0,order=9,ncoef=order+1}    //order+1 of polynomial to find roots of
 
 decl ID, Nodes, ANY_TAG, ANY_SOURCE;
 decl src,tag,err;
@@ -16,7 +16,7 @@ client();
 
 main() {
 	MPI_Init(&ID, &Nodes,&ANY_TAG,&ANY_SOURCE);
-    if (ID==0) client(); else server();
+    if (ID==Node0) client(); else server();
 	println("Node ",ID," is done");
 	}
 
@@ -36,7 +36,7 @@ client() {
 server() {
 	decl coef,sroots;
 	coef=zeros(ncoef,1); //make room for the message
-	MPI_Recv(&coef,ANY_SOURCE,ANY_TAG,&src,&tag,&err);
+	MPI_Recv(&coef,Node0,ANY_TAG,&src,&tag,&err);
 	println("Server ",ID," received ",coef);
 	polyroots(coef',&sroots);	//polyroots wants a row vector
 	MPI_Send(vec(sroots),2*order,0,0);	//vectorize 2x10 complex roots matrix before sending

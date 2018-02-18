@@ -52,13 +52,18 @@ ObjServer::ObjServer(obj) {
     }
 
 /** Wait on the objective client.
+@param nxtmsgsz integer, number of free parameters
+@param calledby string, where I'm coming from
+@param update TRUE, get announced new parameter vector after STOP
 **/
-ObjServer::Loop(nxtmsgsz,calledby) {
+ObjServer::Loop(nxtmsgsz,calledby,update) {
     Nfree = nxtmsgsz;   //current free param length sent from algorithm
     if (Volume>QUIET) println("ObjServer server ",ID," Nfree= ",Nfree);
     Server::Loop(Nfree,calledby);
-    Recv(ANY_TAG);                      //receive the ending parameter vector
-    obj->Encode(Buffer[:Nstruct-1]);   //encode it.
+    if (update) {
+        Recv(ANY_TAG);                      //receive the ending parameter vector
+        obj->Encode(Buffer[:Nstruct-1]);   //encode it.
+        }
     }
 
 /** Do the objective evaluation.

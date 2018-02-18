@@ -124,7 +124,7 @@ Objective::Load(fname)	{
 		oxwarning("FiveO Warning 06.\n File "+fname+"."+EXT+" not found.  Load is doing nothing.\n");
 		return FALSE;
 		}
-	if (Volume>SILENT) println(" Attempting to load from ",fname);
+	if (Volume>SILENT && !Version::MPIserver) println(" Attempting to load from ",fname);
 	n = fscan(f,"%v",&otype,"%v",&inL,"%v",&inO);
 	if (otype!=classname(this)) oxwarning("FiveO Warning 07.\n Object stored in "+fname+" is of class "+otype+".  Current object is "+classname(this)+"\n");
 	if (inL!=L) oxwarning("FiveO Warning 08.\n Object Label in "+fname+" is "+inL+", which is not the same as "+L+"\n");
@@ -456,10 +456,7 @@ Objective::fobj(F)	{
             fprint(logf,"fobj = ",cur.v);
             if (Volume>QUIET) println("fobj = ",cur.v);
             }
-       if (isclass(p2p)) {
-            p2p.client->Stop();
-            p2p.client->Announce(cur.X);
-	       }
+       if (isclass(p2p)) p2p.client->Stop();
         }
     }
 
@@ -545,11 +542,8 @@ Objective::Gradient() {
 	   this->Jacobian();
 	   cur.G = sumc(cur.J);
        if (Volume>QUIET) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
-       if (isclass(p2p)) {
-            p2p.client->Stop();
-            p2p.client->Announce(cur.X);
-	       }
-        }
+       if (isclass(p2p)) p2p.client->Stop();
+       }
 	}
 
 /** Compute the &nabla;f(), objective's gradient at the current vector.
@@ -602,10 +596,7 @@ Objective::Hessian() {
             cur.H[i][i+1:] = cur.H[i+1:][i] = (gg[b]-gg[b+1]-gg[b+2]+gg[b+3])./(4*h[i]*h[i+1:]);
             b += 4*(nfree-i-1);
             }
-       if (isclass(p2p)) {
-            p2p.client->Stop();
-            p2p.client->Announce(cur.X);
-	       }
+       if (isclass(p2p)) p2p.client->Stop();
        }
 	}
 

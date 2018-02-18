@@ -42,7 +42,7 @@ Algorithm::ItStartCheck() {
         return FALSE;
         }
     else if (!IIterate) {
-        O.p2p.server->Loop(N," ItStartCheck ");
+        O.p2p.server->Loop(N," ItStartCheck ",TRUE);
         }
     return TRUE;
     }
