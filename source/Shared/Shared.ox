@@ -94,7 +94,7 @@ AV(X,...) {
 
 /** The standard logistic cumulative distribution.
 @param x  double or vector.
-@return exp(x)/(1+exp(x))
+@return exp(x)./(1+exp(x))
 **/
 FLogit(x){ decl v=exp(x); return v ./ (1+v); }
 

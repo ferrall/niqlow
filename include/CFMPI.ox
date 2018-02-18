@@ -62,7 +62,7 @@ P2P::P2P(DONOTUSECLIENT,client, server,NSubProblems,MaxSubReturn) {
 If <em>IamClient</em> call the (virtual) `Client::Execute`().  Otherwise, enter the (virtual) `Server::Loop`
 **/
 P2P::Execute() {
-    if (IamClient) client->Execute(); else  server->Loop(Server::iml);
+    if (IamClient) client->Execute(); else  server->Loop(Server::iml,"P2P::Execute");
     }
 	
 /** Point-to-Point: Sends buffer to a destination node.
