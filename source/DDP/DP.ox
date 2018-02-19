@@ -785,7 +785,7 @@ DP::Initialize(userState,UseStateList) {
     SetUpdateTime();
     if (strfind(arglist(),"NOISY")!=NoMatch) {
             Volume = NOISY;
-            println(Volume,arglist());
+            if (!Version::MPIserver) println(Volume,arglist());
             }
     if (Volume>=QUIET && !Version::MPIserver)
         println("DP::Intialize is complete. Action and State spaces are empty.\n Log file name is: ",lognm);

@@ -172,10 +172,10 @@ Sets the actual vector to 0,&ellip;, MaxV.
 @see `Discrete::Update`
 **/
 Augmented::SetActual(MaxV) {
-    println("Setting Actual values of Augmented ",L,"\n----\n");
+    if (!Version::MPIserver)    println("Setting Actual values of Augmented ",L,"\n----\n");
     b -> SetActual(MaxV);
     actual = b.actual;
-    println("\n----\nAugmented: ","%r",{"index","actual"},vals|actual');
+    if (!Version::MPIserver) println("\n----\nAugmented: ","%r",{"index","actual"},vals|actual');
     }
 
 /** Base creator augmented state variables
@@ -430,7 +430,7 @@ Zvariable::Zvariable(L,Ndraws) { SimpleJump(L,Ndraws); }
 
 Zvariable::Update() {	
     actual = DiscreteNormal (N)';
-    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
+    if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
     }
 
 /**Create a discrete Markov process.
@@ -566,7 +566,7 @@ actual = 0 ~ exp{ &sigma;&Phi;<sup>-1</sub>(v/N)+ &mu;}
 **/
 LogNormalOffer::Update() {
 	actual = 0 | exp(DiscreteNormal(N-1,CV(mu),CV(sigma)))';
-    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
+    if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
 	}
 
 /** Create a state variable that increments or decrements with state-dependent probabilities.
@@ -652,7 +652,7 @@ Lagged::Lagged(L,Target,Prune,Order)	{
 
 Lagged::Update()	{	
     actual = Target.actual;	
-    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
+    if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
     }
 
 /** Presumes an initial value of 0 for prunable clocks.
@@ -932,7 +932,7 @@ Duration::Transit() {
 	if (isact) {
         add1 = CV(Target).==AV(Lag);
 		nf = int(sumc(add1));
-        if (Volume>SILENT) fprintln(logf,v," ",AV(Lag),nf,CV(Target));
+        if (Volume>SILENT && !Version::MPIserver) fprintln(logf,v," ",AV(Lag),nf,CV(Target));
         if (!nf) return { <0> , CondProbOne };
 		return { 0~g , (1-add1)~add1 };
 		}
@@ -1173,7 +1173,7 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 **/
 MVNormal::Update()	{
 	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*reshape(quann(range(1,M)/(M+1)),N,M) )';	
-    if (Volume>SILENT) fprintln(logf,L," update actuals ",Actual);
+    if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",Actual);
 	}
 
 /** K mutually exclusive episodes.
@@ -1248,7 +1248,7 @@ Tauchen::Update() {
 	Grid[][] = pts[][1:]-pts[][:N-1];
 	actual += AV(mu);
     actual = actual';
-    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
+    if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
 	}
 
 /**Create a new asset state variable.
@@ -1348,7 +1348,7 @@ KeptZeta::Quantile(u) {    return quann(u);      }
 **/
 KeptZeta::Update() {
     actual = this->Quantile( (vals+1)/(N+1) )';
-    if (Volume>SILENT) fprintln(logf,L," update actuals ",actual');
+    if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
     }
 
 KeptZeta::InitDynamic(cth,VV) {
@@ -1359,6 +1359,7 @@ KeptZeta::InitDynamic(cth,VV) {
     NxtI = cth.Nxt[Qit][myios];
     NxtR = cth.Nxt[Qrho][myios];
     NOth= columns(NxtR)-1;
+    if( !Version::MPIserver)
     println(I::t," ",isheld," ",v," ",NxtI," ",NxtR," ",I::OO[iterating][keep.pos],VV);
     }
 
