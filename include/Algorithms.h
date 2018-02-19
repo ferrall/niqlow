@@ -18,6 +18,7 @@ struct Algorithm {
 	 /** objective's pt. @internal **/						OC;
     				decl
      /** Client node or no MPI .**/                         IIterate,
+     /** Running in parallel . **/                          inparallel,
      /** log file **/                                       logf,
 	 /** output level **/									Volume,
      /** Not restarting from alg. checkpoint. **/           NormalStart,
@@ -34,6 +35,7 @@ struct Algorithm {
 	virtual Tune(maxiter=0,toler=0,nfuncmax=0);
 	virtual Iterate();
     virtual ItStartCheck();
+    virtual ItEnd();
     virtual out(fn);
     virtual Paths(starts=1);
     virtual CheckPoint(WriteOut);
@@ -200,7 +202,6 @@ decl nm = new SimulatedAnnealing(myobj);
 struct SimulatedAnnealing : NonGradient {
 		decl
                                                     M,
-                                                    inp,
                                                     tries,
                                                     Vtries,
                                                     vtries,

@@ -452,12 +452,12 @@ Objective::fobj(F)	{
     else {
 	   this->vobj(F);
 	   cur->aggregate();
-        if (Volume>SILENT) {
+       if (Volume>SILENT) {
             fprint(logf,"fobj = ",cur.v);
             if (Volume>QUIET) println("fobj = ",cur.v);
             }
        if (isclass(p2p)) p2p.client->Stop();
-        }
+      }
     }
 
 Objective::AggSubProbMat(submat) {

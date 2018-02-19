@@ -215,7 +215,7 @@ Server::Loop(nxtmsgsize,calledby)	{
 		    Send(0,Tag);  //Buffer is set by Execute
             }
 		} while (Tag!=STOP_TAG);
-	if (Volume>SILENT) println("P2P Server:",ID," exiting loop ",calledby);
+	if (Volume>QUIET) println("P2P Server:",ID," exiting loop ",calledby);
 	return trips;	
 	}
 
