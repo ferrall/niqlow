@@ -37,7 +37,7 @@ struct Separable : UnConstrained	{
 	virtual	Encode(X=0,CallBase=FALSE);
 	virtual	Decode(F=0);
 	virtual Jacobian();
-	virtual	Gradient();
+	virtual	Gradient(extcall=TRUE);
 	virtual funclist(Xmat,aFvec,afvec=0);
 	}
 

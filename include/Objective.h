@@ -64,7 +64,7 @@ struct Objective	{
 	virtual	CheckPoint(f,saving);
 	virtual Parameters(psi, ... );			
 	virtual Block(B);
-	virtual Gradient();
+	virtual Gradient(extcall=TRUE);
 	virtual Jacobian();
     virtual Hessian();
 	virtual vfunc(subp=DoAll);
@@ -83,7 +83,7 @@ struct Objective	{
 	
 /** Container for Unconstrained Objectives.**/
 struct UnConstrained : Objective {
-	virtual Gradient();
+	virtual Gradient(extcall=TRUE);
 			UnConstrained(L="");
 	}
 	
@@ -94,7 +94,7 @@ struct Constrained : Objective {
 			funclist(Fmat,jake);
 	virtual	CheckPoint(f, saving);
 	virtual	Jacobian();
-	virtual	Gradient();
+	virtual	Gradient(extcall=TRUE);
 	virtual equality();
 	virtual	inequality();
 	virtual Merit(F);

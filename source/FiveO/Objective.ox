@@ -457,7 +457,7 @@ Objective::fobj(F)	{
             if (Volume>QUIET) println("fobj = ",cur.v);
             }
        if (isclass(p2p)) p2p.client->Stop();
-      }
+       }
     }
 
 Objective::AggSubProbMat(submat) {
@@ -531,18 +531,19 @@ Objective::Jacobian() {
 	}
 	
 /** Compute the &nabla;f(), objective's gradient at the current vector.
+@param extcall [default=TRUE].  if running in parallel Stop message sent out
 <DT>Compute</DT>
 $$\nabla f(\psi)$$
 Stored in <code>cur.G</code>
 **/
-Objective::Gradient() {
+Objective::Gradient(extcall) {
     if (Version::MPIserver)
        p2p.server->Loop(rows(cur.F),"gradient"); //Gradient won't get called if already in loop
     else {
 	   this->Jacobian();
 	   cur.G = sumc(cur.J);
        if (Volume>QUIET) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
-       if (isclass(p2p)) p2p.client->Stop();
+       if (extcall && isclass(p2p)) p2p.client->Stop();
        }
 	}
 
@@ -553,16 +554,16 @@ Objective::Gradient() {
 
 Stored in <code>cur.G</code>
 **/
-UnConstrained::Gradient() {
-    Objective::Gradient();
+UnConstrained::Gradient(extcall) {
+    Objective::Gradient(extcall);
 	}
 
 /** Compute the &nabla;f(), objective's gradient at the current vector.
 **/
-Constrained::Gradient() {
+Constrained::Gradient(extcall) {
     //	this->Jacobian();
     //	cur.G = sumc(cur.J);
-    Objective::Gradient();
+    Objective::Gradient(extcall);
 	}
 
 /** Compute the Hf(), Hessian of objective at the current vector.

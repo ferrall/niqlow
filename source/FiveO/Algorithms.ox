@@ -407,7 +407,7 @@ NelderMead::Iterate(iplex)	{
                 break;
             case UseGradient :
                 O.Volume = LOUD;
-                O->Gradient();
+                O->Gradient(FALSE);
                 O.Volume = QUIET;
                 OC.G = (fabs(OC.G) .< 1E-2) .? 0.01 .: OC.G;
                 iplex = 0~diag(OC.G/norm(OC.G,2));
@@ -665,7 +665,7 @@ GradientBased::Direction()	{
 **/
 GradientBased::Gupdate()	{
 	oldG = OC.G;
-	O->Gradient();	
+	O->Gradient(FALSE);	
 	deltaG = norm(OC.G,2);
 	if (Volume>QUIET) {fprintln(logf,"%r",{"Gradient "},"%c",O.Flabels,OC.G);fflush(logf);}
 	return deltaG<gradtoler;
@@ -1051,7 +1051,7 @@ SQP::Iterate(H)  {
 /** .
 **/
 SQP::Gupdate() {
-	O->Gradient();
+	O->Gradient(FALSE);
 	oldG = OC.L;
 	OC.L  = OC.G-(ni ? OC.ineq.lam'*OC.ineq.J : 0.0)-(ne ? OC.eq.lam'*OC.eq.J : 0.0);
 	deltaG = norm(OC.L,2);

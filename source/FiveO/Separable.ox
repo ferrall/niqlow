@@ -18,12 +18,16 @@ Separable::Print(orig,fn,toscreen){
 
 /** Compute the &nabla;f(), objective's gradient at the current vector.
 **/
-Separable::Gradient() {
-	this->Jacobian();
-	cur.G = sumc(cur.J);
+Separable::Gradient(extcall) {
+    if (Version::MPIserver)
+       p2p.server->Loop(rows(cur.F),"gradient"); //Gradient won't get called if already in loop
+    else {
+	   this->Jacobian();
+	   cur.G = sumc(cur.J);
+       if (Volume>QUIET) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
+       if (extcall && isclass(p2p)) p2p.client->Stop();
+       }
 	}
-
-
 
 /** Create a separable objective.
 @param L string, a label for the problem.
