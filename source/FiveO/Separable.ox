@@ -190,7 +190,7 @@ Separable::funclist(Fmat,aFvec,afvec)	{
 @param F vector of free parameters.
 @return <var>f(&psi;)</var>
 **/
-Separable::fobj(F)	{
+Separable::fobj(F,extcall)	{
 	vobj(F);
 	cur -> aggregate();
 	this->CheckMax();
@@ -431,7 +431,7 @@ Mixture::vobj(F)	{
 @param F vector of free parameters.
 @return cur.v, <var>f(&psi;)</var>
 **/
-Mixture::fobj(F)	{
+Mixture::fobj(F,extcall)	{
 	vobj(F);
 	cur->aggregate();
 	this->CheckMax();

@@ -68,7 +68,7 @@ struct Objective	{
 	virtual Jacobian();
     virtual Hessian();
 	virtual vfunc(subp=DoAll);
-	virtual fobj(F=0);
+	virtual fobj(F=0,extcall=TRUE);
 	virtual vobj(F=0);
 	virtual	Encode(X=0);
 	virtual	Decode(F=0);
@@ -108,5 +108,5 @@ struct System : Objective {
                              normexp;
 			System(L,LorN=1);
 	virtual equations();
-	//virtual fobj(F);
+	//virtual fobj(F,extcall=TRUE);
 	}

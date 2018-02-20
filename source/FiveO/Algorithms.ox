@@ -161,7 +161,7 @@ SimulatedAnnealing::Iterate(chol)	{
                         : isdouble(chol) ? chol*unit(N)
                             : ismatrix(chol) ?  chol
                                  :  unit(N);
-	if (OC.v==.NaN) O->fobj(0);
+	if (OC.v==.NaN) O->fobj(0,FALSE);
 	if (Volume>SILENT)O->Print("Annealing Start ",logf,Volume>QUIET);
 	OC.H = OC.SE = OC.G = .NaN;
 	accept = iter =0;	
@@ -262,11 +262,11 @@ LineMax::PTry(pt,left,right) {
 **/
 LineMax::Try(pt,step)	{
 	pt.step = step;
-	O->fobj(holdF + step*Delta);
+	O->fobj(holdF + step*Delta,FALSE);
 	if ((isnan(pt.v = OC.v))) {
 	  oxwarning("FiveO Warning 01. Objective undefined at first line try.  Trying 20% of step.\n");
 	  pt.step *= .2;
-	  O->fobj(holdF + pt.step*Delta);
+	  O->fobj(holdF + pt.step*Delta,FALSE);
 	  if ((isnan(pt.v = OC.v))) {
 	       println("*** ",pt,holdF+pt.step*Delta,OC.X,"\n ****");
 		   oxrunerror("FiveO Error 01. Objective undefined at line max point.\n");
@@ -460,7 +460,7 @@ NelderMead::Reflect(fac) 	{
   decl fac1, ptry, ftry;
 	fac1 = (1.0-fac)/N;
 	ptry = fac1*psum - (fac1-fac)*nodeX[][mni];
-	O->fobj(ptry);
+	O->fobj(ptry,FALSE);
     if (StorePath) path ~= OC.F;
     O->CheckMax();
 	ftry = OC.v;
@@ -690,7 +690,7 @@ All gradient-based algorithms conduct a `LineMax`imization on each iteration.
 GradientBased::Iterate(H)	{
     if (!ItStartCheck()) return;
     decl IamNewt = isclass(this,"Newton"), istr;
-    if (OC.v==.NaN) O->fobj(0);
+    if (OC.v==.NaN) O->fobj(0,FALSE);
     if (IamNewt) {
 	   if (isint(H)) O->Hessian();
        else  OC.H = H;
@@ -887,7 +887,7 @@ in a line search.
 NonLinearSystem::Gupdate()	{
 	oldG = OC.V;
 	if (USELM)
-         O->fobj(0);
+         O->fobj(0,FALSE);
     else
 	     O->vobj(0);
 	dg = (OC.V - oldG);

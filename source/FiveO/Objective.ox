@@ -445,8 +445,9 @@ Constrained::funclist(Fmat,jake) {
 	
 /** Decode the input, compute the objective, check the maximum.
 @param F vector of free parameters.
+@param extcall TRUE [default] go into server mode if MPI server, send Stop if client
 **/
-Objective::fobj(F)	{
+Objective::fobj(F,extcall)	{
     if (Version::MPIserver)  // I am a server but standalone objective has been called
        p2p.server->Loop(rows(cur.F),"fobj");
     else {
@@ -456,7 +457,7 @@ Objective::fobj(F)	{
             fprint(logf,"fobj = ",cur.v);
             if (Volume>QUIET) println("fobj = ",cur.v);
             }
-       if (isclass(p2p)) p2p.client->Stop();
+       if (extcall && isclass(p2p)) p2p.client->Stop();
        }
     }
 
@@ -471,7 +472,7 @@ Objective::AggSubProbMat(submat) {
 Objective::vobj(F)	{
 	Decode(F);
     if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
-    if (isclass(p2p))  // now servers are in loop if fobj() was called.
+    if (isclass(p2p))  // no servers are in loop if fobj() was called.
         p2p.client->SubProblems(cur.F);  // argument was F, but needs to be a vector; might not be
     else
 	    cur.V[] =  vfunc();
@@ -483,7 +484,7 @@ Objective::vobj(F)	{
 
 /* Decode the input, compute the objective, check the maximum.
 @param F vector of free parameters.
-System::fobj(F)	{
+System::fobj(F,extcall)	{
 	vobj(F);
 	cur->aggregate();
     if (Volume>SILENT) {

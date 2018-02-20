@@ -32,7 +32,7 @@ struct Separable : UnConstrained	{
 //	virtual	CheckPoint(f,saving);
 	virtual	Common(psi, ... );	
 	virtual vfunc();						   			
-	virtual fobj(F);
+	virtual fobj(F,extcall=TRUE);
 	virtual vobj(F);
 	virtual	Encode(X=0,CallBase=FALSE);
 	virtual	Decode(F=0);
@@ -64,7 +64,7 @@ struct Mixture : Separable {
 			IncludedDK(mDK);
 			Print(orig,fn=0,toscreen=TRUE);
 	virtual	vfunc();
-			fobj(f);
+			fobj(f,extcall=TRUE);
 	virtual	Deconstruct(eval) ;
 	virtual vobj(F);
 	virtual	Decode(F=0);
