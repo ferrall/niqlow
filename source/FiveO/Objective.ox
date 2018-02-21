@@ -471,7 +471,10 @@ Objective::AggSubProbMat(submat) {
 **/
 Objective::vobj(F)	{
 	Decode(F);
-    if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
+    if (Volume>QUIET) {
+        Print("vobj",logf,Volume>LOUD);
+        fprintln(logf,"Debugging ... isclass:",isclass(p2p));
+        }
     if (isclass(p2p))  // no servers are in loop if fobj() was called.
         p2p.client->SubProblems(cur.F);  // argument was F, but needs to be a vector; might not be
     else

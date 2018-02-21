@@ -32,6 +32,7 @@ ObjClient::MultiParam(Fmat,aFvec,af) {
     }
 
 ObjClient::SubProblems(F) {
+    if (Volume>QUIET) println(" Debuging in SubProblems ",NSubProblems);
     if (NSubProblems>Zero) {
         decl subV=zeros(MaxSubReturn,NSubProblems);
         ToDoList(NSubProblems,F,&subV,MaxSubReturn,OneVector);
@@ -39,6 +40,7 @@ ObjClient::SubProblems(F) {
         }
     else
     	obj.cur.V[] =  obj->vfunc();
+    if (Volume>QUIET) println(" ending SubProblems ");
     }
 
 
