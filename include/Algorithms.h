@@ -34,7 +34,7 @@ struct Algorithm {
      /** Convergence code.  See `ConvergenceResults` **/	convergence;
 	virtual Tune(maxiter=0,toler=0,nfuncmax=0);
 	virtual Iterate();
-    virtual ItStartCheck();
+    virtual ItStartCheck(ReadCheckPoint=FALSE);
     virtual ItEnd();
     virtual out(fn);
     virtual Paths(starts=1);
@@ -165,6 +165,7 @@ struct NelderMead  : NonGradient {
 					
 	    Tune(mxstarts=0,toler=0,nfuncmax=0,maxiter=0);
 		NelderMead(O);
+        ItStartCheck(iplex);
 		SimplexSize();
 		Iterate(iplex=0);
 		Sort();
@@ -253,16 +254,18 @@ struct GradientBased : Algorithm {
        /** |&nabla;<sub>m</sub>-&nabla;<sub>m-1</sub>|.**/ 		deltaG,
        /** |x<sub>m</sub>-x<sub>m-1</sub>.**/					deltaX,
        /**                      **/								dx,
+       /** Newton version . **/                                 IamNewt,
        /** # of time H reset to I  **/                          Hresetcnt;
 
 
-        virtual   ItStartCheck();
+        virtual   ItStartCheck(H);
 		virtual   Iterate(H=0);
 		virtual   Direction();
 	    virtual   Tune(maxiter=0,toler=0,nfuncmax=0,LMitmax=0,LMmaxstep=0);
 		          HHupdate(FORCE);
 		virtual   Gupdate();		
 		virtual   Hupdate();
+        virtual   CheckPoint(WriteOut);
 				  GradientBased(O);
     }
 
@@ -341,6 +344,7 @@ struct NonLinearSystem	: GradientBased {
 				Iterate(H=0);
 				Direction();
 		virtual Jupdate(dx=0);
+        virtual ItStartCheck(J);
 	   }
 
 /** Broyden approximation to the Jacobian.

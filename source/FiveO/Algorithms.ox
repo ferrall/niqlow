@@ -29,12 +29,16 @@ Algorithm::Tune(maxiter,toler,nfuncmax) {
 	if (nfuncmax) this.nfuncmax = nfuncmax;
 	}
 
-Algorithm::ItStartCheck() {
+Algorithm::ItStartCheck(ReadCheckPoint) {
     IIterate =!Version::MPIserver;
+    NormalStart = !ReadCheckPoint;
+    OC.H = OC.SE = OC.G = .NaN;
+    convergence = NONE;
+    if (ReadCheckPoint) this->CheckPoint(FALSE);
     O->Encode();
 	N = rows(OC.F);
-    NormalStart = TRUE;
     path = <>;
+	iter = 0;
     if (!N) {
         oxwarning("No parameters are free.  Objective will be evaluated and then return");
     	O->fobj(0);
@@ -148,6 +152,8 @@ SimulatedAnnealing::Metropolis()	{
     return change;
 	}
 
+
+
 /** Carry out annealing.
 @param chol Determines the Choleski matrix for random draws, <var>C</var><br>
 0 [default] $C = I$, the identity matrix<br>matrix, $C = $ chol.<br>double, common standard deviation, $C = chol I$.
@@ -163,7 +169,6 @@ SimulatedAnnealing::Iterate(chol)	{
                                  :  unit(N);
 	if (OC.v==.NaN) O->fobj(0,FALSE);
 	if (Volume>SILENT)O->Print("Annealing Start ",logf,Volume>QUIET);
-	OC.H = OC.SE = OC.G = .NaN;
 	accept = iter =0;	
 	holdpt.step = OC.F; holdpt.v = OC.v;
     if (Volume>=LOUD) fprint(logf,"%r",{"#"},"%c",{"i","j","delt","prob.","v","x vals"},"%cf",{"%5.0f","%3.0f","%12.5g"},-1~0~0.0~0.0~holdpt.v~(holdpt.step'));
@@ -381,6 +386,35 @@ NelderMead::NelderMead(O)	{
     tolerance = itoler;
 	}
 	
+NelderMead::ItStartCheck(iplex) {
+    decl itype = isint(iplex) ? Zero : isdouble(iplex) ? One : Two;
+    decl iret = Algorithm::ItStartCheck(itype==Zero&&(iplex==UseCheckPoint));
+    if (iret) {
+       switch_single(itype) {
+            case Zero:
+                    switch(iplex) {
+                        case UseCheckPoint : break;
+                        case UseGradient :
+                            O.Volume = LOUD;
+                            O->Gradient(FALSE);
+                            O.Volume = QUIET;
+                            OC.G = (fabs(OC.G) .< 1E-2) .? 0.01 .: OC.G;
+                            iplex = 0~diag(OC.G/norm(OC.G,2));
+		                    step = 1.0;
+                            break;
+                        case Zero : iplex = (0~unit(N)); break;
+                        default : mxstarts = iplex;
+                        }
+            case One:  step = iplex; iplex = (0~unit(N));
+            case Two:
+                    step = 1.0;
+                    if ( rows(iplex)!=N || columns(iplex)!=N+1 )
+                        oxrunerror("Five0 error: initial simplex sent to NelderMead not Nx(N+1)");
+            }
+        }
+    return iret;
+    }
+
 /** Iterate on the Amoeba algorithm.
 @param iplex  N&times;N+1 matrix of initial steps.
 </br>double, initial step size (iplex is set to 0~unit(N))
@@ -392,41 +426,7 @@ NelderMead::NelderMead(O)	{
 See <a href="GetStarted.html">GetStarted</a>
 **/
 NelderMead::Iterate(iplex)	{
-    if (!ItStartCheck()) return;
-	iter = 1;
-	if (!ismatrix(iplex))  {
-		if (isdouble(iplex)) {
-            step = iplex;
-            iplex = (0~unit(N));
-            }
-        else {
-            switch(iplex) {
-            case UseCheckPoint :
-                CheckPoint(FALSE);
-                NormalStart = FALSE;
-                break;
-            case UseGradient :
-                O.Volume = LOUD;
-                O->Gradient(FALSE);
-                O.Volume = QUIET;
-                OC.G = (fabs(OC.G) .< 1E-2) .? 0.01 .: OC.G;
-                iplex = 0~diag(OC.G/norm(OC.G,2));
-		        step = 1.0;
-                break;
-            case Zero :
- 		        iplex = (0~unit(N));
-                break;
-            default :
-                mxstarts = iplex;
-                }
-		    }
-          }
-	else {
-		  step = 1.0;
-          if ( rows(iplex)!=N || columns(iplex)!=N+1 )
-             oxrunerror("Five0 error: initial simplex sent to NelderMead not Nx(N+1)");
-        }
-	OC.SE = OC.G = .NaN;
+    if (!ItStartCheck(iplex)) return;
 	if (Volume>SILENT) {
 		  O->Print("Simplex Starting ",logf,Volume>QUIET);
 		  fprintln(logf,"\n Max # evaluations ",nfuncmax,
@@ -573,6 +573,22 @@ GradientBased::GradientBased(O) {
     LMmaxstep = 0;
 	}
 
+GradientBased::CheckPoint(WriteOut) {
+    decl chkpt = fopen(logpfx+".chkpt",WriteOut ? "w" : "r");
+    if (WriteOut) {
+        fprint(chkpt,"%v",OC.v,"\n","%v",O.Start,"\n","%v",OC.F,"\n","%v",OC.H);
+        }
+    else {
+        decl instart,infree,inv,inH;
+        fscan(chkpt,"%v",&inv,"%v",&instart,"%v",&infree,"%v",&inH);
+        OC.v = inv;
+        OC.H = inH;
+        O->Encode(instart);
+        O->Decode(infree);
+        }
+    fclose(chkpt);
+    }
+
 /** Create an object of the BFGS algorithm.
 @param O the `Objective` object to apply this algorithm to.
 
@@ -671,9 +687,21 @@ GradientBased::Gupdate()	{
 	return deltaG<gradtoler;
 	}
 
-GradientBased::ItStartCheck() {
-    holdF = OC.F;
-    return Algorithm::ItStartCheck();
+GradientBased::ItStartCheck(H) {
+    Hresetcnt = 0;
+    decl iret = Algorithm::ItStartCheck(isint(H)&&(H==UseCheckPoint));
+    if (iret) {
+        IamNewt = isclass(this,"Newton");
+        holdF = OC.F;
+        if (OC.v==.NaN) O->fobj(0,FALSE);
+        if (ismatrix(H))
+            OC.H = H;
+        else if (NormalStart) {  //NormalStart set by Algorithm::ItStartCheck
+            if (IamNewt) O->Hessian();
+            else OC.H = unit(N);
+            }
+        }
+    return iret;
     }
 
 /** Iterate on a gradient-based algorithm.
@@ -688,17 +716,8 @@ All gradient-based algorithms conduct a `LineMax`imization on each iteration.
 
 **/
 GradientBased::Iterate(H)	{
-    if (!ItStartCheck()) return;
-    decl IamNewt = isclass(this,"Newton"), istr;
-    if (OC.v==.NaN) O->fobj(0,FALSE);
-    if (IamNewt) {
-	   if (isint(H)) O->Hessian();
-       else  OC.H = H;
-       }
-    else
-	   OC.H = isint(H) ? unit(N) : H;
-	Hresetcnt = iter =0;
-    OC.SE = OC.G = .NaN;
+    if (!ItStartCheck(H)) return;
+    decl istr;
 	if (Volume>SILENT)O->Print("Gradient Starting",logf,Volume>QUIET);
 	if (this->Gupdate())
          convergence=STRONG;         //finished before we start!
@@ -717,6 +736,7 @@ GradientBased::Iterate(H)	{
             if(Volume>QUIET) println(istr);
             O->Print("Gradient Iteration",logf,Volume>QUIET);
             }
+       CheckPoint(TRUE);
 	   } while (convergence==NONE);
     if (Volume>SILENT) {  //Report on Result of Iteration
         istr =sprint("\nFinished: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient"},OC.F'|OC.G);
@@ -895,6 +915,24 @@ NonLinearSystem::Gupdate()	{
 	return deltaG<gradtoler;
 	}
 
+NonLinearSystem::ItStartCheck(J) {
+    decl iret = Algorithm::ItStartCheck();
+    if (iret) {
+	   if (this->Gupdate())
+            convergence=STRONG;   //Finished before we start!
+       else {
+	       if (isclass(this,"Broyden"))
+                OC.J =isint(J) ? unit(N) : J;
+	       else
+		  	   O->Jacobian();
+           deltaX=.NaN;
+	       resat = FALSE;
+           Hresetcnt = 0;
+           }
+        }
+    return iret;
+    }
+
 /** Iterate to solve a non-linear system.
 @param J matrix, initial Jacobian for Broyden.<br>integer, set to identity
 
@@ -903,19 +941,9 @@ This routine is shared (inherited) by derive algorithms.
 **/
 NonLinearSystem::Iterate(J)	{
     decl d,istr;
-    if (!ItStartCheck()) return;
-    deltaX=.NaN;
-	Hresetcnt = iter =0;
-	OC.H = OC.SE = OC.G = .NaN;	
-	resat = FALSE;
+    if (!ItStartCheck(J)) return;
 	if (Volume>SILENT) O->Print("Non-linear System Starting",logf,Volume>QUIET);
-	if (this->Gupdate())
-        convergence=STRONG;   //Finished before we start!
-	else {
-	   if (isclass(this,"Broyden"))
-            OC.J =isint(J) ? unit(N) : J;
-	   else
-		  	O->Jacobian();
+	if (convergence==NONE) {
 	   do {
 		  holdF = OC.F;
           d = Direction();
@@ -1009,7 +1037,6 @@ SQP::Iterate(H)  {
 	decl Qconv,deltx,mults,istr;
     if (!ItStartCheck()) return;
 	OC.H = isint(H) ? unit(N) : H;
-	OC.SE = OC.G = .NaN;
 	O->Merit(0);
 	if (any(OC.ineq.v.<0)) oxrunerror("FiveO Error 09. Inequality constraints not satisfied at initial psi");
 	if (any(OC.ineq.lam.<0)) oxrunerror("FiveO Error 10. Initial inequality lambda has negative element(s)");

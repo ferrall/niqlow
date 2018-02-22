@@ -549,7 +549,7 @@ Compute the objective and constraints at multiple points.
 <a name="Constrained___Gradient"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gradient</span></h3>
 
-<span class="declaration">virtual Constrained :: Gradient ( )</span>
+<span class="declaration">virtual Constrained :: Gradient ( extcall )</span>
 <dl><dd>
 Compute the &nabla;f(), objective's gradient at the current vector.
 
@@ -812,7 +812,7 @@ Name for <a href="Objective.ox.html#Objective___Load">Load</a> &amp; files
 <a name="Objective___fobj"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">fobj</span></h3>
 
-<span class="declaration">virtual Objective :: fobj ( F )</span>
+<span class="declaration">virtual Objective :: fobj ( F , extcall )</span>
 <dl><dd>
 Decode the input, compute the objective, check the maximum.
 
@@ -820,7 +820,12 @@ Decode the input, compute the objective, check the maximum.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">F</td>
-<td class="description" valign="baseline">vector of free parameters.</td>
+<td class="description" valign="baseline">vector of free parameters.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">extcall</td>
+<td class="description" valign="baseline">TRUE [default] go into server mode if MPI server, send Stop if client</td>
 </tr>
 </table>
 </dd>
@@ -871,15 +876,22 @@ The maximum value is also computed and checked.
 <a name="Objective___Gradient"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gradient</span></h3>
 
-<span class="declaration">virtual Objective :: Gradient ( )</span>
+<span class="declaration">virtual Objective :: Gradient ( extcall )</span>
 <dl><dd>
 Compute the &nabla;f(), objective's gradient at the current vector.
-<P/>
-<DT>Compute</DT>
-<pre><var>&nabla; f(&psi;)</var></pre>
-<P/>
-Stored in <code>cur.G</code>
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">extcall</td>
+<td class="description" valign="baseline">[default=TRUE].  if running in parallel Stop message sent out
+<DT>Compute</DT>
+<span class="equation">$$\nabla f(\psi)$$</span>
+Stored in <code>cur.G</code></td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1432,7 +1444,7 @@ of the equations parsed by <a href="Shared.ox.html#varlist">varlist</a>.
 <a name="UnConstrained___Gradient"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gradient</span></h3>
 
-<span class="declaration">virtual UnConstrained :: Gradient ( )</span>
+<span class="declaration">virtual UnConstrained :: Gradient ( extcall )</span>
 <dl><dd>
 Compute the &nabla;f(), objective's gradient at the current vector.
 <P/>
