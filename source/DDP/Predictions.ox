@@ -180,7 +180,8 @@ concatenated to the path
 
 **/
 PathPrediction::Empirical(inNandMom,hasN,hasT,wght) {
-    decl inmom,totN,inN,invsd,C = columns(inNandMom)-1,influ,dt,datat,negt;
+    decl inmom,totN,inN,invsd,C = columns(inNandMom)-1,influ,dt,datat,negt,
+    report = !Version::MPIserver && Data::Volume>SILENT;
     influ = ones(1,C-1);
     T = rows(inNandMom);
     HasObservations = TRUE;
@@ -188,8 +189,11 @@ PathPrediction::Empirical(inNandMom,hasN,hasT,wght) {
         negt = inNandMom[][C].<0;
         if ( any(negt)  ) {
             influ = inNandMom[maxcindex(negt)][:C-2];
+            if (report)
+                fprintln(Data::logf,"Influence weights","%c",tlabels[1:C-2],influ);
             inNandMom = deleteifr(inNandMom,negt);
             }
+        if (report) MyMoments(inNandMom,tlabels[1:],Data::logf);
         datat = inNandMom[][C];
         T = rows(inNandMom);
         }
@@ -887,7 +891,6 @@ PredictionDataSet::Read(FNorDB) {
             if (report) {
                     println("Moments read in for fixed group ",curf,". See log file");
                     fprintln(Data::logf,"Moments of Moments for fixed group:",curf);
-                    MyMoments(inmom,tlabels[1:],Data::logf);
                     }
             } while (inf==curf);
         } while(row<rows(data));
