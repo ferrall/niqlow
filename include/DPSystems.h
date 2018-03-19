@@ -94,7 +94,7 @@ struct ReservationValues : ValueIteration {
 
 struct RVGSolve : GSolve {
     //static decl                                         LBvalue,METHOD;
-	decl                                                Volume,
+	decl
 	/** Objectives for each &Alpha;	**/					RValSys;
     RVGSolve(LBvalue,Method);
     Solve(state);

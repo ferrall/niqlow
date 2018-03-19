@@ -1,11 +1,13 @@
 /** Run Various tests programs for DDP.
 **/
 #import "niqlow"
+#import "menu"
 
 TestRun();
 
 struct Test1 : Bellman {
-	static Run(UseList);
+	static Run();
+	static RunA(UseList);
 	Utility();
 	}
 
@@ -30,14 +32,16 @@ struct Test2 : ExtremeValue	{
                                                             chprob;
 
 				Utility();
-		static 	Run(Uselist=FALSE);
+	static Run();
+		static 	RunA(Uselist=FALSE);
         static  Output();
 	}
 
 
 struct Test3 : Bellman {
 	static decl a, d, s0, s1;
-	static Run(UseList);
+	static Run();
+	static 	RunA(Uselist=FALSE);
 	Utility();
 	}
 

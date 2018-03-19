@@ -471,18 +471,12 @@ Objective::AggSubProbMat(submat) {
 **/
 Objective::vobj(F)	{
 	Decode(F);
-    if (Volume>QUIET) {
-        Print("vobj",logf,Volume>LOUD);
-        fprintln(logf,"Debugging ... isclass:",isclass(p2p));
-        }
+//    if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
     if (isclass(p2p))  // no servers are in loop if fobj() was called.
         p2p.client->SubProblems(cur.F);  // argument was F, but needs to be a vector; might not be
     else
 	    cur.V[] =  vfunc();
-    if (Volume>QUIET) {
-        fprint(logf,"vobj = ",cur.V);
-        if (Volume>LOUD)  println("vobj = ",cur.V);
-        }
+//    if (Volume>QUIET) { fprint(logf,"vobj = ",cur.V);if (Volume>LOUD)  println("vobj = ",cur.V);}
 	}
 
 /* Decode the input, compute the objective, check the maximum.

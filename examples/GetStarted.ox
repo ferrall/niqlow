@@ -18,6 +18,7 @@ Search::Run()	{
 	ExogenousStates(p = new SimpleJump("p",Noff));
 	CreateSpaces();
     VISolve();
+    Delete;
 	}
 Search::Utility()  {
 	return -(1-CV(d))*(lam + CV(p)*CV(a));

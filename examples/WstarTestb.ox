@@ -2,7 +2,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 WStar::Uz(z)        { return eta | z;	}
-WStar::Utility()    { decl dv = CV(d); return eta*(1-dv) + zstar[I::r]*dv;	}
+WStar::Utility()    { decl dv = CV(d); return eta*(1-dv) + zstar[][I::r]*dv;	}
 
 WStar::Run()	{
 	Initialize(new WStar());
@@ -25,8 +25,8 @@ Use Mill's ratio to compute truncated mean of normal.
 @return Array of two vectors
 **/	
 WStar::EUtility()    {
-	decl pstar = 1-probn(zstar[I::r]);
-	return {  ( eta | densn(zstar[I::r])/pstar) , (1-pstar)~pstar};
+	decl pstar = 1-probn(zstar[][I::r]);
+	return {  ( eta | densn(zstar[][I::r])/pstar) , (1-pstar)~pstar};
 	}	
 
 WStar::graphit() {

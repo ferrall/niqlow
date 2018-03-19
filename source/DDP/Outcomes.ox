@@ -308,7 +308,12 @@ observability likelihood
 Panel::Panel(r,method,FullyObserved) {
 	decl i, q;
     this.method = method;
-	this.r = r;
+    if (!isint(r)) {
+        oxwarning("Panel tag should be an integer");
+        this.r = Zero;
+        }
+    else
+	     this.r = r;
 	FPanel(0,method,FullyObserved);	
 	fparray = new array[N::F];
 	fparray[0] = 0;

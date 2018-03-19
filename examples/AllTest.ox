@@ -2,64 +2,33 @@
 /* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 TestRun() {
-    decl k;
-    do {
-       scan("Enter 0 to run all or a positive number to run a specific case, [-1]  QUIT\n?","%i",&k);
-	   if (k<Zero) break;
-       if(!k || k==1 ) {
-           println("\n\n***************** Test1A *****************\n");
-	       Test1::Run(FALSE);	
-	       println("\n\n***************** Test1B *****************\n");
-	       Test1::Run(TRUE);
-           }
-       if(!k || k==2 ) {
-	       println("\n\n***************** Test2A *****************\n");
-	       Test2::Run(FALSE);	
-	       println("\n\n***************** Test2B *****************\n");
-	       Test2::Run(TRUE);	
-           }
-       if(!k || k==3 ) {
-	       println("\n\n***************** Test3A *****************\n");
-	       Test3::Run(FALSE);	
-	       println("\n\n***************** Test3B *****************\n");
-	       Test3::Run(TRUE);	
-	       println("\n\n***************** Test3C *****************\n");
-	       Test3a::Run();	
-           }
-       if(!k || k==4 ) {
-	       println("\n\n***************** Test4 *****************\n");
-	       Test4::Run();		
-            }
-       if(!k || k==5 ) {
-	       println("\n\n***************** Test5 *****************\n");
-	       Test5::Run();		
-            }
-       if(!k || k==6 ) {
-	       println("\n\n***************** Test6 *****************\n");
-	       Test6::Run();		
-            }
-       if(!k || k==7 ) {
-	       println("\n\n***************** Test7 *****************\n");
-	       Test7::Run();		
-            }
-       if(!k || k==8 ) {
-	       println("\n\n***************** Test8 *****************\n");
-	       Test8::Run();
-            }		
-       if(!k || k==9 ) {
-	       println("\n\n***************** Test9 *****************\n");
-	       Test9::Run();		
-          }
-       if(!k || k==10 ) {
-	       println("\n\n***************** Test10. Reservation Wage *****************\n");
-	       Test10::Run();		
-          }
-        if (!k) break;
-        } while (TRUE);
+    decl tmenu = new Menu("DDP Tests",FALSE);
+    tmenu->add(
+            {"Aging-FixedEffects",Test1::Run},
+            {"Longevity-Renewak",Test2::Run},
+            {"KW-Approximization",Test3::Run},
+	        {"KW-NormalEffects",Test3a::Run},
+            {"Integration",Test4::Run},
+	        {"Integration",Test5::Run},
+	        {"Ergodic-Simulation",Test6::Run},
+	        {"Outcomes-Simulation",Test7::Run},
+	        {"Random-Fixed-Effects",Test8::Run},
+	        {"Data-Prediction",Test9::Run},
+	        {"Reservation-Values",Test10::Run}
+            );		
+    return tmenu;
 	}
 
 Test1::Utility() { return  1.0; }
-Test1::Run(UseList) {
+
+Test1::Run() {
+    println("Spanning State Space");
+    RunA(TRUE);
+    println("Using State List");
+    RunA(FALSE);
+    }
+
+Test1::RunA(UseList) {
 	Bellman::Initialize(new Test1(),UseList);
 	SetClock(NormalAging,10);
 	GroupVariables(new FixedEffect("g",2));
@@ -76,7 +45,15 @@ Test2::Utility()  {
 			 +normalization;	// added to avoid exp() underflow for delta near 1.0
 	}
 
-Test2::Run(UseList)	{
+Test2::Run() {
+    println("Spanning State Space");
+    RunA(TRUE);
+    println("Using State List");
+    RunA(FALSE);
+    }
+
+
+Test2::RunA(UseList)	{
 	decl EMax, row=0;
     Initialize(1.0,new Test2());
     SetClock(UncertainLongevity,3,0.0);
@@ -96,7 +73,16 @@ Test2::Run(UseList)	{
 	}
 
 Test3::Utility() { decl u = Alpha::A[Aind]*(CV(d)-5+CV(s0))+(1-Alpha::A[Aind])*CV(s1); return u;}
-Test3::Run(UseList) {
+
+Test3::Run() {
+    println("Spanning State Space");
+    RunA(TRUE);
+    println("Using State List");
+    RunA(FALSE);
+    }
+
+
+Test3::RunA(UseList) {
 	Initialize(new Test3(),UseList);
 	SetClock(NormalAging,5);
 	Actions(new ActionVariable("a",2));

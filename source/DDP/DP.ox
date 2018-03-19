@@ -1791,14 +1791,16 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 SaveV::Run() {
 	if ((TrimTerminals && I::curth.IsTerminal) || (TrimZeroChoice && N::Options[I::curth.Aind]<=1) ) return;
     decl mxi, p;
+    oxprintlevel(-1);
 	stub=I::all[tracking]~I::curth.InSubSample~I::curth.IsTerminal~I::curth.Aind~state[S[endog].M:S[clock].M]';
     p = columns(I::curth.pandv)==rows(NxtExog[Qprob])
             ?  I::curth->ExpandP( I::curth.pandv*NxtExog[Qprob])
             :  I::curth->ExpandP( I::curth.pandv );
     r =stub~I::r~I::f~I::curth.EV;
     if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
-	if (isclass(I::curth,"OneDimensionalChoice") )  r ~= I::curth->Getz()';
+	if (isclass(I::curth,"OneDimensionalChoice") && I::curth.solvez ) r ~= I::curth->Getz()[][I::r]';
 	if (!isint(aM)) aM[0] |= r;
+    oxprintlevel(1);
 	s = (nottop)
 		? sprint("%cf",prtfmt,r)
 		: sprint("%c",isclass(I::curth,"OneDimensionalChoice") ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);

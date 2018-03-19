@@ -899,6 +899,7 @@ ActionAccumulator::Transit()	{
 @param Current `ActionVariable` or `StateVariable` that holds the current value
 @param Lag `StateVariable` holding previous value<br><em>or</em> vector of values to count runs for
 @param N integer, maximum number of periods to count
+@param MaxOnce FALSE [default] spells repeat; TRUE once max is reached it remains frozen.
 @param Prune TRUE [default]: prune states if finite horizon detected.
 @example
 <pre>

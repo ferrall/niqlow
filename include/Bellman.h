@@ -248,7 +248,7 @@ struct OneDimensionalChoice : ExPostSmoothing {
 			decl
             /** TRUE: solve for z* at this state.
                 Otherwise, ordinary discrete choice.**/             solvez,
-			/**N::R x 1 array of reservation value vectors.  **/	zstar;
+			/**N::Aind-1 x N::R array of reservation value vectors.  **/	zstar;
 	static 	Initialize(userState,d=Two,UseStateList=FALSE);
 	static  CreateSpaces(Method=NoSmoothing,smparam=1.0);
 	virtual Uz(z);
@@ -261,7 +261,7 @@ struct OneDimensionalChoice : ExPostSmoothing {
     virtual Continuous();
             SysSolve(RVs,VV);
             Getz();
-            Setz(z);
+    virtual Setz(z);
 	}
 
 /** A OneDimensionalChoice model with discretized approximation to &zeta;.

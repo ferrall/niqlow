@@ -861,7 +861,9 @@ OneDimensionalChoice::Continuous() { return TRUE;   }
 OneDimensionalChoice::SetTheta(state,picked) {
     Bellman(state,picked);
     solvez = Continuous();
-    if (solvez) zstar = ones(N::Options[Aind]-1,1);
+    zstar = solvez
+            ? ones(N::Options[Aind]-1,N::R)
+            : .NaN;
     }
 
 OneDimensionalChoice::Smooth(VV) {
@@ -897,7 +899,7 @@ OneDimensionalChoice::thetaEMax(){
 	}
 
 OneDimensionalChoice::Getz() { return zstar; }
-OneDimensionalChoice::Setz(z){ zstar[] = z;}
+OneDimensionalChoice::Setz(z){ zstar[][I::r]=z; }
 
 /** Initialize v(d;&theta;), stored in `Bellman::pandv`, as the constant future component that does
 not depend on z*.
@@ -919,7 +921,7 @@ OneDimensionalChoice::SysSolve(RVs,VV) {
 		V[] = VV[0][I::now][I::all[iterating]] = maxc(pandv);
         if (solvez) {
 		  pstar = <1.0>;
-		  zstar[] = .NaN;
+		  zstar[][] = .NaN;
           }
 	    if (Flags::setPstar) {
             this->Smooth(V);

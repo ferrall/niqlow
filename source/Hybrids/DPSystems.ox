@@ -61,7 +61,6 @@ Rsystem::Rsystem(LB,Ncuts,METHOD) {
 		Block(zstar = new Increasing("R*",LB,Ncuts));
 	else
 		Parameters(zstar = (lbv==-.Inf) ? new Free("R*",1.0) : new BoundedBelow("R*",LB,lbv+1.1) );
-	Volume = SILENT;
 	switch(METHOD) {
 		case UseDefault:
 		case USEBROYDEN:
@@ -70,6 +69,7 @@ Rsystem::Rsystem(LB,Ncuts,METHOD) {
 		case USENEWTONRAPHSON:
 			meth = new NewtonRaphson(this);
 		}
+    Volume = meth.Volume= SILENT;
     meth.USELM = (Ncuts==1);
 	}
 	
@@ -94,6 +94,7 @@ Rsystem::RVSolve(curth,dV) {
 	Encode(setbounds(curth->Getz()[],lbv+1.1,.Inf));
 	meth->Iterate();
 	curth->Setz(CV(zstar));
+
 	}
 
 /** Solve for reservation values.
@@ -116,17 +117,19 @@ RVEdU::RVEdU() {
 RVEdU::Run() {
     if (I::curth.solvez)
         I::curth->UReset();
-    else
+    else {
         I::curth->ExogUtil();	
+        }
 	}
 
 
 RVGSolve::Solve(state) {
-    this.state = state;
+	this.state = itask.state = state;
     decl rv;
     foreach (rv in RValSys) if (isclass(rv)) { rv.meth.Volume = Volume; rv.meth->Tune(MaxTrips); }
     Clock::Solving(&VV);
     ZeroTprime();
+	itask->Traverse();  //compute endogenous utility
     this->Traverse();
 	Flags::setPstar = counter->setPstar();   // REMOVED MaxTrips??? See GSolve().
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER) VV[LATER][] = VV[I::later][];    //initial value next time
@@ -146,10 +149,12 @@ RVGSolve::RVGSolve(LBvalue,Method) {
                     : new Rsystem(LBvalue,sysize,Method))
 			 :  0;
         }
-    Volume = QUIET;
+    Volume = SILENT;
     }
 
-RVGSolve::Run() {    V = I::curth->SysSolve(RValSys,&VV);	}
+RVGSolve::Run() {
+    V = I::curth->SysSolve(RValSys,&VV);	
+    }
 
 /**  Simplified Reservation Value Iteration model solution.
 

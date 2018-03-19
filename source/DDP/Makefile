@@ -3,13 +3,12 @@ include ../Makefile.inc
 INC := ..\..\include
 DOC := ../../doc/DDP
 
-
 vpath %.ox .:../Shared
-vpath %.h $(INC)
+vpath %.h $(INC):$(MENU)\source
 vpath %.oxo $(INC)
 vpath %.ox.html ../../doc/DDP
 
-varsrc := Shared. DDPShared. ActionVariable. StateVariable. Clock. TimeInvariant. AuxiliaryValues.
+varsrc :=  Shared. DDPShared. ActionVariable. StateVariable. Clock. TimeInvariant. AuxiliaryValues.
 varobj = $(varsrc:.=.oxo)
 dppsrc := DP. Bellman. Methods. Data.
 dppobj = $(dppsrc:.=.oxo)

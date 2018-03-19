@@ -1,6 +1,7 @@
 /** Run Various tests programs for FiveO.
 **/
 #import "FiveO"
+#import "menu"
 /* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 OptTestRun();
@@ -12,9 +13,11 @@ SepTest();
 SimpTest();
 MixTest();
 
+
 struct Nothing {
     static decl alphas;
-    Nothing(Ncalls);
+    static Run();
+    Nothing();
     Solve();
     }
 

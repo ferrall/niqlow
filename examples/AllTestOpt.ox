@@ -2,43 +2,27 @@
 /* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
 
 OptTestRun() {
-    decl s = "***************** ";
-    decl k;
-    println("1. Explore\n2. Blackbox\n3. Simplex\n4. System\n5. Spearable\n6. Inequality\n7. Mixture");
-    do {
-       scan("Enter 0 to run all or a positive number to run a specific case, [-1]  QUIT\n?","%i",&k);
-	   if (k<Zero) break;
-       if(!k || k==1 ) {
-	       println("\n\n",s,"A. Explore Test ",s,"\n");    new Nothing(20);
-           }
-       if(!k || k==2 ) {
-	       println("\n\n",s,"A. Blackbox Test ",s,"\n");	BBTest();
-           }
-       if(!k || k==3 ) {
-	       println("\n\n",s,"B. Simplex Test ",s,"\n");   SimpTest();
-            }
-       if(!k || k==4 ) {
-        	println("\n\n",s,"C1. System Test ",s,"\n");    SysTest();
-            }
-       if(!k || k==5 ) {
-	       println("\n\n",s,"C2. System Test With Line Max",s,"\n");  LMSysTest();
-            }
-       if(!k || k==6 ) {
-	       println("\n\n",s,"D. Separable Test ",s,"\n"); SepTest();
-            }
-       if(!k || k==7 ) {
-	       println("\n\n",s,"E. Inequality Test ",s,"\n"); InEqTest();
-            }
-       if(!k || k==8 ) {
-	       println("\n\n",s,"F. Mixture Test ",s,"\n"); MixTest();
-	       }
-        if (!k) break;
-        } while (TRUE);
+    decl omenu = new Menu("FiveO Tests",FALSE);
+    omenu->add( {"Explore Test ",Nothing::Run},
+                {"Blackbox Test ",BBTest},
+                {"Simplex Test ",SimpTest},
+                {"C1. System Test ",SysTest},
+                {"C2. System Test With Line Max",LMSysTest},
+                {"D. Separable Test ",SepTest},
+                {"E. Inequality Test ",InEqTest},
+                {"F. Mixture Test ",MixTest}
+                );
+    return omenu;
 	}
 
-Nothing::Nothing(Ncalls) {
+Nothing::Run() {
+    decl n = new Nothing();
+    Explore(n,20,UseDefault,alphas);
+    delete n;
+    }
+
+Nothing::Nothing() {
     alphas = new Simplex("alph",3);
-    Explore(this,Ncalls,UseDefault,alphas);
     }
 
 Nothing::Solve() {
