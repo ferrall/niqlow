@@ -46,7 +46,7 @@ Warning issued if |v<sub>0</sub>)-LB-1| &lt; `Parameter::NearFlat`</dd>
 **/
 struct BoundedBelow : Limited	{
 	/** `AV` compatible, the lower bound**/ decl LB;
-	BoundedBelow(L,LB, v0);
+	BoundedBelow(L,LB,v0);
 	Encode();
 	Decode(f);
     virtual Menu(fp);
@@ -182,8 +182,8 @@ struct DecreasingReturns : ParameterBlock		{
 	}
 
 struct Ordered : ParameterBlock {
-	/** `AV` compatible, bound for first value. **/ decl B;
-    Ordered(L,B,ivals,sign);
+	/** `AV` compatible, bound for first value. **/ decl B,Anchored;
+    Ordered(L,B,ivals,sign,Anchored=FALSE);
     }
 	
 /** Vector of parameters that are sequentially increasing.
@@ -193,7 +193,7 @@ x<sup>j</sup> = `BoundedBelow`(x<sup>j-1</sup>)
 </pre></dd>
 **/
 struct Increasing : Ordered	{
-	Increasing(L,LB,ivals);
+	Increasing(L,LB,ivals,Anchored=FALSE);
 	}	
 
 
@@ -204,7 +204,7 @@ x<sup>j</sup> = `BoundedAbove`(x<sup>j-1</sup>)
 </pre></dd>
 **/
 struct Decreasing : Ordered	{
-	Decreasing(L,UB,ivals);
+	Decreasing(L,UB,ivals,Anchored=FALSE);
 	}	
 	
 /** Vector of free parameters.

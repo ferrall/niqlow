@@ -379,30 +379,41 @@ DecreasingReturns::BlockCode()	{
 	ParameterBlock::BlockCode();
 	}
 
-Ordered::Ordered(L,B,ivals,sign) {
+Ordered::Ordered(L,B,ivals,sign,Anchored) {
 	decl k,myN,newpsi,prevpsi,ffree,bv;
 	ParameterBlock(L);
     this.B = B;
+    this.Anchored = Anchored;
     bv = CV(B);
+    if (ismissing(bv)&&Anchored) oxrunerror("Five0 Error 25. Ordered Sequence"+L+" anchoring can't happen with infinite bound");
 	ffree = bv == -sign *  .Inf;
+    println("In Ordered ",ivals," ",Anchored);
 	if (isint(ivals)||isdouble(ivals))
-		{ myN = int(ivals);  ivals = (ffree ? 0 : bv) + sign*(1.1)*range(1,myN);}
+		{ myN = int(ivals)+Anchored;  ivals = (ffree ? 0 : bv) + sign*(1.1)*range(1,myN-Anchored)';}
 	else
-		{ivals = vec(ivals); myN = rows(ivals);}
+		{ivals = vec(ivals); myN = rows(ivals)+Anchored;}
 	if ( (sign>0)&&any(ivals|.Inf .<=bv|ivals)
          || (sign<0)&&any(ivals|-.Inf.>=bv|ivals) ) {
         println("****",ivals',"\n****");
 		oxrunerror("FiveO Error 25. Ordered Sequence  "+L+" initial values not a valid");
         }
-	prevpsi = B;
 	Psi = {};
-	for(k=0;k<myN;++k) {
-		AddToBlock( (!k && ffree)
-				        ? new Free(L+sprint(k),ivals[0])
-				        : (sign>0) ? new BoundedBelow(L+sprint(k),prevpsi,ivals[k])
-				                   : new BoundedAbove(L+sprint(k),prevpsi,ivals[k]) );
+    if (Anchored) {
+        AddToBlock( isclass(B,"Determined") ? B : new Determined(L+"0",B) );
+        prevpsi = Psi[0];
+        }
+    else
+	   prevpsi = B;
+    println(" ",myN," ",B," ",ivals);
+	for(k=0;k<rows(ivals);++k) {
+		AddToBlock(
+                (!k && ffree)
+				        ? new Free(L+sprint(k),ivals[k])
+				        : (sign>0) ? new BoundedBelow(L+sprint(k+Anchored),prevpsi,ivals[k])
+				                   : new BoundedAbove(L+sprint(k+Anchored),prevpsi,ivals[k]) );
 		prevpsi = Psi[k];
 		}
+    println("number parameters ",sizeof(Psi));
     }
 
 /**Create an increasing vector of  parameters.
@@ -412,10 +423,11 @@ LB &lt; x<sub>1</sub> &lt; x<sub>2</sub> &lt; &hellip; &lt; x<sub>N</sub>
 @param L label
 @param LB lower bound for first variable, a double, `Parameter` or static function<br>send -.Inf to make the first parameter free
 @param ivals integer, dimension of sequence<br>OR<br>N&times;1 vector of initial values
+@param Anchored TRUE, LB should be the first element of the block (as a Determined parameter)
 @comment if ivals is an integer N then the sequence is initialized as LB+1, LB+2, &hellip; LB+N.
 **/
-Increasing::Increasing(L,LB,ivals)	{
-    Ordered(L,LB,ivals,+1);
+Increasing::Increasing(L,LB,ivals,Anchored)	{
+    Ordered(L,LB,ivals,+1,Anchored);
 	}
 
 
@@ -424,10 +436,11 @@ LB &lt; x<sub>1</sub> &gt; x<sub>2</sub> &gt; &hellip; &gt; x<sub>N</sub>
 @param L label
 @param UB upper bound for first variable, a double, `CV` comptible.<br>send .Inf to make the first parameter free
 @param ivals integer, dimension of sequence<br>OR<br>N&times;1 vector of initial values
+@param Anchored TRUE, UB should be the first element of the block (as a Determined parameter)
 @comment if ivals is an integer N then the sequence is initialized as UB-1, UB-2, &hellip; UB-N
 **/
-Decreasing::Decreasing(L,UB,ivals)	{
-    Ordered(L,UB,ivals,-1);
+Decreasing::Decreasing(L,UB,ivals,Anchored)	{
+    Ordered(L,UB,ivals,-1,Anchored);
 	}
 
 
