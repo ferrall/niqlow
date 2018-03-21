@@ -30,6 +30,7 @@ Retirement::Run()	{
 		acteqpars[][Retire:Part] = acteqpars[][Full]-acteqpars[][Retire:Part];
 		Emax->Solve(0,0);
 		}
+    Bellman::Delete();
 	}
 
 /** Age-dependent mortality probability. **/

@@ -7,7 +7,7 @@ RustEstimates::DoAll() {
     decl toglist;
 	toglist = ZurcherHat::FirstStage(0);
 	EMax = new ValueIteration(0);
-	EMax.vtoler = 1E-03;
+	// EMax.vtoler = 1E-03;
 	buses = new BusData(EMax);
 	nfxp = new PanelBB("ZurcherMLE",buses,ZurcherHat::hat);
 	nfxp.Volume = LOUD;
@@ -25,6 +25,11 @@ RustEstimates::DoAll() {
     EMax.DoNotIterate = FALSE;  //iterate on V until convergence
     nfxp->ToggleParams(toglist);
     nfxp->ResetMax();
+    EMax.Volume = NOISY;
+    GSolve::RunSafe = TRUE;
+    delete mle;
+    mle = new BFGS(nfxp);
+	mle.Volume = NOISY;
 	mle -> Iterate(0);
 	println(" Estimation: ",timer()+cputime0);
 

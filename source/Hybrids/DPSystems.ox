@@ -28,7 +28,7 @@ SolveAsSystem::SolveAsSystem() {
 	if (!Flags::IsErgodic) oxrunerror("DDP Error 34. SolveAsSystem only works with ergodic clock");
     Method();
 	VI = new ValueIteration();
-	system = new EVSystem(SS[iterating].size,VI);
+	system = new EVSystem(N::Mitstates,VI);
     itask = new SaSGSolve();
     }
 

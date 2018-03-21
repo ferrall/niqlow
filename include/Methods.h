@@ -33,20 +33,26 @@ struct GSolve : ThetaTask {
     static decl
         /** TRUE (default): exit if NaNs encountered during iteration<br>
             FALSE: exit with <code>IterationFailed</code> **/
+                                                    dff,
+                                                    prevdff,
                                                     RunSafe,
     /** TRUE if all tasks suceed.**/                succeed,
                                                     warned,
 	/** Scratch space for value iteration. **/      VV,
+    /**Newton-Kantorovich iterations.**/            NKiterating,
+    /**tolerance for switching to NK,**/            NKtoler,
 	/** Tolerance on value function convergence in
     stationary environments.  Default=10<sup>-5</sup>.**/	
                                                      vtoler,
                                                      MaxTrips;
-	NTrips();
+	// NTrips();
     ZeroTprime();
     GSolve(ndogU=0);
     virtual Solve(instate);
     virtual Run();
 	virtual Update();
+    NewtonKantorovich();
+    Report(mefail);
 	}
 
 /** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/

@@ -146,7 +146,7 @@ WStarC::Run()	{
 /*
     graphit();
     data = new Panel(0);
-    data->Simulate(300,48,0,FALSE);
+0    data->Simulate(300,48,0,FALSE);
     data->Print ("A3.dta");
 */
     Delete();

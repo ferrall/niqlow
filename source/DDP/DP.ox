@@ -716,6 +716,7 @@ N::Subsample(prop) {
 N::Sizes() {
 	ReachableIndices = reversec(ReachableIndices);
     tfirst = 0 | (sizer(ReachableIndices)-tfirst);
+    Mitstates = DP::SS[iterating].size;
     }
 
 /** .

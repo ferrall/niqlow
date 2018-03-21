@@ -191,6 +191,7 @@ enum {InfiniteHorizon,Ergodic,SubPeriods,NormalAging,StaticProgram,RandomAging,R
 		/** . elements of array stored at each theta. @name TransStore **/
 enum {Qtr,Qit,Qrho,TransStore}
 
+
         /** parallel array of labels for the built-in clock types. **/
 static const decl ClockTypeLabels
     = {"Infinite Horizon","Ergodic","Subdivided Periods","Normal Finite Horizon Aging","Static Program (finite horizon and T=1)","Random Aging (finite horizon but aging happens with probability<1 at some t","Random Mortaility (finite horizon with probability of early transition to last t, death)",
@@ -259,6 +260,7 @@ struct N : DDPauxiliary {
 	   /**  lowest state index for each t.  **/      				  tfirst,
                                                                       MinSZ,
                                                                       MaxSZ,
+        /** # of iteration points SS[iterating].size.**/              Mitstates,
 		/**  .  **/									                  ReachableIndices,
 		/**  Count of reachable states.  **/   	                      TerminalStates,
     	/**  Count of reachable states.  @internal **/  		      ReachableStates,

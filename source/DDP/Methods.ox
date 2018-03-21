@@ -146,10 +146,13 @@ GSolve::Solve(instate) {
     ZeroTprime();
 	itask->Traverse();  //compute endogenous utility
 	Flags::setPstar = counter->setPstar() ||  (MaxTrips==1);   // if first trip is last;
+    NKiterating = FALSE;
+    dff = 0.0;
     succeed = TRUE;
     warned = FALSE;
-    decl tmp = this->Traverse() ;
-	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER) VV[LATER][] = VV[I::later][];    //initial value next time
+    this->Traverse() ;   //this does the iteration see GSolve::Run()
+	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER)
+        VV[LATER][] = VV[I::later][];    //initial value next time
     Hooks::Do(PostGSolve);
     if (Volume>SILENT && N::G>1) print(".");
 	}
@@ -192,6 +195,7 @@ ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
     if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions();
     GSolve::Volume = Volume;
     GSolve::vtoler = vtoler;
+    GSolve::NKtoler = 0.1; //sqrt(vtoler);
     GSolve::succeed = TRUE;
     done = FALSE;
     if (Volume>QUIET && (Fgroups==AllFixed && Rgroups==AllRand)) println("\n>>>>>>Value Iteration Starting");
@@ -237,30 +241,29 @@ GSolve::GSolve(myEndogUtil) {
 	ThetaTask(iterating);
 	itask = isint(myEndogUtil) ? new EndogUtil()  : myEndogUtil;
 	VV = new array[DVspace];
-    decl i;
-    for (i=0;i<DVspace;++i) VV[i] = zeros(1,SS[iterating].size);
-   	if (isint(delta))
-        oxwarning("DDP Warning 23.\n User code has not set the discount factor yet.\n Setting it to default value of "+sprint(SetDelta(0.90))+"\n");
+    for (decl i=0; i< DVspace;++i) VV[i] = zeros(1,N::Mitstates);
+   	//if (isint(delta)) oxwarning("DDP Warning 23.\n User code has not set the discount factor yet.\n Setting it to default value of "+sprint(SetDelta(0.90))+"\n");
 	}
 
-/** Update code for fixed number of trips. **/
-GSolve::NTrips() {
-	++trips;
-	I::NowSwap();
-	return done = trips>=MaxTrips;
-	}
+/**Switch to N-K iteration if solving an Ergodic problem if relatively close.**/
+GSolve::NewtonKantorovich(){
+    if (!NKiterating && !Flags::setPstar) {
+        NKiterating =  (dff<NKtoler) && (trips>100 && (dff/prevdff>0.99*I::CVdelta)) ;
+        if (NKiterating && Volume>LOUD) println("    Switching to N-K Iteration ");
+       }
+    else if (NKiterating) {
+        decl L,U,P;
+        declu(unit(N::Mitstates)-I::CVdelta*I::curg.Ptrans',&L,&U,&P);
+        I::curg.Ptrans[][] = 0.0;
+        VV[I::now][] = VV[I::later][]-solvelu(L,U,P,(VV[I::later][]-VV[I::now][])')';
+	    dff= counter->Vupdate();
+        NKiterating = !(dff <vtoler);
+        }
+    }
 
-/**	Check convergence in Bellman iteration, either infinite or finite horizon.
-Default task loop update routine for value iteration.
-This is called after one complete iteration of `ValueIteration::GSolve`().
-@return TRUE if converged or `Task::trips` equals `Task::MaxTrips`
-**/
-GSolve::Update() {
-	++trips;
-	decl dff= counter->Vupdate(), mesucc = !(dff==.NaN);
-    succeed *= mesucc;
-	if ( !mesucc || Volume>LOUD) {
-        if (!mesucc) {
+GSolve::Report(mefail) {
+	if ( mefail || Volume>LOUD) {
+        if (mefail) {
             decl indx=vecindex(VV[I::now][],.NaN),nans = ReverseState(indx',I::OO[iterating][])[S[endog].M:S[endog].X][]';
             fprintln(logf,"\n t =",I::t,". States with V=NaN ","%8.0f","%c",{"Index"}|Labels::Vprt[svar][S[endog].M:S[endog].X],indx~nans);
             if (RunSafe )oxrunerror("DDP Error 29. error while checking convergence.  See log file.");		
@@ -274,13 +277,37 @@ GSolve::Update() {
         else
             fprintln(logf,"Value Function at t =",I::t," ",VV[I::now][]);	
         }
+    }
+
+/** Update code for fixed number of trips.
+GSolve::NTrips() {
+	++trips;
+	I::NowSwap();
+	return done = trips>=MaxTrips;
+	}**/
+
+/**	Check convergence in Bellman iteration, either infinite or finite horizon.
+Default task loop update routine for value iteration.
+This is called after one complete iteration of `ValueIteration::GSolve`().
+@return TRUE if converged or `Task::trips` equals `Task::MaxTrips`
+**/
+GSolve::Update() {
+	++trips;
+    decl mefail;
+    prevdff = dff;
+	dff= counter->Vupdate();
+    if ( Flags::IsErgodic ) NewtonKantorovich();
+    mefail = isnan(dff);
+    succeed *= !mefail;
+    Report(mefail);
     I::NowSwap();
-	state[right] -= Flags::setPstar;
+	state[right] -= Flags::setPstar && !NKiterating;
 	done = SyncStates(right,right) <0 ; //converged & counter was at 0
 	if (!done) {
         Flags::setPstar =  (dff <vtoler)
-					|| MaxTrips==trips+1  //last trip coming up
-                    || counter->setPstar();
+                        || NKiterating
+					    || MaxTrips==trips+1  //last trip coming up
+                        || counter->setPstar();
 		VV[I::now][:I::MxEndogInd] = 0.0;
 		}
 	if (Volume>=LOUD) println("   Trip:",trips,". Done:",done?"Yes":"No",". Visits:",iter,". V diff=",dff,". setP*:",Flags::setPstar ? "Yes" : "No");

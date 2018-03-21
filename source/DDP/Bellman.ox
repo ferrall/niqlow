@@ -625,14 +625,16 @@ ExPostSmoothing::Smooth(EV) {
 **/
 ExtremeValue::Smooth(VV) {
 	EV = VV;
-	pandv[][] = pandv./V;
+//	pandv[][] = pandv./V;
+	pandv ./= V;
 	}
 	
 /**Iterate on Bellman's equation at &theta; using Rust-styled additive extreme value errors.
 **/
 ExtremeValue::thetaEMax(){
 	decl rh = CV(rho);
-	V[] = sumc(pandv[][] = exp(setbounds( rh*pandv,lowb,hib ) ));
+    pandv[][] = exp(setbounds( rh*pandv,lowb,hib ) );
+	V[] = sumc(pandv);
 	return log(V)*(NxtExog[Qprob]/rh);  //M_EULER+
     }
 

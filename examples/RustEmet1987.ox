@@ -20,7 +20,7 @@ Zurcher::Run()	{
 	CreateSpaces();
 
 	EMax = new ValueIteration();
-	EMax.vtoler = 1E-1;   					//loose tolerance because beta near 0 and 1
+	//EMax.vtoler = 1E-1;   					//loose tolerance because beta near 0 and 1
     for(row=0;row<sizeof(pars);++row) {
 		SetDelta(pars[row][disc]);
 		th1 = pars[row][theta1];
@@ -29,6 +29,7 @@ Zurcher::Run()	{
 		EMax -> Solve();
         Output();
 		}
+    Delete();
 	}
 
 	
