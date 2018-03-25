@@ -27,25 +27,43 @@ struct Method : FETask {
     virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
 	}
 
+struct NKinfo : DDPauxiliary {
+      decl
+        myt,
+        Nstat,
+        MnNxt,
+        MxNxt,
+        ptrans,
+        onlyactive,
+        visit;
+    Update(ii);
+    Hold();
+    NKinfo(t);
+    }
+
 /** A container for iterating over &theta; during solution methods.
 **/
 struct GSolve : ThetaTask {
     static decl
-        /** TRUE (default): exit if NaNs encountered during iteration<br>
-            FALSE: exit with <code>IterationFailed</code> **/
                                                     dff,
                                                     prevdff,
+    /** TRUE (default): exit if NaNs encountered during iteration<br>
+            FALSE: exit with <code>IterationFailed</code> **/
                                                     RunSafe,
     /** TRUE if all tasks suceed.**/                succeed,
                                                     warned,
+                                                    Volume,
 	/** Scratch space for value iteration. **/      VV,
-    /**Newton-Kantorovich iterations.**/            NKiterating,
+                                                    ptrans,
+    /**Minimum trips before N-K.**/                 MinNKtrips,
     /**tolerance for switching to NK,**/            NKtoler,
 	/** Tolerance on value function convergence in
     stationary environments.  Default=10<sup>-5</sup>.**/	
                                                      vtoler,
+                                                     UseNK,
+                                                     NK,
+                                                     NKlist,
                                                      MaxTrips;
-	// NTrips();
     ZeroTprime();
     GSolve(ndogU=0);
     virtual Solve(instate);

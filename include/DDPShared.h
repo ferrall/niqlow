@@ -231,6 +231,9 @@ struct Flags : DDPauxiliary {
 		/** .@internal **/			                            DoSubSample,
 		/**  store &Alpha.D x &Theta.D matrix
 			of choice probabilities  **/  						StorePA,
+        /**setting up Newton-Kantorovich iteration.**/          NKstep0,
+        /**Newton-Kantorovich iteration.**/                     NKstep,
+        /** Stationary Stage of value iteration.**/             StatStage,
 		/** set &Rho;*(<code>&alpha;</code>|&hellip;)
             in Bellman		**/		                            setPstar;
     static Reset();

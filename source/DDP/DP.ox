@@ -788,7 +788,7 @@ DP::Initialize(userState,UseStateList) {
             Volume = NOISY;
             if (!Version::MPIserver) println(Volume,arglist());
             }
-    if (Volume>=QUIET && !Version::MPIserver)
+    if (Volume>SILENT && !Version::MPIserver)
         println("DP::Intialize is complete. Action and State spaces are empty.\n Log file name is: ",lognm);
  }
 
@@ -1219,12 +1219,15 @@ Task::loop(IsCreator){
 			} while (--state[left]>=0);
 		state[left] = 0;
 		d = left+double(vecrindex(state[left:right]|1));
+//        println("");println(d," ",right," ",state[right]);
 		if (d<right) --state[d];			   			//still looping inside
 		else {
             if ( this->Update() == IterationFailed ) return IterationFailed;
+//            println(" Update ",right," ",d," ",state[d]);
             }
 		state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
 		SyncStates(left,d);
+//        println(" After sync in loop ",d," ",right," ",state[right]);
 		} while (d<=right || !done );  //Loop over variables to left of decremented, unless all vars were 0.
     if (trace) println("*** End Loop ",classname(this));
     return TRUE;
@@ -1254,6 +1257,7 @@ Task::list(span,inlows,inups) {
 	decl lft = left ? state[:left-1] : <>,
 		 rht = right<N::S-1 ? state[right+1:] : <> ,
 		 rold, ups, lows, s, news, indices;
+    oxwarning(" Don't use list processing on Stationary/Ergodic clocks yet!!!");
     if (trace) println("*** Task List: ",classname(this),state');
 	trips = iter = 0;
 	SyncStates(0,N::S-1);
@@ -1373,7 +1377,10 @@ Task::SyncStates(dmin,dmax)	{
 			if (sv>-1) Sd.block.actual[Sd.bpos] = Sd.actual[sv];	
 			}
 		}
-    if (dmin<=S[clock].M && dmax>= S[clock].M) counter->Synch();
+    if (dmin<=S[clock].M && dmax>= S[clock].M) {
+        counter->Synch();
+        //println("$%$ ",dmin," ",dmax," ",S[clock].M," ",I::t);
+        }
 	return sv;
 	}
 

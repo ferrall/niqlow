@@ -24,7 +24,7 @@ struct Clock : StateBlock {
 	Clock(Nt,Ntprime);
     static Solving(aVV);
     virtual Vupdate();
-    virtual setPstar();
+    virtual setPstar(notsynched=FALSE);
 	virtual Last();
     virtual Synch();
 	}
@@ -202,7 +202,7 @@ struct Divided : NonStationary {
                                                                             Vnext0;
     Divided(MajT,SubT,HasInit=FALSE,HasFinal=FALSE);
     virtual Transit();
-    virtual setPstar();
+    virtual setPstar(notsynched=FALSE);
     virtual Last();
     virtual Update();
     virtual Vupdate();
@@ -229,7 +229,7 @@ SetClock(new Aging(10));
 **/
 struct Aging : NonStationary	{
 	Aging(T);
-    virtual setPstar();
+    virtual setPstar(notsynched=FALSE);
 	}
 
 /**A static one-shot program (T=1).
@@ -303,7 +303,7 @@ struct AgeBrackets : NonDeterministicAging	{
 	AgeBrackets(Brackets);
 	Transit();
 	virtual Last();
-    virtual setPstar();
+    virtual setPstar(notsynched=FALSE);
 	}
 
 /** Deterministic aging with random early death.
@@ -359,7 +359,7 @@ struct Mortality : NonDeterministicAging {
                                                     mp;		
 	Mortality(T,MortProb);
 	virtual Transit();
-    virtual setPstar();
+    virtual setPstar(notsynched=FALSE);
     virtual Vupdate();
 	}
 
@@ -407,7 +407,7 @@ struct Longevity : Mortality {
 	Longevity(T,MortProb);
 	Transit();
     virtual Last();
-    virtual setPstar();
+    virtual setPstar(notsynched=FALSE);
     virtual Vupdate();
 	}
 	

@@ -361,6 +361,7 @@ struct Group : DP {
 		/**Index into random effects **/			rind,
 		/**Group's state vector.**/					state,
 		/** State-to-State transition. **/			Ptrans,
+
 		/** Expand Choice Prob matrix. **/			Palpha,
 		/** Stationary distribution.
 			&Rho;<sub>&infin;</sub> **/	 			Pinfinity,

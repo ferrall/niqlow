@@ -141,7 +141,7 @@ SimulatedAnnealing::Metropolis()	{
              ++accept;
              change = TRUE;
 			 }
-	    if (Volume>=LOUD) fprint(logf,"%r",{j==jm ? "*" : "-"},"%cf",{"%5.0f","%3.0f","%12.5g"},iter~j~diff~exp(diff/heat)~vtries[j]~(vec(tries[][j])'));
+	    if (Volume>QUIET) fprint(logf,"%r",{j==jm ? "*" : "-"},"%cf",{"%5.0f","%3.0f","%12.5g"},iter~j~diff~exp(diff/heat)~vtries[j]~(vec(tries[][j])'));
         }
     if (accept>=N) {
 		heat *= cooling;  //cool off annealing
@@ -171,14 +171,14 @@ SimulatedAnnealing::Iterate(chol)	{
 	if (Volume>SILENT)O->Print("Annealing Start ",logf,Volume>QUIET);
 	accept = iter =0;	
 	holdpt.step = OC.F; holdpt.v = OC.v;
-    if (Volume>=LOUD) fprint(logf,"%r",{"#"},"%c",{"i","j","delt","prob.","v","x vals"},"%cf",{"%5.0f","%3.0f","%12.5g"},-1~0~0.0~0.0~holdpt.v~(holdpt.step'));
+    if (Volume>QUIET) fprint(logf,"%r",{"#"},"%c",{"i","j","delt","prob.","v","x vals"},"%cf",{"%5.0f","%3.0f","%12.5g"},-1~0~0.0~0.0~holdpt.v~(holdpt.step'));
 	do  {
         tries = holdpt.step + this.chol*rann(N,M);
         vec0 = holdpt.step;
 	    O->funclist(tries,&Vtries,&vtries);
         if (Metropolis() && M>1) {  // order matters!  no short circuit
             tries = OC.F + rann(1,M).*(vec0-OC.F);
-            if (Volume>=LOUD) fprintln(logf,"Line Search",(vec0-OC.F)');
+            if (Volume>QUIET) fprintln(logf,"Line Search",(vec0-OC.F)');
 	        O->funclist(tries,&Vtries,&vtries);
 		    Metropolis();
             }

@@ -15,7 +15,7 @@ to call this routine.
 Clock::Clock(Nt,Ntprime) {
 	StateBlock("clock");
 	AddToBlock(t = new TimeVariable("t",Nt),tprime = new TimeVariable("t'",Ntprime));
-	IsErgodic = FALSE;
+	Flags::StatStage = IsErgodic = FALSE;
 	}
 
 /** Flag for last period.
@@ -49,14 +49,18 @@ Clock::Vupdate() {
                  -aVV[0][LATER][ : I::MxEndogInd ]  ,2);
     }
 
-Clock::setPstar() { return FALSE; }
+Clock::setPstar(notsynched) { return FALSE; }
 
 Clock::Synch() { I::t = t.v; }
 	
 /** A stationary clock block.
 @param IsErgodic  TRUE, store &Rho;*
 **/
-Stationary::Stationary(IsErgodic) {	Clock(1,1);	this.IsErgodic = IsErgodic;}
+Stationary::Stationary(IsErgodic) {	
+    Clock(1,1);	
+    this.IsErgodic = IsErgodic;
+    Flags::StatStage = TRUE;
+    }
 
 /** The baseline transition for stationary clocks (<code>t=t&prime;=0</code> always).
 @internal **/
@@ -166,7 +170,7 @@ Aging::Aging(T) {
     Clock(T,1);	
     }
 
-Aging::setPstar() { return TRUE; }
+Aging::setPstar(notsynched) { return TRUE; }
 
 /** A static problem: Aging and T=1.
 
@@ -197,12 +201,12 @@ StaticP::StaticP() { Aging(1); }
 <DT>If FALSE then check for convergence</DT>
 **/
 NonDeterministicAging::Vupdate() {
-    if (Flags::setPstar) {
+    if (Volume>QUIET)
+        println("%^% ",I::t," ",Flags::StatStage," ",Flags::setPstar,moments(aVV[0][I::now][ : I::MxEndogInd ]')');
+    if (Flags::setPstar)
         aVV[0][I::now][ I::MxEndogInd+1 : ] = aVV[0][I::now][ : I::MxEndogInd ];	//copy today's value to tomorrow place
-        return NonStationary::Vupdate();
-        }
-    else
-        return Clock::Vupdate();  //check for convergence
+    //check for convergence
+    return Flags::StatStage ? Clock::Vupdate() : NonStationary::Vupdate();
     }
 	
 /**Create an aging clock with brackets.
@@ -253,7 +257,11 @@ AgeBrackets::Transit()	 {
 **/
 AgeBrackets::Last() { return (t.v && t.N-1) && Brackets[t.N-1]==1;}
 
-AgeBrackets::setPstar() { return Brackets[t.v]==1; }
+AgeBrackets::setPstar(notsynched) {
+    if (notsynched) Flags::StatStage = Brackets[t.N-1]==1;
+    else Flags::StatStage = Brackets[t.v]==1;
+    return !Flags::StatStage;
+    }
 
 /**	Set clock to be deterministic aging with early random death.
 @param T length of horizon. T-1 = death;
@@ -289,7 +297,9 @@ Mortality::Vupdate() {
     return nrm;
     }
 
-Mortality::setPstar() { return TRUE; }
+Mortality::setPstar(notsynched) {
+    return !(Flags::StatStage = TRUE);
+    }
 
 /**	Random death and uncertain maximum lifetime.
 @param T number of age phases.  T-1 = death; T-2 = stationary last period.
@@ -300,6 +310,7 @@ EV at <code>t=T-2</code> is treated as an infinite horizon problem and iterated 
 Longevity::Longevity(T,MortProb) {
 	Mortality(T,MortProb);
     twilight = Tstar-1;
+    Flags::StatStage = TRUE;
 	}
 
 /** . @internal **/
@@ -332,8 +343,16 @@ Longevity::Vupdate() {
     return nrm;
     }
 
-Longevity::setPstar() {
-    return t.v != twilight;
+Longevity::setPstar(notsynched) {
+    if (notsynched) {
+        Flags::StatStage = FALSE;
+        if (Volume>QUIET) println("first");
+        }
+    else {
+        Flags::StatStage = t.v==twilight;
+        if (Volume>QUIET) println(" P* ",t.v," ",twilight);
+        }
+    return !Flags::StatStage; //  (t.v != twilight);
     }
 		
 /** A sequence of finite-termed phases of treatment.

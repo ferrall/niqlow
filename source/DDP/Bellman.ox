@@ -221,13 +221,22 @@ Bellman::thetaEMax() {
 
 /** Compute endogenous state-to-state transition &Rho;(&theta;'|&theta;) for the current state <em>in `Stationary` environments</em>.
 **/
-Bellman::UpdatePtrans() {
+Bellman::UpdatePtrans(aPt,vindex) {
 	decl eta,
-		 h = aggregatec(pandv * NxtExog[Qprob],SS[onlyexog].size)',
+		 h = aggregater(pandv .* NxtExog[Qprob]',SS[onlyexog].size)',
 		 ii = I::all[onlyendog];
-	for (eta=0;eta<sizerc(Nxt[Qit]);++eta)
-		I::curg.Ptrans[ Nxt[Qit][eta] ][ii] += (h[eta][]*Nxt[Qrho][eta])';
-	if (Flags::StorePA) I::curg.Palpha[][I::all[tracking]] = ExpandP(pandv*NxtExog[Qprob]/*TRUE*/);
+    if (isint(aPt)) {
+ 	  for (eta=0;eta<sizeof(Nxt[Qit]);++eta)
+		  I::curg.Ptrans[ Nxt[Qit][eta] ][ii] += (h[eta][]*Nxt[Qrho][eta])';
+	   if (Flags::StorePA)
+            I::curg.Palpha[][I::all[tracking]] = ExpandP(pandv*NxtExog[Qprob]/*TRUE*/);
+        }
+    else if (isint(vindex))
+ 	  for (eta=0;eta<sizeof(Nxt[Qit]);++eta)
+		  aPt[0][ Nxt[Qit][eta] ][ii] += (h[eta][]*Nxt[Qrho][eta])';
+    else
+  	   for (eta=0;eta<sizeof(Nxt[Qit]);++eta)
+		  aPt[0][ vindex[ Nxt[Qit][eta] ] ][ vindex[ii] ] += (h[eta][]*Nxt[Qrho][eta])';
 	}
 
 Bellman::OutputValue() { return 0.0;     }

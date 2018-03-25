@@ -59,7 +59,7 @@ struct  Bellman : DP {
 					//aa(av);
 					Simulate(Y);
 					ThetaTransition();
-					UpdatePtrans();
+					UpdatePtrans(ap=0,vind=0);
                     StateToStatePrediction(tod);
 					ExpandP(p0/*Agg=TRUE*/);
 					MedianActVal(EV);

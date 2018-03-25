@@ -387,7 +387,6 @@ Ordered::Ordered(L,B,ivals,sign,Anchored) {
     bv = CV(B);
     if (ismissing(bv)&&Anchored) oxrunerror("Five0 Error 25. Ordered Sequence"+L+" anchoring can't happen with infinite bound");
 	ffree = bv == -sign *  .Inf;
-    println("In Ordered ",ivals," ",Anchored);
 	if (isint(ivals)||isdouble(ivals))
 		{ myN = int(ivals)+Anchored;  ivals = (ffree ? 0 : bv) + sign*(1.1)*range(1,myN-Anchored)';}
 	else
@@ -404,7 +403,6 @@ Ordered::Ordered(L,B,ivals,sign,Anchored) {
         }
     else
 	   prevpsi = B;
-    println(" ",myN," ",B," ",ivals);
 	for(k=0;k<rows(ivals);++k) {
 		AddToBlock(
                 (!k && ffree)
@@ -413,7 +411,6 @@ Ordered::Ordered(L,B,ivals,sign,Anchored) {
 				                   : new BoundedAbove(L+sprint(k+Anchored),prevpsi,ivals[k]) );
 		prevpsi = Psi[k];
 		}
-    println("number parameters ",sizeof(Psi));
     }
 
 /**Create an increasing vector of  parameters.
