@@ -49,7 +49,6 @@ BBTest() {
 	alg.Volume = NOISY;
 	alg->Tune(0,0,10);
 	alg->Iterate(0.1);
-    println("\n Trying to read from checkpoint");
     alg->Iterate(UseCheckPoint);
     decl k;
     scan("Enter 0 to continue, [-1]  QUIT\n?","%i",&k);

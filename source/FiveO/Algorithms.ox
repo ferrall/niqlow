@@ -34,8 +34,10 @@ Algorithm::ItStartCheck(ReadCheckPoint) {
     NormalStart = !ReadCheckPoint;
     OC.H = OC.SE = OC.G = .NaN;
     convergence = NONE;
-    if (ReadCheckPoint) this->CheckPoint(FALSE);
-    O->Encode();
+    if (ReadCheckPoint)
+        this->CheckPoint(FALSE);
+    else
+        O->Encode();
 	N = rows(OC.F);
     path = <>;
 	iter = 0;
@@ -387,28 +389,28 @@ NelderMead::NelderMead(O)	{
 	}
 	
 NelderMead::ItStartCheck(iplex) {
-    decl itype = isint(iplex) ? Zero : isdouble(iplex) ? One : Two;
-    decl iret = Algorithm::ItStartCheck(itype==Zero&&(iplex==UseCheckPoint));
+    decl itype = isint(iplex[0]) ? Zero : isdouble(iplex[0]) ? One : Two;
+    decl iret = Algorithm::ItStartCheck(itype==Zero&&(iplex[0]==UseCheckPoint));
     if (iret) {
        switch_single(itype) {
             case Zero:
-                    switch(iplex) {
-                        case UseCheckPoint : break;
+                    switch(iplex[0]) {
+                        case UseCheckPoint : iplex[0] = nodeX; break;
                         case UseGradient :
                             O.Volume = LOUD;
                             O->Gradient(FALSE);
                             O.Volume = QUIET;
                             OC.G = (fabs(OC.G) .< 1E-2) .? 0.01 .: OC.G;
-                            iplex = 0~diag(OC.G/norm(OC.G,2));
+                            iplex[0] = 0~diag(OC.G/norm(OC.G,2));
 		                    step = 1.0;
                             break;
-                        case Zero : iplex = (0~unit(N)); break;
-                        default : mxstarts = iplex;
+                        case Zero : iplex[0] = (0~unit(N)); break;
+                        default : mxstarts = iplex[0];
                         }
-            case One:  step = iplex; iplex = (0~unit(N));
+            case One:  step = iplex[0]; iplex[0] = (0~unit(N));
             case Two:
                     step = 1.0;
-                    if ( rows(iplex)!=N || columns(iplex)!=N+1 )
+                    if ( rows(iplex[0])!=N || columns(iplex[0])!=N+1 )
                         oxrunerror("Five0 error: initial simplex sent to NelderMead not Nx(N+1)");
             }
         }
@@ -426,7 +428,7 @@ NelderMead::ItStartCheck(iplex) {
 See <a href="GetStarted.html">GetStarted</a>
 **/
 NelderMead::Iterate(iplex)	{
-    if (!ItStartCheck(iplex)) return;
+    if (!ItStartCheck(&iplex)) return;
 	if (Volume>SILENT) {
 		  O->Print("Simplex Starting ",logf,Volume>QUIET);
 		  fprintln(logf,"\n Max # evaluations ",nfuncmax,
