@@ -844,9 +844,12 @@ OneDimensionalChoice::Initialize(userState,d,UseStateList) {
     println("Action variable objected stored in d.  Label = '",this.d.L,"'.  Number of values: ",this.d.N);
 	}
 
-/** Default 1-d utility, returns `OneDimensional::EUstar` already completed.
-**/
-OneDimensionalChoice::Utility()    { return EUstar;}
+/* Default 1-d utility, returns `OneDimensional::EUstar` already completed.
+*/
+OneDimensionalChoice::Utility()    {
+    return 0;
+    //return EUstar;
+    }
 
 /** Create spaces and check that &alpha; has only one element.
 @param Method the `SmoothingMethods`, default = <code>NoSmoothing</code>
@@ -872,9 +875,15 @@ OneDimensionalChoice::Continuous() { return TRUE;   }
 OneDimensionalChoice::SetTheta(state,picked) {
     Bellman(state,picked);
     solvez = Continuous();
-    zstar = solvez
-            ? ones(N::Options[Aind]-1,N::R)
-            : .NaN;
+    decl nz = N::Options[Aind]-1;
+    if (solvez) {
+        if (nz)
+            zstar = ones(nz,N::R);
+        else {
+            zstar = constant(.NaN,1,N::R);
+            pstar = <1.0>;
+            }
+        }
     }
 
 OneDimensionalChoice::Smooth(VV) {
@@ -899,13 +908,12 @@ $$EV(\theta) = \sum_{j=0}^{d.N^-} \left[ \left\{ Prob(z^\star_{j-1}<z\le z^\star
 @return EV
 **/
 OneDimensionalChoice::thetaEMax(){
-	[EUstar,pstar] = EUtility();
-	V[] = pstar*(EUstar+pandv);
-	if (Flags::setPstar) {
-        this->Smooth(V);
-        Hooks::Do(PostSmooth);
-        if (Flags::IsErgodic) this->UpdatePtrans();
-        }
+    if (solvez && N::Options[Aind]>1) {
+	   [EUstar,pstar] = EUtility();
+	   V[] = pstar*(EUstar+pandv);
+       }
+	else
+        V[] = maxc(I::curth.pandv);
 	return V;
 	}
 
@@ -919,10 +927,10 @@ OneDimensionalChoice::ActVal(VV) {
     pandv[][] = IsTerminal || IsLast
                        ? 0.0
 	                   : I::CVdelta*Nxt[Qrho][0]*VV[Nxt[Qit][0]]';
-    if (!solvez) pandv += U;
+    if (solvez<=One) pandv += U;
 	}	
 
-OneDimensionalChoice::SysSolve(RVs,VV) {
+/*OneDimensionalChoice::SysSolve(RVs,VV) {
     ActVal(VV[0][I::later]);
 	if ( solvez && isclass(RVs[Aind])) {
 		RVs[Aind] -> RVSolve(this,DeltaV(pandv));
@@ -941,10 +949,10 @@ OneDimensionalChoice::SysSolve(RVs,VV) {
             }
 		}
     return V;
-    }
+    }*/
 
 KeepZ::ActVal(VV) {
-    if (solvez) {
+    if (solvez>One) {
         keptz->InitDynamic(this,VV);
         return;
         }

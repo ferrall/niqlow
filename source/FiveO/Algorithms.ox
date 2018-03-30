@@ -664,8 +664,8 @@ GradientBased::Direction()	{
 	if (declu(OC.H,&l,&u,&p)==1)
 		return solvelu(l,u,p,-OC.G');
 	else {
-		oxwarning("FiveO Warning 01. Hessian inversion failed.\n Hessian reset to the identify matrix I.\n");
-		OC.H = unit(N);
+		oxwarning("FiveO Warning 01. Hessian inversion failed.\n Hessian reset to the -I.\n");
+		OC.H = -unit(N);
          ++Hresetcnt;
 		 return Direction();
 		 }
@@ -700,7 +700,7 @@ GradientBased::ItStartCheck(H) {
             OC.H = H;
         else if (NormalStart) {  //NormalStart set by Algorithm::ItStartCheck
             if (IamNewt) O->Hessian();
-            else OC.H = unit(N);
+            else OC.H = -unit(N);
             }
         }
     return iret;
@@ -1038,7 +1038,7 @@ SQP::Hupdate() {
 SQP::Iterate(H)  {
 	decl Qconv,deltx,mults,istr;
     if (!ItStartCheck()) return;
-	OC.H = isint(H) ? unit(N) : H;
+	OC.H = isint(H) ? -unit(N) : H;
 	O->Merit(0);
 	if (any(OC.ineq.v.<0)) oxrunerror("FiveO Error 09. Inequality constraints not satisfied at initial psi");
 	if (any(OC.ineq.lam.<0)) oxrunerror("FiveO Error 10. Initial inequality lambda has negative element(s)");

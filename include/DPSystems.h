@@ -49,7 +49,7 @@ struct EVSystem : DPSystem	{
 struct Rsystem : DPSystem {
 	const decl zstar, Ncuts, meth;
 	decl ru, curth, dV, c,lbv;
-	RVSolve(curth,dV);
+	RVSolve(dV);
 	Rsystem(LB,Nchoice,METHOD);
 	virtual vfunc();
 	}

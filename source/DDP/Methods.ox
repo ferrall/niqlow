@@ -80,14 +80,16 @@ ValueIteration::Run(){
     if (Flags::UpdateTime[AfterFixed]) ETT->Transitions(state);
     if (DoNotIterate) return;
 	cputime0 = timer();
+    if (trace) println("--------Group task loop: ",classname(this)," Rgroups ",Rgroups,state');
     if (Rgroups==AllRand) {
         itask->SetFE(state);
-        done = done || itask->GroupTask::loop();
+        if (trace) println("-------- About to run ",classname(itask));
+        done = itask->GroupTask::loop() || done;
         Hooks::Do(PostRESolve);
         }
     else {
         itask->SetRE(state,Rgroups);
-        done = done || itask->Run();
+        done = itask->Run() || done;
         }
 	}
 
@@ -109,10 +111,10 @@ RandomSolve::Run()  {
         retval =itask->Solve(this.state);
         if (DPDebug::OutAll)
             DPDebug::RunOut();
-        else
-            if (GSolve::Volume>QUIET) {println("%^%^"); /*DPDebug::outV(TRUE);*/}
+        else if (GSolve::Volume>LOUD) {DPDebug::outV(TRUE);}
         return retval;
 		}
+    if (trace) println("---------- **** Group Reset Failed ");
 	}
 
 /** Apply Bellman's equation at a point &theta;
@@ -124,10 +126,13 @@ RandomSolve::Run()  {
 
 **/
 GSolve::Run() {
-	decl ev, ii = I::all[iterating];
 	I::curth->ActVal(VV[I::later]);
-	VV[I::now][ii] = ev = I::curth->thetaEMax();
-    if (Flags::NKstep0) NK->Update(ii);
+	VV[I::now][I::all[iterating]] = ev = I::curth->thetaEMax();
+    this->PostEMax();
+	}
+
+GSolve::PostEMax() {
+    if (Flags::NKstep0) NK->Update(I::all[iterating]);
 	if (Flags::setPstar)  {
 		I::curth->Smooth(ev);
         Hooks::Do(PostSmooth);
@@ -136,7 +141,7 @@ GSolve::Run() {
         else if (Flags::IsErgodic)
             I::curth->UpdatePtrans();
 		}
-	}
+    }
 
 /** Interate over the state space apply the solution method.
 <OL>
@@ -160,6 +165,7 @@ GSolve::Solve(instate) {
     Hooks::Do(PostGSolve);
     if (Volume>SILENT && N::G>1) print(".");
 	}
+
 
 GSolve::ZeroTprime() { state[counter.tprime.pos] = 0; }
 
@@ -251,14 +257,13 @@ NKinfo::Update(ii) {
     visit[ii] = 1;
     MnNxt = min(MnNxt,ii);
     MxNxt = max(MxNxt,ii);
-    println(ii," ",MnNxt,MxNxt);
     }
 
 NKinfo::Hold() {
     Nstat = sumc(visit);
     visit = visit.*cumulate(visit)-1;
     onlyactive = selectifr(range(0,I::MxEndogInd)',visit.>=0);
-    println("onlyactive ",onlyactive');
+//    println("visit,onlyactive ",visit',onlyactive');
     }
 
 GSolve::GSolve(myEndogUtil) {
@@ -287,7 +292,6 @@ GSolve::NewtonKantorovich(){
                 decl v;
                 NK = 0;
                 foreach(v in NKlist) if (v.myt==I::t) { NK=v;break; }
-                println( dff," ",I::CVdelta*prevdff);
                 if (isint(NK)) {
                     NK = new NKinfo(I::t);
                     NKlist |= NK;
@@ -321,7 +325,7 @@ GSolve::NewtonKantorovich(){
         ptrans[][] = 0.0;
         if (Flags::IsErgodic) {
             VV[I::now][] = VV[I::later][]-solvelu(L,U,P,(VV[I::later][]-VV[I::now][])')';
-            println(VV[I::now][]-VV[I::later][]);
+//            println(VV[I::now][]-VV[I::later][]);
             }
         else {
             decl step =solvelu(L,U,P,(VV[I::later][NK.onlyactive]-VV[I::now][NK.onlyactive])')';

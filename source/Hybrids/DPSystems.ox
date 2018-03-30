@@ -88,13 +88,13 @@ DynamicRsystem::DynamicRsystem(LB,Ncuts,METHOD) {
         Rsystem(LB,Ncuts,METHOD);
     }
 
-Rsystem::RVSolve(curth,dV) {
-	this.curth = curth;
+Rsystem::RVSolve(dV) {
+	this.curth = I::curth;
 	this.dV = dV;
 	Encode(setbounds(curth->Getz()[],lbv+1.1,.Inf));
 	meth->Iterate();
 	curth->Setz(CV(zstar));
-
+    return curth->thetaEMax();
 	}
 
 /** Solve for reservation values.
@@ -115,7 +115,7 @@ RVEdU::RVEdU() {
 	}
 	
 RVEdU::Run() {
-    if (I::curth.solvez)
+    if (I::curth.solvez>One)
         I::curth->UReset();
     else {
         I::curth->ExogUtil();	
@@ -124,9 +124,11 @@ RVEdU::Run() {
 
 
 RVGSolve::Solve(state) {
-	this.state = itask.state = state;
     decl rv;
-    foreach (rv in RValSys) if (isclass(rv)) { rv.meth.Volume = Volume; rv.meth->Tune(MaxTrips); }
+    foreach (rv in RValSys) if (isclass(rv)) { rv.meth.Volume = max(SILENT,Volume-1); rv.meth->Tune(MaxTrips); }
+    GSolve::Solve(state);
+
+/*	this.state = itask.state = state;
     Clock::Solving(&VV);
     ZeroTprime();
 	itask->Traverse();  //compute endogenous utility
@@ -135,6 +137,7 @@ RVGSolve::Solve(state) {
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER) VV[LATER][] = VV[I::later][];    //initial value next time
     Hooks::Do(PostGSolve);
     if (Volume>SILENT && N::G>1) print(".");
+*/
     }
 
 RVGSolve::RVGSolve(LBvalue,Method) {
@@ -153,7 +156,15 @@ RVGSolve::RVGSolve(LBvalue,Method) {
     }
 
 RVGSolve::Run() {
-    V = I::curth->SysSolve(RValSys,&VV);	
+    decl ct =I::curth, ns = ct.solvez && isclass(RValSys[ct.Aind]);
+    ct->ActVal(VV[I::later]);
+    ev = VV[I::now][I::all[iterating]]
+                            = ns
+                                ? RValSys[ct.Aind] -> RVSolve(DeltaV(ct.pandv))
+                                : ct->thetaEMax();
+    this->PostEMax();
+//    println(" here ",ct.solvez," ",ns," ",VV[I::now][I::all[iterating]]);
+//    return V;
     }
 
 /**  Simplified Reservation Value Iteration model solution.

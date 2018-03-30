@@ -425,11 +425,30 @@ ForgetAtT::IsReachable() {
     return ! (Prune && Flags::Prunable && v && (I::t>T) ) ;
     }
 
-/**Create a standard normal N(0,1) discretize jump variable. **/
-Zvariable::Zvariable(L,Ndraws) { SimpleJump(L,Ndraws); }
+/**Create a Normal N(mu,sigma) discretize jump variable. **/
+Nvariable::Nvariable(L,Ndraws,mu,sigma) {
+    this.mu = mu;
+    this.sigma = sigma;
+    SimpleJump(L,Ndraws);
+    }
 
-Zvariable::Update() {	
-    actual = DiscreteNormal (N)';
+Nvariable::Update() {	
+    actual = DiscreteNormal(N,AV(mu),AV(sigma))';
+    if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
+    }
+
+/**Create a standard normal N(0,1) discretize jump variable. **/
+Zvariable::Zvariable(L,Ndraws) {    Nvariable(L,Ndraws);    }
+
+/**Create a exponentially distributed discretize jump variable.
+@param L label
+@param N number of points
+@param gamma decay rate [default=1.0]
+**/
+Xponential::Xponential(L,Ndraws,gamma) { SimpleJump(L,Ndraws); this.gamma = gamma;}
+
+Xponential::Update() {
+    actual = -log(1- (vals'+1)/(N+1))/AV(gamma);
     if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
     }
 
@@ -790,10 +809,10 @@ RetainMatch::Transit() {
 /** .
 **/
 Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
-	this.ToTrack = ToTrack;
 	this.Target=Target;
 	this.Reset = Reset;
 	StateVariable(L,N);
+	this.ToTrack = ToTrack==DoAll ? vals : ToTrack;
     this.Prune = Prune;
 	}
 
@@ -801,7 +820,7 @@ Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 @param L label
 @param N integer, maximum number of times to count
 @param State `StateVariable` or `AV`() compatible object to track.
-@param ToTrack integer or vector, values of State to count. (default = <1>).
+@param ToTrack integer or vector, values of State to count. (default = <1>)<br/>DoAll: track all values
 @param Reset `AV`() compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
 @param Prune TRUE [default]: prune states if finite horizon detected.
 @example <pre>noffers = new StateCounter("Total Offers",offer,5,<1:offer.N-1>,0);</pre>
@@ -915,11 +934,11 @@ prechoice = new LaggedAction("lagc",Choice);
 contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of making same choice up to 5 periods
 </dd>
 **/
-Duration::Duration(L,Current,Lag, N,MaxOnce,Prune) {
+Duration::Duration(L,Current,Lag, N,MaxOnce,ToTrack,Prune) {
 	if (!TypeCheck(Lag,"StateVariable",FALSE) && !ismatrix(Lag))
         oxrunerror("DDP Error 04. Lag must be a State Variable or a vector\n");
 	TypeCheck(Current,"Discrete");
-    Counter(L,N,Current,0,0,Prune);
+    Counter(L,N,Current,ToTrack,0,Prune);
 	isact = isclass(Target,"ActionVariable");
 	this.Lag = Lag;
     this.MaxOnce = MaxOnce;
@@ -930,14 +949,15 @@ Duration::Duration(L,Current,Lag, N,MaxOnce,Prune) {
 Duration::Transit() {
     if (v==N-1 && MaxOnce) return UnChanged();
 	g= matrix(v +(v<N-1));
+    decl istarg = sumr(AV(Target).==ToTrack);
 	if (isact) {
-        add1 = CV(Target).==AV(Lag);
+        add1 = (CV(Target).==AV(Lag)) .* istarg;
 		nf = int(sumc(add1));
         if (Volume>SILENT && !Version::MPIserver) fprintln(logf,v," ",AV(Lag),nf,CV(Target));
         if (!nf) return { <0> , CondProbOne };
 		return { 0~g , (1-add1)~add1 };
 		}
-    if ( !any(AV(Target).==AV(Lag)) ) return { <0> , CondProbOne };
+    if ( (!any(AV(Target).==AV(Lag))) && !istarg ) return { <0> , CondProbOne };
 	return { g , CondProbOne };
 	}
 	

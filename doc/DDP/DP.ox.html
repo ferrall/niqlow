@@ -39,7 +39,7 @@ Shared elements of models: <em>groups</em>, <em>dimensions</em>, <em>hooks</em>,
    variable" in <code>DP.ox</code>, so access to it is somewhat limited. The code is designed so that the user need not and should not access
    <code>Theta</code> directly.</DD>
  <DT>Groups of problems, which are stored in the derived <a href="DP.ox.html#Group">Group</a> class, discussed <a href="#Groups">below</a>.</DT>
- <DD>Groups keep track of different DP problems defined by <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> states defined in <a href="Variables.ox.html#Fixed">Variables.ox.html</a>, fixed and random effects. </DD>
+ <DD>Groups keep track of different DP problems defined by TimeInvariant states defined in <a href="Variables.ox.html#Fixed">Variables.ox.html</a>, fixed and random effects. </DD>
  <DD>Each value of the invariants implies  a point &gamma; in the group space &Gamma;.  The group space is stored as an array <a href="DP.ox.html#Gamma">Gamma</a> of Group objects, a
  global static variable in DP.ox.  Direct access to <a href="DP.ox.html#Gamma">Gamma</a> is limited.</DD>
  <DT>Tasks: </DT>
@@ -71,9 +71,9 @@ Shared elements of models: <em>groups</em>, <em>dimensions</em>, <em>hooks</em>,
 <DT>A <a href="DP.ox.html#Group">Group</a> is a class derived from <a href="DP.ox.html#DP">DP</a> which stores key aspects of the solution to the model that will be used for prediction and estimation.</DT>
 <dd>A <em>group</em> is defined as a unique value of &gamma;. </Dd>
 <P/>
-<DT>Elements of the group vector <code>&gamma;</code> must be derived from the <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> class of state variables.  </DT>
-<DD>Time Invariant states are classified as either <em>fixed</em> or <em>random</em> effects, derived respectively from <a href="Variables.ox.html#FixedEffect">FixedEffect</a> and <a href="Variables.ox.html#RandomEffect">RandomEffect</a>.</DD>
-<DD><a href="Variables.ox.html#FixedEffectBlock">FixedEffectBlock</a>s can be used to represent <a href="Variables.ox.html#SubEffect">SubEffect</a>s and <a href="Variables.ox.html#RandomEffectBlock">RandomEffectBlock</a>s can be used to represent <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a>s.</DD>
+<DT>Elements of the group vector <code>&gamma;</code> must be derived from the TimeInvariant class of state variables.  </DT>
+<DD>Time Invariant states are classified as either <em>fixed</em> or <em>random</em> effects, derived respectively from FixedEffect and RandomEffect.</DD>
+<DD>FixedEffectBlocks can be used to represent SubEffects and RandomEffectBlocks can be used to represent CorrelatedEffects.</DD>
 <P/>
 <DT>The user creates multiple groups by adding time-invariants to the model using <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>().</DT>
 <DT>Example</DT>
@@ -298,7 +298,7 @@ The  base class for the DDP framework.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#DP___Chi">Chi</a></td>
 <td class="modifiers">static</td>
-<td class="description">list of <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>s that depend on the current outcome.</td>
+<td class="description">list of AuxiliaryValues that depend on the current outcome.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#DP___chi">chi</a></td>
@@ -401,7 +401,7 @@ The  base class for the DDP framework.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#DP___zeta">zeta</a></td>
 <td class="modifiers">static</td>
-<td class="description"><a href="Variables.ox.html#ZetaRealization">ZetaRealization</a>, realized continuous shocks, &zeta;,
+<td class="description">ZetaRealization, realized continuous shocks, &zeta;,
 			set during simulation of realized paths.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -417,7 +417,7 @@ The  base class for the DDP framework.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a></td>
 <td class="modifiers">static</td>
-<td class="description">Add <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>s to <a href="DP.ox.html#DP___Chi">Chi</a>.</td>
+<td class="description">Add AuxiliaryValues to <a href="DP.ox.html#DP___Chi">Chi</a>.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a></td>
@@ -477,7 +477,7 @@ The  base class for the DDP framework.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___GroupVariables">GroupVariables</a></td>
 <td class="modifiers">static</td>
-<td class="description">Add <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>s to the group vector &gamma;.</td>
+<td class="description">Add TimeInvariants to the group vector &gamma;.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#DP___Indicators">Indicators</a></td>
@@ -902,7 +902,7 @@ subsampling (if required).
 
 Stores information for a point &gamma; in the Group Space &Gamma;.
 <P/>
-Related DP models differing only by <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> effects.
+Related DP models differing only by TimeInvariant effects.
 <P/>
 <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a> allocates a new Group ojbect for each value of the &gamma; vector.  These
 are located in a static array named <a href="DP.ox.html#Gamma">Gamma</a> that is only accessible directly inside the
@@ -1885,13 +1885,13 @@ current realized action vector, <code>&alpha;</code>,
 
 <span class="declaration">static DP :: AuxiliaryOutcomes ( auxv , ... )</span>
 <dl><dd>
-Add <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>s to <a href="DP.ox.html#DP___Chi">Chi</a>.
+Add AuxiliaryValues to <a href="DP.ox.html#DP___Chi">Chi</a>.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">v1</td>
-<td class="description" valign="baseline">... <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>s or array of auxiliary variables</td>
+<td class="description" valign="baseline">... AuxiliaryValues or array of auxiliary variables</td>
 </tr>
 </table>
 </dd>
@@ -1916,8 +1916,8 @@ List of <a href="Variables.ox.html#StateBlock">StateBlock</a>s added to the mode
 
 <span class="declaration">static decl Chi [public]</span>
 <dl><dd>
-list of <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>s that depend on the current outcome.
-		<a href="Variables.ox.html#AuxiliaryValue___Realize">Realize</a>() is called by <a href="Bellman.ox.html#Bellman___Simulate">Simulate</a>()
+list of AuxiliaryValues that depend on the current outcome.
+		AuxiliaryValue::Realize() is called by <a href="Bellman.ox.html#Bellman___Simulate">Simulate</a>()
 		after <code>&alpha;</code>, &zeta; and full state vectors have been set.
 
 </dd></dl>
@@ -2208,13 +2208,13 @@ Second element is a matrix of transition probabilities (rows for actions <code>&
 
 <span class="declaration">static DP :: GroupVariables ( v1 , ... )</span>
 <dl><dd>
-Add <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>s to the group vector &gamma;.
+Add TimeInvariants to the group vector &gamma;.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">v1,...</td>
-<td class="description" valign="baseline"><a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>s</td>
+<td class="description" valign="baseline">TimeInvariants</td>
 </tr>
 </table>
 </dd>
@@ -2734,7 +2734,7 @@ Tell DDP when parameters and transitions have to be updated.
 <td class="description" valign="baseline"><a href="DDPShared.ox.html#UpdateTimes">UpdateTimes</a> [default=AfterFixed]
 <P/>
 THe default allows for transitions that depend on dynamically determined parameters <em>and</em>
-the current value of <a href="Variables.ox.html#FixedEffect">FixedEffect</a> variables (if there are any).  But transitions do not depend on <a href="Variables.ox.html#RandomEffect">RandomEffect</a>
+the current value of FixedEffect variables (if there are any).  But transitions do not depend on RandomEffect
 variables (if there are any).  Random effects can enter <a href="Bellman.ox.html#Bellman___Utility">Utility</a>().
 <P/>
 </td>
@@ -2944,7 +2944,7 @@ Output level.
 
 <span class="declaration">static decl zeta [public]</span>
 <dl><dd>
-<a href="Variables.ox.html#ZetaRealization">ZetaRealization</a>, realized continuous shocks, &zeta;,
+ZetaRealization, realized continuous shocks, &zeta;,
 			set during simulation of realized paths. Distribution must be conditional on choice stored in
 			<a href="DP.ox.html#DP___alpha">alpha</a>.
 

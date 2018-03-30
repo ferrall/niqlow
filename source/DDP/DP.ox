@@ -495,17 +495,19 @@ GroupTask::GroupTask() {
 @internal **/
 GroupTask::loop(IsCreator){
 	Reset();
-    if (trace) println(" Group task loop: ",classname(this),state');
+    if (trace) println("--Group task loop: ",classname(this),state[left:right]');
 	SyncStates(left,right);
 	d=left+1;				   							// start at leftmost state variable to loop over
 	do	{
 		do {
 			SyncStates(left,left);
             I::Set(state,TRUE);
+            if (trace) println("------Group task loop: ",classname(this)," Running ",state[left:right]');
 			if (IsCreator || isclass(I::curg) ) this->Run();
 			} while (--state[left]>=0);
 		state[left] = 0;
 		d = left+double(vecrindex(state[left:right]|1));
+        if (trace) println("----Group task loop: ",classname(this)," left:d:right",left,":",d,":",right,state[left:right]');
 		if (d<=right)	{
 			--state[d];			   			//still looping inside
 		    state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
@@ -513,7 +515,7 @@ GroupTask::loop(IsCreator){
 			}
 
 		} while (d<=right);
-    if (trace) println(" *** Ending: ",classname(this));
+    if (trace) println("--Group Task Ending: ",classname(this));
     return TRUE;
     }
 
@@ -1171,7 +1173,7 @@ FindReachables::Run() {
 CreateTheta::Run() {
     decl v, h=DP::SubVectors[endog];
     Flags::SetPrunable(counter);
-    foreach (v in h) if (!(th = v->IsReachable())) return;
+    foreach (v in h) { if (!(th = v->IsReachable())) return; }
 	if (userState->Reachable()) {
         Theta[I::all[tracking]] = clone(userState,Zero);
 		Theta[I::all[tracking]] ->SetTheta(state,picked());
@@ -1210,6 +1212,7 @@ Task::loop(IsCreator){
     if (trace) println("*** Task Loop ",classname(this),state');
 	SyncStates(0,N::S-1);
 	d=left+1;				   		// start at leftmost state variable to loop over	
+    done = FALSE;
 	do	{
 		do {
 			SyncStates(left,left);
@@ -1219,15 +1222,12 @@ Task::loop(IsCreator){
 			} while (--state[left]>=0);
 		state[left] = 0;
 		d = left+double(vecrindex(state[left:right]|1));
-//        println("");println(d," ",right," ",state[right]);
 		if (d<right) --state[d];			   			//still looping inside
 		else {
             if ( this->Update() == IterationFailed ) return IterationFailed;
-//            println(" Update ",right," ",d," ",state[d]);
             }
 		state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
 		SyncStates(left,d);
-//        println(" After sync in loop ",d," ",right," ",state[right]);
 		} while (d<=right || !done );  //Loop over variables to left of decremented, unless all vars were 0.
     if (trace) println("*** End Loop ",classname(this));
     return TRUE;
@@ -1722,6 +1722,7 @@ DPDebug::outV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 	}
 
 DPDebug::RunOut() {
+	rp.nottop = FALSE;
 	if (rp.ToScreen) {
             print("\n     Value of States and Choice Probabilities");
             if (N::G>1) print("\n     Fixed Group Index(f): ",I::f,". Random Group Index(r): ",I::r);
@@ -1734,7 +1735,7 @@ DPDebug::RunOut() {
         }
 	rp -> Traverse();
 	if (rp.ToScreen) println(div,"\n");	else fprintln(logf,div,"\n");	
-	if (!OutAll || !I::f ) {   //last or only fixed group, so delete rp and reset.
+	if (!OutAll || (!I::f&&!I::r) ) {   //last or only group, so delete rp and reset.
         delete rp;
         OutAll = FALSE;
         }

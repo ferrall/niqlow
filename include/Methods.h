@@ -53,6 +53,7 @@ struct GSolve : ThetaTask {
     /** TRUE if all tasks suceed.**/                succeed,
                                                     warned,
                                                     Volume,
+                                                    ev,
 	/** Scratch space for value iteration. **/      VV,
                                                     ptrans,
     /**Minimum trips before N-K.**/                 MinNKtrips,
@@ -69,6 +70,7 @@ struct GSolve : ThetaTask {
     virtual Solve(instate);
     virtual Run();
 	virtual Update();
+    virtual PostEMax();
     NewtonKantorovich();
     Report(mefail);
 	}

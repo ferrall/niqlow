@@ -9,7 +9,7 @@ struct WStarA : OneDimensionalChoice	{
 	static Run();
 	Uz(z);
 	EUtility();
-	Utility();
+//	Utility();
 	}
 
 /** A simple search over normally distributed offers. **/
@@ -18,21 +18,23 @@ struct WStarB : WStarA {
 	static Run();
     static graphit();
 	EUtility();
-	Utility();
-    Uz(z);
-    Continuous();
+//	Utility();
+//    Uz(z);
+//    Continuous();
 	}
 
 struct WStarC : WStarB {
     static decl mu, sigma, sigerr, ben, Tben, lambda;
-    static decl dur, data;
+    static decl dur, data, eps, gam;
 	static Run();
+    static Run2();
     static Layoff();
     static Empval(zz);
     static UEval();
+    //static Eta();
     Reachable();
     FeasibleActions();
 	EUtility();
     Continuous();
-    Utility();
+//    Utility();
     }

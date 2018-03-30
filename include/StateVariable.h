@@ -470,13 +470,29 @@ struct Absorbing : Random {
     Transit();
     }
 
-/** A jump variable whose acutal values are quantiles of the standard normal distribution.
+/** A jump variable whose acutal values are quantiles of the normal distribution, $N(\mu,\sigma)$.
 **/
-struct Zvariable : SimpleJump {
-	Zvariable(L,Ndraws);
+struct Nvariable : SimpleJump {
+    decl mu, sigma;
+	Nvariable(L,Ndraws,mu=0,sigma=1);
 	virtual Update();
 	}
-	
+
+/** A jump variable whose acutal values are quantiles of the standard normal distribution.
+**/
+struct Zvariable : Nvariable {
+	Zvariable(L,Ndraws);
+	//virtual Update();
+	}
+
+/** A IID jump variable whose actual values are quantiles of the exponential distribution
+with decay rate $\gamma$.**/
+struct Xponential : SimpleJump {
+    const decl gamma;
+	Xponential(L,Ndraws,gamma=1);
+	Update();
+	}
+
 /**s&prime; = current value of action or state variable.
 @see LaggedState, LaggedAction
 **/
@@ -685,7 +701,7 @@ s' = I{s.x=s.Lx}(s+ I{s &lt; s.N<sup>-</sup>}).
 struct Duration : Counter {
 	const decl Current, Lag, isact, MaxOnce;
 	decl nf, add1, g;
-	Duration(L,Current,Lag,N,MaxOnce=FALSE,Prune=TRUE);
+	Duration(L,Current,Lag,N,MaxOnce=FALSE,ToTrack=DoAll,Prune=TRUE);
 	virtual Transit();
 	}
 
