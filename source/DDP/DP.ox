@@ -1057,9 +1057,10 @@ DP::CreateSpaces() {
         N::print();
         Alpha::Aprint();
         if (N::aux) {
-            println("\n7. AUXILIARY OUTCOMES\n ");
-            decl ax ;
-            foreach(ax in Chi) println("      ",ax.L);  //," Columns=",ax.N
+            println("\n7. AUXILIARY OUTCOMES\n      ");
+            decl ax,ten=0 ;
+            foreach(ax in Chi)
+                print(ax.L,!imod(++ten,10) ? "\n" : "      ");  //," Columns=",ax.N
             println("\n\n");
             }
 		}

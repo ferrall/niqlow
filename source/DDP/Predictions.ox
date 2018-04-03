@@ -831,8 +831,9 @@ PredictionDataSet::Read(FNorDB) {
     decl curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone,incol,
     report = !Version::MPIserver && Data::Volume>SILENT;
     if (report) {
-        println("List of Empirical Moments");
-        foreach(v in tlabels[row]) println("   ",row,". ",v);
+        println("List of Empirical Moments in Data log file");
+        fprintln(Data::logf,"List of Empirical Moments");
+        foreach(v in tlabels[row]) fprintln(Data::logf,"   ",row,". ",v);
         }
     if (isstring(FNorDB)) {
         source = new Database();
@@ -845,7 +846,7 @@ PredictionDataSet::Read(FNorDB) {
         }
 	dlabels=source->GetAllNames();
 	data = source->GetAll();
-    if (report) println("Data columns",dlabels);
+    if (report) fprintln(Data::logf,"Data columns",dlabels);
     if (isarray(flist)) {
         fcols = strfind(dlabels,flist);
         if (any(fcols.==NoMatch)) {println("***",dlabels,flist,fcols); oxrunerror("DDP Error 67. label not found");}

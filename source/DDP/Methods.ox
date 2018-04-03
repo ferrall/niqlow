@@ -196,8 +196,7 @@ Results are integrated over random effects, but results across fixed effects are
 Choice probabilities are stored in `Bellman::pandv`
 **/
 ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
-    decl glo, ghi, g;
-   	if (isint(delta))
+  	if (isint(delta))
         oxwarning("DDP Warning 23.\n User code has not set the discount factor yet.\n Setting it to default value of "+sprint(SetDelta(0.90))+"\n");
     I::NowSet();
     if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions();
