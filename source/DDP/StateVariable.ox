@@ -313,7 +313,7 @@ RandomTrigger::Transit() {
         return basetr;
         }
     // concatentate reset value to feasible, adjust probabilities
-    return { basetr[Qind]~rval, ft*basetr[Qprob]~(1-ft) };
+    return { basetr[Qind]~rval, (1-ft)*basetr[Qprob]~ft };
     }
 
 /** Augment a state variable so it freezes at its current value as long as a trigger is TRUE.

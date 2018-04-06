@@ -7,7 +7,7 @@ WStarTestRun();
 struct WStarA : OneDimensionalChoice	{
 	static decl eta, done;
 	static Run();
-	Uz(z);
+	virtual Uz(z);
 	EUtility();
 //	Utility();
 	}
@@ -31,10 +31,10 @@ struct WStarC : WStarB {
     static Layoff();
     static Empval(zz);
     static UEval();
-    //static Eta();
+	Uz(z);
+    ZZ(z);
     Reachable();
     FeasibleActions();
 	EUtility();
     Continuous();
-//    Utility();
     }

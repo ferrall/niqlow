@@ -409,7 +409,7 @@ Ordered::Ordered(L,B,ivals,sign,Anchored) {
 				        ? new Free(L+sprint(k),ivals[k])
 				        : (sign>0) ? new BoundedBelow(L+sprint(k+Anchored),prevpsi,ivals[k])
 				                   : new BoundedAbove(L+sprint(k+Anchored),prevpsi,ivals[k]) );
-		prevpsi = Psi[k];
+		prevpsi = Psi[k+Anchored];
 		}
     }
 

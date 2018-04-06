@@ -912,8 +912,9 @@ OneDimensionalChoice::thetaEMax(){
 	   [EUstar,pstar] = EUtility();
 	   V[] = pstar*(EUstar+pandv);
        }
-	else
+	else {
         V[] = maxc(I::curth.pandv);
+        }
 	return V;
 	}
 
@@ -927,7 +928,7 @@ OneDimensionalChoice::ActVal(VV) {
     pandv[][] = IsTerminal || IsLast
                        ? 0.0
 	                   : I::CVdelta*Nxt[Qrho][0]*VV[Nxt[Qit][0]]';
-    if (solvez<=One) pandv += U;
+    if (!solvez) pandv += U;
 	}	
 
 /*OneDimensionalChoice::SysSolve(RVs,VV) {

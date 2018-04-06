@@ -62,6 +62,8 @@ WStarB::Run()	{
     Delete();
 	}
 
+
+
 /** Return E[U|z&lt;z*] and E[U|z&ge;z*] and respective probabilities.
 Use Mill's ratio to compute truncated mean of normal.
 @return Array of two vectors
@@ -83,17 +85,17 @@ WStarB::graphit() {
 	SaveDrawWindow("WstarTestb.pdf");
     }
 
+WStarC::ZZ(z) { return (z-CV(mu))/CV(sigma);}
+WStarC::Uz(z) {	return UEval() | Empval(z);	}
 WStarC::UEval(){ return AV(eps)+ (CV(dur)<Tben)*ben;    }
-WStarC::Empval(zz) {
-    return zz/(1-I::CVdelta*(1-CV(lambda)));
-    }
+WStarC::Empval(zz) {    return zz/(1-I::CVdelta*(1-CV(lambda)));    }
 
 /** Return E[U|z&lt;z*] and E[U|z&ge;z*] and respective probabilities.
 Use Mill's ratio to compute truncated mean of normal.
 @return Array of two vectors
 **/	
 WStarC::EUtility()    {
-    decl zz = (zstar[0][I::r]-CV(mu))/CV(sigma), pstar = 1-probn(zz);
+    decl zz = ZZ(zstar[0][I::r]), pstar = 1-probn(zz);
     decl rv = {  UEval() | Empval( CV(mu)+CV(sigma)*densn(zz)/pstar), (1-pstar)~pstar };
 	return rv;
 	}	
@@ -107,6 +109,8 @@ WStarC::Reachable() {
 //    return !(CV(wrk)&&CV(dur));  //doesn't work???
     }
 WStarC::Run()	{
+    lambda = 0.7;
+    eps = 0.3;
     gam = 3;
     mu = 0.8;
     sigma = 0.7;
@@ -122,12 +126,13 @@ WStarC::Run()	{
 	decl RV = new ReservationValues();
     RV.Volume=QUIET;
     GSolve::RunSafe = TRUE;
-    lambda = 0.7;
+    decl key;
     for (sigma = 0.4; sigma<1.1; sigma += 0.05) {
        println("sigma = ",sigma);
 	   DPDebug::outAllV(TRUE,FALSE,FALSE,FALSE,FALSE);
 	   RV->Solve();
-        }
+//       scan("?","%i",&key);
+       }
 /*
     graphit();
     data = new Panel(0);
