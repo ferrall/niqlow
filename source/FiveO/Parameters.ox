@@ -463,7 +463,7 @@ Coefficients::Coefficients(L,ivals,labels) {
 
 /** Create a block of positive parameters, for example a vector of standard deviations.
 @param L label for the block
-@param ivals 0: set to length of labels and initialize all values at 1<br> &gt; 0: number of positive parameters, initialize to 1.0
+@param ivals 0: set to length of labels and initialize all values at 1<br> &gt; 0: number of positive parameters, initialize to 1.25
    <br>vector: initial values
 @param labels 0: use numbers for labels<br>array of strings, labels for values (e.g. variable names)
 **/	
@@ -474,7 +474,7 @@ StDeviations::StDeviations(L,ivals,labels) {
 		  if (ivals>0) myN = int(ivals);
 		  else
 			{ if (!haslabels) oxrunerror("FiveO Error 27a. Invalid inputs to StDeviations()",0); myN = sizeof(labels); }
-		  ivals = ones(myN,1);
+		  ivals = constant(1.25,myN,1);
 		}
 	else {
 		ivals = vec(ivals);
