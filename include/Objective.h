@@ -59,6 +59,7 @@ struct Objective	{
 	        ToggleParameterConstraint();
     virtual Recode(HardCode=FALSE);
 	virtual	ToggleParams(a,...);
+    virtual ToggleBlockElements(pblock,elements=DoAll);
 	virtual	CheckMax(fn=0);
 	virtual Print(orig,fn=0,toscreen=TRUE);
 	virtual	CheckPoint(f,saving);

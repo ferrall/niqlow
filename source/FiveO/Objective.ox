@@ -295,6 +295,10 @@ Objective::Decode(F)	{
 /** Toggle DoNotVary for one or more parameters.
 @param a `Parameter` or array of parameters
 @param ... more parameters or array of parameters.
+
+To toggle elements of a parameter block ...
+
+@see Objective::ToggleBlockElements
 **/
 Objective::ToggleParams(a,...) {
     decl v, va = va_arglist()|a;
@@ -303,6 +307,16 @@ Objective::ToggleParams(a,...) {
         else
             v->ToggleDoNotVary();
         }
+    this->Recode(FALSE);
+    }
+
+/** Toggle DoNotVary for one or more parameters.
+@param pblock `ParameterBlock`
+@param elements vector of indices of block elements to toggle.
+**/
+Objective::ToggleBlockElements(pblock,elements) {
+    if (!isclass(pblock,"ParameterBlock")) oxrunerror("FiveO Error ??. pblock must be a ParameterBlock.");
+    pblock->ToggleDoNotVary(elements);
     this->Recode(FALSE);
     }
 

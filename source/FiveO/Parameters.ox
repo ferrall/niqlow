@@ -261,9 +261,12 @@ ParameterBlock::Encode() {
 	return f;
 	}
 
-ParameterBlock::ToggleDoNotVary() {
+ParameterBlock::ToggleDoNotVary(elements) {
 	decl p;
-	foreach (p in Psi) p->ToggleDoNotVary();
+    if (elements==DoAll)
+	   foreach (p in Psi) p->ToggleDoNotVary();
+    else
+       foreach (p in elements) Psi[p]->ToggleDoNotVary();
 	}
 
 ParameterBlock::Menu(fp) {

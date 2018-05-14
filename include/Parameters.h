@@ -129,7 +129,7 @@ struct ParameterBlock : Parameter {
 	/** current param in V.  **/   					curpar;
 	ParameterBlock(L="PB",...);
 	AddToBlock(psi,...);
-	ToggleDoNotVary();
+	ToggleDoNotVary(elements=DoAll);
 	virtual BlockCode();
 	Encode();
     virtual Menu(fp);
