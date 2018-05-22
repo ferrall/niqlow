@@ -91,8 +91,7 @@ struct DP {
         /** copy of user's Bellman object used for cloning.**/  userState,
 		/** max of vv. @internal       **/						V,
 		/** computes endogenous transitions**/		            ETT,
-		/** current realized action vector, <code>&alpha;</code>,
-			only set during simulation of realized paths. **/ 	alpha,
+		// /** current realized action vector, <code>&alpha;</code>,	only set during simulation of realized paths. **/ 	alpha,//
 		/** `ZetaRealization`, realized continuous shocks, &zeta;,
 			set during simulation of realized paths. Distribution must be conditional on choice stored in
 			`DP::alpha`. **/ 	                                zeta,

@@ -427,7 +427,8 @@ Bellman::Simulate(Y) {
 			  		: DrawOne( Y.usecp ? pandv[][InSubSample*(Y.ind[bothexog])]  //if approximated, only one column in pandv
                                        : constant(1/curJ,curJ,1) );
     Alpha::SetA(I::all[onlyacts]);
-	SyncAct(alpha = Alpha::aC);
+	SyncAct(Alpha::aC);
+    this->Utility();        //Added May 2018.  Could also be a hook???
 	zeta -> Realize(Y);
 	decl i;
 	for (i=0,chi=<>;i<sizeof(Chi);++i) {
@@ -634,14 +635,15 @@ ExPostSmoothing::Smooth(EV) {
 **/
 ExtremeValue::Smooth(VV) {
 	EV = VV;
-//	pandv[][] = pandv./V;
 	pandv ./= V;
+//    if (!I::t) println("**",VV,pandv);
 	}
 	
 /**Iterate on Bellman's equation at &theta; using Rust-styled additive extreme value errors.
 **/
 ExtremeValue::thetaEMax(){
 	decl rh = CV(rho);
+//    if (!I::t) println("$",pandv);
     pandv[][] = exp(setbounds( rh*pandv,lowb,hib ) );
 	V[] = sumc(pandv);
 	return log(V)*(NxtExog[Qprob]/rh);  //M_EULER+

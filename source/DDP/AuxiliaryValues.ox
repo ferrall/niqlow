@@ -87,8 +87,21 @@ Indicator::Indicator(target,myval,iobj,prefix) {
     }
 
 Indicator::Realize(y) {
-    v = CV(target).==myval;
-    if (iacted) {
+    if (isclass(y,"Outcome")) {
+        v = isclass(target,"ActionVariable")
+                        ? Alpha::aC[target.pos]==myval
+                        : CV(target)==myval;
+        if (iacted) {
+            if (isclass(iobj,"ActionVariable"))
+                v *= Alpha::aC[iobj.pos];
+            else {
+                if (isclass(iobj,"AuxiliaryValue")) iobj->Realize(y);
+                v *= AV(iobj);
+                }
+            }
+        }
+    else {
+        v =  CV(target).==myval;
         if (iacted==Two) iobj->Realize(y);
         v .*= AV(iobj);
         }
@@ -96,10 +109,27 @@ Indicator::Realize(y) {
 
 MultiIndicator::Realize(y) {
     decl n,t;
-    v = <1>;
-    foreach(t in target[n]) v .*= CV(t).==myval[n]; //    for(n=0;n<sizeof(target);++n) v .*= CV(target[n]).==myval[n];
-    if (iacted) {
-       if (isclass(iobj,"AuxiliaryValue")) iobj->Realize(y);
-       v .*= AV(iobj);
-       }
+    if (isclass(y,"Outcome")) {
+        v=1;
+        foreach(t in target[n])
+            v *= isclass(t,"ActionVariable")
+                        ? Alpha::aC[t.pos]==myval[n]
+                        : CV(t)==myval[n];
+        if (iacted) {
+            if (isclass(iobj,"ActionVariable"))
+                v *= Alpha::aC[iobj.pos];
+            else {
+                if (isclass(iobj,"AuxiliaryValue")) iobj->Realize(y);
+                v *= AV(iobj);
+                }
+            }
+        }
+    else {
+        v = <1>;
+        foreach(t in target[n]) v .*= CV(t).==myval[n];
+        if (iacted) {
+            if (isclass(iobj,"AuxiliaryValue")) iobj->Realize(y);
+            v .*= AV(iobj);
+            }
+        }
     }

@@ -784,7 +784,8 @@ DP::Initialize(userState,UseStateList) {
  	for (subv=0;subv<DSubSpaces;++subv)   	{ SS[subv]= new SubSpace();  }
 	F = new array[DVspace];
 	P = new array[DVspace];
-	alpha = chi = zeta = delta = Impossible;
+	//alpha =
+    chi = zeta = delta = Impossible;
     SetUpdateTime();
     if (strfind(arglist(),"NOISY")!=NoMatch) {
             Volume = NOISY;

@@ -89,9 +89,10 @@ Outcome::Simulate() {
 	ind[onlyexog] = I::OO[onlyexog][]*state;
 	ind[onlysemiexog] = I::OO[onlysemiexog][]*state;
 	SyncStates(0,N::S-1);
+    I::Set(state,FALSE);
 	if ((!Settheta(ind[tracking]))) oxrunerror("DDP Error 49. simulated state"+sprint(ind[tracking])+" not reachable");
 	snext = I::curth->Simulate(this);
-	act = alpha;
+	act = Alpha::aC;
 	z = CV(zeta);
 	aux = chi;
 	return snext==UnInitialized;
@@ -163,8 +164,12 @@ Path::Simulate(T,usecp,DropTerminal){
 	Outcome::usecp = usecp;
 	cur = this;
 	this.T=1;  //at least one outcome on a path
+    if (Data::Volume>QUIET) print("_____PATH");
 	while ( !(done = cur->Outcome::Simulate()) && this.T<T ) //not terminal and not yet max length
-		{++this.T; cur = cur.onext==UnInitialized ? new Outcome(cur) : cur.onext;}
+		{
+        ++this.T; cur = cur.onext==UnInitialized ? new Outcome(cur) : cur.onext;
+        }
+    if (Data::Volume>QUIET) print("\n_____PATH");
 	if (DropTerminal && done && this.T>1) {  //don't delete if first state is terminal!! Added March 2015.
 		last = cur.prev;
 		delete cur;
@@ -247,8 +252,10 @@ Nstart=columns(ErgOrStateMat), rvals, curr, i;
 	cur = this;
     for (curr=0;curr<columns(rvals);++curr) {
         if (!rvals[curr]) continue;  // no observations
-	    if (isclass(method))
+	    if (isclass(method)) {
+            if (Data::Volume>QUIET) print("--Solve ",f," ",curr);
             if (!method->Solve(f,curr)) oxrunerror("DDP Error. Solution Method failed during simulation.");
+            }
 	    curg = SetG(f,curr);
         for(i=0;i<rvals[curr];++i) {
             cur.state = curg.state;
@@ -257,6 +264,7 @@ Nstart=columns(ErgOrStateMat), rvals, curr, i;
                                 ? iS
                                 : ErgOrStateMat[][imod(this.N,Nstart)]
                               );
+            I::Set(cur.state,TRUE);
 		    cur->Path::Simulate(T,TRUE,DropTerminal);
 		    NT += cur.T;
 		    if (++this.N<N && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
