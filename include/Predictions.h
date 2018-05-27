@@ -111,10 +111,14 @@ struct 	PathPrediction : Prediction {
     /** the current prediction **/                  cur,
     /** length of the path. **/                     T,	
     /** flat prediction matrix.**/                  flat,
+    /** Weighting matrix for GMM for full path.**/  pathW,
+    /** wide delta vector. **/                      vdelt,
+    /** labels for vdelt.**/                        dlabels,
     /** Distance between predictions and emp.mom.**/ L,
     /** method to call for nested solution. **/		method,
                                                     first,
     /** the next PathPrediction   **/               fnext;
+    static tprefix(t);
 	PathPrediction(f=0,method=0,iDist=0);
     Initialize();
 
@@ -122,7 +126,7 @@ struct 	PathPrediction : Prediction {
     InitialConditions();
 	Predict(T=0,printit=FALSE);
     SetT();
-    Empirical(inmoments,hasN=FALSE,hasT=FALSE,wght=TRUE);
+    Empirical(inmoments,hasN=FALSE,hasT=FALSE,wght=UNCORRELATED);
     Tracking(LorC,...);
     SetColumns(dlabels,Nplace=UnInitialized,Tplace=UnInitialized);
     TypeContribution(pf=1.0,subflat=0);
@@ -165,4 +169,5 @@ struct PredictionDataSet : PanelPrediction {
     Observations(NLabelorColumn,TLabelorColumn=UnInitialized);
     Read(fn);
  	virtual EconometricObjective(subp=DoAll);
+    SimulateMomentVariances(N,ErgOrStateMat=0);
     }

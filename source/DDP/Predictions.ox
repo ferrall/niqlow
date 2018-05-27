@@ -99,22 +99,36 @@ PathPrediction::SetT() {
   return TRUE;
   }
 
+PathPrediction::tprefix(t) { return sprint("t_","%02u",t,"_"); }
+
 PathPrediction::ProcessContributions(cmat){
-    decl delt =<>;
-    flat = <>;
+    vdelt =<>;    dlabels = {};    flat = <>;
     cur=this;
     if (ismatrix(cmat)) cmat = shape(cmat,sizeof(tlist),this.T)';
     do {
         if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
         flat |= cur.t~cur.accmom;
-        if (HasObservations) delt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+        if (HasObservations) {
+            if (ismatrix(pathW)) {
+                 vdelt ~= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+                 dlabels |= prefix(tprefix(cur.t),tlabels[1:]);
+                 }
+            else {
+                 vdelt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+                 }
+            }
         cur = cur.pnext;
   	    } while(isclass(cur));
-    L = rows(delt) ? norm(delt,'F') : 0.0;
+    L = (HasObservations) ? (
+                ismatrix(pathW) ? outer(vdelt,pathW)
+                                : norm(vdelt,'F') )
+            : 0.0;
     if (!Version::MPIserver && Data::Volume>QUIET) {
         fprintln(Data::logf," Predicted Moments group ",f," ",L,
         "%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat,
-        "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",tlabels[1:],delt);
+        "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",tlabels[1:],
+                ismatrix(pathW) ? reshape(vdelt,T,sizeof(tlabels[1:])) : vdelt
+                );
         }
     flat |= constant(.NaN,this.T-rows(flat),columns(flat));
     }
@@ -173,7 +187,8 @@ contains observation count stored in `Prediction::N` and used for weighting of
 distances.
 @param hasT FALSE: no model t column<br>TRUE: last column contains observation count
 stored in `Prediction::N` and used for weighting of distances.
-@param wght TRUE: weight columns by inverse standard deviations.
+@param wght UNCORRELATED: weight columns by inverse standard deviations<br>
+            See `GMMWeightOptions`
 @comments
 If T is greater than the current length of the path additional predictions are
 concatenated to the path
@@ -218,9 +233,9 @@ PathPrediction::Empirical(inNandMom,hasN,hasT,wght) {
             else if (j>=columns(inmom)) inmom ~= .NaN;
             else inmom = inmom[][:j-1]~.NaN~inmom[][j:];
             }
-    if (wght && columns(inmom)!=columns(mask))
+    if (wght==UNCORRELATED && columns(inmom)!=columns(mask))
             oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
-    if (wght) {
+    if (wght==UNCORRELATED) {
         invsd = 1.0 ./ setbounds(moments(inmom,2)[2][],0.1,+.Inf);
         invsd = isdotnan(invsd) .? 0.0 .: invsd;  //if no observations, set weight to 0.0
         invsd = selectifc(invsd,mask);
@@ -304,6 +319,8 @@ PathPrediction::PathPrediction(f,method,iDist){
     inT = 0;
     state = ReverseState(f,SS[onlyfixed].O);
     HasObservations = FALSE;
+    pathW = 0;
+
     if ((N::R>One || N::DynR>One ) && isint(summand)) {
 		summand = new RandomEffectsIntegration();
 		upddens = new UpdateDensity();
@@ -761,7 +778,7 @@ PredictionDataSet::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
 labels<br>UseLabel [default]<br>NotInData only allowed if F=1, then no column contains
 fixed variables
 @param iDist initial conditions set to `PathPrediction`s
-@param wght Weight moments [default=TRUE]
+@param wght see `GMMWeightOptions`
 **/
 PredictionDataSet::PredictionDataSet(label,method,UorCorL,iDist,wght) {
     decl q,j;

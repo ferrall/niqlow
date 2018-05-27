@@ -52,12 +52,16 @@ t ~ State_Ind ~ IsTerminal ~ Aind ~ &epsilon; ~ eta; ~ &theta; ~ &gamma; ~ &alph
 </pre></DD>
 
 **/
-Outcome::Flat()	{
+Outcome::Flat(Orientation)	{
 	if (!Settheta(ind[tracking])) return <>;
-    return
-    t~ind[tracking]~I::curth.IsTerminal~I::curth.Aind~state'~ind[onlyacts][0]~act~z~aux;
+    if (Orientation==LONG)
+        return t~ind[tracking]~I::curth.IsTerminal~I::curth.Aind~state'~ind[onlyacts][0]~act~z~aux;
+    else
+        return  state'~act~z~aux;
+    // prefix(tprefix(t),labels),
     //ind[onlyacts] shows only A[0] index.
 	}
+
 
 /** Print the outcome as record.
 
@@ -132,12 +136,19 @@ Path id (`Path::i`) is appended as the first column.
 Each row is an `Outcome`.
 @return TxM matrix
 **/
-Path::Flat(){
-	decl pth = <>;
+Path::Flat(Orientation){
+	decl pth = <>,curo;
 	cur = this;
-	do pth |= i ~ cur->Outcome::Flat(); while((isclass(cur = cur.onext)));
+	do {
+        curo = cur->Outcome::Flat(Orientation);
+        if (Orientation==LONG)
+            pth |= i ~curo;
+        else
+            pth ~= curo;
+        } while((isclass(cur = cur.onext)));
 	return pth;
 	}	
+
 /** Produce a two dimensional view of the path;
 **/
 Path::Deep(){
@@ -164,12 +175,10 @@ Path::Simulate(T,usecp,DropTerminal){
 	Outcome::usecp = usecp;
 	cur = this;
 	this.T=1;  //at least one outcome on a path
-    if (Data::Volume>QUIET) print("_____PATH");
 	while ( !(done = cur->Outcome::Simulate()) && this.T<T ) //not terminal and not yet max length
 		{
         ++this.T; cur = cur.onext==UnInitialized ? new Outcome(cur) : cur.onext;
         }
-    if (Data::Volume>QUIET) print("\n_____PATH");
 	if (DropTerminal && done && this.T>1) {  //don't delete if first state is terminal!! Added March 2015.
 		last = cur.prev;
 		delete cur;
@@ -283,10 +292,10 @@ FPanel::Append(pathid) {
 index of panel
 @return long <em>matrix</em> of panels
 **/
-FPanel::Flat()	{
+FPanel::Flat(Orientation)	{
 	decl op = <>;
 	cur = this;
-	do op |= f ~ cur->Path::Flat(); while ((isclass(cur = cur.pnext)));
+	do op |= f ~ cur->Path::Flat(Orientation); while ((isclass(cur = cur.pnext)));
 	return op;
 	}
 
@@ -328,10 +337,18 @@ Panel::Panel(r,method,FullyObserved) {
 	flat = FNT = 0;
 	cur = this;
 	for (i=1;i<N::F;++i) cur = cur.fnext = fparray[i] = new FPanel(i,method,FullyObserved);
-	if (isint(Lflat)) {
-		Lflat = {PanelID}|{FPanelID}|{PathID}|PrefixLabels|Labels::Vprt[svar]|{"|ai|"}|Labels::Vprt[avar];
-		for (i=0;i<zeta.length;++i) Lflat |= "z"+sprint(i);
-		foreach (q in Chi) Lflat |= q.L;
+	if (isint(LFlat)) {
+        LFlat = new array[FlatOptions];
+		LFlat[LONG] = {PanelID}|{FPanelID}|{PathID}|PrefixLabels|Labels::Vprt[svar]|{"|ai|"}|Labels::Vprt[avar];
+		LFlat[WIDE] = Labels::Vprt[svar]|Labels::Vprt[avar];
+		for (i=0;i<zeta.length;++i) {
+                LFlat[LONG] |= "z"+sprint(i);
+                LFlat[WIDE] |= "z"+sprint(i);
+                }
+		foreach (q in Chi) {
+            LFlat[LONG] |= q.L;
+            LFlat[WIDE] |= q.L;
+            }
 		Fmtflat = {"%4.0f","%4.0f"}|{"%4.0f","%2.0f","%3.0f","%3.0f"}|Labels::Sfmts|"%4.0f";
 		for (i=0;i<N::Av;++i) Fmtflat |= "%4.0f";
 		for (i=0;i<zeta.length;++i) Fmtflat |= "%7.3f";
@@ -354,28 +371,33 @@ Panel::~Panel() {
 Each value of fixed &gamma; is simulated N times, drawing
 the random effects in &gamma; from their density.
 @param N <em>integer</em> number of paths to simulate in each `FPanel`.
-@param T <em>Integer</em>, max length of each path
+@param T <em>Integer</em>, max length of each path<br>
+        vector, max length for each FPanel.
 @param ErgOrStateMat 0: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
 @param DropTerminal TRUE: eliminate termainl states from the data set
 **/
 Panel::Simulate(N,T,ErgOrStateMat,DropTerminal) {
 	cur = this;
     FN = 0;
+    decl fpi = 0;
 	do { // Update density???
-		cur->FPanel::Simulate(N,T,ErgOrStateMat,DropTerminal);
+		cur->FPanel::Simulate(N,isint(T)? T : T[fpi],ErgOrStateMat,DropTerminal);
 		FNT += cur.NT;
         FN += N;
+        ++fpi;
 		} while ((isclass(cur = cur->fnext)));
 	}
 
 /** Store the panel as long flat matrix. **/
-Panel::Flat()	{
+Panel::Flat(Orientation)	{
 	cur = this;
 	flat = <>;
-	do flat |= r~cur->FPanel::Flat(); while ((isclass(cur = cur.fnext)));
+	do {
+        flat |= r~cur->FPanel::Flat(Orientation);
+        } while ((isclass(cur = cur.fnext)));
 	}
 
-/** Store the panel as long flat matrix. **/
+/** Print the deep view of the panel. **/
 Panel::Deep()	{
 	cur = this;
 	do cur->FPanel::Deep(); while ((isclass(cur = cur.fnext)));
@@ -388,10 +410,10 @@ Flat version of the data set is stored in `Panel::flat`.
 file
 @return long <em>matrix</em> of panels
 **/
-Panel::Print(fn)	{
-	if (isint(flat)) Flat();
-	if (isint(fn)) { if (fn>0) fprint(Data::logf,"%c",Lflat,"%cf",Fmtflat,flat); }
-	else if (!savemat(fn,flat,Lflat)) oxrunerror("DDP Error 51. FPanel print to "+fn+"failed");
+Panel::Print(fn,Orientation)	{
+	if (isint(flat)) Flat(Orientation);
+	if (isint(fn)) { if (fn>0) fprint(Data::logf,"%c",LFlat[Orientation],"%cf",Fmtflat,flat); }
+	else if (!savemat(fn,flat,LFlat[Orientation])) oxrunerror("DDP Error 51. FPanel print to "+fn+"failed");
 	}
 	
 /** Compute conditional forward likelihood of an outcome.

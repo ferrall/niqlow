@@ -44,7 +44,7 @@ Zurcher::Output() {
 	ps->Flat();		
 	data |= selectifr(ps.flat,ps.flat[][columns(ps.flat)-1]);
     if (!first) {	
-       println("Simulated data ","%c",Panel::Lflat,"%cf",{"%6.0f"},data);
+       println("Simulated data ","%c",Panel::LFlat[LONG],"%cf",{"%6.0f"},data);
        SetDraw(SET_COLORMODEL,3);
 	   SetDraw(SET_MARGIN,1000,1000);
 	   SetDraw(SET_PRINTPAGE,PAGE_LETTER,PAGE_PORTRAIT);

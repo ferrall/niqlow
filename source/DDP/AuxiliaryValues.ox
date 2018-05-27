@@ -95,15 +95,17 @@ Indicator::Realize(y) {
             if (isclass(iobj,"ActionVariable"))
                 v *= Alpha::aC[iobj.pos];
             else {
-                if (isclass(iobj,"AuxiliaryValue")) iobj->Realize(y);
+                if (iacted==Two) iobj->Realize(y);
                 v *= AV(iobj);
                 }
             }
         }
     else {
         v =  CV(target).==myval;
-        if (iacted==Two) iobj->Realize(y);
-        v .*= AV(iobj);
+        if (iacted) {
+            if (iacted==Two) iobj->Realize(y);
+            v .*= AV(iobj);
+            }
         }
     }
 
@@ -119,7 +121,7 @@ MultiIndicator::Realize(y) {
             if (isclass(iobj,"ActionVariable"))
                 v *= Alpha::aC[iobj.pos];
             else {
-                if (isclass(iobj,"AuxiliaryValue")) iobj->Realize(y);
+                if (iacted==Two) iobj->Realize(y);
                 v *= AV(iobj);
                 }
             }
@@ -128,7 +130,7 @@ MultiIndicator::Realize(y) {
         v = <1>;
         foreach(t in target[n]) v .*= CV(t).==myval[n];
         if (iacted) {
-            if (isclass(iobj,"AuxiliaryValue")) iobj->Realize(y);
+            if (iacted==Two) iobj->Realize(y);
             v .*= AV(iobj);
             }
         }

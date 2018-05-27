@@ -126,7 +126,7 @@ Objective::Load(fname)	{
 		}
 	if (Volume>SILENT && !Version::MPIserver) println(" Attempting to load from ",fname);
 	n = fscan(f,"%v",&otype,"%v",&inL,"%v",&inO);
-	if (otype!=classname(this)) oxwarning("FiveO Warning 07.\n Object stored in "+fname+" is of class "+otype+".  Current object is "+classname(this)+"\n");
+	if (otype!=classname(this) && !Version::MPIserver) oxwarning("FiveO Warning 07.\n Object stored in "+fname+" is of class "+otype+".  Current object is "+classname(this)+"\n");
 	if (inL!=L) oxwarning("FiveO Warning 08.\n Object Label in "+fname+" is "+inL+", which is not the same as "+L+"\n");
 	maxpt.v = cur.v = inO;
     this->CheckPoint(f,FALSE);

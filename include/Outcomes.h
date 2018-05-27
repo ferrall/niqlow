@@ -36,7 +36,7 @@ struct Outcome : Data {
 			Outcome(prior);
 			~Outcome();
 	virtual	Simulate();
-	virtual	Flat();
+	virtual	Flat(Orientation=LONG);
     virtual Deep(const depth);
 			FullLikelihood();
 			Likelihood();
@@ -70,7 +70,7 @@ struct Path : Outcome {
 			PathObjective();
 			ReadObs(data);
 			Mask();
-	virtual	Flat();
+	virtual	Flat(Orientation=LONG);
     virtual Deep();
 	virtual Collapse(cond,stat);
 			Append(observed);
@@ -97,7 +97,7 @@ struct FPanel : Path {
 			~FPanel();
             GetCur();
 			Mask();
-	virtual	Flat();
+	virtual	Flat(Orientation=LONG);
     virtual Deep();
 	virtual Simulate(N, T,ErgOrStateMat=0,DropTerminal=FALSE);
 	        LogLikelihood();
@@ -113,7 +113,7 @@ struct Panel : FPanel {
 	const decl
 	/** tag for the panel. **/ 				r;
 	static decl
-	/** column labels in flat. **/			Lflat,
+	/** column labels in flat. **/			LFlat,
 	/** .**/								Fmtflat;
 	decl
 											fparray,
@@ -127,9 +127,9 @@ struct Panel : FPanel {
     SetMethod(method);
 	~Panel();
 	LogLikelihood();
-	Flat();
+	Flat(Orientation=LONG);
     Deep();
-	Print(fn=0);
+	Print(fn=0,Orientation=LONG);
 //    virtual Combine(V);
 	virtual Simulate(N,T,ErgOrStateMat=0,DropTerminal=FALSE);
 	virtual Collapse(cond,stat);
