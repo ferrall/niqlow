@@ -53,12 +53,13 @@ MultiIndicator::MultiIndicator(targlist,nvec,iobj,prefix) {
      this.target = targlist;
     this.myval = nvec;
     this.iobj = iobj;
+    ttype = <>;
     foreach(t in targlist[i]) {
-        TypeCheck(t,{"StateVariable","ActionVariable"});
+        ttype  |=  TypeCheck(t,ilistnames[:ActInt],TRUE);
         prefix |= "_"+sprint("%02u",nvec[i]);
         }
     if ((iacted = isclass(iobj))) {
-        TypeCheck(iobj,{"StateVariable","ActionVariable","AuxiliaryValue"});
+        iacted = TypeCheck(iobj,ilistnames,TRUE);
         AuxiliaryValue(prefix+"_"+abbrev(iobj.L)); 	
         }
     else
@@ -71,15 +72,14 @@ MultiIndicator::MultiIndicator(targlist,nvec,iobj,prefix) {
 @param prefix string for column matching or integer (not in data)
 **/
 Indicator::Indicator(target,myval,iobj,prefix) { 	
-    TypeCheck(target,{"StateVariable","ActionVariable"});
+    ttype = TypeCheck(target,ilistnames[:ActInt],TRUE);
     if (!isint(myval)) oxrunerror("DDP Error. interaction value must be an integer");
     this.target = target;
     this.myval = myval;
     this.iobj = iobj;
     prefix = (isstring(prefix) ? prefix : abbrev(target.L))+"_"+sprint("%02u",myval);
     if ((iacted = isclass(iobj))) {
-        TypeCheck(iobj,{"StateVariable","ActionVariable","AuxiliaryValue"});
-        iacted += isclass(iobj,"AuxiliaryValue");
+        iacted = TypeCheck(iobj,ilistnames,TRUE);
         AuxiliaryValue(prefix+"_"+abbrev(iobj.L)); 	
         }
     else
@@ -88,23 +88,25 @@ Indicator::Indicator(target,myval,iobj,prefix) {
 
 Indicator::Realize(y) {
     if (isclass(y,"Outcome")) {
-        v = isclass(target,"ActionVariable")
+        v = ttype==ActInt
                         ? Alpha::aC[target.pos]==myval
                         : CV(target)==myval;
-        if (iacted) {
-            if (isclass(iobj,"ActionVariable"))
-                v *= Alpha::aC[iobj.pos];
-            else {
-                if (iacted==Two) iobj->Realize(y);
-                v *= AV(iobj);
-                }
+        switch(iacted) {
+            case ActInt   : v *= Alpha::aC[iobj.pos]; break;
+            case AuxInt   : iobj->Realize(y);
+            // fall through to StateInt
+            case StateInt : v *= AV(iobj); break;
+            default       : break;
             }
         }
     else {
         v =  CV(target).==myval;
-        if (iacted) {
-            if (iacted==Two) iobj->Realize(y);
-            v .*= AV(iobj);
+        switch(iacted) {
+            case AuxInt   : iobj->Realize(y);
+            // fall through to StateInt
+            case ActInt   :
+            case StateInt : v .*= AV(iobj); break;
+            default       : break;
             }
         }
     }
@@ -114,24 +116,26 @@ MultiIndicator::Realize(y) {
     if (isclass(y,"Outcome")) {
         v=1;
         foreach(t in target[n])
-            v *= isclass(t,"ActionVariable")
+            v *= ttype[n]==ActInt
                         ? Alpha::aC[t.pos]==myval[n]
                         : CV(t)==myval[n];
-        if (iacted) {
-            if (isclass(iobj,"ActionVariable"))
-                v *= Alpha::aC[iobj.pos];
-            else {
-                if (iacted==Two) iobj->Realize(y);
-                v *= AV(iobj);
-                }
+        switch(iacted) {
+            case ActInt   : v *= Alpha::aC[iobj.pos]; break;
+            case AuxInt   : iobj->Realize(y);
+            // fall through to StateInt
+            case StateInt : v *= AV(iobj); break;
+            default       : break;
             }
         }
     else {
         v = <1>;
         foreach(t in target[n]) v .*= CV(t).==myval[n];
-        if (iacted) {
-            if (iacted==Two) iobj->Realize(y);
-            v .*= AV(iobj);
+        switch(iacted) {
+            case AuxInt   : iobj->Realize(y);
+            // fall through to StateInt
+            case ActInt   :
+            case StateInt : v .*= AV(iobj); break;
+            default       : break;
             }
         }
     }
