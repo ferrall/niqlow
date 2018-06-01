@@ -25,8 +25,6 @@ struct RealizedUtility : AuxiliaryValue {
 /**
 **/
 struct Indicator : AuxiliaryValue {
-    static const decl ilistnames = {"StateVariable","ActionVariable","AuxiliaryValue"};
-    enum              {NoInt,StateInt,       ActInt,          AuxInt, InteractionTypes}
     const decl ttype, target, myval, iobj, iacted;
     Indicator(target,myval,iobj=UnInitialized,prefix=NotInData);
     virtual Realize(y);

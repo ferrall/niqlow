@@ -407,6 +407,7 @@ NelderMead::ItStartCheck(iplex) {
                         case Zero : iplex[0] = (0~unit(N)); break;
                         default : mxstarts = iplex[0];
                         }
+
             case One:  step = iplex[0]; iplex[0] = (0~unit(N));
             case Two:
                     step = 1.0;

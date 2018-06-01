@@ -1374,15 +1374,12 @@ Task::SyncStates(dmin,dmax)	{
 	for (d=dmin;d<=dmax;++d) {
 		Sd = States[d];
 		sv = Sd.v = state[d];
-  		if (isclass(States[d],"Coevolving")) {
+  		if (isclass(Sd,"Coevolving")) {
 			Sd.block.v[Sd.bpos] = sv;
 			if (sv>-1) Sd.block.actual[Sd.bpos] = Sd.actual[sv];	
 			}
 		}
-    if (dmin<=S[clock].M && dmax>= S[clock].M) {
-        counter->Synch();
-        //println("$%$ ",dmin," ",dmax," ",S[clock].M," ",I::t);
-        }
+    if (dmin<=S[clock].M && dmax>= S[clock].M) counter->Synch();
 	return sv;
 	}
 

@@ -197,10 +197,14 @@ enum { UNWEIGHTED, UNCORRELATED, CONTEMPORANEOUS, INTERTEMPORAL, GMMWeightOption
 
 enum { LONG, WIDE, FlatOptions }
 
+enum {NoInt,StateInt,       ActInt,          AuxInt, InteractionTypes}
+
         /** parallel array of labels for the built-in clock types. **/
 static const decl ClockTypeLabels
     = {"Infinite Horizon","Ergodic","Subdivided Periods","Normal Finite Horizon Aging","Static Program (finite horizon and T=1)","Random Aging (finite horizon but aging happens with probability<1 at some t","Random Mortaility (finite horizon with probability of early transition to last t, death)",
-    "Uncertain Longevity (finite horizon until last period which ends randomly)","Regime Change","Social Experiment","User Defined Clock"};
+    "Uncertain Longevity (finite horizon until last period which ends randomly)","Regime Change","Social Experiment","User Defined Clock"},
+    ilistnames = {"StateVariable","ActionVariable","AuxiliaryValue"}
+    ;
 
 
 /**Container for auxiliary classes in in DDP but not elsewhere (directly). **/

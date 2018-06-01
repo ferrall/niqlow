@@ -83,8 +83,7 @@ struct 	Prediction : Data {
         /** (unmasked) predicted moment vector**/       predmom,
         /** (unmasked) empirical moments. **/           readmom,
         /** used (masked) empiricalmoments.**/          empmom,
-		/** next prediction
-            in the path **/	         pnext;
+		/** next prediction on the path **/	            pnext;
 	Prediction(prev);
     ~Prediction();
 	Predict(tlist);
@@ -131,6 +130,8 @@ struct 	PathPrediction : Prediction {
     SetColumns(dlabels,Nplace=UnInitialized,Tplace=UnInitialized);
     TypeContribution(pf=1.0,subflat=0);
     ProcessContributions(cmat=0);
+    AppendSimulated();
+    SimulateOutcomePaths(curfpanel,N,ErgOrStateMat);
 	}
 
 struct PanelPrediction : PathPrediction {

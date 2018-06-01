@@ -94,7 +94,7 @@ Outcome::Simulate() {
 	ind[onlysemiexog] = I::OO[onlysemiexog][]*state;
 	SyncStates(0,N::S-1);
     I::Set(state,FALSE);
-	if ((!Settheta(ind[tracking]))) oxrunerror("DDP Error 49. simulated state"+sprint(ind[tracking])+" not reachable");
+	if (!isclass(I::curth)) oxrunerror("DDP Error 49. simulated state"+sprint(ind[tracking])+" not reachable");
 	snext = I::curth->Simulate(this);
 	act = Alpha::aC;
 	z = CV(zeta);
@@ -163,22 +163,24 @@ Path::Deep(){
 
 Checks to see if transition is &Rho; is <code>tracking</code>.  If not, process span the state space with `EndogTrans`.
 @param T integer, max. length of the panel<br>0, no maximum lenth; simulation goes on until a Terminal State is reached.
-@param usecp TRUE: simulate using &Rho;*(&alpha;) computed by a `Method`<br>FALSE :randomly chose a feasible action.
+
 
 @example <pre>
 </pre></dd>
 
 **/
-Path::Simulate(T,usecp,DropTerminal){
+Path::Simulate(T,DropTerminal){
 	decl done;
 //	ETTtrack->Traverse();
-	Outcome::usecp = usecp;
 	cur = this;
 	this.T=1;  //at least one outcome on a path
-	while ( !(done = cur->Outcome::Simulate()) && this.T<T ) //not terminal and not yet max length
-		{
-        ++this.T; cur = cur.onext==UnInitialized ? new Outcome(cur) : cur.onext;
-        }
+    if (T==UnInitialized) T = INT_MAX;
+    do {
+       done = cur->Outcome::Simulate();
+       if ( done || this.T>=T || (isclass(pathpred) && pathpred->AppendSimulated()) ) break;
+       ++this.T;
+       cur = cur.onext==UnInitialized ? new Outcome(cur) : cur.onext;
+       } while(TRUE);
 	if (DropTerminal && done && this.T>1) {  //don't delete if first state is terminal!! Added March 2015.
 		last = cur.prev;
 		delete cur;
@@ -234,9 +236,10 @@ FPanel::~FPanel() {
 @param Tmax maximum path length<br>0 no maximum length.
 @param ErgOrStateMat 0 [default]: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
 @param DropTerminal TRUE: eliminate termainl states from the data set<br>FALSE: [default] include terminal states.
+@param pathpred 0 [default] or PathPrediction object to filter simulated values
 @comments &gamma; region of state is masked out.
 **/
-FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal){
+FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal,pathpred){
 	decl msucc=FALSE, ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS, curg,
 Nstart=columns(ErgOrStateMat), rvals, curr, i;
 	if (N <= 0) oxrunerror("DDP Error 50a. First argument, panel size, must be positive");
@@ -258,11 +261,12 @@ Nstart=columns(ErgOrStateMat), rvals, curr, i;
     else rvals = matrix(N);
     if (Flags::IsErgodic && !T) oxwarning("DDP Warning 08.\nSimulating ergodic paths without fixed Tmax?\nPath may be of unbounded length.");
 	cputime0 = timer();
+    Outcome::pathpred = pathpred;
+
 	cur = this;
     for (curr=0;curr<columns(rvals);++curr) {
         if (!rvals[curr]) continue;  // no observations
 	    if (isclass(method)) {
-            if (Data::Volume>QUIET) print("--Solve ",f," ",curr);
             if (!method->Solve(f,curr)) oxrunerror("DDP Error. Solution Method failed during simulation.");
             }
 	    curg = SetG(f,curr);
@@ -274,7 +278,7 @@ Nstart=columns(ErgOrStateMat), rvals, curr, i;
                                 : ErgOrStateMat[][imod(this.N,Nstart)]
                               );
             I::Set(cur.state,TRUE);
-		    cur->Path::Simulate(T,TRUE,DropTerminal);
+		    cur->Path::Simulate(T,DropTerminal);
 		    NT += cur.T;
 		    if (++this.N<N && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
             cur = cur.pnext;
@@ -375,13 +379,14 @@ the random effects in &gamma; from their density.
         vector, max length for each FPanel.
 @param ErgOrStateMat 0: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
 @param DropTerminal TRUE: eliminate termainl states from the data set
+@param pathpred Integer [default] or PathPrediction object that is simulating
 **/
-Panel::Simulate(N,T,ErgOrStateMat,DropTerminal) {
+Panel::Simulate(N,T,ErgOrStateMat,DropTerminal,pathpred) {
 	cur = this;
     FN = 0;
     decl fpi = 0;
 	do { // Update density???
-		cur->FPanel::Simulate(N,isint(T)? T : T[fpi],ErgOrStateMat,DropTerminal);
+		cur->FPanel::Simulate(N,isint(T)? T : T[fpi],ErgOrStateMat,DropTerminal,pathpred);
 		FNT += cur.NT;
         FN += N;
         ++fpi;

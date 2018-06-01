@@ -11,12 +11,11 @@ struct Outcome : Data {
 			PrefixLabels = {"t","n","T","Aj|"};
 	/** . @internal **/
 	static 	decl
+                                        pathpred,
     /**do not include choice prob for fully observed
         likelihood, for first stage estimation of transitions. **/
                                         OnlyTransitions,										
                                         SimLabels,
-	/**use computed choice
-        prob for simulation.**/         usecp,
 										mask,
 										now,
 										tom,
@@ -63,7 +62,7 @@ struct Path : Outcome {
 		/**	Last `Outcome` in the path. @internal **/	last;
 			Path(id,state0);
 			~Path();
-	virtual	Simulate(T,UseChoiceProb=TRUE,DropTerminal=FALSE);
+	virtual	Simulate(T=UnInitialized,DropTerminal=FALSE);
 	        Likelihood();
 			FullLikelihood();
             TypeContribution(pf=1.0,subflat=0);
@@ -99,7 +98,7 @@ struct FPanel : Path {
 			Mask();
 	virtual	Flat(Orientation=LONG);
     virtual Deep();
-	virtual Simulate(N, T,ErgOrStateMat=0,DropTerminal=FALSE);
+	virtual Simulate(N, T,ErgOrStateMat=0,DropTerminal=FALSE,pathpred=UnInitialized);
 	        LogLikelihood();
             FullLogLikelihood();
 	virtual Collapse(cond,stat);
@@ -131,7 +130,7 @@ struct Panel : FPanel {
     Deep();
 	Print(fn=0,Orientation=LONG);
 //    virtual Combine(V);
-	virtual Simulate(N,T,ErgOrStateMat=0,DropTerminal=FALSE);
+	virtual Simulate(N,T,ErgOrStateMat=0,DropTerminal=FALSE,pathpred=UnInitialized);
 	virtual Collapse(cond,stat);
 	}
 

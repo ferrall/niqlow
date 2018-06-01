@@ -22,7 +22,11 @@ ObjClient::ObjClient(obj) {  this.obj = obj; }
 ObjClient::Execute() {    }
 
 ObjClient::MultiParam(Fmat,aFvec,af) {
+    decl extime;
+    if (Volume>QUIET) println(" Debuging in MultiParam ");
+    extime = timer();
     ToDoList(MultiParamVectors,Fmat,aFvec,obj.NvfuncTerms,MultiParamVectors);
+    if (Volume>QUIET) println(" Time Executing ToDoList ",timespan(extime));
     decl j;
     for (j=0; j<columns(aFvec[0]); ++j) {
 		obj.cur.V = aFvec[0][][j];

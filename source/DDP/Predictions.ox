@@ -756,8 +756,8 @@ tracked for.<br> AllFixed, moment appears in all groups
 @param ... more objects
 **/
 PredictionDataSet::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
-    decl v,args =  isarray(mom1) ? mom1 : {mom1}, pparg = InDataOrNot ? UseLabel :
-    NotInData;
+    decl v,args =  isarray(mom1) ? mom1 : {mom1},
+        pparg = InDataOrNot ? UseLabel : NotInData;
     args |= va_arglist();
     if (Fgroup==AllFixed) PanelPrediction::Tracking(pparg,args);
     else

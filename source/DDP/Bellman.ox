@@ -424,17 +424,18 @@ Bellman::StateToStatePrediction(tod) {
 Bellman::Simulate(Y) {
 	decl curJ = rows(pandv), done = IsTerminal||IsLast ;
     I::all[onlyacts] = done  	? 0
-			  		: DrawOne( Y.usecp ? pandv[][InSubSample*(Y.ind[bothexog])]  //if approximated, only one column in pandv
-                                       : constant(1/curJ,curJ,1) );
+			  		: DrawOne( pandv[][InSubSample*(Y.ind[bothexog])] );
     Alpha::SetA(I::all[onlyacts]);
 	SyncAct(Alpha::aC);
     this->Utility();        //Added May 2018.  Could also be a hook???
 	zeta -> Realize(Y);
-	decl i;
-	for (i=0,chi=<>;i<sizeof(Chi);++i) {
-		Chi[i]->Realize(Y);
-		chi ~= CV(Chi[i]);
+	decl i,c;
+    chi=<>;
+    foreach(c in Chi) {
+		c->Realize(Y);
+		chi ~= CV(c);
 		}
+    //	for (i=0,chi=<>;i<sizeof(Chi);++i) {		Chi[i]->Realize(Y);		chi ~= CV(Chi[i]);		}
 	if (done) return UnInitialized;
 	i = (I::OO[bothgroup][]'.!=0) .* Y.state;
 	i += ReverseState(Nxt[Qtr][Y.ind[onlysemiexog]][DrawOne(Nxt[Qrho][Y.ind[onlysemiexog]][Alpha::aI][])],

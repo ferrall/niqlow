@@ -401,7 +401,7 @@ The maximum value is also computed and checked.
 
 @returns J, the number of function evaluations
 **/
-Objective::funclist(Fmat,aFvec,afvec,abest)	{
+Objective::funclist(Fmat,aFvec,afvec,abest)	{  	
     decl best, J=columns(Fmat), f=constant(.NaN,J,1);
 	if (Volume>SILENT) fprintln(logf,"funclist ",columns(Fmat));
 	if (isclass(p2p))  //CFMPI has been initialized

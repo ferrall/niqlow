@@ -202,7 +202,7 @@ If the current ID equals CLIENT then simply return.</dd>
 	<DD>If Tag is STOP_TAG then exit the loop and return.</DD>
 **/
 Server::Loop(nxtmsgsize,calledby)	{
-	decl trips=0;
+	decl trips=0,extime;
 	if (ID==CLIENT) return;
     if (Volume>QUIET) println("P2P Server: ",ID," Loop called from ",calledby);
 	do {
@@ -211,8 +211,10 @@ Server::Loop(nxtmsgsize,calledby)	{
 		Recv(ANY_TAG);
 		if (Volume>QUIET) println("P2P Server: ",ID," trip: ",trips," Source: ",Source," Tag: ",Tag,". Message 0...9: ",Buffer[:min(sizerc(Buffer)-1,9)]);
         if (Tag!=STOP_TAG) {		
+            extime = timer();
             nxtmsgsize = this->Execute();
 		    Send(0,Tag);  //Buffer is set by Execute
+		    if (Volume>QUIET) println("P2P Server: ",ID," Executive Time ",timespan(extime));
             }
 		} while (Tag!=STOP_TAG);
 	if (Volume>QUIET) println("P2P Server:",ID," exiting loop ",calledby);
