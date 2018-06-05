@@ -11,9 +11,9 @@ PathPrediction::SimulateOutcomePaths(curfpanel,N,ErgOrStateMat) {
     cur = this;  //initialize to first prediction on the path.
     curfpanel -> FPanel::Simulate(N,UnInitialized,ErgOrStateMat,FALSE,this);
     savemat("logs/flat_"+sprint("%02d",f)+".dta",pathW);
-    savemat("logs/FLAT_"+sprint("%02d",f)+".dta",curfpanel->FPanel::Flat(LONG),Panel::LFlat[LONG][1:]);
+    savemat("logs/long_"+sprint("%02d",f)+".dta",curfpanel->FPanel::Flat(LONG),Panel::LFlat[LONG][1:]);
     pathW = variance(pathW);
-    savemat("logs/var_"+sprint("%02d",f)+".dta",pathW);
+//    savemat("logs/var_"+sprint("%02d",f)+".dta",pathW);
     pathW = invertgen(pathW,1);
     savemat("logs/pathW_"+sprint("%02d",f)+".dta",pathW);
     }
