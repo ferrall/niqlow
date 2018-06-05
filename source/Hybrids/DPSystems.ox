@@ -1,5 +1,5 @@
 #include "DPSystems.h"
-/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 /** Initialize EV() as a system of non-linear equations. **/	
 EVSystem::EVSystem(spacesize,systask)		{
@@ -68,6 +68,8 @@ Rsystem::Rsystem(LB,Ncuts,METHOD) {
 			break;									
 		case USENEWTONRAPHSON:
 			meth = new NewtonRaphson(this);
+            break;
+        default : break;
 		}
     Volume = meth.Volume= SILENT;
     meth.USELM = (Ncuts==1);

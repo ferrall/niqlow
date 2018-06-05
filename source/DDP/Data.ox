@@ -1,5 +1,5 @@
 #include "Data.h"
-/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 #ifndef Dox
     #define Dox
     #include "Outcomes.ox"
@@ -11,6 +11,7 @@ PathPrediction::SimulateOutcomePaths(curfpanel,N,ErgOrStateMat) {
     cur = this;  //initialize to first prediction on the path.
     curfpanel -> FPanel::Simulate(N,UnInitialized,ErgOrStateMat,FALSE,this);
     savemat("logs/flat_"+sprint("%02d",f)+".dta",pathW);
+    savemat("logs/FLAT_"+sprint("%02d",f)+".dta",curfpanel->FPanel::Flat(LONG),Panel::LFlat[LONG][1:]);
     pathW = variance(pathW);
     savemat("logs/var_"+sprint("%02d",f)+".dta",pathW);
     pathW = invertgen(pathW,1);

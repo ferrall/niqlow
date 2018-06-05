@@ -20,7 +20,7 @@
 
 //	extern "CFcurl,fget"   			curl_get(url,file);
 
-/* This file is part of niqlow. Copyright (C) 2012-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
 
 	/** Pseudonyms for -1, -2, &hellip, 2 . @name Names_for_Integers **/
 enum {CondProbOne=1,UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,
@@ -243,7 +243,7 @@ class Version : Zauxiliary {
 
 public: 	
     static const decl
-    	/** Current niqlow version. @name niqlowversion **/ version=310;
+    	/** Current niqlow version. @name niqlowversion **/ version=350;
     static decl logdir, tmstmp, MPIserver=FALSE;
 	static Check(logdir=curdir);
 

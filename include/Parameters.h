@@ -1,5 +1,5 @@
 #import "Shared"
-/* This file is part of niqlow. Copyright (C) 2012-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
 
 /** Value determined <em>exactly</em> by some other value, not chosen by optimization. **/
 struct Determined : Parameter	{

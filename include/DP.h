@@ -105,7 +105,7 @@ struct DP {
             subsampling of the state space.
             @see DP::SubSampleStates **/			             SampleProportion;
 
-        static  SetVersion(V=200);
+        static  SetVersion(V=350);
 		static	SetDelta(delta);
 		static	SetClock(ClockType,...);
 		static	Gett();

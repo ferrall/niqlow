@@ -1,5 +1,5 @@
 #include "AllTestOpt.h"
-/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 OptTestRun() {
     decl omenu = new Menu("FiveO Tests",FALSE);
@@ -130,13 +130,13 @@ SeparableRosenbrock ::vfunc()	{
 
 InEqTest() {
 	println("\n\n  SQP Optimization With an Inequality Constraint");
-	decl v = new OnCircle(),
-		 alg = new SQP(v);
-    v.Volume=NOISY;
+	decl xx = new OnCircle();
+	decl alg = new SQP(xx);
+    xx.Volume=NOISY;
 	alg.Volume = NOISY;
     alg->Tune(10);
 	alg->Iterate(0);
-	delete v,alg;
+	delete xx,alg;
 	}
 
 OnCircle::OnCircle() {
@@ -147,6 +147,7 @@ OnCircle::OnCircle() {
 	Parameters(x,y);  //,z
 	Volume= LOUD;
 	Encode();
+    println("in OnCircle ",isclass(cur));
 	}
 	
 //OnCircle::vfunc() {return -(sqr(AV(x)) + sqr(AV(y)));	}	

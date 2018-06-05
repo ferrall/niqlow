@@ -1,5 +1,5 @@
 #include "AuxiliaryValues.h"
-/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 /** Create a new element of &chi;, the space of auxiliary outcomes.
 

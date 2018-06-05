@@ -1,5 +1,5 @@
 #include "Parameters.h"
-/* This file is part of niqlow. Copyright (C) 2012-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
 
 /**Create a fixed, pre-determined parameter.
 @param L string
@@ -264,9 +264,9 @@ ParameterBlock::Encode() {
 ParameterBlock::ToggleDoNotVary(elements) {
 	decl p;
     if (elements==DoAll)
-	   foreach (p in Psi) p->ToggleDoNotVary();
+	   { foreach (p in Psi) p->ToggleDoNotVary(); }
     else
-       foreach (p in elements) Psi[p]->ToggleDoNotVary();
+       { foreach (p in elements) Psi[p]->ToggleDoNotVary(); }
 	}
 
 ParameterBlock::Menu(fp) {

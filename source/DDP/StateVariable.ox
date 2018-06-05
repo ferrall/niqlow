@@ -1,5 +1,5 @@
 #include "StateVariable.h"
-/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 StripZeros(trans) {
     decl allz = sumc(trans[1]).==0;

@@ -1,5 +1,5 @@
 #include "BlackBox.h"
-/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 /** Create a blackbox objective.
 @param L string, a label for the problem.
@@ -41,6 +41,7 @@ PanelBB::AggSubProbMat(submat) {
 /** Calls and returns <code>data-&gt;EconometricObjective()</code>.
 **/
 PanelBB::vfunc(subp) {
+    println("entering EO");
     return data->EconometricObjective(subp);
 	}
 

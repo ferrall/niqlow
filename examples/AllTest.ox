@@ -1,5 +1,5 @@
 #include "AllTest.h"
-/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 TestRun() {
     decl tmenu = new Menu("DDP Tests",FALSE);

@@ -1,5 +1,5 @@
 #include "Shared.h"
-/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 /** Check versions and set timestamp, log directory.
 @param logdir str (default=".").  A directory path or file prefix to attach to all log files.
@@ -25,7 +25,7 @@ Version::Check(logdir) {
  tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
  if (!Version::MPIserver)
     println("\n niqlow version ",sprint("%4.2f",version/100),
-    ". Copyright (C) 2011-2017 Christopher Ferrall.\n",
+    ". Copyright (C) 2011-2018 Christopher Ferrall.\n",
     "Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n",
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
  }

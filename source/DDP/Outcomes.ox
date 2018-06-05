@@ -1,5 +1,5 @@
 #include "Outcomes.h"
-/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 /** Record everything about a single realization of the DP.
 @param prior `Outcome` object, the previous realization along the path<br>

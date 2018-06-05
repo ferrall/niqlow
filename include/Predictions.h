@@ -73,11 +73,11 @@ struct 	Prediction : Data {
 	const  	decl t;
 	decl
 		/** state index **/		             sind,
-        /** index into sind.**/             q,
-		/** **/					              p,
+        /** index into sind.**/              q,
+		/** **/					             p,
 		/** Expanded ch. prob.**/	         ch,
-        /** current ch. prob.**/            chq,
-        /** current p. **/                  pq,
+        /** current ch. prob.**/             chq,
+        /** current p. **/                   pq,
         /** masked weight to put on distance.**/        W,
         /** accumulated predicted moments across r **/  accmom,
         /** (unmasked) predicted moment vector**/       predmom,
@@ -95,7 +95,7 @@ struct 	Prediction : Data {
 /** Predicted outcomes along a path.
 **/
 struct 	PathPrediction : Prediction {
-	static	decl summand, upddens;
+	static	decl summand, upddens, predicttime, solvetime;
     const decl f, iDist;
 	decl
     /** current index of random effects.**/         rcur,

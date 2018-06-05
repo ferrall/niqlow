@@ -1,5 +1,5 @@
 #include "Objective.h"
-/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 /** Checks the version number you send with the current version of niqlow.
 @param v integer [default=200]
@@ -17,7 +17,7 @@ Objective::SetVersion(v) {
 @param L string, label for the objective.
 @internal
 **/
-Objective::Objective(L)	{	
+Objective::Objective(L,CreateCur)	{	
     decl i;
  	Version::Check();
 	this.L = L;
@@ -34,7 +34,7 @@ Objective::Objective(L)	{
     RunSafe = TRUE;
     lognm = replace(Version::logdir+"Obj-"+classname(this)+"-"+L+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"aV");
-	cur = new Point();
+	if (CreateCur) cur = new Point();
 	hold = maxpt = NvfuncTerms  = UnInitialized;
 	FinX = <>;
 	p2p = once = FALSE;
@@ -211,15 +211,14 @@ Objective::Print(orig,fn,toscreen){
 	}
 
 UnConstrained::UnConstrained(L) {
-	Objective(L);
+	Objective(L,TRUE);
 	}
 
 Constrained::Constrained(L,ELorN,IELorN) {
-	Objective(L);
-    delete cur;
+	Objective(L,FALSE);
 	cur = new CPoint(ELorN,IELorN);
-	hold = new CPoint(ELorN,IELorN);
-	maxpt = new CPoint(ELorN,IELorN);
+	hold = clone(cur);     // new CPoint(ELorN,IELorN);
+	maxpt = clone(cur);   //new CPoint(ELorN,IELorN);
 	maxpt.v = -.Inf;
 	}
 
@@ -241,10 +240,10 @@ Three ways to define a <code>3x3</code> system of equations:
 @see Objective::NvfuncTerms, Equations
 **/	
 System::System(L,LorN) {
-	Objective(L);
+	Objective(L,FALSE);
     cur = new SysPoint();
-	hold = new SysPoint();
-	maxpt = clone(hold);
+	hold = clone(cur); //new SysPoint();
+	maxpt = clone(cur);
 	maxpt.v = -.Inf;
 	eqn = new Equality(LorN);
 	NvfuncTerms = eqn.N;

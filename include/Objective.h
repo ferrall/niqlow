@@ -46,7 +46,7 @@ struct Objective	{
 	/** vector of F indices into X. @internal   **/				FinX;
 
             ResetMax();
-			Objective(L="");
+			Objective(L="",CreateCur=TRUE);
 			Save(fname=0);
 			Load(fname=0);
 			SetAggregation(AggType);
@@ -54,7 +54,7 @@ struct Objective	{
 	static 	dFiniteDiff0(x);
 	static 	dFiniteDiff1(x);
 	static 	dFiniteDiff2(x);
-    static  SetVersion(v=200);
+    static  SetVersion(v=350);
 
 	        ToggleParameterConstraint();
     virtual Recode(HardCode=FALSE);

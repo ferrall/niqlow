@@ -596,13 +596,18 @@ PathPrediction::Initialize() {
 
 /** Compute predictions and distance over the path. **/
 PathPrediction::TypeContribution(pf,subflat) {
-  decl done, pcode;
+  decl done, pcode,time0;
+  time0 = timer();
   if (isclass(method) && !method->Solve(f,rcur)) return FALSE;
+  solvetime += timer()-time0;
   SetT();
   cur=this;
+
   do {
      cur.predmom=<>;
+     time0 = timer();
      pcode = cur->Prediction::Predict(tlist);
+     predicttime += timer()-time0;
      done =  pcode                               //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
      if (PredictFailure) {println("failure"); break;}
@@ -832,12 +837,17 @@ objective.
 @return `PanelPrediction::M` or `PathPrediction::L`
 **/
 PredictionDataSet::EconometricObjective(subp) {
+    predicttime = solvetime = 0;
     if (subp==DoAll) {
         PanelPrediction::Predict();
+        println("Time to Compute ",predicttime," ",solvetime);
         return M;
         }
-    else
-        return ParallelSolveSub(subp);
+    else {
+        decl vv = ParallelSolveSub(subp);
+        println("Time to Compute ",predicttime," ",solvetime);
+        return vv;
+        }
 	}
 
 

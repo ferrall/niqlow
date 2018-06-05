@@ -49,19 +49,25 @@ Algorithm::ItStartCheck(ReadCheckPoint) {
     if (IIterate) {
         O->Save(classname(this)+"-IterStart-"+O.L);
         inparallel = isclass(O.p2p);
-        return TRUE;
+        return TRUE;     // will enter iteration loop on return
         }
     else {
         O.p2p.server->Loop(N," ItStartCheck ",TRUE);
-        return FALSE;
+        return FALSE;    // will skip iteration loop on return
         }
     }
 
 Algorithm::ItEnd() {
-    if (inparallel) {
-      O.p2p.client->Stop();
-      O.p2p.client->Announce(O.cur.X);
-      }
+    if (IIterate) {
+        O->Decode(0);
+	    if (Volume>SILENT) O->Print(" Iteration Done ",logf,Volume>QUIET);
+        if (inparallel) {
+         O.p2p.client->Stop();
+         O.p2p.client->Announce(O.cur.X);
+         O.p2p.client->Barrier();
+         }
+        }
+      else if (inparallel) O.p2p.server->Barrier();
     }
 
 
@@ -161,33 +167,33 @@ SimulatedAnnealing::Metropolis()	{
 0 [default] $C = I$, the identity matrix<br>matrix, $C = $ chol.<br>double, common standard deviation, $C = chol I$.
 **/
 SimulatedAnnealing::Iterate(chol)	{
-    if (!ItStartCheck()) return;
-    decl vec0;
-    M = inparallel ? max(O.p2p.MaxSimJobs,1) : 1;
-    Vtries=zeros(O.NvfuncTerms,M);
-    this.chol = isint(chol)  ? unit(N)
+    if (ItStartCheck()) {       //I iterate (otherwise I'm a server looping)
+        decl vec0;
+        M = inparallel ? max(O.p2p.MaxSimJobs,1) : 1;
+        Vtries=zeros(O.NvfuncTerms,M);
+        this.chol = isint(chol)  ? unit(N)
                         : isdouble(chol) ? chol*unit(N)
                             : ismatrix(chol) ?  chol
                                  :  unit(N);
-	if (OC.v==.NaN) O->fobj(0,FALSE);
-	if (Volume>SILENT)O->Print("Annealing Start ",logf,Volume>QUIET);
-	accept = iter =0;	
-	holdpt.step = OC.F; holdpt.v = OC.v;
-    if (Volume>QUIET) fprint(logf,"%r",{"#"},"%c",{"i","j","delt","prob.","v","x vals"},"%cf",{"%5.0f","%3.0f","%12.5g"},-1~0~0.0~0.0~holdpt.v~(holdpt.step'));
-	do  {
-        tries = holdpt.step + this.chol*rann(N,M);
-        vec0 = holdpt.step;
-	    O->funclist(tries,&Vtries,&vtries);
-        if (Metropolis() && M>1) {  // order matters!  no short circuit
-            tries = OC.F + rann(1,M).*(vec0-OC.F);
-            if (Volume>QUIET) fprintln(logf,"Line Search",(vec0-OC.F)');
+	   if (OC.v==.NaN) O->fobj(0,FALSE);
+	   if (Volume>SILENT)O->Print("Annealing Start ",logf,Volume>QUIET);
+	   accept = iter =0;	
+	   holdpt.step = OC.F; holdpt.v = OC.v;
+       if (Volume>QUIET) fprint(logf,"%r",{"#"},"%c",{"i","j","delt","prob.","v","x vals"},"%cf",{"%5.0f","%3.0f","%12.5g"},-1~0~0.0~0.0~holdpt.v~(holdpt.step'));
+	   do  {
+            tries = holdpt.step + this.chol*rann(N,M);
+            vec0 = holdpt.step;
 	        O->funclist(tries,&Vtries,&vtries);
-		    Metropolis();
-            }
-        if (StorePath) path ~= OC.F;
-	   } while (iter++<maxiter);
-	O->Decode(0);
-	if (Volume>SILENT) O->Print(" Annealing Done ",logf,Volume>QUIET);
+            if (Metropolis() && M>1) {  // order matters!  no short circuit
+                tries = OC.F + rann(1,M).*(vec0-OC.F);
+                if (Volume>QUIET) fprintln(logf,"Line Search",(vec0-OC.F)');
+	            O->funclist(tries,&Vtries,&vtries);
+		        Metropolis();
+                }
+            if (StorePath) path ~= OC.F;
+	       } while (iter++<maxiter);
+       }
+    ItEnd();
 	}
 
 /** .
@@ -429,30 +435,28 @@ NelderMead::ItStartCheck(iplex) {
 See <a href="GetStarted.html">GetStarted</a>
 **/
 NelderMead::Iterate(iplex)	{
-    if (!ItStartCheck(&iplex)) return;
-	if (Volume>SILENT) {
+    if (ItStartCheck(&iplex)) {
+	    if (Volume>SILENT) {
 		  O->Print("Simplex Starting ",logf,Volume>QUIET);
 		  fprintln(logf,"\n Max # evaluations ",nfuncmax,
 				"\n Max # restarts ",mxstarts,
 				"\n Plex size tolerance ",tolerance);
           if (Volume>QUIET) fprintln(logf,"Initial Plex",step*iplex);
 		  }
-//       if (rank(iplex,SQRT_EPS)<N) oxrunerror("Five0 Error: initial simplex is not full rank");
-	 do {
-        n_func = 0;
-	    plexshrunk = Amoeba(iplex);
-	    Sort();
-	    OC.F = nodeX[][mxi];
-	    OC.v = nodeV[mxi];
-	    holdF = OC.F;
-	    if (Volume>QUIET) {
+	   do {
+           n_func = 0;
+	       plexshrunk = Amoeba(iplex);
+	       Sort();
+	       OC.F = nodeX[][mxi];
+	       OC.v = nodeV[mxi];
+	       holdF = OC.F;
+	       if (Volume>QUIET) {
 	   		  fprintln(logf,"\n","%3u",iter,". N=","%5u",n_func," Step=","%8.5f",step,". Fmax=",nodeV[mxi]," .PlexSize=",plexsize,plexsize<tolerance ? " *Converged*" : "");
 	          fprintln(logf," Bounds on Simplex","%r",{"min","max"},"%c",O.Flabels,limits(nodeX')[:1][]);
               }
-	    step *= 0.9;
-        } while (++iter<mxstarts && !plexshrunk && n_func < nfuncmax);
-	O->Decode(0);
-	if (Volume>SILENT) O->Print("Simplex Final ",logf,Volume>QUIET);
+	       step *= 0.9;
+           } while (++iter<mxstarts && !plexshrunk && n_func < nfuncmax);
+       }
     ItEnd();
 	}
 
@@ -719,39 +723,38 @@ All gradient-based algorithms conduct a `LineMax`imization on each iteration.
 
 **/
 GradientBased::Iterate(H)	{
-    if (!ItStartCheck(H)) return;
-    decl istr;
-	if (Volume>SILENT)O->Print("Gradient Starting",logf,Volume>QUIET);
-	if (this->Gupdate())
+    if (ItStartCheck(H)) {
+       decl istr;
+	   if (Volume>SILENT)O->Print("Gradient Starting",logf,Volume>QUIET);
+	   if (this->Gupdate())
          convergence=STRONG;         //finished before we start!
-	else do  {                      // HEART OF THE GRADIENT ITERATION
-	   holdF = OC.F;
-       LM.StorePath = StorePath;
-       if (StorePath) path ~= OC.F;
-	   LM->Iterate(Direction(),LMitmax,LMmaxstep);
-       if (StorePath) path ~= LM.path;
-	   convergence = (++iter>maxiter) ? MAXITERATIONS
-                                         : IamNewt ? this->HHupdate(FALSE)
+	   else do  {                      // HEART OF THE GRADIENT ITERATION
+	       holdF = OC.F;
+           LM.StorePath = StorePath;
+           if (StorePath) path ~= OC.F;
+	       LM->Iterate(Direction(),LMitmax,LMmaxstep);
+           if (StorePath) path ~= LM.path;
+	       convergence = (++iter>maxiter) ? MAXITERATIONS
+                                          : IamNewt ? this->HHupdate(FALSE)
                                                    : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE)) ;
-	   if (Volume>SILENT) {  //Report on Current Iteration
-            istr = sprint(iter,". f=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
+	       if (Volume>SILENT) {  //Report on Current Iteration
+                istr = sprint(iter,". f=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
+                fprintln(logf,istr);
+                if(Volume>QUIET) println(istr);
+                O->Print("Gradient Iteration",logf,Volume>QUIET);
+                }
+            CheckPoint(TRUE);
+	       } while (convergence==NONE);
+        if (Volume>SILENT) {  //Report on Result of Iteration
+            istr =sprint("\nFinished: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient"},OC.F'|OC.G);
             fprintln(logf,istr);
-            if(Volume>QUIET) println(istr);
-            O->Print("Gradient Iteration",logf,Volume>QUIET);
+            if (Volume>QUIET) println(istr);
             }
-       CheckPoint(TRUE);
-	   } while (convergence==NONE);
-    if (Volume>SILENT) {  //Report on Result of Iteration
-        istr =sprint("\nFinished: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient"},OC.F'|OC.G);
-        fprintln(logf,istr);
-        if (Volume>QUIET) println(istr);
+	    if (convergence>=WEAK) {
+            this->HHupdate(TRUE);
+		    OC.SE = sqrt(diagonal(invert(OC.H)));
+		    }
         }
-	if (convergence>=WEAK) {
-        this->HHupdate(TRUE);
-		OC.SE = sqrt(diagonal(invert(OC.H)));
-		}
-	O->Decode(0);
-	if (Volume>SILENT) O->Print("Gradient Ending",logf,Volume>QUIET);
     ItEnd();
 	}
 
@@ -943,32 +946,31 @@ This routine is shared (inherited) by derive algorithms.
 
 **/
 NonLinearSystem::Iterate(J)	{
-    decl d,istr;
-    if (!ItStartCheck(J)) return;
-	if (Volume>SILENT) O->Print("Non-linear System Starting",logf,Volume>QUIET);
-	if (convergence==NONE) {
-	   do {
-		  holdF = OC.F;
-          d = Direction();
-		  if (USELM)
-             LM->Iterate(d,LMitmax,LMmaxstep);
-          else
-            O->Decode(holdF+d);
-		  convergence = (++iter>maxiter) ? MAXITERATIONS : (Hresetcnt>1 ? SECONDRESET : this->JJupdate());
-		  if (Volume>SILENT) {
-             istr = sprint("\n",iter,".  deltaX: ",deltaX," deltaG:",deltaG,"%c",O.Flabels,"%r",{"    Params Vector","           System","        Direction"},OC.F'|OC.V'|d');
-             fprintln(logf,istr);			
-             if (Volume>QUIET) println(istr);
-             }
-		  } while (convergence==NONE && !isnan(deltaX) );
-	   }
-	O->Decode(0);		
-	if (Volume>SILENT) {
-        istr = sprint("\nConverged:","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Params Vector","           System"},OC.F'|OC.V');
-		fprintln(logf,istr);
-		if (Volume>QUIET) println(istr);
-        O->Print("Non-linear System Ending",logf,Volume>QUIET);
-        }
+    if (ItStartCheck(J)) {
+       decl d,istr;
+	   if (Volume>SILENT) O->Print("Non-linear System Starting",logf,Volume>QUIET);
+	   if (convergence==NONE) {
+	       do {
+		      holdF = OC.F;
+              d = Direction();
+		      if (USELM)
+                LM->Iterate(d,LMitmax,LMmaxstep);
+              else
+                O->Decode(holdF+d);
+		      convergence = (++iter>maxiter) ? MAXITERATIONS : (Hresetcnt>1 ? SECONDRESET : this->JJupdate());
+		      if (Volume>SILENT) {
+                istr = sprint("\n",iter,".  deltaX: ",deltaX," deltaG:",deltaG,"%c",O.Flabels,"%r",{"    Params Vector","           System","        Direction"},OC.F'|OC.V'|d');
+                fprintln(logf,istr);			
+                if (Volume>QUIET) println(istr);
+                }
+		      } while (convergence==NONE && !isnan(deltaX) );
+	       }
+	   if (Volume>SILENT) {
+          istr = sprint("\nConverged:","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Params Vector","           System"},OC.F'|OC.V');
+		  fprintln(logf,istr);
+		  if (Volume>QUIET) println(istr);
+          }
+       }
     ItEnd();
 	}
 	
@@ -1008,7 +1010,7 @@ Broyden::Jupdate(dx) {OC.J += ((dg-OC.J*dx)/deltaX)*(dx');}
 **/
 SQP::SQP(O) {
 	oxwarning("SQP not working yet!!!!");
-	if (isclass(O,"UnConstrained")) oxrunerror("FiveO Error 08. Objective must be Constrained");
+	if (!isclass(O,"Constrained")) oxrunerror("FiveO Error 08. Objective must be Constrained");
 	GradientBased(O);	
 	ne = OC.eq.N;
 	ni = OC.ineq.N;
@@ -1038,43 +1040,42 @@ SQP::Hupdate() {
 **/
 SQP::Iterate(H)  {
 	decl Qconv,deltx,mults,istr;
-    if (!ItStartCheck()) return;
-	OC.H = isint(H) ? -unit(N) : H;
-	O->Merit(0);
-	if (any(OC.ineq.v.<0)) oxrunerror("FiveO Error 09. Inequality constraints not satisfied at initial psi");
-	if (any(OC.ineq.lam.<0)) oxrunerror("FiveO Error 10. Initial inequality lambda has negative element(s)");
-	if (Volume>SILENT) {
-        O->Print("SQP Starting",logf,Volume>QUIET);
-		fprintln(logf," .f0=",OC.v,". #Equality: ",ne,". #InEquality: ",ni);	
-        }	
-	Hresetcnt = iter =0;
-	do  {
-	   holdF = OC.F;
-	   this->Gupdate();
-	   [Qconv,deltx,mults] = SolveQP(OC.H,OC.L',OC.ineq.J,OC.ineq.v,OC.eq.J,OC.eq.v,<>,<>);  // -ineq or +ineq?
-	   if (ne) OC.eq.lam =  mults[:ne-1];
-	   if (ni) OC.ineq.lam =  mults[ne:];
-	   LM->Iterate(deltx,1,LMmaxstep);
-	   convergence = (++iter>maxiter) ? MAXITERATIONS : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE));		
+    if (ItStartCheck(H)) {
+	   OC.H = isint(H) ? -unit(N) : H;
+	   O->Merit(0);
+	   if (any(OC.ineq.v.<0)) oxrunerror("FiveO Error 09. Inequality constraints not satisfied at initial psi");
+	   if (any(OC.ineq.lam.<0)) oxrunerror("FiveO Error 10. Initial inequality lambda has negative element(s)");
 	   if (Volume>SILENT) {
-            istr = sprint("\n",iter,". convergence:",convergence,". QP code:",Qconv,". L=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
-		    fprintln(logf,istr);
-            if (Volume>QUIET) println(istr);
-			OC.eq->print();
-			OC.ineq->print();
-		  }
-	   } while (convergence==NONE);
-    if (Volume>SILENT) {
-        fprintln(logf,"\nConverged: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient"},OC.F'|OC.G);
-        OC.eq->print();
-        OC.ineq->print();
-		}
-	if (convergence>=WEAK) {
-	   this->HHupdate(TRUE);
-	   OC.SE = sqrt(diagonal(invert(OC.H)));
-	   }
-	O->Decode(0);
-	if (Volume>SILENT) O->Print("SQP Ending",logf,Volume>QUIET);
+          O->Print("SQP Starting",logf,Volume>QUIET);
+		  fprintln(logf," .f0=",OC.v,". #Equality: ",ne,". #InEquality: ",ni);	
+          }	
+	   Hresetcnt = iter =0;
+	   do  {
+	       holdF = OC.F;
+	       this->Gupdate();
+	       [Qconv,deltx,mults] = SolveQP(OC.H,OC.L',OC.ineq.J,OC.ineq.v,OC.eq.J,OC.eq.v,<>,<>);  // -ineq or +ineq?
+	       if (ne) OC.eq.lam =  mults[:ne-1];
+	       if (ni) OC.ineq.lam =  mults[ne:];
+	       LM->Iterate(deltx,1,LMmaxstep);
+	       convergence = (++iter>maxiter) ? MAXITERATIONS : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE));		
+	       if (Volume>SILENT) {
+              istr = sprint("\n",iter,". convergence:",convergence,". QP code:",Qconv,". L=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
+		      fprintln(logf,istr);
+              if (Volume>QUIET) println(istr);
+			  OC.eq->print();
+			  OC.ineq->print();
+		      }
+	       } while (convergence==NONE);
+        if (Volume>SILENT) {
+            fprintln(logf,"\nConverged: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient"},OC.F'|OC.G);
+            OC.eq->print();
+            OC.ineq->print();
+		    }
+	    if (convergence>=WEAK) {
+	       this->HHupdate(TRUE);
+	       OC.SE = sqrt(diagonal(invert(OC.H)));
+	       }
+        }
     ItEnd();
 	}
 
