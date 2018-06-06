@@ -840,12 +840,12 @@ PredictionDataSet::EconometricObjective(subp) {
     predicttime = solvetime = 0;
     if (subp==DoAll) {
         PanelPrediction::Predict();
-        println("Time to Compute ",predicttime," ",solvetime);
+//        println("Time to Compute ",predicttime," ",solvetime);
         return M;
         }
     else {
         decl vv = ParallelSolveSub(subp);
-        println("Time to Compute ",predicttime," ",solvetime);
+//        println("Time to Compute ",predicttime," ",solvetime);
         return vv;
         }
 	}

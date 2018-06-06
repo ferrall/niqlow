@@ -41,7 +41,6 @@ PanelBB::AggSubProbMat(submat) {
 /** Calls and returns <code>data-&gt;EconometricObjective()</code>.
 **/
 PanelBB::vfunc(subp) {
-    println("entering EO");
     return data->EconometricObjective(subp);
 	}
 
