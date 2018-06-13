@@ -637,7 +637,7 @@ ExPostSmoothing::Smooth(EV) {
 ExtremeValue::Smooth(VV) {
 	EV = VV;
 	pandv ./= V;
-//    if (!I::t) println("**",VV,pandv);
+//    if (!I::t) println("** Smoothing ",VV,pandv);
 	}
 	
 /**Iterate on Bellman's equation at &theta; using Rust-styled additive extreme value errors.

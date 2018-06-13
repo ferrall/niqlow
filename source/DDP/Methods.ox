@@ -182,6 +182,7 @@ Method::GSolve(instate) {  oxwarning("DDP Warning 22.\n User code has called the
 	
 /**Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
 @param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
+@param Rgroups
 @param MaxTrips 0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
 @return TRUE if all solutions succeed; FALSE if any fail.
 This method carries out Bellman's iteration on the user-defined problem.  It uses the `DP::ClockType` of

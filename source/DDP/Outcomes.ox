@@ -232,17 +232,17 @@ FPanel::~FPanel() {
 	}	
 
 /** Simulate a homogenous panel (fpanel) of paths.
-@param N &gt; 0, number of paths to simulate
+@param Nsim &gt; 0, number of paths to simulate
 @param Tmax maximum path length<br>0 no maximum length.
 @param ErgOrStateMat 0 [default]: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
 @param DropTerminal TRUE: eliminate termainl states from the data set<br>FALSE: [default] include terminal states.
 @param pathpred 0 [default] or PathPrediction object to filter simulated values
 @comments &gamma; region of state is masked out.
 **/
-FPanel::Simulate(N, T,ErgOrStateMat,DropTerminal,pathpred){
+FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
 	decl msucc=FALSE, ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS, curg,
-Nstart=columns(ErgOrStateMat), rvals, curr, i;
-	if (N <= 0) oxrunerror("DDP Error 50a. First argument, panel size, must be positive");
+         Nstart=columns(ErgOrStateMat), rvals, curr, i;
+	if (Nsim <= 0) oxrunerror("DDP Error 50a. First argument, panel size, must be positive");
     if (ii) {
 	   if (erg) {
 		  if (!isclass(SD)) oxrunerror("DDP Error 50b. model not ergodic, can't draw from P*()");
@@ -256,14 +256,15 @@ Nstart=columns(ErgOrStateMat), rvals, curr, i;
         }
 	if (isclass(upddens)) {
         upddens->SetFE(f);
-        rvals = DrawFsamp(f,N);
+		upddens->loop();
+        rvals = DrawFsamp(f,Nsim);
         }
-    else rvals = matrix(N);
+    else rvals = matrix(Nsim);
     if (Flags::IsErgodic && !T) oxwarning("DDP Warning 08.\nSimulating ergodic paths without fixed Tmax?\nPath may be of unbounded length.");
 	cputime0 = timer();
     Outcome::pathpred = pathpred;
-
 	cur = this;
+    NT = 0;
     for (curr=0;curr<columns(rvals);++curr) {
         if (!rvals[curr]) continue;  // no observations
 	    if (isclass(method)) {
@@ -280,7 +281,7 @@ Nstart=columns(ErgOrStateMat), rvals, curr, i;
             I::Set(cur.state,TRUE);
 		    cur->Path::Simulate(T,DropTerminal);
 		    NT += cur.T;
-		    if (++this.N<N && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
+		    if (++this.N<Nsim && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
             cur = cur.pnext;
 		    }
         }

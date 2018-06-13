@@ -3,7 +3,7 @@
 
 DynamicRoy::Replicate()	{
 	decl i, BF, KW,OutMat, AMat, BMat;	
-	Initialize(new DynamicRoy(),TRUE);
+	Initialize(new DynamicRoy());
 	SetClock(NormalAging,A1);
 	Actions(accept = new ActionVariable("Accept",Msectors));
     GroupVariables(lnk = new NormalRandomEffect("lnk",3,0.0,1.0));
@@ -27,12 +27,21 @@ DynamicRoy::Replicate()	{
 	CreateSpaces(LogitKernel,1/4000.0);
 	BF = new ValueIteration();
 	BF -> Solve();
-    SubSampleStates(constant(1.0,1,3)~constant(0.2,1,A1-3),30,100 );
 	DPDebug::outV(FALSE,&AMat);
+    savemat("KWbrute.dta",AMat,DPDebug::SVlabels);
+    SubSampleStates(constant(1.0,1,3)~constant(0.2,1,A1-3),30,100 );
 	KW = new KeaneWolpin();
 	KW -> Solve();
 	DPDebug::outV(FALSE,&BMat);
-    println("difference ","%c",{"EV","Choice Probs"},(BMat-AMat)[][columns(BMat)-Msectors-1:]);
+    savemat("KWapprox.dta",BMat,DPDebug::SVlabels);
+    decl nc = columns(BMat)-Msectors-1;
+    println("EV and Choice Prob. ",
+        "Brute Force ",MyMoments(AMat[][nc:]),
+        "Approx ",MyMoments( BMat[][nc:]),
+        "Abs. Diff ",MyMoments(fabs((BMat-AMat)[][nc:])))
+        ;
+//    println("differences ","%c",{"EV","Choice Probs"},);
+    Delete();
 }
 
 /** Rule out schooling if too old **/

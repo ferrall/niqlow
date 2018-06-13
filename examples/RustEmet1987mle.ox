@@ -6,7 +6,7 @@
 RustEstimates::DoAll() {
     decl toglist;
 	toglist = ZurcherHat::FirstStage(0);
-	EMax = new ValueIteration(0);
+	EMax = new ValueIteration();
 	// EMax.vtoler = 1E-03;
 	buses = new BusData(EMax);
 	nfxp = new PanelBB("ZurcherMLE",buses,ZurcherHat::hat);

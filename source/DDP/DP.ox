@@ -1605,6 +1605,7 @@ Group::Density(){
 	do {
 		if (isclass(States[g],"CorrelatedEffect")) {
 			curREdensity *= States[g].block.pdf; //not correct yet
+            println("!!! Correct Correlated Effects ",g," ",curREdensity);
 			g -= States[g].block.N;
 			}
 		else {
