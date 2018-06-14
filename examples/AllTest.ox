@@ -249,7 +249,7 @@ Test9::Run()	{
     println("%c",{"f"}|pd.tlabels,pd.aflat[0],pd.aflat[1]);
     savemat("Test9moms.dta",pd.aflat[0]|pd.aflat[1],{"f"}|pd.tlabels);
     delete pd;
-    pd = new PredictionDataSet("hi",meth,UseLabel,FALSE,FALSE);
+    pd = new PredictionDataSet(UseLabel,"hi",meth,FALSE,FALSE);
     pd->TrackingWithLabel(AllFixed,TRUE,a,d);
     pd->Read("Test9moms.dta");
     Explore(pd,10,0.1,lam);

@@ -147,7 +147,7 @@ Predictions are averaged over random effect groups.
 
 @example
 <pre>
-  p = new PathPrediction(0);
+  p = new PathPrediction();
   p-&gt;Predict(10);
 </pre></dd>
 **/
@@ -194,7 +194,7 @@ If T is greater than the current length of the path additional predictions are
 concatenated to the path
 
 **/
-PathPrediction::Empirical(inNandMom,hasN,hasT,wght) {
+PathPrediction::Empirical(inNandMom,hasN,hasT) {
     decl inmom,totN,inN,invsd,C = columns(inNandMom)-1,influ,dt,datat,negt,
     report = !Version::MPIserver && Data::Volume>SILENT;
     influ = ones(1,C-1);
@@ -233,15 +233,20 @@ PathPrediction::Empirical(inNandMom,hasN,hasT,wght) {
             else if (j>=columns(inmom)) inmom ~= .NaN;
             else inmom = inmom[][:j-1]~.NaN~inmom[][j:];
             }
-    if (wght==UNCORRELATED && columns(inmom)!=columns(mask))
-            oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
-    if (wght==UNCORRELATED) {
-        invsd = 1.0 ./ setbounds(moments(inmom,2)[2][],0.1,+.Inf);
-        invsd = isdotnan(invsd) .? 0.0 .: invsd;  //if no observations, set weight to 0.0
-        invsd = selectifc(invsd,mask);
+    switch_single(wght) {
+        case UNWEIGHTED :   invsd = 1.0;
+        case UNCORRELATED :
+                    if (columns(inmom)!=columns(mask))
+                        oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
+                    invsd = 1.0 ./ setbounds(moments(inmom,2)[2][],0.1,+.Inf);
+                    invsd = isdotnan(invsd) .? 0.0 .: invsd;  //if no observations, set weight to 0.0
+                    invsd = selectifc(invsd,mask);
+        case CONTEMPORANEOUS :
+            oxrunerror("CONTEMPORANEOUS correlated moments not implemented yet");
+        case INTERTEMPORAL :
+             influ = invsd = 1.0;
+             pathW = loadmat("pathW_"+sprint("%02u",f)+".mat");
         }
-    else
-        invsd = 1.0;
     if (!Version::MPIserver && Data::Volume>LOUD)
         fprintln(Data::logf,"Row influence: ",influ,"Weighting by row and column",(inN/totN).*invsd.*influ);
     do {
@@ -303,10 +308,12 @@ reachable state index is found.
 The prediction is not made until `PathPrediction::Predict`() is called.
 
 **/
-PathPrediction::PathPrediction(f,method,iDist){
+PathPrediction::PathPrediction(f,label,method,iDist,wght){
+	this.label = label;
 	this.f = f;
 	this.method = method;
     this.iDist = iDist;
+    this.wght = wght;
     EverPredicted = FALSE;
 	fnext = UnInitialized;
     tlabels = {"t"};
@@ -674,21 +681,18 @@ PanelPrediction::~PanelPrediction() {
 	}	
 
 /** Create a panel of predictions.
-@param r integer tag for the panel
+@param label for the panel
 @param method `Method` to be called before predictions.
 @param iDist initial conditions for `PathPrediction`s
-@param wght [default=FALSE]
+@param wght [default=UNCORRELATED]
 **/
-PanelPrediction::PanelPrediction(r,method,iDist,wght) {
-	decl i, q;
-    this.method = method;
-	this.r = r;
-    this.wght = wght;
-	PathPrediction(0,method,iDist);	
+PanelPrediction::PanelPrediction(label,method,iDist,wght) {
+	decl f=0;
+	PathPrediction(f,label,method,iDist,wght);	
 	fparray = new array[N::F];
 	fparray[0] = 0;
 	cur = this;
-	for (i=1;i<N::F;++i) cur = cur.fnext = fparray[i] = new PathPrediction(i,method,iDist);
+	for (f=1;f<N::F;++f) cur = cur.fnext = fparray[f] = new PathPrediction(f,label,method,iDist,wght);
     FN = 1;
     }
 
@@ -777,17 +781,16 @@ PredictionDataSet::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
 
 
 /** Create a panel prediction that is matched with external data.
+@param UorCorL where to get fixed-effect values<br>matrix of indices, array of
 @param label name for the data
 @param method solution method to call before predict
-@param UorCorL where to get fixed-effect values<br>matrix of indices, array of
 labels<br>UseLabel [default]<br>NotInData only allowed if F=1, then no column contains
 fixed variables
 @param iDist initial conditions set to `PathPrediction`s
 @param wght see `GMMWeightOptions`
 **/
-PredictionDataSet::PredictionDataSet(label,method,UorCorL,iDist,wght) {
+PredictionDataSet::PredictionDataSet(UorCorL,label,method,iDist,wght) {
     decl q,j;
-    this.label = label;
     Tplace = Nplace = UnInitialized;
     PanelPrediction(label,method,iDist,wght);
     if (UorCorL==NotInData) {
@@ -849,7 +852,6 @@ PredictionDataSet::EconometricObjective(subp) {
         return vv;
         }
 	}
-
 
 /** Read in external moments of tracked objects.
 @param FNorDB  string, name of file that contains the data.<br>A Ox database object.
@@ -915,7 +917,7 @@ PredictionDataSet::Read(FNorDB) {
             else {
                 inf = UnInitialized;  //get out of inner loop after installing
                 }
-            cur->Empirical(inmom,hasN,hasT,wght);
+            cur->Empirical(inmom,hasN,hasT);
             if (report) {
                     println("Moments read in for fixed group ",curf,". See log file");
                     fprintln(Data::logf,"Moments of Moments for fixed group:",curf);

@@ -96,7 +96,9 @@ struct 	Prediction : Data {
 **/
 struct 	PathPrediction : Prediction {
 	static	decl summand, upddens, predicttime, solvetime;
-    const decl f, iDist;
+    const decl f, iDist,
+            /** label **/ label,
+            /** Weight Moments for GMM. **/         wght;
 	decl
     /** current index of random effects.**/         rcur,
     /** Empirical moments read in. **/              HasObservations,
@@ -118,14 +120,14 @@ struct 	PathPrediction : Prediction {
                                                     first,
     /** the next PathPrediction   **/               fnext;
     static tprefix(t);
-	PathPrediction(f=0,method=0,iDist=0);
+	PathPrediction(f=0,label="",method=0,iDist=0,wght=UNCORRELATED);
     Initialize();
 
 	~PathPrediction();
     InitialConditions();
 	Predict(T=0,printit=FALSE);
     SetT();
-    Empirical(inmoments,hasN=FALSE,hasT=FALSE,wght=UNCORRELATED);
+    Empirical(inmoments,hasN=FALSE,hasT=FALSE);
     Tracking(LorC,...);
     SetColumns(dlabels,Nplace=UnInitialized,Tplace=UnInitialized);
     TypeContribution(pf=1.0,subflat=0);
@@ -135,16 +137,13 @@ struct 	PathPrediction : Prediction {
 	}
 
 struct PanelPrediction : PathPrediction {
-	const decl
-	/** tag for the panel. **/ 				r,
-    /** Weight Moments for GMM. **/         wght;
 	decl
 				        					fparray,
     /**length of vector returned by EconometricObjective.**/ FN,
                                              delt,
                                              aflat,
 	/** array of GMM vector. **/	 	     M;
-    PanelPrediction(r=0,method=0,iDist=0,wght=FALSE);
+    PanelPrediction(label="",method=0,iDist=0,wght=UNCORRELATED);
     ~PanelPrediction();
     Predict(T=0,printit=FALSE,submat=0);
     Tracking(LorC,...);
@@ -156,14 +155,13 @@ struct PanelPrediction : PathPrediction {
 
 **/
 struct PredictionDataSet : PanelPrediction {
-    const decl /** label **/ label;
     decl
             /** **/                                                     flist,
             /** matrix of indices or array of labels or UseLabel  **/   UorCorL,
             /** observations column (index or label).**/                Nplace,
             /** time column (index or label).**/                        Tplace,
             /** **/                                                     FMethod;
-    PredictionDataSet(label="",method=0,UorCorL=UseLabel,iDist=0,wght=TRUE);
+    PredictionDataSet(UorCorL=UseLabel,label="",method=0,iDist=0,wght=UNCORRELATED);
     Observed(as1,lc1=0,...);
     TrackingMatchToColumn(Fgroup,LorC,mom);
     TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);
