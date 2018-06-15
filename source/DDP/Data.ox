@@ -41,16 +41,15 @@ PathPrediction::PathWlabels() {
     }
 */
 PathPrediction::AppendSimulated() {
-    decl m,tflat = <>,n;
-   foreach(m in tlist[n])
-        if (m.LorC!=NotInData && !isnan(cur.empmom[n])) {  // unmatched moments always have .NaN
+    decl m,tflat = <>;
+   foreach(m in tlist)
+        if (m.LorC!=NotInData)   //  && !isnan(cur.empmom[n]) unmatched moments always have .NaN
             switch_single (TypeCheck(m.obj,ilistnames)) {
                 case AuxInt   : tflat ~= AV(m.obj);  //simout.chi[m.obj.pos];
                 case ActInt   : tflat ~= Alpha::aA[m.obj.pos];
                 case StateInt : tflat ~= AV(m.obj);  //simout.state[m.obj.pos];
-                default:
+                default:  oxrunerror("Not valid ",classname(m.obj));
                 }
-            }
     if (!(cur.t))                  // start of new simulated path
         flat = tflat;
     else
