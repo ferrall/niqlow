@@ -23,34 +23,26 @@ The  parameter estimates differ between the working paper and the article.  The 
 but the published estimates are given as well.
 <P/>
 <h2>The Model</h2>
-<dd class="example"><pre>
-Clock: Finite Horizon 
-        t = 0, 1, &hellip;, 19,\helllip; 29.
-Endogenous State
-    &theta; = (M)
-        M = number of children, a RandomUpDown() variable
-Actions:
-     &alpha; = (n), n &in; {0,1}
+<DT>Clock: Finite Horizon, t = 0, 1, &hellip;, 19,\helllip; 29.</DT>
+<DT>Endogenous State Vector: <span class="expressions">\(\theta = (M)\)</span></DT>
+<DD>M = number of children, a RandomUpDown() variable</DD>
+<DD>Transitions
+    <span class="equation">$$Prob(M' = M+1) = pn$$</span>
+</DD>
+<DT>Action Vector: <span class="expressions">\(\alpha = (n)\)</span>, n &in; {0,1}</DT>
+<DD><span class="expressions">\(A(\theta) = \cases{ \{0,1\} if t< 20\cr
+		                  {0}   if t= 20\cr}\)</span></DD>
 <P/>
-    A(&theta;) = {0,1} if t&lt; 20
-		{0}   if t&ge; 20
-Exogenous State			
+<DT>Exogenous State</DT>
     &epsilon; = (psi;)
     &psi; &sim; N(0,1)
 <P/>
-Transitions
-    Prob(M' = M+1) = pn
-    M' = M + 1    if t&lt;T
-        M        otherwise.
+<DT>Income</DT>
+   <span class="equation">$$X = Y - ( b(n-d) + (c_1I_{t=1} + c_2I_{t=2}+ c_{30}+c_{31}t+c_{32}t^2))n.$$</span>
+<DT>Utility</DT>
+ <span class="equation">$$U = (\alpha_1+\psi)M +\alpha_2M^2+ \beta_1X+\beta_2X^2 + \gamma_1MX+\gamma_2MS.$$</span>
 <P/>
-Income
-   X = Y - ( b(n-d) + (c<sub>1</sub><em>I</em><sub>t=1</sub> + c<sub>2</sub><em>I</em><sub>t=2</sub>	+ c<sub>30</sub>+c<sub>31</sub>t+c<sub>32</sub>t<sup>2</sup>))n
-<P/>
-Utility
- U = (&alpha;<sub>1</sub>+&psi;)M +&alpha;<sub>2</sub>M<sup>2</sup>   + &beta;<sub>1</sub>X+&beta;<sub>2</sub>X<sup>2</sup>	+ &gamma;<sub>1</sub>MX+&gamma;<sub>2</sub>MS
-<P/>
-For the Table 8 replication:
-</pre></dd>
+For the Table 5, 8 and 9 replications:
 <P/>
 <h2>Replication</h2>
 <P/>
@@ -85,22 +77,12 @@ Wolpin 1984 fertility model
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___aa0">aa0</a></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___aa">aa</a></td>
 <td class="modifiers">static const</td>
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___aa1">aa1</a></td>
-<td class="modifiers">static const</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___ab0">ab0</a></td>
-<td class="modifiers">static const</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___ab1">ab1</a></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___ab">ab</a></td>
 <td class="modifiers">static const</td>
 <td class="description"></td>
 </tr>
@@ -131,54 +113,64 @@ Wolpin 1984 fertility model
 <td class="description"></td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___EMax">EMax</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___gam">gam</a></td>
 <td class="modifiers">static const</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___M">M</a></td>
 <td class="modifiers">static</td>
 <td class="description">stock of children  </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___n">n</a></td>
 <td class="modifiers">static</td>
 <td class="description">decision variable  </td>
 </tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___p">p</a></td>
-<td class="modifiers">static</td>
-<td class="description">vector of survival prob.</td>
-</tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___prow">prow</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___psi">psi</a></td>
 <td class="modifiers">static</td>
 <td class="description">shock to preferences  </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___Sbar">Sbar</a></td>
 <td class="modifiers">static const</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___Y">Y</a></td>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___Yrow">Yrow</a></td>
 <td class="modifiers">static</td>
-<td class="description">vector of huband income  </td>
+<td class="description"></td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___FeasibleActions">FeasibleActions</a></td>
 <td class="modifiers"></td>
 <td class="description">Return A(&theta;).</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___Mortality">Mortality</a></td>
 <td class="modifiers">static</td>
 <td class="description">Returns current time-specific transition probabilities.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___Replicate">Replicate</a></td>
 <td class="modifiers">static</td>
 <td class="description">Run the  replication.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___TimeEffect">TimeEffect</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WolpinJPE1984.ox.html#Fertility___Utility">Utility</a></td>
@@ -203,37 +195,19 @@ Wolpin 1984 fertility model
 </tr>
 </table>
 
-<a name="Fertility___aa0"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">aa0</span></h3>
+<a name="Fertility___aa"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">aa</span></h3>
 
-<span class="declaration">static const decl aa0 [public]</span>
+<span class="declaration">static const decl aa [public]</span>
 <dl><dd>
 
 </dd></dl>
 
 <hr>
-<a name="Fertility___aa1"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">aa1</span></h3>
+<a name="Fertility___ab"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ab</span></h3>
 
-<span class="declaration">static const decl aa1 [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Fertility___ab0"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ab0</span></h3>
-
-<span class="declaration">static const decl ab0 [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Fertility___ab1"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ab1</span></h3>
-
-<span class="declaration">static const decl ab1 [public]</span>
+<span class="declaration">static const decl ab [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -286,6 +260,15 @@ Parameters from the
 </dd></dl>
 
 <hr>
+<a name="Fertility___EMax"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">EMax</span></h3>
+
+<span class="declaration">static decl EMax [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="Fertility___FeasibleActions"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FeasibleActions</span></h3>
 
@@ -319,7 +302,7 @@ stock of children
 <a name="Fertility___Mortality"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Mortality</span></h3>
 
-<span class="declaration">static Fertility :: Mortality ( FeasA )</span>
+<span class="declaration">static Fertility :: Mortality ( )</span>
 <dl><dd>
 Returns current time-specific transition probabilities.
 
@@ -336,12 +319,11 @@ decision variable
 </dd></dl>
 
 <hr>
-<a name="Fertility___p"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">p</span></h3>
+<a name="Fertility___prow"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">prow</span></h3>
 
-<span class="declaration">static decl p [public]</span>
+<span class="declaration">static decl prow [public]</span>
 <dl><dd>
-vector of survival prob.
 
 </dd></dl>
 
@@ -375,6 +357,15 @@ Run the  replication.
 </dd></dl>
 
 <hr>
+<a name="Fertility___TimeEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">TimeEffect</span></h3>
+
+<span class="declaration">static Fertility :: TimeEffect ( coeff )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="Fertility___Utility"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Utility</span></h3>
 
@@ -385,12 +376,11 @@ Utility.
 </dd></dl>
 
 <hr>
-<a name="Fertility___Y"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Y</span></h3>
+<a name="Fertility___Yrow"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Yrow</span></h3>
 
-<span class="declaration">static decl Y [public]</span>
+<span class="declaration">static decl Yrow [public]</span>
 <dl><dd>
-vector of huband income
 
 </dd></dl>
 <div class="footer">

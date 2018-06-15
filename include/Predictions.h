@@ -168,5 +168,5 @@ struct PredictionDataSet : PanelPrediction {
     Observations(NLabelorColumn,TLabelorColumn=UnInitialized);
     Read(fn);
  	virtual EconometricObjective(subp=DoAll);
-    SimulateMomentVariances(N,ErgOrStateMat=0);
+    SimulateMomentVariances(N,ErgOrStateMat=0,fvals=DoAll);
     }

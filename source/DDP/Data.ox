@@ -19,12 +19,13 @@ PathPrediction::SimulateOutcomePaths(curfpanel,N,ErgOrStateMat) {
     savemat("pathW_"+sprint("%02u",f)+".mat",pathW);
     }
 
-PredictionDataSet::SimulateMomentVariances(N,ErgOrStateMat) {
-    decl simdata = new Panel(0,method),logdet,Tmax,scur,old;
+PredictionDataSet::SimulateMomentVariances(N,ErgOrStateMat,fvals) {
+    decl simdata = new Panel(0,method),scur,old;
     scur = simdata;
     decl fcur=this;
     do {
-        fcur->SimulateOutcomePaths(scur,N,ErgOrStateMat);
+        if (fvals==DoAll || any(fcur.f.==fvals))
+            fcur->SimulateOutcomePaths(scur,N,ErgOrStateMat);
         old = scur;
         scur = scur.fnext;
         old->~FPanel();   // delete previous simulations

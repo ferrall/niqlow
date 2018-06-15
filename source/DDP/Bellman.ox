@@ -911,7 +911,7 @@ $$EV(\theta) = \sum_{j=0}^{d.N^-} \left[ \left\{ Prob(z^\star_{j-1}<z\le z^\star
 @return EV
 **/
 OneDimensionalChoice::thetaEMax(){
-    if (solvez && N::Options[Aind]>1) {
+    if (solvez && N::Options[Aind]>One) {
 	   [EUstar,pstar] = EUtility();
 	   V[] = pstar*(EUstar+pandv);
        }

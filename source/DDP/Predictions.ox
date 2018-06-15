@@ -197,9 +197,9 @@ concatenated to the path
 PathPrediction::Empirical(inNandMom,hasN,hasT) {
     decl inmom,totN,inN,invsd,C = columns(inNandMom)-1,influ,dt,datat,negt,
     report = !Version::MPIserver && Data::Volume>SILENT;
-    influ = ones(1,C-1);
     T = rows(inNandMom);
     HasObservations = TRUE;
+    influ = 0;
     if (hasT) {
         negt = inNandMom[][C].<0;
         if ( any(negt)  ) {
@@ -212,8 +212,10 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
         datat = inNandMom[][C];
         T = rows(inNandMom);
         }
-    else
+    else {
         datat = range(0,T-1)';
+        influ = ones(1,C-1);
+        }
     cur = this;
     dt = 0;
     if (hasN) {
@@ -226,6 +228,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
         totN = 1.0;
         }
     inmom = inNandMom[][:C-hasN-hasT];
+    if (isint(influ)) influ = selectifc(ones(mask),mask);
     decl j;  //insert columns for moments not matched in the data
     for (j=0;j<columns(cols);++j)
         if (cols[j]==NotInData) {
@@ -244,7 +247,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
         case CONTEMPORANEOUS :
             oxrunerror("CONTEMPORANEOUS correlated moments not implemented yet");
         case INTERTEMPORAL :
-             influ = invsd = 1.0;
+             invsd = 1.0;
              pathW = loadmat("pathW_"+sprint("%02u",f)+".mat");
         }
     if (!Version::MPIserver && Data::Volume>LOUD)
@@ -424,7 +427,7 @@ Prediction::Delta(mask,printit,tlabels) {
                         .? .Inf             // difference unbounded
                         .: W.*(mv-empmom));   // weighted difference
     if (!Version::MPIserver && printit) {
-        fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4g","%c",tlabels,mv|empmom|W|df);
+        fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4g","%c",tlabels,mv|empmom|reshape(W,1,columns(empmom))|df);
         }
     return df;
     }

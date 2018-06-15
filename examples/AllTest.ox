@@ -281,6 +281,6 @@ Use Mill's ratio to compute truncated mean of normal.
 @return Array of two vectors
 **/	
 Test10::EUtility()    {
-	decl pstar = 1-probn(zstar);
-	return {  ( eta | densn(zstar/pstar)) , (1-pstar)~pstar};
+    decl zz = zstar[][I::r], pstar = 1-probn(zz);
+	return {  ( eta | densn(zz/pstar)) , (1-pstar)~pstar};
 	}	

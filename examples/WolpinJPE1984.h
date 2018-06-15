@@ -18,19 +18,21 @@ struct Fertility : ExPostSmoothing	{
 						     <2.884E3; -3.025E1; 5.782E1>},  // 1.95E3~-2.86E2~6.42E1
 						delt = 9.155E-1, 					//9.22E-1
 						Sbar = 2.0,
-						aa0 = <9.35,8.52,9.21,10.13,10.82,8.52>,
-						aa1 = <0.00,0.00,0.00,00.00,00.00,0.088>,
-						ab0 = <2.78,2.09,1.67,1.33,1.05,1.05>,
-						ab1 = <0.00,0.00,0.00,0.00,0.00,1.81>;
+						aa  = <9.35,8.52,9.21,10.13,10.82,8.52;
+						       0.00,0.00,0.00,00.00,00.00,0.088>,
+						ab  = <2.78,2.09,1.67,1.33,1.05,1.05;
+						       0.00,0.00,0.00,0.00,0.00,1.81>;
 		
     static decl
-	   /** vector of survival prob.**/ p,
+                                        EMax,
+                                       prow,
+                                       Yrow,
 	   /** shock to preferences **/	   psi,
 	   /** decision variable **/ 		n,
-	   /** stock of children **/ 		M,
-	   /** vector of huband income **/ Y;
-	static Mortality(FeasA);
+	   /** stock of children **/ 		M;
+	static Mortality();
 	static Replicate();
+    static TimeEffect(coef);
 	 	   FeasibleActions();
 		   Utility();
 	}
