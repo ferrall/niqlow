@@ -49,7 +49,7 @@ struct  Bellman : DP {
 			virtual	AutoVarPrint1(task);
 			virtual	Interface();
             virtual ExpectedOutcomesOverEpsilon(CondChoiceProb);
-			virtual Predict(tod);
+//			virtual Predict(tod);
             virtual OutputValue();
             virtual SetTheta(state=0,picked=0);
 

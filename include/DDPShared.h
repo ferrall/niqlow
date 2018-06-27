@@ -193,7 +193,7 @@ enum {Qtr,Qit,Qrho,TransStore}
 
 
 		/** . Options for weighting of moments in GMM. @name GMMWeightOptions **/
-enum { UNWEIGHTED, UNCORRELATED, CONTEMPORANEOUS, INTERTEMPORAL, GMMWeightOptions}
+enum { UNWEIGHTED, UNCORRELATED, CONTEMPORANEOUS, INTERTEMPORAL, AUGMENTEDPATHW, GMMWeightOptions}
 
 enum { LONG, WIDE, FlatOptions }
 
