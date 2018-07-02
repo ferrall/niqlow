@@ -6,7 +6,9 @@ DynamicRoy::Replicate()	{
 	Initialize(new DynamicRoy());
 	SetClock(NormalAging,A1);
 	Actions(accept = new ActionVariable("Accept",Msectors));
-    GroupVariables(lnk = new NormalRandomEffect("lnk",3,0.0,1.0));
+
+//    GroupVariables(lnk = new NormalRandomEffect("lnk",3,0.0,1.0));
+    lnk = 1.0;
 	EndogenousStates(attended   = new ActionTracker("attended",accept,school));
 	ExogenousStates(offers = new MVNormal("eps",Msectors,Noffers,zeros(Msectors,1),sig));
 	xper = new array[Msectors-1];
@@ -27,13 +29,15 @@ DynamicRoy::Replicate()	{
 	CreateSpaces(LogitKernel,1/4000.0);
 	BF = new ValueIteration();
 	BF -> Solve();
+	println("Brute force time: ",timer()-cputime0);
 	DPDebug::outV(FALSE,&AMat);
-    savemat("KWbrute.dta",AMat,DPDebug::SVlabels);
+    /*savemat("KWbrute.dta",AMat,DPDebug::SVlabels); */
     SubSampleStates(constant(1.0,1,3)~constant(0.2,1,A1-3),30,100 );
 	KW = new KeaneWolpin();
 	KW -> Solve();
+	println("KW solve time: ",timer()-cputime0);
 	DPDebug::outV(FALSE,&BMat);
-    savemat("KWapprox.dta",BMat,DPDebug::SVlabels);
+/*    savemat("KWapprox.dta",BMat,DPDebug::SVlabels); */
     decl nc = columns(BMat)-Msectors-1;
     println("EV and Choice Prob. ",
         "Brute Force ",MyMoments(AMat[][nc:]),

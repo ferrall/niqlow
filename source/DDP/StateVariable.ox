@@ -1191,6 +1191,7 @@ MVIID::Update() { }
 @param M integer, number of values each variable takes on (So M<sup>N</sup> is the total number of points added to the state space)
 @param mu either a Nx1 constant vector or a <code>Parameter Block</code>  containing means
 @param Sigma either a N(N+1)/2 x 1 vector containing the lower diagonal of the Choleski matrix or a parameter block for it
+
 **/
 MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 	decl i;
@@ -1199,6 +1200,7 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 	MVIID(L,N,M);
 	this.mu = mu;
 	this.CholLT = CholLT;
+    zvals = rann(N,M);
 	for (i=0;i<N;++i) AddToBlock(new NormalComponent(L+sprint(i),M));
 	}
 
@@ -1206,7 +1208,8 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 @comments Like all Update routines, this is called at `Flags::UpdateTime`.
 **/
 MVNormal::Update()	{
-	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*reshape(quann(range(1,M)/(M+1)),N,M) )';	
+//	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*reshape(quann(range(1,M)/(M+1)),N,M) )';	
+	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*zvals )';	
     if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",Actual);
 	}
 

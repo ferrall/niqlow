@@ -907,11 +907,12 @@ x &sim; N( &mu;, C'C ).
 **/
 struct MVNormal : MVIID {
     const decl
-	/** vector of means &mu; **/ 					mu,
+    /** matrix of Z vals for simulated actual values**/  zvals,
+	/** vector of means &mu; **/ 					     mu,
 	/** `AV`-compatible vector-valued object which returns
         <code>vech()</code> for lower triangle of C, the Choleski decomposition
         of the variance matrix &Omega;, &Omega; = CC'.
-        **/                                         CholLT;
+        **/                                             CholLT;
 	MVNormal(L,N,M, mu,CholLT);
 	virtual Update();
 	}
