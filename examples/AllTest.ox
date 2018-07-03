@@ -75,8 +75,7 @@ Test2::RunA(UseList)	{
 Test3::Utility() { decl u = Alpha::A[Aind]*(CV(d)-5+CV(s0))+(1-Alpha::A[Aind])*CV(s1); return u;}
 
 Test3::Run() {
-    println("Spanning State Space");
-    RunA(TRUE);
+//    println("Spanning State Space"); RunA(TRUE);
     println("Using State List");
     RunA(FALSE);
     }

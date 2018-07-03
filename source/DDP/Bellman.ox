@@ -94,19 +94,20 @@ Bellman::SetTheta(state,picked) { Bellman(state,picked);    }
 **/		
 Bellman::Bellman(state,picked) {
    //  if (!ThetaCreated) oxrunerror("Cannot create states before state space created - call DP::CreateSpaces()");
-  decl s=S[endog].M;
-  do { IsTerminal = any(state[s].==States[s].TermValues);    } while (!IsTerminal && s++<S[endog].X);
-  N::TerminalStates += IsTerminal;
-  IsLast = counter->Last();
+  decl s=S[endog].M, IsT;
+  IsT = FALSE;
+  do { IsT = any(state[s].==States[s].TermValues);    } while (!IsT && s++<S[endog].X);
+  N::TerminalStates += IsT;
+  Type = TERMINAL*IsT + LASTT * counter->Last();
+  //println("% ",picked," ",IsT," ",counter->Last()," ",Type,state');
   Aind = 0; //initializing this means aa() will work.
-  Aind = Alpha::AddA(IsTerminal ? 1|zeros(N::Options[0]-1,1) : FeasibleActions());
+  Aind = Alpha::AddA(IsT ? 1|zeros(N::Options[0]-1,1) : FeasibleActions());
   if (Aind==Impossible) {
         println("Error occurs at state vector: ","%cf","%7.0f","%c",Labels::Vprt[svar],state');
         oxrunerror("DDP Error ??.  Improper FeasibleAction() return");
         }
-  InSubSample = UnInitialized;
   pandv = UnInitialized;
-  Allocate(picked);
+  Allocate(picked,TRUE);
   EV = 0.0; // zeros(N::R,1); //NoR??
   }
 
@@ -119,14 +120,14 @@ Bellman::Reachable() {    return TRUE;     }
 /** Create space for U() and &Rho;() accounting for random subsampling.
 @see DP::SubSampleStates
 **/
-Bellman::Allocate(picked) {
-  decl OldSS = InSubSample;
-  InSubSample =     IsTerminal  ||  picked;  //ranu(1,1) < SampleProportion[I::t];
-  N::Approximated += !(InSubSample);
-  decl s;
-  if (OldSS!=InSubSample) {     //re-allocation required
-    if (OldSS!=UnInitialized) delete Nxt, U;
-    if (InSubSample) {
+Bellman::Allocate(picked,CalledFromBellman) {
+  decl OldNotSS = !InSS();
+  Type-=(Type==INSUBSAMPLE||Type==LASTT+INSUBSAMPLE);
+  Type += INSUBSAMPLE*picked;  //TERMINAL always in subsample
+  N::Approximated += !InSS();
+  if (OldNotSS||CalledFromBellman) {     //re-allocation required
+    if (!CalledFromBellman) delete Nxt, U;
+    if (InSS()) {
         Nxt = new array[TransStore+N::DynR-1][SS[onlysemiexog].size];
         U = new matrix[N::Options[Aind]][SS[bothexog].size];
         }
@@ -190,13 +191,14 @@ Bellman::ExogExpectedV(VV) {
 /** Compute v(&alpha;&theta;) for all values of &epsilon; and &eta;. **/
 Bellman::ActVal(VV) {
 	pandv[][] = U;
-	if (IsTerminal||IsLast) return;
+	if (Type>=LASTT) return;
     IntegrateOverEta(VV);
     }
 
 /** Computes v() and V for out-of-sample states. **/
 Bellman::MedianActVal(EV) {
-    pandv[] = U[][] + (IsLast ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*EV[Nxt[Qit][Zero]]));
+        //Note Since Action values not computed for terminal states, Type same as IsLast
+    pandv[] = U[][] + (Type>= LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*EV[Nxt[Qit][Zero]]));
 	V[] = maxc( pandv );
 	}
 	
@@ -265,8 +267,9 @@ Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exog
 @see DP::ExogenousTransition
 **/
 Bellman::ThetaTransition() {
-	 decl ios = InSubSample ? I::all[onlysemiexog] : 0,k;
-	 if (IsTerminal || IsLast ) { for(k=0;k<sizeof(Nxt);++k) Nxt[k][ios ] =  <>; return; }
+	 decl ios = InSS() ? I::all[onlysemiexog] : 0,k;
+     //println("$ ",Type," ",LASTT," ",ios);
+	 if (Type>=LASTT) { for(k=0;k<sizeof(Nxt);++k) Nxt[k][ios ] =  <>; return; }
 	 decl now=NOW,later=LATER, si,Nb,prob,feas,root,swap, mtches,curO, rcheck=Volume>LOUD;
  	 F[now] = <0>;	
 	 P[now] = ones(N::Options[Aind],1);
@@ -373,16 +376,16 @@ Bellman::OnlyFeasible(myU) {
     return selectifr(myU,Alpha::Sets[Aind]);
     }
 
-Bellman::InSS() { return InSubSample; }
+Bellman::InSS() { return Type>=INSUBSAMPLE && Type!=LASTT; }
 
 /** .
 @internal
 **/
 Bellman::AutoVarPrint1(task) {
-	print("\n---------------\n","%c",{"Index","IsTerm","InSamp","Aind"}|Labels::Vprt[svar][S[endog].M:S[clock].X],"%7.0f","%r",{"Values"},
-		I::all[tracking]~IsTerminal~InSubSample~Aind~ ( isclass(task) ? (task.state[S[endog].M:S[clock].X])' : 0 ),
+	print("\n---------------\n","%c",{"Index","Type","Aind"}|Labels::Vprt[svar][S[endog].M:S[clock].X],"%7.0f","%r",{"Values"},
+		I::all[tracking]~(Type)~Aind~ ( isclass(task) ? (task.state[S[endog].M:S[clock].X])' : 0 ),
 	"%r",{"EV"},EV',"pandv=","%v",pandv,"%r",{"FeasS","Prob"},Nxt[Qit][]|Nxt[Qrho][]);
-    println("*** ",InSubSample," ",this.InSubSample);
+//    println("*** ",InSubSample," ",this.InSubSample);
 	}
 
 Bellman::ExpectedOutcomesOverEpsilon(chprob) {
@@ -422,9 +425,9 @@ Bellman::StateToStatePrediction(tod) {
 @return UnInitialized if end of process<br>otherwise, index for next realized endogenous state
 **/
 Bellman::Simulate(Y) {
-	decl curJ = rows(pandv), done = IsTerminal||IsLast ;
+	decl curJ = rows(pandv), done = Type>=LASTT ;
     I::all[onlyacts] = done  	? 0
-			  		: DrawOne( pandv[][InSubSample*(Y.ind[bothexog])] );
+			  		: DrawOne( pandv[][InSS()*(Y.ind[bothexog])] );
     Alpha::SetA(I::all[onlyacts]);
 	SyncAct(Alpha::aC);
     this->Utility();        //Added May 2018.  Could also be a hook???
@@ -670,7 +673,7 @@ Normal::CreateSpaces() {
 
 NIID::ExogExpectedV(VV) {
 	decl j,choicep,vv;
-	pandv[][I::elo:I::ehi] += (IsLast ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][I::eta].*VV[Nxt[Qit][I::eta]]));
+	pandv[][I::elo:I::ehi] += (Type>=LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][I::eta].*VV[Nxt[Qit][I::eta]]));
     vv = pandv[][I::elo:I::ehi]';
 	for (j=0;j<rows(pandv);++j) {
 		choicep = prodr(probn(GQNODES[Aind][j] + vv*MM[Aind][j] ))/M_SQRT2PI;
@@ -681,7 +684,7 @@ NIID::ExogExpectedV(VV) {
 
 NIID::ActVal(VV) {
 	decl J=rows(U);
-	if (!IsTerminal && J>1)	{
+	if (Type<TERMINAL && J>1)	{
         ev = 0.0;
         pandv[][] = U;
         IntegrateOverEta(VV);
@@ -813,7 +816,7 @@ NnotIID::ExogExpectedV(VV) {
 **/
 NnotIID::ActVal(VV) {
 	decl J=rows(U);
-	if (!IsTerminal && J>1)	{
+	if (Type<TERMINAL && J>1)	{
         pandv[][] = U;
         IntegrateOverEta(VV);
 		}
@@ -928,7 +931,7 @@ OneDimensionalChoice::Setz(z){ zstar[][I::r]=z; }
 not depend on z*.
 **/
 OneDimensionalChoice::ActVal(VV) {
-    pandv[][] = IsTerminal || IsLast
+    pandv[][] = Type>=LASTT
                        ? 0.0
 	                   : I::CVdelta*Nxt[Qrho][0]*VV[Nxt[Qit][0]]';
     if (!solvez) pandv += U;
@@ -966,7 +969,7 @@ KeepZ::ActVal(VV) {
 KeepZ::DynamicActVal(z) {
     pandv[] = diagonal(this->Uz(z),0,-1); // keep adjacent values to be differenced later
                                           // April 2016.  This was -diagonal() but not consistent with later addin EV
-    if (!IsLast) pandv[]  += I::CVdelta*keptz->DynamicTransit(z);
+    if (Type<=LASTT) pandv[]  += I::CVdelta*keptz->DynamicTransit(z);
     return pandv;
     }
 

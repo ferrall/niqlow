@@ -1752,7 +1752,7 @@ DPDebug::outAutoVars() {
 DPDebug::Initialize() {
     sprintbuffer(16 * 4096);
 	prtfmt0 = array("%8.0f")|Labels::Sfmts[1:3]|Labels::Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%6.0f"|"%15.6f";
-	Vlabel0 = {"    Indx","I","T","A"}|Labels::Vprt[svar][S[endog].M:S[clock].M]|"     r"|"     f"|"       EV      |";
+	Vlabel0 = {"    Indx","T","A"}|Labels::Vprt[svar][S[endog].M:S[clock].M]|"     r"|"     f"|"       EV      |";
 	}
 
 DPDebug::outSVTrans(S1,...) {
@@ -1800,10 +1800,10 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 	}
 	
 SaveV::Run() {
-	if ((TrimTerminals && I::curth.IsTerminal) || (TrimZeroChoice && N::Options[I::curth.Aind]<=1) ) return;
+	if ((TrimTerminals && I::curth.Type>=TERMINAL) || (TrimZeroChoice && N::Options[I::curth.Aind]<=1) ) return;
     decl mxi, p;
     oxprintlevel(-1);
-	stub=I::all[tracking]~I::curth.InSubSample~I::curth.IsTerminal~I::curth.Aind~state[S[endog].M:S[clock].M]';
+	stub=I::all[tracking]~I::curth.Type~I::curth.Aind~state[S[endog].M:S[clock].M]';
     p = columns(I::curth.pandv)==rows(NxtExog[Qprob])
             ?  I::curth->ExpandP( I::curth.pandv*NxtExog[Qprob])
             :  I::curth->ExpandP( I::curth.pandv );

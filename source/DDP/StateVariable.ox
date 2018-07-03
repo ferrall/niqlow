@@ -78,7 +78,7 @@ bequest motive then <code>Utility</code> of being newly deceased should return t
   v->MakeTerminal(1);
 </dd>
 Now any state &theta; for which <code>CV(s)=3</code> or <code>CV(s)=4</code> or <code>CV(v)=1</code>
-will be marked as terminal: `Bellman::IsTerminal` = TRUE.
+will be marked as terminal: `Bellman::Type` &gt;= TERMINAL.
 @see Bellman::FeasibleActions, StateVariable::TermValues
 **/
 StateVariable::MakeTerminal(TermValues)	{
@@ -1130,6 +1130,7 @@ StateBlock::Check() {   }
 /** Sets and returns the vector of <em>actual</em> values of the block as a row vector. **/
 StateBlock::myAV() {  return actual = selectrc(Actual,v,rnge);    }
 
+
 /** An offer with layoff (match dissolution) risk.
 @param L string, label
 @param N integer, number of distinct offers.  0 is no offer
@@ -1404,7 +1405,7 @@ KeptZeta::InitDynamic(cth,VV) {
     myVV =VV';
     isheld = CV(held);
     addst = I::OO[iterating][keep.pos]*vals;
-    decl myios = cth.InSubSample ? I::all[onlysemiexog] : 0;
+    decl myios = cth->InSS() ? I::all[onlysemiexog] : 0;
     NxtI = cth.Nxt[Qit][myios];
     NxtR = cth.Nxt[Qrho][myios];
     NOth= columns(NxtR)-1;

@@ -6,7 +6,7 @@
 @param ToScreen  TRUE [default] means output is displayed .
 @param aM	address to return matrix<br>0, do not save [default]
 @param MaxChoiceIndex FALSE = print choice probability vector [default]<br>TRUE = only print index of choice with max probability.  Useful when the full action matrix is very large.
-@param TrimTerminals FALSE [default] <br>TRUE means states marked `Bellman::IsTerminal` are deleted
+@param TrimTerminals FALSE [default] <br>TRUE means states marked `Bellman::Type`&gt;=TERMINAL are deleted
 @param TrimZeroChoice FALSE [default] <br> TRUE means states with no choice are deleted
 @return TRUE if method fails, FALSE if it succees
 <DT>Note:  All parameters are optional, so <code>VISolve()</code> works.</DT>
@@ -421,9 +421,11 @@ value across all exogenous states.</DD>
 **/
 KWEMax::Run() {
     decl inss = I::curth->InSS();
+    println(inss," ",I::curth.Type," ",firstpass," ",I::curth.pandv);
     if (firstpass) {
         if (!inss) return;
 		EndogUtil::Run();
+        println(meth.VV,"**");
 		I::curth->ActVal(meth.VV[I::later]);
 		meth.VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
 		if (!onlypass)
@@ -489,8 +491,9 @@ KeaneWolpin::KeaneWolpin(myGSolve,myEndogUtil) {
 	}
 
 KWGSolve::KWGSolve(myKWEMax) {
+    GSolve(isint(myKWEMax) ? new KWEMax() : myKWEMax);
 	cpos = counter.t.pos;
-    itask = isint(myKWEMax) ? new KWEMax() : myKWEMax;
+    //    itask = isint(myKWEMax) ? new KWEMax() : myKWEMax;
 	itask.meth = this;
 	Bhat = new array[N::T];
 	xlabels0 = {"maxE","const"};

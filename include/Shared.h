@@ -61,6 +61,8 @@ enum{EQUALITY,INEQUALITY,ConstraintTypes}
 		/** Tags for Types of vector-valued objective Aggregation.
             @name AggregatorTypes **/	
 enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,Aggregators}
+        /** Cutoffs for StateType Code @name StateTypes.**/
+enum{ORDINARY,INSUBSAMPLE,LASTT,TERMINAL=4,StateTypeCutoffs}
 
 static const decl
         curdir = ".",

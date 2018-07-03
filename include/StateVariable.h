@@ -836,6 +836,8 @@ struct StateBlock : StateVariable {
     virtual myAV();
 	}
 
+
+
 /**A combination of an `Offer` state variable and a status variable, <var>(w,m)</var> .
 
 If unemployed an offer was generated with prob. &phi;.  The agent can accept an offer and become employed or reject and

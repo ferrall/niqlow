@@ -28,7 +28,7 @@ Prediction::Predict(tlist) {
                 Alpha::SetA();
                 if ( I::curth->StateToStatePrediction(this) ) return  PredictFailure = TRUE;
                 foreach (tv in tlist) tv->Distribution(this);
-                allterm *= I::curth.IsTerminal || I::curth.IsLast;
+                allterm *= I::curth.Type>=LASTT;
                 }
             else {
                 qi = ReverseState(q,I::OO[tracking][])[lo:hi];

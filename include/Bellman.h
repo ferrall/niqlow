@@ -14,12 +14,16 @@ on static members in order to reduce memory requirements.  These are defined in 
 struct  Bellman : DP {
     static decl eta, etal, etah;
 	decl
-		/**TRUE if a Terminal state (no action chosen).
+        /**Integer code to classify state (InSubSample,LastT,Terminal).
+            This avoids multiple integer values at each point in the state space.
+            Defined in `StateTypes`. Set in `DP::CreateSpaces`()
+            @see StateVariable::MakeTerminal Clock::Last **/    Type,
+/*		TRUE if a Terminal state (no action chosen).
             Set in `DP::CreateSpaces`()
-            @see StateVariable::MakeTerminal **/ 		            IsTerminal,
-        /** TRUE if last period a decision, depends on the Clock.
-            @see Clock::Last**/                                     IsLast,
-	    /** Full solution at this state.                 **/        InSubSample,
+            @see StateVariable::MakeTerminal  		            IsTerminal,
+         TRUE if last period a decision, depends on the Clock.
+            @see Clock::Last                                     IsLast,
+             Full solution at this state.                        InSubSample, */
 		/**&theta;.j index into `Alpha::Alist`.**/  				Aind,
 		/**U(&alpha;&epsilon;,&eta;,&theta;,&gamma;).  **/	        U,
 		/**  &Rho;*(&hellip;,&gamma;). **/   		                pandv,
@@ -54,7 +58,7 @@ struct  Bellman : DP {
             virtual SetTheta(state=0,picked=0);
 
 					Bellman(state,picked);
-                    Allocate(OldSS=UnInitialized);
+                    Allocate(picked,CallFromBellman=FALSE);
 					~Bellman();
 					//aa(av);
 					Simulate(Y);
@@ -63,7 +67,7 @@ struct  Bellman : DP {
                     StateToStatePrediction(tod);
 					ExpandP(p0/*Agg=TRUE*/);
 					MedianActVal(EV);
-                    InSS();
+                    virtual InSS();
 	}																																				
 
 /** Choice probabilities are smoothed ex post.

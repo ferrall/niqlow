@@ -47,7 +47,7 @@ Outcome::~Outcome() {
 Used to print or save a series or panel as a matrix.
 
 <DD>Columns:<pre>
-t ~ State_Ind ~ IsTerminal ~ Aind ~ &epsilon; ~ eta; ~ &theta; ~ &gamma; ~ &alpha; ~
+t ~ State_Ind ~ Type ~ Aind ~ &epsilon; ~ eta; ~ &theta; ~ &gamma; ~ &alpha; ~
 &zeta; ~ aux
 </pre></DD>
 
@@ -55,7 +55,7 @@ t ~ State_Ind ~ IsTerminal ~ Aind ~ &epsilon; ~ eta; ~ &theta; ~ &gamma; ~ &alph
 Outcome::Flat(Orientation)	{
 	if (!Settheta(ind[tracking])) return <>;
     if (Orientation==LONG)
-        return t~ind[tracking]~I::curth.IsTerminal~I::curth.Aind~state'~ind[onlyacts][0]~act~z~aux;
+        return t~ind[tracking]~I::curth.Type~I::curth.Aind~state'~ind[onlyacts][0]~act~z~aux;
     else
         return  state'~act~z~aux;
     // prefix(tprefix(t),labels),
@@ -414,6 +414,7 @@ If  `Panel::flat`is an uninitialized then `Panel::Flat`() is called first.
 Flat version of the data set is stored in `Panel::flat`.
 @param fn 0: do not print or save, just return<br>print to screen<br>string: save to a
 file
+@param Orientation  LONG or WIDE
 @return long <em>matrix</em> of panels
 **/
 Panel::Print(fn,Orientation)	{
