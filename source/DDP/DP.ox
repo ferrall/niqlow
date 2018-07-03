@@ -10,7 +10,9 @@ I::Initialize() {
 	all = new matrix[rows(OO)][1];
    	MxEndogInd = DP::SS[onlyendog].size-1;
 	decl lo = DP::SS[bothexog].left, hi = DP::SS[bothexog].right;	
-	MedianExogState= (N::All[lo:hi]-1)/2;
+//	MedianExogState= (N::All[lo:hi]-1)/2;
+//  July 2018.  changed so first is always median
+	MedianExogState= zeros(hi-lo+1,1);
 	MESind = OO[bothexog][lo:hi]*MedianExogState;
 	MSemiEind = OO[onlysemiexog][lo:hi]*MedianExogState;
     majt = subt = Zero;

@@ -908,6 +908,7 @@ x &sim; N( &mu;, C'C ).
 struct MVNormal : MVIID {
     const decl
     /** matrix of Z vals for simulated actual values**/  zvals,
+                                                         mind,
 	/** vector of means &mu; **/ 					     mu,
 	/** `AV`-compatible vector-valued object which returns
         <code>vech()</code> for lower triangle of C, the Choleski decomposition
@@ -915,6 +916,7 @@ struct MVNormal : MVIID {
         **/                                             CholLT;
 	MVNormal(L,N,M, mu,CholLT);
 	virtual Update();
+    virtual myAV();
 	}
 
 /** Re-occuring epsiodes with endogenous onset and ending probabilities.

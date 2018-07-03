@@ -11,6 +11,7 @@ DynamicRoy::Replicate()	{
     lnk = 1.0;
 	EndogenousStates(attended   = new ActionTracker("attended",accept,school));
 	ExogenousStates(offers = new MVNormal("eps",Msectors,Noffers,zeros(Msectors,1),sig));
+//    offers->SetVolume(LOUD);
 	xper = new array[Msectors-1];
 	for (i=0;i<Msectors-1;++i)
 		EndogenousStates(xper[i] = new ActionCounter("X"+sprint(i),MaxExp,accept,i,0));
@@ -31,8 +32,9 @@ DynamicRoy::Replicate()	{
 	BF -> Solve();
 	println("Brute force time: ",timer()-cputime0);
 	DPDebug::outV(FALSE,&AMat);
+    // BFsim = new PanelPrediction ( label , BF , iDist , wght )
     /*savemat("KWbrute.dta",AMat,DPDebug::SVlabels); */
-    SubSampleStates(constant(1.0,1,3)~constant(0.2,1,A1-3),30,100 );
+    SubSampleStates(constant(1.0,1,3)~constant(0.1,1,A1-3),30);
 	KW = new KeaneWolpin();
 	KW -> Solve();
 	println("KW solve time: ",timer()-cputime0);

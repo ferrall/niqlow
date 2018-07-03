@@ -17,7 +17,7 @@ a placeholder for extensions of a model.
 The default transition is  s&prime; = 0, so it is very unlikely <code>MyModel</code> would ever include a variable of the
 base class.
 **/
-StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>;  Prune=FALSE;}
+StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>;  Prune=FALSE; }
 
 
 /** Return actual[v].
@@ -1085,6 +1085,7 @@ StateBlock::StateBlock(L,...)	{
 	N= 0;
 	Theta={};
 	pos = UnInitialized;
+    logf = 0;
     Volume = SILENT;
 	Actual = Allv = actual = v = <>;	
     decl va = va_arglist(), v;
@@ -1192,6 +1193,8 @@ MVIID::Update() { }
 @param mu either a Nx1 constant vector or a <code>Parameter Block</code>  containing means
 @param Sigma either a N(N+1)/2 x 1 vector containing the lower diagonal of the Choleski matrix or a parameter block for it
 
+NOTE: the first observation actual values always equals the mean for KW approximation.
+
 **/
 MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 	decl i;
@@ -1200,9 +1203,17 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 	MVIID(L,N,M);
 	this.mu = mu;
 	this.CholLT = CholLT;
-    zvals = rann(N,M);
-	for (i=0;i<N;++i) AddToBlock(new NormalComponent(L+sprint(i),M));
+    zvals = Zero~rann(N,M^N-1);  //Tack 0 on so first actual value is always the mean.
+    mind = <1>;
+	for (i=0;i<N;++i) {
+            AddToBlock(new NormalComponent(L+sprint(i),M));
+            if (i) mind |= M^i;
+            }
 	}
+
+MVNormal::myAV() {
+    return actual = Actual[v*mind][];
+    }
 
 /** Updates the grid of Actual values.
 @comments Like all Update routines, this is called at `Flags::UpdateTime`.
@@ -1210,7 +1221,8 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 MVNormal::Update()	{
 //	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*reshape(quann(range(1,M)/(M+1)),N,M) )';	
 	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*zvals )';	
-    if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",Actual);
+    println(" In update ",Volume," ",isfile(logf));
+    if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," MVNormal Update ","\n mean ",CV(mu)," C ",unvech(AV(CholLT))," actuals ",Actual);
 	}
 
 /** K mutually exclusive episodes.
