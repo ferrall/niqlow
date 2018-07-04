@@ -121,19 +121,20 @@ Bellman::Reachable() {    return TRUE;     }
 @see DP::SubSampleStates
 **/
 Bellman::Allocate(picked,CalledFromBellman) {
-  decl OldNotSS = !InSS();
+  decl OldSS = InSS(),NewSS;
   Type-=(Type==INSUBSAMPLE||Type==LASTT+INSUBSAMPLE);
   Type += INSUBSAMPLE*picked;  //TERMINAL always in subsample
-  N::Approximated += !InSS();
-  if (OldNotSS||CalledFromBellman) {     //re-allocation required
+  NewSS = InSS();
+  N::Approximated += !NewSS;
+  if ((OldSS!=NewSS)||CalledFromBellman) {     //re-allocation required
     if (!CalledFromBellman) delete Nxt, U;
-    if (InSS()) {
+    if (NewSS) {
         Nxt = new array[TransStore+N::DynR-1][SS[onlysemiexog].size];
         U = new matrix[N::Options[Aind]][SS[bothexog].size];
         }
     else {
-        Nxt = new array[TransStore+N::DynR-1][1];
-        U = new matrix[N::Options[Aind]][1];
+        Nxt = new array[TransStore+N::DynR-1][One];
+        U = new matrix[N::Options[Aind]][One];
         }
     pandv =constant(.NaN,U);
     }

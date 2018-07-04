@@ -709,7 +709,7 @@ N::Subsample(prop) {
         samp[t] = (c<=nt[t]-1)
             ? ReachableIndices[tfirst[t]+ransubsample(c,nt[t])]
             : DoAll;
-        println(t," ",c," ",MaxSZ," ",nt[t]," ",sizer(samp[t]));
+        println(t~c~MaxSZ~nt[t]~samp[t]');
         }
     return samp;
     }
@@ -1155,6 +1155,7 @@ DryRun::DryRun() {
     }
 
 CreateTheta::picked() {
+//    if (!isarray(insamp)) println("not an array");    else println("PP ",I::t," ",I::all[tracking]," ",any(insamp[I::t].==I::all[tracking]));
     return isarray(insamp) ? ( isint(insamp[I::t]) ? TRUE : any(insamp[I::t].==I::all[tracking]) ) : TRUE;
     }
 

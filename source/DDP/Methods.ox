@@ -421,21 +421,20 @@ value across all exogenous states.</DD>
 **/
 KWEMax::Run() {
     decl inss = I::curth->InSS();
-    println(inss," ",I::curth.Type," ",firstpass," ",I::curth.pandv);
+    //println(inss," ",I::curth.Type," ",firstpass," ",I::curth.pandv);
     if (firstpass) {
         if (!inss) return;
 		EndogUtil::Run();
-        println(meth.VV,"**");
 		I::curth->ActVal(meth.VV[I::later]);
 		meth.VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
-		if (!onlypass)
-			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');
+		if (!onlypass) InSample();
+            //			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');
 		}
     else if (!inss) {
 		itask.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
 		SyncStates(lo,hi);
-		I::all[bothexog] = 0;    //     MESind;
-		I::all[onlysemiexog] = 0; //= MSemiEind;
+		I::all[bothexog] = I::MESind;    //     ;
+		I::all[onlysemiexog] = I::MSemiEind; //= ;
 		itask -> Run();
 		OutSample();
 		I::all[bothexog] = I::MESind;
@@ -444,7 +443,6 @@ KWEMax::Run() {
 	if (Flags::setPstar)  {
         I::curth->Smooth(meth.VV[I::now][I::all[iterating]]);
         Hooks::Do(PostSmooth);
-		if (Flags::IsErgodic) I::curth->UpdatePtrans();
         }
 	}
 
@@ -514,7 +512,6 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
         xrow = V~1~Vdelta~sqrt(Vdelta);
         if (isint(curlabels)) curlabels = xlabels0|xlabels1[:columns(Vdelta)-1]|xlabels2[:columns(Vdelta)-1];
         }
-	if (!isint(Vdelta)) xrow = V~1~Vdelta~sqrt(Vdelta);
 	switch_single(kwstep) {
 		case	AddToSample :
 				Y |= VV[I::now][I::all[iterating]];

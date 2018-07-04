@@ -274,8 +274,8 @@ struct N : DDPauxiliary {
                                                                       MaxSZ,
         /** # of iteration points SS[iterating].size.**/              Mitstates,
 		/**  .  **/									                  ReachableIndices,
-		/**  Count of reachable states.  **/   	                      TerminalStates,
-    	/**  Count of reachable states.  @internal **/  		      ReachableStates,
+		/**  Count of terminal states.  **/   	                      TerminalStates,
+    	/**  Count of reachable states.   **/  		                  ReachableStates,
          /** Number of states approximated (not subsampled).**/       Approximated;
     static Reset();
     static Initialize();

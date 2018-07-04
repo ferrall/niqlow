@@ -1222,7 +1222,6 @@ MVNormal::myAV() {
 MVNormal::Update()	{
 //	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*reshape(quann(range(1,M)/(M+1)),N,M) )';	
 	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*zvals )';	
-    println(" In update ",Volume," ",isfile(logf));
     if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," MVNormal Update ","\n mean ",CV(mu)," C ",unvech(AV(CholLT))," actuals ",Actual);
 	}
 
