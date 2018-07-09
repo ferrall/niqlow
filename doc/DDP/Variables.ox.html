@@ -3278,9 +3278,19 @@ x &sim; N( &mu;, C'C ).
         of the variance matrix &Omega;, &Omega; = CC'.</td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#MVNormal___mind">mind</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#MVNormal___mu">mu</a></td>
 <td class="modifiers">const</td>
 <td class="description">vector of means &mu;  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#MVNormal___zvals">zvals</a></td>
+<td class="modifiers">const</td>
+<td class="description">matrix of Z vals for simulated actual values  </td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#MVNormal___MVNormal">MVNormal</a></td>
@@ -3288,6 +3298,11 @@ x &sim; N( &mu;, C'C ).
 <td class="description">Create a block for a multivariate normal distribution (IID over time).</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#MVNormal___myAV">myAV</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#MVNormal___Update">Update</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Updates the grid of Actual values.</td>
@@ -3296,7 +3311,7 @@ x &sim; N( &mu;, C'C ).
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#MVIID">MVIID</a>:</dt><dd><a href="Variables.ox.html#MVIID___MVIID">MVIID</a>, <a href="Variables.ox.html#MVIID___Transit">Transit</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
@@ -7573,6 +7588,15 @@ total number points in the block.
 </dd></dl>
 
 <hr>
+<a name="MVNormal___mind"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mind</span></h3>
+
+<span class="declaration">const decl mind [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="MVNormal___mu"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mu</span></h3>
 
@@ -7614,11 +7638,22 @@ Create a block for a multivariate normal distribution (IID over time).
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Sigma</td>
-<td class="description" valign="baseline">either a N(N+1)/2 x 1 vector containing the lower diagonal of the Choleski matrix or a parameter block for it</td>
+<td class="description" valign="baseline">either a N(N+1)/2 x 1 vector containing the lower diagonal of the Choleski matrix or a parameter block for it
+<P/>
+NOTE: the first observation actual values always equals the mean for KW approximation.</td>
 </tr>
 </table>
 </dd>
 </dl>
+</dd></dl>
+
+<hr>
+<a name="MVNormal___myAV"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">myAV</span></h3>
+
+<span class="declaration">virtual MVNormal :: myAV ( )</span>
+<dl><dd>
+
 </dd></dl>
 
 <hr>
@@ -7632,6 +7667,16 @@ Updates the grid of Actual values.
 <dl><dt class="comments">Comments:</dt><dd class="comments">Like all Update routines, this is called at <a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a>.
 </dd>
 </dl>
+</dd></dl>
+
+<hr>
+<a name="MVNormal___zvals"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">zvals</span></h3>
+
+<span class="declaration">const decl zvals [public]</span>
+<dl><dd>
+matrix of Z vals for simulated actual values
+
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NonDeterministicAging</span></h2>
 
@@ -8926,7 +8971,7 @@ bequest motive then <code>Utility</code> of being newly deceased should return t
   v->MakeTerminal(1);
 </dd>
 Now any state &theta; for which <code>CV(s)=3</code> or <code>CV(s)=4</code> or <code>CV(v)=1</code>
-will be marked as terminal: <a href="Bellman.ox.html#Bellman___IsTerminal">IsTerminal</a> = TRUE.
+will be marked as terminal: <a href="Bellman.ox.html#Bellman___Type">Type</a> &gt;= TERMINAL.
 </dd>
 <dt class="comments">Comments:</dt><dd class="comments">The feasible action set for terminal states is automatically set to the first row of the gobal <var>A</var> matrix.
 </dd>

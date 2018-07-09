@@ -157,7 +157,7 @@ DP::DrawGroup(find) {	return SetGroup(find + DrawOne(gdist[find][]) );	}
 DP::DrawFsamp(find,N) { return ranmultinomial(N,gdist[find][]); }
 
 DP::DrawOneExogenous(aState) {
-	decl i = DrawOne(NxtExog[Qprob]);		
+	decl i = DrawOne(NxtExog[Qprob]);
 	aState[0] += ReverseState(NxtExog[Qind][i],I::OO[bothexog][]);
 	return i;
 	}
@@ -635,10 +635,11 @@ Alpha::Aprint() {
 	for (j=0;j<N::A;++j) {
 		for (i=0,av=sprint("%03u",j)~" (";i<N::Av;++i) av ~= sprint("%1u",Matrix[j][i]);
 		av~=")";
-		for (i=0;i<N::J;++i) if (Sets[i][j]) {
-            if (!sizeof(Rlabels[i])) Rlabels[i] = {av};
-            else Rlabels[i] |= av;
-            }
+		for (i=0;i<N::J;++i)
+            if (Sets[i][j]) {
+                if (!sizeof(Rlabels[i])) Rlabels[i] = {av};
+                else Rlabels[i] |= av;
+                }
 		for (i=0;i<8-N::Av;++i) av ~= " ";
         everfeasible = FALSE;
 		for (i=0;i<N::J;++i) {
@@ -709,7 +710,6 @@ N::Subsample(prop) {
         samp[t] = (c<=nt[t]-1)
             ? ReachableIndices[tfirst[t]+ransubsample(c,nt[t])]
             : DoAll;
-        println(t~c~MaxSZ~nt[t]~samp[t]');
         }
     return samp;
     }
@@ -1155,7 +1155,7 @@ DryRun::DryRun() {
     }
 
 CreateTheta::picked() {
-//    if (!isarray(insamp)) println("not an array");    else println("PP ",I::t," ",I::all[tracking]," ",any(insamp[I::t].==I::all[tracking]));
+    //    if (!isarray(insamp)) println("not an array");    else println("PP ",I::t," ",I::all[tracking]," ",any(insamp[I::t].==I::all[tracking]));
     return isarray(insamp) ? ( isint(insamp[I::t]) ? TRUE : any(insamp[I::t].==I::all[tracking]) ) : TRUE;
     }
 
@@ -1378,8 +1378,9 @@ Task::SyncStates(dmin,dmax)	{
 		Sd = States[d];
 		sv = Sd.v = state[d];
   		if (isclass(Sd,"Coevolving")) {
+//            if (trace&&sv==3) println("---",Sd.L," ",Sd.bpos," ",Sd.block.v," ",Sd.block.actual," ",Sd.actual);
 			Sd.block.v[Sd.bpos] = sv;
-			if (sv>-1) Sd.block.actual[Sd.bpos] = Sd.actual[sv];	
+			if (sv>-1) Sd.block->myAV();  // Sd.block.actual[Sd.bpos] = Sd.actual[sv];	
 			}
 		}
     if (dmin<=S[clock].M && dmax>= S[clock].M) counter->Synch();

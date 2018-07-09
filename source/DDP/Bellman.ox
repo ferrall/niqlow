@@ -199,7 +199,7 @@ Bellman::ActVal(VV) {
 /** Computes v() and V for out-of-sample states. **/
 Bellman::MedianActVal(EV) {
         //Note Since Action values not computed for terminal states, Type same as IsLast
-    pandv[] = U[][] + (Type>= LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*EV[Nxt[Qit][Zero]]));
+    pandv[] = U + (Type>= LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*EV[Nxt[Qit][Zero]]));
 	V[] = maxc( pandv );
 	}
 	
@@ -377,6 +377,8 @@ Bellman::OnlyFeasible(myU) {
     return selectifr(myU,Alpha::Sets[Aind]);
     }
 
+/** Return TRUE if full iteration to be carried out at this point (in submsample).
+**/
 Bellman::InSS() { return Type>=INSUBSAMPLE && Type!=LASTT; }
 
 /** .

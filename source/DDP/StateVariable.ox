@@ -1103,7 +1103,7 @@ StateBlock::AddToBlock(news,...)	{
 		if ((!IsBlockMember(s = news[i]))) oxrunerror("DDP Error 23. State Variable added to block not a block member object\n");
 		s.bpos = N++;
 		Theta |= s;
-		v ~= .NaN;
+		v ~= Zero;  //July 2018.  changed from .NaN so blocks can index immediately.
 		if (N==1) { Allv = s.vals; Actual= s.actual; }
 		else {
 			nd = columns(Allv); newrow = <>;
@@ -1130,6 +1130,7 @@ StateBlock::Check() {   }
 /** Sets and returns the vector of <em>actual</em> values of the block as a row vector. **/
 StateBlock::myAV() {  return actual = selectrc(Actual,v,rnge);    }
 
+Coevolving::myAV() { return block->myAV()[bpos]; }
 
 /** An offer with layoff (match dissolution) risk.
 @param L string, label
@@ -1204,15 +1205,18 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 	MVIID(L,N,M);
 	this.mu = mu;
 	this.CholLT = CholLT;
-    zvals = Zero~rann(N,M^N-1);  //Tack 0 on so first actual value is always the mean.
-    mind = <1>;
+    zvals = Zero~rann(N,MtoN-1);  //Tack 0 on so first actual value is always the mean.
+    mind = <>;
+    v = <>;
 	for (i=0;i<N;++i) {
             AddToBlock(new NormalComponent(L+sprint(i),M));
-            if (i) mind |= M^i;
+            mind |= M^i;
             }
+    Update();
 	}
 
 MVNormal::myAV() {
+    if (v*mind>rows(Actual)) println(v,mind');
     return actual = Actual[v*mind][];
     }
 

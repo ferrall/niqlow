@@ -131,6 +131,7 @@ struct Coevolving : Augmented {
 	/** Index into block array/vector **/    	decl bpos;
 	Coevolving(Lorb, N=1);
     Transit();
+    virtual myAV();
 	}
 
 /** Container for augmented state variables in which a value or an action trigger a transition

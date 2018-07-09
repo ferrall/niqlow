@@ -89,6 +89,7 @@ transitions.  Then `Bellman::Simulate` called to simulate
 Outcome::Simulate() {
 	decl i,f;
     for (i=0;i<columns(fixeddim);++i) ind[fixeddim[i]] = I::OO[fixeddim[i]][]*state;
+    state[S[exog].M:S[semiexog].X] = 0;
 	ind[bothexog] = DrawOneExogenous(&state);
 	ind[onlyexog] = I::OO[onlyexog][]*state;
 	ind[onlysemiexog] = I::OO[onlysemiexog][]*state;
@@ -179,7 +180,7 @@ Path::Simulate(T,DropTerminal){
        done = cur->Outcome::Simulate();
        if ( done || this.T>=T || (isclass(pathpred) && pathpred->AppendSimulated()) ) break;
        ++this.T;
-       cur = cur.onext==UnInitialized ? new Outcome(cur) : cur.onext;
+       cur = !isclass(cur.onext) ? new Outcome(cur) : cur.onext;
        } while(TRUE);
 	if (DropTerminal && done && this.T>1) {  //don't delete if first state is terminal!! Added March 2015.
 		last = cur.prev;
