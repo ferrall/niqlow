@@ -210,6 +210,8 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
             }
         if (report) MyMoments(inNandMom,tlabels[1:],Data::logf);
         datat = inNandMom[][C];
+        if ( any( diff0(datat) .< 0) )
+                oxrunerror("DDP Error ??. t column in moments not ascending. Check data and match to fixed groups.");
         T = rows(inNandMom);
         }
     else {

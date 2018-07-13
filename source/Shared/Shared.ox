@@ -626,7 +626,7 @@ GHK::SimDP(V,Sigma){
 **/
 GaussianKernel(X,inh) {
 	decl k, xk, Nd = columns(X), KK = new matrix[Nd][Nd],h;
-    h = (inh<0.0) ? (1.364 * sqrt(varc(X))) / (M_PI*Nd)^0.2  : constant(inh,Nd);
+    h = (inh<0.0) ? (1.364 * sqrt(varc(X))) / (M_PI*Nd)^0.2  : constant(inh,Nd,1);
 	foreach (xk in X[][k]) KK[k][] =  prodc(densn((X-xk)/h[k]));
 	return KK ; // ./ sumr(KK);
 	}

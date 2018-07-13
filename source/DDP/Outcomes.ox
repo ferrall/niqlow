@@ -172,7 +172,6 @@ Checks to see if transition is &Rho; is <code>tracking</code>.  If not, process 
 **/
 Path::Simulate(T,DropTerminal){
 	decl done;
-//	ETTtrack->Traverse();
 	cur = this;
 	this.T=1;  //at least one outcome on a path
     if (T==UnInitialized) T = INT_MAX;

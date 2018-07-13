@@ -12,9 +12,9 @@ struct Engine : StateBlock {
 	decl
 	/** hours state, <em>x<sup>1</sub></em>**/		 			h,
 	/** shutdown state,  <em>x<sup>2</sub></em>**/				sd,
-	/** visit variable (not required) **/						visit,
 	/** &theta;<sub>3</sub> vector **/                          q;
-    Engine(visit, const q);	
+    Engine();	
+    Setq(q);
 	Transit();
 	}
 

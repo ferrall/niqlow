@@ -16,6 +16,7 @@ Clock::Clock(Nt,Ntprime) {
 	StateBlock("clock");
 	AddToBlock(t = new TimeVariable("t",Nt),tprime = new TimeVariable("t'",Ntprime));
 	Flags::StatStage = IsErgodic = FALSE;
+    Volume = SILENT;
 	}
 
 /** Flag for last period.
@@ -201,8 +202,8 @@ StaticP::StaticP() { Aging(1); }
 <DT>If FALSE then check for convergence</DT>
 **/
 NonDeterministicAging::Vupdate() {
-    if (Volume>QUIET)
-        println("%^% ",I::t," ",Flags::StatStage," ",Flags::setPstar,moments(aVV[0][I::now][ : I::MxEndogInd ]')');
+    if (Clock::Volume>QUIET)
+        println("%^% ",I::t," ",Flags::StatStage," ",Flags::setPstar,moments(aVV[0][I::now][ : I::MxEndogInd ]' )' );
     if (Flags::setPstar)
         aVV[0][I::now][ I::MxEndogInd+1 : ] = aVV[0][I::now][ : I::MxEndogInd ];	//copy today's value to tomorrow place
     //check for convergence
@@ -298,7 +299,7 @@ Mortality::Vupdate() {
     }
 
 Mortality::setPstar(notsynched) {
-    return !(Flags::StatStage = TRUE);
+    return TRUE;            //!(Flags::StatStage = FALSE);
     }
 
 /**	Random death and uncertain maximum lifetime.
@@ -346,11 +347,11 @@ Longevity::Vupdate() {
 Longevity::setPstar(notsynched) {
     if (notsynched) {
         Flags::StatStage = FALSE;
-        if (Volume>QUIET) println("first");
+        if (Clock::Volume>QUIET) println("first");
         }
     else {
         Flags::StatStage = t.v==twilight;
-        if (Volume>QUIET) println(" P* ",t.v," ",twilight);
+        if (Clock::Volume>QUIET) println(" P* ",t.v," ",twilight);
         }
     return !Flags::StatStage; //  (t.v != twilight);
     }

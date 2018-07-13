@@ -5,7 +5,7 @@ struct DynamicRoy : ExPostSmoothing	{
 	/** Labels for choices/sectors. @name Sectors **/
 		enum{white,blue,school,home,Msectors}
 	/** State Space Dimensions. @name Dimens **/
-		enum{A1=40,Noffers=5,Age0=16,School0=10,HSGrad=12,MaxExp=15}
+		enum{A1=30,Noffers=3,Age0=16,School0=10,HSGrad=12,MaxExp=15}
 	static const decl
 		/** &alpha; in paper**/				alph = { <9.21;0.04;0.033;0.0005;0.0;0.0>,<8.20;0.8;0.067;0.001;0.022;0.0005>},
                                                 //#3 {<8.00;0.07;0.055;0.0;0.0;0.0>,<7.90;0.07;0.06;0.0;0.055;0.0>},

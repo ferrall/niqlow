@@ -33,14 +33,11 @@ Replicate Rust 1987 output using <span class="n"><a href="../doc/DynamicPrograms
 <OL class="body">
 <a name="O"><LI>Overview</LI></a>
 <P/>
-The program produces engine replacement probabilities that match those shown in <em>Figure 3 on page 1025</em> of the paper.
+The program produces engine replacement probabilities that match those shown in <em>Figure 3 on page 1025</em> of the paper. The code segments are not exactly the same as in the Ox file, which includes additional code beyond the basics shown here.</p>
 <P/>
-The code segments are not exactly the same as in the Ox file, which includes additional code beyond the basics
-shown here.
+The paper models the decision to replace a bus engine as a function of mileage and unobserved IID shocks.  Replacement is a one-time cost that resets the odometer to <var>x=0</var>.  The cost of monthly  maintenance increases linearly with <var>x</var>.</p>
 <P/>
-The paper models the decision to replace a bus engine as a function of mileage and unobserved IID shocks.  Replacement is a one-time cost that resets the odometer to <var>x=0</var>.  The cost of monthly  maintenance increases linearly with <var>x</var>.
-<P/>
-See <a href="RustEmet1987mle.ox.html">RustEmet1987mle</a> to see how to carry out estimation using data as in the original paper.
+See <a href="RustEmet1987mle.ox.html">RustEmet1987mle</a> to see how to carry out estimation using data as in the original paper.</p>
 <P/>
 <a name="M"><LI>The Model</li></a>
 <P/>
@@ -99,18 +96,12 @@ takes on values between 0 and 89.
 <a name="R"><LI>Remarks</LI></a>
 <P/>
 <DT><code>Zurcher</code> is derived from the <code>Rust</code> class</DT>
-<DD>The <code>Rust</code> class embeds an infinite horizon clock and a single binary action (<code>d</code>).  It
-defines constants and declares a <code>static</code> member <code>x></code>.  </DD>
-<DD><code>Zurcher</code> then declares the two required methods: <code>static Reachable()</code> and non-static <code>Utility()</code>. These two elements of the implementation are short and simple.</DD>
-<P/>
-<DT><code>Reachable()</code> is called by <code>DP::CreateSpaces</code>() as it generates the state space <code>&Theta;</code>.</DT>
-<DD>Each time it is called <code>Reachable()</code> returns a new instance of the <code>Zurcher</code> class, another endogenous state &theta;.</DD>
-<details class="aside"><summary>Unreachable States</summary>If the state space had states that were infeasible to reach then <code>Reachable</code> would look at the current values of the state variables (in this case <var>x</var>) and return an integer if the point is not feasible.  This feature allows the code to avoid unnecessary visits and reduce memory requirements in very large models.  Note that <code>Reachable()</code> can be called anything and it does not need to be a method, but if is a method of <code>Zurcher</code> then it must be declared <code>static</code>.</details>
+<DD>The <code>Rust</code> class embeds an infinite horizon clock and a single binary action (<code>d</code>).  It defines constants and declares a <code>static</code> member <code>x></code>.  <code>Zurcher</code> then declares the required method <code>Utility()</code>. </DD>
 <P/>
 <DT><code>Utility</code> must have that name and cannot be <code>static</code>.</DT>
 <DD>The form of the expression returned as the value should look related to the mathematical expression <var>U()</var> above.  The parameters are static members of the class (they are the shared by each state &theta;).  The current value of <code>x</code> is accessed as <code>CV(x)</code>.  The value of <code>x</code> is set to be the correct value at &theta; before <code>Utility()</code> is called.</DD>
 <DD><code>Utility</code> must return a column vector of values corresponding to the feasible action vector <code>A[Aind]</code>.  In this case the action variable is simply <var>d</var>, and engine replacement is always feasible.</DD>
-<DD>In mathematical notation, we would write the choice set as <code>&alpha; &in; A(&theta;)</code>.  The code could simply refer to <code>A[Aind]</code>, the matrix of feasible actions at the current state.  But rather than accessing <code>A[Aind]</code> directly, the column of values for the <code>d</code> is accessed using <Code>Bellman::aa</code>(d)</code>.  This makes the code closer to the notation and more general since it will work even if other actions are added to the model.</DD>
+<DD>In mathematical notation, we would write the choice set as <code>&alpha; &in; A(&theta;)</code>.  The code could simply refer to <code>A[Aind]</code>, the matrix of feasible actions at the current state.  But rather than accessing <code>A[Aind]</code> directly, the column of values for the <code>d</code> is accessed using <code>CV(d)</code>.  This makes the code closer to the notation and more general since it will work even if other actions are added to the model.</DD>
 <details class="aside"><summary>More on A and U()</summary><code>A</code> is a static array of the distinct feasible sets.  <code>Aind</code> is the index into the array specific to the current state <code>&theta;</code>.  Since Zurcher's problem has a single feasible set, <code>A</code> has only one matrix and <code>Aind</code> = 0 at all states.
 <DD><pre>
 A[0] =  &lceil; 0 &rceil;    So U = &lceil; -0.001x + n&rceil;
@@ -119,18 +110,16 @@ Whenever called, <code>Utility</code> returns a 2x1 matrix, the utility of not r
 <P/>
 <DT>The tasks required to set up and solve the model are in <code>Zurcher::Run</code>(). Like <code>Run()</code>, a user's program must do these tasks in order:</DT>
 <OL class="steps">
-<LI>Call <code>Initialize()</code> for the parent DDP class and send the <code>Reachable()</code> function, along with required arguments or optional values to change the default values.  Since <code>Zurcher</code> is of type <code>Rust</code>, the program is calling <code>Rust::Initialize()</code>, which will set the clock and add the binary action variable to the model, <code>d</code>.</LI>
+<LI>Call <code>Initialize(new Zurcher())</code> for the parent DDP class. Since <code>Zurcher</code> is of type <code>Rust</code>, the program is calling <code>Rust::Initialize()</code>, which will set the clock and add the binary action variable to the model, <code>d</code>.</LI>
 <LI>Create state variables (using the <code>new</code> operator) and add them to the model.</LI>
 <LI>Call <code>CreateSpaces();</code>.</LI>
 </OL>
-<DT>The state variable <var>x</var> is of type <Code>Renewal</code>, which captures the process in Rust 1987 but is more general than in the empirical specification.  </DT>
-<DD>To properly capture the transition it must be coordinated with the choice variable <code>d</code>.  To do this <code>d</code> is passed to
-<code>new Renewal()</code> as an argument, along with how many categories <code>x</code> takes on and the vector of increment
-probabilities.  </DD>
-<DD>The length of the vector determines how different states are feasible next period. In the empirical work, 3 of 90 odometer readings are feasible next period.</DD>
+<DT>The state variable <var>x</var> is of type <Code>Renewal</code>, which captures the process in Rust (1987) but is more general than in the empirical specification.  </DT>
+<DD>To properly capture the transition it must be coordinated with the choice variable <code>d</code>.  To do this <code>d</code> is passed to <code>new Renewal()</code> as an argument, along with how many categories <code>x</code> takes on and the vector of increment
+probabilities.  The length of the vector determines how different states are feasible next period. In the empirical work, 3 of 90 odometer readings are feasible next period.</DD>
 <P/>
 <DT>Once <code>CreateSpaces()</code>  has been called new actions and new state variables cannot be added to the model because the state spaces have be set up already.  </DT>
-<dd>And some other optional tasks must be done between <code>Initialize</code> and <code>CreateSpaces</code>.  </DD>
+<P/>
 <DT>To solve the model the following steps are carried out</DT>
 <OL class="steps">
 <LI>Set the discount factor &delta;.  (This can be done at any time after <code>Initialize()</code> before solving the model with that &delta;.)</LI>
@@ -138,6 +127,7 @@ probabilities.  </DD>
 <LI>Call <code>Solve()</code> for the solution method to compute  V(&theta;) and &Rho;*(&alpha;|&theta;).</LI>
 <LI>Use the results, then if necessary change some settings or parameters and solve again.</LI>
 </OL>
+<P/>
 <DT>The code inside the <code>for()</code> loop solves the model twice, for Row 1 and Row 2 parameters. </DT>
 <DD>For each set of parameters the value function is solved through Bellman iteration by <code>Emax->Solve()</code>.  It calls the <code>Output()</code> routine to capture results to be printed and compared with Figure 3 in the paper.</DD>
 <P/>
@@ -151,7 +141,7 @@ The values of EV do not match those shown in Figure 2 of the paper.  This is due
 <DT>Comparison to Figure 3</DT>
 <img src="./Zurcher-Figure3-Replication.png" width="45%"><img src="./Figure3Rust1987.png" width="45%">
 <P/>
-The paper labels the x axis as thousands of miles since engine replacement.  This means that <var>x</var> should take on values 0, 5, ..., 445.  It also suggests that the factor on costs scales 300,000 to 300. However, using this scaling I was not able to replicate the choice probabilities.  Only when <var>x</var> takes on values 0, ..., 89 and the scaling factor still equals 0.001 was I able to reproduce the choice probabilities.
+The paper labels the x axis as thousands of miles since engine replacement.  This means that <var>x</var> should take on values 0, 5, ..., 445.  It also suggests that the factor on costs scales 300,000 to 300. However, using this scaling I was not able to replicate the choice probabilities.  Only when <var>x</var> takes on values 0, ..., 89 and the scaling factor still equals 0.001 was I able to reproduce the choice probabilities.</p>
 <P/>
 <a name="S"><LI>Simulation</LI></a>
 <P/>
@@ -168,7 +158,7 @@ Simulated data
      0     0   248    53     0     0     0     0    53     0     0     0     0     1     1
      0     0   344    69     0     0     0     0    69     0     0     0     0     1     1
 </pre></DD>
-<DD>Bus 0 had four replacements, which occurred in months 116, 175, 269 and 350 of its lifetime.  The mileage on the odometer at replacement was in the interval <code>[5000x,5000(x+1)]</code>.</DD>
+<DD>Bus 0 had four replacements, which occurred in months 92, 164, 248 and 344 of its lifetime.  The mileage on the odometer at replacement was in the interval <code>[5000x,5000(x+1)]</code>.</DD>
 <P/>
 <DT>The column labeled <code>Const</code> is a placeholder for exogenous state variables. </DT>
  <DD>If the model has no such variables then DDP inserts a constant there.  This makes it possible to construct indices into the state space without requiring a check of zero dimensions.  </DD>
@@ -178,7 +168,7 @@ Simulated data
 <P/>
 </OL>
 
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2015 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2018 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
 
 <hr><a name="auto"><h1>Documentation of  Items Defined RustEmet1987.ox</h1></a></dd>
 </dl>

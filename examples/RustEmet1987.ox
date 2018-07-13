@@ -20,7 +20,7 @@ Zurcher::Run()	{
 	CreateSpaces();
 
 	EMax = new ValueIteration();
-	//EMax.vtoler = 1E-1;   					//loose tolerance because beta near 0 and 1
+	EMax.vtoler = 1E-4;   					//loose tolerance because beta near 0 and 1
     EMax.Volume = LOUD;
     for(row=0;row<sizeof(pars);++row) {
 		SetDelta(pars[row][disc]);

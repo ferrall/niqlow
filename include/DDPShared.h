@@ -316,8 +316,6 @@ struct I : DDPauxiliary {
                                                             eta,
                                                             elo,
                                                             ehi,
-    /* current feasible action set .                    curAi,*/
-    /* rows(curAi), number of feasible actions.         curNAi,*/
     /** The current value of &delta;. This is set in
             `DP::UpdateVariables`() to avoid repeated calls
             to `CV`.  @see DP::delta **/                         CVdelta;

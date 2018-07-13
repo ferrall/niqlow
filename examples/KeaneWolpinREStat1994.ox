@@ -31,14 +31,14 @@ DynamicRoy::Replicate()	{
 	   println("Method ",i," time: ",timer()-cputime0);
        sim -> Simulate(1000,30);
        sim -> Print("KW94_meth"+sprint(i)+".dta",LONG);
-//	   DPDebug::outV(FALSE,&outmat);       Vmat[i] = outmat;
+	   DPDebug::outV(FALSE,&outmat);       Vmat[i] = outmat;
        }
-/*    decl nc = columns(Vmat[0])-Msectors-1;
+    decl nc = columns(Vmat[0])-Msectors-1;
     println("EV and Choice Prob. ",
         "Brute Force ",MyMoments(Vmat[0][][nc:]),
         "Approx ",MyMoments( Vmat[1][][nc:]),
         "Abs. Diff ",MyMoments(fabs((Vmat[1]-Vmat[0])[][nc:])))
-        ; */
+        ; 
     delete meth[0], meth[1], sim;
     Delete();
 }
