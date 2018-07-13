@@ -11,7 +11,6 @@ PathPrediction::SimulateOutcomePaths(curfpanel,N,ErgOrStateMat) {
     cur = this;  //initialize to first prediction on the path.
     curfpanel -> FPanel::Simulate(N,UnInitialized,ErgOrStateMat,FALSE,this);
     if (!savemat("logs/flat_"+sprint("%02u",f)+".dta",pathW,tlabels[1:])) println("save of pathW failed");
-//    savemat("logs/long_"+sprint("%02u",f)+".dta",curfpanel->FPanel::Flat(LONG),Panel::LFlat[LONG][1:]);
     pathW = variance(pathW);
 //    savemat("logs/var_"+sprint("%02u",f)+".dta",pathW);
     pathW = invertgen(pathW,1);
@@ -24,23 +23,16 @@ PredictionDataSet::SimulateMomentVariances(N,ErgOrStateMat,fvals) {
     scur = simdata;
     decl fcur=this;
     do {
-        if (fvals==DoAll || any(fcur.f.==fvals))
+        if ( fvals==DoAll || any(fcur.f.==fvals) )
             fcur->SimulateOutcomePaths(scur,N,ErgOrStateMat);
         old = scur;
         scur = scur.fnext;
-        old->~FPanel();   // delete previous simulations
+        delete old; //old -> ~FPanel();   // delete previous simulations
         } while( isclass(fcur=fcur.fnext) );
     delete simdata;
     }
-/*
-PathPrediction::PathWlabels() {
-    plabels = {};
-    decl m,n;
-    foreach(m in tlist[n])
-        if (m.LorC!=NotInData && !isnan(cur.empmom[n])) {  // unmatched moments always have .NaN
-    if (sizeof(plabels)) plabels |= m.obj.L+"_"+sprint("%2.0d",cur.t); else plabels = {m.obj.L+"_"+sprint("%2.0d",cur.t)};
-    }
-*/
+
+
 PathPrediction::AppendSimulated() {
     decl m,tflat = <>;
    foreach(m in tlist)

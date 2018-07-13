@@ -1,5 +1,5 @@
 #include "BerkovecSternEmet1991.h"
-/* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 /** Setup and solve the model for both columns.**/	
 Retirement::Run()	{
@@ -22,13 +22,16 @@ Retirement::Run()	{
 		}		
 	CreateSpaces();
 	Emax = new ValueIteration();
-	Emax.Volume = NOISY;
-	for (col = 1;col<2;++col) { //sizerc(disc)
+	Emax.Volume = LOUD;
+    GSolve::UseNK = FALSE;
+	for (col = 0;col<sizerc(disc);++col) { //sizerc(disc)
 		SetDelta(disc[col]);
 		SetRho(1/tau[col]);
 		acteqpars = eqpars[col];
 		acteqpars[][Retire:Part] = acteqpars[][Full]-acteqpars[][Retire:Part];
-		Emax->Solve(0,0);
+        println("Discount Factor = ",disc[col]);
+        DPDebug::outAllV();
+		Emax->Solve();
 		}
     Bellman::Delete();
 	}
@@ -56,20 +59,20 @@ Retirement::FeasibleActions() {
 /** Duration must be feasible, do not track current eta if retired.**/
 Retirement::Reachable()	{
 	decl age = I::t+T0, s= AV(dur), pj=AV(PrevJob),retd = pj==Retire;
-	if (age==T2star) return new Retirement(); //have to be ready for early transition from any state
+	if (age==T2star) return TRUE; //have to be ready for early transition from any state
 	if (age>Tstar) {
-		if (retd&&!s&&!AV(M)) return new Retirement();
-		return 0;
+		if (retd&&!s&&!AV(M)) return TRUE;
+		return FALSE;
 		}
-	if ((s>0)&&(pj<Stay)) return 0;  //duration only on held job
-	if (retd&&AV(M)) return 0; //no current match if retired
+	if ((s>0)&&(pj<Stay)) return FALSE;  //duration only on held job
+	if (retd&&AV(M)) return FALSE; //no current match if retired
 	if (age==T0) {
-		if ((s==S0)&&(pj==Stay)) return new Retirement();
-		return 0;
+		if ((s==S0)&&(pj==Stay)) return TRUE;
+		return FALSE;
 		}
-	if (I::t<S0 && s<S0+I::t && s>I::t) return 0;  //left initial job, can't make back duration.
-	if ((age>T0)&&(s<=I::t+S0)) return new Retirement();
-	return 0;
+	if (I::t<S0 && s<S0+I::t && s>I::t) return FALSE;  //left initial job, can't make back duration.
+	if ((age>T0)&&(s<=I::t+S0)) return TRUE;
+	return FALSE;
 	}
 
 /** The one period return. **/
@@ -80,9 +83,10 @@ Retirement::Utility()  {
 			retd = AV(PrevJob)==Retire,
 			curjob = AV(PrevJob)==Part ? Part : Full;
 
-	if (I::t==TMAX-1) return zeros(rows(AA),1);
+	if (I::t==TMAX-1) return zeros(AA);
 	if (rows(AA)>1) {
-		for (j=0,ej=<>;j<Nsectors;++j) ej |= AV(ejob[j])+(sig3[col]*AV(eS)-Changing[col])*(j==Full||j==Part);
+		for (j=0,ej=<>;j<Nsectors;++j)
+            ej |= AV(ejob[j])+(sig3[col]*AV(eS)-Changing[col])*(j==Full||j==Part);
 		if (!retd) {
 			Xb |= AV(ejob[curjob])+Xb[curjob] + (s~s*s)*acteqpars[6:7][curjob];
 			ej |= sig3[col]*AV(M);

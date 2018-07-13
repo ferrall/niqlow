@@ -3,12 +3,13 @@
 
 VISolve(ToScreen=TRUE,aM=FALSE,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
 
-///** Loop over fixed values in &gamma;, solve model for each.**/
-//struct FixedSolve : FETask  { FixedSolve(gtask); Solve(state=0); Run();	}
-
 /**	Loop over random effect values &gamma;, call  GSolve() method for the calling method.
 **/
-struct RandomSolve : RETask { decl retval; RandomSolve(gtask); Run(); }
+struct RandomSolve : RETask {
+    decl retval;
+    RandomSolve(gtask);
+    Run();
+    }
 
 
 /** A container for solution methods.
@@ -27,6 +28,7 @@ struct Method : FETask {
     virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
 	}
 
+/** Newton-Kantorovich iteration information. **/
 struct NKinfo : DDPauxiliary {
       decl
         myt,
@@ -49,7 +51,7 @@ struct GSolve : ThetaTask {
                                                     prevdff,
     /** TRUE (default): exit if NaNs encountered during iteration<br>
             FALSE: exit with <code>IterationFailed</code> **/
-                                                    RunSafe,
+    /** check for NaNs in the value function.**/    RunSafe,
     /** TRUE if all tasks suceed.**/                succeed,
                                                     warned,
                                                     Volume,
@@ -66,7 +68,7 @@ struct GSolve : ThetaTask {
                                                      NKlist,
                                                      MaxTrips;
     ZeroTprime();
-    GSolve(ndogU=0);
+    GSolve();  //ndogU=0
     virtual Solve(instate);
     virtual Run();
 	virtual Update();
@@ -75,15 +77,6 @@ struct GSolve : ThetaTask {
     Report(mefail);
 	}
 
-/** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/
-struct ExogUtil : 	ExTask {	ExogUtil();		Run();	}
-
-/** Loop over &theta; and apply `ExogUtil`. **/
-struct EndogUtil : 	ThetaTask {
-//	const decl /**`ExogUtil` object.**/ ex;
-	EndogUtil();
-	Run();
-	}
 
 /**Iterate on Bellman's Equation, to solve EV(&theta;) for all fixed and random effects.
 @comments Result is stored in `ValueIteration::VV` matrix.  <var>EV</var> for only two or three ages (iterations) stored at any one time.  So this
@@ -91,19 +84,9 @@ cannot be used after the solution is complete.  `Bellman::EV` stores the result 
 Results are integrated over random effects, but results across fixed effects are overwritten.
 **/
 struct ValueIteration : Method {
-	ValueIteration(myGSolve=0,myEndogUtil=0);
+	ValueIteration(myGSolve=0);
 	virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
     virtual Run();
-	}
-
-struct KWEMax : 	EndogUtil {
-	const decl		lo, hi;
-	decl 			meth, firstpass, onlypass;
-	
-					KWEMax();
-	virtual 		Run();
-	virtual 		InSample();
-	virtual	 		OutSample();
 	}
 
 enum {AddToSample,ComputeBhat,PredictEV,NKWstages}
@@ -203,7 +186,7 @@ denote the cardinality of the sets (following the notations used elsewhere).  Th
 
 **/
 struct KeaneWolpin : ValueIteration {
-	KeaneWolpin(myGSolve=0,myKWEMax=0);
+	KeaneWolpin(myGSolve=0);
 	}
 
 struct KWGSolve : GSolve {
@@ -216,49 +199,37 @@ struct KWGSolve : GSolve {
 		/** Y **/								Y,
 		/**N::T array of OLS coefficients	**/ Bhat;
 
-	const decl 		cpos;
-					Specification(kwstep,V=0,Vdelta=0);
-    Solve(instate);
-    KWGSolve(myKWEMax=0);
-    Run();
-    }
-
-struct RVEdU : EndogUtil {
-	RVEdU();
-	Run();
-	}
-
-struct HMEndogU : EndogUtil {
-    static decl VV;
-    const decl meth;
-    HMEndogU(meth);
-    Run();
+	const decl 		cpos, lo, hi;
+	decl 			meth, firstpass, onlypass;
+                    Solve(instate);
+                    KWGSolve();         //myKWEMax=0
+	virtual         Specification(kwstep,V=0,Vdelta=0);
+	virtual 		Run();
+	virtual 		InSample();
+	virtual	 		OutSample();
     }
 
 /** Compute Estimate of Conditional Choice Probability from Data.
 **/
 struct CCP : FETask {
-    const decl
+	static decl
             /** F&times;1 array of CCPs.**/         Q,
             /**`Panel` containing data. **/         data,
-            bandwidth;
-	static decl
-            NotFirstTime,
-            Kernel,
-            cnt,
-		    ObsPstar,
-            Kstates;
-	CCP(data,bandwidth);
-    InitializePP();
+                                                    bandwidth,
+                                                    NotFirstTime,
+                                                    Kernel,
+                                                    cnt,
+		                                            ObsPstar,
+                                                    Kstates;
+	CCP(data,bandwidth=UseDefault);
+    // static InitializePP();
 	Run();
 	}
 
 struct CCPspace : ThetaTask {
-    CCPspace(gtask);
+    CCPspace();
     Run();
-	Increment(a,q);
     }
-
 
 /** Solve a DP model using the Hotz-Miller inverse mapping from conditional choice probabilities.
 
@@ -269,17 +240,13 @@ struct CCPspace : ThetaTask {
 
 **/	
 struct HotzMiller : ValueIteration {
-	static decl
-		/**  **/	     Kernel;
-	HotzMiller(indata=0,bandwidth=0);
+	HotzMiller(indata=0,bandwidth=UseDefault);
 	virtual Solve(Fgroups=AllFixed);
 	}
 
 struct HMGSolve : GSolve {
-    const decl
-		/** **/		    myccp;
-	decl		        Q ;
-    HMGSolve(indata=0,bandwidth=0);
+    static decl VV, Q;
+    HMGSolve(indata=0,bandwidth=UseDefault);
     Solve(instate);
     virtual Run();
     }

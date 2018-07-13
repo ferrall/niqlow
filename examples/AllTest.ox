@@ -75,7 +75,8 @@ Test2::RunA(UseList)	{
 Test3::Utility() { decl u = Alpha::A[Aind]*(CV(d)-5+CV(s0))+(1-Alpha::A[Aind])*CV(s1); return u;}
 
 Test3::Run() {
-//    println("Spanning State Space"); RunA(TRUE);
+    println("Spanning State Space");
+    RunA(TRUE);
     println("Using State List");
     RunA(FALSE);
     }
@@ -186,10 +187,8 @@ Test7::Run()  {
 	Volume=SILENT;
 	data = new OutcomeDataSet(0,EMax);
 	data -> Simulate(300,3,0,0);
-	decl g=SetGroup(0);
-	g->StationaryDistribution();
-	println(g.Pinfinity,g.Palpha);
-
+	I::curg->StationaryDistribution();
+	println("Ergodic distribution: ",I::curg.Pinfinity'," Palpha ",I::curg.Palpha);
 //	data -> Print(TRUE);
 //	data -> Observed(x,UseLabel,d,UseLabel);
 //	decl mle = new PanelBB("ZurcherMLE",data,rc,th1);

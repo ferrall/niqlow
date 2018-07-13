@@ -20,9 +20,12 @@ EVSystem::vfunc()	{
 	return (systask.VV[I::now][]-systask.VV[I::later][])';
 	}
 
-SaSGSolve::SaSGSolve() {    GSolve::GSolve();	}
+SaSGSolve::SaSGSolve() {   GSolve::GSolve();	}
 
-SaSGSolve::Run() {	I::curth->thetaEMax(); }
+SaSGSolve::Run() {	
+    XUT.state = state;
+    I::curth->thetaEMax();
+    }
 	
 SolveAsSystem::SolveAsSystem() {
 	if (!Flags::IsErgodic) oxrunerror("DDP Error 34. SolveAsSystem only works with ergodic clock");
@@ -109,41 +112,23 @@ ReservationValues::ReservationValues(LBvalue,METHOD) {
     Volume = SILENT;
 	}
 
-RVEdU::RVEdU() {
-	Task();
-	left = S[endog].M;
-	right = S[clock].M;
-	subspace = iterating;
-	}
-	
-RVEdU::Run() {
-    if (I::curth.solvez>One)
-        I::curth->UReset();
-    else {
-        I::curth->ExogUtil();	
-        }
-	}
-
-
 RVGSolve::Solve(state) {
     decl rv;
     foreach (rv in RValSys) if (isclass(rv)) { rv.meth.Volume = max(SILENT,Volume-1); rv.meth->Tune(MaxTrips); }
     GSolve::Solve(state);
 
-/*	this.state = itask.state = state;
+	this.state = /* itask.state = */ state;
     Clock::Solving(&VV);
     ZeroTprime();
-	itask->Traverse();  //compute endogenous utility
     this->Traverse();
 	Flags::setPstar = counter->setPstar();   // REMOVED MaxTrips??? See GSolve().
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER) VV[LATER][] = VV[I::later][];    //initial value next time
     Hooks::Do(PostGSolve);
     if (Volume>SILENT && N::G>1) print(".");
-*/
     }
 
 RVGSolve::RVGSolve(LBvalue,Method) {
-    GSolve(new RVEdU());
+    GSolve(); //new RVEdU()
 	decl i,sysize;
     RValSys={};
     for (i=0;i<N::J;++i) {
@@ -158,14 +143,14 @@ RVGSolve::RVGSolve(LBvalue,Method) {
     }
 
 RVGSolve::Run() {
-    decl ct =I::curth, ns = ct.solvez && isclass(RValSys[ct.Aind]);
-    ct->ActVal(VV[I::later]);
+    decl ns = I::curth.solvez && isclass(RValSys[I::curth.Aind]);
+    XUT.state = state;
+    I::curth->ActVal(VV[I::later]);
     ev = VV[I::now][I::all[iterating]]
                             = ns
-                                ? RValSys[ct.Aind] -> RVSolve(DeltaV(ct.pandv))
-                                : ct->thetaEMax();
+                                ? RValSys[I::curth.Aind] -> RVSolve(DeltaV(I::curth.pandv))
+                                : I::curth->thetaEMax();
     this->PostEMax();
-//    println(" here ",ct.solvez," ",ns," ",VV[I::now][I::all[iterating]]);
 //    return V;
     }
 

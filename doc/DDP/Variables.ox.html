@@ -43,7 +43,7 @@ Discrete quantities that appear in DDP models (actions, states, fixed and random
 <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>() adds variables that do not change within a DP problem, both fixed- and random-effect type variables.</DD>
 <DD>Many kinds of state variables are derived from the base class.</DD>
 <P/>
-<DD>The AuxiliaryValue class represents values that depend on actions and states but are not required to solve the model.  They are members of the auxiliary vector <span class="expressions">\(\chi\)</span>.  Auxiliary values are added to the DP model using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>()</DD>
+<DD>The <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> class represents values that depend on actions and states but are not required to solve the model.  They are members of the auxiliary vector <span class="expressions">\(\chi\)</span>.  Auxiliary values are added to the DP model using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>()</DD>
 <P/>
 <a name="ActionVariables"><LI>Action Variables</LI></a>
 <OL class="chapter">
@@ -202,7 +202,7 @@ variables.</DD>
 <P/>
 The model places discrete state variables/blocks into one of four vectors.
 <table class="overview" width="100%" > <tr><td></td><td colspan="4">DP State Vector</td></tr>
-<tr><td></td><td>Exogenous<br>(<span class="expressions">\(\epsilon\)</span>) </th><td>Semi-Exogenous<br>(<span class="expressions">\(\eta\)</span>) </td><td>Endogenous<br>(<span class="expressions">\(\theta\)</span>)</th><td>Group (RandomEffect or FixedEffect)<br>(<span class="expressions">\(\gamma\)</span>)</tr>
+<tr><td></td><td>Exogenous<br>(<span class="expressions">\(\epsilon\)</span>) </th><td>Semi-Exogenous<br>(<span class="expressions">\(\eta\)</span>) </td><td>Endogenous<br>(<span class="expressions">\(\theta\)</span>)</th><td>Group (<a href="Variables.ox.html#RandomEffect">RandomEffect</a> or <a href="Variables.ox.html#FixedEffect">FixedEffect</a>)<br>(<span class="expressions">\(\gamma\)</span>)</tr>
 <tr><td>Generic Element</td><td>e</td><td>h</td><td>q</td><td>g</td></tr>
 <tr><td>Form of <span class="expressions">\(P\)</span><sub>s</sub></td><td colspan="2"><span class="expressions">\(P_s(s^\prime)\)</span></td><td><span class="expressions">\(P_s(s^\prime|\alpha,\epsilon,\eta,\theta)\)</span></td><td><span class="expressions">\(g^\prime=g\)</span></td></tr>
 <tr><td>Explanation</td><td colspan="2">Transition IID of everything.</td><td>Transition can depend on value of states and <span class="expressions">\(\alpha\)</span>.  </td><td>fixed</td></tr>
@@ -284,7 +284,7 @@ Some derived classes of state variables play special roles in <span class="n">DD
 <DT><a href="Variables.ox.html#TimeVariable">TimeVariable</a>s</DT>
  <DD>which serve as the <a href="#Clock">DDP clock</a> </DD>
  <DT>and</DT>
-<DT>TimeInvariants</DT>
+<DT><a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>s</DT>
 <DD>which track variables that are fixed during a DDP and stored in the <span class="expressions">\(\gamma\)</span> vector.  <span class="n">DDP</span> will re-solve the model for each value of <span class="expressions">\(\gamma\)</span>.</DD>
 <P/>
 Your model may include state variables that are already defined in <span class="n">DDP</span> but require some changes to accommodate the environment.  The next section discusses how to create a new derived class for your state variable, but it may be possible to avoid that using the <a href="Variables.ox.html#Augmented">Augmented</a> state variable feature.
@@ -872,15 +872,15 @@ The basic DP model concerns a single agent in a single environment.  However, ma
 <P/>
 The state vector &gamma; holds variables that are fixed for an agent but differ across agents.  As with other state vectors, anything that can go in &gamma; could be placed in &theta;.  However, since the state does not vary it is inefficient to included invariant states in <b><b>&Theta;</b></b>.  Instead, <span class="n">DDP</span> resuses <b>&Theta;</b> for each value of &gamma; and stores only a minimum amount of information for previously solved models.
 <P/>
-Only state variables derived from the TimeInvariant class can be added to &gamma;.    Invariants do not have a transition.
+Only state variables derived from the <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> class can be added to &gamma;.    Invariants do not have a transition.
 <P/>
 <LI>Fixed and Random Effects</LI>
 <P/>
-<span class="n">DDP</span> distinguishes between two kinds of invariants.  Each is either a FixedEffect or a RandomEffect.  This distinction plays the same role as in panel models.  Fixed effects typically correspond to constant observed variables, such as gender.  So if the model is to be solved separately for men and women, with different primitives, then a binary FixedEffect would be added to &gamma;.  On the other hand, a RandomEffect is designed to account for unobserved variation in the underlying problem.  An example would be a model that allows agents to have different (unobserved and permanent) skill levels.  A single skill variable taking on discrete values could be added to &gamma;  In estimation DDP will sum over the distribution of skills.
+<span class="n">DDP</span> distinguishes between two kinds of invariants.  Each is either a <a href="Variables.ox.html#FixedEffect">FixedEffect</a> or a <a href="Variables.ox.html#RandomEffect">RandomEffect</a>.  This distinction plays the same role as in panel models.  Fixed effects typically correspond to constant observed variables, such as gender.  So if the model is to be solved separately for men and women, with different primitives, then a binary FixedEffect would be added to &gamma;.  On the other hand, a <a href="Variables.ox.html#RandomEffect">RandomEffect</a> is designed to account for unobserved variation in the underlying problem.  An example would be a model that allows agents to have different (unobserved and permanent) skill levels.  A single skill variable taking on discrete values could be added to &gamma;  In estimation DDP will sum over the distribution of skills.
 <P/>
-If a TimeInvariant class has a <code>Transit()</code> function defined it is never called because the DP problem presumes the value will never change.  A fixed effect also has no distribution, but a random effect does,  RandomEffect::Distribution().   The distribution is used to integrate out the random effect after solving for behavior conditional on each value.  The distribution can depend on the value of the fixed effects. For example, the distribution of skills can depend on gender.    This is called once for each value of the fixed effects and this updates the <a href="Shared.ox.html#Discrete___pdf">pdf</a>(), a vector of probabilities or weights place on the values of the random effect.
+If a TimeInvariant class has a <code>Transit()</code> function defined it is never called because the DP problem presumes the value will never change.  A fixed effect also has no distribution, but a random effect does,  <a href="Variables.ox.html#RandomEffect___Distribution">Distribution</a>().   The distribution is used to integrate out the random effect after solving for behavior conditional on each value.  The distribution can depend on the value of the fixed effects. For example, the distribution of skills can depend on gender.    This is called once for each value of the fixed effects and this updates the <a href="Shared.ox.html#Discrete___pdf">pdf</a>(), a vector of probabilities or weights place on the values of the random effect.
 <P/>
-Correlated random effects are created by adding a RandomEffectBlock to &gamma;
+Correlated random effects are created by adding a <a href="Variables.ox.html#RandomEffectBlock">RandomEffectBlock</a> to &gamma;
 <P/>
 <LI>The Group Space</LI>
 <P/>
@@ -898,13 +898,13 @@ Storage is re-used while solving for different values of <span class="expression
 <P/>
 <a name="Auxiliary"><li>Auxiliary Values</li>
 <P/>
-An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from AuxiliaryValue and is added to the list \chi.
+An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> and is added to the list \chi.
 <P/>
 <DT>Elements of \chi are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  </DT>
 <DD>Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so \chi adds no additional information to the full outcome. </DD>
  <DD>That is, \chi is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
  <DT>Auxiliary values are added to the outcome (appended to \chi) using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>().</DT>
- <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual AuxiliaryValue::Realize().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
+ <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual <a href="Variables.ox.html#AuxiliaryValue___Realize">Realize</a>().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.</DD>
 <DD><code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
 <P/>
 <a name="#Volume"><li>Volume (getting output specific to a variable)</li></a>
@@ -1306,21 +1306,16 @@ Prob( t&prime; = t ) = 1-1/B;
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AgeBrackets___AgeBrackets">AgeBrackets</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create an aging clock with brackets.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AgeBrackets___Last">Last</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Return flag for very last period possible.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AgeBrackets___setPstar">setPstar</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AgeBrackets___Transit">Transit</a></td>
-<td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 </table>
@@ -1560,6 +1555,37 @@ transitions can depend on the current state and actions.</dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
+<a name="AuxiliaryValue"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AuxiliaryValue : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Base Class for variables related to outcomes.
+Auxiliary variables are typically functions of the state and action vectors that would be observed in the data.
+<P/>
+For example, in a search model, suppose the worker's ability <var>x</var> and the match quality <var>m</var> are
+both unobserved, but the wage, <var> w = xm</var>, is observed.  Then an auxiliary variable can be created for wage, added to
+the outcome and read in along with other data.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AuxiliaryValue___AuxiliaryValue">AuxiliaryValue</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a new element of &chi;, the space of auxiliary outcomes.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AuxiliaryValue___Realize">Realize</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default realized auxililary variable, sets <code>v=1.0</code>.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
 <a name="BinaryChoice"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BinaryChoice : <a href="Variables.ox.html#ActionVariable">ActionVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
@@ -1780,16 +1806,59 @@ A member of a block: transition depends on transition of one or more other state
 <td class="modifiers"></td>
 <td class="description">Create a new Coevolving random variable.</td>
 </tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Coevolving___myAV">myAV</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
 </table>
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___IsReachable">IsReachable</a>, <a href="Variables.ox.html#Augmented___SetActual">SetActual</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a>, <a href="Variables.ox.html#Augmented___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
 <dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
+<a name="CorrelatedEffect"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CorrelatedEffect : <a href="Variables.ox.html#RandomEffect">RandomEffect</a> : <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+An element of a RandomEffectBlock.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#CorrelatedEffect___block">block</a></td>
+<td class="modifiers"></td>
+<td class="description">EffectBlock that I belong to  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#CorrelatedEffect___bpos">bpos</a></td>
+<td class="modifiers"></td>
+<td class="description">Index into block array/vector  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#CorrelatedEffect___CorrelatedEffect">CorrelatedEffect</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a new CorrelatedEffect.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="Variables.ox.html#RandomEffect___Distribution">Distribution</a>, <a href="Variables.ox.html#RandomEffect___RandomEffect">RandomEffect</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="Variables.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="Variables.ox.html#RandomEffect___fDist">fDist</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
@@ -2342,6 +2411,63 @@ with <code>q</code> as a Fixed so formulas involving it can be completed.
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
+<a name="FixedEffect"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedEffect : <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A state variable that is non-random and invariant for an individual DP problem.
+<P/>
+Solution methods loop over fixed effect values, re-using storage space.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#FETask">FETask</a></dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#FixedEffect___FixedEffect">FixedEffect</a></td>
+<td class="modifiers"></td>
+<td class="description">A state variable that is non-random an invariant for and individual DP problem.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="Variables.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
+<a name="FixedEffectBlock"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedEffectBlock : <a href="Variables.ox.html#StateBlock">StateBlock</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A Block of <a href="Variables.ox.html#FixedEffect">FixedEffect</a> group variables.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#FixedEffectBlock___FixedEffectBlock">FixedEffectBlock</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a list of <a href="Variables.ox.html#FixedEffect">FixedEffect</a> state variables.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Transit">Transit</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
 <a name="Forget"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Forget : <a href="Variables.ox.html#ActionTriggered">ActionTriggered</a> : <a href="Variables.ox.html#Triggered">Triggered</a> : <a href="Variables.ox.html#Augmented">Augmented</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
@@ -2546,6 +2672,57 @@ added to the model with <a href="DP.ox.html#DP___ExogenousStates">ExogenousState
 <dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a>, <a href="Variables.ox.html#Markov___Pi">Pi</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
+<a name="Indicator"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Indicator : <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Indicator___iacted">iacted</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Indicator___iobj">iobj</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Indicator___myval">myval</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Indicator___target">target</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Indicator___ttype">ttype</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Indicator___Indicator">Indicator</a></td>
+<td class="modifiers"></td>
+<td class="description">Create an indicator (or indicator interacted with another outcome).</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Indicator___Realize">Realize</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default realized auxililary variable, sets <code>v=1.0</code>.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValue___AuxiliaryValue">AuxiliaryValue</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
@@ -2994,12 +3171,12 @@ T* is the last period with probability 1.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Longevity___Last">Last</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">With Longevity the last period (death) is definitively the last.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Longevity___Longevity">Longevity</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Random death and uncertain maximum lifetime.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Longevity___setPstar">setPstar</a></td>
@@ -3007,14 +3184,9 @@ T* is the last period with probability 1.
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Longevity___Transit">Transit</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Longevity___Vupdate">Vupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Check newly computed values; an alternative to computing norm of value function differences.</td>
+<td class="description">Mixed value updating.</td>
 </tr>
 </table>
 
@@ -3177,7 +3349,7 @@ T* is the last period with probability 1.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Mortality___Mortality">Mortality</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Set clock to be deterministic aging with early random death.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Mortality___setPstar">setPstar</a></td>
@@ -3185,14 +3357,9 @@ T* is the last period with probability 1.
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Mortality___Transit">Transit</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Mortality___Vupdate">Vupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Check newly computed values; an alternative to computing norm of value function differences.</td>
+<td class="description">Mixed value updating.</td>
 </tr>
 </table>
 
@@ -3210,6 +3377,34 @@ T* is the last period with probability 1.
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
+<a name="MultiIndicator"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MultiIndicator : <a href="Variables.ox.html#Indicator">Indicator</a> : <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#MultiIndicator___MultiIndicator">MultiIndicator</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#MultiIndicator___Realize">Realize</a></td>
+<td class="modifiers"></td>
+<td class="description">Default realized auxililary variable, sets <code>v=1.0</code>.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#Indicator">Indicator</a>:</dt><dd><a href="Variables.ox.html#Indicator___Indicator">Indicator</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValue___AuxiliaryValue">AuxiliaryValue</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#Indicator">Indicator</a>:</dt><dd><a href="Variables.ox.html#Indicator___iacted">iacted</a>, <a href="Variables.ox.html#Indicator___iobj">iobj</a>, <a href="Variables.ox.html#Indicator___myval">myval</a>, <a href="Variables.ox.html#Indicator___target">target</a>, <a href="Variables.ox.html#Indicator___ttype">ttype</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
@@ -3341,7 +3536,7 @@ Container for non-stationary and non-deterministic aging clocks.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#NonDeterministicAging___Vupdate">Vupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Check newly computed values; an alternative to computing norm of value function differences.</td>
+<td class="description">Mixed value updating.</td>
 </tr>
 </table>
 
@@ -3448,15 +3643,60 @@ A container for non-stationary clocks.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Coevolving">Coevolving</a>:</dt><dd><a href="Variables.ox.html#Coevolving___Coevolving">Coevolving</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Coevolving">Coevolving</a>:</dt><dd><a href="Variables.ox.html#Coevolving___Coevolving">Coevolving</a>, <a href="Variables.ox.html#Coevolving___myAV">myAV</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___IsReachable">IsReachable</a>, <a href="Variables.ox.html#Augmented___SetActual">SetActual</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a>, <a href="Variables.ox.html#Augmented___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Coevolving">Coevolving</a>:</dt><dd><a href="Variables.ox.html#Coevolving___block">block</a>, <a href="Variables.ox.html#Coevolving___bpos">bpos</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
+<a name="NormalRandomEffect"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NormalRandomEffect : <a href="Variables.ox.html#RandomEffect">RandomEffect</a> : <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A permanent discretize N(0,&sigma;<sup>2</sup>) random effect.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#DiscreteNormal">DiscreteNormal</a></dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#NormalRandomEffect___mu">mu</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#NormalRandomEffect___sigma">sigma</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#NormalRandomEffect___Distribution">Distribution</a></td>
+<td class="modifiers"></td>
+<td class="description">Update <a href="Shared.ox.html#Discrete___pdf">pdf</a>, the distribution over the random effect.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#NormalRandomEffect___NormalRandomEffect">NormalRandomEffect</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a permanent discretized normal random effect.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="Variables.ox.html#RandomEffect___RandomEffect">RandomEffect</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="Variables.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="Variables.ox.html#RandomEffect___fDist">fDist</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
@@ -3791,17 +4031,17 @@ A sequence of treatment phases with fixed maximum durations.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#PhasedTreatment___PhasedTreatment">PhasedTreatment</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">A sequence of finite-termed phases of treatment.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#PhasedTreatment___Transit">Transit</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">The default transition for treatment.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#PhasedTreatment___Vupdate">Vupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Check newly computed values; an alternative to computing norm of value function differences.</td>
+<td class="description">Mixed value updating.</td>
 </tr>
 </table>
 
@@ -3839,6 +4079,114 @@ A random state variable has a transition which is not a 0/1 . Its state next per
 </dl>
 
 <dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
+<a name="RandomEffect"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffect : <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A random state variable that is invariant for an individual DP problem.
+<P/>
+A random effect plays a similar to its counterpart in an econometric model. Solution methods loop over random effect values and will account for the distribution
+in computing predictions, simulations and econometric objectives.
+
+<dl><dt class="example">Example:</dt><dd class="example">N equally likely values:
+<pre>
+RandomEffect("g",N);
+</pre>
+A binary variable with constant and unequal weights:
+<pre>RandomEffect("g",2,<0.8;0.2>);</pre>
+A two-point random effect for which the distribution is a function of the value of a fixed effect
+(level of education) and a parameter vector &beta;:
+<pre>
+decl beta;
+&vellip;
+hd() {
+    decl v = exp((1~AV(educ))*CV(beta)), s = sumc(v);
+    return v/s;
+    }
+&vellip;
+GroupVariables(
+   h=RandomEffect("h",2,hd),
+   educ = FixedEffect("ed",4);
+   }
+</pre>
+A random effect with a distribution that equals a Simplex parameter block:
+<pre>
+enum{Npts = 5};
+hd = new Simplex("h",Npts);
+RandomEffect("h",Npts,hd);
+</pre></DD>
+<P/>
+<DT><code>fDist</code> is stored in a non-constant member, so it can be changed after the <code>CreateSpaces()</code>
+has been called.</DT>
+<P/>
+<DT>Most Flexible Option</DT>
+The user can define a derived class and supply a replacement to the virtual <a href="Variables.ox.html#RandomEffect___Distribution">Distribution</a>().
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#RETask">RETask</a>, <a href="Variables.ox.html#FixedEffect">FixedEffect</a>, <a href="Variables.ox.html#RandomEffectBlock">RandomEffectBlock</a></dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#RandomEffect___fDist">fDist</a></td>
+<td class="modifiers"></td>
+<td class="description">holds the object that computes and returns
+       the distribution across values.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RandomEffect___Distribution">Distribution</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Update <a href="Shared.ox.html#Discrete___pdf">pdf</a>, the distribution over the random effect.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RandomEffect___RandomEffect">RandomEffect</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a state variable that is random but invariant for an individual DP problem.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="Variables.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
+<a name="RandomEffectBlock"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffectBlock : <a href="Variables.ox.html#StateBlock">StateBlock</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A Block of <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a> group variables.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RandomEffectBlock___Distribution">Distribution</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RandomEffectBlock___RandomEffectBlock">RandomEffectBlock</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a list of <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a> state variables.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Transit">Transit</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
@@ -4009,6 +4357,70 @@ Fertility::Mortality()	{
 </dl>
 
 <dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
+<a name="RealizedUtility"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RealizedUtility : <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Built-in variable that records realized utility, <var>U(&alpha;,&epsilon;,&eta;,&theta;,&gamma;)</var>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RealizedUtility___Realize">Realize</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default realized auxililary variable, sets <code>v=1.0</code>.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#RealizedUtility___RealizedUtility">RealizedUtility</a></td>
+<td class="modifiers"></td>
+<td class="description">Realized utility, U().</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValue___AuxiliaryValue">AuxiliaryValue</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
+<a name="Regressors"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Regressors : <a href="Variables.ox.html#FixedEffectBlock">FixedEffectBlock</a> : <a href="Variables.ox.html#StateBlock">StateBlock</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Regressors___ObservedX">ObservedX</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Regressors___InObservedX">InObservedX</a></td>
+<td class="modifiers"></td>
+<td class="description">Returns TRUE if any rows of InObservedX equal the current actual value of the block.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Regressors___Regressors">Regressors</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a vector of fixed effects (FixedEffectBlock).</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#FixedEffectBlock">FixedEffectBlock</a>:</dt><dd><a href="Variables.ox.html#FixedEffectBlock___FixedEffectBlock">FixedEffectBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Transit">Transit</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
@@ -4589,6 +5001,43 @@ SetClock(new Stationary(TRUE));
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
+<a name="SubEffect"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SubEffect : <a href="Variables.ox.html#FixedEffect">FixedEffect</a> : <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+An element of the FixedEffectBlock.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#SubEffect___block">block</a></td>
+<td class="modifiers"></td>
+<td class="description">EffectBlock that I belong to  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#SubEffect___bpos">bpos</a></td>
+<td class="modifiers"></td>
+<td class="description">Index into block array/vector  </td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#SubEffect___SubEffect">SubEffect</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a new Sub.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#FixedEffect">FixedEffect</a>:</dt><dd><a href="Variables.ox.html#FixedEffect___FixedEffect">FixedEffect</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="Variables.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
 <a name="SubState"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SubState : <a href="Variables.ox.html#ValueTriggered">ValueTriggered</a> : <a href="Variables.ox.html#Triggered">Triggered</a> : <a href="Variables.ox.html#Augmented">Augmented</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
@@ -4714,15 +5163,80 @@ A one-dimensional correlated discretized normal process using Tauchen's approach
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
+<a name="TauchenRandomEffect"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TauchenRandomEffect : <a href="Variables.ox.html#NormalRandomEffect">NormalRandomEffect</a> : <a href="Variables.ox.html#RandomEffect">RandomEffect</a> : <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Use Tauchen's method to discretize a normal variable.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#TauchenRandomEffect___M">M</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#TauchenRandomEffect___Distribution">Distribution</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Update <a href="Shared.ox.html#Discrete___pdf">pdf</a>, the distribution over the random effect.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#TauchenRandomEffect___TauchenRandomEffect">TauchenRandomEffect</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a permanent discretized normal random effect.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#NormalRandomEffect">NormalRandomEffect</a>:</dt><dd><a href="Variables.ox.html#NormalRandomEffect___NormalRandomEffect">NormalRandomEffect</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="Variables.ox.html#RandomEffect___RandomEffect">RandomEffect</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>:</dt><dd><a href="Variables.ox.html#TimeInvariant___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#NormalRandomEffect">NormalRandomEffect</a>:</dt><dd><a href="Variables.ox.html#NormalRandomEffect___mu">mu</a>, <a href="Variables.ox.html#NormalRandomEffect___sigma">sigma</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#RandomEffect">RandomEffect</a>:</dt><dd><a href="Variables.ox.html#RandomEffect___fDist">fDist</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
+<a name="TimeInvariant"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TimeInvariant : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+An element of the group vector &gamma;.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#TimeInvariant___Update">Update</a></td>
+<td class="modifiers"></td>
+<td class="description">Do Nothing and prohibit derived Updates.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
 <a name="TimeVariable"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TimeVariable : <a href="Variables.ox.html#Coevolving">Coevolving</a> : <a href="Variables.ox.html#Augmented">Augmented</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 Base class for members of a <a href="Variables.ox.html#Clock">Clock</a> block.
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Coevolving">Coevolving</a>:</dt><dd><a href="Variables.ox.html#Coevolving___Coevolving">Coevolving</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Coevolving">Coevolving</a>:</dt><dd><a href="Variables.ox.html#Coevolving___Coevolving">Coevolving</a>, <a href="Variables.ox.html#Coevolving___myAV">myAV</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___IsReachable">IsReachable</a>, <a href="Variables.ox.html#Augmented___SetActual">SetActual</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a>, <a href="Variables.ox.html#Augmented___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
@@ -4922,6 +5436,39 @@ with decay rate <span class="expressions">\(\gamma\)</span>.
 <dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a>, <a href="Variables.ox.html#Markov___Pi">Pi</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
+<a name="ZetaRealization"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ZetaRealization : <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#ZetaRealization___length">length</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ZetaRealization___Realize">Realize</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Default: &zeta; is undefined, replace with a virtual function that returns a
+value drawn from the conditional distribution of &zeta;
+</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ZetaRealization___ZetaRealization">ZetaRealization</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a new &zeta;, the vector-valued realized shock vector.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValue___AuxiliaryValue">AuxiliaryValue</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
@@ -5337,8 +5884,37 @@ Return A[][pos].
 <a name="AgeBrackets___AgeBrackets"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AgeBrackets</span></h3>
 
+<span class="declaration">AgeBrackets :: AgeBrackets ( Brackets )</span>
 <dl><dd>
+Create an aging clock with brackets.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Brackets</td>
+<td class="description" valign="baseline">vector of period lengths
+<P/>
+<DT>ClockType code to use this clock: <code>StaticProgram</code></DT>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example">Use SetClock:
+<pre>
+SetClock(StaticProgram);
+</pre>
+which is equivalent to this:
+<pre>
+SetClock(new StaticP());
+</pre>
+which is also equivalent to this:
+<pre>
+SetClock(NormalAging,1);
+</pre>
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5355,7 +5931,9 @@ Vector of period lengths for each age
 <a name="AgeBrackets___Last"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Last</span></h3>
 
+<span class="declaration">virtual AgeBrackets :: Last ( )</span>
 <dl><dd>
+Return flag for very last period possible.
 
 </dd></dl>
 
@@ -5363,14 +5941,7 @@ Vector of period lengths for each age
 <a name="AgeBrackets___setPstar"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">setPstar</span></h3>
 
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="AgeBrackets___Transit"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
-
+<span class="declaration">virtual AgeBrackets :: setPstar ( notsynched )</span>
 <dl><dd>
 
 </dd></dl>
@@ -5623,6 +6194,57 @@ probability one the value of the state variable next period is 0.
 Default Augmented Update.
 The Update() for the base type is called.  And its actual vector is copied to the augmented actuals.
 
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AuxiliaryValue</span></h2>
+
+<a name="AuxiliaryValue___AuxiliaryValue"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AuxiliaryValue</span></h3>
+
+<span class="declaration">AuxiliaryValue :: AuxiliaryValue ( L )</span>
+<dl><dd>
+Create a new element of &chi;, the space of auxiliary outcomes.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of distinct values
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Volume</td>
+<td class="description" valign="baseline">default=SILENT. <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a>
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="AuxiliaryValue___Realize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
+
+<span class="declaration">virtual AuxiliaryValue :: Realize ( y )</span>
+<dl><dd>
+Default realized auxililary variable, sets <code>v=1.0</code>.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">y,</td>
+<td class="description" valign="baseline">the current realized outcome, &upsilon;.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BinaryChoice</span></h2>
 
@@ -5886,6 +6508,61 @@ Create a new Coevolving random variable.
 </table>
 </dd>
 <dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#StateBlock">StateBlock</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Coevolving___myAV"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">myAV</span></h3>
+
+<span class="declaration">virtual Coevolving :: myAV ( )</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CorrelatedEffect</span></h2>
+
+<a name="CorrelatedEffect___block"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">block</span></h3>
+
+<span class="declaration">decl block [public]</span>
+<dl><dd>
+EffectBlock that I belong to
+
+</dd></dl>
+
+<hr>
+<a name="CorrelatedEffect___bpos"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bpos</span></h3>
+
+<span class="declaration">decl bpos [public]</span>
+<dl><dd>
+Index into block array/vector
+
+</dd></dl>
+
+<hr>
+<a name="CorrelatedEffect___CorrelatedEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CorrelatedEffect</span></h3>
+
+<span class="declaration">CorrelatedEffect :: CorrelatedEffect ( L , N )</span>
+<dl><dd>
+Create a new CorrelatedEffect.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of values it takes on.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#RandomEffectBlock">RandomEffectBlock</a></dd>
 </dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Counter</span></h2>
@@ -6527,6 +7204,41 @@ Create a new FIXED asset state variable.
 <dl><dd>
 
 </dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedEffect</span></h2>
+
+<a name="FixedEffect___FixedEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FixedEffect</span></h3>
+
+<span class="declaration">FixedEffect :: FixedEffect ( L , N )</span>
+<dl><dd>
+A state variable that is non-random an invariant for and individual DP problem.
+
+<dl><dt class="example">Example:</dt><dd class="example">enum{male,female,Sex}
+	decl sex = new FixedEffect("sex",Sex);
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___GroupVariables">GroupVariables</a></dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedEffectBlock</span></h2>
+
+<a name="FixedEffectBlock___FixedEffectBlock"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FixedEffectBlock</span></h3>
+
+<span class="declaration">FixedEffectBlock :: FixedEffectBlock ( L )</span>
+<dl><dd>
+Create a list of <a href="Variables.ox.html#FixedEffect">FixedEffect</a> state variables.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label for block</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Forget</span></h2>
 
 <a name="Forget___Forget"></a>
@@ -6731,6 +7443,104 @@ Create a new IID Jump process.
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
 <span class="declaration">virtual IIDJump :: Transit ( )</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Indicator</span></h2>
+
+<a name="Indicator___iacted"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">iacted</span></h3>
+
+<span class="declaration">const decl iacted [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Indicator___Indicator"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Indicator</span></h3>
+
+<span class="declaration">Indicator :: Indicator ( target , myval , iobj , prefix )</span>
+<dl><dd>
+Create an indicator (or indicator interacted with another outcome).
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">target</td>
+<td class="description" valign="baseline">State or Action variable to create indicator value for
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">myval</td>
+<td class="description" valign="baseline">value to indicate
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">iobj</td>
+<td class="description" valign="baseline">integer (no indicator) or an outcome to interact.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">prefix</td>
+<td class="description" valign="baseline">string for column matching or integer (not in data)</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Indicator___iobj"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">iobj</span></h3>
+
+<span class="declaration">const decl iobj [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Indicator___myval"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">myval</span></h3>
+
+<span class="declaration">const decl myval [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Indicator___Realize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
+
+<span class="declaration">virtual Indicator :: Realize ( y )</span>
+<dl><dd>
+Default realized auxililary variable, sets <code>v=1.0</code>.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">y,</td>
+<td class="description" valign="baseline">the current realized outcome, &upsilon;.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Indicator___target"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">target</span></h3>
+
+<span class="declaration">const decl target [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Indicator___ttype"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ttype</span></h3>
+
+<span class="declaration">const decl ttype [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7343,7 +8153,9 @@ actual = 0 ~ exp{ &sigma;&Phi;<sup>-1</sub>(v/N)+ &mu;}
 <a name="Longevity___Last"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Last</span></h3>
 
+<span class="declaration">virtual Longevity :: Last ( )</span>
 <dl><dd>
+With Longevity the last period (death) is definitively the last.
 
 </dd></dl>
 
@@ -7351,22 +8163,35 @@ actual = 0 ~ exp{ &sigma;&Phi;<sup>-1</sub>(v/N)+ &mu;}
 <a name="Longevity___Longevity"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Longevity</span></h3>
 
+<span class="declaration">Longevity :: Longevity ( T , MortProb )</span>
 <dl><dd>
+Random death and uncertain maximum lifetime.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">T</td>
+<td class="description" valign="baseline">number of age phases.  T-1 = death; T-2 = stationary last period.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">MortProb</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible probability of death
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">EV at <code>t=T-1</code> is computed as usual as a terminal state.<br>
+EV at <code>t=T-2</code> is treated as an infinite horizon problem and iterated on.<br>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="Longevity___setPstar"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">setPstar</span></h3>
 
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Longevity___Transit"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
-
+<span class="declaration">virtual Longevity :: setPstar ( notsynched )</span>
 <dl><dd>
 
 </dd></dl>
@@ -7384,12 +8209,14 @@ actual = 0 ~ exp{ &sigma;&Phi;<sup>-1</sub>(v/N)+ &mu;}
 <a name="Longevity___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
+<span class="declaration">virtual Longevity :: Vupdate ( )</span>
 <dl><dd>
-Check newly computed values; an alternative to computing norm of value function differences.
+Mixed value updating.
+<DT><a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> determines behaviour</DT>
+<DT>If TRUE then either <code>t</code> is deterministic or convergence was reached on the last iteration.</DT>
+<DD>So copy current values for use by younger <code>t</code> and check for validity</DD>
+<DT>If FALSE then check for convergence</DT>
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">+&infin; if the newly computed state values are all well-defined<br>.NaN otherwise
-</dd>
-</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Markov</span></h2>
 
@@ -7467,8 +8294,27 @@ EV at t=T-1, value of death
 <a name="Mortality___Mortality"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Mortality</span></h3>
 
+<span class="declaration">Mortality :: Mortality ( T , MortProb )</span>
 <dl><dd>
+Set clock to be deterministic aging with early random death.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">T</td>
+<td class="description" valign="baseline">length of horizon. T-1 = death;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">MortProb</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible probability of early death
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">EV at <code>t=T-1</code> is stored and used for the value of an early death.
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -7494,14 +8340,7 @@ EV at t=T-1, value of death
 <a name="Mortality___setPstar"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">setPstar</span></h3>
 
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Mortality___Transit"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
-
+<span class="declaration">virtual Mortality :: setPstar ( notsynched )</span>
 <dl><dd>
 
 </dd></dl>
@@ -7519,10 +8358,40 @@ EV at t=T-1, value of death
 <a name="Mortality___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
+<span class="declaration">virtual Mortality :: Vupdate ( )</span>
 <dl><dd>
-Check newly computed values; an alternative to computing norm of value function differences.
+Mixed value updating.
+<DT><a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> determines behaviour</DT>
+<DT>If TRUE then either <code>t</code> is deterministic or convergence was reached on the last iteration.</DT>
+<DD>So copy current values for use by younger <code>t</code> and check for validity</DD>
+<DT>If FALSE then check for convergence</DT>
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">+&infin; if the newly computed state values are all well-defined<br>.NaN otherwise
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MultiIndicator</span></h2>
+
+<a name="MultiIndicator___MultiIndicator"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">MultiIndicator</span></h3>
+
+<span class="declaration">MultiIndicator :: MultiIndicator ( targlist , nvec , iobj , prefix )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="MultiIndicator___Realize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
+
+<span class="declaration">MultiIndicator :: Realize ( y )</span>
+<dl><dd>
+Default realized auxililary variable, sets <code>v=1.0</code>.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">y,</td>
+<td class="description" valign="baseline">the current realized outcome, &upsilon;.</td>
+</tr>
+</table>
 </dd>
 </dl>
 </dd></dl>
@@ -7691,12 +8560,14 @@ matrix of Z vals for simulated actual values
 <a name="NonDeterministicAging___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
+<span class="declaration">virtual NonDeterministicAging :: Vupdate ( )</span>
 <dl><dd>
-Check newly computed values; an alternative to computing norm of value function differences.
+Mixed value updating.
+<DT><a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> determines behaviour</DT>
+<DT>If TRUE then either <code>t</code> is deterministic or convergence was reached on the last iteration.</DT>
+<DD>So copy current values for use by younger <code>t</code> and check for validity</DD>
+<DT>If FALSE then check for convergence</DT>
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">+&infin; if the newly computed state values are all well-defined<br>.NaN otherwise
-</dd>
-</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NonStationary</span></h2>
 
@@ -7742,6 +8613,75 @@ A single element of a <a href="Variables.ox.html#MVNormal">MVNormal</a> block.
 </table>
 </dd>
 </dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NormalRandomEffect</span></h2>
+
+<a name="NormalRandomEffect___Distribution"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Distribution</span></h3>
+
+<span class="declaration">NormalRandomEffect :: Distribution ( )</span>
+<dl><dd>
+Update <a href="Shared.ox.html#Discrete___pdf">pdf</a>, the distribution over the random effect.
+This is the built-in default method.  It computes and stores the distribution over the random
+effect in <a href="Shared.ox.html#Discrete___pdf">pdf</a> using <a href="Variables.ox.html#RandomEffect___fDist">fDist</a>;
+<P/>
+The user can supply a replacement in a derived class.
+
+</dd></dl>
+
+<hr>
+<a name="NormalRandomEffect___mu"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mu</span></h3>
+
+<span class="declaration">const decl mu [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="NormalRandomEffect___NormalRandomEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">NormalRandomEffect</span></h3>
+
+<span class="declaration">NormalRandomEffect :: NormalRandomEffect ( L , N , mu , sigma )</span>
+<dl><dd>
+Create a permanent discretized normal random effect.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of points
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">mu</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible mean of the effect, &mu;<br>Default = 0.0
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">sigma</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible standard deviation, &sigma;<br>Default = 1.0
+<P/>
+The probabilities of each discrete value is 1/N.  The distribution is captured by adjusting the
+actual values to be at the quantiles of the distribution.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="NormalRandomEffect___sigma"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sigma</span></h3>
+
+<span class="declaration">const decl sigma [public]</span>
+<dl><dd>
+
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Nvariable</span></h2>
 
@@ -8140,8 +9080,24 @@ vector of phases
 <a name="PhasedTreatment___PhasedTreatment"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PhasedTreatment</span></h3>
 
+<span class="declaration">PhasedTreatment :: PhasedTreatment ( Rmaxes , IsErgodic )</span>
 <dl><dd>
+A sequence of finite-termed phases of treatment.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Rmaxes</td>
+<td class="description" valign="baseline">vector of maximum times in each phase.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">IsErgodic</td>
+<td class="description" valign="baseline"> TRUE, store &Rho;* and use it for sampling</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -8171,7 +9127,10 @@ Vector of positive integers that are the
 <a name="PhasedTreatment___Transit"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
 
+<span class="declaration">virtual PhasedTreatment :: Transit ( )</span>
 <dl><dd>
+The default transition for treatment.  All phases are deterministic.  No early transitions.
+The transition must be one of three values.
 
 </dd></dl>
 
@@ -8179,10 +9138,134 @@ Vector of positive integers that are the
 <a name="PhasedTreatment___Vupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vupdate</span></h3>
 
+<span class="declaration">virtual PhasedTreatment :: Vupdate ( )</span>
 <dl><dd>
-Check newly computed values; an alternative to computing norm of value function differences.
+Mixed value updating.
+<DT><a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> determines behaviour</DT>
+<DT>If TRUE then either <code>t</code> is deterministic or convergence was reached on the last iteration.</DT>
+<DD>So copy current values for use by younger <code>t</code> and check for validity</DD>
+<DT>If FALSE then check for convergence</DT>
 
-<dl><dt class="returns">Returns:</dt><dd class="returns">+&infin; if the newly computed state values are all well-defined<br>.NaN otherwise
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffect</span></h2>
+
+<a name="RandomEffect___Distribution"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Distribution</span></h3>
+
+<span class="declaration">virtual RandomEffect :: Distribution ( )</span>
+<dl><dd>
+Update <a href="Shared.ox.html#Discrete___pdf">pdf</a>, the distribution over the random effect.
+This is the built-in default method.  It computes and stores the distribution over the random
+effect in <a href="Shared.ox.html#Discrete___pdf">pdf</a> using <a href="Variables.ox.html#RandomEffect___fDist">fDist</a>;
+<P/>
+The user can supply a replacement in a derived class.
+
+</dd></dl>
+
+<hr>
+<a name="RandomEffect___fDist"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">fDist</span></h3>
+
+<span class="declaration">decl fDist [public]</span>
+<dl><dd>
+holds the object that computes and returns
+       the distribution across values.
+
+</dd></dl>
+
+<hr>
+<a name="RandomEffect___RandomEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RandomEffect</span></h3>
+
+<span class="declaration">RandomEffect :: RandomEffect ( L , N , fDist )</span>
+<dl><dd>
+Create a state variable that is random but invariant for an individual DP problem.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of points of support.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">fDist</td>
+<td class="description" valign="baseline">integer [default], uniform distribution<br>otherwise, a <a href="Shared.ox.html#AV">AV</a>() compatible object that
+returns the N-vector of probabilities.
+<P/>
+<DT>The default (and always initial) distribution is uniform:</DT>
+<DD>
+<pre>
+RandomEffect("g",N);
+</pre>
+means:
+<pre>
+Prob(g=k) = 1/N, for k=0,...,N&oline;
+</pre></DD>
+<DT>Dynamic Densities</DT>
+<DD>The third argument can be used to set the vector:
+<pre>RandomEffect("g",2,<0.8;0.2>);</pre>
+a static function:
+<pre>
+decl X, beta;
+&vellip;
+hd() {
+    decl v = exp(X*beta), s = sumc(v);
+    return v/s;
+    }
+&vellip;
+RandomEffect("h",rows(X),hd);
+</pre>
+or a parameter block:
+<pre>
+enum{Npts = 5};
+hd = new Simplex("h",Npts);
+RandomEffect("h",Npts,hd);
+</pre></DD>
+<P/>
+<DT><code>fDist</code> is stored in a non-constant member, so it can be changed after the <code>CreateSpaces()</code>
+has been called.</DT>
+<P/>
+<DT>Most Flexible Option</DT>
+The user can define a derived class and supply a replacement to the virtual <a href="Variables.ox.html#RandomEffect___Distribution">Distribution</a>().
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___GroupVariables">GroupVariables</a></dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffectBlock</span></h2>
+
+<a name="RandomEffectBlock___Distribution"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Distribution</span></h3>
+
+<span class="declaration">virtual RandomEffectBlock :: Distribution ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="RandomEffectBlock___RandomEffectBlock"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RandomEffectBlock</span></h3>
+
+<span class="declaration">RandomEffectBlock :: RandomEffectBlock ( L )</span>
+<dl><dd>
+Create a list of <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a> state variables.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label for block</td>
+</tr>
+</table>
 </dd>
 </dl>
 </dd></dl>
@@ -8355,6 +9438,115 @@ Create a state variable that increments or decrements with state-dependent proba
 <dl><dd>
 .
 
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RealizedUtility</span></h2>
+
+<a name="RealizedUtility___Realize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
+
+<span class="declaration">virtual RealizedUtility :: Realize ( y )</span>
+<dl><dd>
+Default realized auxililary variable, sets <code>v=1.0</code>.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">y,</td>
+<td class="description" valign="baseline">the current realized outcome, &upsilon;.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="RealizedUtility___RealizedUtility"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RealizedUtility</span></h3>
+
+<span class="declaration">RealizedUtility :: RealizedUtility ( )</span>
+<dl><dd>
+Realized utility, U().
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Regressors</span></h2>
+
+<a name="Regressors___InObservedX"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">InObservedX</span></h3>
+
+<span class="declaration">Regressors :: InObservedX ( )</span>
+<dl><dd>
+Returns TRUE if any rows of InObservedX equal the current actual value of the block.
+
+</dd></dl>
+
+<hr>
+<a name="Regressors___ObservedX"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ObservedX</span></h3>
+
+<span class="declaration">decl ObservedX [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Regressors___Regressors"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Regressors</span></h3>
+
+<span class="declaration">Regressors :: Regressors ( L , vNorM , UseOnlyObserved )</span>
+<dl><dd>
+Create a vector of fixed effects (FixedEffectBlock).
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">string prefix <br>or array of strings, individual labels
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">vNorM</td>
+<td class="description" valign="baseline">vector of integer values, number of values each effect takes on.<br>OR, a matrix of actual values.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">UseOnlyObserved</td>
+<td class="description" valign="baseline"> [default=TRUE] if a matrix is sent as the second argument then TRUE means
+that only combinations (rows) of actual fixed effects in the matrix will be created and solved.  Otherwise, all
+possible combinations of observed actual values will be solved for.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example">Create 3 fixed effects that take on 2, 3 and 5 values, respectively:
+<pre> x = new Regressors("X",<2,3,5>); </pre>
+Give each effect a label:
+<pre> x = new Regressors({"Gender","Education","Occupation"},<2,3,5>); </pre>
+<P/>
+Here is an approach to combining parameters (estimated or chosen) with fixed effects.
+Suppose a parameter &psi; in the DP model depends on a subset of X variables, X<sub>p</sub> and
+coefficients &beta;.  That is,
+<pre>&psi; = exp{ X<sub>p</sub> &psi; } </pre>
+For example, &psi; is a function of an intercept and gender, but other X variables
+that do not affect &psi; are in the model.  The code segments below show how to give names to the columns
+of X, define the number of values each takes on and then how to make their current values determine
+the dynamically determined value of &psi;.
+<pre>
+enum{intercept,gender,race,sibling,test,NX}
+enum{Ni=1,Ng=2,Nr=2,Ns=2,Nt=3}
+&vellip;
+const decl psispec = intercept~gender;
+&vellip;
+beta = new Coefficients("B",columns(psispec));
+GroupVariables(X = new Regressors("X",Ng~Nr~Ns~Nt));
+X.Actual[][intercept] = 1;   // replace fixed 0 with fixed 1 for the intercept.
+&vellip;
+psi = [=]() { return exp(AV(X)[psipsec]*CV(Beta)); };
+</pre>
+Note the last line uses the lambda function feature introduced in Ox 7.  So psi() would return the
+dynamically determined value of &psi;.  The alternative is to define a static method which would have the same code.
+</dd>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Renewal</span></h2>
 
@@ -8895,7 +10087,7 @@ Check if variable is a block of state variables.
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns">TRUE if sv is <a href="Variables.ox.html#StateBlock">StateBlock</a> or RandomEffectBlock or FixedEffectBlock<br>FALSE otherwise
+<dt class="returns">Returns:</dt><dd class="returns">TRUE if sv is <a href="Variables.ox.html#StateBlock">StateBlock</a> or <a href="Variables.ox.html#RandomEffectBlock">RandomEffectBlock</a> or <a href="Variables.ox.html#FixedEffectBlock">FixedEffectBlock</a><br>FALSE otherwise
 </dd>
 </dl>
 </dd></dl>
@@ -8917,7 +10109,7 @@ Check if variable is a valid member of a block.
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns">TRUE if sv is <a href="Variables.ox.html#Coevolving">Coevolving</a> or CorrelatedEffect or SubEffect<br>FALSE otherwise
+<dt class="returns">Returns:</dt><dd class="returns">TRUE if sv is <a href="Variables.ox.html#Coevolving">Coevolving</a> or <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a> or <a href="Variables.ox.html#SubEffect">SubEffect</a><br>FALSE otherwise
 </dd>
 </dl>
 </dd></dl>
@@ -9132,6 +10324,52 @@ A stationary clock block.
 </dd>
 </dl>
 </dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SubEffect</span></h2>
+
+<a name="SubEffect___block"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">block</span></h3>
+
+<span class="declaration">decl block [public]</span>
+<dl><dd>
+EffectBlock that I belong to
+
+</dd></dl>
+
+<hr>
+<a name="SubEffect___bpos"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bpos</span></h3>
+
+<span class="declaration">decl bpos [public]</span>
+<dl><dd>
+Index into block array/vector
+
+</dd></dl>
+
+<hr>
+<a name="SubEffect___SubEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SubEffect</span></h3>
+
+<span class="declaration">SubEffect :: SubEffect ( L , N )</span>
+<dl><dd>
+Create a new Sub.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of values it takes on.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#FixedEffectBlock">FixedEffectBlock</a></dd>
+</dl>
+</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SubState</span></h2>
 
 <a name="SubState___IsReachable"></a>
@@ -9327,6 +10565,84 @@ Tauchen discretizization.
 <dl><dd>
 
 </dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TauchenRandomEffect</span></h2>
+
+<a name="TauchenRandomEffect___Distribution"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Distribution</span></h3>
+
+<span class="declaration">virtual TauchenRandomEffect :: Distribution ( )</span>
+<dl><dd>
+Update <a href="Shared.ox.html#Discrete___pdf">pdf</a>, the distribution over the random effect.
+This is the built-in default method.  It computes and stores the distribution over the random
+effect in <a href="Shared.ox.html#Discrete___pdf">pdf</a> using <a href="Variables.ox.html#RandomEffect___fDist">fDist</a>;
+<P/>
+The user can supply a replacement in a derived class.
+
+</dd></dl>
+
+<hr>
+<a name="TauchenRandomEffect___M"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">M</span></h3>
+
+<span class="declaration">const decl M [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="TauchenRandomEffect___TauchenRandomEffect"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">TauchenRandomEffect</span></h3>
+
+<span class="declaration">TauchenRandomEffect :: TauchenRandomEffect ( L , N , mu , sigma , M )</span>
+<dl><dd>
+Create a permanent discretized normal random effect.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of points
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">mu</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible mean of the effect, &mu;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">sigma</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible standard deviation, &sigma;
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">M</td>
+<td class="description" valign="baseline">number of standard deviations to set the largest value as
+<P/>
+actual values are equally spaced between -M&sigma; and M&sigma;.
+<P/>
+The probabilities of not uniform but are constant and depend only on
+N and M.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TimeInvariant</span></h2>
+
+<a name="TimeInvariant___Update"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
+
+<span class="declaration">TimeInvariant :: Update ( )</span>
+<dl><dd>
+Do Nothing and prohibit derived Updates.
+actual should be set in Distribution.
+
+</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Tracker</span></h2>
 
 <a name="Tracker___IsReachable"></a>
@@ -9511,6 +10827,61 @@ Create a exponentially distributed discretize jump variable.
 <tr>
 <td class="declaration" valign="baseline">gamma</td>
 <td class="description" valign="baseline">decay rate [default=1.0]</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ZetaRealization</span></h2>
+
+<a name="ZetaRealization___length"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">length</span></h3>
+
+<span class="declaration">const decl length [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ZetaRealization___Realize"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
+
+<span class="declaration">virtual ZetaRealization :: Realize ( y )</span>
+<dl><dd>
+Default: &zeta; is undefined, replace with a virtual function that returns a
+value drawn from the conditional distribution of &zeta;
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">y,</td>
+<td class="description" valign="baseline">the current realized outcome, &upsilon;.</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="ZetaRealization___ZetaRealization"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ZetaRealization</span></h3>
+
+<span class="declaration">ZetaRealization :: ZetaRealization ( length )</span>
+<dl><dd>
+Create a new &zeta;, the vector-valued realized shock vector.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">length</td>
+<td class="description" valign="baseline">integer, length of the (row) vector.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Volume</td>
+<td class="description" valign="baseline">default=SILENT. <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a>
+<P/>
+The default &zeta; is a 0 length vector.</td>
 </tr>
 </table>
 </dd>

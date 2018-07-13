@@ -33,7 +33,7 @@ VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
     return succeed;
     }
 
-/** Create an endogenous utility object.
+/* Create an endogenous utility object.
 This task method has the job of looping over the endogenous state space when <var>U(&alpha;...)</var>
 and <var>P(&theta;&prime;;&alpha;,&eta;,&theta;)</var> need to be updated.
 It calls `ExogUtil` task stored in `EndogUtil::ex` to loop over &eta; and &epsilon;
@@ -41,32 +41,20 @@ It calls `ExogUtil` task stored in `EndogUtil::ex` to loop over &eta; and &epsil
 This task uses <code>iterating</code> indexing because it is called at the start of Bellman iteration.
 So utility is not stored for later use.  To retrieve it during simulation requires `AuxiliaryValue`.
 
-**/
 EndogUtil::EndogUtil() {
 	ThetaTask(iterating);
 	itask = new ExogUtil();
 	}
+*/
 
-/** Loop over exogenous states computing U() at a give &theta;.
+/* Loop over exogenous states computing U() at a give &theta;.
 @param th, point &theta; in the endogenous parameter space.
-**/
 EndogUtil::Run() {
     I::curth->UReset();
 	itask.state = state;
 	itask->loop();
 	}
-
-/** Create an endogenous utility object.
-This task method has the job of looping over the endogenous state space when <var>U(&alpha;...)</var>
-and <var>P(&theta;&prime;;&alpha;,&eta;,&theta;)</var> need to be updated.
-It calls `ExogUtil` task stored in `EndogUtil::ex` to loop over &eta; and &epsilon;
-**/
-ExogUtil::ExogUtil() {
-	ExTask();	
-    subspace = iterating;
-	}
-	
-ExogUtil::Run() { I::curth->ExogUtil();  }
+*/
 
 /** Process a point in the fixed effect space.
 <OL>
@@ -126,6 +114,7 @@ RandomSolve::Run()  {
 
 **/
 GSolve::Run() {
+    XUT.state = state;
 	I::curth->ActVal(VV[I::later]);
 	VV[I::now][I::all[iterating]] = ev = I::curth->thetaEMax();
     this->PostEMax();
@@ -138,8 +127,9 @@ GSolve::PostEMax() {
         Hooks::Do(PostSmooth);
         if (Flags::NKstep)
             I::curth->UpdatePtrans(&ptrans,isclass(NK) ? NK.visit : 0);
-        else if (Flags::IsErgodic)
+        else if (Flags::IsErgodic) {
             I::curth->UpdatePtrans();
+            }
 		}
     }
 
@@ -150,10 +140,10 @@ GSolve::PostEMax() {
 </OL>
 **/
 GSolve::Solve(instate) {
-	this.state = itask.state = instate;
+	this.state = /*itask.state =*/ instate;
     Clock::Solving(&VV);
     ZeroTprime();
-	itask->Traverse();  //compute endogenous utility
+    //ZZZZ	itask->Traverse();  //compute endogenous utility
 	Flags::setPstar = counter->setPstar(TRUE) ||  (MaxTrips==1);   // if first trip is last;
     Flags::NKstep0 = Flags::NKstep = FALSE;
     dff = 0.0;
@@ -239,10 +229,10 @@ Method::Method() {
 @param myEndogUtil  `EndogUtil` to use for iterating over endogenous states<br>0 (default), built in task will be used.
 
 **/
-ValueIteration::ValueIteration(myGSolve,myEndogUtil) {
+ValueIteration::ValueIteration(myGSolve/*,myEndogUtil*/) {
     Method();
-    if (!isint(myGSolve) && !isclass(myGSolve,"ThetaTask")) oxrunerror("First argument must be 0 or a ThetaTask");
-    itask = new RandomSolve(isint(myGSolve) ? new GSolve(myEndogUtil) : myGSolve);
+    if (!isint(myGSolve) && !isclass(myGSolve,"ThetaTask")) oxrunerror("argument must be 0 or a ThetaTask");
+    itask = new RandomSolve(isint(myGSolve) ? new GSolve(/*myEndogUtil*/) : myGSolve);
 	}
 
 NKinfo::NKinfo(t) {
@@ -266,10 +256,10 @@ NKinfo::Hold() {
 //    println("visit,onlyactive ",visit',onlyactive');
     }
 
-GSolve::GSolve(myEndogUtil) {
+GSolve::GSolve() {  //myEndogUtil
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 28. Must create spaces before creating a solution method");
 	ThetaTask(iterating);
-	itask = isint(myEndogUtil) ? new EndogUtil()  : myEndogUtil;
+    //	itask = isint(myEndogUtil) ? new EndogUtil()  : myEndogUtil;
 	VV = new array[DVspace];
     for (decl i=0; i< DVspace;++i) VV[i] = zeros(1,N::Mitstates);
     MinNKtrips = 100;
@@ -291,12 +281,12 @@ GSolve::NewtonKantorovich(){
             if (!Flags::IsErgodic) {
                 decl v;
                 NK = 0;
-                foreach(v in NKlist) if (v.myt==I::t) { NK=v;break; }
+                foreach(v in NKlist) { if (v.myt==I::t) { NK=v;break; } }
                 if (isint(NK)) {
                     NK = new NKinfo(I::t);
                     NKlist |= NK;
                     Flags::NKstep0 = TRUE;
-                    if (Volume>LOUD) println("    Setting up N-K ");
+                    if (Volume>QUIET) println("    Setting up N-K ");
                     }
                 else {
                     Flags::NKstep = TRUE;
@@ -306,12 +296,12 @@ GSolve::NewtonKantorovich(){
             else {
                 Flags::NKstep = TRUE;
                 ptrans = zeros(I::curg.Ptrans);
-                if (Volume>LOUD) println("    Switching to N-K Iteration ");
+                if (Volume>QUIET) println("    Switching to N-K Iteration ");
                 }
             }
        }
     else if (Flags::NKstep0) {
-        Flags::NKstep = TRUE;
+      Flags::NKstep = TRUE;
         Flags::NKstep0 = FALSE;
         NK->Hold();
         ptrans = zeros(NK.Nstat,NK.Nstat);
@@ -324,17 +314,18 @@ GSolve::NewtonKantorovich(){
         declu( setdiagonal(ip,1+diagonal(ip)),&L,&U,&P);
         ptrans[][] = 0.0;
         if (Flags::IsErgodic) {
-            VV[I::now][] = VV[I::later][]-solvelu(L,U,P,(VV[I::later][]-VV[I::now][])')';
-//            println(VV[I::now][]-VV[I::later][]);
+          VV[I::now][] = VV[I::later][]-solvelu(L,U,P,(VV[I::later][]-VV[I::now][])' )';
             }
         else {
-            decl step =solvelu(L,U,P,(VV[I::later][NK.onlyactive]-VV[I::now][NK.onlyactive])')';
-            VV[I::now][NK.onlyactive] = VV[I::later][NK.onlyactive] - step;
-//            println(NK.onlyactive',VV[I::later][NK.onlyactive],VV[I::now][NK.onlyactive]);
+          decl step;
+          step =solvelu(L,U,P,(VV[I::later][NK.onlyactive]-VV[I::now][NK.onlyactive])' )' ;
+          VV[I::now][NK.onlyactive] = VV[I::later][NK.onlyactive] - step;
             }
         dff= counter->Vupdate();
         Flags::NKstep = !(dff <vtoler);
-        if (!Flags::NKstep) delete ptrans;
+        if (!Flags::NKstep) {
+            delete ptrans;
+            }
         }
     }
 
@@ -370,16 +361,18 @@ This is called after one complete iteration of `ValueIteration::GSolve`().
 **/
 GSolve::Update() {
 	++trips;
-    decl mefail;
+    decl mefail,oldNK = Flags::NKstep;
     prevdff = dff;
 	dff= counter->Vupdate();
-    if ( UseNK && (Flags::StatStage||Flags::IsErgodic)  ) NewtonKantorovich();
+    if ( UseNK && (Flags::StatStage||Flags::IsErgodic)  ) {
+        NewtonKantorovich();
+        }
     mefail = isnan(dff);
     succeed *= !mefail;
     Report(mefail);
     I::NowSwap();
-	if (Volume>QUIET) println("   t:",I::t," Trip:",trips);
-	state[right] -= (!Flags::StatStage || Flags::setPstar ) && !Flags::NKstep;
+	if (Volume>LOUD) println("   t:",I::t," Trip:",trips);
+	state[right] -= (!Flags::StatStage || Flags::setPstar ) && !oldNK; //!Flags::NKstep;
 	done = SyncStates(right,right) <0 ; //converged & counter was at 0
 	if (!done) {
         Flags::setPstar =  (dff <vtoler)
@@ -388,7 +381,7 @@ GSolve::Update() {
                         || counter->setPstar(FALSE);
 		VV[I::now][:I::MxEndogInd] = 0.0;
 		}
-	if (Volume>QUIET) println("     Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes" : "No",
+	if (Volume>LOUD) println("     Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes" : "No",
                     ". NK0:",Flags::NKstep0 ? "Yes" : "No",
                     ". NK:",Flags::NKstep ? "Yes" : "No");
  	state[right] += done;		//put counter back to 0 	if necessary
@@ -396,14 +389,15 @@ GSolve::Update() {
     return done || (trips>=MaxTrips);
 	}
 
-/** Endogenous Utility task used the KeaneWolpin Approximation.
-**/
+/* Endogenous Utility task used the KeaneWolpin Approximation.
+
 KWEMax::KWEMax() {
 	EndogUtil();
 	right = S[endog].X;	 // clock is iterated in  KeaneWolpin::GSolve
 	lo = itask.left;
 	hi = itask.right;
 	}
+*/
 
 /** Carry out Keane-Wolpin approximation at an endogenous state &theta; .
 @param th &theta;
@@ -419,29 +413,18 @@ value across all exogenous states.</DD>
 <DD> The result is added to the KW sample</DD>
 </OL>
 **/
-KWEMax::Run() {
+KWGSolve::Run() {
     decl inss = I::curth->InSS();
-    //println(inss," ",I::curth.Type," ",firstpass," ",I::curth.pandv);
+    XUT.state = state;
     if (firstpass) {
         if (!inss) return;
-		EndogUtil::Run();
-		I::curth->ActVal(meth.VV[I::later]);
-		meth.VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
-		if (!onlypass) InSample();
-            //			meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');
+        InSample();
 		}
     else if (!inss) {
-		itask.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
-		SyncStates(lo,hi);
-		I::all[bothexog] = I::MESind;    //     ;
-		I::all[onlysemiexog] = I::MSemiEind; //= ;
-		itask -> Run();
-		OutSample();
-		I::all[bothexog] = I::MESind;
-		I::all[onlysemiexog] = I::MSemiEind;
+        OutSample();
 		}
 	if (Flags::setPstar)  {
-        I::curth->Smooth(meth.VV[I::now][I::all[iterating]]);
+        I::curth->Smooth(VV[I::now][I::all[iterating]]);
         Hooks::Do(PostSmooth);
         }
 	}
@@ -460,21 +443,22 @@ This replaces the built-in version used by `ValueIteration`.
 **/
 KWGSolve::Solve(instate) {
 	decl myt;
-	this.state = itask.state = instate;
+	this.state = /* itask.state = */ instate;
+    Clock::Solving(&VV);
     ZeroTprime();
 	Flags::setPstar = TRUE;	
 	for (myt=N::T-1;myt>=0;--myt) {
-		state[cpos] = itask.state[cpos] = myt;
+		state[cpos] = XUT.state[cpos] = myt;
 		SyncStates(cpos,cpos);
 		Y = Xmat = <>;	
         curlabels = 0;
-		itask.onlypass = !Flags::DoSubSample[myt];
-		itask.firstpass = TRUE;
-		itask->Traverse(myt);
-		if (!itask.onlypass) {
+		onlypass = !Flags::DoSubSample[myt];
+		firstpass = TRUE;
+		Traverse(myt);
+		if (!onlypass) {
 			Specification(ComputeBhat);
-			itask.firstpass = FALSE;
-			itask -> Traverse(myt);
+			firstpass = FALSE;
+			Traverse(myt);
 			}
 		I::NowSwap();
 		}
@@ -482,17 +466,19 @@ KWGSolve::Solve(instate) {
 
 /** Initialize Keane-Wolpin Approximation method.
 **/
-KeaneWolpin::KeaneWolpin(myGSolve,myEndogUtil) {
+KeaneWolpin::KeaneWolpin(myGSolve) { //,myEndogUtil
     if (isint(SampleProportion)) oxwarning("DDP Warning 24.\n Must call SubSampleStates() before you use KeaneWolpin::Solve().\n");
-	ValueIteration(isint(myGSolve) ? new KWGSolve(myEndogUtil) : myGSolve);
+	ValueIteration(isint(myGSolve) ? new KWGSolve() : myGSolve); //myEndogUtil
     if (N::J>1) oxwarning("DDP Warning 25.\n Using KW approximazation on a model with infeasible actions at some states.\n All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible.\n");
 	}
 
-KWGSolve::KWGSolve(myKWEMax) {
-    GSolve(isint(myKWEMax) ? new KWEMax() : myKWEMax);
+KWGSolve::KWGSolve() { //myKWEMax
+    GSolve(); //isint(myKWEMax) ? new KWEMax() : myKWEMax
+	right = S[endog].X;
 	cpos = counter.t.pos;
-    //    itask = isint(myKWEMax) ? new KWEMax() : myKWEMax;
-	itask.meth = this;
+    //    itask = isint(myKWEMax) ? new KWEMax() : myKWEMax; itask.meth = this;
+    lo = XUT.left;
+	hi = XUT.right;
 	Bhat = new array[N::T];
 	xlabels0 = {"maxE","const"};
     xlabels1 = new array[N::A];
@@ -532,14 +518,22 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
 		}
 	}
 	
-KWEMax::InSample(){
-	meth->Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');
+KWGSolve::InSample(){
+    XUT.state = state;
+	I::curth->ActVal(VV[I::later]);
+	VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
+	if (!onlypass)
+        Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');
 	}
 
 	
-KWEMax::OutSample() {
-	I::curth->MedianActVal(meth.VV[I::later]);
-	meth->Specification(PredictEV,V[0],(V[0]-I::curth.pandv)'); //NoR [I::r]
+KWGSolve::OutSample() {
+	XUT.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
+	SyncStates(lo,hi);
+	I::all[bothexog] = I::MESind;    //     ;
+	I::all[onlysemiexog] = I::MSemiEind; //= ;
+	I::curth->MedianActVal(VV[I::later]);
+	Specification(PredictEV,V[0],(V[0]-I::curth.pandv)'); //NoR [I::r]
 	}
 	
 /** Create a Hotz-Miller solution method.
@@ -560,37 +554,19 @@ HotzMiller::HotzMiller(indata,bandwidth) {
 **/
 CCP::CCP(data,bandwidth) {
 	FETask();
-    NotFirstTime = FALSE;
     this.data = data;
     this.bandwidth = bandwidth;
     Q = new array[N::F];
 	cnt = new array[N::F];
     ObsPstar = new array[N::F];
-    loop();
-	Kstates = new matrix[SS[tracking].D][SS[tracking].size];
-    itask = new CCPspace(this);
+    NotFirstTime = FALSE;
+    loop();     //first time, initialize values
+    oxwarning("Kstate dimension assumes t is stationary!");
+    Kstates = new matrix[SS[onlyendog].D][SS[tracking].size];
+    itask = new CCPspace();
     itask->loop();
 	Kernel = GaussianKernel(Kstates,bandwidth);
 	delete Kstates;
-    NotFirstTime = TRUE;
-    }
-
-CCP::Run() {
-    if (!NotFirstTime) {
-	   cnt[I::g] = zeros(1,SS[tracking].size);
-	   ObsPstar[I::g] = zeros(SS[onlyacts].size,columns(cnt[I::g]));	
-	   Q[I::g]  = zeros(cnt[I::g])';
-       }
-    else {
-        itask->Traverse();
-        delete cnt[I::g];
-        delete ObsPstar[I::g];
-        }
-    }
-
-/**
-**/
-CCP::InitializePP() {
 	decl curp= data,curo, a, g, q;
 	do {
 		curo = curp;
@@ -602,46 +578,53 @@ CCP::InitializePP() {
 	        ++ObsPstar[g][a][q];
 			} while (( isclass(curo = curo.onext) ));
 		} while (( isclass(curp=curp.pnext) ));
-    loop();
-    return Q;
+    NotFirstTime = TRUE;
+    loop(); //second time
     }
 
-CCPspace::CCPspace(qtask) {
-    ThetaTask(tracking);
-    itask = qtask;
+CCP::Run() {
+    if (!NotFirstTime) {  //First time
+	   cnt[I::g] = zeros(1,SS[tracking].size);
+	   ObsPstar[I::g] = zeros(SS[onlyacts].size,columns(cnt[I::g]));	
+	   Q[I::g]  = zeros(cnt[I::g])';
+       }
+    else {
+        itask.state = state;
+        itask->Traverse();
+        delete cnt[I::g];
+        delete ObsPstar[I::g];
+        }
     }
+
+CCPspace::CCPspace() {    ThetaTask(tracking);    }
 
 CCPspace::Run() {
     decl ii = I::all[tracking];
-    if (! itask.NotFirstTime ) {
+    if (!CCP::NotFirstTime ) {
 	   decl j,k;
-	   for (k=S[endog].M,j=0;k<=S[clock].M;++k,++j) itask.Kstates[j][ii] = AV(States[k]);
-        }
+	   for (k=S[endog].M,j=0;k<=S[endog].X;++k,++j) CCP::Kstates[j][ii] = AV(States[k]);
+       }
     else {
        decl dnom,nom,p;
-	   dnom = itask.cnt[I::f].*itask.Kernel[ii][],
-	   nom =  itask.ObsPstar[I::f].*itask.Kernel[ii][],
+	   dnom = CCP::cnt[I::f].*CCP::Kernel[ii][],
+	   nom =  CCP::ObsPstar[I::f].*CCP::Kernel[ii][],
 	   p = sumr(nom/dnom);
 	   p[0] = 1-sumc(p[1:]);
        I::curth.pandv[] = p;
-       I::curth->ExogUtil();    //.U[]=th->Utility();
-	   itask.Q[I::f][ii] = p'*(I::curth.U+M_EULER-log(p));
-//       println(ii," ",qtask.Q[I::f][ii]);
+       XUT.state = state;
+       XUT->ReCompute(DoAll);
+	   CCP::Q[I::f][ii] = p'*(XUT.U+M_EULER-log(p));
+//       println(ii," ",itask.Q[I::f][ii]," p ",p');
        }
     }
 
-HMEndogU::HMEndogU(meth) {
-	EndogUtil();
-    this.meth = meth;
-	}
-
-HMEndogU::Run() {    I::curth->HMEndogU(VV);	}
-
 HMGSolve::HMGSolve(indata,bandwidth) {
-    Clock::Solving(&VV);
+    GSolve();
     if (isclass(indata,"Panel")) {
-        myccp = new CCP(indata,bandwidth);
-        Q=myccp->InitializePP();
+        decl myccp = new CCP(indata,bandwidth);
+        Q = CCP::Q;
+        delete myccp;
+        println(Q[0]);
         }
     else if (isarray(indata)) {
         Q = indata;
@@ -653,16 +636,27 @@ HMGSolve::HMGSolve(indata,bandwidth) {
 
 HMGSolve::Solve(instate) {
 	decl  tmpP = -I::CVdelta*I::curg.Ptrans;
-    HMEndogU::VV = (invert( setdiagonal(tmpP, 1+diagonal(tmpP)) ) * Q[I::f] )';   // (I-d*Ptrans)^{-1}
-	if (Volume>LOUD) fprintln(logf,"HM inverse mapping: ",HMEndogU::VV );
-	this.state = itask.state = instate;
+    tmpP = setdiagonal(tmpP, 1+diagonal(tmpP));
+    VV = (invert( tmpP ) * Q[I::f] )';   // (I-d*Ptrans)^{-1}
+	if (Volume>LOUD) {fprintln(logf,"HM inverse mapping: ",VV );}
+	this.state = instate;
     ZeroTprime();
-	itask->Traverse();
-	Flags::setPstar = 	FALSE;
+	Flags::setPstar = 	FALSE;  //???
+    MaxTrips = 1;
+	this->Traverse();
+    Hooks::Do(PostGSolve);
+    if (Volume>SILENT && N::G>1) print(".");
 	}
+
+HMGSolve::Run() {
+    XUT.state = state;
+    I::curth->HMActVal(VV);	
+    }
 	
 HotzMiller::Solve(Fgroups) {
     if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions();
+    itask.Volume = Volume;
+    cputime0 = timer();
 	if (Fgroups==AllFixed)
 		itask -> GroupTask::loop();
 	else
@@ -676,7 +670,10 @@ AguirregabiriaMira::AguirregabiriaMira(data,bandwidth) {
     if (isclass(data,"Panel")) mle = data.method;
     }
 
-AMGSolve::Run() {    Q[I::all[tracking]] = I::curth->AMEndogU(VV);    }
+AMGSolve::Run() {
+        XUT.state = state;
+        Q[I::all[tracking]] = I::curth->AMActVal(VV);
+        }
 
 AguirregabiriaMira::Solve(Fgroups,inmle) {
     HotzMiller::Solve(Fgroups);

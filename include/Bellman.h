@@ -17,16 +17,10 @@ struct  Bellman : DP {
         /**Integer code to classify state (InSubSample,LastT,Terminal).
             This avoids multiple integer values at each point in the state space.
             Defined in `StateTypes`. Set in `DP::CreateSpaces`()
-            @see StateVariable::MakeTerminal Clock::Last **/    Type,
-/*		TRUE if a Terminal state (no action chosen).
-            Set in `DP::CreateSpaces`()
-            @see StateVariable::MakeTerminal  		            IsTerminal,
-         TRUE if last period a decision, depends on the Clock.
-            @see Clock::Last                                     IsLast,
-             Full solution at this state.                        InSubSample, */
+            @see StateVariable::MakeTerminal Clock::Last **/        Type,
 		/**&theta;.j index into `Alpha::Alist`.**/  				Aind,
-		/**U(&alpha;&epsilon;,&eta;,&theta;,&gamma;).  **/	        U,
-		/**  &Rho;*(&hellip;,&gamma;). **/   		                pandv,
+		/*U(&alpha;&epsilon;,&eta;,&theta;,&gamma;).  	        U, */
+		/** v(&alpha;;&theta;) and &Rho;*(&hellip;,&gamma;). **/    pandv,
 		/** TransStore x &eta;-Array of feasible endogenous	state
 			indices and transitions
 			&Rho;(&gamma;&prime;;&alpha;,&eta;,&gamma;).**/			Nxt,
@@ -36,17 +30,16 @@ struct  Bellman : DP {
 			static 	Initialize(userState,UseStateList=FALSE);
 			static  CreateSpaces();
                     OnlyFeasible(myU);
-                    HMEndogU(VV);
-                    AMEndogU(VV);
             virtual IntegrateOverEta(VV);
             virtual ExogExpectedV(VV);
-            virtual ExogUtil();
 			virtual FeasibleActions();
             virtual Reachable();
 			virtual Utility();
             virtual UReset();
 			virtual thetaEMax() ;
 			virtual ActVal(VV);
+                    HMActVal(VV);
+                    AMActVal(VV);
 			virtual Smooth(EV);
 			virtual KernelCCP(task);
 			virtual ZetaRealization();

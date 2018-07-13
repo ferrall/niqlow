@@ -127,16 +127,17 @@ Bellman::Allocate(picked,CalledFromBellman) {
   NewSS = InSS();
   N::Approximated += !NewSS;
   if ((OldSS!=NewSS)||CalledFromBellman) {     //re-allocation required
-    if (!CalledFromBellman) delete Nxt, U;
+    if (!CalledFromBellman) delete Nxt,pandv; //, U;
     if (NewSS) {
         Nxt = new array[TransStore+N::DynR-1][SS[onlysemiexog].size];
-        U = new matrix[N::Options[Aind]][SS[bothexog].size];
+//        U = new matrix[N::Options[Aind]][SS[bothexog].size];
+        pandv =new matrix[N::Options[Aind]][SS[bothexog].size];//constant(.NaN,U);
         }
     else {
         Nxt = new array[TransStore+N::DynR-1][One];
-        U = new matrix[N::Options[Aind]][One];
+//        U = new matrix[N::Options[Aind]][One];
+        pandv =new matrix[N::Options[Aind]][One]; //constant(.NaN,U);
         }
-    pandv =constant(.NaN,U);
     }
   }
 
@@ -165,7 +166,7 @@ Bellman::FeasibleActions()	{  	return ones(Alpha::N,1); 	}
 
 Bellman::UReset() {
 	pandv[][] = .NaN;
-	U[][] = 0;
+	//U[][] = 0;
     }
 	
 /** Default Choice Probabilities: no smoothing.
@@ -191,7 +192,8 @@ Bellman::ExogExpectedV(VV) {
 
 /** Compute v(&alpha;&theta;) for all values of &epsilon; and &eta;. **/
 Bellman::ActVal(VV) {
-	pandv[][] = U;
+    XUT->ReCompute(DoAll);  //ZZZZ
+	pandv[][] = XUT.U;
 	if (Type>=LASTT) return;
     IntegrateOverEta(VV);
     }
@@ -199,7 +201,8 @@ Bellman::ActVal(VV) {
 /** Computes v() and V for out-of-sample states. **/
 Bellman::MedianActVal(EV) {
         //Note Since Action values not computed for terminal states, Type same as IsLast
-    pandv[] = U + (Type>= LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*EV[Nxt[Qit][Zero]]));
+    XUT->ReCompute(UseCurrent);  //ZZZZ
+    pandv[] = XUT.U + (Type>= LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*EV[Nxt[Qit][Zero]]));
 	V[] = maxc( pandv );
 	}
 	
@@ -333,27 +336,27 @@ Bellman::Utility()  {
 	return zeros(N::Options[Aind],1);
 	}
 
-/** Call utility and stores in the correct column of `Bellman::U`.
-**/
+/* Call utility and stores in the correct column of `Bellman::U`.
 Bellman::ExogUtil() { U[][I::all[bothexog]]=Utility();	}
+*/
 
 /** The version of Endogenous Utility used in the Hotz-Miller algorithm.
 **/
-Bellman::HMEndogU(VV) {
-    U[] = Utility();
-	pandv[] = U + I::CVdelta*sumr(Nxt[Qrho/*NoR+Zero*/][Zero].*VV[Nxt[Qit][Zero]]);//NoR: [I::r]
+Bellman::HMActVal(VV) {
+    XUT->ReCompute(UseCurrent); //U[] = Utility();
+	pandv[] = XUT.U + I::CVdelta*sumr(Nxt[Qrho][Zero].*VV[Nxt[Qit][Zero]]);//NoR: [I::r]
     Smooth(thetaEMax());
     Hooks::Do(PostSmooth);
 	UpdatePtrans();
     }
 
-Bellman::AMEndogU(VV) {
-    ExogUtil();
+Bellman::AMActVal(VV) {
     ActVal(VV);
 	Smooth(thetaEMax());
     Hooks::Do(PostSmooth);
     UpdatePtrans();
-	return pandv'*(U+M_EULER-log(pandv));
+	decl x = pandv'*(XUT.U+M_EULER-log(pandv));
+    return x;
     }
 
 /** Extract and return rows of a matrix that correspond to feasible actions at the current state.
@@ -465,7 +468,7 @@ Bellman::aa(av) {
 */
 
 /** .	  @internal **/
-Bellman::~Bellman() {	delete U, pandv, Nxt; 	}
+Bellman::~Bellman() {	delete pandv, Nxt; 	}
 
 /** Delete the current DP model and reset.
 Since static variables are used, only one DP model can be stored at one time.
@@ -570,7 +573,10 @@ McFadden::Initialize(Nchoices,userState,UseStateList) {
 McFadden::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 
 /** Myopic agent, so vv=U and no need to loop over &theta;&prime;.**/
-McFadden::ActVal(VV) { pandv[][] = U; }
+McFadden::ActVal(VV) {
+    XUT->ReCompute(DoAll);
+    pandv[][] = XUT.U;
+    }
 
 /** Initialize an ex post smoothing model.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
@@ -650,7 +656,6 @@ ExtremeValue::Smooth(VV) {
 **/
 ExtremeValue::thetaEMax(){
 	decl rh = CV(rho);
-//    if (!I::t) println("$",pandv);
     pandv[][] = exp(setbounds( rh*pandv,lowb,hib ) );
 	V[] = sumc(pandv);
 	return log(V)*(NxtExog[Qprob]/rh);  //M_EULER+
@@ -686,15 +691,16 @@ NIID::ExogExpectedV(VV) {
     }
 
 NIID::ActVal(VV) {
-	decl J=rows(U);
+    XUT->ReCompute(DoAll);  //ZZZZ
+	decl J=rows(XUT.U);
 	if (Type<TERMINAL && J>1)	{
         ev = 0.0;
-        pandv[][] = U;
+        pandv[][] = XUT.U;
         IntegrateOverEta(VV);
 		if (Flags::setPstar) pandv += (1-sumc(pandv))/J;
 		}
 	else	{
-		ev = meanc(U)*NxtExog[Qprob];
+		ev = meanc(XUT.U)*NxtExog[Qprob];
 		if (Flags::setPstar) pandv[][] = 1/J;
 		}
 	}
@@ -761,9 +767,7 @@ NIID::UpdateChol() {
 	}
 
 	
-/**Iterate on Bellman's equation using uncorrelated (possibly heteroscedastic) additive normal choice errors.
-Compute v(&alpha;,&theta;), V(&theta;);  Add value to E[V(&theta;)].
-@param task `Task` structure
+/**
 **/
 Normal::thetaEMax() {	return ev;	}
 	
@@ -818,9 +822,10 @@ NnotIID::ExogExpectedV(VV) {
 /**Iterate on Bellman's equation at &theta; with ex ante correlated normal additive errors.
 **/
 NnotIID::ActVal(VV) {
-	decl J=rows(U);
+    XUT->ReCompute(DoAll);  //ZZZZ
+	decl J=rows(XUT.U);
 	if (Type<TERMINAL && J>1)	{
-        pandv[][] = U;
+        pandv[][] = XUT.U;
         IntegrateOverEta(VV);
 		}
 	else {
@@ -937,7 +942,10 @@ OneDimensionalChoice::ActVal(VV) {
     pandv[][] = Type>=LASTT
                        ? 0.0
 	                   : I::CVdelta*Nxt[Qrho][0]*VV[Nxt[Qit][0]]';
-    if (!solvez) pandv += U;
+    if (!solvez) {
+        XUT->ReCompute(DoAll);  //ZZZZ
+        pandv += XUT.U;
+        }
 	}	
 
 /*OneDimensionalChoice::SysSolve(RVs,VV) {

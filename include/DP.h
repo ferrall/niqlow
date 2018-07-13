@@ -7,7 +7,7 @@ static decl
         /** &Theta; array (list) of all endogenous state nodes.**/  		Theta;
 
 /**Stores information on a set of state variables, such as &theta;
-`DP::S
+@see DP::S
 **/
 struct Space : DDPauxiliary	{
 	decl
@@ -91,6 +91,7 @@ struct DP {
         /** copy of user's Bellman object used for cloning.**/  userState,
 		/** max of vv. @internal       **/						V,
 		/** computes endogenous transitions**/		            ETT,
+        /** computes utility over exogenous states.**/          XUT,
 		// /** current realized action vector, <code>&alpha;</code>,	only set during simulation of realized paths. **/ 	alpha,//
 		/** `ZetaRealization`, realized continuous shocks, &zeta;,
 			set during simulation of realized paths. Distribution must be conditional on choice stored in
@@ -293,6 +294,13 @@ struct SVTrans          :   EndogTrans { decl Slist; SVTrans(Slist); Run();};
 **/
 struct ExTask       :   Task { ExTask(); }
 
+/** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/
+struct ExogUtil : 	ExTask {	
+    decl U;
+    ExogUtil();		
+    ReCompute(howmany=DoAll);
+    Run();	
+    }
 	
 /**  The base task for processing &Gamma;.
 **/

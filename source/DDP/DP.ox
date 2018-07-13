@@ -551,6 +551,25 @@ DPMixture::DPMixture() 	{	RETask();	}
 **/
 DPMixture::Run() 	{	GroupTask::qtask->GLike();	}
 
+/** The exogenous utility object.
+This task method has the job of looping over the exogenous state space when
+<var>U(&alpha;...)</var> needs to be computed.
+**/
+ExogUtil::ExogUtil() {
+	ExTask();	
+    subspace = iterating;
+	}
+	
+ExogUtil::ReCompute(howmany) {
+    U = constant(.NaN,I::curth->pandv);
+    if (howmany==DoAll)
+        Traverse();
+    else
+        Run();
+    }
+
+ExogUtil::Run() { U[][I::all[bothexog]] = I::curth->Utility();  }
+
 /**
 @internal
 **/
@@ -1077,6 +1096,7 @@ DP::CreateSpaces() {
                 }
         }
 //    else DP::A = Alpha::A;   //this is done in UpdateVariables()
+   XUT = new ExogUtil();
    Data::SetLog();
  }
 
@@ -1753,7 +1773,7 @@ DPDebug::outAutoVars() {
 
 DPDebug::Initialize() {
     sprintbuffer(16 * 4096);
-	prtfmt0 = array("%8.0f")|Labels::Sfmts[1:3]|Labels::Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%6.0f"|"%15.6f";
+	prtfmt0 = array("%8.0f")|Labels::Sfmts[1:2]|Labels::Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%6.0f"|"%15.6f";
 	Vlabel0 = {"    Indx","T","A"}|Labels::Vprt[svar][S[endog].M:S[clock].M]|"     r"|"     f"|"       EV      |";
 	}
 
