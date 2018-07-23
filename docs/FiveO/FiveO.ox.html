@@ -35,7 +35,7 @@ A Guide to FiveO: <b>O</b>bject <b>O</b>riented <b>O</b>bjective <b>O</b>ptimiza
 <LI><a name="O">Overview</a></LI>
 <em>Note:</em> If you want to follow a simple example go to <a href="GetStarted.html">Get Started with FiveO</a>
 <P/>
-<span class="n">FiveO</span> is designed to implement two closely related mathematical programs, both of which involve choosing a <code>N x 1</code> vector, denoted <span class="expressions">\(psi\)</span>.  Either
+<span class="n">FiveO</span> is designed to implement two closely related mathematical programs, both of which involve choosing a <code>N x 1</code> vector, denoted <span class="expressions">\(\psi\)</span>.  Either
 <DD><em>Maximize</em> a real-valued function <span class="expressions">\(f(\psi)\)</span>, so in this case <span class="expressions">\(f:\Re^N\to\Re\)</span>.</DD>
 <dd><em>or</em></dd>
 <DD><em>Find</em> a root of the non-linear system <span class="expressions">\(f(\psi)\)</span>, so <span class="expressions">\(f:\Re^N\to\Re^M\)</span>, <span class="expressions">\(N\ge M\)</span>.</DD>
@@ -65,54 +65,47 @@ A parameter of class <a href="Parameters.ox.html#Determined">Determined</a> will
 <P/>
 The parameter vector, denoted <span class="expressions">\(\psi\)</span>, generically takes the form
 <span class="equation">$$\psi = \pmatrix{x_0& x_1 &\cdots& x_{N^-}},$$</span>
-where N&oline; is shorthand for N-1. <span class="expressions">\(\psi\)</span> is built up by adding parameters and parameter blocks to it.  The number of dimensions, N, is also written <span class="expressions">\(\psi\)</span>.N. The <em>parameter space</em>, <code>&Psi;</code>, is the Cartesian product of the intervals for the elements of <span class="expressions">\(\psi\)</span></DT>
-<span class="equation">$$\Psi \equiv \times_{n=0}$$</span>
-<!--<span class="expressions">\(N&oline;</sup> \psi<sub>n</sub>.I</pre></DD>-->
-<P/>
-<code>MyObject</code> may tell <code>Alg</code> not to vary some parameters in \)</span>\psi<span class="expressions">\( directly. A <a href="Parameters.ox.html#Determined">Determined</a> parameter does not have an interval, it has a point value, x.I &in; &real;. As with feasible intervals, x.I can be a function of the current value of preceding parameters. The feasible parameter space can only be defined implicitly:
-\)</span><span class="expressions">\(\Psi \equiv {psi = (x_0 \cdots x_{N^-}) :  x_0 \in x_0.I,  x_1\in x_1.I(x_0), \dots ,x_{N^-}\in x_{N^-}.I(x_0,\dots,x_{N-2}) }.\)</span><span class="expressions">\(
+where N&oline; is shorthand for N-1. <span class="expressions">\(\psi\)</span> is built up by adding parameters and parameter blocks to it.  The number of dimensions, N, is also written <span class="expressions">\(\psi\)</span>.N. The <em>parameter space</em>, <code>&Psi;</code>, is the Cartesian product of the intervals for the elements of <span class="expressions">\(\psi\)</span>,
+<span class="equation">$$\Psi \equiv \times_{n=0}^{N^-}\psi_n.I.$$</span>
+<code>MyObject</code> may tell <code>Alg</code> not to vary some parameters in <span class="expressions">\(\psi\)</span> directly. A <a href="Parameters.ox.html#Determined">Determined</a> parameter does not have an interval, it has a point value, x.I &in; &real;. As with feasible intervals, x.I can be a function of the current value of preceding parameters. The feasible parameter space can only be defined implicitly:
+<span class="equation">$$\Psi \equiv \{\psi = (x_0 \cdots x_{N^-}) :  x_0 \in x_0.I,  x_1\in x_1.I(x_0), \dots ,x_{N^-}\in x_{N^-}.I(x_0,\dots,x_{N-2}) \}.$$</span>
 By using predefined parameter classes and parameter blocks this complex and very flexible parameter space emerges naturally from the parameters added to <code>MyModel</code>.
 <P/>
-<code>Alg</code>, as a sequential algorithm, can be thought of as a function S: &real;<sup>N</sup> &rarr; &real;<sup>N</sup>. S maps the starting vector \)</span>\psi<span class="expressions">\(.0, to a final value, \)</span>\psi^S \approx \psi^\star*<span class="expressions">\(.</p>
+<code>Alg</code>, as a sequential algorithm, can be thought of as a function <span class="expressions">\(S: \Re^N\rightarrow \Re^N.\)</span> S maps the starting vector <span class="expressions">\(\psi\)</span>.0, to a final value, <span class="expressions">\(\psi^S \approx \psi^\star\)</span>.</p>
 <P/>
 <a name="D"><LI>Formal Definition</LI></a>
 <P/>
-<DT>The overall optimization problem for is defined as trying to find</DT>
-\)</span><span class="expressions">\(f : &Re;<sup>N</sup> &rarr; &Re;
+The overall optimization problem for is defined as trying to find for a given <span class="expressions">\(f : \Re^N \rightarrow \Re\)</span> the optimizing vector
+<span class="equation">$$\psi^\star  =  \arg\max_{\psi \in \Psi}\quad f(\psi).$$</span>
+The output of the algorithm is an approximation of that problem: <span class="expressions">\(S(\psi.O) \equiv \psi^S \approx \psi^\star.\)</span></p>
 <P/>
-\psi^\star  =  \argmax   f(\psi)
-       \psi \in \Psi
-<P/>
-S(\psi.O) &rarr; \psi^S &approx; \psi*.\)</span><span class="expressions">\(
-<P/>
-<DT>The overall problem for system solving is defined as trying to find:</DT>
-\)</span><span class="expressions">\(: &Re;<sup>N</sup> &rarr; &Re;<sup>M</sup>\)</span><span class="expressions">\(,  N &ge; M
-\)</span><span class="expressions">\(\psi* &in; &Psi;  &amp;  &fnof;(\psi*) =  <span class="o">O</span>.
-(\psi.O) &rarr; \psi<sup>S</sup> &approx; \psi*.\)</span><span class="expressions">\(
-and <span class="o">O</span>  is a vector of zeros of length M.</dd>
+The overall problem for system solving is defined as trying to find for a give <span class="expressions">\(f: \Re^N \rightarrow  \Re^M\)</span>,  <span class="expressions">\(N \ge M\)</span> such that
+<span class="equation">$$\psi^\star \in \Psi \&  f(\psi^\star) =  \overrightarrow{0}$$</span>
+and <span class="expressions">\(S(\psi.O) \equiv \psi^S \approx \psi^\star\)</span>.  Here <span class="expressions">\(\overrightarrow{0}\)</span>
+ is a vector of zeros of length M.</p>
 <P/>
 <a name="S"><LI>Set up, initialize, solve</LI></a>
 The user code for <code>MyObject</code> should include these elements
 <DT>Set Up: code that is not executed (part of the <q>compilation</q> stage)</DT>
 <DD>Declare <code>MyObject</code> as derived from the <a href="Objective.ox.html#Objective">Objective</a> class</DD>
-<DD>Include data members for parameters and blocks that appear in \)</span>\psi<span class="expressions">\(.</DD>
-<DD>Declare and define <code>vfunc</code></DD> as a method (member function) to represent \)</span>f()<span class="expressions">\(.</DT>
+<DD>Include data members for parameters and blocks that appear in <span class="expressions">\(\psi\)</span>.</DD>
+<DD>Declare and define <code>vfunc</code></DD> as a method (member function) to represent <span class="expressions">\(f()\)</span>.</DT>
 <DT>Initialize: code that runs before optimization begins</DT>
-<DD>Assign <code>new</code> objects derived from <a href="Shared.ox.html#Parameter">Parameter</a> to the data members for \)</span>\psi<span class="expressions">\( elements</DD>
+<DD>Assign <code>new</code> objects derived from <a href="Shared.ox.html#Parameter">Parameter</a> to the data members for <span class="expressions">\(\psi\)</span> elements</DD>
 <DD>Add parameters to the objective by sending them to <a href="Objective.ox.html#Objective___Parameters">Parameters</a>().</DD>
-<DD>Set \)</span>\psi<span class="expressions">\(.0: <UL class="ul">
+<DD>Set <span class="expressions">\(\psi\)</span>.0: <UL class="ul">
         <LI>to values read in from a file using <code>.optobj</code> file with <a href="Objective.ox.html#Objective___Load">Load</a>()
         <LI>to a vector of length <code>N</code> sent to <a href="Objective.ox.html#Objective___Encode">Encode</a>().
         <LI>to the hard-coded initial values of each parameter by sending 0 to <a href="Objective.ox.html#Objective___Encode">Encode</a>(0)<UL></DD>
-<DT>Solve: call one of the optimization or solution methods of <a href="Objective.ox.html#Objective">Objective</a> to solve for \)</span>\psi^\star<span class="expressions">\( sequentially.</DT>
+<DT>Solve: call one of the optimization or solution methods of <a href="Objective.ox.html#Objective">Objective</a> to solve for <span class="expressions">\(\psi^\star\)</span> sequentially.</DT>
 <P/>
 <a name="C"><LI>Checkpointing, Restarting, and Strategies</LI></a>
 <P/>
 <span class="n">FiveO</span> is designed to save (checkpoint) a problem in two different senses.  First, it will checkpoint the <em>objective</em> itself: the current <em>best</em> parameter vector as it is found. By default the information is stored in a file named <code>L.optobj</code>, where L is the string label assigned to the objective (<a href="Objective.ox.html#Objective___L">L</a>).  </p>
 <P/>
-<code>MyObject</code> can save the current vector (whether best or not) using <a href="Objective.ox.html#Objective___Save">Save</a>(). The format of the file is not simply a vector of numbers.  It is a summary of the problem and the current state of the solution process. The <code>.optobj</code> file is designed to be loaded back into <span class="n">FiveO</span> using <a href="Objective.ox.html#Objective___Load">Load</a>(). <code>Load()</code> will check some aspects of the file for consistency, read in starting values, \)</span>\psi<span class="expressions">\(.O and ignore the other information. The parameter vector in the file can be edited to reset the values. <code>MyObject</code> will always <q>hard code</q> starting values for parameters when they are created.  The code can be written so that these hard values are only used if the person wants to complete restart.  Otherwise, the starting vector, \)</span>\psi<span class="expressions">\(.O, will be loaded from a file:
+<code>MyObject</code> can save the current vector (whether best or not) using <a href="Objective.ox.html#Objective___Save">Save</a>(). The format of the file is not simply a vector of numbers.  It is a summary of the problem and the current state of the solution process. The <code>.optobj</code> file is designed to be loaded back into <span class="n">FiveO</span> using <a href="Objective.ox.html#Objective___Load">Load</a>(). <code>Load()</code> will check some aspects of the file for consistency, read in starting values, <span class="expressions">\(\psi\)</span>.O and ignore the other information. The parameter vector in the file can be edited to reset the values. <code>MyObject</code> will always <q>hard code</q> starting values for parameters when they are created.  The code can be written so that these hard values are only used if the person wants to complete restart.  Otherwise, the starting vector, <span class="expressions">\(\psi\)</span>.O, will be loaded from a file:
 <DD> <pre> if (!Load(fn)) Encode(); </pre>
-If <code>fn=-1</code> then <code>Load()</code> will return FALSE and do nothing.  Then <code><a href="Objective.ox.html#Objective___Encode">Encode</a>(0)</code> will use the hard-coded values for \)</span>\psi<span class="expressions">\(.0.  On the other hand, if <code>fn = "hello"</code>, Load() will try to load values from <code>hello.oxobj</code>, returning TRUE if successful.   Finally, if <code>fn=0</code> it will do the same but using the default file name, <code><a href="Objective.ox.html#Objective___L">L</a>.optobj</code>. </DD>
+If <code>fn=-1</code> then <code>Load()</code> will return FALSE and do nothing.  Then <code><a href="Objective.ox.html#Objective___Encode">Encode</a>(0)</code> will use the hard-coded values for <span class="expressions">\(\psi\)</span>.0.  On the other hand, if <code>fn = "hello"</code>, Load() will try to load values from <code>hello.oxobj</code>, returning TRUE if successful.   Finally, if <code>fn=0</code> it will do the same but using the default file name, <code><a href="Objective.ox.html#Objective___L">L</a>.optobj</code>. </DD>
 <P/>
 Objective checkpointing means execution can be stopped without losing the progress made so far. However, the current best vector does not checkpoint the state of the sequential <em>algorithm</em>.  Some of the algorithms in FiveO can also checkpoint their current state so that the problem can restarted exactly where it stopped.
 <P/>
@@ -132,7 +125,7 @@ Objective checkpointing means execution can be stopped without losing the progre
     <DD>Coded as a <code>method</code> with a particular name of a class derived from <a href="Objective.ox.html#Objective">Objective</a>.</td></tr>
     <tr valign="top"><td>
     The parameter vector
-    \)</span><span class="expressions">\(\psi  \equiv &#9001;x<sub>0</sub> q<sub>1</sub> &hellip; q<sub>N&oline;</sub>&#9002;\)</span><span class="expressions">\(
+    <span class="equation">$$\psi  \equiv &#9001;x<sub>0</sub> q<sub>1</sub> &hellip; q<sub>N&oline;</sub>&#9002;$$</span>
     A single parameter x
     <p>Initial value x<sup>0</sup>.
     <p>Current value: x</td>
@@ -177,7 +170,7 @@ yhat = x*CV(beta);</pre>
     <tr valign="top"><td>Algorithms</td><td><pre>MaxBFGS(f,&hellip;)</pre><DD>Standalone functions.</td>
     <td><pre>obj -> Quasi(BFGS,0,0);</pre><DD>Method applied to the object.</td></tr>
 <P/>
-    <tr valign="top"><td>Objectives that are not a <a href="BlackBox.ox.html#BlackBox">BlackBox</a><br>\)</span>f = \sum f_i(\psi_i)$</td><td>Up to the user to program</td><td>Efficient and simple handling of <a href="Separable.ox.html#Separable">Separable</a> and <a href="Separable.ox.html#Mixture">Mixture</a> objectives.</td></tr>
+    <tr valign="top"><td>Objectives that are not a <a href="BlackBox.ox.html#BlackBox">BlackBox</a><br><span class="expressions">\(f = \sum f_i(\psi_i)\)</span></td><td>Up to the user to program</td><td>Efficient and simple handling of <a href="Separable.ox.html#Separable">Separable</a> and <a href="Separable.ox.html#Mixture">Mixture</a> objectives.</td></tr>
 <P/>
     <tr valign="top"><td>Long execution times</td><td>Current best vector not saved automatically.</td><td>Automatic <a href="Objective.ox.html#Objective___Save">Save</a> of current best, which can be <a href="Objective.ox.html#Objective___Load">Load</a>ed to restart.<DD>Integrated with CFMPI for parallel execution.</td></tr>
 </table>

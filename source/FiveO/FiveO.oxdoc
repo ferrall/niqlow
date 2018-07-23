@@ -20,7 +20,7 @@
 <LI><a name="O">Overview</a></LI>
 <em>Note:</em> If you want to follow a simple example go to <a href="GetStarted.html">Get Started with FiveO</a>
 
-<span class="n">FiveO</span> is designed to implement two closely related mathematical programs, both of which involve choosing a <code>N x 1</code> vector, denoted $psi$.  Either
+<span class="n">FiveO</span> is designed to implement two closely related mathematical programs, both of which involve choosing a <code>N x 1</code> vector, denoted $\psi$.  Either
 <DD><em>Maximize</em> a real-valued function $f(\psi)$, so in this case $f:\Re^N\to\Re$.</DD>
 <dd><em>or</em></dd>
 <DD><em>Find</em> a root of the non-linear system $f(\psi)$, so $f:\Re^N\to\Re^M$, $N\ge M$.</DD>
@@ -50,31 +50,24 @@ A parameter of class `Determined` will not be under the control of the algorithm
 
 The parameter vector, denoted $\psi$, generically takes the form
 $$\psi = \pmatrix{x_0& x_1 &\cdots& x_{N^-}},$$
-where N&oline; is shorthand for N-1. $\psi$ is built up by adding parameters and parameter blocks to it.  The number of dimensions, N, is also written $\psi$.N. The <em>parameter space</em>, <code>&Psi;</code>, is the Cartesian product of the intervals for the elements of $\psi$</DT>
-$$\Psi \equiv \times_{n=0}$$
-<!--$N&oline;</sup> \psi<sub>n</sub>.I</pre></DD>-->
-
+where N&oline; is shorthand for N-1. $\psi$ is built up by adding parameters and parameter blocks to it.  The number of dimensions, N, is also written $\psi$.N. The <em>parameter space</em>, <code>&Psi;</code>, is the Cartesian product of the intervals for the elements of $\psi$,
+$$\Psi \equiv \times_{n=0}^{N^-}\psi_n.I.$$
 <code>MyObject</code> may tell <code>Alg</code> not to vary some parameters in $\psi$ directly. A `Determined` parameter does not have an interval, it has a point value, x.I &in; &real;. As with feasible intervals, x.I can be a function of the current value of preceding parameters. The feasible parameter space can only be defined implicitly:
-$$\Psi \equiv {psi = (x_0 \cdots x_{N^-}) :  x_0 \in x_0.I,  x_1\in x_1.I(x_0), \dots ,x_{N^-}\in x_{N^-}.I(x_0,\dots,x_{N-2}) }.$$
+$$\Psi \equiv \{\psi = (x_0 \cdots x_{N^-}) :  x_0 \in x_0.I,  x_1\in x_1.I(x_0), \dots ,x_{N^-}\in x_{N^-}.I(x_0,\dots,x_{N-2}) \}.$$
 By using predefined parameter classes and parameter blocks this complex and very flexible parameter space emerges naturally from the parameters added to <code>MyModel</code>.
 
-<code>Alg</code>, as a sequential algorithm, can be thought of as a function S: &real;<sup>N</sup> &rarr; &real;<sup>N</sup>. S maps the starting vector $\psi$.0, to a final value, $\psi^S \approx \psi^\star*$.</p>
+<code>Alg</code>, as a sequential algorithm, can be thought of as a function $S: \Re^N\rightarrow \Re^N.$ S maps the starting vector $\psi$.0, to a final value, $\psi^S \approx \psi^\star$.</p>
 
 <a name="D"><LI>Formal Definition</LI></a>
 
-<DT>The overall optimization problem for is defined as trying to find</DT>
-$$f : &Re;<sup>N</sup> &rarr; &Re;
+The overall optimization problem for is defined as trying to find for a given $f : \Re^N \rightarrow \Re$ the optimizing vector
+$$\psi^\star  =  \arg\max_{\psi \in \Psi}\quad f(\psi).$$
+The output of the algorithm is an approximation of that problem: $S(\psi.O) \equiv \psi^S \approx \psi^\star.$</p>
 
-\psi^\star  =  \argmax   f(\psi)
-       \psi \in \Psi
-
-S(\psi.O) &rarr; \psi^S &approx; \psi*.$$
-
-<DT>The overall problem for system solving is defined as trying to find:</DT>
-$$: &Re;<sup>N</sup> &rarr; &Re;<sup>M</sup>$$,  N &ge; M
-$$\psi* &in; &Psi;  &amp;  &fnof;(\psi*) =  <span class="o">O</span>.
-(\psi.O) &rarr; \psi<sup>S</sup> &approx; \psi*.$$
-and <span class="o">O</span>  is a vector of zeros of length M.</dd>
+The overall problem for system solving is defined as trying to find for a give $f: \Re^N \rightarrow  \Re^M$,  $N \ge M$ such that
+$$\psi^\star \in \Psi \&  f(\psi^\star) =  \overrightarrow{0}$$
+and $S(\psi.O) \equiv \psi^S \approx \psi^\star$.  Here $\overrightarrow{0}$
+ is a vector of zeros of length M.</p>
 
 <a name="S"><LI>Set up, initialize, solve</LI></a>
 The user code for <code>MyObject</code> should include these elements
