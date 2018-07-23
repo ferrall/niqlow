@@ -9,20 +9,20 @@ ifeq ($(PC),TRUE)
 	SED := "C:\Program Files (x86)\GnuWin32\bin\sed.exe"
 	ERASE := erase
 	INC := ..\..\include
-	DOC := ../../doc/DDP
+	DOC := ../../docs/DDP
 else
 	OX := /home/ferrallc/bin/$(Version)/ox/bin64/oxl
 	OXFLAGS := -DMPI  -DOX7
 	COPY := cp
 	ERASE := rm
 	INC := ../../include
-	DOC := ../../doc/DDP
+	DOC := ../../docs/DDP
 endif
 
 vpath %.ox .
 vpath %.h $(INC)
 vpath %.oxo $(INC)
-vpath %.ox.html ../../doc/Shared
+vpath %.ox.html $(DOC)
 
 .PHONY : document
 document:

@@ -1,12 +1,12 @@
 include ../Makefile.inc
 
 INC := ..\..\include
-DOC := ../../doc/DDP
+DOC := ../../docs/DDP
 
 vpath %.ox .:../Shared
 vpath %.h $(INC):$(MENU)\source
 vpath %.oxo $(INC)
-vpath %.ox.html ../../doc/DDP
+vpath %.ox.html $(DOC)
 
 varsrc :=  Shared. DDPShared. ActionVariable. StateVariable. Clock. TimeInvariant. AuxiliaryValues.
 varobj = $(varsrc:.=.oxo)

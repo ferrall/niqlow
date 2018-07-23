@@ -5,7 +5,7 @@ ifeq ($(PC),TRUE)
 	ERASE := erase
 	INC := ..\..\include
 	XMP := ..\examples
-	DOC := ../../doc/About
+	DOC := ../../docs/About
 else
 	COPY := cp
 	ERASE := rm

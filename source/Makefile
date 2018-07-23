@@ -1,12 +1,12 @@
 include Makefile.inc
 
 INC := ..\include
-DOC := ../doc
+DOC := ../docs
 
 vpath %.ox .:Shared:DDP:FiveO:Hybrids:$(INC)
 vpath %.h $(INC)
 vpath %.oxo $(INC)
-vpath %.ox.html ../doc
+vpath %.ox.html $(DOC)
 
 oxobjects = Shared.oxo DDP.oxo FiveO.oxo CFMPI.ox Hybrids.oxo
 

@@ -1,12 +1,12 @@
 include ../Makefile.inc
 
 INC := ..\..\include
-DOC := ../../doc/FiveO
+DOC := ../../docs/FiveO
 
 vpath %.ox .:../Shared
 vpath %.h $(INC)
 vpath %.oxo $(INC)
-vpath %.ox.html ../../doc/FiveO
+vpath %.ox.html $(DOC)
 
 algsrc := Parameters. Algorithms. ParallelObjective.
 algobj = $(algsrc:.=.oxo)

@@ -1,12 +1,12 @@
 include ../Makefile.inc
 
 INC := ..\..\include
-DOC := ..\..\doc\Hybrids
+DOC := ..\..\docs\Hybrids
 
 vpath %.ox .:../Shared
 vpath %.h $(INC)
 vpath %.oxo $(INC)
-vpath %.ox.html ../../doc/Hybrids
+vpath %.ox.html $(DOC)
 
 Hybrids.oxo : ImaiJainChing.oxo DPSystems.oxo
 

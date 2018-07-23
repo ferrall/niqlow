@@ -1,12 +1,12 @@
 include ../Makefile.inc
 
 INC := ../../include
-DOC := ../../doc/Shared
+DOC := ../../docs/Shared
 
 vpath %.ox .
 vpath %.h $(INC)
 vpath %.oxo $(INC)
-vpath %.ox.html ../../doc/Shared
+vpath %.ox.html $(DOC)
 
 Shared.oxo  :
 
