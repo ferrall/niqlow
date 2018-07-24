@@ -1529,7 +1529,7 @@ Group::Group(pos,state) {
 			}
 		}
 	else { Ptrans = Pinfinity = 0; }
-	Palpha = (Flags::StorePA) ? new matrix[rows(N::AA)][SS[tracking].size] : 0;
+	Palpha = (Flags::StorePA) ? new matrix[N::A][SS[tracking].size] : 0;
     mobj = UnInitialized;
 	}
 

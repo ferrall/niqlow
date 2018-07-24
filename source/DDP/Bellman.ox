@@ -234,8 +234,9 @@ Bellman::UpdatePtrans(aPt,vindex) {
     if (isint(aPt)) {
  	  for (eta=0;eta<sizeof(Nxt[Qit]);++eta)
 		  I::curg.Ptrans[ Nxt[Qit][eta] ][ii] += (h[eta][]*Nxt[Qrho][eta])';
-	   if (Flags::StorePA)
+	   if (Flags::StorePA) {
             I::curg.Palpha[][I::all[tracking]] = ExpandP(pandv*NxtExog[Qprob]/*TRUE*/);
+            }
         }
     else if (isint(vindex))
  	  for (eta=0;eta<sizeof(Nxt[Qit]);++eta)
@@ -261,7 +262,10 @@ Bellman::ExpandP(p0) {
 	decl p,i;
     p = p0;
 //	p =	Agg ? ( columns(pandv)==rows(NxtExog[Qprob]) ? pandv*NxtExog[Qprob] : pandv) : pandv.*(NxtExog[Qprob]');
-	for (i=0;i<N::A;++i) if (!Alpha::Sets[Aind][i]) p = insertr(p,i,1);
+	for (i=0;i<N::A;++i) {
+        if (!Alpha::Sets[Aind][i]) p = insertr(p,i,1);
+//        println(i," ",Alpha::Sets[Aind][i]," ",rows(p));
+        }
 	return p;
 	}
 

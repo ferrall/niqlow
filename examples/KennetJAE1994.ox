@@ -41,12 +41,17 @@ PrattWhitney::Ehours() {
 //	println("%6.3f",fabs(1-sumr(Ptrans))~Ptrans);
 	I::curg->StationaryDistribution();
 	println("Ergodic distribution: ",I::curg.Pinfinity');
-	decl pstar = reversec(reshape(I::curg.Pinfinity.*I::curg.Palpha',NX,2)),
+    decl pmat = reshape(I::curg.Pinfinity,NX,2),
+         pd0 =  reshape(I::curg.Palpha[0][],NX,2),
+         pd1 =  reshape(I::curg.Palpha[1][],NX,2),
 		 h = Units*range(0,NX-1);
-    //	println(pstar);
-	println("Expected hours: ",h*sumr(pstar));
-	println("Expected hours d=0: ",(h*pstar[][0])/sumc(pstar[][0]));
-	println("Pr(Shutown | d= 1): ",sumc(pstar[][1]) );
+    decl pstar0 = pmat.*pd0, pstar1 = pmat.*pd1,
+         sden0 = sumr(sumc(pd0)),sden1 = sumr(sumc(pd1));
+	println("Expected hours d=0: ",h*(sumr(pstar0))/sden0);
+	println("Expected hours d=1: ",h*(sumr(pstar1))/sden1);
+	println("Pr(Shutown | d= 0): ",sumc(pstar0[][1].*pd0[][1]));
+	println("Pr(Shutown | d= 1): ",sumc(pstar1[][1].*pd1[][1]));
+	println("Pr(Shutown): ",sumc(pmat[][1]) );
 	}
 	
 /** Setup and solve the model.
@@ -63,11 +68,13 @@ PrattWhitney::Run()	{
 	EMax = new ValueIteration();
 	EMax.vtoler = 1E-5;   								//loose tolerance because beta near 0 and 1
     EMax.Volume = LOUD;
+    GSolve::RunSafe = TRUE;
+    GSolve::UseNK = FALSE;
 	for (col=0;col<3;++col) { //sizeof(pars)
 		println(pars[col]);
         x->Setq(pars[col][theta3]);
         SetDelta(pars[col][disc]);
-		normalization = pars[col][theta1]*Units*mfact*NX/2 +pars[col][theta2]/2;	 //median cost, keep U() centered on 0.0
+		normalization =  pars[col][theta1]*Units*mfact*NX/2 +pars[col][theta2]/2;	 //median cost, keep U() centered on 0.0
         DPDebug::outAllV(TRUE);
 		EMax->Solve();
 		Ehours();
