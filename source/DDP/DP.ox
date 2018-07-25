@@ -152,7 +152,7 @@ DP::DrawGroup(find) {	return SetGroup(find + DrawOne(gdist[find][]) );	}
 /** Draw a population count andom sample of N values from the random effects distribution.
 @param find index of fixed group
 @param N number of draws to take
-@see DrawGroup
+@see DP::DrawGroup
 **/
 DP::DrawFsamp(find,N) { return ranmultinomial(N,gdist[find][]); }
 
@@ -165,7 +165,7 @@ DP::DrawOneExogenous(aState) {
 /** Sets the current &theta;.
 @param endogind  tracking index of the state &theta;.
 @return TRUE if &theta; is reachable. FALSE otherwise.
-@see `I::curth`
+@see I::curth
 **/	
 DP::Settheta(endogind) { return isclass(I::curth = Theta[endogind]); }
 
@@ -1095,7 +1095,7 @@ DP::CreateSpaces() {
                 --Volume;
                 }
         }
-//    else DP::A = Alpha::A;   //this is done in UpdateVariables()
+//    else DP::A = Alpha::A;   //this is done in EndogTrans::Transitions()
    XUT = new ExogUtil();
    Data::SetLog();
  }
@@ -1659,7 +1659,7 @@ DPDebug::DPDebug() {	ThetaTask(tracking);     }
 @param ToScreen  TRUE means output is displayed.
 @param aM	address to return matrix<br>0, do not save
 @param MaxChoiceIndex FALSE = print choice probability vector (default)<br>TRUE = only print index of choice with max probability.  Useful when the full action matrix is very large.
-@param TrimTerminals TRUE means states marked `Bellman::IsTerminal` are deleted
+@param TrimTerminals TRUE means states marked as `Bellman::Type` terminal are deleted
 @param TrimZeroChoice TRUE means states with no choice are deleted
 
 @example

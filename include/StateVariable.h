@@ -328,7 +328,8 @@ A 3x3 transition matrix.
   EndogenousStates(x);
 </pre></dd>
 
-@see Offer, <a href="../FiveO/Parameters.ox.html#TransitionMatrix">TransitionMatrix</a>
+See <a href="../FiveO/Parameters.ox.html#TransitionMatrix">TransitionMatrix</a>
+@see Offer
 **/
 struct Markov : Random {
 	const decl	Pi;

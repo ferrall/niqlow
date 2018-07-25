@@ -652,7 +652,7 @@ decl newt = new Newtown(myobj);
 newt->Iterate();
 </pre></dd>
 
-@see <a href="./GetStarted.html">GetStarted</a>
+See <a href="./GetStarted.html">GetStarted</a>
 
 
  **/

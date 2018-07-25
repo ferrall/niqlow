@@ -90,13 +90,13 @@ Usually an action variable can be an object of the base <a href="Variables.ox.ht
 <DT>Current Value</DT>
         <DD><span class="n">DDP</span> requires <code>MyModel</code> to handle/process the full matrix of feasible actions in utility and transitions.
         <DD>For this reason, <code>MyModel</code> will rarely if ever access the current value of an action, <code>a.v</code>.  </DD>
-        <DD>The vector of values of an action variable that corresponds to feasible <span class="expressions">\(\alpha\)</span>s is returned by <code>Bellman::aa(a).</code></DD>
+        <DD>The vector of values of an action variable <span class="expressions">\(a\)</span> is returned by <code><a href="Shared.ox.html#CV">CV</a>(a).</code></DD>
 <DT>
 <DT>Actual Value</DT>
 <DD>Optionally, the user can create a class derived from <a href="Variables.ox.html#ActionVariable">ActionVariable</a> and supply a <a href="Shared.ox.html#Discrete___Update">Update</a> function with it.</DD>
 <DD>This allows the user to associate a meaningful value for the numbers 0 to N&oline;, stored as <code>a.<a href="Shared.ox.html#Discrete___actual">actual</a></code>.</DD>
 <DD><span class="n">DDP</span> updates an action each time the problem is resolved, so actual values can depend on <a href="Shared.ox.html#Parameter">Parameter</a> values.</DD>
-<DD>Bellman::aa(a) will indeed return the actual values of <code>a</code> that correspond to each feasible action vector <span class="expressions">\(\alpha\)</span>.</DD>
+<DD><a href="Shared.ox.html#AV">AV</a>(a) will indeed return the actual values of <code>a</code> that correspond to each feasible action vector <span class="expressions">\(\alpha\)</span>.</DD>
 <DD>The default virtual <a href="Shared.ox.html#Discrete___Update">Update</a>() simply sets actual to the vector &lt; 0 : N-1 &gt;.</DD>
 <P/>
 <DT>Example of Custom <code>Update()</code></DT>
@@ -811,7 +811,7 @@ This can be handled very easily by sending a base state variable to the <a href=
 send the sub period for which this state variable transits.  For all other subperiod transitions the variable
 is frozen.</DD>
 <DD>Each action variable is usually only changeable in one subperiod.  This is handled by providing
-a replacement for DP::FeasibleActions().</DD>
+a replacement for <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>().</DD>
 <DD>The discount factor <span class="expressions">\(\delta\)</span> is set to 1.0 for <var>s &lt; S-1</var>.  That is all payoffs
 within a subperiod occur simultaneously.  </DD>
 <DD>The discount factor takes on it normal value for <var>s= S-1</var> to capture the gap between major periods.</DD>
@@ -852,7 +852,7 @@ must be endogenous (added to <span class="expressions">\(\theta\)</span>).  This
 <DD><a href="Variables.ox.html#Clock___Vupdate">Vupdate</a>() makes sure that the scratch space for the value function is updated after each iteration of Bellman's equation.  In stationary models (or stationary
 time periods within a non-stationary model) this method also computes the norm of the difference between the current value functions and the last value.  This norm is
 checked by the solution method against the given tolerance for convergence.</DD>
-<DD>Clock::Sync() is called any time the value of the clock changes (that is, it is called in DP::SyncStates()).  The default method simply places the current in <a href="DDPShared.ox.html#I___t">t</a> to b available to the user's code and other parts of <span class="DDP">DDP</span>.  Some kinds of clocks do more than this.</DD>
+<DD><a href="Variables.ox.html#Clock___Synch">Synch</a>() is called any time the value of the clock changes (that is, it is called in <a href="DP.ox.html#Task___SyncStates">SyncStates</a>()).  The default method simply places the current in <a href="DDPShared.ox.html#I___t">t</a> to b available to the user's code and other parts of <span class="DDP">DDP</span>.  Some kinds of clocks do more than this.</DD>
 <DD><a href="Variables.ox.html#Clock___setPstar">setPstar</a>() determines whether the next iteration should calculate choice probabilities or not.  If only one iteration is required to compute the value function at this point in the clock (no fixed point problem), then the clock will return <code>TRUE</code>.   This does not itself check for convergence, and other considerations may set <a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> to TRUE.</DD>
 <P/>
 <DT>Typically the user does nothing with these methods unless they are creating their own solution method.  And if the create their own clock type they may have to provide replacement methods if the inherited ones are not coorect.</DT>
@@ -2079,7 +2079,7 @@ the timing of information arrival to occur within major periods. This can be han
 variable to the <a href="Variables.ox.html#SubState">SubState</a>() augmenting class.  Simply send the sub period for which this state variable transits.
 For all other subperiod transitions the variable is frozen.</DD>
 <DD>Each action variable is usually only changeable in one subperiod.  This is handled by providing
-a replacement for DP::FeasibleActions().</DD>
+a replacement for <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>().</DD>
 <DD>The discount factor &delta; is set to 1.0 for <var>s &lt; S-1</var>.  That is all payoffs
 within a subperiod occur simultaneously. </DD>
 <DD>The discount factor takes on it normal value for <var>s= S-1</var> to capture the gap between major periods.</DD>
@@ -3246,8 +3246,10 @@ To be handled properly the state variable must be placed in the endogenous state
   x = new Markov("x",tmat);
   EndogenousStates(x);
 </pre></dd>
+<P/>
+See <a href="../FiveO/Parameters.ox.html#TransitionMatrix">TransitionMatrix</a>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#Offer">Offer</a>, <a href="../FiveO/Parameters.ox.html#TransitionMatrix">TransitionMatrix</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#Offer">Offer</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -8272,8 +8274,8 @@ The dimensions of the transition probabilities determines the number of values t
                0.08 ~ 0.01 ~0.11>
   x = new Markov("x",tmat);
 </pre></dd>
+see <a href="Shared.ox.html#TransitionMatrix">TransitionMatrix()</a>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#TransitionMatrix">TransitionMatrix()</a></dd>
 </dl>
 </dd></dl>
 
@@ -9904,7 +9906,7 @@ matrix of all <em>current</em> values
 <span class="declaration">virtual StateBlock :: Check ( )</span>
 <dl><dd>
 Check dimensions of <code>actual</code>.
-Called by DP::UpdateVariables() after <a href="Shared.ox.html#Discrete___Update">Update</a>() called.
+Called by <a href="Bellman.ox.html#EndogTrans___Transitions">Transitions</a>() after <a href="Shared.ox.html#Discrete___Update">Update</a>() called.
 
 </dd></dl>
 
@@ -10081,7 +10083,7 @@ Create a binary variable that indicates if the previous value of state variable 
 <span class="declaration">virtual StateVariable :: Check ( )</span>
 <dl><dd>
 Check dimensions of <code>actual</code>.
-Called by DP::UpdateVariables() after <a href="Shared.ox.html#Discrete___Update">Update</a>() called.
+Called by <a href="Bellman.ox.html#EndogTrans___Transitions">Transitions</a>() after <a href="Shared.ox.html#Discrete___Update">Update</a>() called.
 
 </dd></dl>
 
@@ -10408,7 +10410,7 @@ Make a state variable only transit in one subperiod of a <a href="Variables.ox.h
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">b</td>
-<td class="description" valign="baseline">base Statevariable
+<td class="description" valign="baseline">base <a href="Variables.ox.html#StateVariable">StateVariable</a>
 </td>
 </tr>
 <tr>

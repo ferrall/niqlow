@@ -45,8 +45,7 @@ EndogTrans::Transitions(state) {
 	decl i,nr,j,a,s,skip;
     Flags::HasBeenUpdated = TRUE;
     Hooks::Do(PreUpdate);
-/*??  Problem when delta depends on params.
-Moved below loop August 2017
+/*??  Problem when delta depends on params. Moved below loop August 2017
 I::CVdelta = AV(delta);   //moved June 2015 from bottom
 */
     skip=UnInitialized;

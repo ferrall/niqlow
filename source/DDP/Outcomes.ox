@@ -558,7 +558,7 @@ DataColumn::ReturnColumn(dlabels,incol)	{
 The vector of path log-likelihoods is stored in `FPanel::FPL`.
 <DT>If the method is a class</DT>
 <DD> `Method::Solve`() is called first.</DD>
-<DD>If `Method::done` equals <code>IterationFailed</code> the likelihood is not
+<DD>If `Task::done` equals <code>IterationFailed</code> the likelihood is not
 computed. <code>FPL</code>
 is set to a vector of <code>.NaN</code>.</DD>
 **/

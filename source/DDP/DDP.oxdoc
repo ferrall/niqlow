@@ -53,7 +53,7 @@ Utility:                    U()</pre></details>
 In mathematical notation, <var>a<sub>N</sub></var> might denote the number of values <var>a</var> takes on. This works well when <var>a</var> has only one property. In <span class="n">DDP</span>, a variable like <var>a</var> has several properties so using subscripts and superscripts to indicate them can become clumsy.  And, properties can have properties.  Instead of using <var>a<sub>N</sub></var>, the notation <b><code>a.N</code></b> is the property N associated with the object <code>a</code>. The binary <code>.</code> operator is how properties (members) are accessed in Ox.
 <DD><q>o.p</q> retrieves from the object <var>o</var> the aspect or property <var>p</var>.</dd>
 
-The `Quantity` class represents `Discrete` variables and continuous `Parameters`. The usual notions of variables and parameters in mathematical models are derived from the base type `Quantity`. Quantities are either <em>discrete</em> (actions and states) or <em>continuous</em> (parameters). Quantity objects are typically added to one or more lists (<code>OxArray</code>) using routines built into <span class="n>niqlow</span>.  The vector notation is used to match the literature but vectors in standard DDP are actually lists of `Quantity` objects.</p>
+The `Quantity` class represents `Discrete` variables and continuous `Parameter`s. The usual notions of variables and parameters in mathematical models are derived from the base type `Quantity`. Quantities are either <em>discrete</em> (actions and states) or <em>continuous</em> (parameters). Quantity objects are typically added to one or more lists (<code>OxArray</code>) using routines built into <span class="n>niqlow</span>.  The vector notation is used to match the literature but vectors in standard DDP are actually lists of `Quantity` objects.</p>
 
 <DT>Ranges:  0 &hellip; m.</DT>
     <DD>Although it is natural to start counting from <em>1</em>, starting from <em>0</em> has some advantages. It is common in C-like languages such as Ox. Typically in <span class="n">DDP</span>, <b>0</b> is the lowest and first value a discrete variable takes on. Starting at 0 means a variable <var>n</var> that takes on N values has a range $n=0,1,\dots,N-1$. This is the default range for discrete variables.</DD>
@@ -119,7 +119,7 @@ The interpretation of a property can depend on the kind of object on the left si
 <DT>D : dimensionality</DT>
     <DD>A vector <code>x</code> of discrete variables has a length x.N. But it creates a space of possible values (the Cartesian product) equal to the product of the individual variable cardinalities.</DD>
     <DD>So <code>x.D</code> is the size of the Cartesian space of a vector <code>x</code>.</DD>
-        <pre>x.D  &equiv;  &prod; <sub>i= 0 &hellip; (x.N)&oline; </sub>  x<sub>i</sub>.N 
+        <pre>x.D  &equiv;  &prod; <sub>i= 0 &hellip; (x.N)&oline; </sub>  x<sub>i</sub>.N
 </pre>
 <DD>A space in <span class="n">DDP</span>, say <code>&Theta;</code>, is usually a set of vectors of the the space of possible vectors.  The number of points in a space is then <code>&Theta;.D.</code></DD>
 
@@ -128,13 +128,13 @@ The interpretation of a property can depend on the kind of object on the left si
 <DT>v : current value.</DT>
 
     <DD>In math, <var>a</var> usually means the value of the variable <var>a</var>.  This notation is inadequate when variables have multiple properties and when the notation is meant to reflect some elements of the computer program. Instead, the current value of a variable or vector is the property <em>v</em>. So if <var>a</var> is a discrete variable <code>a.v</code> is the value of <var>a</var>, which can only be one of the values 0 &hellip; (a.N)&oline;.</DD>
-    
+
 <DT>i : position.</DT>
-    
+
     <DD>Many objects appear in a vector or a list.  The objects position in the list is <var>i</var>.  So a<sub>i</sub> is a name for the ith action variable in &alpha;. We can write a<sub>i</sub>.i = i. This redundancy turns out to be very important in some cases.</DD>
-    
+
 <DT>.actual  : the actual values</DT>
-    
+
     <DD><code>MyModel</code> may need discrete values to correspond to another set of values (possibly not even integer values).  Which values are mapped to may depend on parameters that are changing between solutions of the model. If <code>MyModel</code> creates an action or state variable <var>x</var> from a derived the class then it can also provide an <code>a-&gt;Update()</code> routine to reset and store the vector of <em>actual</em>. The default is that <code>x.actual = 0... (x.N)&oline;</code>, the range of <code>x.v</code>.</DD>
 
 <li>Accessing Values of Quantity Objects</li>
@@ -150,11 +150,11 @@ The interpretation of a property can depend on the kind of object on the left si
     <DD>If you send a function to <code>CV()</code> then it will call the function and return its value.</DD>
     <DD>Thus, you do not need to change your code as some concept changes during programming if you use <code>CV(x)</code>.</DD>
 <DT><code>`AV`()</code></DT>
-    
+
     <DD>Discrete quantities like state variables always take on values from 0 to some upper bound <code>N-1</code>.  However, in the model each of those discrete values may map into different values in the model.  The property <code>actual</code> contains these model-relevant values.</DD>
-    
+
     <DD><code>AV(x)</code> acts like <code>CV()</code> but it returns <code>x.actual[x.v]</code>.  By default this equals <code>CV(x)</code> unless you specify different actual values.  So in the default case <code>AV(x) = CV(x)</code>.</DD>
-    
+
     <DD>In this way <code>a-&gt;Update()</code> is only called once for each variable on each model solution to reset <code>.actual</code>.  If <code>.actual</code> were not a vector <code>x-&gt;Update()</code> would have to be called every time <code>x.v</code> changed.</DD>
 
 </OL>
@@ -424,19 +424,19 @@ Segregation state variables into different vectors can reduce memory and computi
 
 <LI>&gamma;: Grouping (random and fixed effect) state vector</LI>
     <DD>A generic element of &gamma; is denoted <var>g</var> States are added to &gamma; using `DP::GroupVariables`(). A grouping variable is equivalent to either a <em>random effect</em> or a <em>fixed effect</em> in a panel model.  Either way, it does not vary within the life of an agent following the DP, but from our point of view it is random for an agent. Because grouping variables do not vary within a solution it is wasteful to create space for each of their values and the other states in &theta;.  Instead, <span class="n">DDP</span> resolves the model for each value of &gamma;.  It stores differing choice probabilities across random effects for a given fixed effect value, so that integration across random effects can be carried out.</DD>
-    
-    <DD><b><em>Warning:</em> if random effect elements of &gamma; affect the transition &Rho;(). you have to change the `UpdateTime` in your model</b> Because &gamma; is fixed during a solution, it is often <em>not</em> listed as an argument of U() and endogenous outcomes such as V(&theta;).  However, <code>MyModel</code> can treat elements of &gamma; like other states.</DD>
 
-    
+    <DD><b><em>Warning:</em> if random effect elements of &gamma; affect the transition &Rho;(). you have to change the `Flags::UpdateTime` in your model</b> Because &gamma; is fixed during a solution, it is often <em>not</em> listed as an argument of U() and endogenous outcomes such as V(&theta;).  However, <code>MyModel</code> can treat elements of &gamma; like other states.</DD>
+
+
 <LI>&zeta;: Continuous utility shock vector</LI>
     <blockquote><b>Continuous states are placed in &zeta; and can only affect U() not &Rho;().</b></blockquote>
-    
+
     <DD>The most specialized random elements are those that are IID, do not influence the transition of other state variables <em>and</em> enter utility as an additively separable shock. These are often random variables with infinite support that smooth choice probabilities. Elements of &zeta; are not really stored.  Rather the distribution of &zeta; affects the specification of Bellman's equation, specifically the expression for <var>EV(&theta;&prime;)</var>. If any such shocks are in the model, then a solution method must be available to deal with them explained below in <a href="#">Solution Method</a>. Any continuous shocks &zeta; are not included in U() as the user codes it.  Instead, the distribution of continuous shocks is accounted for by the algorithm to compute <var>EV(&theta;)</var>.</DD>
 
 </OL>
 
 <li>Feasible Actions at a state: &theta;.A</li>
-    
+
     <blockquote><b><code>MyModel</code> can account for limits on choice conditional on the endogenous state.</b></blockquote>
 
     <h3>The generic action space &alpha; &in; &Alpha; generalizes to &alpha; &in; &Alpha;(&theta;).</h3>
@@ -461,7 +461,7 @@ In <span class="n">DDP</span>, the list of feasible matrices is simply <code>A</
 
 <b>Note</b>: the elements of the <var>A</var> list are the <em>actual</em> value of actions and are updated at the start of each value solve.  If an action variable does not have its own `Discrete::Update`() routine defined then the actual values are simply the default range 0 &hellip; (a.N)&oline;.</DD>
 
-In <span class="n">DDP</span> the key functions, U() and &Rho;() act on a single point in the state space at a time.  So the current value of a state variable is placed in the <code>.v</code> property of the Ox variable representing it. On the other hand, both U() and &Rho;() are 'vectorized' in actions: they must operate on the whole feasible matrix at once.  Action variables have the <code>.v</code> property, but it is not used for them.  Their current values are in a column of the &theta;.A matrix, which is <code>A[Aind]</code> in the code.  The previously described functions $CV()$ and $AV()$ work with action variables as well, returning the column of the current/actual action matrix at $\theta$. 
+In <span class="n">DDP</span> the key functions, U() and &Rho;() act on a single point in the state space at a time.  So the current value of a state variable is placed in the <code>.v</code> property of the Ox variable representing it. On the other hand, both U() and &Rho;() are 'vectorized' in actions: they must operate on the whole feasible matrix at once.  Action variables have the <code>.v</code> property, but it is not used for them.  Their current values are in a column of the &theta;.A matrix, which is <code>A[Aind]</code> in the code.  The previously described functions $CV()$ and $AV()$ work with action variables as well, returning the column of the current/actual action matrix at $\theta$.
 <details class="aside"><summary>For example</summary> Consider a model that has two choices: work hours and whether to volunteer or not.   Then at some state &theta;.A may look like this, along with the return value of <code>a(work)</code>.
 <pre>     A[Aind]     |
 work      vol    |  aa(work)
@@ -471,14 +471,14 @@ work      vol    |  aa(work)
  2         0      |    2
  0         1      |    0
  1         1      |    1
- 2         1      |    2  
+ 2         1      |    2
 </pre></details></DD>
 
 <a name="TS"><LI>Terminal States and Terminal Values of State Variables</LI></a>
 
     <blockquote><b><code>MyModel</code> can make values of a state variable terminal by calling `StateVariable::MakeTerminal`().</b></blockquote>
 
-<dfn id="Terminal-State-dfn">Some dynamic programs end if and when certain states are encountered.  
+<dfn id="Terminal-State-dfn">Some dynamic programs end if and when certain states are encountered.
 Such states are called <em>terminal states</em>. </dfn> There are three features of terminal state:
 <OL class="steps">
 <LI>There is no more choice from that period on.  Often a model is set up so that it terminates the program when an action is taken.  That is coded in <span class="n">DDP</span> as a transition to a next state that is terminal.</LI>

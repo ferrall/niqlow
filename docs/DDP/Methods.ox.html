@@ -55,18 +55,7 @@ phases of a model) the fixed point will be found.  For finite horizon models/pha
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">Use a method to solve Bellman's equation for all DPs by calling the FixedSolve() task.</td>
-</tr>
-<tr>
-<td class="line">&nbsp;</td>
-<td class="line"><div class="vline">&nbsp;</div></td>
-<td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
-<td style="height:1px; width:auto;" colspan="6" class="fffix">
-<table class="labelwrapper">
-   <tbody><tr><td class="label">FixedSolve</td></tr>
-   <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
-</tbody></table>
-</td>
+<td class="text">Loop over all fixed group values to solve Bellman's equation for all DPs.</td>
 <td class="text">Loop over fixed effect variables in &gamma;, solve each problem by calling the <a href="Methods.ox.html#RandomSolve">RandomSolve</a>() task.<br>Reuse the solution storage space for each fixed effect to conserve on memory.</td>
 </tr>
 <tr>
@@ -80,7 +69,7 @@ phases of a model) the fixed point will be found.  For finite horizon models/pha
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">For the current fixed group, loop over random effect variables in &gamma;. Solve each problem by calling Method::GSolve().<br> Reuse value iteration space but store choice probabilities for all random effect groups.</td></tr>
+<td class="text">For the current fixed group, loop over random effect variables in &gamma;. Solve each problem by calling <a href="Methods.ox.html#GSolve">GSolve</a>().<br> Reuse value iteration space but store choice probabilities for all random effect groups.</td></tr>
 <tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -89,7 +78,7 @@ phases of a model) the fixed point will be found.  For finite horizon models/pha
 <td class="line"><div class="vline last"><div class="hline">&nbsp;</div></div></td>
 <td style="height:1px; width:auto;" colspan="4" class="fffix">
 <table class="labelwrapper">
-   <tbody><tr><td class="label">Method::GSolve</td></tr>
+   <tbody><tr><td class="label"><a href="Methods.ox.html#GSolve">GSolve</a></td></tr>
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
@@ -966,9 +955,9 @@ Loop over random effect values &gamma;, call  GSolve() method for the calling me
 
 Iterate on Bellman's Equation, to solve EV(&theta;) for all fixed and random effects.
 
-<dl><dt class="comments">Comments:</dt><dd class="comments">Result is stored in ValueIteration::VV matrix.  <var>EV</var> for only two or three ages (iterations) stored at any one time.  So this
-cannot be used after the solution is complete.  <a href="Bellman.ox.html#Bellman___EV">EV</a> stores the result for each <em>reachable</em> endogenous state.<br>
+<dl><dt class="comments">Comments:</dt><dd class="comments"><a href="Bellman.ox.html#Bellman___EV">EV</a> stores the result for each <em>reachable</em> endogenous state.<br>
 Results are integrated over random effects, but results across fixed effects are overwritten.
+<a href="Bellman.ox.html#Bellman___pandv">pandv</a> contains choice probabilities at <span class="expressions">\(\theta\)</span>.
 </dd>
 </dl>
 <table class="method_table">
@@ -1123,9 +1112,8 @@ the problem to determine whether it needs to find a fixed point or can simply wo
 time.<p>
 <P/>
 If <a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a>[OnlyOnce] is TRUE (see <a href="DDPShared.ox.html#UpdateTimes">UpdateTimes</a>), then transitions and variables are updated here.</LI>
-</dd>
-<dt class="comments">Comments:</dt><dd class="comments">Result stored in ValueIteration::VV matrix for only two or three ages (iterations) stored at any one time.  So this
-cannot be used after the solution is complete.  <a href="Bellman.ox.html#Bellman___EV">EV</a> stores the result for each <em>reachable</em> endogenous state.<br>
+<P/>
+<a href="Bellman.ox.html#Bellman___EV">EV</a> stores the result for each <em>reachable</em> endogenous state.<br>
 Results are integrated over random effects, but results across fixed effects are overwritten.<br>
 Choice probabilities are stored in <a href="Bellman.ox.html#Bellman___pandv">pandv</a>
 </dd>
@@ -1626,9 +1614,8 @@ the problem to determine whether it needs to find a fixed point or can simply wo
 time.<p>
 <P/>
 If <a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a>[OnlyOnce] is TRUE (see <a href="DDPShared.ox.html#UpdateTimes">UpdateTimes</a>), then transitions and variables are updated here.</LI>
-</dd>
-<dt class="comments">Comments:</dt><dd class="comments">Result stored in ValueIteration::VV matrix for only two or three ages (iterations) stored at any one time.  So this
-cannot be used after the solution is complete.  <a href="Bellman.ox.html#Bellman___EV">EV</a> stores the result for each <em>reachable</em> endogenous state.<br>
+<P/>
+<a href="Bellman.ox.html#Bellman___EV">EV</a> stores the result for each <em>reachable</em> endogenous state.<br>
 Results are integrated over random effects, but results across fixed effects are overwritten.<br>
 Choice probabilities are stored in <a href="Bellman.ox.html#Bellman___pandv">pandv</a>
 </dd>
@@ -2072,7 +2059,7 @@ Process a point in the fixed effect space.
 <LI>Carry out post-solution tasks by calling at hook = <code>PostRESolve</code>;
 </OL>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, DP::UpdateVariables, <a href="DDPShared.ox.html#HookTimes">HookTimes</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#EndogTrans___Transitions">Transitions</a>, <a href="DDPShared.ox.html#HookTimes">HookTimes</a></dd>
 </dl>
 </dd></dl>
 
@@ -2108,9 +2095,8 @@ the problem to determine whether it needs to find a fixed point or can simply wo
 time.<p>
 <P/>
 If <a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a>[OnlyOnce] is TRUE (see <a href="DDPShared.ox.html#UpdateTimes">UpdateTimes</a>), then transitions and variables are updated here.</LI>
-</dd>
-<dt class="comments">Comments:</dt><dd class="comments">Result stored in ValueIteration::VV matrix for only two or three ages (iterations) stored at any one time.  So this
-cannot be used after the solution is complete.  <a href="Bellman.ox.html#Bellman___EV">EV</a> stores the result for each <em>reachable</em> endogenous state.<br>
+<P/>
+<a href="Bellman.ox.html#Bellman___EV">EV</a> stores the result for each <em>reachable</em> endogenous state.<br>
 Results are integrated over random effects, but results across fixed effects are overwritten.<br>
 Choice probabilities are stored in <a href="Bellman.ox.html#Bellman___pandv">pandv</a>
 </dd>
@@ -2128,8 +2114,8 @@ Creates a new &quot;brute force&quot; Bellman iteration method.
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
-<td class="declaration" valign="baseline">myEndogUtil</td>
-<td class="description" valign="baseline"> EndogUtil to use for iterating over endogenous states<br>0 (default), built in task will be used.</td>
+<td class="declaration" valign="baseline">myGSolve</td>
+<td class="description" valign="baseline"> <a href="Methods.ox.html#GSolve">GSolve</a>-derived object to use for iterating over endogenous states<br>0 (default), built in task will be used.</td>
 </tr>
 </table>
 </dd>

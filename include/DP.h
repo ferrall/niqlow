@@ -83,7 +83,7 @@ struct DP {
             for each fixed effect. **/ 							curREdensity,		
 
 		/** The discount factor &delta;.  @see DP::SetDelta,
-            DP::CVdelta  **/                                    delta,
+            I::CVdelta  **/                                    delta,
 		/** Array of Exogenous next state indices
 			and transitions. **/ 					            NxtExog,
 		/** . @internal  				**/    					F,
@@ -95,7 +95,7 @@ struct DP {
 		// /** current realized action vector, <code>&alpha;</code>,	only set during simulation of realized paths. **/ 	alpha,//
 		/** `ZetaRealization`, realized continuous shocks, &zeta;,
 			set during simulation of realized paths. Distribution must be conditional on choice stored in
-			`DP::alpha`. **/ 	                                zeta,
+			`Alpha::aC`. **/ 	                                zeta,
 		/** current realized auxiliary vector, &chi;,
 			only set during simulation of realized paths. **/ 	chi,
 	/** list of `AuxiliaryValue`s that depend on the current outcome.

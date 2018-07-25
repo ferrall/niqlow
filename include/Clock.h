@@ -160,7 +160,7 @@ the timing of information arrival to occur within major periods. This can be han
 variable to the `SubState`() augmenting class.  Simply send the sub period for which this state variable transits.
 For all other subperiod transitions the variable is frozen.</DD>
 <DD>Each action variable is usually only changeable in one subperiod.  This is handled by providing
-a replacement for `DP::FeasibleActions`().</DD>
+a replacement for `Bellman::FeasibleActions`().</DD>
 <DD>The discount factor &delta; is set to 1.0 for <var>s &lt; S-1</var>.  That is all payoffs
 within a subperiod occur simultaneously. </DD>
 <DD>The discount factor takes on it normal value for <var>s= S-1</var> to capture the gap between major periods.</DD>

@@ -258,21 +258,21 @@ struct DerivedSearch : Search {
 </pre></DD>
 <DT>The <code>DerivedSearch</code> class adds two members for data operations.</DT>
 <DD>We plan to simulate behaviour of optimal search behaviour, and we want to collect realized utility from the choices.  <a href="Data.ox.html#Outcome">Outcome</a>s have space to store all realized actions and states, but utility or other functions of the outcome are not tracked automatically.  The new code will track realized utility with an object stored in <code>u</code>.</DD>
-<DD>Simulated data are generated and stored as a DataSet object, and <code>simdata</code> will be that object.</DD>
+<DD>Simulated data are generated and stored as a OutcomeDataSet  object, and <code>simdata</code> will be that object.</DD>
 <DD>The static <code>Run()</code> procedure will do the work.</DD>
 <DD>All members o the base <code>Search</code> class are inherited and do not need to be declared or defined.</DD>
 <P/>
 <li>Auxiliary Values</li>
 <P/>
-<DT>Realized utility is recorded as an AuxiliaryValues.  </DT>
+<DT>Realized utility is recorded as an <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>.  </DT>
 <DD>Typically a user would have to derive a new class to track the outcome of interest, but realized utility is a built-in class.  Here is the code that generates
 <DD><pre>
-struct RealizedUtility : AuxiliaryValues {
+struct RealizedUtility : AuxiliaryValue {
 	RealizedUtility();
 	virtual Realize(y);
 	}
 <P/>
-RealizedUtility::RealizedUtility() { 	AuxiliaryValues("U"); 	}
+RealizedUtility::RealizedUtility() { 	AuxiliaryValue("U"); 	}
 <P/>
 RealizedUtility::Realize(y) {
 	v = I::curth->Utility()[I::ialpha];
@@ -282,7 +282,7 @@ RealizedUtility::Realize(y) {
 <DT>Auxiliary values need to provide a <code>Realize()</code> function</DT>
 <DD><code>Realize</code> will be called only when simulating data (or in econometric estimation that involves matching predicted outcomes). </DD>
 <DD>Its first argument is the realized point in the state space (&theta;).  The second is the current realized outcome (&upsilon;).  This allows the auxiliary variable to access everything else.</DD>
-<DD>Since AuxiliaryValues is derived from <a href="Shared.ox.html#Quantity">Quantity</a> it has a current member, <code>v</code>.  The job of <code>Realize()</code> is to set <code>v</code> for other aspects of the code to use.  In this case, the auxiliary outcome calls <code>Utility()</code> and extracts the element of the vector returned that corresponds to the realized action.  </DD>
+<DD>Since <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> is derived from <a href="Shared.ox.html#Quantity">Quantity</a> it has a current member, <code>v</code>.  The job of <code>Realize()</code> is to set <code>v</code> for other aspects of the code to use.  In this case, the auxiliary outcome calls <code>Utility()</code> and extracts the element of the vector returned that corresponds to the realized action.  </DD>
 <DD>By using a virtual method <code>Realize</code>, the base <span class="n">DDP</span> code can update your auxiliary variables for you without knowing ahead of time what those variables are. </DD>
 <DD>Also note that an auxiliary value can be sent to <a href="Shared.ox.html#CV">CV</a>() after the call to <code>Realize()</code>.  For example, here <code>CV(u)</code> will return the realized value of utility of the current outcome.   So it is straightforward to build auxiliary variables into econometric objectives, equilibrium conditions, etc.</DD>
 <P/>
@@ -296,7 +296,7 @@ DerivedSearch::Run()	{
 	}</pre></dd>
 <P/>
 <li>DataSet Objects</li>
-<DT>A data set can be simulated or read into <span class="n">DDP</span> using the base DataSet class, but it can be convenient to create a derived class to do the work.</DT>
+<DT>A data set can be simulated or read into <span class="n">DDP</span> using the base <a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a> class, but it can be convenient to create a derived class to do the work.</DT>
 <DD><pre>
 struct SearchData : DataSet {
 	enum{N=15,MaxOb=20}
@@ -336,13 +336,13 @@ Since <code>DataSet</code> is derived from the <a href="Data.ox.html#Panel">Pane
   <DD><code>Print()</code> calls <code>Flat()</code> to flatten this data structure into a <q>long</q> matrix, one row for each outcome and one column for each element of the full outcome Y* (except for the pointers to other outcomes).  Columns for path id and simulated time are added.  <code>Flat()</code>is itself a recursive task that builds up the matrix by processing fixed panels, paths and outcomes recursively.</dd>
 <P/>
 <li>Observability and Masking</li>
-<DT>DataSet::ObservedWithLabel(), 	DataSet::MatchToColumn() and 	DataSet::UnObserved() allow you to control which parts of the outcome is seen in data (and available to econometric methods) and which are missing and require integration over.</DT>
+<DT><a href="Data.ox.html#OutcomeDataSet___ObservedWithLabel">ObservedWithLabel</a>(), 	<a href="Data.ox.html#OutcomeDataSet___MatchToColumn">MatchToColumn</a>() and 	<a href="Data.ox.html#OutcomeDataSet___UnObserved">UnObserved</a>() allow you to control which parts of the outcome is seen in data (and available to econometric methods) and which are missing and require integration over.</DT>
 <DD>By default nothing is observed, so the user must explicitly add variables to the observed list.  State variables that are <a href="Variables.ox.html#Fixed">Fixed</a>, are placeholders that take on only one value, so they are implicitly observed.  These are marked as <code>force0</code> so that if reading in from external data the values will be filled in and they do not have to be explicitly observed.</DD>
-<DD>DataSet::ObservedWithLabel() takes one or more action/state/auxiliary objects as arguments.  <a href="Shared.ox.html#Quantity___L">L</a> label of the object is the same as the label or name of the column in the data set, which is how the data is matched with the model variable.</dd>
-<DD>DataSet::MatchToColumn() takes two arguments.  The first is the model variable object.  The second is either a label or the index of the column to match the variable with.</DD>
+<DD><a href="Data.ox.html#OutcomeDataSet___ObservedWithLabel">ObservedWithLabel</a>() takes one or more action/state/auxiliary objects as arguments.  <a href="Shared.ox.html#Quantity___L">L</a> label of the object is the same as the label or name of the column in the data set, which is how the data is matched with the model variable.</dd>
+<DD><a href="Data.ox.html#OutcomeDataSet___MatchToColumn">MatchToColumn</a>() takes two arguments.  The first is the model variable object.  The second is either a label or the index of the column to match the variable with.</DD>
 <DT>Since the code is working with simulated data, the data set already has the full outcome <code>Y*</code> in memory.  </DT>
-<DD>When reading in external data, the observability of variables is specified <em>ex ante</em> and then the observable data is read in using <code>DataSet::Read(const filename)</code>.  But here, observability is specified <em>ex post</em>.</DD>
-<DD>With simulated data, the user must apply DataSet::Mask() before sending the data to an econometric method.  When reading in external data the mask is applied internally by DataSet::Read().</DD>
+<DD>When reading in external data, the observability of variables is specified <em>ex ante</em> and then the observable data is read in using <code><a href="Data.ox.html#OutcomeDataSet___Read">Read</a>(const filename)</code>.  But here, observability is specified <em>ex post</em>.</DD>
+<DD>With simulated data, the user must apply <a href="Data.ox.html#OutcomeDataSet___Mask">Mask</a>() before sending the data to an econometric method.  When reading in external data the mask is applied internally by <a href="Data.ox.html#OutcomeDataSet___Read">Read</a>().</DD>
 <DT>Masking accounts for unobservability using a fairly complex process (which will be documented more completely in later releases.</DT>
  <DD>Essentially missing observations spawn loops over all possible values when processing the outcome.  And the model's probabilistic elements must be used to weight the paths.  </DD>
  <DD>Further, procedures such as likelihood computation is carried out using backwards recursion not the usual forward recursion.  </DD>
@@ -350,12 +350,12 @@ Since <code>DataSet</code> is derived from the <a href="Data.ox.html#Panel">Pane
 <P/>
 <li>Econometric Objective</li>
 <P/>
-<DT>DataSet has a virtual method, DataSet::EconometricObjective().  The default is to compute and return <a href="Data.ox.html#Panel___LogLikelihood">LogLikelihood</a>()</DT>
+<DT>DataSet has a virtual method, <a href="Data.ox.html#OutcomeDataSet___EconometricObjective">EconometricObjective</a>().  The default is to compute and return <a href="Data.ox.html#Panel___LogLikelihood">LogLikelihood</a>()</DT>
  <DD>The user can derive their own DataSet class and replace it with an alternative procedure (and other built in objectives, such as GMM, will be provided in later releases).</DD>
 <DD> Since it is log-likelihood it is easier to check the <code>exp()</code> in this small example .  As with all <a href="..\FiveO\Objective.ox.html">objectives</a> in  <span class="n">FiveO</span>, it returns a vector of values that an <a href="..\FiveO\Algorithms.ox.html">algorithm</a> will sum up or use directly to compute Jacobians as needed.</DD>
 <DT>Once data is masked or read in from an external source the value of any variable that was not marked as observed for force0 is now lost even if it were observed originally.  </DT>
 <DD>So it is not possible to undo <em>un</em>observability within a program and a single data set.  A second data set can be created without different observability and read in from the same source. (And simulated data could be saved using <code><a href="Data.ox.html#Panel___Print">Print</a>(filename)</code> and read into a new data set.)</DD>
-<DD>However, it is possible to undo observability, as the next line illustrates.  In the first evaluation of the likelihood the offered price, <em>p</em> was treated as observed.  Now, that mark is undone by sending the variable <code>p</code> to DataSet::UnObserved() and re-masking the data.  The next likelihood will integrate out the offered price.</DD>
+<DD>However, it is possible to undo observability, as the next line illustrates.  In the first evaluation of the likelihood the offered price, <em>p</em> was treated as observed.  Now, that mark is undone by sending the variable <code>p</code> to <a href="Data.ox.html#OutcomeDataSet___UnObserved">UnObserved</a>() and re-masking the data.  The next likelihood will integrate out the offered price.</DD>
 <DT>A note on observing the terminal state <code>d</code>.  </DT>
 <DD>Since the terminal condition <code>d=1</code> was censored from the simulated data all the observations have active searchers.  However, <code>Mask()</code> does not know this so unless <code>d</code> is marked as unobserved.</DD>
 <DD>This creates a problem for rejected offer observations (<code>a=0</code>), because that is feasible when <code>d=1</code>.  Thus, the built in log-likelihood will integrate over <code>d=0</code> and <code>d=1</code> when offers are rejected unless <code>d</code> is marked as observed.  The user should remove <code>d,UseLabel</code> from the observed list and see the implications of this change.</DD>

@@ -8,7 +8,7 @@ Transitions to unreachable states is tracked and logged in the Data logfile.
 @param tlist list of tracked objects to compute histograms for.
 
 @return TRUE if all current states are termimal or last states.
-@see `TrackObj::Distribution`
+@see TrackObj::Distribution
 **/
 Prediction::Predict(tlist) {
     state = zeros(N::All);
@@ -183,10 +183,8 @@ PanelPrediction::ParallelSolveSub(subp) {
 /** Add empirical values to a path of predicted values.
 @param inmom  Txm matrix of values.
 @param hasN FALSE: no row observation column<br>TRUE: second-to-last column that
-contains observation count stored in `Prediction::N` and used for weighting of
-distances.
+contains observation count used for weighting of distances.
 @param hasT FALSE: no model t column<br>TRUE: last column contains observation count
-stored in `Prediction::N` and used for weighting of distances.
 @param wght UNCORRELATED: weight columns by inverse standard deviations<br>
             See `GMMWeightOptions`
 @comments

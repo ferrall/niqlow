@@ -26,7 +26,7 @@ StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>;  Prune=FALS
 StateVariable::myAV() { return actual[v]; }
 
 /** Check dimensions of <code>actual</code>.
-Called by DP::UpdateVariables() after `Discrete::Update`() called.
+Called by `EndogTrans::Transitions`() after `Discrete::Update`() called.
 **/
 StateVariable::Check() {
     if (columns(actual)!=1 || rows(actual)!=N) {
@@ -169,7 +169,7 @@ Augmented::Update() {
 /** Normalize the actual values of the base variable and then copy them to these actuals.
 @param MaxV positive real, default = 1.0
 Sets the actual vector to 0,&ellip;, MaxV.
-@see `Discrete::Update`
+@see Discrete::Update
 **/
 Augmented::SetActual(MaxV) {
     if (!Version::MPIserver)    println("Setting Actual values of Augmented ",L,"\n----\n");
@@ -347,7 +347,7 @@ Freeze::Transit() {
 //    }
 
 /** Make a state variable only transit in one subperiod of a `Divided` clock.
-@param b base `Statevariable`
+@param b base `StateVariable`
 @param s integer the subperiod this variable is not frozen and goes throug a regular transition.
 
 <DT>No check is made whether the period sent is a valid sub-period (between 0 and SubT-1).</DT>
@@ -463,7 +463,7 @@ The dimensions of the transition probabilities determines the number of values t
                0.08 ~ 0.01 ~0.11>
   x = new Markov("x",tmat);
 </pre></dd>
-@see <a href="Shared.ox.html#TransitionMatrix">TransitionMatrix()</a>
+see <a href="Shared.ox.html#TransitionMatrix">TransitionMatrix()</a>
 **/
 Markov::Markov(L,Pi) {	
     if (ismatrix(Pi) && (columns(Pi)!=rows(Pi) || any(!isdotfeq(sumc(Pi),1.0)) ) )

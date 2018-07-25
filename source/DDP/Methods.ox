@@ -62,7 +62,7 @@ EndogUtil::Run() {
 <LI>Apply the solution method for each value of the random effect vector.</LI>
 <LI>Carry out post-solution tasks by calling at hook = <code>PostRESolve</code>;
 </OL>
-@see DP::SetUpdateTime , DP::UpdateVariables , HookTimes
+@see DP::SetUpdateTime , EndogTrans::Transitions , HookTimes
 **/
 ValueIteration::Run(){
     if (Flags::UpdateTime[AfterFixed]) ETT->Transitions(state);
@@ -164,11 +164,6 @@ This is the default value that does nothing.  It should be replaced by code for 
 **/
 Method::Solve(Fgroups,Rgroups,MaxTrips) {    oxwarning("DDP Warning 21.\n User code has called the default Solve() function for Method.\n  Does not do anything.\n");    }
 
-/** The function (method) that applies the method to a particular problem.
-This is the default value that does nothing.  It should be replaced by code for the solution method.
-Method::GSolve(instate) {  oxwarning("DDP Warning 22.\n User code has called the default GSolve() function for Method.\n  Does not do anything\n");    }
-**/
-
 	
 /**Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
 @param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
@@ -181,8 +176,7 @@ time.<p>
 
 If `Flags::UpdateTime`[OnlyOnce] is TRUE (see `UpdateTimes`), then transitions and variables are updated here.</LI>
 
-@comments Result stored in `ValueIteration::VV` matrix for only two or three ages (iterations) stored at any one time.  So this
-cannot be used after the solution is complete.  `Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
+`Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
 Results are integrated over random effects, but results across fixed effects are overwritten.<br>
 Choice probabilities are stored in `Bellman::pandv`
 **/
@@ -226,7 +220,7 @@ Method::Method() {
     vtoler = DefTolerance;
     }
 /** Creates a new &quot;brute force&quot; Bellman iteration method.
-@param myEndogUtil  `EndogUtil` to use for iterating over endogenous states<br>0 (default), built in task will be used.
+@param myGSolve  `GSolve`-derived object to use for iterating over endogenous states<br>0 (default), built in task will be used.
 
 **/
 ValueIteration::ValueIteration(myGSolve/*,myEndogUtil*/) {

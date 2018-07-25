@@ -152,12 +152,12 @@ enum { NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods}
 <tr><td valign="top" colspan="2" align="middle"><em>The times below are ordered in decreasing frequency of execution.</em></tD></tr>
 <tr><td valign="top"><code>AtThetaTrans</code> </td> <tD>Called by <code>Method::`Method::Run`()</code> for each endogenous state &theta; before
 the transition is computed.</tD></tr>
-<tr><td valign="top"><code>PostSmooth</code> </td> <tD>Called by <code>Method::`Method::Run`()</code> after <em>each</em> time the value of a state has been computed and
+<tr><td valign="top"><code>PostSmooth</code> </td> <tD>Called by <code>`GSolve::Run`()</code> after <em>each</em> time the value of a state has been computed and
 `Bellman::Smooth`() has been called to compute choice probabilities. That is, it is called only when `Flags::setPstar` is TRUE.  For stationary models
 this is only when convergence has been reached.  For non-stationary times it is after each value iteration.</tD></tr>
-<tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::`RandomSolve::Run`()</code> after a call to `Method::GSolve`().  That is, after the value of
+<tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::`RandomSolve::Run`()</code> after a call to `GSolve` has traversed the state space.  That is, after the value of
 all states has been found. </tD></tr>
-<tr><td valign="top"><code>PostRESolve</code> </td><tD>Called by <code>FixedSolve::`FixedSolve::Run`()</code> after all random effects have been solved. That is, after all
+<tr><td valign="top"><code>PostRESolve</code> </td><tD>Called by <code>`Method::Run`()</code> after all random effects have been solved. That is, after all
 choice probabilities relevant to observationally-equivalent problems have been computed.  At this point a mixture over choice probabilities coudl be could be computed.</tD></tr>
 <tr><td valign="top"><code>PostFESolve</code></td><tD>Called by `Method::Solve`() after all fixed effect groups have been solved. That is, after all problems defined by
 the user's DP model have been solved.</tD></tr>
@@ -317,7 +317,7 @@ struct I : DDPauxiliary {
                                                             elo,
                                                             ehi,
     /** The current value of &delta;. This is set in
-            `DP::UpdateVariables`() to avoid repeated calls
+            `EndogTrans::Transitions`() to avoid repeated calls
             to `CV`.  @see DP::delta **/                         CVdelta;
     static Set(state,group=FALSE);
     static Initialize();
@@ -355,12 +355,12 @@ struct Alpha : DDPauxiliary {
         /** Simulated realized action (row of C).**/           aC,
         /** Simulated actual realized action .**/              aA,
 		/** matrix of all action vectors, A.
-            This is a copy of `Alpha::List`[0].
+            This is a copy of `Alpha::CList`[0].
             As action variables are added to the model
             using `DP::Actions`(), this matrix is built up.
             `DP::CreateSpaces`() then calls <code>FeasibleActions()</code>
             for each endogenous state &theta;.   Different feasible
-            sets are then added to `Alpha::List`. **/		   Matrix,   //ActionMatrix,
+            sets are then added to `Alpha::CList`. **/		   Matrix,   //ActionMatrix,
 		/** list of feasible action matrices (CV) values.
             Each point in the endogenous state space
             has an index: `Bellman::Aind` into this

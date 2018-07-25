@@ -79,9 +79,9 @@ struct GSolve : ThetaTask {
 
 
 /**Iterate on Bellman's Equation, to solve EV(&theta;) for all fixed and random effects.
-@comments Result is stored in `ValueIteration::VV` matrix.  <var>EV</var> for only two or three ages (iterations) stored at any one time.  So this
-cannot be used after the solution is complete.  `Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
+@comments `Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
 Results are integrated over random effects, but results across fixed effects are overwritten.
+`Bellman::pandv` contains choice probabilities at $\theta$.
 **/
 struct ValueIteration : Method {
 	ValueIteration(myGSolve=0);

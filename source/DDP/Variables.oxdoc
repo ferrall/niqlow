@@ -76,13 +76,13 @@ Usually an action variable can be an object of the base `ActionVariable` class. 
 <DT>Current Value</DT>
         <DD><span class="n">DDP</span> requires <code>MyModel</code> to handle/process the full matrix of feasible actions in utility and transitions.
         <DD>For this reason, <code>MyModel</code> will rarely if ever access the current value of an action, <code>a.v</code>.  </DD>
-        <DD>The vector of values of an action variable that corresponds to feasible $\alpha$s is returned by <code>`Bellman::aa`(a).</code></DD>
+        <DD>The vector of values of an action variable $a$ is returned by <code>`CV`(a).</code></DD>
 <DT>
 <DT>Actual Value</DT>
 <DD>Optionally, the user can create a class derived from `ActionVariable` and supply a `Discrete::Update` function with it.</DD>
 <DD>This allows the user to associate a meaningful value for the numbers 0 to N&oline;, stored as <code>a.`Discrete::actual`</code>.</DD>
 <DD><span class="n">DDP</span> updates an action each time the problem is resolved, so actual values can depend on `Parameter` values.</DD>
-<DD>`Bellman::aa`(a) will indeed return the actual values of <code>a</code> that correspond to each feasible action vector $\alpha$.</DD>
+<DD>`AV`(a) will indeed return the actual values of <code>a</code> that correspond to each feasible action vector $\alpha$.</DD>
 <DD>The default virtual `Discrete::Update`() simply sets actual to the vector &lt; 0 : N-1 &gt;.</DD>
 
 <DT>Example of Custom <code>Update()</code></DT>
@@ -798,7 +798,7 @@ This can be handled very easily by sending a base state variable to the `SubStat
 send the sub period for which this state variable transits.  For all other subperiod transitions the variable
 is frozen.</DD>
 <DD>Each action variable is usually only changeable in one subperiod.  This is handled by providing
-a replacement for `DP::FeasibleActions`().</DD>
+a replacement for `Bellman::FeasibleActions`().</DD>
 <DD>The discount factor $\delta$ is set to 1.0 for <var>s &lt; S-1</var>.  That is all payoffs
 within a subperiod occur simultaneously.  </DD>
 <DD>The discount factor takes on it normal value for <var>s= S-1</var> to capture the gap between major periods.</DD>
@@ -842,7 +842,7 @@ must be endogenous (added to $\theta$).  This is checked in `DP::CreateSpaces`.<
 <DD>`Clock::Vupdate`() makes sure that the scratch space for the value function is updated after each iteration of Bellman's equation.  In stationary models (or stationary
 time periods within a non-stationary model) this method also computes the norm of the difference between the current value functions and the last value.  This norm is
 checked by the solution method against the given tolerance for convergence.</DD>
-<DD>`Clock::Sync`() is called any time the value of the clock changes (that is, it is called in `DP::SyncStates`()).  The default method simply places the current in `I::t` to b available to the user's code and other parts of <span class="DDP">DDP</span>.  Some kinds of clocks do more than this.</DD>
+<DD>`Clock::Synch`() is called any time the value of the clock changes (that is, it is called in `Task::SyncStates`()).  The default method simply places the current in `I::t` to b available to the user's code and other parts of <span class="DDP">DDP</span>.  Some kinds of clocks do more than this.</DD>
 <DD>`Clock::setPstar`() determines whether the next iteration should calculate choice probabilities or not.  If only one iteration is required to compute the value function at this point in the clock (no fixed point problem), then the clock will return <code>TRUE</code>.   This does not itself check for convergence, and other considerations may set `Flags::setPstar` to TRUE.</DD>
 
 <DT>Typically the user does nothing with these methods unless they are creating their own solution method.  And if the create their own clock type they may have to provide replacement methods if the inherited ones are not coorect.</DT>

@@ -752,12 +752,12 @@ A user's code can reference these variables but should never change them.
 <tr><td valign="top" colspan="2" align="middle"><em>The times below are ordered in decreasing frequency of execution.</em></tD></tr>
 <tr><td valign="top"><code>AtThetaTrans</code> </td> <tD>Called by <code>Method::Method::Run()</code> for each endogenous state &theta; before
 the transition is computed.</tD></tr>
-<tr><td valign="top"><code>PostSmooth</code> </td> <tD>Called by <code>Method::Method::Run()</code> after <em>each</em> time the value of a state has been computed and
+<tr><td valign="top"><code>PostSmooth</code> </td> <tD>Called by <code><a href="Methods.ox.html#GSolve___Run">Run</a>()</code> after <em>each</em> time the value of a state has been computed and
 <a href="Bellman.ox.html#Bellman___Smooth">Smooth</a>() has been called to compute choice probabilities. That is, it is called only when <a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> is TRUE.  For stationary models
 this is only when convergence has been reached.  For non-stationary times it is after each value iteration.</tD></tr>
-<tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::<a href="Methods.ox.html#RandomSolve___Run">Run</a>()</code> after a call to Method::GSolve().  That is, after the value of
+<tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::<a href="Methods.ox.html#RandomSolve___Run">Run</a>()</code> after a call to <a href="Methods.ox.html#GSolve">GSolve</a> has traversed the state space.  That is, after the value of
 all states has been found. </tD></tr>
-<tr><td valign="top"><code>PostRESolve</code> </td><tD>Called by <code>FixedSolve::FixedSolve::Run()</code> after all random effects have been solved. That is, after all
+<tr><td valign="top"><code>PostRESolve</code> </td><tD>Called by <code>Method::Run()</code> after all random effects have been solved. That is, after all
 choice probabilities relevant to observationally-equivalent problems have been computed.  At this point a mixture over choice probabilities coudl be could be computed.</tD></tr>
 <tr><td valign="top"><code>PostFESolve</code></td><tD>Called by <a href="Methods.ox.html#Method___Solve">Solve</a>() after all fixed effect groups have been solved. That is, after all problems defined by
 the user's DP model have been solved.</tD></tr>
@@ -1099,12 +1099,12 @@ list of feasible action matrices (CV) values.
 <span class="declaration">static decl Matrix [public]</span>
 <dl><dd>
 matrix of all action vectors, A.
-            This is a copy of Alpha::List[0].
+            This is a copy of <a href="DDPShared.ox.html#Alpha___CList">CList</a>[0].
             As action variables are added to the model
             using <a href="DP.ox.html#DP___Actions">Actions</a>(), this matrix is built up.
             <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() then calls <code>FeasibleActions()</code>
             for each endogenous state &theta;.   Different feasible
-            sets are then added to Alpha::List.
+            sets are then added to <a href="DDPShared.ox.html#Alpha___CList">CList</a>.
 
 </dd></dl>
 
@@ -1446,7 +1446,7 @@ current point in state space, &theta;.
 <span class="declaration">static decl CVdelta [public]</span>
 <dl><dd>
 The current value of &delta;. This is set in
-            DP::UpdateVariables() to avoid repeated calls
+            <a href="Bellman.ox.html#EndogTrans___Transitions">Transitions</a>() to avoid repeated calls
             to <a href="Shared.ox.html#CV">CV</a>.
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___delta">delta</a></dd>

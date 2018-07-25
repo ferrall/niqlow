@@ -17,8 +17,8 @@ struct  Bellman : DP {
         /**Integer code to classify state (InSubSample,LastT,Terminal).
             This avoids multiple integer values at each point in the state space.
             Defined in `StateTypes`. Set in `DP::CreateSpaces`()
-            @see StateVariable::MakeTerminal Clock::Last **/        Type,
-		/**&theta;.j index into `Alpha::Alist`.**/  				Aind,
+            @see StateVariable::MakeTerminal, Clock::Last **/        Type,
+		/**&theta;.j index into `Alpha::CList`.**/  				Aind,
 		/*U(&alpha;&epsilon;,&eta;,&theta;,&gamma;).  	        U, */
 		/** v(&alpha;;&theta;) and &Rho;*(&hellip;,&gamma;). **/    pandv,
 		/** TransStore x &eta;-Array of feasible endogenous	state

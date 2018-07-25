@@ -52,7 +52,7 @@ an array of `CV` compatible elements will return the horizontal concatenation va
 @param ... a single argument can be passed along with X().  Further arguments are ignored
 @comments This allows elements of the code to be represented several different ways.<br>
 Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside `StateVariable::Transit`.<br>
-No argument is passed by `DP::UpdateVariables`() and `DP::ExogenousTransition`
+No argument is passed by `EndogTrans::Transitions`() and `DP::ExogenousTransition`
 @returns X.v, X, X(), X(arg)
 **/
 CV(X,...) {
@@ -78,9 +78,8 @@ CV(X,...) {
 
 /**ActualValue: Returns either  X.actual[X.v] or `CV`(X).
 @param X double, integer, static function <code>X()</code>, or object with a members <code>actual</code> and <code>v</code>
-@comments This allows user utility to access the current actual value of a state.  By storing the vector of actual values
-`Discrete::Update` function does not have to be called each time the state variable changes value.
-This also works for `StateBlock` which will return the items from the Grid of points.
+@comments This allows user utility to access the current actual value of a state.  This also works for `StateBlock`
+which will return the items from the Grid of points.
 @returns X->AV() or CV(X)
 @see CV
 **/
@@ -233,7 +232,7 @@ If the new Volume is greater than the current value then a log file is opened if
 
 If the new Volume is SILENT and a log file is already open then the log file is closed.
 
-@see `Quantity::logf`
+@see Quantity::logf
 **/
 Quantity::SetVolume(Volume) {
     if (Volume > this.Volume) {
@@ -284,7 +283,7 @@ Discrete::PDF() {return ismember(pdf,"v") ? pdf.v[v] : pdf[v];	}
 @param MaxV non-zero double, default = 1.0<br>
             N&times;1 vector, actual
 If a double is sent the actual vector to 0,&ellip;, MaxV.
-@see `Discrete::Update`
+@see Discrete::Update
 **/
 Discrete::SetActual(MaxV) {
     if (isdouble(MaxV)||isint(MaxV))

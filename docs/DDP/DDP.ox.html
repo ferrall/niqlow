@@ -68,7 +68,7 @@ Utility:                    U()</pre></details>
 In mathematical notation, <var>a<sub>N</sub></var> might denote the number of values <var>a</var> takes on. This works well when <var>a</var> has only one property. In <span class="n">DDP</span>, a variable like <var>a</var> has several properties so using subscripts and superscripts to indicate them can become clumsy.  And, properties can have properties.  Instead of using <var>a<sub>N</sub></var>, the notation <b><code>a.N</code></b> is the property N associated with the object <code>a</code>. The binary <code>.</code> operator is how properties (members) are accessed in Ox.
 <DD><q>o.p</q> retrieves from the object <var>o</var> the aspect or property <var>p</var>.</dd>
 <P/>
-The <a href="Shared.ox.html#Quantity">Quantity</a> class represents <a href="Shared.ox.html#Discrete">Discrete</a> variables and continuous Parameters. The usual notions of variables and parameters in mathematical models are derived from the base type <a href="Shared.ox.html#Quantity">Quantity</a>. Quantities are either <em>discrete</em> (actions and states) or <em>continuous</em> (parameters). Quantity objects are typically added to one or more lists (<code>OxArray</code>) using routines built into <span class="n>niqlow</span>.  The vector notation is used to match the literature but vectors in standard DDP are actually lists of <a href="Shared.ox.html#Quantity">Quantity</a> objects.</p>
+The <a href="Shared.ox.html#Quantity">Quantity</a> class represents <a href="Shared.ox.html#Discrete">Discrete</a> variables and continuous <a href="Shared.ox.html#Parameter">Parameter</a>s. The usual notions of variables and parameters in mathematical models are derived from the base type <a href="Shared.ox.html#Quantity">Quantity</a>. Quantities are either <em>discrete</em> (actions and states) or <em>continuous</em> (parameters). Quantity objects are typically added to one or more lists (<code>OxArray</code>) using routines built into <span class="n>niqlow</span>.  The vector notation is used to match the literature but vectors in standard DDP are actually lists of <a href="Shared.ox.html#Quantity">Quantity</a> objects.</p>
 <P/>
 <DT>Ranges:  0 &hellip; m.</DT>
     <DD>Although it is natural to start counting from <em>1</em>, starting from <em>0</em> has some advantages. It is common in C-like languages such as Ox. Typically in <span class="n">DDP</span>, <b>0</b> is the lowest and first value a discrete variable takes on. Starting at 0 means a variable <var>n</var> that takes on N values has a range <span class="expressions">\(n=0,1,\dots,N-1\)</span>. This is the default range for discrete variables.</DD>
@@ -132,7 +132,7 @@ The interpretation of a property can depend on the kind of object on the left si
 <DT>D : dimensionality</DT>
     <DD>A vector <code>x</code> of discrete variables has a length x.N. But it creates a space of possible values (the Cartesian product) equal to the product of the individual variable cardinalities.</DD>
     <DD>So <code>x.D</code> is the size of the Cartesian space of a vector <code>x</code>.</DD>
-        <pre>x.D  &equiv;  &prod; <sub>i= 0 &hellip; (x.N)&oline; </sub>  x<sub>i</sub>.N 
+        <pre>x.D  &equiv;  &prod; <sub>i= 0 &hellip; (x.N)&oline; </sub>  x<sub>i</sub>.N
 </pre>
 <DD>A space in <span class="n">DDP</span>, say <code>&Theta;</code>, is usually a set of vectors of the the space of possible vectors.  The number of points in a space is then <code>&Theta;.D.</code></DD>
 <P/>
@@ -438,7 +438,7 @@ Segregation state variables into different vectors can reduce memory and computi
 <LI>&gamma;: Grouping (random and fixed effect) state vector</LI>
     <DD>A generic element of &gamma; is denoted <var>g</var> States are added to &gamma; using <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>(). A grouping variable is equivalent to either a <em>random effect</em> or a <em>fixed effect</em> in a panel model.  Either way, it does not vary within the life of an agent following the DP, but from our point of view it is random for an agent. Because grouping variables do not vary within a solution it is wasteful to create space for each of their values and the other states in &theta;.  Instead, <span class="n">DDP</span> resolves the model for each value of &gamma;.  It stores differing choice probabilities across random effects for a given fixed effect value, so that integration across random effects can be carried out.</DD>
 <P/>
-    <DD><b><em>Warning:</em> if random effect elements of &gamma; affect the transition &Rho;(). you have to change the UpdateTime in your model</b> Because &gamma; is fixed during a solution, it is often <em>not</em> listed as an argument of U() and endogenous outcomes such as V(&theta;).  However, <code>MyModel</code> can treat elements of &gamma; like other states.</DD>
+    <DD><b><em>Warning:</em> if random effect elements of &gamma; affect the transition &Rho;(). you have to change the <a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a> in your model</b> Because &gamma; is fixed during a solution, it is often <em>not</em> listed as an argument of U() and endogenous outcomes such as V(&theta;).  However, <code>MyModel</code> can treat elements of &gamma; like other states.</DD>
 <P/>
 <LI>&zeta;: Continuous utility shock vector</LI>
     <blockquote><b>Continuous states are placed in &zeta; and can only affect U() not &Rho;().</b></blockquote>
@@ -473,7 +473,7 @@ In <span class="n">DDP</span>, the list of feasible matrices is simply <code>A</
 <P/>
 <b>Note</b>: the elements of the <var>A</var> list are the <em>actual</em> value of actions and are updated at the start of each value solve.  If an action variable does not have its own <a href="Shared.ox.html#Discrete___Update">Update</a>() routine defined then the actual values are simply the default range 0 &hellip; (a.N)&oline;.</DD>
 <P/>
-In <span class="n">DDP</span> the key functions, U() and &Rho;() act on a single point in the state space at a time.  So the current value of a state variable is placed in the <code>.v</code> property of the Ox variable representing it. On the other hand, both U() and &Rho;() are 'vectorized' in actions: they must operate on the whole feasible matrix at once.  Action variables have the <code>.v</code> property, but it is not used for them.  Their current values are in a column of the &theta;.A matrix, which is <code>A[Aind]</code> in the code.  The previously described functions <span class="expressions">\(CV()\)</span> and <span class="expressions">\(AV()\)</span> work with action variables as well, returning the column of the current/actual action matrix at <span class="expressions">\(\theta\)</span>. 
+In <span class="n">DDP</span> the key functions, U() and &Rho;() act on a single point in the state space at a time.  So the current value of a state variable is placed in the <code>.v</code> property of the Ox variable representing it. On the other hand, both U() and &Rho;() are 'vectorized' in actions: they must operate on the whole feasible matrix at once.  Action variables have the <code>.v</code> property, but it is not used for them.  Their current values are in a column of the &theta;.A matrix, which is <code>A[Aind]</code> in the code.  The previously described functions <span class="expressions">\(CV()\)</span> and <span class="expressions">\(AV()\)</span> work with action variables as well, returning the column of the current/actual action matrix at <span class="expressions">\(\theta\)</span>.
 <details class="aside"><summary>For example</summary> Consider a model that has two choices: work hours and whether to volunteer or not.   Then at some state &theta;.A may look like this, along with the return value of <code>a(work)</code>.
 <pre>     A[Aind]     |
 work      vol    |  aa(work)
@@ -483,14 +483,14 @@ work      vol    |  aa(work)
  2         0      |    2
  0         1      |    0
  1         1      |    1
- 2         1      |    2  
+ 2         1      |    2
 </pre></details></DD>
 <P/>
 <a name="TS"><LI>Terminal States and Terminal Values of State Variables</LI></a>
 <P/>
     <blockquote><b><code>MyModel</code> can make values of a state variable terminal by calling <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>().</b></blockquote>
 <P/>
-<dfn id="Terminal-State-dfn">Some dynamic programs end if and when certain states are encountered.  
+<dfn id="Terminal-State-dfn">Some dynamic programs end if and when certain states are encountered.
 Such states are called <em>terminal states</em>. </dfn> There are three features of terminal state:
 <OL class="steps">
 <LI>There is no more choice from that period on.  Often a model is set up so that it terminates the program when an action is taken.  That is coded in <span class="n">DDP</span> as a transition to a next state that is terminal.</LI>

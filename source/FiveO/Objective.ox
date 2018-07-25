@@ -322,7 +322,7 @@ Objective::ToggleBlockElements(pblock,elements) {
 /**Reset the free parameter vector and the complete structural parameter vector.
 @param HardCode  TRUE=hard-coded parameter values used.<br/>FALSE [default] Start vector used
 Must be called anytime a change in constraints is made.  So it is called by `Objective::Encode`()
-and `Objective::Reinitialize`()
+and `Objective::ReInitialize`()
 **/
 Objective::Recode(HardCode) {
 	decl k,f;

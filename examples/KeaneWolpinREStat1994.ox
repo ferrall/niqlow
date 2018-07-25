@@ -1,9 +1,15 @@
 #include "KeaneWolpinREStat1994.h"
 /* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
 
-DynamicRoy::Replicate()	{
-	decl i, meth,Vmat,sim,outmat;	
+/** A states is reachable if schooling and experience are not greater than t. **/
+DynamicRoy::Reachable() {
+    return I::t >= sumr(CV(xper));
+    }
 
+DynamicRoy::Replicate()	{
+	decl i, meth,Vmat,sim,outmat, nc, mlabs;	
+
+    /* DP Model Setup */
 	Initialize(new DynamicRoy());
 	SetClock(NormalAging,A1);
     accept = new ActionVariable("Accept",Msectors);
@@ -18,31 +24,39 @@ DynamicRoy::Replicate()	{
 		EndogenousStates(xper[i]);
         }
 	SetDelta(0.95);
-	CreateSpaces(NoSmoothing); //LogitKernel,1/4000.0
+	CreateSpaces(LogitKernel,1); //
+
+    /* Solution Methods */
     meth = new array[Nmethods];
         meth[BruteForce] = new ValueIteration();
 	    meth[Approximate] = new KeaneWolpin();
-    sim = new Panel(0);
     Vmat = new array[Nmethods];
     meth[1].Volume = LOUD;
+
+    /* Run methods, simulate, produce output */
     for (i=0;i<Nmethods;++i) {
        if (i==Approximate)
             SubSampleStates( constant(1.0,1,TSampleStart)
                             ~constant(SamplePercentage/100,1,A1-TSampleStart),MinSample);
        meth[i] -> Solve();
 	   println("Method ",i," time: ",timer()-cputime0);
+       sim = new Panel(0);
        sim -> Simulate(Nsimulate,A1);
        sim -> Print("KW94_meth"+sprint(i)+".dta",LONG);
+       delete sim;
 	   DPDebug::outV(FALSE,&outmat);
        Vmat[i] = outmat;
        }
-    decl nc = columns(Vmat[0])-Msectors-1;
+
+    /* Summary of Output */
+    nc = columns(Vmat[0])-Msectors-1;
+    mlabs = {"Emax","Pblue","Pwhite","Pschool","Phome"};
     println("EV and Choice Prob. ",
-        "Brute Force ",MyMoments(Vmat[BruteForce][][nc:]),
-        "Approx ",MyMoments( Vmat[Approximate][][nc:]),
-        "Abs. Diff ",MyMoments(fabs((Vmat[Approximate]-Vmat[BruteForce])[][nc:])))
+        "Brute Force ",MyMoments(Vmat[BruteForce][][nc:],mlabs),
+        "Approx ",MyMoments( Vmat[Approximate][][nc:],mlabs),
+        "Abs. Diff ",MyMoments(fabs((Vmat[Approximate]-Vmat[BruteForce])[][nc:]),mlabs))
         ;
-    delete meth[0], meth[1], sim;
+    delete meth[0], meth[1];
     Delete();
 }
 
