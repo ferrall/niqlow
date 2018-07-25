@@ -414,16 +414,18 @@ value across all exogenous states.</DD>
 </OL>
 **/
 KWGSolve::Run() {
-    decl inss = I::curth->InSS();
+    decl inss = I::curth->InSS(), done=FALSE;
     XUT.state = state;
     if (firstpass) {
         if (!inss) return;
         InSample();
+        done = TRUE;
 		}
     else if (!inss) {
         OutSample();
+        done = TRUE;
 		}
-	if (Flags::setPstar)  {
+	if (Flags::setPstar && done)  {
         I::curth->Smooth(VV[I::now][I::all[iterating]]);
         Hooks::Do(PostSmooth);
         }
@@ -447,11 +449,12 @@ KWGSolve::Solve(instate) {
     Clock::Solving(&VV);
     ZeroTprime();
 	Flags::setPstar = TRUE;	
+    curlabels = xlabels0|xlabels1|xlabels2;  //This should depend on feasible set!
 	for (myt=N::T-1;myt>=0;--myt) {
 		state[cpos] = XUT.state[cpos] = myt;
 		SyncStates(cpos,cpos);
 		Y = Xmat = <>;	
-        curlabels = 0;
+//        curlabels = 0;
 		onlypass = !Flags::DoSubSample[myt];
 		firstpass = TRUE;
 		Traverse(myt);
@@ -483,9 +486,11 @@ KWGSolve::KWGSolve() { //myKWEMax
 	xlabels0 = {"maxE","const"};
     xlabels1 = new array[N::A];
     xlabels2 = new array[N::A];
-	decl l,a;
-    foreach(l in xlabels1[a])  l = "(V-vv)_"+sprint(a);
-	foreach ( l in xlabels2[a]) l = "sqrt(V-vv)_"+sprint(a);
+	decl a;
+    for (a=0;a<N::A;++a) {
+        xlabels1[a] = "(V-vv)_"+sprint(a);
+	    xlabels2[a] = "sqrt(V-vv)_"+sprint(a);
+        }
     }
 	
 /**The default specification of the KW regression.
@@ -496,7 +501,6 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
 	decl xrow;
 	if (!isint(Vdelta)) {
         xrow = V~1~Vdelta~sqrt(Vdelta);
-        if (isint(curlabels)) curlabels = xlabels0|xlabels1[:columns(Vdelta)-1]|xlabels2[:columns(Vdelta)-1];
         }
 	switch_single(kwstep) {
 		case	AddToSample :
