@@ -12,6 +12,7 @@ struct DynamicRoy : ExPostSmoothing	{
              Age0     =16,     //age at t=0
              School0  =10,      //completed schooling at t=0
              HSGrad   =12,      //completed schooling before college
+             MaxSch   =20,
              MaxExp   =30}      // max experience to track}
 
 	/** Approximation Parameters. @name ApproxParams **/

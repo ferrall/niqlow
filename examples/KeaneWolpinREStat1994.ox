@@ -19,10 +19,9 @@ DynamicRoy::Replicate()	{
     offers = new MVNormal("eps",Msectors,Noffers,zeros(Msectors,1),sig);
 	ExogenousStates(offers);
 	xper = new array[Msectors-1];
-	for (i=0;i<Msectors-1;++i) {
-        xper[i] = new ActionCounter("X"+sprint(i),MaxExp,accept,i,0);
-		EndogenousStates(xper[i]);
-        }
+	for (i=0;i<Msectors-1;++i)   //don't track home
+        xper[i] = new ActionCounter("X"+sprint(i),i==school ? MaxSch : MaxExp,accept,i);
+	EndogenousStates(xper);
 	SetDelta(0.95);
 	CreateSpaces(LogitKernel,1); //
 
