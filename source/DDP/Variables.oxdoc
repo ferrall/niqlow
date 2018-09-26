@@ -19,16 +19,16 @@
 
 <DT>A variable in a DP model is an object derived from `Quantity` and can be of various types:</DT>
 
-<DD>The `ActionVariable` class represents a choice in the model (such as whether to work or not) and is an element of the action vector $\alpha$. Action variables are added to the DP model using using the `DP::Actions`() method.</DD>
+The `ActionVariable` class represents a choice in the model (such as whether to work or not) and is an element of the action vector $\alpha$. Action variables are added to the DP model using using the `DP::Actions`() method.</p>
 
-<DD>The `StateVariable` class is designed to be a member of one of the discrete state vectors ($\epsilon,\eta,\theta,\gamma$). State variables are added to appropriate state vector using  the method for the corresponding vector:<br/>
+The `StateVariable` class is designed to be a member of one of the discrete state vectors ($\epsilon,\eta,\theta,\gamma$). State variables are added to appropriate state vector using  the method for the corresponding vector:<br/>
 `DP::EndogenousStates`() adds ordinary state variables (with general transitions)<br/>
 `DP::SemiExogenousStates` adds state variables with iid transitions whose values can affect other transitions<br/>
 `DP::ExogenousStates`() adds pure iid state variables<br/>
-`DP::GroupVariables`() adds variables that do not change within a DP problem, both fixed- and random-effect type variables.</DD>
-<DD>Many kinds of state variables are derived from the base class.</DD>
+`DP::GroupVariables`() adds variables that do not change within a DP problem, both fixed- and random-effect type variables.<br/>
+Many kinds of state variables are derived from the base class.</p>
 
-<DD>The `AuxiliaryValue` class represents values that depend on actions and states but are not required to solve the model.  They are members of the auxiliary vector $\chi$.  Auxiliary values are added to the DP model using `DP::AuxiliaryOutcomes`()</DD>
+The `AuxiliaryValue` class represents values that depend on actions and states but are not required to solve the model.  They are members of the auxiliary vector $\chi$.  Auxiliary values are added to the DP model using `DP::AuxiliaryOutcomes`()</p>
 
 
 <a name="ActionVariables"><LI>Action Variables</LI></a>
@@ -37,21 +37,20 @@
 
 The action vector $\alpha$ is the vector of discrete actions chosen conditional on the state of the DP.  A generic element of $\alpha$ is denoted <var>a</var>.  An action variable takes on $a.N$ different values. The action vector includes $\alpha$.N variables, denoted a<sub>0</sub> through a<sub>($\alpha$.N)&oline;</sub>. Action variables are represented as an `ActionVariable` and are added to <code>MyModel</code> and to $\alpha$ using `DP::Actions`().  Calls to <code>Actions()</code> and other model-building routines is part of <code>MyCode</code>.</p>
 
-<DD>In the basic definition of a DDP model, <code>$\Alpha$</code> is defined as the set of possible actions. In <span class="n">DDP</span> the set of actions is built up by adding action variables to $\alpha$.  So <code>&Alpha;</code> emerges from the properties of the variables added to $\alpha$.</DD>
-<DD class="example">Possible Actions is the matrix of all possible action vectors: <details class="aside"><summary>Terminology:</summary>The word <em>possible</em> is used instead of <em>feasible</em>, because this notion of <code>&Alpha;</code> is constructed mechanically from properties of the actions.  It has nothing to do with the interpretation of the actions.  Feasible actions are defined below. An <em>action</em> refers to a particular value of the action vector $\alpha$, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column.</details>
-$$A \equiv \times_{j=0,\dots \alpha.N^{-}} \left\{ 0, 1, \dots, a{j.N)^{-}\right\}.$$
-DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</DD>
+In the basic definition of a DDP model, &Alpha; is defined as the set of possible actions. In <span class="n">DDP</span> the set of actions is built up by adding action variables to $\alpha$.  So &Alpha; emerges from the properties of the variables added to $\alpha$. <em>Possible Actions</em> is the matrix of all possible action vectors. The word <em>possible</em> is used instead of <em>feasible</em>, because this notion of <code>&Alpha;</code> is constructed mechanically from properties of the actions.  It has nothing to do with the interpretation of the actions.  Feasible actions are defined below. An <em>action</em> refers to a particular value of the action vector $\alpha$, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column. DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</p>
+
 <DT>Alternative Notation</DT>
-<DD>Discrete choice is described in two ways other than the one above used in <span class="n">DDP</span>.</DD>
-<DD>For example, suppose there are two action variables and 6 total action vectors:
+
+Discrete choice is described in two ways other than the one above used in <span class="n">DDP</span>. For example, suppose there are two action variables and 6 total action vectors:
  $$\eqalign{
- \alpha &= (a_0,a_1)\cr
- a_0.N &= 3\cr
- a_1.N &= 2\cr
- \alpha.D &=6}$$
- <DD>Some papers would treat this as a <em>single action</em> with six values.</DD>
-<DD>And/or papers may define a vector of 6 indicator variables to denote which choice was made: <var>d<sub>i</sub>=I{a=i}</var>.</DD>
-<details><summary>The three different approaches to coding discrete choices are illustrate in this table:</summary><dd><pre>
+ &\alpha = (a_0,a_1)\cr
+ &a_0.N = 3\cr
+ &a_1.N = 2\cr
+ &\alpha.D =6\cr}$$
+ Some papers would treat this as a <em>single action</em> with six values. And/or papers may define a vector of 6 indicator variables to denote which choice was made: <var>d<sub>i</sub>=I{a=i}</var>.</p>
+
+The three different approaches to coding discrete choices are illustrate in this table:
+<dd><pre>
          DDP Approach       | Single Action |    Indicator Vectors
          a0         a1      |       a       |    d0  d1  d2  d3  d4  d5
       ----------------------+---------------+----------------------------
@@ -60,9 +59,12 @@ DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code
          2          0       |       2       |    0   0   1   0   0   0
          0          1       |       3       |    0   0   0   1   0   0
          1          1       |       4       |    0   0   0   0   1   0
-         2          1       |       5       |    0   0   0   0   0   1</pre></DD></details>
-<DD>One reason to use an action vector like $\alpha$ is that each variable can be interpreted as a dimension of choice.  There is no obvious interpretation of <q>a=3</q> in the table, and the interpretation would change with the dimensions of the action variables. This approach would force <code>MyModel</code> to decode into an action vector to make their code look like a mathematical model. Another reason: the action vector approach makes it natural to impose feasibility conditions on the choice set, as discussed below.</dd>
-<DD>The use of indicator vectors makes it possible to write any utility as a sum: $U = \sum_k d_k u_k$. But as with the single action approach the interpretation is not obvious and $U()$ will in no way resemble usual mathematical notation for an objective.</DD>
+         2          1       |       5       |    0   0   0   0   0   1
+</pre></DD>
+
+One reason to use an action vector like $\alpha$ is that each variable can be interpreted as a dimension of choice.  There is no obvious interpretation of <q>a=3</q> in the table, and the interpretation would change with the dimensions of the action variables. This approach would force <code>MyModel</code> to decode into an action vector to make their code look like a mathematical model. Another reason: the action vector approach makes it natural to impose feasibility conditions on the choice set, as discussed below.</p>
+
+The use of indicator vectors makes it possible to write any utility as a sum: $U = \sum_k d_k u_k$. But as with the single action approach the interpretation is not obvious and $U()$ will in no way resemble usual mathematical notation for an objective.</p>
 
 <DT>Explanation:</DT>
 <DD>Action variables objects must be <code>static</code> data members of <code>MyModel</code>. </DD>
@@ -74,21 +76,16 @@ DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code
 Usually an action variable can be an object of the base `ActionVariable` class.  The user only needs to define a derived class.
 
 <DT>Current Value</DT>
-        <DD><span class="n">DDP</span> requires <code>MyModel</code> to handle/process the full matrix of feasible actions in utility and transitions.
-        <DD>For this reason, <code>MyModel</code> will rarely if ever access the current value of an action, <code>a.v</code>.  </DD>
-        <DD>The vector of values of an action variable $a$ is returned by <code>`CV`(a).</code></DD>
-<DT>
+    <span class="n">DDP</span> requires <code>MyModel</code> to handle/process the full matrix of feasible actions in utility and transitions. For this reason, <code>MyModel</code> will rarely if ever access the current value of an action, <code>a.v</code>. The vector of values of an action variable $a$ is returned by <code>`CV`(a).</code></p>
+
 <DT>Actual Value</DT>
-<DD>Optionally, the user can create a class derived from `ActionVariable` and supply a `Discrete::Update` function with it.</DD>
-<DD>This allows the user to associate a meaningful value for the numbers 0 to N&oline;, stored as <code>a.`Discrete::actual`</code>.</DD>
-<DD><span class="n">DDP</span> updates an action each time the problem is resolved, so actual values can depend on `Parameter` values.</DD>
-<DD>`AV`(a) will indeed return the actual values of <code>a</code> that correspond to each feasible action vector $\alpha$.</DD>
-<DD>The default virtual `Discrete::Update`() simply sets actual to the vector &lt; 0 : N-1 &gt;.</DD>
+
+    Optionally, the user can create a class derived from `ActionVariable` and supply a `Discrete::Update` function with it. This allows the user to associate a meaningful value for the numbers 0 to N&oline;, stored as <code>a.`Discrete::actual`</code>. <span class="n">DDP</span> updates an action each time the problem is resolved, so actual values can depend on `Parameter` values. `AV`(a) will return the actual values of <code>a</code> that correspond to each feasible action vector $\alpha$. The default virtual `Discrete::Update`() simply sets actual to the vector &lt; 0 : N-1 &gt;.</p>
 
 <DT>Example of Custom <code>Update()</code></DT>
-<DD>Unless you want to provide actual values for an action you do not need to create a derived class.
-<DD class="example">Let <var>a</var> denote a discrete choice of hours to work each week.  The maximum number of hours, <var>H</var>, depends on a parameter which can differ across individuals but is constant across the state space.
-<details><summary>Actual Hours action variable</summary><pre>
+
+Unless you want to provide actual values for an action you do not need to create a derived class. Let <var>a</var> denote a discrete choice of hours to work each week.  The maximum number of hours, <var>H</var>, depends on a parameter which can differ across individuals but is constant across the state space.
+<DD>Actual Hours action variable<pre>
 struct Hours : ActionVariable {
         decl H;
         Hours(const N,const H);
@@ -112,50 +109,31 @@ MyModel::Initialize() {
    }
 MyModel::Utility() {
         return CV(wage)*aa(h);
-        }</pre></details>
-The code segment allows the maximum hour to be 30 if the person has a (young) child, otherwise 50 hours.  And then lets each type choose 5 different levels of hours between 0 and their max hours.  Utility will be total earnings.
-</DD>
+        }
+</pre></DD>
+The code segment allows the maximum hour to be 30 if the person has a (young) child, otherwise 50 hours.  And then lets each type choose 5 different levels of hours between 0 and their max hours.  Utility will be total earnings.</p>
 
 <LI>Possible and Feasible Actions</LI>
-<DT>Possible Actions.</DT>
-<DD><var>A</var> is defined as the set of possible actions, built up by adding action variables to $\alpha$.  All possible actions is the matrix :
-$$    A \equiv \times_{j=0,\dots, \alpha.N^- } \{ 0, 1, \dots, a_j.N^- \}$$
-An action vector $\alpha$ is a <em>row</em> of the matrix A.
-<DT>The position property</DT>
-<DD class="example">An action variable is a column of <var>A</var>.  Its position is the property <code>a.pos</code>. </DD>
-<DT>Feasible Actions</DT>
-<DD><em>Feasibility</em> is a property <code>MyModel</code> imposes on $\alpha$. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of $\alpha$.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We write feasibility as a property of the state.  The <b>feasible actions</b> at $\theta$ is a matrix property:
-$$\forall \theta \in \Theta,\qquad \theta.A \subseteq A.$$
-<DT>`Bellman::FeasibleActions`(): by default all possible actions are feasible</DT>
-<DD>If <code>MyModel</code> does not say otherwise, $\theta.A \equiv A$ for all endogenous states.</DD>
-<DD>This behaviour is produced by including a built in method, <code>Bellman::FeasibleActions()</code>, which is a virtual method, meaning that <code>MyModel</code> can replace it with its own version.</DD>
-<DT>Overriding the default: <code>MyModel::FeasibleActions()</code></DT>
-<DD>If the user supplies a replacement for <code>FeasibleActions()</code> it must take a single argument <code>A</code>, which is the possible matrix <var>A</var>, each row is an action vector $\alpha$ and each column is an action variable a that was added to the model.
-<DD class="example"><code>MyModel::</code>must return a column vector which indicates that $\alpha$ is feasible or not.
-<pre>FeasibleActions() = a A.N vector containing I{A.i &in; &theta;.A}, i = 0 &hellip; A.N&oline;.</pre></DD>
-<DD>This requirement explains that the default method returns a vector of 1s equal in size to the rows of <var>A</var>.</DD>
-<DT>The A List</DT>
-<DD>`DP::CreateSpaces` constructs the possible matrix A, actually stored as the first element of a list (<code>OxArray</code>):
-    <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state $\theta$.
-    Every time a different value is returned a new matrix is added to the A list.  The index into the list is then stored as  <code>Aind</code> &harr;  $\theta$.j.</DD>
-<DD>The user's feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a)</code>.</DD>
-<DD>In short, $\theta$.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = $\theta$.j = 0</code> for all states.</DD>
-<DT>The A list contains the <em>actual</em> values not the <em>current</em> values.</DT>
-<DD>If the user provides an `Discrete::Update`() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values.</DD>
-<DD>Since the default is that actual values equal current values (<code>a.actual[a.v] = a.v</code>), then <code>A[Aind]</code> is always possible to use.</DD>
-<DD>The uncoded list of matrices is available as `Alpha::Matrix`.</DD>
-<DT>Example </DT><DD class="example">
-Suppose the only constraint on actions is that an action <var>a=0</var> is not feasible when a state variable <var>q=2</var>.  (For example, going to high school is not feasible if the person already has a high school degree.<pre>
-FeasibleActions(const A) {    return CV(x)==2 ? aa(a).!=0 : ones(rows(A),1) ;    }
-</pre>
-Code this way it does not matter whether more variables are added to the model and it does not matter what order the code adds the actions to $\alpha$.  <code>FeasibleActions</code> is robust to those details.
-</DD>
 
+&Alpha; is defined as the set of possible actions, built up by adding action variables to $\alpha$.  All possible actions is the matrix :
+$$    A \equiv \times_{j=0,\dots, \alpha.N^- } \{ 0, 1, \dots, a_j.N^- \}$$
+An action vector $\alpha$ is a <em>row</em> of the matrix A. An action variable is a column of &Alpha;.  Its position is the property <code>a.pos</code>. 
+
+<em>Feasibility</em> is a property <code>MyModel</code> imposes on $\alpha$. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of $\alpha$.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We write feasibility as a property of the state.  The <b>feasible actions</b> at $\theta$ is a matrix property:
+$$\forall \theta \in \Theta,\qquad \theta.A \subseteq A.$$
+
+`Bellman::FeasibleActions`(): by default all possible actions are feasible If <code>MyModel</code> does not say otherwise, $\theta.A \equiv A$ for all endogenous states. This behaviour is produced by including a built in method, <code>Bellman::FeasibleActions()</code>, which is a virtual method, meaning that <code>MyModel</code> can replace it with its own version.  This is explained in <a href="Bellman.ox.html">Bellman</a>.
+
+<DT>The A List</DT>
+
+`DP::CreateSpaces` constructs the possible matrix A, actually stored as the first element of a list: <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state $\theta$. Every time a different value is returned by <code>FeasibleActions()</code> a new matrix is added to the A list.  The index into the list is then stored as <code>Aind</code> &harr;  $\theta$.j.</p>
+    
+The user's (optional) feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a)</code>. In short, $\theta$.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = $\theta$.j = 0</code> for all states.
+
+The A list contains the <em>actual</em> values not the <em>current</em> values. If the user provides an `Discrete::Update`() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values. Since the default is that actual values equal current values (<code>a.actual[a.v] = a.v</code>), then <code>A[Aind]</code> is always possible to use. The uncoded list of matrices is available as `Alpha::Matrix`.</p>
 </OL>
 
-<hr>
-<a name="StateVariables"><LI>State Variables</LI></a>
-Elements of State Vectors, $\epsilon, \eta, \theta \gamma$.
+<hr><a name="StateVariables"><LI>State Variables</LI></a>
 
 <OL class="chapter"> Content of the StateVariable Section
 <LI><a href="#OV">Overview</a></LI>
@@ -214,7 +192,8 @@ MyModel::Initialize() {
     EndogenousStates(q = new LaggedState("lag",e));
     &vellip;
     CreateSpaces();
-    }</pre></DD></details>
+    }
+</pre></DD></details>
 
 <a name="SVT"><LI>State Variable Transitions</LI></a>
 
@@ -296,9 +275,9 @@ MyModel::Initialize() {
         q = new Freeze(new RandomUpDown("q",10,Qtrans),h);
     &vellip;
     CreateSpaces();
-    }</pre>
-Notice that a <code>new</code> state variable is passed to the `Freeze`() constructor.  In essence this underlying random variable is hidden from the model, which only sees the variables passed to `DP::EndogenousStates`.     What the model sees is the augmented variable <code>q</code> which acts like a `RandomUpDown` variable unless <code>h=1</code>.  As always, the other state variables or actions that <code>q</code> depends on have to be passed to its creator (or constructor).
-</DD></details>
+    }
+    </pre></DD>
+Notice that a <code>new</code> state variable is passed to the `Freeze`() constructor.  In essence this underlying random variable is hidden from the model, which only sees the variables passed to `DP::EndogenousStates`.     What the model sees is the augmented variable <code>q</code> which acts like a `RandomUpDown` variable unless <code>h=1</code>.  As always, the other state variables or actions that <code>q</code> depends on have to be passed to its creator (or constructor).</details>
 
 In fact, `Freeze` is a special case of a more general type of `Augmented` state variable, namely a `ValueTriggered`() state variable.
 
@@ -374,7 +353,8 @@ Below is an <a href="#example">example</a> of how to define a new state variable
   0    0
   1    0
   0    1
-  1    1</pre> </dd>
+  1    1
+</pre> </dd>
     <DT>Your code has to return two items, sent back in an Ox <em>array</em>. </DT>
     <DD>The first is a <em>row vector</em> of feasible values: the  values this state could take on next period.  For convenience call this vector <code>F</code>.  That is, suppose one value, say 3, may be feasible only if a certain action is taken.  Then 3 must be in <code>F</code>, even if 3 is not feasible if another action were taken.  The elements of <code>F</code> do not need to be sorted.</DD>
     <DD>The other output is a <em>matrix</em> of transition probabilities, <code>P</code>.   The rows of the matrix must match the rows of <code>Alpha::C</code>; the columns must match the columns of the row vector <code>F</code>.  The <var>ij</var> element of <code>P</code> is the probability that your state variable takes on the jth value in <code>F</code> given the agent chooses the ith action in the feasible set.</DD>
@@ -400,17 +380,20 @@ To make the example look better, suppose you have decided to set &laquo;VarName&
 <pre>decl mystate;  // in the <code>class</code> definition of MyStateVar
 &vellip;
 mystate = new MyStateVar("y",4,&hellip;);
-EndogenousStates(mystate);</pre>
+EndogenousStates(mystate);
+</pre>
 The <q>&hellip;</q> is not literal.  It is there because in this example the constructor <code>MyStateVar()</code> will require other arguments.  The state variable is stored in an Ox variable called <code>mystate</code>, but we will refer to it as <var>y</var>, which is the label given to it.</dd>
 
 <DT>What is <var>y</var> supposed to be? </DT>
 <DD>It is an indicator for the <em>previous</em> value of another state <var>x</var>, but only if a binary choice variable <var>i</var> is 1 last period.  For example, if <code>x</code> is an occupation code and the choice variable <code>i</code> indicates a choice to work, then <code>y</code> equals the occupation the person worked at last period if they did work.  </DD>
 <DD>Otherwise <code>y</code> should take on the value 0.  Simply put, the value of <var>y</var> next period is <var>y' = ix</var>. </DD>
 <DD>First, the <var>y</var> process as the feasible state next period:
-<pre>y' = ix</pre>
+<pre>y' = ix
+</pre>
 Now, as a transition probability:<pre>
   Prob(y' = z) = 1 if z = ix
-                0 if z &ne; ix.</pre></dd>
+                0 if z &ne; ix.
+</pre></dd>
 
 <DD>Because the transition probabilities for <var>y</var> are 0 and 1, <code>MyStateVar</code> should be classified as a `NonRandom` state variable.  This is a special case of an <em>autonomous</em> process because the probabilities do not depend on the next values of the other states, such as <code>x'</code>.  If that were the case, the user has to create a `StateBlock` which handles the transitions for multiple `Coevolving` variables. (DDP has no way of knowing for sure that the probabilities are always 0 and 1, at all states and for all possible parameter values, so that is why you manually categorize it as nonrandom because you know that the 0 and 1 are hardcoded into the <q>DNA</q> of the state variable.)  Because the transition depends on the action chosen <var>y</var> is nonrandom but it is not deterministic.  A deterministic random variable would be something like a seasonal cycle.<br>
 
@@ -423,7 +406,8 @@ Now, as a transition probability:<pre>
         .vals = <0,1,2,3>
         .pos = 1
         &vellip;
-        }</pre></dd>
+        }
+</pre></dd>
 That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current state it happens to have value <code>v=0</code>. It also happens to be the second state variable in the state vector (<code>pos=1</code>). </dd>
 
 <DT>Next, suppose  &laquo;VarName&raquo; has been added to a <em>finite horizon</em> model with three state variables <var>x</var>, <var>y</var> and <var>z</var>.  </DT>
@@ -431,7 +415,8 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
 <pre>
     State Vector
    x    y   z   t
-   2    0   3   8</pre></dd>
+   2    0   3   8
+</pre></dd>
 <DD>The variable <code>t</code> is the age variable in the finite horizon.  Now we can represent the transition of <code>y'</code> at this particular state as follows:
 <pre>
     Alpha::C          Prob(y')   trim 0 cols &rarr;     Prob(y')
@@ -440,7 +425,8 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
     0    0          1   0   0   0                1   0
     1    0          0   0   1   0                0   1
     0    1          1   0   0   0                1   0
-    1    1          0   0   1   0                0   1 </pre></DD>
+    1    1          0   0   1   0                0   1 
+</pre></DD>
 <DD><code>y</code> takes on four different values, but given that <code>x=2</code>, only two of those values are feasible next period, 0 or 2.   The overall transition routine in <span class="n">DDP</span> is smart enough to drop the columns of all zeros, but some computation can be reduced by trimming those columns inside <code>Transit()</code>.  Thus, we can focus on the trimmed 2-column representation of the transition probability.</DD>
 
 <DT><code>Transit()</code> returns the vector <var>y'</var> and the matrix <var>Prob(y')</var>.  </DT>
@@ -452,7 +438,8 @@ That is, <var>y</var> takes on 4 different values (0,1,2,3).  At the current sta
 <DD>How will <code>Transit()</code> know that <code>x=2</code> currently?   And how will it know that <code>i</code> is in the first column of <code>Alpha::C</code> not the second?  This is where the object-oriented approach to building a dynamic programming model comes in handy compared to using vectors of values to represent the state vector.  </DD>
 <DD><code>Transit()</code>  will know about <code>x</code> and <code>i</code> because it will be <em>constructed</em> to know them as the following code illustrates:</dd>
 <details><summary><b>Version 1.</b> Source: niqlow/templates/DynamicPrograms/MyStateVar1.ox</summary>
-<DD><pre><object width="95%" height="350" type="text/plain" data="../../templates/DynamicPrograms/MyStateVar1.ox" border="1" ></object></pre></DD></details>
+<DD><pre><object width="95%" height="350" type="text/plain" data="../../templates/DynamicPrograms/MyStateVar1.ox" border="1" ></object>
+</pre></DD></details>
 
 <DT>The constructor for <code>MyStateVar</code> requires the user to send the instance of some state variable class that corresponds to <code>x</code>. </DT>
  <DD>It will be stored in a member <code>occup</code> to <q>point</q> to the right variable.  Because an argument and a member is both called <code>occup</code> we refer to the member with that name using the <code>this.</code> operator. </DD>
@@ -493,7 +480,8 @@ When you write the code for your state variable you force the user (possibly you
     i = new ActionVariable("i",2);
     mystate = new MyStateVar("y",x,i);
     Actions(i);
-    EndogenousStates(x,mystate);</pre></dd>
+    EndogenousStates(x,mystate);
+</pre></dd>
 
 <li>Make the code robust</li>
     <DT>To catch errors it is helpful to check the arguments sent to the <var>constructor</var>.  </DT>
@@ -516,7 +504,7 @@ When you write the code for your state variable you force the user (possibly you
        set the <code>actual</code> codes associated with the internal values <code>0&hellip;N&oline;</code>.</DD>
  <details><summary>Version 2. Source: niqlow/templates/DynamicPrograms/MyStateVar.ox</summary><pre>
         <object width="95%" height="350" type="text/plain" data="../../templates/DynamicPrograms/MyStateVar.ox" border="1" ></object>
-        </pre></details></dd>
+ </pre></details></dd>
 
 <li>Duplicates versus Pointers</li>
     <DT>Ox does some <em>very</em> subtle things with memory.  To understand it requires some understanding of the C programming language, including unions of structures.  </DT>
@@ -527,8 +515,8 @@ When you write the code for your state variable you force the user (possibly you
     <details><summary><code>Source: niqlow/examples/classreference.ox</code></summary>
         <DD><pre><object width="95%" type="text/plain" height="250" data="../../examples/classreference.ox" border="1" ></object>
         </pre></DD></details>
-    <details><summary><em>Produces</em> output <code>Source: niqlow/examples/output/classreference.txt</code></summary><pre>
-        <object width="95%" height="200" type="text/plain" data="../../examples/classreference.output.txt" border="1" ></object>
+    <details><summary><em>Produces</em> output <code>Source: ../examples/output/classreference.txt</code></summary><pre>
+        <object width="95%" height="200" type="text/plain" data="../examples/output/classreference.output.txt" border="1" ></object>
         </pre></dd></details>
     <DD>In the first three lines <code>b=a</code> and then changing <code>b</code> does <em>not</em> change the value of <code>a</code>.  However, changing the member <code>v</code> <em>does</em> change the corresponding value of <code>a</code>.</DD>
     <DD>In the first three assignments, Ox <em>clones</em> the right hand side of the assignment.  But when assigning a variable that is currently an instance of a class a clone is <em>not</em> made.  Instead, a <em>reference </em>  or <em>pointer</em> to the class is made. So accessing the member of the reference is equivalent to accessing the member of the assigned class.</DD>
@@ -591,7 +579,8 @@ These instructions follow the ones provided for creating a <a href="#ASV">StateV
 
 <DT>Copy <code>niqlow/templates/DynamicPrograms/StateBlock.ox</code> to a file called <code>&laquo;BlockName&raquo;.ox</code>.</DT>
 <dd class="example"><details><summary>Contents of <code>Source: niqlow/templates/DynamicPrograms/StateBlock.ox</code></summary>
-<pre><object width="100%" height="300" type="text/plain" data="../../templates/DynamicPrograms/StateBlock.ox" border="1" ></object></pre></details></dd>
+<pre><object width="100%" height="300" type="text/plain" data="../../templates/DynamicPrograms/StateBlock.ox" border="1" ></object>
+</pre></details></dd>
 
 <DT>Decide how you want to include your code: see <a href="StateVariable.ox.html#incorimp">include or import</a>.</DT>
 
@@ -608,7 +597,8 @@ These instructions follow the ones provided for creating a <a href="#ASV">StateV
             Transit();
             Update();
             GrowthProbs();
-            }</pre></dd>
+            }
+</pre></dd>
 
     <DT>As with `StateVariable` there is one required and two <q>optional</w> methods that must be provided for each new state variable.</DT>
       <DD>The required method is the <em>constructor</em> for the state variable.  </DD>
@@ -625,7 +615,8 @@ These instructions follow the ones provided for creating a <a href="#ASV">StateV
             wght = new Coevolving("w",10);
             hght = new Coevolving("h",6);
             AddToBlock(wght,hght);
-            }</pre></dd>
+            }
+</pre></dd>
     <DT>It would be very bad practice to hard code the constants 10 and 6 in the definition of the class.</DT>
     <DD>Those kinds of dimensions should be decided by the user who includes the block in their model. </DD>
     <DD>It is done in the example to abstract away from passing information to the constructor since this is the same as with a `StateVariable`.</DD>
@@ -646,7 +637,8 @@ The major difference between a StateVariable and a StateBlock:  a state variable
                 | hght.v   ~ hght.v ~ hght.v   ~ hght.v+1 ~ hght.v+1;
             P = GrowthProb();
             return { F , reshape(P,Alpha::N,columns(F)) };
-            } </pre></dd>
+            } 
+</pre></dd>
    <DD>So, if weight and height were currently at levels 2 and 3, respectively, then <code>F</code> would be:<pre>
               1 2 3 2 3
               3 3 3 4 4;
@@ -744,7 +736,8 @@ CreateSpaces();
 <DT>All clock blocks have the same first two variables in the block</DT>
 
 <DT>The first co-evolving state variable in the clock is <var>t</var>, a state variable that is weakly monotonic:
-<pre>t&prime; &ge; t</pre>
+<pre>t&prime; &ge; t
+</pre>
 With anticipation (foresight), V(&theta;) can/should be solved backwards in <var>t</var> if time is important in the model beyond just today and tomorrow in an infinite horizon.  </DD>
 
 <DT>The second co-evolving variable in the clock block, <var>t&Prime;</var>, tracks feasible values of <var>t</var> next period during model solution.</DT>
@@ -759,20 +752,23 @@ With anticipation (foresight), V(&theta;) can/should be solved backwards in <var
 
 <DT>The clock block is available as `DP::counter`, but usually <code>MyModel</code> does not need to refer to it directly.</DT>
 <DT>The current value of <var>t</var>, is available to <code>MyModel</code> as `I::t`.  That is,</DT>
-<DD><pre>I::t &equiv; counter.t.v</pre></DD>
+<DD><pre>I::t &equiv; counter.t.v
+</pre></DD>
 <DD>Since <code>t</code> is in the index class I <code>MyModel</code> can use the identifier <code>t</code> for its own use.</DD>
 
 <DT>The decision horizon, or <code>counter.t.N</code>,  also denoted <code>T</code>, is the number of values that the time variable <code>t</code> takes on. </DT>
 <DD>The horizon of the model is
 <pre>
         T &equiv; t.N
-        T = 1 for an infinite horizon model (T = &infin;).</pre></DD>
+        T = 1 for an infinite horizon model (T = &infin;).
+</pre></DD>
 <DT>Because it is crucial to the solution method, this is a property of <code>MyModel</code> stored as `N::T`
 <DD><pre>
 When T is finite,
         N::T  &equiv;  T  =  counter.t.N,
 When T = &infin;,
-        N::T  &equiv;  1                  </pre></DD>
+        N::T  &equiv;  1                  
+</pre></DD>
 <DT><span class="n">DDP</span> distinguishes between a static program (finite horizon and T = </DD>N::T = 1></span>) and a stationary environment
 (T=&infin; and <code>N::T=1</code>) by checking the <em>class</em> of <code>counter</code>.</DT>
 
@@ -909,7 +905,7 @@ An auxiliary value <em>x</em> is typically a function of the state and action ve
 
 </OL>
 
-@author &copy; 2011-2017 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
+@author &copy; 2011-2018 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
 
 <a name="auto"><hr><h1>Documentation of  Items Defined in Variables.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 

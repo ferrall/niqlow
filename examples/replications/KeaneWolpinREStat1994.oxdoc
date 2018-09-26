@@ -1,0 +1,82 @@
+/** Replicate Keane and Wolpin (REStat 1994) Dynamic Roy Model using KW Approximation.
+
+<h2>The Model</h2>
+<DT>Solution Method <DD>Keane-Wolpin Approximation
+<DT>Clock: </DT>
+<DD>Finite horizon, normal aging.<pre>
+T= 40.
+age = 16+t</pre>
+</dd>
+<DT>Action:</DT>
+    <DD>$\alpha = (a)$</DD>
+    <DD>where a is which task/sector to perform/join
+<pre>
+Label   Code
+--------------
+white    0
+blue     1
+school   2
+home     3
+</pre></DD>
+<DT>Exogenous states</DT> 
+<DD>$\epsilon = \pmatrix{ e_0& e_1 & e_2 & e_3}$ and $\epsilon \sim dN(0,\Sigma)$</DD>
+<DT>Semi-Exogenous $\eta = ()$</DT>
+<DT>Endogenous states:</DT>
+<DD>$\theta = \pmatrix{x_0 & x_1& x_2& & p & t}$</DD>
+<DD>accumulate sector experience: $x'_s = x_s + I_{\{a=s\}}$, $s \ne 3$</DD>
+<DD>enrolled previous period:     $p' =  I_{\{a=2\}}$</DD>
+</DD>
+<DT>Occupation-Specific Human Capital Accumulation</DT>
+<DD>$h_0 = \pmatrix{ 1 & x_0 & x_1 & x_2 }\alpha_0$</DD>
+<DD>$h_1 = \pmatrix{ 1 & x_0 & x_1 & x_2 }\alpha_1$</DD>
+<DT> Utility</DT>
+<DD>$U = R(\theta)$</DD>
+<DD>where R() are the occupation-specific returns</DD>
+$$\eqalign{
+    R_0 &= e^{ h_0(\theta) + e_0 }\cr
+    R_1 &= e^{ h_1(\theta) + e_1 }\cr
+    R_2 &= \beta_0 - \beta_1 I_{\{x_2\ge 12\}}\cr
+    R_3 &= \gamma + e_3\cr}$$
+
+
+<h2>Approximation</h2>
+
+<DT>&epsilon; is a four dimensional iid vector.
+<DD><pre>
+EV<sub>&alpha;&theta;>[&theta;'] = &sum;<sub>&theta;'</sub>[ &sum;<sub>e'<sub>0</sub></sub> &sum;<sub>e'<sub>2</sub></sub> &sum;<sub>e'<sub>2</sub></sub> &sum;<sub>e'<sub>3</sub></sub> V(&epsilon;',&theta;') P(&theta;';&alpha;,&theta;) / &epsilon;.D]
+    = Emax[&theta;'] </pre></DD>
+K&amp;W denote this <em>Emax</em>, as in the expected value of the maximum over actions at the state next period. Since the transition for &theta; is deterministic, the outer sum is over a single state next period and P() = 1.  However, the inner summation involves &epsilon;.D values, each of which involves the maximization over 4 options of <code>v(&alpha;,&epsilon;',&theta;')</code>.  If, say, each component takes on 5 values, then &epsilon;.D = 5<sup>4</sup> = 625 points to sum up per point in the endogenous space &theta;.
+<DT>K&amp;W define</DT>
+<DD><pre>maxE[&theta;'] = V(&ecirc;,&theta;') </pre>
+where &ecirc; is a 1&times;4 vector of 0s, the expected value of &epsilon;'.  Thus, this is the max over actions at the expected iid shock next period.
+</DD>
+<DD>Approximate EV by evaluating directly at a subset of points in &theta;, which includes evaluating <code>max v(&alpha;,&epsilon;',&theta;')</code>.</DD>
+<DD>Track the maximum V(&epsilon;',&theta;') and the value at &ecirc;, maxE[&theta;'] and the vector of choice values <code>v(&alpha;,&ecirc;,&theta;')</code>.
+</DD>
+<DD>At each <code>t</code> run a regression of V on a non-linear expression involving v() and maxE, resulting in coefficients.  In particular:
+<pre>
+Emax(&epsilon;',&theta;') - maxE(&theta;')  &approx; d<sub>0</sub>+ (maxE-v(A,&theta;') )d<sub>1</sub> + sqrt(maxE-v(A,&theta;'))d<sub>2</sub>.</span>
+</pre>
+d<sub>0</sub> is an intercept, and d<sub>1</sub> and d<sub>2</sub> are 4&times 1 vectors of coefficients on differences between choice values v(A,&theta;') at the mean shock and the maximum value at the mean shock.  (When schooling is ruled out there are only 3 choice values.) These coefficients are estimated from a regression at each age at the randomly chosen subset &Theta;<sub>KW</sub> &subset; &Theta;.
+<pre>&Ecirc;max (&theta;') = max{ maxE , maxE+ d<sub>0</sub> + (maxE-v)d<sub>1</sub> + sqrt(maxE-v)<sub>2</sub> }, for &theta;' &notin; &Theta;<sub>KW</sub>
+         = Emax(&theta;'), &theta; &in; &Theta;<sub>KW</sub>.
+</pre>
+Note that &Ecirc;max is defined to be at least maxE, and when the algorithm has computed Emax it is used for &Ecirc;max.
+</DD>
+
+
+<h2>Replication</h2>
+
+<dd class="example"><details><summary><a href="../../../examples/replications/KeaneWolpinREStat1994.h">Header File:</a></summary>
+<pre>
+<object width="75%" height="200" type="text/plain" data="../../../examples/replications/KeaneWolpinREStat1994.h" border="1" ></object></pre></details></dd>
+
+<dd class="example"><details><summary><a href="../../../examples/replications/KeaneWolpinREStat1994.ox">Ox File:</a></summary><pre>
+<object width="75%" height="200" type="text/plain" data="../../../examples/replications/KeaneWolpinREStat1994.ox" border="1" ></object></pre></details></dd>
+
+<DD class="example"><details><summary>Output <a href="../../../examples/replications/output/KeaneWolpinREStat1994.txt">niqlow/examples/output/KeaneWolpinREStat1994.txt</a></summary>
+<pre><object width="75%" height="200" type="text/plain" data="../../../examples/replications/output/KeaneWolpinREStat1994.txt" border="1" ></object></pre></details></DD>
+
+@author &copy; 2011-2018 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
+
+**/

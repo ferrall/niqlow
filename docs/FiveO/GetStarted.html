@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'> <link rel="icon" href="icons/nicon16.png" type="image/png">
 <link rel="stylesheet" type="text/css" href="..\oxdoc.css">
 <link rel="stylesheet" type="text/css" media="print" href="..\print.css">
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -55,13 +55,13 @@ Consider the two-parameter <a href="http://en.wikipedia.org/wiki/Rosenbrock_func
     <DD><a href="Algorithms.ox.html#NelderMead">NelderMead</a> Simplex</DD>
 <P/>
 <a name="AB"><LI>Code the objective</LI></a>
-<dd><details><summary>Source: <a href="../../examples/Rosebrock.ox">niqlow/examples/Rosenbrock.ox</a></summary>
+<dd><details><summary>Source: <a href="../../examples/Rosenbrock.ox">niqlow/examples/Rosenbrock.ox</a></summary>
 <pre><object width="75%" height="200" type="text/plain" data="../../examples/Rosenbrock.ox" border="1" ></object></pre></details>
 <DL>Line-by-line Explanation
 <DT><code>#import "FiveO"</code></DT>
 <DD>The first line says this Ox code relies on <span class="n">FiveO</span>.  It could also <code>#import niqlow</code> since it includes FiveO.</DD>
 <DT><code>struct Rosenbrock : BlackBox { &hellip; }</code></DT>
-<DD>The next five lines declare the class of the objective, named <code>Rosenbrock</code>. This is a a <a href="BlackBox.ox.html#BlackBox">BlackBox</a> objective, so we derive <code>Rosenbrock</code> from that predefined class. The objective has two parameters, <code>x</code> and <code>y</code> declared as data members of the Rosenbrock class.</DD>
+<DD>The next five lines declare the class of the objective, named <code>Rosenbrock</code>. This is a a <a href="Objective.ox.html#BlackBox">BlackBox</a> objective, so we derive <code>Rosenbrock</code> from that predefined class. The objective has two parameters, <code>x</code> and <code>y</code> declared as data members of the Rosenbrock class.</DD>
 <DD>Next, the <defn>constructor</defn>, <code>Rosenbrock()</code>, is declared, a method with the same name as the class which is called when <code>new Rosenbrock()</code> is executed. Your objective should always define a constructor because some things must be initialized by it.</DD>
 <DD>The method that codes <span class="expressions">\(f()\)</span> is declared and <em>must</em> have the name <code>vfunc()</code>.  The reason the name must match is because your code will replace a default function (also known as a virtual method). The <b>v</b> means that it can return a <b>v</b>ector of values to sum up to compute the objective.  <span class="equation">$$f() = \sum_{j=0}^{M^-} vfunc()[j].$$</span>
 Summation is the default aggregation method, but others exist or can be defined, such as <em>sum of logs</em> or <em>product</em>. Notice that the function your code provides takes no arguments.  How does it know what parameter values to evaluate the function at?  The current values of the parameters are passed through the members of the class described below.</DD>
@@ -108,8 +108,8 @@ But once created, each algorithm object is associated with the objective sent to
 From the directory that contains the program, it can be run from a command line as:
 <DD><pre>oxl FiveOExampleA</pre>
 The output would is shown here:
-<details><summary>Source: <a href=""../../examples/output/FiveOExampleA.txt">niqlow/examples/output/FiveOExampleA.txt</a></summary>
-<pre><object width="75%" height="200" type="text/plain" data="../../examples/output/FiveOExampleA.txt" border="1" ></object></pre></details>
+<details><summary>Source: <a href="../examples/output/FiveOExampleA.txt">../examples/output/FiveOExampleA.txt</a></summary>
+<pre><object width="75%" height="200" type="text/plain" data="../examples/output/FiveOExampleA.txt" border="1" ></object></pre></details>
 </dd>
 <P/>
 <DT>Explanation</DT>
@@ -120,8 +120,8 @@ The output would is shown here:
 <P/>
 <DT>Log file</DT>
 <DD>The log files for Nelder Mead (given the volume level) has more detail that the direct-to-screen output:
-<details><summary>Source: <a href=""../../examples/FiveOExampleAlogfile.txt">niqlow/examples/FiveOExampleAlogfile.txt</a></summary>
-<pre><object width="75%" height="200" type="text/plain" data="../../examples/FiveOExampleAlogfile.txt" border="1" ></object></pre></details>
+<details><summary>Source: <a href="../examples/output/FiveOExampleAlogfile.txt">../examples/output/FiveOExampleAlogfile.txt</a></summary>
+<pre><object width="75%" height="200" type="text/plain" data="../examples/output/FiveOExampleAlogfile.txt" border="1" ></object></pre></details>
 </dd>
 <DD>It shows the final parameter values are as expected. The <em>free</em> parameter for <var>x</var> has gone from 1.0 to 2.0, and for <var>y</var> it has gone from 1.0 (since <var>y</var> to about -1.25.  What this means for the real parameters is stated in the final report once Simplex converges: the <em>actual</em> or <em>structural</em> parameters have converged to within 1.0E-5 of the true optimal values <var>x* = y* = </var> 1.0.</DD>
 <P/>
@@ -228,8 +228,8 @@ The main program reads the data matrix and sends <span class="expressions">\(y\)
 constant term as the last parameter.  It sends the objective to the <a href="Algorithms.ox.html#BHHH">BHHH</a> algorithm which relies on the gradient of the vector of log-likelihoods.
 <P/>
 <DT>Output</DT>
-<dd><details><summary>Source: <a href="../../examples/LogitExample.output.txt">niqlow/examples/LogitExample.output.txt</a></summary>
-<pre><object width="75%" height="200" type="text/plain" data="../../examples/LogitExample.output.txt" border="1" ></object></pre></details>
+<dd><details><summary>Source: <a href="../examples/output/LogitExample.output.txt">niqlow/docs/examples/output/LogitExample.output.txt</a></summary>
+<pre><object width="75%" height="200" type="text/plain" data="../examples/output/LogitExample.output.txt" border="1" ></object></pre></details>
 We can confirm that the BHHH algorithm produces the same log-likelihood as Stata to three decimal digits.  The standard errors it produces are slightly
 different than Stata, which uses the inverse of the Hessian rather than the OPG approach from BHHH.</dd>
 <P/>
@@ -308,14 +308,14 @@ final values and subsequent iterations start there.  This can be changed by call
 <DT>From the directory that contains the program, it can be run from a command line as:</DT>
 <DD><pre>oxl GetStartedFiveO</pre>
 The output to the OxEdit screen would include the segment captured by the log as show here:<pre>
-<details><summary>Source: <a href="../../examples/output/SysExample.txt">niqlow/examples/SysExample.output.txt</a></summary>
-<pre><object width="75%" height="200" type="text/plain" data="../../examples/SysExample.output.txt" border="1" ></object></details>
+<details><summary>Source: <a href="../examples/output/SysExample.txt">niqlow/docs/examples/output/SysExample.output.txt</a></summary>
+<pre><object width="75%" height="200" type="text/plain" data="../examples/output/SysExample.output.txt" border="1" ></object></details>
 </pre></dd>
 <DT>Explanation</DT>
 <P/>
 </OL>
 
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2017 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd></dd>
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2018 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd></dd>
 </dl>
 <div class="footer">
 Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>

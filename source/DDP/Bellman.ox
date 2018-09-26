@@ -1,5 +1,9 @@
 #include "Bellman.h"
-/* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
+#ifndef Bellox
+    #define Bellox
+    #include "DP.ox"
+#endif
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 /** Constructs the transitions for &theta;, the endogenous state vector.
 

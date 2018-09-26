@@ -1,6 +1,6 @@
 #import "database"
-#import "DP"
-/* This file is part of niqlow. Copyright (C) 2012-2016 Christopher Ferrall */
+#import "Bellman"
+/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
 
 /** Holds information about a column in the data.
 **/

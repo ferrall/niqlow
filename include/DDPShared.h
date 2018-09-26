@@ -1,8 +1,5 @@
 #import "Shared"
 
-ca(A,act);
-
-
 		/** Categories of state variables.	
             These categories are used mainly for summarizing the model.
                 @name StateTypes **/	
@@ -395,3 +392,8 @@ struct Labels : DDPauxiliary {
 		/** .  @internal    **/                   				Sfmts;
     static Initialize();
     }
+
+static decl
+        /** &Gamma; array (list) of groups of fixed and random effects. **/ Gamma,
+        /** 2-d array pointing to &Gamma;. **/								Fgamma,
+        /** &Theta; array (list) of all endogenous state nodes.**/  		Theta;

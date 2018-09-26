@@ -10,15 +10,13 @@ vpath %.ox.html $(DOC)
 
 algsrc := Parameters. Algorithms. ParallelObjective.
 algobj = $(algsrc:.=.oxo)
-objsrc := Objective. BlackBox. Separable.
+objsrc := Objective.
 objobj = $(objsrc:.=.oxo)
 
 FiveO.oxo : $(objobj)
 Objective.oxo :  Shared.oxo $(algobj)
-BlackBox.oxo : Objective.oxo
-Separable.oxo : Objective.oxo
 
-xtradoc = FiveO.ox GetStarted Error_And_Warning_Messages $(objsrc:.=.ox) $(algsrc:.=.ox) ../Shared/Shared.ox
+xtradoc = FiveO.ox GetStarted $(objsrc:.=.ox) $(algsrc:.=.ox) Error_And_Warning_Messages ../Shared/Shared.ox
 
 %.oxo : %.ox %.h
 	$(OX) $(OXFLAGS) -i$(INC) -c $<
@@ -34,8 +32,3 @@ clean:
 .PHONY : document
 document:
 	$(OXDOC) -include $(INC) -uplevel $(xtradoc)
-	${MAKE} -C $(DOC) tweak
-
-.PHONY : install
-install:
-	$(COPY) *.oxo $(INC)

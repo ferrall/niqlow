@@ -1,18 +1,15 @@
 include ../source/Makefile.inc
-DOC := ./
+DOC := ../docs/examples
 INC := ../include
-MENU := ..\..\OxMenu
 
-vpath %.ox .:$(MENU)\source
-vpath %.h .:$(INC):$(MENU)/include
-vpath %.oxo .:$(INC)
-vpath %.ox.html .
-#MortTest.   MVNormal. ReEmpExp.
-#main.ox BerkovecSternEmet1991.ox KeaneWolpinREStat1994.ox TestSystemSolve.ox WolpinJPE1984b.ox WolpinJPE1984.ox WolpinEmet1987.ox RustEmet1987new.ox RustEmet1987readdata.ox RustEmet1987mle.ox KennetJAE1994.ox ReEmpExp.ox WstarTestb.ox GilleskieEmet1998.ox MNP.ox IJCEmet2009.ox AguirregabiriaMira2002.ox
+vpath %.ox .:replications:DDP:FiveO:CFMPI:misc
+vpath %.h .:$(INC):replications:DDP:FiveO:CFMPI:misc
+vpath %.oxo .:$(INC):replications:DDP:FiveO:CFMPI:misc
+vpath %.ox.html $(DOC)
 
-examples =menu. AllTest. AllTestOpt. RustEmet1987. RustEmet1987mle. WolpinJPE1984b. WolpinJPE1984. WolpinEmet1987. KennetJAE1994.  KeaneWolpinREStat1994. BerkovecSternEmet1991. WstarTestb. GilleskieEmet1998. MNP. IJCEmet2009. AguirregabiriaMira2002. TestGHK. StataMNP. ClientServerTestA. PeerCommunicationTestA. DynamicWstar.
-exoxo = $(examples:.=.oxo)
-exdoc = main.ox GetStarted.ox GetStartedData.ox RustEmet1987readdata.ox $(examples:.=.ox)
+imports = DDPexamples. FiveOexamples. replications. MPItests. MiscExamples.
+exoxo = $(imports:.=.oxo)
+exdoc = main.ox DDP/DDPexamples.ox FiveO/FiveOexamples.ox replications/replications.ox CFMPI/MPItests.ox misc/MiscExamples.ox
 
 main.oxo : $(exoxo)
 
@@ -27,5 +24,8 @@ clean:
 .PHONY : document
 document:
 	$(OXDOC) -uplevel -include $(INC) $(exdoc)
-	$(SED) -i -f oxdoc.sed *.html						
-	$(ERASE) sed*.
+	${MAKE} -C DDP document
+	${MAKE} -C FiveO document
+	${MAKE} -C misc document
+	${MAKE} -C CFMPI document
+	${MAKE} -C replications document

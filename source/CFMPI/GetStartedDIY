@@ -3,8 +3,8 @@
 This document explains the example program <code>MPItest.ox</code> and shows how to run it on a particular cluster.  The details of running programs will different across clusters.  This is the <q>DIY</q> version because it uses the low-level routines that interface between Ox and the MPI library.  The objects in CFMPI make it possible to avoid some of this programming or to avoid it entirely.
 
 <DT>The program:</DT>
-<DD><details><summary>Source: <a href="../../examples/MPITest.ox">examples/MPITest.ox</a></summary><pre>
-<object width="100%" height="300" type="text/plain" data="../../examples/MPITest.ox" border="1" ></object></pre></details></DD>
+<DD><details><summary>Source: <a href="../../examples/CFMPI/MPITest.ox">examples/CFMPI/MPITest.ox</a></summary><pre>
+<object width="100%" height="300" type="text/plain" data="../../examples/CFMPI/MPITest.ox" border="1" ></object></pre></details></DD>
 is an example a very simply client/server setup.
 
 <DT>Include CFMPI</DT>
@@ -43,7 +43,7 @@ back and fort.</DD>
 <DD><pre>
 oxl MPItest
 </pre></DD>
-<DD>When the MPI environment is not requested, fake routines are inserted for <code>MPI_Init()</code>, <code>MPI_Recv()</code> and <code>MPI_Send()</code></DD>.  
+<DD>When the MPI environment is not requested, fake routines are inserted for <code>MPI_Init()</code>, <code>MPI_Recv()</code> and <code>MPI_Send()</code></DD>.
 <DD>The first will set <code>I=0</code> and <code>Nodes=1</code> (serial environment).  Then the others will act as if a message was past when really nothing happens.  But by referencing the same location as the <code>buffer</code> the "message" is sitting there.</DD>
 <DD>And since the client calls the server after getting (the non-existent) real servers started, the job is done.</DD>
 

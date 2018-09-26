@@ -1,5 +1,10 @@
-#import "DP"
-/* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
+#ifdef OX_PARALLEL
+#ifndef DPin
+    #define DPin
+    #include "DP.h"
+#endif
+#endif
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 /** &theta;-specific values.
 

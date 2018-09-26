@@ -1,5 +1,5 @@
 #include "Clock.h"
-/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 /** . @internal **/
 TimeVariable::TimeVariable(L,N) { Coevolving(L,N); }

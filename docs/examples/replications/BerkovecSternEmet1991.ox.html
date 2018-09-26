@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'> <link rel="icon" href="icons/nicon16.png" type="image/png">
+<link rel="stylesheet" type="text/css" href="..\..\oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="..\..\print.css">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<title>BerkovecSternEmet1991.ox - Replications</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">BerkovecSternEmet1991.ox</span></h1>
+
+Replicate Berkovec Stern 1991 Model of Retirement using <span class="n"><a href="../../DDP/default.html">DDP</a></span>.
+<P/>
+<code>BerkovecSternEmet1991.ox</code> replicates results shown in Figure 1 of
+<a href="http://www.jstor.org/stable/2938246?origin=JSTOR-pdf">Berkovec and Stern (1991)</a>.
+<UL>
+<LI>Models retirement and work for males age 55+
+<LI>New job match value arrives each year, or can continue with current full/part-time wage
+<LI>Wages grow with duration on the job
+<LI>Choices made until age 76, then retired for 10 years
+<LI>Probability of early death depends on age and health (constant)
+<LI>Figure 1 simulates choice probabilities assuming 10 years tenure on full-time job
+</UL>
+<P/>
+<h2>The Model</h2>
+<DL>
+<DT>Solution/smoothing: <DD>Extreme Value ex ante, &rho; = 1/&tau;.</DD>
+<DT>Clock:
+        <DD>RandomMortality (T = 21)
+        <DD>Mortality probability <a href="BerkovecSternEmet1991.ox.html#Retirement___mprob">mprob</a> (in the paper called &delta;) a function of age and constant health.
+	<DD>Paper does not report probabilities. Stern contacted and could not find them.
+	<DD>Rates are approximated using: <a href="http://www.cdc.gov/nchs/data/dvs/mx196878.pdf">CDC Data</a></DD>
+<DT>Action Vector: <DD class="example">&alpha; = (i), i.N=4<pre>
+i       Means
+-----------------------------------
+0       Retire
+1       Work Part-time new match
+2       Work Full-time new match
+3       Stay in current job</pre></DD>
+<DT>Semi-State Variables <DD>&eta; =   (h),  new job match value.</DD>
+<DT>Endogenous State Variables
+<DD>&theta; =   (m<sub>0</sub> m<sub>1</sub> s d M t),</dd>
+<DD>m<sub>0</sub> and m<sub>1</sub> and s lagged action trackers (full-time implied).</DD>
+<DD>d duration of current match (t-s) in the paper</DD>
+<DD>M current match value if a job was held last year (M'=h if i=Part or Full).</DD>
+<DT>Random Effects (elements of the group vector &gamma;)
+<DD>&gamma; =   (g<sub>0</sub> g<sub>1</sub> g<sub>2</sub> g<sub>3</sub> g<sub>I</sub>).</DD>
+<DD>Each a permanent normal random effect, g<sub>i</sub> associated with sector i.  g<sub>I</sub> is an individual specific wage effect.</DD>
+<P/>
+<DT>Utility:<dd class="example"><pre>
+U = X&beta;<sub>0</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>g<sub>0</sub>  + &tau;z.0
+    X&beta;<sub>1</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>g<sub>1</sub> + &sigma;<sub>3</sub>h<sub>s</sub>+ &tau;z.1
+    X&beta;<sub>2</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>g<sub>2</sub> + &sigma;<sub>3</sub>h<sub>s</sub>+ &tau;z.2
+    X&beta;<sub>0</sub> + d  +  &sigma;<sub>3</sub>M+ &tau;z.3</pre></dd>
+<DD>z.i IID extreme value error</DD>
+<DT>Feasible Actions
+    <DD>only retirement (i=0) after age 75</DD>
+    <DD>cannot choose stay (i=3) if retired last period (m<sub>0</sub>=1)</DD>
+<DT>Reachable States
+    <DD>duration must be feasible</DD>
+    <DD>new and current match value irrelevant after age 75</DD>
+    <DD>current match value irrelevant if retired</DD>
+<DT>Notes:</DT>
+<DD>Traverse state space using state list since many states are unreachable</DD>
+<DD>Paper used ?? Monte Carlo draws per normal component.  </DD>
+</DL>
+<hr>
+<h2>Implementation in DDP</h2>
+<P/>
+<dd class="example"> <pre><a href="../../../examples/replications/BerkovecSternEmet1991.h">Header File: </a>
+<object width="75%" height="200" type="text/plain" data="../../../examples/replications/BerkovecSternEmet1991.h" border="1" ></object></pre></dd>
+<P/>
+<dd class="example"> <pre><a href="../../../examples/replications/BerkovecSternEmet1991.ox">Ox File:</a>
+<object width="75%" height="200" type="text/plain" data="../../../examples/replications/BerkovecSternEmet1991.ox" border="1" ></object></pre></dd>
+<P/>
+<DD class="example">
+<pre>Output <a href="../../../examples/replications/output/BerkovecSternEmet1991.txt">niqlow/examples/output/BerkovecSternEmet1991.txt</a>
+<object width="75%" height="200" type="text/plain" data="../../../examples/replications/output/BerkovecSternEmet1991.txt" border="1" ></object></pre></DD>
+
+<a name="Retirement"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Retirement</span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___acteqpars">acteqpars</a></td>
+<td class="modifiers">static</td>
+<td class="description">&beta;<sub>i</sub>  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Changing">Changing</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___col">col</a></td>
+<td class="modifiers">static</td>
+<td class="description">Column of table to get params from  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___disc">disc</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___drates">drates</a></td>
+<td class="modifiers">static const</td>
+<td class="description">age bracket death rates per 100000.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___dur">dur</a></td>
+<td class="modifiers">static</td>
+<td class="description">duration of existing job  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___eI">eI</a></td>
+<td class="modifiers">static</td>
+<td class="description">individual wage effect  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___ejob">ejob</a></td>
+<td class="modifiers">static</td>
+<td class="description">array of choice-specific draws  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___eqpars">eqpars</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___eS">eS</a></td>
+<td class="modifiers">static</td>
+<td class="description">new match draw  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___HThous">HThous</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___i">i</a></td>
+<td class="modifiers">static</td>
+<td class="description">Action variable  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___M">M</a></td>
+<td class="modifiers">static</td>
+<td class="description">match value if worked last year  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___p">p</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___PrevJob">PrevJob</a></td>
+<td class="modifiers">static</td>
+<td class="description">choice previous period  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___sig1">sig1</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___sig2">sig2</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___sig3">sig3</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___tau">tau</a></td>
+<td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___FeasibleActions">FeasibleActions</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___mprob">mprob</a></td>
+<td class="modifiers">static</td>
+<td class="description">Age-dependent mortality probability.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Reachable">Reachable</a></td>
+<td class="modifiers"></td>
+<td class="description">Duration must be feasible, do not track current eta if retired.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Run">Run</a></td>
+<td class="modifiers">static</td>
+<td class="description">Setup and solve the model for both columns.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Sig1">Sig1</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Sig2">Sig2</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Utility">Utility</a></td>
+<td class="modifiers"></td>
+<td class="description">The one period return.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Dimens">Dimens</a></td>
+<td class="modifiers"></td>
+<td class="description">State space dimensions.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___mortbrackets">mortbrackets</a></td>
+<td class="modifiers"></td>
+<td class="description">Mortality brackets.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___regressors">regressors</a></td>
+<td class="modifiers"></td>
+<td class="description">Wage regressors.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___sectors">sectors</a></td>
+<td class="modifiers"></td>
+<td class="description">Choices & Sectors.</td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Retirement</span></h2>
+
+<table class="enum_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><a name="Retirement___Dimens"></a>Dimens</td>
+<td class="description">State space dimensions.
+</td>
+<td class="elements">nReps, nRepsS, S0, T0, Tstar, T2star, TMAX, Smax</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><a name="Retirement___mortbrackets"></a>mortbrackets</td>
+<td class="description">Mortality brackets.
+</td>
+<td class="elements">A55_64, A65_74, A75_84, A85plus, AgeCategories</td>
+</tr>
+<tr class="even">
+<td class="declaration"><a name="Retirement___regressors"></a>regressors</td>
+<td class="description">Wage regressors.
+</td>
+<td class="elements">Constant, Education, Race, Age, Age2, Health, Tenure, Tenure2, Nregressors</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><a name="Retirement___sectors"></a>sectors</td>
+<td class="description">Choices & Sectors.
+</td>
+<td class="elements">Retire, Part, Full, Stay, Nactions, Nsectors</td>
+</tr>
+</table>
+
+<a name="Retirement___acteqpars"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">acteqpars</span></h3>
+
+<span class="declaration">static decl acteqpars [public]</span>
+<dl><dd>
+&beta;<sub>i</sub>
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___Changing"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Changing</span></h3>
+
+<span class="declaration">static const decl Changing [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___col"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">col</span></h3>
+
+<span class="declaration">static decl col [public]</span>
+<dl><dd>
+Column of table to get params from
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___disc"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">disc</span></h3>
+
+<span class="declaration">static const decl disc [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___drates"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">drates</span></h3>
+
+<span class="declaration">static const decl drates [public]</span>
+<dl><dd>
+age bracket death rates per 100000.
+	Paper does not report &delta;, state-dependent survival probability. Stern was contacted and said they could not be found.
+	These rates are used as an approximation.
+	<LI>Source http://www.cdc.gov/nchs/data/dvs/mx196878.pdf
+	<LI>Table: 82/10/14 TABLE 290 82/10/14 TABLE 290. DEATH RATES FOR 69 SELECTED CAUSES, BY 10-YEAR AGE GROUPS, RACE, AND SEX: UNITED STATES, 1968-78
+	<LI>Row: White Male 1969, Age55-85+
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___dur"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">dur</span></h3>
+
+<span class="declaration">static decl dur [public]</span>
+<dl><dd>
+duration of existing job
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___eI"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">eI</span></h3>
+
+<span class="declaration">static decl eI [public]</span>
+<dl><dd>
+individual wage effect
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___ejob"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ejob</span></h3>
+
+<span class="declaration">static decl ejob [public]</span>
+<dl><dd>
+array of choice-specific draws
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___eqpars"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">eqpars</span></h3>
+
+<span class="declaration">static const decl eqpars [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___eS"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">eS</span></h3>
+
+<span class="declaration">static decl eS [public]</span>
+<dl><dd>
+new match draw
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___FeasibleActions"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FeasibleActions</span></h3>
+
+<span class="declaration">Retirement :: FeasibleActions ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___HThous"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">HThous</span></h3>
+
+<span class="declaration">static const decl HThous [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___i"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">i</span></h3>
+
+<span class="declaration">static decl i [public]</span>
+<dl><dd>
+Action variable
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___M"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">M</span></h3>
+
+<span class="declaration">static decl M [public]</span>
+<dl><dd>
+match value if worked last year
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___mprob"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">mprob</span></h3>
+
+<span class="declaration">static Retirement :: mprob ( )</span>
+<dl><dd>
+Age-dependent mortality probability.
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___p"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">p</span></h3>
+
+<span class="declaration">static const decl p [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___PrevJob"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">PrevJob</span></h3>
+
+<span class="declaration">static decl PrevJob [public]</span>
+<dl><dd>
+choice previous period
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___Reachable"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Reachable</span></h3>
+
+<span class="declaration">Retirement :: Reachable ( )</span>
+<dl><dd>
+Duration must be feasible, do not track current eta if retired.
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">static Retirement :: Run ( )</span>
+<dl><dd>
+Setup and solve the model for both columns.
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___Sig1"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Sig1</span></h3>
+
+<span class="declaration">static Retirement :: Sig1 ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___sig1"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sig1</span></h3>
+
+<span class="declaration">static const decl sig1 [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___Sig2"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Sig2</span></h3>
+
+<span class="declaration">static Retirement :: Sig2 ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___sig2"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sig2</span></h3>
+
+<span class="declaration">static const decl sig2 [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___sig3"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sig3</span></h3>
+
+<span class="declaration">static const decl sig3 [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___tau"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">tau</span></h3>
+
+<span class="declaration">static const decl tau [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___Utility"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Utility</span></h3>
+
+<span class="declaration">Retirement :: Utility ( )</span>
+<dl><dd>
+The one period return.
+
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

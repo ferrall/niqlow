@@ -1,7 +1,7 @@
 #import "Variables"
-/* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
-static decl
+extern decl
         /** &Gamma; array (list) of groups of fixed and random effects. **/ Gamma,
         /** 2-d array pointing to &Gamma;. **/								Fgamma,
         /** &Theta; array (list) of all endogenous state nodes.**/  		Theta;

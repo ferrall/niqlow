@@ -8,7 +8,7 @@
 <LI>Integration, Kernels</LI>
 </OL>
 
-@author &copy; 2011-2016 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
+@author &copy; 2011-2018 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
 <a name="auto"><hr><h1>Documentation of  Items Defined in Shared.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
 **/

@@ -35,7 +35,7 @@ If an optimization algorithm has already run and modified the current values of 
  Encode(0);
  alg2 -&gt; Iterate(0);</pre>
  Optimization algorithm <code>alg1</code> iterates.  It started at some parameter vector $\psi_0$ which was determined higher up in the code.  When it completes it leaves the values of parameters at the best values so far, $\psi = \psi_1$.  The user then wants to turn off all scaling and constraining.  The <code>Encode(0)</code> statement then is equivalent to $\psi_0 = \psi_1$.  The second algorithm starts at that point and would end at some $\psi =  \psi_2$.  The user could then compute the Hessian of the parameter vector $\psi$ knowing that it will be computed at the new best, $\psi_2$ and the values will be based on the structural parameters themselves without any transformation.</DD>
- 
+
 Alternatively, the program can pass new starting values as the argument, <code>Encode(xstart)</code>.  Now both the internally stored starting and current vectors would be set to <code>xstart</code>.  In addition, scaling and initial free vectors are set so that an algorithm can go to work.  Starting values can also be read into the program from a file using <code>Load()</code></p>.
 
 Free parameters are converted to structural parameters with the `Objective::Decode`() method. The user will only call <code>Decode</code> themselves if they are writing their own optimization algorithm or performing a related operation. This is because all algorithms and other operations using the user's objective will call <code>Decode()</code> internally before making a call to <code>vfunc()</code>.  An important duty of <code>Decode()</code> is to ensure that each parameter object's <code>v</code> member is set equal to the current value in the (internal) $\psi$ vector. That is, the user's program will rarely if ever have to refer to a parameter vector.  They simply refer to current or starting values of individual parameters and parameter blocks.</p>
@@ -45,7 +45,7 @@ Free parameters are converted to structural parameters with the `Objective::Deco
 The user can define their own type of parameter or block.  This could be derived from an existing class as a special case that requires fewer inputs from the user.  The class must include <code>Encode()</code> and <code>Decode()</code> if these act differently than the versions for the parent class.</p>
 
 </OL>
-@author &copy; 2011-2017 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
+@author &copy; 2011-2018 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
 
 <a name="auto"><hr><h1>Documentation of  Items Defined in Parameters.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 **/

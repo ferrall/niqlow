@@ -2,6 +2,7 @@ include Makefile.inc
 
 INC := ..\include
 DOC := ../docs
+OxMenu = ..\..\OxMenu\include
 
 vpath %.ox .:Shared:DDP:FiveO:Hybrids:$(INC)
 vpath %.h $(INC)
@@ -18,27 +19,22 @@ niqlow.oxo  : $(oxobjects)
 	$(COPY) $@ $(INC)
 	$(ERASE) $@
 
-.PHONY : clean
-clean:
-	$(info $(CURDIR))
-	$(ERASE) *.oxo
-	$(ERASE) $(INC)\*.oxo
-
 .PHONY : document
 document:
-#	$(ERASE) ..\doc\default.html
-#	$(OXDOC) -uplevel -include $(INC) niqlow.ox "About niqlow"
-	${MAKE} -C $(DOC) tweak
+#	$(ERASE) ..\docs\default.html
+	$(OXDOC) -include $(INC) niqlow.ox
 	${MAKE} -C About document
 	${MAKE} -C DDP document
 	${MAKE} -C FiveO document
 	${MAKE} -C Hybrids document
 	${MAKE} -C CFMPI document
 	${MAKE} -C $(XMP) document
+	${MAKE} -C $(DOC) tweak
 	
 .PHONY : install
 install:
 	$(ERASE) $(INC)\*.oxo
+	$(COPY) $(OxMenu)\menu.* $(INC)
 	${MAKE} -C DDP
 	${MAKE} -C FiveO
 	$(COPY) FiveO\ParallelObjective.ox $(INC)
@@ -46,9 +42,5 @@ install:
 	${MAKE} -C Hybrids
 	${MAKE} -C $(INC)
 	${MAKE} -C .
-	$(ERASE) $(XMP)\*.oxo
 	${MAKE} -C $(XMP)
-	$(ERASE) $(XMP)\PeerCommunicationTestA.oxo
-	$(ERASE) $(XMP)\ClientServerTestA.oxo
-#   $(ERASE) $(INC)\C\*.so
-#	${MAKE} -C C
+	$(ERASE) /S $(XMP)\*.oxo

@@ -1,5 +1,5 @@
 #include "Methods.h"
-/* This file is part of niqlow. Copyright (C) 2011-2016 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 /**  Simplified Value Iteration model solution.
 

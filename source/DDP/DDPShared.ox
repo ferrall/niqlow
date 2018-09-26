@@ -1,13 +1,5 @@
 #include "DDPShared.h"
 
-/* Use CV() instead:  Return the column of feasible action matrix for the action variable.
-@param A matrix of feasible actions<br>integer: index into list of feasible action matrices.
-@param act `ActionVariable`
-@return A[][act.pos]
-@see CV
-ca(A,act) { return isint(A) ? Alpha::CList[A][][act.pos] : A[][act.pos]; }
-*/
-
 
 /** .
 @internal
