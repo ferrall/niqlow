@@ -19,6 +19,7 @@ StaticRoy::Replicate()	{
 	Approx -> Solve();
 	DPDebug::outV(FALSE,&AMat);
     println("difference ","%c",{"EV","Choice Probs"},(BMat-AMat)[][columns(BMat)-4:]);
+    Delete();
 }
 
 /** Utility vector equals the vector of feasible returns.**/	

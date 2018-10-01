@@ -79,6 +79,7 @@ PrattWhitney::Run()	{
 		EMax->Solve();
 		Ehours();
 		}
+    Delete();   
 	}
 
 /** The one period return.

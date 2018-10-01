@@ -25,6 +25,7 @@ FirmEntry::Run() {
 	Initialize();
 	GenerateSample();
 	BDP->BayesianDP();	
+    Delete();
 	}
 	
 FirmEntry::Initialize() {

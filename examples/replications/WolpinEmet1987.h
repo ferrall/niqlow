@@ -15,5 +15,6 @@ class SchToWork : OneDimensionalChoice {
 	        Reachable();
 	 		FeasibleActions();
 			Udiff(z);
+            Uz(z);
 			EUtility();
 	}

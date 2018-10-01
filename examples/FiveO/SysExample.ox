@@ -1,3 +1,4 @@
+
 #import "FiveO"
 struct SysExample : System {
 	decl x;
@@ -16,6 +17,7 @@ SysExample::vfunc()	{
 	}
 /*  Uncomment to run as a standalone program.
 main() {
+    fopen("../output/SysExample.output.txt","l");
     decl sys = new SysExample(8), alg1, alg2;
 	alg1 = new Broyden(sys);
     alg2 = new NewtonRaphson(sys);

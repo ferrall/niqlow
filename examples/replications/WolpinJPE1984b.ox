@@ -28,6 +28,7 @@ Fertility2::Replicate()	{
 			PD -> Histogram(n,TRUE,TRUE);
 			delete PD;
 			}
+    Delete();
 	}
 
 /** Returns current time-specific transition probabilities. **/

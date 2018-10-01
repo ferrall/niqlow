@@ -640,39 +640,39 @@ Alpha::ResetA(alist) {
 
 
 Alpha::Aprint() {
-    decl av,i,j;
+    decl a,av,i,j;
     decl everfeasible, totalnever = 0;
     println("\n6. FEASIBLE ACTION SETS\n ");
-    Rlabels = new array[N::A];
+    Rlabels = new array[N::J];
     aL1= "i    [";
-	for (j=0;j<N::Av;++j) aL1 |= DP::SubVectors[acts][j].L[0];
+	for (i=0;i<N::Av;++i) aL1 |= DP::SubVectors[acts][i].L[0];
     aL1 |= "]";
 	av = sprint("%-14s",aL1);
-	for (i=0;i<N::J;++i) av ~= sprint("  A[","%1u",i,"]   ");
+	for (j=0;j<N::J;++j) av ~= sprint("  A[","%1u",j,"]   ");
 	println(av);
-    print("------------------"); for (i=0;i<N::J;++i) print("---------"); println("");
-	for (j=0;j<N::A;++j) {
-		for (i=0,av=sprint("%03u",j)~" (";i<N::Av;++i) av ~= sprint("%1u",Matrix[j][i]);
+    print("------------------"); for (j=0;j<N::J;++j) print("---------"); println("");
+	for (a=0;a<N::A;++a) {
+		for (i=0,av=sprint("%03u",a)~" (";i<N::Av;++i) av ~= sprint("%1u",Matrix[a][i]);
 		av~=")";
-		for (i=0;i<N::J;++i)
-            if (Sets[i][j]) {
-                if (!sizeof(Rlabels[i])) Rlabels[i] = {av};
-                else Rlabels[i] |= av;
+		for (j=0;j<N::J;++j)
+            if (Sets[j][a]) {
+                if (!sizeof(Rlabels[j])) Rlabels[j] = {av};
+                else Rlabels[j] |= av;
                 }
 		for (i=0;i<8-N::Av;++i) av ~= " ";
         everfeasible = FALSE;
-		for (i=0;i<N::J;++i) {
-            av ~= Sets[i][j] ? "    X    " : "    -    ";
-            everfeasible = everfeasible|| (Count[i]&&Sets[i][j]);
+		for (j=0;j<N::J;++j) {
+            av ~= Sets[j][a] ? "    X    " : "    -    ";
+            everfeasible = everfeasible|| (Count[j]&&Sets[j][a]);
             }
         av ~= "    ";
 		for (i=0;i<N::Av;++i)
-            if ( isarray(DP::SubVectors[acts][i].vL) ) av ~= "-"~DP::SubVectors[acts][i].vL[Matrix[j][i]];
+            if ( isarray(DP::SubVectors[acts][i].vL) ) av ~= "-"~DP::SubVectors[acts][i].vL[Matrix[a][i]];
 		if (everfeasible) println(av);  else ++totalnever;
 		}
-	for (i=0,av="   #States";i<N::J;++i) av ~= sprint("%9u",Count[i]);
+	for (j=0,av="   #States";j<N::J;++j) av ~= sprint("%9u",Count[j]);
 	println(av);
-    print("-----------------"); for (i=0;i<N::J;++i) print("---------");
+    print("-----------------"); for (j=0;j<N::J;++j) print("---------");
     println("\n    Key: X = row vector is feasible. - = infeasible");
     if (totalnever) println("    # of Action vectors not shown because they are never feasible: ",totalnever);
     println("\n");

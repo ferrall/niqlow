@@ -20,6 +20,7 @@ AMZurcher::Run()  {
     data->SetMethod(0);  //get rid of nested fixed point
 	HM.Volume = NOISY;
     HM -> Solve();
+    Delete();
 	}
 
 

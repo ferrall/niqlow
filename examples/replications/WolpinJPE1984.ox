@@ -30,6 +30,7 @@ Fertility::Replicate()	{
 		println("\n Table of Working Paper ",tab ? "9, page 47 " : "8, page 45","\n ----------------------------------" );
   		println("%cf",{"%8.4f","%8.4f","%8.4f","%8.4f","%8.4f","%8.4f"},"%c",{"row","N1-5","N6-10","N11-15","N16-20","N"},rvals);
       }
+    Delete();
 	}
 
 Fertility::TimeEffect(coeff) {

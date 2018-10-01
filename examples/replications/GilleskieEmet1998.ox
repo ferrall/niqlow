@@ -42,6 +42,7 @@ DynaHealth::Replicate() {
 	CreateSpaces(LogitKernel,1.0);
     VISolve();
 	//decl Emax = new ValueIteration(0);Emax.Volume = LOUD;Emax -> Solve(0,0);
+    Delete();
 	}
 
 DynaHealth::Reachable() {

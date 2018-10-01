@@ -10,8 +10,10 @@ SchToWork::Replicate() {
 	done -> MakeTerminal(1);
 	CreateSpaces();
 	decl RV = new ReservationValues(-.Inf,-1) ;
-	RV.Volume = LOUD;
+	RV.Volume = QUIET;
 	RV -> Solve();
+    DPDebug::outV(TRUE,0);
+    Delete();
 	}
 
 SchToWork::Reachable() {
@@ -28,7 +30,13 @@ SchToWork::FeasibleActions() {
 			: dv.==0;    //no offer
 	}
 	
-SchToWork::Poff(...) { decl d=max(0,I::t-k-1); 	return d ? probn(pars[m0]+pars[m1]*d) : pars[P0] ; }
+SchToWork::Poff(...) {
+    decl d=max(0,I::t-k-1); 	
+    return d ? probn(pars[m0]+pars[m1]*d) : pars[P0] ;
+    }
+
+/** Return vector of utilities at the cutoff(s) z. **/	
+SchToWork::Uz(z) {	return -pars[c] | z;	}
 
 SchToWork::Udiff(z) {
 	if (CV(done)) return 0.0;

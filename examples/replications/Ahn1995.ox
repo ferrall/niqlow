@@ -63,7 +63,7 @@ Ahn::Run(){
         PD -> Predict(15);
         //PD -> Histogram(One);
        //println("%c",PD.tlabels,PD.flat[0]);
-    Delete;
+    Delete();
     }
 
 /** d=1 (decision to have a child) is only allowed for the first 7 periods. **/

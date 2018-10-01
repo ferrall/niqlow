@@ -16,7 +16,8 @@ repmenu() {
 			{"GilleskieEmet1998", 		DynaHealth::Replicate},
 			{"A&M2002",					AMZurcher::Run},
 			{"IJCEmet2009", 			FirmEntry::Run},
-            {"Ahn1995",                 Ahn::Run}
+            {"Ahn1995",                 Ahn::Run},
+            {"French2005",              French2005::Run}
 			);
     return reps;
     }

@@ -16,6 +16,7 @@ Zurcher::Run()	{
 	sim = new Panel(0,EMax);
 	sim->Simulate(10,400,0,0);  //draw from ergodic distn.
 	Output( );
+    Delete();
 	}
 
 Zurcher::SetParameters() {

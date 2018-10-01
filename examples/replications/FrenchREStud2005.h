@@ -1,7 +1,7 @@
 #import "DDP"
 #include <oxdraw.h>
 
-struct EFRetirement : EVExAnte	{
+struct French2005 : ExPostSmoothing	{
 	/** Choices & Sectors. @name sectors **/
 		enum{Retire,Part,Full,Stay,Nactions,Nsectors=Stay}
 	/** State space dimensions. @name Dimens**/

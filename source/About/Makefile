@@ -17,5 +17,4 @@ AboutDocs = Install License Citation Acknowledgements ReleaseNotes
 .PHONY : document
 document:
 	$(OXDOC) -uplevel -include $(INC) $(AboutDocs)
-	${MAKE} -C $(DOC) tweak
 	
