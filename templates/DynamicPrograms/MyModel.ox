@@ -97,7 +97,7 @@ struct «MyModel» : «BaseClass»	{
 «MyModel»::Utility()  {
 	return /* column vector of utilities for feasible actions */;
     //EXAMPLE: U = d*q, where d is an action variable and q is a state variable.
-    //return aa(d)*CV(q);
+    //return AV(d)*CV(q);
 	}	
 
 /*
@@ -113,14 +113,14 @@ struct «MyModel» : «BaseClass»	{
 */
 
 /*
-«MyModel»::FeasibleActions(A) {
+«MyModel»::FeasibleActions() {
     // column vector of 0s and 1s indicating which rows of A are feasible at the current state
     // Create as many as needed
-    // Use «act».pos or aa(«act») to select the column of A corresponding to «act».
+    // Use «act».pos or AV(«act») to select the column of A corresponding to «act».
     return  «row of A condition given current endogenous state»;
 
     //EXAMPLE: action d=1 is infeasible when state variable q=2. Otherwise, everything is feasible
-    //return (aa(d).!=1) || CV(q)!=2 ;
+    //return (AV(d) .!= 1) || CV(q)!=2 ;
 
     }
 */
