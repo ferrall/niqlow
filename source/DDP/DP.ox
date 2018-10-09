@@ -188,7 +188,8 @@ DP::GetPstar(i) {return Theta[i].pandv; }
 First element is vector of indices for feasible states &theta;&prime;<br>
 Second element is a matrix of transition probabilities (rows for actions <code>&alpha;</code>, columns correspond to &theta;&prime;)
 **/
-DP::GetTrackTrans(i,h) { return {Theta[i].Nxt[Qtr][h],Theta[i].Nxt[Qrho][h]}; }
+DP::GetTrackTrans(i,h) {
+    return {Theta[i].Nxt[Qtr][h],Theta[i].Nxt[Qrho][h]}; }
 
 /** Ask to store overall &Rho;*() choice probability matrix.
 @comment Can only be called before calling `DP::CreateSpaces`

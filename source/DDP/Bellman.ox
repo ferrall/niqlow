@@ -447,10 +447,13 @@ Bellman::Simulate(Y) {
 	zeta -> Realize(Y);
 	decl i,c;
     chi=<>;
+    Y.act = Alpha::aC;
+	Y.z = CV(zeta);
     foreach(c in Chi) {
 		c->Realize(Y);
 		chi ~= CV(c);
 		}
+	Y.aux = chi;
     //	for (i=0,chi=<>;i<sizeof(Chi);++i) {		Chi[i]->Realize(Y);		chi ~= CV(Chi[i]);		}
 	if (done) return UnInitialized;
 	i = (I::OO[bothgroup][]'.!=0) .* Y.state;

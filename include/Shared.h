@@ -115,7 +115,6 @@ struct Discretized : Zauxiliary {
 /** Container for discrete variables (DDP) and continuous parameters (FiveO).
 **/
 struct Quantity {
-
 	const 	decl	
 		/** Label **/ 						L;
 	decl

@@ -11,16 +11,23 @@ struct Outcome : Data {
 			PrefixLabels = {"t","n","T","Aj|"};
 	/** . @internal **/
 	static 	decl
+                                        AnyMissing,
                                         pathpred,
     /**do not include choice prob for fully observed
         likelihood, for first stage estimation of transitions. **/
-                                        OnlyTransitions,										
-                                        SimLabels,
-										mask,
-										now,
-										tom,
-										viinds,
-										vilikes;
+                                           OnlyTransitions,										
+                                           SimLabels,
+										   mask,
+										   now,
+										   tom,
+                                            icol,
+                                            TF,
+                                            TP,
+                                            semicol,
+     /**current likelihood state index.**/ qind,
+     /**current likelihood A rows .**/     arows,
+	/**consistent states now & tom**/	   viinds,
+	/**contigent likelihood now & tom.**/  vilikes;
 	const 	decl
 	/**order on the path . **/ 				t,
 	/**previous outcome. **/				prev;
@@ -30,15 +37,18 @@ struct Outcome : Data {
 	/**&alpha;,  **/						            act,
 	/**&zeta;, continuous shock vector **/	            z,
 	/**auxiliary values. **/				            aux,
-	/** . @internal **/						            ind,
-	/** . @internal **/						            Ainds;
+	/**  **/						                    ind,
+	/** list of feasible sets consistent w/ data.**/	Ainds;
 			Outcome(prior);
 			~Outcome();
 	virtual	Simulate();
 	virtual	Flat(Orientation=LONG);
     virtual Deep(const depth);
-			FullLikelihood();
-			Likelihood();
+			CCLikelihood();
+            PartialObservedLikelihood();
+            IIDLikelihood();
+			Likelihood(LType);
+            TomIndices();
 			Mask();
 			FromData(data);
 			FromSim();
@@ -53,6 +63,7 @@ struct Path : Outcome {
 	const 	decl
 		/** index of path in a panel. **/	i;
 			decl
+        /** type of likelihood calculation. **/         LType,
         /** current index of random effects.**/         rcur,
 		/** . @internal **/								cur,
 		/** Next Path in a `Panel`. @internal **/		pnext,		
@@ -64,6 +75,7 @@ struct Path : Outcome {
 			~Path();
 	virtual	Simulate(T=UnInitialized,DropTerminal=FALSE);
 	        Likelihood();
+            PartialObservedLikelihood();
 			FullLikelihood();
             TypeContribution(pf=1.0,subflat=0);
 			PathObjective();
@@ -80,9 +92,7 @@ A singly-linked list of `Path`s.
 **/
 struct FPanel : Path {
 	const decl
-	/** index of Fpanel in a panel. **/ 			f,
-    /** TRUE if all endogenous states and
-        action are in the data **/                  FullyObserved;
+	/** index of Fpanel in a panel. **/ 			f;
 	static	decl 									SD;
 	decl
 	/** method to call for nested solution. **/		method,
@@ -92,15 +102,14 @@ struct FPanel : Path {
 	/** Total Number of Outcomes
          in the panel.**/                           NT,
 	/** fixed panel likelihood vector.	**/			FPL;
-			FPanel(f=0,method=0,FullyObserved=TRUE);
+			FPanel(f=0,method=UnInitialized);
 			~FPanel();
             GetCur();
 			Mask();
 	virtual	Flat(Orientation=LONG);
     virtual Deep();
 	virtual Simulate(N, T,ErgOrStateMat=0,DropTerminal=FALSE,pathpred=UnInitialized);
-	        LogLikelihood();
-            FullLogLikelihood();
+            LogLikelihood();
 	virtual Collapse(cond,stat);
 			Append(i);
 	}
@@ -122,7 +131,7 @@ struct Panel : FPanel {
 	/** panel likelihood vector. **/	 	M,
 	/** matrix representation of panel.
 		@see Panel::Flat **/				flat;
-	Panel(r,method=0,FullyObserved=0);
+	Panel(r,method=UnInitialized);
     SetMethod(method);
 	~Panel();
 	LogLikelihood();
@@ -171,7 +180,7 @@ struct OutcomeDataSet : Panel {
 													list,
 													source,
 													ids;
-	OutcomeDataSet(label="",method=0,FullyObserved=0);
+	OutcomeDataSet(label="",method=UnInitialized);
 	~OutcomeDataSet();
 	Mask();
 	LoadOxDB();

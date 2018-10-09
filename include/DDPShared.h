@@ -185,17 +185,33 @@ enum {PreUpdate,AtThetaTrans,PostSmooth,PostGSolve,PostRESolve,PostFESolve,Group
         @name ClockTypes **/
 enum {InfiniteHorizon,Ergodic,SubPeriods,NormalAging,StaticProgram,RandomAging,RandomMortality,UncertainLongevity,RegimeChange,SocialExperiment,UserDefined,NClockTypes}
 
-		/** . elements of array stored at each theta. @name TransStore **/
+		/** Elements of array stored at each theta. @name TransStore **/
 enum {Qtr,Qit,Qrho,TransStore}
 
 
-		/** . Options for weighting of moments in GMM. @name GMMWeightOptions **/
+		/** Weighting of moments in GMM. @name GMMWeightOptions **/
 enum { UNWEIGHTED, UNCORRELATED, CONTEMPORANEOUS, INTERTEMPORAL, AUGMENTEDPATHW, GMMWeightOptions}
 
+		/** Flat views of panel data. @name FlatOptions **/
 enum { LONG, WIDE, FlatOptions }
 
+        /** Type if Interaction Auxiliary Values. @name InteractionTypes **/
 enum {NoInt,StateInt,       ActInt,          AuxInt, InteractionTypes}
 
+        /** Type of likelihood function to build based on observability.
+                    <table>
+        <tr><th>Tag</th><th>Explanation</th></tr>
+            <tr>CCLike<td></td><td>Everything is observed except for the additive choice-specific error &zeta;.
+                Auxiliary values cannot contribute anything extra information.  See `Outcome::CCLikelihood`</td></tr>
+            <tr>ExogLike<td></td><td>The exogenous vector &epsilon; is also unobserved.  Under this form
+                    the likelihood of AuxiliaryValues is relevant and `AuxiliaryValues::Likelihood` is called
+                    for each observation and each value of &epsilon; See `Outcome::IIDLikelihood`</td></tr>
+            <tr>PartObsLike  [default]<td></td><td>Account for (sum over) any form of unobservability in states and actions.  Currently
+            this form cannot incorporate likelihood of auxiliary values. See `Outcome::PartialObservedLikelihood`</td></tr>
+            </table>
+            @see OutcomeDataSet
+            @name LikelihoodTypes **/
+enum {CCLike,ExogLike,PartObsLike,LikelihoodTypes}
         /** parallel array of labels for the built-in clock types. **/
 static const decl ClockTypeLabels
     = {"Infinite Horizon","Ergodic","Subdivided Periods","Normal Finite Horizon Aging","Static Program (finite horizon and T=1)","Random Aging (finite horizon but aging happens with probability<1 at some t","Random Mortaility (finite horizon with probability of early transition to last t, death)",

@@ -1,13 +1,11 @@
 /** Handling data, simulation, likelihood, predictions, moments.
 <a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Data.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 
-@sortkey BAA
-
 <h2>Overview</h2>
 
-The `Data` class and its derivatives are used to simulate DDP data, compute predictions, read external data sets, and interface with <span class="n">Five-O</span>.
+The `Data` class and its derivatives are used to simulate DDP data, compute predictions, read external data sets, and interface with <span class="n">Five-O</span> to evaluate the sample likelihood or GMM objective.</p>
 
-`Data` objects relate to realizations along the path of the program.  Unlike other spaces (e.g. the group space <b>&Gamma;</b> and the state space <b>&Theta;</b>), multiple instances of different types of data can be stored simultaneously.  That is, there is no single <q>data space</q>.
+`Data` objects store realizations along the path of the program.  Unlike other spaces (e.g. the group space $\Gamma$ and the state space $\Theta$), multiple instances of different types of data can be stored simultaneously.  That is, there can be more than one  <q>data space</q>.</p>
 
 There two parallel but separate kinds of data:
 
@@ -68,18 +66,15 @@ There two parallel but separate kinds of data:
 <OL class="chapter">
 <LI>Overview</LI>
 
-<DT>Outcomes are used for simulating the model and for storing external data interpreted as realizations of the DDP.</DT>
-   <DD> Here we will denote an outcome generically as <code>Y</code>. <code>Y</code> contains the realized state vectors, action vectors, auxiliary values, etc.  It is described in more detail below.</DD>
-    <DD>As discussed elsewhere, the user codes <code>MyModel</code> as a class derived from one of the pre-defined `Bellman` classes. In contrast, `Outcome` is designed to be generic so that it can be used for whatever model or data the program uses. A user does not define their own derived class to store outcomes.</DD>
-  <DD>Only one model can be active in <span class="n">DDP</span> because <code>static</code> data members are used, but <em>multiple data sets can be stored at once.</em>  This can be useful when comparing two solution methods applied to one model or two estimation methods applied to two different data sets.</DD>
-<DT>Outcomes are related to points in the state space <b>&Theta;</b>, but they are treated distinctly in <span class="n">niqlow</span>.  </DT>
-<DD>The state space is represented so as to minimize storage and calculations while solving a model.  On the other hand, outcomes are designed to track everything relevant to results of the DDP, and memory would be exhausted if outcomes were defined and stored for each possible state.</DD>
-<DD>It would be inefficient to store all potential outcomes when only one can be realized at each point in a single DP process.</DD>
+Outcomes are used for simulating the model and for storing external data interpreted as realizations of the DDP. An outcome is generically denoted $Y$. $Y$ contains the realized state vectors, action vectors, auxiliary values, etc.  It is described in more detail below.</p>
 
-<DT>A single point in the state space can have multiple states that could come before it or come after it hypothetically.  In contrast, outcomes have well-defined predecessors and successors.</DT>
-  <DD>These are tracked as part of the outcome, so that <span class="n">niqlow</span> represents a sequence of outcomes as a doubly-<a href="http://en.wikipedia.org/wiki/Linked_list">linked list</a> of objects of class `Outcome`.</DD>
+As discussed elsewhere, the user codes <code>MyModel</code> as a class derived from one of the pre-defined `Bellman` classes. In contrast, `Outcome` is designed to be generic so that it can be used for whatever model or data the program uses. <em>A user does not define their own derived class to store outcomes.</em> Only one model can be active in <span class="n">DDP</span> because <code>static</code> data members are used, but <em>multiple data sets can be stored at once.</em>  This can be useful when comparing two solution methods applied to one model or two estimation methods applied to two different data sets.</p>
 
-<DT>An Outcome <code>Y</code> is a basic unit of data. Based on outcomes data structures are defined to keep track of ordered and unordered groups of outcomes.
+Outcomes are related to points in the state space $\Theta$, but they are treated distinctly in <span class="n">niqlow</span>.  The state space is code to minimize storage and calculations while solving a model.  On the other hand, outcomes are designed to track everything relevant to results of the DDP, and memory would be exhausted if outcomes were defined and stored for each possible state. It would be inefficient to store all potential outcomes when only one can be realized at each point in a single DP process.</p>
+
+A single point in the state space $\theta$ can have multiple states that could come before it or come after it hypothetically.  In contrast, outcomes have a well-defined <em>predecessor</em> and <em>successor</em>. These are tracked as part of the outcome, so that <span class="n">niqlow</span> represents a sequence of outcomes as a doubly-<a href="http://en.wikipedia.org/wiki/Linked_list">linked list</a> of objects of class `Outcome`.</p>
+
+An Outcome $Y$ is a basic unit of data. Data structures are defined to keep track of ordered and unordered groups of outcomes, as illustrated here:
 <table class="tree">
 <tr>
 <td class="line">&nbsp;</td>
@@ -90,7 +85,7 @@ There two parallel but separate kinds of data:
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A single realization of a discrete DP, denoted <code>Y</code>.</td>
+<td class="text">A single realization of a discrete DP, denoted $Y$.</td>
 </tr>
 <tr>
 <td class="line">&nbsp;</td>
@@ -102,14 +97,11 @@ There two parallel but separate kinds of data:
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A derived Outcome that points to a sequence of outcomes along a single realized DP path. As an outcome itself, the path is also the first
-    outcome along itself:
+<td class="text">A derived Outcome that points to a <em>sequence of outcomes along a single realized DP path.</em> As an outcome itself, the path is also the first outcome along itself:
     <DD class="disp">
     PATH::Y<sub>0</sub> &#8646; Y<sub>1</sub> &#8646; &nbsp; &hellip;&nbsp;  Y<sub>T</sub>&nbsp; &#8677;</DD>
-    The outcomes on a path are ordered and they "point" to both their predecessor and successor.  (In computer speak, a Path is a doubly-linked list.)  This
-    is because some processing of paths go forward (such as simulating outcomes) and some backwards (computing likelihood when accounting for unobserved states).
-    </td>
-</tr>
+    The outcomes on a path are ordered and they "point" to both their predecessor and successor.  (In computer speak, a Path is a doubly-linked list.)  This is because some processing of paths go forward (such as simulating outcomes) and some backwards (computing likelihood when accounting for unobserved states).
+    </td></tr>
 <tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -121,13 +113,11 @@ There two parallel but separate kinds of data:
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A Path that can point to more paths that all share the same fixed effect values.  As a Path itself, the FPanel
-is the first path in the panel.
+<td class="text">A Path that can point to more paths that all share the <em>same fixed effect values.</em> As a Path itself, the FPanel is the first path in the panel.
     <DD class="disp">
     FPANEL::PATH<sub>0</sub> &#8614; PATH<sub>1</sub> &#8614; &nbsp; &hellip;&nbsp;  PATH<sub>N</sub>&nbsp; &#8677;</DD>
-    The different paths in a FPANEL point to their successor only because it is typically not necessary to process them in both directions.
-</td></tr>
-<tr>
+    The different paths in a FPANEL point to their successor only, because it is typically not necessary to process them in both directions.
+</td></tr><tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
@@ -139,14 +129,11 @@ is the first path in the panel.
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A heterogenous panel, is a FPanel which can also point to more FPanels. The Panel is the first
-fixed panel in the list.
+<td class="text">A heterogenous panel, is a FPanel which can also point to more FPanels. The Panel is the first fixed panel in the list.
     <DD class="disp">
     PANEL::FPANEL<sub>0</sub> &#8614; FPANEL<sub>1</sub> &#8614; &nbsp; &hellip;&nbsp;  FPANEL<sub>M</sub>&nbsp; &#8677;</DD>
-    Different FPANELs in a PANEL point to their successor only because it is typically not necessary to process them in both directions.
-</td></tr>
-</td>
-</tr>
+    Different FPANELs in a PANEL point to their successor only, because it is typically not necessary to process them in both directions.
+</td></tr></td></tr>
 <tr>
 <td class="line">&nbsp;</td><td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td><td class="line">&nbsp;</td><td class="line">&nbsp;</td>
@@ -161,30 +148,31 @@ fixed panel in the list.
     <DD class="disp">
     DATA::PANEL
     </DD>
-</td>
-</tr>
-</table>
+</td></tr></table>
 
 <LI>Examples</LI>
-<DT>Create a data set from external data</DT>
+To create a data set from external data:
 <dd><pre>
-	data = new OutcomeDataSet("DPdata",method,TRUE);
-	data->Observed(x,"x",d,"d");
+	data = new OutcomeDataSet("DPdata");
+	data->ObservedWithLabel(x,d);
 	data->IDColumn("id");
 	data->Read("data.dta");	
 </pre></dd>
-<DT>Create a simulated data set from a solved DP model and save to a Stata data set</DT>
+This says that there are two variables from the DP model observed in the data set, say a state variable <code>x</code> and an action variable <code>d</code>.  The external data uses the same labels for those variables as the DP model, so the correct columns can be found using them.  Each empirical path has to be associated with the value of variable in the data set, so the <code>IDColumn</code> must be specified before reading the data. The data must be sorted within each path starting at $t=0$.  Since no columns in the data were associated with fixed effect variables this must be a homogeneous model.  (There can be random effects but niqlow always assumes those are unobserved and will integrate over them.)  So the data set will end up having one Panel which contains one FPanel which contains as many paths as <code>Read()</code> finds in the Stata data set.</p>
+
+To create a simulated data set from a solved DP model and save to a Stata data set:
 <DD><pre>
     sim = new Panel("DPdata");
-    sim -> Simulate(10,400,0,TRUE);
+    sim -> Simulate(400,10);
 	sim -> Print("sim.dta");		
 </pre></dd>
+This will create a Panel object, which in turn will automatically create a FPanel object for each value of the fixed effects, i.e. each point in the fixed part of $\Gamma$.  <code>Simulate()</code> will produce 400 paths, each 10 periods long, for each fixed group.  <code>Print()</code> will save the simulated data to a file using the labels set for all the DP variables to label the columns.  This could then be read back into a <code>OutcomeDataSet</code> during a Monte Carlo exercise. </p>
 
 <li>The Full Outcome</li>
 
-<span class="n">DDP</span> is designed to handle programs for which not everything observed by the agent is observed by the econometrician.  In addition, <span class="n">DDP</span> is designed to handle observables that are functions of the underlying outcomes but are not necessarily of any (direct) interest of the agent.  To provide these  capabilities, first consider the case of the fully observed realization of the DP.
+<span class="n">DDP</span> is designed to handle programs for which not everything observed by the agent is observed by the econometrician.  In addition, <span class="n">DDP</span> is designed to handle observables that are functions of the underlying outcomes but are not necessarily of any (direct) interest of the agent.  To provide these  capabilities, first consider the case of the fully observed realization of the DP.</p>
 
-<DT>Let the Y* denote the vector of <em>all</em> actions and all <em>realized states</em> in the model.  Generically, </DT>
+Let the Y* denote the vector of <em>all</em> actions and all <em>realized states</em> in the model.  Generically, 
 <dd><pre>
 Y* &equiv; (&alpha; &zeta; &epsilon; &eta; &theta; &gamma; &chi; Y*<sup>p</sup> Y*<sup>n</sup>)
     &alpha; = (a<sub>0</sub> &hellip; )
@@ -194,44 +182,34 @@ Y* &equiv; (&alpha; &zeta; &epsilon; &eta; &theta; &gamma; &chi; Y*<sup>p</sup> 
     &theta; = (q<sub>0</sub> &hellip; )
     &gamma; = (g<sub>0</sub> &hellip; )
     &chi; = (x<sub>0</sub> &hellip; )
-</pre>
-For simplicity the length of each of the vectors is not specified and the right-most elements of each of the vectors is not included. Instead, each vector is shown as the leftmost variable with subscript 0 followed by &hellip;.
-</dd>
-<DD>Y* is referred to as the <em>full outcome</em> because it includes all information that is knowable and relevant about a single period in a realized DDP.</DD>
-<DT>Y* adds a new vector denoted &chi; with generic elements x.  See below.</DT>
-<DT>Y* also includes Y<sup>p</sup> Y<sup>n</sup>, which are <q>pointers</q> to the preceding and next outcomes in the path. </DT>
-<DD>These values can be undefined for various reasons. Obviously the value of Y<sup>n</sup> is not realized until the end of the current period.  And the initial period obviously has no preceding outcome. However, in the middle of a panel of observation both pointers would be defined.</DD>
+</pre></dd>
+For simplicity the length of each of the vectors is not specified and the right-most elements of each of the vectors is not included. Instead, each vector is shown as the leftmost variable with subscript 0 followed by &hellip;.</p>
 
-<DT>The full outcome may not be observed in data.  The observed outcome, <var>Y</var>, will have the same structure as <var>Y*</var> but one or more elements of the member vectors will include missing (.NaN) values.  </DT>
-<DD>Observability is discussed below when the derived  <a href="">Data</a> class is introduced.  Its purpose is to account for gaps between theoretical outcomes and observed results from a DP.</DD>
+Y* is referred to as the <em>full outcome</em> because it includes all information that is knowable and relevant about a single period in a realized DDP. Y* adds a new vector denoted &chi; with generic elements x.  See below. Y* also includes Y<sup>p</sup> Y<sup>n</sup>, which are <q>pointers</q> to the preceding and next outcomes in the path. These values can be undefined for various reasons. Obviously the value of Y<sup>n</sup> is not realized until the end of the current period.  And the initial period obviously has no preceding outcome. However, in the middle of a panel of observation both pointers would be defined.</p>
 
+The full outcome may not be observed in data.  The observed outcome, <var>Y</var>, will have the same structure as <var>Y*</var> but one or more elements of the member vectors will include missing (<code>.NaN</code>) values.  Observability is discussed below.  Its purpose is to account for gaps between theoretical outcomes and observed results from a DP.</p>
 
 <li>Paths </li>
 
-The base `Outcome` class captures a single period, and it points to the previous outcome and the next outcome along a realized path (if the predecessor and successor exist).  A `Path` is derive from `Outcome`, so the first outcome on the path is stored directly by the path (since it is an outcome itself).  But `Path` also has a `Path::last` data member which points to the last outcome on the path.  Because both the previous and next outcomes are defined a `Path` can be processed both forwards and backwards.  That is, a path is a doubly-linked list.
+The base `Outcome` class captures a single period, and it points to the previous outcome and the next outcome along a realized path (if the predecessor and successor exist).  A `Path` is derive from `Outcome`, so the first outcome on the path is stored directly by the path (since it is an outcome itself).  But `Path` also has a `Path::last` data member which points to the last outcome on the path.  Because both the previous and next outcomes are defined a `Path` can be processed both forwards and backwards.  That is, a path is a doubly-linked list. </p>
 
 <!--
 Image Y*  Y* Y* ...
 -->
 
-Finally, `OutcomeDataSet` is a class derived from `Panel` that includes methods to read in outcomes from data accounting for partial or complete unobservability of actions and states.
-
-This organization can be seen by clicking on <em>hierarchy</em> in the upper right corner of any page of DDP documentation.
-
 A `Path` is a derived class from `Outcome`.  The difference is that a path tracks a sequence of outcomes generated by realizations of a single DP problem.  The outcomes in a path are a <em>linked list</em>.  Since a path is itself an outcome the first outcome is the path itself.  `Outcome` tracks both the <em>next</em> and <em>previous</em> outcome in the realized path.  Further, the path stores the last outcome in the path, which makes it possible to work either forwards or backwards in the sequence.<p>
 
 <li>Panels</li>
 
-In turn, a <b>fixed panel</b> (`FPanel`) is a list of `Path`s that share the same fixed effects. FPanel tracks the following path so a panel can be processed sequentially as a linked list.  (Because paths in a panel are not ordered the previous path is not stored.)
+In turn, a <b>fixed panel</b> (`FPanel`) is a list of `Path`s that share the same fixed effects. FPanel tracks the following path so a panel can be processed sequentially as a linked list.  (Because paths in a panel are not ordered the previous path is not stored.) In turn a `Panel` is a list of fixed panels.</p>
 
-In turn a `Panel` is a list of fixed panels.
+Finally, `OutcomeDataSet` is a class derived from `Panel` that includes methods to read in outcomes from data accounting for partial or complete unobservability of actions and states. This organization can be seen by clicking on <em>hierarchy</em> in the upper right corner of any page of DDP documentation.
 
 <a name="SS"><LI>Simulation</LI></a>
 
-Simulation is a method of each level of Outcome up to and including a Panel.  A simulation uses the specified initial conditions, the endogenous conditional choice probabilities, and the transitions of all states to produce simulated realizations of the DP.  The simulate panel could then be loaded as data set
-to conduct a Monte Carlo estimation procedure.
+Simulation is a method of each level of Outcome up to and including a Panel.  A simulation uses the specified initial conditions, the endogenous conditional choice probabilities, and the transitions of all states to produce simulated realizations of the DP.  The simulate panel could then be loaded as data set to conduct a Monte Carlo estimation procedure.</p>
 
-During simulation, the vector &zeta; is filled in before calling <code>Auxiliary()</code>.  Since choices are simulated directly from choice probabilities, the simulated values of &zeta; are conditional on the simulated choice.  This is achieved by calling `Bellman::ZetaRealization`() or its replacement.  For example, the version for ex post extreme value models would simulate a &zeta; vector that follows the IID extreme value distribution but consistent with the simulated action at that state.  The user can replace <code>ZetaRealization()</code> with their own.  The <code>Auxiliary()</code> method can access the realization in `DP::zeta`, a static value  which is only defined during simulation.  On the other hand, the user's <code>Auxiliary</code> method could include additional randomness directly.
+During simulation, the vector &zeta; is filled in before calling <code>Auxiliary()</code>.  Since choices are simulated directly from choice probabilities, the simulated values of &zeta; are conditional on the simulated choice.  This is achieved by calling `Bellman::ZetaRealization`() or its replacement.  For example, the version for ex post extreme value models would simulate a &zeta; vector that follows the IID extreme value distribution but consistent with the simulated action at that state.  The user can replace <code>ZetaRealization()</code> with their own.  The <code>Auxiliary()</code> method can access the realization in `DP::zeta`, a static value  which is only defined during simulation.  On the other hand, the user's <code>Auxiliary</code> method could include additional randomness directly.</p>
 
 <DT>Initial Conditions</DT>
 <DD>Fixed states, &gamma;</DD>
@@ -239,15 +217,14 @@ During simulation, the vector &zeta; is filled in before calling <code>Auxiliary
 <dd>Sampling from the stationary distribution</dd>
 
 <LI>Observed and Partially Observed Outcomes</LI>
-<DT>Recall that <em>Y*</em> is the full realized outcome of the DP model is a single period.  It includes all states, actions and auxiliary variables.  In practice the full outcome is not directly observed.  The limited information can be variables whose realized values are simply missing, or they only affect an auxiliary variable which combines other elements of the outcome.  </DT>
-<DD>Express the <em>observable outcome</em> as<pre>
+
+Recall that <em>Y*</em> is the full realized outcome of the DP model is a single period.  It includes all states, actions and auxiliary variables.  In practice the full outcome is not directly observed.  The limited information can be variables whose realized values are simply missing, or they only affect an auxiliary variable which combines other elements of the outcome. We can express the <em>observable outcome</em> as
+<DD><pre>
 Y = &equiv; (x<sub>0</sub> &hellip; x<sub>&chi;.N</sub>  - - &hellip; a<sub>o0</sub> - &hellip; - a<sub>o1</sub> - &hellip; - z<sub>o0</sub> - &hellip; - e<sub>o0</sub> - &hellip; - h<sub>o0</sub> - &hellip; - q<sub>o0</sub> &hellip; - g<sub>o0</sub> - &hellip; )
 </pre></DD>
-<DT>Here <q>-</q> indicates censoring of elements of Y*, and a<sub>o0</sub> is the first observed action variable.</DT>
-  <DD>So if o0 = 3 it means a<sub>3</sub> is the first element of <code>&alpha;</code> that is in the observed outcome.  Between a<sub>o0</sub> and a<sub>o1</sub> are any action variables not observed and indicated by <q>- &hellip; -</q>.  The same is true of the state vectors.  </DD>
-<DT>By definition all elements of the auxiliary vector are observable.  This is not necessarily a template that all observations must follow.  It is possible that some elements of Y* are observed in some cases but not others.  </DT>
-<DD>The auxiliary variables provide great flexibility.  Suppose the value of an action variable a<sub>d</sub> is unobserved, but it is known the realized value is with some sub-range of the potential values.  Then x<sub>0</sub> and x<sub>1</sub> could be the min and max values of a<sub>d</sub>, respectively.  A derived likelihood function would add up the conditional probabilities of actions between those two values.<DD>
+Here <q>-</q> indicates censoring of elements of Y*, and a<sub>o0</sub> is the first observed action variable. So if <code>o0 = 3</code> it means a<sub>3</sub> is the first element of <code>&alpha;</code> that is in the observed outcome.  Between a<sub>o0</sub> and a<sub>o1</sub> are any action variables not observed and indicated by <q>- &hellip; -</q>.  The same is true of the state vectors. </p> </p>
 
+This is not necessarily a template that all observations must follow.  It is possible that some elements of Y* are observed in some cases but not others.  The auxiliary variables provide great flexibility.  Suppose the value of an action variable a<sub>d</sub> is unobserved, but it is known the realized value is with some sub-range of the potential values.  Then x<sub>0</sub> and x<sub>1</sub> could be the min and max values of a<sub>d</sub>, respectively.  A derived likelihood function would add up the conditional probabilities of actions between those two values.</p>
 
 <a name="Data"><LI>Data Sets</LI></a>
 
@@ -257,9 +234,9 @@ The `OutcomeDataSet` class is derived from `Panel`.  It adds to the notion of a 
 
 <h3>Getting Data</h3>
 
-<DT>Methods for storing and processing data are included.  Data are read in from outside formats such as Stata using Ox's built-in capabilities in the <code>Database</code> class.  If the same labels are used for state and action variables as in the data set, the methods can seamlessly relate the data to the corresponding element of the model.</DT>
+Methods for storing and processing data are included.  Data are read in from outside formats such as Stata using Ox's built-in capabilities in the <code>Database</code> class.  If the same labels are used for state and action variables as in the data set, the methods can seamlessly relate the data to the corresponding element of the model.</p>
 
-<DD>A key issue with estimating DDPs is unobservability of actions and states.  <code>Outcome</code> handles this  two ways.  First it treats missing (<code>.NaN</code>) in the data as unobserved.  It  will then integrate (sum over) values of missing states and actions when computing, say, the likelihood of the data.  Second, auxiliary data (sometimes called payoff relevant variables) can be included in the data and then coded so that they indicate which variables and values should be integrated over.</DD>
+A key issue with estimating DDPs is unobservability of actions and states.  <code>Outcome</code> handles this  two ways.  First it treats missing (<code>.NaN</code>) in the data as unobserved.  It  will then integrate (sum over) values of missing states and actions when computing, say, the likelihood of the data.  Second, auxiliary data (sometimes called payoff relevant variables) can be included in the data and then coded so that they indicate which variables and values should be integrated over.</p>
 
 <a name="Emet"><LI>Likelihood</LI></a>
 

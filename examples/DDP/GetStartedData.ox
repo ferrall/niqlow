@@ -28,7 +28,7 @@ DerivedSearch::Run()	{
 	}
 
 SearchData::SearchData() {
-	OutcomeDataSet("Search Data");   //don't re-solve
+	OutcomeDataSet("Search Data",0);   //don't re-solve
     Volume=LOUD;
 	Simulate(N,MaxOb,zeros(N::All),TRUE); //TRUE censors terminal states
 	Print(1);

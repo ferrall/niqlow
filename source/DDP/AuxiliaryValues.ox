@@ -4,16 +4,15 @@
 /** Create a new element of &chi;, the space of auxiliary outcomes.
 
 @param L label
-@param N number of distinct values
-@param Volume default=SILENT. `NoiseLevels`
 
 @see DP::AuxiliaryOutcomes
 
 **/
 AuxiliaryValue::AuxiliaryValue(L) {
 	this.L = L;
-	logf = pos = UnInitialized;
-	v = .NaN;
+	logf   = pos = UnInitialized;
+    indata = FALSE;
+	v      = .NaN;
     Volume = SILENT;
 	}
 
@@ -22,6 +21,11 @@ AuxiliaryValue::AuxiliaryValue(L) {
 **/	
 AuxiliaryValue::Realize(y) {	v = 1.0; }
 
+/** Default contribution to likelihood.
+@param y, the current realized outcome, &upsilon;.
+@return 1.0
+**/	
+AuxiliaryValue::Likelihood(y) { return 1.0; }
 
 /** Create a new &zeta;, the vector-valued realized shock vector.
 @param length integer, length of the (row) vector.
@@ -138,4 +142,23 @@ MultiIndicator::Realize(y) {
             default       : break;
             }
         }
+    }
+
+/** Create an auxiliary value that adds normally-distributed noise to the actual value.
+@param truevalue `AV`-compatible object (
+**/
+Noisy::Noisy(truevalue,sigma=1.0,Linear=TRUE) {
+    this.truevalue = truevalue;
+    this.sigma=sigma;
+    this.Linear=Linear;
+    }
+Noisy::Realize(y) {
+    if (isclass(truevalue,"AuxiliaryValue"))
+        truevalue->Realize(y);
+    eps = rann(1,1)*CV(sigma);
+    v = Linear ? AV(truevalue)+eps : exp(eps)*AV(truevalue);
+    }
+Likelihood(y) {
+    eps = Linear ? y.aux[pos]-v : log(y.aux[pos]-
+    return densn(eps/CV(sigma))/CV(sigma);
     }

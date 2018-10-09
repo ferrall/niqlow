@@ -120,7 +120,7 @@ struct 	PathPrediction : Prediction {
                                                     first,
     /** the next PathPrediction   **/               fnext;
     static tprefix(t);
-	PathPrediction(f=0,label="",method=0,iDist=0,wght=UNCORRELATED);
+	PathPrediction(f=0,label="",method=UnInitialized,iDist=0,wght=UNCORRELATED);
     Initialize();
 
 	~PathPrediction();
@@ -143,7 +143,7 @@ struct PanelPrediction : PathPrediction {
                                              delt,
                                              aflat,
 	/** array of GMM vector. **/	 	     M;
-    PanelPrediction(label="",method=0,iDist=0,wght=UNCORRELATED);
+    PanelPrediction(label="",method=UnInitialized,iDist=0,wght=UNCORRELATED);
     ~PanelPrediction();
     Predict(T=0,printit=FALSE,submat=0);
     Tracking(LorC,...);
@@ -161,7 +161,7 @@ struct PredictionDataSet : PanelPrediction {
             /** observations column (index or label).**/                Nplace,
             /** time column (index or label).**/                        Tplace,
             /** **/                                                     FMethod;
-    PredictionDataSet(UorCorL=UseLabel,label="",method=0,iDist=0,wght=UNCORRELATED);
+    PredictionDataSet(UorCorL=UseLabel,label="",method=UnInitialized,iDist=0,wght=UNCORRELATED);
     Observed(as1,lc1=0,...);
     TrackingMatchToColumn(Fgroup,LorC,mom);
     TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);

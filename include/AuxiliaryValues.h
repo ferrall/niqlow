@@ -10,8 +10,10 @@ the outcome and read in along with other data.
 
 **/
 struct AuxiliaryValue : Quantity {
+    decl indata;
 	AuxiliaryValue(L="Aux");
 	virtual Realize(y=0);
+    virtual Likelihood(y=0);
 	}
 
 
@@ -22,7 +24,7 @@ struct RealizedUtility : AuxiliaryValue {
 	virtual Realize(y=0);
 	}
 
-/**
+/** An auxiliary value that is an indicator for values other actions or states.
 **/
 struct Indicator : AuxiliaryValue {
     const decl ttype, target, myval, iobj, iacted;
@@ -30,7 +32,7 @@ struct Indicator : AuxiliaryValue {
     virtual Realize(y);
     }
 
-/**
+/** Create
 **/
 struct MultiIndicator : Indicator {
     MultiIndicator(target,myval,iobj,prefix);
@@ -42,3 +44,11 @@ struct ZetaRealization : AuxiliaryValue {  //Changed April 2016 from Quantity
 	ZetaRealization(length);
 	virtual Realize(y=0);
 	}
+
+/** Add normal noise to a AV() compatible target, either linear or log-linear. **/
+struct Noisy : AuxiliaryValue {
+    decl truevalue, sigma, eps;
+    Noisy(truevalue,sigma=1.0,Linear=TRUE);
+    Realize(y=0);
+    Likelihood(y=0);
+    }
