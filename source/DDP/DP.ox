@@ -52,9 +52,9 @@ SubSpace::SubSpace() {D=0; size=1; O=<>;}
 **/
 SubSpace::Dimensions(subs,IsIterating,FullDim)	{
 	decl k,s,v,Nsubs = sizerc(subs),nxtO,mxd;
-	O = S[subs[0]].M ? zeros(1,S[subs[0]].M) : <>;
+	O = S[subs[0]].M ? zeros(1,S[subs[0]].M) : <>;  // states to the left get 0 offset
 	nxtO = 1;
-	left = columns(O);
+	left = columns(O);             // leftmost state variable index in the subspace.
 	for (k=subs[0],s=0; k<=subs[Nsubs-1]; ++k)
 		if (subs[s]==k)	{
 			if (subs>0 && k==ClockIndex) {
@@ -80,8 +80,8 @@ SubSpace::Dimensions(subs,IsIterating,FullDim)	{
 			}
 		else
 			O ~= zeros(1,S[k].D);
-	right = columns(O)-1;
-	O = shape(O,1,N::S);
+	right = columns(O)-1;        //rightmost index of variables in the index
+	O = shape(O,1,N::S);         // states to the right get 0 offset.
 	}
 
 /** Calculate dimensions of action space, &Alpha;.

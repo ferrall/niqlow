@@ -47,7 +47,7 @@ struct ZetaRealization : AuxiliaryValue {  //Changed April 2016 from Quantity
 
 /** Add normal noise to a AV() compatible target, either linear or log-linear. **/
 struct Noisy : AuxiliaryValue {
-    decl truevalue, sigma, eps;
+    decl truevalue, sigma, eps, Linear;
     Noisy(truevalue,sigma=1.0,Linear=TRUE);
     Realize(y=0);
     Likelihood(y=0);

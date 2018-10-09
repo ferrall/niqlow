@@ -67,7 +67,7 @@ ZurcherHat::SecondStage() {
 /** Read in the data.
 **/
 BusData::BusData(method) {
-	OutcomeDataSet("Zurcher",method,TRUE);
+	OutcomeDataSet("Zurcher",method);
 	MatchToColumn(Zurcher::x,"x");
     MatchToColumn(Zurcher::d,"d");
 	IDColumn("id");

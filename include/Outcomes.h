@@ -11,7 +11,7 @@ struct Outcome : Data {
 			PrefixLabels = {"t","n","T","Aj|"};
 	/** . @internal **/
 	static 	decl
-                                        AnyMissing,
+                                        AnyMissing = <[DSubSpaces]*0>,
                                         pathpred,
     /**do not include choice prob for fully observed
         likelihood, for first stage estimation of transitions. **/
@@ -23,8 +23,6 @@ struct Outcome : Data {
                                             icol,
                                             TF,
                                             TP,
-                                            semicol,
-     /**current likelihood state index.**/ qind,
      /**current likelihood A rows .**/     arows,
 	/**consistent states now & tom**/	   viinds,
 	/**contigent likelihood now & tom.**/  vilikes;
@@ -48,7 +46,8 @@ struct Outcome : Data {
             PartialObservedLikelihood();
             IIDLikelihood();
 			Likelihood(LType);
-            TomIndices();
+            AuxLikelihood();
+            TomIndices(qind,xind);
 			Mask();
 			FromData(data);
 			FromSim();
@@ -105,7 +104,7 @@ struct FPanel : Path {
 			FPanel(f=0,method=UnInitialized);
 			~FPanel();
             GetCur();
-			Mask();
+			Mask(aLT);
 	virtual	Flat(Orientation=LONG);
     virtual Deep();
 	virtual Simulate(N, T,ErgOrStateMat=0,DropTerminal=FALSE,pathpred=UnInitialized);
@@ -175,6 +174,7 @@ struct OutcomeDataSet : Panel {
 	const decl 										low,
     /** Label for the data set. **/                 label;
 	decl											
+                                                    LTypes,
 													masked,
 	/** labels  **/									dlabels,
 													list,

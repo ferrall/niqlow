@@ -147,7 +147,7 @@ MultiIndicator::Realize(y) {
 /** Create an auxiliary value that adds normally-distributed noise to the actual value.
 @param truevalue `AV`-compatible object (
 **/
-Noisy::Noisy(truevalue,sigma=1.0,Linear=TRUE) {
+Noisy::Noisy(truevalue,sigma,Linear) {
     this.truevalue = truevalue;
     this.sigma=sigma;
     this.Linear=Linear;
@@ -158,7 +158,11 @@ Noisy::Realize(y) {
     eps = rann(1,1)*CV(sigma);
     v = Linear ? AV(truevalue)+eps : exp(eps)*AV(truevalue);
     }
-Likelihood(y) {
-    eps = Linear ? y.aux[pos]-v : log(y.aux[pos]-
+Noisy::Likelihood(y) {
+    if (isclass(truevalue,"AuxiliaryValue"))
+        truevalue->Realize(y);
+    eps = Linear
+            ? y.aux[pos]- AV(truevalue)
+            : log(y.aux[pos])-log(AV(truevalue));
     return densn(eps/CV(sigma))/CV(sigma);
     }

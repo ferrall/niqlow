@@ -9,15 +9,14 @@
 Outcome::Outcome(prior) {
 	decl nxtstate;
 	snext = onext = UnInitialized;
-	act = constant(.NaN,1,SS[onlyacts].D);
-	z = constant(.NaN,1,zeta.length);
-	aux = constant(.NaN,1,N::aux);
+	act   = constant(.NaN,1,SS[onlyacts].D);
+	z     = constant(.NaN,1,zeta.length);
+	aux   = constant(.NaN,1,N::aux);
 	Ainds = <>;
 	if (isclass(prior)) {
 		prev = prior;
 		t = prev.t+1;
 		nxtstate = prior.snext;
-//		state = prior.onext; //constant(.NaN,N::All); //
 		prior.onext = this;
 		}
 	else {
@@ -27,10 +26,11 @@ Outcome::Outcome(prior) {
 	state = isint(nxtstate) ? constant(.NaN,N::All) : nxtstate;
 	ind = new array[DSubSpaces];
 	ind[] = DoAll;
-	if (!isnan(state[S[endog].M:])) {  // No states are missing.  Initialize indices
-		decl s;
-		for(s=0;s<columns(fixeddim);++s) ind[fixeddim[s]] = I::OO[fixeddim[s]][]*state;
-		}
+    decl d;
+    foreach (d in fixeddim)
+        if (     !isnan(state[ SS[d].left:SS[d].right ]))
+            ind[d] = I::OO[d][ SS[d].left:SS[d].right ]
+                       *state[ SS[d].left:SS[d].right ];
 	}
 
 /** clean up.
@@ -415,10 +415,12 @@ Panel::Print(fn,Orientation)	{
 	if (isint(fn)) { if (fn>0) fprint(Data::logf,"%c",LFlat[Orientation],"%cf",Fmtflat,flat); }
 	else if (!savemat(fn,flat,LFlat[Orientation])) oxrunerror("DDP Error 51. FPanel print to "+fn+"failed");
 	}
-Outcome::TomIndices() {
+
+/** Get tracking probabilities and tomorrow indices consistent with tomorrow's observation .
+@return TRUE if there are tomorrow states that are consistent, FALSE otherwise **/
+Outcome::TomIndices(qind,xind) {
     icol = 0;
-	[TF,TP] = GetTrackTrans(qind,semicol);           //Oct. 2018 was ind[onlysemiexog]
-    //println("q ",qind," ",semicol," vi ",viinds[tom]," TF ",TF);
+	[TF,TP] = GetTrackTrans(qind,xind);           //Oct. 2018 was ind[onlysemiexog]
 	return columns(viinds[tom]) && rows(intersection(viinds[tom],TF,&icol));
     }
 
@@ -431,28 +433,37 @@ Outcome::Likelihood(Type) {
         }
     }
 
+Outcome::AuxLikelihood() {
+    decl c, al;
+    al = 1.0;
+    decl auxstate = ReverseState(ind[bothexog],I::OO[bothexog][])+ReverseState(viinds[now],I::OO[tracking]);
+    auxstate[SS[tracking].right+1 : ] = state[SS[tracking].right+1 : ];
+    SyncStates(0,SS[tracking].right);
+    I::Set(state,FALSE);
+    foreach (c in Chi)  if (c.indata) al *= c->Likelihood(this);
+    return al;
+    }
+
 /** Compute conditional forward likelihood of an outcome.
 <dd>
 $$L(\theta) = \sum_{\eta} \sum_{\alpha} P*() P()$$
 </dd>
 **/
 Outcome::PartialObservedLikelihood() {
-	decl h, q, PS, bothrows, curprob, totprob,
+	decl h, ep, q, PS, bothrows, curprob, totprob,
 		dosemi = ind[onlysemiexog]==DoAll ? range(0,S[onlysemiexog].N-1)' : ind[onlysemiexog],
-		einds = (ind[onlyexog]==DoAll) ? range(0,N::Ewidth-1) :	ind[onlyexog];
+		einds =  ind[onlyexog]    ==DoAll ? range(0,N::Ewidth-1)          :	ind[onlyexog];
 	viinds[now] = vecr(ind[tracking])';
 	vilikes[now] = zeros(viinds[now]);
-	for(q=0;q<columns(viinds[now]);++q) {          //loop over current states consistent with data so far
-		qind = viinds[now][q];
-		arows=ind[onlyacts][Ainds[q]];        //feasible actions
-		PS = GetPstar(qind)[arows][];         //choice probabilities of consistent actions
+	for(q=0;q<columns(viinds[now]);++q) {                  //loop over current states consistent with data so far
+		arows=ind[onlyacts][Ainds[q]];                    //action rows consistent with this state
+		PS = GetPstar(viinds[now][q])[arows][];         //choice probabilities of consistent actions
 		for (h = 0,totprob = 0.0;h<sizeof(dosemi);++h) {      //loop over semi-exogenous values
-            semicol = dosemi[h];
-			bothrows = semicol*N::Ewidth + einds;                       //combination of consistent epsilon and eta values
+			bothrows = dosemi[h]*N::Ewidth + einds;                       //combination of consistent epsilon and eta values
 			curprob = sumr( PS[][ bothrows ].*NxtExog[Qprob][ bothrows ]' )';  //combine cond. choice prob. and iid prob. over today's shocks
 			totprob += sumc(NxtExog[Qprob][ bothrows ]);                      //prob. over consistent iid shocks
 			vilikes[now][q] +=       // add to today's conditional probability
-                    TomIndices()
+                    TomIndices(viinds[now][q],dosemi[h])
 					? curprob*sumr(TP[arows][icol[1][]] .* vilikes[tom][icol[0][]]) // combine tomorrow's prob. with todays iid & choice prob.
 					: sumr(curprob);       //no states tomorrow, just add up today.
    			}
@@ -466,23 +477,22 @@ $$L(\theta) = $$
 </dd>
 **/
 Outcome::IIDLikelihood() {
-    decl c, ep, lo, curprob, hi;
-    viinds[now] = qind = ind[tracking];
+    decl ep, lo, curprob, hi;
+    viinds[now] = ind[tracking];
     arows=ind[onlyacts][Ainds[0]];
-    semicol = ind[onlysemiexog];
-    lo = semicol*N::Ewidth;
+    lo = ind[onlysemiexog]*N::Ewidth;
     hi = lo + N::Ewidth-1;
     curprob =NxtExog[Qprob][ lo:hi ] ;  //need to get conditional prob. of eta
     vilikes[now] =     vilikes[!now]          //future like
                     *  curprob                // distn of exogenous variables
                     .* (OnlyTransitions
                         ? 1.0
-                        : GetPstar(qind)[arows][lo:hi]'  //CCP
+                        : GetPstar(viinds[now])[arows][lo:hi]'  //CCP
                         );
     for (ep=0;ep<N::Ewidth;++ep) {
         ind[bothexog] = lo+(ind[onlyexog] = ep);
-        foreach (c in Chi)  if (c.indata) vilikes[now][ep] *= c->Likelihood(this);
-        vilikes[now][ep] *= TomIndices()
+        if (sizeof(Chi)) vilikes[now][ep] *= AuxLikelihood();
+        vilikes[now][ep] *= TomIndices(viinds[now],ind[onlysemiexog])
                                 ? TP[arows][icol[1][0]]
                                 : 1.0;
         }
@@ -496,16 +506,15 @@ Outcome::IIDLikelihood() {
 **/
 Outcome::CCLikelihood() {
     decl c;
-    qind   = viinds[now] = ind[tracking];
-    arows  = ind[onlyacts][Ainds[0]];
-    semicol= ind[onlysemiexog];
-    vilikes[now] = vilikes[!now]
+    viinds[now] = ind[tracking];
+    arows       = ind[onlyacts][Ainds[0]];
+    vilikes[now]= vilikes[!now]
                     * (OnlyTransitions
                         ? 1.0
-                        : double( GetPstar(qind)[arows][semicol]) );
-    foreach (c in Chi)  if (c.indata) vilikes[now] *= c->Likelihood(this);
+                        : double( GetPstar(viinds[now])[arows][ind[bothexog]]) );
+    if (sizeof(Chi)) vilikes[now] *= AuxLikelihood();
 	if (viinds[tom]==UnInitialized) return;
-    vilikes[now] *= TomIndices() ? TP[arows][icol[1][0]] : 1.0;
+    vilikes[now] *= TomIndices(viinds[now],ind[onlysemiexog]) ? TP[arows][icol[1][0]] : 1.0;
 	}
 
 /** Integrate over the path.
@@ -632,9 +641,9 @@ Panel::LogLikelihood() {
 
 Path::Mask() {		
 	cur = this;
-    Outcome::AnyMissing = constant(FALSE,DSubSpaces,1);
+    AnyMissing[] = FALSE;
     do { cur ->Outcome::Mask();	} while ( (isclass(cur = cur.onext)) );
-    if (any(AnyMissing[<onlyacts,onlysemiexog,bothexog>]))
+    if (any(AnyMissing[<onlyacts,onlysemiexog,onlyendog>]))
         LType = PartObsLike;
     else if (AnyMissing[onlyexog])
         LType = ExogLike;
@@ -642,8 +651,8 @@ Path::Mask() {
         LType = CCLike;
 	}	
 	
-FPanel::Mask() {
-	cur = this;	do { cur -> Path::Mask(); } while ( (isclass(cur = cur.pnext)) );
+FPanel::Mask(aLT) {
+	cur = this;	do { cur -> Path::Mask(); aLT[0][cur.LType] += 1;} while ( (isclass(cur = cur.pnext)) );
 	}	
 
 /** Mask unobservables.
@@ -663,8 +672,12 @@ OutcomeDataSet::Mask() {
         }
 	if (!Version::MPIserver && Data::Volume>SILENT) Summary(0);
 	cur = this;
-	do { cur -> FPanel::Mask(); } while ((isclass(cur = cur.fnext)));
+    LTypes[] = 0;
+	do {
+        cur -> FPanel::Mask(&LTypes);
+        } while ((isclass(cur = cur.fnext)));
 	masked = TRUE;
+    println("Path like type counts",LTypes');
    }
 
 /** set the column label or index of the observation ID.
@@ -801,7 +814,7 @@ Outcome::AccountForUnobservables() {
 			if (sizeof(intersection(ai,myi,&inta))) {  // some feasible act are consistent
 				if (!ismatrix( ind[onlyacts][myA] )) {
                     ind[onlyacts][myA] = matrix(inta[0][]);	  //rows of A[Aind] that are consistent with acts
-                    if (!AnyMissing[onlyacts] && columns(ind[onlyacts])>1) AnyMissing[onlyacts] = TRUE;
+                    if (!AnyMissing[onlyacts] && rows(ind[onlyacts][myA])>1) AnyMissing[onlyacts] = TRUE;
                     }
 				Ainds |= myA;  // keep track of which feasible set goes with state s
 		  		++s;
@@ -949,7 +962,7 @@ OutcomeDataSet::Read(FNorDB,SearchLabels) {
 	for (i=S[fgroup].M;i<=S[fgroup].X;++i)
 		if (!list[s0+i].obsv && !list[s0+i].force0) oxrunerror("DDP Error 61. Fixed Effect Variable "+sprint(list[s0+i].obj.L)+" must be observed or have N=1");	
     LoadOxDB();
-	masked = TRUE;
+	masked = FALSE;
 	delete source;
 	}
 
@@ -973,6 +986,7 @@ OutcomeDataSet::OutcomeDataSet(id,method) {
 	foreach (q in aa)      list |= new DataColumn(avar,q);
 	foreach (q in States)  list |= new DataColumn(svar,q);
 	foreach (q in Chi)     list |= new DataColumn(auxvar,q);
+    LTypes = zeros(LikelihoodTypes,1);
 	}																		
 
 /** Delete a data set.

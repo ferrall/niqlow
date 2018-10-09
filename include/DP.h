@@ -29,8 +29,8 @@ struct SubSpace : DDPauxiliary  {
 	/** # of dimensions**/    				D,
 	/** # of elements **/     				size,
 	/** vector of offsets**/  				O,		
-	/** . @internal **/						left,
-	/** . @internal **/						right;	
+	/** leftmost state index. **/			left,
+	/** rightmost state index **/		    right;	
 	SubSpace(); 	
 	Dimensions(subs,UseLast=TRUE,DynRand=FALSE);
 	ActDimensions();
