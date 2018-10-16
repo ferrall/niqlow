@@ -144,10 +144,26 @@ MultiIndicator::Realize(y) {
         }
     }
 
+/** Create an wrapper for a static function `AV`-compatible object.
+@param L label string<br/>integer: get label from
+@param target static function of the form <code>target()</code><br>
+**/
+StaticAux::StaticAux(L,target) {
+    AuxiliaryValue(L);
+    this.target = target;
+    }
+StaticAux::Realize(y) {
+    v = target();
+    if (rows(v)>1 &&  Alpha::aC!=UnInitialized) v = v[Alpha::aC];
+    }
+
 /** Create an auxiliary value that adds normally-distributed noise to the actual value.
-@param truevalue `AV`-compatible object (
+@param truevalue `AV`-compatible object
+@param sigma    `CV`-compatible standard deviation
+@param Linear TRUE error is additive<br/>FALSE error is multiplicative and log-normal
 **/
 Noisy::Noisy(truevalue,sigma,Linear) {
+    AuxiliaryValue("noisy"+ (ismember(truevalue,"L") ? truevalue.L : "") );
     this.truevalue = truevalue;
     this.sigma=sigma;
     this.Linear=Linear;
@@ -155,14 +171,19 @@ Noisy::Noisy(truevalue,sigma,Linear) {
 Noisy::Realize(y) {
     if (isclass(truevalue,"AuxiliaryValue"))
         truevalue->Realize(y);
+    v = AV(truevalue);
+    if (rows(v)>1 &&  Alpha::aC!=UnInitialized) v = v[Alpha::aC];
     eps = rann(1,1)*CV(sigma);
-    v = Linear ? AV(truevalue)+eps : exp(eps)*AV(truevalue);
+    v = Linear ? v+eps : exp(eps)*v;
     }
 Noisy::Likelihood(y) {
+    if (isnan(y.aux[pos])) return 1.0;
     if (isclass(truevalue,"AuxiliaryValue"))
         truevalue->Realize(y);
+    v = AV(truevalue);
+    if (rows(v)>1 &&  Alpha::aC!=UnInitialized) v = v[Alpha::aC];
     eps = Linear
-            ? y.aux[pos]- AV(truevalue)
-            : log(y.aux[pos])-log(AV(truevalue));
+            ? y.aux[pos]-v
+            : log(y.aux[pos])-log(v);
     return densn(eps/CV(sigma))/CV(sigma);
     }

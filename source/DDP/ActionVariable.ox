@@ -26,4 +26,4 @@ ActionVariable::myCV() { return Alpha::C[][pos];    }
 
 /**Create a binary action variable.
 **/
-BinaryChoice::BinaryChoice() { ActionVariable("a",2); }
+BinaryChoice::BinaryChoice(L) { ActionVariable(L,2); }

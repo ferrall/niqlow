@@ -333,6 +333,7 @@ struct I : DDPauxiliary {
             `EndogTrans::Transitions`() to avoid repeated calls
             to `CV`.  @see DP::delta **/                         CVdelta;
     static Set(state,group=FALSE);
+    static SetExogOnly(state);
     static Initialize();
     static NowSwap();
     static NowSet();

@@ -42,5 +42,5 @@ MyModel::Initialize() {
 </dd>
 **/
 struct BinaryChoice : ActionVariable {
-    BinaryChoice();
+    BinaryChoice(L="a");
     }

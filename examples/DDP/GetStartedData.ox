@@ -5,38 +5,37 @@
 /* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 struct DerivedSearch : Search {
-	static decl u, simdata, dd;
+	static decl u, simdata;
 	static Run();
 	}
-
 struct SearchData : OutcomeDataSet {
-	enum{N=15,MaxOb=20}
     SearchData();
     }
-
 DerivedSearch::Run()	{
-	Search::Run();
-	AuxiliaryOutcomes(
-        u = new RealizedUtility(),
-        dd = Indicators(p)
-        );
+
+    Initialize(new DerivedSearch());
+	Search::Model();
+    u = new RealizedUtility();
+	AuxiliaryOutcomes(u);
+    CreateSpaces();
+
+    VISolve();
     simdata = new SearchData();
+
     decl pd = new PathPrediction();
-    pd->Tracking(NotInData,dd);
     pd->Predict(5,TRUE);
+
+    delete simdata, pd;
     Delete;
 	}
-
 SearchData::SearchData() {
-	OutcomeDataSet("Search Data",0);   //don't re-solve
+    OutcomeDataSet("SearchData");
     Volume=LOUD;
-	Simulate(N,MaxOb,zeros(N::All),TRUE); //TRUE censors terminal states
+	Simulate(15,20,0,TRUE); //TRUE censors terminal states
 	Print(1);
-	ObservedWithLabel(Search::a,Search::p,Search::d,DerivedSearch::u);
-	Mask();
+	ObservedWithLabel(Search::a,Search::p,Search::d);
 	println("Vector of likelihoods when offered price is observed:",exp(EconometricObjective()));
 	UnObserved(Search::p);
-	Mask();
 	println("Vector of likelihoods when offered prices is unobserved:",exp(EconometricObjective()));
-	}
+    }
 	

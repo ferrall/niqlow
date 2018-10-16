@@ -11,7 +11,9 @@ struct Outcome : Data {
 			PrefixLabels = {"t","n","T","Aj|"};
 	/** . @internal **/
 	static 	decl
-                                        AnyMissing = <[DSubSpaces]*0>,
+#ifdef OX_PARALLEL
+                                        AnyMissing = < [DSubSpaces] *0>,
+#endif
                                         pathpred,
     /**do not include choice prob for fully observed
         likelihood, for first stage estimation of transitions. **/
@@ -138,7 +140,7 @@ struct Panel : FPanel {
     Deep();
 	Print(fn=0,Orientation=LONG);
 //    virtual Combine(V);
-	virtual Simulate(N,T,ErgOrStateMat=0,DropTerminal=FALSE,pathpred=UnInitialized);
+	Simulate(N,T,ErgOrStateMat=0,DropTerminal=FALSE,pathpred=UnInitialized);
 	virtual Collapse(cond,stat);
 	}
 
@@ -167,7 +169,7 @@ A data set is designed to hold data for estimation purposes.
     d = new OutcomeDataSet("d");
 </dd>
 
-See <a href="../FiveO/Objective.ox.html#PanelBB">PanelBB</a>.
+See <a href="../FiveO/Objective.ox.html#DataObjective">DataObjective</a>.
 
 **/
 struct OutcomeDataSet : Panel {
@@ -188,7 +190,9 @@ struct OutcomeDataSet : Panel {
     ObservedWithLabel(as1,...);
 	UnObserved(aORs,...);
 	Read(fn,SearchLabels=FALSE);
-	IDColumn(lORind);
+	IDColumn(lORind="path");
+    tColumn(lORind="t");
 	Summary(data,rlabels=0);
+    Simulate(N,T,ErgOrStateMat=0,DropTerminal=FALSE,pathpred=UnInitialized);
     virtual EconometricObjective(subp=DoAll);
 	}

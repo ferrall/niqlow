@@ -39,6 +39,10 @@ I::Set(state,group) {
        }
     }
 
+I::SetExogOnly(state) {
+	all[<onlyexog,onlysemiexog,bothexog>] = OO[<onlyexog,onlysemiexog,bothexog>][]*state;
+    }
+
 /** Tracks information about a subvector of the state vector. **/
 Space::Space() {D=0; C=N=<>;   X = M= size = 1; }
 
@@ -179,7 +183,9 @@ DP::GetAind(i) {return isclass(Theta[i]) ? Theta[i].Aind : NoMatch; }
 @param i index of &theta; in the state space &Theta;
 @return &Rho;*(&alpha;|&epsilon;,&eta;,&theta;,&gamma;)  (Theta[i].pandv)
 **/
-DP::GetPstar(i) {return Theta[i].pandv; }
+DP::GetPstar(i) {
+    return Theta[i].pandv;
+    }
 
 /** Return tracking transition at a given &eta;,&theta; combination.
 @param i index of &theta; in the state space &Theta;
@@ -332,6 +338,7 @@ DP::Actions(Act1,...) 	{
 **/
 DP::AuxiliaryOutcomes(auxv,...) {
 	if (!isarray(SubVectors)) oxrunerror("DDP Error 40. Error: can't add auxiliary before calling Initialize()",0);
+	//if (Flags::ThetaCreated) oxrunerror("DDP Error 36a. Error: can't add auxiliary after calling DP::CreateSpaces()");
 	decl va = auxv|va_arglist(), pos = sizeof(Chi), i,sL;
 	for (i=0;i<sizeof(va);++i) {
         if (isarray(va[i])) {
@@ -451,7 +458,7 @@ EndogenousStates(status);
 DP::KLaggedState(Target,K,Prune) {
     decl lv = new array[K+1],i;
     lv[0] = Target;
-    for (i=1;i<K;++i) lv[i] = new LaggedState(Target.L+"."+sprint(i),lv[i-1],Prune,i-1);
+    for (i=1;i<K;++i) lv[i] = new LaggedState(Target.L+"_"+sprint(i),lv[i-1],Prune,i-1);
     return lv;
     }
 
@@ -476,7 +483,7 @@ EndogenousStates(status);
 DP::KLaggedAction(Target,K,Prune){
     decl lv = new array[K], i;
     lv[0] = new LaggedAction(Target.L+"."+sprint(0),Target,Prune,0);
-    for (i=1;i<K;++i) lv[i] = new LaggedState(Target.L+"."+sprint(i),lv[i],Prune,i-1);
+    for (i=1;i<K;++i) lv[i] = new LaggedState(Target.L+"."+sprint(i),lv[i-1],Prune,i-1);
     return lv;
     }
 	
@@ -564,7 +571,7 @@ ExogUtil::ExogUtil() {
 ExogUtil::ReCompute(howmany) {
     U = constant(.NaN,I::curth->pandv);
     if (howmany==DoAll)
-        Traverse();
+        this->ExTask::loop();
     else
         Run();
     }
@@ -1101,6 +1108,25 @@ DP::CreateSpaces() {
    Data::SetLog();
  }
 
+/**Return choice probabilities conditioned on &theta; expanded into full choice probabilty space.
+@param  Aind  index of feasible set that p0 is based on
+@param  p0  matrix of conditional choice probabilities to expand.
+
+this inserts zeros for infeasible action vectors.  So results are consistent
+across states that have different feasible action sets.
+
+@return expanded matrix
+
+@see DPDebug::outV
+**/
+DP::ExpandP(Aind,p0) {
+	decl p,i;
+    p = p0;
+	for (i=0;i<N::A;++i)
+        if (!Alpha::Sets[Aind][i]) p = insertr(p,i,1);
+	return p;
+	}
+
 /** .
 @internal
 **/
@@ -1259,6 +1285,35 @@ Task::loop(IsCreator){
     return TRUE;
     }
 
+/** Loop through the state space and carry out tasks leftgrp to rightgrp.
+@internal
+**/
+ExTask::loop(){
+	trips = iter = 0;
+	Reset();					// (re-)initialize variables in range
+    if (trace) println("*** Task Loop ",classname(this),state');
+    //  not done on exogenous loop
+	d=left+1;				   		// start at leftmost state variable to loop over	
+    done = FALSE;
+	do	{
+		do {
+			SyncStates(left,left);
+            I::SetExogOnly(state);
+			this->Run();
+			++iter;
+			} while (--state[left]>=0);
+		state[left] = 0;
+		d = left+double(vecrindex(state[left:right]|1));
+		if (d<right) --state[d];			   			//still looping inside
+		else
+            this->Update();
+		state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
+		SyncStates(left,d);
+		} while (d<=right || !done );  //Loop over variables to left of decremented, unless all vars were 0.
+    if (trace) println("*** End Loop ",classname(this));
+    return TRUE;
+    }
+
 
 /** Default task loop update process.
 @return TRUE if rightmost state &gt; 0<br>
@@ -1357,8 +1412,8 @@ DP::ExogenousTransition() {
 		feas = Off[curst.pos-N+1 : curst.pos]*feas;
 		k=0;
 		do if (prob[k])	{
-			 F[cur]  ~=  F[bef]+feas[k];
-			 P[cur]  ~= P[bef]*prob[k];
+			 F[cur]  ~=  F[bef]+feas[][k];
+			 P[cur]  ~=  P[bef].*prob[][k];
 			 } while (++k<columns(prob));
 		cur = bef; 	bef = !cur;	si -= N;
 		} while (si>=0);
@@ -1828,8 +1883,8 @@ SaveV::Run() {
     oxprintlevel(-1);
 	stub=I::all[tracking]~I::curth.Type~I::curth.Aind~state[S[endog].M:S[clock].M]';
     p = columns(I::curth.pandv)==rows(NxtExog[Qprob])
-            ?  I::curth->ExpandP( I::curth.pandv*NxtExog[Qprob])
-            :  I::curth->ExpandP( I::curth.pandv );
+            ?  ExpandP(I::curth.Aind, I::curth.pandv*NxtExog[Qprob])
+            :  ExpandP(I::curth.Aind, I::curth.pandv );
     r =stub~I::r~I::f~I::curth.EV;
     if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
 	if (isclass(I::curth,"OneDimensionalChoice") && I::curth.solvez ) r ~= I::curth->Getz()[][I::r]';

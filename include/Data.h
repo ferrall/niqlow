@@ -1,4 +1,4 @@
-/* This file is part of niqlow. Copyright (C) 2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2018 Christopher Ferrall */
 #ifdef OX_PARALLEL
 #ifndef Dh
     #define Dh

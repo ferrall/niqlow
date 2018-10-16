@@ -32,6 +32,7 @@ struct DynaHealth : ExPostSmoothing { //EVExAnte
 					
 				
 	static decl
+        SickL,
 		wrk,
 		trt,
 		lagk,

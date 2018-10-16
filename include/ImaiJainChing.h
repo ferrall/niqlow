@@ -6,7 +6,7 @@
 enum {Keep,Close,Iterations,Burnin,BellmanIterations,DesignParameters}
 
 
-struct ImaiJainChing : PanelBB {
+struct ImaiJainChing : DataObjective {
 	const decl DPmeth;
 	decl
 	/** bandwidth **/               h,

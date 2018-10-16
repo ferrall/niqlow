@@ -1,23 +1,41 @@
 #include "Predictions.h"
-/* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+
+
+ExogAux::ExogAux() {
+    ExTask();
+    }
+ExogAux::ExpectedOutcomes(auxlist,chq) {
+    decl tv;
+    if (!sizeof(auxlist)) return;
+    this.chq = chq;
+    this.auxlist = auxlist;
+    //initialize all realized values to 0.
+    foreach(tv in auxlist) { tv.v = 0.0; }
+    loop();
+    }
+ExogAux::Run() {
+    decl tv;
+    foreach(tv in auxlist) {
+        tv.obj->Realize();
+        tv.v += chq[][I::all[bothexog]].*tv.obj.v;
+        }
+    }
 
 /** Compute the predicted distribution of actions and states.
 Average values of tracked objects are stored in `Predict::predmom`
 Transitions to unreachable states is tracked and logged in the Data logfile.
 
-@param tlist list of tracked objects to compute histograms for.
-
 @return TRUE if all current states are termimal or last states.
 @see TrackObj::Distribution
 **/
-Prediction::Predict(tlist) {
-    state = zeros(N::All);
+Prediction::Predict() {
+    exaux.state = state = zeros(N::All);
     if (!sizec(sind)) {
-        predmom = constant(.NaN,1,sizeof(tlist));
+        predmom = constant(.NaN,1,sizeof(ctlist));
         return TRUE;
         }
 	decl k,tv,s,q,qi,pp=0.0,unrch=<>,allterm=TRUE;
-    foreach(tv in tlist) tv->Reset();
     foreach (q in sind[s]) {
         pq = p[s];
         if (pq > tinyP) {
@@ -26,8 +44,10 @@ Prediction::Predict(tlist) {
                 I::all[tracking] = q;
                 SyncStates(lo,hi);
                 Alpha::SetA();
+                chq  = pq*I::curth.pandv.*(NxtExog[Qprob]');
+                exaux->ExpectedOutcomes(cauxlist,chq);
                 if ( I::curth->StateToStatePrediction(this) ) return  PredictFailure = TRUE;
-                foreach (tv in tlist) tv->Distribution(this);
+                foreach (tv in ctlist) tv->Distribution(this);
                 allterm *= I::curth.Type>=LASTT;
                 }
             else {
@@ -36,7 +56,7 @@ Prediction::Predict(tlist) {
                 }
             }
         }
-    predmom = <>; foreach(tv in tlist) predmom ~= tv.mean;
+    predmom = <>; foreach(tv in ctlist) predmom ~= tv.mean;
     if (!isfeq(pp,0.0)) {
         fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
         if (!LeakWarned) {
@@ -70,6 +90,7 @@ Prediction::Prediction(t){
     ch = zeros(N::A,1);
     empmom = 0;
     Reset();
+    if (isint(exaux)) exaux = new ExogAux();
 	}
 
 /**
@@ -309,8 +330,8 @@ PathPrediction::InitialConditions() {
 reachable state index is found.
         So <code>PathPrediction(0)</code> [default] will start the prediction at the
         lowest-indexed reachable state in
-        &Theta;.<br>
-        matrix: a list of states to start the prediction from<br>
+        &Theta;.<br/>
+        matrix: a list of states to start the prediction from<br/>
         object of Prediction class: use `Prediction::sind` as the initial state for
         this prediction.
 
@@ -383,8 +404,8 @@ sTrack::Distribution(pobj) {
     }
 
 xTrack::Distribution(pobj) {
-    obj->Realize(pobj);
-    decl v = sumc(sumr( AV(obj).* pobj.chq));
+    //    obj->Realize(pobj);
+    v = sumc(sumr(v));
     mean += v;
     return v;
     }
@@ -397,16 +418,15 @@ oTrack::Distribution(pobj) {
 
 
 /** Compute the histogram of tracked object at the prediction.
-@param tlist array of `ObjToTrack`s (tracked objects)
 @param printit TRUE=output; FALSE=quiet
 @comments
 output will also be produced for any objects in tlist with Volume &gt; SILENT
 **/
-Prediction::Histogram(tlist,printit) {
+Prediction::Histogram(printit) {
 	decl tv;
     predmom=<>;
     Alpha::SetA();
-    foreach(tv in tlist ) { //Leak     for (i=0;i<sizeof(tlist);++i) { //tv = tlist[i];Leak
+    foreach(tv in ctlist ) {
         tv->Distribution(this);
         predmom ~= tv.v;
         if (printit) tv->print();
@@ -418,8 +438,8 @@ Prediction::Histogram(tlist,printit) {
 /** Difference between empirical and predicted moments.
 @param mask vector to mask out predictions
 @printit TRUE print out results
-@return  predicted-empirical<br>
-        with 0 if empirical is missing<br>
+@return  predicted-empirical<br/>
+        with 0 if empirical is missing<br/>
         .Inf if prediction is undefined
 **/
 Prediction::Delta(mask,printit,tlabels) {
@@ -439,7 +459,7 @@ Prediction::Delta(mask,printit,tlabels) {
     }
 
 /** Track an object.
-@param LorC  string, label of column of data to associate with this object.<br>integer,
+@param LorC  string, label of column of data to associate with this object.<br/>integer,
 column index to associate
 @param obj `Discrete` object to track
 @param pos position in the target list
@@ -512,9 +532,9 @@ TrackObj::print() {
     }
 
 /** Objects to track mean values over the path.
-@param LorC  UseLabel: use object label to match to column.<br>NotInData unmatched to
-data.<br>integer: column in data set<br>string: column label
-        <br>TrackAll : track all actions, endogenous states and auxiliaries
+@param LorC  UseLabel: use object label to match to column.<br/>NotInData unmatched to
+data.<br/>integer: column in data set<br>string: column label
+        <br/>TrackAll : track all actions, endogenous states and auxiliaries
 @param mom1 `Discrete` object or array or objects to track
 @param ... more objects or arrays of objects
 
@@ -553,8 +573,8 @@ PathPrediction::Tracking(LorC,...) {
 
 /** Set up data columns for tracked variables.
 @param dlabels array of column labels in the data.
-@param Nplace number of observations (row weight) column<br>UnInitialized no row weights
-@param tplace model t column<br>UnInitialized
+@param Nplace number of observations (row weight) column<br/>UnInitialized no row weights
+@param tplace model t column<br/>UnInitialized
 **/
 PathPrediction::SetColumns(dlabels,Nplace,Tplace) {
     decl v,lc,vl,myc;
@@ -597,7 +617,6 @@ PathPrediction::Initialize() {
     PredictFailure = FALSE;
     //foreach
     decl t;
-    //for (t=0;t<sizeof(tlist);++t) tlist[t]->Update();
     foreach (t in tlist) t->Update();
 	if (isclass(upddens)) {
 		upddens->SetFE(state);
@@ -612,17 +631,20 @@ PathPrediction::Initialize() {
 
 /** Compute predictions and distance over the path. **/
 PathPrediction::TypeContribution(pf,subflat) {
-  decl done, pcode,time0;
+  decl done, pcode,time0, tv;
   time0 = timer();
   if (isclass(method) && !method->Solve(f,rcur)) return FALSE;
   solvetime += timer()-time0;
   SetT();
   cur=this;
-
+  ctlist = tlist;
+  cauxlist={};
+  foreach (tv in tlist) if (isclass(tv,"xTrack")) cauxlist |= tv;
   do {
      cur.predmom=<>;
      time0 = timer();
-     pcode = cur->Prediction::Predict(tlist);
+     foreach(tv in tlist) tv->Reset();
+     pcode = cur->Prediction::Predict();
      predicttime += timer()-time0;
      done =  pcode                               //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
@@ -666,10 +688,10 @@ PanelPrediction::MaxPathVectorLength(inT) {
 
 /** Set an object to be tracked in predictions.
 @param LorC  UseLabel: use object label to match to column.
-<br>NotInData unmatched to data.
-<br>integer: column in data set
-<br>string: column label
-<br>TrackAll: add all actions, endogenous states, and auxliaries to the tracking list
+<br/>NotInData unmatched to data.
+<br/>integer: column in data set
+<br/>string: column label
+<br/>TrackAll: add all actions, endogenous states, and auxliaries to the tracking list
 @param ... objects or arrays of objects to be tracked
 **/
 PanelPrediction::Tracking(LorC,...) {
@@ -707,11 +729,11 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght) {
 
 /** Predict outcomes in the panel.
 @param t positive integer or matrix of lengths of paths to predict (same length as
-number of paths in then panel)<br>
-@param prtlevel Zero [default] do not print<br>One print state and choice
-probabilities<br>Two print predictions
+number of paths in then panel)<br/>
+@param prtlevel Zero [default] do not print<br/>One print state and choice
+probabilities<br/>Two print predictions
 @param outmat matrix, predictions already made, just process contributions
-@return succ TRUE no problems</br>FALSE prediction or solution failed.
+@return succ TRUE no problems<br/>FALSE prediction or solution failed.
 **/
 PanelPrediction::Predict(T,prtlevel,outmat) {
     decl cur=this, succ,left=0,right=N::R-1;
@@ -748,7 +770,7 @@ PanelPrediction::Combine(V) {
 
 /** Track a single object that is matched to column in the data.
 @param Fgroup  integer or vector of integers of fixed groups that the moment should be
-tracked for.<br> <code>AllFixed</code>, moment appears in all groups
+tracked for.<br/> <code>AllFixed</code>, moment appears in all groups
 @param LorC  label or column index in the data to associate with this moment.
 @param mom `Discrete` object to track
 **/
@@ -767,9 +789,9 @@ PredictionDataSet::TrackingMatchToColumn(Fgroup,LorC,mom) {
 
 /** Track one or more objects that are matched to columns using the object's label.
 @param Fgroup  integer or vector of integers of fixed groups that the moment should be
-tracked for.<br> AllFixed, moment appears in all groups
+tracked for.<br/> AllFixed, moment appears in all groups
 @param InDataOrNot TRUE: the <code>UseLabel</code> tag will be passed to
-`PathPrediction::Tracking`()<br>FALSE: the <code>NotInData</code> tag will be sent.
+`PathPrediction::Tracking`()<br/>FALSE: the <code>NotInData</code> tag will be sent.
 @param mom1 object or array of objects to track
 @param ... more objects
 **/
@@ -790,10 +812,10 @@ PredictionDataSet::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
 
 
 /** Create a panel prediction that is matched with external data.
-@param UorCorL where to get fixed-effect values<br>matrix of indices, array of
+@param UorCorL where to get fixed-effect values<br/>matrix of indices, array of
 @param label name for the data
 @param method solution method to call before predict
-labels<br>UseLabel [default]<br>NotInData only allowed if F=1, then no column contains
+labels<br/>UseLabel [default]<br/>NotInData only allowed if F=1, then no column contains
 fixed variables
 @param iDist initial conditions set to `PathPrediction`s
 @param wght see `GMMWeightOptions`
@@ -863,7 +885,7 @@ PredictionDataSet::EconometricObjective(subp) {
 	}
 
 /** Read in external moments of tracked objects.
-@param FNorDB  string, name of file that contains the data.<br>A Ox database object.
+@param FNorDB  string, name of file that contains the data.<br/>A Ox database object.
 **/
 PredictionDataSet::Read(FNorDB) {
     decl curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone,incol,

@@ -31,7 +31,7 @@ There two parallel but separate kinds of data:
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">The concept behind simulating data from a DP and estimation based on likelihood.</td>
+<td class="text">Data generated from following a realized DP and estimation based on maximum likelihood.</td>
 </tr>
 <tr>
 <td class="line">&nbsp;</td>
@@ -43,9 +43,10 @@ There two parallel but separate kinds of data:
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">The concept behind average or expect results from the DP and estimation based on GMM.</td>
+<td class="text">Data based on average or expected results over multiple DP realizations and estimation based on GMM.</td>
 </tr>
 </table>
+
 
 <H2>Contents</H2>
 <OL class="contents">
@@ -74,7 +75,7 @@ Outcomes are related to points in the state space $\Theta$, but they are treated
 
 A single point in the state space $\theta$ can have multiple states that could come before it or come after it hypothetically.  In contrast, outcomes have a well-defined <em>predecessor</em> and <em>successor</em>. These are tracked as part of the outcome, so that <span class="n">niqlow</span> represents a sequence of outcomes as a doubly-<a href="http://en.wikipedia.org/wiki/Linked_list">linked list</a> of objects of class `Outcome`.</p>
 
-An Outcome $Y$ is a basic unit of data. Data structures are defined to keep track of ordered and unordered groups of outcomes, as illustrated here:
+An Outcome $Y$ is a basic unit of data. However, a user will typically not interact with an individual outcome.  Data structures are defined to keep track of ordered and unordered groups of outcomes.  It is these objects that a user will typically create and use directly.  The structure of outcomes is illustrated here:
 <table class="tree">
 <tr>
 <td class="line">&nbsp;</td>
@@ -99,7 +100,7 @@ An Outcome $Y$ is a basic unit of data. Data structures are defined to keep trac
 </td>
 <td class="text">A derived Outcome that points to a <em>sequence of outcomes along a single realized DP path.</em> As an outcome itself, the path is also the first outcome along itself:
     <DD class="disp">
-    PATH::Y<sub>0</sub> &#8646; Y<sub>1</sub> &#8646; &nbsp; &hellip;&nbsp;  Y<sub>T</sub>&nbsp; &#8677;</DD>
+    <code>PATH::Y<sub>0</sub> &#8646; Y<sub>1</sub> &#8646; &nbsp; &hellip;&nbsp;  Y<sub>T</sub>&nbsp; &#8677;</code></DD>
     The outcomes on a path are ordered and they "point" to both their predecessor and successor.  (In computer speak, a Path is a doubly-linked list.)  This is because some processing of paths go forward (such as simulating outcomes) and some backwards (computing likelihood when accounting for unobserved states).
     </td></tr>
 <tr>
@@ -113,9 +114,9 @@ An Outcome $Y$ is a basic unit of data. Data structures are defined to keep trac
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A Path that can point to more paths that all share the <em>same fixed effect values.</em> As a Path itself, the FPanel is the first path in the panel.
-    <DD class="disp">
-    FPANEL::PATH<sub>0</sub> &#8614; PATH<sub>1</sub> &#8614; &nbsp; &hellip;&nbsp;  PATH<sub>N</sub>&nbsp; &#8677;</DD>
+<td class="text">A Path that can point to more paths that all share the <em>same fixed effect value, $\gamma_f$.</em> As a Path itself, the FPanel is the first path in the panel.
+    <DD class="disp"><code>
+    FPANEL::PATH<sub>0</sub> &#8614; PATH<sub>1</sub> &#8614; &nbsp; &hellip;&nbsp;  PATH<sub>N</sub>&nbsp; &#8677;</code></DD>
     The different paths in a FPANEL point to their successor only, because it is typically not necessary to process them in both directions.
 </td></tr><tr>
 <td class="line">&nbsp;</td>
@@ -129,9 +130,9 @@ An Outcome $Y$ is a basic unit of data. Data structures are defined to keep trac
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A heterogenous panel, is a FPanel which can also point to more FPanels. The Panel is the first fixed panel in the list.
+<td class="text">A heterogenous panel which contains one or more fixed panel. As an object derived from FPanel it also points to more FPanels. The Panel is the first fixed panel in the list.
     <DD class="disp">
-    PANEL::FPANEL<sub>0</sub> &#8614; FPANEL<sub>1</sub> &#8614; &nbsp; &hellip;&nbsp;  FPANEL<sub>M</sub>&nbsp; &#8677;</DD>
+    <code>PANEL::FPANEL<sub>0</sub> &#8614; FPANEL<sub>1</sub> &#8614; &nbsp; &hellip;&nbsp;  FPANEL<sub>M</sub>&nbsp; &#8677;</code></DD>
     Different FPANELs in a PANEL point to their successor only, because it is typically not necessary to process them in both directions.
 </td></tr></td></tr>
 <tr>
@@ -144,10 +145,10 @@ An Outcome $Y$ is a basic unit of data. Data structures are defined to keep trac
    <tr class="bottom"><td class="line">&nbsp;</td></tr>
 </tbody></table>
 </td>
-<td class="text">A panel with data-handling tools. Unlike the other derived classes, a data set does not point to other panels.
-    <DD class="disp">
-    DATA::PANEL
-    </DD>
+<td class="text">A Panel with data-handling tools. Unlike the other derived classes, an OutcomeDataSet does not point to other panels (but the user's code could create more than one data set.)
+    <DD class="disp"><code>
+    OUTCOMEDATASET::PANEL
+    </DD></DD>
 </td></tr></table>
 
 <LI>Examples</LI>
@@ -172,9 +173,9 @@ This will create a Panel object, which in turn will automatically create a FPane
 
 <span class="n">DDP</span> is designed to handle programs for which not everything observed by the agent is observed by the econometrician.  In addition, <span class="n">DDP</span> is designed to handle observables that are functions of the underlying outcomes but are not necessarily of any (direct) interest of the agent.  To provide these  capabilities, first consider the case of the fully observed realization of the DP.</p>
 
-Let the Y* denote the vector of <em>all</em> actions and all <em>realized states</em> in the model.  Generically, 
+Let the Y<sup>F</sup> denote the vector of <em>all</em> actions and all <em>realized states</em> in the model.  Generically,
 <dd><pre>
-Y* &equiv; (&alpha; &zeta; &epsilon; &eta; &theta; &gamma; &chi; Y*<sup>p</sup> Y*<sup>n</sup>)
+Y<sup>F</sup> &equiv; (&alpha; &zeta; &epsilon; &eta; &theta; &gamma; &chi; Y<sup>F</sup><sub>p</sub> Y<sup>F</sup><sub>n</sub> )
     &alpha; = (a<sub>0</sub> &hellip; )
     &zeta; = (z<sub>0</sub> &hellip; )
     &epsilon; = (e<sub>0</sub> &hellip; )
@@ -185,17 +186,13 @@ Y* &equiv; (&alpha; &zeta; &epsilon; &eta; &theta; &gamma; &chi; Y*<sup>p</sup> 
 </pre></dd>
 For simplicity the length of each of the vectors is not specified and the right-most elements of each of the vectors is not included. Instead, each vector is shown as the leftmost variable with subscript 0 followed by &hellip;.</p>
 
-Y* is referred to as the <em>full outcome</em> because it includes all information that is knowable and relevant about a single period in a realized DDP. Y* adds a new vector denoted &chi; with generic elements x.  See below. Y* also includes Y<sup>p</sup> Y<sup>n</sup>, which are <q>pointers</q> to the preceding and next outcomes in the path. These values can be undefined for various reasons. Obviously the value of Y<sup>n</sup> is not realized until the end of the current period.  And the initial period obviously has no preceding outcome. However, in the middle of a panel of observation both pointers would be defined.</p>
+Y<sup>F</sup> is referred to as the <em>full outcome</em> because it includes all information that is knowable and relevant about a single period in a realized DDP. Y<sup>F</sup> adds a new vector denoted &chi; with generic elements x.  See below. Y<sup>F</sup> also includes <q>pointers</q> to the preceding and next outcomes on the path. These pointers can be undefined for various reasons. Obviously the value of Y<sup>F</sup><sub>n</sub> is not realized until the end of the current period.  And the initial period of decision making obviously has no preceding outcome. However, in the middle of a panel of observation both pointers would be defined.</p>
 
-The full outcome may not be observed in data.  The observed outcome, <var>Y</var>, will have the same structure as <var>Y*</var> but one or more elements of the member vectors will include missing (<code>.NaN</code>) values.  Observability is discussed below.  Its purpose is to account for gaps between theoretical outcomes and observed results from a DP.</p>
+The full outcome may not be observed in data.  The observed outcome, <var>Y</var>, will have the same structure as <var>Y<sup>F</sup></var> but one or more elements of the member vectors will include missing (<code>.NaN</code>) values.  Observability is discussed below.  Its purpose is to account for gaps between theoretical outcomes and observed results from a DP.</p>
 
 <li>Paths </li>
 
 The base `Outcome` class captures a single period, and it points to the previous outcome and the next outcome along a realized path (if the predecessor and successor exist).  A `Path` is derive from `Outcome`, so the first outcome on the path is stored directly by the path (since it is an outcome itself).  But `Path` also has a `Path::last` data member which points to the last outcome on the path.  Because both the previous and next outcomes are defined a `Path` can be processed both forwards and backwards.  That is, a path is a doubly-linked list. </p>
-
-<!--
-Image Y*  Y* Y* ...
--->
 
 A `Path` is a derived class from `Outcome`.  The difference is that a path tracks a sequence of outcomes generated by realizations of a single DP problem.  The outcomes in a path are a <em>linked list</em>.  Since a path is itself an outcome the first outcome is the path itself.  `Outcome` tracks both the <em>next</em> and <em>previous</em> outcome in the realized path.  Further, the path stores the last outcome in the path, which makes it possible to work either forwards or backwards in the sequence.<p>
 
@@ -218,13 +215,13 @@ During simulation, the vector &zeta; is filled in before calling <code>Auxiliary
 
 <LI>Observed and Partially Observed Outcomes</LI>
 
-Recall that <em>Y*</em> is the full realized outcome of the DP model is a single period.  It includes all states, actions and auxiliary variables.  In practice the full outcome is not directly observed.  The limited information can be variables whose realized values are simply missing, or they only affect an auxiliary variable which combines other elements of the outcome. We can express the <em>observable outcome</em> as
+Recall that Y<sup>F</sup> is the full realized outcome of the DP model is a single period.  It includes all states, actions and auxiliary variables.  In practice the full outcome is not directly observed.  The limited information can be variables whose realized values are simply missing, or they only affect an auxiliary variable which combines other elements of the outcome. We can express the <em>observable outcome</em> as
 <DD><pre>
 Y = &equiv; (x<sub>0</sub> &hellip; x<sub>&chi;.N</sub>  - - &hellip; a<sub>o0</sub> - &hellip; - a<sub>o1</sub> - &hellip; - z<sub>o0</sub> - &hellip; - e<sub>o0</sub> - &hellip; - h<sub>o0</sub> - &hellip; - q<sub>o0</sub> &hellip; - g<sub>o0</sub> - &hellip; )
 </pre></DD>
-Here <q>-</q> indicates censoring of elements of Y*, and a<sub>o0</sub> is the first observed action variable. So if <code>o0 = 3</code> it means a<sub>3</sub> is the first element of <code>&alpha;</code> that is in the observed outcome.  Between a<sub>o0</sub> and a<sub>o1</sub> are any action variables not observed and indicated by <q>- &hellip; -</q>.  The same is true of the state vectors. </p> </p>
+Here <q>-</q> indicates censoring of elements of Y<sup>F</sup>, and a<sub>o0</sub> is the first observed action variable. So if <code>o0 = 3</code> it means a<sub>3</sub> is the first element of <code>&alpha;</code> that is in the observed outcome.  Between a<sub>o0</sub> and a<sub>o1</sub> are any action variables not observed and indicated by <q>- &hellip; -</q>.  The same is true of the state vectors. </p> </p>
 
-This is not necessarily a template that all observations must follow.  It is possible that some elements of Y* are observed in some cases but not others.  The auxiliary variables provide great flexibility.  Suppose the value of an action variable a<sub>d</sub> is unobserved, but it is known the realized value is with some sub-range of the potential values.  Then x<sub>0</sub> and x<sub>1</sub> could be the min and max values of a<sub>d</sub>, respectively.  A derived likelihood function would add up the conditional probabilities of actions between those two values.</p>
+This is not necessarily a template that all observations must follow.  It is possible that some elements of Y<sup>F</sup> are observed in some cases but not others.  The auxiliary variables provide great flexibility.  Suppose the value of an action variable a<sub>d</sub> is unobserved, but it is known the realized value is with some sub-range of the potential values.  Then x<sub>0</sub> and x<sub>1</sub> could be the min and max values of a<sub>d</sub>, respectively.  A derived likelihood function would add up the conditional probabilities of actions between those two values.</p>
 
 <a name="Data"><LI>Data Sets</LI></a>
 
@@ -232,13 +229,14 @@ The `OutcomeDataSet` class is derived from `Panel`.  It adds to the notion of a 
 
 <h3>Observability</h3>
 
+
 <h3>Getting Data</h3>
 
-Methods for storing and processing data are included.  Data are read in from outside formats such as Stata using Ox's built-in capabilities in the <code>Database</code> class.  If the same labels are used for state and action variables as in the data set, the methods can seamlessly relate the data to the corresponding element of the model.</p>
+Data are read in from outside formats such as Stata using Ox's built-in capabilities in Ox's <code>Database</code> class.  If the same labels are used for model variables as in the external data set, the methods can seamlessly relate the data to the corresponding element of the model.</p>
 
 A key issue with estimating DDPs is unobservability of actions and states.  <code>Outcome</code> handles this  two ways.  First it treats missing (<code>.NaN</code>) in the data as unobserved.  It  will then integrate (sum over) values of missing states and actions when computing, say, the likelihood of the data.  Second, auxiliary data (sometimes called payoff relevant variables) can be included in the data and then coded so that they indicate which variables and values should be integrated over.</p>
 
-<a name="Emet"><LI>Likelihood</LI></a>
+<h2><a name="Emet"><LI>Likelihood</LI></a></h2>
 
 </OL>
 
@@ -247,13 +245,9 @@ A key issue with estimating DDPs is unobservability of actions and states.  <cod
 <OL class="chapter">
 <LI>Overview</LI>
 
-The <a href="#Outcomes">Outcome</a> class is designed to work with realized results from a DP model.  That is, at one point in time there is a single realization.  For this reason, simulation, individual-level data and likelihood functions are related to Outcomes.
+The <a href="#Outcomes">Outcome</a> class is designed to work with realized results from a DP model.  That is, at one point in time there is a single realization.  For this reason, simulation, individual-level data and likelihood functions are related to Outcomes. On the other hand, the `Prediction` class is designed to handle the distribution of outcomes at a given time.  It is designed to handle integrating out uncertainty.  For this reason, prediction and generalized method of moments (GMM) are related to Predictions.</p>
 
-On the other hand, the `Prediction` class is designed to handle the distribution of outcomes at a given time.  It is designed to handle integrating out uncertainty.  For this reason, prediction and generalized method of moments (GMM) are related to Predictions.
-
-The base class `Prediction` tracks a list of possible state indices and their associated probabilities of occurring.  It also tracks choice probabilities.
-
-Starting from some initial conditions a `PathPrediction` is a list of predictions, each providing the distribution across states and choices at that point in time.  A `PanelPrediction` is a set of `PathPrediction`s across fixed effect groups.  Data can be read in to match up with predictions using the `PredictionDataSet` class derived from `PanelPrediction`.
+The base class `Prediction` tracks a list of possible state indices and their associated probabilities of occurring.  It also tracks choice probabilities. Starting from some initial conditions a `PathPrediction` is a list of predictions, each providing the distribution across states and choices at that point in time.  A `PanelPrediction` is a set of `PathPrediction`s across fixed effect groups.  Data can be read in to match up with predictions using the `PredictionDataSet` class derived from `PanelPrediction`.</p>
 
 <table class="tree">
 <td class="line">&nbsp;</td>
@@ -264,8 +258,7 @@ Starting from some initial conditions a `PathPrediction` is a list of prediction
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">The expected outcome from a single realization.</td>
-  </tr>
+<td class="text">The expected outcome from a single realization. This expectation will typically integrate over the choice-specific additive shock $\zeta$ and permanent unobserved heterogeneity $\gamma_f$.  Further, based on information from the user's code the prediction will integrate over missing elements of the current full outcome Y<sup>F</sup>.  It would also integrate over the distribution of previous states that could have potentially be the realized previous state.</td></tr>
 <tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -276,7 +269,7 @@ Starting from some initial conditions a `PathPrediction` is a list of prediction
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A derived Prediction that points to a sequence of predictions along a single realized DP path. As an prediction, the path itself is the first prediction along the path.  Since random effects are assumed to be unobserved, the path prediction integrates over any random effect groups that are in the model.  There is only one prediction for a given fixed effect group, so there is nothing like the `FPanel` class derived from Outcomes. Each PathPrediction is in effect a FixedPathPrediction</td>
+<td class="text">A derived Prediction that points to a sequence of predictions along a single realized DP path. As a prediction, the path itself is the first prediction along the path.  Since random effects $\gamma_r$ are assumed to be unobserved, the path prediction integrates over any random effect groups that are in the model.  <b>There is only one prediction for a given fixed effect group $\gamma_F$</b>, so there is no prediction corresponds to the `FPanel` class derived from Outcomes. Each PathPrediction is in effect a FixedPathPrediction</td>
 </tr>
 <tr>
 <td class="line">&nbsp;</td>

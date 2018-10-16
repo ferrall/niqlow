@@ -758,15 +758,17 @@ BlackBox::BlackBox(L)	 {
 	maxpt.v = -.Inf;
 	}
 
-/** A blackbox economic model with panel data and (possibly) nested solution method.
+/** An objective based on an economic model with data and (possibly) a nested solution method.
 @param L string, label
-@param data a <a href="../DDP/Data.ox.html#Panel">Panel<a/> or <a href="../DDP/Data.ox.html#PanelPrediction">PanelPrediction</a>. object (including
-the possibility of the derived OutcomeDataSet and PredictionDataSet variety).
+@param data an object that includes member FN and method EconometricObjective.<br/>Typically,
+    <a href="../DDP/Data.ox.html#Panel">Panel<a/> or <a href="../DDP/Data.ox.html#PanelPrediction">PanelPrediction</a>. object (including
+    the possibility of the derived OutcomeDataSet and PredictionDataSet variety).
 @param ... `Parameter`s and arrays of Parameters to optimize over.
 @comments  `Objective::NvfuncTerms` is set to <code>data.FN</code>, the total number of paths in the panel
 **/
-PanelBB::PanelBB (L,data,...)	{
-	if (! (isclass(data,"Panel")||isclass(data,"PanelPrediction")) ) oxrunerror("data must be a Panel or PanelPrediction object");
+DataObjective::DataObjective (L,data,...)	{
+    if ( ismember(data,"FN")!=2 || ismember(data,"EconometricObjective")!=1 )
+	       oxrunerror("data must have a FN member and a EconometricObjective method, like Panel and PanelPrediction classes");
 	BlackBox(L);
 	this.data = data;
 	NvfuncTerms = data.FN;  //total number of IID observations
@@ -779,16 +781,14 @@ PanelBB::PanelBB (L,data,...)	{
 	else oxwarning("FiveO Warning 03.\n No estimated parameters added to "+L+" panel estimation ");
 	}
 
-PanelBB::AggSubProbMat(submat) {
+DataObjective::AggSubProbMat(submat) {
     data->Predict(0,FALSE,submat);
     return data.M;
     }
 
 /** Calls and returns <code>data-&gt;EconometricObjective()</code>.
 **/
-PanelBB::vfunc(subp) {
-    return data->EconometricObjective(subp);
-	}
+DataObjective::vfunc(subp) {    return data->EconometricObjective(subp); 	}
 
 /**  A wrapper that acts like an objective but just calls a model's Solve method and returns 1.0.
 @param model Object with a method named <code>Solve()</code> <em>or</em> a member named <code>method</code> with

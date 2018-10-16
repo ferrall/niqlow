@@ -90,8 +90,9 @@ StateVariable::MakeTerminal(TermValues)	{
 This is a virtual method, so derived classes replace this default version with the one that goes along
 with the kind of state variable.
 
-@return  a 2x1 array, {F,P} where<br> F is a 1&times;L row vector of feasible (non-zero probability) states next period.<br>P is a <code>Alpha::N</code> &times; L
-matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
+@return  a 2x1 array, {F,P} where<br/> F is a 1&times;L row vector of feasible (non-zero probability) states next period.
+    <br/>P is either a <code>Alpha::N</code> &times; L or 1 &times; L
+    matrix of action-specific transition probabilities, &Rho;(q&prime;;&alpha;,&eta;,&theta;).<br>
 The built-in transit returns <code> &lt;0&gt; , CondProbOne }</code>.  That is the with
 probability one the value of the state variable next period is 0.
 
@@ -516,24 +517,24 @@ Absorbing::Absorbing(L,fPi) {
 Absorbing::Transit() {
     if (v) return UnChanged();
     p = fPi();
-    return { <0,1>, reshape((1-p)~p, Alpha::N, N ) };
+    return { <0,1>, reshape((1-p)~p, 1, N ) };
     }
 
 /**  **/
 Markov::Transit() {
     jprob = AV(Pi[v]);
-    return {vals,reshape(jprob,Alpha::N,N)};	
+    return {vals,reshape(jprob,N,N)};	
     }
 
 /**  **/
 IIDJump::Transit() {
     jprob = AV(Pi);
-    return {vals,reshape(jprob,Alpha::N,N)};	
+    return {vals,reshape(jprob,1,N)};	
     }
 
 IIDBinary::Transit() {
     jprob = AV(Pi);
-    return {vals,reshape((1-jprob)|jprob,Alpha::N,N)};	
+    return {vals,reshape((1-jprob)|jprob,1,N)};	
     }
 
 /**  **/
@@ -658,6 +659,10 @@ EndogenousStates(qtr);
 Cycle::Cycle(L,N) 	{	Deterministic(L,range(1,N-1)'|0);	}
 
 /** Takes on the value of another state or action.
+@param L label
+@param Target Variable to lag
+@param Prune TRUE [default], prune state space assuming initial value of 0
+@param Order, order of the lag [default=1]
 @comments
 Users should not create a variable of this type.  Use the derived classes `LaggedState` and `LaggedAction`
 @see DP::KLaggedState, DP::KLaggedAction
@@ -707,6 +712,7 @@ LaggedState::Transit()	{
 @param L label
 @param Target `ActionVariable` to track.
 @param Prune TRUE [default]: prune non-zero states at t=0 if finite horizon detected.
+@param Order
 @example <pre>wrked = new LaggedAction("Worked Last Year",work);</pre>
 
 @see DP::KLaggedAction

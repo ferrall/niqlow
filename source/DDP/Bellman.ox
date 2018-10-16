@@ -133,12 +133,10 @@ Bellman::Allocate(picked,CalledFromBellman) {
     if (!CalledFromBellman) delete Nxt,pandv; //, U;
     if (NewSS) {
         Nxt = new array[TransStore+N::DynR-1][SS[onlysemiexog].size];
-//        U = new matrix[N::Options[Aind]][SS[bothexog].size];
         pandv =new matrix[N::Options[Aind]][SS[bothexog].size];//constant(.NaN,U);
         }
     else {
         Nxt = new array[TransStore+N::DynR-1][One];
-//        U = new matrix[N::Options[Aind]][One];
         pandv =new matrix[N::Options[Aind]][One]; //constant(.NaN,U);
         }
     }
@@ -169,7 +167,6 @@ Bellman::FeasibleActions()	{  	return ones(Alpha::N,1); 	}
 
 Bellman::UReset() {
 	pandv[][] = .NaN;
-	//U[][] = 0;
     }
 	
 /** Default Choice Probabilities: no smoothing.
@@ -237,9 +234,8 @@ Bellman::UpdatePtrans(aPt,vindex) {
     if (isint(aPt)) {
  	  for (eta=0;eta<sizeof(Nxt[Qit]);++eta)
 		  I::curg.Ptrans[ Nxt[Qit][eta] ][ii] += (h[eta][]*Nxt[Qrho][eta])';
-	   if (Flags::StorePA) {
-            I::curg.Palpha[][I::all[tracking]] = ExpandP(pandv*NxtExog[Qprob]/*TRUE*/);
-            }
+	   if (Flags::StorePA)
+            I::curg.Palpha[][I::all[tracking]] = ExpandP(Aind,pandv*NxtExog[Qprob]);
         }
     else if (isint(vindex))
  	  for (eta=0;eta<sizeof(Nxt[Qit]);++eta)
@@ -251,26 +247,6 @@ Bellman::UpdatePtrans(aPt,vindex) {
 
 Bellman::OutputValue() { return 0.0;     }
 	
-/**Return choice probabilities conditioned on &theta; expanded into full choice probabilty space.
-@param  p0  matrix of conditional choice probabilities to expand.
-
-this inserts zeros for infeasible action vectors.  So results are consistent
-across states that have different feasible action sets.
-
-@return expanded matrix
-
-@see DPDebug::outV
-**/
-Bellman::ExpandP(p0) {
-	decl p,i;
-    p = p0;
-//	p =	Agg ? ( columns(pandv)==rows(NxtExog[Qprob]) ? pandv*NxtExog[Qprob] : pandv) : pandv.*(NxtExog[Qprob]');
-	for (i=0;i<N::A;++i) {
-        if (!Alpha::Sets[Aind][i]) p = insertr(p,i,1);
-//        println(i," ",Alpha::Sets[Aind][i]," ",rows(p));
-        }
-	return p;
-	}
 
 /** Computes the full endogneous transition, &Rho;(&theta;'; &alpha;,&eta; ), within a loop over &eta;.
 Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
@@ -279,7 +255,6 @@ Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exog
 **/
 Bellman::ThetaTransition() {
 	 decl ios = InSS() ? I::all[onlysemiexog] : 0,k;
-     //println("$ ",Type," ",LASTT," ",ios);
 	 if (Type>=LASTT) { for(k=0;k<sizeof(Nxt);++k) Nxt[k][ios ] =  <>; return; }
 	 decl now=NOW,later=LATER, si,Nb,prob,feas,root,swap, mtches,curO, rcheck=Volume>LOUD;
  	 F[now] = <0>;	
@@ -402,15 +377,15 @@ Bellman::AutoVarPrint1(task) {
 	}
 
 Bellman::ExpectedOutcomesOverEpsilon(chprob) {
+
     }
 
 /** . @internal **/
 Bellman::StateToStatePrediction(tod) {
 	decl nnew, mynxt,tom = tod.pnext;
-    tod.chq  = pandv.*(NxtExog[Qprob]');
     this->ExpectedOutcomesOverEpsilon(tod.chq);
-    tod.chq  *= tod.pq;
-    tod.ch  +=  ExpandP(tod.chq);
+    //    tod.chq  *= tod.pq;
+    tod.ch  +=  ExpandP(Aind,tod.chq);
     if (isclass(tom)) {
 	    I::ehi = -1;
         for (I::eta=0;I::eta<sizeof(Nxt[Qrho]);++I::eta)
@@ -590,8 +565,9 @@ McFadden::ActVal(VV) {
 
 /** Initialize an ex post smoothing model.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
-@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
-					FALSE, traverse &Theta; through iteration on all state variables
+@param UseStateList FALSE [default], traverse &Theta; through iteration on all state variables<br/>
+    TRUE, traverse the state space &Theta; from a list of reachable indices
+					
 	
 **/
 ExPostSmoothing::Initialize(userState,UseStateList){

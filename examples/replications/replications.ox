@@ -12,6 +12,7 @@ repmenu() {
 			{"RustEmet1987b", 			RustEstimates::DoAll},
 			{"WolpinJPE1984", 			Fertility::Replicate},
 			{"WolpinEmet1987",			SchToWork::Replicate},
+			{"RosenzweigWolpinJPE1993",	Farmer::Replicate},
 			{"KeaneWolpinREStat1994",	DynamicRoy::Replicate},
 			{"GilleskieEmet1998", 		DynaHealth::Replicate},
 			{"A&M2002",					AMZurcher::Run},

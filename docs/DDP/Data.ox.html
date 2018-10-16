@@ -20,9 +20,9 @@ Handling data, simulation, likelihood, predictions, moments.
 <P/>
 <h2>Overview</h2>
 <P/>
-The <a href="Bellman.ox.html#Data">Data</a> class and its derivatives are used to simulate DDP data, compute predictions, read external data sets, and interface with <span class="n">Five-O</span>.
+The <a href="Bellman.ox.html#Data">Data</a> class and its derivatives are used to simulate DDP data, compute predictions, read external data sets, and interface with <span class="n">Five-O</span> to evaluate the sample likelihood or GMM objective.</p>
 <P/>
-<a href="Bellman.ox.html#Data">Data</a> objects relate to realizations along the path of the program.  Unlike other spaces (e.g. the group space <b>&Gamma;</b> and the state space <b>&Theta;</b>), multiple instances of different types of data can be stored simultaneously.  That is, there is no single <q>data space</q>.
+<a href="Bellman.ox.html#Data">Data</a> objects store realizations along the path of the program.  Unlike other spaces (e.g. the group space <span class="expressions">\(\Gamma\)</span> and the state space <span class="expressions">\(\Theta\)</span>), multiple instances of different types of data can be stored simultaneously.  That is, there can be more than one  <q>data space</q>.</p>
 <P/>
 There two parallel but separate kinds of data:
 <P/>
@@ -48,7 +48,7 @@ There two parallel but separate kinds of data:
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">The concept behind simulating data from a DP and estimation based on likelihood.</td>
+<td class="text">Data generated from following a realized DP and estimation based on maximum likelihood.</td>
 </tr>
 <tr>
 <td class="line">&nbsp;</td>
@@ -60,7 +60,7 @@ There two parallel but separate kinds of data:
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">The concept behind average or expect results from the DP and estimation based on GMM.</td>
+<td class="text">Data based on average or expected results over multiple DP realizations and estimation based on GMM.</td>
 </tr>
 </table>
 <P/>
@@ -83,18 +83,15 @@ There two parallel but separate kinds of data:
 <OL class="chapter">
 <LI>Overview</LI>
 <P/>
-<DT>Outcomes are used for simulating the model and for storing external data interpreted as realizations of the DDP.</DT>
-   <DD> Here we will denote an outcome generically as <code>Y</code>. <code>Y</code> contains the realized state vectors, action vectors, auxiliary values, etc.  It is described in more detail below.</DD>
-    <DD>As discussed elsewhere, the user codes <code>MyModel</code> as a class derived from one of the pre-defined <a href="Bellman.ox.html#Bellman">Bellman</a> classes. In contrast, <a href="Data.ox.html#Outcome">Outcome</a> is designed to be generic so that it can be used for whatever model or data the program uses. A user does not define their own derived class to store outcomes.</DD>
-  <DD>Only one model can be active in <span class="n">DDP</span> because <code>static</code> data members are used, but <em>multiple data sets can be stored at once.</em>  This can be useful when comparing two solution methods applied to one model or two estimation methods applied to two different data sets.</DD>
-<DT>Outcomes are related to points in the state space <b>&Theta;</b>, but they are treated distinctly in <span class="n">niqlow</span>.  </DT>
-<DD>The state space is represented so as to minimize storage and calculations while solving a model.  On the other hand, outcomes are designed to track everything relevant to results of the DDP, and memory would be exhausted if outcomes were defined and stored for each possible state.</DD>
-<DD>It would be inefficient to store all potential outcomes when only one can be realized at each point in a single DP process.</DD>
+Outcomes are used for simulating the model and for storing external data interpreted as realizations of the DDP. An outcome is generically denoted <span class="expressions">\(Y\)</span>. <span class="expressions">\(Y\)</span> contains the realized state vectors, action vectors, auxiliary values, etc.  It is described in more detail below.</p>
 <P/>
-<DT>A single point in the state space can have multiple states that could come before it or come after it hypothetically.  In contrast, outcomes have well-defined predecessors and successors.</DT>
-  <DD>These are tracked as part of the outcome, so that <span class="n">niqlow</span> represents a sequence of outcomes as a doubly-<a href="http://en.wikipedia.org/wiki/Linked_list">linked list</a> of objects of class <a href="Data.ox.html#Outcome">Outcome</a>.</DD>
+As discussed elsewhere, the user codes <code>MyModel</code> as a class derived from one of the pre-defined <a href="Bellman.ox.html#Bellman">Bellman</a> classes. In contrast, <a href="Data.ox.html#Outcome">Outcome</a> is designed to be generic so that it can be used for whatever model or data the program uses. <em>A user does not define their own derived class to store outcomes.</em> Only one model can be active in <span class="n">DDP</span> because <code>static</code> data members are used, but <em>multiple data sets can be stored at once.</em>  This can be useful when comparing two solution methods applied to one model or two estimation methods applied to two different data sets.</p>
 <P/>
-<DT>An Outcome <code>Y</code> is a basic unit of data. Based on outcomes data structures are defined to keep track of ordered and unordered groups of outcomes.
+Outcomes are related to points in the state space <span class="expressions">\(\Theta\)</span>, but they are treated distinctly in <span class="n">niqlow</span>.  The state space is code to minimize storage and calculations while solving a model.  On the other hand, outcomes are designed to track everything relevant to results of the DDP, and memory would be exhausted if outcomes were defined and stored for each possible state. It would be inefficient to store all potential outcomes when only one can be realized at each point in a single DP process.</p>
+<P/>
+A single point in the state space <span class="expressions">\(\theta\)</span> can have multiple states that could come before it or come after it hypothetically.  In contrast, outcomes have a well-defined <em>predecessor</em> and <em>successor</em>. These are tracked as part of the outcome, so that <span class="n">niqlow</span> represents a sequence of outcomes as a doubly-<a href="http://en.wikipedia.org/wiki/Linked_list">linked list</a> of objects of class <a href="Data.ox.html#Outcome">Outcome</a>.</p>
+<P/>
+An Outcome <span class="expressions">\(Y\)</span> is a basic unit of data. However, a user will typically not interact with an individual outcome.  Data structures are defined to keep track of ordered and unordered groups of outcomes.  It is these objects that a user will typically create and use directly.  The structure of outcomes is illustrated here:
 <table class="tree">
 <tr>
 <td class="line">&nbsp;</td>
@@ -105,7 +102,7 @@ There two parallel but separate kinds of data:
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A single realization of a discrete DP, denoted <code>Y</code>.</td>
+<td class="text">A single realization of a discrete DP, denoted <span class="expressions">\(Y\)</span>.</td>
 </tr>
 <tr>
 <td class="line">&nbsp;</td>
@@ -117,14 +114,11 @@ There two parallel but separate kinds of data:
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A derived Outcome that points to a sequence of outcomes along a single realized DP path. As an outcome itself, the path is also the first
-    outcome along itself:
+<td class="text">A derived Outcome that points to a <em>sequence of outcomes along a single realized DP path.</em> As an outcome itself, the path is also the first outcome along itself:
     <DD class="disp">
-    PATH::Y<sub>0</sub> &#8646; Y<sub>1</sub> &#8646; &nbsp; &hellip;&nbsp;  Y<sub>T</sub>&nbsp; &#8677;</DD>
-    The outcomes on a path are ordered and they "point" to both their predecessor and successor.  (In computer speak, a Path is a doubly-linked list.)  This
-    is because some processing of paths go forward (such as simulating outcomes) and some backwards (computing likelihood when accounting for unobserved states).
-    </td>
-</tr>
+    <code>PATH::Y<sub>0</sub> &#8646; Y<sub>1</sub> &#8646; &nbsp; &hellip;&nbsp;  Y<sub>T</sub>&nbsp; &#8677;</code></DD>
+    The outcomes on a path are ordered and they "point" to both their predecessor and successor.  (In computer speak, a Path is a doubly-linked list.)  This is because some processing of paths go forward (such as simulating outcomes) and some backwards (computing likelihood when accounting for unobserved states).
+    </td></tr>
 <tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -136,13 +130,11 @@ There two parallel but separate kinds of data:
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A Path that can point to more paths that all share the same fixed effect values.  As a Path itself, the FPanel
-is the first path in the panel.
-    <DD class="disp">
-    FPANEL::PATH<sub>0</sub> &#8614; PATH<sub>1</sub> &#8614; &nbsp; &hellip;&nbsp;  PATH<sub>N</sub>&nbsp; &#8677;</DD>
-    The different paths in a FPANEL point to their successor only because it is typically not necessary to process them in both directions.
-</td></tr>
-<tr>
+<td class="text">A Path that can point to more paths that all share the <em>same fixed effect value, <span class="expressions">\(\gamma_f\)</span>.</em> As a Path itself, the FPanel is the first path in the panel.
+    <DD class="disp"><code>
+    FPANEL::PATH<sub>0</sub> &#8614; PATH<sub>1</sub> &#8614; &nbsp; &hellip;&nbsp;  PATH<sub>N</sub>&nbsp; &#8677;</code></DD>
+    The different paths in a FPANEL point to their successor only, because it is typically not necessary to process them in both directions.
+</td></tr><tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td>
@@ -154,14 +146,11 @@ is the first path in the panel.
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A heterogenous panel, is a FPanel which can also point to more FPanels. The Panel is the first
-fixed panel in the list.
+<td class="text">A heterogenous panel which contains one or more fixed panel. As an object derived from FPanel it also points to more FPanels. The Panel is the first fixed panel in the list.
     <DD class="disp">
-    PANEL::FPANEL<sub>0</sub> &#8614; FPANEL<sub>1</sub> &#8614; &nbsp; &hellip;&nbsp;  FPANEL<sub>M</sub>&nbsp; &#8677;</DD>
-    Different FPANELs in a PANEL point to their successor only because it is typically not necessary to process them in both directions.
-</td></tr>
-</td>
-</tr>
+    <code>PANEL::FPANEL<sub>0</sub> &#8614; FPANEL<sub>1</sub> &#8614; &nbsp; &hellip;&nbsp;  FPANEL<sub>M</sub>&nbsp; &#8677;</code></DD>
+    Different FPANELs in a PANEL point to their successor only, because it is typically not necessary to process them in both directions.
+</td></tr></td></tr>
 <tr>
 <td class="line">&nbsp;</td><td class="line"><div class="vline">&nbsp;</div></td>
 <td class="line">&nbsp;</td><td class="line">&nbsp;</td><td class="line">&nbsp;</td>
@@ -172,36 +161,37 @@ fixed panel in the list.
    <tr class="bottom"><td class="line">&nbsp;</td></tr>
 </tbody></table>
 </td>
-<td class="text">A panel with data-handling tools. Unlike the other derived classes, a data set does not point to other panels.
-    <DD class="disp">
-    DATA::PANEL
-    </DD>
-</td>
-</tr>
-</table>
+<td class="text">A Panel with data-handling tools. Unlike the other derived classes, an OutcomeDataSet does not point to other panels (but the user's code could create more than one data set.)
+    <DD class="disp"><code>
+    OUTCOMEDATASET::PANEL
+    </DD></DD>
+</td></tr></table>
 <P/>
 <LI>Examples</LI>
-<DT>Create a data set from external data</DT>
+To create a data set from external data:
 <dd><pre>
-	data = new OutcomeDataSet("DPdata",method,TRUE);
-	data->Observed(x,"x",d,"d");
+	data = new OutcomeDataSet("DPdata");
+	data->ObservedWithLabel(x,d);
 	data->IDColumn("id");
 	data->Read("data.dta");	
 </pre></dd>
-<DT>Create a simulated data set from a solved DP model and save to a Stata data set</DT>
+This says that there are two variables from the DP model observed in the data set, say a state variable <code>x</code> and an action variable <code>d</code>.  The external data uses the same labels for those variables as the DP model, so the correct columns can be found using them.  Each empirical path has to be associated with the value of variable in the data set, so the <code>IDColumn</code> must be specified before reading the data. The data must be sorted within each path starting at <span class="expressions">\(t=0\)</span>.  Since no columns in the data were associated with fixed effect variables this must be a homogeneous model.  (There can be random effects but niqlow always assumes those are unobserved and will integrate over them.)  So the data set will end up having one Panel which contains one FPanel which contains as many paths as <code>Read()</code> finds in the Stata data set.</p>
+<P/>
+To create a simulated data set from a solved DP model and save to a Stata data set:
 <DD><pre>
     sim = new Panel("DPdata");
-    sim -> Simulate(10,400,0,TRUE);
+    sim -> Simulate(400,10);
 	sim -> Print("sim.dta");		
 </pre></dd>
+This will create a Panel object, which in turn will automatically create a FPanel object for each value of the fixed effects, i.e. each point in the fixed part of <span class="expressions">\(\Gamma\)</span>.  <code>Simulate()</code> will produce 400 paths, each 10 periods long, for each fixed group.  <code>Print()</code> will save the simulated data to a file using the labels set for all the DP variables to label the columns.  This could then be read back into a <code>OutcomeDataSet</code> during a Monte Carlo exercise. </p>
 <P/>
 <li>The Full Outcome</li>
 <P/>
-<span class="n">DDP</span> is designed to handle programs for which not everything observed by the agent is observed by the econometrician.  In addition, <span class="n">DDP</span> is designed to handle observables that are functions of the underlying outcomes but are not necessarily of any (direct) interest of the agent.  To provide these  capabilities, first consider the case of the fully observed realization of the DP.
+<span class="n">DDP</span> is designed to handle programs for which not everything observed by the agent is observed by the econometrician.  In addition, <span class="n">DDP</span> is designed to handle observables that are functions of the underlying outcomes but are not necessarily of any (direct) interest of the agent.  To provide these  capabilities, first consider the case of the fully observed realization of the DP.</p>
 <P/>
-<DT>Let the Y* denote the vector of <em>all</em> actions and all <em>realized states</em> in the model.  Generically, </DT>
+Let the Y<sup>F</sup> denote the vector of <em>all</em> actions and all <em>realized states</em> in the model.  Generically,
 <dd><pre>
-Y* &equiv; (&alpha; &zeta; &epsilon; &eta; &theta; &gamma; &chi; Y*<sup>p</sup> Y*<sup>n</sup>)
+Y<sup>F</sup> &equiv; (&alpha; &zeta; &epsilon; &eta; &theta; &gamma; &chi; Y<sup>F</sup><sub>p</sub> Y<sup>F</sup><sub>n</sub> )
     &alpha; = (a<sub>0</sub> &hellip; )
     &zeta; = (z<sub>0</sub> &hellip; )
     &epsilon; = (e<sub>0</sub> &hellip; )
@@ -209,43 +199,30 @@ Y* &equiv; (&alpha; &zeta; &epsilon; &eta; &theta; &gamma; &chi; Y*<sup>p</sup> 
     &theta; = (q<sub>0</sub> &hellip; )
     &gamma; = (g<sub>0</sub> &hellip; )
     &chi; = (x<sub>0</sub> &hellip; )
-</pre>
-For simplicity the length of each of the vectors is not specified and the right-most elements of each of the vectors is not included. Instead, each vector is shown as the leftmost variable with subscript 0 followed by &hellip;.
-</dd>
-<DD>Y* is referred to as the <em>full outcome</em> because it includes all information that is knowable and relevant about a single period in a realized DDP.</DD>
-<DT>Y* adds a new vector denoted &chi; with generic elements x.  See below.</DT>
-<DT>Y* also includes Y<sup>p</sup> Y<sup>n</sup>, which are <q>pointers</q> to the preceding and next outcomes in the path. </DT>
-<DD>These values can be undefined for various reasons. Obviously the value of Y<sup>n</sup> is not realized until the end of the current period.  And the initial period obviously has no preceding outcome. However, in the middle of a panel of observation both pointers would be defined.</DD>
+</pre></dd>
+For simplicity the length of each of the vectors is not specified and the right-most elements of each of the vectors is not included. Instead, each vector is shown as the leftmost variable with subscript 0 followed by &hellip;.</p>
 <P/>
-<DT>The full outcome may not be observed in data.  The observed outcome, <var>Y</var>, will have the same structure as <var>Y*</var> but one or more elements of the member vectors will include missing (.NaN) values.  </DT>
-<DD>Observability is discussed below when the derived  <a href="">Data</a> class is introduced.  Its purpose is to account for gaps between theoretical outcomes and observed results from a DP.</DD>
+Y<sup>F</sup> is referred to as the <em>full outcome</em> because it includes all information that is knowable and relevant about a single period in a realized DDP. Y<sup>F</sup> adds a new vector denoted &chi; with generic elements x.  See below. Y<sup>F</sup> also includes <q>pointers</q> to the preceding and next outcomes on the path. These pointers can be undefined for various reasons. Obviously the value of Y<sup>F</sup><sub>n</sub> is not realized until the end of the current period.  And the initial period of decision making obviously has no preceding outcome. However, in the middle of a panel of observation both pointers would be defined.</p>
+<P/>
+The full outcome may not be observed in data.  The observed outcome, <var>Y</var>, will have the same structure as <var>Y<sup>F</sup></var> but one or more elements of the member vectors will include missing (<code>.NaN</code>) values.  Observability is discussed below.  Its purpose is to account for gaps between theoretical outcomes and observed results from a DP.</p>
 <P/>
 <li>Paths </li>
 <P/>
-The base <a href="Data.ox.html#Outcome">Outcome</a> class captures a single period, and it points to the previous outcome and the next outcome along a realized path (if the predecessor and successor exist).  A <a href="Data.ox.html#Path">Path</a> is derive from <a href="Data.ox.html#Outcome">Outcome</a>, so the first outcome on the path is stored directly by the path (since it is an outcome itself).  But <a href="Data.ox.html#Path">Path</a> also has a <a href="Data.ox.html#Path___last">last</a> data member which points to the last outcome on the path.  Because both the previous and next outcomes are defined a <a href="Data.ox.html#Path">Path</a> can be processed both forwards and backwards.  That is, a path is a doubly-linked list.
-<P/>
-<!--
-Image Y*  Y* Y* ...
--->
-<P/>
-Finally, <a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a> is a class derived from <a href="Data.ox.html#Panel">Panel</a> that includes methods to read in outcomes from data accounting for partial or complete unobservability of actions and states.
-<P/>
-This organization can be seen by clicking on <em>hierarchy</em> in the upper right corner of any page of DDP documentation.
+The base <a href="Data.ox.html#Outcome">Outcome</a> class captures a single period, and it points to the previous outcome and the next outcome along a realized path (if the predecessor and successor exist).  A <a href="Data.ox.html#Path">Path</a> is derive from <a href="Data.ox.html#Outcome">Outcome</a>, so the first outcome on the path is stored directly by the path (since it is an outcome itself).  But <a href="Data.ox.html#Path">Path</a> also has a <a href="Data.ox.html#Path___last">last</a> data member which points to the last outcome on the path.  Because both the previous and next outcomes are defined a <a href="Data.ox.html#Path">Path</a> can be processed both forwards and backwards.  That is, a path is a doubly-linked list. </p>
 <P/>
 A <a href="Data.ox.html#Path">Path</a> is a derived class from <a href="Data.ox.html#Outcome">Outcome</a>.  The difference is that a path tracks a sequence of outcomes generated by realizations of a single DP problem.  The outcomes in a path are a <em>linked list</em>.  Since a path is itself an outcome the first outcome is the path itself.  <a href="Data.ox.html#Outcome">Outcome</a> tracks both the <em>next</em> and <em>previous</em> outcome in the realized path.  Further, the path stores the last outcome in the path, which makes it possible to work either forwards or backwards in the sequence.<p>
 <P/>
 <li>Panels</li>
 <P/>
-In turn, a <b>fixed panel</b> (<a href="Data.ox.html#FPanel">FPanel</a>) is a list of <a href="Data.ox.html#Path">Path</a>s that share the same fixed effects. FPanel tracks the following path so a panel can be processed sequentially as a linked list.  (Because paths in a panel are not ordered the previous path is not stored.)
+In turn, a <b>fixed panel</b> (<a href="Data.ox.html#FPanel">FPanel</a>) is a list of <a href="Data.ox.html#Path">Path</a>s that share the same fixed effects. FPanel tracks the following path so a panel can be processed sequentially as a linked list.  (Because paths in a panel are not ordered the previous path is not stored.) In turn a <a href="Data.ox.html#Panel">Panel</a> is a list of fixed panels.</p>
 <P/>
-In turn a <a href="Data.ox.html#Panel">Panel</a> is a list of fixed panels.
+Finally, <a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a> is a class derived from <a href="Data.ox.html#Panel">Panel</a> that includes methods to read in outcomes from data accounting for partial or complete unobservability of actions and states. This organization can be seen by clicking on <em>hierarchy</em> in the upper right corner of any page of DDP documentation.
 <P/>
 <a name="SS"><LI>Simulation</LI></a>
 <P/>
-Simulation is a method of each level of Outcome up to and including a Panel.  A simulation uses the specified initial conditions, the endogenous conditional choice probabilities, and the transitions of all states to produce simulated realizations of the DP.  The simulate panel could then be loaded as data set
-to conduct a Monte Carlo estimation procedure.
+Simulation is a method of each level of Outcome up to and including a Panel.  A simulation uses the specified initial conditions, the endogenous conditional choice probabilities, and the transitions of all states to produce simulated realizations of the DP.  The simulate panel could then be loaded as data set to conduct a Monte Carlo estimation procedure.</p>
 <P/>
-During simulation, the vector &zeta; is filled in before calling <code>Auxiliary()</code>.  Since choices are simulated directly from choice probabilities, the simulated values of &zeta; are conditional on the simulated choice.  This is achieved by calling <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a>() or its replacement.  For example, the version for ex post extreme value models would simulate a &zeta; vector that follows the IID extreme value distribution but consistent with the simulated action at that state.  The user can replace <code>ZetaRealization()</code> with their own.  The <code>Auxiliary()</code> method can access the realization in <a href="Bellman.ox.html#DP___zeta">zeta</a>, a static value  which is only defined during simulation.  On the other hand, the user's <code>Auxiliary</code> method could include additional randomness directly.
+During simulation, the vector &zeta; is filled in before calling <code>Auxiliary()</code>.  Since choices are simulated directly from choice probabilities, the simulated values of &zeta; are conditional on the simulated choice.  This is achieved by calling <a href="Bellman.ox.html#Bellman___ZetaRealization">ZetaRealization</a>() or its replacement.  For example, the version for ex post extreme value models would simulate a &zeta; vector that follows the IID extreme value distribution but consistent with the simulated action at that state.  The user can replace <code>ZetaRealization()</code> with their own.  The <code>Auxiliary()</code> method can access the realization in <a href="Bellman.ox.html#DP___zeta">zeta</a>, a static value  which is only defined during simulation.  On the other hand, the user's <code>Auxiliary</code> method could include additional randomness directly.</p>
 <P/>
 <DT>Initial Conditions</DT>
 <DD>Fixed states, &gamma;</DD>
@@ -253,14 +230,14 @@ During simulation, the vector &zeta; is filled in before calling <code>Auxiliary
 <dd>Sampling from the stationary distribution</dd>
 <P/>
 <LI>Observed and Partially Observed Outcomes</LI>
-<DT>Recall that <em>Y*</em> is the full realized outcome of the DP model is a single period.  It includes all states, actions and auxiliary variables.  In practice the full outcome is not directly observed.  The limited information can be variables whose realized values are simply missing, or they only affect an auxiliary variable which combines other elements of the outcome.  </DT>
-<DD>Express the <em>observable outcome</em> as<pre>
+<P/>
+Recall that Y<sup>F</sup> is the full realized outcome of the DP model is a single period.  It includes all states, actions and auxiliary variables.  In practice the full outcome is not directly observed.  The limited information can be variables whose realized values are simply missing, or they only affect an auxiliary variable which combines other elements of the outcome. We can express the <em>observable outcome</em> as
+<DD><pre>
 Y = &equiv; (x<sub>0</sub> &hellip; x<sub>&chi;.N</sub>  - - &hellip; a<sub>o0</sub> - &hellip; - a<sub>o1</sub> - &hellip; - z<sub>o0</sub> - &hellip; - e<sub>o0</sub> - &hellip; - h<sub>o0</sub> - &hellip; - q<sub>o0</sub> &hellip; - g<sub>o0</sub> - &hellip; )
 </pre></DD>
-<DT>Here <q>-</q> indicates censoring of elements of Y*, and a<sub>o0</sub> is the first observed action variable.</DT>
-  <DD>So if o0 = 3 it means a<sub>3</sub> is the first element of <code>&alpha;</code> that is in the observed outcome.  Between a<sub>o0</sub> and a<sub>o1</sub> are any action variables not observed and indicated by <q>- &hellip; -</q>.  The same is true of the state vectors.  </DD>
-<DT>By definition all elements of the auxiliary vector are observable.  This is not necessarily a template that all observations must follow.  It is possible that some elements of Y* are observed in some cases but not others.  </DT>
-<DD>The auxiliary variables provide great flexibility.  Suppose the value of an action variable a<sub>d</sub> is unobserved, but it is known the realized value is with some sub-range of the potential values.  Then x<sub>0</sub> and x<sub>1</sub> could be the min and max values of a<sub>d</sub>, respectively.  A derived likelihood function would add up the conditional probabilities of actions between those two values.<DD>
+Here <q>-</q> indicates censoring of elements of Y<sup>F</sup>, and a<sub>o0</sub> is the first observed action variable. So if <code>o0 = 3</code> it means a<sub>3</sub> is the first element of <code>&alpha;</code> that is in the observed outcome.  Between a<sub>o0</sub> and a<sub>o1</sub> are any action variables not observed and indicated by <q>- &hellip; -</q>.  The same is true of the state vectors. </p> </p>
+<P/>
+This is not necessarily a template that all observations must follow.  It is possible that some elements of Y<sup>F</sup> are observed in some cases but not others.  The auxiliary variables provide great flexibility.  Suppose the value of an action variable a<sub>d</sub> is unobserved, but it is known the realized value is with some sub-range of the potential values.  Then x<sub>0</sub> and x<sub>1</sub> could be the min and max values of a<sub>d</sub>, respectively.  A derived likelihood function would add up the conditional probabilities of actions between those two values.</p>
 <P/>
 <a name="Data"><LI>Data Sets</LI></a>
 <P/>
@@ -270,11 +247,11 @@ The <a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a> class is derived fr
 <P/>
 <h3>Getting Data</h3>
 <P/>
-<DT>Methods for storing and processing data are included.  Data are read in from outside formats such as Stata using Ox's built-in capabilities in the <code>Database</code> class.  If the same labels are used for state and action variables as in the data set, the methods can seamlessly relate the data to the corresponding element of the model.</DT>
+Data are read in from outside formats such as Stata using Ox's built-in capabilities in Ox's <code>Database</code> class.  If the same labels are used for model variables as in the external data set, the methods can seamlessly relate the data to the corresponding element of the model.</p>
 <P/>
-<DD>A key issue with estimating DDPs is unobservability of actions and states.  <code>Outcome</code> handles this  two ways.  First it treats missing (<code>.NaN</code>) in the data as unobserved.  It  will then integrate (sum over) values of missing states and actions when computing, say, the likelihood of the data.  Second, auxiliary data (sometimes called payoff relevant variables) can be included in the data and then coded so that they indicate which variables and values should be integrated over.</DD>
+A key issue with estimating DDPs is unobservability of actions and states.  <code>Outcome</code> handles this  two ways.  First it treats missing (<code>.NaN</code>) in the data as unobserved.  It  will then integrate (sum over) values of missing states and actions when computing, say, the likelihood of the data.  Second, auxiliary data (sometimes called payoff relevant variables) can be included in the data and then coded so that they indicate which variables and values should be integrated over.</p>
 <P/>
-<a name="Emet"><LI>Likelihood</LI></a>
+<h2><a name="Emet"><LI>Likelihood</LI></a></h2>
 <P/>
 </OL>
 <P/>
@@ -283,13 +260,9 @@ The <a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a> class is derived fr
 <OL class="chapter">
 <LI>Overview</LI>
 <P/>
-The <a href="#Outcomes">Outcome</a> class is designed to work with realized results from a DP model.  That is, at one point in time there is a single realization.  For this reason, simulation, individual-level data and likelihood functions are related to Outcomes.
+The <a href="#Outcomes">Outcome</a> class is designed to work with realized results from a DP model.  That is, at one point in time there is a single realization.  For this reason, simulation, individual-level data and likelihood functions are related to Outcomes. On the other hand, the <a href="Data.ox.html#Prediction">Prediction</a> class is designed to handle the distribution of outcomes at a given time.  It is designed to handle integrating out uncertainty.  For this reason, prediction and generalized method of moments (GMM) are related to Predictions.</p>
 <P/>
-On the other hand, the <a href="Data.ox.html#Prediction">Prediction</a> class is designed to handle the distribution of outcomes at a given time.  It is designed to handle integrating out uncertainty.  For this reason, prediction and generalized method of moments (GMM) are related to Predictions.
-<P/>
-The base class <a href="Data.ox.html#Prediction">Prediction</a> tracks a list of possible state indices and their associated probabilities of occurring.  It also tracks choice probabilities.
-<P/>
-Starting from some initial conditions a <a href="Data.ox.html#PathPrediction">PathPrediction</a> is a list of predictions, each providing the distribution across states and choices at that point in time.  A <a href="Data.ox.html#PanelPrediction">PanelPrediction</a> is a set of <a href="Data.ox.html#PathPrediction">PathPrediction</a>s across fixed effect groups.  Data can be read in to match up with predictions using the <a href="Data.ox.html#PredictionDataSet">PredictionDataSet</a> class derived from <a href="Data.ox.html#PanelPrediction">PanelPrediction</a>.
+The base class <a href="Data.ox.html#Prediction">Prediction</a> tracks a list of possible state indices and their associated probabilities of occurring.  It also tracks choice probabilities. Starting from some initial conditions a <a href="Data.ox.html#PathPrediction">PathPrediction</a> is a list of predictions, each providing the distribution across states and choices at that point in time.  A <a href="Data.ox.html#PanelPrediction">PanelPrediction</a> is a set of <a href="Data.ox.html#PathPrediction">PathPrediction</a>s across fixed effect groups.  Data can be read in to match up with predictions using the <a href="Data.ox.html#PredictionDataSet">PredictionDataSet</a> class derived from <a href="Data.ox.html#PanelPrediction">PanelPrediction</a>.</p>
 <P/>
 <table class="tree">
 <td class="line">&nbsp;</td>
@@ -300,8 +273,7 @@ Starting from some initial conditions a <a href="Data.ox.html#PathPrediction">Pa
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">The expected outcome from a single realization.</td>
-  </tr>
+<td class="text">The expected outcome from a single realization. This expectation will typically integrate over the choice-specific additive shock <span class="expressions">\(\zeta\)</span> and permanent unobserved heterogeneity <span class="expressions">\(\gamma_f\)</span>.  Further, based on information from the user's code the prediction will integrate over missing elements of the current full outcome Y<sup>F</sup>.  It would also integrate over the distribution of previous states that could have potentially be the realized previous state.</td></tr>
 <tr>
 <td class="line">&nbsp;</td>
 <td class="line"><div class="vline">&nbsp;</div></td>
@@ -312,7 +284,7 @@ Starting from some initial conditions a <a href="Data.ox.html#PathPrediction">Pa
    <tr class="bottom"><td class="line"><div class="vline">&nbsp;</div></td></tr>
 </tbody></table>
 </td>
-<td class="text">A derived Prediction that points to a sequence of predictions along a single realized DP path. As an prediction, the path itself is the first prediction along the path.  Since random effects are assumed to be unobserved, the path prediction integrates over any random effect groups that are in the model.  There is only one prediction for a given fixed effect group, so there is nothing like the <a href="Data.ox.html#FPanel">FPanel</a> class derived from Outcomes. Each PathPrediction is in effect a FixedPathPrediction</td>
+<td class="text">A derived Prediction that points to a sequence of predictions along a single realized DP path. As a prediction, the path itself is the first prediction along the path.  Since random effects <span class="expressions">\(\gamma_r\)</span> are assumed to be unobserved, the path prediction integrates over any random effect groups that are in the model.  <b>There is only one prediction for a given fixed effect group <span class="expressions">\(\gamma_F\)</span></b>, so there is no prediction corresponds to the <a href="Data.ox.html#FPanel">FPanel</a> class derived from Outcomes. Each PathPrediction is in effect a FixedPathPrediction</td>
 </tr>
 <tr>
 <td class="line">&nbsp;</td>
@@ -444,6 +416,54 @@ Holds information about a column in the data.
 </tr>
 </table>
 
+<a name="ExogAux"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ExogAux : <a href="Bellman.ox.html#ExTask">ExTask</a> : <a href="Bellman.ox.html#Task">Task</a> : <a href="Bellman.ox.html#DP">DP</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#ExogAux___auxlist">auxlist</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#ExogAux___chq">chq</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#ExogAux___tmp">tmp</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#ExogAux___ExogAux">ExogAux</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#ExogAux___ExpectedOutcomes">ExpectedOutcomes</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#ExogAux___Run">Run</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Bellman.ox.html#ExTask">ExTask</a>:</dt><dd><a href="Bellman.ox.html#ExTask___ExTask">ExTask</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a>, <a href="Bellman.ox.html#Task___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___d">d</a>, <a href="Bellman.ox.html#Task___done">done</a>, <a href="Bellman.ox.html#Task___itask">itask</a>, <a href="Bellman.ox.html#Task___iter">iter</a>, <a href="Bellman.ox.html#Task___L">L</a>, <a href="Bellman.ox.html#Task___left">left</a>, <a href="Bellman.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="Bellman.ox.html#Task___right">right</a>, <a href="Bellman.ox.html#Task___state">state</a>, <a href="Bellman.ox.html#Task___subspace">subspace</a>, <a href="Bellman.ox.html#Task___trace">trace</a>, <a href="Bellman.ox.html#Task___trips">trips</a></dd>
+<dt>Inherited fields from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Blocks">Blocks</a>, <a href="Bellman.ox.html#DP___Chi">Chi</a>, <a href="Bellman.ox.html#DP___chi">chi</a>, <a href="Bellman.ox.html#DP___ClockType">ClockType</a>, <a href="Bellman.ox.html#DP___counter">counter</a>, <a href="Bellman.ox.html#DP___curREdensity">curREdensity</a>, <a href="Bellman.ox.html#DP___delta">delta</a>, <a href="Bellman.ox.html#DP___ETT">ETT</a>, <a href="Bellman.ox.html#DP___gdist">gdist</a>, <a href="Bellman.ox.html#DP___logf">logf</a>, <a href="Bellman.ox.html#DP___lognm">lognm</a>, <a href="Bellman.ox.html#DP___MyVersion">MyVersion</a>, <a href="Bellman.ox.html#DP___NxtExog">NxtExog</a>, <a href="Bellman.ox.html#DP___S">S</a>, <a href="Bellman.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="Bellman.ox.html#DP___SS">SS</a>, <a href="Bellman.ox.html#DP___States">States</a>, <a href="Bellman.ox.html#DP___SubVectors">SubVectors</a>, <a href="Bellman.ox.html#DP___userState">userState</a>, <a href="Bellman.ox.html#DP___Volume">Volume</a>, <a href="Bellman.ox.html#DP___XUT">XUT</a>, <a href="Bellman.ox.html#DP___zeta">zeta</a></dd>
+</dl>
+
 <a name="FPanel"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FPanel : <a href="Data.ox.html#Path">Path</a> : <a href="Data.ox.html#Outcome">Outcome</a> : <a href="Bellman.ox.html#Data">Data</a> : <a href="Bellman.ox.html#Task">Task</a> : <a href="Bellman.ox.html#DP">DP</a></span></h2>
 
@@ -462,61 +482,50 @@ A singly-linked list of <a href="Data.ox.html#Path">Path</a>s.
 <td class="description">fixed panel likelihood vector.</td>
 </tr>
 <tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#FPanel___FullyObserved">FullyObserved</a></td>
-<td class="modifiers">const</td>
-<td class="description">TRUE if all endogenous states and
-        action are in the data  </td>
-</tr>
-<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#FPanel___method">method</a></td>
 <td class="modifiers"></td>
 <td class="description">method to call for nested solution.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#FPanel___N">N</a></td>
 <td class="modifiers"></td>
 <td class="description">Number of paths in the panel.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#FPanel___NT">NT</a></td>
 <td class="modifiers"></td>
 <td class="description">Total Number of Outcomes
          in the panel.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#FPanel___SD">SD</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#FPanel___Append">Append</a></td>
 <td class="modifiers"></td>
 <td class="description">Load the first or next outcome in the path.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#FPanel___Collapse">Collapse</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#FPanel___Deep">Deep</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#FPanel___Flat">Flat</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Return the fixed panel as a flat matrix.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#FPanel___FPanel">FPanel</a></td>
 <td class="modifiers"></td>
 <td class="description">Store a panel of realized paths with common fixed group.</td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#FPanel___FullLogLikelihood">FullLogLikelihood</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#FPanel___GetCur">GetCur</a></td>
@@ -531,7 +540,7 @@ A singly-linked list of <a href="Data.ox.html#Path">Path</a>s.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#FPanel___Mask">Mask</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Set all unobserved values to NaN.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#FPanel___Simulate">Simulate</a></td>
@@ -546,16 +555,16 @@ A singly-linked list of <a href="Data.ox.html#Path">Path</a>s.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Data.ox.html#Path">Path</a>:</dt><dd><a href="Data.ox.html#Path___FullLikelihood">FullLikelihood</a>, <a href="Data.ox.html#Path___Likelihood">Likelihood</a>, <a href="Data.ox.html#Path___Path">Path</a>, <a href="Data.ox.html#Path___PathObjective">PathObjective</a>, <a href="Data.ox.html#Path___ReadObs">ReadObs</a>, <a href="Data.ox.html#Path___TypeContribution">TypeContribution</a>, <a href="Data.ox.html#Path___~Path">~Path</a></dd>
-<dt>Inherited methods from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___AccountForUnobservables">AccountForUnobservables</a>, <a href="Data.ox.html#Outcome___FromData">FromData</a>, <a href="Data.ox.html#Outcome___FromSim">FromSim</a>, <a href="Data.ox.html#Outcome___Outcome">Outcome</a>, <a href="Data.ox.html#Outcome___~Outcome">~Outcome</a></dd>
+<dt>Inherited methods from <a href="Data.ox.html#Path">Path</a>:</dt><dd><a href="Data.ox.html#Path___FullLikelihood">FullLikelihood</a>, <a href="Data.ox.html#Path___Likelihood">Likelihood</a>, <a href="Data.ox.html#Path___PartialObservedLikelihood">PartialObservedLikelihood</a>, <a href="Data.ox.html#Path___Path">Path</a>, <a href="Data.ox.html#Path___PathObjective">PathObjective</a>, <a href="Data.ox.html#Path___ReadObs">ReadObs</a>, <a href="Data.ox.html#Path___TypeContribution">TypeContribution</a>, <a href="Data.ox.html#Path___~Path">~Path</a></dd>
+<dt>Inherited methods from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___AccountForUnobservables">AccountForUnobservables</a>, <a href="Data.ox.html#Outcome___AuxLikelihood">AuxLikelihood</a>, <a href="Data.ox.html#Outcome___CCLikelihood">CCLikelihood</a>, <a href="Data.ox.html#Outcome___FromData">FromData</a>, <a href="Data.ox.html#Outcome___FromSim">FromSim</a>, <a href="Data.ox.html#Outcome___IIDLikelihood">IIDLikelihood</a>, <a href="Data.ox.html#Outcome___Outcome">Outcome</a>, <a href="Data.ox.html#Outcome___TomIndices">TomIndices</a>, <a href="Data.ox.html#Outcome___~Outcome">~Outcome</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___SetLog">SetLog</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___Run">Run</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a>, <a href="Bellman.ox.html#Task___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Data.ox.html#Path">Path</a>:</dt><dd><a href="Data.ox.html#Path___flat">flat</a>, <a href="Data.ox.html#Path___i">i</a>, <a href="Data.ox.html#Path___L">L</a>, <a href="Data.ox.html#Path___rcur">rcur</a>, <a href="Data.ox.html#Path___summand">summand</a>, <a href="Data.ox.html#Path___T">T</a>, <a href="Data.ox.html#Path___upddens">upddens</a></dd>
-<dt>Inherited fields from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___act">act</a>, <a href="Data.ox.html#Outcome___aux">aux</a>, <a href="Data.ox.html#Outcome___fixeddim">fixeddim</a>, <a href="Data.ox.html#Outcome___FPanelID">FPanelID</a>, <a href="Data.ox.html#Outcome___mask">mask</a>, <a href="Data.ox.html#Outcome___now">now</a>, <a href="Data.ox.html#Outcome___onext">onext</a>, <a href="Data.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a>, <a href="Data.ox.html#Outcome___PanelID">PanelID</a>, <a href="Data.ox.html#Outcome___PrefixLabels">PrefixLabels</a>, <a href="Data.ox.html#Outcome___prev">prev</a>, <a href="Data.ox.html#Outcome___SimLabels">SimLabels</a>, <a href="Data.ox.html#Outcome___snext">snext</a>, <a href="Data.ox.html#Outcome___t">t</a>, <a href="Data.ox.html#Outcome___tom">tom</a>, <a href="Data.ox.html#Outcome___viinds">viinds</a>, <a href="Data.ox.html#Outcome___vilikes">vilikes</a>, <a href="Data.ox.html#Outcome___z">z</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#Path">Path</a>:</dt><dd><a href="Data.ox.html#Path___flat">flat</a>, <a href="Data.ox.html#Path___i">i</a>, <a href="Data.ox.html#Path___L">L</a>, <a href="Data.ox.html#Path___LType">LType</a>, <a href="Data.ox.html#Path___rcur">rcur</a>, <a href="Data.ox.html#Path___summand">summand</a>, <a href="Data.ox.html#Path___T">T</a>, <a href="Data.ox.html#Path___upddens">upddens</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___act">act</a>, <a href="Data.ox.html#Outcome___Ainds">Ainds</a>, <a href="Data.ox.html#Outcome___arows">arows</a>, <a href="Data.ox.html#Outcome___aux">aux</a>, <a href="Data.ox.html#Outcome___fixeddim">fixeddim</a>, <a href="Data.ox.html#Outcome___FPanelID">FPanelID</a>, <a href="Data.ox.html#Outcome___icol">icol</a>, <a href="Data.ox.html#Outcome___ind">ind</a>, <a href="Data.ox.html#Outcome___mask">mask</a>, <a href="Data.ox.html#Outcome___now">now</a>, <a href="Data.ox.html#Outcome___onext">onext</a>, <a href="Data.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a>, <a href="Data.ox.html#Outcome___PanelID">PanelID</a>, <a href="Data.ox.html#Outcome___PrefixLabels">PrefixLabels</a>, <a href="Data.ox.html#Outcome___prev">prev</a>, <a href="Data.ox.html#Outcome___SimLabels">SimLabels</a>, <a href="Data.ox.html#Outcome___snext">snext</a>, <a href="Data.ox.html#Outcome___t">t</a>, <a href="Data.ox.html#Outcome___TF">TF</a>, <a href="Data.ox.html#Outcome___tom">tom</a>, <a href="Data.ox.html#Outcome___TP">TP</a>, <a href="Data.ox.html#Outcome___viinds">viinds</a>, <a href="Data.ox.html#Outcome___vilikes">vilikes</a>, <a href="Data.ox.html#Outcome___z">z</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___logf">logf</a>, <a href="Bellman.ox.html#Data___lognm">lognm</a>, <a href="Bellman.ox.html#Data___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___d">d</a>, <a href="Bellman.ox.html#Task___done">done</a>, <a href="Bellman.ox.html#Task___itask">itask</a>, <a href="Bellman.ox.html#Task___iter">iter</a>, <a href="Bellman.ox.html#Task___left">left</a>, <a href="Bellman.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="Bellman.ox.html#Task___right">right</a>, <a href="Bellman.ox.html#Task___state">state</a>, <a href="Bellman.ox.html#Task___subspace">subspace</a>, <a href="Bellman.ox.html#Task___trace">trace</a>, <a href="Bellman.ox.html#Task___trips">trips</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Blocks">Blocks</a>, <a href="Bellman.ox.html#DP___Chi">Chi</a>, <a href="Bellman.ox.html#DP___chi">chi</a>, <a href="Bellman.ox.html#DP___ClockType">ClockType</a>, <a href="Bellman.ox.html#DP___counter">counter</a>, <a href="Bellman.ox.html#DP___curREdensity">curREdensity</a>, <a href="Bellman.ox.html#DP___delta">delta</a>, <a href="Bellman.ox.html#DP___ETT">ETT</a>, <a href="Bellman.ox.html#DP___gdist">gdist</a>, <a href="Bellman.ox.html#DP___MyVersion">MyVersion</a>, <a href="Bellman.ox.html#DP___NxtExog">NxtExog</a>, <a href="Bellman.ox.html#DP___S">S</a>, <a href="Bellman.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="Bellman.ox.html#DP___SS">SS</a>, <a href="Bellman.ox.html#DP___States">States</a>, <a href="Bellman.ox.html#DP___SubVectors">SubVectors</a>, <a href="Bellman.ox.html#DP___userState">userState</a>, <a href="Bellman.ox.html#DP___XUT">XUT</a>, <a href="Bellman.ox.html#DP___zeta">zeta</a></dd>
@@ -598,6 +607,16 @@ A single realization of a discrete DP.
 <td class="description">&alpha;,  </td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Outcome___Ainds">Ainds</a></td>
+<td class="modifiers"></td>
+<td class="description">list of feasible sets consistent w/ data.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Outcome___arows">arows</a></td>
+<td class="modifiers">static</td>
+<td class="description">current likelihood A rows .</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Outcome___aux">aux</a></td>
 <td class="modifiers"></td>
 <td class="description">auxiliary values.</td>
@@ -610,6 +629,16 @@ A single realization of a discrete DP.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Outcome___FPanelID">FPanelID</a></td>
 <td class="modifiers">static const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Outcome___icol">icol</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Outcome___ind">ind</a></td>
+<td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 <tr class="even">
@@ -664,19 +693,29 @@ A single realization of a discrete DP.
 <td class="description">order on the path .</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Outcome___TF">TF</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Outcome___tom">tom</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Outcome___TP">TP</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Outcome___viinds">viinds</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">consistent states now & tom  </td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Outcome___vilikes">vilikes</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">contigent likelihood now & tom.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Outcome___z">z</a></td>
@@ -687,6 +726,17 @@ A single realization of a discrete DP.
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___AccountForUnobservables">AccountForUnobservables</a></td>
 <td class="modifiers"></td>
 <td class="description">Modify outcome to list indices of states consistent with observables.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___AuxLikelihood">AuxLikelihood</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___CCLikelihood">CCLikelihood</a></td>
+<td class="modifiers"></td>
+<td class="description">Compute likelihood of choices and transitions this period
+    assuming full state and action observability.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___Deep">Deep</a></td>
@@ -701,7 +751,7 @@ A single realization of a discrete DP.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___FromData">FromData</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Copy external current values of actions, states and auxiliaries into the outcome.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___FromSim">FromSim</a></td>
@@ -709,19 +759,22 @@ A single realization of a discrete DP.
 <td class="description"></td>
 </tr>
 <tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___FullLikelihood">FullLikelihood</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___IIDLikelihood">IIDLikelihood</a></td>
 <td class="modifiers"></td>
-<td class="description">Compute conditional and partial likelihood of choices.</td>
+<td class="description">Compute likelihood of an outcome given observablity of &theta; and &eta; but integrating over &epsilon;
+<dd>
+<span class="equation"><span class="equation">$$L(\theta) = $$</span></span>
+</dd>  </td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___Likelihood">Likelihood</a></td>
 <td class="modifiers"></td>
-<td class="description">Compute conditional forward likelihood of an outcome.</td>
+<td class="description"></td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___Mask">Mask</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Set all unobserved values to NaN.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___Outcome">Outcome</a></td>
@@ -729,9 +782,19 @@ A single realization of a discrete DP.
 <td class="description">Record everything about a single realization of the DP.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___PartialObservedLikelihood">PartialObservedLikelihood</a></td>
+<td class="modifiers"></td>
+<td class="description">Compute conditional forward likelihood of an outcome.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___Simulate">Simulate</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Simulate the IID stochastic elements of a realization.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___TomIndices">TomIndices</a></td>
+<td class="modifiers"></td>
+<td class="description">Get tracking probabilities and tomorrow indices consistent with tomorrow's observation .</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Outcome___~Outcome">~Outcome</a></td>
@@ -743,7 +806,7 @@ A single realization of a discrete DP.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___SetLog">SetLog</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___Run">Run</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a>, <a href="Bellman.ox.html#Task___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
 
 <dl class="inherited">
@@ -761,7 +824,7 @@ A data set is designed to hold data for estimation purposes.
 <dl><dt class="example">Example:</dt><dd class="example">d = new OutcomeDataSet("d");
 </dd>
 <P/>
-See <a href="../FiveO/Objective.ox.html#PanelBB">PanelBB</a>.
+See <a href="../FiveO/Objective.ox.html#DataObjective">DataObjective</a>.
 </dd>
 </dl>
 <table class="method_table">
@@ -791,49 +854,59 @@ See <a href="../FiveO/Objective.ox.html#PanelBB">PanelBB</a>.
 <td class="description"></td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___LTypes">LTypes</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___masked">masked</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___source">source</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___EconometricObjective">EconometricObjective</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">The default econometric objective: log-likelihood.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___IDColumn">IDColumn</a></td>
 <td class="modifiers"></td>
 <td class="description">set the column label or index of the observation ID.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___Mask">Mask</a></td>
 <td class="modifiers"></td>
 <td class="description">Mask unobservables.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___MatchToColumn">MatchToColumn</a></td>
 <td class="modifiers"></td>
 <td class="description">Identify a variable with a data column.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___ObservedWithLabel">ObservedWithLabel</a></td>
 <td class="modifiers"></td>
 <td class="description">Mark actions and state variables as observed in data, matched with their internal label.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___OutcomeDataSet">OutcomeDataSet</a></td>
 <td class="modifiers"></td>
 <td class="description">Store a <a href="Data.ox.html#Panel">Panel</a> as a data set.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___Read">Read</a></td>
 <td class="modifiers"></td>
 <td class="description">Load outcomes into the data set from a (long format) file or an Ox database.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___Simulate">Simulate</a></td>
+<td class="modifiers"></td>
+<td class="description">Simulate a (heterogeneous) panel.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___Summary">Summary</a></td>
@@ -841,11 +914,16 @@ See <a href="../FiveO/Objective.ox.html#PanelBB">PanelBB</a>.
 <td class="description">Produce a Stata-like summary statistics table.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___tColumn">tColumn</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___UnObserved">UnObserved</a></td>
 <td class="modifiers"></td>
 <td class="description">UnMark action and states variables as observed.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#OutcomeDataSet___~OutcomeDataSet">~OutcomeDataSet</a></td>
 <td class="modifiers"></td>
 <td class="description">Delete a data set.</td>
@@ -853,20 +931,20 @@ See <a href="../FiveO/Objective.ox.html#PanelBB">PanelBB</a>.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Data.ox.html#Panel">Panel</a>:</dt><dd><a href="Data.ox.html#Panel___Collapse">Collapse</a>, <a href="Data.ox.html#Panel___Deep">Deep</a>, <a href="Data.ox.html#Panel___Flat">Flat</a>, <a href="Data.ox.html#Panel___LogLikelihood">LogLikelihood</a>, <a href="Data.ox.html#Panel___Panel">Panel</a>, <a href="Data.ox.html#Panel___Print">Print</a>, <a href="Data.ox.html#Panel___SetMethod">SetMethod</a>, <a href="Data.ox.html#Panel___Simulate">Simulate</a>, <a href="Data.ox.html#Panel___~Panel">~Panel</a></dd>
-<dt>Inherited methods from <a href="Data.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Data.ox.html#FPanel___Append">Append</a>, <a href="Data.ox.html#FPanel___FPanel">FPanel</a>, <a href="Data.ox.html#FPanel___FullLogLikelihood">FullLogLikelihood</a>, <a href="Data.ox.html#FPanel___GetCur">GetCur</a>, <a href="Data.ox.html#FPanel___~FPanel">~FPanel</a></dd>
-<dt>Inherited methods from <a href="Data.ox.html#Path">Path</a>:</dt><dd><a href="Data.ox.html#Path___FullLikelihood">FullLikelihood</a>, <a href="Data.ox.html#Path___Likelihood">Likelihood</a>, <a href="Data.ox.html#Path___Path">Path</a>, <a href="Data.ox.html#Path___PathObjective">PathObjective</a>, <a href="Data.ox.html#Path___ReadObs">ReadObs</a>, <a href="Data.ox.html#Path___TypeContribution">TypeContribution</a>, <a href="Data.ox.html#Path___~Path">~Path</a></dd>
-<dt>Inherited methods from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___AccountForUnobservables">AccountForUnobservables</a>, <a href="Data.ox.html#Outcome___FromData">FromData</a>, <a href="Data.ox.html#Outcome___FromSim">FromSim</a>, <a href="Data.ox.html#Outcome___Outcome">Outcome</a>, <a href="Data.ox.html#Outcome___~Outcome">~Outcome</a></dd>
+<dt>Inherited methods from <a href="Data.ox.html#Panel">Panel</a>:</dt><dd><a href="Data.ox.html#Panel___Collapse">Collapse</a>, <a href="Data.ox.html#Panel___Deep">Deep</a>, <a href="Data.ox.html#Panel___Flat">Flat</a>, <a href="Data.ox.html#Panel___LogLikelihood">LogLikelihood</a>, <a href="Data.ox.html#Panel___Panel">Panel</a>, <a href="Data.ox.html#Panel___Print">Print</a>, <a href="Data.ox.html#Panel___SetMethod">SetMethod</a>, <a href="Data.ox.html#Panel___~Panel">~Panel</a></dd>
+<dt>Inherited methods from <a href="Data.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Data.ox.html#FPanel___Append">Append</a>, <a href="Data.ox.html#FPanel___FPanel">FPanel</a>, <a href="Data.ox.html#FPanel___GetCur">GetCur</a>, <a href="Data.ox.html#FPanel___~FPanel">~FPanel</a></dd>
+<dt>Inherited methods from <a href="Data.ox.html#Path">Path</a>:</dt><dd><a href="Data.ox.html#Path___FullLikelihood">FullLikelihood</a>, <a href="Data.ox.html#Path___Likelihood">Likelihood</a>, <a href="Data.ox.html#Path___PartialObservedLikelihood">PartialObservedLikelihood</a>, <a href="Data.ox.html#Path___Path">Path</a>, <a href="Data.ox.html#Path___PathObjective">PathObjective</a>, <a href="Data.ox.html#Path___ReadObs">ReadObs</a>, <a href="Data.ox.html#Path___TypeContribution">TypeContribution</a>, <a href="Data.ox.html#Path___~Path">~Path</a></dd>
+<dt>Inherited methods from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___AccountForUnobservables">AccountForUnobservables</a>, <a href="Data.ox.html#Outcome___AuxLikelihood">AuxLikelihood</a>, <a href="Data.ox.html#Outcome___CCLikelihood">CCLikelihood</a>, <a href="Data.ox.html#Outcome___FromData">FromData</a>, <a href="Data.ox.html#Outcome___FromSim">FromSim</a>, <a href="Data.ox.html#Outcome___IIDLikelihood">IIDLikelihood</a>, <a href="Data.ox.html#Outcome___Outcome">Outcome</a>, <a href="Data.ox.html#Outcome___TomIndices">TomIndices</a>, <a href="Data.ox.html#Outcome___~Outcome">~Outcome</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___SetLog">SetLog</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___Run">Run</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a>, <a href="Bellman.ox.html#Task___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Data.ox.html#Panel">Panel</a>:</dt><dd><a href="Data.ox.html#Panel___flat">flat</a>, <a href="Data.ox.html#Panel___Fmtflat">Fmtflat</a>, <a href="Data.ox.html#Panel___FN">FN</a>, <a href="Data.ox.html#Panel___FNT">FNT</a>, <a href="Data.ox.html#Panel___fparray">fparray</a>, <a href="Data.ox.html#Panel___LFlat">LFlat</a>, <a href="Data.ox.html#Panel___M">M</a>, <a href="Data.ox.html#Panel___r">r</a></dd>
-<dt>Inherited fields from <a href="Data.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Data.ox.html#FPanel___f">f</a>, <a href="Data.ox.html#FPanel___FPL">FPL</a>, <a href="Data.ox.html#FPanel___FullyObserved">FullyObserved</a>, <a href="Data.ox.html#FPanel___method">method</a>, <a href="Data.ox.html#FPanel___N">N</a>, <a href="Data.ox.html#FPanel___NT">NT</a>, <a href="Data.ox.html#FPanel___SD">SD</a></dd>
-<dt>Inherited fields from <a href="Data.ox.html#Path">Path</a>:</dt><dd><a href="Data.ox.html#Path___i">i</a>, <a href="Data.ox.html#Path___L">L</a>, <a href="Data.ox.html#Path___rcur">rcur</a>, <a href="Data.ox.html#Path___summand">summand</a>, <a href="Data.ox.html#Path___T">T</a>, <a href="Data.ox.html#Path___upddens">upddens</a></dd>
-<dt>Inherited fields from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___act">act</a>, <a href="Data.ox.html#Outcome___aux">aux</a>, <a href="Data.ox.html#Outcome___fixeddim">fixeddim</a>, <a href="Data.ox.html#Outcome___FPanelID">FPanelID</a>, <a href="Data.ox.html#Outcome___mask">mask</a>, <a href="Data.ox.html#Outcome___now">now</a>, <a href="Data.ox.html#Outcome___onext">onext</a>, <a href="Data.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a>, <a href="Data.ox.html#Outcome___PanelID">PanelID</a>, <a href="Data.ox.html#Outcome___PrefixLabels">PrefixLabels</a>, <a href="Data.ox.html#Outcome___prev">prev</a>, <a href="Data.ox.html#Outcome___SimLabels">SimLabels</a>, <a href="Data.ox.html#Outcome___snext">snext</a>, <a href="Data.ox.html#Outcome___t">t</a>, <a href="Data.ox.html#Outcome___tom">tom</a>, <a href="Data.ox.html#Outcome___viinds">viinds</a>, <a href="Data.ox.html#Outcome___vilikes">vilikes</a>, <a href="Data.ox.html#Outcome___z">z</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Data.ox.html#FPanel___f">f</a>, <a href="Data.ox.html#FPanel___FPL">FPL</a>, <a href="Data.ox.html#FPanel___method">method</a>, <a href="Data.ox.html#FPanel___N">N</a>, <a href="Data.ox.html#FPanel___NT">NT</a>, <a href="Data.ox.html#FPanel___SD">SD</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#Path">Path</a>:</dt><dd><a href="Data.ox.html#Path___i">i</a>, <a href="Data.ox.html#Path___L">L</a>, <a href="Data.ox.html#Path___LType">LType</a>, <a href="Data.ox.html#Path___rcur">rcur</a>, <a href="Data.ox.html#Path___summand">summand</a>, <a href="Data.ox.html#Path___T">T</a>, <a href="Data.ox.html#Path___upddens">upddens</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___act">act</a>, <a href="Data.ox.html#Outcome___Ainds">Ainds</a>, <a href="Data.ox.html#Outcome___arows">arows</a>, <a href="Data.ox.html#Outcome___aux">aux</a>, <a href="Data.ox.html#Outcome___fixeddim">fixeddim</a>, <a href="Data.ox.html#Outcome___FPanelID">FPanelID</a>, <a href="Data.ox.html#Outcome___icol">icol</a>, <a href="Data.ox.html#Outcome___ind">ind</a>, <a href="Data.ox.html#Outcome___mask">mask</a>, <a href="Data.ox.html#Outcome___now">now</a>, <a href="Data.ox.html#Outcome___onext">onext</a>, <a href="Data.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a>, <a href="Data.ox.html#Outcome___PanelID">PanelID</a>, <a href="Data.ox.html#Outcome___PrefixLabels">PrefixLabels</a>, <a href="Data.ox.html#Outcome___prev">prev</a>, <a href="Data.ox.html#Outcome___SimLabels">SimLabels</a>, <a href="Data.ox.html#Outcome___snext">snext</a>, <a href="Data.ox.html#Outcome___t">t</a>, <a href="Data.ox.html#Outcome___TF">TF</a>, <a href="Data.ox.html#Outcome___tom">tom</a>, <a href="Data.ox.html#Outcome___TP">TP</a>, <a href="Data.ox.html#Outcome___viinds">viinds</a>, <a href="Data.ox.html#Outcome___vilikes">vilikes</a>, <a href="Data.ox.html#Outcome___z">z</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___logf">logf</a>, <a href="Bellman.ox.html#Data___lognm">lognm</a>, <a href="Bellman.ox.html#Data___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___d">d</a>, <a href="Bellman.ox.html#Task___done">done</a>, <a href="Bellman.ox.html#Task___itask">itask</a>, <a href="Bellman.ox.html#Task___iter">iter</a>, <a href="Bellman.ox.html#Task___left">left</a>, <a href="Bellman.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="Bellman.ox.html#Task___right">right</a>, <a href="Bellman.ox.html#Task___state">state</a>, <a href="Bellman.ox.html#Task___subspace">subspace</a>, <a href="Bellman.ox.html#Task___trace">trace</a>, <a href="Bellman.ox.html#Task___trips">trips</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Blocks">Blocks</a>, <a href="Bellman.ox.html#DP___Chi">Chi</a>, <a href="Bellman.ox.html#DP___chi">chi</a>, <a href="Bellman.ox.html#DP___ClockType">ClockType</a>, <a href="Bellman.ox.html#DP___counter">counter</a>, <a href="Bellman.ox.html#DP___curREdensity">curREdensity</a>, <a href="Bellman.ox.html#DP___delta">delta</a>, <a href="Bellman.ox.html#DP___ETT">ETT</a>, <a href="Bellman.ox.html#DP___gdist">gdist</a>, <a href="Bellman.ox.html#DP___MyVersion">MyVersion</a>, <a href="Bellman.ox.html#DP___NxtExog">NxtExog</a>, <a href="Bellman.ox.html#DP___S">S</a>, <a href="Bellman.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="Bellman.ox.html#DP___SS">SS</a>, <a href="Bellman.ox.html#DP___States">States</a>, <a href="Bellman.ox.html#DP___SubVectors">SubVectors</a>, <a href="Bellman.ox.html#DP___userState">userState</a>, <a href="Bellman.ox.html#DP___XUT">XUT</a>, <a href="Bellman.ox.html#DP___zeta">zeta</a></dd>
@@ -956,7 +1034,7 @@ A Panel is a list of <a href="Data.ox.html#FPanel">FPanel</a>s which share a val
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Panel___Simulate">Simulate</a></td>
-<td class="modifiers">virtual</td>
+<td class="modifiers"></td>
 <td class="description">Simulate a (heterogeneous) panel.</td>
 </tr>
 <tr class="odd">
@@ -967,18 +1045,18 @@ A Panel is a list of <a href="Data.ox.html#FPanel">FPanel</a>s which share a val
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Data.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Data.ox.html#FPanel___Append">Append</a>, <a href="Data.ox.html#FPanel___FPanel">FPanel</a>, <a href="Data.ox.html#FPanel___FullLogLikelihood">FullLogLikelihood</a>, <a href="Data.ox.html#FPanel___GetCur">GetCur</a>, <a href="Data.ox.html#FPanel___Mask">Mask</a>, <a href="Data.ox.html#FPanel___~FPanel">~FPanel</a></dd>
-<dt>Inherited methods from <a href="Data.ox.html#Path">Path</a>:</dt><dd><a href="Data.ox.html#Path___FullLikelihood">FullLikelihood</a>, <a href="Data.ox.html#Path___Likelihood">Likelihood</a>, <a href="Data.ox.html#Path___Path">Path</a>, <a href="Data.ox.html#Path___PathObjective">PathObjective</a>, <a href="Data.ox.html#Path___ReadObs">ReadObs</a>, <a href="Data.ox.html#Path___TypeContribution">TypeContribution</a>, <a href="Data.ox.html#Path___~Path">~Path</a></dd>
-<dt>Inherited methods from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___AccountForUnobservables">AccountForUnobservables</a>, <a href="Data.ox.html#Outcome___FromData">FromData</a>, <a href="Data.ox.html#Outcome___FromSim">FromSim</a>, <a href="Data.ox.html#Outcome___Outcome">Outcome</a>, <a href="Data.ox.html#Outcome___~Outcome">~Outcome</a></dd>
+<dt>Inherited methods from <a href="Data.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Data.ox.html#FPanel___Append">Append</a>, <a href="Data.ox.html#FPanel___FPanel">FPanel</a>, <a href="Data.ox.html#FPanel___GetCur">GetCur</a>, <a href="Data.ox.html#FPanel___Mask">Mask</a>, <a href="Data.ox.html#FPanel___~FPanel">~FPanel</a></dd>
+<dt>Inherited methods from <a href="Data.ox.html#Path">Path</a>:</dt><dd><a href="Data.ox.html#Path___FullLikelihood">FullLikelihood</a>, <a href="Data.ox.html#Path___Likelihood">Likelihood</a>, <a href="Data.ox.html#Path___PartialObservedLikelihood">PartialObservedLikelihood</a>, <a href="Data.ox.html#Path___Path">Path</a>, <a href="Data.ox.html#Path___PathObjective">PathObjective</a>, <a href="Data.ox.html#Path___ReadObs">ReadObs</a>, <a href="Data.ox.html#Path___TypeContribution">TypeContribution</a>, <a href="Data.ox.html#Path___~Path">~Path</a></dd>
+<dt>Inherited methods from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___AccountForUnobservables">AccountForUnobservables</a>, <a href="Data.ox.html#Outcome___AuxLikelihood">AuxLikelihood</a>, <a href="Data.ox.html#Outcome___CCLikelihood">CCLikelihood</a>, <a href="Data.ox.html#Outcome___FromData">FromData</a>, <a href="Data.ox.html#Outcome___FromSim">FromSim</a>, <a href="Data.ox.html#Outcome___IIDLikelihood">IIDLikelihood</a>, <a href="Data.ox.html#Outcome___Outcome">Outcome</a>, <a href="Data.ox.html#Outcome___TomIndices">TomIndices</a>, <a href="Data.ox.html#Outcome___~Outcome">~Outcome</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___SetLog">SetLog</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___Run">Run</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a>, <a href="Bellman.ox.html#Task___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Data.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Data.ox.html#FPanel___f">f</a>, <a href="Data.ox.html#FPanel___FPL">FPL</a>, <a href="Data.ox.html#FPanel___FullyObserved">FullyObserved</a>, <a href="Data.ox.html#FPanel___method">method</a>, <a href="Data.ox.html#FPanel___N">N</a>, <a href="Data.ox.html#FPanel___NT">NT</a>, <a href="Data.ox.html#FPanel___SD">SD</a></dd>
-<dt>Inherited fields from <a href="Data.ox.html#Path">Path</a>:</dt><dd><a href="Data.ox.html#Path___i">i</a>, <a href="Data.ox.html#Path___L">L</a>, <a href="Data.ox.html#Path___rcur">rcur</a>, <a href="Data.ox.html#Path___summand">summand</a>, <a href="Data.ox.html#Path___T">T</a>, <a href="Data.ox.html#Path___upddens">upddens</a></dd>
-<dt>Inherited fields from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___act">act</a>, <a href="Data.ox.html#Outcome___aux">aux</a>, <a href="Data.ox.html#Outcome___fixeddim">fixeddim</a>, <a href="Data.ox.html#Outcome___FPanelID">FPanelID</a>, <a href="Data.ox.html#Outcome___mask">mask</a>, <a href="Data.ox.html#Outcome___now">now</a>, <a href="Data.ox.html#Outcome___onext">onext</a>, <a href="Data.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a>, <a href="Data.ox.html#Outcome___PanelID">PanelID</a>, <a href="Data.ox.html#Outcome___PrefixLabels">PrefixLabels</a>, <a href="Data.ox.html#Outcome___prev">prev</a>, <a href="Data.ox.html#Outcome___SimLabels">SimLabels</a>, <a href="Data.ox.html#Outcome___snext">snext</a>, <a href="Data.ox.html#Outcome___t">t</a>, <a href="Data.ox.html#Outcome___tom">tom</a>, <a href="Data.ox.html#Outcome___viinds">viinds</a>, <a href="Data.ox.html#Outcome___vilikes">vilikes</a>, <a href="Data.ox.html#Outcome___z">z</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#FPanel">FPanel</a>:</dt><dd><a href="Data.ox.html#FPanel___f">f</a>, <a href="Data.ox.html#FPanel___FPL">FPL</a>, <a href="Data.ox.html#FPanel___method">method</a>, <a href="Data.ox.html#FPanel___N">N</a>, <a href="Data.ox.html#FPanel___NT">NT</a>, <a href="Data.ox.html#FPanel___SD">SD</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#Path">Path</a>:</dt><dd><a href="Data.ox.html#Path___i">i</a>, <a href="Data.ox.html#Path___L">L</a>, <a href="Data.ox.html#Path___LType">LType</a>, <a href="Data.ox.html#Path___rcur">rcur</a>, <a href="Data.ox.html#Path___summand">summand</a>, <a href="Data.ox.html#Path___T">T</a>, <a href="Data.ox.html#Path___upddens">upddens</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___act">act</a>, <a href="Data.ox.html#Outcome___Ainds">Ainds</a>, <a href="Data.ox.html#Outcome___arows">arows</a>, <a href="Data.ox.html#Outcome___aux">aux</a>, <a href="Data.ox.html#Outcome___fixeddim">fixeddim</a>, <a href="Data.ox.html#Outcome___FPanelID">FPanelID</a>, <a href="Data.ox.html#Outcome___icol">icol</a>, <a href="Data.ox.html#Outcome___ind">ind</a>, <a href="Data.ox.html#Outcome___mask">mask</a>, <a href="Data.ox.html#Outcome___now">now</a>, <a href="Data.ox.html#Outcome___onext">onext</a>, <a href="Data.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a>, <a href="Data.ox.html#Outcome___PanelID">PanelID</a>, <a href="Data.ox.html#Outcome___PrefixLabels">PrefixLabels</a>, <a href="Data.ox.html#Outcome___prev">prev</a>, <a href="Data.ox.html#Outcome___SimLabels">SimLabels</a>, <a href="Data.ox.html#Outcome___snext">snext</a>, <a href="Data.ox.html#Outcome___t">t</a>, <a href="Data.ox.html#Outcome___TF">TF</a>, <a href="Data.ox.html#Outcome___tom">tom</a>, <a href="Data.ox.html#Outcome___TP">TP</a>, <a href="Data.ox.html#Outcome___viinds">viinds</a>, <a href="Data.ox.html#Outcome___vilikes">vilikes</a>, <a href="Data.ox.html#Outcome___z">z</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___logf">logf</a>, <a href="Bellman.ox.html#Data___lognm">lognm</a>, <a href="Bellman.ox.html#Data___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___d">d</a>, <a href="Bellman.ox.html#Task___done">done</a>, <a href="Bellman.ox.html#Task___itask">itask</a>, <a href="Bellman.ox.html#Task___iter">iter</a>, <a href="Bellman.ox.html#Task___left">left</a>, <a href="Bellman.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="Bellman.ox.html#Task___right">right</a>, <a href="Bellman.ox.html#Task___state">state</a>, <a href="Bellman.ox.html#Task___subspace">subspace</a>, <a href="Bellman.ox.html#Task___trace">trace</a>, <a href="Bellman.ox.html#Task___trips">trips</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Blocks">Blocks</a>, <a href="Bellman.ox.html#DP___Chi">Chi</a>, <a href="Bellman.ox.html#DP___chi">chi</a>, <a href="Bellman.ox.html#DP___ClockType">ClockType</a>, <a href="Bellman.ox.html#DP___counter">counter</a>, <a href="Bellman.ox.html#DP___curREdensity">curREdensity</a>, <a href="Bellman.ox.html#DP___delta">delta</a>, <a href="Bellman.ox.html#DP___ETT">ETT</a>, <a href="Bellman.ox.html#DP___gdist">gdist</a>, <a href="Bellman.ox.html#DP___MyVersion">MyVersion</a>, <a href="Bellman.ox.html#DP___NxtExog">NxtExog</a>, <a href="Bellman.ox.html#DP___S">S</a>, <a href="Bellman.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="Bellman.ox.html#DP___SS">SS</a>, <a href="Bellman.ox.html#DP___States">States</a>, <a href="Bellman.ox.html#DP___SubVectors">SubVectors</a>, <a href="Bellman.ox.html#DP___userState">userState</a>, <a href="Bellman.ox.html#DP___XUT">XUT</a>, <a href="Bellman.ox.html#DP___zeta">zeta</a></dd>
@@ -1051,12 +1129,12 @@ A Panel is a list of <a href="Data.ox.html#FPanel">FPanel</a>s which share a val
 <dt>Inherited methods from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___Delta">Delta</a>, <a href="Data.ox.html#Prediction___Histogram">Histogram</a>, <a href="Data.ox.html#Prediction___Prediction">Prediction</a>, <a href="Data.ox.html#Prediction___Reset">Reset</a>, <a href="Data.ox.html#Prediction___~Prediction">~Prediction</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___SetLog">SetLog</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___Run">Run</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a>, <a href="Bellman.ox.html#Task___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Data.ox.html#PathPrediction">PathPrediction</a>:</dt><dd><a href="Data.ox.html#PathPrediction___cols">cols</a>, <a href="Data.ox.html#PathPrediction___cur">cur</a>, <a href="Data.ox.html#PathPrediction___dlabels">dlabels</a>, <a href="Data.ox.html#PathPrediction___EverPredicted">EverPredicted</a>, <a href="Data.ox.html#PathPrediction___f">f</a>, <a href="Data.ox.html#PathPrediction___first">first</a>, <a href="Data.ox.html#PathPrediction___flat">flat</a>, <a href="Data.ox.html#PathPrediction___fnext">fnext</a>, <a href="Data.ox.html#PathPrediction___HasObservations">HasObservations</a>, <a href="Data.ox.html#PathPrediction___iDist">iDist</a>, <a href="Data.ox.html#PathPrediction___inT">inT</a>, <a href="Data.ox.html#PathPrediction___L">L</a>, <a href="Data.ox.html#PathPrediction___label">label</a>, <a href="Data.ox.html#PathPrediction___mask">mask</a>, <a href="Data.ox.html#PathPrediction___method">method</a>, <a href="Data.ox.html#PathPrediction___pathW">pathW</a>, <a href="Data.ox.html#PathPrediction___predicttime">predicttime</a>, <a href="Data.ox.html#PathPrediction___prtlevel">prtlevel</a>, <a href="Data.ox.html#PathPrediction___rcur">rcur</a>, <a href="Data.ox.html#PathPrediction___solvetime">solvetime</a>, <a href="Data.ox.html#PathPrediction___summand">summand</a>, <a href="Data.ox.html#PathPrediction___T">T</a>, <a href="Data.ox.html#PathPrediction___tlabels">tlabels</a>, <a href="Data.ox.html#PathPrediction___tlist">tlist</a>, <a href="Data.ox.html#PathPrediction___upddens">upddens</a>, <a href="Data.ox.html#PathPrediction___vdelt">vdelt</a>, <a href="Data.ox.html#PathPrediction___wght">wght</a></dd>
-<dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___hi">hi</a>, <a href="Data.ox.html#Prediction___LeakWarned">LeakWarned</a>, <a href="Data.ox.html#Prediction___lo">lo</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___PredictFailure">PredictFailure</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___tinyP">tinyP</a>, <a href="Data.ox.html#Prediction___ud">ud</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___cauxlist">cauxlist</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___ctlist">ctlist</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___exaux">exaux</a>, <a href="Data.ox.html#Prediction___hi">hi</a>, <a href="Data.ox.html#Prediction___LeakWarned">LeakWarned</a>, <a href="Data.ox.html#Prediction___lo">lo</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___PredictFailure">PredictFailure</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___tinyP">tinyP</a>, <a href="Data.ox.html#Prediction___ud">ud</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___logf">logf</a>, <a href="Bellman.ox.html#Data___lognm">lognm</a>, <a href="Bellman.ox.html#Data___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___d">d</a>, <a href="Bellman.ox.html#Task___done">done</a>, <a href="Bellman.ox.html#Task___itask">itask</a>, <a href="Bellman.ox.html#Task___iter">iter</a>, <a href="Bellman.ox.html#Task___left">left</a>, <a href="Bellman.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="Bellman.ox.html#Task___right">right</a>, <a href="Bellman.ox.html#Task___state">state</a>, <a href="Bellman.ox.html#Task___subspace">subspace</a>, <a href="Bellman.ox.html#Task___trace">trace</a>, <a href="Bellman.ox.html#Task___trips">trips</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Blocks">Blocks</a>, <a href="Bellman.ox.html#DP___Chi">Chi</a>, <a href="Bellman.ox.html#DP___chi">chi</a>, <a href="Bellman.ox.html#DP___ClockType">ClockType</a>, <a href="Bellman.ox.html#DP___counter">counter</a>, <a href="Bellman.ox.html#DP___curREdensity">curREdensity</a>, <a href="Bellman.ox.html#DP___delta">delta</a>, <a href="Bellman.ox.html#DP___ETT">ETT</a>, <a href="Bellman.ox.html#DP___gdist">gdist</a>, <a href="Bellman.ox.html#DP___MyVersion">MyVersion</a>, <a href="Bellman.ox.html#DP___NxtExog">NxtExog</a>, <a href="Bellman.ox.html#DP___S">S</a>, <a href="Bellman.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="Bellman.ox.html#DP___SS">SS</a>, <a href="Bellman.ox.html#DP___States">States</a>, <a href="Bellman.ox.html#DP___SubVectors">SubVectors</a>, <a href="Bellman.ox.html#DP___userState">userState</a>, <a href="Bellman.ox.html#DP___XUT">XUT</a>, <a href="Bellman.ox.html#DP___zeta">zeta</a></dd>
@@ -1085,59 +1163,69 @@ The path is a doubly-linked list of <a href="Data.ox.html#Outcome">Outcome</a>s.
 <td class="description">likelihood of the path.</td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Path___LType">LType</a></td>
+<td class="modifiers"></td>
+<td class="description">type of likelihood calculation.</td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Path___rcur">rcur</a></td>
 <td class="modifiers"></td>
 <td class="description">current index of random effects.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Path___summand">summand</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Path___T">T</a></td>
 <td class="modifiers"></td>
 <td class="description">lenth of the path.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Path___upddens">upddens</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Path___Append">Append</a></td>
 <td class="modifiers"></td>
 <td class="description">Load the first or next outcome in the path.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Path___Collapse">Collapse</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Path___Deep">Deep</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Produce a two dimensional view of the path;  </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Path___Flat">Flat</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Produce a matrix representation of the path.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Path___FullLikelihood">FullLikelihood</a></td>
 <td class="modifiers"></td>
-<td class="description">Integrate over a fully observed path.</td>
+<td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Path___Likelihood">Likelihood</a></td>
 <td class="modifiers"></td>
 <td class="description">Compute likelihood of a realized path.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Path___Mask">Mask</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Set all unobserved values to NaN.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Path___PartialObservedLikelihood">PartialObservedLikelihood</a></td>
+<td class="modifiers"></td>
+<td class="description">Compute conditional forward likelihood of an outcome.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Path___Path">Path</a></td>
@@ -1172,14 +1260,14 @@ The path is a doubly-linked list of <a href="Data.ox.html#Outcome">Outcome</a>s.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___AccountForUnobservables">AccountForUnobservables</a>, <a href="Data.ox.html#Outcome___FromData">FromData</a>, <a href="Data.ox.html#Outcome___FromSim">FromSim</a>, <a href="Data.ox.html#Outcome___Outcome">Outcome</a>, <a href="Data.ox.html#Outcome___~Outcome">~Outcome</a></dd>
+<dt>Inherited methods from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___AccountForUnobservables">AccountForUnobservables</a>, <a href="Data.ox.html#Outcome___AuxLikelihood">AuxLikelihood</a>, <a href="Data.ox.html#Outcome___CCLikelihood">CCLikelihood</a>, <a href="Data.ox.html#Outcome___FromData">FromData</a>, <a href="Data.ox.html#Outcome___FromSim">FromSim</a>, <a href="Data.ox.html#Outcome___IIDLikelihood">IIDLikelihood</a>, <a href="Data.ox.html#Outcome___Outcome">Outcome</a>, <a href="Data.ox.html#Outcome___TomIndices">TomIndices</a>, <a href="Data.ox.html#Outcome___~Outcome">~Outcome</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___SetLog">SetLog</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___Run">Run</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a>, <a href="Bellman.ox.html#Task___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___act">act</a>, <a href="Data.ox.html#Outcome___aux">aux</a>, <a href="Data.ox.html#Outcome___fixeddim">fixeddim</a>, <a href="Data.ox.html#Outcome___FPanelID">FPanelID</a>, <a href="Data.ox.html#Outcome___mask">mask</a>, <a href="Data.ox.html#Outcome___now">now</a>, <a href="Data.ox.html#Outcome___onext">onext</a>, <a href="Data.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a>, <a href="Data.ox.html#Outcome___PanelID">PanelID</a>, <a href="Data.ox.html#Outcome___PrefixLabels">PrefixLabels</a>, <a href="Data.ox.html#Outcome___prev">prev</a>, <a href="Data.ox.html#Outcome___SimLabels">SimLabels</a>, <a href="Data.ox.html#Outcome___snext">snext</a>, <a href="Data.ox.html#Outcome___t">t</a>, <a href="Data.ox.html#Outcome___tom">tom</a>, <a href="Data.ox.html#Outcome___viinds">viinds</a>, <a href="Data.ox.html#Outcome___vilikes">vilikes</a>, <a href="Data.ox.html#Outcome___z">z</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#Outcome">Outcome</a>:</dt><dd><a href="Data.ox.html#Outcome___act">act</a>, <a href="Data.ox.html#Outcome___Ainds">Ainds</a>, <a href="Data.ox.html#Outcome___arows">arows</a>, <a href="Data.ox.html#Outcome___aux">aux</a>, <a href="Data.ox.html#Outcome___fixeddim">fixeddim</a>, <a href="Data.ox.html#Outcome___FPanelID">FPanelID</a>, <a href="Data.ox.html#Outcome___icol">icol</a>, <a href="Data.ox.html#Outcome___ind">ind</a>, <a href="Data.ox.html#Outcome___mask">mask</a>, <a href="Data.ox.html#Outcome___now">now</a>, <a href="Data.ox.html#Outcome___onext">onext</a>, <a href="Data.ox.html#Outcome___OnlyTransitions">OnlyTransitions</a>, <a href="Data.ox.html#Outcome___PanelID">PanelID</a>, <a href="Data.ox.html#Outcome___PrefixLabels">PrefixLabels</a>, <a href="Data.ox.html#Outcome___prev">prev</a>, <a href="Data.ox.html#Outcome___SimLabels">SimLabels</a>, <a href="Data.ox.html#Outcome___snext">snext</a>, <a href="Data.ox.html#Outcome___t">t</a>, <a href="Data.ox.html#Outcome___TF">TF</a>, <a href="Data.ox.html#Outcome___tom">tom</a>, <a href="Data.ox.html#Outcome___TP">TP</a>, <a href="Data.ox.html#Outcome___viinds">viinds</a>, <a href="Data.ox.html#Outcome___vilikes">vilikes</a>, <a href="Data.ox.html#Outcome___z">z</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___logf">logf</a>, <a href="Bellman.ox.html#Data___lognm">lognm</a>, <a href="Bellman.ox.html#Data___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___d">d</a>, <a href="Bellman.ox.html#Task___done">done</a>, <a href="Bellman.ox.html#Task___itask">itask</a>, <a href="Bellman.ox.html#Task___iter">iter</a>, <a href="Bellman.ox.html#Task___left">left</a>, <a href="Bellman.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="Bellman.ox.html#Task___right">right</a>, <a href="Bellman.ox.html#Task___state">state</a>, <a href="Bellman.ox.html#Task___subspace">subspace</a>, <a href="Bellman.ox.html#Task___trace">trace</a>, <a href="Bellman.ox.html#Task___trips">trips</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Blocks">Blocks</a>, <a href="Bellman.ox.html#DP___Chi">Chi</a>, <a href="Bellman.ox.html#DP___chi">chi</a>, <a href="Bellman.ox.html#DP___ClockType">ClockType</a>, <a href="Bellman.ox.html#DP___counter">counter</a>, <a href="Bellman.ox.html#DP___curREdensity">curREdensity</a>, <a href="Bellman.ox.html#DP___delta">delta</a>, <a href="Bellman.ox.html#DP___ETT">ETT</a>, <a href="Bellman.ox.html#DP___gdist">gdist</a>, <a href="Bellman.ox.html#DP___MyVersion">MyVersion</a>, <a href="Bellman.ox.html#DP___NxtExog">NxtExog</a>, <a href="Bellman.ox.html#DP___S">S</a>, <a href="Bellman.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="Bellman.ox.html#DP___SS">SS</a>, <a href="Bellman.ox.html#DP___States">States</a>, <a href="Bellman.ox.html#DP___SubVectors">SubVectors</a>, <a href="Bellman.ox.html#DP___userState">userState</a>, <a href="Bellman.ox.html#DP___XUT">XUT</a>, <a href="Bellman.ox.html#DP___zeta">zeta</a></dd>
@@ -1402,11 +1490,11 @@ Predicted outcomes along a path.
 <dt>Inherited methods from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___Delta">Delta</a>, <a href="Data.ox.html#Prediction___Histogram">Histogram</a>, <a href="Data.ox.html#Prediction___Prediction">Prediction</a>, <a href="Data.ox.html#Prediction___Reset">Reset</a>, <a href="Data.ox.html#Prediction___~Prediction">~Prediction</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___SetLog">SetLog</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___Run">Run</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a>, <a href="Bellman.ox.html#Task___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___hi">hi</a>, <a href="Data.ox.html#Prediction___LeakWarned">LeakWarned</a>, <a href="Data.ox.html#Prediction___lo">lo</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___PredictFailure">PredictFailure</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___tinyP">tinyP</a>, <a href="Data.ox.html#Prediction___ud">ud</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___cauxlist">cauxlist</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___ctlist">ctlist</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___exaux">exaux</a>, <a href="Data.ox.html#Prediction___hi">hi</a>, <a href="Data.ox.html#Prediction___LeakWarned">LeakWarned</a>, <a href="Data.ox.html#Prediction___lo">lo</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___PredictFailure">PredictFailure</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___tinyP">tinyP</a>, <a href="Data.ox.html#Prediction___ud">ud</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___logf">logf</a>, <a href="Bellman.ox.html#Data___lognm">lognm</a>, <a href="Bellman.ox.html#Data___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___d">d</a>, <a href="Bellman.ox.html#Task___done">done</a>, <a href="Bellman.ox.html#Task___itask">itask</a>, <a href="Bellman.ox.html#Task___iter">iter</a>, <a href="Bellman.ox.html#Task___left">left</a>, <a href="Bellman.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="Bellman.ox.html#Task___right">right</a>, <a href="Bellman.ox.html#Task___state">state</a>, <a href="Bellman.ox.html#Task___subspace">subspace</a>, <a href="Bellman.ox.html#Task___trace">trace</a>, <a href="Bellman.ox.html#Task___trips">trips</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Blocks">Blocks</a>, <a href="Bellman.ox.html#DP___Chi">Chi</a>, <a href="Bellman.ox.html#DP___chi">chi</a>, <a href="Bellman.ox.html#DP___ClockType">ClockType</a>, <a href="Bellman.ox.html#DP___counter">counter</a>, <a href="Bellman.ox.html#DP___curREdensity">curREdensity</a>, <a href="Bellman.ox.html#DP___delta">delta</a>, <a href="Bellman.ox.html#DP___ETT">ETT</a>, <a href="Bellman.ox.html#DP___gdist">gdist</a>, <a href="Bellman.ox.html#DP___MyVersion">MyVersion</a>, <a href="Bellman.ox.html#DP___NxtExog">NxtExog</a>, <a href="Bellman.ox.html#DP___S">S</a>, <a href="Bellman.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="Bellman.ox.html#DP___SS">SS</a>, <a href="Bellman.ox.html#DP___States">States</a>, <a href="Bellman.ox.html#DP___SubVectors">SubVectors</a>, <a href="Bellman.ox.html#DP___userState">userState</a>, <a href="Bellman.ox.html#DP___XUT">XUT</a>, <a href="Bellman.ox.html#DP___zeta">zeta</a></dd>
@@ -1424,14 +1512,24 @@ Predicted distribution across states.
 <td class="description">accumulated predicted moments across r  </td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___cauxlist">cauxlist</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___ch">ch</a></td>
 <td class="modifiers"></td>
 <td class="description">Expanded ch.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___chq">chq</a></td>
 <td class="modifiers"></td>
 <td class="description">current ch.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___ctlist">ctlist</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___empmom">empmom</a></td>
@@ -1439,106 +1537,111 @@ Predicted distribution across states.
 <td class="description">used (masked) empiricalmoments.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___exaux">exaux</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___hi">hi</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___LeakWarned">LeakWarned</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___lo">lo</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___p">p</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___pnext">pnext</a></td>
 <td class="modifiers"></td>
 <td class="description">next prediction on the path  </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___pq">pq</a></td>
 <td class="modifiers"></td>
 <td class="description">current p.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___PredictFailure">PredictFailure</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___predmom">predmom</a></td>
 <td class="modifiers"></td>
 <td class="description">(unmasked) predicted moment vector  </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___q">q</a></td>
 <td class="modifiers"></td>
 <td class="description">index into sind.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___readmom">readmom</a></td>
 <td class="modifiers"></td>
 <td class="description">(unmasked) empirical moments.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___sind">sind</a></td>
 <td class="modifiers"></td>
 <td class="description">state index  </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___t">t</a></td>
 <td class="modifiers">const</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___tinyP">tinyP</a></td>
 <td class="modifiers">static const</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___ud">ud</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___W">W</a></td>
 <td class="modifiers"></td>
 <td class="description">masked weight to put on distance.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Prediction___Delta">Delta</a></td>
 <td class="modifiers"></td>
 <td class="description">Difference between empirical and predicted moments.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Prediction___Histogram">Histogram</a></td>
 <td class="modifiers"></td>
 <td class="description">Compute the histogram of tracked object at the prediction.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Prediction___Predict">Predict</a></td>
 <td class="modifiers"></td>
 <td class="description">Compute the predicted distribution of actions and states.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Prediction___Prediction">Prediction</a></td>
 <td class="modifiers"></td>
 <td class="description">Create a new prediction.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Prediction___Reset">Reset</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#Prediction___~Prediction">~Prediction</a></td>
 <td class="modifiers"></td>
 <td class="description">clean up.</td>
@@ -1548,7 +1651,7 @@ Predicted distribution across states.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___SetLog">SetLog</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___Run">Run</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a>, <a href="Bellman.ox.html#Task___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
 
 <dl class="inherited">
@@ -1637,13 +1740,13 @@ objective.</td>
 <dt>Inherited methods from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___Delta">Delta</a>, <a href="Data.ox.html#Prediction___Histogram">Histogram</a>, <a href="Data.ox.html#Prediction___Prediction">Prediction</a>, <a href="Data.ox.html#Prediction___Reset">Reset</a>, <a href="Data.ox.html#Prediction___~Prediction">~Prediction</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___SetLog">SetLog</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___Run">Run</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a>, <a href="Bellman.ox.html#Task___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___Gett">Gett</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Data.ox.html#PanelPrediction">PanelPrediction</a>:</dt><dd><a href="Data.ox.html#PanelPrediction___aflat">aflat</a>, <a href="Data.ox.html#PanelPrediction___delt">delt</a>, <a href="Data.ox.html#PanelPrediction___FN">FN</a>, <a href="Data.ox.html#PanelPrediction___fparray">fparray</a>, <a href="Data.ox.html#PanelPrediction___M">M</a></dd>
 <dt>Inherited fields from <a href="Data.ox.html#PathPrediction">PathPrediction</a>:</dt><dd><a href="Data.ox.html#PathPrediction___cols">cols</a>, <a href="Data.ox.html#PathPrediction___cur">cur</a>, <a href="Data.ox.html#PathPrediction___dlabels">dlabels</a>, <a href="Data.ox.html#PathPrediction___EverPredicted">EverPredicted</a>, <a href="Data.ox.html#PathPrediction___f">f</a>, <a href="Data.ox.html#PathPrediction___first">first</a>, <a href="Data.ox.html#PathPrediction___flat">flat</a>, <a href="Data.ox.html#PathPrediction___fnext">fnext</a>, <a href="Data.ox.html#PathPrediction___HasObservations">HasObservations</a>, <a href="Data.ox.html#PathPrediction___iDist">iDist</a>, <a href="Data.ox.html#PathPrediction___inT">inT</a>, <a href="Data.ox.html#PathPrediction___L">L</a>, <a href="Data.ox.html#PathPrediction___label">label</a>, <a href="Data.ox.html#PathPrediction___mask">mask</a>, <a href="Data.ox.html#PathPrediction___method">method</a>, <a href="Data.ox.html#PathPrediction___pathW">pathW</a>, <a href="Data.ox.html#PathPrediction___predicttime">predicttime</a>, <a href="Data.ox.html#PathPrediction___prtlevel">prtlevel</a>, <a href="Data.ox.html#PathPrediction___rcur">rcur</a>, <a href="Data.ox.html#PathPrediction___solvetime">solvetime</a>, <a href="Data.ox.html#PathPrediction___summand">summand</a>, <a href="Data.ox.html#PathPrediction___T">T</a>, <a href="Data.ox.html#PathPrediction___tlabels">tlabels</a>, <a href="Data.ox.html#PathPrediction___tlist">tlist</a>, <a href="Data.ox.html#PathPrediction___upddens">upddens</a>, <a href="Data.ox.html#PathPrediction___vdelt">vdelt</a>, <a href="Data.ox.html#PathPrediction___wght">wght</a></dd>
-<dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___hi">hi</a>, <a href="Data.ox.html#Prediction___LeakWarned">LeakWarned</a>, <a href="Data.ox.html#Prediction___lo">lo</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___PredictFailure">PredictFailure</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___tinyP">tinyP</a>, <a href="Data.ox.html#Prediction___ud">ud</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___cauxlist">cauxlist</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___ctlist">ctlist</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___exaux">exaux</a>, <a href="Data.ox.html#Prediction___hi">hi</a>, <a href="Data.ox.html#Prediction___LeakWarned">LeakWarned</a>, <a href="Data.ox.html#Prediction___lo">lo</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___PredictFailure">PredictFailure</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___tinyP">tinyP</a>, <a href="Data.ox.html#Prediction___ud">ud</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Data">Data</a>:</dt><dd><a href="Bellman.ox.html#Data___logf">logf</a>, <a href="Bellman.ox.html#Data___lognm">lognm</a>, <a href="Bellman.ox.html#Data___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___d">d</a>, <a href="Bellman.ox.html#Task___done">done</a>, <a href="Bellman.ox.html#Task___itask">itask</a>, <a href="Bellman.ox.html#Task___iter">iter</a>, <a href="Bellman.ox.html#Task___left">left</a>, <a href="Bellman.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="Bellman.ox.html#Task___right">right</a>, <a href="Bellman.ox.html#Task___state">state</a>, <a href="Bellman.ox.html#Task___subspace">subspace</a>, <a href="Bellman.ox.html#Task___trace">trace</a>, <a href="Bellman.ox.html#Task___trips">trips</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Blocks">Blocks</a>, <a href="Bellman.ox.html#DP___Chi">Chi</a>, <a href="Bellman.ox.html#DP___chi">chi</a>, <a href="Bellman.ox.html#DP___ClockType">ClockType</a>, <a href="Bellman.ox.html#DP___counter">counter</a>, <a href="Bellman.ox.html#DP___curREdensity">curREdensity</a>, <a href="Bellman.ox.html#DP___delta">delta</a>, <a href="Bellman.ox.html#DP___ETT">ETT</a>, <a href="Bellman.ox.html#DP___gdist">gdist</a>, <a href="Bellman.ox.html#DP___MyVersion">MyVersion</a>, <a href="Bellman.ox.html#DP___NxtExog">NxtExog</a>, <a href="Bellman.ox.html#DP___S">S</a>, <a href="Bellman.ox.html#DP___SampleProportion">SampleProportion</a>, <a href="Bellman.ox.html#DP___SS">SS</a>, <a href="Bellman.ox.html#DP___States">States</a>, <a href="Bellman.ox.html#DP___SubVectors">SubVectors</a>, <a href="Bellman.ox.html#DP___userState">userState</a>, <a href="Bellman.ox.html#DP___XUT">XUT</a>, <a href="Bellman.ox.html#DP___zeta">zeta</a></dd>
@@ -1930,6 +2033,60 @@ Contains information on an object (variable, auxiliary outcome, etc) to be track
 <dl><dd>
 
 </dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ExogAux</span></h2>
+
+<a name="ExogAux___auxlist"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">auxlist</span></h3>
+
+<span class="declaration">static decl auxlist [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ExogAux___chq"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">chq</span></h3>
+
+<span class="declaration">static decl chq [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ExogAux___ExogAux"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ExogAux</span></h3>
+
+<span class="declaration">ExogAux :: ExogAux ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ExogAux___ExpectedOutcomes"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ExpectedOutcomes</span></h3>
+
+<span class="declaration">ExogAux :: ExpectedOutcomes ( auxlist , chq )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ExogAux___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">ExogAux :: Run ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="ExogAux___tmp"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">tmp</span></h3>
+
+<span class="declaration">static decl tmp [public]</span>
+<dl><dd>
+
+</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FPanel</span></h2>
 
 <a name="FPanel___Append"></a>
@@ -1943,7 +2100,7 @@ Load the first or next outcome in the path.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">observed</td>
-<td class="description" valign="baseline">source data to extract observables from<br></td>
+<td class="description" valign="baseline">source data to extract observables from<br/></td>
 </tr>
 </table>
 </dd>
@@ -1996,7 +2153,7 @@ index of panel
 <a name="FPanel___FPanel"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FPanel</span></h3>
 
-<span class="declaration">FPanel :: FPanel ( f , method , FullyObserved )</span>
+<span class="declaration">FPanel :: FPanel ( f , method )</span>
 <dl><dd>
 Store a panel of realized paths with common fixed group.
 
@@ -2009,12 +2166,7 @@ Store a panel of realized paths with common fixed group.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">method</td>
-<td class="description" valign="baseline"><a href="Methods.ox.html#Method">Method</a> to call to solve<br>0 [default] do nothing, something else handles solution
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">FullyObserved</td>
-<td class="description" valign="baseline">TRUE [default] use full observation likelihood<br>FALSE use likelihood that accounts for unobserves states and actions</td>
+<td class="description" valign="baseline"><a href="Methods.ox.html#Method">Method</a> to call to solve<br/>0 [default] do nothing, something else handles solution</td>
 </tr>
 </table>
 </dd>
@@ -2028,25 +2180,6 @@ Store a panel of realized paths with common fixed group.
 <span class="declaration">decl FPL [public]</span>
 <dl><dd>
 fixed panel likelihood vector.
-
-</dd></dl>
-
-<hr>
-<a name="FPanel___FullLogLikelihood"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FullLogLikelihood</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="FPanel___FullyObserved"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">FullyObserved</span></h3>
-
-<span class="declaration">const decl FullyObserved [public]</span>
-<dl><dd>
-TRUE if all endogenous states and
-        action are in the data
 
 </dd></dl>
 
@@ -2079,8 +2212,10 @@ is set to a vector of <code>.NaN</code>.</DD>
 <a name="FPanel___Mask"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Mask</span></h3>
 
-<span class="declaration">FPanel :: Mask ( )</span>
+<span class="declaration">FPanel :: Mask ( aLT )</span>
 <dl><dd>
+Set all unobserved values to NaN.
+This calls `Outcome::AccountForUnobservables'
 
 </dd></dl>
 
@@ -2141,17 +2276,18 @@ Simulate a homogenous panel (fpanel) of paths.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Tmax</td>
-<td class="description" valign="baseline">maximum path length<br>0 no maximum length.
+<td class="description" valign="baseline">maximum path length<br/>0 no maximum length.
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">ErgOrStateMat</td>
-<td class="description" valign="baseline">0 [default]: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
+<td class="description" valign="baseline">0 [default]: find lowest reachable indexed state to start from<br/>
+1: draw from stationary distribution (must be ergodic)<br/>matrix of initial states to draw from (each column is a different starting value)
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">DropTerminal</td>
-<td class="description" valign="baseline">TRUE: eliminate termainl states from the data set<br>FALSE: [default] include terminal states.
+<td class="description" valign="baseline">TRUE: eliminate termainl states from the data set<br/>FALSE: [default] include terminal states.
 </td>
 </tr>
 <tr>
@@ -2215,12 +2351,52 @@ Modify outcome to list indices of states consistent with observables.
 </dd></dl>
 
 <hr>
+<a name="Outcome___Ainds"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Ainds</span></h3>
+
+<span class="declaration">decl Ainds [public]</span>
+<dl><dd>
+list of feasible sets consistent w/ data.
+
+</dd></dl>
+
+<hr>
+<a name="Outcome___arows"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">arows</span></h3>
+
+<span class="declaration">static decl arows [public]</span>
+<dl><dd>
+current likelihood A rows .
+
+</dd></dl>
+
+<hr>
 <a name="Outcome___aux"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">aux</span></h3>
 
 <span class="declaration">decl aux [public]</span>
 <dl><dd>
 auxiliary values.
+
+</dd></dl>
+
+<hr>
+<a name="Outcome___AuxLikelihood"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AuxLikelihood</span></h3>
+
+<span class="declaration">Outcome :: AuxLikelihood ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Outcome___CCLikelihood"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CCLikelihood</span></h3>
+
+<span class="declaration">Outcome :: CCLikelihood ( )</span>
+<dl><dd>
+Compute likelihood of choices and transitions this period
+    assuming full state and action observability.
 
 </dd></dl>
 
@@ -2275,6 +2451,8 @@ t ~ State_Ind ~ Type ~ Aind ~ &epsilon; ~ eta; ~ &theta; ~ &gamma; ~ &alpha; ~
 
 <span class="declaration">Outcome :: FromData ( extd )</span>
 <dl><dd>
+Copy external current values of actions, states and auxiliaries into the outcome.
+This calls `Outcome::AccountForUnobservables'
 
 </dd></dl>
 
@@ -2287,13 +2465,33 @@ t ~ State_Ind ~ Type ~ Aind ~ &epsilon; ~ eta; ~ &theta; ~ &gamma; ~ &alpha; ~
 </dd></dl>
 
 <hr>
-<a name="Outcome___FullLikelihood"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FullLikelihood</span></h3>
+<a name="Outcome___icol"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">icol</span></h3>
 
-<span class="declaration">Outcome :: FullLikelihood ( )</span>
+<span class="declaration">static decl icol [public]</span>
 <dl><dd>
-Compute conditional and partial likelihood of choices.
-When (&alpha;,&theta;,&gamma;) are fully observed, the li
+
+</dd></dl>
+
+<hr>
+<a name="Outcome___IIDLikelihood"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">IIDLikelihood</span></h3>
+
+<span class="declaration">Outcome :: IIDLikelihood ( )</span>
+<dl><dd>
+Compute likelihood of an outcome given observablity of &theta; and &eta; but integrating over &epsilon;
+<dd>
+<span class="equation">$$L(\theta) = $$</span>
+</dd>
+
+</dd></dl>
+
+<hr>
+<a name="Outcome___ind"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ind</span></h3>
+
+<span class="declaration">decl ind [public]</span>
+<dl><dd>
 
 </dd></dl>
 
@@ -2301,13 +2499,8 @@ When (&alpha;,&theta;,&gamma;) are fully observed, the li
 <a name="Outcome___Likelihood"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Likelihood</span></h3>
 
-<span class="declaration">Outcome :: Likelihood ( )</span>
+<span class="declaration">Outcome :: Likelihood ( Type )</span>
 <dl><dd>
-Compute conditional forward likelihood of an outcome.
-<dd><pre>
-L(&theta;) = &sum;<sub>eta; &in; ?</sub> &sum; <sub>&alpha; &in; </sub> &Rho*()
-&Rho;<sub></sub>()
-</pre></dd>
 
 </dd></dl>
 
@@ -2317,6 +2510,8 @@ L(&theta;) = &sum;<sub>eta; &in; ?</sub> &sum; <sub>&alpha; &in; </sub> &Rho*()
 
 <span class="declaration">Outcome :: Mask ( )</span>
 <dl><dd>
+Set all unobserved values to NaN.
+This calls `Outcome::AccountForUnobservables'
 
 </dd></dl>
 
@@ -2371,8 +2566,8 @@ Record everything about a single realization of the DP.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">prior</td>
-<td class="description" valign="baseline"><a href="Data.ox.html#Outcome">Outcome</a> object, the previous realization along the path<br>
-		<em>integer</em>, this is first realization on the path. <a href="Bellman.ox.html#Task___state">state</a> uninitialized.<br>
+<td class="description" valign="baseline"><a href="Data.ox.html#Outcome">Outcome</a> object, the previous realization along the path<br/>
+		<em>integer</em>, this is first realization on the path. <a href="Bellman.ox.html#Task___state">state</a> uninitialized.<br/>
 		<em>vector</em>, initial value of <a href="Bellman.ox.html#Task___state">state</a></td>
 </tr>
 </table>
@@ -2386,6 +2581,19 @@ Record everything about a single realization of the DP.
 
 <span class="declaration">static const decl PanelID [public]</span>
 <dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Outcome___PartialObservedLikelihood"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PartialObservedLikelihood</span></h3>
+
+<span class="declaration">Outcome :: PartialObservedLikelihood ( )</span>
+<dl><dd>
+Compute conditional forward likelihood of an outcome.
+<dd>
+<span class="equation">$$L(\theta) = \sum_{\eta} \sum_{\alpha} P*() P()$$</span>
+</dd>
 
 </dd></dl>
 
@@ -2457,10 +2665,41 @@ order on the path .
 </dd></dl>
 
 <hr>
+<a name="Outcome___TF"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">TF</span></h3>
+
+<span class="declaration">static decl TF [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="Outcome___tom"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">tom</span></h3>
 
 <span class="declaration">static decl tom [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Outcome___TomIndices"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">TomIndices</span></h3>
+
+<span class="declaration">Outcome :: TomIndices ( qind , xind )</span>
+<dl><dd>
+Get tracking probabilities and tomorrow indices consistent with tomorrow's observation .
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if there are tomorrow states that are consistent, FALSE otherwise
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Outcome___TP"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">TP</span></h3>
+
+<span class="declaration">static decl TP [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -2471,6 +2710,7 @@ order on the path .
 
 <span class="declaration">static decl viinds [public]</span>
 <dl><dd>
+consistent states now & tom
 
 </dd></dl>
 
@@ -2480,6 +2720,7 @@ order on the path .
 
 <span class="declaration">static decl vilikes [public]</span>
 <dl><dd>
+contigent likelihood now & tom.
 
 </dd></dl>
 
@@ -2598,6 +2839,15 @@ Label for the data set.
 </dd></dl>
 
 <hr>
+<a name="OutcomeDataSet___LTypes"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">LTypes</span></h3>
+
+<span class="declaration">decl LTypes [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="OutcomeDataSet___Mask"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Mask</span></h3>
 
@@ -2629,15 +2879,14 @@ Identify a variable with a data column.
 <tr>
 <td class="declaration" valign="baseline">aORs</td>
 <td class="description" valign="baseline"> Either an <a href="Variables.ox.html#ActionVariable">ActionVariable</a>, element of &alpha;, or a <a href="Variables.ox.html#StateVariable">StateVariable</a>,
-element of
-			one of the state vectors, or a <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>, element of &chi;<br>
-            <em>OR<em><br>
+    element of one of the state vectors, or a <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>, element of &chi;<br/>
+            <em>OR<em><br/>
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">LorC</td>
-<td class="description" valign="baseline"> UseLabel, variable's label to denote column of data with observations <br>
-             integer &ge; 0, column of data matrix that contains observations<br>
+<td class="description" valign="baseline"> UseLabel, variable's label to denote column of data with observations <br/>
+             integer &ge; 0, column of data matrix that contains observations<br/>
 			 string, label of column with observations.</td>
 </tr>
 </table>
@@ -2658,15 +2907,15 @@ Mark actions and state variables as observed in data, matched with their interna
 <tr>
 <td class="declaration" valign="baseline">aORs</td>
 <td class="description" valign="baseline"> Either an <a href="Variables.ox.html#ActionVariable">ActionVariable</a>, element of &alpha;, or a <a href="Variables.ox.html#StateVariable">StateVariable</a>, element of
-			one of the state vectors, or a <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>, element of &chi;<br>
+			one of the state vectors, or a <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>, element of &chi;<br/>
             <em>OR<em><br>
             array of the form {v1,v2,&hellip;}.  In this case all other arguments are
-            ignored.<br>
+            ignored.<br/>
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">...</td>
-<td class="description" valign="baseline">continues with object2, LoC2, object3, LorC3, etc.<br></td>
+<td class="description" valign="baseline">continues with object2, LoC2, object3, LorC3, etc.<br/></td>
 </tr>
 </table>
 </dd>
@@ -2677,7 +2926,7 @@ Mark actions and state variables as observed in data, matched with their interna
 <a name="OutcomeDataSet___OutcomeDataSet"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">OutcomeDataSet</span></h3>
 
-<span class="declaration">OutcomeDataSet :: OutcomeDataSet ( id , method , FullyObserved )</span>
+<span class="declaration">OutcomeDataSet :: OutcomeDataSet ( id , method )</span>
 <dl><dd>
 Store a <a href="Data.ox.html#Panel">Panel</a> as a data set.
 
@@ -2690,14 +2939,8 @@ Store a <a href="Data.ox.html#Panel">Panel</a> as a data set.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">method,</td>
-<td class="description" valign="baseline">solution method to be used as data set is processed.<br>0 [default], no
-solution
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">FullyObserved</td>
-<td class="description" valign="baseline">(default) FALSE, account for unobservability<br>TRUE use simple
-partial loglikelihood</td>
+<td class="description" valign="baseline">solution method to be used as data set is processed.<br/>0 [default], no
+solution</td>
 </tr>
 </table>
 </dd>
@@ -2737,6 +2980,50 @@ Load outcomes into the data set from a (long format) file or an Ox database.
 </dd></dl>
 
 <hr>
+<a name="OutcomeDataSet___Simulate"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Simulate</span></h3>
+
+<span class="declaration">OutcomeDataSet :: Simulate ( N , T , ErgOrStateMat , DropTerminal , pathpred )</span>
+<dl><dd>
+Simulate a (heterogeneous) panel.
+Each value of fixed &gamma; is simulated N times, drawing
+the random effects in &gamma; from their density.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline"><em>integer</em> number of paths to simulate in each <a href="Data.ox.html#FPanel">FPanel</a>.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">T</td>
+<td class="description" valign="baseline"><em>Integer</em>, max length of each path<br/>
+        vector, max length for each FPanel.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ErgOrStateMat</td>
+<td class="description" valign="baseline">0: find lowest reachable indexed state to start from<br/>
+1: draw from stationary distribution (must be ergodic)<br/>
+matrix of initial states to draw from (each column is a different starting value)
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">DropTerminal</td>
+<td class="description" valign="baseline">TRUE: eliminate termainl states from the data set
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">pathpred</td>
+<td class="description" valign="baseline">Integer [default] or PathPrediction object that is simulating</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
 <a name="OutcomeDataSet___source"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">source</span></h3>
 
@@ -2770,6 +3057,15 @@ Produce a Stata-like summary statistics table.
 </dd></dl>
 
 <hr>
+<a name="OutcomeDataSet___tColumn"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">tColumn</span></h3>
+
+<span class="declaration">OutcomeDataSet :: tColumn ( lORind )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="OutcomeDataSet___UnObserved"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">UnObserved</span></h3>
 
@@ -2783,7 +3079,7 @@ UnMark action and states variables as observed.
 <td class="declaration" valign="baseline">as1</td>
 <td class="description" valign="baseline"><a href="Shared.ox.html#Discrete">Discrete</a> object, either an <a href="Variables.ox.html#ActionVariable">ActionVariable</a>, element of &alpha;, or a
 <a href="Variables.ox.html#StateVariable">StateVariable</a>, element of
-			one of the state vectors<br>
+			one of the state vectors<br/>
 			<a href="Variables.ox.html#StateBlock">StateBlock</a>: each variable in the block will be marked unobserved.
 </td>
 </tr>
@@ -2930,7 +3226,7 @@ panel likelihood vector.
 <a name="Panel___Panel"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Panel</span></h3>
 
-<span class="declaration">Panel :: Panel ( r , method , FullyObserved )</span>
+<span class="declaration">Panel :: Panel ( r , method )</span>
 <dl><dd>
 Store a list of heterogenous fixed panels.
 
@@ -2944,13 +3240,7 @@ Store a list of heterogenous fixed panels.
 <tr>
 <td class="declaration" valign="baseline">method</td>
 <td class="description" valign="baseline"><a href="Methods.ox.html#Method">Method</a> <a href="Methods.ox.html#Method">Method</a> object, the DP solution to call to solve <a href="Data.ox.html#FPanel">FPanel</a>
-problem.<br>(default) 0 do nothing, something else handles solution
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">FullyObserved</td>
-<td class="description" valign="baseline">FALSE (default) use general likelihood<br>TRUE complete
-observability likelihood</td>
+problem.<br/>(default) 0 do nothing, something else handles solution</td>
 </tr>
 </table>
 </dd>
@@ -2971,7 +3261,7 @@ Flat version of the data set is stored in <a href="Data.ox.html#Panel___flat">fl
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">fn</td>
-<td class="description" valign="baseline">0: do not print or save, just return<br>print to screen<br>string: save to a
+<td class="description" valign="baseline">0: do not print or save, just return<br/>1 print to data log file<br/>2 print to screen<br/>string: save to a
 file
 </td>
 </tr>
@@ -3020,7 +3310,7 @@ Set the nested DP solution method to use when evaluating the panel's econometric
 <a name="Panel___Simulate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Simulate</span></h3>
 
-<span class="declaration">virtual Panel :: Simulate ( N , T , ErgOrStateMat , DropTerminal , pathpred )</span>
+<span class="declaration">Panel :: Simulate ( N , T , ErgOrStateMat , DropTerminal , pathpred )</span>
 <dl><dd>
 Simulate a (heterogeneous) panel.
 Each value of fixed &gamma; is simulated N times, drawing
@@ -3035,13 +3325,15 @@ the random effects in &gamma; from their density.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">T</td>
-<td class="description" valign="baseline"><em>Integer</em>, max length of each path<br>
+<td class="description" valign="baseline"><em>Integer</em>, max length of each path<br/>
         vector, max length for each FPanel.
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">ErgOrStateMat</td>
-<td class="description" valign="baseline">0: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
+<td class="description" valign="baseline">0: find lowest reachable indexed state to start from<br/>
+1: draw from stationary distribution (must be ergodic)<br/>
+matrix of initial states to draw from (each column is a different starting value)
 </td>
 </tr>
 <tr>
@@ -3181,13 +3473,13 @@ Predict outcomes in the panel.
 <tr>
 <td class="declaration" valign="baseline">t</td>
 <td class="description" valign="baseline">positive integer or matrix of lengths of paths to predict (same length as
-number of paths in then panel)<br>
+number of paths in then panel)<br/>
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">prtlevel</td>
-<td class="description" valign="baseline">Zero [default] do not print<br>One print state and choice
-probabilities<br>Two print predictions
+<td class="description" valign="baseline">Zero [default] do not print<br/>One print state and choice
+probabilities<br/>Two print predictions
 </td>
 </tr>
 <tr>
@@ -3197,7 +3489,7 @@ probabilities<br>Two print predictions
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns">succ TRUE no problems</br>FALSE prediction or solution failed.
+<dt class="returns">Returns:</dt><dd class="returns">succ TRUE no problems<br/>FALSE prediction or solution failed.
 </dd>
 </dl>
 </dd></dl>
@@ -3215,10 +3507,10 @@ Set an object to be tracked in predictions.
 <tr>
 <td class="declaration" valign="baseline">LorC</td>
 <td class="description" valign="baseline"> UseLabel: use object label to match to column.
-<br>NotInData unmatched to data.
-<br>integer: column in data set
-<br>string: column label
-<br>TrackAll: add all actions, endogenous states, and auxliaries to the tracking list
+<br/>NotInData unmatched to data.
+<br/>integer: column in data set
+<br/>string: column label
+<br/>TrackAll: add all actions, endogenous states, and auxliaries to the tracking list
 </td>
 </tr>
 <tr>
@@ -3251,7 +3543,7 @@ Load the first or next outcome in the path.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">observed</td>
-<td class="description" valign="baseline">source data to extract observables from<br></td>
+<td class="description" valign="baseline">source data to extract observables from<br/></td>
 </tr>
 </table>
 </dd>
@@ -3305,9 +3597,7 @@ Each row is an <a href="Data.ox.html#Outcome">Outcome</a>.
 <a name="Path___FullLikelihood"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FullLikelihood</span></h3>
 
-<span class="declaration">Path :: FullLikelihood ( )</span>
 <dl><dd>
-Integrate over a fully observed path.
 
 </dd></dl>
 
@@ -3342,11 +3632,35 @@ Compute likelihood of a realized path.
 </dd></dl>
 
 <hr>
+<a name="Path___LType"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">LType</span></h3>
+
+<span class="declaration">decl LType [public]</span>
+<dl><dd>
+type of likelihood calculation.
+
+</dd></dl>
+
+<hr>
 <a name="Path___Mask"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Mask</span></h3>
 
 <span class="declaration">Path :: Mask ( )</span>
 <dl><dd>
+Set all unobserved values to NaN.
+This calls `Outcome::AccountForUnobservables'
+
+</dd></dl>
+
+<hr>
+<a name="Path___PartialObservedLikelihood"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PartialObservedLikelihood</span></h3>
+
+<dl><dd>
+Compute conditional forward likelihood of an outcome.
+<dd>
+<span class="equation">$$L(\theta) = \sum_{\eta} \sum_{\alpha} P*() P()$$</span>
+</dd>
 
 </dd></dl>
 
@@ -3367,7 +3681,8 @@ Create a new series of <a href="Data.ox.html#Outcome">Outcome</a>s along a reali
 </tr>
 <tr>
 <td class="declaration" valign="baseline">state0</td>
-<td class="description" valign="baseline"><code>UnInitialized</code> (-1), set state to uninitalized<br>&gt; 0 fixed effect index to use, <br><em>vector</em>, initial state</td>
+<td class="description" valign="baseline"><code>UnInitialized</code> (-1), set state to uninitalized<br/>
+&gt; 0 fixed effect index to use, <br/><em>vector</em>, initial state</td>
 </tr>
 </table>
 </dd>
@@ -3414,7 +3729,7 @@ Checks to see if transition is &Rho; is <code>tracking</code>.  If not, process 
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">T</td>
-<td class="description" valign="baseline">integer, max. length of the panel<br>0, no maximum lenth; simulation goes on until a Terminal State is reached.
+<td class="description" valign="baseline">integer, max. length of the panel<br/>0, no maximum lenth; simulation goes on until a Terminal State is reached.
 <P/>
 </td>
 </tr>
@@ -3706,8 +4021,8 @@ Set up predicted distributions along a path.
 reachable state index is found.
         So <code>PathPrediction(0)</code> [default] will start the prediction at the
         lowest-indexed reachable state in
-        &Theta;.<br>
-        matrix: a list of states to start the prediction from<br>
+        &Theta;.<br/>
+        matrix: a list of states to start the prediction from<br/>
         object of Prediction class: use <a href="Data.ox.html#Prediction___sind">sind</a> as the initial state for
         this prediction.
 <P/>
@@ -3822,12 +4137,12 @@ Set up data columns for tracked variables.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Nplace</td>
-<td class="description" valign="baseline">number of observations (row weight) column<br>UnInitialized no row weights
+<td class="description" valign="baseline">number of observations (row weight) column<br/>UnInitialized no row weights
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">tplace</td>
-<td class="description" valign="baseline">model t column<br>UnInitialized</td>
+<td class="description" valign="baseline">model t column<br/>UnInitialized</td>
 </tr>
 </table>
 </dd>
@@ -3921,9 +4236,9 @@ Objects to track mean values over the path.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">LorC</td>
-<td class="description" valign="baseline"> UseLabel: use object label to match to column.<br>NotInData unmatched to
-data.<br>integer: column in data set<br>string: column label
-        <br>TrackAll : track all actions, endogenous states and auxiliaries
+<td class="description" valign="baseline"> UseLabel: use object label to match to column.<br/>NotInData unmatched to
+data.<br/>integer: column in data set<br>string: column label
+        <br/>TrackAll : track all actions, endogenous states and auxiliaries
 </td>
 </tr>
 <tr>
@@ -4005,6 +4320,15 @@ accumulated predicted moments across r
 </dd></dl>
 
 <hr>
+<a name="Prediction___cauxlist"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cauxlist</span></h3>
+
+<span class="declaration">static decl cauxlist [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="Prediction___ch"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ch</span></h3>
 
@@ -4021,6 +4345,15 @@ Expanded ch. prob.
 <span class="declaration">decl chq [public]</span>
 <dl><dd>
 current ch. prob.
+
+</dd></dl>
+
+<hr>
+<a name="Prediction___ctlist"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ctlist</span></h3>
+
+<span class="declaration">static decl ctlist [public]</span>
+<dl><dd>
 
 </dd></dl>
 
@@ -4046,8 +4379,8 @@ Difference between empirical and predicted moments.
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns">predicted-empirical<br>
-        with 0 if empirical is missing<br>
+<dt class="returns">Returns:</dt><dd class="returns">predicted-empirical<br/>
+        with 0 if empirical is missing<br/>
         .Inf if prediction is undefined
 </dd>
 </dl>
@@ -4064,6 +4397,15 @@ used (masked) empiricalmoments.
 </dd></dl>
 
 <hr>
+<a name="Prediction___exaux"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">exaux</span></h3>
+
+<span class="declaration">static decl exaux [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="Prediction___hi"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hi</span></h3>
 
@@ -4076,17 +4418,12 @@ used (masked) empiricalmoments.
 <a name="Prediction___Histogram"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Histogram</span></h3>
 
-<span class="declaration">Prediction :: Histogram ( tlist , printit )</span>
+<span class="declaration">Prediction :: Histogram ( printit )</span>
 <dl><dd>
 Compute the histogram of tracked object at the prediction.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">tlist</td>
-<td class="description" valign="baseline">array of ObjToTracks (tracked objects)
-</td>
-</tr>
 <tr>
 <td class="declaration" valign="baseline">printit</td>
 <td class="description" valign="baseline">TRUE=output; FALSE=quiet
@@ -4150,23 +4487,13 @@ current p.
 <a name="Prediction___Predict"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Predict</span></h3>
 
-<span class="declaration">Prediction :: Predict ( tlist )</span>
+<span class="declaration">Prediction :: Predict ( )</span>
 <dl><dd>
 Compute the predicted distribution of actions and states.
 Average values of tracked objects are stored in Predict::predmom
 Transitions to unreachable states is tracked and logged in the Data logfile.
 
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">tlist</td>
-<td class="description" valign="baseline">list of tracked objects to compute histograms for.
-<P/>
-</td>
-</tr>
-</table>
-</dd>
-<dt class="returns">Returns:</dt><dd class="returns">TRUE if all current states are termimal or last states.
+<dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if all current states are termimal or last states.
 </dd>
 <dt class="seealso">See also:</dt><dd class="seealso">TrackObj::Distribution</dd>
 </dl>
@@ -4402,7 +4729,7 @@ Create a panel prediction that is matched with external data.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">UorCorL</td>
-<td class="description" valign="baseline">where to get fixed-effect values<br>matrix of indices, array of
+<td class="description" valign="baseline">where to get fixed-effect values<br/>matrix of indices, array of
 </td>
 </tr>
 <tr>
@@ -4413,7 +4740,7 @@ Create a panel prediction that is matched with external data.
 <tr>
 <td class="declaration" valign="baseline">method</td>
 <td class="description" valign="baseline">solution method to call before predict
-labels<br>UseLabel [default]<br>NotInData only allowed if F=1, then no column contains
+labels<br/>UseLabel [default]<br/>NotInData only allowed if F=1, then no column contains
 fixed variables
 </td>
 </tr>
@@ -4443,7 +4770,7 @@ Read in external moments of tracked objects.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">FNorDB</td>
-<td class="description" valign="baseline"> string, name of file that contains the data.<br>A Ox database object.</td>
+<td class="description" valign="baseline"> string, name of file that contains the data.<br/>A Ox database object.</td>
 </tr>
 </table>
 </dd>
@@ -4482,7 +4809,7 @@ Track a single object that is matched to column in the data.
 <tr>
 <td class="declaration" valign="baseline">Fgroup</td>
 <td class="description" valign="baseline"> integer or vector of integers of fixed groups that the moment should be
-tracked for.<br> <code>AllFixed</code>, moment appears in all groups
+tracked for.<br/> <code>AllFixed</code>, moment appears in all groups
 </td>
 </tr>
 <tr>
@@ -4512,13 +4839,13 @@ Track one or more objects that are matched to columns using the object's label.
 <tr>
 <td class="declaration" valign="baseline">Fgroup</td>
 <td class="description" valign="baseline"> integer or vector of integers of fixed groups that the moment should be
-tracked for.<br> AllFixed, moment appears in all groups
+tracked for.<br/> AllFixed, moment appears in all groups
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">InDataOrNot</td>
 <td class="description" valign="baseline">TRUE: the <code>UseLabel</code> tag will be passed to
-<a href="Data.ox.html#PathPrediction___Tracking">Tracking</a>()<br>FALSE: the <code>NotInData</code> tag will be sent.
+<a href="Data.ox.html#PathPrediction___Tracking">Tracking</a>()<br/>FALSE: the <code>NotInData</code> tag will be sent.
 </td>
 </tr>
 <tr>
@@ -4586,7 +4913,7 @@ Track an object.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">LorC</td>
-<td class="description" valign="baseline"> string, label of column of data to associate with this object.<br>integer,
+<td class="description" valign="baseline"> string, label of column of data to associate with this object.<br/>integer,
 column index to associate
 </td>
 </tr>

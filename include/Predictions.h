@@ -48,6 +48,13 @@ struct TrackObj : Zauxiliary {
     virtual print();
     }
 
+struct ExogAux : ExTask {
+    static decl chq, tmp, auxlist;
+    ExogAux();
+    ExpectedOutcomes(auxlist,chq);
+    Run();
+    }
+
 struct oTrack : TrackObj {
     oTrack(LorC,obj,pos);
     Distribution(pobj);
@@ -69,7 +76,7 @@ struct xTrack : TrackObj {
 **/	
 struct 	Prediction : Data {
     static   const  decl tinyP = 1E-20;
-	static	decl ud, lo, hi, LeakWarned, PredictFailure;
+	static	decl ud, lo, hi, LeakWarned, PredictFailure, ctlist, cauxlist, exaux;
 	const  	decl t;
 	decl
 		/** state index **/		             sind,
@@ -86,9 +93,9 @@ struct 	Prediction : Data {
 		/** next prediction on the path **/	            pnext;
 	Prediction(prev);
     ~Prediction();
-	Predict(tlist);
+	Predict();
     Reset();
-	Histogram(v,printit=FALSE);
+	Histogram(printit=FALSE);
     Delta(mask,printit=FALSE,tlabels=0);
 	}
 

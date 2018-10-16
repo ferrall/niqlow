@@ -147,7 +147,7 @@ struct DP {
 
         static KLaggedState(Target,K,Prune=TRUE);
         static KLaggedAction(Target,K,Prune=TRUE);
-
+		static ExpandP(Aind,p0);
 
 		}
 
@@ -292,7 +292,10 @@ struct SVTrans          :   EndogTrans { decl Slist; SVTrans(Slist); Run();};
 /** Base Task for looping over &Epsilon; and &Eta;.
 
 **/
-struct ExTask       :   Task { ExTask(); }
+struct ExTask       :   Task {
+    ExTask();
+    loop();
+    }
 
 /** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/
 struct ExogUtil : 	ExTask {	

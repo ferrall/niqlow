@@ -9,7 +9,7 @@ RustEstimates::DoAll() {
 	EMax = new ValueIteration();
 	// EMax.vtoler = 1E-03;
 	buses = new BusData(EMax);
-	nfxp = new PanelBB("ZurcherMLE",buses,ZurcherHat::hat);
+	nfxp = new DataObjective("ZurcherMLE",buses,ZurcherHat::hat);
 	nfxp.Volume = QUIET;
 	mle = new NelderMead(nfxp);
 	mle.Volume = NOISY;

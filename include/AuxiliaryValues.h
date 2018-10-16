@@ -16,6 +16,11 @@ struct AuxiliaryValue : Quantity {
     virtual Likelihood(y=0);
 	}
 
+struct StaticAux : AuxiliaryValue {
+    const decl target;
+    virtual Realize(y=0);
+    StaticAux(L,target);
+    }
 
 /** Built-in variable that records realized utility, <var>U(&alpha;,&epsilon;,&eta;,&theta;,&gamma;)</var>
 **/

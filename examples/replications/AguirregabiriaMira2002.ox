@@ -40,7 +40,7 @@ ZPanel::ZPanel(params,ivals,EM) {
     IDColumn("ID");
     ObservedWithLabel(AMZurcher::x,AMZurcher::d);
     Read("am2002.dta");
-	lnlk = new PanelBB("ZurcherMLE",this,params);
+	lnlk = new DataObjective("ZurcherMLE",this,params);
 	lnlk.Volume = QUIET;
 	lnlk.Encode(ivals);
 	lnlk.NvfuncTerms = FNT;

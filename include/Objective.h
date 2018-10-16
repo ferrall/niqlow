@@ -122,9 +122,9 @@ struct BlackBox : UnConstrained	{
 
 /** Access the econometric objective related to a DDP Panel.
 **/
-struct PanelBB : BlackBox {
+struct DataObjective : BlackBox {
 	const decl data;
-	PanelBB(L,data, ...);
+	DataObjective(L,data, ...);
 	virtual vfunc(subp=DoAll);
     virtual AggSubProbMat(submat);
 	}

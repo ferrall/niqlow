@@ -32,8 +32,9 @@ DynaHealth::Replicate() {
 	Initialize(new DynaHealth(),FALSE); //EVExAnte
 	SetClock(Ergodic);
 	SetDelta(disc);
-	Actions(wrk = new ActionVariable("work",2),
-			trt = new ActionVariable("seek",2)
+    SickL = 1;
+	Actions(wrk = new BinaryChoice("work"),
+			trt = new BinaryChoice("seek")
 			);
 	EndogenousStates(visits = new ActionCounter("visits",MaxVisits,trt,1,DynaHealth::NewEpisode),
 					 absents = new ActionCounter("absent",MaxAbsences,wrk,0,DynaHealth::NewEpisode)
@@ -57,7 +58,7 @@ DynaHealth::Utility() {
 		 vis = CV(trt),
 		 work = CV(wrk),
 		 at1 = absents.v+(1-work),
-		 X = Y-phyfee*copay*vis-Y*(1-probn((1~at1)*phi)*L).*(1-work);
+		 X = Y-phyfee*copay*vis-Y*(1-probn((1~at1)*phi)*CV(SickL)).*(1-work);
 	if (!kv) return X;
 //	println((1~vis~work~X),(1~vis~work~X)*alph[][kv]);
 	return (1~vis~work~X)*alph[][kv];

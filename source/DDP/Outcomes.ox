@@ -2,8 +2,8 @@
 /* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 /** Record everything about a single realization of the DP.
-@param prior `Outcome` object, the previous realization along the path<br>
-		<em>integer</em>, this is first realization on the path. `Task::state` uninitialized.<br>
+@param prior `Outcome` object, the previous realization along the path<br/>
+		<em>integer</em>, this is first realization on the path. `Task::state` uninitialized.<br/>
 		<em>vector</em>, initial value of `Task::state`
 **/
 Outcome::Outcome(prior) {
@@ -102,7 +102,8 @@ Outcome::Simulate() {
 
 /** Create a new series of `Outcome`s along a realized path.
 @param id <em>integer</em>, id or tag for the path.
-@param state0 <code>UnInitialized</code> (-1), set state to uninitalized<br>&gt; 0 fixed effect index to use, <br><em>vector</em>, initial state
+@param state0 <code>UnInitialized</code> (-1), set state to uninitalized<br/>
+&gt; 0 fixed effect index to use, <br/><em>vector</em>, initial state
 **/
 Path::Path(i,state0) {
 	decl ni;
@@ -160,7 +161,7 @@ Path::Deep(){
 /** Simulate a list of realized states and actions from an initial state.
 
 Checks to see if transition is &Rho; is <code>tracking</code>.  If not, process span the state space with `EndogTrans`.
-@param T integer, max. length of the panel<br>0, no maximum lenth; simulation goes on until a Terminal State is reached.
+@param T integer, max. length of the panel<br/>0, no maximum lenth; simulation goes on until a Terminal State is reached.
 
 
 @example <pre>
@@ -189,7 +190,7 @@ Path::Simulate(T,DropTerminal){
 	}
 
 /** Load the first or next outcome in the path.
-@param observed source data to extract observables from<br>
+@param observed source data to extract observables from<br/>
 **/
 Path::Append(observed) {
 	last = (T) ? new Outcome(last) : this;
@@ -199,7 +200,7 @@ Path::Append(observed) {
 	
 /** Store a panel of realized paths with common fixed group.
 @param f integer tag for the panel (such as replication index) [default=0]
-@param method `Method` to call to solve<br>0 [default] do nothing, something else handles solution
+@param method `Method` to call to solve<br/>0 [default] do nothing, something else handles solution
 **/
 FPanel::FPanel(f,method) {
 	this.f = f;
@@ -228,9 +229,10 @@ FPanel::~FPanel() {
 
 /** Simulate a homogenous panel (fpanel) of paths.
 @param Nsim &gt; 0, number of paths to simulate
-@param Tmax maximum path length<br>0 no maximum length.
-@param ErgOrStateMat 0 [default]: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
-@param DropTerminal TRUE: eliminate termainl states from the data set<br>FALSE: [default] include terminal states.
+@param Tmax maximum path length<br/>0 no maximum length.
+@param ErgOrStateMat 0 [default]: find lowest reachable indexed state to start from<br/>
+1: draw from stationary distribution (must be ergodic)<br/>matrix of initial states to draw from (each column is a different starting value)
+@param DropTerminal TRUE: eliminate termainl states from the data set<br/>FALSE: [default] include terminal states.
 @param pathpred 0 [default] or PathPrediction object to filter simulated values
 @comments &gamma; region of state is masked out.
 **/
@@ -318,7 +320,7 @@ Panel::SetMethod(method) {
 /** Store a list of heterogenous fixed panels.
 @param r integer tag for the panel (such as replication index)
 @param method `Method` `Method` object, the DP solution to call to solve `FPanel`
-problem.<br>(default) 0 do nothing, something else handles solution
+problem.<br/>(default) 0 do nothing, something else handles solution
 **/
 Panel::Panel(r,method) {
 	decl i, q;
@@ -369,9 +371,11 @@ Panel::~Panel() {
 Each value of fixed &gamma; is simulated N times, drawing
 the random effects in &gamma; from their density.
 @param N <em>integer</em> number of paths to simulate in each `FPanel`.
-@param T <em>Integer</em>, max length of each path<br>
+@param T <em>Integer</em>, max length of each path<br/>
         vector, max length for each FPanel.
-@param ErgOrStateMat 0: find lowest reachable indexed state to start from<br>1: draw from stationary distribution (must be ergodic)<br>matrix of initial states to draw from (each column is a different starting value)
+@param ErgOrStateMat 0: find lowest reachable indexed state to start from<br/>
+1: draw from stationary distribution (must be ergodic)<br/>
+matrix of initial states to draw from (each column is a different starting value)
 @param DropTerminal TRUE: eliminate termainl states from the data set
 @param pathpred Integer [default] or PathPrediction object that is simulating
 **/
@@ -405,14 +409,17 @@ Panel::Deep()	{
 /** Produce a matrix of the panel.
 If  `Panel::flat`is an uninitialized then `Panel::Flat`() is called first.
 Flat version of the data set is stored in `Panel::flat`.
-@param fn 0: do not print or save, just return<br>print to screen<br>string: save to a
+@param fn 0: do not print or save, just return<br/>1 print to data log file<br/>2 print to screen<br/>string: save to a
 file
 @param Orientation  LONG or WIDE
 @return long <em>matrix</em> of panels
 **/
 Panel::Print(fn,Orientation)	{
 	if (isint(flat)) Flat(Orientation);
-	if (isint(fn)) { if (fn>0) fprint(Data::logf,"%c",LFlat[Orientation],"%cf",Fmtflat,flat); }
+	if (isint(fn)) {
+        if (fn==1) fprint(Data::logf,"%c",LFlat[Orientation],"%cf",Fmtflat,flat);
+        else if (fn>1) println("%c",LFlat[Orientation],"%cf",Fmtflat,flat);
+        }
 	else if (!savemat(fn,flat,LFlat[Orientation])) oxrunerror("DDP Error 51. FPanel print to "+fn+"failed");
 	}
 
@@ -429,18 +436,17 @@ Outcome::Likelihood(Type) {
         case CCLike     : CCLikelihood();
         case ExogLike   : IIDLikelihood();
         case PartObsLike: PartialObservedLikelihood();
-        default         : ;
         }
     }
 
 Outcome::AuxLikelihood() {
-    decl c, al;
+    decl c, al, r = SS[tracking].right, hold = state[:r];
     al = 1.0;
-    decl auxstate = ReverseState(ind[bothexog],I::OO[bothexog][])+ReverseState(viinds[now],I::OO[tracking]);
-    auxstate[SS[tracking].right+1 : ] = state[SS[tracking].right+1 : ];
-    SyncStates(0,SS[tracking].right);
+    state[:r] = (ReverseState(ind[bothexog],I::OO[bothexog][])+ReverseState(viinds[now],I::OO[tracking][]))[:r];
+    SyncStates(0,r);
     I::Set(state,FALSE);
     foreach (c in Chi)  if (c.indata) al *= c->Likelihood(this);
+    state[:r] = hold;
     return al;
     }
 
@@ -577,6 +583,7 @@ DataColumn::Observed(LorC) {
 DataColumn::UnObserved() {
 	obsv = FALSE;
 	incol = ind = label = UnInitialized;
+
 	}
 
 DataColumn::ReturnColumn(dlabels,incol)	{
@@ -685,16 +692,20 @@ OutcomeDataSet::Mask() {
 **/
 OutcomeDataSet::IDColumn(lORind) {
 	if (isint(lORind)&&lORind<0) oxrunerror("DDP Error 54. column index cannot be negative");
-	list[0]->Observed(lORind);
+	list[idvar]->Observed(lORind);
 	}
+
+OutcomeDataSet::tColumn(lORind) {
+	if (isint(lORind)&&lORind<0) oxrunerror("DDP Error 54. column index cannot be negative");
+    list[low[svar]+counter.t.pos] -> Observed(lORind);
+    }
 
 /** Identify a variable with a data column.
 @param aORs  Either an `ActionVariable`, element of &alpha;, or a `StateVariable`,
-element of
-			one of the state vectors, or a `AuxiliaryValue`, element of &chi;<br>
-            <em>OR<em><br>
-@param LorC	 UseLabel, variable's label to denote column of data with observations <br>
-             integer &ge; 0, column of data matrix that contains observations<br>
+    element of one of the state vectors, or a `AuxiliaryValue`, element of &chi;<br/>
+            <em>OR<em><br/>
+@param LorC	 UseLabel, variable's label to denote column of data with observations <br/>
+             integer &ge; 0, column of data matrix that contains observations<br/>
 			 string, label of column with observations.
 
 **/
@@ -713,11 +724,11 @@ OutcomeDataSet::MatchToColumn(aORs,LorC) {
 	
 /** Mark actions and state variables as observed in data, matched with their internal label.
 @param aORs  Either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
-			one of the state vectors, or a `AuxiliaryValue`, element of &chi;<br>
+			one of the state vectors, or a `AuxiliaryValue`, element of &chi;<br/>
             <em>OR<em><br>
             array of the form {v1,v2,&hellip;}.  In this case all other arguments are
-            ignored.<br>
-@param ... continues with object2, LoC2, object3, LorC3, etc.<br>
+            ignored.<br/>
+@param ... continues with object2, LoC2, object3, LorC3, etc.<br/>
 **/
 OutcomeDataSet::ObservedWithLabel(as1,...) {
 	decl offset,aORs,LorC,va = isarray(as1) ? as1 : {as1},k,bv;
@@ -732,7 +743,8 @@ OutcomeDataSet::ObservedWithLabel(as1,...) {
 				: isclass(aORs,"StateVariable") ? 1+N::Av
 				: isclass(aORs,"AuxiliaryValue") ? 1+N::Av+N::S
                 : 0;
-		if (list[offset+aORs.pos].obsv==FALSE && masked) oxrunerror("DDP Error 57. cannot recover observations on UnObserved variable after reading/masking");
+		if (list[offset+aORs.pos].obsv==FALSE && masked)
+            oxrunerror("DDP Error 57. cannot recover observations on UnObserved variable after reading/masking");
 		list[offset+aORs.pos]->Observed(UseLabel);				
 		if (!Version::MPIserver && Data::Volume>SILENT) fprint(Data::logf,aORs.L," ");
 		}
@@ -742,7 +754,7 @@ OutcomeDataSet::ObservedWithLabel(as1,...) {
 /** UnMark action and states variables as observed.
 @param as1 `Discrete` object, either an `ActionVariable`, element of &alpha;, or a
 `StateVariable`, element of
-			one of the state vectors<br>
+			one of the state vectors<br/>
 			`StateBlock`: each variable in the block will be marked unobserved.
 @param ... as2, etc.
 
@@ -755,7 +767,6 @@ OutcomeDataSet::UnObserved(as1,...) {
 		aORs = va[k];
 		if (StateVariable::IsBlock(aORs)) {
 			decl bv;
-//			for (bv=0;sizeof(aORs.Theta);++bv) UnObserved(States[aORs.Theta[bv]]);
 			foreach (bv in aORs.Theta) UnObserved(States[bv]);
 			continue;
 			}
@@ -764,6 +775,7 @@ OutcomeDataSet::UnObserved(as1,...) {
 				: 1+N::Av+N::S;
 		if (list[offset+aORs.pos].obsv==TRUE) list[offset+aORs.pos]->UnObserved();
 		}
+    masked = FALSE;  // reset masked.
 	}
 	
 /**  Copy external current values of actions, states and auxiliaries into the outcome.
@@ -947,7 +959,14 @@ OutcomeDataSet::Read(FNorDB,SearchLabels) {
         }
     else source = FNorDB;
 	cputime0=timer();
-	if (!list[0].obsv) oxrunerror("DDP Error 60. Must call OutcomeDataSet::IDColumn to set column of ID variable before reading");
+	if (!list[idvar].obsv) {
+        oxwarning("DDP Warning 60. OutcomeDataSet::IDColumn not called before reading data.  Using default (may cause an error)");
+        IDColumn();
+        }
+	if (!list[low[svar]+counter.t.pos].obsv) {
+        oxrunerror("DDP Warning 60. OutcomeDataSet::tColumn not called before reading data. Using default (may cause an error)");
+        tColumn();
+        }
 	if (SearchLabels) {
 		decl lnames,mtch, i,j;
 		lnames = source->GetAllNames();
@@ -958,9 +977,9 @@ OutcomeDataSet::Read(FNorDB,SearchLabels) {
 		mtch = strfind(lnames,Labels::V[auxvar]);
 		foreach(i in mtch[j]) if (i!=NoMatch) MatchToColumn(Chi[j],i);
 		}
-	decl i,s0=1+N::Av-1;
+	decl i;
 	for (i=S[fgroup].M;i<=S[fgroup].X;++i)
-		if (!list[s0+i].obsv && !list[s0+i].force0) oxrunerror("DDP Error 61. Fixed Effect Variable "+sprint(list[s0+i].obj.L)+" must be observed or have N=1");	
+		if (!list[low[svar]+i].obsv && !list[low[svar]+i].force0) oxrunerror("DDP Error 61. Fixed Effect Variable "+sprint(list[low[svar]+i].obj.L)+" must be observed or have N=1");	
     LoadOxDB();
 	masked = FALSE;
 	delete source;
@@ -968,7 +987,7 @@ OutcomeDataSet::Read(FNorDB,SearchLabels) {
 
 /** Store a `Panel` as a data set.
 @param id <em>string</em>, tag for the data set
-@param method, solution method to be used as data set is processed.<br>0 [default], no
+@param method, solution method to be used as data set is processed.<br/>0 [default], no
 solution
 **/
 OutcomeDataSet::OutcomeDataSet(id,method) {
@@ -988,6 +1007,12 @@ OutcomeDataSet::OutcomeDataSet(id,method) {
 	foreach (q in Chi)     list |= new DataColumn(auxvar,q);
     LTypes = zeros(LikelihoodTypes,1);
 	}																		
+
+OutcomeDataSet::Simulate(N,T,ErgOrStateMat,DropTerminal,pathpred) {
+    Panel::Simulate(N,T,ErgOrStateMat,DropTerminal,pathpred);
+    IDColumn();
+    tColumn();
+    }
 
 /** Delete a data set.
 **/
