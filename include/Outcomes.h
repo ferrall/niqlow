@@ -15,6 +15,7 @@ struct Outcome : Data {
                                         AnyMissing = < [DSubSpaces] *0>,
 #endif
                                         pathpred,
+                                        ctlist, exaux,
     /**do not include choice prob for fully observed
         likelihood, for first stage estimation of transitions. **/
                                            OnlyTransitions,										
@@ -48,13 +49,21 @@ struct Outcome : Data {
             PartialObservedLikelihood();
             IIDLikelihood();
 			Likelihood(LType);
-            AuxLikelihood();
+            AuxLikelihood(howmany);
             TomIndices(qind,xind);
 			Mask();
 			FromData(data);
 			FromSim();
 			AccountForUnobservables();
 	}
+
+struct ExogAuxOut : ExTask {
+    static decl outcm,auxlike;
+    ExogAuxOut();
+    Likelihood(howmany,outcm);
+    Run();
+    }
+
 
 /** A sequence of outcomes along a single realized DP path.
 The path is a doubly-linked list of `Outcome`s.

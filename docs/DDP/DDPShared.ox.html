@@ -416,6 +416,11 @@ procedure.  Hooks are a list of procedures to be called so more than one procedu
 <td class="description">Add a static function or method to a hook.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Hooks___Do">Do</a></td>
+<td class="modifiers">static</td>
+<td class="description">Call all the methods on the hook.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Hooks___Reset">Reset</a></td>
 <td class="modifiers">static</td>
 <td class="description">Empty the hooks (delete first if already created).</td>
@@ -769,6 +774,10 @@ A user's code can reference these variables but should never change them.
 <td class="description">Points in the solution process that users can insert <em>static</em> functions or methods.
 <P/>
 <table class="enum_table" valign="top">
+<tr><td valign="top"><code>PreAuxOutcomes</code></td><tD>Called by ExogAux::ExpectedOutcomes() and ExogAux::AuxLike??? as they run, which only happen if there are <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>s added to the model.
+        At this point all state variables have been synched and each aux value's <code>Realize()</code>
+        or <code>Likelihood</code> method will be called.  This allows the model to compute realized values at
+        a given value of <span class="expressions">\(\eta\)</span> and <span class="expressions">\(\theta\)</span> and store them temporarily.</tD></tr>
 <tr><td valign="top"><code>PreUpdate</code></td><tD>Called by <a href="Bellman.ox.html#EndogTrans___Transitions">Transitions</a>().  The point this occurs depends on <a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a></tD></tr>
 <tr><td valign="top" colspan="2" align="middle"><em>The times below are ordered in decreasing frequency of execution.</em></tD></tr>
 <tr><td valign="top"><code>AtThetaTrans</code> </td> <tD>Called by <code>Method::Method::Run()</code> for each endogenous state &theta; before
@@ -788,7 +797,7 @@ of each separate group. The function added here should return TRUE if the group 
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#Hooks">Hooks</a>, <a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a></dd>
 </dl></td>
-<td class="elements">PreUpdate, AtThetaTrans, PostSmooth, PostGSolve, PostRESolve, PostFESolve, GroupCreate, NHooks</td>
+<td class="elements">PreAuxOutcomes, PreUpdate, AtThetaTrans, PostSmooth, PostGSolve, PostRESolve, PostFESolve, GroupCreate, NHooks</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><a name="InteractionTypes"></a>InteractionTypes</td>
@@ -1451,6 +1460,28 @@ Add a static function or method to a hook.
 </dd>
 </dd>
 <dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#HookTimes">HookTimes</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Hooks___Do"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Do</span></h3>
+
+<span class="declaration">static Hooks :: Do ( ht )</span>
+<dl><dd>
+Call all the methods on the hook.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">ht</td>
+<td class="description" valign="baseline">one of the <a href="DDPShared.ox.html#HookTimes">HookTimes</a>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">vector of integer return values of hooks (currently not used)
+</dd>
 </dl>
 </dd></dl>
 

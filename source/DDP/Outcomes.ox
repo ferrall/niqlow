@@ -1,12 +1,39 @@
 #include "Outcomes.h"
 /* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
+ExogAuxOut::ExogAuxOut() {
+    ExTask();
+    auxlike = zeros(N::Ewidth,1);
+    }
+ExogAuxOut::Likelihood(howmany,outcm) {
+    decl tv;
+    if (!sizeof(Chi)) return 1.0;
+    this.outcm = outcm;
+    auxlike[] = 1.0;
+    if (howmany==DoAll) {
+        loop();
+        return auxlike;
+        }
+    else {
+        Run();
+        return auxlike[I::all[exog]];
+        }
+    }
+ExogAuxOut::Run() {
+    decl c;
+    Hooks::Do(PreAuxOutcomes);
+    foreach (c in Chi) if (c.indata) auxlike[I::all[onlyexog]] *= c->Likelihood(outcm);
+    }
+
 /** Record everything about a single realization of the DP.
 @param prior `Outcome` object, the previous realization along the path<br/>
 		<em>integer</em>, this is first realization on the path. `Task::state` uninitialized.<br/>
 		<em>vector</em>, initial value of `Task::state`
 **/
 Outcome::Outcome(prior) {
+    Task();
+    left = SS[onlysemiexog].left;
+	right = SS[tracking].right;
 	decl nxtstate;
 	snext = onext = UnInitialized;
 	act   = constant(.NaN,1,SS[onlyacts].D);
@@ -26,6 +53,7 @@ Outcome::Outcome(prior) {
 	state = isint(nxtstate) ? constant(.NaN,N::All) : nxtstate;
 	ind = new array[DSubSpaces];
 	ind[] = DoAll;
+    if (isint(exaux)) exaux = new ExogAuxOut();
     decl d;
     foreach (d in fixeddim)
         if (     !isnan(state[ SS[d].left:SS[d].right ]))
@@ -439,14 +467,14 @@ Outcome::Likelihood(Type) {
         }
     }
 
-Outcome::AuxLikelihood() {
-    decl c, al, r = SS[tracking].right, hold = state[:r];
-    al = 1.0;
-    state[:r] = (ReverseState(ind[bothexog],I::OO[bothexog][])+ReverseState(viinds[now],I::OO[tracking][]))[:r];
-    SyncStates(0,r);
+Outcome::AuxLikelihood(howmany) {
+    decl al, hold = state[left:right], xind = howmany==DoAll ? onlysemiexog : bothexog;
+    exaux.state[:right] = state[:right]
+            = (ReverseState(ind[xind],I::OO[xind][])+ReverseState(viinds[now],I::OO[tracking][]))[:right];
+    SyncStates(left,right);
     I::Set(state,FALSE);
-    foreach (c in Chi)  if (c.indata) al *= c->Likelihood(this);
-    state[:r] = hold;
+    al = exaux->Likelihood(howmany,this);
+    state[left:right] = hold;
     return al;
     }
 
@@ -495,13 +523,10 @@ Outcome::IIDLikelihood() {
                         ? 1.0
                         : GetPstar(viinds[now])[arows][lo:hi]'  //CCP
                         );
-    for (ep=0;ep<N::Ewidth;++ep) {
-        ind[bothexog] = lo+(ind[onlyexog] = ep);
-        if (sizeof(Chi)) vilikes[now][ep] *= AuxLikelihood();
-        vilikes[now][ep] *= TomIndices(viinds[now],ind[onlysemiexog])
+    vilikes[now] .*= AuxLikelihood(DoAll);
+    vilikes[now] *= TomIndices(viinds[now],ind[onlysemiexog])
                                 ? TP[arows][icol[1][0]]
                                 : 1.0;
-        }
     vilikes[now] = double( sumc(vilikes[now])/sumc(curprob) );
 	}	
 
@@ -518,7 +543,7 @@ Outcome::CCLikelihood() {
                     * (OnlyTransitions
                         ? 1.0
                         : double( GetPstar(viinds[now])[arows][ind[bothexog]]) );
-    if (sizeof(Chi)) vilikes[now] *= AuxLikelihood();
+    vilikes[now] *= AuxLikelihood(UseCurrent);
 	if (viinds[tom]==UnInitialized) return;
     vilikes[now] *= TomIndices(viinds[now],ind[onlysemiexog]) ? TP[arows][icol[1][0]] : 1.0;
 	}

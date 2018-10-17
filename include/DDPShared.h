@@ -145,6 +145,10 @@ enum { NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods}
 /** Points in the solution process that users can insert <em>static</em> functions or methods.
 
 <table class="enum_table" valign="top">
+<tr><td valign="top"><code>PreAuxOutcomes</code></td><tD>Called by `ExogAux::ExpectedOutcomes`() and `ExogAux::AuxLike`??? as they run, which only happen if there are `AuxiliaryValue`s added to the model.
+        At this point all state variables have been synched and each aux value's <code>Realize()</code>
+        or <code>Likelihood</code> method will be called.  This allows the model to compute realized values at
+        a given value of $\eta$ and $\theta$ and store them temporarily.</tD></tr>
 <tr><td valign="top"><code>PreUpdate</code></td><tD>Called by `EndogTrans::Transitions`().  The point this occurs depends on `Flags::UpdateTime`</tD></tr>
 <tr><td valign="top" colspan="2" align="middle"><em>The times below are ordered in decreasing frequency of execution.</em></tD></tr>
 <tr><td valign="top"><code>AtThetaTrans</code> </td> <tD>Called by <code>Method::`Method::Run`()</code> for each endogenous state &theta; before
@@ -164,7 +168,7 @@ of each separate group. The function added here should return TRUE if the group 
 @see Hooks, Flags::UpdateTime
 @name HookTimes
 **/
-enum {PreUpdate,AtThetaTrans,PostSmooth,PostGSolve,PostRESolve,PostFESolve,GroupCreate,NHooks}
+enum {PreAuxOutcomes,PreUpdate,AtThetaTrans,PostSmooth,PostGSolve,PostRESolve,PostFESolve,GroupCreate,NHooks}
 
 
 

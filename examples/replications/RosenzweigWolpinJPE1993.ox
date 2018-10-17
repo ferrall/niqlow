@@ -29,7 +29,7 @@ Farmer::Replicate()	{
         );
 	CreateSpaces();
 //	decl EMax = new ValueIteration();
-    VISolve();
+    VISolve(FALSE);
     decl pd = new PanelPrediction();
     Data::Volume = LOUD;
     pd -> Tracking(TrackAll);
@@ -70,7 +70,6 @@ Farmer::Consumption() {
          C = Profits() - p[Pump]*CV(m) - p[Calf]*CV(calf) - p[Bull]*AV(b),
          hitfloor = C .<= pars[pub][Cmin],
          selloff  = (AV(b)+CV(B).==0) .&& (1-AV(calf)) .&& (1-AV(m));
-    if (I::t==10&&CV(B)==0&&CV(M)==0&&CV(badweath)) println("*",CV(eps)," ",AV(eps),Profits());
     return
         hitfloor .?
             (selloff .? pars[pub][Cmin]+1E-5

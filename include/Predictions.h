@@ -48,10 +48,10 @@ struct TrackObj : Zauxiliary {
     virtual print();
     }
 
-struct ExogAux : ExTask {
+struct ExogAuxPred : ExTask {
     static decl chq, tmp, auxlist;
-    ExogAux();
-    ExpectedOutcomes(auxlist,chq);
+    ExogAuxPred();
+    ExpectedOutcomes(howmany,chq);
     Run();
     }
 
@@ -76,7 +76,7 @@ struct xTrack : TrackObj {
 **/	
 struct 	Prediction : Data {
     static   const  decl tinyP = 1E-20;
-	static	decl ud, lo, hi, LeakWarned, PredictFailure, ctlist, cauxlist, exaux;
+	static	decl ud, LeakWarned, PredictFailure, ctlist, exaux;
 	const  	decl t;
 	decl
 		/** state index **/		             sind,

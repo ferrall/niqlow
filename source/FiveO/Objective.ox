@@ -707,9 +707,9 @@ CPoint::Vec() {	return vec(V)|vec(ineq.v)|vec(eq.v);	}
 **/
 Objective::contour(Npts,Xpar,Ypar,lims) {
     decl xv,yv,
-    df = lims[][hi]-lims[][lo],
-    ptsx = lims[xax][lo] + df[xax].*(range(0,Npts-1)'/(Npts-1)),
-    ptsy = lims[yax][lo] + df[yax].*(range(0,Npts-1)'/(Npts-1)),
+    df = lims[][_hi]-lims[][_lo],
+    ptsx = lims[xax][_lo] + df[xax].*(range(0,Npts-1)'/(Npts-1)),
+    ptsy = lims[yax][_lo] + df[yax].*(range(0,Npts-1)'/(Npts-1)),
     grid = <>,
     myF = cur.F;
     foreach(xv in ptsx)

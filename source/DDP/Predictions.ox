@@ -1,21 +1,24 @@
 #include "Predictions.h"
 /* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
-
-ExogAux::ExogAux() {
+ExogAuxPred::ExogAuxPred() {
     ExTask();
     }
-ExogAux::ExpectedOutcomes(auxlist,chq) {
+ExogAuxPred::ExpectedOutcomes(howmany,chq) {
     decl tv;
     if (!sizeof(auxlist)) return;
     this.chq = chq;
-    this.auxlist = auxlist;
-    //initialize all realized values to 0.
     foreach(tv in auxlist) { tv.v = 0.0; }
-    loop();
+    if (howmany==DoAll)
+        loop();
+    else {
+        oxrunerror("make sure eps synched");
+        Run();
+        }
     }
-ExogAux::Run() {
+ExogAuxPred::Run() {
     decl tv;
+    Hooks::Do(PreAuxOutcomes);
     foreach(tv in auxlist) {
         tv.obj->Realize();
         tv.v += chq[][I::all[bothexog]].*tv.obj.v;
@@ -30,7 +33,7 @@ Transitions to unreachable states is tracked and logged in the Data logfile.
 @see TrackObj::Distribution
 **/
 Prediction::Predict() {
-    exaux.state = state = zeros(N::All);
+    exaux.state[:right] = state[:right] = 0;
     if (!sizec(sind)) {
         predmom = constant(.NaN,1,sizeof(ctlist));
         return TRUE;
@@ -40,25 +43,25 @@ Prediction::Predict() {
         pq = p[s];
         if (pq > tinyP) {
             if (Settheta(q)) {
-                state[lo:hi] = ReverseState(q,I::OO[tracking][])[lo:hi];
+                exaux.state[left:right] = state[left:right] = ReverseState(q,I::OO[tracking][])[left:right];
                 I::all[tracking] = q;
-                SyncStates(lo,hi);
+                SyncStates(left,right);
                 Alpha::SetA();
                 chq  = pq*I::curth.pandv.*(NxtExog[Qprob]');
-                exaux->ExpectedOutcomes(cauxlist,chq);
+                exaux->ExpectedOutcomes(DoAll,chq);
                 if ( I::curth->StateToStatePrediction(this) ) return  PredictFailure = TRUE;
                 foreach (tv in ctlist) tv->Distribution(this);
                 allterm *= I::curth.Type>=LASTT;
                 }
             else {
-                qi = ReverseState(q,I::OO[tracking][])[lo:hi];
+                qi = ReverseState(q,I::OO[tracking][])[left:right];
                 pp += p[s]; unrch |= qi' ;
                 }
             }
         }
     predmom = <>; foreach(tv in ctlist) predmom ~= tv.mean;
     if (!isfeq(pp,0.0)) {
-        fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][lo:hi],unrch);
+        fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][left:right],unrch);
         if (!LeakWarned) {
             println("DDP Warning ??. Leakage in transition probability.  See log file");
             LeakWarned = TRUE;
@@ -85,12 +88,15 @@ Typically a user would create a `PathPrediction` which in turn creates predictio
 @param t <em>integer</em>, position in the path.
 **/
 Prediction::Prediction(t){
+    Task();
+    left = SS[tracking].left;
+    right = SS[tracking].right;
 	this.t = t;
 	W = pnext = UnInitialized;
     ch = zeros(N::A,1);
     empmom = 0;
     Reset();
-    if (isint(exaux)) exaux = new ExogAux();
+    if (isint(exaux)) exaux = new ExogAuxPred();
 	}
 
 /**
@@ -348,8 +354,6 @@ PathPrediction::PathPrediction(f,label,method,iDist,wght){
 	fnext = UnInitialized;
     tlabels = {"t"};
     tlist = {};
-    lo = SS[tracking].left;
-    hi = SS[tracking].right;
     mask = <>;
     Prediction(0);
     T = 1;
@@ -638,8 +642,9 @@ PathPrediction::TypeContribution(pf,subflat) {
   SetT();
   cur=this;
   ctlist = tlist;
-  cauxlist={};
-  foreach (tv in tlist) if (isclass(tv,"xTrack")) cauxlist |= tv;
+  ExogAuxPred::auxlist={};
+  foreach (tv in tlist) if (isclass(tv,"xTrack")) ExogAuxPred::auxlist |= tv;
+
   do {
      cur.predmom=<>;
      time0 = timer();

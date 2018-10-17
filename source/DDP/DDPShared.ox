@@ -35,13 +35,13 @@ Hooks::Add(time,proc) {
     }
 
 /**  Call all the methods on the hook.
-@param ht `HookTimes`
-@internal
+@param ht one of the `HookTimes`
+@return vector of integer return values of hooks (currently not used)
 **/
 Hooks::Do(ht) {
     decl p, rv=<>;
     h=hooks[ht];
-    foreach(p in h) rv |= p(); //Leak        for(p=0;p<sizeof(h);++p) rv |= h[p]();  //Leak
+    foreach(p in h) rv |= p();
     return rv;
     }
 
