@@ -184,8 +184,10 @@ PathPrediction::Predict(inT,prtlevel){
     if (!Initialize()) return FALSE;
 	if (isclass(summand))
 		summand->Integrate(this);
-	else
+	else {
+        rcur = I::r;  //Added Oct. 2018
 		TypeContribution();
+        }
     if (PredictFailure) {
         L = +.Inf;
         flat = <>;

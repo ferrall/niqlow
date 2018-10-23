@@ -261,6 +261,12 @@ ParameterBlock::Encode() {
 	return f;
 	}
 
+/** Return $X\beta = X*CV(beta)$.
+@param X row vector or matrix conforming to the coefficient vector.
+@return $X*CV(this)$.
+**/
+ParameterBlock::Xb(X) {    return X*v;    }
+
 ParameterBlock::ToggleDoNotVary(elements) {
 	decl p;
     if (elements==DoAll)

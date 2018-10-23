@@ -24,12 +24,13 @@ struct Fertility : ExPostSmoothing	{
 						       0.00,0.00,0.00,0.00,0.00,1.81>;
 		
     static decl
-                                        EMax,
-                                       prow,
-                                       Yrow,
-	   /** shock to preferences **/	   psi,
-	   /** decision variable **/ 		n,
-	   /** stock of children **/ 		M;
+        /**solution method.**/                 EMax,
+        /**PanelPrediction.**/                 PD,
+        /**row of birth prob. table.**/        prow,
+        /**row of income table.**/             Yrow,
+	   /** shock to preferences $\psi$**/	   psi,
+	   /** decision variable **/ 	   n,
+	   /** stock of children **/ 	   M;
 	static Mortality();
 	static Replicate();
     static TimeEffect(coef);

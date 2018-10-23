@@ -1,35 +1,74 @@
 /** Replicate Tables 8 and 9 of Wolpin (1982), Yale Economic Growth Center Working Paper No. 424.
 
-This paper was published in the JPE 1984.  The published version makes references to these tables but they are not include.
+This paper was published in the JPE 1984.  The published version makes references to these tables but they are not included.
 
 The  parameter estimates differ between the working paper and the article.  The working paper version are used for the replication,
 but the published estimates are given as well.
 
 <h2>The Model</h2>
 <DT>Clock: Finite Horizon, $t = 0, 1, \dots, 19,\dots 29$.</DT>
-<DT>Endogenous State Vector: $\theta = (M)$</DT>
-<DD>M = number of children, a `RandomUpDown`() variable</DD>
-<DD>Transitions
-    $$Prob(M' = M+1) = pn$$
-</DD>
 <DT>Action Vector: $\alpha = (n)$, $n \in \{0,1\}$</DT>
+<DD>$n$ is the choice to have another child or not.</DD>
+<DT>Endogenous State Vector: $\theta = (M)$</DT>
+<DD>M = number of children at the start of $t$</DD>
+<DD>Newborns die with a probability that depends on the mother's age $t$:
+    $$p = Prob(death) = Prob(d=1) Logit(a_0 + a_1 t)$$</DD>
+<DD>The stock of children evolves as
+    $$M' = \cases{ M + 1 & with prob. (1-p)n\cr
+                    M & otherwise.\cr.} $$</DD>
+<DT>Feasible Actions</DT>
+<DD>The woman is fertile for 20 years</DD>
 <DD>$A(\theta) = \cases{ \{0,1\} if t< 20\cr
 		                  \{0\}   if t= 20\cr}$</DD>
-
 <DT>Exogenous State</DT>
-    $\epsilon = (\psi)$, and $\psi \sim N(0,1)$
-
+    $$\epsilon = (\psi)$, and $\psi \sim dN(0,1)$$
+    <DD>Note:The paper solves for cut-off value of $\psi$ for having a child.  This
+        would be a <code>OneDimensionalChoice()</code> and use of the <code>ReservationValue</code> method.
+        Instead, the replication simply draws 201 discrete values of $\psi$ and makes the optimal choice.</DD>
 <DT>Income</DT>
    $$X = Y - ( b(n-d) + (c_1I_{t=1} + c_2I_{t=2}+ c_{30}+c_{31}t+c_{32}t^2))n.$$
 <DT>Utility</DT>
- $$U = (\alpha_1+\psi)M +\alpha_2M^2+ \beta_1X+\beta_2X^2 + \gamma_1MX+\gamma_2MS.$$
-
-For the Table 5, 8 and 9 replications:
+<DD>The model's timing assumes that infant mortality is realized after choosing $n_t$ but before
+the end of $t$ and before utility is realized.  Thus utility is an expectation over $d_t$.</DD>
+<DD>
+ $$\eqalign{
+    M* &= M+n-d\cr
+    U(n,d) &= (\alpha_1+\psi)M* +\alpha_2(M*)^2+ \beta_1X+\beta_2X^2 + \gamma_1M*X+\gamma_2M*S.\cr
+    EU(0) &= U(0,0)\cr
+    EU(1) &= (1-p)U(1,0)+pU(1,0)\cr}$$</DD>
 
 <h2>Replication</h2>
+<H3>Table 5. Estimated and Replicated Birth Probabilities</H3>
+<DD><pre>
+       t      Predicted    Replicated
+              Probability  Probability
+       --------------------------------
+       0      .138         0.13930
+       1      .360         0.37811
+       2      .552         0.54229
+       3      .543         0.53234
+       4      .530         0.52239
+       5      .515         0.50746
+       6      .498         0.49254
+       7      .477         0.47264
+       8      .454         0.44776
+       9      .428         0.42289
+      10      .400         0.39801
+      11      .376         0.36816
+      12      .345         0.33831
+      13      .313         0.30630
+      14      .281         0.27363
+      15      .250         0.23881
+      16      .216         0.20701
+      17      .182         0.17413
+      18      .149         0.14428
+      19      .122         0.11473
+      -----------------------------
+</pre></DD>
 
-<h3>ln Y = a<sub>00</sub>+a<sub>01</sub>t</h3>
-<table>
+
+<h3>Effects of ln Y = a<sub>00</sub>+a<sub>01</sub>t</h3>
+<table><caption>Table 8. Working Paper Page 45.</caption>
 <tr><th>a<sub>O</sub></th><th>a<sub>1</sub></th><th>Y</th><th>N<sub>1-5</sub></th><th>N<sub>6-10</sub></th><th>N<sub>11-15</sub></th><th>
 N<sub>16-20</sub></th><th>N</th></tr>
 <tr><td>9.35</td><td>O</td><td>11,500</td><td>2.124</td><td>2.369</td><td>1.687</td><td>.867</td><td>7.047</td></tr>
@@ -39,8 +78,20 @@ N<sub>16-20</sub></th><th>N</th></tr>
 <tr><td>10.82</td><td>O</td><td>50,000</td><td>2.154</td><td>2.402</td><td>1.717</td><td>.885</td><td>7.158</td></tr>
 <tr><td>8.52</td><td>.088</td><td>11,500</td><td>2.126</td><td>2.376</td><td>1.769</td><td>.875</td><td>7.146</td></tr>
 </table>
+<DD>Replicated
+<pre>
+ Table of Working Paper 8, page 45
+ ----------------------------------
+     row    N1-5   N6-10  N11-15  N16-20       N
+  1.0000  2.1144  2.3433  1.6844  0.8790  6.5029
+  2.0000  2.0939  2.3163  1.6614  0.8703  6.0759
+  3.0000  2.0647  2.2883  1.6368  0.8557  5.6648
+  4.0000  2.0380  2.2587  1.6156  0.8438  5.2564
+  5.0000  2.0100  2.2331  1.5920  0.8261  4.8533
+  6.0000  2.1443  2.3775  1.7088  0.8986  6.9975
+</pre></DD>
 
-<h3> ln (p/1-p) = a<sub>10</sub>+a<sub>11</sub>t</h3>
+<h3> Table 9. Effects of ln (p/1-p) = a<sub>10</sub>+a<sub>11</sub>t</h3>
 <table>
 <tr><th>a<sub>O</sub></th><th>a<sub>1</sub></th><th>p</th><th>N<sub>1-5</sub></th><th>N<sub>6-10</sub></th><th>N<sub>11-15</sub></th><th>
 N<sub>16-20</sub></th><th>N</th></tr>
@@ -51,4 +102,16 @@ N<sub>16-20</sub></th><th>N</th></tr>
 <tr><td>1.05</td><td>O</td><td>.74</td><td>1.927</td><td>2.175</td><td>1.367</td><td>.532</td><td>6.001</td></tr>
 <tr><td>1.05</td><td>1.81</td><td>.94</td><td>2.003</td><td>2.356</td><td>1.722</td><td>.937</td><td>7.018</td></tr>
 </table>
+<DD>Replicated<pre>
+ Table of Working Paper 9, page 47
+ ----------------------------------
+     row    N1-5   N6-10  N11-15  N16-20       N
+  1.0000  2.1144  2.3433  1.6844  0.8790  6.5029
+  2.0000  2.1095  2.3380  1.6816  0.8767  6.4888
+  3.0000  2.1144  2.3433  1.6833  0.8787  6.5019
+  4.0000  2.1294  2.3578  1.6890  0.8844  6.5380
+  5.0000  2.1443  2.3728  1.7081  0.8990  6.5956
+  6.0000  2.1244  2.3532  1.6926  0.8949  6.5400
+</pre></DD>
+
 **/

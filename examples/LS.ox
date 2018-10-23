@@ -10,7 +10,7 @@ class LS : ExtremeValue {
 LS::Model() {
      SetClock(NormalAging,40);
      a = new BinaryChoice("a");
-     m = new ActionCounter("m",25,a);
+     m = new ActionCounter("m",40,a);
      e = new Nvariable ("e",15);
      Actions(a);
      EndogenousStates(m);

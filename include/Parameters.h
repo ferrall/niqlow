@@ -123,13 +123,14 @@ struct Correlation : Bounded	{
 /** Two or more parameters whose ranges interact or are related for some other reason. **/
 struct ParameterBlock : Parameter {
 	decl
-	/** array of parameters (temporary).**/ 		Psi,
+	/** array of parameters .**/ 		            Psi,
 	/** length of block.        	**/   	 		N,
 	/** array of labels.          **/            	PsiL,
 	/** current param in V.  **/   					curpar;
 	ParameterBlock(L="PB",...);
 	AddToBlock(psi,...);
 	ToggleDoNotVary(elements=DoAll);
+    Xb(X);
 	virtual BlockCode();
 	Encode();
     virtual Menu(fp);
