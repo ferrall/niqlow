@@ -52,7 +52,8 @@ Outcome::Outcome(prior) {
 		}	
 	state = isint(nxtstate) ? constant(.NaN,N::All) : nxtstate;
 	ind = new array[DSubSpaces];
-	ind[] = DoAll;
+	ind[onlyacts+1:] = DoAll;
+	ind[onlyacts] = new array[N::J];
     if (isint(exaux)) exaux = new ExogAuxOut();
     decl d;
     foreach (d in fixeddim)
@@ -712,7 +713,7 @@ OutcomeDataSet::Mask() {
         cur -> FPanel::Mask(&LTypes);
         } while ((isclass(cur = cur.fnext)));
 	masked = TRUE;
-    println("Path like type counts","%c",{"CCP","IID","PartObs"},LTypes');
+    println("Path like type counts","%c",{"CCP","IID","PartObs"},"%cf","%7.0f",LTypes');
    }
 
 /** set the column label or index of the observation ID.
@@ -843,7 +844,6 @@ Outcome::AccountForUnobservables() {
 						ind[ss] += I::OO[ss][s]*state[s];  // add index of observed state value
 					}
 			}					
-	ind[onlyacts] = new array[N::J];
 	s = 0;
 	Ainds = <>;
   	do {
@@ -899,7 +899,7 @@ OutcomeDataSet::Summary(data,rlabels) {
     if (ismatrix(data)) MyMoments(data,rlabels,Data::logf);
     else {
         Print(0);
-        MyMoments(flat,{"f"}|"r"|"i"|"t"|"track"|"term"|"Ai"|Labels::Vprt[svar]|"Arow"|Labels::Vprt[avar]|Labels::Vprt[auxvar],Data::Volume>QUIET ? 0 : Data::logf);
+        MyMoments(flat,{"f"}|"r"|"i"|"t"|"track"|"type"|"Ai"|Labels::Vprt[svar]|"Arow"|Labels::Vprt[avar]|Labels::Vprt[auxvar],Data::Volume>QUIET ? 0 : Data::logf);
         }
 	}
 	
@@ -992,7 +992,7 @@ OutcomeDataSet::Read(FNorDB,SearchLabels) {
         IDColumn();
         }
 	if (!list[low[svar]+counter.t.pos].obsv) {
-        oxrunerror("DDP Warning 60. OutcomeDataSet::tColumn not called before reading data. Using default (may cause an error)");
+        oxwarning("DDP Warning 60. OutcomeDataSet::tColumn not called before reading data. Using default (may cause an error)");
         tColumn();
         }
 	if (SearchLabels) {

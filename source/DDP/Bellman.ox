@@ -414,7 +414,7 @@ Bellman::StateToStatePrediction(tod) {
 **/
 Bellman::Simulate(Y) {
 	decl curJ = rows(pandv), done = Type>=LASTT ;
-    I::all[onlyacts] = done  	? 0
+    Y.ind[onlyacts][0] = I::all[onlyacts] = done  	? 0
 			  		: DrawOne( pandv[][InSS()*(Y.ind[bothexog])] );
     Alpha::SetA(I::all[onlyacts]);
 	SyncAct(Alpha::aC);
