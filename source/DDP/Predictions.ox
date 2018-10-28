@@ -43,7 +43,7 @@ Prediction::Predict() {
         pq = p[s];
         if (pq > tinyP) {
             if (Settheta(q)) {
-                exaux.state[left:right] = state[left:right] = ReverseState(q,I::OO[tracking][])[left:right];
+                exaux.state[left:right] = state[left:right] = ReverseState(q,tracking)[left:right];
                 I::all[tracking] = q;
                 SyncStates(left,right);
                 Alpha::SetA();
@@ -54,7 +54,7 @@ Prediction::Predict() {
                 allterm *= I::curth.Type>=LASTT;
                 }
             else {
-                qi = ReverseState(q,I::OO[tracking][])[left:right];
+                qi = ReverseState(q,tracking)[left:right];
                 pp += p[s]; unrch |= qi' ;
                 }
             }
@@ -134,7 +134,7 @@ PathPrediction::ProcessContributions(cmat){
     if (ismatrix(cmat)) cmat = shape(cmat,sizeof(tlist),this.T)';
     do {
         if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
-        flat |= cur.t~cur.accmom;
+        flat |= fvals~cur.t~cur.accmom;
         if (HasObservations) {
             if (ismatrix(pathW)) {
                  vdelt ~= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
@@ -152,7 +152,7 @@ PathPrediction::ProcessContributions(cmat){
             : 0.0;
     if (!Version::MPIserver && HasObservations && Data::Volume>QUIET) {
         fprintln(Data::logf," Predicted Moments group ",f," ",L,
-        "%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat,
+        "%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat[][columns(fvals):],
         "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",tlabels[1:],
                 ismatrix(pathW) ? reshape(vdelt,T,sizeof(tlabels[1:])) : vdelt
                 );
@@ -195,6 +195,8 @@ PathPrediction::Predict(inT,prtlevel){
         }
     else {
         ProcessContributions();
+        if (!Version::MPIserver && prtlevel)
+            println(" Predicted Moments for fixed group: ",f,"%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat[][columns(fvals)+1:]);
         return TRUE;
         }
   }
@@ -360,7 +362,8 @@ PathPrediction::PathPrediction(f,label,method,iDist,wght){
     Prediction(0);
     T = 1;
     inT = 0;
-    state = ReverseState(f,SS[onlyfixed].O);
+    state = ReverseState(f,onlyfixed);
+    fvals = N::F>1 ? f~state[S[fgroup].M:S[fgroup].X]' : f;
     HasObservations = FALSE;
     pathW = 0;
 
@@ -473,6 +476,7 @@ column index to associate
 **/
 TrackObj::Create(LorC,obj,pos) {
     if (isclass(obj,"ActionVariable"))  return new aTrack(LorC,obj,pos);
+    if (isclass(obj,"FixedEffect")) oxrunerror("Don't track fixed group variables. Tracked automatically");
     if (isclass(obj,"StateVariable"))   return new sTrack(LorC,obj,pos);
     if (isclass(obj,"AuxiliaryValue")) return new xTrack(LorC,obj,pos);
     return new oTrack(LorC,obj,pos);
@@ -710,11 +714,13 @@ PanelPrediction::Tracking(LorC,...) {
     }
 
 PanelPrediction::~PanelPrediction() {
-	while (isclass(pnext)) {
-		cur = pnext.pnext;
-		delete pnext;
-		pnext = cur;
+	while (isclass(fnext)) {
+		cur = fnext.fnext;
+		delete fnext;
+		fnext = cur;
+        println("deleting !");
 		}
+    delete fparray;
     ~PathPrediction();
 	}	
 
@@ -727,6 +733,7 @@ PanelPrediction::~PanelPrediction() {
 PanelPrediction::PanelPrediction(label,method,iDist,wght) {
 	decl f=0;
 	PathPrediction(f,label,method,iDist,wght);	
+    PredMomFile=replace(Version::logdir+DP::L+"_PredMoments_"+label," ","")+".dta";
 	fparray = new array[N::F];
 	fparray[0] = 0;
 	cur = this;
@@ -756,12 +763,17 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
         else
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
-	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur.f~cur.flat;
+	    if (!Version::MPIserver && Data::Volume>QUIET) {
+                aflat |= cur.flat;
+                }
         } while((isclass(cur=cur.fnext)));
     if (!Version::MPIserver && Data::Volume>QUIET) {
         decl amat = <>,f;
         foreach(f in aflat) amat |= f;
-        savemat(replace(Version::logdir+DP::L+"_PredMoments_"," ","")+".dta",amat,{"f"}|tlabels);
+        savemat(PredMomFile,amat,
+                N::F==1 ? {"f"}|tlabels
+                        : {"f"}|Labels::Vprt[svar][S[fgroup].M:S[fgroup].X]|tlabels);
+        println("Panel Prediction stored in ",PredMomFile,"\n Read() will read back into a PredictionDataSet");
         }
     M = succ ? -sqrt(M) : -.Inf;
     return succ;
@@ -895,15 +907,19 @@ PredictionDataSet::EconometricObjective(subp) {
 @param FNorDB  string, name of file that contains the data.<br/>A Ox database object.
 **/
 PredictionDataSet::Read(FNorDB) {
-    decl curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone,incol,
+    decl fptr,curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone,incol,
     report = !Version::MPIserver && Data::Volume>SILENT;
     if (report) {
         println("List of Empirical Moments in Data log file");
         fprintln(Data::logf,"List of Empirical Moments");
         foreach(v in tlabels[row]) fprintln(Data::logf,"   ",row,". ",v);
         }
-    if (isstring(FNorDB)) {
+    if (isstring(FNorDB)||isint(FNorDB)) {
         source = new Database();
+        if (isint(FNorDB)) {
+            println("Attempting to read from PanelPrediction Data File ",PredMomFile);
+            FNorDB = PredMomFile;
+            }
 	    if (!source->Load(FNorDB)) oxrunerror("DDP Error 66. Failed to load data from"+FNorDB);
         if (report) fprintln(Data::logf,"Reading in Moments from file ",FNorDB);
         }
@@ -929,38 +945,36 @@ PredictionDataSet::Read(FNorDB) {
             if (row>rows(data)) println("excluded some moments for fixed variable out of current range. Fixed variable: ",k," # of values: ",SubVectors[fgroup][k].N);
             }
         }
-    cur = this;
+    fptr = this;
     decl hasN = isstring(Nplace)||(Nplace!=UnInitialized),
          hasT = isstring(Tplace)||(Tplace!=UnInitialized);
     row = 0;
-    inf = (isint(fcols)) ? 0 :
-    I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
+    inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
     do {
         curf = inf;
-        cur = (curf) ?  fparray[curf] : this;
-        if (fdone[curf]) oxrunerror("DDP Error 68. reading in moments for a fixed group more than once.  moments data file not sorted properly");
+        fptr = (curf) ?  fparray[curf] : this;
+        if (fdone[curf])
+            oxrunerror("DDP Error 68. reading in moments for a fixed group more than once.  moments data file not sorted properly");
         fdone[curf] = TRUE;
         inmom = <>;
-        cur -> SetColumns(dlabels,Nplace,Tplace);
-        incol = selectifc(cur.cols,cur.cols.>=0);
+        fptr -> SetColumns(dlabels,Nplace,Tplace);
+        incol = selectifc(fptr.cols,fptr.cols.>=0);
         do {
             if (row<rows(data)) {  //read one more
-                inf = (isint(fcols)) ? 0 :
-                I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
+                inf = (isint(fcols)) ? 0 :  I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
                 if (inf==curf ) {  //same fixed group
                     inmom |= data[row++][incol];   //add moments, increment row
                     continue;                        // don't install moments
                     }
                 }
-            else {
-                inf = UnInitialized;  //get out of inner loop after installing
-                }
-            cur->Empirical(inmom,hasN,hasT);
+            else
+                inf = UnInitialized;  //get out of loop after installing
+            fptr->Empirical(inmom,hasN,hasT);
             if (report) {
                     println("Moments read in for fixed group ",curf,". See log file");
                     fprintln(Data::logf,"Moments of Moments for fixed group:",curf);
                     }
             } while (inf==curf);
-        } while(row<rows(data));
+        } while(inf!=UnInitialized);
 	delete source;
 	}

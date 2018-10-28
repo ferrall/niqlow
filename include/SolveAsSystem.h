@@ -20,7 +20,7 @@ struct SolveAsSystem : Method {
 	}
 
 struct SaSGSolve : GSolve {
-	SaSGSolve();
+	SaSGSolve(caller=UnInitialized);
 	Solve(SystemMethod=USEBROYDEN,MaxTrips=0);	
     Run();
 	}

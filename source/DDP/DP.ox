@@ -162,7 +162,7 @@ DP::DrawFsamp(find,N) { return ranmultinomial(N,gdist[find][]); }
 
 DP::DrawOneExogenous(aState) {
 	decl i = DrawOne(NxtExog[Qprob]);
-	aState[0] += ReverseState(NxtExog[Qind][i],I::OO[bothexog][]);
+	aState[0] += ReverseState(NxtExog[Qind][i],bothexog);
 	return i;
 	}
 
@@ -495,8 +495,8 @@ Task::Run() { println("Task::Run() ... should be replaced by a virtual Run()"); 
 /** Base class for tasks involving random and fixed groups.
 @internal
 **/
-GroupTask::GroupTask() {
-	Task();
+GroupTask::GroupTask(caller) {
+	Task(caller);
 	span = bothgroup;	left = SS[span].left;	right = SS[span].right;
 	}
 	
@@ -657,10 +657,10 @@ Alpha::Aprint() {
     aL1 |= "]";
 	av = sprint("%-14s",aL1);
 	for (j=0;j<N::J;++j) av ~= sprint("  A[","%1u",j,"]   ");
-	println(av);
-    print("------------------"); for (j=0;j<N::J;++j) print("---------"); println("");
+	println("     ",av);
+    print("     ","------------------"); for (j=0;j<N::J;++j) print("---------"); println("");
 	for (a=0;a<N::A;++a) {
-		for (i=0,av=sprint("%03u",a)~" (";i<N::Av;++i) av ~= sprint("%1u",Matrix[a][i]);
+		for (i=0,av="     "+sprint("%03u",a)~" (";i<N::Av;++i) av ~= sprint("%1u",Matrix[a][i]);
 		av~=")";
 		for (j=0;j<N::J;++j)
             if (Sets[j][a]) {
@@ -679,10 +679,10 @@ Alpha::Aprint() {
 		if (everfeasible) println(av);  else ++totalnever;
 		}
 	for (j=0,av="   #States";j<N::J;++j) av ~= sprint("%9u",Count[j]);
-	println(av);
-    print("-----------------"); for (j=0;j<N::J;++j) print("---------");
-    println("\n    Key: X = row vector is feasible. - = infeasible");
-    if (totalnever) println("    # of Action vectors not shown because they are never feasible: ",totalnever);
+	println("     ",av);
+    print("     ","-----------------"); for (j=0;j<N::J;++j) print("---------");
+    println("\n         Key: X = row vector is feasible. - = infeasible");
+    if (totalnever) println("         # of Action vectors not shown because they are never feasible: ",totalnever);
     println("\n");
     }
 
@@ -754,8 +754,8 @@ N::Sizes() {
 @internal
 **/
 N::print(){
-	println("\n5. TRIMMING AND SUBSAMPLING OF THE ENDOGENOUS STATE SPACE (Theta)","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated","    tfirsts (t=0..T)"},
-    "%cf",{"%10.0f"},ReachableStates|TerminalStates|Approximated | (tfirst)  );
+	println("\n5. TRIMMING AND SUBSAMPLING OF THE ENDOGENOUS STATE SPACE (Theta)","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated"},
+    "%cf",{"%10.0f"},ReachableStates|TerminalStates|Approximated,"\n  Index of first state by t (t=0..T-1)","%5.0f",tfirst');
     }
 
 /** Add trackind to the list of reachable indices.
@@ -1024,7 +1024,7 @@ DP::CreateSpaces() {
 		println("\n3. SIZE OF SPACES\n","%c",{"Number of Points"},"%r",
 				{"    Exogenous(Epsilon)",
                  "    SemiExogenous(Eta)",
-                 "     Endogenous(Theta)",
+                 "   Endogenous(Theta_t)",
                  "                 Times",
                  "         EV()Iterating",
 				 "      ChoiceProb.track",
@@ -1103,8 +1103,9 @@ DP::CreateSpaces() {
                 --Volume;
                 }
         }
-//    else DP::A = Alpha::A;   //this is done in EndogTrans::Transitions()
    XUT = new ExogUtil();
+   if (!Version::MPIserver && Volume>SILENT)
+		println("-------------------- End of Model Summary ------------------------\n");
    Data::SetLog();
  }
 
@@ -1130,9 +1131,10 @@ DP::ExpandP(Aind,p0) {
 /** .
 @internal
 **/
-Task::Task()	{
+Task::Task(caller)	{
 	state 	= N::All-1;
 	itask = subspace = UnInitialized;
+    this.caller = caller;
 	MaxTrips = INT_MAX;
     done = FALSE;
 	}
@@ -1147,8 +1149,8 @@ Task::Reset() {
 /** .
 @internal
 **/
-ThetaTask::ThetaTask(subspace) {
-	Task();
+ThetaTask::ThetaTask(subspace,mycaller) {
+	Task(mycaller);
 	left = S[endog].M;
 	right = S[clock].M;
 	this.subspace = subspace;
@@ -1360,7 +1362,7 @@ Task::list(span,inlows,inups) {
 	done = FALSE;
 	do {
 	   rold = state[right];
-	   news = lft | ReverseState(indices[s],I::OO[tracking][])[left:right] | rht;
+	   news = lft | ReverseState(indices[s],tracking)[left:right] | rht;
 	   if (s<ups && news[right]<rold) {
             if ( this->Update() == IterationFailed ) return IterationFailed;
             }
@@ -1426,7 +1428,7 @@ DP::ExogenousTransition() {
 DumpExogTrans::DumpExogTrans() {
 	ExTask();
 	s = <>;
-	loop(TRUE);
+	loop();
 	print("Exogenous and Semi-Exogenous State Variable Transitions ","%c",{" "}|Labels::Vprt[svar][S[exog].M:S[semiexog].X]|"f()","%cf",array(Labels::Sfmts[0])|Labels::Sfmts[3+S[exog].M:3+S[semiexog].X]|"%15.6f",s);
 	delete s;
 	}
@@ -1639,7 +1641,7 @@ Group::StationaryDistribution() {
 /** Draw &theta; from &Rho;<sub>&infin;</sub>.
 @see DrawOne
 **/
-Group::DrawfromStationary() {	return ReverseState(DrawOne(Pinfinity),I::OO[tracking][]); }
+Group::DrawfromStationary() {	return ReverseState(DrawOne(Pinfinity),tracking); }
 
 /** .
 @internal
@@ -1653,7 +1655,7 @@ FETask::FETask() {
 @internal
 **/
 RETask::SetFE(f) {
-	state = isint(f) ? ReverseState(f,I::OO[onlyfixed][])
+	state = isint(f) ? ReverseState(f,onlyfixed)
        				 : f;
     SyncStates(SS[onlyfixed].left,SS[onlyfixed].right);
     I::f = I::all[onlyfixed];
@@ -1662,8 +1664,8 @@ RETask::SetFE(f) {
 /** .
 @internal
 **/
-RETask::RETask() {
-	GroupTask();
+RETask::RETask(caller) {
+	GroupTask(caller);
 	span = onlyrand;	left = SS[span].left;	right = SS[span].right;
 	}
 
@@ -1672,7 +1674,7 @@ RETask::RETask() {
 **/
 RETask::SetRE(f,r) {
     SetFE(f);
-	state += ReverseState(r,I::OO[onlyrand][]);
+	state += ReverseState(r,onlyrand);
     SyncStates(left,right);
     I::Set(state,TRUE);
 	}

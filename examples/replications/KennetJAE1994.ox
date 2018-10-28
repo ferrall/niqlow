@@ -68,8 +68,7 @@ PrattWhitney::Run()	{
 	EMax = new ValueIteration();
 	EMax.vtoler = 1E-5;   								//loose tolerance because beta near 0 and 1
     EMax.Volume = LOUD;
-    GSolve::RunSafe = TRUE;
-    GSolve::UseNK = FALSE;
+    EMax->ToggleRunSafe();
 	for (col=0;col<3;++col) { //sizeof(pars)
 		println(pars[col]);
         x->Setq(pars[col][theta3]);
@@ -79,7 +78,7 @@ PrattWhitney::Run()	{
 		EMax->Solve();
 		Ehours();
 		}
-    Delete();   
+    Delete();
 	}
 
 /** The one period return.

@@ -23,7 +23,6 @@ Retirement::Run()	{
 	CreateSpaces();
 	Emax = new ValueIteration();
 	Emax.Volume = LOUD;
-    GSolve::UseNK = FALSE;
 	for (col = 0;col<sizerc(disc);++col) { //sizerc(disc)
 		SetDelta(disc[col]);
 		SetRho(1/tau[col]);

@@ -302,7 +302,7 @@ Bellman::ThetaTransition() {
         decl s, q;
         for (s=0;s<columns(Nxt[Qtr][ios]);++s) {
             if ( any(P[now][][s].> 0.0) && !N::IsReachable(Nxt[Qtr][ios]) )  {
-                q = ReverseState(Nxt[Qtr][ios][s],I::OO[tracking][]);
+                q = ReverseState(Nxt[Qtr][ios][s],tracking);
                 fprint(logf,"Transition to unreachable state ",F[now][Qit][s],"%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],q[S[endog].M:S[clock].M]',"%r",{"prob"},P[now][][s]);
                 }
             }
@@ -432,8 +432,7 @@ Bellman::Simulate(Y) {
     //	for (i=0,chi=<>;i<sizeof(Chi);++i) {		Chi[i]->Realize(Y);		chi ~= CV(Chi[i]);		}
 	if (done) return UnInitialized;
 	i = (I::OO[bothgroup][]'.!=0) .* Y.state;
-	i += ReverseState(Nxt[Qtr][Y.ind[onlysemiexog]][DrawOne(Nxt[Qrho][Y.ind[onlysemiexog]][Alpha::aI][])],
-							I::OO[tracking][]);
+	i += ReverseState(Nxt[Qtr][Y.ind[onlysemiexog]][DrawOne(Nxt[Qrho][Y.ind[onlysemiexog]][Alpha::aI][])],tracking);
     Alpha::ClearA();
 	return i;
 	}

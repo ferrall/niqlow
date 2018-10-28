@@ -1,4 +1,6 @@
-#include "ValueIteration.h"
+#ifndef Mh
+    #include "ValueIteration.h"
+#endif
 /* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 /**  Simple Value Iteration solution.
@@ -26,10 +28,9 @@ This is inefficient to use in any context when a solution method is applied repe
 **/
 VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling VISolve()");
-    decl meth = new ValueIteration();
-    GSolve::RunSafe = FALSE;
+    decl meth = new ValueIteration(),succeed;
     DPDebug::outAllV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice);
-    decl succeed = meth->Solve();
+    succeed = meth->Solve();
     delete meth;
     return succeed;
     }
@@ -42,57 +43,42 @@ ValueIteration::ValueIteration(myGSolve) {
     Method(myGSolve);
 	}
 
+/** Creates &quot;brute force&quot; Bellman method that switches to N-K iteration.
+@param myGSolve  `GSolve`-derived object to use for iterating over endogenous states
+    <br/>0 (default), built in task will be used.
+
+This method works for Ergodic environments or at a stationary period of a non-ergodic clock.
+
+Implementation does not always work.  Needs to be improved.
+
+**/
 NewtonKantorovich::NewtonKantorovich(myNGSolve) {
-    ValueIteration( if (isint(myNGSolve)) ? new NKSolve() : myNGSolve );
+    ValueIteration( isint(myNGSolve) ? new NKSolve() : myNGSolve );
     }
 
-NKSolve::NKSolve() {
-    GSolve();
+NKSolve::NKSolve(caller) {
+    GSolve(caller);
     MinNKtrips = 100;
-    NKtoler = vtoler^0.25;
-    UseNK = TRUE;
     NK = 0;
     NKlist = {};
     }
-
-/** Process a point in the fixed effect space.
-<OL>
-<LI>If <code>UpdateTime</code> = <code>AfterFixed</code>, then update transitions and variables.</LI>
-<LI>Apply the solution method for each value of the random effect vector.</LI>
-<LI>Carry out post-solution tasks by calling at hook = <code>PostRESolve</code>;
-</OL>
-@see DP::SetUpdateTime , EndogTrans::Transitions , HookTimes
-**/
 ValueIteration::Run(){
-    if (Flags::UpdateTime[AfterFixed]) ETT->Transitions(state);
-    if (DoNotIterate) return;
-	cputime0 = timer();
-    if (trace) println("--------Group task loop: ",classname(this)," Rgroups ",Rgroups,state');
-    if (Rgroups==AllRand) {
-        qtask->SetFE(state);
-        if (trace) println("-------- About to run ",classname(itask));
-        done = qtask->GroupTask::loop() || done;
-        Hooks::Do(PostRESolve);
-        }
-    else {
-        qtask->SetRE(state,Rgroups);
-        done = qtask->Run() || done;
-        }
+    Method::Run();
 	}
 NKSolve::Solve(instate) {
-    Flags::NKstep0 = Flags::NKstep = FALSE;
+    NKstep0 = NKstep = FALSE;
+    NKtoler = (caller.vtoler)^0.5;
     GSolve::Solve(instate);
     }
 
 NKSolve::PostEMax() {
-    if (Flags::NKstep0) NK->Update(I::all[iterating]);
+    if (NKstep0) NK->Update(I::all[iterating]);
 	if (Flags::setPstar)  {
         decl ff = Flags::IsErgodic;
         Flags::IsErgodic = FALSE;
         GSolve::PostEMax();
-        if (Flags::NKstep)
-            I::curth->UpdatePtrans(&ptrans,isclass(NK) ? NK.visit : 0);
-        else if (ff) I::curth->UpdatePtrans();
+        if (NKstep) I::curth->UpdatePtrans(&ptrans,isclass(NK) ? NK.visit : 0);
+            else if (ff) I::curth->UpdatePtrans();
         Flags::IsErgodic = ff;
 		}
     }
@@ -113,36 +99,13 @@ Results are integrated over random effects, but results across fixed effects are
 Choice probabilities are stored in `Bellman::pandv`
 **/
 ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
+    Method::Initialize(MaxTrips);
     Method::Solve(Fgroups,Rgroups);
-    GSolve::MaxTrips = (MaxTrips==ResetValue) ? 0 : MaxTrips;
-    GSolve::Volume = Volume;
-    GSolve::vtoler = vtoler;
-    GSolve::NKtoler = vtoler^0.5;
-    GSolve::succeed = TRUE;
-    if (Volume>QUIET && (Fgroups==AllFixed && Rgroups==AllRand)) println("\n>>>>>>Value Iteration Starting");
-	if (Fgroups==AllFixed) {
-        if (Rgroups!=AllRand) oxwarning("DDP Warning: Must solve all random groups if solving All Fixed");
-        this.Rgroups = AllRand;
-        this->GroupTask::loop();
-        }
-    else {
-        state = ReverseState(Fgroups,I::OO[onlyfixed][]);
-        SyncStates(left,right);
-        I::Set(state,TRUE);
-        this.Rgroups = Rgroups;
-        this->Run();
-        }
-    Hooks::Do(PostFESolve);
-    Flags::HasBeenUpdated = FALSE;
-    if (Volume>QUIET && (Fgroups==AllFixed && Rgroups==AllRand))
-        println("\n>>>>>>Value Iteration Finished.  Succeed: ",GSolve::succeed,"\n");
-    else  if (Volume>SILENT && Fgroups==N::F-1 && Rgroups==N::F-1) println("X");
-    return GSolve::succeed;
+    return qtask.itask.succeed;
 	}
 
 NewtonKantorovich::Solve(Fgroups,Rgroups,MaxTrips)  {
-    NKSolve::NKtoler = vtoler^0.5;
-    ValueIteration::Solve(Fgroups,Rgroups,MaxTrips);
+    return ValueIteration::Solve(Fgroups,Rgroups,MaxTrips);
     }
 
 NKinfo::NKinfo(t) {
@@ -163,71 +126,13 @@ NKinfo::Hold() {
     Nstat = sumc(visit);
     visit = visit.*cumulate(visit)-1;
     onlyactive = selectifr(range(0,I::MxEndogInd)',visit.>=0);
-//    println("visit,onlyactive ",visit',onlyactive');
-    }
-
-/**Switch to N-K iteration if solving an Ergodic problem if relatively close.**/
-NKSolve::NewtonKantorovich(){
-    if (!(Flags::NKstep||Flags::setPstar||Flags::NKstep0)) {
-        decl start = (dff<NKtoler) && (trips>MinNKtrips && (dff-I::CVdelta*prevdff<0.0)) ;
-        if (start) {
-            if (!Flags::IsErgodic) {
-                decl v;
-                NK = 0;
-                foreach(v in NKlist) { if (v.myt==I::t) { NK=v;break; } }
-                if (isint(NK)) {
-                    NK = new NKinfo(I::t);
-                    NKlist |= NK;
-                    Flags::NKstep0 = TRUE;
-                    if (Volume>QUIET) println("    Setting up N-K ");
-                    }
-                else {
-                    Flags::NKstep = TRUE;
-                    ptrans = zeros(NK.Nstat,NK.Nstat);
-                    }
-                }
-            else {
-                Flags::NKstep = TRUE;
-                ptrans = zeros(I::curg.Ptrans);
-                if (Volume>QUIET) println("    Switching to N-K Iteration ");
-                }
-            }
-       }
-    else if (Flags::NKstep0) {
-      Flags::NKstep = TRUE;
-        Flags::NKstep0 = FALSE;
-        NK->Hold();
-        ptrans = zeros(NK.Nstat,NK.Nstat);
-        if (Volume>QUIET) {
-            println("    Switching to N-K Iteration ",NK.Nstat,"active ",NK.onlyactive');
-            }
-        }
-    else if (Flags::NKstep) {
-        decl L,U,P,ip = -I::CVdelta*ptrans';
-        declu( setdiagonal(ip,1+diagonal(ip)),&L,&U,&P);
-        ptrans[][] = 0.0;
-        if (Flags::IsErgodic) {
-          VV[I::now][] = VV[I::later][]-solvelu(L,U,P,(VV[I::later][]-VV[I::now][])' )';
-            }
-        else {
-          decl step;
-          step =solvelu(L,U,P,(VV[I::later][NK.onlyactive]-VV[I::now][NK.onlyactive])' )' ;
-          VV[I::now][NK.onlyactive] = VV[I::later][NK.onlyactive] - step;
-            }
-        dff= counter->Vupdate();
-        Flags::NKstep = !(dff <vtoler);
-        if (!Flags::NKstep) {
-            delete ptrans;
-            }
-        }
     }
 
 GSolve::Report(mefail) {
 	if ( mefail || Volume>LOUD) {
         if (mefail) {
-            decl indx=vecindex(VV[I::now][],.NaN),nans = ReverseState(indx',I::OO[iterating][])[S[endog].M:S[endog].X][]';
-            fprintln(logf,"\n t =",I::t,". States with V=NaN
-            ","%8.0f","%c",{"Index"}|Labels::Vprt[svar][S[endog].M:S[endog].X],indx~nans);
+            decl indx=vecindex(VV[I::now][],.NaN),nans = ReverseState(indx',iterating)[S[endog].M:S[endog].X][]';
+            fprintln(logf,"\n t =",I::t,". States with V=NaN","%8.0f","%c",{"Index"}|Labels::Vprt[svar][S[endog].M:S[endog].X],indx~nans);
             if (RunSafe )oxrunerror("DDP Error 29. error while checking convergence.  See log file.");		
             if (!warned) {
                 oxwarning("DDP Warning ??. Value function includes NaNs, exiting Value Iteration.");
@@ -249,34 +154,100 @@ This is called after one complete iteration of `ValueIteration::GSolve`().
 **/
 GSolve::Update() {
 	++trips;
-    decl mefail,oldNK = Flags::NKstep;
+    decl mefail;
+	dff= counter->Vupdate();
+    mefail = isnan(dff);
+    succeed *= !mefail;
+    Report(mefail);
+    I::NowSwap();
+	if (Volume>LOUD) println("   t:",I::t," Trip:",trips);
+	state[right] -= (!Flags::StatStage || Flags::setPstar );
+	done = SyncStates(right,right) <0 ; //converged & counter was at 0
+	if (!done) {
+        Flags::setPstar =  (dff <vtoler)
+					    || MaxTrips==trips+1  //last trip coming up
+                        || counter->setPstar(FALSE);
+		VV[I::now][:I::MxEndogInd] = 0.0;
+		}
+	if (Volume>LOUD) println("     Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes": "No");
+ 	state[right] += done;		//put counter back to 0 	if necessary
+	SyncStates(right,right);
+    return done || (trips>=MaxTrips);
+	}
+
+NKSolve::Update() {
+	++trips;
+    decl mefail,oldNK = NKstep;
     prevdff = dff;
 	dff= counter->Vupdate();
-    if ( UseNK && (Flags::StatStage||Flags::IsErgodic)  ) {
-        NewtonKantorovich();
+    if (!(NKstep||Flags::setPstar||NKstep0)) {
+        decl start = (dff<NKtoler) && (trips>MinNKtrips && (dff-I::CVdelta*prevdff<0.0)) ;
+        if (start) {
+            if (!Flags::IsErgodic) {
+                decl v;
+                NK = 0;
+                foreach(v in NKlist) { if (v.myt==I::t) { NK=v;break; } }
+                if (isint(NK)) {
+                    NK = new NKinfo(I::t);
+                    NKlist |= NK;
+                    NKstep0 = TRUE;
+                    if (Volume>QUIET) println("    Setting up N-K ");
+                    }
+                else {
+                    NKstep = TRUE;
+                    ptrans = zeros(NK.Nstat,NK.Nstat);
+                    }
+                }
+            else {
+                NKstep = TRUE;
+                ptrans = zeros(I::curg.Ptrans);
+                if (Volume>QUIET) println("    Switching to N-K Iteration ");
+                }
+            }
+       }
+    else if (NKstep0) {
+        NKstep = TRUE;
+        NKstep0 = FALSE;
+        NK->Hold();
+        ptrans = zeros(NK.Nstat,NK.Nstat);
+        if (Volume>QUIET) println("    Switching to N-K Iteration ",NK.Nstat,"active ",NK.onlyactive');
+        }
+    else if (NKstep) {
+        ip = -I::CVdelta*ptrans';
+        declu( setdiagonal(ip,1+diagonal(ip)),&L,&U,&P);
+        ptrans[][] = 0.0;
+        if (Flags::IsErgodic) {
+          VV[I::now][] = VV[I::later][]-solvelu(L,U,P,(VV[I::later][]-VV[I::now][])' )';
+            }
+        else {
+          itstep =solvelu(L,U,P,(VV[I::later][NK.onlyactive]-VV[I::now][NK.onlyactive])' )' ;
+          VV[I::now][NK.onlyactive] = VV[I::later][NK.onlyactive] - itstep;
+            }
+        dff= counter->Vupdate();
+        NKstep = !(dff <vtoler);
+        if (!NKstep) delete ptrans;
         }
     mefail = isnan(dff);
     succeed *= !mefail;
     Report(mefail);
     I::NowSwap();
 	if (Volume>LOUD) println("   t:",I::t," Trip:",trips);
-	state[right] -= (!Flags::StatStage || Flags::setPstar ) && !oldNK; //!Flags::NKstep;
+	state[right] -= (!Flags::StatStage || Flags::setPstar ) && !oldNK;
 	done = SyncStates(right,right) <0 ; //converged & counter was at 0
 	if (!done) {
         Flags::setPstar =  (dff <vtoler)
-                        || Flags::NKstep
+                        || NKstep
 					    || MaxTrips==trips+1  //last trip coming up
                         || counter->setPstar(FALSE);
 		VV[I::now][:I::MxEndogInd] = 0.0;
 		}
-	if (Volume>LOUD) println("     Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes"
-: "No",
-                    ". NK0:",Flags::NKstep0 ? "Yes" : "No",
-                    ". NK:",Flags::NKstep ? "Yes" : "No");
+	if (Volume>LOUD) println("     Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes": "No",
+                    ". NK0:",NKstep0 ? "Yes" : "No",
+                    ". NK:",NKstep ? "Yes" : "No");
  	state[right] += done;		//put counter back to 0 	if necessary
 	SyncStates(right,right);
     return done || (trips>=MaxTrips);
-	}
+    }
 
 /** Carry out Keane-Wolpin approximation at an endogenous state &theta; .
 @param th &theta;
@@ -353,13 +324,11 @@ KeaneWolpin::KeaneWolpin(myGSolve) {
     if (isint(SampleProportion))
         oxwarning("DDP Warning 24.\n Must call SubSampleStates() before you use KeaneWolpin::Solve().\n");
 	ValueIteration(isint(myGSolve) ? new KWGSolve() : myGSolve);
-    if (N::J>1) oxwarning("DDP Warning 25.\n Using KW approximazation on a model with infeasible actions at some states.\n All
-    reachable states at a given time t for which the approximation is used must have the same feasible action set for results
-    to be sensible.\n");
+    if (N::J>1) oxwarning("DDP Warning 25.\n Using KW approximazation on a model with infeasible actions at some states.\n All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible.\n");
 	}
 
-KWGSolve::KWGSolve() { //myKWEMax
-    GSolve(); //isint(myKWEMax) ? new KWEMax() : myKWEMax
+KWGSolve::KWGSolve(caller) {
+    GSolve(caller);
 	right = S[endog].X;
 	cpos = counter.t.pos;
     lo = XUT.left;
@@ -389,8 +358,7 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
 				Y |= VV[I::now][I::all[iterating]];
 				Xmat |= xrow;	
 		case	ComputeBhat	:
-                if (rows(Xmat)<=columns(Xmat)) oxrunerror("DDP Error 30. Fewer sample states than estimated coefficients.
-                Increase proportion");
+                if (rows(Xmat)<=columns(Xmat)) oxrunerror("DDP Error 30. Fewer sample states than estimated coefficients. Increase proportion");
 				olsc(Y-Xmat[][0],dropc(Xmat,<0>),&xrow); //subtract maxE, drop from X
 				Bhat[I::t] = 1|xrow;  //tack 1.0 on as coefficient for maxE
 				if (Volume>QUIET) {

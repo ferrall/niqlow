@@ -176,7 +176,8 @@ struct Task : DP {
 	const decl
     /**Inner task for a stack of tasks to perform. **/              itask,
 	/**leftmost variable in state to loop over 				**/		left,
-	/**rightmost variable in state to loop over 			**/		right;
+	/**rightmost variable in state to loop over 			**/		right,
+    /**Task that called me (used by methods).**/                    caller;
     static decl                                                     trace;
 	decl
     /**Label for debugging purposes.**/                             L,
@@ -188,7 +189,7 @@ struct Task : DP {
 	/**Indicates task is done (may require one more trip).**/		done,
 	/**Trips through the task's space. **/                          trips,
 	/** max number of outer	Bellman trip.s     **/    				MaxTrips;							
-	Task();
+	Task(caller=UnInitialized);
 	virtual Update();
 	virtual Run();
 	virtual loop(IsCreator=FALSE);
@@ -207,7 +208,7 @@ with an arguement to `DP::Initialize`().
 
 **/
 struct ThetaTask        :   Task {	
-    ThetaTask(subspace);	
+    ThetaTask(subspace,caller=UnInitialized);	
     virtual Run();	
     }
 
@@ -310,7 +311,7 @@ struct ExogUtil : 	ExTask {
 struct GroupTask : Task {
 	const 	decl 	span;
 	static  decl	qtask;
-	GroupTask();
+	GroupTask(caller=UnInitialized);
 	virtual Run();
 	loop(IsCreator=FALSE);
 	}
@@ -320,7 +321,7 @@ struct CGTask 		: GroupTask {	CGTask();				Run();	}
 
 /** The base task for looping over random effects.  **/
 struct RETask 		: GroupTask { 	
-    RETask();
+    RETask(caller=UnInitialized);
     SetFE(f);	
     SetRE(f,r);
     }

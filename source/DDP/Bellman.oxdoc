@@ -7,7 +7,7 @@
 
 <li>Overview</li>
 
-`Bellman` is derived from the `DP` class which contains <em>static</em> elements of the code.  These <a href="#static">components are described in more detail below.</a> Classes based on Bellman capture different specifications of the model, especially in terms of the <em>iid continuous state vector</em>, denoted $\zeta$.  
+`Bellman` is derived from the `DP` class which contains <em>static</em> elements of the code.  These <a href="#static">components are described in more detail below.</a> Classes based on Bellman capture different specifications of the model, especially in terms of the <em>iid continuous state vector</em>, denoted $\zeta$.
 
 A user bases (derives) <code>MyModel</code> on one of these classes (or a class ultimately derived from them). An example:
 <DD><pre>
@@ -16,9 +16,9 @@ A user bases (derives) <code>MyModel</code> on one of these classes (or a class 
 class MyModel : ExPostSmoothing {
     // declare data members
             Utility(A);
-            Reachable();
     <details><summary>// Optional methods to replace built-in versions</summary>
-           FeasibleActions(A);
+            FeasibleActions(A);
+            Reachable();
     static PreUpdate();</details>
     <details><summary>// Optional methods to accommodate new solution methods (advanced)</summary>
            thetaEMax();
@@ -64,10 +64,10 @@ A state is unreachable if it cannot occur given initial conditions.  For example
     return ! (CV(x)+CV(y)&gt; 5);
     }
 </pre></DD>
-    
+
 <LI>Restricted Feasible Action spaces / matrices </LI>
 
-<code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::FeasibleActions`() method to make the feasible choice set to vary with the endogenous state $\theta$.  That is, the action space $A$ is really $A(\theta)$.  Again, the default is that all states constructed from the action variables added to the model.  
+<code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::FeasibleActions`() method to make the feasible choice set to vary with the endogenous state $\theta$.  That is, the action space $A$ is really $A(\theta)$.  Again, the default is that all states constructed from the action variables added to the model.
 
 <DD>Example.  Only action vectors with <code>d</code> less than or equal to the value of state variable <code>x</code> are feasible.
 <pre>MyModel::FeasibleActions() { return CV(d) &lt;= CV(x); }
@@ -79,7 +79,7 @@ A state is unreachable if it cannot occur given initial conditions.  For example
 
 <LI>Value-related routines (advanced)</LI>
 
-<code>MyModel</code> can supply replacements for `Bellman::thetaEMax`(), `Bellman::ActVal`(), and `Bellman::Smooth`().  Many of the derived classes of Bellman already specialize these operations.  It is unlikely a user would need to do this.  
+<code>MyModel</code> can supply replacements for `Bellman::thetaEMax`(), `Bellman::ActVal`(), and `Bellman::Smooth`().  Many of the derived classes of Bellman already specialize these operations.  It is unlikely a user would need to do this.
 
 <LI>Auxiliary Variables and ZetaRealization</LI>
 
@@ -101,18 +101,18 @@ A state is unreachable if it cannot occur given initial conditions.  For example
 `DP` is the base class for <em>all</em> aspects of DDP models. All variables (also known as members) of the base class are <em>static</em>, which means there is only one storage location for all objects of the class. That is, these values are shared by every object derived from `DP`. Non-static or automatic members are only defined in the derived classes. Different derived classes from `DP` organize the various aspects of dynamic programming.  These include:
 
     <DD>The problem itself, which is based on the derived `Bellman` class and discussed above. Non-static elements of the model which must vary across points in the state space  are defined in `Bellman`. </DD>
-    
+
    <DD>The endogenous state space $\Theta$ is stored as an array `Theta` of objects of the user's problem class.  This array is a "static global
    variable" so access to it is somewhat limited. The code is designed so that the user need not and should not access <code>Theta</code> directly.</DD>
-   
+
     <DD>Groups of problems, which are stored in the derived `Group` class, discussed <a href="#Groups">below</a>. Groups keep track of different DP problems defined by `TimeInvariant` states defined in <a href="Variables.ox.html#Fixed">Variables.ox.html</a>, fixed and random effects. Each value of the invariants implies  a point $\gamma$ in the group space $\Gamma$.  The group space is stored as an array `Gamma` of Group objects, a  global static variable in DP.ox.  Direct access to `Gamma` is limited.</DD>
-    
-    <DD>Tasks: A `Task` is designed to iterate over objects in the overall state space and carry out specific work. You can think of a task an <em>operators</em> on part of the overall state space. Derived tasks include `Method` for coding solution algorithms. Methods are discussed in  <a href="Methods.ox.html">Methods</a>. Solution methods that rely on <a href="..../FiveO/default.html">FiveO</a> are defined in the separate <a href="../Hybrids/default.html">Hybrids</a> module.</DD>
-    
+
+    <DD>Tasks: A `Task` is designed to iterate over objects in the overall state space and carry out specific work. You can think of a task an <em>operators</em> on part of the overall state space. Derived tasks include `Method` for coding solution algorithms. Methods are discussed in  <a href="Methods.ox.html">Methods</a>. </DD>
+
     <DD>`Data` is a derived Task which includes all aspects of storing realizations of a DP, such as simulations, predictions and external data for estimation. Data and its derived classes are defined in <a href="Data.ox.html">Data</a>.</DD>
-    
+
     <DD>State Space Creation: Different tasks are defined to set up $\Theta$ and $\Gamma$.</DD>
- 
+
     <DD>Nested Tasks: Other tasks are set up to iterate over states to compute utility, transitions, etc. These tasks are often created and stored as members of another task so that a nested solution algorithm is implemented.</DD>
 
 <a name="Groups"><LI>Groups</LI></a>

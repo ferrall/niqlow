@@ -1,6 +1,5 @@
-#include "ImaiJainChing.oxdoc"
 #include "ImaiJainChing.h"
-/* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 ImaiJainChing::Report() {
 	println("Metropolis-Hastings Design,"

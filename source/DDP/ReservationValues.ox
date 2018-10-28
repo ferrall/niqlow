@@ -1,4 +1,6 @@
-#include "ReservationValues.h"
+#ifndef Mh
+    #include "ReservationValues.h"
+#endif
 /* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 
@@ -57,16 +59,21 @@ Rsystem::RVSolve(dV) {
 
 **/
 ReservationValues::ReservationValues(LBvalue,METHOD) {
-	ValueIteration(new RVGSolve(LBvalue,METHOD));
+	Method(new RVGSolve(LBvalue,METHOD,this));
     Volume = SILENT;
 	}
+
+ReservationValues::Solve(Fgroups,Rgroups) {
+    Method::Initialize();
+    Method::Solve(Fgroups,Rgroups);
+    }
 
 RVGSolve::Solve(state) {
     decl rv;
     foreach (rv in RValSys) if (isclass(rv)) { rv.meth.Volume = max(SILENT,Volume-1); rv.meth->Tune(MaxTrips); }
     GSolve::Solve(state);
 
-	this.state = /* itask.state = */ state;
+	this.state = state;
     Clock::Solving(&VV);
     ZeroTprime();
     this->Traverse();
@@ -76,8 +83,8 @@ RVGSolve::Solve(state) {
     if (Volume>SILENT && N::G>1) print(".");
     }
 
-RVGSolve::RVGSolve(LBvalue,Method) {
-    GSolve(); //new RVEdU()
+RVGSolve::RVGSolve(LBvalue,Method,caller) {
+    GSolve(caller);
 	decl i,sysize;
     RValSys={};
     for (i=0;i<N::J;++i) {

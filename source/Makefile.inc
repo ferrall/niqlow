@@ -32,6 +32,6 @@ else ifeq ($(OS), Linux)
 	XMP := ../examples
 endif
 
-# list of subdirectories to make
-DIRS := CFMPI DDP FiveO Hybrids Shared C $(XMP)
+# list of subdirectories to make Hybrids 
+DIRS := CFMPI DDP FiveO Shared C $(XMP)
 

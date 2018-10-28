@@ -194,7 +194,7 @@ struct NIID : Normal {
 
 /** One-dimensional action models with user defined distribution of &zeta;.
 
-<DT>Allows for solving the model by finding cutoffs (reservation values) in a continuous error using the Hybrid <a href="../Hybrids/DPSystems.ox.html#ReservationValues">ReservationValues</a> method.</DT>
+<DT>Allows for solving the model by finding cutoffs (reservation values) in a continuous error using the `ReservationValues` method.</DT>
 
 <DT>The reservation value solution works when</DT>
 <UL>
@@ -230,15 +230,6 @@ and the corresponding probabilities &Rho;[z &in (z*<sub>j-1</sub>,z*<sub>j</sub>
 <code>z*star</code> from the data member `OneDimensionalChoice::zstar`.</LI>
 </UL>
 
-<!--<a href="../Hybrids/DPSystems.ox.html#ReservationValues">ReservationValues</a>
-solve() computes <span="o">z</span><sub>0</sub> &hellip; <span="o">z</span><sub>&alpha;.N&oline;</sub> which are cutoff or reservation values for the values of z.  The optimal value of a, denoted a*, is
-<DD class="example"><pre>
- a* = a  iff <span="o">z</span><sub>a-1</sub> &lt; &omega; &le; <span="o">z</span><sub>a</sub>.
-<span="o">z</span><sub>-1</sub> &equiv; -&infin;
-<span="o">z</span><sub>a.N</sub> &equiv; +&infin;
- </pre></DD>
-
-The user writes routines that return ...-->
 
 **/
 struct OneDimensionalChoice : ExPostSmoothing {

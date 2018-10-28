@@ -1,4 +1,4 @@
-#import "DPSystems"
+#import "DDP"
 #include <oxdraw.oxh>
 
 WStarTestRun();

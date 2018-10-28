@@ -103,9 +103,11 @@ struct 	Prediction : Data {
 **/
 struct 	PathPrediction : Prediction {
 	static	decl summand, upddens, predicttime, solvetime;
-    const decl f, iDist,
-            /** label **/ label,
-            /** Weight Moments for GMM. **/         wght;
+    const decl                                  f, iDist,
+                /** for tracking.**/            fvals,
+                /** label **/                   label,
+            /** Weight Moments for GMM. **/
+                                                wght;
 	decl
     /** current index of random effects.**/         rcur,
     /** Empirical moments read in. **/              HasObservations,
@@ -144,6 +146,8 @@ struct 	PathPrediction : Prediction {
 	}
 
 struct PanelPrediction : PathPrediction {
+    static decl
+            /** file name of the last Panel Prediction Data Set saved.**/ PredMomFile;
 	decl
 				        					fparray,
     /**length of vector returned by EconometricObjective.**/ FN,
@@ -173,7 +177,7 @@ struct PredictionDataSet : PanelPrediction {
     TrackingMatchToColumn(Fgroup,LorC,mom);
     TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);
     Observations(NLabelorColumn,TLabelorColumn=UnInitialized);
-    Read(fn);
+    Read(fn=UseDefault);
  	virtual EconometricObjective(subp=DoAll);
     SimulateMomentVariances(N,ErgOrStateMat=0,fvals=DoAll);
     }

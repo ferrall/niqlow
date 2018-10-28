@@ -1,6 +1,10 @@
 #include "Shared.h"
 /* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
+HTopen(fn) {
+    _htlog = fopen(fn+".html","l");
+    println("<html><head><style>pre {font-family : \"Lucida Console\"; font-size : 18pt;}</style></head><body><div style=\"margin-left: 50px;color: white;  background: DarkSlateGray\"><pre>");
+    }
 /** Check versions and set timestamp, log directory.
 @param logdir str (default=".").  A directory path or file prefix to attach to all log files.
 All log files will receive the same time stamp, which is set here.
@@ -119,16 +123,6 @@ SumToOne(v) {
     }
 
 
-/**Recreate State vector from an index and offset vector.
-@param Ind, integer or row vector of integers
-@param O offset vector
-@return matrix of state vectors with index Ind given offset vector O
-**/
-ReverseState(Ind,O)	{
-	decl d=columns(O),state=zeros(d,ismatrix(Ind) ? columns(Ind) : 1);
-	while (any(Ind) && d--) if (O[d]) Ind -= (state[d][] = idiv(Ind,O[d]))*O[d];
-	return state;
-	}
 
 /**Return index of a single draw from the multinomial distribution.
 @param P vector of probabilities, p<sub>0</sub>, p<sub>0</sub>, &hellip; 1-&sum;p<sub>k</sub>

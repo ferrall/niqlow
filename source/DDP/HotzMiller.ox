@@ -10,7 +10,7 @@ HotzMiller::HotzMiller(indata,bandwidth) {
 	if (SS[bothexog].size>1) oxrunerror("DDP Error 31a. exogenous and semi-exogenous not allowed with Hotz-Miller");
 	if (SS[onlyrand].size>1) oxrunerror("DDP Error 31b. Only FixedEffects allowed in Hotz-Miller.  No random effects");
     if (!Flags::IsErgodic) oxrunerror("DDP Error 31c. clock must be ergodic in Hotz Miller");
-    ValueIteration(new HMGSolve(indata,bandwidth));
+    Method(new HMGSolve(indata,bandwidth));
 	}
 
 /** Collect observed choice frequencies from a dataset.
@@ -28,8 +28,8 @@ CCP::CCP(data,bandwidth) {
     loop();     //first time, initialize values
     oxwarning("Kstate dimension assumes t is stationary!");
     Kstates = new matrix[SS[onlyendog].D][SS[tracking].size];
-    itask = new CCPspace();
-    itask->loop();
+    qtask = new CCPspace();
+    qtask->loop();
 	Kernel = GaussianKernel(Kstates,bandwidth);
 	delete Kstates;
 	decl curp= data,curo, a, g, q;
@@ -54,8 +54,8 @@ CCP::Run() {
 	   Q[I::g]  = zeros(cnt[I::g])';
        }
     else {
-        itask.state = state;
-        itask->Traverse();
+        qtask.state = state;
+        qtask->Traverse();
         delete cnt[I::g];
         delete ObsPstar[I::g];
         }
@@ -79,12 +79,11 @@ CCPspace::Run() {
        XUT.state = state;
        XUT->ReCompute(DoAll);
 	   CCP::Q[I::f][ii] = p'*(XUT.U+M_EULER-log(p));
-//       println(ii," ",itask.Q[I::f][ii]," p ",p');
        }
     }
 
-HMGSolve::HMGSolve(indata,bandwidth) {
-    GSolve();
+HMGSolve::HMGSolve(indata,bandwidth,caller) {
+    GSolve(caller);
     if (isclass(indata,"Panel")) {
         decl myccp = new CCP(indata,bandwidth);
         Q = CCP::Q;
@@ -119,15 +118,12 @@ HMGSolve::Run() {
     }
 	
 HotzMiller::Solve(Fgroups) {
-    if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions();
-    itask.Volume = Volume;
-    cputime0 = timer();
+    Method::Initialize();
 	if (Fgroups==AllFixed)
-		itask -> GroupTask::loop();
+		qtask -> GroupTask::loop();
 	else
-		itask->Solve(ReverseState(Fgroups,I::OO[onlyfixed][]));
+		qtask->Solve(ReverseState(Fgroups,onlyfixed));
 	if (Volume>QUIET) println("Q inverse time: ",timer()-cputime0);
-    Hooks::Do(PostFESolve);
 	}
 
 AguirregabiriaMira::AguirregabiriaMira(data,bandwidth) {
@@ -146,10 +142,10 @@ AguirregabiriaMira::Solve(Fgroups,inmle) {
     do {
        mle->Iterate(0);
 	   if (Fgroups==AllFixed)
-		  itask -> GroupTask::loop();
+		  qtask -> GroupTask::loop();
 	   else {
-          itask.state =ReverseState(Fgroups,I::OO[onlyfixed][]);
-		  itask->Run();
+          qtask.state =ReverseState(Fgroups,onlyfixed);
+		  qtask->Run();
           }
         } while (mle.convergence<STRONG);
     }

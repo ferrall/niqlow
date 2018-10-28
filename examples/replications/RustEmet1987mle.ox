@@ -28,7 +28,7 @@ RustEstimates::DoAll() {
     delete mle;
     EMax.vtoler = 1E-4;
     EMax.Volume = QUIET;
-    GSolve::RunSafe = TRUE;
+    EMax->ToggleRunSafe();
     mle = new BFGS(nfxp);
 	mle.Volume = QUIET;
 	mle -> Iterate(0);

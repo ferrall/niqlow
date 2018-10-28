@@ -1,4 +1,3 @@
-
 #import "DDP"
 
 /** Unemployment Insurance Model Dimenions.

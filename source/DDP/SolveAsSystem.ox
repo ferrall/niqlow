@@ -20,7 +20,7 @@ EVSystem::vfunc()	{
 	return (systask.VV[I::now][]-systask.VV[I::later][])';
 	}
 
-SaSGSolve::SaSGSolve() {   GSolve::GSolve();	}
+SaSGSolve::SaSGSolve(caller) {   GSolve::GSolve(caller);	}
 
 SaSGSolve::Run() {	
     XUT.state = state;
@@ -32,16 +32,15 @@ SolveAsSystem::SolveAsSystem() {
     Method();
 	VI = new ValueIteration();
 	system = new EVSystem(N::Mitstates,VI);
-    itask = new SaSGSolve();
+    qtask = new SaSGSolve();
     }
 
 SolveAsSystem::Solve(SystemSolutionMethod,MaxTrips)	{
-    if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions(); // UpdateVariables();
+    Method::Solve();
 	Parameter::DoNotConstrain = FALSE;
     this.SystemSolutionMethod = SystemSolutionMethod;
     this.MaxTrips = MaxTrips;
     this->GroupTask::loop();
-//    itask->Solve();
 	}
 
 SolveAsSystem::Run() {
@@ -50,5 +49,5 @@ SolveAsSystem::Run() {
 	system->Encode(VI.VV[I::later][]');	
 	system->Solve(SystemSolutionMethod,MaxTrips);
 	Flags::setPstar = TRUE;
-	itask->Traverse();		
+	qtask->Traverse();		
 	}

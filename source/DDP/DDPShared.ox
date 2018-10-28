@@ -1,5 +1,18 @@
 #include "DDPShared.h"
 
+/**Recreate State vector from an index and offset vector.
+@param Ind, integer or row vector of integers
+@param subsp `SubSpaces`, index into offset vector `I::OO`
+@return matrix of state vectors with index Ind given subspace
+**/
+ReverseState(Ind,subsp)	{
+	decl d=N::S,
+         O=I::OO[subsp][],
+         state=zeros(d,ismatrix(Ind) ? columns(Ind) : 1);
+	while (any(Ind) && d--) if (O[d]) Ind -= (state[d][] = idiv(Ind,O[d]))*O[d];
+	return state;
+	}
+
 
 /** .
 @internal

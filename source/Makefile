@@ -4,12 +4,13 @@ INC := ..\include
 DOC := ../docs
 OxMenu = ..\..\OxMenu\include
 
-vpath %.ox .:Shared:DDP:FiveO:Hybrids:$(INC)
+#  Hybrids:
+vpath %.ox .:Shared:DDP:FiveO:$(INC)
 vpath %.h $(INC)
 vpath %.oxo $(INC)
 vpath %.ox.html $(DOC)
 
-oxobjects = Shared.oxo DDP.oxo FiveO.oxo CFMPI.ox Hybrids.oxo
+oxobjects = Shared.oxo DDP.oxo FiveO.oxo CFMPI.ox 
 
 niqlow.oxo  : $(oxobjects)
 #	-for d in $(DIRS); do ($(CD) $$d; $(MAKE) $(MKFLAGS); $(ECHO) "\n\n\n Build attempt for directory: $$d complete\n\n\n"); done
@@ -26,7 +27,7 @@ document:
 	${MAKE} -C About document
 	${MAKE} -C DDP document
 	${MAKE} -C FiveO document
-	${MAKE} -C Hybrids document
+#	${MAKE} -C Hybrids document
 	${MAKE} -C CFMPI document
 	${MAKE} -C $(XMP) document
 	${MAKE} -C $(DOC) tweak
@@ -39,7 +40,7 @@ install:
 	${MAKE} -C FiveO
 	$(COPY) FiveO\ParallelObjective.ox $(INC)
 	$(ERASE) $(INC)\ParallelObjective.oxo
-	${MAKE} -C Hybrids
+#	${MAKE} -C Hybrids
 	${MAKE} -C $(INC)
 	${MAKE} -C .
 	${MAKE} -C $(XMP)

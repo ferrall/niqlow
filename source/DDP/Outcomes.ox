@@ -276,7 +276,7 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
 		  }
         else {
            iS = 0; while (!Settheta(iS)) ++iS;
-           iS = ReverseState(iS,I::OO[tracking][]);
+           iS = ReverseState(iS,tracking);
            }
         }
 	if (isclass(upddens)) {
@@ -377,7 +377,7 @@ Panel::Panel(r,method) {
             LFlat[LONG] |= q.L;
             LFlat[WIDE] |= q.L;
             }
-		Fmtflat = {"%4.0f","%4.0f"}|{"%4.0f","%2.0f","%3.0f","%3.0f"}|Labels::Sfmts|"%4.0f";
+		Fmtflat = {"%4.0f","%4.0f"}|{"%4.0f","%4.0f","%7.0f","%3.0f"}|Labels::Sfmts|"%4.0f";
 		for (i=0;i<N::Av;++i) Fmtflat |= "%4.0f";
 		for (i=0;i<zeta.length;++i) Fmtflat |= "%7.3f";
         foreach (q in Chi) Fmtflat |= "%7.3f"; //		for (i=0;i<Naux;++i) Fmtflat |=        "%7.3f";
@@ -446,7 +446,11 @@ Panel::Print(fn,Orientation)	{
 	if (isint(flat)) Flat(Orientation);
 	if (isint(fn)) {
         if (fn==1) fprint(Data::logf,"%c",LFlat[Orientation],"%cf",Fmtflat,flat);
-        else if (fn>1) println("%c",LFlat[Orientation],"%cf",Fmtflat,flat);
+        else if (fn>1) {
+            println("-------------------- Panel ------------------------\n");
+            println("%c",LFlat[Orientation],"%cf",Fmtflat,flat);
+            println("\n-------------------- End Panel --------------------\n");
+            }
         }
 	else if (!savemat(fn,flat,LFlat[Orientation])) oxrunerror("DDP Error 51. FPanel print to "+fn+"failed");
 	}
@@ -470,7 +474,7 @@ Outcome::Likelihood(Type) {
 Outcome::AuxLikelihood(howmany) {
     decl al, hold = state[left:right], xind = howmany==DoAll ? onlysemiexog : bothexog;
     exaux.state[:right] = state[:right]
-            = (ReverseState(ind[xind],I::OO[xind][])+ReverseState(viinds[now],I::OO[tracking][]))[:right];
+            = (ReverseState(ind[xind],xind)+ReverseState(viinds[now],tracking))[:right];
     SyncStates(left,right);
     I::Set(state,FALSE);
     al = exaux->Likelihood(howmany,this);
@@ -630,7 +634,6 @@ FPanel::LogLikelihood() {
 	cputime0 =timer();
 	if (isclass(method)) {
         if (!method->Solve(f)) {
-           println("#### Solve says fail");
 	       FPL = constant(.NaN,N,1);
            return FALSE;
            }
@@ -709,7 +712,7 @@ OutcomeDataSet::Mask() {
         cur -> FPanel::Mask(&LTypes);
         } while ((isclass(cur = cur.fnext)));
 	masked = TRUE;
-    println("Path like type counts",LTypes');
+    println("Path like type counts","%c",{"CCP","IID","PartObs"},LTypes');
    }
 
 /** set the column label or index of the observation ID.
@@ -896,7 +899,7 @@ OutcomeDataSet::Summary(data,rlabels) {
     if (ismatrix(data)) MyMoments(data,rlabels,Data::logf);
     else {
         Print(0);
-        MyMoments(flat,{"f"}|"i"|"t"|"track"|"term"|"Ai"|Labels::Vprt[svar]|"Arow"|Labels::Vprt[avar]|Labels::Vprt[auxvar],Data::logf);
+        MyMoments(flat,{"f"}|"r"|"i"|"t"|"track"|"term"|"Ai"|Labels::Vprt[svar]|"Arow"|Labels::Vprt[avar]|Labels::Vprt[auxvar],Data::Volume>QUIET ? 0 : Data::logf);
         }
 	}
 	

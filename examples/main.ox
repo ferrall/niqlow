@@ -10,7 +10,7 @@ main() {
             {"DDP Tests & Demos",       DDPmenu()      },
             {"FiveO Tests & Demos",     FiveOmenu()  },
 			{"Replications of Published Work", repmenu()         },
-            {"Hybrid & Miscellaneous",  misctestmenu()    },
+            {"Miscellaneous",           misctestmenu()    },
             {"CFMPI Tests & Demos ",    mpimenu()         }
 				);
     tests->CmdLine();

@@ -1,32 +1,41 @@
 #import "Bellman"
 /* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
+enum {AddToSample,ComputeBhat,PredictEV,NKWstages}
+
 VISolve(ToScreen=TRUE,aM=FALSE,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
 
-/**	Loop over random effect values &gamma;, call  GSolve() method for the calling method.
+/**Iterate on Bellman's Equation, to solve EV(&theta;) for all fixed and random effects.
+@comments `Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
+Results are integrated over random effects, but results across fixed effects are overwritten.
+`Bellman::pandv` contains choice probabilities at $\theta$.
 **/
-struct RandomSolve : RETask {
-    decl retval;
-    RandomSolve(gtask);
-    Run();
+struct ValueIteration : Method {
+	ValueIteration(myGSolve=0);
+	virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
+    virtual Run();
+	}
+
+struct NewtonKantorovich : ValueIteration {
+    NewtonKantorovich(myGSolve=0);
+	virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
     }
 
-
-/** A container for solution methods.
-**/
-struct Method : FETask {
-	static const decl
-		/** Default convergence tolerance on Bellman Iteration.**/ DefTolerance = 1E-5;
+struct NKSolve : GSolve {
     decl
-        /** Either r or AllRan to solve for all random effects.**/  Rgroups,
-        /** FALSE(default): iterate on V(&theta;)<br>
-            TRUE: only compute transitions.**/      DoNotIterate,
-                                                     vtoler,
-    /** Output from the solution method.  Passed on to `GSolve::Volume`.
-        @see NoiseLevels**/                         Volume;
-    Method();
-    virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
-	}
+     /**setting up Newton-Kantorovich iteration.**/ NKstep0,
+   /**Newton-Kantorovich iteration.**/              NKstep,
+                                                    prevdff,
+    /**Minimum trips before N-K.**/                 MinNKtrips,
+    /**tolerance for switching to NK,**/            NKtoler,
+                                                    L,U,P,ip,itstep,
+                                                     NK,
+                                                     NKlist;
+    NKSolve(caller=UnInitialized);
+    virtual PostEMax();
+    virtual Solve(instate);
+    virtual Update();
+    }
 
 /** Newton-Kantorovich iteration information. **/
 struct NKinfo : DDPauxiliary {
@@ -42,54 +51,6 @@ struct NKinfo : DDPauxiliary {
     Hold();
     NKinfo(t);
     }
-
-/** A container for iterating over &theta; during solution methods.
-**/
-struct GSolve : ThetaTask {
-    static decl
-                                                    dff,
-                                                    prevdff,
-    /** TRUE (default): exit if NaNs encountered during iteration<br>
-            FALSE: exit with <code>IterationFailed</code> **/
-    /** check for NaNs in the value function.**/    RunSafe,
-    /** TRUE if all tasks suceed.**/                succeed,
-                                                    warned,
-                                                    Volume,
-                                                    ev,
-	/** Scratch space for value iteration. **/      VV,
-                                                    ptrans,
-    /**Minimum trips before N-K.**/                 MinNKtrips,
-    /**tolerance for switching to NK,**/            NKtoler,
-	/** Tolerance on value function convergence in
-    stationary environments.  Default=10<sup>-5</sup>.**/	
-                                                     vtoler,
-                                                     UseNK,
-                                                     NK,
-                                                     NKlist,
-                                                     MaxTrips;
-    ZeroTprime();
-    GSolve();  //ndogU=0
-    virtual Solve(instate);
-    virtual Run();
-	virtual Update();
-    virtual PostEMax();
-    NewtonKantorovich();
-    Report(mefail);
-	}
-
-
-/**Iterate on Bellman's Equation, to solve EV(&theta;) for all fixed and random effects.
-@comments `Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
-Results are integrated over random effects, but results across fixed effects are overwritten.
-`Bellman::pandv` contains choice probabilities at $\theta$.
-**/
-struct ValueIteration : Method {
-	ValueIteration(myGSolve=0);
-	virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
-    virtual Run();
-	}
-
-enum {AddToSample,ComputeBhat,PredictEV,NKWstages}
 
 /** Approximate EV from a subsample of &Theta; using Keane-Wolpin (1994).
 
@@ -221,65 +182,9 @@ struct KWGSolve : GSolve {
 	const decl 		cpos, lo, hi;
 	decl 			meth, firstpass, onlypass;
                     Solve(instate);
-                    KWGSolve();         //myKWEMax=0
+                    KWGSolve(caller=UnInitialized);
 	virtual         Specification(kwstep,V=0,Vdelta=0);
 	virtual 		Run();
 	virtual 		InSample();
 	virtual	 		OutSample();
-    }
-
-/** Compute Estimate of Conditional Choice Probability from Data.
-**/
-struct CCP : FETask {
-	static decl
-            /** F&times;1 array of CCPs.**/         Q,
-            /**`Panel` containing data. **/         data,
-                                                    bandwidth,
-                                                    NotFirstTime,
-                                                    Kernel,
-                                                    cnt,
-		                                            ObsPstar,
-                                                    Kstates;
-	CCP(data,bandwidth=UseDefault);
-    // static InitializePP();
-	Run();
-	}
-
-struct CCPspace : ThetaTask {
-    CCPspace();
-    Run();
-    }
-
-/** Solve a DP model using the Hotz-Miller inverse mapping from conditional choice probabilities.
-
-<DT>Hotz-Miller cannot be applied to models with</DT>
-<DD>any exogenous state variables (those contained in the &epsilon; or &eta; vector).</DD>
-<DD>random effect invariants.</DD>
-
-
-**/	
-struct HotzMiller : ValueIteration {
-	HotzMiller(indata=0,bandwidth=UseDefault);
-	virtual Solve(Fgroups=AllFixed);
-	}
-
-struct HMGSolve : GSolve {
-    static decl VV, Q;
-    HMGSolve(indata=0,bandwidth=UseDefault);
-    Solve(instate);
-    virtual Run();
-    }
-
-/** Solve a DP model using the Aguiregabiria Mira iterative prodecure.
-
-**/
-struct AguirregabiriaMira : HotzMiller  {
-    decl                mle;
-    AguirregabiriaMira(data=0,bandwidth=UseDefault);
-    Solve(Fgroups=AllFixed,inmle=0);
-    virtual Run();
-    }
-
-struct AMGSolve : HMGSolve {
-    Run();
     }

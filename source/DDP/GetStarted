@@ -35,8 +35,9 @@ To run the program and see results:
 <LI><a href="#B">Code the model and apply a solution method to it.</a></LI>
 <LI><a href="#C">Run the code and look at the output</a></LI>
 </OL>
-<p></p><p></p>
+
 <OL class="chapter">
+
 <a name="A"><LI>Define The Model</LI></a>
 A person must purchase an item. They search, <em>potentially forever</em>, for an acceptably low price.<details class="aside"><summary><em>What does N&oline; mean?</em></summary>N&oline; &equiv; N-1.  So, 5&oline; = 4.  Since counting starts at 0 the larges value is always the number of values minus 1. But putting <q>N-1</q> everywhere is not elegant.<br> For more on notation see <a href="DDP.ox.html#NC">Notation and Conventions</a>. <p></details>
 Each period a price $p$ is drawn from a discrete set $\{0,1,2,...,N^-\}$.</p>
@@ -44,36 +45,30 @@ Over time, price offers are IID and, for simplicity, each value is equally likel
 $$Prob(p' = z) = P_p(z) = 1/N,  z \in\ \left\{0,...,N^-\right\}.$$
 Here p&prime; is the price next period and $P_p()$ is its <em>transition</em>.</p>
 
-While searching the person chooses $a$, where $a=1$ means buy at the offered price and $a=0$ means reject and keep searching.
-<div class="page-break"> </div>
-The state variable <var>d</var> indicates whether a decision as been made or not. <var>d=0</var> means still searching, and <var>d=1</var> means a price has been accepted.  The transition for <var>d</var> today to <var>d</var> next period can written:
+While searching the person chooses $a$, where $a=1$ means buy at the offered price and $a=0$ means reject and keep searching. The state variable <var>d</var> indicates whether a decision as been made or not. <var>d=0</var> means still searching, and <var>d=1</var> means a price has been accepted.  The transition for <var>d</var> today to <var>d</var> next period can written:
 $$d' = a\quad \Rightarrow\quad P_d(d';a,d) = I\{d'=a\}.$$
 And $d=1$ is a terminal value, which means that decision making ends whenever that value is reached. <var>Utility</var> equals realized costs: search costs,  $\lambda > 0$, and the price paid if purchased:
 $$U(a,p,d) = -(1-d)[ \lambda + ap ]$$
 Future returns are discounted by $\delta<1$.</p>
 
-<DT>Solution: prices above the value of continued search are rejected.</DT>
+The Solution: prices above the value of continued search are rejected.
 <DD><img src="GetStarted.png"></img></DD>
-<DD>The red lines indicate discrete price offers.  There is a reservation price but it will generically fall between possible offers. See <a href="../Hybrids/DPSystems.ox.html">DPSystems</a> for a case of continuous offers and solving for reservation values.</DD>
+The red lines indicate discrete price offers.  There is a reservation price but it will generically fall between possible offers. </p>
 
 <a name="AB"><LI>Translate the model into <span class="n">DDP</span> terms</LI></a>
 
-The notation used here uses <span class="n">DDP</span>'s notation for describing a model.  Presuming you are starting with this example this notation is shown here to demonstrate how all aspects of DP problems are part of <span class="n">DDP</span>.
+The notation used here uses <span class="n">DDP</span>'s notation for describing a model.  Presuming you are starting with this example this notation is shown here to demonstrate how all aspects of DP problems are part of <span class="n">DDP</span>.</p>
 
-<DD>The model's <b>clock</b> is stationary, which is a predefined clock type, <code>InfiniteHorzion</code>. </DD>
-<DD>The <b>action</b> vector $\alpha$ contains a single binary `ActionVariable`: <code>&alpha; = (a)</code></DD>
-<DD>The offer price is <var>p</var> is an instance (object) of the `SimpleJump` class.
-    <details class="aside"><summary>State Variable Classes</summary>To keep track of all aspects of a state variable, including how it evolves, state variables are objects of a particular class.  A class describes both data and methods (functions) that operate on the data.  Further, Ox allows for derived classes and virtual methods, which make it possible to build up a library of different kinds of state variables in <span class="n">DDP</span>.  Many kinds of state variables that appear in the literature are already coded and available to be included in your model.</details>.</DD>
-<DD>The decision-made-already state variable, <var>d</var> is an object of the  <code>`LaggedAction`</code> class.   <code>d=1</code> is in the terminal set, $\overline{\Theta}$.</DD>
+The model's <b>clock</b> is stationary, which is a predefined clock type, <code>InfiniteHorzion</code>. The <b>action</b> vector $\alpha$ contains a single binary `ActionVariable`: <code>&alpha; = (a)</code> The offer price is <var>p</var> is an instance (object) of the `SimpleJump` class.
+    <details class="aside"><summary>State Variable Classes</summary>To keep track of all aspects of a state variable, including how it evolves, state variables are objects of a particular class.  A class describes both data and methods (functions) that operate on the data.  Further, Ox allows for derived classes and virtual methods, which make it possible to build up a library of different kinds of state variables in <span class="n">DDP</span>.  Many kinds of state variables that appear in the literature are already coded and available to be included in your model.</details>.
+The decision-made-already state variable, <var>d</var> is an object of the  <code>`LaggedAction`</code> class.   <code>d=1</code> is in the terminal set, $\overline{\Theta}$.</p>
 
-<DD>Because price offers are IID it can be put into the <b>exogenous</b> state vector $\epsilon$ contains one variable, <code>&epsilon; = (p)</code>.</DD>
+Because price offers are IID it can be put into the <b>exogenous</b> state vector $\epsilon$ contains one variable, <code>&epsilon; = (p)</code>. Since the transition for <var>d</var> depends the current action it is placed in the <b>endogenous</b> state vector $\theta$, which always contains a time variable as well:  <code>&theta; = (d t)</code>.<details class="aside"><summary>Why multiple state vectors</summary>To conserve memory and computation, <span class="n">DDP</span> allows the user to put state variables in different vectors that are treated differently.  There are actually two other special state vectors not required in this example, $\eta$ and $\gamma$.</details>
+Since the model is stationary, the current time is always <code>t=0</code>.</p>
 
-    <DD>Since the transition for <var>d</var> depends the current action it is placed in the <b>endogenous</b> state vector $\theta$, which always contains a time variable as well:  <code>&theta; = (d t)</code>.<details class="aside"><summary>Why multiple state vectors</summary>To conserve memory and computation, <span class="n">DDP</span> allows the user to put state variables in different vectors that are treated differently.  There are actually two other special state vectors not required in this example, $\eta$ and $\gamma$.</details>
-    Since the model is stationary, the current time is always <code>t=0</code>.</DD>
-<DD><b>Utility</b> depends on current state variables, actions and parameters:<br/>
-    $U(\alpha,\epsilon,\theta) = U( (a), (p), (d) ) $ <code>= -(1-d)*[ lam + a*p ]</code></DD>
-
-Because Ox does not recognize Greek letters, <code>lam</code> &equiv; &lambda;.  Further, multiplication uses <code>*</code>. However, since p, a, and d are <em>objects</em>, the Ox code to implement <var>U()</var> will require more than just referring to the variable in the expression.
+<b>Utility</b> depends on current state variables, actions and parameters:
+<DD>$U(\alpha,\epsilon,\theta) = U( (a), (p), (d) ) $ <code>= -(1-d)*[ lam + a*p ]</code></DD>
+Because Ox does not recognize Greek letters, <code>lam</code> &equiv; &lambda;.  Further, multiplication uses <code>*</code>. However, since p, a, and d are <em>objects</em>, the Ox code to implement <var>U()</var> will require more than just referring to the variable in the expression.</p>
 
 <a name="B"><LI>Code the model in <span class="n">DDP</span></LI></a>
 
@@ -171,7 +166,7 @@ However it is referenced, <code>a</code> and <code>b</code> refer to the same pl
     The method `DP::EndogenousStates`() adds the arguments sent to it to the $\theta$ vector. Recall that <code>d=1</code> is a terminal state.  <span class="n">DDP</span> must know this so that the value of reaching that state is taken from its utility not iterated on using Bellman's equation.  <code>MakeTerminal()</code> is a  <code>StateVariable</code> method that can take either an integer or a vector of integer values as its argument.  <code>d->MakeTerminal(1)</code> would not work if <var>d</var> had not be assigned a state variable in the previous line.</DD>
 
     <DD>22: The state variable <var>p</var> takes on one of <var>p.N</var> different values with equal probability. In <span class="n">DDP</span> this is a <code>`SimpleJump`</code> state variable.  Since its transition  does not depend on the current state or actions, <span class="n">DDP</span> can be told this an <em>exogenous</em> state variable, reducing memory and computations.   </DD>
-    
+
 <DT>Create the DP environment</DT>
     <DD>13: After <code>Model()</code> is complete we return to line 13.  All elements have been created and added to the model, the user's code calls <code>CreateSpaces()</code>.  <code>CreateSpaces()</code> uses all the information available about elements added to the model to create the state space, the feasible Action sets and many other aspects of the problem.  To conserve memory requirements and computational time <span class="n">DDP</span> does not create separate points for the exogenous elements of the state space (here <var>p</var>). It treats these separately and <q>attaches</q> values related to the exogenous states to the points in the endogenous state space, $\Theta$.</DD>
 
@@ -191,7 +186,7 @@ However it is referenced, <code>a</code> and <code>b</code> refer to the same pl
 <LI>Actions and state variables are instances of predefined classes or user-defined classes.  They are added the model using DP methods (functions).</LI>
 <LI>Once all elements of the model have been added the user must call <code>CreateSpaces()</code> to set up the state space and other aspects of the model. The user's code must define a function that returns a <code>new</code> instance of their class which is passed to <code>CreateSpaces()</code>, which will call that function for each point in the state space $\Theta$.</LI>
 <LI>The user must provide a <code>Utility</code> method and a function.  This replace the <em>virtual</em> method in Bellman of the same name.</LI>
-<LI>The model is solved by creating an solution object and calling the appropriate method (usually <code>Solve</code>), and the `VISolve`() routine will do all this for you when more control of options and repeated solutions is not needed.</LI>
+<LI>The model is solved by creating an solution object and calling its `Method::Solve`() function.  The `VISolve`() routine will do all this for you when more control of options and repeated solutions is not needed.</LI>
 </UL>
 
 <a name="C"><LI>Run the code and see the output</LI></a>
@@ -215,7 +210,6 @@ However it is referenced, <code>a</code> and <code>b</code> refer to the same pl
     If you use <code>OxEdit</code> or some other code editing program then you can set it up so folder(s) are added to the include path automatically so you do not have to type it each type. See <a href="http://www.doornik.com/ox/index.html#oxpath">Ox Path</a></dd> </details>
     <pre>oxl GetStartedMain
     </pre></dd>
-<div class="page-break"> </div>
 
     <DD><details><summary>Source: <a href="../examples/output/GetStarted.txt">../examples/output/GetStarted.txt</a></summary>
     <object width="75%" height="200" type="text/plain" data="../examples/output/GetStarted.txt" border="1" ></object>
@@ -232,7 +226,7 @@ A <a href="Data.ox.html#Outcome">Outcome</a> tracks realizations of a dynamic pr
 
 <H3>A small example based on simulated data from the simple search model above</H3>
 
-This example is based on the <code>Search</code> model described at <a href="GetStarted.html#GS0">GetStarted</a>.  
+This example is based on the <code>Search</code> model described at <a href="GetStarted.html#GS0">GetStarted</a>.
 
 <OL class="chapter">
 
@@ -268,7 +262,7 @@ The constructor for an auxiliary variable simply has to call the base constructo
 Since `AuxiliaryValue` is derived from `Quantity` it has a current member, <code>v</code>.  The job of <code>Realize()</code> is to set <code>v</code> for other aspects of the code to use.  In this case, the auxiliary outcome calls <code>Utility()</code> and extracts the element of the vector returned that corresponds to the realized action.  By using a virtual method <code>Realize</code>, the base <span class="n">DDP</span> code can update your auxiliary variables for you without knowing ahead of time what those variables are. Also note that an auxiliary value can be sent to `CV`() after the call to <code>Realize()</code>.  For example, here <code>CV(u)</code> will return the realized value of utility of the current outcome.   So it is straightforward to build auxiliary variables into econometric objectives, equilibrium conditions, etc. (Besides <code>Realize()</code>, auxiliary values include a virtual <code>`AuxiliaryValue::Likelihood`()</code> method.  This is called when computing `Panel::Loglikelihood`().</p>
 
 <li>Modified Run()</li>
-    
+
 <code>DerivedSearch</code> relies on the base <code>Run()</code> routine discussed in <a href="GetStarted.html">GetStarted</a>.  All it has to do is create the auxiliary variable and then create a specialized data set object:
 <dd><pre>
 DerivedSearch::Run()	{
@@ -361,10 +355,49 @@ SearchData::SearchData() {
 
 <a name="#GS2"><LI>Re-design the search model with continuous offers and reservation prices.</LI></a>
 
+<OL class="chapter">
+<LI> The model is a continuous version of the <a href="#GS1">model above</a>.</LI>
+    <OL class="steps">
+    <li class="fragment">Finite time horizon (<code>T=10</code>) to search over job offers</li>
+    <li class="fragment">Offers are continuous: &emsp; $z \sim \Phi(x)$.</li>
+    <li class="fragment">Wages not prices: &emsp; $U = (1-a)\eta + az$</li>
+    <li class="fragment">Optimal choice: a reservation wage <code>z*</code> at each <code>t</code>.<br> That is: <q>policy</q> iteration not <q>value function</q> iteration.</li>
+    </OL>
+<LI>Optimal Behaviour: accept offers above a reservation value z*.</LI>
+<LI>z* solves a non-linear system:</LI><DD><pre>v(1,z*)-v(0,z*)=0</pre></DD>
+    <img src="./ContinuousOffers2.png"/>
+
+<LI>Required Information to solve z*</LI>
+    <h4>4 functions of <code>z*</code></h4>
+    <OL class="steps">
+    <LI>Utility differences at any candidate z*:  $U(0,z*)-U(1,z*)$. This information is received by the user-provided method called <code>Uz(z)</code>.  It returns a column vector with <code>U(0,z*)|U(1,z*)|&hellip;.</code>. (More generally when there are more <code>N</code> choices and <code>N-1</code> cut-off values it should return a <code>N &times; N-1</code> matrix.</LI>
+    <LI>Expected utility for <code>a=0</code> given z*: $E[U(0,z)|z\le z*]$.  </LI>
+    <LI>Expected utility for <code>a=1</code> given z*: $E[U(1,z)|z>z*]$.</LI>
+    <LI>Probability of acceptable offers: $Prob(z>z*)$</LI>
+    </OL>
+    The user provides a method <code>EUtility()</code> which returns an array.  The first element is a vector of expected utility differences.  The second is a vector of probabilities.
+<LI>Inputs for solving z*</LI>
+    <img src="./ContinuousOffers.png"/>
+<LI>Code and Output</LI>
+<DT>Header File</DT>
+<dd><pre>Source: <a href="javascript:popoxcode('../../examples/misc/WstarTestb.h');">examples/misc/WstarTestb.h</a>
+<object width="100%" height="100" type="text/plain" data="../../examples/misc/WstarTestb.h" border="1" ></object></pre></dd>
+<DT>Ox File</DT>
+<DD><pre>Source: <a href="javascript:popoxcode('../../examples/WstarTestb.ox');">examples/misc/WstarTestb.ox</a>
+<object width="100%" height="200" type="text/plain" data="../../examples/misc/WstarTestb.ox" border="1" ></object></pre></dd>
+<DT>Output</DT>
+<DD><pre>Source: <a href="javascript:popoxcode('../../examples/output/Reservation_Wage_Test.txt');">examples/output/Reservation_Wage_Test.txt</a>
+<object width="100%" height="200" type="text/plain" data="../../examples/output/Reservation_Wage_Test.txt" border="1" ></object></pre></dd>
+
+<DT>Graph of Reservation values</DT>
+<DD><pre>Source: <a href="../../examples/misc/WstarTestb.pdf">examples/misc/WstarTestb.pdf</a>
+<object width="100%" height="200" type="application/pdf" data="../../examples/WstarTestb.pdf"  border="1" >PDF</object></pre></dd>
+</OL>
+
 <a name="#GS3"><LI>Where to go next</LI></a>
 <DD><a href="../../examples/replications/RustEmet1987mle.ox.html">Rust Emet 1987 mle</a> is an example of using external data.</DD>
 
-    <dd>The program <code>/niqlow/examples/main.ox</code> is an interactive program to run examples, test code, and replications.  One of the options is to run <code>GetStarted</code> and <code>GetStartedData</code>. TO get started with optimization of non-linear objectives, see <a href="../FiveO/GetStarted.html">FiveO/GetStarted</a>.</dd>
+<dd>The program <code>/niqlow/examples/main.ox</code> is an interactive program to run examples, test code, and replications.  One of the options is to run <code>GetStarted</code>, <code>GetStartedData</code> and <code>GetStartedRValues</code>. To get started with optimization of non-linear objectives, see <a href="../FiveO/GetStarted.html">FiveO/GetStarted</a>.</dd>
 
 </OL>
 

@@ -242,14 +242,11 @@ Test9::Run()	{
     meth -> Solve();
     decl pd = new PanelPrediction("hi");
     Data::Volume = LOUD;
-    pd->Tracking (UseLabel,fem,a,d);
+    pd->Tracking (UseLabel,a,d);
     pd->Predict(15,TRUE);
-    println("%c",{"f"}|pd.tlabels,pd.aflat[0],pd.aflat[1]);
-    savemat("Test9moms.dta",pd.aflat[0]|pd.aflat[1],{"f"}|pd.tlabels);
-    delete pd;
     pd = new PredictionDataSet(UseLabel,"hi",meth,FALSE,FALSE);
     pd->TrackingWithLabel(AllFixed,TRUE,a,d);
-    pd->Read("Test9moms.dta");
+    pd->Read(); //reads from PredMomFile
     Explore(pd,10,0.1,lam);
 	Delete();
 	}

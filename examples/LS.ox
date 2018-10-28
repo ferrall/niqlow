@@ -23,10 +23,14 @@ LS::Run() {
     Initialize(1.0,new LS());
     Model();
     CreateSpaces();
-    beta = <1.2;0.09;-0.1;0.2>;
-    b = 2.0;
+    beta = <0.8;1.0;-0.1;0.2>;
+    b = 2;
     VISolve();
     dta = new Panel("data");
     dta -> Simulate(2,40);
     dta -> Print(2);
+    delete dta;
+    dta = new PanelPrediction("moments");
+    dta -> Tracking(TrackAll);
+    dta -> Predict(40,1);
     }

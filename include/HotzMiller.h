@@ -1,3 +1,5 @@
+#import "Data"
+
 /** Compute Estimate of Conditional Choice Probability from Data.
 **/
 struct CCP : FETask {
@@ -28,14 +30,14 @@ struct CCPspace : ThetaTask {
 
 
 **/	
-struct HotzMiller : ValueIteration {
+struct HotzMiller : Method {
 	HotzMiller(indata=0,bandwidth=UseDefault);
 	virtual Solve(Fgroups=AllFixed);
 	}
 
 struct HMGSolve : GSolve {
     static decl VV, Q;
-    HMGSolve(indata=0,bandwidth=UseDefault);
+    HMGSolve(indata=0,bandwidth=UseDefault,caller=UnInitialized);
     Solve(instate);
     virtual Run();
     }

@@ -223,6 +223,7 @@ static const decl ClockTypeLabels
     ilistnames = {"StateVariable","ActionVariable","AuxiliaryValue"}
     ;
 
+ReverseState(Ind,subsp);
 
 /**Container for auxiliary classes in in DDP but not elsewhere (directly). **/
 struct DDPauxiliary : Zauxiliary {
@@ -257,8 +258,6 @@ struct Flags : DDPauxiliary {
 		/** .@internal **/			                            DoSubSample,
 		/**  store &Alpha.D x &Theta.D matrix
 			of choice probabilities  **/  						StorePA,
-        /**setting up Newton-Kantorovich iteration.**/          NKstep0,
-        /**Newton-Kantorovich iteration.**/                     NKstep,
         /** Stationary Stage of value iteration.**/             StatStage,
 		/** set &Rho;*(<code>&alpha;</code>|&hellip;)
             in Bellman		**/		                            setPstar;

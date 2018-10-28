@@ -1,4 +1,4 @@
-#import "ImaiJainChing"
+#import "DDP"
 
 /** Names for parameters of Kapital process. @name Kparams**/
 enum{Kbe,Kb0,Kb1,Kb2,SigU,Kparams}

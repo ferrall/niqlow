@@ -20,7 +20,7 @@ WStarA::Run()	{
 	CreateSpaces();
 //	Volume=LOUD;
 	decl RV = new ReservationValues();
-//	RV.Volume = LOUD;
+	RV.Volume = LOUD;
 	DPDebug::outAllV(TRUE,FALSE,FALSE,FALSE,FALSE);
 	RV -> Solve();
     delete RV;
@@ -125,7 +125,7 @@ WStarC::Run()	{
 	CreateSpaces();
 	decl RV = new ReservationValues();
     RV.Volume=QUIET;
-    GSolve::RunSafe = TRUE;
+    RV->ToggleRunSafe();
     decl key;
     for (sigma = 0.4; sigma<1.1; sigma += 0.05) {
        println("sigma = ",sigma);
@@ -160,7 +160,7 @@ WStarC::Run2()	{
 	CreateSpaces();
 	decl RV = new ReservationValues();
     RV.Volume=QUIET;
-    GSolve::RunSafe = TRUE;
+    RV->ToggleRunSafe();
 	DPDebug::outAllV(TRUE,FALSE,FALSE,TRUE,FALSE);
 	RV->Solve();
     data = new Panel(0);
