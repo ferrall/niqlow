@@ -201,11 +201,13 @@ Objective::CheckMax(fn)	{
 @param toscreen TRUE: print full report to screen as well</br>FALSE: only print orig to screen
 **/
 Objective::Print(orig,fn,toscreen){
-	decl note =sprint("\n\nReport of ",orig," on ",L,"\n"),
+	decl
+         note =sprint("\n\nReport of ",orig," on ",L,"\n"),
          details = sprint("%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
 		          "Free Parameters",
-		          "%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~cur.F,
-		          "Actual Parameters","%c",{           "     Value "},"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
+		          "%r",Flabels,"%c",{"   index  ","     free      "}| (isnan(cur.SE) ? {} : {"stderr"}),
+                        "%cf",{"%6.0f","%#18.12g","%#18.12g"},isnan(cur.SE) ? FinX~cur.F : FinX~cur.F~cur.SE' ,
+		          "Actual Parameters","%c",{"     Value "},"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
     if (isfile(fn)) {fprintln(fn,note,details); }
     println(note, toscreen ? details : "");
 	}

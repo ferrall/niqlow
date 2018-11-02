@@ -312,8 +312,6 @@ The base class <a href="Data.ox.html#Prediction">Prediction</a> tracks a list of
 <P/>
 <a name="moms"><LI>Moments</LI></a>
 <P/>
-Histogram
-<P/>
 <a name="GMM"><LI>GMM</LI></a>
 <P/>
 </OL>
@@ -483,7 +481,7 @@ Holds information about a column in the data.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#ExogAuxPred___ExpectedOutcomes">ExpectedOutcomes</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Compute the expected values of tracked auxiliary variables over the exogenous vector &epsilon;  </td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#ExogAuxPred___Run">Run</a></td>
@@ -1471,7 +1469,8 @@ Predicted outcomes along a path.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___wght">wght</a></td>
 <td class="modifiers">const</td>
-<td class="description">Weight Moments for GMM.</td>
+<td class="description">Weight Moments for GMM if
+                empirical moments include.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___AppendSimulated">AppendSimulated</a></td>
@@ -1491,7 +1490,7 @@ Predicted outcomes along a path.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___Initialize">Initialize</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Get ready to compute predictions along the path.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___PathPrediction">PathPrediction</a></td>
@@ -1506,7 +1505,7 @@ Predicted outcomes along a path.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___ProcessContributions">ProcessContributions</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">process predictions and empirical matching when there are observations over time.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___SetColumns">SetColumns</a></td>
@@ -1521,7 +1520,7 @@ Predicted outcomes along a path.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___SimulateOutcomePaths">SimulateOutcomePaths</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Compute and store path weighting matrix for fixed effect group.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___tprefix">tprefix</a></td>
@@ -1764,7 +1763,7 @@ objective.</td>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PredictionDataSet___SimulateMomentVariances">SimulateMomentVariances</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Simulate sample of outcomes compute path Variance matrix and save inverse.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PredictionDataSet___TrackingMatchToColumn">TrackingMatchToColumn</a></td>
@@ -2156,6 +2155,7 @@ Contains information on an object (variable, auxiliary outcome, etc) to be track
 
 <span class="declaration">ExogAuxPred :: ExpectedOutcomes ( howmany , chq )</span>
 <dl><dd>
+Compute the expected values of tracked auxiliary variables over the exogenous vector &epsilon;
 
 </dd></dl>
 
@@ -3971,12 +3971,6 @@ contains observation count used for weighting of distances.
 <td class="description" valign="baseline">FALSE: no model t column<br>TRUE: last column contains observation count
 </td>
 </tr>
-<tr>
-<td class="declaration" valign="baseline">wght</td>
-<td class="description" valign="baseline">UNCORRELATED: weight columns by inverse standard deviations<br>
-            See <a href="DDPShared.ox.html#GMMWeightOptions">GMMWeightOptions</a>
-</td>
-</tr>
 </table>
 </dd>
 <dt class="comments">Comments:</dt><dd class="comments">If T is greater than the current length of the path additional predictions are
@@ -4079,6 +4073,8 @@ What happens depends on <a href="Data.ox.html#PathPrediction___iDist">iDist</a>.
 
 <span class="declaration">PathPrediction :: Initialize ( )</span>
 <dl><dd>
+Get ready to compute predictions along the path.
+This updates every tracked object.  It updates the density over random effects for this fixed effect.
 
 </dd></dl>
 
@@ -4224,7 +4220,18 @@ Predictions are averaged over random effect groups.
 
 <span class="declaration">PathPrediction :: ProcessContributions ( cmat )</span>
 <dl><dd>
+process predictions and empirical matching when there are observations over time.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">cmat</td>
+<td class="description" valign="baseline">if a cmat then get contributions from it.  This is true when running in parallel.<br/>Otherwise,
+        contributions are located in the individual Prediction objects.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4291,7 +4298,31 @@ Set up data columns for tracked variables.
 
 <span class="declaration">PathPrediction :: SimulateOutcomePaths ( curfpanel , N , ErgOrStateMat )</span>
 <dl><dd>
+Compute and store path weighting matrix for fixed effect group.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">curfpanel</td>
+<td class="description" valign="baseline"><a href="Data.ox.html#FPanel">FPanel</a> object to simulate
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">sample size
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ErogOrStateMat</td>
+<td class="description" valign="baseline">simulation initial conditions.
+Let SM be the matrix of simulated outcomes (concatenation over time)
+pathW = generalized inverse of Var(SM).
+Save simulated data to <code>logs/flat_??.dta</code>
+Save weight matrix in <code>pathW_??.mat</code></td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4423,8 +4454,11 @@ wide delta vector.
 
 <span class="declaration">const decl wght [public]</span>
 <dl><dd>
-Weight Moments for GMM.
+Weight Moments for GMM if
+                empirical moments include.
 
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#GMMWeightOptions">GMMWeightOptions</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -4745,7 +4779,7 @@ objective.
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns"><a href="Data.ox.html#PanelPrediction___M">M</a> or <a href="Data.ox.html#PathPrediction___L">L</a>
+<dt class="returns">Returns:</dt><dd class="returns"><a href="Data.ox.html#PanelPrediction___M">M</a>
 </dd>
 </dl>
 </dd></dl>
@@ -4883,7 +4917,27 @@ Read in external moments of tracked objects.
 
 <span class="declaration">PredictionDataSet :: SimulateMomentVariances ( N , ErgOrStateMat , fvals )</span>
 <dl><dd>
+Simulate sample of outcomes compute path Variance matrix and save inverse.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">size of simulated sample for each PathPrediction.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ErogOrStateMat</td>
+<td class="description" valign="baseline"> initial condition from simulated outcome paths
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">@fvals</td>
+<td class="description" valign="baseline"> either DoALL or a a vector of fixed effect indices to compute.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>

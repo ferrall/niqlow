@@ -13,19 +13,19 @@ Fertility::Replicate()	{
 	CreateSpaces();
 	EMax = new ValueIteration();
 	decl tab, row, rvals;
-	PD = new PanelPrediction(0,EMax);
+	PD = new PanelPrediction("K",EMax);
     PD -> Tracking(NotInData,n,M);
 	for (tab=0;tab<2;++tab) {
         rvals = <>;
 		for (row=0;row<6;++row)	{ //columns(aa0)
-			prow = tab ? 0 : row;
-			Yrow = tab ? row : 0;
+			prow = tab ? row : 0;
+			Yrow = tab ? 0   : row;
 			PD -> Predict(T,Two);
             if ( !tab&&!row ) println("\n Table 5 Predicted Birth Probabilities","%c",{"t","Prob"},PD.flat[][:1]);
-            rvals |= (row+1)~aggregatec(PD.flat[][1],5)'~PD.flat[T-1][2];
+            rvals |= (row+1)~aggregatec(PD.flat[][2],5)'~sumc(PD.flat[][2]);
 			}
 		println("\n Table of Working Paper ",tab ? "9, page 47 " : "8, page 45","\n ----------------------------------" );
-  		println("%cf",{"%8.4f","%8.4f","%8.4f","%8.4f","%8.4f","%8.4f"},"%c",{"row","N1-5","N6-10","N11-15","N16-20","N"},rvals);
+  		println("%cf",{"%5.0f","%8.4f","%8.4f","%8.4f","%8.4f","%8.4f"},"%c",{"row","N1-5","N6-10","N11-15","N16-20","N"},rvals);
       }
     Delete();
 	}

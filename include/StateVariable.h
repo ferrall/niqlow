@@ -630,7 +630,7 @@ s' = s+I{s.a&in;s.&tau;}I{s &lt; s.N<sup>-</sup>}.
 </pre></dd>
 @example
 <code><pre>
-decl exper = new ActionCounter("Yrs Experience",work,10,<1>); //track up to 10 years working
+decl exper = new ActionCounter("Yrs Experience",10,work); //track up to 10 years working
 EndogenousStates(exper);
 </pre></code>
 **/

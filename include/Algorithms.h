@@ -10,24 +10,22 @@ struct Algorithm {
     static 	const 	decl
 	/** Default top level convergence tolerance. **/ 		itoler = 1E-5;
 	 		const 	decl
-//     /** . @internal **/                                    curpt,
-//	 /** . @internal **/									hold,
      /** prefix on log before timestamp added. **/          logpfx,
      /** name of log file **/                               lognm,
 	 /** User's objective. **/								O,
 	 /** objective's pt. @internal **/						OC;
     				decl
-     /** Client node or no MPI .**/                         IIterate,
-     /** Running in parallel . **/                          inparallel,
+     /** Running on the Client node or no MPI .**/          IIterate,
+     /** Running in parallel. **/                           inparallel,
      /** log file **/                                       logf,
-	 /** output level **/									Volume,
+	 /** output level, `NoiseLevels` **/					Volume,
      /** Not restarting from alg. checkpoint. **/           NormalStart,
 	 /** maximum iterations **/ 	        				maxiter,
      /** Store path of iterations in `Algorithm::path'.**/  StorePath,
      /** sequence of structural parameters .**/             path,
-     /** current iteration count. @internal **/				iter,
+     /** current iteration count.  **/				        iter,
 	 /**  top level convergence tolerance **/        	    tolerance,
-     /** . @internal **/                                    N,
+     /** .  **/                                             N,
 															holdF,
      /** max. number of evaluations before restarting,
 		default 10<sup>M</sup> . @internal **/				nfuncmax,

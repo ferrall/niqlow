@@ -106,7 +106,9 @@ struct 	PathPrediction : Prediction {
     const decl                                  f, iDist,
                 /** for tracking.**/            fvals,
                 /** label **/                   label,
-            /** Weight Moments for GMM. **/
+            /** Weight Moments for GMM if
+                empirical moments include.
+                @see GMMWeightOptions **/
                                                 wght;
 	decl
     /** current index of random effects.**/         rcur,

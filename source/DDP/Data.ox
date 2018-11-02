@@ -6,6 +6,15 @@
     #include "Predictions.ox"
 #endif
 
+/** Compute and store path weighting matrix for fixed effect group.
+@param curfpanel `FPanel` object to simulate
+@param N sample size
+@param ErogOrStateMat simulation initial conditions.
+Let SM be the matrix of simulated outcomes (concatenation over time)
+pathW = generalized inverse of Var(SM).
+Save simulated data to <code>logs/flat_??.dta</code>
+Save weight matrix in <code>pathW_??.mat</code>
+**/
 PathPrediction::SimulateOutcomePaths(curfpanel,N,ErgOrStateMat) {
     pathW = <>;
     cur = this;  //initialize to first prediction on the path.
@@ -18,6 +27,11 @@ PathPrediction::SimulateOutcomePaths(curfpanel,N,ErgOrStateMat) {
     savemat("pathW_"+sprint("%02u",f)+".mat",pathW);
     }
 
+/** Simulate sample of outcomes compute path Variance matrix and save inverse.
+@param N size of simulated sample for each PathPrediction.
+@param ErogOrStateMat  initial condition from simulated outcome paths
+@fvals  either DoALL or a a vector of fixed effect indices to compute.
+**/
 PredictionDataSet::SimulateMomentVariances(N,ErgOrStateMat,fvals) {
     decl simdata = new Panel(0,method),scur,old;
     scur = simdata;

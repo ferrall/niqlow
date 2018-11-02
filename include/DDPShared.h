@@ -193,7 +193,20 @@ enum {InfiniteHorizon,Ergodic,SubPeriods,NormalAging,StaticProgram,RandomAging,R
 enum {Qtr,Qit,Qrho,TransStore}
 
 
-		/** Weighting of moments in GMM. @name GMMWeightOptions **/
+		/** Weighting of moments in GMM.
+<table class="enum_table" valign="top">
+<tr><td valign="top"><code>UNWEIGHTED</code></td><tD>No weighting occurs</tD></tr>
+<tr><td valign="top"><code>UNCORRELATED</code></td><tD>Each difference between empirical and predicted moments is weighted by the inverse of its (bounded) sample standard deviation.  This treats
+        each moment as uncorrelated with other moments, including contemporarneous moments</tD></tr>
+<tr><td valign="top"><code>CONTEMPORANEIOUS</code></td><tD>[NOT YET IMPLEMENTED].  This reads in a matrix of weights to apply to
+        each time period's differences pre</tD></tr>
+<tr><td valign="top"><code>INTERTEMPORAL</code></td><tD>This applies a matrix of weights to the full path, read in from
+    files with names <code>pathW_ff.mat</code> and ff is the index of the fixed group.  These files are created
+    by </tD></tr>
+<tr><td valign="top"><code>AUGMENTEDPATHW</code></td><tD>This augments path weighting matrices.  Moments that do
+    not vary have weight 0.  This weights these moments by 0.01 so that they are matched as well as variable moments.</tD></tr>
+</table>
+    @name GMMWeightOptions **/
 enum { UNWEIGHTED, UNCORRELATED, CONTEMPORANEOUS, INTERTEMPORAL, AUGMENTEDPATHW, GMMWeightOptions}
 
 		/** Flat views of panel data. @name FlatOptions **/

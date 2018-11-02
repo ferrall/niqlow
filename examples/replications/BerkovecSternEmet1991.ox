@@ -32,7 +32,7 @@ Retirement::Run()	{
         DPDebug::outAllV();
 		Emax->Solve();
 		}
-    Bellman::Delete();
+    Delete();
 	}
 
 /** Age-dependent mortality probability. **/

@@ -15,6 +15,7 @@ GS5OA() {
     scan("Press any key and ENTER to continue\n","%2c",&key);
     println("Now reset parameters to initial values and try Newton from there");
     nwt =  new Newton(obj);
+    nwt.Volume = LOUD;
     obj->ReInitialize();
     nwt -> Iterate();
     delete obj, nm, nwt;

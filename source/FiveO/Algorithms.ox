@@ -3,6 +3,10 @@
 
 /** Base class for non-linear programming algorithms.
 @param O `Objective` to work on.
+
+A timestamped log file is created for the algorithm when it is created.  You can control the output level
+by setting `Algorithm::Volume` to the desired `NoiseLevels`.  The default volume level is SILENT.
+
 **/
 Algorithm::Algorithm(O) {
 	nfuncmax = maxiter = INT_MAX;
@@ -19,6 +23,8 @@ Algorithm::Algorithm(O) {
     }
 
 /** Tune Parameters of the Algorithm.
+This is the base version.  Some derived algorithms replace this with their own Tune methods.
+
 @param maxiter integer max. number of iterations <br>0 use current/default value
 @param toler double, simplex tolerance for convergence<br>0 use current/default value
 @param nfuncmax integer, number of function evaluations before resetting the simplex<br>0 use current/default value
@@ -29,6 +35,13 @@ Algorithm::Tune(maxiter,toler,nfuncmax) {
 	if (nfuncmax) this.nfuncmax = nfuncmax;
 	}
 
+/**  This routine is called at the start if Iterate().
+@param ReadCheckPoint TRUE means starting point coming from the checkpoint file.
+
+If running in parallel it is this routine that server nodes go into the server loop.  The client node
+will enter into the main iteration loop.
+
+**/
 Algorithm::ItStartCheck(ReadCheckPoint) {
     IIterate =!Version::MPIserver;
     NormalStart = !ReadCheckPoint;
@@ -57,6 +70,12 @@ Algorithm::ItStartCheck(ReadCheckPoint) {
         }
     }
 
+/** Finish up iteration.
+The current free parameter vector is decoded into structural parameters.
+If running in parallel then the client node will tell servers to stop and then announce the new structural
+parameter vector.  The servers will drop out of the server loop and all nodes will get past `Algorithm::Iterate`()
+
+**/
 Algorithm::ItEnd() {
     if (IIterate) {
         O->Decode(0);
@@ -359,7 +378,7 @@ LineMax::Bracket()	{
 		}
 	}
 
-/** Golden ratio search.
+/** Golden ratio line search.
 
 **/
 LineMax::Golden()	{
@@ -385,6 +404,7 @@ LineMax::Golden()	{
     }
 
 /** Initialize a Nelder-Mead Simplex Maximization.
+@param O `Objective` to work on.
 
 **/
 NelderMead::NelderMead(O)	{
@@ -737,7 +757,7 @@ GradientBased::Iterate(H)	{
 	       convergence = (++iter>maxiter) ? MAXITERATIONS
                                           : IamNewt ? this->HHupdate(FALSE)
                                                    : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE)) ;
-	       if (Volume>SILENT) {  //Report on Current Iteration
+	       if (convergence!=NONE && Volume>SILENT) {  //Report on Current Iteration unless converging
                 istr = sprint(iter,". f=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
                 fprintln(logf,istr);
                 if(Volume>QUIET) println(istr);
@@ -745,20 +765,21 @@ GradientBased::Iterate(H)	{
                 }
             CheckPoint(TRUE);
 	       } while (convergence==NONE);
+	    if (convergence>=WEAK) {
+            this->HHupdate(TRUE);
+		    OC.SE = sqrt(-diagonal(invert(OC.H)));
+		    }
         if (Volume>SILENT) {  //Report on Result of Iteration
             istr =sprint("\nFinished: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient"},OC.F'|OC.G);
             fprintln(logf,istr);
             if (Volume>QUIET) println(istr);
             }
-	    if (convergence>=WEAK) {
-            this->HHupdate(TRUE);
-		    OC.SE = sqrt(diagonal(invert(OC.H)));
-		    }
         }
     ItEnd();
 	}
 
-/**Update the Hessian.
+/**Update the Hessian Hf.
+
 @param FORCE see below.
 
 <DT>This is a wrapper for the virtual `GradientBased::Hupdate`() routine and is called
@@ -1066,15 +1087,15 @@ SQP::Iterate(H)  {
 			  OC.ineq->print();
 		      }
 	       } while (convergence==NONE);
+	    if (convergence>=WEAK) {
+	       this->HHupdate(TRUE);
+	       OC.SE = sqrt(-diagonal(invert(OC.H)));
+	       }
         if (Volume>SILENT) {
             fprintln(logf,"\nConverged: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient"},OC.F'|OC.G);
             OC.eq->print();
             OC.ineq->print();
 		    }
-	    if (convergence>=WEAK) {
-	       this->HHupdate(TRUE);
-	       OC.SE = sqrt(diagonal(invert(OC.H)));
-	       }
         }
     ItEnd();
 	}

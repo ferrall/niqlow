@@ -5,32 +5,32 @@
 **/
 RustEstimates::DoAll() {
     decl toglist;
-	toglist = ZurcherHat::FirstStage(0);
+	toglist = ZurcherHat::FirstStage(1);
 	EMax = new ValueIteration();
 	// EMax.vtoler = 1E-03;
 	buses = new BusData(EMax);
 	nfxp = new DataObjective("ZurcherMLE",buses,ZurcherHat::hat);
 	nfxp.Volume = QUIET;
 	mle = new NelderMead(nfxp);
-	mle.Volume = NOISY;
+	mle.Volume = LOUD;
 
     /* First stage estimates, do not require nested DP solution */
-    EMax.DoNotIterate = TRUE;  //only recompute transitions, do not solve for V
+    EMax->ToggleIterate();  //only recompute transitions, do not solve for V
     nfxp -> ToggleParams(toglist);
 	mle -> Iterate(0);
 
     /* Second stage estimates */
 	decl cputime0 = -timer();
     toglist = ZurcherHat::SecondStage();
-    EMax.DoNotIterate = FALSE;  //iterate on V until convergence
+    EMax->ToggleIterate();  //iterate on V until convergence
     nfxp->ToggleParams(toglist);
     nfxp->ResetMax();
-    delete mle;
+//    delete mle;
     EMax.vtoler = 1E-4;
     EMax.Volume = QUIET;
     EMax->ToggleRunSafe();
-    mle = new BFGS(nfxp);
-	mle.Volume = QUIET;
+//    mle = new BFGS(nfxp);
+//	mle.Volume = QUIET;
 	mle -> Iterate(0);
 	println(" Estimation: ",timer()+cputime0);
 
@@ -52,7 +52,7 @@ ZurcherHat::FirstStage(row)	{
   	SetDelta(hat[disc]);
   	EndogenousStates(x = new Renewal("x",NX,d, hat[theta3]) );
 	CreateSpaces();
-    /* Exclude Utility parameters from first stage, and do not include choice probabilities in likelihood*/
+    println("Discount factor:",hat[disc]);
     Outcome::OnlyTransitions = TRUE;
     return {hat[RC],hat[theta1]};
 	}

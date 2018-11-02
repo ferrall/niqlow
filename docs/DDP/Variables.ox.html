@@ -172,16 +172,17 @@ A state variable <var>s</var> is a <a href="Shared.ox.html#Discrete">Discrete</a
 variables. Only certain kinds of correlations between two or more variables require coevolving variables in a block.</DD>
 <P/>
 The model places discrete state variables/blocks into one of four vectors.
-<table class="overview" width="100%" > <tr><td></td><td colspan="4">DP State Vector</td></tr>
-<tr><td></td><td>Exogenous<br>(<span class="expressions">\(\epsilon\)</span>) </th><td>Semi-Exogenous<br>(<span class="expressions">\(\eta\)</span>) </td><td>Endogenous<br>(<span class="expressions">\(\theta\)</span>)</th><td>Group (<a href="Variables.ox.html#RandomEffect">RandomEffect</a> or <a href="Variables.ox.html#FixedEffect">FixedEffect</a>)<br>(<span class="expressions">\(\gamma\)</span>)</tr>
-<tr><td>Generic Element</td><td>e</td><td>h</td><td>q</td><td>g</td></tr>
-<tr><td>Form of <span class="expressions">\(P\)</span><sub>s</sub></td><td colspan="2"><span class="expressions">\(P_s(s^\prime)\)</span></td><td><span class="expressions">\(P_s(s^\prime|\alpha,\epsilon,\eta,\theta)\)</span></td><td><span class="expressions">\(g^\prime=g\)</span></td></tr>
-<tr><td>Explanation</td><td colspan="2">Transition IID of everything.</td><td>Transition can depend on value of states and <span class="expressions">\(\alpha\)</span>.  </td><td>fixed</td></tr>
-<tr><td>Special form of<br> <span class="expressions">\(P_q\)</span>, <span class="expressions">\(q\in\theta\)</span>, <span class="expressions">\(q\neq s\)</span></td><td>cannot enter <span class="expressions">\(P_q\)</span></td><td colspan="2">can enter </td><td>can enter but<br>see <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a></td></tr>
+<table class="overview" width="100%" border="2"><caption>State Variable Vectors</caption>
+<tr><td></td><th colspan="2">IID Transitions</th><th>General Transition</th><th colspan="2">No Transitions (Group Variables)</th></tr>
+<tr><td></td><td>Exogenous<br>(<span class="expressions">\(\epsilon\)</span>) </th><td>Semi-Exogenous<br>(<span class="expressions">\(\eta\)</span>) </td><td>Endogenous<br>(<span class="expressions">\(\theta\)</span>)</th><td><a href="Variables.ox.html#RandomEffect">RandomEffect</a><br/>(<span class="expressions">\(\gamma_r\)</span>)</td><td> <a href="Variables.ox.html#FixedEffect">FixedEffect</a><br/>(<span class="expressions">\(\gamma_f\)</span>)</tr>
+<tr><td>Generic Element</td><td>e</td><td>h</td><td>q</td><td>r</td><td>f</td></tr>
+<tr><td>Form of <span class="expressions">\(P\)</span><sub>s</sub></td><td colspan="2"><span class="expressions">\(P_s(s^\prime)\)</span></td><td><span class="expressions">\(P_s(s^\prime|\alpha,\epsilon,\eta,\theta)\)</span></td><td colspan="2"><span class="expressions">\(g^\prime=g\)</span></td></tr>
+<tr><td>Explanation</td><td colspan="2">IID, exogenous to everything.</td><td>Transition can depend on current states and actions.</td><td colspan="2">value is fixed for this problem.</td></tr>
+<tr><td>Special form of<br/> <span class="expressions">\(P_q\)</span>, <span class="expressions">\(q\in\theta\)</span>, <span class="expressions">\(q\neq s\)</span></td><td>cannot enter <span class="expressions">\(P_q\)</span></td><td colspan="2">can enter transition of other variables</td><td colspan="2">can enter but<br>see <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a></td></tr>
 <tr><td>Explanation</td><td><span class="expressions">\(q\)</span> independent of <span class="expressions">\(\epsilon\)</span>, given <span class="expressions">\(\alpha\)</span></td>
-<td colspan="2"><span class="expressions">\(\eta\)</span> and <span class="expressions">\(\theta\)</span> can affect <span class="expressions">\(q\)</span></td><td>default is random effects can <em>only</em> enter <span class="expressions">\(U()\)</span> not <span class="expressions">\(P()\)</span></tr>
-<tr><td>Computing Implication</td><td colspan="2">Compute and store <span class="expressions">\(P_\epsilon\)</span> and <span class="expressions">\(P_\eta\)</span> once on each solution.</td>
-<td>Compute and store <span class="expressions">\(P_\theta\)</span> at each <span class="expressions">\(\theta\)</span>, store as a <em>matrix</em> for each <span class="expressions">\(\alpha\)</span> and each <span class="expressions">\(\eta\)</span> </td><td>Reuse space for each fixed effect. Store only <span class="expressions">\(P^\star(\alpha|\dots\gamma)\)</span> for separate random effects.</td></tr>
+<td colspan="2"><span class="expressions">\(\eta\)</span> and <span class="expressions">\(\theta\)</span> can affect <span class="expressions">\(q\)</span></td><td>default <span class="expressions">\(r\)</span> can <em>only</em> enter <span class="expressions">\(U()\)</span></td><td>can enter <span class="expressions">\(P_q\)</span></td></tr>
+<tr><td>Computing Implication</td><td colspan="2">Compute &amp; store <span class="expressions">\(P_\epsilon\)</span> and <span class="expressions">\(P_\eta\)</span> once on each solution.</td>
+<td>Compute and store <span class="expressions">\(P_\theta\)</span> at each <span class="expressions">\(\theta\)</span>, store as a <em>matrix</em> in  <span class="expressions">\(\alpha\)</span> and <span class="expressions">\(\eta\)</span> </td><td>Store <span class="expressions">\(P^\star(\alpha|\dots\gamma_r)\)</span></td><td>Reuse space for each fixed effect. </td></tr>
 </table>
 <P/>
 <details><summary><b>Example</b> <br>Include an Semi-Exogenous IID jump process and an Endogenous tracker of its previous value to a DDP model:</summary>
@@ -210,15 +211,13 @@ P_\epsilon(\epsilon^{\,\prime}) P_\eta(\eta^{\,\prime}) P_\theta\left(\theta^{\,
 That is, the joint probability distribution of all state variables next period is the product of the probabilities of the three state vectors.  So the vectors evolve independently conditional on the current state. Further, the IID nature of <span class="expressions">\(\epsilon\)</span> and <span class="expressions">\(\eta\)</span> mean that their probability is constant across current states and actions.  In turn,
 <span class="equation">$$\eqalign{
 P_\epsilon(\epsilon^{\,\prime}) &= \prod_{k=0\dots \epsilon.N^-} P_{e_k}\left(e^{\,\prime}_k\right)\cr
-<P/>
 P_\eta(\eta^{\,\prime}) &= \prod_{k=0\dots \eta.N^-} P_{e_k}\left(e^{\,\prime}_k\right)\cr
-<P/>
 P_\theta\left(\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right) &= \prod_{k=0\dots \theta.N^-} P_{q_k}\left(q^{\,\prime}_k\ |\ \alpha,\eta,\theta\right).\cr}$$</span>
 <P/>
 <DD>It is important to note that e<sub>k</sub>, h<sub>k</sub> and q<sub>k</sub> represents either an autonomous state variable or a whole state block, which is responsible for returning the joint transition of its coevolving members.</dd>
 <P/>
 <DT>Autonomous</DT>
-    <DD">Let the value of a state variable <var>s</var> realized next period be denoted <var>s'</var>.  The probability that <span class="expressions">\(s'\)</span> takes on the value <var>z</var> in the next period be written generally as
+    <DD>Let the value of a state variable <var>s</var> realized next period be denoted <var>s'</var>.  The probability that <span class="expressions">\(s'\)</span> takes on the value <var>z</var> in the next period be written generally as
     <span class="equation">$$P(s' = z | \alpha,\epsilon,\eta,\theta) = p_s(z,\alpha,\epsilon,\eta,\theta).$$</span></DD>
 <P/>
 <DT>Exogenous</DT>
@@ -253,13 +252,13 @@ Some derived classes of state variables play special roles in <span class="n">DD
 <P/>
 Example:  Suppose your model has a state variable <code>q</code> which is of the <a href="Variables.ox.html#RandomUpDown">RandomUpDown</a>() class.  That is, each period <code>q</code> may go up or down by one unit or remain unchanged depending choices and other state variables.  However, when another state variable <code>h</code> goes from 0 to 1 you want the value of <code>q</code> to become constant and not subject to the RandomUpDown transition. That is, you want to <a href="Variables.ox.html#Freeze">Freeze</a> the current value of <code>q</code> when <code>h</code> is 1.</p>
 <P/>
-<details><summary><b>Example</b> <br>Augment a base state variable with the Freeze feature:</summary>
+<details><summary><b>Example</b> <br>Augment a base state variable with the Freeze feature.  In this case <span class="expressions">\(q\)</span> increases by 1 with probability 0.5 each 
+period until the agent chooses <span class="expressions">\(a=1\)</span>.  Then <span class="expressions">\(q\)</span> freezes at its current value from the next period on.</summary>
 <DD><pre>class MyModel : DPparent {
     &vellip;
     static decl a, h, q;
     &hellip;
     static Initialize();
-    Qtrans();
     }
 &vellip;
 MyModel::Initialize() {
@@ -268,7 +267,7 @@ MyModel::Initialize() {
     Actions(a = new ActionVariable("a",2) ) ;
     EndogenousStates(
         h = new PermanentChoice("h",a);
-        q = new Freeze(new RandomUpDown("q",10,Qtrans),h);
+        q = new Freeze(new RandomUpDown("q",10,<0.5;0.5>),h);
     &vellip;
     CreateSpaces();
     }
@@ -487,8 +486,8 @@ When you write the code for your state variable you force the user (possibly you
         <details><summary><code>Source: niqlow/examples/classreference.ox</code></summary>
         <DD><pre><object width="95%" type="text/plain" height="250" data="../../examples/classreference.ox" border="1" ></object>
         </pre></DD></details>
-        <details><summary><em>Produces</em> output <code>Source: ../examples/output/classreference.txt</code></summary><pre>
-        <object width="95%" height="200" type="text/plain" data="../examples/output/classreference.output.txt" border="1" ></object>
+        <details><summary><em>Produces</em> output <code>Source: niqlow/examples/classreference.txt</code></summary><pre>
+        <object width="95%" height="200" type="text/plain" data="../../examples/classreference.output.txt" border="1" ></object>
         </pre></dd></details>
     <DD>In the first three lines <code>b=a</code> and then changing <code>b</code> does <em>not</em> change the value of <code>a</code>.  However, changing the member <code>v</code> <em>does</em> change the corresponding value of <code>a</code>. In the first three assignments, Ox <em>clones</em> the right hand side of the assignment.  But when assigning a variable that is currently an instance of a class a clone is <em>not</em> made.  Instead, a <em>reference </em>  or <em>pointer</em> to the class is made. So accessing the member of the reference is equivalent to accessing the member of the assigned class.</DD>
 <P/>
@@ -996,7 +995,7 @@ s' = s+I{s.a&in;s.&tau;}I{s &lt; s.N<sup>-</sup>}.
 </pre></dd>
 
 <dl><dt class="example">Example:</dt><dd class="example"><code><pre>
-decl exper = new ActionCounter("Yrs Experience",work,10,<1>); //track up to 10 years working
+decl exper = new ActionCounter("Yrs Experience",10,work); //track up to 10 years working
 EndogenousStates(exper);
 </pre></code>
 </dd>
@@ -5723,7 +5722,7 @@ Create a variable that counts how many times an action has taken on certain valu
 </dd>
 <dt class="example">Example:</dt><dd class="example">Track work==1 up to 10 years, no reset. Assume count starts at 0 at t=0 in finite horizon models.
 <pre>
-decl exper = new ActionCounter("Yrs Experience",work,10);
+decl exper = new ActionCounter("Yrs Experience",10,work);
 EndogenousStates(exper);
 </pre>
 </dd>
@@ -10198,7 +10197,7 @@ Create a variable that counts how many times another state has taken on certain 
 </tr>
 </table>
 </dd>
-<dt class="example">Example:</dt><dd class="example"><pre>noffers = new StateCounter("Total Offers",offer,5,<1:offer.N-1>,0);</pre>
+<dt class="example">Example:</dt><dd class="example"><pre>noffers = new StateCounter("Total Offers",5,offer,<1:offer.N-1>,0);</pre>
 </dd>
 </dl>
 </dd></dl>

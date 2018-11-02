@@ -218,11 +218,13 @@ All members of the base class are <code>static</code>.
 <a name="P2P"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">P2P : <a href="CFMPI.ox.html#MPI">MPI</a></span></h2>
 
-Point-to-point communication.
-Point-to-point is communication from one node to another node.
+Point-to-point communication object.
+<P/>
+Point-to-point is communication from one node to another node through MPI.
+<P/>
 Usually these messages are between the client node and a server node.
-Messages are vectors, and are tagged with an integer code so that the
-receiver of the message knows how to interpret the message.
+<P/>
+Messages are vectors, and are tagged with an integer code so that the receiver of the message knows how to interpret the message.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -859,7 +861,7 @@ Nodes or Nnodes-1.
 <a name="P2P___P2P"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">P2P</span></h3>
 
-<span class="declaration">P2P :: P2P ( DONOTUSECLIENT , client , server , NSubProblems , MaxSubReturn )</span>
+<span class="declaration">P2P :: P2P ( DONOTUSECLIENT , client , server )</span>
 <dl><dd>
 Initialize Point-to-Point Communication.
 
@@ -867,23 +869,17 @@ Initialize Point-to-Point Communication.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">DONOTUSECLIENT</td>
-<td class="description" valign="baseline">TRUE the client (node 0) will not be used as a server in <a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a>() <br>FALSE  it will used ONCE after all other nodes are busy
+<td class="description" valign="baseline">TRUE the client (node 0) will not be used as a server in <a href="CFMPI.ox.html#Client___ToDoList">ToDoList</a>() <br/>FALSE  it will used ONCE after all other nodes are busy
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">client
+<td class="declaration" valign="baseline">client</td>
+<td class="description" valign="baseline">either <a href="CFMPI.ox.html#Client">Client</a> object or FALSE, only used if <a href="CFMPI.ox.html#MPI___IamClient">IamClient</a><br/> If not IamClient and this is a class it is deleted.
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">server
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">NSubProblems
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">MaxSubReturn</td>
+<td class="declaration" valign="baseline">server</td>
+<td class="description" valign="baseline">either <a href="CFMPI.ox.html#Server">Server</a> object or FALSE. If IamClient and  DONOTUSECLIENT then this is deleted.</td>
 </tr>
 </table>
 </dd>

@@ -37,6 +37,15 @@ Farmer::Replicate()	{
 /*    decl od = new Panel(0);
     od -> Simulate(2,5);
     od -> Print(2); */
+    SetDraw(SET_COLORMODEL,3);
+	SetDraw(SET_MARGIN,1000,1000);
+	DrawTitle(0,"Replication of Figures 1 and 2, Rosenzweig Wolpin (1993).");
+	   SetDraw(SET_LINE,2,TP_SOLID,100,0,0);
+	   SetDraw(SET_LINE,3,TP_SOLID,100,0,0);
+	   DrawXMatrix(0,pd.aflat[0][30-Age0:][columns(pd.aflat[0])-2]',{"Consumption"},range(30,Age0+FarmT),"",2);
+	   DrawXMatrix(1,pd.aflat[0][30-Age0:][columns(pd.aflat[0])-3]',{"Bullocks"},range(30,Age0+FarmT),"Age",2);
+	   SaveDrawWindow("Bullock-Figure-1.pdf");
+
     Delete();
 	}
 
@@ -56,7 +65,10 @@ Fertility is not a feasible choice for t&gt;T-1
 **/
 Farmer::FeasibleActions() {
     decl btrans = b.actual[CV(b)]+CV(B);
-    return  (CV(calf).<=CV(B)) .&& (btrans .>= 0) .&& (btrans .<= BullMax) .&& ( (1-CV(M)) .|| (1-CV(m))) ;
+    return  (CV(calf).<=CV(B))
+            .&& (btrans .>= 0)
+            .&& (btrans .<= BullMax)
+            .&& ( (1-CV(M)) .|| (1-CV(m))) ;
     }
 
 Farmer::Profits() {

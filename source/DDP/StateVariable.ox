@@ -829,7 +829,7 @@ Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 @param ToTrack integer or vector, values of State to count. (default = <1>)<br/>DoAll: track all values
 @param Reset `AV`() compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
 @param Prune TRUE [default]: prune states if finite horizon detected.
-@example <pre>noffers = new StateCounter("Total Offers",offer,5,<1:offer.N-1>,0);</pre>
+@example <pre>noffers = new StateCounter("Total Offers",5,offer,<1:offer.N-1>,0);</pre>
 **/
 StateCounter::StateCounter(L,N,State,ToTrack,Reset,Prune) {
     TypeCheck(State,"StateVariable");
@@ -860,11 +860,11 @@ Counter::IsReachable() { return !(Prune && Flags::Prunable && (v>I::t)); }
 @example
 Track work==1 up to 10 years, no reset. Assume count starts at 0 at t=0 in finite horizon models.
 <pre>
-decl exper = new ActionCounter("Yrs Experience",work,10);
+decl exper = new ActionCounter("Yrs Experience",10,work);
 EndogenousStates(exper);
 </pre>
 **/
-ActionCounter::ActionCounter(L,N,Act,  ToTrack,Reset,Prune)	{
+ActionCounter::ActionCounter(L,N,Act,ToTrack,Reset,Prune)	{
     TypeCheck(Act,"ActionVariable");
     Counter(L,N,Act,ToTrack,Reset,Prune);
     }

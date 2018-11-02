@@ -61,6 +61,18 @@ Method::ToggleRunSafe() {
     return qtask.itask.RunSafe;
     }
 
+/** Toggle whether to Iterate on Bellman's Equation.
+@param ToggleOnlyTrans TRUE [default] also toggle `Outcome::OnlyTransitions` so choice
+    probabilities do not apply in likelihood calculation.
+**/
+Method::ToggleIterate(ToggleOnlyTrans) {
+    DoNotIterate = !DoNotIterate;
+    if (ToggleOnlyTrans) {
+        Outcome::OnlyTransitions = !Outcome::OnlyTransitions;
+        println("Toggling Outcome::OnlyTransitions.  Now equals: ",Outcome::OnlyTransitions);
+        }
+    }
+
 /** Process a point in the fixed effect space.
 <OL>
 <LI>If <code>UpdateTime</code> = <code>AfterFixed</code>, then update transitions and variables.</LI>

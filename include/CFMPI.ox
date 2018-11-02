@@ -27,13 +27,11 @@ all reach the barrier execution continues.
 MPI::Barrier() {MPI_Barrier();}
 
 /** Initialize Point-to-Point Communication.
-@param DONOTUSECLIENT TRUE the client (node 0) will not be used as a server in `Client::ToDoList`() <br>FALSE  it will used ONCE after all other nodes are busy
-@param client
-@param server
-@param NSubProblems
-@param MaxSubReturn
+@param DONOTUSECLIENT TRUE the client (node 0) will not be used as a server in `Client::ToDoList`() <br/>FALSE  it will used ONCE after all other nodes are busy
+@param client either `Client` object or FALSE, only used if `MPI::IamClient`<br/> If not IamClient and this is a class it is deleted.
+@param server either `Server` object or FALSE. If IamClient and  DONOTUSECLIENT then this is deleted.
 **/
-P2P::P2P(DONOTUSECLIENT,client, server,NSubProblems,MaxSubReturn) {
+P2P::P2P(DONOTUSECLIENT,client, server) {  //,NSubProblems,MaxSubReturn
 	MPI::Initialize();
     decl USEMYSELF = !DONOTUSECLIENT || (Nodes==1);
 	SERVER1 = !USEMYSELF;              //if there are no servers use client as one

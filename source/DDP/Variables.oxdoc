@@ -157,16 +157,17 @@ A state variable <var>s</var> is a `Discrete` quantity.  It is defined by at lea
 variables. Only certain kinds of correlations between two or more variables require coevolving variables in a block.</DD>
 
 The model places discrete state variables/blocks into one of four vectors.
-<table class="overview" width="100%" > <tr><td></td><td colspan="4">DP State Vector</td></tr>
-<tr><td></td><td>Exogenous<br>($\epsilon$) </th><td>Semi-Exogenous<br>($\eta$) </td><td>Endogenous<br>($\theta$)</th><td>Group (`RandomEffect` or `FixedEffect`)<br>($\gamma$)</tr>
-<tr><td>Generic Element</td><td>e</td><td>h</td><td>q</td><td>g</td></tr>
-<tr><td>Form of $P$<sub>s</sub></td><td colspan="2">$P_s(s^\prime)$</td><td>$P_s(s^\prime|\alpha,\epsilon,\eta,\theta)$</td><td>$g^\prime=g$</td></tr>
-<tr><td>Explanation</td><td colspan="2">Transition IID of everything.</td><td>Transition can depend on value of states and $\alpha$.  </td><td>fixed</td></tr>
-<tr><td>Special form of<br> $P_q$, $q\in\theta$, $q\neq s$</td><td>cannot enter $P_q$</td><td colspan="2">can enter </td><td>can enter but<br>see `DP::SetUpdateTime`</td></tr>
+<table class="overview" width="100%" border="2"><caption>State Variable Vectors</caption>
+<tr><td></td><th colspan="2">IID Transitions</th><th>General Transition</th><th colspan="2">No Transitions (Group Variables)</th></tr>
+<tr><td></td><td>Exogenous<br>($\epsilon$) </th><td>Semi-Exogenous<br>($\eta$) </td><td>Endogenous<br>($\theta$)</th><td>`RandomEffect`<br/>($\gamma_r$)</td><td> `FixedEffect`<br/>($\gamma_f$)</tr>
+<tr><td>Generic Element</td><td>e</td><td>h</td><td>q</td><td>r</td><td>f</td></tr>
+<tr><td>Form of $P$<sub>s</sub></td><td colspan="2">$P_s(s^\prime)$</td><td>$P_s(s^\prime|\alpha,\epsilon,\eta,\theta)$</td><td colspan="2">$g^\prime=g$</td></tr>
+<tr><td>Explanation</td><td colspan="2">IID, exogenous to everything.</td><td>Transition can depend on current states and actions.</td><td colspan="2">value is fixed for this problem.</td></tr>
+<tr><td>Special form of<br/> $P_q$, $q\in\theta$, $q\neq s$</td><td>cannot enter $P_q$</td><td colspan="2">can enter transition of other variables</td><td colspan="2">can enter but<br>see `DP::SetUpdateTime`</td></tr>
 <tr><td>Explanation</td><td>$q$ independent of $\epsilon$, given $\alpha$</td>
-<td colspan="2">$\eta$ and $\theta$ can affect $q$</td><td>default is random effects can <em>only</em> enter $U()$ not $P()$</tr>
-<tr><td>Computing Implication</td><td colspan="2">Compute and store $P_\epsilon$ and $P_\eta$ once on each solution.</td>
-<td>Compute and store $P_\theta$ at each $\theta$, store as a <em>matrix</em> for each $\alpha$ and each $\eta$ </td><td>Reuse space for each fixed effect. Store only $P^\star(\alpha|\dots\gamma)$ for separate random effects.</td></tr>
+<td colspan="2">$\eta$ and $\theta$ can affect $q$</td><td>default $r$ can <em>only</em> enter $U()$</td><td>can enter $P_q$</td></tr>
+<tr><td>Computing Implication</td><td colspan="2">Compute &amp; store $P_\epsilon$ and $P_\eta$ once on each solution.</td>
+<td>Compute and store $P_\theta$ at each $\theta$, store as a <em>matrix</em> in  $\alpha$ and $\eta$ </td><td>Store $P^\star(\alpha|\dots\gamma_r)$</td><td>Reuse space for each fixed effect. </td></tr>
 </table>
 
 <details><summary><b>Example</b> <br>Include an Semi-Exogenous IID jump process and an Endogenous tracker of its previous value to a DDP model:</summary>
@@ -195,15 +196,13 @@ P_\epsilon(\epsilon^{\,\prime}) P_\eta(\eta^{\,\prime}) P_\theta\left(\theta^{\,
 That is, the joint probability distribution of all state variables next period is the product of the probabilities of the three state vectors.  So the vectors evolve independently conditional on the current state. Further, the IID nature of $\epsilon$ and $\eta$ mean that their probability is constant across current states and actions.  In turn,
 $$\eqalign{
 P_\epsilon(\epsilon^{\,\prime}) &= \prod_{k=0\dots \epsilon.N^-} P_{e_k}\left(e^{\,\prime}_k\right)\cr
-
 P_\eta(\eta^{\,\prime}) &= \prod_{k=0\dots \eta.N^-} P_{e_k}\left(e^{\,\prime}_k\right)\cr
-
 P_\theta\left(\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right) &= \prod_{k=0\dots \theta.N^-} P_{q_k}\left(q^{\,\prime}_k\ |\ \alpha,\eta,\theta\right).\cr}$$
 
 <DD>It is important to note that e<sub>k</sub>, h<sub>k</sub> and q<sub>k</sub> represents either an autonomous state variable or a whole state block, which is responsible for returning the joint transition of its coevolving members.</dd>
 
 <DT>Autonomous</DT>
-    <DD">Let the value of a state variable <var>s</var> realized next period be denoted <var>s'</var>.  The probability that $s'$ takes on the value <var>z</var> in the next period be written generally as
+    <DD>Let the value of a state variable <var>s</var> realized next period be denoted <var>s'</var>.  The probability that $s'$ takes on the value <var>z</var> in the next period be written generally as
     $$P(s' = z | \alpha,\epsilon,\eta,\theta) = p_s(z,\alpha,\epsilon,\eta,\theta).$$</DD>
 
 <DT>Exogenous</DT>
@@ -238,13 +237,13 @@ Some derived classes of state variables play special roles in <span class="n">DD
 
 Example:  Suppose your model has a state variable <code>q</code> which is of the `RandomUpDown`() class.  That is, each period <code>q</code> may go up or down by one unit or remain unchanged depending choices and other state variables.  However, when another state variable <code>h</code> goes from 0 to 1 you want the value of <code>q</code> to become constant and not subject to the RandomUpDown transition. That is, you want to `Freeze` the current value of <code>q</code> when <code>h</code> is 1.</p>
 
-<details><summary><b>Example</b> <br>Augment a base state variable with the Freeze feature:</summary>
+<details><summary><b>Example</b> <br>Augment a base state variable with the Freeze feature.  In this case $q$ increases by 1 with probability 0.5 each 
+period until the agent chooses $a=1$.  Then $q$ freezes at its current value from the next period on.</summary>
 <DD><pre>class MyModel : DPparent {
     &vellip;
     static decl a, h, q;
     &hellip;
     static Initialize();
-    Qtrans();
     }
 &vellip;
 MyModel::Initialize() {
@@ -253,7 +252,7 @@ MyModel::Initialize() {
     Actions(a = new ActionVariable("a",2) ) ;
     EndogenousStates(
         h = new PermanentChoice("h",a);
-        q = new Freeze(new RandomUpDown("q",10,Qtrans),h);
+        q = new Freeze(new RandomUpDown("q",10,<0.5;0.5>),h);
     &vellip;
     CreateSpaces();
     }
@@ -472,8 +471,8 @@ When you write the code for your state variable you force the user (possibly you
         <details><summary><code>Source: niqlow/examples/classreference.ox</code></summary>
         <DD><pre><object width="95%" type="text/plain" height="250" data="../../examples/classreference.ox" border="1" ></object>
         </pre></DD></details>
-        <details><summary><em>Produces</em> output <code>Source: ../examples/output/classreference.txt</code></summary><pre>
-        <object width="95%" height="200" type="text/plain" data="../examples/output/classreference.output.txt" border="1" ></object>
+        <details><summary><em>Produces</em> output <code>Source: niqlow/examples/classreference.txt</code></summary><pre>
+        <object width="95%" height="200" type="text/plain" data="../../examples/classreference.output.txt" border="1" ></object>
         </pre></dd></details>
     <DD>In the first three lines <code>b=a</code> and then changing <code>b</code> does <em>not</em> change the value of <code>a</code>.  However, changing the member <code>v</code> <em>does</em> change the corresponding value of <code>a</code>. In the first three assignments, Ox <em>clones</em> the right hand side of the assignment.  But when assigning a variable that is currently an instance of a class a clone is <em>not</em> made.  Instead, a <em>reference </em>  or <em>pointer</em> to the class is made. So accessing the member of the reference is equivalent to accessing the member of the assigned class.</DD>
 

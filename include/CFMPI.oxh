@@ -21,11 +21,14 @@ struct MPI	{
 	static Barrier();
 	}
 
-/** Point-to-point communication.
-Point-to-point is communication from one node to another node.
+/** Point-to-point communication object.
+
+Point-to-point is communication from one node to another node through MPI.
+
 Usually these messages are between the client node and a server node.
-Messages are vectors, and are tagged with an integer code so that the
-receiver of the message knows how to interpret the message. **/
+
+Messages are vectors, and are tagged with an integer code so that the receiver of the message knows how to interpret the message.
+**/
 struct P2P : MPI {
 	static	const	decl		
 	/**Tag that ends `Server::Loop` **/				STOP_TAG=0;
@@ -40,7 +43,7 @@ struct P2P : MPI {
 			/** `Server` object. **/				server,
 			/** Node that sent the last message**/	Source,
 			/** Tag of last message**/				Tag;													
-	P2P(DONOTUSECLIENT=0,client=0,server=0,NSubProblems=DoAll,MaxSubReturn=0);
+	P2P(DONOTUSECLIENT=0,client=0,server=0); //,NSubProblems=DoAll,MaxSubReturn=0
     virtual Execute();
 	}
 

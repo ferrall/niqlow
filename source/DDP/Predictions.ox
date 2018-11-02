@@ -1,9 +1,9 @@
 #include "Predictions.h"
 /* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
-ExogAuxPred::ExogAuxPred() {
-    ExTask();
-    }
+ExogAuxPred::ExogAuxPred() {    ExTask();    }
+
+/** Compute the expected values of tracked auxiliary variables over the exogenous vector &epsilon; **/
 ExogAuxPred::ExpectedOutcomes(howmany,chq) {
     decl tv;
     if (!sizeof(auxlist)) return;
@@ -128,6 +128,10 @@ PathPrediction::SetT() {
 
 PathPrediction::tprefix(t) { return sprint("t_","%02u",t,"_"); }
 
+/** process predictions and empirical matching when there are observations over time.
+@param cmat if a cmat then get contributions from it.  This is true when running in parallel.<br/>Otherwise,
+        contributions are located in the individual Prediction objects.
+**/
 PathPrediction::ProcessContributions(cmat){
     vdelt =<>;    dlabels = {};    flat = <>;
     cur=this;
@@ -216,8 +220,6 @@ PanelPrediction::ParallelSolveSub(subp) {
 @param hasN FALSE: no row observation column<br>TRUE: second-to-last column that
 contains observation count used for weighting of distances.
 @param hasT FALSE: no model t column<br>TRUE: last column contains observation count
-@param wght UNCORRELATED: weight columns by inverse standard deviations<br>
-            See `GMMWeightOptions`
 @comments
 If T is greater than the current length of the path additional predictions are
 concatenated to the path
@@ -276,10 +278,8 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
                         invsd = 1.0 ./ setbounds(moments(inmom,2)[2][],0.1,+.Inf);
                         invsd = isdotnan(invsd) .? 0.0 .: invsd;  //if no observations, set weight to 0.0
                         invsd = selectifc(invsd,mask);
-        case CONTEMPORANEOUS :
-            oxrunerror("CONTEMPORANEOUS correlated moments not implemented yet");
-        case INTERTEMPORAL :
-             pathW = loadmat("pathW_"+sprint("%02u",f)+".mat");
+        case CONTEMPORANEOUS :  oxrunerror("CONTEMPORANEOUS correlated moments not implemented yet");
+        case INTERTEMPORAL :    pathW = loadmat("pathW_"+sprint("%02u",f)+".mat");
         case AUGMENTEDPATHW :
              pathW = loadmat("pathW_"+sprint("%02u",f)+".mat");
              decl dd = diagonal(pathW), en = norm(dd,1);
@@ -622,10 +622,12 @@ PathPrediction::SetColumns(dlabels,Nplace,Tplace) {
         cols ~= .NaN;
     }
 
+/** Get ready to compute predictions along the path.
+This updates every tracked object.  It updates the density over random effects for this fixed effect.
+**/
 PathPrediction::Initialize() {
     EverPredicted = TRUE;
     PredictFailure = FALSE;
-    //foreach
     decl t;
     foreach (t in tlist) t->Update();
 	if (isclass(upddens)) {
@@ -887,18 +889,18 @@ objective.
 @param subp  DoAll (default), solve all subproblems and return likelihood vector<br/>
              Non-negative integer, solve only subproblem, return contribution to
              overall L
-@return `PanelPrediction::M` or `PathPrediction::L`
+@return `PanelPrediction::M`
 **/
 PredictionDataSet::EconometricObjective(subp) {
     predicttime = solvetime = 0;
     if (subp==DoAll) {
         PanelPrediction::Predict();
-//        println("Time to Compute ",predicttime," ",solvetime);
+        //        println("Time to Compute ",predicttime," ",solvetime);
         return M;
         }
     else {
         decl vv = ParallelSolveSub(subp);
-//        println("Time to Compute ",predicttime," ",solvetime);
+        //        println("Time to Compute ",predicttime," ",solvetime);
         return vv;
         }
 	}

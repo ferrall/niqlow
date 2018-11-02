@@ -11,13 +11,15 @@ struct Method : FETask {
         decl
         /** Either r or AllRan to solve for all random effects.**/  Rgroups,
         /** FALSE(default): iterate on V(&theta;)<br>
-            TRUE: only compute transitions.**/                      DoNotIterate,
+            TRUE: only compute transitions.
+            @see Method::ToggleIterate **/                         DoNotIterate,
                                                                     vtoler,
     /** Output from the solution method.  Passed on to `GSolve::Volume`.
         @see NoiseLevels**/                                         Volume;
     Method(GSolve=0);
     Initialize(MaxTrips=Zero);
     ToggleRunSafe();
+    ToggleIterate(ToggleOnlyTrans=TRUE);
     virtual Run();
     virtual Solve(Fgroups=AllFixed,Rgroups=AllRand);
 	}
