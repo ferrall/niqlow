@@ -182,7 +182,7 @@ Objective::CheckMax(fn)	{
     if (Volume>SILENT) {
         fprintln(logf,suffx);
 		if (Volume>QUIET) {
-            println(" ","%15.8f",cur.v,suffx);
+            println(suffx);
             if (isfile(fn)) fprintln(fn," ","%15.8f",cur.v,suffx);
             }
         else if (newmax) println(" ","%15.8f",cur.v,suffx);
@@ -469,8 +469,8 @@ Objective::fobj(F,extcall)	{
 	   this->vobj(F);
 	   cur->aggregate();
        if (Volume>SILENT) {
-            fprint(logf,"fobj = ",cur.v);
-            if (Volume>QUIET) println("fobj = ",cur.v);
+            fprint(logf,L," = ",cur.v);
+            if (Volume>QUIET) print(L," = ",cur.v);
             }
        if (extcall && isclass(p2p)) p2p.client->Stop();
        }

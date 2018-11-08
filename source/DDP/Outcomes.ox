@@ -448,6 +448,7 @@ Panel::Print(fn,Orientation)	{
 	if (isint(fn)) {
         if (fn==1) fprint(Data::logf,"%c",LFlat[Orientation],"%cf",Fmtflat,flat);
         else if (fn>1) {
+            if (Version::HTopen) println("</pre><a name=\"Panel\"/><pre>");
             println("-------------------- Panel ------------------------\n");
             println("%c",LFlat[Orientation],"%cf",Fmtflat,flat);
             println("\n-------------------- End Panel --------------------\n");

@@ -1001,6 +1001,7 @@ DP::CreateSpaces() {
 		}
     Flags::IsErgodic = counter.IsErgodic;
 	if (!Version::MPIserver && Volume>SILENT)	{		
+        if (Version::HTopen) println("</pre><a name=\"Summary\"/><pre>");
 		println("-------------------- DP Model Summary ------------------------\n");
 		w0 = sprint("%",7*S[exog].D,"s");
 		w1 = sprint("%",7*S[semiexog].D,"s");

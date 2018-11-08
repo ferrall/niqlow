@@ -16,7 +16,7 @@ DynamicRoy::Replicate()	{
 	Actions(accept);
     attended   = new ActionTracker("att",accept,school);
 	EndogenousStates(attended);
-    offers = new MVNormal("eps",Msectors,Noffers,zeros(Msectors,1),sig);
+    offers = new MVNormal("eps",Msectors,Noffers,ones(Msectors,1),sig);
 	ExogenousStates(offers);
 	xper = new array[Msectors-1];
 	for (i=0;i<Msectors-1;++i)   //don't track home

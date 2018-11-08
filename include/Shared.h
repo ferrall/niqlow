@@ -74,9 +74,8 @@ static const decl
 		/** tolerance level 2.**/                 DIFF_EPS2	=	1E-4;
 
 /** Used in CV() and AV(). static to reduce overhead. @internal **/
-static decl _arg, _noarg, _x, _v, _htlog;
+static decl _arg, _noarg, _x, _v;
     HTopen(fn);
-    HTclose();
 	CV(X,...);
 	AV(X,...);
 	DrawOne(P);
@@ -247,7 +246,7 @@ class Version : Zauxiliary {
 public: 	
     static const decl
     	/** Current niqlow version. @name niqlowversion **/ version=350;
-    static decl logdir, tmstmp, MPIserver=FALSE;
+    static decl htlog, HTopen, logdir, tmstmp, MPIserver=FALSE;
 	static Check(logdir=curdir);
 
 	}

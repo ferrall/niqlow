@@ -434,7 +434,7 @@ Nvariable::Nvariable(L,Ndraws,mu,sigma) {
     }
 
 Nvariable::Update() {	
-    actual = DiscreteNormal(N,AV(mu),AV(sigma))';
+    actual = AV(mu)|DiscreteNormal(N-1,AV(mu),AV(sigma))';
     if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
     }
 
@@ -580,12 +580,12 @@ LogNormalOffer::LogNormalOffer(L,N,Pi,Accept,mu,sigma)	{
 	}
 
 /** Updates the actual values.
-actual = 0 ~ exp{ &sigma;&Phi;<sup>-1</sub>(v/N)+ &mu;}
+actual = exp{ &mu; | &sigma;&Phi;<sup>-1</sub>(v/N)+ &mu;}
 @comments v takes on values <code>1,2,...,N<sup>-</sup></code>.
 @see AV
 **/
 LogNormalOffer::Update() {
-	actual = 0 | exp(DiscreteNormal(N-1,CV(mu),CV(sigma)))';
+	actual = exp(AV(mu)|DiscreteNormal(N-1,AV(mu),AV(sigma)))';
     if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
 	}
 
@@ -1222,7 +1222,7 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 	}
 
 MVNormal::myAV() {
-    if (v*mind>rows(Actual)) println(v,mind');
+    //if (v*mind>rows(Actual)) println(v,mind');
     return actual = Actual[v*mind][];
     }
 

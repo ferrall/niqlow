@@ -1,7 +1,7 @@
 #import "DDP"
 
 /** Wolpin 1984 fertility model **/
-struct Fertility : ExPostSmoothing	{
+struct Fertility : Bellman	{
     /** State space dimensions. @names dimens **/ enum{T=20,tau=10,Ndraws=201,Mmax=20}
 
 						// Values in 1982 working paper           JPE 1984 paper

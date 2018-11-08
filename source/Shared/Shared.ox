@@ -2,7 +2,9 @@
 /* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
 HTopen(fn) {
-    _htlog = fopen(fn+".html","l");
+    if (Version::HTopen) return;
+    Version::htlog = fopen(fn+".html","l");
+    Version::HTopen = TRUE;
     println("<html><head><style>pre {font-family : \"Lucida Console\"; font-size : 18pt;}</style></head><body><div style=\"margin-left: 50px;color: white;  background: DarkSlateGray\"><pre>");
     }
 /** Check versions and set timestamp, log directory.
@@ -422,8 +424,13 @@ MyMoments(M,rlabels,oxf)	{
 	decl moms = (moments(M,2)|minc(M)|maxc(M))', mstr;
 	mstr = isarray(rlabels)
                     ? sprint("%r",rlabels,"%c",mymomlabels,moms)
-                    : print("%c",mymomlabels,moms);
-    if (isfile(oxf)) fprintln(oxf,mstr); else println(mstr);
+                    : sprint("%c",mymomlabels,moms);
+    if (isfile(oxf))
+        fprintln(oxf,mstr);
+    else {
+        if (Version::HTopen) println("</pre><a name=\"Moments\"/><pre>");
+        println(mstr);
+        }
     return moms;
 	}
 

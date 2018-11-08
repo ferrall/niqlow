@@ -199,8 +199,10 @@ PathPrediction::Predict(inT,prtlevel){
         }
     else {
         ProcessContributions();
-        if (!Version::MPIserver && prtlevel)
+        if (!Version::MPIserver && prtlevel) {
+            if (Version::HTopen) println("</pre><a name=\"Prediction\"/><pre>");
             println(" Predicted Moments for fixed group: ",f,"%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat[][columns(fvals)+1:]);
+            }
         return TRUE;
         }
   }

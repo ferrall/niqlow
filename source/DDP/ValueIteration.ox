@@ -277,7 +277,7 @@ KWGSolve::Run() {
         done = TRUE;
 		}
 	if (Flags::setPstar && done)  {
-        I::curth->Smooth(VV[I::now][I::all[iterating]]);
+        I::curth->Smooth(ev = VV[I::now][I::all[iterating]]);
         Hooks::Do(PostSmooth);
         }
 	}
@@ -312,6 +312,10 @@ KWGSolve::Solve(instate) {
 		if (!onlypass) {
 			Specification(ComputeBhat);
 			firstpass = FALSE;
+	        XUT.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
+	        SyncStates(lo,hi);
+            /* for(decl s=lo;s<=hi;++s) print(AV(States[s])," ");    println(" "); */
+  	        I::all[onlyexog] = I::all[bothexog] = I::MESind;    //     ;
 			Traverse(myt);
 			}
 		I::NowSwap();
@@ -323,6 +327,8 @@ KWGSolve::Solve(instate) {
 KeaneWolpin::KeaneWolpin(myGSolve) {
     if (isint(SampleProportion))
         oxwarning("DDP Warning 24.\n Must call SubSampleStates() before you use KeaneWolpin::Solve().\n");
+    if (!isclass(userState,"ExPostSmoothing")) oxrunerror("Must use ExPostSmoothing with KeaneWolpin. You can choose NoSmoothing");
+    if (SS[onlysemiexog].size>1) oxrunerror("KeaneWolpin can't be used with semiexogenous states ... move to theta");
 	ValueIteration(isint(myGSolve) ? new KWGSolve() : myGSolve);
     if (N::J>1) oxwarning("DDP Warning 25.\n Using KW approximazation on a model with infeasible actions at some states.\n All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible.\n");
 	}
@@ -332,7 +338,7 @@ KWGSolve::KWGSolve(caller) {
 	right = S[endog].X;
 	cpos = counter.t.pos;
     lo = XUT.left;
-	hi = XUT.right;
+	hi = XUT.right-1;
 	Bhat = new array[N::T];
 	xlabels0 = {"maxE","const"};
     xlabels1 = new array[N::A];
@@ -374,7 +380,7 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
 	}
 	
 KWGSolve::InSample(){
-    XUT.state = state;
+    XUT.state[left:right] = state[left:right];
 	I::curth->ActVal(VV[I::later]);
 	VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
 	if (!onlypass)
@@ -382,10 +388,6 @@ KWGSolve::InSample(){
 	}
 
 KWGSolve::OutSample() {
-	XUT.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
-	SyncStates(lo,hi);
-	I::all[bothexog] = I::MESind;    //     ;
-	I::all[onlysemiexog] = I::MSemiEind; //= ;
 	I::curth->MedianActVal(VV[I::later]);
 	Specification(PredictEV,V[0],(V[0]-I::curth.pandv)'); //NoR [I::r]
 	}

@@ -2,7 +2,7 @@
 #include "LS.ox"
 
 class LSemp : LS {
-    static decl vi, obsearn, sigma, lnlk, mle;
+    static decl vi, obsearn, sigma, dta, lnlk, mle;
     static Run();
     static Estimate();
     static ActualEarn();
@@ -12,7 +12,7 @@ LSemp::ActualEarn() {
     }
 LSemp::Run() {
     Initialize(1.0,new LSemp());
-    Model();
+    Build();
     beta = new Coefficients("beta",<0.8;1.0;-0.1;0.2>);
     sigma = 1.0;
     obsearn = new Noisy(ActualEarn,sigma,FALSE);
