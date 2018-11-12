@@ -711,6 +711,7 @@ PanelPrediction::MaxPathVectorLength(inT) {
 **/
 PanelPrediction::Tracking(LorC,...) {
     decl v,args=va_arglist();
+    TrackingCalled = TRUE;
     cur=this;
     do {
         cur->PathPrediction::Tracking(LorC,args);
@@ -743,6 +744,7 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght) {
 	cur = this;
 	for (f=1;f<N::F;++f) cur = cur.fnext = fparray[f] = new PathPrediction(f,label,method,iDist,wght);
     FN = 1;
+    TrackingCalled = FALSE;
     }
 
 /** Predict outcomes in the panel.
@@ -755,6 +757,7 @@ probabilities<br/>Two print predictions
 **/
 PanelPrediction::Predict(T,prtlevel,outmat) {
     decl cur=this, succ,left=0,right=N::R-1;
+    if (!TrackingCalled) PanelPrediction::Tracking();
     aflat = {};
     M = 0.0;
     succ = TRUE;

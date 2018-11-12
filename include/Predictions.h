@@ -153,13 +153,14 @@ struct PanelPrediction : PathPrediction {
 	decl
 				        					fparray,
     /**length of vector returned by EconometricObjective.**/ FN,
+                                             TrackingCalled,
                                              delt,
                                              aflat,
 	/** array of GMM vector. **/	 	     M;
     PanelPrediction(label="",method=UnInitialized,iDist=0,wght=UNCORRELATED);
     ~PanelPrediction();
     Predict(T=0,printit=FALSE,submat=0);
-    Tracking(LorC,...);
+    Tracking(LorC=TrackAll,...);
     MaxPathVectorLength(inT=0);
     ParallelSolveSub(subp);
     }

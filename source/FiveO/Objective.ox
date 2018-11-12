@@ -792,6 +792,16 @@ DataObjective::AggSubProbMat(submat) {
 **/
 DataObjective::vfunc(subp) {    return data->EconometricObjective(subp); 	}
 
+CondContChoice::CondContChoice(L,param) {
+    BlackBox(L);
+    Parameters(param);
+    NvfuncTerms = 1;
+    Encode();
+    }
+CondContChoice::Algor(algor) {
+    this.algor = algor;
+    }
+
 /**  A wrapper that acts like an objective but just calls a model's Solve method and returns 1.0.
 @param model Object with a method named <code>Solve()</code> <em>or</em> a member named <code>method</code> with
 a method named <code>Solve()</code>

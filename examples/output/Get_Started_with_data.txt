@@ -1,7 +1,7 @@
 Output of DDP Related Tests and Demos:Get Started with data
 ---------------------------
 DP::Intialize is complete. Action and State spaces are empty.
- Log file name is: logs//DP-DDP-24-10-2018-12-15-33.log
+ Log file name is: logs//DP-DDP-12-11-2018-15-28-19.log
 -------------------- DP Model Summary ------------------------
 0. USER BELLMAN CLASS
     DerivedSearch
@@ -22,7 +22,7 @@ DP::Intialize is complete. Action and State spaces are empty.
                        Number of Points
     Exogenous(Epsilon)               10
     SemiExogenous(Eta)                1
-     Endogenous(Theta)                2
+   Endogenous(Theta_t)                2
                  Times                1
          EV()Iterating                2
       ChoiceProb.track                2
@@ -39,28 +39,31 @@ DP::Intialize is complete. Action and State spaces are empty.
 
 
 5. TRIMMING AND SUBSAMPLING OF THE ENDOGENOUS STATE SPACE (Theta)
-                             N
-    TotalReachable           2
-         Terminal            1
-     Approximated            0
-    tfirsts (t=0..T)         0
-                             2
+                           N
+    TotalReachable         2
+         Terminal          1
+     Approximated          0
+
+  Index of first state by t (t=0..T-1)
+    0    2
+
 
 6. FEASIBLE ACTION SETS
  
-i    [a]        A[0]     A[1]   
-------------------------------------
-000 (0)           X        X        
-001 (1)           X        -        
-   #States        1        1
------------------------------------
-    Key: X = row vector is feasible. - = infeasible
+     i    [a]        A[0]     A[1]   
+     ------------------------------------
+     000 (0)           X        X        
+     001 (1)           X        -        
+        #States        1        1
+     -----------------------------------
+         Key: X = row vector is feasible. - = infeasible
 
 
 7. AUXILIARY OUTCOMES
       
 U      
 
+-------------------- End of Model Summary ------------------------
 
      Value of States and Choice Probabilities
      ------------------------------------------------------------------------------
@@ -68,8 +71,29 @@ U
        1   5   1   1   0     0     0       0.000000 1.000000 0.000000
        0   1   0   0   0     0     0      -6.258890 0.300000 0.700000
      ------------------------------------------------------------------------------
+
+        sample size         mean      st.dev.          min          max
+f            20.000      0.00000      0.00000      0.00000      0.00000
+r            20.000      0.00000      0.00000      0.00000      0.00000
+i            20.000       7.0000       4.5056      0.00000       14.000
+t            20.000      0.35000      0.65383      0.00000       2.0000
+track        20.000      0.00000      0.00000      0.00000      0.00000
+type         20.000       1.0000      0.00000       1.0000       1.0000
+Ai           20.000      0.00000      0.00000      0.00000      0.00000
+p            20.000       4.8500       2.4346      0.00000       9.0000
+s21          20.000      0.00000      0.00000      0.00000      0.00000
+d            20.000      0.00000      0.00000      0.00000      0.00000
+t            20.000      0.00000      0.00000      0.00000      0.00000
+t'           20.000      0.00000      0.00000      0.00000      0.00000
+r            20.000      0.00000      0.00000      0.00000      0.00000
+f            20.000      0.00000      0.00000      0.00000      0.00000
+Arow         20.000      0.75000      0.43301      0.00000       1.0000
+a            20.000      0.75000      0.43301      0.00000       1.0000
+U            20.000      -5.2000       2.3854      -8.3000      -2.3000
 Path like type counts
-       15.000      0.00000      0.00000
+    CCP    IIDPartObs
+     15      0      0
+
 Vector of likelihoods when offered price is observed:
        1.0000
        1.0000
@@ -86,8 +110,29 @@ Vector of likelihoods when offered price is observed:
        1.0000
        1.0000
        1.0000
+
+        sample size         mean      st.dev.          min          max
+f            20.000      0.00000      0.00000      0.00000      0.00000
+r            20.000      0.00000      0.00000      0.00000      0.00000
+i            20.000       7.0000       4.5056      0.00000       14.000
+t            20.000      0.35000      0.65383      0.00000       2.0000
+track        20.000      0.00000      0.00000      0.00000      0.00000
+type         20.000       1.0000      0.00000       1.0000       1.0000
+Ai           20.000      0.00000      0.00000      0.00000      0.00000
+p            20.000       4.8500       2.4346      0.00000       9.0000
+s21          20.000      0.00000      0.00000      0.00000      0.00000
+d            20.000      0.00000      0.00000      0.00000      0.00000
+t            20.000      0.00000      0.00000      0.00000      0.00000
+t'           20.000      0.00000      0.00000      0.00000      0.00000
+r            20.000      0.00000      0.00000      0.00000      0.00000
+f            20.000      0.00000      0.00000      0.00000      0.00000
+Arow         20.000      0.75000      0.43301      0.00000       1.0000
+a            20.000      0.75000      0.43301      0.00000       1.0000
+U            20.000      -5.2000       2.3854      -8.3000      -2.3000
 Path like type counts
-      0.00000       15.000      0.00000
+    CCP    IIDPartObs
+      0     15      0
+
 Vector of likelihoods when offered prices is unobserved:
       0.70000
       0.70000
@@ -104,27 +149,24 @@ Vector of likelihoods when offered prices is unobserved:
       0.70000
      0.063000
       0.70000
-... finished.
-[00] Run All (excluding sub-options)
+Tracking all actions, endogenous state and auxiliary variables
+ Predicted Moments for fixed gro[00] Run All (excluding sub-options)
 [01] Get Started
 [02] Get Started with data
 [03] All Tests
 [-2]  Help on Menu
 [-3]  Exit Ox
 [-1]  go up to previous menu
-Interactive Menu: DDP Tests
+     -0.3960
+    3      0.0189      0.0630     -0.1188
+    4      0.0057      0.0189     -0.0356
+Panel Prediction stored in logs//DDP_PredMoments_.dta
+ Read() will read back into a PredictionDataSet
+... finished.
 [00] Run All (excluding sub-options)
-[01] Aging-FixedEffects
-[02] Longevity-Renewak
-[03] KW-Approximization
-[04] KW-NormalEffects
-[05] Integration
-[06] Integration
-[07] Ergodic-Simulation
-[08] Outcomes-Simulation
-[09] Random-Fixed-Effects
-[10] Data-Prediction
-[11] Reservation-Values
+[01] Get Started
+[02] Get Started with data
+[03] All Tests
 [-2]  Help on Menu
 [-3]  Exit Ox
 [-1]  go up to previous menu

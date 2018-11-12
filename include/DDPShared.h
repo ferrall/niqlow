@@ -342,7 +342,6 @@ struct I : DDPauxiliary {
         Set in `I::Set`. **/                                curth,
     /** current point in group space, &gamma;..
         Set in `I::Set`.  **/                               curg,
-                                                            eta,
                                                             elo,
                                                             ehi,
     /** The current value of &delta;. This is set in

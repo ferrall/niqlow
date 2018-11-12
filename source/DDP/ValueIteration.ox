@@ -381,7 +381,8 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
 	
 KWGSolve::InSample(){
     XUT.state[left:right] = state[left:right];
-	I::curth->ActVal(VV[I::later]);
+    DP::vV =VV[I::later];
+	I::curth->ActVal();
 	VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
 	if (!onlypass)
         Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');

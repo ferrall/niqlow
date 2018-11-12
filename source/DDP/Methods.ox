@@ -164,7 +164,8 @@ transition matrix, &Rho;(&theta;&prime;;&theta;)</LI>
 **/
 GSolve::Run() {
     XUT.state = state;
-	I::curth->ActVal(VV[I::later]);
+    DP::vV =VV[I::later];
+	I::curth->ActVal();
 	VV[I::now][I::all[iterating]] = ev = I::curth->thetaEMax();
     this->PostEMax();
 	}

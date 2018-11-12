@@ -17,12 +17,11 @@ on static members in order to reduce memory requirements.  These are defined in 
 
 **/
 struct  Bellman : DP {
-    static decl eta, etal, etah;
 	decl
         /**Integer code to classify state (InSubSample,LastT,Terminal).
             This avoids multiple integer values at each point in the state space.
             Defined in `StateTypes`. Set in `DP::CreateSpaces`()
-            @see StateVariable::MakeTerminal, Clock::Last **/        Type,
+            @see StateVariable::MakeTerminal, Clock::Last **/       Type,
 		/**&theta;.j index into `Alpha::CList`.**/  				Aind,
 		/*U(&alpha;&epsilon;,&eta;,&theta;,&gamma;).  	        U, */
 		/** v(&alpha;;&theta;) and &Rho;*(&hellip;,&gamma;). **/    pandv,
@@ -35,16 +34,17 @@ struct  Bellman : DP {
 			static 	Initialize(userState,UseStateList=FALSE);
 			static  CreateSpaces();
                     OnlyFeasible(myU);
-            virtual IntegrateOverEta(VV);
-            virtual ExogExpectedV(VV);
+            //virtual IntegrateOverEta(VV);
+            virtual ExogExpectedV();  //VV
 			virtual FeasibleActions();
             virtual Reachable();
 			virtual Utility();
             virtual UReset();
 			virtual thetaEMax() ;
-			virtual ActVal(VV);
-                    HMActVal(VV);
-                    AMActVal(VV);
+			virtual ActVal();  //VV
+            virtual ExogStatetoState();
+                    HMActVal();  //VV
+                    AMActVal();  //VV
 			virtual Smooth(EV);
 			virtual KernelCCP(task);
 			virtual ZetaRealization();
@@ -62,7 +62,7 @@ struct  Bellman : DP {
 					Simulate(Y);
 					ThetaTransition();
 					UpdatePtrans(ap=0,vind=0);
-                    StateToStatePrediction(tod);
+                    StateToStatePrediction(intod);
 					MedianActVal(EV);
                     virtual InSS();
 	}																																				
@@ -143,7 +143,7 @@ struct McFadden : ExtremeValue {
 	/**The decision variable. **/ d;
 	static Initialize(Nchoices,userState,UseStateList=FALSE);
 	static CreateSpaces();
-	ActVal(VV);
+	ActVal();  //VV
 	}
 	
 /** DP Models that include additive normal choice-specific &zeta;.
@@ -158,7 +158,7 @@ struct Normal : Bellman {
 	static CreateSpaces();
 	thetaEMax() ;
 	virtual Smooth(EV);
-	ActVal(VV);
+	virtual ActVal(); //VV
 	}
 
 /** Correlated errors and smooth  simulation of choice probabilities. **/
@@ -172,8 +172,8 @@ struct NnotIID : Normal {
 	static SetIntegration(R,iseed,AChol);
 	static CreateSpaces();
 	static UpdateChol();
-	ActVal(VV);
-    ExogExpectedV(VV);
+	ActVal();  //VV
+    ExogExpectedV();   //VV
 	}
 
 /** Numerically integrate using Gauss-Hermite Quadrature.
@@ -188,8 +188,8 @@ struct NIID : Normal {
 	static SetIntegration(GQLevel,AChol);
 	static CreateSpaces() ;
 	static UpdateChol();
-	ActVal(VV);
-    ExogExpectedV(VV);
+	ActVal();  //VV
+    ExogExpectedV();  //VV
 	}
 
 /** One-dimensional action models with user defined distribution of &zeta;.
@@ -248,7 +248,7 @@ struct OneDimensionalChoice : ExPostSmoothing {
     virtual Utility();
 	virtual thetaEMax() ;
 	virtual Smooth(pstar);
-	virtual ActVal(VV);
+	virtual ActVal();  //VV
     virtual SetTheta(state=0,picked=0);
     virtual Continuous();
             SysSolve(RVs,VV);
@@ -267,8 +267,8 @@ struct KeepZ : OneDimensionalChoice {
 	static 	Initialize(userState,d=2,UseStateList=FALSE);
     static  SetKeep(N,held=TRUE);
 	virtual thetaEMax();
-	virtual ActVal(VV);
+	virtual ActVal();  //VV
     virtual DynamicActVal(z);
-    virtual DynamicTransit(z,VV);
+    virtual DynamicTransit(z); //VV
     static  CreateSpaces();
 	}

@@ -16,6 +16,7 @@ I::Initialize() {
 	MESind = OO[bothexog][lo:hi]*MedianExogState;
 	MSemiEind = OO[onlysemiexog][lo:hi]*MedianExogState;
     majt = subt = Zero;
+    elo = ehi = 0;
     }
 
 /** Sets and stores all the state indices, called by `Task::loop` and anything else that directly sets the state.
@@ -566,17 +567,51 @@ This task method has the job of looping over the exogenous state space when
 ExogUtil::ExogUtil() {
 	ExTask();	
     subspace = iterating;
+    AnyExog = SS[bothexog].size > One;
 	}
 	
 ExogUtil::ReCompute(howmany) {
     U = constant(.NaN,I::curth->pandv);
-    if (howmany==DoAll)
+    if (AnyExog && howmany==DoAll)
         this->ExTask::loop();
     else
         Run();
     }
 
 ExogUtil::Run() { U[][I::all[bothexog]] = I::curth->Utility();  }
+
+SemiExTask::SemiExTask() {
+	ExTask();	
+    left = S[semiexog].M;  // right set in ExTask();
+    subspace = iterating;
+    AnyEta = SS[onlysemiexog].size > One;
+    }
+SemiEV::SemiEV()       {     SemiExTask();    }
+SemiTrans::SemiTrans() {     SemiExTask();    }
+SemiExTask::Compute(HowMany) {
+    if (AnyEta && HowMany==DoAll) {
+        I::elo = 0;
+        I::ehi = I::elo-1;
+        this->ExTask::loop();
+        }
+    else {
+        I::elo = I::all[onlysemiexog]*N::Ewidth;
+        I::ehi = I::elo-1;
+        this->Run();
+        }
+    }
+
+SemiEV::Run() {
+    I::ehi += N::Ewidth;
+    I::curth->ExogExpectedV();
+	I::elo += N::Ewidth;
+    }
+
+SemiTrans::Run() {
+    I::ehi += N::Ewidth;
+    I::curth->ExogStatetoState();
+	I::elo += N::Ewidth;
+    }
 
 /**
 @internal
@@ -1105,6 +1140,8 @@ DP::CreateSpaces() {
                 }
         }
    XUT = new ExogUtil();
+   IOE = new SemiEV();
+   EStoS = new SemiTrans();
    if (!Version::MPIserver && Volume>SILENT)
 		println("-------------------- End of Model Summary ------------------------\n");
    Data::SetLog();

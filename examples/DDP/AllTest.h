@@ -38,7 +38,7 @@ struct Test2 : ExtremeValue	{
 	}
 
 
-struct Test3 : Bellman {
+struct Test3 : ExPostSmoothing {
 	static decl a, d, s0, s1;
 	static Run();
 	static 	RunA(Uselist=FALSE);

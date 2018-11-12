@@ -45,7 +45,7 @@ The  base class for the DDP framework.
 struct DP {
 	static decl
         /** Label for the problem. **/                          L,
-        /** file for diagnostic output **/                      logf,
+        /** file for diagnostic output. **/                     logf,
         /** dated file name for diagnostic output **/           lognm,
         /** Version of niqlow that code is written for.
                 @see DP::SetVersion **/                         MyVersion,
@@ -66,9 +66,6 @@ struct DP {
             Variables are added to this list in  the order they were added during execution.
         **/ 				
                                                                 States,
-		/* List of <em>actual</em> feasible action matrices,
-		automatically updated at `UpdateTimes`.  	        A, */
-
 		/** List of `StateBlock`s added to the model.
             <b>User code will typically not access this objects except perhaps in a new
             solution method or other lower-level routine.</b>
@@ -90,9 +87,12 @@ struct DP {
 		/** . @internal						**/    				P,
         /** copy of user's Bellman object used for cloning.**/  userState,
 		/** max of vv. @internal       **/						V,
-		/** computes endogenous transitions**/		            ETT,
-        /** computes utility over exogenous states.**/          XUT,
-		// /** current realized action vector, <code>&alpha;</code>,	only set during simulation of realized paths. **/ 	alpha,//
+        /** vector of V', sent to `Bellman::ActVal` **/         vV,
+        /** Outcomes sent to `Bellman::StateToStatePrediction` **/  tod, tom,
+		/** task to compute endogenous transitions**/		    ETT,
+        /** task to compute utility over exogenous states.**/   XUT,
+        /** task to integrate V over semi-exogenous states.**/  IOE,
+        /** task to update tomorrow's state distribution. **/   EStoS,
 		/** `ZetaRealization`, realized continuous shocks, &zeta;,
 			set during simulation of realized paths. Distribution must be conditional on choice stored in
 			`Alpha::aC`. **/ 	                                zeta,
@@ -143,7 +143,6 @@ struct DP {
 		static  SyncAct(a);
         static  SubSampleStates(SampleProportion=1.0,MinSZ=0,MaxSZ=INT_MAX);
         static  SetUpdateTime(time=AfterFixed);
-        //static  GetAV(a);
 
         static KLaggedState(Target,K,Prune=TRUE);
         static KLaggedAction(Target,K,Prune=TRUE);
@@ -300,12 +299,31 @@ struct ExTask       :   Task {
 
 /** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/
 struct ExogUtil : 	ExTask {	
+    const decl AnyExog;
     decl U;
     ExogUtil();		
     ReCompute(howmany=DoAll);
     Run();	
     }
-	
+
+struct SemiExTask : ExTask {
+    const decl AnyEta;
+    SemiExTask();
+    Compute(HowMany=DoAll);
+    virtual Run();
+    }
+
+/** Loop over &eta; to compute EV **/
+struct SemiEV : SemiExTask {
+    SemiEV();
+    Run();
+    }
+
+struct SemiTrans: SemiExTask {
+    SemiTrans();
+    Run();
+    }
+
 /**  The base task for processing &Gamma;.
 **/
 struct GroupTask : Task {

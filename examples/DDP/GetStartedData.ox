@@ -22,7 +22,7 @@ DerivedSearch::Run()	{
     VISolve();
     simdata = new SearchData();
 
-    decl pd = new PathPrediction();
+    decl pd = new PanelPrediction();
     pd->Predict(5,TRUE);
 
     delete simdata, pd;

@@ -129,6 +129,16 @@ struct DataObjective : BlackBox {
     virtual AggSubProbMat(submat);
 	}
 
+/**
+**/
+struct CondContChoice : BlackBox {
+    decl theta, arow, Aoptvals, Aobj, algor;
+    CondContChoice(L,param);
+    Algor(algor);
+    AtTheta(theta);
+    virtual vfunc(subp=DoAll);
+    }
+
 struct NoObjective : BlackBox {
     decl model,v,modelmethod;
     NoObjective(model);
