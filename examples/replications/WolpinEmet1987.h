@@ -5,7 +5,7 @@ class SchToWork : OneDimensionalChoice {
 	/** Parmeter labels. @name paramlabels**/
 		enum{   m0,     m1,    c,delt,wtilde,rho  ,sigu,P0,PDVdelt}
 	/** Reported parameters **/
-		static const decl pars= {-2.08,-0.0025,104.0,0.999,166.0,0.994,.499,0.01,.95};
+		static const decl pars= {-2.08,-0.0025,104.0,0.999,166.0,0.994,.499,0.01,.99901408}; //.95
 		static decl		
                         Ew,
                         pd,

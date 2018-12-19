@@ -160,11 +160,16 @@ This says that there are two variables from the DP model observed in the data se
 
 To create a simulated data set from a solved DP model and save to a Stata data set:
 <DD><pre>
+    SimulateOutcomes(400,10,"sim.dta");
+</pre></dd>
+This will create a Panel object, which in turn will automatically create a FPanel object for each value of the fixed effects, i.e. each point in the fixed part of $\Gamma$.  It will produce 400 paths, each 10 periods long, for each fixed group.  Then it will save the data to the Stata dta file using the labels set for all the DP variables to label the columns.  This could then be read back into a <code>OutcomeDataSet</code> during a Monte Carlo exercise. This function is equivalent to these lower-level commands:
+<DD><pre>
     sim = new Panel("DPdata");
     sim -> Simulate(400,10);
 	sim -> Print("sim.dta");		
+    delete sim;
 </pre></dd>
-This will create a Panel object, which in turn will automatically create a FPanel object for each value of the fixed effects, i.e. each point in the fixed part of $\Gamma$.  <code>Simulate()</code> will produce 400 paths, each 10 periods long, for each fixed group.  <code>Print()</code> will save the simulated data to a file using the labels set for all the DP variables to label the columns.  This could then be read back into a <code>OutcomeDataSet</code> during a Monte Carlo exercise. </p>
+The reason to create the <code>Panel</code> object instead of using <code>SimulateOutcomes</code> is to keep the simulated data around and to be able to control other aspects of the data produced using methods defined for panels.</p>
 
 <li>The Full Outcome</li>
 

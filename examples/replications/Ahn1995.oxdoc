@@ -37,22 +37,18 @@ This code attempts to replicate Panels C and D from Table 5b on p. 374 of the pa
 <DD>Fertile period: <code>t = 0, &hellip;, &tau;-1</code>, with &tau;=7.</DD>
 <h3>Endogenous State Variables</h3>
 
-<DT>Original</DT>
-<DD>kept track of the sequence of boys and girls born during the fertile period.</DD>
-<DD>This makes the size of the state space equal to $3^{\tau}=2187$.</DD>
-<DD>This replication attempts to approximate the results with a smaller state space.</DD>
+<DT>Births and Sex of Children</DT>
+<DD>Kept track of the sequence of boys and girls born during the fertile period.  This was modeled by having a state variable $b$ which
+is the realized sex of a child:
+$$b^\prime = \cases{ 0 & no birth this period.\cr
+                     1 & boy (prob. 0.515).\cr
+                     2 & girl (prob. 0.485)}.$$
+To keep track of the age profile of children the realized values of $b$ were captured for the seven fertile periods using the StateAtTbar() state variable, $d_0,d_1,\dots, d_6$. 
+$$d_s = \cases{0 & $s \le t$\cr
+               b_t & $s > t$\cr}$$ 
+The state space is fairly large (by the eight period there are $3^{7}=2187$ sequences of births. However, there are no transitions since $d_s$ is fixed for $t>s$.  And there are not choices past the seventh period.
 
-<DT>$\theta = \left(b, d_0, d_1,\dots,d_{\tau-1}\right)$</DT>
-<DT><code>b = number of boys born in the past</code></DT>
- <DD><code>b.N = 8</code>.  <code>b</code> is of type <code>RandomUpDown()</code>.  </DD>
- <DD>The transition  matrix:
- <pre>
- </pre>
- </DD>
-<DT><code>d<sub>t</sub> = decision in period t</code>.  </DT>
-<DD>These variables are of class <code>ChoicesAtTbar</code></DD>
-<DT>Size of the endogenous state space</DT>
-<DD>$2^{\tau} \times (\tau+1) = 1024$.</DD>
+<DT>$\theta = \left(b, d_0, d_1,\dots,d_6\right)$</DT>
 
 <h3>Utility:</h3>
 <DT>Composite good, $x_t$</DT>
@@ -63,18 +59,9 @@ This code attempts to replicate Panels C and D from Table 5b on p. 374 of the pa
  <DD>$m^t_k$, the value of a $k$-period-old boy (Male) at time t.</DD>
  <DD> $ (f^t _k)$, the value of $k$-period-old girl (Female)</DD>
  <DD>In fact, the values were invariant to the mother's age, so $m_k$ and $f_k$.</DD>
- <DD>This requires tracking sex of each child. </DD>
+ 
+ <DD>$$U = \ln(\max(1,x_t(d)))$$</DD>
 
- <DT>Approximation</DT>
- <DD>Let $N = \sum_{s=0}^{\min{\tau,t}-1} d_s$ denote the number of existing children.</DD>
- <DD>Let $h = {\pi b + (1-\pi)(N-b) \over N}$ denote the prob. that any previous birth was boy or girl (without tracking actual sex of each birth).</DD>
- $$x_t =  Y_t + \sum_{s=0}^{\min{\tau,t}-1} d_{s}\left( h m_{k(s,t)}  + (1-h)f_{k(s,t)} \right).$$
- <DD>$k(s,t)$ is the age bracket that a child born in period $s$ is in at period $t$.</DD>
- <DD>$v_0 = h_0 m_0 + (1-h_0)f_0$</DD>
- <DD>$$U = \ln(x_t) + dv_0 + \zeta_d$$</DD>
-
-Note: due to the negative values of boys and girls at young ages $x_t$ was negative in some cases. To resolve this issue we implemented a minor change to the utility function:
-$ U_t = \log max(1, x_t)+\zeta_t(d_t) $ , effectively bounding the utility function above zero.</p>
 
 <DT>Parameters: </DT>
 <DD><table><tr><td>$\delta$</td><td>	0.95</td> </tr>
@@ -120,9 +107,6 @@ $ U_t = \log max(1, x_t)+\zeta_t(d_t) $ , effectively bounding the utility funct
 <DD class="example"><pre>       Output produced: <a href="javascript:popoxcode('../../../examples/replications/AhnOut.txt');">examples/replications/niqlow/AhnOut.txt</a>
 <object width="75%" height="200" type="text/plain" data="../../../examples/replications/AhnOut.txt" border="1" ></object></pre></DD>
 
-<DD>We use the estimated values of the children from the paper to calculate the choice probability of giving birth for college educated Korean women. Specifically, we aim to replicate the results from panels c and d from table 5b on p. 374 of the paper. Panel c shows the choice probabilities if the boys and girls have the same values. Panel d shows the choice probabilities if the average values of boys and girls are used in the estimation.</p>
-
-The main reason for choosing these panels is that Ahn's approach requires keeping track of both the ages and genders of the children. To do this in niqlow would require the creation of a new derived StateVariable class but other aspects of the original model mean the gap between it and the approximation is small. Instead, niqlow can keep track of the actions taken using the ChoiceAtTbar class and this together with a separate state variable for the number of boys allows us to keep track of the total number of children, the total number of boys and girls and the age of the children (but not the age of each gender) in each period. In the Utility() method, setting the local variable bg=1 will give estimated probabilities for panel c and setting bg=0.5 will give the estimated probabilities for panel d. The actual and estimated probabilities are shown in the following table.</DD>
 
  <table border="0">
   <tr>
@@ -151,6 +135,5 @@ The main reason for choosing these panels is that Ahn's approach requires keepin
   </tr>
 </table>
 
-As shown in the table above, we cannot replicate the results from Ahn at this moment. We have printed out the decision variables, state variables, income and utility from each period and each reachable state and they seemed to have been calculated correctly, so we are uncertain what is causing the discrepancies. One thing that is not clear from the paper is that the utility is the log of the sum of income and the value of children (which could be negative), so ther will be some instances where the utility is not defined; thus there must have been some adjustment made for these states and we are unsure what that was (we set all values below 0 to 1 before taking log).</p>
 
 **/

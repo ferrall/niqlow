@@ -10,14 +10,12 @@ SchToWork::Replicate() {
 	done -> MakeTerminal(1);
 	CreateSpaces();
     Ew = pars[wtilde]*exp(sqr(pars[sigu])/2);
-	decl RV = new ReservationValues(-.Inf) ;
-	RV.Volume = QUIET;
-	RV -> Solve();
-    DPDebug::outV(TRUE,0,0,TRUE);
-    pd = new PanelPrediction(0);
-    Data::Volume = LOUD;
-    pd->Tracking (TrackAll);
-    pd -> Predict(400,2);
+    RVSolve();
+	//decl RV = new ReservationValues(-.Inf) ;	RV.Volume = QUIET;	RV -> Solve();
+    //DPDebug::outV(TRUE,0,0,TRUE);
+    // pd = new PanelPrediction(0);    Data::Volume = LOUD;    pd->Tracking (TrackAll);    pd -> Predict(400,2);
+    ComputePredictions(UseDefault,"Wolpin1987.dta");
+    //delete RV;
     Delete();
 	}
 

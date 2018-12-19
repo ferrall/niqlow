@@ -126,7 +126,7 @@ class Augmented : StateVariable {
 
 @see StateBlock, Autonomous, StateBlock::AddToBlock
 **/
-struct Coevolving : Augmented {
+struct Coevolving : StateVariable {
 	/** StateBlock that I belong to  **/		decl block;
 	/** Index into block array/vector **/    	decl bpos;
 	Coevolving(Lorb, N=1);
@@ -380,6 +380,12 @@ struct IIDBinary : IIDJump {
     virtual Transit();
     }
 
+struct BirthAndSex : Random {
+    const decl b, ratio;
+    BirthAndSex(L,b,ratio);
+    Transit();
+    }
+
 /** Equally likely values each period (IID).
 
 <DT>Transition:</DT>
@@ -574,6 +580,30 @@ Or, track the first four choices of d:
 struct ChoiceAtTbar :  LaggedAction {
     const decl Tbar;
 	ChoiceAtTbar(L,Target,Tbar,Prune=TRUE);
+	virtual Transit();
+    virtual IsReachable();
+    }
+
+/** Record the value of an state variable q at a specified time, starting the following period.
+<DT>Transition:
+<dd class="math"><pre>
+s' = 0 if t &lt; Tbar
+     s.q if t=Tbar
+     s if t &gt; Tbar
+&Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z=s.q}.
+</pre></dd>
+<DT>IsReachable</DT>
+<DD>Non-zero states are trimmed as unreachable for <code>t&le; Tbar</code></DD>
+@example
+<pre>
+</pre>
+</dd>
+
+@see LaggedState, ChoiceAtTbar
+**/
+struct StateAtTbar :  LaggedState {
+    const decl Tbar;
+	StateAtTbar(L,Target,Tbar,Prune=TRUE);
 	virtual Transit();
     virtual IsReachable();
     }
@@ -836,6 +866,7 @@ struct StateBlock : StateVariable {
 	virtual Transit();
     virtual Check();
     virtual myAV();
+    virtual Update(curs,first);
 	}
 
 

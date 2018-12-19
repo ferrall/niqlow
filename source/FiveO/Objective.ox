@@ -763,8 +763,8 @@ BlackBox::BlackBox(L)	 {
 /** An objective based on an economic model with data and (possibly) a nested solution method.
 @param L string, label
 @param data an object that includes member FN and method EconometricObjective.<br/>Typically,
-    <a href="../DDP/Data.ox.html#Panel">Panel<a/> or <a href="../DDP/Data.ox.html#PanelPrediction">PanelPrediction</a>. object (including
-    the possibility of the derived OutcomeDataSet and PredictionDataSet variety).
+    <a href="../DDP/Data.ox.html#OutcomeDataSet">OutcomeDataSet<a/> or <a href="../DDP/Data.ox.html#PredictionDataSet">PredictionDataSet</a> object
+    (including the possibility of the derived OutcomeDataSet and PredictionDataSet variety).
 @param ... `Parameter`s and arrays of Parameters to optimize over.
 @comments  `Objective::NvfuncTerms` is set to <code>data.FN</code>, the total number of paths in the panel
 **/
@@ -792,6 +792,11 @@ DataObjective::AggSubProbMat(submat) {
 **/
 DataObjective::vfunc(subp) {    return data->EconometricObjective(subp); 	}
 
+/** An objective to represent a continuous choice at a point in the state space of a dynamic program.
+@example
+
+    </DD>
+**/
 CondContChoice::CondContChoice(L,param) {
     BlackBox(L);
     Parameters(param);
@@ -801,6 +806,21 @@ CondContChoice::CondContChoice(L,param) {
 CondContChoice::Algor(algor) {
     this.algor = algor;
     }
+CondContChoice::AtTheta(theta) {
+    this.theta = theta;
+    Aoptvals = theta->GetContVal();
+    Aobj = zeros(sizeof(Aoptvals));
+    for(arow = 0; arow < rows(Aobj); ++arow) {
+        if (!isnan(Aoptvals[arow])) {
+            Encode(Aoptvals[arow]);
+            algor -> Iterate();
+            Aobj[arow] = cur.v;
+            Aoptvals[arow] = cur.X;
+            }
+        }
+    theta -> SetContVal(Aoptvals,Aobj);
+    }
+
 
 /**  A wrapper that acts like an objective but just calls a model's Solve method and returns 1.0.
 @param model Object with a method named <code>Solve()</code> <em>or</em> a member named <code>method</code> with

@@ -32,11 +32,10 @@ Farmer::Replicate()	{
     VISolve(FALSE);
     decl pd = new PanelPrediction();
     Data::Volume = LOUD;
+    ComputePredictions();
     pd -> Tracking(TrackAll);
     pd -> Predict(FarmT,Two);
-/*    decl od = new Panel(0);
-    od -> Simulate(2,5);
-    od -> Print(2); */
+/*    decl od = new Panel(0);    od -> Simulate(2,5);    od -> Print(2); */
     SetDraw(SET_COLORMODEL,3);
 	SetDraw(SET_MARGIN,1000,1000);
 	DrawTitle(0,"Replication of Figures 1 and 2, Rosenzweig Wolpin (1993).");

@@ -17,23 +17,56 @@
 
 Replicate <a href="">Wolpin (Econometrica 1987)</a>, the school to work transition search model.
 <P/>
+<OL>
+<LI>CCP Smoothing: OneDimensionalChoice of a reservation wage </LI>
+<LI>The Clock: ordinary aging. Choice horizon: <span class="expressions">\(T=115\)</span> (months), 61 before leaving school, 54 after, plus 500 months of no choice periods.</LI>
+<LI><span class="expressions">\(\alpha = (a) \in \{0,1\}\)</span>.</LI>
+<LI><span class="expressions">\(\theta = (h,m,t)\)</span>. where <span class="expressions">\(m \in \{0,1\}\)</span> is the lagged action, indicating a job has been accepted.  <span class="expressions">\(m=1\)</span> is a <em>terminal state</em>. <span class="expressions">\(h\)</span> is an IID binary process with <span class="expressions">\(h=1\)</span> meaning a wage offer arrived, 0 otherwise.
+    $<span class="expressions">\(d = \cases{ 0    & \)</span>t<61<span class="expressions">\( (in school)\cr
+                  t-62 & otherwise (out of school)\cr}\)</span><span class="expressions">\(
+    \)</span><span class="expressions">\(
+    Prob(h=1) = \cases{ 0.01 & if \)</span>d=0<span class="expressions">\(\cr
+                        \Phi(-2.08-0.0025d) & otherwise\cr}\)</span><span class="expressions">\(
+    </LI>
+<LI>\)</span><span class="expressions">\(A(\theta) = \cases{
+            \{0,1\} & if \)</span>(1-m)h<span class="expressions">\( and \)</span>d<54<span class="expressions">\( (has an offer, still unemployed, still choosin)\cr
+            \{0\} & if \)</span>h=0<span class="expressions">\( (no offer)\cr
+            \{1\} & if \)</span>h=1<span class="expressions">\( and \)</span>t\ge 54<span class="expressions">\( (must accept any offer)\cr}\)</span><span class="expressions">\(
+<LI>Expected Utility of Reject/Accept.</LI>
+    Given \)</span>z^\star_t<span class="expressions">\( the current value of the reservation wage, and wage offers are log-normally distributed.  
+    define \)</span>q = \ln(z^\star_t,\nu)-\ln(\tilde{w})<span class="expressions">\(, \)</span>p = 1-\Phi(q/\sigma)<span class="expressions">\(,
+    \)</span>\lambda = 1 - \Phi(q/\sigma-\sigma^2)<span class="expressions">\(.  Then the model delivers a 2x2 matrix of expected values:
+    \)</span>\pmatrix{ -c & (1-p) \cr PDV(E\lambda/p) & p }<span class="expressions">\(
+    That is, the right column is the probability of \)</span>w<span class="expressions">\( above and below \)</span>z^\star<span class="expressions">\(, respectively.  
+    The left column is the expected utility of rejecting and accepting given \)</span>z^\star<span class="expressions">\(.  Rejection has
+    utility \)</span>c<span class="expressions">\(.  Acceptance is the present discounted value of the mean wage conditional on it being greater than \)</span>\z^\star<span class="expressions">\(, thus 
+    \)</span><span class="expressions">\(PDV(w) = { w+.99901408{T^\star-t}\over 1-.99901408}.\)</span><span class="expressions">\(
+    Note that <q>utility</q> is the right term if upon acceptance the searcher gets the full present value of wages.  This is consistent with the model since there are no further decisions after a wage is accepted.  If there were further decisions that depended on future wages then the value of the accepted wage would have to be tracked as a discrete state variable.
+<P/>
+    To solve the model also provides the utility vector at the reservation wage, which is simply \)</span>\pmatrix{ -c \cr PDF(x) }<span class="expressions">\(.  Together \)</span>z^\star<span class="expressions">\( is a root to a non-linear equation:
+    niqlow solves this equation for each state at which search is possible. In the model there are states at which search is not possible and <code>Utility()</code> must account for this
+    \)</span><span class="expressions">\(U() = (1-m)(-(1-h)c + h*PDV(E[w])).\)</span><span class="expressions">\(
+    That is, if no offer is in hand utility is \)</span>-c<span class="expressions">\(.  And if an offer is in hand (and search is not possible) the searcher must accept the wage.  The expected utility of arriving at this state is therefore \)</span>PDV(E[w])<span class="expressions">\( where \)</span>E[w] = ??<span class="expressions">\(.</LI>
+<LI>\)</span>\delta = 0.999<span class="expressions">\(.  The text states for the long post-search period a <q>annual discount rate of 5 percent</q> was used.  In monthly terms this results in a discount factor of \)</span>\delta_v = e^{\ln(.95)/52} = .99901408$.</LI>
+</OL>
+<P/>
 <h2>Replication of Table IV, p. 813, Wolpin, Econometrica 1987</h2>
 <table>
 <tr><th>Weeks i</th><th>Reported Predicted Hazard</th><th>Emulated Hazard</th> </tr>
-<tr><td>1         </td><td>    .313       </td><td>  </td></tr>
-<tr><td>2-13      </td><td>    .141       </td><td>  </td> </tr>
-<tr><td>14-26     </td><td>    .135       </td><td></td> </tr>
-<tr><td>27-39     </td><td>    .127       </td><td>  </td> </tr>
-<tr><td>40-52     </td><td>    .117 </td><td>  </td> </tr>
-<tr><td>53-65     </td><td>    .105       </td><td>  </td> </tr>
-<tr><td>66-78     </td><td>    .097 </td><td>  </td> </tr>
-<tr><td>79-91     </td><td>    .090       </td><td>  </td> </tr>
-<tr><td>92-104    </td><td>    .083</td><td>  </td> </tr>
-<tr><td>105-117   </td><td>    .076       </td><td>  </td> </tr>
-<tr><td>118-130   </td><td>    .070</td><td>  </td> </tr>
-<tr><td>131-143   </td><td>    .064       </td><td>  </td> </tr>
-<tr><td>144-156   </td><td>     .059</td><td>  </td> </tr>
-<tr><td>157-166   </td><td>     .054      </td><td>  </td>
+<tr><td>1         </td><td>    .313       </td><td>  .2773175  </td></tr>
+<tr><td>2-13      </td><td>    .141       </td><td>    .08758  </td> </tr>
+<tr><td>14-26     </td><td>    .135       </td><td>  .0825763  </td> </tr>
+<tr><td>27-39     </td><td>    .127       </td><td>  .0690007  </td> </tr>
+<tr><td>40-52     </td><td>    .117 </td>     <td>   .0577042  </td></tr>
+<tr><td>53-65     </td><td>    .105       </td> <td> .0545755  </td> </tr>
+<tr><td>66-78     </td><td>    .097 </td>       <td> .0445571  </td> </tr>
+<tr><td>79-91     </td><td>    .090       </td><td>  .0355048   </td> </tr>
+<tr><td>92-104    </td><td>    .083</td>        <td>  .028323   </td> </tr>
+<tr><td>105-117   </td><td>    .076       </td><td>  .0228554   </td> </tr>
+<tr><td>118-130   </td><td>    .070</td>        <td> .0186378   </td> </tr>
+<tr><td>131-143   </td><td>    .064       </td><td>  .0153897  </td> </tr>
+<tr><td>144-156   </td><td>     .059</td>      <td>  .0127247  </td> </tr>
+<tr><td>157-166   </td><td>     .054      </td><td>  .0107464 </td>
 </table>
 
 <a name="SchToWork"></a>

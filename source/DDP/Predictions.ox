@@ -25,6 +25,23 @@ ExogAuxPred::Run() {
         }
     }
 
+/**  Simple Prediction .
+@param T	integer, length of panel<br>UseDefault [default], length of lifecycle or  10
+@param prtlevel Two [default] print predictions <br/>One print state and choice
+probabilities
+
+**/
+ComputePredictions(T,prtlevel) {
+    decl op = new PanelPrediction("predictions"),TT;
+    if (T==UseDefault) {
+        TT = Flags::IsErgodic ? 10: N::T;
+        }
+    else TT = T;
+    op -> Tracking(TrackAll);
+    op -> Predict(TT,prtlevel);
+    delete op;
+    }
+
 /** Compute the predicted distribution of actions and states.
 Average values of tracked objects are stored in `Predict::predmom`
 Transitions to unreachable states is tracked and logged in the Data logfile.
@@ -314,10 +331,19 @@ What happens depends on `PathPrediction::iDist`.
 **/
 PathPrediction::InitialConditions() {
     if (isint(iDist)) {
-		sind=iDist; //start at iDist
-		while (!Settheta(sind)) ++sind;  // increment until reachable state found
-        sind = matrix(sind);
-		p = <1.0>;
+        if (iDist==ErgodicDist) {
+            if (!Flags::IsErgodic) oxrunerror("Clock is not ergodic, can't compute ergodic predictions");
+	        I::curg->StationaryDistribution();
+	        //println("Ergodic distribution: ",I::curg.Pinfinity');
+            p = I::curg.Pinfinity;
+            sind =  range(0,SS[tracking].size-1)';
+            }
+        else {
+		  sind=iDist; //start at iDist
+		  while (!Settheta(sind)) ++sind;  // increment until reachable state found
+          sind = matrix(sind);
+		  p = <1.0>;
+          }
 		}
 	else if (ismatrix(iDist)) {
 		sind = SS[tracking].O*iDist;
@@ -338,8 +364,8 @@ PathPrediction::InitialConditions() {
     }
 
 /** Set up predicted distributions along a path.
-@param iDist  initial distribution.<br> integer: start at iDist and increment until a
-reachable state index is found.
+@param iDist  initial distribution.<br/>
+        integer: start at iDist and increment until a reachable state index is found.
         So <code>PathPrediction(0)</code> [default] will start the prediction at the
         lowest-indexed reachable state in
         &Theta;.<br/>
@@ -508,7 +534,9 @@ TrackObj::Reset() {
     }
 
 TrackObj::Update() {
-  if (!contdist) hvals = obj.actual'; //obj.vals;
+  if (!contdist) {
+    hvals = obj.actual'; //obj.vals;
+    }
   }
 
 oTrack::oTrack(LorC,obj,pos){

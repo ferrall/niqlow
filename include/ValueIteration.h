@@ -98,7 +98,7 @@ KW approximation in <span class="n">DDP</span>.</DD>
 
 <h3>The key elements of the approximation</h3>
 <OL>
-<LI>The points in &Theta; to subsample at each clock setting, <code>I::t</code>.</LI>
+<LI>The points in &Thetaf; to subsample at each clock setting, <code>I::t</code>.</LI>
 
 The sampling is controlled by `DP::SubSampleStates`(), which takes 3 optional arguments. See its
 documentation for an explanation. At the subsampled points in &theta; all the exogenous states

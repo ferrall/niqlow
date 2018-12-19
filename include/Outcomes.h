@@ -2,6 +2,10 @@
 #import "Bellman"
 /* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
 
+#ifndef Dh
+SimulateOutcomes(Nsim=UseDefault,T=UseDefault,fname=UseDefault,ErgOrStateMat=0,DropTerminal=FALSE);
+#endif
+
 /** A single realization of a discrete DP. **/
 struct Outcome : Data {
 	/** . @internal **/
@@ -11,9 +15,10 @@ struct Outcome : Data {
 			PrefixLabels = {"t","n","T","Aj|"};
 	/** . @internal **/
 	static 	decl
+                                        AnyMissing
 #ifdef OX_PARALLEL
-                                        AnyMissing = < [DSubSpaces] *0>,
-#endif
+                                         = < [DSubSpaces] *0> //Oxdoc does not recognize this syntax so ifdef hides it
+#endif                                  ,
                                         pathpred,
                                         ctlist, exaux,
     /**do not include choice prob for fully observed

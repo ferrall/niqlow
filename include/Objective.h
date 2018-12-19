@@ -129,7 +129,7 @@ struct DataObjective : BlackBox {
     virtual AggSubProbMat(submat);
 	}
 
-/**
+/** Handle a conditional choice conditional on $(\alpha,\theta)$.
 **/
 struct CondContChoice : BlackBox {
     decl theta, arow, Aoptvals, Aobj, algor;

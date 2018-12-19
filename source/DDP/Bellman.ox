@@ -46,17 +46,24 @@ EndogTrans::Run() {
 **/
 EndogTrans::Transitions(state) {
     this.state = isint(state) ? N::All-1 : state;
-	decl i,nr,j,a,s,skip;
+	decl i,nr,j,a,s,skip,ab;
     Flags::HasBeenUpdated = TRUE;
     Hooks::Do(PreUpdate);
     skip=UnInitialized;
     foreach (s in States[i]) {
-        if (i<skip) continue;
+        if (skip>0) {
+			ab->Update(s,FALSE);
+            if (++skip >= ab.N) {
+                ab->Check();
+			    if (isclass(s,"CorrelatedEffect")) ab->Distribution();
+                ab =skip=UnInitialized;
+                }
+            continue;
+            }
 		if (StateVariable::IsBlockMember(s)) {
-			s.block->Update();
-            s.block->Check();
-			if (isclass(s,"CorrelatedEffect")) s.block->Distribution();			
-			skip = i + s.block.N;
+            ab = s.block;
+			ab->Update(s,TRUE);
+			skip = 1;
 			}
 		else {
 			s->Update();
@@ -1002,18 +1009,3 @@ KeepZ::CreateSpaces() {
     if (!isclass(keptz)) oxwarning("DDP Warning 06.\n Dynamic approximation to continuous state has not defined.\n Call SetKeep().\n" );
 	OneDimensionalChoice::CreateSpaces();
 	}
-
-CondContChoice::AtTheta(theta) {
-    this.theta = theta;
-    Aoptvals = theta->GetContVal();
-    Aobj = zeros(Aoptvals);
-    for(arow = 0; arow < Alpha::N; ++arow) {
-        if (!isnan(Aoptvals[arow])) {
-            Encode(Aoptvals[arow]);
-            algor -> Iterate();
-            Aobj[arow] = cur.v;
-            Aoptvals[arow] = cur.X;
-            }
-        }
-    theta -> SetContVal(Aoptvals,Aobj);
-    }

@@ -278,12 +278,13 @@ Discrete::PDF() {return ismember(pdf,"v") ? pdf.v[v] : pdf[v];	}
 /** Initialize the actual values.
 @param MaxV non-zero double, default = 1.0<br>
             N&times;1 vector, actual
-If a double is sent the actual vector to 0,&ellip;, MaxV.
+If a double is sent the actual vector to 0,&hellip;, MaxV.
 @see Discrete::Update
 **/
 Discrete::SetActual(MaxV) {
-    if (isdouble(MaxV)||isint(MaxV))
-        actual = MaxV*(vals)'/max(N-1,1);
+    if (isdouble(MaxV)||isint(MaxV)) {
+        actual = MaxV*(vals')/max(N-1,1);
+        }
     else {
         if (rows(vec(MaxV))!=N) oxrunerror("DDP Error. Actual vector must be of length N");
         actual = vec(MaxV);

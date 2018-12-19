@@ -169,7 +169,7 @@ Augmented::Update() {
 
 /** Normalize the actual values of the base variable and then copy them to these actuals.
 @param MaxV positive real, default = 1.0
-Sets the actual vector to 0,&ellip;, MaxV.
+Sets the actual vector to 0,&hellip;, MaxV.
 @see Discrete::Update
 **/
 Augmented::SetActual(MaxV) {
@@ -493,6 +493,21 @@ IIDBinary::IIDBinary(L,Pi) {
     StateVariable(L,2);
     }
 
+/** Create a 3-valued state variable that records a binary outcome of a binary choice.
+@param L label
+@param b `BinaryChoice`
+@param ratio prob. = 1 or 2 given b==1
+**/
+BirthAndSex::BirthAndSex(L,b,ratio) {
+    this.b = b;
+    this.ratio = ratio;
+    StateVariable(L,3);
+    }
+
+BirthAndSex::Transit() {
+    return { <0:2>, (1-CV(b))~(CV(b)*ratio) };
+    }
+
 /**Create a variable that jumps with probability
 @param L label
 @param N number of values
@@ -751,6 +766,30 @@ ChoiceAtTbar::Transit() {
     }
 
 ChoiceAtTbar::IsReachable() {
+    return !(Prune && Flags::Prunable && (I::t<=Tbar) && v);
+    }
+
+/**  Record the value of an action variable at a given time (starting at the next period).
+@param L label
+@param Target `StateVariable` to record
+@param Tbar clock time at which to record choice (starting at Tbar+1)
+@param Prune TRUE [default], prune unreachable states (non-zero values at and before Tbar)
+
+@example
+<pre></pre></dd>
+**/
+StateAtTbar::StateAtTbar(L,Target,Tbar,Prune) {
+    LaggedState(L,Target,Prune);
+    this.Tbar = Tbar;
+    }
+
+StateAtTbar::Transit() {
+    if (I::t<Tbar) return { <0>,CondProbOne };
+    if (I::t>Tbar) return UnChanged();
+    return { matrix(Target.v) , CondProbOne };
+    }
+
+StateAtTbar::IsReachable() {
     return !(Prune && Flags::Prunable && (I::t<=Tbar) && v);
     }
 
@@ -1070,9 +1109,8 @@ ActionTracker::Transit()	{
 @see StateBlock
 **/
 Coevolving::Coevolving(Lorb,N)	{
-	Augmented(Lorb,N);
-	bpos = UnInitialized;
-	block = UnInitialized;
+	StateVariable(Lorb,N);
+	block = bpos = UnInitialized;
 	}
 
 /** .
@@ -1105,12 +1143,12 @@ The default `StateBlock::Actual` matrix is built up from the actual vectors of v
 StateBlock::AddToBlock(news,...)	{
 	decl i,k,nd,newrow, s, oldallv;
 	news = {news}|va_arglist();
-	for (i=0;i<sizeof(news);++i) {
-		if ((!IsBlockMember(s = news[i]))) oxrunerror("DDP Error 23. State Variable added to block not a block member object\n");
+    foreach(s in news[i]) {   //for (i=0;i<sizeof(news);++i) {
+		if ((!IsBlockMember(s))) oxrunerror("DDP Error 23. State Variable added to block not a block member object\n");
 		s.bpos = N++;
 		Theta |= s;
 		v ~= Zero;  //July 2018.  changed from .NaN so blocks can index immediately.
-		if (N==1) { Allv = s.vals; Actual= s.actual; }
+		if (N==1) { Allv = s.vals; StateBlock::Update(s,TRUE); }
 		else {
 			nd = columns(Allv); newrow = <>;
 			oldallv = Allv;
@@ -1119,12 +1157,7 @@ StateBlock::AddToBlock(news,...)	{
 				newrow ~= constant(k,1,nd);
 				}
 			Allv |= newrow;
-            if (s.N> rows(Actual) ) {
-                Actual |= constant(.NaN,s.N-rows(Actual),columns(Actual));
-                Actual ~= s.actual;
-                }
-            else
-                Actual ~= s.actual|constant(.NaN,rows(Actual)-s.N,1);
+            StateBlock::Update(s,FALSE);
 			}
 		}
 	actual = v';   //default actual values, replaced after each add to block.
@@ -1133,10 +1166,25 @@ StateBlock::AddToBlock(news,...)	{
 	
 StateBlock::Check() {   }
 
+StateBlock::Update(curs,first) {
+    curs -> Update();
+    if (first) {
+        Actual = curs.actual;
+        }
+    else {
+        if (curs.N> rows(Actual) ) {
+            Actual |= constant(.NaN,curs.N-rows(Actual),columns(Actual));
+            Actual ~= curs.actual;
+            }
+        else
+            Actual ~= curs.actual|constant(.NaN,rows(Actual)-curs.N,1);
+		}
+    }
+
 /** Sets and returns the vector of <em>actual</em> values of the block as a row vector. **/
 StateBlock::myAV() {  return actual = selectrc(Actual,v,rnge);    }
 
-Coevolving::myAV() { return block->myAV()[bpos]; }
+Coevolving::myAV() { return block->myAV()[0][bpos]; }
 
 /** An offer with layoff (match dissolution) risk.
 @param L string, label

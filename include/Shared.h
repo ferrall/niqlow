@@ -26,7 +26,7 @@
 enum {CondProbOne=1,
       UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,
       DoAll=-1,NoMatch=-1,AllFixed=-1,AllRand=-1,UseSubSample=-1,ResetValue=-1,
-      IterationFailed=-1, UseGradient=-1,
+      IterationFailed=-1, UseGradient=-1, ErgodicDist=-1,
       NotInData=-2, UseCurrent=-2, UseCheckPoint = -2,
       TrackAll=-3,
       Zero = 0, One, Two,

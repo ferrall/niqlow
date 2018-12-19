@@ -54,6 +54,8 @@ struct  Bellman : DP {
 //			virtual Predict(tod);
             virtual OutputValue();
             virtual SetTheta(state=0,picked=0);
+            virtual GetCondVal();
+            virtual SetContVal(Aoptvals,Aobj);
 
 					Bellman(state,picked);
                     Allocate(picked,CallFromBellman=FALSE);

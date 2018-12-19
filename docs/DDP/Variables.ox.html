@@ -20,11 +20,12 @@ Describes how to represent actions states and other discrete quantities in your 
 <P/>
 <OL class="contents">Contents
 <LI><a href="#OV">Overview</a></LI>
-<LI><a href="#ActionVariables">Action Variables</a></LI>
-<LI><a href="#StateVariables">State Variables</a></LI>
-<LI><a href="#Clock">The Clock:  keeping time in DDP</a></LI>
+<LI><a href="#ActionVariables">Action Variables: the choices your agent makes at each state</a></LI>
+<LI><a href="#StateVariables">State Variables: values that define the state of the problem</a></LI>
+<LI><a href="#Clock">The Clock:  a special state variable for keeping time in DDP</a></LI>
 <li><a href="#Fixed">Time Invariants: solving different DP problems with random and fixed effects</a></li>
-<li><a href="#Auxiliary">Auxiliary Values: tracking function of actions and state variables</a></li>
+<li><a href="#Auxiliary">Auxiliary Values: tracking functions of actions and state variables in data sets</a></li>
+<LI><a href="#Continuous">Conditional Continuous Choices: optimizing at points in the state space</a></LI>
 <li><a href="#Volume">Volume (getting output specific to a variable)</a></li>
 </OL>
 <P/>
@@ -252,7 +253,7 @@ Some derived classes of state variables play special roles in <span class="n">DD
 <P/>
 Example:  Suppose your model has a state variable <code>q</code> which is of the <a href="Variables.ox.html#RandomUpDown">RandomUpDown</a>() class.  That is, each period <code>q</code> may go up or down by one unit or remain unchanged depending choices and other state variables.  However, when another state variable <code>h</code> goes from 0 to 1 you want the value of <code>q</code> to become constant and not subject to the RandomUpDown transition. That is, you want to <a href="Variables.ox.html#Freeze">Freeze</a> the current value of <code>q</code> when <code>h</code> is 1.</p>
 <P/>
-<details><summary><b>Example</b> <br>Augment a base state variable with the Freeze feature.  In this case <span class="expressions">\(q\)</span> increases by 1 with probability 0.5 each 
+<details><summary><b>Example</b> <br>Augment a base state variable with the Freeze feature.  In this case <span class="expressions">\(q\)</span> increases by 1 with probability 0.5 each
 period until the agent chooses <span class="expressions">\(a=1\)</span>.  Then <span class="expressions">\(q\)</span> freezes at its current value from the next period on.</summary>
 <DD><pre>class MyModel : DPparent {
     &vellip;
@@ -815,14 +816,48 @@ Index different DP models (elements of <span class="expressions">\(\gamma\)</spa
 <P/>
 <a name="Auxiliary"><li>Auxiliary Values</li>
 <P/>
-    An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> and is added to the list <span class="expressions">\(\chi\)</span>.</p>
+An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> and is added to the list <span class="expressions">\(\chi\)</span>.</p>
 <P/>
-    <DT>Elements of \chi are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  </DT>
-    <DD>Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so \chi adds no additional information to the full outcome. That is, <span class="expressions">\(\chi\)</span> is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
+Elements of <span class="expressions">\(\chi\)</span> are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so <span class="expressions">\(\chi\)</span> adds no additional information to the full outcome. That is, <span class="expressions">\(\chi\)</span> is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the realized DP.</p>
 <P/>
- <DT>Auxiliary values are added to the outcome (appended to \chi) using <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>().</DT>
+Auxiliary values are added to the outcome (appended to <span class="expressions">\(\chi\)</span>) using <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>(). The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual <a href="Variables.ox.html#AuxiliaryValue___Realize">Realize</a>(). <code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.   <code>Auxiliary</code> variables are never referenced nor realized by niqlow while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data.</p>
 <P/>
- <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual <a href="Variables.ox.html#AuxiliaryValue___Realize">Realize</a>().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.   <code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
+The user may break  up <code>Utility()</code> into functions that help determine it.  These can be <em>static</em> methods of <code>MyModel</code>.  Then some of these functions may be observed in data and might enter econometric estimation.  <a href="Variables.ox.html#StaticAux">StaticAux</a> is a auxiliary value class that can be used as a <q>wrapper</q> for such functions as shown below.</p>
+<P/>
+Auxiliary values are also used to code <em>indicators</em> and <em>interaction variables</em> in data sets.  For example, if <span class="expressions">\(a\)</span> is an action to choose among 5 options the data may include four variables that are indicators for all but one of the options being observed, <span class="expressions">\(y_k = I\{a=k\}\)</span>.  Instead of having to create a set of binary action variables to match this data the user can create a set of <a href="Variables.ox.html#Indicator">Indicator</a>s, each of which is an auxiliary outcome that will match whether <span class="expressions">\(a=k\)</span> or not (as well as the probability of that occurring in a prediction data set).  The <a href="Bellman.ox.html#DP___Indicators">Indicators</a>() method can be used to generate all four indicators at once.  DP::Interactions and  <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a> between discrete actions and states can be created as can interactions between a auxiliary variable and a discrete quantity.</p>
+<P/>
+<a name="Continuous"><li>Conditional Continuous Choices <mark>NEW and experimental</mark></li>
+<P/>
+A model may have a utility of the form:
+<span class="equation">$$U(\alpha,\theta) = u(x^\star;\alpha,\theta)$$</span>
+where <span class="equation">$$x^\star = \arg\max_{x} c(x;\alpha,\theta).$$</span>
+That is, the agent makes a continuous choice over <span class="expressions">\(x\)</span> conditional on the state and the discrete action <span class="expressions">\(\alpha\)</span>.  This conditional continuous choice (<pre>CondContChoice</pre>) then determines the indirect utility of the discrete actions.  One special case would that <span class="expressions">\(u() = c(x^\star;\alpha,\theta)\)</span>: that is, the utility is simply the indirect utility over the continuous choice.   (ASnother possibility is that <span class="expressions">\(x^\star\)</span> directly affects the transition as in <span class="expressions">\(P(\theta^{\,\prime};x^\star,\alpha,\theta)\)</span>.  <mark>Currently this is not supported. The user may be able to use the features below to help implement this.</mark></p>
+<P/>
+A continuous choice is related to <code>AuxiliaryValues</code>, in the sense that you may match <span class="expressions">\(x^\star\)</span> to observed data.   If the continuous choice has a closed form then it can be represented as a static function and included in observations using the <a href="Variables.ox.html#StaticAux">StaticAux</a> wrapper.  If the optimal choice requires sequential optimization then the <a href="..\fiveO\Objective.html#CondContChoice">CondContChoice</a> objectitve can be used to carry this out efficiently.  This allows for a single objective to represent each conditional choice and to minimize the amount of additional storage required.  
+<P/>
+<DD><pre>
+    struct Cost : CondContChoice {
+        vfunc();
+        }
+    Cost::Cost(x) {
+        CondContChoice("mC",x);
+        }
+    Cost::vfunc() {
+        v = -exp( x );
+        }
+<P/>
+    struct MyModel : Bellman {
+        decl xvals;
+<P/>
+        }
+    MyModel::MyModel() {
+<P/>
+        }
+    mCost = new CondContChoice("mC",x);
+    x = new Positive("x",2.0);
+    mCost = new CondContChoice("mC",x);
+    mCost -> Algor( new BFGS(mCost) );
+</pre></DD>
 <P/>
 <a name="#Volume"><li>Volume (getting output specific to a variable)</li></a>
     <DT>All <a href="Shared.ox.html#Quantity">Quantity</a> based objects have their own <code>Volume</code> member.</DT>
@@ -1239,9 +1274,9 @@ Prob( t&prime; = t ) = 1-1/B;
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#NonDeterministicAging">NonDeterministicAging</a>:</dt><dd><a href="Variables.ox.html#NonDeterministicAging___sePstar">sePstar</a>, <a href="Variables.ox.html#NonDeterministicAging___Vupdate">Vupdate</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -1289,9 +1324,9 @@ SetClock(new Aging(10));
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#NonStationary">NonStationary</a>:</dt><dd><a href="Variables.ox.html#NonStationary___Transit">Transit</a>, <a href="Variables.ox.html#NonStationary___Vupdate">Vupdate</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -1553,6 +1588,45 @@ MyModel::Initialize() {
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
+<a name="BirthAndSex"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BirthAndSex : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#BirthAndSex___b">b</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#BirthAndSex___ratio">ratio</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#BirthAndSex___BirthAndSex">BirthAndSex</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a 3-valued state variable that records a binary outcome of a binary choice.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#BirthAndSex___Transit">Transit</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
 <a name="ChoiceAtTbar"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ChoiceAtTbar : <a href="Variables.ox.html#LaggedAction">LaggedAction</a> : <a href="Variables.ox.html#Lagged">Lagged</a> : <a href="Variables.ox.html#NonRandom">NonRandom</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
@@ -1698,9 +1772,9 @@ to SetClock.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Transit">Transit</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Transit">Transit</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -1712,7 +1786,7 @@ to SetClock.
 </dl>
 
 <a name="Coevolving"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Coevolving : <a href="Variables.ox.html#Augmented">Augmented</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Coevolving : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 A member of a block: transition depends on transition of one or more other state variables.
 
@@ -1740,14 +1814,13 @@ A member of a block: transition depends on transition of one or more other state
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Coevolving___myAV">myAV</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Return actual[v].</td>
 </tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___IsReachable">IsReachable</a>, <a href="Variables.ox.html#Augmented___SetActual">SetActual</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a>, <a href="Variables.ox.html#Augmented___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -2254,9 +2327,9 @@ episode and duration.  Duration is not tracked for k=0.  New episodes occur with
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -2386,9 +2459,9 @@ A Block of <a href="Variables.ox.html#FixedEffect">FixedEffect</a> group variabl
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Transit">Transit</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Transit">Transit</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -3127,9 +3200,9 @@ T* is the last period with probability 1.
 <dt>Inherited methods from <a href="Variables.ox.html#Mortality">Mortality</a>:</dt><dd><a href="Variables.ox.html#Mortality___Mortality">Mortality</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#NonDeterministicAging">NonDeterministicAging</a>:</dt><dd><a href="Variables.ox.html#NonDeterministicAging___sePstar">sePstar</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -3301,9 +3374,9 @@ T* is the last period with probability 1.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#NonDeterministicAging">NonDeterministicAging</a>:</dt><dd><a href="Variables.ox.html#NonDeterministicAging___sePstar">sePstar</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -3533,9 +3606,9 @@ Container for non-stationary and non-deterministic aging clocks.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#NonStationary">NonStationary</a>:</dt><dd><a href="Variables.ox.html#NonStationary___Transit">Transit</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___setPstar">setPstar</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -3606,9 +3679,9 @@ A container for non-stationary clocks.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___setPstar">setPstar</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -3621,7 +3694,7 @@ A container for non-stationary clocks.
 </dl>
 
 <a name="NormalComponent"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NormalComponent : <a href="Variables.ox.html#Coevolving">Coevolving</a> : <a href="Variables.ox.html#Augmented">Augmented</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NormalComponent : <a href="Variables.ox.html#Coevolving">Coevolving</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 
 <table class="method_table">
@@ -3634,9 +3707,8 @@ A container for non-stationary clocks.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#Coevolving">Coevolving</a>:</dt><dd><a href="Variables.ox.html#Coevolving___Coevolving">Coevolving</a>, <a href="Variables.ox.html#Coevolving___myAV">myAV</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___IsReachable">IsReachable</a>, <a href="Variables.ox.html#Augmented___SetActual">SetActual</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a>, <a href="Variables.ox.html#Augmented___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -3885,9 +3957,9 @@ If m=Quit or LaidOff,
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -4038,9 +4110,9 @@ A sequence of treatment phases with fixed maximum durations.
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#NonDeterministicAging">NonDeterministicAging</a>:</dt><dd><a href="Variables.ox.html#NonDeterministicAging___sePstar">sePstar</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___setPstar">setPstar</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -4169,9 +4241,9 @@ A Block of <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a> gro
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Transit">Transit</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Transit">Transit</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -4404,9 +4476,9 @@ Built-in variable that records realized utility, <var>U(&alpha;,&epsilon;,&eta;,
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#FixedEffectBlock">FixedEffectBlock</a>:</dt><dd><a href="Variables.ox.html#FixedEffectBlock___FixedEffectBlock">FixedEffectBlock</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Transit">Transit</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Transit">Transit</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -4667,6 +4739,64 @@ EndogenousStates(totoff);
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
+<a name="StateAtTbar"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateAtTbar : <a href="Variables.ox.html#LaggedState">LaggedState</a> : <a href="Variables.ox.html#Lagged">Lagged</a> : <a href="Variables.ox.html#NonRandom">NonRandom</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Record the value of an state variable q at a specified time, starting the following period.
+<DT>Transition:
+<dd class="math"><pre>
+s' = 0 if t &lt; Tbar
+     s.q if t=Tbar
+     s if t &gt; Tbar
+&Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z=s.q}.
+</pre></dd>
+<DT>IsReachable</DT>
+<DD>Non-zero states are trimmed as unreachable for <code>t&le; Tbar</code></DD>
+
+<dl><dt class="example">Example:</dt><dd class="example"><pre>
+</pre>
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#LaggedState">LaggedState</a>, <a href="Variables.ox.html#ChoiceAtTbar">ChoiceAtTbar</a></dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#StateAtTbar___Tbar">Tbar</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateAtTbar___IsReachable">IsReachable</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateAtTbar___StateAtTbar">StateAtTbar</a></td>
+<td class="modifiers"></td>
+<td class="description">Record the value of an action variable at a given time (starting at the next period).</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateAtTbar___Transit">Transit</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#LaggedState">LaggedState</a>:</dt><dd><a href="Variables.ox.html#LaggedState___LaggedState">LaggedState</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Lagged">Lagged</a>, <a href="Variables.ox.html#Lagged___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#Lagged">Lagged</a>:</dt><dd><a href="Variables.ox.html#Lagged___Order">Order</a>, <a href="Variables.ox.html#Lagged___Target">Target</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
 <a name="StateBlock"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateBlock : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
@@ -4718,11 +4848,16 @@ A Block of <a href="Variables.ox.html#Coevolving">Coevolving</a> state variables
 <td class="modifiers">virtual</td>
 <td class="description">Default Transit (transition for a state variable).</td>
 </tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateBlock___Update">Update</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
 </table>
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -4957,9 +5092,9 @@ SetClock(NormalAging,1);
 <dt>Inherited methods from <a href="Variables.ox.html#Aging">Aging</a>:</dt><dd><a href="Variables.ox.html#Aging___Aging">Aging</a>, <a href="Variables.ox.html#Aging___setPstar">setPstar</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#NonStationary">NonStationary</a>:</dt><dd><a href="Variables.ox.html#NonStationary___Transit">Transit</a>, <a href="Variables.ox.html#NonStationary___Vupdate">Vupdate</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___Last">Last</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -5010,9 +5145,9 @@ SetClock(new Stationary(TRUE));
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___Clock">Clock</a>, <a href="Variables.ox.html#Clock___setPstar">setPstar</a>, <a href="Variables.ox.html#Clock___Solving">Solving</a>, <a href="Variables.ox.html#Clock___Synch">Synch</a>, <a href="Variables.ox.html#Clock___Vupdate">Vupdate</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___AddToBlock">AddToBlock</a>, <a href="Variables.ox.html#StateBlock___Check">Check</a>, <a href="Variables.ox.html#StateBlock___Clones">Clones</a>, <a href="Variables.ox.html#StateBlock___myAV">myAV</a>, <a href="Variables.ox.html#StateBlock___StateBlock">StateBlock</a>, <a href="Variables.ox.html#StateBlock___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -5252,15 +5387,14 @@ An element of the group vector &gamma;.
 </dl>
 
 <a name="TimeVariable"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TimeVariable : <a href="Variables.ox.html#Coevolving">Coevolving</a> : <a href="Variables.ox.html#Augmented">Augmented</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TimeVariable : <a href="Variables.ox.html#Coevolving">Coevolving</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 Base class for members of a <a href="Variables.ox.html#Clock">Clock</a> block.
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#Coevolving">Coevolving</a>:</dt><dd><a href="Variables.ox.html#Coevolving___Coevolving">Coevolving</a>, <a href="Variables.ox.html#Coevolving___myAV">myAV</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#Augmented">Augmented</a>:</dt><dd><a href="Variables.ox.html#Augmented___Augmented">Augmented</a>, <a href="Variables.ox.html#Augmented___IsReachable">IsReachable</a>, <a href="Variables.ox.html#Augmented___SetActual">SetActual</a>, <a href="Variables.ox.html#Augmented___Synch">Synch</a>, <a href="Variables.ox.html#Augmented___Update">Update</a></dd>
-<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
@@ -6171,7 +6305,7 @@ Normalize the actual values of the base variable and then copy them to these act
 <tr>
 <td class="declaration" valign="baseline">MaxV</td>
 <td class="description" valign="baseline">positive real, default = 1.0
-Sets the actual vector to 0,&ellip;, MaxV.
+Sets the actual vector to 0,&hellip;, MaxV.
 </td>
 </tr>
 </table>
@@ -6300,6 +6434,62 @@ Default realized auxililary variable, sets <code>v=1.0</code>.
 <span class="declaration">BinaryChoice :: BinaryChoice ( L )</span>
 <dl><dd>
 Create a binary action variable.
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BirthAndSex</span></h2>
+
+<a name="BirthAndSex___b"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">b</span></h3>
+
+<span class="declaration">const decl b [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="BirthAndSex___BirthAndSex"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">BirthAndSex</span></h3>
+
+<span class="declaration">BirthAndSex :: BirthAndSex ( L , b , ratio )</span>
+<dl><dd>
+Create a 3-valued state variable that records a binary outcome of a binary choice.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">b</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#BinaryChoice">BinaryChoice</a>
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ratio</td>
+<td class="description" valign="baseline">prob. = 1 or 2 given b==1</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="BirthAndSex___ratio"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ratio</span></h3>
+
+<span class="declaration">const decl ratio [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="BirthAndSex___Transit"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
+
+<span class="declaration">BirthAndSex :: Transit ( )</span>
+<dl><dd>
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ChoiceAtTbar</span></h2>
@@ -6573,7 +6763,10 @@ Create a new Coevolving random variable.
 
 <span class="declaration">virtual Coevolving :: myAV ( )</span>
 <dl><dd>
+Return actual[v].
 
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#CV">CV</a>, <a href="Shared.ox.html#AV">AV</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CorrelatedEffect</span></h2>
 
@@ -10032,6 +10225,72 @@ Create a variable that tracks the cumulative value of another state.
 .
 
 </dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateAtTbar</span></h2>
+
+<a name="StateAtTbar___IsReachable"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">IsReachable</span></h3>
+
+<span class="declaration">virtual StateAtTbar :: IsReachable ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="StateAtTbar___StateAtTbar"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">StateAtTbar</span></h3>
+
+<span class="declaration">StateAtTbar :: StateAtTbar ( L , Target , Tbar , Prune )</span>
+<dl><dd>
+Record the value of an action variable at a given time (starting at the next period).
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Target</td>
+<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a> to record
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Tbar</td>
+<td class="description" valign="baseline">clock time at which to record choice (starting at Tbar+1)
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Prune</td>
+<td class="description" valign="baseline">TRUE [default], prune unreachable states (non-zero values at and before Tbar)
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre></pre></dd>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="StateAtTbar___Tbar"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Tbar</span></h3>
+
+<span class="declaration">const decl Tbar [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="StateAtTbar___Transit"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
+
+<span class="declaration">virtual StateAtTbar :: Transit ( )</span>
+<dl><dd>
+.
+
+</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateBlock</span></h2>
 
 <a name="StateBlock___Actual"></a>
@@ -10153,6 +10412,15 @@ The built-in transit returns <code> &lt;0&gt; , CondProbOne }</code>.  That is t
 probability one the value of the state variable next period is 0.
 </dd>
 </dl>
+</dd></dl>
+
+<hr>
+<a name="StateBlock___Update"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
+
+<span class="declaration">virtual StateBlock :: Update ( curs , first )</span>
+<dl><dd>
+
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateCounter</span></h2>
 

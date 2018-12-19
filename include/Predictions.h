@@ -2,6 +2,10 @@
 #import "Bellman"
 /* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
 
+#ifndef Dh
+ComputePredictions(T=UseDefault,prtlevel=Two);
+#endif
+
 /** Holds information about a column in the data.
 **/
 struct DataColumn : Zauxiliary {
@@ -99,6 +103,7 @@ struct 	Prediction : Data {
     Delta(mask,printit=FALSE,tlabels=0);
 	}
 
+
 /** Predicted outcomes along a path.
 **/
 struct 	PathPrediction : Prediction {
@@ -139,7 +144,7 @@ struct 	PathPrediction : Prediction {
 	Predict(T=0,printit=FALSE);
     SetT();
     Empirical(inmoments,hasN=FALSE,hasT=FALSE);
-    Tracking(LorC,...);
+    Tracking(LorC=TrackAll,...);
     SetColumns(dlabels,Nplace=UnInitialized,Tplace=UnInitialized);
     TypeContribution(pf=1.0,subflat=0);
     ProcessContributions(cmat=0);

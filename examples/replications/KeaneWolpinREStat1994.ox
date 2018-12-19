@@ -7,7 +7,7 @@ DynamicRoy::Reachable() {
     }
 
 DynamicRoy::Replicate()	{
-	decl i, meth,Vmat,sim,outmat, nc, mlabs;	
+	decl i, meth,Vmat,outmat, nc, mlabs;	
 
     /* DP Model Setup */
 	Initialize(new DynamicRoy());
@@ -39,10 +39,7 @@ DynamicRoy::Replicate()	{
                             ~constant(SamplePercentage/100,1,A1-TSampleStart),MinSample);
        meth[i] -> Solve();
 	   println("Method ",i," time: ",timer()-cputime0);
-       sim = new Panel(0);
-       sim -> Simulate(Nsimulate,A1);
-       sim -> Print("KW94_meth"+sprint(i)+".dta",LONG);
-       delete sim;
+       SimulateOutcomes(Nsimulate,A1,"KW94_meth"+sprint(i)+".dta");
 	   DPDebug::outV(FALSE,&outmat);
        Vmat[i] = outmat;
        }

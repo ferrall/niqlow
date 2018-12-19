@@ -168,6 +168,7 @@ Test6::Run() {
 	sp -> Simulate(30,20,0,0);
 	DPDebug::outV(TRUE);
 	sp -> Print(TRUE);
+    delete EMax, sp;
 	Delete();
 	}
 
@@ -189,14 +190,6 @@ Test7::Run()  {
 	data -> Simulate(300,3,0,0);
 	I::curg->StationaryDistribution();
 	println("Ergodic distribution: ",I::curg.Pinfinity'," Palpha ",I::curg.Palpha);
-//	data -> Print(TRUE);
-//	data -> Observed(x,UseLabel,d,UseLabel);
-//	decl mle = new PanelBB("ZurcherMLE",data,rc,th1);
-////	mle.Volume = NOISY;
-//	decl nm = new NelderMead(mle);
-//	nm.Volume=NOISY;
-//	nm->Iterate(0);
-//	delete EMax, mle, nm;
 	Delete();
 	}
 	
@@ -248,6 +241,7 @@ Test9::Run()	{
     pd->TrackingWithLabel(AllFixed,TRUE,a,d);
     pd->Read(); //reads from PredMomFile
     Explore(pd,10,0.1,lam);
+    delete meth, pd, lam;
 	Delete();
 	}
 Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + AV(sk)*CV(p)*CV(a)) + (3-I::t); 	}	

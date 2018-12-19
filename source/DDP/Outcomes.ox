@@ -25,6 +25,28 @@ ExogAuxOut::Run() {
     foreach (c in Chi) if (c.indata) auxlike[I::all[onlyexog]] *= c->Likelihood(outcm);
     }
 
+/**  Simple Panel Simulation.
+@param Nsim  integer, number of paths to simulate per fixed group<br>[default] UseDefault, whic is 1
+@param T	integer, length of panel<br>[default], length of lifecycle or  10
+@param outopt integer [default] print to screen or <br/>string name of file to save to
+@param ErgOrStateMat 0 [default]: find lowest reachable indexed state to start from<br/>
+1: draw from stationary distribution (must be ergodic)<br/>matrix of initial states to draw from (each column is a different starting value)
+@param DropTerminal TRUE: eliminate termainl states from the data set<br/>FALSE: [default] include terminal states.
+
+This routine simplifies simulating a solved DP model.  Simply call it instead of creating an `Panel` object.
+
+**/
+SimulateOutcomes(Nsim,T,outopt,ErgOrStateMat,DropTerminal) {
+    decl op = new Panel("simdata"), TT;
+    if (T==UseDefault) {
+        TT = Flags::IsErgodic ? 10: N::T;
+        }
+    else TT = T;
+    op -> Simulate(Nsim==UseDefault ? 1 : Nsim,TT,ErgOrStateMat,DropTerminal);
+    op -> Print( isint(outopt) ? 2 : outopt );
+    delete op;
+    }
+
 /** Record everything about a single realization of the DP.
 @param prior `Outcome` object, the previous realization along the path<br/>
 		<em>integer</em>, this is first realization on the path. `Task::state` uninitialized.<br/>

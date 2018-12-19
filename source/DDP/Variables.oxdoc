@@ -5,11 +5,12 @@
 
 <OL class="contents">Contents
 <LI><a href="#OV">Overview</a></LI>
-<LI><a href="#ActionVariables">Action Variables</a></LI>
-<LI><a href="#StateVariables">State Variables</a></LI>
-<LI><a href="#Clock">The Clock:  keeping time in DDP</a></LI>
+<LI><a href="#ActionVariables">Action Variables: the choices your agent makes at each state</a></LI>
+<LI><a href="#StateVariables">State Variables: values that define the state of the problem</a></LI>
+<LI><a href="#Clock">The Clock:  a special state variable for keeping time in DDP</a></LI>
 <li><a href="#Fixed">Time Invariants: solving different DP problems with random and fixed effects</a></li>
-<li><a href="#Auxiliary">Auxiliary Values: tracking function of actions and state variables</a></li>
+<li><a href="#Auxiliary">Auxiliary Values: tracking functions of actions and state variables in data sets</a></li>
+<LI><a href="#Continuous">Conditional Continuous Choices: optimizing at points in the state space</a></LI>
 <li><a href="#Volume">Volume (getting output specific to a variable)</a></li>
 </OL>
 
@@ -237,7 +238,7 @@ Some derived classes of state variables play special roles in <span class="n">DD
 
 Example:  Suppose your model has a state variable <code>q</code> which is of the `RandomUpDown`() class.  That is, each period <code>q</code> may go up or down by one unit or remain unchanged depending choices and other state variables.  However, when another state variable <code>h</code> goes from 0 to 1 you want the value of <code>q</code> to become constant and not subject to the RandomUpDown transition. That is, you want to `Freeze` the current value of <code>q</code> when <code>h</code> is 1.</p>
 
-<details><summary><b>Example</b> <br>Augment a base state variable with the Freeze feature.  In this case $q$ increases by 1 with probability 0.5 each 
+<details><summary><b>Example</b> <br>Augment a base state variable with the Freeze feature.  In this case $q$ increases by 1 with probability 0.5 each
 period until the agent chooses $a=1$.  Then $q$ freezes at its current value from the next period on.</summary>
 <DD><pre>class MyModel : DPparent {
     &vellip;
@@ -803,14 +804,48 @@ Index different DP models (elements of $\gamma$). Time invariants are variables 
 
 <a name="Auxiliary"><li>Auxiliary Values</li>
 
-    An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from `AuxiliaryValue` and is added to the list $\chi$.</p>
+An auxiliary value <em>x</em> is typically a function of the state and action vectors that would be observed in the data or is of interest in itself.  It is based on a class derived from `AuxiliaryValue` and is added to the list $\chi$.</p>
 
-    <DT>Elements of \chi are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  </DT>
-    <DD>Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so \chi adds no additional information to the full outcome. That is, $\chi$ is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the the process.</DD>
+Elements of $\chi$ are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so $\chi$ adds no additional information to the full outcome. That is, $\chi$ is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the realized DP.</p>
 
- <DT>Auxiliary values are added to the outcome (appended to \chi) using `DP::AuxiliaryOutcomes`().</DT>
+Auxiliary values are added to the outcome (appended to $\chi$) using `DP::AuxiliaryOutcomes`(). The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual `AuxiliaryValue::Realize`(). <code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.   <code>Auxiliary</code> variables are never referenced nor realized by niqlow while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data.</p>
 
- <DT>The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual `AuxiliaryValue::Realize`().</DT>  <DD><code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.   <code>Auxiliary</code> variables are never referenced nor realized while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. </DD>
+The user may break  up <code>Utility()</code> into functions that help determine it.  These can be <em>static</em> methods of <code>MyModel</code>.  Then some of these functions may be observed in data and might enter econometric estimation.  `StaticAux` is a auxiliary value class that can be used as a <q>wrapper</q> for such functions as shown below.</p>
+
+Auxiliary values are also used to code <em>indicators</em> and <em>interaction variables</em> in data sets.  For example, if $a$ is an action to choose among 5 options the data may include four variables that are indicators for all but one of the options being observed, $y_k = I\{a=k\}$.  Instead of having to create a set of binary action variables to match this data the user can create a set of `Indicator`s, each of which is an auxiliary outcome that will match whether $a=k$ or not (as well as the probability of that occurring in a prediction data set).  The `DP::Indicators`() method can be used to generate all four indicators at once.  `DP::Interaction`s and  `DP::MultiInteractions` between discrete actions and states can be created as can interactions between a auxiliary variable and a discrete quantity.</p>
+
+<a name="Continuous"><li>Conditional Continuous Choices <mark>NEW and experimental</mark></li>
+
+A model may have a utility of the form:
+$$U(\alpha,\theta) = u(x^\star;\alpha,\theta)$$
+where $$x^\star = \arg\max_{x} c(x;\alpha,\theta).$$
+That is, the agent makes a continuous choice over $x$ conditional on the state and the discrete action $\alpha$.  This conditional continuous choice (<pre>CondContChoice</pre>) then determines the indirect utility of the discrete actions.  One special case would that $u() = c(x^\star;\alpha,\theta)$: that is, the utility is simply the indirect utility over the continuous choice.   (ASnother possibility is that $x^\star$ directly affects the transition as in $P(\theta^{\,\prime};x^\star,\alpha,\theta)$.  <mark>Currently this is not supported. The user may be able to use the features below to help implement this.</mark></p>
+
+A continuous choice is related to <code>AuxiliaryValues</code>, in the sense that you may match $x^\star$ to observed data.   If the continuous choice has a closed form then it can be represented as a static function and included in observations using the `StaticAux` wrapper.  If the optimal choice requires sequential optimization then the <a href="..\fiveO\Objective.html#CondContChoice">CondContChoice</a> objectitve can be used to carry this out efficiently.  This allows for a single objective to represent each conditional choice and to minimize the amount of additional storage required.  
+
+<DD><pre>
+    struct Cost : CondContChoice {
+        vfunc();
+        }
+    Cost::Cost(x) {
+        CondContChoice("mC",x);
+        }
+    Cost::vfunc() {
+        v = -exp( x );
+        }
+
+    struct MyModel : Bellman {
+        decl xvals;
+
+        }
+    MyModel::MyModel() {
+
+        }
+    mCost = new CondContChoice("mC",x);
+    x = new Positive("x",2.0);
+    mCost = new CondContChoice("mC",x);
+    mCost -> Algor( new BFGS(mCost) );
+</pre></DD>
 
 <a name="#Volume"><li>Volume (getting output specific to a variable)</li></a>
     <DT>All `Quantity` based objects have their own <code>Volume</code> member.</DT>
@@ -818,6 +853,8 @@ Index different DP models (elements of $\gamma$). Time invariants are variables 
 
     <DT>If you set the volume to one of the other `NoiseLevels` then:</DT>
         <DD>Some internal routines will print out information specific to variable. The output goes to the <code>Variables</code> log file.</DD>
+
+
 
 </OL>
 

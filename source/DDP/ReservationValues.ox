@@ -101,7 +101,8 @@ RVGSolve::RVGSolve(LBvalue,Method,caller) {
 RVGSolve::Run() {
     decl ns = I::curth.solvez && isclass(RValSys[I::curth.Aind]);
     XUT.state = state;
-    I::curth->ActVal(VV[I::later]);
+    DP::vV =VV[I::later];
+    I::curth->ActVal();
     ev = VV[I::now][I::all[iterating]]
                             = ns
                                 ? RValSys[I::curth.Aind] -> RVSolve(DeltaV(I::curth.pandv))
