@@ -1,5 +1,5 @@
 #include "WolpinEMET1987.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 SchToWork::Replicate() {
 	Initialize(new SchToWork(),new BinaryChoice("accept"));
@@ -19,7 +19,7 @@ SchToWork::Replicate() {
     Delete();
 	}
 
-SchToWork::Reachable() { return TRUE;}
+//SchToWork::Reachable() { return TRUE;}
 
 SchToWork::FeasibleActions() {
 	zstar = <1.0>;

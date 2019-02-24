@@ -42,13 +42,12 @@ struct GSolve : ThetaTask {
     /** TRUE if all tasks suceed.**/                succeed,
                                                     warned,
                                                     Volume,
-                                                    ev,
+//                                                    ev,
                                                      MaxTrips,
 	/** Tolerance on value function convergence in
     stationary environments.  Default=10<sup>-5</sup>.**/	
                                                      vtoler;
     static decl
-	/** Scratch space for value iteration. **/      VV,
                                                     ptrans;
     ZeroTprime();
     GSolve(caller=UnInitialized);

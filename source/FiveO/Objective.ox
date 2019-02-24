@@ -778,10 +778,43 @@ DataObjective::DataObjective (L,data,...)	{
 	decl va = va_arglist(),v;
 	if (sizeof(va)) {
         foreach(v in va) Parameters(v);
-		Encode();
+//		Encode();
 		}
-	else oxwarning("FiveO Warning 03.\n No estimated parameters added to "+L+" panel estimation ");
+//	else oxwarning("FiveO Warning 03.\n No estimated parameters added to "+L+" panel estimation ");
+    uplist = tplist = {};
 	}
+
+/** Specify the objective as two stage.
+@param tplist  a `Parameter`  or a list of parameters that affect the transition only.  These will be estimated at
+               Stage 0 or Stage 2
+@param uplist  a `Parameter` list of parameters that affect Utility only.  These will be estimated at
+               Stage 1 or Stage 2.
+@comments
+    These lists of parameters are added to the overall parameter list so should not be
+    added separately.   Parameters that were added when the data objective was created will not be affected by
+   this.  They should be toggled separately by the user's code.
+
+**/
+DataObjective::TwoStage(tplist,uplist){
+    decl v;
+    if (!isarray(tplist)) tplist = {tplist};
+    if (!isarray(uplist)) uplist = {uplist};
+    this.tplist = tplist;
+    this.uplist = uplist;
+    foreach(v in tplist) Parameters(v);
+    foreach(v in uplist) Parameters(v);
+    stage = Two;  // default stage, everything is variable
+    }
+
+DataObjective::SetStage(stage) {
+    this.stage = stage;
+    decl v;
+    foreach(v in uplist) v.DoNotVary=(stage==Zero);
+    foreach(v in tplist) v.DoNotVary=(stage==One);
+    if ( isclass(data.method) && data.method.DoNotIterate!=(stage==Zero) )
+        data.method->ToggleIterate();
+    if (stage==One) ResetMax();
+    }
 
 DataObjective::AggSubProbMat(submat) {
     data->Predict(0,FALSE,submat);
@@ -790,7 +823,9 @@ DataObjective::AggSubProbMat(submat) {
 
 /** Calls and returns <code>data-&gt;EconometricObjective()</code>.
 **/
-DataObjective::vfunc(subp) {    return data->EconometricObjective(subp); 	}
+DataObjective::vfunc(subp) {
+    return data->EconometricObjective(subp); 	
+    }
 
 /** An objective to represent a continuous choice at a point in the state space of a dynamic program.
 @example

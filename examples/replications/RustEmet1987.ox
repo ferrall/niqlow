@@ -19,7 +19,7 @@ Zurcher::Run()	{
 	EndogenousStates(x = new Renewal("x",NX,d,pars[0][theta3]) );
 	CreateSpaces();
 
-	EMax = new ValueIteration();
+	EMax = new NewtonKantorovich(); //ValueIteration();
 	EMax.vtoler = 1E-4;   					//loose tolerance because beta near 0 and 1
     EMax.Volume = LOUD;
     for(row=0;row<sizeof(pars);++row) {
@@ -27,7 +27,9 @@ Zurcher::Run()	{
 		th1 = pars[row][theta1];
 		normalization = th1*mfact*NX/2.0;	//median cost, keep U() centered on 0.0
 		rc = pars[row][RC];
+        println("solving ",row);
 		EMax -> Solve();
+        println("done");
         Output();
 		}
     Delete();

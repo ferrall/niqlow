@@ -1167,16 +1167,18 @@ StateBlock::AddToBlock(news,...)	{
 StateBlock::Check() {   }
 
 StateBlock::Update(curs,first) {
-    curs -> Update();
+    curs -> Update();  // call update of individual component
     if (first) {
-        Actual = curs.actual;
+        Actual = curs.actual;  // initialize Actual matrix
         }
     else {
-        if (curs.N> rows(Actual) ) {
+        if (curs.N> rows(Actual) ) {  //this variable takes on more values that previous
             Actual |= constant(.NaN,curs.N-rows(Actual),columns(Actual));
             Actual ~= curs.actual;
             }
-        else
+        else if (curs.N==rows(Actual))
+            Actual ~= curs.actual;
+        else   //add a column, fill out with NaNs
             Actual ~= curs.actual|constant(.NaN,rows(Actual)-curs.N,1);
 		}
     }
@@ -1234,13 +1236,14 @@ MVIID::MVIID(L,N,M,base) {
         }
     }
 
-/** .
+/**  .
 **/
 MVIID::Transit()	{
 	 return {Allv,ones(1,MtoN)/MtoN};
 	}
 
-MVIID::Update() { }	
+//Default StateBlock::Update should work!??
+//MVIID::Update(curs,first) {    }	
 
 /**Create a block for a multivariate normal distribution (IID over time).
 @param L label for block
@@ -1277,10 +1280,13 @@ MVNormal::myAV() {
 /** Updates the grid of Actual values.
 @comments Like all Update routines, this is called at `Flags::UpdateTime`.
 **/
-MVNormal::Update()	{
+MVNormal::Update(curs,first)	{
+    if (first) {
+	    Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*zvals )';	
+        if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," MVNormal Update ","\n mean ",CV(mu)," C ",unvech(AV(CholLT))," actuals ",Actual);
+        }
+    curs.actual = Actual[][curs.bpos];
 //	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*reshape(quann(range(1,M)/(M+1)),N,M) )';	
-	Actual = ( shape(CV(mu),N,1) + unvech(AV(CholLT))*zvals )';	
-    if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," MVNormal Update ","\n mean ",CV(mu)," C ",unvech(AV(CholLT))," actuals ",Actual);
 	}
 
 /** K mutually exclusive episodes.

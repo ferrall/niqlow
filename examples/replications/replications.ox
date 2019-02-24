@@ -15,7 +15,7 @@ repmenu() {
 			{"RosenzweigWolpinJPE1993",	Farmer::Replicate},
 			{"KeaneWolpinREStat1994",	DynamicRoy::Replicate},
 			{"GilleskieEmet1998", 		DynaHealth::Replicate},
-			{"A&M2002",					AMZurcher::Run},
+			{"A&M2002",					AMEstimates::DoAll},
 			{"IJCEmet2009", 			FirmEntry::Run},
             {"Ahn1995",                 Ahn::Run},
             {"French2005",              French2005::Run}

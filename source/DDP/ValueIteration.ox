@@ -53,7 +53,7 @@ Implementation does not always work.  Needs to be improved.
 
 **/
 NewtonKantorovich::NewtonKantorovich(myNGSolve) {
-    ValueIteration( isint(myNGSolve) ? new NKSolve() : myNGSolve );
+    ValueIteration( isint(myNGSolve) ? new NKSolve(this) : myNGSolve );
     }
 
 NKSolve::NKSolve(caller) {
@@ -131,18 +131,18 @@ NKinfo::Hold() {
 GSolve::Report(mefail) {
 	if ( mefail || Volume>LOUD) {
         if (mefail) {
-            decl indx=vecindex(VV[I::now][],.NaN),nans = ReverseState(indx',iterating)[S[endog].M:S[endog].X][]';
+            decl indx=vecindex(N::VV[I::now][],.NaN),nans = ReverseState(indx',iterating)[S[endog].M:S[endog].X][]';
             fprintln(logf,"\n t =",I::t,". States with V=NaN","%8.0f","%c",{"Index"}|Labels::Vprt[svar][S[endog].M:S[endog].X],indx~nans);
             if (RunSafe )oxrunerror("DDP Error 29. error while checking convergence.  See log file.");		
             if (!warned) {
                 oxwarning("DDP Warning ??. Value function includes NaNs, exiting Value Iteration.");
                 warned = TRUE;
                 }
-            VV[I::now][] = VV[I::later][] = 0.0;
+            N::ZeroVV();
             return done = TRUE;
             }
         else
-            fprintln(logf,"Value Function at t =",I::t," ",VV[I::now][]);	
+            fprintln(logf,"Value Function at t =",I::t," ",N::VV[I::now][]);	
         }
     }
 
@@ -167,7 +167,7 @@ GSolve::Update() {
         Flags::setPstar =  (dff <vtoler)
 					    || MaxTrips==trips+1  //last trip coming up
                         || counter->setPstar(FALSE);
-		VV[I::now][:I::MxEndogInd] = 0.0;
+		N::VV[I::now][:I::MxEndogInd] = 0.0;
 		}
 	if (Volume>LOUD) println("     Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes": "No");
  	state[right] += done;		//put counter back to 0 	if necessary
@@ -217,11 +217,11 @@ NKSolve::Update() {
         declu( setdiagonal(ip,1+diagonal(ip)),&L,&U,&P);
         ptrans[][] = 0.0;
         if (Flags::IsErgodic) {
-          VV[I::now][] = VV[I::later][]-solvelu(L,U,P,(VV[I::later][]-VV[I::now][])' )';
+          N::VV[I::now][] = N::VV[I::later][]-solvelu(L,U,P,(N::VV[I::later][]-N::VV[I::now][])' )';
             }
         else {
-          itstep =solvelu(L,U,P,(VV[I::later][NK.onlyactive]-VV[I::now][NK.onlyactive])' )' ;
-          VV[I::now][NK.onlyactive] = VV[I::later][NK.onlyactive] - itstep;
+          itstep =solvelu(L,U,P,(N::VV[I::later][NK.onlyactive]-N::VV[I::now][NK.onlyactive])' )' ;
+          N::VV[I::now][NK.onlyactive] = N::VV[I::later][NK.onlyactive] - itstep;
             }
         dff= counter->Vupdate();
         NKstep = !(dff <vtoler);
@@ -239,7 +239,7 @@ NKSolve::Update() {
                         || NKstep
 					    || MaxTrips==trips+1  //last trip coming up
                         || counter->setPstar(FALSE);
-		VV[I::now][:I::MxEndogInd] = 0.0;
+		N::VV[I::now][:I::MxEndogInd] = 0.0;
 		}
 	if (Volume>LOUD) println("     Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes": "No",
                     ". NK0:",NKstep0 ? "Yes" : "No",
@@ -277,7 +277,8 @@ KWGSolve::Run() {
         done = TRUE;
 		}
 	if (Flags::setPstar && done)  {
-        I::curth->Smooth(ev = VV[I::now][I::all[iterating]]);
+        I::curth.EV = N::VV[I::now][I::all[iterating]];
+        I::curth->Smooth();
         Hooks::Do(PostSmooth);
         }
 	}
@@ -297,7 +298,7 @@ This replaces the built-in version used by `ValueIteration`.
 KWGSolve::Solve(instate) {
 	decl myt;
 	this.state = instate;
-    Clock::Solving(&VV);
+    //Clock::Solving(&VV);
     ZeroTprime();
 	Flags::setPstar = TRUE;	
     curlabels = xlabels0|xlabels1|xlabels2;  //This should depend on feasible set!
@@ -361,7 +362,7 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
         }
 	switch_single(kwstep) {
 		case	AddToSample :
-				Y |= VV[I::now][I::all[iterating]];
+				Y |= N::VV[I::now][I::all[iterating]];
 				Xmat |= xrow;	
 		case	ComputeBhat	:
                 if (rows(Xmat)<=columns(Xmat)) oxrunerror("DDP Error 30. Fewer sample states than estimated coefficients. Increase proportion");
@@ -375,20 +376,20 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
 					}
 				 Y -= Xmat[][0];
 		case	PredictEV	:
-				VV[I::now][I::all[iterating]] =  xrow*Bhat[I::t];
+				N::VV[I::now][I::all[iterating]] =  xrow*Bhat[I::t];
 		}
 	}
 	
 KWGSolve::InSample(){
     XUT.state[left:right] = state[left:right];
-    DP::vV =VV[I::later];
+    //DP::vV =VV[I::later];
 	I::curth->ActVal();
-	VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
+	N::VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
 	if (!onlypass)
         Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');
 	}
 
 KWGSolve::OutSample() {
-	I::curth->MedianActVal(VV[I::later]);
+	I::curth->MedianActVal();
 	Specification(PredictEV,V[0],(V[0]-I::curth.pandv)'); //NoR [I::r]
 	}

@@ -14,7 +14,7 @@ class SchToWork : OneDimensionalChoice {
 						done;
 	static 	Replicate();
 	static 	Poff(...);
-	        Reachable();
+	        // Reachable();
 	 		FeasibleActions();
 			PDV(z);
             Uz(z);

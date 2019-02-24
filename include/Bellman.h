@@ -23,29 +23,27 @@ struct  Bellman : DP {
             Defined in `StateTypes`. Set in `DP::CreateSpaces`()
             @see StateVariable::MakeTerminal, Clock::Last **/       Type,
 		/**&theta;.j index into `Alpha::CList`.**/  				Aind,
-		/*U(&alpha;&epsilon;,&eta;,&theta;,&gamma;).  	        U, */
 		/** v(&alpha;;&theta;) and &Rho;*(&hellip;,&gamma;). **/    pandv,
 		/** TransStore x &eta;-Array of feasible endogenous	state
 			indices and transitions
 			&Rho;(&gamma;&prime;;&alpha;,&eta;,&gamma;).**/			Nxt,
-		/**EV(&theta;) across random &gamma;, **/					EV;
+		/**EV(&theta;)  **/					                        EV;
 
 			static 	Delete();
 			static 	Initialize(userState,UseStateList=FALSE);
 			static  CreateSpaces();
                     OnlyFeasible(myU);
-            //virtual IntegrateOverEta(VV);
-            virtual ExogExpectedV();  //VV
+            virtual ExogExpectedV();
 			virtual FeasibleActions();
             virtual Reachable();
 			virtual Utility();
             virtual UReset();
 			virtual thetaEMax() ;
-			virtual ActVal();  //VV
+			virtual ActVal();
             virtual ExogStatetoState();
-                    HMActVal();  //VV
-                    AMActVal();  //VV
-			virtual Smooth(EV);
+            virtual HMQVal();
+            virtual AMEMax();
+			virtual Smooth();
 			virtual KernelCCP(task);
 			virtual ZetaRealization();
 			virtual	AutoVarPrint1(task);
@@ -65,7 +63,7 @@ struct  Bellman : DP {
 					ThetaTransition();
 					UpdatePtrans(ap=0,vind=0);
                     StateToStatePrediction(intod);
-					MedianActVal(EV);
+					MedianActVal();
                     virtual InSS();
 	}																																				
 
@@ -83,9 +81,9 @@ struct ExPostSmoothing : Bellman {
 	static decl Method, rho, sigma;
 	static Initialize(userState,UseStateList=FALSE);
 	static CreateSpaces(Method=NoSmoothing,smparam=1.0);
-	virtual Smooth(EV);
-			Logistic(EV);
-			Normal(EV);
+	virtual Smooth();
+			Logistic();
+			Normal();
 	}
 
 struct OneStateModel : ExPostSmoothing {
@@ -123,7 +121,7 @@ struct ExtremeValue : Bellman {
 	static Initialize(rho,userState,UseStateList=FALSE);
 	static  CreateSpaces();
 	virtual thetaEMax() ;
-	virtual Smooth(EV);
+	virtual Smooth();
 	virtual KernelCCP(task);
 	}
 
@@ -145,7 +143,7 @@ struct McFadden : ExtremeValue {
 	/**The decision variable. **/ d;
 	static Initialize(Nchoices,userState,UseStateList=FALSE);
 	static CreateSpaces();
-	ActVal();  //VV
+	ActVal();
 	}
 	
 /** DP Models that include additive normal choice-specific &zeta;.
@@ -153,14 +151,13 @@ struct McFadden : ExtremeValue {
 **/
 struct Normal : Bellman {
 	static decl
-					ev,
 					Chol,
 	/** **/			AChol;
 	static Initialize(userState,UseStateList=FALSE);
 	static CreateSpaces();
 	thetaEMax() ;
-	virtual Smooth(EV);
-	virtual ActVal(); //VV
+	virtual Smooth();
+	virtual ActVal();
 	}
 
 /** Correlated errors and smooth  simulation of choice probabilities. **/
@@ -174,8 +171,8 @@ struct NnotIID : Normal {
 	static SetIntegration(R,iseed,AChol);
 	static CreateSpaces();
 	static UpdateChol();
-	ActVal();  //VV
-    ExogExpectedV();   //VV
+	ActVal();
+    ExogExpectedV();
 	}
 
 /** Numerically integrate using Gauss-Hermite Quadrature.
@@ -190,8 +187,8 @@ struct NIID : Normal {
 	static SetIntegration(GQLevel,AChol);
 	static CreateSpaces() ;
 	static UpdateChol();
-	ActVal();  //VV
-    ExogExpectedV();  //VV
+	ActVal();
+    ExogExpectedV();
 	}
 
 /** One-dimensional action models with user defined distribution of &zeta;.
@@ -249,11 +246,11 @@ struct OneDimensionalChoice : ExPostSmoothing {
 	virtual EUtility();
     virtual Utility();
 	virtual thetaEMax() ;
-	virtual Smooth(pstar);
-	virtual ActVal();  //VV
+	virtual Smooth();  //pstar
+	virtual ActVal();
     virtual SetTheta(state=0,picked=0);
     virtual Continuous();
-            SysSolve(RVs,VV);
+            SysSolve(RVs); //VV
             Getz();
     virtual Setz(z);
 	}
@@ -269,8 +266,8 @@ struct KeepZ : OneDimensionalChoice {
 	static 	Initialize(userState,d=2,UseStateList=FALSE);
     static  SetKeep(N,held=TRUE);
 	virtual thetaEMax();
-	virtual ActVal();  //VV
+	virtual ActVal();
     virtual DynamicActVal(z);
-    virtual DynamicTransit(z); //VV
+    virtual DynamicTransit(z);
     static  CreateSpaces();
 	}

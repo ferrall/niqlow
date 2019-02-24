@@ -690,7 +690,7 @@ Panel::LogLikelihood() {
 	cur = this;
 	M = <>;	
     succ = TRUE;
-	if (!isclass(method) && Flags::UpdateTime[OnlyOnce]) ETT->Transitions(state);
+	if (!isclass(method) && Flags::UpdateTime[OnlyOnce]) {ETT->Transitions(state);}
 	do {
 		succ = succ && cur->FPanel::LogLikelihood();
 		M |= cur.FPL;

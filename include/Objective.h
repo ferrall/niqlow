@@ -124,9 +124,12 @@ struct BlackBox : UnConstrained	{
 **/
 struct DataObjective : BlackBox {
 	const decl data;
-	DataObjective(L,data, ...);
+    decl tplist, uplist, stage;
+	DataObjective(L,data,...);
 	virtual vfunc(subp=DoAll);
     virtual AggSubProbMat(submat);
+	TwoStage(tplist,uplist);
+    SetStage(stage);
 	}
 
 /** Handle a conditional choice conditional on $(\alpha,\theta)$.

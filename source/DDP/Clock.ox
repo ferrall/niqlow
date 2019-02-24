@@ -29,12 +29,12 @@ If TRUE then transitions are not computed.
 **/
 Clock::Last() { return t.v==t.N-1; }
 
-/**  Copy solution method-specific values to be used for updating and solving.
+/*  Copy solution method-specific values to be used for updating and solving.
 @param inaVV address of solution method's value function vector
-**/
 Clock::Solving(inaVV) {
     aVV = inaVV;
     }
+*/
 
 /** The base calculation to be carried out after the value of all states at time t have been computed.
 <DT>The clock <code>Vupdate()</code> is called by `ValueIteration::Update`() at the end of one Bellman iteration.</DT>
@@ -46,8 +46,10 @@ Clock::Solving(inaVV) {
 @return ||V(&theta;)-V'(&theta;&prime;)||
 **/
 Clock::Vupdate() {
-    return norm(  aVV[0][NOW]  [ : I::MxEndogInd ]
-                 -aVV[0][LATER][ : I::MxEndogInd ]  ,2);
+    if (isarray(N::VV))
+        return norm(  N::VV[NOW]  [ : I::MxEndogInd ]
+                     -N::VV[LATER][ : I::MxEndogInd ]  ,2);
+    return 0.0;
     }
 
 Clock::setPstar(notsynched) { return FALSE; }
@@ -81,7 +83,7 @@ NonStationary::Transit() {
 @return +&infin; if the newly computed state values are all well-defined<br>.NaN otherwise
 **/
 NonStationary::Vupdate() {
-    return isnan(aVV[0][I::now][:I::MxEndogInd]) ? .NaN : +.Inf;
+    return isnan(N::VV[I::now][:I::MxEndogInd]) ? .NaN : +.Inf;
     }
 
 /** Create a clock divided into subperiods.
@@ -131,8 +133,8 @@ Divided::Vupdate() {
         decl nrm;
         if (isint(Vnext0))
             nrm =  NonStationary::Vupdate();
-        else nrm = norm(aVV[0][I::now][:I::MxEndogInd]-Vnext0,2);
-        Vnext0 = aVV[0][I::now][:I::MxEndogInd];
+        else nrm = norm(N::VV[I::now][:I::MxEndogInd]-Vnext0,2);
+        Vnext0 = N::VV[I::now][:I::MxEndogInd];
         return nrm;
         }
     return NonStationary::Vupdate();
@@ -203,9 +205,9 @@ StaticP::StaticP() { Aging(1); }
 **/
 NonDeterministicAging::Vupdate() {
     if (Clock::Volume>QUIET)
-        println("%^% ",I::t," ",Flags::StatStage," ",Flags::setPstar,moments(aVV[0][I::now][ : I::MxEndogInd ]' )' );
+        println("%^% ",I::t," ",Flags::StatStage," ",Flags::setPstar,moments(N::VV[I::now][ : I::MxEndogInd ]' )' );
     if (Flags::setPstar)
-        aVV[0][I::now][ I::MxEndogInd+1 : ] = aVV[0][I::now][ : I::MxEndogInd ];	//copy today's value to tomorrow place
+        N::VV[I::now][ I::MxEndogInd+1 : ] = N::VV[I::now][ : I::MxEndogInd ];	//copy today's value to tomorrow place
     //check for convergence
     return Flags::StatStage ? Clock::Vupdate() : NonStationary::Vupdate();
     }
@@ -292,9 +294,9 @@ Mortality::Transit() {
 Mortality::Vupdate() {
     decl nrm = NonDeterministicAging::Vupdate();
 	if (t.v==t.N-1)
-        DeathV = aVV[0][I::now][ : I::MxEndogInd];
+        DeathV = N::VV[I::now][ : I::MxEndogInd];
 	else
-        aVV[0][I::now][ : I::MxEndogInd ] = DeathV;
+        N::VV[I::now][ : I::MxEndogInd ] = DeathV;
     return nrm;
     }
 
@@ -337,9 +339,9 @@ Longevity::Last() { return Clock::Last(); }
 Longevity::Vupdate() {
     decl nrm = NonDeterministicAging::Vupdate();
 	if (t.v==Tstar)
-        DeathV = aVV[0][I::now][ : I::MxEndogInd ];    // Associate death value with t' = 1
+        DeathV = N::VV[I::now][ : I::MxEndogInd ];    // Associate death value with t' = 1
     else { if (Flags::setPstar)
-                aVV[0][I::now][ : I::MxEndogInd ] = DeathV;    // Associate death value with t' = 0
+                N::VV[I::now][ : I::MxEndogInd ] = DeathV;    // Associate death value with t' = 0
         }
     return nrm;
     }
@@ -395,6 +397,6 @@ PhasedTreatment::Transit() 	{
 PhasedTreatment::Vupdate() {
     decl nrm = NonDeterministicAging::Vupdate();
 	if (!ftime[t.v])	// current phase just starting, put in go-to-next-phase place
-		aVV[0][I::now][ I::MxEndogInd+1 : 2*I::MxEndogInd ] = aVV[0][I::now][ : I::MxEndogInd ];
+		N::VV[I::now][ I::MxEndogInd+1 : 2*I::MxEndogInd ] = N::VV[I::now][ : I::MxEndogInd ];
     return nrm;
     }

@@ -24,11 +24,13 @@ Method::Initialize(MaxTrips) {
   	if (isint(delta))
         oxwarning("DDP Warning 23.\n User code has not set the discount factor yet.\n Setting it to default value of "+sprint(SetDelta(0.90))+"\n");
     I::NowSet();
-    if (Flags::UpdateTime[OnlyOnce]) ETT->Transitions();
-    qtask.itask.Volume = Volume;
-    qtask.itask.vtoler = vtoler;
-    qtask.itask.succeed = TRUE;
-    qtask.itask.MaxTrips = (MaxTrips==ResetValue) ? 0 : MaxTrips;
+    if (Flags::UpdateTime[OnlyOnce]) {ETT->Transitions();}
+//    if (isclass(qtask)&&isclass(itask)) {
+        qtask.itask.Volume = Volume;
+        qtask.itask.vtoler = vtoler;
+        qtask.itask.succeed = TRUE;
+        qtask.itask.MaxTrips = (MaxTrips==ResetValue) ? 0 : MaxTrips;
+//        }
     done = FALSE;
     cputime0 = timer();
     }
@@ -82,7 +84,7 @@ Method::ToggleIterate(ToggleOnlyTrans) {
 @see DP::SetUpdateTime , EndogTrans::Transitions , HookTimes
 **/
 Method::Run() {
-    if (Flags::UpdateTime[AfterFixed]) ETT->Transitions(state);
+    if (Flags::UpdateTime[AfterFixed]) {ETT->Transitions(state);}
     if (DoNotIterate) return;
 	cputime0 = timer();
     if (trace) println("--------Group task loop: ",classname(this)," Rgroups ",Rgroups,state');
@@ -106,8 +108,6 @@ RandomSolve::RandomSolve(gtask,caller) {
 GSolve::GSolve(caller) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 28. Must create spaces before creating a solution method");
 	ThetaTask(iterating,caller);
-	VV = new array[DVspace];
-    for (decl i=0; i< DVspace;++i) VV[i] = zeros(1,N::Mitstates);
     vtoler = Method::DefTolerance;
     succeed = TRUE;
     RunSafe = FALSE;
@@ -124,7 +124,7 @@ Solution is not run if the density of the point in the group space equals 0.0.
 **/
 RandomSolve::Run()  {
 	if (I::curg->Reset()>0.0) {
-        if (Flags::UpdateTime[AfterRandom]) ETT->Transitions(state);
+        if (Flags::UpdateTime[AfterRandom]) {ETT->Transitions(state);}
         retval =itask->Solve(this.state);
         if (DPDebug::OutAll) DPDebug::RunOut();
         else if (itask.Volume>LOUD) {DPDebug::outV(TRUE);}
@@ -141,7 +141,6 @@ RandomSolve::Run()  {
 **/
 GSolve::Solve(instate) {
 	this.state = instate;
-    Clock::Solving(&VV);
     ZeroTprime();
 	Flags::setPstar = counter->setPstar(TRUE) ||  (MaxTrips==1);   // if first trip is last;
     dff = 0.0;
@@ -149,7 +148,7 @@ GSolve::Solve(instate) {
     warned = FALSE;
     this->Traverse() ;   //this does the iteration see GSolve::Run()
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER)
-        VV[LATER][] = VV[I::later][];    //initial value next time
+        N::VV[LATER][] = N::VV[I::later][];    //initial value next time
     Hooks::Do(PostGSolve);
     if (Volume>SILENT && N::G>1) print(".");
 	}
@@ -164,14 +163,14 @@ transition matrix, &Rho;(&theta;&prime;;&theta;)</LI>
 **/
 GSolve::Run() {
     XUT.state = state;
-    DP::vV =VV[I::later];
+    //DP::vV =VV[I::later];
 	I::curth->ActVal();
-	VV[I::now][I::all[iterating]] = ev = I::curth->thetaEMax();
+	N::VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
     this->PostEMax();
 	}
 GSolve::PostEMax() {
 	if (Flags::setPstar)  {
-		I::curth->Smooth(ev);
+		I::curth->Smooth();
         Hooks::Do(PostSmooth);
         if (Flags::IsErgodic) I::curth->UpdatePtrans();
 		}

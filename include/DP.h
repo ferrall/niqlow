@@ -87,7 +87,6 @@ struct DP {
 		/** . @internal						**/    				P,
         /** copy of user's Bellman object used for cloning.**/  userState,
 		/** max of vv. @internal       **/						V,
-        /** vector of V', sent to `Bellman::ActVal` **/         vV,
         /** Outcomes sent to `Bellman::StateToStatePrediction` **/  tod, tom,
 		/** task to compute endogenous transitions**/		    ETT,
         /** task to compute utility over exogenous states.**/   XUT,
@@ -328,7 +327,7 @@ struct SemiTrans: SemiExTask {
 **/
 struct GroupTask : Task {
 	const 	decl 	span;
-	static  decl	qtask;
+	        decl	qtask;  /*2019: was static! */
 	GroupTask(caller=UnInitialized);
 	virtual Run();
 	loop(IsCreator=FALSE);

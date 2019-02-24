@@ -931,7 +931,7 @@ struct MVIID : StateBlock {
     /**total number points in the block. **/    MtoN;
 	MVIID(L,N,M,base=0);
 	virtual Transit();
-	virtual Update();
+	// Default should work?? virtual Update(curs,first);
     }
 
 /** A discrete multivariate normal IID block of contemporaneously correlated variables.
@@ -950,7 +950,7 @@ struct MVNormal : MVIID {
         of the variance matrix &Omega;, &Omega; = CC'.
         **/                                             CholLT;
 	MVNormal(L,N,M, mu,CholLT);
-	virtual Update();
+	virtual Update(curs,first);
     virtual myAV();
 	}
 

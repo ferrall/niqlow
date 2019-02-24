@@ -783,8 +783,13 @@ N::Sizes() {
 	ReachableIndices = reversec(ReachableIndices);
     tfirst = 0 | (sizer(ReachableIndices)-tfirst);
     Mitstates = DP::SS[iterating].size;
+    VV = new array[DVspace];
+    for (decl i=0; i< DVspace;++i)
+        VV[i] = zeros(1,N::Mitstates);
     }
-
+N::ZeroVV() {
+    VV[I::now][] = VV[I::later][] = 0.0;
+    }
 /** .
 @internal
 **/
@@ -1918,14 +1923,15 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 	}
 	
 SaveV::Run() {
+    decl ai=I::curth.Aind;
 	if ((TrimTerminals && I::curth.Type>=TERMINAL) || (TrimZeroChoice && N::Options[I::curth.Aind]<=1) ) return;
     decl mxi, p;
     oxprintlevel(-1);
-	stub=I::all[tracking]~I::curth.Type~I::curth.Aind~state[S[endog].M:S[clock].M]';
+	stub=I::all[tracking]~I::curth.Type~ai~state[S[endog].M:S[clock].M]';
     p = columns(I::curth.pandv)==rows(NxtExog[Qprob])
-            ?  ExpandP(I::curth.Aind, I::curth.pandv*NxtExog[Qprob])
-            :  ExpandP(I::curth.Aind, I::curth.pandv );
-    r =stub~I::r~I::f~I::curth.EV;
+            ?  ExpandP(ai, I::curth.pandv*NxtExog[Qprob])
+            :  ExpandP(ai, I::curth.pandv );
+    r =stub~I::r~I::f~N::VV[I::later][I::all[iterating]]; //I::curth.EV;
     if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
 	if (isclass(I::curth,"OneDimensionalChoice") && I::curth.solvez ) r ~= I::curth->Getz()[][I::r]';
 	if (!isint(aM)) aM[0] |= r;

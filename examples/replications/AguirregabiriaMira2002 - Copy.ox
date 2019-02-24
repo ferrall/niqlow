@@ -1,28 +1,29 @@
 #include "AguirregabiriaMira2002.h"
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 	
-AMEstimates::DoAll()  {
-	plist = EZ::SetUp(0);
-	buses = new BusData(0);
-	nfxp = new DataObjective("ZurcherAM",buses,plist[Zero]);
-	nfxp.Volume = QUIET;
-    nfxp->TwoStage(plist[One],plist[Two]);
-	mle = new BFGS(nfxp);
-	mle.Volume = LOUD;
-    HM = new HotzMiller(buses);
-    HM->EmpiricalCCP(buses,2.0);
-    nfxp->Encode();
-    nfxp->fobj(0);
-    println("*** ",nfxp.cur.v);
-    return;
-    nfxp->SetStage(Two);
-    HM->AMiter(mle);
-//    HM -> Solve(AllFixed,mle);  //,mle
-    delete buses, HM, mle, nfxp;
-    Bellman::Delete();
+AMZurcher::Run()  {
+    Initialize(new AMZurcher());
+    EndogenousStates(x = new Renewal("x",AMNX,d,dgppars[theta3]) );
+    CreateSpaces();
+	SetDelta(dgppars[disc]);	//0.99
+	normalization = dgppars[theta1]*mfact*AMNX/2.0;
+	th1 = new Positive("theta1",dgppars[theta1]);
+	rc = new Positive("RC",dgppars[RC]);	
+	EM = new ValueIteration();
+    EM.vtoler = 0.01;
+	data = new ZPanel({rc,th1},pars[0][RC]-.1 | pars[0][theta1]+0.01, EM);
+    EM.Volume = LOUD;
+	EM -> Solve();
+	//DPDebug::outV(TRUE);
+    data -> BruteForce();
+	HM = new HotzMiller(data,4.0);  //AguirregabiriaMira
+    data->SetMethod(0);  //get rid of nested fixed point
+	HM.Volume = NOISY;
+    HM -> Solve();
+    Delete();
 	}
 
-/*
+
 ZPanel::ZPanel(params,ivals,EM) {
     decl db = new Database(), bus, binsz,k,miles;
     db->Load("bus1234.dta");
@@ -46,4 +47,15 @@ ZPanel::ZPanel(params,ivals,EM) {
     mle = new NelderMead(lnlk);
     //mle.Volume = LOUD;
 	}
-*/
+
+ZPanel::BruteForce() {
+	decl alg = new NelderMead(lnlk); //BFGS(lnlk);
+	alg.Volume = LOUD;
+    alg->Tune(2,0,80,2);
+	alg->Iterate(0);
+	}
+	
+AMZurcher::Utility()  {
+	decl i = CV(d);
+    return -(i*CV(rc) + (1-i)*CV(th1)*mfact*CV(x)) +normalization;
+	}

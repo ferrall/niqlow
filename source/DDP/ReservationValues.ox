@@ -74,11 +74,12 @@ RVGSolve::Solve(state) {
     GSolve::Solve(state);
 
 	this.state = state;
-    Clock::Solving(&VV);
+    //Clock::Solving(&VV);
     ZeroTprime();
     this->Traverse();
 	Flags::setPstar = counter->setPstar();   // REMOVED MaxTrips??? See GSolve().
-	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER) VV[LATER][] = VV[I::later][];    //initial value next time
+	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER)
+            N::VV[LATER][] = N::VV[I::later][];    //initial value next time
     Hooks::Do(PostGSolve);
     if (Volume>SILENT && N::G>1) print(".");
     }
@@ -101,9 +102,10 @@ RVGSolve::RVGSolve(LBvalue,Method,caller) {
 RVGSolve::Run() {
     decl ns = I::curth.solvez && isclass(RValSys[I::curth.Aind]);
     XUT.state = state;
-    DP::vV =VV[I::later];
+    //DP::vV =VV[I::later];
     I::curth->ActVal();
-    ev = VV[I::now][I::all[iterating]]
+    //ev =
+    N::VV[I::now][I::all[iterating]]
                             = ns
                                 ? RValSys[I::curth.Aind] -> RVSolve(DeltaV(I::curth.pandv))
                                 : I::curth->thetaEMax();

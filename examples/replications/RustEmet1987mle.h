@@ -1,6 +1,6 @@
 #import "RustEmet1987"
 #import "FiveO"
-/* This file is part of niqlow. Copyright (C) 2011-2015 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** Put all objects related to the paper in a catchall class.
 
@@ -11,18 +11,18 @@ This avoids global variables, which may be ambiguous when multiple models are in
 **/
 struct RustEstimates {
 	static decl
-    /** Value function iteration method. **/ EMax,
-    /** bus data as a DataSet. **/ buses,
+    /** Value function iteration method. **/            EMax,
+    /** bus data as a DataSet. **/                      buses,
     /** Panel Black Box objective using buses data. **/ nfxp,
-    /** Optimization algorithm applied to nfxp. **/ mle;
+    /** Parameter lists by stage.**/                    plist,
+    /** Optimization algorithm applied to nfxp. **/     mle;
 	static DoAll();
 	}
 
 /** The Zurcher model with estimated `Parameter`s. **/
-struct ZurcherHat : Zurcher	{						
+struct EZ : Zurcher	{						
 		static 	decl hat;
-		static 	FirstStage(row);
-        static  SecondStage();
+		static 	SetUp(row);
 				Utility();
 	}
 

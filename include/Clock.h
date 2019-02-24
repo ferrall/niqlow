@@ -20,10 +20,10 @@ struct Clock : StateBlock {
 			V iteration to track possible clock values next period. **/		tprime,
 		/** Store Ergodic Distribution. **/ 								IsErgodic;
     static decl
-    /** Volume for clocks (static so don't need to access internal var.**/  Volume,
-    /** Pointer to methods VV function for iteration.   **/                 aVV;
+    /** Volume for clocks (static so don't need to access internal var.**/  Volume;
+    /** Pointer to methods VV function for iteration.                    aVV;  **/
 	Clock(Nt,Ntprime);
-    static Solving(aVV);
+    //static Solving();//aVV
     virtual Vupdate();
     virtual setPstar(notsynched=FALSE);
 	virtual Last();

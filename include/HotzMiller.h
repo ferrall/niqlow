@@ -4,7 +4,6 @@
 **/
 struct CCP : FETask {
 	static decl
-            /** F&times;1 array of CCPs.**/         Q,
             /**`Panel` containing data. **/         data,
                                                     bandwidth,
                                                     NotFirstTime,
@@ -13,12 +12,14 @@ struct CCP : FETask {
 		                                            ObsPstar,
                                                     Kstates;
 	CCP(data,bandwidth=UseDefault);
+
     // static InitializePP();
 	Run();
 	}
 
 struct CCPspace : ThetaTask {
-    CCPspace();
+    decl dsrc;
+    CCPspace(dsrc);
     Run();
     }
 
@@ -31,27 +32,36 @@ struct CCPspace : ThetaTask {
 
 **/	
 struct HotzMiller : Method {
-	HotzMiller(indata=0,bandwidth=UseDefault);
-	virtual Solve(Fgroups=AllFixed);
+    static decl pdelt,AMstep;
+    decl data;
+	HotzMiller(data=0,mysolve=0);
+    EmpiricalCCP(indata,bandwidth=0);
+	Solve(Fgroups=AllFixed);
+    AMiter(mle);
+//    Run();
 	}
 
 struct HMGSolve : GSolve {
-    static decl VV, Q;
-    HMGSolve(indata=0,bandwidth=UseDefault,caller=UnInitialized);
-    Solve(instate);
-    virtual Run();
+    static decl
+                                                 tmpP,
+            /** F&times;1 array of CCPs.**/         Q;
+    HMGSolve(caller=UnInitialized);
+    Solve(state);
+    Update();
+    Run();
     }
 
 /** Solve a DP model using the Aguiregabiria Mira iterative prodecure.
 
 **/
 struct AguirregabiriaMira : HotzMiller  {
-    decl                mle;
-    AguirregabiriaMira(data=0,bandwidth=UseDefault);
+    AguirregabiriaMira(data=0);
     Solve(Fgroups=AllFixed,inmle=0);
-    virtual Run();
     }
 
 struct AMGSolve : HMGSolve {
+    AMGSolve(caller=UnInitialized);
+    Solve(state);
+    Update();
     Run();
     }

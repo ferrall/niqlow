@@ -284,6 +284,7 @@ A user's code can reference these variables but should never change them.
 **/
 struct N : DDPauxiliary {
     static decl
+	    /** Scratch space for value iteration. **/                    VV,
 		/** uninitialized state.   **/  			  	              All,
 		/** number of groups, &Gamma;.D      **/				      G,
 		/** number of fixed effect groups.   **/					  F,
@@ -313,13 +314,14 @@ struct N : DDPauxiliary {
     static Sizes();
     static Subsample(prop);
     static IsReachable(trackind);
+    static ZeroVV();
     }
 
 /**  Dynamically updated indices into state spaces.
 **/
 struct I : DDPauxiliary {
     static decl
-	/**   matrix of offsets.     **/  				        OO,
+/**   matrix of offsets.     **/  				        OO,
 	/** vector of current indices into spaces. **/	        all,
 	/** index of current fixed group. **/					f,
     /** index of current random group. **/					r,

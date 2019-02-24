@@ -3,7 +3,7 @@
     #define Bellox
     #include "DP.ox"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** Constructs the transitions for &theta;, the endogenous state vector.
 
@@ -77,15 +77,6 @@ EndogTrans::Transitions(state) {
     this->Traverse();
     }
 
-/*Bellman::IntegrateOverEta(VV) {
-    decl Neta=sizeof(Nxt[Qrho]);
-    I::ehi = -1;
-	for (I::eta=0;I::eta<Neta;++I::eta) {
-		I::elo = I::eta*N::Ewidth;
-        I::ehi += N::Ewidth;
-        this->ExogExpectedV(VV);
-        }
-    }*/
 
 /** Sets up a single point &theta; in the state space.
 This is the default of the virtual routine.  It calls the creator for Bellman.
@@ -173,17 +164,17 @@ Bellman::UReset() {
     }
 	
 /** Default Choice Probabilities: no smoothing.
-@param VV expected value integrating over endogenous and semi-endogenous states.
+@param inV expected value integrating over endogenous and semi-endogenous states.
 
 Smooth is called for each point in the state space during value function iteration, but only in the last iteration
 (deterministic aging or fixed point tolerance has been reached.)
+It uses `Bellman::EV' which should be set to the current value of the current state by thetaEmax()
 
 @comment This is virtual, so the user's model can provide a replacement to do tasks at each &theta; during iteration.
 
 @see Bellman::pandv
 **/
-Bellman::Smooth(inV) {
-	EV = inV;
+Bellman::Smooth() {
 	V[] = maxc(pandv);
 	pandv[][] =  fabs(pandv-V).<DIFF_EPS;
 	pandv[][] ./= sumc(pandv);
@@ -191,7 +182,7 @@ Bellman::Smooth(inV) {
 
 Bellman::ExogExpectedV() {
     decl et =I::all[onlysemiexog];
-	pandv[][I::elo : I::ehi] += I::CVdelta*sumr(Nxt[Qrho][et].*vV[Nxt[Qit][et]]);
+	pandv[][I::elo : I::ehi] += I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]);
     }
 
 /** Compute v(&alpha;&theta;) for all values of &epsilon; and &eta;. **/
@@ -200,14 +191,14 @@ Bellman::ActVal() {
 	pandv[][] = XUT.U;
 	if (Type>=LASTT) return;
     IOE.state[] = XUT.state[];
-    IOE->Compute(); //IntegrateOverEta(VV);
+    IOE->Compute();
     }
 
 /** Computes v() and V for out-of-sample states. **/
-Bellman::MedianActVal(EV) {
+Bellman::MedianActVal() {
         //Note Since Action values not computed for terminal states, Type same as IsLast
     XUT->ReCompute(UseCurrent);  //ZZZZ
-    pandv[] = XUT.U + (Type>= LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*EV[Nxt[Qit][Zero]]));
+    pandv[] = XUT.U + (Type>= LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*N::VV[I::later][Nxt[Qit][Zero]]));
 	V[] = maxc( pandv );
 	}
 	
@@ -227,7 +218,7 @@ If `Flags::setPstar` then &Rho;*(&alpha;) is computed using virtual `Bellman::Sm
 
 **/
 Bellman::thetaEMax() {
-	return sumc( (V[] = maxc(pandv) )*NxtExog[Qprob] );
+	return EV = sumc( (V[] = maxc(pandv) )*NxtExog[Qprob] );
     }
 
 /** Compute endogenous state-to-state transition &Rho;(&theta;'|&theta;) for the current state <em>in `Stationary` environments</em>.
@@ -235,7 +226,7 @@ Bellman::thetaEMax() {
 Bellman::UpdatePtrans(aPt,vindex) {
 	decl eta,
 		 h = aggregater(pandv .* NxtExog[Qprob]',SS[onlyexog].size)',
-		 ii = I::all[onlyendog];
+		 ii = I::all[tracking];
     if (isint(aPt)) {
  	  for (eta=0;eta<sizeof(Nxt[Qit]);++eta)
 		  I::curg.Ptrans[ Nxt[Qit][eta] ][ii] += (h[eta][]*Nxt[Qrho][eta])';
@@ -323,24 +314,23 @@ Bellman::Utility()  {
 	return zeros(N::Options[Aind],1);
 	}
 
-/** The version of Endogenous Utility used in the Hotz-Miller algorithm.
+/** Returns the entry in Hotz Miller Q vector for this state.
 **/
-Bellman::HMActVal() {
+Bellman::HMQVal() {
     XUT->ReCompute(UseCurrent);
-    IOE.state[] = XUT.state[];
-    IOE->Compute(); //	pandv[] = XUT.U + I::CVdelta*sumr(Nxt[Qrho][Zero].*VV[Nxt[Qit][Zero]]);//NoR: [I::r]
-    Smooth(thetaEMax());
-    Hooks::Do(PostSmooth);
-	UpdatePtrans();
+    UpdatePtrans();
+    return pandv'*(XUT.U+M_EULER-log(pandv));
     }
 
-Bellman::AMActVal() {
+Bellman::AMEMax() {
+    decl oldp = pandv;
     ActVal();
-	Smooth(thetaEMax());
-    Hooks::Do(PostSmooth);
+    thetaEMax();
+    Smooth();
     UpdatePtrans();
-	decl x = pandv'*(XUT.U+M_EULER-log(pandv));
-    return x;
+    oldp = sumsqrc(pandv-oldp);
+//    println(pandv');
+    return oldp;
     }
 
 /** Extract and return rows of a matrix that correspond to feasible actions at the current state.
@@ -615,27 +605,25 @@ OneStateModel::Initialize(userState,Method,...) {
 /** Extreme Value Ex Post Choice Probability Smoothing.
 @internal
 **/
-ExPostSmoothing::Logistic(VV) {
-	EV = VV;
+ExPostSmoothing::Logistic() {
 	pandv[][] = RowLogit( pandv-(V[]=maxc(pandv)), CV(rho) );
  	}
 
-ExPostSmoothing::Normal(EV) {
+ExPostSmoothing::Normal() {
 	oxrunerror("Normal not repaired yet");
 	}
 
-ExPostSmoothing::Smooth(EV) {
+ExPostSmoothing::Smooth() {
 	switch_single(Method) {
-		case NoSmoothing : Bellman::Smooth(EV);
-		case LogitKernel : Logistic(EV);
-		case GaussKernel : Normal(EV);
+		case NoSmoothing : Bellman::Smooth();
+		case LogitKernel : Logistic();
+		case GaussKernel : Normal();
 		}
 	}
 
 /** Extreme Value Ex Ante Choice Probability Smoothing.
 **/
-ExtremeValue::Smooth(VV) {
-	EV = VV;
+ExtremeValue::Smooth() {
 	pandv ./= V;
 //    if (!I::t) println("** Smoothing ",VV,pandv);
 	}
@@ -646,7 +634,7 @@ ExtremeValue::thetaEMax(){
 	decl rh = CV(rho);
     pandv[][] = exp(setbounds( rh*pandv,lowb,hib ) );
 	V[] = sumc(pandv);
-	return log(V)*(NxtExog[Qprob]/rh);  //M_EULER+
+	return EV = log(V)*(NxtExog[Qprob]/rh);  //M_EULER+
     }
 
 /**  Initialize the normal-smoothed model.
@@ -667,13 +655,13 @@ Normal::CreateSpaces() {
 	Chol = new array[N::J];
 	}
 
-NIID::ExogExpectedV() {//VV
+NIID::ExogExpectedV() {
 	decl j,choicep,vv, et = I::all[onlysemiexog];
-	pandv[][I::elo:I::ehi] += (Type>=LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][et].*vV[Nxt[Qit][et]]));
+	pandv[][I::elo:I::ehi] += (Type>=LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]));
     vv = pandv[][I::elo:I::ehi]';
 	for (j=0;j<rows(pandv);++j) {
 		choicep = prodr(probn(GQNODES[Aind][j] + vv*MM[Aind][j] ))/M_SQRT2PI;
-		ev +=   NxtExog[Qprob][et]*(GQH::wght * (choicep.*(Chol[Aind][j]*GQH::nodes+ pandv[j][I::elo:I::ehi]))) ;
+		EV +=   NxtExog[Qprob][et]*(GQH::wght * (choicep.*(Chol[Aind][j]*GQH::nodes+ pandv[j][I::elo:I::ehi]))) ;
 		if (Flags::setPstar) pandv[j][I::elo:I::ehi] = GQH::wght * choicep;
 		}
     }
@@ -682,19 +670,19 @@ NIID::ActVal() {
     XUT->ReCompute(DoAll);  //ZZZZ
 	decl J=rows(XUT.U);
 	if (Type<TERMINAL && J>1)	{
-        ev = 0.0;
+        EV = 0.0;
         pandv[][] = XUT.U;
         IOE.state[] = XUT.state[];
-        IOE->Compute(); //VV
+        IOE->Compute();
 		if (Flags::setPstar) pandv += (1-sumc(pandv))/J;
 		}
 	else	{
-		ev = meanc(XUT.U)*NxtExog[Qprob];
+		EV = meanc(XUT.U)*NxtExog[Qprob];
 		if (Flags::setPstar) pandv[][] = 1/J;
 		}
 	}
 	
-Normal::Smooth(VV) {	EV = VV; /*NoR??*/	}
+Normal::Smooth() {	/*EV = Vnow; NoR??*/	}
 
 /** Initialize a normal Gauss-Hermite integration over independent choice-specific errors.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
@@ -758,7 +746,7 @@ NIID::UpdateChol() {
 	
 /**
 **/
-Normal::thetaEMax() {	return ev;	}
+Normal::thetaEMax() {	return EV;	}
 	
 /** Initialize GHK correlated normal solution.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
@@ -802,7 +790,7 @@ NnotIID::CreateSpaces() {
 	
 NnotIID::ExogExpectedV() {
     decl choicep, et = I::all[onlysemiexog];
-    pandv[][et] += I::CVdelta*sumr( Nxt[Qrho][et] .* vV[Nxt[Qit][et]] );
+    pandv[][et] += I::CVdelta*sumr( Nxt[Qrho][et] .* N::VV[I::later][Nxt[Qit][et]] );
 	[V[],choicep] = ghk[Aind]->SimDP(pandv[][et],Chol[Aind]);
 	if (Flags::setPstar) pandv[][et] = choicep;
     }
@@ -815,7 +803,7 @@ NnotIID::ActVal() {
 	if (Type<TERMINAL && J>1)	{
         pandv[][] = XUT.U;
         IOE.state = XUT.state;
-        IOE->Compute(); //VV
+        IOE->Compute();
 		}
 	else {
 		if (Flags::setPstar) pandv[][] = 1/J;
@@ -889,13 +877,11 @@ OneDimensionalChoice::SetTheta(state,picked) {
         }
     }
 
-OneDimensionalChoice::Smooth(VV) {
-    if (solvez) {
-	   EV = VV;
-	   pandv[] =  pstar;
-       }
+OneDimensionalChoice::Smooth() {
+    if (solvez)
+	   pandv[] =  EV;
     else
-        ExPostSmoothing::Smooth(VV);
+       ExPostSmoothing::Smooth();
 	}
 
 /**  Compute EV(&theta;) after optimal cutoffs z* have been found and compute choice probabilities if `Flags::setPstar` is TRUE.
@@ -918,7 +904,7 @@ OneDimensionalChoice::thetaEMax(){
 	else {
         V[] = maxc(I::curth.pandv);
         }
-	return V;
+	return EV=V;
 	}
 
 OneDimensionalChoice::Getz() { return zstar; }
@@ -930,7 +916,7 @@ not depend on z*.
 OneDimensionalChoice::ActVal() {
     pandv[][] = Type>=LASTT
                        ? 0.0
-	                   : I::CVdelta*Nxt[Qrho][0]*vV[Nxt[Qit][0]]';
+	                   : I::CVdelta*Nxt[Qrho][0]*N::VV[I::later][Nxt[Qit][0]]';
     if (!solvez) {
         XUT->ReCompute(DoAll);  //ZZZZ
         pandv += XUT.U;
@@ -960,7 +946,7 @@ OneDimensionalChoice::ActVal() {
 
 KeepZ::ActVal() {
     if (solvez>One) {
-        keptz->InitDynamic(this,vV); //,VV
+        keptz->InitDynamic(this); //vV
         return;
         }
     OneDimensionalChoice::ActVal();
@@ -974,8 +960,8 @@ KeepZ::DynamicActVal(z) {
     }
 
 KeepZ::thetaEMax () {
-    decl v = OneDimensionalChoice::thetaEMax();
-    return v;
+    return OneDimensionalChoice::thetaEMax();
+//    return v;
     }
 
 /** Initialize the model.
