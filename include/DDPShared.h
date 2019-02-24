@@ -192,6 +192,15 @@ enum {InfiniteHorizon,Ergodic,SubPeriods,NormalAging,StaticProgram,RandomAging,R
 		/** Elements of array stored at each theta. @name TransStore **/
 enum {Qtr,Qit,Qrho,TransStore}
 
+/** Categories of Endgoenous State  Reachability.
+<table><tr><th>Tag</th><th>Means</th></tr>
+<tr><td>InUnRchble</td><td>Unreachable because a state variable is inherently unreachable</td></tr>
+<tr><td>UUnRchble</td><td>Unreacheable because a user Reachable returns FALSE</td></tr>
+<tr><td>Rchble</td><td>Reachable</td></tr>
+</table>
+@name NReachTypes
+**/
+enum {InUnRchble,UUnRchble,Rchble,NReachTypes}
 
 		/** Weighting of moments in GMM.
 <table class="enum_table" valign="top">
@@ -327,7 +336,7 @@ struct I : DDPauxiliary {
     /** index of current random group. **/					r,
     /** index into dynamic random group. **/			    rtran,
 	/** index of current &gamma; group. **/					g,																
-	/**  Current value of t. @see DP::Gett **/				t,
+	/**  Current value of t.  **/				            t,
 	/**  Current value of sub period s.
           This identically 0 unless the clock is Divided.
             @see Divided **/				                subt,

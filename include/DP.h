@@ -108,12 +108,12 @@ struct DP {
         static  SetVersion(V=350);
 		static	SetDelta(delta);
 		static	SetClock(ClockType,...);
-		static	Gett();
+		//static	Gett();
 		static 	ExogenousTransition();
 
         static  onlyDryRun();
 		static  CreateSpaces();
-		static	InitialsetPstar(task);
+		//static	InitialsetPstar(task);
 		static 	Initialize(userState,UseStateList=FALSE);
 
 		static 	AddStates(SubV,va);

@@ -1,5 +1,5 @@
 #include "DP.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 
 /** Called by CreateSpaces. **/
@@ -50,7 +50,7 @@ Space::Space() {D=0; C=N=<>;   X = M= size = 1; }
 /** Tracks information about a set of one or more `Space`s.**/
 SubSpace::SubSpace() {D=0; size=1; O=<>;}
 
-/** Calculate dimensions of a  subspace.
+/** Calculate dimensions of a subspace.
 @param subs index of subvectors of S to include in the subspace
 @param IsIterating if the clock is included, use the rightmost variable in the index or set offset to 0<br>[default=TRUE]
 @param FullDim
@@ -118,10 +118,12 @@ Group::Reset() {
 **/
 DP::SetVersion(v) {
     MyVersion = v;
-    if (MyVersion<Version::version && !Version::MPIserver)
-        oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running on a newer niqlow version, "+sprint(Version::version)+".\n");
-    if (MyVersion>Version::version && !Version::MPIserver)
-        oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running on an older niqlow version, "+sprint(Version::version)+".\n You should consider installing a newer release.\n");
+    if (!Version::MPIserver) {
+        if (MyVersion<Version::version)
+            oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running on a newer niqlow version, "+sprint(Version::version)+".\n");
+        else if (MyVersion>Version::version)
+            oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running on an older niqlow version, "+sprint(Version::version)+".\n You should consider installing a newer release.\n");
+        }
     }
 
 /** Set and return the current group node in &Gamma;.
@@ -161,6 +163,10 @@ DP::DrawGroup(find) {	return SetGroup(find + DrawOne(gdist[find][]) );	}
 **/
 DP::DrawFsamp(find,N) { return ranmultinomial(N,gdist[find][]); }
 
+/**  Draw one $\epsilon$ vector given following $P(\epsilon)$.
+@param aState address of state vector to insert value
+@return index of the simulated $\epsilon$
+**/
 DP::DrawOneExogenous(aState) {
 	decl i = DrawOne(NxtExog[Qprob]);
 	aState[0] += ReverseState(NxtExog[Qind][i],bothexog);
@@ -180,25 +186,22 @@ DP::Settheta(endogind) { return isclass(I::curth = Theta[endogind]); }
 **/
 DP::GetAind(i) {return isclass(Theta[i]) ? Theta[i].Aind : NoMatch; }
 
-/** Return choice probability for a &theta; and current &gamma;.
-@param i index of &theta; in the state space &Theta;
-@return &Rho;*(&alpha;|&epsilon;,&eta;,&theta;,&gamma;)  (Theta[i].pandv)
+/** Return choice probability for a $\theta$ and current $\gamma$.
+@param i tracking index of $\theta$ in the state space $\Theta$
+@return $P*(\alpha;\epsilon,\eta,\theta,\gamma)$  (<code>Theta[i].pandv<code>)
 **/
-DP::GetPstar(i) {
-    return Theta[i].pandv;
-    }
+DP::GetPstar(i) {    return Theta[i].pandv;    }
 
-/** Return tracking transition at a given &eta;,&theta; combination.
-@param i index of &theta; in the state space &Theta;
-@param h index of current &eta; vector
-@return  &Rho;(&theta;&prime;|&alpha;,&eta;,&theta;) as an array<br>
-First element is vector of indices for feasible states &theta;&prime;<br>
-Second element is a matrix of transition probabilities (rows for actions <code>&alpha;</code>, columns correspond to &theta;&prime;)
+/** Return tracking transition at a given $\eta,\theta$ combination.
+@param i index of $\theta$ in the state space $\Theta$
+@param h index of current $\eta$ vector
+@return  $P(\theta^\prime | \alpha,\eta,\theta)$ as an array<br>
+First element is vector of indices for feasible states $\theta^\prime$<br>
+Second element is a matrix of transition probabilities (rows for actions $\alpha$, columns correspond to $\theta^\prime$)
 **/
-DP::GetTrackTrans(i,h) {
-    return {Theta[i].Nxt[Qtr][h],Theta[i].Nxt[Qrho][h]}; }
+DP::GetTrackTrans(i,h) {    return {Theta[i].Nxt[Qtr][h],Theta[i].Nxt[Qrho][h]}; }
 
-/** Ask to store overall &Rho;*() choice probability matrix.
+/** Ask to store overall $P*()$ choice probability matrix.
 @comment Can only be called before calling `DP::CreateSpaces`
 **/
 DP::StorePalpha() {
@@ -207,7 +210,7 @@ DP::StorePalpha() {
 	}
 
 /** Add state variables or blocks to a subvector of the overall state vector.
-@param SubV	the subvector to add to.
+@param SubV	the subvector to add to. see `SubVectorNames`
 @param va `StateVariable` or `ActionVariable` or `StateBlock` or array variables and blocks (nested arrays of these things okay but not nested StateBlocks)
 @comment User should typically not call this directly
 @see StateVariable, DP::Actions, DP::EndogenousStates, DP::ExogenousStates, DP::SemiExogenousStates, DP::GroupVariables
@@ -255,14 +258,6 @@ DP::AddStates(SubV,va) 	{
 		}
 	}
 
-/* Uses `I::curth` to recover actual values of an action.
-@param a `ActionVariable'
-@see AV
-DP::GetAV(a) {
-    return AV(a); // I::curth -> aa(a);   // Sep. 2016.  Ugghh!  return was missing
-    }
-*/
-
 /** Add `StateVariable`s to the endogenous vector &theta;.
 @param v1,... `StateVariable`s
 **/
@@ -284,7 +279,6 @@ DP::SemiExogenousStates(v1,...) 	{ AddStates(semiexog,v1|va_arglist()); }
 DP::GroupVariables(v1,...)	{
 	decl va = {v1}|va_arglist(), cv;
     foreach(cv in va) {
-//	for(j=0;j<sizeof(va);++j) {
 		if (isclass(cv,"FixedEffect")||isclass(cv,"FixedEffectBlock")) AddStates(fgroup,cv);
 		else if (isclass(cv,"RandomEffect")||isclass(cv,"RandomEffectBlock")) AddStates(rgroup,cv);
 		else oxrunerror("DDP Error 39. argument is not a TimeInvariant variable");
@@ -463,7 +457,7 @@ DP::KLaggedState(Target,K,Prune) {
     return lv;
     }
 
-/**Create an K-array of lagged values of an action variable.
+/**Create a K-array of lagged values of an action variable.
 @param L label
 @param Target `ActionVariable` to track
 @param K positive integer, number of lags to track
@@ -494,7 +488,6 @@ Task::Run() { println("Task::Run() ... should be replaced by a virtual Run()"); 
 
 
 /** Base class for tasks involving random and fixed groups.
-@internal
 **/
 GroupTask::GroupTask(caller) {
 	Task(caller);
@@ -503,7 +496,7 @@ GroupTask::GroupTask(caller) {
 	
 
 /** Loop over group-variable tasks.
-@internal **/
+**/
 GroupTask::loop(IsCreator){
 	Reset();
     if (trace) println("--Group task loop: ",classname(this),state[left:right]');
@@ -524,14 +517,12 @@ GroupTask::loop(IsCreator){
 		    state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
 		    SyncStates(left,d);
 			}
-
 		} while (d<=right);
     if (trace) println("--Group Task Ending: ",classname(this));
     return TRUE;
     }
 
-/** Create &Gamma; space.
-@internal
+/** Class to create $\Gamma$ space.
 **/
 CGTask::CGTask() {
 	GroupTask();
@@ -544,7 +535,6 @@ CGTask::CGTask() {
 	}
 
 /** .
-@internal
 **/
 CGTask::Run() {
 	Gamma[I::g] =  (Flags::AllGroupsExist||any(Hooks::Do(GroupCreate)))
@@ -561,15 +551,17 @@ DPMixture::DPMixture() 	{	RETask();	}
 DPMixture::Run() 	{	GroupTask::qtask->GLike();	}
 
 /** The exogenous utility object.
-This task method has the job of looping over the exogenous state space when
-<var>U(&alpha;...)</var> needs to be computed.
+Loop over the exogenous state space when $U(\alpha;...)$ needs to be computed.
 **/
 ExogUtil::ExogUtil() {
 	ExTask();	
     subspace = iterating;
     AnyExog = SS[bothexog].size > One;
 	}
-	
+
+/** Compute $U$, either over all $\epsilon$ or just the current one.
+@param howmany DOALL, loop or just current.
+**/	
 ExogUtil::ReCompute(howmany) {
     U = constant(.NaN,I::curth->pandv);
     if (AnyExog && howmany==DoAll)
@@ -580,6 +572,8 @@ ExogUtil::ReCompute(howmany) {
 
 ExogUtil::Run() { U[][I::all[bothexog]] = I::curth->Utility();  }
 
+/** Loop over $\eta$ space.
+**/
 SemiExTask::SemiExTask() {
 	ExTask();	
     left = S[semiexog].M;  // right set in ExTask();
@@ -588,6 +582,9 @@ SemiExTask::SemiExTask() {
     }
 SemiEV::SemiEV()       {     SemiExTask();    }
 SemiTrans::SemiTrans() {     SemiExTask();    }
+
+/**  Redo computation over $\eta$ or current value (and over $\epsilon$).
+**/
 SemiExTask::Compute(HowMany) {
     if (AnyEta && HowMany==DoAll) {
         I::elo = 0;
@@ -613,8 +610,8 @@ SemiTrans::Run() {
 	I::elo += N::Ewidth;
     }
 
-/**
-@internal
+/** Initialize $A(\theta)$ spaces.
+
 **/
 Alpha::Initialize() {
 	Count = <0>;
@@ -626,8 +623,15 @@ Alpha::Initialize() {
     N::J = 1;
     N = A = C = UnInitialized;
     }
+
+/** Return column vector of <em>actual</em> value of an action $a$ at the current state $\theta4.
+**/
 Alpha::AV(actvar) { return A[][actvar.pos]; }
+
+/** Return column vector of <em>current</em> value of an action $a$ at the current state $\theta4.
+**/
 Alpha::CV(actvar) { return C[][actvar.pos]; }
+
 Alpha::SetA(inAi) {
     aI = aA = aC = UnInitialized;
     if (inAi==NoMatch) {
@@ -647,6 +651,10 @@ Alpha::SetA(inAi) {
         }
     }
 Alpha::ClearA() { N = A = C = UnInitialized; }
+
+/** Check $A(\theta)$ returned by `Bellman::FeasibleAction`(), add to list if new.
+@param column vector of 0s and 1s indicating which $\alpha$ vectors are feasible at $\theta$
+**/
 Alpha::AddA(fa) {
     if (!ismatrix(fa)||rows(fa)!=rows(Sets[0])||columns(fa)>1 || ( sumc(fa.==1)+sumc(fa.==0) != rows(fa))  ) {
         println("Invalid value returned by user FeasibleAction():",fa);
@@ -666,6 +674,8 @@ Alpha::AddA(fa) {
    return ai;
    }
 
+/** Reset the actual value matrices (based on possible changes in updated parameters).
+**/
 Alpha::ResetA(alist) {
     decl a, i;
     foreach (a in alist[i]) {   //for (i=0;i<sizeof(alist);++i) { a = alist[i];
@@ -746,8 +756,8 @@ N::Reset() {
     ReachableIndices =tfirst=T=G=F=R=S=A=Av=J=aux=TerminalStates=ReachableStates=Approximated = 0;
     }
 
-/** .
-@internal
+/** Initializes size of spaces (only called internally).
+
 **/
 N::Initialize() {
     G = DP::SS[bothgroup].size;
@@ -776,8 +786,8 @@ N::Subsample(prop) {
     return samp;
     }
 
-/** .
-@internal
+/** Compute size of spaces (only called internally).
+
 **/
 N::Sizes() {
 	ReachableIndices = reversec(ReachableIndices);
@@ -798,7 +808,7 @@ N::print(){
     "%cf",{"%10.0f"},ReachableStates|TerminalStates|Approximated,"\n  Index of first state by t (t=0..T-1)","%5.0f",tfirst');
     }
 
-/** Add trackind to the list of reachable indices.
+/** Add trackind to the list of reachable indices (called internally).
 @see FindReachables
 **/
 N::Reached(trackind) {
@@ -807,7 +817,7 @@ N::Reached(trackind) {
 	ReachableIndices |= trackind;
     }
 
-/** Check if trackind index is reachable list
+/** Check if trackind index is on reachable list.
 @param trackind tracking index
 @return any(ReachableIndices.==trackind)
 **/
@@ -816,10 +826,12 @@ N::IsReachable(trackind) {
     }
 
 /** Initialize static members.
-@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;. As of version 2.4, which requires Ox 7.1 or greater, the Ox
-<code>clone()</code> function is used to copy this object to fill out &Theta;.  This also allows userReachable() to be a virtual function (and is no longer an arugment to <code>Initialize()</code>)
-@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
-					FALSE (default), traverse &Theta; through iteration on all state variables
+@param userState a `Bellman`-derived object that represents one point
+    $\theta$ in the user's endogenous state space $\Theta$. The Ox
+    <code>clone()</code> function is used to copy this object to fill out $\Theta$.
+    This also allows <code>userReachable()</code> to be a virtual function
+@param UseStateList TRUE, traverse the state space $\Theta$ from a list of reachable indices<br>
+					FALSE (default), traverse $\Theta$ through iteration on all state variables
 
 @comments
 Each DDP has its own version of Initialize, which will call this as well as do further set up.
@@ -867,9 +879,10 @@ DP::Initialize(userState,UseStateList) {
 /** Tell DDP when parameters and transitions have to be updated.
 @param time `UpdateTimes` [default=AfterFixed]
 
-THe default allows for transitions that depend on dynamically determined parameters <em>and</em>
-the current value of `FixedEffect` variables (if there are any).  But transitions do not depend on `RandomEffect`
-variables (if there are any).  Random effects can enter `Bellman::Utility`().
+THe default allows for transitions that depend on dynamically determined parameters
+<em>and</em> the current value of `FixedEffect` variables (if there are any).
+But transitions do not depend on `RandomEffect` variables (if there are any).
+Random effects can enter `Bellman::Utility`().
 
 @example
 
@@ -974,8 +987,8 @@ DP::onlyDryRun() {
     Flags::onlyDryRun=TRUE;
     }
 
-/** Initialize the state space &Theta; and the list of feasible action sets A(&theta;).
-@comments No actions or variables can be added after CreateSpaces() has been called. <br>
+/** Initialize all spaces.
+@comments No actions or variables can be added after CreateSpaces() has been called. </br>
 **/
 DP::CreateSpaces() {
    if (Flags::ThetaCreated) oxrunerror("DDP Error 44. State Space Already Defined. Call CreateSpaces() only once");
@@ -1099,8 +1112,8 @@ DP::CreateSpaces() {
            if (!Version::MPIserver && Volume>LOUD) {
                 println("Note: Reachability of all states listed in the log file");
                 fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
-                          "1=Unreacheable because a user Reachable returns FALSE\n",
-                          "2=Reachable",
+                              "1=Unreacheable because a user Reachable returns FALSE\n",
+                              "2=Reachable",
                 "%8.0f","%c",{"Reachble"}|{"Tracking"}|Labels::Vprt[svar][S[endog].M:S[clock].M],tt.rchable);
                 }
             delete tt;
@@ -1251,18 +1264,24 @@ CreateTheta::picked() {
     return isarray(insamp) ? ( isint(insamp[I::t]) ? TRUE : any(insamp[I::t].==I::all[tracking]) ) : TRUE;
     }
 
+/** Decide if $\theta$ is reachable.
+At current $\theta$ call `StateVarible::IsReachable` for all elements of $\theta$. If
+any are not reachable, set $\theta$ as type 0 and return.</br>
+If all state variables are inherently reachable call <code>Reachable</code>.  If true,
+then set type to 2.  Otherwise type 1.
+**/
 FindReachables::Run() {
     decl v, h=DP::SubVectors[endog];
     Flags::SetPrunable(counter);
     foreach (v in h) if (!(th = v->IsReachable())) {
-        if (Volume>LOUD) rchable |= 0~I::all[tracking]~(state[S[endog].M:S[clock].M]');
+        if (Volume>LOUD) rchable |= InUnRchble~I::all[tracking]~(state[S[endog].M:S[clock].M]');
         return;
         }
 	if (userState->Reachable()) {
-        if (Volume>LOUD) rchable |= 2~I::all[tracking]~(state[S[endog].M:S[clock].M]');
+        if (Volume>LOUD) rchable |= Rchble~I::all[tracking]~(state[S[endog].M:S[clock].M]');
         N::Reached(I::all[tracking]);
         }
-    else if (Volume>LOUD) rchable |= 1~I::all[tracking]~(state[S[endog].M:S[clock].M]');
+    else if (Volume>LOUD) rchable |= UUnRchble~I::all[tracking]~(state[S[endog].M:S[clock].M]');
 	}
 
 /** .
@@ -1430,12 +1449,12 @@ Task::Traverse(span,lows,ups) {
 	}
 
 
-/** .
+/* .
 @internal
-**/
 DP::InitialsetPstar(task) {	}
+*/
 	
-/** Compute the distribution of Exogenous state variables.
+/** Compute the distribution of Exogenous state variables, $P(\epsilon)$.
 
 This is or should be called each time a value function iteration method begins.
 Result is stored in the static `DP::NxtExog` array.
@@ -1480,8 +1499,8 @@ DumpExogTrans::DumpExogTrans() {
 DumpExogTrans::Run() { decl i =I::all[bothexog];  s|=i~state[left:right]'~NxtExog[Qprob][i];}
 
 
-/** Set the discount factor, &delta;.
- @param delta, `CV` compatible object (`Parameter` or double or function)
+/** Set the discount factor, $\delta$.
+ @param delta, `CV` compatible object (`Parameter` or <code>double</code> or <code>function</code>)
 **/
 DP::SetDelta(delta) 	{ 	return CV(this.delta = delta);	 }	
 
@@ -1596,14 +1615,13 @@ SDTask::SDTask()  { RETask(); }
 **/
 SDTask::Run()   { I::curg->StationaryDistribution();}	
 
-/** Return t, current age of the DP process.
+/* Return t, current age of the DP process.
 @return counter.v.t
 @see DP::SetClock, I::t
-**/
 DP::Gett(){
     return counter.t.v;
     }
-
+*/
 
 ExTask::ExTask() {
 	Task();	
@@ -1611,8 +1629,8 @@ ExTask::ExTask() {
     right = S[semiexog].X;	
     }
 		
-/** Create a new group node for value of &gamma;.
-@internal
+/** Create a new group node for value of $\gamma$ (called internally).
+
 **/
 Group::Group(pos,state) {
 	this.state = state;
@@ -1634,8 +1652,8 @@ Group::Group(pos,state) {
     mobj = UnInitialized;
 	}
 
-/** .
-@internal
+/** Delete a group.
+
 **/
 Group::~Group() {
   	if (!isint(Ptrans)) delete Ptrans, Pinfinity;
@@ -1646,8 +1664,9 @@ Group::~Group() {
 	PT = statbvector = 0;
 	}
 	
-/** Copy elements of state vector into <code>.v</code> for group variables.
-@internal
+/** Copy elements of state vector into <code>.v</code> for
+group variables (usually called internally).
+
 **/
 Group::Sync()	{
 	decl d,sv,Sd;
@@ -1662,7 +1681,8 @@ Group::Sync()	{
 	return sv;
 	}
 
-/** Compute the stationary distribution, &Rho;<sub>&infin;</sub>(&theta;).
+/** Compute the stationary distribution over reachable states, $P_\infty(\theta)$.
+@see Group::Pinfinity
 **/
 Group::StationaryDistribution() {
 	PT[][] = Ptrans[N::ReachableIndices][N::ReachableIndices];
@@ -1681,7 +1701,8 @@ Group::StationaryDistribution() {
 		}
 	}
 
-/** Draw &theta; from &Rho;<sub>&infin;</sub>.
+/** Draw $\theta$ from $P_\infty(\theta)$ for current $\gamma$.
+@return state vector
 @see DrawOne
 **/
 Group::DrawfromStationary() {	return ReverseState(DrawOne(Pinfinity),tracking); }
@@ -1694,8 +1715,8 @@ FETask::FETask() {
 	span = onlyfixed;	left = SS[span].left;	right = SS[span].right;
 	}
 
-/** .
-@internal
+/** Set the fixed effect $\gamma_f$ segment of the task's state vector.
+@param f index of fixed effect group
 **/
 RETask::SetFE(f) {
 	state = isint(f) ? ReverseState(f,onlyfixed)
@@ -1712,8 +1733,12 @@ RETask::RETask(caller) {
 	span = onlyrand;	left = SS[span].left;	right = SS[span].right;
 	}
 
-/** .
-@internal
+/** Set fixed and random effect segment of state vector for task.
+@param f fixed effect group index
+@param r random effect group index.
+
+This calls SyncStates and `I::Set`()
+
 **/
 RETask::SetRE(f,r) {
     SetFE(f);
@@ -1722,7 +1747,7 @@ RETask::SetRE(f,r) {
     I::Set(state,TRUE);
 	}
 
-/** Compute density of current group &gamma; conditional on fixed effects.
+/** Compute density of current group $\gamma$ conditional on fixed effects.
 **/
 Group::Density(){
 	curREdensity = 1.0;
@@ -1749,8 +1774,8 @@ UpdateDensity::UpdateDensity() {
 	RETask();
 	}
 
-/** .
-@internal
+/** Update density of $\gamma_r$.
+
 **/
 UpdateDensity::Run() {	I::curg->Density();	}
 
@@ -1953,7 +1978,7 @@ OutAuto::Run() { I::curth->AutoVarPrint1(this);  }
 **/
 RandomEffectsIntegration::RandomEffectsIntegration() {	RETask(); 	}
 
-/** .	
+/** Integrate over $\gamma_r$.	
 @param path Observed path to integrate likelihood over random effects for.
 @return array {L,flat}, where L is the path objective, integrating over random &gamma;
 and flat is the
@@ -1972,6 +1997,8 @@ RandomEffectsIntegration::Run() {
     L += path->TypeContribution(curREdensity);	
     }
 
+/** Open data log with timestamp.
+**/
 Data::SetLog() {
     Volume = SILENT;
     lognm = replace(Version::logdir+"Data-"+Version::tmstmp," ","")+".log";
