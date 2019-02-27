@@ -951,7 +951,7 @@ struct MVNormal : MVIID {
         **/                                             CholLT;
 	MVNormal(L,N,M, mu,CholLT);
 	virtual Update(curs,first);
-    virtual myAV();
+    //virtual myAV();
 	}
 
 /** Re-occuring epsiodes with endogenous onset and ending probabilities.

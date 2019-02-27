@@ -584,6 +584,10 @@ SemiEV::SemiEV()       {     SemiExTask();    }
 SemiTrans::SemiTrans() {     SemiExTask();    }
 
 /**  Redo computation over $\eta$ or current value (and over $\epsilon$).
+    This updates <code>pandv</code> which will already contain $U(\alpha;\cdots)$.
+    It calls the virtual `Bellman::ExogExpectedV`(). So it modifies the matrix as
+    $$v(\alpha;\theta) += \delta E[V^\prime].$$
+
 **/
 SemiExTask::Compute(HowMany) {
     if (AnyEta && HowMany==DoAll) {
@@ -1956,7 +1960,7 @@ SaveV::Run() {
     p = columns(I::curth.pandv)==rows(NxtExog[Qprob])
             ?  ExpandP(ai, I::curth.pandv*NxtExog[Qprob])
             :  ExpandP(ai, I::curth.pandv );
-    r =stub~I::r~I::f~N::VV[I::later][I::all[iterating]]; //I::curth.EV;
+    r =stub~I::r~I::f~I::curth.EV; //N::VV[I::later][I::all[iterating]]
     if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
 	if (isclass(I::curth,"OneDimensionalChoice") && I::curth.solvez ) r ~= I::curth->Getz()[][I::r]';
 	if (!isint(aM)) aM[0] |= r;

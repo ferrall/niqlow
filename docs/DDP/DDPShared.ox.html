@@ -65,12 +65,13 @@ For example, the transit functions for a state variable can rely on the current 
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Fgamma">Fgamma</a></td>
 <td class="modifiers">static</td>
-<td class="description">2-d array pointing to &Gamma;.</td>
+<td class="description">2-dimensiona array pointing to <span class="expressions">\(\Gamma\)</span>, [r,f].</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Gamma">Gamma</a></td>
 <td class="modifiers">static</td>
-<td class="description">&Gamma; array (list) of groups of fixed and random effects.</td>
+<td class="description"><span class="expressions">\(\Gamma\)</span>: array (list) of groups of fixed and random effects,
+            <span class="expressions">\(\gamma\)</span>.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#ilistnames">ilistnames</a></td>
@@ -80,7 +81,7 @@ For example, the transit functions for a state variable can rely on the current 
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Theta">Theta</a></td>
 <td class="modifiers">static</td>
-<td class="description">&Theta; array (list) of all endogenous state nodes.</td>
+<td class="description"><span class="expressions">\(\Theta\)</span>: array (list) of endogenous states <span class="expressions">\(\theta\)</span>.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Functions</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="DDPShared.ox.html#ReverseState">ReverseState</a></td>
@@ -123,36 +124,41 @@ For example, the transit functions for a state variable can rely on the current 
 <td class="description">Type of likelihood function to build based on observability.</td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#NReachTypes">NReachTypes</a></td>
+<td class="modifiers"></td>
+<td class="description">Categories of Endgoenous State  Reachability.</td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#SmoothingMethods">SmoothingMethods</a></td>
 <td class="modifiers"></td>
 <td class="description">Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#StateTypes">StateTypes</a></td>
 <td class="modifiers"></td>
 <td class="description">Categories of state variables.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#SubSpaces">SubSpaces</a></td>
 <td class="modifiers"></td>
 <td class="description">Groups of continguous <a href="DDPShared.ox.html#SubVectorNames">SubVectorNames</a>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#SubVectorNames">SubVectorNames</a></td>
 <td class="modifiers"></td>
 <td class="description">Vectors of state variables.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#TransStore">TransStore</a></td>
 <td class="modifiers"></td>
 <td class="description">Elements of array stored at each theta.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#UpdateTimes">UpdateTimes</a></td>
 <td class="modifiers"></td>
 <td class="description">Point in solving when updating of parameters and transitions needs to occur.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#Vspace">Vspace</a></td>
 <td class="modifiers"></td>
 <td class="description">Names for 0 and 1 for Bellman iteration.</td>
@@ -237,7 +243,7 @@ Aspects of the Action Space.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___Sets">Sets</a></td>
 <td class="modifiers">static</td>
-<td class="description">List of Feassible Action indicators (column vector
+<td class="description">List of Feasible Action indicators (column vector
             of 0s and 1s).</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
@@ -285,14 +291,14 @@ Aspects of the Action Space.
 <a name="DDPauxiliary"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DDPauxiliary : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
 
-Container for auxiliary classes in in DDP but not elsewhere (directly).
+Container for auxiliary classes used in DDP but not elsewhere (directly).
 
 <a name="Flags"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Flags : <a href="DDPShared.ox.html#DDPauxiliary">DDPauxiliary</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
 
 Indicators related to the DP problem.
-All elements are static and now object is created.
-A user's code can reference these variables but should never change them.
+All elements are static. A user's code can reference these variables
+but should not change them unless building a new solution method.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -676,38 +682,48 @@ A user's code can reference these variables but should never change them.
 <td class="modifiers">static</td>
 <td class="description">lowest state index for each t.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___VV">VV</a></td>
+<td class="modifiers">static</td>
+<td class="description">Scratch space for value iteration.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___Initialize">Initialize</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___IsReachable">IsReachable</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___print">print</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___Reached">Reached</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___Reset">Reset</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___Sizes">Sizes</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___Subsample">Subsample</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#N___ZeroVV">ZeroVV</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
@@ -813,19 +829,30 @@ of each separate group. The function added here should return TRUE if the group 
                     <table>
         <tr><th>Tag</th><th>Explanation</th></tr>
             <tr>CCLike<td></td><td>Everything is observed except for the additive choice-specific error &zeta;.
-                Auxiliary values cannot contribute anything extra information.  See Outcome::CCLikelihood</td></tr>
+                Auxiliary values cannot contribute anything extra information.  See <a href="Data.ox.html#Outcome___CCLikelihood">CCLikelihood</a></td></tr>
             <tr>ExogLike<td></td><td>The exogenous vector &epsilon; is also unobserved.  Under this form
                     the likelihood of AuxiliaryValues is relevant and AuxiliaryValues::Likelihood is called
-                    for each observation and each value of &epsilon; See Outcome::IIDLikelihood</td></tr>
+                    for each observation and each value of &epsilon; See <a href="Data.ox.html#Outcome___IIDLikelihood">IIDLikelihood</a></td></tr>
             <tr>PartObsLike  [default]<td></td><td>Account for (sum over) any form of unobservability in states and actions.  Currently
-            this form cannot incorporate likelihood of auxiliary values. See Outcome::PartialObservedLikelihood</td></tr>
+            this form cannot incorporate likelihood of auxiliary values. See <a href="Data.ox.html#Outcome___PartialObservedLikelihood">PartialObservedLikelihood</a></td></tr>
             </table>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso">OutcomeDataSet</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a></dd>
 </dl></td>
 <td class="elements">CCLike, ExogLike, PartObsLike, LikelihoodTypes</td>
 </tr>
 <tr class="odd">
+<td class="declaration"><a name="NReachTypes"></a>NReachTypes</td>
+<td class="description">Categories of Endgoenous State  Reachability.
+<table><tr><th>Tag</th><th>Means</th></tr>
+<tr><td>InUnRchble</td><td>Unreachable because a state variable is inherently unreachable</td></tr>
+<tr><td>UUnRchble</td><td>Unreacheable because a user Reachable returns FALSE</td></tr>
+<tr><td>Rchble</td><td>Reachable</td></tr>
+</table>
+</td>
+<td class="elements">InUnRchble, UUnRchble, Rchble, NReachTypes</td>
+</tr>
+<tr class="even">
 <td class="declaration"><a name="SmoothingMethods"></a>SmoothingMethods</td>
 <td class="description">Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.
          <DT>NoSmoothing</DT>
@@ -844,14 +871,14 @@ of each separate group. The function added here should return TRUE if the group 
 </td>
 <td class="elements">NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><a name="StateTypes"></a>StateTypes</td>
 <td class="description">Categories of state variables.	
             These categories are used mainly for summarizing the model.
 </td>
 <td class="elements">NONRANDOMSV, RANDOMSV, COEVOLVINGSV, AUGMENTEDV, TIMINGV, TIMEINVARIANTV, NStateTypes</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><a name="SubSpaces"></a>SubSpaces</td>
 <td class="description">Groups of continguous <a href="DDPShared.ox.html#SubVectorNames">SubVectorNames</a>.
         <DT>Explanation</DT>
@@ -885,7 +912,7 @@ of each separate group. The function added here should return TRUE if the group 
 </td>
 <td class="elements">onlyacts, onlyexog, onlysemiexog, bothexog, onlyendog, tracking, onlyclock, allstates, iterating, onlyrand, onlydynrand, onlyfixed, bothgroup, DSubSpaces</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><a name="SubVectorNames"></a>SubVectorNames</td>
 <td class="description">Vectors of state variables.
         <DT>Explanation</DT>
@@ -937,13 +964,13 @@ of each separate group. The function added here should return TRUE if the group 
 </td>
 <td class="elements">acts, exog, semiexog, endog, clock, rgroup, fgroup, DSubVectors, LeftSV</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><a name="TransStore"></a>TransStore</td>
 <td class="description">Elements of array stored at each theta.
 </td>
 <td class="elements">Qtr, Qit, Qrho, TransStore</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><a name="UpdateTimes"></a>UpdateTimes</td>
 <td class="description">Point in solving when updating of parameters and transitions needs to occur.
 <table class="enum_table">
@@ -963,7 +990,7 @@ There is a potentially large computational cost of updating the transitions more
 </dl></td>
 <td class="elements">InCreateSpaces, OnlyOnce, AfterFixed, AfterRandom, UpdateTimes</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><a name="Vspace"></a>Vspace</td>
 <td class="description">Names for 0 and 1 for Bellman iteration.
             In <a href="Methods.ox.html#ValueIteration">ValueIteration</a> an 2-array of vectors are stored as scratch-space for Bellman
@@ -989,7 +1016,7 @@ parallel array of labels for the built-in clock types.
 
 <span class="declaration">static decl Fgamma</span>
 <dl><dd>
-2-d array pointing to &Gamma;.
+2-dimensiona array pointing to <span class="expressions">\(\Gamma\)</span>, [r,f].
 
 </dd></dl>
 
@@ -999,7 +1026,8 @@ parallel array of labels for the built-in clock types.
 
 <span class="declaration">static decl Gamma</span>
 <dl><dd>
-&Gamma; array (list) of groups of fixed and random effects.
+<span class="expressions">\(\Gamma\)</span>: array (list) of groups of fixed and random effects,
+            <span class="expressions">\(\gamma\)</span>.
 
 </dd></dl>
 
@@ -1045,7 +1073,7 @@ Recreate State vector from an index and offset vector.
 
 <span class="declaration">static decl Theta</span>
 <dl><dd>
-&Theta; array (list) of all endogenous state nodes.
+<span class="expressions">\(\Theta\)</span>: array (list) of endogenous states <span class="expressions">\(\theta\)</span>.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Alpha</span></h2>
@@ -1263,7 +1291,7 @@ Array of Array labels for rows of A that look like &alpha;.
 
 <span class="declaration">static decl Sets [public]</span>
 <dl><dd>
-List of Feassible Action indicators (column vector
+List of Feasible Action indicators (column vector
             of 0s and 1s).
 
 </dd></dl>
@@ -1732,8 +1760,6 @@ Current value of sub period s.
 <dl><dd>
 Current value of t.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___Gett">Gett</a></dd>
-</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Labels</span></h2>
 
@@ -2035,6 +2061,24 @@ Count of terminal states.
 <span class="declaration">static decl tfirst [public]</span>
 <dl><dd>
 lowest state index for each t.
+
+</dd></dl>
+
+<hr>
+<a name="N___VV"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">VV</span></h3>
+
+<span class="declaration">static decl VV [public]</span>
+<dl><dd>
+Scratch space for value iteration.
+
+</dd></dl>
+
+<hr>
+<a name="N___ZeroVV"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ZeroVV</span></h3>
+
+<dl><dd>
 
 </dd></dl>
 <div class="footer">

@@ -20,7 +20,7 @@ struct  Bellman : DP {
 	decl
         /**Integer code to classify state (InSubSample,LastT,Terminal).
             This avoids multiple integer values at each point in the state space.
-            Defined in `StateTypes`. Set in `DP::CreateSpaces`()
+            Defined in `StateTypes`. Set in `DP::CreateSpaces`() and `DP::SubSampleStates`()
             @see StateVariable::MakeTerminal, Clock::Last **/       Type,
 		/**&theta;.j index into `Alpha::CList`.**/  				Aind,
 		/** v(&alpha;;&theta;) and &Rho;*(&hellip;,&gamma;). **/    pandv,
@@ -58,7 +58,6 @@ struct  Bellman : DP {
 					Bellman(state,picked);
                     Allocate(picked,CallFromBellman=FALSE);
 					~Bellman();
-					//aa(av);
 					Simulate(Y);
 					ThetaTransition();
 					UpdatePtrans(ap=0,vind=0);
@@ -86,9 +85,15 @@ struct ExPostSmoothing : Bellman {
 			Normal();
 	}
 
+/** A model where there is a single decision, no value shocks and no dynamics.
+The user simply supplies a static utility function which is called from the built-in
+version here.
+
+**/
 struct OneStateModel : ExPostSmoothing {
-	static Initialize(userState,Method,...);
-    static Choose();
+    static decl U;
+	static Initialize(U,Method=NoSmoothing,...);
+    virtual Utility();
 	}
 	
 /** Additve extreme value errors enter U().

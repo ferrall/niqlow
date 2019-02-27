@@ -245,15 +245,20 @@ static const decl ClockTypeLabels
     ilistnames = {"StateVariable","ActionVariable","AuxiliaryValue"}
     ;
 
+/**Take an index and produce the state vector associated with it.
+@param Ind integer index
+@param subsp index of subspace that produced the index.
+@see SubSpaces, I::all
+**/
 ReverseState(Ind,subsp);
 
-/**Container for auxiliary classes in in DDP but not elsewhere (directly). **/
+/**Container for auxiliary classes used in DDP but not elsewhere (directly). **/
 struct DDPauxiliary : Zauxiliary {
     }
 
 /** Indicators related to the DP problem.
-All elements are static and now object is created.
-A user's code can reference these variables but should never change them.
+All elements are static. A user's code can reference these variables
+but should not change them unless building a new solution method.
 **/
 struct Flags : DDPauxiliary {
 	static decl
@@ -330,7 +335,7 @@ struct N : DDPauxiliary {
 **/
 struct I : DDPauxiliary {
     static decl
-/**   matrix of offsets.     **/  				        OO,
+    /**   matrix of offsets.     **/  				        OO,
 	/** vector of current indices into spaces. **/	        all,
 	/** index of current fixed group. **/					f,
     /** index of current random group. **/					r,
@@ -405,7 +410,7 @@ struct Alpha : DDPauxiliary {
             Each point in the endogenous state space
             has an index: `Bellman::Aind` into this
             list.  .**/ 	                                    CList,     // Asets,
-		/** List of Feassible Action indicators (column vector
+		/** List of Feasible Action indicators (column vector
             of 0s and 1s). **/  	                            Sets,     //ActionSets,
 		/** (vector) Number of states for each A set.  **/      Count,    // AsetCount,
 		/** List of <em>actual</em> feasible action matrices (AV values),
@@ -437,6 +442,7 @@ struct Labels : DDPauxiliary {
     }
 
 static decl
-        /** &Gamma; array (list) of groups of fixed and random effects. **/ Gamma,
-        /** 2-d array pointing to &Gamma;. **/								Fgamma,
-        /** &Theta; array (list) of all endogenous state nodes.**/  		Theta;
+        /** $\Gamma$: array (list) of groups of fixed and random effects,
+            $\gamma$.**/                                              Gamma,
+        /** 2-dimensiona array pointing to $\Gamma$, [r,f]. **/       Fgamma,
+        /** $\Theta$: array (list) of endogenous states $\theta$.**/  Theta;

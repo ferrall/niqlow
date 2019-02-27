@@ -148,12 +148,14 @@ However it is referenced, <code>a</code> and <code>b</code> refer to the same pl
 <div class="page-break"> </div>
 
 <DL>Line-by-line Description
-<DT>Set Up and RUn the Problem</DT>
+<DT>Set Up and Run the Problem</DT>
     <DD>11. The user's code must call the <code>Initialize()</code> method before setting up or solving the model.
     <details class="aside"><summary>More on <code>Initialize</code></summary>
     `DP::Initialize`() works only on <em>static</em> elements of the model, and these must be set before any instances of the model are created with <code>new</code>.  So it is not possible to put these tasks in the <q>constructor</q> for DP. The user may declare a <code>Initialize()</code> method if they expect the class (<code>Search</code>)  to be used as a base for other derived classes. Then <code>Search::Initialize()</code> would call <code>DP::Initialize()</code> and the prefix will be required to resolve the name.</details>
-    The argument sent to <code>Initialize</code> is an object of the model class.  An example of the simplest way to do this is show above: <code>new Search()</code>.  This creates an object of the user's model class, in the example <code>Search</code>.  Initialize will <q>clone</q> this object for each point in the state space of the model.  <details class="aside"><summary>Early version of Initialize</summary>Prior to the release of Ox version 7.1 there was no way to clone an object in the Ox language.  So older versions of <span class="n">DDP</span> required the user to provide a function that would create and return a new object every time it was called.  Now <span class="n">DDP</span> can do this by cloning the object sent to <code>Initialize()</code>.  This also allows <code>Reachable()</code> to be a virtual function now and in many cases does not need to be coded by the user (discussed elsewhere).</details></DD>
-    <DD>12:  Code to set up the model must appear after <code>Initialize()</code> and before the <code>CreateSpaces()</code> method is called. This code is contained in <code>Model().</DD>
+    The argument sent to <code>Initialize</code> is an object of the model class.  An example of the simplest way to do this is show above: <code>new Search()</code>.  This creates an object of the user's model class, in the example <code>Search</code>.  Initialize will <q>clone</q> this object for each point in the state space of the model.</DD>
+    
+    <DD>12:  Code to set up the model must appear after <code>Initialize()</code> and before the <code>CreateSpaces()</code> method is called. This code is contained in <code>Model()</code>.</DD>
+    
 <DT>Add elements to the model</DT>
 
     <DD>17: Every DDP model has a clock. There are several predefined clock types, and the user can create their own if necessary.  <code>InfiniteHorizon</code> is an enumeration like <code>Noff</code> in the file above which <code>`DP::SetClock`()</code> uses to create the right kind of clock. </DD>
@@ -370,7 +372,7 @@ SearchData::SearchData() {
 <LI>Required Information to solve z*</LI>
     <h4>4 functions of <code>z*</code></h4>
     <OL class="steps">
-    <LI>Utility differences at any candidate z*:  $U(0,z*)-U(1,z*)$. This information is received by the user-provided method called <code>Uz(z)</code>.  It returns a column vector with <code>U(0,z*)|U(1,z*)|&hellip;.</code>. (More generally when there are more <code>N</code> choices and <code>N-1</code> cut-off values it should return a <code>N &times; N-1</code> matrix.</LI>
+    <LI>Utility differences at any candidate z*:  $U(0,z*)-U(1,z*)$. This information is received by the user-provided method called <code>Uz(z)</code>.  It returns a column vector with <code>U(0,z*)|U(1,z*)|&hellip;</code>. (More generally when there are <code>N</code> choices and <code>N-1</code> cut-off values it should return a <code>N &times; N-1</code> matrix.)</LI></p>
     <LI>Expected utility for <code>a=0</code> given z*: $E[U(0,z)|z\le z*]$.  </LI>
     <LI>Expected utility for <code>a=1</code> given z*: $E[U(1,z)|z>z*]$.</LI>
     <LI>Probability of acceptable offers: $Prob(z>z*)$</LI>
@@ -391,7 +393,7 @@ SearchData::SearchData() {
 
 <DT>Graph of Reservation values</DT>
 <DD><pre>Source: <a href="../../examples/misc/WstarTestb.pdf">examples/misc/WstarTestb.pdf</a>
-<object width="100%" height="200" type="application/pdf" data="../../examples/WstarTestb.pdf"  border="1" >PDF</object></pre></dd>
+<object width="100%" height="200" type="application/pdf" data="../../examples/misc/WstarTestb.pdf"  border="1" >PDF</object></pre></dd>
 </OL>
 
 <a name="#GS3"><LI>Where to go next</LI></a>

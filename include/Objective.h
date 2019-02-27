@@ -132,21 +132,44 @@ struct DataObjective : BlackBox {
     SetStage(stage);
 	}
 
-/** Handle a conditional choice conditional on $(\alpha,\theta)$.
-**/
+/* An objective to represent a continuous choice at a point in the state space of a dynamic program.
+
+The purpose of this objective is to make it easier for the model to include a static optimization
+problems at each state (and each discrete choice $\alpha$).
+
+@example
+    struct Effort : CondContChoice {
+        decl x;
+        vfunc();
+        }
+
+    Effort::vfunc() {
+        v = -sqr(CV(x)) + ;
+        }
+
+    MyModel::Initialize() {
+        x = new Positive("x",0.5);
+        }
+
+    MyModel::Utility() {
+
+        }
+    </DD>
+
 struct CondContChoice : BlackBox {
-    decl theta, arow, Aoptvals, Aobj, algor;
-    CondContChoice(L,param);
-    Algor(algor);
+    decl algor, theta, arow, Aoptvals, Aobj;
+    CondContChoice(L);
+    SetAlgorithm(algor);
     AtTheta(theta);
-    virtual vfunc(subp=DoAll);
     }
+*/
 
 struct NoObjective : BlackBox {
     decl model,v,modelmethod;
     NoObjective(model);
     vfunc(subp=DoAll);
     }
+
 
 /** Represent sum of <var>K</var> `BlackBox` objectives. **/
 struct Separable : UnConstrained	{

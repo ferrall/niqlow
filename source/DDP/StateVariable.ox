@@ -1269,13 +1269,10 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
             AddToBlock(new NormalComponent(L+sprint(i),M));
             mind |= M^i;
             }
-    Update();
+//    Update();  needs arguments now.
 	}
 
-MVNormal::myAV() {
-    //if (v*mind>rows(Actual)) println(v,mind');
-    return actual = Actual[v*mind][];
-    }
+//MVNormal::myAV() {    //if (v*mind>rows(Actual)) println(v,mind');return actual = Actual[v*mind][];    }
 
 /** Updates the grid of Actual values.
 @comments Like all Update routines, this is called at `Flags::UpdateTime`.

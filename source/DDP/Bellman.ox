@@ -180,6 +180,16 @@ Bellman::Smooth() {
 	pandv[][] ./= sumc(pandv);
 	}
 
+/** Completes $v(\alpha;\cdots,\eta,\theta)$ by adding discounted expected value
+    to utilities for a given $\eta$.
+    The columns that are updated are indexed as `I::elo` : `I::eh'.
+    The element of the transition used is $\eta = $ `I::all`[onlysemiexog].
+    <dd><pre>
+decl et =I::all[onlysemiexog];
+pandv[][I::elo : I::ehi] += I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]);
+</pre></dd>
+
+**/
 Bellman::ExogExpectedV() {
     decl et =I::all[onlysemiexog];
 	pandv[][I::elo : I::ehi] += I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]);
@@ -581,12 +591,12 @@ ExPostSmoothing::CreateSpaces(Method,smparam) {
 	Bellman::CreateSpaces();
 	}
 
-/** Short-cut set up for models with a single state.
-@param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
-@param Method
+/** Short-cut for a model with a single state so the user need not (but can) create a Bellman-derived class.
+@param BorU either `Bellman`-derived object or a static function that simply returns utility.
+@param Method ex-post choice probability `SmoothingMethods` [default=NoSmoothing]
 @param &hellip; `ActionVariable`s to add to the model
-<DD>Calls `ExPostSmoothing::Initialize`().<<
-<DD>Sets the `ClockTypes` to <code>StaticProgram</code>
+<DD>Calls `ExPostSmoothing::Initialize`() with either BorU or new OneStateModel(). </DD>
+<DD>Sets the `ClockTypes` to <code>StaticProgram</code></DD>
 <DD>Sends the optional arguments to `DP::Actions`()</DD>
 <DD>Calls `ExPostSmoothing::CreateSpaces`()</DD>
 
@@ -594,14 +604,23 @@ ExPostSmoothing::CreateSpaces(Method,smparam) {
 to add any state variables to the model.</DT>
 
 **/
-OneStateModel::Initialize(userState,Method,...) {
-    ExPostSmoothing::Initialize(userState);
+OneStateModel::Initialize(UorB,Method,...) {
+    if (isfunction(UorB)) {
+        U = UorB;
+        ExPostSmoothing::Initialize(new OneStateModel());
+        }
+    else {
+        ExPostSmoothing::Initialize(UorB);
+        }
     SetClock(StaticProgram);
     Actions(va_arglist());
     EndogenousStates(new Fixed("q"));
     CreateSpaces(Method);
 	}
-	
+
+/** Built-in Utility that calls user-supplied function.**/
+OneStateModel::Utility() {    return U();    }	
+
 /** Extreme Value Ex Post Choice Probability Smoothing.
 @internal
 **/
@@ -655,6 +674,9 @@ Normal::CreateSpaces() {
 	Chol = new array[N::J];
 	}
 
+/** Complete $v(\alpha;\cdots,\eta,\theta)$ by integrating over IID normal additive value shocks.
+
+**/
 NIID::ExogExpectedV() {
 	decl j,choicep,vv, et = I::all[onlysemiexog];
 	pandv[][I::elo:I::ehi] += (Type>=LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]));
@@ -682,6 +704,8 @@ NIID::ActVal() {
 		}
 	}
 	
+/** This does nothing because smoothing occurs in `Normal::ActVal`.
+**/
 Normal::Smooth() {	/*EV = Vnow; NoR??*/	}
 
 /** Initialize a normal Gauss-Hermite integration over independent choice-specific errors.
@@ -788,6 +812,7 @@ NnotIID::CreateSpaces() {
 	for (i=0;i<N::J;++i)  ghk[i] = new GHK(R,N::Options[i],0);
 	}	
 	
+/** Use GHK to integrate over correlated value shocks. **/
 NnotIID::ExogExpectedV() {
     decl choicep, et = I::all[onlysemiexog];
     pandv[][et] += I::CVdelta*sumr( Nxt[Qrho][et] .* N::VV[I::later][Nxt[Qit][et]] );
@@ -810,7 +835,7 @@ NnotIID::ActVal() {
 		}
 	}
 
-/**
+/** Update the Cholesky matrix for the correlated value shocks.
 **/
 NnotIID::UpdateChol() {
 	decl i;

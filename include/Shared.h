@@ -62,7 +62,19 @@ enum{EQUALITY,INEQUALITY,ConstraintTypes}
 		/** Tags for Types of vector-valued objective Aggregation.
             @name AggregatorTypes **/	
 enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,Aggregators}
-        /** Cutoffs for StateType Code @name StateTypes.**/
+
+        /** Codes for `Bellman::Type` Code.  These codes (and their order)
+            determine what calculations to do at the endogenous state $\theta$.
+        <table>
+        <tr><th>Tag</th><td>Value</td><th>$\theta$ Type</th></tr>
+        <tr><td>ORDINARY</td>   <td>0</td><td></td></tr>
+        <tr><td>INSUBSAMPLE</td><td>1</td><td>randomly selected for first stage of KW approximation</td></tr>
+        <tr><td>LASTT</td>      <td>2</td><td>not subsample and last period of decision-making</td></tr>
+        <tr><td>no label</td>   <td>3</td><td>LASTT AND INSUBSAMPLE</td></tr>
+        <tr><td>TERMINAL</td>   <td>4</td><td>Terminal state</td></tr>
+        </table>
+
+        @name StateTypes**/
 enum{ORDINARY,INSUBSAMPLE,LASTT,TERMINAL=4,StateTypeCutoffs}
 
 static const decl

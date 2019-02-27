@@ -18,8 +18,8 @@ struct Outcome : Data {
                                         AnyMissing
 #ifdef OX_PARALLEL
                                          = < [DSubSpaces] *0> //Oxdoc does not recognize this syntax so ifdef hides it
-#endif                                  ,
-                                        pathpred,
+#endif
+                                        ,pathpred,
                                         ctlist, exaux,
     /**do not include choice prob for fully observed
         likelihood, for first stage estimation of transitions. **/
