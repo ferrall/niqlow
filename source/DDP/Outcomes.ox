@@ -702,7 +702,7 @@ Path::Mask() {
 	cur = this;
     AnyMissing[] = FALSE;
     do { cur ->Outcome::Mask();	} while ( (isclass(cur = cur.onext)) );
-    if (any(AnyMissing[<onlyacts,onlysemiexog,onlyendog>]))
+    if (any(AnyMissing[maskoffs]))
         LType = PartObsLike;
     else if (AnyMissing[onlyexog])
         LType = ExogLike;

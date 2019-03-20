@@ -25,23 +25,32 @@ I::Initialize() {
 **/
 I::Set(state,group) {
 	all[] = OO*state;
-    curth = Theta[all[tracking]];
+    curth = Flags::ThetaCreated ? Theta[all[tracking]] : 0;
     Alpha::SetA(isclass(curth) ? UseCurrent : NoMatch);
-    if (group) {
-	   g = int(all[bothgroup]);
-	   f = int(all[onlyfixed]);
-	   r = int(all[onlyrand]);
-       rtran = int(all[onlydynrand]);
-       curg = Gamma[g];
-       if (isclass(curg)) {
-	       curg->Sync();
-	       curg->Density();
-           }
+    if (group) SetGroup();
+    }
+
+I::SetGroup(GorSV) {
+    if (isint(GorSV) && GorSV!=UseCurrent) {
+        g = all[bothgroup] = GorSV;
+        }
+    else {
+       all[groupoffs] = I::OO[groupoffs][]*GorSV;
+       g = int(all[bothgroup]);
        }
+    curg = Gamma[g];
+    if (isclass(curg)) {
+	   f = all[onlyfixed] = curg.find;
+	   r = all[onlyrand] = curg.rind;
+       rtran = .NaN; // This put here to catch errors if rtran used and not working
+	   curg->Sync();
+	   curg->Density();
+      }
+    return curg;
     }
 
 I::SetExogOnly(state) {
-	all[<onlyexog,onlysemiexog,bothexog>] = OO[<onlyexog,onlysemiexog,bothexog>][]*state;
+	all[exogoffs] = OO[exogoffs][]*state;
     }
 
 /** Tracks information about a subvector of the state vector. **/
@@ -134,16 +143,7 @@ This also sets `I::f` and `I::g`
 @see DP::Settheta
 **/
 DP::SetGroup(GorState) {
-	I::g = ismatrix(GorState)
-			?  int(I::OO[bothgroup][]*GorState)
-			:  GorState;
-	if (isclass(Gamma[I::g])) {
-		Gamma[I::g]->Sync();
-		Gamma[I::g]->Density();
-		I::f = Gamma[I::g].find;
-		I::r = Gamma[I::g].rind;
-		}
-	return Gamma[I::g];
+    return I::SetGroup(GorState);
 	}
 
 DP::SetG(f,r) {
@@ -505,7 +505,7 @@ GroupTask::loop(IsCreator){
 	do	{
 		do {
 			SyncStates(left,left);
-            I::Set(state,TRUE);
+            I::Set(state,Flags::ThetaCreated); //March 2019 removed TRUE to handle Ox8 new arrays
             if (trace) println("------Group task loop: ",classname(this)," Running ",state[left:right]');
 			if (IsCreator || isclass(I::curg) ) this->Run();
 			} while (--state[left]>=0);
@@ -1096,7 +1096,6 @@ DP::CreateSpaces() {
 		print("\n4. ACTION VARIABLES\n   Number of Distinct action vectors: ",N::A);
 		println("%r",{"    a.N"},"%cf","%7.0f","%c",Labels::Vprt[avar],N::AA');
 		}
-    Flags::ThetaCreated = TRUE;
 	cputime0=timer();
 	Theta = new array[SS[tracking].size];
     I::Initialize();
@@ -1138,6 +1137,7 @@ DP::CreateSpaces() {
 	if ( !Version::MPIserver && Flags::IsErgodic && N::TerminalStates )
         oxwarning("DDP Warning 19.\n clock is ergodic but terminal states exist?\n Inconsistency in the set up.\n");
 	tt = new CGTask();	delete tt;
+    Flags::ThetaCreated = TRUE; //March 2019 moved below group creation for Ox8 handling of new arrays
 	if (isint(zeta)) zeta = new ZetaRealization(0);
 	DPDebug::Initialize();
   	V = new matrix[1][SS[bothexog].size];
@@ -1298,6 +1298,7 @@ CreateTheta::Run() {
         Theta[I::all[tracking]] = clone(userState,Zero);
 		Theta[I::all[tracking]] ->SetTheta(state,picked());
 		}
+    else Theta[I::all[tracking]]=0;
 	}
 
 /** .

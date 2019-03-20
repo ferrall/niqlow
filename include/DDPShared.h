@@ -364,6 +364,7 @@ struct I : DDPauxiliary {
             `EndogTrans::Transitions`() to avoid repeated calls
             to `CV`.  @see DP::delta **/                         CVdelta;
     static Set(state,group=FALSE);
+    static SetGroup(GorSV=UseCurrent);
     static SetExogOnly(state);
     static Initialize();
     static NowSwap();
@@ -442,6 +443,10 @@ struct Labels : DDPauxiliary {
     }
 
 static decl
+        groupoffs = <onlyrand,onlydynrand,onlyfixed,bothgroup>,
+        thetaoffs = <tracking,iterating>,
+        exogoffs =  <onlyexog,onlysemiexog,bothexog>,
+        maskoffs =  <onlyacts,onlysemiexog,onlyendog>,
         /** $\Gamma$: array (list) of groups of fixed and random effects,
             $\gamma$.**/                                              Gamma,
         /** 2-dimensiona array pointing to $\Gamma$, [r,f]. **/       Fgamma,

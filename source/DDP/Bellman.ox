@@ -274,7 +274,7 @@ Bellman::ThetaTransition() {
 			{Nb =  States[si].block.N; root = States[si].block; }
 		else
 			{ Nb = 1; root = States[si]; }
-		if (( any(curO = I::OO[<tracking;iterating>][si-Nb+1:si]) ))	{  // states are relevant to s'
+		if (( any(curO = I::OO[thetaoffs][si-Nb+1:si]) ))	{  // states are relevant to s'
 			[feas,prob] = root -> Transit();
             if (rcheck && root.N>1 && !isint(prob) ) {
                 if (maxr(feas)<rows(root.actual))
