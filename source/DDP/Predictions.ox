@@ -61,12 +61,11 @@ Prediction::Predict() {
         if (pq > tinyP) {
             if (Settheta(q)) {
                 exaux.state[left:right] = state[left:right] = ReverseState(q,tracking)[left:right];
-                I::all[tracking] = q;
+                I::Set(state,FALSE);
                 SyncStates(left,right);
-                Alpha::SetA();
                 chq  = pq*I::curth.pandv.*(NxtExog[Qprob]');
-                exaux->ExpectedOutcomes(DoAll,chq);
                 if ( I::curth->StateToStatePrediction(this) ) return  PredictFailure = TRUE;
+                exaux->ExpectedOutcomes(DoAll,chq);
                 foreach (tv in ctlist) tv->Distribution(this);
                 allterm *= I::curth.Type>=LASTT;
                 }
@@ -584,18 +583,21 @@ been called no
 more objects can be added to the list.
 
 **/
-PathPrediction::Tracking(LorC,...) {
+PathPrediction::Tracking(LorC,...
+    #ifdef OX_PARALLEL
+    args
+    #endif
+) {
     if (EverPredicted) {
         oxwarning("DDP Warning 12.\n Do not add to tracking list after predictions made ... ignored\n");
         return;
         }
-    decl v,args;
+    decl v;
     if (LorC==TrackAll) {
         println("Tracking all actions, endogenous state and auxiliary variables");
         args = SubVectors[acts]|SubVectors[endog]|Chi;
         }
     else {
-        args = va_arglist();
         if (sizeof(args)>1 && (isstring(LorC) || LorC>UseLabel) )
             oxrunerror("DDP Error 65. Can't track with column matching more than one object at a time.  Send separately");
         }
@@ -682,7 +684,7 @@ PathPrediction::TypeContribution(pf,subflat) {
   ctlist = tlist;
   ExogAuxPred::auxlist={};
   foreach (tv in tlist) if (isclass(tv,"xTrack")) ExogAuxPred::auxlist |= tv;
-
+  Flags::Phase = Predicting;
   do {
      cur.predmom=<>;
      time0 = timer();

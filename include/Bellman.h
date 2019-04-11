@@ -260,9 +260,9 @@ struct OneDimensionalChoice : ExPostSmoothing {
     virtual Setz(z);
 	}
 
-/** A OneDimensionalChoice model with discretized approximation to &zeta;.
+/** A OneDimensionalChoice model with discretized approximation to $\zeta$.
 
-A discrete approximation to &zeta; enters the state vector if the decision is to accept (<code>d&gt;0</code>).
+A discrete approximation to $\zeta$ enters the state vector if the decision is to accept (<code>d&gt;0</code>).
 
 **/
 struct KeepZ : OneDimensionalChoice {

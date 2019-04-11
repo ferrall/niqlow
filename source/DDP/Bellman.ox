@@ -90,13 +90,11 @@ Bellman::SetTheta(state,picked) { Bellman(state,picked);    }
 @internal
 **/		
 Bellman::Bellman(state,picked) {
-   //  if (!ThetaCreated) oxrunerror("Cannot create states before state space created - call DP::CreateSpaces()");
   decl s=S[endog].M, IsT;
   IsT = FALSE;
   do { IsT = any(state[s].==States[s].TermValues);    } while (!IsT && s++<S[endog].X);
   N::TerminalStates += IsT;
   Type = TERMINAL*IsT + LASTT * counter->Last();
-  //println("% ",picked," ",IsT," ",counter->Last()," ",Type,state');
   Aind = 0; //initializing this means aa() will work.
   Aind = Alpha::AddA(IsT ? 1|zeros(N::Options[0]-1,1) : FeasibleActions());
   if (Aind==Impossible) {
@@ -182,7 +180,7 @@ Bellman::Smooth() {
 
 /** Completes $v(\alpha;\cdots,\eta,\theta)$ by adding discounted expected value
     to utilities for a given $\eta$.
-    The columns that are updated are indexed as `I::elo` : `I::eh'.
+    The columns that are updated are indexed as `I::elo` : `I::eh`.
     The element of the transition used is $\eta = $ `I::all`[onlysemiexog].
     <dd><pre>
 decl et =I::all[onlysemiexog];
@@ -604,7 +602,12 @@ ExPostSmoothing::CreateSpaces(Method,smparam) {
 to add any state variables to the model.</DT>
 
 **/
-OneStateModel::Initialize(UorB,Method,...) {
+OneStateModel::Initialize(UorB,Method,...
+    #ifdef OX_PARALLEL
+    args
+    #endif
+    ) {
+
     if (isfunction(UorB)) {
         U = UorB;
         ExPostSmoothing::Initialize(new OneStateModel());
@@ -613,7 +616,7 @@ OneStateModel::Initialize(UorB,Method,...) {
         ExPostSmoothing::Initialize(UorB);
         }
     SetClock(StaticProgram);
-    Actions(va_arglist());
+    Actions(args);
     EndogenousStates(new Fixed("q"));
     CreateSpaces(Method);
 	}
@@ -874,7 +877,6 @@ OneDimensionalChoice::Utility()    {
 **/
 OneDimensionalChoice::CreateSpaces(Method,smparam) {
 	ExPostSmoothing::CreateSpaces(Method,smparam);
-//    if (!called) oxwarning("DDP Warning 05.\n The creator routine for OneDimensionalChoice states has not been called.\nRuntime errors likely.\n");
 	if (N::Av!=1) oxrunerror("1-d model must have exactly one action variable");
 	if (SS[bothexog].size>1) oxrunerror("1-d model does not allow exogenous variables");	
 	}

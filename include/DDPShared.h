@@ -124,6 +124,11 @@ There is a potentially large computational cost of updating the transitions more
 @name UpdateTimes **/
 enum {InCreateSpaces,OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
 
+/**
+@name DPPhases
+**/
+enum {Initializing,Solving,Simulating,Liking,Predicting,NDPhases}
+
 		/** Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.
          <DT>NoSmoothing</DT>
          <dd>Optimal choices are equally likely, sub-optimal choices have zero choice
@@ -165,7 +170,7 @@ the user's DP model have been solved.</tD></tr>
 <tr><td valign="top"><code>GroupCreate</code></td><tD>Called by the task that sets up the group space Gamma (&Gamma;) before creation
 of each separate group. The function added here should return TRUE if the group should be created and FALSE otherwise.</tD></tr>
 </table>
-@see Hooks, Flags::UpdateTime
+@see Hooks, Flags::UpdateTime,
 @name HookTimes
 **/
 enum {PreAuxOutcomes,PreUpdate,AtThetaTrans,PostSmooth,PostGSolve,PostRESolve,PostFESolve,GroupCreate,NHooks}
@@ -276,6 +281,8 @@ struct Flags : DDPauxiliary {
 		/** &Gamma; already includes fixed effects **/			HasFixedEffect,
         /** Indicators for when transit update occurs.
             @see DP::SetUpdateTime **/                          UpdateTime,
+        /** Phase of model solution or use.
+            @see DPPhases **/                                   Phase,
 		/** Integer TRUE (default) means all possible combination of fixed and random groups exist
             in the group space &Gamma; and should be created.
             If you add a function to the <code>GroupCreate</code> Hooks then this is set FALSE.

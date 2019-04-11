@@ -1124,7 +1124,11 @@ Coevolving::Transit() {
 @param L label for block
 @param ... list of `Coevolving` states to add to the block.
 **/
-StateBlock::StateBlock(L,...)	{
+StateBlock::StateBlock(L,...
+    #ifdef OX_PARALLEL
+    va
+    #endif
+    )	{
 	this.L = L;
 	N= 0;
 	Theta={};
@@ -1132,17 +1136,21 @@ StateBlock::StateBlock(L,...)	{
     logf = 0;
     Volume = SILENT;
 	Actual = Allv = actual = v = <>;	
-    decl va = va_arglist(), v;
-    foreach (v in va) AddToBlock(v);
+    decl xv;
+    foreach (xv in va) AddToBlock(xv);
 	}
 
 /**	 Add state variable(s) to a block.
-@param news,... list of `Coevolving` state variables to add to the block.
+@param ... list of `Coevolving` state variables to add to the block.
 The default `StateBlock::Actual` matrix is built up from the actual vectors of variables added to the block.
 **/
-StateBlock::AddToBlock(news,...)	{
+StateBlock::AddToBlock(...
+    #ifdef OX_PARALLEL
+    news
+    #endif
+    )	{
 	decl i,k,nd,newrow, s, oldallv;
-	news = {news}|va_arglist();
+	//news = {news}|va_arglist();
     foreach(s in news[i]) {   //for (i=0;i<sizeof(news);++i) {
 		if ((!IsBlockMember(s))) oxrunerror("DDP Error 23. State Variable added to block not a block member object\n");
 		s.bpos = N++;

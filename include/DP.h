@@ -117,12 +117,12 @@ struct DP {
 		static 	Initialize(userState,UseStateList=FALSE);
 
 		static 	AddStates(SubV,va);
-		static 	GroupVariables(v1,...);
-		static	Actions(Act1 ,...);
-		static	EndogenousStates(v1,...); 	
-		static	SemiExogenousStates(v1,...); 	
-		static	ExogenousStates(v1,...); 	
-		static	AuxiliaryOutcomes(v1,...);
+		static 	GroupVariables(...);
+		static	Actions(...);
+		static	EndogenousStates(...); 	
+		static	SemiExogenousStates(...); 	
+		static	ExogenousStates(...); 	
+		static	AuxiliaryOutcomes(...);
         static  Interactions(ivar,olist=UnInitialized,prefix=UseLabel,ilo=0,thi=100);
         static  Indicators(ivar,prefix=UseLabel,ilo=0,ihi=100);
         static  MultiInteractions(ivarlist,ilov,ihiv,olist,prefix);
@@ -416,7 +416,7 @@ struct DPDebug : ThetaTask {
     static outAllV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
     static RunOut();
     static outAutoVars();
-    static outSVTrans(S1,...);
+    static outSVTrans(...);
     DPDebug();
 	}
 

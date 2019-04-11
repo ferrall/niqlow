@@ -33,6 +33,7 @@ Method::Initialize(MaxTrips) {
 //        }
     done = FALSE;
     cputime0 = timer();
+    Flags::Phase = Solving;
     }
 
 Method::Solve(Fgroups,Rgroups) {

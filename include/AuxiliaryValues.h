@@ -34,14 +34,14 @@ struct RealizedUtility : AuxiliaryValue {
 struct Indicator : AuxiliaryValue {
     const decl ttype, target, myval, iobj, iacted;
     Indicator(target,myval,iobj=UnInitialized,prefix=NotInData);
-    virtual Realize(y);
+    virtual Realize(y=0);
     }
 
 /** Create
 **/
 struct MultiIndicator : Indicator {
     MultiIndicator(target,myval,iobj,prefix);
-    Realize(y);
+    Realize(y=0);
     }
 
 struct ZetaRealization : AuxiliaryValue {  //Changed April 2016 from Quantity
