@@ -305,9 +305,9 @@ Objective::ToggleParams(...
     va
     #endif
 ) {
-    decl v;
+    decl v,p;
 	foreach (v in va) {
-        if (isarray(v)) ToggleParams(v);
+        if (isarray(v)) { foreach (p in v) ToggleParams(p); }
         else
             v->ToggleDoNotVary();
         }
