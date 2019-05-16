@@ -21,7 +21,7 @@ ExogAuxPred::Run() {
     Hooks::Do(PreAuxOutcomes);
     foreach(tv in auxlist) {
         tv.obj->Realize();
-        tv.v += chq[][I::all[bothexog]].*tv.obj.v;
+        tv.v += sumc(chq[][I::all[bothexog]].*tv.obj.v);
         }
     }
 
@@ -440,9 +440,11 @@ sTrack::Distribution(pobj) {
     }
 
 xTrack::Distribution(pobj) {
-    //    obj->Realize(pobj);
-    v = sumc(sumr(v));
+/*    decl tmp;
+    tmp = v;
+    v = sumc(sumr(v)); */
     mean += v;
+    //if ((obj.L=="deg")&&(I::t==10||I::t==11)) println("$$ ",I::t," tmp ",tmp," v ",v," m ",mean);
     return v;
     }
 
@@ -463,11 +465,13 @@ Prediction::Histogram(printit) {
     predmom=<>;
     Alpha::SetA();
     foreach(tv in ctlist ) {
+        tv.obj->Realize();   //??added May 2019 because this was moved out of Distribution
         tv->Distribution(this);
         predmom ~= tv.v;
         if (printit) tv->print();
         }
     Alpha::ClearA();
+    oxwarning("Histogram is called but it may not be working");
     return t~predmom;
 	}
 

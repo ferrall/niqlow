@@ -851,6 +851,10 @@ N::Reached(trackind) {
 	ReachableIndices |= trackind;
     }
 
+N::IsReachable(trackind) {
+    return any(ReachableIndices.==trackind);
+    }
+
 /** Initialize static members.
 @param userState a `Bellman`-derived object that represents one point
     $\theta$ in the user's endogenous state space $\Theta$. The Ox
