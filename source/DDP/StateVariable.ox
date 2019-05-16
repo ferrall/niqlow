@@ -19,6 +19,10 @@ base class.
 **/
 StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>;  Prune=FALSE; }
 
+StateVariable::Track(LorC) {
+    if (isclass(this,"FixedEffect")) oxrunerror("Don't track fixed group variables. Tracked automatically");
+    track = new TrackObj(LorC);
+    }
 
 /** Return actual[v].
 @see CV, AV, Discrete::Update

@@ -27,6 +27,7 @@ struct StateVariable : Discrete	{
     virtual IsReachable();
     virtual Check();
     virtual myAV();
+    Track(LorC);
 	}
 	
 /**Scalar `StateVariable` with statistically independent transition.

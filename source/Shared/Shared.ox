@@ -260,7 +260,7 @@ Discrete::Discrete(L,N)  {
         this.L = L;
 	vals = range(0,N-1);
 	actual= vals';
-	logf = subv = pos = UnInitialized;
+	track = logf = subv = pos = UnInitialized;
     Volume = SILENT;
 	pdf = ones(vals);
     v = 0;

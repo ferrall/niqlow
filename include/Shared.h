@@ -134,7 +134,8 @@ struct Quantity {
         /** Volume of output. **/               Volume,
         /** Log dedicated to this qty.**/       logf,
 		/** position in vector   **/  	  	    pos,
-		/** Current actual value      **/  	    v;
+		/** Current actual value      **/  	    v,
+        /** Data tracking object **/            track;
     SetVolume(Volume);
 	}
 	
@@ -151,6 +152,7 @@ struct Discrete	: Quantity{
 	virtual PDF();
 	virtual Update();
     virtual SetActual(MaxV=1.0);
+    virtual Track(LorC);
 	}
 
 /** Represent a continuously varying quantity.**/

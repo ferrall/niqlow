@@ -50,12 +50,12 @@ PredictionDataSet::SimulateMomentVariances(N,ErgOrStateMat,fvals) {
 PathPrediction::AppendSimulated() {
     decl m,tflat = <>;
    foreach(m in tlist)
-        if (m.LorC!=NotInData)   //  && !isnan(cur.empmom[n]) unmatched moments always have .NaN
-            switch_single (TypeCheck(m.obj,ilistnames)) {
-                case AuxInt   : tflat ~= AV(m.obj);  //simout.chi[m.obj.pos];
-                case ActInt   : tflat ~= Alpha::aA[m.obj.pos];
-                case StateInt : tflat ~= AV(m.obj);  //simout.state[m.obj.pos];
-                default:  oxrunerror("Not valid ",classname(m.obj));
+        if (m.track.LorC!=NotInData)   //  && !isnan(cur.empmom[n]) unmatched moments always have .NaN
+            switch_single (TypeCheck(m,ilistnames)) {
+                case AuxInt   : tflat ~= AV(m);  //simout.chi[m.obj.pos];
+                case ActInt   : tflat ~= Alpha::aA[m.pos];
+                case StateInt : tflat ~= AV(m);  //simout.state[m.obj.pos];
+                default:  oxrunerror("Not valid ",classname(m));
                 }
     if (!(cur.t))                  // start of new simulated path
         flat = tflat;

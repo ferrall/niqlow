@@ -21,36 +21,7 @@ struct DataColumn : Zauxiliary {
 	Observed(LorC);
 	UnObserved();
 	ReturnColumn(dlabels,incol);
-	}
-	
-/** Contains information on an object (variable, auxiliary outcome, etc) to be tracked.
-**/
-struct TrackObj : Zauxiliary {
-    const decl
-    /** Inherited fromt the object.**/  Volume,
-    /** See `DataColumnTypes` **/       type,
-    /** object can have a continuous
-        dynamic distribution. **/       contdist,
-    /** Position in the flat list  **/  pos,
-    /** `Discrete` object**/            obj,
-    /** label  **/                      L,
-    /** column label of index **/       LorC;
-    decl
-    /** **/     v,
-    /** **/     hN,
-    /** **/     hd,
-    /** **/     hv,
-    /** **/     hist,
-    /** **/     hvals,
-    /** **/     mean,
-    /** **/     sqmean;
-    static Create(LorC,obj,pos);
-    TrackObj(LorC,obj,pos);
-    virtual Reset();
-    virtual Distribution();
-    virtual Update();
-    virtual print();
-    }
+	}	
 
 struct ExogAuxPred : ExTask {
     static decl chq, tmp, auxlist;
@@ -59,6 +30,7 @@ struct ExogAuxPred : ExTask {
     Run();
     }
 
+/*
 struct oTrack : TrackObj {
     oTrack(LorC,obj,pos);
     Distribution(pobj);
@@ -75,6 +47,7 @@ struct xTrack : TrackObj {
     xTrack(LorC,obj,pos);
     Distribution(pobj);
     }
+*/
 
 /** Predicted distribution across states.
 **/	

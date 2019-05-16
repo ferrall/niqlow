@@ -14,6 +14,7 @@ struct AuxiliaryValue : Quantity {
 	AuxiliaryValue(L="Aux");
 	virtual Realize(y=0);
     virtual Likelihood(y=0);
+    virtual Track(LorC);
 	}
 
 struct StaticAux : AuxiliaryValue {

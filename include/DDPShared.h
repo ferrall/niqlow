@@ -449,6 +449,30 @@ struct Labels : DDPauxiliary {
     static Initialize();
     }
 
+/** Contains information on an object (variable, auxiliary outcome, etc) to be tracked.
+**/
+struct TrackObj : DDPauxiliary {
+//    /* See `DataColumnTypes`        type,
+//    /* `Discrete` object**/            obj,
+//    /* Inherited fromt the object.**/  Volume,
+//    /* object can have a continuous dynamic distribution. **/       contdist,
+    const decl
+    /** Position in the flat list  **/  pos,
+    /** column label of index **/       LorC;
+    decl
+    /** **/     v,
+    /** **/     hN,
+    /** **/     hv,
+    /** **/     hist,
+    /** **/     mean,
+    /** **/     sqmean;
+    TrackObj(LorC,obj,pos);
+    virtual Reset();
+    virtual Distribution(pobj,obj);
+    virtual Update();
+    virtual print(obj);
+    }
+
 static decl
         groupoffs = <onlyrand,onlydynrand,onlyfixed,bothgroup>,
         thetaoffs = <tracking,iterating>,

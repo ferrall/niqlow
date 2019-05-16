@@ -10,7 +10,7 @@
 **/
 AuxiliaryValue::AuxiliaryValue(L) {
 	this.L = L;
-	logf   = pos = UnInitialized;
+	track = logf   = pos = UnInitialized;
     indata = FALSE;
 	v      = .NaN;
     Volume = SILENT;
