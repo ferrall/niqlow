@@ -23,13 +23,6 @@ struct DataColumn : Zauxiliary {
 	ReturnColumn(dlabels,incol);
 	}	
 
-struct ExogAuxPred : ExTask {
-    static decl chq, tmp, auxlist;
-    ExogAuxPred();
-    ExpectedOutcomes(howmany,chq);
-    Run();
-    }
-
 /*
 struct oTrack : TrackObj {
     oTrack(LorC,obj,pos);
@@ -53,7 +46,7 @@ struct xTrack : TrackObj {
 **/	
 struct 	Prediction : Data {
     static   const  decl tinyP = 1E-20;
-	static	decl ud, LeakWarned, PredictFailure, ctlist, exaux;
+	static	decl ud, LeakWarned, PredictFailure, ctlist;
 	const  	decl t;
 	decl
 		/** state index **/		             sind,

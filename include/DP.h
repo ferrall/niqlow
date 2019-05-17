@@ -92,6 +92,7 @@ struct DP {
         /** task to compute utility over exogenous states.**/   XUT,
         /** task to integrate V over semi-exogenous states.**/  IOE,
         /** task to update tomorrow's state distribution. **/   EStoS,
+        /** task to integrate outcomes over $\epsilon$.**/      EOoE,
 		/** `ZetaRealization`, realized continuous shocks, &zeta;,
 			set during simulation of realized paths. Distribution must be conditional on choice stored in
 			`Alpha::aC`. **/ 	                                zeta,
@@ -320,6 +321,14 @@ struct SemiEV : SemiExTask {
 
 struct SemiTrans: SemiExTask {
     SemiTrans();
+    Run();
+    }
+
+struct ExogOutcomes : ExTask {
+    static decl chq, tmp, auxlist;
+    static SetAuxList(tlist);
+    ExogOutcomes();
+    ExpectedOutcomes(howmany,chq);
     Run();
     }
 

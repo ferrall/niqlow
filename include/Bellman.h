@@ -48,7 +48,8 @@ struct  Bellman : DP {
 			virtual ZetaRealization();
 			virtual	AutoVarPrint1(task);
 			virtual	Interface();
-            virtual ExpectedOutcomesOverEpsilon(CondChoiceProb);
+            virtual OutcomesGivenEpsilon();
+            //virtual ExpectedOutcomesOverEpsilon(CondChoiceProb);
 //			virtual Predict(tod);
             virtual OutputValue();
             virtual SetTheta(state=0,picked=0);

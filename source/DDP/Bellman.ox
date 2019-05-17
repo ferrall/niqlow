@@ -376,8 +376,9 @@ Bellman::AutoVarPrint1(task) {
 //    println("*** ",InSubSample," ",this.InSubSample);
 	}
 
-Bellman::ExpectedOutcomesOverEpsilon(chprob) {
-    }
+Bellman::OutcomesGivenEpsilon(){}
+
+//Bellman::ExpectedOutcomesOverEpsilon(chprob) {    }
 
 /** This is called by a semi-exogenous task to update transitions from this state to the future.
 **/
@@ -397,7 +398,8 @@ Bellman::ExogStatetoState() {
 Bellman::StateToStatePrediction(intod) {
     tod = intod;
     tom = tod.pnext;
-    this->ExpectedOutcomesOverEpsilon(tod.chq);
+    //this->ExpectedOutcomesOverEpsilon(tod.chq);
+    EOoE->ExpectedOutcomes(DoAll,tod.chq);
     tod.ch  +=  ExpandP(Aind,tod.chq);
     if (isclass(tom)) {
         EStoS->Compute();
@@ -477,7 +479,7 @@ Bellman::Delete() {
 	for(i=0;i<sizeof(Theta);++i) delete Theta[i];
 	for(i=0;i<sizeof(Gamma);++i) delete Gamma[i];
 	delete Gamma, Theta;
-	delete ETT, XUT, IOE, EStoS;
+	delete ETT, XUT, IOE, EStoS, EOoE;
     Flags::Reset();
     N::Reset();
 	lognm = Volume = SampleProportion = Gamma = Theta = 0;	

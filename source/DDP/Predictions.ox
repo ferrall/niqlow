@@ -1,30 +1,6 @@
 #include "Predictions.h"
 /* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
-ExogAuxPred::ExogAuxPred() {    ExTask();    }
-
-/** Compute the expected values of tracked auxiliary variables over the exogenous vector &epsilon; **/
-ExogAuxPred::ExpectedOutcomes(howmany,chq) {
-    decl tv;
-    if (!sizeof(auxlist)) return;
-    this.chq = chq;
-    foreach(tv in auxlist) { tv.track.v = 0.0; }
-    if (howmany==DoAll)
-        loop();
-    else {
-        oxrunerror("make sure eps synched");
-        Run();
-        }
-    }
-ExogAuxPred::Run() {
-    decl tv;
-    Hooks::Do(PreAuxOutcomes);
-    foreach(tv in auxlist) {
-        tv->Realize();
-        tv.track.v += sumc(chq[][I::all[bothexog]].*tv.v);
-        }
-    }
-
 /**  Simple Prediction .
 @param T	integer, length of panel<br>UseDefault [default], length of lifecycle or  10
 @param prtlevel Two [default] print predictions <br/>One print state and choice
@@ -50,7 +26,7 @@ Transitions to unreachable states is tracked and logged in the Data logfile.
 @see TrackObj::Distribution
 **/
 Prediction::Predict() {
-    exaux.state[:right] = state[:right] = 0;
+    EOoE.state[:right] = state[:right] = 0;
     if (!sizec(sind)) {
         predmom = constant(.NaN,1,sizeof(ctlist));
         return TRUE;
@@ -60,12 +36,12 @@ Prediction::Predict() {
         pq = p[s];
         if (pq > tinyP) {
             if (Settheta(q)) {
-                exaux.state[left:right] = state[left:right] = ReverseState(q,tracking)[left:right];
+                EOoE.state[left:right] = state[left:right] = ReverseState(q,tracking)[left:right];
                 I::Set(state,FALSE);
                 SyncStates(left,right);
                 chq  = pq*I::curth.pandv.*(NxtExog[Qprob]');
                 if ( I::curth->StateToStatePrediction(this) ) return  PredictFailure = TRUE;
-                exaux->ExpectedOutcomes(DoAll,chq);
+                EOoE->ExpectedOutcomes(DoAll,chq);
                 foreach (tv in ctlist) tv.track->Distribution(this,tv);
                 allterm *= I::curth.Type>=LASTT;
                 }
@@ -112,7 +88,6 @@ Prediction::Prediction(t){
     ch = zeros(N::A,1);
     empmom = 0;
     Reset();
-    if (isint(exaux)) exaux = new ExogAuxPred();
 	}
 
 /**
@@ -657,8 +632,7 @@ PathPrediction::TypeContribution(pf,subflat) {
   SetT();
   cur=this;
   ctlist = tlist;
-  ExogAuxPred::auxlist={};
-  foreach (tv in tlist) if (isclass(tv,"AuxiliaryValue")) ExogAuxPred::auxlist |= tv;
+  ExogOutcomes::SetAuxList(tlist);
   Flags::Phase = Predicting;
   do {
      cur.predmom=<>;

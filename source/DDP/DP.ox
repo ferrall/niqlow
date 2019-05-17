@@ -644,6 +644,39 @@ SemiTrans::Run() {
 	I::elo += N::Ewidth;
     }
 
+ExogOutcomes::ExogOutcomes() {    ExTask();   auxlist={}; }
+
+/** Compute the expected values of tracked auxiliary variables over the exogenous vector &epsilon; **/
+ExogOutcomes::ExpectedOutcomes(howmany,chq) {
+    decl tv;
+    this.chq = chq;
+    foreach(tv in auxlist) { tv.track.v = 0.0; }
+    if (howmany==DoAll)
+        loop();
+    else {
+        oxrunerror("make sure eps synched");
+        Run();
+        }
+    }
+
+ExogOutcomes::Run() {
+    Hooks::Do(PreAuxOutcomes);
+    I::curth->OutcomesGivenEpsilon(); //ExpectedOutcomesOverEpsilon(chq);
+    if (Flags::Phase==Predicting) { // no need to do this when solving
+        decl tv;
+        foreach(tv in auxlist) {
+            tv->Realize();
+            tv.track.v += sumc(chq[][I::all[bothexog]].*tv.v);
+            }
+        }
+    }
+
+ExogOutcomes::SetAuxList(tlist) {
+    if (sizeof(auxlist)) return;  // already done
+    decl tv;
+    foreach (tv in tlist) if (isclass(tv,"AuxiliaryValue")) auxlist |= tv;
+    }
+
 /** Initialize $A(\theta)$ spaces.
 
 **/
@@ -1190,6 +1223,7 @@ DP::CreateSpaces() {
    XUT = new ExogUtil();
    IOE = new SemiEV();
    EStoS = new SemiTrans();
+   EOoE = new ExogOutcomes();
    if (!Version::MPIserver && Volume>SILENT)
 		println("-------------------- End of Model Summary ------------------------\n");
    Data::SetLog();
