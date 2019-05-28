@@ -463,11 +463,9 @@ Decreasing::Decreasing(L,UB,ivals,Anchored)	{
 Coefficients::Coefficients(L,ivals,labels) {
 	decl k, myN, haslabels;
     haslabels = isarray(labels);
-    println("Coeff ",L);
     if (!haslabels && isstring(labels) ) {
         haslabels = TRUE;
         labels = {labels};
-        println("In ",labels);
         }
 	ParameterBlock(L);
 	if (isint(ivals)||isdouble(ivals)) {

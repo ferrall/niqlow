@@ -336,7 +336,8 @@ Parameter::Decode(f)	{
 /** Toggle the value of `Parameter::DoNotVary`.**/
 Parameter::ToggleDoNotVary() {
     DoNotVary = !DoNotVary;
-    println("Toggling parameter ",L," DoNotVary=",DoNotVary);
+    if (!Version::MPIserver)
+        println("Toggling parameter ",L," DoNotVary=",DoNotVary);
     }
 
 Parameter::Menu() {

@@ -563,8 +563,15 @@ CGTask::CGTask() {
 	gdist = zeros(N::F,N::R);
 	loop(TRUE);
 	decl r,g,f;
-	for (f=0,g=0;f<N::F;++f) {for (r=0;r<N::R;++r) Fgamma[f][r] = Gamma[g++];}
-	}
+	for (f=0,g=0;f<N::F;++f) {for (r=0;r<N::R;++r)
+        {
+        print(Version::MPIserver," ",g," ",f," ",r," ",isclass(Gamma[g]));
+        Fgamma[f][r] = Gamma[g++];
+        println(" * ",Version::MPIserver," ",isclass(Fgamma[f][r]));
+        }
+        }
+
+    }
 
 /** .
 **/

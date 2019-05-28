@@ -262,7 +262,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
             else if (j>=columns(inmom)) inmom ~= .NaN;
             else inmom = inmom[][:j-1]~.NaN~inmom[][j:];
             }
-    if (columns(inmom)!=columns(mask))
+    if (!Version::MPIserver && columns(inmom)!=columns(mask))
         oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
     invsd = 1.0;
     switch_single(wght) {
@@ -277,7 +277,8 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
              pathW = loadmat("pathW_"+sprint("%02u",f)+".mat");
              decl dd = diagonal(pathW), en = norm(dd,1);
              dd = dd.==0 .? .01 .: dd;
-             println("Augmenting pathW.  Original |diag|: ",en," . New ",norm(dd,1));
+             if (!Version::MPIserver)
+                println("Augmenting pathW.  Original |diag|: ",en," . New ",norm(dd,1));
              pathW = setdiagonal(pathW,dd);
             }
     if (!Version::MPIserver && Data::Volume>LOUD)
@@ -393,41 +394,6 @@ PathPrediction::~PathPrediction() {
 	~Prediction();
     }
 
-/*
-aTrack::Distribution(pobj) {
-    decl hk, k;
-    v = 0.0;
-    for(k=0;k<hN;++k) {
-        hk = sumr( sumc( selectifr(pobj.chq,Alpha::C[][hd].==k) ) );
-        v += hvals[k]*hk;
-        hist[k] += hk;
-        }
-    mean += v;
-    return v; //tv->Distribution();
-    }
-
-sTrack::Distribution(pobj) {
-    decl me = pobj.state[hd];
-    hist[me] += pobj.pq;        //Leak:sind[][k] -> q
-    v =hvals[me]*pobj.pq;
-    mean += v;
-    return v;
-    }
-
-xTrack::Distribution(pobj) {
-//    decl tmp;  tmp = v;    v = sumc(sumr(v));
-    mean += v;
-    //if ((obj.L=="deg")&&(I::t==10||I::t==11)) println("$$ ",I::t," tmp ",tmp," v ",v," m ",mean);
-    return v;
-    }
-
-oTrack::Distribution(pobj) {
-    v = pobj.pq * I::curth->OutputValue();
-    mean += v;
-    return v;
-    }
-*/
-
 /** Compute the histogram of tracked object at the prediction.
 @param printit TRUE=output; FALSE=quiet
 @comments
@@ -470,48 +436,6 @@ Prediction::Delta(mask,printit,tlabels) {
         }
     return df;
     }
-
-/* Track an object.
-@param LorC  string, label of column of data to associate with this object.<br/>integer,
-column index to associate
-@param obj `Discrete` object to track
-@param pos position in the target list
-@see Discrete, DataColumnTypes
-TrackObj::Create(LorC,obj,pos) {
-    if (isclass(obj,"ActionVariable"))  return new aTrack(LorC,obj,pos);
-    if (isclass(obj,"FixedEffect")) oxrunerror("Don't track fixed group variables. Tracked automatically");
-    if (isclass(obj,"StateVariable"))   return new sTrack(LorC,obj,pos);
-    if (isclass(obj,"AuxiliaryValue")) return new xTrack(LorC,obj,pos);
-    return new oTrack(LorC,obj,pos);
-    }
-*/
-
-
-//TrackObj::Update() {  if (!contdist) {    hvals = obj.actual'; //obj.vals; }  }
-/*
-oTrack::oTrack(LorC,obj,pos){
-  type =  idvar;  // used for OutputValues
-  contdist =  TRUE;
-  TrackObj(LorC,obj,pos);
-  L = "Output";
-  }
-aTrack::aTrack(LorC,obj,pos) {
-  type =  idvar;  // used for OutputValues
-  contdist =  FALSE;
-  TrackObj(LorC,obj,pos);
-  }
-xTrack::xTrack(LorC,obj,pos) {
-  type =  idvar;  // used for OutputValues
-  contdist =  TRUE;
-  TrackObj(LorC,obj,pos);
-  L = obj.L;
-  }
-sTrack::sTrack(LorC,obj,pos) {
-  type =  idvar;  // used for OutputValues
-  contdist =  FALSE;
-  TrackObj(LorC,obj,pos);
-  }
-*/
 
 /** Print mean and histogram of tracked object.
 **/
@@ -764,14 +688,6 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
     M = succ ? -sqrt(M) : -.Inf;
     return succ;
     }
-
-/*
-@param V vector if individual panel distance measures.
-@return $-\sqrt{\sum V_i}$
-PanelPrediction::Combine(V) {
-    return -sqrt(double(sumc(V)));
-    }
-*/
 
 /** Track a single object that is matched to column in the data.
 @param Fgroup  integer or vector of integers of fixed groups that the moment should be
