@@ -153,6 +153,8 @@ DP::SetGroup(GorState) {
 	}
 
 DP::SetG(f,r) {
+    println("SetG ",f," ",r);
+    foreach (decl v in Fgamma) println(isclass(v));
         return isclass(Fgamma[f][r]) ? SetGroup(Fgamma[f][r].pos) : 0;
     }
 	
