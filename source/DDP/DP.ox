@@ -153,8 +153,6 @@ DP::SetGroup(GorState) {
 	}
 
 DP::SetG(f,r) {
-    println("SetG ",f," ",r);
-    foreach (decl v in Fgamma) println(isclass(v));
         return isclass(Fgamma[f][r]) ? SetGroup(Fgamma[f][r].pos) : 0;
     }
 	
@@ -562,23 +560,15 @@ CGTask::CGTask() {
 	Fgamma = new array[N::F][N::R];
 	gdist = zeros(N::F,N::R);
 	loop(TRUE);
-	decl r,g,f;
-	for (f=0,g=0;f<N::F;++f) {for (r=0;r<N::R;++r)
-        {
-        print(Version::MPIserver," ",g," ",f," ",r," ",isclass(Gamma[g]));
-        Fgamma[f][r] = Gamma[g++];
-        println(" * ",Version::MPIserver," ",isclass(Fgamma[f][r]));
-        }
-        }
-
     }
 
 /** .
 **/
 CGTask::Run() {
-	Gamma[I::g] =  (Flags::AllGroupsExist||any(Hooks::Do(GroupCreate)))
-						? new Group(I::g,state)
+	Gamma[I::all[bothgroup]] =  (Flags::AllGroupsExist||any(Hooks::Do(GroupCreate)))
+						? new Group(I::all[bothgroup],state)
 						: 0;
+    Fgamma[I::all[onlyfixed]][I::all[onlyrand]] = Gamma[I::all[bothgroup]];
 	}
 		
 /** . @internal **/
