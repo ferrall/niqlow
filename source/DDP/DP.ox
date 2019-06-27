@@ -1166,6 +1166,7 @@ DP::CreateSpaces() {
        if (Flags::ReadIN) {
            INf = fopen(L+".dim","rV");
            fscan(INf,"%v",&inI,"%v",&inN);
+           fclose(INf);
            }
        else {
 	       tt = new FindReachables();
@@ -1178,11 +1179,13 @@ DP::CreateSpaces() {
                 "%8.0f","%c",{"Reachble"}|{"Tracking"}|Labels::Vprt[svar][S[endog].M:S[clock].M],tt.rchable);
                 }
             delete tt;
-            INf = fopen(L+".dim","wV");
             I::curth = I::curg = UnInitialized;
-            fprint(INf,"%v",&inI,"%v",&inN);
+            if (FALSE) {
+                INf = fopen(L+".dim","wV");
+                fprint(INf,"%v",&inI,"%v",&inN);
+                fclose(INf);
+                }
             }
-       fclose(INf);
        delete inI, inN;
        N::Sizes();
        Alpha::SetA(NoMatch);
