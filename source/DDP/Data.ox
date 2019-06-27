@@ -21,6 +21,9 @@ PathPrediction::SimulateOutcomePaths(curfpanel,N,ErgOrStateMat) {
     curfpanel -> FPanel::Simulate(N,UnInitialized,ErgOrStateMat,FALSE,this);
     if (!savemat("logs/flat_"+sprint("%02u",f)+".dta",pathW,tlabels[1:])) println("save of pathW failed");
     pathW = variance(pathW);
+    print(" Variance rank before diagonal adjust: ",rank(pathW));
+    pathW = setdiagonal(pathW,setbounds(diagonal(pathW),SQRT_EPS,+.Inf));
+    println(" after ",rank(pathW));
 //    savemat("logs/var_"+sprint("%02u",f)+".dta",pathW);
     pathW = invertgen(pathW,1);
     println("PathW ",f," Dimension: ",rows(pathW)," Rank: ",rank(pathW));
