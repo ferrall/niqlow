@@ -97,6 +97,7 @@ struct 	PathPrediction : Prediction {
     /** Weighting matrix for GMM for full path.**/  pathW,
     /** wide delta vector. **/                      vdelt,
     /** labels for vdelt.**/                        dlabels,
+    /** labels for simulated path.**/               plabels,
     /** Distance between predictions and emp.mom.**/ L,
     /** method to call for nested solution. **/		method,
                                                     first,

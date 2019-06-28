@@ -17,9 +17,10 @@ Save weight matrix in <code>pathW_??.mat</code>
 **/
 PathPrediction::SimulateOutcomePaths(curfpanel,N,ErgOrStateMat) {
     pathW = <>;
+    plabels = {};
     cur = this;  //initialize to first prediction on the path.
     curfpanel -> FPanel::Simulate(N,UnInitialized,ErgOrStateMat,FALSE,this);
-    if (!savemat("logs/flat_"+sprint("%02u",f)+".dta",pathW,dlabels)) println("save of pathW failed");
+    if (!savemat("logs/flat_"+sprint("%02u",f)+".dta",pathW,plabels)) println("save of pathW failed");
     pathW = variance(pathW);
     print(" Variance rank before diagonal adjust: ",rank(pathW));
     pathW = setdiagonal(pathW,setbounds(diagonal(pathW),SQRT_EPS,+.Inf));
@@ -64,13 +65,14 @@ PathPrediction::AppendSimulated() {
         flat = tflat;
     else
         flat ~= tflat;
+    if (!rows(pathW)) plabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
     if (isclass(cur.pnext)) {      // not end of empirical path
         cur = cur.pnext;
         return FALSE;
         }
     else {  // reset to 0
-        pathW |= flat;  // flat reset on next 0
-        cur = this;
+        pathW |= flat;  // flat will be reset on next t=0
+        cur = this;     // reset
         return TRUE;
         }
     }
