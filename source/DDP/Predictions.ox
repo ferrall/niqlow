@@ -133,7 +133,7 @@ PathPrediction::ProcessContributions(cmat){
         if (HasObservations) {
             if (ismatrix(pathW)) {
                  vdelt ~= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
-                 dlabels |= prefix(tprefix(cur.t),tlabels[1:]);
+                 dlabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
                  }
             else {
                  vdelt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);

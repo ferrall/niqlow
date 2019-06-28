@@ -97,6 +97,7 @@ static decl _arg, _noarg, _x, _v;
 	vararray(s);
 	MyMoments(M,rlabels=0,oxf=0);
 	prefix(pfx, s);
+    suffix(s,sfx);
     abbrev(s);
 	GaussianKernel(X,h=UseDefault);
     Epanechnikov(X,h);

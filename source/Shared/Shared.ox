@@ -406,6 +406,19 @@ prefix(pfx, s) {
     return o;													
     }
 
+/** put a suffix at end of string or array of strings.
+@param pfx string to pre-fix
+@param s string or array of strings
+@return pfx pre-fixed to s
+**/
+suffix(s, sfx) {
+    if (isstring(s)) return s+sfx;
+    decl o = {}, t;
+    foreach (t in s) o |= t+sfx;
+    return o;													
+    }
+
+
 /**  Abbreviate a string or list of strings.
 **/
 abbrev(s) {
