@@ -131,13 +131,11 @@ PathPrediction::ProcessContributions(cmat){
         if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
         flat |= fvals~cur.t~cur.accmom;
         if (HasObservations) {
-            if (ismatrix(pathW)) {
+            dlabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
+            if (ismatrix(pathW))
                  vdelt ~= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
-                 dlabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
-                 }
-            else {
+            else
                  vdelt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
-                 }
             }
         cur = cur.pnext;
   	    } while(isclass(cur));
