@@ -51,14 +51,17 @@ PredictionDataSet::SimulateMomentVariances(N,ErgOrStateMat,fvals) {
     }
 
 
-PathPrediction::AppendSimulated() {
+PathPrediction::AppendSimulated(Y) {
     decl m,tflat = <>;
    foreach(m in tlist)
         if (m.track.LorC!=NotInData)   //  && !isnan(cur.empmom[n]) unmatched moments always have .NaN
             switch_single (TypeCheck(m,ilistnames)) {
-                case AuxInt   : tflat ~= AV(m);  //simout.chi[m.obj.pos];
-                case ActInt   : tflat ~= Alpha::aA[m.pos];
-                case StateInt : tflat ~= AV(m);  //simout.state[m.obj.pos];
+                case AuxInt   : tflat ~= Y.aux[m.pos];  // Set in Bellman::Simulate()
+//m->Realize();
+//                                if (rows(m.v)>1) println(m.L," ",m.v);
+//                                tflat ~= m.v;
+                case ActInt   : tflat ~= m.actual[Y.act[m.pos]];  //Set in Bellman::simulate should be a better way to do this
+                case StateInt : tflat ~= AV(m);  //Synchronized in Outcome::Simulate()
                 default:  oxrunerror("Not valid ",classname(m));
                 }
     if (!(cur.t))                  // start of new simulated path

@@ -48,7 +48,7 @@ ZetaRealization::Realize(y) {	}
 RealizedUtility::RealizedUtility() { 	AuxiliaryValue("U"); 	}
 
 RealizedUtility::Realize(y) {	
-    v = Alpha::aC!=UnInitialized ? I::curth->Utility()[Alpha::aC]
+    v = Alpha::aI!=UnInitialized ? I::curth->Utility()[Alpha::aI]
                                  : I::curth->Utility();	
     }
 
@@ -91,57 +91,37 @@ Indicator::Indicator(target,myval,iobj,prefix) {
     }
 
 Indicator::Realize(y) {
-    if (isclass(y,"Outcome")) {
-        v = ttype==ActInt
-                        ? Alpha::aC[target.pos]==myval
-                        : CV(target)==myval;
-        switch(iacted) {
-            case ActInt   : v *= Alpha::aC[iobj.pos]; break;
-            case AuxInt   : iobj->Realize(y);
-            // fall through to StateInt
-            case StateInt : v *= AV(iobj); break;
+    decl aIU = Alpha::aI==UnInitialized;
+    if (aIU || ttype!=ActInt)
+        v = myval==CV(target);
+    else
+        v = myval== Alpha::aC[target.pos];   //Only defined expost??
+    switch(iacted) {
+        case ActInt   : v .*= aIU ? AV(iobj) : Alpha::aC[iobj.pos]; break;
+        case AuxInt   : iobj->Realize(y);
+                            v .*= iobj.v;
+                            break;
+        case StateInt : v .*= AV(iobj); break;
             default       : break;
-            }
-        }
-    else {
-        v =  CV(target).==myval;
-        switch(iacted) {
-            case AuxInt   : iobj->Realize(y);
-            // fall through to StateInt
-            case ActInt   :
-            case StateInt : v .*= AV(iobj); break;
-            default       : break;
-            }
         }
     }
 
 MultiIndicator::Realize(y) {
-    decl n,t;
-    if (isclass(y,"Outcome")) {
-        v=1;
-        foreach(t in target[n])
-            v *= ttype[n]==ActInt
-                        ? Alpha::aC[t.pos]==myval[n]
-                        : CV(t)==myval[n];
-        switch(iacted) {
-            case ActInt   : v *= Alpha::aC[iobj.pos]; break;
+    decl n,t,aIU = Alpha::aI==UnInitialized;
+    v=1;
+    foreach(t in target[n])
+        if (aIU || ttype[n]!=ActInt)
+            v .*= myval[n] == CV(t);
+        else
+            v .*= myval[n] == Alpha::aC[t.pos];
+    switch(iacted) {
+            case ActInt   : v .*= aIU ? AV(iobj) : Alpha::aC[iobj.pos]; break;
             case AuxInt   : iobj->Realize(y);
-            // fall through to StateInt
-            case StateInt : v *= AV(iobj); break;
-            default       : break;
-            }
-        }
-    else {
-        v = <1>;
-        foreach(t in target[n]) v .*= CV(t).==myval[n];
-        switch(iacted) {
-            case AuxInt   : iobj->Realize(y);
-            // fall through to StateInt
-            case ActInt   :
+                            v .*= iobj.v;
+                            break;
             case StateInt : v .*= AV(iobj); break;
             default       : break;
             }
-        }
     }
 
 /** Create an wrapper for a static function `AV`-compatible object.
@@ -154,7 +134,7 @@ StaticAux::StaticAux(L,target) {
     }
 StaticAux::Realize(y) {
     v = target();
-    if (rows(v)>1 &&  Alpha::aC!=UnInitialized) v = v[Alpha::aC];
+    if (rows(v)>1 &&  Alpha::aI!=UnInitialized) v = v[Alpha::aC];
     }
 
 /** Create an auxiliary value that adds normally-distributed noise to the actual value.
@@ -172,7 +152,7 @@ Noisy::Realize(y) {
     if (isclass(truevalue,"AuxiliaryValue"))
         truevalue->Realize(y);
     v = AV(truevalue);
-    if (rows(v)>1 &&  Alpha::aC!=UnInitialized) v = v[Alpha::aC];
+    if (rows(v)>1 &&  Alpha::aI!=UnInitialized) v = v[Alpha::aC];
     eps = rann(1,1)*CV(sigma);
     v = Linear ? v+eps : exp(eps)*v;
     }
@@ -181,7 +161,7 @@ Noisy::Likelihood(y) {
     if (isclass(truevalue,"AuxiliaryValue"))
         truevalue->Realize(y);
     v = AV(truevalue);
-    if (rows(v)>1 &&  Alpha::aC!=UnInitialized) v = v[Alpha::aC];
+    if (rows(v)>1 &&  Alpha::aI!=UnInitialized) v = v[Alpha::aC];
     eps = Linear
             ? y.aux[pos]-v
             : log(y.aux[pos])-log(v);

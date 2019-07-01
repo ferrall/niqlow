@@ -417,22 +417,23 @@ Bellman::StateToStatePrediction(intod) {
 **/
 Bellman::Simulate(Y) {
 	decl curJ = rows(pandv), done = Type>=LASTT ;
-    Y.ind[onlyacts][0] = I::all[onlyacts] = done  	? 0
-			  		: DrawOne( pandv[][InSS()*(Y.ind[bothexog])] );
+    Y.ind[onlyacts][0] = I::all[onlyacts] =
+                        (done  	
+                            ? 0
+			  		        : DrawOne( pandv[][InSS()*(Y.ind[bothexog])] )
+                        );
     Alpha::SetA(I::all[onlyacts]);
-	SyncAct(Alpha::aC);
+	//SyncAct(Alpha::aC);  I don't thinks this is necessary.  And confusing??
     this->Utility();        //Added May 2018.  Could also be a hook???
 	zeta -> Realize(Y);
 	decl i,c;
-    chi=<>;
-    Y.act = Alpha::aC;
+    Y.aux =<>;
+    Y.act = Alpha::aC;  
 	Y.z = CV(zeta);
-    foreach(c in Chi) {
-		c->Realize(Y);
-		chi ~= CV(c);
-		}
-	Y.aux = chi;
-    //	for (i=0,chi=<>;i<sizeof(Chi);++i) {		Chi[i]->Realize(Y);		chi ~= CV(Chi[i]);		}
+    foreach(c in Chi) { //		 // Utility should do this?
+        c->Realize();  // Not sending Y.  This option seems to be unused now.
+		Y.aux ~= c.v;
+        }
 	if (done) return UnInitialized;
 	i = (I::OO[bothgroup][]'.!=0) .* Y.state;
 	i += ReverseState(Nxt[Qtr][Y.ind[onlysemiexog]][DrawOne(Nxt[Qrho][Y.ind[onlysemiexog]][Alpha::aI][])],tracking);

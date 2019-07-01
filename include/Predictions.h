@@ -115,7 +115,7 @@ struct 	PathPrediction : Prediction {
     SetColumns(dlabels,Nplace=UnInitialized,Tplace=UnInitialized);
     TypeContribution(pf=1.0,subflat=0);
     ProcessContributions(cmat=0);
-    AppendSimulated();
+    AppendSimulated(Y);
     SimulateOutcomePaths(curfpanel,N,ErgOrStateMat);
 	}
 

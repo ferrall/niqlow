@@ -227,7 +227,7 @@ Path::Simulate(T,DropTerminal){
     Flags::Phase = Simulating;
     do {
        done = cur->Outcome::Simulate();
-       if ( done || this.T>=T || (isclass(pathpred) && pathpred->AppendSimulated()) ) break;
+       if ( done || this.T>=T || (isclass(pathpred) && pathpred->AppendSimulated(cur)) ) break;
        ++this.T;
        cur = !isclass(cur.onext) ? new Outcome(cur) : cur.onext;
        } while(TRUE);
@@ -600,7 +600,7 @@ Path::TypeContribution(pf,subflat) {
 /** Compute likelihood of a realized path.
 **/
 Path::Likelihood() {
-    Flags::Phase = Liking; 
+    Flags::Phase = Liking;
 	if (isint(viinds)) {
 		viinds = new array[DVspace];
 		vilikes = new array[DVspace];

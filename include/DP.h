@@ -96,8 +96,8 @@ struct DP {
 		/** `ZetaRealization`, realized continuous shocks, &zeta;,
 			set during simulation of realized paths. Distribution must be conditional on choice stored in
 			`Alpha::aC`. **/ 	                                zeta,
-		/** current realized auxiliary vector, &chi;,
-			only set during simulation of realized paths. **/ 	chi,
+		/* current realized auxiliary vector, &chi;,
+			only set during simulation of realized paths. chi,**/ 	
 	/** list of `AuxiliaryValue`s that depend on the current outcome.
 		`AuxiliaryValue::Realize`() is called by `Bellman::Simulate`()
 		after <code>&alpha;</code>, &zeta; and full state vectors have been set. **/
