@@ -92,10 +92,11 @@ Indicator::Indicator(target,myval,iobj,prefix) {
 
 Indicator::Realize(y) {
     decl aIU = Alpha::aI==UnInitialized;
-    if (aIU || ttype!=ActInt)
-        v = myval==CV(target);
+    if (ttype==ActInt) {
+        v = aIU ? (myval .== CV(target)) : (myval== Alpha::aC[target.pos]);
+        }
     else
-        v = myval== Alpha::aC[target.pos];   //Only defined expost??
+        v = myval==CV(target);
     switch(iacted) {
         case ActInt   : v .*= aIU ? AV(iobj) : Alpha::aC[iobj.pos]; break;
         case AuxInt   : iobj->Realize(y);
@@ -110,10 +111,10 @@ MultiIndicator::Realize(y) {
     decl n,t,aIU = Alpha::aI==UnInitialized;
     v=1;
     foreach(t in target[n])
-        if (aIU || ttype[n]!=ActInt)
-            v .*= myval[n] == CV(t);
+        if (ttype[n]==ActInt)
+            v .*= aIU ? (myval[n] .== CV(t))  : (myval[n] == Alpha::aC[t.pos]);
         else
-            v .*= myval[n] == Alpha::aC[t.pos];
+            v .*= myval[n]==CV(t);
     switch(iacted) {
             case ActInt   : v .*= aIU ? AV(iobj) : Alpha::aC[iobj.pos]; break;
             case AuxInt   : iobj->Realize(y);
