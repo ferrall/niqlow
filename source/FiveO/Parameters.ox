@@ -275,8 +275,11 @@ ParameterBlock::ToggleDoNotVary(elements) {
 	decl p;
     if (elements==DoAll)
 	   { foreach (p in Psi) p->ToggleDoNotVary(); }
-    else
-       { foreach (p in elements) Psi[p]->ToggleDoNotVary(); }
+    else {
+        if (ismatrix(elements))
+            { foreach (p in elements) Psi[p]->ToggleDoNotVary(); }
+        else oxrunerror("Elements to toggle in a block must be a vector");
+       }
 	}
 
 ParameterBlock::Menu(fp) {
