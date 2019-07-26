@@ -72,7 +72,10 @@ p2p.Buffer = results;
 p2p-&gt;Send(0,2,3);  //send all results to node 2 with tag 3
 </pre></DD>
 **/
-Client::Send(iCount, iDest, iTag)	{MPI_Send(Buffer,iCount ? iCount : sizerc(Buffer),iDest,iTag);}		
+Client::Send(iCount, iDest, iTag)	{
+    if (Volume>QUIET) println("Client::Send ",iCount," ",sizerc(Buffer));
+    MPI_Send(Buffer,iCount ? iCount : sizerc(Buffer),iDest,iTag);
+    }		
 
 /** Receive buffer from a source node.
 @param iSource id of target/destination node<br>`P2P::ANY_SOURCE`, receive message from any node.
@@ -83,7 +86,10 @@ p2p-&gt;Recv(P2P::ANY_SOURCE,P2P::ANY_TAG);
 println("Message Received from ",P2P::Source," with Tag ",P2P::Tag," is ",p2p.Buffer);
 </pre></DD>
 **/
-Client::Recv(iSource, iTag) {	MPI_Recv(&Buffer,iSource,iTag,&Source,&Tag,&Error);	}		
+Client::Recv(iSource, iTag) {	
+    if (Volume>QUIET) println("Client::Recv ",sizerc(Buffer));
+    MPI_Recv(&Buffer,iSource,iTag,&Source,&Tag,&Error);	
+}		
 
 /** Server sends buffer to the CLIENT.
 @param iCount 0, send the whole Buffer<br> &gt; 0, number of elments of `P2P::Buffer` to send.
@@ -94,7 +100,9 @@ p2p-&gt;Send(0,3);  //send all results to node 0 with tag 3
 </pre>
 **/
 Server::Send(iCount, iTag)	{
-    MPI_Send(Buffer,iCount ? iCount : sizerc(Buffer),CLIENT,iTag);}		
+    if (Volume>QUIET) println("Server::Send ",ID," ",iCount," ",sizerc(Buffer));
+    MPI_Send(Buffer,iCount ? iCount : sizerc(Buffer),CLIENT,iTag);
+    }		
 
 /** Receive buffer from CLIENT.
 @param iTag tag to receive<br>`P2P::ANY_TAG`, receive any tag
@@ -104,6 +112,7 @@ p2p-&gt;Recv(ANY_TAG);
 </pre>
 **/
 Server::Recv(iTag) {	
+    if (Volume>QUIET) println("Server::Recv ",ID," ",sizerc(Buffer));
     MPI_Recv(&Buffer,CLIENT,iTag,&Source,&Tag,&Error);	
     }		
 
