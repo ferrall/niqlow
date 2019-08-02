@@ -984,8 +984,10 @@ contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of makin
 </dd>
 **/
 Duration::Duration(L,Current,Lag, N,MaxOnce,ToTrack,Prune) {
-	if (!TypeCheck(Lag,"StateVariable",FALSE) && !ismatrix(Lag))
-        oxrunerror("DDP Error 04. Lag must be a State Variable or a vector\n");
+    if (!ismatrix(Lag)) {
+	    if (!TypeCheck(Lag,"StateVariable",FALSE))
+            oxrunerror("DDP Error 04. Lag must be a State Variable or a vector\n");
+        }
 	TypeCheck(Current,"Discrete");
     Counter(L,N,Current,ToTrack,0,Prune);
 	isact = isclass(Target,"ActionVariable");

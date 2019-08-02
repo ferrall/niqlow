@@ -1165,6 +1165,7 @@ DP::CreateSpaces() {
     else {
        decl INf , inI = new I(), inN = new N();
        if (Flags::ReadIN) {
+           oxrunerror("ReadIN dimensions option needs to be checked.  Don't use for now");
            INf = fopen(L+".dim","rV");
            fscan(INf,"%v",&inI,"%v",&inN);
            }
@@ -1179,11 +1180,11 @@ DP::CreateSpaces() {
                 "%8.0f","%c",{"Reachble"}|{"Tracking"}|Labels::Vprt[svar][S[endog].M:S[clock].M],tt.rchable);
                 }
             delete tt;
-            INf = fopen(L+".dim","wV");
+            // INf = fopen(L+".dim","wV");
             I::curth = I::curg = UnInitialized;
-            fprint(INf,"%v",&inI,"%v",&inN);
+            // fprint(INf,"%v",&inI,"%v",&inN);
             }
-       fclose(INf);
+       // fclose(INf);
        delete inI, inN;
        N::Sizes();
        Alpha::SetA(NoMatch);
