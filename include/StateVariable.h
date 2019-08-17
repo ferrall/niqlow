@@ -27,6 +27,7 @@ struct StateVariable : Discrete	{
     virtual IsReachable();
     virtual Check();
     virtual myAV();
+    Track(LorC);
 	}
 	
 /**Scalar `StateVariable` with statistically independent transition.
@@ -861,7 +862,7 @@ struct StateBlock : StateVariable {
     /** matrix of all <em>actual</em> values.**/    Actual,
     /** vector <0:N-1>, used in AV().**/            rnge;
 	StateBlock(L,...);
-	AddToBlock(s,...);
+	AddToBlock(...);
     Clones(N,base);
 	virtual Transit();
     virtual Check();

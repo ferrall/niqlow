@@ -260,7 +260,7 @@ Discrete::Discrete(L,N)  {
         this.L = L;
 	vals = range(0,N-1);
 	actual= vals';
-	logf = subv = pos = UnInitialized;
+	track = logf = subv = pos = UnInitialized;
     Volume = SILENT;
 	pdf = ones(vals);
     v = 0;
@@ -336,7 +336,8 @@ Parameter::Decode(f)	{
 /** Toggle the value of `Parameter::DoNotVary`.**/
 Parameter::ToggleDoNotVary() {
     DoNotVary = !DoNotVary;
-    println("Toggling parameter ",L," DoNotVary=",DoNotVary);
+    if (!Version::MPIserver)
+        println("Toggling parameter ",L," DoNotVary=",DoNotVary);
     }
 
 Parameter::Menu() {
@@ -404,6 +405,19 @@ prefix(pfx, s) {
     foreach (t in s) o |= pfx+t;
     return o;													
     }
+
+/** put a suffix at end of string or array of strings.
+@param pfx string to pre-fix
+@param s string or array of strings
+@return pfx pre-fixed to s
+**/
+suffix(s, sfx) {
+    if (isstring(s)) return s+sfx;
+    decl o = {}, t;
+    foreach (t in s) o |= t+sfx;
+    return o;													
+    }
+
 
 /**  Abbreviate a string or list of strings.
 **/

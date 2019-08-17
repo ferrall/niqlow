@@ -201,8 +201,8 @@ struct OutcomeDataSet : Panel {
 	Mask();
 	LoadOxDB();
 	MatchToColumn(aORs, LorC);
-    ObservedWithLabel(as1,...);
-	UnObserved(aORs,...);
+    ObservedWithLabel(...);
+	UnObserved(...);
 	Read(fn,SearchLabels=FALSE);
 	IDColumn(lORind="path");
     tColumn(lORind="t");

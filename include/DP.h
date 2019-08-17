@@ -92,11 +92,12 @@ struct DP {
         /** task to compute utility over exogenous states.**/   XUT,
         /** task to integrate V over semi-exogenous states.**/  IOE,
         /** task to update tomorrow's state distribution. **/   EStoS,
+        /** task to integrate outcomes over $\epsilon$.**/      EOoE,
 		/** `ZetaRealization`, realized continuous shocks, &zeta;,
 			set during simulation of realized paths. Distribution must be conditional on choice stored in
 			`Alpha::aC`. **/ 	                                zeta,
-		/** current realized auxiliary vector, &chi;,
-			only set during simulation of realized paths. **/ 	chi,
+		/* current realized auxiliary vector, &chi;,
+			only set during simulation of realized paths. chi,**/ 	
 	/** list of `AuxiliaryValue`s that depend on the current outcome.
 		`AuxiliaryValue::Realize`() is called by `Bellman::Simulate`()
 		after <code>&alpha;</code>, &zeta; and full state vectors have been set. **/
@@ -105,7 +106,7 @@ struct DP {
             subsampling of the state space.
             @see DP::SubSampleStates **/			             SampleProportion;
 
-        static  SetVersion(V=350);
+        static  SetVersion(V=400);
 		static	SetDelta(delta);
 		static	SetClock(ClockType,...);
 		//static	Gett();
@@ -117,12 +118,12 @@ struct DP {
 		static 	Initialize(userState,UseStateList=FALSE);
 
 		static 	AddStates(SubV,va);
-		static 	GroupVariables(v1,...);
-		static	Actions(Act1 ,...);
-		static	EndogenousStates(v1,...); 	
-		static	SemiExogenousStates(v1,...); 	
-		static	ExogenousStates(v1,...); 	
-		static	AuxiliaryOutcomes(v1,...);
+		static 	GroupVariables(...);
+		static	Actions(...);
+		static	EndogenousStates(...); 	
+		static	SemiExogenousStates(...); 	
+		static	ExogenousStates(...); 	
+		static	AuxiliaryOutcomes(...);
         static  Interactions(ivar,olist=UnInitialized,prefix=UseLabel,ilo=0,thi=100);
         static  Indicators(ivar,prefix=UseLabel,ilo=0,ihi=100);
         static  MultiInteractions(ivarlist,ilov,ihiv,olist,prefix);
@@ -323,6 +324,14 @@ struct SemiTrans: SemiExTask {
     Run();
     }
 
+struct ExogOutcomes : ExTask {
+    static decl chq, tmp, auxlist;
+    static SetAuxList(tlist);
+    ExogOutcomes();
+    ExpectedOutcomes(howmany,chq);
+    Run();
+    }
+
 /**  The base task for processing &Gamma;.
 **/
 struct GroupTask : Task {
@@ -416,7 +425,7 @@ struct DPDebug : ThetaTask {
     static outAllV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
     static RunOut();
     static outAutoVars();
-    static outSVTrans(S1,...);
+    static outSVTrans(...);
     DPDebug();
 	}
 

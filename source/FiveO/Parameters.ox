@@ -236,16 +236,20 @@ ParameterBlock::ParameterBlock(L, ...) {
 @param psi `Parameter` to add.
 @param ... more parameters
 **/
-ParameterBlock::AddToBlock(psi, ... )	{
-	decl va = {psi}|va_arglist(),j;
+ParameterBlock::AddToBlock(...
+    #ifdef OX_PARALLEL
+    va
+    #endif
+    )	{
+	decl b;
 	if (pos!=UnInitialized) oxrunerror("FiveO Error 21a. Cannot add to a Block after it has been added to the Objective\n");
-	for (j=0;j<sizeof(va);++j) {
-		if (!isclass(va[j],"Parameter")) oxrunerror("FiveO Error 21b. Can only add Parameters to Parameter Block");
-		if (isclass(va[j],"ParameterBlock")) oxrunerror("FiveO Error 21c. Cannot a Parameter Block to a Parameter Block");
-		Psi |= va[j];
-		if (N) PsiL |= va[j].L; else PsiL = {va[j].L};
+    foreach (b in va) {
+		if (!isclass(b,"Parameter")) oxrunerror("FiveO Error 21b. Can only add Parameters to Parameter Block");
+		if (isclass(b,"ParameterBlock")) oxrunerror("FiveO Error 21c. Cannot a Parameter Block to a Parameter Block");
+		Psi |= b;
+		if (N) PsiL |= b.L; else PsiL = {b.L};
 		++N;
-		v |= va[j].v;
+		v |= b.v;
 		}
 	}
 
@@ -271,8 +275,11 @@ ParameterBlock::ToggleDoNotVary(elements) {
 	decl p;
     if (elements==DoAll)
 	   { foreach (p in Psi) p->ToggleDoNotVary(); }
-    else
-       { foreach (p in elements) Psi[p]->ToggleDoNotVary(); }
+    else {
+        if (ismatrix(elements))
+            { foreach (p in elements) Psi[p]->ToggleDoNotVary(); }
+        else oxrunerror("Elements to toggle in a block must be a vector");
+       }
 	}
 
 ParameterBlock::Menu(fp) {
@@ -457,7 +464,12 @@ Decreasing::Decreasing(L,UB,ivals,Anchored)	{
    <br>vector: initial values
 **/	
 Coefficients::Coefficients(L,ivals,labels) {
-	decl k, myN, haslabels = isarray(labels);
+	decl k, myN, haslabels;
+    haslabels = isarray(labels);
+    if (!haslabels && isstring(labels) ) {
+        haslabels = TRUE;
+        labels = {labels};
+        }
 	ParameterBlock(L);
 	if (isint(ivals)||isdouble(ivals)) {
 		  if (ivals>0) myN = int(ivals);

@@ -90,13 +90,11 @@ Bellman::SetTheta(state,picked) { Bellman(state,picked);    }
 @internal
 **/		
 Bellman::Bellman(state,picked) {
-   //  if (!ThetaCreated) oxrunerror("Cannot create states before state space created - call DP::CreateSpaces()");
   decl s=S[endog].M, IsT;
   IsT = FALSE;
   do { IsT = any(state[s].==States[s].TermValues);    } while (!IsT && s++<S[endog].X);
   N::TerminalStates += IsT;
   Type = TERMINAL*IsT + LASTT * counter->Last();
-  //println("% ",picked," ",IsT," ",counter->Last()," ",Type,state');
   Aind = 0; //initializing this means aa() will work.
   Aind = Alpha::AddA(IsT ? 1|zeros(N::Options[0]-1,1) : FeasibleActions());
   if (Aind==Impossible) {
@@ -182,7 +180,7 @@ Bellman::Smooth() {
 
 /** Completes $v(\alpha;\cdots,\eta,\theta)$ by adding discounted expected value
     to utilities for a given $\eta$.
-    The columns that are updated are indexed as `I::elo` : `I::eh'.
+    The columns that are updated are indexed as `I::elo` : `I::eh`.
     The element of the transition used is $\eta = $ `I::all`[onlysemiexog].
     <dd><pre>
 decl et =I::all[onlysemiexog];
@@ -274,7 +272,7 @@ Bellman::ThetaTransition() {
 			{Nb =  States[si].block.N; root = States[si].block; }
 		else
 			{ Nb = 1; root = States[si]; }
-		if (( any(curO = I::OO[<tracking;iterating>][si-Nb+1:si]) ))	{  // states are relevant to s'
+		if (( any(curO = I::OO[thetaoffs][si-Nb+1:si]) ))	{  // states are relevant to s'
 			[feas,prob] = root -> Transit();
             if (rcheck && root.N>1 && !isint(prob) ) {
                 if (maxr(feas)<rows(root.actual))
@@ -378,8 +376,9 @@ Bellman::AutoVarPrint1(task) {
 //    println("*** ",InSubSample," ",this.InSubSample);
 	}
 
-Bellman::ExpectedOutcomesOverEpsilon(chprob) {
-    }
+Bellman::OutcomesGivenEpsilon(){}
+
+//Bellman::ExpectedOutcomesOverEpsilon(chprob) {    }
 
 /** This is called by a semi-exogenous task to update transitions from this state to the future.
 **/
@@ -399,7 +398,8 @@ Bellman::ExogStatetoState() {
 Bellman::StateToStatePrediction(intod) {
     tod = intod;
     tom = tod.pnext;
-    this->ExpectedOutcomesOverEpsilon(tod.chq);
+    //this->ExpectedOutcomesOverEpsilon(tod.chq);
+    EOoE->ExpectedOutcomes(DoAll,tod.chq);
     tod.ch  +=  ExpandP(Aind,tod.chq);
     if (isclass(tom)) {
         EStoS->Compute();
@@ -417,22 +417,23 @@ Bellman::StateToStatePrediction(intod) {
 **/
 Bellman::Simulate(Y) {
 	decl curJ = rows(pandv), done = Type>=LASTT ;
-    Y.ind[onlyacts][0] = I::all[onlyacts] = done  	? 0
-			  		: DrawOne( pandv[][InSS()*(Y.ind[bothexog])] );
+    Y.ind[onlyacts][0] = I::all[onlyacts] =
+                        (done  	
+                            ? 0
+			  		        : DrawOne( pandv[][InSS()*(Y.ind[bothexog])] )
+                        );
     Alpha::SetA(I::all[onlyacts]);
-	SyncAct(Alpha::aC);
+	//SyncAct(Alpha::aC);  I don't thinks this is necessary.  And confusing??
     this->Utility();        //Added May 2018.  Could also be a hook???
 	zeta -> Realize(Y);
 	decl i,c;
-    chi=<>;
-    Y.act = Alpha::aC;
+    Y.aux =<>;
+    Y.act = Alpha::aC;  
 	Y.z = CV(zeta);
-    foreach(c in Chi) {
-		c->Realize(Y);
-		chi ~= CV(c);
-		}
-	Y.aux = chi;
-    //	for (i=0,chi=<>;i<sizeof(Chi);++i) {		Chi[i]->Realize(Y);		chi ~= CV(Chi[i]);		}
+    foreach(c in Chi) { //		 // Utility should do this?
+        c->Realize();  // Not sending Y.  This option seems to be unused now.
+		Y.aux ~= c.v;
+        }
 	if (done) return UnInitialized;
 	i = (I::OO[bothgroup][]'.!=0) .* Y.state;
 	i += ReverseState(Nxt[Qtr][Y.ind[onlysemiexog]][DrawOne(Nxt[Qrho][Y.ind[onlysemiexog]][Alpha::aI][])],tracking);
@@ -479,7 +480,7 @@ Bellman::Delete() {
 	for(i=0;i<sizeof(Theta);++i) delete Theta[i];
 	for(i=0;i<sizeof(Gamma);++i) delete Gamma[i];
 	delete Gamma, Theta;
-	delete ETT, XUT, IOE, EStoS;
+	delete ETT, XUT, IOE, EStoS, EOoE;
     Flags::Reset();
     N::Reset();
 	lognm = Volume = SampleProportion = Gamma = Theta = 0;	
@@ -604,7 +605,12 @@ ExPostSmoothing::CreateSpaces(Method,smparam) {
 to add any state variables to the model.</DT>
 
 **/
-OneStateModel::Initialize(UorB,Method,...) {
+OneStateModel::Initialize(UorB,Method,...
+    #ifdef OX_PARALLEL
+    args
+    #endif
+    ) {
+
     if (isfunction(UorB)) {
         U = UorB;
         ExPostSmoothing::Initialize(new OneStateModel());
@@ -613,7 +619,7 @@ OneStateModel::Initialize(UorB,Method,...) {
         ExPostSmoothing::Initialize(UorB);
         }
     SetClock(StaticProgram);
-    Actions(va_arglist());
+    Actions(args);
     EndogenousStates(new Fixed("q"));
     CreateSpaces(Method);
 	}
@@ -874,7 +880,6 @@ OneDimensionalChoice::Utility()    {
 **/
 OneDimensionalChoice::CreateSpaces(Method,smparam) {
 	ExPostSmoothing::CreateSpaces(Method,smparam);
-//    if (!called) oxwarning("DDP Warning 05.\n The creator routine for OneDimensionalChoice states has not been called.\nRuntime errors likely.\n");
 	if (N::Av!=1) oxrunerror("1-d model must have exactly one action variable");
 	if (SS[bothexog].size>1) oxrunerror("1-d model does not allow exogenous variables");	
 	}

@@ -224,9 +224,10 @@ Path::Simulate(T,DropTerminal){
 	cur = this;
 	this.T=1;  //at least one outcome on a path
     if (T==UnInitialized) T = INT_MAX;
+    Flags::Phase = Simulating;
     do {
        done = cur->Outcome::Simulate();
-       if ( done || this.T>=T || (isclass(pathpred) && pathpred->AppendSimulated()) ) break;
+       if ( done || this.T>=T || (isclass(pathpred) && pathpred->AppendSimulated(cur)) ) break;
        ++this.T;
        cur = !isclass(cur.onext) ? new Outcome(cur) : cur.onext;
        } while(TRUE);
@@ -599,6 +600,7 @@ Path::TypeContribution(pf,subflat) {
 /** Compute likelihood of a realized path.
 **/
 Path::Likelihood() {
+    Flags::Phase = Liking;
 	if (isint(viinds)) {
 		viinds = new array[DVspace];
 		vilikes = new array[DVspace];
@@ -702,7 +704,7 @@ Path::Mask() {
 	cur = this;
     AnyMissing[] = FALSE;
     do { cur ->Outcome::Mask();	} while ( (isclass(cur = cur.onext)) );
-    if (any(AnyMissing[<onlyacts,onlysemiexog,onlyendog>]))
+    if (any(AnyMissing[maskoffs]))
         LType = PartObsLike;
     else if (AnyMissing[onlyexog])
         LType = ExogLike;
@@ -782,9 +784,12 @@ OutcomeDataSet::MatchToColumn(aORs,LorC) {
             ignored.<br/>
 @param ... continues with object2, LoC2, object3, LorC3, etc.<br/>
 **/
-OutcomeDataSet::ObservedWithLabel(as1,...) {
-	decl offset,aORs,LorC,va = isarray(as1) ? as1 : {as1},k,bv;
-    va |= va_arglist();
+OutcomeDataSet::ObservedWithLabel(...
+    #ifdef OX_PARALLEL
+    va
+    #endif
+) {
+	decl offset,aORs,LorC,k,bv;
 	if (!Version::MPIserver && Data::Volume>SILENT) fprint(Data::logf,"\nAdded to the observed list: ");
     foreach (aORs in va) {
 		if (StateVariable::IsBlock(aORs)) {
@@ -813,8 +818,12 @@ OutcomeDataSet::ObservedWithLabel(as1,...) {
 @comments Does nothing unless variable was already sent to
 `OutcomeDataSet::ObservedWithLabel`();
 **/
-OutcomeDataSet::UnObserved(as1,...) {
-	decl offset,aORs,va = {as1}|va_arglist(),k;
+OutcomeDataSet::UnObserved(...
+    #ifdef OX_PARALLEL
+    va
+    #endif
+) {
+	decl offset,aORs,k;
 	for (k=0;k<sizeof(va);++k) {
 		aORs = va[k];
 		if (StateVariable::IsBlock(aORs)) {

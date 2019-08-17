@@ -1,6 +1,6 @@
 #import "DDP"
 
-enum{FarmT=50,Age0=20,BullMax=2,BullMaturity=3,Ndraws=115}
+enum{FarmT=100,Age0=20,BullMax=2,BullMaturity=3,Ndraws=115}
 
 /** Rosenzweig Wolpin 1993 model **/
 struct Farmer : Bellman	{

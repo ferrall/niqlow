@@ -128,7 +128,7 @@ struct ParameterBlock : Parameter {
 	/** array of labels.          **/            	PsiL,
 	/** current param in V.  **/   					curpar;
 	ParameterBlock(L="PB",...);
-	AddToBlock(psi,...);
+	AddToBlock(...);
 	ToggleDoNotVary(elements=DoAll);
     Xb(X);
 	virtual BlockCode();

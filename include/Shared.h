@@ -97,6 +97,7 @@ static decl _arg, _noarg, _x, _v;
 	vararray(s);
 	MyMoments(M,rlabels=0,oxf=0);
 	prefix(pfx, s);
+    suffix(s,sfx);
     abbrev(s);
 	GaussianKernel(X,h=UseDefault);
     Epanechnikov(X,h);
@@ -134,7 +135,8 @@ struct Quantity {
         /** Volume of output. **/               Volume,
         /** Log dedicated to this qty.**/       logf,
 		/** position in vector   **/  	  	    pos,
-		/** Current actual value      **/  	    v;
+		/** Current actual value      **/  	    v,
+        /** Data tracking object **/            track;
     SetVolume(Volume);
 	}
 	
@@ -151,6 +153,7 @@ struct Discrete	: Quantity{
 	virtual PDF();
 	virtual Update();
     virtual SetActual(MaxV=1.0);
+    virtual Track(LorC);
 	}
 
 /** Represent a continuously varying quantity.**/
@@ -251,13 +254,13 @@ struct GHK   : Integration {
 /** Checks minimum Ox version and prints copyright info. **/
 class Version : Zauxiliary {
 	/** Minimum Ox Version required. @name Oxversion **/
-	enum {MinOxVersion=719} //709 700
+	enum {MinOxVersion=800} //719 709 700
 
 	static decl checked;
 
 public: 	
     static const decl
-    	/** Current niqlow version. @name niqlowversion **/ version=350;
+    	/** Current niqlow version. @name niqlowversion **/ version=400; //=350
     static decl htlog, HTopen, logdir, tmstmp, MPIserver=FALSE;
 	static Check(logdir=curdir);
 

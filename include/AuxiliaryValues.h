@@ -14,6 +14,7 @@ struct AuxiliaryValue : Quantity {
 	AuxiliaryValue(L="Aux");
 	virtual Realize(y=0);
     virtual Likelihood(y=0);
+    virtual Track(LorC);
 	}
 
 struct StaticAux : AuxiliaryValue {
@@ -34,14 +35,14 @@ struct RealizedUtility : AuxiliaryValue {
 struct Indicator : AuxiliaryValue {
     const decl ttype, target, myval, iobj, iacted;
     Indicator(target,myval,iobj=UnInitialized,prefix=NotInData);
-    virtual Realize(y);
+    virtual Realize(y=0);
     }
 
 /** Create
 **/
 struct MultiIndicator : Indicator {
     MultiIndicator(target,myval,iobj,prefix);
-    Realize(y);
+    Realize(y=0);
     }
 
 struct ZetaRealization : AuxiliaryValue {  //Changed April 2016 from Quantity

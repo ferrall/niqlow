@@ -22,26 +22,41 @@ I::Initialize() {
 /** Sets and stores all the state indices, called by `Task::loop` and anything else that directly sets the state.
 @param state current state vector
 @param group TRUE if the group indices should be set as well.
+@return TRUE if the current point exists (is reachable)
 **/
 I::Set(state,group) {
+
 	all[] = OO*state;
-    curth = Theta[all[tracking]];
-    Alpha::SetA(isclass(curth) ? UseCurrent : NoMatch);
-    if (group) {
-	   g = int(all[bothgroup]);
-	   f = int(all[onlyfixed]);
-	   r = int(all[onlyrand]);
-       rtran = int(all[onlydynrand]);
-       curg = Gamma[g];
-       if (isclass(curg)) {
-	       curg->Sync();
-	       curg->Density();
-           }
+    #ifdef OX_PARALLEL
+        // .Null not recognized by oxdoc
+    curth = (Theta[all[tracking]] == .Null) ? 0 : Theta[all[tracking]];
+    #endif
+    Alpha::SetA( isclass(curth) ? UseCurrent : NoMatch );
+    if (group) SetGroup();
+    return isclass(curth);
+    }
+
+I::SetGroup(GorSV) {
+    if (isint(GorSV) && GorSV!=UseCurrent) {
+        g = all[bothgroup] = GorSV;
+        }
+    else {
+       all[groupoffs] = I::OO[groupoffs][]*GorSV;
+       g = int(all[bothgroup]);
        }
+    curg = Gamma[g];
+    if (isclass(curg)) {
+	   f = all[onlyfixed] = curg.find;
+	   r = all[onlyrand] = curg.rind;
+       rtran = .NaN; // This put here to catch errors if rtran used and not working
+	   curg->Sync();
+	   curg->Density();
+      }
+    return curg;
     }
 
 I::SetExogOnly(state) {
-	all[<onlyexog,onlysemiexog,bothexog>] = OO[<onlyexog,onlysemiexog,bothexog>][]*state;
+	all[exogoffs] = OO[exogoffs][]*state;
     }
 
 /** Tracks information about a subvector of the state vector. **/
@@ -134,16 +149,7 @@ This also sets `I::f` and `I::g`
 @see DP::Settheta
 **/
 DP::SetGroup(GorState) {
-	I::g = ismatrix(GorState)
-			?  int(I::OO[bothgroup][]*GorState)
-			:  GorState;
-	if (isclass(Gamma[I::g])) {
-		Gamma[I::g]->Sync();
-		Gamma[I::g]->Density();
-		I::f = Gamma[I::g].find;
-		I::r = Gamma[I::g].rind;
-		}
-	return Gamma[I::g];
+    return I::SetGroup(GorState);
 	}
 
 DP::SetG(f,r) {
@@ -258,26 +264,42 @@ DP::AddStates(SubV,va) 	{
 		}
 	}
 
-/** Add `StateVariable`s to the endogenous vector &theta;.
-@param v1,... `StateVariable`s
+/** Add `StateVariable`s to the endogenous vector $\theta$.
+@param ... `StateVariable`s to add to $\theta$
 **/
-DP::EndogenousStates(v1,...)	{	AddStates(endog,v1|va_arglist()); }
+DP::EndogenousStates(...
+    #ifdef OX_PARALLEL
+    vs
+    #endif
+    )	{	AddStates(endog,vs); }
 
-/** Add `StateVariable`s to the exogenous vector &epsilon;.
-@param v1... Exogenous `StateVariable`s
+/** Add `StateVariable`s to the exogenous vector $\epsilon$.
+@param ... Exogenous `StateVariable`s to add $\epsilon$
 **/
-DP::ExogenousStates(v1,...) 	{ AddStates(exog,v1|va_arglist()); } 	
+DP::ExogenousStates(...
+    #ifdef OX_PARALLEL
+    vs
+    #endif
+) 	{ AddStates(exog,vs); } 	
 
-/** Add `StateVariable`s to the semiexogenous vector &eta;.
-@param v1 ... Semi-exogenous `StateVariable`s
+/** Add `StateVariable`s to the semiexogenous vector $\eta$.
+@param ... Semi-exogenous `StateVariable`s to add to $\eta$
 **/
-DP::SemiExogenousStates(v1,...) 	{ AddStates(semiexog,v1|va_arglist()); } 	
+DP::SemiExogenousStates(...
+    #ifdef OX_PARALLEL
+    vs
+    #endif
+) 	{ AddStates(semiexog,vs); } 	
 
-/** Add `TimeInvariant`s to the group vector &gamma;.
-@param v1,... `TimeInvariant`s
+/** Add `TimeInvariant`s to the group vector $\gamma$.
+@param ... `TimeInvariant`s to add to $\gamma$
 **/
-DP::GroupVariables(v1,...)	{
-	decl va = {v1}|va_arglist(), cv;
+DP::GroupVariables(...
+    #ifdef OX_PARALLEL
+    va
+    #endif
+)	{
+	decl cv;
     foreach(cv in va) {
 		if (isclass(cv,"FixedEffect")||isclass(cv,"FixedEffectBlock")) AddStates(fgroup,cv);
 		else if (isclass(cv,"RandomEffect")||isclass(cv,"RandomEffectBlock")) AddStates(rgroup,cv);
@@ -285,8 +307,8 @@ DP::GroupVariables(v1,...)	{
 		}
 	}
 
-/** Add variables to the action vector <code>&alpha;</code>.
-@param Act1 ... `ActionVariable`s to add
+/** Add variables to the action vector $\alpha$.
+@param ... `ActionVariable`s to add to $\alpha$
 
 See <a href="Variables.ox.html#ActionVariables">Action Variables</a> for more explanation.
 
@@ -305,15 +327,19 @@ Actions(work = new ActionVariable("w",2));
 @comments
 If no action variables are added to <code>MyModel</code> then a no-choice action is added by `DP::CreateSpaces`().
 **/
-DP::Actions(Act1,...) 	{
-	decl va = Act1|va_arglist(), i, nr, pos=S[acts].D, sL;
+DP::Actions(...
+    #ifdef OX_PARALLEL
+    va
+    #endif
+) 	{
+	decl a, nr, pos=S[acts].D, sL;
 	AddStates(acts,va);
-	for(i=0;i<sizeof(va);++i)	{
-		va[i].pos = pos;
-		N::AA |= va[i].N;
-		sL = va[i].L;
+    foreach (a in va) { //	for(i=0;i<sizeof(va);++i)	{
+		a.pos = pos;
+		N::AA |= a.N;
+		sL = a.L;
 		if (!pos) {
-			Alpha::Matrix = va[i].vals';
+			Alpha::Matrix = a.vals';
 			Labels::V[avar] = {sL};
             Labels::Vprt[avar] = {abbrev(sL)};
 			}
@@ -321,39 +347,43 @@ DP::Actions(Act1,...) 	{
 			Labels::V[avar] |= sL;
             Labels::Vprt[avar] |= abbrev(sL);
 			nr = rows(Alpha::Matrix);
-	 		Alpha::Matrix |= reshape(Alpha::Matrix,(va[i].N-1)*nr,pos);
-			Alpha::Matrix ~= vecr(va[i].vals' * ones(1,nr));	 		
+	 		Alpha::Matrix |= reshape(Alpha::Matrix,(a.N-1)*nr,pos);
+			Alpha::Matrix ~= vecr(a.vals' * ones(1,nr));	 		
 	 		}
 		++pos;
 		}
 	}
 
-/** Add `AuxiliaryValue`s to `DP::Chi`.
-@param v1 ... `AuxiliaryValue`s or array of auxiliary variables
+/** Add `AuxiliaryValue`s to $\chi$.
+@param ... `AuxiliaryValue`s or array of auxiliary variables to add to $\chi$
+@see DP::Chi
 **/
-DP::AuxiliaryOutcomes(auxv,...) {
+DP::AuxiliaryOutcomes(...
+    #ifdef OX_PARALLEL
+    va
+    #endif
+) {
 	if (!isarray(SubVectors)) oxrunerror("DDP Error 40. Error: can't add auxiliary before calling Initialize()",0);
 	//if (Flags::ThetaCreated) oxrunerror("DDP Error 36a. Error: can't add auxiliary after calling DP::CreateSpaces()");
-	decl va = auxv|va_arglist(), pos = sizeof(Chi), i,sL;
-	for (i=0;i<sizeof(va);++i) {
-        if (isarray(va[i])) {
-            AuxiliaryOutcomes(va[i]);
-            continue;
-            }
-		TypeCheck(va[i],"AuxiliaryValue");
-		Chi |= va[i];
-        sL =va[i].L;
-		if (!pos) {
-            Labels::V[auxvar] = {sL};
-            Labels::Vprt[auxvar] = {abbrev(sL)};
-            }
+	decl pos = sizeof(Chi), i,j,s;
+    foreach(s in va) {
+        if (isarray(s))
+            { foreach (j in s) AuxiliaryOutcomes(j); }
         else {
-            Labels::V[auxvar] |= sL;
-            Labels::Vprt[auxvar] |= abbrev(sL);
-            }
-		va[i].pos = pos++;
-		}
-    N::aux = sizeof(Chi);
+	       TypeCheck(s,"AuxiliaryValue");
+	       Chi |= s;
+	       if (!pos) {
+                Labels::V[auxvar] = {s.L};
+                Labels::Vprt[auxvar] = {abbrev(s.L)};
+                }
+           else {
+                Labels::V[auxvar] |= s.L;
+                Labels::Vprt[auxvar] |= abbrev(s.L);
+                }
+		   s.pos = pos++;
+           N::aux = sizeof(Chi);
+		  }
+        }
 	}
 
 /** Create and return a list of auxiliary values for interactions.
@@ -401,7 +431,7 @@ xlabbrev: abbreviated label of member of olist (max 4 characters)
 DP::MultiInteractions(ivarlist,ilov,ihiv,olist,prefix) {
     decl k, ilist = {},nvec,d,M=sizeof(ivarlist);
     if (M!=rows(ilov)||M!=rows(ihiv)) oxrunerror("Arrays and bounds not same length");
-    foreach(k in ivarlist[d]) ihiv[d] = min(ihiv[d],k.N-1);
+    foreach(k in ivarlist[d]) { ihiv[d] = min(ihiv[d],k.N-1); }
     olist = isarray(olist) ? olist : {olist};
     nvec = ilov;
 	d=1;				   							// start at leftmost state variable to loop over
@@ -505,7 +535,7 @@ GroupTask::loop(IsCreator){
 	do	{
 		do {
 			SyncStates(left,left);
-            I::Set(state,TRUE);
+            I::Set(state,Flags::ThetaCreated); //March 2019 removed TRUE to handle Ox8 new arrays
             if (trace) println("------Group task loop: ",classname(this)," Running ",state[left:right]');
 			if (IsCreator || isclass(I::curg) ) this->Run();
 			} while (--state[left]>=0);
@@ -530,16 +560,15 @@ CGTask::CGTask() {
 	Fgamma = new array[N::F][N::R];
 	gdist = zeros(N::F,N::R);
 	loop(TRUE);
-	decl r,g,f;
-	for (f=0,g=0;f<N::F;++f) {for (r=0;r<N::R;++r) Fgamma[f][r] = Gamma[g++];}
-	}
+    }
 
 /** .
 **/
 CGTask::Run() {
-	Gamma[I::g] =  (Flags::AllGroupsExist||any(Hooks::Do(GroupCreate)))
-						? new Group(I::g,state)
+	Gamma[I::all[bothgroup]] =  (Flags::AllGroupsExist||any(Hooks::Do(GroupCreate)))
+						? new Group(I::all[bothgroup],state)
 						: 0;
+    Fgamma[I::all[onlyfixed]][I::all[onlyrand]] = Gamma[I::all[bothgroup]];
 	}
 		
 /** . @internal **/
@@ -612,6 +641,39 @@ SemiTrans::Run() {
     I::ehi += N::Ewidth;
     I::curth->ExogStatetoState();
 	I::elo += N::Ewidth;
+    }
+
+ExogOutcomes::ExogOutcomes() {    ExTask();   auxlist={}; }
+
+/** Compute the expected values of tracked auxiliary variables over the exogenous vector &epsilon; **/
+ExogOutcomes::ExpectedOutcomes(howmany,chq) {
+    decl tv;
+    this.chq = chq;
+    foreach(tv in auxlist) { tv.track.v = 0.0; }
+    if (howmany==DoAll)
+        loop();
+    else {
+        oxrunerror("make sure eps synched");
+        Run();
+        }
+    }
+
+ExogOutcomes::Run() {
+    Hooks::Do(PreAuxOutcomes);
+    I::curth->OutcomesGivenEpsilon(); //ExpectedOutcomesOverEpsilon(chq);
+    if (Flags::Phase==Predicting) { // no need to do this when solving
+        decl tv;
+        foreach(tv in auxlist) {
+            tv->Realize();
+            tv.track.v += sumc(chq[][I::all[bothexog]].*tv.v);
+            }
+        }
+    }
+
+ExogOutcomes::SetAuxList(tlist) {
+    if (sizeof(auxlist)) return;  // already done
+    decl tv;
+    foreach (tv in tlist) if (isclass(tv,"AuxiliaryValue")) auxlist |= tv;
     }
 
 /** Initialize $A(\theta)$ spaces.
@@ -750,7 +812,7 @@ Labels::Initialize() {
 /** Reset all Flags.
 @internal
 **/
-Flags::Reset() { delete UpdateTime; UpdateTime = StorePA = DoSubSample = IsErgodic = HasFixedEffect = ThetaCreated = FALSE; }
+Flags::Reset() { delete UpdateTime; Phase = UpdateTime = StorePA = DoSubSample = IsErgodic = HasFixedEffect = ThetaCreated = FALSE; }
 
 /** Reset all Sizes.
 @internal
@@ -809,7 +871,7 @@ N::ZeroVV() {
 **/
 N::print(){
 	println("\n5. TRIMMING AND SUBSAMPLING OF THE ENDOGENOUS STATE SPACE (Theta)","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated"},
-    "%cf",{"%10.0f"},ReachableStates|TerminalStates|Approximated,"\n  Index of first state by t (t=0..T-1)","%5.0f",tfirst');
+    "%cf",{"%10.0f"},ReachableStates|TerminalStates|Approximated,"\n  Index of first state by t (t=0..T-1)","%7.0f",tfirst');
     }
 
 /** Add trackind to the list of reachable indices (called internally).
@@ -821,10 +883,6 @@ N::Reached(trackind) {
 	ReachableIndices |= trackind;
     }
 
-/** Check if trackind index is on reachable list.
-@param trackind tracking index
-@return any(ReachableIndices.==trackind)
-**/
 N::IsReachable(trackind) {
     return any(ReachableIndices.==trackind);
     }
@@ -870,7 +928,8 @@ DP::Initialize(userState,UseStateList) {
 	F = new array[DVspace];
 	P = new array[DVspace];
 	//alpha =
-    chi = zeta = delta = Impossible;
+    //  chi =
+    zeta = delta = Impossible;
     SetUpdateTime();
     if (strfind(arglist(),"NOISY")!=NoMatch) {
             Volume = NOISY;
@@ -1096,7 +1155,6 @@ DP::CreateSpaces() {
 		print("\n4. ACTION VARIABLES\n   Number of Distinct action vectors: ",N::A);
 		println("%r",{"    a.N"},"%cf","%7.0f","%c",Labels::Vprt[avar],N::AA');
 		}
-    Flags::ThetaCreated = TRUE;
 	cputime0=timer();
 	Theta = new array[SS[tracking].size];
     I::Initialize();
@@ -1107,6 +1165,7 @@ DP::CreateSpaces() {
     else {
        decl INf , inI = new I(), inN = new N();
        if (Flags::ReadIN) {
+           oxrunerror("ReadIN dimensions option needs to be checked.  Don't use for now");
            INf = fopen(L+".dim","rV");
            fscan(INf,"%v",&inI,"%v",&inN);
            }
@@ -1121,11 +1180,11 @@ DP::CreateSpaces() {
                 "%8.0f","%c",{"Reachble"}|{"Tracking"}|Labels::Vprt[svar][S[endog].M:S[clock].M],tt.rchable);
                 }
             delete tt;
-            INf = fopen(L+".dim","wV");
+            // INf = fopen(L+".dim","wV");
             I::curth = I::curg = UnInitialized;
-            fprint(INf,"%v",&inI,"%v",&inN);
+            // fprint(INf,"%v",&inI,"%v",&inN);
             }
-       fclose(INf);
+       // fclose(INf);
        delete inI, inN;
        N::Sizes();
        Alpha::SetA(NoMatch);
@@ -1138,6 +1197,7 @@ DP::CreateSpaces() {
 	if ( !Version::MPIserver && Flags::IsErgodic && N::TerminalStates )
         oxwarning("DDP Warning 19.\n clock is ergodic but terminal states exist?\n Inconsistency in the set up.\n");
 	tt = new CGTask();	delete tt;
+    Flags::ThetaCreated = TRUE; //March 2019 moved below group creation for Ox8 handling of new arrays
 	if (isint(zeta)) zeta = new ZetaRealization(0);
 	DPDebug::Initialize();
   	V = new matrix[1][SS[bothexog].size];
@@ -1164,6 +1224,7 @@ DP::CreateSpaces() {
    XUT = new ExogUtil();
    IOE = new SemiEV();
    EStoS = new SemiTrans();
+   EOoE = new ExogOutcomes();
    if (!Version::MPIserver && Volume>SILENT)
 		println("-------------------- End of Model Summary ------------------------\n");
    Data::SetLog();
@@ -1298,6 +1359,7 @@ CreateTheta::Run() {
         Theta[I::all[tracking]] = clone(userState,Zero);
 		Theta[I::all[tracking]] ->SetTheta(state,picked());
 		}
+    else Theta[I::all[tracking]]=0;
 	}
 
 /** .
@@ -1336,8 +1398,12 @@ Task::loop(IsCreator){
 	do	{
 		do {
 			SyncStates(left,left);
-            I::Set(state);
-			if (isclass(I::curth)||IsCreator) this->Run();
+            if (IsCreator) {
+                I::all[] = I::OO*state;
+                this->Run();
+                }
+            else
+                if (I::Set(state)) this->Run();
 			++iter;
 			} while (--state[left]>=0);
 		state[left] = 0;
@@ -1434,8 +1500,7 @@ Task::list(span,inlows,inups) {
             }
 	   state = news;
 	   SyncStates(left,right);
-       I::Set(state);
-	   if (isclass(I::curth)) this->Run();
+       if (I::Set(state)) this->Run();
 	   ++iter;
 	   } while (--s>=lows);
     if (trace) println("*** End List: ",classname(this));
@@ -1573,9 +1638,12 @@ CreateSpaces();
 @comments <code>MyModel</code> can also create a derived `Clock` and pass it to SetClock.
 		
 **/
-DP::SetClock(ClockOrType,...)	{
+DP::SetClock(ClockOrType,...
+    #ifdef OX_PARALLEL
+    va
+    #endif
+)	{
 	if (isclass(counter)) oxrunerror("DDP Error 46. Clock/counter state block already initialized");
-	decl va = va_arglist() ;
 	if (isclass(ClockOrType,"Clock")) {
         counter = ClockOrType;
         ClockType = UserDefined;
@@ -1907,8 +1975,12 @@ DPDebug::Initialize() {
 	Vlabel0 = {"    Indx","T","A"}|Labels::Vprt[svar][S[endog].M:S[clock].M]|"     r"|"     f"|"       EV      |";
 	}
 
-DPDebug::outSVTrans(S1,...) {
-	decl rp = new SVT(isarray(S1) ? S1|va_arglist() : array(S1)|va_arglist());
+DPDebug::outSVTrans(...
+    #ifdef OX_PARALLEL
+    va
+    #endif
+) {
+	decl rp = new SVT(va);
 	rp -> Traverse();
 	delete rp;
     }

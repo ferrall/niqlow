@@ -48,7 +48,8 @@ struct  Bellman : DP {
 			virtual ZetaRealization();
 			virtual	AutoVarPrint1(task);
 			virtual	Interface();
-            virtual ExpectedOutcomesOverEpsilon(CondChoiceProb);
+            virtual OutcomesGivenEpsilon();
+            //virtual ExpectedOutcomesOverEpsilon(CondChoiceProb);
 //			virtual Predict(tod);
             virtual OutputValue();
             virtual SetTheta(state=0,picked=0);
@@ -260,9 +261,9 @@ struct OneDimensionalChoice : ExPostSmoothing {
     virtual Setz(z);
 	}
 
-/** A OneDimensionalChoice model with discretized approximation to &zeta;.
+/** A OneDimensionalChoice model with discretized approximation to $\zeta$.
 
-A discrete approximation to &zeta; enters the state vector if the decision is to accept (<code>d&gt;0</code>).
+A discrete approximation to $\zeta$ enters the state vector if the decision is to accept (<code>d&gt;0</code>).
 
 **/
 struct KeepZ : OneDimensionalChoice {

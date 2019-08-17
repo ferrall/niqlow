@@ -58,12 +58,12 @@ struct Objective	{
 
 	        ToggleParameterConstraint();
     virtual Recode(HardCode=FALSE);
-	virtual	ToggleParams(a,...);
+	virtual	ToggleParams(...);
     virtual ToggleBlockElements(pblock,elements=DoAll);
 	virtual	CheckMax(fn=0);
 	virtual Print(orig,fn=0,toscreen=TRUE);
 	virtual	CheckPoint(f,saving);
-	virtual Parameters(psi, ... );			
+	virtual Parameters(...);			
 	virtual Block(B);
 	virtual Gradient(extcall=TRUE);
 	virtual Jacobian();
@@ -198,7 +198,7 @@ struct Separable : UnConstrained	{
 			ResetCommon(hold);
 	virtual Print(orig,fn=0,toscreen=TRUE);
 //	virtual	CheckPoint(f,saving);
-	virtual	Common(psi, ... );	
+	virtual	Common(... );	
 	virtual vfunc();						   			
 	virtual fobj(F,extcall=TRUE);
 	virtual vobj(F);

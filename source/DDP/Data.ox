@@ -17,10 +17,14 @@ Save weight matrix in <code>pathW_??.mat</code>
 **/
 PathPrediction::SimulateOutcomePaths(curfpanel,N,ErgOrStateMat) {
     pathW = <>;
+    plabels = {};
     cur = this;  //initialize to first prediction on the path.
     curfpanel -> FPanel::Simulate(N,UnInitialized,ErgOrStateMat,FALSE,this);
-    if (!savemat("logs/flat_"+sprint("%02u",f)+".dta",pathW,tlabels[1:])) println("save of pathW failed");
+    if (!savemat("logs/flat_"+sprint("%02u",f)+".dta",pathW,plabels)) println("save of pathW failed");
     pathW = variance(pathW);
+    print(" Variance rank before diagonal adjust: ",rank(pathW));
+//    pathW = setdiagonal(pathW,setbounds(diagonal(pathW),SQRT_EPS,+.Inf));
+//    println(" after ",rank(pathW));
 //    savemat("logs/var_"+sprint("%02u",f)+".dta",pathW);
     pathW = invertgen(pathW,1);
     println("PathW ",f," Dimension: ",rows(pathW)," Rank: ",rank(pathW));
@@ -47,27 +51,31 @@ PredictionDataSet::SimulateMomentVariances(N,ErgOrStateMat,fvals) {
     }
 
 
-PathPrediction::AppendSimulated() {
+PathPrediction::AppendSimulated(Y) {
     decl m,tflat = <>;
    foreach(m in tlist)
-        if (m.LorC!=NotInData)   //  && !isnan(cur.empmom[n]) unmatched moments always have .NaN
-            switch_single (TypeCheck(m.obj,ilistnames)) {
-                case AuxInt   : tflat ~= AV(m.obj);  //simout.chi[m.obj.pos];
-                case ActInt   : tflat ~= Alpha::aA[m.obj.pos];
-                case StateInt : tflat ~= AV(m.obj);  //simout.state[m.obj.pos];
-                default:  oxrunerror("Not valid ",classname(m.obj));
+        if (m.track.LorC!=NotInData)   //  && !isnan(cur.empmom[n]) unmatched moments always have .NaN
+            switch_single (TypeCheck(m,ilistnames)) {
+                case AuxInt   : tflat ~= Y.aux[m.pos];  // Set in Bellman::Simulate()
+//m->Realize();
+//                                if (rows(m.v)>1) println(m.L," ",m.v);
+//                                tflat ~= m.v;
+                case ActInt   : tflat ~= m.actual[Y.act[m.pos]];  //Set in Bellman::simulate should be a better way to do this
+                case StateInt : tflat ~= AV(m);  //Synchronized in Outcome::Simulate()
+                default:  oxrunerror("Not valid ",classname(m));
                 }
     if (!(cur.t))                  // start of new simulated path
         flat = tflat;
     else
         flat ~= tflat;
+    if (!rows(pathW)) plabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
     if (isclass(cur.pnext)) {      // not end of empirical path
         cur = cur.pnext;
         return FALSE;
         }
     else {  // reset to 0
-        pathW |= flat;  // flat reset on next 0
-        cur = this;
+        pathW |= flat;  // flat will be reset on next t=0
+        cur = this;     // reset
         return TRUE;
         }
     }

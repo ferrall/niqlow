@@ -1,4 +1,5 @@
-Version := OxMetrics7
+#Version := OxMetrics7
+Version := OxMetrics8
 OS := Windows
 
 ifeq ($(OS), Windows)

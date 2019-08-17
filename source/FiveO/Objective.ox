@@ -294,17 +294,20 @@ Objective::Decode(F)	{
 	}
 
 /** Toggle DoNotVary for one or more parameters.
-@param a `Parameter` or array of parameters
-@param ... more parameters or array of parameters.
+@param ... `Parameter`s or arrays of parameter
 
 To toggle elements of a parameter block ...
 
 @see Objective::ToggleBlockElements
 **/
-Objective::ToggleParams(a,...) {
-    decl v, va = va_arglist()|a;
+Objective::ToggleParams(...
+    #ifdef OX_PARALLEL
+    va
+    #endif
+) {
+    decl v,p;
 	foreach (v in va) {
-        if (isarray(v)) ToggleParams(v);
+        if (isarray(v)) { foreach (p in v) ToggleParams(p); }
         else
             v->ToggleDoNotVary();
         }
@@ -640,42 +643,44 @@ Constrained::Jacobian() {
 
 
 /** Add `Parameter`s to the parameter list to be optimized over.
-@param psi1 the first or next (and possibly only) parameter to add to the objective<br>
+@param ... the first or next (and possibly only) parameter to add to the objective<br>
 array: any argument can send an array which contains only parameters and blocks	
-@param ... additional parameters and blocks to add
 @see Parameter,  Objective::Psi
 **/
-Objective::Parameters(psi1, ... ) {
+Objective::Parameters(...
+    #ifdef OX_PARALLEL
+    args
+    #endif
+) {
 	if (once) oxrunerror("FiveO Error 33. Cannot add parameters after calling Objective::Encode()");
- 	decl a, b, nxt, i, args =  isarray(psi1) ? psi1 : {psi1};
-	args |= va_arglist();
-    if (!sizeof(args)) oxwarning("FiveO Warning??.  Parameters called with an empty list");
-	for(a=0;a<sizeof(args);++a) {
-		nxt = isarray(args[a]) ? args[a] : {args[a]};
-		for(i=0;i<sizeof(nxt);++i) {
-			if (isclass(nxt[i],"ParameterBlock")) {
-				nxt[i].pos = sizeof(Blocks);
-				Blocks |= nxt[i];
-				for (b=0;b<sizeof(nxt[i].Psi);++b) {
-					Parameters(nxt[i].Psi[b]);
-					nxt[i].Psi[b].block = nxt[i];
-//					nxt[i].Psi[b]=0;  //avoid ping-pong referencing between psi's and block
+ 	decl a, p, b;
+     if (!sizeof(args)) oxwarning("FiveO Warning??.  Parameters called with an empty list");
+    foreach(a in args) {
+        if (isarray(a)) { foreach (p in a) Parameters(p); }
+        else {
+		  if (isclass(a,"ParameterBlock")) {
+			 a.pos = sizeof(Blocks);
+			 Blocks |= a;
+			 for (b=0;b<sizeof(a.Psi);++b) {
+					Parameters(a.Psi[b]);
+					a.Psi[b].block = a;
+                    //a.Psi[b]=0;  //avoid ping-pong referencing between psi's and block
 					}
-				}
-			else if (isclass(nxt[i],"Parameter")) {
-				if(nxt[i].pos!=UnInitialized) oxrunerror("FiveO Error 34. Parameter "+nxt[i].L+" already added to objective.");
-				nxt[i].pos = sizeof(Psi);
-				Psi |= nxt[i];
+            }
+		  else if (isclass(a,"Parameter")) {
+				if (a.pos!=UnInitialized) oxrunerror("FiveO Error 34. Parameter "+a.L+" already added to objective.");
+				a.pos = sizeof(Psi);
+				Psi |= a;
 				if (sizeof(PsiL))
-					{ PsiL |= nxt[i].L; PsiType |= classname(nxt[i]);}
+					{ PsiL |= a.L; PsiType |= classname(a);}
 				else
-					{PsiL = {nxt[i].L}; PsiType = {classname(nxt[i])};}
-				cur.X |= nxt[i].v;
+					{PsiL = {a.L}; PsiType = {classname(a)};}
+				cur.X |= a.v;
 				}
 			else
 				oxrunerror("FiveO Error 34. Argument not of Parameter Class");
-			}
 		}
+      }
 	}
 
 /** Built in objective, f(&psi;).
@@ -768,14 +773,18 @@ BlackBox::BlackBox(L)	 {
 @param ... `Parameter`s and arrays of Parameters to optimize over.
 @comments  `Objective::NvfuncTerms` is set to <code>data.FN</code>, the total number of paths in the panel
 **/
-DataObjective::DataObjective (L,data,...)	{
+DataObjective::DataObjective (L,data,...
+    #ifdef OX_PARALLEL
+    va
+    #endif
+    )	{
     if ( ismember(data,"FN")!=2 || ismember(data,"EconometricObjective")!=1 )
 	       oxrunerror("data must have a FN member and a EconometricObjective method, like Panel and PanelPrediction classes");
 	BlackBox(L);
 	this.data = data;
 	NvfuncTerms = data.FN;  //total number of IID observations
     //	SetAggregation(LOGLINEAR);  Currently taking log() inside objective
-	decl va = va_arglist(),v;
+	decl v;
 	if (sizeof(va)) {
         foreach(v in va) Parameters(v);
 //		Encode();
@@ -958,12 +967,16 @@ Separable::Separable(L,Kvar) {
 	}
 
 /** Add parameters to the objective that will have a single value across types/sub-problems.
-@param psi1 `Parameter` one (and possibly only) parameter to add to the objective
+@param ... `Parameter`(s) and/or arrays of Parameters to add to the objective
 @comment On any call to <code>vfunc()</code> common parameters will have the same value for each <var>k</var>.
 **/
-Separable::Common(psi1, ... ) {
+Separable::Common(...
+    #ifdef OX_PARALLEL
+    va
+    #endif
+ ) {
 	decl cs = sizeof(Psi),m;
-	Objective::Parameters(isarray(psi1) ? psi1 : {psi1}|va_arglist());
+	Objective::Parameters(va);
 	for (m=cs;m<sizeof(Psi);++m) ComInd |= Psi[m].pos;
 	}
 
@@ -1162,8 +1175,12 @@ A single argument, then it must be a D&times;K matrix<br>
 D arguments, then each must be a `ParameterBlock` of size K and<br>
 	Lambda[d] = va[d]    for d = 0, &hellip; D&oline;<br>
 **/
-Mixture::Mixture(L,Dvar,Kvar,MixType,...) {
-	decl k,d, ll, va = va_arglist();
+Mixture::Mixture(L,Dvar,Kvar,MixType,...
+    #ifdef OX_PARALLEL
+    va
+    #endif
+) {
+	decl k,d, ll;
 	oxwarning("MIXTURE NOT WORKING YET.  WAIT UNTIL NEXT VERSION");
 	if (isclass(Dvar,"Discrete")) this.Dvar = Dvar;
 	else if (isint(Dvar)) this.Dvar = new Discrete("D",Dvar);

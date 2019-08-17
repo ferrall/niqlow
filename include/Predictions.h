@@ -21,44 +21,9 @@ struct DataColumn : Zauxiliary {
 	Observed(LorC);
 	UnObserved();
 	ReturnColumn(dlabels,incol);
-	}
-	
-/** Contains information on an object (variable, auxiliary outcome, etc) to be tracked.
-**/
-struct TrackObj : Zauxiliary {
-    const decl
-    /** Inherited fromt the object.**/  Volume,
-    /** See `DataColumnTypes` **/       type,
-    /** object can have a continuous
-        dynamic distribution. **/       contdist,
-    /** Position in the flat list  **/  pos,
-    /** `Discrete` object**/            obj,
-    /** label  **/                      L,
-    /** column label of index **/       LorC;
-    decl
-    /** **/     v,
-    /** **/     hN,
-    /** **/     hd,
-    /** **/     hv,
-    /** **/     hist,
-    /** **/     hvals,
-    /** **/     mean,
-    /** **/     sqmean;
-    static Create(LorC,obj,pos);
-    TrackObj(LorC,obj,pos);
-    virtual Reset();
-    virtual Distribution();
-    virtual Update();
-    virtual print();
-    }
+	}	
 
-struct ExogAuxPred : ExTask {
-    static decl chq, tmp, auxlist;
-    ExogAuxPred();
-    ExpectedOutcomes(howmany,chq);
-    Run();
-    }
-
+/*
 struct oTrack : TrackObj {
     oTrack(LorC,obj,pos);
     Distribution(pobj);
@@ -75,12 +40,13 @@ struct xTrack : TrackObj {
     xTrack(LorC,obj,pos);
     Distribution(pobj);
     }
+*/
 
 /** Predicted distribution across states.
 **/	
 struct 	Prediction : Data {
     static   const  decl tinyP = 1E-20;
-	static	decl ud, LeakWarned, PredictFailure, ctlist, exaux;
+	static	decl ud, LeakWarned, PredictFailure, ctlist;
 	const  	decl t;
 	decl
 		/** state index **/		             sind,
@@ -131,6 +97,7 @@ struct 	PathPrediction : Prediction {
     /** Weighting matrix for GMM for full path.**/  pathW,
     /** wide delta vector. **/                      vdelt,
     /** labels for vdelt.**/                        dlabels,
+    /** labels for simulated path.**/               plabels,
     /** Distance between predictions and emp.mom.**/ L,
     /** method to call for nested solution. **/		method,
                                                     first,
@@ -148,7 +115,7 @@ struct 	PathPrediction : Prediction {
     SetColumns(dlabels,Nplace=UnInitialized,Tplace=UnInitialized);
     TypeContribution(pf=1.0,subflat=0);
     ProcessContributions(cmat=0);
-    AppendSimulated();
+    AppendSimulated(Y);
     SimulateOutcomePaths(curfpanel,N,ErgOrStateMat);
 	}
 
