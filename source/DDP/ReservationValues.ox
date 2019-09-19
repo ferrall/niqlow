@@ -1,7 +1,7 @@
 #ifndef Mh
     #include "ReservationValues.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 
 /** Create a system of nonlinear equations to solve for reservation values.
@@ -26,7 +26,7 @@ Rsystem::Rsystem(LB,Ncuts,METHOD) {
         default : break;
 		}
     Volume = meth.Volume= SILENT;
-    meth.USELM = (Ncuts==1);
+    //meth.USELM = (Ncuts==1);
 	}
 	
 /** Objective for reservation value system (static EV).

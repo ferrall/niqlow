@@ -13,10 +13,12 @@ LSemp::ActualEarn() {
 LSemp::Run() {
     Initialize(1.0,new LSemp());
     Build();
-    beta = new Coefficients("beta",<0.8;1.0;-0.1;0.2>);
     sigma = 1.0;
+    obsearn = Noisy(ActualEarn,sigma,FALSE);
     obsearn = new Noisy(ActualEarn,sigma,FALSE);
     AuxiliaryOutcomes(obsearn);
+    CreateSpaces();
+    beta = new Coefficients("B",beta);
     CreateSpaces();
     Estimate();
     }

@@ -2026,7 +2026,7 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 SaveV::Run() {
     decl ai=I::curth.Aind;
 	if ((TrimTerminals && I::curth.Type>=TERMINAL) || (TrimZeroChoice && N::Options[I::curth.Aind]<=1) ) return;
-    decl mxi, p;
+    decl mxi, p, oned=isclass(I::curth,"OneDimensionalChoice");
     oxprintlevel(-1);
 	stub=I::all[tracking]~I::curth.Type~ai~state[S[endog].M:S[clock].M]';
     p = columns(I::curth.pandv)==rows(NxtExog[Qprob])
@@ -2034,12 +2034,12 @@ SaveV::Run() {
             :  ExpandP(ai, I::curth.pandv );
     r =stub~I::r~I::f~I::curth.EV; //N::VV[I::later][I::all[iterating]]
     if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
-	if (isclass(I::curth,"OneDimensionalChoice") && I::curth.solvez ) r ~= I::curth->Getz()[][I::r]';
+	if (oned && I::curth.solvez ) r ~= I::curth->Getz()[][I::r]';
 	if (!isint(aM)) aM[0] |= r;
     oxprintlevel(1);
 	s = (nottop)
 		? sprint("%cf",prtfmt,r)
-		: sprint("%c",isclass(I::curth,"OneDimensionalChoice") ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);
+		: sprint("%c",oned ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);
 	if (ToScreen) print(s[1:]); else fprint(logf,s[1:]);
 	nottop = TRUE;
 	}

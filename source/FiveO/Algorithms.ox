@@ -919,13 +919,14 @@ NonLinearSystem::Direction() 	{
 		return solvelu(l,u,p,-OC.V);
         }
 	else {
-		 if (resat) {
+		 if (Hresetcnt==One) {
 		 	println("**** ",OC.F',OC.J,"\n****");
-		 	oxrunerror("FiveO Error 07. Second failure to invert J.|n");
+		 	oxwarning("FiveO Warning 02. Second failure to invert J. Will quit|n");
+            ++Hresetcnt;
 			}
 		 oxwarning("FiveO Warning 02. NonLinearSystem: J inversion failed. J reset to identity matrix I.\n");
 		 OC.J = unit(N);
-		 resat = TRUE;
+         ++Hresetcnt;
 		 return Direction();
 		 }
 	}
@@ -955,7 +956,6 @@ NonLinearSystem::ItStartCheck(J) {
 	       else
 		  	   O->Jacobian();
            deltaX=.NaN;
-	       resat = FALSE;
            Hresetcnt = 0;
            }
         }
@@ -1010,7 +1010,7 @@ NonLinearSystem::JJupdate() {
 	decl dx;
 	if (this->Gupdate()) return STRONG;
 	deltaX = norm(dx=(OC.F - holdF),2);
-	if (deltaX<tolerance) return FAIL;
+	if (deltaX<tolerance) {println("failing"); return FAIL;}
     this->Jupdate(dx);
 	return NONE;
 	}

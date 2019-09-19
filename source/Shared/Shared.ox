@@ -27,7 +27,7 @@ Version::Check(logdir) {
         }
     chdir(hdir);
     }
- this.logdir = logdir+"/";
+ this.logdir = logdir+"\\";
  tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
  if (!Version::MPIserver)
     println("\n niqlow version ",sprint("%4.2f",version/100),

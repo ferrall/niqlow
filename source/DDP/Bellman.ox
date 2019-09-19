@@ -428,7 +428,7 @@ Bellman::Simulate(Y) {
 	zeta -> Realize(Y);
 	decl i,c;
     Y.aux =<>;
-    Y.act = Alpha::aC;  
+    Y.act = Alpha::aC;
 	Y.z = CV(zeta);
     foreach(c in Chi) { //		 // Utility should do this?
         c->Realize();  // Not sending Y.  This option seems to be unused now.
@@ -934,6 +934,7 @@ OneDimensionalChoice::thetaEMax(){
 	else {
         V[] = maxc(I::curth.pandv);
         }
+    println("** ",V);
 	return EV=V;
 	}
 

@@ -334,8 +334,7 @@ struct BHHH : Newton {
 
 /** Solve system of equations. **/
 struct NonLinearSystem	: GradientBased {
-		decl 	resat,
-                dg,
+		decl 	dg,
                 USELM;
 				Gupdate();
         		JJupdate();
