@@ -934,7 +934,6 @@ OneDimensionalChoice::thetaEMax(){
 	else {
         V[] = maxc(I::curth.pandv);
         }
-    println("** ",V);
 	return EV=V;
 	}
 

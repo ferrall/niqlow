@@ -2,6 +2,11 @@
 #import "DDP"
 #import "FiveO"
 
+/** Create a RV method, solve and then delete the method.
+@param ToScreen  send output to screen
+@param aM if an address store to a matrix
+@see VISolve
+**/
 RVSolve(ToScreen=TRUE,aM=FALSE);
 
 /** Represent V or R* as a non-linear system.
@@ -20,8 +25,16 @@ struct EVSystem : DPSystem	{
 /**System of equations for reservation value solutions.
 **/
 struct Rsystem : DPSystem {
-	const decl zstar, Ncuts, meth;
-	decl ru, curth, dV, c,lbv;
+	const decl
+        /** Increasing parameter block for z* **/ zstar,
+        /** number of reservation values (#options-1) **/ Ncuts,
+        /** non-linear system solver **/ meth;
+	decl
+        ru,
+        /** current &theta; .**/                   curth,
+        /** $\delta EV$ vector. **/                 dV,
+        /** .**/ c,
+        /** lower bound of cut-off parameters.**/ lbv;
 	RVSolve(dV);
 	Rsystem(LB,Nchoice,METHOD);
 	virtual vfunc();
@@ -63,6 +76,10 @@ The user writes routines that return ...
 
 **/
 struct ReservationValues : Method {
+    static decl
+        /** check that options are
+            dominated at the lower bound and
+            should not be solved for. **/ CheckDominatedOptions;
 	ReservationValues(LBvalue=-.Inf,METHOD=UseDefault);
     Solve(Fgroups=AllFixed,Rgroups=AllRand);
 	}

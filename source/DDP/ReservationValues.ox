@@ -44,10 +44,27 @@ DynamicRsystem::DynamicRsystem(LB,Ncuts,METHOD) {
         Rsystem(LB,Ncuts,METHOD);
     }
 
+/** Solve for reservation values at $\theta$ given $\delta EV$.
+**/
 Rsystem::RVSolve(dV) {
 	this.curth = I::curth;
 	this.dV = dV;
-	Encode(setbounds(curth->Getz()[],lbv+1.1,.Inf));
+    decl oldz = setbounds(curth->Getz(),lbv+1.1,.Inf);
+    if (ReservationValues::CheckDominatedOptions) {
+        decl dlv, i, j;
+        curth->Setz( constant( lbv+DIFF_EPS , Ncuts, 1) ); //(lbv==.Inf) ? XXX .
+        dlv = diff0(vfunc()[1:]) .>= 0.0 ;
+        i = 0;
+        while ( i<Ncuts && dlv[i] ) {  // do not vary initially dominated choices
+            zstar.Psi[i].DoNotVary = TRUE;
+            oldz[i] = lbv+DIFF_EPS;
+            ++i;
+            }
+        if (i==Ncuts)
+            return curth->thetaEMax();  //last option prob. 1
+        for(j=i;j<Ncuts;++j) zstar.Psi[j].DoNotVary=FALSE;
+        }
+	Encode(oldz);
 	meth->Iterate();
 	curth->Setz(CV(zstar));
     return curth->thetaEMax();
@@ -60,6 +77,7 @@ Rsystem::RVSolve(dV) {
 **/
 ReservationValues::ReservationValues(LBvalue,METHOD) {
 	Method(new RVGSolve(LBvalue,METHOD,this));
+    CheckDominatedOptions = FALSE;
     Volume = SILENT;
 	}
 
