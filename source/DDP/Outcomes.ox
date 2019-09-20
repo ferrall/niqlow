@@ -1,5 +1,5 @@
 #include "Outcomes.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 ExogAuxOut::ExogAuxOut() {
     ExTask();

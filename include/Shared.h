@@ -8,7 +8,7 @@
 <LI>Integration, Kernels</LI>
 </OL>
 
-@author &copy; 2011-2018 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
+@author &copy; 2011-2019 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
 <a name="auto"><hr><h1>Documentation of  Items Defined in Shared.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
 **/
@@ -20,7 +20,7 @@
 
 //	extern "CFcurl,fget"   			curl_get(url,file);
 
-/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
 
 	/** Pseudonyms for -1, -2, &hellip . @name Names_for_Integers **/
 enum {CondProbOne=1,
@@ -86,7 +86,8 @@ static const decl
 		/** tolerance level 2.**/                 DIFF_EPS2	=	1E-4;
 
 /** Used in CV() and AV(). static to reduce overhead. @internal **/
-static decl _arg, _noarg, _x, _v;
+static decl _arg, _noarg, _x, _v, IAmMac;
+
     HTopen(fn);
 	CV(X,...);
 	AV(X,...);

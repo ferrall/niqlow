@@ -1,5 +1,5 @@
 #include "SolveAsSystem.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** Initialize EV() as a system of non-linear equations. **/	
 EVSystem::EVSystem(spacesize,systask)		{

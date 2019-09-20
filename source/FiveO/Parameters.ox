@@ -1,5 +1,5 @@
 #include "Parameters.h"
-/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
 
 /**Create a fixed, pre-determined parameter.
 @param L string

@@ -910,7 +910,10 @@ DP::Initialize(userState,UseStateList) {
     if (Flags::ThetaCreated) oxrunerror("DDP Error 42. Must call DP::Delete between calls to CreateSpaces and Initialize");
     if (isint(L)) L = "DDP";
     lognm = replace(Version::logdir+"DP-"+L+Version::tmstmp," ","")+".log";
-    logf = fopen(lognm,"aV");
+    if (!IAmMac)
+        logf = fopen(lognm,"aV");
+    else
+        logf = FALSE;
     //Discrete::logf = fopen(replace(Version::logdir+"Variables-"+L+Version::tmstmp+".log"," ",""),"aV");
     Hooks::Reset();
     this.userState = userState;
@@ -2078,5 +2081,5 @@ RandomEffectsIntegration::Run() {
 Data::SetLog() {
     Volume = SILENT;
     lognm = replace(Version::logdir+"Data-"+Version::tmstmp," ","")+".log";
-    logf = fopen(lognm,"aV");
+    logf = IAmMac ? FALSE : fopen(lognm,"aV");
     }

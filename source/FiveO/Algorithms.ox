@@ -1,5 +1,5 @@
 #include "Algorithms.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** Base class for non-linear programming algorithms.
 @param O `Objective` to work on.
@@ -18,8 +18,8 @@ Algorithm::Algorithm(O) {
     StorePath = FALSE;
     logpfx = Version::logdir+"Alg-"+classname(this)+"-On-"+O.L;
     lognm = replace(logpfx+Version::tmstmp," ","")+".log";
-    logf = fopen(lognm,"aV");
-    fprintln(logf,"Created");
+    logf = IAmMac ? FALSE : fopen(lognm,"aV");
+    if (isfile(logf)) fprintln(logf,"Created");
     }
 
 /** Tune Parameters of the Algorithm.
@@ -533,6 +533,7 @@ NelderMead::Sort()	{
 	}
 
 NelderMead::CheckPoint(WriteOut) {
+    if (IAmMac) return;
     decl chkpt = fopen(logpfx+".chkpt",WriteOut ? "w" : "r");
     if (WriteOut) {
         fprint(chkpt,"%v",OC.v,"\n","%v",step,"\n","%v",O.Start,"\n","%v",OC.F,"\n","%v",nodeV,"\n","%v",nodeX);
@@ -603,6 +604,7 @@ GradientBased::GradientBased(O) {
 	}
 
 GradientBased::CheckPoint(WriteOut) {
+    if (IAmMac) return;
     decl chkpt = fopen(logpfx+".chkpt",WriteOut ? "w" : "r");
     if (WriteOut) {
         fprint(chkpt,"%v",OC.v,"\n","%v",O.Start,"\n","%v",OC.F,"\n","%v",OC.H);

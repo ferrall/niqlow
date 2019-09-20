@@ -1,5 +1,5 @@
 #include "Objective.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** Checks the version number you send with the current version of niqlow.
 @param v integer [default=200]
@@ -33,7 +33,7 @@ Objective::Objective(L,CreateCur)	{
 	Volume = QUIET;
     RunSafe = TRUE;
     lognm = replace(Version::logdir+"Obj-"+classname(this)+"-"+L+Version::tmstmp," ","")+".log";
-    logf = fopen(lognm,"aV");
+    logf = IAmMac ? FALSE : fopen(lognm,"aV");
 	if (CreateCur) cur = new Point();
 	hold = maxpt = NvfuncTerms  = UnInitialized;
 	FinX = <>;
@@ -101,6 +101,7 @@ Objective::Menu() {
 Objective::Save(fname)	{
 	decl f;
 	if (isint(fname)) fname = this.fname;
+if (IAmMac) return;
 	f = fopen(fname+"."+EXT,"w");
 	if (!isfile(f)) println("File name:",fname+"."+EXT);
 	fprint(f,"%v",classname(this),"\n","%v",L,"\n","%v",cur.v,"\n");

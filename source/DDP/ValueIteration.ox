@@ -1,7 +1,7 @@
 #ifndef Mh
     #include "ValueIteration.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /**  Simple Value Iteration solution.
 

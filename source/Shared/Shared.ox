@@ -1,8 +1,9 @@
 #include "Shared.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 HTopen(fn) {
     if (Version::HTopen) return;
+    if (IAmMac) return;
     Version::htlog = fopen(fn+".html","l");
     Version::HTopen = TRUE;
     println("<html><head><style>pre {font-family : \"Lucida Console\"; font-size : 18pt;}</style></head><body><div style=\"margin-left: 50px;color: white;  background: DarkSlateGray\"><pre>");
@@ -13,25 +14,32 @@ All log files will receive the same time stamp, which is set here.
 @comments
  Only the first call does anything.  Any subsequent calls return immediately.
 **/
-Version::Check(logdir) {
+Version::Check(indir) {
  if (checked)  return ;
  if (oxversion()<MinOxVersion) oxrunerror("niqlow Error 00. This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
+ IAmMac = getenv("OS")=="";
+ if (IAmMac) {
+    systemcall("OS=`uname -s`");
+    IAmMac = getenv("OS")!="Linux";
+    }
  checked = TRUE;
  format(1024);
  oxprintlevel(1);
- if (logdir!=curdir) {
-    decl hdir = getcwd(), chk = chdir(logdir);
+ if (indir!=curdir) {
+    decl hdir = getcwd(), chk = chdir(indir);
     if (!chk) {
-        oxwarning("Attempting to create log file directory: "+logdir);
-        systemcall("mkdir "+logdir);
+        oxwarning("Attempting to create log file directory: "+indir);
+        systemcall("mkdir "+indir);
         }
     chdir(hdir);
     }
- this.logdir = logdir+"\\";
+ logdir = indir;
+ if (sizeof(logdir)>0 && strfindr(logdir,"/")!=sizeof(logdir)-1) logdir |= "/";
+ println(" ### ",indir," ",IAmMac," ",logdir," ",strfindr(indir,"/"));
  tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
  if (!Version::MPIserver)
     println("\n niqlow version ",sprint("%4.2f",version/100),
-    ". Copyright (C) 2011-2018 Christopher Ferrall.\n",
+    ". Copyright (C) 2011-2019 Christopher Ferrall.\n",
     "Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n",
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
  }
@@ -232,7 +240,7 @@ If the new Volume is SILENT and a log file is already open then the log file is 
 **/
 Quantity::SetVolume(Volume) {
     if (Volume > this.Volume) {
-        if (isint(logf))
+        if (isint(logf) && !IAmMac)
             logf = fopen(Version::logdir+"Q-"+classname(this)+"-"+L+"-"+Version::tmstmp+".log","w");
         }
     else {
