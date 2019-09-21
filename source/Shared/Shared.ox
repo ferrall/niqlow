@@ -18,12 +18,7 @@ Version::Check(indir) {
  if (checked)  return ;
  if (oxversion()<MinOxVersion) oxrunerror("niqlow Error 00. This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
  IAmMac = getenv("OS")!="Windows_NT";
- println("OS1: ",getenv("OS"));
- if (IAmMac) {
-    systemcall("export OS=`uname -s`");
-    println("OS2: ",getenv("OS"));
-    IAmMac = getenv("OS")!="Linux";
-    }
+ if (IAmMac) IAmMac = getcwd()[:4]!="/home";
  checked = TRUE;
  format(1024);
  oxprintlevel(1);
@@ -44,7 +39,7 @@ Version::Check(indir) {
     ". Copyright (C) 2011-2019 Christopher Ferrall.\n",
     "Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n",
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
-    println("Detection of OS:  Am I a Mac? ",IAmMac ? "Yes" : "No"," \n\n");
+    println("Detection of OS:  Am I a Mac? ",IAmMac ? "Yes" : "No","\n",getcwd()," \n\n");
  }
 
 /** Check that an object is of a required class, or one of a required class.
