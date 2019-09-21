@@ -18,8 +18,10 @@ Version::Check(indir) {
  if (checked)  return ;
  if (oxversion()<MinOxVersion) oxrunerror("niqlow Error 00. This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
  IAmMac = getenv("OS")!="Windows_NT";
+ println("OS1: ",getenv("OS"));
  if (IAmMac) {
     systemcall("export OS=`uname -s`");
+    println("OS2: ",getenv("OS"));
     IAmMac = getenv("OS")!="Linux";
     }
  checked = TRUE;
