@@ -17,9 +17,9 @@ All log files will receive the same time stamp, which is set here.
 Version::Check(indir) {
  if (checked)  return ;
  if (oxversion()<MinOxVersion) oxrunerror("niqlow Error 00. This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
- IAmMac = getenv("OS")=="";
+ IAmMac = getenv("OS")!="Windows_NT";
  if (IAmMac) {
-    systemcall("OS=`uname -s`");
+    systemcall("export OS=`uname -s`");
     IAmMac = getenv("OS")!="Linux";
     }
  checked = TRUE;
@@ -34,14 +34,15 @@ Version::Check(indir) {
     chdir(hdir);
     }
  logdir = indir;
- if (sizeof(logdir)>0 && strfindr(logdir,"/")!=sizeof(logdir)-1) logdir |= "/";
- println(" ### ",indir," ",IAmMac," ",logdir," ",strfindr(indir,"/"));
+ if (sizeof(logdir)>0 && strfindr(logdir,"/")!=sizeof(logdir)-1)
+    logdir |= "/";
  tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
  if (!Version::MPIserver)
     println("\n niqlow version ",sprint("%4.2f",version/100),
     ". Copyright (C) 2011-2019 Christopher Ferrall.\n",
     "Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n",
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
+    println("Detection of OS:  Am I a Mac? ",IAmMac ? "Yes" : "No"," \n\n");
  }
 
 /** Check that an object is of a required class, or one of a required class.
