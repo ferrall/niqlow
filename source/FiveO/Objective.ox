@@ -33,7 +33,7 @@ Objective::Objective(L,CreateCur)	{
 	Volume = QUIET;
     RunSafe = TRUE;
     lognm = replace(Version::logdir+"Obj-"+classname(this)+"-"+L+Version::tmstmp," ","")+".log";
-    logf = IAmMac ? FALSE : fopen(lognm,"aV");
+    logf = fopen(lognm,"av");
 	if (CreateCur) cur = new Point();
 	hold = maxpt = NvfuncTerms  = UnInitialized;
 	FinX = <>;
@@ -133,8 +133,10 @@ Objective::Load(fname)	{
     this->CheckPoint(f,FALSE);
 	if (!Version::MPIserver && Volume>SILENT) {
         println("Initial objective: ",cur.v);
-        fprintln(logf,"Parameters loaded from ",fname,". # of values read: ",n,". Initial objective: ",cur.v);
-		fprint(logf,"%r",PsiL,cur.X);
+        if (isfile(logf)) {
+            fprintln(logf,"Parameters loaded from ",fname,". # of values read: ",n,". Initial objective: ",cur.v);
+		    fprint(logf,"%r",PsiL,cur.X);
+            }
         }
 	return TRUE;
 	}
@@ -181,7 +183,7 @@ Objective::CheckMax(fn)	{
     newmax = cur.v>maxpt.v;
     decl suffx = newmax ? "*" : " ";
     if (Volume>SILENT) {
-        fprintln(logf,suffx);
+        if (isfile(logf)) fprintln(logf,suffx);
 		if (Volume>QUIET) {
             println(suffx);
             if (isfile(fn)) fprintln(fn," ","%15.8f",cur.v,suffx);
@@ -408,7 +410,7 @@ The maximum value is also computed and checked.
 **/
 Objective::funclist(Fmat,aFvec,afvec,abest)	{  	
     decl best, J=columns(Fmat), f=constant(.NaN,J,1);
-	if (Volume>SILENT) fprintln(logf,"funclist ",columns(Fmat));
+	if (Volume>SILENT && isfile(logf) ) fprintln(logf,"funclist ",columns(Fmat));
 	if (isclass(p2p))  //CFMPI has been initialized
         p2p.client->MultiParam(Fmat,aFvec,&f);
 	else{
@@ -422,7 +424,7 @@ Objective::funclist(Fmat,aFvec,afvec,abest)	{
         }
     best = int(maxcindex(f));
     if (best<0) best = int(mincindex(f));  //added Oct. 2016 so that -.Inf is not treated as .NaN
-	if (Volume>SILENT) fprintln(logf,"funclist finshed ",best, best>=0 ? f[best] : .NaN);
+	if (Volume>SILENT && isfile(logf) ) fprintln(logf,"funclist finshed ",best, best>=0 ? f[best] : .NaN);
 	if ( best < 0 ) {
         println("**** Matrix of Parameters ",Fmat,"Objective Value: ",f',"\n****");
         if (RunSafe) oxrunerror("FiveO Error 33. undefined max over function evaluation list");
@@ -473,7 +475,7 @@ Objective::fobj(F,extcall)	{
 	   this->vobj(F);
 	   cur->aggregate();
        if (Volume>SILENT) {
-            fprint(logf,L," = ",cur.v);
+            if (isfile(logf)) fprint(logf,L," = ",cur.v);
             if (Volume>QUIET) print(L," = ",cur.v);
             }
        if (extcall && isclass(p2p)) p2p.client->Stop();
@@ -544,7 +546,7 @@ Objective::Jacobian() {
 	cur -> Copy(hold);
 	Decode(0);
 	cur.J = (GradMat[][:nfree-1] - GradMat[][nfree:])./(2*h');
-	if (Volume>LOUD) fprintln(logf,"Gradient/Jacobian Calculation ",nfree," ",NvfuncTerms,"%15.10f","%c",{"h","fore","back","diff"},"%r",PsiL[FinX],h~(GradMat[][:nfree-1]'~(GradMat[][nfree:]')),"Jacob",cur.J');
+	if (Volume>LOUD && isfile(logf) ) fprintln(logf,"Gradient/Jacobian Calculation ",nfree," ",NvfuncTerms,"%15.10f","%c",{"h","fore","back","diff"},"%r",PsiL[FinX],h~(GradMat[][:nfree-1]'~(GradMat[][nfree:]')),"Jacob",cur.J');
 	}
 	
 /** Compute the &nabla;f(), objective's gradient at the current vector.
@@ -559,7 +561,7 @@ Objective::Gradient(extcall) {
     else {
 	   this->Jacobian();
 	   cur.G = sumc(cur.J);
-       if (Volume>QUIET) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
+       if (Volume>QUIET && isfile(logf) ) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
        if (extcall && isclass(p2p)) p2p.client->Stop();
        }
 	}
@@ -930,7 +932,7 @@ Separable::Gradient(extcall) {
     else {
 	   this->Jacobian();
 	   cur.G = sumc(cur.J);
-       if (Volume>QUIET) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
+       if (Volume>QUIET && isfile(logf)) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
        if (extcall && isclass(p2p)) p2p.client->Stop();
        }
 	}

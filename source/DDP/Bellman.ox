@@ -264,7 +264,7 @@ Bellman::ThetaTransition() {
  	 F[now] = <0>;	
 	 P[now] = ones(N::Options[Aind],1);
 	 si = S[clock].X;				// clock needs to be nxtcnt
-     if  (rcheck) fprintln(logf,"Endogenous transitions at ",I::all[tracking]);
+     if  (rcheck && isfile(logf)) fprintln(logf,"Endogenous transitions at ",I::all[tracking]);
 	 do	{
 		F[later] = P[later] = <>;
         swap = FALSE;
@@ -275,12 +275,12 @@ Bellman::ThetaTransition() {
 		if (( any(curO = I::OO[thetaoffs][si-Nb+1:si]) ))	{  // states are relevant to s'
 			[feas,prob] = root -> Transit();
             if (rcheck && root.N>1 && !isint(prob) ) {
-                if (maxr(feas)<rows(root.actual))
+                if (isfile(logf) && maxr(feas)<rows(root.actual))
                     fprintln(logf,"     State: ",root.L,"%r",{"   ind","actual","   prob"},feas|(root.actual[feas]')|prob);
                 else
                     fprintln(logf,"     State: ",root.L,"%r",{"   ind","   prob"},feas|prob);
                 if ( any(!isdotfeq(sumr(prob),1.0))) { // short-circuit && avoids sumr() unless NOISY
-                    fprintln(logf,"Transition probability error at state ",si,"%m",sumr(prob));
+                    if (isfile(logf)) fprintln(logf,"Transition probability error at state ",si,"%m",sumr(prob));
                     oxwarning("Transition probabilities are not valid (sum not close enough to 1.0).  Check log file");
                     }
                 }
@@ -307,7 +307,7 @@ Bellman::ThetaTransition() {
         for (s=0;s<columns(Nxt[Qtr][ios]);++s) {
             if ( any(P[now][][s].> 0.0) && !N::IsReachable(Nxt[Qtr][ios]) )  {
                 q = ReverseState(Nxt[Qtr][ios][s],tracking);
-                fprint(logf,"Transition to unreachable state ",F[now][Qit][s],"%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],q[S[endog].M:S[clock].M]',"%r",{"prob"},P[now][][s]);
+                if (isfile(logf)) fprint(logf,"Transition to unreachable state ",F[now][Qit][s],"%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],q[S[endog].M:S[clock].M]',"%r",{"prob"},P[now][][s]);
                 }
             }
         }

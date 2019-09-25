@@ -910,10 +910,7 @@ DP::Initialize(userState,UseStateList) {
     if (Flags::ThetaCreated) oxrunerror("DDP Error 42. Must call DP::Delete between calls to CreateSpaces and Initialize");
     if (isint(L)) L = "DDP";
     lognm = replace(Version::logdir+"DP-"+L+Version::tmstmp," ","")+".log";
-    if (!IAmMac)
-        logf = fopen(lognm,"aV");
-    else
-        logf = FALSE;
+    logf = fopen(lognm,"av");
     //Discrete::logf = fopen(replace(Version::logdir+"Variables-"+L+Version::tmstmp+".log"," ",""),"aV");
     Hooks::Reset();
     this.userState = userState;
@@ -1177,7 +1174,7 @@ DP::CreateSpaces() {
 	       tt->loop(TRUE);
            if (!Version::MPIserver && Volume>LOUD) {
                 println("Note: Reachability of all states listed in the log file");
-                fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
+                if (isfile(logf)) fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
                               "1=Unreacheable because a user Reachable returns FALSE\n",
                               "2=Reachable",
                 "%8.0f","%c",{"Reachble"}|{"Tracking"}|Labels::Vprt[svar][S[endog].M:S[clock].M],tt.rchable);
@@ -1953,13 +1950,13 @@ DPDebug::RunOut() {
             if (N::G>1) print("\n     Fixed Group Index(f): ",I::f,". Random Group Index(r): ",I::r);
             println("\n",div);
             }
-    else {
-        fprint(logf,"\n     Value of States and Choice Probabilities");
-        if (N::G>1) fprint(logf,"\n     Fixed Group Index(f): ",I::f,". Random Group Index(r): ",I::r);
-        fprintln(logf,"\n",div);
+    else if (isfile(logf)) {
+            fprint(logf,"\n     Value of States and Choice Probabilities");
+            if (N::G>1) fprint(logf,"\n     Fixed Group Index(f): ",I::f,". Random Group Index(r): ",I::r);
+            fprintln(logf,"\n",div);
         }
 	rp -> Traverse();
-	if (rp.ToScreen) println(div,"\n");	else fprintln(logf,div,"\n");	
+	if (rp.ToScreen) println(div,"\n");	else if (isfile(logf)) fprintln(logf,div,"\n");	
 	if (!OutAll || (!I::f&&!I::r) ) {   //last or only group, so delete rp and reset.
         delete rp;
         OutAll = FALSE;
@@ -1995,11 +1992,11 @@ SVT::SVT(Slist){
 
 SVT::Run() {
     decl s,feas,prob;
-    fprint(logf,"State ","%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],state[S[endog].M:S[clock].M]');
+    if (isfile(logf)) fprint(logf,"State ","%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],state[S[endog].M:S[clock].M]');
     foreach(s in Slist) {
 		if (isclass(s,"Coevolving")) s = s.block;
 		[feas,prob] = s -> Transit(); //TTT
-        fprintln(logf,"     State: ",s.L,"%r",{Alpha::aL1}|Alpha::Rlabels[I::curth.Aind],feas|prob);
+        if (isfile(logf)) fprintln(logf,"     State: ",s.L,"%r",{Alpha::aL1}|Alpha::Rlabels[I::curth.Aind],feas|prob);
 		}
     }
 
@@ -2043,7 +2040,7 @@ SaveV::Run() {
 	s = (nottop)
 		? sprint("%cf",prtfmt,r)
 		: sprint("%c",oned ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);
-	if (ToScreen) print(s[1:]); else fprint(logf,s[1:]);
+	if (ToScreen) print(s[1:]); else if (isfile(logf)) fprint(logf,s[1:]);
 	nottop = TRUE;
 	}
 
@@ -2081,5 +2078,5 @@ RandomEffectsIntegration::Run() {
 Data::SetLog() {
     Volume = SILENT;
     lognm = replace(Version::logdir+"Data-"+Version::tmstmp," ","")+".log";
-    logf = IAmMac ? FALSE : fopen(lognm,"aV");
+    logf = fopen(lognm,"av");
     }

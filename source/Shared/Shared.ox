@@ -3,7 +3,6 @@
 
 HTopen(fn) {
     if (Version::HTopen) return;
-    if (IAmMac) return;
     Version::htlog = fopen(fn+".html","l");
     Version::HTopen = TRUE;
     println("<html><head><style>pre {font-family : \"Lucida Console\"; font-size : 18pt;}</style></head><body><div style=\"margin-left: 50px;color: white;  background: DarkSlateGray\"><pre>");
@@ -39,7 +38,7 @@ Version::Check(indir) {
     ". Copyright (C) 2011-2019 Christopher Ferrall.\n",
     "Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n",
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
-    println("Detection of OS:  Am I a Mac? ",IAmMac ? "Yes" : "No","\n",getcwd()," \n\n");
+
  }
 
 /** Check that an object is of a required class, or one of a required class.
@@ -238,7 +237,7 @@ If the new Volume is SILENT and a log file is already open then the log file is 
 **/
 Quantity::SetVolume(Volume) {
     if (Volume > this.Volume) {
-        if (isint(logf) && !IAmMac)
+        if (isint(logf))
             logf = fopen(Version::logdir+"Q-"+classname(this)+"-"+L+"-"+Version::tmstmp+".log","w");
         }
     else {
