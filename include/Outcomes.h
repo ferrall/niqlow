@@ -146,7 +146,7 @@ struct Panel : FPanel {
 	/** panel likelihood vector. **/	 	M,
 	/** matrix representation of panel.
 		@see Panel::Flat **/				flat;
-	Panel(r,method=UnInitialized);
+	Panel(r=0,method=UnInitialized);
     SetMethod(method);
 	~Panel();
 	LogLikelihood();

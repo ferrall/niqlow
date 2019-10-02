@@ -3,5 +3,5 @@
 main() {
     HTopen("../../OODP/LS");
     LS::Run();
-    LS::Use();
+    ComputePredictions();
     }

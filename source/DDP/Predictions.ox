@@ -3,18 +3,21 @@
 
 /**  Simple Prediction .
 @param T	integer, length of panel<br>UseDefault [default], length of lifecycle or  10
+probabilities<br/>Two print predictions
 @param prtlevel Two [default] print predictions <br/>One print state and choice
-probabilities
+probabilities<br/>Zero do not print, instead save to prediction moment file
+
+This creates a `PanelPrediction` object, creates the prediction tracking all varaibles and prints
 
 **/
 ComputePredictions(T,prtlevel) {
-    decl op = new PanelPrediction("predictions"),TT;
-    if (T==UseDefault) {
-        TT = Flags::IsErgodic ? 10: N::T;
-        }
-    else TT = T;
+    decl op = new PanelPrediction("predictions"),TT,oldvol = Data::Volume;
+    TT = (T==UseDefault) ? (Flags::IsErgodic ? 10: N::T)
+                         : T;
     op -> Tracking(TrackAll);
+    if (prtlevel==Zero) Data::Volume = LOUD;
     op -> Predict(TT,prtlevel);
+    Data::Volume = oldvol;
     delete op;
     }
 
@@ -120,7 +123,7 @@ PathPrediction::SetT() {
 PathPrediction::tprefix(t) { return sprint("t_","%02u",t,"_"); }
 
 /** process predictions and empirical matching when there are observations over time.
-@param cmat if a cmat then get contributions from it.  This is true when running in parallel.<br/>Otherwise,
+@param cmat if a matrix then get contributions from it.  This is true when running in parallel.<br/>Otherwise,
         contributions are located in the individual Prediction objects.
 **/
 PathPrediction::ProcessContributions(cmat){
@@ -565,18 +568,31 @@ PathPrediction::TypeContribution(pf,subflat) {
      done =  pcode                               //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
      if (PredictFailure) {println("failure"); break;}
-	 if (!done && !isclass(cur.pnext)) { // no tomorrow after current
-                cur.pnext = new Prediction(cur.t+1);
-                ++this.T;
-                }
      if (first) {       //either first or only
         cur.accmom = pf*cur.predmom;
         if (!isint(subflat)) subflat[0] |= cur.accmom;
         }
-     else
+     else {
         cur.accmom += pf*cur.predmom;
-     cur = cur.pnext;
+        }
+	 if (!done) {
+          if (!isclass(cur.pnext)) { // no tomorrow after current
+                cur.pnext = new Prediction(cur.t+1);
+                ++this.T;
+                }
+        cur = cur.pnext;
+        }
   	 } while(!done);
+  if (pcode && isclass(cur.pnext)) {
+     decl nxt = cur.pnext;
+     cur.pnext = UnInitialized;
+     println("Trimming path of length ",this.T," that ended early at ",cur.t+1);
+     this.T = cur.t+1;
+     do {
+        cur = nxt.pnext;
+        delete nxt;
+        } while (( isclass(nxt = cur) ));
+     }
   first = FALSE;
   return 0;
   }
@@ -671,9 +687,7 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
         else
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
-	    if (!Version::MPIserver && Data::Volume>QUIET) {
-                aflat |= cur.flat;
-                }
+	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur.flat;
         } while((isclass(cur=cur.fnext)));
     if (!Version::MPIserver && Data::Volume>QUIET) {
         decl amat = <>,f;

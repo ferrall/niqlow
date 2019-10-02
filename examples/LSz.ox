@@ -9,17 +9,16 @@ class LSz : OneDimensionalChoice {
 LSz::Run() {
     Initialize(new LSz());
     LS::Build(d);
-    LS::beta = <0.8;1.0;-0.1;0.2>;
-    LS::b = 2;
     CreateSpaces();
     RVSolve();
+    ComputePredictions(UseDefault);
     }
 LSz::Uz(z) {
     LS::e = z;  //copy current guess of z* into e
     return LS::b | LS::Earn();	
     }
 LSz::EUtility()    {
-    LS::e = LS::beta[3]/2;
-	decl pstar = 1-probn(zstar), mn = LS::Earn();
-	return {  ( LS::b | mn*probn(zstar)/pstar) , (1-pstar)~pstar};
+    decl pstar = 1-probn(zstar), sig =LS::beta[3]; //this is the st. dev. assuming e is N(0,1)
+    LS::e = sig/2;  //so e^{sig^2/2} is in Earn, to match E[exp(be)]
+	return {  ( LS::b | LS::Earn()*probn((zstar/sig-sig)/pstar)) , (1-pstar)~pstar};
 	}	

@@ -10,16 +10,10 @@ SchToWork::Replicate() {
 	done -> MakeTerminal(1);
 	CreateSpaces();
     Ew = pars[wtilde]*exp(sqr(pars[sigu])/2);
-    RVSolve();
-	//decl RV = new ReservationValues(-.Inf) ;	RV.Volume = QUIET;	RV -> Solve();
-    //DPDebug::outV(TRUE,0,0,TRUE);
-    // pd = new PanelPrediction(0);    Data::Volume = LOUD;    pd->Tracking (TrackAll);    pd -> Predict(400,2);
-    ComputePredictions(UseDefault,"Wolpin1987.dta");
-    //delete RV;
+    RVSolve(TRUE);
+    ComputePredictions();
     Delete();
 	}
-
-//SchToWork::Reachable() { return TRUE;}
 
 SchToWork::FeasibleActions() {
 	zstar = <1.0>;
@@ -45,7 +39,7 @@ SchToWork::Utility() {
 SchToWork::EUtility() {
 	decl     eta = log(max(zstar,DBL_EPSILON))-log(pars[wtilde]),
              pstar = 1-probn(eta/pars[sigu]),
-		     lnmill = 1-probn(eta/pars[sigu] - sqr(pars[sigu]));
+		     lnmill = 1-probn(eta/pars[sigu] - pars[sigu]);  //October 2019 had sqr(sigu).
 	return {-pars[c] | PDV(Ew*lnmill/pstar),(1-pstar)~pstar };
 	}
 	

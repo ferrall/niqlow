@@ -299,12 +299,17 @@ DP::GroupVariables(...
     va
     #endif
 )	{
-	decl cv;
+	decl cv,ccv;
     foreach(cv in va) {
-		if (isclass(cv,"FixedEffect")||isclass(cv,"FixedEffectBlock")) AddStates(fgroup,cv);
-		else if (isclass(cv,"RandomEffect")||isclass(cv,"RandomEffectBlock")) AddStates(rgroup,cv);
-		else oxrunerror("DDP Error 39. argument is not a TimeInvariant variable");
-		}
+    	if (isarray(cv)){
+            foreach (ccv in cv) GroupVariables(ccv);
+            }
+        else {
+		  if (isclass(cv,"FixedEffect")||isclass(cv,"FixedEffectBlock")) AddStates(fgroup,cv);
+		  else if (isclass(cv,"RandomEffect")||isclass(cv,"RandomEffectBlock")) AddStates(rgroup,cv);
+		  else oxrunerror("DDP Error 39. argument is not a TimeInvariant variable");
+		  }
+        }
 	}
 
 /** Add variables to the action vector $\alpha$.
@@ -871,7 +876,11 @@ N::ZeroVV() {
 **/
 N::print(){
 	println("\n5. TRIMMING AND SUBSAMPLING OF THE ENDOGENOUS STATE SPACE (Theta)","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated"},
-    "%cf",{"%10.0f"},ReachableStates|TerminalStates|Approximated,"\n  Index of first state by t (t=0..T-1)","%7.0f",tfirst');
+    "%cf",{"%10.0f"},ReachableStates|TerminalStates|Approximated);
+    if (T<=50)
+        println("Index of first state by t (t=0..T-1)","%7.0f",tfirst');
+    else
+        println("Index of first state by t t=0..9 ","%7.0f",tfirst[0:9]',"and ",T-10,"...",T-1,"%7.0f",tfirst[T-10:]');
     }
 
 /** Add trackind to the list of reachable indices (called internally).

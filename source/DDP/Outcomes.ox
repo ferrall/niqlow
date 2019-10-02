@@ -37,7 +37,7 @@ This routine simplifies simulating a solved DP model.  Simply call it instead of
 
 **/
 SimulateOutcomes(Nsim,T,outopt,ErgOrStateMat,DropTerminal) {
-    decl op = new Panel("simdata"), TT;
+    decl op = new Panel(), TT;
     if (T==UseDefault) {
         TT = Flags::IsErgodic ? 10: N::T;
         }
@@ -109,8 +109,6 @@ Outcome::Flat(Orientation)	{
         return t~ind[tracking]~I::curth.Type~I::curth.Aind~state'~ind[onlyacts][0]~act~z~aux;
     else
         return  state'~act~z~aux;
-    // prefix(tprefix(t),labels),
-    //ind[onlyacts] shows only A[0] index.
 	}
 
 
@@ -349,7 +347,9 @@ index of panel
 FPanel::Flat(Orientation)	{
 	decl op = <>;
 	cur = this;
-	do op |= f ~ cur->Path::Flat(Orientation); while ((isclass(cur = cur.pnext)));
+	do {
+        op |= f ~ cur->Path::Flat(Orientation) ;
+        } while ((isclass(cur = cur.pnext)));
 	return op;
 	}
 

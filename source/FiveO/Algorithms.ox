@@ -714,7 +714,7 @@ GradientBased::Gupdate()	{
 	oldG = OC.G;
 	O->Gradient(FALSE);	
 	deltaG = norm(OC.G,2);
-	if (Volume>QUIET) {fprintln(logf,"%r",{"Gradient "},"%c",O.Flabels,OC.G);fflush(logf);}
+	if (Volume>QUIET) fprintln(logf,"%r",{"Gradient "},"%c",O.Flabels,OC.G);
 	return deltaG<gradtoler;
 	}
 
@@ -889,7 +889,7 @@ hr -> Iterate();
 NewtonRaphson::NewtonRaphson(O) {
 	if (!isclass(O,"System")) oxrunerror("FiveO Error 05. Objective must be a System");
 	GradientBased(O);
-    USELM = FALSE;
+    USELM = TRUE;
 	}
 
 /** Create a new Broyden solution for a system of equations.
@@ -908,7 +908,7 @@ broy -> Iterate();
 Broyden::Broyden(O) {
 	if (!isclass(O,"System")) oxrunerror("FiveO Error 06. Objective must be a System");
 	GradientBased(O);
-    USELM = FALSE;
+    USELM = TRUE;
 	}
 
 /** Compute the direction.
@@ -917,16 +917,17 @@ If inversion of J fails, reset to I
 **/
 NonLinearSystem::Direction() 	{
 	decl  l, u, p;
-	if (declu(OC.J,&l,&u,&p)==1) {
+	if (declu(OC.J,&l,&u,&p)==One) {
 		return solvelu(l,u,p,-OC.V);
         }
 	else {
-		 if (Hresetcnt==One) {
+         ++Hresetcnt;
+		 if (Hresetcnt>One) {
 		 	println("**** ",OC.F',OC.J,"\n****");
 		 	oxwarning("FiveO Warning 02. Second failure to invert J. Will quit|n");
-            ++Hresetcnt;
+            return WEAK;
 			}
-		 oxwarning("FiveO Warning 02. NonLinearSystem: J inversion failed. J reset to identity matrix I.\n");
+		 //oxwarning("FiveO Warning 02. NonLinearSystem: J inversion failed. J reset to identity matrix I.\n");
 		 OC.J = unit(N);
          ++Hresetcnt;
 		 return Direction();
@@ -982,7 +983,7 @@ NonLinearSystem::Iterate(J)	{
                 LM->Iterate(d,LMitmax,LMmaxstep);
               else
                 O->Decode(holdF+d);
-		      convergence = (++iter>maxiter) ? MAXITERATIONS : (Hresetcnt>1 ? SECONDRESET : this->JJupdate());
+		      convergence = (++iter>maxiter) ? MAXITERATIONS : this->JJupdate(); //Hresetcnt>1 ? SECONDRESET :
 		      if (Volume>SILENT) {
                 istr = sprint("\n",iter,".  deltaX: ",deltaX," deltaG:",deltaG,"%c",O.Flabels,"%r",{"    Params Vector","           System","        Direction"},OC.F'|OC.V'|d');
                 fprintln(logf,istr);			
@@ -990,7 +991,7 @@ NonLinearSystem::Iterate(J)	{
                 }
 		      } while (convergence==NONE && !isnan(deltaX) );
 	       }
-	   if (Volume>SILENT) {
+	   if (Volume>SILENT||convergence==FAIL) {
           istr = sprint("\nConverged:","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Params Vector","           System"},OC.F'|OC.V');
 		  fprintln(logf,istr);
 		  if (Volume>QUIET) println(istr);
@@ -1012,7 +1013,17 @@ NonLinearSystem::JJupdate() {
 	decl dx;
 	if (this->Gupdate()) return STRONG;
 	deltaX = norm(dx=(OC.F - holdF),2);
-	if (deltaX<tolerance) {println("failing"); return FAIL;}
+	if (deltaX<tolerance) {
+        ++Hresetcnt;
+		 if (Hresetcnt>One) {
+		 	println("**** ",OC.F',OC.J,"\n****");
+		 	oxwarning("FiveO Warning 02. Second failure to invert J. Will quit|n");
+            return WEAK;
+			}
+		  oxwarning("FiveO Warning 02. NonLinearSystem: J inversion failed. J reset to identity matrix I.\n");
+		  OC.J = unit(N);
+          return NONE;
+        }
     this->Jupdate(dx);
 	return NONE;
 	}

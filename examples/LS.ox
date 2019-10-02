@@ -7,7 +7,6 @@ class LS : ExtremeValue {
     static Build(d=FALSE);
     static Run();
     static Earn();
-    static Use();
     }
 LS::Build(d) {
      SetClock(NormalAging,40);
@@ -21,7 +20,7 @@ LS::Build(d) {
      m = new ActionCounter("m",40,a);
      EndogenousStates(m);
      SetDelta(0.95);
-     beta = <0.8;1.0;-0.1;0.2>;
+     beta =<1.2 ; 0.09 ; -0.1 ; 0.2>;
      b = 2;
     }
 LS::Earn() {    return  exp( (1~CV(m)~sqr(CV(m))~AV(e)) * CV(beta) ) ;     }
@@ -31,9 +30,4 @@ LS::Run() {
     Build();
     CreateSpaces();
     VISolve();
-    }
-LS::Use() {
-    if (!Flags::ThetaCreated) Run();
-    SimulateOutcomes(2);
-    ComputePredictions();
     }

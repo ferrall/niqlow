@@ -3,40 +3,46 @@
 <code>BerkovecSternEmet1991.ox</code> replicates results shown in Figure 1 of
 <a href="http://www.jstor.org/stable/2938246?origin=JSTOR-pdf">Berkovec and Stern (1991)</a>.
 <UL>
-<LI>Models retirement and work for males age 55+
-<LI>New job match value arrives each year, or can continue with current full/part-time wage
-<LI>Wages grow with duration on the job
-<LI>Choices made until age 76, then retired for 10 years
-<LI>Probability of early death depends on age and health (constant)
-<LI>Figure 1 simulates choice probabilities assuming 10 years tenure on full-time job
+<LI>Models retirement and work for males age 55+</LI>
+<LI>New job match value arrives each year, or can continue with current full/part-time wage</LI>
+<LI>Wages grow with duration on the job</LI>
+<LI>Choices made until age 76, then retired for 10 years</LI>
+<LI>Probability of early death depends on age and health (constant)</LI>
+<LI>Figure 1 simulates choice probabilities assuming 10 years tenure on full-time job</LI>
 </UL>
 
 <h2>The Model</h2>
 <DL>
-<DT>Solution/smoothing: <DD>Extreme Value ex ante, &rho; = 1/&tau;.</DD>
-<DT>Clock:
-        <DD>RandomMortality (T = 21)
-        <DD>Mortality probability `Retirement::mprob` (in the paper called &delta;) a function of age and constant health.
+<DT>Solution/smoothing:</DT>
+ <DD>Extreme Value ex ante, &rho; = 1/&tau;.</DD>
+<DT>Clock:</DT>
+        <DD>RandomMortality (T = 21)</DD>
+        <DD>Mortality probability `Retirement::mprob` (in the paper called &delta;) a function of age and constant health.</DD>
 	<DD>Paper does not report probabilities. Stern contacted and could not find them.</DD>
 	<DD>Rates are approximated using: <a href="http://www.cdc.gov/nchs/data/dvs/mx196878.pdf">CDC Data</a></DD>
-<DT>Action Vector: </DT><DD class="example">&alpha; = (i), i.N=4<pre>
+<DT>Action Vector: </DT>
+<DD>$\alpha = (i)$,
+<pre>
 i       Means
 -----------------------------------
 0       Retire
 1       Work Part-time new match
 2       Work Full-time new match
-3       Stay in current job</pre></DD>
-<DT>Semi-State Variables</DT> <DD>&eta; =   (h),  new job match value.</DD>
+3       Stay in current job
+</pre></DD>
+<DT>Semi-Exogenous Variables</DT> 
+<DD>$\eta =   (h)$,  new job match value.</DD>
 <DT>Endogenous State Variables</DT>
-<DD>&theta; =   (m<sub>0</sub> m<sub>1</sub> s d M t),</dd>
-<DD>m<sub>0</sub> and m<sub>1</sub> and s lagged action trackers (full-time implied).</DD>
-<DD>d duration of current match (t-s) in the paper</DD>
-<DD>M current match value if a job was held last year (M'=h if i=Part or Full).</DD>
-<DT>Random Effects (elements of the group vector &gamma;)
-<DD>&gamma; =   (g<sub>0</sub> g<sub>1</sub> g<sub>2</sub> g<sub>3</sub> g<sub>I</sub>).</DD>
-<DD>Each a permanent normal random effect, g<sub>i</sub> associated with sector i.  g<sub>I</sub> is an individual specific wage effect.</DD>
+<DD>$\theta =   \pmatrix{ m_0&  m_1 & s & d & M &t}$,</dd>
+<DD>$m_0$ and $m_1$ and $s$ are lagged action trackers (full-time implied).</DD>
+<DD>$d$ duration of current match (t-s) in the paper</DD>
+<DD>$M$ current match value if a job was held last year ($M'=h$ if $i=1$ or $i=2$).</DD>
+<DT>Random Effects (elements of the group vector $\gamma$)
+<DD>$\gamma =   \pmatrix{g_0& g_1&g_2&g_3& g_I}$.</DD>
+<DD>Each is a permanent normal random effect associated with sector i.  $g_I$ is an individual specific wage effect.</DD>
 
-<DT>Utility:</DT><dd class="example"><pre>
+<DT>Utility:</DT>
+<dd><pre>
 U = X&beta;<sub>0</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>g<sub>0</sub>  + &tau;z.0
     X&beta;<sub>1</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>g<sub>1</sub> + &sigma;<sub>3</sub>h<sub>s</sub>+ &tau;z.1
     X&beta;<sub>2</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>g<sub>2</sub> + &sigma;<sub>3</sub>h<sub>s</sub>+ &tau;z.2
@@ -44,13 +50,12 @@ U = X&beta;<sub>0</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>
 <DD>z.i IID extreme value error</DD>
 <DT>Feasible Actions</DT>
     <DD>only retirement (i=0) after age 75</DD>
-    <DD>cannot choose stay (i=3) if retired last period (m<sub>0</sub>=1)</DD>
+    <DD>cannot choose stay (i=3) if retired last period ($m_0=1$)</DD>
 <DT>Reachable States</DT>
     <DD>duration must be feasible</DD>
     <DD>new and current match value irrelevant after age 75</DD>
     <DD>current match value irrelevant if retired</DD>
 <DT>Notes:</DT>
-<DD>Traverse state space using state list since many states are unreachable</DD>
 <DD>Paper used ?? Monte Carlo draws per normal component.  </DD>
 </DL>
 <hr>

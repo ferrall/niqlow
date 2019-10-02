@@ -20,40 +20,46 @@ Replicate Berkovec Stern 1991 Model of Retirement using <span class="n"><a href=
 <code>BerkovecSternEmet1991.ox</code> replicates results shown in Figure 1 of
 <a href="http://www.jstor.org/stable/2938246?origin=JSTOR-pdf">Berkovec and Stern (1991)</a>.
 <UL>
-<LI>Models retirement and work for males age 55+
-<LI>New job match value arrives each year, or can continue with current full/part-time wage
-<LI>Wages grow with duration on the job
-<LI>Choices made until age 76, then retired for 10 years
-<LI>Probability of early death depends on age and health (constant)
-<LI>Figure 1 simulates choice probabilities assuming 10 years tenure on full-time job
+<LI>Models retirement and work for males age 55+</LI>
+<LI>New job match value arrives each year, or can continue with current full/part-time wage</LI>
+<LI>Wages grow with duration on the job</LI>
+<LI>Choices made until age 76, then retired for 10 years</LI>
+<LI>Probability of early death depends on age and health (constant)</LI>
+<LI>Figure 1 simulates choice probabilities assuming 10 years tenure on full-time job</LI>
 </UL>
 <P/>
 <h2>The Model</h2>
 <DL>
-<DT>Solution/smoothing: <DD>Extreme Value ex ante, &rho; = 1/&tau;.</DD>
-<DT>Clock:
-        <DD>RandomMortality (T = 21)
-        <DD>Mortality probability <a href="BerkovecSternEmet1991.ox.html#Retirement___mprob">mprob</a> (in the paper called &delta;) a function of age and constant health.
+<DT>Solution/smoothing:</DT>
+ <DD>Extreme Value ex ante, &rho; = 1/&tau;.</DD>
+<DT>Clock:</DT>
+        <DD>RandomMortality (T = 21)</DD>
+        <DD>Mortality probability <a href="BerkovecSternEmet1991.ox.html#Retirement___mprob">mprob</a> (in the paper called &delta;) a function of age and constant health.</DD>
 	<DD>Paper does not report probabilities. Stern contacted and could not find them.</DD>
 	<DD>Rates are approximated using: <a href="http://www.cdc.gov/nchs/data/dvs/mx196878.pdf">CDC Data</a></DD>
-<DT>Action Vector: </DT><DD class="example">&alpha; = (i), i.N=4<pre>
+<DT>Action Vector: </DT>
+<DD><span class="expressions">\(\alpha = (i)\)</span>,
+<pre>
 i       Means
 -----------------------------------
 0       Retire
 1       Work Part-time new match
 2       Work Full-time new match
-3       Stay in current job</pre></DD>
-<DT>Semi-State Variables</DT> <DD>&eta; =   (h),  new job match value.</DD>
+3       Stay in current job
+</pre></DD>
+<DT>Semi-Exogenous Variables</DT> 
+<DD><span class="expressions">\(\eta =   (h)\)</span>,  new job match value.</DD>
 <DT>Endogenous State Variables</DT>
-<DD>&theta; =   (m<sub>0</sub> m<sub>1</sub> s d M t),</dd>
-<DD>m<sub>0</sub> and m<sub>1</sub> and s lagged action trackers (full-time implied).</DD>
-<DD>d duration of current match (t-s) in the paper</DD>
-<DD>M current match value if a job was held last year (M'=h if i=Part or Full).</DD>
-<DT>Random Effects (elements of the group vector &gamma;)
-<DD>&gamma; =   (g<sub>0</sub> g<sub>1</sub> g<sub>2</sub> g<sub>3</sub> g<sub>I</sub>).</DD>
-<DD>Each a permanent normal random effect, g<sub>i</sub> associated with sector i.  g<sub>I</sub> is an individual specific wage effect.</DD>
+<DD><span class="expressions">\(\theta =   \pmatrix{ m_0&  m_1 & s & d & M &t}\)</span>,</dd>
+<DD><span class="expressions">\(m_0\)</span> and <span class="expressions">\(m_1\)</span> and <span class="expressions">\(s\)</span> are lagged action trackers (full-time implied).</DD>
+<DD><span class="expressions">\(d\)</span> duration of current match (t-s) in the paper</DD>
+<DD><span class="expressions">\(M\)</span> current match value if a job was held last year (<span class="expressions">\(M'=h\)</span> if <span class="expressions">\(i=1\)</span> or <span class="expressions">\(i=2\)</span>).</DD>
+<DT>Random Effects (elements of the group vector <span class="expressions">\(\gamma\)</span>)
+<DD><span class="expressions">\(\gamma =   \pmatrix{g_0& g_1&g_2&g_3& g_I}\)</span>.</DD>
+<DD>Each is a permanent normal random effect associated with sector i.  <span class="expressions">\(g_I\)</span> is an individual specific wage effect.</DD>
 <P/>
-<DT>Utility:</DT><dd class="example"><pre>
+<DT>Utility:</DT>
+<dd><pre>
 U = X&beta;<sub>0</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>g<sub>0</sub>  + &tau;z.0
     X&beta;<sub>1</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>g<sub>1</sub> + &sigma;<sub>3</sub>h<sub>s</sub>+ &tau;z.1
     X&beta;<sub>2</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>g<sub>2</sub> + &sigma;<sub>3</sub>h<sub>s</sub>+ &tau;z.2
@@ -61,13 +67,12 @@ U = X&beta;<sub>0</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>
 <DD>z.i IID extreme value error</DD>
 <DT>Feasible Actions</DT>
     <DD>only retirement (i=0) after age 75</DD>
-    <DD>cannot choose stay (i=3) if retired last period (m<sub>0</sub>=1)</DD>
+    <DD>cannot choose stay (i=3) if retired last period (<span class="expressions">\(m_0=1\)</span>)</DD>
 <DT>Reachable States</DT>
     <DD>duration must be feasible</DD>
     <DD>new and current match value irrelevant after age 75</DD>
     <DD>current match value irrelevant if retired</DD>
 <DT>Notes:</DT>
-<DD>Traverse state space using state list since many states are unreachable</DD>
 <DD>Paper used ?? Monte Carlo draws per normal component.  </DD>
 </DL>
 <hr>
@@ -111,7 +116,7 @@ U = X&beta;<sub>0</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___drates">drates</a></td>
 <td class="modifiers">static const</td>
-<td class="description">age bracket death rates per 100000.</td>
+<td class="description"></td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___dur">dur</a></td>
@@ -149,9 +154,19 @@ U = X&beta;<sub>0</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>
 <td class="description">Action variable  </td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___iacc">iacc</a></td>
+<td class="modifiers">static const</td>
+<td class="description">age bracket death rates per 100000.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___M">M</a></td>
 <td class="modifiers">static</td>
 <td class="description">match value if worked last year  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___m">m</a></td>
+<td class="modifiers">static</td>
+<td class="description">move/match decision.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___p">p</a></td>
@@ -183,42 +198,52 @@ U = X&beta;<sub>0</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>
 <td class="modifiers">static const</td>
 <td class="description"></td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Xn">Xn</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___FeasibleActions">FeasibleActions</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___mprob">mprob</a></td>
 <td class="modifiers">static</td>
 <td class="description">Age-dependent mortality probability.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Reachable">Reachable</a></td>
 <td class="modifiers"></td>
 <td class="description">Duration must be feasible, do not track current eta if retired.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Run">Run</a></td>
 <td class="modifiers">static</td>
 <td class="description">Setup and solve the model for both columns.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Sig1">Sig1</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Sig2">Sig2</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Utility">Utility</a></td>
 <td class="modifiers"></td>
 <td class="description">The one period return.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Anonymous enum 1">Anonymous enum 1</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#Retirement___Dimens">Dimens</a></td>
 <td class="modifiers"></td>
 <td class="description">State space dimensions.</td>
@@ -240,32 +265,54 @@ U = X&beta;<sub>0</sub> + &sigma;<sub>1</sub>g<sub>I</sub> + &sigma;<sub>2</sub>
 </tr>
 </table>
 
+<a name="XLagged"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">XLagged</span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#XLagged___Transit">Transit</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="BerkovecSternEmet1991.ox.html#XLagged___XLagged">XLagged</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Retirement</span></h2>
 
 <table class="enum_table">
 <tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><a name="Retirement___Anonymous enum 1"></a>Anonymous enum 1</td>
+<td class="description"></td>
+<td class="elements">Stay, Move, Nsearch</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><a name="Retirement___Dimens"></a>Dimens</td>
 <td class="description">State space dimensions.
 </td>
 <td class="elements">nReps, nRepsS, S0, T0, Tstar, T2star, TMAX, Smax</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><a name="Retirement___mortbrackets"></a>mortbrackets</td>
 <td class="description">Mortality brackets.
 </td>
 <td class="elements">A55_64, A65_74, A75_84, A85plus, AgeCategories</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><a name="Retirement___regressors"></a>regressors</td>
 <td class="description">Wage regressors.
 </td>
 <td class="elements">Constant, Education, Race, Age, Age2, Health, Tenure, Tenure2, Nregressors</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><a name="Retirement___sectors"></a>sectors</td>
 <td class="description">Choices & Sectors.
 </td>
-<td class="elements">Retire, Part, Full, Stay, Nactions, Nsectors</td>
+<td class="elements">Retire, Part, Full, Nsectors</td>
 </tr>
 </table>
 
@@ -312,12 +359,6 @@ Column of table to get params from
 
 <span class="declaration">static const decl drates [public]</span>
 <dl><dd>
-age bracket death rates per 100000.
-	Paper does not report &delta;, state-dependent survival probability. Stern was contacted and said they could not be found.
-	These rates are used as an approximation.
-	<LI>Source http://www.cdc.gov/nchs/data/dvs/mx196878.pdf
-	<LI>Table: 82/10/14 TABLE 290 82/10/14 TABLE 290. DEATH RATES FOR 69 SELECTED CAUSES, BY 10-YEAR AGE GROUPS, RACE, AND SEX: UNITED STATES, 1968-78
-	<LI>Row: White Male 1969, Age55-85+
 
 </dd></dl>
 
@@ -399,12 +440,37 @@ Action variable
 </dd></dl>
 
 <hr>
+<a name="Retirement___iacc"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">iacc</span></h3>
+
+<span class="declaration">static const decl iacc [public]</span>
+<dl><dd>
+age bracket death rates per 100000.
+	Paper does not report &delta;, state-dependent survival probability. Stern was contacted and said they could not be found.
+	These rates are used as an approximation.
+	<LI>Source http://www.cdc.gov/nchs/data/dvs/mx196878.pdf
+	<LI>Table: 82/10/14 TABLE 290 82/10/14 TABLE 290. DEATH RATES FOR 69 SELECTED CAUSES, BY 10-YEAR AGE GROUPS, RACE, AND SEX: UNITED STATES, 1968-78
+	<LI>Row: White Male 1969, Age55-85+
+
+</dd></dl>
+
+<hr>
 <a name="Retirement___M"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">M</span></h3>
 
 <span class="declaration">static decl M [public]</span>
 <dl><dd>
 match value if worked last year
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___m"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">m</span></h3>
+
+<span class="declaration">static decl m [public]</span>
+<dl><dd>
+move/match decision.
 
 </dd></dl>
 
@@ -518,6 +584,31 @@ Setup and solve the model for both columns.
 <span class="declaration">Retirement :: Utility ( )</span>
 <dl><dd>
 The one period return.
+
+</dd></dl>
+
+<hr>
+<a name="Retirement___Xn"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Xn</span></h3>
+
+<span class="declaration">static decl Xn [public]</span>
+<dl><dd>
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">XLagged</span></h2>
+
+<a name="XLagged___Transit"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
+
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="XLagged___XLagged"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">XLagged</span></h3>
+
+<dl><dd>
 
 </dd></dl>
 <div class="footer">

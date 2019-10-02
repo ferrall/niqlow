@@ -909,7 +909,7 @@ OneDimensionalChoice::SetTheta(state,picked) {
 
 OneDimensionalChoice::Smooth() {
     if (solvez)
-	   pandv[] =  EV;
+	   pandv[] =  pstar; // EV;  October 2019.  Not sure why this was EV???
     else
        ExPostSmoothing::Smooth();
 	}
