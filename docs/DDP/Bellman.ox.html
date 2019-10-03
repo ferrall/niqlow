@@ -240,14 +240,16 @@ When you call <a href="Bellman.ox.html#DP___Initialize">Initialize</a>() it open
 <a name="Bellman"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Bellman : <a href="Bellman.ox.html#DP">DP</a></span></h2>
 
-&theta;-specific values.
+<span class="expressions">\(\theta\)</span>-specific values.
 <P/>
-Corresponds to a a model with no continuous shocks &zeta; and no ex-post smoothing.
+This is the base class for a single point in the endogenous state space, <span class="expressions">\(\theta\in \Theta\)</span>.</br>
+<P/>
+It corresponds to a a model with no continuous shocks <span class="expressions">\(\theta\)</span> and no ex-post smoothing.<br/>
 <P/>
 Since a new instance of DP is created for each reachable point in the (endogneous) state space, the structure relies heavily
-on static members in order to reduce memory requirements.  These are defined in the base <a href="Bellman.ox.html#DP">DP</a> class.
+on static members in order to reduce memory requirements.  These are defined in the base <a href="Bellman.ox.html#DP">DP</a> class.<br/>
 <P/>
-<code>MyModel</code> should be derived from (a derivation from) <a href="Bellman.ox.html#Bellman">Bellman</a>.
+<code>MyModel</code> should be derived from a class that in turn is derived from <a href="Bellman.ox.html#Bellman">Bellman</a>.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -1188,7 +1190,7 @@ Loop over &eta; and &epsilon; and call <a href="Bellman.ox.html#Bellman___Utilit
 <a name="ExPostSmoothing"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ExPostSmoothing : <a href="Bellman.ox.html#Bellman">Bellman</a> : <a href="Bellman.ox.html#DP">DP</a></span></h2>
 
-Choice probabilities are smoothed ex post.
+A point in the state space for a model in which choice probabilities are smoothed ex post.
 <P/>
 <DT>Utility() has no continuous error terms that affect the formula for computing <span class="expressions">\(EV(\theta)\)</span>.
 </DT>
@@ -1201,17 +1203,17 @@ according to the <a href="DDPShared.ox.html#SmoothingMethods">SmoothingMethods</
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#ExPostSmoothing___Method">Method</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">The smoothing method to use.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#ExPostSmoothing___rho">rho</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Smoothing parameter <span class="expressions">\(\rho\)</span> (logit method)  </td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#ExPostSmoothing___sigma">sigma</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Smoothing parameter <span class="expressions">\(\sigma\)</span> (normal method)  </td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#ExPostSmoothing___CreateSpaces">CreateSpaces</a></td>
@@ -1271,15 +1273,16 @@ Base Task for looping over &Epsilon; and &Eta;.
 <a name="ExtremeValue"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ExtremeValue : <a href="Bellman.ox.html#Bellman">Bellman</a> : <a href="Bellman.ox.html#DP">DP</a></span></h2>
 
-Additve extreme value errors enter U().
+The base class for models that include an additve extreme value error in action value.
 <P/>
 <DT>Specification</DT>
-<dd><pre>
-U() = Utility(&alpha;,&eta;,&epsilon;,&theta;,&gamma;) + &zeta;
-&zeta;.N = (&theta;.A).D          IID error for each feasible &alpha;
-F(z<sub>i</sub>) = exp{ -exp{-x/&rho;} }
-</pre>
+$<span class="expressions">\(\eqalign{
+v(\alpha,\cdots) &= Utility(\alpha,\cdots) + \zeta_\alpha\cr
+\zeta: vector of IID errors for each feasible \)</span>\alpha<span class="expressions">\(\cr
+F(z_\alpha) = e^{ -e^{-x/\rho} }\cr}\)</span>$
+<P/>
 <DT>Bellman Equation Iteration.</DT>
+<P/>
 <DD><pre>
 v(&alpha;;&epsilon;,&eta;) = exp{  &rho;( U + &delta;&sum; <sub>&theta;&prime;</sub> &Rho;(&theta;&prime;;&alpha;,&eta;,&theta;) EV(&theta;&prime;) ) }
 V(&epsilon;,&eta;) = log(&sum;<sub>&alpha;</sub> v(&alpha;;&epsilon;,&eta;))
@@ -1693,7 +1696,10 @@ not depend on z*.</td>
 <a name="McFadden"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">McFadden : <a href="Bellman.ox.html#ExtremeValue">ExtremeValue</a> : <a href="Bellman.ox.html#Bellman">Bellman</a> : <a href="Bellman.ox.html#DP">DP</a></span></h2>
 
-Myopic choice problem (&delta;=0.0) with standard Extreme Value &zeta;.
+Myopic choice problem (<span class="expressions">\(\delta=0.0\)</span>) with standard Extreme Value <span class="expressions">\(\zeta\)</span>.
+<P/>
+This is the base class for a static discrete model with extreme value shocks added
+to the value of actions.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -1835,7 +1841,9 @@ Numerically integrate using Gauss-Hermite Quadrature.
 <a name="NnotIID"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NnotIID : <a href="Bellman.ox.html#Normal">Normal</a> : <a href="Bellman.ox.html#Bellman">Bellman</a> : <a href="Bellman.ox.html#DP">DP</a></span></h2>
 
-Correlated errors and smooth  simulation of choice probabilities.
+Base class for normal smoothing and correlated errors.
+<P/>
+ Smooth  simulation of choice probabilities.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -1900,7 +1908,7 @@ Correlated errors and smooth  simulation of choice probabilities.
 <a name="Normal"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Normal : <a href="Bellman.ox.html#Bellman">Bellman</a> : <a href="Bellman.ox.html#DP">DP</a></span></h2>
 
-DP Models that include additive normal choice-specific &zeta;.
+Base class for models with an additive normal <span class="expressions">\(\zeta\)</span> shock added to action values.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -1953,26 +1961,29 @@ DP Models that include additive normal choice-specific &zeta;.
 <a name="OneDimensionalChoice"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">OneDimensionalChoice : <a href="Bellman.ox.html#ExPostSmoothing">ExPostSmoothing</a> : <a href="Bellman.ox.html#Bellman">Bellman</a> : <a href="Bellman.ox.html#DP">DP</a></span></h2>
 
-One-dimensional action models with user defined distribution of &zeta;.
+One-dimensional action models with user defined distribution of <span class="expressions">\(\zeta\)</span>.
 <P/>
-<DT>Allows for solving the model by finding cutoffs (reservation values) in a continuous error using the <a href="Methods.ox.html#ReservationValues">ReservationValues</a> method.</DT>
+This is the base class required for models solved by finding cutoffs (reservation values)
+in a continuous error using the <a href="Methods.ox.html#ReservationValues">ReservationValues</a> method.<br/>
+<P/>
+The user's model provides the required information about the distribution of <span class="expressions">\(\zeta\)</span>.<br/>
 <P/>
 <DT>The reservation value solution works when</DT>
 <UL>
 <LI>There is a single action variable <em>and</em></LI>
-<LI>There are no exogenous (&epsilon;) or semi-exogenous (&eta;) states added to the model.  State variables that would be eligible
-for inclusion in those vectors need to be placed in &theta;.</LI>
-<LI>The model must exhibit a reservation property in z (i.e. a single-crossing property and if <code>d.N&gt;2</code> monotonicity in the crossing points.</LI>
+<LI>There are no exogenous (<span class="expressions">\(\epsilon\)</span>) or semi-exogenous (<span class="expressions">\(\eta\)</span>) states added to the model.
+  State variables that would be eligible for inclusion in those vectors need to be placed in <span class="expressions">\(\theta\)</span>.
+  </LI>
+<LI>The model must exhibit a reservation property in z (i.e. a single-crossing property)</LI>
+<LI>If the number of options is greater than 2 then the crossing points must be monotonically increasing.</LI>
 <P/>
 <LI>Formally,</LI>
-<DD><pre>
-&alpha; = (d)
-&zeta; = (z)
-&epsilon; = ()
-&eta; = ()
-<P/>
-U(d;&zeta;,&theta;) = U(d;z,&theta;)
-</pre></dd>
+<span class="equation">$$
+\alpha &= (d)\cr
+\zeta &= (z)\cr
+\epsilon &= ()\cr
+\eta &= ()\cr
+v(d,\theta) &= U(d,\theta) + \zeta_\cr}$$</span>
 <P/>
 </UL>
 <P/>
@@ -2100,15 +2111,23 @@ not depend on z*.</td>
 <a name="OneStateModel"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">OneStateModel : <a href="Bellman.ox.html#ExPostSmoothing">ExPostSmoothing</a> : <a href="Bellman.ox.html#Bellman">Bellman</a> : <a href="Bellman.ox.html#DP">DP</a></span></h2>
 
-A model where there is a single decision, no value shocks and no dynamics.
-The user simply supplies a static utility function which is called from the built-in
-version here.
+Base class for a model with a single state.
+<P/>
+A model where there is :
+<UL>
+<LI>a single decision</LI>
+<LI>no value shocks</LI>
+<LI>no dynamics and no foresight</LI>
+</UL>
+<P/>
+The user simply supplies a (required) <em>static</em> utility function which
+is called from the built-in version here.<br/>
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#OneStateModel___U">U</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">contains <span class="expressions">\(U()\)</span> sent by the user's code.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#OneStateModel___Initialize">Initialize</a></td>
@@ -2287,13 +2306,17 @@ The base task for looping over random effects.
 <a name="Rust"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Rust : <a href="Bellman.ox.html#ExtremeValue">ExtremeValue</a> : <a href="Bellman.ox.html#Bellman">Bellman</a> : <a href="Bellman.ox.html#DP">DP</a></span></h2>
 
-Ergodic state transition with standard Extreme Value &zeta; and binary choice.
+Special case of Extreme value.
+<UL>
+<LI>Infinite horize and Ergodic state transition.</LI>
+<LI>binary choice.</LI>
+</UL>
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#Rust___d">d</a></td>
 <td class="modifiers">static</td>
-<td class="description">The decision variable.</td>
+<td class="description">The binary decision variable.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Rust___CreateSpaces">CreateSpaces</a></td>
@@ -5266,7 +5289,10 @@ Initialize an ex post smoothing model.
 
 <span class="declaration">static decl Method [public]</span>
 <dl><dd>
+The smoothing method to use.
 
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#SmoothingMethods">SmoothingMethods</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -5284,6 +5310,7 @@ Initialize an ex post smoothing model.
 
 <span class="declaration">static decl rho [public]</span>
 <dl><dd>
+Smoothing parameter <span class="expressions">\(\rho\)</span> (logit method)
 
 </dd></dl>
 
@@ -5293,6 +5320,7 @@ Initialize an ex post smoothing model.
 
 <span class="declaration">static decl sigma [public]</span>
 <dl><dd>
+Smoothing parameter <span class="expressions">\(\sigma\)</span> (normal method)
 
 </dd></dl>
 
@@ -6702,6 +6730,7 @@ to add any state variables to the model.</DT></td>
 
 <span class="declaration">static decl U [public]</span>
 <dl><dd>
+contains <span class="expressions">\(U()\)</span> sent by the user's code.
 
 </dd></dl>
 
@@ -6883,7 +6912,7 @@ Currently this just calls the ExtremValue version, no special code.
 
 <span class="declaration">static decl d [public]</span>
 <dl><dd>
-The decision variable.
+The binary decision variable.
 
 </dd></dl>
 

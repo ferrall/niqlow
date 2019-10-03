@@ -22,15 +22,27 @@ Read this to find out how to solve the dynamic program using different methods.
 <P/>
 <li>Overview</li>
 <P/>
-Once your code has called <code>CreateSpaces()</code> your DP model is set up and ready to be solved.  To do this, apply a <em>solution method</em> to the model, which is an object derived from the <a href="Methods.ox.html#Method">Method</a> class. You can apply more than one method to your problem, although some methods only work with some kinds of models.  Every Method has a <code>Solve()</code> function that applies the method to the DP problem.  Solution methods work at the highest level of the DP environment.  That is, if your DP environment involves multiple problems (because it includes fixed and random effects), the solution method will call methods to handle each specific DP problem. (It is possible to specify that only one problem be solved, and this is used to efficiently parallelize the solution of many DP problems over a cluster.)</p>
+Once your code has called <code>CreateSpaces()</code> your DP model is set up and ready to be solved.  To do this, apply a <em>solution method</em> to the model, which is an object derived from the <a href="Methods.ox.html#Method">Method</a> class. You can apply more than one method to your problem, although some methods only work with some kinds of models.</p>
+<P/>
+Every Method has a <code>Solve()</code> function that applies the method to the DP problem.  Solution methods work at the highest level of the DP environment.  That is, if your DP environment involves multiple problems (because it includes fixed and random effects), the solution method will call methods to handle each specific DP problem. (It is possible to specify that only one problem be solved, and this is used to efficiently parallelize the solution of many DP problems over a cluster.)</p>
+<P/>
+The most flexible way to use a solution method is to create a new object of the method and then call its <code>Solve</code> routine in any place of the code.  This approach is necessary when using a <em>nested algorithm</em> in which the DP solution is embedded inside some other iteration (such as estimating parameters of the model).  Some of the solution methods have a simpler version in which the code calls a function that creates the method for the user, applies it solve routine and then deletes the method.  Both possibilities are shown here:
 <P/>
 <DT>Example: Solve <code>MyModel</code> with brute force value function iteration:</DT>
-<DD><pre>
+<DD>Option 1 (more general)
+<pre>
 &vellip;
 CreateSpaces();
 vmax = new ValueIteration();
 vmax.Volume = LOUD;               //V(&theta;) printed when computed
 vmax -&gt; Solve();
+&vellip;
+</pre></DD>
+<DD>Option 2 (simple)
+<pre>
+&vellip;
+CreateSpaces();
+VISolve();
 &vellip;
 </pre></DD>
 <P/>
@@ -160,7 +172,7 @@ HM = new HotzMiller(data);
 </OL>
 </OL>
 
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2018 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2019 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
 <a name="auto"><hr><h1>Documentation of  Items Defined in Methods.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a></dd>
 </dl>
 <a name="global"></a>
@@ -250,13 +262,13 @@ Solve a DP model using the Aguiregabiria Mira iterative prodecure.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#AMGSolve___Update">Update</a></td>
 <td class="modifiers"></td>
-<td class="description">Check convergence in Bellman iteration, either infinite or finite horizon.</td>
+<td class="description">Check convergence in Bellman iteration after a stage of state-space spanning.</td>
 </tr>
 </table>
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Methods.ox.html#HMGSolve">HMGSolve</a>:</dt><dd><a href="Methods.ox.html#HMGSolve___HMGSolve">HMGSolve</a></dd>
-<dt>Inherited methods from <a href="Methods.ox.html#GSolve">GSolve</a>:</dt><dd><a href="Methods.ox.html#GSolve___GSolve">GSolve</a>, <a href="Methods.ox.html#GSolve___PostEMax">PostEMax</a>, <a href="Methods.ox.html#GSolve___Report">Report</a>, <a href="Methods.ox.html#GSolve___ZeroTprime">ZeroTprime</a></dd>
+<dt>Inherited methods from <a href="Methods.ox.html#GSolve">GSolve</a>:</dt><dd><a href="Methods.ox.html#GSolve___GSolve">GSolve</a>, <a href="Methods.ox.html#GSolve___PostEMax">PostEMax</a>, <a href="Methods.ox.html#GSolve___ZeroTprime">ZeroTprime</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
@@ -460,11 +472,6 @@ A container for iterating over &theta; during solution methods.
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#GSolve___Report">Report</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#GSolve___Run">Run</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Apply Bellman's equation at a point &theta;
@@ -473,17 +480,17 @@ A container for iterating over &theta; during solution methods.
 <LI>Call <a href="Bellman.ox.html#Bellman___thetaEMax">thetaEMax</a>() and storing the value </LI>
 <LI>If <a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> then smooth choice probabilities.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#GSolve___Solve">Solve</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Interate over the state space apply the solution method.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#GSolve___Update">Update</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Check convergence in Bellman iteration, either infinite or finite horizon.</td>
+<td class="description">Check convergence in Bellman iteration after a stage of state-space spanning.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#GSolve___ZeroTprime">ZeroTprime</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
@@ -537,12 +544,12 @@ A container for iterating over &theta; during solution methods.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#HMGSolve___Update">Update</a></td>
 <td class="modifiers"></td>
-<td class="description">Check convergence in Bellman iteration, either infinite or finite horizon.</td>
+<td class="description">Check convergence in Bellman iteration after a stage of state-space spanning.</td>
 </tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Methods.ox.html#GSolve">GSolve</a>:</dt><dd><a href="Methods.ox.html#GSolve___GSolve">GSolve</a>, <a href="Methods.ox.html#GSolve___PostEMax">PostEMax</a>, <a href="Methods.ox.html#GSolve___Report">Report</a>, <a href="Methods.ox.html#GSolve___ZeroTprime">ZeroTprime</a></dd>
+<dt>Inherited methods from <a href="Methods.ox.html#GSolve">GSolve</a>:</dt><dd><a href="Methods.ox.html#GSolve___GSolve">GSolve</a>, <a href="Methods.ox.html#GSolve___PostEMax">PostEMax</a>, <a href="Methods.ox.html#GSolve___ZeroTprime">ZeroTprime</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
@@ -736,7 +743,7 @@ Then the proportion of total <code>max()</code> operations <em>avoided</em> is
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Methods.ox.html#ValueIteration">ValueIteration</a>:</dt><dd><a href="Methods.ox.html#ValueIteration___Run">Run</a>, <a href="Methods.ox.html#ValueIteration___Solve">Solve</a>, <a href="Methods.ox.html#ValueIteration___ValueIteration">ValueIteration</a></dd>
+<dt>Inherited methods from <a href="Methods.ox.html#ValueIteration">ValueIteration</a>:</dt><dd><a href="Methods.ox.html#ValueIteration___Solve">Solve</a>, <a href="Methods.ox.html#ValueIteration___ValueIteration">ValueIteration</a></dd>
 <dt>Inherited methods from <a href="Methods.ox.html#Method">Method</a>:</dt><dd><a href="Methods.ox.html#Method___Initialize">Initialize</a>, <a href="Methods.ox.html#Method___Method">Method</a>, <a href="Methods.ox.html#Method___ToggleIterate">ToggleIterate</a>, <a href="Methods.ox.html#Method___ToggleRunSafe">ToggleRunSafe</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#GroupTask">GroupTask</a>:</dt><dd><a href="Bellman.ox.html#GroupTask___GroupTask">GroupTask</a>, <a href="Bellman.ox.html#GroupTask___loop">loop</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a>, <a href="Bellman.ox.html#Task___Update">Update</a></dd>
@@ -838,12 +845,12 @@ Then the proportion of total <code>max()</code> operations <em>avoided</em> is
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#KWGSolve___Run">Run</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Carry out Keane-Wolpin approximation at an endogenous state &theta; .</td>
+<td class="description">Carry out Keane-Wolpin approximation at an endogenous state <span class="expressions">\(\theta\)</span>.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#KWGSolve___Solve">Solve</a></td>
 <td class="modifiers"></td>
-<td class="description">Carry out Keane-Wolpin approximation at &theta; .</td>
+<td class="description">Carry out Keane-Wolpin approximation at <span class="expressions">\(\theta\)</span> .</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#KWGSolve___Specification">Specification</a></td>
@@ -853,7 +860,7 @@ Then the proportion of total <code>max()</code> operations <em>avoided</em> is
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Methods.ox.html#GSolve">GSolve</a>:</dt><dd><a href="Methods.ox.html#GSolve___GSolve">GSolve</a>, <a href="Methods.ox.html#GSolve___PostEMax">PostEMax</a>, <a href="Methods.ox.html#GSolve___Report">Report</a>, <a href="Methods.ox.html#GSolve___Update">Update</a>, <a href="Methods.ox.html#GSolve___ZeroTprime">ZeroTprime</a></dd>
+<dt>Inherited methods from <a href="Methods.ox.html#GSolve">GSolve</a>:</dt><dd><a href="Methods.ox.html#GSolve___GSolve">GSolve</a>, <a href="Methods.ox.html#GSolve___PostEMax">PostEMax</a>, <a href="Methods.ox.html#GSolve___Update">Update</a>, <a href="Methods.ox.html#GSolve___ZeroTprime">ZeroTprime</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
@@ -958,7 +965,7 @@ A container for solution methods.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Methods.ox.html#ValueIteration">ValueIteration</a>:</dt><dd><a href="Methods.ox.html#ValueIteration___Run">Run</a>, <a href="Methods.ox.html#ValueIteration___ValueIteration">ValueIteration</a></dd>
+<dt>Inherited methods from <a href="Methods.ox.html#ValueIteration">ValueIteration</a>:</dt><dd><a href="Methods.ox.html#ValueIteration___ValueIteration">ValueIteration</a></dd>
 <dt>Inherited methods from <a href="Methods.ox.html#Method">Method</a>:</dt><dd><a href="Methods.ox.html#Method___Initialize">Initialize</a>, <a href="Methods.ox.html#Method___Method">Method</a>, <a href="Methods.ox.html#Method___ToggleIterate">ToggleIterate</a>, <a href="Methods.ox.html#Method___ToggleRunSafe">ToggleRunSafe</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#GroupTask">GroupTask</a>:</dt><dd><a href="Bellman.ox.html#GroupTask___GroupTask">GroupTask</a>, <a href="Bellman.ox.html#GroupTask___loop">loop</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a>, <a href="Bellman.ox.html#Task___Update">Update</a></dd>
@@ -1010,21 +1017,6 @@ Newton-Kantorovich iteration information.
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Methods.ox.html#NKinfo___visit">visit</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#NKinfo___Hold">Hold</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#NKinfo___NKinfo">NKinfo</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#NKinfo___Update">Update</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
@@ -1096,29 +1088,14 @@ Newton-Kantorovich iteration information.
 <td class="description"></td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#NKSolve___NKSolve">NKSolve</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#NKSolve___PostEMax">PostEMax</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#NKSolve___Solve">Solve</a></td>
-<td class="modifiers">virtual</td>
-<td class="description">Interate over the state space apply the solution method.</td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#NKSolve___Update">Update</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Check convergence in Bellman iteration, either infinite or finite horizon.</td>
+<td class="description">Check convergence in Bellman iteration after a stage of state-space spanning.</td>
 </tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Methods.ox.html#GSolve">GSolve</a>:</dt><dd><a href="Methods.ox.html#GSolve___GSolve">GSolve</a>, <a href="Methods.ox.html#GSolve___Report">Report</a>, <a href="Methods.ox.html#GSolve___Run">Run</a>, <a href="Methods.ox.html#GSolve___ZeroTprime">ZeroTprime</a></dd>
+<dt>Inherited methods from <a href="Methods.ox.html#GSolve">GSolve</a>:</dt><dd><a href="Methods.ox.html#GSolve___GSolve">GSolve</a>, <a href="Methods.ox.html#GSolve___Run">Run</a>, <a href="Methods.ox.html#GSolve___ZeroTprime">ZeroTprime</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
@@ -1321,7 +1298,7 @@ System of equations for reservation value solutions.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Methods.ox.html#GSolve">GSolve</a>:</dt><dd><a href="Methods.ox.html#GSolve___GSolve">GSolve</a>, <a href="Methods.ox.html#GSolve___PostEMax">PostEMax</a>, <a href="Methods.ox.html#GSolve___Report">Report</a>, <a href="Methods.ox.html#GSolve___Update">Update</a>, <a href="Methods.ox.html#GSolve___ZeroTprime">ZeroTprime</a></dd>
+<dt>Inherited methods from <a href="Methods.ox.html#GSolve">GSolve</a>:</dt><dd><a href="Methods.ox.html#GSolve___GSolve">GSolve</a>, <a href="Methods.ox.html#GSolve___PostEMax">PostEMax</a>, <a href="Methods.ox.html#GSolve___Update">Update</a>, <a href="Methods.ox.html#GSolve___ZeroTprime">ZeroTprime</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
@@ -1359,7 +1336,7 @@ System of equations for reservation value solutions.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Methods.ox.html#GSolve">GSolve</a>:</dt><dd><a href="Methods.ox.html#GSolve___GSolve">GSolve</a>, <a href="Methods.ox.html#GSolve___PostEMax">PostEMax</a>, <a href="Methods.ox.html#GSolve___Report">Report</a>, <a href="Methods.ox.html#GSolve___Update">Update</a>, <a href="Methods.ox.html#GSolve___ZeroTprime">ZeroTprime</a></dd>
+<dt>Inherited methods from <a href="Methods.ox.html#GSolve">GSolve</a>:</dt><dd><a href="Methods.ox.html#GSolve___GSolve">GSolve</a>, <a href="Methods.ox.html#GSolve___PostEMax">PostEMax</a>, <a href="Methods.ox.html#GSolve___Update">Update</a>, <a href="Methods.ox.html#GSolve___ZeroTprime">ZeroTprime</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Task">Task</a>:</dt><dd><a href="Bellman.ox.html#Task___list">list</a>, <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#DP">DP</a>:</dt><dd><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#DP___AddStates">AddStates</a>, <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="Bellman.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="Bellman.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="Bellman.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___ExogenousTransition">ExogenousTransition</a>, <a href="Bellman.ox.html#DP___ExpandP">ExpandP</a>, <a href="Bellman.ox.html#DP___GetAind">GetAind</a>, <a href="Bellman.ox.html#DP___GetPstar">GetPstar</a>, <a href="Bellman.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Bellman.ox.html#DP___Indicators">Indicators</a>, <a href="Bellman.ox.html#DP___Initialize">Initialize</a>, <a href="Bellman.ox.html#DP___Interactions">Interactions</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="Bellman.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>, <a href="Bellman.ox.html#DP___SetG">SetG</a>, <a href="Bellman.ox.html#DP___SetGroup">SetGroup</a>, <a href="Bellman.ox.html#DP___Settheta">Settheta</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#DP___SetVersion">SetVersion</a>, <a href="Bellman.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="Bellman.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="Bellman.ox.html#DP___SyncAct">SyncAct</a>, <a href="Bellman.ox.html#DP___UpdateDistribution">UpdateDistribution</a></dd>
 </dl>
@@ -1442,16 +1419,11 @@ Results are integrated over random effects, but results across fixed effects are
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___Run">Run</a></td>
-<td class="modifiers">virtual</td>
-<td class="description">Process a point in the fixed effect space.</td>
-</tr>
-<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___Solve">Solve</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Solve Bellman's Equation using <em>brute force</em> iteration over the state space.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Methods.ox.html#ValueIteration___ValueIteration">ValueIteration</a></td>
 <td class="modifiers"></td>
 <td class="description">Creates a new &quot;brute force&quot; Bellman iteration method.</td>
@@ -1635,8 +1607,12 @@ Interate over the state space apply the solution method.
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
 
 <dl><dd>
-Check convergence in Bellman iteration, either infinite or finite horizon.
-Default task loop update routine for value iteration.
+Check convergence in Bellman iteration after a stage of state-space spanning.
+Users do not call this function.  It is called inside the solution method.
+THis is the default task loop update routine for value iteration.<br/>
+<P/>
+Different solution methods have derived versions of this routine to handle updating in their context.<br/>
+<P/>
 This is called after one complete iteration of ValueIteration::GSolve().
 
 <dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if converged or <a href="Bellman.ox.html#Task___trips">trips</a> equals <a href="Bellman.ox.html#Task___MaxTrips">MaxTrips</a>
@@ -1834,15 +1810,6 @@ Initialize EV() as a system of non-linear equations.
 </dd></dl>
 
 <hr>
-<a name="GSolve___Report"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Report</span></h3>
-
-<span class="declaration">GSolve :: Report ( mefail )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="GSolve___Run"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
 
@@ -1898,8 +1865,12 @@ TRUE if all tasks suceed.
 
 <span class="declaration">virtual GSolve :: Update ( )</span>
 <dl><dd>
-Check convergence in Bellman iteration, either infinite or finite horizon.
-Default task loop update routine for value iteration.
+Check convergence in Bellman iteration after a stage of state-space spanning.
+Users do not call this function.  It is called inside the solution method.
+THis is the default task loop update routine for value iteration.<br/>
+<P/>
+Different solution methods have derived versions of this routine to handle updating in their context.<br/>
+<P/>
 This is called after one complete iteration of ValueIteration::GSolve().
 
 <dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if converged or <a href="Bellman.ox.html#Task___trips">trips</a> equals <a href="Bellman.ox.html#Task___MaxTrips">MaxTrips</a>
@@ -2009,8 +1980,12 @@ Interate over the state space apply the solution method.
 
 <span class="declaration">HMGSolve :: Update ( )</span>
 <dl><dd>
-Check convergence in Bellman iteration, either infinite or finite horizon.
-Default task loop update routine for value iteration.
+Check convergence in Bellman iteration after a stage of state-space spanning.
+Users do not call this function.  It is called inside the solution method.
+THis is the default task loop update routine for value iteration.<br/>
+<P/>
+Different solution methods have derived versions of this routine to handle updating in their context.<br/>
+<P/>
 This is called after one complete iteration of ValueIteration::GSolve().
 
 <dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if converged or <a href="Bellman.ox.html#Task___trips">trips</a> equals <a href="Bellman.ox.html#Task___MaxTrips">MaxTrips</a>
@@ -2212,29 +2187,22 @@ N::T array of OLS coefficients
 
 <span class="declaration">virtual KWGSolve :: Run ( )</span>
 <dl><dd>
-Carry out Keane-Wolpin approximation at an endogenous state &theta; .
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">th</td>
-<td class="description" valign="baseline">&theta;
-There are three conditions upon entering this routine at &theta;
+Carry out Keane-Wolpin approximation at an endogenous state <span class="expressions">\(\theta\)</span>.
+<P/>
+This routine is called by the solution method at each point in the state space.
+There are three conditions upon entering this routine at <span class="expressions">\(\theta\)</span>
 <OL>
-<LI>&theta; is in the subsample of complete solutions and this is the first pass.</LI>
+<LI><span class="expressions">\(\theta\)</span> is in the subsample of complete solutions and this is the first pass.</LI>
 <DD>In this case nothing needs to done further and the function returns</DD>
-<LI>&theta; is not in the subsample of complete solutions and this is not the first pass</LI>
+<LI><span class="expressions">\(\theta\)</span> is not in the subsample of complete solutions and this is not the first pass</LI>
 <DD>In this case the value of the state is interpolated by computing V at the median exogenous state then predicting the
 expected
 value across all exogenous states.</DD>
-<LI>&theta; is in the subsample and this is the first pass<LI>
-<DD> Bellman is applied to all exogenous states at this endogenous state &theta;</DD>
+<LI><span class="expressions">\(\theta\)</span> is in the subsample and this is the first pass<LI>
+<DD> Bellman is applied to all exogenous states at this endogenous state <span class="expressions">\(\theta\)</span></DD>
 <DD> The result is added to the KW sample</DD>
-</OL></td>
-</tr>
-</table>
-</dd>
-</dl>
+</OL>
+
 </dd></dl>
 
 <hr>
@@ -2243,7 +2211,7 @@ value across all exogenous states.</DD>
 
 <span class="declaration">KWGSolve :: Solve ( instate )</span>
 <dl><dd>
-Carry out Keane-Wolpin approximation at &theta; .
+Carry out Keane-Wolpin approximation at <span class="expressions">\(\theta\)</span> .
 This replaces the built-in version used by <a href="Methods.ox.html#ValueIteration">ValueIteration</a>.
 <UL>
 <LI>Iterate backwards in the clock <code>t</code></LI>
@@ -2471,10 +2439,11 @@ Creates &quot;brute force&quot; Bellman method that switches to N-K iteration.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">myGSolve</td>
-<td class="description" valign="baseline"> <a href="Methods.ox.html#GSolve">GSolve</a>-derived object to use for iterating over endogenous states
-    <br/>0 (default), built in task will be used.
+<td class="description" valign="baseline">0 (default), built in task will be
+used.<br/>
+<a href="Methods.ox.html#GSolve">GSolve</a>-derived object to use for iterating over endogenous states
 <P/>
-This method works for Ergodic environments or at a stationary period of a non-ergodic clock.
+This method works for Ergodic environments or at a stationary period of a non-ergodic clock.<br/>
 <P/>
 Implementation does not always work.  Needs to be improved.</td>
 </tr>
@@ -2524,15 +2493,6 @@ Choice probabilities are stored in <a href="Bellman.ox.html#Bellman___pandv">pan
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NKinfo</span></h2>
 
-<a name="NKinfo___Hold"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Hold</span></h3>
-
-<span class="declaration">NKinfo :: Hold ( )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="NKinfo___MnNxt"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">MnNxt</span></h3>
 
@@ -2560,15 +2520,6 @@ Choice probabilities are stored in <a href="Bellman.ox.html#Bellman___pandv">pan
 </dd></dl>
 
 <hr>
-<a name="NKinfo___NKinfo"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">NKinfo</span></h3>
-
-<span class="declaration">NKinfo :: NKinfo ( t )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="NKinfo___Nstat"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Nstat</span></h3>
 
@@ -2591,15 +2542,6 @@ Choice probabilities are stored in <a href="Bellman.ox.html#Bellman___pandv">pan
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ptrans</span></h3>
 
 <span class="declaration">decl ptrans [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="NKinfo___Update"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
-
-<span class="declaration">NKinfo :: Update ( ii )</span>
 <dl><dd>
 
 </dd></dl>
@@ -2669,15 +2611,6 @@ Minimum trips before N-K.
 </dd></dl>
 
 <hr>
-<a name="NKSolve___NKSolve"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">NKSolve</span></h3>
-
-<span class="declaration">NKSolve :: NKSolve ( caller )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="NKSolve___NKstep"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NKstep</span></h3>
 
@@ -2717,34 +2650,11 @@ tolerance for switching to NK,
 </dd></dl>
 
 <hr>
-<a name="NKSolve___PostEMax"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PostEMax</span></h3>
-
-<span class="declaration">virtual NKSolve :: PostEMax ( )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="NKSolve___prevdff"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">prevdff</span></h3>
 
 <span class="declaration">decl prevdff [public]</span>
 <dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="NKSolve___Solve"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Solve</span></h3>
-
-<span class="declaration">virtual NKSolve :: Solve ( instate )</span>
-<dl><dd>
-Interate over the state space apply the solution method.
-<OL>
-<LI>Compute endogenous utility</LI>
-<LI>Iterate over states applying Bellman's equation.</LI>
-</OL>
 
 </dd></dl>
 
@@ -2763,8 +2673,12 @@ Interate over the state space apply the solution method.
 
 <span class="declaration">virtual NKSolve :: Update ( )</span>
 <dl><dd>
-Check convergence in Bellman iteration, either infinite or finite horizon.
-Default task loop update routine for value iteration.
+Check convergence in Bellman iteration after a stage of state-space spanning.
+Users do not call this function.  It is called inside the solution method.
+THis is the default task loop update routine for value iteration.<br/>
+<P/>
+Different solution methods have derived versions of this routine to handle updating in their context.<br/>
+<P/>
 This is called after one complete iteration of ValueIteration::GSolve().
 
 <dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if converged or <a href="Bellman.ox.html#Task___trips">trips</a> equals <a href="Bellman.ox.html#Task___MaxTrips">MaxTrips</a>
@@ -3117,23 +3031,6 @@ Process a point in the fixed effect space.
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ValueIteration</span></h2>
 
-<a name="ValueIteration___Run"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
-
-<span class="declaration">virtual ValueIteration :: Run ( )</span>
-<dl><dd>
-Process a point in the fixed effect space.
-<OL>
-<LI>If <code>UpdateTime</code> = <code>AfterFixed</code>, then update transitions and variables.</LI>
-<LI>Apply the solution method for each value of the random effect vector.</LI>
-<LI>Carry out post-solution tasks by calling at hook = <code>PostRESolve</code>;
-</OL>
-
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="Bellman.ox.html#EndogTrans___Transitions">Transitions</a>, <a href="DDPShared.ox.html#HookTimes">HookTimes</a></dd>
-</dl>
-</dd></dl>
-
-<hr>
 <a name="ValueIteration___Solve"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Solve</span></h3>
 
@@ -3185,8 +3082,9 @@ Creates a new &quot;brute force&quot; Bellman iteration method.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">myGSolve</td>
-<td class="description" valign="baseline"> <a href="Methods.ox.html#GSolve">GSolve</a>-derived object to use for iterating over endogenous states<br>0 (default), built in task will be
-used.</td>
+<td class="description" valign="baseline">0 (default), built in task will be
+used.<br/>
+<a href="Methods.ox.html#GSolve">GSolve</a>-derived object to use for iterating over endogenous states</td>
 </tr>
 </table>
 </dd>

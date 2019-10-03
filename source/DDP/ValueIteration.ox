@@ -36,18 +36,21 @@ VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
     }
 
 /** Creates a new &quot;brute force&quot; Bellman iteration method.
-@param myGSolve  `GSolve`-derived object to use for iterating over endogenous states<br>0 (default), built in task will be
-used.
+@param myGSolve 0 (default), built in task will be
+used.<br/>
+`GSolve`-derived object to use for iterating over endogenous states
+
 **/
 ValueIteration::ValueIteration(myGSolve) {
     Method(myGSolve);
 	}
 
 /** Creates &quot;brute force&quot; Bellman method that switches to N-K iteration.
-@param myGSolve  `GSolve`-derived object to use for iterating over endogenous states
-    <br/>0 (default), built in task will be used.
+@param myGSolve 0 (default), built in task will be
+used.<br/>
+`GSolve`-derived object to use for iterating over endogenous states
 
-This method works for Ergodic environments or at a stationary period of a non-ergodic clock.
+This method works for Ergodic environments or at a stationary period of a non-ergodic clock.<br/>
 
 Implementation does not always work.  Needs to be improved.
 
@@ -56,21 +59,27 @@ NewtonKantorovich::NewtonKantorovich(myNGSolve) {
     ValueIteration( isint(myNGSolve) ? new NKSolve(this) : myNGSolve );
     }
 
+/** . @internal **/
 NKSolve::NKSolve(caller) {
     GSolve(caller);
     MinNKtrips = 100;
     NK = 0;
     NKlist = {};
     }
+
+/** . @internal **/
 ValueIteration::Run(){
     Method::Run();
 	}
+
+/** . @internal **/
 NKSolve::Solve(instate) {
     NKstep0 = NKstep = FALSE;
     NKtoler = (caller.vtoler)^0.5;
     GSolve::Solve(instate);
     }
 
+/** . @internal **/
 NKSolve::PostEMax() {
     if (NKstep0) NK->Update(I::all[iterating]);
 	if (Flags::setPstar)  {
@@ -108,6 +117,7 @@ NewtonKantorovich::Solve(Fgroups,Rgroups,MaxTrips)  {
     return ValueIteration::Solve(Fgroups,Rgroups,MaxTrips);
     }
 
+/** . @internal **/
 NKinfo::NKinfo(t) {
     myt = t;
     MnNxt = I::MxEndogInd;
@@ -116,18 +126,21 @@ NKinfo::NKinfo(t) {
     visit = zeros(MnNxt+1,1);
     }
 
+/** . @internal **/
 NKinfo::Update(ii) {
     visit[ii] = 1;
     MnNxt = min(MnNxt,ii);
     MxNxt = max(MxNxt,ii);
     }
 
+/** . @internal **/
 NKinfo::Hold() {
     Nstat = sumc(visit);
     visit = visit.*cumulate(visit)-1;
     onlyactive = selectifr(range(0,I::MxEndogInd)',visit.>=0);
     }
 
+/** . @internal **/
 GSolve::Report(mefail) {
 	if ( mefail || Volume>LOUD) {
         if (mefail) {
@@ -147,8 +160,12 @@ GSolve::Report(mefail) {
     }
 
 
-/**	Check convergence in Bellman iteration, either infinite or finite horizon.
-Default task loop update routine for value iteration.
+/**	Check convergence in Bellman iteration after a stage of state-space spanning.
+Users do not call this function.  It is called inside the solution method.
+THis is the default task loop update routine for value iteration.<br/>
+
+Different solution methods have derived versions of this routine to handle updating in their context.<br/>
+
 This is called after one complete iteration of `ValueIteration::GSolve`().
 @return TRUE if converged or `Task::trips` equals `Task::MaxTrips`
 **/
@@ -249,18 +266,19 @@ NKSolve::Update() {
     return done || (trips>=MaxTrips);
     }
 
-/** Carry out Keane-Wolpin approximation at an endogenous state &theta; .
-@param th &theta;
-There are three conditions upon entering this routine at &theta;
+/** Carry out Keane-Wolpin approximation at an endogenous state $\theta$.
+
+This routine is called by the solution method at each point in the state space.
+There are three conditions upon entering this routine at $\theta$
 <OL>
-<LI>&theta; is in the subsample of complete solutions and this is the first pass.</LI>
+<LI>$\theta$ is in the subsample of complete solutions and this is the first pass.</LI>
 <DD>In this case nothing needs to done further and the function returns</DD>
-<LI>&theta; is not in the subsample of complete solutions and this is not the first pass</LI>
+<LI>$\theta$ is not in the subsample of complete solutions and this is not the first pass</LI>
 <DD>In this case the value of the state is interpolated by computing V at the median exogenous state then predicting the
 expected
 value across all exogenous states.</DD>
-<LI>&theta; is in the subsample and this is the first pass<LI>
-<DD> Bellman is applied to all exogenous states at this endogenous state &theta;</DD>
+<LI>$\theta$ is in the subsample and this is the first pass<LI>
+<DD> Bellman is applied to all exogenous states at this endogenous state $\theta$</DD>
 <DD> The result is added to the KW sample</DD>
 </OL>
 **/
@@ -283,7 +301,7 @@ KWGSolve::Run() {
         }
 	}
 
-/** Carry out Keane-Wolpin approximation at &theta; .
+/** Carry out Keane-Wolpin approximation at $\theta$ .
 This replaces the built-in version used by `ValueIteration`.
 <UL>
 <LI>Iterate backwards in the clock <code>t</code></LI>
