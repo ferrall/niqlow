@@ -9,7 +9,7 @@
 </head>
 <body>
 <div class="header">
-[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+[ <img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.htm">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
 <img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
  | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
@@ -135,11 +135,11 @@ An action vector <span class="expressions">\(\alpha\)</span> is a <em>row</em> o
 <P/>
 <DT>The A List</DT>
 <P/>
-<a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a> constructs the possible matrix A, actually stored as the first element of a list: <var>A</var> &harr; <code>A[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state <span class="expressions">\(\theta\)</span>. Every time a different value is returned by <code>FeasibleActions()</code> a new matrix is added to the A list.  The index into the list is then stored as <code>Aind</code> &harr;  <span class="expressions">\(\theta\)</span>.j.</p>
+<a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a> constructs the possible matrix A, actually stored as the first element of a list: <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state <span class="expressions">\(\theta\)</span>. Every time a different value is returned by <code>FeasibleActions()</code> a new matrix is added to the A list.  The index into the list is then stored as <code>Aind</code> &harr;  <span class="expressions">\(\theta\)</span>.j.</p>
 <P/>
-The user's (optional) feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a)</code>. In short, <span class="expressions">\(\theta\)</span>.A &harr; <code>A[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = <span class="expressions">\(\theta\)</span>.j = 0</code> for all states.</p>
+The user's (optional) feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a)</code>. In short, <span class="expressions">\(\theta\)</span>.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = <span class="expressions">\(\theta\)</span>.j = 0</code> for all states.</p>
 <P/>
-The A list contains the <em>actual</em> values not the <em>current</em> values. If the user provides an <a href="Shared.ox.html#Discrete___Update">Update</a>() for a derived class of action variable, then <code>A[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Aind]</code> is the matrix of actual values. Since the default is that actual values equal current values (<code>a.actual[a.v] = a.v</code>), then <code>A[Aind]</code> is always possible to use. The uncoded list of matrices is available as <a href="DDPShared.ox.html#Alpha___Matrix">Matrix</a>.</p>
+The A list contains the <em>actual</em> values not the <em>current</em> values. If the user provides an <a href="Shared.ox.html#Discrete___Update">Update</a>() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values. Since the default is that actual values equal current values (<code>a.actual[a.v] = a.v</code>), then <code>A[Aind]</code> is always possible to use. The uncoded list of matrices is available as <a href="DDPShared.ox.html#Alpha___Matrix">Matrix</a>.</p>
 </OL>
 <P/>
 <hr><a name="StateVariables"><LI>State Variables</LI></a>
@@ -434,7 +434,7 @@ The variable <code>t</code> is the age variable in the finite horizon.  Now we c
 <P/>
 <h3>How is Transit() used?</h3>
 <P/>
-Knowing the feasible values and their transition probabilities for a single state variable is not sufficient to solve a DP problem.  The values of this state variable combine the feasible values of all other state variables to determine the possible states next period give the current state.  If the <var>value function</var> were stored as a multidimensional array (or multi-dimensional matrix, which is not possible in Ox) then this state's possible values would simply be inserted into the right index for <var>V</var>, as in <code>V[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |x][y][z][a]</code>.    However, in Ox this would be inefficient, and without knowing ahead of time how many states will be added to the model it is not possible to write the code.  (There is no way in Ox or C to write something like <code>V[x]...[a]</code> to allow a dynamic number of dimensions.)</p>
+Knowing the feasible values and their transition probabilities for a single state variable is not sufficient to solve a DP problem.  The values of this state variable combine the feasible values of all other state variables to determine the possible states next period give the current state.  If the <var>value function</var> were stored as a multidimensional array (or multi-dimensional matrix, which is not possible in Ox) then this state's possible values would simply be inserted into the right index for <var>V</var>, as in <code>V[x][y][z][a]</code>.    However, in Ox this would be inefficient, and without knowing ahead of time how many states will be added to the model it is not possible to write the code.  (There is no way in Ox or C to write something like <code>V[x]...[a]</code> to allow a dynamic number of dimensions.)</p>
 <P/>
 <code></code><p><span class="n">DDP</span> is designed to avoid this problem by storing <var>V</var> as a one dimensional vector regardless of the number of state variables.  The state is stored as a vector (internally), and the size of a vector can be determined dynamically.  Associated with the state vector is a vector of <var>offsets</var> or indices.  Multiply the state vector and the offsets to determine the index of the state in the V vector. Each state variable has an offset which depends on the other state variables and the number of values they take on.</p>
 <P/>
@@ -1229,17 +1229,17 @@ MyModel::Initialize() {
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionVariable___myAV">myAV</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Return <a href="DDPShared.ox.html#Alpha___A">A</a>[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |][pos].</td>
+<td class="description">Return <a href="DDPShared.ox.html#Alpha___A">A</a>[][pos].</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionVariable___myCV">myCV</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Return <a href="DDPShared.ox.html#Alpha___C">C</a>[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |][pos].</td>
+<td class="description">Return <a href="DDPShared.ox.html#Alpha___C">C</a>[][pos].</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ActionVariable___myEV">myEV</a></td>
 <td class="modifiers"></td>
-<td class="description">Return <a href="DDPShared.ox.html#Alpha___aC">aC</a>[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |][pos], current external value.</td>
+<td class="description">Return <a href="DDPShared.ox.html#Alpha___aC">aC</a>[][pos], current external value.</td>
 </tr>
 </table>
 
@@ -1390,8 +1390,8 @@ Discretized interest-bearing asset.
     variable (if the actual asset levels are fixed), or the user should define a derived class and
     provide an <code>Update()</code> method that will keep <code>actual</code> current based on
     dynamic changes in parameters.
-    <dd>Let A be the <em>actual</em> current value, <code>actual[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |v]</code>.
-    <pre>A* = min(  max( rA + S , actual[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |0] ), actual[N-1] )</pre>
+    <dd>Let A be the <em>actual</em> current value, <code>actual[v]</code>.
+    <pre>A* = min(  max( rA + S , actual[0] ), actual[N-1] )</pre>
     Define A<sub>b</sub> &le; A* &ge; A<sub>t</sub> as the <em>actual</em> values that
     bracket A* (they are equal to each other if A* equals one of the discrete actual values).
     Define m = (A<sub>b</sub>+A<sub>t</sub>)/2.
@@ -1702,9 +1702,9 @@ Now record the choice made at the 6th time period (t=5):
 </pre>
 Or, track the first four choices of d:
 <pre>
-  dvals = new array[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |4];
+  dvals = new array[4];
   decl i;
-  for(i=0;i<3;++i) dvals[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |i] = new ChoiceAtTbar("d"+sprint(i),d,DP::counter,i);
+  for(i=0;i<3;++i) dvals[i] = new ChoiceAtTbar("d"+sprint(i),d,DP::counter,i);
   EndogenousStates(dvals);
 </pre>
 </dd>
@@ -1853,7 +1853,7 @@ A member of a block: transition depends on transition of one or more other state
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Coevolving___myAV">myAV</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Return actual[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |v].</td>
+<td class="description">Return actual[v].</td>
 </tr>
 </table>
 
@@ -2140,7 +2140,7 @@ Actions(d);
 FeasibleActions(A) {
   decl i,v;
   notfeas = zeros(rows(A),1);
-  foreach(v in d[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |i]) notfeas .+= (I::subt.!=i)*A[][d[i].pos];   // d[i]=1 not feasible if subt &neq; i
+  foreach(v in d[i]) notfeas .+= (I::subt.!=i)*A[][d[i].pos];   // d[i]=1 not feasible if subt &neq; i
   return 1-notfeas;
   }</pre>
 <P/>
@@ -4006,7 +4006,7 @@ s&prime; = value of an action first period it is not 0.
 <P/>
 <DT>Feasible action restriction </DT>
 <DD>Positive value of target only feasible if choice has not been made.
-<pre>A[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |][s.a.pos].==0 || CV(s)==0</pre></dd>
+<pre>A[][s.a.pos].==0 || CV(s)==0</pre></dd>
 <DT>Transition:</DT>
 <dd class="math"><pre>s' = I{s=0}s.a +(1-I{s=0})s
 &Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{s=0}I{z=s.a} +(1-I{s=0})I{z=s}.
@@ -5065,7 +5065,7 @@ Base Class for elements of state vectors, &epsilon;, &eta;, &theta;, &gamma; .
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateVariable___myAV">myAV</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Return actual[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |v].</td>
+<td class="description">Return actual[v].</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a></td>
@@ -5788,7 +5788,7 @@ The default value is 0.5: the absorbing state happens with probability 0.5.
 <a name="Absorbing___fPi"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">fPi</span></h3>
 
-<span class="declaration">const decl fPi [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl fPi [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -5797,7 +5797,7 @@ The default value is 0.5: the absorbing state happens with probability 0.5.
 <a name="Absorbing___p"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">p</span></h3>
 
-<span class="declaration">decl p [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl p [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -5815,7 +5815,7 @@ The default value is 0.5: the absorbing state happens with probability 0.5.
 <a name="Accumulator___Target"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Target</span></h3>
 
-<span class="declaration">const decl Target [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Target [public]</span>
 <dl><dd>
 Variable to track
 
@@ -5872,7 +5872,7 @@ Create a variable that counts how many times an action has taken on certain valu
 <a name="ActionAccumulator___x"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">x</span></h3>
 
-<span class="declaration">decl x [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl x [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -5881,7 +5881,7 @@ Create a variable that counts how many times an action has taken on certain valu
 <a name="ActionAccumulator___y"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">y</span></h3>
 
-<span class="declaration">decl y [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl y [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -5941,7 +5941,7 @@ EndogenousStates(exper);
 <a name="ActionCounter___inc"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">inc</span></h3>
 
-<span class="declaration">decl inc [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl inc [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -5995,7 +5995,7 @@ This state variable is created by `DP::ActionValueCounters'
 <a name="ActionCounterMaster___CVSList"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">CVSList</span></h3>
 
-<span class="declaration">decl CVSList [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl CVSList [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -6049,7 +6049,7 @@ Create a binary variable that indicates if the previous value of action variable
 <a name="ActionTracker___d"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">d</span></h3>
 
-<span class="declaration">decl d [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl d [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -6086,12 +6086,12 @@ Create a new augmented state variable for which an action triggers the change.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">tv</td>
-<td class="description" valign="baseline">the integer (actual) or vector of integer values of tv that triggers the transition [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=1].
+<td class="description" valign="baseline">the integer (actual) or vector of integer values of tv that triggers the transition [default=1].
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">rval</td>
-<td class="description" valign="baseline">the integer (current) value of this state variable when the trigger occurs [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
+<td class="description" valign="baseline">the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 <P/>
 <dt>The transition for an action triggered state:</dt>
 <dd><pre>Prob( q' = v ) = I{t&in;tv}\times I{v==rval} + (1-I{t&in;tv})\times Prob(b=v)</pre></dd></td>
@@ -6143,7 +6143,7 @@ a placeholder for extensions of a model.<br>OR<br>N-array of strings, holding la
 
 <span class="declaration">virtual ActionVariable :: myAV ( )</span>
 <dl><dd>
-Return <a href="DDPShared.ox.html#Alpha___A">A</a>[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |][pos].
+Return <a href="DDPShared.ox.html#Alpha___A">A</a>[][pos].
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso">Alpha AV, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
 </dl>
@@ -6155,7 +6155,7 @@ Return <a href="DDPShared.ox.html#Alpha___A">A</a>[<img class="icon" src='../ico
 
 <span class="declaration">virtual ActionVariable :: myCV ( )</span>
 <dl><dd>
-Return <a href="DDPShared.ox.html#Alpha___C">C</a>[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |][pos].
+Return <a href="DDPShared.ox.html#Alpha___C">C</a>[][pos].
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#Alpha">Alpha</a>, <a href="Shared.ox.html#CV">CV</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
 </dl>
@@ -6167,7 +6167,7 @@ Return <a href="DDPShared.ox.html#Alpha___C">C</a>[<img class="icon" src='../ico
 
 <span class="declaration">ActionVariable :: myEV ( )</span>
 <dl><dd>
-Return <a href="DDPShared.ox.html#Alpha___aC">aC</a>[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |][pos], current external value.
+Return <a href="DDPShared.ox.html#Alpha___aC">aC</a>[][pos], current external value.
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#Alpha">Alpha</a>, <a href="Shared.ox.html#CV">CV</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
 </dl>
@@ -6177,7 +6177,7 @@ Return <a href="DDPShared.ox.html#Alpha___aC">aC</a>[<img class="icon" src='../i
 <a name="ActionVariable___vL"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">vL</span></h3>
 
-<span class="declaration">decl vL [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl vL [public]</span>
 <dl><dd>
 vector of value labels.
 
@@ -6224,7 +6224,7 @@ SetClock(NormalAging,1);
 <a name="AgeBrackets___Brackets"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Brackets</span></h3>
 
-<span class="declaration">const decl Brackets [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Brackets [public]</span>
 <dl><dd>
 Vector of period lengths for each age
 
@@ -6253,7 +6253,7 @@ Return flag for very last period possible.
 <a name="AgeBrackets___TransMatrix"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">TransMatrix</span></h3>
 
-<span class="declaration">decl TransMatrix [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl TransMatrix [public]</span>
 <dl><dd>
 Transition matrix based on Brackets
 
@@ -6296,7 +6296,7 @@ SetClock(new Aging(10));
 <a name="Asset___all"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">all</span></h3>
 
-<span class="declaration">decl all [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl all [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -6336,7 +6336,7 @@ Create a new asset state variable.
 <a name="Asset___bot"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bot</span></h3>
 
-<span class="declaration">decl bot [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl bot [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -6345,7 +6345,7 @@ Create a new asset state variable.
 <a name="Asset___bprob"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bprob</span></h3>
 
-<span class="declaration">decl bprob [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl bprob [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -6354,7 +6354,7 @@ Create a new asset state variable.
 <a name="Asset___mid"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mid</span></h3>
 
-<span class="declaration">decl mid [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl mid [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -6363,7 +6363,7 @@ Create a new asset state variable.
 <a name="Asset___r"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">r</span></h3>
 
-<span class="declaration">const decl r [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl r [public]</span>
 <dl><dd>
 <a href="Shared.ox.html#AV">AV</a>-compatible object, interest rate on current holding.
 
@@ -6373,7 +6373,7 @@ Create a new asset state variable.
 <a name="Asset___top"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">top</span></h3>
 
-<span class="declaration">decl top [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl top [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -6382,7 +6382,7 @@ Create a new asset state variable.
 <a name="Asset___tprob"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">tprob</span></h3>
 
-<span class="declaration">decl tprob [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl tprob [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -6526,7 +6526,7 @@ Create a new element of &chi;, the space of auxiliary outcomes.
 <a name="AuxiliaryValue___indata"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">indata</span></h3>
 
-<span class="declaration">decl indata [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl indata [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -6594,7 +6594,7 @@ Create a binary action variable.
 <a name="BirthAndSex___b"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">b</span></h3>
 
-<span class="declaration">const decl b [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl b [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -6632,7 +6632,7 @@ Create a 3-valued state variable that records a binary outcome of a binary choic
 <a name="BirthAndSex___ratio"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ratio</span></h3>
 
-<span class="declaration">const decl ratio [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl ratio [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -6673,7 +6673,7 @@ Record the value of an action variable at a given time.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Prune</td>
-<td class="description" valign="baseline">TRUE [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default], prune unreachable states (non-zero values before Tbar
+<td class="description" valign="baseline">TRUE [default], prune unreachable states (non-zero values before Tbar
 <P/>
 </td>
 </tr>
@@ -6697,7 +6697,7 @@ Record the value of an action variable at a given time.
 <a name="ChoiceAtTbar___Tbar"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Tbar</span></h3>
 
-<span class="declaration">const decl Tbar [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Tbar [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -6745,7 +6745,7 @@ to call this routine.
 <a name="Clock___IsErgodic"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">IsErgodic</span></h3>
 
-<span class="declaration">const decl IsErgodic [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl IsErgodic [public]</span>
 <dl><dd>
 Store Ergodic Distribution.
 
@@ -6790,7 +6790,7 @@ If TRUE then transitions are not computed.
 <a name="Clock___t"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">t</span></h3>
 
-<span class="declaration">const decl t [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl t [public]</span>
 <dl><dd>
 <var>t</var>, current <a href="Variables.ox.html#TimeVariable">TimeVariable</a>
 
@@ -6800,7 +6800,7 @@ If TRUE then transitions are not computed.
 <a name="Clock___tprime"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">tprime</span></h3>
 
-<span class="declaration">const decl tprime [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl tprime [public]</span>
 <dl><dd>
 <var>t'</var>, next period <a href="Variables.ox.html#TimeVariable">TimeVariable</a> used during
 			V iteration to track possible clock values next period.
@@ -6811,7 +6811,7 @@ If TRUE then transitions are not computed.
 <a name="Clock___Volume"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Volume</span></h3>
 
-<span class="declaration">static decl Volume [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">static decl Volume [public]</span>
 <dl><dd>
 Volume for clocks (static so don't need to access internal var.
 
@@ -6839,7 +6839,7 @@ The base calculation to be carried out after the value of all states at time t h
 <a name="Coevolving___block"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">block</span></h3>
 
-<span class="declaration">decl block [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl block [public]</span>
 <dl><dd>
 StateBlock that I belong to
 
@@ -6849,7 +6849,7 @@ StateBlock that I belong to
 <a name="Coevolving___bpos"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bpos</span></h3>
 
-<span class="declaration">decl bpos [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl bpos [public]</span>
 <dl><dd>
 Index into block array/vector
 
@@ -6887,7 +6887,7 @@ Create a new Coevolving random variable.
 
 <span class="declaration">virtual Coevolving :: myAV ( )</span>
 <dl><dd>
-Return actual[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |v].
+Return actual[v].
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#CV">CV</a>, <a href="Shared.ox.html#AV">AV</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
 </dl>
@@ -6897,7 +6897,7 @@ Return actual[<img class="icon" src='../icons/glass.png' width=16px' height='16p
 <a name="CorrelatedEffect___block"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">block</span></h3>
 
-<span class="declaration">decl block [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl block [public]</span>
 <dl><dd>
 EffectBlock that I belong to
 
@@ -6907,7 +6907,7 @@ EffectBlock that I belong to
 <a name="CorrelatedEffect___bpos"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bpos</span></h3>
 
-<span class="declaration">decl bpos [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl bpos [public]</span>
 <dl><dd>
 Index into block array/vector
 
@@ -6964,7 +6964,7 @@ as 0.
 <a name="Counter___Reset"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Reset</span></h3>
 
-<span class="declaration">const decl Reset [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Reset [public]</span>
 <dl><dd>
 <a href="Shared.ox.html#AV">AV</a> compatiable reset to 0 flag
 
@@ -6974,7 +6974,7 @@ as 0.
 <a name="Counter___Target"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Target</span></h3>
 
-<span class="declaration">const decl Target [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Target [public]</span>
 <dl><dd>
 Variable to track
 
@@ -6984,7 +6984,7 @@ Variable to track
 <a name="Counter___ToTrack"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ToTrack</span></h3>
 
-<span class="declaration">const decl ToTrack [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl ToTrack [public]</span>
 <dl><dd>
 Values to track
 
@@ -7055,7 +7055,7 @@ Create a state variable with an arbitrary deterministic transition.
 <a name="Deterministic___nextValues"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nextValues</span></h3>
 
-<span class="declaration">decl nextValues [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl nextValues [public]</span>
 <dl><dd>
 matrix with transition.
 
@@ -7075,7 +7075,7 @@ matrix with transition.
 <a name="Divided___delts"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">delts</span></h3>
 
-<span class="declaration">decl delts [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl delts [public]</span>
 <dl><dd>
 zeros(SubT-1,0)|&delta;.
 
@@ -7103,12 +7103,12 @@ Create a clock divided into subperiods.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">HasInit</td>
-<td class="description" valign="baseline">FALSE [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default] <code>t=0</code> is a sub-period (so the subperiod increments and the major period stays the same)<br>TRUE <code>t=0</code> is not subdivided (so the subperiod stays 0 in the following period and the major period increments).
+<td class="description" valign="baseline">FALSE [default] <code>t=0</code> is a sub-period (so the subperiod increments and the major period stays the same)<br>TRUE <code>t=0</code> is not subdivided (so the subperiod stays 0 in the following period and the major period increments).
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">HasFinal</td>
-<td class="description" valign="baseline">FALSE [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default] The final period is the final sub-period.<br>the final period is an undivided period (so its subperiod is 0)<br>
+<td class="description" valign="baseline">FALSE [default] The final period is the final sub-period.<br>the final period is an undivided period (so its subperiod is 0)<br>
 <b>This cannot be combined with an infinite horizon</b>
 <P/>
 </td>
@@ -7126,7 +7126,7 @@ Create a clock divided into subperiods.
 <a name="Divided___HasFinal"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">HasFinal</span></h3>
 
-<span class="declaration">const decl HasFinal [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl HasFinal [public]</span>
 <dl><dd>
 Final subdivided period (TRUE/FALSE).
 
@@ -7136,7 +7136,7 @@ Final subdivided period (TRUE/FALSE).
 <a name="Divided___HasInit"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">HasInit</span></h3>
 
-<span class="declaration">const decl HasInit [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl HasInit [public]</span>
 <dl><dd>
 Initial subdivided period (TRUE/FALSE).
 
@@ -7156,7 +7156,7 @@ Not stationary and last period.
 <a name="Divided___MajT"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">MajT</span></h3>
 
-<span class="declaration">const decl MajT [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl MajT [public]</span>
 <dl><dd>
 Number of major periods, 0=Infinite horizon.
 
@@ -7174,7 +7174,7 @@ Number of major periods, 0=Infinite horizon.
 <a name="Divided___SubT"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">SubT</span></h3>
 
-<span class="declaration">const decl SubT [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl SubT [public]</span>
 <dl><dd>
 Number of sub periods.
 
@@ -7212,7 +7212,7 @@ Transition for sub-divided time.
 <a name="Divided___Vnext0"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Vnext0</span></h3>
 
-<span class="declaration">decl Vnext0 [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl Vnext0 [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7234,7 +7234,7 @@ Check newly computed values; an alternative to computing norm of value function 
 <a name="Duration___add1"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">add1</span></h3>
 
-<span class="declaration">decl add1 [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl add1 [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7243,7 +7243,7 @@ Check newly computed values; an alternative to computing norm of value function 
 <a name="Duration___Current"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Current</span></h3>
 
-<span class="declaration">const decl Current [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Current [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7280,12 +7280,12 @@ Create a variable that counts the consecutive periods a state or action has had 
 </tr>
 <tr>
 <td class="declaration" valign="baseline">MaxOnce</td>
-<td class="description" valign="baseline">FALSE [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default] spells repeat; TRUE once max is reached it remains frozen.
+<td class="description" valign="baseline">FALSE [default] spells repeat; TRUE once max is reached it remains frozen.
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Prune</td>
-<td class="description" valign="baseline">TRUE [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default]: prune states if finite horizon detected.
+<td class="description" valign="baseline">TRUE [default]: prune states if finite horizon detected.
 </td>
 </tr>
 </table>
@@ -7310,7 +7310,7 @@ contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of makin
 <a name="Duration___g"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">g</span></h3>
 
-<span class="declaration">decl g [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl g [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7319,7 +7319,7 @@ contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of makin
 <a name="Duration___isact"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">isact</span></h3>
 
-<span class="declaration">const decl isact [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl isact [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7328,7 +7328,7 @@ contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of makin
 <a name="Duration___Lag"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Lag</span></h3>
 
-<span class="declaration">const decl Lag [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Lag [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7337,7 +7337,7 @@ contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of makin
 <a name="Duration___MaxOnce"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">MaxOnce</span></h3>
 
-<span class="declaration">const decl MaxOnce [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl MaxOnce [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7346,7 +7346,7 @@ contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of makin
 <a name="Duration___nf"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nf</span></h3>
 
-<span class="declaration">decl nf [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl nf [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7365,7 +7365,7 @@ contchoice = new Duration("Streak",Choice,prechoice,5); //track streaks of makin
 <a name="Episode___End"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">End</span></h3>
 
-<span class="declaration">const decl End [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl End [public]</span>
 <dl><dd>
 episode end  probabilities
 
@@ -7420,7 +7420,7 @@ K mutually exclusive episodes.
 <a name="Episode___Finite"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Finite</span></h3>
 
-<span class="declaration">const decl Finite [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Finite [public]</span>
 <dl><dd>
 all spells end at t=T-1.
 
@@ -7430,7 +7430,7 @@ all spells end at t=T-1.
 <a name="Episode___k"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">k</span></h3>
 
-<span class="declaration">const decl k [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl k [public]</span>
 <dl><dd>
 <a href="Variables.ox.html#Coevolving">Coevolving</a>, current type
 				of episode
@@ -7441,7 +7441,7 @@ all spells end at t=T-1.
 <a name="Episode___Onset"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Onset</span></h3>
 
-<span class="declaration">const decl Onset [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Onset [public]</span>
 <dl><dd>
 episode onset probabilities
 
@@ -7451,7 +7451,7 @@ episode onset probabilities
 <a name="Episode___probT"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">probT</span></h3>
 
-<span class="declaration">decl probT [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl probT [public]</span>
 <dl><dd>
 Stores end probability at t=T-1 for non-Finite episodes
 
@@ -7461,7 +7461,7 @@ Stores end probability at t=T-1 for non-Finite episodes
 <a name="Episode___t"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">t</span></h3>
 
-<span class="declaration">const decl t [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl t [public]</span>
 <dl><dd>
 <a href="Variables.ox.html#Coevolving">Coevolving</a>, duration of episode,
 				NOT tracked for k.v=0
@@ -7528,7 +7528,7 @@ Create a fixed value that will later hold a health indicator (but for now is alw
 <a name="FixedAsset___delta"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">delta</span></h3>
 
-<span class="declaration">const decl delta [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl delta [public]</span>
 <dl><dd>
 <a href="Variables.ox.html#ActionVariable">ActionVariable</a>.
 
@@ -7641,12 +7641,12 @@ Create an augmented state variable that 'forgets' its value when an action leads
 </tr>
 <tr>
 <td class="declaration" valign="baseline">tv</td>
-<td class="description" valign="baseline">the integer (actual) or vector of integer values of tv that triggers the transition [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=1].
+<td class="description" valign="baseline">the integer (actual) or vector of integer values of tv that triggers the transition [default=1].
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">rval</td>
-<td class="description" valign="baseline">the integer (current) value of this state variable when the trigger occurs [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
+<td class="description" valign="baseline">the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 </td>
 </tr>
 </table>
@@ -7772,7 +7772,7 @@ Create binary state variable for which Prob(s=1) = Pi.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Pi</td>
-<td class="description" valign="baseline">probability of 1 [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default = 0.5]</td>
+<td class="description" valign="baseline">probability of 1 [default = 0.5]</td>
 </tr>
 </table>
 </dd>
@@ -7825,7 +7825,7 @@ Create a new IID Jump process.
 <a name="Indicator___iacted"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">iacted</span></h3>
 
-<span class="declaration">const decl iacted [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl iacted [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7868,7 +7868,7 @@ Create an indicator (or indicator interacted with another outcome).
 <a name="Indicator___iobj"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">iobj</span></h3>
 
-<span class="declaration">const decl iobj [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl iobj [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7877,7 +7877,7 @@ Create an indicator (or indicator interacted with another outcome).
 <a name="Indicator___myval"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">myval</span></h3>
 
-<span class="declaration">const decl myval [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl myval [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7905,7 +7905,7 @@ Default realized auxililary variable, sets <code>v=1.0</code>.
 <a name="Indicator___target"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">target</span></h3>
 
-<span class="declaration">const decl target [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl target [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7914,7 +7914,7 @@ Default realized auxililary variable, sets <code>v=1.0</code>.
 <a name="Indicator___ttype"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ttype</span></h3>
 
-<span class="declaration">const decl ttype [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl ttype [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -7952,7 +7952,7 @@ Create a variable that jumps with probability
 <a name="Jump___Pi"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Pi</span></h3>
 
-<span class="declaration">const decl Pi [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Pi [public]</span>
 <dl><dd>
 parameter for jump probability &pi;
 
@@ -7971,7 +7971,7 @@ parameter for jump probability &pi;
 <a name="KeptZeta___addst"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">addst</span></h3>
 
-<span class="declaration">decl addst [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl addst [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8002,7 +8002,7 @@ The default cdf of a kept continuous variable: &Phi;(z*).
 <a name="KeptZeta___cdf"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cdf</span></h3>
 
-<span class="declaration">decl cdf [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl cdf [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8011,7 +8011,7 @@ The default cdf of a kept continuous variable: &Phi;(z*).
 <a name="KeptZeta___df"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">df</span></h3>
 
-<span class="declaration">decl df [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl df [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8020,7 +8020,7 @@ The default cdf of a kept continuous variable: &Phi;(z*).
 <a name="KeptZeta___dist"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">dist</span></h3>
 
-<span class="declaration">decl dist [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl dist [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8040,7 +8040,7 @@ Pold   0
 <a name="KeptZeta___DynI"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DynI</span></h3>
 
-<span class="declaration">decl DynI [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl DynI [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8049,7 +8049,7 @@ Pold   0
 <a name="KeptZeta___DynR"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DynR</span></h3>
 
-<span class="declaration">decl DynR [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl DynR [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8058,7 +8058,7 @@ Pold   0
 <a name="KeptZeta___held"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">held</span></h3>
 
-<span class="declaration">const decl held [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl held [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8076,7 +8076,7 @@ Pold   0
 <a name="KeptZeta___isheld"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">isheld</span></h3>
 
-<span class="declaration">decl isheld [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl isheld [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8085,7 +8085,7 @@ Pold   0
 <a name="KeptZeta___keep"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">keep</span></h3>
 
-<span class="declaration">const decl keep [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl keep [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8128,7 +8128,7 @@ Create a discretized verison of the continuous &zeta; variable that enters the s
 <a name="KeptZeta___myVV"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">myVV</span></h3>
 
-<span class="declaration">decl myVV [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl myVV [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8137,7 +8137,7 @@ Create a discretized verison of the continuous &zeta; variable that enters the s
 <a name="KeptZeta___NOth"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NOth</span></h3>
 
-<span class="declaration">decl NOth [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl NOth [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8146,7 +8146,7 @@ Create a discretized verison of the continuous &zeta; variable that enters the s
 <a name="KeptZeta___NxtI"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NxtI</span></h3>
 
-<span class="declaration">decl NxtI [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl NxtI [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8155,7 +8155,7 @@ Create a discretized verison of the continuous &zeta; variable that enters the s
 <a name="KeptZeta___NxtR"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NxtR</span></h3>
 
-<span class="declaration">decl NxtR [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl NxtR [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8208,7 +8208,7 @@ Default update of actual values.
 <a name="KeptZeta___zspot"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">zspot</span></h3>
 
-<span class="declaration">decl zspot [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl zspot [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8248,12 +8248,12 @@ Takes on the value of another state or action.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Prune</td>
-<td class="description" valign="baseline">TRUE [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default], prune state space assuming initial value of 0
+<td class="description" valign="baseline">TRUE [default], prune state space assuming initial value of 0
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Order,</td>
-<td class="description" valign="baseline">order of the lag [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=1]
+<td class="description" valign="baseline">order of the lag [default=1]
 </td>
 </tr>
 </table>
@@ -8268,7 +8268,7 @@ Takes on the value of another state or action.
 <a name="Lagged___Order"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Order</span></h3>
 
-<span class="declaration">const decl Order [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Order [public]</span>
 <dl><dd>
 Order of lag (for pruning).
 
@@ -8278,7 +8278,7 @@ Order of lag (for pruning).
 <a name="Lagged___Target"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Target</span></h3>
 
-<span class="declaration">const decl Target [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Target [public]</span>
 <dl><dd>
 Variable to track.
 
@@ -8305,7 +8305,7 @@ Variable to track.
 <a name="LaggedAction___acol"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">acol</span></h3>
 
-<span class="declaration">decl acol [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl acol [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8332,7 +8332,7 @@ Create a variable that tracks the previous value of action variable.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Prune</td>
-<td class="description" valign="baseline">TRUE [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default]: prune non-zero states at t=0 if finite horizon detected.
+<td class="description" valign="baseline">TRUE [default]: prune non-zero states at t=0 if finite horizon detected.
 </td>
 </tr>
 <tr>
@@ -8351,7 +8351,7 @@ Create a variable that tracks the previous value of action variable.
 <a name="LaggedAction___nxtv"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nxtv</span></h3>
 
-<span class="declaration">decl nxtv [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl nxtv [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8388,12 +8388,12 @@ Create a variable that tracks the previous value of another state variable.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Prune</td>
-<td class="description" valign="baseline">[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |optional default=TRUE] prune unreachable states automatically if finite horizon
+<td class="description" valign="baseline">[optional default=TRUE] prune unreachable states automatically if finite horizon
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Order</td>
-<td class="description" valign="baseline">[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |optional default=1] order of the lag (how many periods to prune)
+<td class="description" valign="baseline">[optional default=1] order of the lag (how many periods to prune)
 <P/>
 </td>
 </tr>
@@ -8419,7 +8419,7 @@ Create a variable that tracks the previous value of another state variable.
 <a name="LiquidAsset___isact"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">isact</span></h3>
 
-<span class="declaration">const decl isact [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl isact [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8447,6 +8447,32 @@ Create a new LIQUID asset state variable.
 <tr>
 <td class="declaration" valign="baseline">NetSavings</td>
 <td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>-compatible static function of the form <code>NetSavings()</code><br><em>or</em><a href="Variables.ox.html#ActionVariable">ActionVariable</a>
+<P/>
+Example.  A model has a choice of consume or save with a budget constraint of the form:
+<span class="equation">$$c+a \le Y+(1+r)A.$$</span>
+Here <span class="expressions">\(c\)</span> is consumption, <span class="expressions">\(a\)</span> are assets to carry forward to tomorrow, <span class="expressions">\(Y\)</span> is non-asset income, <span class="expressions">\(r\)</span> is the current interest rate and
+<span class="expressions">\(A\)</span> are assets that were carried forward yesterday.  Rewriting in terms of feasible actions:
+<span class="equation">$$a_L \le a \le Y+(1+r)A.$$</span>
+Consumption would then be total income minus <span class="expressions">\(a.\)</span>  Thus, if <span class="expressions">\(A\)</span> and <span class="expressions">\(a\)</span> are continuous the transition is simply:
+<span class="equation">$$A^\prime = a.$$</span>
+However, if <span class="expressions">\(a\)</span> and <span class="expressions">\(A\)</span> are both discretized, then two things occur.  First, the current values are simply indices (0,1,...). So
+the actual values need to set using <code>SetActual()</code> or writing <code>Update()</code> functions to replace the virtual versions
+if the actual values depend on parameters.  If for some reason the grid values for <span class="expressions">\(a\)</span> and <span class="expressions">\(A\)</span> are not the same (different coarsen
+between consumption and assets) then the transition may not be on the grid.  In this case, let <span class="expressions">\(AV(a)\)</span> equal
+<span class="expressions">\(AV(A_i)+p(AV(A_{i+1})-AV(A_i)),\)</span> where <span class="expressions">\(p\)</span> is the fraction of the gap between two successive values of <span class="expressions">\(A\)</span>.  Now:
+$<span class="expressions">\(A^\prime = \cases{ A_i & with prob. \)</span>1-p<span class="expressions">\(\cr A_{i+1} & with prob. \)</span>p<span class="expressions">\(\cr}.\)</span>$
+<DD><pre>
+    a = new ActionVariable("a",5);
+    A = new LiquidAsset("A",5,a);
+    a-&lt;SetActual(&lt;-10;0;10;100;1000&gt;);
+    A-&lt;SetActual(&lt;-10;0;10;100;1000&gt;);
+<P/>
+    FeasibleActions() {
+        return AV(a) .&lt AV(Y)+(1+r)AV(A);
+        }
+</DD></pre>
+Note that no action may be feasible if <code>AV(Y)</code> is too small.
+<P/>
 </td>
 </tr>
 </table>
@@ -8459,7 +8485,7 @@ Create a new LIQUID asset state variable.
 <a name="LiquidAsset___NetSavings"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NetSavings</span></h3>
 
-<span class="declaration">const decl NetSavings [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl NetSavings [public]</span>
 <dl><dd>
 <a href="Shared.ox.html#AV">AV</a>-compatible static function or <a href="Variables.ox.html#ActionVariable">ActionVariable</a>.
 
@@ -8522,7 +8548,7 @@ Create a discretized lognorm offer.
 <a name="LogNormalOffer___mu"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mu</span></h3>
 
-<span class="declaration">const decl mu [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl mu [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8531,7 +8557,7 @@ Create a discretized lognorm offer.
 <a name="LogNormalOffer___sigma"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sigma</span></h3>
 
-<span class="declaration">const decl sigma [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl sigma [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8602,7 +8628,7 @@ EV at <code>t=T-2</code> is treated as an infinite horizon problem and iterated 
 <a name="Longevity___twilight"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">twilight</span></h3>
 
-<span class="declaration">const decl twilight [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl twilight [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8625,7 +8651,7 @@ Mixed value updating.
 <a name="Markov___jprob"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">jprob</span></h3>
 
-<span class="declaration">decl jprob [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl jprob [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8668,7 +8694,7 @@ see <a href="Shared.ox.html#TransitionMatrix">TransitionMatrix()</a>
 <a name="Markov___Pi"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Pi</span></h3>
 
-<span class="declaration">const decl Pi [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Pi [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8686,7 +8712,7 @@ see <a href="Shared.ox.html#TransitionMatrix">TransitionMatrix()</a>
 <a name="Mortality___DeathV"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DeathV</span></h3>
 
-<span class="declaration">decl DeathV [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl DeathV [public]</span>
 <dl><dd>
 EV at t=T-1, value of death
 
@@ -8723,7 +8749,7 @@ Set clock to be deterministic aging with early random death.
 <a name="Mortality___MortProb"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">MortProb</span></h3>
 
-<span class="declaration">const decl MortProb [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl MortProb [public]</span>
 <dl><dd>
 <a href="Shared.ox.html#CV">CV</a>-compatible mortality probability
 
@@ -8733,7 +8759,7 @@ Set clock to be deterministic aging with early random death.
 <a name="Mortality___mp"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mp</span></h3>
 
-<span class="declaration">decl mp [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl mp [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8751,7 +8777,7 @@ Set clock to be deterministic aging with early random death.
 <a name="Mortality___Tstar"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Tstar</span></h3>
 
-<span class="declaration">const decl Tstar [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Tstar [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8802,7 +8828,7 @@ Default realized auxililary variable, sets <code>v=1.0</code>.
 <a name="MVIID___M"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">M</span></h3>
 
-<span class="declaration">const decl M [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl M [public]</span>
 <dl><dd>
 Number of points per variable
 
@@ -8812,7 +8838,7 @@ Number of points per variable
 <a name="MVIID___MtoN"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">MtoN</span></h3>
 
-<span class="declaration">const decl MtoN [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl MtoN [public]</span>
 <dl><dd>
 total number points in the block.
 
@@ -8841,7 +8867,7 @@ total number points in the block.
 <a name="MVNormal___CholLT"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">CholLT</span></h3>
 
-<span class="declaration">const decl CholLT [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl CholLT [public]</span>
 <dl><dd>
 <a href="Shared.ox.html#AV">AV</a>-compatible vector-valued object which returns
         <code>vech()</code> for lower triangle of C, the Choleski decomposition
@@ -8853,7 +8879,7 @@ total number points in the block.
 <a name="MVNormal___mind"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mind</span></h3>
 
-<span class="declaration">const decl mind [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl mind [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8862,7 +8888,7 @@ total number points in the block.
 <a name="MVNormal___mu"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mu</span></h3>
 
-<span class="declaration">const decl mu [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl mu [public]</span>
 <dl><dd>
 vector of means &mu;
 
@@ -8926,7 +8952,7 @@ Updates the grid of Actual values.
 <a name="MVNormal___zvals"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">zvals</span></h3>
 
-<span class="declaration">const decl zvals [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl zvals [public]</span>
 <dl><dd>
 matrix of Z vals for simulated actual values
 
@@ -8936,7 +8962,7 @@ matrix of Z vals for simulated actual values
 <a name="Noisy___eps"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">eps</span></h3>
 
-<span class="declaration">decl eps [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl eps [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -8967,7 +8993,7 @@ Default contribution to likelihood.
 <a name="Noisy___Linear"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Linear</span></h3>
 
-<span class="declaration">decl Linear [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl Linear [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -9024,7 +9050,7 @@ Default realized auxililary variable, sets <code>v=1.0</code>.
 <a name="Noisy___sigma"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sigma</span></h3>
 
-<span class="declaration">decl sigma [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl sigma [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -9033,7 +9059,7 @@ Default realized auxililary variable, sets <code>v=1.0</code>.
 <a name="Noisy___truevalue"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">truevalue</span></h3>
 
-<span class="declaration">decl truevalue [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl truevalue [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -9123,7 +9149,7 @@ The user can supply a replacement in a derived class.
 <a name="NormalRandomEffect___mu"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mu</span></h3>
 
-<span class="declaration">const decl mu [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl mu [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -9169,7 +9195,7 @@ actual values to be at the quantiles of the distribution.</td>
 <a name="NormalRandomEffect___sigma"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sigma</span></h3>
 
-<span class="declaration">const decl sigma [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl sigma [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -9178,7 +9204,7 @@ actual values to be at the quantiles of the distribution.</td>
 <a name="Nvariable___mu"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mu</span></h3>
 
-<span class="declaration">decl mu [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl mu [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -9197,7 +9223,7 @@ Create a Normal N(mu,sigma) discretize jump variable.
 <a name="Nvariable___sigma"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sigma</span></h3>
 
-<span class="declaration">decl sigma [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl sigma [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -9215,7 +9241,7 @@ Create a Normal N(mu,sigma) discretize jump variable.
 <a name="Offer___Accept"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Accept</span></h3>
 
-<span class="declaration">const decl Accept [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Accept [public]</span>
 <dl><dd>
 <a href="Variables.ox.html#ActionVariable">ActionVariable</a> - indicates aceptance
 
@@ -9225,7 +9251,7 @@ Create a Normal N(mu,sigma) discretize jump variable.
 <a name="Offer___accept"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">accept</span></h3>
 
-<span class="declaration">decl accept [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl accept [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -9271,7 +9297,7 @@ Create an offer state variable.
 <a name="Offer___offprob"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">offprob</span></h3>
 
-<span class="declaration">decl offprob [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl offprob [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -9280,7 +9306,7 @@ Create an offer state variable.
 <a name="Offer___Pi"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Pi</span></h3>
 
-<span class="declaration">const decl Pi [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Pi [public]</span>
 <dl><dd>
 &pi; Double, Parameter or static function, offer probability
 
@@ -9317,7 +9343,7 @@ Create an offer state variable.
 <a name="OfferWithLayoff___accept"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">accept</span></h3>
 
-<span class="declaration">const decl accept [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl accept [public]</span>
 <dl><dd>
 Action to accept offer
 
@@ -9336,7 +9362,7 @@ Action to accept offer
 <a name="OfferWithLayoff___Lambda"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Lambda</span></h3>
 
-<span class="declaration">const decl Lambda [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Lambda [public]</span>
 <dl><dd>
 Probability of reverting to 0
 
@@ -9346,7 +9372,7 @@ Probability of reverting to 0
 <a name="OfferWithLayoff___offer"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">offer</span></h3>
 
-<span class="declaration">const decl offer [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl offer [public]</span>
 <dl><dd>
 Variable containing offer index
 
@@ -9395,7 +9421,7 @@ An offer with layoff (match dissolution) risk.
 <a name="OfferWithLayoff___Pi"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Pi</span></h3>
 
-<span class="declaration">const decl Pi [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Pi [public]</span>
 <dl><dd>
 Job Offer Probability
 
@@ -9414,7 +9440,7 @@ Job Offer Probability
 <a name="OfferWithLayoff___status"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">status</span></h3>
 
-<span class="declaration">const decl status [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl status [public]</span>
 <dl><dd>
 searching, just laid off,
 			currently holding
@@ -9520,7 +9546,7 @@ Once the Target is current in the ToTrack set this variable will be TRUE
 <a name="PhasedTreatment___final"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">final</span></h3>
 
-<span class="declaration">const decl final [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl final [public]</span>
 <dl><dd>
 indicates time=Rmax in phase
 
@@ -9530,7 +9556,7 @@ indicates time=Rmax in phase
 <a name="PhasedTreatment___ftime"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ftime</span></h3>
 
-<span class="declaration">const decl ftime [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl ftime [public]</span>
 <dl><dd>
 vector of times in phases
 
@@ -9540,7 +9566,7 @@ vector of times in phases
 <a name="PhasedTreatment___LastPhase"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">LastPhase</span></h3>
 
-<span class="declaration">const decl LastPhase [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl LastPhase [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -9549,7 +9575,7 @@ vector of times in phases
 <a name="PhasedTreatment___MaxF"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">MaxF</span></h3>
 
-<span class="declaration">const decl MaxF [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl MaxF [public]</span>
 <dl><dd>
 The last treatment phase
 	(0 if no treatment)
@@ -9560,7 +9586,7 @@ The last treatment phase
 <a name="PhasedTreatment___phase"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">phase</span></h3>
 
-<span class="declaration">const decl phase [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl phase [public]</span>
 <dl><dd>
 vector of phases
 
@@ -9594,7 +9620,7 @@ A sequence of finite-termed phases of treatment.
 <a name="PhasedTreatment___R0"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">R0</span></h3>
 
-<span class="declaration">const decl R0 [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl R0 [public]</span>
 <dl><dd>
 The index into the vector of the state
 	    variable that are the first period
@@ -9606,7 +9632,7 @@ The index into the vector of the state
 <a name="PhasedTreatment___Rmaxes"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Rmaxes</span></h3>
 
-<span class="declaration">const decl Rmaxes [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Rmaxes [public]</span>
 <dl><dd>
 Vector of positive integers that are the
 		length of each of the phases.
@@ -9656,7 +9682,7 @@ The user can supply a replacement in a derived class.
 <a name="RandomEffect___fDist"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">fDist</span></h3>
 
-<span class="declaration">decl fDist [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl fDist [public]</span>
 <dl><dd>
 holds the object that computes and returns
        the distribution across values.
@@ -9685,7 +9711,7 @@ Create a state variable that is random but invariant for an individual DP proble
 </tr>
 <tr>
 <td class="declaration" valign="baseline">fDist</td>
-<td class="description" valign="baseline">integer [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default], uniform distribution<br>otherwise, a <a href="Shared.ox.html#AV">AV</a>() compatible object that
+<td class="description" valign="baseline">integer [default], uniform distribution<br>otherwise, a <a href="Shared.ox.html#AV">AV</a>() compatible object that
 returns the N-vector of probabilities.
 <P/>
 <DT>The default (and always initial) distribution is uniform:</DT>
@@ -9785,12 +9811,12 @@ Create a list of <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</
 </tr>
 <tr>
 <td class="declaration" valign="baseline">ProbEnd</td>
-<td class="description" valign="baseline">probability (<a href="Shared.ox.html#AV">AV</a>-compatible) of a transition from 0 to 1 [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=0.5]
+<td class="description" valign="baseline">probability (<a href="Shared.ox.html#AV">AV</a>-compatible) of a transition from 0 to 1 [default=0.5]
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Start</td>
-<td class="description" valign="baseline">0/1 value (<a href="Variables.ox.html#ActionVariable">ActionVariable</a> or <a href="Shared.ox.html#CV">CV</a>-compatible) that moves from 0 to 1 [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=1]
+<td class="description" valign="baseline">0/1 value (<a href="Variables.ox.html#ActionVariable">ActionVariable</a> or <a href="Shared.ox.html#CV">CV</a>-compatible) that moves from 0 to 1 [default=1]
 </td>
 </tr>
 </table>
@@ -9863,7 +9889,7 @@ Prob( q&prime;= z | q,b ) =  I{z=r}&tau; + (1-&tau;)Prob(b&prime;=z)
 <a name="RandomUpDown___fp"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">fp</span></h3>
 
-<span class="declaration">decl fp [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl fp [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -9872,7 +9898,7 @@ Prob( q&prime;= z | q,b ) =  I{z=r}&tau; + (1-&tau;)Prob(b&prime;=z)
 <a name="RandomUpDown___fPi"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">fPi</span></h3>
 
-<span class="declaration">const decl fPi [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl fPi [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -9913,7 +9939,7 @@ Create a state variable that increments or decrements with state-dependent proba
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Prune</td>
-<td class="description" valign="baseline">TRUE [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default], prune unreachable states assuming initial value of 0<br>FALSE do not prune</td>
+<td class="description" valign="baseline">TRUE [default], prune unreachable states assuming initial value of 0<br>FALSE do not prune</td>
 </tr>
 </table>
 </dd>
@@ -9973,7 +9999,7 @@ Returns TRUE if any rows of InObservedX equal the current actual value of the bl
 <a name="Regressors___ObservedX"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ObservedX</span></h3>
 
-<span class="declaration">decl ObservedX [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl ObservedX [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -10000,7 +10026,7 @@ Create a vector of fixed effects (FixedEffectBlock).
 </tr>
 <tr>
 <td class="declaration" valign="baseline">UseOnlyObserved</td>
-<td class="description" valign="baseline"> [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=TRUE] if a matrix is sent as the second argument then TRUE means
+<td class="description" valign="baseline"> [default=TRUE] if a matrix is sent as the second argument then TRUE means
 that only combinations (rows) of actual fixed effects in the matrix will be created and solved.  Otherwise, all
 possible combinations of observed actual values will be solved for.
 </td>
@@ -10028,9 +10054,9 @@ const decl psispec = intercept~gender;
 &vellip;
 beta = new Coefficients("B",columns(psispec));
 GroupVariables(X = new Regressors("X",Ng~Nr~Ns~Nt));
-X.Actual[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |][intercept] = 1;   // replace fixed 0 with fixed 1 for the intercept.
+X.Actual[][intercept] = 1;   // replace fixed 0 with fixed 1 for the intercept.
 &vellip;
-psi = [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |=]() { return exp(AV(X)[psipsec]*CV(Beta)); };
+psi = [=]() { return exp(AV(X)[psipsec]*CV(Beta)); };
 </pre>
 Note the last line uses the lambda function feature introduced in Ox 7.  So psi() would return the
 dynamically determined value of &psi;.  The alternative is to define a static method which would have the same code.
@@ -10043,7 +10069,7 @@ dynamically determined value of &psi;.  The alternative is to define a static me
 <a name="Renewal___P"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">P</span></h3>
 
-<span class="declaration">const decl P [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl P [public]</span>
 <dl><dd>
 length of Pi
 
@@ -10053,7 +10079,7 @@ length of Pi
 <a name="Renewal___Pi"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Pi</span></h3>
 
-<span class="declaration">const decl Pi [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Pi [public]</span>
 <dl><dd>
 block or vector of increment probabilities
 
@@ -10097,7 +10123,7 @@ Create a renewal state with random incrementing.
 <a name="Renewal___reset"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">reset</span></h3>
 
-<span class="declaration">const decl reset [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl reset [public]</span>
 <dl><dd>
 state or action that resets the process to 0
 
@@ -10145,7 +10171,7 @@ Augment a base transition to reset to 0 if the trigger is 1.
 <a name="RetainMatch___acc"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">acc</span></h3>
 
-<span class="declaration">const decl acc [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl acc [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -10154,7 +10180,7 @@ Augment a base transition to reset to 0 if the trigger is 1.
 <a name="RetainMatch___hold"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hold</span></h3>
 
-<span class="declaration">decl hold [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl hold [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -10163,7 +10189,7 @@ Augment a base transition to reset to 0 if the trigger is 1.
 <a name="RetainMatch___i"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">i</span></h3>
 
-<span class="declaration">decl i [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl i [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -10172,7 +10198,7 @@ Augment a base transition to reset to 0 if the trigger is 1.
 <a name="RetainMatch___keep"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">keep</span></h3>
 
-<span class="declaration">const decl keep [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl keep [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -10181,7 +10207,7 @@ Augment a base transition to reset to 0 if the trigger is 1.
 <a name="RetainMatch___matchvalue"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">matchvalue</span></h3>
 
-<span class="declaration">const decl matchvalue [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl matchvalue [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -10190,7 +10216,7 @@ Augment a base transition to reset to 0 if the trigger is 1.
 <a name="RetainMatch___repl"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">repl</span></h3>
 
-<span class="declaration">decl repl [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl repl [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -10199,7 +10225,7 @@ Augment a base transition to reset to 0 if the trigger is 1.
 <a name="RetainMatch___replace"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">replace</span></h3>
 
-<span class="declaration">const decl replace [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl replace [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -10368,7 +10394,7 @@ Record the value of an action variable at a given time (starting at the next per
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Prune</td>
-<td class="description" valign="baseline">TRUE [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default], prune unreachable states (non-zero values at and before Tbar)
+<td class="description" valign="baseline">TRUE [default], prune unreachable states (non-zero values at and before Tbar)
 <P/>
 </td>
 </tr>
@@ -10383,7 +10409,7 @@ Record the value of an action variable at a given time (starting at the next per
 <a name="StateAtTbar___Tbar"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Tbar</span></h3>
 
-<span class="declaration">const decl Tbar [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Tbar [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -10402,7 +10428,7 @@ Record the value of an action variable at a given time (starting at the next per
 <a name="StateBlock___Actual"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Actual</span></h3>
 
-<span class="declaration">decl Actual [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl Actual [public]</span>
 <dl><dd>
 matrix of all <em>actual</em> values.
 
@@ -10432,7 +10458,7 @@ The default <a href="Variables.ox.html#StateBlock___Actual">Actual</a> matrix is
 <a name="StateBlock___Allv"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Allv</span></h3>
 
-<span class="declaration">decl Allv [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl Allv [public]</span>
 <dl><dd>
 matrix of all <em>current</em> values
 
@@ -10471,7 +10497,7 @@ Sets and returns the vector of <em>actual</em> values of the block as a row vect
 <a name="StateBlock___rnge"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">rnge</span></h3>
 
-<span class="declaration">decl rnge [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl rnge [public]</span>
 <dl><dd>
 vector <0:N-1>, used in AV().
 
@@ -10566,7 +10592,7 @@ Create a variable that counts how many times another state has taken on certain 
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Prune</td>
-<td class="description" valign="baseline">TRUE [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default]: prune states if finite horizon detected.
+<td class="description" valign="baseline">TRUE [default]: prune states if finite horizon detected.
 </td>
 </tr>
 </table>
@@ -10590,7 +10616,7 @@ Create a variable that counts how many times another state has taken on certain 
 <a name="StateCounterMaster___CVSList"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">CVSList</span></h3>
 
-<span class="declaration">decl CVSList [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl CVSList [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -10798,7 +10824,7 @@ will be marked as terminal: <a href="Bellman.ox.html#Bellman___Type">Type</a> &g
 
 <span class="declaration">virtual StateVariable :: myAV ( )</span>
 <dl><dd>
-Return actual[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |v].
+Return actual[v].
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#CV">CV</a>, <a href="Shared.ox.html#AV">AV</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
 </dl>
@@ -10808,7 +10834,7 @@ Return actual[<img class="icon" src='../icons/glass.png' width=16px' height='16p
 <a name="StateVariable___Prune"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Prune</span></h3>
 
-<span class="declaration">const decl Prune [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Prune [public]</span>
 <dl><dd>
 Trim unreachable states if finite horizon clock is detected.
         <b>Default is FALSE.</b>
@@ -10850,7 +10876,7 @@ base class.
 <a name="StateVariable___TermValues"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">TermValues</span></h3>
 
-<span class="declaration">decl TermValues [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl TermValues [public]</span>
 <dl><dd>
 A vector of values that end decision making
 		Equal to &lt; &gt; if state is not terminating.
@@ -10943,7 +10969,7 @@ Create an wrapper for a static function <a href="Shared.ox.html#AV">AV</a>-compa
 <a name="StaticAux___target"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">target</span></h3>
 
-<span class="declaration">const decl target [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl target [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -11012,7 +11038,7 @@ A stationary clock block.
 <a name="SubEffect___block"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">block</span></h3>
 
-<span class="declaration">decl block [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl block [public]</span>
 <dl><dd>
 EffectBlock that I belong to
 
@@ -11022,7 +11048,7 @@ EffectBlock that I belong to
 <a name="SubEffect___bpos"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bpos</span></h3>
 
-<span class="declaration">decl bpos [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl bpos [public]</span>
 <dl><dd>
 Index into block array/vector
 
@@ -11106,7 +11132,7 @@ Make a state variable only transit in one subperiod of a <a href="Variables.ox.h
 <a name="Tauchen___gaps"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">gaps</span></h3>
 
-<span class="declaration">const decl gaps [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl gaps [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -11115,7 +11141,7 @@ Make a state variable only transit in one subperiod of a <a href="Variables.ox.h
 <a name="Tauchen___Grid"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Grid</span></h3>
 
-<span class="declaration">decl Grid [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl Grid [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -11124,7 +11150,7 @@ Make a state variable only transit in one subperiod of a <a href="Variables.ox.h
 <a name="Tauchen___M"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">M</span></h3>
 
-<span class="declaration">const decl M [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl M [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -11133,7 +11159,7 @@ Make a state variable only transit in one subperiod of a <a href="Variables.ox.h
 <a name="Tauchen___mu"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mu</span></h3>
 
-<span class="declaration">const decl mu [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl mu [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -11142,7 +11168,7 @@ Make a state variable only transit in one subperiod of a <a href="Variables.ox.h
 <a name="Tauchen___pts"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">pts</span></h3>
 
-<span class="declaration">decl pts [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl pts [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -11151,7 +11177,7 @@ Make a state variable only transit in one subperiod of a <a href="Variables.ox.h
 <a name="Tauchen___r"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">r</span></h3>
 
-<span class="declaration">decl r [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl r [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -11160,7 +11186,7 @@ Make a state variable only transit in one subperiod of a <a href="Variables.ox.h
 <a name="Tauchen___rho"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">rho</span></h3>
 
-<span class="declaration">const decl rho [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl rho [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -11169,7 +11195,7 @@ Make a state variable only transit in one subperiod of a <a href="Variables.ox.h
 <a name="Tauchen___rnge"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">rnge</span></h3>
 
-<span class="declaration">decl rnge [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl rnge [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -11178,7 +11204,7 @@ Make a state variable only transit in one subperiod of a <a href="Variables.ox.h
 <a name="Tauchen___s"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">s</span></h3>
 
-<span class="declaration">decl s [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">decl s [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -11187,7 +11213,7 @@ Make a state variable only transit in one subperiod of a <a href="Variables.ox.h
 <a name="Tauchen___sig"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sig</span></h3>
 
-<span class="declaration">const decl sig [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl sig [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -11267,7 +11293,7 @@ The user can supply a replacement in a derived class.
 <a name="TauchenRandomEffect___M"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">M</span></h3>
 
-<span class="declaration">const decl M [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl M [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -11341,7 +11367,7 @@ Default initial value for Tracker variables is 0.
 <a name="Tracker___Target"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Target</span></h3>
 
-<span class="declaration">const decl Target [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl Target [public]</span>
 <dl><dd>
 Variable to track
 
@@ -11351,7 +11377,7 @@ Variable to track
 <a name="Tracker___ToTrack"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ToTrack</span></h3>
 
-<span class="declaration">const decl ToTrack [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl ToTrack [public]</span>
 <dl><dd>
 Values to track
 
@@ -11379,12 +11405,12 @@ The base for triggered augmentations.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">tv</td>
-<td class="description" valign="baseline">the integer (actual) value of t that triggers the transition [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=1]<br>or vector of integer values that trigger
+<td class="description" valign="baseline">the integer (actual) value of t that triggers the transition [default=1]<br>or vector of integer values that trigger
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">rval</td>
-<td class="description" valign="baseline">the integer (current) value of this state variable when the trigger occurs [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.</td>
+<td class="description" valign="baseline">the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.</td>
 </tr>
 </table>
 </dd>
@@ -11457,12 +11483,12 @@ Augment a base transition so the value of some other object trigger a special va
 </tr>
 <tr>
 <td class="declaration" valign="baseline">tv</td>
-<td class="description" valign="baseline">the integer (actual) or vector of integer values of tv that triggers the transition [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=1].
+<td class="description" valign="baseline">the integer (actual) or vector of integer values of tv that triggers the transition [default=1].
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">rval</td>
-<td class="description" valign="baseline">the integer (current) value of this state variable when the trigger occurs [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.</td>
+<td class="description" valign="baseline">the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.</td>
 </tr>
 </table>
 </dd>
@@ -11473,7 +11499,7 @@ Augment a base transition so the value of some other object trigger a special va
 <a name="Xponential___gamma"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">gamma</span></h3>
 
-<span class="declaration">const decl gamma [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl gamma [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -11509,7 +11535,7 @@ Create a exponentially distributed discretize jump variable.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">gamma</td>
-<td class="description" valign="baseline">decay rate [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=1.0]</td>
+<td class="description" valign="baseline">decay rate [default=1.0]</td>
 </tr>
 </table>
 </dd>
@@ -11520,7 +11546,7 @@ Create a exponentially distributed discretize jump variable.
 <a name="ZetaRealization___length"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">length</span></h3>
 
-<span class="declaration">const decl length [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
+<span class="declaration">const decl length [public]</span>
 <dl><dd>
 
 </dd></dl>

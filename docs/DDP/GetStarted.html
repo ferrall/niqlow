@@ -9,7 +9,7 @@
 </head>
 <body>
 <div class="header">
-[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+[ <img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.htm">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
 <img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
  | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
@@ -61,7 +61,7 @@ Here p&prime; is the price next period and <span class="expressions">\(P_p()\)</
 While searching the person chooses <span class="expressions">\(a\)</span>, where <span class="expressions">\(a=1\)</span> means buy at the offered price and <span class="expressions">\(a=0\)</span> means reject and keep searching. The state variable <var>d</var> indicates whether a decision as been made or not. <var>d=0</var> means still searching, and <var>d=1</var> means a price has been accepted.  The transition for <var>d</var> today to <var>d</var> next period can written:
 <span class="equation">$$d' = a\quad \Rightarrow\quad P_d(d';a,d) = I\{d'=a\}.$$</span>
 And <span class="expressions">\(d=1\)</span> is a terminal value, which means that decision making ends whenever that value is reached. <var>Utility</var> equals realized costs: search costs,  <span class="expressions">\(\lambda > 0\)</span>, and the price paid if purchased:
-<span class="equation">$$U(a,p,d) = -(1-d)[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> | \lambda + ap ]$$</span>
+<span class="equation">$$U(a,p,d) = -(1-d)[ \lambda + ap ]$$</span>
 Future returns are discounted by <span class="expressions">\(\delta<1\)</span>.</p>
 <P/>
 The Solution: prices above the value of continued search are rejected.
@@ -80,7 +80,7 @@ Because price offers are IID it can be put into the <b>exogenous</b> state vecto
 Since the model is stationary, the current time is always <code>t=0</code>.</p>
 <P/>
 <b>Utility</b> depends on current state variables, actions and parameters:
-<DD><span class="expressions">\(U(\alpha,\epsilon,\theta) = U( (a), (p), (d) ) \)</span> <code>= -(1-d)*[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> | lam + a*p ]</code></DD>
+<DD><span class="expressions">\(U(\alpha,\epsilon,\theta) = U( (a), (p), (d) ) \)</span> <code>= -(1-d)*[ lam + a*p ]</code></DD>
 Because Ox does not recognize Greek letters, <code>lam</code> &equiv; &lambda;.  Further, multiplication uses <code>*</code>. However, since p, a, and d are <em>objects</em>, the Ox code to implement <var>U()</var> will require more than just referring to the variable in the expression.</p>
 <P/>
 <a name="B"><LI>Code the model in <span class="n">DDP</span></LI></a>
@@ -268,7 +268,7 @@ struct RealizedUtility : AuxiliaryValue {
 RealizedUtility::RealizedUtility() { 	AuxiliaryValue("U"); 	}
 <P/>
 RealizedUtility::Realize(y) {
-	v = I::curth->Utility()[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |I::ialpha];
+	v = I::curth->Utility()[I::ialpha];
 	}
 </pre></DD>
 The constructor for an auxiliary variable simply has to call the base constructor and send a label.  (It could do other things of course.) Auxiliary values need to provide a <code>Realize()</code> function. code>Realize</code> will be called only when simulating data (or in econometric estimation that involves matching predicted outcomes).  Its first argument is the realized point in the state space (&theta;).  The second is the current realized outcome (&upsilon;).  This allows the auxiliary variable to access everything else.</p>
@@ -386,8 +386,8 @@ SearchData::SearchData() {
     <OL class="steps">
     <LI>Utility differences at any candidate z*:  <span class="expressions">\(U(0,z*)-U(1,z*)\)</span>. This information is received by the user-provided method called <code>Uz(z)</code>.  It returns a column vector with <code>U(0,z*)|U(1,z*)|&hellip;</code>. (More generally when there are <code>N</code> choices and <code>N-1</code> cut-off values it should return a <code>N &times; N-1</code> matrix.)</LI>
         &nbsp;</p>
-    <LI>Expected utility for <code>a=0</code> given z*: <span class="expressions">\(E[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |U(0,z)|z\le z*]\)</span>.  </LI>&nbsp;</p>
-    <LI>Expected utility for <code>a=1</code> given z*: <span class="expressions">\(E[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |U(1,z)|z\gt z*]\)</span>.</LI>&nbsp;</p>
+    <LI>Expected utility for <code>a=0</code> given z*: <span class="expressions">\(E[U(0,z)|z\le z*]\)</span>.  </LI>&nbsp;</p>
+    <LI>Expected utility for <code>a=1</code> given z*: <span class="expressions">\(E[U(1,z)|z\gt z*]\)</span>.</LI>&nbsp;</p>
     <LI>Probability of acceptable offers: <span class="expressions">\(Prob(z>z*)\)</span></LI>
     </OL>
     The user provides a method <code>EUtility()</code> which returns an array.  The first element is a vector of expected utility differences.  The second is a vector of probabilities.

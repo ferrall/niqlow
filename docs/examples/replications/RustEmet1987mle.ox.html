@@ -9,7 +9,7 @@
 </head>
 <body>
 <div class="header">
-[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+[ <img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.htm">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
 <img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
  | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
@@ -101,30 +101,30 @@ only use the transition probabilities not the conditional choice probabilities a
 The DP model is set up and parameterized as follows:
 <dd><pre>ZurcherHat::FirstStage(row)	{
 	this.row = row;
-	normalization = pars[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |row][theta1]*mfact*NX/2.0;	
-	hat = new array[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |Nparams];
+	normalization = pars[row][theta1]*mfact*NX/2.0;	
+	hat = new array[Nparams];
 	Initialize(Reachable,0);
-  	hat[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |disc] = new Determined("delta",pars[row][disc]);
-  	hat[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |RC] = new Positive("RC",pars[row][RC]);
-  	hat[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |theta1] = new Positive("th1",pars[row][theta1]);
-  	hat[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |theta3]= new Simplex("th3",pars[row][theta3]) ;
-  	SetDelta(hat[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |disc]);
-  	EndogenousStates(x = new Renewal("x",NX,d, hat[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |theta3]) );
+  	hat[disc] = new Determined("delta",pars[row][disc]);
+  	hat[RC] = new Positive("RC",pars[row][RC]);
+  	hat[theta1] = new Positive("th1",pars[row][theta1]);
+  	hat[theta3]= new Simplex("th3",pars[row][theta3]) ;
+  	SetDelta(hat[disc]);
+  	EndogenousStates(x = new Renewal("x",NX,d, hat[theta3]) );
 	CreateSpaces();
-	hat[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |RC]->ToggleDoNotVary();
-	hat[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |theta1]->ToggleDoNotVary();
+	hat[RC]->ToggleDoNotVary();
+	hat[theta1]->ToggleDoNotVary();
     }</pre></dd>
 <DT>Explanation</DT>
 <DD>The estimated parameters are stored in an array <code>hat</code>, which is distinct from the hard-coded parameter array from the paper, <code>pars</code>.</DD>
 <DD>Each element of <code>hat</code> is an object derived from <code>Parameter</code>.  The discount factor is fixed so it is <code>Determined</code>.  The replacement cost <code>RC</code> and marginal cost &theta;<sub>1</sub> are both <code>Positive</code>.  The transition probabilities form a <code>Simplex</code>.  The initial values of the parameters are the reported values in <code>pars</code>, but they could be set to anything feasible.</DD>
-<DD>The estimated parameters must be the ones used in the DP model, so <code>hat[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |disc]</code> is sent as the discount factor and <code>hat[theta3]</code> is sent as the parameter of the <code>Renewal</code> state variable <code>x</code>.  The other parameters enter <code>Utility</code>. </DD>
+<DD>The estimated parameters must be the ones used in the DP model, so <code>hat[disc]</code> is sent as the discount factor and <code>hat[theta3]</code> is sent as the parameter of the <code>Renewal</code> state variable <code>x</code>.  The other parameters enter <code>Utility</code>. </DD>
 <DD>In the first stage the full observability of the model is exploited.  Namely, the transition probabilities can be consistently estimated from the data on changes in odometer values without computing choice probabilities that require a solution to the value function fixed point.  So the two parameters that enter utility are temporarily held fixed by calling their <code>ToggleDoNotVary()</code> methods.</DD>
 <P/>
 <DT>The second stage of estimation fixes the transition probabilities and frees up the utility parameters.  (Efficiency can be gained by keeping the transition parameters variable.)</DT>
 <DD><pre>ZurcherHat::SecondStage() {
-	hat[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |theta3]->ToggleDoNotVary();
-	hat[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |RC]->ToggleDoNotVary();
-	hat[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |theta1]->ToggleDoNotVary();
+	hat[theta3]->ToggleDoNotVary();
+	hat[RC]->ToggleDoNotVary();
+	hat[theta1]->ToggleDoNotVary();
     }
 </pre></DD>
 
@@ -236,7 +236,7 @@ Read in the data.
 <a name="EZ___hat"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hat</span></h3>
 
-<span class="declaration">static decl hat [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static decl hat [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -274,7 +274,7 @@ Return U() at estimated (<q>hat</q>) parameter values.
 <a name="RustEstimates___buses"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">buses</span></h3>
 
-<span class="declaration">static decl buses [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static decl buses [public]</span>
 <dl><dd>
 bus data as a DataSet.
 
@@ -294,7 +294,7 @@ Replicate the Group 4 bus estimation.
 <a name="RustEstimates___EMax"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">EMax</span></h3>
 
-<span class="declaration">static decl EMax [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static decl EMax [public]</span>
 <dl><dd>
 Value function iteration method.
 
@@ -304,7 +304,7 @@ Value function iteration method.
 <a name="RustEstimates___mle"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mle</span></h3>
 
-<span class="declaration">static decl mle [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static decl mle [public]</span>
 <dl><dd>
 Optimization algorithm applied to nfxp.
 
@@ -314,7 +314,7 @@ Optimization algorithm applied to nfxp.
 <a name="RustEstimates___nfxp"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nfxp</span></h3>
 
-<span class="declaration">static decl nfxp [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static decl nfxp [public]</span>
 <dl><dd>
 Panel Black Box objective using buses data.
 
@@ -324,7 +324,7 @@ Panel Black Box objective using buses data.
 <a name="RustEstimates___plist"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">plist</span></h3>
 
-<span class="declaration">static decl plist [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static decl plist [public]</span>
 <dl><dd>
 Parameter lists by stage.
 

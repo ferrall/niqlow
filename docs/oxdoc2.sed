@@ -2,4 +2,4 @@
 s#http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML#https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML#
 s#oxdoc.css#..\\..\\oxdoc.css# 
 s#print.css#..\\..\\print.css#
-s#\[#\[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |#
+s#\[ <img #\[ <img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.htm">Search</a> | <img #1

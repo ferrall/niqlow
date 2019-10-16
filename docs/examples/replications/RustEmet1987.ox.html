@@ -9,7 +9,7 @@
 </head>
 <body>
 <div class="header">
-[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+[ <img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.htm">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
 <img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
  | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
@@ -59,7 +59,7 @@ See <a href="RustEmet1987mle.ox.html">RustEmet1987mle</a> to see how to carry ou
 <DT>Endogenous: none</DT>
 <DT>Utility:</DT>
 <DD>The cost of regular maintenance or engine replacement.
-<pre>U = -[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> | dRC + (1-d)&theta;<sub>1</sub>mx ] + n + z<sub>d</sub>    (5.1) p. 1015
+<pre>U = -[ dRC + (1-d)&theta;<sub>1</sub>mx ] + n + z<sub>d</sub>    (5.1) p. 1015
 </pre></dd>
 <DD>z<sub>d</sub> is the standard IID extreme value shock.  (In the paper it is denoted &epsilon;)
 <DT>Parameters:<DD class="example">
@@ -100,11 +100,11 @@ takes on values between 0 and 89.
 <P/>
 <DT><code>Utility</code> must have that name and cannot be <code>static</code>.</DT>
 <DD>The form of the expression returned as the value should look related to the mathematical expression <var>U()</var> above.  The parameters are static members of the class (they are the shared by each state &theta;).  The current value of <code>x</code> is accessed as <code>CV(x)</code>.  The value of <code>x</code> is set to be the correct value at &theta; before <code>Utility()</code> is called.</DD>
-<DD><code>Utility</code> must return a column vector of values corresponding to the feasible action vector <code>A[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |Aind]</code>.  In this case the action variable is simply <var>d</var>, and engine replacement is always feasible.</DD>
-<DD>In mathematical notation, we would write the choice set as <code>&alpha; &in; A(&theta;)</code>.  The code could simply refer to <code>A[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |Aind]</code>, the matrix of feasible actions at the current state.  But rather than accessing <code>A[Aind]</code> directly, the column of values for the <code>d</code> is accessed using <code>CV(d)</code>.  This makes the code closer to the notation and more general since it will work even if other actions are added to the model.</DD>
+<DD><code>Utility</code> must return a column vector of values corresponding to the feasible action vector <code>A[Aind]</code>.  In this case the action variable is simply <var>d</var>, and engine replacement is always feasible.</DD>
+<DD>In mathematical notation, we would write the choice set as <code>&alpha; &in; A(&theta;)</code>.  The code could simply refer to <code>A[Aind]</code>, the matrix of feasible actions at the current state.  But rather than accessing <code>A[Aind]</code> directly, the column of values for the <code>d</code> is accessed using <code>CV(d)</code>.  This makes the code closer to the notation and more general since it will work even if other actions are added to the model.</DD>
 <details class="aside"><summary>More on A and U()</summary><code>A</code> is a static array of the distinct feasible sets.  <code>Aind</code> is the index into the array specific to the current state <code>&theta;</code>.  Since Zurcher's problem has a single feasible set, <code>A</code> has only one matrix and <code>Aind</code> = 0 at all states.
 <DD><pre>
-A[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |0] =  &lceil; 0 &rceil;    So U = &lceil; -0.001x + n&rceil;
+A[0] =  &lceil; 0 &rceil;    So U = &lceil; -0.001x + n&rceil;
         &lfloor; 1 &rfloor;           &lfloor;  -RC + n   &rfloor;         </pre></DD>
 Whenever called, <code>Utility</code> returns a 2x1 matrix, the utility of not replacing and replacing.</details>
 <P/>
@@ -158,7 +158,7 @@ Simulated data
      0     0   248    53     0     0     0     0    53     0     0     0     0     1     1
      0     0   344    69     0     0     0     0    69     0     0     0     0     1     1
 </pre></DD>
-<DD>Bus 0 had four replacements, which occurred in months 92, 164, 248 and 344 of its lifetime.  The mileage on the odometer at replacement was in the interval <code>[<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |5000x,5000(x+1)]</code>.</DD>
+<DD>Bus 0 had four replacements, which occurred in months 92, 164, 248 and 344 of its lifetime.  The mileage on the odometer at replacement was in the interval <code>[5000x,5000(x+1)]</code>.</DD>
 <P/>
 <DT>The column labeled <code>Const</code> is a placeholder for exogenous state variables. </DT>
  <DD>If the model has no such variables then DDP inserts a constant there.  This makes it possible to construct indices into the state space without requiring a check of zero dimensions.  </DD>
@@ -263,7 +263,7 @@ Simulated data
 <a name="Zurcher___chprob"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">chprob</span></h3>
 
-<span class="declaration">static decl chprob [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static decl chprob [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -272,7 +272,7 @@ Simulated data
 <a name="Zurcher___data"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">data</span></h3>
 
-<span class="declaration">static decl data [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static decl data [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -281,7 +281,7 @@ Simulated data
 <a name="Zurcher___mfact"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mfact</span></h3>
 
-<span class="declaration">static const decl mfact [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static const decl mfact [public]</span>
 <dl><dd>
 scaling on cost
 
@@ -291,7 +291,7 @@ scaling on cost
 <a name="Zurcher___normalization"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">normalization</span></h3>
 
-<span class="declaration">static decl normalization [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static decl normalization [public]</span>
 <dl><dd>
 added to U() to avoid underflow
 
@@ -310,7 +310,7 @@ added to U() to avoid underflow
 <a name="Zurcher___pars"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">pars</span></h3>
 
-<span class="declaration">static const decl pars [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static const decl pars [public]</span>
 <dl><dd>
 array of parameters. Table IX, Column 2 .
 
@@ -320,7 +320,7 @@ array of parameters. Table IX, Column 2 .
 <a name="Zurcher___rc"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">rc</span></h3>
 
-<span class="declaration">static decl rc [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static decl rc [public]</span>
 <dl><dd>
 value of RC
 
@@ -340,7 +340,7 @@ Setup and solve the model.
 <a name="Zurcher___th1"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">th1</span></h3>
 
-<span class="declaration">static decl th1 [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static decl th1 [public]</span>
 <dl><dd>
 value of <span class="expressions">\(\theta_1\)</span>
 
@@ -361,7 +361,7 @@ The one period return.
 <a name="Zurcher___x"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">x</span></h3>
 
-<span class="declaration">static decl x [<img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.html">Search</a> |public]</span>
+<span class="declaration">static decl x [public]</span>
 <dl><dd>
 mileage state, <em>x</em>
 

@@ -1442,6 +1442,33 @@ FixedAsset::FixedAsset(L,N,r,delta){
 @param L label
 @param N number of values
 @param NetSavings `AV`-compatible static function of the form <code>NetSavings()</code><br><em>or</em>`ActionVariable`
+
+
+Example.  A model has a choice of consume or save with a budget constraint of the form:
+$$c+a \le Y+(1+r)A.$$
+Here $c$ is consumption, $a$ are assets to carry forward to tomorrow, $Y$ is non-asset income, $r$ is the current interest rate and
+$A$ are assets that were carried forward yesterday.  Rewriting in terms of feasible actions:
+$$a_L \le a \le Y+(1+r)A.$$
+Consumption would then be total income minus $a.$  Thus, if $A$ and $a$ are continuous the transition is simply:
+$$A^\prime = a.$$
+However, if $a$ and $A$ are both discretized, then two things occur.  First, the current values are simply indices (0,1,...). So
+the actual values need to set using <code>SetActual()</code> or writing <code>Update()</code> functions to replace the virtual versions
+if the actual values depend on parameters.  If for some reason the grid values for $a$ and $A$ are not the same (different coarsen
+between consumption and assets) then the transition may not be on the grid.  In this case, let $AV(a)$ equal
+$AV(A_i)+p(AV(A_{i+1})-AV(A_i)),$ where $p$ is the fraction of the gap between two successive values of $A$.  Now:
+$$A^\prime = \cases{ A_i & with prob. $1-p$\cr A_{i+1} & with prob. $p$\cr}.$$
+<DD><pre>
+    a = new ActionVariable("a",5);
+    A = new LiquidAsset("A",5,a);
+    a-&lt;SetActual(&lt;-10;0;10;100;1000&gt;);
+    A-&lt;SetActual(&lt;-10;0;10;100;1000&gt;);
+
+    FeasibleActions() {
+        return AV(a) .&lt AV(Y)+(1+r)AV(A);
+        }
+</DD></pre>
+Note that no action may be feasible if <code>AV(Y)</code> is too small.
+
 @see Discretized
 **/
 LiquidAsset::LiquidAsset(L,N,NetSavings){
