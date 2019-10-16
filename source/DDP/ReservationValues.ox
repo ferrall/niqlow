@@ -1,12 +1,13 @@
 #ifndef Mh
     #include "ReservationValues.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 
 /** Create a system of nonlinear equations to solve for reservation values.
 @param LB `AV` compatible lower bound on the value of the first reservation value
 @param Ncuts number of reservation values
+@param METHOD USENEWTONRAPHSON (default) or USEBROYDEN
 **/
 Rsystem::Rsystem(LB,Ncuts,METHOD) {
 	lbv = CV(LB);
@@ -16,17 +17,18 @@ Rsystem::Rsystem(LB,Ncuts,METHOD) {
 	else
 		Parameters(zstar = (lbv==-.Inf) ? new Free("R*",1.0) : new BoundedBelow("R*",LB,lbv+1.1) );
 	switch(METHOD) {
-		case UseDefault:
 		case USEBROYDEN:
 			meth = new Broyden(this);
 			break;									
+		case UseDefault:
 		case USENEWTONRAPHSON:
 			meth = new NewtonRaphson(this);
             break;
         default : break;
 		}
     Volume = meth.Volume= SILENT;
-    meth.USELM = (Ncuts==1);
+
+    //meth.USELM = (Ncuts==1);
 	}
 	
 /** Objective for reservation value system (static EV).
@@ -44,10 +46,27 @@ DynamicRsystem::DynamicRsystem(LB,Ncuts,METHOD) {
         Rsystem(LB,Ncuts,METHOD);
     }
 
+/** Solve for reservation values at $\theta$ given $\delta EV$.
+**/
 Rsystem::RVSolve(dV) {
 	this.curth = I::curth;
 	this.dV = dV;
-	Encode(setbounds(curth->Getz()[],lbv+1.1,.Inf));
+    decl oldz = setbounds(curth->Getz(),lbv+1.1,.Inf);
+    if (ReservationValues::CheckDominatedOptions) {
+        decl dlv, i, j;
+        curth->Setz( constant( lbv+DIFF_EPS , Ncuts, 1) ); //(lbv==.Inf) ? XXX .
+        dlv = diff0(vfunc()[1:]) .>= 0.0 ;
+        i = 0;
+        while ( i<Ncuts && dlv[i] ) {  // do not vary initially dominated choices
+            zstar.Psi[i].DoNotVary = TRUE;
+            oldz[i] = lbv+DIFF_EPS;
+            ++i;
+            }
+        if (i==Ncuts)
+            return curth->thetaEMax();  //last option prob. 1
+        for(j=i;j<Ncuts;++j) zstar.Psi[j].DoNotVary=FALSE;
+        }
+	Encode(oldz);
 	meth->Iterate();
 	curth->Setz(CV(zstar));
     return curth->thetaEMax();
@@ -60,6 +79,7 @@ Rsystem::RVSolve(dV) {
 **/
 ReservationValues::ReservationValues(LBvalue,METHOD) {
 	Method(new RVGSolve(LBvalue,METHOD,this));
+    CheckDominatedOptions = FALSE;
     Volume = SILENT;
 	}
 
@@ -70,7 +90,11 @@ ReservationValues::Solve(Fgroups,Rgroups) {
 
 RVGSolve::Solve(state) {
     decl rv;
-    foreach (rv in RValSys) if (isclass(rv)) { rv.meth.Volume = max(SILENT,Volume-1); rv.meth->Tune(MaxTrips); }
+    foreach (rv in RValSys)
+        if (isclass(rv)) {
+            rv.meth.Volume = max(SILENT,Volume-1);  //one step less than master
+            rv.meth->Tune(MaxTrips);
+            }
     GSolve::Solve(state);
 
 	this.state = state;
@@ -135,7 +159,7 @@ RVSolve(ToScreen,aM) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling RVSolve()");
     decl meth = new ReservationValues();
 	DPDebug::outAllV(ToScreen,aM);
-    //meth.Volume = NOISY;
+    meth.Volume = QUIET;
 	decl conv = meth->Solve();
     delete meth;
     return conv;

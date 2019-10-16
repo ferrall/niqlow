@@ -1,20 +1,23 @@
 #include "Predictions.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /**  Simple Prediction .
 @param T	integer, length of panel<br>UseDefault [default], length of lifecycle or  10
+probabilities<br/>Two print predictions
 @param prtlevel Two [default] print predictions <br/>One print state and choice
-probabilities
+probabilities<br/>Zero do not print, instead save to prediction moment file
+
+This creates a `PanelPrediction` object, creates the prediction tracking all varaibles and prints
 
 **/
 ComputePredictions(T,prtlevel) {
-    decl op = new PanelPrediction("predictions"),TT;
-    if (T==UseDefault) {
-        TT = Flags::IsErgodic ? 10: N::T;
-        }
-    else TT = T;
+    decl op = new PanelPrediction("predictions"),TT,oldvol = Data::Volume;
+    TT = (T==UseDefault) ? (Flags::IsErgodic ? 10: N::T)
+                         : T;
     op -> Tracking(TrackAll);
+    if (prtlevel==Zero) Data::Volume = LOUD;
     op -> Predict(TT,prtlevel);
+    Data::Volume = oldvol;
     delete op;
     }
 
@@ -53,7 +56,7 @@ Prediction::Predict() {
         }
     predmom = <>; foreach(tv in ctlist) predmom ~= tv.track.mean;
     if (!isfeq(pp,0.0)) {
-        fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][left:right],unrch);
+        if (isfile(Data::logf)) fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][left:right],unrch);
         if (!LeakWarned) {
             println("DDP Warning ??. Leakage in transition probability.  See log file");
             LeakWarned = TRUE;
@@ -61,7 +64,7 @@ Prediction::Predict() {
         }
      if (Data::Volume>LOUD) {
         decl ach = sumr(ch), posch = !isdotfeq(ach,0.0);
-        fprintln(Data::logf,t," States and probabilities","%r",{"Index","Prob."},selectifc(sind|p,p.>tinyP),
+        if (isfile(Data::logf)) fprintln(Data::logf,t," States and probabilities","%r",{"Index","Prob."},selectifc(sind|p,p.>tinyP),
             Alpha::aL1,"Non-zero Choice Probabilities ",
             "%r",Alpha::Rlabels[0][selectifr(Alpha::AIlist[0],posch)],selectifr(ach,posch));
         }
@@ -120,7 +123,7 @@ PathPrediction::SetT() {
 PathPrediction::tprefix(t) { return sprint("t_","%02u",t,"_"); }
 
 /** process predictions and empirical matching when there are observations over time.
-@param cmat if a cmat then get contributions from it.  This is true when running in parallel.<br/>Otherwise,
+@param cmat if a matrix then get contributions from it.  This is true when running in parallel.<br/>Otherwise,
         contributions are located in the individual Prediction objects.
 **/
 PathPrediction::ProcessContributions(cmat){
@@ -144,7 +147,7 @@ PathPrediction::ProcessContributions(cmat){
                 ismatrix(pathW) ? outer(vdelt,pathW)
                                 : norm(vdelt,'F') )
             : 0.0;
-    if (!Version::MPIserver && HasObservations && Data::Volume>QUIET) {
+    if (!Version::MPIserver && HasObservations && Data::Volume>QUIET && isfile(Data::logf) ) {
         fprintln(Data::logf," Predicted Moments group ",f," ",L,
         "%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat[][columns(fvals):],
         "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",tlabels[1:],
@@ -191,7 +194,7 @@ PathPrediction::Predict(inT,prtlevel){
         ProcessContributions();
         if (!Version::MPIserver && prtlevel) {
             if (Version::HTopen) println("</pre><a name=\"Prediction\"/><pre>");
-            println(" Predicted Moments for fixed group: ",f,"%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat[][columns(fvals)+1:]);
+            println(" Predicted Moments for fixed group: ",f,"%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat[][columns(fvals):]);
             }
         return TRUE;
         }
@@ -219,7 +222,7 @@ concatenated to the path
 **/
 PathPrediction::Empirical(inNandMom,hasN,hasT) {
     decl inmom,totN,inN,invsd,C = columns(inNandMom)-1,influ,dt,datat,negt,
-    report = !Version::MPIserver && Data::Volume>SILENT;
+    report = !Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf) ;
     T = rows(inNandMom);
     HasObservations = TRUE;
     influ = 0;
@@ -227,8 +230,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
         negt = inNandMom[][C].<0;
         if ( any(negt)  ) {
             influ = inNandMom[maxcindex(negt)][:C-2];
-            if (report)
-                fprintln(Data::logf,"Influence weights","%c",tlabels[1:C-2],influ);
+            if (report) fprintln(Data::logf,"Influence weights","%c",tlabels[1:C-2],influ);
             inNandMom = deleteifr(inNandMom,negt);
             }
         if (report) MyMoments(inNandMom,tlabels[1:],Data::logf);
@@ -280,7 +282,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
                 println("Augmenting pathW.  Original |diag|: ",en," . New ",norm(dd,1));
              pathW = setdiagonal(pathW,dd);
             }
-    if (!Version::MPIserver && Data::Volume>LOUD)
+    if (!Version::MPIserver && Data::Volume>LOUD && isfile(Data::logf) )
         fprintln(Data::logf,"Row influence: ",influ,"Weighting by row and column",(inN/totN).*invsd.*influ);
     do {
         if (cur.t==datat[dt]) {
@@ -332,7 +334,7 @@ PathPrediction::InitialConditions() {
         iDist(this);
     else
         oxrunerror("DDP Error 64. iDist must be integer, vector, function or Prediction object");
-    if (!Version::MPIserver && Data::Volume>LOUD) fprintln(Data::logf,"Path for Group ",f,". Initial State Indices & Prob.","%r",{"Ind.","prob."},(sind~p)',"----");
+    if (!Version::MPIserver && Data::Volume>LOUD && isfile(Data::logf) ) fprintln(Data::logf,"Path for Group ",f,". Initial State Indices & Prob.","%r",{"Ind.","prob."},(sind~p)',"----");
     ch[] = 0.0;
     LeakWarned = FALSE;
     }
@@ -430,7 +432,7 @@ Prediction::Delta(mask,printit,tlabels) {
                 .:  (isdotnan(mv)   // else, find mising predictions
                         .? .Inf             // difference unbounded
                         .: W.*(mv-empmom));   // weighted difference
-    if (!Version::MPIserver && printit) {
+    if (!Version::MPIserver && printit && isfile(Data::logf) ) {
         fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4g","%c",tlabels,mv|empmom|reshape(W,1,columns(empmom))|df);
         }
     return df;
@@ -566,18 +568,31 @@ PathPrediction::TypeContribution(pf,subflat) {
      done =  pcode                               //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
      if (PredictFailure) {println("failure"); break;}
-	 if (!done && !isclass(cur.pnext)) { // no tomorrow after current
-                cur.pnext = new Prediction(cur.t+1);
-                ++this.T;
-                }
      if (first) {       //either first or only
         cur.accmom = pf*cur.predmom;
         if (!isint(subflat)) subflat[0] |= cur.accmom;
         }
-     else
+     else {
         cur.accmom += pf*cur.predmom;
-     cur = cur.pnext;
+        }
+	 if (!done) {
+          if (!isclass(cur.pnext)) { // no tomorrow after current
+                cur.pnext = new Prediction(cur.t+1);
+                ++this.T;
+                }
+        cur = cur.pnext;
+        }
   	 } while(!done);
+  if (pcode && isclass(cur.pnext)) {
+     decl nxt = cur.pnext;
+     cur.pnext = UnInitialized;
+     println("Trimming path of length ",this.T," that ended early at ",cur.t+1);
+     this.T = cur.t+1;
+     do {
+        cur = nxt.pnext;
+        delete nxt;
+        } while (( isclass(nxt = cur) ));
+     }
   first = FALSE;
   return 0;
   }
@@ -672,9 +687,7 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
         else
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
-	    if (!Version::MPIserver && Data::Volume>QUIET) {
-                aflat |= cur.flat;
-                }
+	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur.flat;
         } while((isclass(cur=cur.fnext)));
     if (!Version::MPIserver && Data::Volume>QUIET) {
         decl amat = <>,f;
@@ -809,8 +822,8 @@ PredictionDataSet::EconometricObjective(subp) {
 **/
 PredictionDataSet::Read(FNorDB) {
     decl fptr,curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone,incol,
-    report = !Version::MPIserver && Data::Volume>SILENT;
-    if (report) {
+    report = !Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf) ;
+    if (report ) {
         println("List of Empirical Moments in Data log file");
         fprintln(Data::logf,"List of Empirical Moments");
         foreach(v in tlabels[row]) fprintln(Data::logf,"   ",row,". ",v);
@@ -830,7 +843,7 @@ PredictionDataSet::Read(FNorDB) {
         }
 	dlabels=source->GetAllNames();
 	data = source->GetAll();
-    if (report) fprintln(Data::logf,"Data columns",dlabels);
+    if (report ) fprintln(Data::logf,"Data columns",dlabels);
     if (isarray(flist)) {
         fcols = strfind(dlabels,flist);
         if (any(fcols.==NoMatch)) {println("***",dlabels,flist,fcols); oxrunerror("DDP Error 67. label not found");}

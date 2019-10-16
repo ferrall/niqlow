@@ -2,5 +2,6 @@
 
 main() {
     HTopen("../../OODP/LSemp");
-    LSemp::Run();
+    LSemp::Build();
+    LSemp::Estimate();
     }

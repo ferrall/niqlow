@@ -1,5 +1,5 @@
 #include "Outcomes.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 ExogAuxOut::ExogAuxOut() {
     ExTask();
@@ -37,7 +37,7 @@ This routine simplifies simulating a solved DP model.  Simply call it instead of
 
 **/
 SimulateOutcomes(Nsim,T,outopt,ErgOrStateMat,DropTerminal) {
-    decl op = new Panel("simdata"), TT;
+    decl op = new Panel(), TT;
     if (T==UseDefault) {
         TT = Flags::IsErgodic ? 10: N::T;
         }
@@ -109,8 +109,6 @@ Outcome::Flat(Orientation)	{
         return t~ind[tracking]~I::curth.Type~I::curth.Aind~state'~ind[onlyacts][0]~act~z~aux;
     else
         return  state'~act~z~aux;
-    // prefix(tprefix(t),labels),
-    //ind[onlyacts] shows only A[0] index.
 	}
 
 
@@ -334,7 +332,7 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
             cur = cur.pnext;
 		    }
         }
-	if (!Version::MPIserver && Data::Volume>SILENT) fprintln(Data::logf," FPanel Simulation time: ",timer()-cputime0);
+	if (!Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf)) fprintln(Data::logf," FPanel Simulation time: ",timer()-cputime0);
 	}
 
 FPanel::Append(pathid) {
@@ -349,7 +347,9 @@ index of panel
 FPanel::Flat(Orientation)	{
 	decl op = <>;
 	cur = this;
-	do op |= f ~ cur->Path::Flat(Orientation); while ((isclass(cur = cur.pnext)));
+	do {
+        op |= f ~ cur->Path::Flat(Orientation) ;
+        } while ((isclass(cur = cur.pnext)));
 	return op;
 	}
 
@@ -469,7 +469,7 @@ file
 Panel::Print(fn,Orientation)	{
 	if (isint(flat)) Flat(Orientation);
 	if (isint(fn)) {
-        if (fn==1) fprint(Data::logf,"%c",LFlat[Orientation],"%cf",Fmtflat,flat);
+        if (fn==1 && isfile(Data::logf) ) fprint(Data::logf,"%c",LFlat[Orientation],"%cf",Fmtflat,flat);
         else if (fn>1) {
             if (Version::HTopen) println("</pre><a name=\"Panel\"/><pre>");
             println("-------------------- Panel ------------------------\n");
@@ -766,13 +766,13 @@ OutcomeDataSet::tColumn(lORind) {
 OutcomeDataSet::MatchToColumn(aORs,LorC) {
 	if (StateVariable::IsBlock(aORs)) oxrunerror("DDP Error 55. Can't use columns or external labels to match blocks. Must use ObservedWithLabel(...)");
 	decl offset,k;
-	if (!Version::MPIserver && Data::Volume>SILENT) fprint(Data::logf,"\nAdded to the observed list: ");
+	if (!Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf)) fprint(Data::logf,"\nAdded to the observed list: ");
 	offset = isclass(aORs,"ActionVariable") ? 1
 				: isclass(aORs,"StateVariable") ? 1+N::Av
 				: 1+N::Av+N::S;
 	if (list[offset+aORs.pos].obsv==FALSE && masked) oxrunerror("DDP Error 56. cannot recover observations on UnObserved variable after reading/masking");
 	list[offset+aORs.pos]->Observed(LorC);				
-	if (!Version::MPIserver && Data::Volume>SILENT) fprint(Data::logf,aORs.L," Matched to column ",LorC);
+	if (!Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf) ) fprint(Data::logf,aORs.L," Matched to column ",LorC);
     }
 
 	
@@ -790,7 +790,7 @@ OutcomeDataSet::ObservedWithLabel(...
     #endif
 ) {
 	decl offset,aORs,LorC,k,bv;
-	if (!Version::MPIserver && Data::Volume>SILENT) fprint(Data::logf,"\nAdded to the observed list: ");
+	if (!Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf) ) fprint(Data::logf,"\nAdded to the observed list: ");
     foreach (aORs in va) {
 		if (StateVariable::IsBlock(aORs)) {
 	        foreach (bv in aORs.Theta) ObservedWithLabel(States[bv]);
@@ -803,9 +803,9 @@ OutcomeDataSet::ObservedWithLabel(...
 		if (list[offset+aORs.pos].obsv==FALSE && masked)
             oxrunerror("DDP Error 57. cannot recover observations on UnObserved variable after reading/masking");
 		list[offset+aORs.pos]->Observed(UseLabel);				
-		if (!Version::MPIserver && Data::Volume>SILENT) fprint(Data::logf,aORs.L," ");
+		if (!Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf)) fprint(Data::logf,aORs.L," ");
 		}
-	if (!Version::MPIserver && Data::Volume>SILENT) fprintln(Data::logf,".");
+	if (!Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf)) fprintln(Data::logf,".");
 	}
 
 /** UnMark action and states variables as observed.
@@ -926,8 +926,10 @@ OutcomeDataSet::EconometricObjective(subp) {
 OutcomeDataSet::Summary(data,rlabels) {
 	decl rept = zeros(3,0),s;		
 	foreach (s in list) rept ~= s.obsv | s.force0 | s.incol;
-	fprintln(Data::logf,"\nOutcome Summary: ",label);
-	fprintln(Data::logf,"%c",Labels::Vprt[idvar]|Labels::Vprt[avar]|Labels::Vprt[svar]|Labels::Vprt[auxvar],"%r",{"observed"}|{"force0"}|{"column"},"%cf","%6.0f",rept);
+	if (!Version::MPIserver && isfile(Data::logf)) {
+        fprintln(Data::logf,"\nOutcome Summary: ",label);
+	    fprintln(Data::logf,"%c",Labels::Vprt[idvar]|Labels::Vprt[avar]|Labels::Vprt[svar]|Labels::Vprt[auxvar],"%r",{"observed"}|{"force0"}|{"column"},"%cf","%6.0f",rept);
+        }
     if (ismatrix(data)) MyMoments(data,rlabels,Data::logf);
     else {
         Print(0);
@@ -994,7 +996,7 @@ OutcomeDataSet::LoadOxDB() {
 		++FNT;
 		}
 	if (!Version::MPIserver && Data::Volume>SILENT) {
-            fprintln(Data::logf,". Total Outcomes Loaded: ",FNT);
+            if (isfile(Data::logf)) fprintln(Data::logf,". Total Outcomes Loaded: ",FNT);
             if (Data::Volume>LOUD) Summary(0);
             }
 	}

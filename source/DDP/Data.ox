@@ -1,5 +1,5 @@
 #include "Data.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 #ifndef Dox
     #define Dox
     #include "Outcomes.ox"
@@ -20,12 +20,12 @@ PathPrediction::SimulateOutcomePaths(curfpanel,N,ErgOrStateMat) {
     plabels = {};
     cur = this;  //initialize to first prediction on the path.
     curfpanel -> FPanel::Simulate(N,UnInitialized,ErgOrStateMat,FALSE,this);
-    if (!savemat("logs/flat_"+sprint("%02u",f)+".dta",pathW,plabels)) println("save of pathW failed");
+    if (!savemat(Version::logdir+"flat_"+sprint("%02u",f)+".dta",pathW,plabels)) println("save of pathW failed");
     pathW = variance(pathW);
     print(" Variance rank before diagonal adjust: ",rank(pathW));
 //    pathW = setdiagonal(pathW,setbounds(diagonal(pathW),SQRT_EPS,+.Inf));
 //    println(" after ",rank(pathW));
-//    savemat("logs/var_"+sprint("%02u",f)+".dta",pathW);
+//    savemat(Version::logdir+"var_"+sprint("%02u",f)+".dta",pathW);
     pathW = invertgen(pathW,1);
     println("PathW ",f," Dimension: ",rows(pathW)," Rank: ",rank(pathW));
     savemat("pathW_"+sprint("%02u",f)+".mat",pathW);

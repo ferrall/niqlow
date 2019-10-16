@@ -1,5 +1,5 @@
 #include "AuxiliaryValues.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** Create a new element of &chi;, the space of auxiliary outcomes.
 
@@ -93,12 +93,12 @@ Indicator::Indicator(target,myval,iobj,prefix) {
 Indicator::Realize(y) {
     decl aIU = Alpha::aI==UnInitialized;
     if (ttype==ActInt) {
-        v = aIU ? (myval .== CV(target)) : (myval== Alpha::aC[target.pos]);
+        v = aIU ? (myval .== CV(target)) : (myval== target->myEV());
         }
     else
         v = myval==CV(target);
     switch(iacted) {
-        case ActInt   : v .*= aIU ? AV(iobj) : Alpha::aC[iobj.pos]; break;
+        case ActInt   : v .*= aIU ? AV(iobj) : iobj->myEV(); break;
         case AuxInt   : iobj->Realize(y);
                             v .*= iobj.v;
                             break;
@@ -112,11 +112,11 @@ MultiIndicator::Realize(y) {
     v=1;
     foreach(t in target[n])
         if (ttype[n]==ActInt)
-            v .*= aIU ? (myval[n] .== CV(t))  : (myval[n] == Alpha::aC[t.pos]);
+            v .*= aIU ? (myval[n] .== CV(t))  : (myval[n] == t->myEV());
         else
             v .*= myval[n]==CV(t);
     switch(iacted) {
-            case ActInt   : v .*= aIU ? AV(iobj) : Alpha::aC[iobj.pos]; break;
+            case ActInt   : v .*= aIU ? AV(iobj) : iobj->myEV(); break;
             case AuxInt   : iobj->Realize(y);
                             v .*= iobj.v;
                             break;

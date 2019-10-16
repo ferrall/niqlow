@@ -1,35 +1,33 @@
+/** This version has some features not shown in the OODP paper.**/
 #import "niqlow"
 
 class LS : ExtremeValue {
-    static decl a, m, e, beta, b;
-           Utility();
-    static Build();
-    static Run();
-    static Earn();
-    static Use();
+    static decl m, M, e, beta, pi;
+                Utility();
+    static      Build(d=FALSE);
+    static      Run();
+    static      Earn();
     }
-LS::Build() {
+LS::Build(d) {
      SetClock(NormalAging,40);
-     a = new BinaryChoice("a");
-     m = new ActionCounter("m",40,a);
-     e = new Nvariable ("e",15);
-     Actions(a);
-     EndogenousStates(m);
-     ExogenousStates(e);
+     if (isint(d)) {                    //create new binary action and e
+        e = new Nvariable ("e",15);
+        m = new BinaryChoice("m");
+        Actions(m);
+        ExogenousStates(e);
+        }
+     else m = d;                        //I'm being called by LSz so just copy LSz::d to me
+     M = new ActionCounter("M",40,m);
+     EndogenousStates(M);
      SetDelta(0.95);
+     beta =<1.2 ; 0.09 ; -0.1 ; 0.2>;
+     pi = 2;
     }
-LS::Earn() {    return  exp( (1~CV(m)~sqr(CV(m))~AV(e)) * CV(beta) ) ;     }
-LS::Utility() {  return CV(a)*Earn() + (1-CV(a))*b;    }
+LS::Earn()    { return  exp( (1~CV(M)~sqr(CV(M))~AV(e)) * CV(beta) ) ; }
+LS::Utility() { return CV(m)*(Earn()-pi) + pi;  }
 LS::Run() {
     Initialize(1.0,new LS());
     Build();
     CreateSpaces();
-    beta = <0.8;1.0;-0.1;0.2>;
-    b = 2;
     VISolve();
-    }
-LS::Use() {
-    if (!Flags::ThetaCreated) Run();
-    SimulateOutcomes(2);
-    ComputePredictions();
     }

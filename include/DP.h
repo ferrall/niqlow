@@ -146,6 +146,7 @@ struct DP {
 
         static KLaggedState(Target,K,Prune=TRUE);
         static KLaggedAction(Target,K,Prune=TRUE);
+        static ValuesCounters(L,Target,MaxCounts,Prune=TRUE);
 		static ExpandP(Aind,p0);
 
 		}

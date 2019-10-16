@@ -17,7 +17,7 @@ struct Zurcher : Rust	{
 	static 	decl 					
 		/** mileage state, <em>x</em>**/					x,
 		/** added to U() to avoid underflow **/				normalization,
-		/** value of &theta;<sub>1</sub> **/	            th1,
+		/** value of $\theta_1$ **/	                        th1,
 		/** value of RC **/					                rc,
 		                                                    data,
                                                             chprob;

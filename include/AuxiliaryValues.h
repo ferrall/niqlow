@@ -23,7 +23,8 @@ struct StaticAux : AuxiliaryValue {
     StaticAux(L,target);
     }
 
-/** Built-in variable that records realized utility, <var>U(&alpha;,&epsilon;,&eta;,&theta;,&gamma;)</var>
+/** Built-in variable that records realized utility.
+$U(\alpha,\epsilon,\eta,\theta,\gamma)$
 **/
 struct RealizedUtility : AuxiliaryValue {
 	RealizedUtility();

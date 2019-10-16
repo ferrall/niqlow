@@ -1,9 +1,14 @@
 #import "DDP"
 #include <oxdraw.h>
 
+struct XLagged : Augmented {
+    XLagged();
+    Transit();
+    }
 struct Retirement : ExtremeValue	{
 	/** Choices & Sectors. @name sectors **/
-		enum{Retire,Part,Full,Stay,Nactions,Nsectors=Stay}
+		enum{Retire,Part,Full,Nsectors}  //Nactions,
+        enum{Stay,Move,Nsearch}
 	/** State space dimensions. @name Dimens**/
 		enum{nReps=1,nRepsS=3,S0=10,T0=55,Tstar=76,T2star=86,TMAX=T2star-T0+1,Smax=6}
 //		enum{nReps=3,nRepsS=9,S0=10,T0=55,Tstar=76,T2star=86,TMAX=T2star-T0+1,Smax=12}
@@ -13,9 +18,11 @@ struct Retirement : ExtremeValue	{
 		enum{A55_64,A65_74,A75_84,A85plus,AgeCategories}
 
 	static decl
+                                                    Xn,
 	/** &beta;<sub>i</sub> **/						acteqpars,
 	/** Column of table to get params from **/		col,
 	/** Action variable **/							i,
+    /** move/match decision.**/                     m,
 	/** duration of existing job **/				dur,
 	/** choice previous period  **/					PrevJob,
 	/** match value if worked last year **/			M,
@@ -31,6 +38,7 @@ struct Retirement : ExtremeValue	{
 	<LI>Table: 82/10/14 TABLE 290 82/10/14 TABLE 290. DEATH RATES FOR 69 SELECTED CAUSES, BY 10-YEAR AGE GROUPS, RACE, AND SEX: UNITED STATES, 1968-78
 	<LI>Row: White Male 1969, Age55-85+
 	**/
+        iacc = <Zero;One;One;Zero>,
 		drates = <2204.7, 4861.7, 10147.2, 21593.7>,
 		HThous = 100000.0, disc = <0.0,0.95>, Changing  = <190;120>, tau = <35.0,26.4>,	p=<-.376,.123>,
 		sig1 =<.118,46.7>, sig2 =<54.2,.0739>,	sig3 =<138.0,6.72>,

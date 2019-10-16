@@ -6,14 +6,16 @@
 #endif
 /* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
 
-/** &theta;-specific values.
+/** $\theta$-specific values.
 
-Corresponds to a a model with no continuous shocks &zeta; and no ex-post smoothing.
+This is the base class for a single point in the endogenous state space, $\theta\in \Theta$.</br>
+
+It corresponds to a a model with no continuous shocks $\theta$ and no ex-post smoothing.<br/>
 
 Since a new instance of DP is created for each reachable point in the (endogneous) state space, the structure relies heavily
-on static members in order to reduce memory requirements.  These are defined in the base `DP` class.
+on static members in order to reduce memory requirements.  These are defined in the base `DP` class.<br/>
 
-<code>MyModel</code> should be derived from (a derivation from) `Bellman`.
+<code>MyModel</code> should be derived from a class that in turn is derived from `Bellman`.
 
 **/
 struct  Bellman : DP {
@@ -49,8 +51,6 @@ struct  Bellman : DP {
 			virtual	AutoVarPrint1(task);
 			virtual	Interface();
             virtual OutcomesGivenEpsilon();
-            //virtual ExpectedOutcomesOverEpsilon(CondChoiceProb);
-//			virtual Predict(tod);
             virtual OutputValue();
             virtual SetTheta(state=0,picked=0);
             virtual GetCondVal();
@@ -67,7 +67,7 @@ struct  Bellman : DP {
                     virtual InSS();
 	}																																				
 
-/** Choice probabilities are smoothed ex post.
+/** A point in the state space for a model in which choice probabilities are smoothed ex post.
 
 <DT>Utility() has no continuous error terms that affect the formula for computing $EV(\theta)$.
 </DT>
@@ -78,7 +78,13 @@ according to the `SmoothingMethods` sent to `ExPostSmoothing::CreateSpaces`().</
 
 **/
 struct ExPostSmoothing : Bellman {
-	static decl Method, rho, sigma;
+	static decl
+    /**The smoothing method to use. @see SmoothingMethods**/
+            Method,
+    /**Smoothing parameter $\rho$ (logit method)**/
+            rho,
+    /**Smoothing parameter $\sigma$ (normal method)**/
+            sigma;
 	static Initialize(userState,UseStateList=FALSE);
 	static CreateSpaces(Method=NoSmoothing,smparam=1.0);
 	virtual Smooth();
@@ -86,26 +92,36 @@ struct ExPostSmoothing : Bellman {
 			Normal();
 	}
 
-/** A model where there is a single decision, no value shocks and no dynamics.
-The user simply supplies a static utility function which is called from the built-in
-version here.
+/** Base class for a model with a single state.
+
+A model where there is :
+<UL>
+<LI>a single decision</LI>
+<LI>no value shocks</LI>
+<LI>no dynamics and no foresight</LI>
+</UL>
+
+The user simply supplies a (required) <em>static</em> utility function which
+is called from the built-in version here.<br/>
 
 **/
 struct OneStateModel : ExPostSmoothing {
-    static decl U;
+    static decl
+    /**contains $U()$ sent by the user's code.**/ U;
 	static Initialize(U,Method=NoSmoothing,...);
     virtual Utility();
 	}
 	
-/** Additve extreme value errors enter U().
+/** The base class for models that include an additve extreme value error in action value.
 
 <DT>Specification</DT>
-<dd><pre>
-U() = Utility(&alpha;,&eta;,&epsilon;,&theta;,&gamma;) + &zeta;
-&zeta;.N = (&theta;.A).D          IID error for each feasible &alpha;
-F(z<sub>i</sub>) = exp{ -exp{-x/&rho;} }
-</pre>
+$$\eqalign{
+v(\alpha,\cdots) &= Utility(\alpha,\cdots) + \zeta_\alpha\cr
+\zeta: vector of IID errors for each feasible $\alpha$\cr
+F(z_\alpha) = e^{ -e^{-x/\rho} }\cr}$$
+
 <DT>Bellman Equation Iteration.</DT>
+
 <DD><pre>
 v(&alpha;;&epsilon;,&eta;) = exp{  &rho;( U + &delta;&sum; <sub>&theta;&prime;</sub> &Rho;(&theta;&prime;;&alpha;,&eta;,&theta;) EV(&theta;&prime;) ) }
 V(&epsilon;,&eta;) = log(&sum;<sub>&alpha;</sub> v(&alpha;;&epsilon;,&eta;))
@@ -131,17 +147,23 @@ struct ExtremeValue : Bellman {
 	virtual KernelCCP(task);
 	}
 
-/** Ergodic state transition with standard Extreme Value &zeta; and binary choice.
-
+/** Special case of Extreme value.
+<UL>
+<LI>Infinite horize and Ergodic state transition.</LI>
+<LI>binary choice.</LI>
+</UL>
 **/
 struct Rust : ExtremeValue {
 	static decl
-	/**The decision variable. **/ d;
+	/**The binary decision variable. **/ d;
 	static Initialize(userState);
 	static CreateSpaces();
 	}
 
-/** Myopic choice problem (&delta;=0.0) with standard Extreme Value &zeta;.
+/** Myopic choice problem ($\delta=0.0$) with standard Extreme Value $\zeta$.
+
+This is the base class for a static discrete model with extreme value shocks added
+to the value of actions.
 
 **/
 struct McFadden : ExtremeValue {
@@ -152,7 +174,7 @@ struct McFadden : ExtremeValue {
 	ActVal();
 	}
 	
-/** DP Models that include additive normal choice-specific &zeta;.
+/** Base class for models with an additive normal $\zeta$ shock added to action values.
 
 **/
 struct Normal : Bellman {
@@ -166,7 +188,10 @@ struct Normal : Bellman {
 	virtual ActVal();
 	}
 
-/** Correlated errors and smooth  simulation of choice probabilities. **/
+/** Base class for normal smoothing and correlated errors.
+
+ Smooth  simulation of choice probabilities.
+ **/
 struct NnotIID : Normal {
 	// GHK and Quadrature integration
 	static decl
@@ -197,26 +222,29 @@ struct NIID : Normal {
     ExogExpectedV();
 	}
 
-/** One-dimensional action models with user defined distribution of &zeta;.
+/** One-dimensional action models with user defined distribution of $\zeta$.
 
-<DT>Allows for solving the model by finding cutoffs (reservation values) in a continuous error using the `ReservationValues` method.</DT>
+This is the base class required for models solved by finding cutoffs (reservation values)
+in a continuous error using the `ReservationValues` method.<br/>
+
+The user's model provides the required information about the distribution of $\zeta$.<br/>
 
 <DT>The reservation value solution works when</DT>
 <UL>
 <LI>There is a single action variable <em>and</em></LI>
-<LI>There are no exogenous (&epsilon;) or semi-exogenous (&eta;) states added to the model.  State variables that would be eligible
-for inclusion in those vectors need to be placed in &theta;.</LI>
-<LI>The model must exhibit a reservation property in z (i.e. a single-crossing property and if <code>d.N&gt;2</code> monotonicity in the crossing points.</LI>
+<LI>There are no exogenous ($\epsilon$) or semi-exogenous ($\eta$) states added to the model.
+  State variables that would be eligible for inclusion in those vectors need to be placed in $\theta$.
+  </LI>
+<LI>The model must exhibit a reservation property in z (i.e. a single-crossing property)</LI>
+<LI>If the number of options is greater than 2 then the crossing points must be monotonically increasing.</LI>
 
 <LI>Formally,</LI>
-<DD><pre>
-&alpha; = (d)
-&zeta; = (z)
-&epsilon; = ()
-&eta; = ()
-
-U(d;&zeta;,&theta;) = U(d;z,&theta;)
-</pre></dd>
+$$
+\alpha &= (d)\cr
+\zeta &= (z)\cr
+\epsilon &= ()\cr
+\eta &= ()\cr
+v(d,\theta) &= U(d,\theta) + \zeta_\cr}$$
 
 </UL>
 

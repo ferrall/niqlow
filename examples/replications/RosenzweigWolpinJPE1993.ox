@@ -59,7 +59,7 @@ Bullocks::Transit() {
                         + Farmer::bullmort*((netB.==nxtvals-loseone)) };
     }
 
-/** Return A(&theta;).
+/** Return $A(\theta)$.
 Fertility is not a feasible choice for t&gt;T-1
 **/
 Farmer::FeasibleActions() {

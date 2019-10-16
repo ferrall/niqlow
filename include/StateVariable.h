@@ -653,6 +653,17 @@ struct StateCounter : Counter  {
 	virtual Transit();
 }
 
+
+/**	 Responsible for tracking reachability in a list of state counters for a target.
+
+**/
+struct StateCounterMaster: StateCounter  {
+    decl CVSList;
+	StateCounterMaster(L,N,Target,ToTrack);
+	IsReachable();
+    }
+
+
 /**	 Track number of periods value(s) of target action variable have occurred.
 <DT>Transition:
 <dd class="math"><pre>
@@ -670,6 +681,13 @@ struct ActionCounter : Counter  {
 	ActionCounter(L,N,Target,ToTrack=<1>,Reset=FALSE,Prune=TRUE);
 	virtual Transit();
 	}
+
+struct ActionCounterMaster: ActionCounter  {
+    decl CVSList;
+	ActionCounterMaster(L,N,Target,ToTrack);
+	IsReachable();
+    }
+
 
 /**	 Add up the values of the target action or state up to a maximum.
 <DT>Transition:

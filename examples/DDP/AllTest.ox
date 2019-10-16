@@ -271,5 +271,5 @@ Use Mill's ratio to compute truncated mean of normal.
 **/	
 Test10::EUtility()    {
     decl zz = zstar[][I::r], pstar = 1-probn(zz);
-	return {  ( eta | densn(zz/pstar)) , (1-pstar)~pstar};
+	return {  ( eta | densn(zz)/pstar) , (1-pstar)~pstar};  //found type Sept.2019 r
 	}	

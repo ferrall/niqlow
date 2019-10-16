@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><script>var newwindow;function popoxcode(url){newwindow=window.open(url,'name','height=500,width=400,left=100,  top=100,resizable=yes,scrollbars=yes,toolbar=no,status=yes');}</script>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="..\oxdoc.css">
 <link rel="stylesheet" type="text/css" media="print" href="..\print.css">
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
 <title>DDP.ox - Derived Dynamic Programs</title>
 </head>
 <body>
 <div class="header">
-[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+[ <img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.htm">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
 <img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
  | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
@@ -17,7 +17,9 @@
 
 Dynamic Programming using DDP: Beginner's Guide and Technical Overview.
 <P/>
-This document has two parts.  The first begins with the simplest discrete choice problem and how it could be coded in DDP.  It builds up to a true dynamic program one feature at a time.   The <a href="#tech">second section</a> is a technical description of dynamic programming and DDP. You can also start with <a href="GetStarted.html">GetStarted</a> which implements a simple search model in DDP.</p>
+This document has two parts.  The first begins with the simplest discrete choice problem and how it could be coded in DDP.  It builds up to a true dynamic program one feature at a time.   The <a href="#tech">second part</a> is a technical description of dynamic programming and DDP. </p>
+<P/>
+You can also start with <a href="GetStarted.html">GetStarted</a> which implements a simple search model in DDP.</p>
 <P/>
 <HR/>
 <P/>
@@ -330,26 +332,26 @@ Debug your program  and run it until it produces the correct values of <code>EV<
 <P/>
 The examples above are not good models of behaviour.  For one thing, the utility values are arbitrary, whereas a good model would relate utility to observable characteristics of the chooser and the choices.  And, second, suppose Bob did not choose Yale-Econ?  Then our model is incorrect with probability 1.  This is not surprising because we typically are not modeling a single person's choice and we will never have access to the utility of all the options.  Instead, real discrete models provide a probability of people making choices not a 0/1 outcome.</p>
 <P/>
-<DT>The <em>logit model</em> of choice includes a continuous random variable in the utility:</DT>
+<DT>The <em>logit model</em> of choice includes a continuous random variable in the <em>value</em> of a choice:</DT>
 <dd class="disp">
-<span class="equation">$$U(\alpha) = Util(\alpha) + z_\alpha.$$</span>
+<span class="equation">$$v(\alpha) = U(\alpha) + z_\alpha.$$</span>
 </dd>
-<DD>The extra component <span class="expressions">\(z_\alpha\)</span> is assumed to follow the <a href="https://en.wikipedia.org/wiki/Gumbel_distribution">Type I Extreme Value (Gumbel) distribution</a>.  Across options <span class="expressions">\(z_\alpha\)</span> values are independent.  The term <code>Util(&alpha;)</code> is a shortened version of name of the routine that is part the model in <span class="disp">DDP</span>.   So the user's coding would be the same <em>and the term <span class="expressions">\(z_\alpha\)</span> is not explicitly added to it.</em></DD>
+<DD>The extra component <span class="expressions">\(z_\alpha\)</span> is assumed to follow the <a href="https://en.wikipedia.org/wiki/Gumbel_distribution">Type I Extreme Value (Gumbel) distribution</a>.  Across options <span class="expressions">\(z_\alpha\)</span> values are independent.  The term <span class="expressions">\(U(\alpha)\)</span> is a shortened version of name of the routine that is part the model in <span class="disp">DDP</span>.   So the user's coding would be the same <em>and the term <span class="expressions">\(z_\alpha\)</span> is not explicitly added to it.</em></DD>
 <P/>
 <DT>The <em>probit model</em> of choice makes a different distributional assumption</DT>
-    <span class="equation">$$U(\alpha) = Util(\alpha) + z_\alpha, \qquad z_\alpha \sim N(0,1).$$</span>
+    <span class="equation">$$v(\alpha) = U(\alpha) + z_\alpha, \qquad z_\alpha \sim N(0,1).$$</span>
 <DD>Across options <span class="expressions">\(z_\alpha\)</span> values are independent.  </DD>
 <P/>
 <DT>Conceptually ...</DT>
- <DD>Bob sees both <code>Utility()</code> (the part we see or assume or estimate) and the vector of values of <span class="expressions">\(z_\alpha\)</span> (the part we don't see but assume follows a convenient distribution). With his information Bob still simply chooses the <span class="expressions">\(\alpha\)</span> that maximizes <span class="expressions">\(U(\alpha)\)</span>.  But since we don't see <span class="expressions">\(z_\alpha\)</span> any of the options might be optimal to Bob.  We simply get different <em>probabilities</em> of choices being optimal.   The probabilities depend on the observed vector of utilities, to the 0/1 vector of ouptut above would become a  vector of numbers between 0 and 1.  Since <code>Yale-Econ</code> has the highest value of <code>Utility()</code> it will have the greatest probability of being chosen, but the probability will not be 1.0.</DD>
+ <DD>Bob sees both <code>Utility()</code> (the part we see or assume or estimate) and the vector of values of <span class="expressions">\(z_\alpha\)</span> (the part we don't see but assume follows a convenient distribution). With his information Bob still simply chooses the <span class="expressions">\(\alpha\)</span> that maximizes <span class="expressions">\(v(\alpha)\)</span>.  But since we don't see <span class="expressions">\(z_\alpha\)</span> any of the options might be optimal to Bob.  We simply get different <em>probabilities</em> of choices being optimal.   The probabilities depend on the observed vector of utilities, to the 0/1 vector of ouptut above would become a  vector of numbers between 0 and 1.  Since <code>Yale-Econ</code> has the highest value of <code>Utility()</code> it will have the greatest probability of being chosen, but the probability will not be 1.0.</DD>
 <P/>
 <DT>Choice Probabilities under logit</DT>
 <DD>Logit:
-<span class="equation">$$P(\alpha) = {e^{Util(\alpha)}  \over \sum_{\alpha'\in A} e^{Util(\alpha')}} = {e^{Util(\alpha)-Util(\alpha^\star)}  \over \sum_{\alpha'\in A} e^{Util(\alpha')-Util(\alpha^\star)}}$$</span>
+<span class="equation">$$P(\alpha) = {e^{U(\alpha)}  \over \sum_{\alpha'\in A} e^{U(\alpha')}} = {e^{U(\alpha)-U(\alpha^\star)}  \over \sum_{\alpha'\in A} e^{U(\alpha')-U(\alpha^\star)}}$$</span>
 The second version expresses the probability in relative utility loss compared to the optimal choice <span class="expressions">\(\alpha^\star\)</span>.</DD>
 <P/>
 <DD>Following the literature, <span class="n">DDP</span> generalizes the logit expression to allow the amount of smoothing to be chosen by setting a parameter <span class="expressions">\(\rho\)</span>:
-<span class="equation">$$P(\alpha)  = {e^{\rho\left(Util(\alpha)-Util(\alpha^\star)\right)}  \over \sum_{\alpha'\in A} e^{\rho\left(Util(\alpha')-Util(\alpha^\star)\right)}}$$</span>
+<span class="equation">$$P(\alpha)  = {e^{\rho\left(U(\alpha)-U(\alpha^\star)\right)}  \over \sum_{\alpha'\in A} e^{\rho\left(U(\alpha')-U(\alpha^\star)\right)}}$$</span>
 As <span class="expressions">\(\rho\to \infty\)</span> the probability approach the non-smooth values.  As <span class="expressions">\(\rho\to 0\)</span> the smoothing becomes complete and each feasible choice is equally likely.</DD>
 <P/>
 <details><summary>See Train (20??)</summary>
@@ -389,7 +391,7 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 <details><summary>Why Ex Post?</summary>
 <DD>In the standard discrete choice econometric model the error term <span class="expressions">\(z\)</span> is considered something known/observed by the chooser but not us.  In a more complicated situation, namely a dynamic one, Bob might make other choices before he knows the value of <span class="expressions">\(z\)</span>.  For example, <span class="expressions">\(z\)</span> may be observed when Bob wakes up in the morning but he had to make a choice the day before that was affected by what he does today.  In that case, the value of <span class="expressions">\(z\)</span> is not just smoothing the choice probability for our sake, it is also have a direct effect on other decisions.  </DD>
 <DD><span class="n">DDP</span> distinguishes between choice probability smoothing for our own sake and real uncertainty that affects the chooser in a dynamic environment.</DD>
-<DD>The case of <em> ex-post smoothing</em> is when <span class="expressions">\(z\)</span> is not a real part of Bob's environment.  He is really just making a deterministic choice based on <span class="expressions">\(Util(\alpha)\)</span>.  But after his choice we smooth the probability as if he also add a value of <span class="expressions">\(z\)</span>.  </DD>
+<DD>The case of <em> ex-post smoothing</em> is when <span class="expressions">\(z\)</span> is not a real part of Bob's environment.  He is really just making a deterministic choice based on <span class="expressions">\(U(\alpha)\)</span>.  But after his choice we smooth the probability as if he also add a value of <span class="expressions">\(z\)</span>.  </DD>
 <DD>The case of <em>ex-ante</em> smoothing allows <span class="expressions">\(z\)</span> to play a role in other decisions made by Bob so it is a real "structural" error term.  </DD>
 </details>
 <P/>
@@ -1181,7 +1183,7 @@ A key reason the notation differs here is because it is used to describe a frame
     <DD>Express feasible actions <span class="expressions">\(\theta\)</span>.A, as a logical/boolean indicator for whether <span class="expressions">\(\alpha\)</span> is feasible (in <span class="expressions">\(\theta\)</span>.A) depending on values of variables in <span class="expressions">\(\theta\)</span>.</DD>
 <DT><span class="expressions">\(\zeta\)</span> : if continuous variables enter utility</DT>
     <DD>Specify the distribution of  <span class="expressions">\(\zeta\)</span> and the solution method associated with it.
-<DT>Utility U()</DT>
+<DT>Utility <span class="expressions">\(U()\)</span></DT>
     <DD>Expressed as a vector of values, one number for each row of <span class="expressions">\(\theta\)</span>.A. (each value of <code>&alpha;</code>). Values depend on current values of state variables in all the vectors, but not &zeta; unless the model will be solved with reservation values.</DD>
 </DL>
 <P/>

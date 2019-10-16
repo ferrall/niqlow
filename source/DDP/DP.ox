@@ -299,12 +299,17 @@ DP::GroupVariables(...
     va
     #endif
 )	{
-	decl cv;
+	decl cv,ccv;
     foreach(cv in va) {
-		if (isclass(cv,"FixedEffect")||isclass(cv,"FixedEffectBlock")) AddStates(fgroup,cv);
-		else if (isclass(cv,"RandomEffect")||isclass(cv,"RandomEffectBlock")) AddStates(rgroup,cv);
-		else oxrunerror("DDP Error 39. argument is not a TimeInvariant variable");
-		}
+    	if (isarray(cv)){
+            foreach (ccv in cv) GroupVariables(ccv);
+            }
+        else {
+		  if (isclass(cv,"FixedEffect")||isclass(cv,"FixedEffectBlock")) AddStates(fgroup,cv);
+		  else if (isclass(cv,"RandomEffect")||isclass(cv,"RandomEffectBlock")) AddStates(rgroup,cv);
+		  else oxrunerror("DDP Error 39. argument is not a TimeInvariant variable");
+		  }
+        }
 	}
 
 /** Add variables to the action vector $\alpha$.
@@ -484,6 +489,46 @@ DP::KLaggedState(Target,K,Prune) {
     decl lv = new array[K+1],i;
     lv[0] = Target;
     for (i=1;i<K;++i) lv[i] = new LaggedState(Target.L+"_"+sprint(i),lv[i-1],Prune,i-1);
+    return lv;
+    }
+
+/**Create an array of counters for different values of a state or action variable.
+@param L label
+@param Target `StateVariable` or `ActionVariable` to track with N-1 values
+@param MaxCounts  N-vector where<br/>
+            0 means do not track that value.  In this case, the corresponding state is `Fixed`<br/>
+            M&gt;0, max count to keep.
+@param Prune TRUE [default] if clock is finite horizon, then all but the last will be set as not PRUNED;  the
+        first counted value will be a special state counter that stores the array and checks reachability for all of them.
+@return array of state variables, Fixed and StateCounter.
+@example
+If m is state with 4 values, this will track values 1,2, and 3 up to limits of 8,20,20.
+<pre>
+mcount = new StateValuesCounters("M",&lt;0,8,20,20&gt;,TRUE));
+EndogenousStates(status);
+</pre></dd>
+**/
+DP::ValuesCounters(L,Target,MaxCounts,Prune) {
+    decl lv = new array[Target.N],i,xcount=UnInitialized,sc = isclass(Target,"StateVariable");
+    if (!isstring(L)) L="Count_"+Target.L;
+    for (i=0;i<Target.N;++i) {
+        println(i," ",MaxCounts[i]);
+        if (!MaxCounts[i])
+            lv[i] = new Fixed(L+sprint(i));
+        else if (Prune && xcount==UnInitialized ) {
+                xcount = i;
+                if (sc)
+                     lv[xcount] =new StateCounterMaster(L+"_"+sprint(xcount),int(MaxCounts[xcount]),Target,matrix(xcount));
+                else lv[xcount] = new ActionCounterMaster(L+"_"+sprint(xcount),int(MaxCounts[xcount]),Target,matrix(xcount));
+                }
+        else {
+            if (sc)
+                lv[i]= new StateCounter(L+"_"+sprint(i),int(MaxCounts[i]),Target,matrix(i),FALSE,FALSE);
+             else
+                lv[i]= new ActionCounter(L+"_"+sprint(i),int(MaxCounts[i]),Target,matrix(i),FALSE,FALSE);
+            }
+        }
+    lv[xcount].CVSList=lv;
     return lv;
     }
 
@@ -871,7 +916,11 @@ N::ZeroVV() {
 **/
 N::print(){
 	println("\n5. TRIMMING AND SUBSAMPLING OF THE ENDOGENOUS STATE SPACE (Theta)","%c",{"N"},"%r",{"    TotalReachable","         Terminal","     Approximated"},
-    "%cf",{"%10.0f"},ReachableStates|TerminalStates|Approximated,"\n  Index of first state by t (t=0..T-1)","%7.0f",tfirst');
+    "%cf",{"%10.0f"},ReachableStates|TerminalStates|Approximated);
+    if (T<=50)
+        println("Index of first state by t (t=0..T-1)","%7.0f",tfirst');
+    else
+        println("Index of first state by t t=0..9 ","%7.0f",tfirst[0:9]',"and ",T-10,"...",T-1,"%7.0f",tfirst[T-10:]');
     }
 
 /** Add trackind to the list of reachable indices (called internally).
@@ -910,7 +959,7 @@ DP::Initialize(userState,UseStateList) {
     if (Flags::ThetaCreated) oxrunerror("DDP Error 42. Must call DP::Delete between calls to CreateSpaces and Initialize");
     if (isint(L)) L = "DDP";
     lognm = replace(Version::logdir+"DP-"+L+Version::tmstmp," ","")+".log";
-    logf = fopen(lognm,"aV");
+    logf = fopen(lognm,"av");
     //Discrete::logf = fopen(replace(Version::logdir+"Variables-"+L+Version::tmstmp+".log"," ",""),"aV");
     Hooks::Reset();
     this.userState = userState;
@@ -1174,7 +1223,7 @@ DP::CreateSpaces() {
 	       tt->loop(TRUE);
            if (!Version::MPIserver && Volume>LOUD) {
                 println("Note: Reachability of all states listed in the log file");
-                fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
+                if (isfile(logf)) fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
                               "1=Unreacheable because a user Reachable returns FALSE\n",
                               "2=Reachable",
                 "%8.0f","%c",{"Reachble"}|{"Tracking"}|Labels::Vprt[svar][S[endog].M:S[clock].M],tt.rchable);
@@ -1950,13 +1999,13 @@ DPDebug::RunOut() {
             if (N::G>1) print("\n     Fixed Group Index(f): ",I::f,". Random Group Index(r): ",I::r);
             println("\n",div);
             }
-    else {
-        fprint(logf,"\n     Value of States and Choice Probabilities");
-        if (N::G>1) fprint(logf,"\n     Fixed Group Index(f): ",I::f,". Random Group Index(r): ",I::r);
-        fprintln(logf,"\n",div);
+    else if (isfile(logf)) {
+            fprint(logf,"\n     Value of States and Choice Probabilities");
+            if (N::G>1) fprint(logf,"\n     Fixed Group Index(f): ",I::f,". Random Group Index(r): ",I::r);
+            fprintln(logf,"\n",div);
         }
 	rp -> Traverse();
-	if (rp.ToScreen) println(div,"\n");	else fprintln(logf,div,"\n");	
+	if (rp.ToScreen) println(div,"\n");	else if (isfile(logf)) fprintln(logf,div,"\n");	
 	if (!OutAll || (!I::f&&!I::r) ) {   //last or only group, so delete rp and reset.
         delete rp;
         OutAll = FALSE;
@@ -1992,11 +2041,11 @@ SVT::SVT(Slist){
 
 SVT::Run() {
     decl s,feas,prob;
-    fprint(logf,"State ","%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],state[S[endog].M:S[clock].M]');
+    if (isfile(logf)) fprint(logf,"State ","%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],state[S[endog].M:S[clock].M]');
     foreach(s in Slist) {
 		if (isclass(s,"Coevolving")) s = s.block;
 		[feas,prob] = s -> Transit(); //TTT
-        fprintln(logf,"     State: ",s.L,"%r",{Alpha::aL1}|Alpha::Rlabels[I::curth.Aind],feas|prob);
+        if (isfile(logf)) fprintln(logf,"     State: ",s.L,"%r",{Alpha::aL1}|Alpha::Rlabels[I::curth.Aind],feas|prob);
 		}
     }
 
@@ -2026,7 +2075,7 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 SaveV::Run() {
     decl ai=I::curth.Aind;
 	if ((TrimTerminals && I::curth.Type>=TERMINAL) || (TrimZeroChoice && N::Options[I::curth.Aind]<=1) ) return;
-    decl mxi, p;
+    decl mxi, p, oned=isclass(I::curth,"OneDimensionalChoice");
     oxprintlevel(-1);
 	stub=I::all[tracking]~I::curth.Type~ai~state[S[endog].M:S[clock].M]';
     p = columns(I::curth.pandv)==rows(NxtExog[Qprob])
@@ -2034,13 +2083,13 @@ SaveV::Run() {
             :  ExpandP(ai, I::curth.pandv );
     r =stub~I::r~I::f~I::curth.EV; //N::VV[I::later][I::all[iterating]]
     if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
-	if (isclass(I::curth,"OneDimensionalChoice") && I::curth.solvez ) r ~= I::curth->Getz()[][I::r]';
+	if (oned && I::curth.solvez ) r ~= I::curth->Getz()[][I::r]';
 	if (!isint(aM)) aM[0] |= r;
     oxprintlevel(1);
 	s = (nottop)
 		? sprint("%cf",prtfmt,r)
-		: sprint("%c",isclass(I::curth,"OneDimensionalChoice") ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);
-	if (ToScreen) print(s[1:]); else fprint(logf,s[1:]);
+		: sprint("%c",oned ? SVlabels | "      z* " : SVlabels,"%cf",prtfmt,r);
+	if (ToScreen) print(s[1:]); else if (isfile(logf)) fprint(logf,s[1:]);
 	nottop = TRUE;
 	}
 
@@ -2078,5 +2127,5 @@ RandomEffectsIntegration::Run() {
 Data::SetLog() {
     Volume = SILENT;
     lognm = replace(Version::logdir+"Data-"+Version::tmstmp," ","")+".log";
-    logf = fopen(lognm,"aV");
+    logf = fopen(lognm,"av");
     }

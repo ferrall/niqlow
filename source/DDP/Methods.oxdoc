@@ -7,15 +7,27 @@
 
 <li>Overview</li>
 
-Once your code has called <code>CreateSpaces()</code> your DP model is set up and ready to be solved.  To do this, apply a <em>solution method</em> to the model, which is an object derived from the `Method` class. You can apply more than one method to your problem, although some methods only work with some kinds of models.  Every Method has a <code>Solve()</code> function that applies the method to the DP problem.  Solution methods work at the highest level of the DP environment.  That is, if your DP environment involves multiple problems (because it includes fixed and random effects), the solution method will call methods to handle each specific DP problem. (It is possible to specify that only one problem be solved, and this is used to efficiently parallelize the solution of many DP problems over a cluster.)</p>
+Once your code has called <code>CreateSpaces()</code> your DP model is set up and ready to be solved.  To do this, apply a <em>solution method</em> to the model, which is an object derived from the `Method` class. You can apply more than one method to your problem, although some methods only work with some kinds of models.</p>
+
+Every Method has a <code>Solve()</code> function that applies the method to the DP problem.  Solution methods work at the highest level of the DP environment.  That is, if your DP environment involves multiple problems (because it includes fixed and random effects), the solution method will call methods to handle each specific DP problem. (It is possible to specify that only one problem be solved, and this is used to efficiently parallelize the solution of many DP problems over a cluster.)</p>
+
+The most flexible way to use a solution method is to create a new object of the method and then call its <code>Solve</code> routine in any place of the code.  This approach is necessary when using a <em>nested algorithm</em> in which the DP solution is embedded inside some other iteration (such as estimating parameters of the model).  Some of the solution methods have a simpler version in which the code calls a function that creates the method for the user, applies it solve routine and then deletes the method.  Both possibilities are shown here:
 
 <DT>Example: Solve <code>MyModel</code> with brute force value function iteration:</DT>
-<DD><pre>
+<DD>Option 1 (more general)
+<pre>
 &vellip;
 CreateSpaces();
 vmax = new ValueIteration();
 vmax.Volume = LOUD;               //V(&theta;) printed when computed
 vmax -&gt; Solve();
+&vellip;
+</pre></DD>
+<DD>Option 2 (simple)
+<pre>
+&vellip;
+CreateSpaces();
+VISolve();
 &vellip;
 </pre></DD>
 
@@ -146,7 +158,7 @@ HM = new HotzMiller(data);
 
 </OL>
 </OL>
-@author &copy; 2011-2018 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
+@author &copy; 2011-2019 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
 <a name="auto"><hr><h1>Documentation of  Items Defined in Methods.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
 **/
