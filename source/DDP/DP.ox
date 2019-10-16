@@ -492,6 +492,46 @@ DP::KLaggedState(Target,K,Prune) {
     return lv;
     }
 
+/**Create an array of counters for different values of a state or action variable.
+@param L label
+@param Target `StateVariable` or `ActionVariable` to track with N-1 values
+@param MaxCounts  N-vector where<br/>
+            0 means do not track that value.  In this case, the corresponding state is `Fixed`<br/>
+            M&gt;0, max count to keep.
+@param Prune TRUE [default] if clock is finite horizon, then all but the last will be set as not PRUNED;  the
+        first counted value will be a special state counter that stores the array and checks reachability for all of them.
+@return array of state variables, Fixed and StateCounter.
+@example
+If m is state with 4 values, this will track values 1,2, and 3 up to limits of 8,20,20.
+<pre>
+mcount = new StateValuesCounters("M",&lt;0,8,20,20&gt;,TRUE));
+EndogenousStates(status);
+</pre></dd>
+**/
+DP::ValuesCounters(L,Target,MaxCounts,Prune) {
+    decl lv = new array[Target.N],i,xcount=UnInitialized,sc = isclass(Target,"StateVariable");
+    if (!isstring(L)) L="Count_"+Target.L;
+    for (i=0;i<Target.N;++i) {
+        println(i," ",MaxCounts[i]);
+        if (!MaxCounts[i])
+            lv[i] = new Fixed(L+sprint(i));
+        else if (Prune && xcount==UnInitialized ) {
+                xcount = i;
+                if (sc)
+                     lv[xcount] =new StateCounterMaster(L+"_"+sprint(xcount),int(MaxCounts[xcount]),Target,matrix(xcount));
+                else lv[xcount] = new ActionCounterMaster(L+"_"+sprint(xcount),int(MaxCounts[xcount]),Target,matrix(xcount));
+                }
+        else {
+            if (sc)
+                lv[i]= new StateCounter(L+"_"+sprint(i),int(MaxCounts[i]),Target,matrix(i),FALSE,FALSE);
+             else
+                lv[i]= new ActionCounter(L+"_"+sprint(i),int(MaxCounts[i]),Target,matrix(i),FALSE,FALSE);
+            }
+        }
+    lv[xcount].CVSList=lv;
+    return lv;
+    }
+
 /**Create a K-array of lagged values of an action variable.
 @param L label
 @param Target `ActionVariable` to track

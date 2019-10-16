@@ -18,10 +18,12 @@ MyModel::Initialize() {
 </dd>
 **/
 struct ActionVariable : Discrete	{
-    decl vL;
+    decl
+        /** vector of value labels. **/ vL;
 	ActionVariable(L="a",N=1);
     virtual myAV();
     virtual myCV();
+    myEV();
 	}
 
 /** Easy way to create a binary choice.

@@ -860,6 +860,7 @@ RetainMatch::Transit() {
 Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 	this.Target=Target;
 	this.Reset = Reset;
+    println(L," ",N);
 	StateVariable(L,N);
 	this.ToTrack = ToTrack==DoAll ? vals : ToTrack;
     this.Prune = Prune;
@@ -893,6 +894,24 @@ as 0.
 **/
 Counter::IsReachable() { return !(Prune && Flags::Prunable && (v>I::t)); }
 
+/** Create a StateCounter that checks reachability of an array of state counters.
+This state variable is created by `DP::StateValueCounters'
+@param L label
+@param N integer, maximum number of times to count
+@param State `StateVariable` to track.
+@param ToTrack integer or vector, values of State to count.
+
+**/
+StateCounterMaster::StateCounterMaster(L,N,State,ToTrack) {
+    StateCounter(L,N,State,ToTrack,FALSE,TRUE);
+    }
+
+/**  Trims the state space if the clock is exhibits aging and there is a list of state counters for a Target,
+assuming all are initialized as 0.
+**/
+StateCounterMaster::IsReachable() {! (Flags::Prunable && sumr(CV(CVSList))>I::t); }
+
+
 /** Create a variable that counts how many times an action has taken on certain values.
 @param L label
 @param Act `ActionVariable` to track.
@@ -919,6 +938,26 @@ ActionCounter::Transit()	{
     if (( v==N-1 || !any( inc = sumr(CV(Target).==ToTrack)  ) )) return UnChanged();
     return { v~(v+1) , (1-inc)~inc };
 	}
+
+/** Create a ActionCounter that checks reachability of an array of state counters.
+This state variable is created by `DP::ActionValueCounters'
+@param L label
+@param N integer, maximum number of times to count
+@param Act `ActionVariable` to track.
+@param ToTrack integer , values of State to count.
+**/
+ActionCounterMaster::ActionCounterMaster(L,N,Act,ToTrack) {
+    ActionCounter(L,N,Act,ToTrack,FALSE,TRUE);
+    }
+
+/**  Trims the state space if the clock is exhibits aging and there is a list of state counters for a Target,
+assuming all are initialized as 0.
+**/
+ActionCounterMaster::IsReachable() {
+    return !( Flags::Prunable && (sumr(CV(CVSList))>I::t) );
+    }
+
+
 
 /** .
 @internal

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><script>var newwindow;function popoxcode(url){newwindow=window.open(url,'name','height=500,width=400,left=100,  top=100,resizable=yes,scrollbars=yes,toolbar=no,status=yes');}</script>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="..\oxdoc.css">
 <link rel="stylesheet" type="text/css" media="print" href="..\print.css">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
@@ -9,7 +9,7 @@
 </head>
 <body>
 <div class="header">
-[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
 <img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
  | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
@@ -95,11 +95,11 @@ A <a href="Objective.ox.html#Mixture">Mixture</a> generalizes a separable object
 Now the sub objective depends on <code>k</code> and <code>d</code>.  However, parameter vectors continue to only depend on <code>k</code>.  Thus, in a mixture model sub-objectives take the form <code>&fnof;<sub>k d</sub>(&psi;<sub>k</sub>)</code>. There are <code>KD</code> different combinations. Second, a mixture has a separate D&times;K matrix of <em>weighting parameters</em>, denoted <code>&lambda;</code>. </p>
 <P/>
 <DT>The mixture objective :</DT><DD><pre>
-&fnof; = &sum;<sub>d=0</sub><sup>D&oline;</sup>  &sum;<sub>k=0</sub><sup>K&oline;</sup>  &lambda;[d][k] &fnof;<sub>k d</sub>(&psi;<sub>k</sub>)
+&fnof; = &sum;<sub>d=0</sub><sup>D&oline;</sup>  &sum;<sub>k=0</sub><sup>K&oline;</sup>  &lambda;[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |d][k] &fnof;<sub>k d</sub>(&psi;<sub>k</sub>)
 <P/>
 Typically (but not necessarily), the weights are each a unit Simplex for each d:
-  0 &le; &lambda;[d][k] &le; 1
-  &sum;<sub>k=0</sub><sup>K&oline;</sup> &lambda;[d][k] = 1. 
+  0 &le; &lambda;[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |d][k] &le; 1
+  &sum;<sub>k=0</sub><sup>K&oline;</sup> &lambda;[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |d][k] = 1. 
 </pre></DD>
 <P/>
 A separable objective is the special case of a mixture with <code>D=K</code> and <code>&lambda; = I<sub>K</sub></code>.  That is, each type is specific to an environment.
@@ -117,11 +117,11 @@ the user sent discrete variable is used directly.</DD>
 <pre>
 Let va = va_arglist();
 No optional argument (va = {}) means
-	lambda[d] = new Simplex("L"+sprint("%2u",d),K),  for d = 0, &hellip; D&oline;
-A single argument (va = array[1]), then it must be a D&times;K matrix
-	lambda[d] = new Simplex("L"+sprint("%2u",d),va[0][d][]),  for d = 0, &hellip; D&oline;
-D arguments (va = array[D]), then each must be a <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> of size K and
-	lambda[d] = va[d]    for d = 0, &hellip; D&oline;
+	lambda[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |d] = new Simplex("L"+sprint("%2u",d),K),  for d = 0, &hellip; D&oline;
+A single argument (va = array[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |1]), then it must be a D&times;K matrix
+	lambda[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |d] = new Simplex("L"+sprint("%2u",d),va[0][d][]),  for d = 0, &hellip; D&oline;
+D arguments (va = array[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |D]), then each must be a <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> of size K and
+	lambda[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |d] = va[d]    for d = 0, &hellip; D&oline;
 </pre></DD>
 <P/>
 The final option allows the user to use weights that do not sum to 1 for each value of <code>d</code>, because the parameter block need not be a <a href="Parameters.ox.html#Simplex">Simplex</a> parameter block.
@@ -1160,7 +1160,7 @@ Decode the input, return the whole vector, inequality and equality constraints, 
 <a name="DataObjective___data"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">data</span></h3>
 
-<span class="declaration">const decl data [public]</span>
+<span class="declaration">const decl data [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1212,7 +1212,7 @@ An objective based on an economic model with data and (possibly) a nested soluti
 <a name="DataObjective___stage"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">stage</span></h3>
 
-<span class="declaration">decl stage [public]</span>
+<span class="declaration">decl stage [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1221,7 +1221,7 @@ An objective based on an economic model with data and (possibly) a nested soluti
 <a name="DataObjective___tplist"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">tplist</span></h3>
 
-<span class="declaration">decl tplist [public]</span>
+<span class="declaration">decl tplist [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1261,7 +1261,7 @@ Specify the objective as two stage.
 <a name="DataObjective___uplist"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">uplist</span></h3>
 
-<span class="declaration">decl uplist [public]</span>
+<span class="declaration">decl uplist [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1289,7 +1289,7 @@ Calls and returns <code>data-&gt;EconometricObjective()</code>.
 <a name="Mixture___cur"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cur</span></h3>
 
-<span class="declaration">const decl cur [public]</span>
+<span class="declaration">const decl cur [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1298,7 +1298,7 @@ Calls and returns <code>data-&gt;EconometricObjective()</code>.
 <a name="Mixture___D"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">D</span></h3>
 
-<span class="declaration">const decl D [public]</span>
+<span class="declaration">const decl D [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 # observed types, environment
 
@@ -1327,7 +1327,7 @@ Decode and return the parameter array.
 <a name="Mixture___DK"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DK</span></h3>
 
-<span class="declaration">const decl DK [public]</span>
+<span class="declaration">const decl DK [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 D x K
 
@@ -1337,7 +1337,7 @@ D x K
 <a name="Mixture___dkfree"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">dkfree</span></h3>
 
-<span class="declaration">decl dkfree [public]</span>
+<span class="declaration">decl dkfree [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1346,7 +1346,7 @@ D x K
 <a name="Mixture___DKL"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DKL</span></h3>
 
-<span class="declaration">const decl DKL [public]</span>
+<span class="declaration">const decl DKL [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1355,7 +1355,7 @@ D x K
 <a name="Mixture___Dvar"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Dvar</span></h3>
 
-<span class="declaration">const decl Dvar [public]</span>
+<span class="declaration">const decl Dvar [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 <a href="Shared.ox.html#Discrete">Discrete</a> environment-type var
 
@@ -1375,7 +1375,7 @@ D x K
 <a name="Mixture___FinL"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">FinL</span></h3>
 
-<span class="declaration">decl FinL [public]</span>
+<span class="declaration">decl FinL [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1384,7 +1384,7 @@ D x K
 <a name="Mixture___Flabels"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Flabels</span></h3>
 
-<span class="declaration">decl Flabels [public]</span>
+<span class="declaration">decl Flabels [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1456,7 +1456,7 @@ Compute the &nabla;f(), objective's gradient at the current vector.
 <a name="Mixture___Included"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Included</span></h3>
 
-<span class="declaration">decl Included [public]</span>
+<span class="declaration">decl Included [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 matrix of indicators of valid d,k combos
 
@@ -1501,7 +1501,7 @@ Compute the Jg(), vector version of the objective's Jacobian at the current vect
 <a name="Mixture___lfree"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">lfree</span></h3>
 
-<span class="declaration">decl lfree [public]</span>
+<span class="declaration">decl lfree [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1540,11 +1540,11 @@ Create a mixture objective.
 <td class="declaration" valign="baseline">...</td>
 <td class="description" valign="baseline">D&times;K matrix or D-array of values <br>
 No optional argument means <br>
-	Lambda[d] = new Simplex("L"+sprint("%2u",d),K),  for d = 0, &hellip; D&oline;<br>
+	Lambda[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |d] = new Simplex("L"+sprint("%2u",d),K),  for d = 0, &hellip; D&oline;<br>
 A single argument, then it must be a D&times;K matrix<br>
-	Lambda[d] = new Simplex("L"+sprint("%2u",d),va[0][d][]),  for d = 0, &hellip; D&oline;<br>
+	Lambda[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |d] = new Simplex("L"+sprint("%2u",d),va[0][d][]),  for d = 0, &hellip; D&oline;<br>
 D arguments, then each must be a <a href="Parameters.ox.html#ParameterBlock">ParameterBlock</a> of size K and<br>
-	Lambda[d] = va[d]    for d = 0, &hellip; D&oline;<br></td>
+	Lambda[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |d] = va[d]    for d = 0, &hellip; D&oline;<br></td>
 </tr>
 </table>
 </dd>
@@ -1555,7 +1555,7 @@ D arguments, then each must be a <a href="Parameters.ox.html#ParameterBlock">Par
 <a name="Mixture___nfree"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nfree</span></h3>
 
-<span class="declaration">decl nfree [public]</span>
+<span class="declaration">decl nfree [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1617,7 +1617,7 @@ Decode the input, return the whole vector.
 <a name="Mixture___WStart"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">WStart</span></h3>
 
-<span class="declaration">decl WStart [public]</span>
+<span class="declaration">decl WStart [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1626,7 +1626,7 @@ Decode the input, return the whole vector.
 <a name="NoObjective___model"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">model</span></h3>
 
-<span class="declaration">decl model [public]</span>
+<span class="declaration">decl model [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1635,7 +1635,7 @@ Decode the input, return the whole vector.
 <a name="NoObjective___modelmethod"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">modelmethod</span></h3>
 
-<span class="declaration">decl modelmethod [public]</span>
+<span class="declaration">decl modelmethod [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1664,7 +1664,7 @@ a method named <code>Solve()</code></td>
 <a name="NoObjective___v"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">v</span></h3>
 
-<span class="declaration">decl v [public]</span>
+<span class="declaration">decl v [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1744,7 +1744,7 @@ Graph the level curves of the objective in two parameters.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">Npts</td>
-<td class="description" valign="baseline"> integer [default=100], number of points to evaluate in each dimensions
+<td class="description" valign="baseline"> integer [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=100], number of points to evaluate in each dimensions
 </td>
 </tr>
 <tr>
@@ -1771,7 +1771,7 @@ Graph the level curves of the objective in two parameters.
 <a name="Objective___cur"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cur</span></h3>
 
-<span class="declaration">const decl cur [public]</span>
+<span class="declaration">const decl cur [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 current point.
 
@@ -1791,7 +1791,7 @@ each parameter block current value is updated.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">F,</td>
-<td class="description" valign="baseline">nfree x 1 vector of optimized parameters.<br>0 [default], use cur.F for decode</td>
+<td class="description" valign="baseline">nfree x 1 vector of optimized parameters.<br>0 [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default], use cur.F for decode</td>
 </tr>
 </table>
 </dd>
@@ -1802,7 +1802,7 @@ each parameter block current value is updated.
 <a name="Objective___dStepLinearGap"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">dStepLinearGap</span></h3>
 
-<span class="declaration">static const decl dStepLinearGap [public]</span>
+<span class="declaration">static const decl dStepLinearGap [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -1819,7 +1819,7 @@ Encode vector of structural parameters.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">inX</td>
-<td class="description" valign="baseline">0 [default] get new starting values from the parameters<br>a vector, new starting values.
+<td class="description" valign="baseline">0 [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default] get new starting values from the parameters<br>a vector, new starting values.
 <P/>
 </td>
 </tr>
@@ -1841,7 +1841,7 @@ Encode vector of structural parameters.
 <a name="Objective___EXT"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">EXT</span></h3>
 
-<span class="declaration">static const decl EXT [public]</span>
+<span class="declaration">static const decl EXT [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 Extension for <a href="Objective.ox.html#Objective___Load">Load</a> and
 		<a href="Objective.ox.html#Objective___Save">Save</a> files, =<q>optobj</q>.
@@ -1852,7 +1852,7 @@ Extension for <a href="Objective.ox.html#Objective___Load">Load</a> and
 <a name="Objective___Flabels"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Flabels</span></h3>
 
-<span class="declaration">decl Flabels [public]</span>
+<span class="declaration">decl Flabels [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 array free parameter labels
 
@@ -1862,7 +1862,7 @@ array free parameter labels
 <a name="Objective___fname"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">fname</span></h3>
 
-<span class="declaration">const decl fname [public]</span>
+<span class="declaration">const decl fname [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 Name for <a href="Objective.ox.html#Objective___Load">Load</a> &amp; files
 
@@ -1885,7 +1885,7 @@ Decode the input, compute the objective, check the maximum.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">extcall</td>
-<td class="description" valign="baseline">TRUE [default] go into server mode if MPI server, send Stop if client</td>
+<td class="description" valign="baseline">TRUE [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default] go into server mode if MPI server, send Stop if client</td>
 </tr>
 </table>
 </dd>
@@ -1944,7 +1944,7 @@ Compute the &nabla;f(), objective's gradient at the current vector.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">extcall</td>
-<td class="description" valign="baseline">[default=TRUE].  if running in parallel Stop message sent out
+<td class="description" valign="baseline">[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=TRUE].  if running in parallel Stop message sent out
 <DT>Compute</DT>
 <span class="equation">$$\nabla f(\psi)$$</span>
 Stored in <code>cur.G</code></td>
@@ -1971,7 +1971,7 @@ Compute the Hf(), Hessian of objective at the current vector.
 <a name="Objective___hold"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hold</span></h3>
 
-<span class="declaration">const decl hold [public]</span>
+<span class="declaration">const decl hold [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -2001,7 +2001,7 @@ Compute the Jg(), vector version of the objective's Jacobian at the current vect
 <a name="Objective___L"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">L</span></h3>
 
-<span class="declaration">const decl L [public]</span>
+<span class="declaration">const decl L [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 label.
 
@@ -2019,7 +2019,7 @@ Load state of the problem.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">fname</td>
-<td class="description" valign="baseline">string, name of file<br>0 [default], use the default name, the label with spaces removed<br>-1, do nothing and return FALSE.
+<td class="description" valign="baseline">string, name of file<br>0 [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default], use the default name, the label with spaces removed<br>-1, do nothing and return FALSE.
 </td>
 </tr>
 </table>
@@ -2036,7 +2036,7 @@ Load state of the problem.
 <a name="Objective___logf"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">logf</span></h3>
 
-<span class="declaration">decl logf [public]</span>
+<span class="declaration">decl logf [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 log file
 
@@ -2046,7 +2046,7 @@ log file
 <a name="Objective___lognm"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">lognm</span></h3>
 
-<span class="declaration">const decl lognm [public]</span>
+<span class="declaration">const decl lognm [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 name of log file
 
@@ -2056,7 +2056,7 @@ name of log file
 <a name="Objective___maxpt"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">maxpt</span></h3>
 
-<span class="declaration">const decl maxpt [public]</span>
+<span class="declaration">const decl maxpt [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 Best so far
 
@@ -2077,7 +2077,7 @@ Best so far
 <a name="Objective___MyVersion"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">MyVersion</span></h3>
 
-<span class="declaration">static decl MyVersion [public]</span>
+<span class="declaration">static decl MyVersion [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 Version of niqlow that code is written for.
 
@@ -2089,7 +2089,7 @@ Version of niqlow that code is written for.
 <a name="Objective___newmax"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">newmax</span></h3>
 
-<span class="declaration">decl newmax [public]</span>
+<span class="declaration">decl newmax [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 Set in CheckMax(), TRUE if latest check was new max.
 
@@ -2099,7 +2099,7 @@ Set in CheckMax(), TRUE if latest check was new max.
 <a name="Objective___nfree"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nfree</span></h3>
 
-<span class="declaration">decl nfree [public]</span>
+<span class="declaration">decl nfree [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 length of F in current cycle.
 
@@ -2109,7 +2109,7 @@ length of F in current cycle.
 <a name="Objective___nstruct"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nstruct</span></h3>
 
-<span class="declaration">decl nstruct [public]</span>
+<span class="declaration">decl nstruct [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 length of X.
 
@@ -2119,7 +2119,7 @@ length of X.
 <a name="Objective___NvfuncTerms"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NvfuncTerms</span></h3>
 
-<span class="declaration">decl NvfuncTerms [public]</span>
+<span class="declaration">decl NvfuncTerms [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 Longest vector returned by vfunc(), default=1.
 
@@ -2129,7 +2129,7 @@ Longest vector returned by vfunc(), default=1.
 <a name="Objective___once"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">once</span></h3>
 
-<span class="declaration">decl once [public]</span>
+<span class="declaration">decl once [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 TRUE if encoded once
 
@@ -2139,7 +2139,7 @@ TRUE if encoded once
 <a name="Objective___p2p"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">p2p</span></h3>
 
-<span class="declaration">decl p2p [public]</span>
+<span class="declaration">decl p2p [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 P2P object for using MPI across param vectors
 
@@ -2200,7 +2200,7 @@ Prints a message and details about the objective.
 <a name="Objective___PsiL"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">PsiL</span></h3>
 
-<span class="declaration">decl PsiL [public]</span>
+<span class="declaration">decl PsiL [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 all parameter labels
 
@@ -2210,7 +2210,7 @@ all parameter labels
 <a name="Objective___PsiType"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">PsiType</span></h3>
 
-<span class="declaration">decl PsiType [public]</span>
+<span class="declaration">decl PsiType [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 parameter class names
 
@@ -2228,7 +2228,7 @@ Reset the free parameter vector and the complete structural parameter vector.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">HardCode</td>
-<td class="description" valign="baseline"> TRUE=hard-coded parameter values used.<br/>FALSE [default] Start vector used
+<td class="description" valign="baseline"> TRUE=hard-coded parameter values used.<br/>FALSE [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default] Start vector used
 Must be called anytime a change in constraints is made.  So it is called by <a href="Objective.ox.html#Objective___Encode">Encode</a>()
 and <a href="Objective.ox.html#Objective___ReInitialize">ReInitialize</a>()</td>
 </tr>
@@ -2272,7 +2272,7 @@ Reset the value of the current and maximum objective.
 <a name="Objective___RunSafe"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">RunSafe</span></h3>
 
-<span class="declaration">decl RunSafe [public]</span>
+<span class="declaration">decl RunSafe [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 TRUE (default): exit if NaNs encountered during iteration<br>
             FALSE: exit with <code>IterationFailed</code>
@@ -2291,7 +2291,7 @@ Store current state (checkpoint to disk).
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">fname</td>
-<td class="description" valign="baseline">string, name of file<br>0 [default] use <a href="Objective.ox.html#Objective___fname">fname</a>
+<td class="description" valign="baseline">string, name of file<br>0 [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default] use <a href="Objective.ox.html#Objective___fname">fname</a>
 </td>
 </tr>
 </table>
@@ -2324,7 +2324,7 @@ Checks the version number you send with the current version of niqlow.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">v</td>
-<td class="description" valign="baseline">integer [default=200]</td>
+<td class="description" valign="baseline">integer [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default=200]</td>
 </tr>
 </table>
 </dd>
@@ -2335,7 +2335,7 @@ Checks the version number you send with the current version of niqlow.
 <a name="Objective___Start"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Start</span></h3>
 
-<span class="declaration">decl Start [public]</span>
+<span class="declaration">decl Start [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 Initial vector after Encode()
 
@@ -2345,7 +2345,7 @@ Initial vector after Encode()
 <a name="Objective___subp2p"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">subp2p</span></h3>
 
-<span class="declaration">decl subp2p [public]</span>
+<span class="declaration">decl subp2p [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 P2P object for MPI on a single param vector.
 
@@ -2446,7 +2446,7 @@ Decode the input, return the whole vector.
 <a name="Objective___Volume"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Volume</span></h3>
 
-<span class="declaration">decl Volume [public]</span>
+<span class="declaration">decl Volume [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 Output Level.
 
@@ -2456,7 +2456,7 @@ Output Level.
 <a name="Objective___Warned"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Warned</span></h3>
 
-<span class="declaration">static decl Warned [public]</span>
+<span class="declaration">static decl Warned [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 . internal
 
@@ -2466,7 +2466,7 @@ Output Level.
 <a name="Separable___C"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">C</span></h3>
 
-<span class="declaration">decl C [public]</span>
+<span class="declaration">decl C [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 Number of common parameters
 
@@ -2476,7 +2476,7 @@ Number of common parameters
 <a name="Separable___CDNV"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">CDNV</span></h3>
 
-<span class="declaration">decl CDNV [public]</span>
+<span class="declaration">decl CDNV [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -2485,7 +2485,7 @@ Number of common parameters
 <a name="Separable___ComInd"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ComInd</span></h3>
 
-<span class="declaration">decl ComInd [public]</span>
+<span class="declaration">decl ComInd [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 Vector of indices into Psi of common pars
 
@@ -2517,7 +2517,7 @@ Add parameters to the objective that will have a single value across types/sub-p
 <a name="Separable___cur"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cur</span></h3>
 
-<span class="declaration">const decl cur [public]</span>
+<span class="declaration">const decl cur [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -2572,7 +2572,7 @@ Encode matrix of structural parameters.
 <a name="Separable___Flabels"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Flabels</span></h3>
 
-<span class="declaration">decl Flabels [public]</span>
+<span class="declaration">decl Flabels [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 .
 
@@ -2646,7 +2646,7 @@ Compute the &nabla;f(), objective's gradient at the current vector.
 <a name="Separable___Included"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Included</span></h3>
 
-<span class="declaration">decl Included [public]</span>
+<span class="declaration">decl Included [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -2666,7 +2666,7 @@ Returns <var>Jg(&psi;)</var> in <code>cur.J</code>.
 <a name="Separable___K"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">K</span></h3>
 
-<span class="declaration">const decl K [public]</span>
+<span class="declaration">const decl K [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 # unobserved types, sub-problems
 
@@ -2676,7 +2676,7 @@ Returns <var>Jg(&psi;)</var> in <code>cur.J</code>.
 <a name="Separable___kfree"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">kfree</span></h3>
 
-<span class="declaration">decl kfree [public]</span>
+<span class="declaration">decl kfree [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 K Vector of free specific parameters
 
@@ -2686,7 +2686,7 @@ K Vector of free specific parameters
 <a name="Separable___KL"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">KL</span></h3>
 
-<span class="declaration">const decl KL [public]</span>
+<span class="declaration">const decl KL [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 labels for types / sub problems
 
@@ -2696,7 +2696,7 @@ labels for types / sub problems
 <a name="Separable___kNvf"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">kNvf</span></h3>
 
-<span class="declaration">decl kNvf [public]</span>
+<span class="declaration">decl kNvf [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -2705,7 +2705,7 @@ labels for types / sub problems
 <a name="Separable___Kvar"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Kvar</span></h3>
 
-<span class="declaration">const decl Kvar [public]</span>
+<span class="declaration">const decl Kvar [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 <a href="Shared.ox.html#Discrete">Discrete</a> sub-problem var
 
@@ -2715,7 +2715,7 @@ labels for types / sub problems
 <a name="Separable___nfree"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nfree</span></h3>
 
-<span class="declaration">decl nfree [public]</span>
+<span class="declaration">decl nfree [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 Total free parameters
 
@@ -2725,7 +2725,7 @@ Total free parameters
 <a name="Separable___NvfuncTerms"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NvfuncTerms</span></h3>
 
-<span class="declaration">decl NvfuncTerms [public]</span>
+<span class="declaration">decl NvfuncTerms [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 Longest vector returned by vfunc(), default=1.
 
@@ -2809,7 +2809,7 @@ Default system of equations: <a href="Objective.ox.html#Objective___vfunc">vfunc
 <a name="System___normexp"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">normexp</span></h3>
 
-<span class="declaration">decl normexp [public]</span>
+<span class="declaration">decl normexp [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -2832,7 +2832,7 @@ Create a new system of equations object.
 <tr>
 <td class="declaration" valign="baseline">LorN</td>
 <td class="description" valign="baseline"> The size of the system indicated in 1 of 3 ways:<br>
-integer [default = 1], N the size of the system<br>
+integer [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |default = 1], N the size of the system<br>
 array of length N, where each element is a string, the label for the equation.<br>
 string with N space-separate labels, the labels
 of the equations parsed by <a href="Shared.ox.html#varlist">varlist</a>.

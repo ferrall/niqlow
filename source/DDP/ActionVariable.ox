@@ -18,11 +18,20 @@ ActionVariable::ActionVariable(L,NorVLabels) {
         }
     }
 
-/** Return A[][pos].
-@see CV, AV, Discrete::Update
+/** Return `Alpha::A`[][pos].
+@see Alpha AV, Discrete::Update
 **/
 ActionVariable::myAV() { return Alpha::A[][pos];    }
+
+/** Return `Alpha::C`[][pos].
+@see Alpha, CV,  Discrete::Update
+**/
 ActionVariable::myCV() { return Alpha::C[][pos];    }
+
+/** Return `Alpha::aC`[][pos], current external value.
+@see Alpha, CV,  Discrete::Update
+**/
+ActionVariable::myEV()   { return Alpha::aC[pos];    }
 
 /**Create a binary action variable.
 **/

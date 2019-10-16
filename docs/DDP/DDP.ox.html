@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><script>var newwindow;function popoxcode(url){newwindow=window.open(url,'name','height=500,width=400,left=100,  top=100,resizable=yes,scrollbars=yes,toolbar=no,status=yes');}</script>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="..\oxdoc.css">
 <link rel="stylesheet" type="text/css" media="print" href="..\print.css">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
@@ -9,7 +9,7 @@
 </head>
 <body>
 <div class="header">
-[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
 <img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
  | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
@@ -78,7 +78,7 @@ Choice is simply picking from a set of options.  We will let <span class="expres
 <P/>
 In some cases we might use discrete choice to approximate a continuous choice, so here is another example:
 <DT>Example 2.  Tommy is choosing how much time to study for a test the next day.</DT>
-    <DD>So the choice might be any number between 0 and, say, 12 hours.It would then be natural (or convenient or intuitive) to think of the choice set as <span class="expressions">\(A=[0,12]\)</span>, to let <span class="expressions">\(\alpha\)</span> denote any real number in that range, and to characterize the optimal choice with a first-order condition (or marginal utility, <span class="expressions">\(U^{\,\prime}(\alpha)\)</span>.  However, for various reasons, we might stick with a discrete choice set to model Tommy's choice.  To be specific, we might think of him as studying for a number of hours: <span class="expressions">\(A=\)</span> {<code>0,1,2,&hellip;,12</code>}.   In this case <span class="expressions">\(J=13\)</span>.  </DD>
+    <DD>So the choice might be any number between 0 and, say, 12 hours.It would then be natural (or convenient or intuitive) to think of the choice set as <span class="expressions">\(A=[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |0,12]\)</span>, to let <span class="expressions">\(\alpha\)</span> denote any real number in that range, and to characterize the optimal choice with a first-order condition (or marginal utility, <span class="expressions">\(U^{\,\prime}(\alpha)\)</span>.  However, for various reasons, we might stick with a discrete choice set to model Tommy's choice.  To be specific, we might think of him as studying for a number of hours: <span class="expressions">\(A=\)</span> {<code>0,1,2,&hellip;,12</code>}.   In this case <span class="expressions">\(J=13\)</span>.  </DD>
 <P/>
     <DD><details><summary>What if Tommy were an actual person (say in a data set) and studied 2.2 hours?  </summary> Let's write <span class="expressions">\(\hat\alpha\)</span> = 2.2 to denote the observed choice.  This would suggest that Tommy did not choose among whole hours. This difference between actual and model behaviour might not matter to us (this choice might be part of a much bigger model).  So we might approximate by rounding to the nearest element of <span class="expressions">\(A\)</span> so that <span class="expressions">\(\alpha^\star=\)</span><code>2</code> would explain Tommy's choice. This is getting ahead of ourselves, but you might be wondering about accepting 2 to stand for an observed choice of 2.2.  One way in which empirical DDP work deals with this kind of discrepancy is to assume that there is <em>measurement error</em> in the data.  So the difference <span class="expressions">\(d =\)</span> <code>2.2-2</code> would be attributed to the measurement error (i.e. Tommy says he worked 2.2 hours but he really worked exactly 2 hours).  This can bother empirical people who are used to working with, say, regression models.  But the error in a regression model plays a similar role in "explaining" the difference between observed and predicted values.  </DD>
 <P/>
@@ -163,7 +163,7 @@ Index     Label        Options     Choice Set     Value Labels
 0          Major             2         0 &hellip; 1       Econ, Physics
 1          School           4         0 &hellip; 3       Harvard,Yale,Queen's,McGill
 <P/>
-A = [0&hellip;1] &times; [0&hellip;3]
+A = [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |0&hellip;1] &times; [0&hellip;3]
 a<sub>0</sub>     a<sub>1</sub>          U(&alpha;)
 -------------------------
 0       0        -20
@@ -267,7 +267,7 @@ That output contains a lot of information that is not relevant to this simple ca
 <P/>
 6. FEASIBLE ACTION SETS
 <P/>
-    alpha       A[0]
+    alpha       A[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |0]
     ----------------------
     (00)          X        -Econ-Harvard
     (10)          X        -Physics-Harvard
@@ -291,7 +291,7 @@ That output contains a lot of information that is not relevant to this simple ca
 <DT>Explanation of Relevant Output</DT>
     <DD>The "DP Model Summary" is produced by <code>Initialize()</code> after everything is set up.  (In models that have more than one state <code>Initialize()</code> only does some of the things done here.  The rest are done by a routine that it calls but typically is called from the user's program.) Part 4 of the summary shows you the action vector <span class="expressions">\(\alpha\)</span>.  It shows that the new action variables assigned to <code>maj</code> and <code>sch</code> were added to the vector and that together they create 8 different options.</DD>
     <dd>Part 6 shows you the feasible action set <span class="expressions">\(A\)</span>.  It shows you each action <span class="expressions">\(\alpha\)</span> as two integer values and the labels that go along with them.  Recall that <code>Yale-Econ</code> was the third option in the list and it appears that <span class="expressions">\(A\)</span> was set up so that it matches up with the vector in <code>Utility()</code> (but make sure!). </dd>
-    <DD>In real DP problems the actions that are feasible can depend on which state the system is at.  So this output is set up to show you the different values of <span class="expressions">\(A\)</span> in the model.  But with one state only there is one feasible set only.  Thus <span class="expressions">\(A\)</span> is called <code>A[0]</code>, because in some cases there will be <code>A[1]</code> and so forth.</DD>
+    <DD>In real DP problems the actions that are feasible can depend on which state the system is at.  So this output is set up to show you the different values of <span class="expressions">\(A\)</span> in the model.  But with one state only there is one feasible set only.  Thus <span class="expressions">\(A\)</span> is called <code>A[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |0]</code>, because in some cases there will be <code>A[1]</code> and so forth.</DD>
     <DD><code>VISolve()</code> produces the table of values and choice probabilities.  The first 8 columns really don't apply to this simple model because there is only one state.  The table is designed to show the value of each state in the model.</DD>
     <DD>The parts that matter are the <code>EV</code> and <code>Choice Probabilities</code>.  Recall the <code>EV</code> is the DP version of indirect utility, and we know that the best Bob can do is 4.2.  And the optimal choice is the third element of <span class="expressions">\(A\)</span>, which Bob should chose with probability 1.0.  All the other options are sub-optimal and are chosen with 0 probability.</DD>
 <P/>
@@ -530,7 +530,7 @@ In the static examples earlier utility is the objective and there is nothing tha
 <P/>
     <DT>Then, <span class="n">DDP</span> and the basic DP framework itself assume that the chooser places value (utility) on that sequence equal to</DT>
 <span class="equation">$$V(\alpha)  = \sum_{t=0,1,\dots}\  \delta^t U(\alpha_t; t).$$</span>
-    <DD>The new and fundamental parameter appearing in <span class="expressions">\(V()\)</span> is the <em>discount factor <span class="expressions">\(\delta\)</span></em>, which typically is in the range <span class="expressions">\([0,1)\)</span>.
+    <DD>The new and fundamental parameter appearing in <span class="expressions">\(V()\)</span> is the <em>discount factor <span class="expressions">\(\delta\)</span></em>, which typically is in the range <span class="expressions">\([<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |0,1)\)</span>.
     <details class="aside"><summary>Notes</summary>
     <DD>If the decision horizon is finite then <span class="expressions">\(\delta=1\)</span> is permissible.  </DD>
     <DD>This formulation allows utility to depend on time as well as the action chosen at time.  But soon we will move <var>t</var> into the state vector <span class="expressions">\(\theta\)</span> and it will simply be a somewhat specialized state variable not something completely set apart from other states.</DD></details>
@@ -709,7 +709,7 @@ The interpretation of a property can depend on the kind of object on the left si
 <P/>
 <DT><code><a href="Shared.ox.html#AV">AV</a>()</code></DT>
 <P/>
-    <DD>Discrete quantities like state variables always take on values from 0 to some upper bound <code>N-1</code>.  However, in the model each of those discrete values may map into different values in the model.  The property <code>actual</code> contains these model-relevant values. <code>AV(x)</code> acts like <code>CV()</code> but it returns <code>x.actual[x.v]</code>.  By default this equals <code>CV(x)</code> unless you specify different actual values.  So in the default case <code>AV(x) = CV(x)</code>. In this way <code>a-&gt;Update()</code> is only called once for each variable on each model solution to reset <code>.actual</code>.  If <code>.actual</code> were not a vector <code>x-&gt;Update()</code> would have to be called every time <code>x.v</code> changed.</DD>
+    <DD>Discrete quantities like state variables always take on values from 0 to some upper bound <code>N-1</code>.  However, in the model each of those discrete values may map into different values in the model.  The property <code>actual</code> contains these model-relevant values. <code>AV(x)</code> acts like <code>CV()</code> but it returns <code>x.actual[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |x.v]</code>.  By default this equals <code>CV(x)</code> unless you specify different actual values.  So in the default case <code>AV(x) = CV(x)</code>. In this way <code>a-&gt;Update()</code> is only called once for each variable on each model solution to reset <code>.actual</code>.  If <code>.actual</code> were not a vector <code>x-&gt;Update()</code> would have to be called every time <code>x.v</code> changed.</DD>
 <P/>
 </OL>
 <P/>
@@ -728,7 +728,7 @@ First, the simplest and most general notation is introduced to describe a DDP.  
     <LI><span class="expressions">\(\theta \in \Theta\)</span>: The (discrete) state space</LI>
     <LI><span class="expressions">\(P(\theta^{\,\prime}\,|\,\alpha,\theta)\)</span>: Conditional transition to the next state, including any notion of a time dimension.</LI>
     <LI><span class="expressions">\(U(\alpha,\theta)\)</span>: Utility/return/payoff of an action conditional on the state</LI>
-    <LI><span class="expressions">\(E\left[\sum_{t=0,\dots}\delta^t\,U(\alpha_t,\theta_t)\right]\)</span>: additively separable objective with foresight; <span class="expressions">\(\delta\)</span> is the discount factor.</LI>
+    <LI><span class="expressions">\(E\left[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |\sum_{t=0,\dots}\delta^t\,U(\alpha_t,\theta_t)\right]\)</span>: additively separable objective with foresight; <span class="expressions">\(\delta\)</span> is the discount factor.</LI>
     </OL>
 <P/>
 <DT>Aspects of the <dfn id="DP-solution">DP solution</dfn>.</DT>
@@ -747,7 +747,7 @@ First, the simplest and most general notation is introduced to describe a DDP.  
 v(\alpha,\theta)\quad &\equiv \quad U(\alpha,\theta) + \delta EV\left(\theta^{\,\prime}|\alpha,\theta\right),\quad \forall \alpha\in A, \theta \in \Theta\cr
 EV(\theta^{\,\prime}|\alpha,\theta)\quad &= \quad \sum_{\theta^{\,\prime}\in\Theta} P(\theta^{\,\prime};\alpha,\theta) V(\theta^{\,\prime})\cr
 V\left(\theta\right)\quad  &\equiv\quad  \max_{\alpha\in A}\quad v(\alpha,\theta)\cr
-P^\star\left(\alpha,\theta\right)\quad  &\equiv\quad   Prob\left[\ \alpha \in \arg\max_{\alpha\in A}\quad v(\alpha,\theta )\ \right]\cr}$$</span>
+P^\star\left(\alpha,\theta\right)\quad  &\equiv\quad   Prob\left[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |\ \alpha \in \arg\max_{\alpha\in A}\quad v(\alpha,\theta )\ \right]\cr}$$</span>
 <P/>
 <li>Encoding Abstract Elements</li>
 <P/>
@@ -772,7 +772,7 @@ MyModel::Initialize() {
 <DT>Notes</DT>
 <DD>Elements of the model are added between the call to <code>DPparent::Initialize()</code> and <code>DPparent::CreateSpaces()</code>.  </DD>
 <DD>There is no requirement that <code>MyModel</code> provide an <code>Initialize()</code> function.  However, it is convenient to do this so that all the model creation steps occur together within a (static) method, and that method has direct access to elements of <code>MyModel</code> and, through inheritance, all the methods and data members within <class span="n">DDP</class>.</DD>
-<DD>[Subtle/Non-Intuitive Alert!]  Every DP model sends a <b>new</b> copy of itself to the parent <code>Initialize()</code> method.  What this means and why it is done is not easy to explain at this point. <a href="#">See below.</a></DD>
+<DD>[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Subtle/Non-Intuitive Alert!]  Every DP model sends a <b>new</b> copy of itself to the parent <code>Initialize()</code> method.  What this means and why it is done is not easy to explain at this point. <a href="#">See below.</a></DD>
 <DD>The <code>&hellip;</code> inside <code>()</code> means that some other required arguments need to be sent or optional arguments can be sent, depending on the parent of <code>MyModel</code>.</DD>
 <P/>
 <OL class="section">
@@ -906,7 +906,7 @@ MyModel::Initialize() {
 <li>Foresight</li>
     <blockquote><b><code>MyModel</code> should set the discount factor using <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>().</b></blockquote>
 <P/>
-<DT><span class="expressions">\(\delta\in [0,1)\)</span>: the discount factor.</DT>
+<DT><span class="expressions">\(\delta\in [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |0,1)\)</span>: the discount factor.</DT>
 <P/>
     <DD>The default value is <code>DP::delta=0.95</code>. MyModel::&delta; is either a fixed real value or a <a href="Shared.ox.html#Parameter">Parameter</a>, which allows it to depend on outside variables and/or to be estimated within a nested solution algorithm. <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>() can be used to set the value, passing either a real number or a <a href="Shared.ox.html#Parameter">Parameter</a>. Unlike some other elements of the model, the discount factor can be set or changed after <code>CreateSpaces()</code> has been called.</DD>
 <P/>
@@ -1006,13 +1006,13 @@ By default all possible actions are feasible at all <span class="expressions">\(
 </pre></DD>
 The default method returns a vector of 1s equal in size to the rows of the unrestricted action space. This means that <code>MyModel</code> can define feasibility without knowing everything about the model. Indeed, another user may be deriving their model from yours, adding additional choice variables that you did not anticipate.  Even so, your feasibility conditions can still be imposed regardless of the presence of other columns and rows of <var>A</var>.</p>
 <P/>
-Typically there is a small number of different feasible sets relative to the size of the state space.  In this case, storing a matrix at each <span class="expressions">\(\theta\)</span> is wasteful.  So <span class="n">DDP</span> stores a list (<code>OxArray</code>) of different feasible sets.  Rather than storing <span class="expressions">\(\theta\)</span>.A it only stores an index <span class="expressions">\(\theta\)</span>.j into a list of feasible sets. In <span class="n">DDP</span>, the list of feasible matrices is simply <code>A</code>.  And the index <span class="expressions">\(\theta\)</span>.j into the list at a state is <code>Aind</code>. <code>MyModel</code> accesses the current feasible matrix as <code>Alpha::A[Aind]</code>. The first matrix, <code>Alpha::A[0]</code> is <em>always</em> the possible matrix <var>A</var>.  If <code>MyModel</code> does not specify feasible actions, then <code>Aind =  0</code>.</p>
+Typically there is a small number of different feasible sets relative to the size of the state space.  In this case, storing a matrix at each <span class="expressions">\(\theta\)</span> is wasteful.  So <span class="n">DDP</span> stores a list (<code>OxArray</code>) of different feasible sets.  Rather than storing <span class="expressions">\(\theta\)</span>.A it only stores an index <span class="expressions">\(\theta\)</span>.j into a list of feasible sets. In <span class="n">DDP</span>, the list of feasible matrices is simply <code>A</code>.  And the index <span class="expressions">\(\theta\)</span>.j into the list at a state is <code>Aind</code>. <code>MyModel</code> accesses the current feasible matrix as <code>Alpha::A[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Aind]</code>. The first matrix, <code>Alpha::A[0]</code> is <em>always</em> the possible matrix <var>A</var>.  If <code>MyModel</code> does not specify feasible actions, then <code>Aind =  0</code>.</p>
 <P/>
 <b>Note</b>: the elements of the <var>A</var> list are the <em>actual</em> value of actions and are updated at the start of each value solve.  If an action variable does not have its own <a href="Shared.ox.html#Discrete___Update">Update</a>() routine defined then the actual values are simply the default range 0 &hellip; (a.N)&oline;.</p>
 <P/>
-In <span class="n">DDP</span> the key functions, U() and &Rho;() act on a single point in the state space at a time.  So the current value of a state variable is placed in the <code>.v</code> property of the Ox variable representing it. On the other hand, both U() and &Rho;() are 'vectorized' in actions: they must operate on the whole feasible matrix at once.  Action variables have the <code>.v</code> property, but it is not used for them.  Their current values are in a column of the <span class="expressions">\(\theta\)</span>.A matrix, which is <code>A[Aind]</code> in the code.  The previously described functions <span class="expressions">\(CV()\)</span> and <span class="expressions">\(AV()\)</span> work with action variables as well, returning the column of the current/actual action matrix at <span class="expressions">\(\theta\)</span>.
+In <span class="n">DDP</span> the key functions, U() and &Rho;() act on a single point in the state space at a time.  So the current value of a state variable is placed in the <code>.v</code> property of the Ox variable representing it. On the other hand, both U() and &Rho;() are 'vectorized' in actions: they must operate on the whole feasible matrix at once.  Action variables have the <code>.v</code> property, but it is not used for them.  Their current values are in a column of the <span class="expressions">\(\theta\)</span>.A matrix, which is <code>A[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Aind]</code> in the code.  The previously described functions <span class="expressions">\(CV()\)</span> and <span class="expressions">\(AV()\)</span> work with action variables as well, returning the column of the current/actual action matrix at <span class="expressions">\(\theta\)</span>.
 <details class="aside"><summary>For example</summary> Consider a model that has two choices: work hours and whether to volunteer or not.   Then at some state <span class="expressions">\(\theta\)</span>.A may look like this, along with the return value of <code>a(work)</code>.
-<DD><pre>     A[Aind]     |
+<DD><pre>     A[<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Aind]     |
 work      vol    |  aa(work)
  -------------------------
  0         0      |    0
@@ -1120,29 +1120,29 @@ This assumes group variables are iid.  You can use fixed and random effect block
 <a name="VS"><LI><span="n">DDP</span> terminology versus other surveys and methods articles</LI></a>
 <P/>
 <OL class="chapter">
-Most contributions to the DDP literature adopt some idiosyncratic notation or terminology, and the current document is no exception.  Here is a translation of the current notation into that used in surveys and papers that have become a standard.  Features that are similar are not listed and neither are elements of alternative notation that is somehow more general than that used here.  The DDP notation is followed by &rarr; and the alternative notation in <var>italic</var> face.  A brief explanation and/or possible reason why the DDP notation is preferable is then given in [&nbsp;].</p>
+Most contributions to the DDP literature adopt some idiosyncratic notation or terminology, and the current document is no exception.  Here is a translation of the current notation into that used in surveys and papers that have become a standard.  Features that are similar are not listed and neither are elements of alternative notation that is somehow more general than that used here.  The DDP notation is followed by &rarr; and the alternative notation in <var>italic</var> face.  A brief explanation and/or possible reason why the DDP notation is preferable is then given in [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |&nbsp;].</p>
 <P/>
 A key reason the notation differs here is because it is used to describe a framework for designing a DDP and solving it efficiently. Most other notation is used to describe a specific model or to describe models generally without reference to restrictions that can be used for efficiency.</p>
 <P/>
 <LI>Aguirregabiria &amp; Mira (JoE 2010)</LI>
 <DT>Actions:
-<DD><code>&alpha; &nbsp;&nbsp;&rarr;&nbsp;&nbsp;</code> <var>(a)</var>  [Here, vectorized actions do not retain dimensions of choice]
+<DD><code>&alpha; &nbsp;&nbsp;&rarr;&nbsp;&nbsp;</code> <var>(a)</var>  [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Here, vectorized actions do not retain dimensions of choice]
 <DD>A.D &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>J</var>
 <DD>a &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>a<sub>it</sub></var> </DD>
 <DT>Clock:
-<DD>t &in; &theta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>t as a subscript</var>. [Here, subscripts are used for other properties and t is in the state already]
+<DD>t &in; &theta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>t as a subscript</var>. [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Here, subscripts are used for other properties and t is in the state already]
 <DT>Discrete States:
-<DD>&theta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>x<sub>it</sub></var>.  [Here, allow Greek vectors to be distinguished from Roman variables]
-<DD>&epsilon; and &eta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>empty vectors</var> [Here, discrete exogenous state variables save space and computation]
+<DD>&theta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>x<sub>it</sub></var>.  [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Here, allow Greek vectors to be distinguished from Roman variables]
+<DD>&epsilon; and &eta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>empty vectors</var> [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Here, discrete exogenous state variables save space and computation]
 <DT>Transitions:
-<DD>&Rho;(&theta;&prime;|&alpha;,&theta;) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>f<sub>x</sub>(x<sub>i,t+1</sub>|a<sub>it</sub>,x<sub>it</sub>)</var> [Here, distinguish upper case functions from lower case vectors and variables]
+<DD>&Rho;(&theta;&prime;|&alpha;,&theta;) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>f<sub>x</sub>(x<sub>i,t+1</sub>|a<sub>it</sub>,x<sub>it</sub>)</var> [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Here, distinguish upper case functions from lower case vectors and variables]
 <DT>Continuous States:
-<DD>&zeta; = <var>(&epsilon;<sub>it</sub>)</var>, always with size A.D [Here, &zeta; may have lower dimension that the action space.]
+<DD>&zeta; = <var>(&epsilon;<sub>it</sub>)</var>, always with size A.D [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Here, &zeta; may have lower dimension that the action space.]
 <DD>utility is always additively separable (their assumption AS).
 <DT>Bellman:
-<DD>EV(&theta;) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var><span class="o">V</span>(x<sub>it</sub>)</var> [mnemonic for <b>E</b>xpected <b>V</b>alue]
-<DD>&Rho;*(<code>&alpha;</code>|&theta;) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>P(a|x,&theta;)</var> [Distinguished from primitive &Rho;() even when arguments are suppressed.]
-<DT> Miscellaneous <DD>&delta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>&beta;</var> [Here, mnemonic for <b>d</b>iscount factor.] </DD>
+<DD>EV(&theta;) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var><span class="o">V</span>(x<sub>it</sub>)</var> [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |mnemonic for <b>E</b>xpected <b>V</b>alue]
+<DD>&Rho;*(<code>&alpha;</code>|&theta;) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>P(a|x,&theta;)</var> [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Distinguished from primitive &Rho;() even when arguments are suppressed.]
+<DT> Miscellaneous <DD>&delta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>&beta;</var> [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |Here, mnemonic for <b>d</b>iscount factor.] </DD>
 <P/>
 <li>Keane, Todd &amp; Wolpin (Handbook of Labor Economics 2011)</li>
 <DT>Actions;
@@ -1153,7 +1153,7 @@ A key reason the notation differs here is because it is used to describe a frame
 <DD>&theta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>&Omega;&oline;<sub>it</sub></var>
 <DD>&epsilon; and &eta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>empty vectors</var>
 <DT>Continuous States:
-<DD>&zeta;&nbsp;&nbsp;&rarr;&nbsp;&nbsp;<var>S(&Omega;&oline;<sub>it</sub>)</var> [loses self-standing vector status]
+<DD>&zeta;&nbsp;&nbsp;&rarr;&nbsp;&nbsp;<var>S(&Omega;&oline;<sub>it</sub>)</var> [<img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.html">Search</a> |loses self-standing vector status]
 <DT>Bellman:
 <DD>Choice Probabilities: &Rho;*(&alpha;|&theta;) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>Pr( d<sup>&hellip;</sup>=1 |&Omega;&oline;<sub>it</sub>)</var>
 <DD>v(&alpha;|&eta;,&epsilon;,&theta;,&gamma;) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>V<sup>&hellip;</sup></var></DD>
