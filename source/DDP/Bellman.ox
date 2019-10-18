@@ -72,7 +72,6 @@ EndogTrans::Transitions(state) {
 			}
 		}
     I::CVdelta = AV(delta);
-    println("calling ResetA ");
     Alpha::ResetA(SubVectors[acts]);  //
 	ExogenousTransition();
     this->Traverse();
