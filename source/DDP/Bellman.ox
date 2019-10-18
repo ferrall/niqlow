@@ -72,7 +72,8 @@ EndogTrans::Transitions(state) {
 			}
 		}
     I::CVdelta = AV(delta);
-    Alpha::ResetA(SubVectors[acts]);
+    println("calling ResetA ");
+    Alpha::ResetA(SubVectors[acts]);  //
 	ExogenousTransition();
     this->Traverse();
     }
@@ -87,32 +88,34 @@ Bellman::SetTheta(state,picked) { Bellman(state,picked);    }
 /**Set the automatic (non-static) members of a state node.
 @param state  state vector
 @param picked TRUE: in sub sample of states for full solution.  FALSE: will be approximated
-@internal
+This is called in CreateSpaces().  It terminals if the state is terminal and determines $A(\theta)$
 **/		
 Bellman::Bellman(state,picked) {
   decl s=S[endog].M, IsT;
-  IsT = FALSE;
+
+  IsT = FALSE;  //check if any endogenous states are at terminal values
   do { IsT = any(state[s].==States[s].TermValues);    } while (!IsT && s++<S[endog].X);
+
   N::TerminalStates += IsT;
-  Type = TERMINAL*IsT + LASTT * counter->Last();
-  Aind = 0; //initializing this means aa() will work.
-  Aind = Alpha::AddA(IsT ? 1|zeros(N::Options[0]-1,1) : FeasibleActions());
+  Type = TERMINAL*IsT + LASTT * counter->Last();  //set the type of this theta.
+  Aind = 0; //initializing this means CV(act) and AV(act) will work.
+  Aind = Alpha::AddA(  IsT
+                           ? 1|zeros(N::Options[0]-1,1)  //terminal states have exactly 1 feasible action
+                           : FeasibleActions() );
   if (Aind==Impossible) {
-        println("Error occurs at state vector: ","%cf","%7.0f","%c",Labels::Vprt[svar],state');
-        oxrunerror("DDP Error ??.  Improper FeasibleAction() return");
-        }
+    println("Error occurs at state vector: ","%cf","%7.0f","%c",Labels::Vprt[svar][S[endog].M:S[endog].X],state[S[endog].M:S[endog].X]');
+    oxrunerror(" ");
+    }
   pandv = UnInitialized;
   Allocate(picked,TRUE);
-  EV = 0.0; // zeros(N::R,1); //NoR??
+  EV = 0.0;
   }
 
-/** Default indicator function for whether the current state is reachable from initial conditions or not.
-This is a major changes with niqlow version 2.4 and Ox version 7.10.
-
+/** Return TRUE: Default indicator function for whether the current state is reachable from initial conditions or not.
 **/
 Bellman::Reachable() {    return TRUE;     }
 
-/** Create space for U() and &Rho;() accounting for random subsampling.
+/** Create space for $U()$ and $P(\alpha;\eta)$ at this $\theta$, accounting for random subsampling.
 @see DP::SubSampleStates
 **/
 Bellman::Allocate(picked,CalledFromBellman) {
@@ -134,9 +137,10 @@ Bellman::Allocate(picked,CalledFromBellman) {
     }
   }
 
-/** Default &theta;.A: all actions are feasible at all states, except for terminal states.
+/** Default $A(\theta)$:  all actions are feasible at all states, except for terminal states.
 
-This is a virtual method.  <code>MyModel</code> should provide its own to replace it if some actions are infeasible at some states.
+This is a virtual method.  <code>MyModel</code> provide its own to replace it if some actions
+are infeasible at some states.
 
 @return Mx1 indicator column vector<br> 1=row is feasible at current state<br> 0 otherwise.
 
@@ -157,9 +161,7 @@ This is <em>not</em> called at unreachable or terminal states.
 **/	
 Bellman::FeasibleActions()	{  	return ones(Alpha::N,1); 	}
 
-Bellman::UReset() {
-	pandv[][] = .NaN;
-    }
+Bellman::UReset() {	pandv[][] = .NaN; }
 	
 /** Default Choice Probabilities: no smoothing.
 @param inV expected value integrating over endogenous and semi-endogenous states.

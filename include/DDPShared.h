@@ -431,9 +431,9 @@ struct Alpha : DDPauxiliary {
     static Initialize();
     static AddA(fa);
     static Aprint();
-    static ResetA(alist);
-    static CV(actvar);
-    static AV(actvar);
+    static ResetA(alist,CallUpdate=TRUE); 
+    //static CV(actvar);
+    //static AV(actvar);
     static SetA(ini = UseCurrent);
     static ClearA();
     }

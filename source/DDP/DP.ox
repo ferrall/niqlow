@@ -219,7 +219,7 @@ DP::StorePalpha() {
 @param SubV	the subvector to add to. see `SubVectorNames`
 @param va `StateVariable` or `ActionVariable` or `StateBlock` or array variables and blocks (nested arrays of these things okay but not nested StateBlocks)
 @comment User should typically not call this directly
-@see StateVariable, DP::Actions, DP::EndogenousStates, DP::ExogenousStates, DP::SemiExogenousStates, DP::GroupVariables
+@see StateVariable, DP::Actions, DP::EndogenousStates, DP::ExogenousStates, DP::SemiExogenousStates,DP::GroupVariables
 **/
 DP::AddStates(SubV,va) 	{
 	decl pos, i, j;
@@ -735,32 +735,33 @@ Alpha::Initialize() {
     N = A = C = UnInitialized;
     }
 
-/** Return column vector of <em>actual</em> value of an action $a$ at the current state $\theta4.
-**/
+/* Return column vector of <em>actual</em> value of an action $a$ at the current state $\theta4.
 Alpha::AV(actvar) { return A[][actvar.pos]; }
+*/
 
-/** Return column vector of <em>current</em> value of an action $a$ at the current state $\theta4.
-**/
+/* Return column vector of <em>current</em> value of an action $a$ at the current state $\theta4.
 Alpha::CV(actvar) { return C[][actvar.pos]; }
+*/
 
+/** Set $A(\theta)$.
+@param inAi NoMatch: set to 0, the master feasible set<br/>
+            otherwise, set to $A(\theta)$ for current $\theta$.<br/>
+            and, if also non-negative, then set the realized action values equal to the row inAi
+**/
 Alpha::SetA(inAi) {
-    aI = aA = aC = UnInitialized;
-    if (inAi==NoMatch) {
-        C = Matrix;
-        A = UnInitialized;
-        N = rows(C);
-        return;
-        }
-    decl myi = I::curth.Aind;
-    C = CList[myi];
+    decl myj = (inAi==NoMatch) ? Zero : I::curth.Aind;
+    C = CList[myj];
+    A = AList[myj];
     N = rows(C);
-    A = AList[myi];
-    if (inAi>UseCurrent) {
+    if (inAi<Zero)
+        aI = aA = aC = UnInitialized;
+    else {
         aI = inAi;
         aC = C[aI][];
         aA = A[aI][];
         }
     }
+
 Alpha::ClearA() { N = A = C = UnInitialized; }
 
 /** Check $A(\theta)$ returned by `Bellman::FeasibleAction`(), add to list if new.
@@ -768,7 +769,9 @@ Alpha::ClearA() { N = A = C = UnInitialized; }
 **/
 Alpha::AddA(fa) {
     if (!ismatrix(fa)||rows(fa)!=rows(Sets[0])||columns(fa)>1 || ( sumc(fa.==1)+sumc(fa.==0) != rows(fa))  ) {
-        println("Invalid value returned by user FeasibleAction():",fa);
+        println("DDP Error ??.  Improper FeasibleAction() return.\n"
+                "Your method should return a ",N::Options[0]," x 1 vector of 0s and 1s.|n",
+                "Instead it returned: ","%cf","%2.0f",fa);
         return Impossible;
         }
     decl nfeas = int(sumc(fa)), ai=0;
@@ -786,20 +789,22 @@ Alpha::AddA(fa) {
    }
 
 /** Reset the actual value matrices (based on possible changes in updated parameters).
+@param alist list of action variables (`DP::SubVectors`[acts]).  Has to be passed because Alpha is defined before DP
+@param CallUpdate TRUE [default]: call each actions `ActionVariable::Update`().<br/>
+                   FALSE: don't call - this is for when feasible action sets are created and depend on static actual values.
 **/
-Alpha::ResetA(alist) {
-    decl a, i;
-    foreach (a in alist[i]) {   //for (i=0;i<sizeof(alist);++i) { a = alist[i];
-		a->Update();
-		if (!i) AList[0] = a.actual;
+Alpha::ResetA(alist,CallUpdate) {
+    decl a, i, j=Zero;
+    foreach (a in alist[i]) {
+		if (CallUpdate) a->Update();
+		if (!i) AList[j] = a.actual;
 		else {
-			decl nr = rows(AList[0]);
-	 		AList[0] |= reshape(AList[0],(a.N-1)*nr,i);
-			AList[0] ~= vecr(a.actual * ones(1,nr));
+			decl nr = rows(AList[j]);
+	 		AList[j] |= reshape(AList[j],(a.N-1)*nr,i);
+			AList[j] ~= vecr(a.actual * ones(1,nr));
 			}		
         }
-    for (i=1;i<N::J;++i)
-        AList[i][][] = selectifr(AList[0],Sets[i]);
+    for (j=One;j<N::J;++j) AList[j][][] = selectifr(AList[Zero],Sets[j]);
     }
 
 
@@ -1236,6 +1241,7 @@ DP::CreateSpaces() {
        // fclose(INf);
        delete inI, inN;
        N::Sizes();
+       Alpha::ResetA(SubVectors[acts]);
        Alpha::SetA(NoMatch);
        tt = new CreateTheta();
        tt->loop(TRUE);
