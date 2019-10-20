@@ -20,33 +20,47 @@ You can also start with <a href="GetStarted.html">GetStarted</a> which implement
 </OL>
 
 <a name="OV"><h2>Overview</h2></a>
+<OL class="faq">
+<LI>What is Dynamic Programming?</LI>
 
-<DT>What is Dynamic Programming?</DT>
-<DD>DP  is a framework for choices when those choices affect what happens in the future, and therefore anticipating future choices is crucial for understanding choices today. DP explains sequential choice over time rather than specifying a full set of choices all at once.  In the jargon of dynamic macroeconomics, the choice is a <em>policy</em> that is contingent (conditional) on which state is realized in the future not pre-commitment to a particular choice at a point in time.</DD>
+<DD>DP  is a framework for choices when:</DD>
+<UL> 
+<LI>choices are sequential over time and choices can be made contingent on what has happened in the past that lead up to the current situation.</LI> 
+<li>the value of choices now depends on what may happen in the future</li>
+<LI>choices now affect what happens in the future, and therefore anticipating future choices is crucial for understanding choices today. </LI>
+</UL>
 
-<DT>A special case of DP is multiple decisions that are not linked together through time.  </DT>
-    <DD>There are two things that create this link in dynamic programming. First, the decider cares about future outcomes. Second, choices made now affect which states will occur in the future. A special case of unlinked (non-sequential) decisions is a choice made once (at a single state). Because this document presents the foundations of DP, the discussion starts with a single static choice.</DD>
-
-<DT>What is <span class="n">DDP</span></DT>
+<LI>Does Dynamic Programming Include Simpler Situations as Special Cases?</LI>
+<UL>
+<LI>A single choice in a single state is the most special case of DP. So static optimization can be considered a special case of DP.</LI>  
+<LI>When there are multiple choices but they are not linked together through time  it is also a special case.</LI>
+<LI>If there multiple choices linked together through time but the agent does not care about the future then this again is a special case of DP.  It is the case of myopic decision-making.</LI>
+</UL>
+<LI>What is the <span class="n">DDP</span> component of <span class="n">niqlow</span></LI>
 
     <DD><span class="n">DDP</span> is the component of <span class="n">niqlow</span> that lets a user design and solve a discrete dynamic programming. It is written in Ox and requires Ox to run.  The user <em>imports</em> <span class="n">DDP</span> into their Ox program to use it.</DD>
+<LI>Why <em>Discrete</em> Dynamic Programming (DDP)?</LI>
 
-<DT>Why <em>Discrete</em> Dynamic Programming (DDP)?</DT>
-     <DD>DDP is a term used in <span class="n">niqlow</span> that applies to models that have discrete (as opposed to continuous) choices and/or states.  A model of decisions with discrete states (including as a very special case a single state/decisin) but continuous choices typically involves solving first order conditions or carrying non-linear optimization. <span class="n">DDP</span> does not incorporate continuous choice directly.    Continuous choice (and solving non-linear systems) is the topic of the <span class="n"><a href="../FiveO/default.html">FiveO</a></span> component of this package. Methods that embed continuous choice inside a discrete state spaces is therefore a hybrid of the two parts of <span class="n">niqlow</span>. These types of models are covered in the separate <a href="../Hybrids/default.html">Hybrids</a> module.</DD>
+     <DD>DDP is a term used in <span class="n">niqlow</span> that applies to models that have discrete (as opposed to continuous) choices and/or states.  A model of decisions with discrete states (including as a very special case a single state/decisin) but continuous choices typically involves solving first order conditions or carrying non-linear optimization. <span class="n">DDP</span> does not incorporate continuous choice directly.</DD>
+     
+<LI>What about continuous choice?</LI>
+     <DD>Optimization over continually varying controls (and solving non-linear systems) is the topic of the <span class="n"><a href="../FiveO/default.html">FiveO</a></span> component <span class="n">niqlow</span>. Methods that embed continuous choice inside a discrete state spaces is therefore a hybrid of the two parts of <span class="n">niqlow</span>. </DD>
 
-<DT>What does this document do?</DT>
+<LI>What does this first part of the document do?</LI>
     <DD>It presents DDP from scratch starting with simple static choices then building up to dynamics, and shows how the key concepts of DDP are represented in <span class="n">DDP</span>.</DD>
+<LI>What does part 1 of the document <em>not</em> do?</LI>
 
-<DT>What does this document <em>not</em> do?</DT>
-    <DD>It does <em>not</em> teach computer programming or the Ox programming language. It also does <em>not</em> present the general DDP framework nor the technical elements of <span class="n">DDP</span> in a systematic way. If you are already comfortable with Ox and with dynamic programming, then you might find this document too slow.  <a href="">??</a> may be a better place to start (and that includes links to examples the presume more background knowledge than what is presented here).</DD>
+    <DD>It does <em>not</em> teach computer programming or the Ox programming language. It also does <em>not</em> present the general DDP framework nor the technical elements of <span class="n">DDP</span> in a systematic way. If you are already comfortable with Ox and with dynamic programming, then you might find this document too slow.  The <a href="#tech">second part</a> below may be a better place to start (and that includes links to examples the presume more background knowledge than what is presented here).</DD>
 
+<LI>What about estimation?</LI>
 
-<DT>What about estimation?</DT>
-    <DD>Within <span class="n">niqlow</span>, <em>estimation</em> refers to finding statistical estimates (guesses) of parameters of the model using data that is assumed to be generated by the model. A parameter is a quantity that enters the model and whose value is determined outside the model (an exogenous or so-called structural parameter). Parameters are typically continuous values and so guessing or estimating them is typically carried out using algorithms in <span class="n"><a href="../FiveO/default.html">FiveO</a></span>. <span class="n">DDP</span> includes methods to handle data generated by the model or created outside but assumed to be generated from the model. This document does not concern itself with DDP data and estimation, which is discussed in <a href="">???</a>.</DD>
+    <DD>Within <span class="n">niqlow</span>, <em>estimation</em> refers to finding statistical estimates (guesses) of parameters of the model using data that is assumed to be generated by the model. A parameter is a quantity that enters the model and whose value is determined outside the model (an exogenous or so-called structural parameter). Parameters are typically continuous values and so guessing or estimating them is typically carried out using algorithms in <span class="n"><a href="../FiveO/default.html">FiveO</a></span>. <span class="n">DDP</span> includes methods to handle data generated by the model or created outside but assumed to be generated from the model. This document does not concern itself with DDP data and estimation, which is discussed in <a href="Data.ox.html">Data</a>.</DD>
+</OL>
 
 <h1>Foundations of DDP</h1>
 
 <OL class="body">
+
 <a name="DC"><LI>Discrete Choice</LI></a>
 
 We start with  <em>choice</em> without states and dynamics.  We start with such a simple  static choice framework that it might seem trivial. The computer code shown to implement the model will appear to be overkill.  Bear with this simple start because you will see that all the elements of dynamic programming in many areas of economics can be handled easily within the framework.</p>

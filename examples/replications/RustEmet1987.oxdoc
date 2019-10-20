@@ -26,12 +26,12 @@ See <a href="RustEmet1987mle.ox.html">RustEmet1987mle</a> to see how to carry ou
 
 <DL>
 <DT>An example of <code>Rust</code> class DDP:</DT>
-<DD>&zeta; specification:  <em>ex ante</em> extreme value shocks with &rho; = 1.0.</DD>
+<DD>$\zeta$ specification:  <em>ex ante</em> extreme value shocks with $\rho = 1.0.$</DD>
 <DD>Clock: <code>Ergodic</code> (infinite horizon with no terminal or absorbing states)</DD>
-<DD>Action: <code>&alpha; = (d)</code>, <code>d.N = 2</code>,  the binary decision to replace the engine or not.</DD>
+<DD>Action: $\alpha = (d)$, <code>d.N = 2</code>,  the binary decision to replace the engine or not.</DD>
 
 <DT>Endogenous State</DT>
-<DD><code>&theta; =   (x),  x.N = 90.</code>
+<DD>$\theta =   (x),$  x.N = 90.</code>
 <DD><var>x</var> is the mileage reading on the bus at its monthly maintenance, grouped into 5000 mile categories.
 <dd>Transition: mileage next month is 0, 1 or 2 mileage bins more.<pre>
     x' = (1-d)x    w/ prob. &theta;<sub>31</sub>
@@ -84,7 +84,7 @@ takes on values between 0 and 89.
 <DT><code>Utility</code> must have that name and cannot be <code>static</code>.</DT>
 <DD>The form of the expression returned as the value should look related to the mathematical expression <var>U()</var> above.  The parameters are static members of the class (they are the shared by each state &theta;).  The current value of <code>x</code> is accessed as <code>CV(x)</code>.  The value of <code>x</code> is set to be the correct value at &theta; before <code>Utility()</code> is called.</DD>
 <DD><code>Utility</code> must return a column vector of values corresponding to the feasible action vector <code>A[Aind]</code>.  In this case the action variable is simply <var>d</var>, and engine replacement is always feasible.</DD>
-<DD>In mathematical notation, we would write the choice set as <code>&alpha; &in; A(&theta;)</code>.  The code could simply refer to <code>A[Aind]</code>, the matrix of feasible actions at the current state.  But rather than accessing <code>A[Aind]</code> directly, the column of values for the <code>d</code> is accessed using <code>CV(d)</code>.  This makes the code closer to the notation and more general since it will work even if other actions are added to the model.</DD>
+<DD>In mathematical notation, we would write the choice set as $\alpha \in A(\theta)$.  The code could simply refer to <code>A[Aind]</code>, the matrix of feasible actions at the current state.  But rather than accessing <code>A[Aind]</code> directly, the column of values for the <code>d</code> is accessed using <code>CV(d)</code>.  This makes the code closer to the notation and more general since it will work even if other actions are added to the model.</DD>
 <details class="aside"><summary>More on A and U()</summary><code>A</code> is a static array of the distinct feasible sets.  <code>Aind</code> is the index into the array specific to the current state <code>&theta;</code>.  Since Zurcher's problem has a single feasible set, <code>A</code> has only one matrix and <code>Aind</code> = 0 at all states.
 <DD><pre>
 A[0] =  &lceil; 0 &rceil;    So U = &lceil; -0.001x + n&rceil;
@@ -107,7 +107,7 @@ probabilities.  The length of the vector determines how different states are fea
 <OL class="steps">
 <LI>Set the discount factor &delta;.  (This can be done at any time after <code>Initialize()</code> before solving the model with that &delta;.)</LI>
 <LI>Create a new instance of a solution <Code>Method</code>, such as value function iteration.</LI>
-<LI>Call <code>Solve()</code> for the solution method to compute  V(&theta;) and &Rho;*(&alpha;|&theta;).</LI>
+<LI>Call <code>Solve()</code> for the solution method to compute  $V(\theta)$ and $P^\star(\alpha|\theta)$.</LI>
 <LI>Use the results, then if necessary change some settings or parameters and solve again.</LI>
 </OL>
 

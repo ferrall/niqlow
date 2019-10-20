@@ -27,7 +27,7 @@ class MyModel : ExPostSmoothing {
     }
 </pre></DD>
 
-The continuous state &zeta; determines the form of Bellman's for choice-specific values, which integrates out the IID state vectors, &zeta;, &epsilon; and &eta;. Bellman equation solution methods are coded separately from `Bellman`. They are derived from the `Method` class and described in <a href="Methods.ox.html">Methods</a>. Some methods may only operate if the user's model is derived from a compatible class of `Bellman` or has other required characteristics.</p>
+The continuous state $\zeta$ determines the form of Bellman's for choice-specific values, which integrates out the IID state vectors, $\zeta$, $\epsilon$ and $\eta$. Bellman equation solution methods are coded separately from `Bellman`. They are derived from the `Method` class and described in <a href="Methods.ox.html">Methods</a>. Some methods may only operate if the user's model is derived from a compatible class of `Bellman` or has other required characteristics.</p>
 
 Classes of type `Bellman` code the form of Bellman's equation for the specification:
 $$\eqalign{
@@ -55,15 +55,18 @@ MyModel::Utility(A) {
     return  {a vector of utility values given the feasible actions <code>A</code> }
     }
 </pre></DD>
-<LI>Reachable state creator</LI>
 
-A state is unreachable if it cannot occur given initial conditions.  For example, a person cannot have 20 years of labour market experience at age 18. Including unreachable states in the state space wastes computation and storage but does not cause any errors.  <code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::Reachable`() method.  The built-in version of <code>Reachable</code> returns TRUE, meaning all states are marked as reachable.   The user can provide a replacement with returns an indicator for whether the current state is reachable or not.</p>
+<LI>Reachable States</LI>
+
+A state is <em>unreachable</em> if it cannot occur given initial conditions.  For example, a person cannot have 20 years of labour market experience at age 18. Including unreachable states in the state space wastes computation and storage but does not cause any errors.  <code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::Reachable`() method.  The built-in version of <code>Reachable</code> returns TRUE, meaning all states are marked as reachable.   The user can provide a replacement with returns an indicator for whether the current state is reachable or not.</p>
 
 <DD>Example.  To mark states at which state variables $x$ and $y$ greater than 5 as unreachable:
 <pre>MyModel::Reachable() {
     return ! (CV(x)+CV(y)&gt; 5);
     }
 </pre></DD>
+
+Note however, that state variable types defined <span class="n">DDP</span> have their own <code>Reachable</code> method.  This means that in many cases the user does not need to code <code>Reachable</code>.  FOr example, in the case of too much experience at a given age, the `ActionCounter` state variable will automatically prune states from a finite horizon model based on the condition.</p>
 
 <LI>Restricted Feasible Action spaces / matrices </LI>
 

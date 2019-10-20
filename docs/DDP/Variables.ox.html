@@ -49,9 +49,11 @@ The <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> class represen
 <OL class="chapter">
 <a name="Basics"><LI>Basics</LI></a>
 <P/>
-The action vector <span class="expressions">\(\alpha\)</span> is the vector of discrete actions chosen conditional on the state of the DP.  A generic element of <span class="expressions">\(\alpha\)</span> is denoted <var>a</var>.  An action variable takes on <span class="expressions">\(a.N\)</span> different values. The action vector includes <span class="expressions">\(\alpha\)</span>.N variables, denoted a<sub>0</sub> through a<sub>(<span class="expressions">\(\alpha\)</span>.N)&oline;</sub>. Action variables are represented as an <a href="Variables.ox.html#ActionVariable">ActionVariable</a> and are added to <code>MyModel</code> and to <span class="expressions">\(\alpha\)</span> using <a href="Bellman.ox.html#DP___Actions">Actions</a>().  Calls to <code>Actions()</code> and other model-building routines is part of <code>MyCode</code>.</p>
+The action vector <span class="expressions">\(\alpha\)</span> is the vector of discrete actions chosen conditional on the state of the DP.  A generic element of <span class="expressions">\(\alpha\)</span> is denoted <var>a</var>.  An action variable takes on <span class="expressions">\(a.N\)</span> different values. The action vector includes <span class="expressions">\(\alpha\)</span>.N variables, denoted a<sub>0</sub> through a<sub>(<span class="expressions">\(\alpha\)</span>.N)&oline;</sub>. Action variables are represented as an <a href="Variables.ox.html#ActionVariable">ActionVariable</a> and are added to <code>MyModel</code> and to <span class="expressions">\(\alpha\)</span> using <a href="Bellman.ox.html#DP___Actions">Actions</a>().  Calls to <code>Actions()</code> and other model-building routines is part of <code>MyCode</code> that user writes unless the class they are using includes the definition of the action variables.</p>
 <P/>
-In the basic definition of a DDP model, &Alpha; is defined as the set of possible actions. In <span class="n">DDP</span> the set of actions is built up by adding action variables to <span class="expressions">\(\alpha\)</span>.  So &Alpha; emerges from the properties of the variables added to <span class="expressions">\(\alpha\)</span>. <em>Possible Actions</em> is the matrix of all possible action vectors. The word <em>possible</em> is used instead of <em>feasible</em>, because this notion of <code>&Alpha;</code> is constructed mechanically from properties of the actions.  It has nothing to do with the interpretation of the actions.  Feasible actions are defined below. An <em>action</em> refers to a particular value of the action vector <span class="expressions">\(\alpha\)</span>, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column. DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</p>
+In the basic definition of a DDP model, <span class="expressions">\(A\)</span> is as the set of possible actions. In <span class="n">DDP</span> the set of actions is built up by adding action variables to <span class="expressions">\(\alpha\)</span>.  So <span class="expressions">\(A\)</span> emerges from the properties of the variables added to <span class="expressions">\(\alpha\)</span>. <em>Possible Actions</em> is the matrix of all possible action vectors. The word <em>possible</em> is used instead of <em>feasible</em>, because this notion of <span class="expressions">\(A\)</span> is constructed mechanically from properties of the actions.  It has nothing to do with the interpretation of the actions.  Feasible actions are defined below.</p>
+<P/>
+An <em>action</em> refers to a particular value of the action vector <span class="expressions">\(\alpha\)</span>, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column. DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</p>
 <P/>
 <DT>Alternative Notation</DT>
 <P/>
@@ -126,16 +128,18 @@ The code segment allows the maximum hour to be 30 if the person has a (young) ch
 <P/>
 <LI>Possible and Feasible Actions</LI>
 <P/>
-&Alpha; is defined as the set of possible actions, built up by adding action variables to <span class="expressions">\(\alpha\)</span>.  All possible actions is the matrix :
+<span class="expressions">\(A\)</span> is defined as the set of possible actions, built up by adding action variables to <span class="expressions">\(\alpha\)</span>.  All possible actions is the matrix:
 <span class="equation">$$    A \equiv \times_{j=0,\dots, \alpha.N^- } \{ 0, 1, \dots, a_j.N^- \}$$</span>
-An action vector <span class="expressions">\(\alpha\)</span> is a <em>row</em> of the matrix A. An action variable is a column of &Alpha;.  Its position is the property <code>a.pos</code>.  <em>Feasibility</em> is a property <code>MyModel</code> imposes on <span class="expressions">\(\alpha\)</span>. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of <span class="expressions">\(\alpha\)</span>.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We write feasibility as a property of the state.  The <b>feasible actions</b> at <span class="expressions">\(\theta\)</span> is a matrix property:
-<span class="equation">$$\forall \theta \in \Theta,\qquad \theta.A \subseteq A.$$</span>
+An action vector <span class="expressions">\(\alpha\)</span> is a <em>row</em> of the matrix A. An action variable is a column of <span class="expressions">\(A\)</span>.  Its position is the property <code>a.pos</code>.</p>
 <P/>
-<a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>(): by default all possible actions are feasible If <code>MyModel</code> does not say otherwise, <span class="expressions">\(\theta.A \equiv A\)</span> for all endogenous states. This behaviour is produced by including a built in method, <code>Bellman::FeasibleActions()</code>, which is a virtual method, meaning that <code>MyModel</code> can replace it with its own version.  This is explained in <a href="Bellman.ox.html">Bellman</a>.</p>
+<em>Feasibility</em> is a property <code>MyModel</code> imposes on <span class="expressions">\(\alpha\)</span>. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of <span class="expressions">\(\alpha\)</span>.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We can write feasibility as a property of the state.  Or it can be written as a function of the state, which is more standard.  Using both versions, the <b>feasible actions</b> at <span class="expressions">\(\theta\)</span> is a matrix property:
+<span class="equation">$$\forall \theta \in \Theta,\qquad A(\theta) \equiv \theta.A \subseteq A.$$</span>
+<P/>
+<a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>(): by default all possible actions are feasible unless <code>MyModel</code> says otherwise.  <span class="expressions">\(A(\theta) \equiv A\)</span> for all endogenous states. This default assumption is produced by including a built-in virtual method, <code>Bellman::FeasibleActions()</code>. meaning that <code>MyModel</code> can replace it with its own version.  This is explained in <a href="Bellman.ox.html">Bellman</a>.</p>
 <P/>
 <DT>The A List</DT>
 <P/>
-<a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a> constructs the possible matrix A, actually stored as the first element of a list: <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state <span class="expressions">\(\theta\)</span>. Every time a different value is returned by <code>FeasibleActions()</code> a new matrix is added to the A list.  The index into the list is then stored as <code>Aind</code> &harr;  <span class="expressions">\(\theta\)</span>.j.</p>
+<a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a> constructs the possible matrix A, stored as the first element of a list: <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state <span class="expressions">\(\theta\)</span>. Every time a different value is returned by <code>FeasibleActions()</code> a new matrix is added to the A list.  The index into the list is then stored as <a href="Bellman.ox.html#Bellman___Aind">Aind</a>.  That is, there is not a different matrix at each <span class="expressions">\(\theta.\)</span> Instead there is a list of different feasible matrices and <span class="expressions">\(A(\theta)\)</span> is really an index into that list.  </p>
 <P/>
 The user's (optional) feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a)</code>. In short, <span class="expressions">\(\theta\)</span>.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = <span class="expressions">\(\theta\)</span>.j = 0</code> for all states.</p>
 <P/>
@@ -833,7 +837,7 @@ A model may have a utility of the form:
 where <span class="equation">$$x^\star = \arg\max_{x} c(x;\alpha,\theta).$$</span>
 That is, the agent makes a continuous choice over <span class="expressions">\(x\)</span> conditional on the state and the discrete action <span class="expressions">\(\alpha\)</span>.  This conditional continuous choice (<pre>CondContChoice</pre>) then determines the indirect utility of the discrete actions.  One special case would that <span class="expressions">\(u() = c(x^\star;\alpha,\theta)\)</span>: that is, the utility is simply the indirect utility over the continuous choice.   (ASnother possibility is that <span class="expressions">\(x^\star\)</span> directly affects the transition as in <span class="expressions">\(P(\theta^{\,\prime};x^\star,\alpha,\theta)\)</span>.  <mark>Currently this is not supported. The user may be able to use the features below to help implement this.</mark></p>
 <P/>
-A continuous choice is related to <code>AuxiliaryValues</code>, in the sense that you may match <span class="expressions">\(x^\star\)</span> to observed data.   If the continuous choice has a closed form then it can be represented as a static function and included in observations using the <a href="Variables.ox.html#StaticAux">StaticAux</a> wrapper.  If the optimal choice requires sequential optimization then the <a href="..\fiveO\Objective.html#CondContChoice">CondContChoice</a> objectitve can be used to carry this out efficiently.  This allows for a single objective to represent each conditional choice and to minimize the amount of additional storage required.  
+A continuous choice is related to <code>AuxiliaryValues</code>, in the sense that you may match <span class="expressions">\(x^\star\)</span> to observed data.   If the continuous choice has a closed form then it can be represented as a static function and included in observations using the <a href="Variables.ox.html#StaticAux">StaticAux</a> wrapper.  If the optimal choice requires sequential optimization then the <a href="..\fiveO\Objective.html#CondContChoice">CondContChoice</a> objectitve can be used to carry this out efficiently.  This allows for a single objective to represent each conditional choice and to minimize the amount of additional storage required.
 <P/>
 <DD><pre>
     struct Cost : CondContChoice {
@@ -11234,23 +11238,35 @@ Tauchen discretizization.
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">N
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">Number of discrete points
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">M
+<td class="declaration" valign="baseline">M</td>
+<td class="description" valign="baseline">max discrete value value
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">mu
+<td class="declaration" valign="baseline">mu</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible mean <span class="expressions">\(\mu\)</span>
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">sig
+<td class="declaration" valign="baseline">sig</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible standard deviation <span class="expressions">\(\sigma\)</span>
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">rho</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible autocorrelation <span class="expressions">\(|rho\)</span>
+<P/>
+Actual values will take on <span class="expressions">\(N\)</span> equally spaced values in the range
+<span class="equation">$$ \mu \pm M\sigma/\sqrt(1-\rho^2).$$</span>
+The transition probabilities depends on the current value a la Tauchen.
+<DD>Note: If all the paramters are <code>doubles</code> then the actual values will be Updated upon creation.
+This makes them available while creating spaces.  Otherwise, update is not called on creation in case parameters  will be
+read in later.</td>
 </tr>
 </table>
 </dd>
