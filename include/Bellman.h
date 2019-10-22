@@ -115,10 +115,11 @@ struct OneStateModel : ExPostSmoothing {
 /** The base class for models that include an additve extreme value error in action value.
 
 <DT>Specification</DT>
-$$\eqalign{
-v(\alpha,\cdots) &= Utility(\alpha,\cdots) + \zeta_\alpha\cr
-\zeta: vector of IID errors for each feasible $\alpha$\cr
-F(z_\alpha) = e^{ -e^{-x/\rho} }\cr}$$
+$$v(\alpha,\cdots) = Utility(\alpha,\cdots) + \zeta_\alpha$$
+
+$\zeta$: vector of IID errors for each feasible $\alpha$
+
+$$F(z_\alpha) = e^{ -e^{-z_\alpha/\rho} }$$
 
 <DT>Bellman Equation Iteration.</DT>
 
@@ -239,13 +240,12 @@ The user's model provides the required information about the distribution of $\z
 <LI>If the number of options is greater than 2 then the crossing points must be monotonically increasing.</LI>
 
 <LI>Formally,</LI>
-$$
+$$\eqalign{
 \alpha &= (d)\cr
 \zeta &= (z)\cr
 \epsilon &= ()\cr
 \eta &= ()\cr
-v(d,\theta) &= U(d,\theta) + \zeta_\cr}$$
-
+v(d,\theta) &= U(d,\theta) + \zeta_\alpha\cr}$$
 </UL>
 
 <!--&exists; unique z*<sub>0</sub> &lt; z*<sub>1</sub> &hellip; &lt; z*<sub>a.N&oline;</sub> such that U(a;z,&theta;-->

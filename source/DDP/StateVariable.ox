@@ -1380,7 +1380,7 @@ Episode::Transit() 	{
 /** Tauchen discretizization.
 @param L label
 @param N Number of discrete points
-@param M max discrete value value
+@param M `AV`() compatiable max discrete value
 @param mu `AV`() compatible mean $\mu$
 @param sig `AV`() compatible standard deviation $\sigma$
 @param rho `AV`() compatible autocorrelation $|rho$
@@ -1388,8 +1388,8 @@ Episode::Transit() 	{
 Actual values will take on $N$ equally spaced values in the range
 $$ \mu \pm M\sigma/\sqrt(1-\rho^2).$$
 The transition probabilities depends on the current value a la Tauchen.
-<DD>Note: If all the paramters are <code>doubles</code> then the actual values will be Updated upon creation.
-This makes them available while creating spaces.  Otherwise, update is not called on creation in case parameters  will be
+<DD>Note: If none of the paramters are objects then the actual values will be Updated upon creation. This makes
+them available while creating spaces.  Otherwise, update is not called on creation in case parameters  will be
 read in later.
 **/
 Tauchen::Tauchen(L,N,M,mu,sig,rho) {
@@ -1401,7 +1401,7 @@ Tauchen::Tauchen(L,N,M,mu,sig,rho) {
 	gaps = range(0.5,N-1.5,+1);
 	pts = zeros(N,N+1);
 	Grid = zeros(N,N);
-    if (isdouble(mu)&&isdouble(rho)&&isdouble(sig))
+    if (!(isclass(M)||isclass(mu)||isclass(rho)||isclass(sig)))
         Update();
 	}
 	
@@ -1412,7 +1412,8 @@ Tauchen::Transit() {
 Tauchen::Update() {
 	s = AV(sig);
 	r = AV(rho);
-	rnge = M*s/sqrt(1-sqr(r)),
+    if (feq(s,0.0)||feq(r,0.0) oxwarning("Tauchen st. deviation is near 0 or correlation is near 1.0");
+	rnge = AV(M)*s/sqrt(1-sqr(r)),
 	actual = -rnge +2*rnge*vals/(N-1),
 	pts[][] = probn(
 	          ((-.Inf ~ (-rnge+2*rnge*gaps/(N-1)) ~ +.Inf)

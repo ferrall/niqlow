@@ -1279,10 +1279,11 @@ Base Task for looping over &Epsilon; and &Eta;.
 The base class for models that include an additve extreme value error in action value.
 <P/>
 <DT>Specification</DT>
-$<span class="expressions">\(\eqalign{
-v(\alpha,\cdots) &= Utility(\alpha,\cdots) + \zeta_\alpha\cr
-\zeta: vector of IID errors for each feasible \)</span>\alpha<span class="expressions">\(\cr
-F(z_\alpha) = e^{ -e^{-x/\rho} }\cr}\)</span>$
+<span class="equation">$$v(\alpha,\cdots) = Utility(\alpha,\cdots) + \zeta_\alpha$$</span>
+<P/>
+<span class="expressions">\(\zeta\)</span>: vector of IID errors for each feasible <span class="expressions">\(\alpha\)</span>
+<P/>
+<span class="equation">$$F(z_\alpha) = e^{ -e^{-z_\alpha/\rho} }$$</span>
 <P/>
 <DT>Bellman Equation Iteration.</DT>
 <P/>
@@ -1325,7 +1326,7 @@ EV = &sum;<sub>&epsilon;,&eta;</sub> [ V(&epsilon;,&eta;)*f(&epsilon;)f(&eta;)/&
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#ExtremeValue___Initialize">Initialize</a></td>
 <td class="modifiers">static</td>
-<td class="description">Required static initialization routine.</td>
+<td class="description">Initialize the DP with extreme-value smoothing.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#ExtremeValue___KernelCCP">KernelCCP</a></td>
@@ -1981,13 +1982,12 @@ The user's model provides the required information about the distribution of <sp
 <LI>If the number of options is greater than 2 then the crossing points must be monotonically increasing.</LI>
 <P/>
 <LI>Formally,</LI>
-<span class="equation">$$
+<span class="equation">$$\eqalign{
 \alpha &= (d)\cr
 \zeta &= (z)\cr
 \epsilon &= ()\cr
 \eta &= ()\cr
-v(d,\theta) &= U(d,\theta) + \zeta_\cr}$$</span>
-<P/>
+v(d,\theta) &= U(d,\theta) + \zeta_\alpha\cr}$$</span>
 </UL>
 <P/>
 <!--&exists; unique z*<sub>0</sub> &lt; z*<sub>1</sub> &hellip; &lt; z*<sub>a.N&oline;</sub> such that U(a;z,&theta;-->
@@ -5477,7 +5477,7 @@ Hotz-Miller estimation task.
 
 <span class="declaration">static ExtremeValue :: Initialize ( rho , userState , UseStateList )</span>
 <dl><dd>
-Required static initialization routine.
+Initialize the DP with extreme-value smoothing.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">

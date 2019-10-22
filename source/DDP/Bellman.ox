@@ -447,15 +447,6 @@ Default is to return .NaN as a matrix.
 **/
 Bellman::ZetaRealization() {	return <.NaN>;	}
 
-/* The column vector of (actual) feasible values of an action at &theta;.
-@param av `ActionVariable` that has been added to the model
-@return A[Aind][][av.pos]
-Bellman::aa(av) {
-    TypeCheck(av,"ActionVariable",TRUE);
-	return AV(av);
-	}
-*/
-
 /** .	  @internal **/
 Bellman::~Bellman() {	delete pandv, Nxt; 	}
 
@@ -501,7 +492,7 @@ Bellman::Initialize(userState,UseStateList) {
 
 Bellman::CreateSpaces() {	DP::CreateSpaces(); 	}
 
-/** Required static initialization routine.
+/** Initialize the DP with extreme-value smoothing.
 
 @param rho 	`AV` compatible, the smoothing parameter &rho;.<br>
 			CV(rho) &lt; 0, sets &rho; = <code>DBL_MAX_E_EXP</code> (i.e. no smoothing).
