@@ -77,7 +77,7 @@ You can also start with <a href="GetStarted.html">GetStarted</a> which implement
 
 In some cases we might use discrete choice to approximate a continuous choice, so here is another example:
 <DT>Example 2A.  Tommy is choosing how much time to study for a test the next day.</DT>
-    
+
     <DD>So the choice might be any number between 0 and, say, 12 hours. It would then be natural (or convenient or intuitive) to think of the choice set as $A=[0,12]$, to let $\alpha$ denote any real number in that range, and to characterize the optimal choice with a first-order condition o marginal utility, $U^{\,\prime}(\alpha).$  However, for various reasons, we stick with a discrete choice set to model Tommy's choice.  To be specific, we might think of him as studying for a number of hours: $A=$ {<code>0,1,2,&hellip;,12</code>}.   In this case $J=13$.  </DD>
 
     <DD><details><summary>What if Tommy were an actual person (say in a data set) and studied 2.2 hours?  </summary> Let's write $\hat\alpha$ = 2.2 to denote the observed choice.  This would suggest that Tommy did not choose among whole hours. This difference between actual and model behaviour might not matter to us (this choice might be part of a much bigger model).  So we might approximate by rounding to the nearest element of $A$ so that $\alpha^\star=$<code>2</code> would explain Tommy's choice. This is getting ahead of ourselves, but you might be wondering about accepting 2 to stand for an observed choice of 2.2.  One way in which empirical DDP work deals with this kind of discrepancy is to assume that there is <em>measurement error</em> in the data.  So the difference $d =$ <code>2.2-2</code> would be attributed to the measurement error (i.e. Tommy says he worked 2.2 hours but he really worked exactly 2 hours).  This can bother empirical people who are used to working with, say, regression models.  But the error in a regression model plays a similar role in "explaining" the difference between observed and predicted values.  </details></DD>
@@ -219,7 +219,7 @@ EV &\equiv \max_{A} U(\alpha) = U(\alpha^\star) = 4.2.\cr}$$
     <DD>If you are not used to OOP, it can be mysterious and confusing.  And Ox can be used without OOP, but it is the way in which <span class="n">DDP</span> lets the user develop an economic model so it is essential for our purpose.  So here is the basic idea.  What is happening is the program is telling Ox that a new class is going to appear in this program.  A class is a description of a kind of thing (objects).  These lines are describing the class for Ox, which is just a list of the variables (also called <em>members</em> and functions (also called <em>methods</em>) that make up the class.  Every class has a name, and the code gives this class the name <code>BobsChoice</code>.  </DD>
 
     <DD>One of the powerful (but complicated and confusing) features of OOP is that one class can be based on another class that is already defined.  In this case, <code>BobsChoice</code> is based on a class called `OneStateModel` which is defined in <span class="n">DDP</span>.  The name is meant to imply that this model is really simple.  In real dynamic programs in which there are many states at which the person is making choices. Here Bob makes a choice once, so there is just one state. </DD>
-    
+
     <DD>In turn, <code>OneStateModel</code> is a class based on other classes which are more flexible. The advantage of having a special class for a simple one state model is that some things can be done for the user.</DD>
 
     <DD>The choice involves two action variables, and this class makes room for them with the <code>static decl</code> statement.  The names are short but understandable in the context.  <code>decl</code> is short for <em>declare</em> and does just make room for two things.  What they end up holding is determined by other parts of the program.</DD>
@@ -236,15 +236,15 @@ EV &\equiv \max_{A} U(\alpha) = U(\alpha^\star) = 4.2.\cr}$$
     <DD>Above the class declaration said that a routine belonging to <code>BobsChoice</code> and named <code>Decide()</code> would appear, and these lines <em>define</em> what this routine does.  It is the lines of code that are executed when <code>main()</code> refers to the function.  </DD>
 
     <DD><code>Decide()</code> does four things.  That is, it has four statements each ending with <code>;</code>.  The first two say that <code>maj</code> and <code>sch</code> will each contain an <em>action variable</em>.  This routine, <code>ActionVariables()</code>, is part of <span class="n">DDP</span>, so it would not work to call it if we had not imported <span class="n">DDP</span>.</DD>
-     
+
     <DD>Hopefully, you can see that labels attached to the two variables are "major" and "school", respectively. Like nearly all computer languages, Ox asks you to put text inside quotes.  So <code>maj</code>, which is not in quotes is referring to a variable with that name. Ox will make room for because it was <code>decl</code>ared in the class declaration. However, the action variable has a name "major" which is just those characters not a variable or a routine.  </DD>
 
     <DD>In Bob's choice he had only two majors to choose from.  We could write <code>ActionVariable("major",2)</code> and this would mean <code>maj</code> would hold an action variable with two possible values.  This would not given meaningful names (or labels) to the two options: they are just be coded as <code>0</code> and <code>1</code>.  By sending two strings in quotes instead of <code>2</code> this gives each major a meaningful label.  The routine <code>ActionVariable()</code> counts the labels and knows that there are two choices.  They are still coded as <code>0</code> and <code>1</code> but those codes now have the labels "Econ" and "Physics". This will make some output easier to read.</DD>
 
     <DD>The variable <code>sch</code> will contain another action variable that takes on four values (because a list of four labels are sent).</DD>
-    
+
     <DD>The next statement calls a routine with the name <code>Initialize()</code>.  This routine is part of <span class="n">DDP</span> not Ox itself.  As the name implies, it initializes or sets up the problem meant to solve Bob's Choice.  Four things are sent to <code>Initialize()</code>.  The order is important.  The first is a bit mysterious: <code>new BobsChoice()</code>. The second is the number <code>0</code>.  As with some other parts of the code, it is not <em>yet</em> important to understand how these are chosen or used for this problem. In particular, to explain what <code>new BobsChoice()</code> means and why it is there would take us on a tangent that is not necessary for now. </DD>
-    
+
     <DD>However, it is important to see that the variables <code>maj</code> and <code>sch</code> are sent as well.  This is how the <code>OneStateModel</code> in <span class="n">DDP</span> knows what action variables are part of the model.</DD>
 
     <DD>You may think that the line that says <code>maj</code> contains an <code>ActionVariable</code> would add <code>maj</code> to the model automatically.  It would be possible to make it work that way, but for other aspects of DP models (namely state variables) it is easier to separate the creation of a variable from including it in the model. So to be consistent, the same procedure is followed for action variables.</DD>
@@ -299,7 +299,7 @@ That output contains a lot of information that is not relevant to this simple ca
 
 <DT>Explanation of Relevant Output</DT>
     <DD>The "DP Model Summary" is produced by <code>Initialize()</code> after everything is set up.  (In models that have more than one state <code>Initialize()</code> only does some of the things done here.  The rest are done by a routine that it calls but typically is called from the user's program.) Part 4 of the summary shows you the action vector $\alpha$.  It shows that the new action variables assigned to <code>maj</code> and <code>sch</code> were added to the vector and that together they create 8 different options.</DD>
-    
+
     <dd>Part 6 shows you the feasible action set $A$.  It shows you each action $\alpha$ as two integer values and the labels that go along with them.  Recall that <code>Yale-Econ</code> was the third option in the list and it appears that $A$ was set up so that it matches up with the vector in <code>Utility()</code> (but make sure!). </dd>
     <DD>In real DP problems the actions that are feasible can depend on which state the system is at.  So this output is set up to show you the different values of $A$ in the model.  But with one state only there is one feasible set only.  Thus $A$ is called <code>A[0]</code>, because in some cases there will be <code>A[1]</code> and so forth.</DD>
     <DD><code>VISolve()</code> produces the table of values and choice probabilities.  The first 8 columns really don't apply to this simple model because there is only one state.  The table is designed to show the value of each state in the model.</DD>
@@ -326,7 +326,7 @@ Here is what is important to gather from the example and code above.
     <LI>Modify your model to include a third action variable: <code>res</code> which is a binary choice to either live <code>ON</code> campus or <code>OFF</code>.  Tweak the utility so that Yale-Econ is still optimal as is <code>ON</code>.  Run the code and confirm your changes.</LI>
     </OL>
     <LI>Tommy's Choice: Make a copy of the file named <code>TommysChoice.ox</code>.</LI>
-    <OL class="substeps">    
+    <OL class="substeps">
     <LI>>Change the name of the <code>class</code> defined in the file.  Delete <code>major</code> and rename <code>school</code> to <code>hours</code>.  Use this create the action variable: <code>hours = new ActionVariable("h",13)</code>.  Because it is not useful to label hours in the same way that schools and majors, just send the number of options (no value labels will be created).</li>
     <li>Change the utility so that it is a function of the <code>hours</code> not just a list of arbitrary numbers.  In particular, if $U(h) = -(h-2.2)^2$ then the optimal discrete choice will be $h* = 2$, which is the 3rd value that <code>hours</code> takes on (0, 1, 2, etc). The vector of values that <code>hours</code> takes on can be accessed as <code>CV(hours)</code>.
     <DD>So, modify <code>Utility()</code> to have this form:
@@ -396,7 +396,7 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 <DD>To make Bob's Choice a logit model, just modify the code to ask for logit smoothing:
 <pre>Initialize(new BobsChoice(),LogitKernel,maj,sch)
 </pre></DD>
-<details><summary>What does "kernel" mean?</summary>  Essentially, a kernel means "smoothing."  You can learn more at <a href="https://en.wikipedia.org/wiki/Kernel_density_estimation">Kernel's wikipedia page</a></details> 
+<details><summary>What does "kernel" mean?</summary>  Essentially, a kernel means "smoothing."  You can learn more at <a href="https://en.wikipedia.org/wiki/Kernel_density_estimation">Kernel's wikipedia page</a></details>
 
 <DT>Probit Smoothing</DT>
 <DD>To make Bob's Choice a probit model, just modify the code to ask for probit smoothing:
@@ -439,7 +439,7 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 <DT>State Variables</DT>
 
     <DD>The `StateVariable` class is designed to represents state variables in a dynamic program.  Like action variables, state variables are created and stored in a <code>static</code> member of the model.  They get added to the model and then <span class="n">DDP</span> incorporates them into the state space and the solution methods. </DD>
-    
+
     <DD>Unlike action variables, which are mainly different only in the number of values they can take on, state variables differ from each in a lot of ways. So <span class="n">DDP</span> provides a number of different kinds of state variables to add to a model as well as the possibility of defining your own type if it does not exist already. However, in this simple static situation, the base <code>StateVariable</code> class will suffice.  So Bob's award status will be of that class.</DD>
 
     <DD>The simple `OneStateModel` class is no longer appropriate because Bob either gets the award or not.  So this model of Bob's choice is derived from a different class of problems.  Again, since it is a very simple situation, the base `Bellman` class will do the trick.  </DD>
@@ -471,7 +471,7 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 
 <DT>Changes to <code>Decide</code></DT>
     <DD>We still need to <code>Initialize</code> the model, but the Bellman version of <code>Initialize</code> is different than the very special OneStateModel version.  It does not allow you to list actions.  <code> SetClock(StaticProgram)</code> says that this is a static (but possibly multi-state) model.</DD>
-    
+
     <DD><code>Actions(maj,sch)</code>:  Except in specialized models like OneStateModel, action variables are added to the model by sending them to `DP::Actions`().  </DD>
     <DD><code>Qsch = new StateVariable("Qsch",2)</code>:  this creates a basic state variable that takes on two values.</DD>
     <DD><code>EndogenousStates(Qsch);</code>: As mentioned earlier, different kinds of states are tracked in <span class="n">DDP</span> and here we have added <code>Qsch</code> to the <em>endogenous</em> state space.
@@ -479,11 +479,11 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 
 <DT>Utility</DT>
     <DD>Utility now returns a different vector depending on whether <code>Qsch</code> equals 0 or 1. <code>Qsch</code> is the state variable and takes on 2 values, 0 and 1.  We set utility up so that a value of 1 indicates the Queen's scholarship was received and its value should be added to the utility of Queen's programs when choosing where to go.  The underlying code will call <code>Utility</code> for all values of all states added to the model.  </DD>
-    
+
     <DD>The value of <code>Qsch</code> when called can be accessed a couple different ways.  One way is directly:  <code>Qsch.v</code> will hold either 0 or 1 when Utility is called.  Or the state variable can be sent to `CV`() which will access the value return it.  <code>CV()</code> is a flexible way of incorporating state variables, parameters and even constants in your model in such way that it looks the same regardless of the kind of thing it is.</DD>
-    
+
     <DD>The trickier thing to understand at this point is accessing values of the school choice, which is an action variable not a state variable.  Looking at the list of labels associated with <code>sch</code>, Queen's is the 3rd value, or <code>2</code> since we start actions at 0.  Ox's <code>.==</code> operator will compare a vector to a value and return a vector of 0s and 1s for whether corresponding element equals the value.</DD>
-    
+
     <DD>If this is unclear, you can add a <code>print()</code> statement above <code>return</code> to see what <code>CV(Qsch)*(CV(sch).==2)</code> contributes to utility.</DD>
 
 <h3>Run the program and look at the output.</h3>
@@ -502,7 +502,7 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
     <DD>We handle this by creating a model with two states, one in which Yale is in the feasible set of schools and another at which it is not.</DD>
 
 <DT>State-Dependence in $A$ </DT>
-    
+
     <DD>An important feature of many dynamic programming models: the feasible set depends on the state the action is being taken at. <span class="n">DDP</span> provides a method for creating different feasible sets. Given a state $\theta$, we can specify that the feasible action set is $A(\theta)$.  If we let plain old $A$ denote the unrestricted set (as above), then $A(\theta) \subseteq A$. Recall that each action vector $\alpha$ is represented in the code as a row in a matrix.  Now different states will have different matrices.</DD>
 
 <h2>Coding Bob's New Choice in <span class="n">DDP</span></h2>
@@ -523,7 +523,7 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 
 <DD><pre>
 VECTOR OF 0s AND 1s RETURNED BY FEASIBLEACTIONS
-                                            
+
      &alpha;               Yacc=0        Yacc=1
 ------------------------------------------------
 Econ          Harvard        1              1
@@ -545,7 +545,7 @@ Physics       McGill         1              1
 <DT>Source: <a href="javascript:popoxcode('../../examples/output/BobsChoiceC.output.txt');">examples/output/BobsChoiceB.output.txt</a>.</DT>
 <dd><pre>
 <object width="75%" height="300" type="text/plain" data="../../examples/output/BobsChoiceB.output.txt" border="1" ><p style="font-size:14pt"></p></object>
-</pre></dd></details> 
+</pre></dd></details>
 <h2>Summary</h2>
 Here is what is important to gather from the examples:
 <OL class="steps">
@@ -627,9 +627,9 @@ Dynamic programming accounts for a choice made today affects outcomes in the fut
 
 This section provides the mathematical description of the fundamentals of <span class="n">DDP</span>. This is the first document on the technical side.  For further help on using and extending your model see also:
 <DD><a href="Methods.ox.html">Methods</a> for how to solve the model</DD>
-<DD><a href="Data.ox.html">Data</a> for how to simulate data, read external data in for estimation</DD>.
+<DD><a href="Data.ox.html">Data</a> for how to simulate data and read external data in for estimation</DD>.
 
-This is useful for someone who already knows a great deal about dynamic programming and has some familiarity with Ox or similar languages. If you want a much more basic introduction, start back at the <a href="#guide">beginner's guide</a> You can also start with <a href="GetStarted.html">GetStarted</a> for a demonstration of coding and return here.</p>
+<p>This is useful for someone who already knows a great deal about dynamic programming and has some familiarity with Ox or similar languages. If you want a much more basic introduction, start back at the <a href="#guide">beginner's guide</a> You can also start with <a href="GetStarted.html">GetStarted</a> for a demonstration of coding and return here.</p>
 
 <OL class="contents">Contents
 <LI><a href="#NC">Notation and Conventions</a></LI>
@@ -646,14 +646,14 @@ This is useful for someone who already knows a great deal about dynamic programm
 <OL class="chapter">
 <LI>Fonts, case and alphabets</LI>
 <details><summary>Examples</summary><pre>
-The discount factor:        &delta;
-Single action variable:     a
-Vector of actions:          &alpha; = (a<sub>0</sub>,a<sub>1</sub>)
-Number of values:           a.N
-Size of a vector:           &alpha;.N
-Distinct vectors            &alpha;.D
-Endogenous state space:     <b>&Theta;</b>
-Utility:                    U()
+The discount factor:        $\delta$
+Single action variable:     $a$
+Vector of actions:          $\alpha = (a_0,a_1,\dots)$
+Number of values:           $a$.N
+Size of a vector:           $\alpha$.N
+Distinct vectors            $\alpha$.D
+Endogenous state space:     $\Theta$
+Utility:                    $U()$
 </pre></details>
 <DT><em>Lower case Greek</em> (e.g. $\alpha$, $\beta$) denotes</DT>
       <DD>Vectors of discrete variables (i.e. exogenous states $\epsilon$) <em>or</em> scalar parameters, quantities variables with a continuous range (i.e. discount factor $\delta$).</DD>
@@ -669,7 +669,7 @@ Utility:                    U()
 In mathematical notation, $a_N$ might denote the number of values $a$ takes on. This works well when $a$ has only one property. In <span class="n">DDP</span>, a variable like $a$ has several properties so using subscripts and superscripts to indicate them can become clumsy.  And, properties can have properties.  Instead of using $a<_N$, the notation <b><code>a.N</code></b> is the property N associated with the object <code>a</code>. The binary <code>.</code> operator is how properties (members) are accessed in Ox.
 <DD><q>o.p</q> retrieves from the object <var>o</var> the aspect or property <var>p</var>.</dd>
 
-The `Quantity` class represents `Discrete` variables and continuous `Parameter`s. The usual notions of variables and parameters in mathematical models are derived from the base type `Quantity`. Quantities are either <em>discrete</em> (actions and states) or <em>continuous</em> (parameters). Quantity objects are typically added to one or more lists (<code>OxArray</code>) using routines built into <span class="n>niqlow</span>.  The vector notation is used to match the literature but vectors in standard DDP are actually lists of `Quantity` objects.</p>
+The `Quantity` class represents `Discrete` variables and continuous `Parameter`s. The usual notions of variables and parameters in mathematical models are derived from the base type `Quantity`. Quantities are either <em>discrete</em> (actions and states) or <em>continuous</em> (parameters). Quantity objects are typically added to one or more lists using routines built into <span class="n>niqlow</span>.  The vector notation is used to match the literature but vectors in standard DDP are actually lists of `Quantity` objects.</p>
 
 <DT>Ranges:  0 &hellip; m.</DT>
     <DD>Although it is natural to start counting from <em>1</em>, starting from <em>0</em> has some advantages. It is common in C-like languages such as Ox. Typically in <span class="n">DDP</span>, <b>0</b> is the lowest and first value a discrete variable takes on. Starting at 0 means a variable <var>n</var> that takes on N values has a range $n=0,1,\dots,N-1$. This is the default range for discrete variables.</DD>
@@ -684,13 +684,13 @@ The `Quantity` class represents `Discrete` variables and continuous `Parameter`s
 <DD>If <var>s</var> is a state variable then values it does or can take on next period are denoted <var>s&prime;</var>.</DD>
 
 <DT>The indicator function I{}.</DT>
-        <DD><pre>I{x} = 1 if the condition <var>x</var> is TRUE, otherwise it is 0.
-</pre></DD>
+        $$I{x} = \cases{ 1 & $x$ is TRUE\cr
+                         0 & otherwise.\cr}$$
 
-<DT>Cartesian product of discrete sets, &times; is the matrix of all possible vectors of the sets.</DT>
+<DT>Cartesian product of discrete sets, $\times$ is the matrix of all possible vectors of the sets.</DT>
 <DD>Let a<sub>0</sub> and a<sub>1</sub> be two discrete variables that each take on values 0 and 1.  Then</DD>
 
-<DD>$a_0 \in \{ 0, 1 \},  a_1 \in \{ 0, 1 \}$ then a<sub>0</sub> &times; a<sub>1</sub> equals
+<DD>$a_0 \in \{ 0, 1 \},  a_1 \in \{ 0, 1 \}$ then $a_0 \times a_1$ equals
 <pre>
                0         0
                1         0
@@ -705,56 +705,72 @@ The `Quantity` class represents `Discrete` variables and continuous `Parameter`s
     <details class="aside"><summary>What's the difference?</summary>The difference between <code>struct</code> and <code>class</code> is simply whether elements of an object are by default directly accessible from the outside (i.e. <em>public</em>) or not (<em>private</em>): yes in a <code>struct</code>, no in a <code>class</code>. <span class="n">DDP</span> is designed for convenience not reliability, so everything class is declared <code>struct</code>, but the term <em>class</em> is used in this documentation.</details>
 A <em>class</em> is a bundle of data and functions to operate on the data.  The data are called <em>members</em> of the class and the functions are called <em>methods</em>, although Ox documentation also refers to these as data members and function members, respectively. Multiple copies of a class can be created while a program runs.  Each copy is called an <em>object</em> or <em>instance</em> of the class.   The key is that the methods work with the data of the object without needing to <em>pass</em> the data to it as with non-OOP languages or constructs.</p>
 
-Members and methods of  class are either <em>static</em> or <em>automatic</em>.  This distinction is extremely important in the design of <span class="n">DDP</span>.  Static members/methods are shared by all objects of a class, whereas automatic members/methods are specific to the instance.  <span class="n">DDP</span> conserves memory by storing as much information in static variables as possible. The word <em>automatic</em> does not ever appear, it is implicit.  If the tag <code>static</code> does not appear in the declaration of the item then it is automatic.</p>
+<p>Members and methods of  class are either <em>static</em> or <em>automatic</em>.  This distinction is extremely important in the design of <span class="n">DDP</span>.  Static members/methods are shared by all objects of a class, whereas automatic members/methods are specific to the instance.  <span class="n">DDP</span> conserves memory by storing as much information in static variables as possible. The word <em>automatic</em> does not ever appear, it is implicit.  If the tag <code>static</code> does not appear in the declaration of the item then it is automatic.</p>
 
 <LI><em>MyModel</em>, <em>DPPparent</em> and other placeholder names</LI>
 
     <details class="aside"><summary>Geek talk:</summary> <code>MyModel</code> and <code>MyCode</code> are <q>metasyntatic variable</q> like <code>foo</code>.</details>
 
- A user builds a DDP model by adding components to it: states and actions and the functions related to them. <span class="n">DDP</span> cannot know how many items will be added of each type. How can the model be ready to store whatever the user chooses?  The answer: the user of <span class="n">DDP</span> constructs a model as a class <em>derived</em> from one of the built-in models, called a DDP for <q>Derived Dynamic Program</q>.   The user's class <em>inherits</em> the built-in properties of its base model. So <span class="n">DDP</span> can solve the model and produce output for it even though it does not know the details of the user's model until the program starts executing.</p>
+<p> A user builds a DDP model by adding components to it: states and actions and the functions related to them. <span class="n">DDP</span> cannot know how many items will be added of each type. How can the model be ready to store whatever the user chooses?  The answer: the user of <span class="n">DDP</span> constructs a model as a class <em>derived</em> from one of the built-in models, called a DDP for <q>Derived Dynamic Program</q>.   The user's class <em>inherits</em> the built-in properties of its base model. So <span class="n">DDP</span> can solve the model and produce output for it even though it does not know the details of the user's model until the program starts executing.</p>
 
 DDP Models are derived from the `Bellman` class, which in turn is derived from the base `DP` class. If the user wants to call his/her model <var>MyModel</var>, they would have something like this
 <DD><pre>class MyModel : DPparent {
     &vellip;
     }
 </pre></DD>
-Which Bellman-derived class that <code>MyModel</code> is based on is called <code>DPparent</code> in these notes. <code>MyModel::</code> is prefixed to items that the user provides or customizes.  <code>DPparent</code> is prefixed to items related to the parent.  Other predefined or default items either have no prefix or are prefixed by <code>DP::</code>. The convention of using <code>MyModel</code> avoids having to write repeatedly <q>the user's version of &hellip; DP::x</q>  Instead, <code>MyModel::x</code> suffices.</p>
+For example, if you want to model the choice over makes of car and include extreme-value shocks in the value of choices you would declare a class like this:
+<DD><pre>class Make : ExtremeValue {
+    &vellip;
+    }
+</pre></DD>
+So the generic <code>MyModel</code> is specifically <code>Make</code> and <code>DPparent</code> is specifically <code>ExtremeValue</code>.</p>
+
+<p>Which Bellman-derived class that <code>MyModel</code> is based on is called <code>DPparent</code> in these notes. <code>MyModel::</code> is prefixed to items that the user provides or customizes.  <code>DPparent</code> is prefixed to items related to the parent.  Other predefined or default items either have no prefix or are prefixed by <code>DP::</code>. The convention of using <code>MyModel</code> avoids having to write repeatedly <q>the user's version of &hellip; DP::x</q>  Instead, <code>MyModel::x</code> suffices.</p>
 
 <DT><em>MyCode</em></DT>
 
-A user must define elements of <code>MyModel</code> in Ox, and they must write an Ox program that executes some tasks in the proper order.  For example, the code must always call the <code>Initialize()</code> method for <code>DPparent</code> before doing anything else involving DDP.  So the Ox code that executes these tasks is collectively called <code>MyCode</code> in these notes.  Another way to think of it: <code>MyModel</code> is a translation of the pen-and-paper aspects of your model and <code>MyCode</code> are the instructions to implement the model, solve it and use it.</p>
+A user must define elements of <code>MyModel</code> in Ox, and they must write an Ox program that executes some tasks in the proper order.  For example, the code must always call the <code>Initialize()</code> method for <code>DPparent</code> before adding things to the model.  So the Ox code that executes these tasks is collectively called <code>MyCode</code> in these notes.  Another way to think of it: <code>MyModel</code> is a translation of the pen-and-paper aspects of your model and <code>MyCode</code> are the instructions to implement the model, solve it and use it.</p>
 
 <LI>Some Properties of DDP Objects</li>
 
-The interpretation of a property can depend on the kind of object on the left side of <q>.</q>.  Here are some of the key properties of objects in <span class="n">DDP</span>.  Note that the association of this variable names to a property is a convention in <span class="n">DDP</span>.  It is not inherent in Ox, and there may be exceptions even within <span class="n">DDP</span>.
+The interpretation of a property can depend on the kind of object on the left side of ".".  Here are some of the key properties of objects in <span class="n">DDP</span>.  Note that the association of this variable names to a property is a convention in <span class="n">DDP</span>.  It is not inherent in Ox, and there may be exceptions even within <span class="n">DDP</span>.
 
 <DT>N : cardinality.</DT>
     <DD>A discrete object (such as states and actions) has a cardinality/range. <em>d.N</em> is the number of distinct values <var>d</var> takes on, and generically these are the range 0,1, &hellip; ,(d.N)&oline;. A vector, such as $\alpha$, has a size <var>N</var>, which denotes the <em>length</em> of the vector.</DD>
 
 <DT>D : dimensionality</DT>
     <DD>A vector <code>x</code> of discrete variables has a length x.N. But it creates a space of possible values (the Cartesian product) equal to the product of the individual variable cardinalities. So <code>x.D</code> is the size of the Cartesian space of a vector <code>x</code>.
-        <pre>x.D  &equiv;  &prod; <sub>i= 0 &hellip; (x.N)&oline; </sub>  x<sub>i</sub>.N
-    </pre>
-    A space in <span class="n">DDP</span>, say $\Theta$, is usually a set of vectors of the space of possible vectors.  The number of points in a space is then <code>&Theta;.D.</code></DD>
+    $$x.D  \equiv {\prod}_{i= 0}^{x.N^-} x_i.N.$$
+    A space in <span class="n">DDP</span>, say $\Theta$, is usually a set of vectors of the space of possible vectors.  The number of points in a space is then $\Theta$.D.</DD>
 
 <DT>Rows and columns of matrices</DT>
     <DD>Since matrices are typically representing a vector space, <var>A.D</var> is the number of rows and <var>A.N</var> is the number of columns.</DD>
 
-<DT>v : current value.</DT>
-
-    <DD>In math, <var>a</var> usually means the value of the variable <var>a</var>.  This notation is inadequate when variables have multiple properties and when the notation is meant to reflect some elements of the computer program. Instead, the current value of a variable or vector is the property <em>v</em>. So if <var>a</var> is a discrete variable <code>a.v</code> is the value of <var>a</var>, which can only be one of the values 0 &hellip; (a.N)&oline;.</DD>
 
 <DT>i : position.</DT>
 
     <DD>Many objects appear in a vector or a list.  The objects position in the list is <var>i</var>.  So a<sub>i</sub> is a name for the ith action variable in &alpha;. We can write a<sub>i</sub>.i = i. This redundancy turns out to be very important in some cases.</DD>
 
+<DT>v : current value.</DT>
+
+    <DD>In math, <var>a</var> usually means the value of the variable <var>a</var>.  This notation is inadequate when variables have multiple properties and when the notation is meant to reflect some elements of the computer program. Instead, the current value of a variable or vector is the property <em>v</em>. So if <var>a</var> is a discrete variable <code>a.v</code> is the value of <var>a</var>, which can only be one of the values 0 &hellip; (a.N)&oline;.</DD>
+    
+    <DD>An important function in niqlow is `CV`() which will return the current value of objects sent to it.  So typically <code>MyCode</code> does not need to reference  <code>.v</code> directly. This is explained in detail below.</DD>
+
 <DT>.actual  : the actual values</DT>
 
-    <DD><code>MyModel</code> may need discrete values to correspond to another set of values (possibly not even integer values).  Which values are mapped to may depend on parameters that are changing between solutions of the model. If <code>MyModel</code> creates an action or state variable <var>x</var> from a derived the class then it can also provide an <code>a-&gt;Update()</code> routine to reset and store the vector of <em>actual</em>. The default is that <code>x.actual = 0... (x.N)&oline;</code>, the range of <code>x.v</code>.</DD>
+    <DD><code>MyModel</code> may need discrete values to correspond to another set of values (possibly not even integer values).  Which values are mapped to may depend on parameters that are changing between solutions of the model. </DD>
+    
+    <DD>If <code>MyModel</code> creates an action or state variable <var>x</var> from a derived the class then it can also provide an <code>Update()</code> routine to reset and store the vector of <em>actual</em>.</DD>
+    
+    <DD>The default is that <code>x.actual = 0... (x.N)&oline;</code>, the range of <code>x.v</code>.</DD>
+    
 
 <li>Accessing Values of Quantity Objects</li>
 
-<code>MyCode</code> can get the current value of an object simply using <code>x.v</code> (and the actual value as <code>x.actual</code>, but this is not recommended.  And <code>MyCode</code> should <em>never</em> modify these values because DDP ensures they have the correct values at all times.  One reason to avoid direct reference to <code>.v</code> is that <code>MyCode</code> will change as it develops. For example, early on some quantity <var>x</var> may not be an action or state variable, but simply a fixed number. So <code>MyModel</code> can access its current value as simply <code>x</code>. However, as the model takes shape <var>x</var> may be changed to a variable.  But now <code>x</code> is a complicated object not a number.  The user would have to go through <code>MyCode</code> and <code>x</code> to <code>x.v</code>. It is also possible to want to change a number into a function, <code>x()</code> that computes and returns a value.</p>
+<code>MyCode</code> can get the current value of an object simply using <code>x.v</code> (and the actual value as <code>x.actual[v]</code>, but this is not recommended.  <code>MyCode</code> should <em>never</em> modify these values because DDP ensures they have the correct values at all times.</p>
+
+<p>One reason to avoid direct reference to <code>.v</code> is that <code>MyCode</code> will change as it develops. For example, early on some quantity <var>x</var> may not be an action or state variable, but simply a fixed number. So <code>MyModel</code> can access its current value as simply <code>x</code>. However, as the model takes shape <var>x</var> may be changed to a variable.  But now <code>x</code> is a complicated object not a number.  The user would have to go through <code>MyCode</code> and <code>x</code> to <code>x.v</code>. It is also possible to want to change a number into a function, <code>x()</code> that computes and returns a value.</p>
 
 <span class="n">DDP</span> provides functions to access current and actual values that will work even when the container changes from a simple variable to a Quantity object or function.  </p>
 
@@ -765,7 +781,9 @@ The interpretation of a property can depend on the kind of object on the left si
 
 <DT><code>`AV`()</code></DT>
 
-    <DD>Discrete quantities like state variables always take on values from 0 to some upper bound <code>N-1</code>.  However, in the model each of those discrete values may map into different values in the model.  The property <code>actual</code> contains these model-relevant values. <code>AV(x)</code> acts like <code>CV()</code> but it returns <code>x.actual[x.v]</code>.  By default this equals <code>CV(x)</code> unless you specify different actual values.  So in the default case <code>AV(x) = CV(x)</code>. In this way <code>a-&gt;Update()</code> is only called once for each variable on each model solution to reset <code>.actual</code>.  If <code>.actual</code> were not a vector <code>x-&gt;Update()</code> would have to be called every time <code>x.v</code> changed.</DD>
+    <DD>Discrete quantities like state variables always take on values from 0 to some upper bound <code>N-1</code>.  However, in the model each of those discrete values may map into different values in the model.  The property <code>actual</code> contains these model-relevant values. <code>AV(x)</code> acts like <code>CV()</code> but it returns <code>x.actual[x.v]</code>.</DD>
+      
+    <DD>By default this equals <code>CV(x)</code> unless you specify different actual values.  So in the default case <code>AV(x) = CV(x)</code>. In this way <code>a-&gt;Update()</code> is only called once for each variable on each model solution to reset <code>.actual</code>.  If <code>.actual</code> were not a vector <code>x-&gt;Update()</code> would have to be called every time <code>x.v</code> changed.</DD>
 
 </OL>
 
@@ -776,14 +794,13 @@ First, the simplest and most general notation is introduced to describe a DDP.  
 <OL class="chapter">
 <li><dfn id="DP-def">Definition of a DP Model</dfn> </li>
 
- <blockquote><b>The general notion of a dynamic program used here has five primitives and four interrelated aspects of the solution.</b></blockquote>
-
 <DT>Primitives: basic elements of a complete DP model.</DT>
     <OL class="steps">
     <LI>$\alpha \in A$: The (finite) set of possible actions</LI>
     <LI>$\theta \in \Theta$: The (discrete) state space</LI>
     <LI>$P(\theta^{\,\prime}\,|\,\alpha,\theta)$: Conditional transition to the next state, including any notion of a time dimension.</LI>
     <LI>$U(\alpha,\theta)$: Utility/return/payoff of an action conditional on the state</LI>
+    <li>$\zeta_\alpha$: Choice-specific shock added to utility in order to smooth choice probabilities.</li>
     <LI>$E\left[\sum_{t=0,\dots}\delta^t\,U(\alpha_t,\theta_t)\right]$: additively separable objective with foresight; $\delta$ is the discount factor.</LI>
     </OL>
 
@@ -942,7 +959,7 @@ MyModel::Initialize() {
     }
 &vellip;
 MyModel Utility(); {                   //NEW
-    return CV(d) .== CV(m);            //NEW   
+    return CV(d) .== CV(m);            //NEW
     }                                  //NEW
 &vellip;
 MyModel::Initialize() {

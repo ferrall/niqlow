@@ -3,29 +3,6 @@
 #endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
-/**  Simple Value Iteration solution.
-
-@param ToScreen  TRUE [default] means output is displayed .
-@param aM	address to return matrix<br>0, do not save [default]
-@param MaxChoiceIndex FALSE = print choice probability vector [default]<br>TRUE = only print index of choice with max
-probability.  Useful when the full action matrix is very large.
-@param TrimTerminals FALSE [default] <br>TRUE means states marked `Bellman::Type`&gt;=TERMINAL are deleted
-@param TrimZeroChoice FALSE [default] <br> TRUE means states with no choice are deleted
-@return TRUE if method fails, FALSE if it succees
-<DT>Note:  All parameters are optional, so <code>VISolve()</code> works.</DT>
-<DT>This function</DT>
-<DD>Creates a `ValueIteration` method</dd>
-<dd>Calls `DPDeubg::outAllV`(<parameters>)</dd>
-<DD>Calls `ValueIteration::Solve`()</dd>
-<dd>deletes the solution method</dd>
-
-This routine simplifies basic solving.  Simply call it after calling `DP::CreateSpaces`().
-Its useful for debugging and demonstration purposes because the user's code does not need to create
-the solution method object and call solve.
-
-This is inefficient to use in any context when a solution method is applied repeatedly.
-
-**/
 VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling VISolve()");
     decl meth = new ValueIteration(),succeed;
@@ -35,11 +12,11 @@ VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
     return succeed;
     }
 
-/** Creates a new &quot;brute force&quot; Bellman iteration method.
-@param myGSolve 0 (default), built in task will be
-used.<br/>
-`GSolve`-derived object to use for iterating over endogenous states
-
+/** Creates a new "brute force" Bellman iteration method.
+@param myGSolve 0 (default), built in task will be used.<br/>
+    `GSolve`-derived object to use for iterating over endogenous states
+Derived methods may send a replacement for GSolve.  Ordinary users would only send an argument if they had
+developed their own solution method.
 **/
 ValueIteration::ValueIteration(myGSolve) {
     Method(myGSolve);
@@ -50,9 +27,6 @@ ValueIteration::ValueIteration(myGSolve) {
 used.<br/>
 `GSolve`-derived object to use for iterating over endogenous states
 
-This method works for Ergodic environments or at a stationary period of a non-ergodic clock.<br/>
-
-Implementation does not always work.  Needs to be improved.
 
 **/
 NewtonKantorovich::NewtonKantorovich(myNGSolve) {
@@ -113,6 +87,13 @@ ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
     return qtask.itask.succeed;
 	}
 
+/**Solve Bellman's Equation switching to N-K when a tolerance is reached.
+@param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
+@param Rgroups
+@param MaxTrips 0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
+@return TRUE if all solutions succeed; FALSE if any fail.
+
+**/
 NewtonKantorovich::Solve(Fgroups,Rgroups,MaxTrips)  {
     return ValueIteration::Solve(Fgroups,Rgroups,MaxTrips);
     }
@@ -192,6 +173,7 @@ GSolve::Update() {
     return done || (trips>=MaxTrips);
 	}
 
+/**	Check convergence in Bellman iteration after a stage of state-space spanning in Newton-Kantorovich.**/
 NKSolve::Update() {
 	++trips;
     decl mefail,oldNK = NKstep;
@@ -341,7 +323,10 @@ KWGSolve::Solve(instate) {
 		}
 	}
 
-/** Initialize Keane-Wolpin Approximation method.
+/** Create a Keane-Wolpin Approximation method.
+
+
+
 **/
 KeaneWolpin::KeaneWolpin(myGSolve) {
     if (isint(SampleProportion))
@@ -372,6 +357,13 @@ KWGSolve::KWGSolve(caller) {
 /**The default specification of the KW regression.
 @param kwstep which step of KW approximation to perform
 @param Vdelta (V-vv)'
+
+The default is to run the regression:
+$$\hat{V}-V_0 = X\beta_t.\nonumber$$
+The default specification of the row of state-specific values is
+$$X =\l(\matrix{\l(V_0-v_0\r) & \sqrt{V_0-v_0}}\r).\nonumber$$
+That is, the difference between Emax and maxE is a non-linear function of the differences in action values at the median shock.
+
 **/
 KWGSolve::Specification(kwstep,V,Vdelta) {
 	decl xrow;

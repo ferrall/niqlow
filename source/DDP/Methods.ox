@@ -9,14 +9,14 @@
 #endif
 
 Method::Method(myGSolve) {
-	   if (!Flags::ThetaCreated) oxrunerror("DDP Error 28. Must create spaces before creating a solution method");
-	   FETask();
-       DoNotIterate = FALSE;
-       Volume = QUIET;
-       vtoler = DefTolerance;
-       if (!isint(myGSolve) && !isclass(myGSolve,"ThetaTask")) oxrunerror("argument must be 0 or a ThetaTask");
-       qtask = new RandomSolve(isint(myGSolve) ? new GSolve() : myGSolve);
-        }
+    if (!Flags::ThetaCreated) oxrunerror("DDP Error 28. Must create spaces before creating a solution method");
+    FETask();
+    DoNotIterate = FALSE;
+    Volume = QUIET;
+    vtoler = DefTolerance;
+    if (!isint(myGSolve) && !isclass(myGSolve,"ThetaTask")) oxrunerror("DDP Error 28a. Argument must be 0 or a ThetaTask");
+    qtask = new RandomSolve(isint(myGSolve) ? new GSolve() : myGSolve);
+    }
 
 /** This does common setup tasks but actually doesn't solve.
     **/
@@ -36,6 +36,10 @@ Method::Initialize(MaxTrips) {
     Flags::Phase = Solving;
     }
 
+/** Carry out a solution method.
+@param Fgroups
+@param Rgroups
+**/
 Method::Solve(Fgroups,Rgroups) {
     if (Volume>QUIET && (Fgroups==AllFixed && Rgroups==AllRand)) println("\n>>>>>>Value Iteration Starting");
 	if (Fgroups==AllFixed) {
@@ -76,7 +80,10 @@ Method::ToggleIterate(ToggleOnlyTrans) {
         }
     }
 
-/** Process a point in the fixed effect space.
+/** Process a point in the fixed-effect space.
+
+This is not called by the user's code.  It is called by the method's Solve() routine.
+
 <OL>
 <LI>If <code>UpdateTime</code> = <code>AfterFixed</code>, then update transitions and variables.</LI>
 <LI>Apply the solution method for each value of the random effect vector.</LI>
@@ -115,9 +122,12 @@ GSolve::GSolve(caller) {
     Volume = QUIET;
     }
 
+/** Reset t'' to 0.**/
 GSolve::ZeroTprime() { state[counter.tprime.pos] = 0; }
 
 /** Apply the solution method for the current fixed values.
+
+This is not called by the user's code.  It is called by the method's <code>Run()</code> routine.
 
 If <code>UpdateTime</code> = <code>AfterRandom</code>, then update transitions and variables.
 
@@ -135,9 +145,14 @@ RandomSolve::Run()  {
 	}
 
 /** Interate over the state space apply the solution method.
+This is not called by the user's code. It is called for each point
+in the group space $\Gamma.$ It's job is to iterate over $\Theta.$
+
 <OL>
-<LI>Compute endogenous utility</LI>
-<LI>Iterate over states applying Bellman's equation.</LI>
+<LI>Set the `Flag::setPstar` for whether $P^\star$ should be computed or not.</LI>
+<LI>Compute utility</LI>
+<LI>Iterate over $\theta$ applying Bellman's equation or other solution method if replaced.</LI>
+<LI>Call any functions added to the <code>PostGSolve</code> `HookTimes`<code>
 </OL>
 **/
 GSolve::Solve(instate) {
@@ -153,12 +168,12 @@ GSolve::Solve(instate) {
     Hooks::Do(PostGSolve);
     if (Volume>SILENT && N::G>1) print(".");
 	}
-/** Apply Bellman's equation at a point &theta;
+/** Apply the method (default is Bellman equation) at a point $\theta$.
 <OL>
-<LI>Compute the value of actions, <var>v(&alpha;,&theta;)</var> by calling `Bellman::ActVal`()</LI>
-<LI>Call `Bellman::thetaEMax`() and storing the value </LI>
-<LI>If `Flags::setPstar` then smooth choice probabilities.  And if `Flags::IsErgodic` then update the state-to-state
-transition matrix, &Rho;(&theta;&prime;;&theta;)</LI>
+<LI>Compute the value of actions, $v(A(\theta),\theta)</var> by calling `Bellman::ActVal`() or the
+replacement for the actual method</LI>
+<LI>Call `Bellman::thetaEMax`() or replacment to store the value in the scratch space for $V(\theta)$.</LI>
+<LI>Call `Gsolve::PostEmax`() or replacement</LI>
 </OL>
 
 **/
@@ -169,6 +184,19 @@ GSolve::Run() {
 	N::VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
     this->PostEMax();
 	}
+
+/** Process $\theta$ after computing $V$.
+If `Flags::setPstar` then
+<OL>
+<LI>Smooth choice probabilities with the DP-model's `Bellman::Smooth`() method.</LI>
+<LI>Call anything added to the <code>PostSmooth</code> `HookTimes`</LI>
+<LI>If `Flags::IsErgodic` then update the state-to-state transition matrix,
+    $P(\theta^\prime;\theta)$, for all $\theta^\prime$ reachable from $\theta$
+    using the choice proabilities and the primitive transition $P(\theta^\prime;\alpha,\theta)$. </LI>
+</OL>
+The state-to-state transition is only needed for some solution methods and for calculation of
+the stationary distribution in ergodic models.
+**/
 GSolve::PostEMax() {
 	if (Flags::setPstar)  {
 		I::curth->Smooth();

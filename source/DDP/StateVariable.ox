@@ -1401,8 +1401,9 @@ Tauchen::Tauchen(L,N,M,mu,sig,rho) {
 	gaps = range(0.5,N-1.5,+1);
 	pts = zeros(N,N+1);
 	Grid = zeros(N,N);
-    if (!(isclass(M)||isclass(mu)||isclass(rho)||isclass(sig)))
+    if (!(isclass(M)||isclass(mu)||isclass(rho)||isclass(sig))) {
         Update();
+        }
 	}
 	
 Tauchen::Transit() {
@@ -1412,7 +1413,7 @@ Tauchen::Transit() {
 Tauchen::Update() {
 	s = AV(sig);
 	r = AV(rho);
-    if (feq(s,0.0)||feq(r,0.0) oxwarning("Tauchen st. deviation is near 0 or correlation is near 1.0");
+    if (isfeq(s,0.0)||isfeq(r,0.0)) oxwarning("Tauchen st. deviation is near 0 or correlation is near 1.0");
 	rnge = AV(M)*s/sqrt(1-sqr(r)),
 	actual = -rnge +2*rnge*vals/(N-1),
 	pts[][] = probn(
