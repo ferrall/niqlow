@@ -243,6 +243,7 @@ enum {NoInt,StateInt,       ActInt,          AuxInt, InteractionTypes}
             @see OutcomeDataSet
             @name LikelihoodTypes **/
 enum {CCLike,ExogLike,PartObsLike,LikelihoodTypes}
+
         /** parallel array of labels for the built-in clock types. **/
 static const decl ClockTypeLabels
     = {"Infinite Horizon","Ergodic","Subdivided Periods","Normal Finite Horizon Aging","Static Program (finite horizon and T=1)","Random Aging (finite horizon but aging happens with probability<1 at some t","Random Mortaility (finite horizon with probability of early transition to last t, death)",
@@ -431,7 +432,7 @@ struct Alpha : DDPauxiliary {
     static Initialize();
     static AddA(fa);
     static Aprint();
-    static ResetA(alist,CallUpdate=TRUE); 
+    static ResetA(alist,CallUpdate=TRUE);
     //static CV(actvar);
     //static AV(actvar);
     static SetA(ini = UseCurrent);
@@ -452,10 +453,6 @@ struct Labels : DDPauxiliary {
 /** Contains information on an object (variable, auxiliary outcome, etc) to be tracked.
 **/
 struct TrackObj : DDPauxiliary {
-//    /* See `DataColumnTypes`        type,
-//    /* `Discrete` object**/            obj,
-//    /* Inherited fromt the object.**/  Volume,
-//    /* object can have a continuous dynamic distribution. **/       contdist,
     const decl
     /** Position in the flat list  **/  pos,
     /** column label of index **/       LorC;
@@ -474,10 +471,10 @@ struct TrackObj : DDPauxiliary {
     }
 
 static decl
-        groupoffs = <onlyrand,onlydynrand,onlyfixed,bothgroup>,
-        thetaoffs = <tracking,iterating>,
-        exogoffs =  <onlyexog,onlysemiexog,bothexog>,
-        maskoffs =  <onlyacts,onlysemiexog,onlyendog>,
+                                                groupoffs = <onlyrand,onlydynrand,onlyfixed,bothgroup>,
+                                                thetaoffs = <tracking,iterating>,
+                                                exogoffs =  <onlyexog,onlysemiexog,bothexog>,
+                                                maskoffs =  <onlyacts,onlysemiexog,onlyendog>,
         /** $\Gamma$: array (list) of groups of fixed and random effects,
             $\gamma$.**/                                              Gamma,
         /** 2-dimensiona array pointing to $\Gamma$, [r,f]. **/       Fgamma,

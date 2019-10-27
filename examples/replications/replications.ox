@@ -1,7 +1,7 @@
 /** Code that attempts to replicate published DDP work <a href="replications/default.html">documentation</a>.
 **/
 #include "replications.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 repmenu() {
     decl reps = new Menu("Replications",FALSE);
@@ -14,6 +14,7 @@ repmenu() {
 			{"WolpinEmet1987",			SchToWork::Replicate},
 			{"RosenzweigWolpinJPE1993",	Farmer::Replicate},
 			{"KeaneWolpinREStat1994",	DynamicRoy::Replicate},
+			{"KeaneWolpinJPE1997",	    KWJPE97::Replicate},
 			{"GilleskieEmet1998", 		DynaHealth::Replicate},
 			{"A&M2002",					AMEstimates::DoAll},
 			{"IJCEmet2009", 			FirmEntry::Run},

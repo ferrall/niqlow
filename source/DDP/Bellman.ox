@@ -18,6 +18,7 @@ a point &theta; it is must be computed for each semi-exogenous state &eta;.
 If a state variable can be placed in &epsilon; instead of &eta; or &theta; it reduces computation and storage signficantly.
 
 @see DP::SetUpdateTime
+@internal
 **/
 EndogTrans::EndogTrans() {
 	Task();
@@ -43,6 +44,7 @@ EndogTrans::Run() {
 </OL>
 
 @see DP::SetUpdateTime , UpdateTimes
+@internal
 **/
 EndogTrans::Transitions(state) {
     this.state = isint(state) ? N::All-1 : state;
@@ -116,6 +118,7 @@ Bellman::Reachable() {    return TRUE;     }
 
 /** Create space for $U()$ and $P(\alpha;\eta)$ at this $\theta$, accounting for random subsampling.
 @see DP::SubSampleStates
+@internal
 **/
 Bellman::Allocate(picked,CalledFromBellman) {
   decl OldSS = InSS(),NewSS;
@@ -160,6 +163,7 @@ This is <em>not</em> called at unreachable or terminal states.
 **/	
 Bellman::FeasibleActions()	{  	return ones(Alpha::N,1); 	}
 
+/**@internal**/
 Bellman::UReset() {	pandv[][] = .NaN; }
 	
 /** Default Choice Probabilities: no smoothing.
@@ -194,7 +198,7 @@ Bellman::ExogExpectedV() {
 	pandv[][I::elo : I::ehi] += I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]);
     }
 
-/** Compute v(&alpha;&theta;) for all values of &epsilon; and &eta;. **/
+/** Compute $v(\alpha;\theta)$ for all values of $\epsilon$ and $\eta$. **/
 Bellman::ActVal() {
     XUT->ReCompute(DoAll);  //ZZZZ
 	pandv[][] = XUT.U;
@@ -203,7 +207,7 @@ Bellman::ActVal() {
     IOE->Compute();
     }
 
-/** Computes v() and V for out-of-sample states. **/
+/** KeaneWolpin: Computes v() and V for out-of-sample states. **/
 Bellman::MedianActVal() {
         //Note Since Action values not computed for terminal states, Type same as IsLast
     XUT->ReCompute(UseCurrent);  //ZZZZ
@@ -250,6 +254,9 @@ Bellman::UpdatePtrans(aPt,vindex) {
 		  aPt[0][ vindex[ Nxt[Qit][eta] ] ][ vindex[ii] ] += (h[eta][]*Nxt[Qrho][eta])';
 	}
 
+/**
+@internal
+**/
 Bellman::OutputValue() { return 0.0;     }
 	
 
@@ -324,13 +331,16 @@ Bellman::Utility()  {
 	}
 
 /** Returns the entry in Hotz Miller Q vector for this state.
+@internal
 **/
 Bellman::HMQVal() {
     XUT->ReCompute(UseCurrent);
     UpdatePtrans();
     return pandv'*(XUT.U+M_EULER-log(pandv));
     }
-
+/**
+@internal
+**/
 Bellman::AMEMax() {
     decl oldp = pandv;
     ActVal();
@@ -377,11 +387,11 @@ Bellman::AutoVarPrint1(task) {
 //    println("*** ",InSubSample," ",this.InSubSample);
 	}
 
+
 Bellman::OutcomesGivenEpsilon(){}
 
-//Bellman::ExpectedOutcomesOverEpsilon(chprob) {    }
-
 /** This is called by a semi-exogenous task to update transitions from this state to the future.
+@internal
 **/
 Bellman::ExogStatetoState() {
     decl et = I::all[onlysemiexog],mynxt, nnew;
@@ -458,6 +468,7 @@ The same model with different solution methods and different parameters can be s
 Delete allows the user to start from scratch with a different model (horizons, actions, and states).
 
 The key output from the model can be saved or used prior to deleting it.
+@internal
 **/
 Bellman::Delete() {
 	decl i;
@@ -488,8 +499,11 @@ Bellman::Delete() {
 **/
 Bellman::Initialize(userState,UseStateList) {
 	DP::Initialize(userState,UseStateList);
+    parents = " | Bellman";
 	}
 
+/** Base function, just calls the DP version.
+**/
 Bellman::CreateSpaces() {	DP::CreateSpaces(); 	}
 
 /** Initialize the DP with extreme-value smoothing.
@@ -506,13 +520,14 @@ With &rho; = 0 choice probabilities are completely smoothed. Each feasible choic
 **/
 ExtremeValue::Initialize(rho,userState,UseStateList) {								
 	Bellman::Initialize(userState,UseStateList);
+    parents = " | Exteme Value " + parents;
 	SetRho(rho);
 	}
 
-/** Set the smoothing parameter &rho;. **/
+/** Set the smoothing parameter $\rho$. **/
 ExtremeValue::SetRho(rho) {	this.rho = CV(rho)<0 ? double(DBL_MAX_E_EXP) : rho;	}
 
-/**  Currently this just calls the Bellman version, no special code.
+/**  calls the Bellman version, no special code.
 **/
 ExtremeValue::CreateSpaces() {	Bellman::CreateSpaces(); }
 
@@ -526,6 +541,7 @@ UseStateList is forced to be FALSE because the environment is Ergodic.
 **/	
 Rust::Initialize(userState) {
 	ExtremeValue::Initialize(1.0,userState,FALSE);
+    parents = " | Rust "+parents;
 	SetClock(Ergodic);
 	Actions(d = new BinaryChoice());
 	}
@@ -544,11 +560,12 @@ FALSE if the state is not reachable.
 **/
 McFadden::Initialize(Nchoices,userState,UseStateList) {
 	ExtremeValue::Initialize(1.0,userState,UseStateList);
+    parents = " | McFadden "+parents;
 	Actions(d = new ActionVariable("d",Nchoices));
 	SetDelta(0.0);	
 	}
 
-/**  Currently this just calls the ExtremeValue version, no special code.
+/**  just calls the ExtremeValue version, no special code.
 **/
 McFadden::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 
@@ -567,6 +584,7 @@ McFadden::ActVal() {
 **/
 ExPostSmoothing::Initialize(userState,UseStateList){
 	Bellman::Initialize(userState,UseStateList);
+    parents = " | Ex Post Smoothing "+parents;
 	}
 
 /**  Set up the ex-post smoothing state space.
@@ -610,6 +628,7 @@ OneStateModel::Initialize(UorB,Method,...
     else {
         ExPostSmoothing::Initialize(UorB);
         }
+    parents = " | One State Model "+parents;
     SetClock(StaticProgram);
     Actions(args);
     EndogenousStates(new Fixed("q"));
@@ -663,6 +682,8 @@ ExtremeValue::thetaEMax(){
 **/
 Normal::Initialize(userState,UseStateList) {
 	Bellman::Initialize(userState,UseStateList);
+    parents = " | Normal "+parents;
+
 	}
 
 /**  Calls the Bellman version and initialize `Normal::Chol`.
@@ -713,6 +734,7 @@ Normal::Smooth() {	/*EV = Vnow; NoR??*/	}
 **/
 NIID::Initialize(userState,UseStateList) {
 	Normal::Initialize(userState,UseStateList);
+    parents = " | NIID "+parents;
 	Hooks::Add(PreUpdate,NIID::UpdateChol);
 	}
 
@@ -767,6 +789,7 @@ NIID::UpdateChol() {
 
 	
 /**
+@internal
 **/
 Normal::thetaEMax() {	return EV;	}
 	
@@ -776,6 +799,7 @@ Normal::thetaEMax() {	return EV;	}
 **/
 NnotIID::Initialize(userState,UseStateList) {
 	Normal::Initialize(userState,UseStateList);
+    parents = " | Not IID "+parents;
 	Hooks::Add(PreUpdate,NnotIID::UpdateChol);
 	}
 
@@ -819,6 +843,8 @@ NnotIID::ExogExpectedV() {
     }
 
 /**Iterate on Bellman's equation at &theta; with ex ante correlated normal additive errors.
+@internal
+
 **/
 NnotIID::ActVal() {
     XUT->ReCompute(DoAll);  //ZZZZ
@@ -834,6 +860,7 @@ NnotIID::ActVal() {
 	}
 
 /** Update the Cholesky matrix for the correlated value shocks.
+@internal
 **/
 NnotIID::UpdateChol() {
 	decl i;
@@ -852,6 +879,7 @@ NnotIID::UpdateChol() {
 **/
 OneDimensionalChoice::Initialize(userState,d,UseStateList) {
 	Bellman::Initialize(userState,UseStateList);
+    parents = " | One Dimensional Choice "+parents;
 	if (isclass(d,"ActionVariable")) Actions(this.d = d);
 	else if (isint(d) && d>0) Actions(this.d = new ActionVariable("d",d));
 	else oxrunerror("second argument 1d choice must provide an action or positive number of values");
@@ -885,6 +913,9 @@ The answer is stored in <code>solvez</code>.
 **/
 OneDimensionalChoice::Continuous() { return TRUE;   }
 
+/**
+@internal
+**/
 OneDimensionalChoice::SetTheta(state,picked) {
     Bellman(state,picked);
     solvez = Continuous();
@@ -917,6 +948,7 @@ $$EV(\theta) = \sum_{j=0}^{d.N^-} \left[ \left\{ Prob(z^\star_{j-1}<z\le z^\star
 <dd>z*<sub>d.N</sub> &equiv; +&infin;</dd>
 
 @return EV
+@internal
 **/
 OneDimensionalChoice::thetaEMax(){
     if (solvez && N::Options[Aind]>One) {
@@ -929,11 +961,14 @@ OneDimensionalChoice::thetaEMax(){
 	return EV=V;
 	}
 
+/** .**/
 OneDimensionalChoice::Getz() { return zstar; }
+/** .**/
 OneDimensionalChoice::Setz(z){ zstar[][I::r]=z; }
 
 /** Initialize v(d;&theta;), stored in `Bellman::pandv`, as the constant future component that does
 not depend on z*.
+@internal
 **/
 OneDimensionalChoice::ActVal() {
     pandv[][] = Type>=LASTT
@@ -945,27 +980,7 @@ OneDimensionalChoice::ActVal() {
         }
 	}	
 
-/*OneDimensionalChoice::SysSolve(RVs,VV) {
-    ActVal(VV[0][I::later]);
-	if ( solvez && isclass(RVs[Aind])) {
-		RVs[Aind] -> RVSolve(this,DeltaV(pandv));
-		V[] = VV[0][I::now][I::all[iterating]] = thetaEMax();
-		}
-	else {
-		V[] = VV[0][I::now][I::all[iterating]] = maxc(pandv);
-        if (solvez) {
-		  pstar = <1.0>;
-		  zstar[][] = .NaN;
-          }
-	    if (Flags::setPstar) {
-            this->Smooth(V);
-            Hooks::Do(PostSmooth);
-            if (Flags::IsErgodic) I::curth->UpdatePtrans();
-            }
-		}
-    return V;
-    }*/
-
+/** @internal **/
 KeepZ::ActVal() {
     if (solvez>One) {
         keptz->InitDynamic(this); //vV
@@ -974,6 +989,7 @@ KeepZ::ActVal() {
     OneDimensionalChoice::ActVal();
     }
 
+/** @internal **/
 KeepZ::DynamicActVal(z) {
     pandv[] = diagonal(this->Uz(z),0,-1); // keep adjacent values to be differenced later
                                           // April 2016.  This was -diagonal() but not consistent with later addin EV
@@ -981,6 +997,7 @@ KeepZ::DynamicActVal(z) {
     return pandv;
     }
 
+/** @internal **/
 KeepZ::thetaEMax () {
     return OneDimensionalChoice::thetaEMax();
 //    return v;
@@ -995,6 +1012,7 @@ KeepZ::thetaEMax () {
 **/	
 KeepZ::Initialize(userState,d,UseStateList) {
 	OneDimensionalChoice::Initialize(userState,d,UseStateList);
+    parents = " | KeepZ "+parents;
     if (this.d.N!=2) oxrunerror("KeepZ can only handle binary choice in this version");
     keptz = UnInitialized;
 	}

@@ -438,7 +438,7 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 
 <DT>State Variables</DT>
 
-    <DD>The `StateVariable` class is designed to represents state variables in a dynamic program.  Like action variables, state variables are created and stored in a <code>static</code> member of the model.  They get added to the model and then <span class="n">DDP</span> incorporates them into the state space and the solution methods. </DD>
+    <DD>The `StateVariable` class is designed to represents state variables in a dynamic program.  Like action variables, the user's code creates state variable, stores them in a <code>static</code> member of the model class, and then adds them to the model. <span class="n">DDP</span> then incorporates them into the state space and the solution methods. </DD>
 
     <DD>Unlike action variables, which are mainly different only in the number of values they can take on, state variables differ from each in a lot of ways. So <span class="n">DDP</span> provides a number of different kinds of state variables to add to a model as well as the possibility of defining your own type if it does not exist already. However, in this simple static situation, the base <code>StateVariable</code> class will suffice.  So Bob's award status will be of that class.</DD>
 
@@ -554,9 +554,8 @@ Here is what is important to gather from the examples:
 <LI>More generally then in the one-state example, your code will call routines/methods to first  <em>initialize</em> the DP environment, then add state variables and action variables to the model then <em>create the spaces</em> implied by the items added to the model.  Then the model can be solved.</LI>
 <LI>Unlike the simple one state set up, you build the action vector $\alpha$ by sending action variables to `DP::Actions`() which will add them to the model.  This is done between initializing and creating spaces.</LI>
 <LI>In <span class="n">DDP</span> timing is controlled by a clock and a static problem is specified by setting the clock as <code>StaticProgram</code>.  This is done between initializing and creating spaces.</LI>
-<LI>The discrete state vector $\theta$ is a vector of state variables, each taking on a finite number of values.  Your model builds $\theta$ by creating new state variable objects and
-adding them to your model using `DP::EndogenousStates`(). </LI>
-<LI>Different states in the model can affect the utility of actions and the set of feasible actions. </LI>
+<LI>The discrete state vector $\theta$ is a vector of state variables, each taking on a finite number of values.  Your model builds $\theta$ by creating new state variable objects and adding them to your model using `DP::EndogenousStates`(). </LI>
+<LI>Different states in the model can affect the utility of actions. The value of state variables can affect the set of feasible actions. </LI>
 <LI>Restrictions of actions is possible by providing a <code>FeasibleActions()</code> routine with your model.  It takes as an input argument the matrix of all possible actions, $A$, and returns a column of 0s and 1s indicating which rows are feasible at the current state.</LI>
 <LI>As with <code>Utility()</code>, the <span class="n">DDP</span> code will always set the value of state variables before calling <code>FeasibleActions()</code>.  The value of a state variable is stored in its <code>.v</code> data member, or your code can send the state variable to `CV`() which will return the value.</LI>
 </OL>
@@ -569,7 +568,7 @@ adding them to your model using `DP::EndogenousStates`(). </LI>
 
 <a name="SC"><LI>Choices Linked over Time (Dynamic States)</LI></a>
 
-So far the environment has multiple discrete choices but no dynamics.  Now we introduce dynamics.  We will use Tommy's choice to introduce dynamics.   That is, we will model how many hours Tommy studies for an exam in the period leading up to the exam.
+So far the environment has multiple discrete choices but no dynamics.  Now we introduce dynamics.  We will use Tommy's choice to introduce dynamics.   That is, we will model how many hours Tommy studies for an exam in the period leading up to the exam.</p>
 
 <DT>Tommy Choices Redux</DT>
 <DD>Tommy chooses among $J=13$ different discrete numbers of hours each night.  Nights are different (and thus his choice) because the opportunity cost of studying goes up on the weekend.</DD>
@@ -580,14 +579,14 @@ So far the environment has multiple discrete choices but no dynamics.  Now we in
 In the static examples earlier utility is the objective and there is nothing that ties together multiple states.  Once we introduce sequential choice it becomes necessary to describe how choices and their utilities are aggregated over time.  The power of dynamic programming is to tie together simple static choices in order to explain sequential choice.</p>
 
 <DT>Time</DT>
-    <DD>Let <var>t</var> denote time, which is discrete. The first decision occurs at <var>t=0</var>.  Suppose the chooser at time 0 is trying to decide among different sequences of choices.  A particular sequence of choices is $\alpha \equiv \alpha_0, \alpha_0, \dots$.  For the moment the number of periods is left unspecified. It could be finite or infinite.  And for the moment we suppress any other state variables that may be part of the model other than <var>t</var>.</DD>
+    <DD>Let <var>t</var> denote time, takes on discrete values. The first decision occurs at <var>t=0</var>.  Suppose the chooser at time 0 is trying to decide among different sequences of choices.  A particular sequence of choices is $\alpha \equiv \alpha_0, \alpha_0, \dots$.  For the moment, the total number of periods is left unspecified. It could be finite or infinite (the decisions keep going forever).  And, for the moment, we suppress any other state variables that may be part of the model other than <var>t</var>.</DD>
 
-    <DT>Then, <span class="n">DDP</span> and the basic DP framework itself assume that the chooser places value (utility) on that sequence equal to</DT>
+    <DT>Then, <span class="n">DDP</span> and the basic DP framework itself assume that the chooser places value on that sequence equal to</DT>
 $$V(\alpha)  = \sum_{t=0,1,\dots}\  \delta^t U(\alpha_t; t).$$
     <DD>The new and fundamental parameter appearing in $V()$ is the <em>discount factor $\delta$</em>, which typically is in the range $[0,1)$.
     <details class="aside"><summary>Notes</summary>
-    <DD>If the decision horizon is finite then $\delta=1$ is permissible.  </DD>
-    <DD>This formulation allows utility to depend on time as well as the action chosen at time.  But soon we will move <var>t</var> into the state vector $\theta$ and it will simply be a somewhat specialized state variable not something completely set apart from other states.</DD></details>
+    <DD>If the decision horizon is finite then $\delta=1$ is permissible.  If $\delta=0$ the person puts zero weight on future utility.  The decider only cares about the current utility even though current decisions might affect the future.</DD>
+    <DD>This formulation allows utility to depend on time as well as the action chosen at time.  But soon we will move <var>t</var> into the state vector $\theta$ and it will simply be a specialized state variable not completely set apart from other state variables.</DD></details>
     </DD>
 
 <h2>The Clock and Value Function Iteration</h2>
@@ -598,7 +597,7 @@ Dynamic programming accounts for a choice made today affects outcomes in the fut
     <DD>The only required time distinction in DP is between now (today) and later (tomorrow). It is common in the literature to use &prime; to denote things that will happen tomorrow.  These notes follow that convention.  So if <var>t</var> is a state variable, then <var>t</var> alone is its value today when a choice is being made.  The value it takes on tomorrow is the denoted <var>t&prime;</var>. A state variable moving from today to its value tomorrow is called a <em>transition</em>.</DD>
 
 <DT>Stationary and Non-Stationary Clocks</DT>
-    <DD>There are two basic clocks in DP.  The first is a stationary clock in which today is the same as tomorrow.  This means that the decision horizon is infinite, because if decisions end sometime in the future then tomorrow is one period closer to the end then today.  Therefore they are not the same. The second is a special kind of non-stationary world which ends after fixed number of periods.  The is usually called a <em>finite horizon</em> model.  However, <span  class="n">DDP</span> makes distinctions between different kinds of finite horizon clocks.  So what is usually called a finite horizon is here called <em>normal aging</em>.</DD>
+    <DD>There are two basic clocks in DP.  The first is a stationary clock in which today is the same as tomorrow.  This means that the decision horizon is infinite, because if decisions end sometime in the future then tomorrow is one period closer to the end then today.  Therefore they are not the same. The second is a special kind of non-stationary world which ends after fixed number of periods.  This is usually called a <em>finite horizon</em> model.  However, <span  class="n">DDP</span> makes distinctions between different kinds of finite horizon clocks.  So what is usually called a finite horizon is here called <em>normal aging</em>.</DD>
 
 <DT>Normal Aging</DT>
     <DD>In normal aging, time starts at <code>0</code> and ends at some fixed last time, denoted <code>T-1</code>.  That is, <code>T</code> is the number of periods of choice. In normal aging, the time next period is always one period later than the last (until T-1).  That is,
@@ -612,7 +611,20 @@ Dynamic programming accounts for a choice made today affects outcomes in the fut
     <details class="aside"><summary>A perfect analogy</summary>In <em>Ground Hog Day</em> in which Bill Murray knows he will wake up and relive the same day, apparently forever, but his state can be different each day he wakes up.  He can learn to play the piano and every day he wakes up a little better.  And each day he makes choices that affect his utility in the future.  It is a perfect analogy to a stationary decision environment and also a perfect movie.</details>
     An the important feature of time is that if there is a yesterday (as in normal aging) it can never come again.  Any state that occur in the future cannot have a value of time less than <var>t</var>.  </DD>
 
-<h2>Setting the Clock in <span class="n">DDP</span></h2>
+<h2>Clocks in <span class="n">DDP</span></h2>
+
+
+<h2>State Variables that Depend on Current and Past Events <span class="n">DDP</span></h2>
+
+In BobsChoiceB there were two states.  Either Bob has a scholarship or not and this changes his decision.  Dynamic programs can account for state variables that depend on what has happened in the past.  For example a very common state variable counts how many times a choice has been made before the current period.  If $a$ is binary choice then utility might depend on how many times $a=1$ before now.  
+$$A_t = {\sum}_{s=0}^{t-1} a_s.$$
+Note that this does not clearly define the initial value $A_0.$  Typically the model would set this to 0, but it could be initialized to a different value.  For dynamic programming it does not matter how the current value $A_t$ came about.  What matters is how current decisions will alter the effect $A$ in the future.  This is what is meant by the <em>transition of $A$</em>.  We can state this simply as 
+$$A^\prime = A + a.$$
+That is, next period's value of $A$ will be what it is today plus the value of the current decision.  If $a=1$ then $A^\prime = A + 1.$  Otherwise it is unchanged.</p>
+
+
+
+<h2>Terminal States</h2>
 
 <LI><a name="MD">Multiple Deciders</a></LI>
 
@@ -754,17 +766,17 @@ The interpretation of a property can depend on the kind of object on the left si
 <DT>v : current value.</DT>
 
     <DD>In math, <var>a</var> usually means the value of the variable <var>a</var>.  This notation is inadequate when variables have multiple properties and when the notation is meant to reflect some elements of the computer program. Instead, the current value of a variable or vector is the property <em>v</em>. So if <var>a</var> is a discrete variable <code>a.v</code> is the value of <var>a</var>, which can only be one of the values 0 &hellip; (a.N)&oline;.</DD>
-    
+
     <DD>An important function in niqlow is `CV`() which will return the current value of objects sent to it.  So typically <code>MyCode</code> does not need to reference  <code>.v</code> directly. This is explained in detail below.</DD>
 
 <DT>.actual  : the actual values</DT>
 
     <DD><code>MyModel</code> may need discrete values to correspond to another set of values (possibly not even integer values).  Which values are mapped to may depend on parameters that are changing between solutions of the model. </DD>
-    
+
     <DD>If <code>MyModel</code> creates an action or state variable <var>x</var> from a derived the class then it can also provide an <code>Update()</code> routine to reset and store the vector of <em>actual</em>.</DD>
-    
+
     <DD>The default is that <code>x.actual = 0... (x.N)&oline;</code>, the range of <code>x.v</code>.</DD>
-    
+
 
 <li>Accessing Values of Quantity Objects</li>
 
@@ -782,7 +794,7 @@ The interpretation of a property can depend on the kind of object on the left si
 <DT><code>`AV`()</code></DT>
 
     <DD>Discrete quantities like state variables always take on values from 0 to some upper bound <code>N-1</code>.  However, in the model each of those discrete values may map into different values in the model.  The property <code>actual</code> contains these model-relevant values. <code>AV(x)</code> acts like <code>CV()</code> but it returns <code>x.actual[x.v]</code>.</DD>
-      
+
     <DD>By default this equals <code>CV(x)</code> unless you specify different actual values.  So in the default case <code>AV(x) = CV(x)</code>. In this way <code>a-&gt;Update()</code> is only called once for each variable on each model solution to reset <code>.actual</code>.  If <code>.actual</code> were not a vector <code>x-&gt;Update()</code> would have to be called every time <code>x.v</code> changed.</DD>
 
 </OL>

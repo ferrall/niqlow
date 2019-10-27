@@ -7,7 +7,7 @@ probabilities<br/>Two print predictions
 @param prtlevel Two [default] print predictions <br/>One print state and choice
 probabilities<br/>Zero do not print, instead save to prediction moment file
 
-This creates a `PanelPrediction` object, creates the prediction tracking all varaibles and prints
+This creates a `PanelPrediction` object, creates the prediction tracking all varaibles and prints out. Object is then deleted
 
 **/
 ComputePredictions(T,prtlevel) {
@@ -79,7 +79,7 @@ Prediction::Reset() {
 
 /** Create a new prediction.
 
-Typically a user would create a `PathPrediction` which in turn creates predictions.
+Typically a user would create a `PathPrediction` or further derived classes which in turn creates predictions.
 @param t <em>integer</em>, position in the path.
 **/
 Prediction::Prediction(t){
@@ -94,6 +94,7 @@ Prediction::Prediction(t){
 	}
 
 /**
+@internal
 **/
 PathPrediction::SetT() {
   decl cur=this,tmp;
@@ -125,6 +126,8 @@ PathPrediction::tprefix(t) { return sprint("t_","%02u",t,"_"); }
 /** process predictions and empirical matching when there are observations over time.
 @param cmat if a matrix then get contributions from it.  This is true when running in parallel.<br/>Otherwise,
         contributions are located in the individual Prediction objects.
+@internal
+
 **/
 PathPrediction::ProcessContributions(cmat){
     vdelt =<>;    dlabels = {};    flat = <>;
@@ -200,6 +203,9 @@ PathPrediction::Predict(inT,prtlevel){
         }
   }
 
+/**  Work in parallel.
+@internal
+**/
 PanelPrediction::ParallelSolveSub(subp) {
     decl cg = SetG(idiv(subp,N::R),imod(subp,N::R)), subflat=<>;
     decl pobj = cg.find ? fparray[cg.find] : this;
@@ -212,12 +218,13 @@ PanelPrediction::ParallelSolveSub(subp) {
 
 /** Add empirical values to a path of predicted values.
 @param inmom  Txm matrix of values.
-@param hasN FALSE: no row observation column<br>TRUE: second-to-last column that
-contains observation count used for weighting of distances.
-@param hasT FALSE: no model t column<br>TRUE: last column contains observation count
+@param hasN FALSE: no row observation column<br/>
+            TRUE: second-to-last column that contains observation count used for weighting of distances.
+@param hasT FALSE: no model t column<br/>
+            TRUE: last column contains observation count
+
 @comments
-If T is greater than the current length of the path additional predictions are
-concatenated to the path
+If T is greater than the current length of the path additional predictions are concatenated to the path
 
 **/
 PathPrediction::Empirical(inNandMom,hasN,hasT) {
@@ -304,6 +311,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
 /** Set the initial conditions of a path prediction.
 What happens depends on `PathPrediction::iDist`.
 
+@internal
 **/
 PathPrediction::InitialConditions() {
     if (isint(iDist)) {
@@ -339,15 +347,21 @@ PathPrediction::InitialConditions() {
     LeakWarned = FALSE;
     }
 
-/** Set up predicted distributions along a path.
+/** Create a path of predictions.
+@param f     integer: fixed group index
+@param label label
+@param method 0: do not call a nested solution<br/>
+              a solution `Method` object to be called before making predictions
 @param iDist  initial distribution.<br/>
-        integer: start at iDist and increment until a reachable state index is found.
+        ErgodicDist : use computed stationary distribution in ergodic dist.</br>
+        non-negative integer: start at iDist and increment until a reachable state index is found.
         So <code>PathPrediction(0)</code> [default] will start the prediction at the
         lowest-indexed reachable state in
         &Theta;.<br/>
         matrix: a list of states to start the prediction from<br/>
         object of Prediction class: use `Prediction::sind` as the initial state for
         this prediction.
+@param wght
 
 The prediction is not made until `PathPrediction::Predict`() is called.
 
@@ -378,11 +392,17 @@ PathPrediction::PathPrediction(f,label,method,iDist,wght){
 	}
 
 /** clean up.
+@internal
+
 **/
 Prediction::~Prediction() {
     delete sind, p, ch, W,  predmom, empmom;
 	}
 
+/** clean up.
+@internal
+
+**/
 PathPrediction::~PathPrediction() {
 	//decl v; foreach(v in tlist ) delete v;
     delete tlist, tlabels;
@@ -421,6 +441,8 @@ Prediction::Histogram(printit) {
 @return  predicted-empirical<br/>
         with 0 if empirical is missing<br/>
         .Inf if prediction is undefined
+@internal
+
 **/
 Prediction::Delta(mask,printit,tlabels) {
     decl df;
@@ -445,17 +467,15 @@ TrackObj::print(obj) {
     fprintln(Data::logf,"%c",{"v","pct"},"%cf",{"%8.4f","%9.6f"},obj.actual~hist);
     }
 
-/** Objects to track mean values over the path.
-@param LorC  UseLabel: use object label to match to column.<br/>NotInData unmatched to
-data.<br/>integer: column in data set<br>string: column label
-        <br/>TrackAll : track all actions, endogenous states and auxiliaries
-@param mom1 `Discrete` object or array or objects to track
-@param ... more objects or arrays of objects
+/** Add objects to track mean values over the path.
+@param LorC  UseLabel: use object label to match to column.<br/>NotInData unmatched to data.<br/>
+            integer: column in data set<br>string: column label<br/>
+            TrackAll : track all actions, endogenous states and auxiliaries
+@param ... `Discrete` objects and/or arrays or objects to track
 
 @comment
 This routine can be called more than once, but once `PanelPrediction::Predict`() has
-been called no
-more objects can be added to the list.
+been called no more objects can be added to the list.
 
 **/
 PathPrediction::Tracking(LorC,...
@@ -532,6 +552,9 @@ PathPrediction::SetColumns(dlabels,Nplace,Tplace) {
 
 /** Get ready to compute predictions along the path.
 This updates every tracked object.  It updates the density over random effects for this fixed effect.
+
+@internal
+
 **/
 PathPrediction::Initialize() {
     EverPredicted = TRUE;
@@ -548,7 +571,10 @@ PathPrediction::Initialize() {
     return TRUE;
     }
 
-/** Compute predictions and distance over the path. **/
+/** Compute predictions and distance over the path.
+@internal
+
+**/
 PathPrediction::TypeContribution(pf,subflat) {
   decl done, pcode,time0, tv;
   time0 = timer();
@@ -597,17 +623,10 @@ PathPrediction::TypeContribution(pf,subflat) {
   return 0;
   }
 
-/**
-`PanelPrediction::M` is computed as the negative square root of the sum of the gmm
-objective values produced by each PathPrediction:
 
-<dd class="display">
-$$M = -\sqrt{ \sum_{n} dist(emp_n,pred_n)}$$
-</DD>
-PanelPrediction::Objective() {    Predict(); return M; }
-**/
+/** Return the longest MPI message length sent back by a path prediction call.
+@internal
 
-/** Returns the longest MPI message length sent back by a path prediction call
 **/
 PanelPrediction::MaxPathVectorLength(inT) {
     decl n=0;
@@ -619,11 +638,11 @@ PanelPrediction::MaxPathVectorLength(inT) {
     }
 
 /** Set an object to be tracked in predictions.
-@param LorC  UseLabel: use object label to match to column.
-<br/>NotInData unmatched to data.
-<br/>integer: column in data set
-<br/>string: column label
-<br/>TrackAll: add all actions, endogenous states, and auxliaries to the tracking list
+@param LorC  UseLabel: use object label to match to column.<br/>
+            NotInData: unmatched to data.<br/>
+            non-negative integer: column in data set<br/>
+            string: column label<br/>
+            TrackAll: add all actions, endogenous states, and auxliaries to the tracking list
 @param ... objects or arrays of objects to be tracked
 **/
 PanelPrediction::Tracking(LorC,...) {
@@ -635,6 +654,9 @@ PanelPrediction::Tracking(LorC,...) {
         } while( (isclass(cur=cur.fnext)) );
     }
 
+/**
+@internal
+**/
 PanelPrediction::~PanelPrediction() {
 	while (isclass(fnext)) {
 		cur = fnext.fnext;
@@ -665,10 +687,11 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght) {
     }
 
 /** Predict outcomes in the panel.
-@param t positive integer or matrix of lengths of paths to predict (same length as
-number of paths in then panel)<br/>
-@param prtlevel Zero [default] do not print<br/>One print state and choice
-probabilities<br/>Two print predictions
+@param t : positive integer or matrix of lengths of paths to predict (same length as
+            number of paths in then panel)
+@param prtlevel : Zero [default] do not print<br/>
+                One print state and choice probabilities<br/>
+                Two print predictions
 @param outmat matrix, predictions already made, just process contributions
 @return succ TRUE no problems<br/>FALSE prediction or solution failed.
 **/
@@ -701,9 +724,9 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
     return succ;
     }
 
-/** Track a single object that is matched to column in the data.
-@param Fgroup  integer or vector of integers of fixed groups that the moment should be
-tracked for.<br/> <code>AllFixed</code>, moment appears in all groups
+/** Track an object that is matched to column in the data.
+@param Fgroup  : integer or vector of integers of fixed groups that the moment should be tracked for.<br/>
+               <code>AllFixed</code>, moment appears in all groups
 @param LorC  label or column index in the data to associate with this moment.
 @param mom `Discrete` object to track
 **/
@@ -721,10 +744,11 @@ PredictionDataSet::TrackingMatchToColumn(Fgroup,LorC,mom) {
 
 
 /** Track one or more objects that are matched to columns using the object's label.
-@param Fgroup  integer or vector of integers of fixed groups that the moment should be
-tracked for.<br/> AllFixed, moment appears in all groups
+@param Fgroup  integer or vector of integers of fixed groups that the moment should be tracked for.<br/>
+    AllFixed, moment appears in all groups
 @param InDataOrNot TRUE: the <code>UseLabel</code> tag will be passed to
-`PathPrediction::Tracking`()<br/>FALSE: the <code>NotInData</code> tag will be sent.
+            `PathPrediction::Tracking`()<br/>
+            FALSE: the <code>NotInData</code> tag will be sent.
 @param mom1 object or array of objects to track
 @param ... more objects
 **/
@@ -747,9 +771,9 @@ PredictionDataSet::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
 /** Create a panel prediction that is matched with external data.
 @param UorCorL where to get fixed-effect values<br/>matrix of indices, array of
 @param label name for the data
-@param method solution method to call before predict
-labels<br/>UseLabel [default]<br/>NotInData only allowed if F=1, then no column contains
-fixed variables
+@param method solution method to call before predict labels<br/>
+        UseLabel [default]<br/>
+        NotInData only allowed if F=1, then no column contains fixed variables
 @param iDist initial conditions set to `PathPrediction`s
 @param wght see `GMMWeightOptions`
 **/
@@ -800,7 +824,7 @@ PredictionDataSet::Observations(NLabelOrColumn,TLabelOrColumn) {
 objective.
 @param subp  DoAll (default), solve all subproblems and return likelihood vector<br/>
              Non-negative integer, solve only subproblem, return contribution to
-             overall L
+             overall GMM
 @return `PanelPrediction::M`
 **/
 PredictionDataSet::EconometricObjective(subp) {

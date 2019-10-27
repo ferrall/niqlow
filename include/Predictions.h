@@ -74,7 +74,8 @@ struct 	Prediction : Data {
 **/
 struct 	PathPrediction : Prediction {
 	static	decl summand, upddens, predicttime, solvetime;
-    const decl                                  f, iDist,
+    const decl                                  f,
+                /** initial distribution.**/    iDist,
                 /** for tracking.**/            fvals,
                 /** label **/                   label,
             /** Weight Moments for GMM if

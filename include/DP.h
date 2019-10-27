@@ -45,6 +45,7 @@ The  base class for the DDP framework.
 struct DP {
 	static decl
         /** Label for the problem. **/                          L,
+        /** List of parent classes.**/                          parents,
         /** file for diagnostic output. **/                     logf,
         /** dated file name for diagnostic output **/           lognm,
         /** Version of niqlow that code is written for.

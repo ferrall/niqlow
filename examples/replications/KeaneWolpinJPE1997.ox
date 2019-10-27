@@ -1,21 +1,21 @@
-#include "KeaneWolpinREStat1994.h"
-/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
+#include "KeaneWolpinJPE1997.h"
+/* This file is part of niqlow. Copyright (C) 2019-2019 Christopher Ferrall */
 
-DynamicRoy::Replicate()	{
+/** Distribution of fixed effects conditional on initial schooling level.**/
+KWJPE97::kdist() { return kprob[][CV[isch]]; }
+
+KWJPE97::Replicate()	{
 	decl i, meth,Vmat,outmat, nc, mlabs;	
 
     /* DP Model Setup */
-	Initialize(new DynamicRoy());
+	Initialize(new KWJPE97());
 	SetClock(NormalAging,A1);
-    accept = new ActionVariable("Accept",Msectors);
-	Actions(accept);
-    offers = new MVNormal("eps",Msectors,Noffers,ones(Msectors,1),sig);
-	ExogenousStates(offers);
-    attended   = new ActionTracker("att",accept,school);
-    xper = ValuesCounters("X",accept,mxcnts);
-	EndogenousStates(attended,xper);
-	SetDelta(0.95);
-    //CreateSpaces(NoSmoothing);
+    Actions         ( accept = new ActionVariable("Accept",Msectors));
+    ExogenousStates ( offers = new MVNormal("eps",Msectors,Noffers,ones(Msectors,1),sig));
+    EndogenousStates( xper   = ValuesCounters("X",accept,mxcnts));
+    GroupVariables  ( k      = new RandomEffect("k",Ntypes),
+                      isch   = new FixedEffect("Is",NIschool) );
+	SetDelta(kwdelt);
 	CreateSpaces(LogitKernel,0.0005); //
     /* Solution Methods */
     meth = new array[Nmethods];
@@ -39,7 +39,7 @@ DynamicRoy::Replicate()	{
 
     /* Summary of Output */
     nc = columns(Vmat[0])-Msectors-1;
-    mlabs = {"Emax","Pblue","Pwhite","Pschool","Phome"};
+    mlabs = {"Emax","Pblue","Pwhite","Pmil","Pschool","Phome"};
     println("EV and Choice Prob. ",
         "Brute Force ",MyMoments(Vmat[BruteForce][][nc:],mlabs)
         /*,
@@ -49,18 +49,15 @@ DynamicRoy::Replicate()	{
         ;
     delete meth[0], meth[1];
     Delete();
-}
+    }
 
 /** Utility vector equals the vector of feasible returns.**/	
-DynamicRoy::Utility() {
-    decl rr,  x = CV(xper), x2= sqr(x);
-    x[school] +=School0;  //Bug found Oct. 2019.  was not adding School0 until tuition cutoff
-     rr =
-	         (1 ~ x[school] ~ x[white]~ -x2[white] ~ x[blue]  ~ -x2[blue] )*alph[white]
-	       | (1 ~ x[school] ~ x[blue] ~ -x2[blue]  ~ x[white] ~ -x2[white])*alph[blue]
-	       | (1 ~-(x[school]>=HSGrad) ~ -!CV(attended))*bet
-	       | gamm;
-    rr += AV(offers)';
-	rr[:blue] = exp(rr[:blue]);
+KWJPE97::Utility() {
+    decl rr,  x = CV(xper), X;
+    x[school]+=School0[CV(isch)];  //add initial schooling
+	X = (1 ~ x[:school]) ~  (sqr(x)' ~ kcoef[CV[k]][] ~ AV(offers)');
+    rr = (X*alph)';
+    rr[school] -= bet*(x[school].>YrDeg);  //tuition
+	rr[:military] = exp(rr[:military]);    //work is log-linear
 	return rr;
 	}

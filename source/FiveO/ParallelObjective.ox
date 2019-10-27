@@ -48,8 +48,6 @@ ObjClient::SubProblems(F) {
     }
 
 
-//ObjClient::Distribute(F) {    return subV;    }
-
 ObjServer::ObjServer(obj) {	
     this.obj = obj;	
     //basetag = P2P::STOP_TAG+MultiParameterOffset;

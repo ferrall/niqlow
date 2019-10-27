@@ -149,6 +149,7 @@ Different solution methods have derived versions of this routine to handle updat
 
 This is called after one complete iteration of `ValueIteration::GSolve`().
 @return TRUE if converged or `Task::trips` equals `Task::MaxTrips`
+@internal
 **/
 GSolve::Update() {
 	++trips;
@@ -173,7 +174,10 @@ GSolve::Update() {
     return done || (trips>=MaxTrips);
 	}
 
-/**	Check convergence in Bellman iteration after a stage of state-space spanning in Newton-Kantorovich.**/
+/**	Check convergence in Bellman iteration after a stage of state-space spanning in Newton-Kantorovich.
+
+@internal
+**/
 NKSolve::Update() {
 	++trips;
     decl mefail,oldNK = NKstep;
@@ -293,7 +297,7 @@ This replaces the built-in version used by `ValueIteration`.
 <LI>Iterate on the states not subsampled to predict using the approximation, `KWEMax::firstpass` = FALSE</LI>
 </UL>
 </UL>
-
+@internal
 **/
 KWGSolve::Solve(instate) {
 	decl myt;
@@ -337,6 +341,9 @@ KeaneWolpin::KeaneWolpin(myGSolve) {
     if (N::J>1) oxwarning("DDP Warning 25.\n Using KW approximazation on a model with infeasible actions at some states.\n All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible.\n");
 	}
 
+/**
+@internal
+**/
 KWGSolve::KWGSolve(caller) {
     GSolve(caller);
 	right = S[endog].X;
@@ -390,6 +397,9 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
 		}
 	}
 	
+/**
+@internal
+**/
 KWGSolve::InSample(){
     XUT.state[left:right] = state[left:right];
     //DP::vV =VV[I::later];
@@ -399,6 +409,9 @@ KWGSolve::InSample(){
         Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');
 	}
 
+/**
+@internal
+**/
 KWGSolve::OutSample() {
 	I::curth->MedianActVal();
 	Specification(PredictEV,V[0],(V[0]-I::curth.pandv)'); //NoR [I::r]

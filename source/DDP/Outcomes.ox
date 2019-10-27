@@ -1,30 +1,6 @@
 #include "Outcomes.h"
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
-ExogAuxOut::ExogAuxOut() {
-    ExTask();
-    auxlike = zeros(N::Ewidth,1);
-    }
-ExogAuxOut::Likelihood(howmany,outcm) {
-    decl tv;
-    if (!sizeof(Chi)) return 1.0;
-    this.outcm = outcm;
-    auxlike[] = 1.0;
-    if (howmany==DoAll) {
-        loop();
-        return auxlike;
-        }
-    else {
-        Run();
-        return auxlike[I::all[exog]];
-        }
-    }
-ExogAuxOut::Run() {
-    decl c;
-    Hooks::Do(PreAuxOutcomes);
-    foreach (c in Chi) if (c.indata) auxlike[I::all[onlyexog]] *= c->Likelihood(outcm);
-    }
-
 /**  Simple Panel Simulation.
 @param Nsim  integer, number of paths to simulate per fixed group<br>[default] UseDefault, whic is 1
 @param T	integer, length of panel<br>[default], length of lifecycle or  10
@@ -47,7 +23,43 @@ SimulateOutcomes(Nsim,T,outopt,ErgOrStateMat,DropTerminal) {
     delete op;
     }
 
+
+/**
+@internal
+**/
+ExogAuxOut::ExogAuxOut() {
+    ExTask();
+    auxlike = zeros(N::Ewidth,1);
+    }
+
+/**
+@internal
+**/
+ExogAuxOut::Likelihood(howmany,outcm) {
+    decl tv;
+    if (!sizeof(Chi)) return 1.0;
+    this.outcm = outcm;
+    auxlike[] = 1.0;
+    if (howmany==DoAll) {
+        loop();
+        return auxlike;
+        }
+    else {
+        Run();
+        return auxlike[I::all[exog]];
+        }
+    }
+/**
+@internal
+**/
+ExogAuxOut::Run() {
+    decl c;
+    Hooks::Do(PreAuxOutcomes);
+    foreach (c in Chi) if (c.indata) auxlike[I::all[onlyexog]] *= c->Likelihood(outcm);
+    }
+
 /** Record everything about a single realization of the DP.
+This is not usually called by the user code. Outcomes are created along paths.
 @param prior `Outcome` object, the previous realization along the path<br/>
 		<em>integer</em>, this is first realization on the path. `Task::state` uninitialized.<br/>
 		<em>vector</em>, initial value of `Task::state`
@@ -87,6 +99,7 @@ Outcome::Outcome(prior) {
 /** clean up.
 @comments
 Does not delete prev and next to avoid recursion.
+@internal
 **/
 Outcome::~Outcome() {
 	if (isclass(prev)) prev.onext = UnInitialized;
@@ -127,11 +140,12 @@ Outcome::Deep(const depth)	{
 	}
 
 /** Simulate the IID stochastic elements of a realization.
+This is usually called along a path not by the user's code
 
-&theta; and &gamma; areas of `Task::state` already set.
-The &epsilon; and &eta; elements are simulated from their
-transitions.  Then `Bellman::Simulate` called to simulate
-&zeta;, &apha;, and &Upsilon;.
+&theta; and &gamma; vectors already set.
+&epsilon; and &eta; elements are simulated from their transitions.
+Then `Bellman::Simulate` called to simulate &zeta;, &apha;, and &Upsilon;.
+
 @return TRUE if path is ended, FALSE otherwise
 @see DP::DrawOneExogenous, Bellman::Simulate
 **/
@@ -152,7 +166,8 @@ Outcome::Simulate() {
 /** Create a new series of `Outcome`s along a realized path.
 @param id <em>integer</em>, id or tag for the path.
 @param state0 <code>UnInitialized</code> (-1), set state to uninitalized<br/>
-&gt; 0 fixed effect index to use, <br/><em>vector</em>, initial state
+        non-negative  fixed effect index to use, <br/>
+        <em>vector</em>, initial state vector
 **/
 Path::Path(i,state0) {
 	decl ni;
@@ -168,7 +183,9 @@ Path::Path(i,state0) {
 		}
 	}
 
-/** Destroy all outcomes along a path. **/
+/** Destroy all outcomes along a path.
+@internal
+**/
 Path::~Path() {
 	while (isclass(onext)) {
 		cur = onext.onext;
@@ -241,6 +258,7 @@ Path::Simulate(T,DropTerminal){
 
 /** Load the first or next outcome in the path.
 @param observed source data to extract observables from<br/>
+@internal
 **/
 Path::Append(observed) {
 	last = (T) ? new Outcome(last) : this;
@@ -266,6 +284,7 @@ FPanel::FPanel(f,method) {
 FPanel::GetCur() { return cur; }
 
 /** Destroy all paths in a fixed panel.
+@internal
 **/
 FPanel::~FPanel() {
 	while (isclass(pnext)) {	//end of panel not reached
@@ -334,7 +353,9 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
         }
 	if (!Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf)) fprintln(Data::logf," FPanel Simulation time: ",timer()-cputime0);
 	}
-
+/**
+@internal
+**/
 FPanel::Append(pathid) {
 	if (N) cur = cur.pnext = new Path(pathid,UnInitialized);
 	++N;
@@ -409,6 +430,7 @@ Panel::Panel(r,method) {
 	}
 
 /** Destroy all `FPanel`s in the Panel.
+@internal
 **/
 Panel::~Panel() {
 	while (isclass(fnext)) {	//end of panel not reached
@@ -481,13 +503,18 @@ Panel::Print(fn,Orientation)	{
 	}
 
 /** Get tracking probabilities and tomorrow indices consistent with tomorrow's observation .
-@return TRUE if there are tomorrow states that are consistent, FALSE otherwise **/
+@return TRUE if there are tomorrow states that are consistent, FALSE otherwise
+
+@internal
+**/
 Outcome::TomIndices(qind,xind) {
     icol = 0;
 	[TF,TP] = GetTrackTrans(qind,xind);           //Oct. 2018 was ind[onlysemiexog]
 	return columns(viinds[tom]) && rows(intersection(viinds[tom],TF,&icol));
     }
 
+/** Compute likelihood based on the Type.
+**/
 Outcome::Likelihood(Type) {
     switch_single(Type) {
         case CCLike     : CCLikelihood();
@@ -578,7 +605,7 @@ Outcome::CCLikelihood() {
 	}
 
 /** Integrate over the path.
-
+@internal
 **/
 Path::TypeContribution(pf,subflat) {
 	decl cur;
@@ -610,7 +637,10 @@ Path::Likelihood() {
 	else
 		TypeContribution();  //density=1.0 by default
     }
-	
+
+/**
+@internal
+**/
 DataColumn::DataColumn(type,obj) {
 	this.type = type;
 	this.obj = obj;
@@ -619,6 +649,9 @@ DataColumn::DataColumn(type,obj) {
 	force0 = (ismember(obj,"N") && obj.N==1) ;  // force quantities that have only  1 value observed
 	}
 
+/**
+@internal
+**/
 DataColumn::Observed(LorC) {
 	obsv = TRUE;
 	if (isstring(LorC)) {
@@ -635,12 +668,18 @@ DataColumn::Observed(LorC) {
 	oxrunerror("DDP Error 53. LorC should be string or integer");		
 	}
 
+/**
+@internal
+**/
 DataColumn::UnObserved() {
 	obsv = FALSE;
 	incol = ind = label = UnInitialized;
 
 	}
 
+/**
+@internal
+**/
 DataColumn::ReturnColumn(dlabels,incol)	{
 	this.incol = incol;
 	if (isstring(label)) return strfind(dlabels,label);
@@ -700,6 +739,9 @@ Panel::LogLikelihood() {
     return succ;
 	}
 
+/**
+@internal
+**/
 Path::Mask() {		
 	cur = this;
     AnyMissing[] = FALSE;
@@ -712,11 +754,16 @@ Path::Mask() {
         LType = CCLike;
 	}	
 	
+/**
+@internal
+**/
 FPanel::Mask(aLT) {
 	cur = this;	do { cur -> Path::Mask(); aLT[0][cur.LType] += 1;} while ( (isclass(cur = cur.pnext)) );
 	}	
 
 /** Mask unobservables.
+@internal
+
 **/
 OutcomeDataSet::Mask() {
 	decl s;
@@ -749,6 +796,9 @@ OutcomeDataSet::IDColumn(lORind) {
 	list[idvar]->Observed(lORind);
 	}
 
+/** set the column label or index of the time value.
+@param lORind string, column label<br>integer&ge;0 column index;
+**/
 OutcomeDataSet::tColumn(lORind) {
 	if (isint(lORind)&&lORind<0) oxrunerror("DDP Error 54. column index cannot be negative");
     list[low[svar]+counter.t.pos] -> Observed(lORind);
@@ -841,6 +891,7 @@ OutcomeDataSet::UnObserved(...
 	
 /**  Copy external current values of actions, states and auxiliaries into the outcome.
 This calls `Outcome::AccountForUnobservables'
+@internal
 **/
 Outcome::FromData(extd) {
 	act[] = extd[avar][];
@@ -851,6 +902,8 @@ Outcome::FromData(extd) {
 
 /**  Set all unobserved values to NaN.
 This calls `Outcome::AccountForUnobservables'
+@internal
+
 **/
 Outcome::Mask() {
 	act[mask[avar]] = .NaN;
@@ -860,6 +913,8 @@ Outcome::Mask() {
 	}
 	
 /** Modify outcome to list indices of states consistent with observables.
+@internal
+
 **/
 Outcome::AccountForUnobservables() {
 	decl s, ss, myA, ai, myi, inta;
@@ -1070,6 +1125,16 @@ OutcomeDataSet::OutcomeDataSet(id,method) {
     LTypes = zeros(LikelihoodTypes,1);
 	}																		
 
+/** Simulate a data .
+Each value of fixed $\gamma$ is simulated N times, drawing the random effects in $\gamma_r$ from their density.
+@param N <em>integer</em> number of paths to simulate in each `FPanel`.
+@param T <em>Integer</em>, max length of each path<br/> vector, max length for each FPanel.
+@param ErgOrStateMat 0: find lowest reachable indexed state to start from<br/>
+        1: draw from stationary distribution (must be ergodic)<br/>
+        matrix: initial states to draw from (each column is a different starting value)
+@param DropTerminal TRUE: eliminate termainl states from the data set
+@param pathpred Integer [default] or `PathPrediction` object that is simulating (used when computing efficient GMM weights)
+**/
 OutcomeDataSet::Simulate(N,T,ErgOrStateMat,DropTerminal,pathpred) {
     Panel::Simulate(N,T,ErgOrStateMat,DropTerminal,pathpred);
     IDColumn();
@@ -1077,6 +1142,7 @@ OutcomeDataSet::Simulate(N,T,ErgOrStateMat,DropTerminal,pathpred) {
     }
 
 /** Delete a data set.
+@internal
 **/
 OutcomeDataSet::~OutcomeDataSet() {
 	~Panel();

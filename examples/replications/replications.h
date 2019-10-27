@@ -5,6 +5,7 @@
 #import "WolpinJPE1984"
 #import "WolpinEmet1987"
 #import "KeaneWolpinREStat1994"
+#import "KeaneWolpinJPE1997"
 #import "KennetJAE1994"
 #import "BerkovecSternEmet1991"
 #import "GilleskieEmet1998"

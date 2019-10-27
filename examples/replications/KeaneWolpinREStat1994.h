@@ -7,15 +7,15 @@ struct DynamicRoy : ExPostSmoothing	{
 		enum{white,blue,school,home,Msectors}
         enum{BruteForce,Approximate,Nmethods}
 	/** State Space Dimensions. @name Dimens **/
-/*		enum{A1       =40,       //lifetime
+		enum{A1       =40,       //lifetime
              Noffers  =5,       //# of draws of offers per sector (sample is Msectors^Noffers)
              Age0     =16,     //age at t=0
              School0  =10,      //completed schooling at t=0
              HSGrad   =12,      //completed schooling before college
              MaxSch   =20,
              MaxExp   =30,      // max experience to track}
-             BIGMODEL} */
-		enum{A1       =20,       //lifetime
+             BIGMODEL}
+/*		enum{A1       =20,       //lifetime
              Noffers  =3,       //# of draws of offers per sector (sample is Msectors^Noffers)
              Age0     =16,     //age at t=0
              School0  =10,      //completed schooling at t=0
@@ -23,7 +23,7 @@ struct DynamicRoy : ExPostSmoothing	{
              MaxSch   =5,
              MaxExp   =15,      // max experience to track}
              LILMODEL}
-
+*/
 
 	/** Approximation Parameters. @name ApproxParams **/
         enum{

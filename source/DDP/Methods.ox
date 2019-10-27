@@ -8,6 +8,9 @@
     #include "ReservationValues.ox"
 #endif
 
+/** Base of all DP solution methods
+@param myGSolve .
+**/
 Method::Method(myGSolve) {
     if (!Flags::ThetaCreated) oxrunerror("DDP Error 28. Must create spaces before creating a solution method");
     FETask();
@@ -19,6 +22,7 @@ Method::Method(myGSolve) {
     }
 
 /** This does common setup tasks but actually doesn't solve.
+@internal
     **/
 Method::Initialize(MaxTrips) {
   	if (isint(delta))
@@ -90,6 +94,9 @@ This is not called by the user's code.  It is called by the method's Solve() rou
 <LI>Carry out post-solution tasks by calling at hook = <code>PostRESolve</code>;
 </OL>
 @see DP::SetUpdateTime , EndogTrans::Transitions , HookTimes
+
+@internal
+
 **/
 Method::Run() {
     if (Flags::UpdateTime[AfterFixed]) {ETT->Transitions(state);}
@@ -108,11 +115,13 @@ Method::Run() {
         }
     }
 
+/** @internal **/
 RandomSolve::RandomSolve(gtask,caller) {	
     RETask(caller);	
     itask = gtask;
     }
 
+/** @internal **/
 GSolve::GSolve(caller) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 28. Must create spaces before creating a solution method");
 	ThetaTask(iterating,caller);
@@ -122,7 +131,9 @@ GSolve::GSolve(caller) {
     Volume = QUIET;
     }
 
-/** Reset t'' to 0.**/
+/** Reset t'' to 0.
+@internal
+**/
 GSolve::ZeroTprime() { state[counter.tprime.pos] = 0; }
 
 /** Apply the solution method for the current fixed values.
@@ -132,6 +143,8 @@ This is not called by the user's code.  It is called by the method's <code>Run()
 If <code>UpdateTime</code> = <code>AfterRandom</code>, then update transitions and variables.
 
 Solution is not run if the density of the point in the group space equals 0.0.
+@internal
+
 **/
 RandomSolve::Run()  {
 	if (I::curg->Reset()>0.0) {
@@ -175,7 +188,7 @@ replacement for the actual method</LI>
 <LI>Call `Bellman::thetaEMax`() or replacment to store the value in the scratch space for $V(\theta)$.</LI>
 <LI>Call `Gsolve::PostEmax`() or replacement</LI>
 </OL>
-
+@internal
 **/
 GSolve::Run() {
     XUT.state = state;
@@ -196,6 +209,8 @@ If `Flags::setPstar` then
 </OL>
 The state-to-state transition is only needed for some solution methods and for calculation of
 the stationary distribution in ergodic models.
+
+@internal
 **/
 GSolve::PostEMax() {
 	if (Flags::setPstar)  {
