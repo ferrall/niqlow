@@ -4,7 +4,8 @@
 struct KWJPE97 : ExPostSmoothing	{
 
 	/** Labels for choices/sectors. @name Sectors **/
-		enum{white,blue,military,school,home,Msectors}
+		                   enum{white,blue,military,school,home,Msectors}
+    static const decl Sectors = {"wc","bc","mil","sch","home"};
         enum{BruteForce,Approximate,Nmethods}
         enum{NineOrLess,TenOrMore,NIschool}
 

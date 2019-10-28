@@ -10,8 +10,8 @@ KWJPE97::Replicate()	{
     /* DP Model Setup */
 	Initialize(new KWJPE97());
 	SetClock(NormalAging,A1);
-    Actions         ( accept = new ActionVariable("Accept",Msectors));
-    ExogenousStates ( offers = new MVNormal("eps",Msectors,Noffers,ones(Msectors,1),sig));
+    Actions         ( accept = new ActionVariable("Accept",Sectors));
+    ExogenousStates ( offers = new MVNormal("eps",Msectors,Noffers,zeros(Msectors,1),sig));
     EndogenousStates( xper   = ValuesCounters("X",accept,mxcnts));
     GroupVariables  ( k      = new RandomEffect("k",Ntypes),
                       isch   = new FixedEffect("Is",NIschool) );
