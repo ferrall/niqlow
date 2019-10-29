@@ -860,7 +860,6 @@ RetainMatch::Transit() {
 Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 	this.Target=Target;
 	this.Reset = Reset;
-    println(L," ",N);
 	StateVariable(L,N);
 	this.ToTrack = ToTrack==DoAll ? vals : ToTrack;
     this.Prune = Prune;

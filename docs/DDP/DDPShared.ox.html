@@ -106,7 +106,7 @@ For example, the transit functions for a state variable can rely on the current 
 <tr><td colspan="3" class="header" valign="top">Functions</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="DDPShared.ox.html#ReverseState">ReverseState</a></td>
 <td class="modifiers"></td>
-<td class="description">Recreate State vector from an index and offset vector.</td>
+<td class="description">Recreate a State vector from an index and offset vector.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></td>
@@ -542,7 +542,7 @@ Dynamically updated indices into state spaces.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#I___NowSet">NowSet</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Initialize now and later indices for Bellman iteration.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#I___NowSwap">NowSwap</a></td>
@@ -801,26 +801,21 @@ Contains information on an object (variable, auxiliary outcome, etc) to be track
 <td class="description"></td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___Distribution">Distribution</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___print">print</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___Reset">Reset</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___TrackObj">TrackObj</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Track an object in a prediction path.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___Update">Update</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
@@ -1176,7 +1171,7 @@ parallel array of labels for the built-in clock types.
 
 <span class="declaration">ReverseState ( Ind , subsp )</span>
 <dl><dd>
-Recreate State vector from an index and offset vector.
+Recreate a State vector from an index and offset vector.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -1533,6 +1528,14 @@ Read I and N objects from .dim file (avoids one span of
 <span class="declaration">static Flags :: SetPrunable ( clock )</span>
 <dl><dd>
 Sets <a href="DDPShared.ox.html#Flags___Prunable">Prunable</a> to TRUE if the clock setting makes automatic pruning of the state space valid.
+<P/>
+User code does not call this.
+<P/>
+<DT>Clocks that are prunable:</DT>
+<DD><a href="Variables.ox.html#Aging">Aging</a></DD>
+<DD><a href="Variables.ox.html#Mortality">Mortality</a></DD>
+<DD><a href="Variables.ox.html#Longevity">Longevity</a></DD>
+<DD><a href="Variables.ox.html#Divided">Divided</a></DD>
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a></dd>
 </dl>
@@ -1642,6 +1645,7 @@ Add a static function or method to a hook.
 <span class="declaration">static Hooks :: Do ( ht )</span>
 <dl><dd>
 Call all the methods on the hook.
+This is called internally. User code should not do this.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -1815,6 +1819,7 @@ Current value of majt.
 
 <span class="declaration">static I :: NowSet ( )</span>
 <dl><dd>
+Initialize now and later indices for Bellman iteration.
 
 </dd></dl>
 
@@ -2226,15 +2231,6 @@ Scratch space for value iteration.
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TrackObj</span></h2>
 
-<a name="TrackObj___Distribution"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Distribution</span></h3>
-
-<span class="declaration">virtual TrackObj :: Distribution ( pobj , obj )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="TrackObj___hist"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hist</span></h3>
 
@@ -2322,7 +2318,24 @@ Position in the flat list
 
 <span class="declaration">TrackObj :: TrackObj ( LorC , obj , pos )</span>
 <dl><dd>
+Track an object in a prediction path.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">LorC
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">obj
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">pos</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>

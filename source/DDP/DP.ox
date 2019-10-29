@@ -529,7 +529,6 @@ DP::ValuesCounters(L,Target,MaxCounts,Prune) {
     decl lv = new array[Target.N],i,xcount=UnInitialized,sc = isclass(Target,"StateVariable");
     if (!isstring(L)) L="Count_"+Target.L;
     for (i=0;i<Target.N;++i) {
-        println(i," ",MaxCounts[i]);
         if (!MaxCounts[i])
             lv[i] = new Fixed(L+sprint(i));
         else if (Prune && xcount==UnInitialized ) {

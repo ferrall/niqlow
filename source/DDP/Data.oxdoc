@@ -41,7 +41,7 @@ There two parallel but separate kinds of data:
 </tr>
 </table>
 
-However, users of niqlow will typically not interact directly with these base classes.  Instead, you will work with panels of data, both external data read in for estimation and data generated from the model through simulation and prediction.  If <code>Outcome</code> and <code>Prediction</code> are the lowest level classes, the corresponding highest ones are <code>OutcomeDataSet</code> and <code>PredictionDataSet</code>.</p>
+However, users of niqlow will typically not interact directly with these base classes.  Instead, you will work with panels of data, both external data read in for estimation and data generated from the model through simulation and prediction.  If <code>Outcome</code> and <code>Prediction</code> are the lowest level classes, the corresponding highest ones are `OutcomeDataSet` and `PredictionDataSet`.</p>
 
 
 
@@ -68,7 +68,7 @@ Outcomes are used for simulating the model and for storing external data interpr
 
 As discussed elsewhere, the user codes <code>MyModel</code> as a class derived from one of the pre-defined `Bellman` classes. In contrast, `Outcome` is designed to be generic so that it can be used for whatever model or data the program uses. <em>A user does not define their own derived class to store outcomes.</em> Only one model can be active in <span class="n">DDP</span> because <code>static</code> data members are used, but <em>multiple data sets can be stored at once.</em>  This can be useful when comparing two solution methods applied to one model or two estimation methods applied to two different data sets.</p>
 
-Outcomes are related to points in the state space $\Theta$, but they are treated distinctly in <span class="n">niqlow</span>.  The state space is code to minimize storage and calculations while solving a model.  On the other hand, outcomes are designed to track everything relevant to results of the DDP, and memory would be exhausted if outcomes were defined and stored for each possible state. It would be inefficient to store all potential outcomes when only one can be realized at each point in a single DP process.</p>
+Outcomes are related to points in the state space $\Theta$, but they are treated distinctly in <span class="n">niqlow</span>.  The state space is coded to minimize storage and calculations while solving a model.  On the other hand, outcomes are designed to track everything relevant to results of the DDP, and memory would be exhausted if outcomes were defined and stored for each possible state. It would be inefficient to store all potential outcomes when only one can be realized at each point in a single DP process.</p>
 
 A single point in the state space $\theta$ can have multiple states that could come before it or come after it hypothetically.  In contrast, outcomes have a well-defined <em>predecessor</em> and <em>successor</em>. These are tracked as part of the outcome, so that <span class="n">niqlow</span> represents a sequence of outcomes as a doubly-<a href="http://en.wikipedia.org/wiki/Linked_list">linked list</a> of objects of class `Outcome`.</p>
 

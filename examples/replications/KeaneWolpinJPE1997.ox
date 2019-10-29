@@ -16,14 +16,13 @@ KWJPE97::Replicate()	{
     GroupVariables  ( k      = new RandomEffect("k",Ntypes),
                       isch   = new FixedEffect("Is",NIschool) );
 	SetDelta(kwdelt);
-	CreateSpaces(LogitKernel,0.0005); //
+	CreateSpaces(LogitKernel,0.0001); //
     /* Solution Methods */
     meth = new array[Nmethods];
         meth[BruteForce] = new ValueIteration();
 	    meth[Approximate] = new KeaneWolpin();
     Vmat = new array[Nmethods];
     //meth[1].Volume = LOUD;
-
     /* Run methods, simulate, produce output */
     for (i=0;i<Approximate;++i) { //Nmethods
        if (i==Approximate)
@@ -55,9 +54,9 @@ KWJPE97::Replicate()	{
 KWJPE97::Utility() {
     decl rr,  x = CV(xper), X;
     x[school]+=School0[CV(isch)];  //add initial schooling
-	X = (1 ~ x[:school]) ~  (sqr(x)' ~ kcoef[CV[k]][] ~ AV(offers)');
-    rr = (X*alph)';
+    rr = alph0*(1~x[:school])' + alph1[][0].*sqr(x)' + alph1[][1].*AV(offers)' + kcoef[][CV(k)];
     rr[school] -= bet*(x[school].>YrDeg);  //tuition
+//    if (I::t==4 && CV(offers)==0 && CV(k)==1) println( x|kcoef[CV(k)][]|(rr'));
 	rr[:military] = exp(rr[:military]);    //work is log-linear
-	return rr;
+ 	return rr;
 	}

@@ -1,6 +1,6 @@
 #include "DDPShared.h"
 
-/**Recreate State vector from an index and offset vector.
+/**Recreate a State vector from an index and offset vector.
 @param Ind, integer or row vector of integers
 @param subsp `SubSpaces`, index into offset vector `I::OO`
 @return matrix of state vectors with index Ind given subspace
@@ -48,6 +48,7 @@ Hooks::Add(time,proc) {
     }
 
 /**  Call all the methods on the hook.
+This is called internally. User code should not do this.
 @param ht one of the `HookTimes`
 @return vector of integer return values of hooks (currently not used)
 **/
@@ -62,9 +63,20 @@ Hooks::Do(ht) {
 /** Swap the now and later indices for Bellman iteration.
 **/
 I::NowSwap() {now = later; later = !later;}
+/** Initialize now and later indices for Bellman iteration.
+**/
 I::NowSet() {now = NOW;	later = LATER; }
 
 /** Sets `Flags::Prunable` to TRUE if the clock setting makes automatic pruning of the state space valid.
+
+User code does not call this.
+
+<DT>Clocks that are prunable:</DT>
+<DD>`Aging`</DD>
+<DD>`Mortality`</DD>
+<DD>`Longevity`</DD>
+<DD>`Divided`</DD>
+
 @see StateVariable::IsReachable
 **/
 Flags::SetPrunable(clock) {
@@ -74,6 +86,9 @@ Flags::SetPrunable(clock) {
             || (isclass(clock,"Divided")&&(clock.MajT));
     }
 
+/** Compute distribution (histogram) of a tracked object.
+@internal
+**/
 TrackObj::Distribution(pobj,obj) {
     if (isclass(obj,"ActionVariable")) {
         decl hk, k;
@@ -94,6 +109,11 @@ TrackObj::Distribution(pobj,obj) {
     mean += v;
     }
 
+/** Track an object in a prediction path.
+@param LorC
+@param obj
+@param pos
+**/
 TrackObj::TrackObj(LorC,obj,pos) {
   this.LorC = LorC;
   this.pos = pos;

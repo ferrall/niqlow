@@ -9,14 +9,14 @@ struct KWJPE97 : ExPostSmoothing	{
         enum{BruteForce,Approximate,Nmethods}
         enum{NineOrLess,TenOrMore,NIschool}
 
-	/** State Space Dimensions. @name Dimens **/
-		enum{Ntypes   =4,
-             A1       =40,       //lifetime
-             Noffers  =3,       //# of draws of offers per sector (sample is Msectors^Noffers)
+	/** State Space Dimensions. @name KW97Dimens **/
+		enum{Ntypes   =4,   //4
+             A1       =40,       //40 lifetime
+             Noffers  =3,       //3 # of draws of offers per sector (sample is Msectors^Noffers)
              Age0     =16,     //age at t=0
-             MaxSch   =20,
-             MaxExp   =30,      // max experience to track}
-             BIGMODEL}
+             MaxSch   =10,      // 10
+             MaxExp   =30,      // 30 max experience to track}
+             KW97DIMS}
 
 	/** Approximation Parameters. @name ApproxParams **/
         enum{
@@ -30,21 +30,25 @@ struct KWJPE97 : ExPostSmoothing	{
        /** initial school groups.**/        School0  = <9;10>,      //completed schooling at t=0
        /** degree years (tuition).**/       YrDeg    = <12;16>,
                                             kwdelt   = 0.787,
-		/** &alpha; in paper**/				alph = <
-                                                //   white       blue        mil.       school    home
-                                                    8.8043,     8.9156,     8.4704,     43948,    6887; //intercept
-                                                    .1170,      .0674,      0.0,        0.0,     0.0;   // white exp.
-                                                    .0748,      .1424,      0.0,        0.0,     0.0;   // blue exp
-                                                    .0077,      .1021,      .3391,      0.0,     0.0;   // mil exp.
-                                                    0.0938,     0.0189,      .0443,      0.0,     0.0;  //schooling: Moved coefficient to be in same order
-                                                    -.0461,     -.1774,     -2.9900,    0.0,     0.0;   // own exp squared
-                                                    1.0,        1.0,           1.0,      1.0,    1.0;   // type differential
-                                                    0.3806,      .3329,     .3308,       2312,   13394.0  // shock st. dev.
-                                                    >,
-        /**values of k by sector.**/     kcoef=    <0.0,       0.0,        0.0,        0.0,    0.0;
-                                                      -.0668,    .2996,      0.0,        -26352, 215;
-                                                      -.4221,    -.1223,     0.0,        -30541, 16966;
-                                                      -.4998,    .0756,      0.0,        226,    -13128>,
+		/** &alpha; in paper**/				alph0 = // intercept  wc     bc      mi    sc
+                                                     < 8.8043, .1170, .0748, .0077, 0.0938;
+                                                       8.9156, .0674, .1424, .1021, 0.0189 ;
+                                                       8.4704, 0.0, 0.0,   .3391, .0443     ;
+                                                       43948 , 0.0, 0.0,     0.0, 0.0         ;
+                                                       6887  , 0.0, 0.0,     0.0, 0.0         >,
+                                                    // ownsqr type st. dev.
+                                            alph1 = <
+                                                     -.0461,  0.3806; //white collar
+                                                      -.1774,  .3329;  //blue collar
+                                                     -2.9900, .3308;     //military
+                                                       0.0,     2312;               //school
+                                                       0.0,     13394.0              //home
+                                                         >,
+        /**values of k by sector.**/     kcoef=    <   0.0, -.0668, -.4221,   -.4998;
+                                                       0.0, .2996,  -.1223,   .0756;
+                                                       0.0, 0.0,    0.0,      0.0;
+                                                       0.0, -26352, -30541,   226;
+                                                       0.0, 215,    16966,    -13128>,
         /** lower triangle of correlations .**/
 sig=   <1.0;
       .3806;
