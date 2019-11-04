@@ -71,7 +71,7 @@ Outcome::Outcome(prior) {
 	decl nxtstate;
 	snext = onext = UnInitialized;
 	act   = constant(.NaN,1,SS[onlyacts].D);
-	z     = constant(.NaN,1,zeta.length);
+//	z     = constant(.NaN,1,zeta.length);
 	aux   = constant(.NaN,1,N::aux);
 	Ainds = <>;
 	if (isclass(prior)) {
@@ -103,7 +103,7 @@ Does not delete prev and next to avoid recursion.
 **/
 Outcome::~Outcome() {
 	if (isclass(prev)) prev.onext = UnInitialized;
-	delete ind, aux, act, z, state, Ainds;
+	delete ind, aux, act, state, Ainds;
 	}
 
 /** Return the outcome as a (flat) row vector.
@@ -111,17 +111,16 @@ Outcome::~Outcome() {
 Used to print or save a series or panel as a matrix.
 
 <DD>Columns:<pre>
-t ~ State_Ind ~ Type ~ Aind ~ &epsilon; ~ eta; ~ &theta; ~ &gamma; ~ &alpha; ~
-&zeta; ~ aux
+t ~ State_Ind ~ Type ~ Aind ~ &epsilon; ~ eta; ~ &theta; ~ &gamma; ~ &alpha;
 </pre></DD>
 
 **/
 Outcome::Flat(Orientation)	{
 	if (!Settheta(ind[tracking])) return <>;
     if (Orientation==LONG)
-        return t~ind[tracking]~I::curth.Type~I::curth.Aind~state'~ind[onlyacts][0]~act~z~aux;
+        return t~ind[tracking]~I::curth.Type~I::curth.Aind~state'~ind[onlyacts][0]~act~aux;
     else
-        return  state'~act~z~aux;
+        return  state'~act~aux;
 	}
 
 
@@ -144,7 +143,7 @@ This is usually called along a path not by the user's code
 
 &theta; and &gamma; vectors already set.
 &epsilon; and &eta; elements are simulated from their transitions.
-Then `Bellman::Simulate` called to simulate &zeta;, &apha;, and &Upsilon;.
+Then `Bellman::Simulate` called to simulate &apha;, and &Upsilon;.
 
 @return TRUE if path is ended, FALSE otherwise
 @see DP::DrawOneExogenous, Bellman::Simulate
@@ -414,17 +413,17 @@ Panel::Panel(r,method) {
         LFlat = new array[FlatOptions];
 		LFlat[LONG] = {PanelID}|{FPanelID}|{PathID}|PrefixLabels|Labels::Vprt[svar]|{"|ai|"}|Labels::Vprt[avar];
 		LFlat[WIDE] = Labels::Vprt[svar]|Labels::Vprt[avar];
-		for (i=0;i<zeta.length;++i) {
+/*		for (i=0;i<zeta.length;++i) {
                 LFlat[LONG] |= "z"+sprint(i);
                 LFlat[WIDE] |= "z"+sprint(i);
-                }
+                }*/
 		foreach (q in Chi) {
             LFlat[LONG] |= q.L;
             LFlat[WIDE] |= q.L;
             }
 		Fmtflat = {"%4.0f","%4.0f"}|{"%4.0f","%4.0f","%7.0f","%3.0f"}|Labels::Sfmts|"%4.0f";
 		for (i=0;i<N::Av;++i) Fmtflat |= "%4.0f";
-		for (i=0;i<zeta.length;++i) Fmtflat |= "%7.3f";
+		//for (i=0;i<zeta.length;++i) Fmtflat |= "%7.3f";
         foreach (q in Chi) Fmtflat |= "%7.3f"; //		for (i=0;i<Naux;++i) Fmtflat |=        "%7.3f";
 		}
 	}

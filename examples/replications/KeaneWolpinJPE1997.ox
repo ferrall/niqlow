@@ -11,7 +11,7 @@ KWJPE97::Replicate()	{
 	Initialize(new KWJPE97());
 	SetClock(NormalAging,A1);
     Actions         ( accept = new ActionVariable("Accept",Sectors));
-    ExogenousStates ( offers = new MVNormal("eps",Msectors,Noffers,zeros(Msectors,1),sig));
+    ExogenousStates ( offers = new MVNvectorized("eps",Noffers,Msectors,zeros(Msectors,1),sig));
     EndogenousStates( xper   = ValuesCounters("X",accept,mxcnts));
     GroupVariables  ( k      = new RandomEffect("k",Ntypes),
                       isch   = new FixedEffect("Is",NIschool) );
@@ -50,13 +50,18 @@ KWJPE97::Replicate()	{
     Delete();
     }
 
+KWJPE97::ThetaUtility() {
+    x = CV(xper);
+    x[school]+=School0[CV(isch)];  //add initial schooling
+    Er = alph0*(1~x[:school])' + alph1[][0].*sqr(x)' + kcoef[][CV(k)];
+    Er[school] -= bet*(x[school].>YrDeg);  //tuition
+	Er[:military] = exp(Er[:military]);    //work is log-linear
+    return Er;
+    }
 /** Utility vector equals the vector of feasible returns.**/	
 KWJPE97::Utility() {
-    decl rr,  x = CV(xper), X;
-    x[school]+=School0[CV(isch)];  //add initial schooling
-    rr = alph0*(1~x[:school])' + alph1[][0].*sqr(x)' + alph1[][1].*AV(offers)' + kcoef[][CV(k)];
-    rr[school] -= bet*(x[school].>YrDeg);  //tuition
-//    if (I::t==4 && CV(offers)==0 && CV(k)==1) println( x|kcoef[CV(k)][]|(rr'));
-	rr[:military] = exp(rr[:military]);    //work is log-linear
+    rr = alph1[][1].*AV(offers)';
+    rr[:military] .*= Er[:military];
+    rr[school:] += Er[school:];
  	return rr;
 	}

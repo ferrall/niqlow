@@ -39,10 +39,11 @@ struct Test2 : ExtremeValue	{
 
 
 struct Test3 : ExPostSmoothing {
-	static decl a, d, s0, s1;
+	static decl a, d, s0, s1, U0;
 	static Run();
 	static 	RunA(Uselist=FALSE);
 	Utility();
+    ThetaUtility();
 	}
 
 struct Test3a : ExPostSmoothing	{
@@ -55,12 +56,14 @@ struct Test3a : ExPostSmoothing	{
 													<0.90;0.07;0.06;0.0;0.055;0.0>},
 		/** lower triange &Sigma; **/		sig = <1.0;0.5;0.0;1.0;0.0;1.0>;
 	static decl
+                                            U0,
         /** endowment random effect **/     lnk,
 		/** index accepted offer/srch**/  	accept,
 		/** offer block **/		  		  	offers,
 		/** occupation experience array**/	xper;
 	static 	Run();
 			Utility();
+            ThetaUtility();
 	}
 
 	

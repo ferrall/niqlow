@@ -150,6 +150,7 @@ RandomSolve::Run()  {
 	if (I::curg->Reset()>0.0) {
         if (Flags::UpdateTime[AfterRandom]) {ETT->Transitions(state);}
         retval =itask->Solve(this.state);
+        if (Flags::IsErgodic) I::curg->StationaryDistribution();
         if (DPDebug::OutAll) DPDebug::RunOut();
         else if (itask.Volume>LOUD) {DPDebug::outV(TRUE);}
         return retval;

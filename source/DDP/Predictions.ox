@@ -316,8 +316,7 @@ What happens depends on `PathPrediction::iDist`.
 PathPrediction::InitialConditions() {
     if (isint(iDist)) {
         if (iDist==ErgodicDist) {
-            if (!Flags::IsErgodic) oxrunerror("Clock is not ergodic, can't compute ergodic predictions");
-	        I::curg->StationaryDistribution();
+            if (!Flags::IsErgodic) oxrunerror("Clock is not ergodic, can't use ergodic predictions");
 	        //println("Ergodic distribution: ",I::curg.Pinfinity');
             p = I::curg.Pinfinity;
             sind =  range(0,SS[tracking].size-1)';
@@ -662,7 +661,6 @@ PanelPrediction::~PanelPrediction() {
 		cur = fnext.fnext;
 		delete fnext;
 		fnext = cur;
-        println("deleting !");
 		}
     delete fparray;
     ~PathPrediction();
@@ -671,7 +669,12 @@ PanelPrediction::~PanelPrediction() {
 /** Create a panel of predictions.
 @param label for the panel
 @param method `Method` to be called before predictions.
-@param iDist initial conditions for `PathPrediction`s
+@param iDist initial conditions for `PathPrediction`s<br/>
+        ErgodicDist : use computed stationary distribution in ergodic dist.<br/>
+        0 [default]: start the prediction at the lowest-indexed reachable state in &Theta;.<br/>
+        non-negative integer: start at iDist and increment until a reachable state index is found.<br/>
+        matrix: a list of states to start the prediction from<br/>
+        object of Prediction class: use `Prediction::sind` as the initial state for this prediction.
 @param wght [default=UNCORRELATED]
 **/
 PanelPrediction::PanelPrediction(label,method,iDist,wght) {

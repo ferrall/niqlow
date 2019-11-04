@@ -487,6 +487,29 @@ struct Nvariable : SimpleJump {
 	virtual Update();
 	}
 
+/** A single IID jump variable which will return a simulated vector of correlated normal variates.
+
+<DT>How does this compare to  `MVNormal`?</DT>
+<DD>Both are used to represent a normal vector of length $M$: $x \sim N(\mu,\Omega)$</DD>
+<DD>The latter creates a block of $M$ correlated state variables. Each one takes on $N$ values.  So
+a total of $M^N$ points are created.  For more than 2 or 3 dimensions this either makes the state space
+very large or the approximization very coarse.</DD>
+
+<DD>This state variable uses a given number of pseudo-random draws, $N.$  It is based on a fixed draw of $N\times M$
+IID standard normal draws which are transformed by the mean and CHolesky matrix to produce $N\times M$ correlated
+normals.</DD>
+
+This variable needs to be used with care: <code>CV()</code> will return a single value which is the index between 0 and N-1.
+<code>AV()</code> returns the $1\times M$ vector that corresponds to the index.
+
+**/
+struct MVNvectorized : Nvariable {
+    decl zvals, Ndim, vecactual;
+	MVNvectorized(L,Ndraws,Ndim,mu,sigma,seed=0);
+	Update();
+    myAV();
+	}
+
 /** A jump variable whose acutal values are quantiles of the standard normal distribution.
 **/
 struct Zvariable : Nvariable {

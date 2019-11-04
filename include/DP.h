@@ -213,7 +213,7 @@ struct ThetaTask        :   Task {
     virtual Run();	
     }
 
-/** Identify unreachable states from &Theta;.
+/* Identify unreachable states from &Theta;.
 
 Users do not call this function.
 
@@ -222,12 +222,12 @@ calls the virtual <code>Reachable()</code>.
 This task is called before `CreateTheta` so that reachable status can be determined before
 subsampling (if required).
 
-**/
 struct FindReachables   : 	ThetaTask {	
         decl th, rchable;
         FindReachables();
         Run();	
         }
+*/
 
 /** Allocate space for each point &theta; &in; &Theta; that is reachable.
 
@@ -238,14 +238,14 @@ Users do not call this function.
 
 **/
 struct CreateTheta 	    : 	ThetaTask {	
-        decl insamp, th;
+        decl insamp, th, rchable;
         CreateTheta(); 	
         Sampling();
         Run();	
         picked();
         }
 
-/** Go through &Theta; but do not allocate space.
+/* Go through &Theta; but do not allocate space.
 
 The task is called in `DP::CreateSpaces` if `Flags::onlyDryRun` was instead of
 `FindReachables`.  It will print out information about the size of the state space but will
@@ -256,24 +256,24 @@ will run out of memory if creating &Theta; is attempted.
 
 Users do not call this function.
 
-**/
+
 struct DryRun 	        : 	FindReachables {	
         decl PrevT,PrevA,PrevR,report;
         DryRun();
         Run();	
         }
-
+*/
 
 /** Called when subsampling &Theta; for `KeaneWolpin` approximation.
 
-This task is called if the user is asking for a new subsample of &Theta;.
+This task is called if the user is asking for a new subsample of $\Theta$.
 
-It `DP::CreateSpaces` that loops over the state space &Theta; and
+It `DP::CreateSpaces` that loops over the state space $\Theta$ and
 calls the virtual <code>Reachable()</code>.
 
 If a subsampled state is now not sampled its stored information is destroyed (using <code>Bellman::Delete</code>).
 
-If a non-sampled state is now sampled its point in &theta; is created.
+If a non-sampled state is now sampled its point in $\theta$ is created.
 
 Users do not call this directly.
 

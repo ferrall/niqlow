@@ -35,11 +35,16 @@ struct  Bellman : DP {
 			static 	Initialize(userState,UseStateList=FALSE);
 			static  CreateSpaces();
                     OnlyFeasible(myU);
-            virtual ExogExpectedV();
+
+            //  Users may or must replace these with their own
+			virtual Utility();
 			virtual FeasibleActions();
             virtual Reachable();
-			virtual Utility();
-            virtual UReset();
+            virtual ThetaUtility();
+            virtual OutcomesGivenEpsilon();
+
+            //Solution Methods replace these
+            virtual ExogExpectedV();
 			virtual thetaEMax() ;
 			virtual ActVal();
             virtual ExogStatetoState();
@@ -47,14 +52,9 @@ struct  Bellman : DP {
             virtual AMEMax();
 			virtual Smooth();
 			virtual KernelCCP(task);
-			virtual ZetaRealization();
+			// virtual ZetaRealization();
 			virtual	AutoVarPrint1(task);
-			virtual	Interface();
-            virtual OutcomesGivenEpsilon();
-            virtual OutputValue();
             virtual SetTheta(state=0,picked=0);
-            virtual GetCondVal();
-            virtual SetContVal(Aoptvals,Aobj);
 
 					Bellman(state,picked);
                     Allocate(picked,CallFromBellman=FALSE);

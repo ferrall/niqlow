@@ -731,6 +731,7 @@ ExogOutcomes::ExpectedOutcomes(howmany,chq) {
     decl tv;
     this.chq = chq;
     foreach(tv in auxlist) { tv.track.v = 0.0; }
+    I::curth->ThetaUtility();
     if (howmany==DoAll)
         loop();
     else {
@@ -1252,48 +1253,34 @@ DP::CreateSpaces() {
 	cputime0=timer();
 	Theta = new array[SS[tracking].size];
     I::Initialize();
-    if (Flags::onlyDryRun) {
+    N::Sizes();
+    Alpha::ResetA(SubVectors[acts]);
+    Alpha::SetA(NoMatch);
+/*    if (Flags::onlyDryRun) {
         tt= new DryRun();
         N::Sizes();
         }
     else {
-       decl INf , inI = new I(), inN = new N();
-       if (Flags::ReadIN) {
-           oxrunerror("ReadIN dimensions option needs to be checked.  Don't use for now");
-           INf = fopen(L+".dim","rV");
-           fscan(INf,"%v",&inI,"%v",&inN);
-           }
-       else {
-	       tt = new FindReachables();
-	       tt->loop(TRUE);
-           if (!Version::MPIserver && Volume>LOUD) {
-                println("Note: Reachability of all states listed in the log file");
-                if (isfile(logf)) fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
+*/
+       I::curth = I::curg = UnInitialized;
+       tt = new CreateTheta();
+       tt->loop(TRUE);
+       if (!Version::MPIserver && Volume>LOUD) {
+            println("Note: Reachability of all states listed in the log file");
+            if (isfile(logf)) fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
                               "1=Unreacheable because a user Reachable returns FALSE\n",
                               "2=Reachable",
                 "%8.0f","%c",{"Reachble"}|{"Tracking"}|Labels::Vprt[svar][S[endog].M:S[clock].M],tt.rchable);
                 }
-            delete tt;
-            // INf = fopen(L+".dim","wV");
-            I::curth = I::curg = UnInitialized;
-            // fprint(INf,"%v",&inI,"%v",&inN);
-            }
-       // fclose(INf);
-       delete inI, inN;
-       N::Sizes();
-       Alpha::ResetA(SubVectors[acts]);
-       Alpha::SetA(NoMatch);
-       tt = new CreateTheta();
-       tt->loop(TRUE);
        Alpha::ClearA();
        delete tt.insamp;
-       }
+//       }
 	delete tt;
 	if ( !Version::MPIserver && Flags::IsErgodic && N::TerminalStates )
         oxwarning("DDP Warning 19.\n clock is ergodic but terminal states exist?\n Inconsistency in the set up.\n");
 	tt = new CGTask();	delete tt;
     Flags::ThetaCreated = TRUE; //March 2019 moved below group creation for Ox8 handling of new arrays
-	if (isint(zeta)) zeta = new ZetaRealization(0);
+	//if (isint(zeta)) zeta = new ZetaRealization(0);
 	DPDebug::Initialize();
   	V = new matrix[1][SS[bothexog].size];
 	if (!Version::MPIserver && Volume>SILENT)	{		
@@ -1310,23 +1297,22 @@ DP::CreateSpaces() {
     if (!Version::MPIserver && Flags::onlyDryRun) {println(" Dry run of creating state spaces complete. Exiting "); exit(0); }
 	ETT = new EndogTrans();
     if (Flags::UpdateTime[InCreateSpaces]||Volume>LOUD) {
-            ETT->Transitions();
-            if (!Version::MPIserver && Volume>LOUD) {
-                oxwarning("Checked for valid transitions.  Look in the log file for problems.");
-                --Volume;
-                }
+        ETT->Transitions();
+        if (!Version::MPIserver && Volume>LOUD) {
+            oxwarning("Checked for valid transitions.  Look in the log file for problems.");
+            --Volume;
+            }
         }
-   XUT = new ExogUtil();
-   IOE = new SemiEV();
+   XUT   = new ExogUtil();
+   IOE   = new SemiEV();
    EStoS = new SemiTrans();
-   EOoE = new ExogOutcomes();
-   if (!Version::MPIserver && Volume>SILENT)
-		println("-------------------- End of Model Summary ------------------------\n");
+   EOoE  = new ExogOutcomes();
+   if (!Version::MPIserver && Volume>SILENT) println("-------------------- End of Model Summary ------------------------\n");
    Data::SetLog();
  }
 
 /**Return choice probabilities conditioned on &theta; expanded into full choice probabilty space.
-@param  Aind  index of feasible set that p0 is based on
+@param  Aind  index of feasible` set that p0 is based on
 @param  p0  matrix of conditional choice probabilities to expand.
 
 this inserts zeros for infeasible action vectors.  So results are consistent
@@ -1396,24 +1382,23 @@ CreateTheta::CreateTheta() {
     Sampling();
 	}
 
-/** Find states that are reachable, put index on `N::Reached`, then delete the object immediately.
+/* Find states that are reachable, put index on `N::Reached`, then delete the object immediately.
 Called by `DP::onlyDryRun` inside <code>CreateSpaces</code>.  When this is called, `CreateTheta` is
 not used.
 
 @internal
-**/
 FindReachables::FindReachables() { 	
     ThetaTask(tracking);
     rchable = <>;
     }
+*/
 
 /** Process the state space but do not allocate memory to store &Theta;.
 
 This is called inside <code>CreateSpaces</code> when a dry run is called for.
 
-**/
 DryRun::DryRun() {
-    FindReachables();
+    //FindReachables();
     PrevT = UnInitialized;
     report = <>;
 	loop(TRUE);
@@ -1422,6 +1407,7 @@ DryRun::DryRun() {
     println("niqlow may run out of memory  if cumulative full states is too large.");
     N::Sizes();
     }
+**/
 
 /** @internal **/
 CreateTheta::picked() {
@@ -1429,13 +1415,12 @@ CreateTheta::picked() {
     return isarray(insamp) ? ( isint(insamp[I::t]) ? TRUE : any(insamp[I::t].==I::all[tracking]) ) : TRUE;
     }
 
-/** Decide if $\theta$ is reachable.
+/* Decide if $\theta$ is reachable.
 At current $\theta$ call `StateVarible::IsReachable` for all elements of $\theta$. If
 any are not reachable, set $\theta$ as type 0 and return.</br>
 If all state variables are inherently reachable call <code>Reachable</code>.  If true,
 then set type to 2.  Otherwise type 1.
 @internal
-**/
 FindReachables::Run() {
     decl v, h=DP::SubVectors[endog];
     Flags::SetPrunable(counter);
@@ -1449,24 +1434,37 @@ FindReachables::Run() {
         }
     else if (Volume>LOUD) rchable |= UUnRchble~I::all[tracking]~(state[S[endog].M:S[clock].M]');
 	}
+*/
 
 /** .
 @internal
 **/
 CreateTheta::Run() {
-    decl v, h=DP::SubVectors[endog];
+    decl v, h=DP::SubVectors[endog],rch=TRUE, ind;
+    Theta[I::all[tracking]]=Impossible;
     Flags::SetPrunable(counter);
-    foreach (v in h) { if (!(th = v->IsReachable())) return; }
-	if (userState->Reachable()) {
-        Theta[I::all[tracking]] = clone(userState,Zero);
-		Theta[I::all[tracking]] ->SetTheta(state,picked());
-		}
-    else Theta[I::all[tracking]]=0;
-	}
+    if (Flags::Prunable&&Volume>LOUD) ind = I::all[tracking]~(state[S[endog].M:S[clock].M]');
+    foreach (v in h) {
+        if (( !(rch=v->IsReachable()) )) {
+            if (Volume>LOUD) rchable |= InUnRchble~ind;
+            break;
+            }
+        }
+	if (rch) {
+	   if (userState->Reachable()) {
+            if (Volume>LOUD) rchable |= Rchble~ind;
+            N::Reached(I::all[tracking]);
+            if (!Flags::onlyDryRun) {
+                Theta[I::all[tracking]] = clone(userState,Zero);
+		        Theta[I::all[tracking]] ->SetTheta(state,picked());
+                }
+            }
+       else if (Volume>LOUD) rchable |= UUnRchble~ind;
+	   }
+    }
 
-/** .
+/* .
 @internal
-**/
 DryRun::Run() {
     if (I::t!=PrevT) {
         if (PrevT!=-1)
@@ -1477,6 +1475,7 @@ DryRun::Run() {
         }
     FindReachables::Run();
 	}
+*/
 
 ReSubSample::ReSubSample() {
     CreateTheta();
@@ -2042,16 +2041,10 @@ DPDebug::outV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 /** @internal **/
 DPDebug::RunOut() {
 	rp.nottop = FALSE;
-	if (rp.ToScreen) {
-            print("\n     Value of States and Choice Probabilities");
-            if (N::G>1) print("\n     Fixed Group Index(f): ",I::f,". Random Group Index(r): ",I::r);
-            println("\n",div);
-            }
-    else if (isfile(logf)) {
-            fprint(logf,"\n     Value of States and Choice Probabilities");
-            if (N::G>1) fprint(logf,"\n     Fixed Group Index(f): ",I::f,". Random Group Index(r): ",I::r);
-            fprintln(logf,"\n",div);
-        }
+    decl hder = "\n     Value of States" + (Flags::IsErgodic ? ", Ergodic Distn, and " : " and ")+"Choice Probabilities ";
+    if (N::G>1) hder += "\n     Fixed Group Index(f): "+sprint(I::f)+". Random Group Index(r): "+sprint(I::r)+"\n"+sprint(div);
+	if (rp.ToScreen) println(hder);
+    else if (isfile(logf)) fprintln(logf,hder);
 	rp -> Traverse();
 	if (rp.ToScreen) println(div,"\n");	else if (isfile(logf)) fprintln(logf,div,"\n");	
 	if (!OutAll || (!I::f&&!I::r) ) {   //last or only group, so delete rp and reset.
@@ -2070,8 +2063,12 @@ DPDebug::outAutoVars() {
 /** @internal **/
 DPDebug::Initialize() {
     sprintbuffer(16 * 4096);
-	prtfmt0 = array("%8.0f")|Labels::Sfmts[1:2]|Labels::Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%6.0f"|"%15.6f";
+	prtfmt0 = array("%8.0f")|Labels::Sfmts[1:2]|Labels::Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%6.0f"|"%16.6f";
 	Vlabel0 = {"    Indx","T","A"}|Labels::Vprt[svar][S[endog].M:S[clock].M]|"     r"|"     f"|"       EV      |";
+    if (Flags::IsErgodic) {
+        Vlabel0 |= "  Erg.Distn  |";
+        prtfmt0 |= "%11.7f";
+        }
 	}
 
 /** @internal **/
@@ -2136,7 +2133,11 @@ SaveV::Run() {
             ?  ExpandP(ai, I::curth.pandv*NxtExog[Qprob])
             :  ExpandP(ai, I::curth.pandv );
     r =stub~I::r~I::f~I::curth.EV; //N::VV[I::later][I::all[iterating]]
-    if (MaxChoiceIndex) r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p); else r ~= p' ;
+    if (Flags::IsErgodic) r ~= I::curg.Pinfinity[I::all[tracking]];
+    if (MaxChoiceIndex)
+        r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p);
+    else
+        r ~= p' ;
 	if (oned && I::curth.solvez ) r ~= I::curth->Getz()[][I::r]';
 	if (!isint(aM)) aM[0] |= r;
     oxprintlevel(1);

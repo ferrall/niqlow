@@ -839,52 +839,6 @@ DataObjective::vfunc(subp) {
     return data->EconometricObjective(subp); 	
     }
 
-/* An objective to represent a continuous choice at a point in the state space of a dynamic program.
-The purpose of this objective is to make it easier for the model to include a static optimization
-problems at each state.
-
-@example
-    struct Effort : CondContChoice {
-        decl x;
-        vfunc();
-        }
-
-    Effort::vfunc() {
-        v = -AV(a)*sqr(CV(x));
-        }
-
-    MyModel::Initialize() {
-
-        }
-
-    MyModel::Utility() {
-
-        }
-    </DD>
-CondContChoice::CondContChoice(L) {
-    BlackBox(L);
-    NvfuncTerms = 1;
-    //    Encode();
-    }
-CondContChoice::SetAlgorithm(algor) {
-    this.algor = algor;
-    }
-CondContChoice::AtTheta(theta) {
-    this.theta = theta;
-    Aoptvals = theta->GetContVal();
-    Aobj = zeros(sizeof(Aoptvals));
-    for(arow = 0; arow < rows(Aobj); ++arow) {
-        if (!isnan(Aoptvals[arow])) {
-            Encode(Aoptvals[arow]);
-            algor -> Iterate();
-            Aobj[arow] = cur.v;
-            Aoptvals[arow] = cur.X;
-            }
-        }
-    theta -> SetContVal(Aoptvals,Aobj);
-    }
-*/
-
 /**  A wrapper that acts like an objective but just calls a model's Solve method and returns 1.0.
 @param model Object with a method named <code>Solve()</code> <em>or</em> a member named <code>method</code> with
 a method named <code>Solve()</code>

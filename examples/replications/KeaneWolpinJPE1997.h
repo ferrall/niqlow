@@ -12,10 +12,10 @@ struct KWJPE97 : ExPostSmoothing	{
 	/** State Space Dimensions. @name KW97Dimens **/
 		enum{Ntypes   =4,   //4
              A1       =40,       //40 lifetime
-             Noffers  =3,       //3 # of draws of offers per sector (sample is Msectors^Noffers)
+             Noffers  =11,       //3 # of draws of offers per sector (sample is Msectors^Noffers)
              Age0     =16,     //age at t=0
-             MaxSch   =10,      // 10
-             MaxExp   =30,      // 30 max experience to track}
+             MaxSch   =5,      // 10
+             MaxExp   =10,      // 30 max experience to track}
              KW97DIMS}
 
 	/** Approximation Parameters. @name ApproxParams **/
@@ -68,6 +68,9 @@ sig=   <1.0;
                                       .0838,  .0329 >,
 		/** &beta; vector  **/			  	bet  = <2983,26357-2983>;  //subtract BA from grad because incremental
 	static decl
+        /** vector of current xper .**/     x,
+        /** return values beofre offers **/ Er,
+        /** return values.**/               rr,
 		/** accepted offer          **/  	accept,
 		/** offer block **/		  		  	offers,
 		/** occupation experience array**/	xper,
@@ -76,4 +79,5 @@ sig=   <1.0;
 	static 	Replicate();
     static  kdist();
 			Utility();
+            ThetaUtility();
 	}

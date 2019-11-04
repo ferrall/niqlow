@@ -41,7 +41,7 @@ struct Outcome : Data {
 	/**pointer to next outcome on the path **/			onext,
     /** index of next simulated state **/               snext,
 	/**&alpha;,  **/						            act,
-	/**&zeta;, continuous shock vector **/	            z,
+	/* &zeta;, continuous shock vector 	            z,*/
 	/**auxiliary values. **/				            aux,
 	/**  **/						                    ind,
 	/** list of feasible sets consistent w/ data.**/	Ainds;

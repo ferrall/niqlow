@@ -13,17 +13,15 @@ A user bases (derives) <code>MyModel</code> on one of these classes (or a class 
 <DD><pre>
 &#35;import "DDP"
 
-class MyModel : ExPostSmoothing {
+class MyModel : Bellman {
     // declare data members
             Utility(A);
     <details><summary>// Optional methods to replace built-in versions</summary>
             FeasibleActions(A);
             Reachable();
-    static PreUpdate();</details>
-    <details><summary>// Optional methods to accommodate new solution methods (advanced)</summary>
-           thetaEMax();
-           ActVal();
-           Smooth();</details>
+            ThetaUtility();
+            OutcomesGivenEpsilon();
+            </details>
     }
 </pre></DD>
 
@@ -36,7 +34,7 @@ EV(\theta^{\,\prime})\quad &=\quad E_{\alpha,\eta,\theta} \left[V(\theta^{\,\pri
 v(\alpha;\zeta,\epsilon,\eta,\theta)\quad &\equiv\quad U(\alpha,\epsilon,\eta,\theta,\gamma) + \zeta_\alpha + \delta EV(\theta^{\,\prime})\cr
 V(\zeta,\epsilon,\eta,\theta)\quad &=\quad\max_{\alpha\in A(\theta)}\ v(\alpha;\zeta,\epsilon,\eta,\theta)\cr}$$
 
-The integration over $\zeta$ is carried out by the virtual `Bellman::thetaEMax`() or its replacement and does not have to be coded by the user. The default method,  `Bellman::thetaEMax`(), assumes that $\zeta$ takes on one value, 0, with density $f(0)=1$.  (Another way to think of it:  $\zeta$ is an empty vector.)   Thus, the default does no integration.</p>
+The integration over $\zeta$ is carried out internally by the virtual `Bellman::thetaEMax`() or its replacement and does not have to be coded by the user. The default method,  `Bellman::thetaEMax`(), assumes there is $\zeta.$  Thus, the default does no integration.</p>
 
 Choice probabilities are stored conditional on $\eta$ and $\theta$.  This requires summing over $\epsilon$ and integrating over $\zeta$. Another virtual method, `Bellman::Smooth`(), carries out the smoothing of choice probabilities, but only on a final iteration (after convergence in an infinite horizon environment). In the default, choice probabilities are not smoothed.  That is, conditional choice probabilities are either 0 or 1 based on whether the action $\alpha$ has maximum value or not. The derived class `ExPostSmoothing` allows for ex-post smoothing of choice probabilities without the presence of $\zeta$.</p>
 
@@ -47,7 +45,7 @@ Choice probabilities are stored conditional on $\eta$ and $\theta$.  This requir
 <DD><pre>
 &#35;import "DDP"
 
-struct MyModel : ExPostSmoothing {
+struct MyModel : Bellman {
     // define data members and methods
     Utility(A);
     }
@@ -66,27 +64,48 @@ A state is <em>unreachable</em> if it cannot occur given initial conditions.  Fo
     }
 </pre></DD>
 
-Note however, that state variable types defined <span class="n">DDP</span> have their own <code>Reachable</code> method.  This means that in many cases the user does not need to code <code>Reachable</code>.  FOr example, in the case of too much experience at a given age, the `ActionCounter` state variable will automatically prune states from a finite horizon model based on the condition.</p>
+Note however, that `StateVariable`s defined in <span class="n">DDP</span> have their own <code>Reachable</code> method which are called when creating the state space and before <code>MyModel::Reachable()</code> is called.  This means that in many cases the user does not need to code <code>Reachable</code>.  For example, in the case of too much experience at a given age, the `ActionCounter` state variable will automatically prune states from a finite horizon model based on the condition.</p>
 
 <LI>Restricted Feasible Action spaces / matrices </LI>
 
-<code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::FeasibleActions`() method to make the feasible choice set to vary with the endogenous state $\theta$.  That is, the action space $A$ is really $A(\theta)$.  Again, the default is that all states constructed from the action variables added to the model.
+<code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::FeasibleActions`() method to make the feasible choice set to vary with the endogenous state $\theta$.  That is, the action space $A$ is really $A(\theta)$.  Again, the default is that all states constructed from the action variables added to the model.</p>
 
 <DD>Example.  Only action vectors with <code>d</code> less than or equal to the value of state variable <code>x</code> are feasible.
 <pre>MyModel::FeasibleActions() { return CV(d) &lt;= CV(x); }
 </pre></DD>
 
+<LI>ThetaUtility</LI>
+
+Suppose the utility for your model has the form $U() = f\left( \alpha; g\left(\theta\right),\eta,\epsilon\right).$  That is, there is a function $g()$ of the endogenous state variables that is common for all values of the IID (exogenous and semi-exogenous) state variables.  If <code>MyModel</code> only provides the required <code>Utility()</code> function then $g(\theta)$ is unnecessarily recomputed for each value of the IID shocks.  This inefficiency can be eliminated by providing <code>ThetaUtility().</code>  That is called for each $\theta$ immediately before looping over the IID values and calling <code>Utility()</code>. A simple example:  $U = a(xb + e - d) + d.$  Here $\theta=(x),$ $\alpha=(a)$ is a binary choice, and $\epsilon=(e)$ an IID shock to value of $a=1$.  $b$ and $d$ are parameters.
+
+<dd><pre>
+struct MyModel : Bellman {
+    &vellip;
+    static decl xb , a, x, b, d, e;
+    &vellip;
+    ThetaUtility();
+    &vellip;
+    
+MyModel::ThetaUtility() {
+    xb = CV(x)*b;
+    }    
+MyModel::Utility() {
+    return CV(a)*(xb+AV(e)-d) + d;
+    }    
+    </pre></dd>
+Note that the model's <code>ThetaUtility</code> stores the computed value in a static member of the model.  It can be static even though the value of the state variable $x$ depends on the $\theta$.  But it will updated with the current value before <code>Utility()</code> is called for the current value of $\theta$ and $\epsilon.$  In complicated models, there may be many calculations that depend on endogenous states and estimated parameters.  Using <code>ThetaUtility()</code> not only eliminates redundant computation it does so without additional storage that grows with the state space.</p>
+
 <LI>Hooks and Update Time</LI>
 
 <code>MyModel</code> can use `Hooks::Add`() to have a static method/function called at different points in solution methods. <code>MyModel</code> can also use `DP::SetUpdateTime`() to set when solution methods should update transition probabilities and utility of actions.  This allows transitions and utility to depend on fixed and random effect variables, but if they do not wasted computations can be avoided by updating higher up in the process.</p>
 
-<LI>Value-related routines (advanced)</LI>
+<!--<LI>Value-related routines (advanced)</LI>
 
-<code>MyModel</code> can supply replacements for `Bellman::thetaEMax`(), `Bellman::ActVal`(), and `Bellman::Smooth`().  Many of the derived classes of Bellman already specialize these operations.  It is unlikely a user would need to do this.
+<code>MyModel</code> can supply replacements for `Bellman::thetaEMax`(), `Bellman::ActVal`(), and `Bellman::Smooth`().  Many of the derived classes of Bellman already specialize these operations.  It is unlikely a user would need to do this.-->
 
-<LI>Auxiliary Variables and ZetaRealization</LI>
+<LI>Auxiliary Variables</LI>
 
-<code>MyModel</code> can add `AuxiliaryValue`s and a `ZetaRealization` for simulating outcomes and accounting for partial observability of the state. <code>MyCode</code> must sandwich the commands that add actions and states to the model between calls to <code>DPparent::Initialize(&hellip;)</code> and <code>DPparent::CreateSpaces(&hellip;)</code>.  <code>MyModel</code> can supply its own version of these two methods, but then they <em>must</em> call the parent versions.  If <code>MyModel</code> does not have its own versions, then the prefix <code>DPparent::</code> is not needed because a reference to <code>Initialize()</code> will refer to the parent's version.</p>
+<code>MyModel</code> can add `AuxiliaryValue`s  for simulating outcomes and accounting for partial observability of the state. <code>MyCode</code> must sandwich the commands that add actions and states to the model between calls to <code>DPparent::Initialize(&hellip;)</code> and <code>DPparent::CreateSpaces(&hellip;)</code>.  <code>MyModel</code> can supply its own version of these two methods, but then they <em>must</em> call the parent versions.  If <code>MyModel</code> does not have its own versions, then the prefix <code>DPparent::</code> is not needed because a reference to <code>Initialize()</code> will refer to the parent's version.</p>
 </OL>
 </OL>
 
@@ -155,7 +174,7 @@ When you call `DP::Initialize`() it opens a <em>timestamped</em> log file. Outpu
 
 
 
-@author &copy; 2011-2018 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
+@author &copy; 2011-2019 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
 
 <a name="auto"><hr><h1>Documentation of Items Defined in Bellman.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 

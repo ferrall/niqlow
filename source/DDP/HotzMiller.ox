@@ -127,10 +127,8 @@ HMGSolve::Run() {
     XUT.state = state;
     if (HotzMiller::AMstep)
         I::curth.AMEMax();
-    else {
-//        oldp[I::f][I::all[tracking]][] = I::curth.pandv';
+    else
         Q[I::f][I::all[tracking]] = I::curth->HMQVal();
-        }
     if (Flags::setPstar) Hooks::Do(PostSmooth);
 	}
 	
