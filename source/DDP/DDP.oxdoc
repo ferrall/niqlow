@@ -616,19 +616,21 @@ Dynamic programming accounts for a choice made today affects outcomes in the fut
 
 <h2>State Variables that Depend on Current and Past Events <span class="n">DDP</span></h2>
 
-In BobsChoiceB there were two states.  Either Bob has a scholarship or not and this changes his decision.  Dynamic programs can account for state variables that depend on what has happened in the past.  For example a very common state variable counts how many times a choice has been made before the current period.  If $a$ is binary choice then utility might depend on how many times $a=1$ before now.  
+In BobsChoiceB there were two states.  Either Bob has a scholarship or not and this changes his decision.  Dynamic programs can account for state variables that depend on what has happened in the past.  For example a very common state variable counts how many times a choice has been made before the current period.  If $a$ is binary choice then utility might depend on how many times $a=1$ before now.
 $$A_t = {\sum}_{s=0}^{t-1} a_s.$$
-Note that this does not clearly define the initial value $A_0.$  Typically the model would set this to 0, but it could be initialized to a different value.  For dynamic programming it does not matter how the current value $A_t$ came about.  What matters is how current decisions will alter the effect $A$ in the future.  This is what is meant by the <em>transition of $A$</em>.  We can state this simply as 
+Note that this does not clearly define the initial value $A_0.$  Typically the model would set this to 0, but it could be initialized to a different value.  For dynamic programming it does not matter how the current value $A_t$ came about.  What matters is how current decisions will alter the effect $A$ in the future.  This is what is meant by the <em>transition of $A$</em>.  We can state this simply as
 $$A^\prime = A + a.$$
 That is, next period's value of $A$ will be what it is today plus the value of the current decision.  If $a=1$ then $A^\prime = A + 1.$  Otherwise it is unchanged.</p>
 
-
-
 <h2>Terminal States</h2>
+
+In some environments decision-making ends when a particular state is reached.  These are called terminal states.  A value of state variable can be made terminal using `StateVariable::MakeTerminal`(). 
 
 <LI><a name="MD">Multiple Deciders</a></LI>
 
-<LI><a name="Next">Where to go next</a></LI>
+<em>Not completed yet: You can see information about this in <a href="Variables.ox.html#Fixed">Time Invariant or Grouping Variables </a></em>
+
+<!--<LI><a name="Next">Where to go next</a></LI>-->
 
 
 </OL>

@@ -1428,7 +1428,7 @@ Tauchen::Tauchen(L,N,M,mu,sig,rho) {
 	}
 	
 Tauchen::Transit() {
-	return {vals,reshape(Grid[v][],N,Alpha::N)'};
+	return {vals,Grid[v][]};  //This was wrong: no need to match rows of A(). reshape(Grid[v][],N,Alpha::N)'
 	}
 	
 Tauchen::Update() {
@@ -1443,7 +1443,6 @@ Tauchen::Update() {
 	Grid[][] = pts[][1:]-pts[][:N-1];
 	actual += AV(mu);
     actual = actual';
-    if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
 	}
 
 /**Create a new asset state variable.
