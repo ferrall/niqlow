@@ -3,7 +3,7 @@
 
 
 /** Set up MPI Client-Server support for objective optimization.
-@param obj `Objective' to parallelize
+@param obj `Objective` to parallelize
 @param DONOTUSECLIENT TRUE (default): client node does no object evaluation<br>FALSE after putting servers to work Client node does one evaluation.
 @param NSubProblems integer, number of subproblems that can be done simultaneously.
 @param MaxSubReturn integer, longest vector returned by a subproblem

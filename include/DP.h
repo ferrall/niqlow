@@ -94,9 +94,9 @@ struct DP {
         /** task to integrate V over semi-exogenous states.**/  IOE,
         /** task to update tomorrow's state distribution. **/   EStoS,
         /** task to integrate outcomes over $\epsilon$.**/      EOoE,
-		/** `ZetaRealization`, realized continuous shocks, &zeta;,
+		/* `ZetaRealization`, realized continuous shocks, &zeta;,
 			set during simulation of realized paths. Distribution must be conditional on choice stored in
-			`Alpha::aC`. **/ 	                                zeta,
+			`Alpha::aC`.  	                                zeta, */
 		/* current realized auxiliary vector, &chi;,
 			only set during simulation of realized paths. chi,**/ 	
 	/** list of `AuxiliaryValue`s that depend on the current outcome.
@@ -202,7 +202,7 @@ struct Task : DP {
 
 /** Base Class for tasks that loop over the endogenous state space &Theta;.
 
-The <code>Traverse()<code> method will either <code>loop</code> or <code>list()</code> depending on whether the user
+The <code>Traverse()</code> method will either <code>loop</code> or <code>list()</code> depending on whether the user
 asked for the state space &Theta; to be processed according to a list of reachable
 states or looping over all combinations of state variable values.  This is done
 with an arguement to `DP::Initialize`().

@@ -21,7 +21,7 @@ struct Algorithm {
 	 /** output level, `NoiseLevels` **/					Volume,
      /** Not restarting from alg. checkpoint. **/           NormalStart,
 	 /** maximum iterations **/ 	        				maxiter,
-     /** Store path of iterations in `Algorithm::path'.**/  StorePath,
+     /** Store path of iterations in `Algorithm::path`.**/  StorePath,
      /** sequence of structural parameters .**/             path,
      /** current iteration count.  **/				        iter,
 	 /**  top level convergence tolerance **/        	    tolerance,

@@ -15,7 +15,7 @@ Objective::SetVersion(v) {
 
 /** Create a new objective.
 @param L string, label for the objective.
-@internal
+
 **/
 Objective::Objective(L,CreateCur)	{	
     decl i;
@@ -269,9 +269,9 @@ Objective::ToggleParameterConstraint()	{
     this->Recode(FALSE);
 	}
 
-/** @internal **/ Objective::dFiniteDiff0(x) {   return maxr( (fabs(x) + SQRT_EPS) * DIFF_EPS  ~ SQRT_EPS);  }
-/** @internal **/ Objective::dFiniteDiff1(x) {   return maxr( (fabs(x) + SQRT_EPS) * DIFF_EPS1 ~ SQRT_EPS); }
-/** @internal **/ Objective::dFiniteDiff2(x) {   return maxr( (fabs(x) + SQRT_EPS) * DIFF_EPS2 ~ SQRT_EPS); }
+/** . @internal **/ Objective::dFiniteDiff0(x) {   return maxr( (fabs(x) + SQRT_EPS) * DIFF_EPS  ~ SQRT_EPS);  }
+/** . @internal **/ Objective::dFiniteDiff1(x) {   return maxr( (fabs(x) + SQRT_EPS) * DIFF_EPS1 ~ SQRT_EPS); }
+/** . @internal **/ Objective::dFiniteDiff2(x) {   return maxr( (fabs(x) + SQRT_EPS) * DIFF_EPS2 ~ SQRT_EPS); }
 
 
 /** Decode a vector of free variables.
@@ -938,8 +938,9 @@ Separable::Common(...
 	}
 
 /** .
-@param notgradient TRUE not a gradient call.
 @internal
+@param notgradient TRUE not a gradient call.
+
 **/
 Separable::kEncode(notgradient)	{
 	if (Kvar.v) {

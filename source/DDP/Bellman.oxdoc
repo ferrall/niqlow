@@ -85,13 +85,13 @@ struct MyModel : Bellman {
     &vellip;
     ThetaUtility();
     &vellip;
-    
+
 MyModel::ThetaUtility() {
     xb = CV(x)*b;
-    }    
+    }
 MyModel::Utility() {
     return CV(a)*(xb+AV(e)-d) + d;
-    }    
+    }
     </pre></dd>
 Note that the model's <code>ThetaUtility</code> stores the computed value in a static member of the model.  It can be static even though the value of the state variable $x$ depends on the $\theta$.  But it will updated with the current value before <code>Utility()</code> is called for the current value of $\theta$ and $\epsilon.$  In complicated models, there may be many calculations that depend on endogenous states and estimated parameters.  Using <code>ThetaUtility()</code> not only eliminates redundant computation it does so without additional storage that grows with the state space.</p>
 
@@ -171,8 +171,6 @@ When you call `DP::Initialize`() it opens a <em>timestamped</em> log file. Outpu
 </OL>
 
 </OL>
-
-
 
 @author &copy; 2011-2019 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
 

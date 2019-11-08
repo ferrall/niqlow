@@ -86,6 +86,8 @@ Method::ToggleIterate(ToggleOnlyTrans) {
 
 /** Process a point in the fixed-effect space.
 
+@internal
+
 This is not called by the user's code.  It is called by the method's Solve() routine.
 
 <OL>
@@ -93,10 +95,8 @@ This is not called by the user's code.  It is called by the method's Solve() rou
 <LI>Apply the solution method for each value of the random effect vector.</LI>
 <LI>Carry out post-solution tasks by calling at hook = <code>PostRESolve</code>;
 </OL>
+
 @see DP::SetUpdateTime , EndogTrans::Transitions , HookTimes
-
-@internal
-
 **/
 Method::Run() {
     if (Flags::UpdateTime[AfterFixed]) {ETT->Transitions(state);}
@@ -115,13 +115,13 @@ Method::Run() {
         }
     }
 
-/** @internal **/
+/** . @internal **/
 RandomSolve::RandomSolve(gtask,caller) {	
     RETask(caller);	
     itask = gtask;
     }
 
-/** @internal **/
+/** . @internal **/
 GSolve::GSolve(caller) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 28. Must create spaces before creating a solution method");
 	ThetaTask(iterating,caller);
@@ -137,13 +137,14 @@ GSolve::GSolve(caller) {
 GSolve::ZeroTprime() { state[counter.tprime.pos] = 0; }
 
 /** Apply the solution method for the current fixed values.
+@internal
 
 This is not called by the user's code.  It is called by the method's <code>Run()</code> routine.
 
 If <code>UpdateTime</code> = <code>AfterRandom</code>, then update transitions and variables.
 
 Solution is not run if the density of the point in the group space equals 0.0.
-@internal
+
 
 **/
 RandomSolve::Run()  {
@@ -163,7 +164,7 @@ This is not called by the user's code. It is called for each point
 in the group space $\Gamma.$ It's job is to iterate over $\Theta.$
 
 <OL>
-<LI>Set the `Flag::setPstar` for whether $P^\star$ should be computed or not.</LI>
+<LI>Set the `Flags::setPstar` for whether $P^\star$ should be computed or not.</LI>
 <LI>Compute utility</LI>
 <LI>Iterate over $\theta$ applying Bellman's equation or other solution method if replaced.</LI>
 <LI>Call any functions added to the <code>PostGSolve</code> `HookTimes`<code>
@@ -183,23 +184,27 @@ GSolve::Solve(instate) {
     if (Volume>SILENT && N::G>1) print(".");
 	}
 /** Apply the method (default is Bellman equation) at a point $\theta$.
+@internal
+
 <OL>
 <LI>Compute the value of actions, $v(A(\theta),\theta)</var> by calling `Bellman::ActVal`() or the
 replacement for the actual method</LI>
 <LI>Call `Bellman::thetaEMax`() or replacment to store the value in the scratch space for $V(\theta)$.</LI>
 <LI>Call `Gsolve::PostEmax`() or replacement</LI>
 </OL>
-@internal
+
 **/
 GSolve::Run() {
     XUT.state = state;
-    //DP::vV =VV[I::later];
+    I::curth->ThetaUtility();
 	I::curth->ActVal();
 	N::VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
     this->PostEMax();
 	}
 
 /** Process $\theta$ after computing $V$.
+@internal
+
 If `Flags::setPstar` then
 <OL>
 <LI>Smooth choice probabilities with the DP-model's `Bellman::Smooth`() method.</LI>
@@ -211,7 +216,7 @@ If `Flags::setPstar` then
 The state-to-state transition is only needed for some solution methods and for calculation of
 the stationary distribution in ergodic models.
 
-@internal
+
 **/
 GSolve::PostEMax() {
 	if (Flags::setPstar)  {

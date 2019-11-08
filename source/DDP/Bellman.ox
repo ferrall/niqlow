@@ -169,7 +169,7 @@ Bellman::FeasibleActions()	{  	return ones(Alpha::N,1); 	}
 
 Smooth is called for each point in the state space during value function iteration, but only in the last iteration
 (deterministic aging or fixed point tolerance has been reached.)
-It uses `Bellman::EV' which should be set to the current value of the current state by thetaEmax()
+It uses `Bellman::EV` which should be set to the current value of the current state by thetaEmax()
 
 @comment This is virtual, so the user's model can provide a replacement to do tasks at each &theta; during iteration.
 
@@ -183,7 +183,7 @@ Bellman::Smooth() {
 
 /** Completes $v(\alpha;\cdots,\eta,\theta)$ by adding discounted expected value
     to utilities for a given $\eta$.
-    The columns that are updated are indexed as `I::elo` : `I::eh`.
+    The columns that are updated are indexed as `I::elo` : `I::ehi`.
     The element of the transition used is $\eta = $ `I::all`[onlysemiexog].
     <dd><pre>
 decl et =I::all[onlysemiexog];
@@ -207,7 +207,6 @@ Bellman::ThetaUtility() { return .NaN; }
 
 /** Compute $v(\alpha;\theta)$ for all values of $\epsilon$ and $\eta$. **/
 Bellman::ActVal() {
-    this->ThetaUtility();
     XUT->ReCompute(DoAll);
 	pandv[][] = XUT.U;
 	if (Type>=LASTT) return;
@@ -219,8 +218,8 @@ Bellman::ActVal() {
 Bellman::MedianActVal() {
         //Note Since Action values not computed for terminal states, Type same as IsLast
         //XUT->ReCompute(UseCurrent);  Removed Oct. 2019.  Replaced by call to ThetaUtility
-    pandv[] = this->ThetaUtility() + (Type>= LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*N::VV[I::later][Nxt[Qit][Zero]]));
-	V[] = maxc( pandv );
+    pandv[][0] = this->ThetaUtility() + (Type>= LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*N::VV[I::later][Nxt[Qit][Zero]]));
+	V[] = maxc( pandv[][0] );
 	}
 	
 /**Default <var>Emax</var> operator at &theta;.
@@ -341,12 +340,12 @@ Bellman::Utility()  {
 @internal
 **/
 Bellman::HMQVal() {
-    this->ThetaUtility();
+//    this->ThetaUtility();
     XUT->ReCompute(UseCurrent);
     UpdatePtrans();
     return pandv'*(XUT.U+M_EULER-log(pandv));
     }
-/**
+/** .
 @internal
 **/
 Bellman::AMEMax() {
@@ -579,7 +578,7 @@ McFadden::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 
 /** Myopic agent, so vv=U and no need to loop over &theta;&prime;.**/
 McFadden::ActVal() {
-    this->ThetaUtility();
+//    this->ThetaUtility();
     XUT->ReCompute(DoAll);
     pandv[][] = XUT.U;
     }
@@ -717,7 +716,7 @@ NIID::ExogExpectedV() {
     }
 
 NIID::ActVal() {
-    this->ThetaUtility();
+//    this->ThetaUtility();
     XUT->ReCompute(DoAll);  //ZZZZ
 	decl J=rows(XUT.U);
 	if (Type<TERMINAL && J>1)	{
@@ -798,7 +797,7 @@ NIID::UpdateChol() {
 	}
 
 	
-/**
+/** .
 @internal
 **/
 Normal::thetaEMax() {	return EV;	}
@@ -857,7 +856,7 @@ NnotIID::ExogExpectedV() {
 
 **/
 NnotIID::ActVal() {
-    this->ThetaUtility();
+//    this->ThetaUtility();
     XUT->ReCompute(DoAll);  //ZZZZ
 	decl J=rows(XUT.U);
 	if (Type<TERMINAL && J>1)	{
@@ -924,7 +923,7 @@ The answer is stored in <code>solvez</code>.
 **/
 OneDimensionalChoice::Continuous() { return TRUE;   }
 
-/**
+/** .
 @internal
 **/
 OneDimensionalChoice::SetTheta(state,picked) {
@@ -949,6 +948,8 @@ OneDimensionalChoice::Smooth() {
 	}
 
 /**  Compute EV(&theta;) after optimal cutoffs z* have been found and compute choice probabilities if `Flags::setPstar` is TRUE.
+@internal
+
 <dd class="disp">
 $$EV(\theta) = \sum_{j=0}^{d.N^-} \left[ \left\{ Prob(z^\star_{j-1}<z\le z^\star_j)( EU_{z*}(d=j) + \delta EV(\theta'|d=j)\right\}dz\right].$$
 </dd>
@@ -959,7 +960,7 @@ $$EV(\theta) = \sum_{j=0}^{d.N^-} \left[ \left\{ Prob(z^\star_{j-1}<z\le z^\star
 <dd>z*<sub>d.N</sub> &equiv; +&infin;</dd>
 
 @return EV
-@internal
+
 **/
 OneDimensionalChoice::thetaEMax(){
     if (solvez && N::Options[Aind]>One) {
@@ -986,7 +987,7 @@ OneDimensionalChoice::ActVal() {
                        ? 0.0
 	                   : I::CVdelta*Nxt[Qrho][0]*N::VV[I::later][Nxt[Qit][0]]';
     if (!solvez) {
-        this->ThetaUtility();
+//        this->ThetaUtility();  // this may be redundant???
         XUT->ReCompute(DoAll);  //ZZZZ
         pandv += XUT.U;
         }

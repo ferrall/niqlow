@@ -218,7 +218,7 @@ SimulatedAnnealing::Iterate(chol)	{
 	}
 
 /** .
-@internal
+
 **/
 LineMax::LineMax(O)	{
 	Algorithm(O);
@@ -1029,7 +1029,7 @@ NonLinearSystem::JJupdate() {
 	}
 	
 /** Compute the objective's Jacobian.
-@ param dx argument is ignored (default=0)
+@param dx argument is ignored (default=0)
 **/
 NonLinearSystem::Jupdate(dx) {O->Jacobian(); }
 

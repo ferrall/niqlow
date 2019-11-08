@@ -198,7 +198,7 @@ struct NnotIID : Normal {
 	static decl
 		/**  replications for GHK **/				R,
 		/**  RNG seed argument **/					iseed,
-		/**  . @internal;		**/					ghk;
+		/**  . @internal		**/					ghk;
 	static Initialize(userState,UseStateList=FALSE);
 	static SetIntegration(R,iseed,AChol);
 	static CreateSpaces();

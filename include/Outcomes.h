@@ -40,7 +40,7 @@ struct Outcome : Data {
 			decl							
 	/**pointer to next outcome on the path **/			onext,
     /** index of next simulated state **/               snext,
-	/**&alpha;,  **/						            act,
+	/**$\alpha$  **/						            act,
 	/* &zeta;, continuous shock vector 	            z,*/
 	/**auxiliary values. **/				            aux,
 	/**  **/						                    ind,

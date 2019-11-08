@@ -40,20 +40,21 @@ I::Set(state,group) {
     }
 
 /** Set the current group.
+@param GorSV UseCurrent [default] all[bothgroup] already set
+    <br/>Other integer: set all[bothgroup]
+    <br/>state vector: set groupoffs using I::OO
 Not usually called from user code.
 @return pointer to group in the group space.
 
 **/
 I::SetGroup(GorSV) {
-    if (isint(GorSV) && GorSV!=UseCurrent) {
-        g = all[bothgroup] = GorSV;
+    if ( isint(GorSV) ) {
+        if ( GorSV!=UseCurrent ) all[bothgroup] = GorSV;
         }
-    else {
-       all[groupoffs] = I::OO[groupoffs][]*GorSV;
-       g = int(all[bothgroup]);
-       }
-    curg = Gamma[g];
-    if (isclass(curg)) {
+    else
+        all[groupoffs] = I::OO[groupoffs][]*GorSV;
+    g = int(all[bothgroup]);
+    if ((isclass(curg = Gamma[g]))) {
 	   f = all[onlyfixed] = curg.find;
 	   r = all[onlyrand] = curg.rind;
        rtran = .NaN; // This put here to catch errors if rtran used and not working
@@ -62,7 +63,7 @@ I::SetGroup(GorSV) {
       }
     return curg;
     }
-/**
+/** .
 @internal
 **/
 I::SetExogOnly(state) {
@@ -76,10 +77,11 @@ Space::Space() {D=0; C=N=<>;   X = M= size = 1; }
 SubSpace::SubSpace() {D=0; size=1; O=<>;}
 
 /** Calculate dimensions of a subspace.
+@internal
 @param subs index of subvectors of S to include in the subspace
 @param IsIterating if the clock is included, use the rightmost variable in the index or set offset to 0<br>[default=TRUE]
 @param FullDim
-@internal
+
 
 **/
 SubSpace::Dimensions(subs,IsIterating,FullDim)	{
@@ -117,8 +119,9 @@ SubSpace::Dimensions(subs,IsIterating,FullDim)	{
 	}
 
 /** Calculate dimensions of action space, &Alpha;.
-@comments O is a column vector because it is for post-multiplying A.
 @internal
+@comments O is a column vector because it is for post-multiplying A.
+
 
 **/
 SubSpace::ActDimensions()	{
@@ -208,7 +211,7 @@ DP::GetAind(i) {return isclass(Theta[i]) ? Theta[i].Aind : NoMatch; }
 
 /** Return choice probability for a $\theta$ and current $\gamma$.
 @param i tracking index of $\theta$ in the state space $\Theta$
-@return $P*(\alpha;\epsilon,\eta,\theta,\gamma)$  (<code>Theta[i].pandv<code>)
+@return $P*(\alpha;\epsilon,\eta,\theta,\gamma)$  (<code>Theta[i].pandv</code>)
 **/
 DP::GetPstar(i) {    return Theta[i].pandv;    }
 
@@ -230,12 +233,13 @@ DP::StorePalpha() {
 	}
 
 /** Add state variables or blocks to a subvector of the overall state vector.
+@internal
+
 @param SubV	the subvector to add to. see `SubVectorNames`
 @param va `StateVariable` or `ActionVariable` or `StateBlock` or array variables and blocks (nested arrays of these things okay but not nested StateBlocks)
 @comment User should typically not call this directly
-@see StateVariable, DP::Actions, DP::EndogenousStates, DP::ExogenousStates, DP::SemiExogenousStates,DP::GroupVariables
 
-@internal
+@see StateVariable, DP::Actions, DP::EndogenousStates, DP::ExogenousStates, DP::SemiExogenousStates,DP::GroupVariables
 
 **/
 DP::AddStates(SubV,va) 	{
@@ -412,7 +416,7 @@ DP::AuxiliaryOutcomes(...
 @param ivar state variable or action variable to interact
 @param olist Unitialized, no interaction</br>
        list of objects to interact with indicators for ivar
-@prefix UseLabel:  use abbreviated ivar.L</br>
+@param UseLabel:  use abbreviated ivar.L</br>
         string: start of column labels for matching to data.
 @param ilo minimum value of ivar to track interaction (default=0)
 @param ihi maximum index to track (default = 100)
@@ -438,7 +442,7 @@ DP::Interactions(ivar,olist,prefix,ilo,ihi) {
 @param ivar state variable or action variable to interact
 @param olist Unitialized, no interaction</br>
        list of objects to interact with indicators for ivar
-@prefix UseLabel:  use abbreviated ivar.L</br>
+@param UseLabel:  use abbreviated ivar.L</br>
         string: start of column labels for matching to data.
 @param ilo minimum value of ivar to track interaction (default=0)
 @param ihi maximum index to track (default = 100)
@@ -474,7 +478,7 @@ DP::MultiInteractions(ivarlist,ilov,ihiv,olist,prefix) {
 
 /** Create auxiliary values that are indicators for a state or action.
 @param ivar state variable or action variable to interact
-@prefix UseLabel:  use abbreviated ivar.L</br>
+@param UseLabel:  use abbreviated ivar.L</br>
         string: start of column labels for matching to data.
 @param ilo minimum value of ivar to track interaction (default=0)
 @param ihi maximum index to track (default = 100)
@@ -601,7 +605,7 @@ GroupTask::loop(IsCreator){
 		do {
 			SyncStates(left,left);
             I::Set(state,Flags::ThetaCreated); //March 2019 removed TRUE to handle Ox8 new arrays
-            if (trace) println("------Group task loop: ",classname(this)," Running ",state[left:right]');
+            if (trace) println("------Group task loop: ",isclass(I::curg)," ",I::r," ",I::f," ",classname(this)," Running ",state[left:right]');
 			if (IsCreator || isclass(I::curg) ) this->Run();
 			} while (--state[left]>=0);
 		state[left] = 0;
@@ -638,9 +642,8 @@ CGTask::Run() {
     Fgamma[I::all[onlyfixed]][I::all[onlyrand]] = Gamma[I::all[bothgroup]];
 	}
 		
-/** . @internal
+/** .
 @internal
-
 **/
 DPMixture::DPMixture() 	{	RETask();	}
 
@@ -650,8 +653,9 @@ DPMixture::DPMixture() 	{	RETask();	}
 DPMixture::Run() 	{	GroupTask::qtask->GLike();	}
 
 /** The exogenous utility object.
-Loop over the exogenous state space when $U(\alpha;...)$ needs to be computed.
 @internal
+
+Loop over the exogenous state space when $U(\alpha;...)$ needs to be computed.
 
 **/
 ExogUtil::ExogUtil() {
@@ -661,8 +665,10 @@ ExogUtil::ExogUtil() {
 	}
 
 /** Compute $U$, either over all $\epsilon$ or just the current one.
-@param howmany DOALL, loop or just current.
 @internal
+
+@param howmany DOALL, loop or just current.
+
 **/	
 ExogUtil::ReCompute(howmany) {
     U = constant(.NaN,I::curth->pandv);
@@ -683,17 +689,21 @@ SemiExTask::SemiExTask() {
     subspace = iterating;
     AnyEta = SS[onlysemiexog].size > One;
     }
-/** @internal **/
+
+/** . @internal **/
 SemiEV::SemiEV()       {     SemiExTask();    }
 
-/** @internal **/
+/** . @internal **/
 SemiTrans::SemiTrans() {     SemiExTask();    }
 
 /**  Redo computation over $\eta$ or current value (and over $\epsilon$).
-    This updates <code>pandv</code> which will already contain $U(\alpha;\cdots)$.
-    It calls the virtual `Bellman::ExogExpectedV`(). So it modifies the matrix as
-    $$v(\alpha;\theta) += \delta E[V^\prime].$$
 @internal
+
+This updates <code>pandv</code> which will already contain $U(\alpha;\cdots)$.
+
+It calls the virtual `Bellman::ExogExpectedV`(). So it modifies the matrix as
+    $$v(\alpha;\theta) += \delta E[V^\prime].$$
+
 
 **/
 SemiExTask::Compute(HowMany) {
@@ -709,21 +719,21 @@ SemiExTask::Compute(HowMany) {
         }
     }
 
-/** @internal **/
+/** . @internal **/
 SemiEV::Run() {
     I::ehi += N::Ewidth;
     I::curth->ExogExpectedV();
 	I::elo += N::Ewidth;
     }
 
-/** @internal **/
+/** . @internal **/
 SemiTrans::Run() {
     I::ehi += N::Ewidth;
     I::curth->ExogStatetoState();
 	I::elo += N::Ewidth;
     }
 
-/** @internal **/
+/** . @internal **/
 ExogOutcomes::ExogOutcomes() {    ExTask();   auxlist={}; }
 
 /** Compute the expected values of tracked auxiliary variables over the exogenous vector &epsilon; **/
@@ -740,7 +750,7 @@ ExogOutcomes::ExpectedOutcomes(howmany,chq) {
         }
     }
 
-/** @internal **/
+/** . @internal **/
 ExogOutcomes::Run() {
     Hooks::Do(PreAuxOutcomes);
     I::curth->OutcomesGivenEpsilon(); //ExpectedOutcomesOverEpsilon(chq);
@@ -753,7 +763,7 @@ ExogOutcomes::Run() {
         }
     }
 
-/** @internal **/
+/** . @internal **/
 ExogOutcomes::SetAuxList(tlist) {
     if (sizeof(auxlist)) return;  // already done
     decl tv;
@@ -775,10 +785,11 @@ Alpha::Initialize() {
     }
 
 /** Set $A(\theta)$.
+@internal
 @param inAi NoMatch: set to 0, the master feasible set<br/>
             otherwise, set to $A(\theta)$ for current $\theta$.<br/>
             and, if also non-negative, then set the realized action values equal to the row inAi
- @internal
+
 **/
 Alpha::SetA(inAi) {
     decl myj = (inAi==NoMatch) ? Zero : I::curth.Aind;
@@ -794,12 +805,13 @@ Alpha::SetA(inAi) {
         }
     }
 
-/** @internal **/
+/** . @internal **/
 Alpha::ClearA() { N = A = C = UnInitialized; }
 
 /** Check $A(\theta)$ returned by `Bellman::FeasibleAction`(), add to list if new.
-@param column vector of 0s and 1s indicating which $\alpha$ vectors are feasible at $\theta$
 @internal
+@param column vector of 0s and 1s indicating which $\alpha$ vectors are feasible at $\theta$
+
 **/
 Alpha::AddA(fa) {
     if (!ismatrix(fa)||rows(fa)!=rows(Sets[0])||columns(fa)>1 || ( sumc(fa.==1)+sumc(fa.==0) != rows(fa))  ) {
@@ -823,10 +835,11 @@ Alpha::AddA(fa) {
    }
 
 /** Reset the actual value matrices (based on possible changes in updated parameters).
+@internal
 @param alist list of action variables (`DP::SubVectors`[acts]).  Has to be passed because Alpha is defined before DP
 @param CallUpdate TRUE [default]: call each actions `ActionVariable::Update`().<br/>
                    FALSE: don't call - this is for when feasible action sets are created and depend on static actual values.
- @internal
+
  **/
 Alpha::ResetA(alist,CallUpdate) {
     decl a, i, j=Zero;
@@ -842,7 +855,7 @@ Alpha::ResetA(alist,CallUpdate) {
     for (j=One;j<N::J;++j) AList[j][][] = selectifr(AList[Zero],Sets[j]);
     }
 
-/** @internal **/
+/** . @internal **/
 Alpha::Aprint() {
     decl a,av,i,j;
     decl everfeasible, totalnever = 0;
@@ -882,7 +895,7 @@ Alpha::Aprint() {
     println("\n");
     }
 
-/**
+/** .
 @internal
 **/
 Labels::Initialize() {
@@ -926,7 +939,7 @@ N::Initialize() {
     if (MaxSZ==Zero) MaxSZ = INT_MAX;
     }
 
-/** @internal **/
+/** . @internal **/
 N::Subsample(prop) {
     if  ( isint(prop)||( (prop==1.0)&&(N::MaxSZ==INT_MAX) ) ) return DoAll ;
     decl t,c,nt=diff0(tfirst)[1:], samp = new array[T],d;
@@ -951,8 +964,9 @@ N::Sizes() {
         VV[i] = zeros(1,N::Mitstates);
     }
 
-/** @internal **/
+/** . @internal **/
 N::ZeroVV() {    VV[I::now][] = VV[I::later][] = 0.0; }
+
 /** .
 @internal
 **/
@@ -966,8 +980,9 @@ N::print(){
     }
 
 /** Add trackind to the list of reachable indices (called internally).
-@see FindReachables
 @internal
+@see FindReachables
+
 **/
 N::Reached(trackind) {
     ++ReachableStates;
@@ -975,7 +990,7 @@ N::Reached(trackind) {
 	ReachableIndices |= trackind;
     }
 
-/** @internal **/
+/** . @internal **/
 N::IsReachable(trackind) {
     return any(ReachableIndices.==trackind);
     }
@@ -1022,7 +1037,8 @@ DP::Initialize(userState,UseStateList) {
 	P = new array[DVspace];
 	//alpha =
     //  chi =
-    zeta = delta = Impossible;
+    // zeta =
+    delta = Impossible;
     SetUpdateTime();
     if (strfind(arglist(),"NOISY")!=NoMatch) {
             Volume = NOISY;
@@ -1253,34 +1269,31 @@ DP::CreateSpaces() {
 	cputime0=timer();
 	Theta = new array[SS[tracking].size];
     I::Initialize();
-    N::Sizes();
     Alpha::ResetA(SubVectors[acts]);
     Alpha::SetA(NoMatch);
-/*    if (Flags::onlyDryRun) {
-        tt= new DryRun();
-        N::Sizes();
-        }
-    else {
-*/
-       I::curth = I::curg = UnInitialized;
-       tt = new CreateTheta();
-       tt->loop(TRUE);
-       if (!Version::MPIserver && Volume>LOUD) {
+    I::curth = I::curg = UnInitialized;
+    tt = new CreateTheta();
+    tt->loop(TRUE);
+    N::Sizes();
+    if (!Version::MPIserver && Volume>LOUD) {
             println("Note: Reachability of all states listed in the log file");
             if (isfile(logf)) fprintln(logf,"0=Unreachable because a state variable is inherently unreachable\n",
                               "1=Unreacheable because a user Reachable returns FALSE\n",
                               "2=Reachable",
                 "%8.0f","%c",{"Reachble"}|{"Tracking"}|Labels::Vprt[svar][S[endog].M:S[clock].M],tt.rchable);
                 }
-       Alpha::ClearA();
-       delete tt.insamp;
-//       }
+    Alpha::ClearA();
+    delete tt.insamp;
 	delete tt;
 	if ( !Version::MPIserver && Flags::IsErgodic && N::TerminalStates )
         oxwarning("DDP Warning 19.\n clock is ergodic but terminal states exist?\n Inconsistency in the set up.\n");
 	tt = new CGTask();	delete tt;
     Flags::ThetaCreated = TRUE; //March 2019 moved below group creation for Ox8 handling of new arrays
 	//if (isint(zeta)) zeta = new ZetaRealization(0);
+    if (N::R>1 && !Flags::UpdateTime[AfterRandom])
+            oxwarning("DDP Warning ??.\n Model contains random effects but Transition UpdateTime is not AfterRandom.\n If transitions depend on random effects they will be INCORRECT." );
+    else if (N::F>1 && !Flags::UpdateTime[AfterFixed])
+            oxwarning("DDP Warning ??.\n Model contains fixed effects but Transition UpdateTime is not AfterFixed.\n If transitions depend on fixed effects they will be INCORRECT." );
 	DPDebug::Initialize();
   	V = new matrix[1][SS[bothexog].size];
 	if (!Version::MPIserver && Volume>SILENT)	{		
@@ -1312,6 +1325,8 @@ DP::CreateSpaces() {
  }
 
 /**Return choice probabilities conditioned on &theta; expanded into full choice probabilty space.
+@internal
+
 @param  Aind  index of feasible` set that p0 is based on
 @param  p0  matrix of conditional choice probabilities to expand.
 
@@ -1321,7 +1336,7 @@ across states that have different feasible action sets.
 @return expanded matrix
 
 @see DPDebug::outV
-@internal
+
 **/
 DP::ExpandP(Aind,p0) {
 	decl p,i;
@@ -1372,9 +1387,9 @@ CreateTheta::Sampling() {
     }	
 
 /** Called in CreateSpaces to set up &Theta;.
-
-Not called if a dry run is asked for.
 @internal
+Not called if a dry run is asked for.
+
 
 **/
 CreateTheta::CreateTheta() {
@@ -1382,7 +1397,7 @@ CreateTheta::CreateTheta() {
     Sampling();
 	}
 
-/* Find states that are reachable, put index on `N::Reached`, then delete the object immediately.
+/* Find states that are reachable, put index on `N::Reached\`, then delete the object immediately.
 Called by `DP::onlyDryRun` inside <code>CreateSpaces</code>.  When this is called, `CreateTheta` is
 not used.
 
@@ -1409,7 +1424,7 @@ DryRun::DryRun() {
     }
 **/
 
-/** @internal **/
+/** . @internal **/
 CreateTheta::picked() {
     //    if (!isarray(insamp)) println("not an array");    else println("PP ",I::t," ",I::all[tracking]," ",any(insamp[I::t].==I::all[tracking]));
     return isarray(insamp) ? ( isint(insamp[I::t]) ? TRUE : any(insamp[I::t].==I::all[tracking]) ) : TRUE;
@@ -1483,7 +1498,7 @@ ReSubSample::ReSubSample() {
     delete insamp;
     }
 
-/** @internal **/
+/** . @internal **/
 ReSubSample::Run() {    I::curth->Allocate(picked());     }
 
 
@@ -1552,9 +1567,10 @@ ExTask::loop(){
 
 
 /** Default task loop update process.
-@return TRUE if rightmost state &gt; 0<br>
-FALSE otherwise.
 @internal
+@return TRUE if rightmost state &gt; 0<br/>
+FALSE otherwise.
+
 **/
 Task::Update() {
 	done = !state[right];
@@ -1622,10 +1638,10 @@ Task::Traverse(span,lows,ups) {
 
 	
 /** Compute the distribution of Exogenous state variables, $P(\epsilon)$.
-
+@internal
 This is or should be called each time a value function iteration method begins.
 Result is stored in the static `DP::NxtExog` array.
-@internal
+
 **/
 DP::ExogenousTransition() {
     decl N,root,k,curst,si = SS[bothexog].D-1,
@@ -1696,7 +1712,7 @@ Task::SyncStates(dmin,dmax)	{
 	return sv;
 	}
 
-/** Ensure that `ActionVariable` current values (<code>v</code>) is synched with the chose <code>&alpha;</code> vector.
+/** Ensure that `ActionVariable` current values (<code>v</code>) is synched with the choice vector $\alpha$.
 @param a action vector.
 **/
 DP::SyncAct(a)	{
@@ -1788,7 +1804,7 @@ SDTask::SDTask()  { RETask(); }
 SDTask::Run()   { I::curg->StationaryDistribution();}	
 
 
-/** @internal **/
+/** . @internal **/
 ExTask::ExTask() {
 	Task();	
     left = S[exog].M;	
@@ -1830,8 +1846,7 @@ Group::~Group() {
 	PT = statbvector = 0;
 	}
 	
-/** Copy elements of state vector into <code>.v</code> for
-group variables (usually called internally).
+/** Copy elements of state vector into <code>.v</code> for group variables.
  @internal
 **/
 Group::Sync()	{
@@ -1882,8 +1897,9 @@ FETask::FETask() {
 	}
 
 /** Set the fixed effect $\gamma_f$ segment of the task's state vector.
-@param f index of fixed effect group
 @internal
+@param f index of fixed effect group
+
 **/
 RETask::SetFE(f) {
 	state = isint(f) ? ReverseState(f,onlyfixed)
@@ -1901,11 +1917,13 @@ RETask::RETask(caller) {
 	}
 
 /** Set fixed and random effect segment of state vector for task.
+@internal
+
 @param f fixed effect group index
 @param r random effect group index.
 
 This calls SyncStates and `I::Set`()
-@internal
+
 **/
 RETask::SetRE(f,r) {
     SetFE(f);
@@ -1995,7 +2013,7 @@ DPDebug::outAllV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
     OutAll = TRUE;
     }
 
-/**For the current fixed-effect group, print the value function EV(&theta;) and choice probability <code>&Rho;*(&alpha;,&epsilon;,&eta;;&theta;)</code> or index of max &Rho;*.
+/**For the current fixed-effect group, print the value function $EV(\theta)$ and choice probability $P^\star(\alpha;\epsilon,\eta,\theta)$ or index of max $P^\star$.
 @param ToScreen  TRUE means output is displayed.
 @param aM	address to return matrix<br>0, do not save
 @param MaxChoiceIndex FALSE = print choice probability vector (default)<br>TRUE = only print index of choice with max probability.  Useful when the full action matrix is very large.
@@ -2018,7 +2036,8 @@ REIndex               The index into the random effect state space
 FEIndex               The index into the fixed effect state space
 EV                    EV(&theta;) integrating over any exogenous (&epsilon;) or
                       semi-exogenous (&eta;) state variables.
-&Rho;                 The conditional choice probability vector (transposed into a column
+Pinf                  The stationary distribution if the clock is ergodic
+P*                    The conditional choice probability vector (transposed into a column
                       and expanded out to match the full potential action matrix.
                       (or if <code>MaxChoiceIndex</code> just the index with the highest
                       choice probability.
@@ -2038,7 +2057,7 @@ DPDebug::outV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
     DPDebug::RunOut();
 	}
 
-/** @internal **/
+/** . @internal **/
 DPDebug::RunOut() {
 	rp.nottop = FALSE;
     decl hder = "\n     Value of States" + (Flags::IsErgodic ? ", Ergodic Distn, and " : " and ")+"Choice Probabilities ";
@@ -2053,14 +2072,14 @@ DPDebug::RunOut() {
         }
     }
 
-/** @internal **/
+/** . @internal **/
 DPDebug::outAutoVars() {
 	decl rp = new OutAuto();
 	rp -> Traverse();
 	delete rp;
 	}
 
-/** @internal **/
+/** . @internal **/
 DPDebug::Initialize() {
     sprintbuffer(16 * 4096);
 	prtfmt0 = array("%8.0f")|Labels::Sfmts[1:2]|Labels::Sfmts[3+S[endog].M:3+S[clock].M]|"%6.0f"|"%6.0f"|"%16.6f";
@@ -2071,7 +2090,7 @@ DPDebug::Initialize() {
         }
 	}
 
-/** @internal **/
+/** . @internal **/
 DPDebug::outSVTrans(...
     #ifdef OX_PARALLEL
     va
@@ -2082,13 +2101,13 @@ DPDebug::outSVTrans(...
 	delete rp;
     }
 
-/** @internal **/
+/** . @internal **/
 SVT::SVT(Slist){
     DPDebug();
     this.Slist = Slist;
     }
 
-/** @internal **/
+/** . @internal **/
 SVT::Run() {
     decl s,feas,prob;
     if (isfile(logf)) fprint(logf,"State ","%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],state[S[endog].M:S[clock].M]');
@@ -2122,7 +2141,7 @@ SaveV::SaveV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 	nottop = FALSE;
 	}
 
-/** @internal **/	
+/** . @internal **/	
 SaveV::Run() {
     decl ai=I::curth.Aind;
 	if ((TrimTerminals && I::curth.Type>=TERMINAL) || (TrimZeroChoice && N::Options[I::curth.Aind]<=1) ) return;
@@ -2150,7 +2169,7 @@ SaveV::Run() {
 
 OutAuto::OutAuto(){    DPDebug::DPDebug(); }
 
-/** @internal **/
+/** . @internal **/
 OutAuto::Run() { I::curth->AutoVarPrint1(this);  }	
 
 /** .
@@ -2171,7 +2190,7 @@ RandomEffectsIntegration::Integrate(path) {
 	return {L,flat};
 	}
 	
-/** @internal **/
+/** . @internal **/
 RandomEffectsIntegration::Run() {
     path.rcur = I::r;  //Added Dec. 2016
     L += path->TypeContribution(curREdensity);	

@@ -70,7 +70,7 @@ actual should be set in Distribution.
 TimeInvariant::Update() { }
 
 /** TimeInvariants have a fixed transition.
-@internal
+@internal 
 **/
 TimeInvariant::Transit() { return { matrix(v) , CondProbOne }; }
 

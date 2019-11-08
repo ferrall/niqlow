@@ -369,10 +369,10 @@ P(s'=0|s) = 1-\pi\cr
 
 
 @example
-A job offer is available with a dynamically changing probability with initial value of 0.6:
+A job offer is available with an estimated probability with initial value of 0.6:
 <pre>
 decl poff = new Probability("op",0.6);
-decl hasoffer = new IIDJump("off",poff);
+decl hasoffer = new IIDBinary"off",poff);
 </pre></DD>
 
 **/
@@ -898,7 +898,7 @@ struct PermanentCondition : StateTracker {
 **/
 struct StateBlock : StateVariable {
 	decl
-	/** temporary list of states. @internal**/ 		Theta,
+	/** temporary list of states. @internal **/ 		Theta,
 	/** matrix of all <em>current</em> values **/	Allv,
     /** matrix of all <em>actual</em> values.**/    Actual,
     /** vector <0:N-1>, used in AV().**/            rnge;

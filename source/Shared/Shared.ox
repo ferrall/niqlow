@@ -61,8 +61,8 @@ TypeCheck(obj,cname,Fatal,msg) {
 @param X a double, integer, static function of the form X() or X(arg), or any object with a member named v.<br>
 an array of `CV` compatible elements will return the horizontal concatenation value of the results as matrix.
 @param ... a single argument can be passed along with X().  Further arguments are ignored
-@comments This allows elements of the code to be represented several different ways.<br>
-Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside `StateVariable::Transit`.<br>
+@comments This allows elements of the code to be represented several different ways.<br/>
+Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside `StateVariable::Transit`.<br/>
 No argument is passed by `EndogTrans::Transitions`() and `DP::ExogenousTransition`
 @returns X.v, X, X(), X(arg)
 **/

@@ -92,8 +92,42 @@ The user code for <code>MyObject</code> should include these elements
 <DD> <pre> if (!Load(fn)) Encode(); </pre>
 If <code>fn=-1</code> then <code>Load()</code> will return FALSE and do nothing.  Then <code>`Objective::Encode`(0)</code> will use the hard-coded values for $\psi$.0.  On the other hand, if <code>fn = "hello"</code>, Load() will try to load values from <code>hello.oxobj</code>, returning TRUE if successful.   Finally, if <code>fn=0</code> it will do the same but using the default file name, <code>`Objective::L`.optobj</code>. </DD>
 
-Objective checkpointing means execution can be stopped without losing the progress made so far. However, the current best vector does not checkpoint the state of the sequential <em>algorithm</em>.  Some of the algorithms in FiveO can also checkpoint their current state so that the problem can restarted exactly where it stopped.
+<em>Objective checkpointing</em> means execution can be stopped without losing the progress made so far. The current best vector does not checkpoint the state of the sequential <em>algorithm</em>.  The algorithms in FiveO checkpoint their current state so that the problem can restarted exactly where it stopped in the algorithm.  For example, in `BFGS` the checkpoint reloads the current value of the Hessian.  And in `NelderMead` the checkpoint reloads the current simplex. Reading a checkpoint file is done by sending the argument <code>UseCheckPoint</code> to the algorithm's <code>Iterate()</code>.</p>
 
+<dt>Example Sequence of Optimization Starts and Restarts</dt>
+The objective <code>myobj</code> contains a 4x1 vector of parameters, $x$.  The following segments of code explain how the user would change their code while changing the objective and restarting the optimization.
+<OL class="steps">
+<LI>First Time: use hard-coded starting values</LI>
+The user has coded everything and now wants to try maximizing the objective.  The hard-coded starting values are as good place as any to start:
+<dd><pre>
+    x = new Coefficients("x",zeros(4,1));
+    myobj->Parameters(x);
+    bfgs = new BFGS(myobj);
+    bfgs -> Iterate();
+</pre></dd>
+<LI>Load current vector and start from there</LI>
+Based on the initial attempt the user has made some changes to the objective.  One reason might be that the starting value of 0 for $x_2$ was way off and ended up at 15000.  The other parameters are all below 10 in absolute value.  SO the code was changed so that $x_2$ in units of a thousand.  This required a manual change in the <code>.optobj</code> file to start at 15 instead of 15000. Other changes made to the objective will shift the optimum in other ways as well. The algorithm should restart with the initial Hessian because changes to the objective mean the old one is not appropriate given the rescaling.  </LI>
+<dd><pre>
+    x = new Coefficients("x",zeros(4,1));
+    myobj->Parameters(x);
+    myobj->Load();          // new, read from the default .optobj file
+    bfgs = new BFGS(myobj);
+    bfgs -> Iterate();
+</pre></dd>
+The <code>Load()</code> could specify a different file to read from, but in this case the file that the previous attempt saved is used.
+
+<li>Third Time: restart after an interruption</li>
+The user is running this code on a system that limits run time and the second time ran out of time before convergence.  Now the user wants to restart from the last iteration because nothing has changed.  The current Hessian is appropriate and simply restarting at the current parameter vector will lose the information built up during the previous iterations.
+<dd><pre>
+    x = new Coefficients("x",zeros(4,1));
+    myobj->Parameters(x);
+    myobj->Load();
+    bfgs = new BFGS(myobj);
+    bfgs -> Iterate(UseCheckPoint);   //restart the algorithm where it left off
+</pre></dd>
+The <code>Load()</code> still happens but reading the <code>chkpt</code> file wipes out those values.  They would be the same.
+
+</OL>
 <a name="A"><LI>If you use <code>maximize</code> already.</LI></a>
 <table cellspacing="0" cellpadding="10" border="1" width="1000">
 <caption><h3>Differences between <code>maximize</code> and <span class="n">FiveO</span> At a Glance.</h3></caption>
@@ -110,7 +144,7 @@ Objective checkpointing means execution can be stopped without losing the progre
     <DD>Coded as a <code>method</code> with a particular name of a class derived from `Objective`.</td></tr>
     <tr valign="top"><td>
     The parameter vector
-    $$\psi  \equiv &#9001;x<sub>0</sub> q<sub>1</sub> &hellip; q<sub>N&oline;</sub>&#9002;$$
+    $$\psi  \equiv \pmatrix{x_0& x_1 &\dots &x_{N^-}}$$
     A single parameter x
     <p>Initial value x<sup>0</sup>.
     <p>Current value: x</td>

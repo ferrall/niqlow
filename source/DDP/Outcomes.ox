@@ -24,7 +24,7 @@ SimulateOutcomes(Nsim,T,outopt,ErgOrStateMat,DropTerminal) {
     }
 
 
-/**
+/** .
 @internal
 **/
 ExogAuxOut::ExogAuxOut() {
@@ -32,7 +32,7 @@ ExogAuxOut::ExogAuxOut() {
     auxlike = zeros(N::Ewidth,1);
     }
 
-/**
+/** .
 @internal
 **/
 ExogAuxOut::Likelihood(howmany,outcm) {
@@ -49,7 +49,7 @@ ExogAuxOut::Likelihood(howmany,outcm) {
         return auxlike[I::all[exog]];
         }
     }
-/**
+/** .
 @internal
 **/
 ExogAuxOut::Run() {
@@ -97,9 +97,11 @@ Outcome::Outcome(prior) {
 	}
 
 /** clean up.
+@internal
+
 @comments
 Does not delete prev and next to avoid recursion.
-@internal
+
 **/
 Outcome::~Outcome() {
 	if (isclass(prev)) prev.onext = UnInitialized;
@@ -256,8 +258,10 @@ Path::Simulate(T,DropTerminal){
 	}
 
 /** Load the first or next outcome in the path.
-@param observed source data to extract observables from<br/>
 @internal
+
+@param observed source data to extract observables from<br/>
+
 **/
 Path::Append(observed) {
 	last = (T) ? new Outcome(last) : this;
@@ -352,7 +356,7 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
         }
 	if (!Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf)) fprintln(Data::logf," FPanel Simulation time: ",timer()-cputime0);
 	}
-/**
+/** .
 @internal
 **/
 FPanel::Append(pathid) {
@@ -502,9 +506,10 @@ Panel::Print(fn,Orientation)	{
 	}
 
 /** Get tracking probabilities and tomorrow indices consistent with tomorrow's observation .
+@internal
+
 @return TRUE if there are tomorrow states that are consistent, FALSE otherwise
 
-@internal
 **/
 Outcome::TomIndices(qind,xind) {
     icol = 0;
@@ -637,7 +642,7 @@ Path::Likelihood() {
 		TypeContribution();  //density=1.0 by default
     }
 
-/**
+/** .
 @internal
 **/
 DataColumn::DataColumn(type,obj) {
@@ -648,7 +653,7 @@ DataColumn::DataColumn(type,obj) {
 	force0 = (ismember(obj,"N") && obj.N==1) ;  // force quantities that have only  1 value observed
 	}
 
-/**
+/** .
 @internal
 **/
 DataColumn::Observed(LorC) {
@@ -667,7 +672,7 @@ DataColumn::Observed(LorC) {
 	oxrunerror("DDP Error 53. LorC should be string or integer");		
 	}
 
-/**
+/** .
 @internal
 **/
 DataColumn::UnObserved() {
@@ -676,7 +681,7 @@ DataColumn::UnObserved() {
 
 	}
 
-/**
+/** .
 @internal
 **/
 DataColumn::ReturnColumn(dlabels,incol)	{
@@ -738,7 +743,7 @@ Panel::LogLikelihood() {
     return succ;
 	}
 
-/**
+/** .
 @internal
 **/
 Path::Mask() {		
@@ -753,7 +758,7 @@ Path::Mask() {
         LType = CCLike;
 	}	
 	
-/**
+/** .
 @internal
 **/
 FPanel::Mask(aLT) {
@@ -804,8 +809,8 @@ OutcomeDataSet::tColumn(lORind) {
     }
 
 /** Identify a variable with a data column.
-@param aORs  Either an `ActionVariable`, element of &alpha;, or a `StateVariable`,
-    element of one of the state vectors, or a `AuxiliaryValue`, element of &chi;<br/>
+@param aORs  Either an `ActionVariable`, element of $\alpha$, or a `StateVariable`,
+    element of one of the state vectors, or a `AuxiliaryValue`, element of $\chi$<br/>
             <em>OR<em><br/>
 @param LorC	 UseLabel, variable's label to denote column of data with observations <br/>
              integer &ge; 0, column of data matrix that contains observations<br/>
@@ -826,8 +831,8 @@ OutcomeDataSet::MatchToColumn(aORs,LorC) {
 
 	
 /** Mark actions and state variables as observed in data, matched with their internal label.
-@param aORs  Either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
-			one of the state vectors, or a `AuxiliaryValue`, element of &chi;<br/>
+@param aORs  Either an `ActionVariable`, element of $\alpha$, or a `StateVariable`, element of
+			one of the state vectors, or a `AuxiliaryValue`, element of $\chi$<br/>
             <em>OR<em><br>
             array of the form {v1,v2,&hellip;}.  In this case all other arguments are
             ignored.<br/>
@@ -858,7 +863,7 @@ OutcomeDataSet::ObservedWithLabel(...
 	}
 
 /** UnMark action and states variables as observed.
-@param as1 `Discrete` object, either an `ActionVariable`, element of &alpha;, or a
+@param as1 `Discrete` object, either an `ActionVariable`, element of $\alpha$, or a
 `StateVariable`, element of
 			one of the state vectors<br/>
 			`StateBlock`: each variable in the block will be marked unobserved.
@@ -889,8 +894,10 @@ OutcomeDataSet::UnObserved(...
 	}
 	
 /**  Copy external current values of actions, states and auxiliaries into the outcome.
-This calls `Outcome::AccountForUnobservables'
 @internal
+
+This calls `Outcome::AccountForUnobservables`
+
 **/
 Outcome::FromData(extd) {
 	act[] = extd[avar][];
@@ -900,8 +907,9 @@ Outcome::FromData(extd) {
 	}
 
 /**  Set all unobserved values to NaN.
-This calls `Outcome::AccountForUnobservables'
 @internal
+This calls `Outcome::AccountForUnobservables`
+
 
 **/
 Outcome::Mask() {

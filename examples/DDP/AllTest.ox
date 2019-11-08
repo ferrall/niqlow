@@ -14,7 +14,8 @@ TestRun() {
 	        {"Outcomes-Simulation",Test7::Run},
 	        {"Random-Fixed-Effects",Test8::Run},
 	        {"Data-Prediction",Test9::Run},
-	        {"Reservation-Values",Test10::Run}
+	        {"Reservation-Values",Test10::Run},
+	        {"Non-Stationary Search",Test11::Run}
             );		
     return tmenu;
 	}
@@ -271,11 +272,7 @@ Test10::Run()	{
 	done->MakeTerminal(1);
 	SetDelta(0.4);
 	CreateSpaces();
-	RV = new ReservationValues();
-    RV.Volume=SILENT;
-	DPDebug::outAllV(TRUE,FALSE,FALSE,TRUE,FALSE);
-	RV->Solve();
-    delete RV;
+    RVSolve();
     Delete();
 	}
 
@@ -286,4 +283,39 @@ Use Mill's ratio to compute truncated mean of normal.
 Test10::EUtility()    {
     decl zz = zstar[][I::r], pstar = 1-probn(zz);
 	return {  ( eta | densn(zz)/pstar) , (1-pstar)~pstar};  //found type Sept.2019 r
+	}	
+
+Test11::Uz(z)        { return b | z*pd;	}
+Test11::Utility()    { return (1-CV(done))*(I::t < T-1 ? b : b*pd); }
+Test11::OfferProb()  { return pi0[CV(k)]*(1-I::t/(T-1));}
+Test11::Continuous() { return CV(hasoff); }
+Test11::FeasibleActions() { return 1 | CV(hasoff)*(1-CV(done)); }
+Test11::Run()	{
+	Initialize(new Test11());
+    SetUpdateTime(AfterRandom);
+	SetClock(NormalAging,T);
+	EndogenousStates(
+        hasoff = new IIDBinary("off",OfferProb),
+        done = new LaggedAction("done",d)
+        );
+	GroupVariables(k = new RandomEffect("k",Two));  //equally likely
+	done->MakeTerminal(One);
+	SetDelta(delta);
+    AuxiliaryValues(new StaticAux(Ewage));
+	CreateSpaces();
+    //Task::trace = TRUE;
+    RVSolve();
+    ComputePredictions(T,Two);
+    Delete();
+	}
+Test11::Ewage() {
+    if (CV(hasoff)) {
+        decl eu = I::curth->EUtility();
+        return eu[0][1]*eu[1][1]/pd;
+        }
+    else return 0.0;
+    }
+Test11::EUtility()    {
+    decl zz = zstar[][I::r], pstar = 1-probexp(zz,1/alpha);
+	return {  ( b | (zz + alpha)*pd ) , (1-pstar)~pstar};  //found type Sept.2019 r
 	}	

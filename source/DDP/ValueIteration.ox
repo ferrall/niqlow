@@ -142,6 +142,8 @@ GSolve::Report(mefail) {
 
 
 /**	Check convergence in Bellman iteration after a stage of state-space spanning.
+@internal
+
 Users do not call this function.  It is called inside the solution method.
 THis is the default task loop update routine for value iteration.<br/>
 
@@ -149,7 +151,7 @@ Different solution methods have derived versions of this routine to handle updat
 
 This is called after one complete iteration of `ValueIteration::GSolve`().
 @return TRUE if converged or `Task::trips` equals `Task::MaxTrips`
-@internal
+
 **/
 GSolve::Update() {
 	++trips;
@@ -269,25 +271,26 @@ value across all exogenous states.</DD>
 </OL>
 **/
 KWGSolve::Run() {
-    decl inss = I::curth->InSS(), done=FALSE;
+    decl notinss = ! I::curth->InSS();
     XUT.state = state;
     if (firstpass) {
-        if (!inss) return;
-        InSample();
-        done = TRUE;
+        if (notinss) return;
+	    I::curth->MedianActVal();
+	    if (!onlypass)  // no subsampling, hit everyone.
+            Specification(AddToSample,V[0],(V[0]-I::curth.pandv[][0])');
+	    I::curth->ActVal();
+	    N::VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
 		}
-    else if (!inss) {
-        OutSample();
-        done = TRUE;
+    else if (notinss) {
+    	I::curth->MedianActVal();
+	    I::curth.EV = Specification(PredictEV,V[0],(V[0]-I::curth.pandv[][0])'); //N::VV set in Specification
 		}
-	if (Flags::setPstar && done)  {
-        I::curth.EV = N::VV[I::now][I::all[iterating]];
-        I::curth->Smooth();
-        Hooks::Do(PostSmooth);
-        }
+    else return;
+	this->PostEMax();
 	}
 
 /** Carry out Keane-Wolpin approximation at $\theta$ .
+@internal
 This replaces the built-in version used by `ValueIteration`.
 <UL>
 <LI>Iterate backwards in the clock <code>t</code></LI>
@@ -297,12 +300,11 @@ This replaces the built-in version used by `ValueIteration`.
 <LI>Iterate on the states not subsampled to predict using the approximation, `KWEMax::firstpass` = FALSE</LI>
 </UL>
 </UL>
-@internal
+
 **/
 KWGSolve::Solve(instate) {
 	decl myt;
 	this.state = instate;
-    //Clock::Solving(&VV);
     ZeroTprime();
 	Flags::setPstar = TRUE;	
     curlabels = xlabels0|xlabels1|xlabels2;  //This should depend on feasible set!
@@ -310,17 +312,16 @@ KWGSolve::Solve(instate) {
 		state[cpos] = XUT.state[cpos] = myt;
 		SyncStates(cpos,cpos);
 		Y = Xmat = <>;	
-//        curlabels = 0;
 		onlypass = !Flags::DoSubSample[myt];
 		firstpass = TRUE;
 		Traverse(myt);
 		if (!onlypass) {
 			Specification(ComputeBhat);
 			firstpass = FALSE;
-	        XUT.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
-	        SyncStates(lo,hi);
+            //	        XUT.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
+	        //          SyncStates(lo,hi);
             /* for(decl s=lo;s<=hi;++s) print(AV(States[s])," ");    println(" "); */
-  	        I::all[onlyexog] = I::all[bothexog] = I::MESind;    //     ;
+  	        // I::all[onlyexog] = I::all[bothexog] = I::MESind;    //     ;
 			Traverse(myt);
 			}
 		I::NowSwap();
@@ -341,7 +342,7 @@ KeaneWolpin::KeaneWolpin(myGSolve) {
     if (N::J>1) oxwarning("DDP Warning 25.\n Using KW approximazation on a model with infeasible actions at some states.\n All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible.\n");
 	}
 
-/**
+/** .
 @internal
 **/
 KWGSolve::KWGSolve(caller) {
@@ -393,26 +394,25 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
 					}
 				 Y -= Xmat[][0];
 		case	PredictEV	:
-				N::VV[I::now][I::all[iterating]] =  xrow*Bhat[I::t];
+				return N::VV[I::now][I::all[iterating]] =  xrow*Bhat[I::t];
 		}
 	}
 	
-/**
+/*
 @internal
-**/
+
 KWGSolve::InSample(){
     XUT.state[left:right] = state[left:right];
     //DP::vV =VV[I::later];
 	I::curth->ActVal();
 	N::VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
-	if (!onlypass)
-        Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');
 	}
+*/
 
-/**
+/*
 @internal
-**/
 KWGSolve::OutSample() {
 	I::curth->MedianActVal();
 	Specification(PredictEV,V[0],(V[0]-I::curth.pandv)'); //NoR [I::r]
 	}
+*/

@@ -108,8 +108,22 @@ struct Test9 : Bellman	{
 /** A simple search over normally distributed offers. **/
 struct Test10 : OneDimensionalChoice	{
     static const decl eta = 0.25;
-	static decl done, RV;
+	static decl done;
 	static Run();
+	Utility();
+	EUtility();
+    Uz(z);
+	}
+
+/** A simple search over normally distributed offers. **/
+struct Test11 : OneDimensionalChoice	{
+    static const decl T=26, b = .1, alpha = 1.3, delta=.99, pd=1/(1-delta), pi0=<0.95,.7>;
+	static decl done, hasoff, k;
+	static Run();
+    static OfferProb();
+    static Ewage();
+    FeasibleActions();
+    Continuous();
 	Utility();
 	EUtility();
     Uz(z);

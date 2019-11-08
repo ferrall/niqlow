@@ -50,6 +50,13 @@ KWJPE97::Replicate()	{
     Delete();
     }
 
+/** Compute aspects of utility not dependent on offers.
+
+    Because shocks are log-normal in working sectors the median shock is not the same as the mode. Not clear
+    what K-W do based on the paper.
+
+@return U evaluated at MEDIAN of shocks to be used in approximation.
+**/
 KWJPE97::ThetaUtility() {
     x = CV(xper);
     x[school]+=School0[CV(isch)];  //add initial schooling
