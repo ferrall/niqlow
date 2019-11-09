@@ -205,7 +205,7 @@ Test7::Run()  {
     data = new PanelPrediction ( "EY", 0, 0);
     data -> Tracking(TrackAll);
     data -> Predict(40,One);
-//	Delete();
+	Delete();
 	}
 	
 Test7::Utility()  {
