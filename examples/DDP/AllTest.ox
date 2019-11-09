@@ -301,7 +301,7 @@ Test11::Run()	{
 	GroupVariables(k = new RandomEffect("k",Two));  //equally likely
 	done->MakeTerminal(One);
 	SetDelta(delta);
-    AuxiliaryValues(new StaticAux(Ewage));
+    AuxiliaryOutcomes(new StaticAux("Ew",Ewage));
 	CreateSpaces();
     //Task::trace = TRUE;
     RVSolve();
@@ -309,7 +309,7 @@ Test11::Run()	{
     Delete();
 	}
 Test11::Ewage() {
-    if (CV(hasoff)) {
+    if (CV(hasoff)&&!CV(done)) {
         decl eu = I::curth->EUtility();
         return eu[0][1]*eu[1][1]/pd;
         }

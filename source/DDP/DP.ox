@@ -137,7 +137,7 @@ SubSpace::ActDimensions()	{
 This resets `Group::Ptrans`[&Rho;(&theta;&prime;;&theta;)] and it synch &gamma;
 @param gam , &gamma; group to reset.
 @return density of the the group.
-@see DP::SetGroup
+@see I::SetGroup
 **/
 Group::Reset() {
 	if (Flags::IsErgodic) Ptrans[][] = 0.0;
@@ -158,13 +158,12 @@ DP::SetVersion(v) {
         }
     }
 
-/** Set and return the current group node in &Gamma;.
+/* Set and return the current group node in &Gamma;.
 @param GorState matrix, the state vector for the group<br>integer, index of the group
 @return pointer to element of &Gamma; for the group. If this is not a class, then the group has been excluded from the model.
 @comments
 This also sets `I::f` and `I::g`
 @see DP::Settheta
-**/
 DP::SetGroup(GorState) {
     return I::SetGroup(GorState);
 	}
@@ -172,12 +171,15 @@ DP::SetGroup(GorState) {
 DP::SetG(f,r) {
         return isclass(Fgamma[f][r]) ? SetGroup(Fgamma[f][r].pos) : 0;
     }
+*/
 	
 /** Draw &gamma; from &Gamma; according to the density.
 Sets <code>I::g</code> and syncs state variables in &gamma;
 @return &Gamma;[gind], for external access to &Gamma;
 @see DrawOne **/
-DP::DrawGroup(find) {	return SetGroup(find + DrawOne(gdist[find][]) );	}
+DP::DrawGroup(find) {
+    return I::SetGroup(N::R*find + DrawOne(gdist[find][]));	//November 2019: added N::R  and I::
+    }
 
 /** Draw a population count andom sample of N values from the random effects distribution.
 @param find index of fixed group

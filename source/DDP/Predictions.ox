@@ -207,11 +207,11 @@ PathPrediction::Predict(inT,prtlevel){
 @internal
 **/
 PanelPrediction::ParallelSolveSub(subp) {
-    decl cg = SetG(idiv(subp,N::R),imod(subp,N::R)), subflat=<>;
-    decl pobj = cg.find ? fparray[cg.find] : this;
-    pobj.rcur = cg.rind;
+    I::SetGroup(subp);
+    decl subflat=<>, pobj = I::curg.find ? fparray[I::curg.find] : this;
+    pobj.rcur = I::curg.rind;
     pobj->PathPrediction::Initialize();
-    pobj->TypeContribution(cg.curREdensity,&subflat);
+    pobj->TypeContribution(DP::curREdensity,&subflat);
     return subflat;
     }
 
@@ -682,9 +682,10 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght) {
 	PathPrediction(f,label,method,iDist,wght);	
     PredMomFile=replace(Version::logdir+DP::L+"_PredMoments_"+label," ","")+".dta";
 	fparray = new array[N::F];
-	fparray[0] = 0;
+	fparray[0] = 0;  // I am my own first fixed effect group.
 	cur = this;
-	for (f=1;f<N::F;++f) cur = cur.fnext = fparray[f] = new PathPrediction(f,label,method,iDist,wght);
+    // Create path predictions for all other fixed effect groups
+	for (f=One;f<N::F;++f) cur = cur.fnext = fparray[f] = new PathPrediction(f,label,method,iDist,wght);
     FN = 1;
     TrackingCalled = FALSE;
     }

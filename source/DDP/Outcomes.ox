@@ -167,15 +167,16 @@ Outcome::Simulate() {
 /** Create a new series of `Outcome`s along a realized path.
 @param id <em>integer</em>, id or tag for the path.
 @param state0 <code>UnInitialized</code> (-1), set state to uninitalized<br/>
-        non-negative  fixed effect index to use, <br/>
+        non-negative  fixed effect index to use, draw and random effect from current distribution<br/>
         <em>vector</em>, initial state vector
 **/
 Path::Path(i,state0) {
-	decl ni;
 	T = 0;
 	this.i = i;
-	if (isint(state0) && state0!=UnInitialized)
-			Outcome( DrawGroup(state0).state );
+	if (isint(state0) && state0!=UnInitialized) {
+        decl myg = N::R*state0 + DrawOne(gdist[find][]);
+		Outcome( Gamma[myg].state );
+        }
 	else Outcome(state0);
 	last = pnext = UnInitialized;
 	if ( (N::R>One || N::DynR>One ) && isint(summand)) {
@@ -309,7 +310,7 @@ FPanel::~FPanel() {
 @comments &gamma; region of state is masked out.
 **/
 FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
-	decl msucc=FALSE, ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS, curg,
+	decl msucc=FALSE, ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS,
          Nstart=columns(ErgOrStateMat), rvals, curr, i;
 	if (Nsim <= 0) oxrunerror("DDP Error 50a. First argument, panel size, must be positive");
     if (ii) {
@@ -339,15 +340,16 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
 	    if (isclass(method)) {
             if (!method->Solve(f,curr)) oxrunerror("DDP Error. Solution Method failed during simulation.");
             }
-	    curg = SetG(f,curr);
+	    else
+            I::SetGroup(N::R*f+curr);
         for(i=0;i<rvals[curr];++i) {
-            cur.state = curg.state;
-		    cur.state += (erg) ? curg->DrawfromStationary()
+            cur.state = I::curg.state;  // reset state
+		    cur.state += (erg) ? I::curg->DrawfromStationary()
                            : ( (ii)
                                 ? iS
                                 : ErgOrStateMat[][imod(this.N,Nstart)]
                               );
-            I::Set(cur.state,TRUE);
+            I::Set(cur.state,FALSE);  // group already set
 		    cur->Path::Simulate(T,DropTerminal);
 		    NT += cur.T;
 		    if (++this.N<Nsim && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
@@ -409,10 +411,11 @@ Panel::Panel(r,method) {
 	     this.r = r;
 	FPanel(0,method);	
 	fparray = new array[N::F];
-	fparray[0] = 0;
+	fparray[0] = 0;  // I am my own fixed effect panel
 	flat = FNT = 0;
 	cur = this;
-	for (i=1;i<N::F;++i) cur = cur.fnext = fparray[i] = new FPanel(i,method);
+    // create fpanels for other fixed effects
+	for (i=One;i<N::F;++i) cur = cur.fnext = fparray[i] = new FPanel(i,method);
 	if (isint(LFlat)) {
         LFlat = new array[FlatOptions];
 		LFlat[LONG] = {PanelID}|{FPanelID}|{PathID}|PrefixLabels|Labels::Vprt[svar]|{"|ai|"}|Labels::Vprt[avar];
@@ -976,7 +979,7 @@ OutcomeDataSet::EconometricObjective(subp) {
 	   return M;
          }
     else {
-        oxrunerror("OutcomeDataSet Objective not updated for subproblem parallelization");
+        oxrunerror("OutcomeDataSet Objective not updated for subproblem parallelization./n Contact Chris Ferrall and tell him to get this done!");
         }
 	}
 

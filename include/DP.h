@@ -128,8 +128,8 @@ struct DP {
         static  Interactions(ivar,olist=UnInitialized,prefix=UseLabel,ilo=0,thi=100);
         static  Indicators(ivar,prefix=UseLabel,ilo=0,ihi=100);
         static  MultiInteractions(ivarlist,ilov,ihiv,olist,prefix);
-		static 	SetGroup(state);
-        static  SetG(f=0,r=0);
+		// static 	SetGroup(state);
+        // static  SetG(f=0,r=0);
 		static 	Settheta(ind);
 		static 	DrawGroup(find);
 		static 	StorePalpha();
@@ -384,7 +384,7 @@ Related DP models differing only by `TimeInvariant` effects.
 are located in a static array named `Gamma` that is only accessible directly inside the
 file DP.ox.
 
-@see DP::SetGroup
+@see I::SetGroup
 
 **/
 struct Group : DP {
