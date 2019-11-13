@@ -15,43 +15,6 @@
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
 <h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">DDPShared.ox</span></h1>
 
-Items shared by Variable and DP classes.
-<a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in DP.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
-<P/>
-The objects that represent action and state variables are designed to be independent of the <a href="Bellman.ox.html#DP">DP</a> class, which along with derived classes represents the state spaces, the model, solution methods, and output.
-<P/>
-The DP class relies on (that is, <code>imports</code>) the Variable classes, so they cannot in turn depend on the DP class.
-<P/>
-This file defines information about the DP model that is (usually) set or determined by methods of <a href="Bellman.ox.html#DP">DP</a> but that may be required by <a href="Variables.ox.html#StateVariable">StateVariable</a> classes.
-<P/>
-For example, the transit functions for a state variable can rely on the current clock setting (<code>t</code>) even though it cannot know about the clock itself (which is stored in <a href="Bellman.ox.html#DP___counter">counter</a>).
-<P/>
-<DT>All of the data defined in DDPShared is <code>static</code></DT>
-<P/>
-<OL class="body">
-<LI>Flags: <a href="DDPShared.ox.html#Flags">Flags</a></LI>
-<DT>The <a href="DDPShared.ox.html#Flags">Flags</a> class contains  0/1 indicators for the status of the model.  </DD>
-<DD>The user can access the flag values but should not change them directly.  (However, they are not <em>protected</em> so user code could accidentally set a value and create an difficult-to-find bug.)</DD>
-<DT>There are flags the user can set, but this should be done using the DP methods cross-listed under <a href="DDPShared.ox.html#Flags">Flags</a></DT>
-<DT>Ox and <span class="n">niqlow</span> both use <code>TRUE</code> and <code>FALSE</code> as aliases for the integer values 0 and 1.</DT>
-<P/>
-<LI>Indices : <a href="DDPShared.ox.html#I">I</a></LI>
-<DT>Indices are integer values that track dynamically changing values related to various state spaces.</DT>
-<DT>User code access them but should <b>never</b> modify indices</DT>
-<P/>
-<LI>Model Dimensions and Counts: <a href="DDPShared.ox.html#N">N</a></LI>
-<P/>
-<DT>Counts are dimensions of the problem stored as static elements of <a href="DDPShared.ox.html#N">N</a>.</DD>
-<P/>
-<LI>Hooks: <a href="DDPShared.ox.html#Hooks">Hooks</a></LI>
-<P/>
-<LI>Spaces </LI>
-<P/>
-<LI>Subspaces</LI>
-<P/>
-</OL>
-<P/>
-<a name="auto"><hr><h1>Documentation of  Items Defined in DDPShared.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
 <a name="global"></a>
 <h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global variables, functions, enumerations</span></h2>
@@ -106,12 +69,12 @@ For example, the transit functions for a state variable can rely on the current 
 <tr><td colspan="3" class="header" valign="top">Functions</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="DDPShared.ox.html#ReverseState">ReverseState</a></td>
 <td class="modifiers"></td>
-<td class="description">Recreate State vector from an index and offset vector.</td>
+<td class="description">Recreate a State vector from an index and offset vector.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></td>
 <td class="modifiers"></td>
-<td class="description">Send one of these tags as first argument to <a href="Bellman.ox.html#DP___SetClock">SetClock</a>() to use that clock.</td>
+<td class="description">Send one of these tags as first argument to <a href="DP.ox.html#DP___SetClock">SetClock</a>() to use that clock.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#DataColumnTypes">DataColumnTypes</a></td>
@@ -159,7 +122,7 @@ For example, the transit functions for a state variable can rely on the current 
 <td class="description">Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.</td>
 </tr>
 <tr class="even">
-<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#StateTypes">StateTypes</a></td>
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#StateCategories">StateCategories</a></td>
 <td class="modifiers"></td>
 <td class="description">Categories of state variables.</td>
 </tr>
@@ -282,17 +245,7 @@ Aspects of the Action Space.
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___AV">AV</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___ClearA">ClearA</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Alpha___CV">CV</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
@@ -428,7 +381,7 @@ procedure.  Hooks are a list of procedures to be called so more than one procedu
 <P/>
 <a href="DDPShared.ox.html#Hooks___Reset">Reset</a>() will re-initialize hooks so that you can change what is done between one solution method and the next.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#HookTimes">HookTimes</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#HookTimes">HookTimes</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -552,7 +505,7 @@ Dynamically updated indices into state spaces.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#I___NowSet">NowSet</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Initialize now and later indices for Bellman iteration.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#I___NowSwap">NowSwap</a></td>
@@ -630,7 +583,7 @@ A user's code can reference these variables but should never change them.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___aux">aux</a></td>
 <td class="modifiers">static</td>
-<td class="description">number of auxiliary variables, sizeof of <a href="Bellman.ox.html#DP___Chi">Chi</a>  </td>
+<td class="description">number of auxiliary variables, sizeof of <a href="DP.ox.html#DP___Chi">Chi</a>  </td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#N___Av">Av</a></td>
@@ -811,26 +764,21 @@ Contains information on an object (variable, auxiliary outcome, etc) to be track
 <td class="description"></td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___Distribution">Distribution</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___print">print</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___Reset">Reset</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___TrackObj">TrackObj</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Track an object in a prediction path.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___Update">Update</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
@@ -842,7 +790,7 @@ Contains information on an object (variable, auxiliary outcome, etc) to be track
 <table class="enum_table">
 <tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><a name="ClockTypes"></a>ClockTypes</td>
-<td class="description">Send one of these tags as first argument to <a href="Bellman.ox.html#DP___SetClock">SetClock</a>() to use that clock.
+<td class="description">Send one of these tags as first argument to <a href="DP.ox.html#DP___SetClock">SetClock</a>() to use that clock.
         <table>
         <tr><th>Tag</th><th>Clock Type</th></tr>
         <tr><td>InfiniteHorizon</td><td><a href="Variables.ox.html#Stationary">Stationary</a>(FALSE)</td></tr>
@@ -942,15 +890,15 @@ of each separate group. The function added here should return TRUE if the group 
                     <table>
         <tr><th>Tag</th><th>Explanation</th></tr>
             <tr>CCLike<td></td><td>Everything is observed except for the additive choice-specific error &zeta;.
-                Auxiliary values cannot contribute anything extra information.  See <a href="Data.ox.html#Outcome___CCLikelihood">CCLikelihood</a></td></tr>
+                Auxiliary values cannot contribute anything extra information.  See Outcome::CCLikelihood</td></tr>
             <tr>ExogLike<td></td><td>The exogenous vector &epsilon; is also unobserved.  Under this form
                     the likelihood of AuxiliaryValues is relevant and AuxiliaryValues::Likelihood is called
-                    for each observation and each value of &epsilon; See <a href="Data.ox.html#Outcome___IIDLikelihood">IIDLikelihood</a></td></tr>
+                    for each observation and each value of &epsilon; See Outcome::IIDLikelihood</td></tr>
             <tr>PartObsLike  [default]<td></td><td>Account for (sum over) any form of unobservability in states and actions.  Currently
-            this form cannot incorporate likelihood of auxiliary values. See <a href="Data.ox.html#Outcome___PartialObservedLikelihood">PartialObservedLikelihood</a></td></tr>
+            this form cannot incorporate likelihood of auxiliary values. See Outcome::PartialObservedLikelihood</td></tr>
             </table>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso">OutcomeDataSet</dd>
 </dl></td>
 <td class="elements">CCLike, ExogLike, PartObsLike, LikelihoodTypes</td>
 </tr>
@@ -985,11 +933,11 @@ of each separate group. The function added here should return TRUE if the group 
 <td class="elements">NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods</td>
 </tr>
 <tr class="even">
-<td class="declaration"><a name="StateTypes"></a>StateTypes</td>
+<td class="declaration"><a name="StateCategories"></a>StateCategories</td>
 <td class="description">Categories of state variables.	
             These categories are used mainly for summarizing the model.
 </td>
-<td class="elements">NONRANDOMSV, RANDOMSV, COEVOLVINGSV, AUGMENTEDV, TIMINGV, TIMEINVARIANTV, NStateTypes</td>
+<td class="elements">NONRANDOMSV, RANDOMSV, COEVOLVINGSV, AUGMENTEDV, TIMINGV, TIMEINVARIANTV, NStateCategories</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><a name="SubSpaces"></a>SubSpaces</td>
@@ -998,11 +946,11 @@ of each separate group. The function added here should return TRUE if the group 
         <dd>Many aspects of a model solution or application require processing more than one
         of the vector types organized by <a href="DDPShared.ox.html#SubVectorNames">SubVectorNames</a>.  In essentially all
         such tasks the vectors to be processed are next to each other in the order they
-        are stored in <a href="Bellman.ox.html#DP___S">S</a>. </DD>
+        are stored in <a href="DP.ox.html#DP___S">S</a>. </DD>
         <DD>The different sets of vectors that might be needed to carry out a task are
         then group into a range of elements of the sub vector list.  </DD>
-        <DD>Different ranges of subvectors are represented as objects of the <a href="Bellman.ox.html#SubSpace">SubSpace</a> class.
-        Subspace information is somewhat similar to the information in <a href="Bellman.ox.html#Space">Space</a>, and neither
+        <DD>Different ranges of subvectors are represented as objects of the <a href="DP.ox.html#SubSpace">SubSpace</a> class.
+        Subspace information is somewhat similar to the information in <a href="DP.ox.html#Space">Space</a>, and neither
         class stores the state variables themselves.</DD>
         <DD>Many of these ranges consist of only one vector.  They are the ones that
         have <code>only</code> in their name.  For example, <code>onlyexog</code>
@@ -1034,22 +982,22 @@ of each separate group. The function added here should return TRUE if the group 
         is organized.</DD>
         <DD>In the mathematical description of a <span class="n">DDP</span> model, there are several
         <em>vectors</em> of variables.  These variables are represented by objects in the model
-        and the overall list of variable objects added to the model is stored in <a href="Bellman.ox.html#DP___States">States</a>.</dd>
+        and the overall list of variable objects added to the model is stored in <a href="DP.ox.html#DP___States">States</a>.</dd>
         <DD>The vectors themselves are lists (<code>oxarray</code>s) of objects which store
-        store a pointer to (not a separate copy of) the state variables in <a href="Bellman.ox.html#DP___States">States</a>.
-        This list of lists of variables is stored in <a href="Bellman.ox.html#DP___SubVectors">SubVectors</a>.</DD>
+        store a pointer to (not a separate copy of) the state variables in <a href="DP.ox.html#DP___States">States</a>.
+        This list of lists of variables is stored in <a href="DP.ox.html#DP___SubVectors">SubVectors</a>.</DD>
         <DD>To get things done the aspects of the separate state variables has to be combined
-        into information about the vector they belong.  The list <a href="Bellman.ox.html#DP___SubVectors">SubVectors</a> itself cannot
+        into information about the vector they belong.  The list <a href="DP.ox.html#DP___SubVectors">SubVectors</a> itself cannot
         capture that aggregate information.</DD>
         <DD>This aggreate information about the variables in a vector include how many endogenous
         state variables there are and how many points in the space they create. This information
-        is constructed by <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>() for each vector and storedin objects of the <a href="Bellman.ox.html#Space">Space</a> class.
-        The list of <a href="Bellman.ox.html#Space">Space</a> objects is itself an <code>oxarray</code> held in <code>DP::S</code> (which is
+        is constructed by <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() for each vector and storedin objects of the <a href="DP.ox.html#Space">Space</a> class.
+        The list of <a href="DP.ox.html#Space">Space</a> objects is itself an <code>oxarray</code> held in <code>DP::S</code> (which is
         documented only in the internal version of this documentation).</DD>
         <DD>The integer tags listed here are the internal names of the elements of both that array
-        and the array <a href="Bellman.ox.html#DP___SubVectors">SubVectors</a> of variable objects.</DD>
-        <DD>For example, when the user's code calls <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>() it adds the objects
-        sent as arguments to the list <code>DP::SubVectors[endog]</code>. Then <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>()
+        and the array <a href="DP.ox.html#DP___SubVectors">SubVectors</a> of variable objects.</DD>
+        <DD>For example, when the user's code calls <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>() it adds the objects
+        sent as arguments to the list <code>DP::SubVectors[endog]</code>. Then <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>()
         will go through that list and create information about the endogenous space &Theta;
         and store it in object <code>DP::S[endog]</code></DD>
 <P/>
@@ -1088,7 +1036,7 @@ of each separate group. The function added here should return TRUE if the group 
 <td class="description">Point in solving when updating of parameters and transitions needs to occur.
 <table class="enum_table">
 <tr><td valign="top">InCreateSpaces</td><td>Transitions and utility do not depend on any parameters that change so they can be initialized
-in <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>() and never recalculated.</td></tr>
+in <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() and never recalculated.</td></tr>
 <tr><td valign="top">OnlyOnce</td><td>Update transitions and utility just once on each call to <a href="Methods.ox.html#Method___Solve">Solve</a>(). This ensures that if transitions depend
 on parameters that are controlled by the outside (say by an optimization algorithm) the probabilities used in solving the model will
 reflect any changes in the parameters since the last time the solution method was applied. </td></tr>
@@ -1099,7 +1047,7 @@ both fixed and random effect variables.</td></tr>
 </table>
 There is a potentially large computational cost of updating the transitions more often than is necessary.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
 </dl></td>
 <td class="elements">InCreateSpaces, OnlyOnce, AfterFixed, AfterRandom, UpdateTimes</td>
 </tr>
@@ -1186,7 +1134,7 @@ parallel array of labels for the built-in clock types.
 
 <span class="declaration">ReverseState ( Ind , subsp )</span>
 <dl><dd>
-Recreate State vector from an index and offset vector.
+Recreate a State vector from an index and offset vector.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -1316,14 +1264,6 @@ List of <em>actual</em> feasible action matrices (AV values),
 </dd></dl>
 
 <hr>
-<a name="Alpha___AV"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AV</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="Alpha___C"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">C</span></h3>
 
@@ -1367,14 +1307,6 @@ list of feasible action matrices (CV) values.
 </dd></dl>
 
 <hr>
-<a name="Alpha___CV"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CV</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="Alpha___Initialize"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Initialize</span></h3>
 
@@ -1391,8 +1323,8 @@ list of feasible action matrices (CV) values.
 matrix of all action vectors, A.
             This is a copy of <a href="DDPShared.ox.html#Alpha___CList">CList</a>[0].
             As action variables are added to the model
-            using <a href="Bellman.ox.html#DP___Actions">Actions</a>(), this matrix is built up.
-            <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>() then calls <code>FeasibleActions()</code>
+            using <a href="DP.ox.html#DP___Actions">Actions</a>(), this matrix is built up.
+            <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() then calls <code>FeasibleActions()</code>
             for each endogenous state &theta;.   Different feasible
             sets are then added to <a href="DDPShared.ox.html#Alpha___CList">CList</a>.
 
@@ -1559,6 +1491,14 @@ Read I and N objects from .dim file (avoids one span of
 <span class="declaration">static Flags :: SetPrunable ( clock )</span>
 <dl><dd>
 Sets <a href="DDPShared.ox.html#Flags___Prunable">Prunable</a> to TRUE if the clock setting makes automatic pruning of the state space valid.
+<P/>
+User code does not call this.
+<P/>
+<DT>Clocks that are prunable:</DT>
+<DD><a href="Variables.ox.html#Aging">Aging</a></DD>
+<DD><a href="Variables.ox.html#Mortality">Mortality</a></DD>
+<DD><a href="Variables.ox.html#Longevity">Longevity</a></DD>
+<DD><a href="Variables.ox.html#Divided">Divided</a></DD>
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a></dd>
 </dl>
@@ -1614,7 +1554,7 @@ CreateSpaces() has been called or not.
 <dl><dd>
 Indicators for when transit update occurs.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
 </dl>
 </dd></dl>
 
@@ -1657,7 +1597,7 @@ Add a static function or method to a hook.
 </pre>
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#HookTimes">HookTimes</a>, <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#HookTimes">HookTimes</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
 </dl>
 </dd></dl>
 
@@ -1668,6 +1608,7 @@ Add a static function or method to a hook.
 <span class="declaration">static Hooks :: Do ( ht )</span>
 <dl><dd>
 Call all the methods on the hook.
+This is called internally. User code should not do this.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -1728,7 +1669,7 @@ vector of current indices into spaces.
 <span class="declaration">static decl curg [public]</span>
 <dl><dd>
 current point in group space, &gamma;..
-        Set in <a href="Bellman.ox.html#I___Set">Set</a>.
+        Set in <a href="DP.ox.html#I___Set">Set</a>.
 
 </dd></dl>
 
@@ -1739,7 +1680,7 @@ current point in group space, &gamma;..
 <span class="declaration">static decl curth [public]</span>
 <dl><dd>
 current point in state space, &theta;.
-        Set in <a href="Bellman.ox.html#I___Set">Set</a>.
+        Set in <a href="DP.ox.html#I___Set">Set</a>.
 
 </dd></dl>
 
@@ -1753,7 +1694,7 @@ The current value of &delta;. This is set in
             <a href="Bellman.ox.html#EndogTrans___Transitions">Transitions</a>() to avoid repeated calls
             to <a href="Shared.ox.html#CV">CV</a>.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___delta">delta</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___delta">delta</a></dd>
 </dl>
 </dd></dl>
 
@@ -1841,6 +1782,7 @@ Current value of majt.
 
 <span class="declaration">static I :: NowSet ( )</span>
 <dl><dd>
+Initialize now and later indices for Bellman iteration.
 
 </dd></dl>
 
@@ -2005,7 +1947,7 @@ Number of states approximated (not subsampled).
 
 <span class="declaration">static decl aux [public]</span>
 <dl><dd>
-number of auxiliary variables, sizeof of <a href="Bellman.ox.html#DP___Chi">Chi</a>
+number of auxiliary variables, sizeof of <a href="DP.ox.html#DP___Chi">Chi</a>
 
 </dd></dl>
 
@@ -2252,15 +2194,6 @@ Scratch space for value iteration.
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TrackObj</span></h2>
 
-<a name="TrackObj___Distribution"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Distribution</span></h3>
-
-<span class="declaration">virtual TrackObj :: Distribution ( pobj , obj )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="TrackObj___hist"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hist</span></h3>
 
@@ -2348,7 +2281,24 @@ Position in the flat list
 
 <span class="declaration">TrackObj :: TrackObj ( LorC , obj , pos )</span>
 <dl><dd>
+Track an object in a prediction path.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">LorC
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">obj
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">pos</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>

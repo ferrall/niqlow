@@ -35,23 +35,25 @@ Describes how to represent actions states and other discrete quantities in your 
 <P/>
 <DT>A variable in a DP model is an object derived from <a href="Shared.ox.html#Quantity">Quantity</a> and can be of various types:</DT>
 <P/>
-The <a href="Variables.ox.html#ActionVariable">ActionVariable</a> class represents a choice in the model (such as whether to work or not) and is an element of the action vector <span class="expressions">\(\alpha\)</span>. Action variables are added to the DP model using using the <a href="Bellman.ox.html#DP___Actions">Actions</a>() method. The <a href="Variables.ox.html#StateVariable">StateVariable</a> class is designed to be a member of one of the discrete state vectors (<span class="expressions">\(\epsilon,\eta,\theta,\gamma\)</span>). State variables are added to appropriate state vector using  the method for the corresponding vector:</br>
-<a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>() adds ordinary state variables (with general transitions)<br/>
-<a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a> adds state variables with iid transitions whose values can affect other transitions<br/>
-<a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>() adds pure iid state variables<br/>
-<a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>() adds variables that do not change within a DP problem, both fixed- and random-effect type variables.<br/>
+The <a href="Variables.ox.html#ActionVariable">ActionVariable</a> class represents a choice in the model (such as whether to work or not) and is an element of the action vector <span class="expressions">\(\alpha\)</span>. Action variables are added to the DP model using using the <a href="DP.ox.html#DP___Actions">Actions</a>() method. The <a href="Variables.ox.html#StateVariable">StateVariable</a> class is designed to be a member of one of the discrete state vectors (<span class="expressions">\(\epsilon,\eta,\theta,\gamma\)</span>). State variables are added to appropriate state vector using  the method for the corresponding vector:</br>
+<a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>() adds ordinary state variables (with general transitions)<br/>
+<a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a> adds state variables with iid transitions whose values can affect other transitions<br/>
+<a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>() adds pure iid state variables<br/>
+<a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>() adds variables that do not change within a DP problem, both fixed- and random-effect type variables.<br/>
 Many kinds of state variables are derived from the base class.</p>
 <P/>
-The <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> class represents values that depend on actions and states but are not required to solve the model.  They are members of the auxiliary vector <span class="expressions">\(\chi\)</span>.  Auxiliary values are added to the DP model using <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>()</p>
+The <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> class represents values that depend on actions and states but are not required to solve the model.  They are members of the auxiliary vector <span class="expressions">\(\chi\)</span>.  Auxiliary values are added to the DP model using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>()</p>
 <P/>
 <a name="ActionVariables"><LI>Action Variables</LI></a>
 <P/>
 <OL class="chapter">
 <a name="Basics"><LI>Basics</LI></a>
 <P/>
-The action vector <span class="expressions">\(\alpha\)</span> is the vector of discrete actions chosen conditional on the state of the DP.  A generic element of <span class="expressions">\(\alpha\)</span> is denoted <var>a</var>.  An action variable takes on <span class="expressions">\(a.N\)</span> different values. The action vector includes <span class="expressions">\(\alpha\)</span>.N variables, denoted a<sub>0</sub> through a<sub>(<span class="expressions">\(\alpha\)</span>.N)&oline;</sub>. Action variables are represented as an <a href="Variables.ox.html#ActionVariable">ActionVariable</a> and are added to <code>MyModel</code> and to <span class="expressions">\(\alpha\)</span> using <a href="Bellman.ox.html#DP___Actions">Actions</a>().  Calls to <code>Actions()</code> and other model-building routines is part of <code>MyCode</code>.</p>
+The action vector <span class="expressions">\(\alpha\)</span> is the vector of discrete actions chosen conditional on the state of the DP.  A generic element of <span class="expressions">\(\alpha\)</span> is denoted <var>a</var>.  An action variable takes on <span class="expressions">\(a.N\)</span> different values. The action vector includes <span class="expressions">\(\alpha\)</span>.N variables, denoted a<sub>0</sub> through a<sub>(<span class="expressions">\(\alpha\)</span>.N)&oline;</sub>. Action variables are represented as an <a href="Variables.ox.html#ActionVariable">ActionVariable</a> and are added to <code>MyModel</code> and to <span class="expressions">\(\alpha\)</span> using <a href="DP.ox.html#DP___Actions">Actions</a>().  Calls to <code>Actions()</code> and other model-building routines is part of <code>MyCode</code> that user writes unless the class they are using includes the definition of the action variables.</p>
 <P/>
-In the basic definition of a DDP model, &Alpha; is defined as the set of possible actions. In <span class="n">DDP</span> the set of actions is built up by adding action variables to <span class="expressions">\(\alpha\)</span>.  So &Alpha; emerges from the properties of the variables added to <span class="expressions">\(\alpha\)</span>. <em>Possible Actions</em> is the matrix of all possible action vectors. The word <em>possible</em> is used instead of <em>feasible</em>, because this notion of <code>&Alpha;</code> is constructed mechanically from properties of the actions.  It has nothing to do with the interpretation of the actions.  Feasible actions are defined below. An <em>action</em> refers to a particular value of the action vector <span class="expressions">\(\alpha\)</span>, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column. DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</p>
+In the basic definition of a DDP model, <span class="expressions">\(A\)</span> is as the set of possible actions. In <span class="n">DDP</span> the set of actions is built up by adding action variables to <span class="expressions">\(\alpha\)</span>.  So <span class="expressions">\(A\)</span> emerges from the properties of the variables added to <span class="expressions">\(\alpha\)</span>. <em>Possible Actions</em> is the matrix of all possible action vectors. The word <em>possible</em> is used instead of <em>feasible</em>, because this notion of <span class="expressions">\(A\)</span> is constructed mechanically from properties of the actions.  It has nothing to do with the interpretation of the actions.  Feasible actions are defined below.</p>
+<P/>
+An <em>action</em> refers to a particular value of the action vector <span class="expressions">\(\alpha\)</span>, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column. DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</p>
 <P/>
 <DT>Alternative Notation</DT>
 <P/>
@@ -80,7 +82,7 @@ One reason to use an action vector like <span class="expressions">\(\alpha\)</sp
 <P/>
 The use of indicator vectors makes it possible to write any utility as a sum: <span class="expressions">\(U = \sum_k d_k u_k\)</span>. But as with the single action approach the interpretation is not obvious and <span class="expressions">\(U()\)</span> will in no way resemble usual mathematical notation for an objective.</p>
 <P/>
-Action variables objects must be stored as <code>static</code> data members of <code>MyModel</code>.  Action variable objects should be created between the calls to <code>Initialize()</code> and <code>CreateSpaces()</code>. It is possible to combine the creation and adding of the action variable as in <code>Actions(a=new ActionVariable("choice",2))</code>.  Multiple actions can be added with a single call to actions, and <a href="Bellman.ox.html#DP___Actions">Actions</a>() can be called several times.</p>
+Action variables objects must be stored as <code>static</code> data members of <code>MyModel</code>.  Action variable objects should be created between the calls to <code>Initialize()</code> and <code>CreateSpaces()</code>. It is possible to combine the creation and adding of the action variable as in <code>Actions(a=new ActionVariable("choice",2))</code>.  Multiple actions can be added with a single call to actions, and <a href="DP.ox.html#DP___Actions">Actions</a>() can be called several times.</p>
 <P/>
 <LI>Actual and Current Values of an Action Variable</LI>
 <P/>
@@ -119,23 +121,25 @@ MyModel::Initialize() {
    &vellip;
    }
 MyModel::Utility() {
-        return CV(wage)*aa(h);
+        return CV(wage)*CV(h);
         }
 </pre></DD>
 The code segment allows the maximum hour to be 30 if the person has a (young) child, otherwise 50 hours.  And then lets each type choose 5 different levels of hours between 0 and their max hours.  Utility will be total earnings.</p>
 <P/>
 <LI>Possible and Feasible Actions</LI>
 <P/>
-&Alpha; is defined as the set of possible actions, built up by adding action variables to <span class="expressions">\(\alpha\)</span>.  All possible actions is the matrix :
+<span class="expressions">\(A\)</span> is defined as the set of possible actions, built up by adding action variables to <span class="expressions">\(\alpha\)</span>.  All possible actions is the matrix:
 <span class="equation">$$    A \equiv \times_{j=0,\dots, \alpha.N^- } \{ 0, 1, \dots, a_j.N^- \}$$</span>
-An action vector <span class="expressions">\(\alpha\)</span> is a <em>row</em> of the matrix A. An action variable is a column of &Alpha;.  Its position is the property <code>a.pos</code>.  <em>Feasibility</em> is a property <code>MyModel</code> imposes on <span class="expressions">\(\alpha\)</span>. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of <span class="expressions">\(\alpha\)</span>.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We write feasibility as a property of the state.  The <b>feasible actions</b> at <span class="expressions">\(\theta\)</span> is a matrix property:
-<span class="equation">$$\forall \theta \in \Theta,\qquad \theta.A \subseteq A.$$</span>
+An action vector <span class="expressions">\(\alpha\)</span> is a <em>row</em> of the matrix A. An action variable is a column of <span class="expressions">\(A\)</span>.  Its position is the property <code>a.pos</code>.</p>
 <P/>
-<a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>(): by default all possible actions are feasible If <code>MyModel</code> does not say otherwise, <span class="expressions">\(\theta.A \equiv A\)</span> for all endogenous states. This behaviour is produced by including a built in method, <code>Bellman::FeasibleActions()</code>, which is a virtual method, meaning that <code>MyModel</code> can replace it with its own version.  This is explained in <a href="Bellman.ox.html">Bellman</a>.</p>
+<em>Feasibility</em> is a property <code>MyModel</code> imposes on <span class="expressions">\(\alpha\)</span>. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of <span class="expressions">\(\alpha\)</span>.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We can write feasibility as a property of the state.  Or it can be written as a function of the state, which is more standard.  Using both versions, the <b>feasible actions</b> at <span class="expressions">\(\theta\)</span> is a matrix property:
+<span class="equation">$$\forall \theta \in \Theta,\qquad A(\theta) \equiv \theta.A \subseteq A.$$</span>
+<P/>
+<a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>(): by default all possible actions are feasible unless <code>MyModel</code> says otherwise.  <span class="expressions">\(A(\theta) \equiv A\)</span> for all endogenous states. This default assumption is produced by including a built-in virtual method, <code>Bellman::FeasibleActions()</code>. meaning that <code>MyModel</code> can replace it with its own version.  This is explained in <a href="Bellman.ox.html">Bellman</a>.</p>
 <P/>
 <DT>The A List</DT>
 <P/>
-<a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a> constructs the possible matrix A, actually stored as the first element of a list: <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state <span class="expressions">\(\theta\)</span>. Every time a different value is returned by <code>FeasibleActions()</code> a new matrix is added to the A list.  The index into the list is then stored as <code>Aind</code> &harr;  <span class="expressions">\(\theta\)</span>.j.</p>
+<a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a> constructs the possible matrix A, stored as the first element of a list: <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state <span class="expressions">\(\theta\)</span>. Every time a different value is returned by <code>FeasibleActions()</code> a new matrix is added to the A list.  The index into the list is then stored as <a href="Bellman.ox.html#Bellman___Aind">Aind</a>.  That is, there is not a different matrix at each <span class="expressions">\(\theta.\)</span> Instead there is a list of different feasible matrices and <span class="expressions">\(A(\theta)\)</span> is really an index into that list.  </p>
 <P/>
 The user's (optional) feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a)</code>. In short, <span class="expressions">\(\theta\)</span>.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = <span class="expressions">\(\theta\)</span>.j = 0</code> for all states.</p>
 <P/>
@@ -179,7 +183,7 @@ The model places discrete state variables/blocks into one of four vectors.
 <tr><td>Generic Element</td><td>e</td><td>h</td><td>q</td><td>r</td><td>f</td></tr>
 <tr><td>Form of <span class="expressions">\(P\)</span><sub>s</sub></td><td colspan="2"><span class="expressions">\(P_s(s^\prime)\)</span></td><td><span class="expressions">\(P_s(s^\prime|\alpha,\epsilon,\eta,\theta)\)</span></td><td colspan="2"><span class="expressions">\(g^\prime=g\)</span></td></tr>
 <tr><td>Explanation</td><td colspan="2">IID, exogenous to everything.</td><td>Transition can depend on current states and actions.</td><td colspan="2">value is fixed for this problem.</td></tr>
-<tr><td>Special form of<br/> <span class="expressions">\(P_q\)</span>, <span class="expressions">\(q\in\theta\)</span>, <span class="expressions">\(q\neq s\)</span></td><td>cannot enter <span class="expressions">\(P_q\)</span></td><td colspan="2">can enter transition of other variables</td><td colspan="2">can enter but<br>see <a href="Bellman.ox.html#DP___SetUpdateTime">SetUpdateTime</a></td></tr>
+<tr><td>Special form of<br/> <span class="expressions">\(P_q\)</span>, <span class="expressions">\(q\in\theta\)</span>, <span class="expressions">\(q\neq s\)</span></td><td>cannot enter <span class="expressions">\(P_q\)</span></td><td colspan="2">can enter transition of other variables</td><td colspan="2">can enter but<br>see <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></td></tr>
 <tr><td>Explanation</td><td><span class="expressions">\(q\)</span> independent of <span class="expressions">\(\epsilon\)</span>, given <span class="expressions">\(\alpha\)</span></td>
 <td colspan="2"><span class="expressions">\(\eta\)</span> and <span class="expressions">\(\theta\)</span> can affect <span class="expressions">\(q\)</span></td><td>default <span class="expressions">\(r\)</span> can <em>only</em> enter <span class="expressions">\(U()\)</span></td><td>can enter <span class="expressions">\(P_q\)</span></td></tr>
 <tr><td>Computing Implication</td><td colspan="2">Compute &amp; store <span class="expressions">\(P_\epsilon\)</span> and <span class="expressions">\(P_\eta\)</span> once on each solution.</td>
@@ -273,7 +277,7 @@ MyModel::Initialize() {
     CreateSpaces();
     }
     </pre></DD>
-Notice that a <code>new</code> state variable is passed to the <a href="Variables.ox.html#Freeze">Freeze</a>() constructor.  In essence this underlying random variable is hidden from the model, which only sees the variables passed to <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>.     What the model sees is the augmented variable <code>q</code> which acts like a <a href="Variables.ox.html#RandomUpDown">RandomUpDown</a> variable unless <code>h=1</code>.  As always, the other state variables or actions that <code>q</code> depends on have to be passed to its creator (or constructor).</details>
+Notice that a <code>new</code> state variable is passed to the <a href="Variables.ox.html#Freeze">Freeze</a>() constructor.  In essence this underlying random variable is hidden from the model, which only sees the variables passed to <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>.     What the model sees is the augmented variable <code>q</code> which acts like a <a href="Variables.ox.html#RandomUpDown">RandomUpDown</a> variable unless <code>h=1</code>.  As always, the other state variables or actions that <code>q</code> depends on have to be passed to its creator (or constructor).</details>
 <P/>
 In fact, <a href="Variables.ox.html#Freeze">Freeze</a> is a special case of a more general type of <a href="Variables.ox.html#Augmented">Augmented</a> state variable, namely a <a href="Variables.ox.html#ValueTriggered">ValueTriggered</a>() state variable.
 <P/>
@@ -308,7 +312,7 @@ Below is an <a href="#example">example</a> of how to define a new state variable
 <P/>
     <DT>Your new <code>class</code> (or <code>struct</code>) has to know everything necessary to compute the transition of the state variable at any state.</DT>
 <P/>
-    <DD> One approach would be to access elements of the <a href="Bellman.ox.html#DP">DP</a> model itself. This would limit the reliability of your code, as it would rely on certain variables being defined and named the same way as you require. Instead, the preferred way to access necessary information is to store it in the members of your class and if necessary use methods to process that information.</DD>
+    <DD> One approach would be to access elements of the <a href="DP.ox.html#DP">DP</a> model itself. This would limit the reliability of your code, as it would rely on certain variables being defined and named the same way as you require. Instead, the preferred way to access necessary information is to store it in the members of your class and if necessary use methods to process that information.</DD>
 <P/>
     <DT>Any state variable requires two pieces of information when it is created.</DT>
      <DD>a label <code>L</code> and the number of different values it takes on, <code>N</code>.  The constructor for state variables is defined as <code>StateVariable::StateVariable(const L, const N)</code> to ensure these values are set.</DD>
@@ -446,7 +450,7 @@ Knowing the feasible values and their transition probabilities for a single stat
 <P/>
 <LI>Ensure <span class="n">DDP</span> keeps the <em>actual</em> values updated.</LI>
 <P/>
-When you write the code for your state variable you force the user (possibly yourself) to provide information required to code the transition for <var>y</var>.  But you are relying on <span class="n">DDP</span> to process the state variables in the model, for example by looping through all the feasible current values of <var>x</var> and <var>y</var>.  Further, DDP must know that <var>i</var> is one of the actions and include a column for it in the feasible matrix.  This is done by using methods specific to the DP class for adding elements of the model.  Namely, the <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a> and <a href="Bellman.ox.html#DP___Actions">Actions</a> methods.  So we can now complete the code that would add a variable in the model that corresponds to <var>y</var> and which can reliably follow the transition <var>y' = ix</var>.</p>
+When you write the code for your state variable you force the user (possibly yourself) to provide information required to code the transition for <var>y</var>.  But you are relying on <span class="n">DDP</span> to process the state variables in the model, for example by looping through all the feasible current values of <var>x</var> and <var>y</var>.  Further, DDP must know that <var>i</var> is one of the actions and include a column for it in the feasible matrix.  This is done by using methods specific to the DP class for adding elements of the model.  Namely, the <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a> and <a href="DP.ox.html#DP___Actions">Actions</a> methods.  So we can now complete the code that would add a variable in the model that corresponds to <var>y</var> and which can reliably follow the transition <var>y' = ix</var>.</p>
 <P/>
 <dd>Code Segment showing use of <code>MyStateVar</code>.
 <pre>    static decl i, x, mystate;
@@ -679,7 +683,7 @@ So the two simple extremes are stationarity (today is followed by tomorrow which
 <P/>
 <DT><span class="expressions">\(\theta\)</span> <em>always</em> contains a single clock block derived from <a href="Variables.ox.html#Clock">Clock</a>.</DT>
 <P/>
-<DT>The simplest way to set the clock is to call <a href="Bellman.ox.html#DP___SetClock">SetClock</a>().  </DT>
+<DT>The simplest way to set the clock is to call <a href="DP.ox.html#DP___SetClock">SetClock</a>().  </DT>
     <DD>The first argument is either one of the <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a> tags for built-in clocks, or it is an object of a class derived from <a href="Variables.ox.html#Clock">Clock</a>.  If a tag is sent, other arguments may be required by that clock type.</DD>
 <P/>
 <DT>The call to <code>SetClock()</code> must take place between the calls to <code>Initialize()</code> and <code>CreateSpaces()</code></DT>
@@ -689,7 +693,7 @@ Initialize(new MyModel());
 SetClock(InfiniteHorizon);
 CreateSpaces();
 </pre>
-If <code>MyModel</code> does not set the clock explicitly, then a stationary infinite horizon clock is set by <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>().</DD>
+If <code>MyModel</code> does not set the clock explicitly, then a stationary infinite horizon clock is set by <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>().</DD>
 <P/>
 <DT>All clock blocks have the same first two variables in the block</DT>
 <P/>
@@ -706,7 +710,7 @@ With anticipation (foresight), V(&theta;) can/should be solved backwards in <var
 <P/>
 <LI>Current time and the decision horizon</LI>
 <P/>
-<DT>The clock block is available as <a href="Bellman.ox.html#DP___counter">counter</a>, but usually <code>MyModel</code> does not need to refer to it directly.</DT>
+<DT>The clock block is available as <a href="DP.ox.html#DP___counter">counter</a>, but usually <code>MyModel</code> does not need to refer to it directly.</DT>
 <DT>The current value of <var>t</var>, is available to <code>MyModel</code> as <a href="DDPShared.ox.html#I___t">t</a>.  That is,</DT>
     <DD><pre>I::t &equiv; counter.t.v
 </pre>
@@ -747,7 +751,7 @@ See <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a>
     <DD>The discount factor <span class="expressions">\(\delta\)</span> is set to 1.0 for <var>s &lt; S-1</var>.  That is all payoffs within a subperiod occur simultaneously. The discount factor takes on it normal value for <var>s= S-1</var> to capture the gap between major periods.</DD>
 <P/>
 <DT>Some implications</DT>
-    <DD>Because transitions all depend on the value of the subperiod <code>s</code>, all state variables must be endogenous (added to <span class="expressions">\(\theta\)</span>).  This is checked in <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>. The user should <em>augment</em> state variables using </DD>
+    <DD>Because transitions all depend on the value of the subperiod <code>s</code>, all state variables must be endogenous (added to <span class="expressions">\(\theta\)</span>).  This is checked in <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>. The user should <em>augment</em> state variables using </DD>
 <P/>
 <DT><code>NormalAging</code>:  <var>t&prime; = t+1</var>, up to <var>T&oline;</var>; <var>t&Prime;=0</var>.</DT>
     <DD>With ordinary aging Bellman's equation is solved backwards starting at t=T&oline; down to 0. The auxiliary variable t&Prime; is not needed to account for deviations from normal time so it is simply 0 always. A special case is a non-dynamic environment, <code>StaticProgram</code>, with T&line;=0. <DD><span class="n">DDP</span> knows that an infinite horizon model is different than a static program, because in the static case it does not iterate on V() until convergence. Since <code>StaticProgram</code> is a tag associated with the class <a href="Variables.ox.html#StaticP">StaticP</a>, which is derived from the class <a href="Variables.ox.html#Aging">Aging</a>, <span class="n">DDP</span> cannot confuse this with a <a href="Variables.ox.html#Stationary">Stationary</a> environment.</DD>
@@ -776,7 +780,7 @@ See <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a>
 <LI>Interacting With Value Function Iteration</LI>
 <P/>
     <DT>Clocks have three virtual methods associated with them which are called by <a href="Methods.ox.html#ValueIteration">ValueIteration</a> and related solution methods.</DT>
-    <DD><a href="Variables.ox.html#Clock___Vupdate">Vupdate</a>() makes sure that the scratch space for the value function is updated after each iteration of Bellman's equation.  In stationary models (or stationary time periods within a non-stationary model) this method also computes the norm of the difference between the current value functions and the last value.  This norm is checked by the solution method against the given tolerance for convergence. <a href="Variables.ox.html#Clock___Synch">Synch</a>() is called any time the value of the clock changes (that is, it is called in <a href="Bellman.ox.html#Task___SyncStates">SyncStates</a>()).  The default method simply places the current in <a href="DDPShared.ox.html#I___t">t</a> to b available to the user's code and other parts of <span class="DDP">DDP</span>.  Some kinds of clocks do more than this. <a href="Variables.ox.html#Clock___setPstar">setPstar</a>() determines whether the next iteration should calculate choice probabilities or not.  If only one iteration is required to compute the value function at this point in the clock (no fixed point problem), then the clock will return <code>TRUE</code>.   This does not itself check for convergence, and other considerations may set <a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> to TRUE.</DD>
+    <DD><a href="Variables.ox.html#Clock___Vupdate">Vupdate</a>() makes sure that the scratch space for the value function is updated after each iteration of Bellman's equation.  In stationary models (or stationary time periods within a non-stationary model) this method also computes the norm of the difference between the current value functions and the last value.  This norm is checked by the solution method against the given tolerance for convergence. <a href="Variables.ox.html#Clock___Synch">Synch</a>() is called any time the value of the clock changes (that is, it is called in <a href="DP.ox.html#Task___SyncStates">SyncStates</a>()).  The default method simply places the current in <a href="DDPShared.ox.html#I___t">t</a> to b available to the user's code and other parts of <span class="DDP">DDP</span>.  Some kinds of clocks do more than this. <a href="Variables.ox.html#Clock___setPstar">setPstar</a>() determines whether the next iteration should calculate choice probabilities or not.  If only one iteration is required to compute the value function at this point in the clock (no fixed point problem), then the clock will return <code>TRUE</code>.   This does not itself check for convergence, and other considerations may set <a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> to TRUE.</DD>
 <P/>
 <DT>Typically the user does nothing with these methods unless they are creating their own solution method.  And if the create their own clock type they may have to provide replacement methods if the inherited ones are not coorect.</DT>
 <P/>
@@ -804,7 +808,7 @@ Index different DP models (elements of <span class="expressions">\(\gamma\)</spa
 <P/>
 <LI>The Group Space</LI>
 <P/>
- Each combination of random and fixed effects implies a value of <span class="expressions">\(\gamma\)</span>, and for each <span class="expressions">\(\gamma\)</span> a <a href="Bellman.ox.html#Group">Group</a> node is created.  The set of all group nodes is the <em>group space</em>, denoted <span class="expressions">\(\Gamma\)</span>. As with allowing state variables to be declared exogenous, moving time invariant variables from &theta; to &gamma; saves time and especially storage while solving the model. An invariant does not need to be tracked during iteration over <b>&Theta;</b>.  So group variable <code>Transit()</code> methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>.</p>
+ Each combination of random and fixed effects implies a value of <span class="expressions">\(\gamma\)</span>, and for each <span class="expressions">\(\gamma\)</span> a <a href="DP.ox.html#Group">Group</a> node is created.  The set of all group nodes is the <em>group space</em>, denoted <span class="expressions">\(\Gamma\)</span>. As with allowing state variables to be declared exogenous, moving time invariant variables from &theta; to &gamma; saves time and especially storage while solving the model. An invariant does not need to be tracked during iteration over <b>&Theta;</b>.  So group variable <code>Transit()</code> methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>.</p>
 <P/>
     Storage is re-used while solving for different values of <span class="expressions">\(\gamma\)</span>. <span class="n">DDP</span> reuses the state space <span class="expressions">\(\Theta\)</span> for each value of <span class="expressions">\(\gamma\)</span>. Choice probabilities <span class="expressions">\(P^\star(\alpha | \epsilon, \eta, \theta, \gamma )\)</span> are stored separably for each random value of <span class="expressions">\(\gamma\)</span>.  <span class="expressions">\(EV(\theta)\)</span> integrates out the random effects, conditional on the value of the fixed effects in <span class="expressions">\(\gamma\)</span>. Both utility and a transitions can depend on the value of fixed effects.  However, only utility can depend on random effects.</p>
 <P/>
@@ -820,11 +824,11 @@ An auxiliary value <em>x</em> is typically a function of the state and action ve
 <P/>
 Elements of <span class="expressions">\(\chi\)</span> are user-defined  <em>auxiliary variables</em>, sometimes referred to as <q>payoff-relevant</q> variables in the DP literature.  Auxiliary variables are functions of current states and actions (and not functions of past or future outcomes), so <span class="expressions">\(\chi\)</span> adds no additional information to the full outcome. That is, <span class="expressions">\(\chi\)</span> is redundant within Y*, whereas the other actions and states each contain information.  Auxiliary variables are involved in partial observability of the realized DP.</p>
 <P/>
-Auxiliary values are added to the outcome (appended to <span class="expressions">\(\chi\)</span>) using <a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>(). The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual <a href="Variables.ox.html#AuxiliaryValue___Realize">Realize</a>(). <code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.   <code>Auxiliary</code> variables are never referenced nor realized by niqlow while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data.</p>
+Auxiliary values are added to the outcome (appended to <span class="expressions">\(\chi\)</span>) using <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>(). The value of the variable is set in the method <code>Realize()</code>, which is a replacement for virtual <a href="Variables.ox.html#AuxiliaryValue___Realize">Realize</a>(). <code>Realize()</code> sets the value of <code>v</code> given the current state and outcome.  This value is then added to the realization.   <code>Auxiliary</code> variables are never referenced nor realized by <span class="n">niqlow</span> while solving the DP problem, because they plays no role in the solution.  They are realized only when simulating the solved model or when matching the model to external data. The user might realize values in the process of computing utility.</p>
 <P/>
 The user may break  up <code>Utility()</code> into functions that help determine it.  These can be <em>static</em> methods of <code>MyModel</code>.  Then some of these functions may be observed in data and might enter econometric estimation.  <a href="Variables.ox.html#StaticAux">StaticAux</a> is a auxiliary value class that can be used as a <q>wrapper</q> for such functions as shown below.</p>
 <P/>
-Auxiliary values are also used to code <em>indicators</em> and <em>interaction variables</em> in data sets.  For example, if <span class="expressions">\(a\)</span> is an action to choose among 5 options the data may include four variables that are indicators for all but one of the options being observed, <span class="expressions">\(y_k = I\{a=k\}\)</span>.  Instead of having to create a set of binary action variables to match this data the user can create a set of <a href="Variables.ox.html#Indicator">Indicator</a>s, each of which is an auxiliary outcome that will match whether <span class="expressions">\(a=k\)</span> or not (as well as the probability of that occurring in a prediction data set).  The <a href="Bellman.ox.html#DP___Indicators">Indicators</a>() method can be used to generate all four indicators at once.  DP::Interactions and  <a href="Bellman.ox.html#DP___MultiInteractions">MultiInteractions</a> between discrete actions and states can be created as can interactions between a auxiliary variable and a discrete quantity.</p>
+Auxiliary values are also used to code <em>indicators</em> and <em>interaction variables</em> in data sets.  For example, if <span class="expressions">\(a\)</span> is an action to choose among 5 options the data may include four variables that are indicators for all but one of the options being observed, <span class="expressions">\(y_k = I\{a=k\}\)</span>.  Instead of having to create a set of binary action variables to match this data the user can create a set of <a href="Variables.ox.html#Indicator">Indicator</a>s, each of which is an auxiliary outcome that will match whether <span class="expressions">\(a=k\)</span> or not (as well as the probability of that occurring in a prediction data set).  The <a href="DP.ox.html#DP___Indicators">Indicators</a>() method can be used to generate all four indicators at once.  DP::Interactions and  <a href="DP.ox.html#DP___MultiInteractions">MultiInteractions</a> between discrete actions and states can be created as can interactions between a auxiliary variable and a discrete quantity.</p>
 <P/>
 <a name="Continuous"><li>Conditional Continuous Choices <mark>NEW and experimental</mark></li>
 <P/>
@@ -833,7 +837,7 @@ A model may have a utility of the form:
 where <span class="equation">$$x^\star = \arg\max_{x} c(x;\alpha,\theta).$$</span>
 That is, the agent makes a continuous choice over <span class="expressions">\(x\)</span> conditional on the state and the discrete action <span class="expressions">\(\alpha\)</span>.  This conditional continuous choice (<pre>CondContChoice</pre>) then determines the indirect utility of the discrete actions.  One special case would that <span class="expressions">\(u() = c(x^\star;\alpha,\theta)\)</span>: that is, the utility is simply the indirect utility over the continuous choice.   (ASnother possibility is that <span class="expressions">\(x^\star\)</span> directly affects the transition as in <span class="expressions">\(P(\theta^{\,\prime};x^\star,\alpha,\theta)\)</span>.  <mark>Currently this is not supported. The user may be able to use the features below to help implement this.</mark></p>
 <P/>
-A continuous choice is related to <code>AuxiliaryValues</code>, in the sense that you may match <span class="expressions">\(x^\star\)</span> to observed data.   If the continuous choice has a closed form then it can be represented as a static function and included in observations using the <a href="Variables.ox.html#StaticAux">StaticAux</a> wrapper.  If the optimal choice requires sequential optimization then the <a href="..\fiveO\Objective.html#CondContChoice">CondContChoice</a> objectitve can be used to carry this out efficiently.  This allows for a single objective to represent each conditional choice and to minimize the amount of additional storage required.  
+A continuous choice is related to <code>AuxiliaryValues</code>, in the sense that you may match <span class="expressions">\(x^\star\)</span> to observed data.   If the continuous choice has a closed form then it can be represented as a static function and included in observations using the <a href="Variables.ox.html#StaticAux">StaticAux</a> wrapper.  If the optimal choice requires sequential optimization then the <a href="..\fiveO\Objective.html#CondContChoice">CondContChoice</a> objectitve can be used to carry this out efficiently.  This allows for a single objective to represent each conditional choice and to minimize the amount of additional storage required.
 <P/>
 <DD><pre>
     struct Cost : CondContChoice {
@@ -1285,7 +1289,7 @@ Prob( t&prime; = t+1 ) = 1/B;
 Prob( t&prime; = t ) = 1-1/B;
 </pre></dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -1350,7 +1354,7 @@ SetClock(new Aging(10));
 </pre>
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -1709,7 +1713,7 @@ Or, track the first four choices of d:
 </pre>
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#LaggedState">LaggedState</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#LaggedState">LaggedState</a>, <a href="DP.ox.html#DP___KLaggedAction">KLaggedAction</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -1755,11 +1759,11 @@ Or, track the first four choices of d:
 
 Base class for timing in DP models.
 
-<dl><dt class="comments">Comments:</dt><dd class="comments">The user often does not need to create this variable directly.  Instead, use the <a href="Bellman.ox.html#DP___SetClock">SetClock</a> routine.
+<dl><dt class="comments">Comments:</dt><dd class="comments">The user often does not need to create this variable directly.  Instead, use the <a href="DP.ox.html#DP___SetClock">SetClock</a> routine.
 Some methods do require the user to create a clock variable and send it
 to SetClock.
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -2461,7 +2465,7 @@ A state variable that is non-random and invariant for an individual DP problem.
 <P/>
 Solution methods loop over fixed effect values, re-using storage space.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#FETask">FETask</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#FETask">FETask</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -2640,10 +2644,10 @@ P(s'=1|s) = \pi\cr
 P(s'=0|s) = 1-\pi\cr
 } $$</span></dd>
 
-<dl><dt class="example">Example:</dt><dd class="example">A job offer is available with a dynamically changing probability with initial value of 0.6:
+<dl><dt class="example">Example:</dt><dd class="example">A job offer is available with an estimated probability with initial value of 0.6:
 <pre>
 decl poff = new Probability("op",0.6);
-decl hasoffer = new IIDJump("off",poff);
+decl hasoffer = new IIDBinary"off",poff);
 </pre></DD>
 </dd>
 </dl>
@@ -2688,7 +2692,7 @@ decl health = new IIDJump("h",<0.1;0.8;0.1>);
 </pre>
 </dd>
 <dt class="comments">Comments:</dt><dd class="comments">Unlike a general Markov variable, a IIDJump is eligible to be an Exogenous variable, a member of &epsilon;,
-added to the model with <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>.
+added to the model with <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>.
 </dd>
 </dl>
 <table class="method_table">
@@ -3007,7 +3011,7 @@ s&prime; = value of an action variable.
 <DD>The default initial value is <code>0</code>, so for finite horizon clocks, <code>t=0,q&gt;0</code>
 is marked unreachable.   Set <code>Prune=FALSE</code> to not prune these unreachable states automatically.</DD>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#LaggedState">LaggedState</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#LaggedState">LaggedState</a>, <a href="DP.ox.html#DP___KLaggedAction">KLaggedAction</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -3056,7 +3060,7 @@ s' = s.x
 &Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z=s.x}.
 </pre></dd>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#LaggedAction">LaggedAction</a>, <a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#LaggedAction">LaggedAction</a>, <a href="DP.ox.html#DP___KLaggedState">KLaggedState</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -3559,6 +3563,75 @@ x &sim; N( &mu;, C'C ).
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___track">track</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
+<a name="MVNvectorized"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MVNvectorized : <a href="Variables.ox.html#Nvariable">Nvariable</a> : <a href="Variables.ox.html#SimpleJump">SimpleJump</a> : <a href="Variables.ox.html#IIDJump">IIDJump</a> : <a href="Variables.ox.html#Markov">Markov</a> : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+A single IID jump variable which will return a simulated vector of correlated normal variates.
+<P/>
+<DT>How does this compare to  <a href="Variables.ox.html#MVNormal">MVNormal</a>?</DT>
+<DD>Both are used to represent a normal vector of length <span class="expressions">\(M\)</span>: <span class="expressions">\(x \sim N(\mu,\Omega)\)</span></DD>
+<DD>The latter creates a block of <span class="expressions">\(M\)</span> correlated state variables. Each one takes on <span class="expressions">\(N\)</span> values.  So
+a total of <span class="expressions">\(M^N\)</span> points are created.  For more than 2 or 3 dimensions this either makes the state space
+very large or the approximization very coarse.</DD>
+<P/>
+<DD>This state variable uses a given number of pseudo-random draws, <span class="expressions">\(N.\)</span>  It is based on a fixed draw of <span class="expressions">\(N\times M\)</span>
+IID standard normal draws which are transformed by the mean and CHolesky matrix to produce <span class="expressions">\(N\times M\)</span> correlated
+normals.</DD>
+<P/>
+This variable needs to be used with care: <code>CV()</code> will return a single value which is the index between 0 and N-1.
+<code>AV()</code> returns the <span class="expressions">\(1\times M\)</span> vector that corresponds to the index.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#MVNvectorized___Ndim">Ndim</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#MVNvectorized___vecactual">vecactual</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#MVNvectorized___zvals">zvals</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#MVNvectorized___MVNvectorized">MVNvectorized</a></td>
+<td class="modifiers"></td>
+<td class="description">Create a single IID variable which vectorizes a multivariate normal using psuedo-random draws.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#MVNvectorized___myAV">myAV</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#MVNvectorized___Update">Update</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#Nvariable">Nvariable</a>:</dt><dd><a href="Variables.ox.html#Nvariable___Nvariable">Nvariable</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#SimpleJump">SimpleJump</a>:</dt><dd><a href="Variables.ox.html#SimpleJump___SimpleJump">SimpleJump</a>, <a href="Variables.ox.html#SimpleJump___Transit">Transit</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#IIDJump">IIDJump</a>:</dt><dd><a href="Variables.ox.html#IIDJump___IIDJump">IIDJump</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___Markov">Markov</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___Track">Track</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#Nvariable">Nvariable</a>:</dt><dd><a href="Variables.ox.html#Nvariable___mu">mu</a>, <a href="Variables.ox.html#Nvariable___sigma">sigma</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a>, <a href="Variables.ox.html#Markov___Pi">Pi</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___track">track</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
 <a name="Noisy"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Noisy : <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
@@ -3617,7 +3690,7 @@ Add normal noise to a AV() compatible target, either linear or log-linear.
 
 Container for non-stationary and non-deterministic aging clocks.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___SetClock">SetClock</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -3691,7 +3764,7 @@ A container for non-stationary clocks.
 
 <dl><dt class="comments">Comments:</dt><dd class="comments">Some clocks classified as nonstationary may in fact be stationary for some parameter values.
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -4217,7 +4290,7 @@ has been called.</DT>
 <DT>Most Flexible Option</DT>
 The user can define a derived class and supply a replacement to the virtual <a href="Variables.ox.html#RandomEffect___Distribution">Distribution</a>().
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#RETask">RETask</a>, <a href="Variables.ox.html#FixedEffect">FixedEffect</a>, <a href="Variables.ox.html#RandomEffectBlock">RandomEffectBlock</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#RETask">RETask</a>, <a href="Variables.ox.html#FixedEffect">FixedEffect</a>, <a href="Variables.ox.html#RandomEffectBlock">RandomEffectBlock</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -5023,7 +5096,7 @@ q' = I{t &in; r}.
 
 Base Class for elements of state vectors, &epsilon;, &eta;, &theta;, &gamma; .
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Variables.ox.html#StateBlock">StateBlock</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Variables.ox.html#StateBlock">StateBlock</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -5152,7 +5225,7 @@ SetClock(NormalAging,1);
 </pre>
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -5185,7 +5258,7 @@ SetClock(NormalAging,1);
 
 Timing in a stationary environment.
 <P/>
-<DT><a href="DDPShared.ox.html#ClockTypes">ClockTypes</a> tags to send to <a href="Bellman.ox.html#DP___SetClock">SetClock</a> for Stationary: </DT>
+<DT><a href="DDPShared.ox.html#ClockTypes">ClockTypes</a> tags to send to <a href="DP.ox.html#DP___SetClock">SetClock</a> for Stationary: </DT>
 <DD><code>InfiniteHorizon</code>, <code>Ergodic</code>
 
 <dl><dt class="example">Example:</dt><dd class="example">Using Tags:
@@ -5202,7 +5275,7 @@ SetClock(new Stationary(TRUE));
 </pre>
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -5670,40 +5743,6 @@ with decay rate <span class="expressions">\(\gamma\)</span>.
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___track">track</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
 </dl>
 
-<a name="ZetaRealization"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ZetaRealization : <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
-
-
-<table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#ZetaRealization___length">length</a></td>
-<td class="modifiers">const</td>
-<td class="description"></td>
-</tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ZetaRealization___Realize">Realize</a></td>
-<td class="modifiers">virtual</td>
-<td class="description">Default: &zeta; is undefined, replace with a virtual function that returns a
-value drawn from the conditional distribution of &zeta;
-</td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#ZetaRealization___ZetaRealization">ZetaRealization</a></td>
-<td class="modifiers"></td>
-<td class="description">Create a new &zeta;, the vector-valued realized shock vector.</td>
-</tr>
-</table>
-
-<dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValue___AuxiliaryValue">AuxiliaryValue</a>, <a href="Variables.ox.html#AuxiliaryValue___Likelihood">Likelihood</a>, <a href="Variables.ox.html#AuxiliaryValue___Track">Track</a></dd>
-<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
-</dl>
-
-<dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>:</dt><dd><a href="Variables.ox.html#AuxiliaryValue___indata">indata</a></dd>
-<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___track">track</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
-</dl>
-
 <a name="Zvariable"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Zvariable : <a href="Variables.ox.html#Nvariable">Nvariable</a> : <a href="Variables.ox.html#SimpleJump">SimpleJump</a> : <a href="Variables.ox.html#IIDJump">IIDJump</a> : <a href="Variables.ox.html#Markov">Markov</a> : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
@@ -6133,7 +6172,7 @@ a placeholder for extensions of a model.<br>OR<br>N-array of strings, holding la
 </tr>
 </table>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a></dd>
 </dl>
 </dd></dl>
 
@@ -6216,7 +6255,7 @@ SetClock(NormalAging,1);
 </pre>
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 </dd></dl>
 
@@ -6279,7 +6318,7 @@ SetClock(new Aging(10));
 </pre>
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 </dd></dl>
 
@@ -6518,7 +6557,7 @@ Create a new element of &chi;, the space of auxiliary outcomes.
 </tr>
 </table>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a></dd>
 </dl>
 </dd></dl>
 
@@ -6734,7 +6773,7 @@ Base clock block.
 </tr>
 </table>
 </dd>
-<dt class="comments">Comments:</dt><dd class="comments">Typically use a derived clock type or <a href="Bellman.ox.html#DP___SetClock">SetClock</a>.  If you are
+<dt class="comments">Comments:</dt><dd class="comments">Typically use a derived clock type or <a href="DP.ox.html#DP___SetClock">SetClock</a>.  If you are
 creating your own clock that is not derived from something else your code would have
 to call this routine.
 </dd>
@@ -7591,7 +7630,7 @@ A state variable that is non-random an invariant for and individual DP problem.
 	decl sex = new FixedEffect("sex",Sex);
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___GroupVariables">GroupVariables</a></dd>
 </dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedEffectBlock</span></h2>
@@ -8260,7 +8299,7 @@ Takes on the value of another state or action.
 </dd>
 <dt class="comments">Comments:</dt><dd class="comments">Users should not create a variable of this type.  Use the derived classes <a href="Variables.ox.html#LaggedState">LaggedState</a> and <a href="Variables.ox.html#LaggedAction">LaggedAction</a>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="DP.ox.html#DP___KLaggedAction">KLaggedAction</a></dd>
 </dl>
 </dd></dl>
 
@@ -8343,7 +8382,7 @@ Create a variable that tracks the previous value of action variable.
 </dd>
 <dt class="example">Example:</dt><dd class="example"><pre>wrked = new LaggedAction("Worked Last Year",work);</pre>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___KLaggedAction">KLaggedAction</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___KLaggedAction">KLaggedAction</a></dd>
 </dl>
 </dd></dl>
 
@@ -8401,7 +8440,7 @@ Create a variable that tracks the previous value of another state variable.
 </dd>
 <dt class="example">Example:</dt><dd class="example"><pre>prevoccup = new LaggedState("Prev",occup);</pre></DD>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___KLaggedState">KLaggedState</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___KLaggedState">KLaggedState</a></dd>
 </dl>
 </dd></dl>
 
@@ -8955,6 +8994,95 @@ Updates the grid of Actual values.
 <span class="declaration">const decl zvals [public]</span>
 <dl><dd>
 matrix of Z vals for simulated actual values
+
+</dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MVNvectorized</span></h2>
+
+<a name="MVNvectorized___MVNvectorized"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">MVNvectorized</span></h3>
+
+<span class="declaration">MVNvectorized :: MVNvectorized ( L , Ndraws , Ndim , mu , sigma , myseed )</span>
+<dl><dd>
+Create a single IID variable which vectorizes a multivariate normal using psuedo-random draws.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Ndraws</td>
+<td class="description" valign="baseline">number of draws of the vector.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Ndim</td>
+<td class="description" valign="baseline">width of the vector.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">mu</td>
+<td class="description" valign="baseline">means (constant, function or <a href="Shared.ox.html#Parameter">Parameter</a> vector of length Ndim)
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">sigma</td>
+<td class="description" valign="baseline">the vectorized lower triangle of the Cholesky decomposition, so length Ndim(Ndim+1)/2. Same allowed values as mu
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">myseed</td>
+<td class="description" valign="baseline">0 [default] do not set the seed. Positive will set the seed for the draw of the IID Z matrix.  See Ox's ranseed().</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="MVNvectorized___myAV"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">myAV</span></h3>
+
+<span class="declaration">MVNvectorized :: myAV ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="MVNvectorized___Ndim"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Ndim</span></h3>
+
+<span class="declaration">decl Ndim [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="MVNvectorized___Update"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
+
+<span class="declaration">MVNvectorized :: Update ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="MVNvectorized___vecactual"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">vecactual</span></h3>
+
+<span class="declaration">decl vecactual [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="MVNvectorized___zvals"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">zvals</span></h3>
+
+<span class="declaration">decl zvals [public]</span>
+<dl><dd>
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Noisy</span></h2>
@@ -9754,7 +9882,7 @@ The user can define a derived class and supply a replacement to the virtual <a h
 </tr>
 </table>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___GroupVariables">GroupVariables</a></dd>
 </dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffectBlock</span></h2>
@@ -10998,7 +11126,7 @@ SetClock(NormalAging,1);
 </pre>
 </dd>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></dd>
 </dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Stationary</span></h2>
@@ -11234,23 +11362,35 @@ Tauchen discretizization.
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">N
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">Number of discrete points
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">M
+<td class="declaration" valign="baseline">M</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatiable max discrete value
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">mu
+<td class="declaration" valign="baseline">mu</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible mean <span class="expressions">\(\mu\)</span>
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">sig
+<td class="declaration" valign="baseline">sig</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible standard deviation <span class="expressions">\(\sigma\)</span>
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">rho</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible autocorrelation <span class="expressions">\(|rho\)</span>
+<P/>
+Actual values will take on <span class="expressions">\(N\)</span> equally spaced values in the range
+<span class="equation">$$ \mu \pm M\sigma/\sqrt(1-\rho^2).$$</span>
+The transition probabilities depends on the current value a la Tauchen.
+<DD>Note: If none of the paramters are objects then the actual values will be Updated upon creation. This makes
+them available while creating spaces.  Otherwise, update is not called on creation in case parameters  will be
+read in later.</td>
 </tr>
 </table>
 </dd>
@@ -11536,61 +11676,6 @@ Create a exponentially distributed discretize jump variable.
 <tr>
 <td class="declaration" valign="baseline">gamma</td>
 <td class="description" valign="baseline">decay rate [default=1.0]</td>
-</tr>
-</table>
-</dd>
-</dl>
-</dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ZetaRealization</span></h2>
-
-<a name="ZetaRealization___length"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">length</span></h3>
-
-<span class="declaration">const decl length [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="ZetaRealization___Realize"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Realize</span></h3>
-
-<span class="declaration">virtual ZetaRealization :: Realize ( y )</span>
-<dl><dd>
-Default: &zeta; is undefined, replace with a virtual function that returns a
-value drawn from the conditional distribution of &zeta;
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">y,</td>
-<td class="description" valign="baseline">the current realized outcome, &upsilon;.</td>
-</tr>
-</table>
-</dd>
-</dl>
-</dd></dl>
-
-<hr>
-<a name="ZetaRealization___ZetaRealization"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ZetaRealization</span></h3>
-
-<span class="declaration">ZetaRealization :: ZetaRealization ( length )</span>
-<dl><dd>
-Create a new &zeta;, the vector-valued realized shock vector.
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">length</td>
-<td class="description" valign="baseline">integer, length of the (row) vector.
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">Volume</td>
-<td class="description" valign="baseline">default=SILENT. <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a>
-<P/>
-The default &zeta; is a 0 length vector.</td>
 </tr>
 </table>
 </dd>

@@ -1,5 +1,5 @@
 #include "AllTest.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 TestRun() {
     decl tmenu = new Menu("DDP Tests",FALSE);
@@ -14,7 +14,8 @@ TestRun() {
 	        {"Outcomes-Simulation",Test7::Run},
 	        {"Random-Fixed-Effects",Test8::Run},
 	        {"Data-Prediction",Test9::Run},
-	        {"Reservation-Values",Test10::Run}
+	        {"Reservation-Values",Test10::Run},
+	        {"Non-Stationary Search",Test11::Run}
             );		
     return tmenu;
 	}
@@ -69,10 +70,16 @@ Test2::RunA(UseList)	{
 	rc = pars[row][RC];
     EMax.Volume=LOUD;
 	EMax -> Solve();
+	DPDebug::outV(TRUE);
 	Delete();
 	}
 
-Test3::Utility() { decl u = Alpha::A[Aind]*(CV(d)-5+CV(s0))+(1-Alpha::A[Aind])*CV(s1); return u;}
+Test3::ThetaUtility() {
+    U0 = CV(a)*(CV(s0)-CV(s1))+CV(s1);
+    }
+Test3::Utility() {
+    return U0+CV(a)*AV(d);
+    }
 
 Test3::Run() {
     println("Spanning State Space");
@@ -85,15 +92,16 @@ Test3::Run() {
 Test3::RunA(UseList) {
 	Initialize(new Test3(),UseList);
 	SetClock(NormalAging,5);
-	Actions(new ActionVariable("a",2));
+	Actions(a=new ActionVariable("a",2));
 	ExogenousStates(d = new SimpleJump("d",11));
+    d->SetActual(range(-5,5));
 	EndogenousStates(s0 = new SimpleJump("s0",5),s1 = new SimpleJump("s1",5));
 	CreateSpaces();
     SubSampleStates(0.5,15,20);
 	decl KW = new KeaneWolpin();
     KW.Volume = LOUD;
 	KW->Solve();
-//	DPDebug::outV(TRUE);
+	DPDebug::outV(TRUE);
 	delete KW;
 	Delete();
 	}
@@ -122,17 +130,16 @@ Test3a::Run()	{
     Delete();
 }
 
+Test3a::ThetaUtility() {
+ 	decl  x = CV(xper)/2, xsq = sqr(x),k = AV(lnk);
+     U0 =    (k~10~x[white]~-xsq[white]~x[blue]~-xsq[blue])*alph[white]
+          | (k~10~x[blue]~-xsq[blue]~x[white]~-xsq[blue])*alph[blue]
+          | 1.0;
+     return U0;
+    }
 
 /** Utility vector equals the vector of feasible returns.**/	
-Test3a::Utility() {
- 	decl  xw = xper[white].v/2, xb = xper[blue].v/2,
-      k = AV(lnk),
-	 xbw = (k~10~xw~-sqr(xw)~xb~-sqr(xb))*alph[white],
-	 xbb = (k~10~xb~-sqr(xb)~xw~-sqr(xw))*alph[blue],
-	 eps = AV(offers),
-	 R = exp( (xbw | xbb | 1.0) + eps );
-	return R;
-	}
+Test3a::Utility() {	return exp(U0+AV(offers)');	}
 	
 Test4::Utility() { return 0|-0.5; }
 Test4::Run() {
@@ -167,8 +174,12 @@ Test6::Run() {
 	decl sp = new Panel(0,EMax);
 	sp -> Simulate(30,20,0,0);
 	DPDebug::outV(TRUE);
-	sp -> Print(TRUE);
+	sp -> Print(FALSE);
     delete EMax, sp;
+    sp = new PathPrediction(0,"hi");
+    sp->Tracking(TrackAll);
+    sp->Predict(5,2);
+    delete sp;
 	Delete();
 	}
 
@@ -176,20 +187,24 @@ Test7::Run()  {
 	Initialize(new Test7());
 	rc = new Positive("RC",dgp[RC]);
 	th1 = new Simplex("q",dgp[XT]);
-//	th1->Encode();
     EndogenousStates(x = new Renewal("x",NX,d,th1) );
-	StorePalpha();	
+//	StorePalpha();	
   	CreateSpaces();
 	SetDelta(0.99);	
 	decl EMax = new ValueIteration(0);
-//    Task::trace = TRUE;
-    Volume = LOUD;
+    EMax.Volume = LOUD;
 	EMax -> Solve();
+	DPDebug::outV(TRUE);
+	println("Ptrans ",I::curg.Ptrans);
+    println(I::curg.Ptrans*I::curg.Pinfinity ~ I::curg.Pinfinity);
 	Volume=SILENT;
-	data = new OutcomeDataSet(0,EMax);
-	data -> Simulate(300,3,0,0);
-	I::curg->StationaryDistribution();
-	println("Ergodic distribution: ",I::curg.Pinfinity'," Palpha ",I::curg.Palpha);
+	data = new OutcomeDataSet(0,0);
+	data -> Simulate(500,50,TRUE);
+    data -> Print("test7sim.dta",LONG);
+    delete data;
+    data = new PanelPrediction ( "EY", 0, 0);
+    data -> Tracking(TrackAll);
+    data -> Predict(40,One);
 	Delete();
 	}
 	
@@ -257,11 +272,7 @@ Test10::Run()	{
 	done->MakeTerminal(1);
 	SetDelta(0.4);
 	CreateSpaces();
-	RV = new ReservationValues();
-    RV.Volume=SILENT;
-	DPDebug::outAllV(TRUE,FALSE,FALSE,TRUE,FALSE);
-	RV->Solve();
-    delete RV;
+    RVSolve();
     Delete();
 	}
 
@@ -270,6 +281,43 @@ Use Mill's ratio to compute truncated mean of normal.
 @return Array of two vectors
 **/	
 Test10::EUtility()    {
-    decl zz = zstar[][I::r], pstar = 1-probn(zz);
-	return {  ( eta | densn(zz)/pstar) , (1-pstar)~pstar};  //found type Sept.2019 r
+    decl pstar = 1-probn(zstar);
+	return {  ( eta | densn(zstar)/pstar) , (1-pstar)~pstar};  //found type Sept.2019 r
+	}	
+
+Test11::Uz(z)        { return b | z*pd;	}
+Test11::Utility()    { return (1-CV(done))*(I::t < T-1 ? b : b*pd); }
+Test11::OfferProb()  { return pi0[CV(k)]*(1-I::t/(T-1));}
+Test11::Continuous() { return CV(hasoff); }
+Test11::FeasibleActions() { return 1 | CV(hasoff)*(1-CV(done)); }
+Test11::Reachable() { return I::t || !CV(hasoff); }
+Test11::Run()	{
+	Initialize(new Test11());
+	SetClock(NormalAging,T);
+	EndogenousStates(
+        hasoff = new IIDBinary("off",OfferProb),
+        done = new LaggedAction("done",d)
+        );
+	GroupVariables(k = new RandomEffect("k",Two));  //equally likely
+	done->MakeTerminal(One);
+	SetDelta(delta);
+    AuxiliaryOutcomes(new StaticAux("Ew",Ewage));
+	CreateSpaces();
+    decl vi, pd;
+    vi = new ReservationValues();
+    pd = new PathPrediction(0,vi);
+    pd->Predict(T,Two);
+    delete vi, pd;
+    Delete();
+	}
+Test11::Ewage() {
+    if (CV(hasoff)&&!CV(done)) {
+        decl eu = I::curth->EUtility();
+        return eu[0][1]*eu[1][1]/pd;
+        }
+    else return 0.0;
+    }
+Test11::EUtility()    {
+    decl pstar = 1-probexp(zstar,1/alpha);
+	return {  ( b | (zstar + alpha)*pd ) , (1-pstar)~pstar};
 	}	

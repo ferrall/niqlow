@@ -1,10 +1,9 @@
 #import "database"
 #import "Bellman"
-/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
 
-#ifndef Dh
+/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
+
 SimulateOutcomes(Nsim=UseDefault,T=UseDefault,fname=UseDefault,ErgOrStateMat=0,DropTerminal=FALSE);
-#endif
 
 /** A single realization of a discrete DP. **/
 struct Outcome : Data {
@@ -19,7 +18,7 @@ struct Outcome : Data {
 #ifdef OX_PARALLEL
                                          = < [DSubSpaces] *0> //Oxdoc does not recognize this syntax so ifdef hides it
 #endif
-                                        ,pathpred,
+                                        , pathpred,
                                         ctlist, exaux,
     /**do not include choice prob for fully observed
         likelihood, for first stage estimation of transitions. **/
@@ -40,8 +39,8 @@ struct Outcome : Data {
 			decl							
 	/**pointer to next outcome on the path **/			onext,
     /** index of next simulated state **/               snext,
-	/**&alpha;,  **/						            act,
-	/**&zeta;, continuous shock vector **/	            z,
+	/**$\alpha$  **/						            act,
+	/* &zeta;, continuous shock vector 	            z,*/
 	/**auxiliary values. **/				            aux,
 	/**  **/						                    ind,
 	/** list of feasible sets consistent w/ data.**/	Ainds;
@@ -196,7 +195,7 @@ struct OutcomeDataSet : Panel {
 													list,
 													source,
 													ids;
-	OutcomeDataSet(label="",method=UnInitialized);
+	OutcomeDataSet(label=UseDefault,method=UnInitialized);
 	~OutcomeDataSet();
 	Mask();
 	LoadOxDB();

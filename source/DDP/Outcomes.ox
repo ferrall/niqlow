@@ -1,29 +1,7 @@
-#include "Outcomes.h"
+#ifndef Dh
+    #include "Outcomes.h"
+#endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
-
-ExogAuxOut::ExogAuxOut() {
-    ExTask();
-    auxlike = zeros(N::Ewidth,1);
-    }
-ExogAuxOut::Likelihood(howmany,outcm) {
-    decl tv;
-    if (!sizeof(Chi)) return 1.0;
-    this.outcm = outcm;
-    auxlike[] = 1.0;
-    if (howmany==DoAll) {
-        loop();
-        return auxlike;
-        }
-    else {
-        Run();
-        return auxlike[I::all[exog]];
-        }
-    }
-ExogAuxOut::Run() {
-    decl c;
-    Hooks::Do(PreAuxOutcomes);
-    foreach (c in Chi) if (c.indata) auxlike[I::all[onlyexog]] *= c->Likelihood(outcm);
-    }
 
 /**  Simple Panel Simulation.
 @param Nsim  integer, number of paths to simulate per fixed group<br>[default] UseDefault, whic is 1
@@ -47,7 +25,43 @@ SimulateOutcomes(Nsim,T,outopt,ErgOrStateMat,DropTerminal) {
     delete op;
     }
 
+
+/** .
+@internal
+**/
+ExogAuxOut::ExogAuxOut() {
+    ExTask();
+    auxlike = zeros(N::Ewidth,1);
+    }
+
+/** .
+@internal
+**/
+ExogAuxOut::Likelihood(howmany,outcm) {
+    decl tv;
+    if (!sizeof(Chi)) return 1.0;
+    this.outcm = outcm;
+    auxlike[] = 1.0;
+    if (howmany==DoAll) {
+        loop();
+        return auxlike;
+        }
+    else {
+        Run();
+        return auxlike[I::all[exog]];
+        }
+    }
+/** .
+@internal
+**/
+ExogAuxOut::Run() {
+    decl c;
+    Hooks::Do(PreAuxOutcomes);
+    foreach (c in Chi) if (c.indata) auxlike[I::all[onlyexog]] *= c->Likelihood(outcm);
+    }
+
 /** Record everything about a single realization of the DP.
+This is not usually called by the user code. Outcomes are created along paths.
 @param prior `Outcome` object, the previous realization along the path<br/>
 		<em>integer</em>, this is first realization on the path. `Task::state` uninitialized.<br/>
 		<em>vector</em>, initial value of `Task::state`
@@ -59,7 +73,7 @@ Outcome::Outcome(prior) {
 	decl nxtstate;
 	snext = onext = UnInitialized;
 	act   = constant(.NaN,1,SS[onlyacts].D);
-	z     = constant(.NaN,1,zeta.length);
+//	z     = constant(.NaN,1,zeta.length);
 	aux   = constant(.NaN,1,N::aux);
 	Ainds = <>;
 	if (isclass(prior)) {
@@ -85,12 +99,15 @@ Outcome::Outcome(prior) {
 	}
 
 /** clean up.
+@internal
+
 @comments
 Does not delete prev and next to avoid recursion.
+
 **/
 Outcome::~Outcome() {
 	if (isclass(prev)) prev.onext = UnInitialized;
-	delete ind, aux, act, z, state, Ainds;
+	delete ind, aux, act, state, Ainds;
 	}
 
 /** Return the outcome as a (flat) row vector.
@@ -98,17 +115,16 @@ Outcome::~Outcome() {
 Used to print or save a series or panel as a matrix.
 
 <DD>Columns:<pre>
-t ~ State_Ind ~ Type ~ Aind ~ &epsilon; ~ eta; ~ &theta; ~ &gamma; ~ &alpha; ~
-&zeta; ~ aux
+t ~ State_Ind ~ Type ~ Aind ~ &epsilon; ~ eta; ~ &theta; ~ &gamma; ~ &alpha;
 </pre></DD>
 
 **/
 Outcome::Flat(Orientation)	{
 	if (!Settheta(ind[tracking])) return <>;
     if (Orientation==LONG)
-        return t~ind[tracking]~I::curth.Type~I::curth.Aind~state'~ind[onlyacts][0]~act~z~aux;
+        return t~ind[tracking]~I::curth.Type~I::curth.Aind~state'~ind[onlyacts][0]~act~aux;
     else
-        return  state'~act~z~aux;
+        return  state'~act~aux;
 	}
 
 
@@ -127,11 +143,12 @@ Outcome::Deep(const depth)	{
 	}
 
 /** Simulate the IID stochastic elements of a realization.
+This is usually called along a path not by the user's code
 
-&theta; and &gamma; areas of `Task::state` already set.
-The &epsilon; and &eta; elements are simulated from their
-transitions.  Then `Bellman::Simulate` called to simulate
-&zeta;, &apha;, and &Upsilon;.
+&theta; and &gamma; vectors already set.
+&epsilon; and &eta; elements are simulated from their transitions.
+Then `Bellman::Simulate` called to simulate &apha;, and &Upsilon;.
+
 @return TRUE if path is ended, FALSE otherwise
 @see DP::DrawOneExogenous, Bellman::Simulate
 **/
@@ -152,30 +169,29 @@ Outcome::Simulate() {
 /** Create a new series of `Outcome`s along a realized path.
 @param id <em>integer</em>, id or tag for the path.
 @param state0 <code>UnInitialized</code> (-1), set state to uninitalized<br/>
-&gt; 0 fixed effect index to use, <br/><em>vector</em>, initial state
+        non-negative  fixed effect index to use, draw and random effect from current distribution<br/>
+        <em>vector</em>, initial state vector
 **/
 Path::Path(i,state0) {
-	decl ni;
 	T = 0;
 	this.i = i;
-	if (isint(state0) && state0!=UnInitialized)
-			Outcome( DrawGroup(state0).state );
+	if (isint(state0) && state0!=UnInitialized) {
+        decl myg = N::R*state0 + DrawOne(gdist[find][]);
+		Outcome( Gamma[myg].state );
+        }
 	else Outcome(state0);
 	last = pnext = UnInitialized;
-	if ( (N::R>One || N::DynR>One ) && isint(summand)) {
-		summand = new RandomEffectsIntegration();
-		upddens = new UpdateDensity();
-		}
 	}
 
-/** Destroy all outcomes along a path. **/
+/** Destroy all outcomes along a path.
+@internal
+**/
 Path::~Path() {
 	while (isclass(onext)) {
 		cur = onext.onext;
 		delete onext;
 		onext = cur;
 		}
-	if (isclass(summand)) {delete summand, upddens ; summand=UnInitialized;}
 	~Outcome();
 	}	
 
@@ -240,7 +256,10 @@ Path::Simulate(T,DropTerminal){
 	}
 
 /** Load the first or next outcome in the path.
+@internal
+
 @param observed source data to extract observables from<br/>
+
 **/
 Path::Append(observed) {
 	last = (T) ? new Outcome(last) : this;
@@ -256,6 +275,12 @@ FPanel::FPanel(f,method) {
 	this.f = f;
 	this.method = method;
 	Path(0,UnInitialized);
+	if ( (N::R>One || N::DynR>One ) && isint(summand)) {
+        if (!isclass(method))
+            oxwarning("DDP Warning: Solution method is not nested with random effects present.  Path Outcomes may not be accurate");
+		summand = new RandomEffectsIntegration();
+		upddens = new UpdateDensity();
+		}
 	if (isint(SD)&&Flags::IsErgodic) SD = new SDTask();
 	fnext = UnInitialized;
 	NT = N = 0;
@@ -266,6 +291,7 @@ FPanel::FPanel(f,method) {
 FPanel::GetCur() { return cur; }
 
 /** Destroy all paths in a fixed panel.
+@internal
 **/
 FPanel::~FPanel() {
 	while (isclass(pnext)) {	//end of panel not reached
@@ -274,6 +300,7 @@ FPanel::~FPanel() {
 		pnext = cur;
 		}
 	if (isclass(SD)) {delete SD; SD = UnInitialized;}
+	if (isclass(summand)) { delete summand, upddens ; summand=UnInitialized;}
 	~Path();				//delete root path
 	}	
 
@@ -287,7 +314,7 @@ FPanel::~FPanel() {
 @comments &gamma; region of state is masked out.
 **/
 FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
-	decl msucc=FALSE, ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS, curg,
+	decl msucc=FALSE, ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS,
          Nstart=columns(ErgOrStateMat), rvals, curr, i;
 	if (Nsim <= 0) oxrunerror("DDP Error 50a. First argument, panel size, must be positive");
     if (ii) {
@@ -317,15 +344,16 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
 	    if (isclass(method)) {
             if (!method->Solve(f,curr)) oxrunerror("DDP Error. Solution Method failed during simulation.");
             }
-	    curg = SetG(f,curr);
+	    else
+            I::SetGroup(N::R*f+curr);
         for(i=0;i<rvals[curr];++i) {
-            cur.state = curg.state;
-		    cur.state += (erg) ? curg->DrawfromStationary()
+            cur.state = I::curg.state;  // reset state
+		    cur.state += (erg) ? I::curg->DrawfromStationary()
                            : ( (ii)
                                 ? iS
                                 : ErgOrStateMat[][imod(this.N,Nstart)]
                               );
-            I::Set(cur.state,TRUE);
+            I::Set(cur.state,FALSE);  // group already set
 		    cur->Path::Simulate(T,DropTerminal);
 		    NT += cur.T;
 		    if (++this.N<Nsim && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
@@ -334,7 +362,9 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
         }
 	if (!Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf)) fprintln(Data::logf," FPanel Simulation time: ",timer()-cputime0);
 	}
-
+/** .
+@internal
+**/
 FPanel::Append(pathid) {
 	if (N) cur = cur.pnext = new Path(pathid,UnInitialized);
 	++N;
@@ -371,7 +401,7 @@ Panel::SetMethod(method) {
 
 /** Store a list of heterogenous fixed panels.
 @param r integer tag for the panel (such as replication index)
-@param method `Method` `Method` object, the DP solution to call to solve `FPanel`
+@param method `Method` object, the DP solution to call to solve `FPanel`
 problem.<br/>(default) 0 do nothing, something else handles solution
 **/
 Panel::Panel(r,method) {
@@ -383,32 +413,37 @@ Panel::Panel(r,method) {
         }
     else
 	     this.r = r;
+    if ( N::F>One && !isclass(method)) {
+            oxwarning("DDP Warning: Solution method is not nested with fixed effects present.  Panel Outcomes will not be accurate");
+            }
 	FPanel(0,method);	
 	fparray = new array[N::F];
-	fparray[0] = 0;
+	fparray[0] = 0;  // I am my own fixed effect panel
 	flat = FNT = 0;
 	cur = this;
-	for (i=1;i<N::F;++i) cur = cur.fnext = fparray[i] = new FPanel(i,method);
+    // create fpanels for other fixed effects
+	for (i=One;i<N::F;++i) cur = cur.fnext = fparray[i] = new FPanel(i,method);
 	if (isint(LFlat)) {
         LFlat = new array[FlatOptions];
 		LFlat[LONG] = {PanelID}|{FPanelID}|{PathID}|PrefixLabels|Labels::Vprt[svar]|{"|ai|"}|Labels::Vprt[avar];
 		LFlat[WIDE] = Labels::Vprt[svar]|Labels::Vprt[avar];
-		for (i=0;i<zeta.length;++i) {
+/*		for (i=0;i<zeta.length;++i) {
                 LFlat[LONG] |= "z"+sprint(i);
                 LFlat[WIDE] |= "z"+sprint(i);
-                }
+                }*/
 		foreach (q in Chi) {
             LFlat[LONG] |= q.L;
             LFlat[WIDE] |= q.L;
             }
 		Fmtflat = {"%4.0f","%4.0f"}|{"%4.0f","%4.0f","%7.0f","%3.0f"}|Labels::Sfmts|"%4.0f";
 		for (i=0;i<N::Av;++i) Fmtflat |= "%4.0f";
-		for (i=0;i<zeta.length;++i) Fmtflat |= "%7.3f";
+		//for (i=0;i<zeta.length;++i) Fmtflat |= "%7.3f";
         foreach (q in Chi) Fmtflat |= "%7.3f"; //		for (i=0;i<Naux;++i) Fmtflat |=        "%7.3f";
 		}
 	}
 
 /** Destroy all `FPanel`s in the Panel.
+@internal
 **/
 Panel::~Panel() {
 	while (isclass(fnext)) {	//end of panel not reached
@@ -481,13 +516,19 @@ Panel::Print(fn,Orientation)	{
 	}
 
 /** Get tracking probabilities and tomorrow indices consistent with tomorrow's observation .
-@return TRUE if there are tomorrow states that are consistent, FALSE otherwise **/
+@internal
+
+@return TRUE if there are tomorrow states that are consistent, FALSE otherwise
+
+**/
 Outcome::TomIndices(qind,xind) {
     icol = 0;
 	[TF,TP] = GetTrackTrans(qind,xind);           //Oct. 2018 was ind[onlysemiexog]
-	return columns(viinds[tom]) && rows(intersection(viinds[tom],TF,&icol));
+    return columns(viinds[tom]) && rows(intersection(viinds[tom],TF,&icol));
     }
 
+/** Compute likelihood based on the Type.
+**/
 Outcome::Likelihood(Type) {
     switch_single(Type) {
         case CCLike     : CCLikelihood();
@@ -578,7 +619,7 @@ Outcome::CCLikelihood() {
 	}
 
 /** Integrate over the path.
-
+@internal
 **/
 Path::TypeContribution(pf,subflat) {
 	decl cur;
@@ -607,10 +648,14 @@ Path::Likelihood() {
 		}
 	if (isclass(summand))
 		[L,flat] = summand->Integrate(this);
-	else
+	else {
 		TypeContribution();  //density=1.0 by default
+        }
     }
-	
+
+/** .
+@internal
+**/
 DataColumn::DataColumn(type,obj) {
 	this.type = type;
 	this.obj = obj;
@@ -619,6 +664,9 @@ DataColumn::DataColumn(type,obj) {
 	force0 = (ismember(obj,"N") && obj.N==1) ;  // force quantities that have only  1 value observed
 	}
 
+/** .
+@internal
+**/
 DataColumn::Observed(LorC) {
 	obsv = TRUE;
 	if (isstring(LorC)) {
@@ -635,12 +683,18 @@ DataColumn::Observed(LorC) {
 	oxrunerror("DDP Error 53. LorC should be string or integer");		
 	}
 
+/** .
+@internal
+**/
 DataColumn::UnObserved() {
 	obsv = FALSE;
 	incol = ind = label = UnInitialized;
 
 	}
 
+/** .
+@internal
+**/
 DataColumn::ReturnColumn(dlabels,incol)	{
 	this.incol = incol;
 	if (isstring(label)) return strfind(dlabels,label);
@@ -658,15 +712,17 @@ is set to a vector of <code>.NaN</code>.</DD>
 FPanel::LogLikelihood() {
 	decl i,cur;
 	cputime0 =timer();
+	FPL = zeros(N,1);  //NT
 	if (isclass(method)) {
         if (!method->Solve(f)) {
 	       FPL = constant(.NaN,N,1);
            return FALSE;
            }
         }
-    else
-        if (Flags::UpdateTime[AfterFixed]) {ETT->Transitions(); }
-	FPL = zeros(N,1);  //NT
+    else {
+        if (Flags::UpdateTime[AfterFixed] ||
+            (Flags::UpdateTime[AfterRandom]&&!isclass(summand)) ) ETT->Transitions(state);
+        }
     if (isclass(upddens)) {
 		upddens->SetFE(state);
 		summand->SetFE(state);
@@ -692,7 +748,7 @@ Panel::LogLikelihood() {
 	cur = this;
 	M = <>;	
     succ = TRUE;
-	if (!isclass(method) && Flags::UpdateTime[OnlyOnce]) {ETT->Transitions(state);}
+	if (!isclass(method) && Flags::UpdateTime[OnlyOnce]) ETT->Transitions(state);
 	do {
 		succ = succ && cur->FPanel::LogLikelihood();
 		M |= cur.FPL;
@@ -700,6 +756,9 @@ Panel::LogLikelihood() {
     return succ;
 	}
 
+/** .
+@internal
+**/
 Path::Mask() {		
 	cur = this;
     AnyMissing[] = FALSE;
@@ -712,11 +771,16 @@ Path::Mask() {
         LType = CCLike;
 	}	
 	
+/** .
+@internal
+**/
 FPanel::Mask(aLT) {
 	cur = this;	do { cur -> Path::Mask(); aLT[0][cur.LType] += 1;} while ( (isclass(cur = cur.pnext)) );
 	}	
 
 /** Mask unobservables.
+@internal
+
 **/
 OutcomeDataSet::Mask() {
 	decl s;
@@ -749,14 +813,17 @@ OutcomeDataSet::IDColumn(lORind) {
 	list[idvar]->Observed(lORind);
 	}
 
+/** set the column label or index of the time value.
+@param lORind string, column label<br>integer&ge;0 column index;
+**/
 OutcomeDataSet::tColumn(lORind) {
 	if (isint(lORind)&&lORind<0) oxrunerror("DDP Error 54. column index cannot be negative");
     list[low[svar]+counter.t.pos] -> Observed(lORind);
     }
 
 /** Identify a variable with a data column.
-@param aORs  Either an `ActionVariable`, element of &alpha;, or a `StateVariable`,
-    element of one of the state vectors, or a `AuxiliaryValue`, element of &chi;<br/>
+@param aORs  Either an `ActionVariable`, element of $\alpha$, or a `StateVariable`,
+    element of one of the state vectors, or a `AuxiliaryValue`, element of $\chi$<br/>
             <em>OR<em><br/>
 @param LorC	 UseLabel, variable's label to denote column of data with observations <br/>
              integer &ge; 0, column of data matrix that contains observations<br/>
@@ -777,8 +844,8 @@ OutcomeDataSet::MatchToColumn(aORs,LorC) {
 
 	
 /** Mark actions and state variables as observed in data, matched with their internal label.
-@param aORs  Either an `ActionVariable`, element of &alpha;, or a `StateVariable`, element of
-			one of the state vectors, or a `AuxiliaryValue`, element of &chi;<br/>
+@param aORs  Either an `ActionVariable`, element of $\alpha$, or a `StateVariable`, element of
+			one of the state vectors, or a `AuxiliaryValue`, element of $\chi$<br/>
             <em>OR<em><br>
             array of the form {v1,v2,&hellip;}.  In this case all other arguments are
             ignored.<br/>
@@ -809,7 +876,7 @@ OutcomeDataSet::ObservedWithLabel(...
 	}
 
 /** UnMark action and states variables as observed.
-@param as1 `Discrete` object, either an `ActionVariable`, element of &alpha;, or a
+@param as1 `Discrete` object, either an `ActionVariable`, element of $\alpha$, or a
 `StateVariable`, element of
 			one of the state vectors<br/>
 			`StateBlock`: each variable in the block will be marked unobserved.
@@ -840,7 +907,10 @@ OutcomeDataSet::UnObserved(...
 	}
 	
 /**  Copy external current values of actions, states and auxiliaries into the outcome.
-This calls `Outcome::AccountForUnobservables'
+@internal
+
+This calls `Outcome::AccountForUnobservables`
+
 **/
 Outcome::FromData(extd) {
 	act[] = extd[avar][];
@@ -850,7 +920,10 @@ Outcome::FromData(extd) {
 	}
 
 /**  Set all unobserved values to NaN.
-This calls `Outcome::AccountForUnobservables'
+@internal
+This calls `Outcome::AccountForUnobservables`
+
+
 **/
 Outcome::Mask() {
 	act[mask[avar]] = .NaN;
@@ -860,6 +933,8 @@ Outcome::Mask() {
 	}
 	
 /** Modify outcome to list indices of states consistent with observables.
+@internal
+
 **/
 Outcome::AccountForUnobservables() {
 	decl s, ss, myA, ai, myi, inta;
@@ -914,7 +989,7 @@ OutcomeDataSet::EconometricObjective(subp) {
 	   return M;
          }
     else {
-        oxrunerror("OutcomeDataSet Objective not updated for subproblem parallelization");
+        oxrunerror("OutcomeDataSet Objective not updated for subproblem parallelization./n Contact Chris Ferrall and tell him to get this done!");
         }
 	}
 
@@ -1048,13 +1123,14 @@ OutcomeDataSet::Read(FNorDB,SearchLabels) {
 	}
 
 /** Store a `Panel` as a data set.
-@param id <em>string</em>, tag for the data set
+@param label <em>string</em>, tag for the data set<br/>
+        UseDefault [default] user classname
 @param method, solution method to be used as data set is processed.<br/>0 [default], no
 solution
 **/
 OutcomeDataSet::OutcomeDataSet(id,method) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 62. Cannot create OutcomeDataSet before calling CreateSpaces()");
-	label = id;
+	label = isint(id) ? classname(userState) : id;
 	Panel(0,method);
 	masked = FALSE;
 	decl q, aa=SubVectors[acts];
@@ -1070,6 +1146,16 @@ OutcomeDataSet::OutcomeDataSet(id,method) {
     LTypes = zeros(LikelihoodTypes,1);
 	}																		
 
+/** Simulate a data .
+Each value of fixed $\gamma$ is simulated N times, drawing the random effects in $\gamma_r$ from their density.
+@param N <em>integer</em> number of paths to simulate in each `FPanel`.
+@param T <em>Integer</em>, max length of each path<br/> vector, max length for each FPanel.
+@param ErgOrStateMat 0: find lowest reachable indexed state to start from<br/>
+        1: draw from stationary distribution (must be ergodic)<br/>
+        matrix: initial states to draw from (each column is a different starting value)
+@param DropTerminal TRUE: eliminate termainl states from the data set
+@param pathpred Integer [default] or `PathPrediction` object that is simulating (used when computing efficient GMM weights)
+**/
 OutcomeDataSet::Simulate(N,T,ErgOrStateMat,DropTerminal,pathpred) {
     Panel::Simulate(N,T,ErgOrStateMat,DropTerminal,pathpred);
     IDColumn();
@@ -1077,6 +1163,7 @@ OutcomeDataSet::Simulate(N,T,ErgOrStateMat,DropTerminal,pathpred) {
     }
 
 /** Delete a data set.
+@internal
 **/
 OutcomeDataSet::~OutcomeDataSet() {
 	~Panel();

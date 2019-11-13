@@ -1,5 +1,5 @@
 #import "Bellman"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 enum {AddToSample,ComputeBhat,PredictEV,NKWstages}
 
@@ -16,6 +16,27 @@ struct ValueIteration : Method {
     virtual Run();
 	}
 
+/** Iterate on Bellman's equation then switch to N-K iteration.
+
+This method works for Ergodic environments or at a stationary period of a non-ergodic clock.<br/>
+
+Implementation does not always work.  Needs to be improved.
+
+<div class="alg">
+<DT><b>Initialization</b></DT>
+<DD>Initialize as in Bellman iteration.  Set a threshold $\epsilon_{NK}$ for switching to N-K iteration.</DD>
+<DT><b>Iteration</b></DT>
+<DD>Begin with Bellman iteration, inserting a check for $\Delta_t \lt \epsilon_{NK}.$</DD>
+<DD>When this occurs. set <code>SetP=TRUE</code> and <code>SetPtrans=TRUE</code> to compute the state-to-state transition on each iteration.</DD>
+<DD>Replace step c in the Bellman Iteration that computes $V_0 = Emax(V_1)$ with:</DD>
+<OL type="a">
+<LI value="3">Compute</LI>
+$$\eqalign{
+\overrightarrow{\Delta}_t &\equiv Emax(V_1) - V_1\cr
+g &\equiv \left(I-\delta P(\thp;\th)\right)^{-1}\left[\overrightarrow{\Delta}_t\right]\cr
+V_0 &= V_1 - g\cr}\nonumber$$
+</OL></div>
+**/
 struct NewtonKantorovich : ValueIteration {
     NewtonKantorovich(myGSolve=0);
 	virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
@@ -163,6 +184,28 @@ denote the cardinality of the sets (following the notations used elsewhere).
 Then the proportion of total <code>max()</code> operations <em>avoided</em> is
 <pre>(&epsilon;.D-1)(&Theta;.D-&Theta;<sub>KW</sub>.D) / &Theta;.D</pre></DD>
 
+<div class="alg">
+<DT><b>Initialization</b></DT>
+    <DD>Create a random subsample of states for each $t$, denoted $\Theta_t^S.$  This sampling can be controlled so no sampling takes place for some $t$ and minimum and maximum counts are enforced.</DD>
+<DT><b>Iteration</b></DT>
+<DD>Follow these steps at each $t.$</DD>
+<OL class="steps">
+<LI>For all $\theta \in \Theta_t$:
+    <DD>Store the vector of action values at a single $\epsilon_0$ (e.g. the median or mean vector), $v_0(\al,\th) = v(\al;\epsilon_0,\th)$ and $V_0(\th)=\max v_0(\al,\th).$ (This is  "maxE" in Keane and Wolpin 1994.)</DD>
+    <DD>if  $\th \in \Theta_t^S$, compute $V$ (or Emax), averaging over all values of the IID state vector $\epsilon$:
+    $$V(\th)  = {\sum}_{\epsilon} \ \l[ {\max}_{\ \al\in A(\th)\ }\ U\l(\al;\epsilon,\th\r) + \delta E_{\al,\th\,}V\l(\thp\r)\r]\ f\l(\epsilon\r).\nonumber$$</DD>
+    </LI>
+<LI>Approximate $V$ on the subsample as a function of values computed at $\epsilon_0$.  The default is to run the regression:
+    $$\hat{V}-V_0 = X\beta_t.\nonumber$$
+    The default specification of the row of state-specific values is
+    $$X =\l(\matrix{\l(V_0-v_0\r) & \sqrt{V_0-v_0}}\r).\nonumber$$
+    That is, the difference between Emax and maxE is a non-linear function of the differences in action values at the median shock.  </LI>
+<LI>For $\th \not\in \Theta^S_t,$ compute $v_0(\th),$ extrapolate the approximation:
+    $$V(\th) = \max\{ V_0(\th), V_0(\th)+X\hat\beta_t\}.\nonumber$$
+</LI>
+</OL>
+<DD>Carry out update conditions for $t$.</DD>
+</div>
 
 **/
 struct KeaneWolpin : ValueIteration {

@@ -218,7 +218,7 @@ SimulatedAnnealing::Iterate(chol)	{
 	}
 
 /** .
-@internal
+
 **/
 LineMax::LineMax(O)	{
 	Algorithm(O);
@@ -577,7 +577,7 @@ NelderMead::Amoeba(iplex) 	{
                 decl holdfx = nodeV[mxi], holdX = nodeX[][mxi];
 				nodeX = 0.5*(nodeX+nodeX[][mxi]);
 				n_func += O->funclist(nodeX,&vF,&nodeV);
-                if (fabs(holdfx-nodeV[mxi])<SQRT_EPS) {
+                if (fabs(holdfx-nodeV[mxi])>SQRT_EPS) {
                     println("%c",{"New","Old"},"%cf","%20.10f",(nodeV[mxi]~holdfx)|(holdX~nodeX[][mxi]));
                     oxwarning("FiveO Warning: recomputing objective at same params");
                     nodeV[mxi] = holdfx;
@@ -1029,7 +1029,7 @@ NonLinearSystem::JJupdate() {
 	}
 	
 /** Compute the objective's Jacobian.
-@ param dx argument is ignored (default=0)
+@param dx argument is ignored (default=0)
 **/
 NonLinearSystem::Jupdate(dx) {O->Jacobian(); }
 

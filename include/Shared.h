@@ -23,9 +23,8 @@
 /* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
 
 	/** Pseudonyms for -1, -2, &hellip . @name Names_for_Integers **/
-enum {CondProbOne=1,
-      UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,
-      DoAll=-1,NoMatch=-1,AllFixed=-1,AllRand=-1,UseSubSample=-1,ResetValue=-1,
+enum {CondProbOne=1, UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,
+      DoAll=-1,      NoMatch=-1,   AllFixed=-1,  AllRand=-1,      UseSubSample=-1,  ResetValue=-1,
       IterationFailed=-1, UseGradient=-1, ErgodicDist=-1,
       NotInData=-2, UseCurrent=-2, UseCheckPoint = -2,
       TrackAll=-3,

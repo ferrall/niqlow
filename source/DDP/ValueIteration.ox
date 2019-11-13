@@ -3,31 +3,43 @@
 #endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
-/**  Simple Value Iteration solution.
+/**  All-in-one Value Iteration.
 
-@param ToScreen  TRUE [default] means output is displayed .
-@param aM	address to return matrix<br>0, do not save [default]
-@param MaxChoiceIndex FALSE = print choice probability vector [default]<br>TRUE = only print index of choice with max
-probability.  Useful when the full action matrix is very large.
-@param TrimTerminals FALSE [default] <br>TRUE means states marked `Bellman::Type`&gt;=TERMINAL are deleted
-@param TrimZeroChoice FALSE [default] <br> TRUE means states with no choice are deleted
-@return TRUE if method fails, FALSE if it succees
+<DT>This routine simplifies basic solving using Bellman value function iteration.</DT>
+
+<DT><mark>CAUTION</mark> All problems defined by fixed and random effects variables are solved. However, the solutions
+cannot be used  ex post for prediction or simulation because only the last group's problem remains in memory.
+Instead, a solution method object must be nested to handle multiple problems. If there is are no group
+variables then ex post prediction and simulation can follow use of <code>VISolve()</code></DT>
+
 <DT>Note:  All parameters are optional, so <code>VISolve()</code> works.</DT>
+
+<DD>Simply call this after calling `DP::CreateSpaces`().</DD>
+<DD>It creates the `ValueIteration` object, calls the <code>Solve()</code> routine and then deletes the object.</DD>
+<DD>It's useful for debugging and demonstration purposes because the user's code does not need to create
+the solution method object and call solve.</DD>
+<DD>This cannot be used if the solution is nested within some other iterative procedure because the solution method
+object must be created and kept</DD>
+
+@param ToScreen  TRUE [default] means output is displayed to output.
+@param aM	address to return matrix of values and choice probabilities</br>0, do not save [default]
+@param MaxChoiceIndex FALSE: print choice probability vector [default]</br>
+                TRUE: only print index of choice with max probability.  Useful when the full action matrix is very large.
+@param TrimTerminals FALSE [default] <br>TRUE: states marked `Bellman::Type`&gt;=TERMINAL are deleted from the output
+@param TrimZeroChoice FALSE [default] <br> TRUE: states with no choice are deleted
+@return TRUE if method fails, FALSE if it succeeds
+
 <DT>This function</DT>
 <DD>Creates a `ValueIteration` method</dd>
 <dd>Calls `DPDeubg::outAllV`(<parameters>)</dd>
 <DD>Calls `ValueIteration::Solve`()</dd>
 <dd>deletes the solution method</dd>
 
-This routine simplifies basic solving.  Simply call it after calling `DP::CreateSpaces`().
-Its useful for debugging and demonstration purposes because the user's code does not need to create
-the solution method object and call solve.
-
-This is inefficient to use in any context when a solution method is applied repeatedly.
-
 **/
 VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling VISolve()");
+    if (N::G>One)
+        oxwarning("DDP Warning: With heterogeneity using RVSolve and then making predictions & outcomes is wrong. Use a nested solution.");
     decl meth = new ValueIteration(),succeed;
     DPDebug::outAllV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice);
     succeed = meth->Solve();
@@ -35,11 +47,11 @@ VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
     return succeed;
     }
 
-/** Creates a new &quot;brute force&quot; Bellman iteration method.
-@param myGSolve 0 (default), built in task will be
-used.<br/>
-`GSolve`-derived object to use for iterating over endogenous states
-
+/** Creates a new "brute force" Bellman iteration method.
+@param myGSolve 0 (default), built in task will be used.<br/>
+    `GSolve`-derived object to use for iterating over endogenous states
+Derived methods may send a replacement for GSolve.  Ordinary users would only send an argument if they had
+developed their own solution method.
 **/
 ValueIteration::ValueIteration(myGSolve) {
     Method(myGSolve);
@@ -50,9 +62,6 @@ ValueIteration::ValueIteration(myGSolve) {
 used.<br/>
 `GSolve`-derived object to use for iterating over endogenous states
 
-This method works for Ergodic environments or at a stationary period of a non-ergodic clock.<br/>
-
-Implementation does not always work.  Needs to be improved.
 
 **/
 NewtonKantorovich::NewtonKantorovich(myNGSolve) {
@@ -109,10 +118,17 @@ Choice probabilities are stored in `Bellman::pandv`
 **/
 ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
     Method::Initialize(MaxTrips);
-    Method::Solve(Fgroups,Rgroups);
-    return qtask.itask.succeed;
+    return Method::Solve(Fgroups,Rgroups);
+    // qtask.itask.succeed;
 	}
 
+/**Solve Bellman's Equation switching to N-K when a tolerance is reached.
+@param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
+@param Rgroups
+@param MaxTrips 0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
+@return TRUE if all solutions succeed; FALSE if any fail.
+
+**/
 NewtonKantorovich::Solve(Fgroups,Rgroups,MaxTrips)  {
     return ValueIteration::Solve(Fgroups,Rgroups,MaxTrips);
     }
@@ -161,6 +177,8 @@ GSolve::Report(mefail) {
 
 
 /**	Check convergence in Bellman iteration after a stage of state-space spanning.
+@internal
+
 Users do not call this function.  It is called inside the solution method.
 THis is the default task loop update routine for value iteration.<br/>
 
@@ -168,6 +186,7 @@ Different solution methods have derived versions of this routine to handle updat
 
 This is called after one complete iteration of `ValueIteration::GSolve`().
 @return TRUE if converged or `Task::trips` equals `Task::MaxTrips`
+
 **/
 GSolve::Update() {
 	++trips;
@@ -192,6 +211,10 @@ GSolve::Update() {
     return done || (trips>=MaxTrips);
 	}
 
+/**	Check convergence in Bellman iteration after a stage of state-space spanning in Newton-Kantorovich.
+
+@internal
+**/
 NKSolve::Update() {
 	++trips;
     decl mefail,oldNK = NKstep;
@@ -283,25 +306,26 @@ value across all exogenous states.</DD>
 </OL>
 **/
 KWGSolve::Run() {
-    decl inss = I::curth->InSS(), done=FALSE;
+    decl notinss = ! I::curth->InSS();
     XUT.state = state;
     if (firstpass) {
-        if (!inss) return;
-        InSample();
-        done = TRUE;
+        if (notinss) return;
+	    I::curth->MedianActVal();
+	    if (!onlypass)  // no subsampling, hit everyone.
+            Specification(AddToSample,V[0],(V[0]-I::curth.pandv[][0])');
+	    I::curth->ActVal();
+	    N::VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
 		}
-    else if (!inss) {
-        OutSample();
-        done = TRUE;
+    else if (notinss) {
+    	I::curth->MedianActVal();
+	    I::curth.EV = Specification(PredictEV,V[0],(V[0]-I::curth.pandv[][0])'); //N::VV set in Specification
 		}
-	if (Flags::setPstar && done)  {
-        I::curth.EV = N::VV[I::now][I::all[iterating]];
-        I::curth->Smooth();
-        Hooks::Do(PostSmooth);
-        }
+    else return;
+	this->PostEMax();
 	}
 
 /** Carry out Keane-Wolpin approximation at $\theta$ .
+@internal
 This replaces the built-in version used by `ValueIteration`.
 <UL>
 <LI>Iterate backwards in the clock <code>t</code></LI>
@@ -316,7 +340,6 @@ This replaces the built-in version used by `ValueIteration`.
 KWGSolve::Solve(instate) {
 	decl myt;
 	this.state = instate;
-    //Clock::Solving(&VV);
     ZeroTprime();
 	Flags::setPstar = TRUE;	
     curlabels = xlabels0|xlabels1|xlabels2;  //This should depend on feasible set!
@@ -324,24 +347,26 @@ KWGSolve::Solve(instate) {
 		state[cpos] = XUT.state[cpos] = myt;
 		SyncStates(cpos,cpos);
 		Y = Xmat = <>;	
-//        curlabels = 0;
 		onlypass = !Flags::DoSubSample[myt];
 		firstpass = TRUE;
 		Traverse(myt);
 		if (!onlypass) {
 			Specification(ComputeBhat);
 			firstpass = FALSE;
-	        XUT.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
-	        SyncStates(lo,hi);
+            //	        XUT.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
+	        //          SyncStates(lo,hi);
             /* for(decl s=lo;s<=hi;++s) print(AV(States[s])," ");    println(" "); */
-  	        I::all[onlyexog] = I::all[bothexog] = I::MESind;    //     ;
+  	        // I::all[onlyexog] = I::all[bothexog] = I::MESind;    //     ;
 			Traverse(myt);
 			}
 		I::NowSwap();
 		}
 	}
 
-/** Initialize Keane-Wolpin Approximation method.
+/** Create a Keane-Wolpin Approximation method.
+
+
+
 **/
 KeaneWolpin::KeaneWolpin(myGSolve) {
     if (isint(SampleProportion))
@@ -352,6 +377,9 @@ KeaneWolpin::KeaneWolpin(myGSolve) {
     if (N::J>1) oxwarning("DDP Warning 25.\n Using KW approximazation on a model with infeasible actions at some states.\n All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible.\n");
 	}
 
+/** .
+@internal
+**/
 KWGSolve::KWGSolve(caller) {
     GSolve(caller);
 	right = S[endog].X;
@@ -372,6 +400,13 @@ KWGSolve::KWGSolve(caller) {
 /**The default specification of the KW regression.
 @param kwstep which step of KW approximation to perform
 @param Vdelta (V-vv)'
+
+The default is to run the regression:
+$$\hat{V}-V_0 = X\beta_t.\nonumber$$
+The default specification of the row of state-specific values is
+$$X =\l(\matrix{\l(V_0-v_0\r) & \sqrt{V_0-v_0}}\r).\nonumber$$
+That is, the difference between Emax and maxE is a non-linear function of the differences in action values at the median shock.
+
 **/
 KWGSolve::Specification(kwstep,V,Vdelta) {
 	decl xrow;
@@ -394,20 +429,25 @@ KWGSolve::Specification(kwstep,V,Vdelta) {
 					}
 				 Y -= Xmat[][0];
 		case	PredictEV	:
-				N::VV[I::now][I::all[iterating]] =  xrow*Bhat[I::t];
+				return N::VV[I::now][I::all[iterating]] =  xrow*Bhat[I::t];
 		}
 	}
 	
+/*
+@internal
+
 KWGSolve::InSample(){
     XUT.state[left:right] = state[left:right];
     //DP::vV =VV[I::later];
 	I::curth->ActVal();
 	N::VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
-	if (!onlypass)
-        Specification(AddToSample,V[I::MESind],(V[I::MESind]-I::curth.pandv[][I::MESind])');
 	}
+*/
 
+/*
+@internal
 KWGSolve::OutSample() {
 	I::curth->MedianActVal();
 	Specification(PredictEV,V[0],(V[0]-I::curth.pandv)'); //NoR [I::r]
 	}
+*/

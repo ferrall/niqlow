@@ -1,10 +1,5 @@
-#ifdef OX_PARALLEL
-#ifndef DPin
-    #define DPin
-    #include "DP.h"
-#endif
-#endif
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+#import "DP"
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** $\theta$-specific values.
 
@@ -35,11 +30,16 @@ struct  Bellman : DP {
 			static 	Initialize(userState,UseStateList=FALSE);
 			static  CreateSpaces();
                     OnlyFeasible(myU);
-            virtual ExogExpectedV();
+
+            //  Users may or must replace these with their own
+			virtual Utility();
 			virtual FeasibleActions();
             virtual Reachable();
-			virtual Utility();
-            virtual UReset();
+            virtual ThetaUtility();
+            virtual OutcomesGivenEpsilon();
+
+            //Solution Methods replace these
+            virtual ExogExpectedV();
 			virtual thetaEMax() ;
 			virtual ActVal();
             virtual ExogStatetoState();
@@ -47,14 +47,9 @@ struct  Bellman : DP {
             virtual AMEMax();
 			virtual Smooth();
 			virtual KernelCCP(task);
-			virtual ZetaRealization();
+			// virtual ZetaRealization();
 			virtual	AutoVarPrint1(task);
-			virtual	Interface();
-            virtual OutcomesGivenEpsilon();
-            virtual OutputValue();
             virtual SetTheta(state=0,picked=0);
-            virtual GetCondVal();
-            virtual SetContVal(Aoptvals,Aobj);
 
 					Bellman(state,picked);
                     Allocate(picked,CallFromBellman=FALSE);
@@ -115,10 +110,11 @@ struct OneStateModel : ExPostSmoothing {
 /** The base class for models that include an additve extreme value error in action value.
 
 <DT>Specification</DT>
-$$\eqalign{
-v(\alpha,\cdots) &= Utility(\alpha,\cdots) + \zeta_\alpha\cr
-\zeta: vector of IID errors for each feasible $\alpha$\cr
-F(z_\alpha) = e^{ -e^{-x/\rho} }\cr}$$
+$$v(\alpha,\cdots) = Utility(\alpha,\cdots) + \zeta_\alpha$$
+
+$\zeta$: vector of IID errors for each feasible $\alpha$
+
+$$F(z_\alpha) = e^{ -e^{-z_\alpha/\rho} }$$
 
 <DT>Bellman Equation Iteration.</DT>
 
@@ -197,7 +193,7 @@ struct NnotIID : Normal {
 	static decl
 		/**  replications for GHK **/				R,
 		/**  RNG seed argument **/					iseed,
-		/**  . @internal;		**/					ghk;
+		/**  . @internal		**/					ghk;
 	static Initialize(userState,UseStateList=FALSE);
 	static SetIntegration(R,iseed,AChol);
 	static CreateSpaces();
@@ -239,13 +235,12 @@ The user's model provides the required information about the distribution of $\z
 <LI>If the number of options is greater than 2 then the crossing points must be monotonically increasing.</LI>
 
 <LI>Formally,</LI>
-$$
+$$\eqalign{
 \alpha &= (d)\cr
 \zeta &= (z)\cr
 \epsilon &= ()\cr
 \eta &= ()\cr
-v(d,\theta) &= U(d,\theta) + \zeta_\cr}$$
-
+v(d,\theta) &= U(d,\theta) + \zeta_\alpha\cr}$$
 </UL>
 
 <!--&exists; unique z*<sub>0</sub> &lt; z*<sub>1</sub> &hellip; &lt; z*<sub>a.N&oline;</sub> such that U(a;z,&theta;-->
@@ -273,7 +268,7 @@ struct OneDimensionalChoice : ExPostSmoothing {
 			decl
             /** TRUE: solve for z* at this state.
                 Otherwise, ordinary discrete choice.**/             solvez,
-			/**N::Aind-1 x N::R array of reservation value vectors.  **/	zstar;
+			/**N::Aind-1 x 1 of reservation value vectors.  **/	 zstar;
 	static 	Initialize(userState,d=Two,UseStateList=FALSE);
 	static  CreateSpaces(Method=NoSmoothing,smparam=1.0);
 	virtual Uz(z);

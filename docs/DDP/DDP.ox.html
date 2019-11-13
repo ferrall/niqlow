@@ -37,50 +37,66 @@ You can also start with <a href="GetStarted.html">GetStarted</a> which implement
 </OL>
 <P/>
 <a name="OV"><h2>Overview</h2></a>
+<OL class="faq">
+<LI>What is Dynamic Programming?</LI>
 <P/>
-<DT>What is Dynamic Programming?</DT>
-<DD>DP  is a framework for choices when those choices affect what happens in the future, and therefore anticipating future choices is crucial for understanding choices today. DP explains sequential choice over time rather than specifying a full set of choices all at once.  In the jargon of dynamic macroeconomics, the choice is a <em>policy</em> that is contingent (conditional) on which state is realized in the future not pre-commitment to a particular choice at a point in time.</DD>
+<DD>DP  is a framework for choices when:</DD>
+<UL>
+<LI>choices are sequential over time and choices can be made contingent on what has happened in the past that lead up to the current situation.</LI>
+<li>the value of choices now depends on what may happen in the future</li>
+<LI>choices now affect what happens in the future, and therefore anticipating future choices is crucial for understanding choices today. </LI>
+</UL>
 <P/>
-<DT>A special case of DP is multiple decisions that are not linked together through time.  </DT>
-    <DD>There are two things that create this link in dynamic programming. First, the decider cares about future outcomes. Second, choices made now affect which states will occur in the future. A special case of unlinked (non-sequential) decisions is a choice made once (at a single state). Because this document presents the foundations of DP, the discussion starts with a single static choice.</DD>
-<P/>
-<DT>What is <span class="n">DDP</span></DT>
+<LI>Does Dynamic Programming Include Simpler Situations as Special Cases?</LI>
+<UL>
+<LI>A single choice in a single state is the most special case of DP. So static optimization can be considered a special case of DP.</LI>
+<LI>When there are multiple choices but they are not linked together through time  it is also a special case.</LI>
+<LI>If there multiple choices linked together through time but the agent does not care about the future then this again is a special case of DP.  It is the case of myopic decision-making.</LI>
+</UL>
+<LI>What is the <span class="n">DDP</span> component of <span class="n">niqlow</span></LI>
 <P/>
     <DD><span class="n">DDP</span> is the component of <span class="n">niqlow</span> that lets a user design and solve a discrete dynamic programming. It is written in Ox and requires Ox to run.  The user <em>imports</em> <span class="n">DDP</span> into their Ox program to use it.</DD>
+<LI>Why <em>Discrete</em> Dynamic Programming (DDP)?</LI>
 <P/>
-<DT>Why <em>Discrete</em> Dynamic Programming (DDP)?</DT>
-     <DD>DDP is a term used in <span class="n">niqlow</span> that applies to models that have discrete (as opposed to continuous) choices and/or states.  A model of decisions with discrete states (including as a very special case a single state/decisin) but continuous choices typically involves solving first order conditions or carrying non-linear optimization. <span class="n">DDP</span> does not incorporate continuous choice directly.    Continuous choice (and solving non-linear systems) is the topic of the <span class="n"><a href="../FiveO/default.html">FiveO</a></span> component of this package. Methods that embed continuous choice inside a discrete state spaces is therefore a hybrid of the two parts of <span class="n">niqlow</span>. These types of models are covered in the separate <a href="../Hybrids/default.html">Hybrids</a> module.</DD>
+     <DD>DDP is a term used in <span class="n">niqlow</span> that applies to models that have discrete (as opposed to continuous) choices and/or states.  A model of decisions with discrete states (including as a very special case a single state/decisin) but continuous choices typically involves solving first order conditions or carrying non-linear optimization. <span class="n">DDP</span> does not incorporate continuous choice directly.</DD>
 <P/>
-<DT>What does this document do?</DT>
+<LI>What about continuous choice?</LI>
+     <DD>Optimization over continually varying controls (and solving non-linear systems) is the topic of the <span class="n"><a href="../FiveO/default.html">FiveO</a></span> component <span class="n">niqlow</span>. Methods that embed continuous choice inside a discrete state spaces is therefore a hybrid of the two parts of <span class="n">niqlow</span>. </DD>
+<P/>
+<LI>What does this first part of the document do?</LI>
     <DD>It presents DDP from scratch starting with simple static choices then building up to dynamics, and shows how the key concepts of DDP are represented in <span class="n">DDP</span>.</DD>
+<LI>What does part 1 of the document <em>not</em> do?</LI>
 <P/>
-<DT>What does this document <em>not</em> do?</DT>
-    <DD>It does <em>not</em> teach computer programming or the Ox programming language. It also does <em>not</em> present the general DDP framework nor the technical elements of <span class="n">DDP</span> in a systematic way. If you are already comfortable with Ox and with dynamic programming, then you might find this document too slow.  <a href="">??</a> may be a better place to start (and that includes links to examples the presume more background knowledge than what is presented here).</DD>
+    <DD>It does <em>not</em> teach computer programming or the Ox programming language. It also does <em>not</em> present the general DDP framework nor the technical elements of <span class="n">DDP</span> in a systematic way. If you are already comfortable with Ox and with dynamic programming, then you might find this document too slow.  The <a href="#tech">second part</a> below may be a better place to start (and that includes links to examples the presume more background knowledge than what is presented here).</DD>
 <P/>
-<DT>What about estimation?</DT>
-    <DD>Within <span class="n">niqlow</span>, <em>estimation</em> refers to finding statistical estimates (guesses) of parameters of the model using data that is assumed to be generated by the model. A parameter is a quantity that enters the model and whose value is determined outside the model (an exogenous or so-called structural parameter). Parameters are typically continuous values and so guessing or estimating them is typically carried out using algorithms in <span class="n"><a href="../FiveO/default.html">FiveO</a></span>. <span class="n">DDP</span> includes methods to handle data generated by the model or created outside but assumed to be generated from the model. This document does not concern itself with DDP data and estimation, which is discussed in <a href="">???</a>.</DD>
+<LI>What about estimation?</LI>
+<P/>
+    <DD>Within <span class="n">niqlow</span>, <em>estimation</em> refers to finding statistical estimates (guesses) of parameters of the model using data that is assumed to be generated by the model. A parameter is a quantity that enters the model and whose value is determined outside the model (an exogenous or so-called structural parameter). Parameters are typically continuous values and so guessing or estimating them is typically carried out using algorithms in <span class="n"><a href="../FiveO/default.html">FiveO</a></span>. <span class="n">DDP</span> includes methods to handle data generated by the model or created outside but assumed to be generated from the model. This document does not concern itself with DDP data and estimation, which is discussed in <a href="Data.ox.html">Data</a>.</DD>
+</OL>
 <P/>
 <h1>Foundations of DDP</h1>
 <P/>
 <OL class="body">
+<P/>
 <a name="DC"><LI>Discrete Choice</LI></a>
 <P/>
-We start with  <em>choice</em> without states and dynamics.  We start with such a simple  static choice framework that it might seem trivial. The computer code shown to implement the model will appear to be overkill.  Bear with this simple start because you will see that all the elements of dynamic programming in many areas of economics can be handled easily within the framework.</p>
+<p>We start with  <em>choice</em> without states and dynamics.  We start with such a simple  static choice framework that it might seem trivial. The computer code shown to implement the model will appear to be overkill.  Bear with this simple start because you will see that all the elements of dynamic programming in many areas of economics can be handled easily within the framework.</p>
 <P/>
 <h2>The choice set</h2>
 <P/>
-Choice is simply picking from a set of options.  We will let <span class="expressions">\(A\)</span> denote the finite set of possible actions to choose among.   And we will let an arbitrary element of <span class="expressions">\(A\)</span> be denoted <span class="expressions">\(\alpha\)</span>.  We will work through a couple basic choices:
+<p>Choice is simply picking from a set of options.  We will let <span class="expressions">\(A\)</span> denote the finite set of possible actions to choose among.   And we will let an arbitrary element of <span class="expressions">\(A\)</span> be denoted <span class="expressions">\(\alpha\)</span>.  We will work through a couple basic choices:</p>
 <P/>
-<DT>Example 1. Bob wants to go to university. Four have accepted him. These four places make up his discrete choice set:</DT>
+<DT>Example 1A. Bob wants to go to university. Four have accepted him. These four places make up his discrete choice set:</DT>
 <DD><span class="expressions">\(A = \)</span> {<code>Harvard, Yale, Queen's, McGill</code>}.  </DD>
-<DD>We will sometimes need a symbol for the number of actions available, and will use <code>J</code> for that purpose.  So for Bob, <code>J=4</code>. Of course there are other schools but Bob either did not apply or did not get in to them.  They  are <em>infeasible</em> choices, and <span class="expressions">\(A\)</span> is his feasible choice set.</DD>
+<DD>We sometimes need a symbol for the number of options available and will use <code>J</code> for that purpose.  So for Bob, <code>J=4</code>. Of course there are other schools but Bob either did not apply or did not get in to them.  They  are <em>infeasible</em> choices. <span class="expressions">\(A\)</span> is his feasible choice set.</DD>
 <DD>While <span class="expressions">\(\alpha\)</span> stands for any of the feasible actions, at some point Bob makes a choice. The school he chooses becomes special, and we distinguish the choice made from the options considered. If Bob chooses to go to Yale we would write <span class="expressions">\(\alpha^\star = \)</span> <code>Yale</code>.   In these notes things marked with <span class="expressions">\(\star\)</span> are typically related to the optimal choice. </DD>
 <P/>
 In some cases we might use discrete choice to approximate a continuous choice, so here is another example:
-<DT>Example 2.  Tommy is choosing how much time to study for a test the next day.</DT>
-    <DD>So the choice might be any number between 0 and, say, 12 hours.It would then be natural (or convenient or intuitive) to think of the choice set as <span class="expressions">\(A=[0,12]\)</span>, to let <span class="expressions">\(\alpha\)</span> denote any real number in that range, and to characterize the optimal choice with a first-order condition (or marginal utility, <span class="expressions">\(U^{\,\prime}(\alpha)\)</span>.  However, for various reasons, we might stick with a discrete choice set to model Tommy's choice.  To be specific, we might think of him as studying for a number of hours: <span class="expressions">\(A=\)</span> {<code>0,1,2,&hellip;,12</code>}.   In this case <span class="expressions">\(J=13\)</span>.  </DD>
+<DT>Example 2A.  Tommy is choosing how much time to study for a test the next day.</DT>
 <P/>
-    <DD><details><summary>What if Tommy were an actual person (say in a data set) and studied 2.2 hours?  </summary> Let's write <span class="expressions">\(\hat\alpha\)</span> = 2.2 to denote the observed choice.  This would suggest that Tommy did not choose among whole hours. This difference between actual and model behaviour might not matter to us (this choice might be part of a much bigger model).  So we might approximate by rounding to the nearest element of <span class="expressions">\(A\)</span> so that <span class="expressions">\(\alpha^\star=\)</span><code>2</code> would explain Tommy's choice. This is getting ahead of ourselves, but you might be wondering about accepting 2 to stand for an observed choice of 2.2.  One way in which empirical DDP work deals with this kind of discrepancy is to assume that there is <em>measurement error</em> in the data.  So the difference <span class="expressions">\(d =\)</span> <code>2.2-2</code> would be attributed to the measurement error (i.e. Tommy says he worked 2.2 hours but he really worked exactly 2 hours).  This can bother empirical people who are used to working with, say, regression models.  But the error in a regression model plays a similar role in "explaining" the difference between observed and predicted values.  </DD>
+    <DD>So the choice might be any number between 0 and, say, 12 hours. It would then be natural (or convenient or intuitive) to think of the choice set as <span class="expressions">\(A=[0,12]\)</span>, to let <span class="expressions">\(\alpha\)</span> denote any real number in that range, and to characterize the optimal choice with a first-order condition o marginal utility, <span class="expressions">\(U^{\,\prime}(\alpha).\)</span>  However, for various reasons, we stick with a discrete choice set to model Tommy's choice.  To be specific, we might think of him as studying for a number of hours: <span class="expressions">\(A=\)</span> {<code>0,1,2,&hellip;,12</code>}.   In this case <span class="expressions">\(J=13\)</span>.  </DD>
+<P/>
+    <DD><details><summary>What if Tommy were an actual person (say in a data set) and studied 2.2 hours?  </summary> Let's write <span class="expressions">\(\hat\alpha\)</span> = 2.2 to denote the observed choice.  This would suggest that Tommy did not choose among whole hours. This difference between actual and model behaviour might not matter to us (this choice might be part of a much bigger model).  So we might approximate by rounding to the nearest element of <span class="expressions">\(A\)</span> so that <span class="expressions">\(\alpha^\star=\)</span><code>2</code> would explain Tommy's choice. This is getting ahead of ourselves, but you might be wondering about accepting 2 to stand for an observed choice of 2.2.  One way in which empirical DDP work deals with this kind of discrepancy is to assume that there is <em>measurement error</em> in the data.  So the difference <span class="expressions">\(d =\)</span> <code>2.2-2</code> would be attributed to the measurement error (i.e. Tommy says he worked 2.2 hours but he really worked exactly 2 hours).  This can bother empirical people who are used to working with, say, regression models.  But the error in a regression model plays a similar role in "explaining" the difference between observed and predicted values.  </details></DD>
 <P/>
 <h2>Utility</h2>
 <P/>
@@ -89,7 +105,7 @@ In some cases we might use discrete choice to approximate a continuous choice, s
 <P/>
 <DT>Whatever process they used ...</DT>
     <DD>we are not concerned with <em>how</em> the choice was made, but that a chose was made based on a  <em>utility</em> associated with each action.
-    <details class="aside"><summary>Optimality and <em>function</em></summary>Of course, much of social science concerns choices that are not optimal, but for our purposes what people do will always be optimal for them given their options and preferences. Also, a teacher of mine emphasized that utility is by definition a function, so writing and saying "utility function" is redundant. It would be like saying "truck vehicle" instead of simply "truck," because by definition a truck is a vehicle. word </details></DD>
+    <details class="aside"><summary>Optimality and <em>function</em></summary>Of course, much of social science concerns choices that are not optimal, but for our purposes what people do will always be optimal for them given their options and preferences. Also, a teacher of mine emphasized that utility is by definition a function, so saying "utility function" is redundant. It would be like saying "truck vehicle" instead of simply "truck," because by definition a truck is a vehicle.</details></DD>
 <P/>
 <DT>Let <span class="expressions">\(U(\alpha)\)</span> denote Bob's utility for school <span class="expressions">\(\alpha\)</span>.</DT>
     <DD><span class="expressions">\(U(\alpha)\)</span> is just a real number associated with <span class="expressions">\(\alpha\)</span>. Bob can have utility for options that are not feasible (not in <span class="expressions">\(A\)</span>), such as U(<code>UCLA</code>), but we don't have a complete model until utility is defined for each element of <span class="expressions">\(A\)</span>.  So, we can get fancy and write <span class="expressions">\(U: A\,\to\, \Re\)</span>.  But since <span class="expressions">\(A\)</span> is a discrete set, <span class="expressions">\(U\)</span> is really just four numbers, one for each feasible school.</DD>
@@ -110,10 +126,10 @@ Many other utility levels would explain <code>Yale</code> as an optimal choice.<
 <DT>In many cases we want to model choices in more than one dimension.</DT>
   <DD>Bob was making a choice in the <em>school</em> dimension.  But he might also be making decisions in other dimensions, such as <em>major</em>, <em>roommate</em>, etc. Before showing <span class="n">DDP</span> code for Bob's choice let's have him decide his major at the same time. One way to do this is to convert a choice in several (discrete) dimensions into a one dimensional choice by simply listing all the possible combinations. Another way is to make <span class="expressions">\(\alpha\)</span> a vector not a scalar. We illustrate both ways in the next example.</DD>
 <P/>
-<DT>Example: Bob is choosing both a university <em>and</em> a major. Which major is best might depend on which school he chooses.  </DT>
+<DT>Example 1B: Bob is choosing both a university <em>and</em> a major. Which major is best might depend on which school he chooses.  </DT>
     <DD>For simplicity, suppose Bob's parents have told him he has to choose either <code>Economics</code> or <code>Physics</code>.  </DD>
-    <DD>Convert to 1 Dimensional: We could simply expand his choice set as follows: <code>{Harvard-Econ,Harvard-Physics,Yale-Econ,Yale-Physics,Queen's-Econ,Queen's-Econ,McGill-Econ,McGill-Physics}</code>.  Utility is then a number assigned to each of these <code>J=8</code> options.  </DD>
-    <DD>Add a 2nd Dimension: However, it can be more convenient not to collapse the two dimensions, but to consider them separate but simultaneous.  In this case, we can let school be the row and major the column:
+    <DD>We could simply expand his choice set as follows: <code>{Harvard-Econ,Harvard-Physics,Yale-Econ,Yale-Physics,Queen's-Econ,Queen's-Econ,McGill-Econ,McGill-Physics}</code>.  Utility is then a number assigned to each of these <code>J=8</code> options.  This collapses a choice in two dimensions into a longer one-dimensional choice.</DD>
+    <DD>However, it can be more convenient not to collapse the two dimensions, but to consider them separate but simultaneous.  In this case, we can let school be the row and major the column:
 <pre>
 BOB'S UTILITY ON THE FEASIBLE MAJOR-SCHOOL CHOICE SET
                     Econ                    Physics
@@ -137,22 +153,21 @@ a<sub>0</sub>            a<sub>1</sub>                U(&alpha;)
 --------------------------------------
 Econ          Harvard          -20
 Physics       Harvard          -18
-Econ          Yale                4.2
-Physics       Yale              -0.6
+Econ          Yale              4.2
+Physics       Yale             -0.6
 Econ          Queen's           1.5
-Physics       Queen's          3.2
-Econ           McGill           -25
+Physics       Queen's           3.2
+Econ          McGill           -25
 Physics       McGill           -0.5
 </pre></DD>
 <P/>
 <DT>In  <span class="n">DDP</span>:  </DT>
-<DD>the action vector is built up by in this way by adding <a href="Variables.ox.html#ActionVariable">ActionVariable</a>s to it as part of the set-up of the model.  The creation of the list of actions as shown above is done for you by <span class="n">DDP</span> as you add action variables to the action vector. As the user you only have to concern yourself with which variables are chosen and how many different values they take on. You can provide value labels for each action variable you add to the model.  In the example above "Econ" would be a label for an integer option value.</DD>
+<DD>the action vector is built by adding <a href="Variables.ox.html#ActionVariable">ActionVariable</a>s to it as part of the set-up of the model.  The creation of the list of actions as shown above is done for you by <span class="n">DDP</span> as you add action variables to the action vector. </DD>
+<DD>As the user you only have to concern yourself with which variables are chosen and how many different values they take on. You can provide value labels for each action variable you add to the model.  In the example above "Econ" would be a label for an integer option value.</DD>
 <P/>
 <h2>Full Description of Bob's Problem</h2>
 <P/>
-As with the first example, each row is an action <span class="expressions">\(\alpha\)</span>, but it is associated with values of two action variables.
-<P/>
-<DD>Labelling the choices certainly helps to understand them, but a computer program that is designed to handle any kinds of choices can hard-code labels like "Harvard" and use it to refer to utility.  Hopefully it is clear that in the abstract the choice over the four universities is just a case of choosing among 4 possibilities.  The labels are helpful to us, but generically the choices can just be numbered 0, 1, 2, and 3.</DD>
+As with the first example, each row is an action <span class="expressions">\(\alpha\)</span>, but it is associated with values of two action variables. Labelling the choices certainly helps to understand them, but a computer program that is designed to handle any kinds of choices can hard-code labels like "Harvard" and use it to refer to utility.  Hopefully it is clear that in the abstract the choice over the four universities is just a case of choosing among 4 possibilities.  The labels are helpful to us, but generically the choices can just be numbered 0, 1, 2, and 3.</DD>
 <P/>
 <DT>The school-major choice can be describe with action variables that are just integers along with labels for each value.</DT>
 <dd><pre>
@@ -184,14 +199,16 @@ a<sub>0</sub>     a<sub>1</sub>          U(&alpha;)
 EV &\equiv \max_{A} U(\alpha) = U(\alpha^\star) = 4.2.\cr}$$</span>
 </DD>
 <P/>
-<DT>V, and EV</DT>
+<DT>V and EV</DT>
 <P/>
-<DD>In microeconomics the highest utility possible is named <em>indirect utility</em>, but in dynamic programming it is usually called the (optimal) <em>value</em> of a state. So, above, <span class="expressions">\(V\)</span> is used to represent the value Bob receives from his choice once optimized.  We use <span class="expressions">\(EV\)</span> and not just <span class="expressions">\(V\)</span> in anticipation that there can elements of uncertainty in the choice.   In particular, the person deciding will know everything up until today when the choice is made, but they will have to make that choice without knowing everything that will happen in the future (tomorrow).  <span class="expressions">\(EV\)</span> will end up being good notation since when, deciding today, they will have to average (take the <b>E</b>expectation of) their optimal choices made tomorrow when they have more information than they have now.
+<DD>In microeconomics the highest utility possible is named <em>indirect utility</em>, but in dynamic programming it is usually called the (optimal) <em>value</em> of a state. So, above, <span class="expressions">\(V\)</span> is used to represent the value Bob receives from his choice once optimized.  </DD>
+<P/>
+<DD>We use <span class="expressions">\(EV\)</span> and not just <span class="expressions">\(V\)</span> in anticipation that there can be elements of uncertainty in the choice.   In particular, the person deciding will know everything up until today when the choice is made, but they will have to make that choice without knowing everything that will happen in the future (tomorrow).  <span class="expressions">\(EV\)</span> will end up being good notation since when, deciding today, they will have to average (take the <b>E</b>expectation of) their optimal choices made tomorrow when they have more information than they have now.
 <details class="aside"><summary>Ties</summary><DD>The notation also assumes there are no ties, the optimal choice is unique.  That won't be necessary.  Ties are handled properly by <span class="n">DDP</span>,  but assuming no  ties does make the example simpler.</DD></details></DD>
 <P/>
 <h2>Coding Bob's Choice in <span class="n">DDP</span></h2>
 <P/>
-<DT>Bob's choice is trivial.</DT>
+<DT>Bob's choice is simple.</DT>
   <DD>Simply look at the 8 numbers that make up his utility.  </DD>
   <DD>Find the biggest number.  </DD>
   <DD>Look up the labels associated with that action. Finished.  </DD>
@@ -216,7 +233,9 @@ EV &\equiv \max_{A} U(\alpha) = U(\alpha^\star) = 4.2.\cr}$$</span>
     <details class="aside"><summary>Declare and  Define</summary>In a programming language like Ox your program will have different things in it.  The language has to know what things are in the program, and this is the idea of <em>declaring</em> something.  This is like listing a chapter of a book in a table of contents.  But Ox also has to know what the things are, which is like the contents of the chapter.  This is <em>defining</em>. How things are declared and defined in Ox depends on the kind of thing it is.  And, in some cases your program might declare and define something at the same time not separately.</details>
     <DD>If you are not used to OOP, it can be mysterious and confusing.  And Ox can be used without OOP, but it is the way in which <span class="n">DDP</span> lets the user develop an economic model so it is essential for our purpose.  So here is the basic idea.  What is happening is the program is telling Ox that a new class is going to appear in this program.  A class is a description of a kind of thing (objects).  These lines are describing the class for Ox, which is just a list of the variables (also called <em>members</em> and functions (also called <em>methods</em>) that make up the class.  Every class has a name, and the code gives this class the name <code>BobsChoice</code>.  </DD>
 <P/>
-    <DD>One of the powerful (but complicated and confusing) features of OOP is that one class can be based on another class that is already defined.  In this case, <code>BobsChoice</code> is based on a class called <a href="Bellman.ox.html#OneStateModel">OneStateModel</a> which is defined in <span class="n">DDP</span>.  The name is meant to imply that this model is really simple.  Unlike real dynamic programs there are many states at which the person (Bob) is making choices. He makes a choice once, so there is just one state.  (In turn, <code>OneStateModel</code> is a class based on other classes which are more flexible. The advantage of having a special class for a simple one state model is that some things can be done for the user.</DD>
+    <DD>One of the powerful (but complicated and confusing) features of OOP is that one class can be based on another class that is already defined.  In this case, <code>BobsChoice</code> is based on a class called <a href="Bellman.ox.html#OneStateModel">OneStateModel</a> which is defined in <span class="n">DDP</span>.  The name is meant to imply that this model is really simple.  In real dynamic programs in which there are many states at which the person is making choices. Here Bob makes a choice once, so there is just one state. </DD>
+<P/>
+    <DD>In turn, <code>OneStateModel</code> is a class based on other classes which are more flexible. The advantage of having a special class for a simple one state model is that some things can be done for the user.</DD>
 <P/>
     <DD>The choice involves two action variables, and this class makes room for them with the <code>static decl</code> statement.  The names are short but understandable in the context.  <code>decl</code> is short for <em>declare</em> and does just make room for two things.  What they end up holding is determined by other parts of the program.</DD>
 <P/>
@@ -225,27 +244,31 @@ EV &\equiv \max_{A} U(\alpha) = U(\alpha^\star) = 4.2.\cr}$$</span>
     <DD>The <code>BobsChoice</code> class also has two functions in it: <code>Decide()</code> and <code>Utility()</code>.  Note that <code>Decide()</code> is declared <code>static</code> but <code>Utility()</code> is not.  Again, this is not important to understand yet.  And like <code>decl</code>, listing functions in the declaration of  a class does not say anything about what they do.  The have to be <em>defined</em> later.</DD>
 <P/>
     <DT><code>main(){&hellip;}</code></DT>
-    <DD>Every Ox program has to have a function (or routine) called <code>main()</code>. This is where the Ox program actually starts.  Even though the class declaration comes first in the file, it is <code>main()</code> that is the first thing to happen. I have written the code so that <code>main()</code> just does one thing: it asks that <code>Decide()</code> be executed. Once it is finished <code>main()</code> is finished (not other statements  appear inside <code>main()</code>).  Most experienced programmers make their main routines pretty simple. </DD>
+    <DD>Every Ox program has to have a function (or routine) called <code>main()</code>. This is where the Ox program actually starts.  Even though the class declaration comes first in the file, it is <code>main()</code> that is the first thing to happen. I have written the code so that <code>main()</code> just does one thing: it asks that <code>Decide()</code> be executed. Once it is finished <code>main()</code> is finished (no other statements  appear inside <code>main()</code>).  Most experienced programmers make their main routines pretty simple. </DD>
 <P/>
     <DT><code>BobsChoice::Decide(){&hellip;}</code></DT>
 <P/>
     <DD>Above the class declaration said that a routine belonging to <code>BobsChoice</code> and named <code>Decide()</code> would appear, and these lines <em>define</em> what this routine does.  It is the lines of code that are executed when <code>main()</code> refers to the function.  </DD>
 <P/>
-    <DD><code>Decide()</code> does four things.  THat is, it has four statements each ending with <code>;</code>.  The first two say that <code>maj</code> and <code>sch</code> will each contain an <em>action variable</em>.  This routine, <code>ActionVariables()</code>, is part of <span class="n">DDP</span>, so it would not work to call it if we had not imported <span class="n">DDP</span>.  Hopefully, you can see that labels attached to the two variables are "major" and "school", respectively. Like nearly all computer languages, Ox asks you to put text inside quotes.  So <code>maj</code>, which is not in quotes is referring to a variable with that name. Ox will make room for because it was <code>decl</code>ared in the class declaration. However, the action variable has a name "major" which is just those characters not a variable or a routine.  </DD>
+    <DD><code>Decide()</code> does four things.  That is, it has four statements each ending with <code>;</code>.  The first two say that <code>maj</code> and <code>sch</code> will each contain an <em>action variable</em>.  This routine, <code>ActionVariables()</code>, is part of <span class="n">DDP</span>, so it would not work to call it if we had not imported <span class="n">DDP</span>.</DD>
+<P/>
+    <DD>Hopefully, you can see that labels attached to the two variables are "major" and "school", respectively. Like nearly all computer languages, Ox asks you to put text inside quotes.  So <code>maj</code>, which is not in quotes is referring to a variable with that name. Ox will make room for because it was <code>decl</code>ared in the class declaration. However, the action variable has a name "major" which is just those characters not a variable or a routine.  </DD>
 <P/>
     <DD>In Bob's choice he had only two majors to choose from.  We could write <code>ActionVariable("major",2)</code> and this would mean <code>maj</code> would hold an action variable with two possible values.  This would not given meaningful names (or labels) to the two options: they are just be coded as <code>0</code> and <code>1</code>.  By sending two strings in quotes instead of <code>2</code> this gives each major a meaningful label.  The routine <code>ActionVariable()</code> counts the labels and knows that there are two choices.  They are still coded as <code>0</code> and <code>1</code> but those codes now have the labels "Econ" and "Physics". This will make some output easier to read.</DD>
 <P/>
     <DD>The variable <code>sch</code> will contain another action variable that takes on four values (because a list of four labels are sent).</DD>
-    <DD>The next statement calls a routine with the name <code>Initialize()</code>.  Again, this routine is part of <span class="n">DDP</span> not Ox itself.  As the name implies, it initializes or sets up the problem meant to solve Bob's Choice.  Four things are sent to <code>Initialize()</code>.  The first is a bit mysterious: <code>new BobsChoice()</code>. The second is the number <code>0</code>.  As with some other parts of the code, it is not <em>yet</em> important to understand how these are chosen or used for this problem. In particular, to explain what <code>new BobsChoice()</code> means and why it is there would take us on a tangent that is not necessary for now. </DD>
-    <DD>However, it is important to see that the variables <code>maj</code> and <code>sch</code> are sent as well.  This is how the <code>OneStateModel</code> in <span class="n">DDP</span> knows what action variables are part of the model</DD>
 <P/>
-    <DD>You may think that the line that says <code>maj</code> contains an <code>ActionVariable</code> would add it to the model automatically.  It would be possible to make it work that way, but for other aspects of DP models (namely state variables) it is easier to separate creation of the variable from including it in the model. So to be consistent the same procedure is followed for action variables.</DD>
+    <DD>The next statement calls a routine with the name <code>Initialize()</code>.  This routine is part of <span class="n">DDP</span> not Ox itself.  As the name implies, it initializes or sets up the problem meant to solve Bob's Choice.  Four things are sent to <code>Initialize()</code>.  The order is important.  The first is a bit mysterious: <code>new BobsChoice()</code>. The second is the number <code>0</code>.  As with some other parts of the code, it is not <em>yet</em> important to understand how these are chosen or used for this problem. In particular, to explain what <code>new BobsChoice()</code> means and why it is there would take us on a tangent that is not necessary for now. </DD>
 <P/>
-    <DD>The last thing <code>Decide()</code> does is call a routine <a href="Methods.ox.html#VISolve">VISolve</a>(), where "VI" stands for "value iteration."   That is a technique for solving a dynamic programming problem. This one state model is the most simple example of a DP problem, but one part of value iteration is to solve for the optimal choice at each state.  So this is where <span class="n">DDP</span> will actually solve Bob's problem.</DD>
+    <DD>However, it is important to see that the variables <code>maj</code> and <code>sch</code> are sent as well.  This is how the <code>OneStateModel</code> in <span class="n">DDP</span> knows what action variables are part of the model.</DD>
+<P/>
+    <DD>You may think that the line that says <code>maj</code> contains an <code>ActionVariable</code> would add <code>maj</code> to the model automatically.  It would be possible to make it work that way, but for other aspects of DP models (namely state variables) it is easier to separate the creation of a variable from including it in the model. So to be consistent, the same procedure is followed for action variables.</DD>
+<P/>
+    <DD>The last thing <code>Decide()</code> does is call a routine <a href="Methods.ox.html#VISolve">VISolve</a>(), where "VI" stands for "value iteration."   That is a technique for solving a dynamic programming problem. This one state model is the most simple example of a DP problem, but one part of value iteration is to solve for the optimal choice at each state.  This is where <span class="n">DDP</span> will actually solve Bob's problem.</DD>
 <P/>
     <DT><code>BobsChoice::Utility(){ &hellip;}</code></DT>
-    <DD>Any DDP problem has to supply a utility, and here is Bob's.  In general, the utility has to return (send back to whoever called the routine) a vector of utilities in the same order as the actions <span class="expressions">\(\alpha\)</span>.  The use of <code>&lt; -20; &hellip; &gt;</code> is the way Ox lets you hard-code a vector or matrix of numbers.   So the list of utilities above has been copied and written in that format.  We should definitely check that the action variables are organized so that the numbers match up: we wouldn't want Bob to mistakenly go to McGill and major in Physics.</DD>
-    <DD>Usually <code>Utility()</code> is a function of actions (and later states) and <em>parameters</em> of the problem.  So Bob's utility is not all typical in how it is coded.  Later examples and exercises will have utilities that are more like what show up in real DP problems.</DD>
+    <DD>Any DDP problem has a utility, and here is Bob's.  In general, the utility has to return (send back to where the utility was called) a vector in the same order as the actions <span class="expressions">\(\alpha\)</span>.  The use of <code>&lt; -20; &hellip; &gt;</code> is the way Ox lets you hard-code a vector or matrix of numbers.   So the list of utilities above has been copied and written in that format.  We should definitely check that the action variables are organized so that the numbers match up: we wouldn't want Bob to mistakenly go to McGill and major in Physics.</DD>
+    <DD>Usually <code>Utility()</code> is a function of actions (and later states) and <em>parameters</em> of the problem.  So Bob's utility is not at all typical.  Later examples in the documentation and exercises will have utilities that are more like what show up in real DP problems.</DD>
 <P/>
 <h2>Run the program and look at the output.</h2>
 <P/>
@@ -290,6 +313,7 @@ That output contains a lot of information that is not relevant to this simple ca
 <P/>
 <DT>Explanation of Relevant Output</DT>
     <DD>The "DP Model Summary" is produced by <code>Initialize()</code> after everything is set up.  (In models that have more than one state <code>Initialize()</code> only does some of the things done here.  The rest are done by a routine that it calls but typically is called from the user's program.) Part 4 of the summary shows you the action vector <span class="expressions">\(\alpha\)</span>.  It shows that the new action variables assigned to <code>maj</code> and <code>sch</code> were added to the vector and that together they create 8 different options.</DD>
+<P/>
     <dd>Part 6 shows you the feasible action set <span class="expressions">\(A\)</span>.  It shows you each action <span class="expressions">\(\alpha\)</span> as two integer values and the labels that go along with them.  Recall that <code>Yale-Econ</code> was the third option in the list and it appears that <span class="expressions">\(A\)</span> was set up so that it matches up with the vector in <code>Utility()</code> (but make sure!). </dd>
     <DD>In real DP problems the actions that are feasible can depend on which state the system is at.  So this output is set up to show you the different values of <span class="expressions">\(A\)</span> in the model.  But with one state only there is one feasible set only.  Thus <span class="expressions">\(A\)</span> is called <code>A[0]</code>, because in some cases there will be <code>A[1]</code> and so forth.</DD>
     <DD><code>VISolve()</code> produces the table of values and choice probabilities.  The first 8 columns really don't apply to this simple model because there is only one state.  The table is designed to show the value of each state in the model.</DD>
@@ -300,50 +324,52 @@ That output contains a lot of information that is not relevant to this simple ca
 Here is what is important to gather from the example and code above.
 <P/>
 <OL class="steps">
-    <LI>At the heart of a <span class="n">DDP</span> model is a discrete choice.  Discrete dynamic programming links together many different discrete choices that are connected by state variables that evolve and forward-looking choices.</LI>
+    <LI>At the heart of a <span class="n">DDP</span> model is discrete choice.  Discrete dynamic programming links together many different discrete choices that are connected by state variables that evolve base on the choices made.</LI>
     <LI>In <span class="n">DDP</span> you build your model by defining a <em>class</em> that is derived from one of the built-in <a href="Bellman.ox.html#Bellman">Bellman</a> classes.  The simplest model to build from is <a href="Bellman.ox.html#OneStateModel">OneStateModel</a>, which is a single discrete choice (one state, no dynamics, etc).</LI>
-    <LI>The discrete choice <span class="expressions">\(\alpha\)</span> is a vector of action variables, each taking on a finite number of values.  Your model builds <span class="expressions">\(\alpha\)</span> by creating new <a href="Variables.ox.html#ActionVariable">ActionVariable</a>s and adding them to your model.  In a <a href="Bellman.ox.html#OneStateModel">OneStateModel</a> you send all the action variables to <a href="Bellman.ox.html#OneStateModel___Initialize">Initialize</a>().  In general your code will add action variables yourself after calling <code>Initialize()</code>.</LI>
+    <LI>The discrete choice <span class="expressions">\(\alpha\)</span> is a vector of action variables, each taking on a finite number of values.  Your model builds <span class="expressions">\(\alpha\)</span> by creating new <a href="Variables.ox.html#ActionVariable">ActionVariable</a>s and adding them.  With a <a href="Bellman.ox.html#OneStateModel">OneStateModel</a> you send all the action variables to <a href="Bellman.ox.html#OneStateModel___Initialize">Initialize</a>().  In general your code will add action variables yourself after calling <code>Initialize()</code>.</LI>
     <LI>Your model must supply a <code>Utility()</code> which returns a vector of numbers corresponding to the elements of the feasible set <span class="expressions">\(A\)</span>.</LI>
-    <LI>The optimal choice for the model can be found by calling <a href="Methods.ox.html#VISolve">VISolve</a>(), which does a four things that typically the user's code will do for itself in order to control output and solution methods.  For a one state model it simply finds <span class="expressions">\(\alpha^\star\)</span>, the maximizing action.  This framework makes it possible to build a DP model around discrete choices. </LI>
+    <LI>The optimal choice for the model can be found by calling <a href="Methods.ox.html#VISolve">VISolve</a>(), which does several things. For a one state model it simply finds <span class="expressions">\(\alpha^\star\)</span>, the maximizing action.  </LI>
 </OL>
 <P/>
 <h2>Exercises</h2>
-<OL class="steps">Make a couple copies of <code>BobsChoice.ox</code> and experiment with them as follows. (Do not change the original file's contents.)
-<LI>Change the utility vector so that two options tie as the optimal choice.  See what happens to the output.</LI>
-<LI>Add a third option to the major choices, <code>Psycho</code>.  Modify utility so that <code>McGill-Psychology</code> is the optimal choice. Run the program and verify the changes.  Try to correct any errors in the code that Ox complains about.</LI>
-<LI>Modify your model to include a third action variable: <code>res</code> which is a binary choice to either live <code>ON</code> campus or <code>OFF</code>.  Tweak the utility so that Yale-Econ is still optimal as is <code>ON</code>.  Run the code and confirm your changes.</LI>
-<LI>Tommy's Choice</LI>
-<DD>Make a copy of the file named <code>TommysChoice.ox</code>.  Change the name of the <code>class</code> defined in the file.  Delete <code>major</code> and rename <code>school</code> to <code>hours</code>.  Use this create the action variable: <code>hours = new ActionVariable("h",13)</code>.  Because it is not
-useful to label hours in the same way that schools and majors, just send the number of options (no value labels will be created).</DD>
-<DD>Change the utility utility so that it is a function of the <code>hours</code> not just a list of arbitrary numbers.  In particular, if <var>U(h) = -(h-2.2)<sup>2</sup></var> then the optimal discrete choice will be <var>h* = 2</var>, which is the 3rd value that <code>hours</code> takes on (0, 1, 2, etc). The vector of values that <code>hours</code> takes on can be accessed as <code>CV(hours)</code>.</DD>
-<P/>
-<DD>So, modify <code>Utility()</code> to have this form:
+<OL class="steps">
+<LI>Make a couple copies of <code>BobsChoice.ox</code> and experiment with them as follows. (Do not change the original file's contents so you still have it.)</LI>
+    <OL class="substeps">
+    <LI>Change the utility vector so that two options tie as the optimal choice.  See what happens to the output.</LI>
+    <LI>Add a third option to the major choices, <code>Psycho</code>.  Modify utility so that <code>McGill-Psychology</code> is the optimal choice. Run the program and verify the changes.  Try to correct any errors in the code that Ox complains about.</LI>
+    <LI>Modify your model to include a third action variable: <code>res</code> which is a binary choice to either live <code>ON</code> campus or <code>OFF</code>.  Tweak the utility so that Yale-Econ is still optimal as is <code>ON</code>.  Run the code and confirm your changes.</LI>
+    </OL>
+    <LI>Tommy's Choice: Make a copy of the file named <code>TommysChoice.ox</code>.</LI>
+    <OL class="substeps">
+    <LI>>Change the name of the <code>class</code> defined in the file.  Delete <code>major</code> and rename <code>school</code> to <code>hours</code>.  Use this create the action variable: <code>hours = new ActionVariable("h",13)</code>.  Because it is not useful to label hours in the same way that schools and majors, just send the number of options (no value labels will be created).</li>
+    <li>Change the utility so that it is a function of the <code>hours</code> not just a list of arbitrary numbers.  In particular, if <span class="expressions">\(U(h) = -(h-2.2)^2\)</span> then the optimal discrete choice will be <span class="expressions">\(h* = 2\)</span>, which is the 3rd value that <code>hours</code> takes on (0, 1, 2, etc). The vector of values that <code>hours</code> takes on can be accessed as <code>CV(hours)</code>.
+    <DD>So, modify <code>Utility()</code> to have this form:
 <pre>
 TommysChoice::Utility() {
-        return -sqr(aa(hours)-2.2);
-        }
+    return -sqr(CV(hours)-2.2);
+    }
 </pre>
-Debug your program  and run it until it produces the correct values of <code>EV</code> and choice probabilities.</DD>
+Debug your program  and run it until it produces the correct values of <code>EV</code> and choice probabilities.</DD></li>
 <P/>
-<LI>Continuing with <code>TommysChoice</code> change the utility to be <var>-(h-2.5)<sup>2</sup></var>, which induces a tie between 2 and 3.  Inspect the output.</LI>
+<LI>Continuing with <code>TommysChoice</code>, change the utility to be <span class="expressions">\(-(h-2.5)^2\)</span>, which induces a tie between 2 and 3.  Inspect the output.</LI>
+</OL>
 </OL>
 <P/>
-<a name="SP"><LI>Smoothed Choice Probabilities</LI></a>
+<a name="SP"><LI>Choice Probabilities</LI></a>
 <P/>
-The examples above are not good models of behaviour.  For one thing, the utility values are arbitrary, whereas a good model would relate utility to observable characteristics of the chooser and the choices.  And, second, suppose Bob did not choose Yale-Econ?  Then our model is incorrect with probability 1.  This is not surprising because we typically are not modeling a single person's choice and we will never have access to the utility of all the options.  Instead, real discrete models provide a probability of people making choices not a 0/1 outcome.</p>
+<p>The examples above are not particularly interesting models of behaviour.  For one thing, the utility values are arbitrary, whereas a good model would relate utility to observable characteristics of the chooser and the choices.  And, second, suppose Bob did not choose Yale-Econ?  Then our model is incorrect.  This is not surprising because we typically are not modeling a single person's choice and we will never have access to the utility of all the options.  Instead, real discrete models provide a probability of people making choices not a 0/1 outcome.</p>
 <P/>
 <DT>The <em>logit model</em> of choice includes a continuous random variable in the <em>value</em> of a choice:</DT>
-<dd class="disp">
 <span class="equation">$$v(\alpha) = U(\alpha) + z_\alpha.$$</span>
-</dd>
-<DD>The extra component <span class="expressions">\(z_\alpha\)</span> is assumed to follow the <a href="https://en.wikipedia.org/wiki/Gumbel_distribution">Type I Extreme Value (Gumbel) distribution</a>.  Across options <span class="expressions">\(z_\alpha\)</span> values are independent.  The term <span class="expressions">\(U(\alpha)\)</span> is a shortened version of name of the routine that is part the model in <span class="disp">DDP</span>.   So the user's coding would be the same <em>and the term <span class="expressions">\(z_\alpha\)</span> is not explicitly added to it.</em></DD>
+<DD>The extra component <span class="expressions">\(z_\alpha\)</span> is assumed to follow the <a href="https://en.wikipedia.org/wiki/Gumbel_distribution">Type I Extreme Value (Gumbel) distribution</a>.  Across options <span class="expressions">\(z_\alpha\)</span> values are independent.  The term <span class="expressions">\(U(\alpha)\)</span> is a shortened version of name of the routine that is part the model in <span class="disp">DDP</span>.   The user's coding would be the same <em>and the term <span class="expressions">\(z_\alpha\)</span> is not explicitly added to it.</em></DD>
 <P/>
 <DT>The <em>probit model</em> of choice makes a different distributional assumption</DT>
     <span class="equation">$$v(\alpha) = U(\alpha) + z_\alpha, \qquad z_\alpha \sim N(0,1).$$</span>
+<P/>
 <DD>Across options <span class="expressions">\(z_\alpha\)</span> values are independent.  </DD>
 <P/>
 <DT>Conceptually ...</DT>
- <DD>Bob sees both <code>Utility()</code> (the part we see or assume or estimate) and the vector of values of <span class="expressions">\(z_\alpha\)</span> (the part we don't see but assume follows a convenient distribution). With his information Bob still simply chooses the <span class="expressions">\(\alpha\)</span> that maximizes <span class="expressions">\(v(\alpha)\)</span>.  But since we don't see <span class="expressions">\(z_\alpha\)</span> any of the options might be optimal to Bob.  We simply get different <em>probabilities</em> of choices being optimal.   The probabilities depend on the observed vector of utilities, to the 0/1 vector of ouptut above would become a  vector of numbers between 0 and 1.  Since <code>Yale-Econ</code> has the highest value of <code>Utility()</code> it will have the greatest probability of being chosen, but the probability will not be 1.0.</DD>
+ <DD>Bob sees both <code>Utility()</code> (the part we see or assume or estimate) and the vector of values of <span class="expressions">\(z_\alpha\)</span> (the part we don't see but we assume follows a convenient distribution). With his information, Bob still simply chooses the <span class="expressions">\(\alpha\)</span> that maximizes <span class="expressions">\(v(\alpha)\)</span>.  But since we don't see <span class="expressions">\(z_\alpha\)</span>, any of the options might be optimal to Bob.  We get different <em>probabilities</em> of choices being optimal.   The probabilities depend on the observed vector of utilities, to the 0/1 vector of ouptut above would become a  vector of numbers between 0 and 1.  Since <code>Yale-Econ</code> has the highest value of <code>Utility()</code> it will have the greatest probability of being chosen, but the probability will not be 1.0.</DD>
 <P/>
 <DT>Choice Probabilities under logit</DT>
 <DD>Logit:
@@ -354,8 +380,8 @@ The second version expresses the probability in relative utility loss compared t
 <span class="equation">$$P(\alpha)  = {e^{\rho\left(U(\alpha)-U(\alpha^\star)\right)}  \over \sum_{\alpha'\in A} e^{\rho\left(U(\alpha')-U(\alpha^\star)\right)}}$$</span>
 As <span class="expressions">\(\rho\to \infty\)</span> the probability approach the non-smooth values.  As <span class="expressions">\(\rho\to 0\)</span> the smoothing becomes complete and each feasible choice is equally likely.</DD>
 <P/>
-<details><summary>See Train (20??)</summary>
-<a href="">Train (20??)</a> explains all aspects of discrete choice with an emphasis on econometric applications.   Readers are encouraged to refer to Train () for in-depth discussion of the static case.  We start even simpler than Train does.  Eventually the set up starts to look like the material in Train, but we move to dynamic choice before going into the depths of various static choice models that Train does.</details>
+<details><summary>See Train (2001)</summary>
+<a href="">Train (2001)</a> explains all aspects of discrete choice with an emphasis on econometric applications.   Readers are encouraged to refer to Train () for in-depth discussion of the static case.  We start even simpler than Train does.  Eventually the set up starts to look like the material in Train, but we move to dynamic choice before going into the depths of various static choice models that Train does.</details>
 <P/>
 <DT>Choice Probabilities under Probit</DT>
 <DD>Independent Probit:
@@ -372,21 +398,24 @@ Again, <span class="n">DDP</span> generalizes the standard probit by varying how
 <pre>Initialize(new BobsChoice(),0,maj,sch)
 </pre></DD>
 <P/>
-<DD>As you can see from the documentation of <a href="Bellman.ox.html#OneStateModel___Initialize">Initialize</a>(), the second argument is the smoothing method choice. To avoid having to explain everything at once, it was set to 0 in the code, which is the default choice in the general <code>ExPostSmoothing</code> class. Another more descriptive way to send 0 is to use a name for zero that is defined in <span class="n">DDP</span> in order to make the internal code easier to follow and debug:
+<DD>As you can see from the documentation of <a href="Bellman.ox.html#OneStateModel___Initialize">Initialize</a>(), the second argument is the smoothing method choice. To avoid having to explain everything at once, it was set to 0 in the code, which is the default choice in the general <code>ExPostSmoothing</code> class.</DD>
+<P/>
+<DD>Another more descriptive way to send 0 is to use a name for zero that is defined in <span class="n">DDP</span> in order to make the internal code easier to follow and debug:
 <pre>Initialize(new BobsChoice(),NoSmoothing,maj,sch)
 </pre>
-Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one of the <a href="DDPShared.ox.html#SmoothingMethods">SmoothingMethods</a> that are really just names for the integers
-0, 1, and 2 (at the time of writing). The code for the ExPostSmoothing class of problems will look at the method sent to it and decide if and how to smooth the resulting choice probabilities.</DD>
+Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one of the <a href="DDPShared.ox.html#SmoothingMethods">SmoothingMethods</a> that are really just names for the integers 0, 1, and 2. The code for the ExPostSmoothing class of problems will look at the method sent to it and decide if and how to smooth the resulting choice probabilities.</DD>
 <P/>
 <DT>Logit Smoothing</DT>
 <DD>To make Bob's Choice a logit model, just modify the code to ask for logit smoothing:
 <pre>Initialize(new BobsChoice(),LogitKernel,maj,sch)
 </pre></DD>
+<details><summary>What does "kernel" mean?</summary>  Essentially, a kernel means "smoothing."  You can learn more at <a href="https://en.wikipedia.org/wiki/Kernel_density_estimation">Kernel's wikipedia page</a></details>
 <P/>
 <DT>Probit Smoothing</DT>
 <DD>To make Bob's Choice a probit model, just modify the code to ask for probit smoothing:
 <pre>Initialize(new BobsChoice(),GaussKernel,maj,sch)
 </pre></DD>
+<details><summary>Why Gauss?</summary>Because the normal distribution is also referred to as the Gaussian distribution.</details>
 <P/>
 <details><summary>Why Ex Post?</summary>
 <DD>In the standard discrete choice econometric model the error term <span class="expressions">\(z\)</span> is considered something known/observed by the chooser but not us.  In a more complicated situation, namely a dynamic one, Bob might make other choices before he knows the value of <span class="expressions">\(z\)</span>.  For example, <span class="expressions">\(z\)</span> may be observed when Bob wakes up in the morning but he had to make a choice the day before that was affected by what he does today.  In that case, the value of <span class="expressions">\(z\)</span> is not just smoothing the choice probability for our sake, it is also have a direct effect on other decisions.  </DD>
@@ -395,27 +424,35 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 <DD>The case of <em>ex-ante</em> smoothing allows <span class="expressions">\(z\)</span> to play a role in other decisions made by Bob so it is a real "structural" error term.  </DD>
 </details>
 <P/>
-<a name="MS"><LI>More than One Unlinked Choice (Multiple Static States)</LI></a>
+<h2>Exercises</h2>
+<OL class="steps">
+<LI>Make a copy <code>BobsChoice.ox</code>.  Try the 3 different smoothing options discussed above.  Compare results.</LI>
+<LI>Multiply all the utilities by 5.  Confirm that this does not change the optional choice when there is no smoothing.  What happens to choice probabilities when they are smoothed compared to the values in the previous exercise?</LI>
+</OL>
 <P/>
-Bob and Tommy's choices are one-time discrete choices.  By deriving a model of their choices from the <code>OneStateModel</code> class there was no possibility of dynamics or examining how the situation affects the choice.</p>
+<a name="MS"><LI>Multiple States (Unlinked Choices)</LI></a>
 <P/>
-A state is a situation in which the agent makes a decision.  States differ from each other for various reasons. Utility may differ between states (leading to different decisions).  The feasible action set may differ between states (which could handled be a change in utility, but <span class="n">DDP</span> distinguishes between the two). The effect of choices on which states occur in the future may differ between current states. Obviously the next step from a one-state model is a two-state model.  We delay for a bit longer introducing time (sequential decisions) and consider two states in a static problem.</p>
+<p>Bob and Tommy's choices are one-time discrete choices.  By deriving a model of their choices from the <code>OneStateModel</code> class there was no possibility of dynamics or examining how the situation affects the choice.</p>
+<P/>
+<p>A <em>state</em> is a situation in which the agent makes a decision.  States differ from each other for various reasons. Utility may differ between states (leading to different decisions).  The feasible action set may differ between states. The effect of choices on what happens in the future may differ. Obviously the next step from a one-state model is a two-state model.  We then double the states again to consider a four-state static choice model.</p>
 <P/>
 <h2>The State Space</h2>
 <P/>
-In dynamic programming the choice of action <span class="expressions">\(\alpha\)</span> is contingent on the state the chooser is in.  To store and solve models efficiently, <span class="n">DDP</span> will distinguish between types of states.  But a generic state will be denoted <span class="expressions">\(\theta\)</span>.  And the set of states the problem might be in is denoted <span class="expressions">\(\Theta\)</span>. As with feasible actions, the state space is constructed by adding state variables to it.   We illustrate this with simple extension of Bob's Choice.</p>
+<p>In dynamic programming the choice of action <span class="expressions">\(\alpha\)</span> is contingent on the state the chooser is in.  To store and solve models efficiently, <span class="n">DDP</span> will distinguish between types of states.  But a generic state will be denoted <span class="expressions">\(\theta\)</span>.  And the set of states the problem might be in is denoted <span class="expressions">\(\Theta\)</span>. As with feasible actions, the state space is constructed by adding state variables to it.   We illustrate this with simple extension of Bob's Choice.</p>
 <P/>
-<DT>Example.  Bob is still deciding between schools and majors, however he may or may not receive a scholarship to Queen's for which he is applied for.</DT>
+<DT>Example 1C.  Bob is still deciding between schools and majors.  However, it is more complicated. He may or may not receive a scholarship to Queen's for which he is applied for.</DT>
 <P/>
-    <DD>Obviously he will make his decision based on whether he gets the scholarship or not, so the choice is contingent upon that.  We want the model to capture both choices.  One reason to do this is that we want to apply the model to data in which some people get scholarships and some don't.  The values of utility above will be the values without a scholarship.  Then in the event of getting the scholarship the utility of choosing Queen's goes up.</DD>
+    <DD>Obviously Bob will make his decision based on whether he gets the scholarship or not, so the choice is <em>contingent</em> upon that.  We want the model to capture both choices.  One reason to do this is that we want to apply the model to data in which some people get scholarships and some don't.  The values of utility above will be the values without a scholarship.  Then in the event of getting the scholarship the utility of choosing Queen's goes up.</DD>
 <P/>
     <DD>Scholarships are measured in dollars, but Bob's utility from getting and accepting a scholarship may be different that the monetary value.  However, to keep things simple we will assume that the utilities already listed are in money-equivalent values so we can add the value of the scholarship to them in order to compute net utility for Bob.  Specifically, the Queen's scholarship has a value of &#36;2,200 and utility is measured in thousands of dollars. So in the case of getting the scholarship and going to Queen's utility increases by 2.2.</DD>
 <P/>
-<h2>Coding Bob's New Choice in <span class="n">DDP</span></h2>
+<h2>Coding Bob's New Choice</h2>
 <P/>
 <DT>State Variables</DT>
 <P/>
-    <DD>The <a href="Variables.ox.html#StateVariable">StateVariable</a> class is designed to represents state variables in a dynamic program.  Like action variables, state variables are created and stored in a <code>static</code> member of the model.  They get added to the model and then <span class="n">DDP</span> incorporates them into the state space and the solution methods. Unlike action variables, which are mainly different only in the number of values they can take on, state variables differ from each in a lot of ways. So <span class="n">DDP</span> provides a number of different kinds of state variables to add to a model as well as the possibility of defining your own type if it does not exist already. However, in this simple static situation, the base <code>StateVariable</code> class will suffice.  So Bob's award status will be of that class.</DD>
+    <DD>The <a href="Variables.ox.html#StateVariable">StateVariable</a> class is designed to represents state variables in a dynamic program.  Like action variables, the user's code creates state variable, stores them in a <code>static</code> member of the model class, and then adds them to the model. <span class="n">DDP</span> then incorporates them into the state space and the solution methods. </DD>
+<P/>
+    <DD>Unlike action variables, which are mainly different only in the number of values they can take on, state variables differ from each in a lot of ways. So <span class="n">DDP</span> provides a number of different kinds of state variables to add to a model as well as the possibility of defining your own type if it does not exist already. However, in this simple static situation, the base <code>StateVariable</code> class will suffice.  So Bob's award status will be of that class.</DD>
 <P/>
     <DD>The simple <a href="Bellman.ox.html#OneStateModel">OneStateModel</a> class is no longer appropriate because Bob either gets the award or not.  So this model of Bob's choice is derived from a different class of problems.  Again, since it is a very simple situation, the base <a href="Bellman.ox.html#Bellman">Bellman</a> class will do the trick.  </DD>
 <P/>
@@ -435,27 +472,32 @@ In dynamic programming the choice of action <span class="expressions">\(\alpha\)
 <DT>Line-by-line explanation of the (new and modified) code</DT>
 <P/>
 <DT><code>class BobsChoiceB : Bellman {</code>
-    <DD>We could continue to use the same name but for clarity this  model will be called <code>BobsChoiceB</code> The base class is no longer <code>OneStateModel</code> but the <code>Bellman</code></DD>
+    <DD>We could continue to use the same name but for clarity this  model will be called <code>BobsChoiceB</code> The base class is no longer <code>OneStateModel</code> but <code>Bellman</code>.</DD>
 <P/>
 <DT><code>static const decl Uv =  &lt; -20; -18;  4.2; -0.6;  1.5;  3.2; -25; -0.5&gt;;  //Added</code>
-    <DD>The vector of utilities has been moved from the utility to a constant member of the class.  Now the value of the scholarship can be
-    added to <code>Uv</code> in order to compute overall utility.</DD>
+    <DD>The vector of utilities has been moved from the utility to a constant member of the class.  Now the value of the scholarship can be  added to <code>Uv</code> in order to compute overall utility.</DD>
 <P/>
 <DT><code>static decl Qsch, </code></DT>
 <DD>A variable to hold the scholarship state has been added to the model.</DD>
 <P/>
 <DT>Changes to <code>Decide</code></DT>
     <DD>We still need to <code>Initialize</code> the model, but the Bellman version of <code>Initialize</code> is different than the very special OneStateModel version.  It does not allow you to list actions.  <code> SetClock(StaticProgram)</code> says that this is a static (but possibly multi-state) model.</DD>
-    <DD><code>Actions(maj,sch)</code>:  Except in specialized models like OneStateModel, action variables are added to the model by sending them to <a href="Bellman.ox.html#DP___Actions">Actions</a>().  </DD>
+<P/>
+    <DD><code>Actions(maj,sch)</code>:  Except in specialized models like OneStateModel, action variables are added to the model by sending them to <a href="DP.ox.html#DP___Actions">Actions</a>().  </DD>
     <DD><code>Qsch = new StateVariable("Qsch",2)</code>:  this creates a basic state variable that takes on two values.</DD>
     <DD><code>EndogenousStates(Qsch);</code>: As mentioned earlier, different kinds of states are tracked in <span class="n">DDP</span> and here we have added <code>Qsch</code> to the <em>endogenous</em> state space.
-    <DD><code>CreateSpaces()</code>: In the first example this routine is called inside <a href="Bellman.ox.html#OneStateModel___Initialize">Initialize</a>().  But in all other kinds of models, the user calls this method themselves once they have added all the elements to model.  Each kind of Bellman model has its own version of <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>(), and the one that is called is the one that the model is derived from (here <code>Bellman</code>'s own base version).  Sometimes arguments can or have to be sent to <code>CreateSpaces</code>, but often the default values apply and nothing is sent.</DD>
+    <DD><code>CreateSpaces()</code>: In the first example this routine is called inside <a href="Bellman.ox.html#OneStateModel___Initialize">Initialize</a>().  But in all other kinds of models, the user calls this method themselves once they have added all the elements to model.  Each kind of Bellman model has its own version of <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>(), and the one that is called is the one that the model is derived from (here <code>Bellman</code>'s own base version).  Sometimes arguments can or have to be sent to <code>CreateSpaces</code>, but often the default values apply and nothing is sent.</DD>
 <P/>
 <DT>Utility</DT>
-    <DD>Utility now returns a different vector depending on whether <code>Qsch</code> equals 0 or 1. <code>Qsch</code> is the state variable and takes on 2 values, 0 and 1.  We set utility up so that a value of 1 indicates the Queen's scholarship was received and its value should be added to the utility of Queen's programs when choosing where to go.  The underlying code will call <code>Utility</code> for all values of all states added to the model.  The value of <code>Qsch</code> when called can be accessed a couple different ways.  One way is directly:  <code>Qsch.v</code> will hold either 0 or 1 when Utility is called.  Or the variable itself can be sent to <a href="Shared.ox.html#CV">CV</a>() which will access the value return it.  <code>CV()</code> is a flexible way of incorporating state variables, parameters and even constants in your model in such way that it looks the same regardless of the kind of thing it is.</DD>
-    <DD>The trickier thing to understand at this point is accessing values of the school choice, which is an action variable not a state variable.  Unlike states, which take on a single value when Utility is called, the full action vector is relevant so <code>CV(sch)</code> will not work. The value of the scholarship is 2.2, but only if Queen's is chosen.  Looking at the list of labels associated with <code>sch</code>, Queen's is the 3rd value, or <code>2</code> since we start actions at 0.  Ox's <code>.==</code> operator will compare a vector to a value and return a vector of 0s and 1s for whether corresponding element equals the value.  If this is unclear, you can add a <code>print()</code> statement above <code>return</code> to see what <code>CV(sch)*(aa(sch).==2)</code> contributes to utility.</DD>
+    <DD>Utility now returns a different vector depending on whether <code>Qsch</code> equals 0 or 1. <code>Qsch</code> is the state variable and takes on 2 values, 0 and 1.  We set utility up so that a value of 1 indicates the Queen's scholarship was received and its value should be added to the utility of Queen's programs when choosing where to go.  The underlying code will call <code>Utility</code> for all values of all states added to the model.  </DD>
 <P/>
-<h2>Run the program and look at the output.</h2>
+    <DD>The value of <code>Qsch</code> when called can be accessed a couple different ways.  One way is directly:  <code>Qsch.v</code> will hold either 0 or 1 when Utility is called.  Or the state variable can be sent to <a href="Shared.ox.html#CV">CV</a>() which will access the value return it.  <code>CV()</code> is a flexible way of incorporating state variables, parameters and even constants in your model in such way that it looks the same regardless of the kind of thing it is.</DD>
+<P/>
+    <DD>The trickier thing to understand at this point is accessing values of the school choice, which is an action variable not a state variable.  Looking at the list of labels associated with <code>sch</code>, Queen's is the 3rd value, or <code>2</code> since we start actions at 0.  Ox's <code>.==</code> operator will compare a vector to a value and return a vector of 0s and 1s for whether corresponding element equals the value.</DD>
+<P/>
+    <DD>If this is unclear, you can add a <code>print()</code> statement above <code>return</code> to see what <code>CV(Qsch)*(CV(sch).==2)</code> contributes to utility.</DD>
+<P/>
+<h3>Run the program and look at the output.</h3>
 <P/>
 <details><summary><b>The output you get should look something like this:</b></summary>
 <DT>Source: <a href="javascript:popoxcode('../../examples/output/BobsChoiceB.output.txt');">../../examples/output/BobsChoiceB.output.txt</a>.</DT>
@@ -465,16 +507,18 @@ In dynamic programming the choice of action <span class="expressions">\(\alpha\)
 <P/>
 <h2>Restricted Feasible Actions</h2>
 <P/>
-<DT>Instead of the Queen's scholarship, we want our model to consider what happens if Yale does or does not accept him. </DT>
+<DT>Now, suppose we also want the model to consider what happens if Yale does or does not accept Bob. </DT>
+<P/>
     <DD>We handle this by creating a model with two states, one in which Yale is in the feasible set of schools and another at which it is not.</DD>
 <P/>
 <DT>State-Dependence in <span class="expressions">\(A\)</span> </DT>
-    <DD>An important feature of many dynamic programming models: the feasible set depends on the state the action is being taken at. One way to handle this is to modify the utility so that infeasible states have value -&infin;.  This works fine, but <span class="n">DDP</span> also provides a method for creating different feasible sets. Given a state <span class="expressions">\(\theta\)</span>, we can specify that the feasible action set is <span class="expressions">\(A(\theta)\)</span>.  If we let plain old <span class="expressions">\(A\)</span> denote the unrestricted set (as above), then <span class="expressions">\(A(\theta) \subseteq A\)</span>. Recall that each action vector <span class="expressions">\(\alpha\)</span> is represented in the code as a row in a matrix.  So far we have not needed to access this matrix directly (it's stored and available as <a href="DDPShared.ox.html#Alpha___Matrix">Matrix</a>).</DD>
+<P/>
+    <DD>An important feature of many dynamic programming models: the feasible set depends on the state the action is being taken at. <span class="n">DDP</span> provides a method for creating different feasible sets. Given a state <span class="expressions">\(\theta\)</span>, we can specify that the feasible action set is <span class="expressions">\(A(\theta)\)</span>.  If we let plain old <span class="expressions">\(A\)</span> denote the unrestricted set (as above), then <span class="expressions">\(A(\theta) \subseteq A\)</span>. Recall that each action vector <span class="expressions">\(\alpha\)</span> is represented in the code as a row in a matrix.  Now different states will have different matrices.</DD>
 <P/>
 <h2>Coding Bob's New Choice in <span class="n">DDP</span></h2>
 <P/>
 <DT><code>FeasibleActions()</code></DT>
-    <DD>To restrict feasible actions, the user provides a <em>method</em> that returns a column vector of 0s and 1s.  This column vector depends on the current state of the model. A 1 indicates the action (row) is feasible at the state, 0 means infeasible.  The user's method is called by <span class="n">DDP</span> inside <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>() for each possible state.   </DD>
+    <DD>To restrict feasible actions, the user provides a <em>method</em> that returns a column vector of 0s and 1s.  This column vector depends on the current state of the model. A 1 indicates the action (row) is feasible at the state, 0 means infeasible.  The user's method is called by <span class="n">DDP</span> inside <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() for each possible state.   </DD>
 <P/>
 <details><summary><b>The Code</b></summary>
 <DT>Source: <a href="javascript:popoxcode('../../examples/DDP/BobsChoiceC.ox');">niqlow/examples/DDP/BobsChoiceC.ox</a></DT>
@@ -482,7 +526,27 @@ In dynamic programming the choice of action <span class="expressions">\(\alpha\)
 </pre></DD></details>
 <P/>
 <DT>Line-by-line explanation of the (new and modified) code</DT>
-<DD><code>Yacc</code> is added to the class so that it can</DD>
+<DD><code>Yacc</code> is added to the class so that it can track the case of Yale accepting Bob or not.</DD>
+<DD>The class declares that there will be a new method named <code>FeasibleActions()</code>.  The name is important because this new method will replace one that already exists.  If the name is not correct then this replacement will not happen.</DD>
+<DD>The new binary state variable is created and added to the model just like <code>Qsch</code>.</DD>
+<DD>The actions are still which school to go to and which major to study.  But if <code>Yacc=0</code> Yale is not feasible and any row of <span class="expressions">\(A\)</span> with that school should be removed at that state.  Yale is school 1.  If <code>Yacc=1</code> all the options are feasible. If <code>Yacc=0</code> then only cases when sch is <em>1</em> are feasible.  The logical expression for feasibility is "Yacc <em>or</em> sch=1".  However, we have to use <code>CV()</code> to get the value of variables.  And Ox uses double equal signs to test equality. It uses double vertical lines to denote "or."  So the return value <code>(CV(Yacc)==1)  .||  (CV(sch).!=1);</code> is a translation of the logic.  The table below shows the two different return values. </DD>
+<P/>
+<DD><pre>
+VECTOR OF 0s AND 1s RETURNED BY FEASIBLEACTIONS
+<P/>
+     &alpha;               Yacc=0        Yacc=1
+------------------------------------------------
+Econ          Harvard        1              1
+Physics       Harvard        1              1
+Econ          Yale           0              1
+Physics       Yale           0              1
+Econ          Queen's        1              1
+Physics       Queen's        1              1
+Econ          McGill         1              1
+Physics       McGill         1              1
+</pre></DD>
+<P/>
+<DD>Finally, utility must return values that correspond to the feasible action set.  The hard-coded <code>uv</code> vector includes rows for Yale.  It cannot be used without removing those rows.  The function <code>OnlyFeasible()</code> can be used to do this without repeating the logical expression in <code>FeasibleAction</code> to find and delete the Yale rows.</DD>
 <P/>
 <h2>Run the program and look at the output.</h2>
 <P/>
@@ -491,31 +555,29 @@ In dynamic programming the choice of action <span class="expressions">\(\alpha\)
 <dd><pre>
 <object width="75%" height="300" type="text/plain" data="../../examples/output/BobsChoiceB.output.txt" border="1" ><p style="font-size:14pt"></p></object>
 </pre></dd></details>
-<P/>
 <h2>Summary</h2>
 Here is what is important to gather from the examples:
 <OL class="steps">
 <LI>Discrete dynamic programming links together many different discrete choices that are made at different states.</LI>
 <LI>A static problem with more than one state generalizes the <a href="Bellman.ox.html#OneStateModel">OneStateModel</a> introduced first but is a special case of sequential decisions made over time.</LI>
 <LI>More generally then in the one-state example, your code will call routines/methods to first  <em>initialize</em> the DP environment, then add state variables and action variables to the model then <em>create the spaces</em> implied by the items added to the model.  Then the model can be solved.</LI>
-<LI>Unlike the simple one state set up, you build the action vector <span class="expressions">\(\alpha\)</span> by sending action variables to <a href="Bellman.ox.html#DP___Actions">Actions</a>() which will add them to the model.  This is done between initializing and creating spaces.</LI>
+<LI>Unlike the simple one state set up, you build the action vector <span class="expressions">\(\alpha\)</span> by sending action variables to <a href="DP.ox.html#DP___Actions">Actions</a>() which will add them to the model.  This is done between initializing and creating spaces.</LI>
 <LI>In <span class="n">DDP</span> timing is controlled by a clock and a static problem is specified by setting the clock as <code>StaticProgram</code>.  This is done between initializing and creating spaces.</LI>
-<LI>The discrete state vector <span class="expressions">\(\theta\)</span> is a vector of state variables, each taking on a finite number of values.  Your model builds <span class="expressions">\(\theta\)</span> by creating new state variable objects and
-adding them to your model using <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>(). </LI>
-<LI>Different states in the model can affect the utility of actions and the set of feasible actions. </LI>
+<LI>The discrete state vector <span class="expressions">\(\theta\)</span> is a vector of state variables, each taking on a finite number of values.  Your model builds <span class="expressions">\(\theta\)</span> by creating new state variable objects and adding them to your model using <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>(). </LI>
+<LI>Different states in the model can affect the utility of actions. The value of state variables can affect the set of feasible actions. </LI>
 <LI>Restrictions of actions is possible by providing a <code>FeasibleActions()</code> routine with your model.  It takes as an input argument the matrix of all possible actions, <span class="expressions">\(A\)</span>, and returns a column of 0s and 1s indicating which rows are feasible at the current state.</LI>
 <LI>As with <code>Utility()</code>, the <span class="n">DDP</span> code will always set the value of state variables before calling <code>FeasibleActions()</code>.  The value of a state variable is stored in its <code>.v</code> data member, or your code can send the state variable to <a href="Shared.ox.html#CV">CV</a>() which will return the value.</LI>
 </OL>
 <P/>
 <h2>Exercises</h2>
 <OL class="steps">Make a couple copies of <code>BobsChoiceB.ox</code> and <code>BobsChoiceC.ox</code> and experiment with them as follows. (Do not change the original file's contents.)
-<LI>Suppose Bob has also applied for a Justin Bieber Scholarship which is worth &#36;100 <em>if</em> Bob attends a Canadian university.  Add a state variable to version B to account for this possibility as well as the Queen's scholarship (so now there will be two state variables and four possible states).</LI>
+<LI>Suppose Bob has also applied for a Justin Bieber Scholarship which is worth &#36;100 <em>if</em> Bob attends a Canadian university.  Add a state variable to version B to account for this possibility as well as the Queen's scholarship.  Now there will be 2 state variables and four possible states.</LI>
 <LI>Suppose McGill's Physics department does <em>not</em> have an undergraduate degree, so McGill-Physics is not feasible but McGill-Econ is.  Modify <code>FeasibleActions</code> in version C so that this option is excluded for both states of <code>Yacc</code>.  </LI>
 </OL>
 <P/>
 <a name="SC"><LI>Choices Linked over Time (Dynamic States)</LI></a>
 <P/>
-So far the environment has multiple discrete choices but no dynamics.  Now we introduce dynamics.  We will use Tommy's choice to introduce dynamics.   That is, we will model how many hours Tommy studies for an exam in the period leading up to the exam.
+So far the environment has multiple discrete choices but no dynamics.  Now we introduce dynamics.  We will use Tommy's choice to introduce dynamics.   That is, we will model how many hours Tommy studies for an exam in the period leading up to the exam.</p>
 <P/>
 <DT>Tommy Choices Redux</DT>
 <DD>Tommy chooses among <span class="expressions">\(J=13\)</span> different discrete numbers of hours each night.  Nights are different (and thus his choice) because the opportunity cost of studying goes up on the weekend.</DD>
@@ -526,14 +588,14 @@ So far the environment has multiple discrete choices but no dynamics.  Now we in
 In the static examples earlier utility is the objective and there is nothing that ties together multiple states.  Once we introduce sequential choice it becomes necessary to describe how choices and their utilities are aggregated over time.  The power of dynamic programming is to tie together simple static choices in order to explain sequential choice.</p>
 <P/>
 <DT>Time</DT>
-    <DD>Let <var>t</var> denote time, which is discrete. The first decision occurs at <var>t=0</var>.  Suppose the chooser at time 0 is trying to decide among different sequences of choices.  A particular sequence of choices is <span class="expressions">\(\alpha \equiv \alpha_0, \alpha_0, \dots\)</span>.  For the moment the number of periods is left unspecified. It could be finite or infinite.  And for the moment we suppress any other state variables that may be part of the model other than <var>t</var>.</DD>
+    <DD>Let <var>t</var> denote time, takes on discrete values. The first decision occurs at <var>t=0</var>.  Suppose the chooser at time 0 is trying to decide among different sequences of choices.  A particular sequence of choices is <span class="expressions">\(\alpha \equiv \alpha_0, \alpha_0, \dots\)</span>.  For the moment, the total number of periods is left unspecified. It could be finite or infinite (the decisions keep going forever).  And, for the moment, we suppress any other state variables that may be part of the model other than <var>t</var>.</DD>
 <P/>
-    <DT>Then, <span class="n">DDP</span> and the basic DP framework itself assume that the chooser places value (utility) on that sequence equal to</DT>
+    <DT>Then, <span class="n">DDP</span> and the basic DP framework itself assume that the chooser places value on that sequence equal to</DT>
 <span class="equation">$$V(\alpha)  = \sum_{t=0,1,\dots}\  \delta^t U(\alpha_t; t).$$</span>
     <DD>The new and fundamental parameter appearing in <span class="expressions">\(V()\)</span> is the <em>discount factor <span class="expressions">\(\delta\)</span></em>, which typically is in the range <span class="expressions">\([0,1)\)</span>.
     <details class="aside"><summary>Notes</summary>
-    <DD>If the decision horizon is finite then <span class="expressions">\(\delta=1\)</span> is permissible.  </DD>
-    <DD>This formulation allows utility to depend on time as well as the action chosen at time.  But soon we will move <var>t</var> into the state vector <span class="expressions">\(\theta\)</span> and it will simply be a somewhat specialized state variable not something completely set apart from other states.</DD></details>
+    <DD>If the decision horizon is finite then <span class="expressions">\(\delta=1\)</span> is permissible.  If <span class="expressions">\(\delta=0\)</span> the person puts zero weight on future utility.  The decider only cares about the current utility even though current decisions might affect the future.</DD>
+    <DD>This formulation allows utility to depend on time as well as the action chosen at time.  But soon we will move <var>t</var> into the state vector <span class="expressions">\(\theta\)</span> and it will simply be a specialized state variable not completely set apart from other state variables.</DD></details>
     </DD>
 <P/>
 <h2>The Clock and Value Function Iteration</h2>
@@ -544,7 +606,7 @@ Dynamic programming accounts for a choice made today affects outcomes in the fut
     <DD>The only required time distinction in DP is between now (today) and later (tomorrow). It is common in the literature to use &prime; to denote things that will happen tomorrow.  These notes follow that convention.  So if <var>t</var> is a state variable, then <var>t</var> alone is its value today when a choice is being made.  The value it takes on tomorrow is the denoted <var>t&prime;</var>. A state variable moving from today to its value tomorrow is called a <em>transition</em>.</DD>
 <P/>
 <DT>Stationary and Non-Stationary Clocks</DT>
-    <DD>There are two basic clocks in DP.  The first is a stationary clock in which today is the same as tomorrow.  This means that the decision horizon is infinite, because if decisions end sometime in the future then tomorrow is one period closer to the end then today.  Therefore they are not the same. The second is a special kind of non-stationary world which ends after fixed number of periods.  The is usually called a <em>finite horizon</em> model.  However, <span  class="n">DDP</span> makes distinctions between different kinds of finite horizon clocks.  So what is usually called a finite horizon is here called <em>normal aging</em>.</DD>
+    <DD>There are two basic clocks in DP.  The first is a stationary clock in which today is the same as tomorrow.  This means that the decision horizon is infinite, because if decisions end sometime in the future then tomorrow is one period closer to the end then today.  Therefore they are not the same. The second is a special kind of non-stationary world which ends after fixed number of periods.  This is usually called a <em>finite horizon</em> model.  However, <span  class="n">DDP</span> makes distinctions between different kinds of finite horizon clocks.  So what is usually called a finite horizon is here called <em>normal aging</em>.</DD>
 <P/>
 <DT>Normal Aging</DT>
     <DD>In normal aging, time starts at <code>0</code> and ends at some fixed last time, denoted <code>T-1</code>.  That is, <code>T</code> is the number of periods of choice. In normal aging, the time next period is always one period later than the last (until T-1).  That is,
@@ -558,11 +620,25 @@ Dynamic programming accounts for a choice made today affects outcomes in the fut
     <details class="aside"><summary>A perfect analogy</summary>In <em>Ground Hog Day</em> in which Bill Murray knows he will wake up and relive the same day, apparently forever, but his state can be different each day he wakes up.  He can learn to play the piano and every day he wakes up a little better.  And each day he makes choices that affect his utility in the future.  It is a perfect analogy to a stationary decision environment and also a perfect movie.</details>
     An the important feature of time is that if there is a yesterday (as in normal aging) it can never come again.  Any state that occur in the future cannot have a value of time less than <var>t</var>.  </DD>
 <P/>
-<h2>Setting the Clock in <span class="n">DDP</span></h2>
+<h2>Clocks in <span class="n">DDP</span></h2>
+<P/>
+<h2>State Variables that Depend on Current and Past Events <span class="n">DDP</span></h2>
+<P/>
+In BobsChoiceB there were two states.  Either Bob has a scholarship or not and this changes his decision.  Dynamic programs can account for state variables that depend on what has happened in the past.  For example a very common state variable counts how many times a choice has been made before the current period.  If <span class="expressions">\(a\)</span> is binary choice then utility might depend on how many times <span class="expressions">\(a=1\)</span> before now.
+<span class="equation">$$A_t = {\sum}_{s=0}^{t-1} a_s.$$</span>
+Note that this does not clearly define the initial value <span class="expressions">\(A_0.\)</span>  Typically the model would set this to 0, but it could be initialized to a different value.  For dynamic programming it does not matter how the current value <span class="expressions">\(A_t\)</span> came about.  What matters is how current decisions will alter the effect <span class="expressions">\(A\)</span> in the future.  This is what is meant by the <em>transition of <span class="expressions">\(A\)</span></em>.  We can state this simply as
+<span class="equation">$$A^\prime = A + a.$$</span>
+That is, next period's value of <span class="expressions">\(A\)</span> will be what it is today plus the value of the current decision.  If <span class="expressions">\(a=1\)</span> then <span class="expressions">\(A^\prime = A + 1.\)</span>  Otherwise it is unchanged.</p>
+<P/>
+<h2>Terminal States</h2>
+<P/>
+In some environments decision-making ends when a particular state is reached.  These are called terminal states.  A value of state variable can be made terminal using <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>().
 <P/>
 <LI><a name="MD">Multiple Deciders</a></LI>
 <P/>
-<LI><a name="Next">Where to go next</a></LI>
+<em>Not completed yet: You can see information about this in <a href="Variables.ox.html#Fixed">Time Invariant or Grouping Variables </a></em>
+<P/>
+<!--<LI><a name="Next">Where to go next</a></LI>-->
 <P/>
 </OL>
 <P/>
@@ -572,9 +648,9 @@ Dynamic programming accounts for a choice made today affects outcomes in the fut
 <P/>
 This section provides the mathematical description of the fundamentals of <span class="n">DDP</span>. This is the first document on the technical side.  For further help on using and extending your model see also:
 <DD><a href="Methods.ox.html">Methods</a> for how to solve the model</DD>
-<DD><a href="Data.ox.html">Data</a> for how to simulate data, read external data in for estimation</DD>.
+<DD><a href="Data.ox.html">Data</a> for how to simulate data and read external data in for estimation</DD>.
 <P/>
-This is useful for someone who already knows a great deal about dynamic programming and has some familiarity with Ox or similar languages. If you want a much more basic introduction, start back at the <a href="#guide">beginner's guide</a> You can also start with <a href="GetStarted.html">GetStarted</a> for a demonstration of coding and return here.</p>
+<p>This is useful for someone who already knows a great deal about dynamic programming and has some familiarity with Ox or similar languages. If you want a much more basic introduction, start back at the <a href="#guide">beginner's guide</a> You can also start with <a href="GetStarted.html">GetStarted</a> for a demonstration of coding and return here.</p>
 <P/>
 <OL class="contents">Contents
 <LI><a href="#NC">Notation and Conventions</a></LI>
@@ -591,14 +667,14 @@ This is useful for someone who already knows a great deal about dynamic programm
 <OL class="chapter">
 <LI>Fonts, case and alphabets</LI>
 <details><summary>Examples</summary><pre>
-The discount factor:        &delta;
-Single action variable:     a
-Vector of actions:          &alpha; = (a<sub>0</sub>,a<sub>1</sub>)
-Number of values:           a.N
-Size of a vector:           &alpha;.N
-Distinct vectors            &alpha;.D
-Endogenous state space:     <b>&Theta;</b>
-Utility:                    U()
+The discount factor:        <span class="expressions">\(\delta\)</span>
+Single action variable:     <span class="expressions">\(a\)</span>
+Vector of actions:          <span class="expressions">\(\alpha = (a_0,a_1,\dots)\)</span>
+Number of values:           <span class="expressions">\(a\)</span>.N
+Size of a vector:           <span class="expressions">\(\alpha\)</span>.N
+Distinct vectors            <span class="expressions">\(\alpha\)</span>.D
+Endogenous state space:     <span class="expressions">\(\Theta\)</span>
+Utility:                    <span class="expressions">\(U()\)</span>
 </pre></details>
 <DT><em>Lower case Greek</em> (e.g. <span class="expressions">\(\alpha\)</span>, <span class="expressions">\(\beta\)</span>) denotes</DT>
       <DD>Vectors of discrete variables (i.e. exogenous states <span class="expressions">\(\epsilon\)</span>) <em>or</em> scalar parameters, quantities variables with a continuous range (i.e. discount factor <span class="expressions">\(\delta\)</span>).</DD>
@@ -614,7 +690,7 @@ Utility:                    U()
 In mathematical notation, <span class="expressions">\(a_N\)</span> might denote the number of values <span class="expressions">\(a\)</span> takes on. This works well when <span class="expressions">\(a\)</span> has only one property. In <span class="n">DDP</span>, a variable like <span class="expressions">\(a\)</span> has several properties so using subscripts and superscripts to indicate them can become clumsy.  And, properties can have properties.  Instead of using <span class="expressions">\(a<_N\)</span>, the notation <b><code>a.N</code></b> is the property N associated with the object <code>a</code>. The binary <code>.</code> operator is how properties (members) are accessed in Ox.
 <DD><q>o.p</q> retrieves from the object <var>o</var> the aspect or property <var>p</var>.</dd>
 <P/>
-The <a href="Shared.ox.html#Quantity">Quantity</a> class represents <a href="Shared.ox.html#Discrete">Discrete</a> variables and continuous <a href="Shared.ox.html#Parameter">Parameter</a>s. The usual notions of variables and parameters in mathematical models are derived from the base type <a href="Shared.ox.html#Quantity">Quantity</a>. Quantities are either <em>discrete</em> (actions and states) or <em>continuous</em> (parameters). Quantity objects are typically added to one or more lists (<code>OxArray</code>) using routines built into <span class="n>niqlow</span>.  The vector notation is used to match the literature but vectors in standard DDP are actually lists of <a href="Shared.ox.html#Quantity">Quantity</a> objects.</p>
+The <a href="Shared.ox.html#Quantity">Quantity</a> class represents <a href="Shared.ox.html#Discrete">Discrete</a> variables and continuous <a href="Shared.ox.html#Parameter">Parameter</a>s. The usual notions of variables and parameters in mathematical models are derived from the base type <a href="Shared.ox.html#Quantity">Quantity</a>. Quantities are either <em>discrete</em> (actions and states) or <em>continuous</em> (parameters). Quantity objects are typically added to one or more lists using routines built into <span class="n>niqlow</span>.  The vector notation is used to match the literature but vectors in standard DDP are actually lists of <a href="Shared.ox.html#Quantity">Quantity</a> objects.</p>
 <P/>
 <DT>Ranges:  0 &hellip; m.</DT>
     <DD>Although it is natural to start counting from <em>1</em>, starting from <em>0</em> has some advantages. It is common in C-like languages such as Ox. Typically in <span class="n">DDP</span>, <b>0</b> is the lowest and first value a discrete variable takes on. Starting at 0 means a variable <var>n</var> that takes on N values has a range <span class="expressions">\(n=0,1,\dots,N-1\)</span>. This is the default range for discrete variables.</DD>
@@ -629,13 +705,13 @@ The <a href="Shared.ox.html#Quantity">Quantity</a> class represents <a href="Sha
 <DD>If <var>s</var> is a state variable then values it does or can take on next period are denoted <var>s&prime;</var>.</DD>
 <P/>
 <DT>The indicator function I{}.</DT>
-        <DD><pre>I{x} = 1 if the condition <var>x</var> is TRUE, otherwise it is 0.
-</pre></DD>
+        <span class="equation">$$I{x} = \cases{ 1 & x is TRUE\cr
+                         0 & otherwise.\cr}$$</span>
 <P/>
-<DT>Cartesian product of discrete sets, &times; is the matrix of all possible vectors of the sets.</DT>
+<DT>Cartesian product of discrete sets, <span class="expressions">\(\times\)</span> is the matrix of all possible vectors of the sets.</DT>
 <DD>Let a<sub>0</sub> and a<sub>1</sub> be two discrete variables that each take on values 0 and 1.  Then</DD>
 <P/>
-<DD><span class="expressions">\(a_0 \in \{ 0, 1 \},  a_1 \in \{ 0, 1 \}\)</span> then a<sub>0</sub> &times; a<sub>1</sub> equals
+<DD><span class="expressions">\(a_0 \in \{ 0, 1 \},  a_1 \in \{ 0, 1 \}\)</span> then <span class="expressions">\(a_0 \times a_1\)</span> equals
 <pre>
                0         0
                1         0
@@ -649,56 +725,70 @@ The <a href="Shared.ox.html#Quantity">Quantity</a> class represents <a href="Sha
     <details class="aside"><summary>What's the difference?</summary>The difference between <code>struct</code> and <code>class</code> is simply whether elements of an object are by default directly accessible from the outside (i.e. <em>public</em>) or not (<em>private</em>): yes in a <code>struct</code>, no in a <code>class</code>. <span class="n">DDP</span> is designed for convenience not reliability, so everything class is declared <code>struct</code>, but the term <em>class</em> is used in this documentation.</details>
 A <em>class</em> is a bundle of data and functions to operate on the data.  The data are called <em>members</em> of the class and the functions are called <em>methods</em>, although Ox documentation also refers to these as data members and function members, respectively. Multiple copies of a class can be created while a program runs.  Each copy is called an <em>object</em> or <em>instance</em> of the class.   The key is that the methods work with the data of the object without needing to <em>pass</em> the data to it as with non-OOP languages or constructs.</p>
 <P/>
-Members and methods of  class are either <em>static</em> or <em>automatic</em>.  This distinction is extremely important in the design of <span class="n">DDP</span>.  Static members/methods are shared by all objects of a class, whereas automatic members/methods are specific to the instance.  <span class="n">DDP</span> conserves memory by storing as much information in static variables as possible. The word <em>automatic</em> does not ever appear, it is implicit.  If the tag <code>static</code> does not appear in the declaration of the item then it is automatic.</p>
+<p>Members and methods of  class are either <em>static</em> or <em>automatic</em>.  This distinction is extremely important in the design of <span class="n">DDP</span>.  Static members/methods are shared by all objects of a class, whereas automatic members/methods are specific to the instance.  <span class="n">DDP</span> conserves memory by storing as much information in static variables as possible. The word <em>automatic</em> does not ever appear, it is implicit.  If the tag <code>static</code> does not appear in the declaration of the item then it is automatic.</p>
 <P/>
 <LI><em>MyModel</em>, <em>DPPparent</em> and other placeholder names</LI>
 <P/>
     <details class="aside"><summary>Geek talk:</summary> <code>MyModel</code> and <code>MyCode</code> are <q>metasyntatic variable</q> like <code>foo</code>.</details>
 <P/>
- A user builds a DDP model by adding components to it: states and actions and the functions related to them. <span class="n">DDP</span> cannot know how many items will be added of each type. How can the model be ready to store whatever the user chooses?  The answer: the user of <span class="n">DDP</span> constructs a model as a class <em>derived</em> from one of the built-in models, called a DDP for <q>Derived Dynamic Program</q>.   The user's class <em>inherits</em> the built-in properties of its base model. So <span class="n">DDP</span> can solve the model and produce output for it even though it does not know the details of the user's model until the program starts executing.</p>
+<p> A user builds a DDP model by adding components to it: states and actions and the functions related to them. <span class="n">DDP</span> cannot know how many items will be added of each type. How can the model be ready to store whatever the user chooses?  The answer: the user of <span class="n">DDP</span> constructs a model as a class <em>derived</em> from one of the built-in models, called a DDP for <q>Derived Dynamic Program</q>.   The user's class <em>inherits</em> the built-in properties of its base model. So <span class="n">DDP</span> can solve the model and produce output for it even though it does not know the details of the user's model until the program starts executing.</p>
 <P/>
-DDP Models are derived from the <a href="Bellman.ox.html#Bellman">Bellman</a> class, which in turn is derived from the base <a href="Bellman.ox.html#DP">DP</a> class. If the user wants to call his/her model <var>MyModel</var>, they would have something like this
+DDP Models are derived from the <a href="Bellman.ox.html#Bellman">Bellman</a> class, which in turn is derived from the base <a href="DP.ox.html#DP">DP</a> class. If the user wants to call his/her model <var>MyModel</var>, they would have something like this
 <DD><pre>class MyModel : DPparent {
     &vellip;
     }
 </pre></DD>
-Which Bellman-derived class that <code>MyModel</code> is based on is called <code>DPparent</code> in these notes. <code>MyModel::</code> is prefixed to items that the user provides or customizes.  <code>DPparent</code> is prefixed to items related to the parent.  Other predefined or default items either have no prefix or are prefixed by <code>DP::</code>. The convention of using <code>MyModel</code> avoids having to write repeatedly <q>the user's version of &hellip; DP::x</q>  Instead, <code>MyModel::x</code> suffices.</p>
+For example, if you want to model the choice over makes of car and include extreme-value shocks in the value of choices you would declare a class like this:
+<DD><pre>class Make : ExtremeValue {
+    &vellip;
+    }
+</pre></DD>
+So the generic <code>MyModel</code> is specifically <code>Make</code> and <code>DPparent</code> is specifically <code>ExtremeValue</code>.</p>
+<P/>
+<p>Which Bellman-derived class that <code>MyModel</code> is based on is called <code>DPparent</code> in these notes. <code>MyModel::</code> is prefixed to items that the user provides or customizes.  <code>DPparent</code> is prefixed to items related to the parent.  Other predefined or default items either have no prefix or are prefixed by <code>DP::</code>. The convention of using <code>MyModel</code> avoids having to write repeatedly <q>the user's version of &hellip; DP::x</q>  Instead, <code>MyModel::x</code> suffices.</p>
 <P/>
 <DT><em>MyCode</em></DT>
 <P/>
-A user must define elements of <code>MyModel</code> in Ox, and they must write an Ox program that executes some tasks in the proper order.  For example, the code must always call the <code>Initialize()</code> method for <code>DPparent</code> before doing anything else involving DDP.  So the Ox code that executes these tasks is collectively called <code>MyCode</code> in these notes.  Another way to think of it: <code>MyModel</code> is a translation of the pen-and-paper aspects of your model and <code>MyCode</code> are the instructions to implement the model, solve it and use it.</p>
+A user must define elements of <code>MyModel</code> in Ox, and they must write an Ox program that executes some tasks in the proper order.  For example, the code must always call the <code>Initialize()</code> method for <code>DPparent</code> before adding things to the model.  So the Ox code that executes these tasks is collectively called <code>MyCode</code> in these notes.  Another way to think of it: <code>MyModel</code> is a translation of the pen-and-paper aspects of your model and <code>MyCode</code> are the instructions to implement the model, solve it and use it.</p>
 <P/>
 <LI>Some Properties of DDP Objects</li>
 <P/>
-The interpretation of a property can depend on the kind of object on the left side of <q>.</q>.  Here are some of the key properties of objects in <span class="n">DDP</span>.  Note that the association of this variable names to a property is a convention in <span class="n">DDP</span>.  It is not inherent in Ox, and there may be exceptions even within <span class="n">DDP</span>.
+The interpretation of a property can depend on the kind of object on the left side of ".".  Here are some of the key properties of objects in <span class="n">DDP</span>.  Note that the association of this variable names to a property is a convention in <span class="n">DDP</span>.  It is not inherent in Ox, and there may be exceptions even within <span class="n">DDP</span>.
 <P/>
 <DT>N : cardinality.</DT>
     <DD>A discrete object (such as states and actions) has a cardinality/range. <em>d.N</em> is the number of distinct values <var>d</var> takes on, and generically these are the range 0,1, &hellip; ,(d.N)&oline;. A vector, such as <span class="expressions">\(\alpha\)</span>, has a size <var>N</var>, which denotes the <em>length</em> of the vector.</DD>
 <P/>
 <DT>D : dimensionality</DT>
     <DD>A vector <code>x</code> of discrete variables has a length x.N. But it creates a space of possible values (the Cartesian product) equal to the product of the individual variable cardinalities. So <code>x.D</code> is the size of the Cartesian space of a vector <code>x</code>.
-        <pre>x.D  &equiv;  &prod; <sub>i= 0 &hellip; (x.N)&oline; </sub>  x<sub>i</sub>.N
-    </pre>
-    A space in <span class="n">DDP</span>, say <span class="expressions">\(\Theta\)</span>, is usually a set of vectors of the space of possible vectors.  The number of points in a space is then <code>&Theta;.D.</code></DD>
+    <span class="equation">$$x.D  \equiv {\prod}_{i= 0}^{x.N^-} x_i.N.$$</span>
+    A space in <span class="n">DDP</span>, say <span class="expressions">\(\Theta\)</span>, is usually a set of vectors of the space of possible vectors.  The number of points in a space is then <span class="expressions">\(\Theta\)</span>.D.</DD>
 <P/>
 <DT>Rows and columns of matrices</DT>
     <DD>Since matrices are typically representing a vector space, <var>A.D</var> is the number of rows and <var>A.N</var> is the number of columns.</DD>
-<P/>
-<DT>v : current value.</DT>
-<P/>
-    <DD>In math, <var>a</var> usually means the value of the variable <var>a</var>.  This notation is inadequate when variables have multiple properties and when the notation is meant to reflect some elements of the computer program. Instead, the current value of a variable or vector is the property <em>v</em>. So if <var>a</var> is a discrete variable <code>a.v</code> is the value of <var>a</var>, which can only be one of the values 0 &hellip; (a.N)&oline;.</DD>
 <P/>
 <DT>i : position.</DT>
 <P/>
     <DD>Many objects appear in a vector or a list.  The objects position in the list is <var>i</var>.  So a<sub>i</sub> is a name for the ith action variable in &alpha;. We can write a<sub>i</sub>.i = i. This redundancy turns out to be very important in some cases.</DD>
 <P/>
+<DT>v : current value.</DT>
+<P/>
+    <DD>In math, <var>a</var> usually means the value of the variable <var>a</var>.  This notation is inadequate when variables have multiple properties and when the notation is meant to reflect some elements of the computer program. Instead, the current value of a variable or vector is the property <em>v</em>. So if <var>a</var> is a discrete variable <code>a.v</code> is the value of <var>a</var>, which can only be one of the values 0 &hellip; (a.N)&oline;.</DD>
+<P/>
+    <DD>An important function in <span class="n">niqlow</span> is <a href="Shared.ox.html#CV">CV</a>() which will return the current value of objects sent to it.  So typically <code>MyCode</code> does not need to reference  <code>.v</code> directly. This is explained in detail below.</DD>
+<P/>
 <DT>.actual  : the actual values</DT>
 <P/>
-    <DD><code>MyModel</code> may need discrete values to correspond to another set of values (possibly not even integer values).  Which values are mapped to may depend on parameters that are changing between solutions of the model. If <code>MyModel</code> creates an action or state variable <var>x</var> from a derived the class then it can also provide an <code>a-&gt;Update()</code> routine to reset and store the vector of <em>actual</em>. The default is that <code>x.actual = 0... (x.N)&oline;</code>, the range of <code>x.v</code>.</DD>
+    <DD><code>MyModel</code> may need discrete values to correspond to another set of values (possibly not even integer values).  Which values are mapped to may depend on parameters that are changing between solutions of the model. </DD>
+<P/>
+    <DD>If <code>MyModel</code> creates an action or state variable <var>x</var> from a derived the class then it can also provide an <code>Update()</code> routine to reset and store the vector of <em>actual</em>.</DD>
+<P/>
+    <DD>The default is that <code>x.actual = 0... (x.N)&oline;</code>, the range of <code>x.v</code>.</DD>
 <P/>
 <li>Accessing Values of Quantity Objects</li>
 <P/>
-<code>MyCode</code> can get the current value of an object simply using <code>x.v</code> (and the actual value as <code>x.actual</code>, but this is not recommended.  And <code>MyCode</code> should <em>never</em> modify these values because DDP ensures they have the correct values at all times.  One reason to avoid direct reference to <code>.v</code> is that <code>MyCode</code> will change as it develops. For example, early on some quantity <var>x</var> may not be an action or state variable, but simply a fixed number. So <code>MyModel</code> can access its current value as simply <code>x</code>. However, as the model takes shape <var>x</var> may be changed to a variable.  But now <code>x</code> is a complicated object not a number.  The user would have to go through <code>MyCode</code> and <code>x</code> to <code>x.v</code>. It is also possible to want to change a number into a function, <code>x()</code> that computes and returns a value.</p>
+<code>MyCode</code> can get the current value of an object simply using <code>x.v</code> (and the actual value as <code>x.actual[v]</code>, but this is not recommended.  <code>MyCode</code> should <em>never</em> modify these values because DDP ensures they have the correct values at all times.</p>
+<P/>
+<p>One reason to avoid direct reference to <code>.v</code> is that <code>MyCode</code> will change as it develops. For example, early on some quantity <var>x</var> may not be an action or state variable, but simply a fixed number. So <code>MyModel</code> can access its current value as simply <code>x</code>. However, as the model takes shape <var>x</var> may be changed to a variable.  But now <code>x</code> is a complicated object not a number.  The user would have to go through <code>MyCode</code> and <code>x</code> to <code>x.v</code>. It is also possible to want to change a number into a function, <code>x()</code> that computes and returns a value.</p>
 <P/>
 <span class="n">DDP</span> provides functions to access current and actual values that will work even when the container changes from a simple variable to a Quantity object or function.  </p>
 <P/>
@@ -709,7 +799,9 @@ The interpretation of a property can depend on the kind of object on the left si
 <P/>
 <DT><code><a href="Shared.ox.html#AV">AV</a>()</code></DT>
 <P/>
-    <DD>Discrete quantities like state variables always take on values from 0 to some upper bound <code>N-1</code>.  However, in the model each of those discrete values may map into different values in the model.  The property <code>actual</code> contains these model-relevant values. <code>AV(x)</code> acts like <code>CV()</code> but it returns <code>x.actual[x.v]</code>.  By default this equals <code>CV(x)</code> unless you specify different actual values.  So in the default case <code>AV(x) = CV(x)</code>. In this way <code>a-&gt;Update()</code> is only called once for each variable on each model solution to reset <code>.actual</code>.  If <code>.actual</code> were not a vector <code>x-&gt;Update()</code> would have to be called every time <code>x.v</code> changed.</DD>
+    <DD>Discrete quantities like state variables always take on values from 0 to some upper bound <code>N-1</code>.  However, in the model each of those discrete values may map into different values in the model.  The property <code>actual</code> contains these model-relevant values. <code>AV(x)</code> acts like <code>CV()</code> but it returns <code>x.actual[x.v]</code>.</DD>
+<P/>
+    <DD>By default this equals <code>CV(x)</code> unless you specify different actual values.  So in the default case <code>AV(x) = CV(x)</code>. In this way <code>a-&gt;Update()</code> is only called once for each variable on each model solution to reset <code>.actual</code>.  If <code>.actual</code> were not a vector <code>x-&gt;Update()</code> would have to be called every time <code>x.v</code> changed.</DD>
 <P/>
 </OL>
 <P/>
@@ -720,14 +812,13 @@ First, the simplest and most general notation is introduced to describe a DDP.  
 <OL class="chapter">
 <li><dfn id="DP-def">Definition of a DP Model</dfn> </li>
 <P/>
- <blockquote><b>The general notion of a dynamic program used here has five primitives and four interrelated aspects of the solution.</b></blockquote>
-<P/>
 <DT>Primitives: basic elements of a complete DP model.</DT>
     <OL class="steps">
     <LI><span class="expressions">\(\alpha \in A\)</span>: The (finite) set of possible actions</LI>
     <LI><span class="expressions">\(\theta \in \Theta\)</span>: The (discrete) state space</LI>
     <LI><span class="expressions">\(P(\theta^{\,\prime}\,|\,\alpha,\theta)\)</span>: Conditional transition to the next state, including any notion of a time dimension.</LI>
     <LI><span class="expressions">\(U(\alpha,\theta)\)</span>: Utility/return/payoff of an action conditional on the state</LI>
+    <li><span class="expressions">\(\zeta_\alpha\)</span>: Choice-specific shock added to utility in order to smooth choice probabilities.</li>
     <LI><span class="expressions">\(E\left[\sum_{t=0,\dots}\delta^t\,U(\alpha_t,\theta_t)\right]\)</span>: additively separable objective with foresight; <span class="expressions">\(\delta\)</span> is the discount factor.</LI>
     </OL>
 <P/>
@@ -779,7 +870,7 @@ MyModel::Initialize() {
 <P/>
 <li>Action Variables</li>
 <P/>
-<blockquote><b><code>MyCode</code> builds the action <span class="expressions">\(\alpha\)</span> by adding action variables to it using <a href="Bellman.ox.html#DP___Actions">Actions</a>().</b></blockquote>
+<blockquote><b><code>MyCode</code> builds the action <span class="expressions">\(\alpha\)</span> by adding action variables to it using <a href="DP.ox.html#DP___Actions">Actions</a>().</b></blockquote>
 <P/>
 At a minimum, an <a href="Variables.ox.html#ActionVariable">ActionVariable</a> is defined by its <a href="Shared.ox.html#Quantity___L">L</a>abel and the number of distinct values it takes on, <a href="Shared.ox.html#Discrete___N">N</a>.  <span class="n">DDP</span> tracks values of <em>a</em> as 0 &hellip; N&oline;.</p>
 <P/>
@@ -886,7 +977,7 @@ MyModel::Initialize() {
     }
 &vellip;
 MyModel Utility(); {                   //NEW
-    return aa(d) .== m.v;              //NEW   See <a href="#aa">aa</a>
+    return CV(d) .== CV(m);            //NEW
     }                                  //NEW
 &vellip;
 MyModel::Initialize() {
@@ -904,11 +995,11 @@ MyModel::Initialize() {
 </details>
 <P/>
 <li>Foresight</li>
-    <blockquote><b><code>MyModel</code> should set the discount factor using <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>().</b></blockquote>
+    <blockquote><b><code>MyModel</code> should set the discount factor using <a href="DP.ox.html#DP___SetDelta">SetDelta</a>().</b></blockquote>
 <P/>
 <DT><span class="expressions">\(\delta\in [0,1)\)</span>: the discount factor.</DT>
 <P/>
-    <DD>The default value is <code>DP::delta=0.95</code>. MyModel::&delta; is either a fixed real value or a <a href="Shared.ox.html#Parameter">Parameter</a>, which allows it to depend on outside variables and/or to be estimated within a nested solution algorithm. <a href="Bellman.ox.html#DP___SetDelta">SetDelta</a>() can be used to set the value, passing either a real number or a <a href="Shared.ox.html#Parameter">Parameter</a>. Unlike some other elements of the model, the discount factor can be set or changed after <code>CreateSpaces()</code> has been called.</DD>
+    <DD>The default value is <code>DP::delta=0.95</code>. MyModel::&delta; is either a fixed real value or a <a href="Shared.ox.html#Parameter">Parameter</a>, which allows it to depend on outside variables and/or to be estimated within a nested solution algorithm. <a href="DP.ox.html#DP___SetDelta">SetDelta</a>() can be used to set the value, passing either a real number or a <a href="Shared.ox.html#Parameter">Parameter</a>. Unlike some other elements of the model, the discount factor can be set or changed after <code>CreateSpaces()</code> has been called.</DD>
 <P/>
 <details><summary><b>Example</b><br/>Set &delta;, the discount factor, to 0.99.</summary>
 <pre>class MyModel : DPparent {
@@ -920,7 +1011,7 @@ MyModel::Initialize() {
     static Initialize();
     }
 MyModel Utility(); {
-    return aa(d) .== m.v;
+    return CV(d) .== CV(m);
     }
 &vellip;
 MyModel::Initialize() {
@@ -952,7 +1043,7 @@ MyModel::Initialize() {
 <P/>
 Following the literature special or restricted state variables are placed in different state vectors. The single vector <span class="expressions">\(\theta\)</span> is replaced by multiple vectors holding specially behaved state variables: <span class="expressions">\(\eta\)</span>, <span class="expressions">\(\epsilon\)</span>, <span class="expressions">\(\theta\)</span>,  or <span class="expressions">\(\gamma\)</span>.  The most general kinds of state variables are placed in a vector still denoted <span class="expressions">\(\theta\)</span>.</p>
 <P/>
-Segregation state variables into different vectors can reduce memory and computing since only the information required for restricted state variables are stored.. These distinctions matter for how <a href="Bellman.ox.html#DP">DP</a> solves <code>MyModel</code>, but from the point of view of <code>MyModel</code> a state variable is just a state variable regardless of which category it is placed. A generic state variable that is not associated with a particular vector is denoted <code>s</code>.</p>
+Segregation state variables into different vectors can reduce memory and computing since only the information required for restricted state variables are stored.. These distinctions matter for how <a href="DP.ox.html#DP">DP</a> solves <code>MyModel</code>, but from the point of view of <code>MyModel</code> a state variable is just a state variable regardless of which category it is placed. A generic state variable that is not associated with a particular vector is denoted <code>s</code>.</p>
 <P/>
 <details class="aside"><summary>Placeholder state variables</summary>
 <DD>Any of the state vectors may be empty in <code>MyModel</code> except <span class="expressions">\(\theta\)</span> which always has a <a href="Variables.ox.html#Clock">Clock</a>.</DD>
@@ -965,20 +1056,20 @@ Segregation state variables into different vectors can reduce memory and computi
 <P/>
 <LI><span class="expressions">\(\theta\)</span>: Endogenous state vector</LI>
 <P/>
-    <DD>A generic element of <span class="expressions">\(\theta\)</span> is denoted <var>q</var>. Anything that <code>MyCode</code> places in the other state vectors could be in the <span class="expressions">\(\theta\)</span> (but not vice versa). State variables are added to <span class="expressions">\(\theta\)</span> by sending them to the function <a href="Bellman.ox.html#DP___EndogenousStates">EndogenousStates</a>(). Like any DDP model <span class="expressions">\(\theta\)</span> is a semi-Markov process in which the transition to <span class="expressions">\(\theta^{ \prime}\)</span> depends potentially on all current state variables and the action <span class="expressions">\(\alpha\)</span>.</DD>
+    <DD>A generic element of <span class="expressions">\(\theta\)</span> is denoted <var>q</var>. Anything that <code>MyCode</code> places in the other state vectors could be in the <span class="expressions">\(\theta\)</span> (but not vice versa). State variables are added to <span class="expressions">\(\theta\)</span> by sending them to the function <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>(). Like any DDP model <span class="expressions">\(\theta\)</span> is a semi-Markov process in which the transition to <span class="expressions">\(\theta^{ \prime}\)</span> depends potentially on all current state variables and the action <span class="expressions">\(\alpha\)</span>.</DD>
 <P/>
     <DD>The other state vectors separate out variables which evolve in a simpler or more restrictive way. <span class="expressions">\(\theta\)</span> always contains a single <a href="Variables.ox.html#StateBlock">StateBlock</a> derived from <a href="Variables.ox.html#Clock">Clock</a>.  See <a href="#clock">Clock Block</a> below.</DD>
 <P/>
 <LI><span class="expressions">\(\eta\)</span>: Semi-Exogenous state vector</LI>
 <P/>
-    <DD>A generic element of &eta; is denoted <var>h</var>. &eta; is a place for restricted endogenous variables whose transition probabilities are be independent of all other variables. Any element of &eta; is an IID process.  It is semi-exogenous because the current value <em>can</em> influence the transition of the exogenous state variables, <span class="expressions">\(\theta\)</span>. Semi-exogenous states are added to &eta; using <a href="Bellman.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>().</DD>
+    <DD>A generic element of &eta; is denoted <var>h</var>. &eta; is a place for restricted endogenous variables whose transition probabilities are be independent of all other variables. Any element of &eta; is an IID process.  It is semi-exogenous because the current value <em>can</em> influence the transition of the exogenous state variables, <span class="expressions">\(\theta\)</span>. Semi-exogenous states are added to &eta; using <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>().</DD>
 <P/>
 <LI><span class="expressions">\(\epsilon\)</span>: Exogenous state vector</LI>
 <P/>
-    <DD>A generic element of <span class="expressions">\(\epsilon\)</span> is denoted <var>e</var>.  <span class="expressions">\(\epsilon\)</span> can include only  (fully) exogenous state variables and is thus more specialized than a semi-exogenous variable.  These variables are not only IID but they cannot direclty influence the transition of any other state of the system.   Elements of <span class="expressions">\(\epsilon\)</span> satisfy Rust's Conditional Independence property. States are added to <span class="expressions">\(\epsilon\)</span> using <a href="Bellman.ox.html#DP___ExogenousStates">ExogenousStates</a>().</DD>
+    <DD>A generic element of <span class="expressions">\(\epsilon\)</span> is denoted <var>e</var>.  <span class="expressions">\(\epsilon\)</span> can include only  (fully) exogenous state variables and is thus more specialized than a semi-exogenous variable.  These variables are not only IID but they cannot direclty influence the transition of any other state of the system.   Elements of <span class="expressions">\(\epsilon\)</span> satisfy Rust's Conditional Independence property. States are added to <span class="expressions">\(\epsilon\)</span> using <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>().</DD>
 <P/>
 <LI><span class="expressions">\(\gamma\)</span>: Grouping (random and fixed effect) state vector</LI>
-    <DD>A generic element of <span class="expressions">\(\gamma\)</span> is denoted <span class="expressions">\(g\)</span> States are added to <span class="expressions">\(\gamma\)</span> using <a href="Bellman.ox.html#DP___GroupVariables">GroupVariables</a>(). A grouping variable is equivalent to either a <em>random effect</em> or a <em>fixed effect</em> in a panel model.  Either way, it does not vary within the life of an agent following the DP, but from our point of view it is random for an agent. Because grouping variables do not vary within a solution it is wasteful to create space for each of their values and the other states in <span class="expressions">\(\theta\)</span>.  Instead, <span class="n">DDP</span> resolves the model for each value of <span class="expressions">\(\gamma\)</span>.  It stores differing choice probabilities across random effects for a given fixed effect value, so that integration across random effects can be carried out.</DD>
+    <DD>A generic element of <span class="expressions">\(\gamma\)</span> is denoted <span class="expressions">\(g\)</span> States are added to <span class="expressions">\(\gamma\)</span> using <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>(). A grouping variable is equivalent to either a <em>random effect</em> or a <em>fixed effect</em> in a panel model.  Either way, it does not vary within the life of an agent following the DP, but from our point of view it is random for an agent. Because grouping variables do not vary within a solution it is wasteful to create space for each of their values and the other states in <span class="expressions">\(\theta\)</span>.  Instead, <span class="n">DDP</span> resolves the model for each value of <span class="expressions">\(\gamma\)</span>.  It stores differing choice probabilities across random effects for a given fixed effect value, so that integration across random effects can be carried out.</DD>
 <P/>
     <DD><b><em>Warning:</em> if random effect elements of <span class="expressions">\(\gamma\)</span> affect the transition <span class="expressions">\(P()\)</span>. you have to change the <a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a> in your model</b> Because <span class="expressions">\(\gamma\)</span> is fixed during a solution, it is often <em>not</em> listed as an argument of U() and endogenous outcomes such as <span class="expressions">\(V(\theta)\)</span>.  However, <code>MyModel</code> can treat elements of <span class="expressions">\(\gamma\)</span> like other states.</DD>
 <P/>
@@ -1013,7 +1104,7 @@ Typically there is a small number of different feasible sets relative to the siz
 In <span class="n">DDP</span> the key functions, U() and &Rho;() act on a single point in the state space at a time.  So the current value of a state variable is placed in the <code>.v</code> property of the Ox variable representing it. On the other hand, both U() and &Rho;() are 'vectorized' in actions: they must operate on the whole feasible matrix at once.  Action variables have the <code>.v</code> property, but it is not used for them.  Their current values are in a column of the <span class="expressions">\(\theta\)</span>.A matrix, which is <code>A[Aind]</code> in the code.  The previously described functions <span class="expressions">\(CV()\)</span> and <span class="expressions">\(AV()\)</span> work with action variables as well, returning the column of the current/actual action matrix at <span class="expressions">\(\theta\)</span>.
 <details class="aside"><summary>For example</summary> Consider a model that has two choices: work hours and whether to volunteer or not.   Then at some state <span class="expressions">\(\theta\)</span>.A may look like this, along with the return value of <code>a(work)</code>.
 <DD><pre>     A[Aind]     |
-work      vol    |  aa(work)
+work      vol    |  CV(work)
  -------------------------
  0         0      |    0
  1         0      |    1
@@ -1067,11 +1158,11 @@ As shown above, <code>MyModel</code> must call <code>DPparent::CreateSpaces()</c
 <P/>
 Some state variables generate <em>inherently</em> unreachable states. Above it was emphasized that reachability depends on the whole model, but including some kinds of state variables in your model will generate unreachable states in non-stationary environments (such as a finite decision horizon). As an example, a <a href="Variables.ox.html#Counter">Counter</a> state variable counts how many times an action or state has occurred in the past.  If the counter starts at 0 in a finite horizon model then the only reachable states are ones in which this state variable's current value is less than or equal to the value of the clock, <a href="DDPShared.ox.html#I___t">t</a>.  This is true regardless on other state variables added to the model, which actions are feasible, etc.  It depends solely on the clock type, initial conditions and the presence of this variable in the model. </p>
 <P/>
-So some trimming of the state space can be done automatically based on state variables in the endogenous vector <em>and</em> the model's <a href="Variables.ox.html#Clock">Clock</a> block.  By design, state variable objects do not know directly about the model's clock, because all the discrete variable classes are defined and used by the <a href="Bellman.ox.html#DP">DP</a> class.  So checking for reachable requires sending the clock to the state variable. The <a href="Variables.ox.html#StateVariable">StateVariable</a> class includes a virtual method named <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>() which takes a single argument that will be the model's clock block.  The default function returns <code>TRUE</code>.  That is, by default, no state variable says a point in the state space is unreachable.  However, some kinds of state variables that do generate unreachable states (such as counters) will supply a replacement copy of <code>IsReachable()</code>.  </p>
+So some trimming of the state space can be done automatically based on state variables in the endogenous vector <em>and</em> the model's <a href="Variables.ox.html#Clock">Clock</a> block.  By design, state variable objects do not know directly about the model's clock, because all the discrete variable classes are defined and used by the <a href="DP.ox.html#DP">DP</a> class.  So checking for reachable requires sending the clock to the state variable. The <a href="Variables.ox.html#StateVariable">StateVariable</a> class includes a virtual method named <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>() which takes a single argument that will be the model's clock block.  The default function returns <code>TRUE</code>.  That is, by default, no state variable says a point in the state space is unreachable.  However, some kinds of state variables that do generate unreachable states (such as counters) will supply a replacement copy of <code>IsReachable()</code>.  </p>
 <P/>
 At each <em>possible</em> state in the space &Omega; <code>CreateSpaces</code> will call <code>IsReachable()</code> for each state variable in the endogenous state vector <span class="expressions">\(\theta\)</span>. If any of them return <code>FALSE</code> that point is marked as unreachable. (This can be turned off when creating the state variable using the optional <code>Prune</code> argument. If no state variables claim the current state is inherently unreachable then the user supplied method is called which can mark states unreachable for reasons not inherent to the clock and state variables themselves.</p>
 <P/>
-<code>MyCode</code> must first call <code>DPparent::Initialize()</code>, then add variables to the model, then call <a href="Bellman.ox.html#DP___CreateSpaces">CreateSpaces</a>.   An object of <code>MyModel</code> is sent to <code>DP::Initialize()</code> which will <q>clone</q> it for each reachable point in the state space.  As with <code>Bellman::FeasibleActions</code>, which must have that name because it is virtual function, this function must have the name <code>Reachable()</code>.</p>
+<code>MyCode</code> must first call <code>DPparent::Initialize()</code>, then add variables to the model, then call <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>.   An object of <code>MyModel</code> is sent to <code>DP::Initialize()</code> which will <q>clone</q> it for each reachable point in the state space.  As with <code>Bellman::FeasibleActions</code>, which must have that name because it is virtual function, this function must have the name <code>Reachable()</code>.</p>
 <P/>
 The base <code>Bellman</code> class has a method  <code><a href="Bellman.ox.html#Bellman___Reachable">Reachable</a>()</code> which simply returns TRUE.  So if <code>MyModel</code> does not provide its own version of <code>Reachable</code> all possible states are asserted as reachable. However, remember that some state variables may have inherently unreachable states in finite horizon models, and these conditions will be checked regardless of whether <code>MyModel</code> provides its own <code>Reachable()</code>.)</p>
 <P/>
@@ -1211,10 +1302,10 @@ A key reason the notation differs here is because it is used to describe a frame
 <LI>Steps the program should execute in building the model</LI>
 <OL class="steps">
 <LI>Call <code>DDPparent::Initailize()</code> for the base of <code>MyModel</code></LI>
-<LI>Set the model clock with <a href="Bellman.ox.html#DP___SetClock">SetClock</a>().</LI>
+<LI>Set the model clock with <a href="DP.ox.html#DP___SetClock">SetClock</a>().</LI>
     <DD>Some DDPs require a <code>new</code> clock variable be created first and sent to <code>Initialize()</code>.  For these methods you do not call <code>SetClock</code>; it will be called by <code>Initalize()</code>.</DD>
 <LI>Create <code>new</code> instances for the action variables and the state variables in the model.</LI>
-<LI>Add the action and state variables to the model using DP methods such as <a href="Bellman.ox.html#DP___Actions">Actions</a>()</LI>
+<LI>Add the action and state variables to the model using DP methods such as <a href="DP.ox.html#DP___Actions">Actions</a>()</LI>
 <LI>Call <a href="Bellman.ox.html#Bellman___CreateSpaces">CreateSpaces</a>(), sending it a static routine that indicates states are reachable and whether <span class="expressions">\(\Theta\)</span> should be traverse with a loop or a list</LI>
     <hr><blockquote>Items above are done once while the program runs.  They can be repeated only after calling<a href="Bellman.ox.html#Bellman___Delete">Delete</a>() which disposes of the elements of the previous model.  Items below can be done repeatedly during the life of the program once the steps above are done.</blockquote><hr>
 <LI>Set parameters of the model, including the discount factor <span class="expressions">\(\delta\)</span>.</LI>
@@ -1224,7 +1315,7 @@ A key reason the notation differs here is because it is used to describe a frame
 <P/>
 </OL>
 
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2018 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd></dd>
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2019 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd></dd>
 </dl>
 <div class="footer">
 Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>

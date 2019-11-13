@@ -1,10 +1,12 @@
 #import "Variables"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
+#ifdef OX_PARALLEL
 extern decl
         /** &Gamma; array (list) of groups of fixed and random effects. **/ Gamma,
         /** 2-d array pointing to &Gamma;. **/								Fgamma,
         /** &Theta; array (list) of all endogenous state nodes.**/  		Theta;
+#endif
 
 /**Stores information on a set of state variables, such as &theta;
 @see DP::S
@@ -32,7 +34,7 @@ struct SubSpace : DDPauxiliary  {
 	/** leftmost state index. **/			left,
 	/** rightmost state index **/		    right;	
 	SubSpace(); 	
-	Dimensions(subs,UseLast=TRUE,DynRand=FALSE);
+	Dimensions(subs,UseLast=TRUE,DynRand=FALSE);  //
 	ActDimensions();
 	} 	
 
@@ -45,6 +47,7 @@ The  base class for the DDP framework.
 struct DP {
 	static decl
         /** Label for the problem. **/                          L,
+        /** List of parent classes.**/                          parents,
         /** file for diagnostic output. **/                     logf,
         /** dated file name for diagnostic output **/           lognm,
         /** Version of niqlow that code is written for.
@@ -93,9 +96,9 @@ struct DP {
         /** task to integrate V over semi-exogenous states.**/  IOE,
         /** task to update tomorrow's state distribution. **/   EStoS,
         /** task to integrate outcomes over $\epsilon$.**/      EOoE,
-		/** `ZetaRealization`, realized continuous shocks, &zeta;,
+		/* `ZetaRealization`, realized continuous shocks, &zeta;,
 			set during simulation of realized paths. Distribution must be conditional on choice stored in
-			`Alpha::aC`. **/ 	                                zeta,
+			`Alpha::aC`.  	                                zeta, */
 		/* current realized auxiliary vector, &chi;,
 			only set during simulation of realized paths. chi,**/ 	
 	/** list of `AuxiliaryValue`s that depend on the current outcome.
@@ -127,8 +130,8 @@ struct DP {
         static  Interactions(ivar,olist=UnInitialized,prefix=UseLabel,ilo=0,thi=100);
         static  Indicators(ivar,prefix=UseLabel,ilo=0,ihi=100);
         static  MultiInteractions(ivarlist,ilov,ihiv,olist,prefix);
-		static 	SetGroup(state);
-        static  SetG(f=0,r=0);
+		// static 	SetGroup(state);
+        // static  SetG(f=0,r=0);
 		static 	Settheta(ind);
 		static 	DrawGroup(find);
 		static 	StorePalpha();
@@ -142,7 +145,7 @@ struct DP {
         static  DrawFsamp(find,N=1);
 		static  SyncAct(a);
         static  SubSampleStates(SampleProportion=1.0,MinSZ=0,MaxSZ=INT_MAX);
-        static  SetUpdateTime(time=AfterFixed);
+        static  SetUpdateTime(time=AfterRandom);
 
         static KLaggedState(Target,K,Prune=TRUE);
         static KLaggedAction(Target,K,Prune=TRUE);
@@ -201,7 +204,7 @@ struct Task : DP {
 
 /** Base Class for tasks that loop over the endogenous state space &Theta;.
 
-The <code>Traverse()<code> method will either <code>loop</code> or <code>list()</code> depending on whether the user
+The <code>Traverse()</code> method will either <code>loop</code> or <code>list()</code> depending on whether the user
 asked for the state space &Theta; to be processed according to a list of reachable
 states or looping over all combinations of state variable values.  This is done
 with an arguement to `DP::Initialize`().
@@ -212,7 +215,7 @@ struct ThetaTask        :   Task {
     virtual Run();	
     }
 
-/** Identify unreachable states from &Theta;.
+/* Identify unreachable states from &Theta;.
 
 Users do not call this function.
 
@@ -221,12 +224,12 @@ calls the virtual <code>Reachable()</code>.
 This task is called before `CreateTheta` so that reachable status can be determined before
 subsampling (if required).
 
-**/
 struct FindReachables   : 	ThetaTask {	
         decl th, rchable;
         FindReachables();
         Run();	
         }
+*/
 
 /** Allocate space for each point &theta; &in; &Theta; that is reachable.
 
@@ -237,14 +240,14 @@ Users do not call this function.
 
 **/
 struct CreateTheta 	    : 	ThetaTask {	
-        decl insamp, th;
+        decl insamp, th, rchable;
         CreateTheta(); 	
         Sampling();
         Run();	
         picked();
         }
 
-/** Go through &Theta; but do not allocate space.
+/* Go through &Theta; but do not allocate space.
 
 The task is called in `DP::CreateSpaces` if `Flags::onlyDryRun` was instead of
 `FindReachables`.  It will print out information about the size of the state space but will
@@ -255,24 +258,24 @@ will run out of memory if creating &Theta; is attempted.
 
 Users do not call this function.
 
-**/
+
 struct DryRun 	        : 	FindReachables {	
         decl PrevT,PrevA,PrevR,report;
         DryRun();
         Run();	
         }
-
+*/
 
 /** Called when subsampling &Theta; for `KeaneWolpin` approximation.
 
-This task is called if the user is asking for a new subsample of &Theta;.
+This task is called if the user is asking for a new subsample of $\Theta$.
 
-It `DP::CreateSpaces` that loops over the state space &Theta; and
+It `DP::CreateSpaces` that loops over the state space $\Theta$ and
 calls the virtual <code>Reachable()</code>.
 
 If a subsampled state is now not sampled its stored information is destroyed (using <code>Bellman::Delete</code>).
 
-If a non-sampled state is now sampled its point in &theta; is created.
+If a non-sampled state is now sampled its point in $\theta$ is created.
 
 Users do not call this directly.
 
@@ -383,7 +386,7 @@ Related DP models differing only by `TimeInvariant` effects.
 are located in a static array named `Gamma` that is only accessible directly inside the
 file DP.ox.
 
-@see DP::SetGroup
+@see I::SetGroup
 
 **/
 struct Group : DP {
@@ -456,7 +459,13 @@ struct DumpExogTrans : ExTask {
 	Run();
 	}
 
+/** The base class for Outcomes and Predictions.
+
+**/
 struct Data : Task {
-    static decl logf, lognm, Volume;
+    static decl
+    /** File for logging data output.**/        logf,
+    /** timestamped file name. **/              lognm,
+    /** Volume of output @see NoiseLevels.**/   Volume;
     static SetLog();
    }

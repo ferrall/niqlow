@@ -85,7 +85,7 @@ ReservationValues::ReservationValues(LBvalue,METHOD) {
 
 ReservationValues::Solve(Fgroups,Rgroups) {
     Method::Initialize();
-    Method::Solve(Fgroups,Rgroups);
+    return Method::Solve(Fgroups,Rgroups);
     }
 
 RVGSolve::Solve(state) {
@@ -126,15 +126,13 @@ RVGSolve::RVGSolve(LBvalue,Method,caller) {
 RVGSolve::Run() {
     decl ns = I::curth.solvez && isclass(RValSys[I::curth.Aind]);
     XUT.state = state;
-    //DP::vV =VV[I::later];
+    I::curth->ThetaUtility();
     I::curth->ActVal();
-    //ev =
     N::VV[I::now][I::all[iterating]]
                             = ns
                                 ? RValSys[I::curth.Aind] -> RVSolve(DeltaV(I::curth.pandv))
                                 : I::curth->thetaEMax();
     this->PostEMax();
-//    return V;
     }
 
 /**  Simplified Reservation Value Iteration model solution.
@@ -157,6 +155,8 @@ This would be inefficient to use in any context when a solution method is applie
 **/
 RVSolve(ToScreen,aM) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling RVSolve()");
+    if (N::G>One)
+        oxwarning("DDP Warning: With heterogeneity using RVSolve and then making predictions & outcomes is wrong. Use a nested solution.");
     decl meth = new ReservationValues();
 	DPDebug::outAllV(ToScreen,aM);
     meth.Volume = QUIET;

@@ -1,6 +1,6 @@
 #import "Shared"
 #import <solveqp>
-/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
 
 /** Base for optimization and system-solving algorithms.
 
@@ -21,7 +21,7 @@ struct Algorithm {
 	 /** output level, `NoiseLevels` **/					Volume,
      /** Not restarting from alg. checkpoint. **/           NormalStart,
 	 /** maximum iterations **/ 	        				maxiter,
-     /** Store path of iterations in `Algorithm::path'.**/  StorePath,
+     /** Store path of iterations in `Algorithm::path`.**/  StorePath,
      /** sequence of structural parameters .**/             path,
      /** current iteration count.  **/				        iter,
 	 /**  top level convergence tolerance **/        	    tolerance,

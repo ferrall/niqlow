@@ -1,4 +1,6 @@
-#include "HotzMiller.h"
+#ifndef Mh
+    #include "HotzMiller.h"
+#endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** Create a Hotz-Miller solution method.
@@ -127,10 +129,8 @@ HMGSolve::Run() {
     XUT.state = state;
     if (HotzMiller::AMstep)
         I::curth.AMEMax();
-    else {
-//        oldp[I::f][I::all[tracking]][] = I::curth.pandv';
+    else
         Q[I::f][I::all[tracking]] = I::curth->HMQVal();
-        }
     if (Flags::setPstar) Hooks::Do(PostSmooth);
 	}
 	
@@ -149,6 +149,7 @@ HotzMiller::Solve(Fgroups) {
         }
     pdelt = sqrt(pdelt);
     println("pd ",pdelt);
+    return TRUE;
     }
 
 HotzMiller::AMiter(mle) {

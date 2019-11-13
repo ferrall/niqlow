@@ -1,8 +1,4 @@
 #include "Bellman.h"
-#ifndef Bellox
-    #define Bellox
-    #include "DP.ox"
-#endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** Constructs the transitions for &theta;, the endogenous state vector.
@@ -18,6 +14,7 @@ a point &theta; it is must be computed for each semi-exogenous state &eta;.
 If a state variable can be placed in &epsilon; instead of &eta; or &theta; it reduces computation and storage signficantly.
 
 @see DP::SetUpdateTime
+@internal
 **/
 EndogTrans::EndogTrans() {
 	Task();
@@ -43,6 +40,7 @@ EndogTrans::Run() {
 </OL>
 
 @see DP::SetUpdateTime , UpdateTimes
+@internal
 **/
 EndogTrans::Transitions(state) {
     this.state = isint(state) ? N::All-1 : state;
@@ -72,7 +70,7 @@ EndogTrans::Transitions(state) {
 			}
 		}
     I::CVdelta = AV(delta);
-    Alpha::ResetA(SubVectors[acts]);
+    Alpha::ResetA(SubVectors[acts]);  //
 	ExogenousTransition();
     this->Traverse();
     }
@@ -87,33 +85,36 @@ Bellman::SetTheta(state,picked) { Bellman(state,picked);    }
 /**Set the automatic (non-static) members of a state node.
 @param state  state vector
 @param picked TRUE: in sub sample of states for full solution.  FALSE: will be approximated
-@internal
+This is called in CreateSpaces().  It terminals if the state is terminal and determines $A(\theta)$
 **/		
 Bellman::Bellman(state,picked) {
   decl s=S[endog].M, IsT;
-  IsT = FALSE;
+
+  IsT = FALSE;  //check if any endogenous states are at terminal values
   do { IsT = any(state[s].==States[s].TermValues);    } while (!IsT && s++<S[endog].X);
+
   N::TerminalStates += IsT;
-  Type = TERMINAL*IsT + LASTT * counter->Last();
-  Aind = 0; //initializing this means aa() will work.
-  Aind = Alpha::AddA(IsT ? 1|zeros(N::Options[0]-1,1) : FeasibleActions());
+  Type = TERMINAL*IsT + LASTT * counter->Last();  //set the type of this theta.
+  Aind = 0; //initializing this means CV(act) and AV(act) will work.
+  Aind = Alpha::AddA(  IsT
+                           ? 1|zeros(N::Options[0]-1,1)  //terminal states have exactly 1 feasible action
+                           : FeasibleActions() );
   if (Aind==Impossible) {
-        println("Error occurs at state vector: ","%cf","%7.0f","%c",Labels::Vprt[svar],state');
-        oxrunerror("DDP Error ??.  Improper FeasibleAction() return");
-        }
+    println("Error occurs at state vector: ","%cf","%7.0f","%c",Labels::Vprt[svar][S[endog].M:S[endog].X],state[S[endog].M:S[endog].X]');
+    oxrunerror(" ");
+    }
   pandv = UnInitialized;
   Allocate(picked,TRUE);
-  EV = 0.0; // zeros(N::R,1); //NoR??
+  EV = 0.0;
   }
 
-/** Default indicator function for whether the current state is reachable from initial conditions or not.
-This is a major changes with niqlow version 2.4 and Ox version 7.10.
-
+/** Return TRUE: Default indicator function for whether the current state is reachable from initial conditions or not.
 **/
 Bellman::Reachable() {    return TRUE;     }
 
-/** Create space for U() and &Rho;() accounting for random subsampling.
+/** Create space for $U()$ and $P(\alpha;\eta)$ at this $\theta$, accounting for random subsampling.
 @see DP::SubSampleStates
+@internal
 **/
 Bellman::Allocate(picked,CalledFromBellman) {
   decl OldSS = InSS(),NewSS;
@@ -123,20 +124,23 @@ Bellman::Allocate(picked,CalledFromBellman) {
   N::Approximated += !NewSS;
   if ((OldSS!=NewSS)||CalledFromBellman) {     //re-allocation required
     if (!CalledFromBellman) delete Nxt,pandv; //, U;
+    decl width;
     if (NewSS) {
         Nxt = new array[TransStore+N::DynR-1][SS[onlysemiexog].size];
-        pandv =new matrix[N::Options[Aind]][SS[bothexog].size];//constant(.NaN,U);
+        width = SS[bothexog].size;
         }
     else {
         Nxt = new array[TransStore+N::DynR-1][One];
-        pandv =new matrix[N::Options[Aind]][One]; //constant(.NaN,U);
+        width  = One;
         }
+    pandv = new matrix[N::Options[Aind]][width];//constant(.NaN,U);
     }
   }
 
-/** Default &theta;.A: all actions are feasible at all states, except for terminal states.
+/** Default $A(\theta)$:  all actions are feasible at all states, except for terminal states.
 
-This is a virtual method.  <code>MyModel</code> should provide its own to replace it if some actions are infeasible at some states.
+This is a virtual method.  <code>MyModel</code> provide its own to replace it if some actions
+are infeasible at some states.
 
 @return Mx1 indicator column vector<br> 1=row is feasible at current state<br> 0 otherwise.
 
@@ -157,16 +161,13 @@ This is <em>not</em> called at unreachable or terminal states.
 **/	
 Bellman::FeasibleActions()	{  	return ones(Alpha::N,1); 	}
 
-Bellman::UReset() {
-	pandv[][] = .NaN;
-    }
-	
+
 /** Default Choice Probabilities: no smoothing.
 @param inV expected value integrating over endogenous and semi-endogenous states.
 
 Smooth is called for each point in the state space during value function iteration, but only in the last iteration
 (deterministic aging or fixed point tolerance has been reached.)
-It uses `Bellman::EV' which should be set to the current value of the current state by thetaEmax()
+It uses `Bellman::EV` which should be set to the current value of the current state by thetaEmax()
 
 @comment This is virtual, so the user's model can provide a replacement to do tasks at each &theta; during iteration.
 
@@ -180,7 +181,7 @@ Bellman::Smooth() {
 
 /** Completes $v(\alpha;\cdots,\eta,\theta)$ by adding discounted expected value
     to utilities for a given $\eta$.
-    The columns that are updated are indexed as `I::elo` : `I::eh`.
+    The columns that are updated are indexed as `I::elo` : `I::ehi`.
     The element of the transition used is $\eta = $ `I::all`[onlysemiexog].
     <dd><pre>
 decl et =I::all[onlysemiexog];
@@ -193,21 +194,30 @@ Bellman::ExogExpectedV() {
 	pandv[][I::elo : I::ehi] += I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]);
     }
 
-/** Compute v(&alpha;&theta;) for all values of &epsilon; and &eta;. **/
+/** Default to be replaced by user.
+This function is called before looping over $\epsilon$ and $\eta$.
+The user can place code in the replacement to avoid dupcliate calculations.
+This function must be coded when using `KeaneWolpin`
+
+@return NaN so that it won't accidentally because user did not provide a replacement.
+**/
+Bellman::ThetaUtility() { return .NaN; }
+
+/** Compute $v(\alpha;\theta)$ for all values of $\epsilon$ and $\eta$. **/
 Bellman::ActVal() {
-    XUT->ReCompute(DoAll);  //ZZZZ
+    XUT->ReCompute(DoAll);
 	pandv[][] = XUT.U;
 	if (Type>=LASTT) return;
     IOE.state[] = XUT.state[];
     IOE->Compute();
     }
 
-/** Computes v() and V for out-of-sample states. **/
+/** KeaneWolpin: Computes v() and V for out-of-sample states. **/
 Bellman::MedianActVal() {
         //Note Since Action values not computed for terminal states, Type same as IsLast
-    XUT->ReCompute(UseCurrent);  //ZZZZ
-    pandv[] = XUT.U + (Type>= LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*N::VV[I::later][Nxt[Qit][Zero]]));
-	V[] = maxc( pandv );
+        //XUT->ReCompute(UseCurrent);  Removed Oct. 2019.  Replaced by call to ThetaUtility
+    pandv[][0] = this->ThetaUtility() + (Type>= LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*N::VV[I::later][Nxt[Qit][Zero]]));
+	V[] = maxc( pandv[][0] );
 	}
 	
 /**Default <var>Emax</var> operator at &theta;.
@@ -249,32 +259,35 @@ Bellman::UpdatePtrans(aPt,vindex) {
 		  aPt[0][ vindex[ Nxt[Qit][eta] ] ][ vindex[ii] ] += (h[eta][]*Nxt[Qrho][eta])';
 	}
 
-Bellman::OutputValue() { return 0.0;     }
-	
 
 /** Computes the full endogneous transition, &Rho;(&theta;'; &alpha;,&eta; ), within a loop over &eta;.
-Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta; that can affect transitions of endogenous states but are themselves exogenous.
-@comments computes `Bellman::Nxt` array of feasible indices of next period states and conforming matrix of probabilities.<br>If current is not -1, then simply recomputed indices.
+Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta;
+that can affect transitions of endogenous states but are themselves exogenous.
+@comments computes `Bellman::Nxt` array of feasible indices of next period states and conforming matrix
+    of probabilities.<br>If current is not -1, then simply recomputed indices.
 @see DP::ExogenousTransition
 **/
 Bellman::ThetaTransition() {
 	 decl ios = InSS() ? I::all[onlysemiexog] : 0,k;
+    // No transition if this state is last or terminal
 	 if (Type>=LASTT) { for(k=0;k<sizeof(Nxt);++k) Nxt[k][ios ] =  <>; return; }
-	 decl now=NOW,later=LATER, si,Nb,prob,feas,root,swap, mtches,curO, rcheck=Volume>LOUD;
+
+	 decl now=NOW, later=LATER, si,Nb,prob,feas,root,swap, mtches,curO, rcheck=Volume>LOUD;
+     //Initialize
  	 F[now] = <0>;	
 	 P[now] = ones(N::Options[Aind],1);
 	 si = S[clock].X;				// clock needs to be nxtcnt
      if  (rcheck && isfile(logf)) fprintln(logf,"Endogenous transitions at ",I::all[tracking]);
-	 do	{
+	 do	{ // over Endogenous state variables (theta)
 		F[later] = P[later] = <>;
         swap = FALSE;
-		if (isclass(States[si],"Coevolving"))
+		if (isclass(States[si],"Coevolving"))  //skip other coevolving states
 			{Nb =  States[si].block.N; root = States[si].block; }
 		else
 			{ Nb = 1; root = States[si]; }
 		if (( any(curO = I::OO[thetaoffs][si-Nb+1:si]) ))	{  // states are relevant to s'
-			[feas,prob] = root -> Transit();
-            if (rcheck && root.N>1 && !isint(prob) ) {
+			[feas,prob] = root -> Transit();                   //state variable transition
+            if (rcheck && root.N>1 && !isint(prob) ) {         //debugging and logging
                 if (isfile(logf) && maxr(feas)<rows(root.actual))
                     fprintln(logf,"     State: ",root.L,"%r",{"   ind","actual","   prob"},feas|(root.actual[feas]')|prob);
                 else
@@ -284,12 +297,11 @@ Bellman::ThetaTransition() {
                     oxwarning("Transition probabilities are not valid (sum not close enough to 1.0).  Check log file");
                     }
                 }
-			feas = curO*feas;
-            // avoid swap and concatenation for deterministic transition
-            if (( (k=columns(feas))==1 ))
+			feas = curO*feas;                    //feasible state values turned into indices
+            if (( (k=columns(feas))==1 ))       // avoid swap and concatenation for deterministic transition
 				F[now] +=  feas;
-            else {
-			     do	if (any(prob[][--k])) {
+            else {                                      //process each feasible value
+			     do	if (any(prob[][--k])) {             //don't track if probability is *identically* 0
 				    F[later] ~=  F[now]+feas[][k];
 				    P[later] ~=  P[now].*prob[][k];
 				    swap=TRUE;
@@ -302,7 +314,7 @@ Bellman::ThetaTransition() {
 	Nxt[Qtr][ios] = F[now][Qtr][];
 	Nxt[Qit][ios] = F[now][Qit][];
 	Nxt[Qrho][ios] = P[now];
-    if (rcheck) {
+    if (rcheck) {       //output
         decl s, q;
         for (s=0;s<columns(Nxt[Qtr][ios]);++s) {
             if ( any(P[now][][s].> 0.0) && !N::IsReachable(Nxt[Qtr][ios]) )  {
@@ -323,13 +335,17 @@ Bellman::Utility()  {
 	}
 
 /** Returns the entry in Hotz Miller Q vector for this state.
+@internal
 **/
 Bellman::HMQVal() {
+//    this->ThetaUtility();
     XUT->ReCompute(UseCurrent);
     UpdatePtrans();
     return pandv'*(XUT.U+M_EULER-log(pandv));
     }
-
+/** .
+@internal
+**/
 Bellman::AMEMax() {
     decl oldp = pandv;
     ActVal();
@@ -376,11 +392,11 @@ Bellman::AutoVarPrint1(task) {
 //    println("*** ",InSubSample," ",this.InSubSample);
 	}
 
+
 Bellman::OutcomesGivenEpsilon(){}
 
-//Bellman::ExpectedOutcomesOverEpsilon(chprob) {    }
-
 /** This is called by a semi-exogenous task to update transitions from this state to the future.
+@internal
 **/
 Bellman::ExogStatetoState() {
     decl et = I::all[onlysemiexog],mynxt, nnew;
@@ -423,13 +439,13 @@ Bellman::Simulate(Y) {
 			  		        : DrawOne( pandv[][InSS()*(Y.ind[bothexog])] )
                         );
     Alpha::SetA(I::all[onlyacts]);
-	//SyncAct(Alpha::aC);  I don't thinks this is necessary.  And confusing??
+    this->ThetaUtility();
     this->Utility();        //Added May 2018.  Could also be a hook???
-	zeta -> Realize(Y);
+//	zeta -> Realize(Y);
 	decl i,c;
     Y.aux =<>;
     Y.act = Alpha::aC;
-	Y.z = CV(zeta);
+//	Y.z = CV(zeta);
     foreach(c in Chi) { //		 // Utility should do this?
         c->Realize();  // Not sending Y.  This option seems to be unused now.
 		Y.aux ~= c.v;
@@ -441,18 +457,9 @@ Bellman::Simulate(Y) {
 	return i;
 	}
 
-/** Return realized &zeta; vector conditional on optimal choice.
+/* Return realized &zeta; vector conditional on optimal choice.
 Default is to return .NaN as a matrix.
-**/
 Bellman::ZetaRealization() {	return <.NaN>;	}
-
-/* The column vector of (actual) feasible values of an action at &theta;.
-@param av `ActionVariable` that has been added to the model
-@return A[Aind][][av.pos]
-Bellman::aa(av) {
-    TypeCheck(av,"ActionVariable",TRUE);
-	return AV(av);
-	}
 */
 
 /** .	  @internal **/
@@ -466,6 +473,7 @@ The same model with different solution methods and different parameters can be s
 Delete allows the user to start from scratch with a different model (horizons, actions, and states).
 
 The key output from the model can be saved or used prior to deleting it.
+@internal
 **/
 Bellman::Delete() {
 	decl i;
@@ -496,11 +504,14 @@ Bellman::Delete() {
 **/
 Bellman::Initialize(userState,UseStateList) {
 	DP::Initialize(userState,UseStateList);
+    parents = " | Bellman";
 	}
 
+/** Base function, just calls the DP version.
+**/
 Bellman::CreateSpaces() {	DP::CreateSpaces(); 	}
 
-/** Required static initialization routine.
+/** Initialize the DP with extreme-value smoothing.
 
 @param rho 	`AV` compatible, the smoothing parameter &rho;.<br>
 			CV(rho) &lt; 0, sets &rho; = <code>DBL_MAX_E_EXP</code> (i.e. no smoothing).
@@ -514,13 +525,14 @@ With &rho; = 0 choice probabilities are completely smoothed. Each feasible choic
 **/
 ExtremeValue::Initialize(rho,userState,UseStateList) {								
 	Bellman::Initialize(userState,UseStateList);
+    parents = " | Exteme Value " + parents;
 	SetRho(rho);
 	}
 
-/** Set the smoothing parameter &rho;. **/
+/** Set the smoothing parameter $\rho$. **/
 ExtremeValue::SetRho(rho) {	this.rho = CV(rho)<0 ? double(DBL_MAX_E_EXP) : rho;	}
 
-/**  Currently this just calls the Bellman version, no special code.
+/**  calls the Bellman version, no special code.
 **/
 ExtremeValue::CreateSpaces() {	Bellman::CreateSpaces(); }
 
@@ -534,6 +546,7 @@ UseStateList is forced to be FALSE because the environment is Ergodic.
 **/	
 Rust::Initialize(userState) {
 	ExtremeValue::Initialize(1.0,userState,FALSE);
+    parents = " | Rust "+parents;
 	SetClock(Ergodic);
 	Actions(d = new BinaryChoice());
 	}
@@ -552,16 +565,18 @@ FALSE if the state is not reachable.
 **/
 McFadden::Initialize(Nchoices,userState,UseStateList) {
 	ExtremeValue::Initialize(1.0,userState,UseStateList);
+    parents = " | McFadden "+parents;
 	Actions(d = new ActionVariable("d",Nchoices));
 	SetDelta(0.0);	
 	}
 
-/**  Currently this just calls the ExtremeValue version, no special code.
+/**  just calls the ExtremeValue version, no special code.
 **/
 McFadden::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 
 /** Myopic agent, so vv=U and no need to loop over &theta;&prime;.**/
 McFadden::ActVal() {
+//    this->ThetaUtility();
     XUT->ReCompute(DoAll);
     pandv[][] = XUT.U;
     }
@@ -575,6 +590,7 @@ McFadden::ActVal() {
 **/
 ExPostSmoothing::Initialize(userState,UseStateList){
 	Bellman::Initialize(userState,UseStateList);
+    parents = " | Ex Post Smoothing "+parents;
 	}
 
 /**  Set up the ex-post smoothing state space.
@@ -618,6 +634,7 @@ OneStateModel::Initialize(UorB,Method,...
     else {
         ExPostSmoothing::Initialize(UorB);
         }
+    parents = " | One State Model "+parents;
     SetClock(StaticProgram);
     Actions(args);
     EndogenousStates(new Fixed("q"));
@@ -650,7 +667,6 @@ ExPostSmoothing::Smooth() {
 **/
 ExtremeValue::Smooth() {
 	pandv ./= V;
-//    if (!I::t) println("** Smoothing ",VV,pandv);
 	}
 	
 /**Iterate on Bellman's equation at &theta; using Rust-styled additive extreme value errors.
@@ -671,6 +687,8 @@ ExtremeValue::thetaEMax(){
 **/
 Normal::Initialize(userState,UseStateList) {
 	Bellman::Initialize(userState,UseStateList);
+    parents = " | Normal "+parents;
+
 	}
 
 /**  Calls the Bellman version and initialize `Normal::Chol`.
@@ -695,6 +713,7 @@ NIID::ExogExpectedV() {
     }
 
 NIID::ActVal() {
+//    this->ThetaUtility();
     XUT->ReCompute(DoAll);  //ZZZZ
 	decl J=rows(XUT.U);
 	if (Type<TERMINAL && J>1)	{
@@ -721,6 +740,7 @@ Normal::Smooth() {	/*EV = Vnow; NoR??*/	}
 **/
 NIID::Initialize(userState,UseStateList) {
 	Normal::Initialize(userState,UseStateList);
+    parents = " | NIID "+parents;
 	Hooks::Add(PreUpdate,NIID::UpdateChol);
 	}
 
@@ -774,7 +794,8 @@ NIID::UpdateChol() {
 	}
 
 	
-/**
+/** .
+@internal
 **/
 Normal::thetaEMax() {	return EV;	}
 	
@@ -784,6 +805,7 @@ Normal::thetaEMax() {	return EV;	}
 **/
 NnotIID::Initialize(userState,UseStateList) {
 	Normal::Initialize(userState,UseStateList);
+    parents = " | Not IID "+parents;
 	Hooks::Add(PreUpdate,NnotIID::UpdateChol);
 	}
 
@@ -827,8 +849,11 @@ NnotIID::ExogExpectedV() {
     }
 
 /**Iterate on Bellman's equation at &theta; with ex ante correlated normal additive errors.
+@internal
+
 **/
 NnotIID::ActVal() {
+//    this->ThetaUtility();
     XUT->ReCompute(DoAll);  //ZZZZ
 	decl J=rows(XUT.U);
 	if (Type<TERMINAL && J>1)	{
@@ -842,6 +867,7 @@ NnotIID::ActVal() {
 	}
 
 /** Update the Cholesky matrix for the correlated value shocks.
+@internal
 **/
 NnotIID::UpdateChol() {
 	decl i;
@@ -860,6 +886,7 @@ NnotIID::UpdateChol() {
 **/
 OneDimensionalChoice::Initialize(userState,d,UseStateList) {
 	Bellman::Initialize(userState,UseStateList);
+    parents = " | One Dimensional Choice "+parents;
 	if (isclass(d,"ActionVariable")) Actions(this.d = d);
 	else if (isint(d) && d>0) Actions(this.d = new ActionVariable("d",d));
 	else oxrunerror("second argument 1d choice must provide an action or positive number of values");
@@ -893,15 +920,18 @@ The answer is stored in <code>solvez</code>.
 **/
 OneDimensionalChoice::Continuous() { return TRUE;   }
 
+/** .
+@internal
+**/
 OneDimensionalChoice::SetTheta(state,picked) {
     Bellman(state,picked);
     solvez = Continuous();
     decl nz = N::Options[Aind]-1;
     if (solvez) {
         if (nz)
-            zstar = ones(nz,N::R);
+            zstar = ones(nz,1);
         else {
-            zstar = constant(.NaN,1,N::R);
+            zstar = <.NaN>;
             pstar = <1.0>;
             }
         }
@@ -915,6 +945,8 @@ OneDimensionalChoice::Smooth() {
 	}
 
 /**  Compute EV(&theta;) after optimal cutoffs z* have been found and compute choice probabilities if `Flags::setPstar` is TRUE.
+@internal
+
 <dd class="disp">
 $$EV(\theta) = \sum_{j=0}^{d.N^-} \left[ \left\{ Prob(z^\star_{j-1}<z\le z^\star_j)( EU_{z*}(d=j) + \delta EV(\theta'|d=j)\right\}dz\right].$$
 </dd>
@@ -925,6 +957,7 @@ $$EV(\theta) = \sum_{j=0}^{d.N^-} \left[ \left\{ Prob(z^\star_{j-1}<z\le z^\star
 <dd>z*<sub>d.N</sub> &equiv; +&infin;</dd>
 
 @return EV
+
 **/
 OneDimensionalChoice::thetaEMax(){
     if (solvez && N::Options[Aind]>One) {
@@ -937,11 +970,14 @@ OneDimensionalChoice::thetaEMax(){
 	return EV=V;
 	}
 
+/** .**/
 OneDimensionalChoice::Getz() { return zstar; }
-OneDimensionalChoice::Setz(z){ zstar[][I::r]=z; }
+/** .**/
+OneDimensionalChoice::Setz(z){ zstar[]=z; }
 
 /** Initialize v(d;&theta;), stored in `Bellman::pandv`, as the constant future component that does
 not depend on z*.
+@internal
 **/
 OneDimensionalChoice::ActVal() {
     pandv[][] = Type>=LASTT
@@ -953,27 +989,7 @@ OneDimensionalChoice::ActVal() {
         }
 	}	
 
-/*OneDimensionalChoice::SysSolve(RVs,VV) {
-    ActVal(VV[0][I::later]);
-	if ( solvez && isclass(RVs[Aind])) {
-		RVs[Aind] -> RVSolve(this,DeltaV(pandv));
-		V[] = VV[0][I::now][I::all[iterating]] = thetaEMax();
-		}
-	else {
-		V[] = VV[0][I::now][I::all[iterating]] = maxc(pandv);
-        if (solvez) {
-		  pstar = <1.0>;
-		  zstar[][] = .NaN;
-          }
-	    if (Flags::setPstar) {
-            this->Smooth(V);
-            Hooks::Do(PostSmooth);
-            if (Flags::IsErgodic) I::curth->UpdatePtrans();
-            }
-		}
-    return V;
-    }*/
-
+/** @internal **/
 KeepZ::ActVal() {
     if (solvez>One) {
         keptz->InitDynamic(this); //vV
@@ -982,6 +998,7 @@ KeepZ::ActVal() {
     OneDimensionalChoice::ActVal();
     }
 
+/** @internal **/
 KeepZ::DynamicActVal(z) {
     pandv[] = diagonal(this->Uz(z),0,-1); // keep adjacent values to be differenced later
                                           // April 2016.  This was -diagonal() but not consistent with later addin EV
@@ -989,6 +1006,7 @@ KeepZ::DynamicActVal(z) {
     return pandv;
     }
 
+/** @internal **/
 KeepZ::thetaEMax () {
     return OneDimensionalChoice::thetaEMax();
 //    return v;
@@ -1003,6 +1021,7 @@ KeepZ::thetaEMax () {
 **/	
 KeepZ::Initialize(userState,d,UseStateList) {
 	OneDimensionalChoice::Initialize(userState,d,UseStateList);
+    parents = " | KeepZ "+parents;
     if (this.d.N!=2) oxrunerror("KeepZ can only handle binary choice in this version");
     keptz = UnInitialized;
 	}

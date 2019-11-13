@@ -59,11 +59,11 @@ The red lines indicate discrete price offers.  There is a reservation price but 
 
 The notation used here uses <span class="n">DDP</span>'s notation for describing a model.  Presuming you are starting with this example this notation is shown here to demonstrate how all aspects of DP problems are part of <span class="n">DDP</span>.</p>
 
-The model's <b>clock</b> is stationary, which is a predefined clock type, <code>InfiniteHorzion</code>. The <b>action</b> vector $\alpha$ contains a single binary `ActionVariable`: <code>&alpha; = (a)</code> The offer price is <var>p</var> is an instance (object) of the `SimpleJump` class.
+The model's <b>clock</b> is stationary, which is a predefined clock type, <code>InfiniteHorzion</code>. The <b>action</b> vector $\alpha$ contains a single binary `ActionVariable`: $\alpha = (a).$ The offer price is <var>p</var> is an instance (object) of the `SimpleJump` class.
     <details class="aside"><summary>State Variable Classes</summary>To keep track of all aspects of a state variable, including how it evolves, state variables are objects of a particular class.  A class describes both data and methods (functions) that operate on the data.  Further, Ox allows for derived classes and virtual methods, which make it possible to build up a library of different kinds of state variables in <span class="n">DDP</span>.  Many kinds of state variables that appear in the literature are already coded and available to be included in your model.</details>.
 The decision-made-already state variable, <var>d</var> is an object of the  <code>`LaggedAction`</code> class.   <code>d=1</code> is in the terminal set, $\overline{\Theta}$.</p>
 
-Because price offers are IID it can be put into the <b>exogenous</b> state vector $\epsilon$ contains one variable, <code>&epsilon; = (p)</code>. Since the transition for <var>d</var> depends the current action it is placed in the <b>endogenous</b> state vector $\theta$, which always contains a time variable as well:  <code>&theta; = (d t)</code>.<details class="aside"><summary>Why multiple state vectors</summary>To conserve memory and computation, <span class="n">DDP</span> allows the user to put state variables in different vectors that are treated differently.  There are actually two other special state vectors not required in this example, $\eta$ and $\gamma$.</details>
+Because price offers are IID it can be put into the <b>exogenous</b> state vector $\epsilon$ contains one variable, <code>&epsilon; = (p)</code>. Since the transition for <var>d</var> depends the current action it is placed in the <b>endogenous</b> state vector $\theta$, which always contains a time variable as well:  $\theta = (d t)$.<details class="aside"><summary>Why multiple state vectors</summary>To conserve memory and computation, <span class="n">DDP</span> allows the user to put state variables in different vectors that are treated differently.  There are actually two other special state vectors not required in this example, $\eta$ and $\gamma$.</details>
 Since the model is stationary, the current time is always <code>t=0</code>.</p>
 
 <b>Utility</b> depends on current state variables, actions and parameters:
@@ -123,7 +123,7 @@ However it is referenced, <code>a</code> and <code>b</code> refer to the same pl
 <DL>
 <DT>Define the required functions for the model</DT><DD><pre>
 23:	Search::Utility()  {
-24:		return -(1-CV(d))*(lam + CV(p)*aa(a));
+24:		return -(1-CV(d))*(lam + CV(p)*CV(a));
 25:		}
 </pre></DD>
 <DD>Utility returns a column of values for feasible actions.  It gets the current value of state variables by sending their objects to the <code>`CV`()</code> function.</DD>
@@ -242,7 +242,7 @@ struct DerivedSearch : Search {
 	static Run();
 	}
 </pre></DD>
-The <code>DerivedSearch</code> class adds three members for data operations.  The plan is to simulate behaviour of optimal search behaviour and to collect realized utility and indicators for price offers.  `Outcome`s have space to store all realized actions and states, but utility or other functions of the outcome are not tracked automatically.  The new code will track realized utility with an object stored in <code>u</code>. Simulated data are generated and stored as a `OutcomeDataSet ` object, and <code>simdata</code> will be that object. The static <code>Run()</code> procedure will do the new work. All members of the base <code>Search</code> class are inherited and do not need to be declared or defined.</p>
+The <code>DerivedSearch</code> class adds three members for data operations.  The plan is to simulate behaviour of optimal search behaviour and to collect realized utility and indicators for price offers.  `Outcome`s have space to store all realized actions and states, but utility or other functions of the outcome are not tracked automatically.  The new code will track realized utility with an object stored in <code>u</code>. Simulated data are generated and stored as a `OutcomeDataSet` object, and <code>simdata</code> will be that object. The static <code>Run()</code> procedure will do the new work. All members of the base <code>Search</code> class are inherited and do not need to be declared or defined.</p>
 
 <li>Auxiliary Values</li>
 
@@ -259,7 +259,7 @@ RealizedUtility::Realize(y) {
 	v = I::curth->Utility()[I::ialpha];
 	}
 </pre></DD>
-The constructor for an auxiliary variable simply has to call the base constructor and send a label.  (It could do other things of course.) Auxiliary values need to provide a <code>Realize()</code> function. code>Realize</code> will be called only when simulating data (or in econometric estimation that involves matching predicted outcomes).  Its first argument is the realized point in the state space (&theta;).  The second is the current realized outcome (&upsilon;).  This allows the auxiliary variable to access everything else.</p>
+The constructor for an auxiliary variable simply has to call the base constructor and send a label.  (It could do other things of course.) Auxiliary values need to provide a <code>Realize()</code> function. code>Realize</code> will be called only when simulating data (or in econometric estimation that involves matching predicted outcomes).  Its first argument is the realized point in the state space $\theta$).  The second is the current realized outcome $Y$.  This allows the auxiliary variable to access everything else.</p>
 
 Since `AuxiliaryValue` is derived from `Quantity` it has a current member, <code>v</code>.  The job of <code>Realize()</code> is to set <code>v</code> for other aspects of the code to use.  In this case, the auxiliary outcome calls <code>Utility()</code> and extracts the element of the vector returned that corresponds to the realized action.  By using a virtual method <code>Realize</code>, the base <span class="n">DDP</span> code can update your auxiliary variables for you without knowing ahead of time what those variables are. Also note that an auxiliary value can be sent to `CV`() after the call to <code>Realize()</code>.  For example, here <code>CV(u)</code> will return the realized value of utility of the current outcome.   So it is straightforward to build auxiliary variables into econometric objectives, equilibrium conditions, etc. (Besides <code>Realize()</code>, auxiliary values include a virtual <code>`AuxiliaryValue::Likelihood`()</code> method.  This is called when computing `Panel::Loglikelihood`().</p>
 
@@ -333,8 +333,8 @@ SearchData::SearchData() {
 <li>Output</li>
 
 <details><summary>Output produced by running GetStartedData.ox is here:</summary>
-    <dd><pre>Source: <a href="javascript:popoxcode('../../examples/output/GetStartedData.txt');">../../examples/output/GetStartedData.txt</a>
-    <object width="75%" height="200" type="text/plain" data="../../examples/output/GetStartedData.txt" border="1" ></object>
+    <dd><pre>Source: <a href="javascript:popoxcode('../../examples/output/Get_Started_with_data.txt');">../../examples/output/Get_Started_with_data.txt</a>
+    <object width="75%" height="200" type="text/plain" data="../../examples/output/Get_Started_with_data.txt" border="1" ></object>
     </pre></dd></details>
 <DT>First, note that the same output is produced as GetStarted.ox, because <code>Search::Run()</code> is called.</DT>
 <DT>Next, the simulation is conducted.  Because a `Method` object was passed to the DataSet the value function was solved again, with the same results.</DT>

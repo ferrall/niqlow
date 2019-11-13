@@ -1,6 +1,5 @@
 #import "DDPShared"
 
-
 /** Base Class for variables related to outcomes.
 Auxiliary variables are typically functions of the state and action vectors that would be observed in the data.
 
@@ -46,11 +45,13 @@ struct MultiIndicator : Indicator {
     Realize(y=0);
     }
 
+/*
 struct ZetaRealization : AuxiliaryValue {  //Changed April 2016 from Quantity
 	const decl length;
 	ZetaRealization(length);
 	virtual Realize(y=0);
 	}
+*/
 
 /** Add normal noise to a AV() compatible target, either linear or log-linear. **/
 struct Noisy : AuxiliaryValue {

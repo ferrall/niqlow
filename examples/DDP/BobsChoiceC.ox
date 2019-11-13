@@ -3,8 +3,9 @@
 
 class BobsChoiceC : Bellman {
         static const decl Uv =  < -20; -18;  4.2; -0.6;  1.5;  3.2; -25; -0.5>;
-        static decl Yacc,       //Modified
-                sch, maj;
+        static decl Yacc,       //Added
+                    Qsch,
+                    sch, maj;
         static Decide();
         Utility();
         FeasibleActions();  //Added
@@ -21,17 +22,17 @@ BobsChoiceC::Decide() {
     Initialize(new BobsChoiceC());
     SetClock(StaticProgram);
     Actions(maj,sch);
+    Qsch = new StateVariable("Qsch",2);
     Yacc = new StateVariable("Yacc",2); //Added
-    EndogenousStates(Yacc);
+    EndogenousStates(Yacc,Qsch);        //Modified
     CreateSpaces();
     VISolve();
     }
 
 BobsChoiceC::FeasibleActions() {       //Added
-    if (CV(Yacc)==1) return ones(Alpha::N,1);
-    return CV(sch).!=1;
+    return (CV(Yacc)==1)  .||  (CV(sch).!=1);
     }
 
 BobsChoiceC::Utility() {
-    return OnlyFeasible(Uv);   // Modified
+    return OnlyFeasible(Uv) + 2.2*CV(Qsch)*(CV(sch).==2);   // Modified
     }

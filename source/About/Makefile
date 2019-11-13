@@ -11,8 +11,8 @@ else
 	ERASE := rm
 	INC := ../../include
 endif
-
-AboutDocs = Install License Citation Acknowledgements ReleaseNotes
+# ReleaseNotes
+AboutDocs = Install License Citation Acknowledgements 
 
 .PHONY : document
 document:

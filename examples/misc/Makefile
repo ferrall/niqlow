@@ -6,9 +6,9 @@ vpath %.ox .
 vpath %.h .:$(INC)
 vpath %.oxo .:$(INC)
 vpath %.ox.html $(DOC)
-#MortTest.   MVNormal. ReEmpExp.
+#MortTest.   MVNormal. ReEmpExp. WstarTestb. DynamicWstar.
 
-imports =WstarTestb. MNP. DynamicWstar.
+imports =MNP. 
 includes=TestGHK.ox StataMNP.ox 
 exoxo = $(examples:.=.oxo)
 exdoc = $(includes) $(imports:.=.ox)

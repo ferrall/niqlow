@@ -1,5 +1,5 @@
 #include "KeaneWolpinREStat1994.h"
-/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
 
 DynamicRoy::Replicate()	{
 	decl i, meth,Vmat,outmat, nc, mlabs;	
@@ -53,11 +53,12 @@ DynamicRoy::Replicate()	{
 
 /** Utility vector equals the vector of feasible returns.**/	
 DynamicRoy::Utility() {
-    decl rr,  x = CV(xper), x2 = sqr(x);
+    decl rr,  x = CV(xper), x2= sqr(x);
+    x[school] +=School0;  //Bug found Oct. 2019.  was not adding School0 until tuition cutoff
      rr =
 	         (1 ~ x[school] ~ x[white]~ -x2[white] ~ x[blue]  ~ -x2[blue] )*alph[white]
 	       | (1 ~ x[school] ~ x[blue] ~ -x2[blue]  ~ x[white] ~ -x2[white])*alph[blue]
-	       | (1 ~-(x[school]+School0>=HSGrad) ~ -!CV(attended))*bet
+	       | (1 ~-(x[school]>=HSGrad) ~ -!CV(attended))*bet
 	       | gamm;
     rr += AV(offers)';
 	rr[:blue] = exp(rr[:blue]);

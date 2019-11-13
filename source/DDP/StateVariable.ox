@@ -1,4 +1,6 @@
-#include "StateVariable.h"
+#ifndef Vh
+    #include "StateVariable.h"
+#endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 StripZeros(trans) {
@@ -435,12 +437,34 @@ Nvariable::Nvariable(L,Ndraws,mu,sigma) {
     this.mu = mu;
     this.sigma = sigma;
     SimpleJump(L,Ndraws);
+    if (!(isfunction(mu)||isclass(mu)||isclass(sigma))||isfunction(sigma)) {
+        this->Update();
+        }
     }
 
 Nvariable::Update() {	
     actual = AV(mu)|DiscreteNormal(N-1,AV(mu),AV(sigma))';
     if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
     }
+
+/**Create a single IID variable which vectorizes a multivariate normal using psuedo-random draws.
+@param L label
+@param Ndraws number of draws of the vector.
+@param Ndim width of the vector.
+@param mu means (constant, function or `Parameter` vector of length Ndim)
+@param sigma the vectorized lower triangle of the Cholesky decomposition, so length Ndim(Ndim+1)/2. Same allowed values as mu
+@param myseed 0 [default] do not set the seed. Positive will set the seed for the draw of the IID Z matrix.  See Ox's ranseed().
+
+**/
+MVNvectorized::MVNvectorized(L,Ndraws,Ndim,mu,sigma,myseed) {
+    ranseed(myseed);
+    zvals = rann(Ndim,Ndraws);  //Tack 0 on so first actual value is always the mean.
+    this.Ndim = Ndim;
+    Nvariable(L,Ndraws,mu,sigma);
+    actual = constant(.NaN,Ndraws,1);
+    }
+MVNvectorized::myAV()   {   return vecactual[v][];    }
+MVNvectorized::Update() {	vecactual = shape(AV(mu),1,Ndim) + (unvech(AV(sigma))*zvals)';	}
 
 /**Create a standard normal N(0,1) discretize jump variable. **/
 Zvariable::Zvariable(L,Ndraws) {    Nvariable(L,Ndraws);    }
@@ -860,7 +884,6 @@ RetainMatch::Transit() {
 Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 	this.Target=Target;
 	this.Reset = Reset;
-    println(L," ",N);
 	StateVariable(L,N);
 	this.ToTrack = ToTrack==DoAll ? vals : ToTrack;
     this.Prune = Prune;
@@ -1295,8 +1318,7 @@ MVIID::Transit()	{
 	 return {Allv,ones(1,MtoN)/MtoN};
 	}
 
-//Default StateBlock::Update should work!??
-//MVIID::Update(curs,first) {    }	
+
 
 /**Create a block for a multivariate normal distribution (IID over time).
 @param L label for block
@@ -1379,11 +1401,18 @@ Episode::Transit() 	{
 
 /** Tauchen discretizization.
 @param L label
-@param N
-@param M
-@param mu
-@param sig
-@param rho
+@param N Number of discrete points
+@param M `AV`() compatiable max discrete value
+@param mu `AV`() compatible mean $\mu$
+@param sig `AV`() compatible standard deviation $\sigma$
+@param rho `AV`() compatible autocorrelation $|rho$
+
+Actual values will take on $N$ equally spaced values in the range
+$$ \mu \pm M\sigma/\sqrt(1-\rho^2).$$
+The transition probabilities depends on the current value a la Tauchen.
+<DD>Note: If none of the paramters are objects then the actual values will be Updated upon creation. This makes
+them available while creating spaces.  Otherwise, update is not called on creation in case parameters  will be
+read in later.
 **/
 Tauchen::Tauchen(L,N,M,mu,sig,rho) {
 	StateVariable(L,N);
@@ -1394,16 +1423,21 @@ Tauchen::Tauchen(L,N,M,mu,sig,rho) {
 	gaps = range(0.5,N-1.5,+1);
 	pts = zeros(N,N+1);
 	Grid = zeros(N,N);
+    if (!(isclass(M)||isclass(mu)||isclass(rho)||isclass(sig)||
+          isfunction(M)||isfunction(mu)||isfunction(rho)||isfunction(sig))  ) {
+            Update();
+        }
 	}
 	
 Tauchen::Transit() {
-	return {vals,reshape(Grid[v][],N,Alpha::N)'};
+	return {vals,Grid[v][]};  //This was wrong: no need to match rows of A(). reshape(Grid[v][],N,Alpha::N)'
 	}
 	
 Tauchen::Update() {
 	s = AV(sig);
 	r = AV(rho);
-	rnge = M*s/sqrt(1-sqr(r)),
+    if (isfeq(s,0.0)||isfeq(r,0.0)) oxwarning("Tauchen st. deviation is near 0 or correlation is near 1.0");
+	rnge = AV(M)*s/sqrt(1-sqr(r)),
 	actual = -rnge +2*rnge*vals/(N-1),
 	pts[][] = probn(
 	          ((-.Inf ~ (-rnge+2*rnge*gaps/(N-1)) ~ +.Inf)
@@ -1411,7 +1445,6 @@ Tauchen::Update() {
 	Grid[][] = pts[][1:]-pts[][:N-1];
 	actual += AV(mu);
     actual = actual';
-    if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
 	}
 
 /**Create a new asset state variable.

@@ -61,8 +61,8 @@ TypeCheck(obj,cname,Fatal,msg) {
 @param X a double, integer, static function of the form X() or X(arg), or any object with a member named v.<br>
 an array of `CV` compatible elements will return the horizontal concatenation value of the results as matrix.
 @param ... a single argument can be passed along with X().  Further arguments are ignored
-@comments This allows elements of the code to be represented several different ways.<br>
-Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside `StateVariable::Transit`.<br>
+@comments This allows elements of the code to be represented several different ways.<br/>
+Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside `StateVariable::Transit`.<br/>
 No argument is passed by `EndogTrans::Transitions`() and `DP::ExogenousTransition`
 @returns X.v, X, X(), X(arg)
 **/
@@ -128,7 +128,6 @@ SumToOne(v) {
     decl s = sumc(matrix(v));
     return v|(1-s);
     }
-
 
 
 /**Return index of a single draw from the multinomial distribution.
@@ -353,7 +352,9 @@ Parameter::Menu() {
  }
 
 
-/** Print a number of spaces.**/
+/** Print a number of spaces.
+@internal
+**/
 Indent(depth) { decl i; for(i=0;i<depth;++i) print(" "); }
 	
 /** Reset the starting value of a parameter.
@@ -403,6 +404,7 @@ vararray(s) {
 @param pfx string to pre-fix
 @param s string or array of strings
 @return pfx pre-fixed to s
+@internal
 **/
 prefix(pfx, s) {
     if (isstring(s)) return pfx+s;
@@ -415,6 +417,7 @@ prefix(pfx, s) {
 @param pfx string to pre-fix
 @param s string or array of strings
 @return pfx pre-fixed to s
+@internal
 **/
 suffix(s, sfx) {
     if (isstring(s)) return s+sfx;
@@ -425,6 +428,7 @@ suffix(s, sfx) {
 
 
 /**  Abbreviate a string or list of strings.
+ @internal
 **/
 abbrev(s) {
     if (isstring(s)) return s[ : min(sizeof(s),abbrevsz)-1 ];
@@ -736,6 +740,7 @@ Point::aggregate(inV,outv) {
     else outv[0] = locv;
 	}
 
+/** @internal **/
 Point::Copy(h) {
 	AggType = h.AggType;
 	F = h.F;
@@ -743,13 +748,15 @@ Point::Copy(h) {
 	X = h.X;
 	V = h.V;
 	}
-	
+
+/** @internal **/	
 Point::GCopy(h) {
 	Point::Copy(h);
 	G = h.G;
 	H = h.H;
 	}
 
+/** @internal **/
 CPoint::CPoint(e,i) {
 	Point();
 	eq = new Equality(e);
@@ -802,6 +809,7 @@ SepPoint::SepPoint(Kvar,bb) {
 	foreach (k in V) k = <>;
 	}
 
+/** @internal **/
 CPoint::Copy(h) {
 	GCopy(h);
 	L = h.L;
@@ -809,6 +817,7 @@ CPoint::Copy(h) {
 	ineq.v = h.ineq.v;
 	}
 	
+/** @internal **/
 MixPoint::MixPoint(Dvar,sp) {
 	Point();
 	WF = <>;
@@ -818,6 +827,7 @@ MixPoint::MixPoint(Dvar,sp) {
 	this.sp = sp;
 	}
 
+/** @internal **/
 MixPoint::Copy(h) {
 	Point::Copy(h);
 	}
@@ -924,6 +934,7 @@ CGI::Parse() {
     return {nms,vals};
 	}
 
+/** @internal **/
 CGI::VolumeCtrl(pref,Volume) {
     fprint  (out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"",-1,"\" ",Volume==-1 ? "checked>" : ">","SILENT&nbsp;");
     fprint  (out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"", 0,"\" ",Volume== 0 ? "checked>" : ">","QUIET&nbsp;");
@@ -931,10 +942,12 @@ CGI::VolumeCtrl(pref,Volume) {
     fprintln(out,"<input type=\"radio\" name=\"",pref,"Volume\""," value=\"", 2,"\" ",Volume== 2 ? "checked>" : ">","NOISY;&emsp;");
     }
 
+/** @internal **/
 CGI::CheckBox(nm,val,checked) {
  fprintln(out,"<input type=\"checkbox\" name=\"",nm,"\" value=\"",val,"\" ",checked ?  "checked>" : ">");
  }
 
+/** @internal **/
 CGI::CreateForm(list) {
    fprintln(out,"<h3>Parameters</h3><OL>");
    decl p;
@@ -946,6 +959,7 @@ CGI::CreateForm(list) {
    fprintln(out,"</OL>");
     }
 
+/** @internal **/
 CGI::ReadForm(list) {
     decl parlabs,parvals,loc,p;
     Initialize();

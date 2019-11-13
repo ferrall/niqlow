@@ -1,4 +1,4 @@
-#include "LS.ox"
+#include "LSp.ox"
 
 main() {
     HTopen("../../OODP/LS");

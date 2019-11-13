@@ -39,10 +39,11 @@ struct Test2 : ExtremeValue	{
 
 
 struct Test3 : ExPostSmoothing {
-	static decl a, d, s0, s1;
+	static decl a, d, s0, s1, U0;
 	static Run();
 	static 	RunA(Uselist=FALSE);
 	Utility();
+    ThetaUtility();
 	}
 
 struct Test3a : ExPostSmoothing	{
@@ -55,12 +56,14 @@ struct Test3a : ExPostSmoothing	{
 													<0.90;0.07;0.06;0.0;0.055;0.0>},
 		/** lower triange &Sigma; **/		sig = <1.0;0.5;0.0;1.0;0.0;1.0>;
 	static decl
+                                            U0,
         /** endowment random effect **/     lnk,
 		/** index accepted offer/srch**/  	accept,
 		/** offer block **/		  		  	offers,
 		/** occupation experience array**/	xper;
 	static 	Run();
 			Utility();
+            ThetaUtility();
 	}
 
 	
@@ -105,8 +108,24 @@ struct Test9 : Bellman	{
 /** A simple search over normally distributed offers. **/
 struct Test10 : OneDimensionalChoice	{
     static const decl eta = 0.25;
-	static decl done, RV;
+	static decl done;
 	static Run();
+	Utility();
+	EUtility();
+    Uz(z);
+	}
+
+/** A simple search over normally distributed offers. **/
+struct Test11 : OneDimensionalChoice	{
+    static const decl T=27, b = .1, delta=.99, pd=1/(1-delta);
+    static decl  alpha = 1.2, pi0=<0.85,.75>;
+	static decl done, hasoff, k;
+	static Run();
+    static OfferProb();
+    static Ewage();
+    Reachable();
+    FeasibleActions();
+    Continuous();
 	Utility();
 	EUtility();
     Uz(z);

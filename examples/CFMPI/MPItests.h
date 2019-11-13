@@ -3,6 +3,6 @@
 #import "ClientServerTestA"
 #import "PeerCommunicationTestA"
 #import "baseMPI"
-#import "Menu"
+#import "menu"
 
 mpimenu();

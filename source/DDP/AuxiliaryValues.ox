@@ -1,4 +1,6 @@
-#include "AuxiliaryValues.h"
+#ifndef Vh
+    #include "AuxiliaryValues.h"
+#endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** Create a new element of &chi;, the space of auxiliary outcomes.
@@ -27,27 +29,29 @@ AuxiliaryValue::Realize(y) {	v = 1.0; }
 **/	
 AuxiliaryValue::Likelihood(y) { return 1.0; }
 
-/** Create a new &zeta;, the vector-valued realized shock vector.
+/* Create a new &zeta;, the vector-valued realized shock vector.
 @param length integer, length of the (row) vector.
 @param Volume default=SILENT. `NoiseLevels`
 
 The default &zeta; is a 0 length vector.
-**/
 ZetaRealization::ZetaRealization(length) {
 	this.L = "zeta";
 	this.length = length;
 	v = constant(.NaN,1,length);
 	}
+*/
 
-/** Default: &zeta; is undefined, replace with a virtual function that returns a
+/* Default: &zeta; is undefined, replace with a virtual function that returns a
 value drawn from the conditional distribution of &zeta;
-@param y, the current realized outcome, &upsilon;.**/	
+@param y, the current realized outcome, &upsilon;.
 ZetaRealization::Realize(y) {	}
+*/
 
 /** Realized utility, U().**/
 RealizedUtility::RealizedUtility() { 	AuxiliaryValue("U"); 	}
 
 RealizedUtility::Realize(y) {	
+    I::curth->ThetaUtility();
     v = Alpha::aI!=UnInitialized ? I::curth->Utility()[Alpha::aI]
                                  : I::curth->Utility();	
     }
