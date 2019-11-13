@@ -1,4 +1,6 @@
-#include "HotzMiller.h"
+#ifndef Mh
+    #include "HotzMiller.h"
+#endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** Create a Hotz-Miller solution method.
@@ -147,6 +149,7 @@ HotzMiller::Solve(Fgroups) {
         }
     pdelt = sqrt(pdelt);
     println("pd ",pdelt);
+    return TRUE;
     }
 
 HotzMiller::AMiter(mle) {

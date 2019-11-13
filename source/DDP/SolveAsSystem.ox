@@ -1,4 +1,6 @@
-#include "SolveAsSystem.h"
+#ifndef Mh
+    #include "SolveAsSystem.h"
+#endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** Initialize EV() as a system of non-linear equations. **/	
@@ -36,11 +38,12 @@ SolveAsSystem::SolveAsSystem() {
     }
 
 SolveAsSystem::Solve(SystemSolutionMethod,MaxTrips)	{
-    Method::Solve();
+    decl rval = Method::Solve();
 	Parameter::DoNotConstrain = FALSE;
     this.SystemSolutionMethod = SystemSolutionMethod;
     this.MaxTrips = MaxTrips;
     this->GroupTask::loop();
+    return rval;
 	}
 
 SolveAsSystem::Run() {

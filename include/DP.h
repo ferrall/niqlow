@@ -1,10 +1,12 @@
 #import "Variables"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
+#ifdef OX_PARALLEL
 extern decl
         /** &Gamma; array (list) of groups of fixed and random effects. **/ Gamma,
         /** 2-d array pointing to &Gamma;. **/								Fgamma,
         /** &Theta; array (list) of all endogenous state nodes.**/  		Theta;
+#endif
 
 /**Stores information on a set of state variables, such as &theta;
 @see DP::S
@@ -32,7 +34,7 @@ struct SubSpace : DDPauxiliary  {
 	/** leftmost state index. **/			left,
 	/** rightmost state index **/		    right;	
 	SubSpace(); 	
-	Dimensions(subs,UseLast=TRUE,DynRand=FALSE);
+	Dimensions(subs,UseLast=TRUE,DynRand=FALSE);  //
 	ActDimensions();
 	} 	
 
@@ -143,7 +145,7 @@ struct DP {
         static  DrawFsamp(find,N=1);
 		static  SyncAct(a);
         static  SubSampleStates(SampleProportion=1.0,MinSZ=0,MaxSZ=INT_MAX);
-        static  SetUpdateTime(time=AfterFixed);
+        static  SetUpdateTime(time=AfterRandom);
 
         static KLaggedState(Target,K,Prune=TRUE);
         static KLaggedAction(Target,K,Prune=TRUE);
@@ -457,7 +459,13 @@ struct DumpExogTrans : ExTask {
 	Run();
 	}
 
+/** The base class for Outcomes and Predictions.
+
+**/
 struct Data : Task {
-    static decl logf, lognm, Volume;
+    static decl
+    /** File for logging data output.**/        logf,
+    /** timestamped file name. **/              lognm,
+    /** Volume of output @see NoiseLevels.**/   Volume;
     static SetLog();
    }

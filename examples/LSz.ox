@@ -11,7 +11,7 @@ LSz::Run() {
     LS::Build(d);
     CreateSpaces();
     RVSolve();
-    ComputePredictions(UseDefault);
+    ComputePredictions();
     }
 LSz::Uz(z) {
     LS::e = z;  //copy current guess of z* into e

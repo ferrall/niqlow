@@ -3,8 +3,43 @@
 #endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
+/**  All-in-one Value Iteration.
+
+<DT>This routine simplifies basic solving using Bellman value function iteration.</DT>
+
+<DT><mark>CAUTION</mark> All problems defined by fixed and random effects variables are solved. However, the solutions
+cannot be used  ex post for prediction or simulation because only the last group's problem remains in memory.
+Instead, a solution method object must be nested to handle multiple problems. If there is are no group
+variables then ex post prediction and simulation can follow use of <code>VISolve()</code></DT>
+
+<DT>Note:  All parameters are optional, so <code>VISolve()</code> works.</DT>
+
+<DD>Simply call this after calling `DP::CreateSpaces`().</DD>
+<DD>It creates the `ValueIteration` object, calls the <code>Solve()</code> routine and then deletes the object.</DD>
+<DD>It's useful for debugging and demonstration purposes because the user's code does not need to create
+the solution method object and call solve.</DD>
+<DD>This cannot be used if the solution is nested within some other iterative procedure because the solution method
+object must be created and kept</DD>
+
+@param ToScreen  TRUE [default] means output is displayed to output.
+@param aM	address to return matrix of values and choice probabilities</br>0, do not save [default]
+@param MaxChoiceIndex FALSE: print choice probability vector [default]</br>
+                TRUE: only print index of choice with max probability.  Useful when the full action matrix is very large.
+@param TrimTerminals FALSE [default] <br>TRUE: states marked `Bellman::Type`&gt;=TERMINAL are deleted from the output
+@param TrimZeroChoice FALSE [default] <br> TRUE: states with no choice are deleted
+@return TRUE if method fails, FALSE if it succeeds
+
+<DT>This function</DT>
+<DD>Creates a `ValueIteration` method</dd>
+<dd>Calls `DPDeubg::outAllV`(<parameters>)</dd>
+<DD>Calls `ValueIteration::Solve`()</dd>
+<dd>deletes the solution method</dd>
+
+**/
 VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling VISolve()");
+    if (N::G>One)
+        oxwarning("DDP Warning: With heterogeneity using RVSolve and then making predictions & outcomes is wrong. Use a nested solution.");
     decl meth = new ValueIteration(),succeed;
     DPDebug::outAllV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice);
     succeed = meth->Solve();
@@ -83,8 +118,8 @@ Choice probabilities are stored in `Bellman::pandv`
 **/
 ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
     Method::Initialize(MaxTrips);
-    Method::Solve(Fgroups,Rgroups);
-    return qtask.itask.succeed;
+    return Method::Solve(Fgroups,Rgroups);
+    // qtask.itask.succeed;
 	}
 
 /**Solve Bellman's Equation switching to N-K when a tolerance is reached.

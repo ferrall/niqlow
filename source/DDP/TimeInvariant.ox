@@ -1,4 +1,6 @@
-#include "TimeInvariant.h"
+#ifndef Vh
+    #include "TimeInvariant.h"
+#endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** A state variable that is non-random an invariant for and individual DP problem.
@@ -70,7 +72,7 @@ actual should be set in Distribution.
 TimeInvariant::Update() { }
 
 /** TimeInvariants have a fixed transition.
-@internal 
+@internal
 **/
 TimeInvariant::Transit() { return { matrix(v) , CondProbOne }; }
 

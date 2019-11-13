@@ -12,7 +12,7 @@ varsrc :=  Shared. DDPShared. ActionVariable. StateVariable. Clock. TimeInvarian
 varobj = $(varsrc:.=.oxo)
 dppsrc := Methods. Bellman. Data.
 dppobj = $(dppsrc:.=.oxo)
-bellsrc := Variables. DDPShared.
+bellsrc := Variables. DDPShared. DP. 
 bellobj = $(bellsrc:.=.oxo)
 
 xtradoc = GetStarted DDP.ox DP.ox Variables.ox Bellman.ox Methods.ox Data.ox DDPShared.ox Error_And_Warning_Messages

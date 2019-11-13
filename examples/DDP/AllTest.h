@@ -117,11 +117,13 @@ struct Test10 : OneDimensionalChoice	{
 
 /** A simple search over normally distributed offers. **/
 struct Test11 : OneDimensionalChoice	{
-    static const decl T=26, b = .1, alpha = 1.3, delta=.99, pd=1/(1-delta), pi0=<0.95,.7>;
+    static const decl T=27, b = .1, delta=.99, pd=1/(1-delta);
+    static decl  alpha = 1.2, pi0=<0.85,.75>;
 	static decl done, hasoff, k;
 	static Run();
     static OfferProb();
     static Ewage();
+    Reachable();
     FeasibleActions();
     Continuous();
 	Utility();

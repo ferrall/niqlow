@@ -33,18 +33,17 @@ Replicate <a href="">Wolpin (Econometrica 1987)</a>, the school to work transiti
             \{0\} & if \)</span>h=0<span class="expressions">\( (no offer)\cr
             \{1\} & if \)</span>h=1<span class="expressions">\( and \)</span>t\ge 54<span class="expressions">\( (must accept any offer)\cr}\)</span><span class="expressions">\(
 <LI>Expected Utility of Reject/Accept.</LI>
-    Given \)</span>z^\star_t<span class="expressions">\( the current value of the reservation wage, and wage offers are log-normally distributed.  
+    Given \)</span>z^\star_t<span class="expressions">\( the current value of the reservation wage, and wage offers are log-normally distributed.
     define \)</span>q = \ln(z^\star_t,\nu)-\ln(\tilde{w})<span class="expressions">\(, \)</span>p = 1-\Phi(q/\sigma)<span class="expressions">\(,
     \)</span>\lambda = 1 - \Phi(q/\sigma-\sigma^2)<span class="expressions">\(.  Then the model delivers a 2x2 matrix of expected values:
     \)</span>\pmatrix{ -c & (1-p) \cr PDV(E\lambda/p) & p }<span class="expressions">\(
-    That is, the right column is the probability of \)</span>w<span class="expressions">\( above and below \)</span>z^\star<span class="expressions">\(, respectively.  
+    That is, the right column is the probability of \)</span>w<span class="expressions">\( above and below \)</span>z^\star<span class="expressions">\(, respectively.
     The left column is the expected utility of rejecting and accepting given \)</span>z^\star<span class="expressions">\(.  Rejection has
-    utility \)</span>c<span class="expressions">\(.  Acceptance is the present discounted value of the mean wage conditional on it being greater than \)</span>\z^\star<span class="expressions">\(, thus 
+    utility \)</span>c<span class="expressions">\(.  Acceptance is the present discounted value of the mean wage conditional on it being greater than \)</span>\z^\star<span class="expressions">\(, thus
     \)</span><span class="expressions">\(PDV(w) = { w+.99901408{T^\star-t}\over 1-.99901408}.\)</span><span class="expressions">\(
     Note that <q>utility</q> is the right term if upon acceptance the searcher gets the full present value of wages.  This is consistent with the model since there are no further decisions after a wage is accepted.  If there were further decisions that depended on future wages then the value of the accepted wage would have to be tracked as a discrete state variable.
 <P/>
-    To solve the model also provides the utility vector at the reservation wage, which is simply \)</span>\pmatrix{ -c \cr PDF(x) }<span class="expressions">\(.  Together \)</span>z^\star<span class="expressions">\( is a root to a non-linear equation:
-    niqlow solves this equation for each state at which search is possible. In the model there are states at which search is not possible and <code>Utility()</code> must account for this
+    To solve the model also provides the utility vector at the reservation wage, which is simply \)</span>\pmatrix{ -c \cr PDF(x) }<span class="expressions">\(.  Together \)</span>z^\star<span class="expressions">\( is a root to a non-linear equation: <span class="n">niqlow</span> solves this equation for each state at which search is possible. In the model there are states at which search is not possible and <code>Utility()</code> must account for this
     \)</span><span class="expressions">\(U() = (1-m)(-(1-h)c + h*PDV(E[w])).\)</span><span class="expressions">\(
     That is, if no offer is in hand utility is \)</span>-c<span class="expressions">\(.  And if an offer is in hand (and search is not possible) the searcher must accept the wage.  The expected utility of arriving at this state is therefore \)</span>PDV(E[w])<span class="expressions">\( where \)</span>E[w] = ??<span class="expressions">\(.</LI>
 <LI>\)</span>\delta = 0.999<span class="expressions">\(.  The text states for the long post-search period a <q>annual discount rate of 5 percent</q> was used.  In monthly terms this results in a discount factor of \)</span>\delta_v = e^{\ln(.95)/52} = .99901408$.</LI>

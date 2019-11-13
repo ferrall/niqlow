@@ -1,5 +1,5 @@
 #import "DDPShared"
-/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
 
 		/** . elements of array returned by `StateVariable::Transit` @name TransOutput **/
 enum {Qind,Qprob,TransOutput}

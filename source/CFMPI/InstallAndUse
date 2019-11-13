@@ -3,7 +3,7 @@
 @sortkey AAB
 <h2>One-time Initialization on a Cluster with MPI</h2>
 <DL>
-<DT>Install Ox and niqlow.</DT>
+<DT>Install Ox and <span class="n">niqlow</span>.</DT>
 <DT>Find MPI</DT>
 <DD>Locate the MPI <code>lib</code> and <code>include</code> directories on the cluster.  You need to find the files <code>mpi.h</code> and <code>libmpi.o</code> (or <code>.a</code>, <code>.la</code>).  Note their locations.  You also need to choose a C compiler (such as <code>gcc</code>).</DD>
 <blockquote>If your cluster uses <code>OpenMPI</code> then you should be able to use CFMPI without changing the Ox and C code it uses.  Further, <span class="n">CFMPI</span> gets some special integer codes used in MPI dynamically so that implementations of MPI other than OpenMPI should not require and code changes.  However, there is no guarantee that CFMPI is fully compatible with MPI on your cluster.  If any errors occur please contact the author.  The amount of tweaks to the code to work with MPI variants is probably very small.</blockquote></dd></DT>
@@ -11,8 +11,8 @@
 <DD>Edit the file <code>niqlow/source/CFMPI/Makefile</code> with the information for your C compiler and MPI library.  Then make the shared CFMPI library file<pre>
 &#36; make -C &#36;niqlowHOME/source/CFMPI </pre>
 If successful this installs <code>CFMPI.so</code> in <code>niqlow/include</code>.</DD></DT>
-<DT>Include MPI and niqlow in the <code>LD_LIBRARY_PATH</code> when running Ox.</DT>
-<DD>If the script <code>oxl</code> has been edited properly when <span class="n">niqlow</span> was installed it will add the niqlow include directory to <code>LD_LIBRARY_PATH</code>.  If not, you must add it to the path before running Ox with CFMPI.</DD>
+<DT>Include MPI and <span class="n">niqlow</span> in the <code>LD_LIBRARY_PATH</code> when running Ox.</DT>
+<DD>If the script <code>oxl</code> has been edited properly when <span class="n">niqlow</span> was installed it will add the <span class="n">niqlow</span> include directory to <code>LD_LIBRARY_PATH</code>.  If not, you must add it to the path before running Ox with CFMPI.</DD>
 <DD>The directory that contains <code>libmpi.a</code> (or <code>.o</code> or <code>.la</code>) must also be on <code>LD_LIBRARY_PATH</code> when Ox runs.
 <dd>This could be done by modifying the <code>oxl</code> script so that it happens anytime Ox runs.
 </DL>

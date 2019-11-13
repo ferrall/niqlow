@@ -2,8 +2,8 @@
 
 		/** Categories of state variables.	
             These categories are used mainly for summarizing the model.
-                @name StateTypes **/	
-enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTEDV,TIMINGV,TIMEINVARIANTV,NStateTypes}
+                @name StateCategories **/	
+enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTEDV,TIMINGV,TIMEINVARIANTV,NStateCategories}
 
 		/** Vectors of state variables.
         <DT>Explanation</DT>
@@ -311,7 +311,7 @@ struct N : DDPauxiliary {
 		/** number of groups, &Gamma;.D      **/				      G,
 		/** number of fixed effect groups.   **/					  F,
 		/** number of random groups **/							      R,
-		/** either 0 or R **/							              DynR,
+		/** either 0 or R 		**/					                  DynR,
 		/** number of all state variables. **/						  S,
 		/**	counter.t.N, the decision horizon.    **/  			      T,
         /** Width of columns in pandv for given eta.**/               Ewidth,

@@ -224,7 +224,9 @@ DP::GetPstar(i) {    return Theta[i].pandv;    }
 First element is vector of indices for feasible states $\theta^\prime$<br>
 Second element is a matrix of transition probabilities (rows for actions $\alpha$, columns correspond to $\theta^\prime$)
 **/
-DP::GetTrackTrans(i,h) {    return {Theta[i].Nxt[Qtr][h],Theta[i].Nxt[Qrho][h]}; }
+DP::GetTrackTrans(i,h) {
+    return {Theta[i].Nxt[Qtr][h],Theta[i].Nxt[Qrho][h]};
+    }
 
 /** Ask to store overall $P*()$ choice probability matrix.
 @comment Can only be called before calling `DP::CreateSpaces`
@@ -673,7 +675,7 @@ ExogUtil::ExogUtil() {
 
 **/	
 ExogUtil::ReCompute(howmany) {
-    U = constant(.NaN,I::curth->pandv);
+    U = constant(.NaN,I::curth.pandv);
     if (AnyExog && howmany==DoAll)
         this->ExTask::loop();
     else
@@ -1051,23 +1053,21 @@ DP::Initialize(userState,UseStateList) {
  }
 
 /** Tell DDP when parameters and transitions have to be updated.
-@param time `UpdateTimes` [default=AfterFixed]
+@param time `UpdateTimes` [default=AfterRandom]
 
-THe default allows for transitions that depend on dynamically determined parameters
-<em>and</em> the current value of `FixedEffect` variables (if there are any).
-But transitions do not depend on `RandomEffect` variables (if there are any).
-Random effects can enter `Bellman::Utility`().
+THe default allows for transitions that depend on dynamically determined parameters,
+<em>and</em> the current value of `FixedEffect` variables (if there are any), and `RandomEffect` variables (if there are any).
 
 @example
 
-MyModel is even simpler than the default:  it has no dynamically determined parameters, so transitions
+MyModel is simpler than the default:  it has no dynamically determined parameters, so transitions
 can calculated once-and-for-all when spaces are created:
 <pre>
 &vellip;
 SetUpdateTime(InCreateSpaces);  //have to tell me before you call CreateSpaces!
 CreateSpaces();
 </pre>
-MyModel is still simpler than the default, but it transitions do depend on dynamic parameters (say
+MyModel is still simpler than the default, but its transitions do depend on dynamic parameters (say
 an estimated parameter).  So transitions have to be updated each time all solutions are initiated
 by `Method::Solve`() and can't just be done in <code>CreateSpaces</code>.
 <pre>
@@ -1075,12 +1075,12 @@ by `Method::Solve`() and can't just be done in <code>CreateSpaces</code>.
 CreateSpaces();
 SetUpdateTime(OnlyOnce);   // can be set after CreateSpaces
 </pre>
-MyModel is the most rich in that transitions and utility depend on random effect values.  So
-transitions have to be updated after random effect values are set (so before each solution starts):
+MyModel is still simpler than the default, but its transitions do depend on the values of FixedEffects. RandomEffects
+do not affect transitions, only utility so transitions do not have to be updated with each change in random effects:
 <pre>
 &vellip;
 CreateSpaces();
-SetUpdateTime(AfterRandom);
+SetUpdateTime(AfterFixed);
 </pre>
 
 </DD>
@@ -1168,7 +1168,7 @@ DP::onlyDryRun() {
 **/
 DP::CreateSpaces() {
    if (Flags::ThetaCreated) oxrunerror("DDP Error 44. State Space Already Defined. Call CreateSpaces() only once");
-   decl subv,i,pos,m,bb,sL,j,av, sbins = zeros(1,NStateTypes),w0,w1,w2,w3, tt,lo,hi,inargs = arglist();
+   decl subv,i,pos,m,bb,sL,j,av, sbins = zeros(1,NStateCategories),w0,w1,w2,w3, tt,lo,hi,inargs = arglist();
    if (strfind(inargs,"NOISY")!=NoMatch) Volume=NOISY;
     if (!S[acts].D) {
 		if (!Version::MPIserver) oxwarning("DDP Warning 17.\n No actions have been added to the model.\n A no-choice action inserted.\n");
@@ -2152,14 +2152,14 @@ SaveV::Run() {
 	stub=I::all[tracking]~I::curth.Type~ai~state[S[endog].M:S[clock].M]';
     p = columns(I::curth.pandv)==rows(NxtExog[Qprob])
             ?  ExpandP(ai, I::curth.pandv*NxtExog[Qprob])
-            :  ExpandP(ai, I::curth.pandv );
+            :  ExpandP(ai, I::curth.pandv);
     r =stub~I::r~I::f~I::curth.EV; //N::VV[I::later][I::all[iterating]]
     if (Flags::IsErgodic) r ~= I::curg.Pinfinity[I::all[tracking]];
     if (MaxChoiceIndex)
         r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p);
     else
         r ~= p' ;
-	if (oned && I::curth.solvez ) r ~= I::curth->Getz()[][I::r]';
+	if (oned && I::curth.solvez ) r ~= I::curth->Getz()[]';
 	if (!isint(aM)) aM[0] |= r;
     oxprintlevel(1);
 	s = (nottop)
@@ -2195,7 +2195,8 @@ RandomEffectsIntegration::Integrate(path) {
 /** . @internal **/
 RandomEffectsIntegration::Run() {
     path.rcur = I::r;  //Added Dec. 2016
-    L += path->TypeContribution(curREdensity);	
+    if (Flags::UpdateTime[AfterRandom ]) ETT->Transitions(I::curg.state);
+    L += path->TypeContribution(curREdensity);
     }
 
 /** Open data log with timestamp.

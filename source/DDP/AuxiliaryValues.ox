@@ -1,4 +1,6 @@
-#include "AuxiliaryValues.h"
+#ifndef Vh
+    #include "AuxiliaryValues.h"
+#endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** Create a new element of &chi;, the space of auxiliary outcomes.

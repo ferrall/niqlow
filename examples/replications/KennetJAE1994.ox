@@ -73,7 +73,7 @@ PrattWhitney::Run()	{
 	EMax.vtoler = 1E-5;   								//loose tolerance because beta near 0 and 1
     EMax.Volume = LOUD;
     EMax->ToggleRunSafe();
-	data = new PathPrediction(0,"",EMax,ErgodicDist);
+	data = new PathPrediction(0,EMax,ErgodicDist);
     data -> Tracking();
 	for (col=2;col<3;++col) { //sizeof(pars)
 		println("Column: ",col,pars[col]);

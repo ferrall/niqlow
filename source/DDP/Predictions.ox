@@ -1,4 +1,6 @@
-#include "Predictions.h"
+#ifndef Dh
+    #include "Predictions.h"
+#endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /**  Simple Prediction .
@@ -339,17 +341,18 @@ PathPrediction::InitialConditions() {
 		}
 	else if (isfunction(iDist))
         iDist(this);
-    else
+    else {
+        //println("Argument iDist = ",iDist);
         oxrunerror("DDP Error 64. iDist must be integer, vector, function or Prediction object");
+        }
     if (!Version::MPIserver && Data::Volume>LOUD && isfile(Data::logf) ) fprintln(Data::logf,"Path for Group ",f,". Initial State Indices & Prob.","%r",{"Ind.","prob."},(sind~p)',"----");
     ch[] = 0.0;
     LeakWarned = FALSE;
     }
 
 /** Create a path of predictions.
-@param f     integer: fixed group index
-@param label label
-@param method 0: do not call a nested solution<br/>
+@param f     integer: fixed group index [default=0]
+@param method 0: do not call a nested solution [default]<br/>
               a solution `Method` object to be called before making predictions
 @param iDist  initial distribution.<br/>
         ErgodicDist : use computed stationary distribution in ergodic dist.</br>
@@ -365,8 +368,7 @@ PathPrediction::InitialConditions() {
 The prediction is not made until `PathPrediction::Predict`() is called.
 
 **/
-PathPrediction::PathPrediction(f,label,method,iDist,wght){
-	this.label = label;
+PathPrediction::PathPrediction(f,method,iDist,wght){
 	this.f = f;
 	this.method = method;
     this.iDist = iDist;
@@ -385,6 +387,8 @@ PathPrediction::PathPrediction(f,label,method,iDist,wght){
     pathW = 0;
 
     if ((N::R>One || N::DynR>One ) && isint(summand)) {
+        if (!isclass(method))
+            oxwarning("DDP Warning: Solution method is not nested with random effects present.  Predictions will not be accurate.");
 		summand = new RandomEffectsIntegration();
 		upddens = new UpdateDensity();
 		}
@@ -556,9 +560,12 @@ This updates every tracked object.  It updates the density over random effects f
 
 **/
 PathPrediction::Initialize() {
+    if (!sizeof(tlist)) {
+        println("Nothing tracked.  Will track everthing.");
+        Tracking(TrackAll);
+        }
     EverPredicted = TRUE;
     PredictFailure = FALSE;
-    //decl t;foreach (t in tlist) t->Update();
 	if (isclass(upddens)) {
 		upddens->SetFE(state);
 		summand->SetFE(state);
@@ -572,6 +579,8 @@ PathPrediction::Initialize() {
 
 /** Compute predictions and distance over the path.
 @internal
+@param pf
+@param subf
 
 **/
 PathPrediction::TypeContribution(pf,subflat) {
@@ -667,7 +676,8 @@ PanelPrediction::~PanelPrediction() {
 	}	
 
 /** Create a panel of predictions.
-@param label for the panel
+@param label name for the data<br/>
+        UseDefault [default] use classname of model class.
 @param method `Method` to be called before predictions.
 @param iDist initial conditions for `PathPrediction`s<br/>
         ErgodicDist : use computed stationary distribution in ergodic dist.<br/>
@@ -679,13 +689,16 @@ PanelPrediction::~PanelPrediction() {
 **/
 PanelPrediction::PanelPrediction(label,method,iDist,wght) {
 	decl f=0;
-	PathPrediction(f,label,method,iDist,wght);	
+	PathPrediction(f,method,iDist,wght);	
+    label = isint(label) ? classname(userState) : label;
     PredMomFile=replace(Version::logdir+DP::L+"_PredMoments_"+label," ","")+".dta";
 	fparray = new array[N::F];
 	fparray[0] = 0;  // I am my own first fixed effect group.
 	cur = this;
     // Create path predictions for all other fixed effect groups
-	for (f=One;f<N::F;++f) cur = cur.fnext = fparray[f] = new PathPrediction(f,label,method,iDist,wght);
+    if (N::F>One && !isclass(method))
+            oxwarning("DDP Warning: Solution method is not nested with fixed effects present.  Predictions may not be accurate");
+	for (f=One;f<N::F;++f) cur = cur.fnext = fparray[f] = new PathPrediction(f,method,iDist,wght);
     FN = 1;
     TrackingCalled = FALSE;
     }
@@ -773,11 +786,14 @@ PredictionDataSet::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
 
 
 /** Create a panel prediction that is matched with external data.
-@param UorCorL where to get fixed-effect values<br/>matrix of indices, array of
-@param label name for the data
-@param method solution method to call before predict labels<br/>
+@param UorCorL where to get fixed-effect values<br/>
+        matrix of indices or array of labels<br/>
         UseLabel [default]<br/>
         NotInData only allowed if F=1, then no column contains fixed variables
+@param label name for the data<br/>
+        UseDefault [default] use classname of model class.
+@param method solution method to call before predict<br/>
+            UnInitialized [default] no method (warning if there is heterogeneity)
 @param iDist initial conditions set to `PathPrediction`s
 @param wght see `GMMWeightOptions`
 **/

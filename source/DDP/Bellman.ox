@@ -1,8 +1,4 @@
 #include "Bellman.h"
-#ifndef Bellox
-    #define Bellox
-    #include "DP.ox"
-#endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** Constructs the transitions for &theta;, the endogenous state vector.
@@ -128,14 +124,16 @@ Bellman::Allocate(picked,CalledFromBellman) {
   N::Approximated += !NewSS;
   if ((OldSS!=NewSS)||CalledFromBellman) {     //re-allocation required
     if (!CalledFromBellman) delete Nxt,pandv; //, U;
+    decl width;
     if (NewSS) {
         Nxt = new array[TransStore+N::DynR-1][SS[onlysemiexog].size];
-        pandv =new matrix[N::Options[Aind]][SS[bothexog].size];//constant(.NaN,U);
+        width = SS[bothexog].size;
         }
     else {
         Nxt = new array[TransStore+N::DynR-1][One];
-        pandv =new matrix[N::Options[Aind]][One]; //constant(.NaN,U);
+        width  = One;
         }
+    pandv = new matrix[N::Options[Aind]][width];//constant(.NaN,U);
     }
   }
 
@@ -669,7 +667,6 @@ ExPostSmoothing::Smooth() {
 **/
 ExtremeValue::Smooth() {
 	pandv ./= V;
-//    if (!I::t) println("** Smoothing ",VV,pandv);
 	}
 	
 /**Iterate on Bellman's equation at &theta; using Rust-styled additive extreme value errors.
@@ -932,9 +929,9 @@ OneDimensionalChoice::SetTheta(state,picked) {
     decl nz = N::Options[Aind]-1;
     if (solvez) {
         if (nz)
-            zstar = ones(nz,N::R);
+            zstar = ones(nz,1);
         else {
-            zstar = constant(.NaN,1,N::R);
+            zstar = <.NaN>;
             pstar = <1.0>;
             }
         }
@@ -976,7 +973,7 @@ OneDimensionalChoice::thetaEMax(){
 /** .**/
 OneDimensionalChoice::Getz() { return zstar; }
 /** .**/
-OneDimensionalChoice::Setz(z){ zstar[][I::r]=z; }
+OneDimensionalChoice::Setz(z){ zstar[]=z; }
 
 /** Initialize v(d;&theta;), stored in `Bellman::pandv`, as the constant future component that does
 not depend on z*.
@@ -987,7 +984,6 @@ OneDimensionalChoice::ActVal() {
                        ? 0.0
 	                   : I::CVdelta*Nxt[Qrho][0]*N::VV[I::later][Nxt[Qit][0]]';
     if (!solvez) {
-//        this->ThetaUtility();  // this may be redundant???
         XUT->ReCompute(DoAll);  //ZZZZ
         pandv += XUT.U;
         }

@@ -16,18 +16,17 @@
             \{0\} & if $h=0$ (no offer)\cr
             \{1\} & if $h=1$ and $t\ge 54$ (must accept any offer)\cr}$$
 <LI>Expected Utility of Reject/Accept.</LI>
-    Given $z^\star_t$ the current value of the reservation wage, and wage offers are log-normally distributed.  
+    Given $z^\star_t$ the current value of the reservation wage, and wage offers are log-normally distributed.
     define $q = \ln(z^\star_t,\nu)-\ln(\tilde{w})$, $p = 1-\Phi(q/\sigma)$,
     $\lambda = 1 - \Phi(q/\sigma-\sigma^2)$.  Then the model delivers a 2x2 matrix of expected values:
     $\pmatrix{ -c & (1-p) \cr PDV(E\lambda/p) & p }$
-    That is, the right column is the probability of $w$ above and below $z^\star$, respectively.  
+    That is, the right column is the probability of $w$ above and below $z^\star$, respectively.
     The left column is the expected utility of rejecting and accepting given $z^\star$.  Rejection has
-    utility $c$.  Acceptance is the present discounted value of the mean wage conditional on it being greater than $\z^\star$, thus 
+    utility $c$.  Acceptance is the present discounted value of the mean wage conditional on it being greater than $\z^\star$, thus
     $$PDV(w) = { w+.99901408{T^\star-t}\over 1-.99901408}.$$
     Note that <q>utility</q> is the right term if upon acceptance the searcher gets the full present value of wages.  This is consistent with the model since there are no further decisions after a wage is accepted.  If there were further decisions that depended on future wages then the value of the accepted wage would have to be tracked as a discrete state variable.
-    
-    To solve the model also provides the utility vector at the reservation wage, which is simply $\pmatrix{ -c \cr PDF(x) }$.  Together $z^\star$ is a root to a non-linear equation:
-    niqlow solves this equation for each state at which search is possible. In the model there are states at which search is not possible and <code>Utility()</code> must account for this
+
+    To solve the model also provides the utility vector at the reservation wage, which is simply $\pmatrix{ -c \cr PDF(x) }$.  Together $z^\star$ is a root to a non-linear equation: <span class="n">niqlow</span> solves this equation for each state at which search is possible. In the model there are states at which search is not possible and <code>Utility()</code> must account for this
     $$U() = (1-m)(-(1-h)c + h*PDV(E[w])).$$
     That is, if no offer is in hand utility is $-c$.  And if an offer is in hand (and search is not possible) the searcher must accept the wage.  The expected utility of arriving at this state is therefore $PDV(E[w])$ where $E[w] = ??$.</LI>
 <LI>$\delta = 0.999$.  The text states for the long post-search period a <q>annual discount rate of 5 percent</q> was used.  In monthly terms this results in a discount factor of $\delta_v = e^{\ln(.95)/52} = .99901408$.</LI>

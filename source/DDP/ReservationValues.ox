@@ -85,7 +85,7 @@ ReservationValues::ReservationValues(LBvalue,METHOD) {
 
 ReservationValues::Solve(Fgroups,Rgroups) {
     Method::Initialize();
-    Method::Solve(Fgroups,Rgroups);
+    return Method::Solve(Fgroups,Rgroups);
     }
 
 RVGSolve::Solve(state) {
@@ -155,6 +155,8 @@ This would be inefficient to use in any context when a solution method is applie
 **/
 RVSolve(ToScreen,aM) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling RVSolve()");
+    if (N::G>One)
+        oxwarning("DDP Warning: With heterogeneity using RVSolve and then making predictions & outcomes is wrong. Use a nested solution.");
     decl meth = new ReservationValues();
 	DPDebug::outAllV(ToScreen,aM);
     meth.Volume = QUIET;

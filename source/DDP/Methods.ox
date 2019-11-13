@@ -62,6 +62,7 @@ Method::Solve(Fgroups,Rgroups) {
     Flags::HasBeenUpdated = FALSE;
     if (Volume>QUIET && (Fgroups==AllFixed && Rgroups==AllRand))
         println("\n>>>>>>Value Iteration Finished.  Succeed: ",qtask.itask.succeed,"\n");
+    return qtask.itask.succeed;
     }
 
 /**Toggle whether to check for NaNs in value iteration.
@@ -99,7 +100,7 @@ This is not called by the user's code.  It is called by the method's Solve() rou
 @see DP::SetUpdateTime , EndogTrans::Transitions , HookTimes
 **/
 Method::Run() {
-    if (Flags::UpdateTime[AfterFixed]) {ETT->Transitions(state);}
+    if (Flags::UpdateTime[AfterFixed]) ETT->Transitions(state);
     if (DoNotIterate) return;
 	cputime0 = timer();
     if (trace) println("--------Group task loop: ",classname(this)," Rgroups ",Rgroups,state');
@@ -149,7 +150,7 @@ Solution is not run if the density of the point in the group space equals 0.0.
 **/
 RandomSolve::Run()  {
 	if (I::curg->Reset()>0.0) {
-        if (Flags::UpdateTime[AfterRandom]) {ETT->Transitions(state);}
+        if (Flags::UpdateTime[AfterRandom]) ETT->Transitions(state);
         retval =itask->Solve(this.state);
         if (Flags::IsErgodic) I::curg->StationaryDistribution();
         if (DPDebug::OutAll) DPDebug::RunOut();

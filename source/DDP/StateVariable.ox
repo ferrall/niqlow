@@ -1,4 +1,6 @@
-#include "StateVariable.h"
+#ifndef Vh
+    #include "StateVariable.h"
+#endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 StripZeros(trans) {

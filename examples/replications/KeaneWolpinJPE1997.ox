@@ -5,7 +5,7 @@
 KWJPE97::kdist() { return kprob[][CV[isch]]; }
 
 KWJPE97::Replicate()	{
-	decl i, meth,Vmat,outmat, nc, mlabs;	
+	decl i, pred,Vmat,outmat, nc, mlabs;	
 
     /* DP Model Setup */
 	Initialize(new KWJPE97());
@@ -18,35 +18,35 @@ KWJPE97::Replicate()	{
 	SetDelta(kwdelt);
 	CreateSpaces(LogitKernel,0.0001); //
     /* Solution Methods */
-    meth = new array[Nmethods];
-        meth[BruteForce] = new ValueIteration();
-	    meth[Approximate] = new KeaneWolpin();
     Vmat = new array[Nmethods];
+    pred = new array[Nmethods];
+    pred[BruteForce] = new PathPrediction(0,new ValueIteration());
+    pred[Approximate] =new PathPrediction(0,new KeaneWolpin());
     //meth[1].Volume = LOUD;
     /* Run methods, simulate, produce output */
-    for (i=0;i<Approximate;++i) { //Nmethods
+    for (i=1;i<=Approximate;++i) { //Nmethods
        if (i==Approximate)
             SubSampleStates( constant(1.0,1,TSampleStart)
                             ~constant(SamplePercentage/100,1,A1-TSampleStart),MinSample);
-       meth[i] -> Solve();
-	   println("Method ",i," time: ",timer()-cputime0);
-       SimulateOutcomes(Nsimulate,A1,"KW94_meth"+sprint(i)+".dta");
-       ComputePredictions(A1,Two);
-	   DPDebug::outV(FALSE,&outmat);
-       Vmat[i] = outmat;
+//       meth[i] -> Solve();
+//	   println("Method ",i," time: ",timer()-cputime0);
+//       SimulateOutcomes(Nsimulate,A1,"KW94_meth"+sprint(i)+".dta");
+//       ComputePredictions(A1,Two);
+        pred[i] -> Predict(A1,Two);
+//	   DPDebug::outV(FALSE,&outmat);
+  //     Vmat[i] = outmat;
        }
 
     /* Summary of Output */
-    nc = columns(Vmat[0])-Msectors-1;
-    mlabs = {"Emax","Pblue","Pwhite","Pmil","Pschool","Phome"};
-    println("EV and Choice Prob. ",
-        "Brute Force ",MyMoments(Vmat[BruteForce][][nc:],mlabs)
+//    nc = columns(Vmat[0])-Msectors-1;
+//    mlabs = {"Emax","Pblue","Pwhite","Pmil","Pschool","Phome"};
+//    println("EV and Choice Prob. ",
+//        "Brute Force ",MyMoments(Vmat[BruteForce][][nc:],mlabs)
         /*,
         "Approx ",MyMoments( Vmat[Approximate][][nc:],mlabs),
         "Abs. Diff ",MyMoments(fabs((Vmat[Approximate]-Vmat[BruteForce])[][nc:]),mlabs)*/
-        )
-        ;
-    delete meth[0], meth[1];
+//        );
+    delete pred[0], pred[1];
     Delete();
     }
 

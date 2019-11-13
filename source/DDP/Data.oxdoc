@@ -41,7 +41,7 @@ There two parallel but separate kinds of data:
 </tr>
 </table>
 
-However, users of niqlow will typically not interact directly with these base classes.  Instead, you will work with panels of data, both external data read in for estimation and data generated from the model through simulation and prediction.  If <code>Outcome</code> and <code>Prediction</code> are the lowest level classes, the corresponding highest ones are `OutcomeDataSet` and `PredictionDataSet`.</p>
+However, users of <span class="n">niqlow</span> will typically not interact directly with these base classes.  Instead, you will work with panels of data, both external data read in for estimation and data generated from the model through simulation and prediction.  If <code>Outcome</code> and <code>Prediction</code> are the lowest level classes, the corresponding highest ones are `OutcomeDataSet` and `PredictionDataSet`.</p>
 
 
 
@@ -156,7 +156,7 @@ To create a data set from external data:
 	data->IDColumn("id");
 	data->Read("data.dta");	
 </pre></dd>
-This says that there are two variables from the DP model observed in the data set, say a state variable <code>x</code> and an action variable <code>d</code>.  The external data uses the same labels for those variables as the DP model, so the correct columns can be found using them.  Each empirical path has to be associated with the value of variable in the data set, so the <code>IDColumn</code> must be specified before reading the data. The data must be sorted within each path starting at $t=0$.  Since no columns in the data were associated with fixed effect variables this must be a homogeneous model.  (There can be random effects but niqlow always assumes those are unobserved and will integrate over them.)  So the data set will end up having one Panel which contains one FPanel which contains as many paths as <code>Read()</code> finds in the Stata data set.</p>
+This says that there are two variables from the DP model observed in the data set, say a state variable <code>x</code> and an action variable <code>d</code>.  The external data uses the same labels for those variables as the DP model, so the correct columns can be found using them.  Each empirical path has to be associated with the value of variable in the data set, so the <code>IDColumn</code> must be specified before reading the data. The data must be sorted within each path starting at $t=0$.  Since no columns in the data were associated with fixed effect variables this must be a homogeneous model.  (There can be random effects but <span class="n">niqlow</span> always assumes those are unobserved and will integrate over them.)  So the data set will end up having one Panel which contains one FPanel which contains as many paths as <code>Read()</code> finds in the Stata data set.</p>
 
 To create a simulated data set from a solved DP model and save to a Stata data set:
 <DD><pre>
@@ -310,7 +310,7 @@ The base class `Prediction` tracks a list of possible state indices and their as
 </OL>
 
 </OL>
-@author &copy; 2011-2018 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
+@author &copy; 2011-2019 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
 
 <a name="auto"><hr><h1>Documentation of  Items Defined in Data.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 

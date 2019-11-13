@@ -1,10 +1,8 @@
 #import "database"
 #import "Bellman"
-/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
 
-#ifndef Dh
 ComputePredictions(T=UseDefault,prtlevel=Two);
-#endif
 
 /** Holds information about a column in the data.
 **/
@@ -22,25 +20,6 @@ struct DataColumn : Zauxiliary {
 	UnObserved();
 	ReturnColumn(dlabels,incol);
 	}	
-
-/*
-struct oTrack : TrackObj {
-    oTrack(LorC,obj,pos);
-    Distribution(pobj);
-    }
-struct aTrack : TrackObj {
-    aTrack(LorC,obj,pos);
-    Distribution(pobj);
-    }
-struct sTrack : TrackObj {
-    sTrack(LorC,obj,pos);
-    Distribution(pobj);
-    }
-struct xTrack : TrackObj {
-    xTrack(LorC,obj,pos);
-    Distribution(pobj);
-    }
-*/
 
 /** Predicted distribution across states.
 **/	
@@ -77,7 +56,6 @@ struct 	PathPrediction : Prediction {
     const decl                                  f,
                 /** initial distribution.**/    iDist,
                 /** for tracking.**/            fvals,
-                /** label **/                   label,
             /** Weight Moments for GMM if
                 empirical moments include.
                 @see GMMWeightOptions **/
@@ -104,7 +82,7 @@ struct 	PathPrediction : Prediction {
                                                     first,
     /** the next PathPrediction   **/               fnext;
     static tprefix(t);
-	PathPrediction(f=0,label="",method=UnInitialized,iDist=0,wght=UNCORRELATED);
+	PathPrediction(f=0,method=UnInitialized,iDist=0,wght=UNCORRELATED);
     Initialize();
 
 	~PathPrediction();
@@ -130,7 +108,7 @@ struct PanelPrediction : PathPrediction {
                                              delt,
                                              aflat,
 	/** array of GMM vector. **/	 	     M;
-    PanelPrediction(label="",method=UnInitialized,iDist=0,wght=UNCORRELATED);
+    PanelPrediction(label=UseDefault,method=UnInitialized,iDist=0,wght=UNCORRELATED);
     ~PanelPrediction();
     Predict(T=0,printit=FALSE,submat=0);
     Tracking(LorC=TrackAll,...);
@@ -148,7 +126,7 @@ struct PredictionDataSet : PanelPrediction {
             /** observations column (index or label).**/                Nplace,
             /** time column (index or label).**/                        Tplace,
             /** **/                                                     FMethod;
-    PredictionDataSet(UorCorL=UseLabel,label="",method=UnInitialized,iDist=0,wght=UNCORRELATED);
+    PredictionDataSet(UorCorL=UseLabel,label=UseDefault,method=UnInitialized,iDist=0,wght=UNCORRELATED);
     Observed(as1,lc1=0,...);
     TrackingMatchToColumn(Fgroup,LorC,mom);
     TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);

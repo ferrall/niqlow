@@ -1,10 +1,5 @@
-#ifdef OX_PARALLEL
-#ifndef DPin
-    #define DPin
-    #include "DP.h"
-#endif
-#endif
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+#import "DP"
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /** $\theta$-specific values.
 
@@ -273,7 +268,7 @@ struct OneDimensionalChoice : ExPostSmoothing {
 			decl
             /** TRUE: solve for z* at this state.
                 Otherwise, ordinary discrete choice.**/             solvez,
-			/**N::Aind-1 x N::R array of reservation value vectors.  **/	zstar;
+			/**N::Aind-1 x 1 of reservation value vectors.  **/	 zstar;
 	static 	Initialize(userState,d=Two,UseStateList=FALSE);
 	static  CreateSpaces(Method=NoSmoothing,smparam=1.0);
 	virtual Uz(z);

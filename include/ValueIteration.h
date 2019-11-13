@@ -1,35 +1,8 @@
 #import "Bellman"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 enum {AddToSample,ComputeBhat,PredictEV,NKWstages}
 
-/**  All-in-one Value Iteration.
-
-<DT>This routine simplifies basic solving using Bellman value function iteration.</DT>
-<DT>Note:  All parameters are optional, so <code>VISolve()</code> works.</DT>
-
-<DD>Simply call this after calling `DP::CreateSpaces`().</DD>
-<DD>It creates the `ValueIteration` object, calls the <code>Solve()</code> routine and then deletes the object.</DD>
-<DD>It's useful for debugging and demonstration purposes because the user's code does not need to create
-the solution method object and call solve.</DD>
-<DD>This cannot be used if the solution is nested within some other iterative procedure because the solution method
-object must be created and kept</DD>
-
-@param ToScreen  TRUE [default] means output is displayed to output.
-@param aM	address to return matrix of values and choice probabilities</br>0, do not save [default]
-@param MaxChoiceIndex FALSE: print choice probability vector [default]</br>
-                TRUE: only print index of choice with max probability.  Useful when the full action matrix is very large.
-@param TrimTerminals FALSE [default] <br>TRUE: states marked `Bellman::Type`&gt;=TERMINAL are deleted from the output
-@param TrimZeroChoice FALSE [default] <br> TRUE: states with no choice are deleted
-@return TRUE if method fails, FALSE if it succeeds
-
-<DT>This function</DT>
-<DD>Creates a `ValueIteration` method</dd>
-<dd>Calls `DPDeubg::outAllV`(<parameters>)</dd>
-<DD>Calls `ValueIteration::Solve`()</dd>
-<dd>deletes the solution method</dd>
-
-**/
 VISolve(ToScreen=TRUE,aM=FALSE,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
 
 /**Iterate on Bellman's Equation, to solve EV(&theta;) for all fixed and random effects.

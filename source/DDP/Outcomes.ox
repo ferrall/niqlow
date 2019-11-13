@@ -1,4 +1,6 @@
-#include "Outcomes.h"
+#ifndef Dh
+    #include "Outcomes.h"
+#endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 /**  Simple Panel Simulation.
@@ -179,10 +181,6 @@ Path::Path(i,state0) {
         }
 	else Outcome(state0);
 	last = pnext = UnInitialized;
-	if ( (N::R>One || N::DynR>One ) && isint(summand)) {
-		summand = new RandomEffectsIntegration();
-		upddens = new UpdateDensity();
-		}
 	}
 
 /** Destroy all outcomes along a path.
@@ -194,7 +192,6 @@ Path::~Path() {
 		delete onext;
 		onext = cur;
 		}
-	if (isclass(summand)) {delete summand, upddens ; summand=UnInitialized;}
 	~Outcome();
 	}	
 
@@ -278,6 +275,12 @@ FPanel::FPanel(f,method) {
 	this.f = f;
 	this.method = method;
 	Path(0,UnInitialized);
+	if ( (N::R>One || N::DynR>One ) && isint(summand)) {
+        if (!isclass(method))
+            oxwarning("DDP Warning: Solution method is not nested with random effects present.  Path Outcomes may not be accurate");
+		summand = new RandomEffectsIntegration();
+		upddens = new UpdateDensity();
+		}
 	if (isint(SD)&&Flags::IsErgodic) SD = new SDTask();
 	fnext = UnInitialized;
 	NT = N = 0;
@@ -297,6 +300,7 @@ FPanel::~FPanel() {
 		pnext = cur;
 		}
 	if (isclass(SD)) {delete SD; SD = UnInitialized;}
+	if (isclass(summand)) { delete summand, upddens ; summand=UnInitialized;}
 	~Path();				//delete root path
 	}	
 
@@ -397,7 +401,7 @@ Panel::SetMethod(method) {
 
 /** Store a list of heterogenous fixed panels.
 @param r integer tag for the panel (such as replication index)
-@param method `Method` `Method` object, the DP solution to call to solve `FPanel`
+@param method `Method` object, the DP solution to call to solve `FPanel`
 problem.<br/>(default) 0 do nothing, something else handles solution
 **/
 Panel::Panel(r,method) {
@@ -409,6 +413,9 @@ Panel::Panel(r,method) {
         }
     else
 	     this.r = r;
+    if ( N::F>One && !isclass(method)) {
+            oxwarning("DDP Warning: Solution method is not nested with fixed effects present.  Panel Outcomes will not be accurate");
+            }
 	FPanel(0,method);	
 	fparray = new array[N::F];
 	fparray[0] = 0;  // I am my own fixed effect panel
@@ -517,7 +524,7 @@ Panel::Print(fn,Orientation)	{
 Outcome::TomIndices(qind,xind) {
     icol = 0;
 	[TF,TP] = GetTrackTrans(qind,xind);           //Oct. 2018 was ind[onlysemiexog]
-	return columns(viinds[tom]) && rows(intersection(viinds[tom],TF,&icol));
+    return columns(viinds[tom]) && rows(intersection(viinds[tom],TF,&icol));
     }
 
 /** Compute likelihood based on the Type.
@@ -641,8 +648,9 @@ Path::Likelihood() {
 		}
 	if (isclass(summand))
 		[L,flat] = summand->Integrate(this);
-	else
+	else {
 		TypeContribution();  //density=1.0 by default
+        }
     }
 
 /** .
@@ -704,15 +712,17 @@ is set to a vector of <code>.NaN</code>.</DD>
 FPanel::LogLikelihood() {
 	decl i,cur;
 	cputime0 =timer();
+	FPL = zeros(N,1);  //NT
 	if (isclass(method)) {
         if (!method->Solve(f)) {
 	       FPL = constant(.NaN,N,1);
            return FALSE;
            }
         }
-    else
-        if (Flags::UpdateTime[AfterFixed]) {ETT->Transitions(); }
-	FPL = zeros(N,1);  //NT
+    else {
+        if (Flags::UpdateTime[AfterFixed] ||
+            (Flags::UpdateTime[AfterRandom]&&!isclass(summand)) ) ETT->Transitions(state);
+        }
     if (isclass(upddens)) {
 		upddens->SetFE(state);
 		summand->SetFE(state);
@@ -738,7 +748,7 @@ Panel::LogLikelihood() {
 	cur = this;
 	M = <>;	
     succ = TRUE;
-	if (!isclass(method) && Flags::UpdateTime[OnlyOnce]) {ETT->Transitions(state);}
+	if (!isclass(method) && Flags::UpdateTime[OnlyOnce]) ETT->Transitions(state);
 	do {
 		succ = succ && cur->FPanel::LogLikelihood();
 		M |= cur.FPL;
@@ -1113,13 +1123,14 @@ OutcomeDataSet::Read(FNorDB,SearchLabels) {
 	}
 
 /** Store a `Panel` as a data set.
-@param id <em>string</em>, tag for the data set
+@param label <em>string</em>, tag for the data set<br/>
+        UseDefault [default] user classname
 @param method, solution method to be used as data set is processed.<br/>0 [default], no
 solution
 **/
 OutcomeDataSet::OutcomeDataSet(id,method) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 62. Cannot create OutcomeDataSet before calling CreateSpaces()");
-	label = id;
+	label = isint(id) ? classname(userState) : id;
 	Panel(0,method);
 	masked = FALSE;
 	decl q, aa=SubVectors[acts];

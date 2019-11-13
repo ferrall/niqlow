@@ -1,5 +1,5 @@
 #include "AllTest.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
 TestRun() {
     decl tmenu = new Menu("DDP Tests",FALSE);
@@ -281,8 +281,8 @@ Use Mill's ratio to compute truncated mean of normal.
 @return Array of two vectors
 **/	
 Test10::EUtility()    {
-    decl zz = zstar[][I::r], pstar = 1-probn(zz);
-	return {  ( eta | densn(zz)/pstar) , (1-pstar)~pstar};  //found type Sept.2019 r
+    decl pstar = 1-probn(zstar);
+	return {  ( eta | densn(zstar)/pstar) , (1-pstar)~pstar};  //found type Sept.2019 r
 	}	
 
 Test11::Uz(z)        { return b | z*pd;	}
@@ -290,9 +290,9 @@ Test11::Utility()    { return (1-CV(done))*(I::t < T-1 ? b : b*pd); }
 Test11::OfferProb()  { return pi0[CV(k)]*(1-I::t/(T-1));}
 Test11::Continuous() { return CV(hasoff); }
 Test11::FeasibleActions() { return 1 | CV(hasoff)*(1-CV(done)); }
+Test11::Reachable() { return I::t || !CV(hasoff); }
 Test11::Run()	{
 	Initialize(new Test11());
-    SetUpdateTime(AfterRandom);
 	SetClock(NormalAging,T);
 	EndogenousStates(
         hasoff = new IIDBinary("off",OfferProb),
@@ -303,9 +303,11 @@ Test11::Run()	{
 	SetDelta(delta);
     AuxiliaryOutcomes(new StaticAux("Ew",Ewage));
 	CreateSpaces();
-    //Task::trace = TRUE;
-    RVSolve();
-    ComputePredictions(T,Two);
+    decl vi, pd;
+    vi = new ReservationValues();
+    pd = new PathPrediction(0,vi);
+    pd->Predict(T,Two);
+    delete vi, pd;
     Delete();
 	}
 Test11::Ewage() {
@@ -316,6 +318,6 @@ Test11::Ewage() {
     else return 0.0;
     }
 Test11::EUtility()    {
-    decl zz = zstar[][I::r], pstar = 1-probexp(zz,1/alpha);
-	return {  ( b | (zz + alpha)*pd ) , (1-pstar)~pstar};  //found type Sept.2019 r
+    decl pstar = 1-probexp(zstar,1/alpha);
+	return {  ( b | (zstar + alpha)*pd ) , (1-pstar)~pstar};
 	}	

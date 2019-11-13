@@ -1,12 +1,6 @@
-/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
-#import "DDP"
 #import "FiveO"
+/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
 
-/** Create a RV method, solve and then delete the method.
-@param ToScreen  send output to screen
-@param aM if an address store to a matrix
-@see VISolve
-**/
 RVSolve(ToScreen=TRUE,aM=FALSE);
 
 /** Represent V or R* as a non-linear system.

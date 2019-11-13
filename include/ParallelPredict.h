@@ -2,7 +2,7 @@
 //The following skips the include when running oxdoc.  OX_PARALLEL is defined for all environments
 //so the include will happen during execution or compilation.
 #ifdef OX_PARALLEL
-#include "UseMPI.ox"
+    #include "UseMPI.ox"
 #endif
 
 /** Client for parallel evaluation of objectives.

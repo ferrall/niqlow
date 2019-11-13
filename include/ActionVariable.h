@@ -1,4 +1,7 @@
-#import "DDPShared"
+#ifndef DDPShared
+    #define DDPShared
+    #import "DDPShared"
+#endif
 
 /** An element of the action vector &alpha;.
 @example
