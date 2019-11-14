@@ -5,18 +5,21 @@
 KWJPE97::kdist() { return kprob[][CV[isch]]; }
 
 KWJPE97::Replicate()	{
-	decl i, pred,Vmat,outmat, nc, mlabs;	
-
+	decl i, pred,Vmat,outmat, nc, mlabs, Omega,chol;	
+    Omega = stdevs.*unvech(sig).*stdevs';
+    chol = choleski(Omega);
+//    println(stdevs',unvech(sig),Omega,chol,chol*chol');
     /* DP Model Setup */
 	Initialize(new KWJPE97());
-	SetClock(NormalAging,A1);
-    Actions         ( accept = new ActionVariable("Accept",Sectors));
-    ExogenousStates ( offers = new MVNvectorized("eps",Noffers,Msectors,zeros(Msectors,1),sig));
-    EndogenousStates( xper   = ValuesCounters("X",accept,mxcnts));
-    GroupVariables  ( k      = new RandomEffect("k",Ntypes),
-                      isch   = new FixedEffect("Is",NIschool) );
-	SetDelta(kwdelt);
-	CreateSpaces(LogitKernel,0.0001); //
+        SetClock(NormalAging,A1);
+        Actions         ( accept = new ActionVariable("Accept",Sectors));
+        ExogenousStates ( offers = new MVNvectorized("eps",Noffers,Msectors,zeros(Msectors,1),vech(chol)));
+        EndogenousStates( xper   = ValuesCounters("X",accept,mxcnts));
+        GroupVariables  ( k      = new RandomEffect("k",Ntypes),
+                          isch   = new FixedEffect("Is",NIschool) );
+        AuxiliaryOutcomes(Indicators(accept,"d "));
+	    SetDelta(kwdelt);
+	    CreateSpaces(LogitKernel,0.0005); //
     /* Solution Methods */
     Vmat = new array[Nmethods];
     pred = new array[Nmethods];
@@ -60,14 +63,14 @@ KWJPE97::Replicate()	{
 KWJPE97::ThetaUtility() {
     x = CV(xper);
     x[school]+=School0[CV(isch)];  //add initial schooling
-    Er = alph0*(1~x[:school])' + alph1[][0].*sqr(x)' + kcoef[][CV(k)];
+    Er = alph0*(1~x[:school])' + ownsqr.*sqr(x)' + kcoef[][CV(k)];
     Er[school] -= bet*(x[school].>YrDeg);  //tuition
 	Er[:military] = exp(Er[:military]);    //work is log-linear
     return Er;
     }
 /** Utility vector equals the vector of feasible returns.**/	
 KWJPE97::Utility() {
-    rr = alph1[][1].*AV(offers)';
+    rr = AV(offers)';
     rr[:military] .*= Er[:military];
     rr[school:] += Er[school:];
  	return rr;

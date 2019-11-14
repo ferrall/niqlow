@@ -14,15 +14,15 @@ struct KWJPE97 : ExPostSmoothing	{
              A1       =40,       //40 lifetime
              Noffers  =11,       //3 # of draws of offers per sector (sample is Msectors^Noffers)
              Age0     =16,     //age at t=0
-             MaxSch   =5,      // 10
-             MaxExp   =10,      // 30 max experience to track}
+             MaxSch   =10,      // 10
+             MaxExp   =20,      // 30 max experience to track}
              KW97DIMS}
 
 	/** Approximation Parameters. @name ApproxParams **/
         enum{
-            TSampleStart=3,     //t at which approximation begins (state space small early on
+            TSampleStart=5,     //t at which approximation begins (state space small early on
             Nsimulate = 10,   //Size of sim. panel.
-            MinSample = 30,     //Minimum sample size (in case prop.to low).
+            MinSample = 40,     //Minimum sample size (in case prop.to low).
             SamplePercentage = 5 // Fraction of states to sample.
              }
 	static const decl
@@ -36,22 +36,30 @@ struct KWJPE97 : ExPostSmoothing	{
                                                        8.4704, 0.0, 0.0,   .3391, .0443     ;
                                                        43948 , 0.0, 0.0,     0.0, 0.0         ;
                                                        6887  , 0.0, 0.0,     0.0, 0.0         >,
-                                                    // ownsqr type st. dev.
-                                            alph1 = <
-                                                     -.0461,  0.3806; //white collar
-                                                      -.1774,  .3329;  //blue collar
-                                                     -2.9900, .3308;     //military
-                                                       0.0,     2312;               //school
-                                                       0.0,     13394.0              //home
+
+                                            ownsqr = <
+                                                     -.0461;   //white collar
+                                                      -.1774;  //blue collar
+                                                     -2.9900;  //military
+                                                       0.0;    //school
+                                                       0.0     //home
                                                          >,
-        /**values of k by sector.**/     kcoef=    <   0.0, -.0668, -.4221,   -.4998;
-                                                       0.0, .2996,  -.1223,   .0756;
-                                                       0.0, 0.0,    0.0,      0.0;
-                                                       0.0, -26352, -30541,   226;
-                                                       0.0, 215,    16966,    -13128>,
+                                           stdevs = <   // type stdev.
+                                                        0.3806;
+                                                        .3329;
+                                                       .3308;
+                                                       2312;
+                                                        13394.0>,
+                                                       //0    1       2          3
+        /**values of k by sector.**/     kcoef=    <   0.0, -.0668, -.4221,   -.4998;   //wc
+                                                       0.0, .2996,  -.1223,   .0756;    //bc
+                                                       0.0, 0.0,    0.0,      0.0;      //mi
+                                                       0.0, -26352, -30541,   226;      //sc
+                                                       0.0, 215,    16966,    -13128    //home
+                                                       >,
         /** lower triangle of correlations .**/
 sig=   <1.0;
-      .3806;
+      -.3806;
       -.3688;
        0.0;
        0.0;     1.0;
@@ -70,7 +78,7 @@ sig=   <1.0;
 	static decl
         /** vector of current xper .**/     x,
         /** return values beofre offers **/ Er,
-        /** return values.**/               rr,
+        /** return values`.**/               rr,
 		/** accepted offer          **/  	accept,
 		/** offer block **/		  		  	offers,
 		/** occupation experience array**/	xper,

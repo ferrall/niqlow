@@ -21,7 +21,7 @@ niqlow.oxo  : $(oxobjects)
 
 .PHONY : document
 document:
-#	$(ERASE) ..\docs\default.html
+	$(ERASE) ..\docs\default.html
 	$(OXDOC) -include $(INC) niqlow.ox
 	${MAKE} -C About document
 	${MAKE} -C DDP document
@@ -32,7 +32,8 @@ document:
 	PAUSE "CFMPI"
 	${MAKE} -C $(XMP) document
 	${MAKE} -C $(DOC) tweak
-	
+	$(COPY) ..\docs\index.tmp ..\docs\default.html
+
 .PHONY : install
 install:
 	$(ERASE) $(INC)\*.oxo
