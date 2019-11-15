@@ -1,6 +1,7 @@
 #import "DDP"
 /* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
 
+
 struct KWJPE97 : ExPostSmoothing	{
 
 	/** Labels for choices/sectors. @name Sectors **/
@@ -8,25 +9,26 @@ struct KWJPE97 : ExPostSmoothing	{
     static const decl Sectors = {"wc","bc","mil","sch","home"};
         enum{BruteForce,Approximate,Nmethods}
         enum{NineOrLess,TenOrMore,NIschool}
-
 	/** State Space Dimensions. @name KW97Dimens **/
 		enum{Ntypes   =4,   //4
-             A1       =40,       //40 lifetime
+             TSampleStart=5,     //t at which approximation begins (state space small early on)
+             LastSch  =15,       //window of schooling choice
+             MidPeriod=10,      // double sample size
+             FinPeriod=25,      // base sample size
+             A1       =TSampleStart+MidPeriod+FinPeriod,       //40 lifetime
              Noffers  =11,       //3 # of draws of offers per sector (sample is Msectors^Noffers)
              Age0     =16,     //age at t=0
              MaxSch   =10,      // 10
              MaxExp   =20,      // 30 max experience to track}
-             KW97DIMS}
+             Nsimulate = 10,   //Size of sim. panel.
+             MinSample = 30     //Minimum sample size (in case prop.to low).
+            }
 
-	/** Approximation Parameters. @name ApproxParams **/
-        enum{
-            TSampleStart=5,     //t at which approximation begins (state space small early on
-            Nsimulate = 10,   //Size of sim. panel.
-            MinSample = 40,     //Minimum sample size (in case prop.to low).
-            SamplePercentage = 5 // Fraction of states to sample.
-             }
+
 	static const decl
        /** max. experience by sector.**/    mxcnts   = <MaxExp,MaxExp,MaxExp,MaxSch,0>,
+       /** smoothing param for Kernel.**/   smthrho  = .001,
+       /** approx. sample rations .**/      smpsz    = <1.0,0.06,0.03>,
        /** initial school groups.**/        School0  = <9;10>,      //completed schooling at t=0
        /** degree years (tuition).**/       YrDeg    = <12;16>,
                                             kwdelt   = 0.787,
@@ -77,15 +79,17 @@ sig=   <1.0;
 		/** &beta; vector  **/			  	bet  = <2983,26357-2983>;  //subtract BA from grad because incremental
 	static decl
         /** vector of current xper .**/     x,
-        /** return values beofre offers **/ Er,
-        /** return values`.**/               rr,
+        /** return values before offers **/ Er,
+        /** return values`.**/              rr,
 		/** accepted offer          **/  	accept,
 		/** offer block **/		  		  	offers,
 		/** occupation experience array**/	xper,
+        /** indicators for accept.**/       di,
         /** initial years of schooling.**/  isch,
         /** unobserved type.**/             k;
 	static 	Replicate();
     static  kdist();
 			Utility();
             ThetaUtility();
+            FeasibleActions();
 	}

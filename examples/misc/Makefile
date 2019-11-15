@@ -1,5 +1,6 @@
 include ../../source/Makefile.inc
 DOC := ../../docs/examples/misc
+MDOC := ..\..\docs\examples\misc
 INC := ../../include
 
 vpath %.ox .
@@ -21,3 +22,4 @@ Miscexamples.oxo : $(exoxo) $(includes)
 .PHONY : document
 document:
 	$(OXDOC) -uplevel -include $(INC) $(exdoc)
+	$(ERASE) /Q $(MDOC)\*.css

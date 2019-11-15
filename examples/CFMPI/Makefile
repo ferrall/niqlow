@@ -1,5 +1,6 @@
 include ../../source/Makefile.inc
 DOC := ../../docs/examples/CFMPI
+DOC := ..\..\docs\examples\CFMPI
 INC := ../../include
 
 vpath %.h .:$(INC)
@@ -23,3 +24,4 @@ clean:
 .PHONY : document
 document:
 	$(OXDOC) -uplevel -include $(INC) $(exdoc)
+	$(ERASE) /Q $(MDOC)\*.css

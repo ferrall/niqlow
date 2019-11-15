@@ -2,6 +2,8 @@ include ../Makefile.inc
 
 INC := ..\..\include
 DOC := ../../docs/DDP
+MDOC := ..\..\docs\DDP
+
 
 vpath %.ox .:../Shared
 vpath %.h $(INC):$(MENU)\source
@@ -12,7 +14,7 @@ varsrc :=  Shared. DDPShared. ActionVariable. StateVariable. Clock. TimeInvarian
 varobj = $(varsrc:.=.oxo)
 dppsrc := Methods. Bellman. Data.
 dppobj = $(dppsrc:.=.oxo)
-bellsrc := Variables. DDPShared. DP. 
+bellsrc := Variables. DDPShared. DP.
 bellobj = $(bellsrc:.=.oxo)
 
 xtradoc = GetStarted DDP.ox DP.ox Variables.ox Bellman.ox Methods.ox Data.ox DDPShared.ox Error_And_Warning_Messages
@@ -30,3 +32,4 @@ Variables.oxo : $(varobj)
 .PHONY : document
 document:
 	$(OXDOC) -include $(INC) -uplevel $(xtradoc) ../Shared/Shared.ox
+	$(ERASE) /Q $(MDOC)\*.css

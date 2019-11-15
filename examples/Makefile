@@ -1,5 +1,6 @@
 include ../source/Makefile.inc
 DOC := ../docs/examples
+MDOC := ..\docs\examples
 INC := ../include
 
 vpath %.ox .:replications:DDP:FiveO:CFMPI:misc
@@ -26,6 +27,7 @@ clean:
 .PHONY : document
 document:
 	$(OXDOC) -uplevel -include $(INC) $(exdoc)
+	$(ERASE) /Q $(MDOC)\*.css
 	${MAKE} -C DDP document
 	${MAKE} -C FiveO document
 	${MAKE} -C misc document

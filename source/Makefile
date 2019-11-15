@@ -29,10 +29,10 @@ document:
 	${MAKE} -C FiveO document
 	PAUSE "FiveO"
 	${MAKE} -C CFMPI document
-	PAUSE "CFMPI"
 	${MAKE} -C $(XMP) document
 	${MAKE} -C $(DOC) tweak
 	$(COPY) ..\docs\index.tmp ..\docs\default.html
+	$(COPY) ..\docs\index.tmp ..\docs\index.html
 
 .PHONY : install
 install:

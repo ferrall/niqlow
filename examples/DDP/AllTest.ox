@@ -286,8 +286,8 @@ Test10::EUtility()    {
 	}	
 
 Test11::Uz(z)        { return b | z*pd;	}
-Test11::Utility()    { return (1-CV(done))*(I::t < T-1 ? b : b*pd); }
-Test11::OfferProb()  { return pi0[CV(k)]*(1-I::t/(T-1));}
+Test11::Utility()    { return CV(done)*(I::t==T-1)*b*pd; }
+Test11::OfferProb()  { return max(pi0[CV(k)]*(1-I::t/(T-1)),0.0);}
 Test11::Continuous() { return CV(hasoff); }
 Test11::FeasibleActions() { return 1 | CV(hasoff)*(1-CV(done)); }
 Test11::Reachable() { return I::t || !CV(hasoff); }
@@ -306,6 +306,7 @@ Test11::Run()	{
     decl vi, pd;
     vi = new ReservationValues();
     pd = new PathPrediction(0,vi);
+    DPDebug::outAllV();
     pd->Predict(T,Two);
     delete vi, pd;
     Delete();
