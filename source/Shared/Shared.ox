@@ -75,13 +75,8 @@ CV(X,...) {
     if (isarray(X)) {
         decl x;
         _v=<>;
-        //Leak foreach(x in X)
-        if (_noarg) {
-            foreach(x in X) _v ~= CV(x);  //Leak: X[x] just x        //for(_x=0;_x<sizeof(X);++_x) //Leak
-            }
-        else {
-            foreach(x in X) _v ~= CV(x,_arg[0]);  //Leak: X[x] just x        //for(_x=0;_x<sizeof(X);++_x) //Leak
-            }
+        if (_noarg) { foreach(x in X) _v ~= CV(x); }
+        else        { foreach(x in X) _v ~= CV(x,_arg[0]); }
         return _v;
         }
 	return _noarg ? X() : X(_arg[0]);

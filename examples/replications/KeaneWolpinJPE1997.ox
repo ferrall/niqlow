@@ -2,7 +2,7 @@
 /* This file is part of niqlow. Copyright (C) 2019-2019 Christopher Ferrall */
 
 /** Distribution of fixed effects conditional on initial schooling level.**/
-KWJPE97::kdist() { return kprob[][CV[isch]]; }
+KWJPE97::kdist(...) { return kprob[][CV[isch]]; }
 
 KWJPE97::Replicate()	{
 	decl i, pred,Vmat,outmat, nc, mlabs, Omega,chol;	

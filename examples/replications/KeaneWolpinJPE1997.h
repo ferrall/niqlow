@@ -88,7 +88,7 @@ sig=   <1.0;
         /** initial years of schooling.**/  isch,
         /** unobserved type.**/             k;
 	static 	Replicate();
-    static  kdist();
+    static  kdist(...);
 			Utility();
             ThetaUtility();
             FeasibleActions();
