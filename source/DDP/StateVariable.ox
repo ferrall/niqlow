@@ -443,7 +443,8 @@ Nvariable::Nvariable(L,Ndraws,mu,sigma) {
     }
 
 Nvariable::Update() {	
-    actual = AV(mu)|DiscreteNormal(N-1,AV(mu),AV(sigma))';
+//    actual = AV(mu)|DiscreteNormal(N-1,AV(mu),AV(sigma))';
+    actual = DiscreteNormal(N,AV(mu),AV(sigma))';
     if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
     }
 
@@ -628,7 +629,8 @@ actual = exp{ &mu; | &sigma;&Phi;<sup>-1</sub>(v/N)+ &mu;}
 @see AV
 **/
 LogNormalOffer::Update() {
-	actual = exp(AV(mu)|DiscreteNormal(N-1,AV(mu),AV(sigma)))';
+//	actual = exp(AV(mu)|DiscreteNormal(N-1,AV(mu),AV(sigma)))';
+	actual = DiscreteNormal(N,AV(mu),AV(sigma))';
     if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
 	}
 
@@ -1090,19 +1092,6 @@ Renewal::Renewal(L,N,reset,Pi)	{
 
 /** . **/
 Renewal::Transit()	{
-/*
-	decl  rr =CV(reset),pi=reshape(AV(Pi),1,P),pstar= pi.*(1-rr);
-    if  (v) {
-        if (v < N-P)
-            return { 0~vals[v:v+P-1] , rr~ pstar};
-        if (v<N-1) {
-            decl vstar = N-v-1;
-            return {0~vals[v:],rr~pstar[][:vstar-1]~sumr(pstar[][vstar:])};
-            }
-        return {0~v, rr~(1-rr)};
-        }
-    return { vals[:P-1], rr+pstar[][0] ~ pstar[][1:]};
-*/
 	decl pstar = min(P,N-v)-1,
 		 pi = reshape(AV(Pi),1,P),
 		 ovlap = v < P ? zeros(1,v) : 0,
@@ -1337,7 +1326,8 @@ MVNormal::MVNormal(L,N,M, mu, CholLT)	{
 	MVIID(L,N,M);
 	this.mu = mu;
 	this.CholLT = CholLT;
-    zvals = Zero~rann(N,MtoN-1);  //Tack 0 on so first actual value is always the mean.
+//    zvals = Zero~rann(N,MtoN-1);  //Tack 0 on so first actual value is always the mean.
+    zvals = rann(N,MtoN);  //Tack 0 on so first actual value is always the mean.
     mind = <>;
     v = <>;
 	for (i=0;i<N;++i) {

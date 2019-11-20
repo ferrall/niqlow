@@ -85,7 +85,8 @@ Bellman::SetTheta(state,picked) { Bellman(state,picked);    }
 /**Set the automatic (non-static) members of a state node.
 @param state  state vector
 @param picked TRUE: in sub sample of states for full solution.  FALSE: will be approximated
-This is called in CreateSpaces().  It terminals if the state is terminal and determines $A(\theta)$
+This is called in CreateSpaces().
+It determines if the state is terminal and sets $A(\theta)$ by calling `Bellman::FeasibleActions`()
 **/		
 Bellman::Bellman(state,picked) {
   decl s=S[endog].M, IsT;

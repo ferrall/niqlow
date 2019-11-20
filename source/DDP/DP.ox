@@ -943,7 +943,9 @@ N::Initialize() {
     if (MaxSZ==Zero) MaxSZ = INT_MAX;
     }
 
-/** . @internal **/
+/** Subsample the reachable state space based on a sampling strategy.
+@internal
+**/
 N::Subsample(prop) {
     if  ( isint(prop)||( (prop==1.0)&&(N::MaxSZ==INT_MAX) ) ) return DoAll ;
     decl t,c,nt=diff0(tfirst)[1:], samp = new array[T],d;
@@ -1429,7 +1431,10 @@ DryRun::DryRun() {
 /** . @internal **/
 CreateTheta::picked() {
     //    if (!isarray(insamp)) println("not an array");    else println("PP ",I::t," ",I::all[tracking]," ",any(insamp[I::t].==I::all[tracking]));
-    return isarray(insamp) ? ( isint(insamp[I::t]) ? TRUE : any(insamp[I::t].==I::all[tracking]) ) : TRUE;
+    return isarray(insamp) ? (
+                isint(insamp[I::t]) ? TRUE
+                                    : any(insamp[I::t].==I::all[tracking])
+                ) : TRUE;
     }
 
 /* Decide if $\theta$ is reachable.
@@ -1479,20 +1484,6 @@ CreateTheta::Run() {
        else if (Volume>LOUD) rchable |= UUnRchble~ind;
 	   }
     }
-
-/* .
-@internal
-DryRun::Run() {
-    if (I::t!=PrevT) {
-        if (PrevT!=-1)
-            report |= PrevT~(N::ReachableStates-PrevR)~(N::Approximated-PrevA)~(1-(N::Approximated-PrevA)/(N::ReachableStates-PrevR))~(N::ReachableStates-N::Approximated);
-        PrevA = N::Approximated;
-        PrevR = N::ReachableStates;
-        PrevT=I::t;
-        }
-    FindReachables::Run();
-	}
-*/
 
 ReSubSample::ReSubSample() {
     CreateTheta();

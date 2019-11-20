@@ -1,7 +1,7 @@
-#include "LSp.ox"
+#include "LS.ox"
 
 main() {
-    HTopen("../../OODP/LS");
+//    HTopen("../../OODP/LS");
     LS::Run();
     ComputePredictions();
     }

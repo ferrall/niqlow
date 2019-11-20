@@ -12,10 +12,10 @@ struct KWJPE97 : ExPostSmoothing	{
 	/** State Space Dimensions. @name KW97Dimens **/
 		enum{Ntypes   =4,   //4
              TSampleStart=5,     //t at which approximation begins (state space small early on)
-             LastSch  =15,       //window of schooling choice
              MidPeriod=10,      // double sample size
              FinPeriod=25,      // base sample size
              A1       =TSampleStart+MidPeriod+FinPeriod,       //40 lifetime
+             LastSch  =15,       //window of schooling choice
              Noffers  =11,       //3 # of draws of offers per sector (sample is Msectors^Noffers)
              Age0     =16,     //age at t=0
              MaxSch   =10,      // 10

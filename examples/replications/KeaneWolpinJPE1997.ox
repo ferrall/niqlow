@@ -21,25 +21,24 @@ KWJPE97::Replicate()	{
         AuxiliaryOutcomes(di=Indicators(accept,"d ",white,school));
 	    SetDelta(kwdelt);
     CreateSpaces(LogitKernel,smthrho); //not clear what kernel was used or what bandwidth
+        SubSampleStates( constant(smpsz[0],1,TSampleStart)~                   //solve exactly for first few periods
+                         constant(smpsz[1],1,MidPeriod)~                  //double sample
+                         constant(smpsz[2],1,FinPeriod),                  //small sample
+                         MinSample                                      //ensure minimum sample size for approximation
+                          );
 
     /* Solution Methods */
     //Vmat = new array[Nmethods];
     pred = new array[Nmethods];
-    pred[BruteForce] = new PanelPrediction("brute",new ValueIteration());
     pred[Approximate] =new PanelPrediction("approx",new KeaneWolpin());
     pred[Approximate]->Tracking(UseLabel,di);
+    pred[Approximate] -> Predict(A1,Two);  //print out predictions
 
-    /* Run methods, produce prediction */
+    /* Run methods, produce prediction
     for (i=1;i<Nmethods;++i) { //Only doing approx.
        if (i==Approximate)
-            SubSampleStates( constant(smpsz[0],1,TSampleStart)~                   //solve exactly for first few periods
-                             constant(smpsz[1],1,MidPeriod)~                      //double sample
-                             constant(smpsz[2],1,FinPeriod),                    //small sample
-                              MinSample                                 //ensure minimum sample size for approximation
-                            );
-       pred[i] -> Predict(A1,Two);  //print out predictions
        }
-
+    */
     /* Summary of Output */
     /*  nc = columns(Vmat[0])-Msectors-1;
         mlabs = {"Emax","Pblue","Pwhite","Pmil","Pschool","Phome"};
@@ -52,7 +51,7 @@ KWJPE97::Replicate()	{
     }
 
 KWJPE97::FeasibleActions() {
-    return I::t<LastSch || (CV(accept).!=school);
+    return I::t<LastSch .|| (CV(accept).!=school);
     }
 /** Compute aspects of utility not dependent on offers.
 
@@ -65,14 +64,14 @@ KWJPE97::ThetaUtility() {
     x = CV(xper);
     x[school]+=School0[CV(isch)];  //add initial schooling
     Er = alph0*(1~x[:school])' + ownsqr.*sqr(x)' + kcoef[][CV(k)];
-    Er[school] -= bet*(x[school].>YrDeg);  //tuition
 	Er[:military] = exp(Er[:military]);    //work is log-linear
-    return Er;
+    if (I::t<LastSch) Er[school] -= bet*(x[school].>YrDeg);  //tuition
+    return OnlyFeasible(Er);
     }
 /** Utility vector equals the vector of feasible returns.**/	
 KWJPE97::Utility() {
-    rr = AV(offers)';
+    rr = OnlyFeasible(AV(offers)');
     rr[:military] .*= Er[:military];
-    rr[school:] += Er[school:];
+    rr[school:] += Er[school:];  //this actually starts at home if school not feasible
  	return rr;
 	}
