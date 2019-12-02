@@ -157,21 +157,6 @@ DP::SetVersion(v) {
             oxwarning("DP Warning ??. \n Your DP model is set at version "+sprint(v)+".\n You are running on an older niqlow version, "+sprint(Version::version)+".\n You should consider installing a newer release.\n");
         }
     }
-
-/* Set and return the current group node in &Gamma;.
-@param GorState matrix, the state vector for the group<br>integer, index of the group
-@return pointer to element of &Gamma; for the group. If this is not a class, then the group has been excluded from the model.
-@comments
-This also sets `I::f` and `I::g`
-@see DP::Settheta
-DP::SetGroup(GorState) {
-    return I::SetGroup(GorState);
-	}
-
-DP::SetG(f,r) {
-        return isclass(Fgamma[f][r]) ? SetGroup(Fgamma[f][r].pos) : 0;
-    }
-*/
 	
 /** Draw &gamma; from &Gamma; according to the density.
 Sets <code>I::g</code> and syncs state variables in &gamma;

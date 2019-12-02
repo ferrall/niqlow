@@ -1,6 +1,6 @@
-#ifndef OX_PARALLEL
-#include "CFMPI.oxdoc"
-#endif
+//#ifndef OX_PARALLEL
+//#include "CFMPI.oxdoc"
+//#endif
 #include "CFMPI.oxh"
 #ifndef CFMPIINCLUDED
 #define CFMPIINCLUDED
@@ -80,7 +80,7 @@ Client::Send(iCount, iDest, iTag)	{
 /** Receive buffer from a source node.
 @param iSource id of target/destination node<br>`P2P::ANY_SOURCE`, receive message from any node.
 @param iTag tag to receive<br>`P2P::ANY_TAG`, receive any tag
-@comments Actual Source, Tag and Error are stored on exit in `P2P::Source` `P2P::Tag` and `MPI::Error`
+@comments Actual Source, Tag and Error are stored on exit in `P2P::Source`, `P2P::Tag`, and `MPI::Error`
 @example <pre>
 p2p-&gt;Recv(P2P::ANY_SOURCE,P2P::ANY_TAG);
 println("Message Received from ",P2P::Source," with Tag ",P2P::Tag," is ",p2p.Buffer);

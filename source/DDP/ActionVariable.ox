@@ -19,7 +19,7 @@ ActionVariable::ActionVariable(L,NorVLabels) {
     }
 
 /** Return `Alpha::A`[][pos].
-@see Alpha AV, Discrete::Update
+@see Alpha, AV, Discrete::Update
 **/
 ActionVariable::myAV() { return Alpha::A[][pos];    }
 

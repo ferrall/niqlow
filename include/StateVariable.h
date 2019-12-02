@@ -15,7 +15,7 @@ struct StateVariable : Discrete	{
     const decl
     /** Trim unreachable states if finite horizon clock is detected.
         <b>Default is FALSE.</b>
-        @see StateVariable::IsReachable().**/ Prune;
+        @see StateVariable::IsReachable **/ Prune;
 	decl
 	/** A vector of values that end decision making
 		Equal to &lt; &gt; if state is not terminating.      **/     TermValues;
@@ -167,7 +167,7 @@ class ActionTriggered : Triggered {
     virtual Transit();
     }
 
-/** A state variable that augments a base transition so that the value of a `AV` compatible object triggers this state to transit to a special value.
+/** A state variable that augments a base transition so that the value of a `AV`()-compatible object triggers this state to transit to a special value.
 <DT>Transition.  Let</DT>
 <dd><code>q</code> denote this state variable.
 <DD><code>b</code> be the base state variable to be agumented (not added to model itself)</DD>
@@ -653,7 +653,7 @@ struct Counter : NonRandom  {
 	const decl
 	/**Variable to track 				**/  Target,
 	/**Values to track  				**/	 ToTrack,
-	/**`AV` compatiable reset to 0 flag **/	 Reset;
+	/**`AV`()-compatiable reset to 0 flag **/	 Reset;
 	Counter(L,N,Target,ToTrack,Reset,Prune=TRUE);
 	virtual Transit();
     virtual IsReachable();
@@ -987,7 +987,7 @@ struct MVNormal : MVIID {
     /** matrix of Z vals for simulated actual values**/  zvals,
                                                          mind,
 	/** vector of means &mu; **/ 					     mu,
-	/** `AV`-compatible vector-valued object which returns
+	/** `AV`()-compatible vector-valued object which returns
         <code>vech()</code> for lower triangle of C, the Choleski decomposition
         of the variance matrix &Omega;, &Omega; = CC'.
         **/                                             CholLT;
@@ -1046,7 +1046,7 @@ struct Tauchen : Random {
 **/
 struct Asset : Random {
 	const decl
-    /** `AV`-compatible object, interest rate on current holding.**/ r;
+    /** `AV`()-compatible object, interest rate on current holding.**/ r;
     /** @internal **/
         decl atom, top, bot, mid, all, tprob, bprob;
 	Asset(L,N,r);
@@ -1062,7 +1062,7 @@ struct FixedAsset : Asset {
 
 struct LiquidAsset : Asset {
 	const decl
-    /** `AV`-compatible static function or `ActionVariable`. **/     NetSavings,
+    /** `AV`()-compatible static function or `ActionVariable`. **/     NetSavings,
                                                                      isact;
     LiquidAsset(L,N,NetSavings);
     Transit();

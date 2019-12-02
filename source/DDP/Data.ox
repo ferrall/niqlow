@@ -1,12 +1,11 @@
 #include "Data.h"
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
-#ifdef OX_PARALLEL
 #ifndef Dox
     #define Dox
     #include "Outcomes.ox"
     #include "Predictions.ox"
 #endif
-#endif
+
 
 /** Compute and store path weighting matrix for fixed effect group.
 @param curfpanel `FPanel` object to simulate

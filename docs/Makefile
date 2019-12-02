@@ -21,6 +21,5 @@ tweak:
 	$(SED) -i -f oxdoc2.sed examples/FiveO/*.html
 	$(SED) -i -f oxdoc2.sed examples/misc/*.html
 	$(SED) -i -f oxdoc2.sed examples/replications/*.html
-	$(ERASE) index.html
-	$(COPY) niqlow.ox.html index.html
+	$(COPY) index.html default.html
 	$(ERASE) /S sed*.

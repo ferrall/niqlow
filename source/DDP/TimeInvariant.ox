@@ -19,7 +19,7 @@ FixedEffect::FixedEffect(L, N) {
 /** Create a state variable that is random but invariant for an individual DP problem.
 @param L label
 @param N number of points of support.
-@param fDist integer [default], uniform distribution<br>otherwise, a `AV`() compatible object that
+@param fDist integer [default], uniform distribution<br>otherwise, a `AV`()-compatible object that
 returns the N-vector of probabilities.
 
 <DT>The default (and always initial) distribution is uniform:</DT>
@@ -198,8 +198,8 @@ RandomEffectBlock::Distribution() {
 /** Create a permanent discretized normal random effect.
 @param L label
 @param N number of points
-@param mu `AV`() compatible mean of the effect, &mu;<br>Default = 0.0
-@param sigma `AV`() compatible standard deviation, &sigma;<br>Default = 1.0
+@param mu `AV`()-compatible mean of the effect, &mu;<br>Default = 0.0
+@param sigma `AV`()-compatible standard deviation, &sigma;<br>Default = 1.0
 
 The probabilities of each discrete value is 1/N.  The distribution is captured by adjusting the
 actual values to be at the quantiles of the distribution.
@@ -216,8 +216,8 @@ NormalRandomEffect::Distribution() { actual = AV(mu) + DiscreteNormal(N,0.0,AV(s
 /** Create a permanent discretized normal random effect.
 @param L label
 @param N number of points
-@param mu `AV`() compatible mean of the effect, &mu;
-@param sigma `AV`() compatible standard deviation, &sigma;
+@param mu `AV`()-compatible mean of the effect, &mu;
+@param sigma `AV`()-compatible standard deviation, &sigma;
 @param M number of standard deviations to set the largest value as
 
 actual values are equally spaced between -M&sigma; and M&sigma;.

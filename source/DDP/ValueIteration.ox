@@ -31,7 +31,7 @@ object must be created and kept</DD>
 
 <DT>This function</DT>
 <DD>Creates a `ValueIteration` method</dd>
-<dd>Calls `DPDeubg::outAllV`(<parameters>)</dd>
+<dd>Calls `DPDebug::outAllV`(<parameters>)</dd>
 <DD>Calls `ValueIteration::Solve`()</dd>
 <dd>deletes the solution method</dd>
 

@@ -730,7 +730,7 @@ NIID::ActVal() {
 		}
 	}
 	
-/** This does nothing because smoothing occurs in `Normal::ActVal`.
+/** This does nothing because smoothing occurs in `NIID::ActVal`.
 **/
 Normal::Smooth() {	/*EV = Vnow; NoR??*/	}
 

@@ -29,24 +29,6 @@ AuxiliaryValue::Realize(y) {	v = 1.0; }
 **/	
 AuxiliaryValue::Likelihood(y) { return 1.0; }
 
-/* Create a new &zeta;, the vector-valued realized shock vector.
-@param length integer, length of the (row) vector.
-@param Volume default=SILENT. `NoiseLevels`
-
-The default &zeta; is a 0 length vector.
-ZetaRealization::ZetaRealization(length) {
-	this.L = "zeta";
-	this.length = length;
-	v = constant(.NaN,1,length);
-	}
-*/
-
-/* Default: &zeta; is undefined, replace with a virtual function that returns a
-value drawn from the conditional distribution of &zeta;
-@param y, the current realized outcome, &upsilon;.
-ZetaRealization::Realize(y) {	}
-*/
-
 /** Realized utility, U().**/
 RealizedUtility::RealizedUtility() { 	AuxiliaryValue("U"); 	}
 
@@ -129,7 +111,7 @@ MultiIndicator::Realize(y) {
             }
     }
 
-/** Create an wrapper for a static function `AV`-compatible object.
+/** Create an wrapper for a static function `AV`()-compatible object.
 @param L label string<br/>integer: get label from
 @param target static function of the form <code>target()</code><br>
 **/
@@ -143,8 +125,8 @@ StaticAux::Realize(y) {
     }
 
 /** Create an auxiliary value that adds normally-distributed noise to the actual value.
-@param truevalue `AV`-compatible object
-@param sigma    `CV`-compatible standard deviation
+@param truevalue `AV`()-compatible object
+@param sigma    `CV`()-compatible standard deviation
 @param Linear TRUE error is additive<br/>FALSE error is multiplicative and log-normal
 **/
 Noisy::Noisy(truevalue,sigma,Linear) {

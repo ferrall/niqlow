@@ -142,7 +142,7 @@ RVGSolve::Run() {
 <DT>Note:  All parameters are optional, so <code>VISolve()</code> works.</DT>
 <DT>This function</DT>
 <DD>Creates a `ReservationValues` method</dd>
-<dd>Calls `DPDeubg::outAllV`(<parameters>)</dd>
+<dd>Calls `DPDebug::outAllV`(<parameters>)</dd>
 <DD>Calls `ReservationValues::Solve`()</dd>
 <dd>deletes the solution method</dd>
 

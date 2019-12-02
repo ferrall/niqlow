@@ -104,14 +104,14 @@ FLogit(x){ decl v=exp(x); return v ./ (1+v); }
 /** The Multinomial logit smoothing function (over rows).
 @param x  m&times;n matrix.
 @param rho double [default=1.0] smoothing factor
-@return exp(&rho;x)./sumc(exp(&rho;x))
+@return $exp(\rho x)$./sumc($exp(\rho x)$)
 **/
 RowLogit(x,rho){ decl v=exp(rho*x); return v ./ sumc(v); }
 
 /** The Multinomial logit smoothing function (over columns).
 @param x  m&times;n matrix.
 @param rho double [default=1.0] smoothing factor
-@return exp(&rho;x)./sumr(exp(&rho;x))
+@return $exp(\rho x)$./sumr($exp(\rho x)$)
 **/
 ColLogit(x,rho){ decl v=exp(rho*x); return v ./ sumr(v); }
 
@@ -124,6 +124,14 @@ SumToOne(v) {
     return v|(1-s);
     }
 
+/** Print a number of spaces.
+@internal
+**/
+Indent(depth) {
+	decl s= new string[depth];
+	for(;depth>0;) { s[--depth]= " "; }
+    print(s);
+    }
 
 /**Return index of a single draw from the multinomial distribution.
 @param P vector of probabilities, p<sub>0</sub>, p<sub>0</sub>, &hellip; 1-&sum;p<sub>k</sub>
@@ -155,7 +163,7 @@ Discretized::Discretized(nodes) {
 <pre>
 v = new Discretized(&lt;0;1;2;3&gt;);
 v-&gt;Approx(&lt;-1.3;1.2;2&gt;,TRUE);</pre>
-After exuction, these value will be set:
+After execution, these value will be set:
 <pre>
 v.pts = { &lt; 0				//-1.3 is to left of first node
             1.0 	&gt;,		// all weight on the node
@@ -347,10 +355,6 @@ Parameter::Menu() {
  }
 
 
-/** Print a number of spaces.
-@internal
-**/
-Indent(depth) { decl i; for(i=0;i<depth;++i) print(" "); }
 	
 /** Reset the starting value of a parameter.
 @param newv value to reset at
@@ -826,16 +830,6 @@ MixPoint::MixPoint(Dvar,sp) {
 MixPoint::Copy(h) {
 	Point::Copy(h);
 	}
-
-//SysPoint::SysPoint(LorN) {
-//	Point();
-//	eq = new Equality(LorN);
-//	}
-//
-//SysPoint::Copy(h) {
-//	Point::Copy(h);
-//	eq.v = h.eq.v;
-//	}
 
 /** Initialize the processing of CGI post data.
 @param title string, HTML title

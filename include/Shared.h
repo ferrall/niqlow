@@ -22,7 +22,7 @@
 
 /* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
 
-	/** Pseudonyms for -1, -2, &hellip . @name Names_for_Integers **/
+	/** Pseudonyms for -1, -2, &hellip;. @name Names_for_Integers **/
 enum {CondProbOne=1, UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,
       DoAll=-1,      NoMatch=-1,   AllFixed=-1,  AllRand=-1,      UseSubSample=-1,  ResetValue=-1,
       IterationFailed=-1, UseGradient=-1, ErgodicDist=-1,
@@ -115,8 +115,9 @@ struct Zauxiliary { }
 /** A continuous discretization of a (potentially) continuous quantity.
 **/
 struct Discretized : Zauxiliary {
-	const decl nodes;
-	/** . @internal **/ decl N, lt, av, m, z, ff, nxtp, nxtf, i, indx, np;
+	const decl
+        /** Quantity object or points.**/ nodes;
+	decl N, lt, av, m, z, ff, nxtp, nxtf, i, indx, np;
 	decl
 	/** N-array of matrices, either 2x1 or 2x2.<br>
 	 first row are node indices, second is weight on the node. **/ pts,
@@ -156,18 +157,21 @@ struct Discrete	: Quantity{
     virtual Track(LorC);
 	}
 
-/** Represent a continuously varying quantity.**/
+/** Represent a continuously varying quantity.
+The base class for parameters of an `Objective` to maximize or solve.
+**/
 struct Parameter : Quantity {
 	static 	const 	decl	
 		/** tolerance for too near
 			flat part of transformation. @internal **/		NearFlat = 1E-4,
 		/** . @internal **/									sep = " ";
 	static  		decl
-		/** Ignore constraints on ALL parameters. **/ 	DoNotConstrain;
+		/** Flag to ignore constraints
+                on ALL parameters. **/ 	                DoNotConstrain;
 	const	decl
 		/** Initial passed value.     **/  		 		ival;
 	decl
-		/** Treat as Determined, for now.**/  			DoNotVary,
+		/** Treat as `Determined`, for now.**/  	    DoNotVary,
 		/** Current free value f. **/   				f,
 		/** 0 or pointer to param block.  **/     		block,
 		/** Value at start of iteration.**/   			start,
@@ -209,13 +213,13 @@ struct GQL  : GaussianQuadrature {
 
 /** Gauss-Hermite Quadrature Integration.
 
-<var>&int; f(x)exp{-x<sup>2</sup>/2}dx &nbsp; &approx; &nbsp; &sum;<sub>m=1,&hellip;,M</sub> &omega;<sub>m</sub> f(x<sub>m</sub>).</var>
+$$\int f(x)exp\{-x<sup>2</sup>/2\}dx \approx \sum_{m=1}^M \omega_m f(x_m).$$
 
 This can be used to compute the expected value under the normal distribution.
 
-Let <var>z &sim; N(0,1)</var>.<br>
-Since <var>&phi;(z) = (2&pi;)<sup>-0.5</sup> exp{-x<sup>2</sup>/2},</var> then<br>
-<var>E[f(z)] &approx; (2&pi;)<sup>-0.5</sup>&sum;<sub>m=1,&hellip;,M</sub> &omega;<sub>m</sub> f(x<sub>m</sub>).</var>
+Let $z \sim N(0,1)$.<br>
+Since $\phi(z) = (2\pi)^{-0.5} exp{-x^2/2},$ then<br>
+$$E[f(z)] \approx (2\pi)^{-0.5}\sum_{m=1}^M \omega_m f(x_m).$$
 
 @example
 <pre>
@@ -359,7 +363,7 @@ struct CPoint : Point {
 	virtual Copy(h);
 	}
 		
-class CGI  {
+class CGI : Zauxiliary  {
     static const decl keys ={
         "AUTH_TYPE",
         "CONTENT_LENGTH",

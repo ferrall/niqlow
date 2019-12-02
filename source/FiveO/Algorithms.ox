@@ -75,7 +75,7 @@ Algorithm::ItStartCheck(ReadCheckPoint) {
 /** Finish up iteration.
 The current free parameter vector is decoded into structural parameters.
 If running in parallel then the client node will tell servers to stop and then announce the new structural
-parameter vector.  The servers will drop out of the server loop and all nodes will get past `Algorithm::Iterate`()
+parameter vector.  The servers will drop out of the server loop and all nodes will get past <code>Iterate()</code>
 
 **/
 Algorithm::ItEnd() {

@@ -24,7 +24,7 @@ ComputePredictions(T,prtlevel) {
     }
 
 /** Compute the predicted distribution of actions and states.
-Average values of tracked objects are stored in `Predict::predmom`
+Average values of tracked objects are stored in `Prediction::predmom`
 Transitions to unreachable states is tracked and logged in the Data logfile.
 
 @return TRUE if all current states are termimal or last states.

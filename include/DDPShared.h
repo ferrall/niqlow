@@ -150,7 +150,8 @@ enum { NoSmoothing, LogitKernel, GaussKernel, ExPostSmoothingMethods}
 /** Points in the solution process that users can insert <em>static</em> functions or methods.
 
 <table class="enum_table" valign="top">
-<tr><td valign="top"><code>PreAuxOutcomes</code></td><tD>Called by `ExogAux::ExpectedOutcomes`() and `ExogAux::AuxLike`??? as they run, which only happen if there are `AuxiliaryValue`s added to the model.
+<tr><td valign="top"><code>PreAuxOutcomes</code></td><tD>Called by `ExogOutcomes::ExpectedOutcomes`() and `Outcome::AuxLikelihood`()
+    as they run, which only happen if there are `AuxiliaryValue`s added to the model.
         At this point all state variables have been synched and each aux value's <code>Realize()</code>
         or <code>Likelihood</code> method will be called.  This allows the model to compute realized values at
         a given value of $\eta$ and $\theta$ and store them temporarily.</tD></tr>
@@ -170,7 +171,7 @@ the user's DP model have been solved.</tD></tr>
 <tr><td valign="top"><code>GroupCreate</code></td><tD>Called by the task that sets up the group space Gamma (&Gamma;) before creation
 of each separate group. The function added here should return TRUE if the group should be created and FALSE otherwise.</tD></tr>
 </table>
-@see Hooks, Flags::UpdateTime,
+@see Hooks, Flags::UpdateTime
 @name HookTimes
 **/
 enum {PreAuxOutcomes,PreUpdate,AtThetaTrans,PostSmooth,PostGSolve,PostRESolve,PostFESolve,GroupCreate,NHooks}
@@ -235,12 +236,12 @@ enum {NoInt,StateInt,       ActInt,          AuxInt, InteractionTypes}
             <tr>CCLike<td></td><td>Everything is observed except for the additive choice-specific error &zeta;.
                 Auxiliary values cannot contribute anything extra information.  See `Outcome::CCLikelihood`</td></tr>
             <tr>ExogLike<td></td><td>The exogenous vector &epsilon; is also unobserved.  Under this form
-                    the likelihood of AuxiliaryValues is relevant and `AuxiliaryValues::Likelihood` is called
-                    for each observation and each value of &epsilon; See `Outcome::IIDLikelihood`</td></tr>
+                    the likelihood of AuxiliaryValues is relevant and `Outcome::AuxLikelihood`() is called
+                    for each observation and each value of &epsilon; </td></tr>
             <tr>PartObsLike  [default]<td></td><td>Account for (sum over) any form of unobservability in states and actions.  Currently
-            this form cannot incorporate likelihood of auxiliary values. See `Outcome::PartialObservedLikelihood`</td></tr>
+            this form cannot incorporate likelihood of auxiliary values.</td></tr>
             </table>
-            @see OutcomeDataSet
+            @see OutcomeDataSet, Outcome::IIDLikelihood, Outcome::PartialObservedLikelihood
             @name LikelihoodTypes **/
 enum {CCLike,ExogLike,PartObsLike,LikelihoodTypes}
 

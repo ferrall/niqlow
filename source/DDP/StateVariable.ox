@@ -138,7 +138,7 @@ SimpleJump::Transit()	{return {vals,constant(1/N,1,N)};	}
 
 /**
 @param L label
-@param ProbEnd probability (`AV`-compatible) of a transition from 0 to 1 [default=0.5]
+@param ProbEnd probability (`AV`()-compatible) of a transition from 0 to 1 [default=0.5]
 @param Start 0/1 value (`ActionVariable` or `CV`-compatible) that moves from 0 to 1 [default=1]
 @comments
 v=1 at t=0 in finite horizon models is pruned.
@@ -203,7 +203,7 @@ Augmented::Augmented(Lorb,N) {
 
 /** The base for triggered augmentations.
 @param b the base `StateVariable` whose transition is augmented.
-@param t the trigger for a different transition (action, state, or `AV`-compatible object)
+@param t the trigger for a different transition (action, state, or `AV`()-compatible object)
 @param tv the integer (actual) value of t that triggers the transition [default=1]<br>or vector of integer values that trigger
 @param rval the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 
@@ -276,7 +276,7 @@ Reset::Reset(b,t) {
 
 /** Augment a base transition so the value of some other object trigger a special value.
 @param b the base `StateVariable` whose transition is augmented (the base should not be added to the model separately).
-@param t the `AV`-compatible value which triggers the change.  Usually this would be another state variable that is present in the model.
+@param t the `AV`()-compatible value which triggers the change.  Usually this would be another state variable that is present in the model.
 @param tv the integer (actual) or vector of integer values of tv that triggers the transition [default=1].
 @param rval the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 
@@ -325,7 +325,7 @@ RandomTrigger::Transit() {
 
 /** Augment a state variable so it freezes at its current value as long as a trigger is TRUE.
 @param b base `StateVariable`
-@param t `AV`-compatible object
+@param t `AV`()-compatible object
 **/
 Freeze::Freeze(b,t) {
     ValueTriggered(b,t,TRUE);
@@ -540,13 +540,13 @@ BirthAndSex::Transit() {
 /**Create a variable that jumps with probability
 @param L label
 @param N number of values
-@param Pi `AV`() compatible jump probability.
+@param Pi `AV`()-compatible jump probability.
 **/
 Jump::Jump(L,N,Pi)	{	this.Pi = Pi; StateVariable(L,N); }
 
 /** Create a binary endogenous absorbing state.
 @param L label
-@param fPi `AV`() compatible object that returns either:<br>
+@param fPi `AV`()-compatible object that returns either:<br>
 a probability p of transiting to state 1<br>
 a vector equal in length to Alpha::C.<br>
 The default value is 0.5: the absorbing state happens with probability 0.5.
@@ -637,7 +637,7 @@ LogNormalOffer::Update() {
 /** Create a state variable that increments or decrements with state-dependent probabilities.
 @param L label
 @param N integer, number of values, N &ge; 3
-@param fPi() a `AV`() compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.
+@param fPi() a `AV`()-compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.
 @param Prune TRUE [default], prune unreachable states assuming initial value of 0<br>FALSE do not prune
 **/
 RandomUpDown::RandomUpDown(L,N,fPi,Prune)	{
@@ -894,9 +894,9 @@ Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 /** Create a variable that counts how many times another state has taken on certain values.
 @param L label
 @param N integer, maximum number of times to count
-@param State `StateVariable` or `AV`() compatible object to track.
+@param State `StateVariable` or `AV`()-compatible object to track.
 @param ToTrack integer or vector, values of State to count. (default = <1>)<br/>DoAll: track all values
-@param Reset `AV`() compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
+@param Reset `AV`()-compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
 @param Prune TRUE [default]: prune states if finite horizon detected.
 @example <pre>noffers = new StateCounter("Total Offers",5,offer,<1:offer.N-1>,0);</pre>
 **/
@@ -942,7 +942,7 @@ StateCounterMaster::IsReachable() {! (Flags::Prunable && sumr(CV(CVSList))>I::t)
 @param Act `ActionVariable` to track.
 @param N integer, maximum number of times to count
 @param ToTrack vector, values of  Act to count, default=<1>
-@param Reset `AV` compatible binary value that resets the count if TRUE (default=0).
+@param Reset `AV`()-compatible binary value that resets the count if TRUE (default=0).
 @param Prune TRUE (default), prune unreachable states if finite horizon detected.
 @example
 Track work==1 up to 10 years, no reset. Assume count starts at 0 at t=0 in finite horizon models.
@@ -1355,8 +1355,8 @@ MVNormal::Update(curs,first)	{
 @param L string, label
 @param K integer, number of different episodes. k=0 is a special no-episode state. Spells with <var>k&gt;0</var> end with a transition <var>k'=0</var>
 @param T integer, maximum duration of episodes, or maximum duration to track if not Finite
-@param Onset  `AV` compatible K vector of onset probabilities (first element is k=0 spell continuation probability)
-@param End `AV` compatible probability of current spell ending.
+@param Onset  `AV`()-compatible K vector of onset probabilities (first element is k=0 spell continuation probability)
+@param End `AV`()-compatible probability of current spell ending.
 @param Finite 	TRUE, T is the actual limit of spells.  At t=T-1 transition is k'=0, t'=0.<br>
 				FALSE, T is limit of duration tracking.  Spell ends with prob. calculated at first case of t=T-1.
 **/
@@ -1392,10 +1392,10 @@ Episode::Transit() 	{
 /** Tauchen discretizization.
 @param L label
 @param N Number of discrete points
-@param M `AV`() compatiable max discrete value
-@param mu `AV`() compatible mean $\mu$
-@param sig `AV`() compatible standard deviation $\sigma$
-@param rho `AV`() compatible autocorrelation $|rho$
+@param M `AV`()-compatiable max discrete value
+@param mu `AV`()-compatible mean $\mu$
+@param sig `AV`()-compatible standard deviation $\sigma$
+@param rho `AV`()-compatible autocorrelation $|rho$
 
 Actual values will take on $N$ equally spaced values in the range
 $$ \mu \pm M\sigma/\sqrt(1-\rho^2).$$
@@ -1440,7 +1440,7 @@ Tauchen::Update() {
 /**Create a new asset state variable.
 @param L label
 @param N number of values
-@param r `AV`-compatible object, interest rate on current holding.
+@param r `AV`()-compatible object, interest rate on current holding.
 @see Discretized
 **/
 Asset::Asset(L,N,r){
@@ -1451,7 +1451,7 @@ Asset::Asset(L,N,r){
 /**Create a new FIXED asset state variable.
 @param L label
 @param N number of values
-@param r `AV`-compatible object, interest rate on current holding.
+@param r `AV`()-compatible object, interest rate on current holding.
 @param delta `ActionVariable`
 @see Discretized
 **/
@@ -1464,7 +1464,7 @@ FixedAsset::FixedAsset(L,N,r,delta){
 /**Create a new LIQUID asset state variable.
 @param L label
 @param N number of values
-@param NetSavings `AV`-compatible static function of the form <code>NetSavings()</code><br><em>or</em>`ActionVariable`
+@param NetSavings `AV`()-compatible static function of the form <code>NetSavings()</code><br><em>or</em>`ActionVariable`
 
 
 Example.  A model has a choice of consume or save with a budget constraint of the form:

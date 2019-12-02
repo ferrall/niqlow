@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
-<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><link rel="icon" href="icons/favicon16.png" type="image/png">
+<link rel="stylesheet" type="text/css" href="../oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="../print.css">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
 <title>Variables.ox - Derived Dynamic Programs</title>
 </head>
@@ -828,7 +828,7 @@ Auxiliary values are added to the outcome (appended to <span class="expressions"
 <P/>
 The user may break  up <code>Utility()</code> into functions that help determine it.  These can be <em>static</em> methods of <code>MyModel</code>.  Then some of these functions may be observed in data and might enter econometric estimation.  <a href="Variables.ox.html#StaticAux">StaticAux</a> is a auxiliary value class that can be used as a <q>wrapper</q> for such functions as shown below.</p>
 <P/>
-Auxiliary values are also used to code <em>indicators</em> and <em>interaction variables</em> in data sets.  For example, if <span class="expressions">\(a\)</span> is an action to choose among 5 options the data may include four variables that are indicators for all but one of the options being observed, <span class="expressions">\(y_k = I\{a=k\}\)</span>.  Instead of having to create a set of binary action variables to match this data the user can create a set of <a href="Variables.ox.html#Indicator">Indicator</a>s, each of which is an auxiliary outcome that will match whether <span class="expressions">\(a=k\)</span> or not (as well as the probability of that occurring in a prediction data set).  The <a href="DP.ox.html#DP___Indicators">Indicators</a>() method can be used to generate all four indicators at once.  DP::Interactions and  <a href="DP.ox.html#DP___MultiInteractions">MultiInteractions</a> between discrete actions and states can be created as can interactions between a auxiliary variable and a discrete quantity.</p>
+Auxiliary values are also used to code <em>indicators</em> and <em>interaction variables</em> in data sets.  For example, if <span class="expressions">\(a\)</span> is an action to choose among 5 options the data may include four variables that are indicators for all but one of the options being observed, <span class="expressions">\(y_k = I\{a=k\}\)</span>.  Instead of having to create a set of binary action variables to match this data the user can create a set of <a href="Variables.ox.html#Indicator">Indicator</a>s, each of which is an auxiliary outcome that will match whether <span class="expressions">\(a=k\)</span> or not (as well as the probability of that occurring in a prediction data set).  The <a href="DP.ox.html#DP___Indicators">Indicators</a>() method can be used to generate all four indicators at once.  <a href="DP.ox.html#DP___Interactions">Interactions</a> and  <a href="DP.ox.html#DP___MultiInteractions">MultiInteractions</a> between discrete actions and states can be created as can interactions between a auxiliary variable and a discrete quantity.</p>
 <P/>
 <a name="Continuous"><li>Conditional Continuous Choices <mark>NEW and experimental</mark></li>
 <P/>
@@ -1429,7 +1429,7 @@ Discretized interest-bearing asset.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Asset___r">r</a></td>
 <td class="modifiers">const</td>
-<td class="description"><a href="Shared.ox.html#AV">AV</a>-compatible object, interest rate on current holding.</td>
+<td class="description"><a href="Shared.ox.html#AV">AV</a>()-compatible object, interest rate on current holding.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Asset___top">top</a></td>
@@ -1920,7 +1920,7 @@ Count periods value(s) of target action or state variable have occurred.
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Counter___Reset">Reset</a></td>
 <td class="modifiers">const</td>
-<td class="description"><a href="Shared.ox.html#AV">AV</a> compatiable reset to 0 flag  </td>
+<td class="description"><a href="Shared.ox.html#AV">AV</a>()-compatiable reset to 0 flag  </td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Counter___Target">Target</a></td>
@@ -3102,7 +3102,7 @@ s' = s.x
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#LiquidAsset___NetSavings">NetSavings</a></td>
 <td class="modifiers">const</td>
-<td class="description"><a href="Shared.ox.html#AV">AV</a>-compatible static function or <a href="Variables.ox.html#ActionVariable">ActionVariable</a>.</td>
+<td class="description"><a href="Shared.ox.html#AV">AV</a>()-compatible static function or <a href="Variables.ox.html#ActionVariable">ActionVariable</a>.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#LiquidAsset___LiquidAsset">LiquidAsset</a></td>
@@ -3516,7 +3516,7 @@ x &sim; N( &mu;, C'C ).
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#MVNormal___CholLT">CholLT</a></td>
 <td class="modifiers">const</td>
-<td class="description"><a href="Shared.ox.html#AV">AV</a>-compatible vector-valued object which returns
+<td class="description"><a href="Shared.ox.html#AV">AV</a>()-compatible vector-valued object which returns
         <code>vech()</code> for lower triangle of C, the Choleski decomposition
         of the variance matrix &Omega;, &Omega; = CC'.</td>
 </tr>
@@ -5190,7 +5190,7 @@ Base Class for elements of state vectors, &epsilon;, &eta;, &theta;, &gamma; .
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StaticAux___StaticAux">StaticAux</a></td>
 <td class="modifiers"></td>
-<td class="description">Create an wrapper for a static function <a href="Shared.ox.html#AV">AV</a>-compatible object.</td>
+<td class="description">Create an wrapper for a static function <a href="Shared.ox.html#AV">AV</a>()-compatible object.</td>
 </tr>
 </table>
 
@@ -5660,7 +5660,7 @@ not present in the base state.
 <a name="ValueTriggered"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ValueTriggered : <a href="Variables.ox.html#Triggered">Triggered</a> : <a href="Variables.ox.html#Augmented">Augmented</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
-A state variable that augments a base transition so that the value of a <a href="Shared.ox.html#AV">AV</a> compatible object triggers this state to transit to a special value.
+A state variable that augments a base transition so that the value of a <a href="Shared.ox.html#AV">AV</a>()-compatible object triggers this state to transit to a special value.
 <DT>Transition.  Let</DT>
 <dd><code>q</code> denote this state variable.
 <DD><code>b</code> be the base state variable to be agumented (not added to model itself)</DD>
@@ -5810,7 +5810,7 @@ Create a binary endogenous absorbing state.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">fPi</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible object that returns either:<br>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible object that returns either:<br>
 a probability p of transiting to state 1<br>
 a vector equal in length to Alpha::C.<br>
 The default value is 0.5: the absorbing state happens with probability 0.5.
@@ -5957,7 +5957,7 @@ Create a variable that counts how many times an action has taken on certain valu
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Reset</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a> compatible binary value that resets the count if TRUE (default=0).
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible binary value that resets the count if TRUE (default=0).
 </td>
 </tr>
 <tr>
@@ -6184,7 +6184,7 @@ a placeholder for extensions of a model.<br>OR<br>N-array of strings, holding la
 <dl><dd>
 Return <a href="DDPShared.ox.html#Alpha___A">A</a>[][pos].
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso">Alpha AV, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#Alpha">Alpha</a>, <a href="Shared.ox.html#AV">AV</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
 </dl>
 </dd></dl>
 
@@ -6362,7 +6362,7 @@ Create a new asset state variable.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">r</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>-compatible object, interest rate on current holding.
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible object, interest rate on current holding.
 </td>
 </tr>
 </table>
@@ -6404,7 +6404,7 @@ Create a new asset state variable.
 
 <span class="declaration">const decl r [public]</span>
 <dl><dd>
-<a href="Shared.ox.html#AV">AV</a>-compatible object, interest rate on current holding.
+<a href="Shared.ox.html#AV">AV</a>()-compatible object, interest rate on current holding.
 
 </dd></dl>
 
@@ -6863,7 +6863,7 @@ Volume for clocks (static so don't need to access internal var.
 <span class="declaration">virtual Clock :: Vupdate ( )</span>
 <dl><dd>
 The base calculation to be carried out after the value of all states at time t have been computed.
-<DT>The clock <code>Vupdate()</code> is called by ValueIteration::Update() at the end of one Bellman iteration.</DT>
+<DT>The clock <code>Vupdate()</code> is called by <a href="Methods.ox.html#GSolve___Update">Update</a>() at the end of one Bellman iteration.</DT>
 <P/>
 <DT>The base version returns the <code>norm()</code> of the change in the value function for convergence check.</DT>
 <DD>This is the stationary calculation. See <a href="Variables.ox.html#NonStationary___Vupdate">Vupdate</a>() for an alternative</DD>
@@ -7005,7 +7005,7 @@ as 0.
 
 <span class="declaration">const decl Reset [public]</span>
 <dl><dd>
-<a href="Shared.ox.html#AV">AV</a> compatiable reset to 0 flag
+<a href="Shared.ox.html#AV">AV</a>()-compatiable reset to 0 flag
 
 </dd></dl>
 
@@ -7437,12 +7437,12 @@ K mutually exclusive episodes.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Onset</td>
-<td class="description" valign="baseline"> <a href="Shared.ox.html#AV">AV</a> compatible K vector of onset probabilities (first element is k=0 spell continuation probability)
+<td class="description" valign="baseline"> <a href="Shared.ox.html#AV">AV</a>()-compatible K vector of onset probabilities (first element is k=0 spell continuation probability)
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">End</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a> compatible probability of current spell ending.
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible probability of current spell ending.
 </td>
 </tr>
 <tr>
@@ -7595,7 +7595,7 @@ Create a new FIXED asset state variable.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">r</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>-compatible object, interest rate on current holding.
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible object, interest rate on current holding.
 </td>
 </tr>
 <tr>
@@ -7778,7 +7778,7 @@ Augment a state variable so it freezes at its current value as long as a trigger
 </tr>
 <tr>
 <td class="declaration" valign="baseline">t</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>-compatible object</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible object</td>
 </tr>
 </table>
 </dd>
@@ -7980,7 +7980,7 @@ Create a variable that jumps with probability
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Pi</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible jump probability.</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible jump probability.</td>
 </tr>
 </table>
 </dd>
@@ -8485,7 +8485,7 @@ Create a new LIQUID asset state variable.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">NetSavings</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>-compatible static function of the form <code>NetSavings()</code><br><em>or</em><a href="Variables.ox.html#ActionVariable">ActionVariable</a>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible static function of the form <code>NetSavings()</code><br><em>or</em><a href="Variables.ox.html#ActionVariable">ActionVariable</a>
 <P/>
 Example.  A model has a choice of consume or save with a budget constraint of the form:
 <span class="equation">$$c+a \le Y+(1+r)A.$$</span>
@@ -8526,7 +8526,7 @@ Note that no action may be feasible if <code>AV(Y)</code> is too small.
 
 <span class="declaration">const decl NetSavings [public]</span>
 <dl><dd>
-<a href="Shared.ox.html#AV">AV</a>-compatible static function or <a href="Variables.ox.html#ActionVariable">ActionVariable</a>.
+<a href="Shared.ox.html#AV">AV</a>()-compatible static function or <a href="Variables.ox.html#ActionVariable">ActionVariable</a>.
 
 </dd></dl>
 
@@ -8908,7 +8908,7 @@ total number points in the block.
 
 <span class="declaration">const decl CholLT [public]</span>
 <dl><dd>
-<a href="Shared.ox.html#AV">AV</a>-compatible vector-valued object which returns
+<a href="Shared.ox.html#AV">AV</a>()-compatible vector-valued object which returns
         <code>vech()</code> for lower triangle of C, the Choleski decomposition
         of the variance matrix &Omega;, &Omega; = CC'.
 
@@ -9138,12 +9138,12 @@ Create an auxiliary value that adds normally-distributed noise to the actual val
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">truevalue</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>-compatible object
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible object
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">sigma</td>
-<td class="description" valign="baseline">   <a href="Shared.ox.html#CV">CV</a>-compatible standard deviation
+<td class="description" valign="baseline">   <a href="Shared.ox.html#CV">CV</a>()-compatible standard deviation
 </td>
 </tr>
 <tr>
@@ -9304,12 +9304,12 @@ Create a permanent discretized normal random effect.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">mu</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible mean of the effect, &mu;<br>Default = 0.0
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible mean of the effect, &mu;<br>Default = 0.0
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">sigma</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible standard deviation, &sigma;<br>Default = 1.0
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible standard deviation, &sigma;<br>Default = 1.0
 <P/>
 The probabilities of each discrete value is 1/N.  The distribution is captured by adjusting the
 actual values to be at the quantiles of the distribution.</td>
@@ -9839,7 +9839,7 @@ Create a state variable that is random but invariant for an individual DP proble
 </tr>
 <tr>
 <td class="declaration" valign="baseline">fDist</td>
-<td class="description" valign="baseline">integer [default], uniform distribution<br>otherwise, a <a href="Shared.ox.html#AV">AV</a>() compatible object that
+<td class="description" valign="baseline">integer [default], uniform distribution<br>otherwise, a <a href="Shared.ox.html#AV">AV</a>()-compatible object that
 returns the N-vector of probabilities.
 <P/>
 <DT>The default (and always initial) distribution is uniform:</DT>
@@ -9939,7 +9939,7 @@ Create a list of <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</
 </tr>
 <tr>
 <td class="declaration" valign="baseline">ProbEnd</td>
-<td class="description" valign="baseline">probability (<a href="Shared.ox.html#AV">AV</a>-compatible) of a transition from 0 to 1 [default=0.5]
+<td class="description" valign="baseline">probability (<a href="Shared.ox.html#AV">AV</a>()-compatible) of a transition from 0 to 1 [default=0.5]
 </td>
 </tr>
 <tr>
@@ -10062,7 +10062,7 @@ Create a state variable that increments or decrements with state-dependent proba
 </tr>
 <tr>
 <td class="declaration" valign="baseline">fPi()</td>
-<td class="description" valign="baseline">a <a href="Shared.ox.html#AV">AV</a>() compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.
+<td class="description" valign="baseline">a <a href="Shared.ox.html#AV">AV</a>()-compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.
 </td>
 </tr>
 <tr>
@@ -10705,7 +10705,7 @@ Create a variable that counts how many times another state has taken on certain 
 </tr>
 <tr>
 <td class="declaration" valign="baseline">State</td>
-<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a> or <a href="Shared.ox.html#AV">AV</a>() compatible object to track.
+<td class="description" valign="baseline"><a href="Variables.ox.html#StateVariable">StateVariable</a> or <a href="Shared.ox.html#AV">AV</a>()-compatible object to track.
 </td>
 </tr>
 <tr>
@@ -10715,7 +10715,7 @@ Create a variable that counts how many times another state has taken on certain 
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Reset</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
 </td>
 </tr>
 <tr>
@@ -10967,7 +10967,7 @@ Return actual[v].
 Trim unreachable states if finite horizon clock is detected.
         <b>Default is FALSE.</b>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso">StateVariable::IsReachable().</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a></dd>
 </dl>
 </dd></dl>
 
@@ -11075,7 +11075,7 @@ Default realized auxililary variable, sets <code>v=1.0</code>.
 
 <span class="declaration">StaticAux :: StaticAux ( L , target )</span>
 <dl><dd>
-Create an wrapper for a static function <a href="Shared.ox.html#AV">AV</a>-compatible object.
+Create an wrapper for a static function <a href="Shared.ox.html#AV">AV</a>()-compatible object.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -11368,22 +11368,22 @@ Tauchen discretizization.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">M</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatiable max discrete value
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatiable max discrete value
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">mu</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible mean <span class="expressions">\(\mu\)</span>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible mean <span class="expressions">\(\mu\)</span>
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">sig</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible standard deviation <span class="expressions">\(\sigma\)</span>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible standard deviation <span class="expressions">\(\sigma\)</span>
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">rho</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible autocorrelation <span class="expressions">\(|rho\)</span>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible autocorrelation <span class="expressions">\(|rho\)</span>
 <P/>
 Actual values will take on <span class="expressions">\(N\)</span> equally spaced values in the range
 <span class="equation">$$ \mu \pm M\sigma/\sqrt(1-\rho^2).$$</span>
@@ -11460,12 +11460,12 @@ Create a permanent discretized normal random effect.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">mu</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible mean of the effect, &mu;
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible mean of the effect, &mu;
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">sigma</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>() compatible standard deviation, &sigma;
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible standard deviation, &sigma;
 </td>
 </tr>
 <tr>
@@ -11540,7 +11540,7 @@ The base for triggered augmentations.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">t</td>
-<td class="description" valign="baseline">the trigger for a different transition (action, state, or <a href="Shared.ox.html#AV">AV</a>-compatible object)
+<td class="description" valign="baseline">the trigger for a different transition (action, state, or <a href="Shared.ox.html#AV">AV</a>()-compatible object)
 </td>
 </tr>
 <tr>
@@ -11618,7 +11618,7 @@ Augment a base transition so the value of some other object trigger a special va
 </tr>
 <tr>
 <td class="declaration" valign="baseline">t</td>
-<td class="description" valign="baseline">the <a href="Shared.ox.html#AV">AV</a>-compatible value which triggers the change.  Usually this would be another state variable that is present in the model.
+<td class="description" valign="baseline">the <a href="Shared.ox.html#AV">AV</a>()-compatible value which triggers the change.  Usually this would be another state variable that is present in the model.
 </td>
 </tr>
 <tr>

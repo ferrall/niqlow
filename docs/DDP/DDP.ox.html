@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" type="text/css" href="..\oxdoc.css">
-<link rel="stylesheet" type="text/css" media="print" href="..\print.css">
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><link rel="icon" href="icons/favicon16.png" type="image/png">
+<link rel="stylesheet" type="text/css" href="../oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="../print.css">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
 <title>DDP.ox - Derived Dynamic Programs</title>
 </head>
@@ -15,11 +15,30 @@
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
 <h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">DDP.ox</span></h1>
 
-Dynamic Programming using DDP: Beginner's Guide and Technical Overview.
+Dynamic Programming using DDP.
+<P/>
+<a name="over"><H1>Overview</H1></a>
+<P/>
+<span class="n">DDP</span> is the part of <span class="n">niqlow</span> that allows you to build a dynamic program, solve it and use the solution to make predictions, simulate data, etc.  If you get to the stage of estimating parameters of your model, then you will also use the <a href="../FiveO/default.html"><span class="n">FiveO</span></a> part that handles optimization.</p>
+<P/>
+<h2>What Kind of <span class="n">niqlow</span> User Are You?</h2>
+<P/>
+Before trying to use this documentation or coding with <span class="n">niqlow</span>, consider your background.
+<P/>
+<DT>If you are new to programming and the Ox language &hellip;</DT>
+<DD>This document may not be the right place to start.  You might start with my open online textbook, <a href="https://ferrall.github.io/C4E/">Computation For Economists (C4E)</a>.  That text starts with "hello, world" in Ox and covers basic programming skills and numerical algorithms for mathematics. It includes exercises and economic examples.</dd>
+<P/>
+<DT>If you are an experienced programmer (whether new to Ox or not), but are new to dynamic programming models &hellip;</DT>
+<DD>You might start with the <a href="#guide">Beginner's Guide</a> below.  That begins with the simplest discrete choice model and how to code it in <span class="n">DDP</span>.  It then builds up to a dynamic program.</DD>
+<P/>
+<DT>If you are confident in your knowledge of computer programming and the mathematical technique of dynamic programming as used in economics &hellip;</DT>
+<DD>You might start with <a href="GetStarted.html">GetStarted</a> which implements a simple search model in DDP. That jumps right in with a simple dynamic model and Ox code using <span class="n">DDP</span>.</DD>
+<DD>You can also start with   <a href="https://ferrall.github.io/OODP/">my academic paper</a> that discusses how to build a model from scratch and estimate it using <span class="n">niqlow</span>.</DD>
+<P/>
+<DT>Finally, if you have already written your code to estimate parameters of a dynamic programming model from data &hellip;</DT>
+<DD>You could also start with <a href="https://ferrall.github.io/OODP/">the academic paper</a> and follow the replications of existing models.  You could use that to see how you might translate your ideas into <span class="n">niqlow</span> in order to write more flexible, useable and possibly more efficient code.</DD>
 <P/>
 This document has two parts.  The first begins with the simplest discrete choice problem and how it could be coded in DDP.  It builds up to a true dynamic program one feature at a time.   The <a href="#tech">second part</a> is a technical description of dynamic programming and DDP. </p>
-<P/>
-You can also start with <a href="GetStarted.html">GetStarted</a> which implements a simple search model in DDP.</p>
 <P/>
 <HR/>
 <P/>
@@ -818,7 +837,7 @@ First, the simplest and most general notation is introduced to describe a DDP.  
     <LI><span class="expressions">\(\theta \in \Theta\)</span>: The (discrete) state space</LI>
     <LI><span class="expressions">\(P(\theta^{\,\prime}\,|\,\alpha,\theta)\)</span>: Conditional transition to the next state, including any notion of a time dimension.</LI>
     <LI><span class="expressions">\(U(\alpha,\theta)\)</span>: Utility/return/payoff of an action conditional on the state</LI>
-    <li><span class="expressions">\(\zeta_\alpha\)</span>: Choice-specific shock added to utility in order to smooth choice probabilities.</li>
+    <li><span class="expressions">\(\zeta_\alpha\)</span>: shock added to the value of a choice in order to smooth choice probabilities.</li>
     <LI><span class="expressions">\(E\left[\sum_{t=0,\dots}\delta^t\,U(\alpha_t,\theta_t)\right]\)</span>: additively separable objective with foresight; <span class="expressions">\(\delta\)</span> is the discount factor.</LI>
     </OL>
 <P/>
@@ -964,7 +983,7 @@ MyModel::Initialize() {
     <blockquote><b><code>MyModel::Utility()</code> should return utility as a vector for the feasible matrix at the current state.</b> </blockquote>
 <P/>
 <DT><code>MyModel::Utility()</code></DT>
-    <DD>The one period utility/return/payoff, <span class="expressions">\(U(\alpha,\zeta,\epsilon,\eta,\theta)\)</span>.  It must be called <code>Utility()</code>, because it replaces a <em>virtual</em> method, <code>DP::U</code>.  It returns the utility as a <em>vector</em>: one element for each feasible action &theta;.A. You might expect <code>MyModel::Utility()</code> would require arguments to pass the value of state variables.  However, using the object-oriented approach to representing the model means that the values are available because <span class="n">DDP</span> will set the value of members of <code>MyModel</code> before calling U(). </DD>
+    <DD>The one period utility/return/payoff, <span class="expressions">\(U(\alpha;\epsilon,\eta,\theta)\)</span>.  It must be called <code>Utility()</code>, because it replaces a <em>virtual</em> method, <code>DP::U</code>.  It returns the utility as a <em>vector</em>: one element for each feasible action &theta;.A. You might expect <code>MyModel::Utility()</code> would require arguments to pass the value of state variables.  However, using the object-oriented approach to representing the model means that the values are available because <span class="n">DDP</span> will set the value of members of <code>MyModel</code> before calling U(). </DD>
 <P/>
 <details><summary><b>Example</b><br/>Define the Utility to equal an indicator for whether the current action equals last period's action.</summary>
 <pre>class MyModel : DPparent {
@@ -1073,12 +1092,14 @@ Segregation state variables into different vectors can reduce memory and computi
 <P/>
     <DD><b><em>Warning:</em> if random effect elements of <span class="expressions">\(\gamma\)</span> affect the transition <span class="expressions">\(P()\)</span>. you have to change the <a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a> in your model</b> Because <span class="expressions">\(\gamma\)</span> is fixed during a solution, it is often <em>not</em> listed as an argument of U() and endogenous outcomes such as <span class="expressions">\(V(\theta)\)</span>.  However, <code>MyModel</code> can treat elements of <span class="expressions">\(\gamma\)</span> like other states.</DD>
 <P/>
-<LI><span class="expressions">\(\zeta\)</span>: Continuous utility shock vector</LI>
+<LI><span class="expressions">\(\zeta\)</span>: Continuous value shock vector</LI>
     <blockquote><b>Continuous states are placed in <span class="expressions">\(\zeta\)</span> and can only affect U() not <span class="expressions">\(P()\)</span>.</b></blockquote>
 <P/>
     <DD>The most specialized random elements are those that are IID, do not influence the transition of other state variables <em>and</em> enter utility as an additively separable shock. These are often random variables with infinite support that smooth choice probabilities. Elements of <span class="expressions">\(\zeta\)</span> are not really stored.  Rather the distribution of <span class="expressions">\(\zeta\)</span> affects the specification of Bellman's equation, specifically the expression for <span class="expressions">\(EV(\theta^{ \prime})\)</span>. If any such shocks are in the model, then a solution method must be available to deal with them explained below in <a href="#">Solution Method</a>. Any continuous shocks <span class="expressions">\(\zeta\)</span> are not included in <span class="expressions">\(U()\)</span> as the user codes it.  Instead, the distribution of continuous shocks is accounted for by the algorithm to compute <span class="expressions">\(EV(\theta^{ \prime})\)</span>.</DD>
 <P/>
 </OL>
+<P/>
+<img src="icons/statevectors.png" width="60%">
 <P/>
 <li>Feasible Actions at a state: <span class="expressions">\(\theta\)</span>.A</li>
 <P/>
@@ -1272,7 +1293,7 @@ A key reason the notation differs here is because it is used to describe a frame
     <DD>For each group variable, find a predefined random effect variable that matches it or derive a new type of group variable.</DD>
 <DT>Constraints on choice: if not every action can be taken at every state</DT>
     <DD>Express feasible actions <span class="expressions">\(\theta\)</span>.A, as a logical/boolean indicator for whether <span class="expressions">\(\alpha\)</span> is feasible (in <span class="expressions">\(\theta\)</span>.A) depending on values of variables in <span class="expressions">\(\theta\)</span>.</DD>
-<DT><span class="expressions">\(\zeta\)</span> : if continuous variables enter utility</DT>
+<DT><span class="expressions">\(\zeta\)</span> : if continuous variables enter choice value</DT>
     <DD>Specify the distribution of  <span class="expressions">\(\zeta\)</span> and the solution method associated with it.
 <DT>Utility <span class="expressions">\(U()\)</span></DT>
     <DD>Expressed as a vector of values, one number for each row of <span class="expressions">\(\theta\)</span>.A. (each value of <code>&alpha;</code>). Values depend on current values of state variables in all the vectors, but not &zeta; unless the model will be solved with reservation values.</DD>
