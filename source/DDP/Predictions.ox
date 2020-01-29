@@ -399,7 +399,7 @@ PathPrediction::PathPrediction(f,method,iDist,wght){
 
 **/
 Prediction::~Prediction() {
-    delete sind, p, ch, W,  predmom, empmom;
+    delete state, sind, p, ch, W,  predmom, empmom;
 	}
 
 /** clean up.

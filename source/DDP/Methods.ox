@@ -172,7 +172,7 @@ in the group space $\Gamma.$ It's job is to iterate over $\Theta.$
 </OL>
 **/
 GSolve::Solve(instate) {
-	this.state = instate;
+	this.state[] = instate;
     ZeroTprime();
 	Flags::setPstar = counter->setPstar(TRUE) ||  (MaxTrips==1);   // if first trip is last;
     dff = 0.0;
@@ -196,7 +196,7 @@ replacement for the actual method</LI>
 
 **/
 GSolve::Run() {
-    XUT.state = state;
+    XUT.state[] = state;
     I::curth->ThetaUtility();
 	I::curth->ActVal();
 	N::VV[I::now][I::all[iterating]] = I::curth->thetaEMax();

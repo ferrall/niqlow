@@ -176,7 +176,9 @@ struct Task : DP {
 	/**leftmost variable in state to loop over 				**/		left,
 	/**rightmost variable in state to loop over 			**/		right,
     /**Task that called me (used by methods).**/                    caller;
-    static decl                                                     trace;
+    static decl
+    /** used inside SyncStates. **/                                 sd,sv,Sd,
+                                                                    trace;
 	decl
     /**Label for debugging purposes.**/                             L,
 	/**N&times;1 vector, current &epsilon;&theta;			**/		state,
@@ -184,13 +186,14 @@ struct Task : DP {
 	/**Number of times `Task::Run`() has been called while in
         progress.**/                                                iter,
 																	d,
+    /** keep going ... mimics an inner do while().**/               inner,
 	/**Indicates task is done (may require one more trip).**/		done,
 	/**Trips through the task's space. **/                          trips,
 	/** max number of outer	Bellman trip.s     **/    				MaxTrips;							
 	Task(caller=UnInitialized);
 	virtual Update();
 	virtual Run();
-	virtual loop(IsCreator=FALSE);
+	virtual loop();
 	virtual list(span=DoAll,lows=UseDefault,ups=UseDefault);
 	Reset();
 	Traverse(span=DoAll,lows=UseDefault,ups=UseDefault);
@@ -210,22 +213,6 @@ struct ThetaTask        :   Task {
     virtual Run();	
     }
 
-/* Identify unreachable states from &Theta;.
-
-Users do not call this function.
-
-The task called in `DP::CreateSpaces` that loops over the state space &Theta; and
-calls the virtual <code>Reachable()</code>.
-This task is called before `CreateTheta` so that reachable status can be determined before
-subsampling (if required).
-
-struct FindReachables   : 	ThetaTask {	
-        decl th, rchable;
-        FindReachables();
-        Run();	
-        }
-*/
-
 /** Allocate space for each point &theta; &in; &Theta; that is reachable.
 
 The task called in `DP::CreateSpaces` that loops over the state space &Theta; and
@@ -235,8 +222,10 @@ Users do not call this function.
 
 **/
 struct CreateTheta 	    : 	ThetaTask {	
+        static decl thx, rch, ind;
         decl insamp, th, rchable;
         CreateTheta(); 	
+	    loop();
         Sampling();
         Run();	
         picked();
@@ -275,7 +264,10 @@ If a non-sampled state is now sampled its point in $\theta$ is created.
 Users do not call this directly.
 
 **/
-struct ReSubSample 	    : 	CreateTheta    {	ReSubSample(); 		Run();	}
+struct ReSubSample 	    : 	CreateTheta    {	
+    ReSubSample(); 		
+    Run();	
+    }
 
 /** Base Task for constructing the transition for endogenous states.
 

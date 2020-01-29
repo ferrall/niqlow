@@ -1,7 +1,8 @@
-#include "LS.ox"
+#import "LS"
 
 main() {
 //    HTopen("../../OODP/LS");
-    LS::Run();
+    LS::Create();
+    VISolve();
     ComputePredictions();
     }

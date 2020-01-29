@@ -307,7 +307,7 @@ value across all exogenous states.</DD>
 **/
 KWGSolve::Run() {
     decl notinss = ! I::curth->InSS();
-    XUT.state = state;
+    XUT.state[] = state;
     if (firstpass) {
         if (notinss) return;
 	    I::curth->MedianActVal();
@@ -339,7 +339,7 @@ This replaces the built-in version used by `ValueIteration`.
 **/
 KWGSolve::Solve(instate) {
 	decl myt;
-	this.state = instate;
+	state[] = instate;
     ZeroTprime();
 	Flags::setPstar = TRUE;	
     curlabels = xlabels0|xlabels1|xlabels2;  //This should depend on feasible set!

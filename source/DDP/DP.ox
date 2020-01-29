@@ -587,26 +587,34 @@ GroupTask::GroupTask(caller) {
 **/
 GroupTask::loop(IsCreator){
 	Reset();
+    #ifdef DEBUG
     if (trace) println("--Group task loop: ",classname(this),state[left:right]');
+    #endif
 	SyncStates(left,right);
 	d=left+1;				   							// start at leftmost state variable to loop over
 	do	{
 		do {
 			SyncStates(left,left);
             I::Set(state,Flags::ThetaCreated); //March 2019 removed TRUE to handle Ox8 new arrays
-            if (trace) println("------Group task loop: ",isclass(I::curg)," ",I::r," ",I::f," ",classname(this)," Running ",state[left:right]');
+            #ifdef DEBUG
+                if (trace) println("------Group task loop: ",isclass(I::curg)," ",I::r," ",I::f," ",classname(this)," Running ",state[left:right]');
+            #endif
 			if (IsCreator || isclass(I::curg) ) this->Run();
 			} while (--state[left]>=0);
 		state[left] = 0;
 		d = left+double(vecrindex(state[left:right]|1));
-        if (trace) println("----Group task loop: ",classname(this)," left:d:right",left,":",d,":",right,state[left:right]');
+        #ifdef DEBUG
+            if (trace) println("----Group task loop: ",classname(this)," left:d:right",left,":",d,":",right,state[left:right]');
+        #endif
 		if (d<=right)	{
 			--state[d];			   			//still looping inside
 		    state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
 		    SyncStates(left,d);
 			}
 		} while (d<=right);
-    if (trace) println("--Group Task Ending: ",classname(this));
+        #ifdef DEBUG
+            if (trace) println("--Group Task Ending: ",classname(this));
+        #endif
     return TRUE;
     }
 
@@ -924,7 +932,7 @@ N::Initialize() {
     /*	if (Flags::UseStateList) */
     tfirst = constant(UnInitialized,T,1);
 	ReachableStates = TerminalStates = 0;
-    ReachableIndices = <>;
+    ReachableIndices = constant(.NaN,DP::SS[tracking].size,1);
     if (MaxSZ==Zero) MaxSZ = INT_MAX;
     }
 
@@ -947,7 +955,7 @@ N::Subsample(prop) {
 @internal
 **/
 N::Sizes() {
-	ReachableIndices = reversec(ReachableIndices);
+	ReachableIndices = reversec(deleter(ReachableIndices));
     tfirst = 0 | (sizer(ReachableIndices)-tfirst);
     Mitstates = DP::SS[iterating].size;
     VV = new array[DVspace];
@@ -976,9 +984,8 @@ N::print(){
 
 **/
 N::Reached(trackind) {
-    ++ReachableStates;
-    if (tfirst[I::t]<0) tfirst[I::t] = sizer(ReachableIndices);
-	ReachableIndices |= trackind;
+    ReachableIndices[ReachableStates++] = trackind;
+    if (tfirst[I::t]<0) tfirst[I::t] = ReachableStates;
     }
 
 /** . @internal **/
@@ -1262,7 +1269,7 @@ DP::CreateSpaces() {
     Alpha::SetA(NoMatch);
     I::curth = I::curg = UnInitialized;
     tt = new CreateTheta();
-    tt->loop(TRUE);
+    tt->loop();
     N::Sizes();
     if (!Version::MPIserver && Volume>LOUD) {
             println("Note: Reachability of all states listed in the log file");
@@ -1383,35 +1390,11 @@ Not called if a dry run is asked for.
 **/
 CreateTheta::CreateTheta() {
 	ThetaTask(tracking);
+    thx = DP::SubVectors[endog];
+    rch = zeros(sizeof(thx),1);
     Sampling();
 	}
 
-/* Find states that are reachable, put index on `N::Reached\`, then delete the object immediately.
-Called by `DP::onlyDryRun` inside <code>CreateSpaces</code>.  When this is called, `CreateTheta` is
-not used.
-
-@internal
-FindReachables::FindReachables() { 	
-    ThetaTask(tracking);
-    rchable = <>;
-    }
-*/
-
-/** Process the state space but do not allocate memory to store &Theta;.
-
-This is called inside <code>CreateSpaces</code> when a dry run is called for.
-
-DryRun::DryRun() {
-    //FindReachables();
-    PrevT = UnInitialized;
-    report = <>;
-	loop(TRUE);
-    println("%c",{"t","Reachable","Approximated","In-Sample-Ratio","Cumulative Full"},
-                "%cf",{"%6.0f","%15.0f","%15.0f","%15.5f","%15.0f"},report);
-    println("niqlow may run out of memory  if cumulative full states is too large.");
-    N::Sizes();
-    }
-**/
 
 /** . @internal **/
 CreateTheta::picked() {
@@ -1422,57 +1405,16 @@ CreateTheta::picked() {
                 ) : TRUE;
     }
 
-/* Decide if $\theta$ is reachable.
-At current $\theta$ call `StateVarible::IsReachable` for all elements of $\theta$. If
-any are not reachable, set $\theta$ as type 0 and return.</br>
-If all state variables are inherently reachable call <code>Reachable</code>.  If true,
-then set type to 2.  Otherwise type 1.
-@internal
-FindReachables::Run() {
-    decl v, h=DP::SubVectors[endog];
-    Flags::SetPrunable(counter);
-    foreach (v in h) if (!(th = v->IsReachable())) {
-        if (Volume>LOUD) rchable |= InUnRchble~I::all[tracking]~(state[S[endog].M:S[clock].M]');
-        return;
-        }
-	if (userState->Reachable()) {
-        if (Volume>LOUD) rchable |= Rchble~I::all[tracking]~(state[S[endog].M:S[clock].M]');
-        N::Reached(I::all[tracking]);
-        }
-    else if (Volume>LOUD) rchable |= UUnRchble~I::all[tracking]~(state[S[endog].M:S[clock].M]');
-	}
-*/
-
 /** .
 @internal
 **/
 CreateTheta::Run() {
-    decl v, h=DP::SubVectors[endog],rch=TRUE, ind;
-    Theta[I::all[tracking]]=Impossible;
-    Flags::SetPrunable(counter);
-    if (Flags::Prunable&&Volume>LOUD) ind = I::all[tracking]~(state[S[endog].M:S[clock].M]');
-    foreach (v in h) {
-        if (( !(rch=v->IsReachable()) )) {
-            if (Volume>LOUD) rchable |= InUnRchble~ind;
-            break;
-            }
-        }
-	if (rch) {
-	   if (userState->Reachable()) {
-            if (Volume>LOUD) rchable |= Rchble~ind;
-            N::Reached(I::all[tracking]);
-            if (!Flags::onlyDryRun) {
-                Theta[I::all[tracking]] = clone(userState,Zero);
-		        Theta[I::all[tracking]] ->SetTheta(state,picked());
-                }
-            }
-       else if (Volume>LOUD) rchable |= UUnRchble~ind;
-	   }
+
     }
 
 ReSubSample::ReSubSample() {
     CreateTheta();
-    Traverse();
+    ThetaTask::Traverse();  //don't use CreateTheta::loop()
     delete insamp;
     }
 
@@ -1480,37 +1422,79 @@ ReSubSample::ReSubSample() {
 ReSubSample::Run() {    I::curth->Allocate(picked());     }
 
 
-/** Loop through the state space and carry out tasks leftgrp to rightgrp.
-@internal
-**/
-Task::loop(IsCreator){
+CreateTheta::loop() {
 	trips = iter = 0;
 	Reset();					// (re-)initialize variables in range
-    if (trace) println("*** Task Loop ",classname(this),state');
 	SyncStates(0,N::S-1);
 	d=left+1;				   		// start at leftmost state variable to loop over	
     done = FALSE;
-	do	{
-		do {
-			SyncStates(left,left);
-            if (IsCreator) {
-                I::all[] = I::OO*state;
-                this->Run();
+    Flags::SetPrunable(counter);
+    decl v;
+    rch = <>;
+    foreach (v in thx) rch |= v->IsReachable();
+    do	{
+        I::all[] = I::OO*state;
+        Theta[I::all[tracking]]=Impossible;   //not .Null if unreachable
+	    if (rch==TRUE && (userState->Reachable()) ) {
+            N::Reached(I::all[tracking]);
+            if (!Flags::onlyDryRun) {
+                Theta[I::all[tracking]] = clone(userState,Zero);
+		        Theta[I::all[tracking]] ->SetTheta(state,picked());
                 }
-            else
-                if (I::Set(state)) this->Run();
-			++iter;
-			} while (--state[left]>=0);
-		state[left] = 0;
-		d = left+double(vecrindex(state[left:right]|1));
-		if (d<right) --state[d];			   			//still looping inside
-		else {
+            }
+		++iter;
+        inner = (--state[left]>=0);
+        if (!inner) {
+		  state[left] = 0;
+		  d = left+double(vecrindex(state[left:right]|1));
+		  if (d<right) --state[d]; //still looping inside
+		  else {
+            if ( this->Update() == IterationFailed ) return IterationFailed;
+            Flags::SetPrunable(counter);
+            }
+		  state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
+		  SyncStates(left,d);
+          for(v=min(d,right-1)-left;v>=0;--v) rch[v]= thx[v]->IsReachable();
+          }
+        else {
+        	SyncStates(left,left);
+            rch[0]= thx[0]->IsReachable();
+            }
+		} while ( inner ||  (d<=right) || !done );  //Loop over variables to left of decremented, unless all vars were 0.
+    return TRUE;
+    }
+
+/** Loop through the state space and carry out tasks leftgrp to rightgrp.
+@internal
+**/
+Task::loop(){
+	trips = iter = 0;
+	Reset();					// (re-)initialize variables in range
+    #ifdef DEBUG
+        if (trace) println("*** Task Loop ",classname(this),state');
+    #endif
+	SyncStates(0,N::S-1);
+	d=left+1;				   		// start at leftmost state variable to loop over	
+    done = FALSE;
+    do	{
+		SyncStates(left,left);
+        if (I::Set(state)) this->Run();
+		++iter;
+        inner = (--state[left]>=0);
+        if (!inner) {
+		  state[left] = 0;
+		  d = left+double(vecrindex(state[left:right]|1));
+		  if (d<right) --state[d];			   			//still looping inside
+		  else {
             if ( this->Update() == IterationFailed ) return IterationFailed;
             }
-		state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
-		SyncStates(left,d);
-		} while (d<=right || !done );  //Loop over variables to left of decremented, unless all vars were 0.
-    if (trace) println("*** End Loop ",classname(this));
+		  state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
+		  SyncStates(left,d);
+          }
+		} while ( inner ||  (d<=right) || !done );  //Loop over variables to left of decremented, unless all vars were 0.
+    #ifdef DEBUG
+        if (trace) println("*** End Loop ",classname(this));
+    #endif
     return TRUE;
     }
 
@@ -1520,26 +1504,30 @@ Task::loop(IsCreator){
 ExTask::loop(){
 	trips = iter = 0;
 	Reset();					// (re-)initialize variables in range
-    if (trace) println("*** Task Loop ",classname(this),state');
+    #ifdef DEBUG
+        if (trace) println("*** Task Loop ",classname(this),state');
+    #endif
     //  not done on exogenous loop
 	d=left+1;				   		// start at leftmost state variable to loop over	
     done = FALSE;
 	do	{
-		do {
-			SyncStates(left,left);
-            I::SetExogOnly(state);
-			this->Run();
-			++iter;
-			} while (--state[left]>=0);
-		state[left] = 0;
-		d = left+double(vecrindex(state[left:right]|1));
-		if (d<right) --state[d];			   			//still looping inside
-		else
-            this->Update();
-		state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
-		SyncStates(left,d);
-		} while (d<=right || !done );  //Loop over variables to left of decremented, unless all vars were 0.
-    if (trace) println("*** End Loop ",classname(this));
+		SyncStates(left,left);
+        I::SetExogOnly(state);
+		this->Run();
+		++iter;
+        inner = (--state[left]>=0);
+        if (!inner) {
+		  state[left] = 0;
+		  d = left+double(vecrindex(state[left:right]|1));
+		  if (d<right) --state[d];			   			//still looping inside
+		      else this->Update();
+		  state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
+		  SyncStates(left,d);
+          }
+		} while (inner || (d<=right) || !done );  //Loop over variables to left of decremented, unless all vars were 0.
+    #ifdef DEBUG
+        if (trace) println("*** End Loop ",classname(this));
+    #endif
     return TRUE;
     }
 
@@ -1570,7 +1558,9 @@ Task::list(span,inlows,inups) {
 		 rht = right<N::S-1 ? state[right+1:] : <> ,
 		 rold, ups, lows, s, news, indices;
     oxwarning(" Don't use list processing on Stationary/Ergodic clocks yet!!!");
-    if (trace) println("*** Task List: ",classname(this),state');
+    #ifdef DEBUG
+        if (trace) println("*** Task List: ",classname(this),state');
+    #endif
 	trips = iter = 0;
 	SyncStates(0,N::S-1);
 	if (isint(span)) {
@@ -1600,7 +1590,9 @@ Task::list(span,inlows,inups) {
        if (I::Set(state)) this->Run();
 	   ++iter;
 	   } while (--s>=lows);
-    if (trace) println("*** End List: ",classname(this));
+    #ifdef DEBUG
+        if (trace) println("*** End List: ",classname(this));
+    #endif
 	if (!done) return this->Update();
     }
 		
@@ -1608,8 +1600,10 @@ Task::list(span,inlows,inups) {
 @internal
 **/
 Task::Traverse(span,lows,ups) {
-	if (Flags::UseStateList)
+	if (Flags::UseStateList) {
+        oxrunerror("spanning the space as a list not supported in this version of niqlow.  Use the loop() option");
         return list(span,lows,ups);
+        }
 	else
  		return loop();
 	}
@@ -1644,7 +1638,9 @@ DP::ExogenousTransition() {
 		} while (si>=0);
 	NxtExog[Qind] = F[bef][];
 	NxtExog[Qprob] = P[bef][]';
-    if (Volume>LOUD) { decl d = new DumpExogTrans(); delete d; }
+    #ifdef DEBUG
+        if (Volume>LOUD) { decl d = new DumpExogTrans(); delete d; }
+    #endif
  }
 
 /** Display the exogenous transition as a matrix.
@@ -1676,12 +1672,10 @@ DP::SetDelta(delta) 	{ 	return CV(this.delta = delta);	 }
 If the clock is within the range of states to synch then `Clock::Synch`() is called at the end.
 **/
 Task::SyncStates(dmin,dmax)	{
-	decl d,sv,Sd;
-	for (d=dmin;d<=dmax;++d) {
-		Sd = States[d];
-		sv = Sd.v = state[d];
+	for (sd=dmin;sd<=dmax;++sd) {
+		Sd = States[sd];
+		sv = Sd.v = state[sd];
   		if (isclass(Sd,"Coevolving")) {
-//            if (trace&&sv==3) println("---",Sd.L," ",Sd.bpos," ",Sd.block.v," ",Sd.block.actual," ",Sd.actual);
 			Sd.block.v[Sd.bpos] = sv;
 			if (sv>-1) Sd.block->myAV();  // Sd.block.actual[Sd.bpos] = Sd.actual[sv];	
 			}
@@ -1880,7 +1874,7 @@ FETask::FETask() {
 
 **/
 RETask::SetFE(f) {
-	state = isint(f) ? ReverseState(f,onlyfixed)
+	state[] = isint(f) ? ReverseState(f,onlyfixed)
        				 : f;
     SyncStates(SS[onlyfixed].left,SS[onlyfixed].right);
     I::f = I::all[onlyfixed];
@@ -2088,11 +2082,15 @@ SVT::SVT(Slist){
 /** . @internal **/
 SVT::Run() {
     decl s,feas,prob;
-    if (isfile(logf)) fprint(logf,"State ","%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],state[S[endog].M:S[clock].M]');
+    #ifdef DEBUG
+        if (isfile(logf)) fprint(logf,"State ","%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],state[S[endog].M:S[clock].M]');
+    #endif
     foreach(s in Slist) {
 		if (isclass(s,"Coevolving")) s = s.block;
 		[feas,prob] = s -> Transit(); //TTT
-        if (isfile(logf)) fprintln(logf,"     State: ",s.L,"%r",{Alpha::aL1}|Alpha::Rlabels[I::curth.Aind],feas|prob);
+        #ifdef DEBUG
+            if (isfile(logf)) fprintln(logf,"     State: ",s.L,"%r",{Alpha::aL1}|Alpha::Rlabels[I::curth.Aind],feas|prob);
+        #endif
 		}
     }
 

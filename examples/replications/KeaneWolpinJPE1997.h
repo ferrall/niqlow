@@ -16,7 +16,7 @@ struct KWJPE97 : ExPostSmoothing	{
              FinPeriod=25,      // base sample size
              A1       =TSampleStart+MidPeriod+FinPeriod,       //40 lifetime
              LastSch  =15,       //window of schooling choice
-             Noffers  =11,       //3 # of draws of offers per sector (sample is Msectors^Noffers)
+             Noffers  =31,       //3 # of draws of offers per sector (sample is Msectors^Noffers)
              Age0     =16,     //age at t=0
              MaxSch   =10,      // 10
              MaxExp   =20,      // 30 max experience to track}
@@ -27,11 +27,11 @@ struct KWJPE97 : ExPostSmoothing	{
 
 	static const decl
        /** max. experience by sector.**/    mxcnts   = <MaxExp,MaxExp,MaxExp,MaxSch,0>,
-       /** smoothing param for Kernel.**/   smthrho  = .001,
+       /** smoothing param for Kernel.**/   smthrho  = .002,  //appears that TAU=500 in Keane's code
        /** approx. sample rations .**/      smpsz    = <1.0,0.06,0.03>,
        /** initial school groups.**/        School0  = <9;10>,      //completed schooling at t=0
        /** degree years (tuition).**/       YrDeg    = <12;16>,
-                                            kwdelt   = 0.787,
+                                            kwdelt   = <0.0;0.787>,
 		/** &alpha; in paper**/				alph0 = // intercept  wc     bc      mi    sc
                                                      < 8.8043, .1170, .0748, .0077, 0.0938;
                                                        8.9156, .0674, .1424, .1021, 0.0189 ;

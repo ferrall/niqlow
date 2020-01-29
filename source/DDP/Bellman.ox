@@ -23,9 +23,9 @@ EndogTrans::EndogTrans() {
 
 /** . @internal **/
 EndogTrans::Run() {
-	// if (Flags::UpdateTime[AfterRandom])
     I::curth.EV = 0.0;
     Hooks::Do(AtThetaTrans);
+    Bellman::rcheck=Volume>LOUD;
     I::curth->ThetaTransition();
 	}
 
@@ -42,17 +42,20 @@ EndogTrans::Run() {
 @see DP::SetUpdateTime , UpdateTimes
 @internal
 **/
-EndogTrans::Transitions(state) {
-    this.state = isint(state) ? N::All-1 : state;
-	decl i,nr,j,a,s,skip,ab;
+EndogTrans::Transitions(instate) {
+    state[] = isint(instate) ? N::All-1 : instate ;
+    state[] = isdotnan(state) .? 0.0 .: state;  // zero out masked states so indices are not .NaN
+	decl s,i,skip,ab;
     Flags::HasBeenUpdated = TRUE;
     Hooks::Do(PreUpdate);
     skip=UnInitialized;
     foreach (s in States[i]) {
-        if (skip>0) {
+        if (skip>0) {       //this variable part of a block detected on earlier pass
 			ab->Update(s,FALSE);
-            if (++skip >= ab.N) {
+            if (++skip >= ab.N) {  //increment index in block
+                #ifdef DEBUG
                 ab->Check();
+                #endif
 			    if (isclass(s,"CorrelatedEffect")) ab->Distribution();
                 ab =skip=UnInitialized;
                 }
@@ -60,12 +63,14 @@ EndogTrans::Transitions(state) {
             }
 		if (StateVariable::IsBlockMember(s)) {
             ab = s.block;
-			ab->Update(s,TRUE);
-			skip = 1;
+			ab->Update(s,TRUE); //Update variables in the block
+			skip = One;
 			}
 		else {
 			s->Update();
-            s->Check();
+            #ifdef DEBUG
+                s->Check();
+            #endif
 			if (isclass(s,"RandomEffect")) s->Distribution();
 			}
 		}
@@ -102,7 +107,7 @@ Bellman::Bellman(state,picked) {
                            : FeasibleActions() );
   if (Aind==Impossible) {
     println("Error occurs at state vector: ","%cf","%7.0f","%c",Labels::Vprt[svar][S[endog].M:S[endog].X],state[S[endog].M:S[endog].X]');
-    oxrunerror(" ");
+    oxrunerror("DP ERROR in Bellman");
     }
   pandv = UnInitialized;
   Allocate(picked,TRUE);
@@ -191,7 +196,7 @@ pandv[][I::elo : I::ehi] += I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Q
 
 **/
 Bellman::ExogExpectedV() {
-    decl et =I::all[onlysemiexog];
+    et =I::all[onlysemiexog];
 	pandv[][I::elo : I::ehi] += I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]);
     }
 
@@ -261,52 +266,61 @@ Bellman::UpdatePtrans(aPt,vindex) {
 	}
 
 
-/** Computes the full endogneous transition, &Rho;(&theta;'; &alpha;,&eta; ), within a loop over &eta;.
-Accounts for the (vector) of feasible choices &Alpha;(&theta;) and the semi-exogenous states in &eta;
+/** Computes the full endogneous transition, $P(\theta^\prime ; \alpha, &\eta )$, within a loop over $\eta$.
+Accounts for the (vector) of feasible choices $A(\theta)$ and the semi-exogenous states in $\eta$.
 that can affect transitions of endogenous states but are themselves exogenous.
 @comments computes `Bellman::Nxt` array of feasible indices of next period states and conforming matrix
     of probabilities.<br>If current is not -1, then simply recomputed indices.
 @see DP::ExogenousTransition
 **/
 Bellman::ThetaTransition() {
-	 decl ios = InSS() ? I::all[onlysemiexog] : 0,k;
-    // No transition if this state is last or terminal
-	 if (Type>=LASTT) { for(k=0;k<sizeof(Nxt);++k) Nxt[k][ios ] =  <>; return; }
+	 ios = InSS() ? I::all[onlysemiexog] : 0;
 
-	 decl now=NOW, later=LATER, si,Nb,prob,feas,root,swap, mtches,curO, rcheck=Volume>LOUD;
+     // No transition if this state is last or terminal
+	 if (Type>=LASTT) {
+        for(fk=0;fk<sizeof(Nxt);++fk) Nxt[fk][ios ] =  <>;
+        return;
+        }
+
+	 // now=NOW;  later=LATER;
      //Initialize
  	 F[now] = <0>;	
 	 P[now] = ones(N::Options[Aind],1);
 	 si = S[clock].X;				// clock needs to be nxtcnt
-     if  (rcheck && isfile(logf)) fprintln(logf,"Endogenous transitions at ",I::all[tracking]);
+     #ifdef DEBUG
+        if  (rcheck && isfile(logf)) fprintln(logf,"Endogenous transitions at ",I::all[tracking]);
+     #endif
 	 do	{ // over Endogenous state variables (theta)
 		F[later] = P[later] = <>;
         swap = FALSE;
 		if (isclass(States[si],"Coevolving"))  //skip other coevolving states
-			{Nb =  States[si].block.N; root = States[si].block; }
+			{ Nb =  States[si].block.N; root = States[si].block; }
 		else
-			{ Nb = 1; root = States[si]; }
-		if (( any(curO = I::OO[thetaoffs][si-Nb+1:si]) ))	{  // states are relevant to s'
+			{ Nb = One; root = States[si]; }
+		if (( any(curO = I::OO[thetaoffs][si-Nb+One:si]) ))	{  // states are relevant to s'
 			[feas,prob] = root -> Transit();                   //state variable transition
-            if (rcheck && root.N>1 && !isint(prob) ) {         //debugging and logging
-                if (isfile(logf) && maxr(feas)<rows(root.actual))
-                    fprintln(logf,"     State: ",root.L,"%r",{"   ind","actual","   prob"},feas|(root.actual[feas]')|prob);
-                else
-                    fprintln(logf,"     State: ",root.L,"%r",{"   ind","   prob"},feas|prob);
+            #ifdef DEBUG
+                if (rcheck && root.N>1 && !isint(prob) ) {         //debugging and logging
+                    if (isfile(logf) && maxr(feas)<rows(root.actual))
+                        fprintln(logf,"     State: ",root.L,"%r",{"   ind","actual","   prob"},feas|(root.actual[feas]')|prob);
+                    else
+                        fprintln(logf,"     State: ",root.L,"%r",{"   ind","   prob"},feas|prob);
                 if ( any(!isdotfeq(sumr(prob),1.0))) { // short-circuit && avoids sumr() unless NOISY
                     if (isfile(logf)) fprintln(logf,"Transition probability error at state ",si,"%m",sumr(prob));
                     oxwarning("Transition probabilities are not valid (sum not close enough to 1.0).  Check log file");
                     }
                 }
+            #endif
 			feas = curO*feas;                    //feasible state values turned into indices
-            if (( (k=columns(feas))==1 ))       // avoid swap and concatenation for deterministic transition
+            fk=columns(feas);
+            if ( fk==One )       // avoid swap and concatenation for deterministic transition
 				F[now] +=  feas;
             else {                                      //process each feasible value
-			     do	if (any(prob[][--k])) {             //don't track if probability is *identically* 0
-				    F[later] ~=  F[now]+feas[][k];
-				    P[later] ~=  P[now].*prob[][k];
-				    swap=TRUE;
-				    } while ( k > 0  );
+			     do	if (any(prob[][--fk])) {             //don't track if probability is *identically* 0
+				    F[later] ~=  F[now]+feas[][fk];
+				    P[later] ~=  P[now].*prob[][fk];
+				    swap=TRUE;                          //Need to swap
+				    } while ( fk > 0  );
                 }
 			}
 		si -= Nb;	 //skip remaining variables in block.
@@ -315,15 +329,17 @@ Bellman::ThetaTransition() {
 	Nxt[Qtr][ios] = F[now][Qtr][];
 	Nxt[Qit][ios] = F[now][Qit][];
 	Nxt[Qrho][ios] = P[now];
-    if (rcheck) {       //output
-        decl s, q;
-        for (s=0;s<columns(Nxt[Qtr][ios]);++s) {
-            if ( any(P[now][][s].> 0.0) && !N::IsReachable(Nxt[Qtr][ios]) )  {
-                q = ReverseState(Nxt[Qtr][ios][s],tracking);
-                if (isfile(logf)) fprint(logf,"Transition to unreachable state ",F[now][Qit][s],"%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],q[S[endog].M:S[clock].M]',"%r",{"prob"},P[now][][s]);
+    #ifdef DEBUG
+        if (rcheck) {       //output
+            decl s, q;
+            for (s=0;s<columns(Nxt[Qtr][ios]);++s) {
+                if ( any(P[now][][s].> 0.0) && !N::IsReachable(Nxt[Qtr][ios]) )  {
+                    q = ReverseState(Nxt[Qtr][ios][s],tracking);
+                    if (isfile(logf)) fprint(logf,"Transition to unreachable state ",F[now][Qit][s],"%8.0f","%c",Labels::Vprt[svar][S[endog].M:S[clock].M],q[S[endog].M:S[clock].M]',"%r",{"prob"},P[now][][s]);
+                    }
                 }
             }
-        }
+    #endif
  }
 
 /** Default U() &equiv; <b>0</b>.
@@ -339,7 +355,7 @@ Bellman::Utility()  {
 @internal
 **/
 Bellman::HMQVal() {
-//    this->ThetaUtility();
+    //    this->ThetaUtility();
     XUT->ReCompute(UseCurrent);
     UpdatePtrans();
     return pandv'*(XUT.U+M_EULER-log(pandv));
@@ -354,7 +370,6 @@ Bellman::AMEMax() {
     Smooth();
     UpdatePtrans();
     oldp = sumsqrc(pandv-oldp);
-//    println(pandv');
     return oldp;
     }
 
@@ -400,7 +415,7 @@ Bellman::OutcomesGivenEpsilon(){}
 @internal
 **/
 Bellman::ExogStatetoState() {
-    decl et = I::all[onlysemiexog],mynxt, nnew;
+    et = I::all[onlysemiexog];
     if (sizerc(Nxt[Qtr][et])) {
 	   tom.sind ~= exclusion(Nxt[Qtr][et],tom.sind);
 		if ( (nnew = columns(tom.sind)-columns(tom.p)) ) tom.p ~= zeros(1,nnew);
@@ -420,7 +435,7 @@ Bellman::StateToStatePrediction(intod) {
     tod.ch  +=  ExpandP(Aind,tod.chq);
     if (isclass(tom)) {
         EStoS->Compute();
-	    decl nnew = tom.p .== 0.0;
+	    nnew = tom.p .== 0.0;
         tom.p = deleteifc(tom.p,nnew);
         tom.sind = deleteifc(tom.sind,nnew);
         }
@@ -673,7 +688,7 @@ ExtremeValue::Smooth() {
 /**Iterate on Bellman's equation at &theta; using Rust-styled additive extreme value errors.
 **/
 ExtremeValue::thetaEMax(){
-	decl rh = CV(rho);
+	rh = CV(rho);
     pandv[][] = exp(setbounds( rh*pandv,lowb,hib ) );
 	V[] = sumc(pandv);
 	return EV = log(V)*(NxtExog[Qprob]/rh);  //M_EULER+
@@ -843,10 +858,10 @@ NnotIID::CreateSpaces() {
 	
 /** Use GHK to integrate over correlated value shocks. **/
 NnotIID::ExogExpectedV() {
-    decl choicep, et = I::all[onlysemiexog];
+    et = I::all[onlysemiexog];
     pandv[][et] += I::CVdelta*sumr( Nxt[Qrho][et] .* N::VV[I::later][Nxt[Qit][et]] );
-	[V[],choicep] = ghk[Aind]->SimDP(pandv[][et],Chol[Aind]);
-	if (Flags::setPstar) pandv[][et] = choicep;
+	[V[],prob] = ghk[Aind]->SimDP(pandv[][et],Chol[Aind]);
+	if (Flags::setPstar) pandv[][et] = prob;
     }
 
 /**Iterate on Bellman's equation at &theta; with ex ante correlated normal additive errors.
@@ -859,7 +874,7 @@ NnotIID::ActVal() {
 	decl J=rows(XUT.U);
 	if (Type<TERMINAL && J>1)	{
         pandv[][] = XUT.U;
-        IOE.state = XUT.state;
+        IOE.state[] = XUT.state;
         IOE->Compute();
 		}
 	else {

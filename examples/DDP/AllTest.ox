@@ -23,10 +23,8 @@ TestRun() {
 Test1::Utility() { return  1.0; }
 
 Test1::Run() {
-    println("Spanning State Space");
-    RunA(TRUE);
-    println("Using State List");
-    RunA(FALSE);
+    //println("Use List");    RunA(TRUE);
+    println("Span ");    RunA(FALSE);
     }
 
 Test1::RunA(UseList) {
@@ -47,9 +45,8 @@ Test2::Utility()  {
 	}
 
 Test2::Run() {
+    // println("Using State List");    RunA(TRUE);
     println("Spanning State Space");
-    RunA(TRUE);
-    println("Using State List");
     RunA(FALSE);
     }
 
@@ -84,8 +81,7 @@ Test3::Utility() {
 Test3::Run() {
     println("Spanning State Space");
     RunA(TRUE);
-    println("Using State List");
-    RunA(FALSE);
+    // println("Using State List"); RunA(FALSE);
     }
 
 
@@ -205,6 +201,7 @@ Test7::Run()  {
     data = new PanelPrediction ( "EY", 0, 0);
     data -> Tracking(TrackAll);
     data -> Predict(40,One);
+    delete data;
 	Delete();
 	}
 	

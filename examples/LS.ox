@@ -1,13 +1,5 @@
-/** This version has some features not shown in the OODP paper.**/
-#import "niqlow"
+#include "LS.h"
 
-class LS : ExtremeValue {
-    static decl m, M, e, beta, pi;
-                Utility();
-    static      Build(d=FALSE);
-    static      Run();
-    static      Earn();
-    }
 LS::Build(d) {
      SetClock(NormalAging,40);
      if (isint(d)) {                    //create new binary action and e
@@ -23,11 +15,10 @@ LS::Build(d) {
      beta =<1.2 ; 0.09 ; -0.1 ; 0.2>;
      pi = 2;
     }
-LS::Earn()    { return  exp( (1~CV(M)~sqr(CV(M))~AV(e)) * CV(beta) ) ; }
-LS::Utility() { return CV(m)*(Earn()-pi) + pi;  }
-LS::Run() {
+LS::Create() {
     Initialize(1.0,new LS());
     Build();
     CreateSpaces();
-    VISolve();
     }
+LS::Earn()    { return  exp( (1~CV(M)~sqr(CV(M))~AV(e)) * CV(beta) ) ; }
+LS::Utility() { return CV(m)*(Earn()-pi) + pi;  }

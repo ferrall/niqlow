@@ -1,4 +1,4 @@
-#include "LSemp.ox"
+#import "LSemp"
 
 main() {
     HTopen("../../OODP/LSemp");

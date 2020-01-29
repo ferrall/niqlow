@@ -19,20 +19,30 @@ KWJPE97::Replicate()	{
         GroupVariables  ( k      = new RandomEffect("k",Ntypes,kdist),
                           isch   = new FixedEffect("Is",NIschool) );
         AuxiliaryOutcomes(di=Indicators(accept,"d ",white,school));
-	    SetDelta(kwdelt);
+    
     CreateSpaces(LogitKernel,smthrho); //not clear what kernel was used or what bandwidth
-        SubSampleStates( constant(smpsz[0],1,TSampleStart)~                   //solve exactly for first few periods
-                         constant(smpsz[1],1,MidPeriod)~                  //double sample
-                         constant(smpsz[2],1,FinPeriod),                  //small sample
-                         MinSample                                      //ensure minimum sample size for approximation
-                          );
-
-    /* Solution Methods */
-    //Vmat = new array[Nmethods];
     pred = new array[Nmethods];
-    pred[Approximate] =new PanelPrediction("approx",new KeaneWolpin());
-    pred[Approximate]->Tracking(UseLabel,di);
-    pred[Approximate] -> Predict(A1,Two);  //print out predictions
+    pred[BruteForce] =new PanelPrediction("brute-static",new ValueIteration());
+
+	i = BruteForce;
+    SetDelta(kwdelt[One]);
+    pred[i]->Tracking(UseLabel,di);
+    pred[i] -> Predict(A1,Two);  //print out predictions
+
+    ++i;
+    /*
+    SetDelta(kwdelt[i]);
+    SubSampleStates( constant(smpsz[0],1,TSampleStart)~                   //solve exactly for first few periods
+                     constant(smpsz[1],1,MidPeriod)~                  //double sample
+                     constant(smpsz[2],1,FinPeriod),                  //small sample
+                     MinSample                                      //ensure minimum sample size for approximation
+                    );
+    pred[i] =new PanelPrediction("approx",new KeaneWolpin());
+
+    //Vmat = new array[Nmethods];
+    pred[i]->Tracking(UseLabel,di);
+    pred[i] -> Predict(A1,Two);  //print out predictions
+    */
 
     /* Run methods, produce prediction
     for (i=1;i<Nmethods;++i) { //Only doing approx.

@@ -14,6 +14,11 @@ on static members in order to reduce memory requirements.  These are defined in 
 
 **/
 struct  Bellman : DP {
+
+    static decl  //moved from ThetaTransition and ExogStatetoState to reduce stack overhead.
+            /** .internal **/
+            fk, ios, now=NOW, later=LATER, si,Nb,prob,feas,root,swap, curO, rcheck,
+            et,mynxt, nnew;
 	decl
         /**Integer code to classify state (InSubSample,LastT,Terminal).
             This avoids multiple integer values at each point in the state space.
@@ -133,6 +138,7 @@ struct ExtremeValue : Bellman {
     static const decl lowb = 0.9*DBL_MIN_E_EXP,
                       hib = 0.9*DBL_MAX_E_EXP;
 	static decl
+        /** current value of rho .**/       rh,
 		/** Choice prob smoothing &rho;.**/ rho,
 		/** Hotz-Miller estimation task.**/ HMQ;
 	static SetRho(rho);

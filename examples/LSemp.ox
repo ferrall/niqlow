@@ -1,12 +1,5 @@
-#import "niqlow"
-#include "LS.ox"
+#include "LSemp.h"
 
-class LSemp : LS {
-    static decl obsearn, dta, lnlk, mle, vi;
-    static      ActualEarn();
-    static      Run();
-    static      Estimate();
-    }
 LSemp::ActualEarn() {
     return m->myEV() ? Earn() : .NaN;
     }
@@ -18,7 +11,6 @@ LSemp::Build() {
     CreateSpaces();
     }
 LSemp::Estimate() {
-    sigma = 1.0;
     beta = new Coefficients("B",beta);
     vi = new ValueIteration();
     dta = new OutcomeDataSet("data",vi);
