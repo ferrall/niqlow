@@ -71,12 +71,8 @@ Test2::RunA(UseList)	{
 	Delete();
 	}
 
-Test3::ThetaUtility() {
-    U0 = CV(a)*(CV(s0)-CV(s1))+CV(s1);
-    }
-Test3::Utility() {
-    return U0+CV(a)*AV(d);
-    }
+Test3::ThetaUtility() { return U0 = CV(a)*(CV(s0)-CV(s1))+CV(s1);    }
+Test3::Utility()      { return U0+CV(a)*AV(d);    }
 
 Test3::Run() {
     println("Spanning State Space");
@@ -86,7 +82,7 @@ Test3::Run() {
 
 
 Test3::RunA(UseList) {
-	Initialize(new Test3(),UseList);
+	Initialize(new Test3(),FALSE);
 	SetClock(NormalAging,5);
 	Actions(a=new ActionVariable("a",2));
 	ExogenousStates(d = new SimpleJump("d",11));
@@ -171,7 +167,8 @@ Test6::Run() {
 	sp -> Simulate(30,20,0,0);
 	DPDebug::outV(TRUE);
 	sp -> Print(FALSE);
-    delete EMax, sp;
+    delete EMax;
+    delete sp;
     sp = new PathPrediction(0,"hi");
     sp->Tracking(TrackAll);
     sp->Predict(5,2);
@@ -253,7 +250,7 @@ Test9::Run()	{
     pd->TrackingWithLabel(AllFixed,TRUE,a,d);
     pd->Read(); //reads from PredMomFile
     Explore(pd,10,0.1,lam);
-    delete meth, pd, lam;
+    delete meth; delete pd; delete  lam;
 	Delete();
 	}
 Test9::Utility()  { 	return -(1-CV(d))*(CV(lam)[CV(fem)] + AV(sk)*CV(p)*CV(a)) + (3-I::t); 	}	
@@ -305,7 +302,7 @@ Test11::Run()	{
     pd = new PathPrediction(0,vi);
     DPDebug::outAllV();
     pd->Predict(T,Two);
-    delete vi, pd;
+    delete vi; delete pd;
     Delete();
 	}
 Test11::Ewage() {

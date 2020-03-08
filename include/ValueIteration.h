@@ -218,15 +218,18 @@ struct KWGSolve : GSolve {
                                                 xlabels0,
                                                 xlabels1,
                                                 xlabels2,
-		/** X **/								Xmat,
-		/** Y **/								Y,
-		/**N::T array of OLS coefficients	**/ Bhat;
+		/** X matrix **/						Xmat,
+		/** Computed EV vector**/				EMax,
+        /** maxE  vector **/                    maxE,
+		/**N::T array of OLS coefficients	**/ Bhat,
+                                                subsmpi;
 
-	const decl 		cpos, lo, hi;
+	const decl 		cpos, lo, hi, Kspec;
+    static decl     xrow, EMaxHat;
 	decl 			meth, firstpass, onlypass;
                     Solve(instate);
                     KWGSolve(caller=UnInitialized);
-	virtual         Specification(kwstep,V=0,Vdelta=0);
+	virtual         Specification(kwstep,maxEV=0,Vdelta=0);
 	virtual 		Run();
 	virtual 		InSample();
 	virtual	 		OutSample();

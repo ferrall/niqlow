@@ -230,13 +230,6 @@ struct RandomSearch : SimulatedAnnealing {
 
 Algorithms of this class use the gradient, $\nabla f(\psi)$.
 
-The algorithm for this base class is <em>steepest asscent</em>, which
-is typically inefficient but may be useful to apply to an objective for comparison.
-
-Other algorithms are derived classes.
-
-<a href="http://en.wikipedia.org/wiki/Quasi-Newton_method">at Wikipedia</a>
-
 **/
 struct GradientBased : Algorithm {
 	static	const	decl
@@ -267,11 +260,22 @@ struct GradientBased : Algorithm {
 				  GradientBased(O);
     }
 
-/** Algorithms that do not compute the Hessian matrix <b>H</b>.
+/** Algorithms that optimize an objective based on gradient and/or Hessian information.
 This is a container class.  If you create an object of this type it is
 the same as creating `GradientBased` object (i.e. steepest descent).
+
 **/
-struct QuasiNewton : GradientBased {
+struct HillClimbing : GradientBased {
+    HillClimbing(O);
+	}
+
+/** Algorithms that use but do not compute the Hessian matrix <b>H</b>.
+
+This is a container class.
+
+<a href="http://en.wikipedia.org/wiki/Quasi-Newton_method">at Wikipedia</a>
+**/
+struct QuasiNewton : HillClimbing {
 	}
 
 /** Broyden Fletcher Goldfarb Shanno Updating of the hessian <b>H</b>.
@@ -318,7 +322,7 @@ struct DFP  : QuasiNewton {
 Evaluate Hessian at each iteration.
 
 **/
-struct Newton : GradientBased {
+struct Newton : HillClimbing {
 				Newton(O);
 	virtual   	Hupdate();
 	}
@@ -332,7 +336,7 @@ struct BHHH : Newton {
 	virtual   	Hupdate();
     }
 
-/** Solve system of equations. **/
+/** Solve system of equations using Jacobian information. **/
 struct NonLinearSystem	: GradientBased {
 		decl 	dg,
                 USELM;
@@ -342,20 +346,27 @@ struct NonLinearSystem	: GradientBased {
 				Direction();
 		virtual Jupdate(dx=0);
         virtual ItStartCheck(J);
+        NonLinearSystem(O,USELM);
 	   }
 
 /** Broyden approximation to the Jacobian.
 
 **/
 struct Broyden : NonLinearSystem {
-    			Broyden(O);
+    			Broyden(O,USELM=TRUE);
     virtual 	Jupdate(dx);
     }
 
 /** Update the Jacobian on each iteration. **/
 struct NewtonRaphson : NonLinearSystem {
-    			NewtonRaphson(O);
+    			NewtonRaphson(O,USELM=TRUE);
     virtual 	Jupdate(dx=0);
+    }
+
+/** Solve for the root of a `OneDimSystem` system using Bracket-Bisect. **/
+struct OneDimRoot : SysMax {
+    OneDimRoot(O);
+    Iterate(Delta=1.0,maxiter=30,maxstp=0);
     }
 
 /** Sequential Quadratic Programming for constrained optimization. **/

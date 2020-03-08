@@ -73,7 +73,6 @@ Outcome::Outcome(prior) {
 	decl nxtstate;
 	snext = onext = UnInitialized;
 	act   = constant(.NaN,1,SS[onlyacts].D);
-//	z     = constant(.NaN,1,zeta.length);
 	aux   = constant(.NaN,1,N::aux);
 	Ainds = <>;
 	if (isclass(prior)) {
@@ -107,7 +106,7 @@ Does not delete prev and next to avoid recursion.
 **/
 Outcome::~Outcome() {
 	if (isclass(prev)) prev.onext = UnInitialized;
-	delete ind, aux, act, state, Ainds;
+	delete ind, delete aux, delete act, delete state, delete Ainds;
 	}
 
 /** Return the outcome as a (flat) row vector.
@@ -300,7 +299,8 @@ FPanel::~FPanel() {
 		pnext = cur;
 		}
 	if (isclass(SD)) {delete SD; SD = UnInitialized;}
-	if (isclass(summand)) { delete summand, upddens ; summand=UnInitialized;}
+    if (isclass(upddens)) {delete upddens; upddens = UnInitialized; }
+	if (isclass(summand)) { delete summand; summand=UnInitialized;}
 	~Path();				//delete root path
 	}	
 
@@ -1166,8 +1166,8 @@ OutcomeDataSet::Simulate(N,T,ErgOrStateMat,DropTerminal,pathpred) {
 @internal
 **/
 OutcomeDataSet::~OutcomeDataSet() {
-	~Panel();
 	decl q;
 	foreach (q in list) delete q;
 	delete list;
+	~Panel();
 	}

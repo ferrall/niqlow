@@ -39,7 +39,7 @@ Prediction::Predict() {
 	decl k,tv,s,q,qi,pp=0.0,unrch=<>,allterm=TRUE;
     foreach (q in sind[s]) {
         pq = p[s];
-        if (pq > tinyP) {
+        if (!isfeq(pq,0.0)) {
             if (Settheta(q)) {
                 EOoE.state[left:right] = state[left:right] = ReverseState(q,tracking)[left:right];
                 I::Set(state,FALSE);
@@ -66,7 +66,7 @@ Prediction::Predict() {
         }
      if (Data::Volume>LOUD) {
         decl ach = sumr(ch), posch = !isdotfeq(ach,0.0);
-        if (isfile(Data::logf)) fprintln(Data::logf,t," States and probabilities","%r",{"Index","Prob."},selectifc(sind|p,p.>tinyP),
+        if (isfile(Data::logf)) fprintln(Data::logf,t," States and probabilities","%r",{"Index","Prob."},selectifc(sind|p,!isdotfeq(p,0.0)),
             Alpha::aL1,"Non-zero Choice Probabilities ",
             "%r",Alpha::Rlabels[0][selectifr(Alpha::AIlist[0],posch)],selectifr(ach,posch));
         }
@@ -320,8 +320,9 @@ PathPrediction::InitialConditions() {
         if (iDist==ErgodicDist) {
             if (!Flags::IsErgodic) oxrunerror("Clock is not ergodic, can't use ergodic predictions");
 	        //println("Ergodic distribution: ",I::curg.Pinfinity');
-            p = I::curg.Pinfinity;
             sind =  range(0,SS[tracking].size-1)';
+            p = I::curg.Pinfinity;
+            if (isnan(p)) oxrunerror("Ergodic Distribution contains NaNs, cannot compute stationary predictions");
             }
         else {
 		  sind=iDist; //start at iDist
@@ -399,7 +400,7 @@ PathPrediction::PathPrediction(f,method,iDist,wght){
 
 **/
 Prediction::~Prediction() {
-    delete state, sind, p, ch, W,  predmom, empmom;
+    delete state, delete sind, delete p, delete ch, delete W,  delete predmom, delete empmom;
 	}
 
 /** clean up.
@@ -408,13 +409,14 @@ Prediction::~Prediction() {
 **/
 PathPrediction::~PathPrediction() {
 	//decl v; foreach(v in tlist ) delete v;
-    delete tlist, tlabels;
+    delete tlist, delete tlabels;
 	while (isclass(pnext)) {
 		cur = pnext.pnext;
 		delete pnext;
 		pnext = cur;
 		}
-	if (isclass(summand)) {delete summand, upddens ; summand=UnInitialized;}
+    if (isclass(upddens)) {delete upddens; upddens = UnInitialized; }
+	if (isclass(summand)) {delete summand; summand=UnInitialized;}
 	~Prediction();
     }
 

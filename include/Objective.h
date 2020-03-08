@@ -112,6 +112,11 @@ struct System : Objective {
 	//virtual fobj(F,extcall=TRUE);
 	}
 
+/** A One Dimensional Non-linear system (can be solved with `OneDimSolve`).
+**/
+struct OneDimSystem : System {
+	OneDimSystem(L);
+	}
 
 /** Represents a blacbox objective.
 

@@ -99,10 +99,7 @@ struct DP {
  	/** list of `AuxiliaryValue`s that depend on the current outcome.
 		`AuxiliaryValue::Realize`() is called by `Bellman::Simulate`()
 		after <code>&alpha;</code>, &zeta; and full state vectors have been set. **/
-																Chi,
-		/** FALSE means no subsampling.  Otherwise, pattern of
-            subsampling of the state space.
-            @see DP::SubSampleStates **/			             SampleProportion;
+																Chi;
 
         static  SetVersion(V=400);
 		static	SetDelta(delta);
@@ -223,12 +220,11 @@ Users do not call this function.
 **/
 struct CreateTheta 	    : 	ThetaTask {	
         static decl thx, rch, ind;
-        decl insamp, th, rchable;
+        decl th, rchable;
         CreateTheta(); 	
 	    loop();
-        Sampling();
+        //        Sampling();
         Run();	
-        picked();
         }
 
 /* Go through &Theta; but do not allocate space.

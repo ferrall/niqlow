@@ -242,6 +242,17 @@ SysMax::SysMax(O) {
 	p6 = new SysLinePoint();
     }
 
+OneDimRoot::OneDimRoot(O) {
+    if (!isclass(O,"OneDimSystem")) oxrunerror("FiveO Error 02. Objective must be OneDimSystem");
+    SysMax(O);
+    }
+
+OneDimRoot::Iterate(Delta,maxiter,maxstp) {
+    if (!isdouble(Delta)|| (sizerc(Delta)!=1) ) oxrunerror("Delta must be a scalar or 1x1");
+    Algorithm::ItStartCheck(FALSE);
+    LineMax::Iterate(Delta,maxiter,maxstp);
+    }
+
 /** Delete.
 @internal
 **/
@@ -255,7 +266,7 @@ LineMax::~LineMax()	{
 @param maxstp &gt; 0, maximum step size in parameters.
 **/
 LineMax::Iterate(Delta,maxiter,maxstp)	{
-	decl maxdelt = maxc(fabs(Delta));
+	decl maxdelt = norm(Delta);  //sup-norm default
 	this.Delta = Delta;
 	this.maxiter = maxiter>0 ? maxiter : 3;
     if (isdouble(maxstp)) this.maxstp = maxstp;
@@ -265,7 +276,10 @@ LineMax::Iterate(Delta,maxiter,maxstp)	{
     this->Try(p2,min(this.maxstp/maxdelt,1.0));
 	if (p2.v>p1.v) {q = p2;a=p1;} else {q=p1;a=p2;}
 	b = p3;
-    if (Volume>SILENT) fprintln(logf,"Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);
+    if (Volume>SILENT) {
+        fprintln(logf,"Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);
+        if (Volume>QUIET) println("Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);
+        }
     Bracket();
     if (Volume>QUIET) println("Line: past bracket",a,b,q);
 	Golden();
@@ -398,9 +412,9 @@ LineMax::Golden()	{
          if (Volume>SILENT) {
                 istr = sprint("Line: ",iter,". improve: ",improved,". step diff = ",x3.step," - ",x0.step);
                 fprintln(logf,istr);
-                fflush(logf);
                 if (Volume>QUIET) println(istr);
                 }
+
 		} while (fabs(x3.step-x0.step) > tolerance*fabs(x1.step+x2.step) && (iter<maxiter) );
     if (x1.v > x2.v) q = x1; else q= x2;
     }
@@ -593,15 +607,18 @@ NelderMead::Amoeba(iplex) 	{
 **/
 GradientBased::GradientBased(O) {
     Algorithm(O);
-	LM = isclass(O,"UnConstrained")
-			? new LineMax(O)
-			: isclass(O,"Constrained")
-                ? new CLineMax(O)
-                : new SysMax(O);
 	gradtoler = igradtoler;
     LMitmax = 10;
     LMmaxstep = 0;
 	}
+
+HillClimbing::HillClimbing(O) {
+    if (isclass(O,"UnConstrained")) LM = new LineMax(O);
+    else if (isclass(O,"Constrained")) LM =new CLineMax(O);
+    else if (isclass(O,"System")) oxrunerror("FiveO Error : Don't maximize a system. Use a NLSystem algorithm or OneDimSolve");
+    else oxrunerror("FiveO Error : argument is not an Objective object");
+    GradientBased(O);	
+    }
 
 GradientBased::CheckPoint(WriteOut) {
     if (IAmMac) return;
@@ -633,7 +650,7 @@ bfgs->Iterate();
 <DT>See <a href="./GetStarted.html">GetStarted</a></DT>
 
 **/
-BFGS::BFGS(O) {	GradientBased(O);	}
+BFGS::BFGS(O) {	HillClimbing(O);}
 
 /** Create an object of the BHHH algorithm.
 @param O the `Objective` object to apply this algorithm to.
@@ -648,7 +665,7 @@ bhhh->Iterate();
 <DT>See <a href="./GetStarted.html">GetStarted</a></DT>
 
   **/
-BHHH::BHHH(O) {	GradientBased(O);	}
+BHHH::BHHH(O) {	HillClimbing(O);	}
 
 /** Create an object of the DFP algorithm.
 @param O the `Objective` object to apply this algorithm to.
@@ -663,7 +680,7 @@ bfgs->Iterate();
   **/
 DFP::DFP(O)      {
 	oxrunerror("FiveO Error 04. DFP not coded  yet");
-	GradientBased(O);
+	HillClimbing(O);
 	}
 
 /**Create an object of the Newton optimization algorithm.
@@ -680,7 +697,7 @@ See <a href="./GetStarted.html">GetStarted</a>
 
 
  **/
-Newton::Newton(O) {	GradientBased(O);	}
+Newton::Newton(O) {	HillClimbing(O);	}
 
 
 /** Compute the direction for the current line search.
@@ -886,11 +903,7 @@ hr -> Iterate();
 <DT>Also see <a href="GetStarted.html#B">GetStarted</a></DT>
 
  **/
-NewtonRaphson::NewtonRaphson(O) {
-	if (!isclass(O,"System")) oxrunerror("FiveO Error 05. Objective must be a System");
-	GradientBased(O);
-    USELM = TRUE;
-	}
+NewtonRaphson::NewtonRaphson(O,USELM) {    NonLinearSystem(O,USELM);	}
 
 /** Create a new Broyden solution for a system of equations.
 @param O, the `System`-derived object to solve.
@@ -905,11 +918,7 @@ broy -> Iterate();
 <DT>Also see <a href="GetStarted.html#B">GetStarted</a></DT>
 
 **/
-Broyden::Broyden(O) {
-	if (!isclass(O,"System")) oxrunerror("FiveO Error 06. Objective must be a System");
-	GradientBased(O);
-    USELM = TRUE;
-	}
+Broyden::Broyden(O,USELM) {    NonLinearSystem(O,USELM);	}
 
 /** Compute the direction.
 If inversion of J fails, reset to I

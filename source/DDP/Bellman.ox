@@ -119,6 +119,8 @@ Bellman::Bellman(state,picked) {
 Bellman::Reachable() {    return TRUE;     }
 
 /** Create space for $U()$ and $P(\alpha;\eta)$ at this $\theta$, accounting for random subsampling.
+@param picked TRUE insubample (always true if not subsampling)
+@param CalledFromBellman  TRUE if initial allocation; FALSE if re-allocation.  Only re-allocate if subsampling status has changed
 @see DP::SubSampleStates
 @internal
 **/
@@ -126,20 +128,12 @@ Bellman::Allocate(picked,CalledFromBellman) {
   decl OldSS = InSS(),NewSS;
   Type-=(Type==INSUBSAMPLE||Type==LASTT+INSUBSAMPLE);
   Type += INSUBSAMPLE*picked;  //TERMINAL always in subsample
-  NewSS = InSS();
+  NewSS = InSS();               //new status
   N::Approximated += !NewSS;
-  if ((OldSS!=NewSS)||CalledFromBellman) {     //re-allocation required
-    if (!CalledFromBellman) delete Nxt,pandv; //, U;
-    decl width;
-    if (NewSS) {
-        Nxt = new array[TransStore+N::DynR-1][SS[onlysemiexog].size];
-        width = SS[bothexog].size;
-        }
-    else {
-        Nxt = new array[TransStore+N::DynR-1][One];
-        width  = One;
-        }
-    pandv = new matrix[N::Options[Aind]][width];//constant(.NaN,U);
+  if (CalledFromBellman||(OldSS!=NewSS)) {     //re-allocation required
+    //if (!CalledFromBellman) {delete Nxt, delete pandv; } //, U;
+    Nxt = new array[TransStore+N::DynR-1][NewSS ? SS[onlysemiexog].size : One];
+    pandv = new matrix[N::Options[Aind]][NewSS ? SS[bothexog].size : One];//constant(.NaN,U);
     }
   }
 
@@ -479,7 +473,7 @@ Bellman::ZetaRealization() {	return <.NaN>;	}
 */
 
 /** .	  @internal **/
-Bellman::~Bellman() {	delete pandv, Nxt; 	}
+Bellman::~Bellman() {	delete pandv; delete Nxt; 	}
 
 /** Delete the current DP model and reset.
 Since static variables are used, only one DP model can be stored at one time.
@@ -495,19 +489,19 @@ Bellman::Delete() {
 	decl i;
 	for(i=0;i<sizeof(SubVectors);++i) if (isclass(SubVectors[i])) delete SubVectors[i];
     foreach(i in States) delete i;  //Added Sep. 2016.  Might create new error??
-	delete userState, SubVectors, States;
-	delete NxtExog, Blocks, Labels::Vprt, Labels::V;
+	delete userState, delete SubVectors,delete  States;
+	delete NxtExog, delete Blocks, delete Labels::Vprt, delete Labels::V;
 	for(i=0;i<sizeof(SS);++i) delete SS[i];
-	delete SS, S, F, P, delta, counter;
-    delete Alpha::Matrix, Alpha::AList; //, A
+	delete SS, delete S, delete F, delete P, delete delta, delete counter;
+    delete Alpha::Matrix, delete Alpha::AList; //, A
 	SS = delta = counter = Impossible;	
 	for(i=0;i<sizeof(Theta);++i) delete Theta[i];
 	for(i=0;i<sizeof(Gamma);++i) delete Gamma[i];
-	delete Gamma, Theta;
-	delete ETT, XUT, IOE, EStoS, EOoE;
+	delete Gamma, delete Theta;
+	delete ETT, delete XUT, delete IOE, delete EStoS, delete EOoE;
     Flags::Reset();
     N::Reset();
-	lognm = Volume = SampleProportion = Gamma = Theta = 0;	
+	lognm = Volume = Gamma = Theta = 0;	
     if (isfile(logf)) { fclose(logf); logf = 0; }
     //if (isfile(Discrete::logf))  {fclose(Discrete::logf); Discrete::logf=0;}
 	}

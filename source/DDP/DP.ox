@@ -907,14 +907,14 @@ Labels::Initialize() {
 /** Reset all Flags.
 @internal
 **/
-Flags::Reset() { delete UpdateTime; Phase = UpdateTime = StorePA = DoSubSample = IsErgodic = HasFixedEffect = ThetaCreated = FALSE; }
+Flags::Reset() { delete UpdateTime; Phase = UpdateTime = StorePA = IsErgodic = HasFixedEffect = ThetaCreated = FALSE; }
 
 /** Reset all Sizes.
 @internal
 **/
 N::Reset() {
-    delete ReachableIndices, tfirst;
-    ReachableIndices =tfirst=T=G=F=R=S=A=Av=J=aux=TerminalStates=ReachableStates=Approximated = 0;
+    delete ReachableIndices, delete tfirst, delete insamp, delete SampleProportion ;
+    SampleProportion = insamp = ReachableIndices =tfirst=T=G=F=R=S=A=Av=J=aux=TerminalStates=ReachableStates=Approximated = 0;
     }
 
 /** Initializes size of spaces (only called internally).
@@ -931,24 +931,57 @@ N::Initialize() {
 	Av = sizec(Alpha::Matrix);
     /*	if (Flags::UseStateList) */
     tfirst = constant(UnInitialized,T,1);
+    insamp = UnInitialized;
 	ReachableStates = TerminalStates = 0;
     ReachableIndices = constant(.NaN,DP::SS[tracking].size,1);
     if (MaxSZ==Zero) MaxSZ = INT_MAX;
     }
 
-/** Subsample the reachable state space based on a sampling strategy.
+/** Set up subsampling of the reachable state space based on a sampling strategy.
+Sampling is only
 @internal
 **/
-N::Subsample(prop) {
-    if  ( isint(prop)||( (prop==1.0)&&(N::MaxSZ==INT_MAX) ) ) return DoAll ;
-    decl t,c,nt=diff0(tfirst)[1:], samp = new array[T],d;
+N::SetSubSample(InSampProp,MinSZ,MaxSZ) {
+	SampleProportion = isdouble(InSampProp) ? constant(InSampProp,T,1) : InSampProp;
+    this.MinSZ = MinSZ;
+    this.MaxSZ = MaxSZ;
+	Approximated = 0;
+    if  ( isint(SampleProportion)||( (SampleProportion==1.0)&&(MaxSZ==INT_MAX) ) ) {
+        if (isarray(insamp)) delete insamp;
+        insamp = DoAll;
+        return;
+        }
+    if (Flags::ThetaCreated) {
+        if (DP::Volume>SILENT) println("New random subsampling of the state space");
+        if (isint(insamp)) insamp = new array[T];
+        SubSample();
+        decl tt= new ReSubSample();
+        if (DP::Volume>SILENT) println("Approximated: ",Approximated);
+        delete tt;
+        }
+    }
+
+N::SubSample() {
+    decl t,c,nt=diff0(tfirst)[1:],d;
     for (t=0;t<T;++t) {
-        c = min(MaxSZ,max(MinSZ,prop[t]*nt[t]));
-        samp[t] = (c<=nt[t]-1)
+        c = min(MaxSZ,max(MinSZ,SampleProportion[t]*nt[t]));
+        insamp[t] = (c<=nt[t]-1)
             ? ReachableIndices[tfirst[t]+ransubsample(c,nt[t])]
             : DoAll;
         }
-    return samp;
+    }
+
+N::SubSampleDone() {
+    if (!isarray(insamp)) return;
+    decl t;
+    for (t=0;t<T;++t) if (ismatrix(insamp[t])) insamp[t] = sizerc(insamp[t]);
+    }
+
+N::picked() {
+    return isarray(insamp) ? (
+                isint(insamp[I::t]) ? TRUE
+                                    : any(insamp[I::t].==I::all[tracking])
+                ) : TRUE;
     }
 
 /** Compute size of spaces (only called internally).
@@ -1134,16 +1167,7 @@ DP::SubSampleStates(SampleProportion,MinSZ,MaxSZ) {
 		oxwarning("DDP Warning 14.\n Clock must be set before calling SubsampleStates.\n  Setting clock type to InfiniteHorizon.\n");
 		SetClock(InfiniteHorizon);
 		}
-	this.SampleProportion = isdouble(SampleProportion) ? constant(SampleProportion,N::T,1) : SampleProportion;
-    N::MinSZ = MinSZ;
-    N::MaxSZ = MaxSZ;
-	N::Approximated = 0;
-    if (Flags::ThetaCreated) {
-        if (Volume>SILENT) println("New random subsampling of the state space");
-        decl tt= new ReSubSample();
-        if (Volume>SILENT) println("Approximated: ",N::Approximated);
-        delete tt;
-        }
+    N::SetSubSample(SampleProportion,MinSZ,MaxSZ);
     }
 
 /** For debugging: Set a flag so that CreateSpaces does not actually create the space.
@@ -1279,7 +1303,7 @@ DP::CreateSpaces() {
                 "%8.0f","%c",{"Reachble"}|{"Tracking"}|Labels::Vprt[svar][S[endog].M:S[clock].M],tt.rchable);
                 }
     Alpha::ClearA();
-    delete tt.insamp;
+    //delete tt.insamp;
 	delete tt;
 	if ( !Version::MPIserver && Flags::IsErgodic && N::TerminalStates )
         oxwarning("DDP Warning 19.\n clock is ergodic but terminal states exist?\n Inconsistency in the set up.\n");
@@ -1370,17 +1394,19 @@ ThetaTask::ThetaTask(subspace,mycaller) {
 	this.subspace = subspace;
     }
 
-/** .
+/* .
 @internal
-**/
+
 CreateTheta::Sampling() {
-    insamp = N::Subsample(SampleProportion);
-    Flags::DoSubSample = constant(FALSE,N::T,1);
-    if (isarray(insamp)) {
+    N::Subsample();
+    //Flags::DoSubSample = constant(FALSE,N::T,1);
+    if (isarray(N::insamp)) {  //some time periods have subsampling
         decl a, t;
-        foreach(a in insamp[t]) Flags::DoSubSample[t] = !isint(a);
+        foreach(a in N::insamp[t])
+            Flags::DoSubSample[t] = !isint(a);  //t has subsampling (otherwise all states visited)
         }
     }	
+*/
 
 /** Called in CreateSpaces to set up &Theta;.
 @internal
@@ -1392,42 +1418,29 @@ CreateTheta::CreateTheta() {
 	ThetaTask(tracking);
     thx = DP::SubVectors[endog];
     rch = zeros(sizeof(thx),1);
-    Sampling();
+    N::SetSubSample();
 	}
-
-
-/** . @internal **/
-CreateTheta::picked() {
-    //    if (!isarray(insamp)) println("not an array");    else println("PP ",I::t," ",I::all[tracking]," ",any(insamp[I::t].==I::all[tracking]));
-    return isarray(insamp) ? (
-                isint(insamp[I::t]) ? TRUE
-                                    : any(insamp[I::t].==I::all[tracking])
-                ) : TRUE;
-    }
 
 /** .
 @internal
 **/
 CreateTheta::Run() {
-
     }
 
 ReSubSample::ReSubSample() {
-    CreateTheta();
-    ThetaTask::Traverse();  //don't use CreateTheta::loop()
-    delete insamp;
+	ThetaTask(tracking);
+    Task::loop();  //don't use CreateTheta::loop()
+    N::SubSampleDone();
     }
 
 /** . @internal **/
-ReSubSample::Run() {    I::curth->Allocate(picked());     }
-
+ReSubSample::Run() {  I::curth->Allocate(N::picked());     }
 
 CreateTheta::loop() {
 	trips = iter = 0;
 	Reset();					// (re-)initialize variables in range
 	SyncStates(0,N::S-1);
 	d=left+1;				   		// start at leftmost state variable to loop over	
-    done = FALSE;
     Flags::SetPrunable(counter);
     decl v;
     rch = <>;
@@ -1439,7 +1452,7 @@ CreateTheta::loop() {
             N::Reached(I::all[tracking]);
             if (!Flags::onlyDryRun) {
                 Theta[I::all[tracking]] = clone(userState,Zero);
-		        Theta[I::all[tracking]] ->SetTheta(state,picked());
+		        Theta[I::all[tracking]] ->SetTheta(state,N::picked());
                 }
             }
 		++iter;
@@ -1460,7 +1473,8 @@ CreateTheta::loop() {
         	SyncStates(left,left);
             rch[0]= thx[0]->IsReachable();
             }
-		} while ( inner ||  (d<=right) || !done );  //Loop over variables to left of decremented, unless all vars were 0.
+		} while ( inner ||  (d<=right) );  //Loop over variables to left of decremented, unless all vars were 0.
+    N::SubSampleDone();
     return TRUE;
     }
 
@@ -1498,7 +1512,7 @@ Task::loop(){
     return TRUE;
     }
 
-/** Loop through the state space and carry out tasks leftgrp to rightgrp.
+/** Loop through Exogenous States (more efficient than general code).
 @internal
 **/
 ExTask::loop(){
@@ -1507,7 +1521,7 @@ ExTask::loop(){
     #ifdef DEBUG
         if (trace) println("*** Task Loop ",classname(this),state');
     #endif
-    //  not done on exogenous loop
+    SyncStates(left,right);  // is this wrong???
 	d=left+1;				   		// start at leftmost state variable to loop over	
     done = FALSE;
 	do	{
@@ -1810,11 +1824,11 @@ Group::Group(pos,state) {
 @internal
 **/
 Group::~Group() {
-  	if (!isint(Ptrans)) delete Ptrans, Pinfinity;
+  	if (!isint(Ptrans)) { delete Ptrans, delete Pinfinity; }
 	Ptrans = Pinfinity = 0;
 	if (!isint(Palpha)) delete Palpha;
 	Palpha=0;
-	if (!isint(PT)) delete PT, statbvector;
+	if (!isint(PT)) { delete PT, delete statbvector; }
 	PT = statbvector = 0;
 	}
 	
@@ -1841,14 +1855,15 @@ Group::StationaryDistribution() {
 	PT[][] = Ptrans[N::ReachableIndices][N::ReachableIndices];
 	PT = setdiagonal(PT,diagonal(PT-1.0));
 	PT[0][]=1.0;
+    Pinfinity[] = 0.0;
 	switch (declu(PT,&l,&u,&p)) {
 		case 0: println("*** Group ",pos);
-				oxrunerror("DDP Error 47. stationary distribution calculation failed");
+				oxwarning("DDP Warning 20. stationary distribution calculation failed");
+                Pinfinity[N::ReachableIndices] = .NaN;
 				break;
 		case 2:	println("*** Group ",pos);
 				oxwarning("DDP Warning 20.\n Linear systems solution for stationary distribution returns code 2.\n May be unreliable.\n");
-		case 1: Pinfinity[] = 0.0;
-				Pinfinity[N::ReachableIndices] = solvelu(l,u,p,statbvector);
+		case 1: Pinfinity[N::ReachableIndices] = solvelu(l,u,p,statbvector);
 				break;
 //		default: ;
 		}
@@ -2122,15 +2137,19 @@ SaveV::Run() {
     decl ai=I::curth.Aind;
 	if ((TrimTerminals && I::curth.Type>=TERMINAL) || (TrimZeroChoice && N::Options[I::curth.Aind]<=1) ) return;
     decl mxi, p, oned=isclass(I::curth,"OneDimensionalChoice");
-    oxprintlevel(-1);
 	stub=I::all[tracking]~I::curth.Type~ai~state[S[endog].M:S[clock].M]';
+
     p = columns(I::curth.pandv)==rows(NxtExog[Qprob])
-            ?  ExpandP(ai, I::curth.pandv*NxtExog[Qprob])
-            :  ExpandP(ai, I::curth.pandv);
+            ?  /* ExpandP (ai, */ I::curth.pandv*NxtExog[Qprob] /*)*/
+            :  /* ExpandP(ai,  */ I::curth.pandv /*)*/ ;
+    mxi = maxcindex(p);
+    oxprintlevel(-1);
     r =stub~I::r~I::f~I::curth.EV; //N::VV[I::later][I::all[iterating]]
     if (Flags::IsErgodic) r ~= I::curg.Pinfinity[I::all[tracking]];
-    if (MaxChoiceIndex)
-        r ~= double(mxi = maxcindex(p))~p[mxi]~sumc(p);
+    if (MaxChoiceIndex) {
+        mxi = double(maxcindex(p));
+        r ~= mxi~p[mxi]~sumc(p);
+        }
     else
         r ~= p' ;
 	if (oned && I::curth.solvez ) r ~= I::curth->Getz()[]';

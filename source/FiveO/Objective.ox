@@ -254,10 +254,20 @@ System::System(L,LorN) {
 	NvfuncTerms = eqn.N;
 	}
 
+/** Create a new non-linear equation.
+@param L label for the system.
+
+A system of this type can be solved using `OneDimSolve`
+
+**/
+OneDimSystem::OneDimSystem(L) {
+    System(L,1);
+    }
+
 /** Default system of equations: `Objective::vfunc`().
 
 **/
-System::equations() { 	return cur.V[] = vfunc();	}
+System::equations() { return cur.V[] = vfunc();	}
 		
 /** Toggle the value of `Parameter::DoNotConstrain`.
 If DoNotConstrain then all parameters except `Determined` parameters are free and unscaled.
@@ -492,26 +502,11 @@ Objective::AggSubProbMat(submat) {
 **/
 Objective::vobj(F)	{
 	Decode(F);
-//    if (Volume>QUIET) Print("vobj",logf,Volume>LOUD);
     if (isclass(p2p))  // no servers are in loop if fobj() was called.
         p2p.client->SubProblems(cur.F);  // argument was F, but needs to be a vector; might not be
     else
 	    cur.V[] =  vfunc();
-//    if (Volume>QUIET) { fprint(logf,"vobj = ",cur.V);if (Volume>LOUD)  println("vobj = ",cur.V);}
 	}
-
-/* Decode the input, compute the objective, check the maximum.
-@param F vector of free parameters.
-System::fobj(F,extcall)	{
-	vobj(F);
-	cur->aggregate();
-    if (Volume>SILENT) {
-        fprint(logf,"fobj = ",cur.v);
-        if (Volume>QUIET) println("fobj = ",cur.v);
-        }
-//	this->CheckMax();
-	}
-*/
 
 /** Decode the input, return the whole vector, inequality and equality constraints, if any.
 @param F vector of free parameters.

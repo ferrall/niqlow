@@ -11,24 +11,24 @@ struct KWJPE97 : ExPostSmoothing	{
         enum{NineOrLess,TenOrMore,NIschool}
 	/** State Space Dimensions. @name KW97Dimens **/
 		enum{Ntypes   =4,   //4
-             TSampleStart=5,     //t at which approximation begins (state space small early on)
+             TSampleStart=10,     //t at which approximation begins (state space small early on)
              MidPeriod=10,      // double sample size
-             FinPeriod=25,      // base sample size
-             A1       =TSampleStart+MidPeriod+FinPeriod,       //40 lifetime
-             LastSch  =15,       //window of schooling choice
-             Noffers  =31,       //3 # of draws of offers per sector (sample is Msectors^Noffers)
-             Age0     =16,     //age at t=0
-             MaxSch   =10,      // 10
-             MaxExp   =20,      // 30 max experience to track}
-             Nsimulate = 10,   //Size of sim. panel.
-             MinSample = 30     //Minimum sample size (in case prop.to low).
+             FinPeriod=10,      // base sample size
+             A1       =TSampleStart+MidPeriod+FinPeriod,       //50 lifetime
+             LastSch  =20,       //window of schooling choice
+             Noffers  =15,       //# of offer draws
+             Age0     =16,      //age at t=0
+             MaxSch   =10,      //10
+             MaxExp   =30,      //30 max experience to track}
+             Nsimulate = 10,    //Size of sim. panel.
+             MinSample = 40     //Minimum sample size (in case prop.to low).
             }
 
 
 	static const decl
        /** max. experience by sector.**/    mxcnts   = <MaxExp,MaxExp,MaxExp,MaxSch,0>,
        /** smoothing param for Kernel.**/   smthrho  = .002,  //appears that TAU=500 in Keane's code
-       /** approx. sample rations .**/      smpsz    = <1.0,0.06,0.03>,
+       /** approx. sample rations .**/      smpsz    = <0.5,0.25,0.1>,
        /** initial school groups.**/        School0  = <9;10>,      //completed schooling at t=0
        /** degree years (tuition).**/       YrDeg    = <12;16>,
                                             kwdelt   = <0.0;0.787>,

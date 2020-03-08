@@ -307,17 +307,19 @@ value across all exogenous states.</DD>
 **/
 KWGSolve::Run() {
     decl notinss = ! I::curth->InSS();
+    //println("#### ",I::all[tracking]," ",classname(I::curth)," ",I::curth.pandv);
     XUT.state[] = state;
     if (firstpass) {
         if (notinss) return;
 	    I::curth->MedianActVal();
-	    if (!onlypass)  // no subsampling, hit everyone.
-            Specification(AddToSample,V[0],(V[0]-I::curth.pandv[][0])');
 	    I::curth->ActVal();
 	    N::VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
+	    if (!onlypass)  // there is subsampling add to approx sample
+            Specification(AddToSample,V[0],(V[0]-I::curth.pandv[][0])');
 		}
     else if (notinss) {
     	I::curth->MedianActVal();
+        //println("#### ",I::all[tracking]," ",I::curth.pandv);
 	    I::curth.EV = Specification(PredictEV,V[0],(V[0]-I::curth.pandv[][0])'); //N::VV set in Specification
 		}
     else return;
@@ -346,18 +348,17 @@ KWGSolve::Solve(instate) {
 	for (myt=N::T-1;myt>=0;--myt) {
 		state[cpos] = XUT.state[cpos] = myt;
 		SyncStates(cpos,cpos);
-		Y = Xmat = <>;	
-		onlypass = !Flags::DoSubSample[myt];
 		firstpass = TRUE;
-		Traverse(myt);
+		onlypass = N::insamp[myt]==DoAll;
+		if (!onlypass) {
+            maxE = EMax = zeros(N::insamp[myt],1);
+            subsmpi = 0;
+            }
+		loop();
 		if (!onlypass) {
 			Specification(ComputeBhat);
 			firstpass = FALSE;
-            //	        XUT.state[lo : hi] = state[lo : hi] = 	I::MedianExogState;
-	        //          SyncStates(lo,hi);
-            /* for(decl s=lo;s<=hi;++s) print(AV(States[s])," ");    println(" "); */
-  	        // I::all[onlyexog] = I::all[bothexog] = I::MESind;    //     ;
-			Traverse(myt);
+			loop();
 			}
 		I::NowSwap();
 		}
@@ -369,7 +370,7 @@ KWGSolve::Solve(instate) {
 
 **/
 KeaneWolpin::KeaneWolpin(myGSolve) {
-    if (isint(SampleProportion))
+    if (isint(N::SampleProportion))
         oxwarning("DDP Warning 24.\n Must call SubSampleStates() before you use KeaneWolpin::Solve().\n");
     if (!isclass(userState,"ExPostSmoothing")) oxrunerror("Must use ExPostSmoothing with KeaneWolpin. You can choose NoSmoothing");
     if (SS[onlysemiexog].size>1) oxrunerror("KeaneWolpin can't be used with semiexogenous states ... move to theta");
@@ -387,7 +388,7 @@ KWGSolve::KWGSolve(caller) {
     lo = XUT.left;
 	hi = XUT.right-1;
 	Bhat = new array[N::T];
-	xlabels0 = {"maxE","const"};
+	xlabels0 = {"const"};
     xlabels1 = new array[N::A];
     xlabels2 = new array[N::A];
 	decl a;
@@ -395,6 +396,7 @@ KWGSolve::KWGSolve(caller) {
         xlabels1[a] = "(V-vv)_"+sprint(a);
 	    xlabels2[a] = "sqrt(V-vv)_"+sprint(a);
         }
+    Kspec = 1+sizeof(xlabels1)+sizeof(xlabels2);
     }
 	
 /**The default specification of the KW regression.
@@ -408,28 +410,27 @@ $$X =\l(\matrix{\l(V_0-v_0\r) & \sqrt{V_0-v_0}}\r).\nonumber$$
 That is, the difference between Emax and maxE is a non-linear function of the differences in action values at the median shock.
 
 **/
-KWGSolve::Specification(kwstep,V,Vdelta) {
-	decl xrow;
-	if (!isint(Vdelta)) {
-        xrow = V~1~Vdelta~sqrt(Vdelta);
-        }
+KWGSolve::Specification(kwstep,maxEV,Vdelta) {
+	if (!isint(Vdelta)) xrow = 1~Vdelta~sqrt(Vdelta);
 	switch_single(kwstep) {
 		case	AddToSample :
-				Y |= N::VV[I::now][I::all[iterating]];
-				Xmat |= xrow;	
+                if (!subsmpi) //first one this t, set width of X
+                    Xmat = zeros(rows(EMax),columns(xrow));	
+				EMax[subsmpi]   = N::VV[I::now][I::all[iterating]];
+                maxE[subsmpi]   = maxEV;
+				Xmat[subsmpi][] = xrow;	
+                ++subsmpi;
 		case	ComputeBhat	:
-                if (rows(Xmat)<=columns(Xmat)) oxrunerror("DDP Error 30. Fewer sample states than estimated coefficients. Increase proportion");
-				olsc(Y-Xmat[][0],dropc(Xmat,<0>),&xrow); //subtract maxE, drop from X
-				Bhat[I::t] = 1|xrow;  //tack 1.0 on as coefficient for maxE
+				olsc(EMax-maxE,Xmat,&xrow);  //subtract maxE
+				Bhat[I::t] = xrow;
 				if (Volume>QUIET) {
-					println("\n Keane-Wolpin Approximation t= ",I::t," N = ",sizer(Y));
-					xrow = Xmat*Bhat[I::t];
-					MyMoments(Y~(xrow)~Xmat,{"EMax","EMaxHat"}|curlabels);
-					println("%r","Bhat=","%c",curlabels,Bhat[I::t]',"Correlation(Y,Yhat)=",correlation(Y~xrow)[0][1]);
+					println("\n Keane-Wolpin Approximation t= ",I::t," N = ",sizer(EMax));
+					EMaxHat = maxE + Xmat*Bhat[I::t];
+					MyMoments(EMax~maxE~(EMaxHat)~Xmat,{"EMax","EMaxHat"}|curlabels);
+					println("%r","Bhat=","%c",curlabels,Bhat[I::t]',"Correlation(Y,Yhat)=",correlation(EMax~EMaxHat)[0][1]);
 					}
-				 Y -= Xmat[][0];
 		case	PredictEV	:
-				return N::VV[I::now][I::all[iterating]] =  xrow*Bhat[I::t];
+				return N::VV[I::now][I::all[iterating]] =  maxEV+xrow*Bhat[I::t];
 		}
 	}
 	

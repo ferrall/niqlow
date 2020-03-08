@@ -24,7 +24,7 @@ struct DataColumn : Zauxiliary {
 /** Predicted distribution across states.
 **/	
 struct 	Prediction : Data {
-    static   const  decl tinyP = 1E-20;
+//    static   const  decl tinyP = 1E-20;
 	static	decl ud, LeakWarned, PredictFailure, ctlist;
 	const  	decl t;
 	decl

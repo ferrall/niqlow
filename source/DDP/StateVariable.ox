@@ -1426,7 +1426,7 @@ Tauchen::Transit() {
 Tauchen::Update() {
 	s = AV(sig);
 	r = AV(rho);
-    if (isfeq(s,0.0)||isfeq(r,0.0)) oxwarning("Tauchen st. deviation is near 0 or correlation is near 1.0");
+    if (isfeq(s,0.0)||isfeq(r,1.0)) oxwarning("Tauchen st. deviation is near 0 or correlation is near 1.0");
 	rnge = AV(M)*s/sqrt(1-sqr(r)),
 	actual = -rnge +2*rnge*vals/(N-1),
 	pts[][] = probn(
@@ -1479,7 +1479,7 @@ the actual values need to set using <code>SetActual()</code> or writing <code>Up
 if the actual values depend on parameters.  If for some reason the grid values for $a$ and $A$ are not the same (different coarsen
 between consumption and assets) then the transition may not be on the grid.  In this case, let $AV(a)$ equal
 $AV(A_i)+p(AV(A_{i+1})-AV(A_i)),$ where $p$ is the fraction of the gap between two successive values of $A$.  Now:
-$$A^\prime = \cases{ A_i & with prob. $1-p$\cr A_{i+1} & with prob. $p$\cr}.$$
+$$A^\prime = \cases{ A_i & with prob. 1-p\cr A_{i+1} & with prob. p\cr}.$$
 <DD><pre>
     a = new ActionVariable("a",5);
     A = new LiquidAsset("A",5,a);

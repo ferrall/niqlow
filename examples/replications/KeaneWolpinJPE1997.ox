@@ -19,44 +19,25 @@ KWJPE97::Replicate()	{
         GroupVariables  ( k      = new RandomEffect("k",Ntypes,kdist),
                           isch   = new FixedEffect("Is",NIschool) );
         AuxiliaryOutcomes(di=Indicators(accept,"d ",white,school));
-    
+
     CreateSpaces(LogitKernel,smthrho); //not clear what kernel was used or what bandwidth
-    pred = new array[Nmethods];
-    pred[BruteForce] =new PanelPrediction("brute-static",new ValueIteration());
-
-	i = BruteForce;
+    pred = new array[Nmethods][Nmethods];
+    pred[BruteForce][One] =new ValueIteration();
+    pred[Approximate][One] = new KeaneWolpin();
     SetDelta(kwdelt[One]);
-    pred[i]->Tracking(UseLabel,di);
-    pred[i] -> Predict(A1,Two);  //print out predictions
 
-    ++i;
-    /*
-    SetDelta(kwdelt[i]);
-    SubSampleStates( constant(smpsz[0],1,TSampleStart)~                   //solve exactly for first few periods
+    for (i=0;i<Nmethods;++i) {
+        pred[i][Zero] =new PanelPrediction("brute-static",pred[i][One]);
+        pred[i][Zero] ->Tracking(UseLabel,di);
+        if (i==Approximate)
+        SubSampleStates( constant(smpsz[0],1,TSampleStart)~                   //solve exactly for first few periods
                      constant(smpsz[1],1,MidPeriod)~                  //double sample
                      constant(smpsz[2],1,FinPeriod),                  //small sample
                      MinSample                                      //ensure minimum sample size for approximation
                     );
-    pred[i] =new PanelPrediction("approx",new KeaneWolpin());
-
-    //Vmat = new array[Nmethods];
-    pred[i]->Tracking(UseLabel,di);
-    pred[i] -> Predict(A1,Two);  //print out predictions
-    */
-
-    /* Run methods, produce prediction
-    for (i=1;i<Nmethods;++i) { //Only doing approx.
-       if (i==Approximate)
-       }
-    */
-    /* Summary of Output */
-    /*  nc = columns(Vmat[0])-Msectors-1;
-        mlabs = {"Emax","Pblue","Pwhite","Pmil","Pschool","Phome"};
-        println("EV and Choice Prob. ",
-            "Brute Force ",MyMoments(Vmat[BruteForce][][nc:],mlabs)
-            "Approx ",MyMoments( Vmat[Approximate][][nc:],mlabs),
-            "Abs. Diff ",MyMoments(fabs((Vmat[Approximate]-Vmat[BruteForce])[][nc:]),mlabs)); */
-    delete pred[0], pred[1];
+        pred[i][Zero] -> Predict(A1,Two);  //print out predictions
+        delete pred[i][One]; delete pred[i][Zero];
+        }
     Delete();
     }
 

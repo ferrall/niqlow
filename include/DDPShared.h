@@ -291,7 +291,6 @@ struct Flags : DDPauxiliary {
             Your function should return TRUE if the current group oup should be created.
             @see Hooks, HookTimes, Hooks::Add, FixedEffect, RandomEffect
              **/					                            AllGroupsExist,
-		/** .@internal **/			                            DoSubSample,
 		/**  store &Alpha.D x &Theta.D matrix
 			of choice probabilities  **/  						StorePA,
         /** Stationary Stage of value iteration.**/             StatStage,
@@ -325,17 +324,24 @@ struct N : DDPauxiliary {
 	   /**  lowest state index for each t.  **/      				  tfirst,
                                                                       MinSZ,
                                                                       MaxSZ,
+        /** T array of indices in subsample.**/                       insamp,
         /** # of iteration points SS[iterating].size.**/              Mitstates,
 		/**  .  **/									                  ReachableIndices,
 		/**  Count of terminal states.  **/   	                      TerminalStates,
     	/**  Count of reachable states.   **/  		                  ReachableStates,
-         /** Number of states approximated (not subsampled).**/       Approximated;
+        /** Number of states approximated (not subsampled).**/       Approximated,
+		/** FALSE means no subsampling.  Otherwise, pattern of
+            subsampling of the state space.
+            @see DP::SubSampleStates **/			             SampleProportion;
     static Reset();
     static Initialize();
     static print();
     static Reached(trackind);
     static Sizes();
-    static Subsample(prop);
+    static SetSubSample(SampleProportion=1.0,MinSZ=Zero,MaxSZ=INT_MAX);
+    static SubSample();
+    static SubSampleDone();
+    static picked();
     static IsReachable(trackind);
     static ZeroVV();
     }
