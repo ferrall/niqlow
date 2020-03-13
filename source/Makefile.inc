@@ -15,7 +15,7 @@ ifeq ($(OS), Windows)
 	XMP := ..\examples
 else ifeq ($(OS), Darwin)
 	OX := oxl
-	OXFLAGS := -DOX7 -d 
+	OXFLAGS := -DOX7 -d
 	ECHO := printf
 	CD := cd
 	COPY := cp
@@ -24,7 +24,7 @@ else ifeq ($(OS), Darwin)
 	XMP := ../examples
 else ifeq ($(OS), Linux)
 	OX := /home/ferrallc/bin/$(Version)/ox/bin64/oxl
-	OXFLAGS := -DMPI -DOX7 -d 
+	OXFLAGS := -DMPI -DOX7 -d
 	ECHO := printf
 	CD := cd
 	COPY := cp
@@ -33,6 +33,5 @@ else ifeq ($(OS), Linux)
 	XMP := ../examples
 endif
 
-# list of subdirectories to make Hybrids 
+# list of subdirectories to make Hybrids
 DIRS := CFMPI DDP FiveO Shared C $(XMP)
-

@@ -14,6 +14,7 @@ RustEstimates::DoAll() {
 	mle.Volume = LOUD;
     nfxp->SetStage(0);
 	mle -> Iterate(0);
+    oxrunerror("past mle");
 
     /* Second stage estimates */
 	decl cputime0 = -timer();

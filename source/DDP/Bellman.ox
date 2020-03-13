@@ -54,6 +54,7 @@ EndogTrans::Transitions(instate) {
 			ab->Update(s,FALSE);
             if (++skip >= ab.N) {  //increment index in block
                 #ifdef DEBUG
+                println("debugging on");
                 ab->Check();
                 #endif
 			    if (isclass(s,"CorrelatedEffect")) ab->Distribution();

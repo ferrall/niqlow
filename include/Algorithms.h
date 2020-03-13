@@ -29,7 +29,8 @@ struct Algorithm {
 															holdF,
      /** max. number of evaluations before restarting,
 		default 10<sup>M</sup> . @internal **/				nfuncmax,
-     /** Convergence code.  See `ConvergenceResults` **/	convergence;
+     /** Convergence code.  See `ConvergenceResults` **/	convergence,
+     /** @internal. **/                                     istr;
 	virtual Tune(maxiter=0,toler=0,nfuncmax=0);
 	virtual Iterate();
     virtual ItStartCheck(ReadCheckPoint=FALSE);
@@ -61,38 +62,42 @@ struct SysLinePoint : LinePoint {
 /** Container for algorithms that do not rely on gradients. **/
 struct NonGradient : Algorithm { }
 
-/** One-dimensional line search for a maximum.
+/** Methods specific to solving or optimizing in one dimension.
 
-Bracket a maximum then golden rule iteration to reduce the interval.
-
-Typically, this method is called by `GradientBased` routines, but the user can use it to one-dimensional
-search.
-
-
+These methods are embedded into other algorithms and in some cases can be used on their own.
 **/
-struct LineMax	: NonGradient {
-        static 	const 	decl 	
+struct LineMethod : NonGradient {
+    static 	const 	decl 	
 		/** . @internal **/			tiny             = 1.0e-14,
 		/** . @internal **/        	glimit           = 10.0,
 		/** . @internal **/        	gold             = 1.61803399,
 		/** . @internal **/        	rgold            = .61803399,
 		/** . @internal **/        	cgold            = 1-.61803399;
-
-		/** hold evaluations. @internal **/
-				const	decl		p1,p2,p3,p4,p5,p6;
-						decl 	
+	decl p1,p2,p3,p4,p5,p6;  		/** hold evaluations. Can't be static if nested opt problems **/
+	decl 	
 		/** . **/        	        maxstp,
         /** . **/                   improved,
 		/** Direction vector. **/   Delta,
 						        	q,a,b;
+    LineMethod(O);
+	~LineMethod();
+	virtual Try(pt,step);
+    virtual PTry(pt,left,right);
 		
+	Iterate(Delta,maxiter=0,maxstp=0);
+	Bracket();
+	Golden();
+    }
+
+/** One-dimensional line search for a maximum.
+
+Bracket a maximum, then Golden Rule iteration to reduce the interval.
+
+This method is called by `GradientBased` routines, but it can be used for one-dimensional search.
+
+**/
+struct LineMax	: LineMethod {
 		LineMax(O);
-		~LineMax();
-		Iterate(Delta,maxiter=0,maxstp=0);
-		virtual Try(pt,step);
-        virtual PTry(pt,left,right);
-		Bracket();
-		Golden();
 		}
 
 
@@ -105,8 +110,14 @@ struct CLineMax : LineMax {
 	}
 
 /** Systems line maximization.
+This specializes line optimization to be used inside the system solver.
+
+The negative of the norm of the system is used as the objective to evaluate improvement.
+
+A special case is `OneDimRoot` which brackets the root not a local optimum in the norm.
+
 **/
-struct SysMax : LineMax {
+struct SysMax : LineMethod {
     SysMax(O);
     Try(pt,step);
     }
@@ -369,6 +380,9 @@ struct NewtonRaphson : RootFinding {
 
 /** Solve for the root of a `OneDimSystem` system using Bracket-Bisect. **/
 struct OneDimRoot : SysMax {
+    static const decl
+    /** minimum initial step size.**/ istepmin = 1E-3,
+                                      defmxiter = 50;
     OneDimRoot(O);
     Iterate(istep=1.0,maxiter=50);
     Bracket();

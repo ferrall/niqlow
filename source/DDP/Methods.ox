@@ -100,7 +100,7 @@ This is not called by the user's code.  It is called by the method's Solve() rou
 @see DP::SetUpdateTime , EndogTrans::Transitions , HookTimes
 **/
 Method::Run() {
-    if (Flags::UpdateTime[AfterFixed]) ETT->Transitions(state);
+    if (Flags::UpdateTime[AfterFixed]||DoNotIterate) ETT->Transitions(state);
     if (DoNotIterate) return;
 	cputime0 = timer();
     if (trace) println("--------Group task loop: ",classname(this)," Rgroups ",Rgroups,state');

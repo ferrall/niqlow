@@ -213,7 +213,7 @@ SimulatedAnnealing::Iterate(chol)	{
 	        O->funclist(tries,&Vtries,&vtries);
             if (Metropolis() && M>1) {  // order matters!  no short circuit
                 tries = OC.F + rann(1,M).*(vec0-OC.F);
-                if (Volume>QUIET) fprintln(logf,"Line Search",(vec0-OC.F)');
+                if (Volume>QUIET) fprintln(logf,"Annealing: ",(vec0-OC.F)');
 	            O->funclist(tries,&Vtries,&vtries);
 		        Metropolis();
                 }
@@ -223,22 +223,31 @@ SimulatedAnnealing::Iterate(chol)	{
     ItEnd();
 	}
 
-/** .
-
-**/
-LineMax::LineMax(O)	{
+LineMethod::LineMethod(O) {
 	Algorithm(O);
-    maxstp = 5.0;
 	p1 = new LinePoint();
 	p2 = new LinePoint();
 	p3 = new LinePoint();
 	p4 = new LinePoint();
 	p5 = new LinePoint();
 	p6 = new LinePoint();
+    maxstp = 5.0;
+    }
+
+/** A method to optimize along a line.
+@param O `Objective`
+
+**/
+LineMax::LineMax(O)	{
+    LineMethod(O);
 	}
 
+/** A method to optimize along a line.
+@param O `Objective`
+
+**/
 SysMax::SysMax(O) {
-    LineMax(O);
+    LineMethod(O);
     }
 
 OneDimRoot::OneDimRoot(O) {
@@ -247,30 +256,16 @@ OneDimRoot::OneDimRoot(O) {
     Delta = 1.0;
     }
 
-/* .
-OneMax::Try(pt,step)	{
-	pt.step = step;
-	O->fobj(holdF + step,FALSE);
-	if ((isnan(pt.V = OC.V))) {
-	  oxwarning("FiveO Warning 01. System undefined at try point. Trying 20% of step.\n");
-	  pt.step *= .2;
-	  O->fobj(holdF + pt.step,FALSE);
-	  if ((isnan(pt.V = OC.V))) oxrunerror("FiveO Error 01. System undefined at 20% try point.\n");
-	   }
-    if (StorePath) path ~= OC.F;
-	improved = O->CheckMax() || improved;
-	}
-*/
-
 /** Find a 1-dimensional root.
-@param istep &gt; 0, initial step [default=1.0]
-@param maxiter &gt; 0 max. number iterations &gt; 0 [default=10]
+@param istep initial step, can be positive or negative [default=1.0]
+@param maxiter &gt; 0 max. number iterations &gt; 0 [default=50]
 **/
 OneDimRoot::Iterate(istep,maxiter) {
     Algorithm::ItStartCheck(FALSE);
-	if (maxiter==0) maxiter = 50;
-    if ( fabs(istep)<1E-5 ) istep = 1E-5;
+	if (maxiter==0) maxiter = defmxiter;
+    if ( fabs(istep)<istepmin ) istep = istep<0.0 ? -istepmin : istepmin;
 	holdF = OC.F;
+	improved = FALSE;
     this->Try(p1,0.0);
     this->Try(p2,istep);
     a = p1;
@@ -278,24 +273,21 @@ OneDimRoot::Iterate(istep,maxiter) {
 	if ( a.V*b.V > 0 ) if (!this->Bracket()) oxrunerror("1D System Bracket Failed");
     iter = 0;
     q = p3;
-    do {
+    do {    //bisecting
        this->Try(q,a.step+0.5*(b.step-a.step));
-       //println(" Try: ",a.step," | ",q.step," | ",b.step," Sys: ",double(a.V)," | ",double(q.V)," | ",double(b.V));
-       if ( a.V*q.V > 0.0 )
-            a ->Copy(q);
-       else
-            b ->Copy(q);
+       if ( a.V*q.V > 0.0 ) a ->Copy(q);  else b ->Copy(q);
       } while( ++iter < maxiter);
     if (Volume>SILENT) {
-        if (Volume>QUIET) println("Root: maxiter ",maxiter,". Final:",q);
-        else fprintln(logf,"Root: maxiter ",maxiter,". Final:",q);
+        istr = sprint("Root Finder: \n   Steps:",a.step," | ",q.step," | ",b.step,"  \n  Value:",a.v," | ",q.v," | ",b.v);
+        fprintln(logf,istr);
+        if (Volume>QUIET) println(istr);
         }
 	O->Decode(holdF+q.step);
  	OC.v = q.v;
     OC.V = q.V;
     }
 
-/** Bracket a local maximum along the line.
+/** Bracket a root of the equation.
 
 **/
 OneDimRoot::Bracket()	{
@@ -305,11 +297,12 @@ OneDimRoot::Bracket()	{
         Try(a, a.step + adelt*max(fabs(a.step),0.1));
         Try(b, b.step + bdelt*max(fabs(b.step),0.1));
         notdone = a.V * b.V > 0.0;
-        //if (++iter>5 || Volume>QUIET) println(" Bracket: ",a.step," - ",b.step," Sys: ",double(a.V)," - ",double(b.V));
         } while ( notdone && (iter<20) );
     if (Volume>SILENT) {
-        if (Volume>QUIET) println("1D Bracket: ",a.step," - ",b.step," Sys: ",double(a.V)," - ",double(b.V));
-        else fprintln(logf,"1D Bracket: ",a.step," - ",b.step," Sys: ",double(a.V)," - ",double(b.V));
+        istr = sprint("Root Finder Bracket: \n  Steps:",a.step," - ",b.step,
+                                    "\n System:",double(a.V)," - ",double(b.V));
+        fprintln(logf,istr);
+        if (Volume>QUIET) println(istr);
         }
     return !notdone;
 	}
@@ -319,43 +312,47 @@ OneDimRoot::Bracket()	{
 /** Delete.
 @internal
 **/
-LineMax::~LineMax()	{
-//	delete p1, p2, p3, p4, p5, p6;
+LineMethod::~LineMethod()	{
+	delete p1, p2, p3, p4, p5, p6;
 	}
-	
+
 /** Optimize on a line optimization.
 @param Delta vector of directions to define the line
 @param maxiter &gt; 0 max. number iterations<br>0 set to 1000
 @param maxstp &gt; 0, maximum step size in parameters.
 **/
-LineMax::Iterate(Delta,maxiter,maxstp)	{
+LineMethod::Iterate(Delta,maxiter,maxstp)	{
 	decl maxdelt = norm(Delta);  //sup-norm default
 	this.Delta = Delta;
 	this.maxiter = maxiter>0 ? maxiter : 3;
     if (isdouble(maxstp)) this.maxstp = maxstp;
 	holdF = OC.F;
 	improved = FALSE;
-	p1.step = 0.0; p1.v = OC.v;
-    this->Try(p2,min(this.maxstp/maxdelt,1.0));
-	if (p2.v>p1.v) {q = p2;a=p1;} else {q=p1;a=p2;}
-	b = p3;
+	p1.step = 0.0; p1.v = OC.v;                    //Copy initial values from Objective
+    this->Try(p2,min(this.maxstp/maxdelt,1.0));    //Initial step
+	//Explore in direction of improvement
+    if (p2.v>p1.v) {q = p2;a=p1;} else {q=p1;a=p2;}
+	
+    b = p3;
     if (Volume>SILENT) {
-        fprintln(logf,"Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);
-        if (Volume>QUIET) println("Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);
+        istr = sprint("Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);
+        fprintln(logf,istr);
+        if (Volume>QUIET) println(istr);
         }
     Bracket();
-    if (Volume>QUIET) println("Line: past bracket",a,b,q);
 	Golden();
-	O->Decode(holdF+q.step*Delta);
+	O->Decode(holdF+q.step*Delta);  // copy over param values from final step
     if (Volume>SILENT) {
-        fprintln(logf,"Past golden",q);
-        if (Volume> QUIET) println("Line: past golden",q);
+        istr = sprint("LineMethod: past Past golden\n   Steps:",a.step," | ",q.step," | ",b.step,
+                                                 "  \n  Value:",a.v," | ",q.v," | ",b.v);
+        fprintln(logf,istr);
+        if (Volume> QUIET) println(istr);
         }
- 	OC.v = q.v;
-    if (ismember(q,"V")) OC.V = q.V;
+ 	OC.v = q.v;       //copy over values from try point
+    OC.V = q.V;
 	}
 
-LineMax::PTry(pt,left,right) {
+LineMethod::PTry(pt,left,right) {
     decl M = O.p2p.MaxSimJobs,df=(right-left)/M,
         steps =range(left+df,right-df,(right-left-2*df)/M),best,
         Vtries=zeros(O.NvfuncTerms,M),
@@ -371,7 +368,7 @@ LineMax::PTry(pt,left,right) {
 /** .
 @internal
 **/
-LineMax::Try(pt,step)	{
+LineMethod::Try(pt,step)	{
 	pt.step = step;
 	O->fobj(holdF + step*Delta,FALSE);
 	if ((isnan(pt.v = OC.v))) {
@@ -388,7 +385,7 @@ LineMax::Try(pt,step)	{
 	}
 
 SysMax::Try(pt,step) {
-    LineMax::Try(pt,step);
+    LineMethod::Try(pt,step);
     pt.V = OC.V;
     }
 
@@ -421,15 +418,9 @@ CLineMax::Try(pt,step)	{
 /** Bracket a local maximum along the line.
 
 **/
-LineMax::Bracket()	{
+LineMethod::Bracket()	{
     decl u = p4, r, s, ulim, us, notdone;
-/*    if (isclass(O.p2p) && O.p2p.MaxSimJobs>1) {
-        println("ptry");
-       this->PTry(b,min(a.step,q.step),max(a.step,q.step));
-       println(b);
-       }
-    else */
-        this->Try(b,(1+gold)*q.step-gold*a.step);
+    this->Try(b,(1+gold)*q.step-gold*a.step);
 	notdone = b.v>q.v;
 	while (notdone)	{
 		r = (q.step-a.step)*(q.v-b.v);
@@ -460,8 +451,8 @@ LineMax::Bracket()	{
 /** Golden ratio line search.
 
 **/
-LineMax::Golden()	{
-	decl x0 = a,  x3 = b,  x1 = p5,  x2 = p6, iter=0, s, tmp, istr;
+LineMethod::Golden()	{
+	decl x0 = a,  x3 = b,  x1 = p5,  x2 = p6, iter=0, s, tmp;
     if (fabs(b.step-q.step) > fabs(q.step-a.step))
 	  		{x1->Copy(q); this->Try(x2,q.step + cgold*(b.step-q.step));}
     else
@@ -675,6 +666,8 @@ GradientBased::GradientBased(O) {
     LMmaxstep = 0;
 	}
 
+/** Base for Hill Climbing objects.
+**/
 HillClimbing::HillClimbing(O) {
     if (isclass(O,"UnConstrained")) LM = new LineMax(O);
     else if (isclass(O,"Constrained")) LM =new CLineMax(O);
@@ -683,6 +676,9 @@ HillClimbing::HillClimbing(O) {
     GradientBased(O);	
     }
 
+/** Handle gradient based checkpoint files.
+@param WriteOut TRUE - write mode</br>FALSE read from file mode
+**/
 GradientBased::CheckPoint(WriteOut) {
     if (IAmMac) return;
     decl chkpt = fopen(logpfx+".chkpt",WriteOut ? "w" : "r");
@@ -821,14 +817,13 @@ GradientBased::ItStartCheck(H) {
 This routine works the <a href="../CFMPI/default.html">CFMPI</a> to execute the parallel task
 of computing the gradient.
 
-All gradient-based algorithms conduct a `LineMax`imization on each iteration.
+Gradient-based algorithms conduct a `LineMax`imization on each iteration.
 
 @see  ConvergenceResults
 
 **/
 GradientBased::Iterate(H)	{
     if (ItStartCheck(H)) {
-       decl istr;
 	   if (Volume>SILENT)O->Print("Gradient Starting",logf,Volume>QUIET);
 	   if (this->Gupdate())
          convergence=STRONG;         //finished before we start!
