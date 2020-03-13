@@ -45,14 +45,18 @@ struct Algorithm {
 struct LinePoint : Zauxiliary {
 	decl
 	/** step length. **/ step,
-	/** obj value. **/	 v;
+	/** obj value. **/	 v,
+    /** v value . **/    V;
+    LinePoint();
+    virtual Copy(h);
 	}
 
-/** Holds one line maximization try for system solving.
-**/
+/* Holds one line maximization try for system solving.
 struct SysLinePoint : LinePoint {
     decl V;
+    Copy(h);
     }
+*/
 
 /** Container for algorithms that do not rely on gradients. **/
 struct NonGradient : Algorithm { }
@@ -337,7 +341,7 @@ struct BHHH : Newton {
     }
 
 /** Solve system of equations using Jacobian information. **/
-struct NonLinearSystem	: GradientBased {
+struct RootFinding	: GradientBased {
 		decl 	dg,
                 USELM;
 				Gupdate();
@@ -346,19 +350,19 @@ struct NonLinearSystem	: GradientBased {
 				Direction();
 		virtual Jupdate(dx=0);
         virtual ItStartCheck(J);
-        NonLinearSystem(O,USELM);
+        RootFinding(O,USELM);
 	   }
 
 /** Broyden approximation to the Jacobian.
 
 **/
-struct Broyden : NonLinearSystem {
+struct Broyden : RootFinding {
     			Broyden(O,USELM=TRUE);
     virtual 	Jupdate(dx);
     }
 
 /** Update the Jacobian on each iteration. **/
-struct NewtonRaphson : NonLinearSystem {
+struct NewtonRaphson : RootFinding {
     			NewtonRaphson(O,USELM=TRUE);
     virtual 	Jupdate(dx=0);
     }
@@ -366,7 +370,8 @@ struct NewtonRaphson : NonLinearSystem {
 /** Solve for the root of a `OneDimSystem` system using Bracket-Bisect. **/
 struct OneDimRoot : SysMax {
     OneDimRoot(O);
-    Iterate(Delta=1.0,maxiter=30,maxstp=0);
+    Iterate(istep=1.0,maxiter=50);
+    Bracket();
     }
 
 /** Sequential Quadratic Programming for constrained optimization. **/

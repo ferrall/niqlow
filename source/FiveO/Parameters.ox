@@ -8,10 +8,10 @@
 Determined::Determined(L,v0)	{	Parameter(L,v0);  DoNotVary = TRUE; }
 
 /** . @internal **/ 	
-Determined::Encode() 	{ if (!isint(block)) block->BlockCode(); if (isclass(ival)) v = CV(ival); return .NaN; }
+Determined::Encode() 	{ if (!isint(block)) block->BlockCode(); v = CV(ival); return .NaN; } //Removed if (isclass(ival))
 
 /** . @internal **/ 	
-Determined::Decode(f) { if (!isint(block)) block->BlockCode(); if (isclass(ival)) v = CV(ival); return v; }
+Determined::Decode(f) { if (!isint(block)) block->BlockCode(); v = CV(ival); return v; } //Removed if (isclass(ival))
 
 /** DoNotVary does not toggle for Determined parameter. **/
 Determined::ToggleDoNotVary() { }
@@ -316,7 +316,7 @@ Simplex::Simplex(L,ivals)	{
 		{ myN = int(ivals);  ivals = constant(1/myN,myN,1);}
 	else
 		{ivals = vec(ivals); myN = rows(ivals); }
-	if (any(ivals.>1)||any(ivals.<0)||fabs(sumc(ivals)-1)>stoler)
+	if (any(ivals.>1)||any(ivals.<0)|| !isfeq(sumc(ivals),1.0) )
         {println("**** ",ivals',"\n****");
 		oxrunerror("FiveO Error 22. Simplex "+L+" initial values not a simplex");}
 	cumprob = new Determined(L+"End",1.0);
@@ -378,7 +378,7 @@ DecreasingReturns::DecreasingReturns(L,ivals)	{
 	ParameterBlock(L);
 	ivals = vec(ivals);
 	myN = rows(ivals);
-	if (any(ivals.>1)||any(ivals.<0)||fabs(sumc(ivals)-1)>=1.0) {
+	if (any(ivals.>1)||any(ivals.<0)||fabs(sumc(ivals))>=1.0) {
         println("****",ivals',"\n****");
 		oxrunerror("FiveO Error 24. Decreasing Returns "+L+" initial values not a valid");
         }

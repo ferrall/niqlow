@@ -13,6 +13,7 @@ OptTestRun();
 BBTest();
 InEqTest();
 SysTest();
+Sys1DTest();
 LMSysTest();
 SepTest();
 SimpTest();
@@ -29,6 +30,12 @@ struct Nothing {
 struct SystemTest : System {
 	decl x;
 	SystemTest(N);
+	vfunc();
+	}
+
+struct System1DTest : OneDimSystem {
+	decl x;
+	System1DTest();
 	vfunc();
 	}
 	

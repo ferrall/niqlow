@@ -128,6 +128,12 @@ RandomSearch::RandomSearch(O) {
     cooling = 1.0;
     }
 	
+LinePoint::Copy(h) {
+    step = h.step;
+    v = h.v;
+    V = h.V;
+    }
+LinePoint::LinePoint() {    step = v = V = .NaN;    }
 /** Initialize Simulated Annealing.
 @param O `Objective` to work on.
 
@@ -232,26 +238,83 @@ LineMax::LineMax(O)	{
 	}
 
 SysMax::SysMax(O) {
-	Algorithm(O);
-    maxstp = 5.0;
-	p1 = new SysLinePoint();
-	p2 = new SysLinePoint();
-	p3 = new SysLinePoint();
-	p4 = new SysLinePoint();
-	p5 = new SysLinePoint();
-	p6 = new SysLinePoint();
+    LineMax(O);
     }
 
 OneDimRoot::OneDimRoot(O) {
     if (!isclass(O,"OneDimSystem")) oxrunerror("FiveO Error 02. Objective must be OneDimSystem");
     SysMax(O);
+    Delta = 1.0;
     }
 
-OneDimRoot::Iterate(Delta,maxiter,maxstp) {
-    if (!isdouble(Delta)|| (sizerc(Delta)!=1) ) oxrunerror("Delta must be a scalar or 1x1");
+/* .
+OneMax::Try(pt,step)	{
+	pt.step = step;
+	O->fobj(holdF + step,FALSE);
+	if ((isnan(pt.V = OC.V))) {
+	  oxwarning("FiveO Warning 01. System undefined at try point. Trying 20% of step.\n");
+	  pt.step *= .2;
+	  O->fobj(holdF + pt.step,FALSE);
+	  if ((isnan(pt.V = OC.V))) oxrunerror("FiveO Error 01. System undefined at 20% try point.\n");
+	   }
+    if (StorePath) path ~= OC.F;
+	improved = O->CheckMax() || improved;
+	}
+*/
+
+/** Find a 1-dimensional root.
+@param istep &gt; 0, initial step [default=1.0]
+@param maxiter &gt; 0 max. number iterations &gt; 0 [default=10]
+**/
+OneDimRoot::Iterate(istep,maxiter) {
     Algorithm::ItStartCheck(FALSE);
-    LineMax::Iterate(Delta,maxiter,maxstp);
+	if (maxiter==0) maxiter = 50;
+    if ( fabs(istep)<1E-5 ) istep = 1E-5;
+	holdF = OC.F;
+    this->Try(p1,0.0);
+    this->Try(p2,istep);
+    a = p1;
+    b = p2;
+	if ( a.V*b.V > 0 ) if (!this->Bracket()) oxrunerror("1D System Bracket Failed");
+    iter = 0;
+    q = p3;
+    do {
+       this->Try(q,a.step+0.5*(b.step-a.step));
+       //println(" Try: ",a.step," | ",q.step," | ",b.step," Sys: ",double(a.V)," | ",double(q.V)," | ",double(b.V));
+       if ( a.V*q.V > 0.0 )
+            a ->Copy(q);
+       else
+            b ->Copy(q);
+      } while( ++iter < maxiter);
+    if (Volume>SILENT) {
+        if (Volume>QUIET) println("Root: maxiter ",maxiter,". Final:",q);
+        else fprintln(logf,"Root: maxiter ",maxiter,". Final:",q);
+        }
+	O->Decode(holdF+q.step);
+ 	OC.v = q.v;
+    OC.V = q.V;
     }
+
+/** Bracket a local maximum along the line.
+
+**/
+OneDimRoot::Bracket()	{
+    decl adelt = (a.step < 0.0 ? 1 : -1)* 0.8, bdelt = 0.8, iter, notdone;
+    iter = 0;
+    do {
+        Try(a, a.step + adelt*max(fabs(a.step),0.1));
+        Try(b, b.step + bdelt*max(fabs(b.step),0.1));
+        notdone = a.V * b.V > 0.0;
+        //if (++iter>5 || Volume>QUIET) println(" Bracket: ",a.step," - ",b.step," Sys: ",double(a.V)," - ",double(b.V));
+        } while ( notdone && (iter<20) );
+    if (Volume>SILENT) {
+        if (Volume>QUIET) println("1D Bracket: ",a.step," - ",b.step," Sys: ",double(a.V)," - ",double(b.V));
+        else fprintln(logf,"1D Bracket: ",a.step," - ",b.step," Sys: ",double(a.V)," - ",double(b.V));
+        }
+    return !notdone;
+	}
+
+
 
 /** Delete.
 @internal
@@ -377,19 +440,19 @@ LineMax::Bracket()	{
             this->Try(u,us);
             notdone =  (b.v>u.v)&& (u.v>=q.v);
             if (!notdone)
-				{if (u.v>b.v) {a = q;q = u;} else b = u; }
+				{if (u.v>b.v) {a -> Copy(q);q ->Copy(u);} else b->Copy(u); }
             else
                this->Try(u,b.step+gold*(b.step-q.step));
 			}
 		else if ((b.step-us)*(us-ulim) > 0.0) {
 			this->Try(u,us);
             if (u.v>b.v)
-		   		{q= b; b= u; Try(u,(1+gold)*b.step-gold*q.step); }
+		   		{q->Copy(b); b->Copy(u); Try(u,(1+gold)*b.step-gold*q.step); }
             else if ((u.step-ulim)*(ulim-b.step) >= 0.0) this->Try(u,ulim);
             }
 		else this->Try(u,(1+gold)*b.step-gold*q.step);
         if (notdone)
-			{a = q;	q = b;	b = u;  notdone= b.v>q.v;  }
+			{a->Copy(q);	q->Copy(b);	b->Copy(u);  notdone= b.v>q.v;  }
         if (Volume>SILENT) fprintln(logf,"Bracket ",notdone,"a:",a,"q",q,"b",b);
 		}
 	}
@@ -400,14 +463,14 @@ LineMax::Bracket()	{
 LineMax::Golden()	{
 	decl x0 = a,  x3 = b,  x1 = p5,  x2 = p6, iter=0, s, tmp, istr;
     if (fabs(b.step-q.step) > fabs(q.step-a.step))
-	  		{x1=q; this->Try(x2,q.step + cgold*(b.step-q.step));}
+	  		{x1->Copy(q); this->Try(x2,q.step + cgold*(b.step-q.step));}
     else
-         	{x2=q; this->Try(x1,q.step - cgold*(q.step-a.step));}
+         	{x2->Copy(q); this->Try(x1,q.step - cgold*(q.step-a.step));}
 	do {
          if (x2.v>x1.v )
-		  	{ s=x0; tmp = x2.step; x0=x1; x1=x2; x2=s; this->Try(x2,rgold*tmp+cgold*x3.step); }
+		  	{ s=x0; tmp = x2.step; x0->Copy(x1); x1->Copy(x2); x2->Copy(s); this->Try(x2,rgold*tmp+cgold*x3.step); }
          else
-            { s=x3; tmp = x1.step; x3=x2; x2=x1; x1=s; this->Try(x1,rgold*tmp+cgold*x0.step); }
+            { s=x3; tmp = x1.step; x3->Copy(x2); x2->Copy(x1); x1->Copy(s); this->Try(x1,rgold*tmp+cgold*x0.step); }
 		 iter += improved;  // don't start counting until f() improves
          if (Volume>SILENT) {
                 istr = sprint("Line: ",iter,". improve: ",improved,". step diff = ",x3.step," - ",x0.step);
@@ -416,7 +479,7 @@ LineMax::Golden()	{
                 }
 
 		} while (fabs(x3.step-x0.step) > tolerance*fabs(x1.step+x2.step) && (iter<maxiter) );
-    if (x1.v > x2.v) q = x1; else q= x2;
+    if (x1.v > x2.v) q ->Copy(x1); else q->Copy(x2);
     }
 
 /** Initialize a Nelder-Mead Simplex Maximization.
@@ -615,7 +678,7 @@ GradientBased::GradientBased(O) {
 HillClimbing::HillClimbing(O) {
     if (isclass(O,"UnConstrained")) LM = new LineMax(O);
     else if (isclass(O,"Constrained")) LM =new CLineMax(O);
-    else if (isclass(O,"System")) oxrunerror("FiveO Error : Don't maximize a system. Use a NLSystem algorithm or OneDimSolve");
+    else if (isclass(O,"System")) oxrunerror("FiveO Error : Don't maximize a system. Use a RootFinding algorithm or OneDimRoot");
     else oxrunerror("FiveO Error : argument is not an Objective object");
     GradientBased(O);	
     }
@@ -888,6 +951,12 @@ BFGS::Hupdate() {
     return NONE;
     }
 
+RootFinding::RootFinding(O,USELM) {
+    if (!isclass(O,"System")) oxrunerror("FiveO Error : RootFinding algorithms only work on System objects");
+    this.USELM=USELM;
+    LM = new SysMax(O);
+    GradientBased(O);
+    }
 
 /** Create a Newton-Raphson object to solve a system of equations.
 
@@ -903,7 +972,7 @@ hr -> Iterate();
 <DT>Also see <a href="GetStarted.html#B">GetStarted</a></DT>
 
  **/
-NewtonRaphson::NewtonRaphson(O,USELM) {    NonLinearSystem(O,USELM);	}
+NewtonRaphson::NewtonRaphson(O,USELM) {    RootFinding(O,USELM);	}
 
 /** Create a new Broyden solution for a system of equations.
 @param O, the `System`-derived object to solve.
@@ -918,13 +987,13 @@ broy -> Iterate();
 <DT>Also see <a href="GetStarted.html#B">GetStarted</a></DT>
 
 **/
-Broyden::Broyden(O,USELM) {    NonLinearSystem(O,USELM);	}
+Broyden::Broyden(O,USELM) {    RootFinding(O,USELM);	}
 
 /** Compute the direction.
 If inversion of J fails, reset to I
 @return direction
 **/
-NonLinearSystem::Direction() 	{
+RootFinding::Direction() 	{
 	decl  l, u, p;
 	if (declu(OC.J,&l,&u,&p)==One) {
 		return solvelu(l,u,p,-OC.V);
@@ -936,7 +1005,7 @@ NonLinearSystem::Direction() 	{
 		 	oxwarning("FiveO Warning 02. Second failure to invert J. Will quit|n");
             return WEAK;
 			}
-		 //oxwarning("FiveO Warning 02. NonLinearSystem: J inversion failed. J reset to identity matrix I.\n");
+		 //oxwarning("FiveO Warning 02. RootFinding: J inversion failed. J reset to identity matrix I.\n");
 		 OC.J = unit(N);
          ++Hresetcnt;
 		 return Direction();
@@ -946,7 +1015,7 @@ NonLinearSystem::Direction() 	{
 /** Upate gradient when using an aggregation of the system
 in a line search.
 **/
-NonLinearSystem::Gupdate()	{
+RootFinding::Gupdate()	{
 	oldG = OC.V;
 	if (USELM)
          O->fobj(0,FALSE);
@@ -957,7 +1026,7 @@ NonLinearSystem::Gupdate()	{
 	return deltaG<gradtoler;
 	}
 
-NonLinearSystem::ItStartCheck(J) {
+RootFinding::ItStartCheck(J) {
     decl iret = Algorithm::ItStartCheck();
     if (iret) {
 	   if (this->Gupdate())
@@ -980,7 +1049,7 @@ NonLinearSystem::ItStartCheck(J) {
 This routine is shared (inherited) by derive algorithms.
 
 **/
-NonLinearSystem::Iterate(J)	{
+RootFinding::Iterate(J)	{
     if (ItStartCheck(J)) {
        decl d,istr;
 	   if (Volume>SILENT) O->Print("Non-linear System Starting",logf,Volume>QUIET);
@@ -1011,14 +1080,14 @@ NonLinearSystem::Iterate(J)	{
 	
 /** Wrapper for updating the Jacobian of the system.
 
-<DT>This is a wrapper for the virtual `NonLinearSystem::Jupdate`() routine.</DT>
+<DT>This is a wrapper for the virtual `RootFinding::Jupdate`() routine.</DT>
 
 @return <code>FAIL</code> if change in parameter values is too small.
 Otherwise, return <code>NONE</code>
 
 @see GradientBased::HHudpate
  **/
-NonLinearSystem::JJupdate() {
+RootFinding::JJupdate() {
 	decl dx;
 	if (this->Gupdate()) return STRONG;
 	deltaX = norm(dx=(OC.F - holdF),2);
@@ -1029,7 +1098,7 @@ NonLinearSystem::JJupdate() {
 		 	oxwarning("FiveO Warning 02. Second failure to invert J. Will quit|n");
             return WEAK;
 			}
-		  oxwarning("FiveO Warning 02. NonLinearSystem: J inversion failed. J reset to identity matrix I.\n");
+		  oxwarning("FiveO Warning 02. RootFinding: J inversion failed. J reset to identity matrix I.\n");
 		  OC.J = unit(N);
           return NONE;
         }
@@ -1040,10 +1109,10 @@ NonLinearSystem::JJupdate() {
 /** Compute the objective's Jacobian.
 @param dx argument is ignored (default=0)
 **/
-NonLinearSystem::Jupdate(dx) {O->Jacobian(); }
+RootFinding::Jupdate(dx) {O->Jacobian(); }
 
 /** Compute the objective's Jacobian.  **/
-NewtonRaphson::Jupdate(dx) { NonLinearSystem::Jupdate(); }
+NewtonRaphson::Jupdate(dx) { RootFinding::Jupdate(); }
 
 /** Apply Broyden's formula to update the Jacobian.
 @param dx x<sub>t+1</sub> - x<sub>t</sub>

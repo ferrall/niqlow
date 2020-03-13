@@ -33,5 +33,4 @@ Variables.oxo : $(varobj)
 document:
 	$(OXDOC) -include $(INC) -uplevel $(xtradoc) ../Shared/Shared.ox
 	$(COPY) $(MDOC)\default.html $(MDOC)\TOC.html
-	$(COPY) $(MDOC)\DDP.ox.html $(MDOC)\default.html
 	$(ERASE) /Q $(MDOC)\*.css

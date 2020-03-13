@@ -1,5 +1,5 @@
 #include "AllTestOpt.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 OptTestRun() {
     decl omenu = new Menu("FiveO Tests",FALSE);
@@ -8,6 +8,7 @@ OptTestRun() {
                 {"Simplex Test ",SimpTest},
                 {"C1. System Test ",SysTest},
                 {"C2. System Test With Line Max",LMSysTest},
+                {"C3. 1D System Test ",Sys1DTest},
                 {"D. Separable Test ",SepTest},
                 {"E. Inequality Test ",InEqTest},
                 {"F. Mixture Test ",MixTest}
@@ -65,6 +66,15 @@ SysTest() {
 	delete v,nr,br;
 	}
 
+Sys1DTest() {
+	println("\n\n  Test of Root Finding in 1 Dimension ");
+	decl v = new System1DTest(),
+		 bb = new OneDimRoot(v);
+	bb.Volume = NOISY;
+	bb ->Iterate();
+	delete v,bb;
+	}
+
 LMSysTest() {
 	println("\n\n  System of Equation with Line Minimization ");
 	decl v = new SystemTest (1),
@@ -87,6 +97,17 @@ SystemTest::SystemTest (N) {
 
 SystemTest::vfunc()	{
 	return  (3-2*x.v).*x.v - lag0(x.v,1) - 2*lag0(x.v,-1) + 1;
+	}
+
+System1DTest::System1DTest() {
+	OneDimSystem("1D Bracket Bisect Test");
+	x = new Positive("x",0.2);
+    Parameters(x);
+	Encode();
+	}
+
+System1DTest::vfunc()	{
+	return  log(x.v);
 	}
 
 SepTest()	{

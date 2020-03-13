@@ -160,7 +160,6 @@ x<sup>J</sup> = `Determined`(1-&sum;x<sup>j</sup>)
 @see TransitionMatrix
 **/
 struct Simplex : ParameterBlock		{
-	static const decl stoler = 1E-7;
 	/** cumulative value for upper bounds. @internal **/ decl cumprob;
 	Simplex(L,ivals);
 	virtual BlockCode();
