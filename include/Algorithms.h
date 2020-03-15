@@ -41,24 +41,6 @@ struct Algorithm {
 	Algorithm(O);
     }
 
-/** Holds one line maximization try.
-**/
-struct LinePoint : Zauxiliary {
-	decl
-	/** step length. **/ step,
-	/** obj value. **/	 v,
-    /** v value . **/    V;
-    LinePoint();
-    virtual Copy(h);
-	}
-
-/* Holds one line maximization try for system solving.
-struct SysLinePoint : LinePoint {
-    decl V;
-    Copy(h);
-    }
-*/
-
 /** Container for algorithms that do not rely on gradients. **/
 struct NonGradient : Algorithm { }
 
@@ -368,13 +350,13 @@ struct RootFinding	: GradientBased {
 
 **/
 struct Broyden : RootFinding {
-    			Broyden(O,USELM=TRUE);
+    			Broyden(O,USELM=FALSE);
     virtual 	Jupdate(dx);
     }
 
 /** Update the Jacobian on each iteration. **/
 struct NewtonRaphson : RootFinding {
-    			NewtonRaphson(O,USELM=TRUE);
+    			NewtonRaphson(O,USELM=FALSE);
     virtual 	Jupdate(dx=0);
     }
 

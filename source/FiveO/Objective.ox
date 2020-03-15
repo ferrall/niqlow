@@ -34,7 +34,7 @@ Objective::Objective(L,CreateCur)	{
     RunSafe = TRUE;
     lognm = replace(Version::logdir+"Obj-"+classname(this)+"-"+L+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"av");
-	if (CreateCur) cur = new Point();
+	if (CreateCur) vcur = new Point();
 	hold = maxpt = NvfuncTerms  = UnInitialized;
 	FinX = <>;
 	p2p = once = FALSE;
@@ -47,7 +47,7 @@ Objective::Objective(L,CreateCur)	{
 
 /** Reset the value of the current and maximum objective. **/
 Objective::ResetMax() {
-    cur.v = maxpt.v = -.Inf;
+    vcur.v = maxpt.v = -.Inf;
     }
 
 /** Load or save state of the problem to a file.
@@ -57,15 +57,15 @@ Objective::ResetMax() {
 Objective::CheckPoint(f,saving) {
 	if (saving) {
 		decl fl = vararray(PsiL);
-		fprintln(f,"%v",cur.X,"\n-------Human Readable Parameter Summary-------");
+		fprintln(f,"%v",vcur.X,"\n-------Human Readable Parameter Summary-------");
         decl i,j,fp;
         j=0;
-        for(i=0;i<sizeof(cur.X);++i) {
+        for(i=0;i<sizeof(vcur.X);++i) {
             fp = (j<sizeof(FinX)) ? FinX[j]==i : 0;
-            fprintln(f,"%03u",i,"\t",fp,"\t","%10.6f",cur.X[i],"\t\"","%-15s",PsiL[i],"\"\t\"","%-15s",PsiType[i],"\"\t",fp ? FinX[j] : -1,"\t",fp ? cur.F[j] : .NaN);
+            fprintln(f,"%03u",i,"\t",fp,"\t","%10.6f",vcur.X[i],"\t\"","%-15s",PsiL[i],"\"\t\"","%-15s",PsiType[i],"\"\t",fp ? FinX[j] : -1,"\t",fp ? vcur.F[j] : .NaN);
             j += fp;
             }
-		fprintln(f,"\n------------\n","%c",PsiL[FinX],"%r",{"  Gradient  "},cur.G,"\nHessian ","%r",PsiL[FinX],"%c",PsiL[FinX],cur.H);
+		fprintln(f,"\n------------\n","%c",PsiL[FinX],"%r",{"  Gradient  "},vcur.G,"\nHessian ","%r",PsiL[FinX],"%c",PsiL[FinX],vcur.H);
 		}
 	else {
 		decl inX;
@@ -104,7 +104,7 @@ Objective::Save(fname)	{
 if (IAmMac) return;
 	f = fopen(fname+"."+EXT,"w");
 	if (!isfile(f)) println("File name:",fname+"."+EXT);
-	fprint(f,"%v",classname(this),"\n","%v",L,"\n","%v",cur.v,"\n");
+	fprint(f,"%v",classname(this),"\n","%v",L,"\n","%v",vcur.v,"\n");
 	this->CheckPoint(f,TRUE);
 	fprint(f,"\n--------------------\nCreated by Objective::Save(). "+date()+". "+time());
 	fclose(f);
@@ -129,13 +129,13 @@ Objective::Load(fname)	{
 	n = fscan(f,"%v",&otype,"%v",&inL,"%v",&inO);
 	if (otype!=classname(this) && !Version::MPIserver) oxwarning("FiveO Warning 07.\n Object stored in "+fname+" is of class "+otype+".  Current object is "+classname(this)+"\n");
 	if (inL!=L) oxwarning("FiveO Warning 08.\n Object Label in "+fname+" is "+inL+", which is not the same as "+L+"\n");
-	maxpt.v = cur.v = inO;
+	maxpt.v = vcur.v = inO;
     this->CheckPoint(f,FALSE);
 	if (!Version::MPIserver && Volume>SILENT) {
-        println("Initial objective: ",cur.v);
+        println("Initial objective: ",vcur.v);
         if (isfile(logf)) {
-            fprintln(logf,"Parameters loaded from ",fname,". # of values read: ",n,". Initial objective: ",cur.v);
-		    fprint(logf,"%r",PsiL,cur.X);
+            fprintln(logf,"Parameters loaded from ",fname,". # of values read: ",n,". Initial objective: ",vcur.v);
+		    fprint(logf,"%r",PsiL,vcur.X);
             }
         }
 	return TRUE;
@@ -145,21 +145,21 @@ Objective::Load(fname)	{
 @see AggregatorTypes
 **/
 Objective::	SetAggregation(AggType) {
-	hold.AggType = cur.AggType = AggType;
+	hold.AggType = vcur.AggType = AggType;
 	}	
 	
 /** Store current state of a Constrained Objective (checkpoint to disk).
 @param f
 @param saving
-@comments the value of `Objective::cur`.F is written to the file but ignored by Load().
+@comments the value of `Objective::vcur`.F is written to the file but ignored by Load().
 **/
 Constrained::CheckPoint(f,saving)	{
 	if (saving) {
 		decl fl = vararray(PsiL);
-		fprint(f,"%v",cur.X,"\n","%v",fl,"\n","%v",FinX,"\n","%v",cur.F);
-		fprint(f,"------------\n","%r",PsiL,cur.X,"%v",PsiType,
-		"\n","%r",cur.ineq.L,"%c",{" Inequalities "},cur.ineq.v,
-		"%r",cur.eq.L,"%c",{"  Equalities  "},cur.eq.v);
+		fprint(f,"%v",vcur.X,"\n","%v",fl,"\n","%v",FinX,"\n","%v",vcur.F);
+		fprint(f,"------------\n","%r",PsiL,vcur.X,"%v",PsiType,
+		"\n","%r",vcur.ineq.L,"%c",{" Inequalities "},vcur.ineq.v,
+		"%r",vcur.eq.L,"%c",{"  Equalities  "},vcur.eq.v);
 		}
 	else {
 		decl inX,inPsiL,inFX,k,m;
@@ -176,42 +176,42 @@ Constrained::CheckPoint(f,saving)	{
 		}
 	}
 	
-/** If <code>cur.v &gt; maxpt.v</code> call `Objective::Save` and update <code>maxpt</code>.
+/** If <code>vcur.v &gt; maxpt.v</code> call `Objective::Save` and update <code>maxpt</code>.
 @return TRUE if maxval was updated<br>FALSE otherwise.
 **/
 Objective::CheckMax(fn)	{
-    newmax = cur.v>maxpt.v;
+    newmax = vcur.v>maxpt.v;
     decl suffx = newmax ? "*" : " ";
     if (Volume>SILENT) {
         if (isfile(logf)) fprintln(logf,suffx);
 		if (Volume>QUIET) {
             println(suffx);
-            if (isfile(fn)) fprintln(fn," ","%15.8f",cur.v,suffx);
+            if (isfile(fn)) fprintln(fn," ","%15.8f",vcur.v,suffx);
             }
-        else if (newmax) println(" ","%15.8f",cur.v,suffx);
+        else if (newmax) println(" ","%15.8f",vcur.v,suffx);
         }
 	if (newmax)	{
 		this->Save(0);
-		maxpt -> Copy(cur);
+		maxpt -> Copy(vcur);
 		}
 	return newmax;
 	}
 
 /** This is misnamed. It checks whether the 1-D system is closer to 0.**/
 OneDimSystem::CheckMax(fn)	{
-    newmax = cur.v<maxpt.v;
+    newmax = vcur.v<maxpt.v;
     decl suffx = newmax ? "*" : " ";
     if (Volume>SILENT) {
         if (isfile(logf)) fprintln(logf,suffx);
 		if (Volume>QUIET) {
             println(suffx);
-            if (isfile(fn)) fprintln(fn," ","%15.8f",cur.v,suffx);
+            if (isfile(fn)) fprintln(fn," ","%15.8f",vcur.v,suffx);
             }
-        else if (newmax) println(" ","%15.8f",cur.v,suffx);
+        else if (newmax) println(" ","%15.8f",vcur.v,suffx);
         }
 	if (newmax)	{
 		this->Save(0);
-		maxpt -> Copy(cur);
+		maxpt -> Copy(vcur);
 		}
 	return newmax;
     }
@@ -224,11 +224,11 @@ OneDimSystem::CheckMax(fn)	{
 Objective::Print(orig,fn,toscreen){
 	decl
          note =sprint("\n\nReport of ",orig," on ",L,"\n"),
-         details = sprint("%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
+         details = sprint("%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(vcur.v),
 		          "Free Parameters",
-		          "%r",Flabels,"%c",{"   index  ","     free      "}| (isnan(cur.SE) ? {} : {"stderr"}),
-                        "%cf",{"%6.0f","%#18.12g","%#18.12g"},isnan(cur.SE) ? FinX~cur.F : FinX~cur.F~cur.SE' ,
-		          "Actual Parameters","%c",{"     Value "},"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
+		          "%r",Flabels,"%c",{"   index  ","     free      "}| (isnan(vcur.SE) ? {} : {"stderr"}),
+                        "%cf",{"%6.0f","%#18.12g","%#18.12g"},isnan(vcur.SE) ? FinX~vcur.F : FinX~vcur.F~vcur.SE' ,
+		          "Actual Parameters","%c",{"     Value "},"%r",PsiL,"%cf",{"%#18.12g"},vcur.X);
     if (isfile(fn)) {fprintln(fn,note,details); }
     println(note, toscreen ? details : "");
 	}
@@ -239,9 +239,9 @@ UnConstrained::UnConstrained(L) {
 
 Constrained::Constrained(L,ELorN,IELorN) {
 	Objective(L,FALSE);
-	cur = new CPoint(ELorN,IELorN);
-	hold = clone(cur);     // new CPoint(ELorN,IELorN);
-	maxpt = clone(cur);   //new CPoint(ELorN,IELorN);
+	vcur = new CPoint(ELorN,IELorN);
+	hold = clone(vcur);     // new CPoint(ELorN,IELorN);
+	maxpt = clone(vcur);   //new CPoint(ELorN,IELorN);
 	maxpt.v = -.Inf;
 	}
 
@@ -264,9 +264,9 @@ Three ways to define a <code>3x3</code> system of equations:
 **/	
 System::System(L,LorN) {
 	Objective(L,FALSE);
-    cur = new SysPoint();
-	hold = clone(cur); //new SysPoint();
-	maxpt = clone(cur);
+    vcur = new SysPoint();
+	hold = clone(vcur); //new SysPoint();
+	maxpt = clone(vcur);
 	maxpt.v = -.Inf;
 	eqn = new Equality(LorN);
 	NvfuncTerms = eqn.N;
@@ -286,7 +286,7 @@ OneDimSystem::OneDimSystem(L) {
 /** Default system of equations: `Objective::vfunc`().
 
 **/
-System::equations() { return cur.V[] = vfunc();	}
+System::equations() { return vcur->Vstore(vfunc());	}
 		
 /** Toggle the value of `Parameter::DoNotConstrain`.
 If DoNotConstrain then all parameters except `Determined` parameters are free and unscaled.
@@ -306,23 +306,23 @@ Objective::ToggleParameterConstraint()	{
 /** Decode a vector of free variables.
 Converts an optimized parameter vector into the structural parameter vector.  Ensure that each parameter and
 each parameter block current value is updated.
-@param F, nfree x 1 vector of optimized parameters.<br>0 [default], use cur.F for decode
+@param F, nfree x 1 vector of optimized parameters.<br>0 [default], use vcur.F for decode
 
 **/
 Objective::Decode(F)	{
 	decl k,m;
 	 if (!isint(F))	{
 		if (sizer(F)!=nfree) oxrunerror("FiveO Error 30. Cannot change length of free vector during optimization.");
-	  	cur.F = F;
+	  	vcur.F = F;
 		}
 	for (k=0;k<sizeof(Blocks);++k) Blocks[k].v = <>;
-	for (m=0,k=0,cur.X=<>;k<sizeof(Psi);++k)   {
-		cur.X |= (m<nfree && FinX[m]==k)
-					? Psi[k]->Decode(cur.F[m++][0])
+	for (m=0,k=0,vcur.X=<>;k<sizeof(Psi);++k)   {
+		vcur.X |= (m<nfree && FinX[m]==k)
+					? Psi[k]->Decode(vcur.F[m++][0])
 					: Psi[k]->Decode(0);
-		if (!isint(Psi[k].block)) Psi[k].block.v |= cur.X[k];
+		if (!isint(Psi[k].block)) Psi[k].block.v |= vcur.X[k];
 		}
-//	return cur.X;
+//	return vcur.X;
 	}
 
 /** Toggle DoNotVary for one or more parameters.
@@ -364,11 +364,11 @@ and `Objective::ReInitialize`()
 Objective::Recode(HardCode) {
 	decl k,f;
     for (k=0;k<sizeof(Blocks);++k) Blocks[k].v = <>;
-	for (k=0,cur.X=<>,cur.F=<>,FinX=<>,nfree=0;k<nstruct;++k) {
+	for (k=0,vcur.X=<>,vcur.F=<>,FinX=<>,nfree=0;k<nstruct;++k) {
 		Psi[k].start = Start[k];
 		f = HardCode ? Psi[k]->ReInitialize() : Psi[k]->Encode();
-		if (!isnan(f)) {cur.F |= f;  FinX |= k; if (nfree++) Flabels|= PsiL[k]; else Flabels = {PsiL[k]}; }
-		cur.X |= Psi[k].v;
+		if (!isnan(f)) {vcur.F |= f;  FinX |= k; if (nfree++) Flabels|= PsiL[k]; else Flabels = {PsiL[k]}; }
+		vcur.X |= Psi[k].v;
 		if (!isint(Psi[k].block)) Psi[k].block.v |= Psi[k].v;
 		}
     }
@@ -394,9 +394,9 @@ Objective::Encode(inX)  {
 			oxwarning("FiveO Warning 10.\n "+L+" NvfuncTerms, length of return vfunc(), not initialized. Set to 1.\n");
 			NvfuncTerms = 1;
 			}
-		cur.V = constant(.NaN,NvfuncTerms,1);
+		vcur.V = constant(.NaN,NvfuncTerms,1);
 		}
-	Start = isint(inX) ? cur.X : inX;
+	Start = isint(inX) ? vcur.X : inX;
 	if (sizer(Start)!=nstruct) {
         println("In vector as ",sizer(Start)," rows.  Psi has ",nstruct);
         println("%r",PsiL,"%c",{"Read Values"},Start);
@@ -410,7 +410,7 @@ This routine can only be called after `Objective::Encode`() has been called.
 
 All parameters are reset to their hard-coded initial values, stored as `Parameter::ival`.
 
-This also sets the values of the `Objective::cur` vector, including the structural parameters
+This also sets the values of the `Objective::vcur` vector, including the structural parameters
 `Point::X` and free parameters `Point::F`
 
 `Objective::ResetMax`() is called
@@ -422,7 +422,7 @@ for the first time.
 Objective::ReInitialize() {
    	if (!once) oxrunerror("FiveO Error 32. Cannot ReInitialize() objective parameters before calling Encode() at least once.");
     this->Recode(TRUE);
-	Start = cur.X;
+	Start = vcur.X;
     ResetMax();
     Save();
     }
@@ -445,8 +445,8 @@ Objective::funclist(Fmat,aFvec,afvec,abest)	{
 	else{
 	    decl j,fj;
         foreach (fj in Fmat[][j]) {
-		  aFvec[0][][j] = vobj(fj);
-		  f[j] = cur -> aggregate();
+	      aFvec[0][][j] = vobj(fj);
+		  f[j] = vcur -> aggregate();
 		  }
         }
     best = int(maxcindex(f));
@@ -458,7 +458,7 @@ Objective::funclist(Fmat,aFvec,afvec,abest)	{
         oxwarning("FiveO Warning ??. undefined max over function evaluation list");
 	    best = 0;
        }
-	 cur.v = f[best];
+	 vcur.v = f[best];
 	 Decode(Fmat[][best]);
      if (!isint(abest)) abest[0]=best;
 	 this->CheckMax();
@@ -473,7 +473,7 @@ Objective::funclist(Fmat,aFvec,afvec,abest)	{
 Constrained::funclist(Fmat,jake) {
 	decl j,J=columns(Fmat);
 	if (isclass(p2p))  {          //CFMPI has been initialized for this objective
-		decl nn = NvfuncTerms~cur.ineq.N~cur.eq.N,
+		decl nn = NvfuncTerms~vcur.ineq.N~vcur.eq.N,
 			 sumN = sumr(nn),
 			 tmp = new matrix[sumN][J];
 		p2p.client->ToDoList(0,Fmat,&tmp,NvfuncTerms,MultiParamVectors);
@@ -484,9 +484,9 @@ Constrained::funclist(Fmat,jake) {
 	else
 		for (j=0;j<J;++j) {
 			Lagrangian(Fmat[][j]);
-			jake.V[][j] = cur.V;
-			jake.ineq.v[][j] = cur.ineq.v;
-			jake.eq.v[][j] = cur.eq.v;
+			jake.V[][j] = vcur.V;
+			jake.ineq.v[][j] = vcur.ineq.v;
+			jake.eq.v[][j] = vcur.eq.v;
 			}
 	return J;
 	}
@@ -497,13 +497,13 @@ Constrained::funclist(Fmat,jake) {
 **/
 Objective::fobj(F,extcall)	{
     if (Version::MPIserver)  // I am a server but standalone objective has been called
-       p2p.server->Loop(rows(cur.F),"fobj");
+       p2p.server->Loop(rows(vcur.F),"fobj");
     else {
 	   this->vobj(F);
-	   cur->aggregate();
+	   vcur->aggregate();
        if (Volume>SILENT) {
-            if (isfile(logf)) fprint(logf,L," = ",cur.v);
-            if (Volume>QUIET) print(L," = ",cur.v);
+            if (isfile(logf)) fprint(logf,L," = ",vcur.v);
+            if (Volume>QUIET) print(L," = ",vcur.v);
             }
        if (extcall && isclass(p2p)) p2p.client->Stop();
        }
@@ -516,15 +516,15 @@ Objective::AggSubProbMat(submat) {
 
 /** Decode the input, return the whole vector.
 @param F vector of free parameters.
-@return cur.V
+@return vcur.V
 **/
 Objective::vobj(F)	{
 	Decode(F);
     if (isclass(p2p))  // no servers are in loop if fobj() was called.
-        p2p.client->SubProblems(cur.F);  // argument was F, but needs to be a vector; might not be
-    else
-	    cur.V[] =  vfunc();
-    return cur.V;
+        return p2p.client->SubProblems(vcur.F);  // argument was F, but needs to be a vector; might not be
+    else {
+	    return vcur->Vstore(vfunc());
+        }
 	}
 
 /** Decode the input, return the whole vector, inequality and equality constraints, if any.
@@ -533,49 +533,49 @@ Objective::vobj(F)	{
 **/
 Constrained::Lagrangian(F) {
 	Decode(F);
-	cur.V[] = -vfunc();   // Negate objective so that SQP minimization is right
-//	println("NN ",F'|cur.X',"%15.12f",cur.V);
-	cur.ineq.v[] = inequality();
-	cur.eq.v[] = equality();
+	vcur->Vstore(-vfunc());   // Negate objective so that SQP minimization is right
+//	println("NN ",F'|vcur.X',"%15.12f",vcur.V);
+	vcur.ineq.v[] = inequality();
+	vcur.eq.v[] = equality();
 	}
 
 Constrained::Merit(F) {
 	Lagrangian(F);
-	cur->aggregate();
-	cur.L = cur.v - cur.ineq->penalty() - cur.eq->norm();
+	vcur->aggregate();
+	vcur.L = vcur.v - vcur.ineq->penalty() - vcur.eq->norm();
 	this->CheckMax();
 	}
 
 /** Compute the Jg(), vector version of the objective's Jacobian at the current vector.
-@return <var>Jg(&psi;)</var> in cur.J
+@return <var>Jg(&psi;)</var> in vcur.J
 **/
 Objective::Jacobian() {
     decl h, GradMat, ptmatrix,gg;
 	Decode(0);					
-	hold -> Copy(cur);	
-	h = dFiniteDiff1(cur.F);
-	ptmatrix = ( (cur.F+diag(h))~(cur.F-diag(h)) );
+	hold -> Copy(vcur);	
+	h = dFiniteDiff1(vcur.F);
+	ptmatrix = ( (vcur.F+diag(h))~(vcur.F-diag(h)) );
 	GradMat = zeros(NvfuncTerms,2*nfree);
 	Objective::funclist(ptmatrix,&GradMat,&gg);
-	cur -> Copy(hold);
+	vcur -> Copy(hold);
 	Decode(0);
-	cur.J = (GradMat[][:nfree-1] - GradMat[][nfree:])./(2*h');
-	if (Volume>LOUD && isfile(logf) ) fprintln(logf,"Gradient/Jacobian Calculation ",nfree," ",NvfuncTerms,"%15.10f","%c",{"h","fore","back","diff"},"%r",PsiL[FinX],h~(GradMat[][:nfree-1]'~(GradMat[][nfree:]')),"Jacob",cur.J');
+	vcur.J = (GradMat[][:nfree-1] - GradMat[][nfree:])./(2*h');
+	if (Volume>LOUD && isfile(logf) ) fprintln(logf,"Gradient/Jacobian Calculation ",nfree," ",NvfuncTerms,"%15.10f","%c",{"h","fore","back","diff"},"%r",PsiL[FinX],h~(GradMat[][:nfree-1]'~(GradMat[][nfree:]')),"Jacob",vcur.J');
 	}
 	
 /** Compute the &nabla;f(), objective's gradient at the current vector.
 @param extcall [default=TRUE].  if running in parallel Stop message sent out
 <DT>Compute</DT>
 $$\nabla f(\psi)$$
-Stored in <code>cur.G</code>
+Stored in <code>vcur.G</code>
 **/
 Objective::Gradient(extcall) {
     if (Version::MPIserver)
-       p2p.server->Loop(rows(cur.F),"gradient"); //Gradient won't get called if already in loop
+       p2p.server->Loop(rows(vcur.F),"gradient"); //Gradient won't get called if already in loop
     else {
 	   this->Jacobian();
-	   cur.G = sumc(cur.J);
-       if (Volume>QUIET && isfile(logf) ) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
+	   vcur.G = sumc(vcur.J);
+       if (Volume>QUIET && isfile(logf) ) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],vcur.G);
        if (extcall && isclass(p2p)) p2p.client->Stop();
        }
 	}
@@ -585,7 +585,7 @@ Objective::Gradient(extcall) {
 <DT>Compute</DT>
 <pre><var>&nabla; f(&psi;)</var></pre>
 
-Stored in <code>cur.G</code>
+Stored in <code>vcur.G</code>
 **/
 UnConstrained::Gradient(extcall) {
     Objective::Gradient(extcall);
@@ -595,39 +595,39 @@ UnConstrained::Gradient(extcall) {
 **/
 Constrained::Gradient(extcall) {
     //	this->Jacobian();
-    //	cur.G = sumc(cur.J);
+    //	vcur.G = sumc(vcur.J);
     Objective::Gradient(extcall);
 	}
 
 /** Compute the Hf(), Hessian of objective at the current vector.
-@return <var>Hg(&psi;)</var> in cur.H
+@return <var>Hg(&psi;)</var> in vcur.H
 **/
 Objective::Hessian() {
     if (Version::MPIserver)
-       p2p.server->Loop(rows(cur.F),"hessian"); //Hessian won't get called if already in iteration loop
+       p2p.server->Loop(rows(vcur.F),"hessian"); //Hessian won't get called if already in iteration loop
     else {
        decl h, GradMat, ptmatrix,gg,i,j,and,ind,jnd,b;
 	   Decode(0);					
-	   hold -> Copy(cur);	
-	   h = dFiniteDiff1(cur.F);
-	   ptmatrix = ( cur.F~(cur.F+2*diag(h))~(cur.F-2*diag(h)) );
+	   hold -> Copy(vcur);	
+	   h = dFiniteDiff1(vcur.F);
+	   ptmatrix = ( vcur.F~(vcur.F+2*diag(h))~(vcur.F-2*diag(h)) );
        and = range(0,nfree-1,1)';
        for (i=0;i<nfree-1;++i) {
             ind = h.*(and.==i);
             jnd = h.*(and.==and[i+1:]');
-            ptmatrix ~= cur.F + ind   + jnd
-                       ~cur.F - ind   + jnd
-                       ~cur.F + ind   - jnd
-                       ~cur.F - ind   - jnd ;
+            ptmatrix ~= vcur.F + ind   + jnd
+                       ~vcur.F - ind   + jnd
+                       ~vcur.F + ind   - jnd
+                       ~vcur.F - ind   - jnd ;
             }
 	   GradMat = zeros(NvfuncTerms,columns(ptmatrix));
 	   Objective::funclist(ptmatrix,&GradMat,&gg);
-	   cur -> Copy(hold);
+	   vcur -> Copy(hold);
 	   Decode(0);
-	   cur.H = diag( (gg[1:nfree] - 2*gg[0] + gg[nfree+1:2*nfree])./(4*sqr(h')) );
+	   vcur.H = diag( (gg[1:nfree] - 2*gg[0] + gg[nfree+1:2*nfree])./(4*sqr(h')) );
        b = 2*nfree+1;
        for (i=0;i<nfree-1;++i) {
-            cur.H[i][i+1:] = cur.H[i+1:][i] = (gg[b]-gg[b+1]-gg[b+2]+gg[b+3])./(4*h[i]*h[i+1:]);
+            vcur.H[i][i+1:] = vcur.H[i+1:][i] = (gg[b]-gg[b+1]-gg[b+2]+gg[b+3])./(4*h[i]*h[i+1:]);
             b += 4*(nfree-i-1);
             }
        if (isclass(p2p)) p2p.client->Stop();
@@ -640,20 +640,20 @@ Constrained::Jacobian() {
     decl h, ptmatrix, nf2 = 2*nfree;
     oxwarning("shouldn't be here!");
 	Decode(0);					// F should already be set
-	hold -> Copy(cur);
-	h = dFiniteDiff1(cur.F)';
-	ptmatrix = ( (cur.F+diag(h))~(cur.F-diag(h)) );
+	hold -> Copy(vcur);
+	h = dFiniteDiff1(vcur.F)';
+	ptmatrix = ( (vcur.F+diag(h))~(vcur.F-diag(h)) );
 	h *= 2;
 	decl jake = new CPoint(0,0);
-	jake->Copy(cur);  //	clone(cur);
+	jake->Copy(vcur);  //	clone(vcur);
 	jake.V = zeros(NvfuncTerms,nf2);
-	jake.ineq.v = zeros(cur.ineq.N,nf2);
-	jake.eq.v = zeros(cur.eq.N,nf2);
+	jake.ineq.v = zeros(vcur.ineq.N,nf2);
+	jake.eq.v = zeros(vcur.eq.N,nf2);
 	funclist(ptmatrix,jake);
-	cur.J =     (jake.V[][:nfree-1] -  jake.V[][nfree:])./h;
-	cur.ineq.J = (jake.ineq.v[][:nfree-1] -jake.ineq.v[][nfree:])./h;
-	cur.eq.J =     (jake.eq.v[][:nfree-1] -  jake.eq.v[][nfree:])./h;
-	cur->Copy(hold);
+	vcur.J =     (jake.V[][:nfree-1] -  jake.V[][nfree:])./h;
+	vcur.ineq.J = (jake.ineq.v[][:nfree-1] -jake.ineq.v[][nfree:])./h;
+	vcur.eq.J =     (jake.eq.v[][:nfree-1] -  jake.eq.v[][nfree:])./h;
+	vcur->Copy(hold);
 	delete jake;
 	Decode(0);
 	}
@@ -692,7 +692,7 @@ Objective::Parameters(...
 					{ PsiL |= a.L; PsiType |= classname(a);}
 				else
 					{PsiL = {a.L}; PsiType = {classname(a)};}
-				cur.X |= a.v;
+				vcur.X |= a.v;
 				}
 			else
 				oxrunerror("FiveO Error 34. Argument not of Parameter Class");
@@ -735,13 +735,13 @@ Objective::contour(Npts,Xpar,Ypar,lims) {
     ptsx = lims[xax][_lo] + df[xax].*(range(0,Npts-1)'/(Npts-1)),
     ptsy = lims[yax][_lo] + df[yax].*(range(0,Npts-1)'/(Npts-1)),
     grid = <>,
-    myF = cur.F;
+    myF = vcur.F;
     foreach(xv in ptsx)
         foreach(yv in ptsy) {
             myF[Xpar.v] = xv;
             myF[Ypar.v] = yv;
             fobj(myF);
-            grid |= xv~yv~cur.v;
+            grid |= xv~yv~vcur.v;
             }
     grid[][zax] -= minc(grid[][zax]);  // paths are plotted on same plane as level curves
 
@@ -882,11 +882,11 @@ NoObjective::vfunc(subp) {
 **/
 Separable::Print(orig,fn,toscreen){
 	decl b=sprint("\n\nReport of ",orig," on ",L,"\n",
-		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
+		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(vcur.v),
 		"Free Parameters",
-		"%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~cur.F,
+		"%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~vcur.F,
 		"Actual Parameters",
-		"%c",KL,"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
+		"%c",KL,"%r",PsiL,"%cf",{"%#18.12g"},vcur.X);
     if (isfile(fn)) fprintln(fn,b);
     if (toscreen) println(b);
     }
@@ -896,11 +896,11 @@ Separable::Print(orig,fn,toscreen){
 **/
 Separable::Gradient(extcall) {
     if (Version::MPIserver)
-       p2p.server->Loop(rows(cur.F),"gradient"); //Gradient won't get called if already in loop
+       p2p.server->Loop(rows(vcur.F),"gradient"); //Gradient won't get called if already in loop
     else {
 	   this->Jacobian();
-	   cur.G = sumc(cur.J);
-       if (Volume>QUIET && isfile(logf)) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],cur.G);
+	   vcur.G = sumc(vcur.J);
+       if (Volume>QUIET && isfile(logf)) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],vcur.G);
        if (extcall && isclass(p2p)) p2p.client->Stop();
        }
 	}
@@ -924,7 +924,7 @@ Separable::Separable(L,Kvar) {
 		}
 	else oxrunerror("FiveO Error 11. Kvar must be integer, matrix, ParameterBlock or Discrete object\n");
 	if ( (K = this.Kvar.N)<1) oxrunerror("FiveO Error 12. Separable must have positive K\n");
-	cur = new SepPoint(this.Kvar,Objective::cur);
+	scur = new SepPoint(this.Kvar,vcur);
 	hold = new SepPoint(this.Kvar,0);
 	maxpt = clone(hold);
 	maxpt.v = -.Inf;
@@ -961,7 +961,7 @@ Separable::kEncode(notgradient)	{
 		decl h,kS = Start[][Kvar.v];
 		for(h=0;h<C;++h) {
 			Psi[ComInd[h]].DoNotVary = notgradient;
-			Psi[ComInd[h]].v = kS[ComInd[h]] = cur.X[ComInd[h]][0];
+			Psi[ComInd[h]].v = kS[ComInd[h]] = scur.X[ComInd[h]][0];
 			}
 	  	Objective::Encode(kS);		
 		}
@@ -990,25 +990,25 @@ Separable::Encode(X,CallBase)   {
 	if (!once) {
 		Objective::Encode();
 		C = sizer(ComInd);
-		cur.X = reshape(Objective::cur.X,K,nstruct)';
+		scur.X = reshape(vcur.X,K,nstruct)';
 		kNvf = Objective::NvfuncTerms;
 		NvfuncTerms = K*kNvf;
-		for (k=0;k<K;++k) cur.V[k] = Objective::cur.V;
+		for (k=0;k<K;++k) scur.V[k] = vcur.V;
 		}
 	if (!isint(X)) {
-		if (columns(X)==1) cur.X = reshape(X,nstruct,K);
+		if (columns(X)==1) scur.X = reshape(X,nstruct,K);
 		else {
 			if (rows(X)!=nstruct || columns(X)!=K) oxrunerror("FiveO Error 12. Encode X has wrong number of rows or columns\n");
-			cur.X = X;
+			scur.X = X;
 			}
 		}
-	Start = cur.X;
+	Start = scur.X;
 	ResetCommon(TRUE);
 	Flabels = {};
-	for (k=0,nfree=0,cur.F=<>,FinX=<>;k<K;++k) {
+	for (k=0,nfree=0,scur.F=<>,FinX=<>;k<K;++k) {
 		Kvar.v = k;
 		kEncode(TRUE);
-		cur.F |= Objective::cur.F;
+		scur.F |= vcur.F;
 		FinX |= Objective::FinX;
 		if (C && !k) {
 			for (i=0,h=0;i<sizer(FinX);++i)
@@ -1045,10 +1045,10 @@ Separable::funclist(Fmat,aFvec,afvec)	{
 				Kvar.v = k;
 				kEncode(TRUE);
 				Objective::Decode(Fmat[firstk:firstk+kfree[k]-1][j]);
-				if (isparallel) Xmat[][k+K*j] ~= Objective::cur.X;
+				if (isparallel) Xmat[][k+K*j] ~= vcur.X;
 				else {
-					if (Included[k]) cur.V[k][] = this->vfunc();
-					aFvec[0][fvk:fvk+kNvf-1][j] = cur.V[k];
+					if (Included[k]) scur.V[k][] = this->vfunc();
+					aFvec[0][fvk:fvk+kNvf-1][j] = scur.V[k];
 					}
 				}
 		}
@@ -1057,13 +1057,13 @@ Separable::funclist(Fmat,aFvec,afvec)	{
 		p2p.client->ToDoList(Xmat,&kObj,NvfuncTerms,1);
 		for (j=0;j<J;++j) {
 			for (k=0,fvk=0;k<K;fvk+=kNvf,++k) {
-				if (Included[k]) cur.V[k] = kObj[][k+K*j];
-				aFvec[0][fvk:fvk+kNvf-1][j] = cur.V[k];
+				if (Included[k]) scur.V[k] = kObj[][k+K*j];
+				aFvec[0][fvk:fvk+kNvf-1][j] = scur.V[k];
 				}
 			}
 		}
 	ResetCommon(FALSE);
-    if (afvec) cur->aggregate(aFvec[0],afvec);
+    if (afvec) scur->aggregate(aFvec[0],afvec);  //v or s??
 	return J;
 	}
 	
@@ -1073,24 +1073,24 @@ Separable::funclist(Fmat,aFvec,afvec)	{
 **/
 Separable::fobj(F,extcall)	{
 	vobj(F);
-	cur -> aggregate();
+	scur -> aggregate();
 	this->CheckMax();
 	}
 
 /** . @internal **/	
 Separable::Deconstruct(eval) {
 	decl firstk,k;
-	for (k=0,firstk=0,cur.X=<>;k<K;firstk += kfree[k++]) {
+	for (k=0,firstk=0,scur.X=<>;k<K;firstk += kfree[k++]) {
 		Kvar.v = k;
 		kEncode(TRUE);
-		Objective::Decode(cur.F[firstk:firstk+kfree[k]-1]);
-		cur.X ~= cur.bb.X;
+		Objective::Decode(vcur.F[firstk:firstk+kfree[k]-1]);
+		vcur.X ~= scur.bb.X;
 		if (eval&&Included[k]) {
 			Objective::vobj(0);
-			cur.V[k] = cur.bb.V;
+			vcur.V[k] = scur.bb.V;
 			}
 		}
-	if (eval) cur -> aggregate();
+	if (eval) scur -> aggregate();
 	ResetCommon(FALSE);
 	}
 	
@@ -1099,7 +1099,7 @@ Separable::Deconstruct(eval) {
 @return `Point::X`
 **/
 Separable::Decode(F)	{
-	if (!isint(F)) cur.F = F;
+	if (!isint(F)) scur.F = F;
 	Deconstruct(FALSE);
 	}
 	
@@ -1108,9 +1108,9 @@ Separable::Decode(F)	{
 @return svfunc()
 **/
 Separable::vobj(F)	{
-	if (!isint(F)) cur.F = F;
+	if (!isint(F)) scur.F = F;
 	Deconstruct(TRUE);
-    return cur.V;
+    return scur.V;
 	}
 
 /** Compute the Jg(), vector version of the objective's Jacobian at the current vector.
@@ -1118,12 +1118,12 @@ Returns <var>Jg(&psi;)</var> in <code>cur.J</code>.
 **/
 Separable::Jacobian() {
 	Decode(0);					// F should already be set
-	hold -> GCopy(cur);
-	decl h= dFiniteDiff1(cur.F), GradMat= zeros(NvfuncTerms,2*nfree), gg;	
-	Separable::funclist((cur.F+diag(h))~(cur.F-diag(h)),&GradMat,&gg);
+	hold -> GCopy(scur);
+	decl h= dFiniteDiff1(scur.F), GradMat= zeros(NvfuncTerms,2*nfree), gg;	
+	Separable::funclist((scur.F+diag(h))~(scur.F-diag(h)),&GradMat,&gg);
     println("SepJac ",GradMat,gg);
-	cur.J = (gg[:nfree-1] - gg[nfree:])./(2*h);
-	cur->GCopy(hold);
+	scur.J = (gg[:nfree-1] - gg[nfree:])./(2*h);
+	scur->GCopy(hold);
 	Decode(0);
 	}
 
@@ -1170,7 +1170,7 @@ Mixture::Mixture(L,Dvar,Kvar,MixType,...
 	DKL = new array[D][K];
 	Included = ones(D,K);
 
-	cur = new MixPoint(this.Dvar,Separable::cur);
+	mcur = new MixPoint(this.Dvar,Separable::scur);
 	delete hold, maxpt;
 	hold = new MixPoint(this.Dvar,0);
 	maxpt = clone(hold);
@@ -1191,7 +1191,7 @@ Mixture::Mixture(L,Dvar,Kvar,MixType,...
 		 	case SimplexWeights 	: Lambda[d] = new Simplex(ll,va[0][d][]); break;
 		 	case FixedWeights   	: Lambda[d] = new FixedBlock(ll,va[0][d][]);  break;
 		 	}
-		cur.W |= Lambda[d].v';
+		mcur.W |= Lambda[d].v';
 		}
 	println("Mixture D,K,DK:",D," ",K," ",DK);
 	}
@@ -1201,11 +1201,11 @@ Mixture::Mixture(L,Dvar,Kvar,MixType,...
 **/
 Mixture::Print(orig,fn,toscreen){
 	decl b=sprint("\n\nReport of ",orig," on ",L,"\n"," Not finished ..");
-//		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(cur.v),
+//		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(mcur.v),
 //		"Free Parameters",
-//		"%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~cur.F,
+//		"%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~mcur.F,
 //		"Actual Parameters",
-//		"%c",KL,"%r",PsiL,"%cf",{"%#18.12g"},cur.X);
+//		"%c",KL,"%r",PsiL,"%cf",{"%#18.12g"},mcur.X);
     if (isfile(fn)) fprintln(fn,b);
     if (toscreen) println(b);
     }
@@ -1226,22 +1226,22 @@ Mixture::IncludedDK(mDK) {
 Mixture::WEncode(inW) {
 	decl d,l,k;
 	if (!isint(inW))
-		cur.W[][] = (columns(inW)==1)
+		mcur.W[][] = (columns(inW)==1)
 					? reshape(inW,D,K)
 					: inW;
-	for (d=0,dkfree[] = 0.0,cur.WF=<>,FinL=<>;d<D;++d) {
-		Lambda[d].start = cur.W[d][];
+	for (d=0,dkfree[] = 0.0,mcur.WF=<>,FinL=<>;d<D;++d) {
+		Lambda[d].start = mcur.W[d][];
 		l = Lambda[d]->Encode();
 		for(k=0;k<K;++k)
 			if (!isnan(l[k])) {
-				cur.WF|= l[k];
+				mcur.WF|= l[k];
 				FinL |= d~k;
 				++dkfree[d];
 				}
 		}
 	lfree = int(sumc(dkfree));
 	nfree = lfree + Separable::nfree;
-	WStart = cur.W;	
+	WStart = mcur.W;	
     println("dk ",dkfree," lfree ",lfree," nfree ",nfree," S::nfree ",Separable::nfree);
 	}
 
@@ -1268,12 +1268,12 @@ Mixture::WDecode(WF) {
 	decl k,
 		d = Dvar.v,
 		i = d ? sumc(kfree[:d-1]) : 0;	
-	if (!isint(WF)) cur.WF = WF;
+	if (!isint(WF)) mcur.WF = WF;
 	for (k=0;  k<K; ++k) {
 		if (i>=sizeof(FinL) || (FinL[i][] != d~k) )
-			cur.W[d][k] = Lambda[d].Psi[k]-> Decode(0);
+			mcur.W[d][k] = Lambda[d].Psi[k]-> Decode(0);
 		else
-			cur.W[d][k] = Lambda[d].Psi[k]-> Decode(cur.WF[i++]);
+			mcur.W[d][k] = Lambda[d].Psi[k]-> Decode(mcur.WF[i++]);
 		}
 	}
 	
@@ -1286,9 +1286,9 @@ Mixture::Deconstruct(eval) {
 			WDecode(0);
 			Separable::Included = Included[d][];
 			Separable::Deconstruct(eval);
-			if (eval) cur.V[d] = cur.sp.v;
+			if (eval) mcur.V[d] = mcur.sp.v;
 			}
-	if (eval)  cur->aggregate();
+	if (eval)  mcur->aggregate();
 	}
 
 	
@@ -1297,8 +1297,8 @@ Mixture::Deconstruct(eval) {
 **/
 Mixture::Decode(F)	{
 	if (!isint(F)) {
-		cur.WF = lfree ? F[:lfree-1] : <>;
-		cur.sp.F = F[lfree:];
+		mcur.WF = lfree ? F[:lfree-1] : <>;
+		mcur.sp.F = F[lfree:];
 		}
 	return Deconstruct(FALSE);
 	}
@@ -1308,42 +1308,42 @@ Mixture::Decode(F)	{
 **/
 Mixture::vobj(F)	{
 	if (!isint(F)) {
-		cur.WF = lfree ? F[:lfree-1] : <>;
-		cur.sp.F = F[lfree:];
+		mcur.WF = lfree ? F[:lfree-1] : <>;
+		mcur.sp.F = F[lfree:];
 		}
 	Deconstruct(TRUE);
-    return cur.V;
+    return mcur.V;
 	}
 
 /** Decode the input, compute the objective, check the maximum.
 @param F vector of free parameters.
-@return cur.v, <var>f(&psi;)</var>
+@return mcur.v, <var>f(&psi;)</var>
 **/
 Mixture::fobj(F,extcall)	{
 	vobj(F);
-	cur->aggregate();
+	mcur->aggregate();
 	this->CheckMax();
-    return cur.v;
+    return mcur.v;
 	}
 	
 /** Compute the Jg(), vector version of the objective's Jacobian at the current vector.
 @return <var>Jg(&psi;)</var>
 **/
 Mixture::Jacobian() {
-	decl d,h= dFiniteDiff1(cur.WF), JJ,
+	decl d,h= dFiniteDiff1(mcur.WF), JJ,
 		GradMat= zeros(D*NvfuncTerms,2*lfree);
-	hold -> Copy(cur);
-	Wfunclist( (cur.WF +diag(h))~(cur.WF-diag(h)),&GradMat );
-	cur -> Copy(hold);
+	hold -> Copy(mcur);
+	Wfunclist( (mcur.WF +diag(h))~(mcur.WF-diag(h)),&GradMat );
+	mcur -> Copy(hold);
 	Decode(0);
-	cur.J = (GradMat[][:lfree-1] - GradMat[][lfree:])./(2*h);
+	mcur.J = (GradMat[][:lfree-1] - GradMat[][lfree:])./(2*h);
 	for (d=0,JJ = <>;d<D;++d) {
 		Dvar.v = d;
 		Separable::Jacobian();
-		JJ |= cur.sp.J;
+		JJ |= mcur.sp.J;
 		}
-	cur.J ~= JJ;
-	cur -> Copy(hold);
+	mcur.J ~= JJ;
+	mcur -> Copy(hold);
 	Decode(0);
 	}
 

@@ -29,22 +29,21 @@ ObjClient::MultiParam(Fmat,aFvec,af) {
     if (Volume>QUIET) println(" Time Executing ToDoList ",timespan(extime));
     decl j;
     for (j=0; j<columns(aFvec[0]); ++j) {
-		obj.cur.V = aFvec[0][][j];
-		obj.cur -> aggregate();
-		af[0][j] = obj.cur.v;
+		obj.vcur->Vstore(aFvec[0][][j]);
+		af[0][j] = obj.vcur -> aggregate();
 		}
     }
 
+/** Distribute subproblems of an objective across servers.
+**/
 ObjClient::SubProblems(F) {
-    if (Volume>QUIET) println(" Debuging in SubProblems ",NSubProblems);
     if (NSubProblems>Zero) {
         decl subV=zeros(MaxSubReturn,NSubProblems);
         ToDoList(NSubProblems,F,&subV,MaxSubReturn,OneVector);
-        obj.cur.V[] = obj->AggSubProbMat(subV);
+        return obj.vcur->Vstore(obj->AggSubProbMat(subV));
         }
     else
-    	obj.cur.V[] =  obj->vfunc();
-    if (Volume>QUIET) println(" ending SubProblems ");
+    	return obj.vcur->Vstore(obj->vfunc());
     }
 
 
@@ -82,7 +81,7 @@ ObjServer::Execute() {
         Buffer = obj->vfunc(Tag-BaseTag[OneVector]);
         }
     else {
-	   Buffer = obj.cur.V[] = obj->vfunc();
+	   Buffer = obj.vcur->Vstore(obj->vfunc());
        }
 	return Nstruct;
 	}

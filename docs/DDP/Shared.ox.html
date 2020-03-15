@@ -254,7 +254,7 @@ the normal distribution.</td>
 </table>
 
 <a name="CPoint"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CPoint : <a href="Shared.ox.html#Point">Point</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CPoint : <a href="Shared.ox.html#Point">Point</a> : <a href="Shared.ox.html#LinePoint">LinePoint</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
 
 Store a point for a constrained objective.
 
@@ -282,11 +282,13 @@ Store a point for a constrained objective.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___aggregate">aggregate</a>, <a href="Shared.ox.html#Point___Point">Point</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___aggregate">aggregate</a>, <a href="Shared.ox.html#Point___Point">Point</a>, <a href="Shared.ox.html#Point___Vstore">Vstore</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___GetV">GetV</a>, <a href="Shared.ox.html#LinePoint___LinePoint">LinePoint</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___AggType">AggType</a>, <a href="Shared.ox.html#Point___F">F</a>, <a href="Shared.ox.html#Point___G">G</a>, <a href="Shared.ox.html#Point___H">H</a>, <a href="Shared.ox.html#Point___J">J</a>, <a href="Shared.ox.html#Point___SE">SE</a>, <a href="Shared.ox.html#Point___V">V</a>, <a href="Shared.ox.html#Point___v">v</a>, <a href="Shared.ox.html#Point___X">X</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___AggType">AggType</a>, <a href="Shared.ox.html#Point___F">F</a>, <a href="Shared.ox.html#Point___G">G</a>, <a href="Shared.ox.html#Point___H">H</a>, <a href="Shared.ox.html#Point___J">J</a>, <a href="Shared.ox.html#Point___SE">SE</a>, <a href="Shared.ox.html#Point___X">X</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___step">step</a>, <a href="Shared.ox.html#LinePoint___V">V</a>, <a href="Shared.ox.html#LinePoint___v">v</a></dd>
 </dl>
 
 <a name="Discrete"></a>
@@ -730,8 +732,46 @@ A container for inequality constraints.
 
 Container for different integration techniques.
 
+<a name="LinePoint"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">LinePoint : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
+
+Holds one line maximization try.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#LinePoint___step">step</a></td>
+<td class="modifiers"></td>
+<td class="description">step length.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#LinePoint___V">V</a></td>
+<td class="modifiers"></td>
+<td class="description">v value .</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#LinePoint___v">v</a></td>
+<td class="modifiers"></td>
+<td class="description">obj value.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#LinePoint___Copy">Copy</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#LinePoint___GetV">GetV</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#LinePoint___LinePoint">LinePoint</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
 <a name="MixPoint"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MixPoint : <a href="Shared.ox.html#Point">Point</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MixPoint : <a href="Shared.ox.html#Point">Point</a> : <a href="Shared.ox.html#LinePoint">LinePoint</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
 
 Store a point for a mixture objective.
 
@@ -769,11 +809,13 @@ Store a point for a mixture objective.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___Point">Point</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___Point">Point</a>, <a href="Shared.ox.html#Point___Vstore">Vstore</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___GetV">GetV</a>, <a href="Shared.ox.html#LinePoint___LinePoint">LinePoint</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___AggType">AggType</a>, <a href="Shared.ox.html#Point___F">F</a>, <a href="Shared.ox.html#Point___G">G</a>, <a href="Shared.ox.html#Point___H">H</a>, <a href="Shared.ox.html#Point___J">J</a>, <a href="Shared.ox.html#Point___SE">SE</a>, <a href="Shared.ox.html#Point___V">V</a>, <a href="Shared.ox.html#Point___v">v</a>, <a href="Shared.ox.html#Point___X">X</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___AggType">AggType</a>, <a href="Shared.ox.html#Point___F">F</a>, <a href="Shared.ox.html#Point___G">G</a>, <a href="Shared.ox.html#Point___H">H</a>, <a href="Shared.ox.html#Point___J">J</a>, <a href="Shared.ox.html#Point___SE">SE</a>, <a href="Shared.ox.html#Point___X">X</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___step">step</a>, <a href="Shared.ox.html#LinePoint___V">V</a>, <a href="Shared.ox.html#LinePoint___v">v</a></dd>
 </dl>
 
 <a name="Parameter"></a>
@@ -870,7 +912,7 @@ The base class for parameters of an Objective to maximize or solve.
 </dl>
 
 <a name="Point"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Point : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Point : <a href="Shared.ox.html#LinePoint">LinePoint</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
 
 Store information about a multidimensional point.
 An objective or system of equations contains the current point in <code>cur</code>.
@@ -909,16 +951,6 @@ Algorithms use a point to store temporary values.
 <td class="description">sqrt(diag(H<sup>-1</sup>f)).</td>
 </tr>
 <tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#Point___V">V</a></td>
-<td class="modifiers"></td>
-<td class="description">object vector.</td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#Point___v">v</a></td>
-<td class="modifiers"></td>
-<td class="description">objective scalar.</td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#Point___X">X</a></td>
 <td class="modifiers"></td>
 <td class="description">Parameter vector.</td>
@@ -933,7 +965,20 @@ Algorithms use a point to store temporary values.
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Point___Vstore">Vstore</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
+</tr>
 </table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___GetV">GetV</a>, <a href="Shared.ox.html#LinePoint___LinePoint">LinePoint</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___step">step</a>, <a href="Shared.ox.html#LinePoint___V">V</a>, <a href="Shared.ox.html#LinePoint___v">v</a></dd>
+</dl>
 
 <a name="Quantity"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Quantity</span></h2>
@@ -979,7 +1024,7 @@ Container for discrete variables (DDP) and continuous parameters (FiveO).
 </table>
 
 <a name="SepPoint"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SepPoint : <a href="Shared.ox.html#Point">Point</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SepPoint : <a href="Shared.ox.html#Point">Point</a> : <a href="Shared.ox.html#LinePoint">LinePoint</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
 
 Store a point for a separable objective.
 
@@ -1007,15 +1052,17 @@ Store a point for a separable objective.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___Point">Point</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___Point">Point</a>, <a href="Shared.ox.html#Point___Vstore">Vstore</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___GetV">GetV</a>, <a href="Shared.ox.html#LinePoint___LinePoint">LinePoint</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___AggType">AggType</a>, <a href="Shared.ox.html#Point___F">F</a>, <a href="Shared.ox.html#Point___G">G</a>, <a href="Shared.ox.html#Point___H">H</a>, <a href="Shared.ox.html#Point___J">J</a>, <a href="Shared.ox.html#Point___SE">SE</a>, <a href="Shared.ox.html#Point___V">V</a>, <a href="Shared.ox.html#Point___v">v</a>, <a href="Shared.ox.html#Point___X">X</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___AggType">AggType</a>, <a href="Shared.ox.html#Point___F">F</a>, <a href="Shared.ox.html#Point___G">G</a>, <a href="Shared.ox.html#Point___H">H</a>, <a href="Shared.ox.html#Point___J">J</a>, <a href="Shared.ox.html#Point___SE">SE</a>, <a href="Shared.ox.html#Point___X">X</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___step">step</a>, <a href="Shared.ox.html#LinePoint___V">V</a>, <a href="Shared.ox.html#LinePoint___v">v</a></dd>
 </dl>
 
 <a name="SysPoint"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SysPoint : <a href="Shared.ox.html#Point">Point</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SysPoint : <a href="Shared.ox.html#Point">Point</a> : <a href="Shared.ox.html#LinePoint">LinePoint</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
 
 
 <table class="method_table">
@@ -1027,11 +1074,13 @@ Store a point for a separable objective.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___aggregate">aggregate</a>, <a href="Shared.ox.html#Point___Point">Point</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___aggregate">aggregate</a>, <a href="Shared.ox.html#Point___Point">Point</a>, <a href="Shared.ox.html#Point___Vstore">Vstore</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___GetV">GetV</a>, <a href="Shared.ox.html#LinePoint___LinePoint">LinePoint</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___AggType">AggType</a>, <a href="Shared.ox.html#Point___F">F</a>, <a href="Shared.ox.html#Point___G">G</a>, <a href="Shared.ox.html#Point___H">H</a>, <a href="Shared.ox.html#Point___J">J</a>, <a href="Shared.ox.html#Point___SE">SE</a>, <a href="Shared.ox.html#Point___V">V</a>, <a href="Shared.ox.html#Point___v">v</a>, <a href="Shared.ox.html#Point___X">X</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___AggType">AggType</a>, <a href="Shared.ox.html#Point___F">F</a>, <a href="Shared.ox.html#Point___G">G</a>, <a href="Shared.ox.html#Point___H">H</a>, <a href="Shared.ox.html#Point___J">J</a>, <a href="Shared.ox.html#Point___SE">SE</a>, <a href="Shared.ox.html#Point___X">X</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___step">step</a>, <a href="Shared.ox.html#LinePoint___V">V</a>, <a href="Shared.ox.html#LinePoint___v">v</a></dd>
 </dl>
 
 <a name="Version"></a>
@@ -2592,6 +2641,63 @@ corresponding weights  &omega;<sub>m</sub>
 <dl><dd>
 
 </dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">LinePoint</span></h2>
+
+<a name="LinePoint___Copy"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Copy</span></h3>
+
+<span class="declaration">virtual LinePoint :: Copy ( h )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="LinePoint___GetV"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">GetV</span></h3>
+
+<span class="declaration">virtual LinePoint :: GetV ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="LinePoint___LinePoint"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">LinePoint</span></h3>
+
+<span class="declaration">LinePoint :: LinePoint ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="LinePoint___step"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">step</span></h3>
+
+<span class="declaration">decl step [public]</span>
+<dl><dd>
+step length.
+
+</dd></dl>
+
+<hr>
+<a name="LinePoint___V"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">V</span></h3>
+
+<span class="declaration">decl V [public]</span>
+<dl><dd>
+v value .
+
+</dd></dl>
+
+<hr>
+<a name="LinePoint___v"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">v</span></h3>
+
+<span class="declaration">decl v [public]</span>
+<dl><dd>
+obj value.
+
+</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MixPoint</span></h2>
 
 <a name="MixPoint___aggregate"></a>
@@ -2958,22 +3064,11 @@ sqrt(diag(H<sup>-1</sup>f)).
 </dd></dl>
 
 <hr>
-<a name="Point___V"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">V</span></h3>
+<a name="Point___Vstore"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vstore</span></h3>
 
-<span class="declaration">decl V [public]</span>
+<span class="declaration">virtual Point :: Vstore ( inV )</span>
 <dl><dd>
-object vector.
-
-</dd></dl>
-
-<hr>
-<a name="Point___v"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">v</span></h3>
-
-<span class="declaration">decl v [public]</span>
-<dl><dd>
-objective scalar.
 
 </dd></dl>
 

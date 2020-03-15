@@ -12,7 +12,7 @@ Algorithm::Algorithm(O) {
 	nfuncmax = maxiter = INT_MAX;
 	N = 0;
     this.O = O;
-	OC = O.cur;
+	OC = O.vcur;
     tolerance = itoler;
 	Volume = SILENT;
     StorePath = FALSE;
@@ -84,7 +84,7 @@ Algorithm::ItEnd() {
 	    if (Volume>SILENT) O->Print(" Iteration Done ",logf,Volume>QUIET);
         if (inparallel) {
          O.p2p.client->Stop();
-         O.p2p.client->Announce(O.cur.X);
+         O.p2p.client->Announce(O.vcur.X);
          O.p2p.client->Barrier();
          }
         }
@@ -128,12 +128,6 @@ RandomSearch::RandomSearch(O) {
     cooling = 1.0;
     }
 	
-LinePoint::Copy(h) {
-    step = h.step;
-    v = h.v;
-    V = h.V;
-    }
-LinePoint::LinePoint() {    step = v = V = .NaN;    }
 /** Initialize Simulated Annealing.
 @param O `Objective` to work on.
 
@@ -263,7 +257,7 @@ OneDimRoot::OneDimRoot(O) {
 @param istep initial step, can be positive or negative [default=1.0]
 @param maxiter &gt; 0 max. number iterations &gt; 0 [default=50]
 @param toler &gt; 0 tolerance<br/>0 [default=SSQ_TOLER]
-This uses the fact that cur.v contains the norm of the equation, not the negative,
+This uses the fact that vcur.v contains the norm of the equation, not the negative,
 
 **/
 OneDimRoot::Iterate(istep,maxiter,toler) {
@@ -283,7 +277,6 @@ OneDimRoot::Iterate(istep,maxiter,toler) {
         fprintln(logf,istr);
         if (Volume>QUIET) println(istr);
         }
-    println("*** ",a.v," ",tolerance);
     if (a.v<tolerance) {
         if (Volume>SILENT) {
             istr = sprint("Initial Value a Solution. Finished");
@@ -301,7 +294,7 @@ OneDimRoot::Iterate(istep,maxiter,toler) {
        closest = min(a.v,b.v,q.v);
       } while( ++iter < maxiter && closest>tolerance);
 
-    /* Pick the point closest to 0 and put back in O.cur.*/
+    /* Pick the point closest to 0 and put back in O.vcur.*/
     if (a.v==closest)q->Copy(a); else if (b.v==closest) q->Copy(b);
     if (Volume>SILENT) {
         istr = sprint("Root Finder: ",q.step," : ",double(q.V));
@@ -366,7 +359,9 @@ LineMethod::Iterate(Delta,maxiter,maxstp)	{
 	
     b = p3;
     if (Volume>SILENT) {
-        istr = sprint("Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,a,q);
+        istr = sprint("Line: maxiter ",maxiter,"%c",{"Direction"},"%r",O.Flabels,Delta,
+                "\n   Steps:",a.step," | ",q.step,
+                "  \n  Value:",a.v," | ",q.v);
         fprintln(logf,istr);
         if (Volume>QUIET) println(istr);
         }
@@ -380,7 +375,7 @@ LineMethod::Iterate(Delta,maxiter,maxstp)	{
         if (Volume> QUIET) println(istr);
         }
  	OC.v = q.v;       //copy over values from try point
-    OC.V = q.V;
+    OC -> Vstore(q->GetV());
 	}
 
 LineMethod::PTry(pt,left,right) {
@@ -417,7 +412,7 @@ LineMethod::Try(pt,step)	{
 
 SysMax::Try(pt,step) {
     LineMethod::Try(pt,step);
-    pt.V = OC.V;
+    pt.V = OC->GetV();
     }
 
 /** Create a Constrained Line Maximization object.
@@ -495,7 +490,7 @@ LineMethod::Golden()	{
             { s=x3; tmp = x1.step; x3->Copy(x2); x2->Copy(x1); x1->Copy(s); this->Try(x1,rgold*tmp+cgold*x0.step); }
 		 iter += improved;  // don't start counting until f() improves
          if (Volume>SILENT) {
-                istr = sprint("Line: ",iter,". improve: ",improved,". step diff = ",x3.step," - ",x0.step);
+                istr = sprint("Line: ",iter,". improve: ",improved,". step diff = ",x3.step," | ",x0.step);
                 fprintln(logf,istr);
                 if (Volume>QUIET) println(istr);
                 }
@@ -693,7 +688,7 @@ NelderMead::Amoeba(iplex) 	{
 GradientBased::GradientBased(O) {
     Algorithm(O);
 	gradtoler = igradtoler;
-    LMitmax = 10;
+    LMitmax = 3;
     LMmaxstep = 0;
 	}
 
@@ -977,6 +972,12 @@ BFGS::Hupdate() {
     return NONE;
     }
 
+/**  Solve a non-linear system of equations.
+@param O `System` object
+@param USELM FALSE [default] do not do a line search each iteration.<br/>TRUE
+
+
+**/
 RootFinding::RootFinding(O,USELM) {
     if (!isclass(O,"System")) oxrunerror("FiveO Error : RootFinding algorithms only work on System objects");
     this.USELM=USELM;
@@ -987,6 +988,7 @@ RootFinding::RootFinding(O,USELM) {
 /** Create a Newton-Raphson object to solve a system of equations.
 
 @param O, the `System`-derived object to solve.
+@param USELM FALSE [default] do not do a line search each iteration.<br/>TRUE
 
 @example
 <pre>
@@ -1002,6 +1004,7 @@ NewtonRaphson::NewtonRaphson(O,USELM) {    RootFinding(O,USELM);	}
 
 /** Create a new Broyden solution for a system of equations.
 @param O, the `System`-derived object to solve.
+@param USELM FALSE [default] do not do a line search each iteration.<br/>TRUE
 
 @example
 <pre>
@@ -1022,7 +1025,7 @@ If inversion of J fails, reset to I
 RootFinding::Direction() 	{
 	decl  l, u, p;
 	if (declu(OC.J,&l,&u,&p)==One) {
-		return solvelu(l,u,p,-OC.V);
+		return solvelu(l,u,p,-OC->GetV());
         }
 	else {
          ++Hresetcnt;
@@ -1038,17 +1041,16 @@ RootFinding::Direction() 	{
 		 }
 	}
 
-/** Upate gradient when using an aggregation of the system
-in a line search.
+/** Upate Jacobian when using line search aggregation of the system.
 **/
 RootFinding::Gupdate()	{
-	oldG = OC.V;
+	oldG = OC->GetV();
 	if (USELM)
          O->fobj(0,FALSE);
     else
 	     O->vobj(0);
-	dg = (OC.V - oldG);
-	deltaG = norm(OC.V,2);
+	dg = (OC->GetV() - oldG);
+	deltaG = norm(OC->GetV(),2);
 	return deltaG<gradtoler;
 	}
 
@@ -1072,7 +1074,7 @@ RootFinding::ItStartCheck(J) {
 /** Iterate to solve a non-linear system.
 @param J matrix, initial Jacobian for Broyden.<br>integer, set to identity
 
-This routine is shared (inherited) by derive algorithms.
+This routine is shared (inherited) by derived algorithms.
 
 **/
 RootFinding::Iterate(J)	{

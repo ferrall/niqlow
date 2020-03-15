@@ -306,24 +306,35 @@ struct InEquality : Equations {
 	print();
 	}
 
+/** Holds one line maximization try.
+**/
+struct LinePoint : Zauxiliary {
+	decl
+	/** step length. **/ step,
+	/** obj value. **/	 v,
+    /** v value . **/    V;
+    LinePoint();
+    virtual GetV();
+    virtual Copy(h);
+	}
+
 /** Store information about a multidimensional point.
 An objective or system of equations contains the current point in <code>cur</code>.
 Algorithms use a point to store temporary values.
 **/
-struct Point : Zauxiliary {
+struct Point : LinePoint {
 	decl
 	/**form of aggregation of vfunc() into
         func().    @see Objective::SetAggregation
         **/								AggType,
 	/** Free vector. **/				F,
 	/** Parameter vector.**/			X,
-	/** object vector. **/				V,
-	/** objective scalar. **/			v,
 	/** J&fnof;       **/           	J,
 	/** &nabla;&fnof;  **/			    G,
 	/** H&fnof;        **/			    H,
 	/** sqrt(diag(H<sup>-1</sup>f)). **/SE;
 	Point();
+    virtual Vstore(inV);
 	virtual Copy(h);
 	virtual aggregate(V=0,v=0);
 	GCopy(h);

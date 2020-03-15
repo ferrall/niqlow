@@ -15,7 +15,7 @@ struct Objective	{
 
 	const	decl 	
 	/** label.     **/            								L,
-	/** current point.**/										cur,
+	/** current point.**/										vcur,
 	/** Name for `Objective::Load` &amp; files	**/				fname,
     /** name of log file **/                                    lognm,
 	/** Best so far @see Objective::CheckMax    **/ 			maxpt,
@@ -181,7 +181,7 @@ struct NoObjective : BlackBox {
 /** Represent sum of <var>K</var> `BlackBox` objectives. **/
 struct Separable : UnConstrained	{
 	const 	decl
-														cur,
+														scur,
 	/** # unobserved types, sub-problems **/  			K,
 	/** `Discrete` sub-problem var **/					Kvar,
 	/** labels for types / sub problems**/				KL;
@@ -218,7 +218,7 @@ struct Separable : UnConstrained	{
 
 struct Mixture : Separable {
 	const 	decl
-														cur,
+														mcur,
 	/** # observed types, environment **/  				D,
 	/** D x K **/										DK,
 	/** `Discrete` environment-type var **/				Dvar,

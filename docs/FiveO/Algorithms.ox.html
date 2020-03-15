@@ -607,39 +607,6 @@ These methods are embedded into other algorithms and in some cases can be used o
 <dt>Inherited fields from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___convergence">convergence</a>, <a href="Algorithms.ox.html#Algorithm___holdF">holdF</a>, <a href="Algorithms.ox.html#Algorithm___IIterate">IIterate</a>, <a href="Algorithms.ox.html#Algorithm___inparallel">inparallel</a>, <a href="Algorithms.ox.html#Algorithm___istr">istr</a>, <a href="Algorithms.ox.html#Algorithm___iter">iter</a>, <a href="Algorithms.ox.html#Algorithm___itoler">itoler</a>, <a href="Algorithms.ox.html#Algorithm___logf">logf</a>, <a href="Algorithms.ox.html#Algorithm___lognm">lognm</a>, <a href="Algorithms.ox.html#Algorithm___logpfx">logpfx</a>, <a href="Algorithms.ox.html#Algorithm___maxiter">maxiter</a>, <a href="Algorithms.ox.html#Algorithm___N">N</a>, <a href="Algorithms.ox.html#Algorithm___NormalStart">NormalStart</a>, <a href="Algorithms.ox.html#Algorithm___O">O</a>, <a href="Algorithms.ox.html#Algorithm___path">path</a>, <a href="Algorithms.ox.html#Algorithm___StorePath">StorePath</a>, <a href="Algorithms.ox.html#Algorithm___tolerance">tolerance</a>, <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a></dd>
 </dl>
 
-<a name="LinePoint"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">LinePoint : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
-
-Holds one line maximization try.
-
-<table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Algorithms.ox.html#LinePoint___step">step</a></td>
-<td class="modifiers"></td>
-<td class="description">step length.</td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Algorithms.ox.html#LinePoint___V">V</a></td>
-<td class="modifiers"></td>
-<td class="description">v value .</td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Algorithms.ox.html#LinePoint___v">v</a></td>
-<td class="modifiers"></td>
-<td class="description">obj value.</td>
-</tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#LinePoint___Copy">Copy</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#LinePoint___LinePoint">LinePoint</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-</table>
-
 <a name="NelderMead"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NelderMead : <a href="Algorithms.ox.html#NonGradient">NonGradient</a> : <a href="Algorithms.ox.html#Algorithm">Algorithm</a></span></h2>
 
@@ -973,8 +940,7 @@ Solve system of equations using Jacobian information.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#RootFinding___Gupdate">Gupdate</a></td>
 <td class="modifiers"></td>
-<td class="description">Upate gradient when using an aggregation of the system
-in a line search.</td>
+<td class="description">Upate Jacobian when using line search aggregation of the system.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#RootFinding___Iterate">Iterate</a></td>
@@ -999,7 +965,7 @@ in a line search.</td>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#RootFinding___RootFinding">RootFinding</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Solve a non-linear system of equations.</td>
 </tr>
 </table>
 
@@ -1666,6 +1632,11 @@ Create a new Broyden solution for a system of equations.
 <tr>
 <td class="declaration" valign="baseline">O,</td>
 <td class="description" valign="baseline">the <a href="Objective.ox.html#System">System</a>-derived object to solve.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">USELM</td>
+<td class="description" valign="baseline">FALSE [default] do not do a line search each iteration.<br/>TRUE
 <P/>
 </td>
 </tr>
@@ -2277,54 +2248,6 @@ Optimize on a line optimization.
 <dl><dd>
 
 </dd></dl>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">LinePoint</span></h2>
-
-<a name="LinePoint___Copy"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Copy</span></h3>
-
-<span class="declaration">virtual LinePoint :: Copy ( h )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="LinePoint___LinePoint"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">LinePoint</span></h3>
-
-<span class="declaration">LinePoint :: LinePoint ( )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="LinePoint___step"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">step</span></h3>
-
-<span class="declaration">decl step [public]</span>
-<dl><dd>
-step length.
-
-</dd></dl>
-
-<hr>
-<a name="LinePoint___V"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">V</span></h3>
-
-<span class="declaration">decl V [public]</span>
-<dl><dd>
-v value .
-
-</dd></dl>
-
-<hr>
-<a name="LinePoint___v"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">v</span></h3>
-
-<span class="declaration">decl v [public]</span>
-<dl><dd>
-obj value.
-
-</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NelderMead</span></h2>
 
 <table class="enum_table">
@@ -2651,6 +2574,11 @@ Create a Newton-Raphson object to solve a system of equations.
 <tr>
 <td class="declaration" valign="baseline">O,</td>
 <td class="description" valign="baseline">the <a href="Objective.ox.html#System">System</a>-derived object to solve.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">USELM</td>
+<td class="description" valign="baseline">FALSE [default] do not do a line search each iteration.<br/>TRUE
 <P/>
 </td>
 </tr>
@@ -2719,7 +2647,7 @@ Find a 1-dimensional root.
 <tr>
 <td class="declaration" valign="baseline">toler</td>
 <td class="description" valign="baseline">&gt; 0 tolerance<br/>0 [default=SSQ_TOLER]
-This uses the fact that cur.v contains the norm of the equation, not the negative,</td>
+This uses the fact that vcur.v contains the norm of the equation, not the negative,</td>
 </tr>
 </table>
 </dd>
@@ -2784,8 +2712,7 @@ If inversion of J fails, reset to I
 
 <span class="declaration">RootFinding :: Gupdate ( )</span>
 <dl><dd>
-Upate gradient when using an aggregation of the system
-in a line search.
+Upate Jacobian when using line search aggregation of the system.
 
 </dd></dl>
 
@@ -2803,7 +2730,7 @@ Iterate to solve a non-linear system.
 <td class="declaration" valign="baseline">J</td>
 <td class="description" valign="baseline">matrix, initial Jacobian for Broyden.<br>integer, set to identity
 <P/>
-This routine is shared (inherited) by derive algorithms.</td>
+This routine is shared (inherited) by derived algorithms.</td>
 </tr>
 </table>
 </dd>
@@ -2874,7 +2801,22 @@ Compute the objective's Jacobian.
 
 <span class="declaration">RootFinding :: RootFinding ( O , USELM )</span>
 <dl><dd>
+Solve a non-linear system of equations.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O</td>
+<td class="description" valign="baseline"><a href="Objective.ox.html#System">System</a> object
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">USELM</td>
+<td class="description" valign="baseline">FALSE [default] do not do a line search each iteration.<br/>TRUE</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>

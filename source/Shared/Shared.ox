@@ -710,8 +710,16 @@ Equality::print() {
 Equations::penalty() {	return N ? double(sumc(lam.*v))      : 0.0 ;  }
 Equations::norm()    {  return N ? double(sumsqrc(v)) : 0.0 ;  }
 
+LinePoint::LinePoint() {    step = v = V = .NaN;    }
+LinePoint::GetV() { return V; }
+LinePoint::Copy(h) {
+    step = h.step;
+    v = h.v;
+    V = h->GetV();
+    }
+
 Point::Point() {
-	v = .NaN;
+    LinePoint();
 	X = F = V = G = H = SE = <>;
 	AggType = LINEAR;
 	}
@@ -720,6 +728,9 @@ SysPoint::SysPoint() {
     Point();
     AggType = MINUSSUMOFSQUARES;
     }
+
+Point::Vstore(inV) { return V[] = inV;   }
+
 
 /** aggregate blackbox objectives into a scalar value.
 @param inV=0, if no argument, V data member holds individual values<br>matrix of separable values to be aggregated within columns
@@ -749,7 +760,7 @@ Point::Copy(h) {
 	F = h.F;
 	v = h.v;
 	X = h.X;
-	V = h.V;
+	V = h->GetV();
 	}
 
 /** @internal **/	

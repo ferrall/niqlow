@@ -47,7 +47,7 @@ MNP::Estimate() {
 	bhhh->Iterate(0);
 	println("Default value of Y = ","%2.0f",Jvals[0]);
 	for (j=1;j<J;++j)  {
-		se = cur.SE[(j-1)*nX:j*nX-1]';
+		se = vcur.SE[(j-1)*nX:j*nX-1]';
 		println("Y = ","%2.0f",Jvals[j],"%c",{"Estimate","Std.Err","t-ratio"},"%r",namearray,
 			betas[j].v~se~(betas[j].v./se));
 		}

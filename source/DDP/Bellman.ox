@@ -493,7 +493,10 @@ Bellman::Delete() {
 	delete userState, delete SubVectors,delete  States;
 	delete NxtExog, delete Blocks, delete Labels::Vprt, delete Labels::V;
 	for(i=0;i<sizeof(SS);++i) delete SS[i];
-	delete SS, delete S, delete F, delete P, delete delta, delete counter;
+    delete SS;
+	for(i=0;i<sizeof(S);++i) delete S[i];
+	delete S;
+    delete F, delete P, delete delta, delete counter;
     delete Alpha::Matrix, delete Alpha::AList; //, A
 	SS = delta = counter = Impossible;	
 	for(i=0;i<sizeof(Theta);++i) delete Theta[i];

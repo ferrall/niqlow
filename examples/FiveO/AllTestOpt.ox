@@ -58,6 +58,7 @@ SysTest() {
 		 br = new Broyden(v);
 	v->ToggleParameterConstraint();
 	nr.Volume = br.Volume = NOISY;
+    nr.USELM = br.USELM = FALSE;
 	br ->Iterate(0);
     decl k;
     scan("Enter 0 to continue, [-1]  QUIT\n?","%i",&k);
@@ -77,14 +78,18 @@ Sys1DTest() {
 
 LMSysTest() {
 	println("\n\n  System of Equation with Line Minimization ");
-	decl v = new SystemTest (1),
+	decl v = new SystemTest (10),
 		 br = new Broyden(v);
-	v->ToggleParameterConstraint();
+	//v->ToggleParameterConstraint();
     br.USELM = TRUE;
-	br.LM.Volume = QUIET;
-    br.Volume = NOISY;
-    br->Tune(5);
+	br.LM.Volume = LOUD;
+    br.Volume = LOUD;
+    br->Tune(15);
 	br ->Iterate();
+    decl k;
+    scan("Enter 0 to continue, [-1]  QUIT\n?","%i",&k);
+    br.USELM = FALSE;
+    br ->Iterate();
 	delete v,br;
 	}	
 	
@@ -135,7 +140,6 @@ SeparableRosenbrock ::SeparableRosenbrock (K)	{
 
 SeparableRosenbrock ::vfunc()	{
 	 return -( sqr(1-x.v)+sqr(1-y.v) );
-//	 return -( sqr(1-x.v)+100*sqr(y.v - sqr(x.v)) );
 	}
 
 InEqTest() {
@@ -157,7 +161,7 @@ OnCircle::OnCircle() {
 	Parameters(x,y);  //,z
 	Volume= LOUD;
 	Encode();
-    println("in OnCircle ",isclass(cur));
+    println("in OnCircle ",isclass(vcur));
 	}
 	
 //OnCircle::vfunc() {return -(sqr(AV(x)) + sqr(AV(y)));	}	
@@ -221,6 +225,6 @@ MixTest() {
 	O->Encode();
 	d.Volume = O.Volume = NOISY;
   	O->vobj(0);
-	println("*** ",O.cur.v);
+	println("*** ",O.mcur.v);
 	d->Iterate(0);
 	}
