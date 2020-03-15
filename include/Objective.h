@@ -12,13 +12,14 @@ struct Objective	{
 	/**Extension for `Objective::Load` and
 		`Objective::Save` files, =<q>optobj</q>.	**/			EXT	= "optobj",
 		    													dStepLinearGap = 1e-10;
+
 	const	decl 	
 	/** label.     **/            								L,
+	/** current point.**/										cur,
 	/** Name for `Objective::Load` &amp; files	**/				fname,
     /** name of log file **/                                    lognm,
 	/** Best so far @see Objective::CheckMax    **/ 			maxpt,
-																hold,
-	/** current point.**/										cur;
+																hold;
 
 	static decl
     /** Version of niqlow that code is written for.
@@ -116,6 +117,7 @@ struct System : Objective {
 **/
 struct OneDimSystem : System {
 	OneDimSystem(L);
+    CheckMax(fn=0);
 	}
 
 /** Represents a blacbox objective.

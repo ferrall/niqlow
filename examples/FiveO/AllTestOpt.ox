@@ -193,11 +193,11 @@ SPobj::vfunc() {
 
 SimpTest() {
 	println("\n\n  Simplex of Parameters ");
-	decl v = new SPobj(),
-	bfgs = new BFGS(v);
-	v.Volume = bfgs.Volume = LOUD;
+	decl xv = new SPobj(),
+	bfgs = new BFGS(xv);
+	xv.Volume = bfgs.Volume = LOUD;
 	bfgs->Iterate(0);
-	delete v,bfgs;
+	delete xv,bfgs;
 	}
 	
 MX::MX() {

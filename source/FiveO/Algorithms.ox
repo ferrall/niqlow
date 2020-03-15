@@ -250,35 +250,61 @@ SysMax::SysMax(O) {
     LineMethod(O);
     }
 
+/** Object to iterate to find the root a non-linear equation (`OneDimSystem`).
+**/
 OneDimRoot::OneDimRoot(O) {
     if (!isclass(O,"OneDimSystem")) oxrunerror("FiveO Error 02. Objective must be OneDimSystem");
     SysMax(O);
     Delta = 1.0;
+    tolerance = itoler;
     }
 
 /** Find a 1-dimensional root.
 @param istep initial step, can be positive or negative [default=1.0]
 @param maxiter &gt; 0 max. number iterations &gt; 0 [default=50]
+@param toler &gt; 0 tolerance<br/>0 [default=SSQ_TOLER]
+This uses the fact that cur.v contains the norm of the equation, not the negative,
+
 **/
-OneDimRoot::Iterate(istep,maxiter) {
+OneDimRoot::Iterate(istep,maxiter,toler) {
+    decl closest;
     Algorithm::ItStartCheck(FALSE);
 	if (maxiter==0) maxiter = defmxiter;
     if ( fabs(istep)<istepmin ) istep = istep<0.0 ? -istepmin : istepmin;
+    if (toler>0) tolerance = toler;
 	holdF = OC.F;
 	improved = FALSE;
     this->Try(p1,0.0);
     this->Try(p2,istep);
     a = p1;
     b = p2;
+    if (Volume>SILENT) {
+        istr = sprint("Root Finder Starting: \n   Steps:",a.step," | ",b.step,"  \n  Value:",double(a.V)," | ",double(b.V));
+        fprintln(logf,istr);
+        if (Volume>QUIET) println(istr);
+        }
+    println("*** ",a.v," ",tolerance);
+    if (a.v<tolerance) {
+        if (Volume>SILENT) {
+            istr = sprint("Initial Value a Solution. Finished");
+            fprintln(logf,istr);
+            if (Volume>QUIET) println(istr);
+            }
+        return ;
+        }
 	if ( a.V*b.V > 0 ) if (!this->Bracket()) oxrunerror("1D System Bracket Failed");
     iter = 0;
     q = p3;
     do {    //bisecting
        this->Try(q,a.step+0.5*(b.step-a.step));
        if ( a.V*q.V > 0.0 ) a ->Copy(q);  else b ->Copy(q);
-      } while( ++iter < maxiter);
+       closest = min(a.v,b.v,q.v);
+      } while( ++iter < maxiter && closest>tolerance);
+
+    /* Pick the point closest to 0 and put back in O.cur.*/
+    if (a.v==closest)q->Copy(a); else if (b.v==closest) q->Copy(b);
     if (Volume>SILENT) {
-        istr = sprint("Root Finder: \n   Steps:",a.step," | ",q.step," | ",b.step,"  \n  Value:",a.v," | ",q.v," | ",b.v);
+        istr = sprint("Root Finder: ",q.step," : ",double(q.V));
         fprintln(logf,istr);
         if (Volume>QUIET) println(istr);
         }
@@ -297,10 +323,15 @@ OneDimRoot::Bracket()	{
         Try(a, a.step + adelt*max(fabs(a.step),0.1));
         Try(b, b.step + bdelt*max(fabs(b.step),0.1));
         notdone = a.V * b.V > 0.0;
+        if (Volume>QUIET) {
+            istr = sprint("        Bracket: ",iter,"\n  Steps:",a.step," | ",b.step,
+                                    "\n System:",double(a.V)," | ",double(b.V));
+            println(istr);
+            }
         } while ( notdone && (iter<20) );
     if (Volume>SILENT) {
-        istr = sprint("Root Finder Bracket: \n  Steps:",a.step," - ",b.step,
-                                    "\n System:",double(a.V)," - ",double(b.V));
+        istr = sprint("       Bracket Found: \n  Steps:",a.step," | ",b.step,
+                                    "\n System:",double(a.V)," | ",double(b.V));
         fprintln(logf,istr);
         if (Volume>QUIET) println(istr);
         }

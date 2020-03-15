@@ -160,8 +160,11 @@ x<sup>J</sup> = `Determined`(1-&sum;x<sup>j</sup>)
 @see TransitionMatrix
 **/
 struct Simplex : ParameterBlock		{
-	/** cumulative value for upper bounds. @internal **/ decl cumprob;
+    static decl
+	/** cumulative value for upper bounds. @internal **/ cumprob;
+    decl fval;
 	Simplex(L,ivals);
+    static Last();
 	virtual BlockCode();
 	}
 

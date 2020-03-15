@@ -306,7 +306,8 @@ Discrete::SetActual(MaxV) {
 **/
 Parameter::Parameter(L,ival)	{
 	this.L = L;
-	v = start = scale = this.ival = ival;
+	this.ival = ival;
+    v = start = scale = CV(ival);
 	f = 1.0;
 	block = DoNotVary = FALSE;
 	Volume = SILENT;
@@ -316,13 +317,13 @@ Parameter::Parameter(L,ival)	{
 /** Reset the parameter to its hard-coded values.
 <DD>This does this:
 <pre>
-	v = start = scale = ival;
+	v = start = scale = CV(ival);
 	f = 1.0;
     Encode();
 </pre>
 **/
 Parameter::ReInitialize() {
-	v = start = scale = ival;
+	v = start = scale = CV(ival);
 	f = 1.0;
     return Encode();
     }
@@ -734,9 +735,12 @@ Point::aggregate(inV,outv) {
 		case LOGLINEAR : locv = sumc(log(isint(inV)?V:inV));
 		case MULTIPLICATIVE : locv = prodc(isint(inV)?V:inV);
 		case MINUSSUMOFSQUARES : locv = -sumsqrc(isint(inV)?V:inV);
+		case SUMOFSQUARES : locv = sumsqrc(isint(inV)?V:inV);
 		}
-    if (isint(outv)) v = double(locv);
-    else outv[0] = locv;
+    if (isint(outv))
+        return v = double(locv);
+    else
+        return outv[0] = locv;
 	}
 
 /** @internal **/
@@ -797,6 +801,7 @@ SepPoint::aggregate(inV,outv) {
 		  case MINUSSUMOFSQUARES: outv[0] = -sumsqrc(outv[0]);
 		  }		
         }
+    return (isint(outv)) ? v : outv[0];
 	}
 
 SepPoint::SepPoint(Kvar,bb) {

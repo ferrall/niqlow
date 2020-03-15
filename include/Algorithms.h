@@ -8,7 +8,7 @@
 **/
 struct Algorithm {
     static 	const 	decl
-	/** Default top level convergence tolerance. **/ 		itoler = 1E-5;
+	/** Default top level convergence tolerance. **/ 		itoler = DIFF_EPS1;
 	 		const 	decl
      /** prefix on log before timestamp added. **/          logpfx,
      /** name of log file **/                               lognm,
@@ -154,7 +154,7 @@ struct NelderMead  : NonGradient {
 	enum{hi,nxtlo,lo,worst,TryResults};
 
 	static 	const 	decl
-	/** default Plexsize tolerance. **/ itoler = 1E-9,
+	/** default Plexsize tolerance. **/ itoler = SQRT_EPS,
     /** &alpha;.  **/					alpha = 1.0,
     /** &beta;.  **/					beta = 0.5,
     /** &gamma;. **/					gamma = 1.4,
@@ -249,7 +249,7 @@ Algorithms of this class use the gradient, $\nabla f(\psi)$.
 struct GradientBased : Algorithm {
 	static	const	decl
                         	cmsg ={"NONE","MAXITERATIONS","FAIL","WEAK","SECOND HESSIAN RESET","STRONG"},
-	                       	igradtoler     = 1E-4;
+	                       	igradtoler     = DIFF_EPS2;
 			const	decl	LM;
 		  			decl
 	   /** . @internal **/										oldG,
@@ -381,10 +381,11 @@ struct NewtonRaphson : RootFinding {
 /** Solve for the root of a `OneDimSystem` system using Bracket-Bisect. **/
 struct OneDimRoot : SysMax {
     static const decl
-    /** minimum initial step size.**/ istepmin = 1E-3,
+    /** minimum initial step size.**/ istepmin = DIFF_EPS3,
+                                      itoler    = SSQ_TOLER,
                                       defmxiter = 50;
     OneDimRoot(O);
-    Iterate(istep=1.0,maxiter=50);
+    Iterate(istep=1.0,maxiter=50,toler=0);
     Bracket();
     }
 

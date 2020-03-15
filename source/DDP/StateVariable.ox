@@ -1093,7 +1093,7 @@ Renewal::Renewal(L,N,reset,Pi)	{
 /** . **/
 Renewal::Transit()	{
 	decl pstar = min(P,N-v)-1,
-		 pi = reshape(AV(Pi),1,P),
+		 pi = reshape(AV(Pi) ,1,P),
 		 ovlap = v < P ? zeros(1,v) : 0,
    		 qstar = pstar ? pi[:pstar-1]~sumr(pi[pstar:]) : <1.0>;
 	decl  rr =CV(reset),

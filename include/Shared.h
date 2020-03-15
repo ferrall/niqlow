@@ -60,7 +60,7 @@ enum{EQUALITY,INEQUALITY,ConstraintTypes}
 
 		/** Tags for Types of vector-valued objective Aggregation.
             @name AggregatorTypes **/	
-enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,Aggregators}
+enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,SUMOFSQUARES,Aggregators}
 
         /** Codes for `Bellman::Type` Code.  These codes (and their order)
             determine what calculations to do at the endogenous state $\theta$.
@@ -79,10 +79,12 @@ enum{ORDINARY,INSUBSAMPLE,LASTT,TERMINAL=4,StateTypeCutoffs}
 static const decl
         curdir = ".",
 		mymomlabels = {"sample size","mean","st.dev.","min","max"},
+		/** Euclidean norm tolerance  **/         SSQ_TOLER =	1E-12,
 		/** square-root of machine &epsilon; **/ SQRT_EPS 	=	1E-8,
 		/** tolerance level 0. **/                DIFF_EPS 	=	1E-8,
 		/** tolerance level 1.**/                 DIFF_EPS1	=	5E-6,
-		/** tolerance level 2.**/                 DIFF_EPS2	=	1E-4;
+		/** tolerance level 2.**/                 DIFF_EPS2	=	1E-4,
+		/** tolerance level 3.**/                 DIFF_EPS3	=	1E-2;
 
 /** Used in CV() and AV(). static to reduce overhead. @internal **/
 static decl _arg, _noarg, _x, _v, IAmMac;

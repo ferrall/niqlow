@@ -164,14 +164,14 @@ BoundedAbove::Menu(fp) {
 
 /** Create a parameter bounded above and below.
 @param L parameter label
-@param LB double or `Parameter`, the lower bound
-@param UB double or `Parameter`, the upper bound
+@param LB static function, double or `Parameter`, the lower bound
+@param UB static function, double or `Parameter`, the upper bound
 @param v0 `CV` compatible default value, v<sub>0</sub>
 **/
 Bounded::Bounded(L,LB,UB,v0)	{
 	Limited(L,v0);
- 	this.UB = isclass(UB,"Parameter") ? UB : double(UB);
-	this.LB = isclass(LB,"Parameter") ? LB : double(LB);
+ 	this.UB = (isclass(UB,"Parameter")||isfunction(UB)) ? UB : double(UB);
+	this.LB = (isclass(LB,"Parameter")||isfunction(LB)) ? LB : double(LB);
 	}
 
 /** . @internal **/
@@ -261,7 +261,7 @@ ParameterBlock::BlockCode()	{	if (++curpar==N) curpar = 0; 	}
 ParameterBlock::Encode() {
 	decl f,p;
     f = <>;
-    foreach (p in Psi) f|=p->Encode();
+    foreach (p in Psi) {f|=p->Encode(); println(f); }
 	return f;
 	}
 
@@ -300,6 +300,20 @@ FixedBlock::Encode() { return constant(.NaN,N,1); }
 	
 //Duplicate::Duplicate(base,invals) {    }
 
+Simplex::Last() {     return cumprob;    }
+
+/**	 .
+@internal
+**/
+Simplex::BlockCode()	{
+	if (!curpar)
+        cumprob = 1.0;  //first value, reset cumprob
+	else {
+        cumprob -= v[curpar-1];  //decrement previous.  Last() returns
+        }
+	ParameterBlock::BlockCode();
+	}
+
 /**Create a simplex of parameters.
 <DD><pre>
 0&lt; x<sub>i</sub> &lt; 1
@@ -317,15 +331,14 @@ Simplex::Simplex(L,ivals)	{
 	else
 		{ivals = vec(ivals); myN = rows(ivals); }
 	if (any(ivals.>1)||any(ivals.<0)|| !isfeq(sumc(ivals),1.0) )
-        {println("**** ",ivals',"\n****");
-		oxrunerror("FiveO Error 22. Simplex "+L+" initial values not a simplex");}
-	cumprob = new Determined(L+"End",1.0);
+        {println("**** ",ivals',"****\n");oxrunerror("FiveO Error 22. Simplex "+L+" initial values not a simplex");}
+	cumprob = 1.0;
 	for(k=0;k<myN-1;++k) {
-		AddToBlock(new Bounded(L+"_"+sprint(k),0.0,cumprob,ivals[k]));
-		cumprob.v -= ivals[k];
+		AddToBlock(new Bounded(L+"_"+sprint(k),0.0,Last,ivals[k]));
+		cumprob -= ivals[k];
 		}
-	cumprob.v = ivals[myN-1];
-	AddToBlock(cumprob);
+    fval = new Determined(L+"End",Last);
+	AddToBlock(fval);
 	}
 
 /** Create an array of `Simplex` blocks that act as a transition matrix.
@@ -355,15 +368,6 @@ TransitionMatrix(L,imat) {
     for (i=0;i<M;++i) M[i] = new Simplex(L+sprint(i),imat[][i]);
     return M;
     }
-
-/**	 .
-@internal
-**/
-Simplex::BlockCode()	{
-	if (curpar) cumprob.v -= v[curpar-1];
-	else cumprob.v = 1.0;
-	ParameterBlock::BlockCode();
-	}
 
 /**Create a vector of decreasing returns to scale Cobb-Douglas coefficients.
 <dd><pre>

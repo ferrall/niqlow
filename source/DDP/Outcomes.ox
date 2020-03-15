@@ -728,9 +728,11 @@ FPanel::LogLikelihood() {
 		summand->SetFE(state);
 		upddens->loop();
 		}
+    decl myl = 0.0;
 	for (i=0,cur = this;i<N;++i,cur = cur.pnext) {
         cur->Path::Likelihood();
 		FPL[i] = log(cur.L);
+        myl += FPL[i];
 		}
     return TRUE;
 	}

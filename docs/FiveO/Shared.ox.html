@@ -73,19 +73,29 @@ Components shared by components of <span class="n"><a href="../default.html">niq
 <td class="description">tolerance level 2.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#DIFF_EPS3">DIFF_EPS3</a></td>
+<td class="modifiers">static const</td>
+<td class="description">tolerance level 3.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#IAmMac">IAmMac</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#mymomlabels">mymomlabels</a></td>
 <td class="modifiers">static const</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#SQRT_EPS">SQRT_EPS</a></td>
 <td class="modifiers">static const</td>
 <td class="description">square-root of machine &epsilon;  </td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#SSQ_TOLER">SSQ_TOLER</a></td>
+<td class="modifiers">static const</td>
+<td class="description">Euclidean norm tolerance  </td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Functions</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#AV">AV</a></td>
@@ -1079,7 +1089,7 @@ A container for auxiliary structures, which helps organize the hierarchy of clas
 <td class="declaration"><a name="AggregatorTypes"></a>AggregatorTypes</td>
 <td class="description">Tags for Types of vector-valued objective Aggregation.
 </td>
-<td class="elements">LINEAR, LOGLINEAR, MULTIPLICATIVE, MINUSSUMOFSQUARES, Aggregators</td>
+<td class="elements">LINEAR, LOGLINEAR, MULTIPLICATIVE, MINUSSUMOFSQUARES, SUMOFSQUARES, Aggregators</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><a name="ConstraintTypes"></a>ConstraintTypes</td>
@@ -1324,6 +1334,16 @@ tolerance level 2.
 </dd></dl>
 
 <hr>
+<a name="DIFF_EPS3"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DIFF_EPS3</span></h3>
+
+<span class="declaration">static const decl DIFF_EPS3</span>
+<dl><dd>
+tolerance level 3.
+
+</dd></dl>
+
+<hr>
 <a name="DiscreteNormal"></a>
 <h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">DiscreteNormal</span></h3>
 
@@ -1549,6 +1569,16 @@ The Multinomial logit smoothing function (over rows).
 <span class="declaration">static const decl SQRT_EPS</span>
 <dl><dd>
 square-root of machine &epsilon;
+
+</dd></dl>
+
+<hr>
+<a name="SSQ_TOLER"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">SSQ_TOLER</span></h3>
+
+<span class="declaration">static const decl SSQ_TOLER</span>
+<dl><dd>
+Euclidean norm tolerance
 
 </dd></dl>
 
@@ -2762,7 +2792,7 @@ Create a new parameter.
 Reset the parameter to its hard-coded values.
 <DD>This does this:
 <pre>
-	v = start = scale = ival;
+	v = start = scale = CV(ival);
 	f = 1.0;
     Encode();
 </pre>

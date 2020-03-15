@@ -197,6 +197,24 @@ Objective::CheckMax(fn)	{
 	return newmax;
 	}
 
+/** This is misnamed. It checks whether the 1-D system is closer to 0.**/
+OneDimSystem::CheckMax(fn)	{
+    newmax = cur.v<maxpt.v;
+    decl suffx = newmax ? "*" : " ";
+    if (Volume>SILENT) {
+        if (isfile(logf)) fprintln(logf,suffx);
+		if (Volume>QUIET) {
+            println(suffx);
+            if (isfile(fn)) fprintln(fn," ","%15.8f",cur.v,suffx);
+            }
+        else if (newmax) println(" ","%15.8f",cur.v,suffx);
+        }
+	if (newmax)	{
+		this->Save(0);
+		maxpt -> Copy(cur);
+		}
+	return newmax;
+    }
 	
 /** Prints a message and details about the objective.
 @param orig string, origin of the print call
@@ -262,6 +280,7 @@ A system of this type can be solved using `OneDimSolve`
 **/
 OneDimSystem::OneDimSystem(L) {
     System(L,1);
+    SetAggregation(SUMOFSQUARES);
     }
 
 /** Default system of equations: `Objective::vfunc`().
@@ -426,10 +445,8 @@ Objective::funclist(Fmat,aFvec,afvec,abest)	{
 	else{
 	    decl j,fj;
         foreach (fj in Fmat[][j]) {
-		  vobj(fj);
-		  aFvec[0][][j] = cur.V;
-		  cur -> aggregate();
-		  f[j] = cur.v;
+		  aFvec[0][][j] = vobj(fj);
+		  f[j] = cur -> aggregate();
 		  }
         }
     best = int(maxcindex(f));
@@ -499,6 +516,7 @@ Objective::AggSubProbMat(submat) {
 
 /** Decode the input, return the whole vector.
 @param F vector of free parameters.
+@return cur.V
 **/
 Objective::vobj(F)	{
 	Decode(F);
@@ -506,6 +524,7 @@ Objective::vobj(F)	{
         p2p.client->SubProblems(cur.F);  // argument was F, but needs to be a vector; might not be
     else
 	    cur.V[] =  vfunc();
+    return cur.V;
 	}
 
 /** Decode the input, return the whole vector, inequality and equality constraints, if any.
@@ -1091,6 +1110,7 @@ Separable::Decode(F)	{
 Separable::vobj(F)	{
 	if (!isint(F)) cur.F = F;
 	Deconstruct(TRUE);
+    return cur.V;
 	}
 
 /** Compute the Jg(), vector version of the objective's Jacobian at the current vector.
@@ -1113,6 +1133,7 @@ MixPoint::aggregate(outV,v) {
 		Dvar.v = d;		
 		v += Dvar->PDF() * sumc(V[d]);
 		}
+    return v;
 	}
 	
 /** Create a mixture objective.
@@ -1291,6 +1312,7 @@ Mixture::vobj(F)	{
 		cur.sp.F = F[lfree:];
 		}
 	Deconstruct(TRUE);
+    return cur.V;
 	}
 
 /** Decode the input, compute the objective, check the maximum.
@@ -1301,6 +1323,7 @@ Mixture::fobj(F,extcall)	{
 	vobj(F);
 	cur->aggregate();
 	this->CheckMax();
+    return cur.v;
 	}
 	
 /** Compute the Jg(), vector version of the objective's Jacobian at the current vector.
