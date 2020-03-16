@@ -46,7 +46,7 @@ struct Objective	{
 	/** length of X.     					 **/				nstruct,
 	/** vector of F indices into X. @internal   **/				FinX;
 
-            ResetMax();
+            virtual ResetMax();
 			Objective(L="",CreateCur=TRUE);
 			Save(fname=0);
 			Load(fname=0);
@@ -118,6 +118,7 @@ struct System : Objective {
 struct OneDimSystem : System {
 	OneDimSystem(L);
     CheckMax(fn=0);
+    ResetMax();
 	}
 
 /** Represents a blacbox objective.

@@ -50,6 +50,11 @@ Objective::ResetMax() {
     vcur.v = maxpt.v = -.Inf;
     }
 
+/** Reset the value of the system.  reversed sign from others. **/
+OneDimSystem::ResetMax() {
+    vcur.v = maxpt.v = +.Inf;
+    }
+
 /** Load or save state of the problem to a file.
 @param f file object
 @param saving  TRUE: save status to the file<br>FALSE: load from the file and close it, call `Objective::Encode`
@@ -423,7 +428,7 @@ Objective::ReInitialize() {
    	if (!once) oxrunerror("FiveO Error 32. Cannot ReInitialize() objective parameters before calling Encode() at least once.");
     this->Recode(TRUE);
 	Start = vcur.X;
-    ResetMax();
+    this->ResetMax();
     Save();
     }
 	
@@ -839,7 +844,7 @@ DataObjective::SetStage(stage) {
     foreach(v in tplist) v.DoNotVary=(stage==One);
     if ( isclass(data.method) && data.method.DoNotIterate!=(stage==Zero) )
         data.method->ToggleIterate();
-    if (stage==One) ResetMax();
+    if (stage==One) this->ResetMax();
     }
 
 DataObjective::AggSubProbMat(submat) {
