@@ -217,6 +217,7 @@ Probability::Probability(L,v0)	{ Bounded(L,0,1,v0); 	}
 **/
 Correlation::Correlation(L,v0)	{ Bounded(L,-1,1,v0); 	}
 
+
 /**Create a new block of related Parameters.
 @param L string Label for block
 @param ... a list of parameters to add to the block<br>
@@ -264,6 +265,7 @@ ParameterBlock::Encode() {
     foreach (p in Psi) {f|=p->Encode(); println(f); }
 	return f;
 	}
+
 
 /** Return $X\beta = X*CV(beta)$.
 @param X row vector or matrix conforming to the coefficient vector.
@@ -459,6 +461,21 @@ LB &lt; x<sub>1</sub> &gt; x<sub>2</sub> &gt; &hellip; &gt; x<sub>N</sub>
 Decreasing::Decreasing(L,UB,ivals,Anchored)	{
     Ordered(L,UB,ivals,-1,Anchored);
 	}
+
+/** Create an array of Normal Distribution parameters and return it.
+
+This does not create a `ParameterBlock`.  It creates separate parameter objects and returns the array of them.
+It can be sent to Normal() related functions/objects that require a <code>pars</code> vector or array.
+
+@param L Label prefix for the parameters
+@param ivals initial values vector see `NormalParams`<br/>
+    default is <0.0;1.0>, which means parameters start as standard normal<br/>
+    if ivals has three elements the last is the correlation coefficient $\rho$
+**/
+NormalDistParmeters(L,ivals) {
+    return  {new Free(L+"_mu",ivals[Nmu]),new Positive(L+"_sigma",ivals[Nsigma])}
+            | sizerc(ivals)>Nrho ? new Correlation(L+"_rho",ivals[Nrho]) : {};
+    }
 
 
 /** Create a block of free parameters.

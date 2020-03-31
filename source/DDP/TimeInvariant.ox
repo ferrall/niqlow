@@ -205,20 +205,23 @@ The probabilities of each discrete value is 1/N.  The distribution is captured b
 actual values to be at the quantiles of the distribution.
 
 **/
-NormalRandomEffect::NormalRandomEffect(L,N,mu,sigma) {
+NormalRandomEffect::NormalRandomEffect(L,N,pars) {
 	RandomEffect(L,N);
-	this.mu = mu;
-	this.sigma = sigma;	
+    this.pars = pars;
 	}
 
-NormalRandomEffect::Distribution() { actual = AV(mu) + DiscreteNormal(N,0.0,AV(sigma))';	}
+NormalRandomEffect::Distribution() { actual = DiscreteNormal(N,pars)';	}
 
 /** Create a permanent discretized normal random effect.
 @param L label
 @param N number of points
-@param mu `AV`()-compatible mean of the effect, &mu;
-@param sigma `AV`()-compatible standard deviation, &sigma;
 @param M number of standard deviations to set the largest value as
+@param pars 2x1 vector or array of `AV`()-compatible parameters<br/>
+<pre>
+    i: Parameter (default)
+    0: mean (&mu;=0.0)<br/>
+    1: st. dev.    (&sigma;=1.0)
+</pre>
 
 actual values are equally spaced between -M&sigma; and M&sigma;.
 
@@ -226,13 +229,14 @@ The probabilities of not uniform but are constant and depend only on
 N and M.
 
 **/
-TauchenRandomEffect::TauchenRandomEffect(L,N,mu,sigma,M) {
-	NormalRandomEffect(L,N,mu,sigma);
+TauchenRandomEffect::TauchenRandomEffect(L,N,M,pars) {
+    this.pars = pars;
+	NormalRandomEffect(L,N,pars);
 	this.M = M;
 	decl pts = probn((-.Inf ~ (-M+2*M*range(0.5,N-1.5,+1)/(N-1)) ~ +.Inf) );
 	pdf[] = pts[1:]-pts[:N-1];
 	}
 
 TauchenRandomEffect::Distribution() {
-	actual = AV(mu) + AV(sigma)*(-M +2*M*vals/(N-1));
+	actual = AV(pars[Nmu]) + AV(pars[Nsigma])*(-M +2*M*vals/(N-1));
 	}

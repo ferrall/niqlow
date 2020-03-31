@@ -114,16 +114,16 @@ struct RandomEffectBlock : StateBlock {
 @see DiscreteNormal
 **/
 struct NormalRandomEffect : RandomEffect {
-	const decl mu, sigma;
-	NormalRandomEffect(L,N,mu=0.0, sigma=1.0);
+	const decl pars;
+	NormalRandomEffect(L,N,pars=<0.0;1.0>);
 	Distribution();
 	}		
 
-/** Use Tauchen's method to discretize a normal variable.
+/** Use Tauchen's method to discretize a normal variable for Fixed Effects.
 **/
 struct TauchenRandomEffect : NormalRandomEffect {
-	const decl M;
-	TauchenRandomEffect(L,N,mu, sigma,M);
+	const decl M, pars;
+	TauchenRandomEffect(L,N,M,pars);
 	virtual Distribution();
 	}
 	

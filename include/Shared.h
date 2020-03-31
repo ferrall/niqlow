@@ -76,6 +76,10 @@ enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,SUMOFSQUARES,Aggregators}
         @name StateTypes**/
 enum{ORDINARY,INSUBSAMPLE,LASTT,TERMINAL=4,StateTypeCutoffs}
 
+/** Tags for parameter vectors of normal distribution.
+    @name NormalParams **/	
+enum{Nmu,Nsigma,Nrho,NormalParams}
+
 static const decl
         curdir = ".",
 		mymomlabels = {"sample size","mean","st.dev.","min","max"},
@@ -94,7 +98,7 @@ static decl _arg, _noarg, _x, _v, IAmMac;
 	AV(X,...);
 	DrawOne(P);
 	DeltaV(V);
-	DiscreteNormal(N,mu=0.0, sigma=1.0);
+	DiscreteNormal(N,pars=<0.0,1.0>);
 	varlist(s) ;
 	vararray(s);
 	MyMoments(M,rlabels=0,oxf=0);
@@ -155,7 +159,7 @@ struct Discrete	: Quantity{
 	Discrete(L,N);
 	virtual PDF();
 	virtual Update();
-    virtual SetActual(MaxV=1.0);
+    virtual SetActual(MaxV=1.0,Report=FALSE);
     virtual Track(LorC);
 	}
 

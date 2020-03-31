@@ -319,9 +319,8 @@ PathPrediction::InitialConditions() {
     if (isint(iDist)) {
         if (iDist==ErgodicDist) {
             if (!Flags::IsErgodic) oxrunerror("Clock is not ergodic, can't use ergodic predictions");
-	        //println("Ergodic distribution: ",I::curg.Pinfinity');
             sind =  range(0,SS[tracking].size-1)';
-            p = I::curg.Pinfinity;
+            p = GetPinf();
             if (isnan(p)) oxrunerror("Ergodic Distribution contains NaNs, cannot compute stationary predictions");
             }
         else {

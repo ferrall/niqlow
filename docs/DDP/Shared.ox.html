@@ -209,11 +209,16 @@ the normal distribution.</td>
 <td class="description">Levels of output to produce while executing.</td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#NormalParams">NormalParams</a></td>
+<td class="modifiers"></td>
+<td class="description">Tags for parameter vectors of normal distribution.</td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#ParallelExecutionModes">ParallelExecutionModes</a></td>
 <td class="modifiers"></td>
 <td class="description">Modes of Execution when executing in parallel.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#StateTypes">StateTypes</a></td>
 <td class="modifiers"></td>
 <td class="description">Codes for <a href="Bellman.ox.html#Bellman___Type">Type</a> Code.</td>
@@ -1171,6 +1176,12 @@ A container for auxiliary structures, which helps organize the hierarchy of clas
 <td class="elements">SILENT, QUIET, LOUD, NOISY, NoiseLevels</td>
 </tr>
 <tr class="even">
+<td class="declaration"><a name="NormalParams"></a>NormalParams</td>
+<td class="description">Tags for parameter vectors of normal distribution.
+</td>
+<td class="elements">Nmu, Nsigma, Nrho, NormalParams</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><a name="ParallelExecutionModes"></a>ParallelExecutionModes</td>
 <td class="description">Modes of Execution when executing in parallel. See <a href="Shared.ox.html#BaseTag">BaseTag</a>
          <DD>MultiParamVectors: Sending different parameter vectors to nodes to compute
@@ -1181,7 +1192,7 @@ A container for auxiliary structures, which helps organize the hierarchy of clas
 </td>
 <td class="elements">MultiParamVectors, OneVector, ParallelModes</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><a name="StateTypes"></a>StateTypes</td>
 <td class="description">Codes for <a href="Bellman.ox.html#Bellman___Type">Type</a> Code.  These codes (and their order)
             determine what calculations to do at the endogenous state <span class="expressions">\(\theta\)</span>.
@@ -1396,7 +1407,7 @@ tolerance level 3.
 <a name="DiscreteNormal"></a>
 <h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">DiscreteNormal</span></h3>
 
-<span class="declaration">DiscreteNormal ( N , mu , sigma )</span>
+<span class="declaration">DiscreteNormal ( N , pars )</span>
 <dl><dd>
 Return Nx1 vector of values corresponding to the 1/(N+1) percentiles of
 the normal distribution.
@@ -1409,13 +1420,10 @@ the normal distribution.
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">mu</td>
-<td class="description" valign="baseline">mean &mu;<br>Default=0.0
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">sigma</td>
-<td class="description" valign="baseline">standard deviation &sigma;<br>Default=1.0
+<td class="declaration" valign="baseline">pars</td>
+<td class="description" valign="baseline">2x1 vector or array of <a href="Shared.ox.html#NormalParams">NormalParams</a> </br>
+    Nmu mean &mu; Default=0.0<br/>
+    Nsigma standard deviation &sigma; Default=1.0</br>
 </td>
 </tr>
 </table>
@@ -1928,7 +1936,7 @@ vector of prob. of vals.
 <a name="Discrete___SetActual"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetActual</span></h3>
 
-<span class="declaration">virtual Discrete :: SetActual ( MaxV )</span>
+<span class="declaration">virtual Discrete :: SetActual ( MaxV , Report )</span>
 <dl><dd>
 Initialize the actual values.
 
@@ -1938,6 +1946,11 @@ Initialize the actual values.
 <td class="declaration" valign="baseline">MaxV</td>
 <td class="description" valign="baseline">non-zero double, default = 1.0<br>
             N&times;1 vector, actual
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Report</td>
+<td class="description" valign="baseline">FALSE [default], do not print out current to actual mapping<br/>TRUE, print mapping
 If a double is sent the actual vector to 0,&hellip;, MaxV.
 </td>
 </tr>

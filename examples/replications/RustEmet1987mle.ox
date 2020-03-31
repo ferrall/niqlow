@@ -19,7 +19,7 @@ RustEstimates::DoAll() {
 	decl cputime0 = -timer();
     nfxp->SetStage(1);
 //    delete mle;
-    EMax.vtoler = 1E-4;
+    EMax.vtoler = DIFF_EPS2; //1E-4
     EMax.Volume = QUIET;
     EMax->ToggleRunSafe();
     //    mle = new BFGS(nfxp);	mle.Volume = QUIET;

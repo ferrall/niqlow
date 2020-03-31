@@ -432,19 +432,21 @@ ForgetAtT::IsReachable() {
     return ! (Prune && Flags::Prunable && v && (I::t>T) ) ;
     }
 
-/**Create a Normal N(mu,sigma) discretize jump variable. **/
-Nvariable::Nvariable(L,Ndraws,mu,sigma) {
-    this.mu = mu;
-    this.sigma = sigma;
+/**Create a Normal N(mu,sigma) discretize jump variable.
+@param L label
+@param Ndraws N
+@param pars 2x1 vector or array of `NormalParams`
+**/
+Nvariable::Nvariable(L,Ndraws,pars) {
     SimpleJump(L,Ndraws);
-    if (!(isfunction(mu)||isclass(mu)||isclass(sigma))||isfunction(sigma)) {
+    if (!(isfunction(pars[Nmu])||isclass(pars[Nmu])||isclass(pars[Nsigma]))||isfunction(pars[Nsigma])) {
         this->Update();
         }
     }
 
 Nvariable::Update() {	
 //    actual = AV(mu)|DiscreteNormal(N-1,AV(mu),AV(sigma))';
-    actual = DiscreteNormal(N,AV(mu),AV(sigma))';
+    actual = DiscreteNormal(N,pars)';
     if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
     }
 
@@ -457,15 +459,15 @@ Nvariable::Update() {
 @param myseed 0 [default] do not set the seed. Positive will set the seed for the draw of the IID Z matrix.  See Ox's ranseed().
 
 **/
-MVNvectorized::MVNvectorized(L,Ndraws,Ndim,mu,sigma,myseed) {
+MVNvectorized::MVNvectorized(L,Ndraws,Ndim,pars,myseed) {
     ranseed(myseed);
     zvals = rann(Ndim,Ndraws);  //Tack 0 on so first actual value is always the mean.
     this.Ndim = Ndim;
-    Nvariable(L,Ndraws,mu,sigma);
+    Nvariable(L,Ndraws,pars);
     actual = constant(.NaN,Ndraws,1);
     }
 MVNvectorized::myAV()   {   return vecactual[v][];    }
-MVNvectorized::Update() {	vecactual = shape(AV(mu),1,Ndim) + (unvech(AV(sigma))*zvals)';	}
+MVNvectorized::Update() {	vecactual = shape(AV(pars[Nmu]),1,Ndim) + (unvech(AV(pars[Nsigma]))*zvals)';	}
 
 /**Create a standard normal N(0,1) discretize jump variable. **/
 Zvariable::Zvariable(L,Ndraws) {    Nvariable(L,Ndraws);    }
@@ -614,13 +616,11 @@ Offer::Transit()	{
 @param N number of distinct offers. 0 means no offer
 @param Pi double, `Parameter` or static function, prob. of an offer
 @param Accept `ActionVariable`, acceptance of the offer.
-@param mu double, `Parameter` or static function, mean of log offer
-@param sigma double, `Parameter` or static function, st. dev. of log offer
+@param pars 2x1 vector or array of `NormalParams`
 **/
-LogNormalOffer::LogNormalOffer(L,N,Pi,Accept,mu,sigma)	{
+LogNormalOffer::LogNormalOffer(L,N,Pi,Accept,pars)	{
 	Offer(L,N,Pi,Accept);
-	this.mu = mu;
-	this.sigma = sigma;
+    this.pars = pars;
 	}
 
 /** Updates the actual values.
@@ -630,7 +630,7 @@ actual = exp{ &mu; | &sigma;&Phi;<sup>-1</sub>(v/N)+ &mu;}
 **/
 LogNormalOffer::Update() {
 //	actual = exp(AV(mu)|DiscreteNormal(N-1,AV(mu),AV(sigma)))';
-	actual = DiscreteNormal(N,AV(mu),AV(sigma))';
+	actual = DiscreteNormal(N,pars)';
     if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
 	}
 
@@ -1387,15 +1387,18 @@ Episode::Transit() 	{
 							return {  (0 ~ tv+1)|(0~kv), reshape( pi ~ (1-pi), Alpha::N, 2 ) };	
 	}
 	
-//const decl mu, rho, sig, M;
 
-/** Tauchen discretizization.
+/** Tauchen discretizization of a correlated normal process.
 @param L label
-@param N Number of discrete points
+@param N Number of discrete points in the approximation
 @param M `AV`()-compatiable max discrete value
-@param mu `AV`()-compatible mean $\mu$
-@param sig `AV`()-compatible standard deviation $\sigma$
-@param rho `AV`()-compatible autocorrelation $|rho$
+@param pars 3x1 vector or array of `AV`()-compatible parameters<br/>
+<pre>
+    i: Parameter (default)
+    0: mean (&mu;=0.0)<br/>
+    1: st. dev.    (&sigma;=1.0)
+    2: correlation (&rho;=0.0)
+</pre>
 
 Actual values will take on $N$ equally spaced values in the range
 $$ \mu \pm M\sigma/\sqrt(1-\rho^2).$$
@@ -1404,17 +1407,15 @@ The transition probabilities depends on the current value a la Tauchen.
 them available while creating spaces.  Otherwise, update is not called on creation in case parameters  will be
 read in later.
 **/
-Tauchen::Tauchen(L,N,M,mu,sig,rho) {
+Tauchen::Tauchen(L,N,M,pars) {
 	StateVariable(L,N);
 	this.M=M;
-	this.mu = mu;
-	this.rho = rho;
-	this.sig = sig;
+    this.pars = pars;
 	gaps = range(0.5,N-1.5,+1);
 	pts = zeros(N,N+1);
 	Grid = zeros(N,N);
-    if (!(isclass(M)||isclass(mu)||isclass(rho)||isclass(sig)||
-          isfunction(M)||isfunction(mu)||isfunction(rho)||isfunction(sig))  ) {
+    if (!(isclass(M)||isclass(pars[Nmu])||isclass(pars[Nrho])||isclass(pars[Nsigma])||
+          isfunction(M)||isfunction(pars[Nmu])||isfunction(pars[Nrho])||isfunction(pars[Nsigma]))  ) {
             Update();
         }
 	}
@@ -1424,16 +1425,17 @@ Tauchen::Transit() {
 	}
 	
 Tauchen::Update() {
-	s = AV(sig);
-	r = AV(rho);
+	s = AV(pars[Nsigma]);
+	r = AV(pars[Nrho]);
     if (isfeq(s,0.0)||isfeq(r,1.0)) oxwarning("Tauchen st. deviation is near 0 or correlation is near 1.0");
+    if (Volume>SILENT && !Version::MPIserver) println("Tauchen Variable: ",L," parmeter vector: ",AV(pars));
 	rnge = AV(M)*s/sqrt(1-sqr(r)),
 	actual = -rnge +2*rnge*vals/(N-1),
 	pts[][] = probn(
 	          ((-.Inf ~ (-rnge+2*rnge*gaps/(N-1)) ~ +.Inf)
 			  - r*actual')/s );
 	Grid[][] = pts[][1:]-pts[][:N-1];
-	actual += AV(mu);
+	actual += AV(pars[Nmu]);
     actual = actual';
 	}
 

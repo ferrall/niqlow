@@ -67,13 +67,22 @@ used.<br/>
 NewtonKantorovich::NewtonKantorovich(myNGSolve) {
     ValueIteration( isint(myNGSolve) ? new NKSolve(this) : myNGSolve );
     }
-
+/**Set min NK trips and NK tolerance.
+(=UnInitialized,NKtoler=UnInitialized)
+@param MinNKtrips if not -1 (UseDefault) then minimum trips before switching to N-K
+@param NKtoler if not UseDefault then tolerance to switch to N-K
+**/
+NewtonKantorovich::Tune(MinNKtrips,NKtoler) {
+    if (MinNKtrips!=UseDefault) qtask.itask.MinNKtrips = MinNKtrips;
+    if (NKtoler!=UseDefault) qtask.itask.NKtoler = MinNKtrips;
+    }
 /** . @internal **/
 NKSolve::NKSolve(caller) {
     GSolve(caller);
-    MinNKtrips = 100;
     NK = 0;
     NKlist = {};
+    MinNKtrips = 100;
+    NKtoler = DIFF_EPS3;
     }
 
 /** . @internal **/
@@ -84,7 +93,7 @@ ValueIteration::Run(){
 /** . @internal **/
 NKSolve::Solve(instate) {
     NKstep0 = NKstep = FALSE;
-    NKtoler = (caller.vtoler)^0.5;
+    //NKtoler = sqrt(caller.vtoler);
     GSolve::Solve(instate);
     }
 
@@ -130,6 +139,7 @@ ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
 
 **/
 NewtonKantorovich::Solve(Fgroups,Rgroups,MaxTrips)  {
+
     return ValueIteration::Solve(Fgroups,Rgroups,MaxTrips);
     }
 
@@ -220,8 +230,9 @@ NKSolve::Update() {
     decl mefail,oldNK = NKstep;
     prevdff = dff;
 	dff= counter->Vupdate();
+    decl dcrit = (dff-I::CVdelta*prevdff<0.0);
     if (!(NKstep||Flags::setPstar||NKstep0)) {
-        decl start = (dff<NKtoler) && (trips>MinNKtrips && (dff-I::CVdelta*prevdff<0.0)) ;
+        decl start = (dff<NKtoler) && (trips>MinNKtrips); // && dcrit ;
         if (start) {
             if (!Flags::IsErgodic) {
                 decl v;
@@ -271,7 +282,7 @@ NKSolve::Update() {
     succeed *= !mefail;
     Report(mefail);
     I::NowSwap();
-	if (Volume>LOUD) println("   t:",I::t," Trip:",trips);
+	if (Volume>QUIET) println("   t:",I::t," Trip:",trips);
 	state[right] -= (!Flags::StatStage || Flags::setPstar ) && !oldNK;
 	done = SyncStates(right,right) <0 ; //converged & counter was at 0
 	if (!done) {
@@ -281,9 +292,10 @@ NKSolve::Update() {
                         || counter->setPstar(FALSE);
 		N::VV[I::now][:I::MxEndogInd] = 0.0;
 		}
-	if (Volume>LOUD) println("     Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes": "No",
+	if (Volume>QUIET) println("     Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes": "No",
                     ". NK0:",NKstep0 ? "Yes" : "No",
-                    ". NK:",NKstep ? "Yes" : "No");
+                    ". NK:",NKstep ? "Yes" : "No",
+                    ". DC:",dcrit);
  	state[right] += done;		//put counter back to 0 	if necessary
 	SyncStates(right,right);
     return done || (trips>=MaxTrips);

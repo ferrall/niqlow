@@ -293,8 +293,8 @@ struct Offer : Random	{
 	}
 
 struct LogNormalOffer : Offer {
-	const decl mu, sigma ;
-	LogNormalOffer(L,N,Pi,Accept,mu,sigma);
+	const decl pars ;
+	LogNormalOffer(L,N,Pi,Accept,pars=<0.0;1.0>);
 	virtual Update();
 	}
 
@@ -482,8 +482,8 @@ struct Absorbing : Random {
 /** A jump variable whose acutal values are quantiles of the normal distribution, $N(\mu,\sigma)$.
 **/
 struct Nvariable : SimpleJump {
-    decl mu, sigma;
-	Nvariable(L,Ndraws,mu=0,sigma=1);
+    decl pars;
+	Nvariable(L,Ndraws,pars=<0;1>);
 	virtual Update();
 	}
 
@@ -505,7 +505,7 @@ This variable needs to be used with care: <code>CV()</code> will return a single
 **/
 struct MVNvectorized : Nvariable {
     decl zvals, Ndim, vecactual;
-	MVNvectorized(L,Ndraws,Ndim,mu,sigma,seed=0);
+	MVNvectorized(L,Ndraws,Ndim,pars=<0;1.0>,seed=0);
 	Update();
     myAV();
 	}
@@ -1021,9 +1021,9 @@ struct Episode : StateBlock {
 @see MVNormal
 **/
 struct Tauchen : Random {
-	const decl mu, rho, sig, M, gaps;
+	const decl pars, M, gaps;
 	decl rnge, pts, s, r, Grid;
-	Tauchen(L,N,M,mu, sig,rho);
+	Tauchen(L,N,M,pars=<0.0;1.0;0.0>);
 	virtual Transit();
 	virtual Update();
 	}

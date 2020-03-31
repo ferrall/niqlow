@@ -218,12 +218,13 @@ Discretized::Approx(x,trans) {
 /** Return Nx1 vector of values corresponding to the 1/(N+1) percentiles of
 the normal distribution.
 @param N number of points to return
-@param mu mean &mu;<br>Default=0.0
-@param sigma standard deviation &sigma;<br>Default=1.0
+@param pars 2x1 vector or array of `NormalParams` </br>
+    Nmu mean &mu; Default=0.0<br/>
+    Nsigma standard deviation &sigma; Default=1.0</br>
 @return &mu; + &sigma;&Phi;<sup>-1</sup>(q), q=(1 ... N)/N+1
 **/
-DiscreteNormal(N,mu,sigma)	{
-	return mu+sigma*quann(range(1,N)/(N+1));
+DiscreteNormal(N,pars)	{
+	return AV(pars[Nmu])+AV(pars[Nsigma])*quann(range(1,N)/(N+1));
 	}
 
 /** Control variable-specifc output.
@@ -285,10 +286,11 @@ Discrete::PDF() {return ismember(pdf,"v") ? pdf.v[v] : pdf[v];	}
 /** Initialize the actual values.
 @param MaxV non-zero double, default = 1.0<br>
             N&times;1 vector, actual
+@param Report FALSE [default], do not print out current to actual mapping<br/>TRUE, print mapping
 If a double is sent the actual vector to 0,&hellip;, MaxV.
 @see Discrete::Update
 **/
-Discrete::SetActual(MaxV) {
+Discrete::SetActual(MaxV,Report) {
     if (isdouble(MaxV)||isint(MaxV)) {
         actual = MaxV*(vals')/max(N-1,1);
         }
@@ -296,7 +298,7 @@ Discrete::SetActual(MaxV) {
         if (rows(vec(MaxV))!=N) oxrunerror("DDP Error. Actual vector must be of length N");
         actual = vec(MaxV);
         }
-    if (!Version::MPIserver)
+    if (!Version::MPIserver && Report)
         println("Setting Actual Values of ",L,"%r",{"index","actual"},vals|actual');
     }
 

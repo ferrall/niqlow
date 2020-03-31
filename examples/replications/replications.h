@@ -14,5 +14,6 @@
 #import "Ahn1995"
 #import "FrenchREStud2005"
 #import "RosenzweigWolpinJPE1993"
+#import "AiyagariQJE1994"
 
 repmenu();

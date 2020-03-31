@@ -1,6 +1,8 @@
 #import "Shared"
 /* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
 
+NormalDistParmeters(L,ivals=<0.0;1.0>);
+
 /** Value determined <em>exactly</em> by some other value, not chosen by optimization. **/
 struct Determined : Parameter	{
 	Determined(L="",v0=0);

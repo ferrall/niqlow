@@ -39,6 +39,7 @@ V_0 &= V_1 - g\cr}\nonumber$$
 **/
 struct NewtonKantorovich : ValueIteration {
     NewtonKantorovich(myGSolve=0);
+    Tune(MinNKtrips=UseDefault,NKtoler=UseDefault);
 	virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
     }
 

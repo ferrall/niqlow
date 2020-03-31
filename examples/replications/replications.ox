@@ -19,6 +19,7 @@ repmenu() {
 			{"A&M2002",					AMEstimates::DoAll},
 			{"IJCEmet2009", 			FirmEntry::Run},
             {"Ahn1995",                 Ahn::Run},
+            {"AiyagariQJE1994",         Aiyagari::Run},
             {"French2005",              French2005::Run}
 			);
     return reps;

@@ -126,6 +126,7 @@ struct DP {
         // static  SetG(f=0,r=0);
 		static 	Settheta(ind);
 		static 	DrawGroup(find);
+        static  GetPinf(g=UseCurrent);
 		static 	StorePalpha();
 		static 	GetAind(i);
 		static 	GetPstar(i);
@@ -385,10 +386,9 @@ struct Group : DP {
 		/**Index into random effects **/			rind,
 		/**Group's state vector.**/					state,
 		/** State-to-State transition. **/			Ptrans,
-
 		/** Expand Choice Prob matrix. **/			Palpha,
-		/** Stationary distribution.
-			&Rho;<sub>&infin;</sub> **/	 			Pinfinity,
+		/** Stationary distribution $P_\infty$ for ergodic clock models.
+            @see DP::GetInf **/	                    Pinfinity,
         /** method specific object. **/             mobj;
 
 		Reset();

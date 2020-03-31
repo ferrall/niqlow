@@ -166,6 +166,13 @@ DP::DrawGroup(find) {
     return I::SetGroup(N::R*find + DrawOne(gdist[find][]));	//November 2019: added N::R  and I::
     }
 
+/** Return $P_\infty(\theta)$.
+@param g group index<br/>UseCurrent (default)
+@return Stationary Distribution **/
+DP::GetPinf(g) {
+    return (g==UseCurrent) ? I::curg.Pinfinity : Gamma[g].Pinfinity;
+    }
+
 /** Draw a population count andom sample of N values from the random effects distribution.
 @param find index of fixed group
 @param N number of draws to take

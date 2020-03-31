@@ -269,35 +269,48 @@ OneDimRoot::Iterate(istep,maxiter,toler) {
 	holdF = OC.F;
 	improved = FALSE;
     this->Try(p1,0.0);
-    this->Try(p2,istep);
-    a = p1;
-    b = p2;
-    if (Volume>SILENT) {
-        istr = sprint("Root Finder Starting: \n   Steps:",a.step," | ",b.step,"  \n  Value:",double(a.V)," | ",double(b.V));
-        fprintln(logf,istr);
-        if (Volume>QUIET) println(istr);
-        }
-    if (a.v<tolerance) {
+    if (p1.v<tolerance) {
         if (Volume>SILENT) {
             istr = sprint("Initial Value a Solution. Finished");
             fprintln(logf,istr);
             if (Volume>QUIET) println(istr);
             }
+        O->Decode(holdF);
+ 	    OC.v = p1.v;
+        OC.V = p1.V;
         return ;
         }
-	if ( a.V*b.V > 0 ) if (!this->Bracket()) oxrunerror("1D System Bracket Failed");
+    this->Try(p2,istep);
+    if (istep<0.0)
+        { a = p2; b = p1; }
+    else
+        {  a = p1; b = p2; }
+    if (Volume>SILENT) {
+        istr = sprint("Root Finder Starting: \n   Steps:",a.step," | ",b.step,"  \n  Value:",double(a.V)," | ",double(b.V));
+        fprintln(logf,istr);
+        if (Volume>QUIET) println(istr);
+        }
+	if ( a.V*b.V > 0 ) {
+        if (!this->Bracket()) oxrunerror("1D System Bracket Failed");
+        }
+    else if (Volume>QUIET) println("First Step is a bracket");
     iter = 0;
     q = p3;
     do {    //bisecting
        this->Try(q,a.step+0.5*(b.step-a.step));
+       if (Volume>LOUD) {
+        istr = sprint("%2.0f",iter,".   Steps:",a.step," | ",q.step," | ",b.step,"\n  .  Values:",double(a.V)," | ",double(q.V)," | ",double(b.V));
+        fprintln(logf,istr);
+        println(istr);
+        }
        if ( a.V*q.V > 0.0 ) a ->Copy(q);  else b ->Copy(q);
        closest = min(a.v,b.v,q.v);
       } while( ++iter < maxiter && closest>tolerance);
 
     /* Pick the point closest to 0 and put back in O.vcur.*/
-    if (a.v==closest)q->Copy(a); else if (b.v==closest) q->Copy(b);
+    if (a.v==closest) q->Copy(a); else if (b.v==closest) q->Copy(b);
     if (Volume>SILENT) {
-        istr = sprint("Root Finder: ",q.step," : ",double(q.V));
+        istr = sprint("Root Finder: Closest Step: ",q.step,". Value:",double(q.V));
         fprintln(logf,istr);
         if (Volume>QUIET) println(istr);
         }
@@ -310,11 +323,11 @@ OneDimRoot::Iterate(istep,maxiter,toler) {
 
 **/
 OneDimRoot::Bracket()	{
-    decl adelt = (a.step < 0.0 ? 1 : -1)* 0.8, bdelt = 0.8, iter, notdone;
+    decl adelt = -0.8, bdelt = 0.8, iter, notdone;
     iter = 0;
     do {
-        Try(a, a.step + adelt*max(fabs(a.step),0.1));
-        Try(b, b.step + bdelt*max(fabs(b.step),0.1));
+        Try(a, a.step + adelt*max(fabs(a.step),0.8));
+        Try(b, b.step + bdelt*max(fabs(b.step),0.8));
         notdone = a.V * b.V > 0.0;
         if (Volume>QUIET) {
             istr = sprint("        Bracket: ",iter,"\n  Steps:",a.step," | ",b.step,
