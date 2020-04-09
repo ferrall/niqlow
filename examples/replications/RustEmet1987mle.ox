@@ -16,15 +16,14 @@ RustEstimates::DoAll() {
 	mle -> Iterate(0);
 
     /* Second stage estimates */
-	decl cputime0 = -timer();
     nfxp->SetStage(1);
-//    delete mle;
-    EMax.vtoler = DIFF_EPS2; //1E-4
-    EMax.Volume = QUIET;
+    EMax.vtoler = DIFF_EPS1;
+    //EMax.Volume = LOUD;
+    EMax->Tune(100,DIFF_EPS3);
     EMax->ToggleRunSafe();
     //    mle = new BFGS(nfxp);	mle.Volume = QUIET;
+    nfxp.Volume = LOUD;
 	mle -> Iterate(0);
-	println(" Estimation: ",timer()+cputime0);
 
     delete mle, nfxp, EMax;
     Bellman::Delete();

@@ -439,6 +439,7 @@ ForgetAtT::IsReachable() {
 **/
 Nvariable::Nvariable(L,Ndraws,pars) {
     SimpleJump(L,Ndraws);
+    this.pars = pars;
     if (!(isfunction(pars[Nmu])||isclass(pars[Nmu])||isclass(pars[Nsigma]))||isfunction(pars[Nsigma])) {
         this->Update();
         }

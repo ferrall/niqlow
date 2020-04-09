@@ -44,6 +44,7 @@ struct 	Prediction : Data {
     ~Prediction();
 	Predict();
     Reset();
+    SetMoms(sz);
 	Histogram(printit=FALSE);
     Delta(mask,printit=FALSE,tlabels=0);
 	}
@@ -52,10 +53,12 @@ struct 	Prediction : Data {
 /** Predicted outcomes along a path.
 **/
 struct 	PathPrediction : Prediction {
-	static	decl summand, upddens, predicttime, solvetime;
+	static	decl                                summand,
+                                                upddens;
     const decl                                  f,
                 /** initial distribution.**/    iDist,
                 /** for tracking.**/            fvals,
+                                                Fcols,
             /** Weight Moments for GMM if
                 empirical moments include.
                 @see GMMWeightOptions **/
@@ -88,6 +91,7 @@ struct 	PathPrediction : Prediction {
 	~PathPrediction();
     InitialConditions();
 	Predict(T=0,printit=FALSE);
+    GetFlat(tvals=DoAll,mvals=DoAll);
     SetT();
     Empirical(inmoments,hasN=FALSE,hasT=FALSE);
     Tracking(LorC=TrackAll,...);

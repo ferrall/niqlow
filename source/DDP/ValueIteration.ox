@@ -92,22 +92,14 @@ ValueIteration::Run(){
 
 /** . @internal **/
 NKSolve::Solve(instate) {
-    NKstep0 = NKstep = FALSE;
-    //NKtoler = sqrt(caller.vtoler);
+    NKstep0 = Flags::NKstep = FALSE;
     GSolve::Solve(instate);
     }
 
 /** . @internal **/
 NKSolve::PostEMax() {
     if (NKstep0) NK->Update(I::all[iterating]);
-	if (Flags::setPstar)  {
-        decl ff = Flags::IsErgodic;
-        Flags::IsErgodic = FALSE;
-        GSolve::PostEMax();
-        if (NKstep) I::curth->UpdatePtrans(&ptrans,isclass(NK) ? NK.visit : 0);
-            else if (ff) I::curth->UpdatePtrans();
-        Flags::IsErgodic = ff;
-		}
+    GSolve::PostEMax();
     }
 
 /**Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
@@ -139,7 +131,6 @@ ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
 
 **/
 NewtonKantorovich::Solve(Fgroups,Rgroups,MaxTrips)  {
-
     return ValueIteration::Solve(Fgroups,Rgroups,MaxTrips);
     }
 
@@ -206,7 +197,6 @@ GSolve::Update() {
     succeed *= !mefail;
     Report(mefail);
     I::NowSwap();
-	if (Volume>LOUD) println("   t:",I::t," Trip:",trips);
 	state[right] -= (!Flags::StatStage || Flags::setPstar );
 	done = SyncStates(right,right) <0 ; //converged & counter was at 0
 	if (!done) {
@@ -215,7 +205,7 @@ GSolve::Update() {
                         || counter->setPstar(FALSE);
 		N::VV[I::now][:I::MxEndogInd] = 0.0;
 		}
-	if (Volume>LOUD) println("     Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes": "No");
+	if (Volume>LOUD) println("   t:",I::t," Trip:",trips," Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes": "No");
  	state[right] += done;		//put counter back to 0 	if necessary
 	SyncStates(right,right);
     return done || (trips>=MaxTrips);
@@ -227,77 +217,85 @@ GSolve::Update() {
 **/
 NKSolve::Update() {
 	++trips;
-    decl mefail,oldNK = NKstep;
+    decl mefail,oldNK = Flags::NKstep, start, v;
     prevdff = dff;
 	dff= counter->Vupdate();
-    decl dcrit = (dff-I::CVdelta*prevdff<0.0);
-    if (!(NKstep||Flags::setPstar||NKstep0)) {
-        decl start = (dff<NKtoler) && (trips>MinNKtrips); // && dcrit ;
+    if (!(Flags::NKstep||Flags::setPstar||NKstep0)) {
+        start = (dff<NKtoler) && (trips>MinNKtrips); // ready to N-K iterate?
         if (start) {
-            if (!Flags::IsErgodic) {
-                decl v;
+            if (!Flags::IsErgodic) {                //only a phase of the clock is ergodic
                 NK = 0;
-                foreach(v in NKlist) { if (v.myt==I::t) { NK=v;break; } }
-                if (isint(NK)) {
-                    NK = new NKinfo(I::t);
-                    NKlist |= NK;
-                    NKstep0 = TRUE;
-                    if (Volume>QUIET) println("    Setting up N-K ");
+                foreach(v in NKlist) {              // find current t in the list of ergodic phases
+                    if (v.myt==I::t) { NK=v;break; } // found it!
                     }
-                else {
-                    NKstep = TRUE;
-                    ptrans = zeros(NK.Nstat,NK.Nstat);
+                if (isint(NK)) {                     //this is a new ergodic phase
+                    NK = new NKinfo(I::t);           //create a new info object
+                    NKlist |= NK;
+                    NKstep0 = TRUE;                 // first NK step for this phase. One more normal iteration
+                    if (Volume>QUIET) println("    Setting up N-K for Ergodic phase");
+                    }
+                else {                              //ready to go.
+                    Flags::NKstep = TRUE;
+                    NKptrans = zeros(NK.Nstat,NK.Nstat);
+                    NKvindex = NK.visit;
                     }
                 }
-            else {
-                NKstep = TRUE;
-                ptrans = zeros(I::curg.Ptrans);
+            else {      // Ergodic environment, whole state space is involved.
+                Flags::NKstep = TRUE;
+                NKvindex = 0;               //  = zeros(I::curg.Ptrans);           //
                 if (Volume>QUIET) println("    Switching to N-K Iteration ");
+//                inNK = TRUE;            //memleak
+//                scan("First %u",&NKpause);
                 }
             }
        }
-    else if (NKstep0) {
-        NKstep = TRUE;
+    else if (NKstep0) {  //first step of N-K iteration within an ergodic phase.  NK info is now set up.
+        Flags::NKstep = TRUE;
         NKstep0 = FALSE;
         NK->Hold();
-        ptrans = zeros(NK.Nstat,NK.Nstat);
+        NKptrans = zeros(NK.Nstat,NK.Nstat);
         if (Volume>QUIET) println("    Switching to N-K Iteration ",NK.Nstat,"active ",NK.onlyactive');
         }
-    else if (NKstep) {
-        ip = -I::CVdelta*ptrans';
-        declu( setdiagonal(ip,1+diagonal(ip)),&L,&U,&P);
-        ptrans[][] = 0.0;
+    else if (Flags::NKstep) {   //ongoing N-K iteration
+//        scan("Point A %u",&NKpause);  memory leak
         if (Flags::IsErgodic) {
-          N::VV[I::now][] = N::VV[I::later][]-solvelu(L,U,P,(N::VV[I::later][]-N::VV[I::now][])' )';
+            ip = -I::CVdelta*I::curg.Ptrans';
+            I::curg.Ptrans[][] = 0.0;
             }
         else {
+            ip = -I::CVdelta*NKptrans';
+            NKptrans[][] = 0.0;
+            }
+        declu( setdiagonal(ip,1+diagonal(ip)),&L,&U,&P);
+        if (Flags::IsErgodic) {   //whole V
+          N::VV[I::now][] = N::VV[I::later][]-solvelu(L,U,P,(N::VV[I::later][]-N::VV[I::now][])' )';
+          }
+        else {      //only active states in this ergodic phase
           itstep =solvelu(L,U,P,(N::VV[I::later][NK.onlyactive]-N::VV[I::now][NK.onlyactive])' )' ;
           N::VV[I::now][NK.onlyactive] = N::VV[I::later][NK.onlyactive] - itstep;
-            }
-        dff= counter->Vupdate();
-        NKstep = !(dff <vtoler);
-        if (!NKstep) delete ptrans;
+          }
+        dff = counter->Vupdate();
+        if (dff<vtoler) Flags::NKstep = FALSE;   //we're done, one more step
         }
     mefail = isnan(dff);
     succeed *= !mefail;
     Report(mefail);
     I::NowSwap();
-	if (Volume>QUIET) println("   t:",I::t," Trip:",trips);
 	state[right] -= (!Flags::StatStage || Flags::setPstar ) && !oldNK;
 	done = SyncStates(right,right) <0 ; //converged & counter was at 0
 	if (!done) {
         Flags::setPstar =  (dff <vtoler)
-                        || NKstep
+                        || Flags::NKstep
 					    || MaxTrips==trips+1  //last trip coming up
                         || counter->setPstar(FALSE);
 		N::VV[I::now][:I::MxEndogInd] = 0.0;
 		}
-	if (Volume>QUIET) println("     Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes": "No",
-                    ". NK0:",NKstep0 ? "Yes" : "No",
-                    ". NK:",NKstep ? "Yes" : "No",
-                    ". DC:",dcrit);
- 	state[right] += done;		//put counter back to 0 	if necessary
+	if (Volume>QUIET) println("   t:",I::t," Trip:",trips,". Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,
+                    ". setP*:",Flags::setPstar ? "Yes": "No",". NK0:",NKstep0 ? "Yes" : "No",
+                    ". NK:",Flags::NKstep ? "Yes" : "No");
+ 	state[right] += done;		//put counter back to 0 if necessary
 	SyncStates(right,right);
+//    if (inNK) scan("Point B %u",&NKpause);
     return done || (trips>=MaxTrips);
     }
 
@@ -331,7 +329,6 @@ KWGSolve::Run() {
 		}
     else if (notinss) {
     	I::curth->MedianActVal();
-        //println("#### ",I::all[tracking]," ",I::curth.pandv);
 	    I::curth.EV = Specification(PredictEV,V[0],(V[0]-I::curth.pandv[][0])'); //N::VV set in Specification
 		}
     else return;

@@ -192,7 +192,8 @@ pandv[][I::elo : I::ehi] += I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Q
 **/
 Bellman::ExogExpectedV() {
     et =I::all[onlysemiexog];
-	pandv[][I::elo : I::ehi] += I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]);
+	pandv[][I::elo : I::ehi] +=
+        I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]);
     }
 
 /** Default to be replaced by user.
@@ -240,24 +241,30 @@ Bellman::thetaEMax() {
 	return EV = sumc( (V[] = maxc(pandv) )*NxtExog[Qprob] );
     }
 
-/** Compute endogenous state-to-state transition &Rho;(&theta;'|&theta;) for the current state <em>in `Stationary` environments</em>.
+/** Compute endogenous state-to-state transition $P^\star(\theta'|\theta)$ for the current
+    state $\theta$.
+
+This updates either `Group::Ptrans` or `Bellman::NKptrans`.    This is called in `GSolve::PostEmax`
+and only if `Flags::setPstar` is TRUE and the clock is Ergodic or `Flags::NKstep` is true.
+
+If `Flags::StorePA` is also true then `Group::Palpha` is also updated.
+
 **/
-Bellman::UpdatePtrans(aPt,vindex) {
-	decl eta,
-		 h = aggregater(pandv .* NxtExog[Qprob]',SS[onlyexog].size)',
-		 ii = I::all[tracking];
-    if (isint(aPt)) {
- 	  for (eta=0;eta<sizeof(Nxt[Qit]);++eta)
-		  I::curg.Ptrans[ Nxt[Qit][eta] ][ii] += (h[eta][]*Nxt[Qrho][eta])';
-	   if (Flags::StorePA)
+Bellman::UpdatePtrans() {
+	hagg = aggregater(pandv .* NxtExog[Qprob]',SS[onlyexog].size)';
+    if (ismatrix(NKvindex))
+        for (et=0;et<sizeof(Nxt[Qit]);++et)
+            NKptrans[ NKvindex[ Nxt[Qit][et] ] ][ NKvindex[I::all[tracking]] ] =
+                        NKptrans[ NKvindex[ Nxt[Qit][et] ] ][ NKvindex[I::all[tracking]] ]   // memory leak
+                        + (hagg[et][]*Nxt[Qrho][et])';
+    else { //store in the usual place
+        for (et=0;et<sizeof(Nxt[Qit]);++et)
+            I::curg.Ptrans[ Nxt[Qit][et] ][I::all[tracking]] =
+                I::curg.Ptrans[ Nxt[Qit][et] ][I::all[tracking]]  // memory leak
+                + (hagg[et][]*Nxt[Qrho][et])';
+        if (Flags::StorePA)
             I::curg.Palpha[][I::all[tracking]] = ExpandP(Aind,pandv*NxtExog[Qprob]);
         }
-    else if (isint(vindex))
- 	  for (eta=0;eta<sizeof(Nxt[Qit]);++eta)
-		  aPt[0][ Nxt[Qit][eta] ][ii] += (h[eta][]*Nxt[Qrho][eta])';
-    else
-  	   for (eta=0;eta<sizeof(Nxt[Qit]);++eta)
-		  aPt[0][ vindex[ Nxt[Qit][eta] ] ][ vindex[ii] ] += (h[eta][]*Nxt[Qrho][eta])';
 	}
 
 
@@ -416,7 +423,9 @@ Bellman::ExogStatetoState() {
 		if ( (nnew = columns(tom.sind)-columns(tom.p)) ) tom.p ~= zeros(1,nnew);
 		intersection(tom.sind,Nxt[Qtr][et],&mynxt);
         if ( !(mynxt[1][]<columns(Nxt[Qrho][et])) ) return TRUE;
-        tom.p[mynxt[0][]] += sumr(tod.chq[][I::elo:I::ehi])' * Nxt[Qrho][et][][mynxt[1][]];
+        tom.p[mynxt[0][]] =
+                tom.p[mynxt[0][]] +  //memory leak
+                sumr(tod.chq[][I::elo:I::ehi])' * Nxt[Qrho][et][][mynxt[1][]];
 		}
     return;
     }

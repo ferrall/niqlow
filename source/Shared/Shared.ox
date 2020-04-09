@@ -41,6 +41,16 @@ Version::Check(indir) {
 
  }
 
+/** Check that two objects have same rows and columns.
+@param A
+@param B
+
+@return TRUE if same dimensions
+**/
+SameDims(A,B) {
+    return (rows(A)==rows(B)) && (columns(A)==columns(B));
+    }
+
 /** Check that an object is of a required class, or one of a required class.
 @param obj object
 @param cname Class name</br>Array of class names

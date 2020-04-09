@@ -46,6 +46,7 @@ The  base class for the DDP framework.
 **/
 struct DP {
 	static decl
+//                            NKpause,                            inNK,  //memleak
         /** Label for the problem. **/                          L,
         /** List of parent classes.**/                          parents,
         /** file for diagnostic output. **/                     logf,
@@ -75,7 +76,6 @@ struct DP {
             **/		                                             Blocks,
 		/** List of variables by vector.
             @see SubVectorNames **/ 		                    SubVectors,
-		/** . @internal **/										cputime0,
 		/** Output level. @see NoiseLevels **/ 					Volume,
 		/** distriubution over groups 		**/ 				gdist,
 		/** density of current group.
@@ -91,6 +91,7 @@ struct DP {
         /** copy of user's Bellman object used for cloning.**/  userState,
 		/** max of vv. @internal       **/						V,
         /** Outcomes sent to `Bellman::StateToStatePrediction` **/  tod, tom,
+        /** shared space for N-K iteration.**/                  NKptrans, NKvindex,
 		/** task to compute endogenous transitions**/		    ETT,
         /** task to compute utility over exogenous states.**/   XUT,
         /** task to integrate V over semi-exogenous states.**/  IOE,
@@ -139,6 +140,7 @@ struct DP {
 		static  SyncAct(a);
         static  SubSampleStates(SampleProportion=1.0,MinSZ=0,MaxSZ=INT_MAX);
         static  SetUpdateTime(time=AfterRandom);
+        static  RecomputeTrans();
 
         static KLaggedState(Target,K,Prune=TRUE);
         static KLaggedAction(Target,K,Prune=TRUE);

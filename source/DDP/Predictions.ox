@@ -33,7 +33,7 @@ Transitions to unreachable states is tracked and logged in the Data logfile.
 Prediction::Predict() {
     EOoE.state[:right] = state[:right] = 0;
     if (!sizec(sind)) {
-        predmom = constant(.NaN,1,sizeof(ctlist));
+        predmom[] = .NaN;
         return TRUE;
         }
 	decl k,tv,s,q,qi,pp=0.0,unrch=<>,allterm=TRUE;
@@ -56,7 +56,8 @@ Prediction::Predict() {
                 }
             }
         }
-    predmom = <>; foreach(tv in ctlist) predmom ~= tv.track.mean;
+    //predmom = <>;
+    foreach(tv in ctlist[k]) predmom[k] = tv.track.mean;
     if (!isfeq(pp,0.0)) {
         if (isfile(Data::logf)) fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][left:right],unrch);
         if (!LeakWarned) {
@@ -76,7 +77,22 @@ Prediction::Predict() {
 Prediction::Reset() {
 	p = sind = <>;
     ch[] = 0.0;
-    predmom = <>;
+    }
+
+/** Initialize and if necessary set moms vectors.
+@param sz length of ctlist.
+This was added to reduce vector creation
+**/
+Prediction::SetMoms(sz) {
+    if ( isint(predmom) || columns(predmom)!=sz) {  //first OR switch in PathPrediction object
+        if (!isint(predmom)) { delete predmom; delete accmom;}                  //switch
+        predmom = constant(.NaN,1,sz);            //create
+        accmom = constant(.NaN,predmom);
+        }
+    else {
+        accmom[] = .NaN;
+        predmom[]=.NaN;
+        }
     }
 
 /** Create a new prediction.
@@ -91,7 +107,7 @@ Prediction::Prediction(t){
 	this.t = t;
 	W = pnext = UnInitialized;
     ch = zeros(N::A,1);
-    empmom = 0;
+    predmom = empmom = 0;
     Reset();
 	}
 
@@ -132,12 +148,14 @@ PathPrediction::tprefix(t) { return sprint("t_","%02u",t,"_"); }
 
 **/
 PathPrediction::ProcessContributions(cmat){
-    vdelt =<>;    dlabels = {};    flat = <>;
+    vdelt =<>;    dlabels = {};
+    if (ismatrix(flat)) delete flat;
+    flat = constant(.NaN,T,Fcols+One+sizeof(tlist));
     cur=this;
     if (ismatrix(cmat)) cmat = shape(cmat,sizeof(tlist),this.T)';
     do {
-        if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
-        flat |= fvals~cur.t~cur.accmom;
+        if (ismatrix(cmat)) cur.accmom[] = cmat[cur.t][];
+        flat[cur.t][] = fvals~cur.t~cur.accmom;
         if (HasObservations) {
             if (ismatrix(pathW)) {
                  dlabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
@@ -154,12 +172,12 @@ PathPrediction::ProcessContributions(cmat){
             : 0.0;
     if (!Version::MPIserver && HasObservations && Data::Volume>QUIET && isfile(Data::logf) ) {
         fprintln(Data::logf," Predicted Moments group ",f," ",L,
-        "%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat[][columns(fvals):],
+        "%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:],
         "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",tlabels[1:],
                 ismatrix(pathW) ? reshape(vdelt,T,sizeof(tlabels[1:])) : vdelt
                 );
         }
-    flat |= constant(.NaN,this.T-rows(flat),columns(flat));
+    //flat |= constant(.NaN,this.T-rows(flat),columns(flat));
     }
 
 /** Create or update a path of predicted distributions.
@@ -199,11 +217,25 @@ PathPrediction::Predict(inT,prtlevel){
         ProcessContributions();
         if (!Version::MPIserver && prtlevel) {
             if (Version::HTopen) println("</pre><a name=\"Prediction\"/><pre>");
-            println(" Predicted Moments for fixed group: ",f,"%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat[][columns(fvals):]);
+            println(" Predicted Moments for fixed group: ",f,"%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:]);
             }
         return TRUE;
         }
   }
+
+/** Get selected elements of the flat path prediction after it is made.
+@param tvals DoAll (default) return all time periods(rows) <br/> integer or vector of t indices to report
+@param mvals DoAll (default) return all moments (columns) <br/> integer or vector of moments to report
+@return flat[tvals][mvals]
+**/
+PathPrediction::GetFlat(tvals,mvals) {
+    if (tvals==DoAll) {
+        if (mvals==DoAll) return flat;
+        return flat[][mvals];
+        }
+    if (mvals==DoAll) return flat[tvals][];
+    return flat[tvals][mvals];
+    }
 
 /**  Work in parallel.
 @internal
@@ -382,7 +414,8 @@ PathPrediction::PathPrediction(f,method,iDist,wght){
     T = 1;
     inT = 0;
     state = ReverseState(f,onlyfixed);
-    fvals = N::F>1 ? f~state[S[fgroup].M:S[fgroup].X]' : f;
+    fvals = N::F>1 ? f~state[S[fgroup].M:S[fgroup].X]' : matrix(f); //f must be a matrix so Fcols is correct
+    Fcols = columns(fvals);
     HasObservations = FALSE;
     pathW = 0;
 
@@ -425,13 +458,12 @@ PathPrediction::~PathPrediction() {
 output will also be produced for any objects in tlist with Volume &gt; SILENT
 **/
 Prediction::Histogram(printit) {
-	decl tv;
-    predmom=<>;
+	decl tv,k;
     Alpha::SetA();
-    foreach(tv in ctlist ) {
+    foreach(tv in ctlist[k] ) {
         tv->Realize();   //??added May 2019 because this was moved out of Distribution
         tv.track->Distribution(this,tv);
-        predmom ~= tv.track.v;
+        predmom[k] = tv.track.v;
         if (printit) tv.track->print(tv);
         }
     Alpha::ClearA();
@@ -585,30 +617,26 @@ PathPrediction::Initialize() {
 
 **/
 PathPrediction::TypeContribution(pf,subflat) {
-  decl done, pcode,time0, tv;
-  time0 = timer();
+  decl done, pcode,tv;
   if (isclass(method) && !method->Solve(f,rcur)) return FALSE;
-  solvetime += timer()-time0;
+  Flags::NewPhase(PREDICTING);
   SetT();
   cur=this;
   ctlist = tlist;
   ExogOutcomes::SetAuxList(tlist);
-  Flags::Phase = Predicting;
   do {
-     cur.predmom=<>;
-     time0 = timer();
+     cur->SetMoms(sizeof(ctlist));
      foreach(tv in tlist) tv.track->Reset();
      pcode = cur->Prediction::Predict();
-     predicttime += timer()-time0;
      done =  pcode                               //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
-     if (PredictFailure) {println("failure"); break;}
+     if (PredictFailure) break;
      if (first) {       //either first or only
-        cur.accmom = pf*cur.predmom;
+        cur.accmom[] = pf*cur.predmom;
         if (!isint(subflat)) subflat[0] |= cur.accmom;
         }
      else {
-        cur.accmom += pf*cur.predmom;
+        cur.accmom[] += pf*cur.predmom;
         }
 	 if (!done) {
           if (!isclass(cur.pnext)) { // no tomorrow after current
@@ -629,6 +657,7 @@ PathPrediction::TypeContribution(pf,subflat) {
         } while (( isclass(nxt = cur) ));
      }
   first = FALSE;
+  Flags::NewPhase(INBETWEEN,Data::Volume>QUIET);
   return 0;
   }
 
@@ -728,7 +757,7 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
         else
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
-	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur.flat;
+	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur->GetFlat();
         } while((isclass(cur=cur.fnext)));
     if (!Version::MPIserver && Data::Volume>QUIET) {
         decl amat = <>,f;
@@ -849,15 +878,12 @@ objective.
 @return `PanelPrediction::M`
 **/
 PredictionDataSet::EconometricObjective(subp) {
-    predicttime = solvetime = 0;
     if (subp==DoAll) {
         PanelPrediction::Predict();
-        //        println("Time to Compute ",predicttime," ",solvetime);
         return M;
         }
     else {
         decl vv = ParallelSolveSub(subp);
-        //        println("Time to Compute ",predicttime," ",solvetime);
         return vv;
         }
 	}

@@ -109,9 +109,12 @@ enum{idvar,avar,svar,auxvar,NColumnTypes}
 
 /** Point in solving when updating of parameters and transitions needs to occur.
 <table class="enum_table">
-<tr><td valign="top">InCreateSpaces</td><td>Transitions and utility do not depend on any parameters that change so they can be initialized
+<tr><td valign="top">InCreateSpaces</td><td>Transitions do not depend on any parameters that change so they can be initialized
 in `DP::CreateSpaces`() and never recalculated.</td></tr>
-<tr><td valign="top">OnlyOnce</td><td>Update transitions and utility just once on each call to `Method::Solve`(). This ensures that if transitions depend
+<tr><td valign="top">WhenFlagIsSet</td><td>Update transitions at the start of `Method::Solve`() but ONLY if the RecomputeTrans() has
+been called. This ensures that if transitions depend on parameters that are controlled by the outside but multiple calls to solve
+will be made for the same parameter values (say while computing equilibrium prices and transitions only depend on parameters)</td></tr>
+<tr><td valign="top">OnlyOnce</td><td>Update transitions just once on each call to `Method::Solve`(). This ensures that if transitions depend
 on parameters that are controlled by the outside (say by an optimization algorithm) the probabilities used in solving the model will
 reflect any changes in the parameters since the last time the solution method was applied. </td></tr>
 <tr><td  valign="top">AfterFixed</td><td>Update transitions after the value of the fixed groups is set.  This will allow transitions to depend on the value of
@@ -122,12 +125,13 @@ both fixed and random effect variables.</td></tr>
 There is a potentially large computational cost of updating the transitions more often than is necessary.
 @see DP::SetUpdateTime
 @name UpdateTimes **/
-enum {InCreateSpaces,OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
+enum {InCreateSpaces,WhenFlagIsSet,OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
 
 /**
 @name DPPhases
 **/
-enum {Initializing,Solving,Simulating,Liking,Predicting,NDPhases}
+                        enum {INBETWEEN, INITIALIZING,  SOLVING,  SIMULATING,  LIKING, PREDICTING,NDPhases}
+const decl NDPlabels =       {"Between","Initializing","Solving","Simulating","Liking","Predicting"};
 
 		/** Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.
          <DT>NoSmoothing</DT>
@@ -277,14 +281,21 @@ struct Flags : DDPauxiliary {
 		/** CreateSpaces() has been called or not.  **/ 		ThetaCreated,
 		/** . @internal **/										Warned,
 		/** . **/												UseStateList,
-		/** create space to store &Rho;* **/  					IsErgodic,
+		/** create space to store $P(\theta';\alpha,\theta)
+            and update it if SetPstar during interation. **/  	IsErgodic,
+        /** Newton-Kantorovich Step is active. **/              NKstep,
         /** Includes a kept continuous state variable.**/       HasKeptZ,
         /** `EndogTrans::Transitions` has been called. **/      HasBeenUpdated,
 		/** &Gamma; already includes fixed effects **/			HasFixedEffect,
         /** Indicators for when transit update occurs.
             @see DP::SetUpdateTime **/                          UpdateTime,
+        /** If UpdateTime=WhenFlagIsSet then next Solve() will
+            update transitions.**/                              CallTrans,
         /** Phase of model solution or use.
             @see DPPhases **/                                   Phase,
+        /** base time mark.**/                                  time0,
+        /** time increment.**/                                  inctime,
+        /** vector of time spent in each phase. **/             runtime,
 		/** Integer TRUE (default) means all possible combination of fixed and random groups exist
             in the group space &Gamma; and should be created.
             If you add a function to the <code>GroupCreate</code> Hooks then this is set FALSE.
@@ -298,6 +309,8 @@ struct Flags : DDPauxiliary {
             in Bellman		**/		                            setPstar;
     static Reset();
     static SetPrunable(clock);
+    static NewPhase(nuphase=INBETWEEN,report=FALSE);
+    static TimeProfile(fn=0);
     }
 
 /** Numbers and sizes of vectors related to the dynamic program.
@@ -476,6 +489,7 @@ struct TrackObj : DDPauxiliary {
     virtual Update();
     virtual print(obj);
     }
+
 
 static decl
                                                 groupoffs = <onlyrand,onlydynrand,onlyfixed,bothgroup>,

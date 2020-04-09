@@ -363,7 +363,7 @@ struct NewtonRaphson : RootFinding {
 /** Solve for the root of a `OneDimSystem` system using Bracket-Bisect. **/
 struct OneDimRoot : SysMax {
     static const decl
-    /** minimum initial step size.**/ istepmin = DIFF_EPS3,
+    /** minimum initial step size.**/ istepmin = DIFF_EPS2,
                                       itoler    = SSQ_TOLER,
                                       defmxiter = 50;
     OneDimRoot(O);

@@ -93,6 +93,7 @@ static const decl
 /** Used in CV() and AV(). static to reduce overhead. @internal **/
 static decl _arg, _noarg, _x, _v, IAmMac;
 
+    SameDims(A,B);
     HTopen(fn);
 	CV(X,...);
 	AV(X,...);

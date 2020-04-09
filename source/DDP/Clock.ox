@@ -3,7 +3,7 @@
 #endif
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
-/** . @internal **/
+/** .  **/
 TimeVariable::TimeVariable(L,N) { Coevolving(L,N); }
 
 /** Base clock block.
@@ -31,12 +31,6 @@ If TRUE then transitions are not computed.
 **/
 Clock::Last() { return t.v==t.N-1; }
 
-/*  Copy solution method-specific values to be used for updating and solving.
-@param inaVV address of solution method's value function vector
-Clock::Solving(inaVV) {
-    aVV = inaVV;
-    }
-*/
 
 /** The base calculation to be carried out after the value of all states at time t have been computed.
 <DT>The clock <code>Vupdate()</code> is called by `GSolve::Update`() at the end of one Bellman iteration.</DT>

@@ -237,7 +237,7 @@ Path::Simulate(T,DropTerminal){
 	cur = this;
 	this.T=1;  //at least one outcome on a path
     if (T==UnInitialized) T = INT_MAX;
-    Flags::Phase = Simulating;
+    Flags::NewPhase(SIMULATING);
     do {
        done = cur->Outcome::Simulate();
        if ( done || this.T>=T || (isclass(pathpred) && pathpred->AppendSimulated(cur)) ) break;
@@ -252,6 +252,7 @@ Path::Simulate(T,DropTerminal){
 		}
 	else
 		last = cur;
+    Flags::NewPhase(INBETWEEN);
 	}
 
 /** Load the first or next outcome in the path.
@@ -335,7 +336,6 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
         }
     else rvals = matrix(Nsim);
     if (Flags::IsErgodic && !T) oxwarning("DDP Warning 08.\nSimulating ergodic paths without fixed Tmax?\nPath may be of unbounded length.");
-	cputime0 = timer();
     Outcome::pathpred = pathpred;
 	cur = this;
     NT = 0;
@@ -346,6 +346,7 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
             }
 	    else
             I::SetGroup(N::R*f+curr);
+        Flags::NewPhase(SIMULATING);
         for(i=0;i<rvals[curr];++i) {
             cur.state = I::curg.state;  // reset state
 		    cur.state += (erg) ? I::curg->DrawfromStationary()
@@ -360,7 +361,7 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
             cur = cur.pnext;
 		    }
         }
-	if (!Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf)) fprintln(Data::logf," FPanel Simulation time: ",timer()-cputime0);
+    Flags::NewPhase(INBETWEEN,!Version::MPIserver && Data::Volume>QUIET);
 	}
 /** .
 @internal
@@ -641,7 +642,7 @@ Path::TypeContribution(pf,subflat) {
 /** Compute likelihood of a realized path.
 **/
 Path::Likelihood() {
-    Flags::Phase = Liking;
+    Flags::Phase = LIKING;
 	if (isint(viinds)) {
 		viinds = new array[DVspace];
 		vilikes = new array[DVspace];
@@ -711,7 +712,6 @@ is set to a vector of <code>.NaN</code>.</DD>
 **/
 FPanel::LogLikelihood() {
 	decl i,cur;
-	cputime0 =timer();
 	FPL = zeros(N,1);  //NT
 	if (isclass(method)) {
         if (!method->Solve(f)) {
@@ -723,6 +723,7 @@ FPanel::LogLikelihood() {
         if (Flags::UpdateTime[AfterFixed] ||
             (Flags::UpdateTime[AfterRandom]&&!isclass(summand)) ) ETT->Transitions(state);
         }
+    Flags::NewPhase(LIKING);
     if (isclass(upddens)) {
 		upddens->SetFE(state);
 		summand->SetFE(state);
@@ -734,6 +735,7 @@ FPanel::LogLikelihood() {
 		FPL[i] = log(cur.L);
         myl += FPL[i];
 		}
+    Flags::NewPhase(INBETWEEN,Data::Volume>QUIET);
     return TRUE;
 	}
 
@@ -1097,7 +1099,6 @@ OutcomeDataSet::Read(FNorDB,SearchLabels) {
 	   if (!source->Load(FNorDB)) oxrunerror("DDP Error 59. Failed to load data from "+FNorDB);
         }
     else source = FNorDB;
-	cputime0=timer();
 	if (!list[idvar].obsv) {
         oxwarning("DDP Warning 60. OutcomeDataSet::IDColumn not called before reading data.  Using default (may cause an error)");
         IDColumn();

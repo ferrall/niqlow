@@ -30,9 +30,9 @@ DynamicRoy::Replicate()	{
             SubSampleStates( constant(1.0,1,TSampleStart)
                             ~constant(SamplePercentage/100,1,A1-TSampleStart),MinSample);
        meth[i] -> Solve();
-	   println("Method ",i," time: ",timer()-cputime0);
        SimulateOutcomes(Nsimulate,A1,"KW94_meth"+sprint(i)+".dta");
        ComputePredictions(A1,Two);
+       Flags::TimeProfile();
 	   DPDebug::outV(FALSE,&outmat);
        Vmat[i] = outmat;
        }

@@ -86,6 +86,34 @@ Flags::SetPrunable(clock) {
             || (isclass(clock,"Divided")&&(clock.MajT));
     }
 
+/**Cumulate time on current phase, report time, set new phase.
+@param nuphase `NDPhase` to start.  If INITIALIZING all runtimes are set to 0.<br/>
+                INBETWEEN [default].  Next phase is not determined at this point.
+@param report FALSE [default] silent<br/>TRUE print out time report for the ending phase
+This sets the current phase to InBetween.
+**/
+Flags::NewPhase(nuphase,report) {
+    if (nuphase==INITIALIZING)
+        runtime = zeros(NDPhases,1);
+    else {
+        inctime = timer()-time0;
+        runtime[Phase] += inctime;
+        if (report) println("Phase :",NDPlabels[Phase]," Increment: ","%10.2f",inctime/100,". Cumulative: ","%12.2f",runtime[Phase]/100);
+        }
+    Phase = nuphase;
+    time0 = timer();
+    }
+
+/**Report the time spent in different phases of the calculations.
+@param fn  a file pointer or an integer (print to screen)
+**/
+Flags::TimeProfile(fn) {
+    if (isfile(fn))
+        fprintln(fn,"%r",NDPlabels,"%c",{"seconds"},"%cf",{"%12.2f"},runtime./100);
+    else
+        println("%r",NDPlabels,"%c",{"seconds"},"%cf",{"%12.2f"},runtime./100);
+    }
+
 /** Compute distribution (histogram) of a tracked object.
 @internal
 **/

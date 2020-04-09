@@ -21,6 +21,7 @@ Method::Method(myGSolve) {
     qtask = new RandomSolve(isint(myGSolve) ? new GSolve() : myGSolve);
     }
 
+
 /** This does common setup tasks but actually doesn't solve.
 @internal
     **/
@@ -28,7 +29,10 @@ Method::Initialize(MaxTrips) {
   	if (isint(delta))
         oxwarning("DDP Warning 23.\n User code has not set the discount factor yet.\n Setting it to default value of "+sprint(SetDelta(0.90))+"\n");
     I::NowSet();
-    if (Flags::UpdateTime[OnlyOnce]) {ETT->Transitions();}
+    if (Flags::UpdateTime[OnlyOnce] || (Flags::UpdateTime[WhenFlagIsSet]&&Flags::CallTrans) ) {
+        ETT->Transitions();
+        Flags::CallTrans=FALSE;
+        }
 //    if (isclass(qtask)&&isclass(itask)) {
         qtask.itask.Volume = Volume;
         qtask.itask.vtoler = vtoler;
@@ -36,8 +40,7 @@ Method::Initialize(MaxTrips) {
         qtask.itask.MaxTrips = (MaxTrips==ResetValue) ? 0 : MaxTrips;
 //        }
     done = FALSE;
-    cputime0 = timer();
-    Flags::Phase = Solving;
+    Flags::NewPhase(SOLVING);
     }
 
 /** Carry out a solution method.
@@ -62,6 +65,7 @@ Method::Solve(Fgroups,Rgroups) {
     Flags::HasBeenUpdated = FALSE;
     if (Volume>QUIET && (Fgroups==AllFixed && Rgroups==AllRand))
         println("\n>>>>>>Value Iteration Finished.  Succeed: ",qtask.itask.succeed,"\n");
+    Flags::NewPhase(INBETWEEN,Volume>QUIET);
     return qtask.itask.succeed;
     }
 
@@ -102,7 +106,6 @@ This is not called by the user's code.  It is called by the method's Solve() rou
 Method::Run() {
     if (Flags::UpdateTime[AfterFixed]||DoNotIterate) ETT->Transitions(state);
     if (DoNotIterate) return;
-	cputime0 = timer();
     if (trace) println("--------Group task loop: ",classname(this)," Rgroups ",Rgroups,state');
     if (Rgroups==AllRand) {
         qtask->SetFE(state);
@@ -210,7 +213,7 @@ If `Flags::setPstar` then
 <OL>
 <LI>Smooth choice probabilities with the DP-model's `Bellman::Smooth`() method.</LI>
 <LI>Call anything added to the <code>PostSmooth</code> `HookTimes`</LI>
-<LI>If `Flags::IsErgodic` then update the state-to-state transition matrix,
+<LI>If `Flags::IsErgodic` OR `Flags::NKstep` then update the state-to-state transition matrix,
     $P(\theta^\prime;\theta)$, for all $\theta^\prime$ reachable from $\theta$
     using the choice proabilities and the primitive transition $P(\theta^\prime;\alpha,\theta)$. </LI>
 </OL>
@@ -223,6 +226,6 @@ GSolve::PostEMax() {
 	if (Flags::setPstar)  {
 		I::curth->Smooth();
         Hooks::Do(PostSmooth);
-        if (Flags::IsErgodic) I::curth->UpdatePtrans();
+        if (Flags::IsErgodic||Flags::NKstep) I::curth->UpdatePtrans();
 		}
     }

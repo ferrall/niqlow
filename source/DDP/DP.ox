@@ -666,6 +666,7 @@ ExogUtil::ExogUtil() {
 	ExTask();	
     subspace = iterating;
     AnyExog = SS[bothexog].size > One;
+    U = UnInitialized;
 	}
 
 /** Compute $U$, either over all $\epsilon$ or just the current one.
@@ -675,7 +676,8 @@ ExogUtil::ExogUtil() {
 
 **/	
 ExogUtil::ReCompute(howmany) {
-    U = constant(.NaN,I::curth.pandv);
+    if (SameDims(U,I::curth.pandv)) U[][] = .NaN;
+    else  U = constant(.NaN,I::curth.pandv);
     if (AnyExog && howmany==DoAll)
         this->ExTask::loop();
     else
@@ -758,7 +760,7 @@ ExogOutcomes::ExpectedOutcomes(howmany,chq) {
 ExogOutcomes::Run() {
     Hooks::Do(PreAuxOutcomes);
     I::curth->OutcomesGivenEpsilon(); //ExpectedOutcomesOverEpsilon(chq);
-    if (Flags::Phase==Predicting) { // no need to do this when solving
+    if (Flags::Phase==PREDICTING) { // no need to do this when solving
         decl tv;
         foreach(tv in auxlist) {
             tv->Realize();
@@ -914,7 +916,7 @@ Labels::Initialize() {
 /** Reset all Flags.
 @internal
 **/
-Flags::Reset() { delete UpdateTime; Phase = UpdateTime = StorePA = IsErgodic = HasFixedEffect = ThetaCreated = FALSE; }
+Flags::Reset() { delete UpdateTime; delete runtime; Phase = UpdateTime = StorePA = IsErgodic = NKstep = HasFixedEffect = ThetaCreated = FALSE; }
 
 /** Reset all Sizes.
 @internal
@@ -1131,6 +1133,7 @@ DP::SetUpdateTime(time) {
         switch_single (time) {
             case InCreateSpaces : if (Flags::ThetaCreated) oxrunerror("Cannot specify UpdateTime as InCreateSpaces after CreateSpaces has been called");
                                   oxwarning("DDP Warning 13a.\n Transitions and actual values are fixed.\n They are computed in CreateSpaces() and never again.\n");
+            case WhenFlagIsSet  : oxwarning("DDP Warning 13aa.\n Setting update time only if RecomputeTrans() has been called.\n Transitions and actual values are the same for all calls to Solve() until RecomputeTrans() is called again.\n");
             case OnlyOnce       : oxwarning("DDP Warning 13b.\n Setting update time to OnlyOnce.\n Transitions and actual values do not depend on fixed or random effect values.\n  If they do, results are not reliable.\n");
             case AfterFixed     : oxwarning("DDP Warning 13c.\n Setting update time to AfterFixed.\n Transitions and actual values can depend on fixed effect values but not random effects.\n  If they do, results are not reliable.\n");
             case AfterRandom    : oxwarning("DDP Warning 13d.\n Setting update time to AfterRandom.\n Transitions and actual values can depend on fixed and random effects,\n  which is safe but may be redundant and therefore slower than necessary.\n");
@@ -1138,6 +1141,13 @@ DP::SetUpdateTime(time) {
             }
     Flags::UpdateTime[] = FALSE;
     Flags::UpdateTime[time] = TRUE;
+    if (time==WhenFlagIsSet) Flags::CallTrans = TRUE;
+    }
+
+/**  If changing fixed parameters and UpdateTime==WhenFlagIsSet then next Solve() will recompute transitions.
+**/
+DP::RecomputeTrans() {
+    Flags::CallTrans = TRUE;
     }
 
 /** Request that the State Space be subsampled for extrapolation methods such as `KeaneWolpin`.
@@ -1193,6 +1203,7 @@ DP::onlyDryRun() {
 **/
 DP::CreateSpaces() {
    if (Flags::ThetaCreated) oxrunerror("DDP Error 44. State Space Already Defined. Call CreateSpaces() only once");
+   Flags::NewPhase(INITIALIZING);
    decl subv,i,pos,m,bb,sL,j,av, sbins = zeros(1,NStateCategories),w0,w1,w2,w3, tt,lo,hi,inargs = arglist();
    if (strfind(inargs,"NOISY")!=NoMatch) Volume=NOISY;
     if (!S[acts].D) {
@@ -1293,7 +1304,6 @@ DP::CreateSpaces() {
 		print("\n4. ACTION VARIABLES\n   Number of Distinct action vectors: ",N::A);
 		println("%r",{"    a.N"},"%cf","%7.0f","%c",Labels::Vprt[avar],N::AA');
 		}
-	cputime0=timer();
 	Theta = new array[SS[tracking].size];
     I::Initialize();
     Alpha::ResetA(SubVectors[acts]);
@@ -1348,6 +1358,7 @@ DP::CreateSpaces() {
    EStoS = new SemiTrans();
    EOoE  = new ExogOutcomes();
    if (!Version::MPIserver && Volume>SILENT) println("-------------------- End of Model Summary ------------------------\n");
+   Flags::NewPhase(INBETWEEN,!Version::MPIserver && Volume>SILENT);
    Data::SetLog();
  }
 

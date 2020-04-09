@@ -46,7 +46,6 @@ struct NewtonKantorovich : ValueIteration {
 struct NKSolve : GSolve {
     decl
      /**setting up Newton-Kantorovich iteration.**/ NKstep0,
-   /**Newton-Kantorovich iteration.**/              NKstep,
                                                     prevdff,
     /**Minimum trips before N-K.**/                 MinNKtrips,
     /**tolerance for switching to NK,**/            NKtoler,
@@ -66,7 +65,6 @@ struct NKinfo : DDPauxiliary {
         Nstat,
         MnNxt,
         MxNxt,
-        ptrans,
         onlyactive,
         visit;
     Update(ii);

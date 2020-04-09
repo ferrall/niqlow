@@ -15,10 +15,9 @@ on static members in order to reduce memory requirements.  These are defined in 
 **/
 struct  Bellman : DP {
 
-    static decl  //moved from ThetaTransition and ExogStatetoState to reduce stack overhead.
-            /** .internal **/
-            fk, ios, now=NOW, later=LATER, si,Nb,prob,feas,root,swap, curO, rcheck,
-            et,mynxt, nnew;
+    static decl  //moved from ThetaTransition and ExogStatetoState and UpdatePtrans to reduce stack overhead.
+                fk, ios, now=NOW, later=LATER, si,Nb,prob,feas,root,swap, curO,
+                rcheck, et,mynxt, nnew, hagg;
 	decl
         /**Integer code to classify state (InSubSample,LastT,Terminal).
             This avoids multiple integer values at each point in the state space.
@@ -61,7 +60,7 @@ struct  Bellman : DP {
 					~Bellman();
 					Simulate(Y);
 					ThetaTransition();
-					UpdatePtrans(ap=0,vind=0);
+					UpdatePtrans();
                     StateToStatePrediction(intod);
 					MedianActVal();
                     virtual InSS();

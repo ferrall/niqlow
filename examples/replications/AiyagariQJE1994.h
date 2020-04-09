@@ -77,6 +77,7 @@ struct Aiyagari : OneDimSystem{
 		/** &rho; shock corr.**/	rho, 		//copied from params
 		/** &mu; CES exponent.**/	mu,	 		//copied from params
 		/** 1-&mu;.**/				muM1,
+									filename,   //current file 
 									replmom,	//computed for current param values
 									orig;		//copied from original
 

@@ -2,7 +2,7 @@
 
 /** calculate results and compare to original.**/
 Aiyagari::Run() {
-	decl i, j, k;
+	decl i, j, k, stpsz;
 	eq = new Aiyagari();					//The 1-dimensional system object
 	alg = new OneDimRoot(eq);				//algorithm to find root of the system.						
 		alg.Volume=NOISY;
@@ -18,9 +18,20 @@ Aiyagari::Run() {
 				mu =  params[imu][k];
 				muM1 = 1 - mu;
 				println("\n\n ******** Indices: ",i," ",j," ",k,".\n Parameter Values:\nsigma = ",sig," rho = ",rho," mu = ",mu);
-				eq->ResetMax();
-				eq->Encode(1.0|(original[i][j][k][0]/100));	 // start with original r
-				alg->Iterate(0.05,20,DIFF_EPS);			//eq->Encode();  //encode if not iterating										
+				if (!i && j && !k) {
+					println("Skipping this set of parameters");
+					continue;
+					}
+				filename = sprint("Aiyagari_",i,"_",j,"_",k);
+				stpsz = DIFF_EPS3;  //min. step size
+				if (!eq->Load(filename)) {		
+					eq->Encode(1.0|(original[i][j][k][0]/100));	 // start with original r if loading from file fails.
+					eq->ResetMax();
+					stpsz = 0.05;
+					}
+				DP::RecomputeTrans();
+				alg->Iterate(stpsz,20,DIFF_EPS);	// eq->Encode();  //encode if not iterating
+				Flags::TimeProfile();
 				eq->Report(i,j,k);
 				}
 				
@@ -36,16 +47,17 @@ Aiyagari::Run() {
 Aiyagari::Aiyagari(){
 	OneDimSystem("rRoot"); 
 	price = new array[Factors];
-		price[KK] = new Bounded("r",0.0,1.5*lam,lam);	 // r in (0.0,1.5lambda)
+		price[KK] = new BoundedAbove("r",1.5*lam,lam);	 // r  below 1.5lambda
 		price[LL] = new Determined("w",Wage);	  		//wage determined by r
 	Parameters(price);									//parameters of the equilibrium system
-	// Load();										//Uncomment to Load values from .optobj file not hard-coded ival
-	DP::Volume = SILENT; //LOUD;							//turn up volume to see summary of State & Action spaces
+	DP::Volume = SILENT; //LOUD;					//turn up volume to see summary of State & Action spaces
 	AiyagariAgent::Build();							//household problem set up
-	vi = new NewtonKantorovich(); 					//start with Bellman iteration, switch to N-K iteration
+	vi = new NewtonKantorovich(); 					//start with Bellman iteration, switch to N-K iteration new ValueIteration(); 
 		vi.vtoler = DIFF_EPS;
-		vi->Tune(5,1.0);  							//start N-k after 5 iterations and when norm() < 1.0
-		//vi.Volume=LOUD;							//To see Value iteration output	
+		vi->Tune(1,1.0);  							//start N-k after 1 iterations and when norm(|V'-V|) < 1.0
+		vi->ToggleRunSafe();						//exit if NaNs encountered during iteration.
+
+	//vi.Volume=LOUD;							//To see Value iteration output
 	pred = new PathPrediction (0,vi, ErgodicDist);  //vi nested in prediction; use ergodic distn as starting values
 		pred->Tracking(UseLabel,AiyagariAgent::A);	//track predicted assets
 	aggV = zeros(Factors,1);
@@ -60,7 +72,7 @@ Aiyagari::Wage() {
 **/
 Aiyagari::vfunc() {
 	pred -> Predict(1,0);				//re-solve and compute stationary assets
-	aggV[KK] = pred.flat[Zero][Two];	//copy into aggregate quantity vector	
+	aggV[KK] = pred->GetFlat(Zero,Two);	//copy into aggregate quantity vector	
     aggV[LL] = exp(0.5*sqr(sig)); 		//could be done only once, needed if system is expanded
 	LtoK =  aggV[LL]/aggV[KK];		    //labour-to-capital ratio
 	MP = MPco .* (LtoK.^MPexp) - MPdep;
@@ -73,7 +85,7 @@ Aiyagari::vfunc() {
 Aiyagari::Report(i,j,k) {
 	decl oldv = Volume;		//store current output level
 	Volume = LOUD;
-	Save(sprint("Aiyagari_",i,"_",j,"_",k));
+	Save(filename);
 	println("Equilibrium Conditions at current prices:");
 	vfunc();
 	//println("Stationary Distribution,",DP::GetPinf()');
@@ -127,6 +139,7 @@ AiyagariAgent::Build() {
 			A -> SetActual(agrid);
 		Actions(a);
 		EndogenousStates(l,A);
+		SetUpdateTime(WhenFlagIsSet);
  	CreateSpaces();
     SetDelta(Aiyagari::delt); 		// discount factor.
 	}
@@ -142,12 +155,6 @@ AiyagariAgent::Consumption() {
 		-  AV(a);
 	}
 	
-/*  THIS IS WRONG.  MUST DEPEND ON PRICES, Consumption must be greater than -$\overline{a}$.
-AiyagariAgent::FeasibleActions(){
-	return Consumption() .>= -Aiyagari::lbar;
-	}
-*/
-
 /**CES utility.
 	$$U = \cases{
 			{ C^{1-\mu} -1 over 1-\mu} & if $\mu\ne 1.0$\cr

@@ -103,7 +103,7 @@ Test3a::Run()	{
 	Initialize(new Test3a(),FALSE);
 	SetClock(NormalAging,1);
 	Actions(accept = new ActionVariable("Accept",Msectors));
-    GroupVariables(lnk = new NormalRandomEffect("lnk",3,0.0,0.1));
+    GroupVariables(lnk = new NormalRandomEffect("lnk",3,<0.0,0.1>));
 	ExogenousStates(offers = new MVNormal("eps",Msectors,Noffers,zeros(Msectors,1),sig));
 	xper = new array[Msectors-1];
 	for (i=0;i<Msectors-1;++i)
