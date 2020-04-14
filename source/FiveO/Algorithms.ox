@@ -12,7 +12,11 @@ Algorithm::Algorithm(O) {
 	nfuncmax = maxiter = INT_MAX;
 	N = 0;
     this.O = O;
-	OC = O.vcur;
+	OC = isclass(O,"Mixture")
+            ? O.mcur
+            : isclass(O,"Separable")
+                ? O.scur
+                : O.vcur;
     tolerance = itoler;
 	Volume = SILENT;
     StorePath = FALSE;
@@ -67,7 +71,7 @@ Algorithm::ItStartCheck(ReadCheckPoint) {
     else {
         inparallel = TRUE;
         O.p2p.server->Loop(N," ItStartCheck ",TRUE);
-        println("");
+//        println("");
         return FALSE;    // will skip iteration loop on return
         }
     }

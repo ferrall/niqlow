@@ -63,6 +63,7 @@ Hooks::Do(ht) {
 /** Swap the now and later indices for Bellman iteration.
 **/
 I::NowSwap() {now = later; later = !later;}
+
 /** Initialize now and later indices for Bellman iteration.
 **/
 I::NowSet() {now = NOW;	later = LATER; }
@@ -72,10 +73,10 @@ I::NowSet() {now = NOW;	later = LATER; }
 User code does not call this.
 
 <DT>Clocks that are prunable:</DT>
-<DD>`Aging`</DD>
-<DD>`Mortality`</DD>
-<DD>`Longevity`</DD>
-<DD>`Divided`</DD>
+    <DD>`Aging`</DD>
+    <DD>`Mortality`</DD>
+    <DD>`Longevity`</DD>
+    <DD>`Divided`</DD>
 
 @see StateVariable::IsReachable
 **/
@@ -90,7 +91,8 @@ Flags::SetPrunable(clock) {
 @param nuphase `NDPhase` to start.  If INITIALIZING all runtimes are set to 0.<br/>
                 INBETWEEN [default].  Next phase is not determined at this point.
 @param report FALSE [default] silent<br/>TRUE print out time report for the ending phase
-This sets the current phase to InBetween.
+
+This is called internally to track time spent in different stages of the program.
 **/
 Flags::NewPhase(nuphase,report) {
     if (nuphase==INITIALIZING)
@@ -151,6 +153,7 @@ TrackObj::TrackObj(LorC,obj,pos) {
     hist = zeros(0,1);
   }
 
+/** . @internal **/
 TrackObj::Reset() {
     hist[] = 0.0;
     mean = 0.0;

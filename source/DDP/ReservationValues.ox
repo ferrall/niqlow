@@ -161,6 +161,7 @@ RVSolve(ToScreen,aM) {
 	DPDebug::outAllV(ToScreen,aM);
     meth.Volume = QUIET;
 	decl conv = meth->Solve();
+    delete meth.qtask;
     delete meth;
     return conv;
     }

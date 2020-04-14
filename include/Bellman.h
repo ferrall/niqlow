@@ -16,24 +16,38 @@ on static members in order to reduce memory requirements.  These are defined in 
 struct  Bellman : DP {
 
     static decl  //moved from ThetaTransition and ExogStatetoState and UpdatePtrans to reduce stack overhead.
-                fk, ios, now=NOW, later=LATER, si,Nb,prob,feas,root,swap, curO,
-                rcheck, et,mynxt, nnew, hagg;
-	decl
+                /** @internal **/ fk,
+                /** @internal **/ ios,
+                /** @internal **/  now=NOW,
+                /** @internal **/  later=LATER,
+                /** @internal **/  si,
+                /** @internal **/ Nb,
+                /** @internal **/ prob,
+                /** @internal **/ feas,
+                /** @internal **/ root,
+                /** @internal **/ swap,
+                /** @internal **/ curO,
+                /** @internal **/ rcheck,
+                /** @internal **/ et,
+                /** @internal **/ mynxt,
+                /** @internal **/ nnew,
+                /** @internal **/ hagg;
+
+	decl       //Dynamic values that take on different values at each $\theta$.  Kept to a minimum to limit storage
         /**Integer code to classify state (InSubSample,LastT,Terminal).
             This avoids multiple integer values at each point in the state space.
             Defined in `StateTypes`. Set in `DP::CreateSpaces`() and `DP::SubSampleStates`()
             @see StateVariable::MakeTerminal, Clock::Last **/       Type,
-		/**&theta;.j index into `Alpha::CList`.**/  				Aind,
-		/** v(&alpha;;&theta;) and &Rho;*(&hellip;,&gamma;). **/    pandv,
+		/** index into `Alpha::CList`, determines $A(\theta)$.**/  	Aind,
+		/** $v(\alpha;\epsilon,\eta,\theta)$ and $P*()$. **/        pandv,
 		/** TransStore x &eta;-Array of feasible endogenous	state
 			indices and transitions
-			&Rho;(&gamma;&prime;;&alpha;,&eta;,&gamma;).**/			Nxt,
+			$P(\theta^\prime;\alpha,\eta,\theta).**/			    Nxt,
 		/**EV(&theta;)  **/					                        EV;
 
 			static 	Delete();
 			static 	Initialize(userState,UseStateList=FALSE);
 			static  CreateSpaces();
-                    OnlyFeasible(myU);
 
             //  Users may or must replace these with their own
 			virtual Utility();
@@ -51,10 +65,10 @@ struct  Bellman : DP {
             virtual AMEMax();
 			virtual Smooth();
 			virtual KernelCCP(task);
-			// virtual ZetaRealization();
 			virtual	AutoVarPrint1(task);
             virtual SetTheta(state=0,picked=0);
 
+                    OnlyFeasible(myU);
 					Bellman(state,picked);
                     Allocate(picked,CallFromBellman=FALSE);
 					~Bellman();

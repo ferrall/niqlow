@@ -80,17 +80,20 @@ Prediction::Reset() {
     }
 
 /** Initialize and if necessary set moms vectors.
-@param sz length of ctlist.
-This was added to reduce vector creation
+@param sz length of current ctlist.
+@param firsttype first or only pass integrating over gamma_r
+
+This was added to reduce vector creation/destruction
+
 **/
-Prediction::SetMoms(sz) {
-    if ( isint(predmom) || columns(predmom)!=sz) {  //first OR switch in PathPrediction object
-        if (!isint(predmom)) { delete predmom; delete accmom;}                  //switch
+Prediction::SetMoms(sz,firsttype) {
+    if ( isint(predmom) ) {
         predmom = constant(.NaN,1,sz);            //create
-        accmom = constant(.NaN,predmom);
+        accmom = zeros(predmom);
+        //     || columns(predmom)!=sz) {  //first OR switch in PathPrediction object        if (!isint(predmom)) { delete predmom; delete accmom;}                  //switch
         }
-    else {
-        accmom[] = .NaN;
+    else {  //reset existing vectors
+        if (firsttype) accmom[] = 0.0;
         predmom[]=.NaN;
         }
     }
@@ -413,8 +416,8 @@ PathPrediction::PathPrediction(f,method,iDist,wght){
     Prediction(0);
     T = 1;
     inT = 0;
-    state = ReverseState(f,onlyfixed);
-    fvals = N::F>1 ? f~state[S[fgroup].M:S[fgroup].X]' : matrix(f); //f must be a matrix so Fcols is correct
+    pstate = ReverseState(f,onlyfixed);
+    fvals = N::F>1 ? f~pstate[S[fgroup].M:S[fgroup].X]' : matrix(f); //f must be a matrix so Fcols is correct
     Fcols = columns(fvals);
     HasObservations = FALSE;
     pathW = 0;
@@ -447,8 +450,8 @@ PathPrediction::~PathPrediction() {
 		delete pnext;
 		pnext = cur;
 		}
-    if (isclass(upddens)) {delete upddens; upddens = UnInitialized; }
-	if (isclass(summand)) {delete summand; summand=UnInitialized;}
+    delete upddens; upddens = UnInitialized;
+	delete summand; summand=UnInitialized;
 	~Prediction();
     }
 
@@ -600,8 +603,8 @@ PathPrediction::Initialize() {
     EverPredicted = TRUE;
     PredictFailure = FALSE;
 	if (isclass(upddens)) {
-		upddens->SetFE(state);
-		summand->SetFE(state);
+		upddens->SetFE(pstate);
+		summand->SetFE(pstate);
 		upddens->loop();
 		}
     flat = <>;
@@ -618,26 +621,24 @@ PathPrediction::Initialize() {
 **/
 PathPrediction::TypeContribution(pf,subflat) {
   decl done, pcode,tv;
-  if (isclass(method) && !method->Solve(f,rcur)) return FALSE;
+  if (isclass(method)) { // Nested Solution algorithm. Solve the current problem
+        if (!method->Solve(f,rcur))   // Did solution fail?
+            return FALSE;
+        }
   Flags::NewPhase(PREDICTING);
   SetT();
   cur=this;
   ctlist = tlist;
   ExogOutcomes::SetAuxList(tlist);
   do {
-     cur->SetMoms(sizeof(ctlist));
+     cur->SetMoms(sizeof(ctlist),first);
      foreach(tv in tlist) tv.track->Reset();
      pcode = cur->Prediction::Predict();
      done =  pcode                               //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
      if (PredictFailure) break;
-     if (first) {       //either first or only
-        cur.accmom[] = pf*cur.predmom;
-        if (!isint(subflat)) subflat[0] |= cur.accmom;
-        }
-     else {
-        cur.accmom[] += pf*cur.predmom;
-        }
+     cur.accmom[] += pf*cur.predmom;
+     if (!isint(subflat)) subflat[0] |= cur.accmom;
 	 if (!done) {
           if (!isclass(cur.pnext)) { // no tomorrow after current
                 cur.pnext = new Prediction(cur.t+1);
@@ -718,17 +719,17 @@ PanelPrediction::~PanelPrediction() {
 @param wght [default=UNCORRELATED]
 **/
 PanelPrediction::PanelPrediction(label,method,iDist,wght) {
-	decl f=0;
+	decl f=0;   //go in reverse order like other processes
 	PathPrediction(f,method,iDist,wght);	
     label = isint(label) ? classname(userState) : label;
     PredMomFile=replace(Version::logdir+DP::L+"_PredMoments_"+label," ","")+".dta";
 	fparray = new array[N::F];
-	fparray[0] = 0;  // I am my own first fixed effect group.
+	fparray[f] = 0;  // I am my own first fixed effect group.
 	cur = this;
     // Create path predictions for all other fixed effect groups
     if (N::F>One && !isclass(method))
             oxwarning("DDP Warning: Solution method is not nested with fixed effects present.  Predictions may not be accurate");
-	for (f=One;f<N::F;++f) cur = cur.fnext = fparray[f] = new PathPrediction(f,method,iDist,wght);
+	for (f=One;f<N::F-1;++f) cur = cur.fnext = fparray[f] = new PathPrediction(f,method,iDist,wght);
     FN = 1;
     TrackingCalled = FALSE;
     }

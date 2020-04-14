@@ -246,6 +246,7 @@ Test9::Run()	{
     Data::Volume = LOUD;
     pd->Tracking (UseLabel,a,d);
     pd->Predict(15,TRUE);
+    delete pd;
     pd = new PredictionDataSet(UseLabel,"hi",meth,FALSE,FALSE);
     pd->TrackingWithLabel(AllFixed,TRUE,a,d);
     pd->Read(); //reads from PredMomFile
@@ -302,7 +303,8 @@ Test11::Run()	{
     pd = new PathPrediction(0,vi);
     DPDebug::outAllV();
     pd->Predict(T,Two);
-    delete vi; delete pd;
+    delete pd;
+    delete vi;
     Delete();
 	}
 Test11::Ewage() {

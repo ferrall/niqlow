@@ -63,7 +63,8 @@ The user can define a derived class and supply a replacement to the virtual `Ran
 RandomEffect::RandomEffect(L,N,fDist) {
 	StateVariable(L,N);
     this.fDist = fDist;
-	pdf = constant(1/N,1,N);
+    // Distribution(); // April 2020.  This might create errors.
+	//pdf = constant(1/N,1,N);
 	}
 
 /** Do Nothing and prohibit derived Updates.
@@ -216,7 +217,7 @@ NormalRandomEffect::Distribution() { actual = DiscreteNormal(N,pars)';	}
 @param L label
 @param N number of points
 @param M number of standard deviations to set the largest value as
-@param pars 2x1 vector or array of `AV`()-compatible parameters<br/>
+@param pars 2x1 vector or array of `AV`()-compatible Normal distribution parameters<br/>
 <pre>
     i: Parameter (default)
     0: mean (&mu;=0.0)<br/>

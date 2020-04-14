@@ -24,7 +24,7 @@ struct Method : FETask {
     virtual Solve(Fgroups=AllFixed,Rgroups=AllRand);
 	}
 
-/**	Loop over random effect values &gamma;, call  GSolve() method for the calling method.
+/**	Loop over random effect values $\gamma_r$, call  GSolve() method for the calling method.
 **/
 struct RandomSolve : RETask {
     decl retval;
@@ -32,30 +32,28 @@ struct RandomSolve : RETask {
     Run();
     }
 
-/** A container for iterating over &theta; during solution methods.    **/
+/** The base method for iterating over $\theta$ during solution methods.
+    Some methods provide a replacement for this.
+**/
 struct GSolve : ThetaTask {
     decl
-                                                    dff,
-    /** TRUE (default): exit if NaNs encountered during iteration<br>
-            FALSE: exit with <code>IterationFailed</code> **/
-    /** check for NaNs in the value function.**/    RunSafe,
-    /** TRUE if all tasks suceed.**/                succeed,
-                                                    warned,
-                                                    Volume,
-//                                                    ev,
-                                                     MaxTrips,
-	/** Tolerance on value function convergence in
-    stationary environments.  Default=10<sup>-5</sup>.**/	
-                                                     vtoler;
-    static decl
-                                                    ptrans;
-    ZeroTprime();
-    GSolve(caller=UnInitialized);
+     /** . @internal**/                                     dff,
+    /** TRUE (default): exit if NaNs encountered during iteration<br/>
+        FALSE: exit with <code>IterationFailed</code> **/    RunSafe,
+    /** TRUE if all tasks suceed.**/                        succeed,
+    /** . @internal**/                                      warned,
+    /** Amount of ouptut to produce @see NoiseLevels**/     Volume,
+    /** Fixed limit on number of iterations.**/             MaxTrips,
+	/** Tolerance on value function convergence in stationary
+        environments.  Default=`Method::DefTolerance`.**/   vtoler;
+
+            ZeroTprime();
+            GSolve(caller=UnInitialized);
+            Report(mefail);
     virtual Solve(instate);
     virtual Run();
 	virtual Update();
     virtual PostEMax();
-    Report(mefail);
 	}
 
 #ifdef OX_PARALLEL

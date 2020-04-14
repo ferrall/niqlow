@@ -180,21 +180,27 @@ Constrained::CheckPoint(f,saving)	{
 		Encode(inX);  //typo found Sept. 2014
 		}
 	}
-	
-/** If <code>vcur.v &gt; maxpt.v</code> call `Objective::Save` and update <code>maxpt</code>.
-@return TRUE if maxval was updated<br>FALSE otherwise.
+
+/**Compare v to maxpt.
 **/
-Objective::CheckMax(fn)	{
-    newmax = vcur.v>maxpt.v;
+Objective::CheckMaxV(v,fn) {
     decl suffx = newmax ? "*" : " ";
     if (Volume>SILENT) {
         if (isfile(logf)) fprintln(logf,suffx);
 		if (Volume>QUIET) {
-            println(suffx);
-            if (isfile(fn)) fprintln(fn," ","%15.8f",vcur.v,suffx);
+            println(" ","%15.8f",v,suffx);
+            if (isfile(fn)) fprintln(fn," ","%15.8f",v,suffx);
             }
-        else if (newmax) println(" ","%15.8f",vcur.v,suffx);
+        else if (newmax) println(" ","%15.8f",v,suffx);
         }
+    }	
+
+/** If <code>vcur.v &gt; maxpt.v</code> call `Objective::Save`() and update <code>maxpt</code>.
+@return TRUE if maxval was updated<br>FALSE otherwise.
+**/
+Objective::CheckMax(fn)	{
+    newmax = vcur.v>maxpt.v;
+    CheckMaxV(vcur.v,fn);
 	if (newmax)	{
 		this->Save(0);
 		maxpt -> Copy(vcur);
@@ -202,18 +208,36 @@ Objective::CheckMax(fn)	{
 	return newmax;
 	}
 
+/** If <code>scur.v &gt; maxpt.v</code> call `Objective::Save` and update <code>maxpt</code>.
+@return TRUE if maxval was updated<br>FALSE otherwise.
+**/
+Separable::CheckMax(fn)	{
+    newmax = scur.v>maxpt.v;
+    CheckMaxV(scur.v,fn);
+	if (newmax)	{
+		this->Save(0);
+		maxpt -> Copy(scur);
+		}
+	return newmax;
+	}
+
+/** If <code>scur.v &gt; maxpt.v</code> call `Objective::Save` and update <code>maxpt</code>.
+@return TRUE if maxval was updated<br>FALSE otherwise.
+**/
+Mixture::CheckMax(fn)	{
+    newmax = mcur.v>maxpt.v;
+    CheckMaxV(mcur.v,fn);
+	if (newmax)	{
+		this->Save(0);
+		maxpt -> Copy(scur);
+		}
+	return newmax;
+	}
+
 /** This is misnamed. It checks whether the 1-D system is closer to 0.**/
 OneDimSystem::CheckMax(fn)	{
     newmax = vcur.v<maxpt.v;
-    decl suffx = newmax ? "*" : " ";
-    if (Volume>SILENT) {
-        if (isfile(logf)) fprintln(logf,suffx);
-		if (Volume>QUIET) {
-            println(suffx);
-            if (isfile(fn)) fprintln(fn," ","%15.8f",vcur.v,suffx);
-            }
-        else if (newmax) println(" ","%15.8f",vcur.v,suffx);
-        }
+    CheckMaxV(vcur.v,fn);
 	if (newmax)	{
 		this->Save(0);
 		maxpt -> Copy(vcur);
@@ -887,11 +911,11 @@ NoObjective::vfunc(subp) {
 **/
 Separable::Print(orig,fn,toscreen){
 	decl b=sprint("\n\nReport of ",orig," on ",L,"\n",
-		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(vcur.v),
+		"%r",{"   Obj="},"%cf",{"%#18.12g"},matrix(scur.v),
 		"Free Parameters",
-		"%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~vcur.F,
+		"%r",Flabels,"%c",{"   index  ","     free      "},"%cf",{"%6.0f","%#18.12g"},FinX~scur.F,
 		"Actual Parameters",
-		"%c",KL,"%r",PsiL,"%cf",{"%#18.12g"},vcur.X);
+		"%c",KL,"%r",PsiL,"%cf",{"%#18.12g"},scur.X);
     if (isfile(fn)) fprintln(fn,b);
     if (toscreen) println(b);
     }
@@ -904,15 +928,17 @@ Separable::Gradient(extcall) {
        p2p.server->Loop(rows(vcur.F),"gradient"); //Gradient won't get called if already in loop
     else {
 	   this->Jacobian();
-	   vcur.G = sumc(vcur.J);
-       if (Volume>QUIET && isfile(logf)) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],vcur.G);
+	   scur.G = sumc(scur.J);
+       if (Volume>QUIET && isfile(logf)) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],scur.G);
        if (extcall && isclass(p2p)) p2p.client->Stop();
        }
 	}
 
 /** Create a separable objective.
 @param L string, a label for the problem.
-@param Kvar, integer&gt;0, the number of sub objectives<br>`Discrete` variable that codes the problem<br>vector or `ParameterBlock`, weights on values of k
+@param Kvar, integer&gt;0, the number of sub objectives<br/>
+        `Discrete` variable that codes the problem<br/>
+        vector or `ParameterBlock`, weights on values of k
 **/
 Separable::Separable(L,Kvar) {
 	UnConstrained(L);
@@ -987,7 +1013,7 @@ Separable::ResetCommon(hold){
 	
 /** Encode matrix of structural parameters.
 @param X 0 get starting values from current X<br>vector N&times;1, common starting values across types<br>matrix N&times;K, starting values for all types. Only first column value used for common types
-@param CallBase TRUE, simply call `Objective::Encode`(), used in parallel processing.<br>FALSE (default), proceed with separable encoding
+@param CallBase TRUE, simply call `Objective::Encode`(), used in parallel processing.<br/>FALSE (default), proceed with separable encoding
 **/
 Separable::Encode(X,CallBase)   {
 	decl f,k,h,i;
@@ -1052,7 +1078,7 @@ Separable::funclist(Fmat,aFvec,afvec)	{
 				Objective::Decode(Fmat[firstk:firstk+kfree[k]-1][j]);
 				if (isparallel) Xmat[][k+K*j] ~= vcur.X;
 				else {
-					if (Included[k]) scur.V[k][] = this->vfunc();
+					if (Included[k]) scur.V[k] = this->vfunc();
 					aFvec[0][fvk:fvk+kNvf-1][j] = scur.V[k];
 					}
 				}
@@ -1088,11 +1114,11 @@ Separable::Deconstruct(eval) {
 	for (k=0,firstk=0,scur.X=<>;k<K;firstk += kfree[k++]) {
 		Kvar.v = k;
 		kEncode(TRUE);
-		Objective::Decode(vcur.F[firstk:firstk+kfree[k]-1]);
-		vcur.X ~= scur.bb.X;
+		Objective::Decode(scur.F[firstk:firstk+kfree[k]-1]);
+		scur.X ~= vcur.X;
 		if (eval&&Included[k]) {
 			Objective::vobj(0);
-			vcur.V[k] = scur.bb.V;
+			scur.V[k] = vcur.V;
 			}
 		}
 	if (eval) scur -> aggregate();
@@ -1126,7 +1152,7 @@ Separable::Jacobian() {
 	hold -> GCopy(scur);
 	decl h= dFiniteDiff1(scur.F), GradMat= zeros(NvfuncTerms,2*nfree), gg;	
 	Separable::funclist((scur.F+diag(h))~(scur.F-diag(h)),&GradMat,&gg);
-    println("SepJac ",GradMat,gg);
+    //println("SepJac ",GradMat,gg);
 	scur.J = (gg[:nfree-1] - gg[nfree:])./(2*h);
 	scur->GCopy(hold);
 	Decode(0);

@@ -233,6 +233,7 @@ the normal distribution.</td>
 <a name="CGI"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CGI : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
 
+.  @internal
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -304,7 +305,7 @@ Store a point for a constrained objective.
 <a name="Discrete"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Discrete : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
-Represent discrete values.
+Discrete values: actions and states.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -683,7 +684,7 @@ println("E[x*x] = ", GQH::wght * sqr(GQH::nodes) / M_SQRT2PI );
 
 Gauss-Laguerre Quadrature Integration.
 <P/>
-<span class="equation">$$\int_0^\infty f(x) e^{-1} dx \approx \sum_{m=0}^{M^-} \omega_m f(x_m)$$</span>
+<span class="equation">$$\int_0^\infty f(x) e^{-1} dx \approx \sum_{m=0}^{M-1} \omega_m f(x_m)$$</span>
 <P/>
 This can be used to compute the expected value under the exponential distribution.
 
@@ -831,8 +832,7 @@ Store a point for a mixture objective.
 <a name="Parameter"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Parameter : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
-Represent a continuously varying quantity.
-The base class for parameters of an <a href="Objective.ox.html#Objective">Objective</a> to maximize or solve.
+Continuously varying quantity: te base class for parameters of an <a href="Objective.ox.html#Objective">Objective</a>.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -1004,7 +1004,7 @@ Container for discrete variables (DDP) and continuous parameters (FiveO).
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#Quantity___logf">logf</a></td>
 <td class="modifiers"></td>
-<td class="description">Log dedicated to this qty.</td>
+<td class="description">Log file dedicated to this qty.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#Quantity___pos">pos</a></td>
@@ -1014,7 +1014,7 @@ Container for discrete variables (DDP) and continuous parameters (FiveO).
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#Quantity___track">track</a></td>
 <td class="modifiers"></td>
-<td class="description">Data tracking object  </td>
+<td class="description">Data tracking object.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#Quantity___v">v</a></td>
@@ -1074,6 +1074,7 @@ Store a point for a separable objective.
 <a name="SysPoint"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SysPoint : <a href="Shared.ox.html#Point">Point</a> : <a href="Shared.ox.html#LinePoint">LinePoint</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
 
+A system point.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -1714,17 +1715,17 @@ Check that an object is of a required class, or one of a required class.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Fatal</td>
-<td class="description" valign="baseline">TRUE [default]= end on the error</br>FALSE , only issue warning.
+<td class="description" valign="baseline">TRUE [default]= end on the error<br/>FALSE , only issue warning.<br/>SILENT no message, just return outcome
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">msg</td>
-<td class="description" valign="baseline">Message to print if class fails to match (default message is "Class fails to match")
+<td class="description" valign="baseline">Message to print if not SILENT and class fails to match (default message is "Class fails to match")
 </td>
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns">FALSE if no match<br>1+i where i is index of first match in the array (so TRUE if first/only matches)
+<dt class="returns">Returns:</dt><dd class="returns">FALSE if no match<br/>1+i where i is index of first match in the array (so TRUE if first/only matches)
 </dd>
 </dl>
 </dd></dl>
@@ -3142,7 +3143,7 @@ Label
 
 <span class="declaration">decl logf [public]</span>
 <dl><dd>
-Log dedicated to this qty.
+Log file dedicated to this qty.
 
 </dd></dl>
 
@@ -3190,7 +3191,7 @@ If the new Volume is SILENT and a log file is already open then the log file is 
 
 <span class="declaration">decl track [public]</span>
 <dl><dd>
-Data tracking object
+Data tracking object.
 
 </dd></dl>
 

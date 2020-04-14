@@ -19,7 +19,7 @@ struct Objective	{
 	/** Name for `Objective::Load` &amp; files	**/				fname,
     /** name of log file **/                                    lognm,
 	/** Best so far @see Objective::CheckMax    **/ 			maxpt,
-																hold;
+	/** . @internal**/											hold;
 
 	static decl
     /** Version of niqlow that code is written for.
@@ -51,6 +51,7 @@ struct Objective	{
 			Save(fname=0);
 			Load(fname=0);
 			SetAggregation(AggType);
+            CheckMaxV(v,fn);
 
 	static 	dFiniteDiff0(x);
 	static 	dFiniteDiff1(x);
@@ -206,6 +207,7 @@ struct Separable : UnConstrained	{
 			ResetCommon(hold);
 	virtual Print(orig,fn=0,toscreen=TRUE);
 //	virtual	CheckPoint(f,saving);
+    virtual	CheckMax(fn=0);
 	virtual	Common(... );	
 	virtual vfunc();						   			
 	virtual fobj(F,extcall=TRUE);
@@ -240,6 +242,7 @@ struct Mixture : Separable {
 			IncludedDK(mDK);
 			Print(orig,fn=0,toscreen=TRUE);
 	virtual	vfunc();
+    virtual	CheckMax(fn=0);
 			fobj(f,extcall=TRUE);
 	virtual	Deconstruct(eval) ;
 	virtual vobj(F);

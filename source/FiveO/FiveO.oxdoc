@@ -25,8 +25,8 @@
 <dd><em>or</em></dd>
 <DD><em>Find</em> a root of the non-linear system $f(\psi)$, so $f:\Re^N\to\Re^M$, $N\ge M$.</DD>
 The objective/system is coded by the user as a object derived from the `Objective` class.  If $f$ is an objective then the objective is by default a sum of &fnof;.M&oline; component functions:
-$$f(\psi)= \sum_{i=0,\cdots,M^-} f_i(\psi),$$
-where M&oline; is shorthand for M-1.  This means the user can code, say, the sample log-likelihood vector or moment conditions vector. <span class="n">FiveO</span> adds up the vector and in turn can compute the so-called <em>gradient matrix</em> while implementing the `BHHH` algorithm.
+$$f(\psi)= \sum_{i=0,\cdots,M-1} f_i(\psi),$$
+where M-1 is shorthand for M-1.  This means the user can code, say, the sample log-likelihood vector or moment conditions vector. <span class="n">FiveO</span> adds up the vector and in turn can compute the so-called <em>gradient matrix</em> while implementing the `BHHH` algorithm.
 If $f(\psi)$ is a system, then notice that it does not look square: $N$ parameters map to $M$ equations.   However, this is because $\psi$ may, from the user's point of view, contain parameters that are not varying while finding the solution.  It must be the case that the <em>variable</em> components of $\psi$ must number M.</p>
 
 The user can give the problem/system to be solved a name that means something, but in these notes we will call your problem <code>MyObjective</code>. In <span class="n">FiveO</span>, <code>MyObjective</code> is an Ox <code>class</code> derived from one of the built-in classes derived from the base `Objective`. The objective <code>&fnof;()</code> is the column sum of <code>MyObjective::vfunc()</code>, a user-provided function (method).  The system would be the column itself, not the sum.</DD>
@@ -49,11 +49,11 @@ Parameters, as objects, have several properties associated with them. The initia
 A parameter of class `Determined` will not be under the control of the algorithm. That is, a determined parameter is a point, or closed interval of the form <code>x.I = [d,d].</code>. The value <code>d</code> is determined by something else, usually a fixed constant or a function of other parameters in $\psi$. For example, a determined parameter could be set equal to the average of two other parameters, <code>z = (x+y)/2</code>.  <span class="n">FiveO</span> would ensure that restriction on z holds.  The algorithm knows only about x and y. Two or more parameters can form a `ParameterBlock`, denoted as upper case Roman (X, Y, etc.). This allows <code>MyModel</code> to refer to a single variable which is a vector not  a scalar.  Parameter blocks are, in effect, sub-vectors of the overall parameter vector.</p>
 
 The parameter vector, denoted $\psi$, generically takes the form
-$$\psi = \pmatrix{x_0& x_1 &\cdots& x_{N^-}},$$
+$$\psi = \pmatrix{x_0& x_1 &\cdots& x_{N-1}},$$
 where N&oline; is shorthand for N-1. $\psi$ is built up by adding parameters and parameter blocks to it.  The number of dimensions, N, is also written $\psi$.N. The <em>parameter space</em>, <code>&Psi;</code>, is the Cartesian product of the intervals for the elements of $\psi$,
-$$\Psi \equiv \times_{n=0}^{N^-}\psi_n.I.$$
+$$\Psi \equiv \times_{n=0}^{N-1}\psi_n.I.$$
 <code>MyObject</code> may tell <code>Alg</code> not to vary some parameters in $\psi$ directly. A `Determined` parameter does not have an interval, it has a point value, x.I &in; &real;. As with feasible intervals, x.I can be a function of the current value of preceding parameters. The feasible parameter space can only be defined implicitly:
-$$\Psi \equiv \{\psi = (x_0 \cdots x_{N^-}) :  x_0 \in x_0.I,  x_1\in x_1.I(x_0), \dots ,x_{N^-}\in x_{N^-}.I(x_0,\dots,x_{N-2}) \}.$$
+$$\Psi \equiv \{\psi = (x_0 \cdots x_{N-1}) :  x_0 \in x_0.I,  x_1\in x_1.I(x_0), \dots ,x_{N-1}\in x_{N-1}.I(x_0,\dots,x_{N-2}) \}.$$
 By using predefined parameter classes and parameter blocks this complex and very flexible parameter space emerges naturally from the parameters added to <code>MyModel</code>.
 
 <code>Alg</code>, as a sequential algorithm, can be thought of as a function $S: \Re^N\rightarrow \Re^N.$ S maps the starting vector $\psi$.0, to a final value, $\psi^S \approx \psi^\star$.</p>
@@ -144,7 +144,7 @@ The <code>Load()</code> still happens but reading the <code>chkpt</code> file wi
     <DD>Coded as a <code>method</code> with a particular name of a class derived from `Objective`.</td></tr>
     <tr valign="top"><td>
     The parameter vector
-    $$\psi  \equiv \pmatrix{x_0& x_1 &\dots &x_{N^-}}$$
+    $$\psi  \equiv \pmatrix{x_0& x_1 &\dots &x_{N-1}}$$
     A single parameter x
     <p>Initial value x<sup>0</sup>.
     <p>Current value: x</td>

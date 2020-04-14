@@ -14,28 +14,29 @@ KWJPE97::Replicate()	{
 	Initialize(new KWJPE97());
         SetClock(NormalAging,A1);
         Actions         ( accept = new ActionVariable("Accept",Sectors));
-        ExogenousStates ( offers = new MVNvectorized("eps",Noffers,Msectors,zeros(Msectors,1),vech(chol)));
+        ExogenousStates ( offers = new MVNvectorized("eps",Noffers,Msectors,{zeros(Msectors,1),vech(chol)}));
         EndogenousStates( xper   = ValuesCounters("X",accept,mxcnts));
         GroupVariables  ( k      = new RandomEffect("k",Ntypes,kdist),
                           isch   = new FixedEffect("Is",NIschool) );
-        AuxiliaryOutcomes(di=Indicators(accept,"d ",white,school));
+        AuxiliaryOutcomes(di=Indicators(accept,"d "));
 
     CreateSpaces(LogitKernel,smthrho); //not clear what kernel was used or what bandwidth
     pred = new array[Nmethods][Nmethods];
-    pred[BruteForce][One] =new ValueIteration();
+    pred[BruteForce][One]  = new ValueIteration();
     pred[Approximate][One] = new KeaneWolpin();
     SetDelta(kwdelt[One]);
-
     for (i=0;i<Nmethods;++i) {
+        Flags::TimeProfile(INITIALIZING);                           //reset time profile
         pred[i][Zero] =new PanelPrediction("brute-static",pred[i][One]);
         pred[i][Zero] ->Tracking(UseLabel,di);
         if (i==Approximate)
         SubSampleStates( constant(smpsz[0],1,TSampleStart)~                   //solve exactly for first few periods
-                     constant(smpsz[1],1,MidPeriod)~                  //double sample
-                     constant(smpsz[2],1,FinPeriod),                  //small sample
-                     MinSample                                      //ensure minimum sample size for approximation
+                         constant(smpsz[1],1,MidPeriod)~                  //double sample
+                         constant(smpsz[2],1,FinPeriod),                  //small sample
+                         MinSample                                      //ensure minimum sample size for approximation
                     );
-        pred[i][Zero] -> Predict(A1,Two);  //print out predictions
+        pred[i][Zero] -> Predict(A1,Two);                           //print out predictions
+        Flags::TimeProfile();                                       //Timing
         delete pred[i][One]; delete pred[i][Zero];
         }
     Delete();

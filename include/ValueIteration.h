@@ -1,14 +1,19 @@
 #import "Bellman"
 /* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
 
+/** stages of Keane-Wolpin approximation @name KWstages **/
 enum {AddToSample,ComputeBhat,PredictEV,NKWstages}
 
 VISolve(ToScreen=TRUE,aM=FALSE,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
 
-/**Iterate on Bellman's Equation, to solve EV(&theta;) for all fixed and random effects.
-@comments `Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
-Results are integrated over random effects, but results across fixed effects are overwritten.
-`Bellman::pandv` contains choice probabilities at $\theta$.
+/** Object ot iterate on Bellman's Equation, to solve EV(&theta;) for all fixed and random effects.
+
+Solution is carried out by `ValueIteration::Solve`()
+
+@comments `Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br/>
+    Results are integrated over random effects; results across fixed effects are overwritten.
+    `Bellman::pandv` contains choice probabilities at $\theta$ when complete.
+
 **/
 struct ValueIteration : Method {
 	ValueIteration(myGSolve=0);
@@ -30,11 +35,11 @@ Implementation does not always work.  Needs to be improved.
 <DD>When this occurs. set <code>SetP=TRUE</code> and <code>SetPtrans=TRUE</code> to compute the state-to-state transition on each iteration.</DD>
 <DD>Replace step c in the Bellman Iteration that computes $V_0 = Emax(V_1)$ with:</DD>
 <OL type="a">
-<LI value="3">Compute</LI>
-$$\eqalign{
-\overrightarrow{\Delta}_t &\equiv Emax(V_1) - V_1\cr
-g &\equiv \left(I-\delta P(\thp;\th)\right)^{-1}\left[\overrightarrow{\Delta}_t\right]\cr
-V_0 &= V_1 - g\cr}\nonumber$$
+    <LI value="3">Compute</LI>
+    $$\eqalign{
+        \overrightarrow{\Delta}_t &\equiv Emax(V_1) - V_1\cr
+        g &\equiv \left(I-\delta P(\thp;\th)\right)^{-1}\left[\overrightarrow{\Delta}_t\right]\cr
+        V_0 &= V_1 - g\cr}\nonumber$$
 </OL></div>
 **/
 struct NewtonKantorovich : ValueIteration {
@@ -43,22 +48,30 @@ struct NewtonKantorovich : ValueIteration {
 	virtual Solve(Fgroups=AllFixed,Rgroups=AllRand,MaxTrips=0);
     }
 
+/** Replacement for GSsolve used by NewtonKantorovich.**/
+
 struct NKSolve : GSolve {
     decl
      /**setting up Newton-Kantorovich iteration.**/ NKstep0,
-                                                    prevdff,
+    /** . @internal **/                             prevdff,
     /**Minimum trips before N-K.**/                 MinNKtrips,
     /**tolerance for switching to NK,**/            NKtoler,
-                                                    L,U,P,ip,itstep,
-                                                     NK,
-                                                     NKlist;
+    /** . @internal **/                             L,
+    /** . @internal **/                             U,
+    /** . @internal **/                             P,
+    /** . @internal **/                             ip,
+    /** . @internal **/                             itstep,
+    /** . @internal **/                             NK,
+                                                    NKlist;
     NKSolve(caller=UnInitialized);
     virtual PostEMax();
     virtual Solve(instate);
     virtual Update();
     }
 
-/** Newton-Kantorovich iteration information. **/
+/** Newton-Kantorovich iteration information.
+@internal
+**/
 struct NKinfo : DDPauxiliary {
       decl
         myt,
@@ -211,21 +224,31 @@ struct KeaneWolpin : ValueIteration {
 	KeaneWolpin(myGSolve=0);
 	}
 
+/** Keane-Wolpin specific version of `GSolve`.
+**/
 struct KWGSolve : GSolve {
+	const decl 		
+    /** . @internal **/                         cpos,
+    /** . @internal **/                          lo,
+    /** . @internal **/                          hi,
+    /** . @internal **/                          Kspec;
+    static decl
+    /** . @internal **/                         xrow,
+    /** . @internal **/                         EMaxHat;
+
 	decl										
 												curlabels,
-                                                xlabels0,
-                                                xlabels1,
-                                                xlabels2,
-		/** X matrix **/						Xmat,
-		/** Computed EV vector**/				EMax,
-        /** maxE  vector **/                    maxE,
-		/**N::T array of OLS coefficients	**/ Bhat,
-                                                subsmpi;
+    /** . @internal **/                         xlabels0,
+    /** . @internal **/                         xlabels1,
+    /** . @internal **/                         xlabels2,
+	/** X matrix **/						    Xmat,
+	/** Computed EV vector**/				    EMax,
+    /** maxE  vector **/                        maxE,
+	/**N::T array of OLS coefficients	**/     Bhat,
+    /** . @internal **/                         subsmpi,
+    	                                        firstpass,
+                                                onlypass;
 
-	const decl 		cpos, lo, hi, Kspec;
-    static decl     xrow, EMaxHat;
-	decl 			meth, firstpass, onlypass;
                     Solve(instate);
                     KWGSolve(caller=UnInitialized);
 	virtual         Specification(kwstep,maxEV=0,Vdelta=0);

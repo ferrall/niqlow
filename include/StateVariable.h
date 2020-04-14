@@ -30,7 +30,7 @@ struct StateVariable : Discrete	{
     Track(LorC);
 	}
 	
-/**Scalar `StateVariable` with statistically independent transition.
+/**Container for single state variables with a statistically independent transition.
 
 <DT>A state variable <code>q</code> is <em>autonomous</em> when:</DT>
 <DD>Its conditional transition to the next value <code>q<sup>'</sup></code> is independent of all other transitions.  </DD>
@@ -59,12 +59,9 @@ it equals 1. Its state next period is determined by the current state and action
 the current value of <code>s</code> is known, the value of <code>q</code> next period is (conditionally)
 deterministic.
 As a transition function:
-<pre>
-q' = q + I{s=1}
-</pre>
+$$q' = q + I\{s=1\}.$$
 As a transition probability:
-&Rho;(q'; q,s) = I{ q' = q + I{s=1} }
-</pre></dd>
+$$P(q'; q,s) = I\{ q' = q + I\{s=1\} \}.$$
 
 **/
 class NonRandom : Autonomous { }
@@ -75,7 +72,9 @@ class NonRandom : Autonomous { }
 <span class="n">DDP</span> makes no distinction between random and non-random state variables except
 to organize different kinds of transitions into a taxonomy.
 
-A random state variable has a transition which is not a 0/1 . Its state next period is determined by the current state and action.
+A random state variable has a transition which is not always 0/1 .
+
+Its value next period is determined stochastically by the current state and action.
 
 **/
 class Random : Autonomous	{ }
@@ -97,9 +96,7 @@ class RandomSpell : Random {
 
 /** State variables that augment another state variable (the base) or otherwise specialize it.
 
-Augmented state variables groups together state variables whose transitions is modified version
-of some other pre-defined autonomous state variable.  They are designed to be somewhat flexible
-so that the nature of the augmentation is independent of the underlying base transition.
+An Augmented state variable has a transition that is based on another state variable's transtion.
 
 For example, the `Triggered` state variables have a transition that is the same as the base variable sent
 when defining the augmented state variable unless a triggering condition is met.  In that case the
@@ -112,15 +109,15 @@ class Augmented : StateVariable {
     const decl /**base state variable.**/ b;
     decl
     /** Holds the base transition. **/ basetr;
-    Augmented(Lorb,N=0);
-    Synch();
+            Augmented(Lorb,N=0);
+            Synch();
     virtual Transit();
     virtual IsReachable();
     virtual Update();
     virtual SetActual(MaxV=1.0);
     }
 
-/**A member of a block: transition depends on transition of one or more other state variables.
+/**A member of a state block: transition of this variable depends on transition of one or more other state variables.
 
 @comment Coevolving variables do not have their own Transit() function.  Instead they
 		 sit in a `StateBlock` that has a Transit().
@@ -142,25 +139,31 @@ class Triggered : Augmented {
     const decl /**triggering action or value.**/    t,
                 /** triggering values.**/           tv,
                 /** reset value of state.**/        rval;
-    decl ft, idx, idy, rv, nf;
-    Triggered(b,t,tv=0,rval=0);
+    decl
+        /** . @internal **/         ft,
+        /** . @internal **/         idx,
+        /** . @internal **/          idy,
+        /** . @internal **/          rv,
+        /** . @internal **/          nf;
+
+            Triggered(b,t,tv=0,rval=0);
     virtual Update();
     }
 
 /**  A state variable that augments a base transition so that the value of an action variable triggers this state to transit to a value.
-<DT>Let</DT>
-<dd><code>q</code> denote this state variable.
-<DD><code>b</code> be the base state variable to be agumented  (not added to model itself)</DD>
-<DD>
-<code>a</code> be the action variable that is the trigger</DD>
-<DD><code>t</code> be the value of <code>a</code> that pulls the trigger.</DD>
-<DD><code>r</code> be the value to go to when triggered.</DD>
-<DD><pre>
-Prob( q&prime;=z ) = (1-I{a&in;t}) Prob( b&prime;=z ) + I{a&in;t}}r
-</pre></DD>
+    <DT>Let</DT>
+    <dd><code>q</code> denote this state variable.
+    <DD><code>b</code> be the base state variable to be agumented  (not added to model itself)</DD>
+    <DD><code>a</code> be the action variable that is the trigger</DD>
+    <DD><code>t</code> be the value of <code>a</code> that pulls the trigger.</DD>
+    <DD><code>r</code> be the value to go to when triggered.</DD>
+
+$$P(q^\prime =z ) = (1-I\{a\in t\}) Prob( b^\prime=z ) + I\{a \in t\}\}r$$
+
 @example
 <pre>
 </pre></dd>
+
 **/
 class ActionTriggered : Triggered {
     ActionTriggered(b,t,tv=1,rval=0);
@@ -168,16 +171,16 @@ class ActionTriggered : Triggered {
     }
 
 /** A state variable that augments a base transition so that the value of a `AV`()-compatible object triggers this state to transit to a special value.
-<DT>Transition.  Let</DT>
-<dd><code>q</code> denote this state variable.
-<DD><code>b</code> be the base state variable to be agumented (not added to model itself)</DD>
-<DD>
-<code>s</code> be the trigger object</DD>
-<DD><code>t</code> be the value of <code>s</code> that pulls the trigger.</DD>
-<DD><code>r</code> be the value to go to when triggered.</DD>
-<DD><pre>
-q&prime; = I{a&ne;t} b&prime; + (1-I{s==t}}r
-</pre></DD>
+    <DT>Transition.  Let</DT>
+    <dd><code>q</code> denote this state variable.
+    <DD><code>b</code> be the base state variable to be agumented (not added to model itself)</DD>
+    <DD>
+    <code>s</code> be the trigger object</DD>
+    <DD><code>t</code> be the value of <code>s</code> that pulls the trigger.</DD>
+    <DD><code>r</code> be the value to go to when triggered.</DD>
+    <DD><pre>
+    q&prime; = I{a&ne;t} b&prime; + (1-I{s==t}}r
+    </pre></DD>
 @example
 <pre>
 </pre></dd>
@@ -188,8 +191,10 @@ class ValueTriggered : Triggered {
     virtual Transit();
     }
 
-/** When the trigger is 1 the variable is base transition resets to 0.
-A special case of ActionTriggered in which 1 is the trigger and the special reset value is 0.
+/** When the trigger is 1 the transition resets to 0, otherwise it is the base.
+
+A special case of `ActionTriggered` in which 1 is the trigger and the special reset value is 0.
+
 If the trigger takes on more than two values only the value of 1 is the trigger.
 
 **/
@@ -252,9 +257,13 @@ class ForgetAtT : ValueTriggered {
     IsReachable();
     }
 
+/** Unfreeze a froze variable under some condition.**/
 class UnFreeze : Triggered {
-    decl unf, g, idist;
-    UnFreeze(base,trigger);
+    decl
+        unf,
+        g,
+        idist;
+            UnFreeze(base,trigger);
     virtual Transit();
     virtual InitDist();
     }
@@ -269,8 +278,9 @@ class Freeze : ValueTriggered {
 /** Let a state variable transit only in one sub-period of a Divided clock.
 **/
 class SubState : ValueTriggered {
-    decl mys;
-    SubState(b,mys);
+    decl /** substate I transit in.**/  mys;
+
+            SubState(b,mys);
     virtual Transit();
     virtual IsReachable();
     }
@@ -285,9 +295,9 @@ Acceptance is a value of 1 in the AcceptAction.pos column of FeasAct
 struct Offer : Random	{
 	const decl
 	  /** &pi; Double, Parameter or static function, offer probability **/ 	Pi,
-	  /**`ActionVariable` - indicates aceptance       **/ 	Accept;
+	  /**`ActionVariable` - indicates aceptance       **/ 	                Accept;
         decl offprob, accept;
-	  Offer(L,N,Pi,Accept);
+	          Offer(L,N,Pi,Accept);
 	  virtual Transit();
 	  virtual Update();
 	}
@@ -316,8 +326,8 @@ will create and return an array of simplexes which can be sent as the transition
 The transition must be square.  The number of values it takes is determined by the dimension of the column or vector.
 
 If it is a matrix, then the rows are next period states and the columns are currents.
-<dd class="math">$$P(s'=z|s) = \Pi_{zs}$$</dd>
-To be handled properly the state variable must be placed in the endogenous state vector &theta;
+$$P(s'=z|s) = \Pi_{zs}$$
+To be handled properly the state variable must be placed in the endogenous state vector $\theta$.
 
 @example
 A 3x3 transition matrix.
@@ -342,34 +352,33 @@ struct Markov : Random {
 /**A discrete IID process.
 
 <DT>Transition:</DT>
-<dd class="math">$$P(s'=z|s) = \Pi_{z}$$</dd>
+$$P(s'=z|s) = \Pi_{z}$$
 
 @example
 <pre>
 decl health = new IIDJump("h",<0.1;0.8;0.1>);
 </pre>
 
-@comments Unlike a general Markov variable, a IIDJump is eligible to be an Exogenous variable, a member of &epsilon;,
+@comments Unlike a general Markov variable, a IIDJump is eligible to be an Exogenous variable, a member of $\epsilon$
 added to the model with `DP::ExogenousStates`.
 
 **/
 struct IIDJump : Markov {
-    IIDJump(L,Pi);
+            IIDJump(L,Pi);
     virtual Transit();
     }	
 
 /** A binary IID process.  It accepts a scalar as the transition.
 
 <DT>Transition:</DT>
-<dd class="math">$$
-\displaylines{
+$$\displaylines{
 P(s'=1|s) = \pi\cr
 P(s'=0|s) = 1-\pi\cr
-} $$</dd>
+} $$
 
 
 @example
-A job offer is available with an estimated probability with initial value of 0.6:
+A job offer is available with an estimated probability with an initial value of 0.6:
 <pre>
 decl poff = new Probability("op",0.6);
 decl hasoffer = new IIDBinary"off",poff);
@@ -377,20 +386,23 @@ decl hasoffer = new IIDBinary"off",poff);
 
 **/
 struct IIDBinary : IIDJump {
-    IIDBinary(L,Pi=0.5);
+            IIDBinary(L,Pi=0.5);
     virtual Transit();
     }
 
+/** A variable **/
 struct BirthAndSex : Random {
-    const decl b, ratio;
-    BirthAndSex(L,b,ratio);
+    const decl
+            /**Binary ActionVariable.**/ b,
+            /**2x1 proportions.**/       ratios;
+    BirthAndSex(L,b,ratios);
     Transit();
     }
 
 /** Equally likely values each period (IID).
 
 <DT>Transition:</DT>
-<dd class="math">$$P(s' = z) = {1\over N} $$</dd>
+$$P(s' = z) = {1\over N} $$
 
 **/
 struct SimpleJump : IIDJump {
@@ -401,8 +413,10 @@ struct SimpleJump : IIDJump {
 /**A variable that jumps to a new value with probability &pi;, otherwise stays the same.
 
 <DT>Transition:</DT>
-<dd class="math">$$P(s'=z|s) = \pi / N  + (1-\pi)I\{z=s\}.</pre></dd>
+$$P(s'=z|s) = \pi / N  + (1-\pi)I\{z=s\}.$$
+
 @example
+</dd>
 
 @see SimpleJump, Offer
 **/
@@ -429,15 +443,15 @@ struct Fixed : Random {
 	}
 	
 /**A state variable that can stay the same, increase by 1 or decrease by 1.
-<DT>Transition:
-<dd class="math"><pre>
-&Pi; = probability vector of size &Pi;.N = 3, stored as s.&Pi;
-&Rho;(s'=s-1) =  I{s&gt;0}&Pi;<sub>0</sub>
-&Rho;(s'=s)   =  &Pi;<sub>1</sub> + I{s=0}&Pi;<sub>0</sub> + I{s=N<sup>-</sup>} &Pi;<sub>2</sub>
-&Rho;(s'=s+1) =  I{s&lt;N<sup>-</sup>}&Pi;<sub>2</sub>
-</pre>
-s.&Pi; can be a vector, a <code>Simplex parameter block</code> or a static function that returns a 3&times;1 vector.
-</dd>
+<DT>Transition:</DT>
+
+$$\eqalign{
+    P(s^\prime = s-1) &= I\{s\gt0\}\Pi_0\cr
+    P(s^\prime = s)   &=  \Pi_1 + I\{s=0\}\Pi_0 + I\{s=N-1\} \Pi_2\cr
+    P(s^\prime = s+1) &=  I\{s\lt N-1\}\Pi_2\cr}$$
+
+$\Pi$ can be a vector, a <code>Simplex parameter block</code> or a static function that returns a 3&times;1 vector.
+
 @example  In Wolpin (1984), the stock of children (M), fertility choice (i) and
 neonatal infant mortality are modeled as:
 <pre>
@@ -505,7 +519,7 @@ This variable needs to be used with care: <code>CV()</code> will return a single
 **/
 struct MVNvectorized : Nvariable {
     decl zvals, Ndim, vecactual;
-	MVNvectorized(L,Ndraws,Ndim,pars=<0;1.0>,seed=0);
+	MVNvectorized(L,Ndraws,Ndim,pars,seed=0);
 	Update();
     myAV();
 	}
@@ -525,25 +539,29 @@ struct Xponential : SimpleJump {
 	Update();
 	}
 
-/**s&prime; = current value of action or state variable.
+/** Base class for variables that take on previous values of other states or actions.
+
+$$s^\prime = CV(Target).$$
+
 @see LaggedState, LaggedAction
 **/
 struct Lagged : NonRandom	{
     const decl
 	/**Variable to track. **/          Target,
     /**Order of lag (for pruning).**/  Order;
-	Lagged(L,Target,Prune=TRUE,Order=1);
+	        Lagged(L,Target,Prune=TRUE,Order=1);
 	virtual Update();
 	virtual Transit();	
     virtual IsReachable();
 	}
 	
-/**s&prime; = current value of another state variable &in; &eta; or &theta;.
-<DT>Transition:
-<dd class="math"><pre>
-s' = s.x
-&Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z=s.x}.
-</pre></dd>
+/** Take on the current value of another state variable.
+
+Note the Target variable must be in $\eta$ or $\theta$. It canot be added to $\epsilon$.
+
+<DT>Transition:</DT>
+$$s' = CV(Target).$$
+
 @see LaggedAction, DP::KLaggedState
 **/
 struct LaggedState : Lagged	{
@@ -551,11 +569,10 @@ struct LaggedState : Lagged	{
 	virtual Transit();	
 	}
 
-/**s&prime; = value of an action variable.
-<DT>Transition:
-<dd class="math"><pre>s' = s.a
-&Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z=s.a}.
-</pre></dd>
+/** Take on the current value of an action variable.
+
+<DT>Transition:</DT>
+$$s^\prime = CV(Target).$$
 
 <DT>IsReachable</DT>
 <DD>The default initial value is <code>0</code>, so for finite horizon clocks, <code>t=0,q&gt;0</code>
@@ -570,31 +587,24 @@ struct LaggedAction : Lagged	{
 	}
 
 /** Record the value of an action variable at a specified time.
-<DT>Transition:
-<dd class="math"><pre>
-s' = 0 if t &lt; Tbar
-     s.a if t=Tbar
-     s if t &gt; Tbar
-&Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z=s.a}.
-</pre></dd>
+<DT>Transition:</DT>
+$$s' = \cases{ 0 & if t less than Tbar\cr
+               Target.v & if t equals Tbar\cr
+               s & if t greater than Tbar\cr}$$
+
 <DT>IsReachable</DT>
 <DD>Non-zero states are trimmed as unreachable for <code>t&le; Tbar</code></DD>
 @example
-The clock must be defined and the choice variable to track created:
 <pre>
-  SetClock(NormalAging,10);
-  d = new ActionVariable("d",2);
+  d = new BinaryChoice("d");
+  d5 = new ChoiceAtTbar("d5",d,5);
+  EndogenousStates(dvals);
 </pre>
-Now record the choice made at the 6th time period (t=5):
-<pre>
-  EndogenousStates(d5 = new ChoiceAt
-  Tbar("d5",d,DP::counter,5));
-</pre>
-Or, track the first four choices of d:
+Track the first four choices of d:
 <pre>
   dvals = new array[4];
   decl i;
-  for(i=0;i<3;++i) dvals[i] = new ChoiceAtTbar("d"+sprint(i),d,DP::counter,i);
+  for(i=0;i<3;++i) dvals[i] = new ChoiceAtTbar("d"+sprint(i),d,i);
   EndogenousStates(dvals);
 </pre>
 </dd>
@@ -609,38 +619,31 @@ struct ChoiceAtTbar :  LaggedAction {
     }
 
 /** Record the value of an state variable q at a specified time, starting the following period.
-<DT>Transition:
-<dd class="math"><pre>
-s' = 0 if t &lt; Tbar
-     s.q if t=Tbar
-     s if t &gt; Tbar
-&Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z=s.q}.
-</pre></dd>
+<DT>Transition:</DT>
+$$s' = \cases{ 0 & if t less than Tbar\cr
+               Target.v & if t equals Tbar\cr
+               s & if t greater than Tbar\cr}$$
+
 <DT>IsReachable</DT>
 <DD>Non-zero states are trimmed as unreachable for <code>t&le; Tbar</code></DD>
-@example
-<pre>
-</pre>
-</dd>
 
 @see LaggedState, ChoiceAtTbar
 **/
 struct StateAtTbar :  LaggedState {
-    const decl Tbar;
-	StateAtTbar(L,Target,Tbar,Prune=TRUE);
+    const decl
+            /** value of I::t to record at.**/  Tbar;
+
+	        StateAtTbar(L,Target,Tbar,Prune=TRUE);
 	virtual Transit();
     virtual IsReachable();
     }
 
-/**s&prime; = value of an action first period it is not 0.
+/** Record if an action has ever been non-zero.
 
-<DT>Feasible action restriction </DT>
-<DD>Positive value of target only feasible if choice has not been made.
-<pre>A[][s.a.pos].==0 || CV(s)==0</pre></dd>
 <DT>Transition:</DT>
-<dd class="math"><pre>s' = I{s=0}s.a +(1-I{s=0})s
-&Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{s=0}I{z=s.a} +(1-I{s=0})I{z=s}.
-</pre></dd>
+$$s' = \cases{ 0 & if s==0 and CV(Target)==0\cr
+               CV(Target) & if s==0 and CV(Target) $\gt$ 0\cr
+               s & if s $\gt$ 0\cr}$$
 **/
 struct PermanentChoice : LaggedAction {
 	PermanentChoice(L,Target,Prune=TRUE);
@@ -651,21 +654,23 @@ struct PermanentChoice : LaggedAction {
 **/
 struct Counter : NonRandom  {
 	const decl
-	/**Variable to track 				**/  Target,
-	/**Values to track  				**/	 ToTrack,
-	/**`AV`()-compatiable reset to 0 flag **/	 Reset;
-	Counter(L,N,Target,ToTrack,Reset,Prune=TRUE);
+	/**Variable to track 				**/       Target,
+	/**Values to track  				**/	      ToTrack,
+	/**`AV`()-compatiable reset to 0 flag **/	  Reset;
+
+	        Counter(L,N,Target,ToTrack,Reset,Prune=TRUE);
 	virtual Transit();
     virtual IsReachable();
 	}
 
 /**	 Counts periods value(s) of target state <em>s.x</em> have occurred.
 
-The values to track of x to track are s.&tau;
-<DT>Transition:
-<dd class="math"><pre>s' = s+I{s.x&in;s.&tau;}I{s &lt; s.N<sup>-</sup>}.
-&Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z = s + I{s.x&in;&tau;}I{s &lt; s.N<sup>-</sup>-1} }.
-</pre></dd>
+The values of <code>x</code> in $\tau$ (ToTrack)
+
+<DT>Transition:</DT>
+
+$$s' = s+I\{ CV(x) \in tau\}I\{s \lt N-1\}.$$
+
 @example
 <pre>
 decl wks  = new ActionState("wksunemp",work,10,<0>); //track up to 10 years
@@ -688,16 +693,17 @@ struct StateCounterMaster: StateCounter  {
 
 
 /**	 Track number of periods value(s) of target action variable have occurred.
-<DT>Transition:
-<dd class="math"><pre>
-s' = s+I{s.a&in;s.&tau;}I{s &lt; s.N<sup>-</sup>}.
-&Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z = s + I{s.a&in;&tau;}I{s &lt; s.N<sup>-</sup>} }.
-</pre></dd>
+
+<DT>Transition:</DT>
+
+$$s' = s+I\{ CV(x) \in tau\}I\{s \lt N-1\}.$$
+
 @example
 <code><pre>
 decl exper = new ActionCounter("Yrs Experience",10,work); //track up to 10 years working
 EndogenousStates(exper);
-</pre></code>
+</pre></code></DD>
+
 **/
 struct ActionCounter : Counter  {
     decl inc;
@@ -713,7 +719,7 @@ struct ActionCounterMaster: ActionCounter  {
 
 
 /**	 Add up the values of the target action or state up to a maximum.
-<DT>Transition:
+<DT>Transition:</DT>
 <dd class="math"><pre>
 s' = min( s+ s.a, s.N<sup>-</sup>).
 &Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z = min(s + s.a,s.N<sup>-</sup>) }.
@@ -728,15 +734,11 @@ struct Accumulator : NonRandom  {
 
 /**	 Add up the values of a target action up to a maximum.
 <DT>Transition:</DT>
-<dd class="math"><pre>
-s' = min( s+ s.a, s.N<sup>-</sup>).
-&Rho;(s'=z | &alpha;,&epsilon;, &theta;,&psi;) = I{z = min(s + s.a,s.N<sup>-</sup>) }.
-</pre></dd>
 @example
 <pre>
 decl tothrs = new ActionAccumulator("TotHrs",work,10);  //track work up to 10 hours
 EndogenousStates(tothrs);
-</pre>
+</pre></dd>
 **/
 struct ActionAccumulator : Accumulator  {
     decl x,y;
@@ -754,7 +756,7 @@ s' = min( s+ s.x, s.N<sup>-</sup>).
 <pre>
 decl totoff = new StateAccumulator("Total Offers",noffers,10);  //track total offers received up to 10
 EndogenousStates(totoff);
-</pre>
+</pre></DD>
 **/
 struct StateAccumulator : Accumulator  {
 	StateAccumulator(L,N,Target);
@@ -764,13 +766,11 @@ struct StateAccumulator : Accumulator  {
 /** Track number of consecutive periods an action or state variable has had the same value.
 
 This variable requires a target s.X and the lagged value of the target, denoted s.Lx.
-<DT>Transition:
-<dd class="math"><pre>
-s' = I{s.x=s.Lx}(s+ I{s &lt; s.N<sup>-</sup>}).
-</pre></dd>
+<DT>Transition:</DT>
+$$s' = I\{ x = Lag(x)\}(s+ I\{s \lt N-1\}).$$
 @example
 <code><pre>
-</pre></code>
+</pre></code></DD>
 **/
 struct Duration : Counter {
 	const decl Current, Lag, isact, MaxOnce;
@@ -807,7 +807,8 @@ struct Deterministic : NonRandom
 	 }
 
 /** Increments each period up to N&oline; then returns to 0.
-<DT>Transition<dd class="math"><pre>s' = I{s&lt;N<sup>-</sup>}(s+1)</pre></dd>
+<DT>Transition</DT>
+$$s' = I\{s\lt N-1\}(s+1)$$
 @example
 <pre>
 decl qtr = new Cycle("Q",4);
@@ -816,15 +817,12 @@ EndogenousStates(qtr);</pre></DD>
 struct Cycle : Deterministic { Cycle(L,N); }
 
 /** Increments randomly based on Pi then returns to 0 if reset=1.
-s.a is the reset action. s.&Pi; is the vector of non-zero increment probabilities.
-<DT>Transition:
-<dd class="math"><pre>
-s.&Pi; = vector of probabilities, of size &Pi;.N
-S* = min{s.N-s,&Pi;.N}<sup>-</sup>
-&pi;*<sub>k</sub> = &pi;<sub>k</sub> if k&lt;S*
-    =&Sum;<sub>k=S*</sub><sup>&Pi;.N<sup>-</sup></sup> &pi;<sub>k</sub>.
-&Rho;(s' = (1-s.a)s + k) = &pi;*<sub>k</sub>, k=0,...,S*</pre></dd>
-
+ is the reset action. $\Pi$ is the vector of non-zero increment probabilities.
+<DT>Transition:</DT>
+<DD>If $s\lt N-1-K$ then</DD>
+$$Prob(s^\prime = (1-A)s+k ) = \Pi_k.$$
+<DD>Otherwise,</DD>
+$$Prob(s^\prime = N-1 ) = \sum_{k=N-s-1}^K \Pi_k.$$
 @example
 Rust (1987) is set up as
 <pre>
@@ -898,7 +896,7 @@ struct PermanentCondition : StateTracker {
 **/
 struct StateBlock : StateVariable {
 	decl
-	/** temporary list of states. @internal **/ 		Theta,
+	/** temporary list of states. @internal **/ 	Theta,
 	/** matrix of all <em>current</em> values **/	Allv,
     /** matrix of all <em>actual</em> values.**/    Actual,
     /** vector <0:N-1>, used in AV().**/            rnge;
@@ -961,6 +959,7 @@ struct OfferWithLayoff : StateBlock    {
 	
 	}
 
+/** Component of a multi-dimensional normal StateBlock.**/
 struct NormalComponent : Coevolving	{
 	NormalComponent(L, N);
 	}
@@ -985,13 +984,13 @@ x &sim; N( &mu;, C'C ).
 struct MVNormal : MVIID {
     const decl
     /** matrix of Z vals for simulated actual values**/  zvals,
-                                                         mind,
+     /** . @internal**/                                  mind,
 	/** vector of means &mu; **/ 					     mu,
 	/** `AV`()-compatible vector-valued object which returns
         <code>vech()</code> for lower triangle of C, the Choleski decomposition
         of the variance matrix &Omega;, &Omega; = CC'.
         **/                                             CholLT;
-	MVNormal(L,N,M, mu,CholLT);
+	        MVNormal(L,N,M, mu,CholLT);
 	virtual Update(curs,first);
     //virtual myAV();
 	}
@@ -1021,7 +1020,10 @@ struct Episode : StateBlock {
 @see MVNormal
 **/
 struct Tauchen : Random {
-	const decl pars, M, gaps;
+	const decl
+            /** `NormalPars` .**/   pars,
+            /** support.**/         M,
+                                    gaps;
 	decl rnge, pts, s, r, Grid;
 	Tauchen(L,N,M,pars=<0.0;1.0;0.0>);
 	virtual Transit();
@@ -1068,16 +1070,30 @@ struct LiquidAsset : Asset {
     Transit();
     }
 
-/** A discretized version of a continous &zeta; value that enters the endogenous vector &theta; depending
-on reservation values to keep it.  A kept random discrete version of &zeta; enters the state as this
-variable.  Its value is constant as long as a state variable indicates it is being held.
+/** A discretized version of a continous &zeta;.
 
+value that enters the endogenous vector &theta; depending on reservation values to keep it.
+A kept random discrete version of &zeta; enters the state as this variable.
+
+Its value is constant as long as a state variable indicates it is being held.
 
 **/
 struct KeptZeta : Random {
     const decl keep, held;
 //    static decl M, kern, cdf, df, midpt, A,b, Fdif, zspot;
-    decl df, dist, cdf, zspot, addst, DynI, DynR, myVV, NxtI, NxtR, isheld, NOth;
+    decl
+    /** . @internal**/ df,
+    /** . @internal**/  dist,
+    /** . @internal**/  cdf,
+    /** . @internal**/  zspot,
+    /** . @internal**/   addst,
+    /** . @internal**/   DynI,
+    /** . @internal**/   DynR,
+    /** . @internal**/   myVV,
+    /** . @internal**/   NxtI,
+    /** . @internal**/   NxtR,
+    /** . @internal**/   isheld,
+    /** . @internal**/   NOth;
     KeptZeta(L,N,keep,held);
     virtual Update();
     virtual CDF(z);

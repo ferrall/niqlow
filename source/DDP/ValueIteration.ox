@@ -1,7 +1,7 @@
 #ifndef Mh
     #include "ValueIteration.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 /**  All-in-one Value Iteration.
 
@@ -47,35 +47,68 @@ VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
     return succeed;
     }
 
-/** Creates a new "brute force" Bellman iteration method.
+/** Create a new "brute force" Bellman iteration method.
 @param myGSolve 0 (default), built in task will be used.<br/>
-    `GSolve`-derived object to use for iterating over endogenous states
-Derived methods may send a replacement for GSolve.  Ordinary users would only send an argument if they had
-developed their own solution method.
+    `GSolve`-derived object to use for iterating over endogenous states.  User-code does not provide this.
+    Derived methods may send a replacement for GSolve.  Ordinary users would only send an argument if they had
+    developed their own solution method.
+
 **/
 ValueIteration::ValueIteration(myGSolve) {
     Method(myGSolve);
 	}
 
-/** Creates &quot;brute force&quot; Bellman method that switches to N-K iteration.
-@param myGSolve 0 (default), built in task will be
-used.<br/>
-`GSolve`-derived object to use for iterating over endogenous states
+/**Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
+@param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
+@param Rgroups
+@param MaxTrips 0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
+@return TRUE if all solutions succeed; FALSE if any fail.
+This method carries out Bellman's iteration on the user-defined problem.  It uses the `DP::ClockType` of
+the problem to determine whether it needs to find a fixed point or can simply work backwards in
+time.<p>
 
+If `Flags::UpdateTime`[OnlyOnce] is TRUE (see `UpdateTimes`), then transitions and variables are updated here.</LI>
+
+`Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
+Results are integrated over random effects, but results across fixed effects are overwritten.<br>
+Choice probabilities are stored in `Bellman::pandv`
+**/
+ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
+    Method::Initialize(MaxTrips);
+    return Method::Solve(Fgroups,Rgroups);
+    // qtask.itask.succeed;
+	}
+
+/** Creates object that starts as ValueIteration then switches to N-K iteration.
+
+@param myGSolve 0 (default), built in task will be used.<br/>
+        `GSolve`-derived object to use for iterating over endogenous states
 
 **/
 NewtonKantorovich::NewtonKantorovich(myNGSolve) {
     ValueIteration( isint(myNGSolve) ? new NKSolve(this) : myNGSolve );
     }
+
+/**Solve Bellman's Equation switching to N-K when a tolerance is reached.
+@param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
+@param Rgroups
+@param MaxTrips 0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
+@return TRUE if all solutions succeed; FALSE if any fail.
+
+**/
+NewtonKantorovich::Solve(Fgroups,Rgroups,MaxTrips)  {
+    return ValueIteration::Solve(Fgroups,Rgroups,MaxTrips);
+    }
+
 /**Set min NK trips and NK tolerance.
-(=UnInitialized,NKtoler=UnInitialized)
-@param MinNKtrips if not -1 (UseDefault) then minimum trips before switching to N-K
-@param NKtoler if not UseDefault then tolerance to switch to N-K
+    @param MinNKtrips if not -1 (UseDefault) then minimum trips before switching to N-K
+    @param NKtoler if not UseDefault then tolerance to switch to N-K
 **/
 NewtonKantorovich::Tune(MinNKtrips,NKtoler) {
     if (MinNKtrips!=UseDefault) qtask.itask.MinNKtrips = MinNKtrips;
     if (NKtoler!=UseDefault) qtask.itask.NKtoler = MinNKtrips;
     }
+
 /** . @internal **/
 NKSolve::NKSolve(caller) {
     GSolve(caller);
@@ -100,38 +133,6 @@ NKSolve::Solve(instate) {
 NKSolve::PostEMax() {
     if (NKstep0) NK->Update(I::all[iterating]);
     GSolve::PostEMax();
-    }
-
-/**Solve Bellman's Equation using <em>brute force</em> iteration over the state space.
-@param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
-@param Rgroups
-@param MaxTrips 0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
-@return TRUE if all solutions succeed; FALSE if any fail.
-This method carries out Bellman's iteration on the user-defined problem.  It uses the `DP::ClockType` of
-the problem to determine whether it needs to find a fixed point or can simply work backwards in
-time.<p>
-
-If `Flags::UpdateTime`[OnlyOnce] is TRUE (see `UpdateTimes`), then transitions and variables are updated here.</LI>
-
-`Bellman::EV` stores the result for each <em>reachable</em> endogenous state.<br>
-Results are integrated over random effects, but results across fixed effects are overwritten.<br>
-Choice probabilities are stored in `Bellman::pandv`
-**/
-ValueIteration::Solve(Fgroups,Rgroups,MaxTrips) 	{
-    Method::Initialize(MaxTrips);
-    return Method::Solve(Fgroups,Rgroups);
-    // qtask.itask.succeed;
-	}
-
-/**Solve Bellman's Equation switching to N-K when a tolerance is reached.
-@param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
-@param Rgroups
-@param MaxTrips 0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
-@return TRUE if all solutions succeed; FALSE if any fail.
-
-**/
-NewtonKantorovich::Solve(Fgroups,Rgroups,MaxTrips)  {
-    return ValueIteration::Solve(Fgroups,Rgroups,MaxTrips);
     }
 
 /** . @internal **/
@@ -300,7 +301,7 @@ NKSolve::Update() {
     }
 
 /** Carry out Keane-Wolpin approximation at an endogenous state $\theta$.
-
+@internal
 This routine is called by the solution method at each point in the state space.
 There are three conditions upon entering this routine at $\theta$
 <OL>
@@ -336,8 +337,9 @@ KWGSolve::Run() {
 	}
 
 /** Carry out Keane-Wolpin approximation at $\theta$ .
+
 @internal
-This replaces the built-in version used by `ValueIteration`.
+This replaces the built-in version `GSolve`.
 <UL>
 <LI>Iterate backwards in the clock <code>t</code></LI>
 <UL>
@@ -374,9 +376,7 @@ KWGSolve::Solve(instate) {
 	}
 
 /** Create a Keane-Wolpin Approximation method.
-
-
-
+@param myGSolve [user code should not provide this]. Default is `KWGSolve`
 **/
 KeaneWolpin::KeaneWolpin(myGSolve) {
     if (isint(N::SampleProportion))
@@ -410,6 +410,7 @@ KWGSolve::KWGSolve(caller) {
 	
 /**The default specification of the KW regression.
 @param kwstep which step of KW approximation to perform
+@param maxEV
 @param Vdelta (V-vv)'
 
 The default is to run the regression:
@@ -442,22 +443,3 @@ KWGSolve::Specification(kwstep,maxEV,Vdelta) {
 				return N::VV[I::now][I::all[iterating]] =  maxEV+xrow*Bhat[I::t];
 		}
 	}
-	
-/*
-@internal
-
-KWGSolve::InSample(){
-    XUT.state[left:right] = state[left:right];
-    //DP::vV =VV[I::later];
-	I::curth->ActVal();
-	N::VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
-	}
-*/
-
-/*
-@internal
-KWGSolve::OutSample() {
-	I::curth->MedianActVal();
-	Specification(PredictEV,V[0],(V[0]-I::curth.pandv)'); //NoR [I::r]
-	}
-*/

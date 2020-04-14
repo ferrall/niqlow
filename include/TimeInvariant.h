@@ -86,7 +86,7 @@ struct FixedEffectBlock : StateBlock {
 	FixedEffectBlock(L="FEBlock");
 	}
 
-/**
+/** A block of fixed effects that can be created like a vector of demographic variables.
 **/
 struct Regressors : FixedEffectBlock {
     decl ObservedX;

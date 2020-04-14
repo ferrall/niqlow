@@ -1,34 +1,21 @@
 #import "DDP"
-/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2020 Christopher Ferrall */
 
 
 struct KWJPE97 : ExPostSmoothing	{
 
-	/** Labels for choices/sectors. @name Sectors **/
-		                   enum{white,blue,military,school,home,Msectors}
-    static const decl Sectors = {"wc","bc","mil","sch","home"};
-        enum{BruteForce,Approximate,Nmethods}
-        enum{NineOrLess,TenOrMore,NIschool}
-	/** State Space Dimensions. @name KW97Dimens **/
-		enum{Ntypes   =4,   //4
-             TSampleStart=10,     //t at which approximation begins (state space small early on)
-             MidPeriod=10,      // double sample size
-             FinPeriod=10,      // base sample size
-             A1       =TSampleStart+MidPeriod+FinPeriod,       //50 lifetime
-             LastSch  =20,       //window of schooling choice
-             Noffers  =15,       //# of offer draws
-             Age0     =16,      //age at t=0
-             MaxSch   =10,      //10
-             MaxExp   =30,      //30 max experience to track}
-             Nsimulate = 10,    //Size of sim. panel.
-             MinSample = 40     //Minimum sample size (in case prop.to low).
-            }
+    #include "KWbig.oxh"
+    enum{BruteForce,Approximate,Nmethods}
 
+	                           /** Sectors. @name Sectors **/
+		                   enum{white,blue,military,school,home,Msectors}
+    static const decl Sectors ={"wc" ,"bc","mil"   ,"sch" ,"home"};
+
+        enum{NineOrLess,TenOrMore,NIschool}
 
 	static const decl
        /** max. experience by sector.**/    mxcnts   = <MaxExp,MaxExp,MaxExp,MaxSch,0>,
        /** smoothing param for Kernel.**/   smthrho  = .002,  //appears that TAU=500 in Keane's code
-       /** approx. sample rations .**/      smpsz    = <0.5,0.25,0.1>,
        /** initial school groups.**/        School0  = <9;10>,      //completed schooling at t=0
        /** degree years (tuition).**/       YrDeg    = <12;16>,
                                             kwdelt   = <0.0;0.787>,
@@ -71,11 +58,6 @@ sig=   <1.0;
                         0.0;
                         0.0;    1.0;
                                 0.0;     1.0>,
-      /** type distribution.**/kprob = <  //9-     10+
-                                      0.1751, .0386;
-                                      0.2396, .4409;
-                                      0.5015, .4876;
-                                      .0838,  .0329 >,
 		/** &beta; vector  **/			  	bet  = <2983,26357-2983>;  //subtract BA from grad because incremental
 	static decl
         /** vector of current xper .**/     x,

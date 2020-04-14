@@ -54,16 +54,20 @@ SameDims(A,B) {
 /** Check that an object is of a required class, or one of a required class.
 @param obj object
 @param cname Class name</br>Array of class names
-@param Fatal TRUE [default]= end on the error</br>FALSE , only issue warning.
-@param msg Message to print if class fails to match (default message is "Class fails to match")
-@return FALSE if no match<br>1+i where i is index of first match in the array (so TRUE if first/only matches)
+@param Fatal TRUE [default]= end on the error<br/>FALSE , only issue warning.<br/>SILENT no message, just return outcome
+@param msg Message to print if not SILENT and class fails to match (default message is "Class fails to match")
+@return FALSE if no match<br/>1+i where i is index of first match in the array (so TRUE if first/only matches)
 **/
 TypeCheck(obj,cname,Fatal,msg) {
     decl names = isarray(cname) ? cname : {cname}, cc, n;
     foreach(cc in names[n]) if ( isclass(obj,cc) ) return TRUE+n;
-    if (!Version::MPIserver) println("\n    *",classname(obj)," Checked Against: ",cname);
-    if (Fatal) oxrunerror(msg);
-    if (!Version::MPIserver) oxwarning(msg);
+    if (Fatal!=SILENT) {
+        if (!Version::MPIserver) {
+            println("\n    *",classname(obj)," Checked Against: ",cname);
+            if (Fatal) oxrunerror(msg);
+            oxwarning(msg);
+            }
+        }
     return FALSE;
     }
 

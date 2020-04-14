@@ -20,14 +20,18 @@
 
 <DT>A variable in a DP model is an object derived from `Quantity` and can be of various types:</DT>
 
-The `ActionVariable` class represents a choice in the model (such as whether to work or not) and is an element of the action vector $\alpha$. Action variables are added to the DP model using using the `DP::Actions`() method. The `StateVariable` class is designed to be a member of one of the discrete state vectors ($\epsilon,\eta,\theta,\gamma$). State variables are added to appropriate state vector using  the method for the corresponding vector:</br>
+<DD>The `ActionVariable` class represents a choice in the model (such as whether to work or not) and is an element of the action vector $\alpha$. Action variables are added to the DP model using using the `DP::Actions`() method.</DD>
+
+<DD>The `StateVariable` class is designed to be a member of one of the discrete state vectors ($\epsilon,\eta,\theta,\gamma$).</DD>
+
+<DD>State variables are added to appropriate state vector using  the method for the corresponding vector:</br>
 `DP::EndogenousStates`() adds ordinary state variables (with general transitions)<br/>
 `DP::SemiExogenousStates` adds state variables with iid transitions whose values can affect other transitions<br/>
 `DP::ExogenousStates`() adds pure iid state variables<br/>
 `DP::GroupVariables`() adds variables that do not change within a DP problem, both fixed- and random-effect type variables.<br/>
 Many kinds of state variables are derived from the base class.</p>
 
-The `AuxiliaryValue` class represents values that depend on actions and states but are not required to solve the model.  They are members of the auxiliary vector $\chi$.  Auxiliary values are added to the DP model using `DP::AuxiliaryOutcomes`()</p>
+<DD>The `AuxiliaryValue` class represents values that depend on actions and states but are not required to solve the model.  They are members of the auxiliary vector $\chi$.  Auxiliary values are added to the DP model using `DP::AuxiliaryOutcomes`()</DD>
 
 <a name="ActionVariables"><LI>Action Variables</LI></a>
 
@@ -63,11 +67,11 @@ The three different approaches to coding discrete choices are illustrate in this
          2          1       |       5       |    0   0   0   0   0   1
 </pre></DD>
 
-One reason to use an action vector like $\alpha$ is that each variable can be interpreted as a dimension of choice.  There is no obvious interpretation of <q>a=3</q> in the table, and the interpretation would change with the dimensions of the action variables. This approach would force <code>MyModel</code> to decode into an action vector to make their code look like a mathematical model. Another reason: the action vector approach makes it natural to impose feasibility conditions on the choice set, as discussed below.</p>
+<p>One reason to use an action vector like $\alpha$ is that each variable can be interpreted as a dimension of choice.  There is no obvious interpretation of <q>a=3</q> in the table, and the interpretation would change with the dimensions of the action variables. This approach would force <code>MyModel</code> to decode into an action vector to make their code look like a mathematical model. Another reason: the action vector approach makes it natural to impose feasibility conditions on the choice set, as discussed below.</p>
 
-The use of indicator vectors makes it possible to write any utility as a sum: $U = \sum_k d_k u_k$. But as with the single action approach the interpretation is not obvious and $U()$ will in no way resemble usual mathematical notation for an objective.</p>
+<p>The use of indicator vectors makes it possible to write any utility as a sum: $U = \sum_k d_k u_k$. But as with the single action approach the interpretation is not obvious and $U()$ will in no way resemble usual mathematical notation for an objective.</p>
 
-Action variables objects must be stored as <code>static</code> data members of <code>MyModel</code>.  Action variable objects should be created between the calls to <code>Initialize()</code> and <code>CreateSpaces()</code>. It is possible to combine the creation and adding of the action variable as in <code>Actions(a=new ActionVariable("choice",2))</code>.  Multiple actions can be added with a single call to actions, and `DP::Actions`() can be called several times.</p>
+<p>Action variables objects are stored as <code>static</code> data members of <code>MyModel</code>.  Action variable objects should be created between the calls to <code>Initialize()</code> and <code>CreateSpaces()</code>. It is possible to combine the creation and adding of the action variable as in <code>Actions(a=new ActionVariable("choice",2))</code>.  Multiple actions can be added with a single call to actions, and `DP::Actions`() can be called several times.</p>
 
 <LI>Actual and Current Values of an Action Variable</LI>
 
@@ -114,7 +118,7 @@ The code segment allows the maximum hour to be 30 if the person has a (young) ch
 <LI>Possible and Feasible Actions</LI>
 
 $A$ is defined as the set of possible actions, built up by adding action variables to $\alpha$.  All possible actions is the matrix:
-$$    A \equiv \times_{j=0,\dots, \alpha.N^- } \{ 0, 1, \dots, a_j.N^- \}$$
+$$    A \equiv \times_{j=0,\dots, \alpha.N-1 } \{ 0, 1, \dots, a_j.N-1 \}$$
 An action vector $\alpha$ is a <em>row</em> of the matrix A. An action variable is a column of $A$.  Its position is the property <code>a.pos</code>.</p>
 
 <em>Feasibility</em> is a property <code>MyModel</code> imposes on $\alpha$. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of $\alpha$.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We can write feasibility as a property of the state.  Or it can be written as a function of the state, which is more standard.  Using both versions, the <b>feasible actions</b> at $\theta$ is a matrix property:
@@ -200,9 +204,9 @@ $$P\left(\epsilon^{\,\prime},\eta^{\,\prime},\theta^{\,\prime}\ |\ \alpha,\epsil
 P_\epsilon(\epsilon^{\,\prime}) P_\eta(\eta^{\,\prime}) P_\theta\left(\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right).$$
 That is, the joint probability distribution of all state variables next period is the product of the probabilities of the three state vectors.  So the vectors evolve independently conditional on the current state. Further, the IID nature of $\epsilon$ and $\eta$ mean that their probability is constant across current states and actions.  In turn,
 $$\eqalign{
-P_\epsilon(\epsilon^{\,\prime}) &= \prod_{k=0\dots \epsilon.N^-} P_{e_k}\left(e^{\,\prime}_k\right)\cr
-P_\eta(\eta^{\,\prime}) &= \prod_{k=0\dots \eta.N^-} P_{e_k}\left(e^{\,\prime}_k\right)\cr
-P_\theta\left(\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right) &= \prod_{k=0\dots \theta.N^-} P_{q_k}\left(q^{\,\prime}_k\ |\ \alpha,\eta,\theta\right).\cr}$$
+P_\epsilon(\epsilon^{\,\prime}) &= \prod_{k=0\dots \epsilon.N-1} P_{e_k}\left(e^{\,\prime}_k\right)\cr
+P_\eta(\eta^{\,\prime}) &= \prod_{k=0\dots \eta.N-1} P_{e_k}\left(e^{\,\prime}_k\right)\cr
+P_\theta\left(\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right) &= \prod_{k=0\dots \theta.N-1} P_{q_k}\left(q^{\,\prime}_k\ |\ \alpha,\eta,\theta\right).\cr}$$
 
 <DD>It is important to note that e<sub>k</sub>, h<sub>k</sub> and q<sub>k</sub> represents either an autonomous state variable or a whole state block, which is responsible for returning the joint transition of its coevolving members.</dd>
 
@@ -641,7 +645,7 @@ $$P(\zeta^{\,\prime},\epsilon^{\,\prime},\eta^{\,\prime},\theta^{\,\prime},\gamm
 <DT>In turn, each state vector's transition is the product of the individual elements (either block or autonomous):</DT>
 
 $$\eqalign{
-P_\epsilon \left(\epsilon^{\,\prime}\right) &= \prod_{k=0,\dots,\epsilon.N^-} P_{e_k}(e_k^\prime)\cr
+P_\epsilon \left(\epsilon^{\,\prime}\right) &= \prod_{k=0,\dots,\epsilon.N-1} P_{e_k}(e_k^\prime)\cr
 P_\eta \left(\eta^{\,\prime}\right) &= \prod_{k=0,\dots,\eta.N^{-}} P_{h_k} (h_k^\prime)\cr
 P_\theta \left(\theta^{\,\prime}|\alpha,eta,\theta\right) &= \prod_{k=0,\dots,\theta.N^{-}} P_q(q_k^{\,\prime} | \alpha,\eta,\theta).\cr}$$
 
@@ -818,7 +822,7 @@ The user may break  up <code>Utility()</code> into functions that help determine
 
 Auxiliary values are also used to code <em>indicators</em> and <em>interaction variables</em> in data sets.  For example, if $a$ is an action to choose among 5 options the data may include four variables that are indicators for all but one of the options being observed, $y_k = I\{a=k\}$.  Instead of having to create a set of binary action variables to match this data the user can create a set of `Indicator`s, each of which is an auxiliary outcome that will match whether $a=k$ or not (as well as the probability of that occurring in a prediction data set).  The `DP::Indicators`() method can be used to generate all four indicators at once.  `DP::Interactions` and  `DP::MultiInteractions` between discrete actions and states can be created as can interactions between a auxiliary variable and a discrete quantity.</p>
 
-<a name="Continuous"><li>Conditional Continuous Choices <mark>NEW and experimental</mark></li>
+<a name="Continuous"><li>Conditional Continuous Choices <mark>NEW and experimental</mark></li></a>
 
 A model may have a utility of the form:
 $$U(\alpha,\theta) = u(x^\star;\alpha,\theta)$$
@@ -862,7 +866,7 @@ A continuous choice is related to <code>AuxiliaryValues</code>, in the sense tha
 
 </OL>
 
-@author &copy; 2011-2018 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
+@author &copy; 2011-2020 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
 
 <a name="auto"><hr><h1>Documentation of  Items Defined in Variables.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 

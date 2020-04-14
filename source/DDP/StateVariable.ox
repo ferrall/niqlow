@@ -1,8 +1,9 @@
 #ifndef Vh
     #include "StateVariable.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
+/** Remove all transitions for which the transition probability is EXACTLY 0. **/
 StripZeros(trans) {
     decl allz = sumc(trans[1]).==0;
     if (any(allz)) {
@@ -11,28 +12,39 @@ StripZeros(trans) {
     return trans;
     }
 
-/**The base for state variables.
+/**The base state variable creator.
 @param N <em>positive integer</em> the number of values the variable takes on.<br>N=1 is a constant, which can be included as
 a placeholder for extensions of a model.
 @param L <em>string</em> a label or name for the variable.
+
 @comments
-The default transition is  s&prime; = 0, so it is very unlikely <code>MyModel</code> would ever include a variable of the
-base class.
+    The default transition is  s&prime; = 0, so it is unlikely <code>MyModel</code> would ever include a variable
+    of the base class.
 **/
 StateVariable::StateVariable(L,N)	{	Discrete(L,N); 	TermValues = <>;  Prune=FALSE; }
 
+/** Track the state variable in predictions.
+@param LorC either a label or a column number to match this variable to external data.
+This
+**/
 StateVariable::Track(LorC) {
     if (isclass(this,"FixedEffect")) oxrunerror("Don't track fixed group variables. Tracked automatically");
     track = new TrackObj(LorC);
     }
 
 /** Return actual[v].
+If <code>s</code> contains a state variable then
+<code>AV(s)</code> calls <code>s->myAV()</code>
+
+@return <code>actual[v]</code>.
+
 @see CV, AV, Discrete::Update
 **/
 StateVariable::myAV() { return actual[v]; }
 
 /** Check dimensions of <code>actual</code>.
 Called by `EndogTrans::Transitions`() after `Discrete::Update`() called.
+<code>actual</code> should be N x 1 not 1 x N.
 **/
 StateVariable::Check() {
     if (columns(actual)!=1 || rows(actual)!=N) {
@@ -57,35 +69,36 @@ return    isclass(sv,"StateBlock")
 @return TRUE if sv is `Coevolving` or `CorrelatedEffect` or `SubEffect`<br>FALSE otherwise
 **/	
 StateVariable::IsBlockMember(sv) {	
-return    isclass(sv,"Coevolving")
-		||isclass(sv,"CorrelatedEffect")
-		||isclass(sv,"SubEffect");
-}
+    return TypeCheck(sv,{"Coevolving","CorrelatedEffect","SubEffect"},SILENT);
+    }
 
 
-/**Designate one or more values of a the state variable terminal.
+/**Designate one or more values of the state variable as terminal.
+@param TermValues integer<br/> vector in the range 0...N-1
 
 <DT>A terminal value of a state variable is the case when reaching that state means decision making is ended.</DT>
-<DD>For example, in the
-simple search model presented in <a href="GetStarted">GetStarted</a>, once a price has been accepted the process is finished.</DD>
+    <DD>For example, in the simple search model presented in <a href="GetStarted">GetStarted</a>, once a price has been accepted the process is finished.</DD>
 
-<DT>A point &theta; in the state space &Theta; is terminal if any of the state variables in &theta; are at a terminal value.</DT>
+<DT>A point $\theta$ is terminal if any of the state variables in are at one of their a terminal values.</DT>
 
-<DT><code>Utility()</code> returns a single terminating value of the process at a terminal value.  </DT>
-<DD>For example, if their is a
-bequest motive then <code>Utility</code> of being newly deceased should return the bequest value of the state.</DD>
+<DT><code>Utility()</code> must return a single terminating value of the process at a terminal value.  </DT>
+
+<DD>For example, if their is a bequest motive then <code>Utility</code> of being newly deceased should return
+the bequest value of the state.</DD>
 
 @comments The feasible action set for terminal states is automatically set to the first row of the gobal <var>A</var> matrix.
-@param TermValues integer or vector in the range 0...N-1
 @example
   s = new StateVariable("s",5);
   s->MakeTerminal(<3;4>);
   v = new StateVariable("v",1);
   v->MakeTerminal(1);
 </dd>
-Now any state &theta; for which <code>CV(s)=3</code> or <code>CV(s)=4</code> or <code>CV(v)=1</code>
-will be marked as terminal: `Bellman::Type` &gt;= TERMINAL.
-@see Bellman::FeasibleActions, StateVariable::TermValues
+Now any state for which <code>CV(s)=3</code> or <code>CV(s)=4</code> or <code>CV(v)=1</code>
+will be marked as terminal:
+The classification of terminal values occurs during <code>CreateSpaces()</code> and is stored at each
+object of the <code>MyModel</code> by setting <code>Bellman::Type &gt;= TERMINAL.</code>
+
+@see StateTypes, Bellman::Type
 **/
 StateVariable::MakeTerminal(TermValues)	{
 	this.TermValues ~= vec(matrix(TermValues))';
@@ -210,9 +223,9 @@ Augmented::Augmented(Lorb,N) {
 **/
 Triggered::Triggered(b,t,tv,rval) {
     this.t = t;
-    if (!(isint(tv)||ismatrix(tv))) oxrunerror("DDP Error 01. Trigger values must be integer or matrix\n");
+    if (!(isint(tv)||ismatrix(tv))) oxrunerror("DDP Error 01a. Trigger values must be integer or matrix\n");
     this.tv = unique(tv);
-    if (!isint(rval) || rval<ResetValue || rval>b.N) oxrunerror("DDP Error 02. Reset value must be integer between -1 and b.N\n");
+    if (!isint(rval) || rval<ResetValue || rval>b.N) oxrunerror("DDP Error 01b. Reset value must be integer between -1 and b.N\n");
     this.rval = (rval==ResetValue) ? b.N : rval;
     Augmented(b,max(this.rval+1,b.N));
     }
@@ -367,6 +380,9 @@ SubState::SubState(b,mys) {
     Augmented(b);
     }
 
+/** .
+@internal
+**/
 SubState::Transit() {
     Augmented::Transit();
     if (I::subt==mys) return basetr;
@@ -384,12 +400,13 @@ SubState::IsReachable() {
     return br;
     }
 
-/** Create an augmented state variable that 'forgets' its value when an action leads to a permanent condition.
+/** An augmented state variable that 'forgets' its value when an action leads to a (semi-) permanent condition.
 @param b base `StateVariable` to augment
 @param t the `ActionVariable` that triggers a different transition
-@param FCond (permanent) `CV`-compatible value that indicates condition already exists if TRUE, FALSE otherwise<br>
-@param tv the integer (actual) or vector of integer values of tv that triggers the transition [default=1].
-@param rval the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
+@param FCond (permanent) `CV`-compatible value that indicates condition already exists if TRUE</br/>FALSE otherwise
+@param tv the integer (actual) or vector of integer values that triggers the transition [default=1].
+@param rval the integer (current) value of this state variable when the trigger occurs [default=0]<br/>-1, then the reset value this.N = b.N+1 and rval = b.N.
+
 @comments
 `Forget::IsReachable`() prunes the state space accordingly
 **/
@@ -398,13 +415,14 @@ Forget::Forget(b,t,FCond,tv,rval) {
     this.FCond = FCond;
     }
 
+/** . @internal **/
 Forget::Transit() {
     Triggered::Transit();
     return CV(FCond) ?  {matrix(rval),CondProbOne} : basetr;
     }
 
-/**  Trimsthe state space of values that can't be reached because they are forgotten.
-@return TRUE if value is not forgotten or equals the reset value.
+/**  Trims the state space of values that can't be reached because they are forgotten.
+@return TRUE if value is not forgotten or equals the reset value<br/>FALSE otherwise
 **/
 Forget::IsReachable() {
     Synch();
@@ -413,7 +431,7 @@ Forget::IsReachable() {
 
 /** Create an augmented state variable that 'forgets' its value when at t==T* (effective T*+1).
 @param b base `StateVariable` to augment
-@param T
+@param Tstar time to forget
 @comments
 `ForgetAtT::IsReachable`() prunes the state space accordingly
 **/
@@ -423,11 +441,14 @@ ForgetAtT::ForgetAtT(b,T) {
     Prune = TRUE;
     }
 
+/** . @internal **/
 ForgetAtT::Transit() {
     Augmented::Transit();
     if ( I::t>=T-1 ) return { matrix(rval), CondProbOne };
     return basetr;
     }
+
+/** Trim states because t &gt; T* .**/
 ForgetAtT::IsReachable() {
     return ! (Prune && Flags::Prunable && v && (I::t>T) ) ;
     }
@@ -455,20 +476,23 @@ Nvariable::Update() {
 @param L label
 @param Ndraws number of draws of the vector.
 @param Ndim width of the vector.
-@param mu means (constant, function or `Parameter` vector of length Ndim)
-@param sigma the vectorized lower triangle of the Cholesky decomposition, so length Ndim(Ndim+1)/2. Same allowed values as mu
+@param pars 2-array of `NormalPars` , mean and Cholesky distrubution (in the Nsigma spot)
 @param myseed 0 [default] do not set the seed. Positive will set the seed for the draw of the IID Z matrix.  See Ox's ranseed().
 
 **/
 MVNvectorized::MVNvectorized(L,Ndraws,Ndim,pars,myseed) {
     ranseed(myseed);
-    zvals = rann(Ndim,Ndraws);  //Tack 0 on so first actual value is always the mean.
+    zvals = rann(Ndim,Ndraws);
     this.Ndim = Ndim;
     Nvariable(L,Ndraws,pars);
     actual = constant(.NaN,Ndraws,1);
     }
-MVNvectorized::myAV()   {   return vecactual[v][];    }
-MVNvectorized::Update() {	vecactual = shape(AV(pars[Nmu]),1,Ndim) + (unvech(AV(pars[Nsigma]))*zvals)';	}
+MVNvectorized::myAV()   {
+    return vecactual[v][];
+    }
+MVNvectorized::Update() {	
+    vecactual = shape(AV(pars[Nmu]),1,Ndim) + (unvech(AV(pars[Nsigma]))*zvals)';	
+    }
 
 /**Create a standard normal N(0,1) discretize jump variable. **/
 Zvariable::Zvariable(L,Ndraws) {    Nvariable(L,Ndraws);    }
@@ -527,34 +551,45 @@ IIDBinary::IIDBinary(L,Pi) {
 
 /** Create a 3-valued state variable that records a binary outcome of a binary choice.
 @param L label
-@param b `BinaryChoice`
-@param ratio prob. = 1 or 2 given b==1
+@param b `BinaryChoice` action variable.
+@param ratios `AV`-compatible object that returns a 2-d probabilities (ratio[0]+ration[1]=1)
+
+Transition values:
+<pre>
+  s'        Prob            Interpretation
+  ------------------------------------------------------------------
+  0        CV(b)==0         Choose not to have a child this period
+  1        CV(b)*ratio[0]   Had child, it's a boy
+  2        CV(b)*ratio[1]   Had child, it's a girl
+</pre>
 **/
-BirthAndSex::BirthAndSex(L,b,ratio) {
+BirthAndSex::BirthAndSex(L,b,ratios) {
     this.b = b;
-    this.ratio = ratio;
+    this.ratios = ratios;
     StateVariable(L,3);
     }
 
+/** .  @internal **/
 BirthAndSex::Transit() {
-    return { <0:2>, (1-CV(b))~(CV(b)*ratio) };
+    return { <0:2>, (1-CV(b))~(CV(b)*reshape(AV(ratios),1,2)) };
     }
 
 /**Create a variable that jumps with probability
 @param L label
 @param N number of values
 @param Pi `AV`()-compatible jump probability.
+
 **/
 Jump::Jump(L,N,Pi)	{	this.Pi = Pi; StateVariable(L,N); }
 
 /** Create a binary endogenous absorbing state.
 @param L label
-@param fPi `AV`()-compatible object that returns either:<br>
-a probability p of transiting to state 1<br>
-a vector equal in length to Alpha::C.<br>
-The default value is 0.5: the absorbing state happens with probability 0.5.
+@param fPi `AV`()-compatible object that returns either:<br/>
+        a probability p of transiting to state 1<br/>
+        a vector equal in length to `Alpha::C`.<br/>
+        [default = 0.5]: absorbing state happens with probability 0.5.
 @comments
-fPi is only called if the current value is 0.
+    fPi is only called if the current value is 0.
 **/
 Absorbing::Absorbing(L,fPi) {
     StateVariable(L,2);
@@ -563,28 +598,29 @@ Absorbing::Absorbing(L,fPi) {
 
 Absorbing::Transit() {
     if (v) return UnChanged();
-    p = fPi();
+    p = AV(fPi());
     return { <0,1>, reshape((1-p)~p, 1, N ) };
     }
 
-/**  **/
+/** . @internal **/
 Markov::Transit() {
     jprob = AV(Pi[v]);
     return {vals,reshape(jprob,N,N)};	
     }
 
-/**  **/
+/**  . @internal  **/
 IIDJump::Transit() {
     jprob = AV(Pi);
     return {vals,reshape(jprob,1,N)};	
     }
 
+/**  . @internal  **/
 IIDBinary::Transit() {
     jprob = AV(Pi);
     return {vals,reshape((1-jprob)|jprob,1,N)};	
     }
 
-/**  **/
+/**  . @internal **/
 Jump::Transit() {
     jprob = AV(Pi);
     return {vals,jprob*constant(1/N,1,N) + (1-jprob)*(v.==vals)};	
@@ -604,7 +640,7 @@ Offer::Offer(L,N,Pi,Accept)	{
     StateVariable(L,N);	
     }
 
-/** .
+/** . @internal
 **/
 Offer::Transit()	{
   offprob = AV(Pi);
@@ -612,7 +648,7 @@ Offer::Transit()	{
   return {vals,(1-accept).*( (1-offprob)~(offprob*constant(1/(N-1),Alpha::N,N-1)) )+ accept.*(constant(v,Alpha::N,1).==vals)};
   }
 
-/** Create a discretized lognorm offer.
+/** Create a discretized lognormal offer.
 @param L label
 @param N number of distinct offers. 0 means no offer
 @param Pi double, `Parameter` or static function, prob. of an offer
@@ -630,16 +666,16 @@ actual = exp{ &mu; | &sigma;&Phi;<sup>-1</sub>(v/N)+ &mu;}
 @see AV
 **/
 LogNormalOffer::Update() {
-//	actual = exp(AV(mu)|DiscreteNormal(N-1,AV(mu),AV(sigma)))';
+    //	actual = exp(AV(mu)|DiscreteNormal(N-1,AV(mu),AV(sigma)))';
 	actual = DiscreteNormal(N,pars)';
     if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
 	}
 
-/** Create a state variable that increments or decrements with state-dependent probabilities.
+/** Create a state variable that increments or decrements with (possibly) state-dependent probabilities.
 @param L label
 @param N integer, number of values, N &ge; 3
 @param fPi() a `AV`()-compatible object that returns a <code>rows(A) x 3</code> vector of probabilities.
-@param Prune TRUE [default], prune unreachable states assuming initial value of 0<br>FALSE do not prune
+@param Prune TRUE [default], prune unreachable states assuming initial value of 0<br/>FALSE do not prune
 **/
 RandomUpDown::RandomUpDown(L,N,fPi,Prune)	{
     if (N<NRUP) oxrunerror("DDP Error 09. RandomUpDown should take on at least 3 values\n");
@@ -647,10 +683,11 @@ RandomUpDown::RandomUpDown(L,N,fPi,Prune)	{
 	this.fPi = fPi;
     this.Prune = Prune;
 	}
-	
+
+/** Prune assuming initial value = 0.**/	
 RandomUpDown::IsReachable() { return ! (Prune && Flags::Prunable && (v>I::t) ) ;    }
 
-/** .
+/** . @internal
 **/
 RandomUpDown::Transit()	{
     fp = AV(fPi);
@@ -664,7 +701,13 @@ RandomUpDown::Transit()	{
 
 /** Create a state variable with an arbitrary deterministic transition.
 @param L label
-@param nextValues
+@param nextValues vector of next (current) values
+
+@example
+<pre>
+    s = Deterministic(L,&lt;1;0&gt;);
+</pre></DD>
+s will cycle betweeen 0 and 1 every period
 **/
 Deterministic::Deterministic(L,nextValues)	{	
     if (!ismatrix(nextValues)||columns(nextValues)!=1) oxrunerror("DDP Error 10. nextValues should be a column vector\n");
@@ -681,15 +724,17 @@ Deterministic::Transit()	{
 
 /** Create a constant entry in the state vector.
 @param L label
+
 @comments
 The variable only takes on the value 0.  This can be used to hold a place for a variable to be added later.
+
 @example <dd>
 Create a fixed value that will later hold a health indicator (but for now is always 0):
 <pre>h = new Fixed("health");</pre></dd>
 **/
 Fixed::Fixed(L) 	{	StateVariable(L,1);	}
 
-/** .
+/** . @internal
 **/
 Fixed::Transit() 	    {	return UnChanged(); }	
 
@@ -704,13 +749,15 @@ EndogenousStates(qtr);
 **/
 Cycle::Cycle(L,N) 	{	Deterministic(L,range(1,N-1)'|0);	}
 
-/** Takes on the value of another state or action.
+/** Takes on a previous value of another state or action.
 @param L label
 @param Target Variable to lag
 @param Prune TRUE [default], prune state space assuming initial value of 0
-@param Order, order of the lag [default=1]
+@param Order, order of the lag<br/> [default=1] current value becomes next value tomorrow
 @comments
-Users should not create a variable of this type.  Use the derived classes `LaggedState` and `LaggedAction`
+Users should not create a variable directly of this type.
+They should use the derived classes `LaggedState` and `LaggedAction`
+
 @see DP::KLaggedState, DP::KLaggedAction
 **/
 Lagged::Lagged(L,Target,Prune,Order)	{	
@@ -720,6 +767,7 @@ Lagged::Lagged(L,Target,Prune,Order)	{
     this.Order = Order;
     }
 
+/** . @internal **/
 Lagged::Update()	{	
     actual = Target.actual;	
     if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');
@@ -748,7 +796,7 @@ LaggedState::LaggedState(L,Target,Prune,Order)	{
     Lagged(L,Target,Prune,Order);		
     }
 
-/** .
+/** . @internal
 **/
 LaggedState::Transit()	{
 	return { matrix(Target.v)  , CondProbOne };
@@ -768,8 +816,7 @@ LaggedAction::LaggedAction(L,Target,Prune,Order)	{
     Lagged(L,Target,Prune,Order);	
     }
 
-/** .
-**/
+/** . @internal **/
 LaggedAction::Transit()	{
     acol=CV(Target);
     nxtv =unique(acol);
@@ -780,7 +827,11 @@ LaggedAction::Transit()	{
 @param L label
 @param Target `ActionVariable` to record
 @param Tbar clock time at which to record choice
-@param Prune TRUE [default], prune unreachable states (non-zero values before Tbar
+@param Prune TRUE [default], prune unreachable states (non-zero values) before Tbar
+
+$$s' = \cases{ 0 & if t less than Tbar\cr
+               Target.v & if t equals Tbar\cr
+               s & if t greater than Tbar\cr}$$
 
 @example
 <pre></pre></dd>
@@ -790,21 +841,27 @@ ChoiceAtTbar::ChoiceAtTbar(L,Target,Tbar,Prune) {
     this.Tbar = Tbar;
     }
 
+/** . @internal **/
 ChoiceAtTbar::Transit() {
     if (I::t<Tbar) return { <0>,CondProbOne };
     if (I::t>Tbar) return UnChanged();
     return LaggedAction::Transit();
     }
 
+/** Prune non-zero values before Tbar **/
 ChoiceAtTbar::IsReachable() {
     return !(Prune && Flags::Prunable && (I::t<=Tbar) && v);
     }
 
-/**  Record the value of an action variable at a given time (starting at the next period).
+/**  Record the value of a state variable at a given time (starting at the next period).
 @param L label
 @param Target `StateVariable` to record
 @param Tbar clock time at which to record choice (starting at Tbar+1)
 @param Prune TRUE [default], prune unreachable states (non-zero values at and before Tbar)
+
+$$s' = \cases{ 0 & if t less than Tbar\cr
+               Target.v & if t equals Tbar\cr
+               s & if t greater than Tbar\cr}$$
 
 @example
 <pre></pre></dd>
@@ -814,12 +871,14 @@ StateAtTbar::StateAtTbar(L,Target,Tbar,Prune) {
     this.Tbar = Tbar;
     }
 
+/** . @internal **/
 StateAtTbar::Transit() {
     if (I::t<Tbar) return { <0>,CondProbOne };
     if (I::t>Tbar) return UnChanged();
     return { matrix(Target.v) , CondProbOne };
     }
 
+/** Prune non-zero values before Tbar **/
 StateAtTbar::IsReachable() {
     return !(Prune && Flags::Prunable && (I::t<=Tbar) && v);
     }
@@ -827,12 +886,20 @@ StateAtTbar::IsReachable() {
 /** Create a variable that tracks a one-time permanent choice.
 @param L label
 @param Target `ActionVariable` to track.
-@example <pre>retired = new PermanentChoice("Ret",retire);</pre></dd>
+
+$$s' = \cases{ 0 & if Target.v==0\cr
+               Target.v & if s==0 and Target.v $\gt$ 0\cr
+               s & if s $\gt$ 0\cr}$$
+
+@example
+Once a person retires the stay retired forever:
+<pre>retired = new PermanentChoice("Ret",retire);</pre></dd>
 **/
 PermanentChoice::PermanentChoice(L,Target,Prune) {
 	LaggedAction(L,Target,Prune);
 	}
-	
+
+/** . @internal **/	
 PermanentChoice::Transit() {
 	if (v) return UnChanged();
     return LaggedAction::Transit();
@@ -850,12 +917,13 @@ PermanentCondition::PermanentCondition(L,Target,ToTrack,Prune) {
     StateTracker(L,Target,ToTrack,Prune);
     }
 
+/** . @internal **/
 PermanentCondition::Transit() {
 	if (v) return UnChanged();
     return StateTracker::Transit();
 	}
 	
-/** .
+/** Accept or reject an offer then retain.
 @param matchvalue
 @param acc, either `ActionVariable` or an array of ActionVariables
 @param replace, integer or vector of values that replace current value with matchvalue
@@ -871,6 +939,7 @@ RetainMatch::RetainMatch(matchvalue,acc,replace,keep) {
 	actual = matchvalue.actual;
 	}
 
+/** . @internal **/
 RetainMatch::Transit() {
 	repl = zeros(Alpha::N,1);
 	hold = 1-repl;
@@ -882,13 +951,19 @@ RetainMatch::Transit() {
 	return {0~v~matchvalue.v, (1-hold-repl) ~ hold ~ repl};
 	}
 	
-/** .
+/** Create a new counter variable.
+@param L label
+@param N number of values
+@param Target state or action to track
+@param ToTrack integer or vector of values to count <br/> DoAll, track all non-zero values
+@param Reset `AV`()-compatiable reset to 0 flag
+@param Prune prunt assuming counter starts at 0.
 **/
 Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 	this.Target=Target;
 	this.Reset = Reset;
 	StateVariable(L,N);
-	this.ToTrack = ToTrack==DoAll ? vals : ToTrack;
+	this.ToTrack = ToTrack==DoAll ? Target.vals[1:] : ToTrack;   //April 2020: vals was used not Target.vals, and  0 was not excluded
     this.Prune = Prune;
 	}
 
@@ -896,10 +971,17 @@ Counter::Counter(L,N,Target,ToTrack,Reset,Prune)	{
 @param L label
 @param N integer, maximum number of times to count
 @param State `StateVariable` or `AV`()-compatible object to track.
-@param ToTrack integer or vector, values of State to count. (default = <1>)<br/>DoAll: track all values
-@param Reset `AV`()-compatible object that resets the count if TRUE.<br>Default value is 0 (no reset)
+@param ToTrack integer or vector, values of State to count.<br/>
+        [default = <1>]<br/>
+        DoAll: track all non-zero values
+@param Reset `AV`()-compatible object that resets the count if TRUE.<br/>
+        [Default=0] (no reset)
 @param Prune TRUE [default]: prune states if finite horizon detected.
-@example <pre>noffers = new StateCounter("Total Offers",5,offer,<1:offer.N-1>,0);</pre>
+@example
+Count the total number of non-zero offers received so far, up to 5
+    <pre>noffers = new StateCounter("Total Offers",5,offer,DoAll);
+    </pre>
+</dd>
 **/
 StateCounter::StateCounter(L,N,State,ToTrack,Reset,Prune) {
     TypeCheck(State,"StateVariable");
@@ -907,16 +989,17 @@ StateCounter::StateCounter(L,N,State,ToTrack,Reset,Prune) {
     this.Prune = Prune;
     }
 
-/** .
+/** . @internal
 **/
 StateCounter::Transit()	{
-    if (AV(Reset)) return { <0>, CondProbOne };
-    if (v==N-1  || !any(AV(Target).==ToTrack)) return UnChanged();
+    if (AV(Reset))                      //start count over tomorrow
+        return { <0>, CondProbOne };
+    if (v==N-1  || !any(AV(Target).==ToTrack))  //at the limit or target does not take on a tracked value.
+            return UnChanged();
 	return { matrix(v+1) , CondProbOne };
     }
 
-/**  Trims the state space if the clock is exhibits aging, assuming that the counter is initialized
-as 0.
+/**  Trims the state space assuming counter is initialized to 0.
 **/
 Counter::IsReachable() { return !(Prune && Flags::Prunable && (v>I::t)); }
 
@@ -942,25 +1025,26 @@ StateCounterMaster::IsReachable() {! (Flags::Prunable && sumr(CV(CVSList))>I::t)
 @param L label
 @param Act `ActionVariable` to track.
 @param N integer, maximum number of times to count
-@param ToTrack vector, values of  Act to count, default=<1>
+@param ToTrack vector, values of  Act to count, default=<1><br/>DoAll: all non-zero values
 @param Reset `AV`()-compatible binary value that resets the count if TRUE (default=0).
 @param Prune TRUE (default), prune unreachable states if finite horizon detected.
 @example
-Track work==1 up to 10 years, no reset. Assume count starts at 0 at t=0 in finite horizon models.
+Track work==1 up to 10 years, no reset.
 <pre>
 decl exper = new ActionCounter("Yrs Experience",10,work);
 EndogenousStates(exper);
-</pre>
+</pre></DD>
 **/
 ActionCounter::ActionCounter(L,N,Act,ToTrack,Reset,Prune)	{
     TypeCheck(Act,"ActionVariable");
     Counter(L,N,Act,ToTrack,Reset,Prune);
     }
 	
-/** .
+/** . @internal
 **/
 ActionCounter::Transit()	{
-    if (AV(Reset)) return { <0>, CondProbOne };
+    if (AV(Reset))
+        return { <0>, CondProbOne };
     if (( v==N-1 || !any( inc = sumr(CV(Target).==ToTrack)  ) )) return UnChanged();
     return { v~(v+1) , (1-inc)~inc };
 	}
@@ -983,8 +1067,6 @@ ActionCounterMaster::IsReachable() {
     return !( Flags::Prunable && (sumr(CV(CVSList))>I::t) );
     }
 
-
-
 /** .
 @internal
 **/
@@ -1003,7 +1085,7 @@ StateAccumulator::StateAccumulator(L,N,State) {
     Accumulator(L,N,State);
     }
 
-/** .
+/** . @internal
 **/
 StateAccumulator::Transit()	{
 	return { matrix(min(v+AV(Target),N-1)),  CondProbOne };
@@ -1060,7 +1142,7 @@ Duration::Duration(L,Current,Lag, N,MaxOnce,ToTrack,Prune) {
     this.MaxOnce = MaxOnce;
 	}
 
-/** .
+/** . @internal
 **/
 Duration::Transit() {
     if (v==N-1 && MaxOnce) return UnChanged();
@@ -1077,7 +1159,7 @@ Duration::Transit() {
 	return { g , CondProbOne };
 	}
 	
-/** Create a renewal state with random incrementing.
+/** Create a Rust renewal process state variable.
 @param L string, state variable name
 @param N integer, number of values
 @param reset `ActionVariable`
@@ -1091,7 +1173,7 @@ Renewal::Renewal(L,N,reset,Pi)	{
 	P = sizerc(AV(Pi,0));
 	}
 
-/** . **/
+/** . @internal **/
 Renewal::Transit()	{
 	decl pstar = min(P,N-v)-1,
 		 pi = reshape(AV(Pi) ,1,P),
@@ -1107,8 +1189,7 @@ Renewal::Transit()	{
 	return tt;
 	}
 
-/** Indicates a state or action took on particular value(s) last period.
-@internal
+/** Indicator that a state or action took on particular value(s) last period.
 **/
 Tracker::Tracker(L,Target,ToTrack,Prune)	{
 	this.ToTrack = ToTrack;
@@ -1125,7 +1206,7 @@ Tracker::IsReachable(){
 
 /** Create a binary variable that indicates if the previous value of state variable was in a set.
 @param Target `StateVariable` to track actual values of.
-@param ToTrack integer or vector of (actual) values to track
+@param ToTrack vector of (actual) values to track<br/>DoAll: track all non-zero values<br/>[defaut=<1>]
 @param Prune, prune non-zero states at t==0 in finite horizon.
 **/
 StateTracker::StateTracker(L,Target,ToTrack,Prune)	{	
@@ -1133,10 +1214,10 @@ StateTracker::StateTracker(L,Target,ToTrack,Prune)	{
     Tracker(L,Target,ToTrack,Prune);		
     }
 
-/** .
+/** . @internal
 **/
 StateTracker::Transit()	{
-	return { matrix(any(AV(Target)==ToTrack))  , CondProbOne };
+	return { matrix(any(AV(Target).==ToTrack))  , CondProbOne };
 	}
 
 /** Create a binary variable that indicates if the previous value of action variable was in a set.
@@ -1230,8 +1311,10 @@ StateBlock::AddToBlock(...
     rnge = range(0,N-1);
 	}
 	
+/** . @internal **/
 StateBlock::Check() {   }
 
+/** . @internal **/
 StateBlock::Update(curs,first) {
     curs -> Update();  // call update of individual component
     if (first) {
@@ -1271,7 +1354,7 @@ OfferWithLayoff::OfferWithLayoff(L,N,accept,Pi,Lambda)	{
 	NN = offer.N;
 	}
 	
-/** .  **/
+/** .  @internal **/
 OfferWithLayoff::Transit()	{
    decl prob = AV(Pi), lprob = AV(Lambda), acc = CV(accept), xoff, xprob;
 
@@ -1292,7 +1375,13 @@ OfferWithLayoff::Searching() { return v==Unemp; }
 NormalComponent::NormalComponent(L, N)	{
 	Coevolving(L,N);
 	}
-	
+
+/** Create a multivariate normal state block.
+@param L label
+@param N dimensions
+@param M number of points in each dimension
+@param base
+**/	
 MVIID::MVIID(L,N,M,base) {
 	StateBlock(L);
     this.M = M;
@@ -1302,13 +1391,11 @@ MVIID::MVIID(L,N,M,base) {
         }
     }
 
-/**  .
+/**  . @internal
 **/
 MVIID::Transit()	{
 	 return {Allv,ones(1,MtoN)/MtoN};
 	}
-
-
 
 /**Create a block for a multivariate normal distribution (IID over time).
 @param L label for block
@@ -1369,6 +1456,7 @@ Episode::Episode(L,K,T,Onset,End,Finite){
 	probT = 0;
 	}
 
+/** . @internal **/
 Episode::Transit() 	{
 	decl kv = k.v, tv = t.v, pi;
 	if (!kv) {		// no episode, get onset probabilities
@@ -1421,10 +1509,12 @@ Tauchen::Tauchen(L,N,M,pars) {
         }
 	}
 	
+/** . @internal **/
 Tauchen::Transit() {
 	return {vals,Grid[v][]};  //This was wrong: no need to match rows of A(). reshape(Grid[v][],N,Alpha::N)'
 	}
 	
+/** . @internal **/
 Tauchen::Update() {
 	s = AV(pars[Nsigma]);
 	r = AV(pars[Nrho]);
@@ -1503,15 +1593,17 @@ LiquidAsset::LiquidAsset(L,N,NetSavings){
     isact = isclass(NetSavings,"ActionVariable");
 	}
 
+/** . @internal **/
 FixedAsset::Transit() {
     return Asset::Transit(actual[v] + delta.actual[CV(delta)]);
     }
 
+/** . @internal **/
 LiquidAsset::Transit() {
     return Asset::Transit(isact ? NetSavings.actual[CV(NetSavings)] : AV(NetSavings));
     }
-/**
-**/
+
+/** . @internal **/
 Asset::Transit(pdelt) {
      atom = setbounds( AV(r)*actual[v]+pdelt , actual[0], actual[N-1] )';
      top = mincindex( (atom-DIFF_EPS.>actual) )';
@@ -1539,6 +1631,7 @@ KeptZeta::KeptZeta(L,N,keep,held) {
 /** Static transition of a kept continuous variable.
 The static transition.  If keeping current z is feasible then initialize to zero.
 Otherwise, leave unchanged.
+@internal
 **/
 KeptZeta::Transit() {
     if (any(CV(keep))) return {<0>, CondProbOne} ;
@@ -1559,9 +1652,8 @@ KeptZeta::CDF(zstar) {    return probn(zstar);      }
 **/
 KeptZeta::Quantile(u) {    return quann(u);      }
 
-/** Default update of actual values.
 
-**/
+/** . @internal **/
 KeptZeta::Update() {
     actual = this->Quantile( (vals+1)/(N+1) )';
     if (Volume>SILENT && !Version::MPIserver) fprintln(logf,L," update actuals ",actual');

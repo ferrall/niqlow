@@ -75,6 +75,7 @@ Space::Space() {D=0; C=N=<>;   X = M= size = 1; }
 
 /** Tracks information about a set of one or more `Space`s.**/
 SubSpace::SubSpace() {D=0; size=1; O=<>;}
+SubSpace::~SubSpace() { delete O; left=right=0; }
 
 /** Calculate dimensions of a subspace.
 @internal
@@ -588,6 +589,14 @@ GroupTask::GroupTask(caller) {
 	span = bothgroup;	left = SS[span].left;	right = SS[span].right;
 	}
 	
+GroupTask::~GroupTask() {
+    delete qtask;
+    ~Task();
+    }
+
+FETask::~FETask() {
+    ~GroupTask();
+    }
 
 /** Loop over group-variable tasks.
 @internal
@@ -1395,6 +1404,11 @@ Task::Task(caller)	{
     done = FALSE;
 	}
 
+Task::~Task()	{
+    delete itask;
+    delete state;
+    }
+
 /** .
 @internal
 **/
@@ -1788,7 +1802,7 @@ DP::SetClock(ClockOrType,...
 			case RandomAging:			counter = new AgeBrackets(va[0]);  break;
 			case RandomMortality:		counter = new Mortality(va[0],va[1]);  break;
             case UncertainLongevity:    counter = new Longevity(va[0],va[1]); break;
-            case RegimeChange:          oxrunerror("Sorry! Regime Change clock not supported yet"); break;
+            case RegimeChange:          counter = new Regimes(va[0]); break;
 			case SocialExperiment:		counter = new PhasedTreatment(va[0],TRUE);  break;
 			default :                   oxrunerror("DDP Error ??. ClockType tag not valid");
 			}
@@ -1949,6 +1963,7 @@ Group::Density(){
 			g -= States[g].block.N;
 			}
 		else {
+            States[g]->Distribution();
 			curREdensity *= States[g].pdf[CV(States[g])];   //extend to GroupEffect
 			--g;
 			}

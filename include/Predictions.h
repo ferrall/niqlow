@@ -23,7 +23,7 @@ struct DataColumn : Zauxiliary {
 
 /** Predicted distribution across states.
 **/	
-struct 	Prediction : Data {
+struct Prediction : Data {
 //    static   const  decl tinyP = 1E-20;
 	static	decl ud, LeakWarned, PredictFailure, ctlist;
 	const  	decl t;
@@ -44,7 +44,7 @@ struct 	Prediction : Data {
     ~Prediction();
 	Predict();
     Reset();
-    SetMoms(sz);
+    SetMoms(sz,firsttype);
 	Histogram(printit=FALSE);
     Delta(mask,printit=FALSE,tlabels=0);
 	}
@@ -57,6 +57,7 @@ struct 	PathPrediction : Prediction {
                                                 upddens;
     const decl                                  f,
                 /** initial distribution.**/    iDist,
+                /** pstate .**/                 pstate,
                 /** for tracking.**/            fvals,
                                                 Fcols,
             /** Weight Moments for GMM if

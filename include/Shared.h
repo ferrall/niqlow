@@ -137,18 +137,17 @@ struct Discretized : Zauxiliary {
 /** Container for discrete variables (DDP) and continuous parameters (FiveO).
 **/
 struct Quantity {
-	const 	decl	
-		/** Label **/ 						L;
+	const 	decl	/** Label **/ 				 L;
 	decl
-        /** Volume of output. **/               Volume,
-        /** Log dedicated to this qty.**/       logf,
-		/** position in vector   **/  	  	    pos,
-		/** Current actual value      **/  	    v,
-        /** Data tracking object **/            track;
+		/** Current actual value      **/  	     v,
+        /** Volume of output. **/                Volume,
+        /** Log file dedicated to this qty.**/   logf,
+		/** position in vector   **/  	  	     pos,
+        /** Data tracking object. **/            track;
     SetVolume(Volume);
 	}
 	
-/** Represent discrete values.**/
+/** Discrete values: actions and states. **/
 struct Discrete	: Quantity{
 	const 	decl	
 			/** range(0,N-1)			   **/  	vals;
@@ -164,13 +163,12 @@ struct Discrete	: Quantity{
     virtual Track(LorC);
 	}
 
-/** Represent a continuously varying quantity.
-The base class for parameters of an `Objective` to maximize or solve.
+/** Continuously varying quantity: te base class for parameters of an `Objective`.
 **/
 struct Parameter : Quantity {
 	static 	const 	decl	
 		/** tolerance for too near
-			flat part of transformation. @internal **/		NearFlat = 1E-4,
+			flat part of transformation. @internal **/		NearFlat = DIFF_EPS2,
 		/** . @internal **/									sep = " ";
 	static  		decl
 		/** Flag to ignore constraints
@@ -200,7 +198,7 @@ struct GaussianQuadrature : Integration {}
 
 /** Gauss-Laguerre Quadrature Integration.
 
-$$\int_0^\infty f(x) e^{-1} dx \approx \sum_{m=0}^{M^-} \omega_m f(x_m)$$
+$$\int_0^\infty f(x) e^{-1} dx \approx \sum_{m=0}^{M-1} \omega_m f(x_m)$$
 
 This can be used to compute the expected value under the exponential distribution.
 
@@ -240,7 +238,7 @@ println("E[x*x] = ", GQH::wght * sqr(GQH::nodes) / M_SQRT2PI );
 **/	
 struct GQH	 : GaussianQuadrature {
 	static decl
-	/** currrent order M **/                      order,
+	/** currrent order M **/                            order,
 	/** the nodes or mantissa values x<sub>m</sub> **/ 	nodes,
 	/** corresponding weights  &omega;<sub>m</sub> **/ 	wght;
 	static Initialize(order);
@@ -345,6 +343,7 @@ struct Point : LinePoint {
 	GCopy(h);
 	}
 
+/** A system point.**/
 struct SysPoint : Point {
     SysPoint();
     }
@@ -380,7 +379,8 @@ struct CPoint : Point {
 	Vec();
 	virtual Copy(h);
 	}
-		
+
+/** . @internal **/		
 class CGI : Zauxiliary  {
     static const decl keys ={
         "AUTH_TYPE",

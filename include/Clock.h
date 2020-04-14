@@ -290,10 +290,8 @@ SetClock(RandomAging,constant(1,1,10)~constant(5,1,3)~constant(10,1,2));
 </dd>
 
 <DT>Transition</DT>
-<dd class="math">Let B = the bracket size at period t. <pre>
-Prob( t&prime; = t+1 ) = 1/B;
-Prob( t&prime; = t ) = 1-1/B;
-</pre></dd>
+Let B = the bracket size at period t.
+$$Prob( t^\prime ) = I\{t^\prime=t\}(1-1/B) + I\{t^\prime=t+1\}/B$$
 
 @see DP::SetClock, ClockTypes
 
@@ -343,12 +341,8 @@ SetClock(RandomMortality,9,MyModel::Mprob);
 
 
 <DT>Transition</DT>
-<dd class="math">
 Let T* = `N::T`-1
-<pre>
-Prob(t' = t+1) = 1 - &pi;(t)
-Prob(t' = T*) = &pi;(t)
-</pre></dd>
+$$Prob(t^\prime  = I\{t^\prime=t+1\}(1 - \pi(t)) + I\{t^\prime = T*\} pi(t).$$
 T* is the last period with probability 1.
 **/
 struct Mortality : NonDeterministicAging {
@@ -411,6 +405,10 @@ struct Longevity : Mortality {
     virtual setPstar(notsynched=FALSE);
     virtual Vupdate();
 	}
+
+struct Regimes : NonStationary{
+    Regimes(Ntransperiods=0);
+    }
 	
 /** A sequence of treatment phases with fixed maximum durations.
 

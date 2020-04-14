@@ -130,7 +130,7 @@ SepTest()	{
 	delete v, nm, bfgs;
 	}
 	
-SeparableRosenbrock ::SeparableRosenbrock (K)	{
+SeparableRosenbrock::SeparableRosenbrock(K)	{
 	Separable("SepRosenbrock",K);
 	x = new Free("x",1.01);
 	y = new Free("y",0.98);

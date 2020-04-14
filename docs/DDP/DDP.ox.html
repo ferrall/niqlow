@@ -779,7 +779,7 @@ The interpretation of a property can depend on the kind of object on the left si
 <P/>
 <DT>D : dimensionality</DT>
     <DD>A vector <code>x</code> of discrete variables has a length x.N. But it creates a space of possible values (the Cartesian product) equal to the product of the individual variable cardinalities. So <code>x.D</code> is the size of the Cartesian space of a vector <code>x</code>.
-    <span class="equation">$$x.D  \equiv {\prod}_{i= 0}^{x.N^-} x_i.N.$$</span>
+    <span class="equation">$$x.D  \equiv {\prod}_{i= 0}^{x.N-1} x_i.N.$$</span>
     A space in <span class="n">DDP</span>, say <span class="expressions">\(\Theta\)</span>, is usually a set of vectors of the space of possible vectors.  The number of points in a space is then <span class="expressions">\(\Theta\)</span>.D.</DD>
 <P/>
 <DT>Rows and columns of matrices</DT>
@@ -1163,7 +1163,7 @@ Let <span class="expressions">\(\overline{V}(\theta)\)</span>, for <span class="
     <blockquote><b><code>MyModel</code> can trim the state space by providing a <code>MyModel::Reachable()</code> routine.  It returns <code>TRUE</code> for states that can be reached from initial conditions and <code>FALSE</code> otherwise. </b></blockquote>
 <P/>
 Following the notion of possible versus feasible actions above, the Cartesian product of all possible values of the endogenous state variables is defined as the <em>possible state space</em>:
-    <span class="equation">$$ \Omega \quad\equiv\quad \prod_{q_k \in\theta} \{ 0 \dots q_{_{k.N^-}} \}$$</span>
+    <span class="equation">$$ \Omega \quad\equiv\quad \prod_{q_k \in\theta} \{ 0 \dots q_{_{k.^{N-1}}} \}$$</span>
 The current value of a state is always equal to some row in <span class="expressions">\(\Omega: \theta.v \in \Omega\)</span>.</p>
 <P/>
 Just because a state is possible (<span class="expressions">\(\theta\in\Omega\)</span>) does not mean the DP can ever get there.  Of course, if the DP was solved and then started at exactly <span class="expressions">\(\theta\)</span> it would be reached.  But finite horizon dynamic programs must have initial conditions specified.  And those initial conditions can mean that some states in <span class="expressions">\(\Omega\)</span> will never be reached.  And if they can't be reached then they do not need to be stored and included in the solutions to <a href="#BE-defn">Bellman's Equation</a>. So in some models, especially those with a finite horizon, &Omega; contains many endogenous states that cannot be reached from possible initial states of the user's situation.
@@ -1203,7 +1203,7 @@ If <code>MyModel</code> provides a replacement for the virtual <code>Reachable</
     <blockquote><b><code>MyModel</code> can require several solutions to a DP model that differ only by shifts in <span class="expressions">\(U()\)</span> or <span class="expressions">\(P()\)</span>.</b></blockquote>
 <P/>
 Group variables are like random or fixed effects in econometrics.  They are fixed and non-random from an agent's point of view, but from our point of view they vary across agents. Group variables are not involved in the creation of <span class="expressions">\(\Theta\)</span>, which is reused for the solution of the model for each <span class="expressions">\(\gamma\)</span>. Instead, the group space <span class="expressions">\(\Gamma\)</span> is created from the Cartesian product of all possible values of the group variables.
-<span class="equation">$$\Gamma\quad\equiv\quad\prod_{k=0\dots\gamma.N^-}\ \bigl\{\,0\dots\, \gamma.N^-\,\bigr\}$$</span>
+<span class="equation">$$\Gamma\quad\equiv\quad\prod_{k=0\dots\gamma.N-1}\ \bigl\{\,0\dots\, \gamma.N-1\,\bigr\}$$</span>
 <details class="aside"><summary>Example</summary>
 <dd>There are two group variables, <code>&gamma; = (g,d)</code>, where g is gender, so g.N&oline;=1 and d is degree status so
 d.N&oline; =2, (no high school degree, high school, some college).  Then <code>&Gamma; = {0,1}&times;{0,1,2} = </code>
@@ -1217,7 +1217,7 @@ d.N&oline; =2, (no high school degree, high school, some college).  Then <code>&
 <!--<pre>&Gamma; &equiv; &times;{ 0 &hellip; (g<sub>k</sub>.N)&oline; }, for k= 0 &hellip; (&gamma;.N)&oline;.
 </pre></dd>-->
 Each group has a probability
-<span class="equation">$$P_g(\gamma)\quad=\quad \prod_{k=0\dots \gamma.N^-}\ p(g_k.v)$$</span>
+<span class="equation">$$P_g(\gamma)\quad=\quad \prod_{k=0\dots \gamma.N-1}\ p(g_k.v)$$</span>
 This assumes group variables are iid.  You can use fixed and random effect blocks to include correlated groups.
 <!--<pre>&Rho;<sub>g</sub>(&gamma;) = &prod; <sub>k=0&hellip;(&gamma;.N)&oline;</sub>  p(g<sub>k</sub>.v)
 </pre></DD>-->

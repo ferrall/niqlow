@@ -7,31 +7,34 @@ SimulateOutcomes(Nsim=UseDefault,T=UseDefault,fname=UseDefault,ErgOrStateMat=0,D
 
 /** A single realization of a discrete DP. **/
 struct Outcome : Data {
-	/** . @internal **/
 	static	const decl
-            PathID = "path", FPanelID="Fxed", PanelID = "Panel",
-			fixeddim = <onlyendog,tracking,onlyclock,onlyrand,onlyfixed,bothgroup>,
-			PrefixLabels = {"t","n","T","Aj|"};
-	/** . @internal **/
+	/** . @internal **/ PathID = "path",
+	/** . @internal **/ FPanelID="Fxed",
+	/** . @internal **/ PanelID = "Panel",
+	/** . @internal **/ fixeddim = <onlyendog,tracking,onlyclock,onlyrand,onlyfixed,bothgroup>,
+	/** . @internal **/ PrefixLabels = {"t","n","T","Aj|"};
+
 	static 	decl
-                                        AnyMissing
+	   /** . @internal **/    AnyMissing
 #ifdef OX_PARALLEL
                                          = < [DSubSpaces] *0> //Oxdoc does not recognize this syntax so ifdef hides it
 #endif
-                                        , pathpred,
-                                        ctlist, exaux,
+     	,
+    /** . @internal **/                 pathpred,
+    /** . @internal **/                 ctlist,
+    /** . @internal **/                 exaux,
     /**do not include choice prob for fully observed
         likelihood, for first stage estimation of transitions. **/
                                            OnlyTransitions,										
-                                           SimLabels,
+    /** . @internal **/                 SimLabels,
 										   mask,
-										   now,
-										   tom,
-                                            icol,
-                                            TF,
-                                            TP,
-     /**current likelihood A rows .**/     arows,
-	/**consistent states now & tom**/	   viinds,
+    /** . @internal **/                 now,
+    /** . @internal **/                 tom,
+    /** . @internal **/                 icol,
+    /** . @internal **/                 TF,
+    /** . @internal **/                 TP,
+     /**current likelihood A rows .**/  arows,
+	/**consistent states now & tom**/	 viinds,
 	/**contigent likelihood now & tom.**/  vilikes;
 	const 	decl
 	/**order on the path . **/ 				t,
@@ -41,7 +44,7 @@ struct Outcome : Data {
     /** index of next simulated state **/               snext,
 	/**$\alpha$  **/						            act,
 	/**auxiliary values. **/				            aux,
-	/**  **/						                    ind,
+	/** @internal **/						            ind,
 	/** list of feasible sets consistent w/ data.**/	Ainds;
 			Outcome(prior);
 			~Outcome();

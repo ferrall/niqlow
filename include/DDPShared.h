@@ -1,9 +1,5 @@
 #import "Shared"
 
-		/** Categories of state variables.	
-            These categories are used mainly for summarizing the model.
-                @name StateCategories **/	
-enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTEDV,TIMINGV,TIMEINVARIANTV,NStateCategories}
 
 		/** Vectors of state variables.
         <DT>Explanation</DT>
@@ -107,6 +103,13 @@ enum {NOW,LATER,DVspace}
         **/
 enum{idvar,avar,svar,auxvar,NColumnTypes}
 
+static const decl ilistnames = {"StateVariable","ActionVariable","AuxiliaryValue"};
+
+		/** Categories of state variables.	
+            These categories are used mainly for summarizing the model. @name StateCategories **/	
+enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTEDV,TIMINGV,TIMEINVARIANTV,NStateCategories}
+
+
 /** Point in solving when updating of parameters and transitions needs to occur.
 <table class="enum_table">
 <tr><td valign="top">InCreateSpaces</td><td>Transitions do not depend on any parameters that change so they can be initialized
@@ -127,7 +130,9 @@ There is a potentially large computational cost of updating the transitions more
 @name UpdateTimes **/
 enum {InCreateSpaces,WhenFlagIsSet,OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
 
-/**
+/** Phases of DP computations.  The current phase is set by the code and time spent in each phase is
+tracked.
+@see Flags::TimeProfile
 @name DPPhases
 **/
                         enum {INBETWEEN, INITIALIZING,  SOLVING,  SIMULATING,  LIKING, PREDICTING,NDPhases}
@@ -175,11 +180,11 @@ the user's DP model have been solved.</tD></tr>
 <tr><td valign="top"><code>GroupCreate</code></td><tD>Called by the task that sets up the group space Gamma (&Gamma;) before creation
 of each separate group. The function added here should return TRUE if the group should be created and FALSE otherwise.</tD></tr>
 </table>
+
 @see Hooks, Flags::UpdateTime
 @name HookTimes
 **/
 enum {PreAuxOutcomes,PreUpdate,AtThetaTrans,PostSmooth,PostGSolve,PostRESolve,PostFESolve,GroupCreate,NHooks}
-
 
 
 		/** Send one of these tags as first argument to `DP::SetClock`() to use that clock.
@@ -198,6 +203,15 @@ enum {PreAuxOutcomes,PreUpdate,AtThetaTrans,PostSmooth,PostGSolve,PostRESolve,Po
         </table>
         @name ClockTypes **/
 enum {InfiniteHorizon,Ergodic,SubPeriods,NormalAging,StaticProgram,RandomAging,RandomMortality,UncertainLongevity,RegimeChange,SocialExperiment,UserDefined,NClockTypes}
+
+/** parallel array of labels for the built-in clock types. **/
+static const decl ClockTypeLabels
+    = {"Infinite Horizon","Ergodic","Subdivided Periods","Normal Finite Horizon Aging","Static Program (finite horizon and T=1)",
+    "Random Aging (finite horizon but aging happens with probability<1 at some t",
+    "Random Mortaility (finite horizon with probability of early transition to last t, death)",
+    "Uncertain Longevity (finite horizon until last period which ends randomly)","Regime Change","Social Experiment",
+    "User Defined Clock"};
+
 
 		/** Elements of array stored at each theta. @name TransStore **/
 enum {Qtr,Qit,Qrho,TransStore}
@@ -231,7 +245,7 @@ enum { UNWEIGHTED, UNCORRELATED, CONTEMPORANEOUS, INTERTEMPORAL, AUGMENTEDPATHW,
 		/** Flat views of panel data. @name FlatOptions **/
 enum { LONG, WIDE, FlatOptions }
 
-        /** Type if Interaction Auxiliary Values. @name InteractionTypes **/
+        /** Type of Interaction Auxiliary Values. @name InteractionTypes **/
 enum {NoInt,StateInt,       ActInt,          AuxInt, InteractionTypes}
 
         /** Type of likelihood function to build based on observability.
@@ -249,12 +263,6 @@ enum {NoInt,StateInt,       ActInt,          AuxInt, InteractionTypes}
             @name LikelihoodTypes **/
 enum {CCLike,ExogLike,PartObsLike,LikelihoodTypes}
 
-        /** parallel array of labels for the built-in clock types. **/
-static const decl ClockTypeLabels
-    = {"Infinite Horizon","Ergodic","Subdivided Periods","Normal Finite Horizon Aging","Static Program (finite horizon and T=1)","Random Aging (finite horizon but aging happens with probability<1 at some t","Random Mortaility (finite horizon with probability of early transition to last t, death)",
-    "Uncertain Longevity (finite horizon until last period which ends randomly)","Regime Change","Social Experiment","User Defined Clock"},
-    ilistnames = {"StateVariable","ActionVariable","AuxiliaryValue"}
-    ;
 
 /**Take an index and produce the state vector associated with it.
 @param Ind integer index
@@ -264,8 +272,7 @@ static const decl ClockTypeLabels
 ReverseState(Ind,subsp);
 
 /**Container for auxiliary classes used in DDP but not elsewhere (directly). **/
-struct DDPauxiliary : Zauxiliary {
-    }
+struct DDPauxiliary : Zauxiliary {    }
 
 /** Indicators related to the DP problem.
 All elements are static. A user's code can reference these variables
@@ -335,14 +342,14 @@ struct N : DDPauxiliary {
 		/** Number of different action sets.    **/      		      J,
 		/** number of auxiliary variables, sizeof of `DP::Chi` **/	  aux,
 	   /**  lowest state index for each t.  **/      				  tfirst,
-                                                                      MinSZ,
-                                                                      MaxSZ,
+        /** Submsample parameter.**/                                  MinSZ,
+        /** Submsample parameter.**/                                  MaxSZ,
         /** T array of indices in subsample.**/                       insamp,
         /** # of iteration points SS[iterating].size.**/              Mitstates,
 		/**  .  **/									                  ReachableIndices,
 		/**  Count of terminal states.  **/   	                      TerminalStates,
     	/**  Count of reachable states.   **/  		                  ReachableStates,
-        /** Number of states approximated (not subsampled).**/       Approximated,
+        /** Number of states approximated (not subsampled).**/        Approximated,
 		/** FALSE means no subsampling.  Otherwise, pattern of
             subsampling of the state space.
             @see DP::SubSampleStates **/			             SampleProportion;
@@ -376,8 +383,8 @@ struct I : DDPauxiliary {
 	/**  Current value of majt.
            This equals <code>t</code> unless the clock
            is Divided.  **/				                    majt,
-	/** .             **/ 			 				        now,
-	/** .            **/ 			 				        later,
+	/** .  @internal   **/ 			 				        now,
+	/** .  @interanl   **/ 			 				        later,
 	/** . @internal **/										MedianExogState,
 	/** . @internal **/										MESind,
 	/** . @internal **/										MSemiEind,																
@@ -386,8 +393,8 @@ struct I : DDPauxiliary {
         Set in `I::Set`. **/                                curth,
     /** current point in group space, &gamma;..
         Set in `I::Set`.  **/                               curg,
-                                                            elo,
-                                                            ehi,
+    /** . @internal **/                                     elo,
+    /** . @internal **/                                     ehi,
     /** The current value of &delta;. This is set in
             `EndogTrans::Transitions`() to avoid repeated calls
             to `CV`.  @see DP::delta **/                         CVdelta;
@@ -416,7 +423,7 @@ struct Hooks : DDPauxiliary {
 	static  DoNothing();
     }
 
-/** Aspects of the Action Space.
+/** Aspects of the Action Space $A(\theta)$.
 @see Bellman::FeasibleActions
 **/
 struct Alpha : DDPauxiliary {
@@ -492,10 +499,10 @@ struct TrackObj : DDPauxiliary {
 
 
 static decl
-                                                groupoffs = <onlyrand,onlydynrand,onlyfixed,bothgroup>,
-                                                thetaoffs = <tracking,iterating>,
-                                                exogoffs =  <onlyexog,onlysemiexog,bothexog>,
-                                                maskoffs =  <onlyacts,onlysemiexog,onlyendog>,
+       /** $\Gamma$ related subspaces.**/                groupoffs = <onlyrand,onlydynrand,onlyfixed,bothgroup>,
+        /** $\theta$ tracking or iterating indices.**/   thetaoffs = <tracking,iterating>,
+        /** $\eta$ and $\epsilon$ subspaces.**/          exogoffs =  <onlyexog,onlysemiexog,bothexog>,
+                                                        maskoffs =  <onlyacts,onlysemiexog,onlyendog>,
         /** $\Gamma$: array (list) of groups of fixed and random effects,
             $\gamma$.**/                                              Gamma,
         /** 2-dimensiona array pointing to $\Gamma$, [r,f]. **/       Fgamma,

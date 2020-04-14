@@ -1,5 +1,5 @@
 #include "Methods.h"
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 #ifndef Mox
     #define Mox
     #include "ValueIteration.ox"
@@ -9,7 +9,7 @@
 #endif
 
 /** Base of all DP solution methods
-@param myGSolve .
+@param myGSolve a method that does the iteration over $|Theta$ (user code does not set this)
 **/
 Method::Method(myGSolve) {
     if (!Flags::ThetaCreated) oxrunerror("DDP Error 28. Must create spaces before creating a solution method");
@@ -24,7 +24,7 @@ Method::Method(myGSolve) {
 
 /** This does common setup tasks but actually doesn't solve.
 @internal
-    **/
+**/
 Method::Initialize(MaxTrips) {
   	if (isint(delta))
         oxwarning("DDP Warning 23.\n User code has not set the discount factor yet.\n Setting it to default value of "+sprint(SetDelta(0.90))+"\n");
@@ -33,19 +33,22 @@ Method::Initialize(MaxTrips) {
         ETT->Transitions();
         Flags::CallTrans=FALSE;
         }
-//    if (isclass(qtask)&&isclass(itask)) {
+//    Pass values down to the GSolve task
         qtask.itask.Volume = Volume;
         qtask.itask.vtoler = vtoler;
         qtask.itask.succeed = TRUE;
         qtask.itask.MaxTrips = (MaxTrips==ResetValue) ? 0 : MaxTrips;
-//        }
     done = FALSE;
     Flags::NewPhase(SOLVING);
     }
 
 /** Carry out a solution method.
-@param Fgroups
-@param Rgroups
+@param Fgroups  either AllFixed  or a specific fixed group $\gamma_f$ to solve
+@param Rgroups  if AllFixed then must be AllRand.  Otherwise, specific $\gamma_r$
+
+@example
+    vi = ValueIteration();
+    vi -> Solve();
 **/
 Method::Solve(Fgroups,Rgroups) {
     if (Volume>QUIET && (Fgroups==AllFixed && Rgroups==AllRand)) println("\n>>>>>>Value Iteration Starting");
@@ -80,6 +83,7 @@ Method::ToggleRunSafe() {
 /** Toggle whether to Iterate on Bellman's Equation.
 @param ToggleOnlyTrans TRUE [default] also toggle `Outcome::OnlyTransitions` so choice
     probabilities do not apply in likelihood calculation.
+This is used by DataObjectives that are maximized using "2 Stage" iteration.
 **/
 Method::ToggleIterate(ToggleOnlyTrans) {
     DoNotIterate = !DoNotIterate;
@@ -164,8 +168,9 @@ RandomSolve::Run()  {
 	}
 
 /** Interate over the state space apply the solution method.
-This is not called by the user's code. It is called for each point
-in the group space $\Gamma.$ It's job is to iterate over $\Theta.$
+
+This is not called by the user's code. It is called for each point in the group space $\Gamma.$
+Its job is to iterate over $\Theta.$
 
 <OL>
 <LI>Set the `Flags::setPstar` for whether $P^\star$ should be computed or not.</LI>
@@ -187,14 +192,15 @@ GSolve::Solve(instate) {
     Hooks::Do(PostGSolve);
     if (Volume>SILENT && N::G>1) print(".");
 	}
+
 /** Apply the method (default is Bellman equation) at a point $\theta$.
-@internal
 
 <OL>
+<LI>Compute ThetaUtility().</Li>
 <LI>Compute the value of actions, $v(A(\theta),\theta)</var> by calling `Bellman::ActVal`() or the
 replacement for the actual method</LI>
 <LI>Call `Bellman::thetaEMax`() or replacment to store the value in the scratch space for $V(\theta)$.</LI>
-<LI>Call `Gsolve::PostEmax`() or replacement</LI>
+<LI>Call `Gsolve::PostEmax`() or replacement to carry out post emax tasks, CCP smoothing, e.g.</LI>
 </OL>
 
 **/

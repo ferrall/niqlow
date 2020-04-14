@@ -25,7 +25,7 @@ struct Space : DDPauxiliary	{
 /**Stores information on a set of spaces, such as reality or treatment **/
 struct SubSpace : DDPauxiliary  {
 	static	decl
-												ClockIndex,
+	 /** location of the clock object.**/       ClockIndex,
 	/** shared spaces   **/						S;
 	decl	
 	/** # of dimensions**/    				D,
@@ -33,7 +33,8 @@ struct SubSpace : DDPauxiliary  {
 	/** vector of offsets**/  				O,		
 	/** leftmost state index. **/			left,
 	/** rightmost state index **/		    right;	
-	SubSpace(); 	
+	SubSpace();
+    ~SubSpace();
 	Dimensions(subs,UseLast=TRUE,DynRand=FALSE);  //
 	ActDimensions();
 	} 	
@@ -46,7 +47,6 @@ The  base class for the DDP framework.
 **/
 struct DP {
 	static decl
-//                            NKpause,                            inNK,  //memleak
         /** Label for the problem. **/                          L,
         /** List of parent classes.**/                          parents,
         /** file for diagnostic output. **/                     logf,
@@ -60,8 +60,8 @@ struct DP {
             objects except perhaps in a new solution method or other lower-level routine.</b>
             **/  				                                S,
         /**  array of `SubSpace`s, using `DSubSpaces` as names
-            for elements.  <b>User code will typically not access this
-            objects except perhaps in a new solution method or other lower-level routine.</b>
+            for elements.
+            <b>User code will typically not access this object</b>
             **/  				
 		/**   array of `SubSpaces .  **/  				        SS,
 		/** List of State Variables added to the model.
@@ -105,12 +105,10 @@ struct DP {
         static  SetVersion(V=400);
 		static	SetDelta(delta);
 		static	SetClock(ClockType,...);
-		//static	Gett();
 		static 	ExogenousTransition();
 
         static  onlyDryRun();
 		static  CreateSpaces();
-		//static	InitialsetPstar(task);
 		static 	Initialize(userState,UseStateList=FALSE);
 
 		static 	AddStates(SubV,va);
@@ -123,8 +121,6 @@ struct DP {
         static  Interactions(ivar,olist=UnInitialized,prefix=UseLabel,ilo=0,thi=100);
         static  Indicators(ivar,prefix=UseLabel,ilo=0,ihi=100);
         static  MultiInteractions(ivarlist,ilov,ihiv,olist,prefix);
-		// static 	SetGroup(state);
-        // static  SetG(f=0,r=0);
 		static 	Settheta(ind);
 		static 	DrawGroup(find);
         static  GetPinf(g=UseCurrent);
@@ -150,18 +146,17 @@ struct DP {
 		}
 
 
-/** Holds things that require processing subspaces (spanning a state Space).
+/** Process (span) space or subspace.
 
-Derived classes of tasks are specialized to process different spaces:
+<DT>Derived classes of tasks are specialized to process different spaces:</DT>
 
-`GroupTask`s process the group space &Gamma; (fixed and random effects). `FETask`,
-`RETask` specialized to one or the other component of &gamma;
+<DT>`GroupTask`s process the group space $\Gamma$ (fixed and random effects).</DT>
+<DD>`FETask`,`RETask` specialized to one or the other component of $\Gamma$.</DD>
+<DD>`Method`s to solve the DP problem are FETasks which turn call other tasks</DD>
+<DT>`ThetaTask`s process the endogenous state space, $\Theta$.  are based on ThetaTask.</DT>
+<DD>`GSolve` and derived children carry out the solution methods.</DD>
 
-`ThetaTask`s process the endogenous state space, &Theta;.  `Method`s to solve
-the DP problem are based on ThetaTask.  In turn, these methods call upon GroupTasks
-to loop over different problems for them.
-
-`ExTask` processes the exogenous vectors &epsilon; and &eta;.
+<DT>`ExTask` processes the exogenous vectors &epsilon; and &eta;.</DT>
 
 The engine of a task is its <code>loop()</code> method.  It will assign eveyr
 possible value of state variables in its vector(s) and for each unique
@@ -172,32 +167,35 @@ a new <code>Run()</code> method.
 **/
 struct Task : DP {
 	const decl
-    /**Inner task for a stack of tasks to perform. **/              itask,
 	/**leftmost variable in state to loop over 				**/		left,
 	/**rightmost variable in state to loop over 			**/		right,
     /**Task that called me (used by methods).**/                    caller;
     static decl
-    /** used inside SyncStates. **/                                 sd,sv,Sd,
+    /** used inside SyncStates. @internal**/                        sd,
+    /** @internal **/                                               sv,
+    /** @internal **/                                               Sd,
                                                                     trace;
 	decl
+    /**Inner task for a stack of tasks to perform. **/              itask,
     /**Label for debugging purposes.**/                             L,
-	/**N&times;1 vector, current &epsilon;&theta;			**/		state,
+	/**N&times;1 vector, current values of all states.			**/ state,
 	/**subspace to use for indexing during the task **/				subspace,
-	/**Number of times `Task::Run`() has been called while in
-        progress.**/                                                iter,
-																	d,
+	/**Times `Task::Run`() called while in progress.**/             iter,
+	/**index into state of current spanning dimension.**/           d,
     /** keep going ... mimics an inner do while().**/               inner,
 	/**Indicates task is done (may require one more trip).**/		done,
 	/**Trips through the task's space. **/                          trips,
-	/** max number of outer	Bellman trip.s     **/    				MaxTrips;							
-	Task(caller=UnInitialized);
+	/** max number of outer	trips     **/    				        MaxTrips;							
+
+	        Task(caller=UnInitialized);
+            ~Task();
 	virtual Update();
 	virtual Run();
 	virtual loop();
 	virtual list(span=DoAll,lows=UseDefault,ups=UseDefault);
-	Reset();
-	Traverse(span=DoAll,lows=UseDefault,ups=UseDefault);
-	SyncStates(dmin,dmax);
+	        Reset();
+	        Traverse(span=DoAll,lows=UseDefault,ups=UseDefault);
+	        SyncStates(dmin,dmax);
 	} 	
 
 /** Base Class for tasks that loop over the endogenous state space &Theta;.
@@ -277,9 +275,11 @@ struct EndogTrans 	    : 	Task {
     Transitions(state=0);
     }
 
-struct SVTrans          :   EndogTrans { decl Slist; SVTrans(Slist); Run();};
+struct SVTrans          :   EndogTrans {
+    decl Slist; SVTrans(Slist); Run();
+    }
 
-/** Base Task for looping over &Epsilon; and &Eta;.
+/** Base Task for looping over $\epsilon$ and $\eta$.
 
 **/
 struct ExTask       :   Task {
@@ -287,33 +287,50 @@ struct ExTask       :   Task {
     loop();
     }
 
-/** Loop over &eta; and &epsilon; and call `Bellman::Utility`(). **/
+/** Call `Bellman::Utility`().
+
+@see   DP::XUT
+**/
 struct ExogUtil : 	ExTask {	
-    const decl AnyExog;
-    decl U;
+    const decl
+        /**indicate there are exogenous variabes so loop is required.**/ AnyExog;
+    decl
+        /**stores Utility matrix for current $\theta$. **/  U;
     ExogUtil();		
     ReCompute(howmany=DoAll);
     Run();	
     }
 
+/** Base Task for looping over $\eta$.
+**/
 struct SemiExTask : ExTask {
-    const decl AnyEta;
+    const decl
+        /**indicate there are $\eta$ variables so loop is required.**/ AnyEta;
     SemiExTask();
     Compute(HowMany=DoAll);
     virtual Run();
     }
 
-/** Loop over &eta; to compute EV **/
+/** Loop over $\eta$ to compute EV.
+
+@see    DP::IOE
+**/
 struct SemiEV : SemiExTask {
     SemiEV();
     Run();
     }
 
+/** Loop over $\eta$ to compute transitions.
+@see DP::EStoS
+**/
 struct SemiTrans: SemiExTask {
     SemiTrans();
     Run();
     }
 
+/** Compute expected outcomes given exogenous vector values.
+@see    DP::EOoE
+**/
 struct ExogOutcomes : ExTask {
     static decl chq, tmp, auxlist;
     static SetAuxList(tlist);
@@ -322,20 +339,25 @@ struct ExogOutcomes : ExTask {
     Run();
     }
 
-/**  The base task for processing &Gamma;.
+/**  The base task for processing $\gamma$.
 **/
 struct GroupTask : Task {
-	const 	decl 	span;
-	        decl	qtask;  /*2019: was static! */
-	GroupTask(caller=UnInitialized);
+	const 	decl 	                      span;
+	        decl	/** sub task.**/      qtask;  /*2019: was static! */
+
+            GroupTask(caller=UnInitialized);
+            ~GroupTask();
+            loop(IsCreator=FALSE);
 	virtual Run();
-	loop(IsCreator=FALSE);
 	}
 
-/** The task called in CreateSpaces that creates &Gamma;.  **/
-struct CGTask 		: GroupTask {	CGTask();				Run();	}
+/** The task called in CreateSpaces that creates $\Gamma$.  **/
+struct CGTask 		: GroupTask {	
+    CGTask();				
+    Run();	
+    }
 
-/** The base task for looping over random effects.  **/
+/** The base task for looping over random effects $\gamma_r$.  **/
 struct RETask 		: GroupTask { 	
     RETask(caller=UnInitialized);
     SetFE(f);	
@@ -346,7 +368,10 @@ struct RETask 		: GroupTask {
 These tasks typically have a member that is a `RETask` object to do proces
 random effects conditional on the current fixed effect group.
 **/
-struct FETask 		: GroupTask {	FETask();	}
+struct FETask 		: GroupTask {	
+    FETask();	
+    ~FETask();
+    }
 
 /** Dynamically reset the density over random effects given the current fixed effect group.
 **/
@@ -357,14 +382,19 @@ struct DPMixture 	: RETask 	{	DPMixture(); Run();	}
 /** . @internal **/
 struct SDTask		: RETask	{ 	SDTask(); Run(); }
 
+/** Integrate over $\gamma_r$.
+**/
 struct RandomEffectsIntegration : RETask {
-	decl path, L, flat;
+	decl
+                                                        path,
+        /** cumulative likelihood or other outcome.**/  L,
+                                                        flat;
 	RandomEffectsIntegration();
 	Integrate(path);
 	Run();
 	}
 
-/** Stores information for a point &gamma; in the Group Space &Gamma;.
+/** Stores information for a point $\gamma$ in the Group Space $\Gamma$.
 
 Related DP models differing only by `TimeInvariant` effects.
 
@@ -377,11 +407,12 @@ file DP.ox.
 **/
 struct Group : DP {
 	static decl
-													l,
-													u,
-													p,
-													PT,
-													statbvector;
+	/**.@internal **/                               l,
+	/**.@internal **/                               u,
+	/**.@internal **/                               p,
+	/**.@internal **/                               PT,
+	/**.@internal **/                               statbvector;
+
 	decl
 		/**Position in &Gamma;.**/					pos,
 		/**Index into fixed effects **/				find,
@@ -444,7 +475,7 @@ struct DumpExogTrans : ExTask {
 	Run();
 	}
 
-/** The base class for Outcomes and Predictions.
+/** Base class for Outcomes and Predictions.
 
 **/
 struct Data : Task {
