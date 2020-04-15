@@ -1,9 +1,8 @@
 #import "Shared"
 #import <solveqp>
-/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2020 Christopher Ferrall */
 
-/** Base for optimization and system-solving algorithms.
-
+/** Base class for optimization and system-solving algorithms.
 
 **/
 struct Algorithm {
@@ -31,6 +30,7 @@ struct Algorithm {
 		default 10<sup>M</sup> . @internal **/				nfuncmax,
      /** Convergence code.  See `ConvergenceResults` **/	convergence,
      /** @internal. **/                                     istr;
+
 	virtual Tune(maxiter=0,toler=0,nfuncmax=0);
 	virtual Iterate();
     virtual ItStartCheck(ReadCheckPoint=FALSE);
@@ -38,7 +38,7 @@ struct Algorithm {
     virtual out(fn);
     virtual Paths(starts=1);
     virtual CheckPoint(WriteOut);
-	Algorithm(O);
+	        Algorithm(O);
     }
 
 /** Container for algorithms that do not rely on gradients. **/
@@ -55,20 +55,28 @@ struct LineMethod : NonGradient {
 		/** . @internal **/        	gold             = 1.61803399,
 		/** . @internal **/        	rgold            = .61803399,
 		/** . @internal **/        	cgold            = 1-.61803399;
-	decl p1,p2,p3,p4,p5,p6;  		/** hold evaluations. Can't be static if nested opt problems **/
+	decl     		// hold evaluations. Can't be static if nested opt problems
+        /** . @internal **/ p1,
+        /** . @internal **/ p2,
+        /** . @internal **/ p3,
+        /** . @internal **/ p4,
+        /** . @internal **/ p5,
+        /** . @internal **/ p6;
 	decl 	
 		/** . **/        	        maxstp,
         /** . **/                   improved,
 		/** Direction vector. **/   Delta,
-						        	q,a,b;
-    LineMethod(O);
-	~LineMethod();
+        /** . @internal **/         q,
+        /** . @internal **/         a,
+        /** . @internal **/ b;
+
+            LineMethod(O);
+	       ~LineMethod();
+	       Iterate(Delta,maxiter=0,maxstp=0);
+	        Bracket();
+	        Golden();
 	virtual Try(pt,step);
     virtual PTry(pt,left,right);
-		
-	Iterate(Delta,maxiter=0,maxstp=0);
-	Bracket();
-	Golden();
     }
 
 /** One-dimensional line search for a maximum.
@@ -86,7 +94,7 @@ struct LineMax	: LineMethod {
 /** Constrained line maximization.
 **/
 struct CLineMax : LineMax {
-	decl mu;
+	decl /** .@internal **/ mu;
 	CLineMax(O);
 	Try(pt,step);
 	}
@@ -141,7 +149,7 @@ struct NelderMead  : NonGradient {
     /** &beta;.  **/					beta = 0.5,
     /** &gamma;. **/					gamma = 1.4,
     /** default initial step size. **/	istep = 0.1;
-	/** . @internal **/
+
 		   		 	decl
      /** number simplex resets. **/		mxstarts,
     /** . @internal **/					psum,
@@ -214,9 +222,10 @@ struct SimulatedAnnealing : NonGradient {
 		Iterate(chol=0);
 	}
 
-/** A special case of annealing in which the temperature stays the same and only improvements
-are accepted.
+/** A special case of annealing in which the temperature stays the same and only improvements are accepted.
+
 @see Explore
+
 **/
 struct RandomSearch : SimulatedAnnealing {
     RandomSearch(O);
@@ -235,13 +244,13 @@ struct GradientBased : Algorithm {
 			const	decl	LM;
 		  			decl
 	   /** . @internal **/										oldG,
-		  			     										gradtoler,
-        /** max iterations on line search. @see GradientBased::Tune **/
-                                                                LMitmax,
+	   /** tolerance for strong convergence.**/                 gradtoler,
+        /** max iterations on line search.
+            @see GradientBased::Tune **/                        LMitmax,
         /** maximum step size in line search. **/               LMmaxstep,
        /** |&nabla;<sub>m</sub>-&nabla;<sub>m-1</sub>|.**/ 		deltaG,
        /** |x<sub>m</sub>-x<sub>m-1</sub>.**/					deltaX,
-       /**                      **/								dx,
+       /**     . @internal                 **/				    dx,
        /** Newton version . **/                                 IamNewt,
        /** # of time H reset to I  **/                          Hresetcnt;
 
@@ -250,11 +259,11 @@ struct GradientBased : Algorithm {
 		virtual   Iterate(H=0);
 		virtual   Direction();
 	    virtual   Tune(maxiter=0,toler=0,nfuncmax=0,LMitmax=0,LMmaxstep=0);
-		          HHupdate(FORCE);
 		virtual   Gupdate();		
 		virtual   Hupdate();
         virtual   CheckPoint(WriteOut);
 				  GradientBased(O);
+		          HHupdate(FORCE);
     }
 
 /** Algorithms that optimize an objective based on gradient and/or Hessian information.
@@ -266,9 +275,8 @@ struct HillClimbing : GradientBased {
     HillClimbing(O);
 	}
 
-/** Algorithms that use but do not compute the Hessian matrix <b>H</b>.
+/** Container for algorithms that use but do not compute the Hessian matrix <b>H</b>.
 
-This is a container class.
 
 <a href="http://en.wikipedia.org/wiki/Quasi-Newton_method">at Wikipedia</a>
 **/
@@ -329,21 +337,21 @@ struct Newton : HillClimbing {
 **/
 struct BHHH : Newton {
 				BHHH(O);
-//	virtual   	Gupdate();
 	virtual   	Hupdate();
     }
 
 /** Solve system of equations using Jacobian information. **/
 struct RootFinding	: GradientBased {
 		decl 	dg,
-                USELM;
+            /** use line search.**/     USELM;
+
+                RootFinding(O,USELM);
 				Gupdate();
         		JJupdate();
 				Iterate(H=0);
 				Direction();
 		virtual Jupdate(dx=0);
         virtual ItStartCheck(J);
-        RootFinding(O,USELM);
 	   }
 
 /** Broyden approximation to the Jacobian.

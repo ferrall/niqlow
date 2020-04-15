@@ -1,14 +1,14 @@
 #import "DDPShared"
-/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2020 Christopher Ferrall */
 
 		/** . elements of array returned by `StateVariable::Transit` @name TransOutput **/
 enum {Qind,Qprob,TransOutput}
 
 static StripZeros(trans);
 
-/**Base Class for elements of state vectors, &epsilon;, &eta;, &theta;, &gamma; .
+/**Base Class for elements of state vectors, $\epsilon$, $\eta$, $\theta$, $\gamma$ .
 
-@see DP::ExogenousStates, DP::EndogenousStates, DP::SemiExogenousStates, StateBlock
+@see DP::ExogenousStates, DP::EndogenousStates, DP::SemiExogenousStates,  DP::GroupVariables, StateBlock
 **/
 struct StateVariable : Discrete	{
 	StateVariable(L="s", N=1);
@@ -1021,9 +1021,9 @@ struct Episode : StateBlock {
 **/
 struct Tauchen : Random {
 	const decl
-            /** `NormalPars` .**/   pars,
-            /** support.**/         M,
-                                    gaps;
+            /** @see NormalParams **/   pars,
+            /** support.**/           M,
+                                      gaps;
 	decl rnge, pts, s, r, Grid;
 	Tauchen(L,N,M,pars=<0.0;1.0;0.0>);
 	virtual Transit();
@@ -1049,8 +1049,14 @@ struct Tauchen : Random {
 struct Asset : Random {
 	const decl
     /** `AV`()-compatible object, interest rate on current holding.**/ r;
-    /** @internal **/
-        decl atom, top, bot, mid, all, tprob, bprob;
+        decl
+            /** @internal **/ atom,
+            /** @internal **/ top,
+            /** @internal **/ bot,
+            /** @internal **/ mid,
+            /** @internal **/ all,
+            /** @internal **/ tprob,
+            /** @internal **/ bprob;
 	Asset(L,N,r);
 	virtual Transit(pdelt);
 	}

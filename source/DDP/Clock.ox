@@ -1,7 +1,7 @@
 #ifndef Vh
     #include "Clock.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 /** .  **/
 TimeVariable::TimeVariable(L,N) { Coevolving(L,N); }
@@ -362,7 +362,7 @@ PhasedTreatment::PhasedTreatment(Rmaxes,IsErgodic)	{
 	decl anyphase = rows(Rmaxes),f,minl;
 	this.Rmaxes = (anyphase)
 					  ? 0|Rmaxes|0		  //augment treatment with infinite before and after reality phases.
-					  :	<0>;
+					  :	VZero;
 	phase = <>; ftime = <>; R0 = <>; final=<>;
 	for (f=0;f<sizer(this.Rmaxes);++f)	{
 		minl   = max(this.Rmaxes[f],1);

@@ -5,9 +5,9 @@
 
 /** Remove all transitions for which the transition probability is EXACTLY 0. **/
 StripZeros(trans) {
-    decl allz = sumc(trans[1]).==0;
+    decl allz = sumc(trans[Qprob]).== Zero;
     if (any(allz)) {
-        return {deleteifc(trans[0],allz),deleteifc(trans[1],allz)};
+        return { deleteifc(trans[Qind],allz), deleteifc(trans[Qprob],allz) };
         }
     return trans;
     }
@@ -476,7 +476,7 @@ Nvariable::Update() {
 @param L label
 @param Ndraws number of draws of the vector.
 @param Ndim width of the vector.
-@param pars 2-array of `NormalPars` , mean and Cholesky distrubution (in the Nsigma spot)
+@param pars 2-array of `NormalParams` , mean and Cholesky distrubution (in the Nsigma spot)
 @param myseed 0 [default] do not set the seed. Positive will set the seed for the draw of the IID Z matrix.  See Ox's ranseed().
 
 **/
@@ -716,7 +716,7 @@ Deterministic::Deterministic(L,nextValues)	{
     this.nextValues = nextValues;	
     }
 
-/** .
+/** . @internal
 **/
 Deterministic::Transit()	{	
     return { matrix(nextValues[v]), CondProbOne };	
@@ -843,7 +843,7 @@ ChoiceAtTbar::ChoiceAtTbar(L,Target,Tbar,Prune) {
 
 /** . @internal **/
 ChoiceAtTbar::Transit() {
-    if (I::t<Tbar) return { <0>,CondProbOne };
+    if (I::t<Tbar) return { VZero,CondProbOne };
     if (I::t>Tbar) return UnChanged();
     return LaggedAction::Transit();
     }
@@ -873,7 +873,7 @@ StateAtTbar::StateAtTbar(L,Target,Tbar,Prune) {
 
 /** . @internal **/
 StateAtTbar::Transit() {
-    if (I::t<Tbar) return { <0>,CondProbOne };
+    if (I::t<Tbar) return { VZero,CondProbOne };
     if (I::t>Tbar) return UnChanged();
     return { matrix(Target.v) , CondProbOne };
     }
@@ -993,7 +993,7 @@ StateCounter::StateCounter(L,N,State,ToTrack,Reset,Prune) {
 **/
 StateCounter::Transit()	{
     if (AV(Reset))                      //start count over tomorrow
-        return { <0>, CondProbOne };
+        return { VZero, CondProbOne };
     if (v==N-1  || !any(AV(Target).==ToTrack))  //at the limit or target does not take on a tracked value.
             return UnChanged();
 	return { matrix(v+1) , CondProbOne };
@@ -1044,7 +1044,7 @@ ActionCounter::ActionCounter(L,N,Act,ToTrack,Reset,Prune)	{
 **/
 ActionCounter::Transit()	{
     if (AV(Reset))
-        return { <0>, CondProbOne };
+        return { VZero, CondProbOne };
     if (( v==N-1 || !any( inc = sumr(CV(Target).==ToTrack)  ) )) return UnChanged();
     return { v~(v+1) , (1-inc)~inc };
 	}
@@ -1152,10 +1152,10 @@ Duration::Transit() {
         add1 = (CV(Target).==AV(Lag)) .* istarg;
 		nf = int(sumc(add1));
         if (Volume>SILENT && !Version::MPIserver) fprintln(logf,v," ",AV(Lag),nf,CV(Target));
-        if (!nf) return { <0> , CondProbOne };
+        if (!nf) return { VZero , CondProbOne };
 		return { 0~g , (1-add1)~add1 };
 		}
-    if ( (!any(AV(Target).==AV(Lag))) && !istarg ) return { <0> , CondProbOne };
+    if ( (!any(AV(Target).==AV(Lag))) && !istarg ) return { VZero , CondProbOne };
 	return { g , CondProbOne };
 	}
 	
@@ -1239,7 +1239,7 @@ ActionTracker::Transit()	{
 	    if (any(1-d)) return{ <0,1>, (1-d)~d };
 		return {<1>, ones(d)};
 		}
-    return {<0>,ones(d)};
+    return {VZero,ones(d)};
 	}
 	
 /** Create a new Coevolving random variable.
@@ -1634,7 +1634,7 @@ Otherwise, leave unchanged.
 @internal
 **/
 KeptZeta::Transit() {
-    if (any(CV(keep))) return {<0>, CondProbOne} ;
+    if (any(CV(keep))) return {VZero, CondProbOne} ;
     return UnChanged();
 //    if (CV(held)) return {v~0,(1-Alpha::C)~Alpha::C};
 //    return {<0>, CondProbOne} ; // Changed April 2016 {vals, constant(1/N,rows(Fe asA),N)};

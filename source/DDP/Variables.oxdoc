@@ -42,7 +42,7 @@ The action vector $\alpha$ is the vector of discrete actions chosen conditional 
 
 In the basic definition of a DDP model, $A$ is as the set of possible actions. In <span class="n">DDP</span> the set of actions is built up by adding action variables to $\alpha$.  So $A$ emerges from the properties of the variables added to $\alpha$. <em>Possible Actions</em> is the matrix of all possible action vectors. The word <em>possible</em> is used instead of <em>feasible</em>, because this notion of $A$ is constructed mechanically from properties of the actions.  It has nothing to do with the interpretation of the actions.  Feasible actions are defined below.</p>
 
-An <em>action</em> refers to a particular value of the action vector $\alpha$, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column. DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</p>
+<p>An <em>action</em> refers to a particular value of the action vector $\alpha$, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column. DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</p>
 
 <DT>Alternative Notation</DT>
 
@@ -121,18 +121,18 @@ $A$ is defined as the set of possible actions, built up by adding action variabl
 $$    A \equiv \times_{j=0,\dots, \alpha.N-1 } \{ 0, 1, \dots, a_j.N-1 \}$$
 An action vector $\alpha$ is a <em>row</em> of the matrix A. An action variable is a column of $A$.  Its position is the property <code>a.pos</code>.</p>
 
-<em>Feasibility</em> is a property <code>MyModel</code> imposes on $\alpha$. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of $\alpha$.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We can write feasibility as a property of the state.  Or it can be written as a function of the state, which is more standard.  Using both versions, the <b>feasible actions</b> at $\theta$ is a matrix property:
+<p><em>Feasibility</em> is a property <code>MyModel</code> imposes on $\alpha$. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of $\alpha$.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We can write feasibility as a property of the state.  Or it can be written as a function of the state, which is more standard.  Using both versions, the <b>feasible actions</b> at $\theta$ is a matrix property:
 $$\forall \theta \in \Theta,\qquad A(\theta) \equiv \theta.A \subseteq A.$$
 
-`Bellman::FeasibleActions`(): by default all possible actions are feasible unless <code>MyModel</code> says otherwise.  $A(\theta) \equiv A$ for all endogenous states. This default assumption is produced by including a built-in virtual method, <code>Bellman::FeasibleActions()</code>. meaning that <code>MyModel</code> can replace it with its own version.  This is explained in <a href="Bellman.ox.html">Bellman</a>.</p>
+<p>`Bellman::FeasibleActions`(): by default all possible actions are feasible unless <code>MyModel</code> says otherwise.  $A(\theta) \equiv A$ for all endogenous states. This default assumption is produced by including a built-in virtual method, <code>Bellman::FeasibleActions()</code>. meaning that <code>MyModel</code> can replace it with its own version.  This is explained in <a href="Bellman.ox.html">Bellman</a>.</p>
 
 <DT>The A List</DT>
 
 `DP::CreateSpaces` constructs the possible matrix A, stored as the first element of a list: <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state $\theta$. Every time a different value is returned by <code>FeasibleActions()</code> a new matrix is added to the A list.  The index into the list is then stored as `Bellman::Aind`.  That is, there is not a different matrix at each $\theta.$ Instead there is a list of different feasible matrices and $A(\theta)$ is really an index into that list.  </p>
 
-The user's (optional) feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a)</code>. In short, $\theta$.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = $\theta$.j = 0</code> for all states.</p>
+<p>The user's (optional) feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a)</code>. In short, $\theta$.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = $\theta$.j = 0</code> for all states.</p>
 
-The A list contains the <em>actual</em> values not the <em>current</em> values. If the user provides an `Discrete::Update`() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values. Since the default is that actual values equal current values (<code>a.actual[a.v] = a.v</code>), then <code>A[Aind]</code> is always possible to use. The uncoded list of matrices is available as `Alpha::Matrix`.</p>
+<p>The A list contains the <em>actual</em> values not the <em>current</em> values. If the user provides an `Discrete::Update`() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values. Since the default is that actual values equal current values (<code>a.actual[a.v] = a.v</code>), then <code>A[Aind]</code> is always possible to use. The uncoded list of matrices is available as `Alpha::Matrix`.</p>
 </OL>
 
 <hr><a name="StateVariables"><LI>State Variables</LI></a>
@@ -244,7 +244,7 @@ P_\theta\left(\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right) &= \prod_{k=0\dots
 
 Some derived classes of state variables play special roles in <span class="n">DDP</span>.  Two major ones are `TimeVariable`s which serve as the <a href="#Clock">DDP clock</a> and `TimeInvariant`s which track variables that are fixed during a DDP and stored in the $\gamma$ vector.  <span class="n">DDP</span> will re-solve the model for each value of $\gamma$. Your model may include state variables that are already defined in <span class="n">DDP</span> but require some changes to accommodate the environment.  The next section discusses how to create a new derived class for your state variable, but it may be possible to avoid that using the `Augmented` state variable feature.</p>
 
-Example:  Suppose your model has a state variable <code>q</code> which is of the `RandomUpDown`() class.  That is, each period <code>q</code> may go up or down by one unit or remain unchanged depending choices and other state variables.  However, when another state variable <code>h</code> goes from 0 to 1 you want the value of <code>q</code> to become constant and not subject to the RandomUpDown transition. That is, you want to `Freeze` the current value of <code>q</code> when <code>h</code> is 1.</p>
+<p><b>Example:</b>  Suppose your model has a state variable <code>q</code> which is of the `RandomUpDown`() class.  That is, each period <code>q</code> may go up or down by one unit or remain unchanged depending choices and other state variables.  However, when another state variable <code>h</code> goes from 0 to 1 you want the value of <code>q</code> to become constant and not subject to the RandomUpDown transition. That is, you want to `Freeze` the current value of <code>q</code> when <code>h</code> is 1.</p>
 
 <details><summary><b>Example</b> <br>Augment a base state variable with the Freeze feature.  In this case $q$ increases by 1 with probability 0.5 each
 period until the agent chooses $a=1$.  Then $q$ freezes at its current value from the next period on.</summary>
@@ -647,7 +647,7 @@ $$P(\zeta^{\,\prime},\epsilon^{\,\prime},\eta^{\,\prime},\theta^{\,\prime},\gamm
 $$\eqalign{
 P_\epsilon \left(\epsilon^{\,\prime}\right) &= \prod_{k=0,\dots,\epsilon.N-1} P_{e_k}(e_k^\prime)\cr
 P_\eta \left(\eta^{\,\prime}\right) &= \prod_{k=0,\dots,\eta.N^{-}} P_{h_k} (h_k^\prime)\cr
-P_\theta \left(\theta^{\,\prime}|\alpha,eta,\theta\right) &= \prod_{k=0,\dots,\theta.N^{-}} P_q(q_k^{\,\prime} | \alpha,\eta,\theta).\cr}$$
+P_\theta \left(\theta^{\,\prime}|\alpha,\eta,\theta\right) &= \prod_{k=0,\dots,\theta.N^{-}} P_q(q_k^{\,\prime} | \alpha,\eta,\theta).\cr}$$
 
 <!--
 &Rho;<sub>&epsilon;</sub>(&epsilon;&prime;) = &prod;<sub>k=0&hellip;(&epsilon;.N)&oline;</sub>  &Rho;<sub>e<sub>k</sub></sub>(e<sub>k</sub>&prime;)
@@ -866,7 +866,7 @@ A continuous choice is related to <code>AuxiliaryValues</code>, in the sense tha
 
 </OL>
 
-@author &copy; 2011-2020 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
+@author &copy; 2011-2020 <a href="https://ferrall.github.io/">Christopher Ferrall</a> </dd>
 
 <a name="auto"><hr><h1>Documentation of  Items Defined in Variables.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 

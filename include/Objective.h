@@ -1,5 +1,5 @@
 #import "Parameters"
-/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2020 Christopher Ferrall */
 
 /** Tags for Gradient-based optimization algorithms.	@name QuasiAlgorithms**/	
 enum{USEBHHH,USEBFGS,USEDFP,USESTEEP,USENEWTON,QuasiAlgorithms}

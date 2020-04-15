@@ -1,5 +1,5 @@
 #include "KeaneWolpinJPE1997.h"
-/* This file is part of niqlow. Copyright (C) 2019-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2019-2020 Christopher Ferrall */
 
 /** Distribution of fixed effects conditional on initial schooling level.**/
 KWJPE97::kdist(...) { return kprob[][CV(isch)]; }

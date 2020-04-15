@@ -8,7 +8,7 @@
 <LI>Integration, Kernels</LI>
 </OL>
 
-@author &copy; 2011-2019 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
+@author &copy; 2011-2020 <a href="https://ferrall.github.io/">Christopher Ferrall</a> </dd>
 <a name="auto"><hr><h1>Documentation of  Items Defined in Shared.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
 **/
@@ -20,7 +20,7 @@
 
 //	extern "CFcurl,fget"   			curl_get(url,file);
 
-/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2020 Christopher Ferrall */
 
 	/** Pseudonyms for -1, -2, &hellip;. @name Names_for_Integers **/
 enum {CondProbOne=1, UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,
@@ -45,6 +45,7 @@ enum {SILENT=-1,QUIET,LOUD,NOISY,NoiseLevels}
             This involves `Objective::vfunc`().</DD>
         @name ParallelExecutionModes **/
     enum{MultiParamVectors,OneVector,ParallelModes}
+
     static const decl
         /** Base tags for parallel messaging.**/    BaseTag = <One,1000>;
 
@@ -62,36 +63,42 @@ enum{EQUALITY,INEQUALITY,ConstraintTypes}
             @name AggregatorTypes **/	
 enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,SUMOFSQUARES,Aggregators}
 
-        /** Codes for `Bellman::Type` Code.  These codes (and their order)
-            determine what calculations to do at the endogenous state $\theta$.
+        /** Codes for `Bellman::Type`.  These codes (and their order) determine what calculations to do
+            at the endogenous state $\theta$.
         <table>
         <tr><th>Tag</th><td>Value</td><th>$\theta$ Type</th></tr>
         <tr><td>ORDINARY</td>   <td>0</td><td></td></tr>
         <tr><td>INSUBSAMPLE</td><td>1</td><td>randomly selected for first stage of KW approximation</td></tr>
-        <tr><td>LASTT</td>      <td>2</td><td>not subsample and last period of decision-making</td></tr>
-        <tr><td>no label</td>   <td>3</td><td>LASTT AND INSUBSAMPLE</td></tr>
+        <tr><td>LASTT</td>      <td>2</td><td>not subsampled AND last period of decision-making</td></tr>
+        <tr><td>INSUBANDLAST</td>   <td>3</td><td>LASTT AND INSUBSAMPLE</td></tr>
         <tr><td>TERMINAL</td>   <td>4</td><td>Terminal state</td></tr>
         </table>
-
-        @name StateTypes**/
-enum{ORDINARY,INSUBSAMPLE,LASTT,TERMINAL=4,StateTypeCutoffs}
+        @see StateVariable::MakeTerminal, DP::SubSampleStates
+        @name StateTypes **/
+enum{ORDINARY,INSUBSAMPLE,LASTT,INSUBANDLAST,TERMINAL,StateTypeCutoffs}
 
 /** Tags for parameter vectors of normal distribution.
     @name NormalParams **/	
 enum{Nmu,Nsigma,Nrho,NormalParams}
 
 static const decl
-        curdir = ".",
-		mymomlabels = {"sample size","mean","st.dev.","min","max"},
+                                                  curdir = ".",
+		/**labels for `MyMoments`**/              mymomlabels = {"sample size","mean","st.dev.","min","max"},
+        /** 0 as a vector .**/                    VZero     =   <0>,
 		/** Euclidean norm tolerance  **/         SSQ_TOLER =	1E-12,
-		/** square-root of machine &epsilon; **/ SQRT_EPS 	=	1E-8,
+		/** square-root of machine &epsilon; **/  SQRT_EPS 	=	1E-8,
 		/** tolerance level 0. **/                DIFF_EPS 	=	1E-8,
 		/** tolerance level 1.**/                 DIFF_EPS1	=	5E-6,
 		/** tolerance level 2.**/                 DIFF_EPS2	=	1E-4,
 		/** tolerance level 3.**/                 DIFF_EPS3	=	1E-2;
 
-/** Used in CV() and AV(). static to reduce overhead. @internal **/
-static decl _arg, _noarg, _x, _v, IAmMac;
+        /** Used in CV() and AV(). static to reduce overhead. @internal **/
+        static decl
+        /** @internal **/ _arg,
+        /** @internal **/ _noarg,
+        /** @internal **/ _x,
+        /** @internal **/ _v,
+        /** @internal **/ IAmMac;
 
     SameDims(A,B);
     HTopen(fn);
@@ -119,23 +126,34 @@ static decl _arg, _noarg, _x, _v, IAmMac;
 /** A container for auxiliary structures, which helps organize the hierarchy of classes. **/
 struct Zauxiliary { }
 
-/** A continuous discretization of a (potentially) continuous quantity.
-**/
+/** A continuous discretization of a (potentially) continuous quantity.**/
 struct Discretized : Zauxiliary {
 	const decl
         /** Quantity object or points.**/ nodes;
-	decl N, lt, av, m, z, ff, nxtp, nxtf, i, indx, np;
+	decl
+        /** @internal**/ N,
+        /** @internal**/  lt,
+        /** @internal**/ av,
+        /** @internal**/ m,
+        /** @internal**/ z,
+        /** @internal**/ ff,
+        /** @internal**/ nxtp,
+        /** @internal**/ nxtf,
+        /** @internal**/ i,
+        /** @internal**/ indx,
+        /** @internal**/ np;
+
 	decl
 	/** N-array of matrices, either 2x1 or 2x2.<br>
-	 first row are node indices, second is weight on the node. **/ pts,
-	/** 1xM row vector of unique indices into nodes. **/ f,
-	/** NxM matrix of weights. **/ p;
+	 first row are node indices, second is weight on the node. **/      pts,
+	/** 1xM row vector of unique indices into nodes. **/                f,
+	/** NxM matrix of weights. **/                                      p;
+
 	Discretized(nodes);
 	Approx(x,trans);		
 	}
 
-/** Container for discrete variables (DDP) and continuous parameters (FiveO).
-**/
+/** Container for discrete variables (DDP) and continuous parameters (FiveO).**/
 struct Quantity {
 	const 	decl	/** Label **/ 				 L;
 	decl
@@ -234,7 +252,7 @@ println("E[x*x] = ", GQH::wght * sqr(GQH::nodes) / M_SQRT2PI );
 
 
 @comments Thanks to Jason Rheinlander for finding and fixing an error in the previous version.
-
+</DD>
 **/	
 struct GQH	 : GaussianQuadrature {
 	static decl
@@ -254,7 +272,12 @@ struct GHK   : Integration {
         hR,
         /** initial seed.**/               iseed,
         SimJ;
-    decl L,u,nu,pk,prob;
+    decl
+    /** . @internal**/ L,
+    /** . @internal**/ u,
+    /** . @internal**/ nu,
+    /** . @internal**/ pk,
+    /** . @internal**/ prob;
 	GHK(R,J,iseed);
 	SimProb(j,V,Sigma);
 	SimDP(V,Sigma);
@@ -262,6 +285,7 @@ struct GHK   : Integration {
 
 /** Checks minimum Ox version and prints copyright info. **/
 class Version : Zauxiliary {
+
 	/** Minimum Ox Version required. @name Oxversion **/
 	enum {MinOxVersion=800} //719 709 700
 
@@ -270,7 +294,12 @@ class Version : Zauxiliary {
 public: 	
     static const decl
     	/** Current niqlow version. @name niqlowversion **/ version=400; //=350
-    static decl htlog, HTopen, logdir, tmstmp, MPIserver=FALSE;
+    static decl
+      /**HTML friendly log file.**/                          htlog,
+      /**HTML log is open.**/                                HTopen,
+     /** directory to put log files in.**/                   logdir,
+    /** time stamp for log files.**/                         tmstmp,
+    /** TRUE if running in parallel and in server mode.**/   MPIserver=FALSE;
 	static Check(logdir=curdir);
 
 	}
@@ -281,7 +310,8 @@ Equations are used in systems and constrained optimization.
 
 **/
 struct Equations : Zauxiliary {
-	static 	const decl rlabels = {"lamba","values"};
+	static 	const decl
+         /**lables for equation elements.**/            rlabels = {"lamba","values"};
 	const 	decl
 		/** array of equation labels **/ 				L,
 		/** number of equations **/      				N;
@@ -327,20 +357,21 @@ Algorithms use a point to store temporary values.
 **/
 struct Point : LinePoint {
 	decl
-	/**form of aggregation of vfunc() into
-        func().    @see Objective::SetAggregation
+	/**form of aggregation of vfunc() into func().
+        @see Objective::SetAggregation, AggregatorTypes
         **/								AggType,
-	/** Free vector. **/				F,
-	/** Parameter vector.**/			X,
-	/** J&fnof;       **/           	J,
-	/** &nabla;&fnof;  **/			    G,
-	/** H&fnof;        **/			    H,
-	/** sqrt(diag(H<sup>-1</sup>f)). **/SE;
-	Point();
-    virtual Vstore(inV);
-	virtual Copy(h);
-	virtual aggregate(V=0,v=0);
-	GCopy(h);
+	/** Free vector. **/				   F,
+	/** Structural vector.**/			   X,
+	/** Jacobian       **/           	   J,
+	/** Gradient  **/			           G,
+	/** Hessian        **/			       H,
+	/** $\sqrt(diag(H<sup>-1</sup>f))$. **/SE;
+
+	           Point();
+    virtual     Vstore(inV);
+	virtual    Copy(h);
+	virtual    aggregate(V=0,v=0);
+	           GCopy(h);
 	}
 
 /** A system point.**/

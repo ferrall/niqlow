@@ -1,5 +1,5 @@
 #include "Parameters.h"
-/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2020 Christopher Ferrall */
 
 /**Create a fixed, pre-determined parameter.
 @param L string
@@ -13,9 +13,10 @@ Determined::Encode() 	{ if (!isint(block)) block->BlockCode(); v = CV(ival); ret
 /** . @internal **/ 	
 Determined::Decode(f) { if (!isint(block)) block->BlockCode(); v = CV(ival); return v; } //Removed if (isclass(ival))
 
-/** DoNotVary does not toggle for Determined parameter. **/
+/** Do nothing because DoNotVary does not toggle for Determined parameter. **/
 Determined::ToggleDoNotVary() { }
 
+/** . @internal **/
 Determined::Menu(fp) {
  fprintln(fp,"<fieldset><legend>",L,". Type:",classname(this),"</legend>");
  fprintln(fp,"Value <input type=\"number\" name=\"",L+CGI::ivalsuffix,"\" step=\"any\" value=\"",start," >");
@@ -24,12 +25,12 @@ Determined::Menu(fp) {
 
 /** Create a free, unrestricted parameter.
 @param L parameter label
-@param v0 `CV` compatible default value, v<sub>0</sub>
+@param v0 `CV` compatible default value
 **/
 Free::Free(L,v0)	{	Parameter(L,v0); }
 
 /** .
-@internal
+
 **/ 	
 Free::Encode()	{
 	if (!isint(block)) block->BlockCode();
@@ -51,12 +52,14 @@ Free::Decode(f) {
 	return v = DoNotConstrain ? f : scale*f;
 	}
 
+/** . @internal **/
 Free::Menu(fp) {
     Parameter::Menu(fp);
     fprintln(fp,"Value <input type=\"number\" name=\"",L+CGI::ivalsuffix,"\" step=\"any\" value=\"",start,"\" >");
     fprintln(fp,"</fieldset>");
     }
 
+/** .**/
 Limited::Limited(L,v0) {
     Parameter(L,v0);
     nearflat = FALSE;
@@ -64,13 +67,17 @@ Limited::Limited(L,v0) {
 
 /** A parameter bounded below.
 @param L parameter label
-@param LB double or Parameter, the lower bound
+@param LB double or `CV`-compatible object, the lower bound
 @param v0 `CV` compatible default value, v<sub>0</sub>
+
 @comment If LB is a parameter then the bounding is dynamic.  The parameter will always
 be strictly greater than LB as LB value changes.<br> LB should be added to the parameter list
 first.
 **/
-BoundedBelow::BoundedBelow(L,LB,v0)	{ Limited(L,v0); this.LB = isclass(LB,"Parameter") ? LB : double(LB); }
+BoundedBelow::BoundedBelow(L,LB,v0)	{
+        Limited(L,v0);
+        this.LB = isclass(LB,"Parameter")||isfunction(LB) ? LB : double(LB);
+        }
 
 /** . @internal **/
 BoundedBelow::Encode() 	{
@@ -97,6 +104,7 @@ BoundedBelow::Decode(f) {
 	return v = (DoNotConstrain||nearflat) ? f : CV(LB)+exp(scale*f);
 	}
 
+/** . @internal **/
 BoundedBelow::Menu(fp) {
     Parameter::Menu(fp);
     fprintln(fp,"Value <input type=\"number\" name=\"",L+CGI::ivalsuffix,"\" step=\"any\" min=\"",AV(LB),"\" value=\"",start," >");
@@ -105,9 +113,11 @@ BoundedBelow::Menu(fp) {
 
 /** Create a parameter bounded below by 0.
 @param L parameter label
-@param v0 `CV` compatible default value, v<sub>0</sub>
-@comment Equivalent to BoundedBelow(L,0.0,ival)
-@see BoundedBelow
+@param v0 `CV` compatible default value, v0
+
+@comment
+    Equivalent to BoundedBelow(L,0.0,ival)
+
 **/
 Positive::Positive(L,v0)	{ BoundedBelow(L,0.0,v0); }
 
@@ -128,7 +138,8 @@ be strictly less than UB as UB's value changes.<br> UB should be added to the pa
 first.
 **/
 BoundedAbove::BoundedAbove(L,UB,v0)	{
-    Limited(L,v0); this.UB = isclass(UB,"Parameter") ? UB : double(UB);
+    Limited(L,v0);
+    this.UB = isclass(UB,"Parameter")||isfunction(UB) ? UB : double(UB);
     }
 
 /** . @internal **/
@@ -198,7 +209,7 @@ Bounded::Decode(f)	{
 	if (!isint(block)) block->BlockCode();
 	if (DoNotVary) return v;
 	if (DoNotConstrain||nearflat) v = f;
-	else { l=CV(LB); v = l + (CV(UB)-l)*FLogit(scale*f); }
+	else { decl l=CV(LB); v = l + (CV(UB)-l)*FLogit(scale*f); }
 	return v;
 	}
 
@@ -317,13 +328,22 @@ Simplex::BlockCode()	{
 	}
 
 /**Create a simplex of parameters.
-<DD><pre>
-0&lt; x<sub>i</sub> &lt; 1
-&sum;<sub>i=1&hellip;N</sub>&ensp; x<sub>i</sub> = 1.
-</pre></DD>
+
 @param L label
-@param ivals integer: dimension of simplex<br>OR<br>N&times;1 vector, initial values
-@comments if ivals is an integer N, then the simplex is initialized as 1/N
+@param ivals integer: dimension of simplex initialized as equal values 1/N
+        <br/> N&times;1 vector, initial values
+
+<DT>Cross-parameter restrictions</DT>
+<DD><pre>
+0 &lt; x<sub>0</sub> &lt; 1
+0 &lt; x<sub>1</sub> &lt; x<sub>0</sub>
+&vellip;
+0 &lt; x<sub>i</sub> &lt; &sum;<sub>j=0&hellip;i-1</sub>&ensp; x<sub>j</sub>
+x<sub>N-1</sub> = 1 - &sum;<sub>j=0&hellip;N-2</sub>&ensp; x<sub>j</sub>
+</pre></DD>
+
+The first N-1 elements of the block are `Bounded` parameters.  The final one is `Determined`.
+
 **/
 Simplex::Simplex(L,ivals)	{
 	decl k,myN;
@@ -344,8 +364,10 @@ Simplex::Simplex(L,ivals)	{
 	}
 
 /** Create an array of `Simplex` blocks that act as a transition matrix.
+
 @param L label
 @param inmat a square matrix of initial values for the transitions.
+
 Each <em>column</em> of <code>inmat</code> should be a proper transition (not each row).
 
 @example
@@ -356,28 +378,36 @@ Initialize the transition but make the transition an array of `Simplex` blocs th
                0.02 ~ 0.80 ~0.3;
                0.08 ~ 0.01 ~0.11>
 
-   decl m = TransitionMatrix("p",<0.9~0.09~0.05;0.02~0.8~0.3;0.08~0.01~0.11>);
+   decl m = TransitionMatrix("p",tmat);
    Parameters(m);
+
    println("The current Markov transition matrix is ", CV(m));
+
 </pre></dd>
+
 <DT>see <a href="../DDP/Variables.ox.html#Markov">Markov State Variable</a></dt>
+
 **/
 TransitionMatrix(L,imat) {
     decl N=rows(imat);
     if (N!=columns(imat)) oxrunerror("FiveO Error 23. Initial transition matrix must be square");
-    decl M = new array[N];
-    decl i;
+    decl M = new array[N], i;
     for (i=0;i<M;++i) M[i] = new Simplex(L+sprint(i),imat[][i]);
     return M;
     }
 
-/**Create a vector of decreasing returns to scale Cobb-Douglas coefficients.
+/** Create a block of decreasing returns to scale coefficients.
+@param L label
+@param ivals N&times;1 vector, initial values
+
+<DT>Cross-parameter restrictions</DT>
 <dd><pre>
 0&lt; x<sub>i</sub> &lt; 1<br>
-&sum;<sub>i=1&hellip;N</sub>&ensp; x<sub>i</sub> &lt; 1.
+&sum;<sub>i=9&hellip;N-1</sub>&ensp; x<sub>i</sub> &lt; 1.
 </pre></dd>
-@param L label
-@param ivals integer: dimension of simplex<br>OR<br>N&times;1 vector, initial values
+
+All elements
+
 **/
 DecreasingReturns::DecreasingReturns(L,ivals)	{
 	decl k,myN;
@@ -401,6 +431,13 @@ DecreasingReturns::BlockCode()	{
 	ParameterBlock::BlockCode();
 	}
 
+/** Create a block with parameters that maintain an order.
+@param L label
+@param B `CV`-compatible bound or `Determined` parameter (can be -&infin; or +&infin;)
+@param ivals vector of initial values<br/>scalar number of ordered elements (not counting Anchor)
+@param sign ordering
+@param Anchored if TRUE the first element of the block is B
+**/
 Ordered::Ordered(L,B,ivals,sign,Anchored) {
 	decl k,myN,newpsi,prevpsi,ffree,bv;
 	ParameterBlock(L);
@@ -443,7 +480,9 @@ LB &lt; x<sub>1</sub> &lt; x<sub>2</sub> &lt; &hellip; &lt; x<sub>N</sub>
 @param LB lower bound for first variable, a double, `Parameter` or static function<br>send -.Inf to make the first parameter free
 @param ivals integer, dimension of sequence<br>OR<br>N&times;1 vector of initial values
 @param Anchored TRUE, LB should be the first element of the block (as a Determined parameter)
+
 @comment if ivals is an integer N then the sequence is initialized as LB+1, LB+2, &hellip; LB+N.
+
 **/
 Increasing::Increasing(L,LB,ivals,Anchored)	{
     Ordered(L,LB,ivals,+1,Anchored);
@@ -471,6 +510,9 @@ It can be sent to Normal() related functions/objects that require a <code>pars</
 @param ivals initial values vector see `NormalParams`<br/>
     default is <0.0;1.0>, which means parameters start as standard normal<br/>
     if ivals has three elements the last is the correlation coefficient $\rho$
+
+
+@see NormalParams
 **/
 NormalDistParmeters(L,ivals) {
     return  {new Free(L+"_mu",ivals[Nmu]),new Positive(L+"_sigma",ivals[Nsigma])}
@@ -503,11 +545,14 @@ Coefficients::Coefficients(L,ivals,labels) {
 	for(k=0;k<myN;++k) {AddToBlock(new Free(haslabels ? L+":"+labels[k] : L+sprint(k) ,ivals[k]));}
 	}
 
-/** Create a block of positive parameters, for example a vector of standard deviations.
+/** Create a block of positive parameters.
 @param L label for the block
 @param ivals 0: set to length of labels and initialize all values at 1<br> &gt; 0: number of positive parameters, initialize to 1.25
    <br>vector: initial values
 @param labels 0: use numbers for labels<br>array of strings, labels for values (e.g. variable names)
+
+For example, a vector of standard deviations.
+
 **/	
 StDeviations::StDeviations(L,ivals,labels) {
 	decl k, myN, haslabels = isarray(labels);
@@ -531,6 +576,8 @@ StDeviations::StDeviations(L,ivals,labels) {
 @param ivals 0: set to length of labels and initialize values to 0<br> &gt; 0: number of postivie parameters, initialize to 1.0
    <br>vector: initial values
 @param labels 0: use numbers for labels<br>array of strings, labels for values (e.g. variable names)
+
+@see Simplex
 **/	
 Probabilities::Probabilities(L,ivals,labels) {
 	decl k, myN, haslabels = isarray(labels);
@@ -549,6 +596,7 @@ Probabilities::Probabilities(L,ivals,labels) {
 	for(k=0;k<myN;++k) {AddToBlock(new Probability(haslabels ? L+":"+labels[k] : L+sprint(k) ,ivals[k]));}
 	}		
 
+/** . @internal **/
 Bounded::Menu(fp) {
     Parameter::Menu(fp);
     fprintln(fp,"Value <input type=\"number\" name=\"",L+CGI::ivalsuffix,"\" step=\"any\" min=\"",AV(LB),"\" max=\"",AV(UB),"\" value=\"",start,"\" >");

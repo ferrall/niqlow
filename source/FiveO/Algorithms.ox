@@ -1,5 +1,5 @@
 #include "Algorithms.h"
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 /** Base class for non-linear programming algorithms.
 @param O `Objective` to work on.
@@ -644,7 +644,7 @@ NelderMead::Sort()	{
 	}
 
 NelderMead::CheckPoint(WriteOut) {
-    if (IAmMac) return;
+    //if (IAmMac) return;
     decl chkpt = fopen(logpfx+".chkpt",WriteOut ? "w" : "r");
     if (WriteOut) {
         fprint(chkpt,"%v",OC.v,"\n","%v",step,"\n","%v",O.Start,"\n","%v",OC.F,"\n","%v",nodeV,"\n","%v",nodeX);
@@ -723,7 +723,7 @@ HillClimbing::HillClimbing(O) {
 @param WriteOut TRUE - write mode</br>FALSE read from file mode
 **/
 GradientBased::CheckPoint(WriteOut) {
-    if (IAmMac) return;
+    //if (IAmMac) return;
     decl chkpt = fopen(logpfx+".chkpt",WriteOut ? "w" : "r");
     if (WriteOut) {
         fprint(chkpt,"%v",OC.v,"\n","%v",O.Start,"\n","%v",OC.F,"\n","%v",OC.H);

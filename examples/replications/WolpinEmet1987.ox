@@ -1,5 +1,5 @@
 #include "WolpinEmet1987.h"
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 SchToWork::Replicate() {
 	Initialize(new SchToWork(),new BinaryChoice("accept"));

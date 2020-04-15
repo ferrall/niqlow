@@ -20,12 +20,11 @@ Handling data, simulation, likelihood, predictions, moments.
 <P/>
 <h2>Overview</h2>
 <P/>
-The <a href="DP.ox.html#Data">Data</a> class and its derivatives are used to simulate DDP data, compute predictions, read external data sets, and interface with <span class="n">Five-O</span> to evaluate the sample likelihood or GMM objective.</p>
+The <a href="DP.ox.html#Data">Data</a> class and its derivatives are used to simulate DDP data, compute predictions, read external data sets, and interface with <span class="n">Five-O</span> to evaluate the likelihood or GMM objective.</p>
 <P/>
-<a href="DP.ox.html#Data">Data</a> objects store realizations along the path of the program.  Unlike other spaces (e.g. the group space <span class="expressions">\(\Gamma\)</span> and the state space <span class="expressions">\(\Theta\)</span>), multiple instances of different types of data can be stored simultaneously.  That is, there can be more than one  <q>data space</q>.</p>
+<p><a href="DP.ox.html#Data">Data</a> objects store realizations along the path of the program.  Unlike other spaces (e.g. the group space <span class="expressions">\(\Gamma\)</span> and the state space <span class="expressions">\(\Theta\)</span>), multiple instances of different types of data can be stored simultaneously.  That is, there can be more than one  <q>data space</q>.</p>
 <P/>
-There two parallel but separate kinds of data:
-<P/>
+There two parallel kinds of data:
 <table class="tree">
 <tr>
 <td style="height:1px; width:auto;" colspan="7" class="fffix">
@@ -81,13 +80,13 @@ However, users of <span class="n">niqlow</span> will typically not interact dire
 <P/>
 Outcomes are used for simulating the model and for storing external data interpreted as realizations of the DDP. An outcome is generically denoted <span class="expressions">\(Y\)</span>. <span class="expressions">\(Y\)</span> contains the realized state vectors, action vectors, auxiliary values, etc.  It is described in more detail below.</p>
 <P/>
-As discussed elsewhere, the user codes <code>MyModel</code> as a class derived from one of the pre-defined <a href="Bellman.ox.html#Bellman">Bellman</a> classes. In contrast, <a href="Data.ox.html#Outcome">Outcome</a> is designed to be generic so that it can be used for whatever model or data the program uses. <em>A user does not define their own derived class to store outcomes.</em> Only one model can be active in <span class="n">DDP</span> because <code>static</code> data members are used, but <em>multiple data sets can be stored at once.</em>  This can be useful when comparing two solution methods applied to one model or two estimation methods applied to two different data sets.</p>
+<p>As discussed elsewhere, the user codes <code>MyModel</code> as a class derived from one of the pre-defined <a href="Bellman.ox.html#Bellman">Bellman</a> classes. In contrast, <a href="Data.ox.html#Outcome">Outcome</a> is designed to be generic so that it can be used for whatever model or data the program uses. <em>A user does not define their own derived class to store outcomes.</em> Only one model can be active in <span class="n">DDP</span> because <code>static</code> data members are used, but <em>multiple data sets can be stored at once.</em>  This can be useful when comparing two solution methods applied to one model or two estimation methods applied to two different data sets.</p>
 <P/>
-Outcomes are related to points in the state space <span class="expressions">\(\Theta\)</span>, but they are treated distinctly in <span class="n">niqlow</span>.  The state space is coded to minimize storage and calculations while solving a model.  On the other hand, outcomes are designed to track everything relevant to results of the DDP, and memory would be exhausted if outcomes were defined and stored for each possible state. It would be inefficient to store all potential outcomes when only one can be realized at each point in a single DP process.</p>
+<p>Outcomes are related to points in the state space <span class="expressions">\(\Theta\)</span>, but they are treated distinctly in <span class="n">niqlow</span>.  The state space is coded to minimize storage and calculations while solving a model.  On the other hand, outcomes are designed to track everything relevant to results of the DDP, and memory would be exhausted if outcomes were defined and stored for each possible state. It would be inefficient to store all potential outcomes when only one can be realized at each point in a single DP process.</p>
 <P/>
-A single point in the state space <span class="expressions">\(\theta\)</span> can have multiple states that could come before it or come after it hypothetically.  In contrast, outcomes have a well-defined <em>predecessor</em> and <em>successor</em>. These are tracked as part of the outcome, so that <span class="n">niqlow</span> represents a sequence of outcomes as a doubly-<a href="http://en.wikipedia.org/wiki/Linked_list">linked list</a> of objects of class <a href="Data.ox.html#Outcome">Outcome</a>.</p>
+<p>A single point in the state space <span class="expressions">\(\theta\)</span> can have multiple states that could come before it or come after it hypothetically.  In contrast, outcomes have a well-defined <em>predecessor</em> and <em>successor</em>. These are tracked as part of the outcome, so that <span class="n">niqlow</span> represents a sequence of outcomes as a doubly-<a href="http://en.wikipedia.org/wiki/Linked_list">linked list</a> of objects of class <a href="Data.ox.html#Outcome">Outcome</a>.</p>
 <P/>
-An Outcome <span class="expressions">\(Y\)</span> is a basic unit of data. However, a user will typically not interact with an individual outcome.  Data structures are defined to keep track of ordered and unordered groups of outcomes.  It is these objects that a user will typically create and use directly.  The structure of outcomes is illustrated here:
+<p>An Outcome <span class="expressions">\(Y\)</span> is a basic unit of data. However, a user will typically not interact with an individual outcome.  Data structures are defined to keep track of ordered and unordered groups of outcomes.  It is these objects that a user will typically create and use directly.  The structure of outcomes is illustrated here:
 <table class="tree">
 <tr>
 <td class="line">&nbsp;</td>
@@ -173,7 +172,7 @@ To create a data set from external data:
 </pre></dd>
 This says that there are two variables from the DP model observed in the data set, say a state variable <code>x</code> and an action variable <code>d</code>.  The external data uses the same labels for those variables as the DP model, so the correct columns can be found using them.  Each empirical path has to be associated with the value of variable in the data set, so the <code>IDColumn</code> must be specified before reading the data. The data must be sorted within each path starting at <span class="expressions">\(t=0\)</span>.  Since no columns in the data were associated with fixed effect variables this must be a homogeneous model.  (There can be random effects but <span class="n">niqlow</span> always assumes those are unobserved and will integrate over them.)  So the data set will end up having one Panel which contains one FPanel which contains as many paths as <code>Read()</code> finds in the Stata data set.</p>
 <P/>
-To create a simulated data set from a solved DP model and save to a Stata data set:
+<p>To create a simulated data set from a solved DP model and save to a Stata data set:
 <DD><pre>
     SimulateOutcomes(400,10,"sim.dta");
 </pre></dd>
@@ -190,7 +189,7 @@ The reason to create the <code>Panel</code> object instead of using <code>Simula
 <P/>
 <span class="n">DDP</span> is designed to handle programs for which not everything observed by the agent is observed by the econometrician.  In addition, <span class="n">DDP</span> is designed to handle observables that are functions of the underlying outcomes but are not necessarily of any (direct) interest of the agent.  To provide these  capabilities, first consider the case of the fully observed realization of the DP.</p>
 <P/>
-Let the Y<sup>F</sup> denote the vector of <em>all</em> actions and all <em>realized states</em> in the model.  Generically,
+<p>Let the Y<sup>F</sup> denote the vector of <em>all</em> actions and all <em>realized states</em> in the model.  Generically,
 <dd><pre>
 Y<sup>F</sup> &equiv; (&alpha; &zeta; &epsilon; &eta; &theta; &gamma; &chi; Y<sup>F</sup><sub>p</sub> Y<sup>F</sup><sub>n</sub> )
     &alpha; = (a<sub>0</sub> &hellip; )
@@ -203,21 +202,21 @@ Y<sup>F</sup> &equiv; (&alpha; &zeta; &epsilon; &eta; &theta; &gamma; &chi; Y<su
 </pre></dd>
 For simplicity the length of each of the vectors is not specified and the right-most elements of each of the vectors is not included. Instead, each vector is shown as the leftmost variable with subscript 0 followed by &hellip;.</p>
 <P/>
-Y<sup>F</sup> is referred to as the <em>full outcome</em> because it includes all information that is knowable and relevant about a single period in a realized DDP. Y<sup>F</sup> adds a new vector denoted &chi; with generic elements x.  See below. Y<sup>F</sup> also includes <q>pointers</q> to the preceding and next outcomes on the path. These pointers can be undefined for various reasons. Obviously the value of Y<sup>F</sup><sub>n</sub> is not realized until the end of the current period.  And the initial period of decision making obviously has no preceding outcome. However, in the middle of a panel of observation both pointers would be defined.</p>
+<p>Y<sup>F</sup> is referred to as the <em>full outcome</em> because it includes all information that is knowable and relevant about a single period in a realized DDP. Y<sup>F</sup> adds a new vector denoted &chi; with generic elements x.  See below. Y<sup>F</sup> also includes <q>pointers</q> to the preceding and next outcomes on the path. These pointers can be undefined for various reasons. Obviously the value of Y<sup>F</sup><sub>n</sub> is not realized until the end of the current period.  And the initial period of decision making obviously has no preceding outcome. However, in the middle of a panel of observation both pointers would be defined.</p>
 <P/>
-The full outcome may not be observed in data.  The observed outcome, <var>Y</var>, will have the same structure as <var>Y<sup>F</sup></var> but one or more elements of the member vectors will include missing (<code>.NaN</code>) values.  Observability is discussed below.  Its purpose is to account for gaps between theoretical outcomes and observed results from a DP.</p>
+<p>The full outcome may not be observed in data.  The observed outcome, <var>Y</var>, will have the same structure as <var>Y<sup>F</sup></var> but one or more elements of the member vectors will include missing (<code>.NaN</code>) values.  Observability is discussed below.  Its purpose is to account for gaps between theoretical outcomes and observed results from a DP.</p>
 <P/>
 <li>Paths </li>
 <P/>
 The base <a href="Data.ox.html#Outcome">Outcome</a> class captures a single period, and it points to the previous outcome and the next outcome along a realized path (if the predecessor and successor exist).  A <a href="Data.ox.html#Path">Path</a> is derive from <a href="Data.ox.html#Outcome">Outcome</a>, so the first outcome on the path is stored directly by the path (since it is an outcome itself).  But <a href="Data.ox.html#Path">Path</a> also has a <a href="Data.ox.html#Path___last">last</a> data member which points to the last outcome on the path.  Because both the previous and next outcomes are defined a <a href="Data.ox.html#Path">Path</a> can be processed both forwards and backwards.  That is, a path is a doubly-linked list. </p>
 <P/>
-A <a href="Data.ox.html#Path">Path</a> is a derived class from <a href="Data.ox.html#Outcome">Outcome</a>.  The difference is that a path tracks a sequence of outcomes generated by realizations of a single DP problem.  The outcomes in a path are a <em>linked list</em>.  Since a path is itself an outcome the first outcome is the path itself.  <a href="Data.ox.html#Outcome">Outcome</a> tracks both the <em>next</em> and <em>previous</em> outcome in the realized path.  Further, the path stores the last outcome in the path, which makes it possible to work either forwards or backwards in the sequence.<p>
+<p>A <a href="Data.ox.html#Path">Path</a> is a derived class from <a href="Data.ox.html#Outcome">Outcome</a>.  The difference is that a path tracks a sequence of outcomes generated by realizations of a single DP problem.  The outcomes in a path are a <em>linked list</em>.  Since a path is itself an outcome the first outcome is the path itself.  <a href="Data.ox.html#Outcome">Outcome</a> tracks both the <em>next</em> and <em>previous</em> outcome in the realized path.  Further, the path stores the last outcome in the path, which makes it possible to work either forwards or backwards in the sequence.<p>
 <P/>
 <li>Panels</li>
 <P/>
 In turn, a <b>fixed panel</b> (<a href="Data.ox.html#FPanel">FPanel</a>) is a list of <a href="Data.ox.html#Path">Path</a>s that share the same fixed effects. FPanel tracks the following path so a panel can be processed sequentially as a linked list.  (Because paths in a panel are not ordered the previous path is not stored.) In turn a <a href="Data.ox.html#Panel">Panel</a> is a list of fixed panels.</p>
 <P/>
-Finally, <a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a> is a class derived from <a href="Data.ox.html#Panel">Panel</a> that includes methods to read in outcomes from data accounting for partial or complete unobservability of actions and states. This organization can be seen by clicking on <em>hierarchy</em> in the upper right corner of any page of DDP documentation.
+<p>Finally, <a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a> is a class derived from <a href="Data.ox.html#Panel">Panel</a> that includes methods to read in outcomes from data accounting for partial or complete unobservability of actions and states. This organization can be seen by clicking on <em>hierarchy</em> in the upper right corner of any page of DDP documentation.
 <P/>
 <a name="SS"><LI>Simulation</LI></a>
 <P/>
@@ -236,7 +235,7 @@ Y = &equiv; (x<sub>0</sub> &hellip; x<sub>&chi;.N</sub>  - - &hellip; a<sub>o0</
 </pre></DD>
 Here <q>-</q> indicates censoring of elements of Y<sup>F</sup>, and a<sub>o0</sub> is the first observed action variable. So if <code>o0 = 3</code> it means a<sub>3</sub> is the first element of <code>&alpha;</code> that is in the observed outcome.  Between a<sub>o0</sub> and a<sub>o1</sub> are any action variables not observed and indicated by <q>- &hellip; -</q>.  The same is true of the state vectors. </p> </p>
 <P/>
-This is not necessarily a template that all observations must follow.  It is possible that some elements of Y<sup>F</sup> are observed in some cases but not others.  The auxiliary variables provide great flexibility.  Suppose the value of an action variable a<sub>d</sub> is unobserved, but it is known the realized value is with some sub-range of the potential values.  Then x<sub>0</sub> and x<sub>1</sub> could be the min and max values of a<sub>d</sub>, respectively.  A derived likelihood function would add up the conditional probabilities of actions between those two values.</p>
+<p>This is not necessarily a template that all observations must follow.  It is possible that some elements of Y<sup>F</sup> are observed in some cases but not others.  The auxiliary variables provide great flexibility.  Suppose the value of an action variable a<sub>d</sub> is unobserved, but it is known the realized value is with some sub-range of the potential values.  Then x<sub>0</sub> and x<sub>1</sub> could be the min and max values of a<sub>d</sub>, respectively.  A derived likelihood function would add up the conditional probabilities of actions between those two values.</p>
 <P/>
 <a name="Data"><LI>Data Sets</LI></a>
 <P/>
@@ -248,7 +247,7 @@ The <a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a> class is derived fr
 <P/>
 Data are read in from outside formats such as Stata using Ox's built-in capabilities in Ox's <code>Database</code> class.  If the same labels are used for model variables as in the external data set, the methods can seamlessly relate the data to the corresponding element of the model.</p>
 <P/>
-A key issue with estimating DDPs is unobservability of actions and states.  <code>Outcome</code> handles this  two ways.  First it treats missing (<code>.NaN</code>) in the data as unobserved.  It  will then integrate (sum over) values of missing states and actions when computing, say, the likelihood of the data.  Second, auxiliary data (sometimes called payoff relevant variables) can be included in the data and then coded so that they indicate which variables and values should be integrated over.</p>
+<p>A key issue with estimating DDPs is unobservability of actions and states.  <code>Outcome</code> handles this  two ways.  First it treats missing (<code>.NaN</code>) in the data as unobserved.  It  will then integrate (sum over) values of missing states and actions when computing, say, the likelihood of the data.  Second, auxiliary data (sometimes called payoff relevant variables) can be included in the data and then coded so that they indicate which variables and values should be integrated over.</p>
 <P/>
 <h2><a name="Emet"><LI>Likelihood</LI></a></h2>
 <P/>
@@ -261,7 +260,7 @@ A key issue with estimating DDPs is unobservability of actions and states.  <cod
 <P/>
 The <a href="#Outcomes">Outcome</a> class is designed to work with realized results from a DP model.  That is, at one point in time there is a single realization.  For this reason, simulation, individual-level data and likelihood functions are related to Outcomes. On the other hand, the <a href="Data.ox.html#Prediction">Prediction</a> class is designed to handle the distribution of outcomes at a given time.  It is designed to handle integrating out uncertainty.  For this reason, prediction and generalized method of moments (GMM) are related to Predictions.</p>
 <P/>
-The base class <a href="Data.ox.html#Prediction">Prediction</a> tracks a list of possible state indices and their associated probabilities of occurring.  It also tracks choice probabilities. Starting from some initial conditions a <a href="Data.ox.html#PathPrediction">PathPrediction</a> is a list of predictions, each providing the distribution across states and choices at that point in time.  A <a href="Data.ox.html#PanelPrediction">PanelPrediction</a> is a set of <a href="Data.ox.html#PathPrediction">PathPrediction</a>s across fixed effect groups.  Data can be read in to match up with predictions using the <a href="Data.ox.html#PredictionDataSet">PredictionDataSet</a> class derived from <a href="Data.ox.html#PanelPrediction">PanelPrediction</a>.</p>
+<p>The base class <a href="Data.ox.html#Prediction">Prediction</a> tracks a list of possible state indices and their associated probabilities of occurring.  It also tracks choice probabilities. Starting from some initial conditions a <a href="Data.ox.html#PathPrediction">PathPrediction</a> is a list of predictions, each providing the distribution across states and choices at that point in time.  A <a href="Data.ox.html#PanelPrediction">PanelPrediction</a> is a set of <a href="Data.ox.html#PathPrediction">PathPrediction</a>s across fixed effect groups.  Data can be read in to match up with predictions using the <a href="Data.ox.html#PredictionDataSet">PredictionDataSet</a> class derived from <a href="Data.ox.html#PanelPrediction">PanelPrediction</a>.</p>
 <P/>
 <table class="tree">
 <td class="line">&nbsp;</td>
@@ -321,7 +320,7 @@ The base class <a href="Data.ox.html#Prediction">Prediction</a> tracks a list of
 <P/>
 </OL>
 
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2019 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a></dd>
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2020 <a href="https://ferrall.github.io/">Christopher Ferrall</a></dd>
 
 <a name="auto"><hr><h1>Documentation of  Items Defined in Data.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a></dd>
 </dl>
@@ -877,17 +876,17 @@ A Panel is a list of <a href="Data.ox.html#FPanel">FPanel</a>s which share a val
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___aflat">aflat</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">flat matrix version of predictions.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___delt">delt</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">difference between pred.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___FN">FN</a></td>
 <td class="modifiers"></td>
-<td class="description">length of vector returned by EconometricObjective.</td>
+<td class="description">total number of predictions..</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___fparray">fparray</a></td>
@@ -907,7 +906,7 @@ A Panel is a list of <a href="Data.ox.html#FPanel">FPanel</a>s which share a val
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___TrackingCalled">TrackingCalled</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Has Tracking() been called.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___PanelPrediction">PanelPrediction</a></td>
@@ -936,7 +935,7 @@ A Panel is a list of <a href="Data.ox.html#FPanel">FPanel</a>s which share a val
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Data.ox.html#PathPrediction">PathPrediction</a>:</dt><dd><a href="Data.ox.html#PathPrediction___cols">cols</a>, <a href="Data.ox.html#PathPrediction___cur">cur</a>, <a href="Data.ox.html#PathPrediction___dlabels">dlabels</a>, <a href="Data.ox.html#PathPrediction___EverPredicted">EverPredicted</a>, <a href="Data.ox.html#PathPrediction___f">f</a>, <a href="Data.ox.html#PathPrediction___Fcols">Fcols</a>, <a href="Data.ox.html#PathPrediction___first">first</a>, <a href="Data.ox.html#PathPrediction___flat">flat</a>, <a href="Data.ox.html#PathPrediction___fnext">fnext</a>, <a href="Data.ox.html#PathPrediction___fvals">fvals</a>, <a href="Data.ox.html#PathPrediction___HasObservations">HasObservations</a>, <a href="Data.ox.html#PathPrediction___iDist">iDist</a>, <a href="Data.ox.html#PathPrediction___inT">inT</a>, <a href="Data.ox.html#PathPrediction___L">L</a>, <a href="Data.ox.html#PathPrediction___mask">mask</a>, <a href="Data.ox.html#PathPrediction___method">method</a>, <a href="Data.ox.html#PathPrediction___pathW">pathW</a>, <a href="Data.ox.html#PathPrediction___plabels">plabels</a>, <a href="Data.ox.html#PathPrediction___prtlevel">prtlevel</a>, <a href="Data.ox.html#PathPrediction___pstate">pstate</a>, <a href="Data.ox.html#PathPrediction___rcur">rcur</a>, <a href="Data.ox.html#PathPrediction___summand">summand</a>, <a href="Data.ox.html#PathPrediction___T">T</a>, <a href="Data.ox.html#PathPrediction___tlabels">tlabels</a>, <a href="Data.ox.html#PathPrediction___tlist">tlist</a>, <a href="Data.ox.html#PathPrediction___upddens">upddens</a>, <a href="Data.ox.html#PathPrediction___vdelt">vdelt</a>, <a href="Data.ox.html#PathPrediction___wght">wght</a></dd>
-<dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___ctlist">ctlist</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___LeakWarned">LeakWarned</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___PredictFailure">PredictFailure</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___ud">ud</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Data">Data</a>:</dt><dd><a href="DP.ox.html#Data___logf">logf</a>, <a href="DP.ox.html#Data___lognm">lognm</a>, <a href="DP.ox.html#Data___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___caller">caller</a>, <a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___inner">inner</a>, <a href="DP.ox.html#Task___itask">itask</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trace">trace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Blocks">Blocks</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___EOoE">EOoE</a>, <a href="DP.ox.html#DP___EStoS">EStoS</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___IOE">IOE</a>, <a href="DP.ox.html#DP___MyVersion">MyVersion</a>, <a href="DP.ox.html#DP___NKptrans">NKptrans</a>, <a href="DP.ox.html#DP___NKvindex">NKvindex</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___parents">parents</a>, <a href="DP.ox.html#DP___S">S</a>, <a href="DP.ox.html#DP___SS">SS</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___SubVectors">SubVectors</a>, <a href="DP.ox.html#DP___tod">tod</a>, <a href="DP.ox.html#DP___tom">tom</a>, <a href="DP.ox.html#DP___userState">userState</a>, <a href="DP.ox.html#DP___XUT">XUT</a></dd>
@@ -1084,7 +1083,7 @@ Predicted outcomes along a path.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___f">f</a></td>
 <td class="modifiers">const</td>
-<td class="description"></td>
+<td class="description">fixed index.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___Fcols">Fcols</a></td>
@@ -1094,7 +1093,7 @@ Predicted outcomes along a path.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___first">first</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">first prediction.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___flat">flat</a></td>
@@ -1169,7 +1168,7 @@ Predicted outcomes along a path.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___summand">summand</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">object to integrate over <span class="expressions">\(\gamma_r\)</span>.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___T">T</a></td>
@@ -1189,7 +1188,7 @@ Predicted outcomes along a path.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___upddens">upddens</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">object to update distribution over r.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___vdelt">vdelt</a></td>
@@ -1257,7 +1256,7 @@ Predicted outcomes along a path.
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___ctlist">ctlist</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___LeakWarned">LeakWarned</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___PredictFailure">PredictFailure</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___ud">ud</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Data">Data</a>:</dt><dd><a href="DP.ox.html#Data___logf">logf</a>, <a href="DP.ox.html#Data___lognm">lognm</a>, <a href="DP.ox.html#Data___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___caller">caller</a>, <a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___inner">inner</a>, <a href="DP.ox.html#Task___itask">itask</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trace">trace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Blocks">Blocks</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___EOoE">EOoE</a>, <a href="DP.ox.html#DP___EStoS">EStoS</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___IOE">IOE</a>, <a href="DP.ox.html#DP___MyVersion">MyVersion</a>, <a href="DP.ox.html#DP___NKptrans">NKptrans</a>, <a href="DP.ox.html#DP___NKvindex">NKvindex</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___parents">parents</a>, <a href="DP.ox.html#DP___S">S</a>, <a href="DP.ox.html#DP___SS">SS</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___SubVectors">SubVectors</a>, <a href="DP.ox.html#DP___tod">tod</a>, <a href="DP.ox.html#DP___tom">tom</a>, <a href="DP.ox.html#DP___userState">userState</a>, <a href="DP.ox.html#DP___XUT">XUT</a></dd>
@@ -1285,19 +1284,9 @@ Predicted distribution across states.
 <td class="description">current ch.</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___ctlist">ctlist</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___empmom">empmom</a></td>
 <td class="modifiers"></td>
 <td class="description">used (masked) empiricalmoments.</td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___LeakWarned">LeakWarned</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___p">p</a></td>
@@ -1315,39 +1304,29 @@ Predicted distribution across states.
 <td class="description">current p.</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___PredictFailure">PredictFailure</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___predmom">predmom</a></td>
 <td class="modifiers"></td>
 <td class="description">(unmasked) predicted moment vector  </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___q">q</a></td>
 <td class="modifiers"></td>
 <td class="description">index into sind.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___readmom">readmom</a></td>
 <td class="modifiers"></td>
 <td class="description">(unmasked) empirical moments.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___sind">sind</a></td>
 <td class="modifiers"></td>
 <td class="description">state index  </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___t">t</a></td>
 <td class="modifiers">const</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___ud">ud</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">rank in a pathprediction.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#Prediction___W">W</a></td>
@@ -1479,7 +1458,7 @@ objective.</td>
 <dl class="inherited">
 <dt>Inherited fields from <a href="Data.ox.html#PanelPrediction">PanelPrediction</a>:</dt><dd><a href="Data.ox.html#PanelPrediction___aflat">aflat</a>, <a href="Data.ox.html#PanelPrediction___delt">delt</a>, <a href="Data.ox.html#PanelPrediction___FN">FN</a>, <a href="Data.ox.html#PanelPrediction___fparray">fparray</a>, <a href="Data.ox.html#PanelPrediction___M">M</a>, <a href="Data.ox.html#PanelPrediction___PredMomFile">PredMomFile</a>, <a href="Data.ox.html#PanelPrediction___TrackingCalled">TrackingCalled</a></dd>
 <dt>Inherited fields from <a href="Data.ox.html#PathPrediction">PathPrediction</a>:</dt><dd><a href="Data.ox.html#PathPrediction___cols">cols</a>, <a href="Data.ox.html#PathPrediction___cur">cur</a>, <a href="Data.ox.html#PathPrediction___dlabels">dlabels</a>, <a href="Data.ox.html#PathPrediction___EverPredicted">EverPredicted</a>, <a href="Data.ox.html#PathPrediction___f">f</a>, <a href="Data.ox.html#PathPrediction___Fcols">Fcols</a>, <a href="Data.ox.html#PathPrediction___first">first</a>, <a href="Data.ox.html#PathPrediction___flat">flat</a>, <a href="Data.ox.html#PathPrediction___fnext">fnext</a>, <a href="Data.ox.html#PathPrediction___fvals">fvals</a>, <a href="Data.ox.html#PathPrediction___HasObservations">HasObservations</a>, <a href="Data.ox.html#PathPrediction___iDist">iDist</a>, <a href="Data.ox.html#PathPrediction___inT">inT</a>, <a href="Data.ox.html#PathPrediction___L">L</a>, <a href="Data.ox.html#PathPrediction___mask">mask</a>, <a href="Data.ox.html#PathPrediction___method">method</a>, <a href="Data.ox.html#PathPrediction___pathW">pathW</a>, <a href="Data.ox.html#PathPrediction___plabels">plabels</a>, <a href="Data.ox.html#PathPrediction___prtlevel">prtlevel</a>, <a href="Data.ox.html#PathPrediction___pstate">pstate</a>, <a href="Data.ox.html#PathPrediction___rcur">rcur</a>, <a href="Data.ox.html#PathPrediction___summand">summand</a>, <a href="Data.ox.html#PathPrediction___T">T</a>, <a href="Data.ox.html#PathPrediction___tlabels">tlabels</a>, <a href="Data.ox.html#PathPrediction___tlist">tlist</a>, <a href="Data.ox.html#PathPrediction___upddens">upddens</a>, <a href="Data.ox.html#PathPrediction___vdelt">vdelt</a>, <a href="Data.ox.html#PathPrediction___wght">wght</a></dd>
-<dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___ctlist">ctlist</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___LeakWarned">LeakWarned</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___PredictFailure">PredictFailure</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___ud">ud</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Data">Data</a>:</dt><dd><a href="DP.ox.html#Data___logf">logf</a>, <a href="DP.ox.html#Data___lognm">lognm</a>, <a href="DP.ox.html#Data___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___caller">caller</a>, <a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___inner">inner</a>, <a href="DP.ox.html#Task___itask">itask</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trace">trace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Blocks">Blocks</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___EOoE">EOoE</a>, <a href="DP.ox.html#DP___EStoS">EStoS</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___IOE">IOE</a>, <a href="DP.ox.html#DP___MyVersion">MyVersion</a>, <a href="DP.ox.html#DP___NKptrans">NKptrans</a>, <a href="DP.ox.html#DP___NKvindex">NKvindex</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___parents">parents</a>, <a href="DP.ox.html#DP___S">S</a>, <a href="DP.ox.html#DP___SS">SS</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___SubVectors">SubVectors</a>, <a href="DP.ox.html#DP___tod">tod</a>, <a href="DP.ox.html#DP___tom">tom</a>, <a href="DP.ox.html#DP___userState">userState</a>, <a href="DP.ox.html#DP___XUT">XUT</a></dd>
@@ -2682,6 +2661,7 @@ matrix of initial states to draw from (each column is a different starting value
 
 <span class="declaration">decl aflat [public]</span>
 <dl><dd>
+flat matrix version of predictions.
 
 </dd></dl>
 
@@ -2691,6 +2671,7 @@ matrix of initial states to draw from (each column is a different starting value
 
 <span class="declaration">decl delt [public]</span>
 <dl><dd>
+difference between pred. & data.
 
 </dd></dl>
 
@@ -2700,7 +2681,7 @@ matrix of initial states to draw from (each column is a different starting value
 
 <span class="declaration">decl FN [public]</span>
 <dl><dd>
-length of vector returned by EconometricObjective.
+total number of predictions..
 
 </dd></dl>
 
@@ -2842,6 +2823,7 @@ Set an object to be tracked in predictions.
 
 <span class="declaration">decl TrackingCalled [public]</span>
 <dl><dd>
+Has Tracking() been called.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Path</span></h2>
@@ -3144,6 +3126,7 @@ Predict() called before.
 
 <span class="declaration">const decl f [public]</span>
 <dl><dd>
+fixed index.
 
 </dd></dl>
 
@@ -3162,6 +3145,7 @@ Predict() called before.
 
 <span class="declaration">decl first [public]</span>
 <dl><dd>
+first prediction.
 
 </dd></dl>
 
@@ -3484,6 +3468,7 @@ Save weight matrix in <code>pathW_??.mat</code></td>
 
 <span class="declaration">static decl summand [public]</span>
 <dl><dd>
+object to integrate over <span class="expressions">\(\gamma_r\)</span>.
 
 </dd></dl>
 
@@ -3563,6 +3548,7 @@ been called no more objects can be added to the list.
 
 <span class="declaration">static decl upddens [public]</span>
 <dl><dd>
+object to update distribution over r.
 
 </dd></dl>
 
@@ -3620,15 +3606,6 @@ current ch. prob.
 </dd></dl>
 
 <hr>
-<a name="Prediction___ctlist"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ctlist</span></h3>
-
-<span class="declaration">static decl ctlist [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="Prediction___empmom"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">empmom</span></h3>
 
@@ -3658,15 +3635,6 @@ Compute the histogram of tracked object at the prediction.
 <dt class="comments">Comments:</dt><dd class="comments">output will also be produced for any objects in tlist with Volume &gt; SILENT
 </dd>
 </dl>
-</dd></dl>
-
-<hr>
-<a name="Prediction___LeakWarned"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">LeakWarned</span></h3>
-
-<span class="declaration">static decl LeakWarned [public]</span>
-<dl><dd>
-
 </dd></dl>
 
 <hr>
@@ -3712,15 +3680,6 @@ Transitions to unreachable states is tracked and logged in the Data logfile.
 </dd>
 <dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#TrackObj___Distribution">Distribution</a></dd>
 </dl>
-</dd></dl>
-
-<hr>
-<a name="Prediction___PredictFailure"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">PredictFailure</span></h3>
-
-<span class="declaration">static decl PredictFailure [public]</span>
-<dl><dd>
-
 </dd></dl>
 
 <hr>
@@ -3825,15 +3784,7 @@ state index
 
 <span class="declaration">const decl t [public]</span>
 <dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Prediction___ud"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ud</span></h3>
-
-<span class="declaration">static decl ud [public]</span>
-<dl><dd>
+rank in a pathprediction.
 
 </dd></dl>
 

@@ -1,16 +1,19 @@
 #import "DP"
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
-/** $\theta$-specific values.
+/** The base class for $\theta$-specific values.
 
-This is the base class for a single point in the endogenous state space, $\theta\in \Theta$.</br>
+<UL>
+<LI>This is the base for a single point in the endogenous state space, $\theta\in \Theta$.</LI>
 
-It corresponds to a a model with no continuous shocks $\theta$ and no ex-post smoothing.<br/>
+<LI>It corresponds to a a model with no continuous shocks $\theta$ and no ex-post smoothing.</LI>
 
-Since a new instance of DP is created for each reachable point in the (endogneous) state space, the structure relies heavily
-on static members in order to reduce memory requirements.  These are defined in the base `DP` class.<br/>
 
-<code>MyModel</code> should be derived from a class that in turn is derived from `Bellman`.
+<LI>Since a new instance is created for each reachable point in the (endogneous) state space, the structure relies heavily
+on static members in order to reduce memory requirements.  These are defined in the base `DP` class.</LI>
+</UL>
+
+<code>MyModel</code> is derived from a class that in turn is derived from Bellman.
 
 **/
 struct  Bellman : DP {
@@ -33,30 +36,31 @@ struct  Bellman : DP {
                 /** @internal **/ nnew,
                 /** @internal **/ hagg;
 
-	decl       //Dynamic values that take on different values at each $\theta$.  Kept to a minimum to limit storage
+            //Dynamic values that take on different values at each $\theta$.  Kept to a minimum to limit storage
+	decl
         /**Integer code to classify state (InSubSample,LastT,Terminal).
             This avoids multiple integer values at each point in the state space.
             Defined in `StateTypes`. Set in `DP::CreateSpaces`() and `DP::SubSampleStates`()
-            @see StateVariable::MakeTerminal, Clock::Last **/       Type,
-		/** index into `Alpha::CList`, determines $A(\theta)$.**/  	Aind,
-		/** $v(\alpha;\epsilon,\eta,\theta)$ and $P*()$. **/        pandv,
+            @see StateVariable::MakeTerminal, Clock::Last, StateTypes **/      Type,
+		/** index into `Alpha::CList`, determines $A(\theta)$.**/  	           Aind,
+		/** $v(\alpha;\epsilon,\eta,\theta)$ and $P*()$. **/                   pandv,
 		/** TransStore x &eta;-Array of feasible endogenous	state
 			indices and transitions
-			$P(\theta^\prime;\alpha,\eta,\theta).**/			    Nxt,
-		/**EV(&theta;)  **/					                        EV;
+			$P(\theta^\prime;\alpha,\eta,\theta).**/			              Nxt,
+		/**EV(&theta;)  **/					                                  EV;
 
 			static 	Delete();
 			static 	Initialize(userState,UseStateList=FALSE);
 			static  CreateSpaces();
 
-            //  Users may or must replace these with their own
+                    //  Users may or must replace these with their own
 			virtual Utility();
 			virtual FeasibleActions();
             virtual Reachable();
             virtual ThetaUtility();
             virtual OutcomesGivenEpsilon();
 
-            //Solution Methods replace these
+                    //Solution Methods replace these
             virtual ExogExpectedV();
 			virtual thetaEMax() ;
 			virtual ActVal();
@@ -136,11 +140,13 @@ $$F(z_\alpha) = e^{ -e^{-z_\alpha/\rho} }$$
 
 <DT>Bellman Equation Iteration.</DT>
 
-<DD><pre>
-v(&alpha;;&epsilon;,&eta;) = exp{  &rho;( U + &delta;&sum; <sub>&theta;&prime;</sub> &Rho;(&theta;&prime;;&alpha;,&eta;,&theta;) EV(&theta;&prime;) ) }
-V(&epsilon;,&eta;) = log(&sum;<sub>&alpha;</sub> v(&alpha;;&epsilon;,&eta;))
-EV = &sum;<sub>&epsilon;,&eta;</sub> [ V(&epsilon;,&eta;)*f(&epsilon;)f(&eta;)/&rho; ]
-</pre>
+$$\eqalign{
+    v(\alpha ; \epsilon,\eta,\theta) &= \exp\{  \rho( U + \delta \sum_{\theta^\prime} P(\theta^\prime;\alpha,\eta,\theta)
+        EV(\theta^\prime) ) \}\cr
+    V(\epsilon,\eta,\theta) &= \log \left(\sum_{\alpha} v(\alpha ; \epsilon,\eta,\theta) \right)\cr
+    EV(\theta) &= \sum_{\epsilon,\eta} V(\epsilon,\eta)P(\epsilon)P(\eta) \cr
+}$$
+
 <DT>Choice Probabilities</DT>
 <DD>Once EV() has converged<pre>
 &Rho;*(&alpha;;&epsilon;,&eta;,&gamma;) =

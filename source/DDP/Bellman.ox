@@ -1,17 +1,19 @@
 #include "Bellman.h"
 /* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
-/** Constructs the transitions for &theta;, the endogenous state vector.
+/** Task to construct $\theta$ transition, the endogenous state vector.
 
-This computes <em>&Rho;(&theta;&prime;,&alpha;,&eta;,&theta;)</em>
+This task loops over $\eta$ and $\theta$ to compute at each $\theta$
+
+$$P(\theta^\prime ; \alpha,\eta, \theta)$$
+It is stored at each point in $|theta$ as a matrix transition probabilities.
 
 When this task is run is determined by `Flags::UpdateTime`
 
 @comments
-The endogenous transition must be computed and stored at each point in the endogenous state space &Theta;. And at
-a point &theta; it is must be computed for each semi-exogenous state &eta;.
+The endogenous transition must be computed and stored at each point in the endogenous state space &Theta;.
 
-If a state variable can be placed in &epsilon; instead of &eta; or &theta; it reduces computation and storage signficantly.
+If a state variable can be placed in $\epsilon$ instead of $\eta$ and $\theta$ it reduces computation and storage signficantly.
 
 @see DP::SetUpdateTime
 
@@ -21,26 +23,27 @@ EndogTrans::EndogTrans() {
    	left = S[semiexog].M; 	right = S[clock].M;
 	}
 
-/** The inner work as `Task::Loop`() spans $\Theta$. **/
+/** The inner work at $\theta$. **/
 EndogTrans::Run() {
-    I::curth.EV = 0.0;
-    Hooks::Do(AtThetaTrans);
-    Bellman::rcheck=Volume>LOUD;
-    I::curth->ThetaTransition();
+    I::curth.EV = 0.0;              // reset EV
+    Hooks::Do(AtThetaTrans);        // do anything the user wants done
+    Bellman::rcheck=Volume>LOUD;    // only output if Volume is NOISY
+    I::curth->ThetaTransition();    // Compute the transition.
 	}
 
 /** Update dynamically changing components of the program at the time chosen by the user.
 
+<DT>Things to do before spanning the $\Eta$ and $\Theta$ state spaces
 <OL>
-<LI>Do anything that was added to the <code>PreUpdate</code> hook (see `Hooks`).
-<LI> Update the <code>Distribution()</code> of random effects.</LI>
-<LI>Call the <code>Update()</code> method all actions and states to ensure actual values are current.</LI>
-<LI>Compute the exogenous transitions, &Rho;(&eps;&prime;) and &Rho;(&eta;&prime;).</LI>
-<LI>Compute the endogenous transitions at each point in the state space endogenous state space &Theta;</LI>
+<LI>Call <code>PreUpdate</code> hooks (see `Hooks`).
+<LI>Loop over all States:  call its Update() method and <code>Distribution()</code> of random effects.</LI>
+<LI>Loop over actions to update <code>Update()</code> them and set the actual values.</LI>
+<LI>Compute the exogenous transitions, $P(\epsilon^\prime)$ and $P(\eta^\prime)$.</LI>
 </OL>
 
+Then span the $\Eta$ and $|Theta$ spaces to  compute and store endogenous transitions at each point.
+
 @see DP::SetUpdateTime , UpdateTimes
-@internal
 **/
 EndogTrans::Transitions(instate) {
     state[] = isint(instate) ? N::All-1 : instate ;
@@ -88,11 +91,15 @@ The user's replacement for this must call this or the parent version.
 **/
 Bellman::SetTheta(state,picked) { Bellman(state,picked);    }
 
-/**Set the automatic (non-static) members of a state node.
+/** Create a new point in $\Theta$, initializing the automatic (non-static) members.
 @param state  state vector
-@param picked TRUE: in sub sample of states for full solution.  FALSE: will be approximated
-This is called in CreateSpaces().
-It determines if the state is terminal and sets $A(\theta)$ by calling `Bellman::FeasibleActions`()
+@param picked TRUE: in sub sample of states for full solution.<br/>  FALSE: will be approximated
+
+This is called in CreateSpaces() for each clone of <code>MyModel</code>
+
+<DT>Determine if the state is terminal</DT>
+<DT>Set $A(\theta)$.  </DT>
+@see Alpha::AddA
 **/		
 Bellman::Bellman(state,picked) {
   decl s=S[endog].M, IsT;
@@ -222,19 +229,18 @@ Bellman::MedianActVal() {
 	V[] = maxc( pandv[][0] );
 	}
 	
-/**Default <var>Emax</var> operator at &theta;.
-This is a virtual method.  Derived classes provide a replacement.
-<DT>Computes
-<DD><pre>
-v(&alpha;,&epsilon;,&eta;,&theta;) = U(&alpha;,&hellip;) + &delta;&sum;<sub>&theta;'</sub> &Rho;(&theta;';&alpha;,&eta;,&gamma;)EV(&theta;')
-EV(&theta;) = &sum;<sub>&eta;,&epsilon;</sub> &Rho;(&eta;)&Rho;(&epsilon;)max<sub>&alpha;&in;A(&theta;)</sub> v(&alpha;,...)
-</pre>
-If &theta; &in; <span class="o">&Theta;</span>, then v(&alpha;,&hellip;) = U(&alpha;,&hellip;).
-Computes and EV(&theta;).
-<DT>
-<DD>
+/**Default <code>Emax</code> operator at $\theta.$
+Derived classes provide a replacement.
+<DT>Computes</DT>
+$$\eqalign{
+V(\epsilon,\eta,\theta) = \max_{\alpha\in A(\theta)} v(\alpha;\epsilon,\eta,\theta)\cr
+Emax(\theta) &= \sum_\epsilon \sum_\eta P(\epsilon)P(\eta)V(\epsilon,\eta,\theta).\cr}$$
+
 If `Flags::setPstar` then &Rho;*(&alpha;) is computed using virtual `Bellman::Smooth`()
-@comment Derived DP problems replace this routine to account for &zeta; or alternatives to Bellman iteration.
+
+@comments
+
+Derived DP problems replace this routine to account for $\zeta$ or alternatives to Bellman iteration.
 
 **/
 Bellman::thetaEMax() {
@@ -244,7 +250,7 @@ Bellman::thetaEMax() {
 /** Compute endogenous state-to-state transition $P^\star(\theta'|\theta)$ for the current
     state $\theta$.
 
-This updates either `Group::Ptrans` or `Bellman::NKptrans`.    This is called in `GSolve::PostEmax`
+This updates either `Group::Ptrans` or `DP::NKptrans`.    This is called in `GSolve::PostEMax`
 and only if `Flags::setPstar` is TRUE and the clock is Ergodic or `Flags::NKstep` is true.
 
 If `Flags::StorePA` is also true then `Group::Palpha` is also updated.
@@ -268,11 +274,16 @@ Bellman::UpdatePtrans() {
 	}
 
 
-/** Computes the full endogneous transition, $P(\theta^\prime ; \alpha, \eta )$, within a loop over $\eta$.
+/** Computes the endogneous transition given $\eta.$
+
+Loops over all state variables to compute $P(\theta^\prime ; \alpha, \eta )$.  For `StateBlock`s the root of
+the block is called to compute the joint transition.
+
 Accounts for the (vector) of feasible choices $A(\theta)$ and the semi-exogenous states in $\eta$.
 that can affect transitions of endogenous states but are themselves exogenous.
-@comments computes `Bellman::Nxt` array of feasible indices of next period states and conforming matrix
-    of probabilities.<br>If current is not -1, then simply recomputed indices.
+
+Stores results in `Bellman::Nxt` array of feasible indices of next period states and conforming matrix of probabilities.
+
 @see DP::ExogenousTransition
 **/
 Bellman::ThetaTransition() {
@@ -284,9 +295,8 @@ Bellman::ThetaTransition() {
         return;
         }
 
-	 // now=NOW;  later=LATER;
      //Initialize
- 	 F[now] = <0>;	
+ 	 F[now] = VZero;	
 	 P[now] = ones(N::Options[Aind],1);
 	 si = S[clock].X;				// clock needs to be nxtcnt
      #ifdef DEBUG
@@ -315,8 +325,8 @@ Bellman::ThetaTransition() {
             #endif
 			feas = curO*feas;                    //feasible state values turned into indices
             fk=columns(feas);
-            if ( fk==One )       // avoid swap and concatenation for deterministic transition
-				F[now] +=  feas;
+            if ( fk==One )                      // avoid swap and concatenation for deterministic transition
+				F[now] +=  feas;                // Prob=1 for deterministic, P[later] unchanged.
             else {                                      //process each feasible value
 			     do	if (any(prob[][--fk])) {             //don't track if probability is *identically* 0
 				    F[later] ~=  F[now]+feas[][fk];
@@ -328,9 +338,12 @@ Bellman::ThetaTransition() {
 		si -= Nb;	 //skip remaining variables in block.
  		if (swap) { later = now; now = !now;	}
 		} while (si>=S[endog].M);
+
+    //Store in next member.
 	Nxt[Qtr][ios] = F[now][Qtr][];
 	Nxt[Qit][ios] = F[now][Qit][];
 	Nxt[Qrho][ios] = P[now];
+
     #ifdef DEBUG
         if (rcheck) {       //output
             decl s, q;
@@ -433,11 +446,11 @@ Bellman::ExogStatetoState() {
     return;
     }
 
-/** . @internal **/
+/** Compute $P(\theta^\prime;\theta)$.
+ **/
 Bellman::StateToStatePrediction(intod) {
     tod = intod;
     tom = tod.pnext;
-    //this->ExpectedOutcomesOverEpsilon(tod.chq);
     EOoE->ExpectedOutcomes(DoAll,tod.chq);
     tod.ch  +=  ExpandP(Aind,tod.chq);
     if (isclass(tom)) {
@@ -488,17 +501,15 @@ Bellman::~Bellman() {	delete pandv; delete Nxt; 	}
 
 /** Delete the current DP model and reset.
 
-Since static variables are used, only one DP model can be stored at one time.
-
-The primary use of this routine is to enable testing programs to run different problems.
-
-User code would call this only if it will set up a different DP model.
+Since static variables are used, only one DP model can be stored at one time. The primary use of this
+routine is to enable testing programs to run different problems. User code would call this only if
+it will set up a different DP model.
 
 The same model with different solution methods and different parameters can be solved using the same structure.
 
 Delete allows the user to start from scratch with a different model (horizons, actions, and states).
 
-The key output from the model can be saved or used prior to deleting it.
+The key output from the model must be saved or used prior to deleting it.
 
 **/
 Bellman::Delete() {
@@ -830,7 +841,7 @@ NIID::UpdateChol() {
 				}
 			}
 		else {
-			MM[i][0] = <0>; GQNODES[i][0] = <+.Inf>;
+			MM[i][0] = VZero; GQNODES[i][0] = <+.Inf>;
 			}
 		}
 	}

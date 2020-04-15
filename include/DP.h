@@ -1,5 +1,5 @@
 #import "Variables"
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 #ifdef OX_PARALLEL
 extern decl
@@ -482,6 +482,6 @@ struct Data : Task {
     static decl
     /** File for logging data output.**/        logf,
     /** timestamped file name. **/              lognm,
-    /** Volume of output @see NoiseLevels.**/   Volume;
+    /** Volume of output @see NoiseLevels **/   Volume;
     static SetLog();
    }

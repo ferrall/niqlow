@@ -57,7 +57,7 @@ The action vector <span class="expressions">\(\alpha\)</span> is the vector of d
 <P/>
 In the basic definition of a DDP model, <span class="expressions">\(A\)</span> is as the set of possible actions. In <span class="n">DDP</span> the set of actions is built up by adding action variables to <span class="expressions">\(\alpha\)</span>.  So <span class="expressions">\(A\)</span> emerges from the properties of the variables added to <span class="expressions">\(\alpha\)</span>. <em>Possible Actions</em> is the matrix of all possible action vectors. The word <em>possible</em> is used instead of <em>feasible</em>, because this notion of <span class="expressions">\(A\)</span> is constructed mechanically from properties of the actions.  It has nothing to do with the interpretation of the actions.  Feasible actions are defined below.</p>
 <P/>
-An <em>action</em> refers to a particular value of the action vector <span class="expressions">\(\alpha\)</span>, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column. DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</p>
+<p>An <em>action</em> refers to a particular value of the action vector <span class="expressions">\(\alpha\)</span>, which in turn is  a row of <code>&Alpha;</code>. An action variable refers to a column of <code>&Alpha;</code>, but note that values of an action variable are repeated within the column. DDP constructs &Alpha; when <code>MyCode</code> calls <code>CreateSpaces()</code>.</p>
 <P/>
 <DT>Alternative Notation</DT>
 <P/>
@@ -136,18 +136,18 @@ The code segment allows the maximum hour to be 30 if the person has a (young) ch
 <span class="equation">$$    A \equiv \times_{j=0,\dots, \alpha.N-1 } \{ 0, 1, \dots, a_j.N-1 \}$$</span>
 An action vector <span class="expressions">\(\alpha\)</span> is a <em>row</em> of the matrix A. An action variable is a column of <span class="expressions">\(A\)</span>.  Its position is the property <code>a.pos</code>.</p>
 <P/>
-<em>Feasibility</em> is a property <code>MyModel</code> imposes on <span class="expressions">\(\alpha\)</span>. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of <span class="expressions">\(\alpha\)</span>.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We can write feasibility as a property of the state.  Or it can be written as a function of the state, which is more standard.  Using both versions, the <b>feasible actions</b> at <span class="expressions">\(\theta\)</span> is a matrix property:
+<p><em>Feasibility</em> is a property <code>MyModel</code> imposes on <span class="expressions">\(\alpha\)</span>. The model may say that some logically possible actions cannot be chosen because they do not make sense given the interpretation of <span class="expressions">\(\alpha\)</span>.  Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant. We can write feasibility as a property of the state.  Or it can be written as a function of the state, which is more standard.  Using both versions, the <b>feasible actions</b> at <span class="expressions">\(\theta\)</span> is a matrix property:
 <span class="equation">$$\forall \theta \in \Theta,\qquad A(\theta) \equiv \theta.A \subseteq A.$$</span>
 <P/>
-<a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>(): by default all possible actions are feasible unless <code>MyModel</code> says otherwise.  <span class="expressions">\(A(\theta) \equiv A\)</span> for all endogenous states. This default assumption is produced by including a built-in virtual method, <code>Bellman::FeasibleActions()</code>. meaning that <code>MyModel</code> can replace it with its own version.  This is explained in <a href="Bellman.ox.html">Bellman</a>.</p>
+<p><a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>(): by default all possible actions are feasible unless <code>MyModel</code> says otherwise.  <span class="expressions">\(A(\theta) \equiv A\)</span> for all endogenous states. This default assumption is produced by including a built-in virtual method, <code>Bellman::FeasibleActions()</code>. meaning that <code>MyModel</code> can replace it with its own version.  This is explained in <a href="Bellman.ox.html">Bellman</a>.</p>
 <P/>
 <DT>The A List</DT>
 <P/>
 <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a> constructs the possible matrix A, stored as the first element of a list: <var>A</var> &harr; <code>A[0]</code>. It then calls <code>FeasibleActions(A)</code> for each reachable state <span class="expressions">\(\theta\)</span>. Every time a different value is returned by <code>FeasibleActions()</code> a new matrix is added to the A list.  The index into the list is then stored as <a href="Bellman.ox.html#Bellman___Aind">Aind</a>.  That is, there is not a different matrix at each <span class="expressions">\(\theta.\)</span> Instead there is a list of different feasible matrices and <span class="expressions">\(A(\theta)\)</span> is really an index into that list.  </p>
 <P/>
-The user's (optional) feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a)</code>. In short, <span class="expressions">\(\theta\)</span>.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = <span class="expressions">\(\theta\)</span>.j = 0</code> for all states.</p>
+<p>The user's (optional) feasible action method should determine feasibility using the action variables stored in the derived DP model.  So if <code>a</code> contains an <code>ActionVariable</code> its value are available as <code>CV(a)</code>. In short, <span class="expressions">\(\theta\)</span>.A &harr; <code>A[Aind]</code>. If <code>MyModel</code> does not specify feasible actions, then <code>Aind = <span class="expressions">\(\theta\)</span>.j = 0</code> for all states.</p>
 <P/>
-The A list contains the <em>actual</em> values not the <em>current</em> values. If the user provides an <a href="Shared.ox.html#Discrete___Update">Update</a>() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values. Since the default is that actual values equal current values (<code>a.actual[a.v] = a.v</code>), then <code>A[Aind]</code> is always possible to use. The uncoded list of matrices is available as <a href="DDPShared.ox.html#Alpha___Matrix">Matrix</a>.</p>
+<p>The A list contains the <em>actual</em> values not the <em>current</em> values. If the user provides an <a href="Shared.ox.html#Discrete___Update">Update</a>() for a derived class of action variable, then <code>A[Aind]</code> is the matrix of actual values. Since the default is that actual values equal current values (<code>a.actual[a.v] = a.v</code>), then <code>A[Aind]</code> is always possible to use. The uncoded list of matrices is available as <a href="DDPShared.ox.html#Alpha___Matrix">Matrix</a>.</p>
 </OL>
 <P/>
 <hr><a name="StateVariables"><LI>State Variables</LI></a>
@@ -259,7 +259,7 @@ P_\theta\left(\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right) &= \prod_{k=0\dots
 <P/>
 Some derived classes of state variables play special roles in <span class="n">DDP</span>.  Two major ones are <a href="Variables.ox.html#TimeVariable">TimeVariable</a>s which serve as the <a href="#Clock">DDP clock</a> and <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a>s which track variables that are fixed during a DDP and stored in the <span class="expressions">\(\gamma\)</span> vector.  <span class="n">DDP</span> will re-solve the model for each value of <span class="expressions">\(\gamma\)</span>. Your model may include state variables that are already defined in <span class="n">DDP</span> but require some changes to accommodate the environment.  The next section discusses how to create a new derived class for your state variable, but it may be possible to avoid that using the <a href="Variables.ox.html#Augmented">Augmented</a> state variable feature.</p>
 <P/>
-Example:  Suppose your model has a state variable <code>q</code> which is of the <a href="Variables.ox.html#RandomUpDown">RandomUpDown</a>() class.  That is, each period <code>q</code> may go up or down by one unit or remain unchanged depending choices and other state variables.  However, when another state variable <code>h</code> goes from 0 to 1 you want the value of <code>q</code> to become constant and not subject to the RandomUpDown transition. That is, you want to <a href="Variables.ox.html#Freeze">Freeze</a> the current value of <code>q</code> when <code>h</code> is 1.</p>
+<p><b>Example:</b>  Suppose your model has a state variable <code>q</code> which is of the <a href="Variables.ox.html#RandomUpDown">RandomUpDown</a>() class.  That is, each period <code>q</code> may go up or down by one unit or remain unchanged depending choices and other state variables.  However, when another state variable <code>h</code> goes from 0 to 1 you want the value of <code>q</code> to become constant and not subject to the RandomUpDown transition. That is, you want to <a href="Variables.ox.html#Freeze">Freeze</a> the current value of <code>q</code> when <code>h</code> is 1.</p>
 <P/>
 <details><summary><b>Example</b> <br>Augment a base state variable with the Freeze feature.  In this case <span class="expressions">\(q\)</span> increases by 1 with probability 0.5 each
 period until the agent chooses <span class="expressions">\(a=1\)</span>.  Then <span class="expressions">\(q\)</span> freezes at its current value from the next period on.</summary>
@@ -661,7 +661,7 @@ Since a StateBlock is a type of StateVariable it has a <code>.v</code> data memb
 <span class="equation">$$\eqalign{
 P_\epsilon \left(\epsilon^{\,\prime}\right) &= \prod_{k=0,\dots,\epsilon.N-1} P_{e_k}(e_k^\prime)\cr
 P_\eta \left(\eta^{\,\prime}\right) &= \prod_{k=0,\dots,\eta.N^{-}} P_{h_k} (h_k^\prime)\cr
-P_\theta \left(\theta^{\,\prime}|\alpha,eta,\theta\right) &= \prod_{k=0,\dots,\theta.N^{-}} P_q(q_k^{\,\prime} | \alpha,\eta,\theta).\cr}$$</span>
+P_\theta \left(\theta^{\,\prime}|\alpha,\eta,\theta\right) &= \prod_{k=0,\dots,\theta.N^{-}} P_q(q_k^{\,\prime} | \alpha,\eta,\theta).\cr}$$</span>
 <P/>
 <!--
 &Rho;<sub>&epsilon;</sub>(&epsilon;&prime;) = &prod;<sub>k=0&hellip;(&epsilon;.N)&oline;</sub>  &Rho;<sub>e<sub>k</sub></sub>(e<sub>k</sub>&prime;)
@@ -876,7 +876,7 @@ A continuous choice is related to <code>AuxiliaryValues</code>, in the sense tha
 <P/>
 </OL>
 
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2020 <a href="http://econ.queensu.ca/~ferrall">Christopher Ferrall</a> </dd>
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2020 <a href="https://ferrall.github.io/">Christopher Ferrall</a> </dd>
 
 <a name="auto"><hr><h1>Documentation of  Items Defined in Variables.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a></dd>
 </dl>
@@ -1193,7 +1193,7 @@ A state variable that augments a base transition so that the value of an action 
 <a name="ActionVariable"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">ActionVariable : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
-An element of the action vector &alpha;.
+An element of the action vector <span class="expressions">\(\alpha\)</span>.
 
 <dl><dt class="example">Example:</dt><dd class="example"><pre>MyModel : DPparent {
     static decl a;
@@ -1397,39 +1397,9 @@ Discretized interest-bearing asset.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Asset___all">all</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Asset___bot">bot</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Asset___bprob">bprob</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Asset___mid">mid</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Asset___r">r</a></td>
 <td class="modifiers">const</td>
 <td class="description"><a href="Shared.ox.html#AV">AV</a>()-compatible object, interest rate on current holding.</td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Asset___top">top</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Asset___tprob">tprob</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Asset___Asset">Asset</a></td>
@@ -1541,7 +1511,8 @@ transitions can depend on the current state and actions.</dd>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">AuxiliaryValue : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 Base Class for variables related to outcomes.
-Auxiliary variables are typically functions of the state and action vectors that would be observed in the data.
+<P/>
+<DT>Auxiliary variables are typically functions of the state and action vectors that would be observed in the data.<<
 <P/>
 For example, in a search model, suppose the worker's ability <var>x</var> and the match quality <var>m</var> are
 both unobserved, but the wage, <var> w = xm</var>, is observed.  Then an auxiliary variable can be created for wage, added to
@@ -1551,7 +1522,7 @@ the outcome and read in along with other data.
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#AuxiliaryValue___indata">indata</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">observed in external data .</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#AuxiliaryValue___AuxiliaryValue">AuxiliaryValue</a></td>
@@ -1949,7 +1920,7 @@ EndogenousStates(qtr);</pre></DD>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Variables.ox.html#Deterministic">Deterministic</a>:</dt><dd><a href="Variables.ox.html#Deterministic___Deterministic">Deterministic</a>, <a href="Variables.ox.html#Deterministic___Transit">Transit</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Deterministic">Deterministic</a>:</dt><dd><a href="Variables.ox.html#Deterministic___Deterministic">Deterministic</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___Track">Track</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a>, <a href="Shared.ox.html#Discrete___Update">Update</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
@@ -1979,11 +1950,6 @@ the creator function.
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Deterministic___Deterministic">Deterministic</a></td>
 <td class="modifiers"></td>
 <td class="description">Create a state variable with an arbitrary deterministic transition.</td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Deterministic___Transit">Transit</a></td>
-<td class="modifiers">virtual</td>
-<td class="description">.</td>
 </tr>
 </table>
 
@@ -2397,7 +2363,7 @@ with <code>q</code> as a Fixed so formulas involving it can be completed.
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Asset">Asset</a>:</dt><dd><a href="Variables.ox.html#Asset___all">all</a>, <a href="Variables.ox.html#Asset___bot">bot</a>, <a href="Variables.ox.html#Asset___bprob">bprob</a>, <a href="Variables.ox.html#Asset___mid">mid</a>, <a href="Variables.ox.html#Asset___r">r</a>, <a href="Variables.ox.html#Asset___top">top</a>, <a href="Variables.ox.html#Asset___tprob">tprob</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Asset">Asset</a>:</dt><dd><a href="Variables.ox.html#Asset___r">r</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___track">track</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
@@ -2406,7 +2372,9 @@ with <code>q</code> as a Fixed so formulas involving it can be completed.
 <a name="FixedEffect"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">FixedEffect : <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
-A state variable that is non-random and invariant for an individual DP problem.
+Base class for a state variable that is non-random and invariant for an individual DP problem.
+<P/>
+Members of <span class="expressions">\(\gamma_f\)</span> are derived from this class.
 <P/>
 Solution methods loop over fixed effect values, re-using storage space.
 
@@ -2959,7 +2927,7 @@ Note the Target variable must be in <span class="expressions">\(\eta\)</span> or
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Asset">Asset</a>:</dt><dd><a href="Variables.ox.html#Asset___all">all</a>, <a href="Variables.ox.html#Asset___bot">bot</a>, <a href="Variables.ox.html#Asset___bprob">bprob</a>, <a href="Variables.ox.html#Asset___mid">mid</a>, <a href="Variables.ox.html#Asset___r">r</a>, <a href="Variables.ox.html#Asset___top">top</a>, <a href="Variables.ox.html#Asset___tprob">tprob</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Asset">Asset</a>:</dt><dd><a href="Variables.ox.html#Asset___r">r</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___track">track</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
@@ -3452,27 +3420,27 @@ Add normal noise to a AV() compatible target, either linear or log-linear.
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Noisy___eps">eps</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">implied normal value.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Noisy___Linear">Linear</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
+<td class="modifiers">const</td>
+<td class="description">noise is additive (not multiplicative).</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Noisy___sigma">sigma</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
+<td class="modifiers">const</td>
+<td class="description">standard deviation of the normal nois.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Noisy___truevalue">truevalue</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
+<td class="modifiers">const</td>
+<td class="description">Object that is measured with noise.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Noisy___Likelihood">Likelihood</a></td>
 <td class="modifiers"></td>
-<td class="description">Default contribution to likelihood.</td>
+<td class="description">likelihood contribution of a noisy auxiliary value .</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Noisy___Noisy">Noisy</a></td>
@@ -4029,9 +3997,10 @@ Its value next period is determined stochastically by the current state and acti
 <a name="RandomEffect"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomEffect : <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
-A random state variable that is invariant for an individual DP problem.
+Base for that is invariant for an individual DP problem treated as random.
 <P/>
-A random effect plays a similar to its counterpart in an econometric model. Solution methods loop over random effect values and will account for the distribution
+Elements of <span class="expressions">\(\gamma_r\)</span> derived from this class. A random effect plays a similar to its counterpart in an
+econometric model. Solution methods loop over random effect values and will account for the distribution
 in computing predictions, simulations and econometric objectives.
 
 <dl><dt class="example">Example:</dt><dd class="example">N equally likely values:
@@ -4850,9 +4819,9 @@ q' = I{t &in; r}.
 <a name="StateVariable"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StateVariable : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
-Base Class for elements of state vectors, &epsilon;, &eta;, &theta;, &gamma; .
+Base Class for elements of state vectors, <span class="expressions">\(\epsilon\)</span>, <span class="expressions">\(\eta\)</span>, <span class="expressions">\(\theta\)</span>, <span class="expressions">\(\gamma\)</span> .
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="Variables.ox.html#StateBlock">StateBlock</a></dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="Variables.ox.html#StateBlock">StateBlock</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -4931,12 +4900,13 @@ Base Class for elements of state vectors, &epsilon;, &eta;, &theta;, &gamma; .
 <a name="StaticAux"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StaticAux : <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
+A wrapper around a function that returns an auxiliary value.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#StaticAux___target">target</a></td>
 <td class="modifiers">const</td>
-<td class="description"></td>
+<td class="description">static function.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#StaticAux___Realize">Realize</a></td>
@@ -5158,7 +5128,7 @@ A one-dimensional correlated discretized normal process using Tauchen's approach
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Tauchen___pars">pars</a></td>
 <td class="modifiers">const</td>
-<td class="description">NormalPars .</td>
+<td class="description"></td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Tauchen___pts">pts</a></td>
@@ -5246,7 +5216,7 @@ Use Tauchen's method to discretize a normal variable for Fixed Effects.
 <a name="TimeInvariant"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TimeInvariant : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
-An element of the group vector &gamma;.
+Base container for an element of the group vector <span class="expressions">\(\gamma\)</span>.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -5908,6 +5878,7 @@ Create a new action variable.
 <td class="declaration" valign="baseline">NorVLabels</td>
 <td class="description" valign="baseline"><em>positive integer</em>, number of values the variable can take on.<br><em>default</em> N=1 is a constant, which can be included as
 a placeholder for extensions of a model.<br>OR<br>N-array of strings, holding labels for each choice (used in printing)
+<P/>
 </td>
 </tr>
 </table>
@@ -6072,15 +6043,6 @@ SetClock(new Aging(10));
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Asset</span></h2>
 
-<a name="Asset___all"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">all</span></h3>
-
-<span class="declaration">decl all [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="Asset___Asset"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Asset</span></h3>
 
@@ -6112,57 +6074,12 @@ Create a new asset state variable.
 </dd></dl>
 
 <hr>
-<a name="Asset___bot"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bot</span></h3>
-
-<span class="declaration">decl bot [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Asset___bprob"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bprob</span></h3>
-
-<span class="declaration">decl bprob [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Asset___mid"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mid</span></h3>
-
-<span class="declaration">decl mid [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="Asset___r"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">r</span></h3>
 
 <span class="declaration">const decl r [public]</span>
 <dl><dd>
 <a href="Shared.ox.html#AV">AV</a>()-compatible object, interest rate on current holding.
-
-</dd></dl>
-
-<hr>
-<a name="Asset___top"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">top</span></h3>
-
-<span class="declaration">decl top [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Asset___tprob"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">tprob</span></h3>
-
-<span class="declaration">decl tprob [public]</span>
-<dl><dd>
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Augmented</span></h2>
@@ -6298,6 +6215,7 @@ Create a new element of &chi;, the space of auxiliary outcomes.
 
 <span class="declaration">decl indata [public]</span>
 <dl><dd>
+observed in external data .
 
 </dd></dl>
 
@@ -6870,16 +6788,6 @@ s will cycle betweeen 0 and 1 every period
 <span class="declaration">decl nextValues [public]</span>
 <dl><dd>
 matrix with transition.
-
-</dd></dl>
-
-<hr>
-<a name="Deterministic___Transit"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Transit</span></h3>
-
-<span class="declaration">virtual Deterministic :: Transit ( )</span>
-<dl><dd>
-.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Divided</span></h2>
@@ -8522,7 +8430,7 @@ Create a single IID variable which vectorizes a multivariate normal using psuedo
 </tr>
 <tr>
 <td class="declaration" valign="baseline">pars</td>
-<td class="description" valign="baseline">2-array of NormalPars , mean and Cholesky distrubution (in the Nsigma spot)
+<td class="description" valign="baseline">2-array of <a href="Shared.ox.html#NormalParams">NormalParams</a> , mean and Cholesky distrubution (in the Nsigma spot)
 </td>
 </tr>
 <tr>
@@ -8585,6 +8493,7 @@ Create a single IID variable which vectorizes a multivariate normal using psuedo
 
 <span class="declaration">decl eps [public]</span>
 <dl><dd>
+implied normal value.
 
 </dd></dl>
 
@@ -8594,28 +8503,17 @@ Create a single IID variable which vectorizes a multivariate normal using psuedo
 
 <span class="declaration">Noisy :: Likelihood ( y )</span>
 <dl><dd>
-Default contribution to likelihood.
+likelihood contribution of a noisy auxiliary value .
 
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">y,</td>
-<td class="description" valign="baseline">the current realized outcome, &upsilon;.
-</td>
-</tr>
-</table>
-</dd>
-<dt class="returns">Returns:</dt><dd class="returns">1.0
-</dd>
-</dl>
 </dd></dl>
 
 <hr>
 <a name="Noisy___Linear"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Linear</span></h3>
 
-<span class="declaration">decl Linear [public]</span>
+<span class="declaration">const decl Linear [public]</span>
 <dl><dd>
+noise is additive (not multiplicative).
 
 </dd></dl>
 
@@ -8671,8 +8569,9 @@ Default realized auxililary variable, sets <code>v=1.0</code>.
 <a name="Noisy___sigma"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sigma</span></h3>
 
-<span class="declaration">decl sigma [public]</span>
+<span class="declaration">const decl sigma [public]</span>
 <dl><dd>
+standard deviation of the normal nois.
 
 </dd></dl>
 
@@ -8680,8 +8579,9 @@ Default realized auxililary variable, sets <code>v=1.0</code>.
 <a name="Noisy___truevalue"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">truevalue</span></h3>
 
-<span class="declaration">decl truevalue [public]</span>
+<span class="declaration">const decl truevalue [public]</span>
 <dl><dd>
+Object that is measured with noise.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NonDeterministicAging</span></h2>
@@ -10511,6 +10411,7 @@ Create an wrapper for a static function <a href="Shared.ox.html#AV">AV</a>()-com
 
 <span class="declaration">const decl target [public]</span>
 <dl><dd>
+static function.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">StaticP</span></h2>
@@ -10693,8 +10594,9 @@ support.
 
 <span class="declaration">const decl pars [public]</span>
 <dl><dd>
-NormalPars .
 
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#NormalParams">NormalParams</a></dd>
+</dl>
 </dd></dl>
 
 <hr>

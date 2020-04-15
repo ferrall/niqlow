@@ -2,7 +2,7 @@
 **/
 #import "FiveO"
 #import "menu"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 #ifndef _RB
 #define _RB
 #include "Rosenbrock.ox"

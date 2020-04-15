@@ -200,7 +200,7 @@ GSolve::Solve(instate) {
 <LI>Compute the value of actions, $v(A(\theta),\theta)</var> by calling `Bellman::ActVal`() or the
 replacement for the actual method</LI>
 <LI>Call `Bellman::thetaEMax`() or replacment to store the value in the scratch space for $V(\theta)$.</LI>
-<LI>Call `Gsolve::PostEmax`() or replacement to carry out post emax tasks, CCP smoothing, e.g.</LI>
+<LI>Call `GSolve::PostEmax`() or replacement to carry out post emax tasks, CCP smoothing, e.g.</LI>
 </OL>
 
 **/

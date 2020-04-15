@@ -1,7 +1,7 @@
 #ifndef Mh
     #include "ReservationValues.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 
 /** Create a system of nonlinear equations to solve for reservation values.
@@ -42,6 +42,8 @@ Rsystem::vfunc() {
 @internal
 **/
 DynamicRsystem::vfunc() { return DeltaV( curth->DynamicActVal(CV(zstar)') ); }
+
+/** Solve a dynamic reservation system.**/
 DynamicRsystem::DynamicRsystem(LB,Ncuts,METHOD) {
         Rsystem(LB,Ncuts,METHOD);
     }
@@ -72,7 +74,7 @@ Rsystem::RVSolve(dV) {
     return curth->thetaEMax();
 	}
 
-/** Solve for reservation values.
+/** The method to find reservation values.
 @param LB `AV` compatible lower bound on the value of the first reservation value.<br>Optional: Default =-.Inf.
 @param METHOD Integer `SystemAlgorithms` code for non-linear system algorithm to use.<br>Optional: UseDefault (Broyden).
 
@@ -83,11 +85,20 @@ ReservationValues::ReservationValues(LBvalue,METHOD) {
     Volume = SILENT;
 	}
 
+/** Solve reservation values for some or all groups.
+
+@param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
+@param Rgroups
+
+**/
 ReservationValues::Solve(Fgroups,Rgroups) {
     Method::Initialize();
     return Method::Solve(Fgroups,Rgroups);
     }
 
+/** Span $\Theta$ solving at each point.
+
+**/
 RVGSolve::Solve(state) {
     decl rv;
     foreach (rv in RValSys)
@@ -123,6 +134,7 @@ RVGSolve::RVGSolve(LBvalue,Method,caller) {
     Volume = SILENT;
     }
 
+/** . @internal**/
 RVGSolve::Run() {
     decl ns = I::curth.solvez && isclass(RValSys[I::curth.Aind]);
     XUT.state = state;

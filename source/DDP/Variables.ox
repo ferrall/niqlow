@@ -1,5 +1,5 @@
 #include "Variables.h"
-/* This file is part of niqlow. Copyright (C) 2011-2017 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 #ifndef Vox
     #define Vox
     #include "ActionVariable.ox"

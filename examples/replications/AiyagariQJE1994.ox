@@ -45,16 +45,16 @@ Aiyagari::Run() {
 
 /**Create the equilibrium System.**/
 Aiyagari::Aiyagari(){
-	OneDimSystem("rRoot"); 
+	OneDimSystem("rRoot");
 	price = new array[Factors];
 		price[KK] = new BoundedAbove("r",1.5*lam,lam);	 // r  below 1.5lambda
 		price[LL] = new Determined("w",Wage);	  		//wage determined by r
 	Parameters(price);									//parameters of the equilibrium system
 	DP::Volume = SILENT; //LOUD;					//turn up volume to see summary of State & Action spaces
 	AiyagariAgent::Build();							//household problem set up
-	vi = new NewtonKantorovich(); 					//start with Bellman iteration, switch to N-K iteration new ValueIteration(); 
+	vi = new NewtonKantorovich(); 					//start with Bellman iteration, switch to N-K iteration new ValueIteration();
 		vi.vtoler = DIFF_EPS;
-		vi->Tune(1,1.0);  							//start N-k after 1 iterations and when norm(|V'-V|) < 1.0
+		vi->Tune(1,1.0);  							//start N-k after 1 iterations and when norm(|V'-V|) &lt; 1.0
 		vi->ToggleRunSafe();						//exit if NaNs encountered during iteration.
 
 	//vi.Volume=LOUD;							//To see Value iteration output
@@ -94,7 +94,7 @@ Aiyagari::Report(i,j,k) {
 	orig    = original[i][j][k][];
 	println("%r",{"Original","Replicated","%Diff"},
 			"%c",{"Interest rate","Savings Rate"},
-			orig | replmom | (replmom-orig)./orig 
+			orig | replmom | (replmom-orig)./orig
 		);
 	Volume = oldv;			//restore
  	ReInitialize();
@@ -163,7 +163,7 @@ AiyagariAgent::Consumption() {
 **/
 AiyagariAgent::Utility(){
 	decl C = Consumption();
-	return 
+	return
 	 isfeq(Aiyagari::mu,1.0)
 		?	C.>=0.0 .? log( C  )
 		           .: -.Inf

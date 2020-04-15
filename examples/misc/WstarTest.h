@@ -33,7 +33,7 @@ struct WStarC : WStarB {
     static UEval();
 	Uz(z);
     ZZ(z);
-    Reachable();
+//    Reachable();
     FeasibleActions();
 	EUtility();
     Continuous();

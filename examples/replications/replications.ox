@@ -1,7 +1,7 @@
 /** Code that attempts to replicate published DDP work <a href="replications/default.html">documentation</a>.
 **/
 #include "replications.h"
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 repmenu() {
     decl reps = new Menu("Replications",FALSE);

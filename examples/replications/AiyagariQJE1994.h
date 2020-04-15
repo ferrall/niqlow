@@ -28,9 +28,9 @@ struct Aiyagari : OneDimSystem{
 									//Preference and Technology Parameters varied by Aiyagari
 		/** parameter values reported in the paper. **/
 									params = {
-										    <0.2,0.4>,			//sigma
-											<0;0.3;0.6;0.9>,	//rho
-											<1.0;3.0;5.0>		//mu
+										    <0.2; 0.4>,			//sigma
+											<0;  0.3;    0.6;    0.9>,	//rho
+											<1.0;    3.0;    5.0>		//mu
 											},
 		/** Moments reported by Aiyagari, parallel to the params  when iterating in the order in `Aiyagari::Run` **/
 		original =				   {
@@ -77,7 +77,7 @@ struct Aiyagari : OneDimSystem{
 		/** &rho; shock corr.**/	rho, 		//copied from params
 		/** &mu; CES exponent.**/	mu,	 		//copied from params
 		/** 1-&mu;.**/				muM1,
-									filename,   //current file 
+									filename,   //current file
 									replmom,	//computed for current param values
 									orig;		//copied from original
 

@@ -88,7 +88,7 @@ Flags::SetPrunable(clock) {
     }
 
 /**Cumulate time on current phase, report time, set new phase.
-@param nuphase `NDPhase` to start.  If INITIALIZING all runtimes are set to 0.<br/>
+@param nuphase `DDPhases` to start.  If INITIALIZING all runtimes are set to 0.<br/>
                 INBETWEEN [default].  Next phase is not determined at this point.
 @param report FALSE [default] silent<br/>TRUE print out time report for the ending phase
 

@@ -3,7 +3,7 @@
     #import "DDPShared"
 #endif
 
-/** An element of the action vector &alpha;.
+/** An element of the action vector $\alpha$.
 @example
 <pre>MyModel : DPparent {
     static decl a;
@@ -23,10 +23,11 @@ MyModel::Initialize() {
 struct ActionVariable : Discrete	{
     decl
         /** vector of value labels. **/ vL;
-	ActionVariable(L="a",N=1);
+	
+            ActionVariable(L="a",N=1);
+            myEV();
     virtual myAV();
     virtual myCV();
-    myEV();
 	}
 
 /** Easy way to create a binary choice.

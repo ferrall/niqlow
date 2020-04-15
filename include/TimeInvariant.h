@@ -1,14 +1,16 @@
 #import "StateVariable"
-/* This file is part of niqlow. Copyright (C) 2012-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2020 Christopher Ferrall */
 
-/** An element of the group vector &gamma;.
+/** Base container for an element of the group vector $\gamma$.
 **/
 struct TimeInvariant : StateVariable {
 	Transit();
 	Update();
 	}
 
-/** A state variable that is non-random and invariant for an individual DP problem.
+/** Base class for a state variable that is non-random and invariant for an individual DP problem.
+
+Members of $\gamma_f$ are derived from this class.
 
 Solution methods loop over fixed effect values, re-using storage space.
 
@@ -19,9 +21,10 @@ struct FixedEffect : TimeInvariant {
 	FixedEffect(L="FE", N=1);
 	}
 	
-/** A random state variable that is invariant for an individual DP problem.
+/** Base for that is invariant for an individual DP problem treated as random.
 
-A random effect plays a similar to its counterpart in an econometric model. Solution methods loop over random effect values and will account for the distribution
+Elements of $\gamma_r$ derived from this class. A random effect plays a similar to its counterpart in an
+econometric model. Solution methods loop over random effect values and will account for the distribution
 in computing predictions, simulations and econometric objectives.
 
 @examples
@@ -77,7 +80,7 @@ struct SubEffect : FixedEffect {
 	/** EffectBlock that I belong to  **/		decl block;
 	/** Index into block array/vector **/    	decl bpos;
 	SubEffect(L="SubFE", N=1);
-}
+    }
 	
 /** A Block of `FixedEffect` group variables.
 
@@ -115,15 +118,17 @@ struct RandomEffectBlock : StateBlock {
 **/
 struct NormalRandomEffect : RandomEffect {
 	const decl pars;
-	NormalRandomEffect(L,N,pars=<0.0;1.0>);
-	Distribution();
+
+	           NormalRandomEffect(L,N,pars=<0.0;1.0>);
+	           Distribution();
 	}		
 
 /** Use Tauchen's method to discretize a normal variable for Fixed Effects.
 **/
 struct TauchenRandomEffect : NormalRandomEffect {
 	const decl M, pars;
-	TauchenRandomEffect(L,N,M,pars);
-	virtual Distribution();
+
+	           TauchenRandomEffect(L,N,M,pars);
+	virtual    Distribution();
 	}
 	

@@ -1,5 +1,5 @@
 #include "DP.h"
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 
 /** Called by CreateSpaces.
@@ -789,7 +789,7 @@ ExogOutcomes::SetAuxList(tlist) {
 @internal
 **/
 Alpha::Initialize() {
-	Count = <0>;
+	Count = VZero;
 	CList = array(Matrix);
 	AList = array(Matrix);
 	Sets = array(ones(N::A,1));
@@ -1665,7 +1665,7 @@ DP::ExogenousTransition() {
     decl N,root,k,curst,si = SS[bothexog].D-1,
 		prob, feas, bef=NOW, cur=LATER,
 		Off = SS[bothexog].O;
-	 F[bef] = <0>;	 	 P[bef] = <1.0>;
+	 F[bef] = VZero;	 	 P[bef] = <1.0>;
 	 do {
 	 	F[cur] = <>;   P[cur] = <>;
 		curst = States[si];

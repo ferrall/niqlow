@@ -1,7 +1,7 @@
 #ifndef Dh
     #include "Outcomes.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 /**  Simple Panel Simulation.
 @param Nsim  integer, number of paths to simulate per fixed group<br>[default] UseDefault, whic is 1
@@ -945,7 +945,7 @@ Outcome::AccountForUnobservables() {
 	for (ss=1;ss<DSubSpaces;++ss)
 		if ( (ind[ss]==DoAll)|| any(isdotnan(state[SS[ss].left:SS[ss].right]))) {  //have to integrate over states
             AnyMissing[ss] = TRUE;
-			ind[ss] = <0>;
+			ind[ss] = VZero;
 			for(s=SS[ss].left;s<=SS[ss].right;++s)
                 if ( I::OO[ss][s] )	{  //more than one value of state s
 					if (isnan(state[s]))  // all values of s are possible

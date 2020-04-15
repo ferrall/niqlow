@@ -322,7 +322,7 @@ Client::Announce(Msg,Pmode,aResults,mxlength)	{
 /** Send STOP_TAG to all servers, do not wait for answers.
 **/
 Client::Stop()	{
-	decl n;	Buffer = <0>;
+	decl n;	Buffer = VZero;
 	for (n=1;n<Nodes;++n) Send(0,n,STOP_TAG);
     }
 

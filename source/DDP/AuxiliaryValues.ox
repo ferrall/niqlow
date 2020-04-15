@@ -1,7 +1,7 @@
 #ifndef Vh
     #include "AuxiliaryValues.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 /** Create a new element of &chi;, the space of auxiliary outcomes.
 
@@ -135,6 +135,7 @@ Noisy::Noisy(truevalue,sigma,Linear) {
     this.sigma=sigma;
     this.Linear=Linear;
     }
+
 Noisy::Realize(y) {
     if (isclass(truevalue,"AuxiliaryValue"))
         truevalue->Realize(y);
@@ -143,6 +144,8 @@ Noisy::Realize(y) {
     eps = rann(1,1)*CV(sigma);
     v = Linear ? v+eps : exp(eps)*v;
     }
+
+/** likelihood contribution of a noisy auxiliary value . **/
 Noisy::Likelihood(y) {
     if (isnan(y.aux[pos])) return 1.0;
     if (isclass(truevalue,"AuxiliaryValue"))

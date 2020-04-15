@@ -1,7 +1,7 @@
 #ifndef Dh
     #include "Predictions.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 /**  Simple Prediction .
 @param T	integer, length of panel<br>UseDefault [default], length of lifecycle or  10
@@ -32,7 +32,7 @@ Transitions to unreachable states is tracked and logged in the Data logfile.
 **/
 Prediction::Predict() {
     EOoE.state[:right] = state[:right] = 0;
-    if (!sizec(sind)) {
+    if (!sizec(sind)) {     //no indices are current
         predmom[] = .NaN;
         return TRUE;
         }
@@ -40,23 +40,21 @@ Prediction::Predict() {
     foreach (q in sind[s]) {
         pq = p[s];
         if (!isfeq(pq,0.0)) {
-            if (Settheta(q)) {
+            if (Settheta(q)) {      // q' is in the state space
                 EOoE.state[left:right] = state[left:right] = ReverseState(q,tracking)[left:right];
                 I::Set(state,FALSE);
                 SyncStates(left,right);
                 chq  = pq*I::curth.pandv.*(NxtExog[Qprob]');
                 if ( I::curth->StateToStatePrediction(this) ) return  PredictFailure = TRUE;
-                EOoE->ExpectedOutcomes(DoAll,chq);
                 foreach (tv in ctlist) tv.track->Distribution(this,tv);
                 allterm *= I::curth.Type>=LASTT;
                 }
-            else {
+            else {      //q' is supposed to be unreachable!!!
                 qi = ReverseState(q,tracking)[left:right];
                 pp += p[s]; unrch |= qi' ;
                 }
             }
         }
-    //predmom = <>;
     foreach(tv in ctlist[k]) predmom[k] = tv.track.mean;
     if (!isfeq(pp,0.0)) {
         if (isfile(Data::logf)) fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][left:right],unrch);

@@ -1,5 +1,5 @@
 #import "FiveO"
-/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2020 Christopher Ferrall */
 
 RVSolve(ToScreen=TRUE,aM=FALSE);
 

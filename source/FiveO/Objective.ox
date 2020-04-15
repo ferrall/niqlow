@@ -1,5 +1,5 @@
 #include "Objective.h"
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 /** Checks the version number you send with the current version of niqlow.
 @param v integer [default=200]
@@ -106,7 +106,7 @@ Objective::Menu() {
 Objective::Save(fname)	{
 	decl f;
 	if (isint(fname)) fname = this.fname;
-if (IAmMac) return;
+    //if (IAmMac) return;
 	f = fopen(fname+"."+EXT,"w");
 	if (!isfile(f)) println("File name:",fname+"."+EXT);
 	fprint(f,"%v",classname(this),"\n","%v",L,"\n","%v",vcur.v,"\n");
@@ -736,7 +736,7 @@ Objective::vfunc(subp) {
 	if (!Warned) {
         Warned=TRUE; oxwarning("FiveO Warning 11.\n Using default objective which equals 0.0.\n  Your derived objective should provide a replacement for vfunc().\n ");
         }
-	return <0>;	
+	return VZero;	
 	}
 
 /** Default Equality Constraints.

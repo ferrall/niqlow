@@ -2,8 +2,8 @@
 
 WStarTestRun() {
     decl wmenu = new Menu("Rservation Wage Tests",FALSE);
-    wmenu->add( {"Simple ",WStarA::Run},
-                {"Heterogeneity",WStarB::Run},
+    wmenu->add( {"Simple Stationary",WStarA::Run},
+                {"Finite Horizon",WStarB::Run},
                 {"Non-Choices",WStarC::Run},
                 {"Data",WStarC::Run2}
                 );
@@ -18,16 +18,15 @@ WStarA::Run()	{
 	done->MakeTerminal(1);
 	SetDelta(0.95);
 	CreateSpaces();
-//	Volume=LOUD;
+    //	Volume=LOUD;
 	decl RV = new ReservationValues();
-	RV.Volume = LOUD;
+	RV.Volume = QUIET;
 	DPDebug::outAllV(TRUE,FALSE,FALSE,FALSE,FALSE);
 	RV -> Solve();
     delete RV;
     Delete();
 	}
 
-//WStarA::Utility() { return 0; }
 /** Return vector of utilities at the cutoff(s) z. **/	
 WStarA::Uz(z) {	return eta | z;	}
 
@@ -61,7 +60,6 @@ WStarB::Run()	{
     delete RV;
     Delete();
 	}
-
 
 
 /** Return E[U|z&lt;z*] and E[U|z&ge;z*] and respective probabilities.
@@ -103,11 +101,7 @@ WStarC::EUtility()    {
 WStarC::Continuous() { return !CV(wrk); }
 WStarC::Layoff(){             return CV(lambda)*CV(wrk);  }
 WStarC::FeasibleActions() {   return CV(d).||!CV(wrk);    }
-WStarC::Reachable() {
-    return TRUE; //
-//    println( CV(wrk),CV(dur)," ",!(CV(wrk)&&CV(dur)) );
-//    return !(CV(wrk)&&CV(dur));  //doesn't work???
-    }
+
 WStarC::Run()	{
     lambda = 0.7;
     eps = 0.3;

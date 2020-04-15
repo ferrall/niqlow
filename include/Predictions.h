@@ -1,15 +1,16 @@
 #import "database"
 #import "Bellman"
-/* This file is part of niqlow. Copyright (C) 2012-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2020 Christopher Ferrall */
 
 ComputePredictions(T=UseDefault,prtlevel=Two);
 
 /** Holds information about a column in the data.
 **/
 struct DataColumn : Zauxiliary {
-	const decl type,
-		 		obj,	
-		 		force0;
+	const decl
+                /** type of object.**/  type,
+		 		/** object of model.**/ obj,	
+		 		/** force to be 0.**/   force0;
 	decl
 		 obsv,
 		 ind,
@@ -24,16 +25,20 @@ struct DataColumn : Zauxiliary {
 /** Predicted distribution across states.
 **/	
 struct Prediction : Data {
-//    static   const  decl tinyP = 1E-20;
-	static	decl ud, LeakWarned, PredictFailure, ctlist;
-	const  	decl t;
+	static	decl
+            /** . @internal**/ ud,
+            /** . @internal**/ LeakWarned,
+            /** . @internal**/ PredictFailure,
+            /** . @internal**/ ctlist;
+	const  	decl
+            /** rank in a pathprediction.**/ t;
 	decl
-		/** state index **/		             sind,
-        /** index into sind.**/              q,
-		/** **/					             p,
-		/** Expanded ch. prob.**/	         ch,
-        /** current ch. prob.**/             chq,
-        /** current p. **/                   pq,
+		/** state index **/		                     sind,
+        /** index into sind.**/                      q,
+		/** **/					                     p,
+		/** Expanded ch. prob.**/	                 ch,
+        /** current ch. prob.**/                     chq,
+        /** current p. **/                           pq,
         /** masked weight to put on distance.**/        W,
         /** accumulated predicted moments across r **/  accmom,
         /** (unmasked) predicted moment vector**/       predmom,
@@ -53,9 +58,10 @@ struct Prediction : Data {
 /** Predicted outcomes along a path.
 **/
 struct 	PathPrediction : Prediction {
-	static	decl                                summand,
-                                                upddens;
-    const decl                                  f,
+	static	decl
+        /** object to integrate over $\gamma_r$.**/  summand,
+        /** object to update distribution over r.**/ upddens;
+    const decl  /** fixed index.**/             f,
                 /** initial distribution.**/    iDist,
                 /** pstate .**/                 pstate,
                 /** for tracking.**/            fvals,
@@ -83,7 +89,7 @@ struct 	PathPrediction : Prediction {
     /** labels for simulated path.**/               plabels,
     /** Distance between predictions and emp.mom.**/ L,
     /** method to call for nested solution. **/		method,
-                                                    first,
+    /** first prediction.**/                        first,
     /** the next PathPrediction   **/               fnext;
     static tprefix(t);
 	PathPrediction(f=0,method=UnInitialized,iDist=0,wght=UNCORRELATED);
@@ -107,12 +113,13 @@ struct PanelPrediction : PathPrediction {
     static decl
             /** file name of the last Panel Prediction Data Set saved.**/ PredMomFile;
 	decl
-				        					fparray,
-    /**length of vector returned by EconometricObjective.**/ FN,
-                                             TrackingCalled,
-                                             delt,
-                                             aflat,
-	/** array of GMM vector. **/	 	     M;
+				        					   fparray,
+    /**total number of predictions..**/        FN,
+    /** Has Tracking() been called.**/         TrackingCalled,
+    /** difference between pred. & data.**/    delt,
+    /** flat matrix version of predictions.**/ aflat,
+	/** array of GMM vector. **/	 	       M;
+
     PanelPrediction(label=UseDefault,method=UnInitialized,iDist=0,wght=UNCORRELATED);
     ~PanelPrediction();
     Predict(T=0,printit=FALSE,submat=0);
@@ -131,12 +138,13 @@ struct PredictionDataSet : PanelPrediction {
             /** observations column (index or label).**/                Nplace,
             /** time column (index or label).**/                        Tplace,
             /** **/                                                     FMethod;
-    PredictionDataSet(UorCorL=UseLabel,label=UseDefault,method=UnInitialized,iDist=0,wght=UNCORRELATED);
-    Observed(as1,lc1=0,...);
-    TrackingMatchToColumn(Fgroup,LorC,mom);
-    TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);
-    Observations(NLabelorColumn,TLabelorColumn=UnInitialized);
-    Read(fn=UseDefault);
+            
+            PredictionDataSet(UorCorL=UseLabel,label=UseDefault,method=UnInitialized,iDist=0,wght=UNCORRELATED);
+            Observed(as1,lc1=0,...);
+            TrackingMatchToColumn(Fgroup,LorC,mom);
+            TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);
+            Observations(NLabelorColumn,TLabelorColumn=UnInitialized);
+            Read(fn=UseDefault);
+            SimulateMomentVariances(N,ErgOrStateMat=0,fvals=DoAll);
  	virtual EconometricObjective(subp=DoAll);
-    SimulateMomentVariances(N,ErgOrStateMat=0,fvals=DoAll);
     }

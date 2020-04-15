@@ -1,5 +1,5 @@
 #include "KennetJAE1994.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 enum{NX		=   44,Units	=   795, MxHrs = Units*NX}
 

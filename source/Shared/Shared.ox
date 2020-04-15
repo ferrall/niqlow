@@ -1,5 +1,5 @@
 #include "Shared.h"
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 HTopen(fn) {
     if (Version::HTopen) return;
@@ -17,7 +17,7 @@ Version::Check(indir) {
  if (checked)  return ;
  if (oxversion()<MinOxVersion) oxrunerror("niqlow Error 00. This version of niqlow requires Ox Version"+sprint(MinOxVersion/100)+" or greater",0);
  IAmMac = getenv("OS")!="Windows_NT";
- if (IAmMac) IAmMac = getcwd()[:4]!="/home";
+ if (IAmMac) IAmMac = getcwd()[:4]!="/home";  //rule out Linux???
  checked = TRUE;
  format(1024);
  oxprintlevel(1);
@@ -35,7 +35,7 @@ Version::Check(indir) {
  tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
  if (!Version::MPIserver)
     println("\n niqlow version ",sprint("%4.2f",version/100),
-    ". Copyright (C) 2011-2019 Christopher Ferrall.\n",
+    ". Copyright (C) 2011-2020 Christopher Ferrall.\n",
     "Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n",
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
 
@@ -200,7 +200,7 @@ Discretized::Approx(x,trans) {
 	pts = new array[N];
 	for (i=0;i<N;++i) {
 		nxtp = 1.0;
-		if (lt[][i]<=0) nxtf = <0>;
+		if (lt[][i]<=0) nxtf = VZero;
 		else if (lt[][i]>0) nxtf = matrix(N-1);
 		else {
 			m = mincindex(lt[][i].>0);

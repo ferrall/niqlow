@@ -1,7 +1,7 @@
 #ifndef Mh
     #include "SolveAsSystem.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2019 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 /** Initialize EV() as a system of non-linear equations. **/	
 EVSystem::EVSystem(spacesize,systask)		{
