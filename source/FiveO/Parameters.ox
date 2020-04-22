@@ -146,9 +146,9 @@ BoundedAbove::BoundedAbove(L,UB,v0)	{
 BoundedAbove::Encode()	{
 	if (!isint(block)) block->BlockCode();
 	decl bv = CV(UB);
-	if (start>= bv) oxrunerror("FiveO error 19. Bounded from below parameter "+L+" must start strictly below "+sprint(bv));
+	if (start>= bv) oxrunerror("FiveO error 19. BoundedAbove parameter "+L+" must start strictly below "+sprint(bv));
 	if (fabs(start-bv+1.0)< NearFlat) {
-          oxwarning("FiveO Warning ??. bounded parameter "+L+" starting value = "+sprint("%12.9f",start)+". Close to LB+1\n NOT CONSTRAINED");
+          oxwarning("FiveO Warning ??. Bounded parameter "+L+" starting value = "+sprint("%12.9f",start)+". Close to LB+1\n NOT CONSTRAINED");
           nearflat = TRUE;
           }
     v = start;

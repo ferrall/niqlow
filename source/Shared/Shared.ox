@@ -325,7 +325,7 @@ Parameter::Parameter(L,ival)	{
 	this.ival = ival;
     v = start = scale = CV(ival);
 	f = 1.0;
-	block = DoNotVary = FALSE;
+	DoNotConstrain = block = DoNotVary = FALSE;
 	Volume = SILENT;
     logf = pos = UnInitialized;
 	}

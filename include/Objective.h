@@ -28,6 +28,7 @@ struct Objective	{
 	decl
     /** log file **/                                            logf,
     /** Set in CheckMax(), TRUE if latest check was new max.**/ newmax,
+    /** This objective uses raw parameter values. **/           DoNotConstrain,
     /** TRUE (default): exit if NaNs encountered during iteration<br>
             FALSE: exit with <code>IterationFailed</code> **/
                                                                 RunSafe,
@@ -36,6 +37,7 @@ struct Objective	{
 	/** Initial vector after Encode() **/						Start,
 	/** TRUE if encoded once **/								once,
 	/** User-defined subvectors of parameters. @internal**/		Blocks,
+    /** holds DoNotVary vector for temp. 1-d solution.**/       fshold,
 	/** array of all parameter objects. @internal       **/		Psi,
 	/** all parameter labels **/								PsiL,
 	/** parameter class names **/								PsiType,
@@ -59,6 +61,7 @@ struct Objective	{
     static  SetVersion(v=350);
 
 	        ToggleParameterConstraint();
+            FreeStatus(Store=TRUE);
     virtual Recode(HardCode=FALSE);
 	virtual	ToggleParams(...);
     virtual ToggleBlockElements(pblock,elements=DoAll);
@@ -102,24 +105,86 @@ struct Constrained : Objective {
 	virtual	inequality();
 	virtual Merit(F);
 	}
-	
+
+
 /** A non-linear system of equations to solve.
 **/
 struct System : Objective {
 	decl
-	/** . @internal **/		 eqn,
-                             normexp;
-			System(L,LorN=1);
+    /**1 equation of system.**/     eq1,
+	/** . @internal **/		        eqn,
+                                    normexp;
+			System(L,LorN=1,incur=0);
+    virtual SetOneDim(isys=0,ipar=0);
+            EndOneDim();
 	virtual equations();
 	//virtual fobj(F,extcall=TRUE);
 	}
 
+/** A nonlinear system for computing stationary equilibrium.
+This provides a framework for equilibrium prices in a steady-state model with an aggregate production function.
+
+<DT>Production</DT>
+<DD>A $N\times 1$ vector $X.$</DD>
+<DD>$F(X^d)$ is aggregate output where $X^s$ stands for aggregate demand.</dd>
+<dd>$p$ is a $n\times 1$ price vector.</DD>
+<DD>The respresentative firm acts to maximize profit by choosing $X$ accounting for input prices and a
+depreciation vector $\Delta$.  First order conditions are:
+$$\nabla F(X^d)^\prime - \Delta - p = \overrightarrow{0}$$
+where $\nabla F$ is the $1\times N$ gradient of the production function with respect to $X^d$.</DD>
+<DT>Households</DT>
+<DD>Consumer behavior is described by a stationary dynamic program.</DD>
+<DD>Adding variables to $\gamma_r$  (random effects) allows for heterogeneity.  (This version does not
+allow for fixed effects.)</DD>
+<DD>The price vector $p$ enters $U()$, usually through a budget constraint that determines consumption.</DD>
+<DD>Quantities of per-capita values supplied by households ($X^s$) are determined in the steady-state:
+$$X^s = \sum_{\gamma_r}g(r)\left[ \sum_{\theta\in\Theta} P_\infty(\theta;\gamma_r) x(\theta;\gamma_r)\right].$$
+Here $x(\theta;\gamma_r)$ is the vector of elements of of the DP outcome $Y$ that match up to to
+factors of production. A fixed factor can be included by adding a constant <code>AuxiliaryOutcome</code> to
+$\Chi$ in the DP, which would then always average across states and household types to the fixed factor.</DD>
+<DD>In other words, $X^s$ are aspects of a <code>PathPrediction</code> of length 1 started from the Ergodic
+distribution implied by the household's optimal behavior.</DD>
+<DT>Equilibrium</DT>
+<DD>In equilibrium the price vector $p^\star$ satisfies the first order conditions when $X^s$ is inserted for $X^d.$</DD>
+<DD>In general $p^\star$ is the solution to a system of $N$ equations.  Depending on the production fucntion
+$f(X)$ some of the equations may be solved out to reduce the number of equations.  In that case some elements
+of $p^\star$ are `Determined` parameters not available for the system algorithm to vary.</DD>
+**/
+struct Equilibrium : System {
+    const decl
+        /** aggregate prod. function `BlackBox`.**/     aggF,
+        /** ergodic distribution `PathPrediction`.**/   stnpred,
+        /** 0.0 or vector of quantity depreciations.**/ deprec,
+        /** columns of pred that match up to inputs.**/ Qcols;
+
+    decl
+         /** computed system.**/                        foc,
+        /** aggregate Qs from prediction.**/            Q;
+
+               Equilibrium(L,P=0); // aggF,stnpred,P=0,Qmap=0,deprec=0.0);
+	           Print(orig,fn=0,toscreen=TRUE);
+    virtual    vfunc();
+    }
+
+
+/* Create a system for con
+struct FOC : System {
+    }
+*/
+
 /** A One Dimensional Non-linear system (can be solved with `OneDimSolve`).
 **/
 struct OneDimSystem : System {
-	OneDimSystem(L);
-    CheckMax(fn=0);
-    ResetMax();
+    const decl  msys;
+    decl
+                isys,
+                ipar;
+	
+            OneDimSystem(L,msys=0);
+            SetOneDim(insys=0,inpar=0);
+            CheckMax(fn=0);
+            ResetMax();
+    virtual vfunc();
 	}
 
 /** Represents a blacbox objective.
@@ -129,17 +194,40 @@ struct BlackBox : UnConstrained	{
 	BlackBox(L);
 	}
 
+/** Cobb-Douglas objective.**/
+struct CobbDouglas : BlackBox {
+    decl    x, alphas, A;
+            CobbDouglas(L,alphas=<0.5;0.5>,A=1.0,labels=0);
+    virtual vfunc();
+    virtual AnalyticGradient();
+    }	
+
+
+/** Constant elasticity of subsitution function.**/
+struct CES : BlackBox {
+    decl    x, elast, alphas, A, xpon;
+            CES(L,alphas=<0.5;0.5>,elast=2,A=1.0,labels=0);
+    virtual vfunc();
+    }	
+
 /** Access the econometric objective related to a DDP Panel.
 **/
 struct DataObjective : BlackBox {
-	const decl data;
-    decl tplist, uplist, stage;
-	DataObjective(L,data,...);
+	const decl
+        /** path or prediction object.**/   data;
+    decl
+        /** transition parameters .**/      tplist,
+        /** utility parameters .**/         uplist,
+        /** estimation stage.**/            stage;
+	
+            DataObjective(L,data,...);
 	virtual vfunc(subp=DoAll);
     virtual AggSubProbMat(submat);
-	TwoStage(tplist,uplist);
-    SetStage(stage);
+	        TwoStage(tplist,uplist);
+            SetStage(stage);
 	}
+
+
 
 /* An objective to represent a continuous choice at a point in the state space of a dynamic program.
 

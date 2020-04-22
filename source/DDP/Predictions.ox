@@ -510,6 +510,10 @@ TrackObj::print(obj) {
             TrackAll : track all actions, endogenous states and auxiliaries
 @param ... `Discrete` objects and/or arrays or objects to track
 
+@return a row vector of the positions of the added objects that can be sent to `PathPrediction::GetFlat` Thus
+if different sets of outcomes should be extracted together as vectors call Tracking() for each set and store
+the return value.
+
 @comment
 This routine can be called more than once, but once `PanelPrediction::Predict`() has
 been called no more objects can be added to the list.
@@ -524,7 +528,7 @@ PathPrediction::Tracking(LorC,...
         oxwarning("DDP Warning 12.\n Do not add to tracking list after predictions made ... ignored\n");
         return;
         }
-    decl v;
+    decl v, newpos=<>;
     if (LorC==TrackAll) {
         println("Tracking all actions, endogenous state and auxiliary variables");
         args = SubVectors[acts]|SubVectors[endog]|Chi;
@@ -540,10 +544,12 @@ PathPrediction::Tracking(LorC,...
             }
         else {
             v.track  = new TrackObj(LorC,v,sizeof(tlist));
+            newpos ~= Fcols+One+sizeof(tlist);
             tlist   |= v;
             tlabels |= v.L;
             }
         }
+    return newpos;
     }
 
 /** Set up data columns for tracked variables.

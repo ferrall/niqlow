@@ -39,7 +39,7 @@ SolveAsSystem::SolveAsSystem() {
 
 SolveAsSystem::Solve(SystemSolutionMethod,MaxTrips)	{
     decl rval = Method::Solve();
-	Parameter::DoNotConstrain = FALSE;
+	// Parameter::DoNotConstrain = FALSE;  Not Needed anymore???
     this.SystemSolutionMethod = SystemSolutionMethod;
     this.MaxTrips = MaxTrips;
     this->GroupTask::loop();

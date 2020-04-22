@@ -251,11 +251,18 @@ SysMax::SysMax(O) {
 /** Object to iterate to find the root a non-linear equation (`OneDimSystem`).
 **/
 OneDimRoot::OneDimRoot(O) {
-    if (!isclass(O,"OneDimSystem")) oxrunerror("FiveO Error 02. Objective must be OneDimSystem");
-    SysMax(O);
+    if (!isclass(O,"System"))
+        oxrunerror("FiveO Error 02. Objective must be System");
+    if (!isclass(O,"OneDimSystem")) {
+        this.O = O.eq1;
+        SysMax(this.O);
+        }
+    else
+        SysMax(O);
     Delta = 1.0;
     tolerance = itoler;
     }
+
 
 /** Find a 1-dimensional root.
 @param istep initial step, can be positive or negative [default=1.0]

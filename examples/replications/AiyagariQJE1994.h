@@ -10,8 +10,8 @@ struct Aiyagari : OneDimSystem{
 										//Dimensions of State Space parameters
 			/**Bound on Tauchen .**/	M = 2.0,
 			/** # of shocks.	**/		N = 7,
-			/** Max. Asset.		**/		KSS = 40,
-			/** Asset Step size.**/	 	kstep=0.05,
+			/** Max. Asset.		**/		KSS = 80,  //40
+			/** Asset Step size.**/	 	kstep=0.08, //.05
 			
 										//Preference and Technology Parameters NOT varied by Aiyagari
 		/**disc.rate.**/ 				delt   = 0.96,

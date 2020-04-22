@@ -92,13 +92,15 @@ struct 	PathPrediction : Prediction {
     /** first prediction.**/                        first,
     /** the next PathPrediction   **/               fnext;
     static tprefix(t);
-	PathPrediction(f=0,method=UnInitialized,iDist=0,wght=UNCORRELATED);
-    Initialize();
-
+	
+    PathPrediction(f=0,method=UnInitialized,iDist=0,wght=UNCORRELATED);
 	~PathPrediction();
+
+    Initialize();
     InitialConditions();
 	Predict(T=0,printit=FALSE);
     GetFlat(tvals=DoAll,mvals=DoAll);
+    Qcols(Y,...);
     SetT();
     Empirical(inmoments,hasN=FALSE,hasT=FALSE);
     Tracking(LorC=TrackAll,...);
@@ -138,7 +140,7 @@ struct PredictionDataSet : PanelPrediction {
             /** observations column (index or label).**/                Nplace,
             /** time column (index or label).**/                        Tplace,
             /** **/                                                     FMethod;
-            
+
             PredictionDataSet(UorCorL=UseLabel,label=UseDefault,method=UnInitialized,iDist=0,wght=UNCORRELATED);
             Observed(as1,lc1=0,...);
             TrackingMatchToColumn(Fgroup,LorC,mom);

@@ -35,14 +35,15 @@ Objective::Objective(L,CreateCur)	{
     lognm = replace(Version::logdir+"Obj-"+classname(this)+"-"+L+Version::tmstmp," ","")+".log";
     logf = fopen(lognm,"av");
 	if (CreateCur) vcur = new Point();
-	hold = maxpt = NvfuncTerms  = UnInitialized;
+	fshold = hold = maxpt = NvfuncTerms  = UnInitialized;
 	FinX = <>;
 	p2p = once = FALSE;
 	nstruct = 0;
-	if (Parameter::DoNotConstrain) {
-		Parameter::DoNotConstrain = FALSE;
-		oxwarning("FiveO Warning 04.\n Each new objective resets Parameter::DoNotConstrain to FALSE.\n User must reset it after adding additional objectives.\n");
-		}
+    DoNotConstrain = FALSE;
+	// if (Parameter::DoNotConstrain) {
+	//	Parameter::DoNotConstrain = FALSE;
+	//	oxwarning("FiveO Warning 04.\n Each new objective resets Parameter::DoNotConstrain to FALSE.\n User must reset it after adding additional objectives.\n");
+	//	}
 	}
 
 /** Reset the value of the current and maximum objective. **/
@@ -291,39 +292,90 @@ Three ways to define a <code>3x3</code> system of equations:
 </pre></dd>
 @see Objective::NvfuncTerms, Equations
 **/	
-System::System(L,LorN) {
+System::System(L,LorN,incur) {
 	Objective(L,FALSE);
-    vcur = new SysPoint();
+    vcur = isint(incur) ? new SysPoint() : incur;
 	hold = clone(vcur); //new SysPoint();
 	maxpt = clone(vcur);
 	maxpt.v = -.Inf;
 	eqn = new Equality(LorN);
 	NvfuncTerms = eqn.N;
+    eq1 = (!isclass(this,"OneDimSystem"))       //avoid inf. recursion!!
+                ? new OneDimSystem(L,this)
+                : UnInitialized;
 	}
 
+
 /** Create a new non-linear equation.
-@param L label for the system.
+@param L        label for the system.
+@param msys     `System` object that is the mother system<br/>0 [default] no mother system
 
 A system of this type can be solved using `OneDimSolve`
 
 **/
-OneDimSystem::OneDimSystem(L) {
-    System(L,1);
+OneDimSystem::OneDimSystem(L,msys) {
+    this.msys = msys;
+    System(L,1,isclass(msys,"System") ? msys.vcur : 0);
     SetAggregation(SUMOFSQUARES);
+    if (isclass(msys,"System")) {
+        isys = ipar = UnInitialized;
+        }
+    }
+
+/**
+@param insys     if msys an object then the equation index to select [default=0]
+@param inpar     if msys an object the parameter or parameter index to vary.
+**/
+System::SetOneDim(insys,inpar) {
+    if (isclass(eq1)) {
+        Encode();
+        eq1->SetOneDim(insys,inpar);
+        }
+    }
+
+OneDimSystem::SetOneDim(insys,inpar) {
+    if (isys==UnInitialized) {
+        Psi = msys.Psi;
+        PsiL = msys.PsiL;
+        PsiType = msys.PsiType;
+        Blocks = msys.Blocks;
+        FreeStatus(TRUE);
+        }
+    isys = insys;
+    if (isys<Zero || isys>msys.NvfuncTerms) oxrunerror("Five0 Error : system index out of range");
+    ipar =  (isclass(inpar)) ? inpar.pos : inpar;
+    if (ipar<Zero || ipar>sizeof(Psi)) oxrunerror("Five0 Error : parameter index out of range");
+    decl v,k;
+	foreach (v in Psi[k]) v.DoNotVary =  k!=ipar;
+    Encode();
+    }
+
+System::EndOneDim() {
+    if (isclass(eq1))  {
+        FreeStatus(FALSE);
+        Recode(FALSE);
+        }
+    }
+
+OneDimSystem::vfunc() {
+    return matrix(msys->vfunc()[isys]);
     }
 
 /** Default system of equations: `Objective::vfunc`().
 
 **/
 System::equations() { return vcur->Vstore(vfunc());	}
+
 		
-/** Toggle the value of `Parameter::DoNotConstrain`.
+/** Toggle the value of `DoNotConstrain`.
 If DoNotConstrain then all parameters except `Determined` parameters are free and unscaled.
 This can improve convergence near the top of the objective.  It also means that the Hessian values are in terms
 of the economic parameters not the free-to-vary optimization parameters.
 **/
 Objective::ToggleParameterConstraint()	{
-	Parameter::DoNotConstrain = !Parameter::DoNotConstrain;
+	DoNotConstrain = !DoNotConstrain;
+    decl p;
+    foreach (p in Psi) p.DoNotConstrain = DoNotConstrain;
     this->Recode(FALSE);
 	}
 
@@ -375,6 +427,25 @@ Objective::ToggleParams(...
     this->Recode(FALSE);
     }
 
+/** Preserve the state of free of fixed status of the parameter vector.
+@param Store TRUE, store the current status <br/>FALSE restore after a previous store
+
+@see Objective::ToggleParams, Objective::ToggleBlockElements
+**/
+Objective::FreeStatus(Store) {
+    decl k,v,p;
+    if (Store) {
+        fshold = zeros(sizeof(Psi),1);
+	    foreach (v in Psi[k]) fshold[k] = v.DoNotVary;
+        }
+    else {
+        foreach (v in Psi[k]) v.DoNotVary = fshold[k];
+        delete fshold;
+        this->Recode(FALSE);
+        }
+    }
+
+
 /** Toggle DoNotVary for one or more parameters.
 @param pblock `ParameterBlock`
 @param elements vector of indices of block elements to toggle.
@@ -396,7 +467,11 @@ Objective::Recode(HardCode) {
 	for (k=0,vcur.X=<>,vcur.F=<>,FinX=<>,nfree=0;k<nstruct;++k) {
 		Psi[k].start = Start[k];
 		f = HardCode ? Psi[k]->ReInitialize() : Psi[k]->Encode();
-		if (!isnan(f)) {vcur.F |= f;  FinX |= k; if (nfree++) Flabels|= PsiL[k]; else Flabels = {PsiL[k]}; }
+		if (!isnan(f)) {
+            vcur.F |= f;
+            FinX |= k;
+            if (nfree++) Flabels|= PsiL[k]; else Flabels = {PsiL[k]};
+            }
 		vcur.X |= Psi[k].v;
 		if (!isint(Psi[k].block)) Psi[k].block.v |= Psi[k].v;
 		}
@@ -590,6 +665,7 @@ Objective::Jacobian() {
 	Decode(0);
 	vcur.J = (GradMat[][:nfree-1] - GradMat[][nfree:])./(2*h');
 	if (Volume>LOUD && isfile(logf) ) fprintln(logf,"Gradient/Jacobian Calculation ",nfree," ",NvfuncTerms,"%15.10f","%c",{"h","fore","back","diff"},"%r",PsiL[FinX],h~(GradMat[][:nfree-1]'~(GradMat[][nfree:]')),"Jacob",vcur.J');
+    return vcur.J;
 	}
 	
 /** Compute the &nabla;f(), objective's gradient at the current vector.
@@ -597,6 +673,8 @@ Objective::Jacobian() {
 <DT>Compute</DT>
 $$\nabla f(\psi)$$
 Stored in <code>vcur.G</code>
+
+@return vcur.G
 **/
 Objective::Gradient(extcall) {
     if (Version::MPIserver)
@@ -606,6 +684,7 @@ Objective::Gradient(extcall) {
 	   vcur.G = sumc(vcur.J);
        if (Volume>QUIET && isfile(logf) ) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],vcur.G);
        if (extcall && isclass(p2p)) p2p.client->Stop();
+       return vcur.G;
        }
 	}
 
@@ -617,7 +696,7 @@ Objective::Gradient(extcall) {
 Stored in <code>vcur.G</code>
 **/
 UnConstrained::Gradient(extcall) {
-    Objective::Gradient(extcall);
+    return Objective::Gradient(extcall);
 	}
 
 /** Compute the &nabla;f(), objective's gradient at the current vector.
@@ -625,7 +704,7 @@ UnConstrained::Gradient(extcall) {
 Constrained::Gradient(extcall) {
     //	this->Jacobian();
     //	vcur.G = sumc(vcur.J);
-    Objective::Gradient(extcall);
+    return Objective::Gradient(extcall);
 	}
 
 /** Compute the Hf(), Hessian of objective at the current vector.
@@ -660,6 +739,7 @@ Objective::Hessian() {
             b += 4*(nfree-i-1);
             }
        if (isclass(p2p)) p2p.client->Stop();
+       return vcur.H;
        }
 	}
 
@@ -685,6 +765,7 @@ Constrained::Jacobian() {
 	vcur->Copy(hold);
 	delete jake;
 	Decode(0);
+    return vcur.J;
 	}
 
 
@@ -811,6 +892,97 @@ BlackBox::BlackBox(L)	 {
 	maxpt.v = -.Inf;
 	}
 
+CobbDouglas::CobbDouglas(L,alphas,A,labels){
+    BlackBox(L);
+    this.A = A;
+    this.alphas = alphas;
+    Parameters(x = new StDeviations("x",alphas,labels));
+    NvfuncTerms = 1;
+    }
+CobbDouglas::vfunc() {
+    decl y =CV(A)*prodc(CV(x).^CV(alphas));
+//    println("A:",CV(A)," x: ",CV(x)," a ",CV(alphas),"f = ",y);
+    return y;
+    }
+CobbDouglas::AnalyticGradient() {
+    return (vfunc()*CV(alphas)./CV(x))';
+    }
+CES::CES(L,alphas,elast,A,labels) {
+    BlackBox(L);
+    this.A = A;
+    this.elast = elast;
+    this.alphas = alphas;
+    Parameters(x = new StDeviations("x",alphas,labels));
+    }
+
+CES::vfunc() {
+    xpon = CV(elast);
+    xpon = (xpon-1.0)/xpon;
+    return CV(A)*( CV(alphas)' * (CV(x).^xpon) )^(1/xpon);
+    }
+
+/* Create a stationary equilibrium system of equations.
+@param L label
+@param P    an array of parameters or a parameter block of prices $p$<br/>
+            0 [default]  a vector of `StDeviations` is created of the same length as the
+                parameter list of <code>aggF</code>
+@param aggF `Objective` for the aggregate production function $F(X^d)$.
+            THe parameters of aggF are $X^d$.  They are set as <code>DoNotConstrain</code>
+            so that the gradient is correct (not transformed).
+@param stnpred PathPrediction object that has a nested solution algorithm.  It should typically be
+                set to make predictions from the Ergodic distributions.
+@param Qcols a vector of indices into the prediction matrix that correspond to $X^s$<br/>
+        0 [default] the first $N$
+@param deprec `CV`-compatible vector of input depreciations<br/>
+        0 [default] no depreciation
+*/
+Equilibrium::Equilibrium(L,P){
+    if (!isclass(aggF,"Objective")) oxrunerror("aggF is not an Objective object");
+    decl Neq = sizeof(aggF.Psi);
+    if (!Neq) oxrunerror("Parameters must be set for aggF before creating the equilibrium object");
+    if (!isclass(stnpred,"PathPrediction")) oxrunerror("stnpred is not a PathPrediction object");
+    if (!isclass(stnpred.method)) oxrunerror("stnpred must have a nested solution method to recompute Xs");
+//    if (
+//    this.Qcols = isint(Qcols) ? (stnpred.Fcols+range(1,Neq)) : Qcols;
+    if (sizerc(Qcols)!=Neq) oxrunerror("Number of prediction columns not equal to number of aggregate inputs");
+
+    System(L,aggF.PsiL);     //use labels of aggF parameters for equation labels
+
+    Parameters( isint(P) ? new StDeviations("P",0,aggF.PsiL) : P );
+    if (!aggF.DoNotConstrain) aggF->ToggleParameterConstraint();
+    println("Aggregate production function: ",aggF.L," of type ",classname(aggF));
+    println("Aggregate inputs: ",aggF.PsiL);
+    }
+
+/**Built system of equations for Equilibrium models.
+<UL>
+<LI>Compute prediction (which should re-solve DP model)</li>
+<LI>Get X<sup>s</sup>  values using <code>GetFlat(Zero,Qcols)</code></li>
+<LI>Encode X<sup>s</sup> as the values of the parameter of aggF</li>
+<LI>COmpute and return the equilibrium FOC condition:
+$$\nabla F(X^s)' - \Delta - p.$$
+</UL>
+**/
+Equilibrium::vfunc() {
+    stnpred->Predict(One,Zero);  //One prediction, quietly
+    Q = stnpred->GetFlat(Zero,Qcols)';
+    aggF -> Encode(Q);         // set aggregate inputs equal to stationary predictions
+    foc = aggF->Gradient()' - CV(deprec) - vcur.X;
+    return foc;
+    }
+
+/** Prints a message and details about the objective.
+@param orig string, origin of the print call
+@param fn integer, no print to file.<br>file, prints to file as well as screen
+@param toscreen TRUE: print full report to screen as well</br>FALSE: only print orig to screen
+**/
+Equilibrium::Print(orig,fn,toscreen){
+    Objective::Print(orig,fn,toscreen);
+    decl details = sprint("%r",aggF.PsiL,"%c",{"MP-d-P","Q"},"%cf",{"%#12.7g"},vcur.V~Q);
+    if (isfile(fn)) {fprintln(fn,details); }
+    if (toscreen) println(details);
+	}
+
 /** An objective based on an economic model with data and (possibly) a nested solution method.
 @param L string, label
 @param data an object that includes member FN and method EconometricObjective.<br/>Typically,
@@ -861,6 +1033,25 @@ DataObjective::TwoStage(tplist,uplist){
     stage = Two;  // default stage, everything is variable
     }
 
+/** Set the estimation stage.
+
+@param stage Zero, One or Two
+
+<DT>Stage Zero:</DT>
+<DD> Parameters on the uplist are set fixed.</DD>
+<DD> Parameters on the tp list can vary .</DD>
+<DD> Bellman iteration method is set to DoNotIterate</dd>
+<DT>Stage One:</DT>
+<DD>uplist variable</dd>
+<DD>tplist fixed</DD>
+<DD>Bellman DoNotIterate = FALSE</dd>
+<DD>Object is reset</DD>
+<DT>Stage TW:</DT>
+<DD>Both parameter lists vary, method iterates</DD>
+<dd>
+
+@see FPanel::method, PathPrediction::method, Objective::ResetMax, Method::DoNotIterate, Parameter::DoNotVary
+**/
 DataObjective::SetStage(stage) {
     this.stage = stage;
     decl v;
@@ -871,6 +1062,7 @@ DataObjective::SetStage(stage) {
     if (stage==One) this->ResetMax();
     }
 
+/** . @internal **/
 DataObjective::AggSubProbMat(submat) {
     data->Predict(0,FALSE,submat);
     return data.M;
@@ -922,6 +1114,7 @@ Separable::Print(orig,fn,toscreen){
 	
 
 /** Compute the &nabla;f(), objective's gradient at the current vector.
+@return scur.G
 **/
 Separable::Gradient(extcall) {
     if (Version::MPIserver)
@@ -931,6 +1124,7 @@ Separable::Gradient(extcall) {
 	   scur.G = sumc(scur.J);
        if (Volume>QUIET && isfile(logf)) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],scur.G);
        if (extcall && isclass(p2p)) p2p.client->Stop();
+       return scur.G;
        }
 	}
 
@@ -1156,6 +1350,7 @@ Separable::Jacobian() {
 	scur.J = (gg[:nfree-1] - gg[nfree:])./(2*h);
 	scur->GCopy(hold);
 	Decode(0);
+    return scur.J;
 	}
 
 MixPoint::aggregate(outV,v) {
@@ -1376,6 +1571,7 @@ Mixture::Jacobian() {
 	mcur.J ~= JJ;
 	mcur -> Copy(hold);
 	Decode(0);
+    return mcur.J;
 	}
 
 Mixture::funclist(Fmat,aFvec)	{

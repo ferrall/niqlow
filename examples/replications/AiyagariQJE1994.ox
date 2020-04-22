@@ -18,7 +18,7 @@ Aiyagari::Run() {
 				mu =  params[imu][k];
 				muM1 = 1 - mu;
 				println("\n\n ******** Indices: ",i," ",j," ",k,".\n Parameter Values:\nsigma = ",sig," rho = ",rho," mu = ",mu);
-				if (!i && j && !k) {
+				if (!i ) {  //&& j && !k
 					println("Skipping this set of parameters");
 					continue;
 					}

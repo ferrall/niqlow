@@ -188,12 +188,10 @@ struct Parameter : Quantity {
 		/** tolerance for too near
 			flat part of transformation. @internal **/		NearFlat = DIFF_EPS2,
 		/** . @internal **/									sep = " ";
-	static  		decl
-		/** Flag to ignore constraints
-                on ALL parameters. **/ 	                DoNotConstrain;
 	const	decl
 		/** Initial passed value.     **/  		 		ival;
 	decl
+		/** Flag to ignore constraints. **/ 	        DoNotConstrain,
 		/** Treat as `Determined`, for now.**/  	    DoNotVary,
 		/** Current free value f. **/   				f,
 		/** 0 or pointer to param block.  **/     		block,

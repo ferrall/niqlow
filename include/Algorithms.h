@@ -377,6 +377,7 @@ struct OneDimRoot : SysMax {
     OneDimRoot(O);
     Iterate(istep=1.0,maxiter=50,toler=0);
     Bracket();
+    EndOneDim();
     }
 
 /** Sequential Quadratic Programming for constrained optimization. **/
