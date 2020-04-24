@@ -413,12 +413,11 @@ PathPrediction::PathPrediction(f,method,iDist,wght){
     mask = <>;
     Prediction(0);
     T = 1;
-    inT = 0;
+    flat = pathW = inT = 0;
     pstate = ReverseState(f,onlyfixed);
     fvals = N::F>1 ? f~pstate[S[fgroup].M:S[fgroup].X]' : matrix(f); //f must be a matrix so Fcols is correct
     Fcols = columns(fvals);
     HasObservations = FALSE;
-    pathW = 0;
 
     if ((N::R>One || N::DynR>One ) && isint(summand)) {
         if (!isclass(method))
