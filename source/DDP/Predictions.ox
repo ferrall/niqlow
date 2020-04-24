@@ -155,7 +155,7 @@ PathPrediction::ProcessContributions(cmat){
     cur=this;
     if (ismatrix(cmat)) cmat = shape(cmat,sizeof(tlist),this.T)';
     do {
-        if (ismatrix(cmat)) cur.accmom[] = cmat[cur.t][];
+        if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
         flat[cur.t][] = fvals~cur.t~cur.accmom;
         if (HasObservations) {
             if (ismatrix(pathW)) {
