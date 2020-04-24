@@ -3,16 +3,15 @@
 struct AiyagariEQ : Equilibrium {
 	static const decl		
 						//Technology Parameters not varied by Aiyagari
-			                             lam = 0.042,
+			                            lam    = 0.042,
 		/**&alpha;: K exponent.**/  	alpha  = 0.36,
 		/**1-&alpha;.**/				alM1   = 1-alpha,
 		/**depreciation.**/				Kdeprec = 0.08;
 
-                //Things know at creation but not now
+                        //Things known at creation but not now
     static decl                             KK,
                                             LL,
-         /**MP coeff vector.**/			    MPco,
-         /**price array.**/                 price, 
+         /**price array.**/                 price,
          /**solution algorithm.**/          alg;
 
 	static     Wage(r=0);

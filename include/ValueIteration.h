@@ -76,8 +76,8 @@ struct NKinfo : DDPauxiliary {
       decl
         myt,
         Nstat,
-        MnNxt,
-        MxNxt,
+//        MnNxt,
+//        MxNxt,
         onlyactive,
         visit;
     Update(ii);

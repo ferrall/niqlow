@@ -431,6 +431,7 @@ struct Group : DP {
 		Density();
 		StationaryDistribution();
 		DrawfromStationary();			
+        IncPtrans(et,h);
 	}
 
 /** Output routines .

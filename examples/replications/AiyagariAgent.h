@@ -1,4 +1,6 @@
 
+/** Household problem in Aiyagari QJE 1994. **/
+
 struct AiyagariAgent : ExPostSmoothing {
 	static const decl
 		/**disc.rate.**/ 				delt   = 0.96,

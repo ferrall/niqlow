@@ -1901,6 +1901,10 @@ Group::StationaryDistribution() {
 		}
 	}
 
+Group::IncPtrans(et,h) {
+    Ptrans[ et ][I::all[tracking]] = Ptrans[ et ][I::all[tracking]]  // memory leak
+                                       + h;
+    }
 /** Draw $\theta$ from $P_\infty(\theta)$ for current $\gamma$.
 @return state vector
 @see DrawOne

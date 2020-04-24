@@ -14,18 +14,126 @@
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
 <h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">niqlow.ox</span></h1>
 
-<span class="n">niqlow</span> has several components that work together or separately
-<DD>Click on the link to go to the documentation for that component</DD>
-<DD>Click on Examples link below to see how to run various code samples.</DD>
+<table class="doctable">
+<P/>
+<tr><th colspan="3"><h2 class="over"><a href="About/Install.html">Install</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
+<a href="examples/default.html">Examples</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
+<a href="About/License.html">License</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
+<a href="About/Citation.html">Citation</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
+<a href="https://ferrall.github.io/OODP/">OODP Academic Paper</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
+<a href="About/Acknowledgements.html">Acknowledgements</a></h2></th></tr>
+<P/>
+<tr><th width="33%"><h2>DESIGN</h2></td><th  width="33%"><h2>SOLVE</h2></th><th  width="33%"><h2>ESTIMATE</h2></th></tr>
+<P/>
+<tr><td>Design a DP model using <a href="DDP/default.html">DDP</a>.</td>
+<td>Solve the model with a solution <a href="">Method</a> and create <a href="">Data</a> outcomes from the solution.</td>
+<td>Estimate parameters using <a href="FiveO">FiveO</a></td></tr>
+<P/>
+<tr><td>
+See a search model in <a href="DDP/GetStarted.html">Get Started with DDP</a> <br/>or</br/> 
+start from scratch with <a href="DDP/DDP.ox.html">static discrete choice</a> and go from there 
+or follow replications of classic papers in  <a href="https://ferrall.github.io/OODP/">OODP</a>
+</td>
+<td></td>
+<td>Maximize a function in <a href="FiveO/GetStarted.html">Get Started with FiveO</a>  </td>
+</tr>
+<P/>
+<tr><td>Design your model using components
+<details class="over"><summary>Build your DP in <span class="n">niqlow</span></summary>
+    <UL>
+    <li><a href="DDP/">Choose a base Bellman class for each point <span class="expressions">\(\theta\)</span> of the state space.</a></li>
+     <li>Customize <span class="expressions">\(\theta\)</span> by adding components to it</li>
+     <DL><DT><a href="DDP/">Set the Clock</a></DT>
+        <DT>Add <a href="DDP/">Action Variables</a> to create your action vector <span class="expressions">\(\alpha\)</span>.</DT>
+        <DT>Add <a href="DDP/">State Variables</a> to <span class="expressions">\(\theta\)</span>, from which the model's transition emerges</DT>
+        <DT>Create multiple problems by adding <a href="DDP/">Group Variables</a></DT>
+     <li>Code <a href="">Utility()</a> and <a href="">Set the Discount Factor</a></li>
+     </UL></details><br/>
+<details class="over"><summary>Customize the DP problem further</summary>
+     <ul>
+       <li>Make values of state variables <a href="">Terminal Values</a></li>
+       <li>Restrict actions depending on <span class="expressions">\(\theta\)</span> by coding <a href="">FeasibleActions()</a> to define <span class="expressions">\(A(\theta)\)</span>.</li>
+       <li>Restrict which states can be reached beyond <span class="n">niqlow</span>'s built-in understanding of transitions
+        by coding <a href="">Reachable()</a></li>
+     <LI>Let <span class="n">niqlow</span> handle the mapping between discrete <a href="">counter values</a> of variables and their <a href="">actual values</a> that enter your formulas</LI>
+     <LI>Set the point in the solution algorithm when transitions must be recomputed depending on the reliance on parameters or group variables
+        without computing the transitions unnecessarily.</LI>
+     </ul></details><br/>
+<h3>When finished, tell <span class="n">niqlow</span> to <a href="">Create the spaces</a></h3>
+</td>
+<td>Once Spaces are created
+<details class="over"><summary>Choose a solution method (or two).</summary>
+    <UL>
+    <LI>Solve for discrete choice probabilities (CCPs) under different assumptions or solve for reservation values of continuous
+        random shocks.</LI>
+    <li>Apply the solution to your model using its <a href="">Solve()</a> function.</li>
+    <LI>Let the method handle storage and computation efficiently accounting for your clock and other details.</LI>
+    </UL></details><br/>
+<details class="over"><summary>Create outcomes for the solved model</summary>
+    <UL>
+    <LI>Use a <a href="">Panel</a> to <a href="">Simulate</a> outcomes from the model or read in external data to compute likelihood .</LI>
+    <li>Or create a <a href="">PanelPrediction</a> to <a href="">Predict</a> expected outcomes (averaged over all random elements) and read in 
+        external moments to compare them to.</li>
+    <LI>Either way, send a solution method to the data object so it follows a nested solution algorithm: for any prediction or econometric calculation 
+        the model is resolved.</li>
+    </UL>
+    </details><br/>
+<details class="over"><summary>Map model outcomes to data</summary>
+    <UL>
+    <LI>Map individual components of the model outcome (actions, state variables) to externally read data</LI>
+     <LI>Unmapped components are automatically treated as missing.</LI>
+    <LI>Allow for ad hoc missing information when reading in external data.</LI>
+    <li>Add auxiliary outcomes to the data to augment incomplete information on action and state variables.</li>
+    <LI>Automatically integrate over "random effects" stored in the <span class="expressions">\(\gamma_r\)</span> when computing econometrics objectives.</LI>
+    </UL></details>    
+</td>
+<td>When model, solution &amp; data are ready
+<details class="over"><summary>Put parameters of the DP under the control of an external algorithm.</summary>
+    <UL>
+    <LI>Make parameters of Utility and state transitions <a href="">Parameter</a> objects or use <a href="">Parameter Blocks</a> 
+        to create convenient vectors of related parameters.</LI>
+    <LI>Use built-in types of parameters to constrain them to open intervals in one or more related dimensions.</LI>
+    <LI>Control which parameters are free to vary or should be held fixed by solution algorithms.</LI>   
+    </UL></details><br/>
+<P/>
+<details class="over"><summary>Create a criterion to estimate or find equilibrium values of parameters of the model</summary>
+    <UL>
+    <LI>Use an automatically generated econometric objective or build your own.</LI>
+    <LI>Create a system of equations to find <a href="">Equilibrium</a> prices.</LI>
+    <LI>Add DP parameters to the objective/system so they are associated with it.</LI>
+    <LI>Use built-in features to handle <a href="">BHHH iteration</a> automatically</LI>
+    <LI>Choose among GMM weighting options, including simulating data from first estimates and using them to compute the efficient weighting matrix with 
+        <a href="">one command</a> </LI>
+    </UL>
+</details><br/>
+<P/>
+<details class="over"><summary>Choose <a href="">Algorithm(s)</a> to optimize / solve your criterion.</summary>
+    <UL><li>Apply the algorithm by using its <a href="">Iterate()</a> function.  </LI>
+    <LI>Apply different methods, monitor and <a href="">checkpoint</a> progress</LI>
+    <LI>Rest assure that the DP model is resolved each time the criterion is re-evaluated because you sent the solution method to the data objects.</LI>
+    <LI>Turn DP iteration on and off in order to carry out <a href="">Two-Stage Estimation.</a></LI>
+    </UL></details><br/></td></td></tr>
+<tr><td colspan="3">
+<h4>Use the estimated/equilibrium parameters to conduct policy experiments:</h4> 
+<h3>Change a parameter value at the top level of your code and be assured its effect will propagate down to the DP solution and back up through predictions or simulated outcomes.</h3></td>
+</tr>
+<tr><td colspan="3"><h4>When your model becomes too big to solve on your personal computer:</h4>
+<h3>Use <a href="CFMPI">CFMPI</a> package to work in parallel on a Linux cluster without re-coding.</h3></td></tr>
+</tr>
+<tr><td colspan="3"><h4>When you have made novel contributions in terms of your model, or a solution method or type of state variable &hellip;</h4>
+<h3>Request for your contribution to be implemented in <a href="">niqlow</a></h3></td></tr>
+</tr>
+<P/>
+</table>
+<!--0
 <UL>
-<LI><a href="DDP/default.html">DDP</a>:  tools for designing and solving a dynamic programming problem</LI>
+<LI>tools for designing and solving a dynamic programming problem</LI>
     <UL> Among the help documents listed there:
-     <li>A simple search problem is solved in <a href="../examples/DDP/GetStarted.ox">examples/DDP/GetStarted.ox</a> and explained in <a href="DDP/GetStarted.html">Get Started with DDP</a></li>
-     <li>You can also start with even simpler models of <em>discrete choice</em> as explained <a href="DDP/DDP.ox.html">here</a></li>
+     <li></li>
      </UL>
 <LI><a href="FiveO/default.html">FiveO</a>: tools for defining and maximizing an objective function or solving a non-linear system of equations</LI>
     <UL>
-    <li>The famous Rosenbrock function is coded and maximized by the code <a href="../examples/FiveO/Rosenbrock.ox">examples/FiveO/Rosenbrock.ox</a> and explained <a href="FiveO/GetStarted.html">Get Started with FiveO</a></li>
+    <li>The famous Rosenbrock function is coded and maximized by the code <a href="../examples/FiveO/Rosenbrock.ox">examples/FiveO/Rosenbrock.ox</a> and explained </li>
     </UL>
 <LI>If your ultimate goal is to <em>estimate parameters of a dynamic program</em> then your code will rely on both DDP and FiveO</LI>
     <UL>
@@ -37,18 +145,7 @@
     <li><span class="n">niqlow</span> integrates MPI into estimation, so you can move your code seamlessly from a laptop to a supercomputer with no extra coding on your part.</li>
     <li> Or, use the more basic interface routines to write your own MPI-ready applications.</li>
     </UL>
-</UL>
-<table>
-<tr>
-<td class="description"><DT>
-<a href="About/Install.html">Install</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
-<a href="examples/default.html">Examples</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
-<a href="About/License.html">License</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
-<a href="About/Citation.html">Citation</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
-<a href="About/Acknowledgements.html">Acknowledgements</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
-<!--<a href="About/ReleaseNotes.html">Release Notes</a></td>--></DT>
-</tr>
-</table>
+</UL>-->
 
 <div class="footer">
 Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>

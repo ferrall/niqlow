@@ -6,6 +6,7 @@
 /** Parameters from the paper and other elements shared by the agent and equilibirum
     problems.**/
 struct AYG {
+
  	enum{KK,LL,Factors}
 	enum{isig,irho,imu}
 

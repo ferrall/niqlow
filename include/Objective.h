@@ -140,8 +140,9 @@ allow for fixed effects.)</DD>
 <DD>Quantities of per-capita values supplied by households ($X^s$) are determined in the steady-state:
 $$X^s = \sum_{\gamma_r}g(r)\left[ \sum_{\theta\in\Theta} P_\infty(\theta;\gamma_r) x(\theta;\gamma_r)\right].$$
 Here $x(\theta;\gamma_r)$ is the vector of elements of of the DP outcome $Y$ that match up to to
-factors of production. A fixed factor can be included by adding a constant <code>AuxiliaryOutcome</code> to
-$\Chi$ in the DP, which would then always average across states and household types to the fixed factor.</DD>
+factors of production. <details class="aside">A fixed factor can be included by adding a constant <code>AuxiliaryOutcome</code> to
+to the DP, which would then always average across states and household types to the fixed factor.</details>
+</DD>
 <DD>In other words, $X^s$ are aspects of a <code>PathPrediction</code> of length 1 started from the Ergodic
 distribution implied by the household's optimal behavior.</DD>
 <DT>Equilibrium</DT>
@@ -161,7 +162,7 @@ struct Equilibrium : System {
          /** computed system.**/                        foc,
         /** aggregate Qs from prediction.**/            Q;
 
-               Equilibrium(L,P=0); // aggF,stnpred,P=0,Qmap=0,deprec=0.0);
+               Equilibrium(L,P=0);
 	           Print(orig,fn=0,toscreen=TRUE);
     virtual    vfunc();
     }

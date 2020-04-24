@@ -258,16 +258,17 @@ If `Flags::StorePA` is also true then `Group::Palpha` is also updated.
 **/
 Bellman::UpdatePtrans() {
 	hagg = aggregater(pandv .* NxtExog[Qprob]',SS[onlyexog].size)';
-    if (ismatrix(NKvindex))
+    if (Flags::NKstep) {
+        decl nki = NKvindex[I::all[iterating]];
         for (et=0;et<sizeof(Nxt[Qit]);++et)
-            NKptrans[ NKvindex[ Nxt[Qit][et] ] ][ NKvindex[I::all[tracking]] ] =
-                        NKptrans[ NKvindex[ Nxt[Qit][et] ] ][ NKvindex[I::all[tracking]] ]   // memory leak
+            NKptrans[ NKvindex[ Nxt[Qit][et] ] ][ nki  ] =
+                        NKptrans[ NKvindex[ Nxt[Qit][et] ] ][ nki ]   // memory leak
                         + (hagg[et][]*Nxt[Qrho][et])';
+            }
     else { //store in the usual place
-        for (et=0;et<sizeof(Nxt[Qit]);++et)
-            I::curg.Ptrans[ Nxt[Qit][et] ][I::all[tracking]] =
-                I::curg.Ptrans[ Nxt[Qit][et] ][I::all[tracking]]  // memory leak
-                + (hagg[et][]*Nxt[Qrho][et])';
+        for (et=0;et<sizeof(Nxt[Qit]);++et) //{
+                I::curg->IncPtrans( Nxt[Qit][et],(hagg[et][]*Nxt[Qrho][et])');
+            //}
         if (Flags::StorePA)
             I::curg.Palpha[][I::all[tracking]] = ExpandP(Aind,pandv*NxtExog[Qprob]);
         }

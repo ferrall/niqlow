@@ -9,9 +9,7 @@ AYG::Run() {
 	
     eq = new AiyagariEQ(KK);	                 //create the equilibrium system
 
-    //	alg = new Broyden(eq);				//algorithm to find root of the system.						
-
-	for(i=0;i<sizerc(params[isig]);++i) {  //values of sigma
+	for(i=0;i<sizerc(params[isig]);++i) {  //loop over values of sigma
 	
 		AiyagariAgent::sig = params[isig][i];     //returned by lambda function used in Tauchen()
 

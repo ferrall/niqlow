@@ -892,6 +892,16 @@ BlackBox::BlackBox(L)	 {
 	maxpt.v = -.Inf;
 	}
 
+/** Create a CobbDouglas objective.
+@param L label
+@param alphas  CV-compatiable vector of exponents.
+@param labels  0 or array of labels for arguments.
+
+Sets the parameter vector as $x$ equal to `StDeviations` of the same dimension as alphas
+
+$$A{\prod}_{i=1}^N x_i^{\alpha_i}$$
+
+**/
 CobbDouglas::CobbDouglas(L,alphas,A,labels){
     BlackBox(L);
     this.A = A;
@@ -899,43 +909,63 @@ CobbDouglas::CobbDouglas(L,alphas,A,labels){
     Parameters(x = new StDeviations("x",alphas,labels));
     NvfuncTerms = 1;
     }
+
+/** $A{\prod}_{i=1}^N x_i^{\alpha_i}$.
+**/
 CobbDouglas::vfunc() {
     decl y =CV(A)*prodc(CV(x).^CV(alphas));
-//    println("A:",CV(A)," x: ",CV(x)," a ",CV(alphas),"f = ",y);
     return y;
     }
 CobbDouglas::AnalyticGradient() {
     return (vfunc()*CV(alphas)./CV(x))';
     }
+
+
+/** Create a constant elasticity of subsitution objective.
+@param L label
+@param alphas CV-compatiable vector of weights/shares
+@param elast elasticity parameter.  The exponent on each input is computed as (elast-1)/elast
+@param labels  0 or array of labels for arguments.
+
+Sets the parameter vector $x$ equal to `StDeviations` of the same dimension as alphas
+
+**/
 CES::CES(L,alphas,elast,A,labels) {
     BlackBox(L);
     this.A = A;
     this.elast = elast;
     this.alphas = alphas;
     Parameters(x = new StDeviations("x",alphas,labels));
+    NvfuncTerms = 1;
     }
 
+/** $A \left[{\sum} \alpha_i x_i^\sigma\right ]^{1/\sigma}.
+$sigma = (\eta-1)/\eta$
+**/
 CES::vfunc() {
     xpon = CV(elast);
     xpon = (xpon-1.0)/xpon;
     return CV(A)*( CV(alphas)' * (CV(x).^xpon) )^(1/xpon);
     }
 
-/* Create a stationary equilibrium system of equations.
+/** Create a stationary equilibrium system of equations.
 @param L label
 @param P    an array of parameters or a parameter block of prices $p$<br/>
             0 [default]  a vector of `StDeviations` is created of the same length as the
                 parameter list of <code>aggF</code>
-@param aggF `Objective` for the aggregate production function $F(X^d)$.
-            THe parameters of aggF are $X^d$.  They are set as <code>DoNotConstrain</code>
-            so that the gradient is correct (not transformed).
-@param stnpred PathPrediction object that has a nested solution algorithm.  It should typically be
-                set to make predictions from the Ergodic distributions.
-@param Qcols a vector of indices into the prediction matrix that correspond to $X^s$<br/>
-        0 [default] the first $N$
-@param deprec `CV`-compatible vector of input depreciations<br/>
-        0 [default] no depreciation
-*/
+
+This should be called in the creator function of a derived equilibrium class <b>after</b> the
+following constants have be initialized inside the creator:
+<UL>
+<li>`Equilibrium::aggF` : must contain an `Objective` for the aggregate production function $F(X^d)$. THe parameters
+of aggF are $X^d$.  They are set as <code>DoNotConstrain</code> so that the gradient is correct (not transformed).</li>
+<li>`Equilibrium::stnpred` : must contain a PathPrediction object that has a nested solution algorithm.
+        It should typically be set to make predictions from the Ergodic distributions.</li>
+<li>`Equilibrium::Qcols` vector of indices into the prediction matrix that correspond to $X^s$.  If equal to 0
+    the first $N$ columns will be selected in order.</li>
+<li>`Equilibrium::deprec` `CV`-compatible vector of input depreciations $\Delta$<br/>
+        0 [default] no depreciation term
+**/
 Equilibrium::Equilibrium(L,P){
     if (!isclass(aggF,"Objective")) oxrunerror("aggF is not an Objective object");
     decl Neq = sizeof(aggF.Psi);
@@ -954,13 +984,15 @@ Equilibrium::Equilibrium(L,P){
     println("Aggregate inputs: ",aggF.PsiL);
     }
 
-/**Built system of equations for Equilibrium models.
+/**Built-in system of equations for Equilibrium models.
+Typically the user's derived class does not need to replace this if takes the form below for their
+model:
 <UL>
-<LI>Compute prediction (which should re-solve DP model)</li>
-<LI>Get X<sup>s</sup>  values using <code>GetFlat(Zero,Qcols)</code></li>
-<LI>Encode X<sup>s</sup> as the values of the parameter of aggF</li>
-<LI>COmpute and return the equilibrium FOC condition:
-$$\nabla F(X^s)' - \Delta - p.$$
+<LI>Compute prediction using `Equilibrium::stnpred` (which should re-solve DP model)</li>
+<LI>Get X<sup>s</sup> (stored in `Equilibrium::Q`) using <code>GetFlat(Zero,`Equilibrium::Qcols`)</code></li>
+<LI>Encode X<sup>s</sup> as the values of the parameter of `Equilibrium::aggF`</li>
+<LI>Compute and return the equilibrium FOC conditions:
+$$\nabla F(X^s)' - \Delta - P.$$
 </UL>
 **/
 Equilibrium::vfunc() {
@@ -978,7 +1010,7 @@ Equilibrium::vfunc() {
 **/
 Equilibrium::Print(orig,fn,toscreen){
     Objective::Print(orig,fn,toscreen);
-    decl details = sprint("%r",aggF.PsiL,"%c",{"MP-d-P","Q"},"%cf",{"%#12.7g"},vcur.V~Q);
+    decl details = sprint("%r",aggF.PsiL,"%c",{"MP-d-P","Q"},"%cf",{"%#12.7g"},foc~Q);
     if (isfile(fn)) {fprintln(fn,details); }
     if (toscreen) println(details);
 	}

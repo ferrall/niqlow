@@ -106,7 +106,7 @@ NewtonKantorovich::Solve(Fgroups,Rgroups,MaxTrips)  {
 **/
 NewtonKantorovich::Tune(MinNKtrips,NKtoler) {
     if (MinNKtrips!=UseDefault) qtask.itask.MinNKtrips = MinNKtrips;
-    if (NKtoler!=UseDefault) qtask.itask.NKtoler = MinNKtrips;
+    if (NKtoler!=UseDefault) qtask.itask.NKtoler = NKtoler;
     }
 
 /** . @internal **/
@@ -131,31 +131,28 @@ NKSolve::Solve(instate) {
 
 /** . @internal **/
 NKSolve::PostEMax() {
-    if (NKstep0) NK->Update(I::all[iterating]);
+    if (NKstep0) NK.Update(I::all[iterating]);
     GSolve::PostEMax();
     }
 
 /** . @internal **/
 NKinfo::NKinfo(t) {
     myt = t;
-    MnNxt = I::MxEndogInd;
-    MxNxt = 0;
-    onlyactive = 0;
-    visit = zeros(MnNxt+1,1);
+    Nstat = 0;
+    onlyactive = constant(.NaN,N::Mitstates,1);
     }
 
 /** . @internal **/
 NKinfo::Update(ii) {
-    visit[ii] = 1;
-    MnNxt = min(MnNxt,ii);
-    MxNxt = max(MxNxt,ii);
+    onlyactive[ii] = ii;
+    ++Nstat;
     }
 
 /** . @internal **/
 NKinfo::Hold() {
-    Nstat = sumc(visit);
-    visit = visit.*cumulate(visit)-1;
-    onlyactive = selectifr(range(0,I::MxEndogInd)',visit.>=0);
+    visit = cumulate(onlyactive .!= .NaN);
+    --visit;
+    onlyactive = deleter(onlyactive);
     }
 
 /** . @internal **/
@@ -242,8 +239,8 @@ NKSolve::Update() {
                     }
                 }
             else {      // Ergodic environment, whole state space is involved.
-                Flags::NKstep = TRUE;
-                NKvindex = 0;               //  = zeros(I::curg.Ptrans);           //
+                Flags::NKstep = FALSE;
+                //NKvindex = 0;               //  = zeros(I::curg.Ptrans);           //
                 if (Volume>QUIET) println("    Switching to N-K Iteration ");
 //                inNK = TRUE;            //memleak
 //                scan("First %u",&NKpause);
@@ -254,8 +251,9 @@ NKSolve::Update() {
         Flags::NKstep = TRUE;
         NKstep0 = FALSE;
         NK->Hold();
+        NKvindex = NK.visit;
         NKptrans = zeros(NK.Nstat,NK.Nstat);
-        if (Volume>QUIET) println("    Switching to N-K Iteration ",NK.Nstat,"active ",NK.onlyactive');
+        if (Volume>QUIET) println("    Switching to N-K Iteration ",NK.Nstat); //,"active ",NK.onlyactive');
         }
     else if (Flags::NKstep) {   //ongoing N-K iteration
 //        scan("Point A %u",&NKpause);  memory leak
