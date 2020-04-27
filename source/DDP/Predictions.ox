@@ -39,7 +39,7 @@ Prediction::Predict() {
 	decl k,tv,s,q,qi,pp=0.0,unrch=<>,allterm=TRUE;
     foreach (q in sind[s]) {
         pq = p[s];
-        if (!isfeq(pq,0.0)) {
+        if (!iseq(pq,0.0)) {        //changed to iseq() instead of isfeq()
             if (Settheta(q)) {      // q' is in the state space
                 EOoE.state[left:right] = state[left:right] = ReverseState(q,tracking)[left:right];
                 I::Set(state,FALSE);
@@ -59,7 +59,7 @@ Prediction::Predict() {
     if (!isfeq(pp,0.0)) {
         if (isfile(Data::logf)) fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][left:right],unrch);
         if (!LeakWarned) {
-            println("DDP Warning ??. Leakage in transition probability.  See log file");
+            println("DDP Warning ??. Leakage in transition probability. At t= "+sprint(t,".Lost prob = ",pp));
             LeakWarned = TRUE;
             }
         }
@@ -85,6 +85,7 @@ This was added to reduce vector creation/destruction
 
 **/
 Prediction::SetMoms(sz,firsttype) {
+    println("*** ",MPI::ID," ",t," ",isint(predmom)," ",firsttype);
     if ( isint(predmom) ) {
         predmom = constant(.NaN,1,sz);            //create
         accmom = zeros(predmom);
@@ -203,6 +204,7 @@ PathPrediction::Predict(inT,prtlevel){
     this.inT = inT;
     this.prtlevel = prtlevel;
     if (!Initialize()) return FALSE;
+    println("** ",MPI::ID," ",first," ",isclass(summand));
 	if (isclass(summand))
 		summand->Integrate(this);
 	else {
@@ -633,6 +635,7 @@ PathPrediction::TypeContribution(pf,subflat) {
   cur=this;
   ctlist = tlist;
   ExogOutcomes::SetAuxList(tlist);
+  println(MPI::ID," ",pf);
   do {
      cur->SetMoms(sizeof(ctlist),first);
      foreach(tv in tlist) tv.track->Reset();
@@ -753,6 +756,7 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
     M = 0.0;
     succ = TRUE;
     do {
+        println("* ",MPI::ID," ",ismatrix(outmat)," ",M);
         if (ismatrix(outmat)) {
             cur->PathPrediction::ProcessContributions(sumr(outmat[][left:right]));
             left += N::R;

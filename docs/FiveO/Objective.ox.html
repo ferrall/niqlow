@@ -205,12 +205,12 @@ Constant elasticity of subsitution function.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#CES___CES">CES</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a constant elasticity of subsitution objective.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#CES___vfunc">vfunc</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">$A \left[{\sum} \alpha_i x_i^\sigma\right ]^{1/\sigma}.</td>
 </tr>
 </table>
 
@@ -253,12 +253,12 @@ Cobb-Douglas objective.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#CobbDouglas___CobbDouglas">CobbDouglas</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a CobbDouglas objective.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#CobbDouglas___vfunc">vfunc</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description"><span class="expressions">\(A{\prod}_{i=1}^N x_i^{\alpha_i}\)</span>.</td>
 </tr>
 </table>
 
@@ -425,8 +425,9 @@ allow for fixed effects.)</DD>
 <DD>Quantities of per-capita values supplied by households (<span class="expressions">\(X^s\)</span>) are determined in the steady-state:
 <span class="equation">$$X^s = \sum_{\gamma_r}g(r)\left[ \sum_{\theta\in\Theta} P_\infty(\theta;\gamma_r) x(\theta;\gamma_r)\right].$$</span>
 Here <span class="expressions">\(x(\theta;\gamma_r)\)</span> is the vector of elements of of the DP outcome <span class="expressions">\(Y\)</span> that match up to to
-factors of production. A fixed factor can be included by adding a constant <code>AuxiliaryOutcome</code> to
-<span class="expressions">\(\Chi\)</span> in the DP, which would then always average across states and household types to the fixed factor.</DD>
+factors of production. <details class="aside">A fixed factor can be included by adding a constant <code>AuxiliaryOutcome</code> to
+to the DP, which would then always average across states and household types to the fixed factor.</details>
+</DD>
 <DD>In other words, <span class="expressions">\(X^s\)</span> are aspects of a <code>PathPrediction</code> of length 1 started from the Ergodic
 distribution implied by the household's optimal behavior.</DD>
 <DT>Equilibrium</DT>
@@ -469,7 +470,7 @@ of <span class="expressions">\(p^\star\)</span> are <a href="Parameters.ox.html#
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Equilibrium___Equilibrium">Equilibrium</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a stationary equilibrium system of equations.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Equilibrium___Print">Print</a></td>
@@ -479,7 +480,7 @@ of <span class="expressions">\(p^\star\)</span> are <a href="Parameters.ox.html#
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Equilibrium___vfunc">vfunc</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Built system of equations for Equilibrium models.</td>
+<td class="description">Built-in system of equations for Equilibrium models.</td>
 </tr>
 </table>
 
@@ -1318,7 +1319,34 @@ Create a blackbox objective.
 
 <span class="declaration">CES :: CES ( L , alphas , elast , A , labels )</span>
 <dl><dd>
+Create a constant elasticity of subsitution objective.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">alphas</td>
+<td class="description" valign="baseline">CV-compatiable vector of weights/shares
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">elast</td>
+<td class="description" valign="baseline">elasticity parameter.  The exponent on each input is computed as (elast-1)/elast
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">labels</td>
+<td class="description" valign="baseline"> 0 or array of labels for arguments.
+<P/>
+Sets the parameter vector <span class="expressions">\(x\)</span> equal to <a href="Parameters.ox.html#StDeviations">StDeviations</a> of the same dimension as alphas</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1336,6 +1364,8 @@ Create a blackbox objective.
 
 <span class="declaration">virtual CES :: vfunc ( )</span>
 <dl><dd>
+<span class="expressions">\(A \left[{\sum} \alpha_i x_i^\sigma\right ]^{1/\sigma}.
+\)</span>sigma = (\eta-1)/\eta$
 
 </dd></dl>
 
@@ -1390,7 +1420,31 @@ Create a blackbox objective.
 
 <span class="declaration">CobbDouglas :: CobbDouglas ( L , alphas , A , labels )</span>
 <dl><dd>
+Create a CobbDouglas objective.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">alphas</td>
+<td class="description" valign="baseline"> CV-compatiable vector of exponents.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">labels</td>
+<td class="description" valign="baseline"> 0 or array of labels for arguments.
+<P/>
+Sets the parameter vector as <span class="expressions">\(x\)</span> equal to <a href="Parameters.ox.html#StDeviations">StDeviations</a> of the same dimension as alphas
+<P/>
+<span class="equation">$$A{\prod}_{i=1}^N x_i^{\alpha_i}$$</span></td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1399,6 +1453,7 @@ Create a blackbox objective.
 
 <span class="declaration">virtual CobbDouglas :: vfunc ( )</span>
 <dl><dd>
+<span class="expressions">\(A{\prod}_{i=1}^N x_i^{\alpha_i}\)</span>.
 
 </dd></dl>
 
@@ -1729,7 +1784,36 @@ aggregate prod. function <a href="Objective.ox.html#BlackBox">BlackBox</a>.
 
 <span class="declaration">Equilibrium :: Equilibrium ( L , P )</span>
 <dl><dd>
+Create a stationary equilibrium system of equations.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">P</td>
+<td class="description" valign="baseline">   an array of parameters or a parameter block of prices <span class="expressions">\(p\)</span><br/>
+            0 [default]  a vector of <a href="Parameters.ox.html#StDeviations">StDeviations</a> is created of the same length as the
+                parameter list of <code>aggF</code>
+<P/>
+This should be called in the creator function of a derived equilibrium class <b>after</b> the
+following constants have be initialized inside the creator:
+<UL>
+<li><a href="Objective.ox.html#Equilibrium___aggF">aggF</a> : must contain an <a href="Objective.ox.html#Objective">Objective</a> for the aggregate production function <span class="expressions">\(F(X^d)\)</span>. THe parameters
+of aggF are <span class="expressions">\(X^d\)</span>.  They are set as <code>DoNotConstrain</code> so that the gradient is correct (not transformed).</li>
+<li><a href="Objective.ox.html#Equilibrium___stnpred">stnpred</a> : must contain a PathPrediction object that has a nested solution algorithm.
+        It should typically be set to make predictions from the Ergodic distributions.</li>
+<li><a href="Objective.ox.html#Equilibrium___Qcols">Qcols</a> vector of indices into the prediction matrix that correspond to <span class="expressions">\(X^s\)</span>.  If equal to 0
+    the first <span class="expressions">\(N\)</span> columns will be selected in order.</li>
+<li><a href="Objective.ox.html#Equilibrium___deprec">deprec</a> <a href="Shared.ox.html#CV">CV</a>-compatible vector of input depreciations <span class="expressions">\(\Delta\)</span><br/>
+        0 [default] no depreciation term</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1807,13 +1891,15 @@ ergodic distribution PathPrediction.
 
 <span class="declaration">virtual Equilibrium :: vfunc ( )</span>
 <dl><dd>
-Built system of equations for Equilibrium models.
+Built-in system of equations for Equilibrium models.
+Typically the user's derived class does not need to replace this if takes the form below for their
+model:
 <UL>
-<LI>Compute prediction (which should re-solve DP model)</li>
-<LI>Get X<sup>s</sup>  values using <code>GetFlat(Zero,Qcols)</code></li>
-<LI>Encode X<sup>s</sup> as the values of the parameter of aggF</li>
-<LI>COmpute and return the equilibrium FOC condition:
-<span class="equation">$$\nabla F(X^s)' - \Delta - p.$$</span>
+<LI>Compute prediction using <a href="Objective.ox.html#Equilibrium___stnpred">stnpred</a> (which should re-solve DP model)</li>
+<LI>Get X<sup>s</sup> (stored in <a href="Objective.ox.html#Equilibrium___Q">Q</a>) using <code>GetFlat(Zero,<a href="Objective.ox.html#Equilibrium___Qcols">Qcols</a>)</code></li>
+<LI>Encode X<sup>s</sup> as the values of the parameter of <a href="Objective.ox.html#Equilibrium___aggF">aggF</a></li>
+<LI>Compute and return the equilibrium FOC conditions:
+<span class="equation">$$\nabla F(X^s)' - \Delta - P.$$</span>
 </UL>
 
 </dd></dl>

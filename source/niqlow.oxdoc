@@ -12,105 +12,133 @@
 
 <tr><th width="33%"><h2>DESIGN</h2></td><th  width="33%"><h2>SOLVE</h2></th><th  width="33%"><h2>ESTIMATE</h2></th></tr>
 
-<tr><td>Design a DP model using <a href="DDP/default.html">DDP</a>.</td>
-<td>Solve the model with a solution <a href="">Method</a> and create <a href="">Data</a> outcomes from the solution.</td>
-<td>Estimate parameters using <a href="FiveO">FiveO</a></td></tr>
-
-<tr><td>
-See a search model in <a href="DDP/GetStarted.html">Get Started with DDP</a> <br/>or</br/> 
-start from scratch with <a href="DDP/DDP.ox.html">static discrete choice</a> and go from there 
-or follow replications of classic papers in  <a href="https://ferrall.github.io/OODP/">OODP</a>
+<tr><td><details class="over"><summary>Step 1. Design Your DP model</summary>
+<UL>
+<LI>Build the mode using  the <a href="DDP/default.html">DDP</a> section of <span class="n">niqlow</span>.</LI>
+<LI>See a simple search model built using 7 executable statements in <a href="DDP/GetStarted.html">Get Started with DDP</a></LI>
+<LI><b>Or</b> start from scratch with <a href="DDP/DDP.ox.html">static discrete choice</a> and learn how to work up to a DP model.</LI>
+<LI><b>Or</b> follow replications of classic papers in  <a href="https://ferrall.github.io/OODP/">OODP</a> and start from the <a href="">replication code</a></LI>
+</UL>
 </td>
-<td></td>
-<td>Maximize a function in <a href="FiveO/GetStarted.html">Get Started with FiveO</a>  </td>
-</tr>
-     
-<tr><td>Design your model using components
-<details class="over"><summary>Build your DP in <span class="n">niqlow</span></summary>
+
+<td><details class="over"><summary>Step 2. Solve the model</summary>
+<ul> 
+<li>Use of the solution built in <a href="">Method</a>s to solve Bellman's equation for your model.</li>
+<li>Create <a href="">Data</a> outcomes for the solution.</td>
+</ul></details>
+<td><details class="over"><summary>Step 3. Find parameter values</summary>
+<UL><li>Use the integrated  <a href="FiveO/default.html">FiveO</a> tools to maximize an objective or solve a system of
+equations that depend on the solved DP model.</li>
+<li>See how to maximize a function in <a href="FiveO/GetStarted.html">Get Started with FiveO</a></li>
+<li>Select among standard algorithms</li>
+<LI>Use objectives that are integrated with DP models and external data or create your own.</li>
+</UL></details>
+</td></tr>
+<tr><td colspan="3" >&nbsp;</td></tr>
+<tr><td><details class="over"><summary>Required DP Components </summary>
     <UL>
-    <li><a href="DDP/">Choose a base Bellman class for each point $\theta$ of the state space.</a></li>
-     <li>Customize $\theta$ by adding components to it</li>
-     <DL><DT><a href="DDP/">Set the Clock</a></DT>
-        <DT>Add <a href="DDP/">Action Variables</a> to create your action vector $\alpha$.</DT>
-        <DT>Add <a href="DDP/">State Variables</a> to $\theta$, from which the model's transition emerges</DT>
-        <DT>Create multiple problems by adding <a href="DDP/">Group Variables</a></DT>
-     <li>Code <a href="">Utility()</a> and <a href="">Set the Discount Factor</a></li>
+    <li><a href="DDP/">Choose among <a href="">Bellman</a> classes to base your template for each point $\theta$ of the state space.</a></li>
+     <li>Choose key/required features of $\theta$:</li>
+     <UL><li>Set the <a href="DDP/">Clock</a> (properties of $t$)</li>
+        <li>Add <a href="DDP/">Action Variables</a> to create your action vector $\alpha$.</li>
+        <li>Add <a href="DDP/">State Variables</a> to $\theta$, from which the model's transition emerges</li>
+        </UL>
+     <li>Code <a href="">Utility()</a> </li>
+     <li>Set the <a href="">Discount Factor</a></li>
      </UL></details><br/>
-<details class="over"><summary>Customize the DP problem further</summary>
+<details class="over"><summary>Further customizations</summary>
      <ul>
+       <LI>Create multiple problems by adding <a href="DDP/">Group Variables</a></LI>
        <li>Make values of state variables <a href="">Terminal Values</a></li>
        <li>Restrict actions depending on $\theta$ by coding <a href="">FeasibleActions()</a> to define $A(\theta)$.</li>
-       <li>Restrict which states can be reached beyond <span class="n">niqlow</span>'s built-in understanding of transitions
-        by coding <a href="">Reachable()</a></li>
-     <LI>Let <span class="n">niqlow</span> handle the mapping between discrete <a href="">counter values</a> of variables and their <a href="">actual values</a> that enter your formulas</LI>
+       <li>Restrict which states can be reached by coding <a href="">Reachable()</a></li>
+     <LI>Let <span class="n">niqlow</span> handle the mapping between discrete <a href="">counter values</a> of 
+        variables and their <a href="">actual values</a> that enter your formulas</LI>
      <LI>Set the point in the solution algorithm when transitions must be recomputed depending on the reliance on parameters or group variables
         without computing the transitions unnecessarily.</LI>
      </ul></details><br/>
-<h3>When finished, tell <span class="n">niqlow</span> to <a href="">Create the spaces</a></h3>
+<details class="over"><summary>When ready create the spaces</summary>
+<ul>
+  <li>As your code executes the model is built until you <a href="">CreateSpaces</a></li>
+  <li><span class="n">DDP</span> will built your state space $\Theta$, the feasible action spaces $A(\theta)$ and the space of problems (group
+    space $\Gamma$).</li>
+  <li>Storage is economized by limiting storage at each point $\theta$ and relying heavily on shared (<em>static</em>) variables</li>
+  <li>Now your code can solve and use the model &hellip;</li>
+</ul>
+</details>
 </td>
-<td>Once Spaces are created
-<details class="over"><summary>Choose a solution method (or two).</summary>
+<td><details class="over"><summary>Choose &amp; apply a solution method.</summary>
     <UL>
     <LI>Solve for discrete choice probabilities (CCPs) under different assumptions or solve for reservation values of continuous
         random shocks.</LI>
     <li>Apply the solution to your model using its <a href="">Solve()</a> function.</li>
     <LI>Let the method handle storage and computation efficiently accounting for your clock and other details.</LI>
+    <LI>Create more than one method "object" and compare their performance</LI>
     </UL></details><br/>
 <details class="over"><summary>Create outcomes for the solved model</summary>
     <UL>
-    <LI>Use a <a href="">Panel</a> to <a href="">Simulate</a> outcomes from the model or read in external data to compute likelihood .</LI>
-    <li>Or create a <a href="">PanelPrediction</a> to <a href="">Predict</a> expected outcomes (averaged over all random elements) and read in 
+    <LI>Create a <a href="">Panel</a> of outcomes so you can <a href="">Simulate</a> outcomes from the model <em>or</em> read in external data to compute likelihood .</LI>
+    <li>Create a <a href="">PanelPrediction</a> to <a href="">Predict</a> expected outcomes (averaged over all random elements) and read in
         external moments to compare them to.</li>
-    <LI>Either way, send a solution method to the data object so it follows a nested solution algorithm: for any prediction or econometric calculation 
-        the model is resolved.</li>
+    <LI>Send a solution method to the data object: when any prediction or econometric calculation is needed the model will be resolved (a nested algorithm).</li>
     </UL>
     </details><br/>
 <details class="over"><summary>Map model outcomes to data</summary>
     <UL>
-    <LI>Map individual components of the model outcome (actions, state variables) to externally read data</LI>
-     <LI>Unmapped components are automatically treated as missing.</LI>
-    <LI>Allow for ad hoc missing information when reading in external data.</LI>
-    <li>Add auxiliary outcomes to the data to augment incomplete information on action and state variables.</li>
-    <LI>Automatically integrate over "random effects" stored in the $\gamma_r$ when computing econometrics objectives.</LI>
-    </UL></details>    
+    <LI>Map components (actions, state variables) to external data</LI>
+     <LI>Treat unmapped components as missing.</LI>
+    <li>Add auxiliary outcomes to the data to augment incomplete information.</li>
+    <LI>Automatically integrate over "random effects" when computing econometrics objectives and the add values across
+        fixed effects (observed groups)</LI>
+    </UL></details>
 </td>
-<td>When model, solution &amp; data are ready
-<details class="over"><summary>Put parameters of the DP under the control of an external algorithm.</summary>
+<td>
+<details class="over"><summary>Parameterize your DP model</summary>
     <UL>
-    <LI>Make parameters of Utility and state transitions <a href="">Parameter</a> objects or use <a href="">Parameter Blocks</a> 
-        to create convenient vectors of related parameters.</LI>
+    <LI>Make parameters of Utility and state transitions objects of a <a href="">Parameter</a> or <a href="">ParameterBlock</a>
+        class.<li>
     <LI>Use built-in types of parameters to constrain them to open intervals in one or more related dimensions.</LI>
-    <LI>Control which parameters are free to vary or should be held fixed by solution algorithms.</LI>   
+    <LI>Control which parameters are free to vary or should be held fixed by solution algorithms.</LI>
     </UL></details><br/>
-
-<details class="over"><summary>Create a criterion to estimate or find equilibrium values of parameters of the model</summary>
+<details class="over"><summary>Create a criterion (objective) for choosing parameters</summary>
     <UL>
-    <LI>Use an automatically generated econometric objective or build your own.</LI>
+    <LI>Use an automatically generated econometric objective already available that depend on external data.</LI>
     <LI>Create a system of equations to find <a href="">Equilibrium</a> prices.</LI>
     <LI>Add DP parameters to the objective/system so they are associated with it.</LI>
-    <LI>Use built-in features to handle <a href="">BHHH iteration</a> automatically</LI>
-    <LI>Choose among GMM weighting options, including simulating data from first estimates and using them to compute the efficient weighting matrix with 
-        <a href="">one command</a> </LI>
+    <LI>Use built-in features to handle <a href="">BHHH iteration</a> </LI>
+    <LI>Choose among GMM weighting options</LI>
     </UL>
 </details><br/>
-
-<details class="over"><summary>Choose <a href="">Algorithm(s)</a> to optimize / solve your criterion.</summary>
+<details class="over"><summary>Choose <a href="">Algorithm(s)</a> to optimize / solve your objective.</summary>
     <UL><li>Apply the algorithm by using its <a href="">Iterate()</a> function.  </LI>
     <LI>Apply different methods, monitor and <a href="">checkpoint</a> progress</LI>
     <LI>Rest assure that the DP model is resolved each time the criterion is re-evaluated because you sent the solution method to the data objects.</LI>
     <LI>Turn DP iteration on and off in order to carry out <a href="">Two-Stage Estimation.</a></LI>
     </UL></details><br/></td></td></tr>
-<tr><td colspan="3">
-<h4>Use the estimated/equilibrium parameters to conduct policy experiments:</h4> 
-<h3>Change a parameter value at the top level of your code and be assured its effect will propagate down to the DP solution and back up through predictions or simulated outcomes.</h3></td>
-</tr>
-<tr><td colspan="3"><h4>When your model becomes too big to solve on your personal computer:</h4>
-<h3>Use <a href="CFMPI">CFMPI</a> package to work in parallel on a Linux cluster without re-coding.</h3></td></tr>
-</tr>
-<tr><td colspan="3"><h4>When you have made novel contributions in terms of your model, or a solution method or type of state variable &hellip;</h4>
-<h3>Request for your contribution to be implemented in <a href="">niqlow</a></h3></td></tr>
-</tr>
+<tr><td colspan="3"><h4>
+<details class="over"><summary>When your model becomes big</summary>
+<UL>
+<LI>Use <a href="CFMPI">CFMPI</a> package to work in parallel on a Linux cluster</LI>
+<LI>Let <span class="n">niqlow</span> handle parallel processing in optimization and model solving with no recoding</LI>
+<LI>Or use high levels tools provided to create your own Client/Server and Peer-to-Peer tasks</LI>
+<li>Or use the low-level interfaces with the MPI library to customize. </li>
+</UL></details><br/></h4>
 
+<h4><details  class="over"><summary>When your model is estimated/finished</summary>
+<UL><LI>Use the estimated/equilibrium parameters to conduct policy experiments:</LI>
+<LI>Change a parameter value at the top level of your code and be assured its propagates down to the DP solution and 
+    back up through predictions or simulated outcomes.</LI>
+<LI>Create your own <em>derived</em> class to change the clock, expand the state space, allow more choice re-using the existing code and 
+changing only what is necessary</LI></UL></details><br/></h4>
+
+<h4><details class="over"><summary>When you have made novel contributions</summary>
+<UL>
+<LI>Your model probable has a new kind of state variable or a modified solution method.  Add these elements to the <span class="n">niqlow</span> source code on your computer then request your  changes be implemented (pulled) into <span class="n">niqlow</span>.</LI>
+    <li>Create test or demonstration code for your new components or for core parts of <span class="n">niqlow</span>.</li>
+<LI>Post your model code as a github repository to share it with others.</LI>
+<LI>When your paper is published request your code be added to the replications.</LI>
+</UL></details></h4>
+</td></tr>
 </table>
 <!--0
 <UL>
