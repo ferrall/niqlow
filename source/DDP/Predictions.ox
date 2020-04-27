@@ -85,7 +85,7 @@ This was added to reduce vector creation/destruction
 
 **/
 Prediction::SetMoms(sz,firsttype) {
-    println("*** ",Version::MPIserver," ",t," ",isint(predmom)," ",firsttype);
+    //println("*** ",Version::MPIserver," ",t," ",isint(predmom)," ",firsttype);
     if ( isint(predmom) ) {
         predmom = constant(.NaN,1,sz);            //create
         accmom = zeros(predmom);
@@ -204,7 +204,7 @@ PathPrediction::Predict(inT,prtlevel){
     this.inT = inT;
     this.prtlevel = prtlevel;
     if (!Initialize()) return FALSE;
-    println("** ",Version::MPIserver," ",first," ",isclass(summand));
+    //println("** ",Version::MPIserver," ",first," ",isclass(summand));
 	if (isclass(summand))
 		summand->Integrate(this);
 	else {
@@ -635,7 +635,7 @@ PathPrediction::TypeContribution(pf,subflat) {
   cur=this;
   ctlist = tlist;
   ExogOutcomes::SetAuxList(tlist);
-  println("* TypeContribution ",Version::MPIserver," ",pf);
+  //println("* TypeContribution ",Version::MPIserver," ",pf);
   do {
      cur->SetMoms(sizeof(ctlist),first);
      foreach(tv in tlist) tv.track->Reset();
@@ -756,7 +756,7 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
     M = 0.0;
     succ = TRUE;
     do {
-        println("* Panel ",Version::MPIserver," ",ismatrix(outmat)," ",M);
+        //println("* Panel ",Version::MPIserver," ",ismatrix(outmat)," ",M);
         if (ismatrix(outmat)) {
             cur->PathPrediction::ProcessContributions(sumr(outmat[][left:right]));
             left += N::R;
