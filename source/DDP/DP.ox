@@ -1441,15 +1441,11 @@ CreateTheta::Sampling() {
 */
 
 /** Called in CreateSpaces to set up &Theta;.
-@internal
-Not called if a dry run is asked for.
-
 
 **/
 CreateTheta::CreateTheta() {
 	ThetaTask(tracking);
     thx = DP::SubVectors[endog];
-    rch = zeros(sizeof(thx),1);
     N::SetSubSample();
 	}
 
@@ -1469,18 +1465,19 @@ ReSubSample::ReSubSample() {
 ReSubSample::Run() {  I::curth->Allocate(N::picked());     }
 
 CreateTheta::loop() {
+    decl v,vk;
 	trips = iter = 0;
 	Reset();					// (re-)initialize variables in range
 	SyncStates(0,N::S-1);
 	d=left+1;				   		// start at leftmost state variable to loop over	
     Flags::SetPrunable(counter);
-    decl v;
-    rch = <>;
-    foreach (v in thx) rch |= v->IsReachable();
     do	{
         I::all[] = I::OO*state;
         Theta[I::all[tracking]]=Impossible;   //not .Null if unreachable
-	    if (rch==TRUE && (userState->Reachable()) ) {
+        rch = TRUE;
+        foreach (v in thx[vk])      //April 2020.  All must be checked each time because of dependencies
+            if (!v->IsReachable()) { rch=FALSE; break; }
+	    if ( rch  && (userState->Reachable()) ) {
             N::Reached(I::all[tracking]);
             if (!Flags::onlyDryRun) {
                 Theta[I::all[tracking]] = clone(userState,Zero);
@@ -1499,11 +1496,9 @@ CreateTheta::loop() {
             }
 		  state[left:d-1] = N::All[left:d-1]-1;		// (re-)initialize variables to left of d
 		  SyncStates(left,d);
-          for(v=min(d,right-1)-left;v>=0;--v) rch[v]= thx[v]->IsReachable();
           }
         else {
         	SyncStates(left,left);
-            rch[0]= thx[0]->IsReachable();
             }
 		} while ( inner ||  (d<=right) );  //Loop over variables to left of decremented, unless all vars were 0.
     N::SubSampleDone();

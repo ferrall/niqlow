@@ -382,7 +382,7 @@ PathPrediction::InitialConditions() {
         }
     if (!Version::MPIserver && Data::Volume>LOUD && isfile(Data::logf) ) fprintln(Data::logf,"Path for Group ",f,". Initial State Indices & Prob.","%r",{"Ind.","prob."},(sind~p)',"----");
     ch[] = 0.0;
-    LeakWarned = FALSE;
+    //LeakWarned = FALSE;  Don't keep warning of leaks
     }
 
 /** Create a path of predictions.
