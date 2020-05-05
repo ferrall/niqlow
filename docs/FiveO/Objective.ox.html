@@ -50,11 +50,11 @@ A blackbox is a function <var>f:&real;<sup>N</sup>&rarr;&real;</var>.
 <P/>
 A separable objective is the sum of <var>K</var> <a href="Objective.ox.html#BlackBox">BlackBox</a> objectives. A separable objective is a function <em>and</em> a parameter <em>matrix</em> of the form
 <dd class="disp"><span class="equation">$$\eqalign{
-\psi \quad &=\quad \left(\psi_0 \psi_1 \dots \psi_{K^-} \right)\cr
+\psi \quad &=\quad \left(\matrix{\psi_0& \psi_1 & \dots & \psi_{K^-} }\right)\cr
 f(\psi) \quad &=\quad \sum_{k=0}^{K^-1} \ \sum_{} f_k\left(\psi_k)\right) \cr
 }$$</span></dd>
 <P/>
-Each sub-vector <code>&psi;<sub>k</sub></code> is of the same length, <code>(&psi;.k).N = M.</code>. The overall parameter <code>&psi;</code> is then a <code>M &times; K</code> matrix, the horizontal concatenation of the the sub-vectors. Obviously, for K=1 a separable objective is equivalent to a <a href="Objective.ox.html#BlackBox">BlackBox</a>.</p>
+Each sub-vector <code>&psi;<sub>k</sub></code> is of the same length, <code>(&psi;.k).N = M.</code>. The overall parameter <code>&psi;</code> is then a <code>M &times; K</code> matrix, the horizontal concatenation of the sub-vectors. Obviously, for K=1 a separable objective is equivalent to a <a href="Objective.ox.html#BlackBox">BlackBox</a>.</p>
 <P/>
 The user only needs to code the sub-objective as a function of the sub-parameter vector and a <a href="Shared.ox.html#Discrete">Discrete</a> quantity, <code>K</code>. That is, the user codes <code>vfunc()</code> to equal <code>f<sub>k</sub>(&psi;<sub>k</sub>)</code>.  The current value of the index <code>k</code> is stored as <a href="Objective.ox.html#Separable___Kvar">Kvar</a>.v. </p>
 <P/>
@@ -99,7 +99,7 @@ Now the sub objective depends on <code>k</code> and <code>d</code>.  However, pa
 <P/>
 Typically (but not necessarily), the weights are each a unit Simplex for each d:
   0 &le; &lambda;[d][k] &le; 1
-  &sum;<sub>k=0</sub><sup>K&oline;</sup> &lambda;[d][k] = 1. 
+  &sum;<sub>k=0</sub><sup>K&oline;</sup> &lambda;[d][k] = 1.
 </pre></DD>
 <P/>
 A separable objective is the special case of a mixture with <code>D=K</code> and <code>&lambda; = I<sub>K</sub></code>.  That is, each type is specific to an environment.
@@ -153,6 +153,10 @@ If no common parameters (and no <a href="Parameters.ox.html#Determined">Determin
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BlackBox : <a href="Objective.ox.html#UnConstrained">UnConstrained</a> : <a href="Objective.ox.html#Objective">Objective</a></span></h2>
 
 Represents a blacbox objective.
+<P/>
+This is the container class for a standard function to maximize.
+<P/>
+A BlackBox has no internal structure (such as separability of parameters).
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
@@ -228,6 +232,9 @@ Constant elasticity of subsitution function.
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CobbDouglas : <a href="Objective.ox.html#BlackBox">BlackBox</a> : <a href="Objective.ox.html#UnConstrained">UnConstrained</a> : <a href="Objective.ox.html#Objective">Objective</a></span></h2>
 
 Cobb-Douglas objective.
+<span class="equation">$$f = A \prod_{i=0}^{N^-} x_i ^{\alpha_i}.$$</span>
+<P/>
+<span class="expressions">\(A\)</span> and <span class="expressions">\(\alpha\)</span> are <a href="Shared.ox.html#CV">CV</a>-compatible objects.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -348,7 +355,10 @@ Container for Constrained Objectives.
 <a name="DataObjective"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DataObjective : <a href="Objective.ox.html#BlackBox">BlackBox</a> : <a href="Objective.ox.html#UnConstrained">UnConstrained</a> : <a href="Objective.ox.html#Objective">Objective</a></span></h2>
 
-Access the econometric objective related to a DDP Panel.
+Base class for automatically generated econometric objectives: likelihood functions and GMM objective.
+<P/>
+This objective takes a "data" object that is typically either a OutcomeDataSet or a
+PredictionDataSet.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -1330,21 +1340,39 @@ Create a constant elasticity of subsitution objective.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">alphas</td>
-<td class="description" valign="baseline">CV-compatiable vector of weights/shares
+<td class="description" valign="baseline">CV-compatiable vector of weights/shares. Default is <0.5;0.5>
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">elast</td>
-<td class="description" valign="baseline">elasticity parameter.  The exponent on each input is computed as (elast-1)/elast
+<td class="description" valign="baseline">elasticity parameter &epsilon;.  The exponent on each input is computed as (elast-1)/elast.  Default is -2.0
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">A</td>
+<td class="description" valign="baseline">constant term (TFP).  Default is 1.0
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">labels</td>
-<td class="description" valign="baseline"> 0 or array of labels for arguments.
+<td class="description" valign="baseline">0 or array of labels for arguments.
 <P/>
-Sets the parameter vector <span class="expressions">\(x\)</span> equal to <a href="Parameters.ox.html#StDeviations">StDeviations</a> of the same dimension as alphas</td>
+<span class="equation">$$A\left( {\sum}_{i=1}^N \alpha_ix_i^s \right)^{1/s}$$</span>
+<P/>
+<span class="equation">$$s \equiv {\epsilon-1 \over \epsilon}.$$</span>
+<P/>
+</td>
 </tr>
 </table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">Sets the parameter vector <span class="expressions">\(x\)</span> equal to <a href="Parameters.ox.html#StDeviations">StDeviations</a> of the same dimension as alphas.  This means it
+    will enforce positive values by transformations.  If gradients needed to be computed in terms of the
+    structural input values, then toggle the parameter constraints for the objective:
+<P/>
+    <dd><pre>
+    U = new CES("U");
+    U -&gt; ToggleParameterConstraint();
+    </pre></dd>
 </dd>
 </dl>
 </dd></dl>

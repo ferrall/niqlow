@@ -1052,12 +1052,28 @@ A container for auxiliary structures, which helps organize the hierarchy of clas
 <tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><a name="AggregatorTypes"></a>AggregatorTypes</td>
 <td class="description">Tags for Types of vector-valued objective Aggregation.
+    All objectives in FiveO take the form
+    <span class="equation">$$f = \Omega_{i=1}^N v_i.$$</span>
+    where <span class="expressions">\(v\)</span> is the vector returned by the <a href="Objective.ox.html#Objective___vfunc">vfunc</a>() method that the user typically
+    provides for their objective and <span class="expressions">\(\Omega\)</span> is an aggregator  If the objective is a <a href="Objective.ox.html#System">System</a> then this is the system of
+    equations.  The user's objective is called by <a href="Objective.ox.html#Objective___vobj">vobj</a>() and the
+    the vector is stored.  Then <a href="Objective.ox.html#Objective___fobj">fobj</a> aggregates the vector into a real number
+    using one of the aggregators below.
+        <table>
+        <tr><th>Tag</th><td>Value</td><th><span class="expressions">\(\Omega\)</span></th></tr>
+        <tr><td>LINEAR</td><td><span class="expressions">\({\sum}_i\ v_i\)</span> </td></tr>
+        <tr><td>LOGLINEAR</td><td><span class="expressions">\({\sum}_i \ln(v_i)\)</span></td></tr>
+        <tr><td>MULTIPLICATIVE</td><td><span class="expressions">\({\prod}_i v_i\)</span></td></tr>
+        <tr><td>MINUSSUMOFSQUARES</td><td><span class="expressions">\(-{\sum}_i v_i^2\)</span></td></tr>
+        <tr><td>SUMOFSQUARES</td><td><span class="expressions">\({\sum}_i v_i^2\)</span></td></tr>
+        </table>
 </td>
 <td class="elements">LINEAR, LOGLINEAR, MULTIPLICATIVE, MINUSSUMOFSQUARES, SUMOFSQUARES, Aggregators</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><a name="ConstraintTypes"></a>ConstraintTypes</td>
 <td class="description">Tags for Types of Constraints.
+Used by <a href="Objective.ox.html#Constrained">Constrained</a> objectives.
 </td>
 <td class="elements">EQUALITY, INEQUALITY, ConstraintTypes</td>
 </tr>

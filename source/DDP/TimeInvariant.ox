@@ -63,8 +63,8 @@ The user can define a derived class and supply a replacement to the virtual `Ran
 RandomEffect::RandomEffect(L,N,fDist) {
 	StateVariable(L,N);
     this.fDist = fDist;
-    // Distribution(); // April 2020.  This might create errors.
-	//pdf = constant(1/N,1,N);
+    //Distribution(); // April 2020.  This might create errors.
+	pdf = constant(1/N,1,N);  //initialize
 	}
 
 /** Do Nothing and prohibit derived Updates.
@@ -168,7 +168,7 @@ The user can supply a replacement in a derived class.
 
 **/
 RandomEffect::Distribution() {
-    pdf = isint(fDist)
+    pdf[] = isint(fDist)
             ? constant(1/N,1,N)
             : AV(fDist);
     }
@@ -211,7 +211,10 @@ NormalRandomEffect::NormalRandomEffect(L,N,pars) {
     this.pars = pars;
 	}
 
-NormalRandomEffect::Distribution() { actual = DiscreteNormal(N,pars)';	}
+NormalRandomEffect::Distribution() {
+    actual = DiscreteNormal(N,pars)';	
+    RandomEffect::Distribution();
+    }
 
 /** Create a permanent discretized normal random effect.
 @param L label

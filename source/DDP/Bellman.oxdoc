@@ -1,4 +1,5 @@
-/** Describes how the user constructs Utility, Reachable States and other aspects of the DP model's state space &Theta;.
+/** How the user constructs Utility, Reachable States and other aspects of a state $\theta$.
+
 <a href="#auto"><span class="skip"><abbr title=" Skip down to items defined in Bellman.ox">&nbsp;&#8681;&nbsp;</abbr></span></a>
 
 @sortkey C
@@ -7,14 +8,23 @@
 
 <li>Overview</li>
 
-`Bellman` is derived from the `DP` class which contains <em>static</em> elements of the code.  These <a href="#static">components are described in more detail below.</a> Classes based on Bellman capture different specifications of the model, especially in terms of the <em>iid continuous state vector</em>, denoted $\zeta$.
+Your DP model (called <code>MyModel</code> here) will be derived from the Bellman class or from one of the built-in derived classes.  Think of these classes as a template for each point in your state space $\Theta$. You pick one of the templates to start with then customize to match your model.</p>
 
-A user bases (derives) <code>MyModel</code> on one of these classes (or a class ultimately derived from them). An example:
+<p>Each `Bellman` class embodies a specification of the DP model, especially the <em>iid continuous state vector</em>, denoted $\zeta$ which smooths choice probabilities.  This customization is fundamental because the form of $\zeta$ (or the lack thereof) determines the calculations required to iterate on Bellman's equation at each point $\theta.$ Each derived class of Bellman substitutes customized routines ("methods") to carry out these tasks.</p>
+
+<p>Thus, the choice of parent class for <code>MyModel</code> depends on the action value equation:
+$$v(\alpha;\zeta,\theta)\quad \equiv\quad U(\alpha;\theta) + \zeta_\alpha + \delta EV(\theta^{\,\prime}).$$
+The state value function $V(\theta)$ must integrate over $\zeta.$ This is carried out internally by the virtual `Bellman::thetaEMax`() or its replacement. It does not have to be coded by the user. The default method,  `Bellman::thetaEMax`(), assumes there is no $\zeta.$  Thus, the default does no integration.</p>
+
+<p>Solution methods are coded separately from `Bellman`. They are derived from the `Method` class and described in <a href="Methods.ox.html">Methods</a>. Some methods may only operate if the user's model is derived from a compatible class of `Bellman` or has other required characteristics. For example, a case of Bellman specialization is whether <code>MyModel</code> involves solving for reservation values. This is a different kind of continuous shock than $\zeta$ and requires different calculations for Bellman's equation.  In this case, the parent class for <code>MyModel</code> must derive from the `OneDimensionalChoice` class because reservation value models can only allow a single action variable.</p>
+
+<li>The Minimal Template</li>
+
 <DD><pre>
 &#35;import "DDP"
 
 class MyModel : Bellman {
-    // declare data members
+    // declare static data members
             Utility();
     <details><summary>// Optional methods to replace built-in versions</summary>
             FeasibleActions();
@@ -25,63 +35,93 @@ class MyModel : Bellman {
     }
 </pre></DD>
 
-The continuous state $\zeta$ determines the form of Bellman's for choice-specific values, which integrates out the IID state vectors, $\zeta$, $\epsilon$ and $\eta$. Bellman equation solution methods are coded separately from `Bellman`. They are derived from the `Method` class and described in <a href="Methods.ox.html">Methods</a>. Some methods may only operate if the user's model is derived from a compatible class of `Bellman` or has other required characteristics.</p>
-
-Classes of type `Bellman` code the form of Bellman's equation for the specification:
+<!--Classes of type `Bellman` code the form of Bellman's equation for the specification:
 $$\eqalign{
 V(\theta^{\,\prime})\quad &\equiv \quad \sum_{\eta}\ \sum_{\epsilon}\left[ \int_{\zeta} V\left(\eta,\epsilon,\eta,\theta^{\,\prime}\right)f(\eta)d\eta \right] P_\epsilon(\epsilon)P_\eta(\eta) \cr
 EV(\theta^{\,\prime})\quad &=\quad E_{\alpha,\eta,\theta} \left[V(\theta^{\,\prime})\right] = \sum_{\theta^{\,\prime}} \biggl[ V\left(\theta^{\,\prime}\right)P\left(\theta^{\,\prime}\ ;\ \alpha,\eta,\theta\right)\biggr]\cr
 v(\alpha;\zeta,\epsilon,\eta,\theta)\quad &\equiv\quad U(\alpha,\epsilon,\eta,\theta,\gamma) + \zeta_\alpha + \delta EV(\theta^{\,\prime})\cr
 V(\zeta,\epsilon,\eta,\theta)\quad &=\quad\max_{\alpha\in A(\theta)}\ v(\alpha;\zeta,\epsilon,\eta,\theta)\cr}$$
 
-The integration over $\zeta$ is carried out internally by the virtual `Bellman::thetaEMax`() or its replacement and does not have to be coded by the user. The default method,  `Bellman::thetaEMax`(), assumes there is $\zeta.$  Thus, the default does no integration.</p>
-
-Choice probabilities are stored conditional on $\eta$ and $\theta$.  This requires summing over $\epsilon$ and integrating over $\zeta$. Another virtual method, `Bellman::Smooth`(), carries out the smoothing of choice probabilities, but only on a final iteration (after convergence in an infinite horizon environment). In the default, choice probabilities are not smoothed.  That is, conditional choice probabilities are either 0 or 1 based on whether the action $\alpha$ has maximum value or not. The derived class `ExPostSmoothing` allows for ex-post smoothing of choice probabilities without the presence of $\zeta$.</p>
+The integration over $\zeta$ is carried out internally by the virtual `Bellman::thetaEMax`() or its replacement and does not have to be coded by the user. The default method,  `Bellman::thetaEMax`(), assumes there is $\zeta.$  Thus, the default does no integration.</p>-->
 
 <li>User-Contributed Elements of <code>MyModel</code> and <code>MyCode</code></li>
 <OL class="chapter">
 <LI>Utility()</LI>
-<code>MyModel</code> must supply a replacement for `Bellman::Utility`(). Since utility depends on the current state, the method must be automatic (not static).
+<code>MyModel</code> must supply a replacement for `Bellman::Utility`(). Since utility depends on the current state, the method must be automatic (not static).  Here is an example with one state variable and one action and how they might determine utility.
 <DD><pre>
 &#35;import "DDP"
 
 struct MyModel : Bellman {
-    // define data members and methods
+    static decl d, s;     // One decision and one state variable
     Utility();
     }
 MyModel::Utility() {
-    return  U;  //a vector of utility values given the feasible actions <code>A</code>
+    return  CV(s)*CV(d);  
     }
 </pre></DD>
+So this is a model where $\alpha = (d)$ and $\theta = (s)$ and $U(\alpha;\theta)=sd.$</p>
+
+<p>As explained elsewhere, if <code>s</code> contains a state variable its "value" is not simply themselves. Likewise <code>a</code>. Their current values are retrieved by sending them to `CV`().  Also, note that $U()$ at a state is always treated as a vector-valued function in <span class="n">DDP</span> .  So <code>CV(d)</code> is a column vector.  As a state variable <code>s</code> is a scalar at $\theta$.</p>
 
 <LI>Reachable States</LI>
 
-A state is <em>unreachable</em> if it cannot occur given initial conditions.  For example, a person cannot have 20 years of labour market experience at age 18. Including unreachable states in the state space wastes computation and storage but does not cause any errors.  <code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::Reachable`() method.  The built-in version of <code>Reachable</code> returns TRUE, meaning all states are marked as reachable.   The user can provide a replacement with returns an indicator for whether the current state is reachable or not.</p>
+A state is <em>unreachable</em> if it cannot occur given initial conditions.  For example, a person cannot have 20 years of labour market experience at age 18. Including unreachable states in the state space wastes computation and storage but does not cause any errors.</p>
 
-<DD>Example.  To mark states at which state variables $x$ and $y$ greater than 5 as unreachable:
+<p><code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::Reachable`() method.  The built-in version of <code>Reachable</code> returns TRUE, meaning all states are marked as reachable.   The user can provide a replacement with returns an indicator for whether the current state is reachable or not.</p>
+
+<DT>Example.</DT>
+<DD>Mark as unreachable all states at which $x$ and $y$ add up to a value greater than 5:
 <pre>MyModel::Reachable() {
     return ! (CV(x)+CV(y)&gt; 5);
     }
 </pre></DD>
 
-Note however, that `StateVariable`s defined in <span class="n">DDP</span> have their own <code>Reachable</code> method which are called when creating the state space and before <code>MyModel::Reachable()</code> is called.  This means that in many cases the user does not need to code <code>Reachable</code>.  For example, in the case of too much experience at a given age, the `ActionCounter` state variable will automatically prune states from a finite horizon model based on the condition.</p>
+`StateVariable`s defined in <span class="n">DDP</span> have their own <code>Reachable</code> method which are called when creating the state space and before <code>MyModel::Reachable()</code> is called.  This means that in many cases the user does not need to code <code>Reachable</code>.  For example, in the case of too much experience at a given age, the `ActionCounter` state variable will automatically prune states from a finite horizon model based on the condition.</p>
 
 <LI>Restricted Feasible Action spaces / matrices </LI>
 
-<code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::FeasibleActions`() method to make the feasible choice set to vary with the endogenous state $\theta$.  That is, the action space $A$ is really $A(\theta)$.  Again, the default is that all states constructed from the action variables added to the model.</p>
+<code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::FeasibleActions`() method to make the feasible choice set to vary with the endogenous state $\theta$.  That is, the action space $A$ is really $A(\theta)$.  Again, the default is that all values constructed from the action variables added to the model are feasible.</p>
 
-<DD>Example.  Only action vectors with <code>d</code> less than or equal to the value of state variable <code>x</code> are feasible.
-<pre>MyModel::FeasibleActions() { return CV(d) &lt;= CV(x); }
-</pre></DD>
+<DT>Example.</DT> 
+<DD> Only action vectors with <code>d</code> less than or equal to the value of state variable <code>s</code> are feasible.
+<pre>
+MyModel::FeasibleActions() { 
+    return CV(d) .&lt;= CV(s); 
+    }
+</pre>
+The dot operator <code>.&lt;</code> is the element-by-element less-than operator in Ox.   So this returns a vector of length equal to the number of values <code>d</code> takes on containing 0s and 1s.  When setting up spaces <span class="n">DDP</span> will call <code>FeasibleActions</code> at each point in the state space.  It will then create a list of different feasible sets.  Each point $\theta$ contains an index into this list to ensure only feasible action values are returned by <code>CV(d)</code> when the model is being solved/used.</DD>
+
+<DD><mark>Important</mark>: feasibility must be static.  That is, the conditions returned by <code>FeasibleActions</code> must be determined at the creation of the spaces and <em>cannot depend on changing elements of the model.</em>  For example, suppose <code>p</code> is the price of units of an action <code>d</code> that the agent takes as given.  And suppose <code>s</code> is the agent's income the current state.  Then one might tempted to impose the budget constraint like this:
+<pre>
+MyModel::FeasibleActions() {
+    return CV(p) * CV(d) .&lt;= CV(s);
+    }
+</pre>
+However, if <code>p</code> is changing due to an equilibrium calculation this is incorrect because <code>FeasibleActions</code> is only called once inside `DP::CreatSpaces`() so it cannot be used for a dynamic condition like this.  Instead, <code>Utility</code> must impose this condition.  Ox understands $-\infty$, so you can assign a infeasible choice that value to ensure that it will not be optimal (and will be given 0 probability):
+<pre>
+MyModel::Utility() {
+    decl dv = CV(d);
+    return  CV(p)*dv .&lt;= CV(s)  .?  dv .: -.Inf;
+    }
+</pre>
+The <code>.? &hellip; .: &hellip;</code> operation is an inline <code>if-statement</code> that will check the 
+element-by-element condition at the start and assign the other values listed depending on whether the element is TRUE or FALSE.  This case if the value of <code>p</code> changes and a value of <code>d</code> is no longer affordable it will dynamically have utility equal to $-\infty$.
+</DD>
 
 <LI>ThetaUtility</LI>
 
-Suppose the utility for your model has the form $U() = f\left( \alpha; g\left(\theta\right),\eta,\epsilon\right).$  That is, there is a function $g()$ of the endogenous state variables that is common for all values of the IID (exogenous and semi-exogenous) state variables.  If <code>MyModel</code> only provides the required <code>Utility()</code> function then $g(\theta)$ is unnecessarily recomputed for each value of the IID shocks.  This inefficiency can be eliminated by providing <code>ThetaUtility().</code>  That is called for each $\theta$ immediately before looping over the IID values and calling <code>Utility()</code>. A simple example:  $U = a(xb + e - d) + d.$  Here $\theta=(x),$ $\alpha=(a)$ is a binary choice, and $\epsilon=(e)$ an IID shock to value of $a=1$.  $b$ and $d$ are parameters.
+Suppose the utility for your model has the form 
+$$U() = f\left( \alpha; g\left(\theta\right),\eta,\epsilon\right).$$  
+That is, there is a function $g()$ of the endogenous state variables that is common for all values of the IID (exogenous and semi-exogenous) state variables.  If <code>MyModel</code> only provides the required <code>Utility()</code> function then $g(\theta)$ is recomputed for each value of the IID shocks.</p>
+
+<p>This inefficiency can be eliminated by providing <code>ThetaUtility()</code>  which is called for each $\theta$ immediately before looping over the IID exogenous state values and calling <code>Utility()</code>. A simple example:  
+$$U = a(xb + e - d) + d.$$  
+Here $\theta=(x),$ $\alpha=(a)$ is a binary choice, and $\epsilon=(e)$ an IID shock to value of $a=1$.  $b$ and $d$ are parameters.  So $g() = xb$, which is not expensive to recompute unnecessarily.  However, in some models this $\theta$-constant component of utility is very involved whereas the IID contributions are simple.</p>
 
 <dd><pre>
 struct MyModel : Bellman {
     &vellip;
-    static decl xb , a, x, b, d, e;
+    static decl a, x, xb, e;
     &vellip;
     ThetaUtility();
     &vellip;
@@ -93,7 +133,7 @@ MyModel::Utility() {
     return CV(a)*(xb+AV(e)-d) + d;
     }
     </pre></dd>
-Note that the model's <code>ThetaUtility</code> stores the computed value in a static member of the model.  It can be static even though the value of the state variable $x$ depends on the $\theta$.  But it will updated with the current value before <code>Utility()</code> is called for the current value of $\theta$ and $\epsilon.$  In complicated models, there may be many calculations that depend on endogenous states and estimated parameters.  Using <code>ThetaUtility()</code> not only eliminates redundant computation it does so without additional storage that grows with the state space.</p>
+<code>ThetaUtility</code> stores the computed value in a static member of the model, <code>xb</code>.  If <code>xb</code> were not declared static an additional location in memory would be created for each point $\theta.$  It can be static even though the value of the state variable $x$ depends on the $\theta$.  As <span class="n">DDP</span> moves through the state space the value of <code>xb</code> is updated with the current value before <code>Utility()</code> is called for the current value of $\theta$ and $\epsilon.$  In complicated models, there may be many calculations that depend on endogenous states and estimated parameters.  Using <code>ThetaUtility()</code> not only eliminates redundant computation it does so without additional storage that grows with the state space.</p>
 
 <LI>Hooks and Update Time</LI>
 

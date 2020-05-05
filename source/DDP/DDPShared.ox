@@ -135,8 +135,8 @@ TrackObj::Distribution(pobj,obj) {
         v =obj.actual[me]'*pobj.pq;
         }
     //else { Auxiilary already done}
-    if (obj.Volume>=LOUD) println(I::t," OV ",obj.v'," ",v," ",mean);
     mean += v;
+    if (obj.Volume>=LOUD) println(I::t," ",obj.L," OV ",obj.v'," ",v," ",mean);
     }
 
 /** Track an object in a prediction path.

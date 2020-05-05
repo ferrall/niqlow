@@ -280,8 +280,8 @@ Container for auxiliary classes used in DDP but not elsewhere (directly).
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Flags : <a href="DDPShared.ox.html#DDPauxiliary">DDPauxiliary</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
 
 Indicators related to the DP problem.
-All elements are static. A user's code can reference these variables
-but should not change them unless building a new solution method.
+    All elements are static. A user's code can reference these variables
+    but should not change them unless building a new solution method.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -868,8 +868,7 @@ Contains information on an object (variable, auxiliary outcome, etc) to be track
 </tr>
 <tr class="even">
 <td class="declaration"><a name="DPPhases"></a>DPPhases</td>
-<td class="description">Phases of DP computations.  The current phase is set by the code and time spent in each phase is
-tracked.
+<td class="description">Phases of DP computations.  The current phase is set by the code and time spent in each phase is tracked.
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#Flags___TimeProfile">TimeProfile</a></dd>
 </dl></td>
@@ -884,18 +883,18 @@ tracked.
 <tr class="even">
 <td class="declaration"><a name="GMMWeightOptions"></a>GMMWeightOptions</td>
 <td class="description">Weighting of moments in GMM.
-<table class="enum_table" valign="top">
-<tr><td valign="top"><code>UNWEIGHTED</code></td><tD>No weighting occurs</tD></tr>
-<tr><td valign="top"><code>UNCORRELATED</code></td><tD>Each difference between empirical and predicted moments is weighted by the inverse of its (bounded) sample standard deviation.  This treats
-        each moment as uncorrelated with other moments, including contemporarneous moments</tD></tr>
-<tr><td valign="top"><code>CONTEMPORANEIOUS</code></td><tD>[NOT YET IMPLEMENTED].  This reads in a matrix of weights to apply to
+    <table class="enum_table" valign="top">
+    <tr><td valign="top"><code>UNWEIGHTED</code></td><tD>No weighting occurs</tD></tr>
+    <tr><td valign="top"><code>UNCORRELATED</code></td><tD>Each difference between empirical and predicted moments is weighted by the inverse of its (bounded) sample standard deviation.  This treats
+        each moment as uncorrelated with other moments, including contemporaneous moments</tD></tr>
+    <tr><td valign="top"><code>CONTEMPORANEOUS</code></td><tD>[NOT YET IMPLEMENTED].  This reads in a matrix of weights to apply to
         each time period's differences pre</tD></tr>
-<tr><td valign="top"><code>INTERTEMPORAL</code></td><tD>This applies a matrix of weights to the full path, read in from
+    <tr><td valign="top"><code>INTERTEMPORAL</code></td><tD>This applies a matrix of weights to the full path, read in from
     files with names <code>pathW_ff.mat</code> and ff is the index of the fixed group.  These files are created
     by </tD></tr>
-<tr><td valign="top"><code>AUGMENTEDPATHW</code></td><tD>This augments path weighting matrices.  Moments that do
+    <tr><td valign="top"><code>AUGMENTEDPATHW</code></td><tD>This augments path weighting matrices.  Moments that do
     not vary have weight 0.  This weights these moments by 0.01 so that they are matched as well as variable moments.</tD></tr>
-</table>
+    </table>
 </td>
 <td class="elements">UNWEIGHTED, UNCORRELATED, CONTEMPORANEOUS, INTERTEMPORAL, AUGMENTEDPATHW, GMMWeightOptions</td>
 </tr>
@@ -957,11 +956,11 @@ of each separate group. The function added here should return TRUE if the group 
 <tr class="even">
 <td class="declaration"><a name="NReachTypes"></a>NReachTypes</td>
 <td class="description">Categories of Endgoenous State  Reachability.
-<table><tr><th>Tag</th><th>Means</th></tr>
-<tr><td>InUnRchble</td><td>Unreachable because a state variable is inherently unreachable</td></tr>
-<tr><td>UUnRchble</td><td>Unreacheable because a user Reachable returns FALSE</td></tr>
-<tr><td>Rchble</td><td>Reachable</td></tr>
-</table>
+    <table><tr><th>Tag</th><th>Means</th></tr>
+    <tr><td>InUnRchble</td><td>Unreachable because a state variable is inherently unreachable</td></tr>
+    <tr><td>UUnRchble</td><td>Unreacheable because a user Reachable returns FALSE</td></tr>
+    <tr><td>Rchble</td><td>Reachable</td></tr>
+    </table>
 </td>
 <td class="elements">InUnRchble, UUnRchble, Rchble, NReachTypes</td>
 </tr>
@@ -1086,21 +1085,21 @@ of each separate group. The function added here should return TRUE if the group 
 <tr class="even">
 <td class="declaration"><a name="UpdateTimes"></a>UpdateTimes</td>
 <td class="description">Point in solving when updating of parameters and transitions needs to occur.
-<table class="enum_table">
-<tr><td valign="top">InCreateSpaces</td><td>Transitions do not depend on any parameters that change so they can be initialized
-in <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() and never recalculated.</td></tr>
-<tr><td valign="top">WhenFlagIsSet</td><td>Update transitions at the start of <a href="Methods.ox.html#Method___Solve">Solve</a>() but ONLY if the RecomputeTrans() has
-been called. This ensures that if transitions depend on parameters that are controlled by the outside but multiple calls to solve
-will be made for the same parameter values (say while computing equilibrium prices and transitions only depend on parameters)</td></tr>
-<tr><td valign="top">OnlyOnce</td><td>Update transitions just once on each call to <a href="Methods.ox.html#Method___Solve">Solve</a>(). This ensures that if transitions depend
-on parameters that are controlled by the outside (say by an optimization algorithm) the probabilities used in solving the model will
-reflect any changes in the parameters since the last time the solution method was applied. </td></tr>
-<tr><td  valign="top">AfterFixed</td><td>Update transitions after the value of the fixed groups is set.  This will allow transitions to depend on the value of
-fixed effect variables.</td></tr>
-<tr><td  valign="top">AfterRandom</td><td>Update transitions after the value of the random groups is set.  This will allow transitions to depend on the value of
-both fixed and random effect variables.</td></tr>
-</table>
-There is a potentially large computational cost of updating the transitions more often than is necessary.
+    <table class="enum_table">
+    <tr><td valign="top">InCreateSpaces</td><td>Transitions do not depend on any parameters that change so they can be initialized
+        in <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() and never recalculated.</td></tr>
+    <tr><td valign="top">WhenFlagIsSet</td><td>Update transitions at the start of <a href="Methods.ox.html#Method___Solve">Solve</a>() but ONLY if the RecomputeTrans() has
+        been called. This ensures that if transitions depend on parameters that are controlled by the outside but multiple calls to solve
+        will be made for the same parameter values (say while computing equilibrium prices and transitions only depend on parameters)</td></tr>
+    <tr><td valign="top">OnlyOnce</td><td>Update transitions just once on each call to <a href="Methods.ox.html#Method___Solve">Solve</a>(). This ensures that if transitions depend
+        on parameters that are controlled by the outside (say by an optimization algorithm) the probabilities used in solving the model will
+        reflect any changes in the parameters since the last time the solution method was applied. </td></tr>
+    <tr><td  valign="top">AfterFixed</td><td>Update transitions after the value of the fixed groups is set.  This will allow transitions to depend on the value of
+        fixed effect variables.</td></tr>
+    <tr><td  valign="top">AfterRandom</td><td>Update transitions after the value of the random groups is set.  This will allow transitions to depend on the value of
+        both fixed and random effect variables.</td></tr>
+    </table>
+    There is a potentially large computational cost of updating the transitions more often than is necessary.
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
 </dl></td>

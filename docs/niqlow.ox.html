@@ -16,14 +16,21 @@
 
 <table class="doctable">
 <P/>
-<tr><th colspan="3"><h2 class="over"><a href="About/Install.html">Install</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
-<a href="examples/default.html">Examples</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
-<a href="About/License.html">License</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
-<a href="About/Citation.html">Citation</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
-<a href="https://ferrall.github.io/OODP/">OODP Academic Paper</a>&nbsp;&nbsp;&hellip;&nbsp;&nbsp;
-<a href="About/Acknowledgements.html">Acknowledgements</a></h2></th></tr>
+<tr>
+<tr><th colspan="3"  class="sep">Getting started &hellip;</th></tr>
+<td><details class="over"><summary>Install</summary>See <a target="_blank" href="About/Install.html">Installation instructions</a> to get <span class="n">niqlow</span> going on your system.</details></td>
+<td><details class="over"><summary>Examples</summary>Browse and run <a  target="_blank" href="examples/default.html">test code, examples, and replications</a></details></td>
+<td><details class="over"><summary>OODP</summary>Read the latest draft of the <a href="https://ferrall.github.io/OODP/">OODP academic paper</a> that provides a <span class="n">niqlow</span>-based definition of structural estimation and the existing literature.</details></td>
+</tr>
+<tr><th colspan="3"  class="sep"><span class="n">niqlow</span> has 3 components (separate but integrated) </th></tr>
+<tr><th><h2><a href="DDP/default.html">DDP</a></h2></td>
+<th><h2><a href="FiveO/default.html">FiveO</a></h2></th><th><h2><a href="CFMPI/default.html">CFMPI</a></h2></th></tr>
+<tr><th>Derived Dynamic Programs</th><th>Object Oriented Objective<br>Optimization in Ox</th><th>CF's Ox Inteface to the MPI Library</th></tr>
 <P/>
+<tr ><th colspan="3" class="sep">Stages of using <span class="n">niqlow</span> &hellip;</th></tr>
 <tr><th width="33%"><h2>DESIGN</h2></td><th  width="33%"><h2>SOLVE</h2></th><th  width="33%"><h2>ESTIMATE</h2></th></tr>
+<P/>
+<!--<tr><td colspan="3" >&nbsp;</td></tr>-->
 <P/>
 <tr><td><details class="over"><summary>Step 1. Design Your DP model</summary>
 <UL>
@@ -35,19 +42,19 @@
 </td>
 <P/>
 <td><details class="over"><summary>Step 2. Solve the model</summary>
-<ul> 
+<ul>
 <li>Use of the solution built in <a href="">Method</a>s to solve Bellman's equation for your model.</li>
 <li>Create <a href="">Data</a> outcomes for the solution.</td>
 </ul></details>
 <td><details class="over"><summary>Step 3. Find parameter values</summary>
 <UL><li>Use the integrated  <a href="FiveO/default.html">FiveO</a> tools to maximize an objective or solve a system of
-equations that depend on the solved DP model.</li>
+equations that depends on the solved DP model.</li>
 <li>See how to maximize a function in <a href="FiveO/GetStarted.html">Get Started with FiveO</a></li>
 <li>Select among standard algorithms</li>
 <LI>Use objectives that are integrated with DP models and external data or create your own.</li>
 </UL></details>
 </td></tr>
-<tr><td colspan="3" >&nbsp;</td></tr>
+<P/>
 <tr><td><details class="over"><summary>Required DP Components </summary>
     <UL>
     <li><a href="DDP/">Choose among <a href="">Bellman</a> classes to base your template for each point <span class="expressions">\(\theta\)</span> of the state space.</a></li>
@@ -65,7 +72,7 @@ equations that depend on the solved DP model.</li>
        <li>Make values of state variables <a href="">Terminal Values</a></li>
        <li>Restrict actions depending on <span class="expressions">\(\theta\)</span> by coding <a href="">FeasibleActions()</a> to define <span class="expressions">\(A(\theta)\)</span>.</li>
        <li>Restrict which states can be reached by coding <a href="">Reachable()</a></li>
-     <LI>Let <span class="n">niqlow</span> handle the mapping between discrete <a href="">counter values</a> of 
+     <LI>Let <span class="n">niqlow</span> handle the mapping between discrete <a href="">counter values</a> of
         variables and their <a href="">actual values</a> that enter your formulas</LI>
      <LI>Set the point in the solution algorithm when transitions must be recomputed depending on the reliance on parameters or group variables
         without computing the transitions unnecessarily.</LI>
@@ -113,7 +120,7 @@ equations that depend on the solved DP model.</li>
     <LI>Use built-in types of parameters to constrain them to open intervals in one or more related dimensions.</LI>
     <LI>Control which parameters are free to vary or should be held fixed by solution algorithms.</LI>
     </UL></details><br/>
-<details class="over"><summary>Create a criterion (objective) for choosing parameters</summary>
+<details class="over"><summary>Create a criterion (objective) </summary>
     <UL>
     <LI>Use an automatically generated econometric objective already available that depend on external data.</LI>
     <LI>Create a system of equations to find <a href="">Equilibrium</a> prices.</LI>
@@ -122,36 +129,44 @@ equations that depend on the solved DP model.</li>
     <LI>Choose among GMM weighting options</LI>
     </UL>
 </details><br/>
-<details class="over"><summary>Choose <a href="">Algorithm(s)</a> to optimize / solve your objective.</summary>
-    <UL><li>Apply the algorithm by using its <a href="">Iterate()</a> function.  </LI>
+<details class="over"><summary>Optimize your objective.</summary>
+    <UL><li>Apply an <a href="">Algorithm(s)</a> using its <a href="">Iterate()</a> function.  </LI>
     <LI>Apply different methods, monitor and <a href="">checkpoint</a> progress</LI>
-    <LI>Rest assure that the DP model is resolved each time the criterion is re-evaluated because you sent the solution method to the data objects.</LI>
+    <LI>Rest assured: the DP model is re-solved each time the criterion is re-evaluated because you sent the solution method to the data objects.</LI>
     <LI>Turn DP iteration on and off in order to carry out <a href="">Two-Stage Estimation.</a></LI>
     </UL></details><br/></td></td></tr>
-<tr><td colspan="3"><h4>
-<details class="over"><summary>When your model becomes big</summary>
+<P/>
+<tr><th colspan="3"  class="sep">When your model &hellip;</th></tr>
+<P/>
+<tr><td><details class="over"><summary>Becomes Big</summary>
 <UL>
 <LI>Use <a href="CFMPI">CFMPI</a> package to work in parallel on a Linux cluster</LI>
 <LI>Let <span class="n">niqlow</span> handle parallel processing in optimization and model solving with no recoding</LI>
 <LI>Or use high levels tools provided to create your own Client/Server and Peer-to-Peer tasks</LI>
 <li>Or use the low-level interfaces with the MPI library to customize. </li>
-</UL></details><br/></h4>
+</UL></details></th>
 <P/>
-<h4><details  class="over"><summary>When your model is estimated/finished</summary>
+<td><details  class="over"><summary>Is Estimated</summary>
 <UL><LI>Use the estimated/equilibrium parameters to conduct policy experiments:</LI>
-<LI>Change a parameter value at the top level of your code and be assured its propagates down to the DP solution and 
+<LI>Change a parameter value at the top level of your code and be assured its propagates down to the DP solution and
     back up through predictions or simulated outcomes.</LI>
-<LI>Create your own <em>derived</em> class to change the clock, expand the state space, allow more choice re-using the existing code and 
-changing only what is necessary</LI></UL></details><br/></h4>
+<LI>Create your own <em>derived</em> class to change the clock, expand the state space, allow more choice re-using the existing code and
+changing only what is necessary</LI></UL></details></td>
 <P/>
-<h4><details class="over"><summary>When you have made novel contributions</summary>
+<td><details class="over"><summary>Is a Contribution</summary>
 <UL>
-<LI>Your model probable has a new kind of state variable or a modified solution method.  Add these elements to the <span class="n">niqlow</span> source code on your computer then request your  changes be implemented (pulled) into <span class="n">niqlow</span>.</LI>
-    <li>Create test or demonstration code for your new components or for core parts of <span class="n">niqlow</span>.</li>
+<LI>Add new elements of your model to the <span class="n">niqlow</span> source code on your computer then request your  changes be implemented (pulled) into <span class="n">niqlow</span>.</LI>
+<li>Create test or demonstration code for your new components or for core parts of <span class="n">niqlow</span>.</li>
 <LI>Post your model code as a github repository to share it with others.</LI>
-<LI>When your paper is published request your code be added to the replications.</LI>
-</UL></details></h4>
+<LI>When your paper is published request your code be added to the <a href="Examples/replications">replications</a>.</LI>
+</UL></details>
 </td></tr>
+<P/>
+<tr ><th class="sep" colspan="3">The fine print &hellip;</th></tr>
+<tr><th><h2 class="over"><a target="_blank" href="About/License.html">License</a></h2></th>
+<th><h2 class="over"><a  target="_blank" href="About/Citation.html">Citation</a></h2></th>
+<th><h2 class="over"><a  target="_blank" href="About/Acknowledgements.html">Acknowledgements</a></h2></th></tr>
+<P/>
 </table>
 <!--0
 <UL>

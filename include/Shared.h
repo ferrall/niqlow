@@ -56,11 +56,29 @@ enum {NONE,MAXITERATIONS,FAIL,WEAK,SECONDRESET,STRONG,ConvergenceResults}
 		/** Possible next treatment phases. @name NextTreatmentStates **/	
 enum {stayinf,gotonextf,exittreatment,NextTreatmentStates}
 
-		/** Tags for Types of Constraints. @name ConstraintTypes **/	
+/** Tags for Types of Constraints.
+Used by `Constrained` objectives.
+@name ConstraintTypes **/	
 enum{EQUALITY,INEQUALITY,ConstraintTypes}
 
-		/** Tags for Types of vector-valued objective Aggregation.
-            @name AggregatorTypes **/	
+    /** Tags for Types of vector-valued objective Aggregation.
+    All objectives in `FiveO` take the form
+    $$f = \Omega_{i=1}^N v_i.$$
+    where $v$ is the vector returned by the `Objective::vfunc`() method that the user typically
+    provides for their objective and $\Omega$ is an aggregator  If the objective is a `System` then this is the system of
+    equations.  The user's objective is called by `Objective::vobj`() and the
+    the vector is stored.  Then `Objective::fobj` aggregates the vector into a real number
+    using one of the aggregators below.
+        <table>
+        <tr><th>Tag</th><td>Value</td><th>$\Omega$</th></tr>
+        <tr><td>LINEAR</td><td>${\sum}_i\ v_i$ </td></tr>
+        <tr><td>LOGLINEAR</td><td>${\sum}_i \ln(v_i)$</td></tr>
+        <tr><td>MULTIPLICATIVE</td><td>${\prod}_i v_i$</td></tr>
+        <tr><td>MINUSSUMOFSQUARES</td><td>$-{\sum}_i v_i^2$</td></tr>
+        <tr><td>SUMOFSQUARES</td><td>${\sum}_i v_i^2$</td></tr>
+        </table>
+            @name AggregatorTypes
+    **/	
 enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,SUMOFSQUARES,Aggregators}
 
         /** Codes for `Bellman::Type`.  These codes (and their order) determine what calculations to do

@@ -35,11 +35,11 @@ A blackbox is a function <var>f:&real;<sup>N</sup>&rarr;&real;</var>.
 
 A separable objective is the sum of <var>K</var> `BlackBox` objectives. A separable objective is a function <em>and</em> a parameter <em>matrix</em> of the form
 <dd class="disp">$$\eqalign{
-\psi \quad &=\quad \left(\psi_0 \psi_1 \dots \psi_{K^-} \right)\cr
+\psi \quad &=\quad \left(\matrix{\psi_0& \psi_1 & \dots & \psi_{K^-} }\right)\cr
 f(\psi) \quad &=\quad \sum_{k=0}^{K^-1} \ \sum_{} f_k\left(\psi_k)\right) \cr
 }$$</dd>
 
-Each sub-vector <code>&psi;<sub>k</sub></code> is of the same length, <code>(&psi;.k).N = M.</code>. The overall parameter <code>&psi;</code> is then a <code>M &times; K</code> matrix, the horizontal concatenation of the the sub-vectors. Obviously, for K=1 a separable objective is equivalent to a `BlackBox`.</p>
+Each sub-vector <code>&psi;<sub>k</sub></code> is of the same length, <code>(&psi;.k).N = M.</code>. The overall parameter <code>&psi;</code> is then a <code>M &times; K</code> matrix, the horizontal concatenation of the sub-vectors. Obviously, for K=1 a separable objective is equivalent to a `BlackBox`.</p>
 
 The user only needs to code the sub-objective as a function of the sub-parameter vector and a `Discrete` quantity, <code>K</code>. That is, the user codes <code>vfunc()</code> to equal <code>f<sub>k</sub>(&psi;<sub>k</sub>)</code>.  The current value of the index <code>k</code> is stored as `Separable::Kvar`.v. </p>
 
@@ -84,7 +84,7 @@ Now the sub objective depends on <code>k</code> and <code>d</code>.  However, pa
 
 Typically (but not necessarily), the weights are each a unit Simplex for each d:
   0 &le; &lambda;[d][k] &le; 1
-  &sum;<sub>k=0</sub><sup>K&oline;</sup> &lambda;[d][k] = 1. 
+  &sum;<sub>k=0</sub><sup>K&oline;</sup> &lambda;[d][k] = 1.
 </pre></DD>
 
 A separable objective is the special case of a mixture with <code>D=K</code> and <code>&lambda; = I<sub>K</sub></code>.  That is, each type is specific to an environment.
@@ -111,7 +111,7 @@ D arguments (va = array[D]), then each must be a `ParameterBlock` of size K and
 
 The final option allows the user to use weights that do not sum to 1 for each value of <code>d</code>, because the parameter block need not be a <a href="Parameters.ox.html#Simplex">Simplex</a> parameter block.
 It is inefficient to compute &fnof;<sub>k d</sub> if its weight is zero.  The user can send a matrix of 0s and 1s to `Mixture::IncludedDK`(), which indicates which type-environment pairs should be ignored. The default matrix consists of 0s, meaning that no combinations are ignored. Algorithms do not know any difference between a mixture, separable or blackbox objective. Algorithms will work with a concatenation  of &lambda; and &psi;. Common parameters operate the same way in a mixture as in a separable objective.</p>
- 
+
 If no common parameters (and no `Determined` parameters) are added to a separable objective, and the weights are D K-Simplexes, then the length of the (overall) parameter vector seen by an algorithm is <code>N = D(K-1) + KM</code>. In general, the overall parameter vector has length <code>N = DK + C+DK&times;(M-C)</code>.</p>
 
 

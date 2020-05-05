@@ -148,21 +148,63 @@ struct DP {
 
 /** Process (span) space or subspace.
 
-<DT>Derived classes of tasks are specialized to process different spaces:</DT>
+<h3>Tasks do the work of Dynamic Programming</h3>
+
+<DT>In <span class="n">DDP</span> a <em>Task</em> is an operation to go over the part
+of the space of all diferent variable combinations.</DT>
+
+<DD>Each specialied task is a derived class from some more generic task.</DD>
+
+<DT>A Task object has its own <code>state</code> member which is a vector of values at
+the current point in the operation.</DT>
+
+<DD><span class="n">DDP</span> synchronizes the value of the state vector with the current
+values of all variables in the model.</DD>
+
+<DT>The engine of a task is its `Task::loop`() method.</DT>
+
+<DD>`Task::loop`() for a task is equivalent to  <em>nested</em> loops over some elements
+of the state vector in purpose-built code.</DD>
+
+<DD><code>loop()</code> iterates over the task's <em>range</em> of state variables,
+ defined by <code>left</code> and <code>right</code> indices into the state vector.</DD>
+
+<DT>Inside the <code>loop()</code> the Task's `Task::Run`() method is called.</DT>
+
+<DD><code>Run()</code> is a virtual method, so the Task's replacement is called inside the
+shared <code>loop()</code> method.</DD>
+<DD>The loop assigns every possible value of state variables in its vector(s)
+    and for each unique vector call the <em>virtual</em> `Task::Run`() routine.</DD>
+
+<DT>A new job can be created by deriving a new Task and
+supplying a new <code>Run()</code> method.</DT>
+    <DD>  The <code>loop()</code> is inherited from the parent class.</DD>
+
+<DT>Tasks can linked to each other in a recursive chain.</DT>
+    <DD>The <code>Run()</code> method can in turn call the <code>loop()</code>
+        of an internally stored `Task::itask`.</DD>
+    <DD>This hierarchy of tasks breaks up the problem of spanning the whole space into
+    separate tasks.  Tasks are typically ordered from right to left.</DD>
+
+<h3>Derived classes of tasks are specialized to process different spaces</h3>
+
+<DT>`Data` structures for the empirical side of DP are made up of Tasks</DT>
 
 <DT>`GroupTask`s process the group space $\Gamma$ (fixed and random effects).</DT>
-<DD>`FETask`,`RETask` specialized to one or the other component of $\Gamma$.</DD>
-<DD>`Method`s to solve the DP problem are FETasks which turn call other tasks</DD>
-<DT>`ThetaTask`s process the endogenous state space, $\Theta$.  are based on ThetaTask.</DT>
-<DD>`GSolve` and derived children carry out the solution methods.</DD>
+<DD>In turn, `FETask`s process the $\gamma_f$ vector and
+        `RETask`s process $\gamma_r$.</DD>
+<DD>A `Method` to solve the DP problem is a <code>FETasks</code> for which its
+    <code>itask</code> is a <code>RETask</code> if random effects are present
+    or a `ThetaTask` if not.</DD>
 
-<DT>`ExTask` processes the exogenous vectors &epsilon; and &eta;.</DT>
+<DT>`ThetaTask`s process the endogenous state space, $\Theta$. </DT>
+    <DD>For example, `CreateTheta` is a task that is called once to create objects for each
+        reachable value of $\theta.$</DD>
+    <DD>A Method task will eventually call a `GSolve` task which is a ThetaTask to apply
+        a DP solution method at each point of $\Theta$.</DD>
 
-The engine of a task is its <code>loop()</code> method.  It will assign eveyr
-possible value of state variables in its vector(s) and for each unique
-vector call the <em>virtual</em> `Task::Run`() routine.  So any new job that requires going
-over a vector of states can be created by deriving a new Task and supplying
-a new <code>Run()</code> method.
+<DT>`ExTask` processes the exogenous vectors $\epsilon$ and $\eta$.</DT>
+    <DD>These tasks are the lowest level and do the actual work at $\theta$.</DD>
 
 **/
 struct Task : DP {
@@ -211,17 +253,22 @@ struct ThetaTask        :   Task {
     virtual Run();	
     }
 
-/** Allocate space for each point &theta; &in; &Theta; that is reachable.
+/** Allocate space for each reachable point $\theta$ in the state space $\Theta$.
 
-The task called in `DP::CreateSpaces` that loops over the state space &Theta; and
+This task is called in `DP::CreateSpaces` that loops over the state space &Theta; and
 calls the virtual <code>Reachable()</code>.
 
-Users do not call this function.
+<b>Users do not call this function.</b>
 
 **/
 struct CreateTheta 	    : 	ThetaTask {	
-        static decl thx, rch, ind;
-        decl th, rchable;
+        static decl
+                /** @internal **/ thx,
+                /** @internal **/ rch,
+                /** @internal **/  ind;
+        decl
+                /** @internal **/ th,
+                /** @internal **/ rchable;
         CreateTheta(); 	
 	    loop();
         //        Sampling();
@@ -288,6 +335,7 @@ struct ExTask       :   Task {
     }
 
 /** Call `Bellman::Utility`().
+
 
 @see   DP::XUT
 **/
@@ -386,7 +434,7 @@ struct SDTask		: RETask	{ 	SDTask(); Run(); }
 **/
 struct RandomEffectsIntegration : RETask {
 	decl
-                                                        path,
+        /** The path object I am processing.**/         path,
         /** cumulative likelihood or other outcome.**/  L,
                                                         flat;
 	RandomEffectsIntegration();
@@ -394,13 +442,55 @@ struct RandomEffectsIntegration : RETask {
 	Run();
 	}
 
-/** Stores information for a point $\gamma$ in the Group Space $\Gamma$.
+/** A Group object stores information for a point $\gamma$ in the Group Space $\Gamma$.
 
-Related DP models differing only by `TimeInvariant` effects.
+The group space is created internally when the user runs `DP::CreateSpaces`.  The group
+objects are located in a static array named `Gamma` that is only accessible directly inside
+the file <code>DP.ox</code>.
 
-`DP::CreateSpaces` allocates a new Group ojbect for each value of the &gamma; vector.  These
-are located in a static array named `Gamma` that is only accessible directly inside the
-file DP.ox.
+<DT>By default <code>MyModel</code> (the user's DP problem) defines a single decision
+    making process.  So $\Gamma$ would have a single element.</DT>
+<DD>A single solution to the dynamic program is then required to solve the model.</DD>
+<dd>Another way to say this is that there is <em>no heterogeneity in the environment across agents</em>.</dd>
+<dd>If a homogeneous model is applied to data, then different agents would have different outcomes solely because of different realizations along the solution path.  </dd>
+<dd>Differences in initial states is included in the homogeneous case as long as each agent has the same probability distribution across initial states.</dd>
+
+<DT>Most applications of dynamic programming involve more than one problem.</DT>
+<dd><code>MyModel</code> can include more than one problem to be solved by creating Groups.</dd>
+<dd><span class="n">DDP</span> tries to smart about storage and computation when accounting for different solutions.  It does <em>not</em> simply duplicate everything about a single model for each group.</dd>
+<dd>The group space is kept separate from the state space $\Theta$ in order to economize on storage.  </dd>
+<dd>Only results that need to be held for later used are stored in $\Gamma$ and the state space is reused for each solution of the problem.</dd>
+
+<DT>The user creates multiple groups by adding time-invariants to the model.</DT>
+<DD>Time Invariant states are classified as either <em>fixed</em> or <em>random</em> effects,
+    derived respectively from `FixedEffect` and `RandomEffect`.</DD>
+<DD>`FixedEffectBlock`s can be used to represent `SubEffect`s and `RandomEffectBlock`s
+    can be used to represent `CorrelatedEffect`s.</DD>
+
+<DT>Time-invariants or group variables are added to the model using `DP::GroupVariables`().</DT>
+<DD>The call to <code>GroupVariables</code> must occur in the user's code between the call to
+    <code>Initialize()</code> and <code>CreateSpaces</code>.</DD>
+<DD>The time-invariants are separated into the $\gamma_r$ and $\gamma_f$ subvectors
+    of $\gamma$. A distinct point in the group space is created for each unique value of
+    the vector $\gamma.$</DD>
+<DD>When processing the model (such as solving the DP, calculating a likelihood, etc.),
+    each fixed vector $\gamma_f$ is processed by looping over all values of the random
+    vector $\gamma_r$.</DD>
+
+
+<DT>Example</DT>
+<DD>Create different DP programs for men and women, and allow people to differ in ability.<pre>
+    enum{male,female,Ngender}
+    enum{lo,hi,Nability}
+    Initialize(&hellip;);
+    &#8942;
+    GroupVariables(
+       a = new RandomEffect("a",Nability),
+       g = new FixedEffect("sex",Ngender),
+       );
+    &#8942;
+    CreateSpaces(&hellip;);
+</pre></DD>
 
 @see I::SetGroup
 
@@ -414,7 +504,7 @@ struct Group : DP {
 	/**.@internal **/                               statbvector;
 
 	decl
-		/**Position in &Gamma;.**/					pos,
+		/**Position in $\Gamma$.**/					pos,
 		/**Index into fixed effects **/				find,
 		/**Index into random effects **/			rind,
 		/**Group's state vector.**/					state,

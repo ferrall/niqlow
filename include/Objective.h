@@ -3,10 +3,13 @@
 
 /** Tags for Gradient-based optimization algorithms.	@name QuasiAlgorithms**/	
 enum{USEBHHH,USEBFGS,USEDFP,USESTEEP,USENEWTON,QuasiAlgorithms}
+
 /** Tags weighting options.	@name MixedWeightOptions **/	
 enum{EqualInitialWeights,SimplexWeights,FixedWeights,MixedWeightOptions}
 
-/** Base class for objective optimization and system solving. **/
+/** Base class for objective optimization and system solving.
+
+**/
 struct Objective	{
 	static 	const	decl
 	/**Extension for `Objective::Load` and
@@ -87,13 +90,16 @@ struct Objective	{
 	}
 
 	
-/** Container for Unconstrained Objectives.**/
+/** Container for Unconstrained Objectives.
+**/
 struct UnConstrained : Objective {
 	virtual Gradient(extcall=TRUE);
 			UnConstrained(L="");
 	}
 	
-/** Container for Constrained Objectives.**/	
+/** Container for Constrained Objectives.
+
+**/	
 struct Constrained : Objective {
 			Constrained(L,ELorN,IELorN);
 			Lagrangian(F);
@@ -190,12 +196,20 @@ struct OneDimSystem : System {
 
 /** Represents a blacbox objective.
 
+This is the container class for a standard function to maximize.
+
+A BlackBox has no internal structure (such as separability of parameters).
+
 **/
 struct BlackBox : UnConstrained	{
 	BlackBox(L);
 	}
 
-/** Cobb-Douglas objective.**/
+/** Cobb-Douglas objective.
+$$f = A \prod_{i=0}^{N^-} x_i ^{\alpha_i}.$$
+
+$A$ and $\alpha$ are `CV`-compatible objects.
+**/
 struct CobbDouglas : BlackBox {
     decl    x, alphas, A;
             CobbDouglas(L,alphas=<0.5;0.5>,A=1.0,labels=0);
@@ -204,14 +218,20 @@ struct CobbDouglas : BlackBox {
     }	
 
 
-/** Constant elasticity of subsitution function.**/
+/** Constant elasticity of subsitution function.
+**/
 struct CES : BlackBox {
     decl    x, elast, alphas, A, xpon;
-            CES(L,alphas=<0.5;0.5>,elast=2,A=1.0,labels=0);
+            CES(L,alphas=<0.5;0.5>,elast=-2.0,A=1.0,labels=0);
     virtual vfunc();
     }	
 
-/** Access the econometric objective related to a DDP Panel.
+
+/**Base class for automatically generated econometric objectives: likelihood functions and GMM objective.
+
+This objective takes a "data" object that is typically either a `OutcomeDataSet` or a
+`PredictionDataSet`.
+
 **/
 struct DataObjective : BlackBox {
 	const decl

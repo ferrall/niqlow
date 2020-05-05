@@ -916,18 +916,32 @@ CobbDouglas::vfunc() {
     decl y =CV(A)*prodc(CV(x).^CV(alphas));
     return y;
     }
+
 CobbDouglas::AnalyticGradient() {
     return (vfunc()*CV(alphas)./CV(x))';
     }
 
-
 /** Create a constant elasticity of subsitution objective.
 @param L label
-@param alphas CV-compatiable vector of weights/shares
-@param elast elasticity parameter.  The exponent on each input is computed as (elast-1)/elast
-@param labels  0 or array of labels for arguments.
+@param alphas CV-compatiable vector of weights/shares. Default is <0.5;0.5>
+@param elast elasticity parameter &epsilon;.  The exponent on each input is computed as (elast-1)/elast.  Default is -2.0
+@param A constant term (TFP).  Default is 1.0
+@param labels 0 or array of labels for arguments.
 
-Sets the parameter vector $x$ equal to `StDeviations` of the same dimension as alphas
+
+$$A\left( {\sum}_{i=1}^N \alpha_ix_i^s \right)^{1/s}$$
+
+$$s \equiv {\epsilon-1 \over \epsilon}.$$
+
+@comments
+    Sets the parameter vector $x$ equal to `StDeviations` of the same dimension as alphas.  This means it
+    will enforce positive values by transformations.  If gradients needed to be computed in terms of the
+    structural input values, then toggle the parameter constraints for the objective:
+
+    <dd><pre>
+    U = new CES("U");
+    U -&gt; ToggleParameterConstraint();
+    </pre></dd>
 
 **/
 CES::CES(L,alphas,elast,A,labels) {
@@ -967,13 +981,12 @@ of aggF are $X^d$.  They are set as <code>DoNotConstrain</code> so that the grad
         0 [default] no depreciation term
 **/
 Equilibrium::Equilibrium(L,P){
-    if (!isclass(aggF,"Objective")) oxrunerror("aggF is not an Objective object");
+    if (!isclass(aggF,"Objective"))
+            oxrunerror("aggF is not an Objective object.  Assign one in the creator method before calling Equilibrium()");
     decl Neq = sizeof(aggF.Psi);
-    if (!Neq) oxrunerror("Parameters must be set for aggF before creating the equilibrium object");
-    if (!isclass(stnpred,"PathPrediction")) oxrunerror("stnpred is not a PathPrediction object");
+    if (!Neq) oxrunerror("Parameters of the objective aggF must be set before calling Equilibrim()");
+    if (!isclass(stnpred,"PathPrediction")) oxrunerror("stnpred is not a PathPrediction object.  Assign one in the creator method before calling Equilibrium()");
     if (!isclass(stnpred.method)) oxrunerror("stnpred must have a nested solution method to recompute Xs");
-//    if (
-//    this.Qcols = isint(Qcols) ? (stnpred.Fcols+range(1,Neq)) : Qcols;
     if (sizerc(Qcols)!=Neq) oxrunerror("Number of prediction columns not equal to number of aggregate inputs");
 
     System(L,aggF.PsiL);     //use labels of aggF parameters for equation labels
@@ -981,7 +994,7 @@ Equilibrium::Equilibrium(L,P){
     Parameters( isint(P) ? new StDeviations("P",0,aggF.PsiL) : P );
     if (!aggF.DoNotConstrain) aggF->ToggleParameterConstraint();
     println("Aggregate production function: ",aggF.L," of type ",classname(aggF));
-    println("Aggregate inputs: ",aggF.PsiL);
+    println("Aggregate inputs: ",aggF.PsiL,"Parameter constraints have been turned off");
     }
 
 /**Built-in system of equations for Equilibrium models.
@@ -1040,7 +1053,7 @@ DataObjective::DataObjective (L,data,...
 //		Encode();
 		}
 //	else oxwarning("FiveO Warning 03.\n No estimated parameters added to "+L+" panel estimation ");
-    uplist = tplist = {};
+    uplist = tplist = {};       //utility and transition parameter lists (TwoStage estimation)
 	}
 
 /** Specify the objective as two stage.

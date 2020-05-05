@@ -110,32 +110,31 @@ static const decl ilistnames = {"StateVariable","ActionVariable","AuxiliaryValue
 enum {NONRANDOMSV,RANDOMSV,COEVOLVINGSV,AUGMENTEDV,TIMINGV,TIMEINVARIANTV,NStateCategories}
 
 
-/** Point in solving when updating of parameters and transitions needs to occur.
-<table class="enum_table">
-<tr><td valign="top">InCreateSpaces</td><td>Transitions do not depend on any parameters that change so they can be initialized
-in `DP::CreateSpaces`() and never recalculated.</td></tr>
-<tr><td valign="top">WhenFlagIsSet</td><td>Update transitions at the start of `Method::Solve`() but ONLY if the RecomputeTrans() has
-been called. This ensures that if transitions depend on parameters that are controlled by the outside but multiple calls to solve
-will be made for the same parameter values (say while computing equilibrium prices and transitions only depend on parameters)</td></tr>
-<tr><td valign="top">OnlyOnce</td><td>Update transitions just once on each call to `Method::Solve`(). This ensures that if transitions depend
-on parameters that are controlled by the outside (say by an optimization algorithm) the probabilities used in solving the model will
-reflect any changes in the parameters since the last time the solution method was applied. </td></tr>
-<tr><td  valign="top">AfterFixed</td><td>Update transitions after the value of the fixed groups is set.  This will allow transitions to depend on the value of
-fixed effect variables.</td></tr>
-<tr><td  valign="top">AfterRandom</td><td>Update transitions after the value of the random groups is set.  This will allow transitions to depend on the value of
-both fixed and random effect variables.</td></tr>
-</table>
-There is a potentially large computational cost of updating the transitions more often than is necessary.
-@see DP::SetUpdateTime
-@name UpdateTimes **/
+    /** Point in solving when updating of parameters and transitions needs to occur.
+    <table class="enum_table">
+    <tr><td valign="top">InCreateSpaces</td><td>Transitions do not depend on any parameters that change so they can be initialized
+        in `DP::CreateSpaces`() and never recalculated.</td></tr>
+    <tr><td valign="top">WhenFlagIsSet</td><td>Update transitions at the start of `Method::Solve`() but ONLY if the RecomputeTrans() has
+        been called. This ensures that if transitions depend on parameters that are controlled by the outside but multiple calls to solve
+        will be made for the same parameter values (say while computing equilibrium prices and transitions only depend on parameters)</td></tr>
+    <tr><td valign="top">OnlyOnce</td><td>Update transitions just once on each call to `Method::Solve`(). This ensures that if transitions depend
+        on parameters that are controlled by the outside (say by an optimization algorithm) the probabilities used in solving the model will
+        reflect any changes in the parameters since the last time the solution method was applied. </td></tr>
+    <tr><td  valign="top">AfterFixed</td><td>Update transitions after the value of the fixed groups is set.  This will allow transitions to depend on the value of
+        fixed effect variables.</td></tr>
+    <tr><td  valign="top">AfterRandom</td><td>Update transitions after the value of the random groups is set.  This will allow transitions to depend on the value of
+        both fixed and random effect variables.</td></tr>
+    </table>
+    There is a potentially large computational cost of updating the transitions more often than is necessary.
+    @see DP::SetUpdateTime
+    @name UpdateTimes **/
 enum {InCreateSpaces,WhenFlagIsSet,OnlyOnce,AfterFixed,AfterRandom,UpdateTimes}
 
-/** Phases of DP computations.  The current phase is set by the code and time spent in each phase is
-tracked.
-@see Flags::TimeProfile
-@name DPPhases
-**/
-                        enum {INBETWEEN, INITIALIZING,  SOLVING,  SIMULATING,  LIKING, PREDICTING,NDPhases}
+        /** Phases of DP computations.  The current phase is set by the code and time spent in each phase is tracked.
+    @see Flags::TimeProfile
+    @name DPPhases
+    **/
+enum {INBETWEEN, INITIALIZING,  SOLVING,  SIMULATING,  LIKING, PREDICTING,NDPhases}
 const decl NDPlabels =       {"Between","Initializing","Solving","Simulating","Liking","Predicting"};
 
 		/** Ways to smooth choice probabilities without adding an explicit continuous error &zeta;.
@@ -216,29 +215,29 @@ static const decl ClockTypeLabels
 		/** Elements of array stored at each theta. @name TransStore **/
 enum {Qtr,Qit,Qrho,TransStore}
 
-/** Categories of Endgoenous State  Reachability.
-<table><tr><th>Tag</th><th>Means</th></tr>
-<tr><td>InUnRchble</td><td>Unreachable because a state variable is inherently unreachable</td></tr>
-<tr><td>UUnRchble</td><td>Unreacheable because a user Reachable returns FALSE</td></tr>
-<tr><td>Rchble</td><td>Reachable</td></tr>
-</table>
-@name NReachTypes
-**/
+    /** Categories of Endgoenous State  Reachability.
+    <table><tr><th>Tag</th><th>Means</th></tr>
+    <tr><td>InUnRchble</td><td>Unreachable because a state variable is inherently unreachable</td></tr>
+    <tr><td>UUnRchble</td><td>Unreacheable because a user Reachable returns FALSE</td></tr>
+    <tr><td>Rchble</td><td>Reachable</td></tr>
+    </table>
+    @name NReachTypes
+    **/
 enum {InUnRchble,UUnRchble,Rchble,NReachTypes}
 
 		/** Weighting of moments in GMM.
-<table class="enum_table" valign="top">
-<tr><td valign="top"><code>UNWEIGHTED</code></td><tD>No weighting occurs</tD></tr>
-<tr><td valign="top"><code>UNCORRELATED</code></td><tD>Each difference between empirical and predicted moments is weighted by the inverse of its (bounded) sample standard deviation.  This treats
-        each moment as uncorrelated with other moments, including contemporarneous moments</tD></tr>
-<tr><td valign="top"><code>CONTEMPORANEIOUS</code></td><tD>[NOT YET IMPLEMENTED].  This reads in a matrix of weights to apply to
+    <table class="enum_table" valign="top">
+    <tr><td valign="top"><code>UNWEIGHTED</code></td><tD>No weighting occurs</tD></tr>
+    <tr><td valign="top"><code>UNCORRELATED</code></td><tD>Each difference between empirical and predicted moments is weighted by the inverse of its (bounded) sample standard deviation.  This treats
+        each moment as uncorrelated with other moments, including contemporaneous moments</tD></tr>
+    <tr><td valign="top"><code>CONTEMPORANEOUS</code></td><tD>[NOT YET IMPLEMENTED].  This reads in a matrix of weights to apply to
         each time period's differences pre</tD></tr>
-<tr><td valign="top"><code>INTERTEMPORAL</code></td><tD>This applies a matrix of weights to the full path, read in from
+    <tr><td valign="top"><code>INTERTEMPORAL</code></td><tD>This applies a matrix of weights to the full path, read in from
     files with names <code>pathW_ff.mat</code> and ff is the index of the fixed group.  These files are created
     by </tD></tr>
-<tr><td valign="top"><code>AUGMENTEDPATHW</code></td><tD>This augments path weighting matrices.  Moments that do
+    <tr><td valign="top"><code>AUGMENTEDPATHW</code></td><tD>This augments path weighting matrices.  Moments that do
     not vary have weight 0.  This weights these moments by 0.01 so that they are matched as well as variable moments.</tD></tr>
-</table>
+    </table>
     @name GMMWeightOptions **/
 enum { UNWEIGHTED, UNCORRELATED, CONTEMPORANEOUS, INTERTEMPORAL, AUGMENTEDPATHW, GMMWeightOptions}
 
@@ -275,8 +274,8 @@ ReverseState(Ind,subsp);
 struct DDPauxiliary : Zauxiliary {    }
 
 /** Indicators related to the DP problem.
-All elements are static. A user's code can reference these variables
-but should not change them unless building a new solution method.
+    All elements are static. A user's code can reference these variables
+    but should not change them unless building a new solution method.
 **/
 struct Flags : DDPauxiliary {
 	static decl

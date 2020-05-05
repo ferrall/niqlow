@@ -137,40 +137,20 @@ The task called in CreateSpaces that creates <span class="expressions">\(\Gamma\
 <a name="CreateTheta"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CreateTheta : <a href="DP.ox.html#ThetaTask">ThetaTask</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
 
-Allocate space for each point &theta; &in; &Theta; that is reachable.
+Allocate space for each reachable point <span class="expressions">\(\theta\)</span> in the state space <span class="expressions">\(\Theta\)</span>.
 <P/>
-The task called in <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a> that loops over the state space &Theta; and
+This task is called in <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a> that loops over the state space &Theta; and
 calls the virtual <code>Reachable()</code>.
 <P/>
-Users do not call this function.
+<b>Users do not call this function.</b>
 
 <table class="method_table">
-<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#CreateTheta___ind">ind</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#CreateTheta___rch">rch</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#CreateTheta___rchable">rchable</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#CreateTheta___th">th</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#CreateTheta___thx">thx</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#CreateTheta___CreateTheta">CreateTheta</a></td>
+<td class="modifiers"></td>
+<td class="description">Called in CreateSpaces to set up &Theta;.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#CreateTheta___loop">loop</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
@@ -811,13 +791,54 @@ random effects conditional on the current fixed effect group.
 <a name="Group"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Group : <a href="DP.ox.html#DP">DP</a></span></h2>
 
-Stores information for a point <span class="expressions">\(\gamma\)</span> in the Group Space <span class="expressions">\(\Gamma\)</span>.
+A Group object stores information for a point <span class="expressions">\(\gamma\)</span> in the Group Space <span class="expressions">\(\Gamma\)</span>.
 <P/>
-Related DP models differing only by <a href="Variables.ox.html#TimeInvariant">TimeInvariant</a> effects.
+The group space is created internally when the user runs <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>.  The group
+objects are located in a static array named <a href="DDPShared.ox.html#Gamma">Gamma</a> that is only accessible directly inside
+the file <code>DP.ox</code>.
 <P/>
-<a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a> allocates a new Group ojbect for each value of the &gamma; vector.  These
-are located in a static array named <a href="DDPShared.ox.html#Gamma">Gamma</a> that is only accessible directly inside the
-file DP.ox.
+<DT>By default <code>MyModel</code> (the user's DP problem) defines a single decision
+    making process.  So <span class="expressions">\(\Gamma\)</span> would have a single element.</DT>
+<DD>A single solution to the dynamic program is then required to solve the model.</DD>
+<dd>Another way to say this is that there is <em>no heterogeneity in the environment across agents</em>.</dd>
+<dd>If a homogeneous model is applied to data, then different agents would have different outcomes solely because of different realizations along the solution path.  </dd>
+<dd>Differences in initial states is included in the homogeneous case as long as each agent has the same probability distribution across initial states.</dd>
+<P/>
+<DT>Most applications of dynamic programming involve more than one problem.</DT>
+<dd><code>MyModel</code> can include more than one problem to be solved by creating Groups.</dd>
+<dd><span class="n">DDP</span> tries to smart about storage and computation when accounting for different solutions.  It does <em>not</em> simply duplicate everything about a single model for each group.</dd>
+<dd>The group space is kept separate from the state space <span class="expressions">\(\Theta\)</span> in order to economize on storage.  </dd>
+<dd>Only results that need to be held for later used are stored in <span class="expressions">\(\Gamma\)</span> and the state space is reused for each solution of the problem.</dd>
+<P/>
+<DT>The user creates multiple groups by adding time-invariants to the model.</DT>
+<DD>Time Invariant states are classified as either <em>fixed</em> or <em>random</em> effects,
+    derived respectively from <a href="Variables.ox.html#FixedEffect">FixedEffect</a> and <a href="Variables.ox.html#RandomEffect">RandomEffect</a>.</DD>
+<DD><a href="Variables.ox.html#FixedEffectBlock">FixedEffectBlock</a>s can be used to represent <a href="Variables.ox.html#SubEffect">SubEffect</a>s and <a href="Variables.ox.html#RandomEffectBlock">RandomEffectBlock</a>s
+    can be used to represent <a href="Variables.ox.html#CorrelatedEffect">CorrelatedEffect</a>s.</DD>
+<P/>
+<DT>Time-invariants or group variables are added to the model using <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>().</DT>
+<DD>The call to <code>GroupVariables</code> must occur in the user's code between the call to
+    <code>Initialize()</code> and <code>CreateSpaces</code>.</DD>
+<DD>The time-invariants are separated into the <span class="expressions">\(\gamma_r\)</span> and <span class="expressions">\(\gamma_f\)</span> subvectors
+    of <span class="expressions">\(\gamma\)</span>. A distinct point in the group space is created for each unique value of
+    the vector <span class="expressions">\(\gamma.\)</span></DD>
+<DD>When processing the model (such as solving the DP, calculating a likelihood, etc.),
+    each fixed vector <span class="expressions">\(\gamma_f\)</span> is processed by looping over all values of the random
+    vector <span class="expressions">\(\gamma_r\)</span>.</DD>
+<P/>
+<DT>Example</DT>
+<DD>Create different DP programs for men and women, and allow people to differ in ability.<pre>
+    enum{male,female,Ngender}
+    enum{lo,hi,Nability}
+    Initialize(&hellip;);
+    &#8942;
+    GroupVariables(
+       a = new RandomEffect("a",Nability),
+       g = new FixedEffect("sex",Ngender),
+       );
+    &#8942;
+    CreateSpaces(&hellip;);
+</pre></DD>
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#I___SetGroup">SetGroup</a></dd>
 </dl>
@@ -845,7 +866,7 @@ file DP.ox.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#Group___pos">pos</a></td>
 <td class="modifiers"></td>
-<td class="description">Position in &Gamma;.</td>
+<td class="description">Position in <span class="expressions">\(\Gamma\)</span>.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#Group___Ptrans">Ptrans</a></td>
@@ -1011,7 +1032,7 @@ Integrate over <span class="expressions">\(\gamma_r\)</span>.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DP.ox.html#RandomEffectsIntegration___path">path</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">The path object I am processing.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DP.ox.html#RandomEffectsIntegration___Integrate">Integrate</a></td>
@@ -1062,13 +1083,12 @@ Users do not call this directly.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="DP.ox.html#CreateTheta">CreateTheta</a>:</dt><dd><a href="DP.ox.html#CreateTheta___loop">loop</a></dd>
+<dt>Inherited methods from <a href="DP.ox.html#CreateTheta">CreateTheta</a>:</dt><dd><a href="DP.ox.html#CreateTheta___CreateTheta">CreateTheta</a>, <a href="DP.ox.html#CreateTheta___loop">loop</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___~Task">~Task</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>, <a href="DP.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPinf">GetPinf</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Indicators">Indicators</a>, <a href="DP.ox.html#DP___Initialize">Initialize</a>, <a href="DP.ox.html#DP___Interactions">Interactions</a>, <a href="DP.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="DP.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="DP.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="DP.ox.html#DP___RecomputeTrans">RecomputeTrans</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___SetVersion">SetVersion</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___ValuesCounters">ValuesCounters</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="DP.ox.html#CreateTheta">CreateTheta</a>:</dt><dd><a href="DP.ox.html#CreateTheta___ind">ind</a>, <a href="DP.ox.html#CreateTheta___rch">rch</a>, <a href="DP.ox.html#CreateTheta___rchable">rchable</a>, <a href="DP.ox.html#CreateTheta___th">th</a>, <a href="DP.ox.html#CreateTheta___thx">thx</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___caller">caller</a>, <a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___inner">inner</a>, <a href="DP.ox.html#Task___itask">itask</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___L">L</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trace">trace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Blocks">Blocks</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___EOoE">EOoE</a>, <a href="DP.ox.html#DP___EStoS">EStoS</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___IOE">IOE</a>, <a href="DP.ox.html#DP___logf">logf</a>, <a href="DP.ox.html#DP___lognm">lognm</a>, <a href="DP.ox.html#DP___MyVersion">MyVersion</a>, <a href="DP.ox.html#DP___NKptrans">NKptrans</a>, <a href="DP.ox.html#DP___NKvindex">NKvindex</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___parents">parents</a>, <a href="DP.ox.html#DP___S">S</a>, <a href="DP.ox.html#DP___SS">SS</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___SubVectors">SubVectors</a>, <a href="DP.ox.html#DP___tod">tod</a>, <a href="DP.ox.html#DP___tom">tom</a>, <a href="DP.ox.html#DP___userState">userState</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___XUT">XUT</a></dd>
 </dl>
@@ -1395,21 +1415,63 @@ Stores information on a set of spaces, such as reality or treatment
 
 Process (span) space or subspace.
 <P/>
-<DT>Derived classes of tasks are specialized to process different spaces:</DT>
+<h3>Tasks do the work of Dynamic Programming</h3>
+<P/>
+<DT>In <span class="n">DDP</span> a <em>Task</em> is an operation to go over the part
+of the space of all diferent variable combinations.</DT>
+<P/>
+<DD>Each specialied task is a derived class from some more generic task.</DD>
+<P/>
+<DT>A Task object has its own <code>state</code> member which is a vector of values at
+the current point in the operation.</DT>
+<P/>
+<DD><span class="n">DDP</span> synchronizes the value of the state vector with the current
+values of all variables in the model.</DD>
+<P/>
+<DT>The engine of a task is its <a href="DP.ox.html#Task___loop">loop</a>() method.</DT>
+<P/>
+<DD><a href="DP.ox.html#Task___loop">loop</a>() for a task is equivalent to  <em>nested</em> loops over some elements
+of the state vector in purpose-built code.</DD>
+<P/>
+<DD><code>loop()</code> iterates over the task's <em>range</em> of state variables,
+ defined by <code>left</code> and <code>right</code> indices into the state vector.</DD>
+<P/>
+<DT>Inside the <code>loop()</code> the Task's <a href="DP.ox.html#Task___Run">Run</a>() method is called.</DT>
+<P/>
+<DD><code>Run()</code> is a virtual method, so the Task's replacement is called inside the
+shared <code>loop()</code> method.</DD>
+<DD>The loop assigns every possible value of state variables in its vector(s)
+    and for each unique vector call the <em>virtual</em> <a href="DP.ox.html#Task___Run">Run</a>() routine.</DD>
+<P/>
+<DT>A new job can be created by deriving a new Task and
+supplying a new <code>Run()</code> method.</DT>
+    <DD>  The <code>loop()</code> is inherited from the parent class.</DD>
+<P/>
+<DT>Tasks can linked to each other in a recursive chain.</DT>
+    <DD>The <code>Run()</code> method can in turn call the <code>loop()</code>
+        of an internally stored <a href="DP.ox.html#Task___itask">itask</a>.</DD>
+    <DD>This hierarchy of tasks breaks up the problem of spanning the whole space into
+    separate tasks.  Tasks are typically ordered from right to left.</DD>
+<P/>
+<h3>Derived classes of tasks are specialized to process different spaces</h3>
+<P/>
+<DT><a href="DP.ox.html#Data">Data</a> structures for the empirical side of DP are made up of Tasks</DT>
 <P/>
 <DT><a href="DP.ox.html#GroupTask">GroupTask</a>s process the group space <span class="expressions">\(\Gamma\)</span> (fixed and random effects).</DT>
-<DD><a href="DP.ox.html#FETask">FETask</a>,<a href="DP.ox.html#RETask">RETask</a> specialized to one or the other component of <span class="expressions">\(\Gamma\)</span>.</DD>
-<DD><a href="Methods.ox.html#Method">Method</a>s to solve the DP problem are FETasks which turn call other tasks</DD>
-<DT><a href="DP.ox.html#ThetaTask">ThetaTask</a>s process the endogenous state space, <span class="expressions">\(\Theta\)</span>.  are based on ThetaTask.</DT>
-<DD><a href="Methods.ox.html#GSolve">GSolve</a> and derived children carry out the solution methods.</DD>
+<DD>In turn, <a href="DP.ox.html#FETask">FETask</a>s process the <span class="expressions">\(\gamma_f\)</span> vector and
+        <a href="DP.ox.html#RETask">RETask</a>s process <span class="expressions">\(\gamma_r\)</span>.</DD>
+<DD>A <a href="Methods.ox.html#Method">Method</a> to solve the DP problem is a <code>FETasks</code> for which its
+    <code>itask</code> is a <code>RETask</code> if random effects are present
+    or a <a href="DP.ox.html#ThetaTask">ThetaTask</a> if not.</DD>
 <P/>
-<DT><a href="DP.ox.html#ExTask">ExTask</a> processes the exogenous vectors &epsilon; and &eta;.</DT>
+<DT><a href="DP.ox.html#ThetaTask">ThetaTask</a>s process the endogenous state space, <span class="expressions">\(\Theta\)</span>. </DT>
+    <DD>For example, <a href="DP.ox.html#CreateTheta">CreateTheta</a> is a task that is called once to create objects for each
+        reachable value of <span class="expressions">\(\theta.\)</span></DD>
+    <DD>A Method task will eventually call a <a href="Methods.ox.html#GSolve">GSolve</a> task which is a ThetaTask to apply
+        a DP solution method at each point of <span class="expressions">\(\Theta\)</span>.</DD>
 <P/>
-The engine of a task is its <code>loop()</code> method.  It will assign eveyr
-possible value of state variables in its vector(s) and for each unique
-vector call the <em>virtual</em> <a href="DP.ox.html#Task___Run">Run</a>() routine.  So any new job that requires going
-over a vector of states can be created by deriving a new Task and supplying
-a new <code>Run()</code> method.
+<DT><a href="DP.ox.html#ExTask">ExTask</a> processes the exogenous vectors <span class="expressions">\(\epsilon\)</span> and <span class="expressions">\(\eta\)</span>.</DT>
+    <DD>These tasks are the lowest level and do the actual work at <span class="expressions">\(\theta\)</span>.</DD>
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -1546,11 +1608,12 @@ Dynamically reset the density over random effects given the current fixed effect
 
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CreateTheta</span></h2>
 
-<a name="CreateTheta___ind"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ind</span></h3>
+<a name="CreateTheta___CreateTheta"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CreateTheta</span></h3>
 
-<span class="declaration">static decl ind [public]</span>
+<span class="declaration">CreateTheta :: CreateTheta ( )</span>
 <dl><dd>
+Called in CreateSpaces to set up &Theta;.
 
 </dd></dl>
 
@@ -1559,42 +1622,6 @@ Dynamically reset the density over random effects given the current fixed effect
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">loop</span></h3>
 
 <span class="declaration">CreateTheta :: loop ( )</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="CreateTheta___rch"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">rch</span></h3>
-
-<span class="declaration">static decl rch [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="CreateTheta___rchable"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">rchable</span></h3>
-
-<span class="declaration">decl rchable [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="CreateTheta___th"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">th</span></h3>
-
-<span class="declaration">decl th [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="CreateTheta___thx"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">thx</span></h3>
-
-<span class="declaration">static decl thx [public]</span>
 <dl><dd>
 
 </dd></dl>
@@ -3240,7 +3267,7 @@ Stationary distribution <span class="expressions">\(P_\infty\)</span> for ergodi
 
 <span class="declaration">decl pos [public]</span>
 <dl><dd>
-Position in &Gamma;.
+Position in <span class="expressions">\(\Gamma\)</span>.
 
 </dd></dl>
 
@@ -3448,6 +3475,7 @@ cumulative likelihood or other outcome.
 
 <span class="declaration">decl path [public]</span>
 <dl><dd>
+The path object I am processing.
 
 </dd></dl>
 

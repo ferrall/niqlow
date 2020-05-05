@@ -55,7 +55,10 @@ Prediction::Predict() {
                 }
             }
         }
-    foreach(tv in ctlist[k]) predmom[k] = tv.track.mean;
+    foreach(tv in ctlist[k]) {
+        if (tv.Volume>=LOUD) println(I::t," ",tv.L," ",tv.track.mean);
+        predmom[k] = tv.track.mean;
+        }
     if (!isfeq(pp,0.0)) {
         if (isfile(Data::logf)) fprintln(Data::logf,"At t= ",t," Lost prob.= ",pp," Unreachable states in transition","%cf","%9.0f","%c",Labels::Vprt[svar][left:right],unrch);
         if (!LeakWarned) {
@@ -638,12 +641,16 @@ PathPrediction::TypeContribution(pf,subflat) {
   //println("* TypeContribution ",Version::MPIserver," ",pf);
   do {
      cur->SetMoms(sizeof(ctlist),first);
-     foreach(tv in tlist) tv.track->Reset();
+     foreach(tv in tlist) {
+        tv.track->Reset();
+        if (tv.Volume>=LOUD) println(tv.L," ",tv.track.mean);
+        }
      pcode = cur->Prediction::Predict();
      done =  pcode                               //all states terminal or last
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
      if (PredictFailure) break;
      cur.accmom[] += pf*cur.predmom;
+     foreach(tv in tlist) if (tv.Volume>=LOUD) println(tv.L," ",pf," ",cur.accmom[tv.track.pos]);
      if (!isint(subflat)) subflat[0] |= cur.accmom;
 	 if (!done) {
           if (!isclass(cur.pnext)) { // no tomorrow after current
