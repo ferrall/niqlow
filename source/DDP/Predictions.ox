@@ -157,7 +157,10 @@ PathPrediction::ProcessContributions(cmat){
     if (ismatrix(flat)) delete flat;
     flat = constant(.NaN,T,Fcols+One+sizeof(tlist));
     cur=this;
-    if (ismatrix(cmat)) cmat = shape(cmat,sizeof(tlist),this.T)';
+    if (ismatrix(cmat)) {
+        cmat = shape(cmat,sizeof(tlist),this.T)';
+        println("$$ in with cmat ",Dimensions(cmat));
+        }
     do {
         if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
         flat[cur.t][] = fvals~cur.t~cur.accmom;
@@ -898,6 +901,7 @@ PredictionDataSet::EconometricObjective(subp) {
         return M;
         }
     else {
+        println("$$$ ",subp);
         decl vv = ParallelSolveSub(subp);
         return vv;
         }

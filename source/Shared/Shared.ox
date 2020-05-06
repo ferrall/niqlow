@@ -41,6 +41,13 @@ Version::Check(indir) {
 
  }
 
+/** Return rows() and columns() as a row vect.
+@param A matrix
+
+@return rows(A)~columns(A)
+**/
+Dimensions(A) { return rows(A)~columns(A); }
+
 /** Check that two objects have same rows and columns.
 @param A
 @param B
@@ -48,7 +55,7 @@ Version::Check(indir) {
 @return TRUE if same dimensions
 **/
 SameDims(A,B) {
-    return (rows(A)==rows(B)) && (columns(A)==columns(B));
+    return Dimensions(A)==Dimensions(B);
     }
 
 /** Check that an object is of a required class, or one of a required class.

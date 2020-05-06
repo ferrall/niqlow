@@ -118,6 +118,7 @@ static const decl
         /** @internal **/ _v,
         /** @internal **/ IAmMac;
 
+    Dimensions(A);
     SameDims(A,B);
     HTopen(fn);
 	CV(X,...);

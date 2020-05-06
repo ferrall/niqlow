@@ -1449,7 +1449,7 @@ Mixture::Mixture(L,Dvar,Kvar,MixType,...
 	dkfree = zeros(D,1);
 
 	if (sizeof(va)) {
-		if (!ismatrix(va[0])||rows(va[0])!=D||columns(va[0])!=K)	oxrunerror("FiveO Error 15. 4th argument must be DxK\n");
+		if (Dimensions(va[0])!=D~K)	oxrunerror("FiveO Error 15. 4th argument must be DxK\n");
 		}
 
 	WStart = <>;
@@ -1489,7 +1489,7 @@ Mixture::Print(orig,fn,toscreen){
 **/
 Mixture::IncludedDK(mDK) {
 	if (!ismatrix(mDK)) oxrunerror("FiveO Error 16. must send a DxK matrix of 0s and 1s\n");
-	if (rows(mDK)!=D||columns(mDK)!=K) oxrunerror("FiveO Error 17. incorrect matrix dimensions\n");
+	if (Dimensions!= D~K) oxrunerror("FiveO Error 17. incorrect matrix dimensions\n");
 	Included[][] = mDK[][];
 	if (Volume>QUIET) println("type and environment design","%2.0f",Included);
 	}

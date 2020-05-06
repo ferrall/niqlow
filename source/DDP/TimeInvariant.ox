@@ -134,7 +134,7 @@ dynamically determined value of &psi;.  The alternative is to define a static me
 Regressors::Regressors(L,vNorM,UseOnlyObserved) {
     FixedEffectBlock(isstring(L) ? L : "X");
     decl NN,N,j;
-    if (columns(vNorM)==1 || rows(vNorM)==1) {
+    if ( any(Dimensions(vNorM).==One) ) {
         NN = vNorM;
         foreach(N in NN[j]) AddToBlock(new SubEffect(isstring(L) ? L+sprint("%02.0f",j) : L[j],int(N)));
         ObservedX = 0;

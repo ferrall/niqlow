@@ -47,9 +47,10 @@ Called by `EndogTrans::Transitions`() after `Discrete::Update`() called.
 <code>actual</code> should be N x 1 not 1 x N.
 **/
 StateVariable::Check() {
-    if (columns(actual)!=1 || rows(actual)!=N) {
+    decl dims =Dimensions(actual);
+    if ( dims != N~One ) {
         oxwarning("DDP Warning 27.");
-        println(" State Variable ",L," N=",N," Dimensions of actual:",rows(actual)," x ",columns(actual));
+        println(" State Variable ",L," N=",N," Dimensions of actual:",dims);
         println(" actual vector should be a Nx1 vector.\n");
         }
     }
