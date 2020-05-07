@@ -159,7 +159,6 @@ PathPrediction::ProcessContributions(cmat){
     cur=this;
     if (ismatrix(cmat)) {
         cmat = shape(cmat,sizeof(tlist),this.T)';
-        println("$$ in with cmat ",Dimensions(cmat));
         }
     do {
         if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
@@ -255,6 +254,7 @@ PanelPrediction::ParallelSolveSub(subp) {
     pobj.rcur = I::curg.rind;
     pobj->PathPrediction::Initialize();
     pobj->TypeContribution(DP::curREdensity,&subflat);
+    println("+++ ",pobj.rcur," ",DP::curREdensity," ",subflat);
     return subflat;
     }
 
@@ -901,7 +901,6 @@ PredictionDataSet::EconometricObjective(subp) {
         return M;
         }
     else {
-        println("$$$ ",subp);
         decl vv = ParallelSolveSub(subp);
         return vv;
         }
