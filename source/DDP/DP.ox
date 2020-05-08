@@ -61,6 +61,7 @@ I::SetGroup(GorSV) {
 	   curg->Sync();
 	   curg->Density();
       }
+    println("SetGroup ",GorSV," ",g," ",f," ",r);
     return curg;
     }
 /** .
