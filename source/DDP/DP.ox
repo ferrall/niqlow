@@ -48,11 +48,9 @@ Not usually called from user code.
 
 **/
 I::SetGroup(GorSV) {
-    if ( isint(GorSV) ) {
-        if ( GorSV!=UseCurrent ) all[bothgroup] = GorSV;
-        }
-    else
+    if ( matrix(GorSV) )
         all[groupoffs] = I::OO[groupoffs][]*GorSV;
+    else if ( GorSV!=UseCurrent ) all[bothgroup] = GorSV;
     g = int(all[bothgroup]);
     if ((isclass(curg = Gamma[g]))) {
 	   f = all[onlyfixed] = curg.find;
