@@ -254,7 +254,6 @@ PanelPrediction::ParallelSolveSub(subp) {
     pobj.rcur = I::curg.rind;
     pobj->PathPrediction::Initialize();
     pobj->TypeContribution(DP::curREdensity,&subflat);
-    println("+++ ",subp," ",pobj.rcur," ",DP::curREdensity," ",subflat);
     return subflat;
     }
 
