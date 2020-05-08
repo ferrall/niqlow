@@ -48,8 +48,8 @@ Not usually called from user code.
 
 **/
 I::SetGroup(GorSV) {
-    if ( matrix(GorSV) )
-        all[groupoffs] = I::OO[groupoffs][]*GorSV;
+    if ( ismatrix(GorSV) )
+        all[bothgroup] = I::OO[groupoffs][]*GorSV;  //was all[grouoffs]!!!
     else if ( GorSV!=UseCurrent ) all[bothgroup] = GorSV;
     g = int(all[bothgroup]);
     if ((isclass(curg = Gamma[g]))) {
