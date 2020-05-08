@@ -652,6 +652,7 @@ CGTask::Run() {
 						? new Group(I::all[bothgroup],state)
 						: 0;
     Fgamma[I::all[onlyfixed]][I::all[onlyrand]] = Gamma[I::all[bothgroup]];
+    println("CGTask ",I::all[<onlyrand;onlyfixed;bothgroup>]," State: ",state[left:right]);
 	}
 		
 /** .
@@ -1828,7 +1829,7 @@ ExTask::ExTask() {
 **/
 Group::Group(pos,state) {
 	this.state = state;
-    this.state[0:SS[bothgroup].left-1] = 0;
+    this.state[Zero:SS[bothgroup].left-1] = 0;
 	this.pos = pos;
 	rind = I::all[onlyrand];
 	find = I::all[onlyfixed];
