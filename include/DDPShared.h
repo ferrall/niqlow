@@ -228,8 +228,12 @@ enum {InUnRchble,UUnRchble,Rchble,NReachTypes}
 		/** Weighting of moments in GMM.
     <table class="enum_table" valign="top">
     <tr><td valign="top"><code>UNWEIGHTED</code></td><tD>No weighting occurs</tD></tr>
-    <tr><td valign="top"><code>UNCORRELATED</code></td><tD>Each difference between empirical and predicted moments is weighted by the inverse of its (bounded) sample standard deviation.  This treats
-        each moment as uncorrelated with other moments, including contemporaneous moments</tD></tr>
+    <tr><td valign="top"><code>UNCORRELATED</code></td><tD>Each difference between empirical and predicted moments is weighted by the inverse of its (bounded)
+        sample standard deviation.  This treats each moment as uncorrelated with other moments, including contemporaneous moments.
+        In addition, each moment has an ad hoc <b>influnce</b> weight that is read in from the data for time value <em>t=-1</em>.
+        </tD></tr>
+    <tr><td valign="top"><code>IGNOREINFLUENCE</code></td><tD>Same as UNCORRELATED, but any influence weight in the data (at t=-1)
+    is ignored.</tD></tr>\
     <tr><td valign="top"><code>CONTEMPORANEOUS</code></td><tD>[NOT YET IMPLEMENTED].  This reads in a matrix of weights to apply to
         each time period's differences pre</tD></tr>
     <tr><td valign="top"><code>INTERTEMPORAL</code></td><tD>This applies a matrix of weights to the full path, read in from
@@ -239,7 +243,7 @@ enum {InUnRchble,UUnRchble,Rchble,NReachTypes}
     not vary have weight 0.  This weights these moments by 0.01 so that they are matched as well as variable moments.</tD></tr>
     </table>
     @name GMMWeightOptions **/
-enum { UNWEIGHTED, UNCORRELATED, CONTEMPORANEOUS, INTERTEMPORAL, AUGMENTEDPATHW, GMMWeightOptions}
+enum { UNWEIGHTED, UNCORRELATED, IGNOREINFLUENCE, CONTEMPORANEOUS, INTERTEMPORAL, AUGMENTEDPATHW, GMMWeightOptions}
 
 		/** Flat views of panel data. @name FlatOptions **/
 enum { LONG, WIDE, FlatOptions }

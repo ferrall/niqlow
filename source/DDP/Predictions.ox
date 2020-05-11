@@ -278,8 +278,10 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
     if (hasT) {
         negt = inNandMom[][C].<0;
         if ( any(negt)  ) {
-            influ = inNandMom[maxcindex(negt)][:C-2];
-            if (report) fprintln(Data::logf,"Influence weights","%c",tlabels[1:C-2],influ);
+            if (!IGNOREINFLUENCE) {
+                influ = inNandMom[maxcindex(negt)][:C-2]  ;
+                if (report) fprintln(Data::logf,"Influence weights","%c",tlabels[1:C-2],influ);
+                }
             inNandMom = deleteifr(inNandMom,negt);
             }
         if (report) MyMoments(inNandMom,tlabels[1:],Data::logf);
@@ -304,7 +306,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
         totN = 1.0;
         }
     inmom = inNandMom[][:C-hasN-hasT];
-    if (isint(influ)) influ = selectifc(ones(mask),mask);
+    if (isint(influ)) influ = selectifc(ones(mask),mask);       //if IGNOREINFLUENCE this happens & influence weights in data ingored
     decl j;  //insert columns for moments not matched in the data
     for (j=0;j<columns(cols);++j)
         if (cols[j]==NotInData) {
@@ -331,7 +333,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
                 println("Augmenting pathW.  Original |diag|: ",en," . New ",norm(dd,1));
              pathW = setdiagonal(pathW,dd);
             }
-    if (!Version::MPIserver && Data::Volume>LOUD && isfile(Data::logf) )
+    if (!Version::MPIserver && Data::Volume>QUIET && isfile(Data::logf) )
         fprintln(Data::logf,"Row influence: ",influ,"Weighting by row and column",(inN/totN).*invsd.*influ);
     do {
         if (cur.t==datat[dt]) {

@@ -651,7 +651,6 @@ CGTask::Run() {
 						? new Group(I::all[bothgroup],state)
 						: 0;
     Fgamma[I::all[onlyfixed]][I::all[onlyrand]] = Gamma[I::all[bothgroup]];
-    println("CGTask ",I::all[<onlyrand;onlyfixed;bothgroup>]," State: ",state[left:right]);
 	}
 		
 /** .
