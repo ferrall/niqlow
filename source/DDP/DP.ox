@@ -371,6 +371,8 @@ DP::Actions(...
 	 		Alpha::Matrix |= reshape(Alpha::Matrix,(a.N-1)*nr,pos);
 			Alpha::Matrix ~= vecr(a.vals' * ones(1,nr));	 		
 	 		}
+        //if (DP::Volume>LOUD)
+        println("Adding ","%c",Labels::V[avar],Alpha::Matrix);
 		++pos;
 		}
 	}

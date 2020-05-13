@@ -642,7 +642,7 @@ PathPrediction::TypeContribution(pf,subflat) {
   cur=this;
   ctlist = tlist;
   ExogOutcomes::SetAuxList(tlist);
-  //println("* TypeContribution ",Version::MPIserver," ",pf);
+  if (Data::Volume>LOUD) println("++ TypeContribution ",Version::MPIserver," ",pf);
   do {
      cur->SetMoms(sizeof(ctlist),first);
      foreach(tv in tlist) {
@@ -654,7 +654,7 @@ PathPrediction::TypeContribution(pf,subflat) {
             || (this.T>0 && cur.t+1 >= this.T);    // fixed length will be past it
      if (PredictFailure) break;
      cur.accmom[] += pf*cur.predmom;
-     foreach(tv in tlist) if (tv.Volume>=LOUD) println(tv.L," ",pf," ",cur.accmom[tv.track.pos]);
+     if (Data::Volume>LOUD) println(cur.accmom[]);
      if (!isint(subflat)) subflat[0] |= cur.accmom;
 	 if (!done) {
           if (!isclass(cur.pnext)) { // no tomorrow after current
@@ -676,6 +676,7 @@ PathPrediction::TypeContribution(pf,subflat) {
      }
   first = FALSE;
   Flags::NewPhase(INBETWEEN,Data::Volume>QUIET);
+  if (Data::Volume>LOUD) println("----------------");
   return 0;
   }
 

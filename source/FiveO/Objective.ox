@@ -68,7 +68,7 @@ Objective::CheckPoint(f,saving) {
         j=0;
         for(i=0;i<sizeof(vcur.X);++i) {
             fp = (j<sizeof(FinX)) ? FinX[j]==i : 0;
-            fprintln(f,"%03u",i,"\t",fp,"\t","%10.6f",vcur.X[i],"\t\"","%-15s",PsiL[i],"\"\t\"","%-15s",PsiType[i],"\"\t",fp ? FinX[j] : -1,"\t",fp ? vcur.F[j] : .NaN);
+            fprintln(f,"%03u",i,"\t",fp,"\t","%10.6f",vcur.X[i],"\t\"","%-15s",PsiL[i],"\"\t\"","%-15s",PsiType[i],"\"\t",fp ? j : "--","\t",fp ? FinX[j] : -1,"\t",fp ? vcur.F[j] : .NaN);
             j += fp;
             }
 		fprintln(f,"\n------------\n","%c",PsiL[FinX],"%r",{"  Gradient  "},vcur.G,"\nHessian ","%r",PsiL[FinX],"%c",PsiL[FinX],vcur.H);
