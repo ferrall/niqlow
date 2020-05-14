@@ -135,6 +135,10 @@ Objective::Load(fname)	{
 	n = fscan(f,"%v",&otype,"%v",&inL,"%v",&inO);
 	if (otype!=classname(this) && !Version::MPIserver) oxwarning("FiveO Warning 07.\n Object stored in "+fname+" is of class "+otype+".  Current object is "+classname(this)+"\n");
 	if (inL!=L) oxwarning("FiveO Warning 08.\n Object Label in "+fname+" is "+inL+", which is not the same as "+L+"\n");
+    if (!isdouble(inO)) {
+        oxwarning("FiveO Warning 08.\n read in initial objective value not a double.  Setting to -.Inf");
+        inO = -.Inf;
+        }
 	maxpt.v = vcur.v = inO;
     this->CheckPoint(f,FALSE);
 	if (!Version::MPIserver && Volume>SILENT) {
