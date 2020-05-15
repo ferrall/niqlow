@@ -134,8 +134,8 @@ Objective::Load(fname)	{
 	if (Volume>SILENT && !Version::MPIserver) println(" Attempting to load from ",fname);
 	n = fscan(f,"%v",&otype,"%v",&inL,"%v",&inO);
 	if (otype!=classname(this) && !Version::MPIserver) oxwarning("FiveO Warning 07.\n Object stored in "+fname+" is of class "+otype+".  Current object is "+classname(this)+"\n");
-	if (inL!=L) oxwarning("FiveO Warning 08.\n Object Label in "+fname+" is "+inL+", which is not the same as "+L+"\n");
-    if (!isdouble(inO)) {
+	if (inL!=L && (!Version::MPIserver)) oxwarning("FiveO Warning 08.\n Object Label in "+fname+" is "+inL+", which is not the same as "+L+"\n");
+    if (!isdouble(inO)&& (!Version::MPIserver)) {
         oxwarning("FiveO Warning 08.\n read in initial objective value not a double.  Setting to -.Inf");
         inO = -.Inf;
         }
@@ -176,7 +176,8 @@ Constrained::CheckPoint(f,saving)	{
 		fscan(f,"%v",&inX,"%v",&inPsiL,"%v",&inFX);
 		fclose(f);
 		if (sizer(inX)!=sizeof(Psi)) {
-			oxwarning("FiveO Warning 09.\n X in "+fname+"."+EXT+" not the same length as Psi.\n Load is doing nothing.\n ");
+			if (!Version::MPIserver)
+                oxwarning("FiveO Warning 09.\n X in "+fname+"."+EXT+" not the same length as Psi.\n Load is doing nothing.\n ");
 			return FALSE;
 			}
 		inPsiL = varlist(inPsiL);
@@ -499,7 +500,7 @@ Objective::Encode(inX)  {
    	if (!once) {
 		nstruct=sizeof(Psi); once = TRUE;
 		if (NvfuncTerms==UnInitialized) {
-			oxwarning("FiveO Warning 10.\n "+L+" NvfuncTerms, length of return vfunc(), not initialized. Set to 1.\n");
+			if (!Version::MPIserver) oxwarning("FiveO Warning 10.\n "+L+" NvfuncTerms, length of return vfunc(), not initialized. Set to 1.\n");
 			NvfuncTerms = 1;
 			}
 		vcur.V = constant(.NaN,NvfuncTerms,1);
@@ -785,7 +786,7 @@ Objective::Parameters(...
 ) {
 	if (once) oxrunerror("FiveO Error 33. Cannot add parameters after calling Objective::Encode()");
  	decl a, p, b;
-     if (!sizeof(args)) oxwarning("FiveO Warning??.  Parameters called with an empty list");
+     if (!sizeof(args)&&(!Version::MPIserver)) oxwarning("FiveO Warning??.  Parameters called with an empty list");
     foreach(a in args) {
         if (isarray(a)) { foreach (p in a) Parameters(p); }
         else {
@@ -819,7 +820,8 @@ Prints a warning once and then returns 0.
 **/
 Objective::vfunc(subp) {
 	if (!Warned) {
-        Warned=TRUE; oxwarning("FiveO Warning 11.\n Using default objective which equals 0.0.\n  Your derived objective should provide a replacement for vfunc().\n ");
+        Warned=TRUE;
+        if (!Version::MPIserver) oxwarning("FiveO Warning 11.\n Using default objective which equals 0.0.\n  Your derived objective should provide a replacement for vfunc().\n ");
         }
 	return VZero;	
 	}

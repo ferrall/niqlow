@@ -235,7 +235,8 @@ SetClock(NormalAging,1);
 AgeBrackets::AgeBrackets(Brackets){
 	decl cur,p,tN=sizerc(Brackets);
 	this.Brackets = Brackets;
-	if (!any(Brackets.!=1)) oxwarning("DDP Warning 07.\nUsing AgeBrackets with deterministic aging: consider using Aging().\n");
+	if (!any(Brackets.!=1) && !Version::MPIserver)
+        oxwarning("DDP Warning 07.\nUsing AgeBrackets with deterministic aging: consider using Aging().\n");
 	Clock(tN,2);
 	TransMatrix = new array[tN];
 	for(cur=0;cur<tN-1;++cur) {

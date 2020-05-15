@@ -43,7 +43,7 @@ CCP::CCP(data,bandwidth) {
     ObsPstar = new array[N::F];
     NotFirstTime = FALSE;
     loop();     //first time, initialize values
-    oxwarning("Kstate dimension assumes t is stationary!");
+    if (!Version::MPIserver) oxwarning("Kstate dimension assumes t is stationary!");
     Kstates = new matrix[SS[onlyendog].D][SS[tracking].size];
     qtask->loop();
 	Kernel = GaussianKernel(Kstates,bandwidth);

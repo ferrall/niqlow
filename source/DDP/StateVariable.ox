@@ -48,7 +48,7 @@ Called by `EndogTrans::Transitions`() after `Discrete::Update`() called.
 **/
 StateVariable::Check() {
     decl dims =Dimensions(actual);
-    if ( dims != N~One ) {
+    if ( dims != N~One && !Version::MPIserver ) {
         oxwarning("DDP Warning 27.");
         println(" State Variable ",L," N=",N," Dimensions of actual:",dims);
         println(" actual vector should be a Nx1 vector.\n");
@@ -844,7 +844,7 @@ ChoiceAtTbar::ChoiceAtTbar(L,Target,Tbar,Prune) {
 
 /** . @internal **/
 ChoiceAtTbar::Transit() {
-    if (I::t<Tbar) return { VZero,CondProbOne };
+    if (I::t<Tbar) return ZeroForSure;
     if (I::t>Tbar) return UnChanged();
     return LaggedAction::Transit();
     }
@@ -874,7 +874,7 @@ StateAtTbar::StateAtTbar(L,Target,Tbar,Prune) {
 
 /** . @internal **/
 StateAtTbar::Transit() {
-    if (I::t<Tbar) return { VZero,CondProbOne };
+    if (I::t<Tbar) return ZeroForSure;
     if (I::t>Tbar) return UnChanged();
     return { matrix(Target.v) , CondProbOne };
     }
@@ -993,8 +993,7 @@ StateCounter::StateCounter(L,N,State,ToTrack,Reset,Prune) {
 /** . @internal
 **/
 StateCounter::Transit()	{
-    if (AV(Reset))                      //start count over tomorrow
-        return { VZero, CondProbOne };
+    if (AV(Reset)) return ZeroForSure;                     //start count over tomorrow
     if (v==N-1  || !any(AV(Target).==ToTrack))  //at the limit or target does not take on a tracked value.
             return UnChanged();
 	return { matrix(v+1) , CondProbOne };
@@ -1044,8 +1043,7 @@ ActionCounter::ActionCounter(L,N,Act,ToTrack,Reset,Prune)	{
 /** . @internal
 **/
 ActionCounter::Transit()	{
-    if (AV(Reset))
-        return { VZero, CondProbOne };
+    if (AV(Reset)) return ZeroForSure;
     if (( v==N-1 || !any( inc = sumr(CV(Target).==ToTrack)  ) )) return UnChanged();
     return { v~(v+1) , (1-inc)~inc };
 	}
@@ -1151,9 +1149,8 @@ Duration::Transit() {
     decl istarg = sumr(AV(Target).==ToTrack);
 	if (isact) {
         add1 = (CV(Target).==AV(Lag)) .* istarg;
-		nf = int(sumc(add1));
-        if (Volume>SILENT && !Version::MPIserver) fprintln(logf,v," ",AV(Lag),nf,CV(Target));
-        if (!nf) return { VZero , CondProbOne };
+        if (Volume>SILENT && !Version::MPIserver) fprintln(logf,v," ",AV(Lag),CV(Target));
+        if (!any(add1)) return { VZero , CondProbOne };
 		return { 0~g , (1-add1)~add1 };
 		}
     if ( (!any(AV(Target).==AV(Lag))) && !istarg ) return { VZero , CondProbOne };
@@ -1240,7 +1237,7 @@ ActionTracker::Transit()	{
 	    if (any(1-d)) return{ <0,1>, (1-d)~d };
 		return {<1>, ones(d)};
 		}
-    return {VZero,ones(d)};
+    return ZeroForSure;    //{VZero,ones(d)};
 	}
 	
 /** Create a new Coevolving random variable.
@@ -1519,7 +1516,7 @@ Tauchen::Transit() {
 Tauchen::Update() {
 	s = AV(pars[Nsigma]);
 	r = AV(pars[Nrho]);
-    if (isfeq(s,0.0)||isfeq(r,1.0)) oxwarning("Tauchen st. deviation is near 0 or correlation is near 1.0");
+    if ( (isfeq(s,0.0)||isfeq(r,1.0)) && !Version::MPIserver ) oxwarning("Tauchen st. deviation is near 0 or correlation is near 1.0");
     if (Volume>SILENT && !Version::MPIserver) println("Tauchen Variable: ",L," parmeter vector: ",AV(pars));
 	rnge = AV(M)*s/sqrt(1-sqr(r)),
 	actual = -rnge +2*rnge*vals/(N-1),
@@ -1635,7 +1632,7 @@ Otherwise, leave unchanged.
 @internal
 **/
 KeptZeta::Transit() {
-    if (any(CV(keep))) return {VZero, CondProbOne} ;
+    if (any(CV(keep))) ZeroForSure;
     return UnChanged();
 //    if (CV(held)) return {v~0,(1-Alpha::C)~Alpha::C};
 //    return {<0>, CondProbOne} ; // Changed April 2016 {vals, constant(1/N,rows(Fe asA),N)};

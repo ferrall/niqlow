@@ -1137,10 +1137,9 @@ DP::SetUpdateTime(time) {
         if (time==AfterRandom) oxrunerror("Cannot set UpdateTime=AfterRandom after CreateSpaces has been called.");
         if (time==InCreateSpaces) oxrunerror("Cannot specify UpdateTime as InCreateSpaces after CreateSpaces has been called");
         }
-    if (Volume>QUIET)
+    if (Volume>QUIET && !Version::MPIserver)
         switch_single (time) {
-            case InCreateSpaces : if (Flags::ThetaCreated) oxrunerror("Cannot specify UpdateTime as InCreateSpaces after CreateSpaces has been called");
-                                  oxwarning("DDP Warning 13a.\n Transitions and actual values are fixed.\n They are computed in CreateSpaces() and never again.\n");
+            case InCreateSpaces : oxwarning("DDP Warning 13a.\n Transitions and actual values are fixed.\n They are computed in CreateSpaces() and never again.\n");
             case WhenFlagIsSet  : oxwarning("DDP Warning 13aa.\n Setting update time only if RecomputeTrans() has been called.\n Transitions and actual values are the same for all calls to Solve() until RecomputeTrans() is called again.\n");
             case OnlyOnce       : oxwarning("DDP Warning 13b.\n Setting update time to OnlyOnce.\n Transitions and actual values do not depend on fixed or random effect values.\n  If they do, results are not reliable.\n");
             case AfterFixed     : oxwarning("DDP Warning 13c.\n Setting update time to AfterFixed.\n Transitions and actual values can depend on fixed effect values but not random effects.\n  If they do, results are not reliable.\n");
@@ -1189,7 +1188,8 @@ Storage for U and &Rho;() is re-allocated accordingly.</DD>
 **/
 DP::SubSampleStates(SampleProportion,MinSZ,MaxSZ) {
 	if (!sizerc(SubVectors[clock]))	{
-		oxwarning("DDP Warning 14.\n Clock must be set before calling SubsampleStates.\n  Setting clock type to InfiniteHorizon.\n");
+		if (!Version::MPIserver)
+            oxwarning("DDP Warning 14.\n Clock must be set before calling SubsampleStates.\n  Setting clock type to InfiniteHorizon.\n");
 		SetClock(InfiniteHorizon);
 		}
     N::SetSubSample(SampleProportion,MinSZ,MaxSZ);
@@ -1335,10 +1335,12 @@ DP::CreateSpaces() {
 	tt = new CGTask();	delete tt;
     Flags::ThetaCreated = TRUE; //March 2019 moved below group creation for Ox8 handling of new arrays
 	//if (isint(zeta)) zeta = new ZetaRealization(0);
-    if (N::R>1 && !Flags::UpdateTime[AfterRandom])
+    if (!Version::MPIserver) {
+        if (N::R>1 && !Flags::UpdateTime[AfterRandom])
             oxwarning("DDP Warning ??.\n Model contains random effects but Transition UpdateTime is not AfterRandom.\n If transitions depend on random effects they will be INCORRECT." );
-    else if (N::F>1 && !Flags::UpdateTime[AfterFixed])
+        else if (N::F>1 && !Flags::UpdateTime[AfterFixed])
             oxwarning("DDP Warning ??.\n Model contains fixed effects but Transition UpdateTime is not AfterFixed.\n If transitions depend on fixed effects they will be INCORRECT." );
+        }
 	DPDebug::Initialize();
   	V = new matrix[1][SS[bothexog].size];
 	if (!Version::MPIserver && Volume>SILENT)	{		

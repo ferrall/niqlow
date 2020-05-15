@@ -38,7 +38,7 @@ object must be created and kept</DD>
 **/
 VISolve(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling VISolve()");
-    if (N::G>One)
+    if (N::G>One && !Version::MPIserver )
         oxwarning("DDP Warning: With heterogeneity using RVSolve and then making predictions & outcomes is wrong. Use a nested solution.");
     decl meth = new ValueIteration(),succeed;
     DPDebug::outAllV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice);
@@ -377,12 +377,12 @@ KWGSolve::Solve(instate) {
 @param myGSolve [user code should not provide this]. Default is `KWGSolve`
 **/
 KeaneWolpin::KeaneWolpin(myGSolve) {
-    if (isint(N::SampleProportion))
+    if (isint(N::SampleProportion)&& !Version::MPIserver )
         oxwarning("DDP Warning 24.\n Must call SubSampleStates() before you use KeaneWolpin::Solve().\n");
     if (!isclass(userState,"ExPostSmoothing")) oxrunerror("Must use ExPostSmoothing with KeaneWolpin. You can choose NoSmoothing");
     if (SS[onlysemiexog].size>1) oxrunerror("KeaneWolpin can't be used with semiexogenous states ... move to theta");
 	ValueIteration(isint(myGSolve) ? new KWGSolve() : myGSolve);
-    if (N::J>1) oxwarning("DDP Warning 25.\n Using KW approximazation on a model with infeasible actions at some states.\n All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible.\n");
+    if (N::J>1 && !Version::MPIserver ) oxwarning("DDP Warning 25.\n Using KW approximazation on a model with infeasible actions at some states.\n All reachable states at a given time t for which the approximation is used must have the same feasible action set for results to be sensible.\n");
 	}
 
 /** .

@@ -167,7 +167,7 @@ This would be inefficient to use in any context when a solution method is applie
 **/
 RVSolve(ToScreen,aM) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 27. Must call CreateSpaces() before calling RVSolve()");
-    if (N::G>One)
+    if (N::G>One && !Version::MPIserver)
         oxwarning("DDP Warning: With heterogeneity using RVSolve and then making predictions & outcomes is wrong. Use a nested solution.");
     decl meth = new ReservationValues();
 	DPDebug::outAllV(ToScreen,aM);

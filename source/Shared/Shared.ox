@@ -23,7 +23,7 @@ Version::Check(indir) {
  oxprintlevel(1);
  if (indir!=curdir) {
     decl hdir = getcwd(), chk = chdir(indir);
-    if (!chk) {
+    if (!chk && (!Version::MPIserver)) {
         oxwarning("Attempting to create log file directory: "+indir);
         systemcall("mkdir "+indir);
         }
@@ -69,11 +69,9 @@ TypeCheck(obj,cname,Fatal,msg) {
     decl names = isarray(cname) ? cname : {cname}, cc, n;
     foreach(cc in names[n]) if ( isclass(obj,cc) ) return TRUE+n;
     if (Fatal!=SILENT) {
-        if (!Version::MPIserver) {
-            println("\n    *",classname(obj)," Checked Against: ",cname);
-            if (Fatal) oxrunerror(msg);
-            oxwarning(msg);
-            }
+        if (!Version::MPIserver) println("\n    *",classname(obj)," Checked Against: ",cname);
+        if (Fatal) oxrunerror(msg);
+        if (!Version::MPIserver) oxwarning(msg);
         }
     return FALSE;
     }
@@ -282,7 +280,7 @@ Discrete::Discrete(L,N)  {
     if (!isint(N)||(N<=0)) oxrunerror("niqlow Error 02. Number of discrete values has to be a non-negative integer");
 	this.N = N;
     if (!isstring(L)) {
-        oxwarning("DDP Warning 26.\n Label for discrete value should be a string.\n");
+        if (!Version::MPIserver) oxwarning("DDP Warning 26.\n Label for discrete value should be a string.\n");
         this.L = "";
         }
     else
@@ -923,7 +921,7 @@ CGI::ParseQ() {
 **/
 CGI::GetVar(key) {
     if (!isstring(key)) {
-        oxwarning("key must be a string");
+        if (!Version::MPIserver) oxwarning("key must be a string");
         return -1;
         }
     decl ind = strfind(keys,key);
@@ -936,7 +934,7 @@ CGI::GetVar(key) {
 **/
 CGI::Parse() {
     if (!isfile(post)) {
-        oxwarning("post data file not found.");
+        if (!Version::MPIserver) oxwarning("post data file not found.");
         return {};
         }
 	decl instr, loc,nms,vals, val;

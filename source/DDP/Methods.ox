@@ -26,8 +26,11 @@ Method::Method(myGSolve) {
 @internal
 **/
 Method::Initialize(MaxTrips) {
-  	if (isint(delta))
-        oxwarning("DDP Warning 23.\n User code has not set the discount factor yet.\n Setting it to default value of "+sprint(SetDelta(0.90))+"\n");
+  	if (isint(delta)) {
+        if (!Version::MPIserver)
+        oxwarning("DDP Warning 23.\n User code has not set the discount factor yet.\n Setting it to default value of 0.9\n");
+        SetDelta(0.90);
+        }
     I::NowSet();
     if (Flags::UpdateTime[OnlyOnce] || (Flags::UpdateTime[WhenFlagIsSet]&&Flags::CallTrans) ) {
         ETT->Transitions();
@@ -53,7 +56,7 @@ Method::Initialize(MaxTrips) {
 Method::Solve(Fgroups,Rgroups) {
     if (Volume>QUIET && (Fgroups==AllFixed && Rgroups==AllRand)) println("\n>>>>>>Value Iteration Starting");
 	if (Fgroups==AllFixed) {
-        if (Rgroups!=AllRand) oxwarning("DDP Warning: Must solve all random groups if solving All Fixed");
+        if (Rgroups!=AllRand && (!Version::MPIserver) ) oxwarning("DDP Warning: Must solve all random groups if solving All Fixed");
         this.Rgroups = AllRand;
         this->GroupTask::loop();
         }

@@ -318,7 +318,7 @@ Bellman::ThetaTransition() {
                         fprintln(logf,"     State: ",root.L,"%r",{"   ind","actual","   prob"},feas|(root.actual[feas]')|prob);
                     else
                         fprintln(logf,"     State: ",root.L,"%r",{"   ind","   prob"},feas|prob);
-                if ( any(!isdotfeq(sumr(prob),1.0))) { // short-circuit && avoids sumr() unless NOISY
+                if ( any(!isdotfeq(sumr(prob),1.0)) && (!Version::MPIserver) ) { // short-circuit && avoids sumr() unless NOISY
                     if (isfile(logf)) fprintln(logf,"Transition probability error at state ",si,"%m",sumr(prob));
                     oxwarning("Transition probabilities are not valid (sum not close enough to 1.0).  Check log file");
                     }
@@ -363,7 +363,9 @@ This is a virtual method.  <code>MyModel</code> provides a replacement.
 **/
 Bellman::Utility()  {
 	if (!Flags::Warned) {
-        Flags::Warned=TRUE; oxwarning("DDP Warning 02.\n Using default Utility() equal to 0.\n Your derived DDP should provide a replacement for Bellman::Utility().\n ");}
+        Flags::Warned=TRUE;
+        if (!Version::MPIserver) oxwarning("DDP Warning 02.\n Using default Utility() equal to 0.\n Your derived DDP should provide a replacement for Bellman::Utility().\n ");
+        }
 	return zeros(N::Options[Aind],1);
 	}
 
@@ -882,7 +884,7 @@ NnotIID::CreateSpaces() {
 	ghk=new array[N::J];
 	decl mm= N::Options[0];
 	if (R<=0) {
-		oxwarning("DDP Warning 04.\n Number of replications R not set or invalid.\n Setting to 1.\n");
+		if (!Version::MPIserver) oxwarning("DDP Warning 04.\n Number of replications R not set or invalid.\n Setting to 1.\n");
 		R = 1;		
 		}
 	if (isint(AChol)) AChol = vech(unit(mm)) ;
@@ -1101,6 +1103,6 @@ KeepZ::SetKeep(N,held) {
 /**
 **/
 KeepZ::CreateSpaces() {
-    if (!isclass(keptz)) oxwarning("DDP Warning 06.\n Dynamic approximation to continuous state has not defined.\n Call SetKeep().\n" );
+    if (!isclass(keptz) && (!Version::MPIserver) ) oxwarning("DDP Warning 06.\n Dynamic approximation to continuous state has not defined.\n Call SetKeep().\n" );
 	OneDimensionalChoice::CreateSpaces();
 	}

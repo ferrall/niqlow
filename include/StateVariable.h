@@ -774,7 +774,7 @@ $$s' = I\{ x = Lag(x)\}(s+ I\{s \lt N-1\}).$$
 **/
 struct Duration : Counter {
 	const decl Current, Lag, isact, MaxOnce;
-	decl nf, add1, g;
+	decl add1, g;
 	Duration(L,Current,Lag,N,MaxOnce=FALSE,ToTrack=DoAll,Prune=TRUE);
 	virtual Transit();
 	}

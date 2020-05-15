@@ -276,7 +276,7 @@ FPanel::FPanel(f,method) {
 	this.method = method;
 	Path(0,UnInitialized);
 	if ( (N::R>One || N::DynR>One ) && isint(summand)) {
-        if (!isclass(method))
+        if (!isclass(method) && (!Version::MPIserver))
             oxwarning("DDP Warning: Solution method is not nested with random effects present.  Path Outcomes may not be accurate");
 		summand = new RandomEffectsIntegration();
 		upddens = new UpdateDensity();
@@ -409,12 +409,12 @@ Panel::Panel(r,method) {
 	decl i, q;
     this.method = method;
     if (!isint(r)) {
-        oxwarning("Panel tag should be an integer");
+        if (!Version::MPIserver) oxwarning("Panel tag should be an integer");
         this.r = Zero;
         }
     else
 	     this.r = r;
-    if ( N::F>One && !isclass(method)) {
+    if ( N::F>One && !isclass(method) && (!Version::MPIserver)) {
             oxwarning("DDP Warning: Solution method is not nested with fixed effects present.  Panel Outcomes will not be accurate");
             }
 	FPanel(0,method);	
@@ -987,7 +987,10 @@ Outcome::AccountForUnobservables() {
 @see Panel::LogLikelihood
 **/
 OutcomeDataSet::EconometricObjective(subp) {
-	if (!masked) {oxwarning("DDP Warning 09.\n Masking data for observability.\n"); Mask();}
+	if (!masked) {
+        if (!Version::MPIserver) oxwarning("DDP Warning 09.\n Masking data for observability.\n");
+        Mask();
+        }
     if (subp==DoAll) {
 	   this->Panel::LogLikelihood();
 	   return M;
@@ -1100,11 +1103,11 @@ OutcomeDataSet::Read(FNorDB,SearchLabels) {
         }
     else source = FNorDB;
 	if (!list[idvar].obsv) {
-        oxwarning("DDP Warning 60. OutcomeDataSet::IDColumn not called before reading data.  Using default (may cause an error)");
+        if (!Version::MPIserver) oxwarning("DDP Warning 60. OutcomeDataSet::IDColumn not called before reading data.  Using default (may cause an error)");
         IDColumn();
         }
 	if (!list[low[svar]+counter.t.pos].obsv) {
-        oxwarning("DDP Warning 60. OutcomeDataSet::tColumn not called before reading data. Using default (may cause an error)");
+        if (!Version::MPIserver) oxwarning("DDP Warning 60. OutcomeDataSet::tColumn not called before reading data. Using default (may cause an error)");
         tColumn();
         }
 	if (SearchLabels) {

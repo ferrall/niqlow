@@ -85,7 +85,7 @@ BoundedBelow::Encode() 	{
 	decl lv = CV(this.LB);
 	if (start<= lv ) oxrunerror("FiveO Error 18. Bounded from below parameter "+L+" must start strictly above "+sprint(lv));
 	if (fabs(start-lv-1.0)< NearFlat) {
-          oxwarning("FiveO Warning ??. bounded parameter "+L+" starting value = "+sprint("%12.9f",start)+". Close to LB+1\n NOT CONSTRAINED");
+          if (!Version::MPIserver) oxwarning("FiveO Warning ??. bounded parameter "+L+" starting value = "+sprint("%12.9f",start)+". Close to LB+1\n NOT CONSTRAINED");
           nearflat = TRUE;
           }
     v = start;
@@ -148,7 +148,7 @@ BoundedAbove::Encode()	{
 	decl bv = CV(UB);
 	if (start>= bv) oxrunerror("FiveO error 19. BoundedAbove parameter "+L+" must start strictly below "+sprint(bv));
 	if (fabs(start-bv+1.0)< NearFlat) {
-          oxwarning("FiveO Warning ??. Bounded parameter "+L+" starting value = "+sprint("%12.9f",start)+". Close to LB+1\n NOT CONSTRAINED");
+          if (!Version::MPIserver) oxwarning("FiveO Warning ??. Bounded parameter "+L+" starting value = "+sprint("%12.9f",start)+". Close to LB+1\n NOT CONSTRAINED");
           nearflat = TRUE;
           }
     v = start;
@@ -192,7 +192,7 @@ Bounded::Encode()	{
 	if (start<= lv || start>=uv) oxrunerror("FiveO error 20. Bounded  parameter "+L+" must start strictly between "+sprint(lv)+" and "+sprint(uv));
 
 	if (fabs(start-(lv+uv)/2)< NearFlat) {
-          oxwarning("FiveO Warning ??. bounded parameter "+L+" starting value = "+sprint("%12.9f",start)+". Close to LB+1\n NOT CONSTRAINED");
+          if (!Version::MPIserver) oxwarning("FiveO Warning ??. bounded parameter "+L+" starting value = "+sprint("%12.9f",start)+". Close to LB+1\n NOT CONSTRAINED");
           nearflat = TRUE;
           }
     v = start;

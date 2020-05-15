@@ -103,6 +103,7 @@ static const decl
                                                   curdir = ".",
 		/**labels for `MyMoments`**/              mymomlabels = {"sample size","mean","st.dev.","min","max"},
         /** 0 as a vector .**/                    VZero     =   <0>,
+                                                  ZeroForSure=  { VZero, CondProbOne },
 		/** Euclidean norm tolerance  **/         SSQ_TOLER =	1E-12,
 		/** square-root of machine &epsilon; **/  SQRT_EPS 	=	1E-8,
 		/** tolerance level 0. **/                DIFF_EPS 	=	1E-8,
