@@ -970,6 +970,7 @@ CES::vfunc() {
 
 /** Create a stationary equilibrium system of equations.
 @param L label
+@param T number of periods of static equilibria.<br/>1 [default]
 @param P    an array of parameters or a parameter block of prices $p$<br/>
             0 [default]  a vector of `StDeviations` is created of the same length as the
                 parameter list of <code>aggF</code>
@@ -986,21 +987,39 @@ of aggF are $X^d$.  They are set as <code>DoNotConstrain</code> so that the grad
 <li>`Equilibrium::deprec` `CV`-compatible vector of input depreciations $\Delta$<br/>
         0 [default] no depreciation term
 **/
-Equilibrium::Equilibrium(L,P){
+Equilibrium::Equilibrium(L,T,P){
     if (!isclass(aggF,"Objective"))
             oxrunerror("aggF is not an Objective object.  Assign one in the creator method before calling Equilibrium()");
-    decl Neq = sizeof(aggF.Psi);
+    this.T = T;
+    decl Neq = sizeof(aggF.Psi), inAggF = aggF, allP, TLabels;
     if (!Neq) oxrunerror("Parameters of the objective aggF must be set before calling Equilibrim()");
     if (!isclass(stnpred,"PathPrediction")) oxrunerror("stnpred is not a PathPrediction object.  Assign one in the creator method before calling Equilibrium()");
     if (!isclass(stnpred.method)) oxrunerror("stnpred must have a nested solution method to recompute Xs");
     if (sizerc(Qcols)!=Neq) oxrunerror("Number of prediction columns not equal to number of aggregate inputs");
-
-    System(L,aggF.PsiL);     //use labels of aggF parameters for equation labels
-
-    Parameters( isint(P) ? new StDeviations("P",0,aggF.PsiL) : P );
     if (!aggF.DoNotConstrain) aggF->ToggleParameterConstraint();
     println("Aggregate production function: ",aggF.L," of type ",classname(aggF));
     println("Aggregate inputs: ",aggF.PsiL,"Parameter constraints have been turned off");
+
+    if (T>One) {
+        aggF = {};TLabels = {}; allP={};
+        decl t, ts;
+        for(t=0;t<T;++t) {
+            ts ="_"+sprint("%02u",t);
+            aggF    |= clone(inAggF);
+            TLabels |= suffix(aggF.PsiL,ts);
+            if (isint(P))
+               allP |= new StDeviations("P"+ts,0,inAggF.PsiL);
+            }
+        }
+    else {
+        aggF = {inAggF};
+        TLabels = aggF.PsiL;
+        allP =new StDeviations("P",0,inAggF.PsiL);
+        }
+
+    System(L,TLabels);     //use labels of aggF parameters and time periods for equation labels
+
+    Parameters( isint(P) ? allP : P );
     }
 
 /**Built-in system of equations for Equilibrium models.
@@ -1015,10 +1034,15 @@ $$\nabla F(X^s)' - \Delta - P.$$
 </UL>
 **/
 Equilibrium::vfunc() {
-    stnpred->Predict(One,Zero);  //One prediction, quietly
-    Q = stnpred->GetFlat(Zero,Qcols)';
-    aggF -> Encode(Q);         // set aggregate inputs equal to stationary predictions
-    foc = aggF->Gradient()' - CV(deprec) - vcur.X;
+    stnpred->Predict(T,Zero);  //prediction, quietly
+    Q = stnpred->GetFlat(DoAll,Qcols)';
+    foc = <>;
+    decl t;
+    for(t=0;t<T;++t) {
+        aggF[t] -> Encode(Q[t][]);      // set aggregate inputs equal to stationary predictions
+        foc |= aggF[t]->Gradient()' - CV(deprec);
+        }
+    foc -= vcur.X;
     return foc;
     }
 

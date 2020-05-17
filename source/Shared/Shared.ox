@@ -435,8 +435,8 @@ prefix(pfx, s) {
     }
 
 /** put a suffix at end of string or array of strings.
-@param pfx string to pre-fix
 @param s string or array of strings
+@param sfx string to pre-fix
 @return pfx pre-fixed to s
 @internal
 **/

@@ -159,16 +159,17 @@ of $p^\star$ are `Determined` parameters not available for the system algorithm 
 **/
 struct Equilibrium : System {
     const decl
-        /** aggregate prod. function `BlackBox`.**/     aggF,
-        /** ergodic distribution `PathPrediction`.**/   stnpred,
-        /** 0.0 or vector of quantity depreciations.**/ deprec,
-        /** columns of pred that match up to inputs.**/ Qcols;
+        /** number of periods in equilibrium. **/               T,
+        /** list of aggregate prod. function `BlackBox`.**/     aggF,
+        /** ergodic distribution `PathPrediction`.**/           stnpred,
+        /** 0.0 or vector of quantity depreciations.**/         deprec,
+        /** columns of pred that match up to inputs.**/         Qcols;
 
     decl
          /** computed system.**/                        foc,
         /** aggregate Qs from prediction.**/            Q;
 
-               Equilibrium(L,P=0);
+               Equilibrium(L,T=One,P=0);
 	           Print(orig,fn=0,toscreen=TRUE);
     virtual    vfunc();
     }
