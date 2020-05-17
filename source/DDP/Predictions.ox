@@ -278,7 +278,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
     if (hasT) {
         negt = inNandMom[][C].<0;
         if ( any(negt)  ) {
-            if (!IGNOREINFLUENCE) {
+            if (wght!=IGNOREINFLUENCE) {
                 influ = inNandMom[maxcindex(negt)][:C-2]  ;
                 if (report) fprintln(Data::logf,"Influence weights","%c",tlabels[1:C-2],influ);
                 }
@@ -317,21 +317,27 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
     if (!Version::MPIserver && columns(inmom)!=columns(mask))
         oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
     invsd = 1.0;
-    switch_single(wght) {
-        case UNWEIGHTED :
+    switch(wght) {
+        case UNWEIGHTED : break;
+
         case UNCORRELATED :
+        case IGNOREINFLUENCE:
                         invsd = 1.0 ./ setbounds(moments(inmom,2)[2][],0.1,+.Inf);
                         invsd = isdotnan(invsd) .? 0.0 .: invsd;  //if no observations, set weight to 0.0
                         invsd = selectifc(invsd,mask);
+                        break;
         case CONTEMPORANEOUS :  oxrunerror("CONTEMPORANEOUS correlated moments not implemented yet");
+                                break;
         case INTERTEMPORAL :    pathW = loadmat("pathW_"+sprint("%02u",f)+".mat");
+                                break;
         case AUGMENTEDPATHW :
-             pathW = loadmat("pathW_"+sprint("%02u",f)+".mat");
-             decl dd = diagonal(pathW), en = norm(dd,1);
-             dd = dd.==0 .? .01 .: dd;
-             if (!Version::MPIserver)
-                println("Augmenting pathW.  Original |diag|: ",en," . New ",norm(dd,1));
-             pathW = setdiagonal(pathW,dd);
+                                pathW = loadmat("pathW_"+sprint("%02u",f)+".mat");
+                                decl dd = diagonal(pathW), en = norm(dd,1);
+                                dd = dd.==0 .? .01 .: dd;
+                                if (!Version::MPIserver)
+                                    println("Augmenting pathW.  Original |diag|: ",en," . New ",norm(dd,1));
+                                pathW = setdiagonal(pathW,dd);
+                                break;
             }
     if (!Version::MPIserver && Data::Volume>QUIET && isfile(Data::logf) )
         fprintln(Data::logf,"Row influence: ",influ,"Weighting by row and column",(inN/totN).*invsd.*influ);
