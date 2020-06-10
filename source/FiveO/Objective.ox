@@ -968,15 +968,15 @@ CES::vfunc() {
     return CV(A)*( CV(alphas)' * (CV(x).^xpon) )^(1/xpon);
     }
 
-/** Create a stationary equilibrium system of equations.
+/** Create a system of aggregate equilibrium equations.
 @param L label
 @param T number of periods of static equilibria.<br/>1 [default]
 @param P    an array of parameters or a parameter block of prices $p$<br/>
             0 [default]  a vector of `StDeviations` is created of the same length as the
                 parameter list of <code>aggF</code>
 
-This should be called in the creator function of a derived equilibrium class <b>after</b> the
-following constants have be initialized inside the creator:
+This should be called in the creator function of a derived equilibrium class <b>after</b> the following constants have
+been initialized inside the creator:
 <UL>
 <li>`Equilibrium::aggF` : must contain an `Objective` for the aggregate production function $F(X^d)$. THe parameters
 of aggF are $X^d$.  They are set as <code>DoNotConstrain</code> so that the gradient is correct (not transformed).</li>
@@ -1013,7 +1013,7 @@ Equilibrium::Equilibrium(L,T,P){
         }
     else {
         aggF = {inAggF};
-        TLabels = aggF.PsiL;
+        TLabels = inAggF.PsiL;
         allP =new StDeviations("P",0,inAggF.PsiL);
         }
 
@@ -1027,9 +1027,9 @@ Typically the user's derived class does not need to replace this if takes the fo
 model:
 <UL>
 <LI>Compute prediction using `Equilibrium::stnpred` (which should re-solve DP model)</li>
-<LI>Get X<sup>s</sup> (stored in `Equilibrium::Q`) using <code>GetFlat(Zero,`Equilibrium::Qcols`)</code></li>
+<LI>Get X<sup>s</sup> (stored in `Equilibrium::Q`) using <code>GetFlat(DoAll,`Equilibrium::Qcols`)</code></li>
 <LI>Encode X<sup>s</sup> as the values of the parameter of `Equilibrium::aggF`</li>
-<LI>Compute and return the equilibrium FOC conditions:
+<LI>Compute and return the equilibrium FOC conditions
 $$\nabla F(X^s)' - \Delta - P.$$
 </UL>
 **/
@@ -1039,7 +1039,7 @@ Equilibrium::vfunc() {
     foc = <>;
     decl t;
     for(t=0;t<T;++t) {
-        aggF[t] -> Encode(Q[t][]);      // set aggregate inputs equal to stationary predictions
+        aggF[t] -> Encode(Q[][t]);      // set aggregate inputs equal to stationary predictions
         foc |= aggF[t]->Gradient()' - CV(deprec);
         }
     foc -= vcur.X;

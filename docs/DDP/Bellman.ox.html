@@ -23,7 +23,7 @@ How the user constructs Utility, Reachable States and other aspects of a state <
 <P/>
 <li>Overview</li>
 <P/>
-Your DP model (called <code>MyModel</code> ere) will be derived from the Bellman class or from one of the built-in derived classes.  Think of these classes as a template for each point in your state space <span class="expressions">\(\Theta\)</span>. You pick one of th templates to start with then customize to match your model.</p>
+Your DP model (called <code>MyModel</code> here) will be derived from the Bellman class or from one of the built-in derived classes.  Think of these classes as a template for each point in your state space <span class="expressions">\(\Theta\)</span>. You pick one of the templates to start with then customize to match your model.</p>
 <P/>
 <p>Each <a href="Bellman.ox.html#Bellman">Bellman</a> class embodies a specification of the DP model, especially the <em>iid continuous state vector</em>, denoted <span class="expressions">\(\zeta\)</span> which smooths choice probabilities.  This customization is fundamental because the form of <span class="expressions">\(\zeta\)</span> (or the lack thereof) determines the calculations required to iterate on Bellman's equation at each point <span class="expressions">\(\theta.\)</span> Each derived class of Bellman substitutes customized routines ("methods") to carry out these tasks.</p>
 <P/>
@@ -119,13 +119,19 @@ MyModel::Utility() {
     return  CV(p)*dv .&lt;= CV(s)  .?  dv .: -.Inf;
     }
 </pre>
-The <code>.? &hellip; .: &helip;</code> operation is an inline <code>if-statement</code> that will check the 
+The <code>.? &hellip; .: &hellip;</code> operation is an inline <code>if-statement</code> that will check the 
 element-by-element condition at the start and assign the other values listed depending on whether the element is TRUE or FALSE.  This case if the value of <code>p</code> changes and a value of <code>d</code> is no longer affordable it will dynamically have utility equal to <span class="expressions">\(-\infty\)</span>.
 </DD>
 <P/>
 <LI>ThetaUtility</LI>
 <P/>
-Suppose the utility for your model has the form <span class="expressions">\(U() = f\left( \alpha; g\left(\theta\right),\eta,\epsilon\right).\)</span>  That is, there is a function <span class="expressions">\(g()\)</span> of the endogenous state variables that is common for all values of the IID (exogenous and semi-exogenous) state variables.  If <code>MyModel</code> only provides the required <code>Utility()</code> function then <span class="expressions">\(g(\theta)\)</span> is unnecessarily recomputed for each value of the IID shocks.  This inefficiency can be eliminated by providing <code>ThetaUtility().</code>  It is called for each <span class="expressions">\(\theta\)</span> immediately before looping over the IID exogenous state values and calling <code>Utility()</code>. A simple example:  <span class="expressions">\(U = a(xb + e - d) + d.\)</span>  Here <span class="expressions">\(\theta=(x),\)</span> <span class="expressions">\(\alpha=(a)\)</span> is a binary choice, and <span class="expressions">\(\epsilon=(e)\)</span> an IID shock to value of <span class="expressions">\(a=1\)</span>.  <span class="expressions">\(b\)</span> and <span class="expressions">\(d\)</span> are parameters.
+Suppose the utility for your model has the form 
+<span class="equation">$$U() = f\left( \alpha; g\left(\theta\right),\eta,\epsilon\right).$$</span>  
+That is, there is a function <span class="expressions">\(g()\)</span> of the endogenous state variables that is common for all values of the IID (exogenous and semi-exogenous) state variables.  If <code>MyModel</code> only provides the required <code>Utility()</code> function then <span class="expressions">\(g(\theta)\)</span> is recomputed for each value of the IID shocks.</p>
+<P/>
+<p>This inefficiency can be eliminated by providing <code>ThetaUtility()</code>  which is called for each <span class="expressions">\(\theta\)</span> immediately before looping over the IID exogenous state values and calling <code>Utility()</code>. A simple example:  
+<span class="equation">$$U = a(xb + e - d) + d.$$</span>  
+Here <span class="expressions">\(\theta=(x),\)</span> <span class="expressions">\(\alpha=(a)\)</span> is a binary choice, and <span class="expressions">\(\epsilon=(e)\)</span> an IID shock to value of <span class="expressions">\(a=1\)</span>.  <span class="expressions">\(b\)</span> and <span class="expressions">\(d\)</span> are parameters.  So <span class="expressions">\(g() = xb\)</span>, which is not expensive to recompute unnecessarily.  However, in some models this <span class="expressions">\(\theta\)</span>-constant component of utility is very involved whereas the IID contributions are simple.</p>
 <P/>
 <dd><pre>
 struct MyModel : Bellman {
@@ -142,7 +148,7 @@ MyModel::Utility() {
     return CV(a)*(xb+AV(e)-d) + d;
     }
     </pre></dd>
-Note that the model's <code>ThetaUtility</code> stores the computed value in a static member of the model.  It can be static even though the value of the state variable <span class="expressions">\(x\)</span> depends on the <span class="expressions">\(\theta\)</span>.  But it will updated with the current value before <code>Utility()</code> is called for the current value of <span class="expressions">\(\theta\)</span> and <span class="expressions">\(\epsilon.\)</span>  In complicated models, there may be many calculations that depend on endogenous states and estimated parameters.  Using <code>ThetaUtility()</code> not only eliminates redundant computation it does so without additional storage that grows with the state space.</p>
+<code>ThetaUtility</code> stores the computed value in a static member of the model, <code>xb</code>.  If <code>xb</code> were not declared static an additional location in memory would be created for each point <span class="expressions">\(\theta.\)</span>  It can be static even though the value of the state variable <span class="expressions">\(x\)</span> depends on the <span class="expressions">\(\theta\)</span>.  As <span class="n">DDP</span> moves through the state space the value of <code>xb</code> is updated with the current value before <code>Utility()</code> is called for the current value of <span class="expressions">\(\theta\)</span> and <span class="expressions">\(\epsilon.\)</span>  In complicated models, there may be many calculations that depend on endogenous states and estimated parameters.  Using <code>ThetaUtility()</code> not only eliminates redundant computation it does so without additional storage that grows with the state space.</p>
 <P/>
 <LI>Hooks and Update Time</LI>
 <P/>

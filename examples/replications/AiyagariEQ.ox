@@ -23,7 +23,7 @@ AiyagariEQ::AiyagariEQ(KK){
     DP::Volume=SILENT;
 	[stnpred,Qcols] = AiyagariAgent::Build(price,KK);							//household problem set up
 
-    Equilibrium("Eq",price);               //Call creator when constants have all been initialized
+    Equilibrium("Eq",One,price);               //Call creator when constants have all been initialized
 
     alg = new OneDimRoot(this);           //send myself to the alg
     SetOneDim(KK,KK);                    //concentrate into 1 dimensional equation, select marg. prod of K equation and interest rate

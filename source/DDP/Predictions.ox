@@ -753,7 +753,7 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght) {
     // Create path predictions for all other fixed effect groups
     if (N::F>One && !isclass(method))
             oxwarning("DDP Warning: Solution method is not nested with fixed effects present.  Predictions may not be accurate");
-	for (f=One;f<N::F-1;++f) cur = cur.fnext = fparray[f] = new PathPrediction(f,method,iDist,wght);
+	for (f=One;f<N::F;++f) cur = cur.fnext = fparray[f] = new PathPrediction(f,method,iDist,wght);
     FN = 1;
     TrackingCalled = FALSE;
     }

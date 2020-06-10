@@ -127,33 +127,38 @@ struct System : Objective {
 	//virtual fobj(F,extcall=TRUE);
 	}
 
-/** A nonlinear system for computing stationary equilibrium.
-This provides a framework for equilibrium prices in a steady-state model with an aggregate production function.
-
+/** A nonlinear system for computing equilibrium.
+This provides a framework for equilibrium prices in a model with an aggregate production function.
+<DT>$T$ periods (default $T=1$)</DT>
 <DT>Production</DT>
 <DD>A $N\times 1$ vector $X.$</DD>
 <DD>$F(X^d)$ is aggregate output where $X^s$ stands for aggregate demand.</dd>
-<dd>$p$ is a $n\times 1$ price vector.</DD>
-<DD>The respresentative firm acts to maximize profit by choosing $X$ accounting for input prices and a
-depreciation vector $\Delta$.  First order conditions are:
-$$\nabla F(X^d)^\prime - \Delta - p = \overrightarrow{0}$$
-where $\nabla F$ is the $1\times N$ gradient of the production function with respect to $X^d$.</DD>
+<dd>$p_t$ is a $n\times 1$ price vector in period $t$.</DD>
+<DD>The respresentative firm acts to maximize static profit by choosing $X^d_$ accounting for input prices and a
+depreciation vector $\Delta$.  First order conditions at $t$ are:
+$$\nabla F(X^d_t)^\prime - \Delta - p_t = \overrightarrow{0}$$
+where $\nabla F$ is the $1\times N$ gradient of the production function with respect to $X^d_t$.</DD>
 <DT>Households</DT>
-<DD>Consumer behavior is described by a stationary dynamic program.</DD>
-<DD>Adding variables to $\gamma_r$  (random effects) allows for heterogeneity.  (This version does not
-allow for fixed effects.)</DD>
-<DD>The price vector $p$ enters $U()$, usually through a budget constraint that determines consumption.</DD>
-<DD>Quantities of per-capita values supplied by households ($X^s$) are determined in the steady-state:
-$$X^s = \sum_{\gamma_r}g(r)\left[ \sum_{\theta\in\Theta} P_\infty(\theta;\gamma_r) x(\theta;\gamma_r)\right].$$
-Here $x(\theta;\gamma_r)$ is the vector of elements of of the DP outcome $Y$ that match up to to
-factors of production. <details class="aside">A fixed factor can be included by adding a constant <code>AuxiliaryOutcome</code> to
+<DD>Consumer behavior is described by a DP with $T$ periods.  If the clock is ergodic then it is a stationary equilibrium
+for infinitely lived agents.  If the clock is non-stationary then it is a sequence of $T$ static equilibrium problems
+which are connected because agent behavior at $t$ depends on future prices and past choices through
+the current distribution across states.  (This version does not handle overlapping generations.)</DD>
+<DD>Adding variables to $\gamma_r$  (random effects) allows for heterogeneity.  (This version does not allow fixed effects.)</DD>
+<DD>The price matrix $p$ enters $U()$, usually through a budget constraint that determines consumption.</DD>
+<DD>Quantities of per-capita values supplied by households ($X^s$) are determined by the predicted amounts :
+$$X^s_t = \sum_{\gamma_r}g(r)\left[ \sum_{\theta\in\Theta} f_t(\theta;\gamma_r) x_t(\theta;\gamma_r)\right].$$
+Here $x_t(\theta;\gamma_r)$ is the vector of elements of of the DP outcome $Y$ that match up to the
+factors of production.  $f_t$ is the distribution over states at $t.$  The user specifies the intial
+distribution $f_0$.  If the equilibrium is stationary then this is the ergodic distribution $f_\infty$.
+<details class="aside">A fixed factor can be included by adding a constant <code>AuxiliaryOutcome</code> to
 to the DP, which would then always average across states and household types to the fixed factor.</details>
 </DD>
-<DD>In other words, $X^s$ are aspects of a <code>PathPrediction</code> of length 1 started from the Ergodic
-distribution implied by the household's optimal behavior.</DD>
+<DD>In other words, $X^s_t$ are computed from the  <code>PathPrediction</code> of length $T$ starting from exogenous
+initial conditions.</DD>
 <DT>Equilibrium</DT>
-<DD>In equilibrium the price vector $p^\star$ satisfies the first order conditions when $X^s$ is inserted for $X^d.$</DD>
-<DD>In general $p^\star$ is the solution to a system of $N$ equations.  Depending on the production fucntion
+<DD>In equilibrium the price vector $p^\star_t$ satisfies the first order conditions when $X^s$ is inserted for $X^d$ at
+each $t.$  </DD>
+<DD>In general, the full price vector $p^\star$ is the solution to a system of $TN$ equations.  Depending on the production fucntion
 $f(X)$ some of the equations may be solved out to reduce the number of equations.  In that case some elements
 of $p^\star$ are `Determined` parameters not available for the system algorithm to vary.</DD>
 **/

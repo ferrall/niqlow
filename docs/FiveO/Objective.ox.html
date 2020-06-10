@@ -416,33 +416,38 @@ PredictionDataSet.
 <a name="Equilibrium"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Equilibrium : <a href="Objective.ox.html#System">System</a> : <a href="Objective.ox.html#Objective">Objective</a></span></h2>
 
-A nonlinear system for computing stationary equilibrium.
-This provides a framework for equilibrium prices in a steady-state model with an aggregate production function.
-<P/>
+A nonlinear system for computing equilibrium.
+This provides a framework for equilibrium prices in a model with an aggregate production function.
+<DT><span class="expressions">\(T\)</span> periods (default <span class="expressions">\(T=1\)</span>)</DT>
 <DT>Production</DT>
 <DD>A <span class="expressions">\(N\times 1\)</span> vector <span class="expressions">\(X.\)</span></DD>
 <DD><span class="expressions">\(F(X^d)\)</span> is aggregate output where <span class="expressions">\(X^s\)</span> stands for aggregate demand.</dd>
-<dd><span class="expressions">\(p\)</span> is a <span class="expressions">\(n\times 1\)</span> price vector.</DD>
-<DD>The respresentative firm acts to maximize profit by choosing <span class="expressions">\(X\)</span> accounting for input prices and a
-depreciation vector <span class="expressions">\(\Delta\)</span>.  First order conditions are:
-<span class="equation">$$\nabla F(X^d)^\prime - \Delta - p = \overrightarrow{0}$$</span>
-where <span class="expressions">\(\nabla F\)</span> is the <span class="expressions">\(1\times N\)</span> gradient of the production function with respect to <span class="expressions">\(X^d\)</span>.</DD>
+<dd><span class="expressions">\(p_t\)</span> is a <span class="expressions">\(n\times 1\)</span> price vector in period <span class="expressions">\(t\)</span>.</DD>
+<DD>The respresentative firm acts to maximize static profit by choosing <span class="expressions">\(X^d_\)</span> accounting for input prices and a
+depreciation vector <span class="expressions">\(\Delta\)</span>.  First order conditions at <span class="expressions">\(t\)</span> are:
+<span class="equation">$$\nabla F(X^d_t)^\prime - \Delta - p_t = \overrightarrow{0}$$</span>
+where <span class="expressions">\(\nabla F\)</span> is the <span class="expressions">\(1\times N\)</span> gradient of the production function with respect to <span class="expressions">\(X^d_t\)</span>.</DD>
 <DT>Households</DT>
-<DD>Consumer behavior is described by a stationary dynamic program.</DD>
-<DD>Adding variables to <span class="expressions">\(\gamma_r\)</span>  (random effects) allows for heterogeneity.  (This version does not
-allow for fixed effects.)</DD>
-<DD>The price vector <span class="expressions">\(p\)</span> enters <span class="expressions">\(U()\)</span>, usually through a budget constraint that determines consumption.</DD>
-<DD>Quantities of per-capita values supplied by households (<span class="expressions">\(X^s\)</span>) are determined in the steady-state:
-<span class="equation">$$X^s = \sum_{\gamma_r}g(r)\left[ \sum_{\theta\in\Theta} P_\infty(\theta;\gamma_r) x(\theta;\gamma_r)\right].$$</span>
-Here <span class="expressions">\(x(\theta;\gamma_r)\)</span> is the vector of elements of of the DP outcome <span class="expressions">\(Y\)</span> that match up to to
-factors of production. <details class="aside">A fixed factor can be included by adding a constant <code>AuxiliaryOutcome</code> to
+<DD>Consumer behavior is described by a DP with <span class="expressions">\(T\)</span> periods.  If the clock is ergodic then it is a stationary equilibrium
+for infinitely lived agents.  If the clock is non-stationary then it is a sequence of <span class="expressions">\(T\)</span> static equilibrium problems
+which are connected because agent behavior at <span class="expressions">\(t\)</span> depends on future prices and past choices through
+the current distribution across states.  (This version does not handle overlapping generations.)</DD>
+<DD>Adding variables to <span class="expressions">\(\gamma_r\)</span>  (random effects) allows for heterogeneity.  (This version does not allow fixed effects.)</DD>
+<DD>The price matrix <span class="expressions">\(p\)</span> enters <span class="expressions">\(U()\)</span>, usually through a budget constraint that determines consumption.</DD>
+<DD>Quantities of per-capita values supplied by households (<span class="expressions">\(X^s\)</span>) are determined by the predicted amounts :
+<span class="equation">$$X^s_t = \sum_{\gamma_r}g(r)\left[ \sum_{\theta\in\Theta} f_t(\theta;\gamma_r) x_t(\theta;\gamma_r)\right].$$</span>
+Here <span class="expressions">\(x_t(\theta;\gamma_r)\)</span> is the vector of elements of of the DP outcome <span class="expressions">\(Y\)</span> that match up to the
+factors of production.  <span class="expressions">\(f_t\)</span> is the distribution over states at <span class="expressions">\(t.\)</span>  The user specifies the intial
+distribution <span class="expressions">\(f_0\)</span>.  If the equilibrium is stationary then this is the ergodic distribution <span class="expressions">\(f_\infty\)</span>.
+<details class="aside">A fixed factor can be included by adding a constant <code>AuxiliaryOutcome</code> to
 to the DP, which would then always average across states and household types to the fixed factor.</details>
 </DD>
-<DD>In other words, <span class="expressions">\(X^s\)</span> are aspects of a <code>PathPrediction</code> of length 1 started from the Ergodic
-distribution implied by the household's optimal behavior.</DD>
+<DD>In other words, <span class="expressions">\(X^s_t\)</span> are computed from the  <code>PathPrediction</code> of length <span class="expressions">\(T\)</span> starting from exogenous
+initial conditions.</DD>
 <DT>Equilibrium</DT>
-<DD>In equilibrium the price vector <span class="expressions">\(p^\star\)</span> satisfies the first order conditions when <span class="expressions">\(X^s\)</span> is inserted for <span class="expressions">\(X^d.\)</span></DD>
-<DD>In general <span class="expressions">\(p^\star\)</span> is the solution to a system of <span class="expressions">\(N\)</span> equations.  Depending on the production fucntion
+<DD>In equilibrium the price vector <span class="expressions">\(p^\star_t\)</span> satisfies the first order conditions when <span class="expressions">\(X^s\)</span> is inserted for <span class="expressions">\(X^d\)</span> at
+each <span class="expressions">\(t.\)</span>  </DD>
+<DD>In general, the full price vector <span class="expressions">\(p^\star\)</span> is the solution to a system of <span class="expressions">\(TN\)</span> equations.  Depending on the production fucntion
 <span class="expressions">\(f(X)\)</span> some of the equations may be solved out to reduce the number of equations.  In that case some elements
 of <span class="expressions">\(p^\star\)</span> are <a href="Parameters.ox.html#Determined">Determined</a> parameters not available for the system algorithm to vary.</DD>
 
@@ -450,7 +455,7 @@ of <span class="expressions">\(p^\star\)</span> are <a href="Parameters.ox.html#
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Equilibrium___aggF">aggF</a></td>
 <td class="modifiers">const</td>
-<td class="description">aggregate prod.</td>
+<td class="description">list of aggregate prod.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Equilibrium___deprec">deprec</a></td>
@@ -477,17 +482,22 @@ of <span class="expressions">\(p^\star\)</span> are <a href="Parameters.ox.html#
 <td class="modifiers">const</td>
 <td class="description">ergodic distribution PathPrediction.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Objective.ox.html#Equilibrium___T">T</a></td>
+<td class="modifiers">const</td>
+<td class="description">number of periods in equilibrium.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Equilibrium___Equilibrium">Equilibrium</a></td>
 <td class="modifiers"></td>
-<td class="description">Create a stationary equilibrium system of equations.</td>
+<td class="description">Create a system of aggregate equilibrium equations.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Equilibrium___Print">Print</a></td>
 <td class="modifiers"></td>
 <td class="description">Prints a message and details about the objective.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#Equilibrium___vfunc">vfunc</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Built-in system of equations for Equilibrium models.</td>
@@ -1792,7 +1802,7 @@ Calls and returns <code>data-&gt;EconometricObjective()</code>.
 
 <span class="declaration">const decl aggF [public]</span>
 <dl><dd>
-aggregate prod. function <a href="Objective.ox.html#BlackBox">BlackBox</a>.
+list of aggregate prod. function <a href="Objective.ox.html#BlackBox">BlackBox</a>.
 
 </dd></dl>
 
@@ -1810,9 +1820,9 @@ aggregate prod. function <a href="Objective.ox.html#BlackBox">BlackBox</a>.
 <a name="Equilibrium___Equilibrium"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Equilibrium</span></h3>
 
-<span class="declaration">Equilibrium :: Equilibrium ( L , P )</span>
+<span class="declaration">Equilibrium :: Equilibrium ( L , T , P )</span>
 <dl><dd>
-Create a stationary equilibrium system of equations.
+Create a system of aggregate equilibrium equations.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -1822,13 +1832,18 @@ Create a stationary equilibrium system of equations.
 </td>
 </tr>
 <tr>
+<td class="declaration" valign="baseline">T</td>
+<td class="description" valign="baseline">number of periods of static equilibria.<br/>1 [default]
+</td>
+</tr>
+<tr>
 <td class="declaration" valign="baseline">P</td>
 <td class="description" valign="baseline">   an array of parameters or a parameter block of prices <span class="expressions">\(p\)</span><br/>
             0 [default]  a vector of <a href="Parameters.ox.html#StDeviations">StDeviations</a> is created of the same length as the
                 parameter list of <code>aggF</code>
 <P/>
-This should be called in the creator function of a derived equilibrium class <b>after</b> the
-following constants have be initialized inside the creator:
+This should be called in the creator function of a derived equilibrium class <b>after</b> the following constants have
+been initialized inside the creator:
 <UL>
 <li><a href="Objective.ox.html#Equilibrium___aggF">aggF</a> : must contain an <a href="Objective.ox.html#Objective">Objective</a> for the aggregate production function <span class="expressions">\(F(X^d)\)</span>. THe parameters
 of aggF are <span class="expressions">\(X^d\)</span>.  They are set as <code>DoNotConstrain</code> so that the gradient is correct (not transformed).</li>
@@ -1914,6 +1929,16 @@ ergodic distribution PathPrediction.
 </dd></dl>
 
 <hr>
+<a name="Equilibrium___T"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">T</span></h3>
+
+<span class="declaration">const decl T [public]</span>
+<dl><dd>
+number of periods in equilibrium.
+
+</dd></dl>
+
+<hr>
 <a name="Equilibrium___vfunc"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">vfunc</span></h3>
 
@@ -1924,9 +1949,9 @@ Typically the user's derived class does not need to replace this if takes the fo
 model:
 <UL>
 <LI>Compute prediction using <a href="Objective.ox.html#Equilibrium___stnpred">stnpred</a> (which should re-solve DP model)</li>
-<LI>Get X<sup>s</sup> (stored in <a href="Objective.ox.html#Equilibrium___Q">Q</a>) using <code>GetFlat(Zero,<a href="Objective.ox.html#Equilibrium___Qcols">Qcols</a>)</code></li>
+<LI>Get X<sup>s</sup> (stored in <a href="Objective.ox.html#Equilibrium___Q">Q</a>) using <code>GetFlat(DoAll,<a href="Objective.ox.html#Equilibrium___Qcols">Qcols</a>)</code></li>
 <LI>Encode X<sup>s</sup> as the values of the parameter of <a href="Objective.ox.html#Equilibrium___aggF">aggF</a></li>
-<LI>Compute and return the equilibrium FOC conditions:
+<LI>Compute and return the equilibrium FOC conditions
 <span class="equation">$$\nabla F(X^s)' - \Delta - P.$$</span>
 </UL>
 

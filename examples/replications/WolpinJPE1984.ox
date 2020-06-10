@@ -56,9 +56,9 @@ Fertility::FeasibleActions() { return 1|(I::t<T) ; }
  $$\eqalign{
     X &= Y - ( b(n-d) + (c_1I_{t=1} + c_2I_{t=2}+ c_{30}+c_{31}t+c_{32}t^2))n.\cr
     M* &= M+n-d\cr
-    U(n,d) &= (\alpha_1+\psi)M* +\alpha_2(M*)^2+ \beta_1X+\beta_2X^2 + \gamma_1M*X+\gamma_2M*S.\cr
-    EU(0) &= U(0,0)\cr
-    EU(1) &= (1-p)U(1,0)+pU(1,0)\cr}$$</DD>
+    RU(n,M) &= (\alpha_1+\psi)M* +\alpha_2(M*)^2+ \beta_1X+\beta_2X^2 + \gamma_1M*X+\gamma_2M*S.\cr
+    EU(0) &= RU(0,M)\cr
+    EU(1) &= (1-p)RU(1,M+1)+pRU(1,M)\cr}$$</DD>
 **/
 Fertility::Utility() {
 	decl k,    //added child count
