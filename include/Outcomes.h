@@ -89,7 +89,7 @@ struct Path : Outcome {
 		/**	Last `Outcome` in the path. @internal **/	last;
 			Path(id,state0);
 			~Path();
-	virtual	Simulate(T=UnInitialized,DropTerminal=FALSE);
+	virtual	Simulate(newstate=UnInitialized,T=UnInitialized,DropTerminal=FALSE);
 	        Likelihood();
             PartialObservedLikelihood();
 			FullLikelihood();

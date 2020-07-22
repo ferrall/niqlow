@@ -225,15 +225,22 @@ Path::Deep(){
 /** Simulate a list of realized states and actions from an initial state.
 
 Checks to see if transition is &Rho; is <code>tracking</code>.  If not, process span the state space with `EndogTrans`.
+@param newstate UnInitialized (default) state already set<br/>state to add to group state
 @param T integer, max. length of the panel<br/>0, no maximum lenth; simulation goes on until a Terminal State is reached.
+@param DropTerminal drop states that are terminal
 
 
 @example <pre>
 </pre></dd>
 
 **/
-Path::Simulate(T,DropTerminal){
+Path::Simulate(newstate,T,DropTerminal){
 	decl done;
+    if (newstate!=UnInitialized) {
+        state = I::curg.state;  // reset state
+	    state += newstate;
+        I::Set(state,FALSE);  // group already set
+        }
 	cur = this;
 	this.T=1;  //at least one outcome on a path
     if (T==UnInitialized) T = INT_MAX;
@@ -316,7 +323,7 @@ FPanel::~FPanel() {
 **/
 FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
 	decl msucc=FALSE, ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS,
-         Nstart=columns(ErgOrStateMat), rvals, curr, i;
+         Nstart=columns(ErgOrStateMat), rvals, curr, i, newstate;
 	if (Nsim <= 0) oxrunerror("DDP Error 50a. First argument, panel size, must be positive");
     if (ii) {
 	   if (erg) {
@@ -348,14 +355,12 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
             I::SetGroup(N::R*f+curr);
         Flags::NewPhase(SIMULATING);
         for(i=0;i<rvals[curr];++i) {
-            cur.state = I::curg.state;  // reset state
-		    cur.state += (erg) ? I::curg->DrawfromStationary()
+            newstate = erg ? I::curg->DrawfromStationary()
                            : ( (ii)
                                 ? iS
                                 : ErgOrStateMat[][imod(this.N,Nstart)]
                               );
-            I::Set(cur.state,FALSE);  // group already set
-		    cur->Path::Simulate(T,DropTerminal);
+		    cur->Path::Simulate(newstate,T,DropTerminal);
 		    NT += cur.T;
 		    if (++this.N<Nsim && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
             cur = cur.pnext;
