@@ -153,7 +153,8 @@ Then `Bellman::Simulate` called to simulate &apha;, and &Upsilon;.
 **/
 Outcome::Simulate() {
 	decl i,f;
-    for (i=0;i<columns(fixeddim);++i) ind[fixeddim[i]] = I::OO[fixeddim[i]][]*state;
+    for (i=0;i<columns(fixeddim);++i)
+        ind[fixeddim[i]] = I::OO[fixeddim[i]][]*state;
     state[S[exog].M:S[semiexog].X] = 0;
 	ind[bothexog] = DrawOneExogenous(&state);
 	ind[onlyexog] = I::OO[onlyexog][]*state;
@@ -244,12 +245,15 @@ Path::Simulate(newstate,T,DropTerminal){
 	this.T=1;  //at least one outcome on a path
     if (T==UnInitialized) T = INT_MAX;
     Flags::NewPhase(SIMULATING);
+    println(T," ");
     do {
+       print(". ");
        done = cur->Outcome::Simulate();
        if ( done || this.T>=T || (isclass(pathpred) && pathpred->AppendSimulated(cur)) ) break;
        ++this.T;
        cur = !isclass(cur.onext) ? new Outcome(cur) : cur.onext;
        } while(TRUE);
+    println(" ");
 	if (DropTerminal && done && this.T>1) {  //don't delete if first state is terminal!! Added March 2015.
 		last = cur.prev;
 		delete cur;
@@ -353,14 +357,13 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
 	    else
             I::SetGroup(N::R*f+curr);
 //        Flags::NewPhase(SIMULATING);   called in Path
-        println("#### ",curr," ",rvals[curr]," ",erg," ",ii);
+        println(I::f," ",I::r," ",curr);
         for(i=0;i<rvals[curr];++i) {
             newstate = erg ? I::curg->DrawfromStationary()
                            : ( (ii)
                                 ? iS
                                 : ErgOrStateMat[][imod(this.N,Nstart)]
                               );
-            println(newstate);
 		    cur->Path::Simulate(newstate,T,DropTerminal);
 		    NT += cur.T;
 		    if (++this.N<Nsim && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
