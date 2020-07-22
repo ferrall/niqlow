@@ -237,8 +237,7 @@ Checks to see if transition is &Rho; is <code>tracking</code>.  If not, process 
 Path::Simulate(newstate,T,DropTerminal){
 	decl done;
     if (newstate!=UnInitialized) {
-        state = I::curg.state;  // reset state
-	    state += newstate;
+        state = I::curg.state + newstate;
         I::Set(state,FALSE);  // group already set
         }
 	cur = this;
@@ -353,13 +352,15 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
             }
 	    else
             I::SetGroup(N::R*f+curr);
-        Flags::NewPhase(SIMULATING);
+//        Flags::NewPhase(SIMULATING);   called in Path
+        println("#### ",curr," ",rvals[curr]," ",erg," ",ii);
         for(i=0;i<rvals[curr];++i) {
             newstate = erg ? I::curg->DrawfromStationary()
                            : ( (ii)
                                 ? iS
                                 : ErgOrStateMat[][imod(this.N,Nstart)]
                               );
+            println(newstate);
 		    cur->Path::Simulate(newstate,T,DropTerminal);
 		    NT += cur.T;
 		    if (++this.N<Nsim && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
