@@ -245,15 +245,12 @@ Path::Simulate(newstate,T,DropTerminal){
 	this.T=1;  //at least one outcome on a path
     if (T==UnInitialized) T = INT_MAX;
     Flags::NewPhase(SIMULATING);
-    println(T," ");
     do {
-       print(". ");
        done = cur->Outcome::Simulate();
        if ( done || this.T>=T || (isclass(pathpred) && pathpred->AppendSimulated(cur)) ) break;
        ++this.T;
        cur = !isclass(cur.onext) ? new Outcome(cur) : cur.onext;
        } while(TRUE);
-    println(" ");
 	if (DropTerminal && done && this.T>1) {  //don't delete if first state is terminal!! Added March 2015.
 		last = cur.prev;
 		delete cur;
