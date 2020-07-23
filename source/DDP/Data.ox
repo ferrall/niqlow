@@ -46,7 +46,8 @@ PredictionDataSet::SimulateMomentVariances(N,ErgOrStateMat,fvals) {
             fcur->SimulateOutcomePaths(scur,N,ErgOrStateMat);
         old = scur;
         scur = scur.fnext;
-        delete old; //old -> ~FPanel();   // delete previous simulations
+        // delete old; //
+        old -> ~FPanel();   // delete previous simulations
         } while( (isclass(fcur=fcur.fnext)) );
     delete simdata;
     }

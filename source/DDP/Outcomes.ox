@@ -356,7 +356,7 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
             }
 	    else
             I::SetGroup(N::R*f+curr);
-//        Flags::NewPhase(SIMULATING);   called in Path
+        //        Flags::NewPhase(SIMULATING);   called in Path
         println(I::f," ",I::r," ",curr);
         for(i=0;i<rvals[curr];++i) {
             newstate = erg ? I::curg->DrawfromStationary()
