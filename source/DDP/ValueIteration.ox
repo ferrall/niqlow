@@ -239,8 +239,9 @@ NKSolve::Update() {
                     }
                 }
             else {      // Ergodic environment, whole state space is involved.
-                Flags::NKstep = FALSE;
-                //NKvindex = 0;               //  = zeros(I::curg.Ptrans);           //
+                Flags::NKstep = TRUE;
+                NKvindex = 0;               //
+                //NKptrans = zeros(I::curg.Ptrans);           //
                 if (Volume>QUIET) println("    Switching to N-K Iteration ");
 //                inNK = TRUE;            //memleak
 //                scan("First %u",&NKpause);

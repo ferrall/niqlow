@@ -1,0 +1,48 @@
+/** Read bus data from Rust (1987) to be read into <span class="n">niqlow</span>.
+
+This program updates an earlier version that read only for Group 4 buses in the paper.  This version reads in data by columns of Table IX and X.
+
+This version creates state variables x for both the 90 and 175 bin categories.
+
+The file is a vectorized version of a 128x37 matrix, each column is a bus.
+
+Each column has a header of 11 rows followed by odometer readings for each month.
+
+The header contains up to two engine replacement months and years (after the bus
+was brought into service, which is coded as a first replacement.
+
+This data is then used to convert the raw odometer readings into a combination of
+the model <var>(i,x)</var> pair, consisting of the rebuild decision and odometer bin category.
+
+<DT>The log file of the conversion program is here:</DT>
+    <DD><details><summary><a href="javascript:popoxcode('../../examples/replications/ReadBusData2020.log');">examples/replications/ReadBusData2020.log</a>.</summary>
+    <pre><object width="75%" height="200" type="text/plain" data="../../examples/replications/ReadBusData2020.log" border="1" ><p style="font-size:24pt"></object>
+    </pre></details>
+</DD>
+
+<DT>Discrepancy</DT>
+<DD>As of writing this documentation, an unresolved discrepancy exists between the public data and the reported sample sizes in Table IX.  It appears that the observation counts in the Table are one less month per bus than in the data.</DD>
+<DD>This is consistent with the existing MLE replications that have an approximately 10% larger log-likelihood for column 2 Table IX estimates than in the paper.</DD>
+<DD>The author has been contacted to see if there is an explanation for the discrepancy.</DD>
+
+
+<dd>The first four rows of the data set look like this:<pre>
+         id         mileage        i             x
+       5297.0       6299.0      0.00000       1.0000
+       5297.0       10479.      0.00000       2.0000
+       5297.0       15201.      0.00000       3.0000
+</pre>
+Note that this is from the output of the program.  The data are saved directly
+to the <code>.dta</code> file. The first reading of Bus 5297 had an odometer of
+6299, which is the second category (<code>x=1</code>).
+Bus 5297 engine was replaced once, and farther down in the data this looks like:
+<pre>
+       5297.0  1.5256e+005      0.00000       30.000
+       5297.0  1.5510e+005       1.0000       31.000
+       5297.0       4770.0      0.00000      0.00000 </pre>
+The bus is replaced when <code>x=31</code> and the next odometer reading, after
+subtracting the reading at replacement (which is in the header at row <code>r2mi</code>,
+the sixth row), is 47770 miles more, which means <code>x = 0</code>.
+	   </dd>
+
+**/

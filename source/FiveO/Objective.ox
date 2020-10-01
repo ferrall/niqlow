@@ -461,6 +461,7 @@ Objective::ToggleBlockElements(pblock,elements) {
     this->Recode(FALSE);
     }
 
+
 /**Reset the free parameter vector and the complete structural parameter vector.
 @param HardCode  TRUE=hard-coded parameter values used.<br/>FALSE [default] Start vector used
 Must be called anytime a change in constraints is made.  So it is called by `Objective::Encode`()
@@ -743,6 +744,7 @@ Objective::Hessian() {
             vcur.H[i][i+1:] = vcur.H[i+1:][i] = (gg[b]-gg[b+1]-gg[b+2]+gg[b+3])./(4*h[i]*h[i+1:]);
             b += 4*(nfree-i-1);
             }
+       vcur.SE = sqrt(-diagonal(invert(vcur.H)));
        if (isclass(p2p)) p2p.client->Stop();
        return vcur.H;
        }
@@ -1097,15 +1099,27 @@ DataObjective::DataObjective (L,data,...
    this.  They should be toggled separately by the user's code.
 
 **/
-DataObjective::TwoStage(tplist,uplist){
+DataObjective::TwoStage(intplist,inuplist){
     decl v;
+    tplist = intplist;
+    uplist = inuplist;
     if (!isarray(tplist)) tplist = {tplist};
     if (!isarray(uplist)) uplist = {uplist};
-    this.tplist = tplist;
-    this.uplist = uplist;
-    foreach(v in tplist) Parameters(v);
-    foreach(v in uplist) Parameters(v);
+    if (Volume>SILENT && !Version::MPIserver)
+        println("Two-Stage Estimation.\n\n    Transition Parameters (stage 0 and 2):");
+    foreach(v in tplist) {
+        print("  ",v.L);
+        Parameters(v);
+        }
+    if (Volume>SILENT && !Version::MPIserver)
+        println("\n\n    Utility Parameters (stage 1 and 2):");
+    foreach(v in uplist) {
+        print("  ",v.L);
+        Parameters(v);
+        }
     stage = Two;  // default stage, everything is variable
+    if (Volume>SILENT && !Version::MPIserver)
+        println(" Stage set to: ",stage,", all parameters variable");
     }
 
 /** Set the estimation stage.
@@ -1121,7 +1135,7 @@ DataObjective::TwoStage(tplist,uplist){
 <DD>tplist fixed</DD>
 <DD>Bellman DoNotIterate = FALSE</dd>
 <DD>Object is reset</DD>
-<DT>Stage TW:</DT>
+<DT>Stage Two:</DT>
 <DD>Both parameter lists vary, method iterates</DD>
 <dd>
 
@@ -1130,11 +1144,19 @@ DataObjective::TwoStage(tplist,uplist){
 DataObjective::SetStage(stage) {
     this.stage = stage;
     decl v;
-    foreach(v in uplist) v.DoNotVary=(stage==Zero);
-    foreach(v in tplist) v.DoNotVary=(stage==One);
+    foreach(v in uplist) v->SetDoNotVary(stage==Zero);
+    foreach(v in tplist) v->SetDoNotVary(stage==One);
     if ( isclass(data.method) && data.method.DoNotIterate!=(stage==Zero) )
         data.method->ToggleIterate();
     if (stage==One) this->ResetMax();
+    if (Volume>SILENT && !Version::MPIserver) {
+        switch_single (stage) {
+            case Zero : println(" Stage 0: Only Transition parameters vary");
+            case One :  println(" Stage 1: Only Utility parameters vary; objective reset to -Inf.");
+            case Two :  println(" Stage 2: All parameters vary");
+            default : oxrunerror("Invalid estimation stage: should be 0, 1 or 2");
+            }
+        }
     }
 
 /** . @internal **/

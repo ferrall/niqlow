@@ -16,6 +16,9 @@ Determined::Decode(f) { if (!isint(block)) block->BlockCode(); v = CV(ival); ret
 /** Do nothing because DoNotVary does not toggle for Determined parameter. **/
 Determined::ToggleDoNotVary() { }
 
+/** Do nothing because DoNotVary does not change for Determined parameter. **/
+Determined::SetDoNotVary(setting) { }
+
 /** . @internal **/
 Determined::Menu(fp) {
  fprintln(fp,"<fieldset><legend>",L,". Type:",classname(this),"</legend>");
@@ -284,6 +287,9 @@ ParameterBlock::Encode() {
 **/
 ParameterBlock::Xb(X) {    return X*v;    }
 
+/** Toggle DoNotVary for All or some block elements.
+@param elements DoAll or a vector of parameter indices
+**/
 ParameterBlock::ToggleDoNotVary(elements) {
 	decl p;
     if (elements==DoAll)
@@ -294,6 +300,11 @@ ParameterBlock::ToggleDoNotVary(elements) {
         else oxrunerror("Elements to toggle in a block must be a vector");
        }
 	}
+
+ParameterBlock::SetDoNotVary(setting) {
+    decl p;
+    foreach (p in Psi) p->SetDoNotVary(setting);
+    }
 
 ParameterBlock::Menu(fp) {
 	decl p;

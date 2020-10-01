@@ -258,7 +258,7 @@ If `Flags::StorePA` is also true then `Group::Palpha` is also updated.
 **/
 Bellman::UpdatePtrans() {
 	hagg = aggregater(pandv .* NxtExog[Qprob]',SS[onlyexog].size)';
-    if (Flags::NKstep) {
+    if (!Flags::IsErgodic && Flags::NKstep) {
         decl nki = NKvindex[I::all[iterating]];
         for (et=0;et<sizeof(Nxt[Qit]);++et)
             NKptrans[ NKvindex[ Nxt[Qit][et] ] ][ nki  ] =

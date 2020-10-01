@@ -6,10 +6,11 @@
 repmenu() {
     decl reps = new Menu("Replications",FALSE);
     reps->add(
-			{"RustEmet1987",			Zurcher::Run    },
+			{"RustEmet1987",			Zurcher::Run    },  //default NX=90, COL=2
 			{"BerkovecSternEmet1991",	Retirement::Run },
 			{"KennetJAE1994", 			PrattWhitney::Run},
-			{"RustEmet1987b", 			RustEstimates::DoAll},
+			{"RustEmet1987b_all", 		RustEstimates::USEALL},
+			{"RustEmet1987b_skip", 		RustEstimates::SKIPFIRST},
 			{"WolpinJPE1984", 			Fertility::Replicate},
 			{"WolpinEmet1987",			SchToWork::Replicate},
 			{"RosenzweigWolpinJPE1993",	Farmer::Replicate},

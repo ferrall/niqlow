@@ -10,26 +10,33 @@ Zurcher::Utility()  {
 			 +normalization;	// added to avoid exp() underflow for delta near 1.0
 	}
 
+Zurcher::SetSpec(NX,COL) {
+    this.NX = NX;
+    this.COL = COL;
+    pars = (NX<=90) ? parsIX[COL-1] : parsX[COL-1];
+    }
+
 /** Setup and solve the model.
 **/	
-Zurcher::Run()	{
+Zurcher::Run(NX,COL)	{
 	decl EMax,row;
 
+    SetSpec(NX,COL);
     Initialize(new Zurcher());
+
 	EndogenousStates(x = new Renewal("x",NX,d,pars[0][theta3]) );
 	CreateSpaces();
 
 	EMax = new NewtonKantorovich(); //ValueIteration();
-	EMax.vtoler = 1E-4;   					//loose tolerance because beta near 0 and 1
-    EMax.Volume = LOUD;
-    for(row=0;row<sizeof(pars);++row) {
+    EMax.vtoler = DIFF_EPS1;
+    EMax.Volume = QUIET;
+    EMax->Tune(100,0.5);
+    for(row=sizeof(pars)-1;row>=0;--row) {
 		SetDelta(pars[row][disc]);
 		th1 = pars[row][theta1];
 		normalization = th1*mfact*NX/2.0;	//median cost, keep U() centered on 0.0
 		rc = pars[row][RC];
-        println("solving ",row);
 		EMax -> Solve();
-        println("done");
         Output();
 		}
     Delete();

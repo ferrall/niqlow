@@ -16,13 +16,15 @@ struct RustEstimates {
     /** Panel Black Box objective using buses data. **/ nfxp,
     /** Parameter lists by stage.**/                    plist,
     /** Optimization algorithm applied to nfxp. **/     mle;
-	static DoAll();
+	static DoAll(SkipFirst=FALSE,NX=90,COL=2,row=0);
+    static USEALL(NX=90,COL=2);
+    static SKIPFIRST(NX=90,COL=2);
 	}
 
 /** The Zurcher model with estimated `Parameter`s. **/
 struct EZ : Zurcher	{						
 		static 	decl hat;
-		static 	SetUp(row);
+		static 	SetUp(row=0);
 				Utility();
 	}
 
@@ -30,5 +32,6 @@ struct EZ : Zurcher	{
 See <a href="RustEmet1987readdata.ox.html" target="_blank">RustEmet1987readdata</a>.
 **/
 struct BusData : OutcomeDataSet {
-	BusData(method=0);
+    const decl filename;
+	BusData(method=0,SkipFirst=FALSE);
 	}	

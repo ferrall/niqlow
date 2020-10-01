@@ -221,6 +221,7 @@ struct Parameter : Quantity {
 	Reset(newv,IsCode=TRUE);
     ReInitialize();
 	virtual ToggleDoNotVary();
+    virtual SetDoNotVary(setting);
 	virtual Encode();
 	virtual Decode(f);
     virtual Menu();

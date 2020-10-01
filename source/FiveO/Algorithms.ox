@@ -230,6 +230,7 @@ LineMethod::LineMethod(O) {
 	p5 = new LinePoint();
 	p6 = new LinePoint();
     maxstp = 5.0;
+    maxiter = 100;
     }
 
 /** A method to optimize along a line.
@@ -370,7 +371,7 @@ LineMethod::~LineMethod()	{
 @param maxstp &gt; 0, maximum step size in parameters.
 **/
 LineMethod::Iterate(Delta,maxiter,maxstp)	{
-	decl maxdelt = norm(Delta);  //sup-norm default
+	decl maxdelt = norm(Delta), brcket;  //sup-norm default
 	this.Delta = Delta;
 	this.maxiter = maxiter>0 ? maxiter : 3;
     if (isdouble(maxstp)) this.maxstp = maxstp;
@@ -389,7 +390,8 @@ LineMethod::Iterate(Delta,maxiter,maxstp)	{
         fprintln(logf,istr);
         if (Volume>QUIET) println(istr);
         }
-    Bracket();
+    brcket = Bracket();
+    if (!brcket) println("Bracket failed");
 	Golden();
 	O->Decode(holdF+q.step*Delta);  // copy over param values from final step
     if (Volume>SILENT) {
@@ -469,10 +471,11 @@ CLineMax::Try(pt,step)	{
 
 **/
 LineMethod::Bracket()	{
-    decl u = p4, r, s, ulim, us, notdone;
+    decl u = p4, r, s, ulim, us, notdone, iter;
     this->Try(b,(1+gold)*q.step-gold*a.step);
 	notdone = b.v>q.v;
-	while (notdone)	{
+    iter=0;
+	while (notdone && iter<50)	{
 		r = (q.step-a.step)*(q.v-b.v);
 		s = (q.step-b.step)*(q.v-a.v);
         us = q.step -((q.step-b.step)*s-(q.step-a.step)*r)/(2.0*(s>r ? 1 : -1)*max(fabs(s-r),tiny));
@@ -494,8 +497,10 @@ LineMethod::Bracket()	{
 		else this->Try(u,(1+gold)*b.step-gold*q.step);
         if (notdone)
 			{a->Copy(q);	q->Copy(b);	b->Copy(u);  notdone= b.v>q.v;  }
-        if (Volume>SILENT) fprintln(logf,"Bracket ",notdone,"a:",a,"q",q,"b",b);
+        ++iter;
+        if (Volume>SILENT) fprintln(logf,"Bracket ",iter," ",notdone,"a:",a,"q",q,"b",b);
 		}
+    return !notdone;
 	}
 
 /** Golden ratio line search.
@@ -519,7 +524,7 @@ LineMethod::Golden()	{
                 if (Volume>QUIET) println(istr);
                 }
 
-		} while (fabs(x3.step-x0.step) > tolerance*fabs(x1.step+x2.step) && (iter<maxiter) );
+		} while (fabs(x3.step-x0.step) > max(DIFF_EPS1,tolerance*fabs(x1.step+x2.step)) && (iter<maxiter) );
     if (x1.v > x2.v) q ->Copy(x1); else q->Copy(x2);
     }
 
@@ -886,7 +891,7 @@ GradientBased::Iterate(H)	{
 	       convergence = (++iter>maxiter) ? MAXITERATIONS
                                           : IamNewt ? this->HHupdate(FALSE)
                                                    : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE)) ;
-	       if (convergence!=NONE && Volume>SILENT) {  //Report on Current Iteration unless converging
+	       if (convergence==NONE && Volume>SILENT) {  //Report on Current Iteration unless converging
                 istr = sprint(iter,". f=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
                 fprintln(logf,istr);
                 if(Volume>QUIET) println(istr);

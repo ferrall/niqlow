@@ -9,6 +9,7 @@ struct Determined : Parameter	{
 	Encode();
 	Decode(f);
 	ToggleDoNotVary();
+    SetDoNotVary(setting);
     Menu(fp);
 	}
 
@@ -160,6 +161,7 @@ struct ParameterBlock : Parameter {
 	           ParameterBlock(L="PB",...);
 	           AddToBlock(...);
 	           ToggleDoNotVary(elements=DoAll);
+               SetDoNotVary(setting); 
                Xb(X);
 	virtual    BlockCode();
 	virtual    Encode();

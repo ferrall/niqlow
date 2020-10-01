@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><link rel="icon" href="icons/favicon16.png" type="image/png">
+<link rel="stylesheet" type="text/css" href="../../oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="../../print.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
+<title>RustEmet1987readdata2020.ox - Replications</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.htm">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">RustEmet1987readdata2020.ox</span></h1>
+
+Read bus data from Rust (1987) to be read into <span class="n">niqlow</span>.
+<P/>
+This program updates an earlier version that read only for Group 4 buses in the paper.  This version reads in data by columns of Table IX and X.
+<P/>
+This version creates state variables x for both the 90 and 175 bin categories.
+<P/>
+The file is a vectorized version of a 128x37 matrix, each column is a bus.
+<P/>
+Each column has a header of 11 rows followed by odometer readings for each month.
+<P/>
+The header contains up to two engine replacement months and years (after the bus
+was brought into service, which is coded as a first replacement.
+<P/>
+This data is then used to convert the raw odometer readings into a combination of
+the model <var>(i,x)</var> pair, consisting of the rebuild decision and odometer bin category.
+<P/>
+<DT>The log file of the conversion program is here:</DT>
+    <DD><details><summary><a href="javascript:popoxcode('../../examples/replications/ReadBusData2020.log');">examples/replications/ReadBusData2020.log</a>.</summary>
+    <pre><object width="75%" height="200" type="text/plain" data="../../examples/replications/ReadBusData2020.log" border="1" ><p style="font-size:24pt"></object>
+    </pre></details>
+</DD>
+<P/>
+<DT>Discrepancy</DT>
+<DD>As of writing this documentation, an unresolved discrepancy exists between the public data and the reported sample sizes in Table IX.  It appears that the observation counts in the Table are one less month per bus than in the data.</DD>
+<DD>This is consistent with the existing MLE replications that have an approximately 10% larger log-likelihood for column 2 Table IX estimates than in the paper.</DD>
+<DD>The author has been contacted to see if there is an explanation for the discrepancy.</DD>
+<P/>
+<dd>The first four rows of the data set look like this:<pre>
+         id         mileage        i             x
+       5297.0       6299.0      0.00000       1.0000
+       5297.0       10479.      0.00000       2.0000
+       5297.0       15201.      0.00000       3.0000
+</pre>
+Note that this is from the output of the program.  The data are saved directly
+to the <code>.dta</code> file. The first reading of Bus 5297 had an odometer of
+6299, which is the second category (<code>x=1</code>).
+Bus 5297 engine was replaced once, and farther down in the data this looks like:
+<pre>
+       5297.0  1.5256e+005      0.00000       30.000
+       5297.0  1.5510e+005       1.0000       31.000
+       5297.0       4770.0      0.00000      0.00000 </pre>
+The bus is replaced when <code>x=31</code> and the next odometer reading, after
+subtracting the reading at replacement (which is in the header at row <code>r2mi</code>,
+the sixth row), is 47770 miles more, which means <code>x = 0</code>.
+	   </dd>
+
+<a name="global"></a>
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global variables, functions, enumerations</span></h2>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Variables</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2020.ox.html#ext">ext</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2020.ox.html#files">files</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2020.ox.html#groups">groups</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2020.ox.html#mxmiles">mxmiles</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2020.ox.html#Nbins">Nbins</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2020.ox.html#outdir">outdir</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Functions</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="RustEmet1987readdata2020.ox.html#main">main</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="RustEmet1987readdata2020.ox.html#read">read</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="RustEmet1987readdata2020.ox.html#Anonymous enum 1">Anonymous enum 1</a></td>
+<td class="modifiers"></td>
+<td class="description">Read Rust's data into a Stata data file that can be read into niqlow
+    This is a general version of the simpler readall.ox file which reads only group 4 buses
+    This file is part of niqlow.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="RustEmet1987readdata2020.ox.html#Anonymous enum 2">Anonymous enum 2</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="RustEmet1987readdata2020.ox.html#Anonymous enum 3">Anonymous enum 3</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global </span></h2>
+
+<table class="enum_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><a name="Anonymous enum 1"></a>Anonymous enum 1</td>
+<td class="description">Read Rust's data into a Stata data file that can be read into niqlow
+    This is a general version of the simpler readall.ox file which reads only group 4 buses
+    This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall
+</td>
+<td class="elements">inid, r1m, r1y, r2m, r2y, r2mi, r3m, r3y, r3mi, fm, fy, Nheader</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><a name="Anonymous enum 2"></a>Anonymous enum 2</td>
+<td class="description"></td>
+<td class="elements">myg, id, mm, i</td>
+</tr>
+<tr class="even">
+<td class="declaration"><a name="Anonymous enum 3"></a>Anonymous enum 3</td>
+<td class="description"></td>
+<td class="elements">group, fname, nmths, nbuses</td>
+</tr>
+</table>
+
+<a name="ext"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ext</span></h3>
+
+<span class="declaration">const decl ext</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="files"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">files</span></h3>
+
+<span class="declaration">const decl files</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="groups"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">groups</span></h3>
+
+<span class="declaration">const decl groups</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="main"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">main</span></h3>
+
+<span class="declaration">main ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="mxmiles"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mxmiles</span></h3>
+
+<span class="declaration">const decl mxmiles</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Nbins"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Nbins</span></h3>
+
+<span class="declaration">const decl Nbins</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="outdir"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">outdir</span></h3>
+
+<span class="declaration">const decl outdir</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="read"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">read</span></h3>
+
+<span class="declaration">read ( curf , SkipFirst )</span>
+<dl><dd>
+
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>
