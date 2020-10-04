@@ -20,6 +20,7 @@ struct Outcome : Data {
                                          = < [DSubSpaces] *0> //Oxdoc does not recognize this syntax so ifdef hides it
 #endif
      	,
+     /** . @internal **/                Rust_Eq_4_15,
     /** . @internal **/                 pathpred,
     /** . @internal **/                 ctlist,
     /** . @internal **/                 exaux,
@@ -33,9 +34,11 @@ struct Outcome : Data {
     /** . @internal **/                 icol,
     /** . @internal **/                 TF,
     /** . @internal **/                 TP,
+    /**current log-likelihood when collapsed**/ flnlike,
      /**current likelihood A rows .**/  arows,
 	/**consistent states now & tom**/	 viinds,
 	/**contigent likelihood now & tom.**/  vilikes;
+
 	const 	decl
 	/**order on the path . **/ 				t,
 	/**previous outcome. **/				prev;

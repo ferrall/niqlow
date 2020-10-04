@@ -618,6 +618,7 @@ Outcome::CCLikelihood() {
     arows       = ind[onlyacts][Ainds[0]];
     vilikes[now]= vilikes[!now]
                     * (OnlyTransitions
+                            || (!t && Rust_Eq_4_15)   // Rust 1987 does not use choice prob. for 1st obs.
                         ? 1.0
                         : double( GetPstar(viinds[now])[arows][ind[bothexog]]) );
     vilikes[now] *= AuxLikelihood(UseCurrent);

@@ -19,12 +19,12 @@ RustEstimates::DoAll(SkipFirst,NX,COL,row) {
 	buses = new BusData(EMax,SkipFirst);
 	nfxp = new DataObjective("ZurcherMLE",buses,plist[Zero]);
 	nfxp.Volume = QUIET;
+    Outcome::Rust_Eq_4_15 = TRUE;
     nfxp->TwoStage(plist[One],plist[Two]);
     mle = new Newton(nfxp);	
 	mle.Volume = LOUD;
     nfxp->SetStage(0);
 	mle -> Iterate(0);
-
     /* Second stage estimates */
     nfxp->ToggleParameterConstraint();
     nfxp->SetStage(1);
@@ -36,7 +36,10 @@ RustEstimates::DoAll(SkipFirst,NX,COL,row) {
 
     /* Third stage efficient estimates */
     nfxp->SetStage(2);
-    mle2.LM.Volume = mle2.Volume = nfxp.Volume = NOISY;
+    // mle2.LM.Volume =
+        mle2.Volume =
+        // nfxp.Volume =
+        NOISY;
     mle2 ->Iterate(0);
     nfxp->Save("All9999");
     nfxp->Jacobian();

@@ -958,7 +958,7 @@ GradientBased::Hupdate()  {  return NONE;   }
 **/
 Newton::Hupdate() {
     O->Hessian();
-  	if (Volume>QUIET)  println("New Hessian","%c",O.Flabels,"%r",O.Flabels,"%lwr",OC.H);
+  	if (Volume>LOUD)  println("New Hessian","%c",O.Flabels,"%r",O.Flabels,"%lwr",OC.H);
     return NONE;
     }
 
@@ -967,7 +967,7 @@ Newton::Hupdate() {
 **/
 BHHH::Hupdate() {
    	OC.H = outer(OC.J,<>,'o');
-   	if (Volume>NOISY) println("New Hessian","%c",O.Flabels,"%r",O.Flabels,"%lwr",OC.H);
+   	if (Volume>LOUD) println("New Hessian","%c",O.Flabels,"%r",O.Flabels,"%lwr",OC.H);
     return NONE;
     }
 
@@ -997,7 +997,7 @@ BFGS::Hupdate() {
 	   B = double(outer(dx,OC.H));
 	if (fabs(A) < SQRT_EPS*norm(dg,2)*deltaX ) return FAIL;
 	OC.H += outer(dg,<>,'o')/A - outer(dx*OC.H,<>,'o')/B;
-    if (Volume>QUIET) println("New Hessian","%c",array(O.Flabels),"%r",array(O.Flabels),"%lwr",OC.H);
+    if (Volume>LOUD) println("New Hessian","%c",array(O.Flabels),"%r",array(O.Flabels),"%lwr",OC.H);
     return NONE;
     }
 
