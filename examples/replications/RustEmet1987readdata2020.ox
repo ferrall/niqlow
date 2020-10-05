@@ -35,24 +35,27 @@ main () {
             ,"It creates a second version of each .dta file that excludes the first month for each bus which may be the estimation sample. \n");
     allbuses = {{},{}};
     foreach (curf in files) {    //read each file into a list (skipping and not)
-        for(skip=FALSE;skip<=TRUE;++skip)    allbuses[skip] |= read(curf,skip);
+        //for(skip=FALSE;skip<=TRUE;++skip)
+        skip = FALSE;
+            allbuses[skip] |= read(curf,skip);
         }
     foreach (smp in groups[col]) {  //create sample for each column of Tables IX and X.
         glist = {<>,<>};          //matrices of data, skipping and not
-        for(skip=FALSE;skip<=TRUE;++skip)
+//        for(skip=FALSE;skip<=TRUE;++skip)
+        skip = FALSE;
                 foreach (curf in files[f])
                     if (any(curf[group].==smp))  //bus group is in this sample
                         glist[skip] |= allbuses[skip][f];
         println("Column: ",col+1,"%r",{"Bus groups"},smp,"ALL row count: ",rows(glist[FALSE])," SKIP FIRST row count: ",rows(glist[TRUE]));
-        savemat(outdir+"RustEmet1987_col"+sprint(col+1)+"_ALL.dta",glist[FALSE],{"group","id","t","mi","d","x90","x175"});
-        savemat(outdir+"RustEmet1987_col"+sprint(col+1)+"_SKIPFIRST.dta",glist[TRUE],{"group","id","t","mi","d","x90","x175"});
+        savemat(outdir+"RustEmet1987_col"+sprint(col+1)+"_ALL.dta",glist[FALSE],{"group","id","s","t","mi","d","x90","x175"});
+//        savemat(outdir+"RustEmet1987_col"+sprint(col+1)+"_SKIPFIRST.dta",glist[TRUE],{"group","id","s","t","mi","d","x90","x175"});
         }
     }
 
 /*  Read in Data from a file.
 */
 read(curf,SkipFirst) {
-    decl i,f,b,xnew,width,indata,curh,k,bus,repm,prev,Ntot=0,smp,myhead,myid;
+    decl i,f,b,xnew,width,indata,curh,k,bus,repm,prev,N,Ntot=0,smp,myhead,myid;
     indata = loadmat(curf[fname]+ext,1);
     smp = <>;
     curh = 0;
@@ -69,7 +72,7 @@ read(curf,SkipFirst) {
             bus = f[prev:]~0;
             }
         else {
-		   repm = prev+12*(myhead[r2y]-myhead[r1y]) + (myhead[r2m]-myhead[r1m])-1;    //replacement month
+		   repm = prev+12*(myhead[r2y]-myhead[r1y]) + (myhead[r2m]-myhead[r1m])-  1;    //replacement month. -1 seems to be closest??
            if (repm>=rows(f)) {
                 oxwarning("replacement month invalid set to last month of the sample");
                 repm = rows(f)-1;
@@ -91,18 +94,17 @@ read(curf,SkipFirst) {
 			     bus |= setbounds(f[repm+1:]-myhead[r2mi],1,.Inf)~0;   // last 0 is no replacements
                }
 		    }
-        //	println("%cf",{"%5.0f","%12.0f","%3.0f"},bus);
-         Ntot += rows(bus);
-         foreach (b in Nbins) {
-               width = mxmiles / b;
-               xnew = bus[][0];         //copy actual mileageli
-	           for(k=0;k < b-1;++k)
-		          xnew = (xnew.>=width*k) .&& (xnew.<width*(k+1)) .? k .: xnew;
-                bus ~= xnew;
-                }
-         bus = constant(myid,rows(bus),1)~0~bus;  // The 0 is "t" for the DP clock (infinite horizon)
-	     smp |= bus[SkipFirst:][];
-
-	     }
+         N = rows(bus);
+         Ntot += N;
+         smp |= constant(myid,N,1)~(range(0,N-1)')~0~bus;
+         }
+    foreach (b in Nbins) {
+        width = mxmiles / b;
+        xnew = smp[][3];         //copy actual mileageli
+	    for(k=0;k < b;++k) {
+		    xnew = (xnew.>=width*k) .&& (xnew.<width*(k+1)) .? k .: xnew;
+            }
+        smp ~= xnew;
+	    }
     return constant(curf[group],rows(smp),1)~smp;
     }

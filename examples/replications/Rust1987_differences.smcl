@@ -1,0 +1,1008 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\Rust1987_differences.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res} 4 Oct 2020, 11:08:28
+
+{com}. use "C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\RustEmet1987_col2_ALL.dta"
+{err}no; dataset in memory has changed since last saved
+{txt}{search r(4), local:r(4);}
+
+{com}. gen n = _n
+{err}variable {bf}n{sf} already defined
+{txt}{search r(110), local:r(110);}
+
+{com}. sort id n
+
+. qui by id: gen df = x90[_n+1]-x90*(1-d)
+{err}variable {bf}df{sf} already defined
+{txt}{search r(110), local:r(110);}
+
+{com}. clear
+
+. use "C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\RustEmet1987_col2_ALL.dta"
+{txt}(OxMetrics data)
+
+{com}. sort id n
+{err}variable {bf}n{sf} not found
+{txt}{search r(111), local:r(111);}
+
+{com}. qui by id: gen df = x90[_n+1]-x90*(1-d)
+{err}not sorted
+{txt}{search r(5), local:r(5);}
+
+{com}. gen n = _n
+
+. sort id n
+
+. qui by id: gen df = x90[_n+1]-x90*(1-d)
+
+. tab df
+
+         {txt}df {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,692       39.42       39.42
+{txt}          1 {c |}{res}      2,545       59.30       98.72
+{txt}          2 {c |}{res}         55        1.28      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      4,292      100.00
+
+{com}. di "One observation: " 1/4292
+{res}One observation: .00023299
+
+{com}. di "Difference between Table IX and here: " 3942-3919
+{res}Difference between Table IX and here: 23
+
+{com}. di "for df=1: " 5953-5930
+{res}for df=1: 23
+
+{com}. di "for df=1: " 5930-5953
+{res}for df=1: -23
+
+{com}. use "C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\RustEmet1987_col1_ALL.dta" , clear
+{txt}(OxMetrics data)
+
+{com}. gen n = _n
+
+. sort id n
+
+. qui by id: gen df = x90[_n+1]-x90*(1-d)
+
+. tab df
+
+         {txt}df {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,166       30.18       30.18
+{txt}          1 {c |}{res}      2,640       68.32       98.50
+{txt}          2 {c |}{res}         43        1.11       99.61
+{txt}          3 {c |}{res}         10        0.26       99.87
+{txt}          4 {c |}{res}          3        0.08       99.95
+{txt}          5 {c |}{res}          1        0.03       99.97
+{txt}          7 {c |}{res}          1        0.03      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      3,864      100.00
+
+{com}. tab id
+
+         {txt}id {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+       2386 {c |}{res}         49        1.25        1.25
+{txt}       2387 {c |}{res}         49        1.25        2.49
+{txt}       2388 {c |}{res}         49        1.25        3.74
+{txt}       2389 {c |}{res}         49        1.25        4.99
+{txt}       4338 {c |}{res}         70        1.78        6.77
+{txt}       4339 {c |}{res}         70        1.78        8.55
+{txt}       4340 {c |}{res}         70        1.78       10.33
+{txt}       4341 {c |}{res}         70        1.78       12.11
+{txt}       4342 {c |}{res}         70        1.78       13.89
+{txt}       4343 {c |}{res}         70        1.78       15.67
+{txt}       4344 {c |}{res}         70        1.78       17.45
+{txt}       4345 {c |}{res}         70        1.78       19.23
+{txt}       4346 {c |}{res}         70        1.78       21.01
+{txt}       4347 {c |}{res}         70        1.78       22.79
+{txt}       4348 {c |}{res}         70        1.78       24.57
+{txt}       4349 {c |}{res}         70        1.78       26.35
+{txt}       4350 {c |}{res}         70        1.78       28.14
+{txt}       4351 {c |}{res}         70        1.78       29.92
+{txt}       4352 {c |}{res}         70        1.78       31.70
+{txt}       4353 {c |}{res}         70        1.78       33.48
+{txt}       4354 {c |}{res}         70        1.78       35.26
+{txt}       4355 {c |}{res}         70        1.78       37.04
+{txt}       4356 {c |}{res}         70        1.78       38.82
+{txt}       4357 {c |}{res}         70        1.78       40.60
+{txt}       4358 {c |}{res}         70        1.78       42.38
+{txt}       4359 {c |}{res}         70        1.78       44.16
+{txt}       4360 {c |}{res}         70        1.78       45.94
+{txt}       4361 {c |}{res}         70        1.78       47.72
+{txt}       4362 {c |}{res}         70        1.78       49.50
+{txt}       4363 {c |}{res}         70        1.78       51.28
+{txt}       4364 {c |}{res}         70        1.78       53.07
+{txt}       4365 {c |}{res}         70        1.78       54.85
+{txt}       4366 {c |}{res}         70        1.78       56.63
+{txt}       4367 {c |}{res}         70        1.78       58.41
+{txt}       4368 {c |}{res}         70        1.78       60.19
+{txt}       4369 {c |}{res}         70        1.78       61.97
+{txt}       4370 {c |}{res}         70        1.78       63.75
+{txt}       4371 {c |}{res}         70        1.78       65.53
+{txt}       4372 {c |}{res}         70        1.78       67.31
+{txt}       4373 {c |}{res}         70        1.78       69.09
+{txt}       4374 {c |}{res}         70        1.78       70.87
+{txt}       4375 {c |}{res}         70        1.78       72.65
+{txt}       4376 {c |}{res}         70        1.78       74.43
+{txt}       4377 {c |}{res}         70        1.78       76.21
+{txt}       4378 {c |}{res}         70        1.78       78.00
+{txt}       4379 {c |}{res}         70        1.78       79.78
+{txt}       4380 {c |}{res}         70        1.78       81.56
+{txt}       4381 {c |}{res}         70        1.78       83.34
+{txt}       4382 {c |}{res}         70        1.78       85.12
+{txt}       4383 {c |}{res}         70        1.78       86.90
+{txt}       4384 {c |}{res}         70        1.78       88.68
+{txt}       4385 {c |}{res}         70        1.78       90.46
+{txt}       4403 {c |}{res}         25        0.64       91.10
+{txt}       4404 {c |}{res}         25        0.64       91.73
+{txt}       4405 {c |}{res}         25        0.64       92.37
+{txt}       4406 {c |}{res}         25        0.64       93.00
+{txt}       4407 {c |}{res}         25        0.64       93.64
+{txt}       4408 {c |}{res}         25        0.64       94.28
+{txt}       4409 {c |}{res}         25        0.64       94.91
+{txt}       4410 {c |}{res}         25        0.64       95.55
+{txt}       4411 {c |}{res}         25        0.64       96.18
+{txt}       4412 {c |}{res}         25        0.64       96.82
+{txt}       4413 {c |}{res}         25        0.64       97.46
+{txt}       4414 {c |}{res}         25        0.64       98.09
+{txt}       4415 {c |}{res}         25        0.64       98.73
+{txt}       4416 {c |}{res}         25        0.64       99.36
+{txt}       4417 {c |}{res}         25        0.64      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      3,931      100.00
+
+{com}. list if df>2
+
+      {txt}{c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+  49. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}2.0e+00 {txt}{c |} {res}2.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.5e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}3.0e+01 {txt}{c |} {res}5.9e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 424                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+  98. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}2.0e+00 {txt}{c |} {res}2.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.6e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}3.2e+01 {txt}{c |} {res}6.2e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 473                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 147. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}2.0e+00 {txt}{c |} {res}2.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.5e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.9e+01 {txt}{c |} {res}5.7e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 522                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 196. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}2.0e+00 {txt}{c |} {res}2.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.4e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.8e+01 {txt}{c |} {res}5.5e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 571                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 256. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.3e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}4.6e+01 {txt}{c |} {res}9.0e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 631                {txt}{c |}               {res} 3                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 266. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.1e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.0e+01 {txt}{c |} {res}1.9e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 641                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 336. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}7.4e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.4e+01 {txt}{c |} {res}2.8e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 711                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 406. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.7e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.4e+01 {txt}{c |} {res}1.1e+02 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 781                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 476. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.2e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}4.3e+01 {txt}{c |} {res}8.4e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 851                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 536. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.2e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}4.4e+01 {txt}{c |} {res}8.6e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 911                {txt}{c |}               {res} 3                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 546. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}4.9e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}9.0e+00 {txt}{c |} {res}1.9e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 921                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 614. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.3e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}4.6e+01 {txt}{c |} {res}8.9e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 989                {txt}{c |}               {res} 7                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 616. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}4.0e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}7.0e+00 {txt}{c |} {res}1.5e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 991                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 686. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.6e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.2e+01 {txt}{c |} {res}1.0e+02 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1061                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 756. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}7.4e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.4e+01 {txt}{c |} {res}2.8e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1131                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 826. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.7e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.3e+01 {txt}{c |} {res}1.0e+02 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1201                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 871. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.8e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}3.5e+01 {txt}{c |} {res}6.8e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1246                {txt}{c |}               {res} 3                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 896. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.1e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.1e+01 {txt}{c |} {res}4.1e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1271                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 946. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.0e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}3.9e+01 {txt}{c |} {res}7.6e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1321                {txt}{c |}               {res} 3                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+ 966. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}8.4e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.6e+01 {txt}{c |} {res}3.2e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1341                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1036. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.3e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.8e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.6e+01 {txt}{c |} {res}1.1e+02 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1411                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1106. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.2e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}4.4e+01 {txt}{c |} {res}8.7e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1481                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1143. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.4e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}2.7e+01 {txt}{c |} {res}5.3e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1518                {txt}{c |}               {res} 3                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1176. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.4e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.7e+01 {txt}{c |} {res}5.3e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1551                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1246. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.5e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}4.9e+01 {txt}{c |} {res}9.5e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1621                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1316. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.7e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.3e+01 {txt}{c |} {res}1.0e+02 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1691                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1386. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.5e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.0e+01 {txt}{c |} {res}9.7e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1761                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1456. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.7e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.3e+01 {txt}{c |} {res}1.0e+02 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1831                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1525. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.6e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}5.2e+01 {txt}{c |} {res}1.0e+02 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1900                {txt}{c |}               {res} 3                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1526. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.7e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}3.0e+00 {txt}{c |} {res}6.0e+00 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1901                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1596. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.5e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}4.9e+01 {txt}{c |} {res}9.6e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}1971                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1666. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.4e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}4.8e+01 {txt}{c |} {res}9.5e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2041                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1736. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}4.9e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.0e+00 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2111                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1806. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.5e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}4.9e+01 {txt}{c |} {res}9.6e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2181                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1869. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.2e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}4.4e+01 {txt}{c |} {res}8.5e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2244                {txt}{c |}               {res} 3                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1876. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}3.8e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}7.0e+00 {txt}{c |} {res}1.4e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2251                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1923. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.6e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}3.2e+01 {txt}{c |} {res}6.2e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2298                {txt}{c |}               {res} 3                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+1946. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}9.3e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.8e+01 {txt}{c |} {res}3.6e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2321                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2016. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.6e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.1e+01 {txt}{c |} {res}1.0e+02 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2391                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2084. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.3e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}4.6e+01 {txt}{c |} {res}9.0e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2459                {txt}{c |}               {res} 4                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2086. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.5e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}4.0e+00 {txt}{c |} {res}9.0e+00 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2461                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2156. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.7e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.1e+01 {txt}{c |} {res}2.2e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2531                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2199. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.8e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}3.6e+01 {txt}{c |} {res}7.0e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2574                {txt}{c |}               {res} 5                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2226. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.1e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.2e+01 {txt}{c |} {res}4.4e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2601                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2293. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.5e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}5.0e+01 {txt}{c |} {res}9.7e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2668                {txt}{c |}               {res} 3                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2296. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.8e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.0e+00 {txt}{c |} {res}1.0e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2671                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2366. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.7e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.3e+01 {txt}{c |} {res}1.0e+02 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2741                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2436. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.1e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}4.2e+01 {txt}{c |} {res}8.2e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2811                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2506. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.6e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.1e+01 {txt}{c |} {res}1.0e+02 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2881                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2576. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.1e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}4.0e+00 {txt}{c |} {res}8.0e+00 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}2951                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2646. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.5e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}4.9e+01 {txt}{c |} {res}9.5e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3021                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2716. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.4e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}4.0e+00 {txt}{c |} {res}9.0e+00 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3091                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2765. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.7e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}3.4e+01 {txt}{c |} {res}6.7e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3140                {txt}{c |}               {res} 3                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2786. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}9.9e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.9e+01 {txt}{c |} {res}3.8e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3161                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2856. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}3.0e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.0e+00 {txt}{c |} {res}1.1e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3231                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2899. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.6e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}3.2e+01 {txt}{c |} {res}6.2e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3274                {txt}{c |}               {res} 4                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2926. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.2e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.4e+01 {txt}{c |} {res}4.7e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3301                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2966. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.6e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}3.2e+01 {txt}{c |} {res}6.4e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3341                {txt}{c |}               {res} 4                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+2996. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.1e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.2e+01 {txt}{c |} {res}4.3e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3371                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3066. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.6e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.2e+01 {txt}{c |} {res}1.0e+02 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3441                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3136. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.5e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.0e+01 {txt}{c |} {res}9.8e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3511                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3206. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}6.5e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.3e+01 {txt}{c |} {res}2.5e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3581                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3276. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.5e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}5.0e+01 {txt}{c |} {res}9.7e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3651                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3346. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.7e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}5.4e+01 {txt}{c |} {res}1.1e+02 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3721                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3416. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.0e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}3.9e+01 {txt}{c |} {res}7.7e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3791                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3486. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.4e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}4.8e+01 {txt}{c |} {res}9.5e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3861                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3556. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}3.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.2e+05 {txt}{c |} {res}1.0e+00 {txt}{c |} {res}4.4e+01 {txt}{c |} {res}8.6e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}3931                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3581. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.0e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.0e+01 {txt}{c |} {res}3.9e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}  25                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3606. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.0e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.9e+01 {txt}{c |} {res}3.8e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}  50                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3631. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.1e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.1e+01 {txt}{c |} {res}4.1e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res}  75                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3656. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}6.6e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.3e+01 {txt}{c |} {res}2.5e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 100                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3681. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.0e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.0e+01 {txt}{c |} {res}3.8e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 125                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3706. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}8.1e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.6e+01 {txt}{c |} {res}3.1e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 150                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3731. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.2e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.4e+01 {txt}{c |} {res}4.6e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 175                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3756. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.0e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.0e+01 {txt}{c |} {res}3.9e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 200                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3781. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.0e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.0e+01 {txt}{c |} {res}4.0e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 225                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3806. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.1e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.1e+01 {txt}{c |} {res}4.1e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 250                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3831. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.0e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.0e+01 {txt}{c |} {res}4.0e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 275                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3856. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}9.7e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.9e+01 {txt}{c |} {res}3.7e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 300                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3881. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.1e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.2e+01 {txt}{c |} {res}4.4e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 325                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3906. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.1e+05 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}2.1e+01 {txt}{c |} {res}4.1e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 350                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+      {c TLC}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TT}{hline 9}{c TRC}
+3931. {c |}   group {c |}      id {c |}       t {c |}      mi {c |}       d {c |}     x90 {c |}    x175 {c |}
+      {c |} {res}1.0e+00 {txt}{c |} {res}4.4e+03 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}9.4e+04 {txt}{c |} {res}0.0e+00 {txt}{c |} {res}1.8e+01 {txt}{c |} {res}3.6e+01 {txt}{c |}
+      {c LT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 5}{c TT}{hline 3}{c BT}{hline 9}{c BT}{hline 9}{c BT}{hline 9}{c RT}
+      {c |}                  n                {c |}               df                {c |}
+      {c |}               {res} 375                {txt}{c |}               {res} .                {txt}{c |}
+      {c BLC}{hline 35}{c BT}{hline 33}{c BRC}
+
+{com}. format * %10.0f
+
+. list if df>2
+{txt}
+      {c TLC}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c TRC}
+      {c |} {res}group     id   t       mi   d   x90   x175      n   df {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+  49. {c |} {res}    2   2386   0   153767   0    30     59    424    . {txt}{c |}
+  98. {c |} {res}    2   2387   0   161748   0    32     62    473    . {txt}{c |}
+ 147. {c |} {res}    2   2388   0   147206   0    29     57    522    . {txt}{c |}
+ 196. {c |} {res}    2   2389   0   142009   0    28     55    571    . {txt}{c |}
+ 256. {c |} {res}    3   4338   0   232670   1    46     90    631    3 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+ 266. {c |} {res}    3   4338   0    51426   0    10     19    641    . {txt}{c |}
+ 336. {c |} {res}    3   4339   0    73653   0    14     28    711    . {txt}{c |}
+ 406. {c |} {res}    3   4340   0   273143   0    54    106    781    . {txt}{c |}
+ 476. {c |} {res}    3   4341   0   218517   0    43     84    851    . {txt}{c |}
+ 536. {c |} {res}    3   4342   0   222962   1    44     86    911    3 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+ 546. {c |} {res}    3   4342   0    49233   0     9     19    921    . {txt}{c |}
+ 614. {c |} {res}    3   4343   0   231232   1    46     89    989    7 {txt}{c |}
+ 616. {c |} {res}    3   4343   0    39565   0     7     15    991    . {txt}{c |}
+ 686. {c |} {res}    3   4344   0   261739   0    52    101   1061    . {txt}{c |}
+ 756. {c |} {res}    3   4345   0    74037   0    14     28   1131    . {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+ 826. {c |} {res}    3   4346   0   268512   0    53    104   1201    . {txt}{c |}
+ 871. {c |} {res}    3   4347   0   176575   1    35     68   1246    3 {txt}{c |}
+ 896. {c |} {res}    3   4347   0   105581   0    21     41   1271    . {txt}{c |}
+ 946. {c |} {res}    3   4348   0   196988   1    39     76   1321    3 {txt}{c |}
+ 966. {c |} {res}    3   4348   0    84319   0    16     32   1341    . {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+1036. {c |} {res}    3   4349   0   280802   0    56    109   1411    . {txt}{c |}
+1106. {c |} {res}    3   4350   0   224566   0    44     87   1481    . {txt}{c |}
+1143. {c |} {res}    3   4351   0   138096   1    27     53   1518    3 {txt}{c |}
+1176. {c |} {res}    3   4351   0   137240   0    27     53   1551    . {txt}{c |}
+1246. {c |} {res}    3   4352   0   245583   0    49     95   1621    . {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+1316. {c |} {res}    3   4353   0   267988   0    53    104   1691    . {txt}{c |}
+1386. {c |} {res}    3   4354   0   250691   0    50     97   1761    . {txt}{c |}
+1456. {c |} {res}    3   4355   0   269104   0    53    104   1831    . {txt}{c |}
+1525. {c |} {res}    3   4356   0   263997   1    52    102   1900    3 {txt}{c |}
+1526. {c |} {res}    3   4356   0    17256   0     3      6   1901    . {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+1596. {c |} {res}    3   4357   0   247517   0    49     96   1971    . {txt}{c |}
+1666. {c |} {res}    3   4358   0   244599   0    48     95   2041    . {txt}{c |}
+1736. {c |} {res}    3   4359   0     4938   0     0      1   2111    . {txt}{c |}
+1806. {c |} {res}    3   4360   0   248969   1    49     96   2181    . {txt}{c |}
+1869. {c |} {res}    3   4361   0   220240   1    44     85   2244    3 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+1876. {c |} {res}    3   4361   0    37599   0     7     14   2251    . {txt}{c |}
+1923. {c |} {res}    3   4362   0   160897   1    32     62   2298    3 {txt}{c |}
+1946. {c |} {res}    3   4362   0    92836   0    18     36   2321    . {txt}{c |}
+2016. {c |} {res}    3   4363   0   259610   0    51    100   2391    . {txt}{c |}
+2084. {c |} {res}    3   4364   0   233012   1    46     90   2459    4 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+2086. {c |} {res}    3   4364   0    24945   0     4      9   2461    . {txt}{c |}
+2156. {c |} {res}    3   4365   0    56783   0    11     22   2531    . {txt}{c |}
+2199. {c |} {res}    3   4366   0   181309   1    36     70   2574    5 {txt}{c |}
+2226. {c |} {res}    3   4366   0   114159   0    22     44   2601    . {txt}{c |}
+2293. {c |} {res}    3   4367   0   250738   1    50     97   2668    3 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+2296. {c |} {res}    3   4367   0    27877   0     5     10   2671    . {txt}{c |}
+2366. {c |} {res}    3   4368   0   268161   0    53    104   2741    . {txt}{c |}
+2436. {c |} {res}    3   4369   0   212009   0    42     82   2811    . {txt}{c |}
+2506. {c |} {res}    3   4370   0   259555   0    51    100   2881    . {txt}{c |}
+2576. {c |} {res}    3   4371   0    20949   0     4      8   2951    . {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+2646. {c |} {res}    3   4372   0   245753   1    49     95   3021    . {txt}{c |}
+2716. {c |} {res}    3   4373   0    24217   0     4      9   3091    . {txt}{c |}
+2765. {c |} {res}    3   4374   0   174777   1    34     67   3140    3 {txt}{c |}
+2786. {c |} {res}    3   4374   0    98638   0    19     38   3161    . {txt}{c |}
+2856. {c |} {res}    3   4375   0    29854   0     5     11   3231    . {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+2899. {c |} {res}    3   4376   0   160712   1    32     62   3274    4 {txt}{c |}
+2926. {c |} {res}    3   4376   0   121266   0    24     47   3301    . {txt}{c |}
+2966. {c |} {res}    3   4377   0   164741   1    32     64   3341    4 {txt}{c |}
+2996. {c |} {res}    3   4377   0   111777   0    22     43   3371    . {txt}{c |}
+3066. {c |} {res}    3   4378   0   264683   0    52    102   3441    . {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+3136. {c |} {res}    3   4379   0   254183   0    50     98   3511    . {txt}{c |}
+3206. {c |} {res}    3   4380   0    65380   0    13     25   3581    . {txt}{c |}
+3276. {c |} {res}    3   4381   0   251148   0    50     97   3651    . {txt}{c |}
+3346. {c |} {res}    3   4382   0   274968   1    54    106   3721    . {txt}{c |}
+3416. {c |} {res}    3   4383   0   199626   0    39     77   3791    . {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+3486. {c |} {res}    3   4384   0   244359   0    48     95   3861    . {txt}{c |}
+3556. {c |} {res}    3   4385   0   223351   1    44     86   3931    . {txt}{c |}
+3581. {c |} {res}    1   4403   0   101288   0    20     39     25    . {txt}{c |}
+3606. {c |} {res}    1   4404   0    99782   0    19     38     50    . {txt}{c |}
+3631. {c |} {res}    1   4405   0   106585   0    21     41     75    . {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+3656. {c |} {res}    1   4406   0    65643   0    13     25    100    . {txt}{c |}
+3681. {c |} {res}    1   4407   0   100022   0    20     38    125    . {txt}{c |}
+3706. {c |} {res}    1   4408   0    80777   0    16     31    150    . {txt}{c |}
+3731. {c |} {res}    1   4409   0   120151   0    24     46    175    . {txt}{c |}
+3756. {c |} {res}    1   4410   0   101423   0    20     39    200    . {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+3781. {c |} {res}    1   4411   0   103872   0    20     40    225    . {txt}{c |}
+3806. {c |} {res}    1   4412   0   106467   0    21     41    250    . {txt}{c |}
+3831. {c |} {res}    1   4413   0   104336   0    20     40    275    . {txt}{c |}
+3856. {c |} {res}    1   4414   0    97378   0    19     37    300    . {txt}{c |}
+3881. {c |} {res}    1   4415   0   113621   0    22     44    325    . {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+3906. {c |} {res}    1   4416   0   106094   0    21     41    350    . {txt}{c |}
+3931. {c |} {res}    1   4417   0    94311   0    18     36    375    . {txt}{c |}
+      {c BLC}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c BRC}
+
+{com}. list if df>2 & df!=.
+{txt}
+      {c TLC}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c TRC}
+      {c |} {res}group     id   t       mi   d   x90   x175      n   df {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+ 256. {c |} {res}    3   4338   0   232670   1    46     90    631    3 {txt}{c |}
+ 536. {c |} {res}    3   4342   0   222962   1    44     86    911    3 {txt}{c |}
+ 614. {c |} {res}    3   4343   0   231232   1    46     89    989    7 {txt}{c |}
+ 871. {c |} {res}    3   4347   0   176575   1    35     68   1246    3 {txt}{c |}
+ 946. {c |} {res}    3   4348   0   196988   1    39     76   1321    3 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+1143. {c |} {res}    3   4351   0   138096   1    27     53   1518    3 {txt}{c |}
+1525. {c |} {res}    3   4356   0   263997   1    52    102   1900    3 {txt}{c |}
+1869. {c |} {res}    3   4361   0   220240   1    44     85   2244    3 {txt}{c |}
+1923. {c |} {res}    3   4362   0   160897   1    32     62   2298    3 {txt}{c |}
+2084. {c |} {res}    3   4364   0   233012   1    46     90   2459    4 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+2199. {c |} {res}    3   4366   0   181309   1    36     70   2574    5 {txt}{c |}
+2293. {c |} {res}    3   4367   0   250738   1    50     97   2668    3 {txt}{c |}
+2765. {c |} {res}    3   4374   0   174777   1    34     67   3140    3 {txt}{c |}
+2899. {c |} {res}    3   4376   0   160712   1    32     62   3274    4 {txt}{c |}
+2966. {c |} {res}    3   4377   0   164741   1    32     64   3341    4 {txt}{c |}
+      {c BLC}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c BRC}
+
+{com}. list in 256/257
+{txt}
+     {c TLC}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 5}{c -}{hline 4}{c TRC}
+     {c |} {res}group     id   t       mi   d   x90   x175     n   df {txt}{c |}
+     {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 5}{c -}{hline 4}{c RT}
+256. {c |} {res}    3   4338   0   232670   1    46     90   631    3 {txt}{c |}
+257. {c |} {res}    3   4338   0    15798   0     3      6   632    0 {txt}{c |}
+     {c BLC}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 5}{c -}{hline 4}{c BRC}
+
+{com}. list in 614/615
+{txt}
+     {c TLC}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 5}{c -}{hline 4}{c TRC}
+     {c |} {res}group     id   t       mi   d   x90   x175     n   df {txt}{c |}
+     {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 5}{c -}{hline 4}{c RT}
+614. {c |} {res}    3   4343   0   231232   1    46     89   989    7 {txt}{c |}
+615. {c |} {res}    3   4343   0    36625   0     7     14   990    0 {txt}{c |}
+     {c BLC}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 5}{c -}{hline 4}{c BRC}
+
+{com}. tab df
+
+         {txt}df {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,166       30.18       30.18
+{txt}          1 {c |}{res}      2,640       68.32       98.50
+{txt}          2 {c |}{res}         43        1.11       99.61
+{txt}          3 {c |}{res}         10        0.26       99.87
+{txt}          4 {c |}{res}          3        0.08       99.95
+{txt}          5 {c |}{res}          1        0.03       99.97
+{txt}          7 {c |}{res}          1        0.03      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      3,864      100.00
+
+{com}. di 1/3864
+{res}.0002588
+
+{com}. list if df>2 & df!=.
+{txt}
+      {c TLC}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c TRC}
+      {c |} {res}group     id   t       mi   d   x90   x175      n   df {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+ 256. {c |} {res}    3   4338   0   232670   1    46     90    631    3 {txt}{c |}
+ 536. {c |} {res}    3   4342   0   222962   1    44     86    911    3 {txt}{c |}
+ 614. {c |} {res}    3   4343   0   231232   1    46     89    989    7 {txt}{c |}
+ 871. {c |} {res}    3   4347   0   176575   1    35     68   1246    3 {txt}{c |}
+ 946. {c |} {res}    3   4348   0   196988   1    39     76   1321    3 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+1143. {c |} {res}    3   4351   0   138096   1    27     53   1518    3 {txt}{c |}
+1525. {c |} {res}    3   4356   0   263997   1    52    102   1900    3 {txt}{c |}
+1869. {c |} {res}    3   4361   0   220240   1    44     85   2244    3 {txt}{c |}
+1923. {c |} {res}    3   4362   0   160897   1    32     62   2298    3 {txt}{c |}
+2084. {c |} {res}    3   4364   0   233012   1    46     90   2459    4 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c RT}
+2199. {c |} {res}    3   4366   0   181309   1    36     70   2574    5 {txt}{c |}
+2293. {c |} {res}    3   4367   0   250738   1    50     97   2668    3 {txt}{c |}
+2765. {c |} {res}    3   4374   0   174777   1    34     67   3140    3 {txt}{c |}
+2899. {c |} {res}    3   4376   0   160712   1    32     62   3274    4 {txt}{c |}
+2966. {c |} {res}    3   4377   0   164741   1    32     64   3341    4 {txt}{c |}
+      {c BLC}{hline 7}{c -}{hline 6}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 4}{c BRC}
+
+{com}. exit, clear
