@@ -2,50 +2,40 @@
 /* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 RustEstimates::USEALL(NX,COL) {
-    //DoAll(FALSE,NX,COL,One);
-    DoAll(FALSE,NX,COL,Zero);
+//    DoAll(NX,COL,Zero);
+    DoAll(NX,COL,One);  //skipping disc factor = 0
      }
-RustEstimates::SKIPFIRST(NX,COL) {
-    DoAll(TRUE,NX,COL,One);
-    DoAll(TRUE,NX,COL,Zero);
-    }
-
 /** Replicate bus estimation.
 **/
-RustEstimates::DoAll(SkipFirst,NX,COL,row) {
+RustEstimates::DoAll(NX,COL,row) {
     Zurcher::SetSpec(NX,COL);
 	plist = EZ::SetUp(row);
 	EMax = new NewtonKantorovich(); //;
-	buses = new BusData(EMax,SkipFirst);
+	buses = new BusData(EMax);
 	nfxp = new DataObjective("ZurcherMLE",buses,plist[Zero]);
 	nfxp.Volume = QUIET;
-    Outcome::Rust_Eq_4_15 = TRUE;
+    //    Outcome::Rust_Eq_4_15 = TRUE;
     nfxp->TwoStage(plist[One],plist[Two]);
-    mle = new Newton(nfxp);	
-	mle.Volume = LOUD;
-    nfxp->SetStage(0);
-	mle -> Iterate(0);
+    /* First Stage */
+       mle = new Newton(nfxp);	
+	   mle.Volume = LOUD;
+       nfxp->SetStage(0);
+	   mle -> Iterate(0);
     /* Second stage estimates */
-    nfxp->ToggleParameterConstraint();
-    nfxp->SetStage(1);
-    EMax.vtoler = DIFF_EPS1;
-    EMax.Volume = QUIET;
-    EMax->Tune(100,.5);
-	decl mle2=new BHHH(nfxp);
-    mle2 -> Iterate();
-
+        nfxp->SetStage(1);
+ 	    decl mle2=new NelderMead(nfxp);
+        mle2 -> Iterate();
     /* Third stage efficient estimates */
-    nfxp->SetStage(2);
-    // mle2.LM.Volume =
-        mle2.Volume =
-        // nfxp.Volume =
-        NOISY;
-    mle2 ->Iterate(0);
-    nfxp->Save("All9999");
-    nfxp->Jacobian();
-    nfxp.vcur.H = -outer(nfxp.vcur.J,<>,'o');
+        nfxp->ToggleParameterConstraint();  //parameters unconstrained
+        nfxp->SetStage(Two);
+        delete mle2;
+        mle2 = new BHHH(nfxp);
+        mle2.Volume = NOISY;
+        mle2 ->Iterate();
+        nfxp->Save("All9999");
+        nfxp->Jacobian();
+        nfxp.vcur.H = -outer(nfxp.vcur.J,<>,'o');
     println("OPG inverse ",invert(nfxp.vcur.H),"OPG SE ",sqrt(-diagonal(invert(nfxp.vcur.H))));
-
     delete mle, mle2, nfxp, EMax;
     Bellman::Delete();
 	}
@@ -69,14 +59,13 @@ EZ::SetUp(row)	{
 
 /** Read in the data.
 **/
-BusData::BusData(method,SkipFirst) {
+BusData::BusData(method) {
 	OutcomeDataSet("Zurcher",method);
 	MatchToColumn(Zurcher::x,Zurcher::NX==90 ? "x90" : "x175"); //different bin numbers based on NX
     MatchToColumn(Zurcher::d,"d");
 	IDColumn("id");
     tColumn("t");
-    filename = "RustEmet1987_col"+sprint(Zurcher::COL)+"_";
-    filename += (SkipFirst) ? "SKIPFIRST"  : "ALL";
+    filename = "RustEmet1987_col"+sprint(Zurcher::COL)+"_ALL";
 	Read(filename+".dta");	
 	}
 

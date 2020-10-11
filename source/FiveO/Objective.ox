@@ -508,7 +508,7 @@ Objective::Encode(inX)  {
 		}
 	Start = isint(inX) ? vcur.X : inX;
 	if (sizer(Start)!=nstruct) {
-        println("In vector as ",sizer(Start)," rows.  Psi has ",nstruct);
+        println("In vector has ",sizer(Start)," rows.  Psi has ",nstruct);
         println("%r",PsiL,"%c",{"Read Values"},Start);
         oxrunerror("FiveO Error 31. Start vector not same length as Psi");
         }
@@ -1120,6 +1120,7 @@ DataObjective::TwoStage(intplist,inuplist){
     stage = Two;  // default stage, everything is variable
     if (Volume>SILENT && !Version::MPIserver)
         println(" Stage set to: ",stage,", all parameters variable");
+    Encode();
     }
 
 /** Set the estimation stage.
@@ -1142,13 +1143,13 @@ DataObjective::TwoStage(intplist,inuplist){
 @see FPanel::method, PathPrediction::method, Objective::ResetMax, Method::DoNotIterate, Parameter::DoNotVary
 **/
 DataObjective::SetStage(stage) {
+    decl v, oldstage = this.stage;
     this.stage = stage;
-    decl v;
     foreach(v in uplist) v->SetDoNotVary(stage==Zero);
     foreach(v in tplist) v->SetDoNotVary(stage==One);
     if ( isclass(data.method) && data.method.DoNotIterate!=(stage==Zero) )
         data.method->ToggleIterate();
-    if (stage==One) this->ResetMax();
+    if (oldstage==Zero && stage==One) this->ResetMax();
     if (Volume>SILENT && !Version::MPIserver) {
         switch_single (stage) {
             case Zero : println(" Stage 0: Only Transition parameters vary");

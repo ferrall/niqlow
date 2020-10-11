@@ -1,0 +1,415 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\ambusdta.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res} 5 Oct 2020, 14:11:44
+
+{com}. clear
+
+. use "C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\bus1234_augmented.dta" 
+{txt}(OxMetrics data)
+
+{com}. summ
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 7}busid {c |}{res}      8,260    99.45472    27.51121         59        162
+{txt}{space 5}bustype {c |}{res}      8,260    278350.6    265015.9         50     530875
+{txt}{space 10}yr {c |}{res}      8,260     1981.08    2.617909       1975       1985
+{txt}{space 9}mth {c |}{res}      8,260    6.489831    3.489873          1         12
+{txt}{space 11}i {c |}{res}      8,260    .0072639    .0849237          0          1
+{txt}{hline 13}{c +}{hline 57}
+{space 7}miles {c |}{res}      8,260    118220.6     85109.6          0     388254
+{txt}{space 7}group {c |}{res}      8,260    3.409564    .7494959          1          4
+{txt}{space 11}s {c |}{res}      8,260    45.54552    31.05046          0        116
+
+{com}. list in 1/10
+{txt}
+     {c TLC}{hline 7}{c -}{hline 9}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 7}{c -}{hline 7}{c -}{hline 3}{c TRC}
+     {c |} {res}busid   bustype     yr   mth   i   miles   group   s {txt}{c |}
+     {c LT}{hline 7}{c -}{hline 9}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 7}{c -}{hline 7}{c -}{hline 3}{c RT}
+  1. {c |} {res}  148       870   1983     5   0     504       1   0 {txt}{c |}
+  2. {c |} {res}  148       870   1983     6   0    2705       1   1 {txt}{c |}
+  3. {c |} {res}  148       870   1983     7   0    7345       1   2 {txt}{c |}
+  4. {c |} {res}  148       870   1983     8   0   11591       1   3 {txt}{c |}
+  5. {c |} {res}  148       870   1983     9   0   16057       1   4 {txt}{c |}
+     {c LT}{hline 7}{c -}{hline 9}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 7}{c -}{hline 7}{c -}{hline 3}{c RT}
+  6. {c |} {res}  148       870   1983    10   0   20796       1   5 {txt}{c |}
+  7. {c |} {res}  148       870   1983    11   0   25299       1   6 {txt}{c |}
+  8. {c |} {res}  148       870   1983    12   0   29311       1   7 {txt}{c |}
+  9. {c |} {res}  148       870   1984     1   0   34621       1   8 {txt}{c |}
+ 10. {c |} {res}  148       870   1984     2   0   39738       1   9 {txt}{c |}
+     {c BLC}{hline 7}{c -}{hline 9}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 7}{c -}{hline 7}{c -}{hline 3}{c BRC}
+
+{com}. tab group
+
+  {txt}RECODE of {c |}
+    bustype {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          1 {c |}{res}        375        4.54        4.54
+{txt}          2 {c |}{res}        196        2.37        6.91
+{txt}          3 {c |}{res}      3,360       40.68       47.59
+{txt}          4 {c |}{res}      4,329       52.41      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      8,260      100.00
+
+{com}. scalar mx = 450000
+
+. gen x90 = 0
+
+. foreach k of num 1/90 {c -(}
+{txt}  2{com}. replace x90 = `k' if (`k'*(mx/90)< miles) & ((`k'+1)*(mx/90) >= miles)
+{txt}  3{com}. {c )-}
+{txt}(188 real changes made)
+(209 real changes made)
+(253 real changes made)
+(249 real changes made)
+(260 real changes made)
+(217 real changes made)
+(225 real changes made)
+(217 real changes made)
+(201 real changes made)
+(207 real changes made)
+(199 real changes made)
+(184 real changes made)
+(193 real changes made)
+(186 real changes made)
+(181 real changes made)
+(185 real changes made)
+(188 real changes made)
+(184 real changes made)
+(165 real changes made)
+(172 real changes made)
+(156 real changes made)
+(156 real changes made)
+(141 real changes made)
+(141 real changes made)
+(143 real changes made)
+(134 real changes made)
+(143 real changes made)
+(131 real changes made)
+(120 real changes made)
+(118 real changes made)
+(105 real changes made)
+(107 real changes made)
+(115 real changes made)
+(109 real changes made)
+(115 real changes made)
+(114 real changes made)
+(112 real changes made)
+(116 real changes made)
+(107 real changes made)
+(104 real changes made)
+(107 real changes made)
+(99 real changes made)
+(104 real changes made)
+(89 real changes made)
+(82 real changes made)
+(81 real changes made)
+(83 real changes made)
+(74 real changes made)
+(74 real changes made)
+(63 real changes made)
+(69 real changes made)
+(59 real changes made)
+(58 real changes made)
+(44 real changes made)
+(40 real changes made)
+(39 real changes made)
+(32 real changes made)
+(37 real changes made)
+(32 real changes made)
+(28 real changes made)
+(26 real changes made)
+(23 real changes made)
+(23 real changes made)
+(24 real changes made)
+(24 real changes made)
+(15 real changes made)
+(15 real changes made)
+(17 real changes made)
+(16 real changes made)
+(8 real changes made)
+(6 real changes made)
+(6 real changes made)
+(3 real changes made)
+(2 real changes made)
+(2 real changes made)
+(2 real changes made)
+(3 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+
+{com}. tab x90
+
+        {txt}x90 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}        201        2.43        2.43
+{txt}          1 {c |}{res}        188        2.28        4.71
+{txt}          2 {c |}{res}        209        2.53        7.24
+{txt}          3 {c |}{res}        253        3.06       10.30
+{txt}          4 {c |}{res}        249        3.01       13.32
+{txt}          5 {c |}{res}        260        3.15       16.46
+{txt}          6 {c |}{res}        217        2.63       19.09
+{txt}          7 {c |}{res}        225        2.72       21.82
+{txt}          8 {c |}{res}        217        2.63       24.44
+{txt}          9 {c |}{res}        201        2.43       26.88
+{txt}         10 {c |}{res}        207        2.51       29.38
+{txt}         11 {c |}{res}        199        2.41       31.79
+{txt}         12 {c |}{res}        184        2.23       34.02
+{txt}         13 {c |}{res}        193        2.34       36.36
+{txt}         14 {c |}{res}        186        2.25       38.61
+{txt}         15 {c |}{res}        181        2.19       40.80
+{txt}         16 {c |}{res}        185        2.24       43.04
+{txt}         17 {c |}{res}        188        2.28       45.31
+{txt}         18 {c |}{res}        184        2.23       47.54
+{txt}         19 {c |}{res}        165        2.00       49.54
+{txt}         20 {c |}{res}        172        2.08       51.62
+{txt}         21 {c |}{res}        156        1.89       53.51
+{txt}         22 {c |}{res}        156        1.89       55.40
+{txt}         23 {c |}{res}        141        1.71       57.11
+{txt}         24 {c |}{res}        141        1.71       58.81
+{txt}         25 {c |}{res}        143        1.73       60.54
+{txt}         26 {c |}{res}        134        1.62       62.17
+{txt}         27 {c |}{res}        143        1.73       63.90
+{txt}         28 {c |}{res}        131        1.59       65.48
+{txt}         29 {c |}{res}        120        1.45       66.94
+{txt}         30 {c |}{res}        118        1.43       68.37
+{txt}         31 {c |}{res}        105        1.27       69.64
+{txt}         32 {c |}{res}        107        1.30       70.93
+{txt}         33 {c |}{res}        115        1.39       72.32
+{txt}         34 {c |}{res}        109        1.32       73.64
+{txt}         35 {c |}{res}        115        1.39       75.04
+{txt}         36 {c |}{res}        114        1.38       76.42
+{txt}         37 {c |}{res}        112        1.36       77.77
+{txt}         38 {c |}{res}        116        1.40       79.18
+{txt}         39 {c |}{res}        107        1.30       80.47
+{txt}         40 {c |}{res}        104        1.26       81.73
+{txt}         41 {c |}{res}        107        1.30       83.03
+{txt}         42 {c |}{res}         99        1.20       84.23
+{txt}         43 {c |}{res}        104        1.26       85.48
+{txt}         44 {c |}{res}         89        1.08       86.56
+{txt}         45 {c |}{res}         82        0.99       87.55
+{txt}         46 {c |}{res}         81        0.98       88.54
+{txt}         47 {c |}{res}         83        1.00       89.54
+{txt}         48 {c |}{res}         74        0.90       90.44
+{txt}         49 {c |}{res}         74        0.90       91.33
+{txt}         50 {c |}{res}         63        0.76       92.09
+{txt}         51 {c |}{res}         69        0.84       92.93
+{txt}         52 {c |}{res}         59        0.71       93.64
+{txt}         53 {c |}{res}         58        0.70       94.35
+{txt}         54 {c |}{res}         44        0.53       94.88
+{txt}         55 {c |}{res}         40        0.48       95.36
+{txt}         56 {c |}{res}         39        0.47       95.84
+{txt}         57 {c |}{res}         32        0.39       96.22
+{txt}         58 {c |}{res}         37        0.45       96.67
+{txt}         59 {c |}{res}         32        0.39       97.06
+{txt}         60 {c |}{res}         28        0.34       97.40
+{txt}         61 {c |}{res}         26        0.31       97.71
+{txt}         62 {c |}{res}         23        0.28       97.99
+{txt}         63 {c |}{res}         23        0.28       98.27
+{txt}         64 {c |}{res}         24        0.29       98.56
+{txt}         65 {c |}{res}         24        0.29       98.85
+{txt}         66 {c |}{res}         15        0.18       99.03
+{txt}         67 {c |}{res}         15        0.18       99.21
+{txt}         68 {c |}{res}         17        0.21       99.42
+{txt}         69 {c |}{res}         16        0.19       99.61
+{txt}         70 {c |}{res}          8        0.10       99.71
+{txt}         71 {c |}{res}          6        0.07       99.78
+{txt}         72 {c |}{res}          6        0.07       99.85
+{txt}         73 {c |}{res}          3        0.04       99.89
+{txt}         74 {c |}{res}          2        0.02       99.92
+{txt}         75 {c |}{res}          2        0.02       99.94
+{txt}         76 {c |}{res}          2        0.02       99.96
+{txt}         77 {c |}{res}          3        0.04      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      8,260      100.00
+
+{com}. sort busid s
+
+. qui by busid : gen df = x90[_n+1]-x90*(1-i)
+
+. tab df if group==4
+
+         {txt}df {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,693       39.45       39.45
+{txt}          1 {c |}{res}      2,544       59.27       98.72
+{txt}          2 {c |}{res}         55        1.28      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      4,292      100.00
+
+{com}. di 1693*log(.3945)+2544*log(.5927)+55*log(.0128)
+{res}-3145.1098
+
+{com}. tab x90
+
+        {txt}x90 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}        201        2.43        2.43
+{txt}          1 {c |}{res}        188        2.28        4.71
+{txt}          2 {c |}{res}        209        2.53        7.24
+{txt}          3 {c |}{res}        253        3.06       10.30
+{txt}          4 {c |}{res}        249        3.01       13.32
+{txt}          5 {c |}{res}        260        3.15       16.46
+{txt}          6 {c |}{res}        217        2.63       19.09
+{txt}          7 {c |}{res}        225        2.72       21.82
+{txt}          8 {c |}{res}        217        2.63       24.44
+{txt}          9 {c |}{res}        201        2.43       26.88
+{txt}         10 {c |}{res}        207        2.51       29.38
+{txt}         11 {c |}{res}        199        2.41       31.79
+{txt}         12 {c |}{res}        184        2.23       34.02
+{txt}         13 {c |}{res}        193        2.34       36.36
+{txt}         14 {c |}{res}        186        2.25       38.61
+{txt}         15 {c |}{res}        181        2.19       40.80
+{txt}         16 {c |}{res}        185        2.24       43.04
+{txt}         17 {c |}{res}        188        2.28       45.31
+{txt}         18 {c |}{res}        184        2.23       47.54
+{txt}         19 {c |}{res}        165        2.00       49.54
+{txt}         20 {c |}{res}        172        2.08       51.62
+{txt}         21 {c |}{res}        156        1.89       53.51
+{txt}         22 {c |}{res}        156        1.89       55.40
+{txt}         23 {c |}{res}        141        1.71       57.11
+{txt}         24 {c |}{res}        141        1.71       58.81
+{txt}         25 {c |}{res}        143        1.73       60.54
+{txt}         26 {c |}{res}        134        1.62       62.17
+{txt}         27 {c |}{res}        143        1.73       63.90
+{txt}         28 {c |}{res}        131        1.59       65.48
+{txt}         29 {c |}{res}        120        1.45       66.94
+{txt}         30 {c |}{res}        118        1.43       68.37
+{txt}         31 {c |}{res}        105        1.27       69.64
+{txt}         32 {c |}{res}        107        1.30       70.93
+{txt}         33 {c |}{res}        115        1.39       72.32
+{txt}         34 {c |}{res}        109        1.32       73.64
+{txt}         35 {c |}{res}        115        1.39       75.04
+{txt}         36 {c |}{res}        114        1.38       76.42
+{txt}         37 {c |}{res}        112        1.36       77.77
+{txt}         38 {c |}{res}        116        1.40       79.18
+{txt}         39 {c |}{res}        107        1.30       80.47
+{txt}         40 {c |}{res}        104        1.26       81.73
+{txt}         41 {c |}{res}        107        1.30       83.03
+{txt}         42 {c |}{res}         99        1.20       84.23
+{txt}         43 {c |}{res}        104        1.26       85.48
+{txt}         44 {c |}{res}         89        1.08       86.56
+{txt}         45 {c |}{res}         82        0.99       87.55
+{txt}         46 {c |}{res}         81        0.98       88.54
+{txt}         47 {c |}{res}         83        1.00       89.54
+{txt}         48 {c |}{res}         74        0.90       90.44
+{txt}         49 {c |}{res}         74        0.90       91.33
+{txt}         50 {c |}{res}         63        0.76       92.09
+{txt}         51 {c |}{res}         69        0.84       92.93
+{txt}         52 {c |}{res}         59        0.71       93.64
+{txt}         53 {c |}{res}         58        0.70       94.35
+{txt}         54 {c |}{res}         44        0.53       94.88
+{txt}         55 {c |}{res}         40        0.48       95.36
+{txt}         56 {c |}{res}         39        0.47       95.84
+{txt}         57 {c |}{res}         32        0.39       96.22
+{txt}         58 {c |}{res}         37        0.45       96.67
+{txt}         59 {c |}{res}         32        0.39       97.06
+{txt}         60 {c |}{res}         28        0.34       97.40
+{txt}         61 {c |}{res}         26        0.31       97.71
+{txt}         62 {c |}{res}         23        0.28       97.99
+{txt}         63 {c |}{res}         23        0.28       98.27
+{txt}         64 {c |}{res}         24        0.29       98.56
+{txt}         65 {c |}{res}         24        0.29       98.85
+{txt}         66 {c |}{res}         15        0.18       99.03
+{txt}         67 {c |}{res}         15        0.18       99.21
+{txt}         68 {c |}{res}         17        0.21       99.42
+{txt}         69 {c |}{res}         16        0.19       99.61
+{txt}         70 {c |}{res}          8        0.10       99.71
+{txt}         71 {c |}{res}          6        0.07       99.78
+{txt}         72 {c |}{res}          6        0.07       99.85
+{txt}         73 {c |}{res}          3        0.04       99.89
+{txt}         74 {c |}{res}          2        0.02       99.92
+{txt}         75 {c |}{res}          2        0.02       99.94
+{txt}         76 {c |}{res}          2        0.02       99.96
+{txt}         77 {c |}{res}          3        0.04      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      8,260      100.00
+
+{com}. tab df
+
+         {txt}df {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      2,877       35.27       35.27
+{txt}          1 {c |}{res}      5,182       63.54       98.81
+{txt}          2 {c |}{res}         96        1.18       99.99
+{txt}          4 {c |}{res}          1        0.01      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      8,156      100.00
+
+{com}. list in 4743/4746
+{txt}
+      {c TLC}{hline 7}{c -}{hline 9}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 7}{c -}{hline 4}{c -}{hline 5}{c -}{hline 4}{c TRC}
+      {c |} {res}busid   bustype     yr   mth   i    miles   group    s   x90   df {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 9}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 7}{c -}{hline 4}{c -}{hline 5}{c -}{hline 4}{c RT}
+4743. {c |} {res}  101       203   1984    11   1   217674       3   63    43    4 {txt}{c |}
+4744. {c |} {res}  101       203   1984    12   0    20707       3   64     4    0 {txt}{c |}
+4745. {c |} {res}  101       203   1985     1   0    24282       3   65     4    1 {txt}{c |}
+4746. {c |} {res}  101       203   1985     2   0    28582       3   66     5    1 {txt}{c |}
+      {c BLC}{hline 7}{c -}{hline 9}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 7}{c -}{hline 4}{c -}{hline 5}{c -}{hline 4}{c BRC}
+
+{com}. * fixing up df=4 situation but setting x90=2
+
+. replace x90=2 in 4744
+{txt}(1 real change made)
+
+{com}. list in 4743/4746
+{txt}
+      {c TLC}{hline 7}{c -}{hline 9}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 7}{c -}{hline 4}{c -}{hline 5}{c -}{hline 4}{c TRC}
+      {c |} {res}busid   bustype     yr   mth   i    miles   group    s   x90   df {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 9}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 7}{c -}{hline 4}{c -}{hline 5}{c -}{hline 4}{c RT}
+4743. {c |} {res}  101       203   1984    11   1   217674       3   63    43    4 {txt}{c |}
+4744. {c |} {res}  101       203   1984    12   0    20707       3   64     2    0 {txt}{c |}
+4745. {c |} {res}  101       203   1985     1   0    24282       3   65     4    1 {txt}{c |}
+4746. {c |} {res}  101       203   1985     2   0    28582       3   66     5    1 {txt}{c |}
+      {c BLC}{hline 7}{c -}{hline 9}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 7}{c -}{hline 4}{c -}{hline 5}{c -}{hline 4}{c BRC}
+
+{com}. * changing names for niqlow code
+
+. gen t = 0
+
+. rename i d
+{res}
+{com}. drop df
+
+. save
+{err}invalid file specification
+{txt}{search r(198), local:r(198);}
+
+{com}. save , replace
+{txt}file C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\bus1234_augmented.dta saved
+
+{com}. keep if group==4
+{txt}(3,931 observations deleted)
+
+{com}. count
+  {res}4,329
+
+{com}. save using RustEmet1987_col2_AM
+{err}invalid 'RustEmet1987_col2_AM' 
+{txt}{search r(198), local:r(198);}
+
+{com}. save RustEmet1987_col2_AM
+{txt}file RustEmet1987_col2_AM.dta saved
+
+{com}. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\ambusdta.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res} 5 Oct 2020, 14:24:26
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}

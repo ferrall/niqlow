@@ -10,7 +10,7 @@ repmenu() {
 			{"BerkovecSternEmet1991",	Retirement::Run },
 			{"KennetJAE1994", 			PrattWhitney::Run},
 			{"RustEmet1987b_all", 		RustEstimates::USEALL},
-			{"RustEmet1987b_skip", 		RustEstimates::SKIPFIRST},
+			//{"RustEmet1987b_skip", 		RustEstimates::SKIPFIRST},
 			{"WolpinJPE1984", 			Fertility::Replicate},
 			{"WolpinEmet1987",			SchToWork::Replicate},
 			{"RosenzweigWolpinJPE1993",	Farmer::Replicate},
