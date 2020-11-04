@@ -362,7 +362,7 @@ OneDimRoot::Bracket()	{
 @internal
 **/
 LineMethod::~LineMethod()	{
-	delete p1, p2, p3, p4, p5, p6;
+	delete p1, delete p2, delete  p3, delete  p4, delete  p5, delete  p6;
 	}
 
 /** Optimize on a line optimization.

@@ -1495,7 +1495,7 @@ Mixture::Mixture(L,Dvar,Kvar,MixType,...
 	Included = ones(D,K);
 
 	mcur = new MixPoint(this.Dvar,Separable::scur);
-	delete hold, maxpt;
+	delete hold, delete maxpt;
 	hold = new MixPoint(this.Dvar,0);
 	maxpt = clone(hold);
 	maxpt.v = -.Inf;

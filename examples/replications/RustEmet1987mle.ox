@@ -36,7 +36,7 @@ RustEstimates::DoAll(NX,COL,row) {
         nfxp->Jacobian();
         nfxp.vcur.H = -outer(nfxp.vcur.J,<>,'o');
     println("OPG inverse ",invert(nfxp.vcur.H),"OPG SE ",sqrt(-diagonal(invert(nfxp.vcur.H))));
-    delete mle, mle2, nfxp, EMax;
+    delete mle, delete mle2, delete nfxp, delete EMax;
     Bellman::Delete();
 	}
 

@@ -32,23 +32,24 @@ Nothing::Solve() {
 
 BBTest() {
 	println("\n\n  Black Box Rosenbrock Optimization");
-	decl v = new Rosenbrock(-1);
+	decl v = new Rosenbrock(-1), itarg, k;
 	v.Volume = LOUD;
     decl alg;
-	alg = new NelderMead(v);
-	alg.Volume = NOISY;
-	alg->Tune(0,0,10);
-	alg->Iterate(0.1);
-    alg->Iterate(UseCheckPoint);
-    decl k;
-    scan("Enter 0 to continue, [-1]  QUIT\n?","%i",&k);
-    if (k<0) return;
-    delete alg;
-    alg = new Newton(v);
-	alg.Volume = NOISY;
-//    alg.LM.Volume = NOISY;
-    alg->Iterate(0);
-	delete v,alg;
+    do {
+        scan("Enter 0=CheckpointLoad; 1=NelderMead; 2=Newton; 3=BFGS; 4=SA; [-1]  QUIT\n?","%i",&k);
+        if (k<0) break;
+        if (k) delete alg;
+        switch_single(k) {
+            case 0 :   itarg = UseCheckPoint;
+            case 1 :   alg = new NelderMead(v);	alg->Tune(0,0,10); itarg = 0.1;
+            case 2 :   alg = new Newton(v); itarg = 0;
+            case 3 :   alg = new BFGS(v); itarg = 0;
+            case 4 :   alg = new SimulatedAnnealing(v); alg->Tune(40); itarg=0;
+            }
+	    alg.Volume = NOISY;
+        alg->Iterate(itarg);
+        } while (TRUE);
+	delete v, delete alg;
 	}
 	
 SysTest() {
@@ -64,7 +65,7 @@ SysTest() {
     scan("Enter 0 to continue, [-1]  QUIT\n?","%i",&k);
     if (k<0) return;
 	nr ->Iterate(0);
-	delete v,nr,br;
+	delete v, delete nr, delete br;
 	}
 
 Sys1DTest() {
@@ -73,7 +74,7 @@ Sys1DTest() {
 		 bb = new OneDimRoot(v);
 	bb.Volume = NOISY;
 	bb ->Iterate();
-	delete v,bb;
+	delete v, delete bb;
 	}
 
 LMSysTest() {
@@ -90,7 +91,7 @@ LMSysTest() {
     scan("Enter 0 to continue, [-1]  QUIT\n?","%i",&k);
     br.USELM = FALSE;
     br ->Iterate();
-	delete v,br;
+	delete v, delete br;
 	}	
 	
 SystemTest::SystemTest (N) {
@@ -127,7 +128,7 @@ SepTest()	{
     scan("Enter 0 to continue, [-1]  QUIT\n?","%i",&k);
     if (k<0) return;
 	bfgs->Iterate(0);
-	delete v, nm, bfgs;
+	delete v, delete nm, delete bfgs;
 	}
 	
 SeparableRosenbrock::SeparableRosenbrock(K)	{
@@ -150,7 +151,7 @@ InEqTest() {
 	alg.Volume = NOISY;
     alg->Tune(10);
 	alg->Iterate(0);
-	delete xx,alg;
+	delete xx, delete alg;
 	}
 
 OnCircle::OnCircle() {
@@ -201,7 +202,7 @@ SimpTest() {
 	bfgs = new BFGS(xv);
 	xv.Volume = bfgs.Volume = LOUD;
 	bfgs->Iterate(0);
-	delete xv,bfgs;
+	delete xv, delete bfgs;
 	}
 	
 MX::MX() {
