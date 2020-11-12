@@ -314,7 +314,6 @@ public:
     static const decl
     	/** Current niqlow version. @name niqlowversion **/ version=400; //=350
     static decl
-      /**HTML friendly log file.**/                          htlog,
       /**HTML log is open.**/                                HTopen,
      /** directory to put log files in.**/                   logdir,
     /** time stamp for log files.**/                         tmstmp,

@@ -1,11 +1,13 @@
 #include "main.h"
 /* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 	
+/** Present a menu of test, sample and replication functions to call; will also read options from
+the command line.
+**/
 main() {
 	Version::Check("logs/");
     Menu::logdir = "output/";
-    Menu::logoutput = TRUE;
-    decl tests = new Menu("Niqlow Test Menu");
+    decl tests = new CallMenu("Niqlow Test Menu",TRUE,TRUE);
 	tests -> add(
             {"DDP Tests & Demos",       DDPmenu()      },
             {"FiveO Tests & Demos",     FiveOmenu()  },

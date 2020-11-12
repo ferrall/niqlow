@@ -3,7 +3,7 @@
 
 HTopen(fn) {
     if (Version::HTopen) return;
-    Version::htlog = fopen(fn+".html","l");
+    fopen(fn+".html","l");
     Version::HTopen = TRUE;
     println("<html><head><style>pre {font-family : \"Lucida Console\"; font-size : 18pt;}</style></head><body><div style=\"margin-left: 50px;color: white;  background: DarkSlateGray\"><pre>");
     }
@@ -277,8 +277,8 @@ Quantity::SetVolume(Volume) {
 @param Volume default=SILENT. `NoiseLevels`
 **/
 Discrete::Discrete(L,N)  {
-    if (!isint(N)||(N<=0)) oxrunerror("niqlow Error 02. Number of discrete values has to be a non-negative integer");
-	this.N = N;
+    if (N<=0) oxrunerror("niqlow Error 02. Number of discrete values has to be postive");
+	this.N = int(N);
     if (!isstring(L)) {
         if (!Version::MPIserver) oxwarning("DDP Warning 26.\n Label for discrete value should be a string.\n");
         this.L = "";

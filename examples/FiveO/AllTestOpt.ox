@@ -2,7 +2,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 OptTestRun() {
-    decl omenu = new Menu("FiveO Tests",FALSE);
+    decl omenu = new CallMenu("FiveO Tests",TRUE,FALSE);
     omenu->add( {"Explore Test ",Nothing::Run},
                 {"Blackbox Test ",BBTest},
                 {"Simplex Test ",SimpTest},

@@ -4,7 +4,7 @@
 #include "GetStartedFiveO.ox"
 
 FiveOmenu() {
-    decl mm = new Menu("FiveO Tests and Demos",FALSE);
+    decl mm = new CallMenu("FiveO Tests and Demos",TRUE,FALSE);
     mm -> add(
 			{"Get Started w/ Opimization",GS5OA},
 			{"Get Started w/ NL Systems",GS5OB},

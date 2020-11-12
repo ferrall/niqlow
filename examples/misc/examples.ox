@@ -3,7 +3,7 @@
 #include "examples.h"
 
 misctestmenu() {
-    decl mm = new Menu("Miscellaneous",FALSE);
+    decl mm = new CallMenu("Miscellaneous",TRUE,FALSE);
     mm -> add(
 			{"Test GHK",  				TestGHK::Run      },
 			{"StataMNP",  				StataMNP          },

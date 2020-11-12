@@ -1,7 +1,7 @@
  #include "WstarTest.h"
 
 WStarTestRun() {
-    decl wmenu = new Menu("Rservation Wage Tests",FALSE);
+    decl wmenu = new CallMenu("Rservation Wage Tests",TRUE,FALSE);
     wmenu->add( {"Simple Stationary",WStarA::Run},
                 {"Finite Horizon",WStarB::Run},
                 {"Non-Choices",WStarC::Run},

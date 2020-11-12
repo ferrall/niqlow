@@ -2,7 +2,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 TestRun() {
-    decl tmenu = new Menu("DDP Tests",FALSE);
+    decl tmenu = new CallMenu("DDP Tests",TRUE,FALSE);
     tmenu->add(
             {"Aging-FixedEffects",Test1::Run},
             {"Longevity-Renewak",Test2::Run},

@@ -3,7 +3,7 @@
 #include "MPItests.h"
 
 mpimenu() {
-    decl mpi = new Menu("CFMPI",FALSE);
+    decl mpi = new CallMenu("CFMPI",TRUE,FALSE);
     mpi -> add(
 			{"Client_Server_Test",      ClientServer::Run },		
 			{"Peer_Test",               MyPeer::Run       },

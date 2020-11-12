@@ -1,7 +1,7 @@
 #include "RustEmet1987.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
-/** The one period return.
+/** The one period linear return.
 <dd><pre>U = dRC+(1-d)&theta;<sub>1</sub>mx + n</pre></dd>
 **/
 Zurcher::Utility()  {
@@ -10,50 +10,58 @@ Zurcher::Utility()  {
 			 +normalization;	// added to avoid exp() underflow for delta near 1.0
 	}
 
-Zurcher::SetSpec(NX,COL) {
-    this.NX = NX;
-    this.COL = COL;
-    pars = (NX<=90) ? parsIX[COL-1] : parsX[COL-1];
+/** Set the target of the replication.
+
+@param targ is array of integer values for the Table, COlumn and Row from the original paper.
+
+@see RNpars
+
+**/
+Zurcher::SetSpec(targ) {
+    NX = bins[targ[Table]];
+    COL = targ[Column];
+    ROW = targ[Row];
+    pars = parlist[targ[Table]][COL];        //ROW is not determined always.
     }
 
 /** Setup and solve the model.
 **/	
-Zurcher::Run(NX,COL)	{
-	decl EMax,row;
+Zurcher::Run(targ)	{
+	decl EMax,vmat,chprob;
 
-    SetSpec(NX,COL);
+    SetSpec(targ);
     Initialize(new Zurcher());
-
-	EndogenousStates(x = new Renewal("x",NX,d,pars[0][theta3]) );
+	EndogenousStates(x = new Renewal("x",NX,d,pars[ROW][theta3]) );
 	CreateSpaces();
 
 	EMax = new NewtonKantorovich(); //ValueIteration();
     EMax.vtoler = DIFF_EPS1;
     EMax.Volume = QUIET;
     EMax->Tune(100,0.5);
-    for(row=sizeof(pars)-1;row>=0;--row) {
-		SetDelta(pars[row][disc]);
-		th1 = pars[row][theta1];
+    chprob = <>;
+    for(ROW=0;ROW<sizeof(pars);++ROW) {
+		SetDelta(dfactor[ROW]);
+		th1 = pars[ROW][theta1];
 		normalization = th1*mfact*NX/2.0;	//median cost, keep U() centered on 0.0
-		rc = pars[row][RC];
+		rc = pars[ROW][RC];
 		EMax -> Solve();
-        Output();
+  	    DPDebug::outV(TRUE,&vmat);
+	    chprob ~= vmat[][sizec(vmat)-1];
 		}
+    chprob = reverser(chprob');
+    Output(chprob);
+    delete EMax;
     Delete();
 	}
 
 	
-Zurcher::Output() {
-    decl vmat,first,ps;
-    if ((first=isint(chprob))) chprob = data =<>;
-	DPDebug::outV(TRUE,&vmat);
-	chprob |= reverser(vmat[][sizec(vmat)-1]');
-    ps = new Panel(!first);
+Zurcher::Output(chprob) {
+/*    ps = new Panel(!first);
 	ps -> Simulate(10,400,0,TRUE);  //draw from ergodic distn.
-	ps->Flat();		
-	data |= selectifr(ps.flat,ps.flat[][columns(ps.flat)-1]);
-    if (!first) {	
-       println("Simulated data ","%c",Panel::LFlat[LONG],"%cf",{"%6.0f"},data);
+	ps -> Flat();		
+	data |= selectifr(ps.flat,ps.flat[][columns(ps.flat)-1]);*/
+//    if (!first) {	
+//       println("Simulated data ","%c",Panel::LFlat[LONG],"%cf",{"%6.0f"},data);
        SetDraw(SET_COLORMODEL,3);
 	   SetDraw(SET_MARGIN,1000,1000);
 	   SetDraw(SET_PRINTPAGE,PAGE_LETTER,PAGE_PORTRAIT);
@@ -65,5 +73,5 @@ Zurcher::Output() {
 	   SetDraw(SET_LINE,3,TP_SOLID,500,0,0);
 	   Draw(0,chprob);
 	   SaveDrawWindow("Zurcher-Figure3-Replication.pdf");
-       }
+//       }
     }

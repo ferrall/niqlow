@@ -5,7 +5,7 @@
 #include "GetStartedData.ox"
 
 DDPmenu() {
-    decl mm = new Menu("DDP Related Tests and Demos",FALSE);
+    decl mm = new CallMenu("DDP Related Tests and Demos",TRUE,FALSE);
     mm -> add(
 			{"Get Started", 			Search::Run       },
 			{"Get Started with data",DerivedSearch::Run},
