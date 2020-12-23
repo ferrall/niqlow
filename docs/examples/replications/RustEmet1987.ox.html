@@ -178,9 +178,9 @@ Simulated data
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___chprob">chprob</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___bins">bins</a></td>
+<td class="modifiers">static const</td>
+<td class="description">Number of bins by table.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___COL">COL</a></td>
@@ -188,9 +188,9 @@ Simulated data
 <td class="description">column of Table  </td>
 </tr>
 <tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___data">data</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___dfactor">dfactor</a></td>
+<td class="modifiers">static const</td>
+<td class="description">Discount factor by row.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___mfact">mfact</a></td>
@@ -208,24 +208,24 @@ Simulated data
 <td class="description"># of bins, 90 or 175  </td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___parlist">parlist</a></td>
+<td class="modifiers">static const</td>
+<td class="description">2x3x2x4 array of reported parameter estimates.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___pars">pars</a></td>
 <td class="modifiers">static</td>
 <td class="description">parameter vector <span class="expressions">\(\psi\)</span>.</td>
 </tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___parsIX">parsIX</a></td>
-<td class="modifiers">static const</td>
-<td class="description"></td>
-</tr>
 <tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___parsX">parsX</a></td>
-<td class="modifiers">static const</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___rc">rc</a></td>
 <td class="modifiers">static</td>
 <td class="description">value of RC  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___ROW">ROW</a></td>
+<td class="modifiers">static</td>
+<td class="description">row of table/column.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___th1">th1</a></td>
@@ -250,14 +250,19 @@ Simulated data
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___SetSpec">SetSpec</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Set the target of the replication.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___Utility">Utility</a></td>
 <td class="modifiers"></td>
-<td class="description">The one period return.</td>
+<td class="description">The one period linear return.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___RNpars">RNpars</a></td>
+<td class="modifiers"></td>
+<td class="description">tags for table/column/row choices.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___Zparams">Zparams</a></td>
 <td class="modifiers"></td>
 <td class="description">tags for estimated parameters.</td>
@@ -268,18 +273,25 @@ Simulated data
 
 <table class="enum_table">
 <tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><a name="Zurcher___RNpars"></a>RNpars</td>
+<td class="description">tags for table/column/row choices.
+</td>
+<td class="elements">Table, Column, Row, Target</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><a name="Zurcher___Zparams"></a>Zparams</td>
 <td class="description">tags for estimated parameters.
 </td>
-<td class="elements">disc, RC, theta1, theta3, Nparams</td>
+<td class="elements">RC, theta1, theta3, LnLk, Nparams</td>
 </tr>
 </table>
 
-<a name="Zurcher___chprob"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">chprob</span></h3>
+<a name="Zurcher___bins"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">bins</span></h3>
 
-<span class="declaration">static decl chprob [public]</span>
+<span class="declaration">static const decl bins [public]</span>
 <dl><dd>
+Number of bins by table.
 
 </dd></dl>
 
@@ -294,11 +306,12 @@ column of Table
 </dd></dl>
 
 <hr>
-<a name="Zurcher___data"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">data</span></h3>
+<a name="Zurcher___dfactor"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">dfactor</span></h3>
 
-<span class="declaration">static decl data [public]</span>
+<span class="declaration">static const decl dfactor [public]</span>
 <dl><dd>
+Discount factor by row.
 
 </dd></dl>
 
@@ -336,8 +349,18 @@ added to U() to avoid underflow
 <a name="Zurcher___Output"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Output</span></h3>
 
-<span class="declaration">static Zurcher :: Output ( )</span>
+<span class="declaration">static Zurcher :: Output ( chprob )</span>
 <dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Zurcher___parlist"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">parlist</span></h3>
+
+<span class="declaration">static const decl parlist [public]</span>
+<dl><dd>
+2x3x2x4 array of reported parameter estimates.
 
 </dd></dl>
 
@@ -352,24 +375,6 @@ parameter vector <span class="expressions">\(\psi\)</span>.
 </dd></dl>
 
 <hr>
-<a name="Zurcher___parsIX"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">parsIX</span></h3>
-
-<span class="declaration">static const decl parsIX [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Zurcher___parsX"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">parsX</span></h3>
-
-<span class="declaration">static const decl parsX [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="Zurcher___rc"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">rc</span></h3>
 
@@ -380,10 +385,20 @@ value of RC
 </dd></dl>
 
 <hr>
+<a name="Zurcher___ROW"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ROW</span></h3>
+
+<span class="declaration">static decl ROW [public]</span>
+<dl><dd>
+row of table/column.
+
+</dd></dl>
+
+<hr>
 <a name="Zurcher___Run"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
 
-<span class="declaration">static Zurcher :: Run ( NX , COL )</span>
+<span class="declaration">static Zurcher :: Run ( targ )</span>
 <dl><dd>
 Setup and solve the model.
 
@@ -393,9 +408,22 @@ Setup and solve the model.
 <a name="Zurcher___SetSpec"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetSpec</span></h3>
 
-<span class="declaration">static Zurcher :: SetSpec ( NX , COL )</span>
+<span class="declaration">static Zurcher :: SetSpec ( targ )</span>
 <dl><dd>
+Set the target of the replication.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">targ</td>
+<td class="description" valign="baseline">is array of integer values for the Table, COlumn and Row from the original paper.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso">RNpars</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -414,7 +442,7 @@ value of <span class="expressions">\(\theta_1\)</span>
 
 <span class="declaration">Zurcher :: Utility ( )</span>
 <dl><dd>
-The one period return.
+The one period linear return.
 <dd><pre>U = dRC+(1-d)&theta;<sub>1</sub>mx + n</pre></dd>
 
 </dd></dl>
