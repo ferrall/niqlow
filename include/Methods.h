@@ -7,7 +7,7 @@ enum{USEBROYDEN,USENEWTONRAPHSON,SystemAlgorithms}
 /** A container for solution methods.    **/
 struct Method : FETask {
 	   static const decl
-		/** Default convergence tolerance on Bellman Iteration.**/ DefTolerance = 1E-5;
+		/** Default convergence tolerance on Bellman Iteration.**/ DefTolerance = DIFF_EPS;
         decl
         /** Either r or AllRan to solve for all random effects.**/  Rgroups,
         /** FALSE(default): iterate on V(&theta;)<br>

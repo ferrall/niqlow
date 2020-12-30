@@ -1,8 +1,8 @@
-#import "niqlow"
+﻿#import "niqlow"
 
-struct MyModel : «BaseClass»	{
+struct MyModel : Â«BaseClassÂ»	{
                 // declare variables to hold action variables, state variables, other things.
-	static decl «act», «state», «aux», «meth», «data» ;
+	static decl Â«act», Â«stateÂ», Â«auxÂ», Â«methÂ», Â«dataÂ» ;
 
 	static Build();            // Static methods are OPTIONAL and can be called anything.
 
@@ -21,23 +21,23 @@ main() {
 MyModel::Build()	{
 
 	Initialize(new MyModel());     //some Base classes require other parameters
-	SetClock(«ClockType»);
+	SetClock(Â«ClockTypeÂ»);
 
     // create action variable objects, add them to action vector
-    «act» = new ActionVariable("act",«Integer»);
-	Actions(«act»);
+    Â«actÂ» = new ActionVariable("act",Â«IntegerÂ»);
+	Actions(Â«actÂ»);
 
     // Create state variable objects
-    «state» = new «StateClass»("state",...); //arguments depend on the class
+    Â«stateÂ» = new Â«StateClassÂ»("state",...); //arguments depend on the class
 
     // Add state variables to the appropriate state vector
-	EndogenousStates(«state»,...);
-        // ExogenousStates(«state»,...); SemiExogenousStates(«state»,...);  GroupVariables(«state»,...);
+	EndogenousStates(Â«stateÂ»,...);
+        // ExogenousStates(Â«stateÂ»,...); SemiExogenousStates(Â«stateÂ»,...);  GroupVariables(Â«stateÂ»,...);
 
 	CreateSpaces();                         // Some BaseClass::CreateSpaces() take arguments
 
-    /* SetUpdateTime(«UpdateTime»); */                                          // See help on UpdateTimes
-    /* Hooks::Add(«Time»,«static_function»); */                                 // See help on Hooks and HookTimes
+    /* SetUpdateTime(Â«UpdateTimeÂ»); */                                          // See help on UpdateTimes
+    /* Hooks::Add(Â«TimeÂ»,Â«static_functionÂ»); */                                 // See help on Hooks and HookTimes
 
 	/* SetDelta(); */
     meth = new ValueIteration();
@@ -51,8 +51,8 @@ MyModel::Utility()  {
 /*
 MyModel :: Reachable()	{
             // Create as many separate conditions as required.
-    if («endogenous state condition») return FALSE;     //NOT Reachable
-    if («endogenous state condition») return TRUE;      //REACHABLE
+    if (Â«endogenous state conditionÂ») return FALSE;     //NOT Reachable
+    if (Â«endogenous state conditionÂ») return TRUE;      //REACHABLE
     return TRUE;        //Can have a default return value
 	}
 */
@@ -62,7 +62,7 @@ MyModel :: Reachable()	{
 MyModel::FeasibleActions() {
     // column vector of 0s and 1s indicating which rows of A are feasible at the current state
     // Create as many as needed
-    if («endogenous state condition»)   return  «0s for infeasible and 1s feasible»;
+    if (Â«endogenous state conditionÂ»)   return  Â«0s for infeasible and 1s feasibleÂ»;
 
     return ones(Alpha::N,1);   // This makes all feasible (default if not supplied by user)
     }
