@@ -2,10 +2,13 @@
 /* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
 
-RustEstimates::SetTarget() {
+RustEstimates::SetTarget(CmdLine) {
     decl targ = new ParamMenu("Rust1987 estimation",TRUE);
     targ->add( {"Table (NX) 0/1",Zero},{"Column (sample) 0/1/2",One},{"Row (disc. factor) 0/1",Zero});
-    targ->SetPars(Run);
+    if (CmdLine)
+        targ->CmdLine(Run);
+    else
+        targ->SetPars(Run);
     }
 
 /** Replicate bus estimation.

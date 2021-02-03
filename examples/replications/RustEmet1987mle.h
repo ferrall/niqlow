@@ -17,7 +17,7 @@ struct RustEstimates {
     /** Parameter lists by stage.**/                    plist,
     /** Optimization algorithm applied to nfxp. **/     mle;
 	static Run(pars);
-    static SetTarget();
+    static SetTarget(CmdLine=FALSE);
 	}
 
 /** The Zurcher model with estimated `Parameter`s. **/
