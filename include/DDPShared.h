@@ -291,7 +291,7 @@ struct Flags : DDPauxiliary {
 		/** CreateSpaces() has been called or not.  **/ 		ThetaCreated,
 		/** . @internal **/										Warned,
 		/** . **/												UseStateList,
-		/** create space to store $P(\theta';\alpha,\theta)
+		/** create space to store $P(\theta';\alpha,\theta)$
             and update it if SetPstar during interation. **/  	IsErgodic,
         /** Newton-Kantorovich Step is active. **/              NKstep,
         /** Includes a kept continuous state variable.**/       HasKeptZ,
@@ -312,10 +312,10 @@ struct Flags : DDPauxiliary {
             Your function should return TRUE if the current group oup should be created.
             @see Hooks, HookTimes, Hooks::Add, FixedEffect, RandomEffect
              **/					                            AllGroupsExist,
-		/**  store &Alpha.D x &Theta.D matrix
+		/**  store &Alpha;.D x &Theta;.D matrix
 			of choice probabilities  **/  						StorePA,
         /** Stationary Stage of value iteration.**/             StatStage,
-		/** set &Rho;*(<code>&alpha;</code>|&hellip;)
+		/** set $P^*(\alpha,\cdots)$
             in Bellman		**/		                            setPstar;
     static Reset();
     static SetPrunable(clock);

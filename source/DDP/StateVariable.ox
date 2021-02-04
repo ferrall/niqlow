@@ -532,13 +532,23 @@ Markov::Markov(L,Pi) {
 
 /**Create a new IID Jump process.
 @param L label
-@param Pi column vector or a Simplex-like parameter block.
+@param Pi column vector or a Simplex parameter block or a static function
+@comments
+   If a function is sent then it has to be well-defined before spaces are created.  It
+   must return a column vector of the right length at this time, but the
+   values are not used until transitions are created.
 **/
 IIDJump::IIDJump(L,Pi) {
-    if (ismatrix(Pi) && ( columns(Pi) > 1 || !isfeq(sumc(Pi),1.0) ) )
-        oxrunerror("DDP Error 07. IIDJump can only accept column vector transition\n");
+    decl myN;
     this.Pi = Pi;
-    StateVariable(L,sizeof(Pi));
+    if (ismatrix(Pi)) {
+        if ( columns(Pi) > 1 || !isfeq(sumc(Pi),1.0) )
+            oxrunerror("DDP Error 07. IIDJump can only accept column vector transition\n");
+        }
+    else if (isfunction(Pi)) myN = rows(Pi());
+    else if (isclass(Pi,"ParameterBlock")) myN = Pi.N;
+    else oxrunerror("DDP Error 07. IIDJump can only Pi as a vector, function or parameter block");
+    StateVariable(L,myN);
     }
 
 /** Create binary state variable for which Prob(s=1) = Pi.
