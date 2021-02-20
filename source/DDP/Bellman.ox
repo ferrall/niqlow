@@ -720,6 +720,7 @@ ExPostSmoothing::Smooth() {
 **/
 ExtremeValue::Smooth() {
 	pandv ./= V;
+    //if (!I::t) println("*** ",I::all[tracking],V~pandv);
 	}
 	
 /**Iterate on Bellman's equation at &theta; using Rust-styled additive extreme value errors.

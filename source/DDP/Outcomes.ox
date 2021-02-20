@@ -322,7 +322,7 @@ FPanel::~FPanel() {
 @comments &gamma; region of state is masked out.
 **/
 FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
-	decl msucc=FALSE, ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS,
+	decl msucc=FALSE, isf = isfunction(ErgOrStateMat), ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS,
          Nstart=columns(ErgOrStateMat), rvals, curr, i, newstate;
 	if (Nsim <= 0) oxrunerror("DDP Error 50a. First argument, panel size, must be positive");
     if (ii) {
@@ -356,11 +356,12 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
         //        Flags::NewPhase(SIMULATING);   called in Path
         println(I::f," ",I::r," ",curr);
         for(i=0;i<rvals[curr];++i) {
-            newstate = erg ? I::curg->DrawfromStationary()
-                           : ( (ii)
-                                ? iS
-                                : ErgOrStateMat[][imod(this.N,Nstart)]
-                              );
+            newstate = isf ? ErgOrStateMat()
+                           : erg ? I::curg->DrawfromStationary()
+                                : ( (ii)
+                                    ? iS
+                                    : ErgOrStateMat[][imod(this.N,Nstart)]
+                                    );
 		    cur->Path::Simulate(newstate,T,DropTerminal);
 		    NT += cur.T;
 		    if (++this.N<Nsim && cur.pnext==UnInitialized) cur.pnext = new Path(this.N,UnInitialized);
