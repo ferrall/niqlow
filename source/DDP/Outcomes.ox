@@ -282,11 +282,14 @@ FPanel::FPanel(f,method) {
 	this.f = f;
 	this.method = method;
 	Path(0,UnInitialized);
-	if ( (N::R>One || N::DynR>One ) && isint(summand)) {
+	if ( (N::R>One || N::DynR>One ) ) {
         if (!isclass(method) && (!Version::MPIserver))
             oxwarning("DDP Warning: Solution method is not nested with random effects present.  Path Outcomes may not be accurate");
-		summand = new RandomEffectsIntegration();
-		upddens = new UpdateDensity();
+		if (isint(summand)) summand = new RandomEffectsIntegration();
+		if (isint(upddens)) {
+            println("FPanel Create ",f);
+            upddens = new UpdateDensity();
+            }
 		}
 	if (isint(SD)&&Flags::IsErgodic) SD = new SDTask();
 	fnext = UnInitialized;
@@ -325,6 +328,7 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
 	decl msucc=FALSE, isf = isfunction(ErgOrStateMat), ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS,
          Nstart=columns(ErgOrStateMat), rvals, curr, i, newstate;
 	if (Nsim <= 0) oxrunerror("DDP Error 50a. First argument, panel size, must be positive");
+    println("FPSim ",f," ",Nsim," ",isf," ",isclass(upddens));
     if (ii) {
 	   if (erg) {
 		  if (!isclass(SD)) oxrunerror("DDP Error 50b. model not ergodic, can't draw from P*()");
@@ -354,7 +358,6 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
 	    else
             I::SetGroup(N::R*f+curr);
         //        Flags::NewPhase(SIMULATING);   called in Path
-        println(I::f," ",I::r," ",curr);
         for(i=0;i<rvals[curr];++i) {
             newstate = isf ? ErgOrStateMat()
                            : erg ? I::curg->DrawfromStationary()

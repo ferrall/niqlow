@@ -46,7 +46,6 @@ PredictionDataSet::SimulateMomentVariances(N,ErgOrStateMat,fvals) {
             fcur->SimulateOutcomePaths(scur,N,ErgOrStateMat);
         old = scur;
         scur = scur.fnext;
-        // delete old; //
     #ifdef OX_PARALLEL
         old -> ~FPanel();   // delete previous simulations;  syntax not recognize by oxdoc
     #endif

@@ -434,11 +434,14 @@ PathPrediction::PathPrediction(f,method,iDist,wght){
     Fcols = columns(fvals);
     HasObservations = FALSE;
 
-    if ((N::R>One || N::DynR>One ) && isint(summand)) {
+    if ((N::R>One || N::DynR>One )) {
         if (!isclass(method))
             oxwarning("DDP Warning: Solution method is not nested with random effects present.  Predictions will not be accurate.");
-		summand = new RandomEffectsIntegration();
-		upddens = new UpdateDensity();
+		if (isint(summand)) summand = new RandomEffectsIntegration();
+		if (isint(upddens)) {
+            println("PathPrediction Create ",f);
+            upddens = new UpdateDensity();
+            }
 		}
 	}
 

@@ -172,12 +172,16 @@ DP::GetPinf(g) {
     return (g==UseCurrent) ? I::curg.Pinfinity : Gamma[g].Pinfinity;
     }
 
-/** Draw a population count andom sample of N values from the random effects distribution.
+/** Draw a population count random sample of N values from the random effects distribution.
 @param find index of fixed group
 @param N number of draws to take
+@return 1xF vector of integer counts that sum to N
 @see DP::DrawGroup
 **/
-DP::DrawFsamp(find,N) { return ranmultinomial(N,gdist[find][]); }
+DP::DrawFsamp(find,N) {
+    decl ss = ranmultinomial(N,gdist[find][]);
+    return ss;
+    }
 
 /**  Draw one $\epsilon$ vector given following $P(\epsilon)$.
 @param aState address of state vector to insert value
