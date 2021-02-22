@@ -58,10 +58,10 @@ struct Prediction : Data {
 /** Predicted outcomes along a path.
 **/
 struct 	PathPrediction : Prediction {
-	static	decl
+    const decl
         /** object to integrate over $\gamma_r$.**/  summand,
-        /** object to update distribution over r.**/ upddens;
-    const decl  /** fixed index.**/             f,
+        /** object to update distribution over r.**/ upddens,
+                /** fixed index.**/             f,
                 /** initial distribution.**/    iDist,
                 /** pstate .**/                 pstate,
                 /** for tracking.**/            fvals,

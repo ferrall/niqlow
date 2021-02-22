@@ -78,7 +78,6 @@ struct ExogAuxOut : ExTask {
 The path is a doubly-linked list of `Outcome`s.
 **/
 struct Path : Outcome {
-	static	decl	summand, upddens;
 	const 	decl
 		/** index of path in a panel. **/	i;
 			decl
@@ -110,9 +109,11 @@ struct Path : Outcome {
 A singly-linked list of `Path`s.
 **/
 struct FPanel : Path {
+    static decl	                                    summand;
 	const decl
-	/** index of Fpanel in a panel. **/ 			f;
-	static	decl 									SD;
+	/** index of Fpanel in a panel. **/ 			f,
+                                                    upddens,
+                                                    SD;
 	decl
 	/** method to call for nested solution. **/		method,
 	/** . @internal **/								cur,

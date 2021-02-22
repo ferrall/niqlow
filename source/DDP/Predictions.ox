@@ -437,12 +437,12 @@ PathPrediction::PathPrediction(f,method,iDist,wght){
     if ((N::R>One || N::DynR>One )) {
         if (!isclass(method))
             oxwarning("DDP Warning: Solution method is not nested with random effects present.  Predictions will not be accurate.");
-		if (isint(summand)) summand = new RandomEffectsIntegration();
-		if (isint(upddens)) {
-            println("PathPrediction Create ",f);
-            upddens = new UpdateDensity();
-            }
-		}
+        summand = new RandomEffectsIntegration();
+        upddens = new UpdateDensity();
+        }
+	else {
+        summand = upddens = UnInitialized;
+        }
 	}
 
 /** clean up.
@@ -465,8 +465,9 @@ PathPrediction::~PathPrediction() {
 		delete pnext;
 		pnext = cur;
 		}
-    delete upddens; upddens = UnInitialized;
-	delete summand; summand=UnInitialized;
+/*    delete upddens;
+	delete summand;
+*/
 	~Prediction();
     }
 

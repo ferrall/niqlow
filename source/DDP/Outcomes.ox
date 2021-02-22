@@ -285,13 +285,11 @@ FPanel::FPanel(f,method) {
 	if ( (N::R>One || N::DynR>One ) ) {
         if (!isclass(method) && (!Version::MPIserver))
             oxwarning("DDP Warning: Solution method is not nested with random effects present.  Path Outcomes may not be accurate");
-		if (isint(summand)) summand = new RandomEffectsIntegration();
-		if (isint(upddens)) {
-            println("FPanel Create ",f);
-            upddens = new UpdateDensity();
-            }
-		}
-	if (isint(SD)&&Flags::IsErgodic) SD = new SDTask();
+        if (isint(summand)) summand = new RandomEffectsIntegration();
+        upddens = new UpdateDensity();
+        }
+	else { summand = upddens = UnInitialized; }
+	if (Flags::IsErgodic) SD = new SDTask();
 	fnext = UnInitialized;
 	NT = N = 0;
 	L = <>;
@@ -309,9 +307,10 @@ FPanel::~FPanel() {
 		delete pnext;
 		pnext = cur;
 		}
-	if (isclass(SD)) {delete SD; SD = UnInitialized;}
-    if (isclass(upddens)) {delete upddens; upddens = UnInitialized; }
-	if (isclass(summand)) { delete summand; summand=UnInitialized;}
+	/* delete SD; SD = UnInitialized;
+        delete upddens; upddens = UnInitialized;
+	   delete summand; summand=UnInitialized;
+    */
 	~Path();				//delete root path
 	}	
 
@@ -328,7 +327,6 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
 	decl msucc=FALSE, isf = isfunction(ErgOrStateMat), ii = isint(ErgOrStateMat), erg=ii&&(ErgOrStateMat>0), iS,
          Nstart=columns(ErgOrStateMat), rvals, curr, i, newstate;
 	if (Nsim <= 0) oxrunerror("DDP Error 50a. First argument, panel size, must be positive");
-    println("FPSim ",f," ",Nsim," ",isf," ",isclass(upddens));
     if (ii) {
 	   if (erg) {
 		  if (!isclass(SD)) oxrunerror("DDP Error 50b. model not ergodic, can't draw from P*()");
@@ -433,7 +431,9 @@ Panel::Panel(r,method) {
 	flat = FNT = 0;
 	cur = this;
     // create fpanels for other fixed effects
-	for (i=One;i<N::F;++i) cur = cur.fnext = fparray[i] = new FPanel(i,method);
+	for (i=One;i<N::F;++i) {
+            cur = cur.fnext = fparray[i] = new FPanel(i,method);
+            }
 	if (isint(LFlat)) {
         LFlat = new array[FlatOptions];
 		LFlat[LONG] = {PanelID}|{FPanelID}|{PathID}|PrefixLabels|Labels::Vprt[svar]|{"|ai|"}|Labels::Vprt[avar];
@@ -658,8 +658,8 @@ Path::Likelihood() {
 		viinds = new array[DVspace];
 		vilikes = new array[DVspace];
 		}
-	if (isclass(summand))
-		[L,flat] = summand->Integrate(this);
+	if (isclass(FPanel::summand))
+		[L,flat] = FPanel::summand->Integrate(this);
 	else {
 		TypeContribution();  //density=1.0 by default
         }
