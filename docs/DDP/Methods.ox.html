@@ -716,17 +716,20 @@ Then the proportion of total <code>max()</code> operations <em>avoided</em> is
 <DD>Follow these steps at each <span class="expressions">\(t.\)</span></DD>
 <OL class="steps">
 <LI>For all <span class="expressions">\(\theta \in \Theta_t\)</span>:
-    <DD>Store the vector of action values at a single <span class="expressions">\(\epsilon_0\)</span> (e.g. the median or mean vector), <span class="expressions">\(v_0(\al,\th) = v(\al;\epsilon_0,\th)\)</span> and <span class="expressions">\(V_0(\th)=\max v_0(\al,\th).\)</span> (This is  "maxE" in Keane and Wolpin 1994.)</DD>
-    <DD>if  <span class="expressions">\(\th \in \Theta_t^S\)</span>, compute <span class="expressions">\(V\)</span> (or Emax), averaging over all values of the IID state vector <span class="expressions">\(\epsilon\)</span>:
-    <span class="equation">$$V(\th)  = {\sum}_{\epsilon} \ \l[ {\max}_{\ \al\in A(\th)\ }\ U\l(\al;\epsilon,\th\r) + \delta E_{\al,\th\,}V\l(\thp\r)\r]\ f\l(\epsilon\r).\nonumber$$</span></DD>
+    <DD>Store the vector of action values at a single
+        <span class="expressions">\(\epsilon_0\)</span> (e.g. the median or mean vector),
+        <span class="expressions">\(v_0(\alpha,\theta) = v(\alpha;\epsilon_0,\theta)\)</span> and <span class="expressions">\(V_0(\theta)=\max v_0(\alpha,\theta).\)</span>
+        (This is  "maxE" in Keane and Wolpin 1994.)</DD>
+    <DD>if  <span class="expressions">\(\theta \in \Theta_t^S\)</span>, compute <span class="expressions">\(V\)</span> (or Emax), averaging over all values of the IID state vector <span class="expressions">\(\epsilon\)</span>:    <span class="equation">$$V(\theta)  = {\sum}_{\epsilon} \ \left[ {\max}_{\ \alpha\in A(\theta)\ }\ U\left(\alpha;\epsilon,\theta\right)
+        + \delta E_{\alpha,\theta\,}V\left(\theta^\prime\right)\right]\ f\left(\epsilon\right).\nonumber$$</span></DD>
     </LI>
 <LI>Approximate <span class="expressions">\(V\)</span> on the subsample as a function of values computed at <span class="expressions">\(\epsilon_0\)</span>.  The default is to run the regression:
     <span class="equation">$$\hat{V}-V_0 = X\beta_t.\nonumber$$</span>
     The default specification of the row of state-specific values is
-    <span class="equation">$$X =\l(\matrix{\l(V_0-v_0\r) & \sqrt{V_0-v_0}}\r).\nonumber$$</span>
+    <span class="equation">$$X =\left(\matrix{\left(V_0-v_0\right) & \sqrt{V_0-v_0}}\right).\nonumber$$</span>
     That is, the difference between Emax and maxE is a non-linear function of the differences in action values at the median shock.  </LI>
-<LI>For <span class="expressions">\(\th \not\in \Theta^S_t,\)</span> compute <span class="expressions">\(v_0(\th),\)</span> extrapolate the approximation:
-    <span class="equation">$$V(\th) = \max\{ V_0(\th), V_0(\th)+X\hat\beta_t\}.\nonumber$$</span>
+<LI>For <span class="expressions">\(\theta \not\in \Theta^S_t,\)</span> compute <span class="expressions">\(v_0(\theta),\)</span> extrapolate the approximation:
+    <span class="equation">$$V(\theta) = \max\{ V_0(\theta), V_0(\theta)+X\hat\beta_t\}.\nonumber$$</span>
 </LI>
 </OL>
 <DD>Carry out update conditions for <span class="expressions">\(t\)</span>.</DD>
@@ -913,7 +916,7 @@ Implementation does not always work.  Needs to be improved.
     <LI value="3">Compute</LI>
     <span class="equation">$$\eqalign{
         \overrightarrow{\Delta}_t &\equiv Emax(V_1) - V_1\cr
-        g &\equiv \left(I-\delta P(\thp;\th)\right)^{-1}\left[\overrightarrow{\Delta}_t\right]\cr
+        g &\equiv \left(I-\delta P(\theta^\prime;\theta)\right)^{-1}\left[\overrightarrow{\Delta}_t\right]\cr
         V_0 &= V_1 - g\cr}\nonumber$$</span>
 </OL></div>
 

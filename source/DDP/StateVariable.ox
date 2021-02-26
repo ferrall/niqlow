@@ -43,8 +43,12 @@ If <code>s</code> contains a state variable then
 StateVariable::myAV() { return actual[v]; }
 
 /** Check dimensions of <code>actual</code>.
+
 Called by `EndogTrans::Transitions`() after `Discrete::Update`() called.
+If the user's update function returns the wrong dimension this catches.
+
 <code>actual</code> should be N x 1 not 1 x N.
+
 **/
 StateVariable::Check() {
     decl dims =Dimensions(actual);
@@ -60,10 +64,9 @@ StateVariable::Check() {
 @return TRUE if sv is `StateBlock` or `RandomEffectBlock` or `FixedEffectBlock`<br>FALSE otherwise
 **/	
 StateVariable::IsBlock(sv) {	
-return    isclass(sv,"StateBlock")
-		||isclass(sv,"RandomEffectBlock")
-		||isclass(sv,"FixedEffectBlock") ;
-}
+    return
+    TypeCheck(sv,{"StateBlock","RandomEffectBlock","FixedEffectBlock"},SILENT);
+    }
 
 /** Check if variable is a valid member of a block.
 @param sv `StateVariable`
@@ -75,6 +78,7 @@ StateVariable::IsBlockMember(sv) {
 
 
 /**Designate one or more values of the state variable as terminal.
+
 @param TermValues integer<br/> vector in the range 0...N-1
 
 <DT>A terminal value of a state variable is the case when reaching that state means decision making is ended.</DT>
@@ -94,6 +98,7 @@ the bequest value of the state.</DD>
   v = new StateVariable("v",1);
   v->MakeTerminal(1);
 </dd>
+
 Now any state for which <code>CV(s)=3</code> or <code>CV(s)=4</code> or <code>CV(v)=1</code>
 will be marked as terminal:
 The classification of terminal values occurs during <code>CreateSpaces()</code> and is stored at each
@@ -120,6 +125,8 @@ probability one the value of the state variable next period is 0.
 StateVariable::Transit() { return UnChanged(); }
 
 /** Returns the transition for a state variable that is unchanged next period.
+This is used inside Transit functions to make the code easier to read.
+@return { v , 1}
 **/
 StateVariable::UnChanged() { return { matrix(v), CondProbOne }; }
 
@@ -140,20 +147,35 @@ StateVariable::IsReachable() { return TRUE; }
 <DD><pre>
 Prob(q' = v)  =  1 / N, for v=0,&hellip;,N&oline;
 </pre></DD>
-@example <pre>
+@example
+<pre>
 TFPshock = new SimpleJump("z",20);
 ExogenousStates(TFPshock);
 </pre></DD>
+
+Tomorrow TFPshock will take on values 0 to 19 each with probability 0.05
+
 **/
 SimpleJump::SimpleJump(L,N)	  	{	StateVariable(L,N); 	}
 
 /** Transition . **/
 SimpleJump::Transit()	{return {vals,constant(1/N,1,N)};	}
 
-/**
+/** A binary state that starts and stops according to a random process.
 @param L label
 @param ProbEnd probability (`AV`()-compatible) of a transition from 0 to 1 [default=0.5]
 @param Start 0/1 value (`ActionVariable` or `CV`-compatible) that moves from 0 to 1 [default=1]
+
+@example
+<pre>
+injury = new RandomSpell("i",0.2,0.4);
+ExogenousStates(injury);
+</pre></dd>
+
+An injury begins each period with probability 0.2.  Once it starts it
+ends with probablity 0.4.  The arguments can be functions that are
+called and compute probabilities that depend on states and actions.
+
 @comments
 v=1 at t=0 in finite horizon models is pruned.
 **/
@@ -176,11 +198,14 @@ RandomSpell::Transit() {
     }
 
 /** Synchronize base state variable value with current value.
+Not called by user code.
 **/
 Augmented::Synch() {    b.v = min(v,b.N-1);     }
 
 /**Default Augmented Update.
 The Update() for the base type is called.  And its actual vector is copied to the augmented actuals.
+
+Not called by user code
 **/
 Augmented::Update() {
     b->Update();
@@ -200,9 +225,12 @@ Augmented::SetActual(MaxV) {
     }
 
 /** Base creator augmented state variables
-@param Lorb either a `StateVariable` object, the base variable to augment<br>Or, string the label for this variable.
+@param Lorb either a `StateVariable` object, the base variable to augment
+        <br/>Or, string the label for this variable.  In thise case the base is `Fixed`
 @param N integer, if Otherwise, if &gt; b.N number of points of the augmented variable.  Otherwise, ignored and this.N = b.Nl
 If Lorb is a string then <code>b = new `Fixed`(Lorb)</code>.
+
+
 **/
 Augmented::Augmented(Lorb,N) {
     if (isclass(Lorb,"StateVariable")) {
@@ -254,7 +282,7 @@ Augmented::IsReachable() {
 @param rval the integer (current) value of this state variable when the trigger occurs [default=0]<br>-1, then the reset value this.N = b.N+1 and rval = b.N.
 
 <dt>The transition for an action triggered state:</dt>
-<dd><pre>Prob( q' = v ) = I{t&in;tv}\times I{v==rval} + (1-I{t&in;tv})\times Prob(b=v)</pre></dd>
+<dd><pre>Prob( q' = v ) = I{t&in;tv}I{v==rval} + (1-I{t&in;tv})Prob(b=v)</pre></dd>
 **/
 ActionTriggered::ActionTriggered(b,t,tv,rval){
     TypeCheck(t,"ActionVariable");
@@ -279,10 +307,17 @@ ActionTriggered::Transit() {
 /** Augment a base transition to reset to 0 if the trigger is 1.
 @param b the base `StateVariable` whose transition is augmented.
 @param t the `ActionVariable` that triggers a different transition
+
 <dt>The transition for an action triggered state:</dt>
-<dd><pre>Prob( q' = v ) = I{t=1}\times I{v==0} + (1-I{t=1})\times Prob(b=v)</pre></dd>
+$$Prob( q' = v ) = I\{t=1\}\times I\{v=0\} + (1-I\{t=1\})\times Prob(b=v).$$
 <dt>Note:
 <DD><pre>Reset(b,t) &equiv; ActionTriggered(b,t,1,0)</pre></dd>
+
+@example
+<pre>
+
+</pre></dd>
+
 **/
 Reset::Reset(b,t) {
     ActionTriggered(b,t);
@@ -899,8 +934,8 @@ StateAtTbar::IsReachable() {
 @param Target `ActionVariable` to track.
 
 $$s' = \cases{ 0 & if Target.v==0\cr
-               Target.v & if s==0 and Target.v $\gt$ 0\cr
-               s & if s $\gt$ 0\cr}$$
+               Target.v & if s==0 and Target.v greater than 0\cr
+               s & if s greater than 0\cr}$$
 
 @example
 Once a person retires the stay retired forever:
@@ -1580,7 +1615,8 @@ the actual values need to set using <code>SetActual()</code> or writing <code>Up
 if the actual values depend on parameters.  If for some reason the grid values for $a$ and $A$ are not the same (different coarsen
 between consumption and assets) then the transition may not be on the grid.  In this case, let $AV(a)$ equal
 $AV(A_i)+p(AV(A_{i+1})-AV(A_i)),$ where $p$ is the fraction of the gap between two successive values of $A$.  Now:
-$$A^\prime = \cases{ A_i & with prob. 1-p\cr A_{i+1} & with prob. p\cr}.$$
+$$A^\prime = \cases{
+    A_i & with prob. 1-p\cr A_{i+1} & with prob. p\cr}.$$
 <DD><pre>
     a = new ActionVariable("a",5);
     A = new LiquidAsset("A",5,a);

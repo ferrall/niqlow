@@ -20,9 +20,13 @@ Components shared by components of <span class="n"><a href="../default.html">niq
 <P/>
 <OL class="body">
 <LI>CV and AV</LI>
+<P/>
 <LI>Volume and Noise Levels</LI>
+<P/>
 <LI>Log Files</LI>
+<P/>
 <LI>Integration, Kernels</LI>
+<P/>
 </OL>
 
 <dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2020 <a href="https://ferrall.github.io/">Christopher Ferrall</a> </dd>
@@ -45,22 +49,22 @@ Components shared by components of <span class="n"><a href="../default.html">niq
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#DIFF_EPS">DIFF_EPS</a></td>
 <td class="modifiers">static const</td>
-<td class="description">tolerance level 0.</td>
+<td class="description">tolerance level 0: <span class="expressions">\(10^{-1}\)</span>.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#DIFF_EPS1">DIFF_EPS1</a></td>
 <td class="modifiers">static const</td>
-<td class="description">tolerance level 1.</td>
+<td class="description">tolerance level 1: <span class="expressions">\(10^{-6}\)</span>.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#DIFF_EPS2">DIFF_EPS2</a></td>
 <td class="modifiers">static const</td>
-<td class="description">tolerance level 2.</td>
+<td class="description">tolerance level 2: <span class="expressions">\(10^{-4}\)</span>.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#DIFF_EPS3">DIFF_EPS3</a></td>
 <td class="modifiers">static const</td>
-<td class="description">tolerance level 3.</td>
+<td class="description">tolerance level 3: <span class="expressions">\(10^{-3}\)</span>.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#mymomlabels">mymomlabels</a></td>
@@ -70,12 +74,12 @@ Components shared by components of <span class="n"><a href="../default.html">niq
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#SQRT_EPS">SQRT_EPS</a></td>
 <td class="modifiers">static const</td>
-<td class="description">square-root of machine &epsilon;  </td>
+<td class="description">square-root of <span class="expressions">\(\epsilon,\)</span> $10^{-8}  </td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#SSQ_TOLER">SSQ_TOLER</a></td>
 <td class="modifiers">static const</td>
-<td class="description">Euclidean norm tolerance  </td>
+<td class="description">Euclidean tolerance, <span class="expressions">\(10^{-12}\)</span>.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#VZero">VZero</a></td>
@@ -85,12 +89,12 @@ Components shared by components of <span class="n"><a href="../default.html">niq
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#ZeroForSure">ZeroForSure</a></td>
 <td class="modifiers">static const</td>
-<td class="description"></td>
+<td class="description">used in transitions.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Functions</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#AV">AV</a></td>
 <td class="modifiers"></td>
-<td class="description">ActualValue: Returns either  X.actual[X.v] or <a href="Shared.ox.html#CV">CV</a>(X).</td>
+<td class="description">ActualValue: Returns X->myAV() if it exists or <a href="Shared.ox.html#CV">CV</a>(X).</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#ColLogit">ColLogit</a></td>
@@ -110,7 +114,7 @@ Components shared by components of <span class="n"><a href="../default.html">niq
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#Dimensions">Dimensions</a></td>
 <td class="modifiers"></td>
-<td class="description">Return rows() and columns() as a row vect.</td>
+<td class="description">Return rows() and columns() as a row vector.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#DiscreteNormal">DiscreteNormal</a></td>
@@ -300,7 +304,7 @@ Store a point for a constrained objective.
 <a name="Discrete"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Discrete : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
-Discrete values: actions and states.
+Discrete values: actions, states, auxiliaries.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -748,7 +752,7 @@ Store a point for a mixture objective.
 <a name="Parameter"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Parameter : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
-Continuously varying quantity: te base class for parameters of an Objective.
+Continuously varying quantity: the base class for parameters of an Objective.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -777,56 +781,62 @@ Continuously varying quantity: te base class for parameters of an Objective.
 <td class="description">Initial passed value.</td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#Parameter___NearFlat">NearFlat</a></td>
+<td class="modifiers">static const</td>
+<td class="description">tolerance for too near
+			flat part of transformation.</td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#Parameter___scale">scale</a></td>
 <td class="modifiers"></td>
 <td class="description">Scaling value  s.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#Parameter___start">start</a></td>
 <td class="modifiers"></td>
 <td class="description">Value at start of iteration.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___Decode">Decode</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Default decoding: no scaling, no constraining.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___Encode">Encode</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Default encoding: no scaling, no constraining.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___Menu">Menu</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___Parameter">Parameter</a></td>
 <td class="modifiers"></td>
 <td class="description">Create a new parameter.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___ReadCGI">ReadCGI</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___ReInitialize">ReInitialize</a></td>
 <td class="modifiers"></td>
 <td class="description">Reset the parameter to its hard-coded values.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___Reset">Reset</a></td>
 <td class="modifiers"></td>
 <td class="description">Reset the starting value of a parameter.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___SetDoNotVary">SetDoNotVary</a></td>
 <td class="modifiers">virtual</td>
-<td class="description">Toggle the value of <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>.</td>
+<td class="description">Set the value of <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___ToggleDoNotVary">ToggleDoNotVary</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Toggle the value of <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>.</td>
@@ -1152,23 +1162,35 @@ Used by Constrained objectives.
 
 <span class="declaration">AV ( X , ... )</span>
 <dl><dd>
-ActualValue: Returns either  X.actual[X.v] or <a href="Shared.ox.html#CV">CV</a>(X).
+ActualValue: Returns X->myAV() if it exists or <a href="Shared.ox.html#CV">CV</a>(X).
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">X</td>
-<td class="description" valign="baseline">double, integer, static function <code>X()</code>, or object with a members <code>actual</code> and <code>v</code>
+<td class="description" valign="baseline">anything
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">...</td>
+<td class="description" valign="baseline">argument passed to CV()
+<P/>
 </td>
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns">X->AV() or CV(X)
+<dt class="returns">Returns:</dt><dd class="returns">X->myAV() or CV(X)
+<P/>
+<dd><pre>
+X               Returns         Notes
+<a href="Shared.ox.html#Discrete">Discrete</a>      X->myAV()       (any class with the member function defined)
+Other Object    CV(X)
+</pre></dd>
 </dd>
 <dt class="comments">Comments:</dt><dd class="comments">This allows user utility to access the current actual value of a state.  This also works for <a href="Variables.ox.html#StateBlock">StateBlock</a>
 which will return the items from the Grid of points.
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#CV">CV</a></dd>
+<dt class="seealso">See also:</dt><dd class="seealso">CV StateVariable::myAV ActionVariable::myAV</dd>
 </dl>
 </dd></dl>
 
@@ -1230,13 +1252,24 @@ Return the Current Value of a Quantity: access X.v, X, X() or X(arg).
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">X</td>
-<td class="description" valign="baseline">a double, integer, static function of the form X() or X(arg), or any object with a member named v.<br>
+<td class="description" valign="baseline">a double, integer, static function of the form X() or X(arg), or any object with a member named v.<br/>
 an array of <a href="Shared.ox.html#CV">CV</a> compatible elements will return the horizontal concatenation value of the results as matrix.
+<P/>
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">...</td>
 <td class="description" valign="baseline">a single argument can be passed along with X().  Further arguments are ignored
+<P/>
+<dd><pre>
+X               Returns         Notes
+ActionVariable  X->myCV()       X's column of values in <span class="expressions">\(\alpha\)</span>
+Other Object    X.v             If v is a member
+array           row of CV(X)    recursively call CV() or CV(...) for all elements
+function        X() or X(...)   simply call function sending optional arguments as array
+all else        X               CV() of arithmetic objects is the value itself
+</pre></dd>
+<P/>
 </td>
 </tr>
 </table>
@@ -1280,7 +1313,7 @@ Row-Difference of a matrix.
 
 <span class="declaration">static const decl DIFF_EPS</span>
 <dl><dd>
-tolerance level 0.
+tolerance level 0: <span class="expressions">\(10^{-1}\)</span>.
 
 </dd></dl>
 
@@ -1290,7 +1323,7 @@ tolerance level 0.
 
 <span class="declaration">static const decl DIFF_EPS1</span>
 <dl><dd>
-tolerance level 1.
+tolerance level 1: <span class="expressions">\(10^{-6}\)</span>. .
 
 </dd></dl>
 
@@ -1300,7 +1333,7 @@ tolerance level 1.
 
 <span class="declaration">static const decl DIFF_EPS2</span>
 <dl><dd>
-tolerance level 2.
+tolerance level 2: <span class="expressions">\(10^{-4}\)</span>. .
 
 </dd></dl>
 
@@ -1310,7 +1343,7 @@ tolerance level 2.
 
 <span class="declaration">static const decl DIFF_EPS3</span>
 <dl><dd>
-tolerance level 3.
+tolerance level 3: <span class="expressions">\(10^{-3}\)</span>. .
 
 </dd></dl>
 
@@ -1320,7 +1353,7 @@ tolerance level 3.
 
 <span class="declaration">Dimensions ( A )</span>
 <dl><dd>
-Return rows() and columns() as a row vect.
+Return rows() and columns() as a row vector.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -1556,17 +1589,19 @@ Check that two objects have same rows and columns.
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
-<td class="declaration" valign="baseline">A
+<td class="declaration" valign="baseline">A</td>
+<td class="description" valign="baseline">matrix
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">B
+<td class="declaration" valign="baseline">B</td>
+<td class="description" valign="baseline">matrix
 <P/>
 </td>
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns">TRUE if same dimensions
+<dt class="returns">Returns:</dt><dd class="returns">TRUE if A and B have the same dimensions
 </dd>
 </dl>
 </dd></dl>
@@ -1577,7 +1612,7 @@ Check that two objects have same rows and columns.
 
 <span class="declaration">static const decl SQRT_EPS</span>
 <dl><dd>
-square-root of machine &epsilon;
+square-root of <span class="expressions">\(\epsilon,\)</span> $10^{-8}
 
 </dd></dl>
 
@@ -1587,7 +1622,7 @@ square-root of machine &epsilon;
 
 <span class="declaration">static const decl SSQ_TOLER</span>
 <dl><dd>
-Euclidean norm tolerance
+Euclidean tolerance, <span class="expressions">\(10^{-12}\)</span>.
 
 </dd></dl>
 
@@ -1641,6 +1676,7 @@ Check that an object is of a required class, or one of a required class.
 <tr>
 <td class="declaration" valign="baseline">msg</td>
 <td class="description" valign="baseline">Message to print if not SILENT and class fails to match (default message is "Class fails to match")
+<P/>
 </td>
 </tr>
 </table>
@@ -1669,10 +1705,10 @@ Convert an array of strings into a space-separated string.
 </dd>
 <dt class="returns">Returns:</dt><dd class="returns">string
 </dd>
-<dt class="example">Example:</dt><dd class="example"><pre><code>
+<dt class="example">Example:</dt><dd class="example"><pre>
 vararray({"A","B","Joe"})   &rarr;  "A B Joe "
 vararray("A B Joe ")   &rarr;  "A B Joe "
-</code>
+</pre></dd>
 </dd>
 </dl>
 </dd></dl>
@@ -1696,10 +1732,10 @@ Parse a string for variable names; return array of strings.
 </dd>
 <dt class="returns">Returns:</dt><dd class="returns">a string if s has a single variable name<br>an array of variable names
 </dd>
-<dt class="example">Example:</dt><dd class="example"><pre><code>
+<dt class="example">Example:</dt><dd class="example"><pre>
 varlist("A B   Joe")   &rarr;  {"A","B","Joe"}
 varlist("Joe") &rarr; "Joe"
-</code>
+</pre></dd>
 </dd>
 </dl>
 </dd></dl>
@@ -1720,6 +1756,7 @@ varlist("Joe") &rarr; "Joe"
 
 <span class="declaration">static const decl ZeroForSure</span>
 <dl><dd>
+used in transitions.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CGI</span></h2>
@@ -1923,9 +1960,21 @@ Initialize the actual values.
 <td class="declaration" valign="baseline">Report</td>
 <td class="description" valign="baseline">FALSE [default], do not print out current to actual mapping<br/>TRUE, print mapping
 If a double is sent the actual vector to 0,&hellip;, MaxV.
+<P/>
 </td>
 </tr>
 </table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><dd><pre>
+ a = new ActionVariable("att",3);   // None, half-time, full-time
+ a -> SetActual();                  // AV(a) = 0  .5  1.0
+OR:
+ a -> SetActual(40);                // AV(a) = 0  20  40  (hours)
+<P/>
+ taxbrack = new StateVariable("s",5);       //lower bound on tax rate brackets
+ taxbrack -> SetActual( <0; 20000;  55000; 80000; 165000> );
+<P/>
+</pre></dd>
 </dd>
 <dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#Discrete___Update">Update</a></dd>
 </dl>
@@ -1997,7 +2046,8 @@ Map vector of values into current nodes.
 </dd>
 <dt class="example">Example:</dt><dd class="example"><pre>
 v = new Discretized(&lt;0;1;2;3&gt;);
-v-&gt;Approx(&lt;-1.3;1.2;2&gt;,TRUE);</pre>
+v-&gt;Approx(&lt;-1.3;1.2;2&gt;,TRUE);
+</pre>
 After execution, these value will be set:
 <pre>
 v.pts = { &lt; 0				//-1.3 is to left of first node
@@ -2430,9 +2480,9 @@ corresponding weights  &omega;<sub>m</sub>
 <span class="declaration">static GQL :: Initialize ( order )</span>
 <dl><dd>
 Gauss-Laguerre nodes and weights.
-<pre>
+<DD><pre>
 &int;_<sub>0</sub><sup>+&infin;</sup> f(x)exp(-x) &cong; &sum;<sub>m</sub> &omega;<sub>m</sub> f(x<sub>m</sub>)
-</pre>
+</pre></dd>
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
@@ -2633,6 +2683,9 @@ free weights.
 <dl><dd>
 Default decoding: no scaling, no constraining.
 
+<dl><dt class="returns">Returns:</dt><dd class="returns">v
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2662,6 +2715,11 @@ Treat as Determined, for now.
 <span class="declaration">virtual Parameter :: Encode ( )</span>
 <dl><dd>
 Default encoding: no scaling, no constraining.
+<DD><pre>
+v = start;
+scale = 1.0;
+f = v;
+</pre></dd>
 
 <dl><dt class="returns">Returns:</dt><dd class="returns">v
 </dd>
@@ -2698,6 +2756,17 @@ Initial passed value.
 </dd></dl>
 
 <hr>
+<a name="Parameter___NearFlat"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">NearFlat</span></h3>
+
+<span class="declaration">static const decl NearFlat [public]</span>
+<dl><dd>
+tolerance for too near
+			flat part of transformation.
+
+</dd></dl>
+
+<hr>
 <a name="Parameter___Parameter"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Parameter</span></h3>
 
@@ -2714,7 +2783,11 @@ Create a new parameter.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">ival</td>
-<td class="description" valign="baseline">initial value</td>
+<td class="description" valign="baseline">initial value
+<P/>
+Typically a user would create an object of class derived from this base
+class.  This function is called by those derived classes to set
+common elements of paramters.</td>
 </tr>
 </table>
 </dd>
@@ -2742,6 +2815,9 @@ Reset the parameter to its hard-coded values.
 	f = 1.0;
     Encode();
 </pre>
+<P/>
+Typically this is called by a method of the Objective to re-initialize
+some or all of the parameters that belong to it.
 
 </dd></dl>
 
@@ -2762,7 +2838,8 @@ Reset the starting value of a parameter.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">IsCode</td>
-<td class="description" valign="baseline">TRUE [default] newv is a free value<br>FALSE newv is structural
+<td class="description" valign="baseline">TRUE [default] newv is a free value<br/>
+  FALSE newv is structural
 </td>
 </tr>
 </table>
@@ -2789,8 +2866,17 @@ Scaling value  s.
 
 <span class="declaration">virtual Parameter :: SetDoNotVary ( setting )</span>
 <dl><dd>
-Toggle the value of <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>.
+Set the value of <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">setting</td>
+<td class="description" valign="baseline">TRUE or FALSE</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>

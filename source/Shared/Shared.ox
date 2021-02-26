@@ -7,6 +7,7 @@ HTopen(fn) {
     Version::HTopen = TRUE;
     println("<html><head><style>pre {font-family : \"Lucida Console\"; font-size : 18pt;}</style></head><body><div style=\"margin-left: 50px;color: white;  background: DarkSlateGray\"><pre>");
     }
+
 /** Check versions and set timestamp, log directory.
 @param logdir str (default=".").  A directory path or file prefix to attach to all log files.
 All log files will receive the same time stamp, which is set here.
@@ -41,7 +42,7 @@ Version::Check(indir) {
 
  }
 
-/** Return rows() and columns() as a row vect.
+/** Return rows() and columns() as a row vector.
 @param A matrix
 
 @return rows(A)~columns(A)
@@ -49,10 +50,10 @@ Version::Check(indir) {
 Dimensions(A) { return rows(A)~columns(A); }
 
 /** Check that two objects have same rows and columns.
-@param A
-@param B
+@param A matrix
+@param B matrix
 
-@return TRUE if same dimensions
+@return TRUE if A and B have the same dimensions
 **/
 SameDims(A,B) {
     return Dimensions(A)==Dimensions(B);
@@ -63,6 +64,7 @@ SameDims(A,B) {
 @param cname Class name</br>Array of class names
 @param Fatal TRUE [default]= end on the error<br/>FALSE , only issue warning.<br/>SILENT no message, just return outcome
 @param msg Message to print if not SILENT and class fails to match (default message is "Class fails to match")
+
 @return FALSE if no match<br/>1+i where i is index of first match in the array (so TRUE if first/only matches)
 **/
 TypeCheck(obj,cname,Fatal,msg) {
@@ -77,12 +79,26 @@ TypeCheck(obj,cname,Fatal,msg) {
     }
 
 /** Return the Current Value of a Quantity: access X.v, X, X() or X(arg).
-@param X a double, integer, static function of the form X() or X(arg), or any object with a member named v.<br>
+@param X a double, integer, static function of the form X() or X(arg), or any object with a member named v.<br/>
 an array of `CV` compatible elements will return the horizontal concatenation value of the results as matrix.
+
 @param ... a single argument can be passed along with X().  Further arguments are ignored
-@comments This allows elements of the code to be represented several different ways.<br/>
+
+<dd><pre>
+X               Returns         Notes
+ActionVariable  X->myCV()       X's column of values in $\alpha$
+Other Object    X.v             If v is a member
+array           row of CV(X)    recursively call CV() or CV(...) for all elements
+function        X() or X(...)   simply call function sending optional arguments as array
+all else        X               CV() of arithmetic objects is the value itself
+</pre></dd>
+
+@comments
+This allows elements of the code to be represented several different ways.<br/>
 Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside `StateVariable::Transit`.<br/>
 No argument is passed by `EndogTrans::Transitions`() and `DP::ExogenousTransition`
+
+
 @returns X.v, X, X(), X(arg)
 **/
 CV(X,...) {
@@ -101,12 +117,24 @@ CV(X,...) {
 	return _noarg ? X() : X(_arg[0]);
 	}
 
-/**ActualValue: Returns either  X.actual[X.v] or `CV`(X).
-@param X double, integer, static function <code>X()</code>, or object with a members <code>actual</code> and <code>v</code>
+/**ActualValue: Returns X->myAV() if it exists or `CV`(X).
+
+@param X anything
+@param ... argument passed to CV()
+
 @comments This allows user utility to access the current actual value of a state.  This also works for `StateBlock`
 which will return the items from the Grid of points.
-@returns X->AV() or CV(X)
-@see CV
+
+@returns X->myAV() or CV(X)
+
+<dd><pre>
+X               Returns         Notes
+`Discrete`      X->myAV()       (any class with the member function defined)
+Other Object    CV(X)
+</pre></dd>
+
+
+@see CV StateVariable::myAV ActionVariable::myAV
 **/
 AV(X,...) {
     if (ismember(X,"myAV")) return X->myAV();
@@ -115,7 +143,7 @@ AV(X,...) {
 	}
 
 /** The standard logistic cumulative distribution.
-@param x  double or vector.
+ @param x  double or vector.
 @return exp(x)./(1+exp(x))
 **/
 FLogit(x){ decl v=exp(x); return v ./ (1+v); }
@@ -181,7 +209,8 @@ Discretized::Discretized(nodes) {
 @example
 <pre>
 v = new Discretized(&lt;0;1;2;3&gt;);
-v-&gt;Approx(&lt;-1.3;1.2;2&gt;,TRUE);</pre>
+v-&gt;Approx(&lt;-1.3;1.2;2&gt;,TRUE);
+</pre>
 After execution, these value will be set:
 <pre>
 v.pts = { &lt; 0				//-1.3 is to left of first node
@@ -307,6 +336,19 @@ Discrete::PDF() {return ismember(pdf,"v") ? pdf.v[v] : pdf[v];	}
             N&times;1 vector, actual
 @param Report FALSE [default], do not print out current to actual mapping<br/>TRUE, print mapping
 If a double is sent the actual vector to 0,&hellip;, MaxV.
+
+@example
+<dd><pre>
+ a = new ActionVariable("att",3);   // None, half-time, full-time
+ a -> SetActual();                  // AV(a) = 0  .5  1.0
+OR:
+ a -> SetActual(40);                // AV(a) = 0  20  40  (hours)
+
+ taxbrack = new StateVariable("s",5);       //lower bound on tax rate brackets
+ taxbrack -> SetActual( <0; 20000;  55000; 80000; 165000> );
+
+</pre></dd>
+
 @see Discrete::Update
 **/
 Discrete::SetActual(MaxV,Report) {
@@ -324,6 +366,11 @@ Discrete::SetActual(MaxV,Report) {
 /** Create a new parameter.
 @param L parameter label
 @param ival initial value
+
+Typically a user would create an object of class derived from this base
+class.  This function is called by those derived classes to set
+common elements of paramters.
+
 **/
 Parameter::Parameter(L,ival)	{
 	this.L = L;
@@ -342,6 +389,10 @@ Parameter::Parameter(L,ival)	{
 	f = 1.0;
     Encode();
 </pre>
+
+Typically this is called by a method of the Objective to re-initialize
+some or all of the parameters that belong to it.
+
 **/
 Parameter::ReInitialize() {
 	v = start = scale = CV(ival);
@@ -350,6 +401,11 @@ Parameter::ReInitialize() {
     }
 
 /** Default encoding: no scaling, no constraining.
+<DD><pre>
+v = start;
+scale = 1.0;
+f = v;
+</pre></dd>
 @return v
 **/
 Parameter::Encode()	{
@@ -357,7 +413,9 @@ Parameter::Encode()	{
     return v;
 	}
 
-/** Default decoding: no scaling, no constraining. **/
+/** Default decoding: no scaling, no constraining.
+@return v
+**/
 Parameter::Decode(f)	{
 	return v = f;
 	}
@@ -368,7 +426,9 @@ Parameter::ToggleDoNotVary() {
     if (!Version::MPIserver) println("Toggling parameter ",L," DoNotVary=",DoNotVary);
     }
 
-/** Toggle the value of `Parameter::DoNotVary`.**/
+/** Set the value of `Parameter::DoNotVary`.
+@param setting TRUE or FALSE
+**/
 Parameter::SetDoNotVary(setting) {
     DoNotVary = setting;
     if (!Version::MPIserver) println("Parameter ",L," DoNotVary=",DoNotVary);
@@ -385,7 +445,8 @@ Parameter::Menu() {
 	
 /** Reset the starting value of a parameter.
 @param newv value to reset at
-@param IsCode TRUE [default] newv is a free value<br>FALSE newv is structural
+@param IsCode TRUE [default] newv is a free value<br/>
+  FALSE newv is structural
 @return the new starting structural value
 @see Parameter::ReInitialize
 **/
@@ -396,10 +457,10 @@ Parameter::Reset(newv,IsCode){
 @param s string
 @return a string if s has a single variable name<br>an array of variable names
 @example
-<pre><code>
+<pre>
 varlist("A B   Joe")   &rarr;  {"A","B","Joe"}
 varlist("Joe") &rarr; "Joe"
-</code>
+</pre></dd>
 **/
 varlist(s) {
  decl t,vlist={};
@@ -414,10 +475,10 @@ varlist(s) {
 @param sa a string or an array of strings
 @return string
 @example
-<pre><code>
+<pre>
 vararray({"A","B","Joe"})   &rarr;  "A B Joe "
 vararray("A B Joe ")   &rarr;  "A B Joe "
-</code>
+</pre></dd>
 **/
 vararray(s) {
  decl t,vlist="";
@@ -486,9 +547,9 @@ MyMoments(M,rlabels,oxf)	{
 
 
 /** Gauss-Laguerre nodes and weights.
-<pre>
+<DD><pre>
 &int;_<sub>0</sub><sup>+&infin;</sup> f(x)exp(-x) &cong; &sum;<sub>m</sub> &omega;<sub>m</sub> f(x<sub>m</sub>)
-</pre>
+</pre></dd>
 @param order integer, 2-6, 8, 10, 20, 32
 **/
 GQL::Initialize(order)

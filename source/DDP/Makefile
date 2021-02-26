@@ -17,7 +17,7 @@ dppobj = $(dppsrc:.=.oxo)
 bellsrc := Variables. DDPShared. DP.
 bellobj = $(bellsrc:.=.oxo)
 
-xtradoc = GetStarted DDP.ox DP.ox Variables.ox Bellman.ox Methods.ox Data.ox DDPShared.ox Error_And_Warning_Messages
+xtradoc = GetStarted DDP.ox DP.ox Variables.ox Bellman.ox TechAppendix Methods.ox Data.ox DDPShared.ox Error_And_Warning_Messages
 xtrahtml = $(xtradoc:.ox=.ox.html)
 
 DDP.oxo : $(dppobj)

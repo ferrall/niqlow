@@ -3,9 +3,13 @@
 
 <OL class="body">
 <LI>CV and AV</LI>
+
 <LI>Volume and Noise Levels</LI>
+
 <LI>Log Files</LI>
+
 <LI>Integration, Kernels</LI>
+
 </OL>
 
 @author &copy; 2011-2020 <a href="https://ferrall.github.io/">Christopher Ferrall</a> </dd>
@@ -103,13 +107,13 @@ static const decl
                                                   curdir = ".",
 		/**labels for `MyMoments`**/              mymomlabels = {"sample size","mean","st.dev.","min","max"},
         /** 0 as a vector .**/                    VZero     =   <0>,
-                                                  ZeroForSure=  { VZero, CondProbOne },
-		/** Euclidean norm tolerance  **/         SSQ_TOLER =	1E-12,
-		/** square-root of machine &epsilon; **/  SQRT_EPS 	=	1E-8,
-		/** tolerance level 0. **/                DIFF_EPS 	=	1E-8,
-		/** tolerance level 1.**/                 DIFF_EPS1	=	5E-6,
-		/** tolerance level 2.**/                 DIFF_EPS2	=	1E-4,
-		/** tolerance level 3.**/                 DIFF_EPS3	=	1E-2;
+        /** used in transitions.**/               ZeroForSure=  { VZero, CondProbOne },
+		/** Euclidean tolerance, $10^{-12}$. **/  SSQ_TOLER =	1E-12,
+		/** square-root of $\epsilon,$ $10^{-8} **/  SQRT_EPS 	=	1E-8,
+		/** tolerance level 0: $10^{-1}$. **/     DIFF_EPS 	=	1E-8,
+		/** tolerance level 1: $10^{-6}$. .**/    DIFF_EPS1	=	5E-6,
+		/** tolerance level 2: $10^{-4}$. .**/    DIFF_EPS2	=	1E-4,
+		/** tolerance level 3: $10^{-3}$. .**/    DIFF_EPS3	=	1E-2;
 
         /** Used in CV() and AV(). static to reduce overhead. @internal **/
         static decl
@@ -185,7 +189,7 @@ struct Quantity {
     SetVolume(Volume);
 	}
 	
-/** Discrete values: actions and states. **/
+/** Discrete values: actions, states, auxiliaries. **/
 struct Discrete	: Quantity{
 	const 	decl	
 			/** range(0,N-1)			   **/  	vals;
@@ -201,12 +205,12 @@ struct Discrete	: Quantity{
     virtual Track(LorC);
 	}
 
-/** Continuously varying quantity: te base class for parameters of an `Objective`.
+/** Continuously varying quantity: the base class for parameters of an `Objective`.
 **/
 struct Parameter : Quantity {
 	static 	const 	decl	
 		/** tolerance for too near
-			flat part of transformation. @internal **/		NearFlat = DIFF_EPS2,
+			flat part of transformation.  **/		  NearFlat = DIFF_EPS2,
 		/** . @internal **/									sep = " ";
 	const	decl
 		/** Initial passed value.     **/  		 		ival;

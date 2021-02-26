@@ -33,7 +33,7 @@ EndogTrans::Run() {
 
 /** Update dynamically changing components of the program at the time chosen by the user.
 
-<DT>Things to do before spanning the $\Eta$ and $\Theta$ state spaces
+<DT>Things to do before spanning the $\eta$ and $\Theta$ state spaces
 <OL>
 <LI>Call <code>PreUpdate</code> hooks (see `Hooks`).
 <LI>Loop over all States:  call its Update() method and <code>Distribution()</code> of random effects.</LI>
@@ -41,7 +41,7 @@ EndogTrans::Run() {
 <LI>Compute the exogenous transitions, $P(\epsilon^\prime)$ and $P(\eta^\prime)$.</LI>
 </OL>
 
-Then span the $\Eta$ and $|Theta$ spaces to  compute and store endogenous transitions at each point.
+Then span the $\eta$ and $\Theta$ spaces to  compute and store endogenous transitions at each point.
 
 @see DP::SetUpdateTime , UpdateTimes
 **/
@@ -696,7 +696,7 @@ OneStateModel::Utility() {    return U();    }
 /** Extreme Value Ex Post Choice Probability Smoothing.
 
 Sets `Bellman::pandv` equal to
-    $$P^{\star}\left(\alpha;\theta\r) = {e^{\rho(\vv-V)}\over {\sum}_{a\in A(\theta)} e^{\rho( v(a;\th)-V) }}.$$
+    $$P^{\star}\left(\alpha;\theta\right) = {e^{\rho(\vv-V)}\over {\sum}_{a\in A(\theta)} e^{\rho( v(a;\th)-V) }}.$$
 
 @see RowLogit
 **/

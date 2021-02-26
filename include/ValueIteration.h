@@ -38,7 +38,7 @@ Implementation does not always work.  Needs to be improved.
     <LI value="3">Compute</LI>
     $$\eqalign{
         \overrightarrow{\Delta}_t &\equiv Emax(V_1) - V_1\cr
-        g &\equiv \left(I-\delta P(\thp;\th)\right)^{-1}\left[\overrightarrow{\Delta}_t\right]\cr
+        g &\equiv \left(I-\delta P(\theta^\prime;\theta)\right)^{-1}\left[\overrightarrow{\Delta}_t\right]\cr
         V_0 &= V_1 - g\cr}\nonumber$$
 </OL></div>
 **/
@@ -203,17 +203,20 @@ Then the proportion of total <code>max()</code> operations <em>avoided</em> is
 <DD>Follow these steps at each $t.$</DD>
 <OL class="steps">
 <LI>For all $\theta \in \Theta_t$:
-    <DD>Store the vector of action values at a single $\epsilon_0$ (e.g. the median or mean vector), $v_0(\al,\th) = v(\al;\epsilon_0,\th)$ and $V_0(\th)=\max v_0(\al,\th).$ (This is  "maxE" in Keane and Wolpin 1994.)</DD>
-    <DD>if  $\th \in \Theta_t^S$, compute $V$ (or Emax), averaging over all values of the IID state vector $\epsilon$:
-    $$V(\th)  = {\sum}_{\epsilon} \ \l[ {\max}_{\ \al\in A(\th)\ }\ U\l(\al;\epsilon,\th\r) + \delta E_{\al,\th\,}V\l(\thp\r)\r]\ f\l(\epsilon\r).\nonumber$$</DD>
+    <DD>Store the vector of action values at a single
+        $\epsilon_0$ (e.g. the median or mean vector),
+        $v_0(\alpha,\theta) = v(\alpha;\epsilon_0,\theta)$ and $V_0(\theta)=\max v_0(\alpha,\theta).$
+        (This is  "maxE" in Keane and Wolpin 1994.)</DD>
+    <DD>if  $\theta \in \Theta_t^S$, compute $V$ (or Emax), averaging over all values of the IID state vector $\epsilon$:    $$V(\theta)  = {\sum}_{\epsilon} \ \left[ {\max}_{\ \alpha\in A(\theta)\ }\ U\left(\alpha;\epsilon,\theta\right)
+        + \delta E_{\alpha,\theta\,}V\left(\theta^\prime\right)\right]\ f\left(\epsilon\right).\nonumber$$</DD>
     </LI>
 <LI>Approximate $V$ on the subsample as a function of values computed at $\epsilon_0$.  The default is to run the regression:
     $$\hat{V}-V_0 = X\beta_t.\nonumber$$
     The default specification of the row of state-specific values is
-    $$X =\l(\matrix{\l(V_0-v_0\r) & \sqrt{V_0-v_0}}\r).\nonumber$$
+    $$X =\left(\matrix{\left(V_0-v_0\right) & \sqrt{V_0-v_0}}\right).\nonumber$$
     That is, the difference between Emax and maxE is a non-linear function of the differences in action values at the median shock.  </LI>
-<LI>For $\th \not\in \Theta^S_t,$ compute $v_0(\th),$ extrapolate the approximation:
-    $$V(\th) = \max\{ V_0(\th), V_0(\th)+X\hat\beta_t\}.\nonumber$$
+<LI>For $\theta \not\in \Theta^S_t,$ compute $v_0(\theta),$ extrapolate the approximation:
+    $$V(\theta) = \max\{ V_0(\theta), V_0(\theta)+X\hat\beta_t\}.\nonumber$$
 </LI>
 </OL>
 <DD>Carry out update conditions for $t$.</DD>

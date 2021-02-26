@@ -1,0 +1,727 @@
+/**Notation and formulas .
+
+@sortkey ZZZ
+
+This document provides the mathematical description of the fundamentals of <span class="n">DDP</span>. This is the first document on the technical side.  For further help on using and extending your model see also:
+<DD><a href="Methods.ox.html">Methods</a> for how to solve the model</DD>
+<DD><a href="Data.ox.html">Data</a> for how to simulate data and read external data in for estimation</DD></p>
+
+<p>This is useful for someone who already knows a great deal about dynamic programming and has some familiarity with Ox or similar languages. If you want a much more basic introduction, start back at the <a href="#guide">beginner's guide</a> You can also start with <a href="GetStarted.html">GetStarted</a> for a demonstration of coding and return here.</p>
+
+<OL class="contents">Contents
+<LI><a href="#NC">Notation and Conventions</a></LI>
+<LI><a href="#EDP">Elements of DP in <span class="n">DDP</span></a></LI>
+<LI><a href="#ES">Extensions and Specializations</a></LI>
+<LI><a href="#VS"><span="n">DDP</span> terminology versus other surveys and methods articles</a></LI>
+<LI><a href="#DS">Designing and solving <code>MyModel</code></a></LI>
+<!--<LI><a href="#PS">Prediction and Simulation</a></LI>
+<LI><a href="#Data">Data</a></LI>
+<LI><a href="#Estim">DDP Estimation</a></LI>-->
+</OL>
+
+<OL class="body">
+
+<LI id="NC">Notation and Conventions</LI>
+
+<OL class="chapter">
+
+<LI>Fonts, case and alphabets</LI>
+<DT>Examples</DT>
+<DD><pre>
+The discount factor:        $\delta$
+Single action variable:     $a$
+Vector of actions:          $\alpha = (a_0,a_1,\dots)$
+Number of values:           $a$.N
+Size of a vector:           $\alpha$.N
+Distinct vectors            $\alpha$.D
+Endogenous state space:     $\Theta$
+Utility:                    $U()$
+</pre></DD>
+
+<DT><em>Lower case Greek</em> (e.g. $\alpha$, $\beta$) denotes</DT>
+      <DD>Vectors of discrete variables (i.e. exogenous states $\epsilon$) <em>or</em> scalar parameters, quantities variables with a continuous range (i.e. discount factor $\delta$).</DD>
+<DT><em>Lower case Roman</em> (a, b, &hellip;)  denotes</DT>
+     <DD>Individual discrete variables (i.e. action <code>a</code>) <em>or</em> variable properties of an object (i.e. current value <code>a.v</code>). A generic element of a vector will usually use the Roman letter corresponding to the vector's Greek name and without subscript.  A subscript is used when ordering is important.</DD>
+<DT><em>Upper case Greek</em> (e.g. $A$, $\Theta$)  denotes</DT>
+     <DD>Parameter vectors <em>or</em>spaces (sets of discrete vectors).</DD>
+<DT><em>Upper case Roman</em> (A, B, C, &hellip;) denotes</DT>
+      <DD>Functions, often including empty brackets and arguments suppressed (i.e. U()). <em>or</em> fixed properties of an object (i.e. <code>a.N</code>) </DD>
+
+<LI>Objects and the property operator <var>.</var></LI>
+
+In mathematical notation, $a_N$ might denote the number of values $a$ takes on. This works well when $a$ has only one property. In <span class="n">DDP</span>, a variable like $a$ has several properties so using subscripts and superscripts to indicate them can become clumsy.  And, properties can have properties.  Instead of using $a<_N$, the notation <b><code>a.N</code></b> is the property N associated with the object <code>a</code>. The binary <code>.</code> operator is how properties (members) are accessed in Ox.</p>
+
+<DD><q>o.p</q> retrieves from the object <var>o</var> the aspect or property <var>p</var>.</dd>
+
+The `Quantity` class represents `Discrete` variables and continuous `Parameter`s. The usual notions of variables and parameters in mathematical models are derived from the base type `Quantity`. Quantities are either <em>discrete</em> (actions and states) or <em>continuous</em> (parameters). Quantity objects are typically added to one or more lists using routines built into <span class="n>niqlow</span>.  The vector notation is used to match the literature but vectors in standard DDP are actually lists of `Quantity` objects.</p>
+
+<DT>Ranges:  0 &hellip; m.</DT>
+    <DD>Although it is natural to start counting from <em>1</em>, starting from <em>0</em> has some advantages. It is common in C-like languages such as Ox. Typically in <span class="n">DDP</span>, <b>0</b> is the lowest and first value a discrete variable takes on. Starting at 0 means a variable <var>n</var> that takes on N values has a range $n=0,1,\dots,N-1$. This is the default range for discrete variables.</DD>
+
+<LI>Special Functions and Operators</LI>
+
+<DT>Unary decrement operator &oline; (postfix)</DT>
+
+    <DD>Counting N values starting from 0 means the last possible value is N-1, a bit of notational clutter that can be confusing.  To avoid the clutter define the unary decrement operator &oline; as J&oline;  &equiv;  J - 1. For example, 5&oline; = 4. So a variable <code>n</code> with <code>n.N</code> values would have the range <var>n = 0, &hellip; ,(n.N)&oline;</var>.</dd>
+
+<DT>&prime; : next value(s) of a state variable (postfix)</DT>
+    <DD>If <var>s</var> is a state variable then values it does or can take on next period are denoted <var>s&prime;</var>.</DD>
+
+<DT>The indicator function I{}.</DT>
+        $$I{x} = \cases{ 1 & x is TRUE\cr
+                         0 & otherwise.\cr}$$
+
+<DT>Cartesian product of discrete sets, $\times$ is the matrix of all possible vectors of the sets.</DT>
+    <DD>Let a<sub>0</sub> and a<sub>1</sub> be two discrete variables that each take on values 0 and 1.  Then</DD>
+
+<DD>$a_0 \in \{ 0, 1 \},  a_1 \in \{ 0, 1 \}$ then $a_0 \times a_1$ equals
+<pre>
+               0         0
+               1         0
+               0         1
+               1         1
+</pre></DD>
+
+
+<LI>OOP Lingo</LI>
+
+<acronym title="Object oriented programming ">OOP</acronym> has jargon.  This jargon is used here in an effort to be accurate in describing the code but it may be obscure to people unfamiliar with OOP. In Ox, a <code>class</code> and a <code>struct</code> are both a <em>class</em> as usually defined.
+    <details class="aside"><summary>What's the difference?</summary>The difference between <code>struct</code> and <code>class</code> is simply whether elements of an object are by default directly accessible from the outside (i.e. <em>public</em>) or not (<em>private</em>): yes in a <code>struct</code>, no in a <code>class</code>. <span class="n">DDP</span> is designed for convenience not reliability, so everything class is declared <code>struct</code>, but the term <em>class</em> is used in this documentation.</details></p>
+    
+<p>A <em>class</em> is a bundle of data and functions to operate on the data.  The data are called <em>members</em> of the class and the functions are called <em>methods</em>, although Ox documentation also refers to these as data members and function members, respectively. Multiple copies of a class can be created while a program runs.  Each copy is called an <em>object</em> or <em>instance</em> of the class.   The key is that the methods work with the data of the object without needing to <em>pass</em> the data to it as with non-OOP languages or constructs.</p>
+
+<p>Members and methods of  class are either <em>static</em> or <em>automatic</em>.  This distinction is extremely important in the design of <span class="n">DDP</span>.  Static members/methods are shared by all objects of a class, whereas automatic members/methods are specific to the instance.  <span class="n">DDP</span> conserves memory by storing as much information in static variables as possible. The word <em>automatic</em> does not ever appear, it is implicit.  If the tag <code>static</code> does not appear in the declaration of the item then it is automatic.</p>
+
+<LI><em>MyModel</em>, <em>DPPparent</em> and other placeholder names</LI>
+
+    <details class="aside"><summary>Geek talk:</summary> <code>MyModel</code> and <code>MyCode</code> are <q>metasyntatic variable</q> like <code>foo</code>.</details>
+
+<p> A user builds a DDP model by adding components to it: states and actions and the functions related to them. <span class="n">DDP</span> cannot know how many items will be added of each type. How can the model be ready to store whatever the user chooses?  The answer: the user of <span class="n">DDP</span> constructs a model as a class <em>derived</em> from one of the built-in models, called a DDP for <q>Derived Dynamic Program</q>.   The user's class <em>inherits</em> the built-in properties of its base model. So <span class="n">DDP</span> can solve the model and produce output for it even though it does not know the details of the user's model until the program starts executing.</p>
+
+<p>DDP Models are derived from the `Bellman` class, which in turn is derived from the base `DP` class. If the user wants to call his/her model <var>MyModel</var>, they would have something like this
+<DD><pre>class MyModel : DPparent {
+    &vellip;
+    }
+</pre></DD>
+For example, if you want to model the choice over makes of car and include extreme-value shocks in the value of choices you would declare a class like this:
+<DD><pre>class Make : ExtremeValue {
+    &vellip;
+    }
+</pre></DD>
+So the generic <code>MyModel</code> is specifically <code>Make</code> and <code>DPparent</code> is specifically <code>ExtremeValue</code>.</p>
+
+<p>Which Bellman-derived class that <code>MyModel</code> is based on is called <code>DPparent</code> in these notes. <code>MyModel::</code> is prefixed to items that the user provides or customizes.  <code>DPparent</code> is prefixed to items related to the parent.  Other predefined or default items either have no prefix or are prefixed by <code>DP::</code>. The convention of using <code>MyModel</code> avoids having to write repeatedly <q>the user's version of &hellip; DP::x</q>  Instead, <code>MyModel::x</code> suffices.</p>
+
+<DT><em>MyCode</em></DT>
+
+A user must define elements of <code>MyModel</code> in Ox, and they must write an Ox program that executes some tasks in the proper order.  For example, the code must always call the <code>Initialize()</code> method for <code>DPparent</code> before adding things to the model.  So the Ox code that executes these tasks is collectively called <code>MyCode</code> in these notes.  Another way to think of it: <code>MyModel</code> is a translation of the pen-and-paper aspects of your model and <code>MyCode</code> are the instructions to implement the model, solve it and use it.</p>
+
+<LI>Some Properties of DDP Objects</li>
+
+The interpretation of a property can depend on the kind of object on the left side of ".".  Here are some of the key properties of objects in <span class="n">DDP</span>.  Note that the association of this variable names to a property is a convention in <span class="n">DDP</span>.  It is not inherent in Ox, and there may be exceptions even within <span class="n">DDP</span>.</p>
+
+<DT>N : cardinality.</DT>
+    <DD>A discrete object (such as states and actions) has a cardinality/range. <em>d.N</em> is the number of distinct values <var>d</var> takes on, and generically these are the range 0,1, &hellip; ,(d.N)&oline;. A vector, such as $\alpha$, has a size <var>N</var>, which denotes the <em>length</em> of the vector.</DD>
+
+<DT>D : dimensionality</DT>
+    <DD>A vector <code>x</code> of discrete variables has a length x.N. But it creates a space of possible values (the Cartesian product) equal to the product of the individual variable cardinalities. So <code>x.D</code> is the size of the Cartesian space of a vector <code>x</code>.
+    $$x.D  \equiv {\prod}_{i= 0}^{x.N-1} x_i.N.$$
+    A space in <span class="n">DDP</span>, say $\Theta$, is usually a set of vectors of the space of possible vectors.  The number of points in a space is then $\Theta$.D.</DD>
+
+<DT>Rows and columns of matrices</DT>
+    <DD>Since matrices are typically representing a vector space, <var>A.D</var> is the number of rows and <var>A.N</var> is the number of columns.</DD>
+
+
+<DT>i : position.</DT>
+
+    <DD>Many objects appear in a vector or a list.  The objects position in the list is <var>i</var>.  So a<sub>i</sub> is a name for the ith action variable in &alpha;. We can write a<sub>i</sub>.i = i. This redundancy turns out to be very important in some cases.</DD>
+
+<DT>v : current value.</DT>
+
+    <DD>In math, <var>a</var> usually means the value of the variable <var>a</var>.  This notation is inadequate when variables have multiple properties and when the notation is meant to reflect some elements of the computer program. Instead, the current value of a variable or vector is the property <em>v</em>. So if <var>a</var> is a discrete variable <code>a.v</code> is the value of <var>a</var>, which can only be one of the values 0 &hellip; (a.N)&oline;.</DD>
+
+    <DD>An important function in <span class="n">niqlow</span> is `CV`() which will return the current value of objects sent to it.  So typically <code>MyCode</code> does not need to reference  <code>.v</code> directly. This is explained in detail below.</DD>
+
+<DT>.actual  : the actual values</DT>
+
+    <DD><code>MyModel</code> may need discrete values to correspond to another set of values (possibly not even integer values).  Which values are mapped to may depend on parameters that are changing between solutions of the model. </DD>
+
+    <DD>If <code>MyModel</code> creates an action or state variable <var>x</var> from a derived the class then it can also provide an <code>Update()</code> routine to reset and store the vector of <em>actual</em>.</DD>
+
+    <DD>The default is that <code>x.actual = 0... (x.N)&oline;</code>, the range of <code>x.v</code>.</DD>
+
+
+<li>Accessing Values of Quantity Objects</li>
+
+<code>MyCode</code> can get the current value of an object simply using <code>x.v</code> (and the actual value as <code>x.actual[v]</code>, but this is not recommended.  <code>MyCode</code> should <em>never</em> modify these values because DDP ensures they have the correct values at all times.</p>
+
+<p>One reason to avoid direct reference to <code>.v</code> is that <code>MyCode</code> will change as it develops. For example, early on some quantity <var>x</var> may not be an action or state variable, but simply a fixed number. So <code>MyModel</code> can access its current value as simply <code>x</code>. However, as the model takes shape <var>x</var> may be changed to a variable.  But now <code>x</code> is a complicated object not a number.  The user would have to go through <code>MyCode</code> and <code>x</code> to <code>x.v</code>. It is also possible to want to change a number into a function, <code>x()</code> that computes and returns a value.</p>
+
+<span class="n">DDP</span> provides functions to access current and actual values that will work even when the container changes from a simple variable to a Quantity object or function.  </p>
+
+<DT id="CV"><code>`CV`()</code></DT>
+
+    <DD><code>CV(x)</code> is a routine in <span class="n">niqlow</span> that you can send almost anything to and it will return the value of the object. It examines the argument <code>x</code>, and if it is a `Quantity` object with an element <code>v</code> then <code>CV(x)</code> will return it.   That is <code>CV(x) = x.v</code>. </DD>
+    
+    <DD>What makes it very useful is that it will also return the value of other things that are not `Quantity` objects.  If you send a real number (called a <code>double</code> in Ox) as <code>x</code> then <code>CV(x)</code> simply returns the value.  If you send a function to <code>CV()</code> then it will call the function and return its value. Thus, you do not need to change your code as some concept changes during programming if you use <code>CV(x)</code>.</DD>
+
+<DT id="AV"><code>`AV`()</code></DT>
+
+    <DD>Discrete quantities like state variables always take on values from 0 to some upper bound <code>N-1</code>.  However, in the model each of those discrete values may map into different values in the model.  The property <code>actual</code> contains these model-relevant values. <code>AV(x)</code> acts like <code>CV()</code> but it returns <code>x.actual[x.v]</code>.</DD>
+
+    <DD>By default <code>AV(x) &equiv; CV(x)</code> unless different actual values.  This is handled by calling <code>x->myAV()</code> if it exists.  `Discrete` quantities have different <code>myAV()</code> functions, but the default is that <code>myAV() = actual[v]</code>.  That is, the current value of the object is used as an index into a vector of actual values.</DD>
+    
+    <DD>Actual values are reset when the object's <code>Update()</code> is called.  Variables are updated before value iteration methods begin so the actual values can depend on estimated parameters.</DD>
+     
+     <DD>In this way <code>a-&gt;Update()</code> is only called once for each variable on each model solution to reset <code>.actual</code>.  If <code>.actual</code> were not a vector <code>x-&gt;Update()</code> would have to be called every time <code>x.v</code> changed.</DD>
+
+</OL>
+
+<LI id="EDP">Elements of DP in <span class="n">DDP</span></LI>
+
+First, the simplest and most general notation is introduced to describe a DDP.  However, code that simply matched the general form of a DP model would quickly overwhelm memory or computing capacity. <span class="n">DDP</span> saves memory and calculation by letting <code>MyModel</code> categorize elements and specialize the environment.
+
+<OL class="chapter">
+<li><dfn id="DP-def">Definition of a DP Model</dfn> </li>
+
+<DT>Primitives: basic elements of a complete DP model.</DT>
+    <OL class="steps">
+    <LI>$\alpha \in A$: The (finite) set of possible actions</LI>
+    <LI>$\theta \in \Theta$: The (discrete) state space</LI>
+    <LI>$P(\theta^{\,\prime}\,|\,\alpha,\theta)$: Conditional transition to the next state, including any notion of a time dimension.</LI>
+    <LI>$U(\alpha,\theta)$: Utility/return/payoff of an action conditional on the state</LI>
+    <li>$\zeta_\alpha$: shock added to the value of a choice in order to smooth choice probabilities.</li>
+    <LI>$E\left[\sum_{t=0,\dots}\delta^t\,U(\alpha_t,\theta_t)\right]$: additively separable objective with foresight; $\delta$ is the discount factor.</LI>
+    </OL>
+
+<DT>Aspects of the <dfn id="DP-solution">DP solution</dfn>.</DT>
+    <OL class="steps">
+    <LI>$v(\alpha,\theta):\quad$ Value of current choice given future optimal choices.</LI>
+    <LI>$V(\theta):\quad$ Value of arriving at state \theta, accounting for current optimal choice</LI>
+    <LI>$EV(\theta^{\,\prime}|\alpha,\theta):\quad$ Expected value entering next period (after integrating out optimal values across IID random terms)</LI>
+    <LI>$P^\star(\alpha|\theta):\quad$ Conditional choice probabilities (after integrating out IID random terms).</LI>
+    </OL>
+
+<DT><dfn id="BE-dfn">Bellman's Equation: Solution of a DP</dfn></DT>
+
+<DD>Bellman's equation is really a combination of four equations that jointly relate the aspects above to the primitive elements of the model.</DD>
+
+$$\eqalign{
+v(\alpha,\theta)\quad &\equiv \quad U(\alpha,\theta) + \delta EV\left(\theta^{\,\prime}|\alpha,\theta\right),\quad \forall \alpha\in A, \theta \in \Theta\cr
+EV(\theta^{\,\prime}|\alpha,\theta)\quad &= \quad \sum_{\theta^{\,\prime}\in\Theta} P(\theta^{\,\prime};\alpha,\theta) V(\theta^{\,\prime})\cr
+V\left(\theta\right)\quad  &\equiv\quad  \max_{\alpha\in A}\quad v(\alpha,\theta)\cr
+P^\star\left(\alpha,\theta\right)\quad  &\equiv\quad   Prob\left[\ \alpha \in \arg\max_{\alpha\in A}\quad v(\alpha,\theta )\ \right]\cr}$$
+
+<li>Encoding Abstract Elements</li>
+
+    This section shows how each of the elements of the general DP framework is represented in <span class="n">DDP</span>.  The user's code (known here as <code>MyCode</code>) will build the model up dynamically as the code executes.  Then when all the elements of the model has been defined the code will call <code>DPparent::CreateSpaces()</code>, which will construct the action set and state space.  After this, <code>MyCode</code> can solve the model and use using tools described elsewhere.</p>
+
+<details><summary><b>Framework</b><br/> The shell for the model.</summary>
+<pre>class MyModel : DPparent {
+     // declare static members to hold action and state variables objects
+     // declare required and optional methods
+    static Initialize();
+    }
+&vellip;
+MyModel::Initialize() {
+    DPparent::Initialize(new MyModel(),&hellip;);
+       // define actions and states (create objects)
+       // add them to the model
+    DPparent::CreateSpaces(&hellip;);
+    &vellip;
+    }
+</pre></details></dd>
+
+<DT>Notes</DT>
+<DD>Elements of the model are added between the call to <code>DPparent::Initialize()</code> and <code>DPparent::CreateSpaces()</code>.  </DD>
+<DD>There is no requirement that <code>MyModel</code> provide an <code>Initialize()</code> function.  However, it is convenient to do this so that all the model creation steps occur together within a (static) method, and that method has direct access to elements of <code>MyModel</code> and, through inheritance, all the methods and data members within <class span="n">DDP</class>.</DD>
+<DD>[Subtle/Non-Intuitive Alert!]  Every DP model sends a <b>new</b> copy of itself to the parent <code>Initialize()</code> method.  What this means and why it is done is not easy to explain at this point. <a href="#">See below.</a></DD>
+<DD>The <code>&hellip;</code> inside <code>()</code> means that some other required arguments need to be sent or optional arguments can be sent, depending on the parent of <code>MyModel</code>.</DD>
+
+<OL class="section">
+
+<li>Action Variables</li>
+
+<blockquote><b><code>MyCode</code> builds the action $\alpha$ by adding action variables to it using `DP::Actions`().</b></blockquote>
+
+At a minimum, an `ActionVariable` is defined by its `Quantity::L`abel and the number of distinct values it takes on, `Discrete::N`.  <span class="n">DDP</span> tracks values of <em>a</em> as 0 &hellip; N&oline;.</p>
+
+<details><summary><b>Example</b><br/> Define a binary choice variable <var>d</var> and add it to $\alpha$.</summary>
+<pre>class MyModel : DPparent {
+    &vellip;
+    static decl d;                         // NEW
+    &vellip;
+    static Initialize();
+    }
+&vellip;
+MyModel::Initialize() {
+    DPparent::Initialize(new MyModel(),&hellip;);
+    &vellip;
+    d = new ActionVariable("choice",2);   // NEW
+    Actions(a);                           // NEW
+    &vellip;
+    CreateSpaces();
+    }
+</pre></dd></details>
+
+<DT>See <a href=".\Variables.ox.html#ActionVariables">Full Action Variable and Action Vector Documentation</a>.</DT>
+
+<li>State Variables and Blocks</li>
+<blockquote><b><code>MyCode</code> builds the state space by adding adding state variables and state blocks to <code>MyModel</code>.</b></blockquote>
+
+    As with $\alpha$, the state of the DP model $\theta$ is built up by adding state variables to it.  In the basic notation above, $\theta$ is simply a point in a set, but in DDP it will be a vector of individual state variables. Unlike action variables, state variables evolve and how they evolve affects what needs to be stored and computed for them.   The transition $P(\theta^\prime; \alpha,\theta)$ emerges from the individual transitions of the state variable added to the state.</p>
+
+In <span class="n">DDP</span>, state variables are classified as either <em>autonomous</em> or <em>coevolving</em> depending on how they enter the state transition &Rho;().
+<DT>`Autonomous` Variables</DT>
+    <DD>If <code>s</code> is autonomous, then its transition is independent of all other transitions <em>and</em> the transitions of all other variables is independent of  <code>s</code>.  This means the <code>s</code> transition enters the overall &Rho;() independently.  The transition for <code>s</code> can still depend on the current action and current state. The transition is specified by making the state variable an instance (object) of one of the built-in autonomous state variables adding it to <code>MyModel</code>.</DD>
+
+<DT>`Coevolving` Variables and `StateBlock`s</DT>
+    <DD>If the transition of a variable depends on the transition of one or more other states then it is coevolving and must be placed in a `StateBlock`. If a variable is coevolving then its  `StateBlock` is responsible for determining the transitions.  A block is itself independent (autonomous) of all other autonomous state variables and blocks.</DD>
+
+<DT>See <a href=".\StateVariable.ox.html">State Variable and Block Documentation</a>.</DT>
+
+<details><summary><b>Example</b><br/> Define a state variable <var>m</var> that takes on the value of action variable <var>d</var> chosen last period.</summary>
+<pre>class MyModel : DPparent {
+    &vellip;
+    static decl d;
+    static decl m;                                //NEW
+    &vellip;
+    static Initialize();
+    }
+&vellip;
+MyModel::Initialize() {
+    DPparent::Initialize(new MyModel(),&hellip;);
+    &vellip;
+    d = new ActionVariable("choice",2);
+    Actions(a);
+    m = new LaggedAction("prevd",d);             //NEW
+    EndogenousStates(m);                         //NEW
+    &vellip;
+    CreateSpaces();
+    }
+</pre></dd></details>
+
+<LI name="clock">Transitions and the Clock</LI>
+    <blockquote><b>&Rho;() is generated automatically by the state variables and blocks added to the state vectors.<br/><code>MyModel</code> always includes a time-keeping state block,</b></blockquote>
+
+<DT>The state space $\Theta$ is built up by <span class="n">DDP</span> from the state variables added to the model.</DT>
+  <DD>Each state variables or block <var>q</var> is an object of a class that defines all aspects of behaviour including its interaction with actions and other state variables as well its transition from the current state $q$ to the state next period, $q^{\prime}$. Therefore, the overall transition $P(\theta^{ \prime};\alpha,\theta)$ is constructed by <span class="n">DDP</span> rather than specify independently of the state and action spaces.</DD>
+
+<DT>Today and Tomorrow</DT>
+    <DD>The abstract DDP model defined above has an implicit concept of <q>today</q>, the current state $\theta$, and of <q>tomorrow</q>, the next state $\theta^{ \prime}$.</DD>
+
+  <DD>But since, at its solution, Bellman's equation holds at each point in $\Theta$ there is no need to further specify timing within the model.  However, if a monotonic time variable is an element of the state vector, then Bellman's equation can be solve sequentially backwards in time, reducing temporary storage and computational requirements. </DD>
+  
+  <DD>Because timing is key to the efficient solution algorithm  <span class="n">DDP</span> always has the concept of a model <em>clock</em>.  The literatures includes many models that have generalized notions of time that still exhibit monotonicity.  To account for these notions the clock is always a `StateBlock` with at least two state variables in it.</DD>
+
+<details><summary><b>Example</b><br/>Set the clock to a finite horizon of 40 periods.</summary>
+<pre>class MyModel : DPparent {
+    &vellip;
+    static decl d;
+    static decl m;
+    &vellip;
+    static Initialize();
+    }
+&vellip;
+MyModel::Initialize() {
+    DPparent::Initialize(new MyModel(),&hellip;);
+    SetClock(NormalAging,40);                //NEW
+    &vellip;
+    d = new ActionVariable("choice",2);
+    Actions(a);
+    m = new LaggedAction("prevd",d);
+    EndogenousStates(m);
+    &vellip;
+    CreateSpaces();
+    }
+</pre></dd></details>
+
+<li>Utility</li>
+    <blockquote><b><code>MyModel::Utility()</code> should return utility as a vector for the feasible matrix at the current state.</b> </blockquote>
+
+<DT><code>MyModel::Utility()</code></DT>
+    <DD>The one period utility/return/payoff, $U(\alpha;\epsilon,\eta,\theta)$.  It must be called <code>Utility()</code>, because it replaces a <em>virtual</em> method, <code>DP::U</code>.  It returns the utility as a <em>vector</em>: one element for each feasible action &theta;.A. You might expect <code>MyModel::Utility()</code> would require arguments to pass the value of state variables.  However, using the object-oriented approach to representing the model means that the values are available because <span class="n">DDP</span> will set the value of members of <code>MyModel</code> before calling U(). </DD>
+
+<details><summary><b>Example</b><br/>Define the Utility to equal an indicator for whether the current action equals last period's action.</summary>
+<pre>class MyModel : DPparent {
+    &vellip;
+    static decl d;
+    static decl m;
+    Utility();                          //NEW
+    &vellip;
+    static Initialize();
+    }
+&vellip;
+MyModel Utility(); {                   //NEW
+    return CV(d) .== CV(m);            //NEW
+    }                                  //NEW
+&vellip;
+MyModel::Initialize() {
+    DPparent::Initialize(new MyModel(),&hellip;);
+    SetClock(NormalAging,40);
+    &vellip;
+    d = new ActionVariable("choice",2);
+    Actions(a);
+    m = new LaggedAction("prevd",d);
+    EndogenousStates(m);
+    &vellip;
+    CreateSpaces();
+    }
+</pre></dd>
+</details>
+
+<li>Foresight</li>
+    <blockquote><b><code>MyModel</code> should set the discount factor using `DP::SetDelta`().</b></blockquote>
+
+<DT>$\delta\in [0,1)$: the discount factor.</DT>
+
+    <DD>The default value is <code>DP::delta=0.95</code>. MyModel::&delta; is either a fixed real value or a `Parameter`, which allows it to depend on outside variables and/or to be estimated within a nested solution algorithm. `DP::SetDelta`() can be used to set the value, passing either a real number or a `Parameter`. Unlike some other elements of the model, the discount factor can be set or changed after <code>CreateSpaces()</code> has been called.</DD>
+
+<details><summary><b>Example</b><br/>Set &delta;, the discount factor, to 0.99.</summary>
+<pre>class MyModel : DPparent {
+    &vellip;
+    static decl d;
+    static decl m;
+    Utility();
+    &vellip;
+    static Initialize();
+    }
+MyModel Utility(); {
+    return CV(d) .== CV(m);
+    }
+&vellip;
+MyModel::Initialize() {
+    DPparent::Initialize(new MyModel(),&hellip;);
+    SetClock(NormalAging,40);
+    &vellip;
+    d = new ActionVariable("choice",2);
+    Actions(a);
+    m = new LaggedAction("prevd",d);
+    EndogenousStates(m);
+    &vellip;
+    CreateSpaces();
+    SetDelta(0.99);                            // NEW
+    &vellip;
+    }
+</pre></dd></details>
+
+</OL></OL>
+
+<li id="ES">Extensions and Specializations</LI>
+
+    The <span class="n">DDP</span> code so far captures the basic elements of the general <a href="#DP-defn">DP framework.</a>  Solving the model to derive <a href="#BE-defn">Bellman's equation</a> is  discussed <a href="Methods.ox.html">separately</a>. This section adds more structure to the generic framework and shows how to build this structure into <code>MyModel</code>.</p>
+
+<OL class="chapter">
+<li>Five State Vector<em>S</em></li>
+    <blockquote><b>Sort state variables by their role in the transition &Rho;().</b></blockquote>
+
+<h3>The generic state space $\theta\in \Theta$ generalizes to $(\zeta,\epsilon,\eta,\theta,\gamma) \in (Z,E,H,\Theta,\Gamma)$</h3>
+
+Following the literature special or restricted state variables are placed in different state vectors. The single vector $\theta$ is replaced by multiple vectors holding specially behaved state variables: $\eta$, $\epsilon$, $\theta$,  or $\gamma$.  The most general kinds of state variables are placed in a vector still denoted $\theta$.</p>
+
+<p>Segregation of state variables into different vectors can reduce memory and computing since only the information required for restricted state variables are stored.. These distinctions matter for how `DP` solves <code>MyModel</code>, but from the point of view of <code>MyModel</code> a state variable is just a state variable regardless of which category it is placed. A generic state variable that is not associated with a particular vector is denoted <code>s</code>.</p>
+
+<details class="aside"><summary>Placeholder state variables</summary>
+<DD>Any of the state vectors may be empty in <code>MyModel</code> except $\theta$ which always has a `Clock`.</DD>
+<DD>If a vector is empty in <code>MyModel</code> then <span class="n">DDP</span> places a special `Fixed` state variable that takes on only the value 0.  This has no effect on the size of the state space but it greatly simplifies the internal coding of algorithms.</DD>
+<DD>These placeholders simplify the internal coding of the problem greatly and do nothing to expand the state space.  They do appear in output so they take up some space on the screen.</DD>
+</details>
+
+<dfn id="SV-defn">The 5 State Vectors</dfn>
+<OL class="section">
+
+<LI>$\theta$: Endogenous state vector</LI>
+
+    <DD>A generic element of $\theta$ is denoted <var>q</var>. Anything that <code>MyCode</code> places in the other state vectors could be in the $\theta$ (but not vice versa). State variables are added to $\theta$ by sending them to the function `DP::EndogenousStates`(). Like any DDP model $\theta$ is a semi-Markov process in which the transition to $\theta^{ \prime}$ depends potentially on all current state variables and the action $\alpha$.</DD>
+
+    <DD>The other state vectors separate out variables which evolve in a simpler or more restrictive way. $\theta$ always contains a single `StateBlock` derived from `Clock`.  See <a href="#clock">Clock Block</a> below.</DD>
+
+<LI>$\eta$: Semi-Exogenous state vector</LI>
+
+    <DD>A generic element of &eta; is denoted <var>h</var>. &eta; is a place for restricted endogenous variables whose transition probabilities are be independent of all other variables. Any element of &eta; is an IID process.  It is semi-exogenous because the current value <em>can</em> influence the transition of the exogenous state variables, $\theta$. Semi-exogenous states are added to &eta; using `DP::SemiExogenousStates`().</DD>
+
+<LI>$\epsilon$: Exogenous state vector</LI>
+
+    <DD>A generic element of $\epsilon$ is denoted <var>e</var>.  $\epsilon$ can include only  (fully) exogenous state variables and is thus more specialized than a semi-exogenous variable.  These variables are not only IID but they cannot direclty influence the transition of any other state of the system.   Elements of $\epsilon$ satisfy Rust's Conditional Independence property. States are added to $\epsilon$ using `DP::ExogenousStates`().</DD>
+
+<LI>$\gamma$: Grouping (random and fixed effect) state vector</LI>
+    <DD>A generic element of $\gamma$ is denoted $g$ States are added to $\gamma$ using `DP::GroupVariables`(). A grouping variable is equivalent to either a <em>random effect</em> or a <em>fixed effect</em> in a panel model.  Either way, it does not vary within the life of an agent following the DP, but from our point of view it is random for an agent. Because grouping variables do not vary within a solution it is wasteful to create space for each of their values and the other states in $\theta$.  Instead, <span class="n">DDP</span> resolves the model for each value of $\gamma$.  It stores differing choice probabilities across random effects for a given fixed effect value, so that integration across random effects can be carried out.</DD>
+
+    <DD><b><em>Warning:</em> if random effect elements of $\gamma$ affect the transition $P()$. you have to change the `Flags::UpdateTime` in your model</b> Because $\gamma$ is fixed during a solution, it is often <em>not</em> listed as an argument of U() and endogenous outcomes such as $V(\theta)$.  However, <code>MyModel</code> can treat elements of $\gamma$ like other states.</DD>
+
+
+<LI>$\zeta$: Continuous value shock vector</LI>
+    <blockquote><b>Continuous states are placed in $\zeta$ and can only affect U() not $P()$.</b></blockquote>
+
+    <DD>The most specialized random elements are those that are IID, do not influence the transition of other state variables <em>and</em> enter utility as an additively separable shock. These are often random variables with infinite support that smooth choice probabilities. Elements of $\zeta$ are not really stored.  Rather the distribution of $\zeta$ affects the specification of Bellman's equation, specifically the expression for $EV(\theta^{ \prime})$. If any such shocks are in the model, then a solution method must be available to deal with them explained below in <a href="#">Solution Method</a>. Any continuous shocks $\zeta$ are not included in $U()$ as the user codes it.  Instead, the distribution of continuous shocks is accounted for by the algorithm to compute $EV(\theta^{ \prime})$.</DD>
+
+</OL>
+
+<img src="icons/statevectors.png" width="60%">
+
+<li>Feasible Actions at a state: $\theta$.A</li>
+
+    <blockquote><b><code>MyModel</code> can account for limits on choice conditional on the endogenous state.</b></blockquote>
+
+    <h3>The generic action space $\alpha \in A$ generalizes to $\alpha \in A(\theta)$.</h3>
+
+The matrix of possible actions, <code>&Alpha;</code>, was defined above as the Cartesian product of the ranges of all action variables.  However, in many cases <code>MyModel</code> may rule out certain actions as not logically possible at a particular state. Or some actions are ruled infeasible for convenience to avoid calculations that are relatively unimportant to the overall goal of the model.</p>
+
+<p><em>Feasibility</em> is a property <code>MyModel</code> imposes on $\alpha$. The model rules out some actions given the interpretation of $\alpha$. In dynamic programming, the set of feasible actions can depend on the current state, $\theta$.  In typical math notation it would be natural to write this as $A(\theta)$, where $A()$ is now a matrix-valued function of the state. Instead, write feasibility as a <em>property</em> of the state</p>
+
+<p>The feasible actions at $\theta$ is a matrix property: $\forall \theta \in \Theta$,   $\theta.A  \subseteq  A$. <span class="n">DDP</span> does not allow exogenous states to affect the choice set.  So <code>MyModel</code> must assign a variable that affects feasible actions to $\theta$ even if its transition would otherwise qualify for exogenous or semi-exogenous status. </p>
+
+<p>A different way to handle infeasible choices is to have <code>MyModel::U()</code> return numeric -&infin; as the utility for any infeasible $\alpha$.  This option is always open for use in <code>MyModel</code>, but it does not the size of the static optimization problem and is not as close to the standard notation.</p>
+
+<p>By default all possible actions are feasible at all $\theta$ because the built-in `Bellman::FeasibleActions`() specifies this. If <code>MyModel</code> does not say otherwise, $\theta.A \equiv A$ for all endogenous states. <code>MyModel</code> can restrict choices by providing a replacement for the <em>virtual</em> method <code>Bellman::FeasibleActions()</code>. <code>MyModel::FeasibleActions</code> returns a column vector which indicates that $\alpha$ is feasible or not:
+<DD><pre>FeasibleActions() returns a vector of length A.D containing I{A.i&in;&theta;.A}, i = 0 &hellip; (A.D)&oline;.
+</pre></DD>
+The default method returns a vector of 1s equal in size to the rows of the unrestricted action space. This means that <code>MyModel</code> can define feasibility without knowing everything about the model. Indeed, another user may be deriving their model from yours, adding additional choice variables that you did not anticipate.  Even so, your feasibility conditions can still be imposed regardless of the presence of other columns and rows of <var>A</var>.</p>
+
+<p>Typically there is a small number of different feasible sets relative to the size of the state space.  In this case, storing a matrix at each $\theta$ is wasteful.  So <span class="n">DDP</span> stores a list (<code>OxArray</code>) of different feasible sets.  Rather than storing $\theta$.A it only stores an index $\theta$.j into a list of feasible sets. In <span class="n">DDP</span>, the list of feasible matrices is simply <code>A</code>.  And the index $\theta$.j into the list at a state is <code>Aind</code>. <code>MyModel</code> accesses the current feasible matrix as <code>Alpha::A[Aind]</code>. The first matrix, <code>Alpha::A[0]</code> is <em>always</em> the possible matrix <var>A</var>.  If <code>MyModel</code> does not specify feasible actions, then <code>Aind =  0</code>.</p>
+
+<p><b>Note</b>: the elements of the <var>A</var> list are the <em>actual</em> value of actions and are updated at the start of each value solve.  If an action variable does not have its own `Discrete::Update`() routine defined then the actual values are simply the default range 0 &hellip; (a.N)&oline;.</p>
+
+<p>In <span class="n">DDP</span> the key functions, U() and &Rho;() act on a single point in the state space at a time.  So the current value of a state variable is placed in the <code>.v</code> property of the Ox variable representing it. On the other hand, both U() and &Rho;() are 'vectorized' in actions: they must operate on the whole feasible matrix at once.</p>
+
+<p>Action variables have the <code>.v</code> property, but it is not used for them.  Their current values are in a column of the $\theta$.A matrix, which is <code>A[Aind]</code> in the code.  The previously described functions $CV()$ and $AV()$ work with action variables as well, returning the column of the current/actual action matrix at $\theta$.
+<details class="aside"><summary>For example</summary> Consider a model that has two choices: work hours and whether to volunteer or not.   Then at some state $\theta$.A may look like this, along with the return value of <code>a(work)</code>.
+<DD><pre>     A[Aind]     |
+work      vol    |  CV(work)
+ -------------------------
+ 0         0      |    0
+ 1         0      |    1
+ 2         0      |    2
+ 0         1      |    0
+ 1         1      |    1
+ 2         1      |    2
+</pre></DD></details></p>
+
+<LI id="TS">Terminal States and Terminal Values of State Variables</LI>
+
+    <blockquote><b><code>MyModel</code> can make values of a state variable terminal by calling `StateVariable::MakeTerminal`().</b></blockquote>
+
+<dfn id="Terminal-State-dfn">Some dynamic programs end if and when certain states are encountered.
+Such states are called <em>terminal states</em>. </dfn> There are three features of terminal state:
+<OL class="steps">
+<LI>There is no more choice from that period on.  Often a model is set up so that it terminates the program when an action is taken.  That is coded in <span class="n">DDP</span> as a transition to a next state that is terminal.</LI>
+<LI>Transitions from terminal states are undefined (or ignored).</LI>
+<LI>The value of a terminal state is exogenous to the model and not solved as part of <a href="#BE-defn">Bellman's equation</a>.  In <span class="n">DDP</span> the terminal value is returned as the utility of the state (not a function of the non-existent choice).</LI>
+</OL>
+
+<dfn id="Terminal-Value-dfn">If a value of a state variable makes a state terminal it is called a <em>terminal value</em>.</dfn> <span class="n">DDP</span> considers termination a property of value(s) of an endogenous state variable which the whole state $\theta$ inherits.
+<DD><pre>   q.T is a subset of the possible values of q that terminate decision making.
+</pre></DD>
+By default: q.T = &empty; for built-in state variables. <code>MyModel</code> makes values terminal by applying <code>q-&gt;`StateVariable::MakeTerminal`()</code> to it.  Only endogenous state variables, those in $\theta$, can have terminal values since other state vectors are either IID or invariant.</p>
+
+<p>The set of terminal states is defined as $\overline{\Theta}$. A state is terminal if any of the endogenous state variables currently equal a terminal value.
+$$\theta.T\quad =\quad I\{ \hbox{for some }k, \theta.v_k \in q_k.T \}.$$
+The convention in <span class="n">DDP</span> is that at a terminal state there is no choice, and <code>MyModel</code> must provide a value for the state via U(). Because of this convention, <code>MyModel::FeasibleActions()</code> is <em>not</em> called at a terminal state.  Instead, for $\theta \in  \overline{\Theta}$, $\theta$.A is automatically equal to the first row of $A$.</p>
+
+<p>Let $\overline{V}(\theta)$, for $\theta \in \overline{\Theta}$ be the exogenous value of arriving at a terminal state $\theta$. <code>MyModel::Utility()</code> returns this value.  <span class="n">DDP</span> sets it as $V(\theta)$ directly.</p>
+
+<li id="Trimming">Trimming/Prunning The State Space $\Theta$ of Unreachable States</li>
+
+    <blockquote><b><code>MyModel</code> can trim the state space by providing a <code>MyModel::Reachable()</code> routine.  It returns <code>TRUE</code> for states that can be reached from initial conditions and <code>FALSE</code> otherwise. </b></blockquote>
+
+Following the notion of possible versus feasible actions above, the Cartesian product of all possible values of the endogenous state variables is defined as the <em>possible state space</em>:
+    $$ \Omega \quad\equiv\quad \prod_{q_k \in\theta} \{ 0 \dots q_{_{k.^{N-1}}} \}$$
+The current value of a state is always equal to some row in $\Omega: \theta.v \in \Omega$.</p>
+
+<p>Just because a state is possible ($\theta\in\Omega$) does not mean the DP can ever get there.  Of course, if the DP was solved and then started at exactly $\theta$ it would be reached.  But finite horizon dynamic programs must have initial conditions specified.  And those initial conditions can mean that some states in $\Omega$ will never be reached.  And if they can't be reached then they do not need to be stored and included in the solutions to <a href="#BE-defn">Bellman's Equation</a>. </p>
+
+<p>So in some models, especially those with a finite horizon, &Omega; contains many endogenous states that cannot be reached from possible initial states of the user's situation.
+    <details class="aside"><summary>The term Reachable</summary><DT>The term <em>reachable</em> is used for two reasons.  </DT><DD>First, in <span class="n">DDP</span> the term <em>feasible</em> applies to action sets not states.  </DD><DD>And, second, reachable emphasizes the fact that it depends on what initial states are assumed not logical inconsistency.)</DD></details></p>
+
+<p>As with feasibility of actions, <em>reachability</em> of a state is not a mechanical property.  Rather it depends on the model and how it will be used.  Since, in <span class="n">DDP</span>, an endogenous state $\theta$ is not just a vector of numbers but rather an object with many properties attached it, it is important for efficiency that <span class="n">DDP</span> only create and process objects for reachable states.</p>
+
+<p>The property $\theta$.R equals 1 if <code>MyModel</code> specifies that $\theta$ is reachable.  Otherwise $\theta$.R = 0. The state space $\Theta$ is the set of reachable states within the set of all possible states.  It emerges from the property $\theta$.R of each logically possible state:
+$$\Theta\quad \equiv\quad  \bigl\{  \theta \in \Omega\ :\ \theta.R = 1  \bigr\}$$
+    <details><summary>Storage Details</summary>Note that <code>R</code> is a conceptual  property only.  During computation objects are only created for states with &theta.R=1.  So the actual test is whether a possible state contains an object or just the number 0 as a placeholder. Storing a 0 for possible but unreachable states still requires allocation of a single <code>oxvalue</code>, but it avoids storage of vectors and matrices associated with each reachable state (such as the utility vector, the optimal choice probability matrix, etc.).</details></p>
+
+<p>As shown above, <code>MyModel</code> must call <code>DPparent::CreateSpaces()</code>, which sets up the list of feasible action matrices and creates the state space $\Theta$.  It must traverse (loop over) the possible state space &Omega; at least once  It is during this traversing that it is determined whether the point $\theta$ is reachable or not.  <code>CreateSpaces()</code> uses two methods to determine reachability:  <em>inherent reachability</em> of included state variables and the user supplied routine that <em>asserts reachability</em> or not.</p>
+
+<li id="AutoTrimming">Auto Trimming of $\Theta$ in Finite Horizon Models</li>
+
+
+<p>Some state variables generate <em>inherently</em> unreachable states. Above it was emphasized that reachability depends on the whole model, but including some kinds of state variables in your model will generate unreachable states in non-stationary environments (such as a finite decision horizon).</p>
+
+<p>As an example, a `Counter` state variable counts how many times an action or state has occurred in the past.  If the counter starts at 0 in a finite horizon model then the only reachable states are ones in which this state variable's current value is less than or equal to the value of the clock, `I::t`.</p>
+
+<p>This is true regardless on other state variables added to the model, which actions are feasible, etc.  It depends solely on the clock type, initial conditions and the presence of this variable in the model. </p>
+
+<p>So some trimming of the state space can be done automatically based on state variables in the endogenous vector <em>and</em> the model's `Clock` block.  By design, state variable objects do not know directly about the model's clock, because all the discrete variable classes are defined and used by the `DP` class. </p>
+
+<p>So checking for reachable requires sending the clock to the state variable. The `StateVariable` class includes a virtual method named `StateVariable::IsReachable`() which takes a single argument that will be the model's clock block.  The default function returns <code>TRUE</code>.  That is, by default, a state variable says no point in the state space is unreachable.  However, some kinds of state variables that do generate unreachable states (such as a`Counter`) supply a replacement copy of <code>IsReachable()</code>.  </p>
+
+<p>At each <em>possible</em> state in the space &Omega; <code>CreateSpaces</code> will call <code>IsReachable()</code> for each state variable in the endogenous state vector $\theta$. If any of them return <code>FALSE</code> that point is marked as unreachable. (This can be turned off when creating the state variable using the optional <code>Prune</code> argument.)</p>
+
+<p>If no state variables claim the current state is inherently unreachable then the user supplied method is called which can mark states unreachable for reasons not inherent to the clock and state variables themselves.</p>
+
+<li id="ExplicitTrimming">Providing a user-defined <code>Reachable()</code> method.</li>
+
+
+<p><code>MyCode</code> must first call <code>DPparent::Initialize()</code>, then add variables to the model, then call `DP::CreateSpaces`.   An object of <code>MyModel</code> is sent to <code>DP::Initialize()</code> which will <q>clone</q> it for each reachable point in the state space.  As with <code>Bellman::FeasibleActions</code>, which must have that name because it is virtual function, this function must have the name <code>Reachable()</code>.</p>
+
+<p>The base <code>Bellman</code> class has a method  <code>`Bellman::Reachable`()</code> which simply returns TRUE.  So if <code>MyModel</code> does not provide its own version of <code>Reachable</code> all possible states are asserted as reachable. However, remember that some state variables may have inherently unreachable states in finite horizon models, and these conditions will be checked regardless of whether <code>MyModel</code> provides its own <code>Reachable()</code>.)</p>
+
+<p>If <code>MyModel</code> provides a replacement for the virtual <code>Reachable</code> it must return TRUE or FALSE depending on whether the current values of state variables are a reachable state. Inside <code>CreateSpaces()</code> and during the loop over the possible state space $\Omega$, and if no state variables assert inherent unreachability of their current value, then <code>MyModel::Reachable()</code> is called. </p>
+
+<p><code>MyModel::Reachable()</code> indicates $\theta$ is reachable by returning TRUE.  Otherwise it should return FALSE to indicate something about the current values of all endogenous state variables makes this point unreachable.  So <code>Reachable()</code> returns 1   if $\theta.R = 1$ and 0 if $\theta.R = 0$.</p>
+
+<!--<li id="Traversing"> Traversing the State Space</li>
+
+<DT>How should <span class="n">DDP</span> traverse $\Theta$?</DT>
+
+    <DD><code>CreateSpaces()</code> traverses $\Omega$ once in order to create $\Theta$.  Thereafter the user has an option for how to  traverse $\Theta$. If &Omega; is much larger than $\Theta$ then it makes sense to store $\Theta$ as a list of feasible states (actually a matrix of state vectors, $\theta$.v).  <span class="n">DDP</span> will only create a space (a list) of states equal to the size of $\Theta$.  It then loops over the list of state vectors which map directly into $\Theta$. Otherwise,  <span class="n">DDP</span> can traverse $\Theta$ by looping over the possible values of each endogenous state variable, but ignoring at states that are not reachable. </DD>
+-->
+
+<li id="usestatic">Avoid non-static members of <code>MyModel</code>.</li>
+
+    <p>Recall that <code>MyModel</code> is a <em>class</em> derived from some DDP, denoted <code>DDPparent</code>.  A DDP is designed to represent both the overall model <em>and</em> an endogenous state $\theta$.  <span class="n">DDP</span> creates a copy (an object) of <code>MyModel</code> for each reachable $\theta$.  It places them on a list named <code>Theta</code> (a static global variable).</p>   
+    
+    <p>To conserve memory, only a limited number of variables (aka data members) are specific to each object for different $\theta$'s.  These are what Ox calls <em>automatic</em> variables. Most data members for <code>MyModel</code> are <em>static</em> members.  They are shared by all objects of type <code>MyModel</code>.  These are properties of the overall model.</p>
+     
+     <p>To conserve space, the Ox variables (members) in <code>MyModel</code> that hold actions and states should by declared <code>static</code> (see code above).  Otherwise, if variables are automatic new storage for them is created at each point in $\theta$ even though <span class="n">DDP</span> processes one $\theta$ at a time.  By storing elements as static and then updating their current value (<code>.v</code> property) storage for large state spaces is reduced dramatically. </DD>
+
+<li id="Gamma">Multiple Dynamic Programs: The Group Space $\Gamma$</li>
+
+    <blockquote><b><code>MyModel</code> can require several solutions to a DP model that differ only by shifts in $U()$ or $P()$.</b></blockquote>
+
+Group variables are like random or fixed effects in econometrics.  They are fixed and non-random from an agent's point of view, but from our point of view they vary across agents.</p>
+
+<p>Group variables are not involved in the creation of $\Theta$, which is reused for the solution of the model for each $\gamma$. Instead, the group space $\Gamma$ is created from the Cartesian product of all possible values of the group variables.
+$$\Gamma\quad\equiv\quad\prod_{k=0\dots\gamma.N-1}\ \bigl\{\,0\dots\, \gamma.N-1\,\bigr\}$$
+<details class="aside"><summary>Example</summary>
+<dd>There are two group variables, <code>&gamma; = (g,d)</code>, where g is gender, so g.N&oline;=1 and d is degree status so
+d.N&oline; =2, (no high school degree, high school, some college).  Then <code>&Gamma; = {0,1}&times;{0,1,2} = </code>
+<pre>0 0
+1 0
+0 1
+1 1
+0 2
+1 2
+</pre></dd></details>
+<!--<pre>&Gamma; &equiv; &times;{ 0 &hellip; (g<sub>k</sub>.N)&oline; }, for k= 0 &hellip; (&gamma;.N)&oline;.
+</pre></dd>-->
+Each group has a probability
+$$P_g(\gamma)\quad=\quad \prod_{k=0\dots \gamma.N-1}\ p(g_k.v)$$
+This assumes group variables are iid.  You can use fixed and random effect blocks to include correlated groups.
+<!--<pre>&Rho;<sub>g</sub>(&gamma;) = &prod; <sub>k=0&hellip;(&gamma;.N)&oline;</sub>  p(g<sub>k</sub>.v)
+</pre></DD>-->
+<!--There is no mechanism to mark some groups as unreachable.<-->
+
+<li id="CPP">Choice Probabilities: $P*$</li>
+
+    <span class="n">DDP</span> solves the DP model for each group vector $\gamma \in \Gamma$. At each $\theta \in \Theta$, $P*( \alpha\ ;\ \epsilon, \eta, \theta, \gamma )$ is stored as a matrix in $\alpha$ and $\epsilon \times \eta$ and a list (OxArray) in $\gamma$. </p>
+
+</OL>
+
+<LI id="VS"><span="n">DDP</span> terminology versus other surveys and methods articles</LI>
+
+<OL class="chapter">
+Most contributions to the DDP literature adopt some idiosyncratic notation or terminology, and the current document is no exception.  Here is a translation of the current notation into that used in surveys and papers that have become a standard.  Features that are similar are not listed and neither are elements of alternative notation that is somehow more general than that used here.  The DDP notation is followed by &rarr; and the alternative notation in <var>italic</var> face.  A brief explanation and/or possible reason why the DDP notation is preferable is then given in [&nbsp;].</p>
+
+<p>A key reason the notation differs here is because it is used to describe a framework for designing a DDP and solving it efficiently. Most other notation is used to describe a specific model or to describe models generally without reference to restrictions that can be used for efficiency.</p>
+
+<LI>Aguirregabiria &amp; Mira (JoE 2010)</LI>
+<DT>Actions:
+<DD><code>&alpha; &nbsp;&nbsp;&rarr;&nbsp;&nbsp;</code> <var>(a)</var>  [Here, vectorized actions do not retain dimensions of choice]
+<DD>A.D &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>J</var>
+<DD>a &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>a<sub>it</sub></var> </DD>
+<DT>Clock:
+<DD>t &in; &theta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>t as a subscript</var>. [Here, subscripts are used for other properties and t is in the state already]
+<DT>Discrete States:
+<DD>&theta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>x<sub>it</sub></var>.  [Here, allow Greek vectors to be distinguished from Roman variables]
+<DD>&epsilon; and &eta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>empty vectors</var> [Here, discrete exogenous state variables save space and computation]
+<DT>Transitions:
+<DD>&Rho;(&theta;&prime;|&alpha;,&theta;) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>f<sub>x</sub>(x<sub>i,t+1</sub>|a<sub>it</sub>,x<sub>it</sub>)</var> [Here, distinguish upper case functions from lower case vectors and variables]
+<DT>Continuous States:
+<DD>&zeta; = <var>(&epsilon;<sub>it</sub>)</var>, always with size A.D [Here, &zeta; may have lower dimension that the action space.]
+<DD>utility is always additively separable (their assumption AS).
+<DT>Bellman:
+<DD>EV(&theta;) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var><span class="o">V</span>(x<sub>it</sub>)</var> [mnemonic for <b>E</b>xpected <b>V</b>alue]
+<DD>&Rho;*(<code>&alpha;</code>|&theta;) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>P(a|x,&theta;)</var> [Distinguished from primitive &Rho;() even when arguments are suppressed.]
+<DT> Miscellaneous <DD>&delta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>&beta;</var> [Here, mnemonic for <b>d</b>iscount factor.] </DD>
+
+<li>Keane, Todd &amp; Wolpin (Handbook of Labor Economics 2011)</li>
+<DT>Actions;
+<DD><code>&alpha;</code> = (a<sub>0</sub>&hellip; a<sub>&alpha;.N&oline;</sub>) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>(d<sup>00&hellip;1</sup> d<sup>10&hellip;0</sup> &hellip; d<sup>11&hellip;1</sup>)</var>
+ <DD>&alpha;.D &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var> the length of the superscript</var>;
+ <DD><var>d<sup>&hellip;</sup>.N = 2, and &sum; d<sup>&hellip;</sup> = 1.</var>
+<DT>Discrete States:
+<DD>&theta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>&Omega;&oline;<sub>it</sub></var>
+<DD>&epsilon; and &eta; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>empty vectors</var>
+<DT>Continuous States:
+<DD>&zeta;&nbsp;&nbsp;&rarr;&nbsp;&nbsp;<var>S(&Omega;&oline;<sub>it</sub>)</var> [loses self-standing vector status]
+<DT>Bellman:
+<DD>Choice Probabilities: &Rho;*(&alpha;|&theta;) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>Pr( d<sup>&hellip;</sup>=1 |&Omega;&oline;<sub>it</sub>)</var>
+<DD>v(&alpha;|&eta;,&epsilon;,&theta;,&gamma;) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <var>V<sup>&hellip;</sup></var></DD>
+
+</DD>
+</OL>
+<li id="DS">Designing and writing <code>MyModel</code></li>
+
+<OL class="chapter">
+<li>Overview</li>
+ Before programming, state <code>MyModel</code> in the notation used above (which combines standard mathematical statement of DP and some peculiarities of <span class="n">DDP</span>.)
+<DL>
+<DT>Determine the timing in your model (stationary, finite horizon, etc.).</DT>
+
+<DT>List the <a href="ActionVariable.ox.html">action variables</a> in $\alpha = (a_0,a_1,\dots)$.</DT>
+    <DD>Many papers vectorize the action variables into one long choice.  But DDP makes it easy to separate different dimensions of choice so that each variable is meaningful.</DD>
+<DT>List and classify <a href="StateVariable.ox.html">state variables</a> and state blocks.</DT>
+    <DD>For each state variable/block, either find a predefined class that it matches (up to the value of parameters to the creator routine for the class) or derive a new transition for it. If two or more variables are conditionally correlated (coevolving), place them in a state block and derive a transition. Specify the dependency of the transition on the current values of other state variables and actions.  </DD>
+<DT>Based on these dependencies assign each state variable to  $\epsilon$, $\eta$ and $\theta$.</DT>
+<DT>Terminal values: if values of endogenous states end decision-making</DT>
+    <DD>Express as a value or set of values of variables in &theta; that terminate decisions. Use the method `StateVariable::MakeTerminal`() to mark values as terminating. This implicitly defines $\overline{\Theta}$</DD>
+<DT>Reachability if not every endogenous state can be reached</DT>
+    <DD>Express &theta;.R as a logical/boolean value depending on the values of variables in &theta;. This implicitly defines $\Theta$</DD>
+<DT>Fixed group variables in &gamma;</DT>
+    <DD>For each group variable, find a predefined random effect variable that matches it or derive a new type of group variable.</DD>
+<DT>Constraints on choice: if not every action can be taken at every state</DT>
+    <DD>Express feasible actions $\theta$.A, as a logical/boolean indicator for whether $\alpha$ is feasible (in $\theta$.A) depending on values of variables in $\theta$.</DD>
+<DT>$\zeta$ : if continuous variables enter choice value</DT>
+    <DD>Specify the distribution of  $\zeta$ and the solution method associated with it.
+<DT>Utility $U()$</DT>
+    <DD>Expressed as a vector of values, one number for each row of $\theta$.A. (each value of <code>&alpha;</code>). Values depend on current values of state variables in all the vectors, but not &zeta; unless the model will be solved with reservation values.</DD>
+</DL>
+
+<LI>Steps</LI>
+<OL class="steps">
+<LI>Choose the DDP <code>struct</code> that  <code>MyModel</code> is derived from, referred to as <code>DDPparent</code>.</LI>
+        <DD>See <a href="Methods.ox.html">Methods</a> for the solving and smoothing methods available.</DD>
+
+<LI>Write the declaration and definition of <code>MyModel</code> and any other derived elements needed in the model.</LI>
+
+        <DD>See <a href="Variables.ox.html">Variables</a> to create custom state variables,state blocks and action variables. Decide if you want to use the <code>#import</code> or <code>#include</code> approach to using <code>MyModel</code> in an Ox program.
+        <pre> #import "MyModel"
+</pre>
+    requires two separate files: <code>MyModel.h</code> and <code>MyModel.ox</code>
+        <pre> #include "MyModel.ox"
+</pre>
+    requires one file <code>MyModel.ox</code> which includes what would be in the header and ox file.  You can have a separate <code>MyModel.h</code> file, but you may need to use <code>conditional define directives</code> to avoid multiple inclusions.</DD>
+
+        <DD>The Header Material (to go in a file such as <code>MyModel.h</code>). For each derived element, write a <code>struct</code> declaration.</DD>
+
+        <DD>The .ox Material. For each derived element, define the required and optional methods required of <code>MyModel</code> and its components.      Put this material in <code>MyModel.ox</code>.</DD>
+
+<LI>Write an Ox program that <code>includes</code> or <code>imports</code> the definitions of the elements then builds up the model and solves it</LI>.
+</OL>
+<LI>Steps the program should execute in building the model</LI>
+<OL class="steps">
+<LI>Call <code>DDPparent::Initailize()</code> for the base of <code>MyModel</code></LI>
+<LI>Set the model clock with `DP::SetClock`().</LI>
+    <DD>Some DDPs require a <code>new</code> clock variable be created first and sent to <code>Initialize()</code>.  For these methods you do not call <code>SetClock</code>; it will be called by <code>Initalize()</code>.</DD>
+<LI>Create <code>new</code> instances for the action variables and the state variables in the model.</LI>
+<LI>Add the action and state variables to the model using DP methods such as `DP::Actions`()</LI>
+<LI>Call `Bellman::CreateSpaces`(), sending it a static routine that indicates states are reachable and whether $\Theta$ should be traverse with a loop or a list</LI>
+    <hr><blockquote>Items above are done once while the program runs.  They can be repeated only after calling`Bellman::Delete`() which disposes of the elements of the previous model.  Items below can be done repeatedly during the life of the program once the steps above are done.</blockquote><hr>
+<LI>Set parameters of the model, including the discount factor $\delta$.</LI>
+</OL>
+
+</OL>
+
+@author &copy; 2011-2020 <a href="https://ferrall.github.io/">Christopher Ferrall</a></dd>
+
+**/

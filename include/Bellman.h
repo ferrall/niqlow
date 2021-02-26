@@ -46,7 +46,7 @@ struct  Bellman : DP {
 		/** $v(\alpha;\epsilon,\eta,\theta)$ and $P*()$. **/                   pandv,
 		/** TransStore x &eta;-Array of feasible endogenous	state
 			indices and transitions
-			$P(\theta^\prime;\alpha,\eta,\theta).**/			              Nxt,
+			$P(\theta^\prime;\alpha,\eta,\theta)$.**/			              Nxt,
 		/**EV(&theta;)  **/					                                  EV;
 
 			static 	Delete();
