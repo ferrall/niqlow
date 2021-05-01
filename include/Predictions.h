@@ -59,13 +59,13 @@ struct Prediction : Data {
 **/
 struct 	PathPrediction : Prediction {
     const decl
-        /** object to integrate over $\gamma_r$.**/  summand,
-        /** object to update distribution over r.**/ upddens,
+        /** panel I belong to.**/                    mother,
                 /** fixed index.**/             f,
                 /** initial distribution.**/    iDist,
                 /** pstate .**/                 pstate,
                 /** for tracking.**/            fvals,
                                                 Fcols,
+                /** My share of population.**/  myshare,
             /** Weight Moments for GMM if
                 empirical moments include.
                 @see GMMWeightOptions **/
@@ -73,11 +73,8 @@ struct 	PathPrediction : Prediction {
 	decl
     /** current index of random effects.**/         rcur,
     /** Empirical moments read in. **/              HasObservations,
-    /** Predict() called before. **/                EverPredicted,
     /** Path length sent it.**/                     inT,
     /** .**/                                        prtlevel,
-    /** list of objects to track.**/                tlist,
-    /** labels of flat print. **/                   tlabels,
     /** indicator vector for observed moments.**/   mask,
     /** columns in data .     **/                   cols,
     /** the current prediction **/                  cur,
@@ -85,15 +82,15 @@ struct 	PathPrediction : Prediction {
     /** flat prediction matrix.**/                  flat,
     /** Weighting matrix for GMM for full path.**/  pathW,
     /** wide delta vector. **/                      vdelt,
-    /** labels for vdelt.**/                        dlabels,
     /** labels for simulated path.**/               plabels,
+    /** labels for vdelt.**/                        dlabels,
     /** Distance between predictions and emp.mom.**/ L,
     /** method to call for nested solution. **/		method,
     /** first prediction.**/                        first,
     /** the next PathPrediction   **/               fnext;
     static tprefix(t);
 	
-    PathPrediction(f=0,method=UnInitialized,iDist=0,wght=UNCORRELATED);
+    PathPrediction(mother,f=0,method=UnInitialized,iDist=0,wght=UNCORRELATED,myshare=0);
 	~PathPrediction();
 
     Initialize();
@@ -103,31 +100,46 @@ struct 	PathPrediction : Prediction {
     Qcols(Y,...);
     SetT();
     Empirical(inmoments,hasN=FALSE,hasT=FALSE);
-    Tracking(LorC=TrackAll,...);
-    SetColumns(dlabels,Nplace=UnInitialized,Tplace=UnInitialized);
+    //Tracking(LorC=TrackAll,...);
+    //SetColumns(dlabels,Nplace=UnInitialized,Tplace=UnInitialized);
     TypeContribution(pf=1.0,subflat=0);
     ProcessContributions(cmat=0);
     AppendSimulated(Y);
     SimulateOutcomePaths(curfpanel,N,ErgOrStateMat);
 	}
 
+/** Store and process path predictions for all fixed effect groups.
+Individual paths are stored in a F x 1 array of `PathPrediction's.
+An aggregate path that averages over the the indidivual paths is
+stored in this.
+**/
 struct PanelPrediction : PathPrediction {
     static decl
             /** file name of the last Panel Prediction Data Set saved.**/ PredMomFile;
+    const decl
+    /** object to integrate over $\gamma_r$.**/         summand,
+    /** object to update distribution over r.**/       upddens,
+    /** either fparray[0] or this.**/                  first,
+	/** array pointing to (fixed) path predictions.**/ fparray;
 	decl
-				        					   fparray,
-    /**total number of predictions..**/        FN,
-    /** Has Tracking() been called.**/         TrackingCalled,
-    /** difference between pred. & data.**/    delt,
-    /** flat matrix version of predictions.**/ aflat,
-	/** array of GMM vector. **/	 	       M;
+    /** list of objects to track.**/                tlist,
+    /** labels of flat print. **/                   tlabels,
+    /** Predict() called before. **/                EverPredicted,
+    /**total number of predictions..**/                FN,
+    /** Has Tracking() been called.**/                 TrackingCalled,
+    /** difference between pred. & data.**/            delt,
+    /** flat matrix version of predictions.**/          aflat,
+	/** array of GMM vector. **/	 	                M;
 
-    PanelPrediction(label=UseDefault,method=UnInitialized,iDist=0,wght=UNCORRELATED);
+    PanelPrediction(label=UseDefault,method=UnInitialized,iDist=0,wght=UNCORRELATED,aggshares=0);
     ~PanelPrediction();
     Predict(T=0,printit=FALSE,submat=0);
+    AddToOverall(fcur);
     Tracking(LorC=TrackAll,...);
+    SetColumns(dlabels,Nplace=UnInitialized,Tplace=UnInitialized);
     MaxPathVectorLength(inT=0);
     ParallelSolveSub(subp);
+    InitializePath(pstate);
     }
 
 /** Stores data read in as moments and associate them with a panel of predictions.
@@ -141,10 +153,10 @@ struct PredictionDataSet : PanelPrediction {
             /** time column (index or label).**/                        Tplace,
             /** **/                                                     FMethod;
 
-            PredictionDataSet(UorCorL=UseLabel,label=UseDefault,method=UnInitialized,iDist=0,wght=UNCORRELATED);
+            PredictionDataSet(UorCorL=UseLabel,label=UseDefault,method=UnInitialized,iDist=0,wght=UNCORRELATED,aggshares=0);
             Observed(as1,lc1=0,...);
             TrackingMatchToColumn(Fgroup,LorC,mom);
-            TrackingWithLabel(Fgroup,InDataOrNot,mom1,...);
+            TrackingWithLabel(Fgroup,InDataOrNot,...);
             Observations(NLabelorColumn,TLabelorColumn=UnInitialized);
             Read(fn=UseDefault);
             SimulateMomentVariances(N,ErgOrStateMat=0,fvals=DoAll);

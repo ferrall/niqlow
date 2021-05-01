@@ -56,7 +56,7 @@ PredictionDataSet::SimulateMomentVariances(N,ErgOrStateMat,fvals) {
 
 PathPrediction::AppendSimulated(Y) {
     decl m,tflat = <>;
-   foreach(m in tlist)
+   foreach(m in mother.tlist)
         if (m.track.LorC!=NotInData)   //  && !isnan(cur.empmom[n]) unmatched moments always have .NaN
             switch_single (TypeCheck(m,ilistnames)) {
                 case AuxInt   : tflat ~= Y.aux[m.pos];  // Set in Bellman::Simulate()
@@ -71,7 +71,7 @@ PathPrediction::AppendSimulated(Y) {
         flat = tflat;
     else
         flat ~= tflat;
-    if (!rows(pathW)) plabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
+    if (!rows(pathW)) plabels |= suffix(mother.tlabels[1:],"_"+tprefix(cur.t));
     if (isclass(cur.pnext)) {      // not end of empirical path
         cur = cur.pnext;
         return FALSE;

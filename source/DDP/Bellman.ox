@@ -696,7 +696,7 @@ OneStateModel::Utility() {    return U();    }
 /** Extreme Value Ex Post Choice Probability Smoothing.
 
 Sets `Bellman::pandv` equal to
-    $$P^{\star}\left(\alpha;\theta\right) = {e^{\rho(\vv-V)}\over {\sum}_{a\in A(\theta)} e^{\rho( v(a;\th)-V) }}.$$
+    $$P^{\star}\left(\alpha;\theta\right) = {e^{\rho(v(\alpha;\theta)-V)}\over {\sum}_{\alpha\in A(\theta)} e^{\rho( v(\alpha;\theta)-V) }}.$$
 
 @see RowLogit
 **/

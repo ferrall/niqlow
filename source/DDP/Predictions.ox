@@ -155,21 +155,22 @@ PathPrediction::tprefix(t) { return sprint("t_","%02u",t,"_"); }
 PathPrediction::ProcessContributions(cmat){
     vdelt =<>;    dlabels = {};
     if (ismatrix(flat)) delete flat;
-    flat = constant(.NaN,T,Fcols+One+sizeof(tlist));
+    decl nt = sizeof(mother.tlist);
+    flat = constant(.NaN,T,Fcols+One+nt);
     cur=this;
     if (ismatrix(cmat)) {
-        cmat = shape(cmat,sizeof(tlist),this.T)';
+        cmat = shape(cmat,nt,this.T)';
         }
     do {
         if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
         flat[cur.t][] = fvals~cur.t~cur.accmom;
         if (HasObservations) {
             if (ismatrix(pathW)) {
-                 dlabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
-                 vdelt ~= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+                 dlabels |= suffix(mother.tlabels[1:],"_"+tprefix(cur.t));
+                 vdelt ~= cur->Delta(mask,Data::Volume>QUIET,mother.tlabels[1:]);
                  }
             else
-                 vdelt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+                 vdelt |= cur->Delta(mask,Data::Volume>QUIET,mother.tlabels[1:]);
             }
         cur = cur.pnext;
   	    } while(isclass(cur));
@@ -179,9 +180,9 @@ PathPrediction::ProcessContributions(cmat){
             : 0.0;
     if (!Version::MPIserver && HasObservations && Data::Volume>QUIET && isfile(Data::logf) ) {
         fprintln(Data::logf," Predicted Moments group ",f," ",L,
-        "%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:],
-        "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",tlabels[1:],
-                ismatrix(pathW) ? reshape(vdelt,T,sizeof(tlabels[1:])) : vdelt
+        "%c",mother.tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:],
+        "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",mother.tlabels[1:],
+                ismatrix(pathW) ? reshape(vdelt,T,sizeof(mother.tlabels[1:])) : vdelt
                 );
         }
     //flat |= constant(.NaN,this.T-rows(flat),columns(flat));
@@ -209,9 +210,8 @@ PathPrediction::Predict(inT,prtlevel){
     this.inT = inT;
     this.prtlevel = prtlevel;
     if (!Initialize()) return FALSE;
-    //println("** ",Version::MPIserver," ",first," ",isclass(summand));
-	if (isclass(summand))
-		summand->Integrate(this);
+	if (isclass(mother.summand))
+		mother.summand->Integrate(this);
 	else {
         rcur = I::r;  //Added Oct. 2018
 		TypeContribution();
@@ -225,7 +225,7 @@ PathPrediction::Predict(inT,prtlevel){
         ProcessContributions();
         if (!Version::MPIserver && prtlevel) {
             if (Version::HTopen) println("</pre><a name=\"Prediction\"/><pre>");
-            println(" Predicted Moments for fixed group: ",f,"%c",tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:]);
+            println(" Predicted Moments for fixed group: ",f,"%c",mother.tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:]);
             }
         return TRUE;
         }
@@ -250,7 +250,7 @@ PathPrediction::GetFlat(tvals,mvals) {
 **/
 PanelPrediction::ParallelSolveSub(subp) {
     I::SetGroup(subp);
-    decl subflat=<>, pobj = I::curg.find ? fparray[I::curg.find] : this;
+    decl subflat=<>, pobj = fparray[I::curg.find]; // no longer using myself    I::curg.find ? ... : this;
     pobj.rcur = I::curg.rind;
     pobj->PathPrediction::Initialize();
     pobj->TypeContribution(DP::curREdensity,&subflat);
@@ -280,11 +280,11 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
         if ( any(negt)  ) {
             if (wght!=IGNOREINFLUENCE) {
                 influ = inNandMom[maxcindex(negt)][:C-2]  ;
-                if (report) fprintln(Data::logf,"Influence weights","%c",tlabels[1:C-2],influ);
+                if (report) fprintln(Data::logf,"Influence weights","%c",mother.tlabels[1:C-2],influ);
                 }
             inNandMom = deleteifr(inNandMom,negt);
             }
-        if (report) MyMoments(inNandMom,tlabels[1:],Data::logf);
+        if (report) MyMoments(inNandMom,mother.tlabels[1:],Data::logf);
         datat = inNandMom[][C];
         if ( any( diff0(datat) .< 0) )
                 oxrunerror("DDP Error ??. t column in moments not ascending. Check data and match to fixed groups.");
@@ -399,7 +399,9 @@ PathPrediction::InitialConditions() {
     }
 
 /** Create a path of predictions.
-@param f     integer: fixed group index [default=0]
+@param f     integer: fixed group index [default=0]<br />
+             AlLFixed (-1):  this aggregates (averages) predictions over
+             NotInData (-2):  no prediction stored here.
 @param method 0: do not call a nested solution [default]<br/>
               a solution `Method` object to be called before making predictions
 @param iDist  initial distribution.<br/>
@@ -411,20 +413,21 @@ PathPrediction::InitialConditions() {
         matrix: a list of states to start the prediction from<br/>
         object of Prediction class: use `Prediction::sind` as the initial state for
         this prediction.
-@param wght
+@param wght Code for weighting scheme for distance between empirical and predicted paths.
+@param myshare either 0 or a fraction of the population if an aggregate (overall)
+    prediction is being stored.
 
 The prediction is not made until `PathPrediction::Predict`() is called.
 
 **/
-PathPrediction::PathPrediction(f,method,iDist,wght){
+PathPrediction::PathPrediction(mother,f,method,iDist,wght,myshare){
+    this.mother = mother;
 	this.f = f;
 	this.method = method;
     this.iDist = iDist;
     this.wght = wght;
-    EverPredicted = FALSE;
+    this.myshare = myshare;
 	fnext = UnInitialized;
-    tlabels = {"t"};
-    tlist = {};
     mask = <>;
     Prediction(0);
     T = 1;
@@ -433,17 +436,8 @@ PathPrediction::PathPrediction(f,method,iDist,wght){
     fvals = N::F>1 ? f~pstate[S[fgroup].M:S[fgroup].X]' : matrix(f); //f must be a matrix so Fcols is correct
     Fcols = columns(fvals);
     HasObservations = FALSE;
-
-    if ((N::R>One || N::DynR>One )) {
-        if (!isclass(method))
-            oxwarning("DDP Warning: Solution method is not nested with random effects present.  Predictions will not be accurate.");
-        summand = new RandomEffectsIntegration();
-        upddens = new UpdateDensity();
-        }
-	else {
-        summand = upddens = UnInitialized;
-        }
 	}
+
 
 /** clean up.
 @internal
@@ -459,15 +453,11 @@ Prediction::~Prediction() {
 **/
 PathPrediction::~PathPrediction() {
 	//decl v; foreach(v in tlist ) delete v;
-    delete tlist, delete tlabels;
 	while (isclass(pnext)) {
 		cur = pnext.pnext;
 		delete pnext;
 		pnext = cur;
 		}
-/*    delete upddens;
-	delete summand;
-*/
 	~Prediction();
     }
 
@@ -537,7 +527,7 @@ This routine can be called more than once, but once `PanelPrediction::Predict`()
 been called no more objects can be added to the list.
 
 **/
-PathPrediction::Tracking(LorC,...
+PanelPrediction::Tracking(LorC,...
     #ifdef OX_PARALLEL
     args
     #endif
@@ -575,7 +565,7 @@ PathPrediction::Tracking(LorC,...
 @param Nplace number of observations (row weight) column<br/>UnInitialized no row weights
 @param tplace model t column<br/>UnInitialized
 **/
-PathPrediction::SetColumns(dlabels,Nplace,Tplace) {
+PanelPrediction::SetColumns(dlabels,Nplace,Tplace) {
     decl v,lc,vl,myc;
     cols = <>;
     mask = <>;
@@ -611,6 +601,19 @@ PathPrediction::SetColumns(dlabels,Nplace,Tplace) {
         cols ~= .NaN;
     }
 
+PanelPrediction::InitializePath(pstate) {
+    EverPredicted = TRUE;
+    if (!sizeof(tlist)) {
+        println("Nothing tracked.  Will track everthing.");
+        Tracking(TrackAll);
+        }
+	if (isclass(upddens)) {
+		upddens->SetFE(pstate);
+		summand->SetFE(pstate);
+		upddens->loop();
+		}
+    }
+
 /** Get ready to compute predictions along the path.
 This updates every tracked object.  It updates the density over random effects for this fixed effect.
 
@@ -618,17 +621,8 @@ This updates every tracked object.  It updates the density over random effects f
 
 **/
 PathPrediction::Initialize() {
-    if (!sizeof(tlist)) {
-        println("Nothing tracked.  Will track everthing.");
-        Tracking(TrackAll);
-        }
-    EverPredicted = TRUE;
     PredictFailure = FALSE;
-	if (isclass(upddens)) {
-		upddens->SetFE(pstate);
-		summand->SetFE(pstate);
-		upddens->loop();
-		}
+    mother->InitializePath(pstate);
     flat = <>;
     L = +.Inf;
     first = TRUE;
@@ -643,19 +637,19 @@ PathPrediction::Initialize() {
 **/
 PathPrediction::TypeContribution(pf,subflat) {
   decl done, pcode,tv;
-  if (isclass(method)) { // Nested Solution algorithm. Solve the current problem
-        if (!method->Solve(f,rcur))   // Did solution fail?
+  if (isclass(mother.method)) { // Nested Solution algorithm. Solve the current problem
+        if (!(mother.method->Solve(f,rcur)))   // Did solution fail?
             return FALSE;
         }
   Flags::NewPhase(PREDICTING);
   SetT();
   cur=this;
-  ctlist = tlist;
-  ExogOutcomes::SetAuxList(tlist);
+  ctlist = mother.tlist;
+  ExogOutcomes::SetAuxList(ctlist);  //mother.tlist 
   if (Data::Volume>LOUD) println("++ TypeContribution ",Version::MPIserver," ",pf);
   do {
      cur->SetMoms(sizeof(ctlist),first);
-     foreach(tv in tlist) {
+     foreach(tv in mother.tlist) {
         tv.track->Reset();
         if (tv.Volume>=LOUD) println(tv.L," ",tv.track.mean);
         }
@@ -697,40 +691,47 @@ PathPrediction::TypeContribution(pf,subflat) {
 **/
 PanelPrediction::MaxPathVectorLength(inT) {
     decl n=0;
-    cur = this;
+    cur = first;
     do {
         n= max(n,max(inT,cur.T) * sizeof(cur.tlist));
         } while((isclass(cur = cur.fnext)));
+    if (f==AllFixed) n= max(n,max(inT,T) * sizeof(tlist));
     return n;
     }
 
-/** Set an object to be tracked in predictions.
+/* Set an object to be tracked in predictions.
 @param LorC  UseLabel: use object label to match to column.<br/>
             NotInData: unmatched to data.<br/>
             non-negative integer: column in data set<br/>
             string: column label<br/>
             TrackAll: add all actions, endogenous states, and auxliaries to the tracking list
 @param ... objects or arrays of objects to be tracked
-**/
 PanelPrediction::Tracking(LorC,...) {
     decl v,args=va_arglist();
     TrackingCalled = TRUE;
-    cur=this;
+    cur=first;
     do {
         cur->PathPrediction::Tracking(LorC,args);
         } while( (isclass(cur=cur.fnext)) );
+    if (f==AllFixed)
+        PathPrediction::Tracking(LorC,args);
+
     }
+**/
 
 /**
 @internal
 **/
 PanelPrediction::~PanelPrediction() {
-	while (isclass(fnext)) {
-		cur = fnext.fnext;
-		delete fnext;
-		fnext = cur;
-		}
-    delete fparray;
+    if (isarray(fparray)) {
+       fnext = fparray[0];
+	   while (isclass(fnext)) {
+		  cur = fnext.fnext;
+		  delete fnext;
+		  fnext = cur;
+		  }
+        }
+    delete tlist, delete tlabels;
     ~PathPrediction();
 	}	
 
@@ -745,21 +746,43 @@ PanelPrediction::~PanelPrediction() {
         matrix: a list of states to start the prediction from<br/>
         object of Prediction class: use `Prediction::sind` as the initial state for this prediction.
 @param wght [default=UNCORRELATED]
+@param aggshares   0 [default] equal shares of averaged moments over fixed groups<br />Fx1 vector, share of population
 **/
-PanelPrediction::PanelPrediction(label,method,iDist,wght) {
-	decl f=0;   //go in reverse order like other processes
-	PathPrediction(f,method,iDist,wght);	
+PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
+    PathPrediction(this,N::F>One ? AllFixed : 0,0,wght,0);	
+    EverPredicted = FALSE;
+    this.method = method;
+    tlabels = {"t"};
+    tlist = {};
     label = isint(label) ? classname(userState) : label;
     PredMomFile=replace(Version::logdir+DP::L+"_PredMoments_"+label," ","")+".dta";
-	fparray = new array[N::F];
-	fparray[f] = 0;  // I am my own first fixed effect group.
-	cur = this;
-    // Create path predictions for all other fixed effect groups
-    if (N::F>One && !isclass(method))
-            oxwarning("DDP Warning: Solution method is not nested with fixed effects present.  Predictions may not be accurate");
-	for (f=One;f<N::F;++f) cur = cur.fnext = fparray[f] = new PathPrediction(f,method,iDist,wght);
+    if (N::F>One) {
+	   fparray = new array[N::F];
+	   for (f=Zero;f<N::F;++f) {
+            fparray[f] = new PathPrediction(this,f,method,iDist,wght,ismatrix(aggshares)? aggshares[f] : 1/N::F);
+            if (!f)
+                first = cur = fparray[f];
+            else
+                cur = cur.fnext = fparray[f];
+            }
+       if (!isclass(method))
+        oxwarning("DDP Warning: Solution method is not nested with fixed effects present.  Predictions may not be accurate");
+       }
+    else {
+        fparray = 0;
+        first = this;
+        }
     FN = 1;
     TrackingCalled = FALSE;
+    if (N::R>One || N::DynR>One ) {
+        if (!isclass(method) )
+            oxwarning("DDP Warning: Solution method is not nested with random effects present.  Predictions will not be accurate.");
+        summand = new RandomEffectsIntegration();
+        upddens = new UpdateDensity();
+        }
+	else {
+        summand = upddens = UnInitialized;
+        }
     }
 
 /** Predict outcomes in the panel.
@@ -772,8 +795,12 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght) {
 @return succ TRUE no problems<br/>FALSE prediction or solution failed.
 **/
 PanelPrediction::Predict(T,prtlevel,outmat) {
-    decl cur=this, succ,left=0,right=N::R-1;
+    decl cur=first, succ,left=0,right=N::R-1;
     if (!TrackingCalled) PanelPrediction::Tracking();
+    if (f==AllFixed) {
+        vdelt =<>;    dlabels = {};
+        if (ismatrix(flat)) delete flat;
+        }
     aflat = {};
     M = 0.0;
     succ = TRUE;
@@ -786,9 +813,24 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
             }
         else
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
+        if (f==AllFixed) AddToOverall(cur);
         M += cur.L;
 	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur->GetFlat();
         } while((isclass(cur=cur.fnext)));
+     if (f==AllFixed) {
+     	if (!Version::MPIserver && Data::Volume>QUIET)
+            aflat |= GetFlat();
+        if (HasObservations) {
+            if (ismatrix(pathW)) {
+                dlabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
+                vdelt ~= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+                }
+            else
+                vdelt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+            L = ismatrix(pathW) ? outer(vdelt,pathW) : norm(vdelt,'F') ;
+            M += L;
+            }
+        }
     if (!Version::MPIserver && Data::Volume>QUIET) {
         decl amat = <>,f;
         foreach(f in aflat) amat |= f;
@@ -801,6 +843,21 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
     return succ;
     }
 
+PanelPrediction::AddToOverall(fcur) {
+    if (!fcur.f)
+        flat = fcur.myshares * fcur.flat;
+    else
+        flat += fcur.myshares * fcur.flat;
+    cur=this;
+    do {
+        if (!fcur.f)
+            accmom = fcur.myshares * fcur.accmom;
+        else
+            accmom += fcur.myshares * fcur.accmom;
+        cur = cur.pnext;
+  	    } while(isclass(cur));
+    }
+
 /** Track an object that is matched to column in the data.
 @param Fgroup  : integer or vector of integers of fixed groups that the moment should be tracked for.<br/>
                <code>AllFixed</code>, moment appears in all groups
@@ -808,8 +865,9 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
 @param mom `Discrete` object to track
 **/
 PredictionDataSet::TrackingMatchToColumn(Fgroup,LorC,mom) {
-    if (Fgroup==AllFixed) PanelPrediction::Tracking(LorC,mom);
-    else
+//    if (Fgroup==AllFixed)
+    PanelPrediction::Tracking(LorC,mom);
+/*    else
         if (Fgroup==0) PathPrediction::Tracking(LorC,mom);
         else {
             decl f;
@@ -817,6 +875,7 @@ PredictionDataSet::TrackingMatchToColumn(Fgroup,LorC,mom) {
                 fparray[Fgroup]->PathPrediction::Tracking(LorC,mom);
             else foreach (f in Fgroup) fparray[f] ->PathPrediction::Tracking(LorC,mom);
             }
+*/
     }
 
 
@@ -826,15 +885,17 @@ PredictionDataSet::TrackingMatchToColumn(Fgroup,LorC,mom) {
 @param InDataOrNot TRUE: the <code>UseLabel</code> tag will be passed to
             `PathPrediction::Tracking`()<br/>
             FALSE: the <code>NotInData</code> tag will be sent.
-@param mom1 object or array of objects to track
-@param ... more objects
+@param ... objects or array of objects to track
 **/
-PredictionDataSet::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
-    decl v,args =  isarray(mom1) ? mom1 : {mom1},
-        pparg = InDataOrNot ? UseLabel : NotInData;
-    args |= va_arglist();
-    if (Fgroup==AllFixed) PanelPrediction::Tracking(pparg,args);
-    else
+PredictionDataSet::TrackingWithLabel(Fgroup,InDataOrNot,...
+    #ifdef OX_PARALLEL
+    args
+    #endif
+) {
+    decl v, pparg = InDataOrNot ? UseLabel : NotInData;
+//    if (Fgroup==AllFixed)
+        PanelPrediction::Tracking(pparg,args);
+/*    else
         if (Fgroup==0) PathPrediction::Tracking(pparg,args);
         else {
             decl f;
@@ -842,6 +903,7 @@ PredictionDataSet::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
             else foreach (f in Fgroup)
             fparray[f]->PathPrediction::Tracking(pparg,args);
             }
+*/
     }
 
 
@@ -856,11 +918,13 @@ PredictionDataSet::TrackingWithLabel(Fgroup,InDataOrNot,mom1,...) {
             UnInitialized [default] no method (warning if there is heterogeneity)
 @param iDist initial conditions set to `PathPrediction`s
 @param wght see `GMMWeightOptions`
+@param aggshares FALSE [default] or a Fx1 vector of population shares for groups to
+    be used when creating an aggregate prediction.
 **/
-PredictionDataSet::PredictionDataSet(UorCorL,label,method,iDist,wght) {
+PredictionDataSet::PredictionDataSet(UorCorL,label,method,iDist,wght,aggshares) {
     decl q,j;
     Tplace = Nplace = UnInitialized;
-    PanelPrediction(label,method,iDist,wght);
+    PanelPrediction(label,method,iDist,wght,aggshares);
     if (UorCorL==NotInData) {
         if (N::F>1) oxrunerror("Multiple fixed groups but data contain no fixed columns.  ");
         flist = 0;
@@ -951,7 +1015,7 @@ PredictionDataSet::Read(FNorDB) {
         }
     else
        fcols = ismatrix(flist) ? flist : 0;
-    fdone = zeros(sizeof(fparray),1);
+    fdone = zeros( N::F+(N::F>One) ,1);
     if (ismatrix(fcols)) {
         decl c, k;
         foreach(c in fcols[k]) {
@@ -965,9 +1029,10 @@ PredictionDataSet::Read(FNorDB) {
          hasT = isstring(Tplace)||(Tplace!=UnInitialized);
     row = 0;
     inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
+    if (inf<Zero) inf = N::F+1; //any negative value maps into N::F+1
     do {
         curf = inf;
-        fptr = (curf) ?  fparray[curf] : this;
+        fptr = (curf==N::F+1 || N::F==One) ? this : fparray[curf];
         if (fdone[curf])
             oxrunerror("DDP Error 68. reading in moments for a fixed group more than once.  moments data file not sorted properly");
         fdone[curf] = TRUE;
@@ -977,19 +1042,20 @@ PredictionDataSet::Read(FNorDB) {
         do {
             if (row<rows(data)) {  //read one more
                 inf = (isint(fcols)) ? 0 :  I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
+                if (inf<Zero) inf = N::F+1; //any negative value maps into -1
                 if (inf==curf ) {  //same fixed group
                     inmom |= data[row++][incol];   //add moments, increment row
                     continue;                        // don't install moments
                     }
                 }
             else
-                inf = UnInitialized;  //get out of loop after installing
+                inf = NotInData;  //get out of loop after installing
             fptr->Empirical(inmom,hasN,hasT);
             if (report) {
                     println("Moments read in for fixed group ",curf,". See log file");
                     fprintln(Data::logf,"Moments of Moments for fixed group:",curf);
                     }
             } while (inf==curf);
-        } while(inf!=UnInitialized);
+        } while(inf!=NotInData);
 	delete source;
 	}
