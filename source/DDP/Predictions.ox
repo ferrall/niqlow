@@ -308,8 +308,8 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
     inmom = inNandMom[][:C-hasN-hasT];
     if (isint(influ)) influ = selectifc(ones(mask),mask);       //if IGNOREINFLUENCE this happens & influence weights in data ingored
     decl j;  //insert columns for moments not matched in the data
-    for (j=0;j<columns(cols);++j)
-        if (cols[j]==NotInData) {
+    for (j=0;j<columns(mother.cols);++j)
+        if (mother.cols[j]==NotInData) {
             if (j==0) inmom = .NaN ~ inmom;
             else if (j>=columns(inmom)) inmom ~= .NaN;
             else inmom = inmom[][:j-1]~.NaN~inmom[][j:];
@@ -645,7 +645,7 @@ PathPrediction::TypeContribution(pf,subflat) {
   SetT();
   cur=this;
   ctlist = mother.tlist;
-  ExogOutcomes::SetAuxList(ctlist);  //mother.tlist 
+  ExogOutcomes::SetAuxList(ctlist);  //mother.tlist
   if (Data::Volume>LOUD) println("++ TypeContribution ",Version::MPIserver," ",pf);
   do {
      cur->SetMoms(sizeof(ctlist),first);
@@ -1027,8 +1027,10 @@ PredictionDataSet::Read(FNorDB) {
     fptr = this;
     decl hasN = isstring(Nplace)||(Nplace!=UnInitialized),
          hasT = isstring(Tplace)||(Tplace!=UnInitialized);
+    SetColumns(dlabels,Nplace,Tplace);
     row = 0;
     inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
+    incol = selectifc(cols,cols.>=0);
     if (inf<Zero) inf = N::F+1; //any negative value maps into N::F+1
     do {
         curf = inf;
@@ -1037,8 +1039,6 @@ PredictionDataSet::Read(FNorDB) {
             oxrunerror("DDP Error 68. reading in moments for a fixed group more than once.  moments data file not sorted properly");
         fdone[curf] = TRUE;
         inmom = <>;
-        fptr -> SetColumns(dlabels,Nplace,Tplace);
-        incol = selectifc(fptr.cols,fptr.cols.>=0);
         do {
             if (row<rows(data)) {  //read one more
                 inf = (isint(fcols)) ? 0 :  I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';

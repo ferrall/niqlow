@@ -76,7 +76,6 @@ struct 	PathPrediction : Prediction {
     /** Path length sent it.**/                     inT,
     /** .**/                                        prtlevel,
     /** indicator vector for observed moments.**/   mask,
-    /** columns in data .     **/                   cols,
     /** the current prediction **/                  cur,
     /** length of the path. **/                     T,	
     /** flat prediction matrix.**/                  flat,
@@ -122,6 +121,7 @@ struct PanelPrediction : PathPrediction {
     /** either fparray[0] or this.**/                  first,
 	/** array pointing to (fixed) path predictions.**/ fparray;
 	decl
+    /** columns in data .     **/                   cols,
     /** list of objects to track.**/                tlist,
     /** labels of flat print. **/                   tlabels,
     /** Predict() called before. **/                EverPredicted,
