@@ -815,7 +815,7 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
         else
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
-        if (!Version::MPIserver) println("@@@@ ",cur.f," ",cur.L," ",M,cur->GetFlat();
+        if (!Version::MPIserver) println("@@@@ ",cur.f," ",cur.L," ",M,cur->GetFlat());
         if (f==AllFixed) {
             println("Adding to overall ");
             AddToOverall(cur);
