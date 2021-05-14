@@ -536,6 +536,7 @@ PanelPrediction::Tracking(LorC,...
         oxwarning("DDP Warning 12.\n Do not add to tracking list after predictions made ... ignored\n");
         return;
         }
+    TrackingCalled = TRUE;
     decl v, newpos=<>;
     if (LorC==TrackAll) {
         println("Tracking all actions, endogenous state and auxiliary variables");
@@ -1015,6 +1016,7 @@ PredictionDataSet::Read(FNorDB) {
         }
     else
        fcols = ismatrix(flist) ? flist : 0;
+    //println("data 0 ",data[0][]," f ",data[0][fcols]);
     fdone = zeros( N::F+(N::F>One) ,1);
     if (ismatrix(fcols)) {
         decl c, k;
@@ -1031,10 +1033,11 @@ PredictionDataSet::Read(FNorDB) {
     row = 0;
     inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
     incol = selectifc(cols,cols.>=0);
-    if (inf<Zero) inf = N::F+1; //any negative value maps into N::F+1
+    if (inf<Zero) inf = N::F; //any negative value maps into N::F+1
+    //println("Here: fcols ",fcols,"flist ",flist,inf,data[row][fcols]);
     do {
         curf = inf;
-        fptr = (curf==N::F+1 || N::F==One) ? this : fparray[curf];
+        fptr = (curf==N::F || N::F==One) ? this : fparray[curf];
         if (fdone[curf])
             oxrunerror("DDP Error 68. reading in moments for a fixed group more than once.  moments data file not sorted properly");
         fdone[curf] = TRUE;
@@ -1042,7 +1045,7 @@ PredictionDataSet::Read(FNorDB) {
         do {
             if (row<rows(data)) {  //read one more
                 inf = (isint(fcols)) ? 0 :  I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
-                if (inf<Zero) inf = N::F+1; //any negative value maps into -1
+                if (inf<Zero) inf = N::F; //any negative value maps into -1
                 if (inf==curf ) {  //same fixed group
                     inmom |= data[row++][incol];   //add moments, increment row
                     continue;                        // don't install moments
