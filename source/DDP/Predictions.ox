@@ -814,8 +814,12 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
             }
         else
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
-        if (f==AllFixed) AddToOverall(cur);
         M += cur.L;
+        println("@@@@ ",cur.f," ",cur.L," ",M,cur.flat);
+        if (f==AllFixed) {
+            println("Adding ",cur.f," to overall ");
+            AddToOverall(cur);
+            }
 	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur->GetFlat();
         } while((isclass(cur=cur.fnext)));
      if (f==AllFixed) {
@@ -1053,11 +1057,11 @@ PredictionDataSet::Read(FNorDB) {
                 }
             else
                 inf = NotInData;  //get out of loop after installing
-            fptr->Empirical(inmom,hasN,hasT);
             if (report) {
-                    println("Moments read in for fixed group ",curf,". See log file");
+                    println("Reading moments for fixed group ",curf,". See log file");
                     fprintln(Data::logf,"Moments of Moments for fixed group:",curf);
                     }
+            fptr->Empirical(inmom,hasN,hasT);
             } while (inf==curf);
         } while(inf!=NotInData);
 	delete source;
