@@ -153,24 +153,24 @@ PathPrediction::tprefix(t) { return sprint("t_","%02u",t,"_"); }
 
 **/
 PathPrediction::ProcessContributions(cmat){
+    decl ismat = ismatrix(cmat), nt = sizeof(mother.tlist);
+    if (ismat) cmat = shape(cmat,nt,this.T)';
     vdelt =<>;    dlabels = {};
     if (ismatrix(flat)) delete flat;
-    decl nt = sizeof(mother.tlist);
     flat = constant(.NaN,T,Fcols+One+nt);
     cur=this;
-    if (ismatrix(cmat)) {
-        cmat = shape(cmat,nt,this.T)';
-        }
     do {
-        if (ismatrix(cmat)) cur.accmom = cmat[cur.t][];
+        if (ismat) cur.accmom = cmat[cur.t][];
         flat[cur.t][] = fvals~cur.t~cur.accmom;
         if (HasObservations) {
             if (ismatrix(pathW)) {
-                 dlabels |= suffix(mother.tlabels[1:],"_"+tprefix(cur.t));
-                 vdelt ~= cur->Delta(mask,Data::Volume>QUIET,mother.tlabels[1:]);
-                 }
-            else
+                dlabels |= suffix(mother.tlabels[1:],"_"+tprefix(cur.t));
+                vdelt ~= cur->Delta(mask,Data::Volume>QUIET,mother.tlabels[1:]);
+                }
+            else {
+                 print("-");
                  vdelt |= cur->Delta(mask,Data::Volume>QUIET,mother.tlabels[1:]);
+                 }
             }
         cur = cur.pnext;
   	    } while(isclass(cur));
@@ -178,6 +178,7 @@ PathPrediction::ProcessContributions(cmat){
                 ismatrix(pathW) ? outer(vdelt,pathW)
                                 : norm(vdelt,'F') )
             : 0.0;
+    println("\n",HasObservations," ",L," ",moments(vdelt));
     if (!Version::MPIserver && HasObservations && Data::Volume>QUIET && isfile(Data::logf) ) {
         fprintln(Data::logf," Predicted Moments group ",f," ",L,
         "%c",mother.tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:],
