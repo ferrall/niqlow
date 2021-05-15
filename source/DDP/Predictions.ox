@@ -169,7 +169,7 @@ PathPrediction::ProcessContributions(cmat){
                 }
             else {
                  print("-");
-                 vdelt |= cur->Delta(mask,Data::Volume>QUIET,mother.tlabels[1:]);
+                 vdelt |= cur->Delta(mask,TRUE/*Data::Volume>QUIET*/,mother.tlabels[1:]);
                  }
             }
         cur = cur.pnext;
@@ -493,6 +493,7 @@ Prediction::Histogram(printit) {
 Prediction::Delta(mask,printit,tlabels) {
     decl df;
     decl mv = selectifc(accmom,mask);
+    print(ismatrix(empmom) ? "*" : "X");
     if (!ismatrix(empmom))  // if no data difference is zero.
         return zeros(mv);
     df = isdotnan(empmom)           //find missing empirical moments
