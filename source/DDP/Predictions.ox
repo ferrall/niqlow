@@ -165,11 +165,10 @@ PathPrediction::ProcessContributions(cmat){
         if (HasObservations) {
             if (ismatrix(pathW)) {
                 dlabels |= suffix(mother.tlabels[1:],"_"+tprefix(cur.t));
-                vdelt ~= cur->Delta(mask,Data::Volume>QUIET,mother.tlabels[1:]);
+                vdelt ~= cur->Delta(mother.mask,Data::Volume>QUIET,mother.tlabels[1:]);
                 }
             else {
-                 print("-");
-                 vdelt |= cur->Delta(mask,TRUE/*Data::Volume>QUIET*/,mother.tlabels[1:]);
+                 vdelt |= cur->Delta(mother.mask,Data::Volume>QUIET,mother.tlabels[1:]);
                  }
             }
         cur = cur.pnext;
@@ -307,7 +306,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
         totN = 1.0;
         }
     inmom = inNandMom[][:C-hasN-hasT];
-    if (isint(influ)) influ = selectifc(ones(mask),mask);       //if IGNOREINFLUENCE this happens & influence weights in data ingored
+    if (isint(influ)) influ = selectifc(ones(mother.mask),mother.mask);       //if IGNOREINFLUENCE this happens & influence weights in data ingored
     decl j;  //insert columns for moments not matched in the data
     for (j=0;j<columns(mother.cols);++j)
         if (mother.cols[j]==NotInData) {
@@ -315,8 +314,10 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
             else if (j>=columns(inmom)) inmom ~= .NaN;
             else inmom = inmom[][:j-1]~.NaN~inmom[][j:];
             }
-    if (!Version::MPIserver && columns(inmom)!=columns(mask))
+    if (!Version::MPIserver && columns(inmom)!=columns(mother.mask)) {
         oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
+//        println("inmom: ",inmom,"mask: ",mask);
+        }
     invsd = 1.0;
     switch(wght) {
         case UNWEIGHTED : break;
@@ -325,7 +326,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
         case IGNOREINFLUENCE:
                         invsd = 1.0 ./ setbounds(moments(inmom,2)[2][],0.1,+.Inf);
                         invsd = isdotnan(invsd) .? 0.0 .: invsd;  //if no observations, set weight to 0.0
-                        invsd = selectifc(invsd,mask);
+                        invsd = selectifc(invsd,mother.mask);
                         break;
         case CONTEMPORANEOUS :  oxrunerror("CONTEMPORANEOUS correlated moments not implemented yet");
                                 break;
@@ -349,9 +350,9 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
             }
         else {
             cur.W = zeros(influ);
-            cur.readmom = constant(.NaN,mask);
+            cur.readmom = constant(.NaN,mother.mask);
             }
-        cur.empmom = selectifc(cur.readmom,mask);
+        cur.empmom = selectifc(cur.readmom,mother.mask);
         if (dt<T) {
             if (cur.pnext==UnInitialized) cur.pnext = new Prediction(cur.t+1);
             cur = cur.pnext;
@@ -429,7 +430,6 @@ PathPrediction::PathPrediction(mother,f,method,iDist,wght,myshare){
     this.wght = wght;
     this.myshare = myshare;
 	fnext = UnInitialized;
-    mask = <>;
     Prediction(0);
     T = 1;
     flat = pathW = inT = 0;
@@ -493,7 +493,6 @@ Prediction::Histogram(printit) {
 Prediction::Delta(mask,printit,tlabels) {
     decl df;
     decl mv = selectifc(accmom,mask);
-    print(ismatrix(empmom) ? "*" : "X");
     if (!ismatrix(empmom))  // if no data difference is zero.
         return zeros(mv);
     df = isdotnan(empmom)           //find missing empirical moments
@@ -501,9 +500,9 @@ Prediction::Delta(mask,printit,tlabels) {
                 .:  (isdotnan(mv)   // else, find mising predictions
                         .? .Inf             // difference unbounded
                         .: W.*(mv-empmom));   // weighted difference
-    if (!Version::MPIserver && printit && isfile(Data::logf) ) {
+    println(t,"%r",{"pred.","obsv.","W","delt"},"%12.4g","%c",tlabels,mv,empmom,reshape(W,1,columns(empmom)),df);
+    if (!Version::MPIserver && printit && isfile(Data::logf) )
         fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4g","%c",tlabels,mv|empmom|reshape(W,1,columns(empmom))|df);
-        }
     return df;
     }
 
@@ -602,6 +601,7 @@ PanelPrediction::SetColumns(dlabels,Nplace,Tplace) {
         cols~= isint(Tplace) ? Tplace : strfind(dlabels,Tplace);
     else
         cols ~= .NaN;
+    println("Set Columns.  cols=",cols,"mask = ",mask);
     }
 
 PanelPrediction::InitializePath(pstate) {
@@ -818,10 +818,10 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
         if (!Version::MPIserver) println("@@@@ ",cur.f," ",cur.L," ",M,cur->GetFlat());
-        if (f==AllFixed) {
-            println("Adding to overall ");
+//        if (f==AllFixed) {
+            println("Adding to overall ",f," ",this.f);
             AddToOverall(cur);
-            }
+//            }
 	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur->GetFlat();
         } while((isclass(cur=cur.fnext)));
      if (f==AllFixed) {
@@ -852,15 +852,15 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
 
 PanelPrediction::AddToOverall(fcur) {
     if (!fcur.f)
-        flat = fcur.myshares * fcur.flat;
+        flat = fcur.myshare * fcur.flat;
     else
-        flat += fcur.myshares * fcur.flat;
+        flat += fcur.myshare * fcur.flat;
     cur=this;
     do {
         if (!fcur.f)
-            accmom = fcur.myshares * fcur.accmom;
+            accmom = fcur.myshare * fcur.accmom;
         else
-            accmom += fcur.myshares * fcur.accmom;
+            accmom += fcur.myshare * fcur.accmom;
         cur = cur.pnext;
   	    } while(isclass(cur));
     }
