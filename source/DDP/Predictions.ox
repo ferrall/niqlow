@@ -752,6 +752,7 @@ PanelPrediction::~PanelPrediction() {
 @param aggshares   0 [default] equal shares of averaged moments over fixed groups<br />Fx1 vector, share of population
 **/
 PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
+    decl k;
     PathPrediction(this,N::F>One ? AllFixed : 0,0,wght,0);	
     EverPredicted = FALSE;
     this.method = method;
@@ -761,12 +762,12 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
     PredMomFile=replace(Version::logdir+DP::L+"_PredMoments_"+label," ","")+".dta";
     if (N::F>One) {
 	   fparray = new array[N::F];
-	   for (f=Zero;f<N::F;++f) {
-            fparray[f] = new PathPrediction(this,f,method,iDist,wght,ismatrix(aggshares)? aggshares[f] : 1/N::F);
-            if (!f)
-                first = cur = fparray[f];
+	   for (k=Zero;k<N::F;++k) {
+            fparray[k] = new PathPrediction(this,k,method,iDist,wght,ismatrix(aggshares)? aggshares[k] : 1/N::F);
+            if (!k)
+                first = cur = fparray[k];
             else
-                cur = cur.fnext = fparray[f];
+                cur = cur.fnext = fparray[k];
             }
        if (!isclass(method))
         oxwarning("DDP Warning: Solution method is not nested with fixed effects present.  Predictions may not be accurate");
@@ -817,16 +818,12 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
         else
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
-        if (!Version::MPIserver) println("@@@@ ",cur.f," ",cur.L," ",M,cur->GetFlat());
-//        if (f==AllFixed) {
-            println("Adding to overall ",f," ",this.f);
-            AddToOverall(cur);
-//            }
+        // if (!Version::MPIserver) println("@@@@ ",cur.f," ",cur.L," ",M,cur->GetFlat());
+        if (f==AllFixed) AddToOverall(cur);
 	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur->GetFlat();
         } while((isclass(cur=cur.fnext)));
      if (f==AllFixed) {
-     	if (!Version::MPIserver && Data::Volume>QUIET)
-            aflat |= GetFlat();
+     	if (!Version::MPIserver && Data::Volume>QUIET) aflat |= GetFlat();
         if (HasObservations) {
             if (ismatrix(pathW)) {
                 dlabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
@@ -839,8 +836,8 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
             }
         }
     if (!Version::MPIserver && Data::Volume>QUIET) {
-        decl amat = <>,f;
-        foreach(f in aflat) amat |= f;
+        decl amat = <>,k;
+        foreach(k in aflat) amat |= k;
         savemat(PredMomFile,amat,
                 N::F==1 ? {"f"}|tlabels
                         : {"f"}|Labels::Vprt[svar][S[fgroup].M:S[fgroup].X]|tlabels);
@@ -852,9 +849,9 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
 
 PanelPrediction::AddToOverall(fcur) {
     if (!fcur.f)
-        flat = fcur.myshare * fcur.flat;
+        flat = fcur.myshare * fcur->GetFlat();
     else
-        flat += fcur.myshare * fcur.flat;
+        flat += fcur.myshare * fcur->GetFlat();
     cur=this;
     do {
         if (!fcur.f)
