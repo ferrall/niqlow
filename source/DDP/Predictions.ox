@@ -825,12 +825,12 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
      if (f==AllFixed) {
      	if (!Version::MPIserver && Data::Volume>QUIET) aflat |= GetFlat();
         if (HasObservations) {
-            if (ismatrix(pathW)) {
+/*            if (ismatrix(pathW)) {
                 dlabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
-                vdelt ~= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+                vdelt ~= Delta(mask,Data::Volume>QUIET,tlabels[1:]);
                 }
-            else
-                vdelt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+            else*/
+                vdelt |= Delta(mask,Data::Volume>QUIET,tlabels[1:]);
             L = ismatrix(pathW) ? outer(vdelt,pathW) : norm(vdelt,'F') ;
             M += L;
             }
