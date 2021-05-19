@@ -147,17 +147,23 @@ PathPrediction::SetT() {
 PathPrediction::tprefix(t) { return sprint("t_","%02u",t,"_"); }
 
 /** process predictions and empirical matching when there are observations over time.
-@param cmat if a matrix then get contributions from it.  This is true when running in parallel.<br/>Otherwise,
-        contributions are located in the individual Prediction objects.
+@param cmat if a matrix then get contributions from it.  This is true when running in parallel.<br/>
+    Otherwise, contributions are located in the individual Prediction objects.
+
+If aggregate moments are being tracked then the weighted values for this
+    group are added to them.
+
 @internal
 
 **/
 PathPrediction::ProcessContributions(cmat){
-    decl ismat = ismatrix(cmat), nt = sizeof(mother.tlist);
+    decl ismat = ismatrix(cmat), nt = sizeof(mother.tlist),
+         aggcur=mother, aggexists = mother.f==AllFixed;
     if (ismat) cmat = shape(cmat,nt,this.T)';
     vdelt =<>;    dlabels = {};
     if (ismatrix(flat)) delete flat;
     flat = constant(.NaN,T,Fcols+One+nt);
+    if (!f && aggexists) mother.flat = flat;
     cur=this;
     do {
         if (ismat) cur.accmom = cmat[cur.t][];
@@ -171,13 +177,25 @@ PathPrediction::ProcessContributions(cmat){
                  vdelt |= cur->Delta(mother.mask,Data::Volume>QUIET,mother.tlabels[1:]);
                  }
             }
-        cur = cur.pnext;
+        if (aggexists) {
+            if (!f)
+                aggcur.accmom = myshare * cur.accmom;
+            else
+                aggcur.accmom += myshare * cur.accmom;
+            }
+        aggcur = aggcur.pnext;
+        cur    =    cur.pnext;
   	    } while(isclass(cur));
+    if (aggexists) {
+        if (!f)
+            mother.flat= myshare * flat;
+        else
+            mother.flat += myshare * flat;
+        }
     L = (HasObservations) ? (
                 ismatrix(pathW) ? outer(vdelt,pathW)
                                 : norm(vdelt,'F') )
             : 0.0;
-    println("\n",HasObservations," ",L," ",moments(vdelt));
     if (!Version::MPIserver && HasObservations && Data::Volume>QUIET && isfile(Data::logf) ) {
         fprintln(Data::logf," Predicted Moments group ",f," ",L,
         "%c",mother.tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:],
@@ -314,10 +332,8 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
             else if (j>=columns(inmom)) inmom ~= .NaN;
             else inmom = inmom[][:j-1]~.NaN~inmom[][j:];
             }
-    if (!Version::MPIserver && columns(inmom)!=columns(mother.mask)) {
+    if (!Version::MPIserver && columns(inmom)!=columns(mother.mask))
         oxwarning("Empirical moments and mask vector columns not equal.\nPossibly labels do not match up.");
-//        println("inmom: ",inmom,"mask: ",mask);
-        }
     invsd = 1.0;
     switch(wght) {
         case UNWEIGHTED : break;
@@ -343,19 +359,20 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
             }
     if (!Version::MPIserver && Data::Volume>QUIET && isfile(Data::logf) )
         fprintln(Data::logf,"Row influence: ",influ,"Weighting by row and column",(inN/totN).*invsd.*influ);
-    do {
-        if (cur.t==datat[dt]) {
+    do {                                                // while data is there to be read.
+        if (cur.t==datat[dt]) {                         // this period has data
             cur.W = (inN[dt]/totN)*(invsd.*influ);
-            cur.readmom = inmom[dt++][];
+            cur.readmom = inmom[dt++][];                //store empirical moments and increment row
             }
-        else {
+        else {                                          // no data for this t
             cur.W = zeros(influ);
             cur.readmom = constant(.NaN,mother.mask);
             }
         cur.empmom = selectifc(cur.readmom,mother.mask);
         if (dt<T) {
-            if (cur.pnext==UnInitialized) cur.pnext = new Prediction(cur.t+1);
-            cur = cur.pnext;
+            if (cur.pnext==UnInitialized)
+                cur.pnext = new Prediction(cur.t+1);  // add another period if required
+            cur = cur.pnext;                          // point to next period
             }
         } while(dt<T);
     }
@@ -500,7 +517,6 @@ Prediction::Delta(mask,printit,tlabels) {
                 .:  (isdotnan(mv)   // else, find mising predictions
                         .? .Inf             // difference unbounded
                         .: W.*(mv-empmom));   // weighted difference
-    println(t,"%r",{"pred.","obsv.","W","delt"},"%12.4g","%c",tlabels,mv,empmom,reshape(W,1,columns(empmom)),df);
     if (!Version::MPIserver && printit && isfile(Data::logf) )
         fprintln(Data::logf,t,"%r",{"pred.","obsv.","W","delt"},"%12.4g","%c",tlabels,mv|empmom|reshape(W,1,columns(empmom))|df);
     return df;
@@ -799,7 +815,7 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
 @return succ TRUE no problems<br/>FALSE prediction or solution failed.
 **/
 PanelPrediction::Predict(T,prtlevel,outmat) {
-    decl cur=first, succ,left=0,right=N::R-1;
+    decl cur, succ,left=0,right=N::R-1;
     if (!TrackingCalled) PanelPrediction::Tracking();
     if (f==AllFixed) {
         vdelt =<>;    dlabels = {};
@@ -808,8 +824,8 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
     aflat = {};
     M = 0.0;
     succ = TRUE;
-    do {
-        //println("* Panel ",Version::MPIserver," ",ismatrix(outmat)," ",M);
+    cur =first;
+    do {  //processing each fixed group, could just be me.
         if (ismatrix(outmat)) {
             cur->PathPrediction::ProcessContributions(sumr(outmat[][left:right]));
             left += N::R;
@@ -819,18 +835,21 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
         // if (!Version::MPIserver) println("@@@@ ",cur.f," ",cur.L," ",M,cur->GetFlat());
-        if (f==AllFixed) AddToOverall(cur);
 	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur->GetFlat();
         } while((isclass(cur=cur.fnext)));
-     if (f==AllFixed) {
+     if (f==AllFixed) {  // aggregmate moments
      	if (!Version::MPIserver && Data::Volume>QUIET) aflat |= GetFlat();
         if (HasObservations) {
-/*            if (ismatrix(pathW)) {
-                dlabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
-                vdelt ~= Delta(mask,Data::Volume>QUIET,tlabels[1:]);
-                }
-            else*/
-                vdelt |= Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+            cur = this;  //processing aggregate moments over t
+            do {
+                if (ismatrix(pathW)) {
+                    dlabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
+                    vdelt ~= Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+                    }
+                else
+                    vdelt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+                cur    =    cur.pnext;
+  	            } while(isclass(cur));
             L = ismatrix(pathW) ? outer(vdelt,pathW) : norm(vdelt,'F') ;
             M += L;
             }
@@ -845,21 +864,6 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
         }
     M = succ ? -sqrt(M) : -.Inf;
     return succ;
-    }
-
-PanelPrediction::AddToOverall(fcur) {
-    if (!fcur.f)
-        flat = fcur.myshare * fcur->GetFlat();
-    else
-        flat += fcur.myshare * fcur->GetFlat();
-    cur=this;
-    do {
-        if (!fcur.f)
-            accmom = fcur.myshare * fcur.accmom;
-        else
-            accmom += fcur.myshare * fcur.accmom;
-        cur = cur.pnext;
-  	    } while(isclass(cur));
     }
 
 /** Track an object that is matched to column in the data.

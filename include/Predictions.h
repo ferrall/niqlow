@@ -134,7 +134,7 @@ struct PanelPrediction : PathPrediction {
     PanelPrediction(label=UseDefault,method=UnInitialized,iDist=0,wght=UNCORRELATED,aggshares=0);
     ~PanelPrediction();
     Predict(T=0,printit=FALSE,submat=0);
-    AddToOverall(fcur);
+    //AddToOverall(fcur);
     Tracking(LorC=TrackAll,...);
     SetColumns(dlabels,Nplace=UnInitialized,Tplace=UnInitialized);
     MaxPathVectorLength(inT=0);
