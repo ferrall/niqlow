@@ -709,12 +709,12 @@ PathPrediction::TypeContribution(pf,subflat) {
 
 **/
 PanelPrediction::MaxPathVectorLength(inT) {
-    decl n=0;
+    decl n=0,tsize = sizeof(tlist);
     cur = first;
     do {
-        n= max(n,max(inT,cur.T) * sizeof(cur.tlist));
+        n= max(n,max(inT,cur.T) * tsize);
         } while((isclass(cur = cur.fnext)));
-    if (f==AllFixed) n= max(n,max(inT,T) * sizeof(tlist));
+    if (f==AllFixed) n= max(n,max(inT,T) * tsize);
     return n;
     }
 
