@@ -157,8 +157,7 @@ If aggregate moments are being tracked then the weighted values for this
 
 **/
 PathPrediction::ProcessContributions(cmat){
-    decl ismat = ismatrix(cmat), nt = sizeof(mother.tlist),
-         aggcur=mother, aggexists = mother.f==AllFixed;
+    decl ismat = ismatrix(cmat),  aggcur=mother;
     if (ismat) cmat = shape(cmat,nt,this.T)';
     vdelt =<>;    dlabels = {};
     if (ismatrix(flat)) delete flat;
@@ -243,6 +242,10 @@ PathPrediction::Predict(inT,prtlevel){
         return FALSE;
         }
     else {
+        if (!Version::MPIserver && Data::Volume>QUIET) {
+            flat = constant(.NaN,T,Fcols+One+nt);
+            if (!f && aggexists) mother.flat = flat;
+            }
         ProcessContributions();
         if (!Version::MPIserver && prtlevel) {
             if (Version::HTopen) println("</pre><a name=\"Prediction\"/><pre>");
@@ -620,7 +623,6 @@ PanelPrediction::SetColumns(dlabels,Nplace,Tplace) {
         cols~= isint(Tplace) ? Tplace : strfind(dlabels,Tplace);
     else
         cols ~= .NaN;
-    println("Set Columns.  cols=",cols,"mask = ",mask);
     }
 
 PanelPrediction::InitializePath(pstate) {
@@ -645,6 +647,8 @@ This updates every tracked object.  It updates the density over random effects f
 PathPrediction::Initialize() {
     PredictFailure = FALSE;
     mother->InitializePath(pstate);
+    nt = sizeof(mother.tlist);
+    aggexists = mother.f==AllFixed;
     flat = <>;
     L = +.Inf;
     first = TRUE;
