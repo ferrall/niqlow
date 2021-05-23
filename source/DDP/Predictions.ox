@@ -162,12 +162,15 @@ PathPrediction::ProcessContributions(cmat){
     if (ismat) cmat = shape(cmat,nt,this.T)';
     vdelt =<>;    dlabels = {};
     if (ismatrix(flat)) delete flat;
-    flat = constant(.NaN,T,Fcols+One+nt);
-    if (!f && aggexists) mother.flat = flat;
+    if (!Version::MPIserver && Data::Volume>QUIET) {
+        flat = constant(.NaN,T,Fcols+One+nt);
+        if (!f && aggexists) mother.flat = flat;
+        }
     cur=this;
     do {
         if (ismat) cur.accmom = cmat[cur.t][];
-        flat[cur.t][] = fvals~cur.t~cur.accmom;
+        if (!Version::MPIserver && Data::Volume>QUIET)
+            flat[cur.t][] = fvals~cur.t~cur.accmom;
         if (HasObservations) {
             if (ismatrix(pathW)) {
                 dlabels |= suffix(mother.tlabels[1:],"_"+tprefix(cur.t));
@@ -186,7 +189,7 @@ PathPrediction::ProcessContributions(cmat){
         aggcur = aggcur.pnext;
         cur    =    cur.pnext;
   	    } while(isclass(cur));
-    if (aggexists) {
+    if (!Version::MPIserver && Data::Volume>QUIET && aggexists) {
         if (!f)
             mother.flat= myshare * flat;
         else
@@ -834,11 +837,10 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
         else
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
-        // if (!Version::MPIserver) println("@@@@ ",cur.f," ",cur.L," ",M,cur->GetFlat());
 	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur->GetFlat();
         } while((isclass(cur=cur.fnext)));
      if (f==AllFixed) {  // aggregmate moments
-     	if (!Version::MPIserver && Data::Volume>QUIET) aflat |= GetFlat();
+     	if (!Version::MPIserver && Data::Volume>QUIET) aflat |= this->GetFlat();
         if (HasObservations) {
             cur = this;  //processing aggregate moments over t
             do {
