@@ -158,7 +158,11 @@ If aggregate moments are being tracked then the weighted values for this
 **/
 PathPrediction::ProcessContributions(cmat){
     decl ismat = ismatrix(cmat),  aggcur=mother;
-    if (ismat) cmat = shape(cmat,nt,this.T)';
+    if (ismat) {
+        print("PC ",rows(cmat)," ",columns(cmat)," : ");
+        cmat = shape(cmat,nt,this.T)';
+        println(rows(cmat)," ",columns(cmat));
+        }
     vdelt =<>;    dlabels = {};
     if (ismatrix(flat)) delete flat;
     if (!Version::MPIserver && Data::Volume>QUIET) {
@@ -167,7 +171,10 @@ PathPrediction::ProcessContributions(cmat){
         }
     cur=this;
     do {
-        if (ismat) cur.accmom = cmat[cur.t][];
+        if (ismat) {
+            cur.accmom = cmat[cur.t][];
+            println("%%% ",f," ",cur.t,cur.accmom);
+            }
         if (!Version::MPIserver && Data::Volume>QUIET)
             flat[cur.t][] = fvals~cur.t~cur.accmom;
         if (HasObservations) {
