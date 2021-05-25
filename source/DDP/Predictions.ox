@@ -158,15 +158,15 @@ If aggregate moments are being tracked then the weighted values for this
 **/
 PathPrediction::ProcessContributions(cmat){
     decl ismat = ismatrix(cmat),  aggcur=mother;
-    if (ismat) {
+//    if (ismat) {
 //        print("PC ",rows(cmat)," ",columns(cmat)," : ");
 //        cmat = shape(cmat,nt,this.T)';
         println("PC ",rows(cmat)," ",columns(cmat));
-        }
+//        }
     vdelt =<>;    dlabels = {};
     if (ismatrix(flat)) delete flat;
     if (!Version::MPIserver && Data::Volume>QUIET) {
-        flat = constant(.NaN,T,Fcols+One+nt);
+        flat = constant(.NaN,T,Fcols+One+sizeof(mother.tlist));
         if (!f && aggexists) mother.flat = flat;
         }
     cur=this;
@@ -250,7 +250,7 @@ PathPrediction::Predict(inT,prtlevel){
         }
     else {
         if (!Version::MPIserver && Data::Volume>QUIET) {
-            flat = constant(.NaN,T,Fcols+One+nt);
+            flat = constant(.NaN,T,Fcols+One+sizeof(mother.tlist));
             if (!f && aggexists) mother.flat = flat;
             }
         ProcessContributions();
@@ -656,7 +656,6 @@ This updates every tracked object.  It updates the density over random effects f
 PathPrediction::Initialize() {
     PredictFailure = FALSE;
     mother->InitializePath(pstate);
-    nt = sizeof(mother.tlist);
     aggexists = mother.f==AllFixed;
     flat = <>;
     L = +.Inf;
@@ -831,7 +830,7 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
 @return succ TRUE no problems<br/>FALSE prediction or solution failed.
 **/
 PanelPrediction::Predict(inT,prtlevel,outmat) {
-    decl cur, succ;
+    decl cur, succ, nt;
     // this.T = inT; SetT();    println("  inT and T ",inT," ",T); //    if (inT>0) this.T = inT;
     if (!TrackingCalled) PanelPrediction::Tracking();
     if (f==AllFixed) {
@@ -842,7 +841,8 @@ PanelPrediction::Predict(inT,prtlevel,outmat) {
     M = 0.0;
     succ = TRUE;
     cur =first;
-    println("T is ",T);
+    nt = sizeof(tlist);
+    println("T is ",T," nt is ",nt);
     if (ismatrix(outmat))
         outmat = aggregater(outmat, N::R);   //already weighted by r density
     do {  //processing each fixed group, could just be me.

@@ -70,8 +70,7 @@ struct 	PathPrediction : Prediction {
                 empirical moments include.
                 @see GMMWeightOptions **/
                                                 wght;
-    static decl                                 nt,
-                                                aggexists;
+    static decl                                 aggexists;
 	decl
     /** current index of random effects.**/         rcur,
     /** Empirical moments read in. **/              HasObservations,
