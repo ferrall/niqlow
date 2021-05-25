@@ -39,8 +39,7 @@ ObjClient::MultiParam(Fmat,aFvec,af) {
 ObjClient::SubProblems(F) {
     if (NSubProblems>Zero) {
         decl subV=zeros(MaxSubReturn,NSubProblems);
-        //if (Volume>QUIET)
-         println(" Debuging in SubProblems ",F," ",MaxSubReturn," ",NSubProblems);
+        if (Volume>QUIET) println(" Debguging in SubProblems ",F," ",MaxSubReturn," ",NSubProblems);
         ToDoList(NSubProblems,F,&subV,MaxSubReturn,OneVector);
         return obj.vcur->Vstore(obj->AggSubProbMat(subV));
         }

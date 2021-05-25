@@ -654,7 +654,6 @@ This updates every tracked object.  It updates the density over random effects f
 PathPrediction::Initialize() {
     PredictFailure = FALSE;
     mother->InitializePath(pstate);
-    aggexists = mother.f==AllFixed;
     flat = <>;
     L = +.Inf;
     first = TRUE;
@@ -782,7 +781,8 @@ PanelPrediction::~PanelPrediction() {
 **/
 PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
     decl k;
-    PathPrediction(this,N::F>One ? AllFixed : 0,0,wght,0);	
+    aggexists = N::F>One;
+    PathPrediction(this,aggexists ? AllFixed : 0,0,wght,0);	
     EverPredicted = FALSE;
     this.method = method;
     tlabels = {"t"};
