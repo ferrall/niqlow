@@ -158,11 +158,6 @@ If aggregate moments are being tracked then the weighted values for this
 **/
 PathPrediction::ProcessContributions(cmat){
     decl ismat = ismatrix(cmat),  aggcur=mother;
-//    if (ismat) {
-//        print("PC ",rows(cmat)," ",columns(cmat)," : ");
-//        cmat = shape(cmat,nt,this.T)';
-        println("PC ",rows(cmat)," ",columns(cmat)," ",aggexists);
-//        }
     vdelt =<>;    dlabels = {};
     if (ismatrix(flat)) delete flat;
     if (!Version::MPIserver && Data::Volume>QUIET) {
@@ -188,7 +183,6 @@ PathPrediction::ProcessContributions(cmat){
                 aggcur.accmom = myshare * cur.accmom;
             else
                 aggcur.accmom += myshare * cur.accmom;
-            println("updated agg ",f);
             }
         aggcur = aggcur.pnext;
         cur    =    cur.pnext;
@@ -316,10 +310,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
         if ( any( diff0(datat) .< 0) )
                 oxrunerror("DDP Error ??. t column in moments not ascending. Check data and match to fixed groups.");
         T = max(maxc(datat)+1,rows(inNandMom));
-        if (report) {
-            println("T: ",T);
-            MyMoments(inNandMom,mother.tlabels[1:],Data::logf);
-            }
+        if (report) MyMoments(inNandMom,mother.tlabels[1:],Data::logf);
         }
     else {
         T = rows(inNandMom);
@@ -864,6 +855,13 @@ PanelPrediction::Predict(inT,prtlevel,outmat) {
   	            } while(isclass(cur));
             L = ismatrix(pathW) ? outer(vdelt,pathW) : norm(vdelt,'F') ;
             M += L;
+            if (!Version::MPIserver && HasObservations && Data::Volume>QUIET && isfile(Data::logf) ) {
+                fprintln(Data::logf," Predicted Moments group ",f," ",L,
+                    "%c",mother.tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:],
+                    "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",mother.tlabels[1:],
+                    ismatrix(pathW) ? reshape(vdelt,T,sizeof(mother.tlabels[1:])) : vdelt
+                    );
+                }
             }
         }
     if (!Version::MPIserver && Data::Volume>QUIET) {
