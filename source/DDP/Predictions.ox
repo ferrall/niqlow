@@ -301,9 +301,8 @@ If T is greater than the current length of the path additional predictions are c
 
 **/
 PathPrediction::Empirical(inNandMom,hasN,hasT) {
-    decl inmom,totN,inN,invsd,C = columns(inNandMom)-1,influ,dt,datat,negt,
+    decl j,inmom,totN,inN,invsd,C = columns(inNandMom)-1,influ,dt,pt,datat,negt,
     report = !Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf) ;
-    T = rows(inNandMom);
     HasObservations = TRUE;
     influ = 0;
     if (hasT) {
@@ -315,18 +314,20 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
                 }
             inNandMom = deleteifr(inNandMom,negt);
             }
-        if (report) MyMoments(inNandMom,mother.tlabels[1:],Data::logf);
         datat = inNandMom[][C];
         if ( any( diff0(datat) .< 0) )
                 oxrunerror("DDP Error ??. t column in moments not ascending. Check data and match to fixed groups.");
-        T = rows(inNandMom);
+        T = max(maxc(datat)+1,rows(inNandMom));
+        if (report) {
+            println("T: ",T);
+            MyMoments(inNandMom,mother.tlabels[1:],Data::logf);
+            }
         }
     else {
+        T = rows(inNandMom);
         datat = range(0,T-1)';
         influ = ones(1,C-1);
         }
-    cur = this;
-    dt = 0;
     if (hasN) {
         inN = inNandMom[][C-1];
         inN = isdotnan(inN) .? 0 .: inN;
@@ -338,8 +339,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
         }
     inmom = inNandMom[][:C-hasN-hasT];
     if (isint(influ)) influ = selectifc(ones(mother.mask),mother.mask);       //if IGNOREINFLUENCE this happens & influence weights in data ingored
-    decl j;  //insert columns for moments not matched in the data
-    for (j=0;j<columns(mother.cols);++j)
+    for (j=0;j<columns(mother.cols);++j)//insert columns for moments not matched in the data
         if (mother.cols[j]==NotInData) {
             if (j==0) inmom = .NaN ~ inmom;
             else if (j>=columns(inmom)) inmom ~= .NaN;
@@ -372,8 +372,10 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
             }
     if (!Version::MPIserver && Data::Volume>QUIET && isfile(Data::logf) )
         fprintln(Data::logf,"Row influence: ",influ,"Weighting by row and column",(inN/totN).*invsd.*influ);
-    do {                                                // while data is there to be read.
-        if (cur.t==datat[dt]) {                         // this period has data
+    cur = this;
+    pt = dt = 0;
+    do {
+        if ( dt<rows(datat) && cur.t==datat[dt]) {                         // this period has data
             cur.W = (inN[dt]/totN)*(invsd.*influ);
             cur.readmom = inmom[dt++][];                //store empirical moments and increment row
             }
@@ -382,12 +384,12 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
             cur.readmom = constant(.NaN,mother.mask);
             }
         cur.empmom = selectifc(cur.readmom,mother.mask);
-        if (dt<T) {
+        if (++pt<T) {
             if (cur.pnext==UnInitialized)
                 cur.pnext = new Prediction(cur.t+1);  // add another period if required
             cur = cur.pnext;                          // point to next period
             }
-        } while(dt<T);
+        } while(pt<T);
     }
 
 /** Set the initial conditions of a path prediction.
@@ -830,7 +832,7 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
 **/
 PanelPrediction::Predict(inT,prtlevel,outmat) {
     decl cur, succ;
-    if (inT>0) this.T = inT;
+    // this.T = inT; SetT();    println("  inT and T ",inT," ",T); //    if (inT>0) this.T = inT;
     if (!TrackingCalled) PanelPrediction::Tracking();
     if (f==AllFixed) {
         vdelt =<>;    dlabels = {};
@@ -840,6 +842,7 @@ PanelPrediction::Predict(inT,prtlevel,outmat) {
     M = 0.0;
     succ = TRUE;
     cur =first;
+    println("T is ",T);
     if (ismatrix(outmat))
         outmat = aggregater(outmat, N::R);   //already weighted by r density
     do {  //processing each fixed group, could just be me.
