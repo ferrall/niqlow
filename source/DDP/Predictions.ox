@@ -159,9 +159,9 @@ If aggregate moments are being tracked then the weighted values for this
 PathPrediction::ProcessContributions(cmat){
     decl ismat = ismatrix(cmat),  aggcur=mother;
     if (ismat) {
-        print("PC ",rows(cmat)," ",columns(cmat)," : ");
-        cmat = shape(cmat,nt,this.T)';
-        println(rows(cmat)," ",columns(cmat));
+//        print("PC ",rows(cmat)," ",columns(cmat)," : ");
+//        cmat = shape(cmat,nt,this.T)';
+        println("PC ",rows(cmat)," ",columns(cmat));
         }
     vdelt =<>;    dlabels = {};
     if (ismatrix(flat)) delete flat;
@@ -820,7 +820,7 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
     }
 
 /** Predict outcomes in the panel.
-@param t : positive integer or matrix of lengths of paths to predict (same length as
+@param T : positive integer or matrix of lengths of paths to predict (same length as
             number of paths in then panel)
 @param prtlevel : Zero [default] do not print<br/>
                 One print state and choice probabilities<br/>
@@ -828,8 +828,9 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
 @param outmat matrix, predictions already made, just process contributions
 @return succ TRUE no problems<br/>FALSE prediction or solution failed.
 **/
-PanelPrediction::Predict(T,prtlevel,outmat) {
-    decl cur, succ,left=0,right=N::R-1;
+PanelPrediction::Predict(inT,prtlevel,outmat) {
+    decl cur, succ;
+    if (inT>0) this.T = inT;
     if (!TrackingCalled) PanelPrediction::Tracking();
     if (f==AllFixed) {
         vdelt =<>;    dlabels = {};
@@ -839,18 +840,17 @@ PanelPrediction::Predict(T,prtlevel,outmat) {
     M = 0.0;
     succ = TRUE;
     cur =first;
+    if (ismatrix(outmat))
+        outmat = aggregater(outmat, N::R);   //already weighted by r density
     do {  //processing each fixed group, could just be me.
-        if (ismatrix(outmat)) {
-            cur->PathPrediction::ProcessContributions(sumr(outmat[][left:right]));
-            left += N::R;
-            right += N::R;
-            }
+        if (ismatrix(outmat))
+            cur->PathPrediction::ProcessContributions(shape(outmat[][cur.f],nt,T)'); // long vector reshaped into T x nt panel of moments
         else
             succ = succ && cur->PathPrediction::Predict(T,prtlevel);
         M += cur.L;
 	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur->GetFlat();
         } while((isclass(cur=cur.fnext)));
-     if (f==AllFixed) {  // aggregmate moments
+     if (f==AllFixed) {  // aggregate moments
      	if (!Version::MPIserver && Data::Volume>QUIET) aflat |= this->GetFlat();
         if (HasObservations) {
             cur = this;  //processing aggregate moments over t
