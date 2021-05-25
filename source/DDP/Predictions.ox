@@ -161,7 +161,7 @@ PathPrediction::ProcessContributions(cmat){
 //    if (ismat) {
 //        print("PC ",rows(cmat)," ",columns(cmat)," : ");
 //        cmat = shape(cmat,nt,this.T)';
-        println("PC ",rows(cmat)," ",columns(cmat));
+        println("PC ",rows(cmat)," ",columns(cmat)," ",aggexists);
 //        }
     vdelt =<>;    dlabels = {};
     if (ismatrix(flat)) delete flat;
@@ -171,10 +171,7 @@ PathPrediction::ProcessContributions(cmat){
         }
     cur=this;
     do {
-        if (ismat) {
-            cur.accmom = cmat[cur.t][];
-            println("%%% ",f," ",cur.t,cur.accmom);
-            }
+        if (ismat) { cur.accmom = cmat[cur.t][]; }
         if (!Version::MPIserver && Data::Volume>QUIET)
             flat[cur.t][] = fvals~cur.t~cur.accmom;
         if (HasObservations) {
@@ -191,6 +188,7 @@ PathPrediction::ProcessContributions(cmat){
                 aggcur.accmom = myshare * cur.accmom;
             else
                 aggcur.accmom += myshare * cur.accmom;
+            println("updated agg ",f);
             }
         aggcur = aggcur.pnext;
         cur    =    cur.pnext;
@@ -831,7 +829,6 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
 **/
 PanelPrediction::Predict(inT,prtlevel,outmat) {
     decl cur, succ, nt;
-    // this.T = inT; SetT();    println("  inT and T ",inT," ",T); //    if (inT>0) this.T = inT;
     if (!TrackingCalled) PanelPrediction::Tracking();
     if (f==AllFixed) {
         vdelt =<>;    dlabels = {};
@@ -842,14 +839,13 @@ PanelPrediction::Predict(inT,prtlevel,outmat) {
     succ = TRUE;
     cur =first;
     nt = sizeof(tlist);
-    println("T is ",T," nt is ",nt);
     if (ismatrix(outmat))
         outmat = aggregater(outmat, N::R);   //already weighted by r density
     do {  //processing each fixed group, could just be me.
         if (ismatrix(outmat))
             cur->PathPrediction::ProcessContributions(shape(outmat[][cur.f],nt,T)'); // long vector reshaped into T x nt panel of moments
         else
-            succ = succ && cur->PathPrediction::Predict(T,prtlevel);
+            succ = succ && cur->PathPrediction::Predict(inT,prtlevel);
         M += cur.L;
 	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur->GetFlat();
         } while((isclass(cur=cur.fnext)));
