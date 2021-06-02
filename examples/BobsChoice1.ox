@@ -2,7 +2,8 @@
 /* This file is part of niqlow. Copyright (C) 2015-2021 Christopher Ferrall */
 class BobsChoice : OneStateModel {
         static decl sch, maj;
-        static Decide();
+        static Build(d);
+        static Create();
         Utility();
         }
 

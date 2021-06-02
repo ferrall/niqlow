@@ -98,13 +98,14 @@ struct ExPostSmoothing : Bellman {
 	static decl
     /**The smoothing method to use. @see SmoothingMethods**/
             Method,
-    /**Smoothing parameter $\rho$ (logit method)**/
-            rho,
-    /**Smoothing parameter $\sigma$ (normal method)**/
-            sigma;
+    /**Smoothing parameter $\rho$ (logit or normal method)**/
+            rho;
+//    /**Smoothing parameter $\sigma$ (normal method)**/        sigma;
 	static Initialize(userState,UseStateList=FALSE);
-	static CreateSpaces(Method=NoSmoothing,smparam=1.0);
+	static CreateSpaces(Method=NoSmoothing,rho=1.0);
+	static SetSmoothing(Method,rho);
 	virtual Smooth();
+
 			Logistic();
 			Normal();
 	}

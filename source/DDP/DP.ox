@@ -357,9 +357,15 @@ DP::Actions(...
     va
     #endif
 ) 	{
-	decl a, nr, pos=S[acts].D, sL;
-	AddStates(acts,va);
-    foreach (a in va) { //	for(i=0;i<sizeof(va);++i)	{
+	decl a, i, j, nr, pos=S[acts].D, sL;
+    for(i=0;i<sizeof(va);++i)	{
+        if (isarray(va[i])) {
+            for(j=0;j<sizeof(va[i]);++j)
+                Actions(va[i][j]);
+            continue;
+            }
+        a = va[i];
+        AddStates(acts,a);
 		a.pos = pos;
 		N::AA |= a.N;
 		sL = a.L;
@@ -375,7 +381,7 @@ DP::Actions(...
 	 		Alpha::Matrix |= reshape(Alpha::Matrix,(a.N-1)*nr,pos);
 			Alpha::Matrix ~= vecr(a.vals' * ones(1,nr));	 		
 	 		}
-//        if (DP::Volume>LOUD) println("Adding Action Variable to Action Vector","%c",Labels::V[avar],Alpha::Matrix);
+        //if (DP::Volume>LOUD) println("Adding Action Variable to Action Vector","%c",Labels::V[avar],Alpha::Matrix);
 		++pos;
 		}
 	}

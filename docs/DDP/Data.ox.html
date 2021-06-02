@@ -886,6 +886,10 @@ A Panel is a list of <a href="Data.ox.html#FPanel">FPanel</a>s which share a val
 <a name="PanelPrediction"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">PanelPrediction : <a href="Data.ox.html#PathPrediction">PathPrediction</a> : <a href="Data.ox.html#Prediction">Prediction</a> : <a href="DP.ox.html#Data">Data</a> : <a href="DP.ox.html#Task">Task</a> : <a href="DP.ox.html#DP">DP</a></span></h2>
 
+Store and process path predictions for all fixed effect groups.
+Individual paths are stored in a F x 1 array of `PathPrediction's.
+An aggregate path that averages over the the indidivual paths is
+stored in this.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -894,24 +898,44 @@ A Panel is a list of <a href="Data.ox.html#FPanel">FPanel</a>s which share a val
 <td class="description">flat matrix version of predictions.</td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___cols">cols</a></td>
+<td class="modifiers"></td>
+<td class="description">columns in data .</td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___delt">delt</a></td>
 <td class="modifiers"></td>
 <td class="description">difference between pred.</td>
 </tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___EverPredicted">EverPredicted</a></td>
+<td class="modifiers"></td>
+<td class="description">Predict() called before.</td>
+</tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___first">first</a></td>
+<td class="modifiers">const</td>
+<td class="description">either fparray[0] or this.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___FN">FN</a></td>
 <td class="modifiers"></td>
 <td class="description">total number of predictions..</td>
 </tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___fparray">fparray</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___fparray">fparray</a></td>
+<td class="modifiers">const</td>
+<td class="description">array pointing to (fixed) path predictions.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___M">M</a></td>
 <td class="modifiers"></td>
 <td class="description">array of GMM vector.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___mask">mask</a></td>
+<td class="modifiers"></td>
+<td class="description">indicator vector for observed moments.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___PredMomFile">PredMomFile</a></td>
@@ -919,29 +943,59 @@ A Panel is a list of <a href="Data.ox.html#FPanel">FPanel</a>s which share a val
 <td class="description">file name of the last Panel Prediction Data Set saved.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___summand">summand</a></td>
+<td class="modifiers">const</td>
+<td class="description">object to integrate over <span class="expressions">\(\gamma_r\)</span>.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___tlabels">tlabels</a></td>
+<td class="modifiers"></td>
+<td class="description">labels of flat print.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___tlist">tlist</a></td>
+<td class="modifiers"></td>
+<td class="description">list of objects to track.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___TrackingCalled">TrackingCalled</a></td>
 <td class="modifiers"></td>
 <td class="description">Has Tracking() been called.</td>
 </tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___upddens">upddens</a></td>
+<td class="modifiers">const</td>
+<td class="description">object to update distribution over r.</td>
+</tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___InitializePath">InitializePath</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___PanelPrediction">PanelPrediction</a></td>
 <td class="modifiers"></td>
 <td class="description">Create a panel of predictions.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___Predict">Predict</a></td>
 <td class="modifiers"></td>
 <td class="description">Predict outcomes in the panel.</td>
 </tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___SetColumns">SetColumns</a></td>
+<td class="modifiers"></td>
+<td class="description">Set up data columns for tracked variables.</td>
+</tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PanelPrediction___Tracking">Tracking</a></td>
 <td class="modifiers"></td>
-<td class="description">Set an object to be tracked in predictions.</td>
+<td class="description">Add objects to track mean values over the path.</td>
 </tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Data.ox.html#PathPrediction">PathPrediction</a>:</dt><dd><a href="Data.ox.html#PathPrediction___AppendSimulated">AppendSimulated</a>, <a href="Data.ox.html#PathPrediction___Empirical">Empirical</a>, <a href="Data.ox.html#PathPrediction___GetFlat">GetFlat</a>, <a href="Data.ox.html#PathPrediction___PathPrediction">PathPrediction</a>, <a href="Data.ox.html#PathPrediction___Qcols">Qcols</a>, <a href="Data.ox.html#PathPrediction___SetColumns">SetColumns</a>, <a href="Data.ox.html#PathPrediction___SimulateOutcomePaths">SimulateOutcomePaths</a>, <a href="Data.ox.html#PathPrediction___tprefix">tprefix</a></dd>
+<dt>Inherited methods from <a href="Data.ox.html#PathPrediction">PathPrediction</a>:</dt><dd><a href="Data.ox.html#PathPrediction___AppendSimulated">AppendSimulated</a>, <a href="Data.ox.html#PathPrediction___Empirical">Empirical</a>, <a href="Data.ox.html#PathPrediction___GetFlat">GetFlat</a>, <a href="Data.ox.html#PathPrediction___PathPrediction">PathPrediction</a>, <a href="Data.ox.html#PathPrediction___Qcols">Qcols</a>, <a href="Data.ox.html#PathPrediction___SimulateOutcomePaths">SimulateOutcomePaths</a>, <a href="Data.ox.html#PathPrediction___tprefix">tprefix</a></dd>
 <dt>Inherited methods from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___Histogram">Histogram</a>, <a href="Data.ox.html#Prediction___Prediction">Prediction</a>, <a href="Data.ox.html#Prediction___Reset">Reset</a>, <a href="Data.ox.html#Prediction___SetMoms">SetMoms</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#Data">Data</a>:</dt><dd><a href="DP.ox.html#Data___SetLog">SetLog</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___~Task">~Task</a></dd>
@@ -949,7 +1003,7 @@ A Panel is a list of <a href="Data.ox.html#FPanel">FPanel</a>s which share a val
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Data.ox.html#PathPrediction">PathPrediction</a>:</dt><dd><a href="Data.ox.html#PathPrediction___cols">cols</a>, <a href="Data.ox.html#PathPrediction___cur">cur</a>, <a href="Data.ox.html#PathPrediction___dlabels">dlabels</a>, <a href="Data.ox.html#PathPrediction___EverPredicted">EverPredicted</a>, <a href="Data.ox.html#PathPrediction___f">f</a>, <a href="Data.ox.html#PathPrediction___Fcols">Fcols</a>, <a href="Data.ox.html#PathPrediction___first">first</a>, <a href="Data.ox.html#PathPrediction___flat">flat</a>, <a href="Data.ox.html#PathPrediction___fnext">fnext</a>, <a href="Data.ox.html#PathPrediction___fvals">fvals</a>, <a href="Data.ox.html#PathPrediction___HasObservations">HasObservations</a>, <a href="Data.ox.html#PathPrediction___iDist">iDist</a>, <a href="Data.ox.html#PathPrediction___inT">inT</a>, <a href="Data.ox.html#PathPrediction___L">L</a>, <a href="Data.ox.html#PathPrediction___mask">mask</a>, <a href="Data.ox.html#PathPrediction___method">method</a>, <a href="Data.ox.html#PathPrediction___pathW">pathW</a>, <a href="Data.ox.html#PathPrediction___plabels">plabels</a>, <a href="Data.ox.html#PathPrediction___prtlevel">prtlevel</a>, <a href="Data.ox.html#PathPrediction___pstate">pstate</a>, <a href="Data.ox.html#PathPrediction___rcur">rcur</a>, <a href="Data.ox.html#PathPrediction___summand">summand</a>, <a href="Data.ox.html#PathPrediction___T">T</a>, <a href="Data.ox.html#PathPrediction___tlabels">tlabels</a>, <a href="Data.ox.html#PathPrediction___tlist">tlist</a>, <a href="Data.ox.html#PathPrediction___upddens">upddens</a>, <a href="Data.ox.html#PathPrediction___vdelt">vdelt</a>, <a href="Data.ox.html#PathPrediction___wght">wght</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#PathPrediction">PathPrediction</a>:</dt><dd><a href="Data.ox.html#PathPrediction___aggexists">aggexists</a>, <a href="Data.ox.html#PathPrediction___cur">cur</a>, <a href="Data.ox.html#PathPrediction___dlabels">dlabels</a>, <a href="Data.ox.html#PathPrediction___f">f</a>, <a href="Data.ox.html#PathPrediction___Fcols">Fcols</a>, <a href="Data.ox.html#PathPrediction___flat">flat</a>, <a href="Data.ox.html#PathPrediction___fnext">fnext</a>, <a href="Data.ox.html#PathPrediction___fvals">fvals</a>, <a href="Data.ox.html#PathPrediction___HasObservations">HasObservations</a>, <a href="Data.ox.html#PathPrediction___iDist">iDist</a>, <a href="Data.ox.html#PathPrediction___inT">inT</a>, <a href="Data.ox.html#PathPrediction___L">L</a>, <a href="Data.ox.html#PathPrediction___method">method</a>, <a href="Data.ox.html#PathPrediction___mother">mother</a>, <a href="Data.ox.html#PathPrediction___myshare">myshare</a>, <a href="Data.ox.html#PathPrediction___pathW">pathW</a>, <a href="Data.ox.html#PathPrediction___plabels">plabels</a>, <a href="Data.ox.html#PathPrediction___prtlevel">prtlevel</a>, <a href="Data.ox.html#PathPrediction___pstate">pstate</a>, <a href="Data.ox.html#PathPrediction___rcur">rcur</a>, <a href="Data.ox.html#PathPrediction___T">T</a>, <a href="Data.ox.html#PathPrediction___vdelt">vdelt</a>, <a href="Data.ox.html#PathPrediction___wght">wght</a></dd>
 <dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Data">Data</a>:</dt><dd><a href="DP.ox.html#Data___logf">logf</a>, <a href="DP.ox.html#Data___lognm">lognm</a>, <a href="DP.ox.html#Data___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___caller">caller</a>, <a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___inner">inner</a>, <a href="DP.ox.html#Task___itask">itask</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trace">trace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
@@ -1066,9 +1120,9 @@ Predicted outcomes along a path.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___cols">cols</a></td>
-<td class="modifiers"></td>
-<td class="description">columns in data .</td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___aggexists">aggexists</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___cur">cur</a></td>
@@ -1081,69 +1135,69 @@ Predicted outcomes along a path.
 <td class="description">labels for vdelt.</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___EverPredicted">EverPredicted</a></td>
-<td class="modifiers"></td>
-<td class="description">Predict() called before.</td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___f">f</a></td>
 <td class="modifiers">const</td>
 <td class="description">fixed index.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___Fcols">Fcols</a></td>
 <td class="modifiers">const</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___first">first</a></td>
 <td class="modifiers"></td>
 <td class="description">first prediction.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___flat">flat</a></td>
 <td class="modifiers"></td>
 <td class="description">flat prediction matrix.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___fnext">fnext</a></td>
 <td class="modifiers"></td>
 <td class="description">the next PathPrediction  </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___fvals">fvals</a></td>
 <td class="modifiers">const</td>
 <td class="description">for tracking.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___HasObservations">HasObservations</a></td>
 <td class="modifiers"></td>
 <td class="description">Empirical moments read in.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___iDist">iDist</a></td>
 <td class="modifiers">const</td>
 <td class="description">initial distribution.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___inT">inT</a></td>
 <td class="modifiers"></td>
 <td class="description">Path length sent it.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___L">L</a></td>
 <td class="modifiers"></td>
 <td class="description">Distance between predictions and emp.mom.</td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___mask">mask</a></td>
-<td class="modifiers"></td>
-<td class="description">indicator vector for observed moments.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___method">method</a></td>
 <td class="modifiers"></td>
 <td class="description">method to call for nested solution.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___mother">mother</a></td>
+<td class="modifiers">const</td>
+<td class="description">panel I belong to.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___myshare">myshare</a></td>
+<td class="modifiers">const</td>
+<td class="description">My share of population.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___pathW">pathW</a></td>
@@ -1171,29 +1225,9 @@ Predicted outcomes along a path.
 <td class="description">current index of random effects.</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___summand">summand</a></td>
-<td class="modifiers">const</td>
-<td class="description">object to integrate over <span class="expressions">\(\gamma_r\)</span>.</td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___T">T</a></td>
 <td class="modifiers"></td>
 <td class="description">length of the path.</td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___tlabels">tlabels</a></td>
-<td class="modifiers"></td>
-<td class="description">labels of flat print.</td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___tlist">tlist</a></td>
-<td class="modifiers"></td>
-<td class="description">list of objects to track.</td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___upddens">upddens</a></td>
-<td class="modifiers">const</td>
-<td class="description">object to update distribution over r.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___vdelt">vdelt</a></td>
@@ -1237,24 +1271,14 @@ Predicted outcomes along a path.
 <td class="description"></td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___SetColumns">SetColumns</a></td>
-<td class="modifiers"></td>
-<td class="description">Set up data columns for tracked variables.</td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___SimulateOutcomePaths">SimulateOutcomePaths</a></td>
 <td class="modifiers"></td>
 <td class="description">Compute and store path weighting matrix for fixed effect group.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___tprefix">tprefix</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Data.ox.html#PathPrediction___Tracking">Tracking</a></td>
-<td class="modifiers"></td>
-<td class="description">Add objects to track mean values over the path.</td>
 </tr>
 </table>
 
@@ -1457,8 +1481,8 @@ objective.</td>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Data.ox.html#PanelPrediction">PanelPrediction</a>:</dt><dd><a href="Data.ox.html#PanelPrediction___PanelPrediction">PanelPrediction</a>, <a href="Data.ox.html#PanelPrediction___Predict">Predict</a>, <a href="Data.ox.html#PanelPrediction___Tracking">Tracking</a></dd>
-<dt>Inherited methods from <a href="Data.ox.html#PathPrediction">PathPrediction</a>:</dt><dd><a href="Data.ox.html#PathPrediction___AppendSimulated">AppendSimulated</a>, <a href="Data.ox.html#PathPrediction___Empirical">Empirical</a>, <a href="Data.ox.html#PathPrediction___GetFlat">GetFlat</a>, <a href="Data.ox.html#PathPrediction___PathPrediction">PathPrediction</a>, <a href="Data.ox.html#PathPrediction___Qcols">Qcols</a>, <a href="Data.ox.html#PathPrediction___SetColumns">SetColumns</a>, <a href="Data.ox.html#PathPrediction___SimulateOutcomePaths">SimulateOutcomePaths</a>, <a href="Data.ox.html#PathPrediction___tprefix">tprefix</a></dd>
+<dt>Inherited methods from <a href="Data.ox.html#PanelPrediction">PanelPrediction</a>:</dt><dd><a href="Data.ox.html#PanelPrediction___InitializePath">InitializePath</a>, <a href="Data.ox.html#PanelPrediction___PanelPrediction">PanelPrediction</a>, <a href="Data.ox.html#PanelPrediction___Predict">Predict</a>, <a href="Data.ox.html#PanelPrediction___SetColumns">SetColumns</a>, <a href="Data.ox.html#PanelPrediction___Tracking">Tracking</a></dd>
+<dt>Inherited methods from <a href="Data.ox.html#PathPrediction">PathPrediction</a>:</dt><dd><a href="Data.ox.html#PathPrediction___AppendSimulated">AppendSimulated</a>, <a href="Data.ox.html#PathPrediction___Empirical">Empirical</a>, <a href="Data.ox.html#PathPrediction___GetFlat">GetFlat</a>, <a href="Data.ox.html#PathPrediction___PathPrediction">PathPrediction</a>, <a href="Data.ox.html#PathPrediction___Qcols">Qcols</a>, <a href="Data.ox.html#PathPrediction___SimulateOutcomePaths">SimulateOutcomePaths</a>, <a href="Data.ox.html#PathPrediction___tprefix">tprefix</a></dd>
 <dt>Inherited methods from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___Histogram">Histogram</a>, <a href="Data.ox.html#Prediction___Prediction">Prediction</a>, <a href="Data.ox.html#Prediction___Reset">Reset</a>, <a href="Data.ox.html#Prediction___SetMoms">SetMoms</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#Data">Data</a>:</dt><dd><a href="DP.ox.html#Data___SetLog">SetLog</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___list">list</a>, <a href="DP.ox.html#Task___SyncStates">SyncStates</a>, <a href="DP.ox.html#Task___~Task">~Task</a></dd>
@@ -1466,8 +1490,8 @@ objective.</td>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Data.ox.html#PanelPrediction">PanelPrediction</a>:</dt><dd><a href="Data.ox.html#PanelPrediction___aflat">aflat</a>, <a href="Data.ox.html#PanelPrediction___delt">delt</a>, <a href="Data.ox.html#PanelPrediction___FN">FN</a>, <a href="Data.ox.html#PanelPrediction___fparray">fparray</a>, <a href="Data.ox.html#PanelPrediction___M">M</a>, <a href="Data.ox.html#PanelPrediction___PredMomFile">PredMomFile</a>, <a href="Data.ox.html#PanelPrediction___TrackingCalled">TrackingCalled</a></dd>
-<dt>Inherited fields from <a href="Data.ox.html#PathPrediction">PathPrediction</a>:</dt><dd><a href="Data.ox.html#PathPrediction___cols">cols</a>, <a href="Data.ox.html#PathPrediction___cur">cur</a>, <a href="Data.ox.html#PathPrediction___dlabels">dlabels</a>, <a href="Data.ox.html#PathPrediction___EverPredicted">EverPredicted</a>, <a href="Data.ox.html#PathPrediction___f">f</a>, <a href="Data.ox.html#PathPrediction___Fcols">Fcols</a>, <a href="Data.ox.html#PathPrediction___first">first</a>, <a href="Data.ox.html#PathPrediction___flat">flat</a>, <a href="Data.ox.html#PathPrediction___fnext">fnext</a>, <a href="Data.ox.html#PathPrediction___fvals">fvals</a>, <a href="Data.ox.html#PathPrediction___HasObservations">HasObservations</a>, <a href="Data.ox.html#PathPrediction___iDist">iDist</a>, <a href="Data.ox.html#PathPrediction___inT">inT</a>, <a href="Data.ox.html#PathPrediction___L">L</a>, <a href="Data.ox.html#PathPrediction___mask">mask</a>, <a href="Data.ox.html#PathPrediction___method">method</a>, <a href="Data.ox.html#PathPrediction___pathW">pathW</a>, <a href="Data.ox.html#PathPrediction___plabels">plabels</a>, <a href="Data.ox.html#PathPrediction___prtlevel">prtlevel</a>, <a href="Data.ox.html#PathPrediction___pstate">pstate</a>, <a href="Data.ox.html#PathPrediction___rcur">rcur</a>, <a href="Data.ox.html#PathPrediction___summand">summand</a>, <a href="Data.ox.html#PathPrediction___T">T</a>, <a href="Data.ox.html#PathPrediction___tlabels">tlabels</a>, <a href="Data.ox.html#PathPrediction___tlist">tlist</a>, <a href="Data.ox.html#PathPrediction___upddens">upddens</a>, <a href="Data.ox.html#PathPrediction___vdelt">vdelt</a>, <a href="Data.ox.html#PathPrediction___wght">wght</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#PanelPrediction">PanelPrediction</a>:</dt><dd><a href="Data.ox.html#PanelPrediction___aflat">aflat</a>, <a href="Data.ox.html#PanelPrediction___cols">cols</a>, <a href="Data.ox.html#PanelPrediction___delt">delt</a>, <a href="Data.ox.html#PanelPrediction___EverPredicted">EverPredicted</a>, <a href="Data.ox.html#PanelPrediction___first">first</a>, <a href="Data.ox.html#PanelPrediction___FN">FN</a>, <a href="Data.ox.html#PanelPrediction___fparray">fparray</a>, <a href="Data.ox.html#PanelPrediction___M">M</a>, <a href="Data.ox.html#PanelPrediction___mask">mask</a>, <a href="Data.ox.html#PanelPrediction___PredMomFile">PredMomFile</a>, <a href="Data.ox.html#PanelPrediction___summand">summand</a>, <a href="Data.ox.html#PanelPrediction___tlabels">tlabels</a>, <a href="Data.ox.html#PanelPrediction___tlist">tlist</a>, <a href="Data.ox.html#PanelPrediction___TrackingCalled">TrackingCalled</a>, <a href="Data.ox.html#PanelPrediction___upddens">upddens</a></dd>
+<dt>Inherited fields from <a href="Data.ox.html#PathPrediction">PathPrediction</a>:</dt><dd><a href="Data.ox.html#PathPrediction___aggexists">aggexists</a>, <a href="Data.ox.html#PathPrediction___cur">cur</a>, <a href="Data.ox.html#PathPrediction___dlabels">dlabels</a>, <a href="Data.ox.html#PathPrediction___f">f</a>, <a href="Data.ox.html#PathPrediction___Fcols">Fcols</a>, <a href="Data.ox.html#PathPrediction___flat">flat</a>, <a href="Data.ox.html#PathPrediction___fnext">fnext</a>, <a href="Data.ox.html#PathPrediction___fvals">fvals</a>, <a href="Data.ox.html#PathPrediction___HasObservations">HasObservations</a>, <a href="Data.ox.html#PathPrediction___iDist">iDist</a>, <a href="Data.ox.html#PathPrediction___inT">inT</a>, <a href="Data.ox.html#PathPrediction___L">L</a>, <a href="Data.ox.html#PathPrediction___method">method</a>, <a href="Data.ox.html#PathPrediction___mother">mother</a>, <a href="Data.ox.html#PathPrediction___myshare">myshare</a>, <a href="Data.ox.html#PathPrediction___pathW">pathW</a>, <a href="Data.ox.html#PathPrediction___plabels">plabels</a>, <a href="Data.ox.html#PathPrediction___prtlevel">prtlevel</a>, <a href="Data.ox.html#PathPrediction___pstate">pstate</a>, <a href="Data.ox.html#PathPrediction___rcur">rcur</a>, <a href="Data.ox.html#PathPrediction___T">T</a>, <a href="Data.ox.html#PathPrediction___vdelt">vdelt</a>, <a href="Data.ox.html#PathPrediction___wght">wght</a></dd>
 <dt>Inherited fields from <a href="Data.ox.html#Prediction">Prediction</a>:</dt><dd><a href="Data.ox.html#Prediction___accmom">accmom</a>, <a href="Data.ox.html#Prediction___ch">ch</a>, <a href="Data.ox.html#Prediction___chq">chq</a>, <a href="Data.ox.html#Prediction___empmom">empmom</a>, <a href="Data.ox.html#Prediction___p">p</a>, <a href="Data.ox.html#Prediction___pnext">pnext</a>, <a href="Data.ox.html#Prediction___pq">pq</a>, <a href="Data.ox.html#Prediction___predmom">predmom</a>, <a href="Data.ox.html#Prediction___q">q</a>, <a href="Data.ox.html#Prediction___readmom">readmom</a>, <a href="Data.ox.html#Prediction___sind">sind</a>, <a href="Data.ox.html#Prediction___t">t</a>, <a href="Data.ox.html#Prediction___W">W</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Data">Data</a>:</dt><dd><a href="DP.ox.html#Data___logf">logf</a>, <a href="DP.ox.html#Data___lognm">lognm</a>, <a href="DP.ox.html#Data___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#Task">Task</a>:</dt><dd><a href="DP.ox.html#Task___caller">caller</a>, <a href="DP.ox.html#Task___d">d</a>, <a href="DP.ox.html#Task___done">done</a>, <a href="DP.ox.html#Task___inner">inner</a>, <a href="DP.ox.html#Task___itask">itask</a>, <a href="DP.ox.html#Task___iter">iter</a>, <a href="DP.ox.html#Task___left">left</a>, <a href="DP.ox.html#Task___MaxTrips">MaxTrips</a>, <a href="DP.ox.html#Task___right">right</a>, <a href="DP.ox.html#Task___state">state</a>, <a href="DP.ox.html#Task___subspace">subspace</a>, <a href="DP.ox.html#Task___trace">trace</a>, <a href="DP.ox.html#Task___trips">trips</a></dd>
@@ -2704,12 +2728,42 @@ flat matrix version of predictions.
 </dd></dl>
 
 <hr>
+<a name="PanelPrediction___cols"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cols</span></h3>
+
+<span class="declaration">decl cols [public]</span>
+<dl><dd>
+columns in data .
+
+</dd></dl>
+
+<hr>
 <a name="PanelPrediction___delt"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">delt</span></h3>
 
 <span class="declaration">decl delt [public]</span>
 <dl><dd>
 difference between pred. & data.
+
+</dd></dl>
+
+<hr>
+<a name="PanelPrediction___EverPredicted"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">EverPredicted</span></h3>
+
+<span class="declaration">decl EverPredicted [public]</span>
+<dl><dd>
+Predict() called before.
+
+</dd></dl>
+
+<hr>
+<a name="PanelPrediction___first"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">first</span></h3>
+
+<span class="declaration">const decl first [public]</span>
+<dl><dd>
+either fparray[0] or this.
 
 </dd></dl>
 
@@ -2727,7 +2781,17 @@ total number of predictions..
 <a name="PanelPrediction___fparray"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">fparray</span></h3>
 
-<span class="declaration">decl fparray [public]</span>
+<span class="declaration">const decl fparray [public]</span>
+<dl><dd>
+array pointing to (fixed) path predictions.
+
+</dd></dl>
+
+<hr>
+<a name="PanelPrediction___InitializePath"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">InitializePath</span></h3>
+
+<span class="declaration">PanelPrediction :: InitializePath ( pstate )</span>
 <dl><dd>
 
 </dd></dl>
@@ -2743,10 +2807,20 @@ array of GMM vector.
 </dd></dl>
 
 <hr>
+<a name="PanelPrediction___mask"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mask</span></h3>
+
+<span class="declaration">decl mask [public]</span>
+<dl><dd>
+indicator vector for observed moments.
+
+</dd></dl>
+
+<hr>
 <a name="PanelPrediction___PanelPrediction"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PanelPrediction</span></h3>
 
-<span class="declaration">PanelPrediction :: PanelPrediction ( label , method , iDist , wght )</span>
+<span class="declaration">PanelPrediction :: PanelPrediction ( label , method , iDist , wght , aggshares )</span>
 <dl><dd>
 Create a panel of predictions.
 
@@ -2775,7 +2849,12 @@ Create a panel of predictions.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">wght</td>
-<td class="description" valign="baseline">[default=UNCORRELATED]</td>
+<td class="description" valign="baseline">[default=UNCORRELATED]
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">aggshares</td>
+<td class="description" valign="baseline">  0 [default] equal shares of averaged moments over fixed groups<br />Fx1 vector, share of population</td>
 </tr>
 </table>
 </dd>
@@ -2786,14 +2865,14 @@ Create a panel of predictions.
 <a name="PanelPrediction___Predict"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Predict</span></h3>
 
-<span class="declaration">PanelPrediction :: Predict ( T , prtlevel , outmat )</span>
+<span class="declaration">PanelPrediction :: Predict ( inT , prtlevel , outmat )</span>
 <dl><dd>
 Predict outcomes in the panel.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
-<td class="declaration" valign="baseline">t</td>
+<td class="declaration" valign="baseline">T</td>
 <td class="description" valign="baseline">: positive integer or matrix of lengths of paths to predict (same length as
             number of paths in then panel)
 </td>
@@ -2828,29 +2907,95 @@ file name of the last Panel Prediction Data Set saved.
 </dd></dl>
 
 <hr>
+<a name="PanelPrediction___SetColumns"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetColumns</span></h3>
+
+<span class="declaration">PanelPrediction :: SetColumns ( dlabels , Nplace , Tplace )</span>
+<dl><dd>
+Set up data columns for tracked variables.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">dlabels</td>
+<td class="description" valign="baseline">array of column labels in the data.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Nplace</td>
+<td class="description" valign="baseline">number of observations (row weight) column<br/>UnInitialized no row weights
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">tplace</td>
+<td class="description" valign="baseline">model t column<br/>UnInitialized</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="PanelPrediction___summand"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">summand</span></h3>
+
+<span class="declaration">const decl summand [public]</span>
+<dl><dd>
+object to integrate over <span class="expressions">\(\gamma_r\)</span>.
+
+</dd></dl>
+
+<hr>
+<a name="PanelPrediction___tlabels"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">tlabels</span></h3>
+
+<span class="declaration">decl tlabels [public]</span>
+<dl><dd>
+labels of flat print.
+
+</dd></dl>
+
+<hr>
+<a name="PanelPrediction___tlist"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">tlist</span></h3>
+
+<span class="declaration">decl tlist [public]</span>
+<dl><dd>
+list of objects to track.
+
+</dd></dl>
+
+<hr>
 <a name="PanelPrediction___Tracking"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Tracking</span></h3>
 
 <span class="declaration">PanelPrediction :: Tracking ( LorC , ... )</span>
 <dl><dd>
-Set an object to be tracked in predictions.
+Add objects to track mean values over the path.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">LorC</td>
-<td class="description" valign="baseline"> UseLabel: use object label to match to column.<br/>
-            NotInData: unmatched to data.<br/>
-            non-negative integer: column in data set<br/>
-            string: column label<br/>
-            TrackAll: add all actions, endogenous states, and auxliaries to the tracking list
+<td class="description" valign="baseline"> UseLabel: use object label to match to column.<br/>NotInData unmatched to data.<br/>
+            integer: column in data set<br>string: column label<br/>
+            TrackAll : track all actions, endogenous states and auxiliaries
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">...</td>
-<td class="description" valign="baseline">objects or arrays of objects to be tracked</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#Discrete">Discrete</a> objects and/or arrays or objects to track
+<P/>
+</td>
 </tr>
 </table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">a row vector of the positions of the added objects that can be sent to <a href="Data.ox.html#PathPrediction___GetFlat">GetFlat</a> Thus
+if different sets of outcomes should be extracted together as vectors call Tracking() for each set and store
+the return value.
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">This routine can be called more than once, but once <a href="Data.ox.html#PanelPrediction___Predict">Predict</a>() has
+been called no more objects can be added to the list.
 </dd>
 </dl>
 </dd></dl>
@@ -2862,6 +3007,16 @@ Set an object to be tracked in predictions.
 <span class="declaration">decl TrackingCalled [public]</span>
 <dl><dd>
 Has Tracking() been called.
+
+</dd></dl>
+
+<hr>
+<a name="PanelPrediction___upddens"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">upddens</span></h3>
+
+<span class="declaration">const decl upddens [public]</span>
+<dl><dd>
+object to update distribution over r.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Path</span></h2>
@@ -3067,21 +3222,20 @@ lenth of the path.
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">PathPrediction</span></h2>
 
-<a name="PathPrediction___AppendSimulated"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AppendSimulated</span></h3>
+<a name="PathPrediction___aggexists"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">aggexists</span></h3>
 
-<span class="declaration">PathPrediction :: AppendSimulated ( Y )</span>
+<span class="declaration">static decl aggexists [public]</span>
 <dl><dd>
 
 </dd></dl>
 
 <hr>
-<a name="PathPrediction___cols"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cols</span></h3>
+<a name="PathPrediction___AppendSimulated"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">AppendSimulated</span></h3>
 
-<span class="declaration">decl cols [public]</span>
+<span class="declaration">PathPrediction :: AppendSimulated ( Y )</span>
 <dl><dd>
-columns in data .
 
 </dd></dl>
 
@@ -3138,16 +3292,6 @@ Add empirical values to a path of predicted values.
 <dt class="comments">Comments:</dt><dd class="comments">If T is greater than the current length of the path additional predictions are concatenated to the path
 </dd>
 </dl>
-</dd></dl>
-
-<hr>
-<a name="PathPrediction___EverPredicted"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">EverPredicted</span></h3>
-
-<span class="declaration">decl EverPredicted [public]</span>
-<dl><dd>
-Predict() called before.
-
 </dd></dl>
 
 <hr>
@@ -3277,16 +3421,6 @@ Distance between predictions and emp.mom.
 </dd></dl>
 
 <hr>
-<a name="PathPrediction___mask"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mask</span></h3>
-
-<span class="declaration">decl mask [public]</span>
-<dl><dd>
-indicator vector for observed moments.
-
-</dd></dl>
-
-<hr>
 <a name="PathPrediction___method"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">method</span></h3>
 
@@ -3297,10 +3431,30 @@ method to call for nested solution.
 </dd></dl>
 
 <hr>
+<a name="PathPrediction___mother"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mother</span></h3>
+
+<span class="declaration">const decl mother [public]</span>
+<dl><dd>
+panel I belong to.
+
+</dd></dl>
+
+<hr>
+<a name="PathPrediction___myshare"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">myshare</span></h3>
+
+<span class="declaration">const decl myshare [public]</span>
+<dl><dd>
+My share of population.
+
+</dd></dl>
+
+<hr>
 <a name="PathPrediction___PathPrediction"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PathPrediction</span></h3>
 
-<span class="declaration">PathPrediction :: PathPrediction ( f , method , iDist , wght )</span>
+<span class="declaration">PathPrediction :: PathPrediction ( mother , f , method , iDist , wght , myshare )</span>
 <dl><dd>
 Create a path of predictions.
 
@@ -3308,7 +3462,9 @@ Create a path of predictions.
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">f</td>
-<td class="description" valign="baseline">    integer: fixed group index [default=0]
+<td class="description" valign="baseline">    integer: fixed group index [default=0]<br />
+             AlLFixed (-1):  this aggregates (averages) predictions over
+             NotInData (-2):  no prediction stored here.
 </td>
 </tr>
 <tr>
@@ -3331,10 +3487,16 @@ Create a path of predictions.
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">wght
+<td class="declaration" valign="baseline">wght</td>
+<td class="description" valign="baseline">Code for weighting scheme for distance between empirical and predicted paths.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">myshare</td>
+<td class="description" valign="baseline">either 0 or a fraction of the population if an aggregate (overall)
+    prediction is being stored.
 <P/>
-The</td>
-<td class="description" valign="baseline">prediction is not made until <a href="Data.ox.html#PathPrediction___Predict">Predict</a>() is called.</td>
+The prediction is not made until <a href="Data.ox.html#PathPrediction___Predict">Predict</a>() is called.</td>
 </tr>
 </table>
 </dd>
@@ -3439,35 +3601,6 @@ current index of random effects.
 </dd></dl>
 
 <hr>
-<a name="PathPrediction___SetColumns"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetColumns</span></h3>
-
-<span class="declaration">PathPrediction :: SetColumns ( dlabels , Nplace , Tplace )</span>
-<dl><dd>
-Set up data columns for tracked variables.
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">dlabels</td>
-<td class="description" valign="baseline">array of column labels in the data.
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">Nplace</td>
-<td class="description" valign="baseline">number of observations (row weight) column<br/>UnInitialized no row weights
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">tplace</td>
-<td class="description" valign="baseline">model t column<br/>UnInitialized</td>
-</tr>
-</table>
-</dd>
-</dl>
-</dd></dl>
-
-<hr>
 <a name="PathPrediction___SimulateOutcomePaths"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SimulateOutcomePaths</span></h3>
 
@@ -3501,16 +3634,6 @@ Save weight matrix in <code>pathW_??.mat</code></td>
 </dd></dl>
 
 <hr>
-<a name="PathPrediction___summand"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">summand</span></h3>
-
-<span class="declaration">const decl summand [public]</span>
-<dl><dd>
-object to integrate over <span class="expressions">\(\gamma_r\)</span>.
-
-</dd></dl>
-
-<hr>
 <a name="PathPrediction___T"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">T</span></h3>
 
@@ -3521,76 +3644,11 @@ length of the path.
 </dd></dl>
 
 <hr>
-<a name="PathPrediction___tlabels"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">tlabels</span></h3>
-
-<span class="declaration">decl tlabels [public]</span>
-<dl><dd>
-labels of flat print.
-
-</dd></dl>
-
-<hr>
-<a name="PathPrediction___tlist"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">tlist</span></h3>
-
-<span class="declaration">decl tlist [public]</span>
-<dl><dd>
-list of objects to track.
-
-</dd></dl>
-
-<hr>
 <a name="PathPrediction___tprefix"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">tprefix</span></h3>
 
 <span class="declaration">static PathPrediction :: tprefix ( t )</span>
 <dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="PathPrediction___Tracking"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Tracking</span></h3>
-
-<span class="declaration">PathPrediction :: Tracking ( LorC , ... )</span>
-<dl><dd>
-Add objects to track mean values over the path.
-
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">LorC</td>
-<td class="description" valign="baseline"> UseLabel: use object label to match to column.<br/>NotInData unmatched to data.<br/>
-            integer: column in data set<br>string: column label<br/>
-            TrackAll : track all actions, endogenous states and auxiliaries
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">...</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#Discrete">Discrete</a> objects and/or arrays or objects to track
-<P/>
-</td>
-</tr>
-</table>
-</dd>
-<dt class="returns">Returns:</dt><dd class="returns">a row vector of the positions of the added objects that can be sent to <a href="Data.ox.html#PathPrediction___GetFlat">GetFlat</a> Thus
-if different sets of outcomes should be extracted together as vectors call Tracking() for each set and store
-the return value.
-</dd>
-<dt class="comments">Comments:</dt><dd class="comments">This routine can be called more than once, but once <a href="Data.ox.html#PanelPrediction___Predict">Predict</a>() has
-been called no more objects can be added to the list.
-</dd>
-</dl>
-</dd></dl>
-
-<hr>
-<a name="PathPrediction___upddens"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">upddens</span></h3>
-
-<span class="declaration">const decl upddens [public]</span>
-<dl><dd>
-object to update distribution over r.
 
 </dd></dl>
 
@@ -3936,7 +3994,7 @@ value.<br/>
 <a name="PredictionDataSet___PredictionDataSet"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PredictionDataSet</span></h3>
 
-<span class="declaration">PredictionDataSet :: PredictionDataSet ( UorCorL , label , method , iDist , wght )</span>
+<span class="declaration">PredictionDataSet :: PredictionDataSet ( UorCorL , label , method , iDist , wght , aggshares )</span>
 <dl><dd>
 Create a panel prediction that is matched with external data.
 
@@ -3969,7 +4027,13 @@ Create a panel prediction that is matched with external data.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">wght</td>
-<td class="description" valign="baseline">see <a href="DDPShared.ox.html#GMMWeightOptions">GMMWeightOptions</a></td>
+<td class="description" valign="baseline">see <a href="DDPShared.ox.html#GMMWeightOptions">GMMWeightOptions</a>
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">aggshares</td>
+<td class="description" valign="baseline">FALSE [default] or a Fx1 vector of population shares for groups to
+    be used when creating an aggregate prediction.</td>
 </tr>
 </table>
 </dd>
@@ -4068,7 +4132,7 @@ Track an object that is matched to column in the data.
 <a name="PredictionDataSet___TrackingWithLabel"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">TrackingWithLabel</span></h3>
 
-<span class="declaration">PredictionDataSet :: TrackingWithLabel ( Fgroup , InDataOrNot , mom1 , ... )</span>
+<span class="declaration">PredictionDataSet :: TrackingWithLabel ( Fgroup , InDataOrNot , ... )</span>
 <dl><dd>
 Track one or more objects that are matched to columns using the object's label.
 
@@ -4083,18 +4147,13 @@ Track one or more objects that are matched to columns using the object's label.
 <tr>
 <td class="declaration" valign="baseline">InDataOrNot</td>
 <td class="description" valign="baseline">TRUE: the <code>UseLabel</code> tag will be passed to
-            <a href="Data.ox.html#PathPrediction___Tracking">Tracking</a>()<br/>
+            PathPrediction::Tracking()<br/>
             FALSE: the <code>NotInData</code> tag will be sent.
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">mom1</td>
-<td class="description" valign="baseline">object or array of objects to track
-</td>
-</tr>
-<tr>
 <td class="declaration" valign="baseline">...</td>
-<td class="description" valign="baseline">more objects</td>
+<td class="description" valign="baseline">objects or array of objects to track</td>
 </tr>
 </table>
 </dd>

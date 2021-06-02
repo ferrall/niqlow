@@ -87,7 +87,7 @@ EndogTrans::Transitions(instate) {
 
 /** Sets up a single point &theta; in the state space.
 This is the default of the virtual routine.  It calls the creator for Bellman.
-The user's replacement for this must call this or the parent version.
+The users replacement for this must call this or the parent version.
 **/
 Bellman::SetTheta(state,picked) { Bellman(state,picked);    }
 
@@ -644,17 +644,22 @@ ExPostSmoothing::Initialize(userState,UseStateList){
 
 /**  Set up the ex-post smoothing state space.
 @param Method the `SmoothingMethods`, default = <code>NoSmoothing</code>
-@param  smparam the smoothing parameter (e.g. &rho; or &sigma;)<br>Default value is 1.0.
+@param  rho the smoothing parameter <br>Default value is 1.0.
 
 **/
-ExPostSmoothing::CreateSpaces(Method,smparam) {
-	this.Method = Method;
-	switch_single(Method) {
-		case LogitKernel : rho = smparam;
-		case GaussKernel : sigma = smparam;
-		}
+ExPostSmoothing::CreateSpaces(Method,rho) {
+    SetSmoothing(Method,rho);
 	Bellman::CreateSpaces();
 	}
+
+/** Set the smoothing method (kernel) and parameter.
+@param Method the `SmoothingMethods`, default = <code>NoSmoothing</code>
+@param  smparam the smoothing parameter &rho; `AV` compatible object.  If it evaluates to less than 0 when called no smoothing occurs.
+**/
+ExPostSmoothing::SetSmoothing(Method,smparam) {	
+	this.Method = Method;
+    rho = smparam;
+    }
 
 /** Short-cut for a model with a single state so the user need not (but can) create a Bellman-derived class.
 
@@ -675,7 +680,6 @@ OneStateModel::Initialize(UorB,Method,...
     args
     #endif
     ) {
-
     if (isfunction(UorB)) {
         U = UorB;
         ExPostSmoothing::Initialize(new OneStateModel());
@@ -687,7 +691,7 @@ OneStateModel::Initialize(UorB,Method,...
     SetClock(StaticProgram);
     Actions(args);
     EndogenousStates(new Fixed("q"));
-    CreateSpaces(Method);
+    ExPostSmoothing::CreateSpaces(Method);
 	}
 
 /** Built-in Utility that calls user-supplied function. **/
@@ -705,7 +709,15 @@ ExPostSmoothing::Logistic() {
  	}
 
 ExPostSmoothing::Normal() {
-	oxrunerror("Normal not repaired yet");
+    GQH::Initialize(20);
+    decl NA=rows(pandv), inpv = rho*pandv', i,j, lk, r2 = sqrt(2);
+    lk=ones(rows(inpv),1);
+    for (i=0;i<NA;++i) {
+	   for (j=0;j<NA;++j)
+            if (i!=j) lk .*=  probn(r2*GQH::nodes+inpv[][i]-inpv[][j]);
+       pandv[i][] = (GQH::wght * lk / M_SQRT2PI ) ;  // transpose shouldn't matter
+       lk[] = 1.0;
+       }
 	}
 
 ExPostSmoothing::Smooth() {
