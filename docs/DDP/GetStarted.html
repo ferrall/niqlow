@@ -58,9 +58,9 @@ Over time, price offers are IID and, for simplicity, each value is equally likel
 <span class="equation">$$Prob(p' = z) = P_p(z) = 1/N,  z \in\ \left\{0,...,N-1\right\}.$$</span>
 Here p&prime; is the price next period and <span class="expressions">\(P_p()\)</span> is its <em>transition</em>.</p>
 <P/>
-While searching the person chooses <span class="expressions">\(a\)</span>, where <span class="expressions">\(a=1\)</span> means buy at the offered price and <span class="expressions">\(a=0\)</span> means reject and keep searching. The state variable <var>d</var> indicates whether a decision as been made or not. <var>d=0</var> means still searching, and <var>d=1</var> means a price has been accepted.  The transition for <var>d</var> today to <var>d</var> next period can written:
+While searching the person chooses <span class="expressions">\(a\)</span>, where <span class="expressions">\(a=1\)</span> means buy at the offered price and <span class="expressions">\(a=0\)</span> means reject and keep searching. The state variable <span class="expressions">\(d\)</span> indicates whether a decision as been made or not. <span class="expressions">\(d=0\)</span> means still searching, and <span class="expressions">\(d=1\)</span> means a price has been accepted.  The transition for <span class="expressions">\(d\)</span> today to <span class="expressions">\(d\)</span> next period can written:
 <span class="equation">$$d' = a\quad \Rightarrow\quad P_d(d';a,d) = I\{d'=a\}.$$</span>
-And <span class="expressions">\(d=1\)</span> is a terminal value, which means that decision making ends whenever that value is reached. <var>Utility</var> equals realized costs: search costs,  <span class="expressions">\(\lambda > 0\)</span>, and the price paid if purchased:
+And <span class="expressions">\(d=1\)</span> is a terminal value, which means that decision making ends whenever that value is reached. Utility equals realized costs: search costs,  <span class="expressions">\(\lambda > 0\)</span>, and the price paid if purchased:
 <span class="equation">$$U(a,p,d) = -(1-d)[ \lambda + ap ]$$</span>
 Future returns are discounted by <span class="expressions">\(\delta<1\)</span>.</p>
 <P/>
@@ -72,16 +72,16 @@ The red lines indicate discrete price offers.  There is a reservation price but 
 <P/>
 The notation used here uses <span class="n">DDP</span>'s notation for describing a model.  Presuming you are starting with this example this notation is shown here to demonstrate how all aspects of DP problems are part of <span class="n">DDP</span>.</p>
 <P/>
-The model's <b>clock</b> is stationary, which is a predefined clock type, <code>InfiniteHorzion</code>. The <b>action</b> vector <span class="expressions">\(\alpha\)</span> contains a single binary <a href="Variables.ox.html#ActionVariable">ActionVariable</a>: <span class="expressions">\(\alpha = (a).\)</span> The offer price is <var>p</var> is an instance (object) of the <a href="Variables.ox.html#SimpleJump">SimpleJump</a> class.
+The model's <b>clock</b> is stationary, which is a predefined clock type, <code>InfiniteHorzion</code>. The <b>action</b> vector <span class="expressions">\(\alpha\)</span> contains a single binary <a href="Variables.ox.html#ActionVariable">ActionVariable</a>: <span class="expressions">\(\alpha = (a).\)</span> The offer price is <span class="expressions">\(p\)</span> is an instance (object) of the <a href="Variables.ox.html#SimpleJump">SimpleJump</a> class.
     <details class="aside"><summary>State Variable Classes</summary>To keep track of all aspects of a state variable, including how it evolves, state variables are objects of a particular class.  A class describes both data and methods (functions) that operate on the data.  Further, Ox allows for derived classes and virtual methods, which make it possible to build up a library of different kinds of state variables in <span class="n">DDP</span>.  Many kinds of state variables that appear in the literature are already coded and available to be included in your model.</details>.
-The decision-made-already state variable, <var>d</var> is an object of the  <code><a href="Variables.ox.html#LaggedAction">LaggedAction</a></code> class.   <code>d=1</code> is in the terminal set, <span class="expressions">\(\overline{\Theta}\)</span>.</p>
+The decision-made-already state variable, <span class="expressions">\(d\)</span> is an object of the  <code><a href="Variables.ox.html#LaggedAction">LaggedAction</a></code> class.   <code>d=1</code> is in the terminal set, <span class="expressions">\(\overline{\Theta}\)</span>.</p>
 <P/>
-Because price offers are IID it can be put into the <b>exogenous</b> state vector <span class="expressions">\(\epsilon\)</span> contains one variable, <code>&epsilon; = (p)</code>. Since the transition for <var>d</var> depends the current action it is placed in the <b>endogenous</b> state vector <span class="expressions">\(\theta\)</span>, which always contains a time variable as well:  <span class="expressions">\(\theta = (d t)\)</span>.<details class="aside"><summary>Why multiple state vectors</summary>To conserve memory and computation, <span class="n">DDP</span> allows the user to put state variables in different vectors that are treated differently.  There are actually two other special state vectors not required in this example, <span class="expressions">\(\eta\)</span> and <span class="expressions">\(\gamma\)</span>.</details>
+Because price offers are IID it can be put into the <b>exogenous</b> state vector <span class="expressions">\(\epsilon\)</span> contains one variable, <code>&epsilon; = (p)</code>. Since the transition for <span class="expressions">\(d\)</span> depends the current action it is placed in the <b>endogenous</b> state vector <span class="expressions">\(\theta\)</span>, which always contains a time variable as well:  <span class="expressions">\(\theta = (d t)\)</span>.<details class="aside"><summary>Why multiple state vectors</summary>To conserve memory and computation, <span class="n">DDP</span> allows the user to put state variables in different vectors that are treated differently.  There are actually two other special state vectors not required in this example, <span class="expressions">\(\eta\)</span> and <span class="expressions">\(\gamma\)</span>.</details>
 Since the model is stationary, the current time is always <code>t=0</code>.</p>
 <P/>
 <b>Utility</b> depends on current state variables, actions and parameters:
 <DD><span class="expressions">\(U(\alpha,\epsilon,\theta) = U( (a), (p), (d) ) \)</span> <code>= -(1-d)*[ lam + a*p ]</code></DD>
-Because Ox does not recognize Greek letters, <code>lam</code> &equiv; &lambda;.  Further, multiplication uses <code>*</code>. However, since p, a, and d are <em>objects</em>, the Ox code to implement <var>U()</var> will require more than just referring to the variable in the expression.</p>
+Because Ox does not recognize Greek letters, <code>lam</code> &equiv; &lambda;.  Further, multiplication uses <code>*</code>. However, since p, a, and d are <em>objects</em>, the Ox code to implement <span class="expressions">\(U()\)</span> will require more than just referring to the variable in the expression.</p>
 <P/>
 <LI id="B">Code the model in <span class="n">DDP</span></LI>
 <P/>
@@ -93,10 +93,11 @@ Because Ox does not recognize Greek letters, <code>lam</code> &equiv; &lambda;. 
  3:   		enum{Noff=10}
  4:   		static 	const		decl 	lam = 2.3;
  5:   		static 	     		decl 	p, d, a;
- 6:   		static 	Run();
- 7:         static  Model();
- 8:   		 	    Utility();	
- }
+ 6:   		static 	Build();
+ 7:         static  Create();
+ 8:         static  Run();
+ 9:   		 	    Utility();	
+      }
  </pre></DD>
     <details class="aside"><summary>.h and .ox files</summary>Usually the segment code above would appear in a separate header (<code>.h</code> or <code>.oxh</code>) file, but in the source code for this example it simply appears at the top of the <code>.ox</code> file.</details>
 <div class="page-break"> </div>
@@ -125,9 +126,9 @@ d.c !&equiv; e.c !&equiv; f.c
 However it is referenced, <code>a</code> and <code>b</code> refer to the same place.  On the other hand, each instance of A has a distinct <code>c</code>.  So there are 5 distinct storage locations, two shared and three specific to the instance of A.</dd>
 </details>
 <P/>
-<DD>3: The number of offers <var>N</var> is an <em>enumeration</em>, a way of storing integer constants that Ox shares with C. </DD>
+<DD>3: The number of offers <span class="expressions">\(N\)</span> is an <em>enumeration</em>, a way of storing integer constants that Ox shares with C. </DD>
 <DD>4: The parameter <span class="expressions">\(\lambda\)</span> is stored as a static constant (its value is fixed at declaration).  More powerfully it could be represented as an object of the <a href="Shared.ox.html#Parameter">Parameter</a> class discussed later.</DD>
-<DD>5: Three data members are declared static but variable (their value can change after the object is created).  They store the state variables <var>p</var> and <var>d</var> and the action variable <var>a</var>.</DD>
+<DD>5: Three data members are declared static but variable (their value can change after the object is created).  They store the state variables <span class="expressions">\(p\)</span> and <span class="expressions">\(d\)</span> and the action variable <span class="expressions">\(a\)</span>.</DD>
 <div class="page-break"> </div>
 <DD>6: A function associated with an object is called a <code>method</code>.  <span class="n">DDP</span> requires two methods.  <details class="aside"><summary>NB:</summary> <span class="n">DDP</span> uses the name <code>Method</code> for the class of DP solution methods.  (Upper and lower case do matter in Ox.) Unfortunately this may cause some confusion.  An attempt in these notes will be made to use "solution method" for dynamic programming method and just "method" when using it to refer to a function that belongs to a class. </details> The methods <code>Run()</code> and <code>Model()</code> are not required, but they help organize the set up and solution of the model. In addition, they are organized to make it easy to build on the basic <code>Search</code> class without having to modify this code (see Get Started With Data).</DD>
 <DD>7:  The required  <code>method</code> <code>Utility()</code> cannot be <code>static</code> and must have the name and declaration <code>Utility()</code>.  It returns the one-period payoff.</DD>
@@ -135,62 +136,68 @@ However it is referenced, <code>a</code> and <code>b</code> refer to the same pl
 <div class="page-break"> </div>
 <DL>
 <DT>Define the required functions for the model</DT><DD><pre>
-23:	Search::Utility()  {
-24:		return -(1-CV(d))*(lam + CV(p)*CV(a));
-25:		}
+10:	Search::Utility()  {
+11:		return -(1-CV(d))*(lam + CV(p)*CV(a));
+		}
 </pre></DD>
 <DD>Utility returns a column of values for feasible actions.  It gets the current value of state variables by sending their objects to the <code><a href="Shared.ox.html#CV">CV</a>()</code> function.</DD>
 <div class="page-break"> </div>
-<DT>Define the code to set up and solve the model</DT><DD><pre>
-10:  Search::Run()	{
-11:  		Initialize(new Search());
-12:         Model();
-13:  		CreateSpaces();
-14:         VISolve();
-15:   }
-16:  Search::Model() {
-17:  	SetClock(InfiniteHorizon);
+<DT>Code to set up and solve the model</DT><DD><pre>
+12:  Search::Create()	{
+13:  	Initialize(new Search());
+14:     Build();
+15:  	CreateSpaces();
+    	}
+16:  Search::Build() {
+17:    	SetClock(InfiniteHorizon);
 18:  	SetDelta(0.99);
 19:  	Actions(a = new ActionVariable("a",2));
 20:  	EndogenousStates(d = new LaggedAction("d",a));
 21:  	d->MakeTerminal(1);	
-22:  	ExogenousStates(p = new SimpleJump("p",Noff));
-        }
+22:    	ExogenousStates(p = new SimpleJump("p",Noff));
+      }
+23: Search::Run() {
+24:    Create();
+25:    VISolve();
+26:    Delete();
+    }
 </pre></dd>
 </DL>
 <div class="page-break"> </div>
 <P/>
 <DL>Line-by-line Description
-<DT>Set Up and Run the Problem</DT>
-    <DD>11. The user's code must call the <code>Initialize()</code> method before setting up or solving the model.
+<DT>Create the Problem</DT>
+    <DD>13. The user's code must call the <code>Initialize()</code> method before setting up the model.
     <details class="aside"><summary>More on <code>Initialize</code></summary>
     <a href="DP.ox.html#DP___Initialize">Initialize</a>() works only on <em>static</em> elements of the model, and these must be set before any instances of the model are created with <code>new</code>.  So it is not possible to put these tasks in the <q>constructor</q> for DP. The user may declare a <code>Initialize()</code> method if they expect the class (<code>Search</code>)  to be used as a base for other derived classes. Then <code>Search::Initialize()</code> would call <code>DP::Initialize()</code> and the prefix will be required to resolve the name.</details>
     The argument sent to <code>Initialize</code> is an object of the model class.  An example of the simplest way to do this is show above: <code>new Search()</code>.  This creates an object of the user's model class, in the example <code>Search</code>.  Initialize will <q>clone</q> this object for each point in the state space of the model.</DD>
 <P/>
-    <DD>12:  Code to set up the model must appear after <code>Initialize()</code> and before the <code>CreateSpaces()</code> method is called. This code is contained in <code>Model()</code>.</DD>
+    <DD>14:  Code to set up the model must appear after <code>Initialize()</code> and before the <code>CreateSpaces()</code> method is called. This code is contained in <code>Build()</code>.  The code inside the Build function could be inserted at this point.  However, following this pattern of defining a <code>Create()</code> and <code>Build()</code> function makes it easier to build on code to extend or change a model without copying or altering existing code.</DD>
 <P/>
-<DT>Add elements to the model</DT>
+    <DD>15:  Once all variables have been defined and added to the model a call to <code>CreateSpaces()</code> will create the action, state, and group spaces.  This does not solve the model which is done after the creation step.</DD>
+<P/>
+<DT>Add elements to the model during the Build phase</DT>
 <P/>
     <DD>17: Every DDP model has a clock. There are several predefined clock types, and the user can create their own if necessary.  <code>InfiniteHorizon</code> is an enumeration like <code>Noff</code> in the file above which <code><a href="DP.ox.html#DP___SetClock">SetClock</a>()</code> uses to create the right kind of clock. </DD>
     <DD>18: Every DDP model has a discount factor <span class="expressions">\(\delta\)</span>.  <code><a href="DP.ox.html#DP___SetDelta">SetDelta</a>()</code> sets its value, which is constant here but could be set to a variable <a href="Shared.ox.html#Parameter">Parameter</a>..</DD>
-    <DD>19:  The action <var>a</var> is an instance of the <a href="Variables.ox.html#ActionVariable">ActionVariable</a> class.  It is not an ordinary <code>integer</code> as it might be coded in FORTRAN or C.  By making it an instance of a class  <span class="n">DDP</span> can keep track of all the requirements of having a binary choice in the model without making the user do additional programming.  When it is created, the user gives the action a label and says how many different values are feasible for the variable, in this case <code>a.N=2</code>. This happens <em>inside</em> the call to <a href="DP.ox.html#DP___Actions">Actions</a>(). DDP must know about the action variables in your model.  It cannot peer into the derived <code>Search</code> class and see that a variable <code>a</code> is there and stores an action variable object.  On the other side, action variables cannot insert themselves into your model.  The routine <code><a href="DP.ox.html#DP___Actions">Actions</a>()</code> adds the argument(s) sent to it to the model, putting them in the action vector <span class="expressions">\(\alpha\)</span>.
+    <DD>19:  The action <span class="expressions">\(a\)</span> is an object of the <a href="Variables.ox.html#ActionVariable">ActionVariable</a> class.  It is not an ordinary <code>integer</code> as it might be coded in FORTRAN or C.  By making it an object <span class="n">DDP</span> can keep track of all the requirements of having a binary choice in the model without making the user do additional programming.  When it is created, the user gives the action a label and says how many different values are feasible for the variable, in this case <code>a.N=2</code>. This happens <em>inside</em> the call to <a href="DP.ox.html#DP___Actions">Actions</a>(). DDP must know about the action variables in your model.  It cannot peer into the <code>Search</code> class and see that a variable <code>a</code> is there and stores an action variable object.  On the other side, action variables cannot insert themselves into your model.  The routine <code><a href="DP.ox.html#DP___Actions">Actions</a>()</code> adds the argument(s) sent to it to the model, putting them in the action vector <span class="expressions">\(\alpha\)</span>.
     <details class="aside"><summary>Assignments in expressions</summary>
     The fancy bit is that in Ox, like C and other languages, an assignment expression returns a value.  So <code>v=6</code> stores 6 in <code>v</code> <em>and</em> returns 6 as a result.  <code>print(v=6)</code> will print 6.  A subtle point that is further explained in other parts of the documentation is that Ox will return a <em>reference</em> to <code>a</code>. So what <a href="DP.ox.html#DP___Actions">Actions</a>() stores is a <em>pointer</em> to <code>a</code> not a clone or copy of it.</details></DD>
-    <DD>20-21: Like the action, the state variables <var>d</var> and <var>p</var> are not just a place to store an integer nor a spot in a vector. State variables are objects of a class derived from the <code><a href="Variables.ox.html#StateVariable">StateVariable</a></code> class. States require more information than actions to be handled properly.   In the model <var>d</var> tracks the choice made in the previous period.  This kind of state variable appears in many models so a class for that kind of variable is predefined in <span class="n">DDP</span>: the <code><a href="Variables.ox.html#LaggedAction">LaggedAction</a></code> class.  The action that <code>d</code> should track is sent as an argument when a <code>new</code> object of the class is created.
+    <DD>20-21: Like the action, the state variables <span class="expressions">\(d\)</span> and <span class="expressions">\(p\)</span> are neither a place to store an integer nor a spot in a vector. State variables are objects of a class. Which class they  derived from depends on the kind of state variable it is.  But all state variables descend from the base  <code><a href="Variables.ox.html#StateVariable">StateVariable</a></code> class. State variables require more information than action variables to be handled properly.   In the model <span class="expressions">\(d\)</span> tracks the choice made in the previous period.  This kind of state variable appears in many models so a class for that kind of variable is predefined in <span class="n">DDP</span>: the <code><a href="Variables.ox.html#LaggedAction">LaggedAction</a></code> class.  The action that <code>d</code> should track is sent as an argument when a <code>new</code> object of the class is created.
     <details class="aside"><summary>Derived Classes</summary>Actually, this class is a great-great-granddaughter of <a href="Variables.ox.html#StateVariable">StateVariable</a>, because it is derived from the <a href="Variables.ox.html#LaggedAction">LaggedAction</a> class which is derived from <a href="Variables.ox.html#Lagged">Lagged</a> which is derived from <a href="Variables.ox.html#Deterministic">Deterministic</a> which is derived from <code>StateVariable</code>.  Indeed, <code>d</code> and <code>a</code> are fourth cousins, because states and actions are both derived from an underlying <a href="Shared.ox.html#Discrete">Discrete</a> class.</details>
-    The method <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>() adds the arguments sent to it to the <span class="expressions">\(\theta\)</span> vector. Recall that <code>d=1</code> is a terminal state.  <span class="n">DDP</span> must know this so that the value of reaching that state is taken from its utility not iterated on using Bellman's equation.  <code>MakeTerminal()</code> is a  <code>StateVariable</code> method that can take either an integer or a vector of integer values as its argument.  <code>d->MakeTerminal(1)</code> would not work if <var>d</var> had not be assigned a state variable in the previous line.</DD>
+    The method <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>() adds the arguments sent to it to the <span class="expressions">\(\theta\)</span> vector. Recall that <code>d=1</code> is a terminal state.  <span class="n">DDP</span> must know this so that the value of reaching that state is taken from its utility not iterated on using Bellman's equation.  <code>MakeTerminal()</code> is a  <code>StateVariable</code> method that can take either an integer or a vector of integer values as its argument.  <code>d->MakeTerminal(1)</code> would not work if <span class="expressions">\(d\)</span> had not be assigned a state variable in the previous line.</DD>
 <P/>
-    <DD>22: The state variable <var>p</var> takes on one of <var>p.N</var> different values with equal probability. In <span class="n">DDP</span> this is a <code><a href="Variables.ox.html#SimpleJump">SimpleJump</a></code> state variable.  Since its transition  does not depend on the current state or actions, <span class="n">DDP</span> can be told this an <em>exogenous</em> state variable, reducing memory and computations.   </DD>
+    <DD>22: The state variable <span class="expressions">\(p\)</span> takes on one of <code>p.N</code> different values with equal probability. In <span class="n">DDP</span> this is a <code><a href="Variables.ox.html#SimpleJump">SimpleJump</a></code> state variable.  Since its transition  does not depend on the current state or actions, <span class="n">DDP</span> can be told this an <em>exogenous</em> state variable, reducing memory and computations.   </DD>
 <P/>
 <DT>Create the DP environment</DT>
-    <DD>13: After <code>Model()</code> is complete we return to line 13.  All elements have been created and added to the model, the user's code calls <code>CreateSpaces()</code>.  <code>CreateSpaces()</code> uses all the information available about elements added to the model to create the state space, the feasible Action sets and many other aspects of the problem.  To conserve memory requirements and computational time <span class="n">DDP</span> does not create separate points for the exogenous elements of the state space (here <var>p</var>). It treats these separately and <q>attaches</q> values related to the exogenous states to the points in the endogenous state space, <span class="expressions">\(\Theta\)</span>.</DD>
+    <DD>15: After <code>Build()</code> is complete we return to line 15.  All elements have been created and added to the model, the user's code calls <code>CreateSpaces()</code>.  <code>CreateSpaces()</code> uses all the information available about elements added to the model to create the state space, the feasible Action sets and many other aspects of the problem.  To conserve memory requirements and computational time <span class="n">DDP</span> does not create separate points for the exogenous elements of the state space (here <span class="expressions">\(p\)</span>). It treats these separately and <q>attaches</q> values related to the exogenous states to the points in the endogenous state space, <span class="expressions">\(\Theta\)</span>.</DD>
 <P/>
 <DT>Solve the Model (and more)</DT>
-    <DD>The DP model is separate from methods to solve it or use it in some way, including simulation and parameter estimation.  Solution methods are derived from the <a href="Methods.ox.html#Method">Method</a> class, which itself is derived from the <a href="DP.ox.html#Task">Task</a> class.  Tasks are coded to go through the state space and do something at each point.  Tasks share the <code>static</code> aspects of the user's model, but they do not have the <code>automatic</code> variables that are specific to each point.  </dd>
-    <DD>14:  However, all those details can be left to <span class="n">DDP</span> by calling the function <a href="Methods.ox.html#VISolve">VISolve</a>().  This routine creates an object of the  <a href="Methods.ox.html#ValueIteration">ValueIteration</a> solution type and calls its <a href="Methods.ox.html#ValueIteration___Solve">Solve</a>() method to compute the solution to Bellman's equation for <code>MyModel</code>.  It also calls <a href="DP.ox.html#DPDebug___outAllV">outAllV</a>() so that a summary of the solution is printed to the screen. </DD>
+    <DD>The DP model is separate from methods to solve it or use it in some way, including simulation and parameter estimation.  Solution methods are derived from the <a href="Methods.ox.html#Method">Method</a> class, which itself is derived from the <a href="DP.ox.html#Task">Task</a> class.  Tasks are coded to go through the state space and do something at each point.</dd>
+    <DD>25:  All those details can be left to <span class="n">DDP</span> by calling the function <a href="Methods.ox.html#VISolve">VISolve</a>().  This routine creates an object of the  <a href="Methods.ox.html#ValueIteration">ValueIteration</a> solution type and calls its <a href="Methods.ox.html#ValueIteration___Solve">Solve</a>() method to compute the solution to Bellman's equation for <code>MyModel</code>.  It also calls <a href="DP.ox.html#DPDebug___outAllV">outAllV</a>() so that a summary of the solution is printed to the screen. </DD>
     <DD><a href="Methods.ox.html#ValueIteration">ValueIteration</a> is the most straightforward method for solving a DP model is iteration on Bellman's equation, either until convergence with an infinite horizon or backwards from the final decision period in a finite horizon.  Other solution methods could be created as well if more than one method will be used to solve the model (for example, to compare them or one to simulate data and another to use while estimating the model).</DD>
-    <DD>Using the <a href="Methods.ox.html#VISolve">VISolve</a>() is convenient for testing and illustrating the code.   In most real applications the model will be solved repeatedly to estimate parameters, compare solution methods, conduct policy experiments, etc.  For more control on output and for repeated use it is better for the user to create the <a href="Methods.ox.html#Method">Method</a> object and call its <code>Solve()</code> routine directly.  One reason is efficiency.  <a href="Methods.ox.html#VISolve">VISolve</a>() creates and destroys the value iteration object each time it is called, which would waste computation if it were called repeated.</DD>.
-    <DD>Representing solution methods with different classes that are dynamic (do not rely heavily on static data) means that different solution methods can be applied to the same model and compared to each other.</DD>
+    <DD>Using the <a href="Methods.ox.html#VISolve">VISolve</a>() is convenient for testing and illustrating the code.   In most applications the model will be solved repeatedly to estimate parameters, compare solution methods, conduct policy experiments, etc.  For more control on output and for repeated use it is better for the user to create the <a href="Methods.ox.html#Method">Method</a> object and call its <code>Solve()</code> routine directly.  One reason is efficiency.  <a href="Methods.ox.html#VISolve">VISolve</a>() creates and destroys the value iteration object each time it is called, which would waste computation if it were called repeated.</DD>
+    <DD>26:  The <code>Delete()</code> re-initializes the model to be empty, with no variables or other features defined.  This is only important for test code like this when another simple might be created after this one.</DD>
 </DL>
 <P/>
 </DL>
@@ -229,7 +236,7 @@ However it is referenced, <code>a</code> and <code>b</code> refer to the same pl
     <DD><details><summary>Source: <a href="../examples/output/GetStarted.txt">../examples/output/GetStarted.txt</a></summary>
     <object width="75%" height="200" type="text/plain" data="../examples/output/GetStarted.txt" border="1" ></object>
     </pre></details>
-    By default DDP prints out information (you can control the amount by setting <code>DP::Volume</code>).  When the spaces are created a summary of the state variables, state spaces, action vectors, and feasible action sets is produced.  The <code>Vprint()</code> routine prints out information for each point in the endogenous state space <span class="expressions">\(\Theta\)</span>:  The value of state variables in <span class="expressions">\(\theta\)</span>, <span class="expressions">\(EV(\theta)\)</span>, and choice probabilities averaging over the exogenous states.  Since EV = -6.26 the searcher will accept any offer with a price below 6.26.  There are 7 such offers, 0 through 6, and each is equally likely.  So the probability that <var>a=1</var> is 7/10 or 0.7.  The rejection probability is 0.3.</DD>
+    By default DDP prints out information (you can control the amount by setting <code>DP::Volume</code>).  When the spaces are created a summary of the state variables, state spaces, action vectors, and feasible action sets is produced.  The <code>Vprint()</code> routine prints out information for each point in the endogenous state space <span class="expressions">\(\Theta\)</span>:  The value of state variables in <span class="expressions">\(\theta\)</span>, <span class="expressions">\(EV(\theta)\)</span>, and choice probabilities averaging over the exogenous states.  Since EV = -6.26 the searcher will accept any offer with a price below 6.26.  There are 7 such offers, 0 through 6, and each is equally likely.  So the probability that <span class="expressions">\(a=1\)</span> is 7/10 or 0.7.  The rejection probability is 0.3.</DD>
 <P/>
 </OL>
 <P/>
@@ -251,10 +258,11 @@ Using a <a href="http://www.doornik.com/ox/oxsyntax.html#ox_syntax_RefDerClass">
 <DD><pre>
 struct DerivedSearch : Search {
 	static decl u, simdata;
-	static Run();
+	static Create();
+    static Run();
 	}
 </pre></DD>
-The <code>DerivedSearch</code> class adds three members for data operations.  The plan is to simulate behaviour of optimal search behaviour and to collect realized utility and indicators for price offers.  <a href="Data.ox.html#Outcome">Outcome</a>s have space to store all realized actions and states, but utility or other functions of the outcome are not tracked automatically.  The new code will track realized utility with an object stored in <code>u</code>. Simulated data are generated and stored as a <a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a> object, and <code>simdata</code> will be that object. The static <code>Run()</code> procedure will do the new work. All members of the base <code>Search</code> class are inherited and do not need to be declared or defined.</p>
+The <code>DerivedSearch</code> class adds members for data operations.  The plan is to simulate behaviour of optimal search behaviour and to collect realized utility and indicators for price offers.  <a href="Data.ox.html#Outcome">Outcome</a>s have space to store all realized actions and states, but utility or other functions of the outcome are not tracked automatically.  The new code will track realized utility with an object stored in <code>u</code>. Simulated data are generated and stored as a <a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a> object, and <code>simdata</code> will be that object. The static <code>Run()</code> procedure will do the new work. All members of the base <code>Search</code> class are inherited and do not need to be declared or defined.</p>
 <P/>
 <li>Auxiliary Values</li>
 <P/>
@@ -267,13 +275,26 @@ Since <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a> is derived f
 <P/>
 <li>Modified Run()</li>
 <P/>
-<code>DerivedSearch</code> relies on the base <code>Run()</code> routine discussed in <a href="GetStarted.html">GetStarted</a>.  All it has to do is create the auxiliary variable and then create a specialized data set object:
+<code>DerivedSearch</code> relies on the base <code>Build()</code> routine discussed in <a href="GetStarted.html">GetStarted</a>.  All it has to do is create the auxiliary variable and then create a specialized data set object:
 <dd><pre>
-DerivedSearch::Run()	{
-	Search::Run();
-	AuxiliaryOutcomes(u = new RealizedUtility());
-    simdata = new SearchData();
+DerivedSearch::Create()	{
+    Initialize(new DerivedSearch());
+	Search::Build();
+    u = new RealizedUtility();
+	AuxiliaryOutcomes(u);
+    CreateSpaces();
 	}
+DerivedSearch::Run() {
+    Create();
+    VISolve();
+    simdata = new SearchData();
+<P/>
+    decl pd = new PanelPrediction();
+    pd->Predict(5,TRUE);
+<P/>
+    delete simdata, pd;
+    Delete;
+    }
 </pre></dd>
 <P/>
 <li>DataSet Objects</li>
@@ -289,16 +310,15 @@ struct SearchData : DataSet {
 <DT>The creator function will do the work.</DT>
 <DD><pre>
 SearchData::SearchData() {
-	DataSet("Search Data");
-	Simulate(N,MaxOb,0,TRUE); //TRUE censors terminal states
+    OutcomeDataSet("SearchData");
+    Volume=LOUD;
+	Simulate(15,20,0,TRUE); //TRUE censors terminal states
 	Print(1);
-	ObservedWithLabel(Search::a,Search::p,Search::d,DerivedSearch::u);
-	Mask();
+	ObservedWithLabel(Search::a,Search::p,Search::d);
 	println("Vector of likelihoods when offered price is observed:",exp(EconometricObjective()));
 	UnObserved(Search::p);
-	Mask();
 	println("Vector of likelihoods when offered prices is unobserved:",exp(EconometricObjective()));
-	}
+    }
 </pre></DD>
 <DT><code>SearchData</code> first calls its parent creator method.</DT>
     <DD>The first argument is a name to associate with the data set and the solution method to use during simulation or estimation.  Two other arguments can be sent, but in this case they are not needed. In particular, the second argument can be a solution method object so that the dynamic program is solved before the simulation occurs.  (In this case, <code>DataSet("Search Data",meth)</code> where member <code>meth</code> was set by the parent <code>Search</code>. However, since <code>Search::Run()</code> is run first and it has already solved the DP model it would be redundant to solve it again.</DD>
@@ -318,7 +338,7 @@ SearchData::SearchData() {
     <DD>By default nothing is observed, so the user must explicitly add variables to the observed list.  State variables that are <a href="Variables.ox.html#Fixed">Fixed</a>, are placeholders that take on only one value, so they are implicitly observed.  These are marked as <code>force0</code> so that if reading in from external data the values will be filled in and they do not have to be explicitly observed. <a href="Data.ox.html#OutcomeDataSet___ObservedWithLabel">ObservedWithLabel</a>() takes one or more action/state/auxiliary objects as arguments.  <a href="Shared.ox.html#Quantity___L">L</a> label of the object is the same as the label or name of the column in the data set, which is how the data is matched with the model variable.</dd>
     <DD><a href="Data.ox.html#OutcomeDataSet___MatchToColumn">MatchToColumn</a>() takes two arguments.  The first is the model variable object.  The second is either a label or the index of the column to match the variable with.</DD>
     <DT>Since the code is working with simulated data, the data set already has the full outcome <code>Y*</code> in memory.  </DT>
-    <DD>When reading in external data, the observability of variables is specified <em>ex ante</em> and then the observable data is read in using <code><a href="Data.ox.html#OutcomeDataSet___Read">Read</a>(const filename)</code>.  But here, observability is specified <em>ex post</em>. With simulated data, the user must apply <a href="Data.ox.html#OutcomeDataSet___Mask">Mask</a>() before sending the data to an econometric method.  When reading in external data the mask is applied internally by <a href="Data.ox.html#OutcomeDataSet___Read">Read</a>().</DD>
+    <DD>When reading in external data, the observability of variables is specified <em>ex ante</em> and then the observable data is read in using <code><a href="Data.ox.html#OutcomeDataSet___Read">Read</a>(const filename)</code>.  But here, observability is specified <em>ex post</em>. </DD>
     <DT>Masking accounts for unobservability using a fairly complex process (which will be documented more completely in later releases.</DT>
     <DD>Essentially missing observations spawn loops over all possible values when processing the outcome.  And the model's probabilistic elements must be used to weight the paths. Further, procedures such as likelihood computation is carried out using backwards recursion not the usual forward recursion.  Unless the DataSet <code>Volume</code> is set to <code>SILENT</code> the masking method will print out a table summarizing the observability of the total outcome.</DD>
 <P/>

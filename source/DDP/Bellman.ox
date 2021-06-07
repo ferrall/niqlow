@@ -212,10 +212,15 @@ This function must be coded when using `KeaneWolpin`
 **/
 Bellman::ThetaUtility() { return .NaN; }
 
+/** For Myopic agent or StaticClock or just Initial, v=U and no need to evaluate EV. .**/
+Bellman::MyopicActVal() {
+    XUT->ReCompute(DoAll);
+    pandv[][] = XUT.U;
+    }
+
 /** Compute $v(\alpha;\theta)$ for all values of $\epsilon$ and $\eta$. **/
 Bellman::ActVal() {
-    XUT->ReCompute(DoAll);
-	pandv[][] = XUT.U;
+    MyopicActVal();
 	if (Type>=LASTT) return;
     IOE.state[] = XUT.state[];
     IOE->Compute();
@@ -623,12 +628,7 @@ McFadden::Initialize(Nchoices,userState,UseStateList) {
 **/
 McFadden::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 
-/** Myopic agent, so vv=U and no need to evaluate EV. .**/
-McFadden::ActVal() {
-    //    this->ThetaUtility();
-    XUT->ReCompute(DoAll);
-    pandv[][] = XUT.U;
-    }
+// McFadden::ActVal() {    MyopticActVal();    }
 
 /** Initialize an ex post smoothing model.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
@@ -800,7 +800,7 @@ NIID::ActVal() {
 	
 /** This does nothing because smoothing occurs in `NIID::ActVal`.
 **/
-Normal::Smooth() {	/*EV = Vnow; NoR??*/	}
+Normal::Smooth() {	}
 
 /** Initialize a normal Gauss-Hermite integration over independent choice-specific errors.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
@@ -831,8 +831,8 @@ NIID::CreateSpaces() {
 	MM = new array[N::J];
 	decl mm = N::Options[0],i;
 	if (isint(AChol)||!GQLevel)
-        SetIntegration(5,ones(mm,1));
-	else if (rows(AV(AChol))!=mm) oxrunerror("Length of Choleski vector must equal rows of full action matrix");
+        SetIntegration(15,ones(mm,1));
+	else if (rows(CV(AChol))!=mm) oxrunerror("Length of Choleski vector must equal rows of full action matrix");
 	for (i=0;i<N::J;++i) {
 		MM[i] = new array[N::Options[i]];
 		GQNODES[i] = new array[N::Options[i]];
@@ -845,7 +845,7 @@ NIID::CreateSpaces() {
 
 **/
 NIID::UpdateChol() {
-	decl nfeas,i,nr,j,a, AC = AV(AChol);
+	decl nfeas,i,nr,j,a, AC = CV(AChol);
 	for (i=0;i<N::J;++i) {
 		nfeas = N::Options[i];
 		if (nfeas>1) {
@@ -861,8 +861,24 @@ NIID::UpdateChol() {
 			}
 		}
 	}
+/** Initialize a Roy model (one-shot, one-dimensional choice with correlated normal additive error). 	
+@param Nchoices <em>integer</em>, number of options/sectors.
+@param userState a `Bellman`-derived object that represents one point $\theta$ in the user's endogenous state space &Theta;.<br/>
+**/
+Roy::Initialize(Nchoices,userState,UseStateList) {
+	NnotIID::Initialize(1.0,userState,FALSE);
+    parents = " | Roy "+parents;
+    SetClock(StaticProgram);
+	Actions(d = new ActionVariable("d",Nchoices));
+	SetDelta(0.0);	
+	}
 
-	
+/**  just calls the ExtremeValue version, no special code.
+**/
+Roy::CreateSpaces() {	
+    NnotIID::CreateSpaces();
+    }
+
 /** .
 @internal
 **/
@@ -876,37 +892,32 @@ NnotIID::Initialize(userState,UseStateList) {
 	Normal::Initialize(userState,UseStateList);
     parents = " | Not IID "+parents;
 	Hooks::Add(PreUpdate,NnotIID::UpdateChol);
+    R = UnInitialized;
 	}
 
 /** Initialize the integration parameters.
-@param R integer, number of replications
-@param iseed integer, seed for random numbers
-@param AChol `CV` compatible vector of lower triangle of Cholesky matrix for full Action vector
+@param R integer, number of replications [default=1]
+@param iseed integer, seed for random numbers [default=0]
+@param AChol `CV` compatible vector of lower triangle of Cholesky matrix for full Action vector [default equals lower triangle of I]
 **/
 NnotIID::SetIntegration(R,iseed, AChol) {
 	this.R = R;
 	this.iseed = iseed;
-	if (isint(iseed)&& iseed==0) oxwarning("DDP Warning 03.\n Setting iseed to 0 means ranseed is not reset.\n");
-	this.AChol = AChol;
+	//if (isint(iseed)&& iseed==Zero) oxwarning("DDP Warning 03.\n Setting iseed to 0 means ranseed is not reset.\n");
+    this.AChol = isint(AChol) ? vech(unit(N::Options[Zero])) : AChol;
 	}
 
 /**  Create spaces and set up GHK integration over non-iid errors.
 **/
 NnotIID::CreateSpaces() {
 	Normal::CreateSpaces();
+    if (R==UnInitialized) SetIntegration();
 	ghk=new array[N::J];
-	decl mm= N::Options[0];
-	if (R<=0) {
-		if (!Version::MPIserver) oxwarning("DDP Warning 04.\n Number of replications R not set or invalid.\n Setting to 1.\n");
-		R = 1;		
-		}
-	if (isint(AChol)) AChol = vech(unit(mm)) ;
-	else {
-		mm *= (mm+1)/2;
-	 	if (rows(AV(AChol))!=mm) oxrunerror("Length of Choleski vector must equal lower triangle for full action vector, ");
-		}
-	decl i;
-	for (i=0;i<N::J;++i)  ghk[i] = new GHK(R,N::Options[i],0);
+	decl mm= N::Options[0], i;
+    if (rows(CV(AChol)) != mm*(mm+1)/2)
+	 	oxrunerror("Length of Choleski vector must equal lower triangle for full action vector, ");
+	for (i=0;i<N::J;++i)
+        ghk[i] = new GHK(R,N::Options[i],0);
 	}	
 	
 /** Use GHK to integrate over correlated value shocks. **/
@@ -922,7 +933,6 @@ NnotIID::ExogExpectedV() {
 
 **/
 NnotIID::ActVal() {
-//    this->ThetaUtility();
     XUT->ReCompute(DoAll);  //ZZZZ
 	decl J=rows(XUT.U);
 	if (Type<TERMINAL && J>1)	{
@@ -941,7 +951,7 @@ NnotIID::ActVal() {
 NnotIID::UpdateChol() {
 	decl i;
 	ranseed(iseed);
-	decl AC = unvech(AV(AChol));
+	decl AC = unvech(CV(AChol));
 	for (i=0;i<N::J;++i)
 		Chol[i] = selectifc(selectifr(AC,Alpha::Sets[i]),Alpha::Sets[i]');
 	}

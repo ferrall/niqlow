@@ -49,6 +49,8 @@ struct Prediction : Data {
     ~Prediction();
 	Predict();
     Reset();
+    GetAcc();
+    IncAcc(f,addmom);
     SetMoms(sz,firsttype);
 	Histogram(printit=FALSE);
     Delta(mask,printit=FALSE,tlabels=0);
@@ -59,7 +61,7 @@ struct Prediction : Data {
 **/
 struct 	PathPrediction : Prediction {
     const decl
-        /** panel I belong to.**/                    mother,
+        /** panel I belong to.**/               mother,
                 /** fixed index.**/             f,
                 /** initial distribution.**/    iDist,
                 /** pstate .**/                 pstate,
@@ -156,8 +158,8 @@ struct PredictionDataSet : PanelPrediction {
 
             PredictionDataSet(UorCorL=UseLabel,label=UseDefault,method=UnInitialized,iDist=0,wght=UNCORRELATED,aggshares=0);
             Observed(as1,lc1=0,...);
-            TrackingMatchToColumn(Fgroup,LorC,mom);
-            TrackingWithLabel(Fgroup,InDataOrNot,...);
+            TrackingMatchToColumn(LorC,mom);
+            TrackingWithLabel(InDataOrNot,...);
             Observations(NLabelorColumn,TLabelorColumn=UnInitialized);
             Read(fn=UseDefault);
             SimulateMomentVariances(N,ErgOrStateMat=0,fvals=DoAll);

@@ -169,7 +169,7 @@ Test6::Run() {
 	sp -> Print(FALSE);
     delete EMax;
     delete sp;
-    sp = new PathPrediction(0,"hi");
+    sp = new PanelPrediction(0,"hi");
     sp->Tracking(TrackAll);
     sp->Predict(5,2);
     delete sp;
@@ -242,13 +242,13 @@ Test9::Run()	{
 	meth = new ValueIteration();
 	meth.Volume = NOISY;
     meth -> Solve();
-    decl pd = new PanelPrediction("hi");
+    decl pd = new PanelPrediction("hi",meth);
     Data::Volume = LOUD;
     pd->Tracking (UseLabel,a,d);
     pd->Predict(15,TRUE);
     delete pd;
     pd = new PredictionDataSet(UseLabel,"hi",meth,FALSE,FALSE);
-    pd->TrackingWithLabel(AllFixed,TRUE,a,d);
+    pd->TrackingWithLabel(TRUE,a,d);
     pd->Read(); //reads from PredMomFile
     Explore(pd,10,0.1,lam);
     delete meth; delete pd; delete  lam;
@@ -300,7 +300,7 @@ Test11::Run()	{
 	CreateSpaces();
     decl vi, pd;
     vi = new ReservationValues();
-    pd = new PathPrediction(0,vi);
+    pd = new PanelPrediction(0,vi);
     DPDebug::outAllV();
     pd->Predict(T,Two);
     delete pd;

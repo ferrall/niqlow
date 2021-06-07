@@ -5,18 +5,15 @@ struct Search : Bellman	{
 	enum{Noff=10}
 	static const decl lam = 2.3;
 	static decl p, d, a;
-	static Run();
-    static Model();
+	static Build();
+    static Create();
+    static Run();
 	Utility();
 	}
-Search::Run()	{
-	Initialize(new Search());
-    Model();
-	CreateSpaces();
-    VISolve();
-    Delete();
-	}
-Search::Model() {
+Search::Utility()  {
+	return -(1-CV(d))*(lam + CV(p)*CV(a));
+	}	
+Search::Build() {
 	SetClock(InfiniteHorizon);
 	SetDelta(0.99);
 	Actions(a = new ActionVariable("a",2));
@@ -24,6 +21,13 @@ Search::Model() {
 	d->MakeTerminal(1);	
 	ExogenousStates(p = new SimpleJump("p",Noff));
     }
-Search::Utility()  {
-	return -(1-CV(d))*(lam + CV(p)*CV(a));
-	}	
+Search::Create()	{
+	Initialize(new Search());
+    Build();
+	CreateSpaces();
+	}
+Search::Run() {
+    Create();
+    VISolve();
+    Delete();
+    }

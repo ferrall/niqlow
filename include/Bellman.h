@@ -62,7 +62,8 @@ struct  Bellman : DP {
 
                     //Solution Methods replace these
             virtual ExogExpectedV();
-			virtual thetaEMax() ;
+			virtual thetaEMax();
+                    MyopicActVal();
 			virtual ActVal();
             virtual ExogStatetoState();
             virtual HMQVal();
@@ -221,7 +222,7 @@ struct NnotIID : Normal {
 		/**  RNG seed argument **/					iseed,
 		/**  . @internal		**/					ghk;
 	static Initialize(userState,UseStateList=FALSE);
-	static SetIntegration(R,iseed,AChol);
+	static SetIntegration(R=One,iseed=Zero,AChol=UseDefault);
 	static CreateSpaces();
 	static UpdateChol();
 	ActVal();
@@ -242,6 +243,18 @@ struct NIID : Normal {
 	static UpdateChol();
 	ActVal();
     ExogExpectedV();
+	}
+
+/** Myopic choice problem ($\delta=0.0$) over $J$ sectors with correlated Normal $\zeta$.
+
+This is the base class for a multi-sector static discrete model with normally correlated shocks.
+
+**/
+struct Roy : NnotIID {
+	static decl
+	/**The sector-decision variable. **/ d;
+	static Initialize(Nchoices,userState,UseStateList=FALSE);
+	static CreateSpaces();
 	}
 
 /** One-dimensional action models with user defined distribution of $\zeta$.

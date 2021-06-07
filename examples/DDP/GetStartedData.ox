@@ -2,23 +2,25 @@
 
 //#include "GetStarted.ox"  not needed if run from examples/main.ox
 
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2021 Christopher Ferrall */
 
 struct DerivedSearch : Search {
 	static decl u, simdata;
+    static Create();
 	static Run();
 	}
 struct SearchData : OutcomeDataSet {
     SearchData();
     }
-DerivedSearch::Run()	{
-
+DerivedSearch::Create()	{
     Initialize(new DerivedSearch());
-	Search::Model();
+	Search::Build();
     u = new RealizedUtility();
 	AuxiliaryOutcomes(u);
     CreateSpaces();
-
+	}
+DerivedSearch::Run() {
+    Create();
     VISolve();
     simdata = new SearchData();
 
@@ -27,7 +29,7 @@ DerivedSearch::Run()	{
 
     delete simdata, pd;
     Delete;
-	}
+    }
 SearchData::SearchData() {
     OutcomeDataSet("SearchData");
     Volume=LOUD;

@@ -13,10 +13,11 @@ This creates a `PanelPrediction` object, creates the prediction tracking all var
 
 **/
 ComputePredictions(T,prtlevel) {
-    decl op = new PanelPrediction("predictions"),TT,oldvol = Data::Volume;
+    decl op = new PanelPrediction("predictions"),TT,oldvol;
     TT = (T==UseDefault) ? (Flags::IsErgodic ? 10: N::T)
                          : T;
     op -> Tracking(TrackAll);
+    oldvol = Data::Volume;
     if (prtlevel==Zero) Data::Volume = LOUD;
     op -> Predict(TT,prtlevel);
     Data::Volume = oldvol;
@@ -79,7 +80,13 @@ Prediction::Reset() {
 	p = sind = <>;
     ch[] = 0.0;
     }
-
+Prediction::GetAcc() { return accmom; }
+Prediction::IncAcc(inf,addmom) {
+    if (!inf)
+        accmom = addmom;
+    else
+        accmom += addmom;
+    }
 /** Initialize and if necessary set moms vectors.
 @param sz length of current ctlist.
 @param firsttype first or only pass integrating over gamma_r
@@ -166,9 +173,9 @@ PathPrediction::ProcessContributions(cmat){
         }
     cur=this;
     do {
-        if (ismat) { cur.accmom = cmat[cur.t][]; }
+        if (ismat) { cur->IncAcc(0,cmat[cur.t][]); }
         if (!Version::MPIserver && Data::Volume>QUIET)
-            flat[cur.t][] = fvals~cur.t~cur.accmom;
+            flat[cur.t][] = fvals~cur.t~cur->GetAcc();
         if (HasObservations) {
             if (ismatrix(pathW)) {
                 dlabels |= suffix(mother.tlabels[1:],"_"+tprefix(cur.t));
@@ -179,19 +186,18 @@ PathPrediction::ProcessContributions(cmat){
                  }
             }
         if (aggexists) {
-            if (!f)
-                aggcur.accmom = myshare * cur.accmom;
-            else
-                aggcur.accmom += myshare * cur.accmom;
+            aggcur->IncAcc(f,myshare * cur->GetAcc());
+            aggcur = aggcur.pnext;
             }
-        aggcur = aggcur.pnext;
         cur    =    cur.pnext;
   	    } while(isclass(cur));
     if (!Version::MPIserver && Data::Volume>QUIET && aggexists) {
-        if (!f)
-            mother.flat= myshare * flat;
+        if (!f){
+            mother.flat = constant(AllFixed,flat);      //set everything to -1 (get the right dimensions)
+            mother.flat[][Fcols:]= myshare * flat[][Fcols:];      //only average non fixed columns
+            }
         else
-            mother.flat += myshare * flat;
+            mother.flat[][Fcols:] += myshare * flat[][Fcols:];
         }
     L = (HasObservations) ? (
                 ismatrix(pathW) ? outer(vdelt,pathW)
@@ -221,7 +227,7 @@ Predictions are averaged over random effect groups.
 
 @example
 <pre>
-  p = new PathPrediction();
+  p = new PanelPrediction();
   p-&gt;Predict(10);
 </pre></dd>
 **/
@@ -241,12 +247,8 @@ PathPrediction::Predict(inT,prtlevel){
         return FALSE;
         }
     else {
-        if (!Version::MPIserver && Data::Volume>QUIET) {
-            flat = constant(.NaN,T,Fcols+One+sizeof(mother.tlist));
-            if (!f && aggexists) mother.flat = flat;
-            }
         ProcessContributions();
-        if (!Version::MPIserver && prtlevel) {
+        if (!Version::MPIserver && Data::Volume>QUIET) {
             if (Version::HTopen) println("</pre><a name=\"Prediction\"/><pre>");
             println(" Predicted Moments for fixed group: ",f,"%c",mother.tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:]);
             }
@@ -421,7 +423,9 @@ PathPrediction::InitialConditions() {
     //LeakWarned = FALSE;  Don't keep warning of leaks
     }
 
-/** Create a path of predictions.
+/** Create a path of predictions - should only be called by PanelPrediction.
+
+@param mother  object of `PanelPrediction` that is the mother to this path.
 @param f     integer: fixed group index [default=0]<br />
              AlLFixed (-1):  this aggregates (averages) predictions over
              NotInData (-2):  no prediction stored here.
@@ -444,6 +448,8 @@ The prediction is not made until `PathPrediction::Predict`() is called.
 
 **/
 PathPrediction::PathPrediction(mother,f,method,iDist,wght,myshare){
+    if (!isclass(mother,"PanelPrediction"))
+        oxrunerror("PathPrediction must point to its  mother.  Cannot be created as a standalone prediction.");
     this.mother = mother;
 	this.f = f;
 	this.method = method;
@@ -644,7 +650,7 @@ This updates every tracked object.  It updates the density over random effects f
 **/
 PathPrediction::Initialize() {
     PredictFailure = FALSE;
-    mother->InitializePath(pstate);
+    if (isclass(mother,"PanelPrediction")) mother->InitializePath(pstate);
     flat = <>;
     L = +.Inf;
     first = TRUE;
@@ -772,7 +778,7 @@ PanelPrediction::~PanelPrediction() {
 **/
 PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
     decl k;
-    aggexists = N::F>One;
+    aggexists= N::F>One;
     PathPrediction(this,aggexists ? AllFixed : 0,0,wght,0);	
     EverPredicted = FALSE;
     this.method = method;
@@ -780,7 +786,7 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
     tlist = {};
     label = isint(label) ? classname(userState) : label;
     PredMomFile=replace(Version::logdir+DP::L+"_PredMoments_"+label," ","")+".dta";
-    if (N::F>One) {
+    if (aggexists) {
 	   fparray = new array[N::F];
 	   for (k=Zero;k<N::F;++k) {
             fparray[k] = new PathPrediction(this,k,method,iDist,wght,ismatrix(aggshares)? aggshares[k] : 1/N::F);
@@ -824,6 +830,8 @@ PanelPrediction::Predict(inT,prtlevel,outmat) {
     if (f==AllFixed) {
         vdelt =<>;    dlabels = {};
         if (ismatrix(flat)) delete flat;
+        this.inT = inT;
+        SetT();
         }
     aflat = {};
     M = 0.0;
@@ -877,51 +885,27 @@ PanelPrediction::Predict(inT,prtlevel,outmat) {
     }
 
 /** Track an object that is matched to column in the data.
-@param Fgroup  : integer or vector of integers of fixed groups that the moment should be tracked for.<br/>
-               <code>AllFixed</code>, moment appears in all groups
 @param LorC  label or column index in the data to associate with this moment.
 @param mom `Discrete` object to track
 **/
-PredictionDataSet::TrackingMatchToColumn(Fgroup,LorC,mom) {
-//    if (Fgroup==AllFixed)
+PredictionDataSet::TrackingMatchToColumn(LorC,mom) {
     PanelPrediction::Tracking(LorC,mom);
-/*    else
-        if (Fgroup==0) PathPrediction::Tracking(LorC,mom);
-        else {
-            decl f;
-            if (isint(Fgroup))
-                fparray[Fgroup]->PathPrediction::Tracking(LorC,mom);
-            else foreach (f in Fgroup) fparray[f] ->PathPrediction::Tracking(LorC,mom);
-            }
-*/
     }
 
 
 /** Track one or more objects that are matched to columns using the object's label.
-@param Fgroup  integer or vector of integers of fixed groups that the moment should be tracked for.<br/>
-    AllFixed, moment appears in all groups
 @param InDataOrNot TRUE: the <code>UseLabel</code> tag will be passed to
             `PathPrediction::Tracking`()<br/>
             FALSE: the <code>NotInData</code> tag will be sent.
 @param ... objects or array of objects to track
 **/
-PredictionDataSet::TrackingWithLabel(Fgroup,InDataOrNot,...
+PredictionDataSet::TrackingWithLabel(InDataOrNot,...
     #ifdef OX_PARALLEL
     args
     #endif
 ) {
     decl v, pparg = InDataOrNot ? UseLabel : NotInData;
-//    if (Fgroup==AllFixed)
-        PanelPrediction::Tracking(pparg,args);
-/*    else
-        if (Fgroup==0) PathPrediction::Tracking(pparg,args);
-        else {
-            decl f;
-            if (isint(Fgroup))fparray[Fgroup]->PathPrediction::Tracking(pparg,args);
-            else foreach (f in Fgroup)
-            fparray[f]->PathPrediction::Tracking(pparg,args);
-            }
-*/
+    PanelPrediction::Tracking(pparg,args);
     }
 
 
@@ -1033,7 +1017,6 @@ PredictionDataSet::Read(FNorDB) {
         }
     else
        fcols = ismatrix(flist) ? flist : 0;
-    //println("data 0 ",data[0][]," f ",data[0][fcols]);
     fdone = zeros( N::F+(N::F>One) ,1);
     if (ismatrix(fcols)) {
         decl c, k;
@@ -1051,7 +1034,6 @@ PredictionDataSet::Read(FNorDB) {
     inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
     incol = selectifc(cols,cols.>=0);
     if (inf<Zero) inf = N::F; //any negative value maps into N::F+1
-    //println("Here: fcols ",fcols,"flist ",flist,inf,data[row][fcols]);
     do {
         curf = inf;
         fptr = (curf==N::F || N::F==One) ? this : fparray[curf];
@@ -1062,7 +1044,7 @@ PredictionDataSet::Read(FNorDB) {
         do {
             if (row<rows(data)) {  //read one more
                 inf = (isint(fcols)) ? 0 :  I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
-                if (inf<Zero) inf = N::F; //any negative value maps into -1
+                if (inf<Zero) inf = N::F; //any negative value maps into N::F
                 if (inf==curf ) {  //same fixed group
                     inmom |= data[row++][incol];   //add moments, increment row
                     continue;                        // don't install moments
