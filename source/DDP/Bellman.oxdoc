@@ -56,7 +56,7 @@ struct MyModel : Bellman {
     Utility();
     }
 MyModel::Utility() {
-    return  CV(s)*CV(d);  
+    return  CV(s)*CV(d);
     }
 </pre></DD>
 So this is a model where $\alpha = (d)$ and $\theta = (s)$ and $U(\alpha;\theta)=sd.$</p>
@@ -82,11 +82,11 @@ A state is <em>unreachable</em> if it cannot occur given initial conditions.  Fo
 
 <code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual `Bellman::FeasibleActions`() method to make the feasible choice set to vary with the endogenous state $\theta$.  That is, the action space $A$ is really $A(\theta)$.  Again, the default is that all values constructed from the action variables added to the model are feasible.</p>
 
-<DT>Example.</DT> 
+<DT>Example.</DT>
 <DD> Only action vectors with <code>d</code> less than or equal to the value of state variable <code>s</code> are feasible.
 <pre>
-MyModel::FeasibleActions() { 
-    return CV(d) .&lt;= CV(s); 
+MyModel::FeasibleActions() {
+    return CV(d) .&lt;= CV(s);
     }
 </pre>
 The dot operator <code>.&lt;</code> is the element-by-element less-than operator in Ox.   So this returns a vector of length equal to the number of values <code>d</code> takes on containing 0s and 1s.  When setting up spaces <span class="n">DDP</span> will call <code>FeasibleActions</code> at each point in the state space.  It will then create a list of different feasible sets.  Each point $\theta$ contains an index into this list to ensure only feasible action values are returned by <code>CV(d)</code> when the model is being solved/used.</DD>
@@ -104,18 +104,18 @@ MyModel::Utility() {
     return  CV(p)*dv .&lt;= CV(s)  .?  dv .: -.Inf;
     }
 </pre>
-The <code>.? &hellip; .: &hellip;</code> operation is an inline <code>if-statement</code> that will check the 
+The <code>.? &hellip; .: &hellip;</code> operation is an inline <code>if-statement</code> that will check the
 element-by-element condition at the start and assign the other values listed depending on whether the element is TRUE or FALSE.  This case if the value of <code>p</code> changes and a value of <code>d</code> is no longer affordable it will dynamically have utility equal to $-\infty$.
 </DD>
 
 <LI>ThetaUtility</LI>
 
-Suppose the utility for your model has the form 
-$$U() = f\left( \alpha; g\left(\theta\right),\eta,\epsilon\right).$$  
+Suppose the utility for your model has the form
+$$U() = f\left( \alpha; g\left(\theta\right),\eta,\epsilon\right).$$
 That is, there is a function $g()$ of the endogenous state variables that is common for all values of the IID (exogenous and semi-exogenous) state variables.  If <code>MyModel</code> only provides the required <code>Utility()</code> function then $g(\theta)$ is recomputed for each value of the IID shocks.</p>
 
-<p>This inefficiency can be eliminated by providing <code>ThetaUtility()</code>  which is called for each $\theta$ immediately before looping over the IID exogenous state values and calling <code>Utility()</code>. A simple example:  
-$$U = a(xb + e - d) + d.$$  
+<p>This inefficiency can be eliminated by providing <code>ThetaUtility()</code>  which is called for each $\theta$ immediately before looping over the IID exogenous state values and calling <code>Utility()</code>. A simple example:
+$$U = a(xb + e - d) + d.$$
 Here $\theta=(x),$ $\alpha=(a)$ is a binary choice, and $\epsilon=(e)$ an IID shock to value of $a=1$.  $b$ and $d$ are parameters.  So $g() = xb$, which is not expensive to recompute unnecessarily.  However, in some models this $\theta$-constant component of utility is very involved whereas the IID contributions are simple.</p>
 
 <dd><pre>
@@ -161,7 +161,7 @@ When you call `DP::Initialize`() it opens a <em>timestamped</em> log file. Outpu
 
 </OL>
 
-@author &copy; 2011-2020 <a href="https://ferrall.github.io/">Christopher Ferrall</a></dd>
+@author &copy; 2011-2021 <a href="https://ferrall.github.io/">Christopher Ferrall</a></dd>
 
 <a name="auto"><hr><h1>Documentation of Items Defined in Bellman.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 

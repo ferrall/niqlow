@@ -1,7 +1,7 @@
 #ifndef Dh
     #include "Predictions.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2021 Christopher Ferrall */
 
 /**  Simple Prediction .
 @param T	integer, length of panel<br>UseDefault [default], length of lifecycle or  10

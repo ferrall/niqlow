@@ -1,5 +1,5 @@
 #include "FiveO.h"
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2021 Christopher Ferrall */
 
 /** Take a random walk in the parameter space of a model.
 @param model Object that has a <code>Solve()</code> method.

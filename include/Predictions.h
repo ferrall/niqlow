@@ -1,6 +1,6 @@
 #import "database"
 #import "Bellman"
-/* This file is part of niqlow. Copyright (C) 2012-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2021 Christopher Ferrall */
 
 ComputePredictions(T=UseDefault,prtlevel=Two);
 

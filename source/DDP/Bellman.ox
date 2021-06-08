@@ -1,5 +1,5 @@
 #include "Bellman.h"
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2021 Christopher Ferrall */
 
 /** Task to construct $\theta$ transition, the endogenous state vector.
 

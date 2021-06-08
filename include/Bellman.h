@@ -1,5 +1,5 @@
 #import "DP"
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2021 Christopher Ferrall */
 
 /** The base class for $\theta$-specific values.
 

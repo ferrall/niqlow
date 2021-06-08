@@ -1,9 +1,9 @@
-#import "BobsChoice"
+#import "BobsChoiceD"
 /* This file is part of niqlow. Copyright (C) 2015-2021 Christopher Ferrall */
 
 main() {
-    fopen("../output/BobsChoice.output.txt","l");
-    BobsChoice::Create();
+    fopen("../output/BobsChoiceD.output.txt","l");
+    BobsChoiceD::Create();
     VISolve();
         /*
         SetSmoothing(LogitKernel,1.0);
@@ -11,5 +11,5 @@ main() {
         SetSmoothing(GaussKernel,1.0);
         VISolve();
         */
-    Delete;
+    Bellman::Delete;
     }
