@@ -664,39 +664,58 @@ GHK::GHK(R,J,iseed) {
     SimJ=J-2;
     if (SimJ<0) oxrunerror("niqlow Error 05. GHK J must be >= 2\n");
 	this.R = R+imod(R,2);   // round R up to an even number
+	hR = idiv(this.R,2);
 	M = new array[J];
+    othcol = new array[J];
 	for (j=0;j<J;++j) {
 		M[j] = insertc(unit(J-1),j,1);
 		M[j][][j] = -1;
 		M[j] |= 0;
 		M[j][J-1][j] = 1;
+        othcol[j] = dropc(range(0,J-1),j);
 		}
-	hR = idiv(this.R,2);
 	this.iseed = iseed;
-	prob = pk = L = zeros(1,R);
-	nu = zeros(SimJ,R);
+	prob = pk = L = zeros(1,this.R);
+	nu = zeros(SimJ,this.R);
     u = zeros(1,hR);
+	EV = zeros(J,1);
+    simprob = zeros(J-1,1);
+    condprob = condEV = zeros(Horder,1);
 	}
 
 /** Use GHK to simulate state-contingent choice probabilities when U() includes additive N(0,&Sigma;) errors.
-@param j integer, choice to simulate probability for
+@param j integer, option to simulate probability for
 @param V J&times;1 vector of choice values
 @param Sigma J&times;J variance matrix
-@return J&times;1 vector of simulated choice probabilities
+@param zj .NaN [default] unconditional prob.<br/>prob. conditional on value of zj
+@return  simulated probability for opiton j
 **/
-GHK::SimProb(j,V,Sigma){
+GHK::SimProb(j,V,Sigma,zj){
 	decl k,C,dv;
 	ranseed(iseed);
 	prob[] = 1.0;
-	C = choleski(M[j]*Sigma*M[j]');
-	dv = M[j]*V';
+    println("*** ",j," ",zj,Sigma);
+    if (isnan(zj)) {
+        cfact =0;
+	    C = choleski(M[j]*Sigma*M[j]');
+        cmean =zeros(J-1,1);
+        }
+    else {
+        cfact = zj;
+        cmean = zj*Sigma[othcol[j]][j]/Sigma[j][j];
+        C = M[j]*Sigma*M[j]';
+        C[:SimJ][:SimJ] -= outer(Sigma[othcol[j]][j],<>)/Sigma[j][j];  //https://en.wikipedia.org/wiki/Multivariate_normal_distribution#Conditional_distributions
+        C = choleski(C);
+        }
+//    println(C,M[j],V);
+	dv = M[j]*V+cfact;
 	L[] = -dv[0];
 	for(k=0;k<J-1;k++){
-		prob[] .*= pk[] = probn(L/C[k][k]);
+		prob[] .*= pk[] = probn((L-cmean[k])/C[k][k]);
         if (k<SimJ) {
 		  u[] = ranu(1,hR);
 		  nu[k][]= quann((u~(1-u)).*pk);		//antithetic variates
-		  L = -(dv[k+1] + C[k+1][:k]*nu[:k][]);
+		  L[] = -(dv[k+1] + C[k+1][:k]*nu[:k][]);
           }
 		}
 	return meanr(prob);
@@ -705,27 +724,19 @@ GHK::SimProb(j,V,Sigma){
 /** Use GHK to simulate choice probabilities and Emaxes for a matrix index values.
 @param V J&times;1 vector of choice values
 @param Sigma J&times;J variance matrix
-@return array J&times;1 vector of simulated choice probabilities<br>simj&ge;0 double
+@return array J&times;1 vector of simulated Emaxes and choice probabilities<br/>
 **/
 GHK::SimDP(V,Sigma){
-	decl simprob,EV,k,j,C,dv;
+	decl k,j;
 	ranseed(iseed);
-	EV = simprob = <>;
+    GQH::Initialize(Horder);
 	for(j=0;j<J;j++) {		
-		C = choleski(M[j]*Sigma*M[j]');
-		dv = M[j]*V;
-		L[] = -dv[0];
-		prob[] = 1.0;
-		for(k=0;k<J-1;k++) {
-			if (j<J-1) prob[] .*= pk[] = probn(L/C[k][k]);
-            if (k<SimJ) {
-			     u[] = ranu(1,hR);
-			     nu[k][]= quann((u~(1-u)).*pk);		
-			     L[] = -(dv[k+1] + C[k+1][:k]*nu[:k][]);
-                 }
-			}
-		EV |= meanr(-L);		// conditional mean given j is optimal
-		if (j<J-1) simprob |= meanr(prob);
+        for (k=0;k<Horder;++k) {
+            condprob[k] = SimProb(j,V,Sigma,GQH::nodes[k]);
+            condEV[k] = V[j]+GQH::nodes[k];
+            }
+		EV[j] = GQH::wght*( (V[j]+GQH::nodes).*condprob ) / M_SQRT2PI ;	
+		if (j<J-1) simprob[j] = GQH::wght*condprob   / M_SQRT2PI ;
 	 	} 	
 	return {EV,SumToOne(simprob)};
 	}

@@ -233,7 +233,8 @@ struct Parameter : Quantity {
 	}
 
 /** Container for different integration techniques. **/
-struct Integration : Zauxiliary { }
+struct Integration : Zauxiliary {
+    }
 
 struct GaussianQuadrature : Integration {}
 
@@ -291,18 +292,28 @@ struct GHK   : Integration {
 	const decl
         /** dimensions on integration. **/ J,
        /** J-array of delta matrices. **/  M,
+       /** column selectors for other options.**/ othcol,
         /** number of replications. **/    R,
-        hR,
+                                           hR,
         /** initial seed.**/               iseed,
-        SimJ;
+                                           SimJ;
+    static decl
+                         Horder = 8,
+    /** output level **/ Volume=QUIET;
     decl
+    /** . @internal**/ EV,
+    /** .@internal**/  simprob,
+    /** . @internal**/ condprob,
+    /** . @internal**/ condEV ,
+    /** . @internal**/ cmean,
+    /** . @internal**/ cfact,
     /** . @internal**/ L,
     /** . @internal**/ u,
     /** . @internal**/ nu,
     /** . @internal**/ pk,
     /** . @internal**/ prob;
 	GHK(R,J,iseed);
-	SimProb(j,V,Sigma);
+	SimProb(j,V,Sigma,zj=.NaN);
 	SimDP(V,Sigma);
 	}
 

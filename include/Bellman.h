@@ -252,9 +252,11 @@ This is the base class for a multi-sector static discrete model with normally co
 **/
 struct Roy : NnotIID {
 	static decl
-	/**The sector-decision variable. **/ d;
-	static Initialize(Nchoices,userState,UseStateList=FALSE);
+	/**The sector-decision variable. **/   d,
+    /**Vector-valued prices of sectors.**/ Prices;
+	static Initialize(NorLabels=2,Prices=0,userState=0);
 	static CreateSpaces();
+    virtual Utility();
 	}
 
 /** One-dimensional action models with user defined distribution of $\zeta$.

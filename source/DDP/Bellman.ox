@@ -861,22 +861,29 @@ NIID::UpdateChol() {
 			}
 		}
 	}
-/** Initialize a Roy model (one-shot, one-dimensional choice with correlated normal additive error). 	
-@param Nchoices <em>integer</em>, number of options/sectors.
-@param userState a `Bellman`-derived object that represents one point $\theta$ in the user's endogenous state space &Theta;.<br/>
+/** Initialize a Roy model: static, one-dimensional choice with correlated normal error. 	
+@param NorVLabels <em>integer</em> [default=2], number of options/sectors</br>
+            array of Labels
+@param Prices 0 [default] initialize sector prices to 0<br/> `CV'() compatible vector of prices
+@param userState integer [default] use the pre-defined Roy Model class, including Utility</br>
+        a `Roy`-derived object.
 **/
-Roy::Initialize(Nchoices,userState,UseStateList) {
-	NnotIID::Initialize(1.0,userState,FALSE);
+Roy::Initialize(NorVLabels,Prices,userState) {
+	NnotIID::Initialize(isclass(userState) ? userState : new Roy(),FALSE);
     parents = " | Roy "+parents;
     SetClock(StaticProgram);
-	Actions(d = new ActionVariable("d",Nchoices));
+	Actions(d = new ActionVariable("d",NorVLabels));
 	SetDelta(0.0);	
+    this.Prices = isint(Prices) ? zeros(d.N,1) : Prices;
 	}
 
-/**  just calls the ExtremeValue version, no special code.
+/**  Call NnotIID.
 **/
 Roy::CreateSpaces() {	
     NnotIID::CreateSpaces();
+    }
+Roy::Utility() {
+    return CV(Prices);
     }
 
 /** .
@@ -901,29 +908,30 @@ NnotIID::Initialize(userState,UseStateList) {
 @param AChol `CV` compatible vector of lower triangle of Cholesky matrix for full Action vector [default equals lower triangle of I]
 **/
 NnotIID::SetIntegration(R,iseed, AChol) {
+    if (!Flags::ThetaCreated) oxwarning("Must create spaces before setting integration.  Doing nothing.");
+    if (this.R!=UnInitialized) delete ghk;
+	decl mm= N::Options[Zero], i;
 	this.R = R;
 	this.iseed = iseed;
-	//if (isint(iseed)&& iseed==Zero) oxwarning("DDP Warning 03.\n Setting iseed to 0 means ranseed is not reset.\n");
-    this.AChol = isint(AChol) ? vech(unit(N::Options[Zero])) : AChol;
+    this.AChol = isint(AChol) ? vech(unit(mm)) : AChol;
+	ghk=new array[N::J];
+    if (rows(CV(this.AChol)) != mm*(mm+1)/2)
+	 	oxrunerror("Length of Choleski vector must equal lower triangle for full action vector, ");
+	for (i=0;i<N::J;++i)
+        ghk[i] = new GHK(this.R,N::Options[i],iseed);
 	}
 
 /**  Create spaces and set up GHK integration over non-iid errors.
 **/
 NnotIID::CreateSpaces() {
 	Normal::CreateSpaces();
-    if (R==UnInitialized) SetIntegration();
-	ghk=new array[N::J];
-	decl mm= N::Options[0], i;
-    if (rows(CV(AChol)) != mm*(mm+1)/2)
-	 	oxrunerror("Length of Choleski vector must equal lower triangle for full action vector, ");
-	for (i=0;i<N::J;++i)
-        ghk[i] = new GHK(R,N::Options[i],0);
 	}	
 	
 /** Use GHK to integrate over correlated value shocks. **/
 NnotIID::ExogExpectedV() {
     et = I::all[onlysemiexog];
     pandv[][et] += I::CVdelta*sumr( Nxt[Qrho][et] .* N::VV[I::later][Nxt[Qit][et]] );
+    if (R==UnInitialized) SetIntegration();
 	[V[],prob] = ghk[Aind]->SimDP(pandv[][et],Chol[Aind]);
 	if (Flags::setPstar) pandv[][et] = prob;
     }
