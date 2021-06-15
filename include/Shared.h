@@ -103,6 +103,7 @@ enum{ORDINARY,INSUBSAMPLE,LASTT,INSUBANDLAST,TERMINAL,StateTypeCutoffs}
     @name NormalParams **/	
 enum{Nmu,Nsigma,Nrho,NormalParams}
 
+
 static const decl
                                                   curdir = ".",
 		/**labels for `MyMoments`**/              mymomlabels = {"sample size","mean","st.dev.","min","max"},
@@ -287,34 +288,39 @@ struct GQH	 : GaussianQuadrature {
     static coef(n);
 	}
 	
-/** Smooth Simulation of Multinomial Normal Probabilities. **/
+/** Smooth Simulation of Multinomial Normal Probabilities and EValues.
+When using `NnotIID` an object is created for each choice set $A(\theta).$
+**/
 struct GHK   : Integration {	
 	const decl
-        /** dimensions on integration. **/ J,
-       /** J-array of delta matrices. **/  M,
-       /** column selectors for other options.**/ othcol,
+        /** dimensions on integration, number of feasible
+            options. **/                                    J,
+       /** J-array of delta matrices.
+            $M[j]$ is $J\times J$.  The first row contains a 1 in the $j$ column.  The remaining rows
+            contain -1 in the $j$ column and 1 in each non-j column so that deltas can be commuted.
+                                    **/    M,
+        /** J-array of Choleski of M[j]Sigma M[j]'.  **/   C,
         /** number of replications. **/    R,
-                                           hR,
-        /** initial seed.**/               iseed,
-                                           SimJ;
+        /** half-replication (anti-thetics).
+        **/                                   hR,
+        /** J-1.**/                        SimJ;
     static decl
-                         Horder = 8,
+    /** initial seed.**/ iseed,
     /** output level **/ Volume=QUIET;
     decl
-    /** . @internal**/ EV,
-    /** .@internal**/  simprob,
-    /** . @internal**/ condprob,
-    /** . @internal**/ condEV ,
-    /** . @internal**/ cmean,
-    /** . @internal**/ cfact,
-    /** . @internal**/ L,
-    /** . @internal**/ u,
-    /** . @internal**/ nu,
-    /** . @internal**/ pk,
-    /** . @internal**/ prob;
-	GHK(R,J,iseed);
-	SimProb(j,V,Sigma,zj=.NaN);
-	SimDP(V,Sigma);
+    /** . @internal **/ rv,
+    /** . @internal **/ dv,
+    /** Evj.**/         vj,
+    /** Pj.**/          pj,
+    /** 1xR upper bounds. **/                           L,
+    /** 1xR uniform values. **/                         u,
+    /** JxR matrix of N(0,1) simulated values. **/     nu,
+    /** incremental simulated prob. vector. **/        pk;
+	GHK(R,J);
+	SimProb(j,V);
+	SimDP(V);
+    SetC(Sigma);
+    static SetSeed(newseed=Zero);
 	}
 
 /** Checks minimum Ox version and prints copyright info. **/

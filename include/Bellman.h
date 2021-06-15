@@ -218,15 +218,15 @@ struct Normal : Bellman {
 struct NnotIID : Normal {
 	// GHK and Quadrature integration
 	static decl
+        /** Current variance matrix.**/             BigSigma,
 		/**  replications for GHK **/				R,
-		/**  RNG seed argument **/					iseed,
-		/**  . @internal		**/					ghk;
+		/**  array of `GHK' objects 		**/		ghk;
 	static Initialize(userState,UseStateList=FALSE);
 	static SetIntegration(R=One,iseed=Zero,AChol=UseDefault);
 	static CreateSpaces();
 	static UpdateChol();
-	ActVal();
-    ExogExpectedV();
+	       ActVal();
+            ExogExpectedV();
 	}
 
 /** Numerically integrate using Gauss-Hermite Quadrature.

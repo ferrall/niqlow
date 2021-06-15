@@ -3,9 +3,10 @@
 
 main() {
     fopen("../output/Roy.output.txt","l");
-    Roy::Initialize(4);
+    Roy::Initialize(3,<-2;-2;2>);
     Roy::CreateSpaces();
-    NnotIID::SetIntegration(100);
+    decl V = <1.0,0.1,-.1;0.1,1.0,.2;-.1,.2,1.0>;
+    NnotIID::SetIntegration(600,0,vech(choleski(V)));
     VISolve();
         /*
         SetSmoothing(LogitKernel,1.0);

@@ -820,7 +820,7 @@ NIID::Initialize(userState,UseStateList) {
 NIID::SetIntegration(GQLevel,AChol) {
 	this.AChol = AChol;
 	GQH::Initialize(this.GQLevel = GQLevel);
-    if (Volume>SILENT) println("Initializing Gauss-Hermite Integration\nLevel",GQLevel,"Choleski:",diag(AV(AChol)));
+    if (Volume>SILENT) println("Initializing Gauss-Hermite Integration\nLevel",GQLevel,"Choleski:",diag(CV(AChol)));
 	}
 
 /**  Create spaces and set up quadrature for integration over the IID normal errors.
@@ -912,13 +912,13 @@ NnotIID::SetIntegration(R,iseed, AChol) {
     if (this.R!=UnInitialized) delete ghk;
 	decl mm= N::Options[Zero], i;
 	this.R = R;
-	this.iseed = iseed;
+    GHK::SetSeed(iseed);
     this.AChol = isint(AChol) ? vech(unit(mm)) : AChol;
 	ghk=new array[N::J];
     if (rows(CV(this.AChol)) != mm*(mm+1)/2)
 	 	oxrunerror("Length of Choleski vector must equal lower triangle for full action vector, ");
 	for (i=0;i<N::J;++i)
-        ghk[i] = new GHK(this.R,N::Options[i],iseed);
+        ghk[i] = new GHK(this.R,N::Options[i]);
 	}
 
 /**  Create spaces and set up GHK integration over non-iid errors.
@@ -932,7 +932,9 @@ NnotIID::ExogExpectedV() {
     et = I::all[onlysemiexog];
     pandv[][et] += I::CVdelta*sumr( Nxt[Qrho][et] .* N::VV[I::later][Nxt[Qit][et]] );
     if (R==UnInitialized) SetIntegration();
-	[V[],prob] = ghk[Aind]->SimDP(pandv[][et],Chol[Aind]);
+	[V,prob] = ghk[Aind]->SimDP(pandv[][et]);
+    prob /= sumc(prob);  //normalize to 1 because all choices simulated, may not equate to 1
+    EV +=   NxtExog[Qprob][et]*(V*prob) ;
 	if (Flags::setPstar) pandv[][et] = prob;
     }
 
@@ -954,14 +956,16 @@ NnotIID::ActVal() {
 	}
 
 /** Update the Cholesky matrix for the correlated value shocks.
-@internal
+This routine is added to the preUpdate Hook so it is called after parameters may have changed.
 **/
 NnotIID::UpdateChol() {
 	decl i;
-	ranseed(iseed);
-	decl AC = unvech(CV(AChol));
-	for (i=0;i<N::J;++i)
-		Chol[i] = selectifc(selectifr(AC,Alpha::Sets[i]),Alpha::Sets[i]');
+	BigSigma = unvech(CV(AChol));   //evaluate cholesky params and construct lower triangle.
+    BigSigma *= BigSigma';               //compute Sigma for all possible choices
+	GHK::SetSeed();
+	for (i=0;i<N::J;++i) {
+        ghk[i]->SetC(selectifc(selectifr(BigSigma,Alpha::Sets[i]),Alpha::Sets[i]'));
+        }
 	}
 
 /** Create a one dimensional choice model.
