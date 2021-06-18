@@ -1,23 +1,22 @@
 /* A template for defining and maximizing an objective in FiveO */
 #import "FiveO"
 
-struct MyObject : Objective  {
+struct Rosenbrock : BlackBox {
 	
 	decl x,y;
-	Rosenbrock(const fn);
-	virtual vfunc();
+	Rosenbrock(fn=0);
+	vfunc();
 	}
 
 main()	{
-	decl v ; //= new Rosenbrock (-1);
-//	v->Anneal(1000,0.3*unit(2),0);
-//	delete v;
-	v = new Rosenbrock (0);
-	v.Volume= LOUD;
-	v->Quasi(USEBFGS,0,0);
-	}
+	decl obj, alg;
+    obj  = new Rosenbrock();
+	alg = new BFGS(obj);
+	alg -> Iterate();
+    delete obj, delete alg;
+    }
 	
-Rosenbrock ::Rosenbrock (const fn)	{
+Rosenbrock ::Rosenbrock (fn)	{
 	Objective("Rosenbrock");
 	x = new Free("x",0.5);
 	y = new Free("y",0.0);

@@ -694,7 +694,7 @@ $$Emax = \sim_{j=0}^{J-1} Ev_j P_j.$$
 @param j integer, option to simulate probability for
 @param V J&times;1 vector of choice values
 
-Cholesky matrices are updated by (internal) calls to `NnotIID::SetC'
+Cholesky matrices are updated by (internal) calls to `NnotIID::SetC`
 simulated probability and Ev for option j are left in vj and pj
 
 **/

@@ -71,7 +71,7 @@ struct MyModel : Bellman {
     Utility();
     }
 MyModel::Utility() {
-    return  CV(s)*CV(d);  
+    return  CV(s)*CV(d);
     }
 </pre></DD>
 So this is a model where <span class="expressions">\(\alpha = (d)\)</span> and <span class="expressions">\(\theta = (s)\)</span> and <span class="expressions">\(U(\alpha;\theta)=sd.\)</span></p>
@@ -97,11 +97,11 @@ A state is <em>unreachable</em> if it cannot occur given initial conditions.  Fo
 <P/>
 <code>MyModel</code> <em>can optionally</em> provide a replacement for the virtual <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>() method to make the feasible choice set to vary with the endogenous state <span class="expressions">\(\theta\)</span>.  That is, the action space <span class="expressions">\(A\)</span> is really <span class="expressions">\(A(\theta)\)</span>.  Again, the default is that all values constructed from the action variables added to the model are feasible.</p>
 <P/>
-<DT>Example.</DT> 
+<DT>Example.</DT>
 <DD> Only action vectors with <code>d</code> less than or equal to the value of state variable <code>s</code> are feasible.
 <pre>
-MyModel::FeasibleActions() { 
-    return CV(d) .&lt;= CV(s); 
+MyModel::FeasibleActions() {
+    return CV(d) .&lt;= CV(s);
     }
 </pre>
 The dot operator <code>.&lt;</code> is the element-by-element less-than operator in Ox.   So this returns a vector of length equal to the number of values <code>d</code> takes on containing 0s and 1s.  When setting up spaces <span class="n">DDP</span> will call <code>FeasibleActions</code> at each point in the state space.  It will then create a list of different feasible sets.  Each point <span class="expressions">\(\theta\)</span> contains an index into this list to ensure only feasible action values are returned by <code>CV(d)</code> when the model is being solved/used.</DD>
@@ -119,18 +119,18 @@ MyModel::Utility() {
     return  CV(p)*dv .&lt;= CV(s)  .?  dv .: -.Inf;
     }
 </pre>
-The <code>.? &hellip; .: &hellip;</code> operation is an inline <code>if-statement</code> that will check the 
+The <code>.? &hellip; .: &hellip;</code> operation is an inline <code>if-statement</code> that will check the
 element-by-element condition at the start and assign the other values listed depending on whether the element is TRUE or FALSE.  This case if the value of <code>p</code> changes and a value of <code>d</code> is no longer affordable it will dynamically have utility equal to <span class="expressions">\(-\infty\)</span>.
 </DD>
 <P/>
 <LI>ThetaUtility</LI>
 <P/>
-Suppose the utility for your model has the form 
-<span class="equation">$$U() = f\left( \alpha; g\left(\theta\right),\eta,\epsilon\right).$$</span>  
+Suppose the utility for your model has the form
+<span class="equation">$$U() = f\left( \alpha; g\left(\theta\right),\eta,\epsilon\right).$$</span>
 That is, there is a function <span class="expressions">\(g()\)</span> of the endogenous state variables that is common for all values of the IID (exogenous and semi-exogenous) state variables.  If <code>MyModel</code> only provides the required <code>Utility()</code> function then <span class="expressions">\(g(\theta)\)</span> is recomputed for each value of the IID shocks.</p>
 <P/>
-<p>This inefficiency can be eliminated by providing <code>ThetaUtility()</code>  which is called for each <span class="expressions">\(\theta\)</span> immediately before looping over the IID exogenous state values and calling <code>Utility()</code>. A simple example:  
-<span class="equation">$$U = a(xb + e - d) + d.$$</span>  
+<p>This inefficiency can be eliminated by providing <code>ThetaUtility()</code>  which is called for each <span class="expressions">\(\theta\)</span> immediately before looping over the IID exogenous state values and calling <code>Utility()</code>. A simple example:
+<span class="equation">$$U = a(xb + e - d) + d.$$</span>
 Here <span class="expressions">\(\theta=(x),\)</span> <span class="expressions">\(\alpha=(a)\)</span> is a binary choice, and <span class="expressions">\(\epsilon=(e)\)</span> an IID shock to value of <span class="expressions">\(a=1\)</span>.  <span class="expressions">\(b\)</span> and <span class="expressions">\(d\)</span> are parameters.  So <span class="expressions">\(g() = xb\)</span>, which is not expensive to recompute unnecessarily.  However, in some models this <span class="expressions">\(\theta\)</span>-constant component of utility is very involved whereas the IID contributions are simple.</p>
 <P/>
 <dd><pre>
@@ -176,7 +176,7 @@ When you call <a href="DP.ox.html#DP___Initialize">Initialize</a>() it opens a <
 <P/>
 </OL>
 
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2020 <a href="https://ferrall.github.io/">Christopher Ferrall</a></dd>
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2021 <a href="https://ferrall.github.io/">Christopher Ferrall</a></dd>
 
 <a name="auto"><hr><h1>Documentation of Items Defined in Bellman.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a></dd>
 </dl>
@@ -696,34 +696,44 @@ Base class for normal smoothing and correlated errors.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#NnotIID___iseed">iseed</a></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#NnotIID___BigSigma">BigSigma</a></td>
 <td class="modifiers">static</td>
-<td class="description">RNG seed argument  </td>
+<td class="description">Current variance matrix.</td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#NnotIID___ghk">ghk</a></td>
+<td class="modifiers">static</td>
+<td class="description">array of <a href="Shared.ox.html#GHK">GHK</a> objects  </td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#NnotIID___R">R</a></td>
 <td class="modifiers">static</td>
 <td class="description">replications for GHK  </td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#NnotIID___CreateSpaces">CreateSpaces</a></td>
 <td class="modifiers">static</td>
 <td class="description">Create spaces and set up GHK integration over non-iid errors.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#NnotIID___ExogExpectedV">ExogExpectedV</a></td>
 <td class="modifiers"></td>
 <td class="description">Use GHK to integrate over correlated value shocks.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#NnotIID___Initialize">Initialize</a></td>
 <td class="modifiers">static</td>
 <td class="description">Initialize GHK correlated normal solution.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#NnotIID___SetIntegration">SetIntegration</a></td>
 <td class="modifiers">static</td>
 <td class="description">Initialize the integration parameters.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#NnotIID___UpdateChol">UpdateChol</a></td>
+<td class="modifiers">static</td>
+<td class="description">Update the Cholesky matrix for the correlated value shocks.</td>
 </tr>
 </table>
 
@@ -978,27 +988,37 @@ This is the base class for a multi-sector static discrete model with normally co
 <td class="modifiers">static</td>
 <td class="description">The sector-decision variable.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Bellman.ox.html#Roy___Prices">Prices</a></td>
+<td class="modifiers">static</td>
+<td class="description">Vector-valued prices of sectors.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Roy___CreateSpaces">CreateSpaces</a></td>
 <td class="modifiers">static</td>
-<td class="description">just calls the ExtremeValue version, no special code.</td>
+<td class="description">Call NnotIID.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Roy___Initialize">Initialize</a></td>
 <td class="modifiers">static</td>
-<td class="description">Initialize a Roy model (one-shot, one-dimensional choice with correlated normal additive error).</td>
+<td class="description">Initialize a Roy model: static, one-dimensional choice with correlated normal error.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Bellman.ox.html#Roy___Utility">Utility</a></td>
+<td class="modifiers">virtual</td>
+<td class="description"></td>
 </tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Bellman.ox.html#NnotIID">NnotIID</a>:</dt><dd><a href="Bellman.ox.html#NnotIID___ExogExpectedV">ExogExpectedV</a>, <a href="Bellman.ox.html#NnotIID___SetIntegration">SetIntegration</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#NnotIID">NnotIID</a>:</dt><dd><a href="Bellman.ox.html#NnotIID___ExogExpectedV">ExogExpectedV</a>, <a href="Bellman.ox.html#NnotIID___SetIntegration">SetIntegration</a>, <a href="Bellman.ox.html#NnotIID___UpdateChol">UpdateChol</a></dd>
 <dt>Inherited methods from <a href="Bellman.ox.html#Normal">Normal</a>:</dt><dd><a href="Bellman.ox.html#Normal___Smooth">Smooth</a></dd>
-<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Bellman">Bellman</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___InSS">InSS</a>, <a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___MyopicActVal">MyopicActVal</a>, <a href="Bellman.ox.html#Bellman___OnlyFeasible">OnlyFeasible</a>, <a href="Bellman.ox.html#Bellman___OutcomesGivenEpsilon">OutcomesGivenEpsilon</a>, <a href="Bellman.ox.html#Bellman___Reachable">Reachable</a>, <a href="Bellman.ox.html#Bellman___SetTheta">SetTheta</a>, <a href="Bellman.ox.html#Bellman___StateToStatePrediction">StateToStatePrediction</a>, <a href="Bellman.ox.html#Bellman___ThetaTransition">ThetaTransition</a>, <a href="Bellman.ox.html#Bellman___ThetaUtility">ThetaUtility</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a>, <a href="Bellman.ox.html#Bellman___Utility">Utility</a></dd>
+<dt>Inherited methods from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Bellman">Bellman</a>, <a href="Bellman.ox.html#Bellman___Delete">Delete</a>, <a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a>, <a href="Bellman.ox.html#Bellman___InSS">InSS</a>, <a href="Bellman.ox.html#Bellman___KernelCCP">KernelCCP</a>, <a href="Bellman.ox.html#Bellman___MedianActVal">MedianActVal</a>, <a href="Bellman.ox.html#Bellman___MyopicActVal">MyopicActVal</a>, <a href="Bellman.ox.html#Bellman___OnlyFeasible">OnlyFeasible</a>, <a href="Bellman.ox.html#Bellman___OutcomesGivenEpsilon">OutcomesGivenEpsilon</a>, <a href="Bellman.ox.html#Bellman___Reachable">Reachable</a>, <a href="Bellman.ox.html#Bellman___SetTheta">SetTheta</a>, <a href="Bellman.ox.html#Bellman___StateToStatePrediction">StateToStatePrediction</a>, <a href="Bellman.ox.html#Bellman___ThetaTransition">ThetaTransition</a>, <a href="Bellman.ox.html#Bellman___ThetaUtility">ThetaUtility</a>, <a href="Bellman.ox.html#Bellman___UpdatePtrans">UpdatePtrans</a></dd>
 <dt>Inherited methods from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Actions">Actions</a>, <a href="DP.ox.html#DP___AuxiliaryOutcomes">AuxiliaryOutcomes</a>, <a href="DP.ox.html#DP___DrawFsamp">DrawFsamp</a>, <a href="DP.ox.html#DP___DrawGroup">DrawGroup</a>, <a href="DP.ox.html#DP___DrawOneExogenous">DrawOneExogenous</a>, <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>, <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>, <a href="DP.ox.html#DP___GetAind">GetAind</a>, <a href="DP.ox.html#DP___GetPinf">GetPinf</a>, <a href="DP.ox.html#DP___GetPstar">GetPstar</a>, <a href="DP.ox.html#DP___GetTrackTrans">GetTrackTrans</a>, <a href="DP.ox.html#DP___GroupVariables">GroupVariables</a>, <a href="DP.ox.html#DP___Indicators">Indicators</a>, <a href="DP.ox.html#DP___Interactions">Interactions</a>, <a href="DP.ox.html#DP___KLaggedAction">KLaggedAction</a>, <a href="DP.ox.html#DP___KLaggedState">KLaggedState</a>, <a href="DP.ox.html#DP___MakeGroups">MakeGroups</a>, <a href="DP.ox.html#DP___MultiInteractions">MultiInteractions</a>, <a href="DP.ox.html#DP___onlyDryRun">onlyDryRun</a>, <a href="DP.ox.html#DP___RecomputeTrans">RecomputeTrans</a>, <a href="DP.ox.html#DP___SemiExogenousStates">SemiExogenousStates</a>, <a href="DP.ox.html#DP___SetClock">SetClock</a>, <a href="DP.ox.html#DP___SetDelta">SetDelta</a>, <a href="DP.ox.html#DP___Settheta">Settheta</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a>, <a href="DP.ox.html#DP___SetVersion">SetVersion</a>, <a href="DP.ox.html#DP___StorePalpha">StorePalpha</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a>, <a href="DP.ox.html#DP___SyncAct">SyncAct</a>, <a href="DP.ox.html#DP___UpdateDistribution">UpdateDistribution</a>, <a href="DP.ox.html#DP___ValuesCounters">ValuesCounters</a></dd>
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Bellman.ox.html#NnotIID">NnotIID</a>:</dt><dd><a href="Bellman.ox.html#NnotIID___iseed">iseed</a>, <a href="Bellman.ox.html#NnotIID___R">R</a></dd>
+<dt>Inherited fields from <a href="Bellman.ox.html#NnotIID">NnotIID</a>:</dt><dd><a href="Bellman.ox.html#NnotIID___BigSigma">BigSigma</a>, <a href="Bellman.ox.html#NnotIID___ghk">ghk</a>, <a href="Bellman.ox.html#NnotIID___R">R</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Normal">Normal</a>:</dt><dd><a href="Bellman.ox.html#Normal___AChol">AChol</a>, <a href="Bellman.ox.html#Normal___Chol">Chol</a></dd>
 <dt>Inherited fields from <a href="Bellman.ox.html#Bellman">Bellman</a>:</dt><dd><a href="Bellman.ox.html#Bellman___Aind">Aind</a>, <a href="Bellman.ox.html#Bellman___EV">EV</a>, <a href="Bellman.ox.html#Bellman___Nxt">Nxt</a>, <a href="Bellman.ox.html#Bellman___pandv">pandv</a>, <a href="Bellman.ox.html#Bellman___Type">Type</a></dd>
 <dt>Inherited fields from <a href="DP.ox.html#DP">DP</a>:</dt><dd><a href="DP.ox.html#DP___Blocks">Blocks</a>, <a href="DP.ox.html#DP___Chi">Chi</a>, <a href="DP.ox.html#DP___ClockType">ClockType</a>, <a href="DP.ox.html#DP___counter">counter</a>, <a href="DP.ox.html#DP___curREdensity">curREdensity</a>, <a href="DP.ox.html#DP___delta">delta</a>, <a href="DP.ox.html#DP___EOoE">EOoE</a>, <a href="DP.ox.html#DP___EStoS">EStoS</a>, <a href="DP.ox.html#DP___ETT">ETT</a>, <a href="DP.ox.html#DP___gdist">gdist</a>, <a href="DP.ox.html#DP___IOE">IOE</a>, <a href="DP.ox.html#DP___L">L</a>, <a href="DP.ox.html#DP___logf">logf</a>, <a href="DP.ox.html#DP___lognm">lognm</a>, <a href="DP.ox.html#DP___MyVersion">MyVersion</a>, <a href="DP.ox.html#DP___NKptrans">NKptrans</a>, <a href="DP.ox.html#DP___NKvindex">NKvindex</a>, <a href="DP.ox.html#DP___NxtExog">NxtExog</a>, <a href="DP.ox.html#DP___parents">parents</a>, <a href="DP.ox.html#DP___S">S</a>, <a href="DP.ox.html#DP___SS">SS</a>, <a href="DP.ox.html#DP___States">States</a>, <a href="DP.ox.html#DP___SubVectors">SubVectors</a>, <a href="DP.ox.html#DP___tod">tod</a>, <a href="DP.ox.html#DP___tom">tom</a>, <a href="DP.ox.html#DP___userState">userState</a>, <a href="DP.ox.html#DP___Volume">Volume</a>, <a href="DP.ox.html#DP___XUT">XUT</a></dd>
@@ -2086,6 +2106,16 @@ Update vector of standard deviations for normal components.
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NnotIID</span></h2>
 
+<a name="NnotIID___BigSigma"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">BigSigma</span></h3>
+
+<span class="declaration">static decl BigSigma [public]</span>
+<dl><dd>
+Current variance matrix.
+
+</dd></dl>
+
+<hr>
 <a name="NnotIID___CreateSpaces"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CreateSpaces</span></h3>
 
@@ -2102,6 +2132,16 @@ Create spaces and set up GHK integration over non-iid errors.
 <span class="declaration">NnotIID :: ExogExpectedV ( )</span>
 <dl><dd>
 Use GHK to integrate over correlated value shocks.
+
+</dd></dl>
+
+<hr>
+<a name="NnotIID___ghk"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ghk</span></h3>
+
+<span class="declaration">static decl ghk [public]</span>
+<dl><dd>
+array of <a href="Shared.ox.html#GHK">GHK</a> objects
 
 </dd></dl>
 
@@ -2126,16 +2166,6 @@ Initialize GHK correlated normal solution.
 </table>
 </dd>
 </dl>
-</dd></dl>
-
-<hr>
-<a name="NnotIID___iseed"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">iseed</span></h3>
-
-<span class="declaration">static decl iseed [public]</span>
-<dl><dd>
-RNG seed argument
-
 </dd></dl>
 
 <hr>
@@ -2175,6 +2205,17 @@ Initialize the integration parameters.
 </table>
 </dd>
 </dl>
+</dd></dl>
+
+<hr>
+<a name="NnotIID___UpdateChol"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">UpdateChol</span></h3>
+
+<span class="declaration">static NnotIID :: UpdateChol ( )</span>
+<dl><dd>
+Update the Cholesky matrix for the correlated value shocks.
+This routine is added to the preUpdate Hook so it is called after parameters may have changed.
+
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Normal</span></h2>
 
@@ -2505,7 +2546,7 @@ Built-in Utility that calls user-supplied function.
 
 <span class="declaration">static Roy :: CreateSpaces ( )</span>
 <dl><dd>
-just calls the ExtremeValue version, no special code.
+Call NnotIID.
 
 </dd></dl>
 
@@ -2523,24 +2564,50 @@ The sector-decision variable.
 <a name="Roy___Initialize"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Initialize</span></h3>
 
-<span class="declaration">static Roy :: Initialize ( Nchoices , userState , UseStateList )</span>
+<span class="declaration">static Roy :: Initialize ( NorVLabels , Prices , userState )</span>
 <dl><dd>
-Initialize a Roy model (one-shot, one-dimensional choice with correlated normal additive error).
+Initialize a Roy model: static, one-dimensional choice with correlated normal error.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
-<td class="declaration" valign="baseline">Nchoices</td>
-<td class="description" valign="baseline"><em>integer</em>, number of options/sectors.
+<td class="declaration" valign="baseline">NorVLabels</td>
+<td class="description" valign="baseline"><em>integer</em> [default=2], number of options/sectors</br>
+            array of Labels
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Prices</td>
+<td class="description" valign="baseline">0 [default] initialize sector prices to 0<br/> <a href="Shared.ox.html#CV">CV</a>() compatible vector of prices
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">userState</td>
-<td class="description" valign="baseline">a <a href="Bellman.ox.html#Bellman">Bellman</a>-derived object that represents one point <span class="expressions">\(\theta\)</span> in the user's endogenous state space &Theta;.<br/></td>
+<td class="description" valign="baseline">integer [default] use the pre-defined Roy Model class, including Utility</br>
+        a <a href="Bellman.ox.html#Roy">Roy</a>-derived object.</td>
 </tr>
 </table>
 </dd>
 </dl>
+</dd></dl>
+
+<hr>
+<a name="Roy___Prices"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Prices</span></h3>
+
+<span class="declaration">static decl Prices [public]</span>
+<dl><dd>
+Vector-valued prices of sectors.
+
+</dd></dl>
+
+<hr>
+<a name="Roy___Utility"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Utility</span></h3>
+
+<span class="declaration">virtual Roy :: Utility ( )</span>
+<dl><dd>
+
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Rust</span></h2>
 

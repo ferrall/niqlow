@@ -5,3 +5,4 @@
 #import "misc/examples"
 #import "replications/replications"
 #import "CFMPI/MPItests"
+#import "C4E/C4E"

@@ -864,7 +864,7 @@ NIID::UpdateChol() {
 /** Initialize a Roy model: static, one-dimensional choice with correlated normal error. 	
 @param NorVLabels <em>integer</em> [default=2], number of options/sectors</br>
             array of Labels
-@param Prices 0 [default] initialize sector prices to 0<br/> `CV'() compatible vector of prices
+@param Prices 0 [default] initialize sector prices to 0<br/> `CV`() compatible vector of prices
 @param userState integer [default] use the pre-defined Roy Model class, including Utility</br>
         a `Roy`-derived object.
 **/

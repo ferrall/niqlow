@@ -12,8 +12,8 @@ BobsChoiceC::Create() {
     CreateSpaces();
     }
 BobsChoiceC::FeasibleActions() {
-    return CV(sch)!=1 || CV(YAcc);  //1=Yale
+    return CV(BobsChoice::sch)!=1 || CV(YAcc);  //1=Yale
     }
 BobsChoiceC::Utility() {
-    return onlyFeasible(BobsChoiceB::Utility());
+    return OnlyFeasible(BobsChoiceB::Utility());
     }

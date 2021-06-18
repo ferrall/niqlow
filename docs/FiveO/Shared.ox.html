@@ -29,7 +29,7 @@ Components shared by components of <span class="n"><a href="../default.html">niq
 <P/>
 </OL>
 
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2020 <a href="https://ferrall.github.io/">Christopher Ferrall</a> </dd>
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2021 <a href="https://ferrall.github.io/">Christopher Ferrall</a> </dd>
 <a name="auto"><hr><h1>Documentation of  Items Defined in Shared.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a></dd>
 </dl>
 <a name="global"></a>
@@ -499,23 +499,35 @@ Equations are used in systems and constrained optimization.
 <a name="GHK"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">GHK : <a href="Shared.ox.html#Integration">Integration</a> : <a href="Shared.ox.html#Zauxiliary">Zauxiliary</a></span></h2>
 
-Smooth Simulation of Multinomial Normal Probabilities.
+Smooth Simulation of Multinomial Normal Probabilities and EValues.
+When using NnotIID an object is created for each choice set <span class="expressions">\(A(\theta).\)</span>
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___hR">hR</a></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___C">C</a></td>
 <td class="modifiers">const</td>
-<td class="description"></td>
+<td class="description">J-array of Choleski of M[j]Sigma M[j]'.</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___iseed">iseed</a></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___hR">hR</a></td>
 <td class="modifiers">const</td>
-<td class="description">initial seed.</td>
+<td class="description">half-replication (anti-thetics).</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___iseed">iseed</a></td>
+<td class="modifiers">static</td>
+<td class="description">initial seed.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___J">J</a></td>
 <td class="modifiers">const</td>
-<td class="description">dimensions on integration.</td>
+<td class="description">dimensions on integration, number of feasible
+            options.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___L">L</a></td>
+<td class="modifiers"></td>
+<td class="description">1xR upper bounds.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___M">M</a></td>
@@ -523,14 +535,44 @@ Smooth Simulation of Multinomial Normal Probabilities.
 <td class="description">J-array of delta matrices.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___nu">nu</a></td>
+<td class="modifiers"></td>
+<td class="description">JxR matrix of N(0,1) simulated values.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___pj">pj</a></td>
+<td class="modifiers"></td>
+<td class="description">Pj.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___pk">pk</a></td>
+<td class="modifiers"></td>
+<td class="description">incremental simulated prob.</td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___R">R</a></td>
 <td class="modifiers">const</td>
 <td class="description">number of replications.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___SimJ">SimJ</a></td>
 <td class="modifiers">const</td>
-<td class="description"></td>
+<td class="description">J-1.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___u">u</a></td>
+<td class="modifiers"></td>
+<td class="description">1xR uniform values.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___vj">vj</a></td>
+<td class="modifiers"></td>
+<td class="description">Evj.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#GHK___Volume">Volume</a></td>
+<td class="modifiers">static</td>
+<td class="description">output level  </td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#GHK___GHK">GHK</a></td>
@@ -538,14 +580,25 @@ Smooth Simulation of Multinomial Normal Probabilities.
 <td class="description">Set constants for GHK.</td>
 </tr>
 <tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#GHK___SetC">SetC</a></td>
+<td class="modifiers"></td>
+<td class="description">Update array of choice-specific Choleskie's
+</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#GHK___SetSeed">SetSeed</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#GHK___SimDP">SimDP</a></td>
 <td class="modifiers"></td>
-<td class="description">Use GHK to simulate choice probabilities and Emaxes for a matrix index values.</td>
+<td class="description">Use GHK to simulate choice probabilities and Emaxes for a matrix of index values.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#GHK___SimProb">SimProb</a></td>
 <td class="modifiers"></td>
-<td class="description">Use GHK to simulate state-contingent choice probabilities when U() includes additive N(0,&Sigma;) errors.</td>
+<td class="description">Use GHK to simulate state-contingent choice probability  when U() includes additive N(0,&Sigma;) errors.</td>
 </tr>
 </table>
 
@@ -2240,10 +2293,20 @@ current value
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">GHK</span></h2>
 
+<a name="GHK___C"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">C</span></h3>
+
+<span class="declaration">const decl C [public]</span>
+<dl><dd>
+J-array of Choleski of M[j]Sigma M[j]'.
+
+</dd></dl>
+
+<hr>
 <a name="GHK___GHK"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">GHK</span></h3>
 
-<span class="declaration">GHK :: GHK ( R , J , iseed )</span>
+<span class="declaration">GHK :: GHK ( R , J )</span>
 <dl><dd>
 Set constants for GHK.
 
@@ -2256,12 +2319,7 @@ Set constants for GHK.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">J</td>
-<td class="description" valign="baseline">integer, choice dimensions
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">iseed</td>
-<td class="description" valign="baseline">integer, argument sent to ranseed on each call</td>
+<td class="description" valign="baseline">integer, choice dimensions</td>
 </tr>
 </table>
 </dd>
@@ -2274,6 +2332,7 @@ Set constants for GHK.
 
 <span class="declaration">const decl hR [public]</span>
 <dl><dd>
+half-replication (anti-thetics).
 
 </dd></dl>
 
@@ -2281,7 +2340,7 @@ Set constants for GHK.
 <a name="GHK___iseed"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">iseed</span></h3>
 
-<span class="declaration">const decl iseed [public]</span>
+<span class="declaration">static decl iseed [public]</span>
 <dl><dd>
 initial seed.
 
@@ -2293,7 +2352,18 @@ initial seed.
 
 <span class="declaration">const decl J [public]</span>
 <dl><dd>
-dimensions on integration.
+dimensions on integration, number of feasible
+            options.
+
+</dd></dl>
+
+<hr>
+<a name="GHK___L"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">L</span></h3>
+
+<span class="declaration">decl L [public]</span>
+<dl><dd>
+1xR upper bounds.
 
 </dd></dl>
 
@@ -2304,6 +2374,38 @@ dimensions on integration.
 <span class="declaration">const decl M [public]</span>
 <dl><dd>
 J-array of delta matrices.
+            <span class="expressions">\(M[j]\)</span> is <span class="expressions">\(J\times J\)</span>.  The first row contains a 1 in the <span class="expressions">\(j\)</span> column.  The remaining rows
+            contain -1 in the <span class="expressions">\(j\)</span> column and 1 in each non-j column so that deltas can be commuted.
+
+</dd></dl>
+
+<hr>
+<a name="GHK___nu"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">nu</span></h3>
+
+<span class="declaration">decl nu [public]</span>
+<dl><dd>
+JxR matrix of N(0,1) simulated values.
+
+</dd></dl>
+
+<hr>
+<a name="GHK___pj"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">pj</span></h3>
+
+<span class="declaration">decl pj [public]</span>
+<dl><dd>
+Pj.
+
+</dd></dl>
+
+<hr>
+<a name="GHK___pk"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">pk</span></h3>
+
+<span class="declaration">decl pk [public]</span>
+<dl><dd>
+incremental simulated prob. vector.
 
 </dd></dl>
 
@@ -2318,28 +2420,52 @@ number of replications.
 </dd></dl>
 
 <hr>
+<a name="GHK___SetC"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetC</span></h3>
+
+<span class="declaration">GHK :: SetC ( Sigma )</span>
+<dl><dd>
+Update array of choice-specific Choleskie's
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Sigma</td>
+<td class="description" valign="baseline">J&times;J variance matrix</td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="GHK___SetSeed"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetSeed</span></h3>
+
+<span class="declaration">static GHK :: SetSeed ( newseed )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="GHK___SimDP"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SimDP</span></h3>
 
-<span class="declaration">GHK :: SimDP ( V , Sigma )</span>
+<span class="declaration">GHK :: SimDP ( V )</span>
 <dl><dd>
-Use GHK to simulate choice probabilities and Emaxes for a matrix index values.
+Use GHK to simulate choice probabilities and Emaxes for a matrix of index values.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">V</td>
 <td class="description" valign="baseline">J&times;1 vector of choice values
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">Sigma</td>
-<td class="description" valign="baseline">J&times;J variance matrix
+<P/>
 </td>
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns">array J&times;1 vector of simulated choice probabilities<br>simj&ge;0 double
+<dt class="returns">Returns:</dt><dd class="returns">2x1 array of J&times;1 vector of simulated Emaxes and choice probabilities<br/>
 </dd>
 </dl>
 </dd></dl>
@@ -2350,6 +2476,7 @@ Use GHK to simulate choice probabilities and Emaxes for a matrix index values.
 
 <span class="declaration">const decl SimJ [public]</span>
 <dl><dd>
+J-1.
 
 </dd></dl>
 
@@ -2357,32 +2484,65 @@ Use GHK to simulate choice probabilities and Emaxes for a matrix index values.
 <a name="GHK___SimProb"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SimProb</span></h3>
 
-<span class="declaration">GHK :: SimProb ( j , V , Sigma )</span>
+<span class="declaration">GHK :: SimProb ( j , V )</span>
 <dl><dd>
-Use GHK to simulate state-contingent choice probabilities when U() includes additive N(0,&Sigma;) errors.
+Use GHK to simulate state-contingent choice probability  when U() includes additive N(0,&Sigma;) errors.
+<span class="expressions">\(Ev\)</span> is this simulated (conditional) value of setting <span class="expressions">\(\alpha^\star = j\)</span>:
+<span class="equation">$$Ev_j = \int_{-\infty}^{+\infty} (V_j+z_j) \left[ \int_{-\infty}^{L_{\sim j1}}\cdots  \int_{-\infty}^{L_{\sim jJ^-}}
+f(\delta_{j} | z_j)d\delta_{j} \right] f(z_j)dz_j.$$</span>
+Here <span class="expressions">\(\delta_{j}\)</span> is the <span class="expressions">\(J-1\)</span> vector of <span class="expressions">\(z_i-z_j.\)</span>  <span class="expressions">\(L_{\sim ji} = -(V_i-V_j)\)</span> is the upper bound on the region of <span class="expressions">\(z_i\)</span>
+consistent with <span class="expressions">\(j\)</span> being better than <span class="expressions">\(i\)</span>. <span class="expressions">\(P_j\)</span> is the same expression except <span class="expressions">\((V_j+z_j)\)</span> is replaced by <span class="expressions">\(1\)</span>.
+<P/>
+Bellman routines compute
+<span class="equation">$$Emax = \sim_{j=0}^{J-1} Ev_j P_j.$$</span>
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">j</td>
-<td class="description" valign="baseline">integer, choice to simulate probability for
+<td class="description" valign="baseline">integer, option to simulate probability for
 </td>
 </tr>
 <tr>
 <td class="declaration" valign="baseline">V</td>
 <td class="description" valign="baseline">J&times;1 vector of choice values
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">Sigma</td>
-<td class="description" valign="baseline">J&times;J variance matrix
-</td>
+<P/>
+Cholesky matrices are updated by (internal) calls to NnotIID::SetC
+simulated probability and Ev for option j are left in vj and pj</td>
 </tr>
 </table>
 </dd>
-<dt class="returns">Returns:</dt><dd class="returns">J&times;1 vector of simulated choice probabilities
-</dd>
 </dl>
+</dd></dl>
+
+<hr>
+<a name="GHK___u"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">u</span></h3>
+
+<span class="declaration">decl u [public]</span>
+<dl><dd>
+1xR uniform values.
+
+</dd></dl>
+
+<hr>
+<a name="GHK___vj"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">vj</span></h3>
+
+<span class="declaration">decl vj [public]</span>
+<dl><dd>
+Evj.
+
+</dd></dl>
+
+<hr>
+<a name="GHK___Volume"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Volume</span></h3>
+
+<span class="declaration">static decl Volume [public]</span>
+<dl><dd>
+output level
+
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">GQH</span></h2>
 

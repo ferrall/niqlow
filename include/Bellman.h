@@ -220,7 +220,7 @@ struct NnotIID : Normal {
 	static decl
         /** Current variance matrix.**/             BigSigma,
 		/**  replications for GHK **/				R,
-		/**  array of `GHK' objects 		**/		ghk;
+		/**  array of `GHK` objects 		**/		ghk;
 	static Initialize(userState,UseStateList=FALSE);
 	static SetIntegration(R=One,iseed=Zero,AChol=UseDefault);
 	static CreateSpaces();

@@ -5,11 +5,11 @@ main() {
     fopen("../output/BobsChoiceD.output.txt","l");
     BobsChoiceD::Create();
     VISolve();
-        /*
-        SetSmoothing(LogitKernel,1.0);
+
+        ExPostSmoothing::SetSmoothing(LogitKernel,1.0);
         VISolve();
-        SetSmoothing(GaussKernel,1.0);
+        ExPostSmoothing::SetSmoothing(GaussKernel,1.0);
         VISolve();
-        */
+
     Bellman::Delete;
     }

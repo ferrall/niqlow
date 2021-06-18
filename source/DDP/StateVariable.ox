@@ -1049,7 +1049,7 @@ StateCounter::Transit()	{
 Counter::IsReachable() { return !(Prune && Flags::Prunable && (v>I::t)); }
 
 /** Create a StateCounter that checks reachability of an array of state counters.
-This state variable is created by `DP::StateValueCounters'
+This state variable is created by `DP::StateValueCounters`
 @param L label
 @param N integer, maximum number of times to count
 @param State `StateVariable` to track.
@@ -1094,7 +1094,7 @@ ActionCounter::Transit()	{
 	}
 
 /** Create a ActionCounter that checks reachability of an array of state counters.
-This state variable is created by `DP::ActionValueCounters'
+This state variable is created by `DP::ActionValueCounters`
 @param L label
 @param N integer, maximum number of times to count
 @param Act `ActionVariable` to track.

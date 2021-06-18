@@ -4,6 +4,14 @@
 
 /** Base class for optimization and system-solving algorithms.
 
+<DT>To use an algorithm:</DT>
+<DD>Declare a class for your `Objective` (e.g. a `BlackBox` or `System`).</dd>
+<DD>Create an object of your objective class.</DD>
+<DD>Create an object of the algorithm class you want to use, sending your objective to the creator.</DD>
+<DD>If desired, call the algorithm's `Algorithm::Tune`() method to tweak parameters and/or change the volume setting.</DD>
+<DD>Call the <code>Iterate()</code> method of the algorithm.</DD>
+
+
 **/
 struct Algorithm {
     static 	const 	decl
@@ -118,12 +126,15 @@ struct SysMax : LineMethod {
 
 at <a href="http://en.wikipedia.org/wiki/Nelder-Mead_method">Wikipedia</a>
 
+
 <DT>To use this algorithm:</DT>
-<DD>Declare a class for your `Objective` (e.g. a `BlackBox` or `Separable`).</dd>
+<DD>Declare a class for your `Objective` (e.g. a `BlackBox` or `System`).</dd>
 <DD>Create an object of your objective class.</DD>
-<DD>Create an object of this class and send your objective to the creator.</DD>
-<DD>Iterate on the Nelder-Mead algorithm.</DD>
-<DD>H
+<DD>Create a `NelderMead` object, sending your objective to the creator.</DD>
+<DD>If desired, call  `NelderMead::Tune`() method to tweak parameters and/or change the volume setting.</DD>
+<DD>Call `NelderMead::Iterate`().</DD>
+
+<DD>
 <pre>
 class MyObjective : BlackBox{
     &vellip;
@@ -134,9 +145,9 @@ decl myobj = new MyObjective();
 &vellip;
 decl nm = new NelderMead(myobj);
 &vellip;
+nm -> Iterate();
 </pre></dd>
 <DT>See <a href="./GetStarted.html">GetStarted</a> for an example of using NelderMead</DT>
-<DT>Tune the parameters of the algorithm with `NelderMead::Tune`();</DT>
 
 **/
 struct NelderMead  : NonGradient {
@@ -181,12 +192,15 @@ struct NelderMead  : NonGradient {
 
 <a href="http://en.wikipedia.org/wiki/Simulated_annealing">at Wikipedia</a>
 
-<DT>To use this algorithm:</DT>
-<DD>Declare a class for your `Objective` (e.g. a `BlackBox` or `Separable`).</dd>
+
+<DT>To use an algorithm:</DT>
+<DD>Declare a class for your `Objective` (e.g. a `BlackBox` or `System`).</dd>
 <DD>Create an object of your objective class.</DD>
-<DD>Create an object of this class and send your objective to the creator.</DD>
-<DD>Iterate on the Simulated Annealing algorithm.</DD>
-<DD>H
+<DD>Create a `SimulatedAnnealing` object, sending your objective to the creator.</DD>
+<DD>If desired, call  `SimulatedAnnealing::Tune`() method to tweak parameters and/or change the volume setting.</DD>
+<DD>Call `SimulatedAnnealing::Iterate`().</DD>
+
+<DD>
 <pre>
 class MyObjective : BlackBox{
     &vellip;
@@ -195,12 +209,12 @@ class MyObjective : BlackBox{
 &vellip;
 decl myobj = new MyObjective();
 &vellip;
-decl nm = new SimulatedAnnealing(myobj);
+decl sa = sa SimulatedAnnealing(myobj);
 &vellip;
+sa -> Iterate();
 </pre></dd>
 <DT>See <a href="./??">??</a> for an example</DT>
 <DT>Tune the parameters of the algorithm with `SimulatedAnnealing::Tune`();</DT>
-
 
 **/
 struct SimulatedAnnealing : NonGradient {
@@ -288,11 +302,13 @@ struct QuasiNewton : HillClimbing {
 See <a href="http://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm">Wikipedia::BFGS</a>
 
 <DT>To use this algorithm:</DT>
-<DD>Declare a class for your `Objective` (e.g. a `BlackBox` or `Separable`).</dd>
+<DD>Declare a class for your `Objective` (e.g. a `BlackBox` or `System`).</dd>
 <DD>Create an object of your objective class.</DD>
-<DD>Create an object of this class and send your objective to the creator.</DD>
-<DD>Iterate on the Nelder-Mead algorithm.</DD>
-<DD>H
+<DD>Create a `BFGS` object, sending your objective to the creator.</DD>
+<DD>If desired, call  `GradientBased::Tune`() method to tweak parameters and/or change the volume setting.</DD>
+<DD>Call `BFGS::Iterate`().</DD>
+
+<DD>
 <pre>
 class MyObjective : BlackBox{
     &vellip;   // parameters should be declared as members of your class
@@ -301,8 +317,9 @@ class MyObjective : BlackBox{
 &vellip;
 decl myobj = new MyObjective();
 &vellip;
-decl nm = new BFGS(myobj);
+decl b = new BFGS(myobj);
 &vellip;
+b->Iterate();
 </pre></dd>
 <DT>See <a href="./GetStarted.html">GetStarted</a> for an example of using BFGS</DT>
 <DT>Tune the parameters of the algorithm with `GradientBased::Tune`();</DT>
@@ -326,6 +343,28 @@ struct DFP  : QuasiNewton {
 
 Evaluate Hessian at each iteration.
 
+<DT>To use this algorithm:</DT>
+<DD>Declare a class for your `Objective` (e.g. a `BlackBox` or `System`).</dd>
+<DD>Create an object of your objective class.</DD>
+<DD>Create a `Newton` object, sending your objective to the creator.</DD>
+<DD>If desired, call  `GradientBased::Tune`() method to tweak parameters and/or change the volume setting.</DD>
+<DD>Call `Newton::Iterate`().</DD>
+
+<DD>
+<pre>
+class MyObjective : BlackBox{
+    &vellip;   // parameters should be declared as members of your class
+    vfunc(subp=DoAll);  // you have to define the objective
+    }
+&vellip;
+decl myobj = new MyObjective();
+&vellip;
+decl newt = new Newton(myobj);
+&vellip;
+newt -> Iterate();
+</pre></dd>
+
+
 **/
 struct Newton : HillClimbing {
 				Newton(O);
@@ -334,6 +373,7 @@ struct Newton : HillClimbing {
 
 /** Berndt Hall Hall Hausman Updating.
   Update Hessian with outer product of the gradient.
+
 **/
 struct BHHH : Newton {
 				BHHH(O);
@@ -368,7 +408,8 @@ struct NewtonRaphson : RootFinding {
     virtual 	Jupdate(dx=0);
     }
 
-/** Solve for the root of a `OneDimSystem` system using Bracket-Bisect. **/
+/** Solve for the root of a `OneDimSystem` system using Bracket-Bisect.
+**/
 struct OneDimRoot : SysMax {
     static const decl
     /** minimum initial step size.**/ istepmin = DIFF_EPS2,

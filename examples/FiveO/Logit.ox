@@ -7,7 +7,7 @@ struct Logit : BlackBox {
 Logit::Logit(y,X)	{
     this.y = y;
     this.X = X;
-	BlackBox("Example");
+	BlackBox("Logit");
 	beta = new Coefficients("b",columns(X),0);
     Parameters(beta);
     NvfuncTerms = rows(y);

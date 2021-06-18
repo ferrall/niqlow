@@ -2,23 +2,23 @@
 
 
 AModel::Create() {
-	Initialize(new AModel()); 
+	Initialize(new AModel());
 	Build();
 	CreateSpaces();
-	// SetDelta(Delta); 
-    // SetUpdateTime(Time); 
-    // Hooks::Add(«Time»,«»); 
+	// SetDelta(Delta);
+    // SetUpdateTime(Time);
+    // Hooks::Add(«Time»,«»);
 	}
 
 AModel::Build() {
 //	SetClock();
 
-//	Actions(ALIST);
+//	Actions(«ALIST»);
 
 //	EndogenousStates(«SLIST»);
 
-//	RandomEffectGroups();
-//	FixedEffectGroups();
+//	GroupVariables(«GLIST»);
+
 	}
 	
 
@@ -34,7 +34,7 @@ AModel::Build() {
 */
 
 
-/* 
+/*
 «MyModel»::FeasibleActions() {
     // column vector of 0s and 1s indicating which rows of A are feasible at the current state
     // Create as many as needed
