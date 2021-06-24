@@ -715,7 +715,7 @@ ExPostSmoothing::Normal() {
     for (i=0;i<NA;++i) {
 	   for (j=0;j<NA;++j)
             if (i!=j) lk .*=  probn(r2*GQH::nodes+inpv[][i]-inpv[][j]);
-       pandv[i][] = (GQH::wght * lk / M_SQRT2PI ) ;  // transpose shouldn't matter
+       pandv[i][] = (GQH::wght * lk  ) ;  // transpose shouldn't matter  / M_SQRT2PI
        lk[] = 1.0;
        }
 	}
@@ -772,7 +772,7 @@ NIID::ExogExpectedV() {
 	pandv[][I::elo:I::ehi] += (Type>=LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]));
     vv = pandv[][I::elo:I::ehi]';
 	for (j=0;j<rows(pandv);++j) {
-		choicep = prodr(probn(GQNODES[Aind][j] + vv*MM[Aind][j] ))/M_SQRT2PI;
+		choicep = prodr(probn(GQNODES[Aind][j] + vv*MM[Aind][j] ));  ///M_SQRT2PI
 		EV +=   NxtExog[Qprob][et]*(GQH::wght * (choicep.*(Chol[Aind][j]*GQH::nodes+ pandv[j][I::elo:I::ehi]))) ;
 		if (Flags::setPstar) pandv[j][I::elo:I::ehi] = GQH::wght * choicep;
 		}

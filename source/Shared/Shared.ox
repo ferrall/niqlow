@@ -636,7 +636,7 @@ Since <var>&phi;(z) = (2&pi;)<sup>-0.5</sup> exp{-x<sup>2</sup>/2},</var> then<b
 @example
 <pre>
 GHQ::Initialize(8);
-println("E[x*x] = ", GQH::wght * sqr(GQH::nodes) / M_SQRT2PI );
+println("E[x*x] = ", GQH::wght * sqr(GQH::nodes)  );  // / M_SQRT2PI
 </pre></dd>
 
 **/
@@ -644,7 +644,7 @@ GQH::Initialize(order) {
 	if (order < 1) oxrunerror("niqlow Error 04. GQH("+sprint("%d",order)+") not supported\n");
 	if (order==this.order) return TRUE;
 	this.order = order;
-	decl i, pr, o1 = order-1, Hm1= reverser(coef(o1)), num = M_SQRT2PI * factorial(o1)/order;
+	decl i, pr, o1 = order-1, Hm1= reverser(coef(o1)), num = factorial(o1)/order;  //M_SQRT2PI *
 	polyroots(coef(order),&pr);
 	nodes = sortr(pr[0][])';
 	wght = zeros(1,order);
@@ -679,6 +679,7 @@ GHK::GHK(R,J) {
     pj = dv = zeros(J,1);
     vj = pj';
     u = zeros(1,hR);
+    CSET = FALSE;
     }
 
 /** Use GHK to simulate state-contingent choice probability  when U() includes additive N(0,&Sigma;) errors.
@@ -700,6 +701,10 @@ simulated probability and Ev for option j are left in vj and pj
 **/
 GHK::SimProb(j,V){
 	decl k;
+    if (!CSET) {
+        SetC(unit(J));
+        oxwarning("Cholesky not previously set. Using Sigma = I");
+        }
 	dv[] = M[j]*V;
 	for(k=0;k<J;k++){
         pk[] = k ? probn(L/C[j][k][k]) : 1.0;
@@ -715,6 +720,7 @@ GHK::SimProb(j,V){
         }
     vj[j]=meanr((dv[0][]+C[j][0][0]*nu[0][]).*rv);
     pj[j]=meanr(rv);
+    return pj[j];
 	}
 
 /** Use GHK to simulate choice probabilities and Emaxes for a matrix of index values.
@@ -735,6 +741,7 @@ GHK::SetC(Sigma) {
     decl j;
     for(j=0;j<sizeof(C);++j)
 	   C[j][][] = choleski(M[j]*Sigma*M[j]');   //first row is epsj. Rest are Delta_ij
+    CSET=TRUE;
     }
 
 GHK::SetSeed(newseed) {

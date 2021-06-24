@@ -1,7 +1,7 @@
 #import "FiveO"
 #import <database>
 
-struct MNP : BlackBox {
+struct xMNP : BlackBox {
 	const 	decl
 	/** indexing vector           **/    NN,
 	/** J : number of options     **/    J,
@@ -17,23 +17,27 @@ struct MNP : BlackBox {
 	/** Labels for variables **/		 namearray,
 	/** Array of J-1 parameter blocks, one
 	for each equation except Y=0.**/   	betas;
-	MNP(fn,const Y,const Xvars);
+    decl                                D,
+                                        lk;
+	xMNP(fn,Y,Xvars);
+    SetD();
 	Estimate();
 	}
 
-struct GQMNP : MNP {
+struct xGQMNP : xMNP {
 	/** # of nodes in quadrature **/ 	const	decl Npts;
-	GQMNP(Npts,const fn,const Yname,const Xnames)	;
+	xGQMNP(Npts,fn,Yname,Xnames)	;
 	vfunc();
 	}
 
-struct GHKMNP : MNP {
+struct xGHKMNP : xMNP {
 	enum{identity,onlydiag,lowertriangle,SigmaOptions}
-	/** **/			const decl ghk;
-	/** **/			const decl SigLT;
-	/** **/			const decl sigfree;
-	GHKMNP(R,const iSigma,const fn,const Yname,const Xnames);
-	SetGHK(R,const iseed);
+    const decl
+	/** **/			           ghk,
+	/** **/			           SigLT,
+	/** **/			            sigfree;
+	xGHKMNP(R,iSigma,fn,Yname,Xnames);
+	SetGHK(R,iseed);
 	vfunc();
 	}
 	

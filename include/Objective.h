@@ -1,4 +1,5 @@
 #import "Parameters"
+#import <database>
 /* This file is part of niqlow. Copyright (C) 2012-2021 Christopher Ferrall */
 
 /** Tags for Gradient-based optimization algorithms.	@name QuasiAlgorithms**/	
@@ -294,6 +295,60 @@ struct NoObjective : BlackBox {
     vfunc(subp=DoAll);
     }
 
+/** Objective for multinomial choice models.
+**/
+struct MultiNomialChoice : BlackBox {
+	const 	decl
+	/** indexing vector           **/    NN,
+	/** J : number of options     **/    J,
+	/** K : number of X variables **/    nX,
+	/** integer codes of choices  **/    Jvals,
+	/** X : matrix of exog variables**/  X,
+	/** Y : discrete endog vector **/    Y,
+	/** N x J matrix of permutations<br>
+		the first column is index of Y<br>
+		second column is first non-Y choice<br>
+		third column is second non-Y choice<br>etc.
+									**/  indY,
+	/** Labels for variables **/		 namearray,
+	/** Array of J-1 parameter blocks, one
+	for each equation except Y=0.**/   	betas;
+    decl
+    /** matrix of XB indices.**/                D,
+    /** vector or matrix of likelihods.**/      lk;
+	MultiNomialChoice(L,fn,Y,Xvars);
+    SetD();
+	}
+
+/** Container for normally-distributed multinomial discrete choice reduced-form models.**/
+struct MNP : MultiNomialChoice {
+    }
+
+/** Multinomial Logit Model. **/
+struct MLogit : MultiNomialChoice {
+	MLogit(L,fn,Y,Xvars);
+    vfunc();
+    }
+
+/** Independent MNP using Gausss-Hermite integration.**/
+struct GQMNP : MNP {
+	const	decl
+    /** # of nodes in quadrature **/ 	Npts;
+	GQMNP(L,fn,Yname,Xnames,Npts)	;
+	vfunc();
+	}
+
+/** Correlated MNP using GHK . **/
+struct GHKMNP : MNP {
+	enum{identity,onlydiag,lowertriangle,SigmaOptions}
+    const decl
+	/** **/			           ghk,
+	/** **/			           SigLT,
+	/** **/			           sigfree;
+	GHKMNP(L,fn,Yname,Xnames,R,iSigma);
+	SetGHK(R,iseed);
+	vfunc();
+    }
 
 /** Represent sum of <var>K</var> `BlackBox` objectives. **/
 struct Separable : UnConstrained	{

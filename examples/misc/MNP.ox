@@ -14,7 +14,7 @@ Yname can contain any integers.  MNP will translate the unique sorted values int
 @param Xnames a string of the form <q>var1 var2 ... varN</q>
 @comments Observations with any missing data are deleted.<br> A constant column is appended at the end of the X matrix as in Stata.<br> Summary statistics are reported.
 **/
-MNP::MNP(fn,const Yname,const Xnames)	{
+xMNP::xMNP(fn,Yname,Xnames)	{
 	decl j,data, sample;
 	BlackBox::BlackBox("Multinomial Probit");
 	namearray = varlist(Xnames);
@@ -31,18 +31,19 @@ MNP::MNP(fn,const Yname,const Xnames)	{
 	NN = range(0,NvfuncTerms-1);
 	nX = columns(X);
 	indY = maxcindex( (Y.==Jvals)' )' ;
-	betas = array(zeros(nX,1));
+	betas = new array[J];
 	for (j=1;j<J;++j){
 		indY ~= (j-1 .<indY[][0]) .? j-1 .: j;
 		betas |= new Coefficients("Y="+sprint(Jvals[j]),nX,namearray);
 		Parameters(betas[j]);
 		}
+    D = zeros(NvfuncTerms,J);
 	MyMoments(Y~X,{Yname}|namearray);
    }
 
-/** Estimate the model using Simplex and BHHH, print results.
+/** Estimate the model using BHHH, print results.
 **/
-MNP::Estimate() {
+xMNP::Estimate() {
 	decl j,se,bhhh =new BHHH(this);
 	bhhh->Iterate(0);
 	println("Default value of Y = ","%2.0f",Jvals[0]);
@@ -51,28 +52,51 @@ MNP::Estimate() {
 		println("Y = ","%2.0f",Jvals[j],"%c",{"Estimate","Std.Err","t-ratio"},"%r",namearray,
 			betas[j].v~se~(betas[j].v./se));
 		}
+    delete bhhh;
 	}
 
-GQMNP::GQMNP(Npts,const fn,const Yname,const Xnames)	 {
-	MNP(fn,Yname,Xnames);	
+xMNP::SetD() {
+    decl b,j;
+    D[][] = 0;
+    foreach(b in betas[j]) D[][j]= X*CV(b);
+    }
+
+/** Gauss-Hermite based objective for MNP log likelihood.
+@param Npts
+@param fn
+@param Yname
+@param Xnames
+**/
+xGQMNP::xGQMNP(Npts,fn,Yname,Xnames)	 {
+	xMNP(fn,Yname,Xnames);	
 	GQH::Initialize(Npts);
+    lk=ones(Npts,NvfuncTerms);
 	this.Npts = Npts;
 	Encode(0);
 	}
 	
 /**  Compute and return the vector of log-likelihoods at the current parameters.
 **/
-GQMNP::vfunc() {
-	decl j, D, lk, myD;
-	for (j=0,D=<>;j<J;++j)	D ~= X*CV(betas[j]);
+xGQMNP::vfunc() {
+	decl j, myD;
+    SetD();
 	myD = selectrc(D,NN,indY[][0]);
-	for (j=1,lk=ones(Npts,NvfuncTerms);j<J;++j) lk .*=  probn(GQH::nodes+myD-selectrc(D,NN,indY[][j]) );
-	return log(GQH::wght * lk / M_SQRT2PI)' ;
+    lk[][] = 1.0;
+	for (j=1;j<J;++j) lk .*=  probn(GQH::nodes+myD-selectrc(D,NN,indY[][j]) );
+	return log(GQH::wght * lk )' ;   //   / M_SQRT2PI
 	}
 
-GHKMNP::GHKMNP(R,const iSigma,const fn,const Yname,const Xnames) {
-	MNP(fn,Yname,Xnames);
-	ghk = new GHK(R,J,0);
+/** GHK based objective for MNP log likelihood.
+@param R
+@param iSigma
+@param fn
+@param Yname
+@param Xnames
+
+**/
+xGHKMNP::xGHKMNP(R,iSigma,fn,Yname,Xnames) {
+	xMNP(fn,Yname,Xnames);
+	ghk = new GHK(R,J);
 	if (isint(iSigma)) {
 		sigfree=identity;
 	   }
@@ -92,7 +116,7 @@ GHKMNP::GHKMNP(R,const iSigma,const fn,const Yname,const Xnames) {
 	
 /**  Compute and return the vector of log-likelihoods at the current parameters.
 **/
-GHKMNP::vfunc() {
+xGHKMNP::vfunc() {
 	decl i, j, D, lk,Sigma;
 	ranseed(-1);
 	for (j=0,D=<>;j<J;++j)	D ~= X*CV(betas[j]);
@@ -101,7 +125,9 @@ GHKMNP::vfunc() {
 						: sigfree==onlydiag
 							? diag(SigLT.v)
 							: unvech(SigLT.v);	
-	for (i=0,lk=zeros(NvfuncTerms,1);i<NvfuncTerms;++i)	lk[i] = ghk->SimProb(indY[i][0],D[i][],Sigma);
+    ghk->SetC(Sigma);
+	for (i=0,lk=zeros(NvfuncTerms,1);i<NvfuncTerms;++i)	
+        lk[i] = ghk->SimProb(indY[i][0],D[i][]);
 	return log(lk) ;
 	}
 	

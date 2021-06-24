@@ -272,7 +272,7 @@ $$E[f(z)] \approx (2\pi)^{-0.5}\sum_{m=1}^M \omega_m f(x_m).$$
 @example
 <pre>
 GQH::Initialize(8);
-println("E[x*x] = ", GQH::wght * sqr(GQH::nodes) / M_SQRT2PI );
+println("E[x*x] = ", GQH::wght * sqr(GQH::nodes)  );  // / M_SQRT2PI
 </pre></dd>
 
 
@@ -308,6 +308,7 @@ struct GHK   : Integration {
     /** initial seed.**/ iseed,
     /** output level **/ Volume=QUIET;
     decl
+    /**             **/ CSET,
     /** . @internal **/ rv,
     /** . @internal **/ dv,
     /** Evj.**/         vj,

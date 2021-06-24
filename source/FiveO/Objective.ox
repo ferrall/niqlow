@@ -900,6 +900,128 @@ BlackBox::BlackBox(L)	 {
 	maxpt.v = -.Inf;
 	}
 
+/** Create a new MNP model.
+@param L label
+@param fn string, a file to load the data from using Ox <code>Database.Load()</code>
+@param Yname string, name or label of the column in the file that contains <var>Y</var><br>
+Yname can contain any integers.  MNP will translate the unique sorted values into 0...Jvals-1
+@param Xnames a string of the form <q>var1 var2 ... varN</q>
+@comments Observations with any missing data are deleted.<br> A constant column is appended at the end of the X matrix as in Stata.<br> Summary statistics are reported.
+**/
+MultiNomialChoice::MultiNomialChoice(L,fn,Yname,Xnames)	{
+	decl j,data, sample;
+	BlackBox::BlackBox(L);
+    SetAggregation(LOGLINEAR);
+	namearray = varlist(Xnames);
+	data = new Database();
+	data.Load(fn);
+	sample = deleter(data.GetVar({Yname}|namearray));
+	delete data;
+	Y =sample[][0];
+	X = sample[][1:]~1;
+	namearray |= "Cons";
+	Jvals = unique(Y);
+	J = columns(Jvals);
+	NvfuncTerms = rows(Y);
+	NN = range(0,NvfuncTerms-1);
+	nX = columns(X);
+	indY = maxcindex( (Y.==Jvals)' )' ;
+	betas = new array[J];
+	for (j=1;j<J;++j){
+		indY ~= (j-1 .<indY[][0]) .? j-1 .: j;
+		betas |= new Coefficients("Y="+sprint(Jvals[j]),nX,namearray);
+		Parameters(betas[j]);
+		}
+    D = zeros(NvfuncTerms,J);
+	MyMoments(Y~X,{Yname}|namearray);
+   }
+
+MultiNomialChoice::SetD() {
+    decl b,j;
+    D[][] = 0;
+    foreach(b in betas[j]) D[][j]= X*CV(b);
+    }
+
+MLogit::MLogit(L,fn,Yname,Xnames) {
+    MultiNomialChoice(L,fn,Yname,Xnames);
+    }
+
+MLogit::vfunc() {
+    SetD();
+    oxrunerror("Not correct yet");
+    decl F = FLogit( D );
+	return D[][Y];  // ???
+    }
+
+/** Gauss-Hermite based objective for MNP log likelihood.
+@param Npts
+@param fn
+@param Yname
+@param Xnames
+**/
+GQMNP::GQMNP(L,fn,Yname,Xnames,Npts)	 {
+	MultiNomialChoice(L,fn,Yname,Xnames);	
+	GQH::Initialize(Npts);
+    lk=ones(Npts,NvfuncTerms);
+	this.Npts = Npts;
+	Encode(0);
+	}
+/**  Compute and return the vector of log-likelihoods at the current parameters.
+**/
+GQMNP::vfunc() {
+	decl j, myD;
+    SetD();
+	myD = selectrc(D,NN,indY[][0]);
+    lk[][] = 1.0;
+	for (j=1;j<J;++j) lk .*=  probn(GQH::nodes+myD-selectrc(D,NN,indY[][j]) );
+	return (GQH::wght * lk )' ;   //   / M_SQRT2PI
+	}
+
+/** GHK based objective for MNP log likelihood.
+@param L
+@param fn
+@param Yname
+@param Xnames
+@param iSigma
+
+**/
+GHKMNP::GHKMNP(L,fn,Yname,Xnames,R,iSigma) {
+	MultiNomialChoice(L,fn,Yname,Xnames);
+	ghk = new GHK(R,J);
+	if (isint(iSigma)) {
+		sigfree=identity;
+	   }
+	else if (sizerc(iSigma)==J) {
+		sigfree = onlydiag;
+		SigLT = new Coefficients("Sigma",iSigma,0);
+		Block(SigLT);
+		}
+	else if (sizerc(iSigma)==J*J) {
+		sigfree = lowertriangle;
+		SigLT = new Coefficients("Sigma",vech(iSigma),0);
+		Block(SigLT);
+		}
+	else oxrunerror("Initial Variance matrix must be JxJ");
+    lk = zeros(NvfuncTerms,1);
+	Encode(0);
+	}
+	
+/**  Compute and return the vector of log-likelihoods at the current parameters.
+**/
+GHKMNP::vfunc() {
+	decl i, Sigma;
+	ranseed(-1);
+    SetD();
+	Sigma = sigfree==identity
+						? unit(J)
+						: sigfree==onlydiag
+							? diag(SigLT.v)
+							: unvech(SigLT.v);	
+    ghk->SetC(Sigma);
+	for (i=0;i<NvfuncTerms;++i)	lk[i] = ghk->SimProb(indY[i][0],D[i][]');
+	return lk ;
+	}
+
 /** Create a CobbDouglas objective.
 @param L label
 @param alphas  CV-compatiable vector of exponents.
