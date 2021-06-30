@@ -1,6 +1,5 @@
 #import "FiveO"
 #import <database>
-
 struct xMNP : BlackBox {
 	const 	decl
 	/** indexing vector           **/    NN,

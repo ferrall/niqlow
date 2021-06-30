@@ -32,9 +32,10 @@ xMNP::xMNP(fn,Yname,Xnames)	{
 	nX = columns(X);
 	indY = maxcindex( (Y.==Jvals)' )' ;
 	betas = new array[J];
+    betas[0] = 0.0;
 	for (j=1;j<J;++j){
 		indY ~= (j-1 .<indY[][0]) .? j-1 .: j;
-		betas |= new Coefficients("Y="+sprint(Jvals[j]),nX,namearray);
+		betas[j] = new Coefficients("Y="+sprint(Jvals[j]),nX,namearray);
 		Parameters(betas[j]);
 		}
     D = zeros(NvfuncTerms,J);
@@ -47,6 +48,7 @@ xMNP::Estimate() {
 	decl j,se,bhhh =new BHHH(this);
 	bhhh->Iterate(0);
 	println("Default value of Y = ","%2.0f",Jvals[0]);
+    Hessian();
 	for (j=1;j<J;++j)  {
 		se = vcur.SE[(j-1)*nX:j*nX-1]';
 		println("Y = ","%2.0f",Jvals[j],"%c",{"Estimate","Std.Err","t-ratio"},"%r",namearray,
@@ -111,23 +113,24 @@ xGHKMNP::xGHKMNP(R,iSigma,fn,Yname,Xnames) {
 		Block(SigLT);
 		}
 	else oxrunerror("Initial Variance matrix must be JxJ");
+    lk=ones(NvfuncTerms,1);
 	Encode(0);
 	}
 	
 /**  Compute and return the vector of log-likelihoods at the current parameters.
 **/
 xGHKMNP::vfunc() {
-	decl i, j, D, lk,Sigma;
+	decl i, Sigma;
 	ranseed(-1);
-	for (j=0,D=<>;j<J;++j)	D ~= X*CV(betas[j]);
+    SetD();
 	Sigma = sigfree==identity
 						? unit(J)
 						: sigfree==onlydiag
 							? diag(SigLT.v)
 							: unvech(SigLT.v);	
     ghk->SetC(Sigma);
-	for (i=0,lk=zeros(NvfuncTerms,1);i<NvfuncTerms;++i)	
-        lk[i] = ghk->SimProb(indY[i][0],D[i][]);
+	for (i=0;i<NvfuncTerms;++i)	
+        lk[i] = ghk->SimProb(indY[i][0],D[i][]');
 	return log(lk) ;
 	}
 	
