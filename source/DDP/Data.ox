@@ -40,10 +40,12 @@ PathPrediction::SimulateOutcomePaths(curfpanel,N,ErgOrStateMat) {
 PredictionDataSet::SimulateMomentVariances(N,ErgOrStateMat,fvals) {
     decl simdata = new Panel(0,method),scur,old;
     scur = simdata;
-    decl fcur=this;
+    decl fcur=first;
     do {
-        if ( fvals==DoAll || any(fcur.f.==fvals) )
+        if ( fvals==DoAll || any(fcur.f.==fvals) )  {
+            println("simulating ",fcur.f);
             fcur->SimulateOutcomePaths(scur,N,ErgOrStateMat);
+            }
         old = scur;
         scur = scur.fnext;
     #ifdef OX_PARALLEL

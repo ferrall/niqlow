@@ -354,6 +354,8 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
                                 break;
         case AUGMENTEDPATHW :
                                 pathW = loadmat("pathW_"+sprint("%02u",f)+".mat");
+                                if (isint(pathW))
+                                    oxwarning("File with weights for path of group "+sprint(f)+" not found ");
                                 decl dd = diagonal(pathW), en = norm(dd,1);
                                 dd = dd.==0 .? .01 .: dd;
                                 if (!Version::MPIserver)
@@ -723,7 +725,7 @@ PanelPrediction::MaxPathVectorLength(inT) {
     do {
         n= max(n,max(inT,cur.T) * tsize);
         } while((isclass(cur = cur.fnext)));
-    if (f==AllFixed) n= max(n,max(inT,T) * tsize);
+    if (f==AggGroup) n= max(n,max(inT,T) * tsize);
     return n;
     }
 
@@ -779,7 +781,7 @@ PanelPrediction::~PanelPrediction() {
 PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
     decl k;
     aggexists= N::F>One;
-    PathPrediction(this,aggexists ? AllFixed : 0,0,wght,0);	
+    PathPrediction(this,aggexists ? AggGroup : 0,0,wght,0);	
     EverPredicted = FALSE;
     this.method = method;
     tlabels = {"t"};
@@ -827,7 +829,7 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
 PanelPrediction::Predict(inT,prtlevel,outmat) {
     decl cur, succ, nt;
     if (!TrackingCalled) PanelPrediction::Tracking();
-    if (f==AllFixed) {
+    if (f==AggGroup) {
         vdelt =<>;    dlabels = {};
         if (ismatrix(flat)) delete flat;
         this.inT = inT;
@@ -848,7 +850,7 @@ PanelPrediction::Predict(inT,prtlevel,outmat) {
         M += cur.L;
 	    if (!Version::MPIserver && Data::Volume>QUIET) aflat |= cur->GetFlat();
         } while((isclass(cur=cur.fnext)));
-     if (f==AllFixed) {  // aggregate moments
+     if (f==AggGroup) {  // aggregate moments
      	if (!Version::MPIserver && Data::Volume>QUIET) aflat |= this->GetFlat();
         if (HasObservations) {
             cur = this;  //processing aggregate moments over t

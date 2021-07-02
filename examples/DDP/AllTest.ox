@@ -181,6 +181,7 @@ Test7::Run()  {
 	rc = new Positive("RC",dgp[RC]);
 	th1 = new Simplex("q",dgp[XT]);
     EndogenousStates(x = new Renewal("x",NX,d,th1) );
+    GroupVariables(new FixedEffect("f",2));
 //	StorePalpha();	
   	CreateSpaces();
 	SetDelta(0.99);	
@@ -195,9 +196,11 @@ Test7::Run()  {
 	data -> Simulate(500,50,TRUE);
     data -> Print("test7sim.dta",LONG);
     delete data;
-    data = new PanelPrediction ( "EY", 0, 0);
+//    data = new PanelPrediction ( "EY", 0, 0);
+    data = new PredictionDataSet ();
     data -> Tracking(TrackAll);
-    data -> Predict(40,One);
+//    data -> Predict(40,One);
+    data -> SimulateMomentVariances ( 100 );
     delete data;
 	Delete();
 	}
