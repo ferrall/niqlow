@@ -350,10 +350,10 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
                         break;
         case CONTEMPORANEOUS :  oxrunerror("CONTEMPORANEOUS correlated moments not implemented yet");
                                 break;
-        case INTERTEMPORAL :    pathW = loadmat("pathW_"+sprint("%02u",f)+".mat");
+        case INTERTEMPORAL :    pathW = loadmat("pathW_"+sprint("%02i",f)+".mat");
                                 break;
         case AUGMENTEDPATHW :
-                                pathW = loadmat("pathW_"+sprint("%02u",f)+".mat");
+                                pathW = loadmat("pathW_"+sprint("%02i",f)+".mat");
                                 if (isint(pathW))
                                     oxwarning("File with weights for path of group "+sprint(f)+" not found ");
                                 decl dd = diagonal(pathW), en = norm(dd,1);
