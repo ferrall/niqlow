@@ -359,7 +359,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
                                 decl dd = diagonal(pathW), en = norm(dd,1);
                                 dd = dd.==0 .? .01 .: dd;
                                 if (!Version::MPIserver)
-                                    println("Augmenting pathW.  Original |diag|: ",en," . New ",norm(dd,1));
+                                    println("Augmenting pathW.  Original |diag|: ",en," . New |diag: ",norm(dd,1));
                                 pathW = setdiagonal(pathW,dd);
                                 break;
             }
