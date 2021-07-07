@@ -786,8 +786,9 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
     this.method = method;
     tlabels = {"t"};
     tlist = {};
+    pcount = 0;
     label = isint(label) ? classname(userState) : label;
-    PredMomFile=replace(Version::logdir+DP::L+"_PredMoments_"+label," ","")+".dta";
+    PredMomFile=replace(Version::logdir+DP::L+"_PredMoments_"+label," ",""); // removed so pcount can be used +".dta";
     if (aggexists) {
 	   fparray = new array[N::F];
 	   for (k=Zero;k<N::F;++k) {
@@ -875,12 +876,13 @@ PanelPrediction::Predict(inT,prtlevel,outmat) {
             }
         }
     if (!Version::MPIserver && Data::Volume>QUIET) {
-        decl amat = <>,k;
+        decl amat = <>,k,thisfilename=PredMomFile+sprint("%02u",pcount)+".dta";
         foreach(k in aflat) amat |= k;
-        savemat(PredMomFile,amat,
+        savemat(thisfilename,amat,
                 N::F==1 ? {"f"}|tlabels
                         : {"f"}|Labels::Vprt[svar][S[fgroup].M:S[fgroup].X]|tlabels);
-        println("Panel Prediction stored in ",PredMomFile,"\n Read() will read back into a PredictionDataSet");
+        println("Panel Prediction stored in ",thisfilename,"\n Read() will read back into a PredictionDataSet if pcount=0");
+        ++pcount;
         }
     M = succ ? -sqrt(M) : -.Inf;
     return succ;
@@ -1001,7 +1003,7 @@ PredictionDataSet::Read(FNorDB) {
         source = new Database();
         if (isint(FNorDB)) {
             println("Attempting to read from PanelPrediction Data File ",PredMomFile);
-            FNorDB = PredMomFile;
+            FNorDB = PredMomFile+sprint("%02u",0)+".dta";
             }
 	    if (!source->Load(FNorDB)) oxrunerror("DDP Error 66. Failed to load data from"+FNorDB);
         if (report) fprintln(Data::logf,"Reading in Moments from file ",FNorDB);

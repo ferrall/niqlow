@@ -123,6 +123,7 @@ struct PanelPrediction : PathPrediction {
     /** either fparray[0] or this.**/                  first,
 	/** array pointing to (fixed) path predictions.**/ fparray;
 	decl
+    /** # of predictions made and saved so far .**/ pcount,
     /** indicator vector for observed moments.**/   mask,
     /** columns in data .     **/                   cols,
     /** list of objects to track.**/                tlist,
