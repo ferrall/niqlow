@@ -153,6 +153,21 @@ PathPrediction::SetT() {
 
 PathPrediction::tprefix(t) { return sprint("t_","%02u",t,"_"); }
 
+PathPrediction::SetFlat(inflat,SetorInc,Cols) {
+    if (Cols>=Zero) {
+        if (SetorInc)
+            flat[][Cols:] = inflat;
+        else
+            flat[][Cols:] += inflat;
+        }
+    else {
+        if (SetorInc)
+            flat = inflat;
+        else
+            flat += inflat;
+        }
+    }
+
 /** process predictions and empirical matching when there are observations over time.
 @param cmat if a matrix then get contributions from it.  This is true when running in parallel.<br/>
     Otherwise, contributions are located in the individual Prediction objects.
@@ -169,7 +184,8 @@ PathPrediction::ProcessContributions(cmat){
     if (ismatrix(flat)) delete flat;
     if (!Version::MPIserver && Data::Volume>QUIET) {
         flat = constant(.NaN,T,Fcols+One+sizeof(mother.tlist));
-        if (!f && aggexists) mother.flat = flat;
+        if (!f && aggexists) mother->SetFlat(flat);
+        //mother.flat = flat;
         }
     cur=this;
     do {
@@ -193,11 +209,12 @@ PathPrediction::ProcessContributions(cmat){
   	    } while(isclass(cur));
     if (!Version::MPIserver && Data::Volume>QUIET && aggexists) {
         if (!f){
-            mother.flat = constant(AllFixed,flat);      //set everything to -1 (get the right dimensions)
-            mother.flat[][Fcols:]= myshare * flat[][Fcols:];      //only average non fixed columns
+            mother->SetFlat(constant(AllFixed,flat));      //set everything to -1 (get the right dimensions)
+            mother->SetFlat(myshare * flat[][Fcols:],TRUE,Fcols);      //only average non fixed columns
             }
         else
-            mother.flat[][Fcols:] += myshare * flat[][Fcols:];
+            mother->SetFlat(myshare * flat[][Fcols:],FALSE,Fcols);
+//            mother.flat[][Fcols:] += myshare * flat[][Fcols:];
         }
     L = (HasObservations) ? (
                 ismatrix(pathW) ? outer(vdelt,pathW)

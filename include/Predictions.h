@@ -98,6 +98,7 @@ struct 	PathPrediction : Prediction {
     InitialConditions();
 	Predict(T=0,printit=FALSE);
     GetFlat(tvals=DoAll,mvals=DoAll);
+    SetFlat(inflat,SetorInc=TRUE,Cols=DoAll);
     Qcols(Y,...);
     SetT();
     Empirical(inmoments,hasN=FALSE,hasT=FALSE);
