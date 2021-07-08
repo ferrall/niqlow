@@ -705,9 +705,9 @@ Sets `Bellman::pandv` equal to
 @see RowLogit
 **/
 ExPostSmoothing::Logistic() {
-    decl hold = pandv;
+//    decl hold = pandv;
 	pandv[][] = RowLogit( pandv-(V[]=maxc(pandv)), CV(rho) );
-    if (I::t<=1 && I::f==0) println("-----",I::t," ",I::r,hold~pandv);
+//    if (I::t<=1 && I::f==0) println("-----",I::t," ",I::r,hold~pandv);
  	}
 
 ExPostSmoothing::Normal() {
