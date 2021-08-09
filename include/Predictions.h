@@ -101,7 +101,7 @@ struct 	PathPrediction : Prediction {
     SetFlat(inflat,SetorInc=TRUE,Cols=DoAll);
     Qcols(Y,...);
     SetT();
-    Empirical(inmoments,hasN=FALSE,hasT=FALSE);
+    Empirical(inmoments,hasN=FALSE,hasT=FALSE,MaxT=0);
     //Tracking(LorC=TrackAll,...);
     //SetColumns(dlabels,Nplace=UnInitialized,Tplace=UnInitialized);
     TypeContribution(pf=1.0,subflat=0);
@@ -163,7 +163,7 @@ struct PredictionDataSet : PanelPrediction {
             TrackingMatchToColumn(LorC,mom);
             TrackingWithLabel(InDataOrNot,...);
             Observations(NLabelorColumn,TLabelorColumn=UnInitialized);
-            Read(fn=UseDefault);
+            Read(fn=UseDefault,MaxT=FALSE);
             SimulateMomentVariances(N,ErgOrStateMat=0,fvals=DoAll);
  	virtual EconometricObjective(subp=DoAll);
     }

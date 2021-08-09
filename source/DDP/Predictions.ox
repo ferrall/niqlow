@@ -306,12 +306,12 @@ PanelPrediction::ParallelSolveSub(subp) {
             TRUE: second-to-last column that contains observation count used for weighting of distances.
 @param hasT FALSE: no model t column<br/>
             TRUE: last column contains observation count
-
+@param MaxT path length will equal max{MaxT,maxc{inNandMom[][C]}}
 @comments
 If T is greater than the current length of the path additional predictions are concatenated to the path
 
 **/
-PathPrediction::Empirical(inNandMom,hasN,hasT) {
+PathPrediction::Empirical(inNandMom,hasN,hasT,MaxT) {
     decl j,inmom,totN,inN,invsd,C = columns(inNandMom)-1,influ,dt,pt,datat,negt,
     report = !Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf) ;
     HasObservations = TRUE;
@@ -328,11 +328,11 @@ PathPrediction::Empirical(inNandMom,hasN,hasT) {
         datat = inNandMom[][C];
         if ( any( diff0(datat) .< 0) )
                 oxrunerror("DDP Error ??. t column in moments not ascending. Check data and match to fixed groups.");
-        T = max(maxc(datat)+1,rows(inNandMom));
+        T = max(maxc(datat)+1,rows(inNandMom),MaxT);
         if (report) MyMoments(inNandMom,mother.tlabels[1:],Data::logf);
         }
     else {
-        T = rows(inNandMom);
+        T = max(rows(inNandMom),MaxT);
         datat = range(0,T-1)';
         influ = ones(1,C-1);
         }
@@ -1007,8 +1007,9 @@ PredictionDataSet::EconometricObjective(subp) {
 
 /** Read in external moments of tracked objects.
 @param FNorDB  string, name of file that contains the data.<br/>A Ox database object.
+@param MaxT TRUE: set length of prediction equal to the max{T} for all Paths, otherwise use individual lengths
 **/
-PredictionDataSet::Read(FNorDB) {
+PredictionDataSet::Read(FNorDB,MaxT) {
     decl fptr,curf,inf,inmom,fcols,row,v,data,dlabels,source,fdone,incol,
     report = !Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf) ;
     if (report ) {
@@ -1077,7 +1078,7 @@ PredictionDataSet::Read(FNorDB) {
                     println("Reading moments for fixed group ",curf,". See log file");
                     fprintln(Data::logf,"Moments of Moments for fixed group:",curf);
                     }
-            fptr->Empirical(inmom,hasN,hasT);
+            fptr->Empirical(inmom,hasN,hasT,MaxT);
             } while (inf==curf);
         } while(inf!=NotInData);
 	delete source;

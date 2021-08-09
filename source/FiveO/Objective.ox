@@ -948,9 +948,9 @@ MLogit::MLogit(L,fn,Yname,Xnames) {
 
 MLogit::vfunc() {
     SetD();
-    oxrunerror("Not correct yet");
-    decl F = FLogit( D );
-	return D[][Y];  // ???
+    oxwarning("Not correct???");
+    decl F = RowLogit(D);
+	return F[][indY];  // ???
     }
 
 /** Gauss-Hermite based objective for MNP log likelihood.
