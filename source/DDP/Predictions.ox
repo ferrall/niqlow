@@ -1056,6 +1056,7 @@ PredictionDataSet::Read(FNorDB,MaxT) {
     row = 0;
     inf = (isint(fcols)) ? 0 : I::OO[onlyfixed][S[fgroup].M:S[fgroup].X]*data[row][fcols]';
     incol = selectifc(cols,cols.>=0);
+    if (MaxT && hasT) MaxT = maxc(data[][incol[columns(incol)-1]]);  // make all paths as long as the longest empirical path.
     if (inf<Zero) inf = N::F; //any negative value maps into N::F+1
     do {
         curf = inf;
