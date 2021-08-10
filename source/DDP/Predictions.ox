@@ -538,6 +538,7 @@ Prediction::Histogram(printit) {
 **/
 Prediction::Delta(mask,printit,tlabels) {
     decl df;
+    println("*** ",t);
     decl mv = selectifc(accmom,mask);
     if (!ismatrix(empmom))  // if no data difference is zero.
         return zeros(mv);
