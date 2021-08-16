@@ -71,8 +71,7 @@ Method::Solve(Fgroups,Rgroups) {
     Flags::HasBeenUpdated = FALSE;
     if (Volume>QUIET && (Fgroups==AllFixed && Rgroups==AllRand))
         println("\n>>>>>>Value Iteration Finished.  Succeed: ",qtask.itask.succeed,"\n");
-    println("\n>>> ",Volume);
-    Flags::NewPhase(INBETWEEN,TRUE);
+    Flags::NewPhase(INBETWEEN,Volume>QUIET);
     return qtask.itask.succeed;
     }
 
