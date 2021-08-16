@@ -121,6 +121,8 @@ Flags::TimeProfile(fn) {
 **/
 TrackObj::Distribution(pobj,obj) {
     if (isclass(obj,"ActionVariable")) {
+        decl v = sumr(obj.actual[Alpha::C[][obj.pos]]' * pobj.chq);
+        /*   GETTING RID OF INNER LOOP, can't compute hist
         decl hk, k;
         v = 0.0;
         for(k=0;k<obj.N;++k) {
@@ -128,6 +130,7 @@ TrackObj::Distribution(pobj,obj) {
             v += obj.actual[k]*hk;
             hist[k] += hk;
             }
+        */
         }
     else if (isclass(obj,"StateVariable")) {
         decl me = pobj.state[obj.pos];
