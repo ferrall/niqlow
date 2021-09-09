@@ -124,7 +124,7 @@ struct SysMax : LineMethod {
 
 <cite title="Nelder, J.A. and Mead, R. (1965). A simplex method for function minimization, Comput. J., 7, 308&ndash;313">Nelder and Mead</cite> Amoeba (Simplex) algorithm.
 
-at <a href="http://en.wikipedia.org/wiki/Nelder-Mead_method">Wikipedia</a>
+at <a href="javascript:window.open('http://en.wikipedia.org/wiki/Nelder-Mead_Method','wiki','width=600,height=400')">Wikipedia</a>
 
 
 <DT>To use this algorithm:</DT>
@@ -190,7 +190,7 @@ struct NelderMead  : NonGradient {
 
 /** Metropolis Simulated Annealing algorithm .
 
-<a href="http://en.wikipedia.org/wiki/Simulated_annealing">at Wikipedia</a>
+<a href="javascript:window.open('http://en.wikipedia.org/wiki/Simulated_annealing','wiki','width=600,height=400')">at Wikipedia</a>
 
 
 <DT>To use an algorithm:</DT>
@@ -292,14 +292,15 @@ struct HillClimbing : GradientBased {
 /** Container for algorithms that use but do not compute the Hessian matrix <b>H</b>.
 
 
-<a href="http://en.wikipedia.org/wiki/Quasi-Newton_method">at Wikipedia</a>
+<a href="javascript:window.open('http://en.wikipedia.org/wiki/Quasi-Newton_method','wiki','width=600,height=400')">at Wikipedia</a>
 **/
 struct QuasiNewton : HillClimbing {
 	}
 
 /** Broyden Fletcher Goldfarb Shanno Updating of the hessian <b>H</b>.
 
-See <a href="http://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm">Wikipedia::BFGS</a>
+
+See <a href="javascript:window.open('http://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm','wiki','width=600,height=400')">Wikipedia::BFGS</a>
 
 <DT>To use this algorithm:</DT>
 <DD>Declare a class for your `Objective` (e.g. a `BlackBox` or `System`).</dd>
