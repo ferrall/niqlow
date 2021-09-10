@@ -1,0 +1,1 @@
+#include "oxstd.h" enum{c,b,a} q(co){decl rad=sqrt(sqr(co[b])-4*co[a]*co[c]); return (-co[b]+(-rad~rad))/(2*co[a]);}main(){decl myc=<2,3,1>,myr; myr=q(myc);println("coeffs:",myc,"solutions:",myr,"check:",polyeval(myc,myr));}
