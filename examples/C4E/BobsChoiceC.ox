@@ -12,8 +12,7 @@ BobsChoiceC::Create() {
     CreateSpaces();
     }
 BobsChoiceC::FeasibleActions() {
-    return CV(BobsChoice::sch)!=1 || CV(YAcc);  //1=Yale
+    return CV(BobsChoice::sch).!=1 .|| CV(YAcc);  //1=Yale  must use . operators
     }
-BobsChoiceC::Utility() {
-    return OnlyFeasible(BobsChoiceB::Utility());
-    }
+
+// BobsChoiceC::Utility() {    return BobsChoiceB::Utility();   }  Not needed because C and B utility the same

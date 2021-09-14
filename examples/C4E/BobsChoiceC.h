@@ -5,5 +5,5 @@ class BobsChoiceC : BobsChoiceB {
         static Build();
         static Create();
                 FeasibleActions();
-                Utility();
+                // Utility();   Can use B's utility. uncomment C should get a new one
         }

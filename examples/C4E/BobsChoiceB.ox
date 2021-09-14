@@ -16,6 +16,6 @@ BobsChoiceB::Create() {
     }
 
 BobsChoiceB::Utility() {
-    return BobsChoice::U        // reuse U vector  
+    return OnlyFeasible(BobsChoice::U)        // reuse U vector, but build-in flexibility
             + 2.2*CV(Qsch)*(CV(BobsChoice::sch).==2);   // Add scholarship to basic U
     }

@@ -21,7 +21,7 @@ BobsChoiceD::Create() {
 
 BobsChoiceD::Utility() {
     decl b = CV(beta);
-    return BobsChoice::U        // reuse U vector
+    return OnlyFeasible(BobsChoice::U)        // reuse U vector
             + b[Legacy]*(CV(BobsChoice::sch).==CV(alma))  //Bob choosing school parent went to
             + b[Interest]*CV(k)*(CV(BobsChoice::maj).==1);       //A Bob who especially likes physics
     }
