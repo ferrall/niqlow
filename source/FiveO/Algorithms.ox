@@ -904,7 +904,7 @@ GradientBased::Iterate(H)	{
 		    OC.SE = sqrt(-diagonal(invert(OC.H)));
 		    }
         if (Volume>SILENT) {  //Report on Result of Iteration
-            istr =sprint("\nFinished: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient"},OC.F'|OC.G);
+            istr =sprint("\nFinished: ","%1u",convergence,":"+cmsg[convergence],"%c",O.Flabels,"%r",{"    Free Vector","    Gradient","   Std.Error"},OC.F'|OC.G|OC.SE,"\n  Take care interpreting SE for Quasi-Newton algorithms\n");
             fprintln(logf,istr);
             if (Volume>QUIET) println(istr);
             }
@@ -966,7 +966,7 @@ Newton::Hupdate() {
 @return NONE
 **/
 BHHH::Hupdate() {
-   	OC.H = outer(OC.J,<>,'o');
+   	OC.H = -outer(OC.J,<>,'o');
    	if (Volume>LOUD) println("New Hessian","%c",O.Flabels,"%r",O.Flabels,"%lwr",OC.H);
     return NONE;
     }
