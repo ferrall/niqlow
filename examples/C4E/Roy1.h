@@ -1,9 +1,8 @@
-#import "DDP"
+#import "niqlow"
 /* This file is part of niqlow. Copyright (C) 2015-2021 Christopher Ferrall */
 
-class RoyA : OneStateModel {
-        static decl sch, maj, U;
+class Roy1 : Roy {
+		static decl V,p,L;
         static Build();
         static Create();
-        Utility();
         }

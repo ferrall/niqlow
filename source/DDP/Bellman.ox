@@ -866,17 +866,26 @@ NIID::UpdateChol() {
 /** Initialize a Roy model: static, one-dimensional choice with correlated normal error. 	
 @param NorVLabels <em>integer</em> [default=2], number of options/sectors</br>
             array of Labels
-@param Prices 0 [default] initialize sector prices to 0<br/> `CV`() compatible vector of prices
-@param userState integer [default] use the pre-defined Roy Model class, including Utility</br>
-        a `Roy`-derived object.
+@param P_or_UserState 0 [default] initialize sector prices to 0<br/>
+            `CV`() compatible vector of prices<br/>
+            The first 2 options will use the built in Utility that simply
+            returns CV(p).<br/>
+            a `Roy`-derived object (allowing for custom Utility)
 **/
-Roy::Initialize(NorVLabels,Prices,userState) {
-	NnotIID::Initialize(isclass(userState) ? userState : new Roy(),FALSE);
+Roy::Initialize(NorVLabels,P_or_UserState) {
+    d = new ActionVariable("d",NorVLabels);
+    if (isclass(P_or_UserState,"Bellman")) {
+	   NnotIID::Initialize(P_or_UserState,FALSE);
+       Prices = UnInitialized;
+       }
+    else {
+	   NnotIID::Initialize(new Roy(),FALSE);
+       Prices = isint(P_or_UserState) ? zeros(d.N,1) : P_or_UserState;
+       }
     parents = " | Roy "+parents;
     SetClock(StaticProgram);
-	Actions(d = new ActionVariable("d",NorVLabels));
+	Actions(d);
 	SetDelta(0.0);	
-    this.Prices = isint(Prices) ? zeros(d.N,1) : Prices;
 	}
 
 /**  Call NnotIID.
@@ -884,8 +893,12 @@ Roy::Initialize(NorVLabels,Prices,userState) {
 Roy::CreateSpaces() {	
     NnotIID::CreateSpaces();
     }
+
+/** Built-in utility for Roy models.
+@return OnlyFeasible(CV(Prices))
+**/
 Roy::Utility() {
-    return CV(Prices);
+    return OnlyFeasible(CV(Prices));
     }
 
 /** .
@@ -961,8 +974,8 @@ NnotIID::ActVal() {
 This routine is added to the preUpdate Hook so it is called after parameters may have changed.
 **/
 NnotIID::UpdateChol() {
-	decl i;
-	BigSigma = unvech(CV(AChol));   //evaluate cholesky params and construct lower triangle.
+	decl i, mm=N::Options[Zero];
+	BigSigma = setupper(unvech(CV(AChol)),0);   //evaluate cholesky params and construct lower triangle.
     BigSigma *= BigSigma';               //compute Sigma for all possible choices
 	GHK::SetSeed();
 	for (i=0;i<N::J;++i) {

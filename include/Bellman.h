@@ -254,7 +254,7 @@ struct Roy : NnotIID {
 	static decl
 	/**The sector-decision variable. **/   d,
     /**Vector-valued prices of sectors.**/ Prices;
-	static Initialize(NorLabels=2,Prices=0,userState=0);
+	static Initialize(NorLabels=2,Prices=0);
 	static CreateSpaces();
     virtual Utility();
 	}

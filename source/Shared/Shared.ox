@@ -672,7 +672,7 @@ GHK::GHK(R,J) {
 		M[j][][j] = -1;
         M[j] = insertr(M[j],0,1);          //move eps j to first element
         M[j][0][j] = 1;
-        C[j] = zeros(rows(M[Zero]),rows(M[Zero]));
+        C[j] = zeros(J,J);
 		}
     rv = pk = L = zeros(1,this.R);
 	nu = zeros(J,this.R);
@@ -707,19 +707,19 @@ GHK::SimProb(j,V){
         }
 	dv[] = M[j]*V;
 	for(k=0;k<J;k++){
-        pk[] = k ? probn(L/C[j][k][k]) : 1.0;
+        if (!k)
+            rv[] = pk[] =  1.0;
+        else
+            pk[] = probn(L/C[j][k][k]);
         if (k<SimJ) {                            // J-1 element contains eps j not a delta
 		  u[] = ranu(1,hR);
 		  nu[k][]= quann((u~(1-u)).*pk);		//antithetic variates
-          L[] = -(dv[k+1][] + C[j][k+1][:k]*nu[:k][]  );
+          L[] = -(dv[k+1][] + C[j][k+1][:k]*nu[0:k][]  );
           }
-        if (!k)
-            rv[] = pk;
-        else
-            rv[]  .*= pk;
+        rv[] .*= pk;
         }
-    vj[j]=meanr((dv[0][]+C[j][0][0]*nu[0][]).*rv);
     pj[j]=meanr(rv);
+    vj[j]=meanr((dv[0]+sigs[j]*nu[0][]).*rv)/pj[j];
     return pj[j];
 	}
 
@@ -739,8 +739,10 @@ GHK::SimDP(V){
 **/
 GHK::SetC(Sigma) {
     decl j;
-    for(j=0;j<sizeof(C);++j)
+    for(j=0;j<sizeof(C);++j) {
 	   C[j][][] = choleski(M[j]*Sigma*M[j]');   //first row is epsj. Rest are Delta_ij
+       }
+    sigs = sqrt(diagonal(Sigma));
     CSET=TRUE;
     }
 

@@ -316,6 +316,7 @@ struct GHK   : Integration {
     /** 1xR upper bounds. **/                           L,
     /** 1xR uniform values. **/                         u,
     /** JxR matrix of N(0,1) simulated values. **/     nu,
+    /** vector of standard deviations .**/             sigs,
     /** incremental simulated prob. vector. **/        pk;
 	GHK(R,J);
 	SimProb(j,V);

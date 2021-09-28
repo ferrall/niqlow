@@ -149,8 +149,8 @@ Test5::Run() {
 	Initialize(new Test5());
 	SetClock(NormalAging,1);
 	Actions(new ActionVariable("a",2));
-	SetIntegration(100,-1,<1.0;0.99;1.0>);
 	CreateSpaces();
+	SetIntegration(100,-1,<1.0;0.99;1.0>);
     VISolve();
 	Delete();
 	}

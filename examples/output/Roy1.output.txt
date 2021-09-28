@@ -1,12 +1,15 @@
-Output of DDP Tests:Integration
----------------------------
+
+ niqlow version 4.00. Copyright (C) 2011-2020 Christopher Ferrall.
+Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).
+Log file directory: './'. Time stamp: -26-09-2021-16-59-19.
+
 DP::Intialize is complete. Action and State spaces are empty.
- Log file name is: logs/DP-DDP-24-09-2021-16-24-22.log
+ Log file name is: ./DP-DDP-26-09-2021-16-59-19.log
 -------------------- DP Model Summary ------------------------
 0. USER BELLMAN CLASS
-    Test5 | Not IID  | Normal  | Bellman
+    Roy | Roy  | Not IID  | Normal  | Bellman
 1. CLOCK
-    3. Normal Finite Horizon Aging
+    4. Static Program (finite horizon and T=1)
 2. STATE VARIABLES
               |eps   |eta |theta -clock        |gamma
               s11    s21    s31      t     t'      r      f
@@ -33,9 +36,9 @@ DP::Intialize is complete. Action and State spaces are empty.
        Total Untrimmed                1
 
 4. ACTION VARIABLES
-   Number of Distinct action vectors: 2
-             a
-    a.N      2
+   Number of Distinct action vectors: 4
+             d
+    a.N      4
 
 
 5. TRIMMING AND SUBSAMPLING OF THE ENDOGENOUS STATE SPACE (Theta)
@@ -49,19 +52,40 @@ Index of first state by t (t=0..T-1)
 
 6. FEASIBLE ACTION SETS
  
-     i    [a]        A[0]   
+     i    [d]        A[0]   
      ---------------------------
-     000 (0)           X        
-     001 (1)           X        
+     000 (0)           X        -Econ
+     001 (1)           X        -MechEng
+     002 (2)           X        -ChemEng
+     003 (3)           X        -Physics
         #States        1
      --------------------------
          Key: X = row vector is feasible. - = infeasible
 
 -------------------- End of Model Summary ------------------------
-Phase :Initializing Increment:       0.13. Cumulative:         0.13
+Phase :Initializing Increment:       0.00. Cumulative:         0.00
+V 
+       1.0000     -0.15000     -0.15000     -0.15000
+     -0.15000       1.0000      0.85000      0.00000
+     -0.15000      0.85000       1.0000      0.00000
+     -0.15000      0.00000      0.00000       1.0000
+Chol(V)
+       1.0000      0.00000      0.00000      0.00000
+     -0.15000      0.98869      0.00000      0.00000
+     -0.15000      0.83697      0.52629      0.00000
+     -0.15000    -0.022757   -0.0065604      0.98840
+0
+       1.0000
+       1.0000
+       1.0000
+       1.0000
+
+       1.0000     -0.15000     -0.15000     -0.15000
+     -0.15000       1.0000      0.85000      0.00000
+     -0.15000      0.85000       1.0000      0.00000
+     -0.15000      0.00000      0.00000       1.0000
 
      Value of States and Choice Probabilities 
-    Indx   T   A s31   t     r     f       EV      |Choice Probabilities:         
-       0   3   0   0   0     0     0        0.002215 0.500000 0.500000
+    Indx   T   A s31   t     r     f       EV      |Choice Probabilities:                           
+       0   3   0   0   0     0     0        0.952009 0.310333 0.198111 0.195140 0.296416
      ------------------------------------------------------------------------------
-... finished.
