@@ -900,13 +900,17 @@ BlackBox::BlackBox(L)	 {
 	maxpt.v = -.Inf;
 	}
 
-/** Create a new MNP model.
+/** Create a new Multinomial Choice Model  model.
 @param L label
 @param fn string, a file to load the data from using Ox <code>Database.Load()</code>
 @param Yname string, name or label of the column in the file that contains <var>Y</var><br>
 Yname can contain any integers.  MNP will translate the unique sorted values into 0...Jvals-1
 @param Xnames a string of the form <q>var1 var2 ... varN</q>
-@comments Observations with any missing data are deleted.<br> A constant column is appended at the end of the X matrix as in Stata.<br> Summary statistics are reported.
+@comments Observations with any missing data are deleted.</br>
+        A constant column is appended at the end of the X matrix as in Stata.</br>
+        Summary statistics are reported.</br>
+        Written with help from Stefan Fassler and Tanvir Ahmed Khan Tanu
+
 **/
 MultiNomialChoice::MultiNomialChoice(L,fn,Yname,Xnames)	{
 	decl j,data, sample;
@@ -927,20 +931,19 @@ MultiNomialChoice::MultiNomialChoice(L,fn,Yname,Xnames)	{
 	nX = columns(X);
 	indY = maxcindex( (Y.==Jvals)' )' ;
 	betas = new array[J];
+    betas[0]=new FixedBlock("Y="+sprint(Jvals[0]),zeros(nX));
 	for (j=1;j<J;++j){
-		indY ~= (j-1 .<indY[][0]) .? j-1 .: j;
+		//indY ~= (j-1 .<indY[][0]) .? j-1 .: j;
 		betas |= new Coefficients("Y="+sprint(Jvals[j]),nX,namearray);
-		Parameters(betas[j]);
 		}
+	Parameters(betas);
     D = zeros(NvfuncTerms,J);
+	println("Default value of Y = ","%2.0f",Jvals[0]);
 	MyMoments(Y~X,{Yname}|namearray);
    }
 
-MultiNomialChoice::SetD() {
-    decl b,j;
-    D[][] = 0;
-    foreach(b in betas[j]) D[][j]= X*CV(b);
-    }
+MultiNomialChoice::SetD() {  D[][] = X*CV(betas);  }
+
 
 MLogit::MLogit(L,fn,Yname,Xnames) {
     MultiNomialChoice(L,fn,Yname,Xnames);
@@ -948,10 +951,9 @@ MLogit::MLogit(L,fn,Yname,Xnames) {
 
 MLogit::vfunc() {
     SetD();
-    oxwarning("Not correct???");
-    decl F = RowLogit(D);
-	return F[][indY];  // ???
+	return ColLogit(D)[NN][indY];
     }
+
 
 /** Gauss-Hermite based objective for MNP log likelihood.
 @param Npts

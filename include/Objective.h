@@ -318,6 +318,7 @@ struct MultiNomialChoice : BlackBox {
     /** vector or matrix of likelihods.**/      lk;
 	MultiNomialChoice(L,fn,Y,Xvars);
     SetD();
+    Estimate();
 	}
 
 /** Container for normally-distributed multinomial discrete choice reduced-form models.**/

@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><link rel="icon" href="icons/favicon16.png" type="image/png">
-<link rel="stylesheet" type="text/css" href="../oxdoc.css">
-<link rel="stylesheet" type="text/css" media="print" href="../print.css">
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="print.css">
+<script type="text/javascript" async  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
 <title>DDP.ox - Derived Dynamic Programs</title>
 </head>
 <body>
 <div class="header">
-[ <img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.htm">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
 <img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
  | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
@@ -293,7 +292,7 @@ EV &\equiv \max_{A} U(\alpha) = U(\alpha^\star) = 4.2.\cr}$$</span>
 <P/>
     <DD>You may think that the line that says <code>maj</code> contains an <code>ActionVariable</code> would add <code>maj</code> to the model automatically.  It would be possible to make it work that way, but for other aspects of DP models (namely state variables) it is easier to separate the creation of a variable from including it in the model. So to be consistent, the same procedure is followed for action variables.</DD>
 <P/>
-    <DD>The last thing <code>Decide()</code> does is call a routine <a href="Methods.ox.html#VISolve">VISolve</a>(), where "VI" stands for "value iteration."   That is a technique for solving a dynamic programming problem. This one state model is the most simple example of a DP problem, but one part of value iteration is to solve for the optimal choice at each state.  This is where <span class="n">DDP</span> will actually solve Bob's problem.</DD>
+    <DD>The last thing <code>Decide()</code> does is call a routine VISolve(), where "VI" stands for "value iteration."   That is a technique for solving a dynamic programming problem. This one state model is the most simple example of a DP problem, but one part of value iteration is to solve for the optimal choice at each state.  This is where <span class="n">DDP</span> will actually solve Bob's problem.</DD>
 <P/>
     <DT><code>BobsChoice::Utility(){ &hellip;}</code></DT>
     <DD>Any DDP problem has a utility, and here is Bob's.  In general, the utility has to return (send back to where the utility was called) a vector in the same order as the actions <span class="expressions">\(\alpha\)</span>.  The use of <code>&lt; -20; &hellip; &gt;</code> is the way Ox lets you hard-code a vector or matrix of numbers.   So the list of utilities above has been copied and written in that format.  We should definitely check that the action variables are organized so that the numbers match up: we wouldn't want Bob to mistakenly go to McGill and major in Physics.</DD>
@@ -355,9 +354,9 @@ Here is what is important to gather from the example and code above.
 <OL class="steps">
     <LI>At the heart of a <span class="n">DDP</span> model is discrete choice.  Discrete dynamic programming links together many different discrete choices that are connected by state variables that evolve base on the choices made.</LI>
     <LI>In <span class="n">DDP</span> you build your model by defining a <em>class</em> that is derived from one of the built-in <a href="Bellman.ox.html#Bellman">Bellman</a> classes.  The simplest model to build from is <a href="Bellman.ox.html#OneStateModel">OneStateModel</a>, which is a single discrete choice (one state, no dynamics, etc).</LI>
-    <LI>The discrete choice <span class="expressions">\(\alpha\)</span> is a vector of action variables, each taking on a finite number of values.  Your model builds <span class="expressions">\(\alpha\)</span> by creating new <a href="Variables.ox.html#ActionVariable">ActionVariable</a>s and adding them.  With a <a href="Bellman.ox.html#OneStateModel">OneStateModel</a> you send all the action variables to <a href="Bellman.ox.html#OneStateModel___Initialize">Initialize</a>().  In general your code will add action variables yourself after calling <code>Initialize()</code>.</LI>
+    <LI>The discrete choice <span class="expressions">\(\alpha\)</span> is a vector of action variables, each taking on a finite number of values.  Your model builds <span class="expressions">\(\alpha\)</span> by creating new <a href="Variables.ox.html#ActionVariable">ActionVariable</a>s and adding them.  With a <a href="Bellman.ox.html#OneStateModel">OneStateModel</a> you send all the action variables to OneStateModel::Initialize().  In general your code will add action variables yourself after calling <code>Initialize()</code>.</LI>
     <LI>Your model must supply a <code>Utility()</code> which returns a vector of numbers corresponding to the elements of the feasible set <span class="expressions">\(A\)</span>.</LI>
-    <LI>The optimal choice for the model can be found by calling <a href="Methods.ox.html#VISolve">VISolve</a>(), which does several things. For a one state model it simply finds <span class="expressions">\(\alpha^\star\)</span>, the maximizing action.  </LI>
+    <LI>The optimal choice for the model can be found by calling VISolve(), which does several things. For a one state model it simply finds <span class="expressions">\(\alpha^\star\)</span>, the maximizing action.  </LI>
 </OL>
 <P/>
 <h2>Exercises</h2>
@@ -427,7 +426,7 @@ Again, <span class="n">DDP</span> generalizes the standard probit by varying how
 <pre>Initialize(new BobsChoice(),0,maj,sch)
 </pre></DD>
 <P/>
-<DD>As you can see from the documentation of <a href="Bellman.ox.html#OneStateModel___Initialize">Initialize</a>(), the second argument is the smoothing method choice. To avoid having to explain everything at once, it was set to 0 in the code, which is the default choice in the general <code>ExPostSmoothing</code> class.</DD>
+<DD>As you can see from the documentation of OneStateModel::Initialize(), the second argument is the smoothing method choice. To avoid having to explain everything at once, it was set to 0 in the code, which is the default choice in the general <code>ExPostSmoothing</code> class.</DD>
 <P/>
 <DD>Another more descriptive way to send 0 is to use a name for zero that is defined in <span class="n">DDP</span> in order to make the internal code easier to follow and debug:
 <pre>Initialize(new BobsChoice(),NoSmoothing,maj,sch)
@@ -479,7 +478,7 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 <P/>
 <DT>State Variables</DT>
 <P/>
-    <DD>The <a href="Variables.ox.html#StateVariable">StateVariable</a> class is designed to represents state variables in a dynamic program.  Like action variables, the user's code creates state variable, stores them in a <code>static</code> member of the model class, and then adds them to the model. <span class="n">DDP</span> then incorporates them into the state space and the solution methods. </DD>
+    <DD>The StateVariable class is designed to represents state variables in a dynamic program.  Like action variables, the user's code creates state variable, stores them in a <code>static</code> member of the model class, and then adds them to the model. <span class="n">DDP</span> then incorporates them into the state space and the solution methods. </DD>
 <P/>
     <DD>Unlike action variables, which are mainly different only in the number of values they can take on, state variables differ from each in a lot of ways. So <span class="n">DDP</span> provides a number of different kinds of state variables to add to a model as well as the possibility of defining your own type if it does not exist already. However, in this simple static situation, the base <code>StateVariable</code> class will suffice.  So Bob's award status will be of that class.</DD>
 <P/>
@@ -512,15 +511,15 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 <DT>Changes to <code>Decide</code></DT>
     <DD>We still need to <code>Initialize</code> the model, but the Bellman version of <code>Initialize</code> is different than the very special OneStateModel version.  It does not allow you to list actions.  <code> SetClock(StaticProgram)</code> says that this is a static (but possibly multi-state) model.</DD>
 <P/>
-    <DD><code>Actions(maj,sch)</code>:  Except in specialized models like OneStateModel, action variables are added to the model by sending them to <a href="DP.ox.html#DP___Actions">Actions</a>().  </DD>
+    <DD><code>Actions(maj,sch)</code>:  Except in specialized models like OneStateModel, action variables are added to the model by sending them to DP::Actions().  </DD>
     <DD><code>Qsch = new StateVariable("Qsch",2)</code>:  this creates a basic state variable that takes on two values.</DD>
     <DD><code>EndogenousStates(Qsch);</code>: As mentioned earlier, different kinds of states are tracked in <span class="n">DDP</span> and here we have added <code>Qsch</code> to the <em>endogenous</em> state space.
-    <DD><code>CreateSpaces()</code>: In the first example this routine is called inside <a href="Bellman.ox.html#OneStateModel___Initialize">Initialize</a>().  But in all other kinds of models, the user calls this method themselves once they have added all the elements to model.  Each kind of Bellman model has its own version of <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>(), and the one that is called is the one that the model is derived from (here <code>Bellman</code>'s own base version).  Sometimes arguments can or have to be sent to <code>CreateSpaces</code>, but often the default values apply and nothing is sent.</DD>
+    <DD><code>CreateSpaces()</code>: In the first example this routine is called inside OneStateModel::Initialize().  But in all other kinds of models, the user calls this method themselves once they have added all the elements to model.  Each kind of Bellman model has its own version of DP::CreateSpaces(), and the one that is called is the one that the model is derived from (here <code>Bellman</code>'s own base version).  Sometimes arguments can or have to be sent to <code>CreateSpaces</code>, but often the default values apply and nothing is sent.</DD>
 <P/>
 <DT>Utility</DT>
     <DD>Utility now returns a different vector depending on whether <code>Qsch</code> equals 0 or 1. <code>Qsch</code> is the state variable and takes on 2 values, 0 and 1.  We set utility up so that a value of 1 indicates the Queen's scholarship was received and its value should be added to the utility of Queen's programs when choosing where to go.  The underlying code will call <code>Utility</code> for all values of all states added to the model.  </DD>
 <P/>
-    <DD>The value of <code>Qsch</code> when called can be accessed a couple different ways.  One way is directly:  <code>Qsch.v</code> will hold either 0 or 1 when Utility is called.  Or the state variable can be sent to <a href="Shared.ox.html#CV">CV</a>() which will access the value return it.  <code>CV()</code> is a flexible way of incorporating state variables, parameters and even constants in your model in such way that it looks the same regardless of the kind of thing it is.</DD>
+    <DD>The value of <code>Qsch</code> when called can be accessed a couple different ways.  One way is directly:  <code>Qsch.v</code> will hold either 0 or 1 when Utility is called.  Or the state variable can be sent to CV() which will access the value return it.  <code>CV()</code> is a flexible way of incorporating state variables, parameters and even constants in your model in such way that it looks the same regardless of the kind of thing it is.</DD>
 <P/>
     <DD>The trickier thing to understand at this point is accessing values of the school choice, which is an action variable not a state variable.  Looking at the list of labels associated with <code>sch</code>, Queen's is the 3rd value, or <code>2</code> since we start actions at 0.  Ox's <code>.==</code> operator will compare a vector to a value and return a vector of 0s and 1s for whether corresponding element equals the value.</DD>
 <P/>
@@ -547,7 +546,7 @@ Here <code>NoSmoothing</code> is really just a name for the number 0.  It is one
 <h2>Coding Bob's New Choice in <span class="n">DDP</span></h2>
 <P/>
 <DT><code>FeasibleActions()</code></DT>
-    <DD>To restrict feasible actions, the user provides a <em>method</em> that returns a column vector of 0s and 1s.  This column vector depends on the current state of the model. A 1 indicates the action (row) is feasible at the state, 0 means infeasible.  The user's method is called by <span class="n">DDP</span> inside <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() for each possible state.   </DD>
+    <DD>To restrict feasible actions, the user provides a <em>method</em> that returns a column vector of 0s and 1s.  This column vector depends on the current state of the model. A 1 indicates the action (row) is feasible at the state, 0 means infeasible.  The user's method is called by <span class="n">DDP</span> inside DP::CreateSpaces() for each possible state.   </DD>
 <P/>
 <details><summary><b>The Code</b></summary>
 <DT>Source: <a href="javascript:popoxcode('../../examples/DDP/BobsChoiceC.ox');">niqlow/examples/DDP/BobsChoiceC.ox</a></DT>
@@ -590,12 +589,12 @@ Here is what is important to gather from the examples:
 <LI>Discrete dynamic programming links together many different discrete choices that are made at different states.</LI>
 <LI>A static problem with more than one state generalizes the <a href="Bellman.ox.html#OneStateModel">OneStateModel</a> introduced first but is a special case of sequential decisions made over time.</LI>
 <LI>More generally then in the one-state example, your code will call routines/methods to first  <em>initialize</em> the DP environment, then add state variables and action variables to the model then <em>create the spaces</em> implied by the items added to the model.  Then the model can be solved.</LI>
-<LI>Unlike the simple one state set up, you build the action vector <span class="expressions">\(\alpha\)</span> by sending action variables to <a href="DP.ox.html#DP___Actions">Actions</a>() which will add them to the model.  This is done between initializing and creating spaces.</LI>
+<LI>Unlike the simple one state set up, you build the action vector <span class="expressions">\(\alpha\)</span> by sending action variables to DP::Actions() which will add them to the model.  This is done between initializing and creating spaces.</LI>
 <LI>In <span class="n">DDP</span> timing is controlled by a clock and a static problem is specified by setting the clock as <code>StaticProgram</code>.  This is done between initializing and creating spaces.</LI>
-<LI>The discrete state vector <span class="expressions">\(\theta\)</span> is a vector of state variables, each taking on a finite number of values.  Your model builds <span class="expressions">\(\theta\)</span> by creating new state variable objects and adding them to your model using <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>(). </LI>
+<LI>The discrete state vector <span class="expressions">\(\theta\)</span> is a vector of state variables, each taking on a finite number of values.  Your model builds <span class="expressions">\(\theta\)</span> by creating new state variable objects and adding them to your model using DP::EndogenousStates(). </LI>
 <LI>Different states in the model can affect the utility of actions. The value of state variables can affect the set of feasible actions. </LI>
 <LI>Restrictions of actions is possible by providing a <code>FeasibleActions()</code> routine with your model.  It takes as an input argument the matrix of all possible actions, <span class="expressions">\(A\)</span>, and returns a column of 0s and 1s indicating which rows are feasible at the current state.</LI>
-<LI>As with <code>Utility()</code>, the <span class="n">DDP</span> code will always set the value of state variables before calling <code>FeasibleActions()</code>.  The value of a state variable is stored in its <code>.v</code> data member, or your code can send the state variable to <a href="Shared.ox.html#CV">CV</a>() which will return the value.</LI>
+<LI>As with <code>Utility()</code>, the <span class="n">DDP</span> code will always set the value of state variables before calling <code>FeasibleActions()</code>.  The value of a state variable is stored in its <code>.v</code> data member, or your code can send the state variable to CV() which will return the value.</LI>
 </OL>
 <P/>
 <h2>Exercises</h2>
@@ -661,7 +660,7 @@ That is, next period's value of <span class="expressions">\(A\)</span> will be w
 <P/>
 <h2>Terminal States</h2>
 <P/>
-In some environments decision-making ends when a particular state is reached.  These are called terminal states.  A value of state variable can be made terminal using <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>().
+In some environments decision-making ends when a particular state is reached.  These are called terminal states.  A value of state variable can be made terminal using StateVariable::MakeTerminal().
 <P/>
 <LI id="MD">Multiple Deciders</LI>
 <P/>
@@ -676,6 +675,6 @@ In some environments decision-making ends when a particular state is reached.  T
 <dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2021 <a href="https://ferrall.github.io/">Christopher Ferrall</a></dd></dd>
 </dl>
 <div class="footer">
-Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1</a> &copy Copyright 2005-2014 by Y. Zwols<br>
 Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
 </div>

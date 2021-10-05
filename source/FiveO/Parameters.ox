@@ -313,11 +313,15 @@ ParameterBlock::Menu(fp) {
     fprintln(fp,"</fieldset>");
     }
 
+/** create a new vector of parameters that are not changed by algorithms.
+@param L label
+@param v0 vector or array of values.
+**/
 FixedBlock::FixedBlock(L,v0) {
 	decl i,v;
 	ParameterBlock(L);
 	foreach(v in v0[i]) AddToBlock(new Determined(L+sprint(i),v));
-	for(i=0;i<sizeof(v0);++i) AddToBlock(new Determined(L+sprint(i),v0[i]));
+	//for(i=0;i<sizeof(v0);++i) AddToBlock(new Determined(L+sprint(i),v0[i]));
 	}
 	
 FixedBlock::Encode() { return constant(.NaN,N,1); }

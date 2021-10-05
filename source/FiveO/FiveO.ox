@@ -20,3 +20,13 @@ Explore(model,Ncalls,Chol,...) {
     delete srch;
     delete obj;
     }
+MultiNomialChoice::Estimate() {
+	decl j,se,bhhh = new BHHH(this);
+	bhhh->Iterate(0);
+	for (j=1;j<J;++j)  {
+		se = vcur.SE[(j-1)*nX:j*nX-1]';
+		println("Y = ","%2.0f",Jvals[j],"%c",{"Estimate","Std.Err","t-ratio"},"%r",namearray,
+			betas[j].v~se~(betas[j].v./se));
+		}
+    delete bhhh;
+	}
